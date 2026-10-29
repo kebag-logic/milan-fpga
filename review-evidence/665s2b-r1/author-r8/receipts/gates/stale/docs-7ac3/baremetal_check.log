@@ -1,0 +1,6 @@
+$ (cd .) python3 scripts/check_baremetal_only.py --check
+  - sw/firmware/ctrl/plat/mbx_dma.h:39: [H] retired target host-plane surface 'DMA_RING': '#define MBX_DMA_RING_MASK_LSB 16u' (#259: no dormant target driver/memory-ring contract)
+  - sw/firmware/ctrl/plat/mbx_dma.h:59: [H] retired target host-plane surface 'DMA_RING': '*mbx_dma_reg(MBX_DMA_REG_RING) = (base >> 2) | ((words - 1u) << MBX_DMA_RING_MASK_LSB);' (#259: no dormant target driver/memory-ring contract)
+baremetal-only: FAIL (2 finding(s) across 1441 scanned file(s))
+rc=1
+tree clean after the gate

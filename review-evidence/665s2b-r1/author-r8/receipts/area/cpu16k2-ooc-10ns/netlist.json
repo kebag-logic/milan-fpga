@@ -1,0 +1,27 @@
+{
+ "netlist": "VexiiRiscvLitex_a2b3af48835516899a4f0ca5650d3edf",
+ "vexii_args": " --with-isa=,zicsr,m,zifencei,zmmul,i --xlen=32 --with-mul --with-div --fetch-l1 --fetch-l1-sets=128 --fetch-l1-ways=2 --lsu-l1 --lsu-l1-sets=128 --lsu-l1-ways=1 --reset-vector 0",
+ "plan": {
+  "rom": {
+   "bytes": 97192,
+   "banks": [
+    65536,
+    32768
+   ],
+   "RAMB36": 24,
+   "RAMB18": 0
+  },
+  "sram": {
+   "bytes": 44624,
+   "banks": [
+    32768,
+    8192,
+    4096
+   ],
+   "RAMB36": 11,
+   "RAMB18": 0
+  },
+  "tiles": 35.0,
+  "budget_tiles": 56
+ }
+}

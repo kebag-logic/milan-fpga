@@ -1,0 +1,55 @@
+HEAD 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 DIRTY 0
+-- The C compiler identification is GNU 16.2.1
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Configuring done (0.6s)
+-- Generating done (0.0s)
+-- Build files have been written to: <scratch>/donor/build-base
+[  4%] Building C object CMakeFiles/shlan.dir/src/ports/alloc.c.o
+[ 16%] Building C object CMakeFiles/shlan.dir/src/ports/timer.c.o
+[ 16%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[ 16%] Building C object CMakeFiles/shlan.dir/src/core/mrp_pdu.c.o
+[ 20%] Building C object CMakeFiles/shlan.dir/src/core/switch.c.o
+[ 25%] Building C object CMakeFiles/shlan.dir/src/modules/sim_adapter.c.o
+[ 29%] Building C object CMakeFiles/shlan.dir/src/modules/mvrp.c.o
+[ 33%] Building C object CMakeFiles/shlan.dir/src/modules/mmrp.c.o
+[ 37%] Building C object CMakeFiles/shlan.dir/src/modules/msrp.c.o
+[ 41%] Building C object CMakeFiles/shlan.dir/tests/features/switch_bindings.c.o
+[ 45%] Linking C shared library libshlan.so
+[ 45%] Built target shlan
+[ 54%] Building C object CMakeFiles/unit_tests.dir/tests/unit/fault_alloc.c.o
+[ 54%] Building C object CMakeFiles/unit_tests.dir/tests/unit/main.c.o
+[ 58%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrp_pdu_test.c.o
+[ 62%] Building C object CMakeFiles/unit_tests.dir/tests/unit/timer_test.c.o
+[ 66%] Building C object CMakeFiles/unit_tests.dir/tests/unit/msrp_values_test.c.o
+[ 70%] Building C object CMakeFiles/unit_tests.dir/tests/unit/receive_test.c.o
+[ 75%] Building C object CMakeFiles/unit_tests.dir/tests/unit/transmit_test.c.o
+[ 79%] Building C object CMakeFiles/unit_tests.dir/tests/unit/integration_test.c.o
+[ 83%] Building C object CMakeFiles/unit_tests.dir/tests/unit/milan_test.c.o
+[ 87%] Building C object CMakeFiles/unit_tests.dir/tests/unit/review_test.c.o
+[ 91%] Building C object CMakeFiles/unit_tests.dir/tests/unit/grouping_test.c.o
+[ 95%] Building C object CMakeFiles/unit_tests.dir/tests/unit/mrpdu_decoder.c.o
+[100%] Linking C executable unit_tests
+[100%] Built target unit_tests
+Test project <scratch>/donor/build-base
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    7.94 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   7.94 sec
+Running "main" (102 tests)...
+  "mrp_pdu_suite": 1690 passes in 244ms.
+  "timer_suite": 14 passes in 45ms.
+  "msrp_values_suite": 23 passes in 72ms.
+  "receive_suite": 83 passes in 252ms.
+  "transmit_suite": 106 passes in 324ms.
+  "integration_suite": 387 passes in 793ms.
+  "milan_suite": 442 passes in 1226ms.
+  "boundaries_suite": 17156 passes in 1806ms.
+  "grouping_suite": 6757 passes in 1376ms.
+Completed "main": 26658 passes in 6156ms.
+rc=0

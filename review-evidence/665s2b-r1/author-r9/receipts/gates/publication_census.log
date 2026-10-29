@@ -1,0 +1,168 @@
+HEAD 01879189b18b563647cd99459980769c75b31e8c
+$ (cd .) python3 sw/mailbox/publication_census.py --check --selftest --jobs 4
+publication census: elaborating hdl/milan/milan_datapath.sv with sv2v v0.0.12, Yosys 0.66
+shape recipe: 112787 cells, 1326 named nets; 39 read(s), 4 unread net(s); the module's defaults
+shape endstation_arty_4x4: 266792 cells, 1357 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_I2S_PAIR_P=1 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=8 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=4 PP_DESC_BASE_P=1336934400 PP_RESP_BASE_P=1337978880 TALKER_WIRE_CHANS_P=4
+shape endstation_arty_8ch: 310488 cells, 1357 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_I2S_PAIR_P=1 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=8 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=4 PP_DESC_BASE_P=1336934400 PP_RESP_BASE_P=1337978880 TALKER_WIRE_CHANS_P=8
+shape endstation_arty_current: 112786 cells, 1326 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_SLOTS_P=0 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=1 PP_DESC_BASE_P=1340080128 PP_RESP_BASE_P=1341124608
+shape endstation_ax7101_1x1_tdm8: 116915 cells, 1331 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_MASTER_P=1 AUDIO_IF_RENDER_SLOTS_P=8 AUDIO_IF_SLOTS_P=8 GPTP_EGRESS_LAT_NS_P=219 GPTP_INGRESS_LAT_NS_P=656 GPTP_PLANE_EN_P=1 I2SPB_P=0 LOOPBACK_P=1 LPF_P=0 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=1 PP_DESC_BASE_P=2138046464 PP_RESP_BASE_P=2139090944 TALKER_WIRE_CHANS_P=8
+shape endstation_ax7101_8x8: 543839 cells, 1376 named nets; 39 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=98304000 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=32 DPROBES_P=0 GPTP_EGRESS_LAT_NS_P=219 GPTP_INGRESS_LAT_NS_P=656 GPTP_PLANE_EN_P=1 I2SPB_P=0 LPF_P=0 LTAP_P=0 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=8 PP_DESC_BASE_P=2138046464 PP_RESP_BASE_P=2139090944 TALKER_WIRE_CHANS_P=8
+== publication census: 6 shape(s), checks: 234   failures: 0 ==
+25 class-D net(s) from the wrapper cell's ports, 4 unread; 39 read(s) of 21 class-D net(s) in each shape; RESULT: PASS
+publication census: 6 shape(s) elaborated and classified in 274 s at --jobs 4
+[ok] planted R583-5 S1: a read inside a generate branch only N_STREAMS > 1 builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-5 S2: a read inside a generate loop with no iteration at one stream: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_v reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-5 S3: a read inside a generate branch only LOOPBACK_P != 0 builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R582-5 arm B: a read inside if (N_STREAMS > 1) begin ... end: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R582-5 arm E: a status consumer added to the g_aaf_stream_en loop's gate: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at aaf_packetizer.stream_en_i; chan_map_capture.map_wr_addr_i; chan_map_capture.map_wr_data_i; chan_map_capture.map_wr_en_i; chan_map_render.map_wr_addr_i; chan_map_render.map_wr_data_i; chan_map_render.map_wr_en_i; csr.i_pp_nvm_blank; csr.i_pp_restore_busy; csr.i_pp_restore_done; csr.i_pp_restore_fail; csr.i_tlk_gate_v; media_clock_restart.streaming_i; pp_shadow.amap_alarm_i; pp_shadow.amap_data_i; pp_shadow.amap_edit_data_i; pp_shadow.amap_edit_wait_i; pp_shadow.amap_live_wr_i; pp_shadow.amap_unflushed_i; pp_shadow.amap_wait_i; pp_shadow.enable_i; pp_shadow.mrec_abort_i; pp_shadow.mrec_len_i; pp_shadow.mrec_op_i; pp_shadow.mrec_region_i; pp_shadow.mrec_req_i; pp_shadow.mrec_rready_i; pp_shadow.mrec_wdata_i; pp_shadow.mrec_wvalid_i; talker_diag.streaming_i)
+[ok] planted a read inside a generate branch only a multi-stream shape's header builds: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted a field read that reaches CSR read-back only in the multi-stream shapes: refused (the reads differ between the shapes: pp_aecp_strm_started_w -> acmpl_stopped_v_w reaching csr, wire only in endstation_arty_4x4)
+[ok] positive control, the tracked sources: 0 finding(s)
+[ok] negative control, a class-D wire named in a comment: 0 finding(s)
+[ok] planted an unmapped read on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_class_a_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted an unmapped read in a declaration's initialiser: refused (unmapped read: pp_cd_srp_granted_slope_bps_w -> planted_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted an unmapped read in an always block's condition: refused (unmapped read: pp_cd_srp_lstn_decl_state_w -> crft_stat_c reaches csr; name its block field or its ruled exclusion)
+[ok] planted a status read on the wire: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a GET_STREAM_INFO read on the wire: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted the started level dropped from the accept: refused (unmapped read: pp_cd_acmp_bound_w -> acmpl_stopped_v_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R582-2: a class-D output wired off the pp_cd_ prefix and read on the wire: refused (unmapped read: probe_dom_chg_w -> crft_class_a_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R582-2: an alias wire read on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_alias_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R582-2: a case selector in an always block: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_stat_c reaches csr; name its block field or its ruled exclusion)
+[ok] planted R582-2: a case item label in an always block: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_stat_c reaches csr; name its block field or its ruled exclusion)
+[ok] planted R582-2: a function body called on the wire: refused (unmapped read: pp_cd_srp_over_limit_w -> crft_class_a_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-2: a plain assign on the wire (its control): refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-2: a case item label in an always_comb: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-2: a positional port connection: refused (unmapped read: pp_cd_srp_over_limit_w -> u_probe_pos.a reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-2: an implicit .name port connection: refused (unmapped read: pp_cd_srp_over_limit_w -> u_probe_dot.pp_cd_srp_over_limit_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-2: a function body's return: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R582-3: lwsrp_talker_declared routed to the wire by a plain assign (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted R582-3: lwsrp_talker_declared routed to the wire by a positional port: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_pos.a)
+[ok] planted R582-3: lwsrp_talker_declared routed to the wire by an implicit .name port: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_dot.lwsrp_talker_declared)
+[ok] planted R582-3: lwsrp_talker_declared routed to the wire by a case item label: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted R582-3: lwsrp_talker_declared routed to the wire by a function body's return: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted R583-3: lwsrp_talker_declared as a register's event control: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-3: lwsrp_talker_declared on an input port whose name ends in _o: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_o)
+[ok] planted R582-3: gsi_tkdcl_w routed to the wire by a plain assign (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted R582-3: gsi_tkdcl_w routed to the wire by a positional port: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_pos.a)
+[ok] planted R582-3: gsi_tkdcl_w routed to the wire by an implicit .name port: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_dot.gsi_tkdcl_w)
+[ok] planted R582-3: gsi_tkdcl_w routed to the wire by a case item label: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted R582-3: gsi_tkdcl_w routed to the wire by a function body's return: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted R583-3: gsi_tkdcl_w as a register's event control: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-3: gsi_tkdcl_w on an input port whose name ends in _o: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_o)
+[ok] planted R582-3 part 2: a positional port naming a status consumer, its output unused: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_pos.a)
+[ok] planted R583-3: a plain assign from the status consumer (its control): refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-3: a case item label naming the status consumer: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-3: a function body returning the status consumer: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-3: the status consumer as a register's event control: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-3: the status consumer on an input port whose name ends in _o: refused (pp_cd_srp_active_w -> lwsrp_res_active: counted as status, but it reaches the wire at u_probe_sink.a_o)
+[ok] planted a relational <= in a case item label: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a function's output argument: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a task's output argument: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a macro call's argument, the macro defined in an included file: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted the second assignment of a continuous assign list: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a read carried to another target of its block: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a struct member carrying the status consumer: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at crf_tx.vlan_en_i)
+[ok] planted a status consumer written into a memory and read out of it: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted a status consumer printed: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at $display$0x556fd71938f0:4462$32751.ARGS ($print, which has no output))
+[ok] planted a CSR block input outside the read-back face: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at csr.i_tlk_gate_v)
+[ok] planted a read-back port of another milan_csr cell: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_csr.i_lwsrp_status)
+[ok] planted a wrapper input outside its answer face: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at pp_shadow.cfg_maap_internal_i)
+[ok] planted R582-4: lwsrp_talker_declared, always_ff begin, an if-begin block (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E1: lwsrp_talker_declared, always_ff with no begin after the event control: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E2: lwsrp_talker_declared, always_ff with no begin, if/else: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E3: lwsrp_talker_declared, always_comb with no begin, case: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E4: lwsrp_talker_declared, an event control qualified by iff: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:6864:32: Parse error: unexpected token 'iff' (KW_iff))
+[ok] planted R582-4: lwsrp_talker_declared, a plain blocking assignment (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E5: lwsrp_talker_declared, a compound assignment |=: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4: lwsrp_talker_declared, alias with the consumer on the right (its control): refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:6864:3: Parse error: missing expected `endmodule`)
+[ok] planted R582-4 E6: lwsrp_talker_declared, alias with the consumer on the left: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:6864:3: Parse error: missing expected `endmodule`)
+[ok] planted R582-4: gsi_tkdcl_w, always_ff begin, an if-begin block (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E1: gsi_tkdcl_w, always_ff with no begin after the event control: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E2: gsi_tkdcl_w, always_ff with no begin, if/else: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E3: gsi_tkdcl_w, always_comb with no begin, case: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E4: gsi_tkdcl_w, an event control qualified by iff: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:6864:32: Parse error: unexpected token 'iff' (KW_iff))
+[ok] planted R582-4: gsi_tkdcl_w, a plain blocking assignment (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4 E5: gsi_tkdcl_w, a compound assignment |=: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R582-4: gsi_tkdcl_w, alias with the consumer on the right (its control): refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:6864:3: Parse error: missing expected `endmodule`)
+[ok] planted R582-4 E6: gsi_tkdcl_w, alias with the consumer on the left: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:6864:3: Parse error: missing expected `endmodule`)
+[ok] planted R583-4: lwsrp_talker_declared, begin-less always_ff, if/else: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: lwsrp_talker_declared, begin-less always_ff, if/else with begin/end branches: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: lwsrp_talker_declared, begin-less always_ff, a case's default item: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: lwsrp_talker_declared, an event control nesting parentheses: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: lwsrp_talker_declared, the same if/else inside begin/end (its control): refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: gsi_tkdcl_w, begin-less always_ff, if/else: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: gsi_tkdcl_w, begin-less always_ff, if/else with begin/end branches: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: gsi_tkdcl_w, begin-less always_ff, a case's default item: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: gsi_tkdcl_w, an event control nesting parentheses: refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: gsi_tkdcl_w, the same if/else inside begin/end (its control): refused (pp_cd_srp_tk_decl_state_w -> gsi_tkdcl_w: counted as processor, but it reaches the wire at u_probe_sink.a_i)
+[ok] planted R583-4: a token-paste macro defined in an included file: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-4: the token-paste macro defined in the datapath (its control): refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-4: a macro in an included file holding a hierarchical reference into the wrapper: refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\pp_shadow.srp_over_limit_o' is implicitly declared and `default_nettype is set to none.)
+[ok] planted R583-4: a hierarchical reference into the wrapper (its control): refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\pp_shadow.srp_over_limit_o' is implicitly declared and `default_nettype is set to none.)
+[ok] planted R583-4: an escaped name holding // hides a read: refused (the census cannot read it: hdl/milan/milan_datapath.sv:6863: an escaped name holds a comment opener, `\probe//`; the front end (sv2v) reads the rest of its line as a comment, a read among it)
+[ok] planted an escaped name holding // drops a declaration's initialiser without an error: refused (the census cannot read it: hdl/milan/milan_datapath.sv:6863: an escaped name holds a comment opener, `\probe//`; the front end (sv2v) reads the rest of its line as a comment, a read among it)
+[ok] planted an escaped name holding /*: refused (the census cannot read it: hdl/milan/milan_datapath.sv:6863: an escaped name holds a comment opener, `\probe/*`; the front end (sv2v) reads the rest of its line as a comment, a read among it)
+[ok] planted R583-4: escaped names holding a double quote around a read: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted R583-4: a second driver as the population net's declaration initialiser: refused (pp_cd_srp_over_limit_w is driven by an assignment of the constant 0 besides the wrapper's class-D port srp_over_limit_o: a second driver)
+[ok] planted R583-4: a second driver as a continuous assign (its control): refused (pp_cd_srp_over_limit_w is driven by an assignment of the constant 0 besides the wrapper's class-D port srp_over_limit_o: a second driver)
+[ok] planted a class-D port left unconnected: refused (class-D port srp_over_limit_o is not connected)
+[ok] planted a class-D port the instance omits: refused (class-D port srp_over_limit_o is not connected)
+[ok] planted a class-D port driving more than one net: refused (class-D port srp_class_a_prio_o drives pp_cd_srp_class_a_prio_w, probe_p_w, not one whole named net)
+[ok] planted a class-D port connected by an implicit .name, no net of its name: refused (the census cannot read it: the front end (sv2v) refused the datapath: sv2v: implicit declaration of "srp_over_limit_o" but default_nettype is none)
+[ok] planted a class-D output the census does not list: refused (the wrapper declares class-D output srp_probe_level_o, which CLASS_D_PORTS does not list: review it)
+[ok] planted a class-D output declared beside another, on one line: refused (the wrapper declares class-D output srp_probe_level_o, which CLASS_D_PORTS does not list: review it)
+[ok] planted a class-D output moved out of the face: refused (CLASS_D_PORTS lists acmp_bound_eid_o, which the wrapper's class-D face does not declare)
+[ok] planted a wildcard port connection: refused (unmapped read: pp_cd_srp_over_limit_w -> u_probe_all.pp_cd_srp_over_limit_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted a hierarchical reference into the CSR block: refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\csr.i_lwsrp_status' is implicitly declared and `default_nettype is set to none.)
+[ok] planted a hierarchical reference through a generate scope: refused (the census cannot read it: the elaborator (Yosys) refused the datapath: ERROR: Identifier `\g_probe[0].csr.i_lwsrp_status' is implicitly declared and `default_nettype is set to none.)
+[ok] planted a read written in an included file: refused (unmapped read: pp_cd_srp_over_limit_w -> probe_inc_w reaches the wire; name its block field or its ruled exclusion)
+[ok] planted an include the front end cannot find: refused (the census cannot read it: the front end (sv2v) refused the datapath: hdl/milan/milan_datapath.sv:6863:71: Lexical error: Could not find file "probe_missing.svh", included from "hdl/milan/milan_datapath.sv")
+[ok] planted R583-5 R1: a status consumer driven to a new datapath output: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the wire at the datapath output probe_o)
+[ok] planted R583-5 R2: a status consumer ORed into the answer face's change strobe: refused (pp_cd_srp_tk_decl_state_w -> lwsrp_talker_declared: counted as status, but it reaches the processor wrapper)
+[ok] planted a field read whose only wire is cut: refused (pp_cd_srp_tk_decl_state_w -> crft_class_a_w: mapped to TALKER_DECL.DECLARED as read on the wire, but it reaches no wire)
+[ok] planted a second driver of a net outside the population: refused (crft_class_a_w has two drivers, an assignment of an expression, an assignment of the constant 0: the census cannot tell which its readers see)
+[ok] planted two class-D ports driving one net: refused (class-D ports srp_domain_change_o and srp_over_limit_o drive one net, pp_cd_srp_over_limit_w)
+[ok] planted the wrapper's cell renamed: refused (the census cannot read it: the datapath holds KL_pp_shadow cell(s) ['probe_shadow']; the census reads one, pp_shadow)
+[ok] planted the CSR block's cell renamed: refused (the census cannot read it: the datapath holds no milan_csr cell named csr)
+[ok] planted a class-D output named again in a block comment of the port list: refused (the wrapper's port list declares output srp_active_o 2 times, or never: the census cannot tell its section)
+[ok] planted the started level's port renamed: refused (the wrapper declares no output aecp_strm_started_o)
+[ok] planted an sv2v other than the pinned release: refused (the census elaborates with the pinned sv2v v0.0.12 and Yosys v0.66 (.github/workflows/rtl-fast.yml), not `sv2v v0.0.13` and `Yosys 0.66`: set SV2V and YOSYS to the pinned tools)
+[ok] planted a Yosys other than the pinned version: refused (the census elaborates with the pinned sv2v v0.0.12 and Yosys v0.66 (.github/workflows/rtl-fast.yml), not `sv2v v0.0.12` and `Yosys 0.67`: set SV2V and YOSYS to the pinned tools)
+[ok] planted a field the contract lacks: refused (pp_cd_srp_tk_decl_state_w -> crft_class_a_w: the census names TALKER_DECL.DECLARE, which the publication block does not define)
+[ok] planted a stale row: refused (stale row: the datapath no longer reads pp_cd_srp_granted_slope_bps_w into lwsrp_idle_slope)
+selftest: 0 of 120 arm(s) failed; 120 arm(s) and their rules' removals in 961 s at --jobs 4
+[ok] rule shapes: removed, it lets through every one of its 2 arm(s), e.g. R583-5 S1: a read inside a generate branch only N_STREAMS > 1 builds
+[ok] rule shape-params: removed, it lets through every one of its 3 arm(s), e.g. R583-5 S2: a read inside a generate loop with no iteration at one stream
+[ok] rule shape-header: removed, it lets through every one of its 1 arm(s), e.g. a read inside a generate branch only a multi-stream shape's header builds
+[ok] rule same-across-shapes: removed, it lets through every one of its 1 arm(s), e.g. a field read that reaches CSR read-back only in the multi-stream shapes
+[ok] rule pins: removed, it lets through every one of its 2 arm(s), e.g. an sv2v other than the pinned release
+[ok] rule opener-guard: removed, it lets through every one of its 3 arm(s), e.g. R583-4: an escaped name holding // hides a read
+[ok] rule keep-names: removed, it lets through every one of its 1 arm(s), e.g. positive control, the tracked sources
+[ok] rule one-wrapper: removed, it lets through every one of its 1 arm(s), e.g. the wrapper's cell renamed
+[ok] rule csr-cell: removed, it lets through every one of its 1 arm(s), e.g. the CSR block's cell renamed
+[ok] rule face-listed: removed, it lets through every one of its 2 arm(s), e.g. a class-D output the census does not list
+[ok] rule face-declared: removed, it lets through every one of its 1 arm(s), e.g. a class-D output moved out of the face
+[ok] rule face-placed: removed, it lets through every one of its 1 arm(s), e.g. a class-D output named again in a block comment of the port list
+[ok] rule started-port: removed, it lets through every one of its 1 arm(s), e.g. the started level's port renamed
+[ok] rule port-connected: removed, it lets through every one of its 2 arm(s), e.g. a class-D port left unconnected
+[ok] rule port-one-net: removed, it lets through every one of its 1 arm(s), e.g. a class-D port driving more than one net
+[ok] rule ports-distinct: removed, it lets through every one of its 1 arm(s), e.g. two class-D ports driving one net
+[ok] rule sole-driver: removed, it lets through every one of its 2 arm(s), e.g. R583-4: a second driver as the population net's declaration initialiser
+[ok] rule two-drivers: removed, it lets through every one of its 1 arm(s), e.g. a second driver of a net outside the population
+[ok] rule every-input: removed, it lets through every one of its 4 arm(s), e.g. an unmapped read in an always block's condition
+[ok] rule memory: removed, it lets through every one of its 1 arm(s), e.g. a status consumer written into a memory and read out of it
+[ok] rule output-is-wire: removed, it lets through every one of its 1 arm(s), e.g. R583-5 R1: a status consumer driven to a new datapath output
+[ok] rule no-output-end: removed, it lets through every one of its 1 arm(s), e.g. a status consumer printed
+[ok] rule terminal-cell: removed, it lets through every one of its 1 arm(s), e.g. a read-back port of another milan_csr cell
+[ok] rule csr-readback: removed, it lets through every one of its 1 arm(s), e.g. a CSR block input outside the read-back face
+[ok] rule processor-face: removed, it lets through every one of its 1 arm(s), e.g. a wrapper input outside its answer face
+[ok] rule unmapped: removed, it lets through every one of its 15 arm(s), e.g. an unmapped read on the wire
+[ok] rule unknown-field: removed, it lets through every one of its 1 arm(s), e.g. a field the contract lacks
+[ok] rule field-on-wire: removed, it lets through every one of its 1 arm(s), e.g. a field read whose only wire is cut
+[ok] rule off-wire: removed, it lets through every one of its 51 arm(s), e.g. a status read on the wire
+[ok] rule status-not-processor: removed, it lets through every one of its 1 arm(s), e.g. R583-5 R2: a status consumer ORed into the answer face's change strobe
+[ok] rule stale-row: removed, it lets through every one of its 1 arm(s), e.g. a stale row
+mutations: 0 of 31 rule(s) no arm proves
+elapsed=1236s
+tree: 0 changed path(s) after the gate
+rc=0

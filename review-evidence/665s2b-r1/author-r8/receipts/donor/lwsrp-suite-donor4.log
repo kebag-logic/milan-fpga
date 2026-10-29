@@ -1,0 +1,29 @@
+HEAD a9db3538df9b3b3f98a806c41854da4fdc62bda4 DIRTY 3
+-- Configuring done (0.2s)
+-- Generating done (0.0s)
+-- Build files have been written to: <scratch>/donor/build-donor
+[  4%] Building C object CMakeFiles/shlan.dir/src/core/mrp_mad.c.o
+[  8%] Linking C shared library libshlan.so
+[ 45%] Built target shlan
+[ 50%] Building C object CMakeFiles/unit_tests.dir/tests/unit/review_test.c.o
+[ 54%] Linking C executable unit_tests
+[100%] Built target unit_tests
+Test project <scratch>/donor/build-donor
+    Start 1: unit
+1/1 Test #1: unit .............................   Passed    9.76 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   9.77 sec
+Running "main" (105 tests)...
+  "mrp_pdu_suite": 1690 passes in 675ms.
+  "timer_suite": 14 passes in 49ms.
+  "msrp_values_suite": 23 passes in 68ms.
+  "receive_suite": 88 passes in 268ms.
+  "transmit_suite": 106 passes in 322ms.
+  "integration_suite": 387 passes in 785ms.
+  "milan_suite": 442 passes in 1172ms.
+  "boundaries_suite": 17183 passes in 2833ms.
+  "grouping_suite": 6757 passes in 1401ms.
+Completed "main": 26690 passes in 7596ms.
+rc=0

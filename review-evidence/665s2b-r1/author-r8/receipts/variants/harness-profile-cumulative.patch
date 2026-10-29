@@ -1,0 +1,267 @@
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+index 9911f94876..17e09a4670 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -267,6 +267,28 @@ def code_modules(mapfile: Path) -> tuple[list[str], list[tuple[int, int, int]]]:
+     return names, spans
+ 
+ 
++def code_functions(mapfile: Path) -> tuple[list[str], list[tuple[int, int, int]]]:
++    """Labelled test-only variant (#665 S2b round 6, not committed): each linked text input
++    section as its function (-ffunction-sections), labelled module:function."""
++    text = mapfile.read_text()
++    body = text[text.index('Linker script and memory map'):]
++    rows = re.findall(r'^ (\.text(?:\.\S+)?)\s+0x([0-9a-f]+)\s+0x([0-9a-f]+)\s+(\S+)$', body, re.M)
++    names: list[str] = []
++    spans = []
++    for section, start, size, path in rows:
++        if not int(size, 16):
++            continue
++        stem = Path(path).name
++        match = re.fullmatch(r'\d+-(.+)\.o', stem)
++        member = re.fullmatch(r'lib\w+\.a\((\w+)\.o\)', stem)
++        module = match.group(1) if match else f'rt_{member.group(1)}' if member else Path(stem).stem
++        label = f"{module}:{section.removeprefix('.text').removeprefix('.') or '.text'}"
++        names.append(label)
++        spans.append((int(start, 16), int(start, 16) + int(size, 16), len(names) - 1))
++    spans.sort()
++    return names, spans
++
++
+ def member_paths(native: Path) -> dict[str, tuple[str, str]]:
+     """Each observed module's C++ path from the root, and the prefix of its variables there.
+ 
+@@ -369,7 +391,20 @@ def lsu_bus(rows: list[tuple[str, str, str, str]], netlist: str) -> list[tuple[s
+     if cacheless:
+         return rows
+     return [(name, ctype, module, var.replace('LsuCachelessPlugin', 'LsuPlugin'))
+-            for name, ctype, module, var in rows if name not in ('lsu_cmd_id', 'lsu_rsp_id')]
++            for name, ctype, module, var in rows if name not in ('lsu_cmd_id', 'lsu_rsp_id')] + list(DCACHE_BUS)
++
++
++#: Labelled test-only variant (#665 S2b round 6, not committed): the data cache's memory bus.
++DCACHE_BUS = (
++    ('dread_cmd_fire', 'bool', 'VexiiRiscv', 'LsuL1Plugin_logic_bus_read_cmd_fire'),
++    ('dread_rsp_valid', 'bool', 'VexiiRiscv', 'LsuL1Plugin_logic_bus_read_rsp_valid'),
++    ('dread_rsp_ready', 'bool', 'VexiiRiscv', 'LsuL1Plugin_logic_bus_read_rsp_ready'),
++    ('dread_rsp_data', 'bool', 'VexiiRiscv', 'LsuL1Plugin_logic_bus_read_rsp_payload_withData'),
++    ('dwrite_cmd_valid', 'bool', 'VexiiRiscv', 'LsuL1Plugin_logic_bus_write_cmd_valid'),
++    ('dwrite_cmd_ready', 'bool', 'VexiiRiscv', 'LsuL1Plugin_logic_bus_write_cmd_ready'),
++    ('dwrite_cmd_last', 'bool', 'VexiiRiscv', 'LsuL1Plugin_logic_bus_write_cmd_payload_last'),
++    ('dwrite_rsp_valid', 'bool', 'VexiiRiscv', 'LsuL1Plugin_logic_bus_write_rsp_valid'),
++)
+ 
+ 
+ #: Functions whose entry the testbench reports (ENTRY lines): a probe's entry:<symbol> start.
+@@ -440,6 +475,12 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
+               'inline const char* const module_name[n_modules] = {' + ', '.join(f'"{n}"' for n in names) + '};',
+               'inline constexpr CodeSpan code_spans[] = {',
+               *[f'    {{0x{a:x}u, 0x{e:x}u, {m}u}},' for a, e, m in spans], '};']
++    fnames, fspans = code_functions(Path(spec['elf']).with_name('ctrl_app.map'))
++    lines += ['struct FuncSpan { std::uint32_t start, end; unsigned func; };',
++              f'constexpr unsigned n_funcs = {len(fnames)};',
++              'inline const char* const func_name[n_funcs] = {' + ', '.join(f'"{n}"' for n in fnames) + '};',
++              'inline constexpr FuncSpan func_spans[] = {',
++              *[f'    {{0x{a:x}u, 0x{e:x}u, {m}u}},' for a, e, m in fspans], '};']
+     (build_dir / 'budget_config.hpp').write_text('\n'.join(lines) + '\n')
+ 
+ 
+diff --git a/tb/verilator/ctrl_service_budget/grade.py b/tb/verilator/ctrl_service_budget/grade.py
+index e7354e5e4b..4591153174 100644
+--- a/tb/verilator/ctrl_service_budget/grade.py
++++ b/tb/verilator/ctrl_service_budget/grade.py
+@@ -193,6 +193,8 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
+             log.code = dict(kv.split('=', 1) for kv in rest)
+         elif kind in ('TRAP', 'BUSERR'):
+             log.traps.append(line)
++        elif kind in ('FUNCS', 'ILINES', 'CALLS'):
++            continue  # Labelled test-only variant (#665 S2b round 6, not committed): the profile's lines.
+         elif kind in ('FLASH', 'FLASHOP', 'REPLY', 'TXREADY', 'PC', 'FETCH'):
+             continue
+         elif kind == 'FAIL:':
+diff --git a/tb/verilator/ctrl_service_budget/observe.vlt b/tb/verilator/ctrl_service_budget/observe.vlt
+index b541433cf9..4090fa3fbd 100644
+--- a/tb/verilator/ctrl_service_budget/observe.vlt
++++ b/tb/verilator/ctrl_service_budget/observe.vlt
+@@ -39,3 +39,11 @@ public_flat_rd -module "KL_mbx_rx" -var "ch_r"
+ public_flat_rd -module "KL_mbx_evt" -var "wr_en_o"
+ public_flat_rd -module "KL_mbx_evt" -var "wr_addr_o"
+ public_flat_rd -module "KL_mbx_evt" -var "wr_data_o"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_read_cmd_fire"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_read_rsp_valid"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_read_rsp_ready"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_read_rsp_payload_withData"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_write_cmd_valid"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_write_cmd_ready"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_write_cmd_payload_last"
++public_flat_rd -module "VexiiRiscv" -var "LsuL1Plugin_logic_bus_write_rsp_valid"
+diff --git a/tb/verilator/ctrl_service_budget/sim_main.cpp b/tb/verilator/ctrl_service_budget/sim_main.cpp
+index 643449b8a1..5d47ffdcd4 100644
+--- a/tb/verilator/ctrl_service_budget/sim_main.cpp
++++ b/tb/verilator/ctrl_service_budget/sim_main.cpp
+@@ -18,6 +18,7 @@
+ #include <cstdlib>
+ #include <deque>
+ #include <fstream>
++#include <map>
+ #include <sstream>
+ #include <stdexcept>
+ #include <string>
+@@ -50,6 +51,30 @@ unsigned module_of(std::uint32_t pc) {
+     return pc < it->end ? it->module : n_modules;
+ }
+ 
++// Labelled test-only variant (#665 S2b round 6, not committed): the function a PC belongs to,
++// n_funcs when no linked section holds it, and what each function costs in a pass.
++unsigned func_of(std::uint32_t pc) {
++    const auto* end = std::end(func_spans);
++    const auto* it = std::upper_bound(std::begin(func_spans), end, pc,
++                                      [](std::uint32_t v, const FuncSpan& s) { return v < s.start; });
++    if (it == std::begin(func_spans)) return n_funcs;
++    --it;
++    return pc < it->end ? it->func : n_funcs;
++}
++bool is_helper(unsigned m) {
++    static const std::vector<bool> helpers = [] {
++        std::vector<bool> h(n_modules + 1, false);
++        for (unsigned k = 0; k < n_modules; ++k)
++            h[k] = std::string(module_name[k]) == "ctrl_mem" || std::string(module_name[k]).rfind("rt_", 0) == 0;
++        return h;
++    }();
++    return helpers[m];
++}
++struct FuncCost {
++    std::uint64_t cycles = 0, instr = 0, irefills = 0, irefill_wait = 0, io_wait = 0, drefills = 0, dbusy = 0,
++                  dwrites = 0, dwbusy = 0;
++};
++
+ struct Stat {
+     std::uint64_t count = 0, sum = 0, max = 0, min = ~0ULL;
+     void add(std::uint64_t v) { ++count; sum += v; max = std::max(max, v); min = std::min(min, v); }
+@@ -68,6 +93,9 @@ struct Pass {
+     unsigned mbx_writes = 0;
+     std::string writes;  // the mailbox writes, "cycle:word:value" each
+     std::array<std::uint64_t, n_modules + 1> module_cycles{};
++    std::vector<FuncCost> func = std::vector<FuncCost>(n_funcs + 1);
++    std::vector<std::pair<std::uint32_t, unsigned>> ilines;  // each instruction refill's line, in order
++    std::map<std::uint32_t, FuncCost> calls;  // a helper's costs by (helper << 16 | the function that called it)
+ };
+ 
+ struct Step { std::string op; std::vector<std::string> args; };
+@@ -243,11 +271,29 @@ private:
+         ++cpu_;
+         ++pass_.module_cycles[module_];
+         ++module_total_[module_];
++        ++pass_.func[func_].cycles;
++        if (helper_ != n_funcs) ++pass_.calls[(func_ << 16) | caller_].cycles;
++        if (dread_out_) ++pass_.func[func_].dbusy;
++        if (dwrite_out_) ++pass_.func[func_].dwbusy;
++        if (dread_cmd_fire(dut)) { ++dread_out_; ++pass_.func[func_].drefills; }
++        if (dread_rsp_valid(dut) && dread_rsp_ready(dut) && dread_out_) {
++            if (!dread_rsp_data(dut) || ++dread_beats_ == fetch_beats) { --dread_out_; dread_beats_ = 0; }
++        }
++        if (dwrite_cmd_valid(dut) && dwrite_cmd_ready(dut) && dwrite_cmd_last(dut)) { ++dwrite_out_; ++pass_.func[func_].dwrites; }
++        if (dwrite_rsp_valid(dut) && dwrite_out_) --dwrite_out_;
+         if (commit_valid(dut)) {
+             ++instr_;
+             ++pass_.instr;
+             last_pc_ = commit_pc(dut);
+             module_ = module_of(last_pc_);
++            const unsigned was = func_;
++            func_ = func_of(last_pc_);
++            ++pass_.func[func_].instr;
++            // A helper (ctrl_mem, a runtime member) is charged to the function that entered it.
++            const bool helper = is_helper(module_);
++            if (!helper) helper_ = n_funcs;
++            else if (helper_ == n_funcs) { helper_ = func_; caller_ = was; }
++            if (helper_ != n_funcs) ++pass_.calls[(func_ << 16) | caller_].instr;
+             if (trace_left_ && (tracing_ || (trace_from && last_pc_ == trace_from) || (trace_after_ && sys_ >= trace_after_))) {
+                 tracing_ = true;
+                 --trace_left_;
+@@ -269,6 +315,8 @@ private:
+             const auto r = region_of(fetch_address(dut));
+             ++pass_.fetch[r];
+             fetch_at_[fetch_cmd_id(dut)] = {cpu_, r, fetch_address(dut), 0};
++            ++pass_.func[func_of(fetch_address(dut))].irefills;
++            pass_.ilines.emplace_back(fetch_address(dut), 0u);
+             if (tracing_ && trace_left_) std::printf("FETCH %llu %08x\n", ull(cpu_), fetch_address(dut));
+             if (r == ROM || r == FLASH)
+                 for (unsigned k = 0; k < fetch_beats; ++k) note_code(fetch_address(dut) + 4u * k);
+@@ -284,6 +332,7 @@ private:
+                 at.beats = fetch_beats;
+                 fetch_lat_[at.region].add(cpu_ - at.start);
+                 pass_.fetch_wait[at.region] += cpu_ - at.start;
++                pass_.func[func_of(at.address)].irefill_wait += cpu_ - at.start;
+             }
+         }
+         if (lsu_cmd_valid(dut) && lsu_cmd_ready(dut)) {
+@@ -302,6 +351,7 @@ private:
+             (at.write ? store_lat_ : load_lat_)[at.region].add(wait);
+             if (at.region == MBX) (at.write ? mbx_write_ : mbx_read_).add(wait);
+             pass_.lsu_wait[at.region] += wait;
++            pass_.func[func_].io_wait += wait;
+         }
+     }
+ 
+@@ -348,6 +398,31 @@ private:
+             if (pass_.module_cycles[m])
+                 text += std::string(m < n_modules ? module_name[m] : "unmapped") + ":" + std::to_string(pass_.module_cycles[m]) + ",";
+         std::printf("%s W%s\n", text.c_str(), pass_.writes.c_str());
++        // The variant's profile of the pass: each function's cycles/instructions/I-refills/I-refill wait/
++        // IO wait/D-refills/D-refill busy/D-write-backs/D-write busy, and each I-refill's line.
++        std::string prof = "FUNCS " + std::to_string(passes_);
++        for (unsigned f = 0; f <= n_funcs; ++f) {
++            const auto& c = pass_.func[f];
++            if (!c.cycles && !c.irefills && !c.drefills) continue;
++            char b[256];
++            std::snprintf(b, sizeof b, " %s=%llu/%llu/%llu/%llu/%llu/%llu/%llu/%llu/%llu", f < n_funcs ? func_name[f] : "unmapped",
++                          ull(c.cycles), ull(c.instr), ull(c.irefills), ull(c.irefill_wait), ull(c.io_wait),
++                          ull(c.drefills), ull(c.dbusy), ull(c.dwrites), ull(c.dwbusy));
++            prof += b;
++        }
++        std::printf("%s\n", prof.c_str());
++        std::string lines = "ILINES " + std::to_string(passes_);
++        for (const auto& l : pass_.ilines) { char b[16]; std::snprintf(b, sizeof b, " %x", l.first); lines += b; }
++        std::printf("%s\n", lines.c_str());
++        std::string calls = "CALLS " + std::to_string(passes_);
++        for (const auto& [key, c] : pass_.calls) {
++            char b[256];
++            const unsigned callee = key >> 16, caller = key & 0xffffu;
++            std::snprintf(b, sizeof b, " %s<-%s=%llu/%llu", callee < n_funcs ? func_name[callee] : "unmapped",
++                          caller < n_funcs ? func_name[caller] : "unmapped", ull(c.cycles), ull(c.instr));
++            calls += b;
++        }
++        std::printf("%s\n", calls.c_str());
+     }
+ 
+     void flush_idle() const {
+@@ -485,6 +560,7 @@ private:
+     unsigned now_ms_ = 0;
+     std::uint32_t last_pc_ = 0;
+     unsigned module_ = n_modules;
++    unsigned func_ = n_funcs, dread_out_ = 0, dread_beats_ = 0, dwrite_out_ = 0, helper_ = n_funcs, caller_ = n_funcs;
+     std::array<std::uint64_t, n_modules + 1> module_total_{};
+     // An optional trace of committed PCs from the first commit at trace_from (a debugging aid).
+     std::uint64_t trace_left_ = std::getenv("BUDGET_TRACE_PCS") ? std::stoull(std::getenv("BUDGET_TRACE_PCS")) : 0;
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+index 58658d6071..b579bf5ccf 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -27,6 +27,7 @@ from __future__ import annotations
+ 
+ import contextlib
+ import json
++import os
+ import re
+ import sys
+ from pathlib import Path
+@@ -322,6 +323,9 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str =
+     geometry = fetch_l1_geometry(fetch_l1)
+     scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
+     sys_hz, cpu_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
++    # Labelled test-only variant (#665 S2b round 5, not committed): the CPU clock from
++    # CSB_CPU_HZ, the bus and the image unchanged.
++    cpu_hz = int(os.environ.get('CSB_CPU_HZ', cpu_hz))
+     with cpu.applied():
+         soc = milan_soc.MilanSoC(
+             platform, sys_hz, xlen=params['xlen'], cpu_count=params['cpu_count'], cpu=params['cpu'],

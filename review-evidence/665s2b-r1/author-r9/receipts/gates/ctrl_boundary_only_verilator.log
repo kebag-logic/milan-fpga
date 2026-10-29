@@ -1,0 +1,335 @@
+HEAD bf1773c0eabf0ba7fa1b1268c2a714e6b636e6eb
+$ (cd .) python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+no capture given: running every known builder the run judges under one
+    make -C tb/verilator/mbx: exit 0 (101 s)
+    sw/firmware/ctrl/test/maap_differential.py --self-test: exit 0 (183 s)
+    sw/firmware/ctrl/test/aecp_wire.py --every: exit 0 (192 s)
+capture: 1033 compiler invocations from 18 builder runs; every known builder held: third_party/tsn-c-stack/scripts/check_boundary.py, sw/firmware/ctrl/test/ctrl_image.py, sw/firmware/ctrl/test/ctrl_srp_image.py, sw/firmware/ctrl/test/ctrl_image_selftest.py, tb/verilator/mbx/Makefile, sw/firmware/ctrl/test/maap_differential.py, sw/firmware/ctrl/test/aecp_wire.py
+  LEFT OUT: sw/firmware/gtest/fw_rv32_selftest.py, which the run that holds the firmware builders judges (--only verilator)
+  LEFT OUT: sw/firmware/ctrl/test/test_ctrl_firmware.py, which the run that holds the firmware builders judges (--only verilator)
+  LEFT OUT: sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py, which the run that holds the firmware builders judges (--only verilator)
+  LEFT OUT: sw/firmware/gtest/fw_coverage.py, which the run that holds the firmware builders judges (--only verilator)
+  LEFT OUT: sw/litex/test_ctrl_memory.py, which the run that holds the firmware builders judges (--only verilator)
+  LEFT OUT: tb/verilator/milan_dp/stream_counter_f5.py, which the run that holds the firmware builders judges (--only verilator)
+  the builders found by text are cross-checked by the run that holds the firmware builders
+    ctrl_image.py, endstation_ax7101_1x1_tdm8 and endstation_ax7101_8x8: exit 0 (6 s)
+    ctrl_image_selftest.py: exit 0 (12 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 1 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_1x1_tdm8, 2 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 1 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --without-srp: exit 2, stopped at its link (2 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-srp: exit 2, stopped at its link (3 s)
+    ctrl_srp_image.py endstation_ax7101_8x8, 2 interface(s) --with-aecp: exit 2, stopped at its link (5 s)
+  LEFT OUT: boundary control the F5 builder removed from the registry, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the F5 builder's own capture is missing, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an unclassified copy of test_ctrl_memory.py, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an unclassified copy of ctrl_memory.py, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an unclassified copy of milan_soc.py, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the reset-entry builder's own capture is missing, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the reset entry includes a private stack header in the fifth capture, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the mailbox HAL, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the register-map contract, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the composition, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the store's port, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the loop through a macro, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack public header includes the platform's header, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control Q7: a store header shadows the C library's for the stack in the image build, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a firmware directory shadows a header the C library's own headers include, for the stack, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the mailbox HAL under the re-entry assertion, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the platform's header in a debug build, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the contract in a debug build with the re-entry assertion, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control stack source includes the AECP core's header, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a mode a builder compiles the stack with, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a mode a builder writes as two arguments, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a mode a new Makefile writes as two words, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a stack test includes the mailbox HAL, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a stack test includes the firmware's harness, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a stack test includes the platform's pool in its release build, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a stack public header includes the mailbox HAL for C++ only, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a stack test includes the AECP adapter, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control N1: a store source reaches a stack example, as the image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a store source reaches a stack file outside its public headers in the image build, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control firmware reaches a stack example's header, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control firmware header reaches a stack source by a relative path, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control image source reaches a stack file outside its public headers, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a firmware adapter reaches a stack source under the re-entry assertion, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control firmware tests a mode by its value, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an adapter reaches a stack source where a build leaves lwSRP's profile undefined, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the AECP core reaches a stack source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the AECP core reaches a stack source at a value only its arms compile with, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the AECP application bridge reaches a stack example's header, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the image reaches a stack file under a shape's stream count, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the SRP image's composition reaches a stack source, as the SRP image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the AECP image's SRP composition reaches a stack source, as the SRP image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the AECP image reaches a stack source at a shape its generated header gives many maps, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an adapter reaches a stack source where the SRP shape header is force-included, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an adapter reaches a stack source on the two-interface contract, as the SRP image builder compiles it, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a firmware header reaches a stack test's fake in C++ only, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a firmware header reaches a stack file through a computed include in C++ only, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a copy of the stack's wire.h in the firmware, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a copy of the stack's adp.c in the firmware, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a copy of the stack's acmp.h in the AECP directory, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile's patsubst writes a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile's foreach writes a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile appends a mode with no space, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile writes a mode's name after a bare -D, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile computes a mode's name, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile computes a mode's value, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile prefixes -D to the modes it lists, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an f-string writes a mode after other text, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a multi-word literal holds a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a shell command's literal holds a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control shlex splits a mode out of a literal, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a bare -D takes a mode a conditional chooses, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control str.format writes a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder joins -D to a mode it computes, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder formats a mode with %, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder joins a value to a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an f-string computes a mode's name, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a bare -D takes the modes a list holds, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control -Wp, passes a mode to the preprocessor, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control -Xpreprocessor passes a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control --define-macro= defines a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control --define-macro and a separate name define a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a response file holds a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control -imacros of a header the builder writes defines a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a precompiled header the builder makes defines a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control -include of a header the builder writes defines a mode, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile's wildcard names the C++ source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder joins a C++ source's name, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a glob names the C++ source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control an iterdir names the C++ source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder writes the C++ source from a literal, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder writes the C++ source's include from an f-string, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder writes the C++ source from a template it formats, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder copies the C++ source from a template file, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a written C++ source reaches the header through a header it writes beside it, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control --include-directory names where the C++ source's header is, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder copies a C++ source out of its own directories and compiles it from elsewhere, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder compiles C++ from its standard input, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder passes a dependency option the pass cannot override, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the capture is missing, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the capture is empty, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control the capture holds nothing of a known builder, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a known builder whose own run compiles nothing, which another builder still runs, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder dropped from the known set, which another builder still runs, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder runs a compiler by its own path, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a Makefile runs a compiler by its own path, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder runs a compiler on a PATH of its own, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder of the firmware that no capture holds, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder compiles with a flag the compiler cannot expand (a macro with no name), judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a response file names the source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a response file names the output, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder reads first a precompiled header whose making the recorder cannot see, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder reads first a stack source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control a builder reads a firmware header first into a compile of a stack source, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: the firmware includes a public header, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: the stack includes only its own header and the C library, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: a stack test reaches the stack's example, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: a stack source includes a header nobody supplies: the compile fails, and compiled nothing, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: a builder compiles a C++ source that is no file: the compile fails, and compiled nothing, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: a stack source includes an OS header of the host's C implementation, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: a builder compiles the firmware with a mode no file tests, judged where its builders' capture is (needs the firmware builders)
+  LEFT OUT: boundary control pass: a builder's own C++ source whose include a macro computes reads a firmware header, judged where its builders' capture is (needs the firmware builders)
+[ok] boundary control pass: the copies as they are, the base the controls share: passes
+[ok] boundary control V1 a mode only the AECP wire comparison gives: firmware: sw/firmware/ctrl/aecp/aecp_image.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+[ok] boundary control V2 a mode only its two-interface reference gives: firmware: sw/firmware/ctrl/aecp/aecp_image.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+[ok] boundary control V3 a value only its two-interface reference gives: firmware: sw/firmware/ctrl/aecp/aecp_image.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+[ok] boundary control a header only the MAAP differential's C++ source reaches includes a stack file in C++ only: firmware: sw/firmware/ctrl/maap/maap_r584.h includes tsn-c-stack/examples/rv32/include/string.h, not one of the stack's public headers [a builder]
+[ok] boundary control the capture holds nothing of the AECP wire comparison: REFUSED: the capture holds no invocation of sw/firmware/ctrl/test/aecp_wire.py from a run of its own, a builder of the firmware that compiles (its compiles under another builder's run are that one's)
+[ok] tsn-c-stack pin control, the pinned clone, unmodified: accepted 70936b77dc41981e192438388cd0aced69954f18
+[ok] tsn-c-stack pin control, a core source edited: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, a core test edited: tsn-c-stack differs from the pinned 70936b77: tests/test_adp.cpp
+[ok] tsn-c-stack pin control, a stack script edited: tsn-c-stack differs from the pinned 70936b77: scripts/check_boundary.py
+[ok] tsn-c-stack pin control, a CMake file edited: tsn-c-stack differs from the pinned 70936b77: CMakeLists.txt
+[ok] tsn-c-stack pin control, a file no gate builds edited: tsn-c-stack differs from the pinned 70936b77: LICENSE
+[ok] tsn-c-stack pin control, an edit the index hides (assume-unchanged): tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, a header the pinned tree does not hold: tsn-c-stack differs from the pinned 70936b77: include/stdint.h
+[ok] tsn-c-stack pin control, a symbolic link standing in for a source, to its own bytes: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, a script made executable (a mode change): tsn-c-stack differs from the pinned 70936b77: scripts/check_boundary.py
+[ok] tsn-c-stack pin control, another revision checked out: tsn-c-stack at 1ba273540abbdf51ea5d235c0a7e81c0bcb5d475 is not the pinned 70936b77dc41981e192438388cd0aced69954f18
+[ok] tsn-c-stack pin control, a source edited, the pinned src/ tree replaced by one holding the edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, a source edited, the pinned commit replaced by one holding the edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, a source edited beside a graft file: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, a source edited, a clean filter given through attributes turning it back into the pinned blob: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: filter.pin-control.clean (local)
+[ok] tsn-c-stack pin control, the pin proof as the checkout holds it, under its audit hook: the pin check's verdict, no refusal
+[ok] tsn-c-stack pin control, the audit hook, a Git command run by the harness's runner (ctrl_build.run): sw/firmware/ctrl/test/ctrl_build.py:600 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, a program named by a computed name (git.__name__): sw/firmware/ctrl/test/ctrl_build.py:606 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, a dashed program (git-ls-tree): sw/firmware/ctrl/test/ctrl_build.py:606 starts git-ls-tree (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, the Git program by its path, with the helper's environment, by the harness's runner: sw/firmware/ctrl/test/ctrl_build.py:606 starts /usr/bin/git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, a refusal caught and ignored: sw/firmware/ctrl/test/ctrl_build.py:607 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, an aliased import (from subprocess import run as r): sw/firmware/ctrl/test/ctrl_build.py:607 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, os.system, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:980 starts git ls-files (os.system) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, exec of a string: sw/firmware/ctrl/test/ctrl_build.py:441 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, the helper's name rebound by attribute assignment in ctrl_build.py: sw/firmware/ctrl/test/ctrl_build.py:440 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, the helper's name rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:985 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, os.walk, a name of the proof's vocabulary, rebound to start Git: sw/firmware/ctrl/test/ctrl_build.py:440 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, inspect.builtins.exec, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:981 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, inspect.builtins.eval: sw/firmware/ctrl/test/ctrl_build.py:442 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, inspect.builtins.compile: sw/firmware/ctrl/test/ctrl_build.py:607 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, dynamic code a library runs where the pin is decided (collections.namedtuple): sw/firmware/ctrl/test/ctrl_build.py:442 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code filed under another name (code.replace), then exec of a string: <elsewhere>:982 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, an import of importlib.metadata, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:980 asks for an import of importlib.metadata in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, pkgutil.importlib.import_module: sw/firmware/ctrl/test/ctrl_build.py:607 starts git (subprocess.Popen) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, exec of a string inside the helper: sw/firmware/ctrl/test/ctrl_build.py:426 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, eval inside the helper: sw/firmware/ctrl/test/ctrl_build.py:426 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, compile inside the helper: sw/firmware/ctrl/test/ctrl_build.py:426 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, ctrl_pin.py's code not put under the hook (sys.audit rebound first), then exec of a string: sw/firmware/ctrl/test/ctrl_pin.py:175 asks for compile in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, a thread started, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:981 starts <bound method Thread._bootstrap of <Thread(Thread-1 (print), initial)>> (_thread.start_joinable_thread) while the pin proof runs, not by the helper
+[ok] tsn-c-stack pin control, the audit hook, the decision's code replaced (stack_pin.__code__), in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:980 replaces __code__ of stack_pin, a function of the pin proof
+[ok] tsn-c-stack pin control, the audit hook, the collector's list of objects, in lines added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:981 asks for gc.get_objects in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, a trace function, in a line added to ctrl_pin.py: sw/firmware/ctrl/test/ctrl_pin.py:980 asks for sys.settrace in the pin proof: dynamic code, or a reach into the audit hook's own state
+[ok] tsn-c-stack pin control, the audit hook, the Git program rebound by attribute assignment in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start /usr/bin/true (subprocess.Popen), not the Git program PATH names, /usr/bin/git
+[ok] tsn-c-stack pin control, the audit hook, the helper's environment without GIT_NO_REPLACE_OBJECTS: sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+[ok] tsn-c-stack pin control, the audit hook, the helper's environment without GIT_GRAFT_FILE: sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) with GIT_GRAFT_FILE None, a path that can exist, so Git would read a graft file
+[ok] tsn-c-stack pin control, the audit hook, the helper's environment, and the builtins a hook could look up, rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) without GIT_NO_REPLACE_OBJECTS=1, so Git would read a replacement object
+[ok] tsn-c-stack pin control, the audit hook, the caller's environment passed to Git again, git_env rebound in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) with SHELL in its environment, which the pin proof's own does not set
+[ok] tsn-c-stack pin control, the audit hook, a variable added to the proof's own environment (GIT_DIR) in ctrl_pin.py: sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) with GIT_DIR in its environment, which the pin proof's own does not set
+[ok] tsn-c-stack pin control, the audit hook, a key of the helper's environment that is another's to the hook (a str subclass): sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) with an environment whose keys and values are not all plain str, so what Git is given is not what was judged
+[ok] tsn-c-stack pin control, the audit hook, a value of the helper's environment that Git is given as another (a str subclass): sw/firmware/ctrl/test/ctrl_build.py:428 has the helper start Git (subprocess.Popen) with an environment whose keys and values are not all plain str, so what Git is given is not what was judged
+[ok] tsn-c-stack pin control, the MAAP differential, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: src/maap.c
+[ok] tsn-c-stack pin control, the MAAP differential's self-test, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: src/maap.c
+[ok] tsn-c-stack pin control, the AECP arms, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: src/acmp.c
+[ok] tsn-c-stack pin control, the AECP campaign, a core source edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: src/acmp.c
+[ok] tsn-c-stack pin control, the AECP wire comparison, the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, the inherited environment, GIT_DIR, a repository whose HEAD and gitlink are a commit holding the clone's edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, GIT_INDEX_FILE, an index whose gitlink is the revision the clone is checked out at: tsn-c-stack at 1ba273540abbdf51ea5d235c0a7e81c0bcb5d475 is not the pinned 70936b77dc41981e192438388cd0aced69954f18
+[ok] tsn-c-stack pin control, the inherited environment, GIT_WORK_TREE, another directory: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, GIT_COMMON_DIR, an empty repository's: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, GIT_OBJECT_DIRECTORY, an empty store: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, GIT_ALTERNATE_OBJECT_DIRECTORIES, the clone's objects, which its own store no longer holds: cannot read the pinned tree of /tmp/ctrl-boundary-naxx6h55/pins/pin-clone: the pinned commit (commit 70936b77): fatal: git cat-file 70936b77dc41981e192438388cd0aced69954f18: bad file
+[ok] tsn-c-stack pin control, the inherited environment, GIT_REPLACE_REF_BASE, a base under which the pinned src/ tree is replaced by one holding the edit: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_COUNT, its key and value, core.fsmonitor naming a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_PARAMETERS, core.fsmonitor naming a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_GLOBAL, a file whose core.fsmonitor names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_SYSTEM, a file whose core.fsmonitor names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, HOME, a directory whose .gitconfig names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, XDG_CONFIG_HOME, a directory whose git/config names a program: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, GIT_CONFIG_COUNT, its key and value, a clean filter turning the edit back into the pinned blob: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, GIT_ATTR_SOURCE, a tree giving the edited source a clean filter that turns it back into the pinned blob: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the inherited environment, every variable above at once, the pinned clone: tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+[ok] tsn-c-stack pin control, the audit hook's environment judge, fork_exec's entries with GIT_NO_REPLACE_OBJECTS twice: has the helper start Git (_posixsubprocess.fork_exec) with an environment whose entries are not each a key given once, so what Git is given is not what was judged
+[ok] tsn-c-stack pin control, the object store, a source edited, the pinned src/ tree's object overwritten by a tree holding the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinned src/ tree (tree af6e65bf) hashes to 38f28bed, not to its id, so nothing under it can be compared
+[ok] tsn-c-stack pin control, the object store, a source edited, the pinned commit's object overwritten by a commit whose tree holds the edit: tsn-c-stack's object store holds a forged or corrupt object: the pinned commit (commit 70936b77) hashes to ddf98420, not to its id, so nothing under it can be compared
+[ok] tsn-c-stack pin control, the object store, a source edited, its pinned blob's object overwritten by the edit's: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the stack's attributes, a source's line endings changed, a conversion they give turning it back into the pinned blob: tsn-c-stack differs from the pinned 70936b77: src/adp.c
+[ok] tsn-c-stack pin control, the superproject's own configuration, a program named as core.fsmonitor, its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: core.fsmonitor (local)
+[ok] tsn-c-stack pin control, the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its tree, a partial clone whose promisor remote's upload-pack is a program that serves it, its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: extensions.partialclone (local), remote.origin.partialclonefilter (local), remote.origin.promisor (local), remote.origin.uploadpack (local)
+[ok] tsn-c-stack pin control, the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its tree, a partial clone whose promisor remote is reached over ssh by a program (core.sshCommand), its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: core.sshcommand (local), extensions.partialclone (local), remote.probe.promisor (local)
+[ok] tsn-c-stack pin control, the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its tree, a promisor remote declared by remote.promisor, no subsection, reached through a program by an ext:: URL rewrite, its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: remote.promisor (local)
+[ok] tsn-c-stack pin control, the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its tree, a promisor remote declared by remote.partialCloneFilter, no subsection, reached through a program by an ext:: URL rewrite, its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: remote.partialclonefilter (local)
+[ok] tsn-c-stack pin control, the superproject's own configuration, a sparse index whose sparse directory holding the gitlink lacks its tree, a promisor remote declared by remote "".promisor, an empty subsection, reached through a program by an ext:: URL rewrite, its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: remote..promisor (local)
+[ok] tsn-c-stack pin control, the superproject's own configuration, an included file (include.path) and its work tree's own configuration each naming a program as core.fsmonitor, its gitlink read: the superproject's repository holds configuration that has Git start a program or fetch while the gitlink is read: core.fsmonitor (local), core.fsmonitor (worktree)
+[ok] tsn-c-stack pin control, the superproject's own configuration as actions/checkout and git submodule update --init write it, its gitlink read: accepted 70936b77dc41981e192438388cd0aced69954f18
+[ok] tsn-c-stack pin control, the stack's own configuration, a program named as core.fsmonitor, a source edited: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.fsmonitor (local)
+[ok] tsn-c-stack pin control, the stack's own configuration, a key of each family of its allowlist, the pinned clone: accepted 70936b77dc41981e192438388cd0aced69954f18
+[ok] tsn-c-stack pin control, the stack's own configuration, a key of an allowlisted family's section and variable with an empty subsection (submodule "".active), the pinned clone: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: submodule..active (local)
+[ok] tsn-c-stack pin control, the stack's own configuration, a partial clone whose promisor remote's upload-pack is a program, the pinned src/ tree's object missing: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local), remote.origin.promisor (local), remote.origin.uploadpack (local)
+[ok] tsn-c-stack pin control, the stack's own configuration, a partial clone whose promisor remote is reached over ssh by a program (core.sshCommand), the pinned src/ tree's object missing: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.sshcommand (local), extensions.partialclone (local), remote.probe.promisor (local)
+[ok] tsn-c-stack pin control, the stack's own configuration, extensions.partialClone alone, the pinned src/ tree's object missing: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: extensions.partialclone (local)
+[ok] tsn-c-stack pin control, the stack's own configuration, remote.<name>.promisor alone, the pinned src/ tree's object missing: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: remote.origin.promisor (local)
+[ok] tsn-c-stack pin control, the stack's own configuration, a program named as remote.<name>.uploadpack: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: remote.origin.uploadpack (local)
+[ok] tsn-c-stack pin control, the stack's own configuration, a program named as core.sshCommand: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.sshcommand (local)
+[ok] tsn-c-stack pin control, the stack's own configuration, a directory of programs named as core.hooksPath: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.hookspath (local)
+[ok] tsn-c-stack pin control, the stack's own configuration, a program named as credential.helper: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: credential.helper (local)
+[ok] tsn-c-stack pin control, the stack's own configuration, a program named by each other key Git starts one for: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.alternaterefscommand (local), core.askpass (local), core.editor (local), core.pager (local), diff.pin-control.textconv (local), gpg.program (local), uploadpack.packobjectshook (local)
+[ok] tsn-c-stack pin control, the stack's own configuration, an included file (include.path) naming a program as core.fsmonitor: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.fsmonitor (local), include.path (local)
+[ok] tsn-c-stack pin control, the stack's work tree's own configuration (extensions.worktreeConfig), a program named as core.fsmonitor: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: core.fsmonitor (worktree), extensions.worktreeconfig (local)
+[ok] tsn-c-stack pin control, the stack's own configuration, a key no Git defines, as a later Git might add, naming a program: tsn-c-stack's repository holds configuration outside the pin proof's allowlist: pin-control.program (local)
+[ok] tsn-c-stack pin control, the F5 gap check shape 1 (), the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, the F5 gap check shape 8 (), the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, the F5 gap check shape 1 ('--build-only',), the stack's wire layer edited: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, the F5 gap check, another revision checked out: exit 2: REFUSED: tsn-c-stack at 1ba273540abbdf51ea5d235c0a7e81c0bcb5d475 is not the pinned 70936b77dc41981e192438388cd0aced69954f18
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the pinned clone: exit 0: tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-cosim, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make obj_fw/libctrlfw.a, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make stack-pin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make all, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile make run-if2, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make stack-pin, the pinned clone: exit 0: tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nxn8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nxn, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make ci-prepare, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nxndv, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-counters-8-frames, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-counters-8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nxn8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-render-mutants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-counters-8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-tspec8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-dynmap, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make counters-mutants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-base, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-maprec8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-counters-1, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-render-mutants, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-notify, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make counters, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-maprec4, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make stack-pin, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-tspec8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nxndv, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nolpf, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make all, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nxn4c, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-counters-8-frames, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-base, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-aclk, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-crflic, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-dynmap, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-nxn, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nxn4c, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-counters-1, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make counters-f5, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-crflic, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-maprec4, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-counters-1-frames, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-maprec8, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-ax1x1, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-ax1x1, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-nolpf, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-notify, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-counters-1-frames, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make run-prune, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-prune, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/milan_dp/Makefile make build-aclk, the stack's wire.h poisoned: exit 2: REFUSED: tsn-c-stack differs from the pinned 70936b77: include/wire.h
+[ok] tsn-c-stack pin control, tb/verilator/mbx/Makefile planted with run-if2 unpinned: Makefile: run-if2 builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+[ok] tsn-c-stack pin control, milan_dp planted with counters unpinned: counters lacks its required stack-pin prerequisite
+[ok] tsn-c-stack pin control, milan_dp planted with counters-f5 unpinned: Makefile: counters-f5 builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+[ok] tsn-c-stack pin control, milan_dp planted with counters-mutants unpinned: Makefile: counters-mutants builds against tsn-c-stack without the pin check (stack-pin) as a prerequisite
+[ok] scratch lifecycle, clone, init and secondary clone disable maintenance: True
+[ok] scratch lifecycle, every Git call overrides enabled local maintenance: True
+[ok] scratch lifecycle, loose fetch then fresh clone: True
+[ok] scratch lifecycle, file vanishing after enumeration: True
+[ok] scratch lifecycle, permission error is propagated: True
+[ok] scratch lifecycle, I/O error is propagated: True
+[ok] figure control, the page's defects in the firmware builders' run one more: sw/firmware/ctrl/README.md gives the defects in the firmware builders' run as 104, where the self-test has 103
+[ok] figure control, the page's passing controls in the firmware builders' run one more: sw/firmware/ctrl/README.md gives the passing controls in the firmware builders' run as 9, where the self-test has 8
+[ok] figure control, the page's defects in the Verilator builders' run one more: sw/firmware/ctrl/README.md gives the defects in the Verilator builders' run as 6, where the self-test has 5
+[ok] figure control, the page's pin controls one more: sw/firmware/ctrl/README.md gives the pin controls as 168, where the self-test has 167
+    boundary control owned-and-standard: compiles; passes
+    boundary control standard-digraph: compiles; passes
+    boundary control outside-hash: compiles; refused
+    boundary control outside-digraph: compiles; refused
+    boundary control outside-trigraph: compiles; refused
+    boundary control outside-relative: compiles; refused
+    boundary control outside-spliced: compiles; refused
+    boundary control outside-macro: compiles; refused
+    boundary control heap-direct: compiles; refused
+    boundary control heap-macro: compiles; refused
+    boundary control heap-pointer: compiles; refused
+    boundary control os-symbol: compiles; refused
+    boundary: compiler dependencies and object symbols pass
+ctrl_boundary: 917 compiled sources of 1033 recorded invocations (398 the firmware's, 94 the stack's, 425 test equipment's and builders' own), each judged by what its dependency output lists, host and RV32, every Makefile builder's pin prerequisites and the pin proof's census; 0 finding(s), 6 boundary, 167 pin and 4 figure controls, 0 misbehaved
+ctrl_boundary: PASS
+elapsed=719s
+tree: 0 changed path(s) after the gate
+rc=0

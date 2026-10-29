@@ -1,0 +1,57 @@
+## backlog
+- wire ch0 if0 (1 frames): IDENTICAL
+- wire ch0 if1 (1 frames): IDENTICAL
+- wire ch1 if0 (12 frames): IDENTICAL
+- wire ch2 if0 (8 frames): IDENTICAL
+- wire ch2 if1 (8 frames): IDENTICAL
+- wire ch3 if0 (6 frames): IDENTICAL
+- wire ch3 if1 (8 frames): IDENTICAL
+- wire ch4 if0 (9 frames): IDENTICAL
+- wire ch4 if1 (9 frames): IDENTICAL
+- register writes (3159 to 1455 registers, per register): word 0xc80: item 1: 2749956336 != 2765160688, word 0xc89: item 0: 2749956336 != 2765160688, word 0xc91: item 1: 2749956336 != 2765160688, word 0xc9a: item 0: 2749956336 != 2765160688
+- stimulus (82): IDENTICAL
+- bus errors/traps: {'bus_errors': '0', 'traps': '0'} vs {'bus_errors': '0', 'traps': '0'}
+- differing registers by area: MAAP TX ring 18
+## backlog-adp
+- wire ch0 if0 (1 frames): IDENTICAL
+- wire ch0 if1 (1 frames): IDENTICAL
+- wire ch1 if0 (14 frames): IDENTICAL
+- wire ch2 if0 (8 frames): IDENTICAL
+- wire ch2 if1 (8 frames): IDENTICAL
+- wire ch3 if0 (9 frames): IDENTICAL
+- wire ch3 if1 (8 frames): IDENTICAL
+- wire ch4 if0 (9 frames): IDENTICAL
+- wire ch4 if1 (9 frames): IDENTICAL
+- register writes (3251 to 1471 registers, per register): word 0xc80: item 1: 2749956336 != 2765160688, word 0xc88: item 2: 2749956336 != 2765160688, word 0xc89: item 0: 2749956336 != 2765160688, word 0xc8a: item 2: 2749956336 != 2765160688
+- stimulus (85): IDENTICAL
+- bus errors/traps: {'bus_errors': '0', 'traps': '0'} vs {'bus_errors': '0', 'traps': '0'}
+- differing registers by area: MAAP TX ring 24
+## backlog-adp-refill
+- wire ch0 if0 (1 frames): IDENTICAL
+- wire ch0 if1 (1 frames): IDENTICAL
+- wire ch1 if0 (14 frames): IDENTICAL
+- wire ch2 if0 (8 frames): IDENTICAL
+- wire ch2 if1 (8 frames): IDENTICAL
+- wire ch3 if0 (9 frames): IDENTICAL
+- wire ch3 if1 (8 frames): IDENTICAL
+- wire ch4 if0 (9 frames): IDENTICAL
+- wire ch4 if1 (9 frames): IDENTICAL
+- register writes (3254 to 1471 registers, per register): word 0xc80: item 1: 2749956336 != 2765160688, word 0xc88: item 2: 2749956336 != 2765160688, word 0xc89: item 0: 2749956336 != 2765160688, word 0xc8a: item 2: 2749956336 != 2765160688
+- stimulus (88): IDENTICAL
+- bus errors/traps: {'bus_errors': '0', 'traps': '0'} vs {'bus_errors': '0', 'traps': '0'}
+- differing registers by area: MAAP TX ring 24
+## backlog-owed
+- wire ch0 if0 (2 frames): lengths 2 != 1
+- wire ch0 if1 (2 frames): lengths 2 != 1
+- wire ch1 if0 (20 frames): IDENTICAL
+- wire ch2 if0 (8 frames): IDENTICAL
+- wire ch2 if1 (8 frames): IDENTICAL
+- wire ch3 if0 (9 frames): IDENTICAL
+- wire ch3 if1 (8 frames): IDENTICAL
+- wire ch4 if0 (11 frames): IDENTICAL
+- wire ch4 if1 (11 frames): IDENTICAL
+- register writes (3641 to 1513 registers, per register): word 0x42: lengths 4 != 2, word 0x52e: lengths 1 != 0, word 0x52f: lengths 1 != 0, word 0x530: lengths 1 != 0
+- stimulus (94): IDENTICAL
+- bus errors/traps: {'bus_errors': '0', 'traps': '0'} vs {'bus_errors': '0', 'traps': '0'}
+- differing registers by area: ACMP TX ring 8, ADP TX ring 46, ADP registers 1, AECP TX ring 8, MAAP TX ring 24
+6 part(s) differ
