@@ -79,9 +79,10 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The physical gPTP leg spans one more Pdelay interval.
 - Its nightly suite deadline rises to 6900 s.
 - Its job's timeout rises to 145 minutes.
-- route-1x1 is 481 LUTs over the record; tolerance 500.
-- Over dev's own route it adds 310 LUTs, 20 slices.
-- Seven slices remain free; WNS is +0.333 ns.
+- route-1x1 is 211 LUTs under the twelfth record; tolerance 500.
+- That record has dev `e78472ff`'s synthesis inputs.
+- This adoption adds 53 FFs and 54 slices.
+- Sixteen slices remain free; WNS is +0.303 ns.
 - VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - processor pin f65c8ff7

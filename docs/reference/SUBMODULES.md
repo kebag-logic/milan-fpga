@@ -368,15 +368,17 @@ Its nightly suite deadline rises to 6900 seconds.
 
 Its job's timeout rises to 145 minutes.
 
-Route-1x1 is 481 LUTs over the current resource record.
+Route-1x1 is 211 LUTs under the twelfth resource record.
 
 Its tolerance is 500 LUTs, so the gate passes.
 
-Over dev's own route, this adoption adds 310 LUTs.
+That record has dev `e78472ff`'s synthesis inputs.
 
-It adds 20 slices; seven of 15,850 remain.
+This adoption adds 53 FFs and 54 slices.
 
-Its shipping route meets timing at +0.333 ns WNS.
+Sixteen of 15,850 slices remain.
+
+Its shipping route meets timing at +0.303 ns WNS.
 
 The ROM ledger records current and earlier pins.
 
