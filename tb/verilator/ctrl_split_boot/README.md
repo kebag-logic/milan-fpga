@@ -22,15 +22,17 @@ Keep the build directory outside the checkout:
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-1x1
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-8x8 --shape endstation_ax7101_8x8
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-1x1 --regrade
+python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-native --native-controls
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-plants --self-test
 ```
 
 The run builds the runtime archives, then links the platform image (`ctrl_plat_image.py`) twice.
 The first link is against a provisional map, and the boot SoC's export with that image gives the SoC's own `csr.csv`.
 The second link is against that `csr.csv`, and the run refuses it unless the second export's rows equal the first's: the map does not depend on the image.
-It then builds the native model and runs it.
-`--regrade` grades the log a run left in the build directory.
-`--self-test` builds and runs each planted control in a planted copy of the firmware's tree, and requires each to be graded a finding of its own kind ([What is graded](#what-is-graded)).
+It then builds the native model, runs it, and saves its exit status beside its log (`sim.status`).
+`--regrade` grades the log and the status a run left in the build directory.
+`--native-controls` grades the native controls, with no build ([What is graded](#what-is-graded)).
+`--self-test` grades them, then builds and runs each planted control in a planted copy of the firmware's tree, and requires each to be graded a finding of its own kind.
 Exit 0 is a pass, 1 a finding and 2 a refusal.
 
 ## The SoC and the testbench
@@ -58,9 +60,11 @@ After the ready line the testbench types `milan_status`, then `milan_gettime`, w
 
 [`run.py`](run.py) grades the testbench's log:
 
+- **NATIVE**: the model's own verdict, which no observation before it discharges. Its saved exit status must be 0, and its checker's tally must have completed with no failure, read as the sweep reads a suite log (`scripts/suite_tally.py`). A regrade reads the same saved status, and a run that saved none is a finding.
 - **BOOT**: the ready line, exactly one banner (the #396 plan counts boots by their banners), and the boot-to-ready time against the 20 s ADP valid time (Milan v1.2 5.6.2/5.6.3).
 - **TRACE**: the window's writes before ready. The first fifteen must equal `configure_fabric()`'s for the same config, compiled on the host as builder gate 35 runs it on the same seeded file ([`plat_trace.py`](../../../sw/firmware/ctrl/test/plat_trace.py)). The next three must be MAAP's one-owner report. No write may set `ADP_CTRL[0]` or `PP_CTRL[0]`.
 - **UART**: each command's span, its wait to the first response byte, and its longest gap between two response bytes, which bounds the loop pass that sends them. Each is compared with #397's 500 ms tick rule and T_svc = 10 ms.
+- **Native controls** (`--native-controls`, and first in `--self-test`): a stand-in for the model prints a valid boot's observations, then ends in one of six ways. A pass must pass. A nonzero exit, a failed tally, a missing tally, and a failed tally with a nonzero exit must each be a NATIVE finding, on the run and on its regrade. A run whose saved status is gone must pass, and be a NATIVE finding on its regrade.
 - **Controls** (`--self-test`): a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; a console that spins 700,000 turns, about 0.7 s, before its response must be a UART finding, its span past #397's tick rule.
 - **GRADER**: `baremetal_uart_smoke.py`'s own `grade()` on the three answers. The firmware's checks (`aem-image`, `phc-advances`) must pass. `fabric-enabled` must fail, the listed difference. The checks whose words are the stand-in register file's are printed and never counted.
 
@@ -93,5 +97,5 @@ The smoke grader's verdicts on the simulated UART:
 
 - The datapath is not built: the CSR window is a register file, so the trace shows what the firmware writes, not what a datapath does with it.
 - The flash is blank, so the boot's saved-state terminal is BLANK. Valid, torn and wrong-version slots are lane S4's.
-- The UART is LiteX's `sim` stream, with no baud rate: a span is CPU and loop time. At 115,200 baud the 305-byte status line takes about 26.5 ms on the wire, longer than any span here.
+- The UART is LiteX's `sim` stream, with no baud rate: a span is CPU and loop time. At 115,200 baud the 305-byte status line takes about 26.5 ms on the wire.
 - `fabric-enabled` and the #396 campaign's one BIOS pass per cold cut cannot hold on a split image. The owner's ruling (#665, 6505997821) accepts both as listed differences, and the graders' split mode is owed to the bench lane (S12).

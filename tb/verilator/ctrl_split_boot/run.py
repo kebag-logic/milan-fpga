@@ -10,7 +10,12 @@ Builds, in order, all outside the checkout under --build-dir:
      first image gives (the map does not depend on the image: the two
      exports' csr.csv rows must be identical, or the run is refused);
   3. the boot SoC (boot_soc.py) and its native model (sim_main.cpp).
-Then it runs the model and grades the log:
+Then it runs the model, saves its exit status beside its log (sim.status), and grades the log:
+  - NATIVE: the model's own verdict, which no observation before it discharges:
+    its saved exit status is 0, and its checker's tally (verilator_harness.hpp),
+    read as the sweep reads a suite log (scripts/suite_tally.py), completed with
+    no failure; a regrade reads the same saved status, and refuses a run that
+    saved none;
   - BOOT: the ready line, one banner, and the boot-to-ready time against the
     20 s ADP valid time (Milan v1.2 5.6.2/5.6.3, ARCHITECTURE_HW_SW_SPLIT.md);
   - TRACE: the CSR window's writes up to ready: the first fifteen are
@@ -22,14 +27,19 @@ Then it runs the model and grades the log:
     transcript, each check's verdict printed; and each command's duty against
     #397's 500 ms tick rule and T_svc = 10 ms: its span, and its longest gap
     between two response bytes, which bounds the loop pass that sends them.
---self-test builds and runs each planted control (PLANTS) and requires the
-grade to report it as a finding of its own kind: a CSR write skipped as
-TRACE, a console that holds the loop past the tick rule as UART.
+--native-controls grades the native controls (NATIVE_CONTROLS), with no
+build: a stand-in for the model prints a valid boot's observations, then ends
+as each control says, and each must be graded as it requires, on its run and
+on its regrade. --self-test grades them first, then builds and runs each
+planted control (PLANTS) and requires the grade to report it as a finding of
+its own kind: a CSR write skipped as TRACE, a console that holds the loop past
+the tick rule as UART.
 
-Exit 0 when BOOT and TRACE pass, every UART duty is within its bounds, the
-grader's firmware checks pass and its one listed difference (fabric-enabled)
-fails as listed; the checks whose words are the stand-in register file's are
-printed with their verdicts and never counted. 1 = a finding; 2 = refused.
+Exit 0 when NATIVE, BOOT and TRACE pass, every UART duty is within its bounds,
+the grader's firmware checks pass and its one listed difference
+(fabric-enabled) fails as listed; the checks whose words are the stand-in
+register file's are printed with their verdicts and never counted. 1 = a
+finding; 2 = refused.
 """
 from __future__ import annotations
 
@@ -39,6 +49,7 @@ import re
 import subprocess
 import sys
 from pathlib import Path
+from typing import NamedTuple
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
@@ -83,6 +94,44 @@ PLANTS = {
 }
 #: The first link's map: the platform's fixture, at placeholder addresses.
 PROVISIONAL = FIRMWARE_TEST / 'ctrl_plat_csr.csv'
+#: The file a run saves the native model's exit status in, beside its log, so that a regrade grades it too.
+STATUS = 'sim.status'
+#: The model's checker's last lines (verilator_harness.hpp), as a native control's stand-in ends its log: a pass,
+#: and the failure sim_main.cpp prints when the simulation passes its time limit.
+PASSED = '== ctrl_split_boot: checks: 1   failures: 0 ==\nRESULT: PASS\n'
+FAILED = ('FAIL: simulation exceeded its time limit\n  [FAIL] simulation completed without boundary failures\n'
+          '== ctrl_split_boot: checks: 1   failures: 1 ==\nRESULT: FAIL\n')
+
+
+class Control(NamedTuple):
+    """A native control: how its stand-in ends (its exit status and its log's end), whether the run's saved status
+    is kept for the regrade, and the verdicts the run and the regrade must give."""
+
+    status: int
+    ending: str
+    kept: bool
+    run: str
+    regrade: str
+
+
+#: The native controls. Each stand-in's observations before its end are a valid boot's, so the only finding a
+#: control may give is NATIVE: the passing control none; a nonzero exit, a failed or an incomplete tally one, on
+#: the run and on its regrade; a run whose saved status is gone (an older build directory) one on its regrade.
+NATIVE_CONTROLS = {
+    'native-passes': Control(0, PASSED, True, 'PASS', 'PASS'),
+    'native-exits-nonzero': Control(1, PASSED, True, 'NATIVE', 'NATIVE'),
+    'native-tally-failed': Control(0, FAILED, True, 'NATIVE', 'NATIVE'),
+    'native-incomplete': Control(0, '', True, 'NATIVE', 'NATIVE'),
+    'native-fails-and-exits-nonzero': Control(1, FAILED, True, 'NATIVE', 'NATIVE'),
+    'native-status-not-saved': Control(0, PASSED, False, 'PASS', 'NATIVE'),
+}
+#: A boot's lines and the answers the smoke grader passes, as the stand-in prints them.
+BANNER = 'Milan split control firmware: boot\r\nMilan split control firmware: ready\r\n'
+ANSWERS = (('milan_status', 'ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000000 PP_CTRL=00000000 '
+                            'PP_STAT=00000000 AEM=loaded\r\nGPTP_GM=001bc5fffe001122 GPTP_PARENT=001bc5fffe334455 '
+                            'PDELAY_NS=600 AS_PATH_COUNT=3 AS_PATH_GEN=7 CLKV_STAT=00010002 SYNC=1 ASCAPABLE=1 '
+                            'TU=0 GPTP_LAT=029000db\r\nTAI_NS=0x0000000000001000\r\n'),
+           ('milan_gettime', 'TAI_NS=0x0000000000002000\r\n'), ('milan_gettime', 'TAI_NS=0x0000000000003000\r\n'))
 
 
 def run(argv: list[str], log: Path, cwd: Path | None = None) -> None:
@@ -195,11 +244,36 @@ def expected_writes(shape: str, work: Path) -> list[tuple[int, int]]:
     return want + [(0x654, words[0x654] & ~1), (0x750, words[0x750] & ~1), (0x6CC, words[0x6CC] & ~1)]
 
 
-def grade(log: str, transcript: str, spec: dict, work: Path) -> tuple[list[str], list[str]]:
-    """The findings and the report lines."""
+def native(log: str, status: int | None) -> tuple[list[str], str]:
+    """The model's own verdict: its saved exit status, and its checker's tally read as the sweep reads a suite log
+    (suite_tally.scan, is_nocount, log_reports_failure), so a tally that is missing or measured nothing is a run
+    that did not complete. Its findings, and its report line."""
+    import suite_tally
+    findings = []
+    if status is None:
+        findings.append(f'NATIVE: the run saved no exit status ({STATUS}), so how the model ended is unknown')
+    elif status != 0:
+        findings.append(f'NATIVE: the model exited {status}')
+    checks, failures, matched, unparsed, skipped = suite_tally.scan(log)
+    errors = [ln.strip() for ln in log.splitlines() if ln.startswith('FAIL:')]
+    reason, failed = suite_tally.log_reports_failure(log)
+    if suite_tally.is_nocount(checks, failures, matched, skipped):
+        findings.append('NATIVE: the model printed no tally: it did not complete')
+    elif unparsed:
+        findings.append(f'NATIVE: a tally line the sweep cannot read: {unparsed[0]}')
+    elif failed:
+        findings.append(f'NATIVE: the model\'s log reports a failure: {reason}{"; " if errors else ""}'
+                        f'{"; ".join(errors)}')
+    tally = matched[-1][3] if matched else 'no tally'
+    return findings, f'NATIVE exit status {"not saved" if status is None else status}; {tally}'
+
+
+def grade(log: str, transcript: str, spec: dict, work: Path, status: int | None) -> tuple[list[str], list[str]]:
+    """The findings and the report lines; `status` is the model's saved exit status, None when there is none."""
     sys.path.insert(0, str(ROOT / 'scripts'))
     import baremetal_uart_smoke as smoke
-    findings, report = [], []
+    findings, line = native(log, status)
+    report = [line]
     to_ms = 1000.0 / spec['sys_hz']
     ready = lines(log, 'READY')
     if not ready:
@@ -257,30 +331,93 @@ def grade(log: str, transcript: str, spec: dict, work: Path) -> tuple[list[str],
     return findings, report
 
 
-def point(out: Path, shape: str, n_if: int, regrade: bool, plant: str | None = None) -> tuple[list[str], list[str]]:
-    """Build (unless regrading), run and grade one point; its findings and report."""
+def saved_status(out: Path) -> int | None:
+    """The model's exit status a run saved in `out`, or None when it saved none."""
+    try:
+        return int((out / STATUS).read_text())
+    except (OSError, ValueError):
+        return None
+
+
+def point(out: Path, shape: str, n_if: int, regrade: bool, plant: str | None = None,
+          model: tuple[Path, dict] | None = None) -> tuple[list[str], list[str]]:
+    """Build (unless regrading, or given the model and its spec: a native control's stand-in), run and grade one
+    point; its findings and report."""
     if regrade:
         spec = json.loads((out / 'soc/soc.json').read_text())
     else:
-        exe, spec = build(out, shape, n_if, plant)
+        exe, spec = build(out, shape, n_if, plant) if model is None else model
+        (out / STATUS).unlink(missing_ok=True)
         # the model reads the image's ROM banks from the export's .init files
         with (out / 'sim.log').open('w') as sink:
             result = subprocess.run([str(exe), str(out / 'transcript.txt')], stdout=sink,
                                     stderr=subprocess.STDOUT, check=False, cwd=out / 'soc/gateware')
+        (out / STATUS).write_text(f'{result.returncode}\n')
         print(f'COMMAND Vsim exited {result.returncode}')
-    return grade((out / 'sim.log').read_text(), (out / 'transcript.txt').read_text(), spec, out / 'baremetal')
+    return grade((out / 'sim.log').read_text(), (out / 'transcript.txt').read_text(), spec, out / 'baremetal',
+                 saved_status(out))
+
+
+def stand_in(out: Path, shape: str, n_if: int, control: Control) -> tuple[Path, dict]:
+    """A native control's model, and the spec its export would give: a program that writes a boot's transcript and
+    prints a valid boot's observations as sim_main.cpp prints them (configure_fabric()'s writes and MAAP's
+    one-owner report, the ready line, and the three commands answered as the grader passes them), then ends its log
+    and exits as the control says."""
+    spec = {'sys_hz': 100_000_000, 'cpu_hz': 50_000_000, 'shape': shape, 'interfaces': n_if}
+    rows = [f'CSRW {k + 1} {o:03x} {v:08x}' for k, (o, v) in enumerate(expected_writes(shape, out / 'oracle'))]
+    rows.append('READY 10000')
+    for k, (command, answer) in enumerate(ANSWERS):
+        start = 20000 + 100000 * k
+        rows += [f'IN {start} {command}', *(f'UART {start + 100 * (j + 1)} {b:02x}'
+                                             for j, b in enumerate(answer.encode()))]
+    log = '\n'.join(rows) + '\n' + control.ending
+    transcript = BANNER + ''.join(answer for _, answer in ANSWERS)
+    (out / 'soc/gateware').mkdir(parents=True, exist_ok=True)
+    (out / 'soc/soc.json').write_text(json.dumps(spec))
+    exe = out / 'stand-in'
+    exe.write_text(f'#!{sys.executable}\nimport pathlib, sys\npathlib.Path(sys.argv[1]).write_bytes('
+                   f'{transcript.encode()!r})\nsys.stdout.write({log!r})\nsys.exit({control.status})\n')
+    exe.chmod(0o755)
+    return exe, spec
+
+
+def verdict(findings: list[str]) -> str:
+    """PASS for none; NATIVE when every finding is the model's own verdict; OTHER when the observations failed."""
+    return 'PASS' if not findings else 'NATIVE' if all(f.startswith('NATIVE:') for f in findings) else 'OTHER'
+
+
+def native_controls(out: Path, shape: str, n_if: int) -> int:
+    """Each native control graded on its run and on its regrade; the number not graded as they require."""
+    wrong = 0
+    for name, control in NATIVE_CONTROLS.items():
+        where = out / name
+        where.mkdir(parents=True, exist_ok=True)
+        ran, _ = point(where, shape, n_if, False, model=stand_in(where, shape, n_if, control))
+        if not control.kept:
+            (where / STATUS).unlink(missing_ok=True)
+        regraded, _ = point(where, shape, n_if, True)
+        got = (verdict(ran), verdict(regraded))
+        ok = got == (control.run, control.regrade)
+        wrong += not ok
+        print(f'NATIVE-CONTROL {name}: {"as required" if ok else "WRONG"} (run {got[0]}, regrade {got[1]}; '
+              f'required {control.run}, {control.regrade}); findings: {ran} / {regraded}')
+    print(f'ctrl_split_boot native controls: {len(NATIVE_CONTROLS) - wrong} of {len(NATIVE_CONTROLS)} as required')
+    return wrong
 
 
 def self_test(out: Path, shape: str, n_if: int) -> int:
-    """Every plant must be graded a finding of its own kind; 0 when each is."""
+    """Every native control graded as it requires, then every plant graded a finding of its own kind; 0 when
+    each is."""
+    wrong = native_controls(out / 'native', shape, n_if)
     escaped = 0
     for plant, (_, _, _, kind) in PLANTS.items():
         findings, _ = point(out / f'plant-{plant}', shape, n_if, False, plant)
         caught = any(f.startswith(kind + ':') for f in findings)
         escaped += not caught
         print(f'PLANT {plant}: {"caught" if caught else "ESCAPED"} ({kind}); findings: {findings}')
-    print(f'ctrl_split_boot self-test: {len(PLANTS) - escaped} of {len(PLANTS)} plants caught')
-    return 1 if escaped else 0
+    print(f'ctrl_split_boot self-test: {len(NATIVE_CONTROLS) - wrong} of {len(NATIVE_CONTROLS)} native controls as '
+          f'required; {len(PLANTS) - escaped} of {len(PLANTS)} plants caught')
+    return 1 if escaped or wrong else 0
 
 
 def main() -> int:
@@ -290,11 +427,16 @@ def main() -> int:
     parser.add_argument('--shape', default='endstation_ax7101_1x1_tdm8')
     parser.add_argument('--interfaces', type=int, choices=(1, 2), default=1)
     parser.add_argument('--regrade', action='store_true', help='grade the log of an earlier run in --build-dir')
+    parser.add_argument('--native-controls', action='store_true',
+                        help='grade every native control (NATIVE_CONTROLS) under --build-dir, with no build')
     parser.add_argument('--self-test', action='store_true',
-                        help='build and run every planted control (PLANTS) under --build-dir; each must be caught')
+                        help='grade every native control, then build and run every planted control (PLANTS) under '
+                             '--build-dir; each must be graded as it requires')
     args = parser.parse_args()
     out = args.build_dir.resolve()
     try:
+        if args.native_controls:
+            return 1 if native_controls(out, args.shape, args.interfaces) else 0
         if args.self_test:
             return self_test(out, args.shape, args.interfaces)
         findings, report = point(out, args.shape, args.interfaces, args.regrade)
