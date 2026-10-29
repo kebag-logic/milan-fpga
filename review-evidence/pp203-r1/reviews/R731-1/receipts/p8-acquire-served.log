@@ -1,0 +1,25 @@
+p8-acquire-served: rc=2 ### make reboot: rc=2 | RBT: 127 checks, 1 failures DETECTED
+    FAIL: RBT5 ACQUIRE_ENTITY is refused NOT_SUPPORTED: this entity is never acquired, so no REBOOT meets ENTITY_ACQUIRED (got status 0)
+	Command being timed: "python3 $REVIEWS/pp203-r731-1-packet/scripts/probe.py $REVIEWS/pp203-r731-1-packet/scratch/head $REVIEWS/pp203-r731-1-packet/scratch $REVIEWS/pp203-r731-1-packet/receipts $VALIDATION_TOOLS/pinned-verilator-5.050/verilator p8-acquire-served"
+	User time (seconds): 182.94
+	System time (seconds): 6.66
+	Percent of CPU this job got: 204%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:32.54
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 498168
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 1156164
+	Voluntary context switches: 447
+	Involuntary context switches: 241
+	Swaps: 0
+	File system inputs: 248
+	File system outputs: 415264
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -1,0 +1,27 @@
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "enable_not_released_by_restore", "verdict": "KILLED", "missing": []}
+{"mutant": "dispatch_not_held", "verdict": "KILLED", "missing": []}
+D3 mutations: 2 of 2 KILLED by their named checks; goldens PASS
+	Command being timed: "python3 tb/pp_top/d3_mutants.py --output $REVIEWS/pp203-r731-1-packet/scratch/out_d3 --verilator $VALIDATION_TOOLS/pinned-verilator-5.050/verilator --jobs 2 --only dispatch_not_held enable_not_released_by_restore"
+	User time (seconds): 1143.57
+	System time (seconds): 19.58
+	Percent of CPU this job got: 147%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 13:06.22
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 495528
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 3
+	Minor (reclaiming a frame) page faults: 2990385
+	Voluntary context switches: 5103
+	Involuntary context switches: 206564
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 256
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
