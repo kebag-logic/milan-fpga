@@ -27,10 +27,12 @@
    ([`KL_mbx_dma`](../../../hdl/milan/mailbox/KL_mbx_dma.sv), #665) on its own
    bench ([`dma_main.cpp`](dma_main.cpp)): its host port answered by a model
    of `KL_mbx`'s, its DMA port by an AXI4 memory with seeded stalls and an
-   error range, checks D1 to D9 (a move leaves memory or the ring as the
+   error range, checks D1 to D10 (a move leaves memory or the ring as the
    driver's word loop would, bursts inside a 64-byte line, the CPU's access
-   held through a move, refusals, error responses, reset, each request's
-   fields held through its answer); then its 17 planted defects
+   held through a move with its own strobes, a move started beside a CPU
+   access, refusals, error responses that end a move at their burst, reset,
+   each request's fields held through its answer, and every length the
+   12-bit field takes, 4092 to 4095 included); then its 21 planted defects
    ([`dma_mutants.py`](dma_mutants.py)), each caught by the check it names.
 
 `make census` runs [`publication_census.py`](../../../sw/mailbox/publication_census.py)

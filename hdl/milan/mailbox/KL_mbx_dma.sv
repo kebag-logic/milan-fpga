@@ -54,7 +54,7 @@ module KL_mbx_dma
   input  wire  [15:0]              ring_mask_i,      //! the ring's size in words less one
   input  wire  [15:0]              ring_index_i,     //! the ring index of the transfer's first word
   input  wire  [31:0]              mem_addr_i,       //! the transfer's first memory byte, on a word
-  input  wire  [11:0]              len_bytes_i,      //! the bytes to move; 0 moves nothing
+  input  wire  [11:0]              len_bytes_i,      //! the bytes to move, any of 0 to 4095; 0 moves nothing
   input  wire                      to_ring_i,        //! 1: memory to the ring (transmit); 0: the ring to memory (receive)
   input  wire                      start_p_i,        //! start one transfer with the operands above
   output logic                     busy_o,           //! a transfer is running and owns the host port
@@ -171,7 +171,9 @@ module KL_mbx_dma
   logic                      last_chunk_w;     //! the current chunk ends the transfer
   logic [10:0]               left_next_w;      //! the words left after the current chunk
   logic [31:2]               word_addr_next_w; //! the memory word after the current chunk
-  assign start_words_w    = 11'((len_bytes_i + 12'd3) >> 2);
+  // the sum in 13 bits: every length the 12-bit field takes, 4093 to 4095
+  // included, is its whole words, at most 1024 (#665)
+  assign start_words_w    = 11'(({1'b0, len_bytes_i} + 13'd3) >> 2);
   assign start_tail_be_w  = (len_bytes_i[1:0] == 2'd0) ? 4'hF : 4'((5'd1 << len_bytes_i[1:0]) - 5'd1);
   assign last_chunk_w     = (left_r == 11'(chunk_r));
   assign left_next_w      = left_r - 11'(chunk_r);

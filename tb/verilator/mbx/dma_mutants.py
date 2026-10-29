@@ -79,6 +79,16 @@ ARMS = (
         "D9 a write's data holds through its answer"),
     Arm("single-beat-bursts", "return (words < 11'(room)) ? words[4:0] : room;", "return 5'd1;",
         "D9 a line's sixteen ring reads end within 32 cycles"),
+    Arm("length-sum-wraps", "11'(({1'b0, len_bytes_i} + 13'd3) >> 2);", "11'((len_bytes_i + 12'd3) >> 2);",
+        "D10 after the field's largest lengths a CPU access gets its own word"),
+    Arm("error-burst-continues", "if (last_chunk_w || rerr_r || (beat_w && axi_rresp_i[1])) begin",
+        "if (last_chunk_w || (beat_w && axi_rresp_i[1])) begin", "D6 no read burst is issued after an errored beat"),
+    Arm("fill-during-cpu-answer",
+        "assign fill_req_w  = (state_r == FILL_S) && !hold_r && !ack_cpu_r && (count_r != chunk_r);",
+        "assign fill_req_w  = (state_r == FILL_S) && !hold_r && (count_r != chunk_r);",
+        "D4 a transfer started in the cycle of a CPU access moves its own bytes"),
+    Arm("held-partial-write-widened", "        pend_be_r    <= cpu_be_i;\n", "        pend_be_r    <= 4'hF;\n",
+        "D4 a held CPU write keeps its byte strobes: a partial one is still refused"),
 )
 
 

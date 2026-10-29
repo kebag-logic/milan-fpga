@@ -21,27 +21,36 @@
 //
 //   D1  a receive transfer writes memory [addr, addr + len) with the ring
 //       words' bytes in ring order and no other byte, at every word of a
-//       line, every length to 96 bytes and the largest frame, across the
-//       ring's wrap;
+//       line, every length to 96 bytes, the largest frame and the field's
+//       largest lengths (D10), across the ring's wrap;
 //   D2  a transmit transfer writes ring words index .. index + ceil(len/4)
 //       with memory's bytes and the lanes past len zero, and no other word;
 //   D3  every burst is INCR, four bytes a beat, at most sixteen beats, inside
 //       one 64-byte line, with WLAST on its last beat only, and its payload
 //       holds while VALID waits for READY;
 //   D4  a CPU access made while a transfer runs waits for it, completes with
-//       its own answer, and no access of the transfer comes after it;
+//       its own answer, and no access of the transfer comes after it; a held
+//       write keeps its byte strobes, so a partial one is still refused; a
+//       transfer started in the cycle of a CPU access moves its own bytes,
+//       never the CPU's answer (the model's read data is noise in a cycle it
+//       answers nothing);
 //   D5  a start with a memory address off a word, or while a transfer runs,
 //       is refused and sets ERR; the running transfer still completes;
-//   D6  an error response ends the transfer at that burst and sets ERR, no
-//       ring word is written from an errored beat, and the next accepted
-//       start clears ERR;
+//   D6  an error response ends the transfer at that burst and sets ERR: no
+//       burst is issued after it, even when the errored beat is not the
+//       burst's last, no ring word is written from an errored beat, and the
+//       next accepted start clears ERR;
 //   D7  a length of 0 moves nothing and leaves ERR clear;
 //   D8  a reset during a transfer leaves the mover idle, ERR clear and the
 //       port the CPU's;
 //   D9  every request on the host port, the CPU's and the mover's, holds its
 //       address, direction and data through the cycle of its answer, as
 //       KL_mbx_wb presents one (an observer reads the fields at the answer),
-//       and a line's sixteen ring reads still end within 32 cycles.
+//       and a line's sixteen ring reads still end within 32 cycles;
+//   D10 every length the 12-bit field takes moves as D1 to D3 say, 4092 to
+//       4095 included (1024 words, the ring's wrap crossed), in both
+//       directions; after each, a CPU access gets its own word and a later
+//       transfer moves its bytes (#665).
 
 #include <algorithm>
 #include <cstdint>
@@ -61,6 +70,7 @@ constexpr std::uint32_t kMemBase = 0x10000000u;
 constexpr std::uint32_t kMemBytes = 0x4000u;
 constexpr std::uint32_t kErrBase = 0x10003000u;    // a range of memory that answers SLVERR
 constexpr std::uint32_t kErrBytes = 0x40u;     // one line
+constexpr std::uint32_t kErrWord = 0x10003800u;    // one word at a line's start that answers SLVERR
 
 //! A small deterministic generator, so a failure replays exactly.
 struct Rng {
@@ -91,6 +101,8 @@ class Bench {
     unsigned stall = 0;            // percent of cycles each AXI channel stalls
     unsigned refused = 0;          // host writes with a partial strobe
     unsigned bursts = 0;
+    unsigned ar_after_error = 0;   // read bursts issued after an errored read beat of the current transfer
+    unsigned aw_after_error = 0;   // write bursts issued after an error response of the current transfer
     std::uint64_t cycles = 0;
     std::vector<std::uint64_t> read_cycles;   // the cycle of each ring read of the mover's
     Rng rng{0x2545F491u};
@@ -107,7 +119,8 @@ class Bench {
     //! outputs (which may depend on them), then rise.
     void step() {
         d_->host_ack_i = ack_next_ ? 1 : 0;
-        d_->host_rdata_i = rdata_next_;
+        // a cycle with no answer carries noise, so data taken from it is never a word the ring holds
+        d_->host_rdata_i = ack_next_ ? rdata_next_ : 0xA5000000u ^ static_cast<std::uint32_t>(cycles);
         drive_axi();
         d_->clk_i = 0;
         d_->eval();
@@ -150,6 +163,10 @@ class Bench {
         d_->len_bytes_i = len;
         d_->to_ring_i = to_ring ? 1 : 0;
         d_->start_p_i = 1;
+        rerr_seen_ = false;
+        berr_seen_ = false;
+        ar_after_error = 0;
+        aw_after_error = 0;
     }
 
     //! Run until the mover is idle; false on a timeout.
@@ -164,12 +181,12 @@ class Bench {
 
     //! A CPU access as KL_mbx_wb makes it: one request, then its answer.
     //! Returns the read data, or ~0 on a timeout.
-    std::uint32_t cpu(bool we, std::uint32_t addr, std::uint32_t data, unsigned limit = 20000) {
+    std::uint32_t cpu(bool we, std::uint32_t addr, std::uint32_t data, unsigned be = 0xF, unsigned limit = 20000) {
         d_->cpu_req_i = 1;
         d_->cpu_we_i = we ? 1 : 0;
         d_->cpu_addr_i = addr;
         d_->cpu_wdata_i = data;
-        d_->cpu_be_i = 0xF;
+        d_->cpu_be_i = be;
         for (unsigned i = 0; i < limit; ++i) {
             step();
             if (cpu_ack_) return cpu_rdata_;
@@ -222,7 +239,7 @@ class Bench {
     }
 
     bool in_mem(std::uint32_t a) const { return a >= kMemBase && a < kMemBase + kMemBytes; }
-    bool in_err(std::uint32_t a) const { return a >= kErrBase && a < kErrBase + kErrBytes; }
+    bool in_err(std::uint32_t a) const { return (a >= kErrBase && a < kErrBase + kErrBytes) || a == kErrWord; }
 
     void check_burst(std::uint32_t addr, unsigned len, unsigned size, unsigned burst) {
         ++bursts;
@@ -310,13 +327,19 @@ class Bench {
                 aw_q_.pop_front();
             }
         }
-        if (d_->axi_bvalid_i && d_->axi_bready_o) b_q_.pop_front();
+        if (d_->axi_bvalid_i && d_->axi_bready_o) {
+            berr_seen_ = berr_seen_ || b_q_.front();
+            b_q_.pop_front();
+        }
+        if (d_->axi_awvalid_o && d_->axi_awready_i && berr_seen_) ++aw_after_error;
+        if (d_->axi_arvalid_o && d_->axi_arready_i && rerr_seen_) ++ar_after_error;
         if (d_->axi_arvalid_o && d_->axi_arready_i) {
             check_burst(d_->axi_araddr_o, d_->axi_arlen_o, d_->axi_arsize_o, d_->axi_arburst_o);
             check_.that("D3 one burst in flight", aw_q_.empty() && b_q_.empty() && r_q_.empty());
             r_q_.push_back({static_cast<std::uint32_t>(d_->axi_araddr_o), d_->axi_arlen_o + 1u});
         }
         if (d_->axi_rvalid_i && d_->axi_rready_o) {
+            rerr_seen_ = rerr_seen_ || d_->axi_rresp_i != 0;
             Burst& r = r_q_.front();
             if (++r.done == r.beats) r_q_.pop_front();
         }
@@ -332,6 +355,8 @@ class Bench {
     std::uint32_t cpu_rdata_ = 0;
     bool ack_next_ = false;
     std::uint32_t rdata_next_ = 0;
+    bool rerr_seen_ = false;        // the current transfer took an errored read beat
+    bool berr_seen_ = false;        // the current transfer took an error write response
     std::deque<Burst> aw_q_;
     std::deque<Burst> r_q_;
     std::deque<bool> b_q_;
@@ -360,14 +385,27 @@ constexpr std::uint32_t kBase = 0x400;   // the AECP receive ring: 0x1000 bytes 
 constexpr std::uint32_t kMask = 511;
 constexpr std::uint8_t kGuard = 0xEE;
 
-void receive_case(Bench& b, milan::tb::Checker& check, std::uint32_t addr, std::uint32_t len, std::uint32_t index,
-                  const char* tag) {
-    for (std::uint32_t w = 0; w <= kMask; ++w) {
-        b.ring[kBase + w] = 0;
-        for (unsigned k = 0; k < 4; ++k) b.ring[kBase + w] |= std::uint32_t(pattern(w * 4 + k + len)) << (8 * k);
+//! A ring's word 0 in the window and its size in words less one.
+struct Ring {
+    std::uint32_t base;
+    std::uint32_t mask;
+};
+constexpr Ring kAecp{kBase, kMask};
+constexpr Ring kLarge{0x1000, 2047};     // 2,048 words: the field's largest length, 1,024 words, fits twice
+
+//! Fill a ring's words with a pattern of the length, so a word taken from anywhere else is wrong.
+void fill_ring(Bench& b, const Ring& r, std::uint32_t len) {
+    for (std::uint32_t w = 0; w <= r.mask; ++w) {
+        b.ring[r.base + w] = 0;
+        for (unsigned k = 0; k < 4; ++k) b.ring[r.base + w] |= std::uint32_t(pattern(w * 4 + k + len)) << (8 * k);
     }
+}
+
+void receive_case(Bench& b, milan::tb::Checker& check, std::uint32_t addr, std::uint32_t len, std::uint32_t index,
+                  const char* tag, const Ring& r = kAecp) {
+    fill_ring(b, r, len);
     std::fill(b.mem.begin(), b.mem.end(), kGuard);
-    b.start(kBase, kMask, index, addr, len, false);
+    b.start(r.base, r.mask, index, addr, len, false);
     if (!check.that((std::string("D1 a receive transfer ends, ") + tag).c_str(), b.wait_idle())) return;
     check.that((std::string("D1 a receive transfer sets no ERR, ") + tag).c_str(), !b.err());
     bool exact = true;
@@ -375,7 +413,7 @@ void receive_case(Bench& b, milan::tb::Checker& check, std::uint32_t addr, std::
     for (std::uint32_t i = 0; i < kMemBytes; ++i) {
         const std::uint32_t a = kMemBase + i;
         if (a >= addr && a < addr + len) {
-            exact = exact && b.mem[i] == ring_byte(b, kBase, kMask, index, a - addr);
+            exact = exact && b.mem[i] == ring_byte(b, r.base, r.mask, index, a - addr);
         } else {
             outside = outside && b.mem[i] == kGuard;
         }
@@ -385,33 +423,33 @@ void receive_case(Bench& b, milan::tb::Checker& check, std::uint32_t addr, std::
 }
 
 void transmit_case(Bench& b, milan::tb::Checker& check, std::uint32_t addr, std::uint32_t len, std::uint32_t index,
-                   const char* tag) {
+                   const char* tag, const Ring& r = kAecp) {
     for (std::uint32_t i = 0; i < kMemBytes; ++i) b.mem[i] = pattern(i + len);
-    std::vector<std::uint32_t> before = b.ring;
-    for (std::uint32_t w = 0; w <= kMask; ++w) b.ring[kBase + w] = 0xDEADBEEFu;
-    before = b.ring;
-    b.start(kBase, kMask, index, addr, len, true);
+    for (std::uint32_t w = 0; w <= r.mask; ++w) b.ring[r.base + w] = 0xDEADBEEFu;
+    const std::vector<std::uint32_t> before = b.ring;
+    const unsigned refused = b.refused;
+    b.start(r.base, r.mask, index, addr, len, true);
     if (!check.that((std::string("D2 a transmit transfer ends, ") + tag).c_str(), b.wait_idle())) return;
     check.that((std::string("D2 a transmit transfer sets no ERR, ") + tag).c_str(), !b.err());
     const std::uint32_t words = (len + 3u) / 4u;
     bool exact = true;
     bool others = true;
-    for (std::uint32_t w = 0; w <= kMask; ++w) {
-        const std::uint32_t k = (w - index) & kMask;   // the record's word k, if k < words
+    for (std::uint32_t w = 0; w <= r.mask; ++w) {
+        const std::uint32_t k = (w - index) & r.mask;   // the record's word k, if k < words
         if (k < words) {
             std::uint32_t want = 0;
             for (unsigned lane = 0; lane < 4; ++lane) {
                 const std::uint32_t byte = 4u * k + lane;
                 if (byte < len) want |= std::uint32_t(b.mem[addr - kMemBase + byte]) << (8 * lane);
             }
-            exact = exact && b.ring[kBase + w] == want;
+            exact = exact && b.ring[r.base + w] == want;
         } else {
-            others = others && b.ring[kBase + w] == before[kBase + w];
+            others = others && b.ring[r.base + w] == before[r.base + w];
         }
     }
     check.that((std::string("D2 the ring holds the record's words, the lanes past len zero, ") + tag).c_str(), exact);
     check.that((std::string("D2 no other ring word is written, ") + tag).c_str(), others);
-    check.that("D2 no ring write has a partial strobe", b.refused == 0);
+    check.that("D2 no ring write has a partial strobe", b.refused == refused);
 }
 
 void shapes(Bench& b, milan::tb::Checker& check) {
@@ -433,6 +471,27 @@ void shapes(Bench& b, milan::tb::Checker& check) {
             std::snprintf(tag, sizeof tag, "%u bytes, stall %u%%", len, stall);
             receive_case(b, check, kMemBase + 0x204, len, 0xFFF0u, tag);
             transmit_case(b, check, kMemBase + 0x1004, len, 0x01F8u, tag);
+        }
+    }
+    b.stall = 0;
+}
+
+void largest(Bench& b, milan::tb::Checker& check) {
+    // the field's largest lengths, 1,024 words each, from near the ring's end so the wrap is crossed; after each,
+    // the port is the CPU's again and a later transfer moves its bytes
+    for (unsigned stall : {0u, 30u}) {
+        b.stall = stall;
+        for (std::uint32_t len = 4092; len <= 4095; ++len) {
+            char tag[64];
+            std::snprintf(tag, sizeof tag, "%u bytes, the field's largest, stall %u%%", len, stall);
+            receive_case(b, check, kMemBase + 0x204, len, 2040, tag, kLarge);
+            transmit_case(b, check, kMemBase + 0x1404, len, 2040, tag, kLarge);
+            b.ring[7] = 0x600DF00Du ^ len;
+            check.that("D10 after the field's largest lengths a CPU access gets its own word",
+                       b.cpu(false, 7, 0) == (0x600DF00Du ^ len));
+            std::snprintf(tag, sizeof tag, "after %u bytes, stall %u%%", len, stall);
+            receive_case(b, check, kMemBase + 0x100, 18, 3, tag);
+            transmit_case(b, check, kMemBase + 0x900, 18, 3, tag);
         }
     }
     b.stall = 0;
@@ -464,13 +523,30 @@ void cpu_waits(Bench& b, milan::tb::Checker& check) {
         b.cpu(true, 6, 0xCAFEF00Du);
         check.that("D4 a CPU write held for a transfer lands", b.ring[6] == 0xCAFEF00Du);
         check.that("D4 no access of a transfer comes after the CPU's held one", last_is_cpu(b));
+        // a held write with a partial strobe: KL_mbx refuses it, so it must reach the port with that strobe
+        const unsigned refused = b.refused;
+        b.start(kBase, kMask, 9, kMemBase + 0x200, 300, to_ring);
+        b.step();
+        b.cpu(true, 6, 0x0D15EA5Eu, 0x3);
+        check.that("D4 a held CPU write keeps its byte strobes: a partial one is still refused",
+                   b.ring[6] == 0xCAFEF00Du && b.refused == refused + 1);
     }
-    // a CPU access in the cycle a transfer starts goes first
-    b.ring[3] = 0x0BADF00Du;
-    b.start(kBase, kMask, 0, kMemBase + 0x100, 64, false);
-    const std::uint32_t got = b.cpu(false, 3, 0);
-    check.that("D4 a CPU read in the cycle a transfer starts gets its own word", got == 0x0BADF00Du);
-    check.that("D4 that transfer still ends", b.wait_idle());
+    // a CPU access in the cycle a transfer starts goes first, and the transfer moves its own bytes
+    for (bool to_ring : {false, true}) {
+        fill_ring(b, kAecp, 64);
+        for (std::uint32_t i = 0; i < kMemBytes; ++i) b.mem[i] = to_ring ? pattern(i + 64) : kGuard;
+        b.ring[3] = 0x0BADF00Du;
+        b.start(kBase, kMask, 0, kMemBase + 0x100, 64, to_ring);
+        const std::uint32_t got = b.cpu(false, 3, 0);
+        check.that("D4 a CPU read in the cycle a transfer starts gets its own word", got == 0x0BADF00Du);
+        check.that("D4 that transfer still ends", b.wait_idle());
+        bool own = true;
+        for (std::uint32_t k = 0; k < 64; ++k) {
+            const std::uint8_t ring = ring_byte(b, kBase, kMask, 0, k);
+            own = own && (to_ring ? ring == b.mem[0x100 + k] : b.mem[0x100 + k] == ring);
+        }
+        check.that("D4 a transfer started in the cycle of a CPU access moves its own bytes", own);
+    }
 }
 
 void refusals(Bench& b, milan::tb::Checker& check) {
@@ -513,6 +589,7 @@ void errors(Bench& b, milan::tb::Checker& check) {
     check.that("D6 a write error response sets ERR", b.err());
     check.that("D6 the transfer stops at the errored burst",
                b.mem[kErrBase - kMemBase + 64] == kGuard && b.mem[kErrBase - kMemBase + 128] == kGuard);
+    check.that("D6 no write burst is issued after an error response", b.aw_after_error == 0);
     // the next accepted start clears it
     b.start(kBase, kMask, 0, kMemBase + 0x100, 8, false);
     check.that("D6 a later transfer ends", b.wait_idle());
@@ -532,6 +609,16 @@ void errors(Bench& b, milan::tb::Checker& check) {
     for (std::uint32_t k = 16; k < 75; ++k) none = none && b.ring[kBase + k] == 0xDEADBEEFu;
     check.that("D6 the words before the errored burst are written", good);
     check.that("D6 no ring word is written from an errored beat or after it", none);
+    check.that("D6 no read burst is issued after an errored beat", b.ar_after_error == 0);
+    // transmit: only the burst's first beat errs, its last does not; the transfer still ends at that burst
+    for (std::uint32_t w = 0; w <= kMask; ++w) b.ring[kBase + w] = 0xDEADBEEFu;
+    b.start(kBase, kMask, 0, kErrWord - 64, 300, true);
+    check.that("D6 a transmit transfer with an error on a burst's first beat ends", b.wait_idle());
+    check.that("D6 a read error on a burst's first beat sets ERR", b.err());
+    none = true;
+    for (std::uint32_t k = 16; k < 75; ++k) none = none && b.ring[kBase + k] == 0xDEADBEEFu;
+    check.that("D6 no ring word is written from a burst whose first beat erred", none);
+    check.that("D6 no read burst is issued after an errored beat", b.ar_after_error == 0);
 }
 
 void reset_during(Bench& b, milan::tb::Checker& check) {
@@ -564,6 +651,7 @@ int main(int argc, char** argv) {
     Bench b(model.get(), check);
     b.reset();
     shapes(b, check);
+    largest(b, check);
     cpu_waits(b, check);
     refusals(b, check);
     errors(b, check);
