@@ -126,7 +126,65 @@ Every case also fails on a trap, a bus error, a failed testbench check or a wait
 
 ## Results
 
-The results are pending the measurement at this head.
+Measured at the head this harness lands with, on the split's 4 KiB instruction cache:
+
+```sh
+python3 -B tb/verilator/nvm_split_target/run.py --point 1x1 --build-dir /tmp/nvm-target-1x1 --record-budget-findings
+python3 -B tb/verilator/nvm_split_target/run.py --point 8x8 --build-dir /tmp/nvm-target-8x8 --record-budget-findings
+```
+
+Both runs exit 1, because the `commit` case fails its capture bound; every other case passes and every control is caught.
+
+### The capture
+
+| Point | Records, container | Capture steps | CPU cycles | ms | Bound | Fixed a step, cycles | A payload byte, cycles | Idle step, cycles |
+|---|---|---:|---:|---:|---|---:|---:|---:|
+| 1x1 | 54, 3,336 B (2,858 B of payload) | 55 | 1,361,143 | 27.223 | 24.5 ms: **over** | 11,062 | 263.7 | 9,486 |
+| 8x8 | 164, 13,256 B (11,898 B of payload) | 165 | 5,161,328 | 103.227 | 24.5 ms: **over** | 16,500 | 205.5 | 9,389 |
+
+**The capture misses its bound at both points, by 11 % at 1x1 and 4.2 times at 8x8.**
+The fixed cost and the cost a byte are the least-squares line through the latch steps' CPU cycles against the payload of the record each latched.
+An idle step, which every step pays too, is mostly the flash port's 64-bit clock conversion (`ls_now_us`).
+At 8x8 the payload bytes alone cost 11,898 x 205.5 = 2.45 M cycles, 48.9 ms: twice the bound with no fixed cost at all.
+The shipping writer's capture, the one the bound was set for, copies 13,210 bytes at 8x8 in 13.86 ms (`nvm_capture_cpu/measurements.json`), about 52 cycles a byte.
+
+### The commit's steps
+
+| Phase | 1x1: steps, longest CPU cycles (ms) | 8x8: steps, longest CPU cycles (ms) |
+|---|---|---|
+| capture | 55, 40,771 (0.815) | 165, 131,929 (2.639) |
+| seal | 14, 34,384 (0.688) | 52, 34,839 (0.697) |
+| erase | 1, 12,416 (0.248) | 1, 12,595 (0.252) |
+| poll | 15, 11,851 (0.237) | 53, 12,321 (0.246) |
+| program | 14, 101,098 (2.022) | 52, 101,577 (2.032) |
+| read (blank check and verify) | 28, 95,354 (1.907) | 104, 95,984 (1.920) |
+| idle | 203, 10,022 (0.200) | 215, 10,358 (0.207) |
+
+Every step is within T_svc = 10 ms at both points.
+The commit erased one block and programmed 14 pages at 1x1 and 52 at 8x8, and the journal it left decodes by the reference codec with the saved name and sink 0's binding.
+
+### The boots
+
+| Case | 1x1: apply entries, `nvm_store_boot` CPU cycles (ms) | 8x8 |
+|---|---|---|
+| `valid` | 44, 5,027,209 (100.5) | 133, 24,423,878 (488.5) |
+| `absent` | 0, 506,631 (10.1) | 0, 1,746,898 (34.9) |
+| `torn` | 44, 8,255,898 (165.1) | 133, 37,255,159 (745.1) |
+| `version` | 0, 504,698 (10.1) | 0, 1,744,933 (34.9) |
+
+Each passes at both points: the answers are the saved values where a slot is accepted and the defaults where none is, the apply order is the container's, and nothing is written.
+The `guard` case passes at both points: seven calls outside the journal reached the port and were refused, and the device saw only the erase inside it.
+The boot runs before the loop.
+A refusal stands only on two reads of the same bytes ([`ctrl_nvm/README.md`](../../../sw/firmware/ctrl_nvm/README.md#boot), "Boot" item 3), so the `torn` boot reads its refused slot twice, beside the accepted slot and its re-stage.
+
+### The controls
+
+| Control | 1x1 | 8x8 |
+|---|---|---|
+| `reorder-settle` | caught: entry 4 is `aecp_value_restore`, the container needs `aecp_restore_settle` | caught: entry 25 is `aecp_value_restore`, the container needs `aecp_restore_settle` |
+| `reorder-bindings` | caught: entry 0 is `aecp_map_restore`, the container needs `acmp_restore_binding` | caught: entry 0 is `aecp_map_restore`, the container needs `acmp_restore_binding` |
+| `guard-removed` | caught: `flash write escaped the journal` | caught: `flash write escaped the journal` |
+| `capture-one-page-past` | caught: at the bound, 24.5000 ms, it fits; one page (104,453 cycles) past it, 26.5891 ms, is over | caught: at the bound, 24.5000 ms, it fits; one page (99,676 cycles) past it, 26.4935 ms, is over |
 
 ## Controls and self-test
 
