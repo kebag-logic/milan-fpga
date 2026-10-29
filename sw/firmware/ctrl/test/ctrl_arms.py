@@ -485,6 +485,25 @@ def arm_srpcmp() -> Outcome:
     return Outcome("srpcmp", 1 if failed or missing else 0, log)
 
 
+HOT = HERE / "ctrl_hot.py"
+#: The hot-list gate's planted defects, by name: one that goes missing from its self-test fails the arm (#665).
+HOT_PLANTS = frozenset({"stale-name", "absent-from-image", "only-discarded", "reordered", "dropped", "unrecorded",
+                        "recorded-elsewhere", "no-end-marker"})
+
+
+def arm_hot() -> Outcome:
+    """The split script's hot list: the tree's list is the recorded order (--check), and the gate's self-test
+    passes its control and refuses each named plant by its own rule."""
+    check = run([sys.executable, "-I", "-B", str(HOT), "--check"])
+    test = run([sys.executable, "-I", "-B", str(HOT), "--self-test"])
+    caught = set(re.findall(r"^\[caught\] ([\w-]+):", test.stdout, re.M))
+    missing = sorted(HOT_PLANTS - caught)
+    log = (f"  {HOT.name} --check: {(check.stdout + check.stderr).strip()}\n"
+           f"  {HOT.name} --self-test:\n" + "".join(f"    {line}\n" for line in (test.stdout + test.stderr).splitlines())
+           + f"  named plants not caught: {', '.join(missing) or 'none'}")
+    return Outcome("hot", 1 if check.returncode or test.returncode or missing else 0, log)
+
+
 # ---- the verdict -------------------------------------------------------------------------
 
 def report(outcomes: list[Outcome]) -> bool:

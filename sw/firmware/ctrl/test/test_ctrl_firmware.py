@@ -79,9 +79,14 @@ pinned tsn-c-stack submodule (#697), built into the same arms:
            named planted defects each present and caught;
   aecp     the complete command, notification and saved-state owner, composed
            with ACMP and SRP at one and two interfaces; every generated AEM
-           image, mailbox completion ordering, latency and debug guards.
+           image, mailbox completion ordering, latency and debug guards;
+  hot      ctrl_hot.py: the split link script's hot list is the order
+           plat/ctrl_split_hot.txt records with its traces, and the gate's
+           self-test refuses each of its named planted defects by its own
+           rule (#665). ctrl_srp_image.py applies the gate to every split
+           image it links, its link map naming each entry's section.
 
-Every arm but rv32, srpcmp and entity's header generation is a GoogleTest
+Every arm but rv32, srpcmp, hot and entity's header generation is a GoogleTest
 binary (sw/firmware/gtest/README.md), graded by the tally it prints.
 
 --self-test then plants each defect of ctrl_mutants.py into a COPY of the
@@ -167,7 +172,7 @@ def run_suites(args: argparse.Namespace, tree: Tree) -> list:
                 ctrl_arms.arm_entity(tree), ctrl_arms.arm_rv32(tree, args.require_rv32),
                 ctrl_arms.arm_maap(tree), ctrl_arms.arm_maap_debug(tree), ctrl_arms.arm_maap_if2(tree),
                 ctrl_arms.arm_reentry_debug(tree), ctrl_arms.arm_reentry_release(tree),
-                ctrl_arms.arm_srpcmp()]
+                ctrl_arms.arm_srpcmp(), ctrl_arms.arm_hot()]
     if args.lwsrp is not None:
         outcomes.append(ctrl_arms.arm_lwsrp(tree, args.lwsrp.resolve()))
         for i in (1, 2):

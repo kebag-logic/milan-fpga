@@ -22,8 +22,9 @@ SECTIONS
 		 * the functions a pass runs one after another take consecutive cache
 		 * sets, so it refills fewer lines (docs/design/SPLIT_CONTROL_MEMORY.md
 		 * section 11). Objects are <index>-<stem>.o (ctrl_srp_image.py). A
-		 * name that matches no section places nothing: that function keeps
-		 * its place among the rest. */
+		 * name that matches no section places nothing, so ctrl_hot.py
+		 * refuses a split image whose map has no section for an entry, and
+		 * a list that is not the order ctrl_split_hot.txt records. */
 		_ctrl_hot_start = .;
 		*-mbx.o(.text.mbx_irq_status)
 		*-srp_mbx.o(.text.rx_order_ready)

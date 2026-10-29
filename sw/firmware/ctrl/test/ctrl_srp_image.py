@@ -24,6 +24,7 @@ from ctrl_build import (CTRL, HERE, ROOT, PORTABLE, RV32_FLAGS, SPLIT_ISA, SPLIT
                         Refusal, legacy_stack, run, source, stack_pin)
 from srp_arms import prepared, LWSRP_SOURCES
 from ctrl_arms import lwsrp_pin
+import ctrl_hot
 import fw_gtest
 import fw_rv32
 sys.path.insert(0,str(ROOT/"sw/litex"))
@@ -115,6 +116,17 @@ def link(cc: str, src: Path, out: Path, objects: list[Path], libraries: list[Pat
     return elf,mapfile
 
 
+def hot_list(src: Path, mapfile: Path) -> None:
+    """The split script's hot list is the recorded order and each entry a section of this image (ctrl_hot.py,
+    #665); a tree from before the list has neither file's part and is not checked."""
+    script=(src/"plat/ctrl_split.ld").read_text(); order=src/"plat/ctrl_split_hot.txt"
+    if not order.is_file() and ctrl_hot.START not in script:
+        return
+    found=ctrl_hot.findings(script,order.read_text() if order.is_file() else "",mapfile.read_text())
+    if found:
+        raise Refusal("\n".join(found))
+
+
 def arguments() -> argparse.Namespace:
     """Parse the shape, composition and isolated runtime inputs."""
     parser=argparse.ArgumentParser(description=__doc__)
@@ -180,6 +192,8 @@ def main() -> int:
                 raise Refusal(f"{obj.name} references a symbol: the platform's memory primitives call nothing")
         elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
         verify_abi(cc,elf,isa)
+        if args.layout == "split":
+            hot_list(tree.src,mapfile)
         symbols=checked([nm,"-S",str(elf)])
         if checked([nm,"-u",str(elf)]).strip():
             raise Refusal("linked runtime has unresolved symbols")

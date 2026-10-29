@@ -467,7 +467,7 @@ against the two modules' own).
 
 The driver compiles the firmware for the host exactly as the target
 compiles it (`-std=c11 -Wall -Wextra -Werror -pedantic`), into a temporary
-directory, and runs these arms. Every arm but `rv32` and `srpcmp` is a
+directory, and runs these arms. Every arm but `rv32`, `srpcmp` and `hot` is a
 GoogleTest binary graded by the tally it prints; the harness, its mocks, the
 port from the hand-rolled checks and the coverage ratchet are described in
 [the harness page](../gtest/README.md).
@@ -489,6 +489,7 @@ port from the hand-rolled checks and the coverage ratchet are described in
 | `rv32` | the portable set | a freestanding RV32I build whose only open symbols are C-library string, format and assertion functions and libgcc helpers |
 | `lwsrp` | `lwsrp_port.cpp` | the pinned submodule, or `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
 | `srpcmp` | [`srp_wire_compare.py`](test/srp_wire_compare.py) | the comparator the placement switch compares the two placements' SRP frames with (#665, the ruling of comment 6088423771): its own self-test, its five named controls and its 18 named planted wire and comparison defects each present and caught; a report missing any of them fails the arm |
+| `hot` | [`ctrl_hot.py`](test/ctrl_hot.py) | the split link script's hot list ([`plat/ctrl_split.ld`](plat/ctrl_split.ld)) is the order [`plat/ctrl_split_hot.txt`](plat/ctrl_split_hot.txt) records with its traces, entry for entry; its self-test passes its control and refuses each of its eight named planted defects by its own rule, among them a stale name, a name absent from the image or only discarded, and a reordered, dropped or unrecorded entry. [`ctrl_srp_image.py`](test/ctrl_srp_image.py) applies both rules to every split image it links, the link map naming each entry's section (#665) |
 
 The [SRP evidence](srp/README.md#evidence) adds declaration, lifecycle, latency,
 debug, shape and processor-wire arms at one and two interfaces.
