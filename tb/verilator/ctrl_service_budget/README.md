@@ -95,9 +95,11 @@ That is a CI change, outside this lane.
 
 - **The CPU** is MilanSoC's own VexiiRiscv path: RV32I, one hart, the CPU at the 50 MHz Milan clock, the bus at 100 MHz.
   It has the split placement's instruction cache (`milan_soc.ctrl_cpu_args`), or the `--fetch-l1` selection; its data side is cacheless.
-  The DMA port the shipping image has is kept, idle.
+  The DMA port the shipping image has is kept; the split placement's record mover is its only master.
 - **The firmware memory** is `milan_soc.add_ctrl_memory`, the split placement's, built from the linked image.
 - **The mailbox** is this harness's own instance of `KL_mbx` behind `KL_mbx_wb`, with CtrlMailbox's hookup.
+  `KL_mbx_wb` reaches it through the split placement's record mover (`milan_soc.CtrlMailboxDma`, #665), whose CSR bank sits where the image addresses it (`ctrl_build.SPLIT_MBX_DMA_BASE`).
+  The host-port pads are `KL_mbx`'s side, so the mover's ring accesses are observed with the CPU's; the mover holds each request's fields through its answer, as `KL_mbx_wb` does.
   Its datapath side is on pads that [`sim_main.cpp`](sim_main.cpp) drives.
   `milan_soc.CtrlMailbox` and its idle tie-offs are not used.
   At two interfaces the RTL is `gen_mailbox.py`'s variant, written into the build directory.
@@ -797,6 +799,7 @@ A data cache was the owner's option, with the coherent interconnect it needs; th
 [Its section 10](../../../docs/design/SPLIT_CONTROL_MEMORY.md#10-the-cpu-clock-the-composed-rows-need) measures the CPU clock the backlog rows need, with this harness and three labelled variants of it.
 [Its section 11](../../../docs/design/SPLIT_CONTROL_MEMORY.md#11-the-firmwares-work-on-the-record-paths) cuts the firmware's work on the AECP and SRP record paths and measures the rows again, with this harness and a labelled profiling variant of it.
 [Its section 12](../../../docs/design/SPLIT_CONTROL_MEMORY.md#12-the-remaining-firmware-levers-at-the-present-clock) takes the firmware levers left at the present clock and models what a larger fetch L1 would save, with the same variant and committed-PC traces of the windows.
+[Its section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover) measures the 16 KiB two-way fetch L1, the bulk primitives and the mailbox's record mover with the same variant, and lwSRP's and the TSN stack's drafts staged.
 
 ### Controls with the cache
 
@@ -959,7 +962,7 @@ The run must refuse the boot with an instruction access fault, cause 1, and prin
 - The fixture's sources are never allocated, so a Listener Ready grants no licence; that path ends at the record's release.
 - Ends are mailbox commits; wire departure, ingress, egress and the network (H-ACMP's round trip) are not measured.
 - The flash's erase and program waits are zero, so F1's commit is measured as CPU work only; S4 owns the target port.
-- There is no datapath, no DDR3 and no packet traffic besides the stimulus; the CPU's DMA port is idle.
+- There is no datapath, no DDR3 and no packet traffic besides the stimulus; the CPU's DMA port carries only the record mover's moves.
 - The firmware polls (`CTRL_MBX_WFI` undefined), as the fixture is linked.
 - The two-interface fixture gives both interfaces the same MAC, as `ctrl_aecp_image.c` does.
 - With the instruction cache, a fetch is observed as a line refill on the cache's bus; hits are on no bus and are not counted.

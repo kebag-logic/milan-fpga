@@ -17,7 +17,8 @@
 #                    rtl-fast's publication-census job, so it is not in `make`
 #   make mutants   - every planted RTL defect, after both positive controls
 #   make run-dma   - the split placement's record mover (KL_mbx_dma) on its
-#                    own bench (dma_main.cpp), then its planted defects
+#                    own bench (dma_main.cpp)
+#   make dma-mutants - run-dma, then the mover's planted defects
 #                    (dma_mutants.py); part of `make`
 #   make clean     - remove build artifacts
 #

@@ -23,6 +23,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
 - **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at 100 MHz and at 150 MHz.
 - **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at 100 MHz, and what a larger fetch L1 would save by the model.
+- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at 100 MHz, the refills per window, and what holds the 8x8 rows.
 
 ## 1. Memory map
 
@@ -376,9 +377,9 @@ That leaves the ledger 0.5 tiles below its 121.5-tile ceiling after the conditio
 
 The owner amended [NFR-SCOUT-01](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) for this cache on 2026-10-28 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6460942408)).
 It had required no data cache on the split hart.
-It now requires one control hart: in the split placement it is RV32IM, with a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and an 8 KiB direct-mapped data cache (64-byte lines), coherent with the DMA port, with the mailbox, CSR and flash windows uncached; in the all-fabric placement it is RV32I and stays cacheless.
-[The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats that wording.
-Any other geometry, or a data cache on the all-fabric hart, needs the owner's decision again.
+It then required one control hart: in the split placement it is RV32IM, with a 4 KiB direct-mapped instruction cache (64-byte lines, one refill at a time) and an 8 KiB direct-mapped data cache (64-byte lines), coherent with the DMA port, with the mailbox, CSR and flash windows uncached; in the all-fabric placement it is RV32I and stays cacheless.
+[The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeated that wording.
+The owner amended it again on 2026-10-29 for a larger instruction cache ([section 13](#13-the-larger-fetch-l1-and-the-record-mover)).
 
 ## 10. The CPU clock the composed rows need
 
@@ -758,3 +759,163 @@ The geometry stays the owner's decision.
 
 - At 100 MHz the last AECP and SRP records still miss at both points, 12.95 to 15.30 ms at 1x1 and 19.11 to 21.76 ms at 8x8, and at 8x8 the last ACMP record, 10.51 to 10.70 ms.
 - The stack's change reaches this branch only through tsn-c-stack's own review, then a pin move with the hot list's runtime entry removed.
+
+## 13. The larger fetch L1 and the record mover
+
+The owner took three of section 12's open items on 2026-10-29 ([decision and assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6492443864)):
+- a 16 KiB two-way fetch L1 on the split hart;
+- a firmware and bus-path round for the 8x8 rows: bulk copies and fills, a DMA for the mailbox driver's record transfers, and a change to lwSRP's receive path;
+- the TSN stack's wire-halves change from section 12, measured staged as there.
+
+Every figure here is at the 100 MHz CPU clock, measured with section 11's profiling variant.
+
+### The fetch L1
+
+| Parameter | Value | Reason |
+|---|---|---|
+| Size | 16 KiB: 128 sets | The owner's decision; section 12's model put both 1x1 rows within T_svc at this size and ways |
+| Ways | 2, least recently used | The pinned generator replaces by its pseudo-LRU, which at two ways is exact LRU |
+| Line | 64 bytes | The generator's fixed line, as section 7 |
+| Refills | One at a time, no prefetch | The generator's default, as section 7 |
+| Region decode | Unchanged | Section 7's cover; only rom is executable |
+
+`milan_soc.CTRL_FETCH_L1` holds it; `ctrl_cpu_args` hands it to the generator with the data cache and RV32M, and the all-fabric CPU keeps exactly `--xlen=32`.
+`sw/builder/test_soc_options.py` restates the geometry and kills a larger and a smaller cache, a third way, one way, and the 4 KiB direct-mapped cache it replaces.
+
+The owner amended [NFR-SCOUT-01](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) for it on the same day.
+It now requires one control hart: in the split placement it is RV32IM, with a 16 KiB two-way set-associative instruction cache (64-byte lines, LRU replacement, one refill at a time) and the coherent 8 KiB direct-mapped data cache (64-byte lines), coherent with the DMA port, with the mailbox, CSR and flash windows uncached; in the all-fabric placement it is RV32I and stays cacheless.
+[The architecture](../ARCHITECTURE_HW_SW_SPLIT.md) repeats that wording.
+
+**Out of context** (Vivado 2026.1, `AreaOptimized_high`, `xc7a100t-fgg484-2`), the split CPU and its firmware memory, the CPU clock and the bus at 10 ns, section 10's recipe:
+
+| Split CPU | CPU WNS / WHS, ns | Bus WNS / WHS, ns | LUT | FF | The CPU's RAMB36 / RAMB18 | The CPU's tiles |
+|---|---:|---:|---:|---:|---:|---:|
+| 4 KiB direct-mapped fetch L1 (section 10) | +0.952 / +0.041 | +2.440 / +0.070 | 3,902 | 6,828 | 6 / 11 | 11.5 |
+| 16 KiB two-way fetch L1 | +0.659 / +0.031 | +2.660 / +0.072 | 3,948 | 6,879 | 9 / 11 | 14.5 |
+
+The route has no routing errors, and its worst CPU path is the generator's memory bridge into its read pipe (8.93 ns, 84 % route).
+The cache's data takes four RAMB36 where the 4 KiB cache took one; its tags stay in the core's RAMB18.
+That is CPU memory outside the 224 KB firmware allocation, so no image's plan changes with it.
+[The area plan's ledger](MARK_II_AREA_PLAN.md) takes the 3 tiles: 124 after the conditional release, 2.5 over its 121.5-tile ceiling.
+
+### The memory primitives
+
+`plat/ctrl_mem.c`'s aligned copy and fill now move eight words a turn, then the rest by its bits, a step each: four words, two, one, a halfword, a byte.
+Before, they moved four words a turn and the rest in a word loop and a byte loop.
+Most calls on the record paths fill or copy a few tens of aligned bytes, so a call's fixed instructions weigh as much as its words.
+In the 8x8 windows `memset` runs 15 % fewer instructions and `forward` 6 % fewer; their time is mostly the data cache's refills, which no primitive removes.
+The host suite's every-alignment tests cover each new step, and six planted defects are caught.
+
+### The record mover
+
+[`KL_mbx_dma`](../../hdl/milan/mailbox/KL_mbx_dma.sv) sits on the mailbox's host port between `KL_mbx_wb` and `KL_mbx` and masters the CPU's coherent DMA port.
+- A receive move reads a chunk of ring words into a 16-word buffer, then writes it to memory as one AXI4 burst.
+- A transmit move reads a burst from memory and writes each beat to the ring.
+- A burst never crosses a 64-byte line.
+
+It adds nothing to the mailbox contract:
+- it moves the ring words the driver's loop moved, in ring order;
+- a transmit word's lanes past the length are zero, and a receive move leaves memory past the length untouched;
+- the header words, counters and doorbells stay the driver's;
+- while a move runs it owns the port, and an access of the CPU's waits for it.
+
+Its four control registers are a CSR bank of their own (`milan_soc.CTRL_MBX_DMA_REGISTERS`), pinned below the mailbox's.
+The driver (`plat/mbx_dma.h`) writes three of them and polls the fourth: four register accesses a record instead of one uncached access a word.
+The split image moves every received payload and every transmitted payload on a word with it; any other build keeps the word loops.
+
+Out of context at 10 ns, with the mailbox's recipe, it takes 395 LUTs, 700 FFs and no block RAM, with 4.086 ns of slack.
+Its bench checks it against a driver's word loop written from the contract, with a model of `KL_mbx`'s port and an AXI4 memory that stalls and errs; 17 planted defects are caught.
+
+The CPU budget harness puts the same mover in its own test SoC and observes `KL_mbx`'s side of it.
+Each request holds its fields through its answer, as `KL_mbx_wb`'s do, so the harness's observer and grader are unchanged.
+With it, the driver runs half its instructions: `mbx_tx_send` takes 0.40 to 0.45 ms of an 8x8 window where it took 0.98 to 1.03, and `mbx_rx_take` 0.65 to 0.71 where it took 0.85 to 0.93.
+What `mbx_rx_take` keeps is its poll and the data cache's refills of the frame the mover wrote.
+
+### lwSRP's receive path, as a change to lwSRP
+
+Two exact changes, drafted for lwSRP's own review and measured staged; the parent's pin stays:
+- `mrp_reclaim` walks a port's attributes only after one was created or changed to a reclaimable state since the last walk, and frees the same attributes at the same calls.
+  The SRP adapter calls it after every receive, and each call walked the whole list: 0.68 to 0.75 ms of an 8x8 SRP window, mostly data-cache refills, 0.18 ms with the change.
+- `parse_pass` clears a decoded value only on the pass that delivers it; the validation pass cleared 64 bytes an attribute for nothing.
+
+The adapter needs no change: its reclaim flag still saves the call.
+Moving the pin is the gitlink and `ctrl_arms.LWSRP_REV` together.
+
+### The rows
+
+Each cell is the worst instance over the four groups in ms, arm A / arm B, bold where it misses T_svc (10 ms).
+"Before" is section 12's "after"; "with the stack's change" adds section 12's TSN stack draft to it.
+"After" is this branch: the fetch L1, the primitives and the mover.
+"After, with both changes" adds the TSN stack draft and the lwSRP draft, staged.
+"The fetch L1 alone" is section 12's firmware on the new CPU.
+
+| 1x1/1if: row | before | with the stack's change | the fetch L1 alone | after | after, with both changes |
+|---|---:|---:|---:|---:|---:|
+| ACMP record, last | 6.62 / 6.76 | 6.06 / 6.37 | 5.66 / 5.43 | 5.09 / 5.02 | 4.41 / 4.55 |
+| ADP record, last | 4.94 / 5.06 | 4.27 / 4.50 | 4.02 / 3.88 | 3.77 / 3.56 | 3.22 / 3.24 |
+| MAAP record, last | 4.93 / 5.09 | 4.31 / 4.54 | 4.06 / 3.92 | 3.81 / 3.60 | 3.25 / 3.27 |
+| AECP record, last | **13.45** / **14.37** | **12.95** / **13.44** | **10.52** / **10.42** | 9.56 / 9.93 | 8.64 / 9.00 |
+| SRP record, last | **15.30** / **14.84** | **14.28** / **13.91** | **11.03** / **10.71** | **10.41** / 9.91 | 9.11 / 9.26 |
+| AECP record, last, in the owed window | **64.19** / **64.22** | **64.16** / **64.07** | **62.72** / **62.68** | **62.40** / **62.32** | **62.25** / **62.36** |
+| A response with 7 frames owed ahead of it | **62.90** / **62.94** | **62.90** / **62.88** | **61.92** / **61.89** | **61.70** / **61.64** | **61.60** / **61.68** |
+| An ACMP command behind the owed input | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
+| An ACMP command behind a full ACMP ring | 5.44 / 5.40 | 4.89 / 4.86 | 4.19 / 4.14 | 3.91 / 3.69 | 3.44 / 3.44 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 3.63 / 3.86 | 3.18 / 3.42 | 3.04 / 2.97 | 2.88 / 2.72 | 2.46 / 2.48 |
+| An event behind 15 others | 1.57 / 1.57 | 1.44 / 1.43 | 1.27 / 1.26 | 1.22 / 1.17 | 1.10 / 1.10 |
+
+| 8x8/2if: row | before | with the stack's change | the fetch L1 alone | after | after, with both changes |
+|---|---:|---:|---:|---:|---:|
+| ACMP record, last | **10.69** / **10.70** | **10.51** / **10.59** | 9.10 / 9.10 | 8.51 / 8.94 | 8.62 / 8.28 |
+| ADP record, last | 8.13 / 8.14 | 8.01 / 8.06 | 6.91 / 6.91 | 6.68 / 6.86 | 6.64 / 6.52 |
+| MAAP record, last | 8.12 / 8.13 | 8.00 / 8.04 | 6.89 / 6.89 | 6.66 / 6.84 | 6.63 / 6.50 |
+| AECP record, last | **19.26** / **19.73** | **19.11** / **20.39** | **15.88** / **16.16** | **14.92** / **15.89** | **14.47** / **15.22** |
+| SRP record, last | **21.76** / **21.07** | **21.30** / **20.86** | **16.89** / **16.64** | **16.30** / **16.39** | **15.81** / **15.19** |
+| AECP record, last, in the owed window | **66.52** / **66.64** | **66.68** / **66.74** | **65.13** / **65.15** | **64.66** / **64.79** | **64.79** / **64.68** |
+| A response with 7 frames owed ahead of it | **64.70** / **64.82** | **64.85** / **64.91** | **63.76** / **63.78** | **63.44** / **63.51** | **63.78** / **63.42** |
+| An ACMP command behind the owed input | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
+| An ACMP command behind a full ACMP ring | 9.85 / 9.86 | 9.66 / 9.73 | 8.42 / 8.42 | 7.87 / 8.29 | 7.98 / 7.63 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 5.45 / 5.34 | 5.24 / 5.43 | 4.52 / 4.42 | 4.23 / 4.32 | 4.24 / 4.38 |
+| An event behind 15 others | 2.65 / 2.66 | 2.61 / 2.61 | 2.19 / 2.19 | 2.15 / 2.20 | 2.15 / 2.12 |
+
+The first records fit everywhere.
+At 1x1 this branch brings every row the CPU decides within T_svc but arm A's last SRP record, 10.41 ms; with both changes every one fits.
+At 8x8 the last ACMP record fits, and the last AECP and SRP records miss by 4.5 to 6.4 ms.
+
+Behaviour is unchanged apart from timing, group by group, by section 12's comparison:
+- this branch against the fetch L1 alone is identical in every part, at both points and arms;
+- the fetch L1 alone against section 12's head differs only in MAAP's clock-seeded addresses at 1x1, as section 12 found;
+- with both changes, the only other difference is the cross-channel SEQ of four transmit records in one 8x8 run, which follows the sends' timing; every egress frame is identical.
+
+### Instruction refills per window
+
+The line refills of the work passes overlapping each group's composed window, with their wait, in ms, arm A / arm B:
+
+| Window | before | the fetch L1 alone | after | after, with both changes |
+|---|---:|---:|---:|---:|
+| 1x1 `backlog` | 5,551 (4.90) / 5,539 (4.90) | 1,514 (1.34) / 1,497 (1.33) | 1,493 (1.32) / 1,488 (1.32) | 1,539 (1.36) / 1,529 (1.36) |
+| 1x1 `backlog-adp` | 10,053 (8.92) / 9,766 (8.63) | 4,100 (3.63) / 3,877 (3.43) | 4,203 (3.71) / 4,176 (3.69) | 3,734 (3.30) / 3,697 (3.28) |
+| 1x1 `backlog-adp-refill` | 11,698 (10.38) / 10,463 (9.25) | 4,216 (3.73) / 3,865 (3.42) | 4,488 (3.97) / 4,121 (3.64) | 3,995 (3.53) / 3,714 (3.29) |
+| 1x1 `backlog-owed` | 11,629 (10.32) / 11,627 (10.28) | 3,856 (3.42) / 3,791 (3.36) | 4,049 (3.57) / 4,052 (3.58) | 3,642 (3.21) / 3,616 (3.22) |
+| 8x8 `backlog` | 9,029 (8.04) / 9,087 (8.08) | 3,620 (3.27) / 3,569 (3.22) | 3,922 (3.48) / 3,936 (3.49) | 3,972 (3.55) / 4,021 (3.59) |
+| 8x8 `backlog-adp` | 10,686 (9.53) / 10,380 (9.26) | 4,124 (3.73) / 4,000 (3.62) | 4,464 (4.01) / 4,376 (3.89) | 4,409 (3.96) / 4,473 (4.00) |
+| 8x8 `backlog-adp-refill` | 11,626 (10.35) / 10,906 (9.71) | 4,314 (3.90) / 4,018 (3.63) | 4,642 (4.18) / 4,383 (3.90) | 4,522 (4.06) / 4,409 (3.94) |
+| 8x8 `backlog-owed` | 12,331 (11.01) / 12,592 (11.25) | 3,847 (3.49) / 3,770 (3.42) | 4,170 (3.75) / 4,195 (3.73) | 4,002 (3.61) / 4,244 (3.79) |
+
+The fetch L1 takes 60 to 70 % of the refills out of every window.
+Section 12's model had predicted the refill count well, but not the rows: measured, they came out 0.8 to 1.6 ms above its figures, because the rest of each window did not stay as the model held it.
+
+### What holds the 8x8 rows
+
+With both changes, each 8x8 window over T_svc (13.2 to 15.8 ms) runs 266,000 to 311,000 instructions.
+It waits on instruction refills for 3.0 to 4.0 ms and has a data-cache refill outstanding for 2.5 to 3.7 ms.
+By module family it is spread: lwSRP 2.4 to 3.5 ms, ACMP's core 2.3 to 2.6, the memory primitives 2.0 to 2.5, AECP 1.1 to 2.0, the SRP adapter 1.4 to 2.0, the mailbox driver 1.3 to 1.7.
+No single function holds 1.3 ms.
+The levers this page has named are taken; what is left is the work itself at the composed 8x8 load.
+
+### What is left
+
+- At 8x8 the last AECP and SRP records still miss T_svc at 100 MHz, 14.47 to 16.39 ms, with the donors staged or not.
+  Whether the Mark II split covers 8x8 at all is the owner's question ([#665](https://github.com/kebag-logic/milan-fpga/issues/665)).
+- At 1x1 arm A's last SRP record misses by 0.41 ms without the two drafts; with them every row the CPU decides fits.
+- The TSN stack's and lwSRP's changes reach this branch only through those repositories' reviews, then a pin move: the TSN stack's with the hot list's runtime entry removed, lwSRP's with `ctrl_arms.LWSRP_REV`.
+- The three rows no CPU lever moves are unchanged: the 60 ms egress hold, `ACMP_OWED_MAX`, and the command behind the owed input.

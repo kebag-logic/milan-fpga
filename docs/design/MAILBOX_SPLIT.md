@@ -250,6 +250,17 @@ contract: 32-bit accesses, the refusal of a partial byte strobe (counted in
 BUS_ERR) and every register's meaning are `KL_mbx`'s. The mailbox suite runs
 every check through both.
 
+In the split placement [`KL_mbx_dma`](../../hdl/milan/mailbox/KL_mbx_dma.sv),
+the record mover, sits on the host port between `KL_mbx_wb` and `KL_mbx`
+(#665, owner decision 2026-10-29). It moves a record's payload between a ring
+and the CPU's memory through the CPU's coherent DMA port, in the ring words
+and order the driver's word loop uses, and adds nothing to the contract
+either: its control registers are a CSR bank of their own
+(`milan_soc.CTRL_MBX_DMA_REGISTERS`), the header words, counters and
+doorbells stay the driver's, and while a move runs an access of the CPU's
+waits for it. [Split control memory, section 13](SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover)
+gives its measurement.
+
 Every AXI4-Lite output is a register or a function of registers only: no
 path runs from an input to an output (AMBA AXI, IHI0022H, A3.1.1 and
 A3.2.1). AW, W and AR are each taken into a one-entry slot by their own
@@ -1123,9 +1134,10 @@ on the host model.
 
 `--ctrl-mailbox` in [`milan_soc.py`](../../sw/litex/milan_soc.py) is off by
 default. Off, the SoC adds no source, no instance, no bus region, no CSR bank
-and no interrupt. On, it adds the seven mailbox sources, `KL_mbx` behind
-`KL_mbx_wb` in the IO region, a CSR bank pinned below the existing observer's
-page so no existing bank moves, and one interrupt. It also regenerates the
+and no interrupt. On, it adds the eight mailbox sources, `KL_mbx` behind
+`KL_mbx_wb` and the record mover in the IO region, a CSR bank pinned below the
+existing observer's page so no existing bank moves, the mover's bank below
+it, the mover's master on the CPU's DMA bus, and one interrupt. It also regenerates the
 CPU netlist: the VexiiRiscv wrapper hashes the SoC's memory-region list into
 the netlist's name and hands each region to the CPU generator
 (`--memory-region`), and the new uncached `ctrl_mbx` region changes that

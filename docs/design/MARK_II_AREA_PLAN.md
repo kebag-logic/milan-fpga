@@ -380,7 +380,7 @@ Clauses are IEEE 1722.1-2021, IEEE 1722-2016, IEEE 802.1Q-2018, IEEE 802.1AS-201
 | Hierarchy | LUT | FF | Function | How it is built | Set by the standard | Implementation choice |
 |---|---:|---:|---|---|---|---|
 | `@own` (the LiteX top) | 4,833 | 6,072 | DDR3 controller and PHY, the SoC bus and CSR banks, the management MAC, UART, SPI flash, the BIOS ROM and SRAM, generated FIFOs | one flat generated module | nothing in Milan | DDR3 main memory (L11a), the FIFO storage (L3) |
-| `VexiiRiscvLitex_*` | 3,522 | 4,736 | the control hart (NFR-SCOUT-01: one hart; in the split placement RV32IM, 4 KiB instruction cache, 8 KiB data cache) | the VexiiRiscv core and its bus bridges | nothing in Milan | the core choice (L11b) |
+| `VexiiRiscvLitex_*` | 3,522 | 4,736 | the control hart (NFR-SCOUT-01: one hart; in the split placement RV32IM, 16 KiB two-way instruction cache, 8 KiB data cache) | the VexiiRiscv core and its bus bridges | nothing in Milan | the core choice (L11b) |
 | `VexiiRiscvLitex_*/vexiis_0_logic_core` and its own logic | 1,148 | 1,041 | the RV32I pipeline itself | an in-order pipeline with its register file | nothing in Milan | the core |
 | `VexiiRiscvLitex_*/@own` | 696 | 1,807 | the netlist's own glue: bus adapters, clock-domain FIFOs, the interrupt and timer blocks | generated interconnect | nothing in Milan | replaced with the core in L11b |
 
@@ -869,6 +869,7 @@ The firmware row replaces CPU memory, so replacement storage counts once.
 | Conditional release of remaining wrapper storage, split only | -10 | -2 | -11 | 114 |
 | S2c: the split CPU's 4 KiB instruction cache, split only, out of context | +1 | +1 | +1.5 | 115.5 |
 | S2b: the split CPU's 8 KiB data cache and its coherent fabric, split only, out of context | +3 | +5 | +5.5 | 121 |
+| S2b: the split CPU's instruction cache from 4 KiB direct-mapped to 16 KiB two-way, split only, out of context | +3 | 0 | +3 | 124 |
 
 The base and wrapper counts come from the [route record](../../syn/ooc/pp_resource_baseline.json).
 The [mailbox measurement](MAILBOX_SPLIT.md#measured-area) supplies its debit.
@@ -891,6 +892,10 @@ The split CPU's RV32M ([#665 S2b round 3](https://github.com/kebag-logic/milan-f
 Its data cache ([#665 S2b round 4](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6460942408)) then adds 5.5: 121, or 122 with every bank in block RAM.
 Two RAMB36 are the cache's bank; the rest is the coherent fabric the DMA port makes the generator build: a second CPU-to-bus crossing and the hub ([split control memory](SPLIT_CONTROL_MEMORY.md#9-the-cpus-data-cache)).
 Out of context it also adds 1,063 LUTs and 1,888 FFs to that netlist, a split-only debit the LUT estimates do not yet carry either.
+Its instruction cache then grows to 16 KiB two-way ([#665 S2b round 8](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6492443864)) and adds 3: 124, or 125 with every bank in block RAM.
+The cache's data takes four RAMB36 where the 4 KiB cache took one; its tags stay in the core's RAMB18 ([split control memory](SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover)).
+It is CPU memory outside the 224 KB firmware allocation, so the images' plans do not change with it.
+The split placement's record mover on the mailbox host port uses no block RAM; its logic is a split-only debit the LUT estimates do not yet carry.
 These memory entries grant no additional LUT saving.
 The LUT estimates remain 31,667 central and 27,567-35,867 across the range.
 They depend on fitting the credited RAM conversions within the ledger.
@@ -900,7 +905,8 @@ The split takes the release: 114 tiles leaves 7.5 below that ceiling.
 With every bank in block RAM, 115 leaves 6.5.
 With the split CPU's instruction cache, 115.5 leaves 6.0, and 116.5 leaves 5.0.
 With its data cache too, 121 leaves 0.5, and 122 is 0.5 over the ceiling.
-All but 122 leave the separate 13.5-tile reserve untouched; 122 takes 0.5 of it.
+With the 16 KiB two-way instruction cache, 124 is 2.5 over, and 125 is 3.5 over.
+All but 122, 124 and 125 leave the separate 13.5-tile reserve untouched; those take 0.5, 2.5 and 3.5 of it.
 None of these numbers proves integrated fit; M8a-2's route does.
 Unpriced M6 RAM conversions and integration buffers consume that allowance.
 Each lane must debit them before accepting its LUT saving.
@@ -932,6 +938,7 @@ At 56 firmware tiles, the conditional total becomes 116 tiles.
 It leaves 5.5 below the ceiling, before other unpriced debits.
 With the split CPU's instruction cache it is 117.5, 4.0 below.
 With its data cache too it is 123, 1.5 over.
+With the 16 KiB two-way instruction cache it is 126, 4.5 over.
 M2's measured MAC/CSR FIFO conversion adds no tile, so deferring it frees none.
 Beyond that allowance, defer new M6/M7 block-RAM conversions first.
 Keep their existing storage and reprice the associated LUT savings.

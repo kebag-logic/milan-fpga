@@ -46,7 +46,7 @@ is an integration obligation, not a target-time result established here.
 | [`acmp/`](acmp) | the ACMP mailbox adapter with the latency bounds and the ADP channel's tap, and the binding owner on lane F1's store |
 | [`aecp/`](aecp) | the AECP core, image and saved-state adapters, mailbox completion tracking and opt-in application bridge |
 | [`app/`](app) | the static composition a platform starts: compose, then open, then `ctrl_app_attach_srp` for SRP |
-| [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`), its two accesses as inline functions ([`mbx_mmio.h`](plat/mbx_mmio.h)), and the core's word-wide `memcpy`, `memmove`, `memset` and `memcmp` ([`ctrl_mem.c`](plat/ctrl_mem.c)) |
+| [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`), its two accesses as inline functions ([`mbx_mmio.h`](plat/mbx_mmio.h)), the split placement's record mover ([`mbx_dma.h`](plat/mbx_dma.h), `CTRL_MBX_DMA_BASE`), and the core's word-wide `memcpy`, `memmove`, `memset` and `memcmp` ([`ctrl_mem.c`](plat/ctrl_mem.c)) |
 | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |
 | [`test/`](test) | the host tests and their driver |
 
@@ -658,10 +658,17 @@ The split layout is built for the split hart's RV32IM (#665, owner decision of
 flags with `-march=rv32im`. Its objects must carry the `rv32i_m_zmmul`
 attribute and none may call a software multiply or divide helper
 (`fw_rv32.muldiv_findings`), and the linked ELF must be RV32IM. The flat layout
-and `ctrl_image.py` stay RV32I.
+and `ctrl_image.py` stay RV32I. The split flags also define
+`CTRL_MBX_DMA_BASE` (`ctrl_build.SPLIT_MBX_DMA_BASE`, a placeholder like
+`CTRL_MBX_BASE`): there `mbx_rx_take` and `mbx_tx_send` move each record's
+payload with the record mover (#665, owner decision 2026-10-29; a transmit
+frame off a word keeps the word loop), and every other build keeps the word
+loop the host suites run.
 Both layouts link the platform's word-wide `memcpy`, `memmove`, `memset` and
 `memcmp` ([`plat/ctrl_mem.c`](plat/ctrl_mem.c), #665) ahead of the runtime
-archive, whose byte loops are then not linked. The builder refuses an object
+archive, whose byte loops are then not linked. Aligned copies and fills move
+eight words a turn and the rest by its bits, a step each (four words, two,
+one, a halfword, a byte). The builder refuses an object
 of that file that references any symbol, since a call the compiler made there
 would recurse. The `rv32` arm compiles it under the same refusal, and the `unit`
 arm runs it on the host under the names `ctrl_mem_*`.
