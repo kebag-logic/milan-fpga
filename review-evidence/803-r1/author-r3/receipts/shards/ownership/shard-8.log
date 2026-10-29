@@ -1,0 +1,66 @@
+  ok    1 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): complete=True disjoint=True deterministic=True
+  ok    4 shard(s): complete=True disjoint=True deterministic=True
+  ok    5 shard(s): complete=True disjoint=True deterministic=True
+  ok    7 shard(s): complete=True disjoint=True deterministic=True
+  ok   23 shard(s): complete=True disjoint=True deterministic=True
+  ok    2 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    4 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    5 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok    7 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   23 shard(s): dedicated alone=True balanced owners unchanged=True
+  ok   a rule without the dedicated worker is caught (alone with none set aside=False, alone while sharing worker 0=False)
+  ok   scheduled/default partition: default=['future_suite', 'milan_dp'] physical=['milan_dp_gptp']
+  ok   log windows {'alpha': 11, 'beta': 120}, overhead 62 s, truncated log without overhead=True, refused timeout/no shard line/short count=[True, True, True]
+  ok   head no provisional figure is pending
+  ok   head worker 0/19 predicted 1615 s (26.9 min), bound 1620 s
+  ok   head worker 1/19 predicted 1445 s (24.1 min), bound 1620 s
+  ok   head worker 2/19 predicted 1558 s (26.0 min), bound 1620 s
+  ok   head worker 3/19 predicted 1448 s (24.1 min), bound 1620 s
+  ok   head worker 4/19 predicted 1551 s (25.9 min), bound 1620 s
+  ok   head worker 5/19 predicted 1522 s (25.4 min), bound 1620 s
+  ok   head worker 6/19 predicted 1447 s (24.1 min), bound 1620 s
+  ok   head worker 7/19 predicted 1522 s (25.4 min), bound 1620 s
+  ok   head worker 8/19 predicted 1541 s (25.7 min), bound 1620 s
+  ok   head worker 9/19 predicted 1494 s (24.9 min), bound 1620 s
+  ok   head worker 10/19 predicted 1445 s (24.1 min), bound 1620 s
+  ok   head worker 11/19 predicted 1443 s (24.1 min), bound 1620 s
+  ok   head worker 12/19 predicted 1531 s (25.5 min), bound 1620 s
+  ok   head worker 13/19 predicted 1552 s (25.9 min), bound 1620 s
+  ok   head worker 14/19 predicted 1444 s (24.1 min), bound 1620 s
+  ok   head worker 15/19 predicted 1443 s (24.1 min), bound 1620 s
+  ok   head worker 16/19 predicted 1444 s (24.1 min), bound 1620 s
+  ok   head worker 17/19 predicted 1444 s (24.1 min), bound 1620 s
+  ok   head worker 18/19 predicted 1110 s (18.5 min), bound 2160 s
+  ok   specialized owners {'tsn_fuzz': 1, 'chmap_capture': 3, 'milan_dp_mclk__0': 18}, media-clock history alone=True, held at any planted duration=True
+  ok   the 19 --shard lists printed under hash seeds 1 and 2 are the ones selected here
+  [ok]    an inventory suite with no recorded duration is refused
+  [ok]    a sharded selection refuses it too
+  [ok]    a recorded duration with no inventory suite is refused
+  [ok]    a recorded duration of 0 s (capture_coherence__0) is refused
+  [ok]    rtl.yml timeout-minutes 44 (bound 1584 s) is refused for a 1615 s worker
+  [ok]    and 45 minutes is not
+  [ok]    the bound applied at each timeout-minutes is 36 s a minute (60%): {44: 1584, 45: 1620, 60: 2160}, expected {44: 1584, 45: 1620, 60: 2160}
+  [ok]    rtl.yml at 20 workers is refused for the 19-worker overhead table
+  [ok]    milan_dp_mclk__0 at 2038 s puts worker 18 exactly at the bound and passes
+  [ok]    milan_dp_mclk__0 at 2039 s puts it over and is refused
+  [ok]    follow_ring grown by 11992 s to 13485 s puts a balanced worker over and is refused
+  [ok]    regular 29-minute workers retain their own 1044-second bound
+  [ok]    1620-second regular worker passes the absolute budget
+  [ok]    1621-second regular worker is refused below its own-limit bound
+  [ok]    a provisional suite at 1800 s, suite_timeout's figure for it, passes, and at 1801 s is refused
+  [ok]    with suite_timeout's `*` arm planted at 1860 s, 1860 s passes and 1800 s is refused
+  [ok]    with its own arm planted at 1920 s, 1920 s passes and 1800 s is refused
+  [ok]    a provisional suite with no figure in SUITE_SECONDS is refused
+  ok   reject ''
+  ok   reject '1'
+  ok   reject '-1/4'
+  ok   reject '01/4'
+  ok   reject '4/4'
+  ok   reject '5/4'
+  ok   reject '0/0'
+  ok   reject 'a/4'
+selftest: PASS
+Shard 8 owns:
+  capture_coherence__1
+  maap__0

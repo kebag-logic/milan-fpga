@@ -1,0 +1,4 @@
+2 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make
+  - [gate 11] real report not on disk (<home>/litex-milan/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 2 NOT RUN
