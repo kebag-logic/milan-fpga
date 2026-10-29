@@ -380,6 +380,54 @@ Sixteen of 15,850 slices remain.
 
 Its shipping route meets timing at +0.303 ns WNS.
 
+Issue #787 adopts processor pin `1be824fc`.
+
+It is the head of processor issue #203's lane.
+
+The pin stays local until that PR merges.
+
+FPGA-gPTP stays at `f97c1803`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #203, AECP REBOOT | not yet merged; lane head `1be824fc` | REBOOT of ENTITY 0 answers SUCCESS (IEEE 1722.1-2021 7.4.43, Figure 7-68) and notifies the other registered controllers (7.5.2). Where advertising, ENTITY_DEPARTING follows (Milan v1.2 5.6.3.3). The top then holds the new output `reboot_req_o` and serves no further command. Another descriptor type answers NOT_SUPPORTED, a non-zero index NO_SUCH_DESCRIPTOR, a cdl below 16 BAD_ARGUMENTS and another controller's lock ENTITY_LOCKED |
+
+The top adds one output, `reboot_req_o`.
+
+No parameter or register changes.
+
+`KL_pp_shadow` passes it to `milan_datapath`.
+
+`KL_reboot_ctrl` resets the end station on it.
+
+The [reset design](../design/REBOOT_RESET.md) records that decision.
+
+`ucode.hex` changes; the ledger records its row.
+
+`ltn_rom.hex` is unchanged.
+
+The behave SERVED table lists REBOOT at cdl 16.
+
+Route-1x1 uses 51,828 LUTs, 184 under the record.
+
+It adds 92 FFs and 13 slices.
+
+57 of 15,850 slices remain.
+
+WNS is +0.107 ns, over its floor.
+
+The gate refuses its 0.333 ns fall.
+
+The worst path is the SoC's SDRAM port arbitration.
+
+That path lies outside this change.
+
+Both standalone endpoints pass the gate.
+
+`ooc-1x1` moves -53 LUTs and +7 FFs.
+
+`ooc-8x8` moves +104 LUTs and +16 FFs.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.

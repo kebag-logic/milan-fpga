@@ -56,12 +56,12 @@ That is the class of state a power cut clears and a soft reset cannot be shown t
 | gPTP timestamping path (the PHC, the plane, `KL_gptp_gmii_launch` and its 125:50 MHz crossing) | Registers with a reset return to it; memories, reset-less flops and the clock phase relation keep their running values | Every flop, memory and crossing starts from the bitstream, against freshly locked clocks and a freshly negotiated link | Same as (b) |
 | The persistence journal (the A/B slots) | Whatever the reset interrupts | Drained first (section 4); a commit in flight completes, one that cannot is abandoned at a command boundary | Torn wherever the cut lands; the A/B contract keeps the other slot ([SAVED_STATE_FASTCONNECT.md 7](SAVED_STATE_FASTCONNECT.md#7-durability-the-ab-contract)) |
 | The saved-state image in DRAM | Kept, with its validity | Not relied on: the DDR3 keeps power, but the boot path re-trains it and reloads the window from a validated slot | Lost |
-| The boot path | The core restarts from its reset vector with the fabric configuration retained, the restart [#366](https://github.com/kebag-logic/milan-fpga/issues/366) records after a flash (BUILDING.md section 4) | The full power-on path: bitstream, BIOS, SDRAM training and memtest, AEM copy and CRC, `nvm_boot()`, restore walk, entity enable | Same as (b) |
+| The boot path | The core restarts from its reset vector with the fabric configuration retained, the restart [#366](https://github.com/kebag-logic/milan-fpga/issues/366) records after a flash ([BUILDING.md section 4](../integration/BUILDING.md#4-after-the-build-load-console-and-bench-roles)) | The full power-on path: bitstream, BIOS, SDRAM training and memtest, AEM copy and CRC, `nvm_boot()`, restore walk, entity enable | Same as (b) |
 | QSPI flash | Not affected | Keeps power; an operation started before the hold finishes during it | Unpowered |
 | `BOOTSTS` | Unchanged | `status_0` records the IPROG attempt and `status_1` the previous configuration | A fresh single configuration |
 
 The last row is the one visible difference of (b) at the device: a `BOOTSTS` read after a REBOOT shows IPROG set,
-which BUILDING.md section 4 reads as a fault only after a first boot that no REBOOT preceded.
+which [BUILDING.md section 4](../integration/BUILDING.md#4-after-the-build-load-console-and-bench-roles) reads as a fault only after a first boot that no REBOOT preceded.
 
 ## 3. The sequence and its bound
 
@@ -74,8 +74,8 @@ It counts the datapath's millisecond tick and runs three phases on the processor
 | HOLD | `o_reboot_phy_hold` rises at its start and stays up; the phase lasts its bound | more than `REBOOT_HOLD_MS_P` = 3,500 ms, at most 1 tick more |
 | IPROG | eight clocks of ICAPE2 words, CSIB low | 8 clocks; then HOLD again, so the words repeat every 3,500 ms while the device still runs |
 
-**The bound.** From `reboot_req_o` to the IPROG command word: at most 13,502 ms and 10 clocks.
-When the saved state is already durable, the usual case on the bench, it is 3,501 ms and 10 clocks.
+**The bound.** From `reboot_req_o` to the clock ICAPE2 takes the IPROG command word: at most 13,502 ms and 8 clocks.
+When the saved state is already durable, the usual case on the bench, it is at most 3,501 ms and 9 clocks.
 The configuration load and the boot that follow are the power-on path's.
 
 **The words.** The 7-series IPROG sequence through ICAPE2, as configuration words:
@@ -140,7 +140,7 @@ dirty, and the drain ended because none was. The words also repeat every 3,500 m
 ## 5. Why the JTAG-reload defect cannot recur
 
 A JTAG reload is excluded because it is known to leave TX timestamps wrong (this issue, and the #396 owner decision).
-The tree records no root cause for that defect: `docs/fpga/FPGA_DESIGN.md` at the base of #787 carries no note on it.
+The tree records no root cause for that defect: the [FPGA design reference](../fpga/FPGA_DESIGN.md) at the base of #787 carries no note on it.
 So the argument is by difference, and the bench check below decides it.
 
 A JTAG reload and the chosen reload reconfigure the FPGA the same way: global set/reset, memory initialization and the

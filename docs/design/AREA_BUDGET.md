@@ -141,6 +141,9 @@ The adopted image does not meet it:
 
 The table is the gate's record.
 The slice row is the binding limit: the shipping route at FPGA-gPTP `f97c1803` ([#803](https://github.com/kebag-logic/milan-fpga/issues/803)) on processor `f65c8ff7` places 15,834 slices, so placement has 16 of 15,850 left.
+The [#787](https://github.com/kebag-logic/milan-fpga/issues/787) route, processor `1be824fc` with the REBOOT reset, places 15,793 slices, so 57 are left.
+The resource gate refuses its WNS, +0.107 ns: 0.333 ns under the record's +0.440 ns against a 0.25 ns tolerance, still above the +0.030 ns floor.
+Its worst path is the SoC's SDRAM port arbitration on the 10 ns clock, 13 logic levels into a LiteX FIFO, outside the change.
 The next growth on the shipping image therefore has no slice room and needs its own owner decision ([the extension](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062)).
 The record's route leaves 70 slices; the [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) accepted that image's growth, and Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
 The routed critical setup path has 18 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
