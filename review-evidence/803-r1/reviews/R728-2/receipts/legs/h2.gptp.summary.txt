@@ -1,0 +1,13 @@
+leg-log h2.gptp.log rc=2 sha256=84ed3eb97b968aea7482c3fdb07bd0a020b08f28b1ab1caca605918cca6d65a4
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 0, rp 1->0, wp 1->1
+FAIL the full-queue window pops and pushes no event got 0000000000000000 exp 0000000000000001
+FAIL #88 path headed elsewhere serves count three got 0000000000000001 exp 0000000000000003
+FAIL #88 path headed elsewhere advances generation once got 0000000000000007 exp 0000000000000008
+FAIL #88 path headed elsewhere keeps the scalar GM got 02a1b2fffec3d4e5 exp 00aaccfffe010204
+FAIL #88 GET_AS_PATH count three    got 0000000000000001 exp 0000000000000003
+FAIL #88 GET_AS_PATH entry 0 is the received head got 02a1b2fffec3d4e5 exp 001122fffe000044
+FAIL #88 GET_AS_PATH entry 1 is the parent got 0000000000000000 exp 0080e1fffe112233
+FAIL #88 GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+202 checks: 194 PASS, 8 FAIL

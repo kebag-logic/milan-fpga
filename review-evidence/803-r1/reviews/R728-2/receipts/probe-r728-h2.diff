@@ -1,0 +1,10 @@
+--- clean/tb/verilator/milan_dp/sim_gptp.cpp	2026-10-29 03:02:53.651891218 +0100
++++ h2/tb/verilator/milan_dp/sim_gptp.cpp	2026-10-29 03:14:18.588844642 +0100
+@@ -1689,7 +1689,6 @@
+       Frame s1b = ptp(0x2, 0x510A, 0, 0x0000, 20);
+       s1b.u64(0); s1b.u16(0); s1b.ts(0);
+       s1b.b.resize(68);
+-      send_wide(dut, s1b.b);
+       for (int n = 0; n < 20000 && *eng == 0; n++)
+         run(dut, 1);                      // s1b now waits at the head
+       const unsigned lvl0 = *eng;
