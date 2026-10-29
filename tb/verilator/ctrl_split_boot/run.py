@@ -83,14 +83,15 @@ STAND_IN = {
     'gptp-locked': 'no gPTP peer and no datapath: CLKV_STAT is the stand-in register file\'s word',
 }
 #: The planted controls of --self-test: (source file, unique anchor, replacement), and the finding's first word
-#: the grade must give. A CSR write skipped is caught by the trace; a console that holds the loop past #397's
-#: tick rule by the UART duty, its span measured: a spin of 700,000 turns before its response, about 0.7 s,
-#: each turn a load and a store of the counter in sram, about 1 us.
+#: the grade must give, in a run the model completes. A CSR write skipped is caught by the trace; a console that
+#: holds the loop past #397's tick rule by the UART duty, its span measured: a spin of 700,000 turns before
+#: milan_status's response, about 0.7 s, each turn a load and a store of the counter in sram, about 1 us; the
+#: two milan_gettime answers do not spin, so the run ends inside SIM_LIMIT_MS.
 PLANTS = {
     'csr-write-skipped': ('plat/ctrl_plat_csr.c', '\twr(csr, CTRL_PLAT_CSR_LWSRP_VID, p->sr_vid);\n', '', 'TRACE'),
-    'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {',
-                       '\tfor (volatile uint32_t n = 0; n < 700000u; ++n) {\n\t}\n\tif (is(c, "milan_status")) {',
-                       'UART'),
+    'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {\n\t\tstatus(c);',
+                       '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 700000u; ++n) {\n\t\t}'
+                       '\n\t\tstatus(c);', 'UART'),
 }
 #: The first link's map: the platform's fixture, at placeholder addresses.
 PROVISIONAL = FIRMWARE_TEST / 'ctrl_plat_csr.csv'
@@ -406,15 +407,17 @@ def native_controls(out: Path, shape: str, n_if: int) -> int:
 
 
 def self_test(out: Path, shape: str, n_if: int) -> int:
-    """Every native control graded as it requires, then every plant graded a finding of its own kind; 0 when
-    each is."""
+    """Every native control graded as it requires, then every plant graded a finding of its own kind in a run the
+    model completed (no NATIVE finding), so its observations are a whole run's; 0 when each is."""
     wrong = native_controls(out / 'native', shape, n_if)
     escaped = 0
     for plant, (_, _, _, kind) in PLANTS.items():
         findings, _ = point(out / f'plant-{plant}', shape, n_if, False, plant)
-        caught = any(f.startswith(kind + ':') for f in findings)
+        completed = not any(f.startswith('NATIVE:') for f in findings)
+        caught = completed and any(f.startswith(kind + ':') for f in findings)
         escaped += not caught
-        print(f'PLANT {plant}: {"caught" if caught else "ESCAPED"} ({kind}); findings: {findings}')
+        print(f'PLANT {plant}: {"caught" if caught else "ESCAPED"} ({kind}; '
+              f'{"the run completed" if completed else "the model did not complete its run"}); findings: {findings}')
     print(f'ctrl_split_boot self-test: {len(NATIVE_CONTROLS) - wrong} of {len(NATIVE_CONTROLS)} native controls as '
           f'required; {len(PLANTS) - escaped} of {len(PLANTS)} plants caught')
     return 1 if escaped or wrong else 0
