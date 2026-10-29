@@ -894,6 +894,31 @@ DEFECTS = (
     Defect('r10-feedback-allowance-eight','SrpFeedback.DiscoveredWithdrawalMeasuresTheFundedPath',
            '(ACMP_MAX_SINKS * 7u)', '(8u)',
            'measured feedback per sink allowance', path='app/ctrl_app.h', suite='test_acmp_mbx.cpp'),
+    # #665: snapshot walks the registrar only after a change it copies, and poll
+    # reclaims only after a change that can leave a freeable attribute.
+    Defect('binding-change-not-copied','HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep',
+           '    *s = replacement;\n    i->stale = true; // snapshot matches registrations against the bindings (#665)\n',
+           '    *s = replacement;\n',
+           'holds what a walk copies'),
+    Defect('snapshot-walks-once','HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep',
+           '    if (!i->stale) {\n', '    if (i->owner->walks != 0u) {\n',
+           'holds what a walk copies'),
+    Defect('unchanged-record-walks','ARecordThatChangesNoRegistrationCostsNoWalk',
+           '    if (!i->stale) {\n', '    if (!i->stale && !i->link) {\n',
+           'a record that changes nothing walks no registrar'),
+    Defect('own-listener-declaration-not-copied','OwnDeclarationsThatRewriteARegisteredValueAreCopied',
+           '        if (desired != s->declared) {\n'
+           '            // A declaration rewrites the value of the attribute a registration shares (#665).\n'
+           '            i->stale = true;\n        }\n', '',
+           'the own Listener Ready declaration rewrote the registered Listener'),
+    Defect('own-talker-declaration-not-copied','OwnDeclarationsThatRewriteARegisteredValueAreCopied',
+           '    uint32_t declared = 0;\n'
+           '    // A join rewrites the value of the attribute a registration shares (#665).\n'
+           '    i->stale = true;\n', '    uint32_t declared = 0;\n',
+           "the adopted Domain's Talker declaration rewrote the registered Talker"),
+    Defect('reclaim-forgotten-while-owed','ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame',
+           '            i->reclaim = m->owed_len != 0u;\n', '            i->reclaim = false;\n',
+           'a reclaim lwSRP refused for the held frame is owed after it'),
 )
 DEFECTS += srp_pub_mutants.defects(Defect)
 

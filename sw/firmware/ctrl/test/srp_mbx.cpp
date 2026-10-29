@@ -1315,4 +1315,129 @@ TEST_F(Srp, MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline) {
     }
 }
 
+
+// #665: snapshot walks the registrar only after it, an indication or a binding
+// changed what the walk copies, and otherwise holds what a walk would copy. A
+// walk of the registrar here, with registrations()'s rules, is the reference.
+struct Walked {
+    std::vector<int> registered, present, desired, kinds;
+    bool operator==(const Walked &) const = default;
+};
+Walked walk(const srp_interface &i) {
+    Walked w{std::vector<int>(CTRL_SRP_SOURCES),std::vector<int>(CTRL_SRP_SOURCES),
+             std::vector<int>(CTRL_SRP_SINKS),std::vector<int>(CTRL_SRP_SINKS)};
+    struct Ctx { const srp_interface *i; Walked *w; } ctx{&i,&w};
+    mrp_attr_visit(i.msrp,0,[](void *p,const mrp_attr_status *s) {
+        auto &c=*static_cast<Ctx*>(p);
+        if(s->reg==MRP_REG_STATE_MT) return;
+        const auto *v=static_cast<const uint8_t*>(s->attr_val);
+        if(s->attr_type==MSRP_ATTR_TYPE_LISTENER) {
+            for(unsigned n=0;n<CTRL_SRP_SOURCES;++n) if(!std::memcmp(c.i->sources[n].value.stream_id.bytes,v,8)) {
+                c.w->present[n]=1; c.w->registered[n]=v[8]==2 || v[8]==3;
+            }
+        } else if(s->attr_type==MSRP_ATTR_TYPE_TALKER_ADV || s->attr_type==MSRP_ATTR_TYPE_TALKER_FAILED) {
+            const auto *t=static_cast<const msrp_talker_adv*>(s->attr_val);
+            for(unsigned k=0;k<CTRL_SRP_SINKS;++k) {
+                const auto &sink=c.i->sinks[k];
+                if(sink.bound && !std::memcmp(sink.stream_id.bytes,t->stream_id.bytes,8) &&
+                   !std::memcmp(sink.dest_mac,t->dest_mac,6) && sink.vid==t->vlan_id)
+                    c.w->kinds[k]|=s->attr_type==MSRP_ATTR_TYPE_TALKER_FAILED ? 1 : 2;
+            }
+        }
+    },&ctx);
+    for(unsigned k=0;k<CTRL_SRP_SINKS;++k) w.desired[k]=(w.kinds[k]&1) ? 1 : (w.kinds[k]&2);
+    return w;
+}
+Walked held(const srp_interface &i) {
+    Walked w;
+    for(unsigned n=0;n<CTRL_SRP_SOURCES;++n) { w.registered.push_back(i.registered[n]); w.present.push_back(i.listener_present[n]); }
+    for(unsigned k=0;k<CTRL_SRP_SINKS;++k) { w.desired.push_back(i.sinks[k].desired); w.kinds.push_back(i.sinks[k].registered_kinds); }
+    return w;
+}
+void expect_held(const srp_mbx &adapter, const char *step) {
+    for(unsigned i=0;i<MBX_N_IF;++i) {
+        if(!adapter.ifs[i].msrp) continue;
+        EXPECT_FALSE(adapter.ifs[i].stale)<<step<<": a settled loop leaves no walk owed";
+        EXPECT_FALSE(adapter.ifs[i].reclaim)<<step<<": a settled loop leaves nothing to reclaim";
+        EXPECT_TRUE(held(adapter.ifs[i])==walk(adapter.ifs[i]))<<step<<": interface "<<i<<" holds what a walk copies";
+    }
+}
+
+TEST_F(Srp, HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep) {
+    settle(); expect_held(adapter,"startup");
+    const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
+    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&sid,da,2)); settle(); expect_held(adapter,"bind");
+    EXPECT_CALL(licence,Change(0,0,true));
+    offer(frame(3,identity(),1,2)); expect_held(adapter,"Listener Ready");
+    offer(frame(3,identity(),1,2)); expect_held(adapter,"the same Listener Ready");
+    offer(frame(1,talker_value(sid,da,2),1)); expect_held(adapter,"Talker Advertise");
+    auto failed=talker_value(sid,da,2); failed.resize(34); failed[33]=1;
+    offer(frame(2,failed,1)); expect_held(adapter,"Talker Failed");
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,&sid,da,2)); settle(); expect_held(adapter,"a second binding of a registered Talker");
+    EXPECT_CALL(licence,Change(0,0,false));
+    offer(frame(3,identity(),1,1)); expect_held(adapter,"Listener Asking Failed, the value changed in place");
+    offer(frame(3,identity(),5,1)); expect_held(adapter,"Listener leave");
+    advance(5100); expect_held(adapter,"the leave timers expired");
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0)); settle(); expect_held(adapter,"unbind");
+    mbx_model_set_link(&model,0,false); settle(); expect_held(adapter,"link down");
+    mbx_model_set_link(&model,0,true); settle(); expect_held(adapter,"link up");
+}
+
+TEST_F(Srp, ARecordThatChangesNoRegistrationCostsNoWalk) {
+    settle();
+    // No poll runs between these records (receive_before_poll), so no licence changes.
+    const uint32_t first=adapter.walks;
+    receive_before_poll(frame(3,identity(),1,2));
+    EXPECT_EQ(adapter.walks,first+1u)<<"a new registration is copied once, after its record";
+    for(unsigned n=0;n<4;++n) {
+        const uint32_t before=adapter.walks;
+        receive_before_poll(frame(3,identity(),1,2));
+        EXPECT_EQ(adapter.walks,before)<<"a record that changes nothing walks no registrar";
+    }
+    EXPECT_TRUE(adapter.ifs[0].registered[0]);
+    const uint32_t before=adapter.walks;
+    receive_before_poll(frame(3,identity(),1,1));
+    EXPECT_EQ(adapter.walks,before+1u)<<"a changed declaration is copied after its record";
+    EXPECT_FALSE(adapter.ifs[0].registered[0]);
+    settle(); expect_held(adapter,"settled");
+}
+
+// A sink bound to the entity's own stream shares each attribute with a source:
+// the adapter's own declarations then rewrite a value a registration holds,
+// with no Registrar change and no indication.
+TEST_F(Srp, OwnDeclarationsThatRewriteARegisteredValueAreCopied) {
+    settle(); advance(400);
+    const auto own=identity();
+    msrp_stream_id sid; std::copy(own.begin(),own.end(),sid.bytes);
+    const uint8_t *da=sources[0][0].value.dest_mac;
+    offer(frame(3,own,1,1)); expect_held(adapter,"a remote Listener Asking Failed for the own stream");
+    EXPECT_FALSE(adapter.ifs[0].registered[0]);
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&sid,da,2)); settle(); expect_held(adapter,"bound to the own stream");
+    EXPECT_CALL(licence,Change(0,0,true));
+    offer(frame(1,talker_value(sid,da,2),1)); advance(400);
+    expect_held(adapter,"the own Listener Ready declaration rewrote the registered Listener");
+    EXPECT_TRUE(adapter.ifs[0].registered[0]);
+    EXPECT_EQ(adapter.ifs[0].sinks[0].registered_kinds,2u);
+    EXPECT_CALL(licence,Change(0,0,false));
+    offer(frame(4,{6,3,0,5},1)); advance(400);
+    expect_held(adapter,"the adopted Domain's Talker declaration rewrote the registered Talker");
+    EXPECT_EQ(adapter.ifs[0].sinks[0].registered_kinds,0u);
+}
+
+TEST_F(Srp, ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame) {
+    settle(); advance(400); mbx_model_tx_pause(&model,true);
+    std::vector<uint8_t> filler(60); wire_put_be(filler.data(),0x0180c200000eull,6); wire_put_be(filler.data()+12,0x22ea,2);
+    while(mbx_tx_send(MBX_CH_SRP,0,filler.data(),filler.size())==MBX_STATUS_OK) {}
+    mbx_model_advance_ms(&model,600); for(unsigned n=0;n<100;++n) ctrl_loop_service(&loop);
+    ASSERT_GT(adapter.owed_len,0u);
+    const unsigned waiting=adapter.owed_if;
+    adapter.ifs[waiting].reclaim=true;     // as a transition during the hold leaves it
+    for(unsigned n=0;n<10;++n) ctrl_loop_service(&loop);
+    ASSERT_GT(adapter.owed_len,0u);
+    EXPECT_TRUE(adapter.ifs[waiting].reclaim)<<"a reclaim lwSRP refused for the held frame is owed after it";
+    mbx_model_tx_pause(&model,false); settle();
+    EXPECT_EQ(adapter.owed_len,0u); expect_held(adapter,"after the owed frame");
+}
+
 }

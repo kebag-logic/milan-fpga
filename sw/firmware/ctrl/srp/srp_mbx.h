@@ -59,6 +59,12 @@ struct srp_interface {
     bool link;
     bool vlan_sent;
     bool domain_owed;
+    // The registrar, an indication or a binding changed what snapshot copies
+    // since it last walked the registrar: it walks only then (#665).
+    bool stale;
+    // A participant may hold an attribute mrp_reclaim frees: poll reclaims
+    // only then (#665).
+    bool reclaim;
 };
 typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);
 struct srp_mbx_config {
@@ -89,6 +95,7 @@ struct srp_mbx {
     uint32_t received;
     uint32_t transmitted;
     uint32_t stops;
+    uint32_t walks;        // registrar walks snapshot made (#665)
 };
 // Pool counts are derived from the compiled entity shape. The caller owns
 // the statically declared arena and binds it through shlan_port_bind_pool.
