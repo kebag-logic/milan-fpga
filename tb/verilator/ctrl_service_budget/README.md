@@ -586,7 +586,7 @@ Every window committed exactly its defined load (the run refuses one that did no
    The generator decodes a region whose size is not a power of two wrongly.
    For the 224 KiB `rom` at 0 its fetch and load checks are `(address & 0xfffc8000) == 0`, which excludes every address with bit 15 set.
    In the firmware of `e76a755a`, the image's first call above 0x8000 (`jal aecp_image_load`, 0x6880 to 0xb1ec) took an instruction access fault, cause 1, trapped to 0 and restarted, forever.
-   At this head the 1x1 image's `.data` load image is at 0x197b0, which has bit 15 set, so the start code's first copy load (`lw` at 0x24, `ctrl_split_start.S`) takes a load access fault first, cause 5, and restarts the same way.
+   At this head the 1x1 image's `.data` load image is at 0x19428, which has bit 15 set, so the start code's first copy load (`lw` at 0x24, `ctrl_split_start.S`) takes a load access fault first, cause 5, and restarts the same way.
 2. **The linked image addresses placeholders**, not the split SoC (the address table above).
    S3's target firmware owns the real addresses.
 3. **#723 is open**: the runtime recipe builds without `-fno-stack-protector` and the image does not link.
@@ -1004,24 +1004,24 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
 
 `slow-adp-rx` builds a scratch copy of the firmware whose ADP receive handler spins 32,000 turns first.
 The `control` group's RCV_ADP_DISCOVER must miss its 20 ms budget: it measures 48.697 ms, and the run prints `CONTROL slow-adp-rx caught`.
-The ordinary image measures the same path at 0.057 ms.
+The ordinary image measures the same path at 0.056 ms.
 `slow-adp-shutdown` makes disabling ADP spin as long before its ENTITY_DEPARTINGs, in the `shutdown-entry` arm.
-The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss its 20 ms budget: it measures 48.932 ms against 0.291 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
+The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss its 20 ms budget: it measures 48.933 ms against 0.292 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
 The spin was 16,000 turns while T_svc was the 10 ms proposed, 24.6 ms on this core; at the approved budget that would have left 4.6 ms.
 The controls are the cacheless core's.
-Behind the split CPU's own caches, the 16 KiB fetch L1 and the data cache, the spin takes 17.3 ms at its 50 MHz (RCV_ADP_DISCOVER 17.324 ms, SHUTDOWN 17.406 ms), which fits the budget.
+Behind the split CPU's own caches, the 16 KiB fetch L1 and the data cache, the spin takes 17.3 ms at its 50 MHz (RCV_ADP_DISCOVER 17.322 ms, SHUTDOWN 17.411 ms), which fits the budget.
 No spin count serves both cores: the `control-shutdown` group waits to 50 ms past the SHUTDOWN and then at most 20 ms for the loop to settle, and a spin that took 25 ms on the cached CPU would take about 70 ms on the cacheless one.
 `as-built` hands the generator the SoC's regions unchanged.
 The run must refuse the boot with an access fault of cause 1 (a fetch) or cause 5 (a load), and prints `CONTROL as-built caught`.
 Either is the decode defect of [#791](https://github.com/kebag-logic/milan-fpga/issues/791); which access meets it first depends on the image's layout (defect 1 in [Findings](#findings)).
 The self-test requires both causes to be caught, and a clean boot or a trap of any other cause to escape.
 
-These figures are the firmware of `e76a755a`.
-At this head `slow-adp-rx` is caught again: RCV_ADP_DISCOVER measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
-`slow-adp-shutdown` has not been run at this head.
-At this head `as-built` is caught with a load access fault, cause 5, at the start code's first `.data` copy load, the `lw` at 0x24 (`TRAP ... 0 5 00000020`; the trap line's last field is the last committed PC, the `bgeu` before it), and the run prints `CONTROL as-built caught`.
+These figures are this head's, with contract 2.3's face writer merged (#665); each control was run again there.
+At this head `as-built` is caught with a load access fault, cause 5, at the start code's first `.data` copy load, the `lw` at 0x24 (`TRAP ... 0 5 00000020`; the trap line's last field is the last committed PC, the `bgeu` before it), on the cacheless core and behind the split's caches alike, and the run prints `CONTROL as-built caught`.
 The generator's decode defect is the one `e76a755a` met with cause 1; the access that meets it first changed, because this head's 1x1 image has its `.data` load image above 0x8000 (defect 1 in [Findings](#findings)).
-The same run with the generator handed the regions' cover, so that the CPU decodes correctly and the image boots clean, is graded with no trap and prints `CONTROL as-built ESCAPED`.
+Before the merge, at `01879189` (round 9, whose harness and firmware are `bf1773c0`'s), the two spins measured 48.697 and 48.932 ms and `as-built` met the defect with cause 1.
+On S1's branch, before this one merged it (`dev-soft-core` `f4c9ad4f`), the 16,000-turn `slow-adp-rx` measured 24.614 ms, and `as-built` met the defect with cause 5.
+There the same run with the generator handed the regions' cover, so that the CPU decodes correctly and the image boots clean, was graded with no trap and printed `CONTROL as-built ESCAPED`.
 
 ## Limits
 

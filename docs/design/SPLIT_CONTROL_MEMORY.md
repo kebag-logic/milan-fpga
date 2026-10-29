@@ -23,7 +23,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
 - **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at 100 MHz and at 150 MHz.
 - **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at 100 MHz, and what a larger fetch L1 would save by the model.
-- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at 100 MHz, the rows again at the approved T_svc = 20 ms, the refills per window, and what holds the 8x8 rows.
+- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at 100 MHz, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, and what holds the 8x8 rows.
 
 ## 1. Memory map
 
@@ -199,6 +199,20 @@ The owner's decision D3 (#665, 6409738976) moves cold code and the descriptor im
 The rulings of 2026-10-26 ledger this point as owed to S14: one tile (#665, 6412739248), then a tile and a half (#665, 6425357821).
 Only that point's measurement plans it, by name ([section 3](#3-named-refusals)), and every SoC build is still refused past 56.
 The flip (S13) still requires 56 RAMB36 or fewer at every point, with S14 merged.
+These figures are planned, not mapped.
+
+The ledger at lane S2b's merge of S1's face writer (#665, `dev-soft-core` `f4c9ad4f`) is planned the same way.
+It links the merged firmware of `51fa5f18` against the branch before the merge, `bf1773c0`, with one runtime for both:
+
+| Point | `rom` need, B | `sram` need, B | Planned RAMB36 equivalents | Before the merge, `bf1773c0` | Against the 56-RAMB36 budget |
+|---|---:|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 103,520 | 44,960 | 36.5 | 35.0 | within |
+| 1x1, two interfaces | 104,968 | 56,352 | 40.0 | 38.5 | within |
+| 8x8, one interface | 117,128 | 85,536 | 50.0 | 48.5 | within |
+| 8x8, two interfaces (largest) | 118,584 | 111,696 | 56.5 | 55.0 | **over by half a tile**, within the 57.5 ledgered and owed to lane S14 |
+
+The merge adds 6,264 to 6,376 B of `rom` and 336 B of `sram` at each point, the face writer's.
+Each point plans half a tile under S1's own ledger above, and the largest a whole tile, because the branch's compactions (sections 11 to 13) are in both.
 These figures are planned, not mapped.
 
 The figures below link the firmware of `8ab2b539`, which carries dev `c6bd08c6`: F-INT's publication writers and lwSRP `08ee86e8`.
@@ -601,6 +615,7 @@ At 100 MHz, before the changes:
   lwSRP itself is unchanged.
 - **(c) The service loop's hot code first** (`sw/firmware/ctrl/plat/ctrl_split.ld`).
   The 203 functions a service pass ran in the composed windows, 46,064 bytes, are placed ahead of the rest of `.text`, in the order a pass first ran them.
+  Since contract 2.3's face writer replaced the size fixture's stream observation, `ctrl_aecp_image a_stream`, 202 are listed, in the same order.
   The order comes from committed-PC traces of four windows, and a model of the fetch L1 (4 KiB, direct mapped, 64-byte lines) chose it.
   The model reads 4 to 8 % fewer refills than those windows measured.
   In it, packing the same functions in their linked order saves at most 5 % of the refills, and their run order 17 to 29 %; an order learned at one point holds at the other.
@@ -972,6 +987,41 @@ The tightest is the 8x8 last SRP record: 1.61 ms under its 18 ms bound without t
 The 8x8 last AECP record keeps 4.11 ms without them and 4.78 ms with them.
 The three bold rows are the egress's, at every clock and with every lever: the 60 ms egress hold sets the owed window's AECP record and the response with 7 frames owed ahead of it, and `ACMP_OWED_MAX` drops the command behind the owed input.
 
+### With contract 2.3's face writer
+
+This branch merged `dev-soft-core` `f4c9ad4f`, with lane S1's [PR #795](https://github.com/kebag-logic/milan-fpga/pull/795): contract 2.3's face block, the port census and the AECP owner's face writer (#665).
+The image now commits the AECP owner's settings through the face block.
+The CPU budget harness acknowledges each commit at the contract's bound, `FACE_ACK_CYCLES` bus cycles after `fw_send_o` rises ([the test SoC](../../tb/verilator/ctrl_service_budget/README.md#the-test-soc)).
+The record mover, the fetch L1, the bulk primitives and the hot list stay as above.
+The hot list lost one entry, the size fixture's `a_stream`, which the face's port replaced ([section 11](#11-the-firmwares-work-on-the-record-paths)).
+The CPU's netlist is unchanged.
+Every composed row was measured again at the merge, at 100 MHz, at both points, in both arms, with the two drafts staged and without them, graded as above:
+
+| Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|---:|
+| ACMP record, last | 20 | 5.51 / 5.30 | 4.60 / 4.76 | 8.79 / 8.82 | 8.30 / 8.12 |
+| ADP record, last | 20 | 3.93 / 3.77 | 3.28 / 3.41 | 6.67 / 6.69 | 6.31 / 6.33 |
+| MAAP record, last | 20 | 3.97 / 3.81 | 3.26 / 3.44 | 6.65 / 6.68 | 6.29 / 6.32 |
+| AECP record, last | 20 | 10.25 / 10.43 | 9.36 / 9.98 | 15.10 / 15.84 | 13.74 / 14.61 |
+| SRP record, last | 18 | 10.53 / 10.40 | 9.97 / 10.19 | 16.95 / 16.32 | 15.60 / 15.40 |
+| An ACMP command behind a full ACMP ring | 20 | 4.07 / 4.04 | 3.64 / 3.70 | 8.13 / 8.15 | 7.64 / 7.45 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 20 | 3.02 / 2.87 | 2.58 / 2.60 | 4.13 / 4.32 | 3.33 / 4.03 |
+| An event behind 15 others | 20 | 1.24 / 1.23 | 1.14 / 1.15 | 2.09 / 2.10 | 2.01 / 2.02 |
+| AECP record, last, in the owed window | 20 | **62.81** / **62.90** | **62.84** / **62.83** | **65.03** / **64.94** | **65.02** / **65.09** |
+| A response with 7 frames owed ahead of it | 20 | **61.99** / **62.06** | **62.01** / **62.00** | **63.70** / **63.64** | **63.69** / **63.74** |
+| An ACMP command behind the owed input | 20 | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
+
+Every row the CPU decides still fits, at both points, in both arms, with the drafts staged or not.
+The tightest is the 8x8 last SRP record: 1.05 ms under its 18 ms bound without the drafts, 0.56 ms less than before the merge, and 2.40 ms with them.
+The 8x8 last AECP record keeps 4.16 ms without the drafts and 5.39 ms with them.
+At 1x1 every such row keeps at least 7.47 ms: the last SRP record takes 10.53 ms against 18.
+The first records take at most 5.12 ms, and the refilling bucket's row at most 0.23 ms.
+The three bold rows are the egress's, as before.
+
+No row here answers IN_PROGRESS.
+Each commit is acknowledged within the contract's bound, so no change of face state waits.
+The 12 ms bound FR_NFR 3.4.1 gives a command answered IN_PROGRESS has no measured row on the CPU.
+
 ### Instruction refills per window
 
 The line refills of the work passes overlapping each group's composed window, with their wait, in ms, arm A / arm B:
@@ -1002,7 +1052,8 @@ The levers this page has named are taken; what is left is the work itself at the
 
 - The owner kept 8x8 in the Mark II split's scope and approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
   At the approved budget every row the CPU decides fits at both points; the least margin is the 8x8 last SRP record's, 1.61 ms without the drafts.
-- At 1x1 every such row keeps at least 7.59 ms: the last SRP record takes 10.41 ms against 18.
+  With contract 2.3's face writer merged it is 1.05 ms ([above](#with-contract-23s-face-writer)).
+- At 1x1 every such row keeps at least 7.47 ms with the face writer: the last SRP record takes 10.53 ms against 18.
 - The TSN stack's and lwSRP's changes reach this branch only through those repositories' reviews, then a pin move: the TSN stack's with the hot list's runtime entry removed, lwSRP's with `ctrl_arms.LWSRP_REV`.
 - The three rows no CPU lever moves are unchanged: the 60 ms egress hold, `ACMP_OWED_MAX`, and the command behind the owed input. They stay with [tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26).
 - The block-RAM ledger, 124 against 121.5 ([the area plan](MARK_II_AREA_PLAN.md)), is commissioned separately.
