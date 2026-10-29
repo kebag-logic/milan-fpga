@@ -73,11 +73,12 @@ STAND_IN = {
 }
 #: The planted controls of --self-test: (source file, unique anchor, replacement), and the finding's first word
 #: the grade must give. A CSR write skipped is caught by the trace; a console that holds the loop past #397's
-#: tick rule (a spin of about 0.6 s at the CPU's clock before its response) by the UART duty.
+#: tick rule by the UART duty, its span measured: a spin of 700,000 turns before its response, about 0.7 s,
+#: each turn a load and a store of the counter in sram, about 1 us.
 PLANTS = {
     'csr-write-skipped': ('plat/ctrl_plat_csr.c', '\twr(csr, CTRL_PLAT_CSR_LWSRP_VID, p->sr_vid);\n', '', 'TRACE'),
     'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {',
-                       '\tfor (volatile uint32_t n = 0; n < 4000000u; ++n) {\n\t}\n\tif (is(c, "milan_status")) {',
+                       '\tfor (volatile uint32_t n = 0; n < 700000u; ++n) {\n\t}\n\tif (is(c, "milan_status")) {',
                        'UART'),
 }
 #: The first link's map: the platform's fixture, at placeholder addresses.
