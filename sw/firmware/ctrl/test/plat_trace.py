@@ -118,7 +118,11 @@ def planted(src: Path, work: Path, old: str, new: str) -> Path:
 
 
 def arm(src: Path, out: Path) -> Outcome:
-    """Every shipped config's two lists, equal; every plant, caught."""
+    """Every shipped config's two lists, equal; every plant, caught. A build-only run (fw_gtest.EXECUTION) runs no
+    program, and this arm is two programs per config, so it does nothing there."""
+    import fw_gtest
+    if not fw_gtest.EXECUTION.run:
+        return Outcome("plattrace", 0, f"  {fw_gtest.NOT_RUN}")
     lines, failures, checks = [], 0, 0
     reference: dict[str, list[tuple[int, int]]] = {}
     try:
