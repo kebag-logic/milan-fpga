@@ -160,8 +160,8 @@ const struct mbx_model_tx *mbx_model_tx_frame(const struct mbx_model *m, uint32_
 const struct mbx_model_tmr_op *mbx_model_tmr_op(const struct mbx_model *m, uint32_t k);
 
 // What interface `interface`'s datapath takes from KL_mbx's pub_*_o ports:
-// every field, and each sink's stream_id only while its SID_VALID is set.
-// All zero for an interface the build lacks.
+// every field, each source's stream_id, and each sink's stream_id only while
+// its SID_VALID is set. All zero for an interface the build lacks.
 struct mbx_model_pub {
 	uint32_t da_gate;                               // DA_GATE.OPEN, bit s source s
 	uint32_t licence;                               // LICENCE.ACTIVE, bit s source s
@@ -170,6 +170,7 @@ struct mbx_model_pub {
 	uint8_t priority;                               // SR_DOMAIN.PRIORITY
 	bool adopted;                                   // SR_DOMAIN.ADOPTED
 	uint32_t talker_decl;                           // TALKER_DECL.DECLARED, bit s source s
+	uint64_t src_sid[MBX_N_PUB_SOURCES];            // SRC_SID_HI:SRC_SID_LO, the stream_id source s stamps
 	bool bound[MBX_N_PUB_SINKS];                    // BINDING.BOUND
 	bool started[MBX_N_PUB_SINKS];                  // BINDING.STARTED
 	uint64_t sid[MBX_N_PUB_SINKS];                  // SID_HI:SID_LO, 0 while SID_VALID is clear

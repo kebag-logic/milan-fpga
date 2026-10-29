@@ -632,15 +632,26 @@ def step_tp_maap(context: Context) -> None:
     context.tp_maap = hits[0]
 
 
-@then("the MAAP conflict clause mentions the LeaveAll wait")
+@then("the MAAP conflict step asserts the new Stream ID on the wire and in the answers")
+def step_tp_maap_sid(context: Context) -> None:
+    """After the move the frames and the PROBE_TX and GET_STREAM_INFO answers name one Stream ID, the new one
+    (processor #202): a step that only looked for a new address would pass frames still carrying the withdrawn ID."""
+    names = {a.name for a in context.tp_maap.asserts}
+    assert "stream.id-follows-the-move" in names, names
+
+
+@then("the MAAP conflict clause limits the LeaveAll wait to the same Stream ID")
 def step_tp_maap_leaveall(context: Context) -> None:
-    """The MAAP entry names the two-LeaveAll wait Milan Table 5.3 requires; an immediate re-claim is a different
-    behaviour and would pass a step that only looked for a new address."""
+    """The MAAP entry cites IEEE 802.1Q-2018 35.2.2.8, whose 2 LeaveAll wait guards a StreamID declared again with
+    another FirstValue, and Table 5.3's leave to use another Stream ID, which needs no wait."""
     txt = context.tp_maap.clause + " " + context.tp_maap.note + " " + \
         " ".join(a.clause for a in context.tp_maap.asserts)
-    assert "LeaveAll" in txt, (
-        "the MAAP conflict entry does not mention the 2 LeaveAll wait Milan "
-        "Table 5.3 requires - an immediate re-claim is a different behaviour")
+    assert "35.2.2.8" in txt and "LeaveAll" in txt, (
+        "the MAAP conflict entry does not cite the IEEE 802.1Q-2018 35.2.2.8 "
+        "LeaveAll rule for the withdrawn Stream ID")
+    assert "another Stream ID" in txt, (
+        "the MAAP conflict entry does not name the move to another Stream ID "
+        "Milan v1.2 Table 5.3 allows")
 
 
 @then("there is a wrong-SR-VID step")

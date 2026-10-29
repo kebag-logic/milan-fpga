@@ -10,7 +10,7 @@ The [protocol processor baseline](../findings/PP_SHADOW_BASELINE.md) records iss
 It also records issue [#587](https://github.com/kebag-logic/milan-fpga/issues/587)'s 50 MHz 8x8 rerun.
 It separates standalone synthesis from integrated implementation.
 Its [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) binds both product geometries.
-The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image at [#632](https://github.com/kebag-logic/milan-fpga/issues/632)'s lane head `5282b8b6`, its merge of dev `e5b480a3` with processor `93fb0b2d` and FPGA-gPTP `55680bff`, under two owner exceptions: [block RAM](https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6309313685) and [LUT, FF and slices](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062).
+The [issue #234 baseline](../findings/234_PP_SHADOW_AREA_BASELINE.md) records the shipping image at [#799](https://github.com/kebag-logic/milan-fpga/issues/799)'s lane head `8b76de69` on dev `97aab1d0`, with processor `f65c8ff7` and FPGA-gPTP `55680bff`, under an [owner decision](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634).
 Its figures back the protocol processor budget and resource gate below.
 
 The current command and media-clock claims are checked against the
@@ -116,8 +116,11 @@ Its growth exceeded the LUT tolerances at every endpoint and the 8x8 FF toleranc
 Its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff) retain the preceding record.
 Issue [#632](https://github.com/kebag-logic/milan-fpga/issues/632) then re-recorded all three endpoints at lane head `5282b8b6`, its merge of dev `e5b480a3`, for the media clock phase alignment of [#632](https://github.com/kebag-logic/milan-fpga/issues/632) and [#764](https://github.com/kebag-logic/milan-fpga/issues/764).
 Its route growth exceeded the slice and RAMB18 tolerances; it is recorded under the owner's [block-RAM exception](https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6309313685) and its [extension to the LUT, FF and slice growth](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062), and Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
-That measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-23-issues-632-and-764) retain the preceding record.
-All seven measurements use the same recipe identity and policy.
+Its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-23-issues-632-and-764) retain the preceding record.
+Issue [#799](https://github.com/kebag-logic/milan-fpga/issues/799) then re-recorded all three endpoints at lane head `8b76de69` on dev `97aab1d0`, adopting processor `f65c8ff7`.
+Its growth exceeded the route's LUT tolerance and both standalone LUT and FF tolerances; it is recorded under the [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634), and Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
+That measurement is the gate's record; its [receipts and differences](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-28-processor-f65c8ff7) retain the preceding record.
+All eight measurements use the same recipe identity and policy.
 The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) flow identity matches F, the one synthesis worker included.
 The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) repository inputs differ from F's only in [`KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv) and comment lines of [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv); the processor pins are F's.
 
@@ -127,22 +130,24 @@ The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) repository inpu
 The baseline product must fit `xc7a100t` with at most 60 percent of its LUTs used.
 The adopted image does not meet it:
 
-| Resource | Device | Shipping route, #632 on dev `e5b480a3`, processor `93fb0b2d`, FPGA-gPTP `55680bff` | Used | Target | Status |
+| Resource | Device | Shipping route, #799 on dev `97aab1d0`, processor `f65c8ff7`, FPGA-gPTP `55680bff` | Used | Target | Status |
 |---|---:|---:|---:|---|---|
-| Slice LUT | 63,400 | 51,259 | 80.85 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): at most 38,040 (60 %) | not met, 13,219 over |
-| Slice register | 126,800 | 53,208 | 41.96 % | none stated | - |
-| Slice | 15,850 | 15,835 | 99.91 % | must stay below the device to place | 15 free |
+| Slice LUT | 63,400 | 52,012 | 82.04 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): at most 38,040 (60 %) | not met, 13,972 over |
+| Slice register | 126,800 | 53,707 | 42.36 % | none stated | - |
+| Slice | 15,850 | 15,780 | 99.56 % | must stay below the device to place | 70 free |
 | Block RAM tile | 135 | 87.5 | 64.81 % | reserve: 13.5 tiles (10 %), the 121.5-tile ceiling, accepted (manager ruling) | 47.5 free |
 | DSP | 240 | 13 | 5.42 % | none stated | - |
-| WNS / WHS | - | +0.236 / +0.028 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
+| WNS / WHS | - | +0.440 / +0.036 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
 
 The table is the gate's record.
-The slice row is the binding limit: the shipping route at FPGA-gPTP `f97c1803` ([#803](https://github.com/kebag-logic/milan-fpga/issues/803)) places 15,843 slices, so placement has 7 of 15,850 left.
+The slice row is the binding limit: the shipping route at FPGA-gPTP `f97c1803` ([#803](https://github.com/kebag-logic/milan-fpga/issues/803)) on processor `ed211803` placed 15,843 slices, so placement had 7 of 15,850 left.
 The next growth on the shipping image therefore has no slice room and needs its own owner decision ([the extension](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062)).
-The routed critical setup path has 13 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
-It runs from the SoC's `milansoc_write_w_buffer_level0_reg[0]` to `storage_13_dat1_reg[6]`; its data delay is 9.471 ns, of which 7.717 ns is routing.
-The preceding [#771](https://github.com/kebag-logic/milan-fpga/issues/771) image, at `8de4b80b`, used 50,759 LUTs and 15,728 slices, 122 free, at +0.291 / +0.036 ns; its critical path had 14 logic levels from the SDRAM controller's ZQ-calibration timer to its write-to-read counter.
-The [#708](https://github.com/kebag-logic/milan-fpga/issues/708) image before it, at `435af429`, used 49,613 LUTs and 15,725 slices, 125 free, at +0.215 / +0.036 ns; its critical path had 17 logic levels from the AXI-Lite-to-Wishbone bridge state to the SPI-flash PHY counter.
+The record's route leaves 70 slices; the [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) accepted that image's growth, and Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
+The routed critical setup path has 18 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
+It runs from the AXI-Lite-to-Wishbone bridge state `FSM_onehot_socbushandler0_axilite2wishbone_state_reg[1]` to the SPI-flash PHY counter `milansoc_spiflash_phy_cnt_reg[8]`; its data delay is 9.531 ns, of which 6.252 ns is routing.
+The preceding [#632](https://github.com/kebag-logic/milan-fpga/issues/632) image, at `5282b8b6`, used 51,259 LUTs and 15,835 slices, 15 free, at +0.236 / +0.028 ns; its critical path had 13 logic levels from the SoC's write buffer level to `storage_13_dat1_reg[6]`.
+The [#771](https://github.com/kebag-logic/milan-fpga/issues/771) image before it, at `8de4b80b`, used 50,759 LUTs and 15,728 slices, 122 free, at +0.291 / +0.036 ns; its critical path had 14 logic levels from the SDRAM controller's ZQ-calibration timer to its write-to-read counter.
+The [#708](https://github.com/kebag-logic/milan-fpga/issues/708) image before that, at `435af429`, used 49,613 LUTs and 15,725 slices, 125 free, at +0.215 / +0.036 ns; its critical path had 17 logic levels from the AXI-Lite-to-Wishbone bridge state to the SPI-flash PHY counter.
 The [#696](https://github.com/kebag-logic/milan-fpga/issues/696) first-draw image before that, at `bee1b0d7`, used 50,013 LUTs and 15,753 slices, 97 free, at +0.233 / +0.017 ns; its critical path had 27 logic levels inside the wrapper's `u_pp/u_aecp/u_d3`.
 The [#696](https://github.com/kebag-logic/milan-fpga/issues/696) image before that, at `0df48637`, used 50,230 LUTs and 15,823 slices, 27 free, at +0.114 / +0.036 ns.
 The [#645](https://github.com/kebag-logic/milan-fpga/issues/645) image before that used 50,267 LUTs and 15,779 slices, 71 free, at +0.299 / +0.031 ns.
@@ -153,15 +158,15 @@ The baseline records F's endpoint and sub-block differences from E.
 
 ### Allocation to the protocol processor
 
-The standalone wrapper uses 23,828 LUTs, 37.6 % of the device, at the shipping clock.
+The standalone wrapper uses 24,346 LUTs, 38.4 % of the device, at the shipping clock.
 The superseded [#229](https://github.com/kebag-logic/milan-fpga/issues/229) milestone targeted a non-CPU stack below 30 %, 19,020 LUTs.
-Read as `milan_datapath`, that stack names 42,764 LUTs in the routed image, 67.5 % of the device.
-The wrapper names 23,776 of them in that rebuilt hierarchy.
+Read as `milan_datapath`, that stack names 43,518 LUTs in the routed image, 68.6 % of the device.
+The wrapper names 24,493 of them in that rebuilt hierarchy.
 The wrapper alone exceeds that historical allocation.
 The active [#640](https://github.com/kebag-logic/milan-fpga/issues/640) acceptance bar is the whole-image [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) target.
 
-Meeting [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) with the rest of the image unchanged needs the wrapper at most 10,557 LUTs.
-That requires removing 13,219 LUTs, 56 % of the wrapper.
+Meeting [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) with the rest of the image unchanged needs the wrapper at most 10,521 LUTs.
+That requires removing 13,972 LUTs, 57 % of the wrapper.
 The [owner decided on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) that [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) stays at 60 %.
 It is met by the [Mark II redesign plan](MARK_II_AREA_PLAN.md) ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)).
 The [2026-10-05 schedule correction](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5988555968)
@@ -395,7 +400,7 @@ F0-F4 firmware exists, but parent datapath integration is missing.
 The mailbox remains idle and the wrapper remains unconditional.
 Therefore no selected route or new area figure is reported.
 LUT, FF, slices, RAMB36/RAMB18 and timing are **not measured**.
-At base `7c1b52be` the comparison record was #645's 50,267-LUT route; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT route replaced it, [#708](https://github.com/kebag-logic/milan-fpga/issues/708)'s 49,613-LUT route replaced that, [#771](https://github.com/kebag-logic/milan-fpga/issues/771)'s 50,759-LUT route replaced the #708 one, and [#632](https://github.com/kebag-logic/milan-fpga/issues/632)'s 51,259-LUT route has since replaced the #771 one.
+At base `7c1b52be` the comparison record was #645's 50,267-LUT route; [#696](https://github.com/kebag-logic/milan-fpga/issues/696)'s 50,013-LUT route replaced it, [#708](https://github.com/kebag-logic/milan-fpga/issues/708)'s 49,613-LUT route replaced that, [#771](https://github.com/kebag-logic/milan-fpga/issues/771)'s 50,759-LUT route replaced the #708 one, [#632](https://github.com/kebag-logic/milan-fpga/issues/632)'s 51,259-LUT route replaced the #771 one, and [#799](https://github.com/kebag-logic/milan-fpga/issues/799)'s 52,012-LUT route has since replaced the #632 one.
 Its 74 RAMB36 plus 27 RAMB18 still total 87.5 tiles.
 Those stored figures are not this lane's measurement.
 
@@ -435,8 +440,8 @@ It also requires the route's BRAM tile ceiling.
 
 Growth beyond a tolerance, a ceiling crossed or a timing floor crossed exits 1.
 A route whose status report names an unrouted net or a routing error exits 1 too: the image does not fit.
-At the current +0.236 ns WNS record, the absolute +0.030 ns floor binds first, after a fall of 0.206 ns.
-The 0.25 ns fall limit and the zero WHS floor remain unchanged.
+At the current +0.440 ns WNS record, the 0.25 ns fall limit binds first, at +0.190 ns, before the unchanged +0.030 ns floor.
+The fall limit and the zero WHS floor remain unchanged.
 One more RAMB36, RAMB18 or DSP is always material.
 A primitive count moves only when storage or arithmetic changes its mapping.
 
@@ -511,6 +516,12 @@ Dev `e5b480a3`'s synthesis inputs differ from the tenth's only in comment lines 
 Against the tenth, its route moved by +500 LUTs, +376 FFs and +107 slices, with RAMB18 +2, DSP -1, WNS -0.055 ns and WHS -0.008 ns; both standalone records kept every figure.
 The slice and RAMB18 growth exceed their tolerances, so the gate refused the route; the owner's [block-RAM exception](https://github.com/kebag-logic/milan-fpga/issues/632#issuecomment-6309313685) and its [extension to the LUT, FF and slice growth](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062) accept this change's area for now, and Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers it.
 Its findings section carries the per-instance attribution; every policy value stays unchanged.
+The [twelfth](../findings/234_PP_SHADOW_AREA_BASELINE.md#re-baseline-of-2026-10-28-processor-f65c8ff7) records [#799](https://github.com/kebag-logic/milan-fpga/issues/799)'s adoption of processor `f65c8ff7` (its #202, #205 and #206) with mailbox contract 2.3, at lane head `8b76de69` on dev `97aab1d0`.
+Dev merged PRs #777, #778, #779 and #783 after the eleventh without a new record, so its differences are theirs and this adoption's together.
+Against the eleventh, its route moved by +753 LUTs, +499 FFs and -55 slices, with RAM, DSP unchanged, WNS +0.204 ns and WHS +0.008 ns; the standalone records moved by +518 LUTs and +404 FFs at 1x1 and +1,689 LUTs and +1,562 FFs at 8x8.
+Almost all of it is the processor's #202 logic: the move, its quarantine and the owed Leave, per source.
+The LUT growth exceeds every endpoint's tolerance and the standalone FF growth both, so the gate refused all three endpoints; the [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) accepts it, and Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers it.
+The same figures were measured before the lane's mailbox contract 2.3 change, which moved no figure; every policy value stays unchanged.
 
 The gate refuses, with exit 2, to compare across a tool or recipe change.
 That covers the Vivado build, the device, the design and its state, every flow command and the standalone clock.

@@ -8,16 +8,19 @@ Issue #696 [re-recorded them](#re-baseline-of-2026-10-10-issue-696) with its `KL
 Its [next record](#re-baseline-of-2026-10-10-issue-696-first-draw) added #696's first-draw change on its merge of dev `e8454e27`.
 Issue #708's [record](#re-baseline-of-2026-10-16-processor-2cbed0a9) adopted processor `2cbed0a9` on its merge of dev `734eb780`.
 Its [next record](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff) adopted processor `93fb0b2d` and FPGA-gPTP `55680bff` for #771, under an owner exception.
-The [current record](#re-baseline-of-2026-10-23-issues-632-and-764) adds the media clock phase alignment of #632 and #764 on its merge of dev `e5b480a3`, under two owner exceptions.
+Its [next record](#re-baseline-of-2026-10-23-issues-632-and-764) added the media clock phase alignment of #632 and #764 on its merge of dev `e5b480a3`, under two owner exceptions.
+The [current record](#re-baseline-of-2026-10-28-processor-f65c8ff7) adopts processor `f65c8ff7` for #799 on dev `97aab1d0`, under an owner decision.
 The later sections preserve combinations A through F as history.
 Those earlier records cover the processor adoption and parent AAF packetizer change.
-The #771 record moved the processor pin from `2cbed0a9` to `93fb0b2d` and the gPTP pin from `e4869fd0` to `55680bff`; the current record keeps both pins.
+The #771 record moved the processor pin from `2cbed0a9` to `93fb0b2d` and the gPTP pin from `e4869fd0` to `55680bff`.
+Dev then moved the processor pin to `ed211803` (#780), and the current record moves it to `f65c8ff7`; the gPTP pin stays `55680bff`.
 No processor source is edited.
 The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the budget and the gate built on these figures.
 
 ## Contents
 
-- **[Re-baseline of 2026-10-23, issues #632 and #764](#re-baseline-of-2026-10-23-issues-632-and-764)** -- The current record, under two owner exceptions: the media clock phase alignment on its merge of dev `e5b480a3`, remeasured at three endpoints, its share against dev's own route, the per-instance attribution, route-corner timing and input receipts.
+- **[Re-baseline of 2026-10-28, processor f65c8ff7](#re-baseline-of-2026-10-28-processor-f65c8ff7)** -- The current record, under an owner decision: processor `f65c8ff7` and mailbox contract 2.3 on dev `97aab1d0`, remeasured at three endpoints, the same figures as before the contract change, sub-block movements, route-corner timing and input receipts.
+- **[Re-baseline of 2026-10-23, issues #632 and #764](#re-baseline-of-2026-10-23-issues-632-and-764)** -- The preceding record, under two owner exceptions: the media clock phase alignment on its merge of dev `e5b480a3`, remeasured at three endpoints, its share against dev's own route, the per-instance attribution, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-22, processor 93fb0b2d and FPGA-gPTP 55680bff](#re-baseline-of-2026-10-22-processor-93fb0b2d-and-fpga-gptp-55680bff)** -- The preceding record, under an owner exception: both pins adopted on dev `d77a8afd`, remeasured at three endpoints, with this adoption's share against dev's own measurement, the per-donor 1x1 ledger, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-16, processor 2cbed0a9](#re-baseline-of-2026-10-16-processor-2cbed0a9)** -- Processor `2cbed0a9` adopted on #708's merge of dev `734eb780`, remeasured at three endpoints, with its input difference from dev, unchanged policy, route-corner timing and input receipts.
 - **[Re-baseline of 2026-10-10, issue #696 first draw](#re-baseline-of-2026-10-10-issue-696-first-draw)** -- #696's first-draw change after its dev merge, remeasured at three endpoints, with unchanged policy, route-corner timing, MAAP slack and input receipts.
@@ -36,6 +39,97 @@ The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resourc
 - **[Yosys reconciliation](#yosys-reconciliation)** -- The flattened Yosys mapping of the same geometry, and the three contributions that explain its gap to Vivado.
 - **[Reduction ranking](#reduction-ranking)** -- The 1x1 levers by measured cost and estimated saving, with #230, #232, #233 and #639 placed among them.
 - **[Run receipts](#run-receipts)** -- Every Vivado and Yosys run's exit status, duration and log digest.
+
+## Re-baseline of 2026-10-28, processor f65c8ff7
+
+This re-baseline records [#799](https://github.com/kebag-logic/milan-fpga/issues/799)'s adoption of processor `f65c8ff7c673aaa8e2ea8da654f081ddb13588d8` (protocol-processor PRs #204, #207 and #208, for its #202, #205 and #206), with mailbox contract 2.3.
+It measures lane head `8b76de6908930bc6f2bcb309d79e19c1ad0c3fea` on dev `97aab1d0f28bd753a3e11df6278d5cac54f964dd`, with FPGA-gPTP `55680bff`.
+The lane's later commits change no synthesis input.
+Dev merged PRs #777, #778, #779 and #783 after the [preceding record](#re-baseline-of-2026-10-23-issues-632-and-764) without a new one, so the differences below are theirs and this adoption's together.
+
+**Owner decision.** Against the preceding record the gate refused all three endpoints with exit 1.
+The route grew by 753 LUTs against a 500 tolerance; `ooc-1x1` by 518 LUTs and 404 FFs against 250 each; `ooc-8x8` by 1,689 LUTs and 1,562 FFs against 316 and 339.
+The [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) accepts the growth and this re-baseline; Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
+This record is written under that decision.
+Every tolerance, floor and ceiling stays unchanged, and every other gated figure passed.
+
+All three endpoints were measured through the [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md) with `--single-thread-synthesis`.
+The route keeps the shipping directives, with `general.maxThreads` 32 and `synth.maxThreads` 1.
+An RTL elaboration supplies the 8x8 bound parameters; each standalone run uses the shipping 20 ns clock with `--integrated-clock`.
+The resource gate reports matching measurement identities against the preceding record.
+The same three endpoints, measured at the lane's `05b26476` the day before, gave the same figures in every field.
+That head precedes the mailbox contract 2.3 and publication census change, which moved every input digest and no figure.
+
+| Endpoint | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | CARRY4 | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | 52,012 | 53,707 | 15,780 | 74 / 27 | 13 | 3,631 | +0.440 | +0.036 |
+| `ooc-1x1` | 24,346 | 20,404 | - | 16 / 3 | 8 | 1,579 | +4.196 | +0.159 |
+| `ooc-8x8` | 34,156 | 29,782 | - | 21 / 5 | 8 | 2,128 | +1.139 | +0.159 |
+
+| Difference from the preceding record | LUT | FF | Slice | RAMB36 / RAMB18 | DSP | WNS ns | WHS ns |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `route-1x1` | **+753** | +499 | -55 | 0 / 0 | 0 | +0.204 | +0.008 |
+| Tolerance | 500 | 600 | 80 | 0 / 0 | 0 | 0.25 | 0.25 |
+| `ooc-1x1` | **+518** | **+404** | - | 0 / 0 | 0 | +0.859 | 0.000 |
+| Tolerance | 250 | 250 | - | 0 / 0 | 0 | - | - |
+| `ooc-8x8` | **+1,689** | **+1,562** | - | 0 / 0 | 0 | 0.000 | 0.000 |
+| Tolerance | 316 | 339 | - | 0 / 0 | 0 | - | - |
+
+The growth is in the processor.
+The gate prints each endpoint's largest sub-block movements against the preceding record, LUT and FF; a block it did not list is marked so:
+
+| Block | `route-1x1` | `ooc-1x1` | `ooc-8x8` | Change |
+|---|---:|---:|---:|---|
+| `u_pp` | +712 / +452 | +519 / +404 | +1,684 / +1,564 | the processor |
+| `u_pp/u_srp/u_talker` | +201 / +255 | +222 / +253 | +949 / +1,146 | #202: the parked copy of a withdrawn declaration, for its owed Leave |
+| `u_pp/u_talker` | +190 / +146 | +204 / +146 | +686 / +414 | #202: the move, its search and the quarantine records |
+| `u_pp/u_aecp` | +164 / +2 | not listed | not listed | the AECP blocks, which #206 and #780's pin both touch |
+| `u_pp/u_notify` | +71 / +3 | +90 / +3 | +72 / 0 | |
+| `u_pp/u_dispatch` | -83 / 0 | -109 / 0 | not listed | |
+
+Post-place, `milan_datapath` moved by +754 LUTs to 43,518, of which the wrapper moved by +717 to 24,493 and `KL_maap` by +51 to 540.
+The rest of the datapath moved by -14 LUTs, and the image outside it by -1.
+The wrapper's 8x8 growth is larger because the moved Stream ID, its quarantine record and the owed Leave are per source, nine sources at 8x8.
+
+The shipping route uses 87.5 RAM tiles and leaves 70 slices free.
+Its route-status report has no unrouted net or routing error, and the IOB packing check passes.
+WNS rose by 0.204 ns and is 0.410 ns above its +0.030 ns floor; WHS is 0.036 ns above zero.
+Standalone setup slack is an unconstrained-I/O synthesis result, not an integrated 8x8 fit or a routed timing verdict.
+
+| Route corner | WNS ns | WHS ns |
+|---|---:|---:|
+| `Slow_0C` | +0.440 | +0.074 |
+| `Slow_85C` | +0.440 | +0.074 |
+| `Fast_0C` | +1.660 | +0.036 |
+| `Fast_85C` | +1.660 | +0.036 |
+
+The worst setup path has 18 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
+It runs from the AXI-Lite-to-Wishbone bridge state `FSM_onehot_socbushandler0_axilite2wishbone_state_reg[1]` to the SPI-flash PHY counter `milansoc_spiflash_phy_cnt_reg[8]`.
+Its data delay is 9.531 ns: 3.279 ns of logic and 6.252 ns of routing.
+The worst hold path is in the gPTP plane's engine, from `frame_cid_r_reg[22]` to its distributed RAM `evq_pd_ctx_r_reg_0_3_102_107`, at +0.036 ns.
+
+Each endpoint was written with `record --write` after its `check`, which returned 1 at all three.
+`check-baseline` passes, and `check` returns 0 at all three endpoints against the new record.
+The endpoint notes identify the measured lane head and cite the owner decision.
+
+| Endpoint | Input SHA-256 |
+|---|---|
+| `route-1x1` | `4bcc485859afa3ab3bad8999923121fd10f45cc134f9225017e32b002e396508` |
+| `ooc-1x1` | `1271b588ced74ccead99cdc7e9bd50569154642c96882f00b3af2cd53167210e` |
+| `ooc-8x8` | `42810f2b00da2532c8b8657b123fcad5347b15606fefbc19a5b9d1cfcf60fdee` |
+
+All 18 recorded memory-image entries were rehashed after measurement and match.
+No completed measurement log contains a `Synth 8-4445` diagnostic.
+Each log's one `Synth 8-6901` is the parent's `crft_emit_en_w`.
+Runs were serial under the exclusive lock.
+The largest Vivado memory peak was 8,497 MB, in the route.
+
+| Run | rc | Minutes | Log SHA-256 | Log bytes |
+|---|---|---:|---|---:|
+| `route-1x1` | 0 | 62.2 | `f25552d645fc9e9ccdea927b35772a98d4a099b7d25664e10f7565ce81b7b2e8` | 905,387 |
+| `ooc-1x1` | 0 | 14.5 | `202246969999d82cb8016b65d4bf1bc1c968f129f9e08ec049b89e277abf5334` | 319,520 |
+| `rtl-8x8` | 0 | 1.3 | `8674866843fa926448109efeae7329a4dddc9a379ccb033b108e14f25cfafd5f` | 212,545 |
+| `ooc-8x8` | 0 | 26.8 | `022c1e56fdfc34bc5409d20fabef43aafb9deffe840d9a34d4bca2d3ff65daf9` | 330,486 |
 
 ## Re-baseline of 2026-10-23, issues #632 and #764
 

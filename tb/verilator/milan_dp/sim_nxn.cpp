@@ -1907,7 +1907,14 @@ class NxnDatapathHarness {
     //        (Milan 5.4.5.2), and its started/stopped change one
     //        GET_STREAM_INFO to each controller, the requester included
     //        (Table 5.22, 5.4.5.1; processor issue #192);
-    //    G10 a reset returns both sinks to DISABLED with nothing carried.
+    //    G10 a reset returns both sinks to DISABLED with nothing carried;
+    //    G11 #790: stream_id, stream_dest_mac, stream_vlan_id and their
+    //        three Table 5.9 flags only while settled (5.4.2.10.1): bound
+    //        and probing before the first answer, settled, back in
+    //        PROBING_PASSIVE after TMR_NO_TK with the settled stream still
+    //        in the binding view, and unbound, on sink 0 after G10. No
+    //        controller is registered after that reset, so G11 grades the
+    //        solicited answers.
     //  Each named change pushes once to both registered controllers; G8 has
     //  two changes and grades both pushes to each controller. Its first push
     //  already reads PASSIVE: the owners are read live, after teardown.
@@ -2506,6 +2513,105 @@ class NxnDatapathHarness {
         }
     }
 
+    // ---- G11: the stream fields only while settled (#790) -----------------
+    //! Milan v1.2 5.4.2.10.1, Table 5.9: an input's stream_id,
+    //! stream_dest_mac and stream_vlan_id, and STREAM_ID_VALID,
+    //! STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID, are valid if, and only
+    //! if, the input is settled: probing_status PROBING_COMPLETED (5.3.8.5,
+    //! Table 5.5). The binding view keeps a stream's identity from settle to
+    //! unbind, so the processor gates the fabric's words on its committed
+    //! status (processor #206).
+    //! the three flags, byte 42 of the big-endian flags dword (0x52000000)
+    static constexpr unsigned kGsiStreamFlags = 0x52u;
+    //! TMR_NO_TK, started at settle (Milan v1.2 5.5.3.5.18 step 4)
+    static constexpr long kGsiNoTkMs = 10000;
+    static uint64_t gsi_sid(const std::vector<uint8_t>& g) {     // @40, frame 54
+        return g.size() > 61 ? gsi_be(g, 54, 8) : ~0ull;
+    }
+    static uint64_t gsi_dmac(const std::vector<uint8_t>& g) {    // @52, frame 66
+        return g.size() > 71 ? gsi_be(g, 66, 6) : ~0ull;
+    }
+    static uint64_t gsi_vlan(const std::vector<uint8_t>& g) {    // @68, frame 82
+        return g.size() > 83 ? gsi_be(g, 82, 2) : ~0ull;
+    }
+    //! the low 64 bits of a public: QData on this leg's one-sink table, a
+    //! VlWide on the wider shapes that compile this file too
+    static uint64_t gsi_low64(uint64_t v) { return v; }
+    template <std::size_t W>
+    static uint64_t gsi_low64(const VlWide<W>& v) {
+        return (static_cast<uint64_t>(v[1]) << 32) | v[0];
+    }
+    //! the binding view's sink 0 stream_id, as the stream table reads it
+    uint64_t gsi_view_sid0() const {
+        return gsi_low64(dut->rootp->milan_datapath__DOT__strtbl_sid_w);
+    }
+
+    //! The three Table 5.9 flags and their fields: the talker's values while
+    //! settled, clear and zero otherwise.
+    void gsi_ck_stream(const char* tag, const std::vector<uint8_t>& g, bool settled, int s) {
+        char w[200];
+        snprintf(w, sizeof w, "%s: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID %s",
+                 tag, settled ? "set" : "clear");
+        ck(w, g.size() > 42 ? (g[42] & kGsiStreamFlags) : ~0ul, settled ? kGsiStreamFlags : 0u);
+        snprintf(w, sizeof w, "%s: stream_id %s", tag, settled ? "is the talker's" : "is zero");
+        ck(w, gsi_sid(g), settled ? kGsiSink[s].sid : 0u);
+        snprintf(w, sizeof w, "%s: stream_dest_mac %s", tag, settled ? "is the talker's" : "is zero");
+        ck(w, gsi_dmac(g), settled ? kGsiSink[s].dmac : 0u);
+        snprintf(w, sizeof w, "%s: stream_vlan_id %s", tag, settled ? "is the talker's" : "is zero");
+        ck(w, gsi_vlan(g), settled ? 2u : 0u);
+    }
+
+    //! Four cases on sink 0, from the reset G10 leaves: bound and probing
+    //! before the first answer; settled; back in PROBING_PASSIVE after
+    //! TMR_NO_TK with the settled stream still in the binding view (no
+    //! Talker attribute is registered and the talker was never discovered,
+    //! 5.5.3.5.36); unbound. gsi_mutants.py plants the pass-through in the
+    //! processor copy, and the stale case must fail.
+    void gsi_g11_stream_fields_only_while_settled() {
+        constexpr const char* kProbing = "[GSI] G11 sink 0 bound and probing, before the first answer";
+        constexpr const char* kSettled = "[GSI] G11 sink 0 settled";
+        constexpr const char* kStale =
+            "[GSI] G11 sink 0 back in PROBING_PASSIVE after TMR_NO_TK, the stale ID";
+        constexpr const char* kUnbound = "[GSI] G11 sink 0 unbound after it settled";
+        const long probes0 = gsi_probes[0];
+        gsi_bind(0, 0);
+        gsi_ms(kGsiWinMs);
+        gsi_ck_acmp_ok(kProbing, 0x07, 0);
+        ck("[GSI] G11 sink 0 the bind sent its PROBE_TX", gsi_probes[0] - probes0, 1);
+        const std::vector<uint8_t> p = gsi_get(CTL_A, 0);
+        gsi_ck_state(kProbing, p, kPbActive, 0);
+        ck("[GSI] G11 sink 0 bound and probing: BOUND", gsi_flag(p, 42, 0x04), 1);
+        gsi_ck_stream(kProbing, p, false, 0);
+
+        gsi_answer_probe(0, 0);
+        const long t_settle = uns_log_cycle;
+        gsi_ms(kGsiWinMs);
+        const std::vector<uint8_t> c = gsi_get(CTL_A, 0);
+        gsi_ck_state(kSettled, c, kPbCompleted, 0);
+        ck("[GSI] G11 sink 0 settled: the binding view names the talker's stream",
+           gsi_view_sid0(), kGsiSink[0].sid);
+        gsi_ck_stream(kSettled, c, true, 0);
+
+        while (uns_log_cycle - t_settle < (kGsiNoTkMs + kGsiWinMs) * kMsCycTb) gsi_tick();
+        const std::vector<uint8_t> v = gsi_get(CTL_A, 0);
+        gsi_ck_state(kStale, v, kPbPassive, 0);
+        ck("[GSI] G11 sink 0 passive: BOUND", gsi_flag(v, 42, 0x04), 1);
+        ck("[GSI] G11 sink 0 passive: the binding view still names the settled stream",
+           gsi_view_sid0(), kGsiSink[0].sid);
+        ck("[GSI] G11 sink 0 passive: no talker discovered, so no new PROBE_TX",
+           gsi_probes[0] - probes0, 1);
+        gsi_ck_stream(kStale, v, false, 0);
+
+        gsi_unbind(0, 0);
+        gsi_ms(kGsiWinMs);
+        gsi_ck_acmp_ok(kUnbound, 0x09, 0);
+        const std::vector<uint8_t> u = gsi_get(CTL_A, 0);
+        gsi_ck_state(kUnbound, u, kPbDisabled, 0);
+        ck("[GSI] G11 sink 0 unbound: BOUND", gsi_flag(u, 42, 0x04), 0);
+        ck("[GSI] G11 sink 0 unbound: the binding view is cleared", gsi_view_sid0(), 0);
+        gsi_ck_stream(kUnbound, u, false, 0);
+    }
+
     void gsi_seam_section() {
         printf("-- [GSI] #508: probing/ACMP status and failure info from the "
                "processor's own state (one processor ms = %d cycles) --\n", kMsCycTb);
@@ -2530,6 +2636,7 @@ class NxnDatapathHarness {
         printf("  [i]    %ld DUT LeaveAll MRPDU(s) re-declared against in this section\n",
                gsi_leave_alls);
         gsi_g10_reset();
+        gsi_g11_stream_fields_only_while_settled();
         notify_clear();
     }
 
@@ -7472,8 +7579,9 @@ class NxnDatapathHarness {
         // packets"). KL_pair_zero_fill now strobes every consumed pair slot at
         // clk_audio/512, silence where nothing feeds it, so an armed talker
         // frames at the media rate. Talkers are told apart by the sid uid16
-        // (bytes 24-25): t0 = 0, t1 = 5 (staged into A_SW_DMAC_HI[31:16] in the
-        // TCTX section above); anything else armed here would be a defect.
+        // (bytes 24-25): t0 = 0, t1 = 1, from the processor. The explicit
+        // TCTX uid 5 cannot override that published identity (processor #202,
+        // IEEE 1722-2016 4.4.4.8); sibling contexts keep their own IDs.
         {
             std::vector<uint8_t> cur;
             int t1f = 0, t1sil = 0, t1chans = -1, t1dlen = -1, foreign = 0,
@@ -7493,7 +7601,7 @@ class NxnDatapathHarness {
                         if (cur.size() >= 86 + off && cur[12+off] == 0x22
                             && cur[13+off] == 0xF0 && cur[14+off] == 0x02) {
                             int uid = (cur[24+off] << 8) | cur[25+off];
-                            if (uid == 5) {
+                            if (uid == 1) {
                                 t1f++;
                                 t1chans = cur[32+off];
                                 t1dlen  = (cur[34+off] << 8) | cur[35+off];

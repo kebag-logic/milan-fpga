@@ -17,7 +17,7 @@ package KL_mbx_pkg;
   //! contract major version
   localparam int unsigned MBX_VERSION_MAJOR_C = 32'd2;
   //! contract minor version
-  localparam int unsigned MBX_VERSION_MINOR_C = 32'd2;
+  localparam int unsigned MBX_VERSION_MINOR_C = 32'd3;
   //! ID.MAGIC
   localparam int unsigned MBX_MAGIC_C = 32'h00004D42;
   //! host window size
@@ -338,6 +338,22 @@ package KL_mbx_pkg;
   localparam int unsigned MBX_TALKER_DECL_DECLARED_LSB_C = 32'd0;
   //! TALKER_DECL: bit s: source s has a Talker declaration
   localparam int unsigned MBX_TALKER_DECL_DECLARED_WIDTH_C = 32'd16;
+  //! first source entry inside a publication block
+  localparam int unsigned MBX_PUB_SRC_BASE_C = 32'h00000080;
+  //! bytes per publication source entry
+  localparam int unsigned MBX_PUB_SRC_STRIDE_C = 32'h00000008;
+  //! Source s's current stream_id, low word: the ID its Talker attribute declares and its stream data AVTPDUs carry (IEEE 1722-2016 4.4.4.8; Milan v1.2 5.3.7.5 Table 5.3; the processor's src_stream_id_o). The datapath stamps SRC_SID_HI:SRC_SID_LO on source s's frames. The owner writes both words while source s's DA_GATE bit is clear, before it opens the gate and before the declaration or the PROBE_TX response that carries the ID, so no frame carries a half-written stream_id; after a MAAP conflict the gate is closed until the new allocation (Milan v1.2 5.5.4.1; protocol-processor #202).
+  localparam int unsigned MBX_PUB_SRC_REG_SRC_SID_LO_C = 32'h00000000;
+  //! SRC_SID_LO: stream_id[31:0]
+  localparam int unsigned MBX_SRC_SID_LO_SID_LSB_C = 32'd0;
+  //! SRC_SID_LO: stream_id[31:0]
+  localparam int unsigned MBX_SRC_SID_LO_SID_WIDTH_C = 32'd32;
+  //! Source s's current stream_id, high word, written with SRC_SID_LO.
+  localparam int unsigned MBX_PUB_SRC_REG_SRC_SID_HI_C = 32'h00000004;
+  //! SRC_SID_HI: stream_id[63:32]
+  localparam int unsigned MBX_SRC_SID_HI_SID_LSB_C = 32'd0;
+  //! SRC_SID_HI: stream_id[63:32]
+  localparam int unsigned MBX_SRC_SID_HI_SID_WIDTH_C = 32'd32;
   //! first sink entry inside a publication block
   localparam int unsigned MBX_PUB_SINK_BASE_C = 32'h00000100;
   //! bytes per publication sink entry

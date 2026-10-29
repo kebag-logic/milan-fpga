@@ -710,6 +710,10 @@ module KL_pp_shadow #(
 
     //! ---- class-D ACMP / ADP status levels ----
     output logic [N_STREAM_OUT_P-1:0]    acmp_declaring_o,        //! per-source DA gate open (THE talker egress gate)
+    //! per-source CURRENT stream_id, flat [64*s +: 64]: cfg_stream_id_i
+    //! after reset, moved after a MAAP conflict (processor #202). The framers
+    //! stamp it and GET_STREAM_INFO answers an output's stream_id with it.
+    output logic [N_STREAM_OUT_P*64-1:0] src_stream_id_o,
     output logic [N_STREAM_IN_P-1:0]     acmp_bound_o,            //! per-sink binding installed, DEBOUNCED
     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_eid_o,        //! per-sink bound talker entity_id
     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_sid_o,        //! per-sink bound stream_id
@@ -1444,6 +1448,7 @@ module KL_pp_shadow #(
       .srp_acc_latency_o       (srp_acc_latency_o),
       .srp_snk_fail_code_o     (srp_snk_fail_code_o),
       .acmp_declaring_o        (acmp_declaring_o),
+      .src_stream_id_o         (src_stream_id_o),
       .acmp_bound_o            (acmp_bound_o),
       .acmp_bound_eid_o        (acmp_bound_eid_o),
       .acmp_bound_sid_o        (acmp_bound_sid_o),

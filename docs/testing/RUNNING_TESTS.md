@@ -86,12 +86,12 @@ Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustiv
 [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
 The separate `milan_dp_gptp` selection uses
 6900 seconds, including compilation, and preserves physical clock and timer
-rates. CI runs the default selection on seventeen `--ci-pieces` workers; the
+rates. CI runs the default selection on nineteen `--ci-pieces` workers; the
 physical job runs nightly and on manual dispatch. Inspect a hosted worker's
 selection and the physical selection without compiling with:
 
 ```sh
-scripts/run_all_suites.sh --ci-pieces --shard 0/17 --list
+scripts/run_all_suites.sh --ci-pieces --shard 0/19 --list
 scripts/run_all_suites.sh --physical-gptp --list
 ```
 

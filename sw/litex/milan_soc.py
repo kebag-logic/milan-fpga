@@ -2654,8 +2654,9 @@ class CtrlMailbox(LiteXModule):
     an empty, quiet mailbox, never a wrong one; the tap that feeds it comes
     with the protocol lanes that need it (#665 F2 to F5). The publication
     block's outputs (contract 2.2, the class-D state the firmware owner writes
-    for the datapath) are left unread here too: only the split placement's
-    datapath reads them (#665, comment 6088423771).
+    for the datapath, and from 2.3 each source's current stream_id, #799) are
+    left unread here too: only the split placement's datapath reads them (#665,
+    comment 6088423771).
     """
 
     def __init__(self, sys_clk_freq: int, contract: object) -> None:
@@ -2676,7 +2677,8 @@ class CtrlMailbox(LiteXModule):
         if_w = max(1, (contract.interfaces - 1).bit_length())
         ch_w = max(1, (len(contract.channels) - 1).bit_length())
         # the publication block's port widths: per interface, each field's
-        # width, a bit per source or sink, and 64 bits per sink's stream_id
+        # width, a bit per source or sink, and 64 bits per source's and per
+        # sink's stream_id
         n_if = contract.interfaces
         pub_w = {(r.name, f.name): f.width for r in contract.pub_registers for f in r.fields}
         req, we, ack, irq = Signal(), Signal(), Signal(), Signal()
@@ -2706,6 +2708,7 @@ class CtrlMailbox(LiteXModule):
             o_pub_dom_prio_o=Signal(n_if * pub_w[("SR_DOMAIN", "PRIORITY")]),
             o_pub_dom_adopted_o=Signal(n_if * pub_w[("SR_DOMAIN", "ADOPTED")]),
             o_pub_talker_decl_o=Signal(n_if * contract.pub_sources),
+            o_pub_src_sid_o=Signal(n_if * contract.pub_sources * 64),
             o_pub_bound_o=Signal(n_if * contract.pub_sinks),
             o_pub_sid_valid_o=Signal(n_if * contract.pub_sinks),
             o_pub_started_o=Signal(n_if * contract.pub_sinks),
