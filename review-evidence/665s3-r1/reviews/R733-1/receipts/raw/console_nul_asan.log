@@ -1,0 +1,8 @@
+==386753==ERROR: AddressSanitizer: global-buffer-overflow on address 0x55978edd85ed at pc 0x55978edd62a1 bp 0x7ffd3e82a4c0 sp 0x7ffd3e82a4b0
+READ of size 1 at 0x55978edd85ed thread T0
+    #0 0x55978edd62a0 in is <clone>/sw/firmware/ctrl/plat/ctrl_plat_console.c:133
+    #1 0x55978edd63bb in run <clone>/sw/firmware/ctrl/plat/ctrl_plat_console.c:141
+    #2 0x55978edd69e3 in ctrl_plat_console_poll <clone>/sw/firmware/ctrl/plat/ctrl_plat_console.c:188
+0x55978edd85ed is located 0 bytes after global variable '*.LC25' defined in '<clone>/sw/firmware/ctrl/plat/ctrl_plat_console.c' (0x55978edd85e0) of size 13
+0x55978edd85ed is located 51 bytes before global variable '*.LC26' defined in '<clone>/sw/firmware/ctrl/plat/ctrl_plat_console.c' (0x55978edd8620) of size 14
+SUMMARY: AddressSanitizer: global-buffer-overflow <clone>/sw/firmware/ctrl/plat/ctrl_plat_console.c:133 in is

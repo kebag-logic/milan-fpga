@@ -1,0 +1,42 @@
+r733 campaign: mode --all, 55 defects, member 2 of 3
+[ok] mutant plat-policy-word-wrong (plat): 1 check(s) failed
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+[ok] mutant plat-status-pair-high-first (plat): 1 check(s) failed
+    first: [FAIL] Plat.C3StatusIsReadInMilanStatusOrder: C3 each pair low then high, the gPTP half first
+[ok] mutant plat-status-aem-inverted (plat): 2 check(s) failed
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+[ok] mutant plat-overflow-kept (plat): 2 check(s) failed
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 an overflowed line is dropped whole
+[ok] mutant plat-ring-drop-uncounted (plat): 1 check(s) failed
+    first: [FAIL] Plat.K5TextPastTheRingIsDroppedAndCounted: K5 the ring holds TX_BYTES and drops the rest
+[ok] mutant plat-tx-into-full-fifo (plat): 2 check(s) failed
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 never into a full FIFO
+[ok] mutant plat-slice-not-owed (plat): 4 check(s) failed
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 a line of CTRL_PLAT_LINE_MAX bytes is kept
+[ok] mutant plat-adp-before-aecp (platboot1, platboot1): 4 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+[ok] mutant plat-no-one-maap-owner (platboot1, platboot1): 4 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the mailbox only after the policy and the one MAAP owner
+[ok] mutant plat-mailbox-unchecked (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B5OtherContractStopsAtMailbox: B5 another contract stops the boot
+[ok] mutant plat-source-past-count (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 a source past the reported count has no destination
+[ok] mutant plat-licence-sticky (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 a revocation clears it
+[ok] mutant r733-adp-never-released (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP starts
+[ok] mutant r733-policy-before-identity (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the identity is read before anything
+[ok] mutant r733-stream-id-shift-8 (platboot1): 4 check(s) failed
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 the stream_id is the MAC and the unique ID
+wrote <packet>/scratch/camp2/mutants/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/camp2/mutants/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/camp2/mutants/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ok] mutant r733-source-interface-all-zero (platboot2): 1 check(s) failed
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 source 1, on interface 1, holds its interface's range
+[ok] mutant r733-tod-one-try (plat): 1 check(s) failed
+    first: [FAIL] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords: C4 a torn read is retried
+[ok] mutant r733-rx-not-popped (plat): 25 check(s) failed
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+mutants: 18 of 18 caught
+r733 campaign member 2/3: ALL CAUGHT

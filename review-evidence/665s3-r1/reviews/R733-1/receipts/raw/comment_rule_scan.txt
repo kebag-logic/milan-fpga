@@ -1,0 +1,124 @@
+336:+// boot sequence and the composition of F0-F5 and F1 on the MMIO HAL (#665 S3).
+692:+// ctrl_plat_console.h - the split image's UART console (#665 S3, decision D6).
+696:+// section 4). D6 (#665, issuecomment-6409738976) keeps only what the release
+880:+// ctrl_plat_csr.h - the datapath CSR window in the split placement (#665 S3).
+1027:+"""Generate the split platform's two headers (#665 S3): its boot policy and its bus map.
+1209:+// mailbox: the datapath CSR window and the LiteX UART (#665 S3).
+1243:+// after it sets the stack, copies .data and clears .bss (#665 S3).
+1283:+// ctrl_plat_mmio.c - ctrl_plat_io.h on the split SoC's bus (#665 S3).
+1315:+    # the split platform's arms (#665 S3), which the control gate builds
+1318:+    "sw/firmware/ctrl/test/plat_mutants.py": "the split platform's planted defects (#665 S3), which the control "
+1320:+    "sw/firmware/ctrl/plat/ctrl_plat_gen.py": "writes the split platform's policy and bus map headers (#665 S3); it "
+1322:+    "tb/verilator/ctrl_split_boot/run.py": "the split boot simulation (#665 S3), which no hosted job can run (the "
+1328:+    "sw/firmware/ctrl/test/plat_trace.py": "the split platform's CSR trace arm (#665 S3, test_ctrl_firmware.py's "
+1359:+"""Link the split platform's image (#665 S3): plat/ctrl_plat_main.c's main, not a fixture's.
+1373:+report adds the five largest .bss objects, the measurement S3 owes against the
+1554:+        # the split platform's image (#665 S3): its own entry, the same composition, the fixture's map
+1584:+"""plat_arms.py - the split platform's arms of the control-plane firmware's host test (#665 S3).
+1756:+// plat_bus.cpp - ctrl_plat_io.h on the host bus of plat_bus.hpp (#665 S3).
+1783:+// plat_bus.hpp - the split platform's bus on the host (#665 S3): the datapath
+1911:+"""plat_mutants.py - the split platform's planted defects (#665 S3), in the control campaign's table.
+1920:+The table holds S3's named controls: a CSR write skipped, reordered or wrong,
+1948:+    """The CSR window's: S3's CSR write skipped, reordered or wrong, the identity and the time of day."""
+1951:+        # the CSR initialisation (S3: skipped, reordered, wrong)
+1962:+          also=(("platboot1", "Boot.B2ForeignWindowStopsAtIdentity", "B2 a foreign window stops the boot"),)),
+2032:+          "platboot1", "Boot.B1ReachesReadyInStepOrder", "B1 ADP's first timer after the face commit",
+2033:+          also=(("platboot1", "Boot.B6UnacknowledgedFaceStopsAtAecp", "B6 ADP never starts"),)),
+2036:+          "platboot1", "Boot.B1ReachesReadyInStepOrder", "B1 ADP's first timer after the face commit"),
+2039:+          "platboot1", "Boot.B1ReachesReadyInStepOrder", "B1 ADP's first timer after the face commit",
+2040:+          also=(("platboot1", "Boot.B6UnacknowledgedFaceStopsAtAecp", "B6 ADP never starts"),)),
+2042:+          "platboot1", "Boot.B1ReachesReadyInStepOrder", "B1 the mailbox only after the policy and the one MAAP owner",
+2043:+          also=(("platboot1", "Boot.B3RefusedImageStopsAtImage", "B3 after the policy and the one MAAP owner"),)),
+2046:+          "platboot1", "Boot.B4RefusedStreamCountStopsAfterThePolicy", "B4 MAAP's port refuses nine AAF outputs"),
+2048:+          "platboot1", "Boot.B3RefusedImageStopsAtImage", "B3 a refused image stops the boot"),
+2051:+          "platboot1", "Boot.B5OtherContractStopsAtMailbox", "B5 another contract stops the boot"),
+2054:+          "platboot1", "Boot.B6UnacknowledgedFaceStopsAtAecp", "B6 no acknowledgement, no AECP"),
+2057:+          "platboot1", "Boot.B7OnlyAReadyBootServicesTheLoop", "B7 and never services the loop"),
+2061:+          "platboot1", "Boot.B8PlatformPortsAnswerAsDocumented", "B8 a source past the reported count"),
+2063:+          "platboot1", "Boot.B8PlatformPortsAnswerAsDocumented", "B8 source n holds base + n"),
+2066:+          "platboot2", "Boot.B8PlatformPortsAnswerAsDocumented", "B8 and nothing reaches interface 0's"),
+2068:+          "platboot1", "Boot.B8PlatformPortsAnswerAsDocumented", "B8 a revocation clears it"),
+2070:+          "platboot1", "Boot.B9SrpSourcesCarryTheGeneratedStreams", "B9 on the SR class VID"),
+2080:+"""plat_trace.py - the split platform's CSR initialisation against milan_baremetal.c's (#665 S3).
+2082:+S3's acceptance: the CSR initialisation writes exactly what milan_baremetal
+2272:+// (#665 S3; plat/ctrl_plat_csr.c, plat/ctrl_plat_console.c, plat_bus.hpp):
+2486:+    EXPECT_NE(answer("milan_status\r").find(" PDELAY_NS=4294967295 "), std::string::npos) << "K6 the largest";
+2488:+    EXPECT_NE(answer("milan_status\r").find(" PDELAY_NS=1000000000 "), std::string::npos) << "K6 inner zeros";
+2506:+// test_plat_boot.cpp - the split platform's boot and composition (#665 S3;
+2514:+//   B1  the boot reaches READY in step order: the identity read first, the
+2518:+//   B2  a window that is not a Milan datapath stops the boot at IDENTITY,
+2520:+//   B3  a refused AEM image stops it at IMAGE, after the policy and before the
+2522:+//   B4  a stream count MAAP's port refuses stops it after the policy
+2523:+//   B5  a bitstream with another mailbox contract stops it at MAILBOX, ADP
+2525:+//   B6  a face the datapath never acknowledges stops it at AECP, ADP never
+2527:+//   B7  a stopped boot keeps the console and never services the loop; a ready
+2529:+//   B8  the platform's ports: MAAP's allocation reaches the window and then
+2531:+//   B9  SRP's sources carry the generated streams on every interface
+2680:+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY) << "B1 the boot reaches its ready state";
+2681:+    ASSERT_FALSE(bus().log.empty()) << "B1 the identity is read before anything";
+2683:+        << "B1 the identity is read before anything";
+2690:+    ASSERT_GE(writes.size(), want.size()) << "B1 the policy's fifteen writes, then the one MAAP owner";
+2692:+    EXPECT_EQ(first, want) << "B1 the policy's fifteen writes, then the one MAAP owner";
+2693:+    ASSERT_FALSE(mailbox.empty()) << "B1 the mailbox only after the policy";
+2701:+    EXPECT_GE(mailbox.front().plat, policy_end) << "B1 the mailbox only after the policy and the one MAAP owner";
+2702:+    ASSERT_FALSE(far.commits.empty()) << "B1 the face is committed before AECP opens";
+2704:+    ASSERT_FALSE(arms.empty()) << "B1 ADP starts";
+2705:+    EXPECT_GT(arms.front(), far.commits.front()) << "B1 ADP's first timer after the face commit";
+2708:+    EXPECT_EQ(bus().tx.find(banner), 0u) << "B1 the banner first";
+2709:+    EXPECT_EQ(bus().tx.find(banner, 1), std::string::npos) << "B1 one banner per boot";
+2711:+        << "B1 the ready line last";
+2716:+    EXPECT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_IDENTITY) << "B2 a foreign window stops the boot";
+2717:+    EXPECT_TRUE(bus().writes().empty()) << "B2 nothing is written to a foreign window";
+2718:+    EXPECT_TRUE(mailbox.empty()) << "B2 nor to the mailbox";
+2725:+    EXPECT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_IMAGE) << "B3 a refused image stops the boot";
+2726:+    EXPECT_EQ(bus().writes().size(), 18u) << "B3 after the policy and the one MAAP owner";
+2727:+    EXPECT_TRUE(mailbox.empty()) << "B3 before the mailbox";
+2729:+        << "B3 the console reports AEM=disabled";
+2734:+    EXPECT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_COMPOSE) << "B4 MAAP's port refuses nine AAF outputs";
+2735:+    EXPECT_EQ(bus().writes().size(), 15u) << "B4 after the policy, before any stream window write";
+2736:+    EXPECT_TRUE(mailbox.empty()) << "B4 before the mailbox";
+2741:+    EXPECT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_MAILBOX) << "B5 another contract stops the boot";
+2742:+    EXPECT_TRUE(adp_arms().empty()) << "B5 ADP never starts";
+2743:+    EXPECT_TRUE(far.commits.empty()) << "B5 AECP's face is never committed";
+2748:+    EXPECT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_AECP) << "B6 no acknowledgement, no AECP";
+2749:+    EXPECT_FALSE(far.commits.empty()) << "B6 the face was offered";
+2750:+    EXPECT_TRUE(adp_arms().empty()) << "B6 ADP never starts";
+2757:+    EXPECT_NE(ask("milan_gettime\r").find("TAI_NS=0x"), std::string::npos) << "B7 a stopped boot keeps the console";
+2758:+    EXPECT_EQ(mailbox.size(), accesses) << "B7 and never services the loop";
+2764:+    EXPECT_NE(ask("milan_gettime\r").find("TAI_NS=0x"), std::string::npos) << "B7 the console is a loop poll";
+2765:+    EXPECT_GT(ctrl_plat.app.loop.stats.passes, passes) << "B7 a ready boot services the loop";
+2772:+    EXPECT_FALSE(s.dest_mac_valid) << "B8 no destination before MAAP holds a range";
+2779:+        << "B8 the allocation reaches the window, admission restored last";
+2783:+            << "B8 each source's destination valid once MAAP holds its interface's range";
+2785:+        EXPECT_EQ(s.stream.dest_mac, base + n) << "B8 source n holds base + n";
+2787:+            << "B8 the stream_id is the MAC and the unique ID";
+2788:+        EXPECT_EQ(s.stream.vlan_id, kPolicy.sr_vid) << "B8 on the SR class VID";
+2789:+        EXPECT_FALSE(s.asking_failed) << "B8 no asking-failed source";
+2796:+        EXPECT_FALSE(s.dest_mac_valid) << "B8 a source past the reported count has no destination";
+2799:+    EXPECT_FALSE(ctrl_plat.acmp_env.locked(ctrl_plat.acmp_env.ctx, &owner)) << "B8 the platform holds no lock";
+2800:+    EXPECT_EQ(owner, 0u) << "B8 the platform holds no lock";
+2804:+    EXPECT_EQ(ctrl_plat.aecp_platform.random(nullptr), mbx_now_ms()) << "B8 random is the loop's clock";
+2807:+    EXPECT_FALSE(ctrl_plat.aecp_platform.path(nullptr, 0, 0, path, 4, &count)) << "B8 GET_AS_PATH unavailable";
+2809:+    EXPECT_EQ(ctrl_plat.licences[0], 2u) << "B8 a licence sets its source's bit";
+2811:+    EXPECT_EQ(ctrl_plat.licences[0], 0u) << "B8 a revocation clears it";
+2816:+    EXPECT_GT(ctrl_plat.csr_dropped, dropped) << "B8 interface 1 has no window: its writes are dropped";
+2817:+    EXPECT_EQ(bus().log.size(), at) << "B8 and nothing reaches interface 0's";
+2820:+        << "B8 source 1, on interface 1, holds its interface's range";
+2832:+            EXPECT_EQ(id, mac << 16 | kStreams[n].unique_id) << "B9 the stream_id is the MAC and the unique ID";
+2833:+            EXPECT_EQ(v.vlan_id, kPolicy.sr_vid) << "B9 on the SR class VID";
+2834:+            EXPECT_EQ(v.max_frame_size, kStreams[n].max_frame_size) << "B9 the generated TSpec";
+2835:+            EXPECT_EQ(v.max_interval_frames, kStreams[n].max_interval_frames) << "B9 the generated TSpec";
+2836:+            EXPECT_EQ(v.priority_and_rank, kStreams[n].priority_and_rank) << "B9 the generated class";
+2837:+            EXPECT_FALSE(ctrl_plat.sources[i][n].allocated) << "B9 unallocated at boot";
+2839:+        EXPECT_EQ(ctrl_plat.srp_config.mac[i], mac) << "B9 the entity MAC on every interface";
+2841:+    EXPECT_EQ(ctrl_plat.srp_config.link_rate_bps, CTRL_PLAT_LINK_BPS) << "B9 the generated link rate";
+2855:+// bus, built over a host array (#665 S3):
+2915:+#: Both are owed to lane S14 in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
+2920:+                                            "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+2921:+                                            "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+2938:+only by its own name: the size fixture's at 57.5 RAMB36 (rulings 6412739248 and 6425357821) and the target
+2939:+platform's at 59.0 (ruling 6505997821). A `Case` here is what the ledger reads of one image. test_ctrl_memory.py
+3100:+                                  bss=BUDGET_BSS + (round(2 * (case.tiles - 56)) - 2) * GRANULE))
+3183:+"""The split boot simulation's SoC (#665 S3): S2's test-only split SoC, with the CSR window and UART on pads.
+3295:+"""The split boot simulation (#665 S3): the platform image from reset to ready, its CSR trace and its UART.
+3613:+// The testbench of the split boot simulation (#665 S3): the split SoC of

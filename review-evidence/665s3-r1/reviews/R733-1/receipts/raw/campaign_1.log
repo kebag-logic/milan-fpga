@@ -1,0 +1,43 @@
+r733 campaign: mode --all, 55 defects, member 1 of 3
+[ok] mutant plat-policy-writes-reordered (plat): 1 check(s) failed
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+[ok] mutant plat-identity-unchecked (plat, platboot1): 4 check(s) failed
+    first: [FAIL] Plat.C1IdentityIsMilnAndReadsVersion: C1 any other ID is refused
+[ok] mutant plat-tod-torn-accepted (plat): 4 check(s) failed
+    first: [FAIL] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords: C4 the agreeing high word
+[ok] mutant plat-prefix-is-a-command (plat): 3 check(s) failed
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 a prefix is no command
+[ok] mutant plat-hex-seven-digits (plat): 3 check(s) failed
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+[ok] mutant plat-rx-unbounded (plat): 2 check(s) failed
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 a full slice of input is owed another pass
+[ok] mutant plat-input-while-waiting (plat): 6 check(s) failed
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 output is owed after the pass
+[ok] mutant plat-mmio-write-neighbour (plat): 2 check(s) failed
+    first: [FAIL] PlatMmio.I2WriteIsTheWordAtTheAddressAlone: I2 a write lands in the word at the address
+[ok] mutant app-adp-hold-ignored (platboot1, platboot1): 4 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+[ok] mutant plat-image-unchecked (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B3RefusedImageStopsAtImage: B3 a refused image stops the boot
+[ok] mutant plat-loop-before-ready (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B7OnlyAReadyBootServicesTheLoop: B7 and never services the loop
+wrote <packet>/scratch/camp1/mutants/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/camp1/mutants/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/camp1/mutants/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ok] mutant plat-window-interface-ignored (platboot2): 3 check(s) failed
+    first: [FAIL] Boot.B3RefusedImageStopsAtImage: B3 after the policy and the one MAAP owner
+[ESCAPED] mutant r733-saved-state-after-mailbox-open (platboot1): 0 check(s) failed, none named platboot1: its check on ''
+[ok] mutant r733-banner-missing (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the banner first
+[ok] mutant r733-console-not-a-loop-poll (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the banner first
+[ok] mutant r733-srp-link-rate-unset (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B9SrpSourcesCarryTheGeneratedStreams: B9 the generated link rate
+wrote <packet>/scratch/camp1/mutants/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/camp1/mutants/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/camp1/mutants/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] mutant r733-window-read-any-interface (platboot2): 0 check(s) failed, none named platboot2: its check on ''
+[ok] mutant r733-line-max-one-early (plat): 2 check(s) failed
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 a line of CTRL_PLAT_LINE_MAX bytes is kept
+mutants: 16 of 18 caught
+r733 campaign member 1/3: SOME ESCAPED
