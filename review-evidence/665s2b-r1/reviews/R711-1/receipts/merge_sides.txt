@@ -1,0 +1,101 @@
+docs/reference/FR_NFR.md: lane added 55, absent at head 6
+    - release uses one control hart (NFR-SCOUT-01: cacheless RV32I in the all-fabric
+    - placement, RV32IM with instruction and data caches in the split) and scales media
+    - capacity through fabric stream contexts, channels, sample rates, and, in future
+    - profiles, replicated physical ports.
+    - | AECP solicited AEM, descriptor and counter responses | IEEE 1722.1-2021 9.3.2.6: respond within 240 ms; transaction timeout 250 ms | min(240, 250) m
+    - Optional identification would bound its path at 15 ms, and a future IN_PROGRESS cadence an AECP response at 12 ms; neither is enabled.
+docs/reference/FR_NFR.md: S1 added 5, absent at head 4
+    - release uses one RV32I control hart: in the split placement it has a 4 KiB direct-mapped instruction cache
+    - (64-byte lines, one refill at a time) and no data cache; in the all-fabric placement it stays cacheless (NFR-SCOUT-01).
+    - | AECP solicited AEM, descriptor and counter responses | IEEE 1722.1-2021 9.3.2.6: respond within 240 ms; transaction timeout 250 ms | min(240, 250) m
+    - The IN_PROGRESS cadence allows 12 ms.
+sw/firmware/ctrl/aecp/aecp.c: lane added 100, absent at head 0
+sw/firmware/ctrl/aecp/aecp.c: S1 added 73, absent at head 0
+sw/firmware/ctrl/aecp/aecp_commands.c: lane added 37, absent at head 0
+sw/firmware/ctrl/aecp/aecp_commands.c: S1 added 36, absent at head 0
+sw/firmware/ctrl/aecp/aecp_internal.h: lane added 9, absent at head 0
+sw/firmware/ctrl/aecp/aecp_internal.h: S1 added 3, absent at head 0
+sw/firmware/ctrl/test/aecp_mutants.py: lane added 150, absent at head 72
+    - # #665: the event scans walk aecp.live and the registry scans aecp.used.
+    - defect('live-list-appends', 'aecp.c',
+    - 'while (*link != 0u && *link <= n) {',
+    - 'while (*link != 0u) {',
+    - ('Indexed.LiveEventsAreTheHeldNoticesInDescriptorOrder',
+    - 'notices leave in descriptor order whatever order their changes came in')),
+    - defect('changed-event-not-linked', 'aecp.c',
+    - '\t\t\tlist(a, n);\n',
+    - '\t\t\t(void)list; (void)n;\n',
+    - ('Indexed.LiveEventsAreTheHeldNoticesInDescriptorOrder',
+    - 'aecp.live holds the events with a notice or a retry, in descriptor order')),
+    - defect('built-event-not-unlinked', 'aecp.c',
+    - '\t\t\t\t\t*link = e->next;\n',
+    - '\t\t\t\t\t(void)link;\n',
+    - ('Indexed.LiveEventsAreTheHeldNoticesInDescriptorOrder',
+    - 'a built notice that leaves its event holding nothing unlinks it')),
+    - defect('live-list-not-rebuilt-at-open', 'aecp.c',
+    - '\trelist(a);\n',
+    - '\t(void)relist;\n',
+    - ('Indexed.FailedNoticesStayLinkedAndOpenRelinksDirectWrites',
+    - "the open's rescan links what was set before it")),
+    - defect('event-links-unbounded', 'aecp.c',
+    - 'cfg->model->count >= 0xffffu || ',
+    - ('Indexed.RefusesAModelTheEventLinksCannotIndex',
+    - 'aecp.live links descriptor indices + 1 in 16 bits')),
+    - defect('registration-bit-not-set', 'aecp.c',
+    - '\t\ta->used[interface] |= (uint16_t)(1u << (found - a->registry[interface]));\n',
+    - ('Indexed.RegistryScansSkipUnusedRegistrations',
+    - 'aecp.used mirrors registration')),
+    - defect('deregistration-bit-kept', 'aecp.c',
+    - '\t\t\ta->used[interface] &= (uint16_t)~(1u << (found - a->registry[interface]));\n',
+    - ('Indexed.RegistryScansSkipUnusedRegistrations',
+    - 'deregistration clears its bit only')),
+    - defect('probe-expiry-bit-kept', 'aecp.c',
+    - '\t\t\t\ta->used[i] &= (uint16_t)~(1u << n);\n',
+    - ('Indexed.RegistryScansSkipUnusedRegistrations',
+    - 'an unanswered probe frees its registration and its bit')),
+    - # #665: aecp_find answers from aecp.runs, which aecp_index builds from the keys.
+    - defect('index-run-skips-an-index', 'aecp_commands.c',
+    - 'd->index == r->count && r->first',
+sw/firmware/ctrl/test/aecp_mutants.py: S1 added 298, absent at head 3
+    - 'mbx_hal_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), '
+    - 'mbx_hal_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), '
+    - '\t\tfor (unsigned z = 0; z < 4000u; ++z) (void)mbx_hal_read32(face_reg(interface, w->status));\n',
+sw/firmware/ctrl/test/test_aecp.cpp: lane added 242, absent at head 0
+sw/firmware/ctrl/test/test_aecp.cpp: S1 added 870, absent at head 4
+    - void TearDown() override {mbx_host_trace(nullptr,nullptr);mbx_model_far_bind(&fabric,nullptr);}
+    - clock.length=clock_length;clock.configuration=1;face.ports.changed(&face,AECP_CHANGE_IDENTIFY,26,0);
+    - clock.configuration=0;
+    - void TearDown() override {mbx_host_trace(nullptr,nullptr);mbx_model_far_bind(&fabric,nullptr);}
+sw/litex/milan_soc.py: lane added 132, absent at head 2
+    - datapath reads them (#665, comment 6088423771). KL_mbx_wb reaches KL_mbx
+    - through the record mover (`dma`, CtrlMailboxDma).
+sw/litex/milan_soc.py: S1 added 32, absent at head 1
+    - a request times out and a commit waits, as the contract defines.
+tb/verilator/ctrl_service_budget/README.md: lane added 48, absent at head 3
+    - The ordinary image measures the same path at 0.057 ms.
+    - The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss its 20 ms budget: it measures 48.932 ms against 0.291 ms unplanted, a
+    - Behind the split CPU's own caches, the 16 KiB fetch L1 and the data cache, the spin takes 17.3 ms at its 50 MHz (RCV_ADP_DISCOVER 17.324 ms, SHUTDOWN 
+tb/verilator/ctrl_service_budget/README.md: S1 added 75, absent at head 10
+    - | Path ([`MAILBOX_SPLIT.md:499-506`](../../../docs/design/MAILBOX_SPLIT.md#service-latency)) | 1x1 ms (bound) | 8x8 if0 / if1 ms (bound) | Accesses in
+    - | Path ([`MAILBOX_SPLIT.md:649-661`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | A: 1x1 ms (bound) | A: 8x8 if0 / if1 | B: 1x1 | B:
+    - | Backlog row ([`MAILBOX_SPLIT.md:757-762`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | Desk bound, accesses IF=1 / IF=2 | A: 1x1 m
+    - [`MAILBOX_SPLIT.md:757-762`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency) allows each row 0.10 to 0.94 us an access to fit T_svc.
+    - At this head the 1x1 image's `.data` load image is at 0x197b0, which has bit 15 set, so the start code's first copy load (`lw` at 0x24, `ctrl_split_st
+    - These figures are the firmware of `e76a755a`.
+    - At this head `slow-adp-rx` is caught again: RCV_ADP_DISCOVER measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
+    - `slow-adp-shutdown` has not been run at this head.
+    - At this head `as-built` is caught with a load access fault, cause 5, at the start code's first `.data` copy load, the `lw` at 0x24 (`TRAP ... 0 5 0000
+    - The same run with the generator handed the regions' cover, so that the CPU decodes correctly and the image boots clean, is graded with no trap and pri
+tb/verilator/ctrl_service_budget/build.py: lane added 33, absent at head 0
+tb/verilator/ctrl_service_budget/build.py: S1 added 48, absent at head 3
+    - # The SHUTDOWN path's planted defect (MAILBOX_SPLIT.md:506): disabling ADP spins before
+    - #: the SHUTDOWN path (MAILBOX_SPLIT.md:506); it costs one NOW_MS read a pass.
+    - '// The SHUTDOWN path\'s test-only input (#665; MAILBOX_SPLIT.md:506): ADP is disabled once.\n'
+tb/verilator/ctrl_service_budget/split_soc.py: lane added 24, absent at head 4
+    - milan_soc.CtrlMailbox and its idle tie-offs are not used. KL_mbx_wb reaches
+    - KL_mbx through the split placement's record mover, milan_soc's own
+    - CtrlMailboxDma on the CPU's DMA bus, its CSR bank where the image addresses
+    - it (ctrl_build.SPLIT_MBX_DMA_BASE); the host-port pads are KL_mbx's side, so
+tb/verilator/ctrl_service_budget/split_soc.py: S1 added 117, absent at head 1
+    - as the fabric-less split SoC sees it. The flash keeps

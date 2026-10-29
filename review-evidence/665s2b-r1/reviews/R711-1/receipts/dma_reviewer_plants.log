@@ -1,0 +1,11 @@
+error-burst-continues: ESCAPED rc 0: 
+held-partial-write-widened: ESCAPED rc 0: 
+rerr-not-cleared: caught: [FAIL] D8 the transfer is running before the reset
+fill-during-cpu-answer: ESCAPED rc 0: 
+rready-during-hold: caught: [FAIL] D2 a transmit transfer ends, line word 0, 5 bytes, index 513, stall 0%; [FAIL] D1 a receive transfer ends, line word 0, 6 bytes, index 514, stall 0%
+tail-strobe-off-by-one: caught: [FAIL] D1 memory holds the record's bytes in ring order, line word 0, 1 bytes, index 509, stall 0%; [FAIL] D1 no byte outside [addr, addr + len) is written, line word 0, 1 bytes, index 509, stall 0%
+held-write-data-dropped: caught: [FAIL] D9 a write's data holds through its answer; [FAIL] D4 a CPU write held for a transfer lands
+held-address-dropped: caught: [FAIL] D9 a request's address holds through its answer; [FAIL] D4 a CPU read held for a transfer gets its own word
+receive-buffer-skew: caught: [FAIL] D1 memory holds the record's bytes in ring order, line word 0, 1 bytes, index 509, stall 0%; [FAIL] D1 memory holds the record's bytes in ring order, line word 0, 2 bytes, index 510, stall 0%
+awlen-one-long: caught: [FAIL] D3 WLAST marks a burst's last beat only; [FAIL] D1 a receive transfer ends, line word 0, 1 bytes, index 509, stall 0%
+reviewer plants: 7 of 10 caught
