@@ -1,0 +1,21 @@
+FAIL: OFF timing limit was ignored
+Target traces: CPU 50000000 Hz, bus 100000000 Hz; published inputs, no simulation rerun.
+valid PASS wire answers and per-step timing 43 steps
+absent PASS wire answers and per-step timing 43 steps
+torn PASS wire answers and per-step timing 43 steps
+version PASS wire answers and per-step timing 43 steps
+guard PASS wire answers and per-step timing 43 steps
+PASS independent device rejection of guard removal
+valid PASS 9 bindings, 16 maps, settle, 107 names; 133 owner entries
+torn PASS 9 bindings, 16 maps, settle, 107 names; 133 owner entries
+reorder-bindings ['apply order: entry 0 is aecp_map_restore, the container needs acmp_restore_binding (133 entries, 133 wanted)']
+reorder-settle ['apply order: entry 25 is aecp_value_restore, the container needs aecp_restore_settle (133 entries, 133 wanted)']
+PASS real slow step rejected: step 0 (idle) takes 30.2139 ms of CPU time, over T_svc 10.0 ms
+REPRODUCED: generated table and results carry timing figures but no CPU/bus clock fields.
+Report generator accepts only results and point; the clock is not passed to it.
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+PASS current-writer gate with removed D5 bound exits 1
