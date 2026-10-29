@@ -1,0 +1,109 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Thu Oct 29 10:18:12 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_utilization -hierarchical -hierarchical_depth 4 -hierarchical_min_primitive_count 0 -file route_hier.rpt
+| Design       : sim
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++--------------------------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+|                              Instance                              |                      Module                      | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++--------------------------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+| sim                                                                |                                            (top) |       3948 |       3678 |     266 |    4 | 6879 |     51 |     14 |          4 |
+|   (sim)                                                            |                                            (top) |        164 |         76 |      88 |    0 |  436 |     42 |      3 |          0 |
+|   VexiiRiscvLitex_a2b3af48835516899a4f0ca5650d3edf                 | VexiiRiscvLitex_a2b3af48835516899a4f0ca5650d3edf |       3785 |       3603 |     178 |    4 | 6443 |      9 |     11 |          4 |
+|     (VexiiRiscvLitex_a2b3af48835516899a4f0ca5650d3edf)             | VexiiRiscvLitex_a2b3af48835516899a4f0ca5650d3edf |        462 |        462 |       0 |    0 | 2581 |      0 |      0 |          0 |
+|     bufferCC_23                                                    |                                      BufferCC__2 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     bufferCC_24                                                    |                                      BufferCC__3 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     cpuResetCtrl_fiber_aggregator_asyncBuffers_0                   |                                      BufferCC_18 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     cpuResetCtrl_fiber_buffer                                      |                                      BufferCC_19 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     dma_filter_down_to_splited_wc_cBus_cc                          |                                           FifoCc |         63 |         63 |       0 |    0 |   57 |      1 |      1 |          0 |
+|       a_1                                                          |                                     StreamFifoCC |         50 |         50 |       0 |    0 |   25 |      1 |      1 |          0 |
+|         (a_1)                                                      |                                     StreamFifoCC |         50 |         50 |       0 |    0 |    9 |      1 |      1 |          0 |
+|         popToPushGray_buffercc                                     |                                    BufferCC_6__1 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|         pushToPopGray_buffercc                                     |                                    BufferCC_7__1 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|       d_1                                                          |                                   StreamFifoCC_1 |         13 |         13 |       0 |    0 |   32 |      0 |      0 |          0 |
+|         (d_1)                                                      |                                   StreamFifoCC_1 |         13 |         13 |       0 |    0 |   16 |      0 |      0 |          0 |
+|         popToPushGray_buffercc                                     |                                    BufferCC_8__1 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|         pushToPopGray_buffercc                                     |                                    BufferCC_9__1 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     ioBus_to_peripheral_bus_cc                                     |                                         FifoCc_1 |         58 |         34 |      24 |    0 |   97 |      1 |      1 |          0 |
+|       a_1                                                          |                                   StreamFifoCC_2 |         20 |         20 |       0 |    0 |   32 |      1 |      1 |          0 |
+|         (a_1)                                                      |                                   StreamFifoCC_2 |         20 |         20 |       0 |    0 |   16 |      1 |      1 |          0 |
+|         popToPushGray_buffercc                                     |                                    BufferCC_8__2 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|         pushToPopGray_buffercc                                     |                                    BufferCC_9__2 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|       d_1                                                          |                                   StreamFifoCC_3 |         38 |         14 |      24 |    0 |   65 |      0 |      0 |          0 |
+|         (d_1)                                                      |                                   StreamFifoCC_3 |         38 |         14 |      24 |    0 |   49 |      0 |      0 |          0 |
+|         popToPushGray_buffercc                                     |                                    BufferCC_6__2 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|         pushToPopGray_buffercc                                     |                                    BufferCC_7__2 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     mem_toAxi4_logic_bridge                                        |                                       Axi4Bridge |        220 |        216 |       4 |    0 |  340 |      0 |      0 |          0 |
+|       (mem_toAxi4_logic_bridge)                                    |                                       Axi4Bridge |        194 |        194 |       0 |    0 |  335 |      0 |      0 |          0 |
+|       a_ctx                                                        |                         ContextAsyncBufferFull_0 |         14 |         10 |       4 |    0 |    0 |      0 |      0 |          0 |
+|         contexts                                                   |                     Ram_1w_1ra__parameterized0_1 |         14 |         10 |       4 |    0 |    0 |      0 |      0 |          0 |
+|       a_halted_fork2                                               |                                     StreamFork_2 |          5 |          5 |       0 |    0 |    2 |      0 |      0 |          0 |
+|       d_arbiter                                                    |                                  StreamArbiter_8 |          7 |          7 |       0 |    0 |    3 |      0 |      0 |          0 |
+|     peripheral_bus_arbiter_core                                    |                                        Arbiter_2 |         94 |         94 |       0 |    0 |    7 |      0 |      0 |          0 |
+|       a_arbiter                                                    |                                  StreamArbiter_3 |         94 |         94 |       0 |    0 |    7 |      0 |      0 |          0 |
+|     peripheral_bus_decoder_core                                    |                                        Decoder_1 |         54 |         54 |       0 |    0 |    8 |      0 |      0 |          0 |
+|       d_arbiter                                                    |                                 StreamArbiter_12 |         54 |         54 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     peripheral_clint_thread_core                                   |                                    TilelinkClint |         81 |         81 |       0 |    0 |  206 |      0 |      0 |          0 |
+|     peripheral_clint_time_cc_driver                                |                               StreamCCByToggle_1 |          3 |          3 |       0 |    0 |  136 |      0 |      0 |          0 |
+|       (peripheral_clint_time_cc_driver)                            |                               StreamCCByToggle_1 |          3 |          3 |       0 |    0 |  130 |      0 |      0 |          0 |
+|       litex_reset_asyncAssertSyncDeassert_buffercc                 |                                       BufferCC_4 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|       outHitSignal_buffercc                                        |                                       BufferCC_3 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|       pushArea_target_buffercc                                     |                                       BufferCC_5 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     peripheral_plic_intc_thread_logic                              |                                     TilelinkPlic |         91 |         91 |       0 |    0 |  140 |      0 |      0 |          0 |
+|     peripheral_plic_intc_to_vexiis_0_priv_mei_flag_buffercc        |                                         BufferCC |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     peripheral_toAxiLite4_logic_bridge                             |                                   AxiLite4Bridge |         43 |         43 |       0 |    0 |  103 |      0 |      0 |          0 |
+|       (peripheral_toAxiLite4_logic_bridge)                         |                                   AxiLite4Bridge |         29 |         29 |       0 |    0 |  101 |      0 |      0 |          0 |
+|       a_buffered_fork2                                             |                                     StreamFork_3 |         14 |         14 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     splited_mBus_decoder_core                                      |                                          Decoder |          6 |          6 |       0 |    0 |    7 |      0 |      0 |          0 |
+|       d_arbiter                                                    |                                 StreamArbiter_11 |          6 |          6 |       0 |    0 |    7 |      0 |      0 |          0 |
+|     splited_mBus_to_mem_toAxi4_up_widthAdapter                     |                                     WidthAdapter |        119 |        115 |       4 |    0 |  344 |      0 |      0 |          0 |
+|       (splited_mBus_to_mem_toAxi4_up_widthAdapter)                 |                                     WidthAdapter |         16 |         16 |       0 |    0 |  344 |      0 |      0 |          0 |
+|       upsize_d_ctx                                                 |                           ContextAsyncBufferFull |        103 |         99 |       4 |    0 |    0 |      0 |      0 |          0 |
+|         contexts                                                   |                       Ram_1w_1ra__parameterized0 |        103 |         99 |       4 |    0 |    0 |      0 |      0 |          0 |
+|     splited_mBus_to_peripheral_bus_cc                              |                                         FifoCc_2 |         65 |         37 |      28 |    0 |  104 |      1 |      1 |          0 |
+|       a_1                                                          |                                   StreamFifoCC_4 |         18 |         18 |       0 |    0 |   32 |      1 |      1 |          0 |
+|         (a_1)                                                      |                                   StreamFifoCC_4 |         18 |         18 |       0 |    0 |   16 |      1 |      1 |          0 |
+|         popToPushGray_buffercc                                     |                                       BufferCC_8 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|         pushToPopGray_buffercc                                     |                                       BufferCC_9 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|       d_1                                                          |                                   StreamFifoCC_5 |         47 |         19 |      28 |    0 |   72 |      0 |      0 |          0 |
+|         (d_1)                                                      |                                   StreamFifoCC_5 |         47 |         19 |      28 |    0 |   56 |      0 |      0 |          0 |
+|         popToPushGray_buffercc                                     |                                       BufferCC_6 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|         pushToPopGray_buffercc                                     |                                       BufferCC_7 |          0 |          0 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     splited_wc_cBus_arbiter_core                                   |                                        Arbiter_1 |        111 |        111 |       0 |    0 |    8 |      0 |      0 |          0 |
+|       a_arbiter                                                    |                                  StreamArbiter_4 |        111 |        111 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     splited_wc_hub_hub_logic_hub                                   |                                              Hub |        345 |        285 |      60 |    0 |  440 |      0 |      1 |          0 |
+|       (splited_wc_hub_hub_logic_hub)                               |                                              Hub |        288 |        228 |      60 |    0 |  432 |      0 |      1 |          0 |
+|       streamArbiter_14                                             |                                 StreamArbiter_10 |         58 |         58 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     vexiis_0_logic_core                                            |                                       VexiiRiscv |       1980 |       1918 |      58 |    4 | 1846 |      6 |      7 |          4 |
+|       (vexiis_0_logic_core)                                        |                                       VexiiRiscv |       1241 |       1203 |      34 |    4 | 1700 |      4 |      5 |          4 |
+|       LsuL1Plugin_logic_banks_0_mem                                |                                       Ram_1w_1rs |         78 |         78 |       0 |    0 |    0 |      2 |      0 |          0 |
+|       LsuL1Plugin_logic_bus_toTilelink_coherent_onC_arbiter        |                                  StreamArbiter_2 |         87 |         87 |       0 |    0 |    7 |      0 |      0 |          0 |
+|       LsuL1Plugin_logic_bus_toTilelink_coherent_onC_rspFifo        |                                       StreamFifo |         39 |         15 |      24 |    0 |    4 |      0 |      0 |          0 |
+|         (LsuL1Plugin_logic_bus_toTilelink_coherent_onC_rspFifo)    |                                       StreamFifo |          3 |          3 |       0 |    0 |    4 |      0 |      0 |          0 |
+|         logic_ram                                                  |                                       Ram_1w_1ra |         36 |         12 |      24 |    0 |    0 |      0 |      0 |          0 |
+|       early0_DivPlugin_logic_processing_div                        |                                         DivRadix |        320 |        320 |       0 |    0 |  135 |      0 |      0 |          0 |
+|       integer_RegFilePlugin_logic_regfile_fpga                     |                                       RegFileMem |        223 |        223 |       0 |    0 |    0 |      0 |      2 |          0 |
+|     vexiis_0_priv_stoptime_regNext_cc_driver                       |                                 StreamCCByToggle |          3 |          3 |       0 |    0 |    9 |      0 |      0 |          0 |
+|       (vexiis_0_priv_stoptime_regNext_cc_driver)                   |                                 StreamCCByToggle |          3 |          3 |       0 |    0 |    3 |      0 |      0 |          0 |
+|       outHitSignal_buffercc                                        |                                      BufferCC__1 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|       pushArea_target_buffercc                                     |                                       BufferCC_2 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|       toplevel_cpuResetCtrl_reset_asyncAssertSyncDeassert_buffercc |                                       BufferCC_1 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
++--------------------------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+

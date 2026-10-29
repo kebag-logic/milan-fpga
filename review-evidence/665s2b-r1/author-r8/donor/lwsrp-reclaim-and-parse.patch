@@ -1,0 +1,288 @@
+From a9db3538df9b3b3f98a806c41854da4fdc62bda4 Mon Sep 17 00:00:00 2001
+From: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date: Thu, 29 Oct 2026 10:53:52 +0100
+Subject: [PATCH 1/2] Skip the reclaim walk while no attribute can be
+ reclaimed, and clear a decoded value only on the delivering parse pass
+
+---
+ src/core/mrp_mad.c | 31 +++++++++++++++++++++++++++++--
+ src/core/mrp_pdu.c |  8 +++++++-
+ 2 files changed, 36 insertions(+), 3 deletions(-)
+
+diff --git a/src/core/mrp_mad.c b/src/core/mrp_mad.c
+index b0d4156..f9d9584 100644
+--- a/src/core/mrp_mad.c
++++ b/src/core/mrp_mad.c
+@@ -106,6 +106,9 @@ struct mrp_port_state {
+     struct mrp_map_work *map_head;
+     struct mrp_map_work *map_tail;
+     struct mrp_attr_inst *attrs;      /* linked list of attribute instances */
++    /* An attribute may be reclaimable: set wherever one is created or its
++     * states change to reclaimable ones, cleared by a reclaim that walked. */
++    bool                 reclaim_due;
+     /* LeaveAll timer: fires MRP_EVENT_LEAVEALLTIMER on expiry */
+     struct shlan_timer          la_timer;
+     /* PeriodicTransmission timer: fires MRP_EVENT_PERIODICTIMER on expiry */
+@@ -439,6 +442,22 @@ uint32_t mrp_attr_registered_ports(const struct mrp_app *app,
+     return mask;
+ }
+ 
++/* Table 10-3 note 11: neither declared nor registered, and quiescent. */
++static bool attr_reclaimable(const struct mrp_attr_inst *a)
++{
++    return a->reg == MRP_REG_STATE_MT &&
++           (a->appl == MRP_APPL_STATE_VO || a->appl == MRP_APPL_STATE_AO || a->appl == MRP_APPL_STATE_QO);
++}
++
++/* Record that the port may hold a reclaimable attribute: every change of an
++ * attribute's states passes here, so a port without the mark holds none. */
++static void note_states(struct mrp_port_state *ps, const struct mrp_attr_inst *a)
++{
++    if (attr_reclaimable(a)) {
++        ps->reclaim_due = true;
++    }
++}
++
+ static struct mrp_attr_inst *find_attr(struct mrp_port_state *ps, const struct mrp_app_ops *ops,
+                                    uint8_t type, const void *val)
+ {
+@@ -493,6 +512,7 @@ static struct mrp_attr_inst *get_or_create_attr(struct mrp_app *app,
+     a->pending_tx = TX_MSG_NONE;
+     a->next       = ps->attrs;
+     ps->attrs     = a;
++    note_states(ps, a);
+ 
+     a->leave_timer_arg.app     = app;
+     a->leave_timer_arg.ai      = a;
+@@ -734,9 +754,11 @@ static int deliver_event_changed(struct mrp_app *app, struct mrp_port_state *ps,
+     if (r < 0) {
+         ai->appl = appl_from;
+         ai->pending_tx = pending_from;
++        note_states(ps, ai);
+         observe(app, ai, ev, port_id, appl_from, reg_from);
+         return r;
+     }
++    note_states(ps, ai);
+     // Table 10-3 note 6: receiving an event can request a transmit too.
+     switch (ai->appl) {
+     case MRP_APPL_STATE_VN: case MRP_APPL_STATE_AN:
+@@ -875,6 +897,7 @@ static void on_leave_timer(void *arg)
+     enum mrp_reg_state  reg_from  = a->ai->reg;
+ 
+     (void)reg_event(a->app, a->ai, MRP_EVENT_LEAVETIMER, a->port_id, false);
++    note_states(&priv_of(a->app)->ports[a->port_id], a->ai);
+     observe(a->app, a->ai, MRP_EVENT_LEAVETIMER, a->port_id,
+             appl_from, reg_from);
+ }
+@@ -1106,12 +1129,16 @@ unsigned mrp_reclaim(struct mrp_app *app, uint8_t port_id)
+     if (ps->in_send || ps->prepared_pdu) {
+         return 0;
+     }
++    /* No state changed to reclaimable ones since the last walk: none holds them. */
++    if (!ps->reclaim_due) {
++        return 0;
++    }
++    ps->reclaim_due = false;
+     unsigned count = 0;
+     struct mrp_attr_inst **link = &ps->attrs;
+     while (*link) {
+         struct mrp_attr_inst *a = *link;
+-        if (a->reg == MRP_REG_STATE_MT &&
+-            (a->appl == MRP_APPL_STATE_VO || a->appl == MRP_APPL_STATE_AO || a->appl == MRP_APPL_STATE_QO)) {
++        if (attr_reclaimable(a)) {
+             *link = a->next;
+             shlan_timer_remove(&a->leave_timer);
+             shlan_free(a);
+diff --git a/src/core/mrp_pdu.c b/src/core/mrp_pdu.c
+index c321c9b..e9916df 100644
+--- a/src/core/mrp_pdu.c
++++ b/src/core/mrp_pdu.c
+@@ -190,7 +190,13 @@ static int parse_pass(const uint8_t *pdu, size_t len,
+             }
+             for (unsigned k = 0; k < count; ++k) {
+                 uint8_t e[3];
+-                _Alignas(max_align_t) uint8_t value[64] = {0};
++                _Alignas(max_align_t) uint8_t value[64];
++                /* A delivered value is zero past what decode_attr writes. The
++                 * validation pass delivers nothing, and decode_attr writes its
++                 * output without reading it, so that pass needs no clearing. */
++                if (on_attr) {
++                    memset(value, 0, sizeof(value));
++                }
+                 mrp_three_unpack(ev[k / 3u], &e[0], &e[1], &e[2]);
+                 int r = ops->decode_attr(type, k, fv, alen, value);
+                 if (r < 0) {
+-- 
+2.56.0
+
+
+From fc06e7c0f8f7270d9c76b6f8daa666bc82d448dd Mon Sep 17 00:00:00 2001
+From: hackerman-kl <hackerman-kl@kebag-logic.com>
+Date: Thu, 29 Oct 2026 10:59:58 +0100
+Subject: [PATCH 2/2] Skip the reclaim walk while no attribute can be
+ reclaimed, and clear a decoded value only on the delivering parse pass, with
+ their tests
+
+---
+ src/core/mrp_mad.c        |  3 +--
+ tests/unit/receive_test.c | 37 +++++++++++++++++++++++++++
+ tests/unit/review_test.c  | 53 +++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 91 insertions(+), 2 deletions(-)
+
+diff --git a/src/core/mrp_mad.c b/src/core/mrp_mad.c
+index f9d9584..2bbf9fe 100644
+--- a/src/core/mrp_mad.c
++++ b/src/core/mrp_mad.c
+@@ -754,9 +754,8 @@ static int deliver_event_changed(struct mrp_app *app, struct mrp_port_state *ps,
+     if (r < 0) {
+         ai->appl = appl_from;
+         ai->pending_tx = pending_from;
+-        note_states(ps, ai);
+         observe(app, ai, ev, port_id, appl_from, reg_from);
+-        return r;
++        return r; /* The restored states were marked when they were reached. */
+     }
+     note_states(ps, ai);
+     // Table 10-3 note 6: receiving an event can request a transmit too.
+diff --git a/tests/unit/receive_test.c b/tests/unit/receive_test.c
+index 3de86df..c889820 100644
+--- a/tests/unit/receive_test.c
++++ b/tests/unit/receive_test.c
+@@ -143,6 +143,42 @@ Ensure(Receive, talker_join_replaces_the_other_type_on_the_same_port)
+     assert_that(registered_type,is_equal_to(2));
+     msrp_app_destroy(a);
+ }
++static unsigned delivered_listeners;
++static uint8_t listener_value[64];
++static void keep_listener(void *ctx, uint8_t type, enum mrp_attr_event ev, const void *value)
++{
++    (void)ctx; (void)ev;
++    if (type == MSRP_ATTR_TYPE_LISTENER) {
++        memcpy(listener_value, value, sizeof(listener_value));
++        ++delivered_listeners;
++    }
++}
++/* A delivered value is zero past what decode_attr writes, also after a
++ * longer value decoded earlier in the same PDU (IEEE 802.1Q 35.2.2.7.2). */
++Ensure(Receive, delivered_value_is_zero_past_its_decoded_bytes)
++{
++    struct msrp_ctx ctx = {0};
++    struct mrp_app *a = msrp_app_create(1, &ctx);
++    uint8_t pdu[55] = {0, 1, 25, 0, 30, 0, 1};
++    for (unsigned n = 7; n < 32; ++n) {
++        pdu[n] = (uint8_t)(0x11u + n);
++    }
++    pdu[32] = 36;
++    const uint8_t listener[] = {3, 8, 0, 14, 0, 1, 1, 2, 3, 4, 5, 6, 7, 8, 36, 128};
++    memcpy(pdu + 35, listener, sizeof(listener));
++    delivered_listeners = 0;
++    memset(listener_value, 0xEE, sizeof(listener_value));
++    assert_that(mrpdu_parse(pdu, sizeof(pdu), a->ops, keep_listener, NULL, NULL), is_equal_to(0));
++    assert_that(delivered_listeners, is_equal_to(1));
++    assert_that(listener_value[7], is_equal_to(8));
++    assert_that(listener_value[8], is_equal_to(MSRP_LISTENER_DECL_READY));
++    unsigned nonzero = 0;
++    for (unsigned n = 9; n < sizeof(listener_value); ++n) {
++        nonzero += listener_value[n] != 0;
++    }
++    assert_that(nonzero, is_equal_to(0));
++    msrp_app_destroy(a);
++}
+ TestSuite *receive_suite(void)
+ {
+     TestSuite *s = create_test_suite();
+@@ -151,5 +187,6 @@ TestSuite *receive_suite(void)
+     add_test_with_context(s, Receive, uninteresting_values_do_not_allocate_and_empty_state_is_reclaimed);
+     add_test_with_context(s, Receive, withdrawal_does_not_replace_the_registered_declaration);
+     add_test_with_context(s, Receive, talker_join_replaces_the_other_type_on_the_same_port);
++    add_test_with_context(s, Receive, delivered_value_is_zero_past_its_decoded_bytes);
+     return s;
+ }
+diff --git a/tests/unit/review_test.c b/tests/unit/review_test.c
+index 0c090e6..f8c79ec 100644
+--- a/tests/unit/review_test.c
++++ b/tests/unit/review_test.c
+@@ -359,6 +359,31 @@ Ensure(Boundaries, leaving_observer_is_retained_until_its_pending_transmission)
+     assert_that(mrp_reclaim(a, 0), is_equal_to(1));
+     mrp_app_destroy(a);
+ }
++/* mrp_reclaim walks only after a state change that can leave a reclaimable
++ * attribute; the leave timer's change is one, after a walk found nothing. */
++Ensure(Boundaries, registration_ended_by_the_leave_timer_is_reclaimed_after_an_earlier_walk)
++{
++    struct mrp_app *a = application(0, 1, false);
++    uint8_t join[] = {0,1,2,0,1,0,2,36,0,0,0,0};
++    uint8_t leave[] = {0,1,2,0,1,0,2,180,0,0,0,0};
++    assert_that(mrp_rx(a, 0, join, sizeof(join)), is_equal_to(0));
++    assert_that(state(a, 0).reg, is_equal_to(MRP_REG_STATE_IN));
++    assert_that(mrp_reclaim(a, 0), is_equal_to(0));
++    uint8_t tx[64];
++    assert_that(mrp_rx(a, 0, leave, sizeof(leave)), is_equal_to(0));
++    assert_that(state(a, 0).reg, is_equal_to(MRP_REG_STATE_LV));
++    assert_that(state(a, 0).appl, is_equal_to(MRP_APPL_STATE_LO));
++    /* The transmit makes the Applicant quiescent while the Registrar leaves. */
++    assert_that(mrp_transmit(a, 0, tx, sizeof(tx), accept, NULL), is_equal_to(1));
++    assert_that(state(a, 0).appl, is_equal_to(MRP_APPL_STATE_VO));
++    assert_that(mrp_reclaim(a, 0), is_equal_to(0));
++    /* Past the leave timer, before the LeaveAll timer. */
++    tick(MRP_LEAVE_TIME_CS + 1u);
++    assert_that(state(a, 0).reg, is_equal_to(MRP_REG_STATE_MT));
++    assert_that(mrp_reclaim(a, 0), is_equal_to(1));
++    assert_that(mrp_attr_visit(a, 0, NULL, NULL), is_equal_to(0));
++    mrp_app_destroy(a);
++}
+ Ensure(Boundaries, received_leaveall_restarts_the_participant_deadline)
+ {
+     struct mrp_app *a = application(0, 1, false);
+@@ -804,6 +829,32 @@ Ensure(Boundaries, replacement_from_lv_keeps_leave_before_join_at_every_allocati
+ {
+     replacement_failures(true);
+ }
++/* A replacement refused for storage leaves its new instance undeclared and
++ * unregistered (Table 10-3 note 11): a reclaim after it frees that instance,
++ * also when an earlier reclaim had found nothing to free. */
++Ensure(Boundaries, refused_replacement_leaves_its_new_instance_reclaimable)
++{
++    struct mrp_app *base = stream_bridge();
++    struct mrp_app_ops ops = *base->ops;
++    ops.join_ind = ordered_join; ops.leave_ind = ordered_leave;
++    mrp_app_destroy(base);
++    struct mrp_app *a = mrp_app_create(&ops, 3);
++    uint8_t pdu[64];
++    size_t len = talker_pdu(pdu, 1);
++    assert_that(mrp_rx(a, 0, pdu, len), is_equal_to(0));
++    assert_that(mrp_reclaim(a, 0), is_equal_to(0));
++    len = talker_pdu(pdu, 2);
++    /* The new instance is the first allocation, the first Leave reservation the second. */
++    allocation_fail_after(2);
++    assert_that(mrp_rx(a, 0, pdu, len), is_equal_to(-SHLAN_ERROR_NO_MEMORY));
++    assert_that(allocation_failures(), is_equal_to(1));
++    allocation_fail_after(0);
++    assert_that(mrp_attr_visit(a, 0, NULL, NULL), is_equal_to(2));
++    assert_that(mrp_reclaim(a, 0), is_equal_to(1));
++    assert_that(mrp_attr_visit(a, 0, NULL, NULL), is_equal_to(1));
++    mrp_app_destroy(a);
++    assert_that(allocation_live(), is_equal_to(0));
++}
+ static struct mrp_app *ordered_bridge(void)
+ {
+     struct mrp_app *base = stream_bridge();
+@@ -1259,6 +1310,7 @@ TestSuite *boundaries_suite(void)
+     add_test_with_context(s, Boundaries, committed_leaveall_delivers_local_receive_and_omitted_events);
+     add_test_with_context(s, Boundaries, full_leaveall_reports_each_required_transition);
+     add_test_with_context(s, Boundaries, leaving_observer_is_retained_until_its_pending_transmission);
++    add_test_with_context(s, Boundaries, registration_ended_by_the_leave_timer_is_reclaimed_after_an_earlier_walk);
+     add_test_with_context(s, Boundaries, received_leaveall_restarts_the_participant_deadline);
+     add_test_with_context(s, Boundaries, changed_values_after_received_leaveall_are_indicated_and_propagated);
+     add_test_with_context(s, Boundaries, changed_values_after_transmitted_leaveall_are_indicated_and_propagated);
+@@ -1273,6 +1325,7 @@ TestSuite *boundaries_suite(void)
+     add_test_with_context(s, Boundaries, flush_allocation_failures_retry_withdrawal_on_the_next_tick);
+     add_test_with_context(s, Boundaries, replacement_allocation_failures_keep_leave_before_join);
+     add_test_with_context(s, Boundaries, replacement_from_lv_keeps_leave_before_join_at_every_allocation);
++    add_test_with_context(s, Boundaries, refused_replacement_leaves_its_new_instance_reclaimable);
+     add_test_with_context(s, Boundaries, reservation_failure_stops_later_receive_messages);
+     add_test_with_context(s, Boundaries, propagation_obeys_talker_and_listener_policy_masks);
+     add_test_with_context(s, Boundaries, applications_without_policy_do_not_reserve_propagation);
+-- 
+2.56.0
+
