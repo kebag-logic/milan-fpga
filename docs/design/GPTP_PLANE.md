@@ -98,22 +98,28 @@ Reset is synchronous and active-low.
 ### Port enable
 
 - `KL_gptp_shadow` passes `eff_link` to the engine's `port_enabled_i`.
-- That is the PHY link, gated by `LINK_CTRL[0]` and the link guard's estimate.
+- It is the PHY link and `LINK_CTRL[0]`.
+- The link guard's estimate is the third term.
+- A disabled guard drops that term.
 - All three are `axis_clk` levels, so no synchroniser sits between them.
-- It stands for IEEE 802.1AS-2011 portEnabled (10.2.4.11).
+- It is portEnabled, IEEE 802.1AS-2011 10.2.4.11.
 - While it is low the plane starts no gPTP frame.
-- The engine withdraws a frame whose first byte is still unaccepted.
-- The gearbox and the ticket take accepted bytes only, so nothing is left.
+- The engine withdraws a frame whose first byte is unaccepted.
+- The gearbox and the ticket take accepted bytes only.
+- So a withdrawn frame leaves nothing behind.
 - A frame already started completes into the frame FIFO.
-- A link loss clears asCapable at once, not at the fifth lost response.
+- A link loss clears asCapable at once.
+- It does not wait for the fifth lost response.
 - A stalled transmit lane does not delay that clear.
 - No Pdelay exchange completes while the port is low.
 - The first sample after reset is the reference level.
-- Each later edge ends the Milan v1.2 4.2.6.2.5 Pdelay_Req cease.
-- A link that returns after a warm reset ends a retained cease too.
+- Each later edge ends the Pdelay_Req cease.
+- Milan 4.2.6.2.5 lists that toggle.
+- After a warm reset, a rise ends a retained cease.
 - The link's return sends one Pdelay_Req at once.
 - asCapable then takes two exchanges, as after any loss.
 - The 5-minute countdown remains the cease's other exit.
+- `make -C tb/verilator/milan_dp gptp` grades each term and both exits.
 
 ### Peer delay during PHC steps
 
