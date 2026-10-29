@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/milan_dp/sim_gptp.cpp b/tb/verilator/milan_dp/sim_gptp.cpp
+index 6a115c899b..f75b368dfe 100644
+--- a/tb/verilator/milan_dp/sim_gptp.cpp
++++ b/tb/verilator/milan_dp/sim_gptp.cpp
+@@ -1479,7 +1479,7 @@ class GptpPlaneHarness {
+     //! wait. A gather that had already finished would make an all-old answer
+     //! a false green.
+     const uint64_t capture_cyc = sim_cyc;
+-    hold_gsi_beat = true;
++    hold_gsi_beat = false;
+     announce(dut, 0x7008, {}, GMID_EMPTY, GMID_EMPTY, 90, true);
+     bool withdrew_in_gather = false;
+     for (int n = 0; n < 3000 && !withdrew_in_gather; n++) {

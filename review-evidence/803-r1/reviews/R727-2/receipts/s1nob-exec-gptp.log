@@ -1,0 +1,27 @@
+./obj_gptp/Vmilan_dp_gptp
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 0, rp 1->2, wp 1->1
+FAIL the full-queue window pops and pushes no event got 0000000000000000 exp 0000000000000001
+[T-LAT] ingress: boundary PHC 1730160 ns (cycle 21042924), t2 1730160 ns, gap 0 ns = 0 cycles (pinned digital 0 ns + configured 0 ns)
+[T-LAT] egress: observed launch 3725556 ns, t3 3725556 ns, gap 0 ns = 0 cycles (configured 0 ns)
+FAIL #88 path headed elsewhere serves count three got 0000000000000001 exp 0000000000000003
+FAIL #88 path headed elsewhere keeps the scalar GM got 02a1b2fffec3d4e5 exp 00aaccfffe010204
+FAIL #88 GET_AS_PATH count three    got 0000000000000001 exp 0000000000000003
+FAIL #88 GET_AS_PATH entry 0 is the received head got 02a1b2fffec3d4e5 exp 001122fffe000044
+FAIL #88 GET_AS_PATH entry 1 is the parent got 0000000000000000 exp 0080e1fffe112233
+FAIL #88 GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL entry-0-only change keeps count three got 0000000000000001 exp 0000000000000003
+FAIL entry-0-only change advances generation once got 0000000000000007 exp 0000000000000008
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL entry-0-only change: GET_AS_PATH count three got 0000000000000001 exp 0000000000000003
+FAIL entry-0-only change: GET_AS_PATH serves the new entry 0 got 02a1b2fffec3d4e5 exp 001122fffe000022
+FAIL entry-0-only change: GET_AS_PATH keeps entry 1 got 0000000000000000 exp 0080e1fffe112233
+FAIL entry-0-only change: GET_AS_PATH keeps thisClock last got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL entry-0-only push body equals solicited path got 0000000000000000 exp 0000000000000001
+TX flags Sync: 2 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 2 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 11 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Resp: 4 frames, 0 wrong, expected 0x0200
+TX flags Pdelay_Resp_Follow_Up: 4 frames, 0 wrong, expected 0x0000
+202 checks: 187 PASS, 15 FAIL
+make: *** [Makefile:438: exec-gptp] Error 1

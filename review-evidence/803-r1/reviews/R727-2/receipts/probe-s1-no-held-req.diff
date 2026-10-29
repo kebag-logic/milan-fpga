@@ -1,0 +1,15 @@
+diff --git a/tb/verilator/milan_dp/sim_gptp.cpp b/tb/verilator/milan_dp/sim_gptp.cpp
+index 6a115c899b..b6b44c839e 100644
+--- a/tb/verilator/milan_dp/sim_gptp.cpp
++++ b/tb/verilator/milan_dp/sim_gptp.cpp
+@@ -1689,9 +1689,7 @@ class GptpPlaneHarness {
+       Frame s1b = ptp(0x2, 0x510A, 0, 0x0000, 20);
+       s1b.u64(0); s1b.u16(0); s1b.ts(0);
+       s1b.b.resize(68);
+-      send_wide(dut, s1b.b);
+-      for (int n = 0; n < 20000 && *eng == 0; n++)
+-        run(dut, 1);                      // s1b now waits at the head
++      (void)s1b;
+       const unsigned lvl0 = *eng;
+       const unsigned rp0 = evq_rp;
+       const unsigned wp0 = evq_wp;
