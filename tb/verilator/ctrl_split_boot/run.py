@@ -5,8 +5,8 @@
 
 Builds, in order, all outside the checkout under --build-dir:
   1. the bare-metal runtime archives (the CPU budget harness's runtime_ssp.py);
-  2. the platform image (ctrl_plat_image.py), first against a provisional
-     map, then against the boot SoC's own csr.csv, which an export with the
+  2. the platform image (ctrl_plat_image.py), first against the fixture map
+     (ctrl_plat_csr.csv), then against the boot SoC's own csr.csv, which an export with the
      first image gives (the map does not depend on the image: the two
      exports' csr.csv rows must be identical, or the run is refused);
   3. the boot SoC (boot_soc.py) and its native model (sim_main.cpp).
@@ -22,6 +22,10 @@ Then it runs the model and grades the log:
     transcript, each check's verdict printed; and each command's duty against
     #397's 500 ms tick rule and T_svc = 10 ms: its span, and its longest gap
     between two response bytes, which bounds the loop pass that sends them.
+--self-test builds and runs each planted control (PLANTS) and requires the
+grade to report it as a finding of its own kind: a CSR write skipped as
+TRACE, a console that holds the loop past the tick rule as UART.
+
 Exit 0 when BOOT and TRACE pass, every UART duty is within its bounds, the
 grader's firmware checks pass and its one listed difference (fabric-enabled)
 fails as listed; the checks whose words are the stand-in register file's are
@@ -67,14 +71,17 @@ STAND_IN = {
     'clkv-fabric-owner': 'no datapath: CLKV_STAT is the stand-in register file\'s word',
     'gptp-locked': 'no gPTP peer and no datapath: CLKV_STAT is the stand-in register file\'s word',
 }
-PROVISIONAL = """\
-csr_register,uart_rxtx,0xf0001000,1,rw
-csr_register,uart_txfull,0xf0001004,1,ro
-csr_register,uart_rxempty,0xf0001008,1,ro
-csr_register,uart_ev_pending,0xf0001010,1,rw
-memory_region,milan_csr,0x90000000,65536,io
-memory_region,ctrl_mbx,0x80000000,65536,io
-"""
+#: The planted controls of --self-test: (source file, unique anchor, replacement), and the finding's first word
+#: the grade must give. A CSR write skipped is caught by the trace; a console that holds the loop past #397's
+#: tick rule (a spin of about 0.6 s at the CPU's clock before its response) by the UART duty.
+PLANTS = {
+    'csr-write-skipped': ('plat/ctrl_plat_csr.c', '\twr(csr, CTRL_PLAT_CSR_LWSRP_VID, p->sr_vid);\n', '', 'TRACE'),
+    'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {',
+                       '\tfor (volatile uint32_t n = 0; n < 4000000u; ++n) {\n\t}\n\tif (is(c, "milan_status")) {',
+                       'UART'),
+}
+#: The first link's map: the platform's fixture, at placeholder addresses.
+PROVISIONAL = FIRMWARE_TEST / 'ctrl_plat_csr.csv'
 
 
 def run(argv: list[str], log: Path, cwd: Path | None = None) -> None:
@@ -97,12 +104,13 @@ def runtime(out: Path) -> tuple[Path, Path]:
     return out / 'runtime/libc.a', out / 'runtime/libcompiler_rt.a'
 
 
-def image(out: Path, name: str, shape: str, n_if: int, csr_csv: Path, archives: tuple[Path, Path]) -> Path:
-    """The platform image against one map."""
+def image(out: Path, name: str, shape: str, n_if: int, csr_csv: Path, archives: tuple[Path, Path],
+          source: Path | None = None) -> Path:
+    """The platform image against one map, from the checkout's tree or a planted copy."""
     run([sys.executable, '-B', str(FIRMWARE_TEST / 'ctrl_plat_image.py'), '--config',
          str(ROOT / 'configs' / f'{shape}.yaml'), '--interfaces', str(n_if), '--csr-csv', str(csr_csv),
-         '--output', str(out / name), '--libc', str(archives[0]), '--compiler-runtime', str(archives[1])],
-        out / f'{name}.log', cwd=ROOT)
+         '--output', str(out / name), '--libc', str(archives[0]), '--compiler-runtime', str(archives[1]),
+         *([] if source is None else ['--ctrl-source', str(source)])], out / f'{name}.log', cwd=ROOT)
     return out / name / 'ctrl_app.elf'
 
 
@@ -140,15 +148,27 @@ def rows(csr_csv: Path) -> list[str]:
     return [ln for ln in csr_csv.read_text().splitlines() if not ln.startswith('#')]
 
 
-def build(out: Path, shape: str, n_if: int) -> tuple[Path, dict]:
+def planted(out: Path, plant: str) -> Path:
+    """A copy of the firmware's tree with one plant written into it."""
+    import shutil
+    path, old, new, _ = PLANTS[plant]
+    copy = out / 'ctrl'
+    shutil.copytree(ROOT / 'sw/firmware/ctrl', copy, ignore=shutil.ignore_patterns('__pycache__'))
+    text = (copy / path).read_text()
+    if text.count(old) != 1:
+        raise RuntimeError(f'plant {plant}: its anchor occurs {text.count(old)} times in {path}')
+    (copy / path).write_text(text.replace(old, new))
+    return copy
+
+
+def build(out: Path, shape: str, n_if: int, plant: str | None = None) -> tuple[Path, dict]:
     """Every build step; the native model and the boot SoC's spec."""
     out.mkdir(parents=True, exist_ok=True)
     archives = runtime(out)
-    (out / 'provisional.csv').write_text(PROVISIONAL)
-    first = image(out, 'image-provisional', shape, n_if, out / 'provisional.csv', archives)
+    first = image(out, 'image-provisional', shape, n_if, PROVISIONAL, archives)
     export(out, 'soc-provisional', shape, first, n_if)
     csr_csv = out / 'soc-provisional/csr.csv'
-    elf = image(out, 'image', shape, n_if, csr_csv, archives)
+    elf = image(out, 'image', shape, n_if, csr_csv, archives, None if plant is None else planted(out, plant))
     spec = export(out, 'soc', shape, elf, n_if)
     if rows(out / 'soc/csr.csv') != rows(csr_csv):
         raise RuntimeError('the boot SoC\'s csr.csv depends on the image; the map cannot be generated from it')
@@ -232,6 +252,32 @@ def grade(log: str, transcript: str, spec: dict, work: Path) -> tuple[list[str],
     return findings, report
 
 
+def point(out: Path, shape: str, n_if: int, regrade: bool, plant: str | None = None) -> tuple[list[str], list[str]]:
+    """Build (unless regrading), run and grade one point; its findings and report."""
+    if regrade:
+        spec = json.loads((out / 'soc/soc.json').read_text())
+    else:
+        exe, spec = build(out, shape, n_if, plant)
+        # the model reads the image's ROM banks from the export's .init files
+        with (out / 'sim.log').open('w') as sink:
+            result = subprocess.run([str(exe), str(out / 'transcript.txt')], stdout=sink,
+                                    stderr=subprocess.STDOUT, check=False, cwd=out / 'soc/gateware')
+        print(f'COMMAND Vsim exited {result.returncode}')
+    return grade((out / 'sim.log').read_text(), (out / 'transcript.txt').read_text(), spec, out / 'baremetal')
+
+
+def self_test(out: Path, shape: str, n_if: int) -> int:
+    """Every plant must be graded a finding of its own kind; 0 when each is."""
+    escaped = 0
+    for plant, (_, _, _, kind) in PLANTS.items():
+        findings, _ = point(out / f'plant-{plant}', shape, n_if, False, plant)
+        caught = any(f.startswith(kind + ':') for f in findings)
+        escaped += not caught
+        print(f'PLANT {plant}: {"caught" if caught else "ESCAPED"} ({kind}); findings: {findings}')
+    print(f'ctrl_split_boot self-test: {len(PLANTS) - escaped} of {len(PLANTS)} plants caught')
+    return 1 if escaped else 0
+
+
 def main() -> int:
     """Build, run and grade one point."""
     parser = argparse.ArgumentParser(description=__doc__.split('\n', 1)[0])
@@ -239,20 +285,14 @@ def main() -> int:
     parser.add_argument('--shape', default='endstation_ax7101_1x1_tdm8')
     parser.add_argument('--interfaces', type=int, choices=(1, 2), default=1)
     parser.add_argument('--regrade', action='store_true', help='grade the log of an earlier run in --build-dir')
+    parser.add_argument('--self-test', action='store_true',
+                        help='build and run every planted control (PLANTS) under --build-dir; each must be caught')
     args = parser.parse_args()
     out = args.build_dir.resolve()
     try:
-        if args.regrade:
-            spec = json.loads((out / 'soc/soc.json').read_text())
-        else:
-            exe, spec = build(out, args.shape, args.interfaces)
-            # the model reads the image's ROM banks from the export's .init files
-            with (out / 'sim.log').open('w') as sink:
-                result = subprocess.run([str(exe), str(out / 'transcript.txt')], stdout=sink,
-                                        stderr=subprocess.STDOUT, check=False, cwd=out / 'soc/gateware')
-            print(f'COMMAND Vsim exited {result.returncode}')
-        findings, report = grade((out / 'sim.log').read_text(), (out / 'transcript.txt').read_text(), spec,
-                                 out / 'baremetal')
+        if args.self_test:
+            return self_test(out, args.shape, args.interfaces)
+        findings, report = point(out, args.shape, args.interfaces, args.regrade)
     except (RuntimeError, OSError, ValueError, KeyError) as error:
         print(f'REFUSED: {error}')
         return 2

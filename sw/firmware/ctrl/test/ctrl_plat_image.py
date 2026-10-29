@@ -40,7 +40,7 @@ PLAT_SOURCES = ("plat/mbx_plat_mmio.c", "plat/ctrl_plat_mmio.c", "plat/ctrl_plat
 #: What the image must hold for the platform's boot to have been linked, not discarded.
 REQUIRED = {"main", "ctrl_plat", "ctrl_plat_boot", "ctrl_plat_step", "ctrl_plat_csr_identity",
             "ctrl_plat_csr_policy", "ctrl_plat_console_poll", "maap_csr_allocation", "ctrl_app_compose",
-            "ctrl_app_open", "ctrl_app_release_adp", "ctrl_app_compose_aecp", "ctrl_app_open_aecp",
+            "ctrl_app_open", "ctrl_app_open_held", "ctrl_app_release_adp", "ctrl_app_compose_aecp", "ctrl_app_open_aecp",
             "ctrl_app_attach_srp", "srp_mbx_init", "aecp_image_load", "nvm_store_boot", "nvm_store_service",
             "ctrl_loop_step"}
 #: The fixture's placeholder for the mailbox (ctrl_build.RV32_FLAGS); the map's replaces it.
@@ -95,6 +95,8 @@ def arguments() -> argparse.Namespace:
     """The shape, the SoC's map and the runtime archives."""
     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--ctrl-source", type=Path, default=CTRL,
+                        help="the firmware tree to compile (a planted copy for a control; default the checkout's)")
     parser.add_argument("--csr-csv", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
@@ -106,7 +108,7 @@ def arguments() -> argparse.Namespace:
 
 def compile_all(cc: str, args: argparse.Namespace, out: Path) -> tuple[list[Path], dict[str, int]]:
     """Every source of the platform image, compiled as ctrl_srp_image.py compiles its own."""
-    tree = image.source_tree(CTRL, STACK.resolve(), out)
+    tree = image.source_tree(args.ctrl_source.resolve(), STACK.resolve(), out)
     variant, inc = prepared(tree, args.interfaces, out, args.config)
     image.checked([sys.executable, "-B", str(CTRL / "adp/adp_entity.py"), str(args.config),
                    "-o", str(out / "adp_entity_gen.h")])
@@ -147,7 +149,7 @@ def main() -> int:
             raise Refusal("the pinned RV32 compiler is required")
         objects, members = compile_all(cc, args, out)
         libraries = [args.libc.resolve(), args.compiler_runtime.resolve()]
-        elf, mapfile = image.link(cc, CTRL, out, objects, libraries, "split")
+        elf, mapfile = image.link(cc, args.ctrl_source.resolve(), out, objects, libraries, "split")
         image.verify_abi(cc, elf)
         tool = cc.removesuffix("gcc")
         symbols = image.checked([tool + "nm", "-S", str(elf)])
