@@ -434,7 +434,7 @@ MUTANTS = (
            "\t(void)forward(dst, src, n);\n\treturn (void *)(uintptr_t)src;\n}\n\nvoid *memmove",
            "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W5 memcpy returns dst"),
     # the bulk turns and the bit steps after them (#665, 2026-10-29)
-    Mutant("mem-copy-bulk-drops-a-word", "plat/ctrl_mem.c", "\t\t\tstore(d + 28, w7);\n", "",
+    Mutant("mem-copy-bulk-drops-a-word", "plat/ctrl_mem.c", "\t\t\tstore(d + 28, w7);\n", "\t\t\tstore(d + 24, w7);\n",
            "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W1 memcpy byte"),
     Mutant("mem-copy-rest-halfword-dropped", "plat/ctrl_mem.c", "store_half(d, load_half(s));",
            "(void)load_half(s);",
