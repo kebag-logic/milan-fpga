@@ -1,0 +1,69 @@
+rc=0     0.0s changes[1] Set CPU-derived job budgets
+rc=0    21.0s changes[2] Classify the change conservatively
+JOB changes: success
+rc=0     0.0s verilator-lint[1] Set CPU-derived job budgets
+rc=0     0.0s verilator-lint[2] Fetch RTL dependencies
+rc=0    21.7s verilator-lint[7] Run the ratcheted whole-tree lint gate
+rc=0     0.2s verilator-lint[8] Prove protocol-processor source lists are derived
+JOB verilator-lint: success
+rc=0     0.0s bdd-conformance[1] Set CPU-derived job budgets
+rc=0     0.0s bdd-conformance[3] Fetch the processor model inputs
+rc=0     0.9s bdd-conformance[4] Install behave
+rc=0     3.4s bdd-conformance[5] Run the specification-facing suite
+JOB bdd-conformance: success
+rc=0     0.0s yosys-tool[1] Set CPU-derived job budgets
+JOB yosys-tool: success
+rc=0     0.0s yosys-elaboration[1] Set CPU-derived job budgets
+rc=0     0.0s yosys-elaboration[2] Fetch RTL dependencies
+rc=0   102.4s yosys-elaboration[7] Elaborate the integration-heavy tops
+rc=0   523.9s yosys-elaboration[8] Prove the OOC read sets come from run.sh and refuse a bad one
+rc=0    29.7s yosys-elaboration[9] Prove ooc.sh generates the ROMs and fails on a failed top
+rc=0    29.8s yosys-elaboration[10] Prove both synthesis flows refuse active elaboration guards
+rc=0    55.3s yosys-elaboration[11] Prove the result cache refuses a planted entry
+JOB yosys-elaboration: success
+rc=0     0.0s publication-census[1] Set CPU-derived job budgets
+rc=0     0.0s publication-census[2] Set memory-derived census workers
+rc=0     0.0s publication-census[4] Fetch RTL dependencies
+rc=0   662.9s publication-census[12] Run the publication census in every shape the builder builds
+JOB publication-census: success
+rc=0     0.0s firmware-unit[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-unit[3] Fetch RTL dependencies
+rc=0     0.7s firmware-unit[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     3.8s firmware-unit[7] Prove the tally reads a failing and a crashing test as failures
+rc=0     3.2s firmware-unit[9] Install and verify the pinned RV32 SDK
+rc=0   322.3s firmware-unit[10] Run the control-plane firmware suites and RV32 builds
+rc=0    98.5s firmware-unit[11] Run the saved-state store suites and its RV32 build
+rc=0   251.7s firmware-unit[12] Hold the firmware coverage ratchet
+JOB firmware-unit: success
+rc=0     0.0s firmware-control-mutants[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-control-mutants[3] Fetch RTL dependencies
+rc=0     0.6s firmware-control-mutants[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     2.6s firmware-control-mutants[8] Install and verify the pinned RV32 SDK
+rc=0  1046.8s firmware-control-mutants[9] Run the control mutation campaign
+JOB firmware-control-mutants: success
+rc=0     0.0s firmware-aecp-mutants[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-aecp-mutants[3] Fetch RTL dependencies
+rc=0     0.5s firmware-aecp-mutants[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     2.6s firmware-aecp-mutants[8] Install and verify the pinned RV32 SDK
+rc=0   211.6s firmware-aecp-mutants[9] Run the AECP mutation campaign
+JOB firmware-aecp-mutants: success
+rc=0     0.0s firmware-srp-mutants[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-srp-mutants[3] Fetch RTL dependencies
+rc=0     0.5s firmware-srp-mutants[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     2.6s firmware-srp-mutants[8] Install and verify the pinned RV32 SDK
+rc=0   668.4s firmware-srp-mutants[9] Run both SRP mutation campaigns and pin controls
+JOB firmware-srp-mutants: success
+rc=0     0.0s firmware-boundary[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-boundary[3] Fetch RTL dependencies
+rc=0    31.8s firmware-boundary[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     2.2s firmware-boundary[8] Install and verify the pinned RV32 SDK
+rc=0   928.5s firmware-boundary[9] Hold the TSN stack boundary over the firmware builders' compiles
+JOB firmware-boundary: success
+rc=0     0.0s firmware-verilator[1] Set CPU-derived job budgets
+rc=0     0.0s firmware-verilator[3] Fetch RTL dependencies
+rc=0     0.5s firmware-verilator[6] Install GoogleTest and GoogleMock and print the versions
+rc=0     0.1s firmware-verilator[11] Put Verilator on PATH and prove the version
+rc=0     2.2s firmware-verilator[13] Install and verify the pinned RV32 SDK
+rc=0   603.4s firmware-verilator[14] Hold the TSN stack boundary over the Verilator builders' compiles
+JOB firmware-verilator: success
+rtl-fast: success; failed jobs: none; head e06ade312a80eb578579365134ab797cda90622b

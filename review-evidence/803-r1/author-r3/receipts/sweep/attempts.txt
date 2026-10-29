@@ -1,0 +1,7 @@
+first launch (TMPDIR missing, preflight refused, no suite ran):
+  shard 0: mktemp: failed to create directory via template ‘<scratch>/tmp-sweep/tmp.XXXXXXXXXX’: No such file or directory
+  shard 1: mktemp: failed to create directory via template ‘<scratch>/tmp-sweep/tmp.XXXXXXXXXX’: No such file or directory
+  shard 2: mktemp: failed to create directory via template ‘<scratch>/tmp-sweep/tmp.XXXXXXXXXX’: No such file or directory
+  shard 3: mktemp: failed to create directory via template ‘<scratch>/tmp-sweep/tmp.XXXXXXXXXX’: No such file or directory
+second launch (sweep-e06ade31-b, 16-19/20-23/24-27/28-31): stopped by systemctl stop within a minute, in preflight, when 0-15 freed; no suite result used
+third launch (sweep-e06ade31-c, 0-15/16-23/24-27/28-31): the run reported
