@@ -1,0 +1,95 @@
+wrote <work>/images/fix-endstation_ax7101_8x8-2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <work>/images/fix-endstation_ax7101_8x8-2/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/images/fix-endstation_ax7101_8x8-2/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 93968,
+    ".rodata": 25406,
+    ".data": 448,
+    ".bss": 104356,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3352,
+    "image_aecp_bridge": 132,
+    "image_allocation": 16,
+    "image_app": 10064,
+    "image_arena": 48064,
+    "image_binding": 40,
+    "image_descriptors": 1984,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 2480,
+    "image_face": 88,
+    "image_latency": 36,
+    "image_licences": 18,
+    "image_map_pools": 448,
+    "image_maps": 4608,
+    "image_map_scratch": 576,
+    "image_model": 12,
+    "image_names": 1284,
+    "image_platform": 56,
+    "image_sources": 576,
+    "image_srp": 5896,
+    "image_state": 84,
+    "image_values": 11753
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "943cbcd85afa769a1468e500c9b5768a159548e1b6ac311253c6d8a1dcea76fb"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "5846f2a145f64668b2b899217b972b2286989e8b1de1d1452c92c53e86cbd0dc"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 152308,
+      "sha256": "5ad4d30d66fb40a431e0342091effc1498e6d18a4c3896dbea380b49c832cda6"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 142517,
+      "sha256": "f1e7a496c2be5dfbb3bdd247ad905e40d4edd34a2a2a45105dc6bc2cb0a124d1"
+    }
+  ],
+  "ram_sections": 232370,
+  "split": {
+    "rom": {
+      "bytes": 119824,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        4096,
+        2048
+      ],
+      "RAMB36": 29,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 113008,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 57.5,
+    "budget_tiles": 56,
+    "ledgered": "8x8-two-interfaces",
+    "ledgered_tiles": 57.5
+  }
+}
+rc=0

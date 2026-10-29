@@ -1,0 +1,7 @@
+HEAD 5edbba1d333dbebfaca4bfc4ab85debdac1c7e55
+$ python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7101_8x8.yaml --interfaces 2 --ledgered-point 8x8-two-interfaces --csr-csv <boot-soc>/csr.csv --output <out>/plat-endstation_ax7101_8x8-2-ledgered --libc <runtime>/libc.a --compiler-runtime <runtime>/libcompiler_rt.a
+REFUSED: allocation over budget: the override '8x8-two-interfaces' is for the 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13264, 'image_allocation': 16}; this image carries {'nvm_stage': 13264, 'image_allocation': None}
+wrote <work>/simbuild/images/plat-endstation_ax7101_8x8-2-ledgered/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <work>/simbuild/images/plat-endstation_ax7101_8x8-2-ledgered/contract/KL_mbx.sv (2 interfaces)
+wrote <work>/simbuild/images/plat-endstation_ax7101_8x8-2-ledgered/contract/mbx_contract.h (2 interfaces)
+rc=2

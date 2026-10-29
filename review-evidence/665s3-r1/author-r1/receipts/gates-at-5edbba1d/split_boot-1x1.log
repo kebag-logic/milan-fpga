@@ -1,0 +1,29 @@
+HEAD 5edbba1d333dbebfaca4bfc4ab85debdac1c7e55
+$ (cd .) python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir <work>/simbuild/boot-1x1
+COMMAND <litex-tree>/venv/bin/python3 -B <work>/sim/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc <litex-tree>/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt <litex-tree>/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software <litex-tree>/litex/litex/soc/software --output <work>/simbuild/boot-1x1/runtime
+COMMAND <litex-tree>/venv/bin/python3 -B <work>/sim/sw/firmware/ctrl/test/ctrl_plat_image.py --config <work>/sim/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --csr-csv <work>/sim/sw/firmware/ctrl/test/ctrl_plat_csr.csv --output <work>/simbuild/boot-1x1/image-provisional --libc <work>/simbuild/boot-1x1/runtime/libc.a --compiler-runtime <work>/simbuild/boot-1x1/runtime/libcompiler_rt.a
+COMMAND <litex-tree>/venv/bin/python3 -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5])))) <work>/sim/tb/verilator/ctrl_split_boot <work>/simbuild/boot-1x1/soc-provisional endstation_ax7101_1x1_tdm8 <work>/simbuild/boot-1x1/image-provisional/ctrl_app.elf 1
+COMMAND <litex-tree>/venv/bin/python3 -B <work>/sim/sw/firmware/ctrl/test/ctrl_plat_image.py --config <work>/sim/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --csr-csv <work>/simbuild/boot-1x1/soc-provisional/csr.csv --output <work>/simbuild/boot-1x1/image --libc <work>/simbuild/boot-1x1/runtime/libc.a --compiler-runtime <work>/simbuild/boot-1x1/runtime/libcompiler_rt.a
+COMMAND <litex-tree>/venv/bin/python3 -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5])))) <work>/sim/tb/verilator/ctrl_split_boot <work>/simbuild/boot-1x1/soc endstation_ax7101_1x1_tdm8 <work>/simbuild/boot-1x1/image/ctrl_app.elf 1
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <work>/simbuild/boot-1x1/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS -O3 -std=c++17 -Wall -Wextra -I<work>/sim/tb/common -I<work>/simbuild/boot-1x1 -I<work>/sim/tb/verilator/fw_service_budget <work>/sim/hdl/milan/mailbox/KL_mbx_pkg.sv <work>/sim/hdl/milan/mailbox/KL_mbx_ring.sv <work>/sim/hdl/milan/mailbox/KL_mbx_rx.sv <work>/sim/hdl/milan/mailbox/KL_mbx_tx.sv <work>/sim/hdl/milan/mailbox/KL_mbx_evt.sv <work>/sim/hdl/milan/mailbox/KL_mbx.sv <work>/sim/hdl/milan/mailbox/KL_mbx_wb.sv <litex-tree>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v <litex-tree>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v <litex-tree>/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_903b010fc69f2a4188ee1b2191a0834e.v <work>/simbuild/boot-1x1/soc/gateware/sim.v <work>/sim/tb/verilator/ctrl_split_boot/sim_main.cpp
+COMMAND make -j16 -C <work>/simbuild/boot-1x1/native -f Vsim.mk Vsim
+COMMAND Vsim exited 0
+BOOT ready at bus cycle 8438856 (4219428 CPU cycles): 84.389 ms against 20000 ms; banners 1
+TRACE 21 window writes before ready; the first 18 equal configure_fabric()'s 15 and MAAP's one-owner 3
+UART milan_status: 305 bytes; span 21.632 ms; to the first byte 1.963 ms; longest gap between bytes 1.273 ms; against 500 ms and T_svc 10 ms
+UART milan_gettime: 27 bytes; span 2.269 ms; to the first byte 1.236 ms; longest gap between bytes 0.969 ms; against 500 ms and T_svc 10 ms
+UART milan_gettime: 27 bytes; span 2.536 ms; to the first byte 1.197 ms; longest gap between bytes 1.275 ms; against 500 ms and T_svc 10 ms
+GRADER id-miln: PASS (ID=0x4D494C4E VERSION=0x00020060); not evidence: ID is the datapath's reset value, which the testbench answers
+GRADER version-gptp-publication: PASS (VERSION=0x00020060 (need major 2, minor >= 0x0056)); not evidence: VERSION is the datapath's reset value, 0x0002_0060 (decision D2), which the testbench answers
+GRADER aem-image: PASS (AEM=loaded)
+GRADER fabric-enabled: FAIL (PTP=0x5A050001 ADP=0x5A060000 PP=0x5A092000); a difference by design: the split never sets ADP_CTRL[0] or PP_CTRL[0], because the core owns ADP and AECP (ARCHITECTURE_HW_SW_SPLIT.md section 1): a split image fails this check on any board
+GRADER gptp-identities: PASS (GM=0x5A0628015A062401 PARENT=0x5A0734015A073001); not evidence: no gPTP peer and no datapath: GM and parent are the stand-in register file's words
+GRADER gptp-path: PASS (count=1 generation=0); not evidence: no gPTP peer and no datapath: AS_PATH_CMD is the stand-in register file's word
+GRADER gptp-pdelay: FAIL (pdelay=1510401025 ns (need a measured 0 < delay < 800 ns)); not evidence: no gPTP peer and no datapath: PDELAY_NS is the stand-in register file's word
+GRADER clkv-fabric-owner: FAIL (CLKV_STAT=0x5A077C01 SYNC=0 ASCAPABLE=1 TU=1); not evidence: no datapath: CLKV_STAT is the stand-in register file's word
+GRADER gptp-locked: FAIL (SYNC=0 ASCAPABLE=1 TU=1); not evidence: no gPTP peer and no datapath: CLKV_STAT is the stand-in register file's word
+GRADER phc-advances: PASS (0x00000000066185EF -> 0x000000000692CF47)
+ctrl_split_boot: PASS (0 finding(s))
+elapsed=41s
+tree: 0 changed path(s) after the gate
+rc=0

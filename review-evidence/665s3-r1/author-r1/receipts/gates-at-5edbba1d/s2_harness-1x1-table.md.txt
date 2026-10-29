@@ -1,0 +1,280 @@
+### 1x1
+
+13 of 81 paths and 34 of 141 probe instances miss T_svc.
+
+| Path | Interface | Worst instance | ms (bound) | Verdict | Records ahead | Instances | Misses |
+|---|---:|---|---:|---|---:|---:|---:|
+| BIND_RX | 0 | `fixture.bind_rx.if0` (fixture) | 1.286 (2.591) | fits | 0 acmp | 2 | 0 |
+| DISCONNECT_TX | 0 | `acmp.disconnect_tx.if0` (acmp-cmd) | 9.399 (14.240) | fits | 0 acmp | 1 | 0 |
+| ENTITY_AVAILABLE from its RX_HEAD (H-DISC) | 0 | `acmp.entity_available.if0` (acmp-disc) | 8.534 (14.028) | fits | 0 adp | 1 | 0 |
+| ENTITY_DEPARTING from its RX_HEAD (H-DISC) | 0 | `fixture.entity_departing.if0` (fixture) | 15.243 (29.080) | MISS T_svc | 0 adp | 2 | 1 |
+| GET_RX_STATE | 0 | `acmp.get_rx_state.if0` (acmp-cmd) | 9.638 (16.037) | fits | 0 acmp | 1 | 0 |
+| GET_TX_CONNECTION | 0 | `acmp.get_tx_connection.if0` (acmp-cmd) | 9.395 (14.237) | fits | 0 acmp | 1 | 0 |
+| GET_TX_STATE | 0 | `acmp.get_tx_state.if0` (acmp-cmd) | 9.434 (14.270) | fits | 0 acmp | 1 | 0 |
+| PROBE_TX | 0 | `acmp.probe_tx.if0` (acmp-cmd) | 8.107 (14.376) | fits | 0 acmp | 1 | 0 |
+| PROBE_TX_RESPONSE | 0 | `acmp.probe_tx_response.if0` (acmp-cmd) | 12.481 (15.881) | MISS T_svc | 0 acmp | 1 | 1 |
+| TMR_DELAY | 0 | `acmp.tmr_delay.if0` (acmp-noresp) | 1.102 (13.844) | fits | 0 events | 1 | 0 |
+| TMR_NO_ADP (H-DISC) | 0 | `acmp.tmr_no_adp.if0` (acmp-disc) | 2.106 (27.251) | fits | 2 events | 1 | 0 |
+| TMR_DELAY, or the first TMR_NO_RESP | 0 | `acmp.tmr_no_resp1.if0` (acmp-noresp) | 1.122 (13.830) | fits | 0 events | 2 | 0 |
+| the second TMR_NO_RESP | 0 | `acmp.tmr_no_resp2.if0` (acmp-noresp) | 2.031 (13.559) | fits | 0 events | 1 | 0 |
+| TMR_NO_TK | 0 | `acmp.tmr_no_tk.if0` (acmp-notk) | 2.009 (28.965) | fits | 1 events | 1 | 0 |
+| TMR_RETRY | 0 | `acmp.tmr_retry.if0` (acmp-noresp) | 1.271 (13.502) | fits | 0 events | 1 | 0 |
+| UNBIND_RX | 0 | `acmp.unbind_rx.if0` (acmp-cmd) | 9.585 (16.338) | fits | 0 acmp | 1 | 0 |
+| RCV_ADP_DISCOVER | 0 | `adp.discover.if0` (adp-discover) | 0.530 (1.450) | fits | 0 adp | 2 | 0 |
+| GM_CHANGE | 0 | `adp.gm_change.if0` (adp-gm) | 0.380 (1.328) | fits | 1 events | 1 | 0 |
+| LINK_DOWN | 0 | `adp.link_down.if0` (adp-link) | 0.369 (3.388) | fits | 1 events | 2 | 0 |
+| LINK_UP | 0 | `adp.link_up.if0` (adp-advertise) | 0.077 (3.241) | fits | 0 events | 6 | 0 |
+| TMR_ADVERTISE expiry | 0 | `adp.tmr_advertise.if0` (adp-advertise) | 0.149 (1.081) | fits | 0 events | 1 | 0 |
+| TMR_DELAY expiry | 0 | `adp.tmr_delay.if0` (adp-advertise) | 0.567 (2.454) | fits | 0 events | 5 | 0 |
+| entity_available | 0 | `aecp.entity_available.if0` (aecp) | 2.140 (2.922) | fits | 0 aecp | 1 | 0 |
+| get_avb_info | 0 | `aecp.get_avb_info.if0` (aecp) | 2.162 (2.944) | fits | 0 aecp | 1 | 0 |
+| get_configuration | 0 | `aecp.get_configuration.if0` (aecp) | 2.103 (2.885) | fits | 0 aecp | 1 | 0 |
+| get_counters | 0 | `aecp.get_counters.if0` (aecp) | 2.704 (3.486) | fits | 0 aecp | 1 | 0 |
+| get_name | 0 | `aecp.get_name.if0` (aecp) | 2.261 (3.043) | fits | 0 aecp | 1 | 0 |
+| lock_entity | 0 | `aecp.lock_entity.if0` (aecp) | 2.266 (3.231) | fits | 0 aecp | 1 | 0 |
+| MVU GET_MILAN_INFO | 0 | `aecp.mvu_get_milan_info.if0` (aecp) | 1.733 (2.515) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (312 B) | 0 | `aecp.read_descriptor.t0.i0.c0.if0` (aecp) | 2.796 (3.578) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (106 B) | 0 | `aecp.read_descriptor.t1.i0.c0.if0` (aecp) | 2.343 (3.125) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (86 B) | 0 | `aecp.read_descriptor.t10.i2.c0.if0` (aecp) | 2.312 (3.094) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (72 B) | 0 | `aecp.read_descriptor.t12.i0.c0.if0` (aecp) | 2.590 (3.372) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (452 B) | 0 | `aecp.read_descriptor.t13.i0.c0.if0` (aecp) | 3.106 (3.888) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (20 B) | 0 | `aecp.read_descriptor.t14.i0.c0.if0` (aecp) | 2.174 (2.956) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (20 B) | 0 | `aecp.read_descriptor.t15.i0.c0.if0` (aecp) | 2.483 (3.264) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (148 B) | 0 | `aecp.read_descriptor.t2.i0.c0.if0` (aecp) | 2.437 (3.218) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (90 B) | 0 | `aecp.read_descriptor.t20.i24.c0.if0` (aecp) | 2.362 (3.143) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (113 B) | 0 | `aecp.read_descriptor.t26.i0.c0.if0` (aecp) | 2.409 (3.191) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (82 B) | 0 | `aecp.read_descriptor.t36.i0.c0.if0` (aecp) | 2.650 (3.432) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (146 B) | 0 | `aecp.read_descriptor.t5.i1.c0.if0` (aecp) | 2.434 (3.216) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (146 B) | 0 | `aecp.read_descriptor.t6.i1.c0.if0` (aecp) | 2.741 (3.522) | fits | 0 aecp | 1 | 0 |
+| READ_DESCRIPTOR (102 B) | 0 | `aecp.read_descriptor.t9.i0.c0.if0` (aecp) | 2.342 (3.124) | fits | 0 aecp | 1 | 0 |
+| register_unsolicited | 0 | `aecp.register_unsolicited.if0` (aecp) | 1.413 (2.187) | fits | 0 aecp | 1 | 0 |
+| set_name | 0 | `aecp.set_name.if0` (aecp) | 2.756 (4.141) | fits | 0 aecp | 1 | 0 |
+| unknown_command | 0 | `aecp.unknown_command.if0` (aecp) | 2.099 (2.881) | fits | 0 aecp | 1 | 0 |
+| unlock_entity | 0 | `aecp.unlock_entity.if0` (aecp) | 2.575 (3.540) | fits | 0 aecp | 1 | 0 |
+| add_audio_mappings | 0 | `aecp_fanout.add_audio_mappings.if0` (aecp-fanout) | 4.729 (5.542) | fits | 0 aecp | 1 | 0 |
+| lock_entity | 0 | `aecp_fanout.lock_entity.if0` (aecp-fanout) | 4.610 (5.395) | fits | 0 aecp | 1 | 0 |
+| remove_audio_mappings | 0 | `aecp_fanout.remove_audio_mappings.if0` (aecp-fanout) | 4.732 (5.546) | fits | 0 aecp | 1 | 0 |
+| set_clock_source | 0 | `aecp_fanout.set_clock_source.if0` (aecp-fanout) | 4.536 (5.155) | fits | 0 aecp | 1 | 0 |
+| set_control_identify_on | 0 | `aecp_fanout.set_control_identify_off.if0` (aecp-fanout) | 4.377 (5.163) | fits | 0 aecp | 2 | 0 |
+| set_name | 0 | `aecp_fanout.set_name.if0` (aecp-fanout) | 6.349 (7.479) | fits | 0 aecp | 1 | 0 |
+| set_sampling_rate | 0 | `aecp_fanout.set_sampling_rate.if0` (aecp-fanout) | 4.379 (4.978) | fits | 0 aecp | 1 | 0 |
+| unlock_entity | 0 | `aecp_fanout.unlock_entity.if0` (aecp-fanout) | 4.616 (5.402) | fits | 0 aecp | 1 | 0 |
+| an ACMP command behind a full acmp ring | 0 | `backlog.acmp_command.if0` (backlog) | 37.219 (41.319) | MISS ceiling | 11 acmp | 1 | 1 |
+| an ENTITY_AVAILABLE behind a full adp ring | 0 | `backlog.adp_available.if0` (backlog-adp) | 41.929 (53.110) | MISS ceiling | 7 adp | 1 | 1 |
+| an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed) | 0 | `backlog.adp_available_refill.if0` (backlog-adp-refill) | 38.460 (55.028) | MISS ceiling | 4 adp | 1 | 1 |
+| an event behind 15 others | 0 | `backlog.event.if0` (backlog) | 9.322 (17.339) | fits | 15 events | 1 | 0 |
+| a response with 7 frames owed ahead of it | 0 | `backlog.owed.if0` (backlog-owed) | 94.926 (97.579) | MISS ceiling | 7 acmp | 1 | 1 |
+| an ACMP command behind the owed input | 0 | `backlog.owed_behind0.if0` (backlog-owed) | at least 362.209 | NEVER ANSWERED | 8 acmp | 4 | 4 |
+| SET_NAME fan-out to one registered controller | 0 | `fixture.set_name.if0` (fixture) | 2.989 (4.154) | fits | 0 aecp | 1 | 0 |
+| ANNOUNCE (TMR expiry) | 0 | `maap.announce.if0` (maap) | 1.003 (2.914) | fits | 0 events | 1 | 0 |
+| conflicting PROBE -> DEFEND | 0 | `maap.defend.if0` (maap) | 0.458 (1.359) | fits | 0 maap | 1 | 0 |
+| first PROBE (LINK_UP) | 0 | `maap.probe1.if0` (maap) | 0.530 (3.241) | fits | 0 events | 1 | 0 |
+| last PROBE retransmission (TMR expiry) | 0 | `maap.probe4.if0` (maap) | 0.853 (2.914) | fits | 0 events | 1 | 0 |
+| PROBE retransmission (TMR expiry) | 0 | `maap.probe2.if0` (maap) | 1.070 (3.261) | fits | 0 events | 2 | 0 |
+| ACMP record released under the composed load, first | 0 | `backlog-adp.service.acmp.first.if0` (backlog-adp) | 8.969 | fits | 0 acmp | 5 | 0 |
+| ACMP record released under the composed load, last | 0 | `backlog-adp-refill.service.acmp.last.if0` (backlog-adp-refill) | 85.634 | MISS ceiling | 11 acmp | 5 | 4 |
+| ADP record released under the composed load, first | 0 | `backlog-adp.service.adp.first.if0` (backlog-adp) | 8.960 | fits | 0 adp | 5 | 0 |
+| ADP record released under the composed load, last | 0 | `backlog-adp.service.adp.last.if0` (backlog-adp) | 49.561 | MISS T_svc | 7 adp | 5 | 4 |
+| AECP record released under the composed load, first | 0 | `backlog-adp.service.aecp.first.if0` (backlog-adp) | 9.005 | fits | 0 aecp | 5 | 0 |
+| AECP record released under the composed load, last | 0 | `backlog-adp-refill.service.aecp.last.if0` (backlog-adp-refill) | 253.792 | MISS ceiling | 15 aecp | 5 | 4 |
+| MAAP record released under the composed load, first | 0 | `backlog-adp.service.maap.first.if0` (backlog-adp) | 8.994 | fits | 0 maap | 5 | 0 |
+| MAAP record released under the composed load, last | 0 | `backlog-adp.service.maap.last.if0` (backlog-adp) | 49.598 | MISS T_svc | 6 maap | 5 | 4 |
+| SRP record released under the composed load, first | 0 | `backlog-adp-refill.service.srp.first.if0` (backlog-adp-refill) | at least 578.445 | STARVED: never released | 0 srp | 5 | 4 |
+| SRP record released under the composed load, last | 0 | `backlog-adp-refill.service.srp.last.if0` (backlog-adp-refill) | at least 578.425 | STARVED: never released | 31 srp | 5 | 4 |
+| Domain RX -> declarations (JoinTime wait) | 0 | `srp.domain.if0` (srp) | 3.250 (4.654) | fits | 0 srp | 1 | 0 |
+| Listener Ready RX (registrar) | 0 | `srp.listener_ready.if0` (srp) | 1.910 (1.910) | fits | 0 srp | 1 | 0 |
+| malformed MRPDU discard | 0 | `srp.malformed.if0` (srp) | 1.581 (1.582) | fits | 0 srp | 2 | 0 |
+| startup declarations (LINK_UP) | 0 | `srp.startup.if0` (srp) | 2.868 (3.241) | fits | 0 events | 1 | 0 |
+
+Composed windows: a window that left its load unreleased ran its passes without that work, so its longest pass is a lower bound.
+
+| Group | Window ms | Passes in it | Longest pass, CPU cycles (ms) | Load released | Unreleased |
+|---|---:|---:|---:|---|---|
+| backlog | 89.325 | 21 | 439,835 (8.797) | yes | - |
+| backlog-adp | 541.981 | 36 | 948,116 (18.962) | no | {'srp': 32} |
+| backlog-adp-refill | 578.462 | 38 | 926,989 (18.540) | no | {'srp': 32} |
+| backlog-owed | 362.259 | 54 | 431,436 (8.629) | yes | - |
+| fixture | 10.120 | 3 | 295,517 (5.910) | yes | - |
+
+Composed maximum over the 4 backlog windows: at least 948,116 CPU cycles (18.962 ms), backlog-adp, a lower bound (load unreleased in backlog-adp, backlog-adp-refill).
+Over the windows that released their whole load only: 439,835 (8.797 ms), backlog.
+
+| Path | Probe | CPU cycles | ms | T_svc (+W) ms | Ceiling ms | Verdict | Taking pass cycles | Mailbox accesses (model) | Fetch share |
+|---|---|---:|---:|---:|---:|---|---:|---:|---:|
+| TMR_NO_TK | `acmp.tmr_no_tk.if0` | 100,444 | 2.009 | 10 | 20 | fits | 688,815 | 119 (14) | 0.035 |
+| LINK_UP | `adp.link_up.if0` | 3,862 | 0.077 | 10 | 200 | fits | 162,069 | 88 (11) | 0.090 |
+| TMR_DELAY expiry | `adp.tmr_delay.if0` | 28,360 | 0.567 | 10 | 200 | fits | 66,726 | 46 (39) | 0.087 |
+| TMR_ADVERTISE expiry | `adp.tmr_advertise.if0` | 7,449 | 0.149 | 10 | 200 | fits | 3,888 | 9 (11) | 0.160 |
+| TMR_DELAY, or the first TMR_NO_RESP | `acmp.tmr_no_resp1.if0` | 56,085 | 1.122 | 10 | 20 | fits | 691,515 | 140 (35) | 0.034 |
+| the second TMR_NO_RESP | `acmp.tmr_no_resp2.if0` | 101,534 | 2.031 | 10 | 20 | fits | 677,974 | 117 (14) | 0.033 |
+| TMR_RETRY | `acmp.tmr_retry.if0` | 63,535 | 1.271 | 10 | 20 | fits | 675,120 | 118 (14) | 0.033 |
+| TMR_DELAY | `acmp.tmr_delay.if0` | 55,094 | 1.102 | 10 | 20 | fits | 692,178 | 140 (35) | 0.034 |
+| startup declarations (LINK_UP) | `srp.startup.if0` | 143,387 | 2.868 | 10 | 18 | fits | 162,069 | 88 | 0.090 |
+| Listener Ready RX (registrar) | `srp.listener_ready.if0` | 95,476 | 1.910 | 10 | 18 | fits | 95,508 | 29 | 0.112 |
+| malformed MRPDU discard | `srp.malformed.if0` | 79,057 | 1.581 | 10 | 18 | fits | 79,089 | 35 | 0.113 |
+| Domain RX -> declarations (JoinTime wait) | `srp.domain.if0` | 162,488 | 3.250 | 210 | 218 | fits | 232,683 | 78 | 0.089 |
+| an event behind 15 others | `backlog.event.if0` | 466,089 | 9.322 | 10 | 200 | fits | 427,133 | 356 | 0.071 |
+| an ACMP command behind a full acmp ring | `backlog.acmp_command.if0` | 1,860,936 | 37.219 | 10 | 20 | MISS ceiling | 286,827 | 256 | 0.063 |
+| ADP record released under the composed load, first | `backlog.service.adp.first.if0` | 439,731 | 8.795 | 10 | 200 | fits | 439,835 | 389 | 0.069 |
+| ADP record released under the composed load, last | `backlog.service.adp.last.if0` | 1,520,656 | 30.413 | 10 | 200 | MISS T_svc | 314,447 | 324 | 0.069 |
+| ACMP record released under the composed load, first | `backlog.service.acmp.first.if0` | 437,602 | 8.752 | 10 | 20 | fits | 439,835 | 389 | 0.069 |
+| ACMP record released under the composed load, last | `backlog.service.acmp.last.if0` | 2,063,327 | 41.267 | 10 | 20 | MISS ceiling | 286,827 | 256 | 0.063 |
+| AECP record released under the composed load, first | `backlog.service.aecp.first.if0` | 439,394 | 8.788 | 10 | 24 | fits | 439,835 | 389 | 0.069 |
+| AECP record released under the composed load, last | `backlog.service.aecp.last.if0` | 4,020,780 | 80.416 | 10 | 24 | MISS ceiling | 207,657 | 169 | 0.058 |
+| MAAP record released under the composed load, first | `backlog.service.maap.first.if0` | 438,874 | 8.777 | 10 | 50 | fits | 439,835 | 389 | 0.069 |
+| MAAP record released under the composed load, last | `backlog.service.maap.last.if0` | 1,519,908 | 30.398 | 10 | 50 | MISS T_svc | 314,447 | 324 | 0.069 |
+| SRP record released under the composed load, first | `backlog.service.srp.first.if0` | 1,205,429 | 24.109 | 10 | 18 | MISS ceiling | 339,649 | 348 | 0.073 |
+| SRP record released under the composed load, last | `backlog.service.srp.last.if0` | 4,328,613 | 86.572 | 10 | 18 | MISS ceiling | 57,946 | 47 | 0.102 |
+| an ENTITY_AVAILABLE behind a full adp ring | `backlog.adp_available.if0` | 2,096,429 | 41.929 | 10 | 20 | MISS ceiling | 948,116 | 411 | 0.042 |
+| ADP record released under the composed load, first | `backlog-adp.service.adp.first.if0` | 447,990 | 8.960 | 10 | 200 | fits | 625,115 | 412 | 0.049 |
+| ADP record released under the composed load, last | `backlog-adp.service.adp.last.if0` | 2,478,065 | 49.561 | 10 | 200 | MISS T_svc | 948,116 | 411 | 0.042 |
+| ACMP record released under the composed load, first | `backlog-adp.service.acmp.first.if0` | 448,446 | 8.969 | 10 | 20 | fits | 625,115 | 412 | 0.049 |
+| ACMP record released under the composed load, last | `backlog-adp.service.acmp.last.if0` | 4,255,725 | 85.115 | 10 | 20 | MISS ceiling | 888,649 | 317 | 0.037 |
+| AECP record released under the composed load, first | `backlog-adp.service.aecp.first.if0` | 450,238 | 9.005 | 10 | 24 | fits | 625,115 | 412 | 0.049 |
+| AECP record released under the composed load, last | `backlog-adp.service.aecp.last.if0` | 12,663,262 | 253.265 | 10 | 24 | MISS ceiling | 804,711 | 230 | 0.033 |
+| MAAP record released under the composed load, first | `backlog-adp.service.maap.first.if0` | 449,718 | 8.994 | 10 | 50 | fits | 625,115 | 412 | 0.049 |
+| MAAP record released under the composed load, last | `backlog-adp.service.maap.last.if0` | 2,479,903 | 49.598 | 10 | 50 | MISS T_svc | 948,116 | 411 | 0.042 |
+| SRP record released under the composed load, first | `backlog-adp.service.srp.first.if0` | 27,098,234 | 541.965 | 10 | 18 | STARVED: never released | 0 | - | 0.000 |
+| SRP record released under the composed load, last | `backlog-adp.service.srp.last.if0` | 27,097,227 | 541.945 | 10 | 18 | STARVED: never released | 0 | - | 0.000 |
+| an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed) | `backlog.adp_available_refill.if0` | 1,922,985 | 38.460 | 10 | 20 | MISS ceiling | 918,408 | 349 | 0.039 |
+| ADP record released under the composed load, first | `backlog-adp-refill.service.adp.first.if0` | 447,990 | 8.960 | 10 | 200 | fits | 625,115 | 412 | 0.049 |
+| ADP record released under the composed load, last | `backlog-adp-refill.service.adp.last.if0` | 2,283,907 | 45.678 | 10 | 200 | MISS T_svc | 918,408 | 349 | 0.039 |
+| ACMP record released under the composed load, first | `backlog-adp-refill.service.acmp.first.if0` | 448,446 | 8.969 | 10 | 20 | fits | 625,115 | 412 | 0.049 |
+| ACMP record released under the composed load, last | `backlog-adp-refill.service.acmp.last.if0` | 4,281,713 | 85.634 | 10 | 20 | MISS ceiling | 918,408 | 349 | 0.039 |
+| AECP record released under the composed load, first | `backlog-adp-refill.service.aecp.first.if0` | 450,238 | 9.005 | 10 | 24 | fits | 625,115 | 412 | 0.049 |
+| AECP record released under the composed load, last | `backlog-adp-refill.service.aecp.last.if0` | 12,689,613 | 253.792 | 10 | 24 | MISS ceiling | 804,637 | 230 | 0.033 |
+| MAAP record released under the composed load, first | `backlog-adp-refill.service.maap.first.if0` | 449,718 | 8.994 | 10 | 50 | fits | 625,115 | 412 | 0.049 |
+| MAAP record released under the composed load, last | `backlog-adp-refill.service.maap.last.if0` | 2,458,776 | 49.176 | 10 | 50 | MISS T_svc | 926,989 | 404 | 0.041 |
+| SRP record released under the composed load, first | `backlog-adp-refill.service.srp.first.if0` | 28,922,248 | 578.445 | 10 | 18 | STARVED: never released | 0 | - | 0.000 |
+| SRP record released under the composed load, last | `backlog-adp-refill.service.srp.last.if0` | 28,921,241 | 578.425 | 10 | 18 | STARVED: never released | 0 | - | 0.000 |
+| a response with 7 frames owed ahead of it | `backlog.owed.if0` | 4,746,322 | 94.926 | 10 | 20 | MISS ceiling | 199,724 | 147 | 0.049 |
+| an ACMP command behind the owed input | `backlog.owed_behind0.if0` | 18,110,431 | 362.209 | 10 | 20 | NEVER ANSWERED | 0 | - | 0.000 |
+| an ACMP command behind the owed input | `backlog.owed_behind1.if0` | 18,110,393 | 362.208 | 10 | 20 | NEVER ANSWERED | 0 | - | 0.000 |
+| an ACMP command behind the owed input | `backlog.owed_behind2.if0` | 18,110,356 | 362.207 | 10 | 20 | NEVER ANSWERED | 0 | - | 0.000 |
+| an ACMP command behind the owed input | `backlog.owed_behind3.if0` | 18,110,318 | 362.206 | 10 | 20 | NEVER ANSWERED | 0 | - | 0.000 |
+| ADP record released under the composed load, first | `backlog-owed.service.adp.first.if0` | 349,278 | 6.986 | 10 | 200 | fits | 337,425 | 341 | 0.070 |
+| ADP record released under the composed load, last | `backlog-owed.service.adp.last.if0` | 1,398,557 | 27.971 | 10 | 200 | MISS T_svc | 307,243 | 261 | 0.066 |
+| ACMP record released under the composed load, first | `backlog-owed.service.acmp.first.if0` | 347,149 | 6.943 | 10 | 20 | fits | 337,425 | 341 | 0.070 |
+| ACMP record released under the composed load, last | `backlog-owed.service.acmp.last.if0` | 1,880,978 | 37.620 | 10 | 20 | MISS ceiling | 178,860 | 75 | 0.064 |
+| AECP record released under the composed load, first | `backlog-owed.service.aecp.first.if0` | 348,941 | 6.979 | 10 | 24 | fits | 337,425 | 341 | 0.070 |
+| AECP record released under the composed load, last | `backlog-owed.service.aecp.last.if0` | 5,395,943 | 107.919 | 10 | 24 | MISS ceiling | 181,543 | 124 | 0.047 |
+| MAAP record released under the composed load, first | `backlog-owed.service.maap.first.if0` | 348,421 | 6.968 | 10 | 50 | fits | 337,425 | 341 | 0.070 |
+| MAAP record released under the composed load, last | `backlog-owed.service.maap.last.if0` | 1,397,809 | 27.956 | 10 | 50 | MISS T_svc | 307,243 | 261 | 0.066 |
+| SRP record released under the composed load, first | `backlog-owed.service.srp.first.if0` | 779,630 | 15.593 | 10 | 18 | MISS T_svc | 431,436 | 378 | 0.083 |
+| SRP record released under the composed load, last | `backlog-owed.service.srp.last.if0` | 4,216,958 | 84.339 | 10 | 18 | MISS ceiling | 285,244 | 191 | 0.074 |
+| ENTITY_DEPARTING from its RX_HEAD (H-DISC) | `acmp.entity_departing.if0` | 318,777 | 6.376 | 10 | 20 | fits | 699,928 | 140 (29) | 0.036 |
+| ENTITY_AVAILABLE from its RX_HEAD (H-DISC) | `acmp.entity_available.if0` | 426,676 | 8.534 | 10 | 20 | fits | 701,392 | 146 (35) | 0.036 |
+| TMR_NO_ADP (H-DISC) | `acmp.tmr_no_adp.if0` | 105,301 | 2.106 | 10 | 20 | fits | 604,914 | 130 (12) | 0.038 |
+| first PROBE (LINK_UP) | `maap.probe1.if0` | 26,524 | 0.530 | 10 | 50 | fits | 162,069 | 88 | 0.090 |
+| PROBE retransmission (TMR expiry) | `maap.probe2.if0` | 53,486 | 1.070 | 10 | 50 | fits | 84,289 | 43 | 0.106 |
+| PROBE retransmission (TMR expiry) | `maap.probe3.if0` | 29,444 | 0.589 | 10 | 50 | fits | 83,755 | 43 | 0.103 |
+| last PROBE retransmission (TMR expiry) | `maap.probe4.if0` | 42,662 | 0.853 | 10 | 50 | fits | 86,089 | 64 | 0.085 |
+| ANNOUNCE (TMR expiry) | `maap.announce.if0` | 50,142 | 1.003 | 10 | 50 | fits | 86,089 | 64 | 0.085 |
+| conflicting PROBE -> DEFEND | `maap.defend.if0` | 22,888 | 0.458 | 10 | 50 | fits | 67,934 | 47 | 0.097 |
+| LINK_UP | `adp.link_up.if0` | 3,862 | 0.077 | 10 | 200 | fits | 162,069 | 88 (11) | 0.090 |
+| TMR_DELAY expiry | `adp.tmr_delay.if0` | 28,360 | 0.567 | 10 | 200 | fits | 66,726 | 46 (39) | 0.087 |
+| LINK_DOWN | `adp.link_down.if0` | 18,436 | 0.369 | 10 | 200 | fits | 169,421 | 33 (9) | 0.086 |
+| LINK_UP | `adp.link_up.if0` | 3,862 | 0.077 | 10 | 200 | fits | 162,069 | 88 (11) | 0.090 |
+| TMR_DELAY expiry | `adp.tmr_delay.if0` | 28,360 | 0.567 | 10 | 200 | fits | 66,726 | 46 (39) | 0.087 |
+| GM_CHANGE | `adp.gm_change.if0` | 19,019 | 0.380 | 10 | 200 | fits | 66,385 | 24 (11) | 0.105 |
+| LINK_UP | `adp.link_up.if0` | 3,862 | 0.077 | 10 | 200 | fits | 162,069 | 88 (11) | 0.090 |
+| TMR_DELAY expiry | `adp.tmr_delay.if0` | 28,360 | 0.567 | 10 | 200 | fits | 66,726 | 46 (39) | 0.087 |
+| RCV_ADP_DISCOVER | `adp.discover.if0` | 26,502 | 0.530 | 10 | 200 | fits | 72,505 | 44 (31) | 0.111 |
+| LINK_UP | `adp.link_up.if0` | 3,862 | 0.077 | 10 | 200 | fits | 162,069 | 88 (11) | 0.090 |
+| TMR_DELAY expiry | `adp.tmr_delay.if0` | 28,360 | 0.567 | 10 | 200 | fits | 66,726 | 46 (39) | 0.087 |
+| RCV_ADP_DISCOVER (control) | `control.discover.if0` | 26,502 | 0.530 | 10 | 200 | fits | 72,505 | 44 (31) | 0.111 |
+| set_name | `aecp_fanout.set_name.if0` | 317,439 | 6.349 | 10 | 24 | fits | 373,950 | 622 | 0.035 |
+| set_clock_source | `aecp_fanout.set_clock_source.if0` | 226,785 | 4.536 | 10 | 24 | fits | 257,727 | 329 | 0.042 |
+| set_control_identify_on | `aecp_fanout.set_control_identify_on.if0` | 218,495 | 4.370 | 10 | 24 | fits | 257,738 | 312 | 0.039 |
+| set_control_identify_off | `aecp_fanout.set_control_identify_off.if0` | 218,863 | 4.377 | 10 | 24 | fits | 258,149 | 312 | 0.039 |
+| remove_audio_mappings | `aecp_fanout.remove_audio_mappings.if0` | 236,596 | 4.732 | 10 | 24 | fits | 277,301 | 352 | 0.039 |
+| add_audio_mappings | `aecp_fanout.add_audio_mappings.if0` | 236,467 | 4.729 | 10 | 24 | fits | 277,109 | 352 | 0.039 |
+| set_sampling_rate | `aecp_fanout.set_sampling_rate.if0` | 218,955 | 4.379 | 10 | 24 | fits | 248,888 | 318 | 0.041 |
+| lock_entity | `aecp_fanout.lock_entity.if0` | 230,476 | 4.610 | 10 | 24 | fits | 269,741 | 363 | 0.037 |
+| unlock_entity | `aecp_fanout.unlock_entity.if0` | 230,799 | 4.616 | 10 | 24 | fits | 270,085 | 363 | 0.037 |
+| BIND_RX | `acmp.bind_rx.if0` | 49,264 | 0.985 | 10 | 20 | fits | 124,328 | 83 (77) | 0.087 |
+| PROBE_TX_RESPONSE | `acmp.probe_tx_response.if0` | 624,054 | 12.481 | 10 | 20 | MISS T_svc | 794,068 | 153 (32) | 0.034 |
+| GET_RX_STATE | `acmp.get_rx_state.if0` | 481,899 | 9.638 | 10 | 20 | fits | 801,861 | 168 (47) | 0.033 |
+| UNBIND_RX | `acmp.unbind_rx.if0` | 479,269 | 9.585 | 10 | 20 | fits | 816,886 | 171 (50) | 0.035 |
+| PROBE_TX | `acmp.probe_tx.if0` | 405,347 | 8.107 | 10 | 20 | fits | 718,776 | 191 (48) | 0.036 |
+| GET_TX_STATE | `acmp.get_tx_state.if0` | 471,712 | 9.434 | 10 | 20 | fits | 713,503 | 159 (48) | 0.037 |
+| DISCONNECT_TX | `acmp.disconnect_tx.if0` | 469,949 | 9.399 | 10 | 20 | fits | 712,018 | 159 (48) | 0.036 |
+| GET_TX_CONNECTION | `acmp.get_tx_connection.if0` | 469,752 | 9.395 | 10 | 20 | fits | 711,847 | 159 (48) | 0.036 |
+| register_unsolicited | `aecp.register_unsolicited.if0` | 70,642 | 1.413 | 10 | 24 | fits | 109,333 | 48 | 0.073 |
+| READ_DESCRIPTOR (312 B) | `aecp.read_descriptor.t0.i0.c0.if0` | 139,810 | 2.796 | 10 | 24 | fits | 178,900 | 125 | 0.049 |
+| READ_DESCRIPTOR (106 B) | `aecp.read_descriptor.t1.i0.c0.if0` | 117,164 | 2.343 | 10 | 24 | fits | 156,251 | 74 | 0.054 |
+| READ_DESCRIPTOR (148 B) | `aecp.read_descriptor.t2.i0.c0.if0` | 121,834 | 2.437 | 10 | 24 | fits | 160,921 | 85 | 0.053 |
+| READ_DESCRIPTOR (146 B) | `aecp.read_descriptor.t5.i1.c0.if0` | 121,685 | 2.434 | 10 | 24 | fits | 160,775 | 84 | 0.053 |
+| READ_DESCRIPTOR (146 B) | `aecp.read_descriptor.t6.i1.c0.if0` | 137,026 | 2.741 | 10 | 24 | fits | 176,116 | 90 | 0.059 |
+| READ_DESCRIPTOR (102 B) | `aecp.read_descriptor.t9.i0.c0.if0` | 117,116 | 2.342 | 10 | 24 | fits | 156,206 | 73 | 0.054 |
+| READ_DESCRIPTOR (86 B) | `aecp.read_descriptor.t10.i2.c0.if0` | 115,598 | 2.312 | 10 | 24 | fits | 154,688 | 69 | 0.054 |
+| READ_DESCRIPTOR (72 B) | `aecp.read_descriptor.t12.i0.c0.if0` | 129,501 | 2.590 | 10 | 24 | fits | 168,588 | 72 | 0.062 |
+| READ_DESCRIPTOR (452 B) | `aecp.read_descriptor.t13.i0.c0.if0` | 155,306 | 3.106 | 10 | 24 | fits | 194,393 | 161 | 0.044 |
+| READ_DESCRIPTOR (20 B) | `aecp.read_descriptor.t14.i0.c0.if0` | 108,714 | 2.174 | 10 | 24 | fits | 147,801 | 53 | 0.057 |
+| READ_DESCRIPTOR (20 B) | `aecp.read_descriptor.t15.i0.c0.if0` | 124,132 | 2.483 | 10 | 24 | fits | 163,219 | 59 | 0.064 |
+| READ_DESCRIPTOR (90 B) | `aecp.read_descriptor.t20.i24.c0.if0` | 118,084 | 2.362 | 10 | 24 | fits | 157,171 | 70 | 0.053 |
+| READ_DESCRIPTOR (113 B) | `aecp.read_descriptor.t26.i0.c0.if0` | 120,451 | 2.409 | 10 | 24 | fits | 159,538 | 76 | 0.053 |
+| READ_DESCRIPTOR (82 B) | `aecp.read_descriptor.t36.i0.c0.if0` | 132,504 | 2.650 | 10 | 24 | fits | 171,591 | 74 | 0.061 |
+| get_configuration | `aecp.get_configuration.if0` | 105,166 | 2.103 | 10 | 24 | fits | 144,253 | 48 | 0.058 |
+| entity_available | `aecp.entity_available.if0` | 107,016 | 2.140 | 10 | 24 | fits | 146,106 | 52 | 0.057 |
+| get_name | `aecp.get_name.if0` | 113,048 | 2.261 | 10 | 24 | fits | 152,138 | 65 | 0.056 |
+| get_counters | `aecp.get_counters.if0` | 135,196 | 2.704 | 10 | 24 | fits | 174,286 | 92 | 0.063 |
+| get_avb_info | `aecp.get_avb_info.if0` | 108,099 | 2.162 | 10 | 24 | fits | 147,189 | 48 | 0.057 |
+| unknown_command | `aecp.unknown_command.if0` | 104,960 | 2.099 | 10 | 24 | fits | 144,050 | 48 | 0.057 |
+| MVU GET_MILAN_INFO | `aecp.mvu_get_milan_info.if0` | 86,655 | 1.733 | 10 | 24 | fits | 125,745 | 58 | 0.080 |
+| set_name | `aecp.set_name.if0` | 137,781 | 2.756 | 10 | 24 | fits | 207,048 | 128 | 0.056 |
+| lock_entity | `aecp.lock_entity.if0` | 113,304 | 2.266 | 10 | 24 | fits | 161,540 | 78 | 0.058 |
+| unlock_entity | `aecp.unlock_entity.if0` | 128,768 | 2.575 | 10 | 24 | fits | 176,982 | 84 | 0.065 |
+| LINK_UP | `fixture.link_up.if0` | 3,862 | 0.077 | 10 | 200 | fits | 162,069 | 88 (11) | 0.090 |
+| malformed MRPDU discard | `fixture.malformed.if0` | 59,080 | 1.182 | 10 | 18 | fits | 59,112 | 29 | 0.111 |
+| SET_NAME fan-out to one registered controller | `fixture.set_name.if0` | 149,434 | 2.989 | 10 | 24 | fits | 207,700 | 128 | 0.056 |
+| LINK_DOWN | `fixture.link_down.if0` | 3,242 | 0.065 | 10 | 200 | fits | 156,372 | 27 (9) | 0.082 |
+| BIND_RX | `fixture.bind_rx.if0` | 64,320 | 1.286 | 10 | 20 | fits | 129,543 | 89 (77) | 0.089 |
+| TMR_DELAY, or the first TMR_NO_RESP | `fixture.tmr_no_resp1.if0` | 55,777 | 1.116 | 10 | 20 | fits | 714,850 | 169 (35) | 0.036 |
+| ENTITY_DEPARTING from its RX_HEAD (H-DISC) | `fixture.entity_departing.if0` | 762,128 | 15.243 | 10 | 20 | MISS T_svc | 784,491 | 150 (29) | 0.032 |
+| ADP record released under the composed load, first | `fixture.service.adp.first.if0` | 295,466 | 5.909 | 10 | 200 | fits | 295,517 | 246 | 0.076 |
+| ADP record released under the composed load, last | `fixture.service.adp.last.if0` | 295,466 | 5.909 | 10 | 200 | fits | 295,517 | 246 | 0.076 |
+| ACMP record released under the composed load, first | `fixture.service.acmp.first.if0` | 295,331 | 5.907 | 10 | 20 | fits | 295,517 | 246 | 0.076 |
+| ACMP record released under the composed load, last | `fixture.service.acmp.last.if0` | 295,331 | 5.907 | 10 | 20 | fits | 295,517 | 246 | 0.076 |
+| AECP record released under the composed load, first | `fixture.service.aecp.first.if0` | 295,433 | 5.909 | 10 | 24 | fits | 295,517 | 246 | 0.076 |
+| AECP record released under the composed load, last | `fixture.service.aecp.last.if0` | 295,433 | 5.909 | 10 | 24 | fits | 295,517 | 246 | 0.076 |
+| MAAP record released under the composed load, first | `fixture.service.maap.first.if0` | 295,401 | 5.908 | 10 | 50 | fits | 295,517 | 246 | 0.076 |
+| MAAP record released under the composed load, last | `fixture.service.maap.last.if0` | 295,401 | 5.908 | 10 | 50 | fits | 295,517 | 246 | 0.076 |
+| SRP record released under the composed load, first | `fixture.service.srp.first.if0` | 295,368 | 5.907 | 10 | 18 | fits | 295,517 | 246 | 0.076 |
+| SRP record released under the composed load, last | `fixture.service.srp.last.if0` | 295,368 | 5.907 | 10 | 18 | fits | 295,517 | 246 | 0.076 |
+
+Bounded waits that timed out (the probe is graded on what the log holds):
+
+- `acmp-notk`: wait quiet TIMEOUT
+- `acmp-notk`: wait quiet TIMEOUT
+- `acmp-notk`: wait quiet TIMEOUT
+- `acmp-notk`: wait quiet TIMEOUT
+- `acmp-noresp`: wait quiet TIMEOUT
+- `acmp-noresp`: wait quiet TIMEOUT
+- `acmp-noresp`: wait quiet TIMEOUT
+- `acmp-noresp`: wait quiet TIMEOUT
+- `backlog-adp`: wait quiet TIMEOUT
+- `backlog-adp`: wait quiet TIMEOUT
+- `backlog-adp`: wait quiet TIMEOUT
+- `backlog-adp`: wait quiet TIMEOUT
+- `backlog-adp-refill`: wait quiet TIMEOUT
+- `backlog-adp-refill`: wait quiet TIMEOUT
+- `backlog-adp-refill`: wait quiet TIMEOUT
+- `backlog-adp-refill`: wait quiet TIMEOUT
+- `backlog-owed`: wait tx TIMEOUT
+- `acmp-disc`: wait quiet TIMEOUT
+- `acmp-disc`: wait quiet TIMEOUT
+- `acmp-disc`: wait quiet TIMEOUT
+- `acmp-disc`: wait quiet TIMEOUT
+- `acmp-disc`: wait quiet TIMEOUT
+- `acmp-disc`: wait quiet TIMEOUT
+- `acmp-disc`: wait quiet TIMEOUT
+- `acmp-cmd`: wait quiet TIMEOUT
+- `acmp-cmd`: wait quiet TIMEOUT
+- `acmp-cmd`: wait quiet TIMEOUT
+- `acmp-cmd`: wait quiet TIMEOUT
+- `acmp-cmd`: wait quiet TIMEOUT
+- `acmp-cmd`: wait quiet TIMEOUT
+- `acmp-cmd`: wait quiet TIMEOUT
+- `acmp-cmd`: wait quiet TIMEOUT
+- `fixture`: wait quiet TIMEOUT

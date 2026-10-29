@@ -1,0 +1,521 @@
+HEAD 5edbba1d333dbebfaca4bfc4ab85debdac1c7e55
+$ (cd .) python3 -B sw/firmware/ctrl/test/maap_differential.py --self-test
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+[==========] Running 12 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+  parent ANNOUNCE interval: 305071 cycles (10 cycles/ms)
+DIFF #686: conformed; core and parent initial+3 retransmissions, CDL 16, announce 30-32 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (53 ms)
+[ RUN      ] MaapDifferential.ProbeTimingAndCount
+  parent PROBE 1: 5497 cycles (10 cycles/ms)
+  parent PROBE 2: 5400 cycles (10 cycles/ms)
+  parent PROBE 3: 5530 cycles (10 cycles/ms)
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+DIFF #686: conformed; core 511..589 ms and parent 518..581 ms draws, both 4 PROBEs, the first at once
+[       OK ] MaapDifferential.ProbeTimingAndCount (2899 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (2 ms)
+[----------] 3 tests from MaapDifferential (2955 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (2 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (2 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (2 ms)
+[----------] 9 tests from AllStates/DifferentialCell (8 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 2 test suites ran. (2964 ms total)
+[  PASSED  ] 12 tests.
+== MAAP core and parent wire differential: checks: 12   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (12 tests, 0 failures, exit 0)
+[==========] Running 12 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+<work>/tmp/maap-diff-00kxo_gl/mutants/wire/ctrl/test/test_maap_differential.cpp:120: Failure
+Expected equality of these values:
+  s.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x1C' (28), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  input(k == 4 ? 3u : 1u, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+Annex B core wire
+
+  [FAIL] MaapDifferential.ProbeSequenceWireAndCadence: Annex B core wire
+<work>/tmp/maap-diff-00kxo_gl/mutants/wire/ctrl/test/test_maap_differential.cpp:121: Failure
+Expected equality of these values:
+  f.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  s.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x1C' (28), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+parent wire equals the core (B.2.1, #686)
+
+  [FAIL] MaapDifferential.ProbeSequenceWireAndCadence: parent wire equals the core (B.2.1, #686)
+<work>/tmp/maap-diff-00kxo_gl/mutants/wire/ctrl/test/test_maap_differential.cpp:120: Failure
+Expected equality of these values:
+  s.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x1C' (28), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  input(k == 4 ? 3u : 1u, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+Annex B core wire
+
+  [FAIL] MaapDifferential.ProbeSequenceWireAndCadence: Annex B core wire
+<work>/tmp/maap-diff-00kxo_gl/mutants/wire/ctrl/test/test_maap_differential.cpp:121: Failure
+Expected equality of these values:
+  f.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  s.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x1C' (28), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+parent wire equals the core (B.2.1, #686)
+
+  [FAIL] MaapDifferential.ProbeSequenceWireAndCadence: parent wire equals the core (B.2.1, #686)
+<work>/tmp/maap-diff-00kxo_gl/mutants/wire/ctrl/test/test_maap_differential.cpp:120: Failure
+Expected equality of these values:
+  s.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x1C' (28), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  input(k == 4 ? 3u : 1u, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+Annex B core wire
+
+  [FAIL] MaapDifferential.ProbeSequenceWireAndCadence: Annex B core wire
+<work>/tmp/maap-diff-00kxo_gl/mutants/wire/ctrl/test/test_maap_differential.cpp:121: Failure
+Expected equality of these values:
+  f.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  s.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x1C' (28), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+parent wire equals the core (B.2.1, #686)
+
+  [FAIL] MaapDifferential.ProbeSequenceWireAndCadence: parent wire equals the core (B.2.1, #686)
+<work>/tmp/maap-diff-00kxo_gl/mutants/wire/ctrl/test/test_maap_differential.cpp:120: Failure
+Expected equality of these values:
+  s.frames[k]
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x1C' (28), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+  input(k == 4 ? 3u : 1u, kMac)
+    Which is: { '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\xFF' (255), '\0', '\x2' (2), '\0', '\0', '\0', '\0', '\x80' (128), '"' (34, 0x22), '\xF0' (240), '\xFE' (254), '\x1' (1), '\b' (8), '\x10' (16), '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\x91' (145), '\xE0' (224), '\xF0' (240), '\0', '\x1' (1), '\0', ... }
+Annex B core wire
+
+... 328221 lines cut; see INDEX.md ...
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5490 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5172 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5172 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5550 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5550 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5210 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5210 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5501 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5501 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5520 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5520 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5340 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5340 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5520 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5520 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5260 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5260 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5270 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5270 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5299 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5299 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5580 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5580 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5450 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5450 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5318 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5318 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5200 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5200 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5580 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5580 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5637 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5637 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5490 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5490 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5790 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5790 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5616 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5616 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5570 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5570 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5600 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5600 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5315 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5315 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5340 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5340 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5780 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5780 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5294 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5294 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5380 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5380 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5640 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5640 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5613 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5613 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5330 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5330 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5350 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5350 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5632 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5632 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5810 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5810 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5470 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5470 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5221 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5221 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5520 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5520 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5470 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5470 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5240 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5240 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5410 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5410 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5220 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5220 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5559 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5559 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5810 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5810 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5450 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5450 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5538 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5538 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5650 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5650 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5310 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5310 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5237 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5237 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5410 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5410 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5540 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5540 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5216 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5216 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5540 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5540 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5770 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5770 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5535 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5535 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5310 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5310 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5730 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5730 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5554 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5554 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5720 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5720 vs 4991
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-bound/ctrl/test/test_maap_differential.cpp:184: Failure
+Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5250 vs 4991
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Expected: (cycles) <= (kParentProbeMaxMs * 10u + 1u), actual: 5250 vs 4991
+  parent PROBE intervals over 1024 MAC/phase pairs: 5172..5810 cycles
+DIFF #686: conformed; core 511..589 ms and parent 518..581 ms draws, both 4 PROBEs, the first at once
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount (2919 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (2 ms)
+[----------] 3 tests from MaapDifferential (2976 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (2 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (2 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (2 ms)
+[----------] 9 tests from AllStates/DifferentialCell (8 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 2 test suites ran. (2984 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant parent-probe-bound: MaapDifferential.ProbeTimingAndCount
+[==========] Running 12 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+  parent ANNOUNCE interval: 305071 cycles (10 cycles/ms)
+DIFF #686: conformed; core and parent initial+3 retransmissions, CDL 16, announce 30-32 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (53 ms)
+[ RUN      ] MaapDifferential.ProbeTimingAndCount
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-probe-count/ctrl/test/test_maap_differential.cpp:153: Failure
+Expected equality of these values:
+  f.frames.size()
+    Which is: 5
+  4u
+    Which is: 4
+Table B.7 parent four PROBEs then ANNOUNCE
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: Table B.7 parent four PROBEs then ANNOUNCE
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount (2 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (2 ms)
+[----------] 3 tests from MaapDifferential (59 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (2 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (2 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (2 ms)
+[----------] 9 tests from AllStates/DifferentialCell (8 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 2 test suites ran. (68 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant parent-probe-count: MaapDifferential.ProbeTimingAndCount
+[==========] Running 12 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 3 tests from MaapDifferential
+[ RUN      ] MaapDifferential.ProbeSequenceWireAndCadence
+  parent ANNOUNCE interval: 305571 cycles (10 cycles/ms)
+DIFF #686: conformed; core and parent initial+3 retransmissions, CDL 16, announce 30-32 s
+[       OK ] MaapDifferential.ProbeSequenceWireAndCadence (53 ms)
+[ RUN      ] MaapDifferential.ProbeTimingAndCount
+  parent PROBE 1: 5797 cycles (10 cycles/ms)
+  parent PROBE 2: 5620 cycles (10 cycles/ms)
+  parent PROBE 3: 5510 cycles (10 cycles/ms)
+  parent PROBE intervals over 1024 MAC/phase pairs: 5230..5801 cycles
+<work>/tmp/maap-diff-00kxo_gl/mutants/parent-ignores-mac/ctrl/test/test_maap_differential.cpp:191: Failure
+Expected: (parent_minimum) <= ((kParentProbeMinMs + 2u) * 10u), actual: 5230 vs 5200
+MAC/phase sampling reaches the parent's lowest draws
+
+  [FAIL] MaapDifferential.ProbeTimingAndCount: MAC/phase sampling reaches the parent's lowest draws
+DIFF #686: conformed; core 511..589 ms and parent 518..581 ms draws, both 4 PROBEs, the first at once
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount (2886 ms)
+[ RUN      ] MaapDifferential.ReleaseAndRetry
+[       OK ] MaapDifferential.ReleaseAndRetry (2 ms)
+[----------] 3 tests from MaapDifferential (2942 ms total)
+
+[----------] 9 tests from AllStates/DifferentialCell
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/0
+[       OK ] AllStates/DifferentialCell.SharedConflict/0 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/1
+[       OK ] AllStates/DifferentialCell.SharedConflict/1 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/2
+[       OK ] AllStates/DifferentialCell.SharedConflict/2 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/3
+DIFF state=1 input=1 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/3 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/4
+DIFF state=1 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/4 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/5
+DIFF state=1 input=3 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/5 (0 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/6
+DIFF state=2 input=1 core-conflicts=0 parent-conflicts=0
+[       OK ] AllStates/DifferentialCell.SharedConflict/6 (2 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/7
+DIFF state=2 input=2 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/7 (2 ms)
+[ RUN      ] AllStates/DifferentialCell.SharedConflict/8
+DIFF state=2 input=3 core-conflicts=1 parent-conflicts=1
+[       OK ] AllStates/DifferentialCell.SharedConflict/8 (2 ms)
+[----------] 9 tests from AllStates/DifferentialCell (8 ms total)
+
+[----------] Global test environment tear-down
+[==========] 12 tests from 2 test suites ran. (2950 ms total)
+[  PASSED  ] 11 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] MaapDifferential.ProbeTimingAndCount
+
+ 1 FAILED TEST
+== MAAP core and parent wire differential: checks: 12   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 12 checks, exit 1)
+[ok] differential mutant parent-ignores-mac: MaapDifferential.ProbeTimingAndCount
+differential mutants: 17/17 caught
+elapsed=160s
+tree: 0 changed path(s) after the gate
+rc=0
