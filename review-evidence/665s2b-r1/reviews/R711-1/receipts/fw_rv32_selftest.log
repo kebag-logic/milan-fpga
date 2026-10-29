@@ -1,0 +1,25 @@
+PASS: explicit absent compiler is refused without fallback
+PASS: freestanding headers, ILP32 types, ELF ABI and static frame with hostile sysroot
+PASS: caught hosted headers restored
+PASS: caught freestanding disabled
+PASS: caught RV64 object
+PASS: caught hard-float object
+PASS: caught compressed ISA object
+PASS: caught multiply ISA object
+PASS: accepted RV32IM object as the split hart's RV32IM
+PASS: caught RV32I object as the split hart's RV32IM
+PASS: caught multiply-only (Zmmul) object as the split hart's RV32IM
+PASS: caught compressed RV32IMC object as the split hart's RV32IM
+PASS: accepted an RV32IM 32-bit divide
+PASS: caught an RV32I 32-bit divide (calls __udivsi3)
+PASS: caught an RV32I multiply (calls __mulsi3)
+PASS: caught an RV32IM 64-bit divide (calls __udivdi3)
+PASS: caught malformed object and dynamic stack report
+PASS: ctrl rejects malloc
+PASS: ctrl rejects __unexpected_service
+PASS: ctrl rejects __unexpected_service despite a same-name static definition
+PASS: ctrl_nvm rejects malloc
+PASS: ctrl_nvm rejects __unexpected_service
+PASS: ctrl_nvm rejects __unexpected_service despite a same-name static definition
+PASS: ctrl_nvm rejects restored stack-protector dependency
+RV32 build self-test: 25 checks PASS
