@@ -23,7 +23,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
 - **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at 100 MHz and at 150 MHz.
 - **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at 100 MHz, and what a larger fetch L1 would save by the model.
-- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at 100 MHz, the refills per window, and what holds the 8x8 rows.
+- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at 100 MHz, the rows again at the approved T_svc = 20 ms, the refills per window, and what holds the 8x8 rows.
 
 ## 1. Memory map
 
@@ -773,7 +773,7 @@ Every figure here is at the 100 MHz CPU clock, measured with section 11's profil
 
 | Parameter | Value | Reason |
 |---|---|---|
-| Size | 16 KiB: 128 sets | The owner's decision; section 12's model put both 1x1 rows within T_svc at this size and ways |
+| Size | 16 KiB: 128 sets | The owner's decision; section 12's model put both 1x1 rows within the 10 ms T_svc then proposed at this size and ways |
 | Ways | 2, least recently used | The pinned generator replaces by its pseudo-LRU, which at two ways is exact LRU |
 | Line | 64 bytes | The generator's fixed line, as section 7 |
 | Refills | One at a time, no prefetch | The generator's default, as section 7 |
@@ -843,7 +843,8 @@ Moving the pin is the gitlink and `ctrl_arms.LWSRP_REV` together.
 
 ### The rows
 
-Each cell is the worst instance over the four groups in ms, arm A / arm B, bold where it misses T_svc (10 ms).
+Each cell is the worst instance over the four groups in ms, arm A / arm B, bold over its own bound at the approved budget ([3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)): min(T_svc = 20 ms, the family's ceiling), so 18 ms for the SRP rows and 20 ms for every other.
+These are the figures round 8 published, graded then against the 10 ms proposed.
 "Before" is section 12's "after"; "with the stack's change" adds section 12's TSN stack draft to it.
 "After" is this branch: the fetch L1, the primitives and the mover.
 "After, with both changes" adds the TSN stack draft and the lwSRP draft, staged.
@@ -854,8 +855,8 @@ Each cell is the worst instance over the four groups in ms, arm A / arm B, bold 
 | ACMP record, last | 6.62 / 6.76 | 6.06 / 6.37 | 5.66 / 5.43 | 5.09 / 5.02 | 4.41 / 4.55 |
 | ADP record, last | 4.94 / 5.06 | 4.27 / 4.50 | 4.02 / 3.88 | 3.77 / 3.56 | 3.22 / 3.24 |
 | MAAP record, last | 4.93 / 5.09 | 4.31 / 4.54 | 4.06 / 3.92 | 3.81 / 3.60 | 3.25 / 3.27 |
-| AECP record, last | **13.45** / **14.37** | **12.95** / **13.44** | **10.52** / **10.42** | 9.56 / 9.93 | 8.64 / 9.00 |
-| SRP record, last | **15.30** / **14.84** | **14.28** / **13.91** | **11.03** / **10.71** | **10.41** / 9.91 | 9.11 / 9.26 |
+| AECP record, last | 13.45 / 14.37 | 12.95 / 13.44 | 10.52 / 10.42 | 9.56 / 9.93 | 8.64 / 9.00 |
+| SRP record, last | 15.30 / 14.84 | 14.28 / 13.91 | 11.03 / 10.71 | 10.41 / 9.91 | 9.11 / 9.26 |
 | AECP record, last, in the owed window | **64.19** / **64.22** | **64.16** / **64.07** | **62.72** / **62.68** | **62.40** / **62.32** | **62.25** / **62.36** |
 | A response with 7 frames owed ahead of it | **62.90** / **62.94** | **62.90** / **62.88** | **61.92** / **61.89** | **61.70** / **61.64** | **61.60** / **61.68** |
 | An ACMP command behind the owed input | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
@@ -865,11 +866,11 @@ Each cell is the worst instance over the four groups in ms, arm A / arm B, bold 
 
 | 8x8/2if: row | before | with the stack's change | the fetch L1 alone | after | after, with both changes |
 |---|---:|---:|---:|---:|---:|
-| ACMP record, last | **10.69** / **10.70** | **10.51** / **10.59** | 9.10 / 9.10 | 8.51 / 8.94 | 8.62 / 8.28 |
+| ACMP record, last | 10.69 / 10.70 | 10.51 / 10.59 | 9.10 / 9.10 | 8.51 / 8.94 | 8.62 / 8.28 |
 | ADP record, last | 8.13 / 8.14 | 8.01 / 8.06 | 6.91 / 6.91 | 6.68 / 6.86 | 6.64 / 6.52 |
 | MAAP record, last | 8.12 / 8.13 | 8.00 / 8.04 | 6.89 / 6.89 | 6.66 / 6.84 | 6.63 / 6.50 |
-| AECP record, last | **19.26** / **19.73** | **19.11** / **20.39** | **15.88** / **16.16** | **14.92** / **15.89** | **14.47** / **15.22** |
-| SRP record, last | **21.76** / **21.07** | **21.30** / **20.86** | **16.89** / **16.64** | **16.30** / **16.39** | **15.81** / **15.19** |
+| AECP record, last | 19.26 / 19.73 | 19.11 / **20.39** | 15.88 / 16.16 | 14.92 / 15.89 | 14.47 / 15.22 |
+| SRP record, last | **21.76** / **21.07** | **21.30** / **20.86** | 16.89 / 16.64 | 16.30 / 16.39 | 15.81 / 15.19 |
 | AECP record, last, in the owed window | **66.52** / **66.64** | **66.68** / **66.74** | **65.13** / **65.15** | **64.66** / **64.79** | **64.79** / **64.68** |
 | A response with 7 frames owed ahead of it | **64.70** / **64.82** | **64.85** / **64.91** | **63.76** / **63.78** | **63.44** / **63.51** | **63.78** / **63.42** |
 | An ACMP command behind the owed input | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
@@ -878,13 +879,39 @@ Each cell is the worst instance over the four groups in ms, arm A / arm B, bold 
 | An event behind 15 others | 2.65 / 2.66 | 2.61 / 2.61 | 2.19 / 2.19 | 2.15 / 2.20 | 2.15 / 2.12 |
 
 The first records fit everywhere.
-At 1x1 this branch brings every row the CPU decides within T_svc but arm A's last SRP record, 10.41 ms; with both changes every one fits.
-At 8x8 the last ACMP record fits, and the last AECP and SRP records miss by 4.5 to 6.4 ms.
+After this branch's changes every row the CPU decides fits its bound, at both points, with the drafts staged or not: at 8x8 the last AECP record takes at most 15.89 ms against 20, and the last SRP record at most 16.39 ms against 18.
+Only the three rows the egress hold and `ACMP_OWED_MAX` decide miss ([What is left](#what-is-left)).
 
 Behaviour is unchanged apart from timing, group by group, by section 12's comparison:
 - this branch against the fetch L1 alone is identical in every part, at both points and arms;
 - the fetch L1 alone against section 12's head differs only in MAAP's clock-seeded addresses at 1x1, as section 12 found;
 - with both changes, the only other difference is the cross-channel SEQ of four transmit records in one 8x8 run, which follows the sends' timing; every egress frame is identical.
+
+### At the approved budget
+
+The owner approved T_svc = 20 ms on 2026-10-29 and kept 8x8 in the split's scope ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
+NFR-SCOUT-03 still requires every numeric normative timeout to hold with margin, so each path is graded against min(T_svc, its family's ceiling), and the CPU budget harness grades so (`grade.budget_ms`).
+Every composed row was measured again at the branch's head, at 100 MHz, at both points, in both arms, with the two drafts staged and without them, as above.
+Every group log and every linked image is byte-identical to the legs above: the firmware, the RTL and what the harness observes are unchanged, and only the grading moved.
+
+| Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|---:|
+| ACMP record, last | 20 | 5.09 / 5.02 | 4.41 / 4.55 | 8.51 / 8.94 | 8.62 / 8.28 |
+| ADP record, last | 20 | 3.77 / 3.56 | 3.22 / 3.24 | 6.68 / 6.86 | 6.64 / 6.52 |
+| MAAP record, last | 20 | 3.81 / 3.60 | 3.25 / 3.27 | 6.66 / 6.84 | 6.63 / 6.50 |
+| AECP record, last | 20 | 9.56 / 9.93 | 8.64 / 9.00 | 14.92 / 15.89 | 14.47 / 15.22 |
+| SRP record, last | 18 | 10.41 / 9.91 | 9.11 / 9.26 | 16.30 / 16.39 | 15.81 / 15.19 |
+| An ACMP command behind a full ACMP ring | 20 | 3.91 / 3.69 | 3.44 / 3.44 | 7.87 / 8.29 | 7.98 / 7.63 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 20 | 2.88 / 2.72 | 2.46 / 2.48 | 4.23 / 4.32 | 4.24 / 4.38 |
+| An event behind 15 others | 20 | 1.22 / 1.17 | 1.10 / 1.10 | 2.15 / 2.20 | 2.15 / 2.12 |
+| AECP record, last, in the owed window | 20 | **62.40** / **62.32** | **62.25** / **62.36** | **64.66** / **64.79** | **64.79** / **64.68** |
+| A response with 7 frames owed ahead of it | 20 | **61.70** / **61.64** | **61.60** / **61.68** | **63.44** / **63.51** | **63.78** / **63.42** |
+| An ACMP command behind the owed input | 20 | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
+
+Every row the CPU decides fits, at both points, in both arms, with the drafts staged or not.
+The tightest is the 8x8 last SRP record: 1.61 ms under its 18 ms bound without the drafts, and 2.19 ms with them.
+The 8x8 last AECP record keeps 4.11 ms without them and 4.78 ms with them.
+The three bold rows are the egress's, at every clock and with every lever: the 60 ms egress hold sets the owed window's AECP record and the response with 7 frames owed ahead of it, and `ACMP_OWED_MAX` drops the command behind the owed input.
 
 ### Instruction refills per window
 
@@ -906,7 +933,7 @@ Section 12's model had predicted the refill count well, but not the rows: measur
 
 ### What holds the 8x8 rows
 
-With both changes, each 8x8 window over T_svc (13.2 to 15.8 ms) runs 266,000 to 311,000 instructions.
+With both changes, each 8x8 window whose last AECP or SRP record took 13.2 to 15.8 ms runs 266,000 to 311,000 instructions.
 It waits on instruction refills for 3.0 to 4.0 ms and has a data-cache refill outstanding for 2.5 to 3.7 ms.
 By module family it is spread: lwSRP 2.4 to 3.5 ms, ACMP's core 2.3 to 2.6, the memory primitives 2.0 to 2.5, AECP 1.1 to 2.0, the SRP adapter 1.4 to 2.0, the mailbox driver 1.3 to 1.7.
 No single function holds 1.3 ms.
@@ -914,8 +941,9 @@ The levers this page has named are taken; what is left is the work itself at the
 
 ### What is left
 
-- At 8x8 the last AECP and SRP records still miss T_svc at 100 MHz, 14.47 to 16.39 ms, with the donors staged or not.
-  Whether the Mark II split covers 8x8 at all is the owner's question ([#665](https://github.com/kebag-logic/milan-fpga/issues/665)).
-- At 1x1 arm A's last SRP record misses by 0.41 ms without the two drafts; with them every row the CPU decides fits.
+- The owner kept 8x8 in the Mark II split's scope and approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
+  At the approved budget every row the CPU decides fits at both points; the least margin is the 8x8 last SRP record's, 1.61 ms without the drafts.
+- At 1x1 every such row keeps at least 7.59 ms: the last SRP record takes 10.41 ms against 18.
 - The TSN stack's and lwSRP's changes reach this branch only through those repositories' reviews, then a pin move: the TSN stack's with the hot list's runtime entry removed, lwSRP's with `ctrl_arms.LWSRP_REV`.
-- The three rows no CPU lever moves are unchanged: the 60 ms egress hold, `ACMP_OWED_MAX`, and the command behind the owed input.
+- The three rows no CPU lever moves are unchanged: the 60 ms egress hold, `ACMP_OWED_MAX`, and the command behind the owed input. They stay with [tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26).
+- The block-RAM ledger, 124 against 121.5 ([the area plan](MARK_II_AREA_PLAN.md)), is commissioned separately.
