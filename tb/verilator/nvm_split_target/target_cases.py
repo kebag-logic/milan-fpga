@@ -196,7 +196,8 @@ def shape_bench(shape: str, work: Path) -> tuple[object, int, int]:
 
 def payload_lengths(bench: object) -> tuple[int, ...]:
     """Each record's payload length, the shape's records in ascending id: the order a capture walks them."""
-    return tuple(plen for _key, plen in sorted(bench.expect.items(), key=lambda kv: rid_of_key(kv[0], bench.donor.base)))
+    ordered = sorted(bench.expect.items(), key=lambda kv: rid_of_key(kv[0], bench.donor.base))
+    return tuple(plen for _key, plen in ordered)
 
 
 def frames_of(applied: dict[Key, bytes], expect: dict[Key, int], donor: object) -> dict[int, bytes]:

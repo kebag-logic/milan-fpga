@@ -291,7 +291,8 @@ def guarded(obs: Observed) -> list[str]:
     calls = [rest[2] for kind, *rest in obs.log.traced if kind == 'CALL' and (first is None or int(rest[1]) < first)]
     erases, programs = calls.count('nvm_flash_litespi:ls_erase'), calls.count('nvm_flash_litespi:ls_program')
     found = []
-    if (erases, programs) != (GUARD_CALLS['erase_outside'] + GUARD_CALLS['erase_inside'], GUARD_CALLS['program_outside']):
+    want = (GUARD_CALLS['erase_outside'] + GUARD_CALLS['erase_inside'], GUARD_CALLS['program_outside'])
+    if (erases, programs) != want:
         found.append(f'the probe reached the port with {erases} erases and {programs} programs')
     if obs.flash_ops != [0xD8] or obs.flash.get('erases') != 1 or obs.flash.get('programs') != 0:
         found.append(f'the device saw {obs.flash_ops} ({obs.flash}), not the one erase inside the journal')
@@ -341,7 +342,8 @@ def grade_case(case: object, obs: Observed, ctx: Context, bench: object) -> dict
     else:
         restores = case.journal in ('saved', 'torn')
         seen, order = apply_order(obs, ctx.applies if restores else [])
-        result.update(applies=len(seen), boot_cycles=next((s.cycles for s in obs.spans if s.name == 'nvm_store_boot'), 0))
+        boot = next((s.cycles for s in obs.spans if s.name == 'nvm_store_boot'), 0)
+        result.update(applies=len(seen), boot_cycles=boot)
         result['findings'] += order + unwritten(obs, ctx)
         result['findings'] += held_to(obs, SAVED_NAME if restores else None, scenario.TALKER_A if restores else 0)
     result['passed'] = not result['findings']

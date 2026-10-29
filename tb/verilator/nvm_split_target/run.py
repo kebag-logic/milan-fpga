@@ -143,8 +143,8 @@ def table(results: list[dict], point: str) -> str:
                       f"{c['ms']:.3f} ms against {c['bound_ms']} ms; longest step {c['longest_cycles']:,} cycles.", '',
                       '| Phase | Steps | Longest step, CPU cycles | Longest, ms | Total, CPU cycles |',
                       '|---|---:|---:|---:|---:|']
-            lines += [f"| {p} | {row['steps']} | {row['longest_cycles']:,} | {row['longest_ms']:.3f} | {row['cycles']:,} |"
-                      for p, row in sorted(r['phases'].items())]
+            lines += [f"| {p} | {row['steps']} | {row['longest_cycles']:,} | {row['longest_ms']:.3f} | "
+                      f"{row['cycles']:,} |" for p, row in sorted(r['phases'].items())]
     return '\n'.join(lines) + '\n'
 
 

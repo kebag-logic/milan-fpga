@@ -425,6 +425,7 @@ def planted(edit: Callable[[dict], None]) -> dict:
 def _set(path: tuple[str, ...], value: object) -> Callable[[dict], None]:
     """An edit that sets one nested key."""
     def apply(spec: dict) -> None:
+        """Set the key in spec."""
         node = spec
         for key in path[:-1]:
             node = node[key]
@@ -435,6 +436,7 @@ def _set(path: tuple[str, ...], value: object) -> Callable[[dict], None]:
 def _drop(path: tuple[str, ...]) -> Callable[[dict], None]:
     """An edit that removes one nested key."""
     def apply(spec: dict) -> None:
+        """Remove the key from spec."""
         node = spec
         for key in path[:-1]:
             node = node[key]
