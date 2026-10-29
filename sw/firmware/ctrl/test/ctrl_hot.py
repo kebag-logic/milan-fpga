@@ -72,6 +72,7 @@ def linked(link_map: str) -> set[Entry]:
 
 
 def entry(e: Entry) -> str:
+    """An entry as the script spells it."""
     return f"*{e[0]}.o(.text.{e[1]})" if ":" in e[0] else f"*-{e[0]}.o(.text.{e[1]})"
 
 
@@ -97,10 +98,12 @@ def findings(script: str, order: str, link_map: str | None = None) -> list[str]:
 def written_map(entries: list[Entry], discarded: list[Entry] = ()) -> str:
     """A link map in the toolchain's layout holding these entries' sections, and these discarded ones."""
     def path(n: int, stem: str) -> str:
+        """The object a section came from, as the toolchain names it in the map."""
         archive, _, member = stem.partition(":")
         return f"/scratch/{archive}({member}.o)" if member else f"/scratch/{n}-{stem}.o"
 
     def rows(chosen: list[Entry], base: int) -> str:
+        """One input section a line, from base, as the map lays it out."""
         return "".join(f" .text.{name}\n                0x{base + 16 * n:08x}       0x10 {path(n, stem)}\n"
                        for n, (stem, name) in enumerate(chosen))
     return ("Discarded input sections\n\n" + rows(list(discarded), 0) + "\nMemory Configuration\n\n"
@@ -145,6 +148,7 @@ def self_test(script: str, order: str) -> int:
 
 
 def main() -> int:
+    """--check or --self-test on the tree's script and order."""
     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--check", action="store_true")

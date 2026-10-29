@@ -116,9 +116,11 @@ def link(cc: str, src: Path, out: Path, objects: list[Path], libraries: list[Pat
     return elf,mapfile
 
 
-def hot_list(src: Path, mapfile: Path) -> None:
-    """The split script's hot list is the recorded order and each entry a section of this image (ctrl_hot.py,
-    #665); a tree from before the list has neither file's part and is not checked."""
+def hot_list(src: Path, mapfile: Path, layout: str) -> None:
+    """A split image's hot list is the recorded order and each entry a section of the image (ctrl_hot.py, #665);
+    a tree from before the list has neither file's part and is not checked."""
+    if layout != "split":
+        return
     script=(src/"plat/ctrl_split.ld").read_text(); order=src/"plat/ctrl_split_hot.txt"
     if not order.is_file() and ctrl_hot.START not in script:
         return
@@ -191,9 +193,7 @@ def main() -> int:
             if src.name == "ctrl_mem.c" and checked([nm,"-u",str(obj)]).strip():
                 raise Refusal(f"{obj.name} references a symbol: the platform's memory primitives call nothing")
         elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
-        verify_abi(cc,elf,isa)
-        if args.layout == "split":
-            hot_list(tree.src,mapfile)
+        verify_abi(cc,elf,isa); hot_list(tree.src,mapfile,args.layout)
         symbols=checked([nm,"-S",str(elf)])
         if checked([nm,"-u",str(elf)]).strip():
             raise Refusal("linked runtime has unresolved symbols")

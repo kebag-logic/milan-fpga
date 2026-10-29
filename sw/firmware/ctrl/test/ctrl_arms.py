@@ -498,8 +498,9 @@ def arm_hot() -> Outcome:
     test = run([sys.executable, "-I", "-B", str(HOT), "--self-test"])
     caught = set(re.findall(r"^\[caught\] ([\w-]+):", test.stdout, re.M))
     missing = sorted(HOT_PLANTS - caught)
+    lines = (test.stdout + test.stderr).splitlines()
     log = (f"  {HOT.name} --check: {(check.stdout + check.stderr).strip()}\n"
-           f"  {HOT.name} --self-test:\n" + "".join(f"    {line}\n" for line in (test.stdout + test.stderr).splitlines())
+           f"  {HOT.name} --self-test:\n" + "".join(f"    {line}\n" for line in lines)
            + f"  named plants not caught: {', '.join(missing) or 'none'}")
     return Outcome("hot", 1 if check.returncode or test.returncode or missing else 0, log)
 
