@@ -4,6 +4,9 @@
 
 The image is ctrl_srp_image.py --with-aecp --layout split, unmodified, on
 the runtime ctrl_image_runtime.py builds (through runtime_ssp.py, #723).
+Its saved-state flash port is compiled against the split SoC's own map
+(flash_map(): gen_flash_port.py over the csr.csv milan_soc.py exports for the
+shape, #665), and the test SoC places the flash and timer0 there.
 Every input of the native model and of its run is hashed into build.json:
 the checkout's sources, the firmware source trees the image is compiled
 from, the image, its runtime archives and the ROM files the model reads at
@@ -13,12 +16,15 @@ recorded under a key that does not resolve (reused()).
 """
 from __future__ import annotations
 
+import contextlib
 import dataclasses
 import hashlib
+import io
 import json
 import os
 import re
 import shlex
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -100,7 +106,32 @@ VARIANTS = {
 }
 
 
-def variant_fixture(out: Path, variant: str) -> Path:
+@dataclasses.dataclass(frozen=True)
+class Plant:
+    """A planted firmware defect that a client of this harness builds and grades itself (#665,
+    nvm_split_target): its name, its source file under sw/firmware (ctrl/... or ctrl_nvm/...), an
+    anchor unique in that file and what replaces it. MUTATIONS' controls are run.py's own."""
+    name: str
+    path: str
+    anchor: str
+    replacement: str
+
+
+@dataclasses.dataclass(frozen=True)
+class Variant:
+    """A labelled test-code arm that a client of this harness builds and grades itself: its name and
+    its edits of the size fixture, ctrl_aecp_image.c, each (unique anchor, replacement). VARIANTS'
+    arms are run.py's own."""
+    name: str
+    edits: tuple[tuple[str, str], ...]
+
+
+def label(selection: str | Plant | Variant) -> str:
+    """A selection's name, as build.json records it."""
+    return selection if isinstance(selection, str) else selection.name
+
+
+def variant_fixture(out: Path, variant: str | Variant) -> Path:
     """A scratch copy of the fixture's test directory files with the variant's edits."""
     test = ROOT / 'sw/firmware/ctrl/test'
     scratch = out / 'fixture-variant'
@@ -110,26 +141,35 @@ def variant_fixture(out: Path, variant: str) -> Path:
     path = scratch / 'ctrl_aecp_image.c'
     source = path.read_text()
     import scenario
-    for anchor, replacement in VARIANTS[variant]:
+    for anchor, replacement in (variant.edits if isinstance(variant, Variant) else VARIANTS[variant]):
         if source.count(anchor) != 1:
-            raise RuntimeError(f'variant {variant}: an anchor is not unique in ctrl_aecp_image.c: {anchor!r}')
+            raise RuntimeError(f'variant {label(variant)}: an anchor is not unique in ctrl_aecp_image.c: {anchor!r}')
         source = source.replace(anchor, replacement.replace('SHUTDOWN_MS', f'{scenario.SHUTDOWN_MS}u'))
     path.write_text(source)
     return scratch
 
 
-def mutated_source(out: Path, mutation: str) -> Path:
-    """A scratch copy of the control firmware with one planted defect, never the tree."""
-    import shutil
-    path, anchor, replacement, _, _ = MUTATIONS[mutation]
-    tree = out / 'ctrl-mutant'
+#: The image's source option for each firmware tree a planted defect can be in.
+PLANT_TREES = {'ctrl': '--ctrl-source', 'ctrl_nvm': '--nvm-source'}
+
+
+def mutated_source(out: Path, mutation: str | Plant) -> list[str]:
+    """The image's source option for a scratch copy of the planted defect's firmware tree, never
+    the tree: the control firmware for MUTATIONS, or the tree a Plant names."""
+    if isinstance(mutation, str):
+        path, anchor, replacement, _, _ = MUTATIONS[mutation]
+        mutation = Plant(mutation, f'ctrl/{path}', anchor, replacement)
+    tree_name, _, path = mutation.path.partition('/')
+    if tree_name not in PLANT_TREES:
+        raise RuntimeError(f'mutation {mutation.name}: {mutation.path} is in no firmware tree the image takes')
+    tree = out / f'{tree_name}-mutant'
     shutil.rmtree(tree, ignore_errors=True)
-    shutil.copytree(ROOT / 'sw/firmware/ctrl', tree, ignore=shutil.ignore_patterns('__pycache__'))
+    shutil.copytree(ROOT / 'sw/firmware' / tree_name, tree, ignore=shutil.ignore_patterns('__pycache__'))
     source = (tree / path).read_text()
-    if source.count(anchor) != 1:
-        raise RuntimeError(f'mutation {mutation}: its anchor is not unique in {path}')
-    (tree / path).write_text(source.replace(anchor, replacement))
-    return tree
+    if source.count(mutation.anchor) != 1:
+        raise RuntimeError(f'mutation {mutation.name}: its anchor is not unique in {path}')
+    (tree / path).write_text(source.replace(mutation.anchor, mutation.replacement))
+    return [PLANT_TREES[tree_name], str(tree)]
 
 
 #: The one point the planner's ledger lets plan past the 56-RAMB36 budget (ctrl_memory.LEDGERED),
@@ -144,19 +184,22 @@ def ledgered_point(shape: str, n_if: int) -> str | None:
     return LEDGERED_POINTS.get((shape, n_if))
 
 
-def firmware(out: Path, shape: str, n_if: int, mutation: str = 'none', variant: str = 'none') -> Path:
+def firmware(out: Path, shape: str, n_if: int, mutation: str | Plant = 'none', variant: str | Variant = 'none',
+             flash_map: Path | None = None) -> Path:
     """The runtime archives, then the linked split image (a planted copy for a control,
-    or the labelled variant arm), planned as the ledgered point at that point only."""
+    or the labelled variant arm), planned as the ledgered point at that point only, its flash
+    port on flash_map (gen_flash_port.py's) or, without one, on the RV32 stand-ins."""
     import pythondata_software_picolibc as picolibc
     import pythondata_software_compiler_rt as compiler_rt
     import litex
+    out.mkdir(parents=True, exist_ok=True)
     runtime = out / 'runtime'
     run([sys.executable, '-B', str(HERE / 'runtime_ssp.py'), '--picolibc', picolibc.data_location,
          '--compiler-rt', compiler_rt.data_location,
          '--litex-software', str(Path(litex.__file__).parent / 'soc/software'),
          '--output', str(runtime)], out / 'runtime.log', cwd=ROOT)
     image = out / 'image'
-    source = [] if mutation == 'none' else ['--ctrl-source', str(mutated_source(out, mutation))]
+    source = [] if mutation == 'none' else mutated_source(out, mutation)
     entry = [str(ROOT / 'sw/firmware/ctrl/test/ctrl_srp_image.py')]
     if variant != 'none':
         entry = [str(HERE / 'fixture_variant.py'), str(variant_fixture(out, variant))]
@@ -165,9 +208,51 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str = 'none', variant: 
          '--config', str(ROOT / 'configs' / (shape + '.yaml')), '--interfaces', str(n_if),
          '--with-aecp', '--layout', 'split', '--output', str(image), *source,
          *([] if ledgered is None else ['--ledgered-point', ledgered]),
+         *([] if flash_map is None else ['--flash-map', str(flash_map)]),
          '--libc', str(runtime / 'libc.a'), '--compiler-runtime', str(runtime / 'libcompiler_rt.a')],
         out / 'image.log', cwd=ROOT)
     return image / 'ctrl_app.elf'
+
+
+def soc_export(out: Path, shape: str, elf: Path) -> Path:
+    """The split SoC as milan_soc.py exports it for the shape's config with this image
+    (--ctrl-mailbox --ctrl-firmware, no software, as test_ctrl_memory.py drives it): the directory
+    holding its csr.csv and LiteX's csr.h. The end-station builder writes the config's outputs
+    where milan_soc.py reads them, its own ignored directories."""
+    sys.path.insert(0, str(ROOT / 'sw/builder'))
+    import endstation_builder as eb
+    config = ROOT / 'configs' / (shape + '.yaml')
+    with contextlib.redirect_stdout(io.StringIO()):
+        eb.build(str(config))
+    argv = [*eb.emit_soc_argv(eb.load_config(str(config))), '--entity-gen-dir', str(ROOT / eb.GEN_CONFIG_DIR / shape)]
+    soc = out / 'soc'
+    run([sys.executable, '-B', str(ROOT / 'sw/litex/milan_soc.py'), *argv, '--ctrl-mailbox', '--ctrl-firmware',
+         str(elf), '--no-compile-software', '--output-dir', str(soc)], out / 'soc.log', cwd=ROOT / 'sw/litex')
+    return soc
+
+
+def port_map(soc: Path, out: Path) -> dict:
+    """gen_flash_port.py over one export into out; its map without the digests of the files it read."""
+    run([sys.executable, '-B', str(ROOT / 'sw/firmware/ctrl_nvm/plat/gen_flash_port.py'),
+         '--csr-csv', str(soc / 'csr.csv'), '--csr-h', str(soc / 'software/include/generated/csr.h'),
+         '--out', str(out)], out.with_suffix('.log'))
+    return {k: v for k, v in json.loads((out / 'flash_port.json').read_text()).items() if k != 'source'}
+
+
+def flash_map(generated: Path, shape: str) -> Path:
+    """The flash port's map in generated, from the split SoC's csr.csv (#665): the SoC exported with
+    the shape's one-interface image on the RV32 stand-ins (the product SoC build plans no
+    ledgered point, so no two-interface image), then again with that image linked against the
+    map. The two maps must be the same, or the CSR map would depend on the image."""
+    work = generated.parent
+    first = firmware(work / 'stand-ins', shape, 1)
+    mapped = port_map(soc_export(work / 'stand-ins', shape, first), generated)
+    again = port_map(soc_export(work / 'mapped', shape, firmware(work / 'mapped', shape, 1, flash_map=generated)),
+                     work / 'flash-map-again')
+    if again != mapped:
+        raise RuntimeError(f'the split SoC exports another flash map with the image linked against it: '
+                           f'{mapped} then {again}')
+    return generated
 
 
 #: The labelled hybrid-XIP arm (#665, decision D3): the anchor in plat/ctrl_split.ld that
@@ -379,6 +464,48 @@ def fetch_bus(spec: dict) -> tuple[list[tuple[str, str, str, str]], int]:
 
 #: Functions whose entry the testbench reports (ENTRY lines): a probe's entry:<symbol> start.
 ENTRY_SYMBOLS = ('adp_mbx_set_enable',)
+#: Functions whose every call the testbench reports as a SPAN line, from the commit of its entry to
+#: the commit of its return address: the saved-state store's boot and its service step (#665).
+SPAN_SYMBOLS = ('nvm_store_boot', 'nvm_store_service')
+#: Functions whose every entry the testbench reports as a CALL line, global symbols or a (module,
+#: static function) pair: the state port's owners as the boot walks apply and the write path
+#: latches, and the flash port's calls (#665).
+CALL_SYMBOLS = ('acmp_restore_binding', 'acmp_restore_rollback', 'aecp_value_restore', 'aecp_map_restore',
+                'aecp_restore_settle', 'aecp_restore_defaults', 'acmp_binding_latch', 'aecp_value_latch',
+                'nvm_crc32_update', ('acmp_nvm', 'latch'), ('aecp_nvm', 'latch'), ('nvm_flash_litespi', 'ls_read'),
+                ('nvm_flash_litespi', 'ls_program'), ('nvm_flash_litespi', 'ls_erase'),
+                ('nvm_flash_litespi', 'ls_busy'))
+
+
+def traced(table: dict[str, int], elf: Path, names: tuple, modules: tuple[list[str], list]) -> list[tuple]:
+    """Each traced function's (label, entry pc): a global by its symbol, a static function by the one
+    function of that name the link map places in that module."""
+    functions = json.loads((elf.parent / 'functions.json').read_text())
+    labels, spans = modules
+    found = []
+    for name in names:
+        if isinstance(name, str):
+            found.append((name, table[name]))
+            continue
+        module, function = name
+        hits = [addr for fname, addr, _size in functions if fname == function
+                and any(a <= addr < e and labels[m] == module for a, e, m in spans)]
+        if len(hits) != 1:
+            raise RuntimeError(f'{module}:{function} is not one function of that module: {hits}')
+        found.append((f'{module}:{function}', hits[0]))
+    return found
+
+
+def trace_lines(table: dict[str, int], elf: Path, modules: tuple[list[str], list]) -> list[str]:
+    """The testbench's SPAN and CALL tables: each traced function's entry pc and label."""
+    lines = []
+    for kind, names in (('span', SPAN_SYMBOLS), ('call', CALL_SYMBOLS)):
+        rows = traced(table, elf, names, modules)
+        lines += [f'constexpr unsigned n_{kind}s = {len(rows)};',
+                  f'inline constexpr std::uint32_t {kind}_pc[n_{kind}s] = {{'
+                  + ', '.join(f'0x{pc:x}u' for _, pc in rows) + '};',
+                  f'inline const char* const {kind}_name[n_{kind}s] = {{' + ', '.join(f'"{n}"' for n, _ in rows) + '};']
+    return lines
 
 
 def cpu_region(spec: dict, origin: int) -> list:
@@ -414,6 +541,10 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
               + ', '.join(f'0x{table[name]:x}u' for name in ENTRY_SYMBOLS) + '};',
               'inline const char* const entry_name[n_entries] = {'
               + ', '.join(f'"{name}"' for name in ENTRY_SYMBOLS) + '};']
+    lines += trace_lines(table, Path(spec['elf']), modules)
+    journal = json.loads((Path(spec['flash_map']) / 'flash_port.json').read_text())['journal']
+    lines += [f"constexpr std::uint32_t journal_offset = 0x{journal['offset']:x}u;",
+              f"constexpr std::uint32_t journal_size = 0x{journal['size']:x}u;"]
     lines += [f"constexpr std::uint32_t pass_pc = 0x{table['ctrl_loop_service']:x}u;",
               f"constexpr unsigned filter_en_word = 0x{spec['filter_en'] // 4:x}u;",
               f"constexpr unsigned tmr_cmd_word = 0x{spec['tmr_cmd'] // 4:x}u;",
@@ -525,10 +656,16 @@ def digest(paths: list[Path], build_dir: Path) -> dict[str, str]:
     return {input_key(path, build_dir): hashlib.sha256(path.read_bytes()).hexdigest() for path in paths}
 
 
+#: The flash port's map under the build's map directory: the two headers the image's port is
+#: compiled against and the map the test SoC placed its devices from.
+FLASH_MAP_FILES = ('generated/csr.h', 'generated/mem.h', 'flash_port.json')
+
+
 def run_inputs(build_dir: Path, spec: dict) -> list[Path]:
     """Every file the native model is built from or reads when it runs."""
     gateware = build_dir / 'gateware'
     return [Path(spec['elf']), *([Path(spec['flash_image'])] if spec.get('flash_image') else []),
+            *[Path(spec['flash_map']) / name for name in FLASH_MAP_FILES],
             *sorted((build_dir / 'runtime').glob('*.a')), *sorted(gateware.glob('*.init')),
             build_dir / 'budget_config.hpp', HERE / 'sim_main.cpp', HERE / 'observe.vlt', SIBLING / 'flash.hpp',
             *[Path(s) for s in spec['sources']]]
@@ -552,14 +689,16 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     """The whole build at one point; returns build.json's contents."""
     import split_soc
     build_dir.mkdir(parents=True, exist_ok=True)
-    elf = firmware(build_dir, shape, n_if, mutation, variant)
+    flash = flash_map(build_dir / split_soc.FLASH_MAP, shape)
+    elf = firmware(build_dir, shape, n_if, mutation, variant, flash)
     rom_elf, flash_image = elf, None
     if core.xip:
-        elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses()['flash'])
+        elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses(flash)['flash'])
     table = symbols(elf)
     with split_soc.ledgered_plan(ledgered_point(shape, n_if)):
         spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
     spec['elf'] = str(elf)
+    spec['flash_map'] = str(flash)
     spec['xip'] = core.xip
     spec['flash_image'] = str(flash_image) if flash_image else None
     sys.path.insert(0, str(ROOT / 'sw/mailbox'))
@@ -574,8 +713,8 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     spec['inputs']['tree:firmware'] = tree_digest([ROOT / t for t in FIRMWARE_TREES])
     spec['inputs']['tree:config'] = tree_digest([ROOT / 'configs' / (shape + '.yaml')])
     spec['symbols'] = {name: table[name] for name in ('ctrl_loop_service', 'main', *ENTRY_SYMBOLS)}
-    spec['mutation'] = mutation
-    spec['variant'] = variant
+    spec['mutation'] = label(mutation)
+    spec['variant'] = label(variant)
     spec['executable_sha256'] = hashlib.sha256((build_dir / 'native/Vsim').read_bytes()).hexdigest()
     (build_dir / 'build.json').write_text(json.dumps(spec, indent=2) + '\n')
     return spec
