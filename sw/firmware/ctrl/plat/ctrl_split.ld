@@ -17,8 +17,8 @@ SECTIONS
 		KEEP(*(.text.start))
 		/* The service loop's hot code (#665, NFR-SCOUT-01): each function a
 		 * service pass runs in the composed backlog windows, in the order a
-		 * pass first runs it, ahead of the rest. A pass runs some 46 KB of
-		 * code through the 4 KiB direct-mapped fetch L1; in its own order,
+		 * pass first runs it, ahead of the rest. The passes run some 46 KB of
+		 * code through the 4 KiB direct-mapped fetch L1; in their own order,
 		 * the functions a pass runs one after another take consecutive cache
 		 * sets, so it refills fewer lines (docs/design/SPLIT_CONTROL_MEMORY.md
 		 * section 11). Objects are <index>-<stem>.o (ctrl_srp_image.py). A

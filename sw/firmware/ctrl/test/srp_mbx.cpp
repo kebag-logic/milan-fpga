@@ -1320,7 +1320,10 @@ TEST_F(Srp, MilanMsrpOptionLeavesMvrpOnTheOriginalLeaveDeadline) {
 // changed what the walk copies, and otherwise holds what a walk would copy. A
 // walk of the registrar here, with registrations()'s rules, is the reference.
 struct Walked {
-    std::vector<int> registered, present, desired, kinds;
+    std::vector<int> registered;
+    std::vector<int> present;
+    std::vector<int> desired;
+    std::vector<int> kinds;
     bool operator==(const Walked &) const = default;
 };
 Walked walk(const srp_interface &i) {
@@ -1366,7 +1369,9 @@ void expect_held(const srp_mbx &adapter, const char *step) {
 TEST_F(Srp, HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep) {
     settle(); expect_held(adapter,"startup");
     const msrp_stream_id sid{{2,1,2,3,4,5,6,7}};
-    const uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+    const uint8_t da[]={
+        0x91,0xe0,0xf0,0,0,9
+    };
     ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&sid,da,2)); settle(); expect_held(adapter,"bind");
     EXPECT_CALL(licence,Change(0,0,true));
     offer(frame(3,identity(),1,2)); expect_held(adapter,"Listener Ready");

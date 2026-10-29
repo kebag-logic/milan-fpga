@@ -897,7 +897,8 @@ DEFECTS = (
     # #665: snapshot walks the registrar only after a change it copies, and poll
     # reclaims only after a change that can leave a freeable attribute.
     Defect('binding-change-not-copied','HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep',
-           '    *s = replacement;\n    i->stale = true; // snapshot matches registrations against the bindings (#665)\n',
+           '    *s = replacement;\n'
+           '    i->stale = true; // snapshot matches registrations against the bindings (#665)\n',
            '    *s = replacement;\n',
            'holds what a walk copies'),
     Defect('snapshot-walks-once','HeldRegistrationsAreWhatAWalkCopiesAfterEveryStep',
