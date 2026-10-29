@@ -1,0 +1,39 @@
+$ (cd .) python3 sw/firmware/ctrl_nvm/plat/gen_flash_port.py --self-test
+PASS the passing export passes every rule ([])
+PASS eight-bit CSR data width is refused by rule 'data width', and by no other (['data width'])
+PASS the master's status register missing is refused by rule 'registers', and by no other (['registers'])
+PASS the master's chip select listed twice is refused by rule 'registers', and by no other (['registers'])
+PASS timer0's value register two words wide is refused by rule 'registers', and by no other (['registers'])
+PASS the master's status register writable is refused by rule 'registers', and by no other (['registers'])
+PASS csr.h and csr.csv disagree on an address is refused by rule 'header', and by no other (['header'])
+PASS csr.h without the RX_READY field is refused by rule 'header', and by no other (['header'])
+PASS a LEN field too narrow for 8 is refused by rule 'fields', and by no other (['fields'])
+PASS WIDTH overlapping LEN is refused by rule 'fields', and by no other (['fields'])
+PASS TX_READY two bits wide is refused by rule 'fields', and by no other (['fields'])
+PASS both status bits at bit 0 is refused by rule 'fields', and by no other (['fields'])
+PASS no flash window is refused by rule 'flash window', and by no other (['flash window'])
+PASS an 8 MiB flash window is refused by rule 'flash window', and by no other (['flash window'])
+PASS a window off its alignment is refused by rule 'flash window', and by no other (['flash window'])
+PASS no journal published is refused by rule 'journal', and by no other (['journal'])
+PASS the journal one block lower than milan_soc.py's is refused by rule 'journal', and by no other (['journal'])
+PASS no clock published is refused by rule 'clock', and by no other (['clock'])
+PASS the passing export is written
+PASS flash_port.json holds csr.csv's registers, banks and window
+PASS the generated headers compile and hold csr.csv's addresses (cc rc 0)
+UNREADABLE: [Errno 2] No such file or directory: '/tmp/gen-flash-port-4soqzyfd/missing.h'
+PASS an unreadable csr.h exits 2, never 0
+REFUSED registers: spiflash_master_cs is in csr.csv more than once
+PASS a refused export exits 1
+PASS a refused or unread export writes nothing
+PASS a one-slot journal is refused by ['journal'] and by no other rule (['journal'])
+PASS a journal off its erase block is refused by ['journal'] and by no other rule (['journal'])
+PASS a journal past the device is refused by ['journal', 'slots'] and by no other rule (['journal', 'slots'])
+PASS a journal over the AEM slot is refused by ['slots'] and by no other rule (['slots'])
+PASS a journal over the bitstream is refused by ['slots'] and by no other rule (['slots'])
+PASS a journal over the user slot is refused by ['slots'] and by no other rule (['slots'])
+PASS a published image over the journal is refused by rule 'slots' (['slots'])
+PASS PHYCONFIG is what ls_open() writes ({'LEN': 8, 'WIDTH': 1, 'MASK': 1})
+PASS STATUS is what the port tests (['RX_READY', 'TX_READY'])
+checks: 33   failures: 0
+rc=0
+tree clean after the gate

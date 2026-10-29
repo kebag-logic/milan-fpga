@@ -1,0 +1,986 @@
+diff --git a/docs/ARCHITECTURE_HW_SW_SPLIT.md b/docs/ARCHITECTURE_HW_SW_SPLIT.md
+index bf7e0d900d..ef7fc02057 100644
+--- a/docs/ARCHITECTURE_HW_SW_SPLIT.md
++++ b/docs/ARCHITECTURE_HW_SW_SPLIT.md
+@@ -163,7 +163,16 @@ Changed persisted state is latched from its authoritative owner.
+ F1 writes the inactive slot and verifies the committed container.
+ Its [write-back contract](../sw/firmware/ctrl_nvm/README.md#write-back)
+ preserves complete-old-or-new recovery across power loss.
+-The existing capture bound and boot deadlines remain integration obligations.
++F1's capture timing is the [owner's decision of 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6504551000), option (c).
++F1 is not held to D5's 24.5 ms capture bound.
++F1 holds no owner while it captures.
++A change behind its cursor opens its own window (DR2a).
++So the hold that bound protects does not exist in the split.
++Each F1 step stays bounded by T_svc, under [FR_NFR 3.4.1](reference/FR_NFR.md#341-control-service-budget-and-normative-timing) as amended (20 ms, graded per family).
++The total capture time has no bound of its own; it is measured and recorded.
++A power loss inside it loses at most the unsaved change, because the previous slot stays valid.
++The 24.5 ms bound covers the current flash writer's capture, which `scripts/check_nvm_capture.py` holds.
++The boot deadlines remain integration obligations.
+ F1 is not yet linked into a shipping image.
+ 
+ The gPTP engine and PHC run independently of descriptor enumeration.
+@@ -210,7 +219,8 @@ It also selects M8a-1's [firmware block RAM](design/SPLIT_CONTROL_MEMORY.md), wi
+ The publication block's outputs remain unread until the placement switch selects them.
+ F1's flash port runs on the split SoC's generated map, and its state port on the image's owners.
+ Their [target cases](../tb/verilator/nvm_split_target/README.md) run on the split CPU's test SoC.
+-There the capture misses its 24.5 ms bound at both points (#665).
++There every step is within T_svc at both points; the capture is recorded, not bounded.
++At 8x8 it takes 103.2 ms of CPU time over 1.64 s elapsed.
+ Access counts and model time do not prove target service latency.
+ F2 to F5 must close the [timing hooks](reference/FR_NFR.md#342-control-service-test-hooks).
+ 
+@@ -250,6 +260,8 @@ Bench acceptance must exercise all streams, counters and the audio soak.
+ All-fabric and mixed placements retain equivalent PDU and state-transaction behavior.
+ The [#640 latency ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268)
+ also preserves restart, fast-connect and saved-state capture bounds.
++The saved-state capture bound is D5's 24.5 ms on the current flash writer.
++F1 is held to T_svc per step instead ([section 2](#2-boot-sequence)).
+ 
+ Documentation gates establish document consistency, not those runtime claims.
+ The [verification contract](../CONTRIBUTING.md#3-verification-bar) remains applicable to implementation.
+diff --git a/sw/firmware/ctrl_nvm/README.md b/sw/firmware/ctrl_nvm/README.md
+index 7b6238325b..d9d31beddd 100644
+--- a/sw/firmware/ctrl_nvm/README.md
++++ b/sw/firmware/ctrl_nvm/README.md
+@@ -33,7 +33,7 @@ is an integration obligation, not a target-time result established here.
+ - **[The flash port](#the-flash-port)** -- Five calls, two implementations, a local time base, bounded waits and calls, and the seam with F0's mailbox HAL.
+ - **[Boot](#boot)** -- Each slot judged on as few as one read, the newer one staged, re-judged and applied in two walks, and the writer held while a slot is unread.
+ - **[Write-back](#write-back)** -- One bounded step per service call: capture, seal, erase, blank check, program, read back.
+-- **[The service bound](#the-service-bound)** -- What one step can cost, what is asserted, what the split CPU measures, and on what assumptions.
++- **[The service bound](#the-service-bound)** -- What one step can cost, what is asserted, the capture's time by the owner's decision, what the split CPU measures, and on what assumptions.
+ - **[Static sizes](#static-sizes)** -- What each shipped shape costs, measured on the RV32I build.
+ - **[The host suite](#the-host-suite)** -- Forty-two checks per shape at its own clock, 29 of them on both ports, the power-cut sweep and the planted defects.
+ - **[What this does not prove](#what-this-does-not-prove)** -- The board, the host suite's maps, a shipping image, the owners on the host, and a read fault that repeats itself exactly.
+@@ -275,7 +275,7 @@ The atomicity rules, from section 7 and the D3 register:
+ 
+ ## The service bound
+ 
+-Four statements, each with what it rests on. MODEL time is what the host
++Five statements, each with what it rests on. MODEL time is what the host
+ models charge: each byte on the 1x 12.5 MHz link costs 0.64 us, each CSR
+ access to the command master costs 40 ns, and CPU work costs none of it.
+ 
+@@ -319,23 +319,42 @@ access to the command master costs 40 ns, and CPU work costs none of it.
+ 
+   Without the deadline, the every-wait case holds one call for 41,970 us of
+   model time (the planted defect `call_deadline_ignored`).
++- **The capture's time, by the owner's decision of 2026-10-29 19:05 on
++  [#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6504551000)
++  (option (c)).**
++  - This store, the split writer F1, is not held to D5's 24.5 ms capture
++    bound. It holds no owner while it captures, and a change behind its
++    cursor opens its own window (DR2a), so the hold the bound protects does
++    not exist in the split.
++  - Each step stays bounded by T_svc, under
++    [FR_NFR 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
++    as amended (20 ms, graded per family).
++  - The total capture time has no bound of its own. It is measured and
++    recorded. A power loss inside it loses at most the unsaved change,
++    because the previous slot stays valid (the torn-slot boot cases).
++  - The 24.5 ms bound covers the current flash writer's capture only: the
++    product firmware's, half its guaranteed 49 ms hold floor.
++    `scripts/check_nvm_capture.py` keeps it, and its 8x8 maximum of
++    13.863 ms stays gated.
+ - **CPU time, measured on the split CPU.** The split placement's size
+   fixture links the store, and
+   [`nvm_split_target`](../../../tb/verilator/nvm_split_target/README.md#results)
+   runs it on the CPU budget harness's test SoC: the shipping VexiiRiscv at
+   50 MHz with the split's instruction cache, its block RAM, and LiteSPI on
+   the split SoC's map. What it shows:
+-  - every step of a commit is within T_svc = 10 ms. The longest is 2.64 ms
+-    at 8x8, the capture of a 576-byte map record, and 2.02 ms at 1x1, a page
+-    program;
++  - every step, of a commit and of every boot case, is within T_svc, graded
++    against the CPU budget harness's `T_SVC_MS`. That is still the 10 ms
++    proposal at this base, under every family's bound at the approved 20 ms.
++    The longest step is 2.64 ms at 8x8, the capture of a 576-byte map record,
++    and 2.02 ms at 1x1, a page program;
+   - the capture of a full work set, every record latched from its owner,
+     takes 1,361,143 CPU cycles (27.22 ms) at 1x1 and 5,161,328 (103.23 ms) at
+-    8x8. That is over the 24.5 ms the shipping writer's capture is held to
+-    (`scripts/check_nvm_capture.py`), at both points, and is a finding for
+-    #665. A capture step costs about 11,062 cycles at 1x1 and 16,500 at 8x8
+-    before its record, mostly the port's 64-bit clock conversion, and about
+-    264 and 206 cycles a payload byte. The shipping writer copies 13,210
+-    bytes at 8x8 in 13.86 ms;
++    8x8, spread over 0.53 s and 1.64 s elapsed at one record a 10 ms tick.
++    Both are recorded, not bounded (above). A capture step costs about 11,062
++    cycles at 1x1 and 16,500 at 8x8 before its record, mostly the port's
++    64-bit clock conversion, and about 264 and 206 cycles a payload byte. The
++    current flash writer copies 13,210 bytes at 8x8 in 13.86 ms, holding its
++    owners while it does;
+   - a port call on chip is held to its own deadline, which is `timer0` time
+     and so real time. A call still waiting on the master 2,000 us after it
+     began fails within 64 more status reads, two timer reads and the
+diff --git a/tb/verilator/nvm_capture_cpu/README.md b/tb/verilator/nvm_capture_cpu/README.md
+index 9e1f576d04..a94ae76546 100644
+--- a/tb/verilator/nvm_capture_cpu/README.md
++++ b/tb/verilator/nvm_capture_cpu/README.md
+@@ -6,6 +6,8 @@ Both traffic arms contribute to the published maximum.
+ The 8x8 maximum must remain at or below 24.5 ms.
+ This is half the unchanged hold's guaranteed 49 ms floor.
+ The free-running tick makes the effective hold 49-50 ms.
++This bound is D5's on the current flash writer, the product firmware measured here.
++The split writer F1 is not held to it ([owner decision 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6504551000)): each of its steps is held to T_svc instead ([`nvm_split_target`](../nvm_split_target/README.md#the-captures-timing)).
+ 
+ ## Contents
+ 
+diff --git a/tb/verilator/nvm_split_target/README.md b/tb/verilator/nvm_split_target/README.md
+index 756e8661fe..1531a9218d 100644
+--- a/tb/verilator/nvm_split_target/README.md
++++ b/tb/verilator/nvm_split_target/README.md
+@@ -1,7 +1,7 @@
+ # Saved-state store on the split CPU
+ 
+ This harness boots the split image's saved-state store (F1, [`ctrl_nvm`](../../../sw/firmware/ctrl_nvm/README.md)) on the split placement's CPU, memory and flash.
+-Its contract is the [S4 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6493622258) on #665.
++Its contract is the [S4 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6493622258) on #665, with the capture's timing as the [owner decided on 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6504551000) (option (c), [The capture's timing](#the-captures-timing)).
+ It runs on the [CPU budget harness's](../ctrl_service_budget/README.md) test SoC: the shipping VexiiRiscv at 50 MHz with the split's instruction cache, `CtrlMemory`, LiteSPI and its native flash model.
+ The image is `ctrl_srp_image.py --with-aecp --layout split`, whose flash port compiles against the split SoC's own map ([the flash port's map](#the-flash-ports-map)).
+ Every figure is a measured clock count, never an estimate.
+@@ -11,9 +11,9 @@ Every figure is a measured clock count, never an estimate.
+ - **[Run](#run)** -- Prerequisites, the two points, reuse and the regrade.
+ - **[The flash port's map](#the-flash-ports-map)** -- What is generated from the split SoC's `csr.csv`, and how the test SoC is held to it.
+ - **[The cases](#the-cases)** -- Each boot's image, journal and stimulus, and what it must show.
+-- **[Grading](#grading)** -- The traced calls, the step phases, the capture's bound and the apply order.
++- **[Grading](#grading)** -- The traced calls, the step phases, T_svc, the capture's measurement and the apply order.
+ - **[Results](#results)** -- The capture and the commit's steps, and every case, at both points.
+-- **[Controls and self-test](#controls-and-self-test)** -- The planted defects, the bound's control and the grader mutants.
++- **[Controls and self-test](#controls-and-self-test)** -- The planted defects, the step control, D5's check on the current flash writer and the grader mutants.
+ - **[Limits](#limits)** -- What is not measured, and why.
+ 
+ ## Run
+@@ -38,7 +38,7 @@ python3 -B tb/verilator/nvm_split_target/run.py --point 8x8 --build-dir /tmp/nvm
+ `--jobs` sets how many boots run at once.
+ `--reuse-build` reuses each arm's build when every input its `build.json` records still attests (`build.reused`).
+ `--regrade` grades the runs recorded in `--out` on reused builds, and refuses a case whose recorded script or journal is not the one the run would use.
+-A step over T_svc fails the run unless `--record-budget-findings` is given.
++A service step over T_svc fails its case, and so the run.
+ 
+ The directory has no Makefile on purpose: the serial sweep discovers every Makefile, and `scripts/suite_shards.py` must then register the suite.
+ 
+@@ -106,10 +106,22 @@ The testbench traces calls passively ([`sim_main.cpp`](../ctrl_service_budget/si
+ A service step's phase is the first of its calls in this order: the owners' latch (capture), `nvm_crc32_update` (seal), `ls_erase`, `ls_program`, `ls_read` (the blank check or the verify) and `ls_busy` (a poll).
+ The step after the last latch, which ends the capture and seals the header (`nvm_seal_begin`), is the capture's.
+ 
+-**The capture** is the store's capture phase for one work set with every record of the shape dirty: the sum of its steps' CPU cycles.
+-It must latch exactly the shape's records, one a step, and take at most 24.5 ms: half the shipping writer's guaranteed 49 ms hold floor, the bound `check_nvm_capture.py` holds the shipping capture to (`nvm_capture_cpu/recipe.py`, `HOLD_FLOOR_MS`).
+-The store latches one record per 10 ms TICK (`tick_ms`, `sw/mailbox/mailbox.yaml`), so the capture's elapsed time is paced by the loop: it is reported, not held to the bound.
+-Each step's CPU time is held to T_svc = 10 ms ([FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
++**Every step** of the store, in every phase and in every case, is held to T_svc of CPU time ([FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
++A step over it is a finding of its case (`over_t_svc`), naming the step and its phase.
++The bound is the CPU budget harness's `scenario.T_SVC_MS`.
++At this harness's base that is the 10 ms proposal.
++The owner approved `T_svc` = 20 ms on 2026-10-29, graded per family as `min(T_svc, ceiling)` ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)); `scenario.py` takes that value with the change that makes it normative.
++10 ms is under every family's bound, the 18 ms of SRP's included, so a step within it is within each.
++The boot is not a service step: it runs once, before the loop, and is measured, not held to T_svc.
++
++**The capture** is the store's capture phase for one work set with every record of the shape dirty.
++It must latch exactly the shape's records, one a step, and the step that ends it.
++It is measured and recorded, not graded against a bound:
++
++- its CPU time, the sum of its steps' CPU cycles;
++- its elapsed time, from its first step's start to its last step's end.
++
++The store latches one record per 10 ms TICK (`tick_ms`, `sw/mailbox/mailbox.yaml`), so the elapsed time is the loop's pacing.
+ 
+ **The apply order** is read inside the one `nvm_store_boot` span.
+ The owners' apply entries in order must be exactly the booted container's (`expected_applies`):
+@@ -124,29 +136,39 @@ An erased record applies nothing, and SUID and MCR are applied by no owner (`aec
+ 
+ Every case also fails on a trap, a bus error, a failed testbench check or a wait that timed out.
+ 
++### The capture's timing
++
++The owner's decision of 2026-10-29 19:05 on #665, option (c), restates the first acceptance item of S4:
++
++- **The split writer F1 is not held to D5's 24.5 ms capture bound.** F1 holds no owner while it captures, and a change behind its cursor opens its own window (DR2a). So the hold the bound protects does not exist in the split.
++- **Each F1 step stays bounded by T_svc**, under FR_NFR 3.4.1 as amended (20 ms, graded per family). The cases grade it as described above.
++- **The total capture time has no bound of its own.** It is measured and recorded at both points ([Results](#results)). A power loss inside it loses at most the unsaved change, because the previous slot stays valid (the `torn` case).
++- **D5 on the current flash writer is unchanged.** The 24.5 ms bound covers the current flash writer's capture only: half that writer's guaranteed 49 ms hold floor (`nvm_capture_cpu/recipe.py`, `HOLD_FLOOR_MS`). `scripts/check_nvm_capture.py` keeps it, and its 8x8 maximum of 13.863 ms stays gated. This harness's self-test fails if that writer's grader stops refusing a capture over 24.5 ms ([Controls and self-test](#controls-and-self-test)).
++
+ ## Results
+ 
+ Measured at the head this harness lands with, on the split's 4 KiB instruction cache:
+ 
+ ```sh
+-python3 -B tb/verilator/nvm_split_target/run.py --point 1x1 --build-dir /tmp/nvm-target-1x1 --record-budget-findings
+-python3 -B tb/verilator/nvm_split_target/run.py --point 8x8 --build-dir /tmp/nvm-target-8x8 --record-budget-findings
++python3 -B tb/verilator/nvm_split_target/run.py --point 1x1 --build-dir /tmp/nvm-target-1x1
++python3 -B tb/verilator/nvm_split_target/run.py --point 8x8 --build-dir /tmp/nvm-target-8x8
+ ```
+ 
+-Both runs exit 1, because the `commit` case fails its capture bound; every other case passes and every control is caught.
++Both runs exit 0: every case passes, no step is over T_svc, and every control is caught.
+ 
+ ### The capture
+ 
+-| Point | Records, container | Capture steps | CPU cycles | ms | Bound | Fixed a step, cycles | A payload byte, cycles | Idle step, cycles |
+-|---|---|---:|---:|---:|---|---:|---:|---:|
+-| 1x1 | 54, 3,336 B (2,858 B of payload) | 55 | 1,361,143 | 27.223 | 24.5 ms: **over** | 11,062 | 263.7 | 9,486 |
+-| 8x8 | 164, 13,256 B (11,898 B of payload) | 165 | 5,161,328 | 103.227 | 24.5 ms: **over** | 16,500 | 205.5 | 9,389 |
++Recorded, not bounded ([The capture's timing](#the-captures-timing)):
++
++| Point | Records, container | Capture steps | CPU time, cycles | CPU time, ms | Elapsed, ms | Longest step, ms | Fixed a step, cycles | A payload byte, cycles | Idle step, cycles |
++|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
++| 1x1 | 54, 3,336 B (2,858 B of payload) | 55 | 1,361,143 | 27.223 | 534.905 | 0.815 | 11,062 | 263.7 | 9,486 |
++| 8x8 | 164, 13,256 B (11,898 B of payload) | 165 | 5,161,328 | 103.227 | 1,638.061 | 2.639 | 16,500 | 205.5 | 9,389 |
+ 
+-**The capture misses its bound at both points, by 11 % at 1x1 and 4.2 times at 8x8.**
+ The fixed cost and the cost a byte are the least-squares line through the latch steps' CPU cycles against the payload of the record each latched.
+ An idle step, which every step pays too, is mostly the flash port's 64-bit clock conversion (`ls_now_us`).
+-At 8x8 the payload bytes alone cost 11,898 x 205.5 = 2.45 M cycles, 48.9 ms: twice the bound with no fixed cost at all.
+-The shipping writer's capture, the one the bound was set for, copies 13,210 bytes at 8x8 in 13.86 ms (`nvm_capture_cpu/measurements.json`), about 52 cycles a byte.
++The elapsed time is the loop's pacing, one record a 10 ms tick; the CPU time is spread over it, at most 2.639 ms in any one step.
++For comparison, the current flash writer's capture copies 13,210 bytes at 8x8 in 13.86 ms (`nvm_capture_cpu/measurements.json`), about 52 cycles a byte, holding its owners while it does.
+ 
+ ### The commit's steps
+ 
+@@ -160,7 +182,7 @@ The shipping writer's capture, the one the bound was set for, copies 13,210 byte
+ | read (blank check and verify) | 28, 95,354 (1.907) | 104, 95,984 (1.920) |
+ | idle | 203, 10,022 (0.200) | 215, 10,358 (0.207) |
+ 
+-Every step is within T_svc = 10 ms at both points.
++Every step is within T_svc at both points; the longest, 2.639 ms, is a capture step at 8x8.
+ The commit erased one block and programmed 14 pages at 1x1 and 52 at 8x8, and the journal it left decodes by the reference codec with the saved name and sink 0's binding.
+ 
+ ### The boots
+@@ -173,6 +195,7 @@ The commit erased one block and programmed 14 pages at 1x1 and 52 at 8x8, and th
+ | `version` | 0, 504,698 (10.1) | 0, 1,744,933 (34.9) |
+ 
+ Each passes at both points: the answers are the saved values where a slot is accepted and the defaults where none is, the apply order is the container's, and nothing is written.
++Every service step of these cases is within T_svc too: the longest is 0.196 ms at 8x8.
+ The `guard` case passes at both points: seven calls outside the journal reached the port and were refused, and the device saw only the erase inside it.
+ The boot runs before the loop.
+ A refusal stands only on two reads of the same bytes ([`ctrl_nvm/README.md`](../../../sw/firmware/ctrl_nvm/README.md#boot), "Boot" item 3), so the `torn` boot reads its refused slot twice, beside the accepted slot and its re-stage.
+@@ -184,7 +207,8 @@ A refusal stands only on two reads of the same bytes ([`ctrl_nvm/README.md`](../
+ | `reorder-settle` | caught: entry 4 is `aecp_value_restore`, the container needs `aecp_restore_settle` | caught: entry 25 is `aecp_value_restore`, the container needs `aecp_restore_settle` |
+ | `reorder-bindings` | caught: entry 0 is `aecp_map_restore`, the container needs `acmp_restore_binding` | caught: entry 0 is `aecp_map_restore`, the container needs `acmp_restore_binding` |
+ | `guard-removed` | caught: `flash write escaped the journal` | caught: `flash write escaped the journal` |
+-| `capture-one-page-past` | caught: at the bound, 24.5000 ms, it fits; one page (104,453 cycles) past it, 26.5891 ms, is over | caught: at the bound, 24.5000 ms, it fits; one page (99,676 cycles) past it, 26.4935 ms, is over |
++| `slow-step` | caught: `step 0 (idle) takes 30.2216 ms of CPU time, over T_svc 10.0 ms` | caught: `step 0 (idle) takes 30.2139 ms of CPU time, over T_svc 10.0 ms` |
++| `step-over-t-svc` | caught in every phase: capture, erase, idle, poll, program, read, seal (T_svc = 500,000 cycles) | caught in every phase: capture, erase, idle, poll, program, read, seal (T_svc = 500,000 cycles) |
+ 
+ ## Controls and self-test
+ 
+@@ -195,25 +219,47 @@ Each planted defect is a scratch copy of the saved-state store's tree (`build.Pl
+ | `reorder-settle` | the D3 walk's settle step runs after the names (`nvm_store.c`, its test before the first name removed) | the commit's | the apply order |
+ | `reorder-bindings` | the binding walk runs after the D3 walk | the commit's | the apply order |
+ | `guard-removed` | `ls_in_journal` passes every address, in the `guard-probe` arm | blank | the flash model, which refuses a write outside the journal: `flash write escaped the journal` |
+-| `capture-one-page-past` | the measured commit's capture lengthened to exactly its bound, then by one page of its own measured cost past it (`target_grade.lengthened`) | - | at the bound it fits; one page past it is over |
++| `slow-step` | the store's first service step spins on its own clock until 30 ms past its start (`nvm_store.c`, `nvm_store_service`), in the fixture | blank | T_svc: the step's finding, `step 0 (idle) takes ... over T_svc` |
++| `step-over-t-svc` | each phase's longest step of the measured commit stretched to exactly T_svc, then one CPU cycle past it (`target_grade.stretched`) | - | at T_svc no finding is added; one cycle past it adds exactly one, naming that step and its phase |
+ 
+-The capture's control is planted in the measured commit itself: a page's cost is the capture's cycles per byte of the shape's container, times 256.
++The step control is planted in the measured commit itself, phase by phase, so it shows that every phase the commit runs is graded.
++`slow-step` shows the same of a real step: the firmware's own step, traced as the cases trace every step.
+ 
+ The self-test ([`target_selftest.py`](target_selftest.py)) runs the graders on synthetic logs and the journal builder on the 1x1 shape.
+-It requires a capture at exactly its bound to fit, one a page past it to be caught, a missing record to be refused and every step to be classified by its calls.
+-It requires the container's own apply order to pass, and each of these to be caught: the settle after the names, a binding after the D3 walk, a name before a map, one apply missing, one too many and two boots.
+-It requires the derived journals to be judged by the reference codec as the cases need them, and every arm and planted defect to apply to the checkout's sources.
++It requires:
++
++- the capture's CPU time to be its steps' cycles and its elapsed time its first step's start to its last step's end;
++- a capture of twice 24.5 ms of CPU time, every step within T_svc, to be no finding;
++- a missing record to be refused, and every step to be classified by its calls;
++- a step of exactly T_svc to pass, and one CPU cycle over it to be a finding naming it and its phase, in every phase;
++- that finding to fail its case, and the step control to be caught in every phase;
++- the run's report to grade every step against T_svc and give the capture no bound;
++- the container's own apply order to pass, and each of these to be caught: the settle after the names, a binding after the D3 walk, a name before a map, one apply missing, one too many and two boots;
++- the derived journals to be judged by the reference codec as the cases need them, and every arm and planted defect to apply to the checkout's sources.
++
++It also holds D5 on the current flash writer.
++It runs that writer's own grader, `grade_rows` in [`nvm_capture_cpu/run.py`](../nvm_capture_cpu/run.py), the one `check_nvm_capture.py` regrades its receipt through.
++A capture of exactly 24.5 ms must pass, and one system tick more must be refused.
++
+ Then it replaces each grading rule in turn with a weaker one, and a named check must fail:
+ 
+ | Mutant | Caught by |
+ |---|---|
+-| capture: strictly below the bound | a capture at exactly its bound fits |
+-| capture: the bound is the whole hold floor | a capture one page of its own cost past its bound is caught |
+-| capture: the closing step is not the capture's | a capture at exactly its bound fits |
+-| capture: the planted page is not added | a capture one page of its own cost past its bound is caught |
++| steps: strictly below T_svc | a step of exactly T_svc passes, in the capture, seal, erase, poll, program and read phases |
++| steps: only the capture's steps graded | a step one CPU cycle over T_svc is a finding naming it and its phase, in the capture, seal, erase, poll, program and read phases |
++| steps: the idle step not graded | any one step stretched one cycle over T_svc, the idle step among them, is that step alone, its phase kept |
++| steps: no step graded against T_svc | a service step over T_svc fails its case, one at T_svc does not |
++| step control: the planted cycle not added | the step control: each phase's longest step at T_svc passes and one cycle past it is caught |
++| capture: the closing step is not the capture's | the capture's CPU time is its steps' cycles, its elapsed time its first step's start to its last step's end |
++| capture: the elapsed time is its CPU time | the same check |
++| capture: the current writer's 24.5 ms bound imposed on F1 | a capture of twice 24.5 ms of CPU time, every step within T_svc, is no finding |
+ | order: settle last whatever the names | the bindings first, then the D3 records in ascending id, settle before the first name |
+ | order: only the first entry compared | the settle after the names is caught |
+ | answers: any sequence_id | the answers are read by sequence_id: the name and the talker |
++| the current flash writer: its 24.5 ms check removed from its grader | the current flash writer's capture is held to 24.5 ms: exactly 24.5 ms passes, one system tick more is refused |
++
++The last mutant deletes the check's three lines from `grade_rows`'s source, writes the result to a scratch copy and imports it in place of the grader.
++That writer's own gate fails on the same removal: `check_nvm_capture.py` stops at its boundary control, `OFF timing limit was ignored`.
+ 
+ ## Limits
+ 
+diff --git a/tb/verilator/nvm_split_target/run.py b/tb/verilator/nvm_split_target/run.py
+index 221cd229ec..cbf7ae3e85 100644
+--- a/tb/verilator/nvm_split_target/run.py
++++ b/tb/verilator/nvm_split_target/run.py
+@@ -14,9 +14,11 @@ Usage:
+     python3 -B tb/verilator/nvm_split_target/run.py --point 8x8 --build-dir DIR [--cases a,b] [--jobs N]
+     python3 -B tb/verilator/nvm_split_target/run.py --self-test
+ 
+-Exit 0 = every case passed and every planted control was caught (a step over
+-T_svc fails the run unless --record-budget-findings); 1 = a case failed or a
+-control escaped; 2 = a build or an input failed.
++Exit 0 = every case passed (no service step over T_svc among them) and every
++planted control was caught; 1 = a case failed or a control escaped; 2 = a
++build or an input failed. The capture's CPU and elapsed times are recorded and
++graded against no bound of their own (#665 owner decision 2026-10-29, option
++(c)).
+ """
+ from __future__ import annotations
+ 
+@@ -39,21 +41,6 @@ build, scenario = cases.build, cases.scenario
+ POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2)}
+ 
+ 
+-def bound_control(obs: object, measured: dict, length: int, cpu_hz: int) -> dict:
+-    """The capture's bound, planted in the measured commit: its capture lengthened to exactly the bound must
+-    fit, and lengthened one page of its own measured cost (its cycles a byte, times a page) past the bound
+-    must be caught."""
+-    bound = tg.recipe.HOLD_FLOOR_MS * cpu_hz // 2000
+-    page = -(-measured['cycles'] * cases.PAGE // length)
+-    at = tg.capture(tg.lengthened(obs, bound - measured['cycles']), measured['latches'], cpu_hz)
+-    past = tg.capture(tg.lengthened(obs, bound - measured['cycles'] + page), measured['latches'], cpu_hz)
+-    caught = at['within_bound'] and not past['within_bound']
+-    words = [f"at the bound {at['ms']:.4f} ms fits; one page ({page:,} cycles) past it, {past['ms']:.4f} ms, "
+-             f"is over"] if caught else []
+-    return dict(case='capture-one-page-past', caught=caught, words=words, passed=caught, findings=[],
+-                page_cycles=page)
+-
+-
+ def built(root: Path, key: str, point: str, reuse: bool) -> dict:
+     """One arm's build at the point: reused when asked and every recorded input still attests, else built."""
+     shape, n_if = POINTS[point]
+@@ -110,8 +97,8 @@ def run_cases(selected: list[cases.Case], specs: dict[str, dict], point: str, ou
+     plens = cases.payload_lengths(bench)
+     base = tg.Context(any_spec['cpu_hz'], records, pages, b'\xff' * 2 * slot, saved, {}, [], plens)
+     results = [tg.grade_case(commit, obs, base, bench)]
+-    if 'capture' in results[0] and results[0]['capture']['latches']:
+-        results.append(bound_control(obs, results[0]['capture'], length, any_spec['cpu_hz']))
++    if tg.service(obs):
++        results.append(tg.step_control(obs, any_spec['cpu_hz']))
+     journals = cases.journals(saved, bench, slot)
+     applied = bench.decode(saved[:int.from_bytes(saved[16:20], 'little')])[1]
+     applies = tg.expected_applies(applied, bench.expect, bench.donor.base)
+@@ -136,30 +123,33 @@ def table(results: list[dict], point: str) -> str:
+         detail = '; '.join(r.get('words') or r['findings']) or (
+             f"{r['applies']} apply entries, boot {r['boot_cycles']:,} CPU cycles" if 'applies' in r else '')
+         lines.append(f"| {r['case']} | {verdict} | {detail} |")
++    lines += ['', f'Every service step is graded against T_svc = {scenario.T_SVC_MS} ms of CPU time.', '',
++              '| Case | Service steps | Longest step, CPU cycles | Longest, ms |', '|---|---:|---:|---:|']
++    lines += [f"| {r['case']} | {r['service_steps']} | {r['longest_step_cycles']:,} | {r['longest_step_ms']:.3f} |"
++              for r in results if 'service_steps' in r]
+     for r in results:
+         if 'capture' in r:
+             c = r['capture']
+-            lines += ['', f"Capture: {c['latches']} records in {c['steps']} steps, {c['cycles']:,} CPU cycles, "
+-                      f"{c['ms']:.3f} ms against {c['bound_ms']} ms; longest step {c['longest_cycles']:,} cycles.", '',
+-                      '| Phase | Steps | Longest step, CPU cycles | Longest, ms | Total, CPU cycles |',
+-                      '|---|---:|---:|---:|---:|']
++            lines += ['', f"Capture, measured (no bound of its own): {c['latches']} records in {c['steps']} steps; "
++                      f"CPU time {c['cycles']:,} cycles, {c['ms']:.3f} ms; elapsed {c['elapsed_cycles']:,} cycles, "
++                      f"{c['elapsed_ms']:.3f} ms; longest step {c['longest_cycles']:,} cycles, "
++                      f"{c['longest_ms']:.3f} ms.", '',
++                      '| Phase | Steps | Longest step, CPU cycles | Longest, ms | Within T_svc | Total, CPU cycles |',
++                      '|---|---:|---:|---:|---|---:|']
+             lines += [f"| {p} | {row['steps']} | {row['longest_cycles']:,} | {row['longest_ms']:.3f} | "
+-                      f"{row['cycles']:,} |" for p, row in sorted(r['phases'].items())]
++                      f"{'yes' if row['within_t_svc'] else '**no**'} | {row['cycles']:,} |"
++                      for p, row in sorted(r['phases'].items())]
+     return '\n'.join(lines) + '\n'
+ 
+ 
+-def exit_status(results: list[dict], record: bool) -> int:
+-    """0 when every case passed and every control was caught; a T_svc miss fails unless recorded."""
+-    failed = [r['case'] for r in results if not r['passed']]
+-    misses = [f"{r['case']}: {p}" for r in results for p in r.get('t_svc_misses', [])]
++def exit_status(results: list[dict]) -> int:
++    """0 when every case passed, no step over T_svc among them, and every control was caught."""
+     for r in results:
+         if 'caught' in r:
+             print(f"CONTROL {r['case']} {'caught' if r['caught'] else 'ESCAPED'}: {'; '.join(r['words'])}")
+         else:
+             print(f"CASE {r['case']} {'pass' if r['passed'] else 'FAIL'}: {'; '.join(r['findings'])}")
+-    for m in misses:
+-        print(f'T_SVC {m} has a step over T_svc')
+-    return 1 if failed or (misses and not record) else 0
++    return 1 if any(not r['passed'] for r in results) else 0
+ 
+ 
+ def main(argv: list[str] | None = None) -> int:
+@@ -172,7 +162,6 @@ def main(argv: list[str] | None = None) -> int:
+     ap.add_argument('--jobs', type=int, default=4)
+     ap.add_argument('--reuse-build', action='store_true')
+     ap.add_argument('--regrade', action='store_true', help='grade the runs recorded in --out on a reused build')
+-    ap.add_argument('--record-budget-findings', action='store_true')
+     ap.add_argument('--self-test', action='store_true')
+     args = ap.parse_args(argv)
+     if args.self_test:
+@@ -200,7 +189,7 @@ def main(argv: list[str] | None = None) -> int:
+     (out / 'results.json').write_text(json.dumps(results, indent=1, default=str) + '\n')
+     (out / 'table.md').write_text(table(results, args.point))
+     print(table(results, args.point))
+-    return exit_status(results, args.record_budget_findings)
++    return exit_status(results)
+ 
+ 
+ if __name__ == '__main__':
+diff --git a/tb/verilator/nvm_split_target/target_cases.py b/tb/verilator/nvm_split_target/target_cases.py
+index 2fb042701c..ee2f7cfa64 100644
+--- a/tb/verilator/nvm_split_target/target_cases.py
++++ b/tb/verilator/nvm_split_target/target_cases.py
+@@ -95,6 +95,12 @@ PLANTS = {
+         '\t\tnvm.st.bind_terminal = NVM_T_COMPLETE;\n\t}\n'
+         '\tif (nvm_model_proven() && chosen != NVM_NONE) {\n\t\tnvm.st.terminal = nvm_walk_d3();\n'
+         '\t\tnvm.st.bind_terminal = nvm_walk_bind();\n\t}\n'),
++    # The store's first service step spins on its own clock until 30 ms past the step's start, over
++    # T_svc (FR_NFR.md 3.4.1, at most 20 ms): the step the grade must fail.
++    'slow-step': build.Plant(
++        'slow-step', 'ctrl_nvm/nvm_store.c', '\tnvm_step();\n\tnvm.st.steps++;\n',
++        '\tnvm_step();\n\tif (nvm.st.steps == 0u)\n'
++        '\t\twhile (nvm_now() - nvm.now_us < 30000u) {\n\t\t}\n\tnvm.st.steps++;\n'),
+     # The port's guard passes every address.
+     'guard-removed': build.Plant(
+         'guard-removed', 'ctrl_nvm/plat/nvm_flash_litespi.c',
+@@ -111,7 +117,8 @@ class Case:
+ 
+     journal: 'blank' (erased flash), or 'saved', 'torn' or 'version', built from the commit
+     case's journal (journals()). commit: the case lets a capture of every record commit.
+-    control: the case is a planted defect that must be caught, with the words its grade needs.
++    control: the case is a planted defect that must be caught, with the words its grade needs
++    ('apply order' and 'over T_svc' name the grading rule whose findings are the words).
+     """
+     name: str
+     arm: str
+@@ -131,6 +138,7 @@ CASES = (
+     Case('reorder-settle', 'fixture', 'settle-after-names', 'saved', control='apply order'),
+     Case('reorder-bindings', 'fixture', 'bindings-after-d3', 'saved', control='apply order'),
+     Case('guard-removed', 'guard-probe', 'guard-removed', 'blank', control='flash write escaped the journal'),
++    Case('slow-step', 'fixture', 'slow-step', 'blank', control='over T_svc'),
+ )
+ 
+ 
+diff --git a/tb/verilator/nvm_split_target/target_grade.py b/tb/verilator/nvm_split_target/target_grade.py
+index 4c9124863a..2323f7d4d6 100644
+--- a/tb/verilator/nvm_split_target/target_grade.py
++++ b/tb/verilator/nvm_split_target/target_grade.py
+@@ -17,12 +17,19 @@ calls. A service step is classified by the calls inside it:
+   read     ls_read (the blank check, or the verify);
+   idle     none of them.
+ 
++EVERY STEP of the store, in every phase and every case, must take at most the
++loop's T_svc of CPU time (FR_NFR.md 3.4.1, scenario.T_SVC_MS); a step over it
++is a finding of its case. That is the only timing bound the split writer F1
++has (#665 owner decision 2026-10-29, option (c)): F1 holds no owner while it
++captures, and a change behind its cursor opens its own window (DR2a).
++
+ THE CAPTURE is the store's capture phase for one work set, every record of the
+-shape dirty: the sum of its steps' CPU cycles at the CPU's clock. It must be at
+-most half the shipping writer's unchanged hold floor
+-(tb/verilator/nvm_capture_cpu/recipe.py HOLD_FLOOR_MS / 2 = 24.5 ms), the bound
+-check_nvm_capture.py holds the shipping capture to. Each step's CPU time is
+-graded against the loop's T_svc (FR_NFR.md 3.4.1, scenario.T_SVC_MS).
++shape dirty. It is measured and recorded, and has no bound of its own: its CPU
++time (the sum of its steps' CPU cycles at the CPU's clock) and its elapsed time
++(from its first step's start to its last step's end). The 24.5 ms bound
++(tb/verilator/nvm_capture_cpu/recipe.py HOLD_FLOOR_MS / 2) is D5's on the
++current flash writer's capture, which check_nvm_capture.py holds; it is not
++F1's.
+ 
+ THE APPLY ORDER is read inside the one nvm_store_boot span: the owners' apply
+ entries in order must be the saved container's, record by record: every
+@@ -41,15 +48,11 @@ from pathlib import Path
+ 
+ HERE = Path(__file__).resolve().parent
+ ROOT = HERE.parents[2]
+-for path in (ROOT / 'tb/verilator/ctrl_service_budget', ROOT / 'tb/verilator/nvm_capture_cpu'):
+-    sys.path.insert(0, str(path))
++sys.path.insert(0, str(ROOT / 'tb/verilator/ctrl_service_budget'))
+ 
+ import grade as budget  # noqa: E402  the service-budget harness's parser, read only
+-import recipe  # noqa: E402
+ import scenario  # noqa: E402
+ 
+-#: The capture's bound: half the shipping writer's guaranteed hold floor (check_nvm_capture.py).
+-BOUND_MS = recipe.HOLD_FLOOR_MS / 2
+ #: The owners' entries the boot's two walks make, by the record kind that makes each.
+ APPLY = ('acmp_restore_binding', 'aecp_value_restore', 'aecp_map_restore', 'aecp_restore_settle')
+ #: Each record group's apply entry (aecp_nvm.c apply: SUID and MCR are applied by no owner).
+@@ -138,38 +141,60 @@ def decomposed(obs: Observed, plens: list[int]) -> dict:
+                 idle_step_cycles=idle[len(idle) // 2] if idle else 0, payload_bytes=sum(plens[:n]))
+ 
+ 
+-def fits(capture_ms: float) -> bool:
+-    """A capture fits at or under its bound."""
+-    return capture_ms <= BOUND_MS
++def within_t_svc(cycles: int, cpu_hz: int) -> bool:
++    """A step's CPU cycles at or under T_svc at the CPU's clock."""
++    return cycles * 1000 <= scenario.T_SVC_MS * cpu_hz
++
++
++def over_t_svc(obs: Observed, cpu_hz: int) -> list[str]:
++    """A finding for each of the store's service steps, in any phase, whose CPU time is over T_svc."""
++    return [f'step {i} ({s.phase}) takes {ms(s.cycles, cpu_hz):.4f} ms of CPU time, over T_svc '
++            f'{scenario.T_SVC_MS} ms' for i, s in enumerate(service(obs)) if not within_t_svc(s.cycles, cpu_hz)]
+ 
+ 
+ def capture(obs: Observed, records: int, cpu_hz: int) -> dict:
+-    """The capture of a full work set: its steps, CPU cycles and ms, its longest step, and findings."""
++    """The capture of a full work set, measured: its steps, its CPU time (the sum of its steps' CPU cycles),
++    its elapsed time (its first step's start to its last step's end) and its longest step. It has no bound
++    of its own; the only finding is a capture that is not the shape's records and the step that ends it."""
+     steps = [s for s in service(obs) if s.phase == 'capture']
+     latches = sum(s.calls.count('acmp_nvm:latch') for s in steps)
+     cycles = sum(s.cycles for s in steps)
++    elapsed = steps[-1].cpu + steps[-1].cycles - steps[0].cpu if steps else 0
++    longest = max((s.cycles for s in steps), default=0)
+     findings = []
+     if latches != records or len(steps) != records + 1:
+         findings.append(f'the capture latched {latches} records in {len(steps)} steps, not the shape\'s '
+                         f'{records} records and the step that ends it')
+-    result = dict(steps=len(steps), latches=latches, cycles=cycles, ms=ms(cycles, cpu_hz),
+-                  longest_cycles=max((s.cycles for s in steps), default=0), bound_ms=BOUND_MS)
+-    result['within_bound'] = fits(result['ms'])
+-    if not result['within_bound']:
+-        findings.append(f"the capture takes {result['ms']:.3f} ms, over its {BOUND_MS} ms bound")
+-    return dict(result, findings=findings)
++    return dict(steps=len(steps), latches=latches, cycles=cycles, ms=ms(cycles, cpu_hz), elapsed_cycles=elapsed,
++                elapsed_ms=ms(elapsed, cpu_hz), longest_cycles=longest, longest_ms=ms(longest, cpu_hz),
++                findings=findings)
+ 
+ 
+-def lengthened(obs: Observed, extra: int) -> Observed:
+-    """The observation with its capture's closing step `extra` CPU cycles longer, its calls as they were: the
+-    capture made that much slower. The bound's control plants it in the measured commit (run.py)."""
++def stretched(obs: Observed, index: int, cycles: int) -> Observed:
++    """The observation with its index-th service step `cycles` CPU cycles long, its calls and every other
++    step as they were. The step control plants it in the measured commit."""
+     spans = [Step(s.name, s.sys, s.cpu, s.cycles, list(s.calls), s.phase) for s in obs.spans]
+-    closing = [s for s in service(Observed(obs.log, spans, obs.flash, obs.flash_ops, obs.text))
+-               if s.phase == 'capture']
+-    if not closing:
+-        raise ValueError('the capture has no closing step to lengthen')
+-    closing[-1].cycles += extra
+-    return Observed(obs.log, spans, obs.flash, obs.flash_ops, obs.text)
++    planted = Observed(obs.log, spans, obs.flash, obs.flash_ops, obs.text)
++    service(planted)[index].cycles = cycles
++    return planted
++
++
++def step_control(obs: Observed, cpu_hz: int) -> dict:
++    """T_svc, planted in the measured commit: each phase's longest step stretched to exactly T_svc must add
++    no finding, and stretched one CPU cycle past it must add exactly one, naming that step and its phase."""
++    limit = int(scenario.T_SVC_MS * cpu_hz // 1000)
++    steps, base = service(obs), over_t_svc(obs, cpu_hz)
++    caught, escaped = [], []
++    for phase in sorted({s.phase for s in steps}):
++        index = max((i for i, s in enumerate(steps) if s.phase == phase), key=lambda i: steps[i].cycles)
++        at = over_t_svc(stretched(obs, index, limit), cpu_hz)
++        past = [f for f in over_t_svc(stretched(obs, index, limit + 1), cpu_hz) if f not in base]
++        named = len(past) == 1 and past[0].startswith(f'step {index} ({phase}) ')
++        (caught if at == base and named else escaped).append(phase)
++    words = [f"every phase's longest step at T_svc ({limit:,} cycles) passes and one cycle past it is caught: "
++             f"{', '.join(caught)}"] if caught and not escaped else []
++    return dict(case='step-over-t-svc', caught=bool(words), words=words, passed=bool(words), findings=[],
++                escaped=escaped, limit_cycles=limit)
+ 
+ 
+ def phases(obs: Observed, cpu_hz: int) -> dict[str, dict]:
+@@ -182,7 +207,7 @@ def phases(obs: Observed, cpu_hz: int) -> dict[str, dict]:
+         row['longest_cycles'] = max(row['longest_cycles'], step.cycles)
+     for row in out.values():
+         row['longest_ms'] = ms(row['longest_cycles'], cpu_hz)
+-        row['within_t_svc'] = row['longest_ms'] <= scenario.T_SVC_MS
++        row['within_t_svc'] = within_t_svc(row['longest_cycles'], cpu_hz)
+     return out
+ 
+ 
+@@ -321,22 +346,26 @@ def committed(obs: Observed, ctx: Context, bench: object) -> list[str]:
+ 
+ 
+ def grade_case(case: object, obs: Observed, ctx: Context, bench: object) -> dict:
+-    """One case's verdict: its measurement where it has one, its findings, and whether it passed (a control
+-    passes when its planted defect is caught by its words)."""
++    """One case's verdict: its measurement where it has one, its findings (every service step over T_svc
++    among them), and whether it passed (a control passes when its planted defect is caught by its words)."""
+     from target_cases import SAVED_NAME
+     result: dict = dict(case=case.name, findings=completed(obs))
+     if case.control:
+-        words = [f for f in apply_order(obs, ctx.applies)[1]] if case.control == 'apply order' else \
++        words = apply_order(obs, ctx.applies)[1] if case.control == 'apply order' else \
++            over_t_svc(obs, ctx.cpu_hz) if case.control == 'over T_svc' else \
+             [case.control] if case.control in obs.text else []
+         result.update(caught=bool(words), words=words, passed=bool(words))
+         return result
++    longest = max((s.cycles for s in service(obs)), default=0)
++    result.update(service_steps=len(service(obs)), longest_step_cycles=longest,
++                  longest_step_ms=ms(longest, ctx.cpu_hz))
++    result['findings'] += over_t_svc(obs, ctx.cpu_hz)
+     if case.commit:
+         result['capture'] = capture(obs, ctx.records, ctx.cpu_hz)
+         result['capture']['decomposed'] = decomposed(obs, list(ctx.plens))
+         result['phases'] = phases(obs, ctx.cpu_hz)
+         result['findings'] += result['capture'].pop('findings') + committed(obs, ctx, bench)
+         result['findings'] += held_to(obs, SAVED_NAME, scenario.TALKER_A)
+-        result['t_svc_misses'] = [p for p, row in result['phases'].items() if not row['within_t_svc']]
+     elif case.name == 'guard':
+         result['findings'] += guarded(obs)
+     else:
+diff --git a/tb/verilator/nvm_split_target/target_selftest.py b/tb/verilator/nvm_split_target/target_selftest.py
+index d7157dd32b..e4f9c1625c 100644
+--- a/tb/verilator/nvm_split_target/target_selftest.py
++++ b/tb/verilator/nvm_split_target/target_selftest.py
+@@ -5,14 +5,21 @@
+ It runs the graders on synthetic logs and the case builders on the shipping
+ 1x1 shape, then replaces each grading rule in turn with a weaker one (MUTANTS)
+ and requires a named check to fail. Run it through run.py --self-test.
++
++It also holds D5 on the current flash writer unchanged (#665 owner decision
++2026-10-29, option (c)): that writer's own grader, nvm_capture_cpu/run.py,
++must still refuse a capture over 24.5 ms, and the check is planted away from
++its source to prove the self-test notices.
+ """
+ from __future__ import annotations
+ 
+ import contextlib
++import importlib.util
+ import struct
+ import sys
+ import tempfile
+-from collections.abc import Callable, Iterator
++import types
++from collections.abc import Iterator
+ from pathlib import Path
+ from unittest.mock import patch
+ 
+@@ -36,53 +43,114 @@ def call(cpu: int, name: str) -> str:
+     return f'CALL {2 * cpu} {cpu} {name}'
+ 
+ 
+-def commit_log(records: int, step: int, closing: int) -> str:
++#: The first latch step's start in commit_log, and the gap between one step's end and the next's start.
++FIRST, GAP = 1000, 10_000
++#: T_svc in CPU cycles at the self-test's CPU clock.
++LIMIT = int(tg.scenario.T_SVC_MS * CPU_HZ // 1000)
++
++
++def commit_log(records: int, step: int, closing: int, other: int = 300) -> str:
+     """A commit's service steps: an idle step, a latch step per record of `step` cycles, the step that ends the
+-    capture of `closing` cycles, two seal steps, the erase and its poll, a program and its read-back."""
+-    lines, cpu = [span(100, 50)], 1000
++    capture of `closing` cycles, then two seal steps, the erase and its poll, a program and its read-back,
++    each of `other` cycles."""
++    lines, cpu = [span(100, 50)], FIRST
+     for _ in range(records):
+         lines += [span(cpu, step), call(cpu + 1, 'acmp_nvm:latch'), call(cpu + 2, 'aecp_value_latch')]
+-        cpu += step + 10_000
++        cpu += step + GAP
+     lines.append(span(cpu, closing))
+-    cpu += closing + 10_000
++    cpu += closing + GAP
+     for phase in ('nvm_crc32_update', 'nvm_crc32_update', 'nvm_flash_litespi:ls_erase', 'nvm_flash_litespi:ls_busy',
+                   'nvm_flash_litespi:ls_program', 'nvm_flash_litespi:ls_read'):
+-        lines += [span(cpu, 300), call(cpu + 1, phase)]
+-        cpu += 10_000
++        lines += [span(cpu, other), call(cpu + 1, phase)]
++        cpu += other + GAP
+     return '\n'.join([*lines, 'RESULT: PASS']) + '\n'
+ 
+ 
+ def capture_checks() -> list[Check]:
+-    """The capture's steps and the bound: at the bound it fits, one page of its own cost past it is caught,
+-    and a capture missing a record or its closing step is refused."""
+-    bound = tg.recipe.HOLD_FLOOR_MS * CPU_HZ // 2000
+-    records, closing = 4, 1000
+-    step = (bound - closing) // records
+-    exact = commit_log(records, step, bound - records * step)
+-    got = tg.capture(tg.observe(exact, SYS_HZ, CPU_HZ), records, CPU_HZ)
+-    out = [('a capture at exactly its bound fits', got['within_bound'] and got['cycles'] == bound and
+-            not got['findings'], str(got))]
+-    page = got['cycles'] * cases.PAGE // (records * 64)
+-    over = tg.capture(tg.lengthened(tg.observe(exact, SYS_HZ, CPU_HZ), page), records, CPU_HZ)
+-    out.append(('a capture one page of its own cost past its bound is caught',
+-                not over['within_bound'] and any('over its' in f for f in over['findings']), str(over)))
++    """The capture measured with no bound of its own: its CPU time, its elapsed time and its steps; a capture
++    far past the current writer's 24.5 ms, every step within T_svc, is no finding; a capture missing a
++    record is refused."""
++    records, step, closing = 4, 40_000, 1000
++    got = tg.capture(tg.observe(commit_log(records, step, closing), SYS_HZ, CPU_HZ), records, CPU_HZ)
++    elapsed = records * (step + GAP) + closing
++    out = [("the capture's CPU time is its steps' cycles, its elapsed time its first step's start to its last "
++            "step's end", (got['cycles'], got['elapsed_cycles'], got['steps'], got['findings']) ==
++            (records * step + closing, elapsed, records + 1, []), str(got))]
++    long = int(0.9 * LIMIT)
++    slow = tg.observe(commit_log(6, long, long), SYS_HZ, CPU_HZ)
++    measured = tg.capture(slow, 6, CPU_HZ)
++    out.append(('a capture of twice 24.5 ms of CPU time, every step within T_svc, is no finding',
++                measured['ms'] > 49 and not measured['findings'] and not tg.over_t_svc(slow, CPU_HZ), str(measured)))
+     short = tg.capture(tg.observe(commit_log(records - 1, step, closing), SYS_HZ, CPU_HZ), records, CPU_HZ)
+     out.append(('a capture that latched one record fewer than the shape is refused',
+                 any('latched 3 records' in f for f in short['findings']), str(short['findings'])))
+-    phases = tg.phases(tg.observe(exact, SYS_HZ, CPU_HZ), CPU_HZ)
++    phases = tg.phases(tg.observe(commit_log(records, step, closing), SYS_HZ, CPU_HZ), CPU_HZ)
+     out.append(('every service step is classified by its calls, the closing step as the capture\'s',
+                 {p: r['steps'] for p, r in phases.items()} == dict(idle=1, capture=records + 1, seal=2, erase=1,
+                                                                   poll=1, program=1, read=1), str(phases)))
+-    slow = tg.phases(tg.observe(commit_log(1, int(10.5 * CPU_HZ / 1000), closing), SYS_HZ, CPU_HZ), CPU_HZ)
+-    out.append(('a step over T_svc is reported against it', not slow['capture']['within_t_svc'], str(slow['capture'])))
+     return out
+ 
+ 
+-def boot_log(applies: list[str]) -> str:
+-    """One boot span holding the owners' apply entries in order, then a service step."""
++def t_svc_checks() -> list[Check]:
++    """Every service step held to T_svc, in every phase: at T_svc a step passes, one CPU cycle over it is a
++    finding naming the step and its phase, the finding fails its case, and the measured commit's step
++    control is caught in every phase."""
++    at = tg.observe(commit_log(2, LIMIT, LIMIT, other=LIMIT), SYS_HZ, CPU_HZ)
++    over = tg.observe(commit_log(2, LIMIT + 1, LIMIT + 1, other=LIMIT + 1), SYS_HZ, CPU_HZ)
++    named = [f.split(' takes ')[0] for f in tg.over_t_svc(over, CPU_HZ)]
++    want = ['step 1 (capture)', 'step 2 (capture)', 'step 3 (capture)', 'step 4 (seal)', 'step 5 (seal)',
++            'step 6 (erase)', 'step 7 (poll)', 'step 8 (program)', 'step 9 (read)']
++    out = [('a step of exactly T_svc passes, in the capture, seal, erase, poll, program and read phases',
++            not tg.over_t_svc(at, CPU_HZ), str(tg.over_t_svc(at, CPU_HZ))),
++           ('a step one CPU cycle over T_svc is a finding naming it and its phase, in the capture, seal, erase, '
++            'poll, program and read phases', named == want, str(named))]
++    obs = tg.observe(commit_log(4, 40_000, 1000), SYS_HZ, CPU_HZ)
++    phases = [s.phase for s in tg.service(obs)]
++    stretched = {i: [f.split(' takes ')[0] for f in tg.over_t_svc(tg.stretched(obs, i, LIMIT + 1), CPU_HZ)]
++                 for i in range(len(phases))}
++    out.append(('any one step stretched one cycle over T_svc, the idle step among them, is that step alone, its '
++                'phase kept', all(v == [f'step {i} ({phases[i]})'] for i, v in stretched.items()) and
++                'idle' in phases, str(stretched)))
++    control = tg.step_control(obs, CPU_HZ)
++    out.append(("the step control: each phase's longest step at T_svc passes and one cycle past it is caught",
++                control['caught'] and control['limit_cycles'] == LIMIT and not control['escaped'] and
++                control['words'][0].endswith('capture, erase, idle, poll, program, read, seal'), str(control)))
++    absent = cases.Case('absent', 'fixture', 'none', 'blank')
++    ctx = tg.Context(CPU_HZ, 1, 1, b'', b'', {}, [])
++    graded = {cycles: tg.grade_case(absent, tg.observe(service_log(cycles), SYS_HZ, CPU_HZ), ctx, None)
++              for cycles in (LIMIT, LIMIT + 1)}
++    verdicts = {cycles: [f for f in r['findings'] if 'over T_svc' in f] for cycles, r in graded.items()}
++    out.append(('a service step over T_svc fails its case, one at T_svc does not',
++                not verdicts[LIMIT] and len(verdicts[LIMIT + 1]) == 1, str(verdicts)))
++    return out
++
++
++def report_checks() -> list[Check]:
++    """The run's report presents T_svc as F1's only timing bound and 24.5 ms as no bound of F1's."""
++    spec = importlib.util.spec_from_file_location('nvm_split_target_run', HERE / 'run.py')
++    run = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(run)
++    obs = tg.observe(commit_log(4, 40_000, 1000), SYS_HZ, CPU_HZ)
++    capture = dict(tg.capture(obs, 4, CPU_HZ), decomposed={})
++    capture.pop('findings')
++    result = dict(case='commit', findings=[], passed=True, service_steps=11, longest_step_cycles=40_000,
++                  longest_step_ms=0.8, capture=capture, phases=tg.phases(obs, CPU_HZ))
++    text = run.table([result, tg.step_control(obs, CPU_HZ)], '1x1')
++    return [('the report grades every step against T_svc and gives the capture no bound',
++             f'T_svc = {tg.scenario.T_SVC_MS} ms' in text and 'no bound of its own' in text and '24.5' not in text
++             and 'elapsed' in text, text[:400])]
++
++
++def boot_log(applies: list[str], service: int = 50) -> str:
++    """One boot span holding the owners' apply entries in order, then a service step of `service` cycles."""
+     lines = [span(100, 90_000, 'nvm_store_boot')]
+     lines += [call(200 + 10 * i, name) for i, name in enumerate(applies)]
+-    return '\n'.join([*lines, span(200_000, 50), 'RESULT: PASS']) + '\n'
++    return '\n'.join([*lines, span(200_000, service), 'RESULT: PASS']) + '\n'
++
++
++def service_log(cycles: int) -> str:
++    """A boot with nothing to apply, then one service step of `cycles` cycles."""
++    return boot_log([], cycles)
+ 
+ 
+ #: A container's records as the reference decode returns them, out of order on purpose.
+@@ -191,61 +259,154 @@ def control_checks() -> list[Check]:
+     ctx = tg.Context(CPU_HZ, 1, 1, b'', b'', {}, ORDER)
+     reorder = cases.Case('r', 'fixture', 'x', 'saved', control='apply order')
+     escape = cases.Case('g', 'guard-probe', 'x', 'blank', control='flash write escaped the journal')
++    slow = cases.Case('s', 'fixture', 'x', 'blank', control='over T_svc')
+     graded = {name: tg.grade_case(case, tg.observe(text, SYS_HZ, CPU_HZ), ctx, None)['caught'] for name, case, text in (
+         ('reordered', reorder, boot_log([*ORDER[1:], ORDER[0]])), ('in order', reorder, boot_log(ORDER)),
+         ('escaped write', escape, 'FAIL: flash write escaped the journal\nRESULT: FAIL\n'),
+-        ('no write', escape, 'RESULT: PASS\n'))}
++        ('no write', escape, 'RESULT: PASS\n'), ('slow step', slow, service_log(LIMIT + 1)),
++        ('step at T_svc', slow, service_log(LIMIT)))}
+     return [('a control is caught by its words and escapes without them',
+-             graded == {'reordered': True, 'in order': False, 'escaped write': True, 'no write': False}, str(graded))]
++             graded == {'reordered': True, 'in order': False, 'escaped write': True, 'no write': False,
++                        'slow step': True, 'step at T_svc': False}, str(graded))]
++
++
++#: The current flash writer's capture grader (#559): check_nvm_capture.py regrades its receipt through it.
++CAPTURE_CPU = cases.ROOT / 'tb/verilator/nvm_capture_cpu'
++#: Its 24.5 ms check, as the removal plant deletes it from grade_rows.
++SHIPPING_CHECK = ("        if (spec.get('mutation', 'none') == 'none'\n"
++                  "                and row['sys_cycles'] * 2000 > HOLD_FLOOR_MS * spec['sys_hz']):\n"
++                  "            raise RuntimeError('worst measured copy exceeds half the 49 ms hold floor')\n")
++
++
++def shipping_source(text: str) -> str:
++    """The current writer's grader source, as the checkout has it."""
++    return text
++
++
++def _shipping_check_removed(text: str) -> str:
++    """The removal plant: the current writer's grader with its 24.5 ms check deleted."""
++    return text.replace(SHIPPING_CHECK, '')
++
++
++def shipping_grader(scratch: Path) -> types.ModuleType:
++    """nvm_capture_cpu/run.py as shipping_source leaves it, written to the same place under scratch (its
++    ROOT is three directories up) and imported from there under a module name of its own; the checkout's
++    file is only read. Its recipe is the checkout's."""
++    copy = scratch / CAPTURE_CPU.relative_to(cases.ROOT) / 'run.py'
++    copy.parent.mkdir(parents=True)
++    copy.write_text(shipping_source((CAPTURE_CPU / 'run.py').read_text()))
++    if str(CAPTURE_CPU) not in sys.path:
++        sys.path.append(str(CAPTURE_CPU))
++    spec = importlib.util.spec_from_file_location('nvm_capture_cpu_run', copy)
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++def d5_checks() -> list[Check]:
++    """D5 on the current flash writer, unchanged: its own grader holds its capture to half its 49 ms hold
++    floor, 24.5 ms. A capture of exactly 24.5 ms passes and one system tick more is refused."""
++    source = (CAPTURE_CPU / 'run.py').read_text()
++    with tempfile.TemporaryDirectory() as tmp:
++        grader = shipping_grader(Path(tmp))
++    sys_hz = 100_000_000
++    limit = grader.HOLD_FLOOR_MS * sys_hz // 2000
++    row = dict(index=0, ok=1, sys_cycles=limit, raw=4, records=1, mismatches=0, open=0, requests=1, responses=1,
++               reads=1)
++    spec = dict(shape=grader.SHAPES[0], captures=1, sys_hz=sys_hz, cpu_hz=grader.CPU_HZ,
++                configured_cpu_hz=grader.CPU_HZ, phase='aligned rising edges', traffic='on', raw_bytes=4, records=1)
++    at = grader.grade_rows([row], spec)['maximum_ms']
++    try:
++        grader.grade_rows([dict(row, sys_cycles=limit + 1)], spec)
++        refused = ''
++    except RuntimeError as error:
++        refused = str(error)
++    return [("the removal plant applies to the current writer's grader: its 24.5 ms check is there once",
++             source.count(SHIPPING_CHECK) == 1, str(source.count(SHIPPING_CHECK))),
++            ("the current flash writer's capture is held to 24.5 ms: exactly 24.5 ms passes, one system tick more "
++             "is refused", grader.HOLD_FLOOR_MS / 2 == 24.5 and at == 24.5 and 'half the 49 ms' in refused,
++             f'{at} {refused!r}')]
+ 
+ 
+ def checks() -> list[Check]:
+     """Every check."""
+-    return [*capture_checks(), *order_checks(), *answer_checks(), *journal_checks(), *plant_checks(),
+-            *control_checks()]
++    return [*capture_checks(), *t_svc_checks(), *report_checks(), *order_checks(), *answer_checks(),
++            *journal_checks(), *plant_checks(), *control_checks(), *d5_checks()]
+ 
+ 
+ @contextlib.contextmanager
+-def replaced(name: str, value: object) -> Iterator[None]:
+-    """target_grade's `name` replaced for the block."""
+-    with patch.object(tg, name, value):
++def replaced(owner: object, name: str, value: object) -> Iterator[None]:
++    """owner's `name` replaced for the block."""
++    with patch.object(owner, name, value):
+         yield
+ 
+ 
+-def _strict(obs: tg.Observed, extra: int) -> tg.Observed:
+-    """lengthened, but the extra cycles dropped."""
++_OVER, _CAPTURE = tg.over_t_svc, tg.capture
++SELF = sys.modules[__name__]
++
++
++def _unstretched(obs: tg.Observed, index: int, cycles: int) -> tg.Observed:
++    """stretched, but the step left as it was."""
+     return obs
+ 
+ 
++def _elapsed_is_cpu(obs: tg.Observed, records: int, cpu_hz: int) -> dict:
++    """capture, its elapsed time reported as its CPU time."""
++    got = _CAPTURE(obs, records, cpu_hz)
++    return dict(got, elapsed_cycles=got['cycles'], elapsed_ms=got['ms'])
++
++
++def _bound_reimposed(obs: tg.Observed, records: int, cpu_hz: int) -> dict:
++    """capture, with the current writer's 24.5 ms bound imposed on F1 again."""
++    got = _CAPTURE(obs, records, cpu_hz)
++    return dict(got, findings=[*got['findings'], *(['over 24.5 ms'] if got['ms'] > 24.5 else [])])
++
++
+ #: Each grading rule replaced by a weaker one, and the check that must then fail.
+-MUTANTS: tuple[tuple[str, str, object, str], ...] = (
+-    ('capture: strictly below the bound', 'fits', lambda capture_ms: capture_ms < tg.BOUND_MS,
+-     'a capture at exactly its bound fits'),
+-    ('capture: the bound is the whole hold floor', 'BOUND_MS', tg.recipe.HOLD_FLOOR_MS,
+-     'a capture one page of its own cost past its bound is caught'),
+-    ('capture: the closing step is not the capture\'s', 'service',
++MUTANTS: tuple[tuple[str, object, str, object, str], ...] = (
++    ('steps: strictly below T_svc', tg, 'within_t_svc',
++     lambda cycles, cpu_hz: cycles * 1000 < tg.scenario.T_SVC_MS * cpu_hz,
++     'a step of exactly T_svc passes, in the capture, seal, erase, poll, program and read phases'),
++    ('steps: only the capture\'s steps graded', tg, 'over_t_svc',
++     lambda obs, cpu_hz: [f for f in _OVER(obs, cpu_hz) if '(capture)' in f],
++     'a step one CPU cycle over T_svc is a finding naming it and its phase, in the capture, seal, erase, poll, '
++     'program and read phases'),
++    ('steps: the idle step not graded', tg, 'over_t_svc',
++     lambda obs, cpu_hz: [f for f in _OVER(obs, cpu_hz) if '(idle)' not in f],
++     'any one step stretched one cycle over T_svc, the idle step among them, is that step alone, its phase kept'),
++    ('steps: no step graded against T_svc', tg, 'over_t_svc', lambda obs, cpu_hz: [],
++     'a service step over T_svc fails its case, one at T_svc does not'),
++    ('step control: the planted cycle not added', tg, 'stretched', _unstretched,
++     "the step control: each phase's longest step at T_svc passes and one cycle past it is caught"),
++    ('capture: the closing step is not the capture\'s', tg, 'service',
+      lambda obs: [s for s in obs.spans if s.name == 'nvm_store_service'],
+-     'a capture at exactly its bound fits'),
+-    ('capture: the planted page is not added', 'lengthened', _strict,
+-     'a capture one page of its own cost past its bound is caught'),
+-    ('order: settle last whatever the names', 'expected_applies',
++     "the capture's CPU time is its steps' cycles, its elapsed time its first step's start to its last step's end"),
++    ('capture: the elapsed time is its CPU time', tg, 'capture', _elapsed_is_cpu,
++     "the capture's CPU time is its steps' cycles, its elapsed time its first step's start to its last step's end"),
++    ('capture: the current writer\'s 24.5 ms bound imposed on F1', tg, 'capture', _bound_reimposed,
++     'a capture of twice 24.5 ms of CPU time, every step within T_svc, is no finding'),
++    ('order: settle last whatever the names', tg, 'expected_applies',
+      lambda applied, expect, base: [*[c for c in ORDER if c != 'aecp_restore_settle'], 'aecp_restore_settle'],
+      'the bindings first, then the D3 records in ascending id, settle before the first name'),
+-    ('order: only the first entry compared', 'apply_order',
++    ('order: only the first entry compared', tg, 'apply_order',
+      lambda obs, want: ([], [] if not want else ['apply order'] if
+                         [c for s in obs.spans for c in s.calls][:1] != want[:1] else []),
+      'the settle after the names is caught'),
+-    ('answers: any sequence_id', 'answers', lambda obs: dict(entity_status=0, entity_name=cases.SAVED_NAME,
+-                                                             rx_status=0, rx_talker=7),
++    ('answers: any sequence_id', tg, 'answers', lambda obs: dict(entity_status=0, entity_name=cases.SAVED_NAME,
++                                                                 rx_status=0, rx_talker=7),
+      'the answers are read by sequence_id: the name and the talker'),
++    ('the current flash writer: its 24.5 ms check removed from its grader', SELF, 'shipping_source',
++     _shipping_check_removed,
++     "the current flash writer's capture is held to 24.5 ms: exactly 24.5 ms passes, one system tick more is "
++     "refused"),
+ )
+ 
+ 
+ def run_mutants() -> list[Check]:
+     """Each mutant applied alone: its named check must fail."""
+     out = []
+-    for label, name, value, check in MUTANTS:
+-        with replaced(name, value):
++    for label, owner, name, value, check in MUTANTS:
++        with replaced(owner, name, value):
+             results = {n: ok for n, ok, _ in checks()}
+         out.append((f'mutant caught: {label}', results.get(check) is False, f'{check}: {results.get(check)}'))
+     return out

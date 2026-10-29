@@ -1,0 +1,9 @@
+ docs/ARCHITECTURE_HW_SW_SPLIT.md                 |  16 +-
+ sw/firmware/ctrl_nvm/README.md                   |  41 +++-
+ tb/verilator/nvm_capture_cpu/README.md           |   2 +
+ tb/verilator/nvm_split_target/README.md          | 104 ++++++---
+ tb/verilator/nvm_split_target/run.py             |  57 ++---
+ tb/verilator/nvm_split_target/target_cases.py    |  10 +-
+ tb/verilator/nvm_split_target/target_grade.py    |  97 ++++++---
+ tb/verilator/nvm_split_target/target_selftest.py | 263 ++++++++++++++++++-----
+ 8 files changed, 428 insertions(+), 162 deletions(-)
