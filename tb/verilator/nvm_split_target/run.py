@@ -19,6 +19,13 @@ planted control was caught; 1 = a case failed or a control escaped; 2 = a
 build or an input failed. The capture's CPU and elapsed times are recorded and
 graded against no bound of their own (#665 owner decision 2026-10-29, option
 (c)).
+
+Every figure is converted and graded at the CPU and bus clocks the builds
+recorded (their build.json, from the shape's constraints). results.json keeps
+those clocks beside the results, and table.md names them beside every table; a
+record with a clock missing, a figure not converted at its CPU clock, or clocks
+that are not its builds' is refused (#665, the timing figures name their
+clocks).
 """
 from __future__ import annotations
 
@@ -82,9 +89,23 @@ def boot(spec: dict, out: Path, case: cases.Case, script: str, journal: bytes) -
     return (out / f'{case.name}.log').read_text(), left.read_bytes() if left.is_file() else b''
 
 
-def run_cases(selected: list[cases.Case], specs: dict[str, dict], point: str, out: Path, jobs: int) -> list[dict]:
-    """The commit case, then the others on the journals it leaves, graded."""
+def clocks(specs: dict[str, dict]) -> dict[str, int]:
+    """The CPU and bus clocks every arm's build recorded. One conversion and one T_svc in cycles serve every
+    case, so builds that record different clocks, or no whole positive number of hertz, are refused."""
+    seen = {key: (spec.get('cpu_hz'), spec.get('sys_hz')) for key, spec in specs.items()}
+    if len(set(seen.values())) != 1:
+        raise RuntimeError(f'the builds record different clocks (CPU Hz, bus Hz): {seen}')
+    cpu_hz, sys_hz = next(iter(seen.values()))
+    if not all(type(hz) is int and hz > 0 for hz in (cpu_hz, sys_hz)):
+        raise RuntimeError(f'the builds record no usable clocks (CPU Hz, bus Hz): {seen}')
+    return dict(cpu_hz=cpu_hz, sys_hz=sys_hz)
+
+
+def run_cases(selected: list[cases.Case], specs: dict[str, dict], point: str, out: Path, jobs: int,
+              clk: dict[str, int]) -> list[dict]:
+    """The commit case, then the others on the journals it leaves, graded at the builds' clocks clk."""
     shape = POINTS[point][0]
+    cpu_hz, sys_hz = clk['cpu_hz'], clk['sys_hz']
     bench, records, length = cases.shape_bench(shape, out / 'shape')
     pages = -(-length // cases.PAGE)
     any_spec = next(iter(specs.values()))
@@ -93,12 +114,12 @@ def run_cases(selected: list[cases.Case], specs: dict[str, dict], point: str, ou
     commit = next(c for c in cases.CASES if c.commit)
     log, saved = boot(specs[cases.build_key(commit)], out, commit, cases.script(commit, target, records, pages),
                       b'\xff' * 2 * slot)
-    obs = tg.observe(log, any_spec['sys_hz'], any_spec['cpu_hz'])
+    obs = tg.observe(log, sys_hz, cpu_hz)
     plens = cases.payload_lengths(bench)
-    base = tg.Context(any_spec['cpu_hz'], records, pages, b'\xff' * 2 * slot, saved, {}, [], plens)
+    base = tg.Context(cpu_hz, records, pages, b'\xff' * 2 * slot, saved, {}, [], plens)
     results = [tg.grade_case(commit, obs, base, bench)]
     if tg.service(obs):
-        results.append(tg.step_control(obs, any_spec['cpu_hz']))
+        results.append(tg.step_control(obs, cpu_hz))
     journals = cases.journals(saved, bench, slot)
     applied = bench.decode(saved[:int.from_bytes(saved[16:20], 'little')])[1]
     applies = tg.expected_applies(applied, bench.expect, bench.donor.base)
@@ -107,23 +128,94 @@ def run_cases(selected: list[cases.Case], specs: dict[str, dict], point: str, ou
         """Boot and grade one case on its journal."""
         log, left = boot(specs[cases.build_key(case)], out, case, cases.script(case, target, records, pages),
                          journals[case.journal])
-        ctx = tg.Context(any_spec['cpu_hz'], records, pages, journals[case.journal], left, applied, applies)
-        return tg.grade_case(case, tg.observe(log, any_spec['sys_hz'], any_spec['cpu_hz']), ctx, bench)
+        ctx = tg.Context(cpu_hz, records, pages, journals[case.journal], left, applied, applies)
+        return tg.grade_case(case, tg.observe(log, sys_hz, cpu_hz), ctx, bench)
 
     with ThreadPoolExecutor(max_workers=jobs) as pool:
         results += list(pool.map(one, [c for c in selected if not c.commit]))
     return results
 
 
-def table(results: list[dict], point: str) -> str:
-    """The run's results as Markdown: each case's verdict, then the commit's capture and phases."""
-    lines = [f'# Saved-state cases on the split CPU, {point}', '', '| Case | Verdict | Detail |', '|---|---|---|']
+def record(results: list[dict], point: str, clk: dict[str, int]) -> dict:
+    """results.json: the point and its shape, the clocks every figure was converted and graded at, T_svc, and
+    the results."""
+    return dict(point=point, shape=POINTS[point][0], cpu_hz=clk['cpu_hz'], sys_hz=clk['sys_hz'],
+                t_svc_ms=scenario.T_SVC_MS, results=results)
+
+
+def missing_clocks(rec: dict) -> list[str]:
+    """A finding for each clock the record does not carry as a whole positive number of hertz."""
+    return [f'no {key} recorded' for key in ('cpu_hz', 'sys_hz')
+            if type(rec.get(key)) is not int or rec[key] <= 0]
+
+
+def figures(result: dict) -> list[tuple[str, int, float]]:
+    """A result's times in ms, each with the CPU cycles it was converted from."""
+    rows = [('longest step', result['longest_step_cycles'], result['longest_step_ms'])] \
+        if 'longest_step_cycles' in result else []
+    if 'capture' in result:
+        c = result['capture']
+        rows += [('capture CPU time', c['cycles'], c['ms']), ('capture elapsed', c['elapsed_cycles'], c['elapsed_ms']),
+                 ('capture longest step', c['longest_cycles'], c['longest_ms'])]
+    rows += [(f'{phase} longest step', row['longest_cycles'], row['longest_ms'])
+             for phase, row in sorted(result.get('phases', {}).items())]
+    return rows
+
+
+def misconverted(rec: dict) -> list[str]:
+    """A finding for each figure not converted or graded at the record's CPU clock: a time in ms, a phase's
+    verdict against T_svc, the step control's T_svc in cycles."""
+    cpu_hz, found = rec['cpu_hz'], []
+    for r in rec['results']:
+        found += [f"{r['case']}: {label} {value} ms is not {cycles:,} CPU cycles at {cpu_hz:,} Hz"
+                  for label, cycles, value in figures(r) if value != tg.ms(cycles, cpu_hz)]
+        found += [f"{r['case']}: {phase}'s T_svc verdict is not its longest step's at {cpu_hz:,} Hz"
+                  for phase, row in sorted(r.get('phases', {}).items())
+                  if row['within_t_svc'] != tg.within_t_svc(row['longest_cycles'], cpu_hz)]
+        if 'limit_cycles' in r and r['limit_cycles'] != int(scenario.T_SVC_MS * cpu_hz // 1000):
+            found.append(f"{r['case']}: T_svc of {r['limit_cycles']:,} cycles is not T_svc at {cpu_hz:,} Hz")
+    return found
+
+
+def provenance(rec: dict) -> list[str]:
+    """What is wrong with the record's clocks: one missing, or a figure not converted at its CPU clock."""
+    return missing_clocks(rec) or misconverted(rec)
+
+
+def against_build(rec: dict, specs: dict[str, dict]) -> list[str]:
+    """A finding for each arm whose build.json records other clocks than the record's."""
+    return [f"{key}: the build records CPU {spec.get('cpu_hz')} Hz and bus {spec.get('sys_hz')} Hz, the results "
+            f"{rec.get('cpu_hz')} Hz and {rec.get('sys_hz')} Hz" for key, spec in specs.items()
+            if (spec.get('cpu_hz'), spec.get('sys_hz')) != (rec.get('cpu_hz'), rec.get('sys_hz'))]
+
+
+def mhz(hz: int) -> str:
+    """A clock in MHz, to six significant digits; the clock line gives its exact hertz beside it."""
+    return f'{hz / 1e6:g} MHz'
+
+
+def clock_line(rec: dict) -> str:
+    """The clocks a table's figures were measured, converted and graded at, as the run's builds recorded them."""
+    return (f"Clocks, as this run's builds recorded them: CPU {mhz(rec['cpu_hz'])} ({rec['cpu_hz']:,} Hz), "
+            f"bus {mhz(rec['sys_hz'])} ({rec['sys_hz']:,} Hz).")
+
+
+def table(rec: dict) -> str:
+    """The run's record as Markdown: each case's verdict, then the steps against T_svc, then the commit's
+    capture and phases, each table beside the clocks it was measured at. A record without its clocks, or
+    whose figures are not at them, is refused."""
+    wrong = provenance(rec)
+    if wrong:
+        raise ValueError('the results carry no sound clock provenance: ' + '; '.join(wrong))
+    results, clock = rec['results'], clock_line(rec)
+    lines = [f"# Saved-state cases on the split CPU, {rec['point']}", '', clock, '', '| Case | Verdict | Detail |',
+             '|---|---|---|']
     for r in results:
         verdict = ('caught' if r['caught'] else 'ESCAPED') if 'caught' in r else 'pass' if r['passed'] else 'FAIL'
         detail = '; '.join(r.get('words') or r['findings']) or (
             f"{r['applies']} apply entries, boot {r['boot_cycles']:,} CPU cycles" if 'applies' in r else '')
         lines.append(f"| {r['case']} | {verdict} | {detail} |")
-    lines += ['', f'Every service step is graded against T_svc = {scenario.T_SVC_MS} ms of CPU time.', '',
+    lines += ['', f'Every service step is graded against T_svc = {scenario.T_SVC_MS} ms of CPU time.', '', clock, '',
               '| Case | Service steps | Longest step, CPU cycles | Longest, ms |', '|---|---:|---:|---:|']
     lines += [f"| {r['case']} | {r['service_steps']} | {r['longest_step_cycles']:,} | {r['longest_step_ms']:.3f} |"
               for r in results if 'service_steps' in r]
@@ -133,7 +225,7 @@ def table(results: list[dict], point: str) -> str:
             lines += ['', f"Capture, measured (no bound of its own): {c['latches']} records in {c['steps']} steps; "
                       f"CPU time {c['cycles']:,} cycles, {c['ms']:.3f} ms; elapsed {c['elapsed_cycles']:,} cycles, "
                       f"{c['elapsed_ms']:.3f} ms; longest step {c['longest_cycles']:,} cycles, "
-                      f"{c['longest_ms']:.3f} ms.", '',
+                      f"{c['longest_ms']:.3f} ms.", '', clock, '',
                       '| Phase | Steps | Longest step, CPU cycles | Longest, ms | Within T_svc | Total, CPU cycles |',
                       '|---|---:|---:|---:|---|---:|']
             lines += [f"| {p} | {row['steps']} | {row['longest_cycles']:,} | {row['longest_ms']:.3f} | "
@@ -182,14 +274,19 @@ def main(argv: list[str] | None = None) -> int:
     try:
         specs = {key: built(root, key, args.point, args.reuse_build)
                  for key in dict.fromkeys(cases.build_key(c) for c in selected)}
-        results = run_cases(selected, specs, args.point, out, args.jobs)
+        clk = clocks(specs)
+        rec = record(run_cases(selected, specs, args.point, out, args.jobs, clk), args.point, clk)
+        (out / 'results.json').write_text(json.dumps(rec, indent=1, default=str) + '\n')
+        wrong = against_build(rec, specs)
+        if wrong:
+            raise RuntimeError('; '.join(wrong))
+        text = table(rec)
     except (RuntimeError, OSError, ValueError) as error:
         print(f'REFUSED: {error}')
         return 2
-    (out / 'results.json').write_text(json.dumps(results, indent=1, default=str) + '\n')
-    (out / 'table.md').write_text(table(results, args.point))
-    print(table(results, args.point))
-    return exit_status(results)
+    (out / 'table.md').write_text(text)
+    print(text)
+    return exit_status(rec['results'])
 
 
 if __name__ == '__main__':

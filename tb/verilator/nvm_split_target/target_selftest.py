@@ -6,6 +6,11 @@ It runs the graders on synthetic logs and the case builders on the shipping
 1x1 shape, then replaces each grading rule in turn with a weaker one (MUTANTS)
 and requires a named check to fail. Run it through run.py --self-test.
 
+It holds the run's clock provenance: results.json carries the builds'
+recorded clocks, the report names them beside every table, a synthetic run at
+other clocks renders those clocks and its figures at them, and a record with
+a clock missing, misconverted or not its builds' is refused (#665).
+
 It also holds D5 on the current flash writer unchanged (#665 owner decision
 2026-10-29, option (c)): that writer's own grader, nvm_capture_cpu/run.py,
 must still refuse a capture over 24.5 ms, and the check is planted away from
@@ -15,6 +20,8 @@ from __future__ import annotations
 
 import contextlib
 import importlib.util
+import io
+import json
 import struct
 import sys
 import tempfile
@@ -30,7 +37,20 @@ import target_cases as cases  # noqa: E402
 import target_grade as tg  # noqa: E402
 
 CPU_HZ, SYS_HZ = 50_000_000, 100_000_000
+#: A differently clocked synthetic input: the report and the record must follow it, not the product's clocks.
+OTHER_CPU_HZ, OTHER_SYS_HZ = 62_500_000, 125_000_000
 Check = tuple[str, bool, str]
+
+
+def _run_module() -> types.ModuleType:
+    """run.py under a module name of its own, so the mutants can replace its functions."""
+    spec = importlib.util.spec_from_file_location('nvm_split_target_run', HERE / 'run.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+RUN = _run_module()
 
 
 def span(cpu: int, cycles: int, name: str = 'nvm_store_service') -> str:
@@ -125,20 +145,123 @@ def t_svc_checks() -> list[Check]:
     return out
 
 
-def report_checks() -> list[Check]:
-    """The run's report presents T_svc as F1's only timing bound and 24.5 ms as no bound of F1's."""
-    spec = importlib.util.spec_from_file_location('nvm_split_target_run', HERE / 'run.py')
-    run = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(run)
-    obs = tg.observe(commit_log(4, 40_000, 1000), SYS_HZ, CPU_HZ)
-    capture = dict(tg.capture(obs, 4, CPU_HZ), decomposed={})
+def graded_commit(cpu_hz: int, sys_hz: int) -> list[dict]:
+    """A synthetic commit's results and its step control, graded at the clocks given."""
+    obs = tg.observe(commit_log(4, 40_000, 1000), sys_hz, cpu_hz)
+    capture = dict(tg.capture(obs, 4, cpu_hz), decomposed={})
     capture.pop('findings')
     result = dict(case='commit', findings=[], passed=True, service_steps=11, longest_step_cycles=40_000,
-                  longest_step_ms=0.8, capture=capture, phases=tg.phases(obs, CPU_HZ))
-    text = run.table([result, tg.step_control(obs, CPU_HZ)], '1x1')
+                  longest_step_ms=tg.ms(40_000, cpu_hz), capture=capture, phases=tg.phases(obs, cpu_hz))
+    return [result, tg.step_control(obs, cpu_hz)]
+
+
+def graded_record(cpu_hz: int, sys_hz: int) -> dict:
+    """graded_commit's record at 1x1, as run.py writes it to results.json."""
+    return RUN.record(graded_commit(cpu_hz, sys_hz), '1x1', dict(cpu_hz=cpu_hz, sys_hz=sys_hz))
+
+
+def report_checks() -> list[Check]:
+    """The run's report presents T_svc as F1's only timing bound and 24.5 ms as no bound of F1's."""
+    text = rendered(graded_record(CPU_HZ, SYS_HZ))
     return [('the report grades every step against T_svc and gives the capture no bound',
              f'T_svc = {tg.scenario.T_SVC_MS} ms' in text and 'no bound of its own' in text and '24.5' not in text
              and 'elapsed' in text, text[:400])]
+
+
+def rendered(rec: dict) -> str:
+    """run.table's report of the record, or the words it refuses it with (a mutant may fail it otherwise)."""
+    try:
+        return RUN.table(rec)
+    except (ValueError, KeyError, TypeError) as error:
+        return f'REFUSED {type(error).__name__}: {error}'
+
+
+def refusal(rec: dict) -> str:
+    """The words run.table refuses the record with, or '' when it renders it."""
+    text = rendered(rec)
+    return text if text.startswith('REFUSED ') else ''
+
+
+def unclocked_tables(text: str, words: str) -> list[str]:
+    """Each table header of the report not preceded, one blank line above, by a clock line holding words."""
+    lines = text.splitlines()
+    return [lines[i] for i in range(len(lines) - 1) if lines[i].startswith('| ') and lines[i + 1].startswith('|---')
+            and not (i >= 2 and lines[i - 1] == '' and lines[i - 2].startswith('Clocks, ') and words in lines[i - 2])]
+
+
+def main_run(cpu_hz: int, sys_hz: int, graded_at: int = 0, planted: dict | None = None) -> tuple[int, dict, str]:
+    """run.py's main on builds recording cpu_hz and sys_hz, its cases graded at the clocks main passes them:
+    its exit status, results.json and table.md. graded_at plants a CPU clock for the grading, and planted the
+    run's clocks, other than the builds'."""
+    def built(root: Path, key: str, point: str, reuse: bool) -> dict:
+        """A build that records only its clocks."""
+        return dict(cpu_hz=cpu_hz, sys_hz=sys_hz, build_dir=str(root / key))
+
+    def run_cases(selected: list, specs: dict, point: str, out: Path, jobs: int, clk: dict) -> list[dict]:
+        """The synthetic commit, graded at the clocks main passes, or at graded_at."""
+        return graded_commit(graded_at or clk['cpu_hz'], clk['sys_hz'])
+    with tempfile.TemporaryDirectory() as tmp, replaced(RUN, 'built', built), \
+            replaced(RUN, 'run_cases', run_cases), contextlib.redirect_stdout(io.StringIO()), \
+            replaced(RUN, 'clocks', (lambda specs: planted) if planted else RUN.clocks):
+        status = RUN.main(['--point', '1x1', '--build-dir', tmp, '--cases', 'valid'])
+        out = Path(tmp) / 'results'
+        saved = json.loads((out / 'results.json').read_text()) if (out / 'results.json').is_file() else {}
+        text = (out / 'table.md').read_text() if (out / 'table.md').is_file() else ''
+    return status, saved, text
+
+
+def clock_checks() -> list[Check]:
+    """The clocks every figure was converted and graded at travel with the results: the builds' recorded
+    clocks in results.json and beside every table, a differently clocked input rendered at its own clocks, and
+    a record with a clock missing, a figure misconverted or clocks not its builds' refused."""
+    other = f'CPU 62.5 MHz ({OTHER_CPU_HZ:,} Hz), bus 125 MHz ({OTHER_SYS_HZ:,} Hz)'
+    product = f'CPU 50 MHz ({CPU_HZ:,} Hz), bus 100 MHz ({SYS_HZ:,} Hz)'
+    specs = {'a': dict(cpu_hz=OTHER_CPU_HZ, sys_hz=OTHER_SYS_HZ), 'b': dict(cpu_hz=OTHER_CPU_HZ, sys_hz=OTHER_SYS_HZ)}
+    rec = RUN.record(graded_commit(OTHER_CPU_HZ, OTHER_SYS_HZ), '1x1', RUN.clocks(specs))
+    back = json.loads(json.dumps(rec, default=str))
+    out = [('the results record carries the clocks its builds recorded, through JSON',
+            (back.get('cpu_hz'), back.get('sys_hz')) == (OTHER_CPU_HZ, OTHER_SYS_HZ) and not refusal(back) and
+            not RUN.against_build(back, specs), str({k: back.get(k) for k in ('cpu_hz', 'sys_hz')}))]
+    text = rendered(rec)
+    out.append(('a run at other clocks is reported at them: its clocks named, its figures converted at its CPU '
+                'clock', other in text and '50 MHz' not in text and '| 0.640 |' in text and '| 0.800 |' not in text,
+                text[:600]))
+    out.append(('every table of the report has the clocks beside it', not unclocked_tables(text, other) and
+                not unclocked_tables(rendered(graded_record(CPU_HZ, SYS_HZ)), product) and text.count('\n| ') >= 3,
+                str(unclocked_tables(text, other))))
+    for key in ('cpu_hz', 'sys_hz'):
+        words = refusal({k: v for k, v in rec.items() if k != key})
+        out.append((f'a record without its {key} is refused', f'no {key} recorded' in words, words))
+    out.append(('a record whose clock is not a whole positive number of hertz is refused',
+                'no cpu_hz recorded' in refusal(dict(rec, cpu_hz=62.5e6)) and
+                'no sys_hz recorded' in refusal(dict(rec, sys_hz=0)), ''))
+    relabelled = refusal(dict(graded_record(CPU_HZ, SYS_HZ), cpu_hz=OTHER_CPU_HZ))
+    out.append(("a record whose CPU clock is not the one its figures were converted at is refused",
+                'is not 40,000 CPU cycles at 62,500,000 Hz' in relabelled and "T_svc verdict" not in relabelled
+                and 'T_svc of 500,000 cycles' in relabelled, relabelled))
+    wrong = RUN.against_build(rec, {'a': dict(cpu_hz=CPU_HZ, sys_hz=SYS_HZ), 'b': specs['b']})
+    out.append(("a record whose clocks are not its builds' is refused, naming the build", len(wrong) == 1 and
+                wrong[0].startswith('a: the build records CPU 50000000 Hz'), str(wrong)))
+    refused = []
+    for label, bad in (('disagree', {'a': specs['a'], 'b': dict(cpu_hz=CPU_HZ, sys_hz=OTHER_SYS_HZ)}),
+                       ('lack one', {'a': dict(sys_hz=SYS_HZ)}), ('are none', {})):
+        try:
+            RUN.clocks(bad)
+        except RuntimeError as error:
+            refused.append(label if 'clocks' in str(error) else f'{label}: {error}')
+    out.append(('builds that disagree on their clocks, lack one or are none are refused',
+                refused == ['disagree', 'lack one', 'are none'], str(refused)))
+    status, saved, report = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ)
+    out.append(("run.py writes its builds' clocks to results.json and beside every table of table.md",
+                status == 0 and (saved.get('cpu_hz'), saved.get('sys_hz')) == (OTHER_CPU_HZ, OTHER_SYS_HZ) and
+                other in report and not unclocked_tables(report, other), f'{status} {str(saved)[:200]}'))
+    status, saved, report = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ, graded_at=CPU_HZ)
+    out.append(('run.py refuses results graded at another CPU clock than their record names, writing no table',
+                status == 2 and not report, f'{status} {report[:200]}'))
+    status, saved, report = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ, planted=dict(cpu_hz=CPU_HZ, sys_hz=SYS_HZ))
+    out.append(("run.py refuses a run whose clocks are not its builds', writing no table",
+                status == 2 and not report and saved.get('cpu_hz') == CPU_HZ, f'{status} {report[:200]}'))
+    return out
 
 
 def boot_log(applies: list[str], service: int = 50) -> str:
@@ -330,7 +453,7 @@ def d5_checks() -> list[Check]:
 
 def checks() -> list[Check]:
     """Every check."""
-    return [*capture_checks(), *t_svc_checks(), *report_checks(), *order_checks(), *answer_checks(),
+    return [*capture_checks(), *t_svc_checks(), *report_checks(), *clock_checks(), *order_checks(), *answer_checks(),
             *journal_checks(), *plant_checks(), *control_checks(), *d5_checks()]
 
 
@@ -360,6 +483,32 @@ def _bound_reimposed(obs: tg.Observed, records: int, cpu_hz: int) -> dict:
     """capture, with the current writer's 24.5 ms bound imposed on F1 again."""
     got = _CAPTURE(obs, records, cpu_hz)
     return dict(got, findings=[*got['findings'], *(['over 24.5 ms'] if got['ms'] > 24.5 else [])])
+
+
+_TABLE = RUN.table
+
+
+def _fixed_clock_line(rec: dict) -> str:
+    """clock_line, naming the product's clocks whatever the record holds."""
+    return f"Clocks, as this run's builds recorded them: CPU 50 MHz ({CPU_HZ:,} Hz), bus 100 MHz ({SYS_HZ:,} Hz)."
+
+
+def _unclocked_record(results: list[dict], point: str, clk: dict[str, int]) -> dict:
+    """record, without its clocks."""
+    return dict(point=point, shape=RUN.POINTS[point][0], t_svc_ms=tg.scenario.T_SVC_MS, results=results)
+
+
+def _first_build_clocks(specs: dict[str, dict]) -> dict:
+    """clocks, the first build's taken for every build and never refused."""
+    first = next(iter(specs.values()), {})
+    return dict(cpu_hz=first.get('cpu_hz'), sys_hz=first.get('sys_hz'))
+
+
+def _last_table_unclocked(rec: dict) -> str:
+    """table, the clock line beside its last table dropped."""
+    text, line = _TABLE(rec), RUN.clock_line(rec) + '\n\n'
+    at = text.rfind(line)
+    return text[:at] + text[at + len(line):]
 
 
 #: Each grading rule replaced by a weaker one, and the check that must then fail.
@@ -395,6 +544,23 @@ MUTANTS: tuple[tuple[str, object, str, object, str], ...] = (
     ('answers: any sequence_id', tg, 'answers', lambda obs: dict(entity_status=0, entity_name=cases.SAVED_NAME,
                                                                  rx_status=0, rx_talker=7),
      'the answers are read by sequence_id: the name and the talker'),
+    ('clocks: the report names the product clocks whatever it was given', RUN, 'clock_line', _fixed_clock_line,
+     'a run at other clocks is reported at them: its clocks named, its figures converted at its CPU clock'),
+    ('clocks: the last table without its clock line', RUN, 'table', _last_table_unclocked,
+     'every table of the report has the clocks beside it'),
+    ('clocks: results.json without its clocks', RUN, 'record', _unclocked_record,
+     'the results record carries the clocks its builds recorded, through JSON'),
+    ('clocks: a missing clock not refused', RUN, 'missing_clocks', lambda rec: [],
+     'a record without its sys_hz is refused'),
+    ('clocks: the figures not checked against the CPU clock', RUN, 'misconverted', lambda rec: [],
+     'a record whose CPU clock is not the one its figures were converted at is refused'),
+    ("clocks: the record not compared with its builds'", RUN, 'against_build', lambda rec, specs: [],
+     "run.py refuses a run whose clocks are not its builds', writing no table"),
+    ("clocks: the first build's clocks taken for all", RUN, 'clocks', _first_build_clocks,
+     'builds that disagree on their clocks, lack one or are none are refused'),
+    ('clocks: an unconditional 50 MHz and 100 MHz for the run', RUN, 'clocks',
+     lambda specs: dict(cpu_hz=CPU_HZ, sys_hz=SYS_HZ),
+     "run.py writes its builds' clocks to results.json and beside every table of table.md"),
     ('the current flash writer: its 24.5 ms check removed from its grader', SELF, 'shipping_source',
      _shipping_check_removed,
      "the current flash writer's capture is held to 24.5 ms: exactly 24.5 ms passes, one system tick more is "
