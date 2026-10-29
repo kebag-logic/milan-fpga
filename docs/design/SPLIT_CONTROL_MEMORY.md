@@ -660,8 +660,9 @@ No clock, cache geometry, admission, `ACMP_OWED_MAX`, scenario hold or RTL chang
   - A transmitted record is built once and copied once into its ring, a word at a time when the frame starts on a word.
     In the traced windows only MAAP's frames start elsewhere: its transmit queue sits at an unaligned offset of the stack's `struct maap`, seven frames a window.
   - The other copies are the stack's (ACMP's owed queue copies a frame it built on the stack) and the SRP adapter's retry, which copies a record only after lwSRP refused it storage.
-- **lwSRP's receive path** (`parse_pass`, `rx_on_attr` and the attribute lookups, with the helpers they call) takes 2.8 to 4.2 ms of each window that carries SRP records, 14 to 31 %.
-  It is the largest single path there, but it holds no row: without any of it, the rows' worst instances would still be 10.7 ms at 1x1 and 17.2 ms at 8x8.
+- **lwSRP's receive path** (`parse_pass`, `rx_on_attr` and the attribute lookups, with the helpers they call) takes 2.3 to 4.4 ms of each window that carries SRP records, 13 to 31 %.
+  It is the largest single path there, but it holds no row.
+  Without any of it, the missing rows' worst instances would still be 11.0 to 11.7 ms at 1x1 and 16.1 to 17.7 ms at 8x8 (10.1 to 10.7 and 16.1 to 17.2 with the stack's change).
   lwSRP is unchanged.
 
 ### The rows
