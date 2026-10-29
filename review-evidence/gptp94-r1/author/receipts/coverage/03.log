@@ -1,0 +1,12 @@
+control: slot 6 runs no NOT_ENABLED leg
+rc: 1
+FAIL #94 toggle: the first request comes within one interval of the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: then one request every interval got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: lostResponses starts at zero: four losses commit nothing got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: the fifth loss after the rise commits asCapable FALSE got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: asCapable falls at the falling edge got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: the publication holds while the port is disabled got 0000000000000003 exp 0000000000000000
+FAIL #94 link loss: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 countdown: the first request after the cease follows the last by the countdown and two beats got 0000000000000000 exp 0000000000000001
+2062 checks: 2053 PASS, 9 FAIL

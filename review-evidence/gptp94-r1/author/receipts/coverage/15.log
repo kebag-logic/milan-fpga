@@ -1,0 +1,10 @@
+control: egress claims survive the fall
+rc: 1
+FAIL wait_tx type 3: timeout
+FAIL #94 built across the fall: the request before it is answered got 0000000000000000 exp 0000000000000001
+FAIL #94 built across the fall: the response is not sent got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 3: timeout
+FAIL #94 built across the fall: a request after the rise is answered at once got 0000000000000000 exp 0000000000000001
+FAIL #94 countdown: three multi-answered requests cease got 0000000000000000 exp 0000000000000001
+FAIL #94 countdown: the first request after the cease follows the last by the countdown and two beats got 0000000000000000 exp 0000000000000001
+2064 checks: 2057 PASS, 7 FAIL

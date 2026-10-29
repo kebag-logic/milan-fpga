@@ -1,0 +1,8 @@
+control: the first enable since reset raises events
+rc: 1
+FAIL pre-init deep Announce: no commit got 0000000000000002 exp 0000000000000001
+FAIL #82 cold release: one commit before the first beat got 0000000000000002 exp 0000000000000001
+FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000002 exp 0000000000000001
+FAIL p1 255 pre-init deep Announce: no commit got 0000000000000002 exp 0000000000000001
+FAIL p1 255 #82 cold release: one commit before the first beat got 0000000000000002 exp 0000000000000001
+2062 checks: 2057 PASS, 5 FAIL

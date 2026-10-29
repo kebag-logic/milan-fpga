@@ -1,0 +1,212 @@
+{
+  "head": "f97c18035be6ef5345e5af27db2124c5697c1b40",
+  "base": "f97c18035be6ef5345e5af27db2124c5697c1b40",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "make",
+        "contract"
+      ],
+      "exit_code": 0,
+      "seconds": 0.029,
+      "log": "<scratch>/runs/specs/base-fast/01.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "make",
+        "-C",
+        "tb/verilator/ucpu"
+      ],
+      "exit_code": 0,
+      "seconds": 5.701,
+      "log": "<scratch>/runs/specs/base-fast/02.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "make",
+        "-C",
+        "tb/verilator/parser"
+      ],
+      "exit_code": 0,
+      "seconds": 91.176,
+      "log": "<scratch>/runs/specs/base-fast/03.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "make",
+        "-C",
+        "tb/verilator/engine",
+        "run"
+      ],
+      "exit_code": 0,
+      "seconds": 190.234,
+      "log": "<scratch>/runs/specs/base-fast/04.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "make",
+        "-C",
+        "tb/verilator/gaskets"
+      ],
+      "exit_code": 0,
+      "seconds": 36.544,
+      "log": "<scratch>/runs/specs/base-fast/05.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "make",
+        "-C",
+        "tb/tsngen"
+      ],
+      "exit_code": 0,
+      "seconds": 38.188,
+      "log": "<scratch>/runs/specs/base-fast/06.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "make",
+        "-C",
+        "bench/arty",
+        "test"
+      ],
+      "exit_code": 0,
+      "seconds": 5.582,
+      "log": "<scratch>/runs/specs/base-fast/07.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "make",
+        "lint"
+      ],
+      "exit_code": 0,
+      "seconds": 0.29,
+      "log": "<scratch>/runs/specs/base-fast/08.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "make",
+        "docs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.845,
+      "log": "<scratch>/runs/specs/base-fast/09.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "make",
+        "diagrams-check"
+      ],
+      "exit_code": 0,
+      "seconds": 0.176,
+      "log": "<scratch>/runs/specs/base-fast/10.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "python3",
+        "syn/ooc/check_ooc_clock.py",
+        "--selftest"
+      ],
+      "exit_code": 0,
+      "seconds": 0.072,
+      "log": "<scratch>/runs/specs/base-fast/11.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "make",
+        "ooc"
+      ],
+      "exit_code": 0,
+      "seconds": 127.956,
+      "log": "<scratch>/runs/specs/base-fast/12.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "git",
+        "diff",
+        "--exit-code",
+        "--stat"
+      ],
+      "exit_code": 0,
+      "seconds": 0.034,
+      "log": "<scratch>/runs/specs/base-fast/13.log"
+    }
+  ]
+}

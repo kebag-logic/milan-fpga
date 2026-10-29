@@ -1,0 +1,21 @@
+control: the cease entry keeps asCapable
+rc: 1
+FAIL storm clears capable... eventually got 0000000000000000 exp 0000000000000001
+FAIL ceased: no requests          got 0000000000000002 exp 0000000000000000
+FAIL forged pairs cannot climb mid-cease got 0000000000000004 exp 0000000000000000
+FAIL resume timer restarts requests got 0000000000000000 exp 0000000000000001
+FAIL 27b: a late second identity still ceases got 0000000000000000 exp 0000000000000001
+FAIL 27b: ceased, no requests     got 0000000000000001 exp 0000000000000000
+FAIL second storm ceases          got 0000000000000000 exp 0000000000000001
+FAIL D3d the cease clears the capability verdict got 0000000000000004 exp 0000000000000000
+FAIL wait_tx type 2: timeout
+FAIL D4 the Pdelay_Req beat retries got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: three multi-answered requests cease got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: the cease sends no request got 00000000000000d0 exp 00000000000000cf
+FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: then one request every interval got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: lostResponses starts at zero: four losses commit nothing got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: the fifth loss after the rise commits asCapable FALSE got 0000000000000000 exp 0000000000000001
+FAIL #94 countdown: three multi-answered requests cease got 0000000000000000 exp 0000000000000001
+FAIL #94 countdown: the first request after the cease follows the last by the countdown and two beats got 0000000000000000 exp 0000000000000001
+2063 checks: 2045 PASS, 18 FAIL

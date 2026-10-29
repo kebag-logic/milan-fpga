@@ -1,0 +1,57 @@
+===== a portEnabled edge keeps the cease: CAUGHT
+FAIL #94 toggle: the first request comes within one interval of the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: then one request every interval got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a portEnabled edge keeps the cease - breaks "#94 toggle: the first request comes within one interval of the rise | #94 toggle: the first request goes out at once after the rise | #94 toggle: then one request every interval"
+
+===== slot 6 runs no NOT_ENABLED leg: CAUGHT
+FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: asCapable falls at the falling edge got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slot 6 runs no NOT_ENABLED leg - breaks "#94 toggle: the first request goes out at once after the rise | #94 link loss: asCapable falls at the falling edge"
+
+===== a portEnabled edge keeps the ladder: CAUGHT
+FAIL #94 link loss: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a portEnabled edge keeps the ladder - breaks "#94 link loss: one exchange after the rise leaves asCapable clear"
+
+===== a portEnabled edge leaves the interval unanswered: CAUGHT
+FAIL #94 toggle: lostResponses starts at zero: four losses commit nothing got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a portEnabled edge leaves the interval unanswered - breaks "#94 toggle: lostResponses starts at zero: four losses commit nothing"
+
+===== the countdown loads one beat less: CAUGHT
+FAIL #94 countdown: the first request after the cease follows the last by the countdown and two beats got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the countdown loads one beat less - breaks "#94 countdown: the first request after the cease follows the last by the countdown and two beats"
+
+===== the cease entry ends the cease at once: CAUGHT
+FAIL #94 toggle: the cease sends no request got 00000000000000d2 exp 00000000000000d1
+FAIL #94 countdown: the first request after the cease follows the last by the countdown and two beats got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the cease entry ends the cease at once - breaks "#94 toggle: the cease sends no request | #94 countdown: the first request after the cease follows the last by the countdown and two beats"
+
+===== the falling edge raises no event: CAUGHT
+FAIL #94 link loss: asCapable falls at the falling edge got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the falling edge raises no event - breaks "#94 link loss: asCapable falls at the falling edge"
+
+===== a rise sends no request at once: CAUGHT
+FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a rise sends no request at once - breaks "#94 toggle: the first request goes out at once after the rise | #94 link loss: the first request goes out at once after the rise"
+
+===== a disabled port keeps its transmit credit: CAUGHT
+FAIL #94 link loss: the publication holds while the port is disabled got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: a disabled port keeps its transmit credit - breaks "#94 link loss: the publication holds while the port is disabled"
+
+===== a frame built across the fall is sent: CAUGHT
+FAIL #94 built across the fall: the response is not sent got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: nothing is transmitted while the port is disabled got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: a frame built across the fall is sent - breaks "#94 built across the fall: the response is not sent | #94 link loss: nothing is transmitted while the port is disabled"
+
+===== egress claims survive the fall: CAUGHT
+FAIL #94 built across the fall: a request after the rise is answered at once got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: egress claims survive the fall - breaks "#94 built across the fall: a request after the rise is answered at once"
+
+===== the first enable since reset raises events: NOT CAUGHT
+[FAIL] mutant 'the first enable since reset raises events' missed its named check(s): #82 cold release: exactly one commit
+
+
+real	2m58.558s
+user	0m0.061s
+sys	0m0.027s
