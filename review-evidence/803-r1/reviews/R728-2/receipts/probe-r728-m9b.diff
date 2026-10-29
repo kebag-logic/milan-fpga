@@ -1,0 +1,11 @@
+--- clean/hdl/milan/milan_datapath.sv	2026-10-29 03:02:53.528891227 +0100
++++ m9b/hdl/milan/milan_datapath.sv	2026-10-29 03:04:39.790884001 +0100
+@@ -6306,7 +6306,7 @@
+       else
+         for (int unsigned k = 1; k < ASP_SLOTS_C + 1; k++)
+           if (32'(gsiq_ord_r) == k)
+-            asp_served_entry_w = asp_resp_path_r[64*(k-1) +: 64];
++            asp_served_entry_w = asp_live_path_w[64*(k-1) +: 64];
+     end
+   end : asp_entry_pick
+ 

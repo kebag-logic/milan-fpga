@@ -1,0 +1,11 @@
+--- clean/tb/verilator/milan_dp/sim_gptp.cpp	2026-10-29 03:02:53.651891218 +0100
++++ h1/tb/verilator/milan_dp/sim_gptp.cpp	2026-10-29 03:14:17.451844719 +0100
+@@ -1479,7 +1479,7 @@
+     //! wait. A gather that had already finished would make an all-old answer
+     //! a false green.
+     const uint64_t capture_cyc = sim_cyc;
+-    hold_gsi_beat = true;
++    hold_gsi_beat = false;
+     announce(dut, 0x7008, {}, GMID_EMPTY, GMID_EMPTY, 90, true);
+     bool withdrew_in_gather = false;
+     for (int n = 0; n < 3000 && !withdrew_in_gather; n++) {
