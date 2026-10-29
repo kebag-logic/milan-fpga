@@ -13,6 +13,25 @@ extern "C" {
 #define AECP_FRAME_BYTES 1514u
 #define AECP_PATH_ITEMS 64u
 #define AECP_MAP_PAGE 176u
+// A notice whose observation port is unavailable is retried 1, 2, 4, then
+// every 8 ms until it is built (#665: a 1 ms retry rebuilt every pending
+// notice each millisecond). Only notices wait on it: a solicited response
+// never does (aecp_ready), so the 240 ms response bound of IEEE 1722.1-2021
+// 9.3.2.6 (9.2.1.2.5 in 1722.1-2013) and Milan v1.2 5.4.3.4 is untouched.
+// Once the port answers, the notice of Milan v1.2 5.4.5.2 and Table 5.22 is
+// built within 8 ms plus the pass that takes it, inside its 20 ms bound,
+// min(T_svc, the 24 ms notification ceiling), of FR_NFR.md 3.4.1; GET_COUNTERS keeps its
+// one-second spacing, and the 60 s unlock and the controller monitor of
+// Milan v1.2 5.4.2.2 and 5.4.5.3 are not retries.
+#define AECP_RETRY_MAX_MS 8u
+// aecp_find's index (#665) holds a run per descriptor type of IEEE 1722.1-2021
+// Table 7-1, ENTITY (0x0000) to PTP_PORT (0x0028), for the first
+// AECP_INDEXED_CONFIGURATIONS configurations: every shipped model has one.
+// A key outside them is scanned for, as before.
+#define AECP_DESCRIPTOR_TYPES 0x29u
+#define AECP_INDEXED_CONFIGURATIONS 1u
+// An aecp_run.count for a key whose descriptors are not one run.
+#define AECP_RUN_SCAN 0xffffu
 
 enum aecp_status {
 	AECP_SUCCESS = 0, AECP_NOT_IMPLEMENTED = 1, AECP_NO_SUCH_DESCRIPTOR = 2,
@@ -153,6 +172,15 @@ struct aecp_event {
 	bool counter_sent;
 	bool awaiting_output;
 	uint8_t overrides; // bit 0 scalar, bit 1 latency: a default-valued SET counts
+	uint8_t retry_ms;  // the next retry's wait, 0 before the first (AECP_RETRY_MAX_MS)
+	uint16_t next;     // the next event in aecp.live: its descriptor index + 1, 0 at the end
+};
+// One key's descriptors, at model positions first + 0 .. first + count - 1,
+// each at the position of its index: count 0 when the model has none, and
+// AECP_RUN_SCAN when they are anywhere else.
+struct aecp_run {
+	uint16_t first;
+	uint16_t count;
 };
 struct aecp_config {
 	uint64_t entity_id;
@@ -180,6 +208,18 @@ struct aecp {
 	bool in_port;
 	bool open;
 	bool start_pending;
+	bool notices; // an event may hold a notice or a retry: the event scans run only then (#665)
+	// The events holding a notice or a retry, in descriptor order, linked through
+	// aecp_event.next: the first one's index + 1, 0 when none. The event scans walk
+	// only these (#665).
+	uint16_t live;
+	// Bit n of used[i]: registry[i][n].used. The registry scans visit only these (#665).
+	uint16_t used[AECP_INTERFACES];
+	// aecp_find's index of the model's keys, which aecp_init builds and nothing
+	// rewrites after it (#665): runs[c][t] holds configuration c's descriptors
+	// of type t.
+	struct aecp_run runs[AECP_INDEXED_CONFIGURATIONS][AECP_DESCRIPTOR_TYPES];
+	unsigned awaiting; // events whose snapshot awaits its frame's completion: aecp_tx_complete scans only then
 	uint8_t response[AECP_FRAME_BYTES];
 	size_t response_bytes;
 	unsigned response_interface;

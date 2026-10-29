@@ -105,10 +105,15 @@ Initialization checks before touching potentially uninitialized destination stor
 Its refusal increments the active caller's counter; others increment the destination's.
 The diagnostic build defines `CTRL_REENTRY_ASSERT`.
 
-Unavailable notification snapshots retain their event and retry after 1 ms.
+Unavailable notification snapshots retain their event and retry after 1, 2, 4, then every 8 ms (`AECP_RETRY_MAX_MS`, #665).
+The first failure of a round schedules the next round; a delivered notice resets the wait.
+Solicited responses never wait on a retry, so their 240 ms bound (IEEE 1722.1-2021 9.3.2.6) is untouched.
 Other eligible snapshots continue during that wait.
 The retry timer permits the event loop to sleep.
 Backpressure retains the completed snapshot and its remaining recipients.
+The event scans walk only the events holding a notice or a retry, linked in descriptor order through their rows (`aecp.live`), and the registry scans visit only the used registrations (`aecp.used`), so a record's pass no longer walks every descriptor (#665).
+`aecp_open` relinks every row, so what was set before the open is seen.
+`aecp_find` answers from an index of the model's keys that `aecp_init` builds (`aecp.runs`, `aecp_index`): a configuration's descriptors of one type, held as one run from index 0, are found at their position, and a key outside the indexed configurations and types of IEEE 1722.1-2021 Table 7-1, or placed otherwise, is scanned for as before (#665). The firmware never changes a key after `aecp_init`; the self-test's cases that do rebuild the index with the change, and its fixture fails any case that leaves `aecp_find` answering differently from a scan.
 
 [`aecp_mbx.c`](aecp_mbx.c) attaches the AECP channel and one timer slot. Accepted
 TX_HEAD publication and completed TX_TAIL retirement are separate events. The
@@ -188,7 +193,9 @@ No reserved message type is interpreted as an AEM command.
 The [firmware bank](../test/test_ctrl_firmware.py) includes the composed AECP
 tests at one and two interfaces, all five generated shapes and the reentry
 guard. [`aecp_mutants.py`](../test/aecp_mutants.py) names every test and requires
-each source defect to fail its named assertion in a completed run. It plants into
+each source defect to fail its named assertion in a completed run; it appends the
+descriptor index's and the event and registration lists' defects from
+[`aecp_index_mutants.py`](../test/aecp_index_mutants.py) (#665). It plants into
 a copy of this tree and of the saved-state store beside it, so a store defect that
 reads an all-UNUSED map payload as erased is graded against the AECP owner's
 power-cycle test, which no store suite catches (#763). The full

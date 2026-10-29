@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Read a group's observation log and grade every probe against T_svc and its ceiling.
+"""Read a group's observation log and grade every probe against its budget and its ceiling.
 
 Each rule a figure rests on lives in one place, so the self-test can mutate
 it and require a named failure:
@@ -24,7 +24,9 @@ it and require a named failure:
                     ahead of each: its channel's earlier records not yet
                     released at its commit
   the owed frames   owed_ahead(): the responses committed ahead of a probe's
-  the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS and verdicts()
+  the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS, budget_ms() and verdicts()
+  the pass share    pass_share(): every work pass against share.py's share, apart from
+                    the rows
   the run           refuse_run(): an incomplete simulation, a trap or a bus error
 """
 from __future__ import annotations
@@ -33,6 +35,7 @@ import re
 from dataclasses import dataclass, field
 
 import scenario
+import share
 
 TX_RING = {n: (ch.tx_base // 4, ch.tx_words) for n, ch in enumerate(scenario.CONTRACT.channels)}
 CHANNEL = {n: ch.name for n, ch in enumerate(scenario.CONTRACT.channels)}
@@ -49,7 +52,7 @@ CONTRACT = scenario.CONTRACT        # the mailbox contract (mailbox.yaml), not t
 #: (IEEE 1722-2016 B.2) and an MSRP Listener declaration (IEEE 802.1Q-2018 35.2.2) are padded
 #: to the 60-byte frame minimum.
 LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'srp': 60}
-#: The backlog rows (MAILBOX_SPLIT.md:757-762): their composed windows carry the defined
+#: The backlog rows (MAILBOX_SPLIT.md:773-778): their composed windows carry the defined
 #: composed load, so the composed maximum is taken over them (run.composed_maximum).
 BACKLOG_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed')
 #: The groups whose composed window carries a defined load: the backlog rows and the
@@ -428,11 +431,16 @@ def combine_ends(ends: list[int]) -> int:
     return max(ends)
 
 
+def budget_ms(probe: scenario.Probe) -> float:
+    """A path's budget: min(T_svc, its family's ceiling), plus its normative wait W (FR_NFR.md 3.4.1)."""
+    return min(scenario.T_SVC_MS, scenario.CEILING_MS[probe.family]) + probe.wait_ms
+
+
 def verdicts(ms: float, probe: scenario.Probe) -> dict:
-    """elapsed <= W + T_svc, and the family's ceiling plus W (FR_NFR.md 3.4.1)."""
-    budget = scenario.T_SVC_MS + probe.wait_ms
+    """elapsed <= its budget, and the family's ceiling plus W (FR_NFR.md 3.4.1)."""
+    budget = budget_ms(probe)
     ceiling = scenario.CEILING_MS[probe.family] + probe.wait_ms
-    return dict(t_svc_ms=budget, ceiling_ms=ceiling, within_t_svc=ms <= budget, within_ceiling=ms <= ceiling)
+    return dict(budget_ms=budget, ceiling_ms=ceiling, within_budget=ms <= budget, within_ceiling=ms <= ceiling)
 
 
 def response_sequence(frame: bytes) -> int | None:
@@ -446,19 +454,19 @@ def response_sequence(frame: bytes) -> int | None:
 
 def never_answered(grader: Grader, probe: scenario.Probe, row: dict, start: int) -> dict:
     """An admitted command its firmware took and never answered by the run's end: a measured
-    finding whose time is a lower bound, fitting neither T_svc nor its ceiling (3.4.1)."""
+    finding whose time is a lower bound, fitting neither its budget nor its ceiling (3.4.1)."""
     finish = max(int(grader.log.summary.get('sys', 0)), start)
     ring, ahead = grader.ahead(probe, start)
     return dict(row, status='measured', unanswered=True, start_sys=start, end_sys=finish, sys_cycles=finish - start,
                 cpu_cycles=grader.cpu_cycles(finish - start), ms=round(grader.ms(finish - start), 5),
                 wait_ms=probe.wait_ms, ring=ring, ahead=ahead, **dict(verdicts(grader.ms(finish - start), probe),
-                                                                     within_t_svc=False, within_ceiling=False))
+                                                                     within_budget=False, within_ceiling=False))
 
 
 def owed_ahead(grader: Grader, probe: scenario.Probe, interface: int, start: int, end: int) -> list[int | None]:
     """The responses the probe's channel committed on its interface after its input and ahead
     of its own response, in commit order (None for a frame that is no response): a response
-    with N frames owed ahead of it has exactly the N it owes (MAILBOX_SPLIT.md:757-762)."""
+    with N frames owed ahead of it has exactly the N it owes (MAILBOX_SPLIT.md:773-778)."""
     ch = int(probe.start.split(':')[1])
     own = int(next(s for s in probe.ends if s.startswith('resp')).split(':')[2], 16)
     out = []
@@ -530,7 +538,7 @@ def grade_probe(grader: Grader, probe: scenario.Probe, mark: int, next_mark: int
     if taking is not None:
         bound = grader.pass_bound(start, taking)
         row.update(bound_cpu_cycles=grader.cpu_cycles(bound), bound_ms=round(grader.ms(bound), 5),
-                   bound_within_t_svc=verdicts(grader.ms(bound), probe)['within_t_svc'])
+                   bound_within_budget=verdicts(grader.ms(bound), probe)['within_budget'])
         row.update(pass_figures(taking))
     if probe.accesses is not None:
         row['model_accesses'] = probe.accesses
@@ -708,7 +716,7 @@ def service(grader: Grader, group: scenario.Group, start: int, end: int) -> list
 
     A record released after the window closed is marked out of the window. A record no
     release reached by the run's end is starved: its row carries the time it had waited, a
-    lower bound, and fits neither T_svc nor its ceiling. The records ahead of a record are its
+    lower bound, and fits neither its budget nor its ceiling. The records ahead of a record are its
     channel's earlier records that no release had passed at its commit.
     """
     finish = max(int(grader.log.summary.get('sys', 0)), end)
@@ -739,7 +747,7 @@ def service(grader: Grader, group: scenario.Group, start: int, end: int) -> list
                        ms=round(grader.ms(stop - commit), 5), passes=len(grader.window_passes(commit, stop)),
                        **verdicts(grader.ms(stop - commit), probe))
             if released is None:
-                row.update(within_t_svc=False, within_ceiling=False)
+                row.update(within_budget=False, within_ceiling=False)
             rows.append(dict(row, status='measured'))
     return rows
 
@@ -775,6 +783,15 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
                 passes=len(inside), start_sys=top.start_sys, modules=top.modules, population=got,
                 admission=group.admission, serviced=not left, unreleased=left,
                 window_ms=round(grader.ms(end - start), 5))
+
+
+def pass_share(log: Log) -> dict:
+    """Every work pass against the per-pass share (share.py), apart from the row verdicts: the share
+    in ms and in CPU cycles at the log's CPU clock, the work passes, and each one over it."""
+    limit = share.share_cycles(log.cpu_hz)
+    over = [p for p in log.passes if p.cycles > limit]
+    return dict(ms=share.share_ms(), cycles=limit, passes=len(log.passes), over=len(over),
+                over_passes=[dict(start_sys=p.start_sys, cycles=p.cycles) for p in over])
 
 
 def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
@@ -813,5 +830,5 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
                             worst=dict(cycles=worst.cycles, ms=round(grader.cpu_ms(worst.cycles), 5),
                                        instr=worst.count('instr'), start_sys=worst.start_sys,
                                        modules=worst.modules) if worst else None,
-                            composed=window),
+                            composed=window, share=pass_share(log)),
                 summary=log.summary, modules=log.modules, code=log.code)

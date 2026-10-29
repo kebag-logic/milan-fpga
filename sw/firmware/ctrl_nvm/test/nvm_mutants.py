@@ -81,18 +81,27 @@ static uint64_t ls_now_us(void *ctx)
 	ls_last_us = now;
 	return now;
 }"""
-TO_US = "\treturn ls_ticks / LS_HZ * 1000000u + ls_ticks % LS_HZ * 1000000u / LS_HZ;"
+TO_US = ("\treturn ls_seconds_us + steps * LS_US_PER + "
+         "(ls_second - steps * LS_TICKS_PER) * LS_US_PER / LS_TICKS_PER;")
 TIMER_NOW = """static uint64_t ls_now_us(void *ctx)
 {
 	uint32_t v;
+	uint32_t elapsed;
+	uint32_t steps;
 
 	(void)ctx;
 	v = ls_timer();
 	/* the timer counts down; the difference is wrap-safe in 32 bits */
-	ls_ticks += (uint32_t)(ls_tick_last - v);
+	elapsed = (uint32_t)(ls_tick_last - v);
 	ls_tick_last = v;
-	/* whole seconds, then the rest: fewer clocks than one second's, so
-	 * times 10^6 it stays inside 64 bits */
+	/* at most 2^32 - 1 clocks: a few dozen seconds, carried without a divide */
+	while (elapsed >= (uint32_t)LS_HZ - ls_second) {
+		elapsed -= (uint32_t)LS_HZ - ls_second;
+		ls_second = 0;
+		ls_seconds_us += 1000000u;
+	}
+	ls_second += elapsed;
+	steps = ls_second / LS_TICKS_PER;
 """ + TO_US + "\n}"
 CALL_TICKS = ("const uint32_t nvm_flash_litespi_call_ticks = "
               "(uint32_t)(LS_CALL_US * LS_HZ / 1000000u);")
@@ -422,12 +431,12 @@ MUTANTS = (
     # time from the PHC, held on a backward step
     _m("phc_time", LITESPI, TIMER_NOW, PHC_NOW, "time_base"),
     _m("clock_not_accumulated", LITESPI,
-       "\tls_ticks += (uint32_t)(ls_tick_last - v);\n\tls_tick_last = v;\n",
-       "\tls_ticks = 0xffffffffu - v;\n\tls_tick_last = v;\n", "time_base"),
+       "\t\tls_seconds_us += 1000000u;\n", "", "time_base"),
     # the round-3 port: a whole number of clocks per us, 83 at the Arty
     # shapes' 83.333 MHz, for the time base and the deadline (R500-3)
     Mutant("ticks_per_us_truncated",
-           ((LITESPI, TO_US, "\treturn ls_ticks / (CONFIG_CLOCK_FREQUENCY / 1000000u);"),
+           ((LITESPI, TO_US, "\treturn ls_seconds_us + (ls_second + 0u * steps) / "
+                             "(CONFIG_CLOCK_FREQUENCY / 1000000u);"),
             (LITESPI, CALL_TICKS, "const uint32_t nvm_flash_litespi_call_ticks = "
                                   "LS_CALL_US * (CONFIG_CLOCK_FREQUENCY / 1000000u);")),
            ("port_clock", "time_base"), ARTY),

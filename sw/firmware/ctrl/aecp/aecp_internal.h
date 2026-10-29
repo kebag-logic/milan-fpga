@@ -9,7 +9,11 @@ bool aecp_enter(struct aecp *);
 void aecp_port_begin(struct aecp *);
 void aecp_port_end(struct aecp *);
 
+// The model's first descriptor of a key, or NULL. It answers from aecp.runs,
+// which aecp_index builds from the keys as they are: aecp_init calls it, and a
+// key changed after that is found only once aecp_index runs again (#665).
 struct aecp_descriptor *aecp_find(struct aecp *, uint16_t, uint16_t, uint16_t);
+void aecp_index(struct aecp *);
 bool aecp_other_lock(const struct aecp *);
 bool aecp_foreign_lock(const struct aecp *);
 unsigned aecp_name_offset(uint16_t, uint16_t);
@@ -20,8 +24,12 @@ void aecp_note(struct aecp *, enum aecp_change, uint16_t, uint16_t);
 // Record the n bytes at a value a command is about to change (#665).
 void aecp_keep(struct aecp *, void *, size_t);
 bool aecp_stream_read(struct aecp *, uint16_t, uint16_t, struct aecp_stream_info *);
+// A response's Ethernet header and AECPDU common data, through command_type.
+#define AECP_HEADER_BYTES 38u
 // Command-specific data only. The caller provides AECP_FRAME_BYTES of output
-// space, disjoint from the input. Output is always initialized by this call.
+// space, disjoint from the input. This call writes every one of the *bytes
+// bytes of output it answers with, so none depends on what the buffer held,
+// and zeroes no more than its fixed body (#665).
 unsigned aecp_command(struct aecp *, unsigned, uint16_t, const uint8_t *, size_t,
 		      uint8_t *, size_t *);
 unsigned aecp_map_command(struct aecp *, uint16_t, const uint8_t *, size_t,

@@ -2632,6 +2632,7 @@ _CTRL_MAILBOX_SOURCES = [
     "hdl/milan/mailbox/KL_mbx_evt.sv",
     "hdl/milan/mailbox/KL_mbx.sv",
     "hdl/milan/mailbox/KL_mbx_wb.sv",
+    "hdl/milan/mailbox/KL_mbx_dma.sv",
 ]
 
 
@@ -2640,6 +2641,82 @@ def ctrl_mailbox_contract() -> object:
     sys.path.insert(0, str(REPO_ROOT / "sw" / "mailbox"))
     from mailbox_model import load as load_mailbox_contract
     return load_mailbox_contract()
+
+
+#: The record mover's control registers (#665, owner decision 2026-10-29), in
+#: this order, one 32-bit word each from its CSR bank's base: CFG ([15:0] the
+#: ring's word 0 as a word address in the mailbox window, [31:16] the ring's
+#: words less one), MEM (the memory side's first byte, on a word), CMD ([15:0]
+#: the ring index of the first word, [27:16] the bytes to move, [31] 1 for
+#: memory to the ring; a write starts the transfer) and STATUS ([0] BUSY,
+#: [1] ERR). sw/firmware/ctrl/plat/mbx_dma.h restates them for the firmware.
+CTRL_MBX_DMA_REGISTERS = ("cfg", "mem", "cmd", "status")
+
+
+class CtrlMailboxDma(LiteXModule):
+    """The split placement's record mover (KL_mbx_dma, #665): its CSR bank and its DMA master.
+
+    KL_mbx_dma sits on KL_mbx's host port between KL_mbx_wb and KL_mbx and
+    moves a record's payload between a ring and the CPU's memory over `bus`,
+    an AXI4 master the SoC adds to its DMA bus, so through the CPU's coherent
+    DMA port. `cpu` is the host port KL_mbx_wb drives, `host` the one KL_mbx
+    takes; the mailbox hookups (CtrlMailbox, the CPU budget harness's own)
+    connect each to their adapter and their mailbox.
+    """
+
+    def __init__(self, addr_w: int) -> None:
+        """`addr_w` is the mailbox window's word-address width (KL_mbx_pkg's MBX_ADDR_W_C)."""
+        def port() -> dict[str, Signal]:
+            """One host port's signals, as KL_mbx names them."""
+            return dict(req=Signal(), we=Signal(), addr=Signal(addr_w), wdata=Signal(32), be=Signal(4),
+                        ack=Signal(), rdata=Signal(32))
+        self.cpu, self.host = port(), port()
+        self.cfg = CSRStorage(32, description="[15:0] the ring's word 0, a word address in the window; "
+                                               "[31:16] the ring's words less one")
+        self.mem = CSRStorage(32, description="The memory side's first byte, on a word")
+        self.cmd = CSRStorage(32, description="[15:0] the first word's ring index; [27:16] the bytes to move; "
+                                              "[31] 1: memory to the ring. A write starts the transfer")
+        self.status = CSRStatus(32, description="[0] BUSY; [1] ERR")
+        self.bus = bus = axi.AXIInterface(data_width=32, address_width=32, id_width=4)
+        busy, err, start = Signal(), Signal(), Signal()
+        # CSRStorage takes the written word at the end of its write cycle: start the cycle after.
+        self.sync += start.eq(self.cmd.re)
+        self.comb += self.status.status.eq(Cat(busy, err))
+        c, h = self.cpu, self.host
+        self.specials += Instance("KL_mbx_dma",
+            i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
+            i_ring_base_i=self.cfg.storage[:addr_w], i_ring_mask_i=self.cfg.storage[16:32],
+            i_ring_index_i=self.cmd.storage[0:16], i_mem_addr_i=self.mem.storage,
+            i_len_bytes_i=self.cmd.storage[16:28], i_to_ring_i=self.cmd.storage[31],
+            i_start_p_i=start, o_busy_o=busy, o_err_o=err,
+            i_cpu_req_i=c["req"], i_cpu_we_i=c["we"], i_cpu_addr_i=c["addr"], i_cpu_wdata_i=c["wdata"],
+            i_cpu_be_i=c["be"], o_cpu_ack_o=c["ack"], o_cpu_rdata_o=c["rdata"],
+            o_host_req_o=h["req"], o_host_we_o=h["we"], o_host_addr_o=h["addr"], o_host_wdata_o=h["wdata"],
+            o_host_be_o=h["be"], i_host_ack_i=h["ack"], i_host_rdata_i=h["rdata"],
+            o_axi_awvalid_o=bus.aw.valid, i_axi_awready_i=bus.aw.ready, o_axi_awid_o=bus.aw.id,
+            o_axi_awaddr_o=bus.aw.addr, o_axi_awlen_o=bus.aw.len, o_axi_awsize_o=bus.aw.size,
+            o_axi_awburst_o=bus.aw.burst, o_axi_awlock_o=bus.aw.lock, o_axi_awcache_o=bus.aw.cache,
+            o_axi_awprot_o=bus.aw.prot, o_axi_awqos_o=bus.aw.qos,
+            o_axi_wvalid_o=bus.w.valid, i_axi_wready_i=bus.w.ready, o_axi_wdata_o=bus.w.data,
+            o_axi_wstrb_o=bus.w.strb, o_axi_wlast_o=bus.w.last,
+            i_axi_bvalid_i=bus.b.valid, o_axi_bready_o=bus.b.ready, i_axi_bid_i=bus.b.id, i_axi_bresp_i=bus.b.resp,
+            o_axi_arvalid_o=bus.ar.valid, i_axi_arready_i=bus.ar.ready, o_axi_arid_o=bus.ar.id,
+            o_axi_araddr_o=bus.ar.addr, o_axi_arlen_o=bus.ar.len, o_axi_arsize_o=bus.ar.size,
+            o_axi_arburst_o=bus.ar.burst, o_axi_arlock_o=bus.ar.lock, o_axi_arcache_o=bus.ar.cache,
+            o_axi_arprot_o=bus.ar.prot, o_axi_arqos_o=bus.ar.qos,
+            i_axi_rvalid_i=bus.r.valid, o_axi_rready_o=bus.r.ready, i_axi_rid_i=bus.r.id,
+            i_axi_rdata_i=bus.r.data, i_axi_rresp_i=bus.r.resp, i_axi_rlast_i=bus.r.last)
+
+
+def add_ctrl_mailbox_dma(soc: SoCCore, addr_w: int, loc: int) -> CtrlMailboxDma:
+    """The record mover in its own CSR bank at `loc`, its master on the CPU's DMA bus (#665)."""
+    if not hasattr(soc, "dma_bus"):
+        raise ValueError("--ctrl-mailbox: the record mover needs the CPU's coherent DMA port, "
+                         "and this SoC has no DMA bus")
+    soc.csr.add("ctrl_mbx_dma", n=loc)
+    soc.ctrl_mbx_dma = CtrlMailboxDma(addr_w)
+    soc.dma_bus.add_master("ctrl_mbx_dma", master=soc.ctrl_mbx_dma.bus)
+    return soc.ctrl_mbx_dma
 
 
 def ctrl_mailbox_face_ports(contract: object) -> dict:
@@ -2686,10 +2763,11 @@ class CtrlMailbox(LiteXModule):
     (contract 2.3: the settings, the four request and answer windows and the
     face events; #665): its outputs are named and unread,
     and the datapath's answers, acknowledgements and events are held idle, so
-    a request times out and a commit waits, as the contract defines.
+    a request times out and a commit waits, as the contract defines. KL_mbx_wb
+    reaches KL_mbx through the record mover (`dma`, CtrlMailboxDma).
     """
 
-    def __init__(self, sys_clk_freq: int, contract: object) -> None:
+    def __init__(self, sys_clk_freq: int, contract: object, dma: CtrlMailboxDma) -> None:
         from litex.soc.interconnect import wishbone
         from litex.soc.interconnect.csr_eventmanager import EventManager, EventSourceLevel
         self.bus = wishbone.Interface(data_width=32, adr_width=30)
@@ -2710,19 +2788,19 @@ class CtrlMailbox(LiteXModule):
         # width, a bit per source or sink, and 64 bits per sink's stream_id
         n_if = contract.interfaces
         pub_w = {(r.name, f.name): f.width for r in contract.pub_registers for f in r.fields}
-        req, we, ack, irq = Signal(), Signal(), Signal(), Signal()
-        addr, wdata, rdata, be = Signal(addr_w), Signal(32), Signal(32), Signal(4)
+        irq = Signal()
+        c, h = dma.cpu, dma.host
         self.specials += Instance("KL_mbx_wb",
             i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
             i_wb_cyc_i=self.bus.cyc, i_wb_stb_i=self.bus.stb, i_wb_we_i=self.bus.we,
             i_wb_adr_i=self.bus.adr, i_wb_dat_i=self.bus.dat_w, i_wb_sel_i=self.bus.sel,
             o_wb_ack_o=self.bus.ack, o_wb_dat_o=self.bus.dat_r, o_wb_err_o=self.bus.err,
-            o_host_req_o=req, o_host_we_o=we, o_host_addr_o=addr, o_host_wdata_o=wdata,
-            o_host_be_o=be, i_host_ack_i=ack, i_host_rdata_i=rdata)
+            o_host_req_o=c["req"], o_host_we_o=c["we"], o_host_addr_o=c["addr"], o_host_wdata_o=c["wdata"],
+            o_host_be_o=c["be"], i_host_ack_i=c["ack"], i_host_rdata_i=c["rdata"])
         self.specials += Instance("KL_mbx",
             i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
-            i_host_req_i=req, i_host_we_i=we, i_host_addr_i=addr, i_host_wdata_i=wdata,
-            i_host_be_i=be, o_host_ack_o=ack, o_host_rdata_o=rdata, o_irq_o=irq,
+            i_host_req_i=h["req"], i_host_we_i=h["we"], i_host_addr_i=h["addr"], i_host_wdata_i=h["wdata"],
+            i_host_be_i=h["be"], o_host_ack_o=h["ack"], o_host_rdata_o=h["rdata"], o_irq_o=irq,
             i_ms_tick_p_i=ms_tick,
             # held idle in F0, see the class docstring
             i_link_up_i=0, i_gm_change_p_i=0, i_gm_id_i=0, i_gptp_domain_i=0,
@@ -2754,7 +2832,8 @@ def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int) -> None:
     # below the observer's page, where automatic allocation reaches last.
     contract = ctrl_mailbox_contract()
     soc.csr.add("ctrl_mbx", n=soc.csr.n_locs - 2)
-    soc.ctrl_mbx = CtrlMailbox(sys_clk_freq, contract)
+    dma = add_ctrl_mailbox_dma(soc, (contract.window_bytes // 4 - 1).bit_length(), soc.csr.n_locs - 3)
+    soc.ctrl_mbx = CtrlMailbox(sys_clk_freq, contract, dma)
     soc.bus.add_slave("ctrl_mbx", soc.ctrl_mbx.bus,
                       region=SoCRegion(origin=CTRL_MBX_BASE, size=contract.window_bytes, cached=False))
     if soc.irq.enabled:
@@ -2845,25 +2924,67 @@ def _validate_cpu_options(cpu: str, with_fpu: bool, l2_bytes: Decimal | float | 
                          "omit the option or request a positive size")
 
 
-#: The split placement's instruction cache (#665, owner decision 2026-10-26: the CPU budget's
-#: first approach): VexiiRiscv's fetch L1 as (sets, ways) of the generator's fixed 64-byte line
-#: (FetchL1Plugin at the pinned revision). docs/design/SPLIT_CONTROL_MEMORY.md section 7 gives
-#: the measured sweep this is chosen from.
-CTRL_FETCH_L1 = (64, 1)
+#: The split placement's instruction cache (#665, owner decisions 2026-10-26 and 2026-10-29;
+#: NFR-SCOUT-01): VexiiRiscv's fetch L1 as (sets, ways) of the generator's fixed 64-byte line
+#: (FetchL1Plugin at the pinned revision), 16 KiB two-way. The generator replaces by its PLRU,
+#: which at two ways is LRU, and keeps its default of one refill at a time.
+#: docs/design/SPLIT_CONTROL_MEMORY.md sections 7, 12 and 13 give the measurements.
+CTRL_FETCH_L1 = (128, 2)
+
+#: The split placement's data cache (#665, owner decision 2026-10-28; NFR-SCOUT-01): VexiiRiscv's
+#: LSU L1 as (sets, ways) of the generator's 64-byte line, 8 KiB direct-mapped, the smallest size
+#: measured to drain the composed bursts within T_svc at a burst of 2 a channel, kept by the owner
+#: with the mailbox contract's own bursts (#665, 2026-10-28). With the DMA port the generator makes
+#: it coherent through its hub (patch 0005: lsuL1Coherency), so a write the protocol memory bridges
+#: carry reaches the CPU's copy. The mailbox, CSR and flash windows stay uncached by region
+#: (ctrl_uncached_flash). docs/design/SPLIT_CONTROL_MEMORY.md section 9 gives the measurement.
+CTRL_LSU_L1 = (128, 1)
+
+#: The split placement's multiply and divide (#665, owner decision 2026-10-27; NFR-SCOUT-01):
+#: the pinned VexiiRiscv's RV32M, its MulPlugin and its DivPlugin at the generator's defaults
+#: (radix 2, built for area). The split firmware is built rv32im, so its 32-bit multiplies and
+#: divides are instructions instead of the runtime's software loops.
+CTRL_MULDIV = "--with-mul --with-div"
 
 
 def ctrl_cpu_args(fetch_l1: tuple[int, int] | None) -> str:
-    """The generator options the split placement adds to its CPU; None adds nothing.
+    """The generator options the split placement adds to its CPU: RV32M, and its instruction
+    and data caches unless fetch_l1 is None.
 
-    Only the fetch side is cached. An LSU L1 with the DMA port makes the
-    generator build its coherent interconnect and hub instead of patch 0005's
-    non-coherent fabric; the data-side cost measured with the instruction
-    cache is mostly byte-loop stores, which firmware removes first (#665).
+    The data cache (CTRL_LSU_L1) comes with the instruction cache: with the
+    DMA port an LSU L1 makes the generator build its coherent interconnect and
+    hub instead of patch 0005's non-coherent fabric (#665). None is the
+    cacheless CPU on both sides. The ISA does not depend on the caches: the
+    split image is RV32IM, so every cache geometry runs it, None included.
     """
     if fetch_l1 is None:
-        return ""
+        return CTRL_MULDIV
     sets, ways = fetch_l1
-    return f"--fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"
+    lsu_sets, lsu_ways = CTRL_LSU_L1
+    return (f"{CTRL_MULDIV} --fetch-l1 --fetch-l1-sets={sets} --fetch-l1-ways={ways}"
+            f" --lsu-l1 --lsu-l1-sets={lsu_sets} --lsu-l1-ways={lsu_ways}")
+
+
+def ctrl_uncached_flash(soc: SoCCore) -> None:
+    """Keep the split CPU's flash window out of its data cache (#665, NFR-SCOUT-01).
+
+    The saved-state store reads the flash through the window and erases and
+    programs it through the LiteSPI command master, which no cache sees
+    (sw/firmware/ctrl_nvm/plat/nvm_flash_litespi.c), then blank-checks and
+    verifies through the window. A line the data cache held before the erase
+    would read stale after it. VexiiRiscv takes each region's cacheability
+    from the region list it is generated from, and an uncached peripheral
+    region is an IO access on its data bus; the generator refuses an uncached
+    region only on its memory bus. LiteX's own rule that a region outside the
+    IO region is cached is a rule for CPUs whose caches follow the IO region
+    alone, so the region is marked after it is added. The split image runs
+    from rom (ctrl_split.ld), so the window also stops being executable: a
+    fetch from it faults instead of running uncached, and every executable
+    region stays cacheable for the instruction cache.
+    """
+    region = soc.bus.regions["spiflash"]
+    region.cached = False
+    region.mode = region.mode.replace("x", "")
 
 
 class MilanSoC(SoCCore):
@@ -2908,8 +3029,8 @@ class MilanSoC(SoCCore):
                 "MilanSoC needs a resolved gptp_plane=True/False when the "
                 "Milan datapath is present")
         # ---- RISC-V core(s). Two cores are understood by the integration, although
-        #      the product gate below accepts only RV32 VexiiRiscv, cacheless except
-        #      for the split placement's instruction cache (ctrl_cpu_args). The
+        #      the product gate below accepts only RV32 VexiiRiscv, RV32I and cacheless
+        #      except for the split placement's RV32M and caches (ctrl_cpu_args). The
         #      processor descriptor/response bridges need the core's dedicated
         #      fabric-memory attachment whenever the Milan endpoint is present;
         #      it is a structural part of those two protocol faces.
@@ -2931,8 +3052,8 @@ class MilanSoC(SoCCore):
             _vex_args.l2_bytes    = int(l2_bytes) if l2_bytes else 0
             vexii_extra = " ".join(extra_scala_args) if extra_scala_args else ""
             if ctrl_mailbox:
-                # #665: the split placement's CPU fetches through its instruction
-                # cache. The all-fabric CPU's arguments, so its netlist, are unchanged.
+                # #665: the split placement's CPU has RV32M and its instruction and data
+                # caches. The all-fabric CPU's arguments, so its netlist, are unchanged.
                 vexii_extra = " ".join(filter(None, (vexii_extra, ctrl_cpu_args(CTRL_FETCH_L1))))
             # --xlen is a REAL knob on this path, not a NaxRiscv-only one. It used to be
             # hardcoded to 64 here, so `--cpu vexiiriscv --xlen 32` was accepted and
@@ -3123,6 +3244,9 @@ class MilanSoC(SoCCore):
             # 50 MHz reads corrupt (CRC differs per read); r2slots was borderline-OK.
             self.add_spi_flash(mode="1x", module=flash_module,
                                clk_freq=int(12.5e6), with_master=True)
+            if ctrl_mailbox:
+                # #665: no flash line may sit in the split CPU's data cache.
+                ctrl_uncached_flash(self)
             # The BIOS boot-time auto-calibration (liblitespi spiflash_freq_init) re-tunes the
             # divisor UP from this default as long as a short CRC test block reads stably  -  on
             # this board it locked div=2 (50 MHz) and the marginality only shows on MB-scale

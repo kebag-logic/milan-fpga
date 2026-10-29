@@ -21,6 +21,7 @@ import build
 import grade
 import run
 import scenario
+import share
 
 Patches = Callable[[], list]
 
@@ -291,7 +292,7 @@ def _first_instance(results: list[dict]) -> list[dict]:
                                                               row=r['row'], instances=0, misses=0,
                                                               worst=dict(r, group=group['group'])))
                 entry['instances'] += 1
-                entry['misses'] += not r['within_t_svc']
+                entry['misses'] += not r['within_budget']
     return list(out.values())
 
 
@@ -302,17 +303,34 @@ def _counts_per_instance() -> list:
 
 
 def _verdict(refusals_fail: bool, misses_fail: bool) -> Patches:
-    def verdict(args: object, groups: list, refusals: list, misses: list) -> int:
+    def verdict(args: object, groups: list, refusals: list, misses: list, shares: list = ()) -> int:
         """The mutant exit status: refusals or misses fail only where the flags say."""
         if refusals_fail and (refusals or not groups):
             return 1
+        if shares and not args.record_share_findings:
+            return 1
         return 1 if misses_fail and misses and not args.record_budget_findings else 0
+    return lambda: [patch.object(run, 'verdict', verdict)]
+
+
+def _shares_seen(keep: Callable[[object, list], bool]) -> Patches:
+    """run.verdict handed the passes over the share only where keep(args, misses) says."""
+    original = run.verdict
+
+    def verdict(args: object, groups: list, refusals: list, misses: list, shares: list = ()) -> int:
+        """The mutant exit status: the passes over the share dropped unless keep holds."""
+        return original(args, groups, refusals, misses, shares if keep(args, misses) else [])
     return lambda: [patch.object(run, 'verdict', verdict)]
 
 
 def _fetch_bus_cacheless(spec: dict) -> tuple[list, int]:
     """The cacheless CPU's observers and one beat a command, whatever the CPU fetches through."""
     return list(build.ACCESSORS), 1
+
+
+def _lsu_bus_cacheless(rows: list, netlist: str) -> list:
+    """The cacheless LSU's observers, whatever the CPU's load/store plugin."""
+    return rows
 
 
 def _fetch_bus_one_beat(spec: dict, original: Callable = build.fetch_bus) -> tuple[list, int]:
@@ -428,18 +446,22 @@ MUTANTS: dict[str, Patches] = {
         grade, 'owed_ahead', lambda grader, probe, *a: list(probe.owed))],
     'owed: a command never answered fits': lambda: [patch.object(
         grade, 'never_answered', lambda grader, probe, row, start: dict(row, status='measured', ms=0.0, start_sys=start,
-                                                                        within_t_svc=True, within_ceiling=True))],
+                                                                        within_budget=True, within_ceiling=True))],
     'notify: the fan-out registers one controller an interface (earlier rule)': lambda: [patch.object(
         scenario, 'registrations', lambda: 1)],
-    'deadline: T_svc 20 ms': lambda: [patch.object(scenario, 'T_SVC_MS', 20.0)],
-    'deadline: strictly below the budget': _verdicts(lambda v, ms, probe: dict(v, within_t_svc=ms < v['t_svc_ms'])),
+    'deadline: T_svc pinned at the 10 ms proposal (earlier rule)': lambda: [patch.object(scenario, 'T_SVC_MS', 10.0)],
+    'deadline: SRP graded against T_svc alone, not its 18 ms ceiling': lambda: [patch.object(
+        grade, 'budget_ms', lambda probe: scenario.T_SVC_MS + probe.wait_ms)],
+    'deadline: each family graded against its ceiling alone, not T_svc': lambda: [patch.object(
+        grade, 'budget_ms', lambda probe: scenario.CEILING_MS[probe.family] + probe.wait_ms)],
+    'deadline: strictly below the budget': _verdicts(lambda v, ms, probe: dict(v, within_budget=ms < v['budget_ms'])),
     'deadline: the normative wait is not added': _verdicts(lambda v, ms, probe: dict(
-        v, within_t_svc=ms <= scenario.T_SVC_MS)),
+        v, within_budget=ms <= min(scenario.T_SVC_MS, scenario.CEILING_MS[probe.family]))),
     'deadline: the ceiling drops the normative wait': _verdicts(lambda v, ms, probe: dict(
         v, within_ceiling=ms <= scenario.CEILING_MS[probe.family])),
     'deadline: the ACMP ceiling is the transaction timeout': lambda: [patch.dict(scenario.CEILING_MS, {'acmp': 200.0})],
     'run: a CPU trap is not refused': lambda: [patch.object(grade, 'refuse_run', _run_ignores_traps)],
-    'run: a T_svc miss never fails the run': _verdict(refusals_fail=True, misses_fail=False),
+    'run: a budget miss never fails the run': _verdict(refusals_fail=True, misses_fail=False),
     'run: a refusal does not fail the run': _verdict(refusals_fail=False, misses_fail=True),
     'run: the as-built control is caught by an instruction access fault only (earlier rule)': lambda: [patch.object(
         run, 'AS_BUILT_CAUSES', (1,))],
@@ -470,6 +492,8 @@ MUTANTS: dict[str, Patches] = {
     'fetch bus: the cacheless observers on a cached CPU':
         lambda: [patch.object(build, 'fetch_bus', _fetch_bus_cacheless)],
     'fetch bus: one beat a refill': lambda: [patch.object(build, 'fetch_bus', _fetch_bus_one_beat)],
+    'lsu bus: the cacheless observers on a data-cached CPU':
+        lambda: [patch.object(build, 'lsu_bus', _lsu_bus_cacheless)],
     'reuse: the fetch L1 and the arm are not compared':
         lambda: [patch.object(run, 'built_as', _built_as_without_cache),
                  patch.object(run, 'selected', _selected_without_cache)],
@@ -482,4 +506,25 @@ MUTANTS: dict[str, Patches] = {
         build, 'XIP_TEXT', (build.XIP_TEXT[0], build.XIP_TEXT[1].replace('} > rom', '} > flash')))],
     'xip: the flash driver moves to flash with the other code': lambda: [patch.object(build, 'XIP_TEXT', (
         build.XIP_TEXT[0], build.XIP_TEXT[1].replace(' *-nvm_flash_litespi.o(.text .text.*)', '')))],
+    'xip: the hot code and the rest stay in rom': lambda: [patch.object(
+        build, 'XIP_END', (build.XIP_END[0], build.XIP_END[0]))],
+    'share: T_svc over the passes, not the tightest family bound': lambda: [patch.object(
+        share, 'bound_ms', lambda: scenario.T_SVC_MS)],
+    'share: the bound over eight passes': lambda: [patch.object(share, 'SHARE_PASSES', 8)],
+    'share: a pass at the share is over it': lambda: [patch.object(
+        share, 'share_cycles', lambda hz, f=share.share_cycles: f(hz) - 1)],
+    'share: in bus cycles, not CPU time': lambda: [patch.object(
+        share, 'share_cycles', lambda hz, f=share.share_cycles: f(100_000_000))],
+    'share: the passes are not held to it': lambda: [patch.object(
+        grade, 'pass_share', lambda log, f=grade.pass_share: dict(f(log), over=0, over_passes=[]))],
+    'share: a pass over it is no finding': lambda: [patch.object(run, 'share_misses', lambda results: [])],
+    'share: the rows option records the passes too': _shares_seen(lambda args, misses: not args.record_budget_findings),
+    'share: a pass over it fails the run only beside a row miss': _shares_seen(lambda args, misses: bool(misses)),
+    "clock: a labelled option is recorded as the product's clock": _build_recorded(
+        lambda spec: dict(spec, cpu_clock='product')),
+    "clock: the option is built at the product's clock": _build_with(
+        lambda core: dataclasses.replace(core, cpu_hz=None)),
+    'clock: a reused build at another CPU clock is taken': lambda: [
+        patch.object(run, 'built_as', lambda spec, f=run.built_as: f(spec)[:-1]),
+        patch.object(run, 'selected', lambda args, shape, n_if, f=run.selected: f(args, shape, n_if)[:-1])],
 }

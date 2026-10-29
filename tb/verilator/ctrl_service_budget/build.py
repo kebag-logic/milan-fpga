@@ -44,14 +44,15 @@ def run(argv: list[str], log: Path, cwd: Path | None = None) -> None:
 #: the control group its control paths are in, and the variant it needs.
 MUTATIONS = {
     # #665's planted over-budget path: ADP's receive handler spins before it hands the
-    # record to the core, so every ADP record's service exceeds T_svc = 10 ms.
+    # record to the core, so every ADP record's service exceeds its 20 ms budget, min(T_svc,
+    # 200 ms) (FR_NFR.md 3.4.1), on the cacheless CPU the controls run on (README, Controls).
     'slow-adp-rx': ('adp/adp_mbx.c', '\tadp_rx(&i->adp, f->bytes, f->len);\n}',
-                    '\tfor (volatile uint32_t n = 0; n < 16000u; ++n) {\n\t}\n'
+                    '\tfor (volatile uint32_t n = 0; n < 32000u; ++n) {\n\t}\n'
                     '\tadp_rx(&i->adp, f->bytes, f->len);\n}', 'control', 'none'),
-    # The SHUTDOWN path's planted defect (MAILBOX_SPLIT.md:506): disabling ADP spins before
-    # each interface's ENTITY_DEPARTING, so the path exceeds T_svc.
+    # The SHUTDOWN path's planted defect (MAILBOX_SPLIT.md:523): disabling ADP spins before
+    # each interface's ENTITY_DEPARTING, so the path exceeds its 20 ms budget.
     'slow-adp-shutdown': ('adp/adp_mbx.c', '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tadp_set_enable(',
-                          '\tfor (volatile uint32_t n = 0; !enable && n < 16000u; ++n) {\n\t}\n'
+                          '\tfor (volatile uint32_t n = 0; !enable && n < 32000u; ++n) {\n\t}\n'
                           '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tadp_set_enable(',
                           'control-shutdown', 'shutdown-entry'),
 }
@@ -66,7 +67,7 @@ MUTATIONS = {
 #: each pending change notice 1 ms later forever (aecp.c, retry_at = now + 1), and this arm
 #: separates that retry from each path's cost. shutdown-entry: the linked image never
 #: disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of
-#: the SHUTDOWN path (MAILBOX_SPLIT.md:506); it costs one NOW_MS read a pass.
+#: the SHUTDOWN path (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass.
 VARIANTS = {
     'answering-ports': [
         ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n'),
@@ -88,7 +89,7 @@ VARIANTS = {
     ],
     'shutdown-entry': [
         ('int main(void)\n{',
-         '// The SHUTDOWN path\'s test-only input (#665; MAILBOX_SPLIT.md:506): ADP is disabled once.\n'
+         '// The SHUTDOWN path\'s test-only input (#665; MAILBOX_SPLIT.md:523): ADP is disabled once.\n'
          'static bool shutdown_entry(void *ctx)\n{\n    static bool fired;\n    (void)ctx;\n'
          '    if (!fired && mbx_now_ms() >= SHUTDOWN_MS) {\n        fired = true;\n'
          '        adp_mbx_set_enable(&image_app.adp, false);\n    }\n    return false;\n}\n\n'
@@ -177,9 +178,12 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str = 'none', variant: 
 #: through its cacheless data bus. The driver stays in block RAM as D3 requires: a CPU fetching
 #: from the flash cannot also hold the flash's command master, so the driver's own fetches would
 #: wait behind its chip select.
-XIP_TEXT = ('\t.text : { KEEP(*(.text.start)) *(.text .text.*) } > rom\n',
+XIP_TEXT = ('\t.text :\n\t{\n\t\tKEEP(*(.text.start))\n',
             '\t.entry : { KEEP(*(.text.start)) *-nvm_flash_litespi.o(.text .text.*) } > rom\n'
-            '\t.text : ALIGN(4) { *(.text .text.*) } > flash\n')
+            '\t.text : ALIGN(4)\n\t{\n')
+#: The close of that placement and what replaces it: the service loop's hot code, which the script
+#: places ahead of the rest (#665), moves to flash with it, in the same order.
+XIP_END = ('\t\t*(.text .text.*)\n\t} > rom\n', '\t\t*(.text .text.*)\n\t} > flash\n')
 
 
 def xip_offset() -> int:
@@ -192,9 +196,10 @@ def xip_offset() -> int:
 
 def xip_script(script: str, flash: int, end: int) -> str:
     """plat/ctrl_split.ld with its code past the reset entry in a flash region from flash to end."""
-    if script.count(XIP_TEXT[0]) != 1 or script.count('INCLUDE regions.ld\n') != 1:
+    if (script.count(XIP_TEXT[0]) != 1 or script.count(XIP_END[0]) != 1 or
+            script.count('INCLUDE regions.ld\n') != 1):
         raise RuntimeError('xip: plat/ctrl_split.ld no longer has its rom code placement')
-    return script.replace(XIP_TEXT[0], XIP_TEXT[1]).replace(
+    return script.replace(XIP_TEXT[0], XIP_TEXT[1]).replace(XIP_END[0], XIP_END[1]).replace(
         'INCLUDE regions.ld\n', f'INCLUDE regions.ld\nMEMORY {{ flash (rx) : ORIGIN = 0x{flash:08x}, '
         f'LENGTH = 0x{end - flash:x} }}\n')
 
@@ -368,13 +373,32 @@ def fetch_bus(spec: dict) -> tuple[list[tuple[str, str, str, str]], int]:
     if not spec.get('fetch_l1_geometry'):
         return list(ACCESSORS), 1
     netlist = next(Path(s) for s in spec['sources'] if Path(s).name == spec['netlist'] + '.v')
+    text = netlist.read_text()
     lines = re.findall(r"assign FetchL1Plugin_logic_bus_cmd_payload_address = "
-                       r"\{\w+\[31 : (\d+)\],\d+'h0\};", netlist.read_text())
+                       r"\{\w+\[31 : (\d+)\],\d+'h0\};", text)
     if len(lines) != 1:
         raise RuntimeError('the fetch L1 refill address is not one line-aligned assignment')
     rows = [(name, ctype, module, var.replace('FetchCachelessPlugin', 'FetchL1Plugin'))
             for name, ctype, module, var in ACCESSORS if name not in ('fetch_cmd_id', 'fetch_rsp_id')]
-    return rows, (1 << int(lines[0])) // 4
+    return lsu_bus(rows, text), (1 << int(lines[0])) // 4
+
+
+def lsu_bus(rows: list[tuple[str, str, str, str]], netlist: str) -> list[tuple[str, str, str, str]]:
+    """The observers of this build's load/store bus, from the netlist's own plugin.
+
+    The split CPU's data cache (#665, milan_soc.CTRL_LSU_L1) replaces the
+    cacheless LSU. Its uncached accesses, every mailbox access among them,
+    travel LsuPlugin's IO bus one at a time and without an id, so its ids read
+    0; cached accesses and refills never reach that bus and are not counted.
+    """
+    cacheless = 'LsuCachelessPlugin_logic_bus_cmd_valid' in netlist
+    cached = 'LsuPlugin_logic_bus_cmd_valid' in netlist and 'LsuL1Plugin_' in netlist
+    if cacheless == cached:
+        raise RuntimeError('the netlist has neither or both of the cacheless LSU and the data cache')
+    if cacheless:
+        return rows
+    return [(name, ctype, module, var.replace('LsuCachelessPlugin', 'LsuPlugin'))
+            for name, ctype, module, var in rows if name not in ('lsu_cmd_id', 'lsu_rsp_id')]
 
 
 #: Functions whose entry the testbench reports (ENTRY lines): a probe's entry:<symbol> start.
@@ -429,6 +453,9 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
     if beats > 1:
         lines += ['inline unsigned fetch_cmd_id(const Vsim&) { return 0u; }',
                   'inline unsigned fetch_rsp_id(const Vsim&) { return 0u; }']
+    if not any(name == 'lsu_cmd_id' for name, *_ in rows):
+        lines += ['inline unsigned lsu_cmd_id(const Vsim&) { return 0u; }',
+                  'inline unsigned lsu_rsp_id(const Vsim&) { return 0u; }']
     lines.append('inline void set_gm(Vsim& dut, unsigned i, std::uint64_t id, unsigned domain) {')
     if spec['interfaces'] == 1:
         lines += ['    dut.mbx_gm_id = id;', '    dut.mbx_domain = domain;', '    (void)i;']
@@ -540,11 +567,27 @@ class Core:
 
     cpu_regions: the generator's region set (split_soc.build); fetch_l1: its
     instruction cache (split_soc.fetch_l1_geometry); xip: the labelled
-    hybrid-XIP arm, the code past the reset entry in the flash window.
+    hybrid-XIP arm, the code past the reset entry in the flash window;
+    cpu_hz: None for the product's split CPU clock, or the labelled option's
+    clock (split_soc.build; clock_line names it).
     """
     cpu_regions: str = 'cover'
     fetch_l1: str = 'split'
     xip: bool = False
+    cpu_hz: int | None = None
+
+
+def clock_line(spec: dict) -> str:
+    """A build's CPU clock as every table and run line names it (#665): the product's split CPU
+    clock, or a labelled option that is not. A build recorded before the label names its clock only."""
+    mhz = lambda hz: f'{hz / 1e6:g} MHz'
+    bus = f"bus {mhz(spec['sys_hz'])}"
+    if 'cpu_clock' not in spec:
+        return f"CPU {mhz(spec['cpu_hz'])} (recorded before the CPU clock was labelled), {bus}"
+    if spec['cpu_clock'] == 'product':
+        return f"CPU {mhz(spec['cpu_hz'])}, the product's split CPU clock (the Milan clock), {bus}"
+    return (f"CPU {mhz(spec['cpu_hz'])}, a labelled option: not the product's split CPU clock, "
+            f"{mhz(spec['product_cpu_hz'])}, {bus}")
 
 
 def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', variant: str = 'none',
@@ -558,9 +601,10 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
         elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses()['flash'])
     table = symbols(elf)
     with split_soc.ledgered_plan(ledgered_point(shape, n_if)):
-        spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
+        spec = split_soc.build(build_dir, shape, rom_elf, n_if, core)
     spec['elf'] = str(elf)
     spec['xip'] = core.xip
+    spec['cpu_clock'] = 'product' if spec['cpu_hz'] == spec['product_cpu_hz'] else 'option'
     spec['flash_image'] = str(flash_image) if flash_image else None
     sys.path.insert(0, str(ROOT / 'sw/mailbox'))
     from mailbox_model import load

@@ -161,6 +161,8 @@ OUTSIDE = {
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
     "sw/firmware/ctrl/adp/adp_entity.py": "writes the ADP shape header; it compiles nothing",
     "sw/firmware/ctrl/test/ctrl_mutant.py": "the campaign tables' record of one defect; it compiles nothing",
+    "sw/firmware/ctrl/test/ctrl_hot.py": "compares the split link script's hot list with its recorded order and "
+                                         "a link map's sections (#665); it compiles nothing",
     "sw/firmware/ctrl_nvm/test/nvm_mutants.py": "the saved-state store campaign's planted defects, which "
                                                 "test_ctrl_nvm.py compiles; it compiles nothing",
     "sw/firmware/ctrl/test/ctrl_reuse.py": "cuts the processor's sources into fragments the arms compile; it "
@@ -199,6 +201,8 @@ OUTSIDE = {
                                                     "aecp.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/selftest.py": "the harness's grader self-test; it reads AECP_REGISTRATIONS from "
                                                     "aecp.h and compiles nothing",
+    "tb/verilator/ctrl_service_budget/share.py": "the per-pass share from scenario.py's bounds and ctrl_loop.h's "
+                                                 "derivation, which it names; it compiles nothing",
     "tb/verilator/ctrl_service_budget/split_soc.py": "exports the test SoC with LiteX, its software and gateware "
                                                      "compiles off, and reads the image's placeholder addresses from "
                                                      "ctrl_build.RV32_FLAGS and the store's generated headers; it "

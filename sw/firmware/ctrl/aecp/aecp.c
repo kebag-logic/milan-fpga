@@ -43,6 +43,39 @@ static bool due(uint32_t time, uint32_t deadline)
 	return (uint32_t)(time - deadline) < 0x80000000u;
 }
 
+_Static_assert(AECP_REGISTRATIONS <= 16u, "aecp.used holds one bit per registration");
+
+// Whether registry[i][n] is used, off aecp.used (#665).
+static bool used(const struct aecp *a, unsigned i, unsigned n)
+{
+	return ((a->used[i] >> n) & 1u) != 0u;
+}
+
+// aecp.live from every event, in descriptor order (#665).
+static void relist(struct aecp *a)
+{
+	a->live = 0u;
+	for (size_t n = a->cfg.model->count; n-- > 0u;) {
+		struct aecp_event *e = &a->cfg.events[n];
+		if ((e->pending | e->retry_pending) != 0u) {
+			e->next = a->live;
+			a->live = (uint16_t)(n + 1u);
+		}
+	}
+}
+
+// Link event n, which held neither a notice nor a retry, into aecp.live in
+// descriptor order (#665).
+static void list(struct aecp *a, size_t n)
+{
+	uint16_t *link = &a->live;
+	while (*link != 0u && *link <= n) {
+		link = &a->cfg.events[*link - 1u].next;
+	}
+	a->cfg.events[n].next = *link;
+	*link = (uint16_t)(n + 1u);
+}
+
 static bool applied(struct aecp *a)
 {
 	aecp_port_begin(a);
@@ -60,19 +93,48 @@ static void monitor(struct aecp *a, struct aecp_registration *r)
 	r->deadline = a->now + 30000u + draw % 30001u;
 }
 
+// Big-endian header fields in 32-bit arithmetic: wire_put_be shifts its
+// value as 64 bits, a runtime call a byte on RV32I (#665).
+static void put16(uint8_t *p, uint32_t v)
+{
+	p[0] = (uint8_t)(v >> 8);
+	p[1] = (uint8_t)v;
+}
+
+static void put32(uint8_t *p, uint32_t v)
+{
+	put16(p, v >> 16);
+	put16(p + 2, v);
+}
+
+static void put48(uint8_t *p, uint64_t v)
+{
+	put16(p, (uint32_t)(v >> 32));
+	put32(p + 2, (uint32_t)v);
+}
+
+static void put64(uint8_t *p, uint64_t v)
+{
+	put32(p, (uint32_t)(v >> 32));
+	put32(p + 4, (uint32_t)v);
+}
+
+// The AECP_HEADER_BYTES of a response but its status and length, which
+// finish() writes. Its body is zeroed and written by the path that builds
+// it, so a response clears only the bytes it sends (#665, FR_NFR.md 3.4.1:
+// clearing the whole 1,514-byte frame cost 3 ms a pass).
 static void header(struct aecp *a, unsigned interface, uint64_t mac, uint64_t target,
 		   uint64_t controller, uint16_t seq, uint16_t cmd, unsigned msg)
 {
-	memset(a->response, 0, sizeof a->response);
-	wire_put_be(a->response, mac, 6);
-	wire_put_be(a->response + 6, a->cfg.mac[interface], 6);
-	wire_put_be(a->response + 12, 0x22f0u, 2);
+	put48(a->response, mac);
+	put48(a->response + 6, a->cfg.mac[interface]);
+	put16(a->response + 12, 0x22f0u);
 	a->response[14] = 0xfbu;
 	a->response[15] = (uint8_t)msg;
-	wire_put_be(a->response + 18, target, 8);
-	wire_put_be(a->response + 26, controller, 8);
-	wire_put_be(a->response + 34, seq, 2);
-	wire_put_be(a->response + 36, cmd, 2);
+	put64(a->response + 18, target);
+	put64(a->response + 26, controller);
+	put16(a->response + 34, seq);
+	put16(a->response + 36, cmd);
 	a->response_interface = interface;
 	a->recipient = 0;
 	a->probe_recipient = -1;
@@ -81,7 +143,7 @@ static void header(struct aecp *a, unsigned interface, uint64_t mac, uint64_t ta
 
 static void finish(struct aecp *a, unsigned status, size_t body)
 {
-	wire_put_be(a->response + 16, ((uint32_t)status << 11) | (12u + body), 2);
+	put16(a->response + 16, ((uint32_t)status << 11) | (uint32_t)(12u + body));
 	a->response_bytes = 38u + body;
 	a->response_owed = true;
 }
@@ -116,16 +178,18 @@ static void arm(struct aecp *a)
 	bool armed = a->locked || a->start_pending;
 	uint32_t deadline = a->start_pending ? a->start_deadline : a->lock_deadline;
 	for (unsigned i = 0; i < a->cfg.interfaces; ++i) {
-		for (unsigned n = 0; n < AECP_REGISTRATIONS; ++n) {
+		for (unsigned n = 0; (a->used[i] >> n) != 0u; ++n) {
 			struct aecp_registration *r = &a->registry[i][n];
-			if (r->used && (!armed || due(deadline, r->deadline))) {
+			if (used(a, i, n) && (!armed || due(deadline, r->deadline))) {
 				deadline = r->deadline;
 				armed = true;
 			}
 		}
 	}
-	for (size_t n = 0; n < a->cfg.model->count; ++n) {
-		struct aecp_event *e = &a->cfg.events[n];
+	bool left = false;
+	for (unsigned k = a->notices ? a->live : 0u; k != 0u; k = a->cfg.events[k - 1u].next) {
+		struct aecp_event *e = &a->cfg.events[k - 1u];
+		left = true;
 		if (e->retry_pending != 0u && (!armed || due(deadline, e->retry_at))) {
 			deadline = e->retry_at;
 			armed = true;
@@ -137,6 +201,7 @@ static void arm(struct aecp *a)
 			armed = true;
 		}
 	}
+	a->notices = left;
 	aecp_port_begin(a);
 	a->ports->timer(a->ports->ctx, armed, deadline);
 	aecp_port_end(a);
@@ -148,11 +213,12 @@ bool aecp_init(struct aecp *a, const struct aecp_config *cfg, const struct aecp_
 	if (!aecp_enter(NULL)) return false;
 	memset(a, 0, sizeof *a);
 	if (cfg->interfaces == 0u || cfg->interfaces > AECP_INTERFACES ||
-	    cfg->model->count == 0u || cfg->model->configurations == 0u) {
+	    cfg->model->count == 0u || cfg->model->count >= 0xffffu || cfg->model->configurations == 0u) {
 		return false;
 	}
 	a->cfg = *cfg;
 	a->ports = ports;
+	aecp_index(a);
 	struct aecp_descriptor *entity = aecp_find(a, 0u, 0u, 0u);
 	if (entity == NULL || entity->length < 312u ||
 	    wire_be16(entity->value + 310) >= cfg->model->configurations) {
@@ -187,6 +253,8 @@ void aecp_open(struct aecp *a)
 		return;
 	}
 	a->open = true;
+	a->notices = true; // rescan the events, whatever set them before the open
+	relist(a);
 	(void)now(a);
 	arm(a);
 }
@@ -222,6 +290,7 @@ unsigned aecp_registry_command(struct aecp *a, unsigned interface, uint16_t cmd,
 	if (cmd == 37u) {
 		if (found != NULL) {
 			found->used = false;
+			a->used[interface] &= (uint16_t)~(1u << (found - a->registry[interface]));
 		}
 		return AECP_SUCCESS;
 	}
@@ -233,6 +302,7 @@ unsigned aecp_registry_command(struct aecp *a, unsigned interface, uint16_t cmd,
 		memset(found, 0, sizeof *found);
 		found->controller = a->requester;
 		found->used = true;
+		a->used[interface] |= (uint16_t)(1u << (found - a->registry[interface]));
 	}
 	found->mac = mac;
 	monitor(a, found);
@@ -244,9 +314,9 @@ static bool probe_reply(struct aecp *a, unsigned interface, const uint8_t *p)
 	if ((wire_be16(p + 22) & 0xbfffu) != 3u || wire_be64(p + 12) != a->cfg.entity_id) {
 		return false;
 	}
-	for (unsigned n = 0; n < AECP_REGISTRATIONS; ++n) {
+	for (unsigned n = 0; (a->used[interface] >> n) != 0u; ++n) {
 		struct aecp_registration *r = &a->registry[interface][n];
-		if (r->used && r->probing != 0u && r->controller == wire_be64(p + 4) &&
+		if (used(a, interface, n) && r->probing != 0u && r->controller == wire_be64(p + 4) &&
 		    r->probe_sequence == wire_be16(p + 20)) {
 			monitor(a, r);
 			return true;
@@ -332,9 +402,9 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 		return;
 	}
 	a->requester = wire_be64(p + 12);
-	for (unsigned n = 0; n < AECP_REGISTRATIONS; ++n) {
+	for (unsigned n = 0; (a->used[interface] >> n) != 0u; ++n) {
 		struct aecp_registration *r = &a->registry[interface][n];
-		if (r->used && r->controller == a->requester) {
+		if (used(a, interface, n) && r->controller == a->requester) {
 			monitor(a, r);
 		}
 	}
@@ -352,6 +422,7 @@ void aecp_rx(struct aecp *a, unsigned interface, const uint8_t *frame, size_t le
 		mvu(a, p, bytes);
 	} else if (msg == 8u) {
 		// IEEE 9.7.4: empty HDCP data, retaining flags and fragment offset.
+		memset(a->response + AECP_HEADER_BYTES, 0, 4u);
 		wire_put_be(a->response + 36, 0u, 2);
 		a->response[38] = p[24];
 		memcpy(a->response + 40, p + 26, 2u);
@@ -414,7 +485,14 @@ void aecp_changed(struct aecp *a, uint16_t type, uint16_t index, unsigned events
 	struct aecp_descriptor *d = aecp_find(a, a->configuration, type, index);
 	if (d != NULL) {
 		unsigned supported = type == 5u || type == 6u ? 9u : type == 9u ? 14u : type == 36u ? 8u : 0u;
-		a->cfg.events[d - a->cfg.model->descriptors].pending |= (uint8_t)(events & supported);
+		size_t n = (size_t)(d - a->cfg.model->descriptors);
+		bool listed = (a->cfg.events[n].pending | a->cfg.events[n].retry_pending) != 0u;
+		a->cfg.events[n].pending |= (uint8_t)(events & supported);
+		a->notices = true;
+		// An event that held neither a notice nor a retry joins aecp.live (#665).
+		if (!listed && a->cfg.events[n].pending != 0u) {
+			list(a, n);
+		}
 	}
 }
 
@@ -426,6 +504,7 @@ static bool send(struct aecp *a)
 	if (ok) {
 		if (a->counter_event < a->cfg.model->count) {
 			struct aecp_event *e = &a->cfg.events[a->counter_event];
+			a->awaiting += e->awaiting_output ? 0u : 1u;
 			e->cookie = a->tx_cookie;
 			e->awaiting_output = true;
 		}
@@ -439,10 +518,11 @@ void aecp_tx_complete(struct aecp *a, uint32_t cookie, uint32_t departure_ms)
 	if (!aecp_enter(a)) {
 		return;
 	}
-	for (size_t n = 0; n < a->cfg.model->count; ++n) {
+	for (size_t n = 0; a->awaiting != 0u && n < a->cfg.model->count; ++n) {
 		struct aecp_event *e = &a->cfg.events[n];
 		if (e->awaiting_output && e->cookie == cookie) {
 			e->awaiting_output = false;
+			--a->awaiting;
 			e->counter_sent = true;
 			e->counter_at = departure_ms + 1000u;
 		}
@@ -468,10 +548,10 @@ static bool transmit(struct aecp *a)
 		struct aecp_registration *r = &a->registry[i][n];
 		if (r->used && r->controller != a->requester) {
 			a->response_interface = i;
-			wire_put_be(a->response, r->mac, 6);
-			wire_put_be(a->response + 6, a->cfg.mac[i], 6);
-			wire_put_be(a->response + 26, r->controller, 8);
-			wire_put_be(a->response + 34, r->sequence, 2);
+			put48(a->response, r->mac);
+			put48(a->response + 6, a->cfg.mac[i]);
+			put64(a->response + 26, r->controller);
+			put16(a->response + 34, r->sequence);
 			a->response[36] |= 0x80u;
 			if (!send(a)) {
 				return true;
@@ -500,6 +580,7 @@ static bool asynchronous(struct aecp *a)
 		a->unlocked = false;
 		a->lock_owner = 0;
 		header(a, 0, 0, a->cfg.entity_id, 0, 0, 1u, 1u);
+		memset(a->response + AECP_HEADER_BYTES, 0, 16u);
 		wire_put_be(a->response + 38, 1u, 4);
 		finish(a, AECP_SUCCESS, 16u);
 		a->response_owed = false;
@@ -508,15 +589,16 @@ static bool asynchronous(struct aecp *a)
 		return true;
 	}
 	for (unsigned i = 0; i < a->cfg.interfaces; ++i) {
-		for (unsigned n = 0; n < AECP_REGISTRATIONS; ++n) {
+		for (unsigned n = 0; (a->used[i] >> n) != 0u; ++n) {
 			struct aecp_registration *r = &a->registry[i][n];
-			if (!r->used || !due(a->now, r->deadline)) {
+			if (!used(a, i, n) || !due(a->now, r->deadline)) {
 				continue;
 			}
 			if (r->probing == 2u) {
 				header(a, i, r->mac, a->cfg.entity_id, r->controller, r->sequence, 0x8025u, 1u);
 				finish(a, AECP_SUCCESS, 0u);
 				r->used = false;
+				a->used[i] &= (uint16_t)~(1u << n);
 			} else {
 				if (r->probing == 0u) {
 					r->probe_sequence = a->probe_sequence++;
@@ -532,7 +614,10 @@ static bool asynchronous(struct aecp *a)
 	static const uint16_t commands[4] = {
 		15u, 39u, 40u, 41u
 	};
-	for (size_t n = 0; n < a->cfg.model->count; ++n) {
+	bool left = false;
+	for (uint16_t *link = a->notices ? &a->live : NULL; link != NULL && *link != 0u;
+	     link = &a->cfg.events[*link - 1u].next) {
+		size_t n = *link - 1u;
 		struct aecp_event *e = &a->cfg.events[n];
 		struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
 		if (e->retry_pending != 0u && due(a->now, e->retry_at)) {
@@ -556,6 +641,13 @@ static bool asynchronous(struct aecp *a)
 			if (status == AECP_SUCCESS) {
 				e->pending &= (uint8_t)~(1u << bit);
 				e->retry_pending &= (uint8_t)~(1u << bit);
+				if (e->pending == 0u) {
+					e->retry_ms = 0u;
+				}
+				// An event holding neither a notice nor a retry leaves aecp.live (#665).
+				if ((e->pending | e->retry_pending) == 0u) {
+					*link = e->next;
+				}
 				finish(a, status, bytes);
 				a->response_owed = false;
 				a->notify = true;
@@ -564,11 +656,20 @@ static bool asynchronous(struct aecp *a)
 				}
 				return true;
 			}
-			// Keep the event; other snapshots progress before this retry.
+			// Keep the event; other snapshots progress before this retry, which
+			// the first failure of a round schedules (AECP_RETRY_MAX_MS).
+			if (e->retry_pending == 0u) {
+				unsigned wait = e->retry_ms != 0u ? e->retry_ms : 1u;
+				e->retry_at = a->now + wait;
+				e->retry_ms = (uint8_t)(wait < AECP_RETRY_MAX_MS ? wait << 1 : AECP_RETRY_MAX_MS);
+			}
 			e->retry_pending |= (uint8_t)(1u << bit);
-			e->retry_at = a->now + 1u;
 		}
+		// Only a built notice clears its pending bit, and that returns above;
+		// a retry bit is set only on a pending one. So this event still holds one.
+		left = true;
 	}
+	a->notices = left;
 	return false;
 }
 

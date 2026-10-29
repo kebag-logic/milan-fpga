@@ -234,6 +234,34 @@ TEST(Pool, P8PortLayerUnbound) {
     shlan_port_bind_pool(nullptr);
 }
 
+// A class whose stride is a power of two finds a block's index by a shift,
+// any other by a divide (#665): both take, release and refuse alike, and
+// each block's used flag is its own.
+TEST(Pool, P9BlockIndexByShiftAndByDivide) {
+    for (const ctrl_pool_class c : {ctrl_pool_class{48u, 3u}, ctrl_pool_class{64u, 3u}}) {
+        ctrl_pool pool;
+        ASSERT_TRUE(ctrl_pool_init(&pool, arena, sizeof arena, &c, 1));
+        const ctrl_pool_bin& bin = pool.bins[0];
+        void* block[3];
+        for (auto& b : block) {
+            b = ctrl_pool_alloc(&pool, 40u);
+            ASSERT_NE(b, nullptr);
+        }
+        for (unsigned k = 0; k < 3u; ++k) {
+            EXPECT_EQ(bin.used[k], 1u) << "P9 every taken block's flag is set, stride " << bin.stride;
+        }
+        ctrl_pool_free(&pool, bytes_of(block[1]) + 8);
+        EXPECT_EQ(pool.bad_frees, 1u) << "P9 a free into the middle of a block is refused, stride " << bin.stride;
+        ctrl_pool_free(&pool, block[1]);
+        EXPECT_EQ(bin.used[0] + 2u * bin.used[1] + 4u * bin.used[2], 5u)
+            << "P9 a free clears its own block's flag alone, stride " << bin.stride;
+        ctrl_pool_free(&pool, block[1]);
+        EXPECT_EQ(pool.bad_frees, 2u) << "P9 a double free is refused, stride " << bin.stride;
+        EXPECT_EQ(ctrl_pool_alloc(&pool, 40u), block[1]) << "P9 the released block is handed out next, stride " << bin.stride;
+        EXPECT_EQ(ctrl_pool_in_use(&pool), 3u) << "P9 every block is in use again, stride " << bin.stride;
+    }
+}
+
 // A free block's first bytes hold the free list, so a client that writes
 // into a block after freeing it can leave a class counting free blocks
 // behind a list that has ended. That class is exhausted, not followed: the

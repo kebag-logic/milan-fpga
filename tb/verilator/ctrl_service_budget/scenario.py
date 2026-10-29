@@ -87,8 +87,8 @@ def binding_word(interface: int, sink: int) -> int:
 TMR_CMD_WORD = word(REG['TMR_CMD'])
 EVT_TAIL_WORD = word(REG['EVT_TAIL'])
 
-#: The project budget and each path family's normative ceiling, FR_NFR.md 3.4.1.
-T_SVC_MS = 10.0
+#: T_svc, approved at 20 ms (owner, 2026-10-29), and each family's ceiling, FR_NFR.md 3.4.1: a budget is the lower.
+T_SVC_MS = 20.0
 CEILING_MS = {
     'adp': 200.0,     # Milan v1.2 5.6.3.5.2: 2 s random window x 10 % (the whole ADP function)
     'disc': 20.0,     # Milan v1.2 5.5.2.3, Table 5.26: a resulting ACMP action, 200 ms x 10 %
@@ -108,7 +108,7 @@ class Probe:
     family: str          # key of CEILING_MS
     start: str
     ends: list[str]      # every listed end must occur; the path ends at the last of them
-    wait_ms: float = 0.0  # a normative wait W the path may include (3.4.1: elapsed <= W + T_svc)
+    wait_ms: float = 0.0  # a normative wait W the path may include (3.4.1: elapsed <= W + its budget)
     expect: str = ''     # an expected response check, see grade.py
     accesses: int | None = None  # the host model's measured or bound accesses in the pass, for comparison
     until: str = ''      # a later mark bounding the search; '' is the next mark
@@ -272,7 +272,7 @@ def advertised(g: Group, p: Point) -> None:
 
 
 def adp_groups(p: Point) -> list[Group]:
-    """ADP's rows (MAILBOX_SPLIT.md:499-506), every interface at once, one timer per group."""
+    """ADP's rows (MAILBOX_SPLIT.md:516-523), every interface at once, one timer per group."""
     adp = CH['adp']
     ifs = range(p.interfaces)
     every = lambda what: [what.format(i=i) for i in ifs]
@@ -309,7 +309,7 @@ def adp_groups(p: Point) -> list[Group]:
 
 
 def acmp_groups(p: Point) -> list[Group]:
-    """ACMP's rows (MAILBOX_SPLIT.md:649-661): commands, the timer paths and discovery."""
+    """ACMP's rows (MAILBOX_SPLIT.md:666-678): commands, the timer paths and discovery."""
     acmp, adp = CH['acmp'], CH['adp']
     ifs = range(p.interfaces)
     slot = lambda i: p.interfaces + i               # ACMP's slot of interface i (ctrl_app.h)
@@ -794,7 +794,7 @@ def bound_talker_groups(p: Point) -> list[Group]:
     return out
 
 
-#: The responses owed ahead of the owed-frame row's (MAILBOX_SPLIT.md:757-762, A3).
+#: The responses owed ahead of the owed-frame row's (MAILBOX_SPLIT.md:773-778, A3).
 OWED_AHEAD = 7
 
 
@@ -840,9 +840,9 @@ def owed_group(p: Point) -> Group:
 
 
 def backlog_groups(p: Point) -> list[Group]:
-    """The four backlog rows (MAILBOX_SPLIT.md:757-762), each under the composed maximum load.
+    """The four backlog rows (MAILBOX_SPLIT.md:773-778), each under the composed maximum load.
 
-    Each composed window carries its row's defined load (#665; MAILBOX_SPLIT.md:757-762),
+    Each composed window carries its row's defined load (#665; MAILBOX_SPLIT.md:773-778),
     including MAAP, SRP and fifteen grandmaster changes. The row's input is last on its channel
     except in the owed row, which places the remaining admitted ACMP commands behind it. The
     event and ACMP rows are at their rings' room, a bound; the ADP ring takes its burst, fewer
@@ -901,7 +901,7 @@ SHUTDOWN_MS = 2500
 
 
 def shutdown_groups(p: Point) -> list[Group]:
-    """SHUTDOWN -> ENTITY_DEPARTING committed (MAILBOX_SPLIT.md:506), through a test-only entry.
+    """SHUTDOWN -> ENTITY_DEPARTING committed (MAILBOX_SPLIT.md:523), through a test-only entry.
 
     The linked image never disables ADP, so this path has no input in it.
     build.py's shutdown-entry variant (a scratch copy of the fixture, never the

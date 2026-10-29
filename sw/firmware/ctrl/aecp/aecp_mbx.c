@@ -8,6 +8,13 @@ static uint16_t tx_count(uint32_t reg)
 	return (uint16_t)mbx_hal_read32(MBX_CH_BASE + MBX_CH_AECP * MBX_CH_STRIDE + reg);
 }
 
+// i % AECP_MBX_COMPLETIONS for i below twice it, without a divide: the
+// queue's size is no power of two, and a divide is a runtime call on RV32I (#665).
+static unsigned wrapped(unsigned i)
+{
+	return i - (AECP_MBX_COMPLETIONS & (0u - (unsigned)(i >= AECP_MBX_COMPLETIONS)));
+}
+
 static bool send(void *ctx, unsigned interface, const uint8_t *frame, size_t len, uint32_t cookie)
 {
 	struct aecp_mbx *m = ctx;
@@ -15,7 +22,7 @@ static bool send(void *ctx, unsigned interface, const uint8_t *frame, size_t len
 	    mbx_tx_send(MBX_CH_AECP, interface, frame, (uint16_t)len) != MBX_STATUS_OK) {
 		return false;
 	}
-	unsigned n = (m->completion_head + m->completion_count) % AECP_MBX_COMPLETIONS;
+	unsigned n = wrapped(m->completion_head + m->completion_count);
 	m->completions[n] = (struct aecp_mbx_completion){cookie, tx_count(MBX_CH_REG_TX_HEAD)};
 	++m->completion_count;
 	return true;
@@ -154,7 +161,7 @@ static bool poll(void *ctx)
 				break;
 			}
 			aecp_tx_complete(&m->core, c->cookie, observed);
-			m->completion_head = (m->completion_head + 1u) % AECP_MBX_COMPLETIONS;
+			m->completion_head = wrapped(m->completion_head + 1u);
 			--m->completion_count;
 		}
 	}

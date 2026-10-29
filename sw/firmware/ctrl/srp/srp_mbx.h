@@ -59,6 +59,12 @@ struct srp_interface {
     bool link;
     bool vlan_sent;
     bool domain_owed;
+    // The registrar, an indication or a binding changed what snapshot copies
+    // since it last walked the registrar: it walks only then (#665).
+    bool stale;
+    // A participant may hold an attribute mrp_reclaim frees: poll reclaims
+    // only then (#665).
+    bool reclaim;
 };
 typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);
 struct srp_mbx_config {
@@ -72,7 +78,8 @@ struct srp_mbx {
     struct srp_interface ifs[MBX_N_IF];
     struct ctrl_loop *loop;
     struct srp_mbx_config config;
-    uint8_t frame[MBX_FRAME_BYTES_MAX];
+    // lwSRP builds each MRPDU at owed_frame + 14 and the adapter writes the
+    // Ethernet header before it, so a frame is never copied (#665).
     uint8_t owed_frame[MBX_FRAME_BYTES_MAX];
     struct mbx_frame pending_rx; // len is zero unless receive must retry
     uint16_t owed_len;
@@ -88,6 +95,7 @@ struct srp_mbx {
     uint32_t received;
     uint32_t transmitted;
     uint32_t stops;
+    uint32_t walks;        // registrar walks snapshot made (#665)
 };
 // Pool counts are derived from the compiled entity shape. The caller owns
 // the statically declared arena and binds it through shlan_port_bind_pool.

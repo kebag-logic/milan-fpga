@@ -4,12 +4,17 @@ This harness measures the Mark II split firmware's service paths on the split pl
 That is the shipping VexiiRiscv with the split CPU's instruction cache ([#665 S2c](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860)), or without it (`--fetch-l1 none`), the cacheless core S2 measured.
 Its contract is the [S2 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409745905) on #665, which re-opens [#397](https://github.com/kebag-logic/milan-fpga/issues/397).
 The image is `ctrl_srp_image.py --with-aecp --layout split`, linked unmodified.
-Every figure is a measured clock count at the CPU's 50 MHz, never an estimate.
-Each is compared with T_svc = 10 ms and its ceiling in [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
+Every figure is a measured clock count, never an estimate, at the CPU clock its table names.
+By default that is the product's split CPU clock, the Milan clock, 50 MHz; any other CPU clock is the labelled `--cpu-hz` option, never the default ([Run and reproduce](#run-and-reproduce)).
+The figures in [Results](#results), [The instruction cache](#the-instruction-cache) and [Controls and self-test](#controls-and-self-test) are all at the product's 50 MHz, with the bus at 100 MHz.
+Each is graded against its budget and its ceiling in [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
+A path's budget is min(T_svc, its family's ceiling), with T_svc = 20 ms, which the owner approved on 2026-10-29 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
+[Results](#results) and [The instruction cache](#the-instruction-cache) record S2's and S2c's runs, which were graded against the 10 ms then proposed.
+[Split placement control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#at-the-products-clock-and-the-per-pass-share) has the composed rows and the passes at the approved budget, at the product's 50 MHz and at the 100 MHz option.
 
 ## Contents
 
-- **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the two points, the labelled arms, the controls, reuse and the regrade.
+- **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the two points, the CPU clock and its labelled option, the per-pass share, the labelled arms, the controls, reuse and the regrade.
 - **[The test SoC](#the-test-soc)** -- What is the shipping CPU and memory, what is test-only, and where each device sits.
 - **[Markers and grading](#markers-and-grading)** -- The start and end of each path, the clock conversion, the pass bound, the defined load, its service and the verdicts.
 - **[Results](#results)** -- Per access, per pass, every response path, the fan-outs, the backlog rows and the load's service.
@@ -34,9 +39,9 @@ Each point builds the runtime, the image, the SoC and the native model, then run
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
-  --build-dir /tmp/budget-1x1 --record-budget-findings
+  --build-dir /tmp/budget-1x1 --record-budget-findings --record-share-findings
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
-  --build-dir /tmp/budget-8x8 --record-budget-findings
+  --build-dir /tmp/budget-8x8 --record-budget-findings --record-share-findings
 ```
 
 `1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface.
@@ -53,8 +58,31 @@ So this SoC differs from `CtrlMailbox` in that one input: it acknowledges each c
 The harness measures a CPU budget, so each commit is measured with the longest wait the contract allows.
 The figures in [Results](#results) and [The instruction cache](#the-instruction-cache) were measured before contract 2.3.
 
-Without `--record-budget-findings` a path over T_svc fails the run.
+Without `--record-budget-findings` a path over its budget fails the run.
 With it, the misses are recorded and the run still fails on any probe that was not measured.
+
+**The CPU clock.**
+By default the CPU runs at the product's split CPU clock: the point's `milan_clk_hz`, the Milan clock `milan_soc` drives the CPU from, which the builder's loader holds to the bare-metal build contract's 50 MHz.
+The bus runs at its 100 MHz.
+`--cpu-hz HZ` is a labelled test option, never the default: the CPU at HZ, the bus and the image unchanged.
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-8x8-100 --cpu-hz 100000000 --record-budget-findings --record-share-findings
+```
+
+`build.json` records `cpu_hz`, the product's `product_cpu_hz`, `cpu_clock` (`product` or `option`) and the option given, `cpu_hz_option`.
+A reused build at another clock is refused.
+Each `table.md` opens with the clock, `results.json` carries it, and the run prints it first and last, for example `CLOCK CPU 100 MHz, a labelled option: not the product's split CPU clock, 50 MHz, bus 100 MHz`.
+Every millisecond is CPU time at that clock.
+
+**The per-pass share.**
+Apart from the rows, every work pass of every group is held to the per-pass share ([`share.py`](share.py), `grade.pass_share`).
+An input waits for the pass running when it arrives and is answered in a later pass.
+The deepest wait the loop admits is seven owed frames, answered in pass 8 after the room returns, so nine passes must fit the smallest bound every input shares (`ctrl_loop.h`, THE SHARE).
+That bound is SRP's 18 ms, min(T_svc, its ceiling), so the share is 18 / 9 = 2.0 ms: 100,000 CPU cycles at the product's 50 MHz, 200,000 at the 100 MHz option.
+Without `--record-share-findings` a pass over the share fails the run even when every row fits; `--record-budget-findings` records the rows only.
+The table's per-pass share section gives each group's work passes, those over the share and the longest, and the run prints a `SHARE` line for each group with a pass over it.
 `--groups` selects groups and `--jobs` sets how many run at once.
 `--fetch-l1` selects the CPU's instruction cache: `split`, the split placement's own (the default); `none`, the cacheless core; or `SETSxWAYS`, a test-only sweep point of 64-byte lines.
 So the two commands above give the split cache's arms in [The instruction cache](#the-instruction-cache).
@@ -107,12 +135,15 @@ That is a CI change, outside this lane.
 
 [`split_soc.py`](split_soc.py) builds it; [`build.py`](build.py) links the image and compiles the model.
 
-- **The CPU** is MilanSoC's own VexiiRiscv path: RV32I, one hart, the CPU at the 50 MHz Milan clock, the bus at 100 MHz.
-  It has the split placement's instruction cache (`milan_soc.ctrl_cpu_args`), or the `--fetch-l1` selection; its data side is cacheless.
-  The DMA port the shipping image has is kept, idle.
+- **The CPU** is MilanSoC's own VexiiRiscv path: RV32IM, one hart, the bus at 100 MHz.
+  By default the CPU runs at the product's split CPU clock, the Milan clock, 50 MHz (the point's `milan_clk_hz`, from which `milan_soc` clocks the CPU); any other CPU clock is the labelled `--cpu-hz` option ("The CPU clock", below).
+  It has the split placement's caches (`milan_soc.ctrl_cpu_args`: the 16 KiB two-way fetch L1 and the coherent 8 KiB data cache), or the `--fetch-l1` selection, where `none` is the CPU cacheless on both sides.
+  The DMA port the shipping image has is kept; the split placement's record mover is its only master.
 - **The firmware memory** is `milan_soc.add_ctrl_memory`, the split placement's, built from the linked image.
   At `8x8` its plan is held to the ledgered point's 57.5 RAMB36 (`split_soc.ledgered_plan`).
 - **The mailbox** is this harness's own instance of `KL_mbx` behind `KL_mbx_wb`, with CtrlMailbox's hookup.
+  `KL_mbx_wb` reaches it through the split placement's record mover (`milan_soc.CtrlMailboxDma`, #665), whose CSR bank sits where the image addresses it (`ctrl_build.SPLIT_MBX_DMA_BASE`).
+  The host-port pads are `KL_mbx`'s side, so the mover's ring accesses are observed with the CPU's; the mover holds each request's fields through its answer, as `KL_mbx_wb` does.
   Its receive and transmit streams, link levels and grandmaster are on pads that [`sim_main.cpp`](sim_main.cpp) drives.
   Every other port is connected as `milan_soc.CtrlMailbox` connects it.
   The publication block's outputs (contract 2.2) are named and unread.
@@ -186,12 +217,16 @@ Every probe is a `mark`, its stimulus and a bounded wait.
 - A response with frames owed ahead of it requires exactly those responses, by sequence_id and in order, between its input and its own.
 - A command the core may take and drop under the load (one behind the owed input) is a path too: a response that never comes is reported as **never answered**, a measured finding with no bound, not a refusal.
 
-Every conversion is one `Grader` method: CPU cycles from bus cycles (times 50/100, rounded up), bus cycles from CPU cycles, and milliseconds from either.
+Every conversion is one `Grader` method: CPU cycles from bus cycles (times the CPU clock over the bus clock, 50/100 at the product's clocks, rounded up), bus cycles from CPU cycles, and milliseconds from either.
 A pass runs from one committed entry of `ctrl_loop_service` to the next.
 The script's end cuts the pass in progress short, so the run of idle passes it flushes is no idle pass's figure.
 A mailbox access is timed at the CPU's load/store bus, from command to response.
 Instruction fetches are counted at the CPU's fetch bus, by region.
 Without the cache a fetch is one word; with it, one 64-byte line refill, whose wait runs to its last beat.
+With the split CPU's data cache, loads and stores are counted at its IO bus, which carries every uncached access and so every mailbox access; cached accesses and refills never reach it and are not counted.
+The flash window is this test SoC's own, cacheable and executable for the labelled hybrid-XIP arm, while the product's split CPU has it uncached and not executable (`milan_soc.ctrl_uncached_flash`, #665).
+So on the data-cached CPU the saved-state store reads the flash through the cache here, which the product never does: in the ACMP binding groups at 8x8 one pass took 14.52 ms, against 4.47 ms with the window uncached as in the product.
+Paths outside those groups read no flash in a pass.
 
 One phase is one sample.
 So each probe also reports a measured bound.
@@ -207,7 +242,7 @@ The self-test counts every window's stimulus against the same loads, restated, s
 
 The window must also service its load.
 For each loaded channel, the window's first and last record are graded from their receive commit to the end of the pass that released them, as the SRP rows end: the handler runs after the release, inside that pass (`ctrl_loop.c`, `service_rx`).
-A record no release reached is **never released**: its row carries the time it had waited by the run's end, a lower bound, and fits neither T_svc nor its ceiling.
+A record no release reached is **never released**: its row carries the time it had waited by the run's end, a lower bound, and fits neither its budget nor its ceiling.
 A served record's records ahead are its channel's earlier records not yet released at its commit.
 A window that left records unreleased names them, and its passes ran without that work, so its longest pass is a lower bound of a load the firmware did not finish.
 The composed maximum is the longest pass over every backlog row's window, each of which committed its defined load (`run.composed_maximum`).
@@ -216,7 +251,9 @@ A run that did not include every backlog row names the rows not run, and its fig
 The longest pass of the windows that released their whole load is reported beside it, labelled as such: it leaves out the windows the firmware never finished, so it is not the composed maximum.
 
 The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 18 ms.
-A path with a normative wait W, such as SRP's JoinTime, is bounded by W + T_svc, and its ceiling by W plus the ceiling.
+Each path's budget is min(T_svc, its ceiling) (`grade.budget_ms`): 18 ms for SRP, 20 ms for every other family.
+A path with a normative wait W, such as SRP's JoinTime, is bounded by W plus its budget, and its ceiling by W plus the ceiling.
+A table's verdict is **fits** within the budget, **MISS T_svc** over T_svc but within a looser ceiling (AECP, a notification, MAAP, ADP), and **MISS ceiling** over the ceiling, which is the budget where it is the tighter (SRP, ACMP, a discovery input's ACMP action).
 
 ## Results
 
@@ -226,7 +263,7 @@ In that firmware the size fixture's own observation callbacks (`a_stream`, `a_av
 At this head the image boots, and the groups run with each face commit acknowledged at the contract's bound ([Run and reproduce](#run-and-reproduce)).
 The figures here have not been measured again at this head.
 
-These are S2's results, on the cacheless core:
+These are S2's results, on the cacheless core, graded against the T_svc = 10 ms then proposed:
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
@@ -292,7 +329,7 @@ Arm A's 8x8 composed maximum, `backlog-adp-refill`'s 2,209,308 cycles, is `memse
 
 ### ADP
 
-| Path ([`MAILBOX_SPLIT.md:499-506`](../../../docs/design/MAILBOX_SPLIT.md#service-latency)) | 1x1 ms (bound) | 8x8 if0 / if1 ms (bound) | Accesses in the taking pass, 1x1 / 8x8 (model) |
+| Path ([`MAILBOX_SPLIT.md:516-523`](../../../docs/design/MAILBOX_SPLIT.md#service-latency)) | 1x1 ms (bound) | 8x8 if0 / if1 ms (bound) | Accesses in the taking pass, 1x1 / 8x8 (model) |
 |---|---:|---:|---:|
 | RCV_ADP_DISCOVER -> TMR_DELAY armed | 0.29 (1.63) | 2.57 (9.27) / 2.86 (9.27) | 38 / 73 (31) |
 | TMR_DELAY expiry -> ENTITY_AVAILABLE, TMR_ADVERTISE armed | 0.87 (3.57) | 2.64 (9.09) / 3.70 (10.87) | 46 / 47 (39) |
@@ -304,7 +341,7 @@ Arm A's 8x8 composed maximum, `backlog-adp-refill`'s 2,209,308 cycles, is `memse
 
 ### ACMP
 
-| Path ([`MAILBOX_SPLIT.md:649-661`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | A: 1x1 ms (bound) | A: 8x8 if0 / if1 | B: 1x1 | B: 8x8 if0 / if1 | Accesses, A 1x1 / 8x8 (model) |
+| Path ([`MAILBOX_SPLIT.md:666-678`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | A: 1x1 ms (bound) | A: 8x8 if0 / if1 | B: 1x1 | B: 8x8 if0 / if1 | Accesses, A 1x1 / 8x8 (model) |
 |---|---:|---:|---:|---:|---:|
 | BIND_RX | 1.62 (3.96) | 4.51 (13.22) / 11.36 (31.60) **miss** | 1.62 (3.96) | 4.51 (13.22) / 4.22 (12.59) | 82 / 90 (77) |
 | UNBIND_RX | 6.56 (26.86) | 6.75 (27.03) / 19.80 (40.08) **miss** | 1.07 (3.22) | 3.99 (10.46) / 3.95 (12.55) | 119 / 176 (50) |
@@ -429,7 +466,7 @@ The ADP, AECP and SRP rings are offered their burst, which is fewer records than
 Under sustained arrivals the bucket keeps admitting one record per period, so those rings can hold more: their rows are observed at the burst, not bounded by it.
 `backlog-adp-refill` measures that for the bound-talker row: the burst, then one more ENTITY_DISCOVER per refill period, up to the ring's room, then the input.
 
-| Backlog row ([`MAILBOX_SPLIT.md:757-762`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | Desk bound, accesses IF=1 / IF=2 | A: 1x1 ms (bound) [records ahead] | A: 8x8 | B: 1x1 | B: 8x8 |
+| Backlog row ([`MAILBOX_SPLIT.md:773-778`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | Desk bound, accesses IF=1 / IF=2 | A: 1x1 ms (bound) [records ahead] | A: 8x8 | B: 1x1 | B: 8x8 |
 |---|---:|---:|---:|---:|---:|
 | an event behind 15 others | 10,569 / 13,287 | 15.49 (29.11) **miss** [15 ahead] | 44.65 (73.70) **miss** [16 ahead] | 15.49 (29.11) **miss** [15 ahead] | 44.65 (73.70) **miss** [16 ahead] |
 | an ACMP command behind a full acmp ring | 38,753 / 48,719 | 63.30 (70.05) **over ceiling** [11 ahead] | 108.71 (120.30) **over ceiling** [11 ahead] | 63.30 (70.05) **over ceiling** [11 ahead] | 108.71 (120.30) **over ceiling** [11 ahead] |
@@ -508,7 +545,7 @@ Every window committed exactly its defined load (the run refuses one that did no
 
 - Per-pass CPU work, not mailbox accesses, sets the time.
   The 1x1 worst pass makes 365 mailbox accesses, about 3,300 of its 1,565,803 cycles.
-  [`MAILBOX_SPLIT.md:757-762`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency) allows each row 0.10 to 0.94 us an access to fit T_svc.
+  [`MAILBOX_SPLIT.md:773-778`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency) allows each row 0.10 to 0.94 us an access to fit T_svc.
   The measured access is 0.18 us, inside every allowance but the full-ADP-ring row's; the passes around the accesses are 1.3 to 60 ms.
 - The single passes break the [#397 one-hart rule](https://github.com/kebag-logic/milan-fpga/issues/397#issuecomment-5857491046).
   A pass is the loop's only opportunity to take an input, and the smallest deadline every duty shares is T_svc.
@@ -575,7 +612,7 @@ Every window committed exactly its defined load (the run refuses one that did no
    The generator decodes a region whose size is not a power of two wrongly.
    For the 224 KiB `rom` at 0 its fetch and load checks are `(address & 0xfffc8000) == 0`, which excludes every address with bit 15 set.
    In the firmware of `e76a755a`, the image's first call above 0x8000 (`jal aecp_image_load`, 0x6880 to 0xb1ec) took an instruction access fault, cause 1, trapped to 0 and restarted, forever.
-   At this head the 1x1 image's `.data` load image is at 0x197b0, which has bit 15 set, so the start code's first copy load (`lw` at 0x24, `ctrl_split_start.S`) takes a load access fault first, cause 5, and restarts the same way.
+   At this head the 1x1 image's `.data` load image is at 0x19428, which has bit 15 set, so the start code's first copy load (`lw` at 0x24, `ctrl_split_start.S`) takes a load access fault first, cause 5, and restarts the same way.
 2. **The linked image addresses placeholders**, not the split SoC (the address table above).
    S3's target firmware owns the real addresses.
 3. **#723 is open**: the runtime recipe builds without `-fno-stack-protector` and the image does not link.
@@ -586,7 +623,7 @@ Every window committed exactly its defined load (the run refuses one that did no
 The [S2c assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860) gives the split CPU an L1 instruction cache, VexiiRiscv's fetch L1, through the pinned generator's own options (`milan_soc.ctrl_cpu_args`).
 The split CPU's cache is 4 KiB, direct-mapped, of 64-byte lines; its data side stays cacheless.
 [Split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache) states the parameters and why, and debits the block RAM.
-This section runs the same groups as [Results](#results) on the cached CPU, at the split's size and at the sweep's other sizes, at both points, graded as Results are.
+This section runs the same groups as [Results](#results) on the cached CPU, at the split's size and at the sweep's other sizes, at both points, graded as Results are, against the T_svc = 10 ms then proposed.
 Every run's `table.md` lists every path's worst instance and every probe, in CPU cycles and ms.
 
 ### The sweep
@@ -835,12 +872,16 @@ The residual is the data side's, and in order of size:
 - Software multiply, divide and shift, 3 % of the composed maximum's pass at both points (7 % of the released windows' longest). The M extension removes them; that is an owner decision.
 
 With the instruction cache in, the core's own lever left is its data side: loads and stores wait 39 to 40 % of the cycles.
-A data cache is the owner's option, with the coherent interconnect it needs (see [split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache)); the clock stays the owner's too.
+A data cache was the owner's option, with the coherent interconnect it needs; the owner took it on 2026-10-28 (see [split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#9-the-cpus-data-cache)), and the clock stays the owner's.
+[Its section 10](../../../docs/design/SPLIT_CONTROL_MEMORY.md#10-the-cpu-clock-the-composed-rows-need) measures the CPU clock the backlog rows need, with this harness and three labelled variants of it.
+[Its section 11](../../../docs/design/SPLIT_CONTROL_MEMORY.md#11-the-firmwares-work-on-the-record-paths) cuts the firmware's work on the AECP and SRP record paths and measures the rows again, with this harness and a labelled profiling variant of it.
+[Its section 12](../../../docs/design/SPLIT_CONTROL_MEMORY.md#12-the-remaining-firmware-levers-at-the-present-clock) takes the firmware levers left at the present clock and models what a larger fetch L1 would save, with the same variant and committed-PC traces of the windows.
+[Its section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover) measures the 16 KiB two-way fetch L1, the bulk primitives and the mailbox's record mover with the same variant, and lwSRP's and the TSN stack's drafts staged.
 
 ### Controls with the cache
 
-The three controls run again on the cached CPU, and each is caught.
-Their commands are those in [Controls and self-test](#controls-and-self-test), with `--fetch-l1 64x1`, the split's geometry, in place of `--fetch-l1 none`:
+S2c ran the three controls again on its cached CPU, with the planted spin then of 16,000 turns, against the 10 ms T_svc then proposed, and each was caught.
+Their commands are those in [Controls and self-test](#controls-and-self-test), with `--fetch-l1 64x1`, S2c's geometry, in place of `--fetch-l1 none`:
 
 - `slow-adp-rx`: the planted RCV_ADP_DISCOVER measures 16.556 ms against 0.513 ms unplanted. The planted loop now runs from the cache, so it is shorter than the cacheless 24.614 ms, and still over T_svc.
 - `slow-adp-shutdown`: SHUTDOWN measures 16.328 ms against 0.333 ms unplanted. The `shutdown-entry` arm's SHUTDOWN is 0.33 ms at 1x1 and 0.32 / 0.64 ms at 8x8.
@@ -854,9 +895,11 @@ The fixture has a short composed window: one record on every receive channel and
 Its checks:
 
 - the fixture's digest, each of its seven rows with its pass bound and the records ahead, each loaded channel's first and last record served in its window, its worst pass and its composed maximum with the window's population and its release;
-- a planted over-budget path (the recorded BIND_RX response moved past T_svc) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window must report its load unreleased;
-- every clock conversion; the ceilings and T_svc, restated in [`selftest.py`](selftest.py) so a changed table fails;
-- an exact-budget path passes and one bus cycle more misses; W + T_svc passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling;
+- a planted over-budget path (the recorded BIND_RX response moved past its 20 ms budget) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window must report its load unreleased;
+- every clock conversion; T_svc, the ceilings and each family's budget, restated in [`selftest.py`](selftest.py) so a changed value or table fails;
+- an exact-budget path passes and one bus cycle more misses;
+- each family against min(T_svc, its ceiling): an SRP instance at its 18 ms ceiling fits, and one cycle over it and one at 19 ms miss, though under T_svc; an AECP instance at 22 ms and a MAAP instance at 30 ms miss T_svc within their ceilings;
+- W plus the budget passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling; for SRP, whose budget is its ceiling, one cycle past W plus 18 ms misses both;
 - the probe's own tagged frame starts it; a commit after a refused frame is the next frame's; a commit that follows no frame is refused;
 - a response to another sequence_id, or on the other interface, does not end it; the last required output ends it; the expected response is checked;
 - a timer path starts at its armed deadline; a test-only entry at its own function's entry; the pass bound runs from the running pass at the bus ratio;
@@ -865,6 +908,7 @@ Its checks:
 - the composed maximum is the longest pass of every backlog window, the fixture's excluded, and a lower bound while one left its load unreleased, with the released windows' longest beside it; it is still a lower bound when the longest window released its load and a shorter one did not;
 - a run without every backlog row names the rows not run, and its composed maximum is partial: arm B's three rows, and one row alone;
 - `results.json`'s composed maximum is the record the table renders, its line checked word for word: a lower bound over every window, a partial figure, and both at once;
+  these three are [`selftest_maximum.py`](selftest_maximum.py)'s, which `selftest.py` runs;
 - the responses owed ahead are exactly the owed ones, in order; a command that may be dropped and is never answered is reported, unbounded, and one that may not is refused;
 - the defined loads, restated; every composed window of the real scenario, at one and two interfaces, sends and declares exactly its defined load; the owed row has its seven owed and its four behind;
 - the real fan-out group registers the firmware's capacity (read from `aecp.h`) on every interface, every registration is each fan-out's recipient, and no requester is registered;
@@ -874,9 +918,13 @@ Its checks:
 - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
 - the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; every labelled arm and control plant applies to the checkout's sources.
 - the fetch observers follow the CPU's fetch plugin, a refill's 16 beats are read off the netlist's line-aligned refill address, and a cached netlist without that address is refused;
+- the load/store observers follow the data cache's IO bus, without ids, an instruction cache without a data cache keeps the cacheless load/store observers, and a cached netlist with neither or both of the two load/store plugins is refused;
 - `run.main` builds and records the fetch L1 and the arm it selected, on temporary files with the build's toolchain steps replaced;
 - `run.main` refuses a reused build of another fetch L1 or arm, reuses the selected one, and takes a build that records no fetch L1 as the cacheless one;
-- the XIP arm's link script keeps the reset entry and the flash driver in `rom` and puts every other function in the flash window.
+- the XIP arm's link script keeps the reset entry and the flash driver in `rom` and puts every other function in the flash window;
+- the per-pass share is SRP's 18 ms over nine passes, 2.0 ms, restated; a pass at it fits and one a cycle over it does not; at twice the CPU clock it is twice the cycles; a pass over it fails a run whose rows all fit, unless `--record-share-findings` records it, and `--record-budget-findings` does not; the table names the clock and each group against the share, and `results.json` keeps the passes over it;
+- each point's product split CPU clock, its `milan_clk_hz`, is the bare-metal build contract's 50 MHz; `run.main` builds the CPU at it by default and records it so, builds and records `--cpu-hz` as a labelled option, names each on its clock line, and refuses a reused build at another CPU clock;
+  these two are [`selftest_share.py`](selftest_share.py)'s, which `selftest.py` runs.
 
 Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, and a named check must fail:
 
@@ -929,13 +977,15 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | owed: the responses ahead are not checked | the responses owed ahead are checked: ['31'] |
 | owed: a command never answered fits | a command never answered is reported, unbounded, where it may be dropped |
 | notify: the fan-out registers one controller an interface (earlier rule) | the fan-out group registers the firmware's capacity, every registration a recipient |
-| deadline: T_svc 20 ms | fixture row fixture.service.srp.first.if0 |
+| deadline: T_svc pinned at the 10 ms proposal (earlier rule) | fixture row fixture.service.srp.first.if0 |
+| deadline: SRP graded against T_svc alone, not its 18 ms ceiling | an SRP instance one cycle over 18 ms misses, under T_svc |
+| deadline: each family graded against its ceiling alone, not T_svc | an AECP instance at 22 ms misses T_svc, within its ceiling |
 | deadline: strictly below the budget | exact budget passes |
 | deadline: the normative wait is not added | W + T_svc passes |
 | deadline: the ceiling drops the normative wait | W + T_svc passes |
-| deadline: the ACMP ceiling is the transaction timeout | ceilings pinned |
+| deadline: the ACMP ceiling is the transaction timeout | T_svc and the ceilings pinned |
 | run: a CPU trap is not refused | a CPU trap is refused |
-| run: a T_svc miss never fails the run | a T_svc miss fails the run unless recorded |
+| run: a budget miss never fails the run | a budget miss fails the run unless recorded |
 | run: a refusal does not fail the run | a refusal fails the run, recorded or not |
 | regrade: a selected group without its log is dropped (earlier rule) | a regrade refuses each absent log or script, and a stale script, by name |
 | reuse: an input outside the checkout is not rechecked (earlier rule) | reuse refuses the image |
@@ -948,12 +998,25 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | build: arm B anchors the fixture's own observation callbacks (earlier rule) | every labelled arm and control plant applies to the checkout's sources |
 | fetch bus: the cacheless observers on a cached CPU | the fetch observers follow the CPU's fetch plugin |
 | fetch bus: one beat a refill | a refill's beats are read off the netlist |
+| lsu bus: the cacheless observers on a data-cached CPU | the load/store observers follow the data cache's IO bus, without ids |
 | reuse: the fetch L1 and the arm are not compared | the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless |
 | reuse: a reused build is not compared with the selection | the run refuses a reused build of another fetch L1 or arm and reuses the selected one; a build with no fetch L1 is cacheless |
 | build: an XIP build records the block-RAM arm | the run builds and records the fetch L1 and the arm it selected |
 | build: the CPU is built with the split's cache whatever the selection | the run builds and records the fetch L1 and the arm it selected |
 | xip: the reset entry moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
 | xip: the flash driver moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
+| xip: the hot code and the rest stay in rom | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
+| share: T_svc over the passes, not the tightest family bound | the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, 100,000 CPU cycles at 50 MHz |
+| share: the bound over eight passes | the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, 100,000 CPU cycles at 50 MHz |
+| share: a pass at the share is over it | the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, 100,000 CPU cycles at 50 MHz |
+| share: in bus cycles, not CPU time | the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, 100,000 CPU cycles at 50 MHz |
+| share: the passes are not held to it | a work pass at the share fits it and one a cycle over it does not |
+| share: a pass over it is no finding | a pass over the share fails a run whose rows all fit, unless `--record-share-findings` records it; `--record-budget-findings` does not |
+| share: the rows option records the passes too | a pass over the share fails a run whose rows all fit, unless `--record-share-findings` records it; `--record-budget-findings` does not |
+| share: a pass over it fails the run only beside a row miss | a pass over the share fails a run whose rows all fit, unless `--record-share-findings` records it; `--record-budget-findings` does not |
+| clock: a labelled option is recorded as the product's clock | by default the CPU runs at the product's split CPU clock and `build.json` says so; another clock is a labelled option |
+| clock: the option is built at the product's clock | by default the CPU runs at the product's split CPU clock and `build.json` says so; another clock is a labelled option |
+| clock: a reused build at another CPU clock is taken | the run refuses a reused build at another CPU clock and reuses one at the selected clock |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
@@ -979,22 +1042,26 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   --build-dir /tmp/budget-as-built --fetch-l1 none --cpu-regions as-built
 ```
 
-`slow-adp-rx` builds a scratch copy of the firmware whose ADP receive handler spins first.
-The `control` group's RCV_ADP_DISCOVER must miss T_svc: it measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
-The ordinary image measures the same path at 0.294 ms.
-`slow-adp-shutdown` makes disabling ADP spin before its ENTITY_DEPARTINGs, in the `shutdown-entry` arm.
-The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss T_svc: it measures 24.903 ms against 0.582 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
+`slow-adp-rx` builds a scratch copy of the firmware whose ADP receive handler spins 32,000 turns first.
+The `control` group's RCV_ADP_DISCOVER must miss its 20 ms budget: it measures 48.697 ms, and the run prints `CONTROL slow-adp-rx caught`.
+The ordinary image measures the same path at 0.056 ms.
+`slow-adp-shutdown` makes disabling ADP spin as long before its ENTITY_DEPARTINGs, in the `shutdown-entry` arm.
+The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss its 20 ms budget: it measures 48.933 ms against 0.292 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
+The spin was 16,000 turns while T_svc was the 10 ms proposed, 24.6 ms on this core; at the approved budget that would have left 4.6 ms.
+The controls are the cacheless core's.
+Behind the split CPU's own caches, the 16 KiB fetch L1 and the data cache, the spin takes 17.3 ms at its 50 MHz (RCV_ADP_DISCOVER 17.322 ms, SHUTDOWN 17.411 ms), which fits the budget.
+No spin count serves both cores: the `control-shutdown` group waits to 50 ms past the SHUTDOWN and then at most 20 ms for the loop to settle, and a spin that took 25 ms on the cached CPU would take about 70 ms on the cacheless one.
 `as-built` hands the generator the SoC's regions unchanged.
 The run must refuse the boot with an access fault of cause 1 (a fetch) or cause 5 (a load), and prints `CONTROL as-built caught`.
 Either is the decode defect of [#791](https://github.com/kebag-logic/milan-fpga/issues/791); which access meets it first depends on the image's layout (defect 1 in [Findings](#findings)).
 The self-test requires both causes to be caught, and a clean boot or a trap of any other cause to escape.
 
-These figures are the firmware of `e76a755a`.
-At this head `slow-adp-rx` is caught again: RCV_ADP_DISCOVER measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
-`slow-adp-shutdown` has not been run at this head.
-At this head `as-built` is caught with a load access fault, cause 5, at the start code's first `.data` copy load, the `lw` at 0x24 (`TRAP ... 0 5 00000020`; the trap line's last field is the last committed PC, the `bgeu` before it), and the run prints `CONTROL as-built caught`.
+These figures are this head's, with contract 2.3's face writer merged (#665); each control was run again there, and again with the per-pass share and the clock option, at the product's 50 MHz, with the same figures.
+At this head `as-built` is caught with a load access fault, cause 5, at the start code's first `.data` copy load, the `lw` at 0x24 (`TRAP ... 0 5 00000020`; the trap line's last field is the last committed PC, the `bgeu` before it), on the cacheless core and behind the split's caches alike, and the run prints `CONTROL as-built caught`.
 The generator's decode defect is the one `e76a755a` met with cause 1; the access that meets it first changed, because this head's 1x1 image has its `.data` load image above 0x8000 (defect 1 in [Findings](#findings)).
-The same run with the generator handed the regions' cover, so that the CPU decodes correctly and the image boots clean, is graded with no trap and prints `CONTROL as-built ESCAPED`.
+Before the merge, at `01879189` (round 9, whose harness and firmware are `bf1773c0`'s), the two spins measured 48.697 and 48.932 ms and `as-built` met the defect with cause 1.
+On S1's branch, before this one merged it (`dev-soft-core` `f4c9ad4f`), the 16,000-turn `slow-adp-rx` measured 24.614 ms, and `as-built` met the defect with cause 5.
+There the same run with the generator handed the regions' cover, so that the CPU decodes correctly and the image boots clean, was graded with no trap and printed `CONTROL as-built ESCAPED`.
 
 ## Limits
 
@@ -1015,7 +1082,7 @@ The same run with the generator handed the regions' cover, so that the CPU decod
 - The fixture's sources are never allocated, so a Listener Ready grants no licence; that path ends at the record's release.
 - Ends are mailbox commits; wire departure, ingress, egress and the network (H-ACMP's round trip) are not measured.
 - The flash's erase and program waits are zero, so F1's commit is measured as CPU work only; S4 owns the target port.
-- There is no datapath, no DDR3 and no packet traffic besides the stimulus; the CPU's DMA port is idle.
+- There is no datapath, no DDR3 and no packet traffic besides the stimulus; the CPU's DMA port carries only the record mover's moves.
 - The firmware polls (`CTRL_MBX_WFI` undefined), as the fixture is linked.
 - The two-interface fixture gives both interfaces the same MAC, as `ctrl_aecp_image.c` does.
 - With the instruction cache, a fetch is observed as a line refill on the cache's bus; hits are on no bus and are not counted.

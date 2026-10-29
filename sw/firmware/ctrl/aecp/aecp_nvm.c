@@ -147,16 +147,24 @@ void aecp_nvm_changed(struct aecp_nvm *n, enum aecp_change kind, uint16_t type, 
 	}
 }
 
+// The lowest pending record, one a pass. A clear word is passed over whole
+// (#665: testing all 256 bits cost about 20,000 cycles of every pass).
 bool aecp_nvm_poll(struct aecp_nvm *n)
 {
-	for (unsigned id = 0; id < 256u; ++id) {
-		uint32_t bit = 1u << (id % 32u);
-		if ((n->pending[id / 32u] & bit) != 0u) {
-			n->pending[id / 32u] &= ~bit;
-			struct nvm_rec r = nvm_rec_by_id(id);
-			nvm_store_changed(r.group, r.index);
-			return true;
+	for (unsigned w = 0; w < sizeof n->pending / sizeof n->pending[0]; ++w) {
+		uint32_t word = n->pending[w];
+		if (word == 0u) {
+			continue;
 		}
+		unsigned bit = 0;
+		while ((word & 1u) == 0u) {
+			word >>= 1;
+			++bit;
+		}
+		n->pending[w] &= ~(1u << bit);
+		struct nvm_rec r = nvm_rec_by_id(32u * w + bit);
+		nvm_store_changed(r.group, r.index);
+		return true;
 	}
 	return false;
 }

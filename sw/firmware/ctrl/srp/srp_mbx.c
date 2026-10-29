@@ -2,6 +2,7 @@
 // The adapter owns no heap or protocol tables; lwSRP owns its MRP machines.
 #include "srp_mbx.h"
 #include <string.h>
+#include "srp_bounds.h"
 #ifndef NDEBUG
 #include <assert.h>
 #endif
@@ -16,7 +17,7 @@ const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES] = {
 };
 
 // Stop retrying allocation refusal after one periodic interval from arrival.
-// This recovery limit does not extend the 10 ms service budget.
+// This recovery limit does not extend the service bound (FR_NFR.md 3.4.1).
 #define SRP_RX_RETRY_MS 1000u
 
 // Every source has its bit of the publication block's LICENCE and TALKER_DECL.
@@ -92,6 +93,7 @@ static void listener(struct msrp_ctx *ctx, uint8_t port,
 {
     (void)port; (void)is_new;
     struct srp_interface *i = from_ctx(ctx);
+    i->stale = true; // what an indication writes, snapshot copies (#665)
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
         if (memcmp(i->sources[n].value.stream_id.bytes,identity->bytes,8) == 0) {
             i->registered[n] = declaration == MSRP_LISTENER_DECL_READY ||
@@ -108,6 +110,7 @@ static void listener(struct msrp_ctx *ctx, uint8_t port,
 static void talker_changed(struct srp_interface *i, const struct msrp_talker_adv *v,
                            uint8_t kind, bool registered)
 {
+    i->stale = true; // what an indication writes, snapshot copies (#665)
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
         struct srp_sink *s = &i->sinks[k];
         if (s->bound && memcmp(s->stream_id.bytes,v->stream_id.bytes,8) == 0) {
@@ -158,6 +161,8 @@ static bool declare_sources(struct srp_interface *i)
     struct srp_mbx *m = i->owner;
     uint64_t used = 0;
     uint32_t declared = 0;
+    // A join rewrites the value of the attribute a registration shares (#665).
+    i->stale = true;
     for (unsigned n = 0; n < CTRL_SRP_SOURCES; ++n) {
         struct msrp_talker_failed value = {.talker=i->sources[n].value};
         value.talker.vlan_id = i->domain.vid;
@@ -239,6 +244,25 @@ static bool interested_mvrp(void *ctx, uint8_t port, uint8_t type, const void *v
     return false;
 }
 
+// lwSRP reports every Applicant or Registrar state change of a participant
+// here. A Registrar change is a change of what snapshot copies; any change
+// can leave an attribute mrp_reclaim frees (#665).
+static void msrp_moved(void *ctx, const struct mrp_transition *t)
+{
+    struct srp_interface *i = ctx;
+    i->reclaim = true;
+    if (t->reg_from != t->reg_to) {
+        i->stale = true;
+    }
+}
+
+static void mvrp_moved(void *ctx, const struct mrp_transition *t)
+{
+    (void)t;
+    struct srp_interface *i = ctx;
+    i->reclaim = true;
+}
+
 static bool create_participants(struct srp_interface *i)
 {
     i->msrp_ctx = (struct msrp_ctx){.on_domain=domain,.on_listener=listener,.on_leave=left,
@@ -248,6 +272,10 @@ static bool create_participants(struct srp_interface *i)
     if (!i->msrp || !i->mvrp) {
         return false;
     }
+    mrp_set_observer(i->msrp,msrp_moved,i);
+    mrp_set_observer(i->mvrp,mvrp_moved,i);
+    i->stale = true;
+    i->reclaim = true;
     // These valid constants are installed before creating any attribute.
     (void)mrp_port_configure(i->msrp,0,20,500,1000,(uint32_t)i->mac,true);
     (void)mrp_port_configure(i->mvrp,0,20,500,1000,(uint32_t)i->mac ^ 0x91u,true);
@@ -425,6 +453,7 @@ bool srp_mbx_bind(struct srp_mbx *m, unsigned interface, unsigned sink,
     }
     const struct srp_sink old = *s;
     *s = replacement;
+    i->stale = true; // snapshot matches registrations against the bindings (#665)
     if (old.bound) {
         // Judge the complete new binding set, including the replacement.
         if (!has_sink(i,&old,true)) {
@@ -471,6 +500,8 @@ static bool apply_receive(struct srp_mbx *m, const struct mbx_frame *frame)
         snapshot(i);
     }
     int result = app ? mrp_rx(app,0,frame->bytes + 14,frame->len - 14u) : -SHLAN_ERROR_NO_MEMORY;
+    // A received attribute can be created with no state change (#665).
+    i->reclaim = true;
     if (i->msrp) {
         // Include the last event, also when an earlier event applied before
         // allocation refusal. Identical receive retries remain idempotent.
@@ -549,11 +580,12 @@ static int send_pdu(void *ctx, uint8_t port, const uint8_t *pdu, size_t len)
     (void)port;
     struct send_context *s = ctx;
     struct srp_mbx *m = s->interface->owner;
+    // pdu is owed_frame + 14: lwSRP sends the buffer poll gave it, and while a
+    // frame is owed only its participant runs, so nothing rebuilds over it.
     if (!m->owed_len) {
         memcpy(m->owed_frame,s->app->ops->group_addr,6);
         wire_put_be(m->owed_frame + 6,s->interface->mac,6);
         wire_put_be(m->owed_frame + 12,s->app->ops->ethertype,2);
-        memcpy(m->owed_frame + 14,pdu,len);
         m->owed_len = (uint16_t)(len + 14u);
         m->owed_if = s->interface->index;
         m->owed_ethertype = s->app->ops->ethertype;
@@ -619,6 +651,16 @@ static void capture(struct srp_sink *s, uint8_t previous)
 static void snapshot(struct srp_interface *i)
 {
     uint8_t previous[CTRL_SRP_SINKS];
+    if (!i->stale) {
+        // Nothing the walk reads changed since it last ran, so it would copy
+        // the values held: only each sink's capture runs (#665).
+        for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
+            capture(&i->sinks[k],i->sinks[k].desired);
+        }
+        return;
+    }
+    i->stale = false;
+    ++i->owner->walks;
     memset(i->registered,0,sizeof(i->registered));
     memset(i->listener_present,0,sizeof(i->listener_present));
     for (unsigned k = 0; k < CTRL_SRP_SINKS; ++k) {
@@ -702,6 +744,10 @@ static bool prepare_declarations(struct srp_interface *i)
         }
         if (handled) {
             continue;
+        }
+        if (desired != s->declared) {
+            // A declaration rewrites the value of the attribute a registration shares (#665).
+            i->stale = true;
         }
         int result = desired == s->declared ? 0 : desired ? msrp_declare_listener(i->msrp,0,&s->stream_id,desired) :
                                msrp_withdraw_listener(i->msrp,0,&s->stream_id);
@@ -844,7 +890,11 @@ static bool poll(void *ctx)
             }
         }
     }
-    for (unsigned attempt = 0; attempt < 2u * MBX_N_IF; ++attempt) {
+    // At most SRP_MBX_POLL_FRAMES MRPDUs a poll (srp_bounds.h): a participant
+    // that sent ends the poll's transmissions, and the cursor resumes at the
+    // next participant on the next poll, which the owed result runs at once.
+    unsigned sent = 0;
+    for (unsigned attempt = 0; attempt < 2u * MBX_N_IF && sent < SRP_MBX_POLL_FRAMES; ++attempt) {
         unsigned slot = m->owed_len ? 2u * m->owed_if + (m->owed_ethertype == MRP_ETHERTYPE_MVRP) : m->cursor;
         struct srp_interface *i = &m->ifs[slot / 2u];
         struct mrp_app *app = slot % 2u ? i->mvrp : i->msrp;
@@ -853,13 +903,19 @@ static bool poll(void *ctx)
             m->cursor = (slot + 1u) % (2u * MBX_N_IF);
             continue;
         }
-        (void)mrp_reclaim(i->msrp,0);
-        (void)mrp_reclaim(i->mvrp,0);
+        if (i->reclaim) {
+            (void)mrp_reclaim(i->msrp,0);
+            (void)mrp_reclaim(i->mvrp,0);
+            // lwSRP reclaims nothing on a participant holding a prepared PDU:
+            // while a frame is owed, this slot is its participant's.
+            i->reclaim = m->owed_len != 0u;
+        }
         if (i->link) {
-            int result = mrp_transmit(app,0,m->frame,sizeof(m->frame) - 14u,send_pdu,&send);
+            int result = mrp_transmit(app,0,m->owed_frame + 14u,sizeof(m->owed_frame) - 14u,send_pdu,&send);
             if (result != 0) {
                 owed = true;
             }
+            sent += result > 0 ? 1u : 0u;
         }
         if (!m->owed_len) {
             m->cursor = (slot + 1u) % (2u * MBX_N_IF);

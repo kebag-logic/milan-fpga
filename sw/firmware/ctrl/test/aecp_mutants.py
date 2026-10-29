@@ -10,6 +10,7 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 
 import aecp_arms
+import aecp_index_mutants
 import fw_gtest
 from ctrl_build import CTRL, ROOT, HERE, STACK, Tree, Refusal, Outcome, stack_pin
 
@@ -95,15 +96,101 @@ DEFECTS = (
            ('Core.CrossInstanceInputsAreRefusedInsideRealCallbacks',
             'every cross-instance public input counts its refusal')),
     defect('unavailable-head-blocks-notices', 'aecp.c',
-           'e->retry_at = a->now + 1u;',
-           'e->retry_at = a->now + 1u; return true;',
+           'e->retry_pending |= (uint8_t)(1u << bit);',
+           'e->retry_pending |= (uint8_t)(1u << bit); return true;',
            ('Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin',
             'backpressure retains the built independent snapshot')),
     defect('unavailable-retry-spins', 'aecp.c',
-           'e->retry_at = a->now + 1u;',
+           'e->retry_at = a->now + wait;',
            'e->retry_at = a->now;',
            ('Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin',
             'failed snapshots wait for a timed retry')),
+    # #665: a response clears and writes only the bytes it sends.
+    defect('command-body-not-cleared', 'aecp_commands.c',
+           '\t*bytes = length;\n\tmemset(out, 0, length);\n',
+           '\t*bytes = length;\n\t(void)out;\n',
+           ('Core.ResponsesDependOnNothingTheBufferHeld',
+            'is the same over a filled buffer and a cleared one')),
+    defect('hdcp-body-not-cleared', 'aecp.c',
+           '\t\tmemset(a->response + AECP_HEADER_BYTES, 0, 4u);\n',
+           '',
+           ('Core.ResponsesDependOnNothingTheBufferHeld',
+            'is the same over a filled buffer and a cleared one')),
+    defect('unlock-notice-body-not-cleared', 'aecp.c',
+           '\t\tmemset(a->response + AECP_HEADER_BYTES, 0, 16u);\n',
+           '',
+           ('Core.ResponsesDependOnNothingTheBufferHeld',
+            'is the same over a filled buffer and a cleared one')),
+    defect('dynamic-entry-header-not-cleared', 'aecp_commands.c',
+           '\t\t\tmemset(out + *bytes, 0, 8u);\n',
+           '',
+           ('Core.ResponsesDependOnNothingTheBufferHeld',
+            'is the same over a filled buffer and a cleared one')),
+    defect('map-body-not-cleared', 'aecp_maps.c',
+           '\tmemset(out, 0, *bytes); // the fixed body; the map rows are written whole (#665)\n',
+           '',
+           ('Core.ResponsesDependOnNothingTheBufferHeld',
+            'is the same over a filled buffer and a cleared one')),
+    # #665: the bounded retry backoff and the event-scan flag.
+    defect('retry-backoff-unbounded', 'aecp.c',
+           'e->retry_ms = (uint8_t)(wait < AECP_RETRY_MAX_MS ? wait << 1 : AECP_RETRY_MAX_MS);',
+           'e->retry_ms = (uint8_t)(wait << 1);',
+           ('Core.UnavailableNoticeRetriesBackOffToEightMilliseconds',
+            'retries back off 1, 2, 4, then every 8 ms')),
+    defect('retry-backoff-constant', 'aecp.c',
+           'e->retry_ms = (uint8_t)(wait < AECP_RETRY_MAX_MS ? wait << 1 : AECP_RETRY_MAX_MS);',
+           'e->retry_ms = (uint8_t)wait;',
+           ('Core.UnavailableNoticeRetriesBackOffToEightMilliseconds',
+            'retries back off 1, 2, 4, then every 8 ms'),
+           ('Core.UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin',
+            'the second retry waits 2 ms')),
+    defect('retry-backoff-kept-after-delivery', 'aecp.c',
+           '\t\t\t\tif (e->pending == 0u) {\n\t\t\t\t\te->retry_ms = 0u;\n\t\t\t\t}\n',
+           '',
+           ('Core.UnavailableNoticeRetriesBackOffToEightMilliseconds',
+            'a delivered notice starts the next backoff at 1 ms')),
+    defect('notice-scan-not-raised', 'aecp.c',
+           '.pending |= (uint8_t)(events & supported);\n\t\ta->notices = true;',
+           '.pending |= (uint8_t)(events & supported);',
+           ('Core.UnavailableNoticeRetriesBackOffToEightMilliseconds',
+            'retries back off 1, 2, 4, then every 8 ms')),
+    defect('notice-scan-dropped-with-retries-left', 'aecp.c',
+           '\ta->notices = left;\n\treturn false;\n}',
+           '\t(void)left;\n\ta->notices = false;\n\treturn false;\n}',
+           ('Core.UnavailableNoticeRetriesBackOffToEightMilliseconds',
+            'retries back off 1, 2, 4, then every 8 ms')),
+    defect('notice-scan-not-raised-at-open', 'aecp.c',
+           '\ta->notices = true; // rescan the events, whatever set them before the open\n',
+           '',
+           ('Core.CounterTimerArmsOnlyEligibleCompletedSnapshots', 'EXPECT_CALL(mock, Timer(true,1000))')),
+    defect('completion-scan-never-counted', 'aecp.c',
+           '\t\t\ta->awaiting += e->awaiting_output ? 0u : 1u;\n',
+           '',
+           ('Core.CounterNoticesCoalesceAndWaitForEligibility', 'sent.size()')),
+    # #665: the queue wrap without a divide, the saved-state word scan, and the
+    # driver's whole-word ring copy under the mailbox arm.
+    defect('completion-wrap-loses-a-slot', 'aecp_mbx.c',
+           'return i - (AECP_MBX_COMPLETIONS & ',
+           'return i - ((AECP_MBX_COMPLETIONS - 1u) & ',
+           ('Mailbox.FullTransmitRingAndCompletionQueueKeepTheirOwedResponse',
+            'a full queue holds every completion in its order across the wrap')),
+    defect('nvm-scan-stops-at-clear-word', 'aecp_nvm.c',
+           '\t\tif (word == 0u) {\n\t\t\tcontinue;\n\t\t}\n',
+           '\t\tif (word == 0u) {\n\t\t\treturn false;\n\t\t}\n',
+           ('Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle',
+            'the empty set is a framed record, not an erased one')),
+    defect('nvm-scan-word-index-dropped', 'aecp_nvm.c',
+           'nvm_rec_by_id(32u * w + bit)',
+           'nvm_rec_by_id(bit + 0u * w)',
+           ('Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle',
+            'the empty set is a framed record, not an erased one')),
+    # A received frame's bytes always start on a word, so on a little-endian
+    # core every frame AECP receives takes the whole-word store (#665). The
+    # whole-word load is the unit arm's (ctrl_mutants.py, D15).
+    defect('ring-store-word-lanes-rotated', 'mbx/mbx_wire.h',
+           '\t*(uint32_t *)(void *)p = word;\n',
+           '\t*(uint32_t *)(void *)p = word << 8 | word >> 24;\n',
+           ('Mailbox.EveryInterfaceAndObservationPort', 'fabric.tx_sent')),
     defect('stream-info-request-echo', 'aecp_commands.c',
            'memcpy(out + 8, d->value + 74, 8u);',
            'memcpy(out + 8, in + 8, len >= 16u ? 8u : 0u);',
@@ -491,9 +578,9 @@ DEFECTS = (
            ('Face.CountersAreReadThroughTheWindowEachWithinItsBound',
             'wait_cycles + 1 status reads, no more')),
     defect('face-commit-not-waited', 'mbx/mbx.c',
-           'mbx_hal_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), '
+           'mbx_bus_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), '
            'mbx_place(1u, MBX_F_COMMIT_GO_LSB, MBX_F_COMMIT_GO_WIDTH));',
-           'mbx_hal_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), '
+           'mbx_bus_write32(face_reg(interface, MBX_FACE_REG_F_COMMIT), '
            'mbx_place(1u, MBX_F_COMMIT_GO_LSB, MBX_F_COMMIT_GO_WIDTH));\n\treturn MBX_STATUS_OK;',
            ('Face.ALateCommitIsOwedAndPublishedAgainWhole',
             'no acknowledgement within MBX_FACE_ACK_CYCLES')),
@@ -530,7 +617,7 @@ DEFECTS = (
     defect('face-window-read-slow', 'mbx/mbx.c',
            '\tfor (uint32_t k = 0; k <= w->wait_cycles; ++k) {\n',
            '\tfor (uint32_t k = 0; k <= w->wait_cycles; ++k) {\n'
-           '\t\tfor (unsigned z = 0; z < 4000u; ++z) (void)mbx_hal_read32(face_reg(interface, w->status));\n',
+           '\t\tfor (unsigned z = 0; z < 4000u; ++z) (void)mbx_bus_read32(face_reg(interface, w->status));\n',
            ('FaceLatency.EveryCommandThroughTheFaceKeepsTheServiceBudget',
             'the original event service budget, the face included')),
     defect('face-store-status-after-open', 'app/ctrl_app_aecp.c',
@@ -763,7 +850,7 @@ DEFECTS = (
            'if (!aecp_face_open(c->face)) return false;', '(void)aecp_face_open(c->face);',
            ('AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged',
             'AECP opens only once the initial publication is acknowledged')),
-)
+) + tuple(defect(*row) for row in aecp_index_mutants.ROWS)
 
 
 def caught(test: str, words: str, result: Outcome) -> bool:

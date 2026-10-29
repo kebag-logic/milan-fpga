@@ -76,6 +76,10 @@ It never calls its owning application.
 This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/doc/integrator.md#L324-L326)
 and [filter contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/src/include/shish_lan/mrp.h#L292-L294).
 Registrar visits run outside callbacks, before and after receive.
+A visit walks the registrar only after a change to what it copies (#665).
+Such a change is a Registrar state change (lwSRP's transition observer), an indication, a binding, or one of the adapter's own declarations, which rewrite the value of an attribute a registration may share.
+Otherwise it keeps the copies and runs each sink's capture, as a walk would, so a record that changes no registration walks nothing (`srp_mbx.walks` counts the walks).
+The reclaims of freeable attributes likewise run only after a transition or a receive, and stay owed while the participant holds the owed frame.
 Receive return observes the last event, including partial allocation refusal.
 Thus atomic JoinIn/JoinMt replacements remain continuous registrations.
 Lv then New remains two transitions, even inside one PDU.
@@ -158,7 +162,7 @@ Expired refusal clears the retained record and increments `rx_discarded` once,
 without incrementing `received` or `malformed`.
 Earlier applied attributes remain; MRP refresh and aging recover the lost suffix.
 Later input on every interface and binding calls can then proceed.
-This recovery limit does not enlarge the 10 ms service budget.
+This recovery limit does not enlarge the service bound.
 Destroy cancels it; link reset cancels only its interface's record.
 
 Every output starts with Talker Advertise or Talker Failed (Milan 5.5.2.7).
@@ -199,6 +203,11 @@ A subsequent same-pass registration cannot erase the owed stop notification.
 
 An accepted `TX_HEAD` write commits the complete frame and Applicant transition.
 A refused send retains identical bytes and interface until accepted.
+lwSRP builds each MRPDU in the owed frame itself, after its Ethernet header, so no frame is copied (#665).
+A poll builds and sends at most one MRPDU (`SRP_MBX_POLL_FRAMES`, `srp_bounds.h`).
+The participant that sent ends the poll's transmissions, and the next poll resumes at the next participant.
+Its owed result runs that poll at once, so every participant is reached in turn (#665).
+lwSRP's periodic transmission had built all four MRPDUs at two interfaces in one pass of 8.7 ms on the split core, against the share of 1.1 ms (`ctrl_loop.h`).
 SRP RX waits behind that owed record; Registrar clocks continue to run.
 Each LINK event preserves the lifecycle, including down/up between service passes.
 Observed level changes apply the same reset and receive fence.
@@ -223,7 +232,9 @@ python3 sw/firmware/gtest/fw_coverage.py --check --jobs 4
 
 The gate requires the exact lwSRP gitlink and compiled source bytes.
 The pinned SDK distribution is named `ilp32d`; the cacheless core build uses
-`-march=rv32i -mabi=ilp32`, as required by #679.
+`-march=rv32i -mabi=ilp32`, as required by #679. The split image
+(`ctrl_srp_image.py --layout split`) uses `-march=rv32im`, the split hart's
+multiply and divide (#665), and calls no software multiply or divide helper.
 Minimal freestanding headers and ELF/runtime checks prevent hosted-libc leakage.
 Object totals include the library and adapter; compiler stack frames are reported
 separately and do not establish a whole call-chain bound.
@@ -276,11 +287,12 @@ a reset writes five registers, a Domain adoption three and each licence change
 one, funded as one reset, one adoption and two changes for each of 16 sources
 (`SRP_MBX_PUB_POLL_MAX`, 40 per interface); a LINK event now costs six.
 The transmit observer wraps the real `send_pdu` callback and pads library output
-to the channel maximum. It measures 383 accesses for each of two calls per
-interface, preserving the firmware callback and the mailbox driver.
+to the channel maximum. It measures 383 accesses for the one frame a poll sends,
+poll after poll until every participant on every interface has sent once,
+preserving the firmware callback and the mailbox driver (#665).
 A pass drains eight real event records and another drains two maximum RX records.
 Subtracting unrelated published terms checks their funding independently.
-The SRP envelope is 1,676 / 2,486 accesses at IF=1/2.
+The SRP envelope is 1,293 / 1,337 accesses at IF=1/2.
 Adding one read in either poll or send fails a named test.
 Poll-allocation tests exhaust storage after successful reception.
 Separate receive tests exhaust it before accepting a mailbox record.
@@ -305,8 +317,9 @@ The H-SRP desk test timestamps the actual mailbox access path at 100 ns per acce
 It adds one aggregate 1 ms CPU/preemption allowance and 100 ns uncertainty per
 action. It records full elapsed time and subtracts only the applicable normative
 Join wait; periodic and Leave expiry start at their original deadlines.
-All overhead shares the single 10 ms service allowance in
-[FR_NFR 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
+All overhead shares one 10 ms service allowance, the T_svc first proposed in
+[FR_NFR 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing),
+tighter than the 18 ms bound SRP has under the approved budget.
 An 11 ms full-ring stall deliberately fails that budget predicate without
 restarting the origin when space becomes available.
 These are explicit host-envelope assumptions, not measured target execution or

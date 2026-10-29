@@ -24,6 +24,7 @@ from pathlib import Path
 import acmp_mutants
 import ctrl_arms
 import fw_gtest
+import mbx_dma_mutants
 from maap_mutants import mutants as maap_mutants
 from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal, Tree, test_source
 from ctrl_mutant import ACMP_C, ADP_C, Mutant
@@ -214,8 +215,8 @@ MUTANTS = (
     Mutant("calloc-overflow-unchecked", "port/ctrl_pool.c", "if (nmemb != 0u && bytes > SIZE_MAX / nmemb) {",
            "if (nmemb == 0u) {", "port", "Pool.P3CallocZeroesAndRefusesAWrap", "P3 calloc refuses"),
     Mutant("pool-double-free-accepted", "port/ctrl_pool.c",
-           "if (offset % bin->stride != 0u || bin->used[index] == 0u) {",
-           "if (offset % bin->stride != 0u) {", "port", "Pool.P2ReleaseAndBadFrees", "P2 a double free"),
+           "if (within != 0u || bin->used[index] == 0u) {",
+           "if (within != 0u) {", "port", "Pool.P2ReleaseAndBadFrees", "P2 a double free"),
     Mutant("debug-truncation-uncounted", "port/ctrl_debug.c", "\t\ttruncated++;\n", "",
            "port", "DebugSink.S2TruncatedToTheLine", "S2 the truncation"),
     Mutant("tick-count-ignored", "loop/ctrl_loop.c", "for (uint32_t k = 0; k < count; ++k) {",
@@ -251,7 +252,7 @@ MUTANTS = (
            "\tmbx_filter_open(open);\n\tmbx_filter_set_own_eid(entity_id);\n",
            "port", "LoopBring.L1OpenOrder", "L1 OWN_EID is written before"),
     Mutant("rx-no-resync", "mbx/mbx.c",
-           "\trx_tail[ch] = head;\n\tmbx_hal_write32(ch_reg(ch, MBX_CH_REG_RX_TAIL), head);",
+           "\trx_tail[ch] = head;\n\tmbx_bus_write32(ch_reg(ch, MBX_CH_REG_RX_TAIL), head);",
            "\t(void)ch;\n\t(void)head;", "port", "Driver.D1MalformedRecordResynchronises",
            "D1 and the ring is resynchronised",
            (("unit", "Records/DriverMalformed.D7RefusedAndResynchronised/",
@@ -340,8 +341,8 @@ MUTANTS = (
     Mutant("step-waits-twice", "loop/ctrl_loop.c", "\t\tmbx_hal_wait();\n",
            "\t\tmbx_hal_wait();\n\t\tmbx_hal_wait();\n",
            "unit", "LoopRun.U3TurnsForEverAndSleepsWhenNothingIsOwed", "U3 every turn is one pass"),
-    Mutant("maap-base-shifted", "mbx/mbx.c", "mbx_hal_write32(MBX_REG_MAAP_BASE_LO, (uint32_t)base);",
-           "mbx_hal_write32(MBX_REG_MAAP_BASE_LO, (uint32_t)(base >> 16));",
+    Mutant("maap-base-shifted", "mbx/mbx.c", "mbx_bus_write32(MBX_REG_MAAP_BASE_LO, (uint32_t)base);",
+           "mbx_bus_write32(MBX_REG_MAAP_BASE_LO, (uint32_t)(base >> 16));",
            "unit", "DriverUnit.D6MaapRangeWritten", "D6 MAAP_BASE_LO holds the base's low word"),
     Mutant("tx-negative-fill", "mbx/mbx.c", "if (used > tx_words[ch] || record > tx_words[ch] - used) {",
            "if (record > tx_words[ch] - used) {",
@@ -368,11 +369,91 @@ MUTANTS = (
     Mutant("attach-ignores-poll-room", "adp/adp_mbx.c", "&&\n\t       ctrl_loop_add_poll(l, on_poll, m);",
            "&&\n\t       (ctrl_loop_add_poll(l, on_poll, m) || true);",
            "unit", "AdpAdapterUnit.B4LoopWithNoRoomRefused", "B4 a loop with no room for the poll is refused"),
-    Mutant("mmio-offset-as-index", "plat/mbx_plat_mmio.c", "(uintptr_t)(CTRL_MBX_BASE) + byte_offset)",
+    Mutant("mmio-offset-as-index", "plat/mbx_mmio.h", "(uintptr_t)(CTRL_MBX_BASE) + byte_offset)",
            "(uintptr_t)(CTRL_MBX_BASE) + byte_offset / 4u)",
            "unit", "MmioPlatform.M1OneWordAtBasePlusOffset", "M1 a write lands in the word at base + offset"),
     Mutant("wait-without-wfi", "plat/mbx_plat_mmio.c", "\tCTRL_MBX_WFI();\n", "",
            "unit", "MmioPlatform.M2WaitIsThePlatformWfi", "M2 each mbx_hal_wait() waits once"),
+    # ---- #665: the driver's whole ring words, and its accesses made in place on the window ----
+    Mutant("mbx-rx-word-to-frame-start", "mbx/mbx.c",
+           "ring_lanes_store4(mbx_bus_read32(base + 4u * (at & mask)), p);",
+           "ring_lanes_store4(mbx_bus_read32(base + 4u * (at & mask)), f->bytes);",
+           "unit", "DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd", "D15 RX"),
+    Mutant("mbx-tx-aligned-word-from-frame-start", "mbx/mbx.c",
+           "mbx_bus_write32(base + 4u * (at & mask), ring_lanes_load4(p));",
+           "mbx_bus_write32(base + 4u * (at & mask), ring_lanes_load4(frame));",
+           "unit", "DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd", "D15 TX word"),
+    Mutant("ring-load-word-lanes-rotated", "mbx/mbx_wire.h",
+           "\treturn *(const uint32_t *)(const void *)p;\n",
+           "\tuint32_t word = *(const uint32_t *)(const void *)p;\n\treturn word << 8 | word >> 24;\n",
+           "unit", "DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd", "D15 TX word"),
+    Mutant("ring-pack-word-lanes-swapped", "mbx/mbx_wire.h",
+           "return (uint32_t)p[0] | ((uint32_t)p[1] << 8)",
+           "return (uint32_t)p[1] | ((uint32_t)p[0] << 8)",
+           "unit", "DriverUnit.D15PayloadWordsAtEveryLengthAlignmentAndAcrossTheRingEnd", "D15 TX word"),
+    Mutant("mbx-window-read-elsewhere", "mbx/mbx.c", "\treturn mbx_mmio_read32(byte_offset);\n",
+           "\treturn mbx_mmio_read32(byte_offset ^ 4u);\n",
+           "unit", "MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset",
+           "M3 the driver opens on the window's ID and CAPS"),
+    Mutant("mbx-window-write-elsewhere", "mbx/mbx.c", "\tmbx_mmio_write32(byte_offset, value);\n",
+           "\tmbx_mmio_write32(byte_offset ^ 4u, value);\n",
+           "unit", "MmioDriver.M3EveryAccessInPlaceAtBasePlusOffset", "M3 and released at RX_TAIL"),
+    # ---- #665: the pool's block index by a shift, or a divide for any other stride ----
+    Mutant("pool-shift-one-off", "port/ctrl_pool.c", "\t\treturn offset >> bin->shift;\n",
+           "\t\treturn offset >> (bin->shift + 1u);\n",
+           "port", "Pool.P9BlockIndexByShiftAndByDivide", "P9 every taken block's flag is set, stride 64"),
+    Mutant("pool-shift-within-dropped", "port/ctrl_pool.c", "\t\t*within = offset & (bin->stride - 1u);\n",
+           "\t\t*within = 0u;\n",
+           "port", "Pool.P9BlockIndexByShiftAndByDivide", "P9 a free into the middle of a block is refused, stride 64"),
+    Mutant("pool-divide-within-dropped", "port/ctrl_pool.c", "\t*within = offset - index * bin->stride;\n",
+           "\t*within = 0u;\n",
+           "port", "Pool.P9BlockIndexByShiftAndByDivide", "P9 a free into the middle of a block is refused, stride 48"),
+    Mutant("pool-calloc-members-dropped", "port/ctrl_pool.c", "\tif (nmemb != 1u) {\n", "\tif (nmemb == 0u) {\n",
+           "port", "Pool.P3CallocZeroesAndRefusesAWrap", "P3 calloc hands out a zeroed block, even a reused one"),
+    # ---- #665: the platform's word-wide memcpy, memmove and memset (plat/ctrl_mem.c) ----
+    Mutant("mem-merge-lanes-swapped", "plat/ctrl_mem.c", "store(d, (prev >> lo) | (w0 << hi));",
+           "store(d, (prev << lo) | (w0 >> hi));",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W1 memcpy byte"),
+    Mutant("mem-move-direction-swapped", "plat/ctrl_mem.c", "if ((uintptr_t)dst - (uintptr_t)src >= n) {",
+           "if ((uintptr_t)src - (uintptr_t)dst >= n) {",
+           "unit", "CtrlMem.W2MemmoveEveryOverlap", "W2 memmove byte"),
+    Mutant("mem-move-merge-lanes-swapped", "plat/ctrl_mem.c", "store(d, (w >> lo) | (prev << hi));",
+           "store(d, (w << hi) | (prev >> lo));",
+           "unit", "CtrlMem.W2MemmoveEveryOverlap", "W2 memmove byte"),
+    Mutant("mem-move-reads-below-source", "plat/ctrl_mem.c",
+           "static void *backward(void *dst, const void *src, size_t n)\n{\n",
+           "static void *backward(void *dst, const void *src, size_t n)\n{\n"
+           "\t(void)*((const volatile unsigned char *)src - 1);\n",
+           "unit", "CtrlMem.W4NoAccessOutsideEitherRange", "crashed on signal"),
+    Mutant("mem-set-half-fill", "plat/ctrl_mem.c", "\tfill |= fill << 16;\n", "",
+           "unit", "CtrlMem.W3MemsetEveryAlignmentLengthAndValue", "W3 memset byte"),
+    Mutant("mem-copy-reads-past-source", "plat/ctrl_mem.c",
+           "static void *forward(void *dst, const void *src, size_t n)\n{\n",
+           "static void *forward(void *dst, const void *src, size_t n)\n{\n"
+           "\t(void)*((const volatile unsigned char *)src + n);\n",
+           "unit", "CtrlMem.W4NoAccessOutsideEitherRange", "crashed on signal"),
+    Mutant("mem-compare-words-unequal", "plat/ctrl_mem.c", "misalignment(x) == 0u && load(x) == load(y)) {",
+           "misalignment(x) == 0u && load(x) != load(y)) {",
+           "unit", "CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition", "W6 memcmp"),
+    Mutant("mem-compare-sign-reversed", "plat/ctrl_mem.c", "\t\t\treturn *x - *y;\n", "\t\t\treturn *y - *x;\n",
+           "unit", "CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition", "W6 memcmp"),
+    Mutant("mem-copy-returns-source", "plat/ctrl_mem.c", "\treturn forward(dst, src, n);\n}\n\nvoid *memmove",
+           "\t(void)forward(dst, src, n);\n\treturn (void *)(uintptr_t)src;\n}\n\nvoid *memmove",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W5 memcpy returns dst"),
+    # the bulk turns and the bit steps after them (#665, 2026-10-29)
+    Mutant("mem-copy-bulk-drops-a-word", "plat/ctrl_mem.c", "\t\t\tstore(d + 28, w7);\n", "\t\t\tstore(d + 24, w7);\n",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W1 memcpy byte"),
+    Mutant("mem-copy-rest-halfword-dropped", "plat/ctrl_mem.c", "store_half(d, load_half(s));",
+           "(void)load_half(s);",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W1 memcpy byte"),
+    Mutant("mem-copy-rest-byte-dropped", "plat/ctrl_mem.c", "\t\t\t*d = *s;\n", "",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W1 memcpy byte"),
+    Mutant("mem-set-bulk-drops-a-word", "plat/ctrl_mem.c", "\t\tstore(d + 28, fill);\n", "",
+           "unit", "CtrlMem.W3MemsetEveryAlignmentLengthAndValue", "W3 memset byte"),
+    Mutant("mem-set-rest-steps-overlap", "plat/ctrl_mem.c", "\t\td += 16;\n\t}\n", "\t}\n",
+           "unit", "CtrlMem.W3MemsetEveryAlignmentLengthAndValue", "W3 memset byte"),
+    Mutant("mem-set-rest-halfword-dropped", "plat/ctrl_mem.c", "\t\tstore_half(d, (uint16_t)fill);\n", "",
+           "unit", "CtrlMem.W3MemsetEveryAlignmentLengthAndValue", "W3 memset byte"),
     # ---- #665 lane FC: the full-tuple filter on the model, one defect per rule, the RTL arms' twins ----
     # 1. tagged frames never reach a mailbox: a front end that strips a C-tag
     #    before the filter, and the RTL arm's twin, a TPID taken for any EtherType
@@ -452,16 +533,16 @@ MUTANTS = (
            "Q11 a DEFEND to a unicast MAC no interface owns: no RX record"),
     # the firmware's side: the own MAC per interface, the counter, the bring-up order
     Mutant("own-mac-unguarded", "mbx/mbx.c",
-           "\tif (interface >= MBX_N_IF) {\n\t\treturn false;\n\t}\n\tmbx_hal_write32(iff_reg",
-           "\tmbx_hal_write32(iff_reg", "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
+           "\tif (interface >= MBX_N_IF) {\n\t\treturn false;\n\t}\n\tmbx_bus_write32(iff_reg",
+           "\tmbx_bus_write32(iff_reg", "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
            "D11 an interface past the contract's is refused"),
     Mutant("own-mac-halves-swapped", "mbx/mbx.c",
            "mbx_place((uint32_t)mac, MBX_OWN_MAC_LO_MAC_LSB, MBX_OWN_MAC_LO_MAC_WIDTH)",
            "mbx_place((uint32_t)(mac >> 32), MBX_OWN_MAC_LO_MAC_LSB, MBX_OWN_MAC_LO_MAC_WIDTH)",
            "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount", "D11 OWN_MAC_LO holds MAC[31:0]",
            (("port", "Driver.D12OwnMacAndMismatchOnTheModel", "D12 an AEM_COMMAND to it on interface 0 passes"),)),
-    Mutant("mismatch-read-from-bus-err", "mbx/mbx.c", "mbx_hal_read32(MBX_REG_FILTER_MISMATCH)",
-           "mbx_hal_read32(MBX_REG_BUS_ERR)", "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
+    Mutant("mismatch-read-from-bus-err", "mbx/mbx.c", "mbx_bus_read32(MBX_REG_FILTER_MISMATCH)",
+           "mbx_bus_read32(MBX_REG_BUS_ERR)", "unit", "DriverUnit.D11OwnMacPerInterfaceAndTheMismatchCount",
            "D11 FILTER_MISMATCH is read as its COUNT field",
            (("port", "Driver.D12OwnMacAndMismatchOnTheModel", "D12 FILTER_MISMATCH reads the one tuple failure"),)),
     Mutant("own-mac-after-the-channels-open", "loop/ctrl_loop.c", LOOP_OWN_MAC + LOOP_OPEN, LOOP_OPEN + LOOP_OWN_MAC,
@@ -505,6 +586,7 @@ def unnamed_tests() -> list[str]:
 
 
 MUTANTS += maap_mutants(Mutant)
+MUTANTS += mbx_dma_mutants.MUTANTS
 
 MUTANTS += (
     Mutant("f3b-query-inside-allocation", "maap/maap_mbx.c",
@@ -584,7 +666,7 @@ MUTANTS += (
 #: has a publish moved after what promises the value, a wrong field and a
 #: skipped publish; the driver's encoding and the model's twin of the RTL's
 #: rules are planted too. Each is killed by a test that names it.
-PUB_SINK_FIRST_WRITE = ("\tmbx_hal_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_BINDING), binding);\n"
+PUB_SINK_FIRST_WRITE = ("\tmbx_bus_write32(pub_sink_reg(interface, sink, MBX_PUB_SINK_REG_BINDING), binding);\n"
                         "\tif (stream_id != 0u) {")
 PUB_SINK_ENTRY = ("bool mbx_pub_sink(unsigned interface, unsigned sink, bool bound, bool started, "
                   "uint64_t stream_id)\n{\n")
@@ -624,8 +706,8 @@ MUTANTS += (
            "mbx_place(priority, MBX_SR_DOMAIN_VID_LSB, MBX_SR_DOMAIN_VID_WIDTH) |\n"
            "\t\t\tmbx_place(vid, MBX_SR_DOMAIN_PRIORITY_LSB",
            "unit", "DriverUnit.D14PublicationBlock", "D14 SR_DOMAIN holds VID, PRIORITY and ADOPTED in their fields"),
-    Mutant("pub-licence-in-the-da-gate", "mbx/mbx.c", "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
-           "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_DA_GATE),",
+    Mutant("pub-licence-in-the-da-gate", "mbx/mbx.c", "mbx_bus_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
+           "mbx_bus_write32(pub_reg(interface, MBX_PUB_REG_DA_GATE),",
            "unit", "DriverUnit.D14PublicationBlock", "D14 LICENCE.ACTIVE holds the licences"),
     Mutant("pub-sink-past-the-block", "mbx/mbx.c", PUB_SINK_ENTRY + PUB_SINK_REFUSAL,
            PUB_SINK_ENTRY + "\tif (interface >= MBX_N_IF) {",
@@ -642,8 +724,8 @@ MUTANTS += (
            "mbx_place(sid_valid ? 0u : 0u,",
            "unit", "DriverUnit.D14PublicationBlock", "D14 a stop with the stream unchanged: BINDING alone"),
     Mutant("pub-talker-decl-in-the-licence", "mbx/mbx.c",
-           "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_TALKER_DECL),",
-           "mbx_hal_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
+           "mbx_bus_write32(pub_reg(interface, MBX_PUB_REG_TALKER_DECL),",
+           "mbx_bus_write32(pub_reg(interface, MBX_PUB_REG_LICENCE),",
            "unit", "DriverUnit.D14PublicationBlock", "D14 TALKER_DECL.DECLARED holds the declarations"),
     # the host model's twins of the RTL's rules (tb/verilator/mbx/mutants.py)
     Mutant("model-pub-sid-not-gated", "host/mbx_model.c",

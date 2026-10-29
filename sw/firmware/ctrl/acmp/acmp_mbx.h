@@ -106,9 +106,9 @@
 //
 // In time (A4): the per-path figures are under 0.1 ms at an assumed 1 us per
 // access, which this lane has not measured. The full-backlog figures are
-// stated against T_svc = 10 ms and the 20 ms ACMP ceiling (200 ms, Milan v1.2
-// Table 5.26, x 10 %) in docs/design/MAILBOX_SPLIT.md, with what they require
-// of the access time.
+// stated against their 20 ms bound, T_svc and the ACMP ceiling alike (200 ms,
+// Milan v1.2 Table 5.26, x 10 %; FR_NFR.md 3.4.1) in
+// docs/design/MAILBOX_SPLIT.md, with what they require of the access time.
 
 #ifndef ACMP_MBX_H
 #define ACMP_MBX_H

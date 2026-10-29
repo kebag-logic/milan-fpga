@@ -2,8 +2,36 @@
 // Command bodies: IEEE 1722.1-2021 7.4, Milan v1.2 5.4.2.
 #include "aecp_internal.h"
 
+// One pass in model order: a key's run grows while each next descriptor of it
+// sits right after the run and carries the run's length as its index (#665).
+void aecp_index(struct aecp *a)
+{
+	memset(a->runs, 0, sizeof a->runs);
+	for (size_t n = 0; n < a->cfg.model->count; ++n) {
+		const struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
+		if (d->configuration >= AECP_INDEXED_CONFIGURATIONS || d->type >= AECP_DESCRIPTOR_TYPES) {
+			continue;
+		}
+		struct aecp_run *r = &a->runs[d->configuration][d->type];
+		if (r->count == 0u && d->index == 0u) {
+			r->first = (uint16_t)n;
+			r->count = 1u;
+		} else if (r->count != AECP_RUN_SCAN && d->index == r->count && r->first + (size_t)r->count == n) {
+			++r->count;
+		} else {
+			r->count = AECP_RUN_SCAN;
+		}
+	}
+}
+
 struct aecp_descriptor *aecp_find(struct aecp *a, uint16_t cfg, uint16_t type, uint16_t index)
 {
+	if (cfg < AECP_INDEXED_CONFIGURATIONS && type < AECP_DESCRIPTOR_TYPES) {
+		const struct aecp_run *r = &a->runs[cfg][type];
+		if (r->count != AECP_RUN_SCAN) {
+			return index < r->count ? &a->cfg.model->descriptors[r->first + index] : NULL;
+		}
+	}
 	for (size_t n = 0; n < a->cfg.model->count; ++n) {
 		struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
 		if (d->configuration == cfg && d->type == type && d->index == index) {
@@ -11,6 +39,14 @@ struct aecp_descriptor *aecp_find(struct aecp *a, uint16_t cfg, uint16_t type, u
 		}
 	}
 	return NULL;
+}
+
+// A command's fixed body: its length, zeroed, so each field the handler does
+// not write is sent as zero, and no byte past the body is touched (#665).
+static void body(uint8_t *out, size_t *bytes, size_t length)
+{
+	*bytes = length;
+	memset(out, 0, length);
 }
 
 // Another controller holds the lock in force: one that expired holds, by its
@@ -98,7 +134,7 @@ static unsigned any_running(struct aecp *a)
 
 static unsigned descriptor(struct aecp *a, unsigned interface, const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
 {
-	*bytes = 8u;
+	body(out, bytes, 8u);
 	if (len < 8u) {
 		return AECP_BAD_ARGUMENTS;
 	}
@@ -135,7 +171,7 @@ static unsigned descriptor(struct aecp *a, unsigned interface, const uint8_t *in
 static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_t len,
 			      uint8_t *out, size_t *bytes)
 {
-	*bytes = 4u;
+	body(out, bytes, 4u);
 	unsigned status = AECP_SUCCESS;
 	if (set) {
 		if (len < 4u) {
@@ -189,7 +225,7 @@ unsigned aecp_name_offset(uint16_t type, uint16_t name)
 static unsigned names(struct aecp *a, bool set, const uint8_t *in, size_t len,
 		      uint8_t *out, size_t *bytes)
 {
-	*bytes = 72u;
+	body(out, bytes, 72u);
 	if (len < (set ? 72u : 8u)) {
 		return AECP_BAD_ARGUMENTS;
 	}
@@ -258,7 +294,7 @@ static unsigned scalar(struct aecp *a, uint16_t cmd, const uint8_t *in, size_t l
 	unsigned width = format ? 8u : (rate ? 4u : 2u);
 	unsigned offset = format ? 74u : (rate ? 136u : 70u);
 	unsigned list_offset = format ? 82u : (rate ? 140u : 72u);
-	*bytes = format ? 12u : 8u;
+	body(out, bytes, format ? 12u : 8u);
 	// SET_CLOCK_SOURCE includes its reserved halfword (IEEE 7.4.23.1).
 	if (len < (set ? *bytes : 4u)) {
 		return AECP_BAD_ARGUMENTS;
@@ -309,7 +345,7 @@ static unsigned scalar(struct aecp *a, uint16_t cmd, const uint8_t *in, size_t l
 static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t len,
 			    uint8_t *out, size_t *bytes)
 {
-	*bytes = set ? 84u : 56u;
+	body(out, bytes, set ? 84u : 56u);
 	if (len < (set ? 84u : 4u)) {
 		return AECP_BAD_ARGUMENTS;
 	}
@@ -383,7 +419,7 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 
 static unsigned counters(struct aecp *a, const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
 {
-	*bytes = 136u;
+	body(out, bytes, 136u);
 	if (len < 4u) {
 		return AECP_BAD_ARGUMENTS;
 	}
@@ -416,7 +452,7 @@ static unsigned counters(struct aecp *a, const uint8_t *in, size_t len, uint8_t 
 
 static unsigned avb(struct aecp *a, bool path, const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
 {
-	*bytes = path ? 4u : 20u;
+	body(out, bytes, path ? 4u : 20u);
 	if (len < 4u) {
 		return AECP_BAD_ARGUMENTS;
 	}
@@ -468,7 +504,7 @@ static unsigned avb(struct aecp *a, bool path, const uint8_t *in, size_t len, ui
 
 static unsigned lock(struct aecp *a, const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
 {
-	*bytes = 16u;
+	body(out, bytes, 16u);
 	if (len < 16u) {
 		return AECP_BAD_ARGUMENTS;
 	}
@@ -499,7 +535,7 @@ static unsigned lock(struct aecp *a, const uint8_t *in, size_t len, uint8_t *out
 
 static unsigned control(struct aecp *a, bool set, const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
 {
-	*bytes = 5u;
+	body(out, bytes, 5u);
 	if (len < (set ? 5u : 4u)) {
 		return AECP_BAD_ARGUMENTS;
 	}
@@ -576,6 +612,7 @@ static unsigned dynamic(struct aecp *a, unsigned interface, const uint8_t *in, s
 			status = AECP_NOT_SUPPORTED;
 		}
 		if (*bytes + 8u + result_bytes <= 512u) {
+			memset(out + *bytes, 0, 8u);
 			wire_put_be(out + *bytes, result_bytes, 2);
 			out[*bytes + 4] = (uint8_t)status;
 			wire_put_be(out + *bytes + 6, cmd, 2);
@@ -590,11 +627,10 @@ static unsigned dynamic(struct aecp *a, unsigned interface, const uint8_t *in, s
 unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 		      const uint8_t *in, size_t len, uint8_t *out, size_t *bytes)
 {
-	memset(out, 0, AECP_FRAME_BYTES - 38u);
 	*bytes = len;
 	switch (cmd) {
 	case 0:
-		*bytes = 16u;
+		body(out, bytes, 16u);
 		if (len < 16u) {
 			return AECP_BAD_ARGUMENTS;
 		}
@@ -604,7 +640,7 @@ unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 	case 1: return lock(a, in, len, out, bytes);
 	case 2:
 		// the lock in force (aecp_other_lock)
-		*bytes = 20u;
+		body(out, bytes, 20u);
 		wire_put_be(out, a->locked || a->unlocked ? 2u : 0u, 4);
 		wire_put_be(out + 12, a->lock_owner, 8);
 		return AECP_SUCCESS;
@@ -616,7 +652,7 @@ unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 	case 16: case 17: return names(a, cmd == 16u, in, len, out, bytes);
 	case 24: case 25: return control(a, cmd == 24u, in, len, out, bytes);
 	case 34: case 35:
-		*bytes = 4u;
+		body(out, bytes, 4u);
 		if (len < 4u) {
 			return AECP_BAD_ARGUMENTS;
 		}
@@ -636,7 +672,7 @@ unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 		aecp_port_end(a);
 		return AECP_SUCCESS;
 	case 38:
-		*bytes = 4u;
+		body(out, bytes, 4u);
 		memcpy(out, in, len < 4u ? len : 4u);
 		return AECP_BAD_ARGUMENTS; // IEEE 7.4.39.2: unsolicited-only opcode
 	case 39: case 40: return avb(a, cmd == 40u, in, len, out, bytes);

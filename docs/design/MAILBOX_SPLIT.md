@@ -254,6 +254,17 @@ contract: 32-bit accesses, the refusal of a partial byte strobe (counted in
 BUS_ERR) and every register's meaning are `KL_mbx`'s. The mailbox suite runs
 every check through both.
 
+In the split placement [`KL_mbx_dma`](../../hdl/milan/mailbox/KL_mbx_dma.sv),
+the record mover, sits on the host port between `KL_mbx_wb` and `KL_mbx`
+(#665, owner decision 2026-10-29). It moves a record's payload between a ring
+and the CPU's memory through the CPU's coherent DMA port, in the ring words
+and order the driver's word loop uses, and adds nothing to the contract
+either: its control registers are a CSR bank of their own
+(`milan_soc.CTRL_MBX_DMA_REGISTERS`), the header words, counters and
+doorbells stay the driver's, and while a move runs an access of the CPU's
+waits for it. [Split control memory, section 13](SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover)
+gives its measurement.
+
 Every AXI4-Lite output is a register or a function of registers only: no
 path runs from an input to an output (AMBA AXI, IHI0022H, A3.1.1 and
 A3.2.1). AW, W and AR are each taken into a one-entry slot by their own
@@ -318,6 +329,11 @@ flowchart TB
   later record's count adds to what is carried), so lwSRP's leave, LeaveAll
   and periodic timers run on fabric time, lose no tick when the core is
   late, and catch up a bounded slice at a time.
+  The owner's D4(b) decision (#665, 2026-10-27: the admitted backlog first)
+  kept these counts; `ctrl_loop.h` states why. Every pass bound below charges
+  a record at its channel's maximum length, and SRP's ring holds two of those.
+  A full ring of events in every pass would raise each module's bound (ACMP's
+  owed-frame bound from 9,270 to 12,222 accesses).
   Register `shlan_timer_tick` once, not lwSRP's `mrp_tick()` per
   application: `mrp_tick()` calls the same global tick, so one registration
   per MRP application would advance every timer that many times per
@@ -426,7 +442,7 @@ F3 must also meet the listener-discovery timing requirement.
 [H-DISC](../reference/FR_NFR.md#342-control-service-test-hooks) starts at received AVAILABLE/DEPARTING publication or original TMR_NO_ADP expiry.
 It ends after discovery and resulting connection-state commitments.
 Any resulting TX commit shares that same service allowance.
-Normative waits are recorded separately; service remains <= 10 ms.
+Normative waits are recorded separately; service remains within its 20 ms bound.
 Milan v1.2 5.6.4.1 requires processing every matching bound sink.
 Sections 5.6.4.5.1/.2 arm/reset aging from the received `valid_time`.
 IEEE 1722.1-2021 6.2.2.5 defines its two-second units.
@@ -446,7 +462,8 @@ F3 composes it with ADP and ACMP in one app
 
 The figures below are F0's conditional mailbox-access evidence.
 [NFR-SCOUT-03](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
-adds the proposed 10 ms project budget for integrated firmware.
+adds the project budget for integrated firmware, `T_svc = 20 ms`, approved on 2026-10-29 ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
+Each path is graded against min(T_svc, its family's ceiling).
 Its [hooks](../reference/FR_NFR.md#342-control-service-test-hooks) count backlog and egress separately.
 F0 does not prove that target-time budget.
 
@@ -674,30 +691,31 @@ served by the same passes, so the ADP figures above (407 a pass) hold for ADP
 alone. With ACMP composed, ADP's figures take the same pass count at 1,030.
 
 The bound with a backlog counts from a pass already running when the input
-arrived, under A1 to A4. T_svc is 10 ms. The ceiling is 20 ms: 10 % of the
+arrived, under A1 to A4. T_svc is 20 ms, and so is the ceiling: 10 % of the
 200 ms transaction timeout (Table 5.26), which also bounds a discovery
 input's resulting ACMP action
 ([3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
-The access times are the bound's time over its accesses, rounded down.
+So every row's bound is 20 ms. The access times are that bound over the
+row's accesses, rounded down.
 
-| Input | Taken by pass | Bound, accesses | Access time for T_svc | for the ceiling | Measured on the model |
-|---|---:|---:|---:|---:|---|
-| an event behind 15 others | 2 | 3,090 | 3.23 us | 6.47 us | every event by pass 2; worst pass 193 accesses |
-| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 11,330 | 0.88 us | 1.76 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 22,660 | 0.44 us | 0.88 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
-| a response with 7 frames owed ahead of it | 8, after the room returns | 9,270 | 1.07 us | 2.15 us | pass k + 1 for k = 0, 3 and 7: 25, 100 and 200 accesses |
+| Input | Taken by pass | Bound, accesses | Access time for the 20 ms bound | Measured on the model |
+|---|---:|---:|---:|---|
+| an event behind 15 others | 2 | 3,090 | 6.47 us | every event by pass 2; worst pass 193 accesses |
+| an ACMP command behind a full acmp ring (19 records of the smallest frame) | 10 | 11,330 | 1.76 us | 19 smallest records cleared in pass 10; 12 full commands behind 16 events, worst pass 193 |
+| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 22,660 | 0.88 us | 26 records through the filter, the ENTITY_AVAILABLE served in pass 13, 333 accesses |
+| a response with 7 frames owed ahead of it | 8, after the room returns | 9,270 | 2.15 us | pass k + 1 for k = 0, 3 and 7: 25, 100 and 200 accesses |
 
 The access time is not measured (A4). At F0's assumed 1 us per access every
-path's own figure is under 0.1 ms, and an event's backlog bound fits T_svc.
-The bounds behind a full acmp ring or a full adp ring do not fit T_svc at
-that figure, and the adp one also exceeds the ceiling. The owed-frame bound,
-9,270 accesses (8,865 before round 2 added the probe's timer to a poll,
-8,964 before round 4 added the clock read after each probe sent at once, and
-9,108 before the publication block), fits T_svc at that figure: 9.27 ms, the
-time waiting for room excluded. The
+path's own figure is under 0.1 ms. The event's backlog bound (3.09 ms), the
+bound behind a full acmp ring (11.33 ms) and the owed-frame bound fit the
+20 ms bound at that figure; the bound behind a full adp ring (22.66 ms) does
+not. The owed-frame bound, 9,270 accesses (8,865 before round 2 added the
+probe's timer to a poll, 8,964 before round 4 added the clock read after each
+probe sent at once, and 9,108 before the publication block), is 9.27 ms at
+that figure, the time waiting for room excluded. The
 bounds charge every pass with every term at its maximum at once (sixteen
 sinks each probing, eight events each at ADP's costliest action), which the
-measured backlogs stay far below. Whether these paths meet T_svc on the
+measured backlogs stay far below. Whether these paths meet their bound on the
 shipping core is open until the access time is measured (see
 [Open items](#open-items)). Meeting it may need a tighter per-pass
 composition rather than a faster bus. H-ACMP's wire round trip (under 200 ms
@@ -710,25 +728,23 @@ MAAP adds each of eight event callbacks at 65 accesses, two records at
 source freshness reads in the dispatch path, outside every MAAP callback.
 Each input has the same pass count as above.
 
-| Input | Taken by pass | Bound with MAAP, accesses | Access time for T_svc | for the ceiling |
-|---|---:|---:|---:|---:|
-| an event behind 15 others | 2 | 5,349 | 1.86 us | 3.73 us |
-| an ACMP command behind a full acmp ring | 10 | 19,613 | 0.50 us | 1.01 us |
-| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 39,226 | 0.25 us | 0.50 us |
-| a response with 7 frames owed ahead of it | 8, after the room returns | 16,047 | 0.62 us | 1.24 us |
+| Input | Taken by pass | Bound with MAAP, accesses | Access time for the 20 ms bound |
+|---|---:|---:|---:|
+| an event behind 15 others | 2 | 5,349 | 3.73 us |
+| an ACMP command behind a full acmp ring | 10 | 19,613 | 1.01 us |
+| an ENTITY_AVAILABLE behind a full adp ring, from its RX_HEAD (H-DISC) | 21 | 39,226 | 0.50 us |
+| a response with 7 frames owed ahead of it | 8, after the room returns | 16,047 | 1.24 us |
 
 On the model, 15 events, 12 acmp records and 7 maap records behind them
 take a worst pass of 231 accesses (233 at two interfaces), every record and
 event within 10 passes (`test_acmp_mbx.cpp` F6).
 
-At F0's assumed 1 us per access, only the event bound still fits T_svc
-(5.35 ms). The owed-frame bound, which fits it without MAAP, no longer does
-(16.05 ms, under the ceiling); the bound behind a full acmp ring stays
-under the ceiling (19.61 ms), and the one behind a full adp ring exceeds it
-(39.23 ms).
+At F0's assumed 1 us per access, the event bound (5.35 ms), the owed-frame
+bound (16.05 ms) and the bound behind a full acmp ring (19.61 ms) still fit
+the 20 ms bound; the one behind a full adp ring exceeds it (39.23 ms).
 
-With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,523
-accesses at one interface and 4,429 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
+With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,140
+accesses at one interface and 3,280 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
 includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
 sets of event-record reads: the eight shared records are each read once.
 Add `CTRL_APP_SRP_FEEDBACK_MAX`: seven accesses per sink, at most 16 sinks.
@@ -736,8 +752,8 @@ Registration followed by withdrawal can stop or re-arm two timers.
 Withdrawal can also read the clock and initial random seed, and publishes
 the sink's binding without its stream.
 Kind updates preserve state and require no additional mailbox access.
-`srp_bounds.h` derives SRP's 1,676 / 2,486 accesses from the maximum frame,
-two transmit calls per interface, bounded reception, link reconciliation,
+`srp_bounds.h` derives SRP's 1,293 / 1,337 accesses from the maximum frame,
+one transmitted frame a poll (#665), bounded reception, link reconciliation,
 retry clocks and the publication term (a reset's five writes, an adoption's
 three, two licence changes for each of 16 sources: 40 per interface). lwSRP sends at most one frame per call. Its centisecond callbacks
 make no mailbox access. The composition now queues ACMP's binding requests
@@ -754,16 +770,16 @@ Filter observation scans sinks once per received AttributeEvent.
 Registrar visits occur before/after receive, after ticks and during polling.
 Target calibration must include both costs; this table bounds mailbox accesses only.
 
-| Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for T_svc, IF=1 / IF=2 |
+| Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for the 20 ms bound, IF=1 / IF=2 |
 |---|---:|---:|---:|
-| an event behind 15 others | 2 | 10,569 / 13,287 | 0.94 / 0.75 us |
-| an ACMP command behind a full acmp ring | 10 | 38,753 / 48,719 | 0.25 / 0.20 us |
-| an ENTITY_AVAILABLE behind a full adp ring | 21 | 77,506 / 97,438 | 0.12 / 0.10 us |
-| a response with 7 frames owed ahead of it | 8, after room returns | 31,707 / 39,861 | 0.31 / 0.25 us |
+| an event behind 15 others | 2 | 9,420 / 9,840 | 2.12 / 2.03 us |
+| an ACMP command behind a full acmp ring | 10 | 34,540 / 36,080 | 0.57 / 0.55 us |
+| an ENTITY_AVAILABLE behind a full adp ring | 21 | 69,080 / 72,160 | 0.28 / 0.27 us |
+| a response with 7 frames owed ahead of it | 8, after room returns | 28,260 / 29,520 | 0.70 / 0.67 us |
 
-At 1 us per access, event envelopes are 10.569 / 13.287 ms.
-Neither fits T_svc = 10 ms; neither do the other rows. The 20 ms ACMP
-ceiling still covers both event envelopes, but none of the other rows.
+At 1 us per access, event envelopes are 9.420 / 9.840 ms.
+Both fit the 20 ms bound, T_svc and the ACMP ceiling alike; none of the
+other rows does.
 The firmware gate compiles these header bounds at both interface counts.
 It checks each product and conservatively rounded access-time threshold.
 Its controls spoil each table cell and the event-time conclusion.
@@ -1087,7 +1103,8 @@ settling PROBE_TX_RESPONSE writes the stream's four words (32), and a
 TMR_NO_TK writes `BINDING` once (14 when it also makes the run's first
 TMR_DELAY draw); a START_STREAMING or STOP_STREAMING writes `BINDING` once,
 in F5's bridge, and the composed path commits its response within F5's 10 ms
-service target (at most 50 accesses, 1,005,100 ns with F5's allowance).
+service target (at most 50 accesses, 1,005,100 ns with F5's allowance), inside
+the approved 20 ms bound.
 MAAP: an allocation report writes `DA_GATE` once. Its action costs up to
 65 accesses, including the dispatch path's freshness queries. SRP: a reset writes
 `LICENCE` and `TALKER_DECL` before
@@ -1361,9 +1378,10 @@ them:
 
 `--ctrl-mailbox` in [`milan_soc.py`](../../sw/litex/milan_soc.py) is off by
 default. Off, the SoC adds no source, no instance, no bus region, no CSR bank
-and no interrupt. On, it adds the seven mailbox sources, `KL_mbx` behind
-`KL_mbx_wb` in the IO region, a CSR bank pinned below the existing observer's
-page so no existing bank moves, and one interrupt. It also regenerates the
+and no interrupt. On, it adds the eight mailbox sources, `KL_mbx` behind
+`KL_mbx_wb` and the record mover in the IO region, a CSR bank pinned below the
+existing observer's page so no existing bank moves, the mover's bank below
+it, the mover's master on the CPU's DMA bus, and one interrupt. It also regenerates the
 CPU netlist: the VexiiRiscv wrapper hashes the SoC's memory-region list into
 the netlist's name and hands each region to the CPU generator
 (`--memory-region`), and the new uncached `ctrl_mbx` region changes that
@@ -1616,11 +1634,11 @@ report_timing_summary -delay_type max
   of the stream owners remains separate from the host composition.
 - **CPU cycles.** The latency bounds are counted in mailbox accesses; the
   cycle figure on the shipping core waits for the switch-on SoC in the CPU
-  simulation. ACMP's backlog bounds fit T_svc only at 0.88 us per access or
-  less, and H-DISC's behind a full adp ring at 0.44 us: the table's access
-  times for T_svc ([ACMP service latency](#acmp-service-latency)). With MAAP
-  composed as well they are 0.56 us and 0.28 us. With SRP they are 0.27 us
-  and 0.13 us at one interface, or 0.21 us and 0.10 us at two interfaces.
+  simulation. ACMP's backlog bounds fit the 20 ms bound only at 1.76 us per
+  access or less, and H-DISC's behind a full adp ring at 0.88 us: the table's
+  access times ([ACMP service latency](#acmp-service-latency)). With MAAP
+  composed as well they are 1.01 us and 0.50 us. With SRP they are 0.57 us
+  and 0.28 us at one interface, or 0.55 us and 0.27 us at two interfaces.
 - **ACMP's wire round trip** (H-ACMP, under 200 ms with margin) waits for the
   datapath tap.
 - **The bound-talker term's area** is 57 LUTs over its target of 300

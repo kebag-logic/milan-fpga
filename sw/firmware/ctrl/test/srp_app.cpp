@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
+#include <algorithm>
 #include "srp_fixture.hpp"
 #include "ctrl_app.h"
 #include "srp_cost_probe.hpp"
@@ -121,8 +122,15 @@ TEST_F(Srp, EventReceiveAndTransmitPollFitTheirMeasuredBounds) {
     // Mature the real Applicant's transmit opportunity without polling it.
     for (unsigned n=0;n<20u;++n) loop.ticks[0]();
     const auto sent=adapter.transmitted;
+    // The poll's frame padded to the channel's maximum (srp_cost_probe.hpp), so
+    // the measurement holds the poll's whole transmit term (#665: one frame a
+    // poll fits inside the publication term otherwise).
+    srp_probe={&model,0,0,0,true};
     const auto transmit_poll=cost([&]{loop.polls[0].fn(loop.polls[0].ctx);});
+    const auto observed=srp_probe;
+    srp_probe={};
     ASSERT_GT(adapter.transmitted,sent);
+    ASSERT_EQ(observed.sends,SRP_MBX_POLL_FRAMES);
     check("SRP transmitting poll bound",transmit_poll,SRP_MBX_POLL_MAX);
     // Per-frame bound independently measures the actual TX driver, at the
     // channel's maximum payload, so a one-access understatement is visible.
@@ -188,23 +196,36 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     EXPECT_EQ(reset_pub,MBX_N_IF*SRP_MBX_PUB_RESET) << "a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each";
     const int64_t pub_term=static_cast<int64_t>(MBX_N_IF*SRP_MBX_PUB_POLL_MAX);
     EXPECT_LE(static_cast<int64_t>(fixed),
-              static_cast<int64_t>(SRP_MBX_POLL_MAX)-pub_term-2*MBX_N_IF*SRP_MBX_TX_MAX)
+              static_cast<int64_t>(SRP_MBX_POLL_MAX)-pub_term-SRP_MBX_POLL_FRAMES*SRP_MBX_TX_MAX)
         << "poll fixed term is funded independently";
     for (unsigned n=0;n<20u;++n) loop.ticks[0]();
+    // Every participant now owes a frame. Each poll sends SRP_MBX_POLL_FRAMES
+    // of them, and the next resumes at the next participant (#665, the share).
+    unsigned sends=0;
+    uint64_t most=0;
+    for (unsigned n=0;n<2u*MBX_N_IF;++n) {
+        srp_probe={&model,0,0,0,true};
+        const auto transmitting=poll();
+        const auto observed=srp_probe;
+        srp_probe={};
+        EXPECT_EQ(observed.sends,SRP_MBX_POLL_FRAMES) << "one MRPDU a poll, the next participant's on the next";
+        EXPECT_EQ(observed.sends,observed.calls) << "every call reached real send_pdu";
+        EXPECT_EQ(transmitting,idle+observed.accesses) << "transmitting poll adds only measured sends";
+        EXPECT_LE(static_cast<int64_t>(observed.sends),
+                  (static_cast<int64_t>(SRP_MBX_POLL_MAX)-static_cast<int64_t>(fixed)-pub_term)/SRP_MBX_TX_MAX)
+            << "poll transmit count is funded independently";
+        EXPECT_LE(fixed+reset_pub+observed.accesses,SRP_MBX_POLL_MAX) << "measured complete poll envelope";
+        sends+=observed.sends;
+        most=std::max<uint64_t>(most,observed.accesses);
+    }
+    EXPECT_EQ(sends,2u*MBX_N_IF) << "both participants on every interface are visited";
     srp_probe={&model,0,0,0,true};
-    const auto transmitting=poll();
-    const auto observed=srp_probe;
+    (void)poll();
+    EXPECT_EQ(srp_probe.sends,0u) << "and each sent once";
     srp_probe={};
-    EXPECT_EQ(observed.calls,2u*MBX_N_IF) << "both participants on every interface are visited";
-    EXPECT_EQ(observed.sends,observed.calls) << "every call reached real send_pdu";
-    EXPECT_EQ(transmitting,idle+observed.accesses) << "transmitting poll adds only measured sends";
-    EXPECT_LE(static_cast<int64_t>(observed.calls),
-              (static_cast<int64_t>(SRP_MBX_POLL_MAX)-static_cast<int64_t>(fixed)-pub_term)/SRP_MBX_TX_MAX)
-        << "poll transmit count is funded independently";
-    EXPECT_LE(fixed+reset_pub+observed.accesses,SRP_MBX_POLL_MAX) << "measured complete poll envelope";
-    std::printf("  SRP poll terms: fixed %u, calls %u, real send accesses %u, envelope %u/%u\n",
-                unsigned(fixed),observed.calls,unsigned(observed.accesses),
-                unsigned(fixed+observed.accesses),SRP_MBX_POLL_MAX);
+    std::printf("  SRP poll terms: fixed %u, frames a poll %u, real send accesses %u, envelope %u/%u\n",
+                unsigned(fixed),SRP_MBX_POLL_FRAMES,unsigned(most),
+                unsigned(fixed+most),SRP_MBX_POLL_MAX);
 }
 
 // Each publication a poll may make, measured through the real callbacks: a
@@ -272,10 +293,13 @@ TEST_F(Srp, PassFundsEveryEventRecordAndBothMaximumReceives) {
     const auto receive_envelope=rx-1u+CTRL_LOOP_RX_PER_PASS;
     EXPECT_LE(static_cast<int64_t>(receive_envelope),static_cast<int64_t>(SRP_MBX_PASS_MAX)-events-SRP_MBX_POLL_MAX)
         << "pass receive count is funded independently";
-    const auto pass_envelope=events+receive_envelope+MBX_N_IF*(4u+SRP_MBX_PUB_POLL_MAX+2u*SRP_MBX_TX_MAX);
+    // The poll's: its fixed and publication terms on every interface, and one
+    // MRPDU a poll (Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks).
+    const auto poll_envelope=MBX_N_IF*(4u+SRP_MBX_PUB_POLL_MAX)+SRP_MBX_POLL_FRAMES*SRP_MBX_TX_MAX;
+    const auto pass_envelope=events+receive_envelope+poll_envelope;
     EXPECT_LE(pass_envelope,SRP_MBX_PASS_MAX) << "pass funds the independently measured poll envelope";
     std::printf("  SRP pass terms: event %u, receive %u, poll %u, envelope %u/%u\n",
-                unsigned(events),unsigned(receive_envelope),MBX_N_IF*(4u+SRP_MBX_PUB_POLL_MAX+2u*SRP_MBX_TX_MAX),
+                unsigned(events),unsigned(receive_envelope),unsigned(poll_envelope),
                 unsigned(pass_envelope),SRP_MBX_PASS_MAX);
     loop.n_polls=1;
 }

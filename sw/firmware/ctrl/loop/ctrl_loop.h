@@ -52,6 +52,29 @@
 //      platform's cost per access, which this lane has not measured.
 // A protocol composes its own figures from these (ADP_MBX_PASS_MAX).
 //
+// THE SHARE (#665, #397's one-hart rule). A pass is the only opportunity to
+// take an input, and the smallest bound every input shares is SRP's 18 ms,
+// min(T_svc = 20 ms, its ceiling) (FR_NFR.md 3.4.1). An input waits for the
+// pass running when it arrives, then is taken N passes later and answered in
+// that pass, so (N + 1) passes must fit that bound. The deepest admitted wait
+// is the A3 row of seven owed frames, answered in pass 8 after the room
+// returns. The share was sized against the 10 ms T_svc first proposed: no
+// pass may exceed 10 ms / 9, about 1.1 ms or 55,500 CPU cycles at 50 MHz. Every
+// slice serves that share, and each module's work in one pass is bounded,
+// the rest resumed on the next pass:
+//   * the loop: the events, records and centiseconds per pass above;
+//   * ADP and ACMP: the records the loop hands them, and one owed frame per
+//     interface (adp_mbx.h, acmp_mbx.h);
+//   * MAAP: its records, and at most two queued frames per interface
+//     (tsn-c-stack maap.c, pump);
+//   * AECP: one record, taken only while no response or notice is owed, and
+//     one notice built, sent to every registered recipient the transmit ring
+//     has room for (aecp.c, transmit);
+//   * SRP: its records, and one MRPDU built and sent a pass over every
+//     participant of every interface (SRP_MBX_POLL_FRAMES, srp_bounds.h;
+//     #665: lwSRP's periodic transmission had built all four at two
+//     interfaces in one pass).
+//
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
 // that many times, in registration order, at most CTRL_LOOP_TICKS_PER_PASS
@@ -75,6 +98,16 @@ extern "C" {
 #define CTRL_LOOP_MAX_SINKS 8u          // event sinks
 #define CTRL_LOOP_MAX_TICKS 4u          // centisecond consumers
 #define CTRL_LOOP_MAX_POLLS 8u          // polled modules
+// The records one pass takes, kept under the owner's D4(b) decision of
+// 2026-10-27 (#665: the admitted backlog first). RX: two of a channel, the
+// most maximum-length records SRP's ring holds (srp_bounds.h). Every module's
+// pass bound charges a record at its channel's maximum length, so a larger
+// count is charged for records no ring can hold until those bounds are
+// restated in ring words. Events: eight, half the ring. The whole ring would
+// take an event behind a full ring by the first pass, but every pass's bound
+// would carry sixteen events: CTRL_APP_PASS_MAX 4,036 accesses instead of
+// 3,140 at one interface, and ACMP's owed-frame bound 12,222 instead of 9,270,
+// over the 10 ms T_svc first proposed at 1 us an access (docs/design/MAILBOX_SPLIT.md).
 #define CTRL_LOOP_EVENTS_PER_PASS 8u    // event records one pass takes at most
 #define CTRL_LOOP_RX_PER_PASS 2u        // RX records one pass takes per channel at most
 #define CTRL_LOOP_TICKS_PER_PASS 16u    // centiseconds one pass dispatches at most

@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <cstring>
+#include <string>
 #include <aecp_latency_policy.hpp>
 #include "aecp_callback_inputs.hpp"
 extern "C" {
@@ -88,6 +89,10 @@ struct Core : testing::Test {
     bool bound=false;
     bool streaming=false;
     bool observations=true;
+    // #665: a response zeroes and writes only the bytes it sends, so each is
+    // built over whatever the last one left: the clock port fills the idle
+    // buffer with this, and every test's expected bytes see through it.
+    uint8_t poison=0xa5;
     std::vector<std::pair<unsigned,Bytes>> sent;
     std::vector<uint32_t> completions;
     std::array<aecp_mapping,64> input{},output{};
@@ -122,7 +127,9 @@ struct Core : testing::Test {
         });
         ON_CALL(mock,Send).WillByDefault([this](unsigned i,const uint8_t*p,size_t n,uint32_t c){
             if(room) { sent.emplace_back(i,Bytes(p,p+n)); completions.push_back(c); } return room;});
-        ON_CALL(mock,Now).WillByDefault([this]{return ms;});
+        ON_CALL(mock,Now).WillByDefault([this]{
+            if(!a.response_owed&&!a.notify)std::memset(a.response,poison,sizeof a.response);
+            return ms;});
         ON_CALL(mock,Random).WillByDefault(Return(12345));
         ON_CALL(mock,Applied).WillByDefault(Return(true));
         ON_CALL(mock,Stream).WillByDefault([this](unsigned,uint16_t,uint16_t,aecp_stream_info*v){
@@ -161,6 +168,46 @@ struct Core : testing::Test {
         return out;
     }
     void register_controller(uint64_t id=CTLR,unsigned interface=0){ask(36,{},0,id,interface);}
+    // #665: aecp_find answers from the index aecp_init builds of the model's
+    // keys, and the firmware never rewrites a key after it. A case that does
+    // rebuilds the index with its change, and TearDown fails one that does not.
+    template<class Change> void rekey(Change change) { change();aecp_index(&a); }
+    // The first key aecp_find answers differently from a scan of the model in
+    // its order, or "" when there is none: each descriptor's own key, then
+    // every small key of each indexed configuration and one past them.
+    std::string stale_key() {
+        const aecp_model *m=a.cfg.model;
+        if(m==nullptr) { return {}; }
+        auto scan=[m](unsigned c,unsigned t,unsigned i)->aecp_descriptor* {
+            for(size_t n=0;n<m->count;++n) {
+                auto &d=m->descriptors[n];
+                if(d.configuration==c&&d.type==t&&d.index==i) { return &d; }
+            }
+            return nullptr;
+        };
+        auto differs=[&](unsigned c,unsigned t,unsigned i) {
+            return aecp_find(&a,uint16_t(c),uint16_t(t),uint16_t(i))!=scan(c,t,i);
+        };
+        auto key=[](unsigned c,unsigned t,unsigned i) {
+            return "configuration "+std::to_string(c)+", type "+std::to_string(t)+", index "+std::to_string(i);
+        };
+        for(size_t n=0;n<m->count;++n) {
+            auto &d=m->descriptors[n];
+            if(differs(d.configuration,d.type,d.index)) { return key(d.configuration,d.type,d.index); }
+        }
+        for(unsigned c=0;c<=AECP_INDEXED_CONFIGURATIONS;++c) {
+            for(unsigned t=0;t<=AECP_DESCRIPTOR_TYPES;++t) {
+                for(unsigned i=0;i<=m->count;++i) {
+                    if(differs(c,t,i)) { return key(c,t,i); }
+                }
+            }
+        }
+        return {};
+    }
+    void TearDown() override {
+        EXPECT_EQ(stale_key(),"")<<"aecp_find finds each key where the model holds it: "
+                                   "a key changed after aecp_init needs aecp_index";
+    }
     //! Milan v1.2 5.4.4.2 MVU SET_SYSTEM_UNIQUE_ID and its response.
     Bytes set_system_id(uint64_t value,uint64_t controller=CTLR) {
         Bytes body={0xc5,0x0a,0xc1,0,0,0,0,0};put(body,4,1,2);body.resize(16);put(body,8,value,8);
@@ -336,7 +383,7 @@ TEST_F(Nvm, ScalarRecordsUseSharedValidationAndReserveUnknownGroups)
     EXPECT_EQ(owner.port.rollback(&owner,NVM_W_D3),-1);
     EXPECT_EQ(owner.port.rollback(&owner,NVM_W_BIND),0)<<"binding walk does not reset AECP values";
     EXPECT_EQ(owner.port.settle(&owner),NVM_FAULT);
-    model.count=0;EXPECT_FALSE(owner.port.model_ready(&owner));
+    rekey([&]{model.count=0;});EXPECT_FALSE(owner.port.model_ready(&owner));
 }
 
 TEST_F(Nvm, MapRecordsRefuseMissingStorageAndNeverPartiallyLatch)
@@ -420,7 +467,7 @@ struct App : Nvm {
         ASSERT_TRUE(srp_mbx_init(&reservation,&srp));ASSERT_TRUE(ctrl_app_attach_srp(&application,&reservation));
         ASSERT_TRUE(ctrl_app_open_aecp(&bridge));
     }
-    void TearDown() override { srp_mbx_destroy(&reservation); }
+    void TearDown() override { srp_mbx_destroy(&reservation);Nvm::TearDown(); }
     void service(unsigned count=20){for(unsigned i=0;i<count;++i)(void)ctrl_loop_service(&application.loop);}
     void aem(unsigned cmd,Bytes body={},uint64_t ctl=CTLR) {
         auto p=command(cmd,body,ctl);ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));service();
@@ -647,6 +694,70 @@ TEST_F(Core, EveryDescriptorAndReadFailures)
     }
     ask(4,Bytes(7),7);auto b=Bytes(8);put(b,0,1,2);put(b,4,2,2);ask(4,b,7);
     put(b,0,0,2);put(b,4,0xffff,2);ask(4,b,2);
+}
+
+// #665: what a response sends never depends on what its buffer held. Every
+// command number, a spread of body lengths and descriptor targets, every
+// non-AEM message type, the notifications they cause and the asynchronous
+// notices (lock expiry, controller probing) run on two fresh cores, one
+// building over a zeroed buffer as the whole-frame clear did, one over a
+// filled one; they must send the same frames, byte for byte.
+TEST_F(Core, ResponsesDependOnNothingTheBufferHeld)
+{
+    struct Twin : Core { void TestBody() override {} };
+    auto corpus=[](Core &c){
+        c.register_controller(CTLR+1);c.register_controller(CTLR+2,AECP_TEST_INTERFACES-1);
+        // Each command is answered, its notices fanned out, then 10 ms pass, so a
+        // START's deadline expires before the next and the clock reaches every
+        // lock expiry and controller probe on the way.
+        auto feed=[&c](const Bytes &frame){aecp_rx(&c.a,0,frame.data(),frame.size());c.drain();c.ms+=10;c.drain();};
+        std::vector<Bytes> bodies={{},Bytes(2,0x5a),Bytes(16,0xff),Bytes(140,0x33)};
+        for(unsigned type:{0u,1u,2u,5u,6u,9u,13u,14u,15u,26u,36u})for(size_t size:{4u,8u,12u,16u,72u,84u}){
+            auto b=target(type,0,size);for(size_t k=4;k<size;++k)b[k]=uint8_t(k==4?0:k);bodies.push_back(b);
+        }
+        for(unsigned cmd=0;cmd<80;++cmd)for(auto &b:bodies)feed(command(cmd,b));
+        auto entry=[](unsigned cmd,const Bytes &payload){
+            Bytes e(8);put(e,0,payload.size(),2);put(e,6,cmd,2);e.insert(e.end(),payload.begin(),payload.end());return e;};
+        Bytes dynamic=entry(15,target(5,0));
+        for(auto &e:{entry(17,target(0,0,8)),entry(41,target(9,0)),entry(9,target(6,0))})dynamic.insert(dynamic.end(),e.begin(),e.end());
+        feed(command(75,dynamic));
+        for(unsigned msg:{2u,4u,8u})for(auto &b:bodies)feed(command(0,b,CTLR,0,msg));
+        for(unsigned type:{0u,1u,2u,3u})for(size_t size:{6u,8u,16u,20u}){
+            Bytes m(size);m[0]=0xc5;m[1]=0x0a;m[2]=0xc1;m[3]=0;put(m,4,type,2);feed(command(0x001b,m,CTLR,0,6));
+        }
+        feed(command(36,{},CTLR+1));
+        for(unsigned n=0;n<4;++n){aecp_changed(&c.a,5,0,1u<<n);aecp_changed(&c.a,6,0,1u<<n);}
+        aecp_changed(&c.a,9,0,6);aecp_changed(&c.a,36,0,8);c.drain();
+        // The lock expires 60 s on, in a poll that starts with nothing owed, while
+        // CTLR+1 stays registered by asking every 20 s: its notice must leave.
+        feed(command(1,Bytes(16)));
+        for(unsigned n=0;n<3;++n){c.ms+=20000;c.drain();feed(command(2,{},CTLR+1));}
+        for(unsigned n=0;n<8;++n){c.ms+=30000;c.drain();c.ms+=300;c.drain();}
+    };
+    // Every path that clears a body of its own sends at least one frame here.
+    auto covered=[](const Core &c){
+        bool unlock=false;
+        bool hdcp=false;
+        bool mvu=false;
+        bool dynamic=false;
+        bool notice=false;
+        for(auto &f:c.sent){
+            const unsigned cmd=unsigned(get(f.second,36,2));
+            const unsigned msg=f.second[15]&15u;
+            unlock|=cmd==0x8001u;hdcp|=msg==9u;mvu|=msg==7u;dynamic|=msg==1u&&cmd==75u;
+            notice|=msg==1u&&(cmd&0x8000u)&&cmd!=0x8001u;
+        }
+        return unlock&&hdcp&&mvu&&dynamic&&notice;
+    };
+    Twin cleared;cleared.SetUp();cleared.poison=0;cleared.sent.clear();corpus(cleared);
+    poison=0xa5;sent.clear();corpus(*this);
+    ASSERT_EQ(sent.size(),cleared.sent.size())<<"the same frames leave";
+    ASSERT_GT(sent.size(),2000u)<<"the corpus answers";
+    ASSERT_TRUE(covered(*this))<<"the corpus sends an unlock notice, HDCP, MVU and dynamic responses and notices";
+    for(size_t n=0;n<sent.size();++n){
+        ASSERT_EQ(sent[n],cleared.sent[n])<<"frame "<<n<<" (command "<<get(sent[n].second,36,2)<<
+            ") is the same over a filled buffer and a cleared one";
+    }
 }
 
 TEST_F(Core, RootDescriptorConfigurationIsIgnored)
@@ -1424,7 +1535,9 @@ TEST_F(Core, UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin)
     EXPECT_FALSE(aecp_poll(&a));testing::Mock::VerifyAndClearExpectations(&mock);
     counters_ready=true;ms=1;sent.clear();drain();
     EXPECT_EQ(sent.size(),AECP_TEST_INTERFACES)<<"same descriptor counters recover while its stream stays unavailable";
-    recovered=true;ms=2;drain();
+    // The stream notices failed again at 1 ms, so their next retry backs off to 3 ms.
+    recovered=true;ms=2;drain();EXPECT_EQ(sent.size(),AECP_TEST_INTERFACES)<<"the second retry waits 2 ms";
+    ms=3;drain();
     EXPECT_EQ(sent.size(),3u*AECP_TEST_INTERFACES)<<"every retained failed event recovers";
     for(auto &e:events)EXPECT_EQ(e.retry_pending,0u);
     aecp_changed(&a,5,0,8);sent.clear();ms=1000;drain();EXPECT_TRUE(sent.empty());
@@ -1433,10 +1546,160 @@ TEST_F(Core, UnavailableSnapshotsDoNotBlockIndependentNoticesOrSpin)
     recovered=true;ms=0;drain();EXPECT_EQ(sent.size(),AECP_TEST_INTERFACES)<<"retry deadline survives clock wrap";
 }
 
+// #665: a notice whose observation stays unavailable is retried after 1, 2,
+// 4, then every 8 ms (AECP_RETRY_MAX_MS), leaves at the first retry after
+// the port answers, and a delivered notice starts the next failure at 1 ms.
+TEST_F(Core, UnavailableNoticeRetriesBackOffToEightMilliseconds)
+{
+    register_controller();sent.clear();unsigned reads=0;bool ready=false;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){
+        ++reads;*v={};return ready;});
+    aecp_changed(&a,5,0,1);
+    std::vector<uint32_t> attempts;
+    for(ms=0;ms<40;++ms){unsigned before=reads;drain();if(reads!=before)attempts.push_back(ms);}
+    EXPECT_EQ(attempts,(std::vector<uint32_t>{0,1,3,7,15,23,31,39}))<<"retries back off 1, 2, 4, then every 8 ms";
+    EXPECT_TRUE(sent.empty());
+    ready=true;ms=46;drain();EXPECT_TRUE(sent.empty())<<"no attempt before the retry is due";
+    ms=47;drain();EXPECT_EQ(sent.size(),1u)<<"the notice leaves at the retry after the port answers";
+    ready=false;aecp_changed(&a,5,0,1);ms=100;drain();unsigned before=reads;ms=101;drain();
+    EXPECT_GT(reads,before)<<"a delivered notice starts the next backoff at 1 ms";
+}
+
+// #665: the event and registry scans walk aecp.live and aecp.used only, so
+// each must hold exactly what the full scans visited: the events holding a
+// notice or a retry, in descriptor order, and the used registrations.
+namespace {
+struct Indexed : Core {
+    void expect_indexed() {
+        std::vector<size_t> live,held;
+        for(unsigned k=a.live;k!=0u&&live.size()<=model.count;k=events[k-1].next)live.push_back(k-1);
+        for(size_t n=0;n<model.count;++n)if(events[n].pending|events[n].retry_pending)held.push_back(n);
+        EXPECT_EQ(live,held)<<"aecp.live holds the events with a notice or a retry, in descriptor order";
+        for(unsigned i=0;i<AECP_INTERFACES;++i)for(unsigned n=0;n<AECP_REGISTRATIONS;++n)
+            EXPECT_EQ((a.used[i]>>n)&1u,a.registry[i][n].used?1u:0u)<<"aecp.used mirrors registration "<<i<<","<<n;
+    }
+    size_t index(unsigned type,unsigned at=0) { return size_t(&desc(type,at)-descriptors.data()); }
+};
+}
+
+TEST_F(Indexed, LiveEventsAreTheHeldNoticesInDescriptorOrder)
+{
+    register_controller();sent.clear();expect_indexed();
+    ASSERT_LT(index(5),index(6));ASSERT_LT(index(6),index(9));ASSERT_LT(index(9),index(36));
+    aecp_changed(&a,36,0,8);expect_indexed();     // the first, into an empty list
+    aecp_changed(&a,5,0,1);expect_indexed();      // ahead of every held event
+    aecp_changed(&a,9,0,2);expect_indexed();      // between two held events
+    aecp_changed(&a,6,0,1);expect_indexed();
+    aecp_changed(&a,5,0,8);expect_indexed();      // an event already held is not linked twice
+    aecp_changed(&a,0,0,15);expect_indexed();     // the ENTITY supports none: nothing is held
+    EXPECT_EQ(events[index(0)].pending,0u);
+    std::vector<std::pair<unsigned,unsigned>> order;
+    for(unsigned n=0;n<8&&a.live!=0u;++n){
+        sent.clear();drain();expect_indexed();
+        for(auto&[i,p]:sent){(void)i;order.emplace_back(get(p,36,2)&0x7fffu,get(p,38,2));}
+    }
+    EXPECT_EQ(order,(std::vector<std::pair<unsigned,unsigned>>{{15,5},{41,5},{15,6},{39,9},{41,36}}))
+        <<"notices leave in descriptor order whatever order their changes came in";
+    EXPECT_EQ(a.live,0u)<<"a built notice that leaves its event holding nothing unlinks it";
+}
+
+TEST_F(Indexed, FailedNoticesStayLinkedAndOpenRelinksDirectWrites)
+{
+    register_controller();sent.clear();observations=false;
+    aecp_changed(&a,6,0,1);aecp_changed(&a,5,0,9);expect_indexed();
+    for(ms=0;ms<20;++ms){drain();expect_indexed();}
+    EXPECT_TRUE(sent.empty());EXPECT_NE(events[index(5)].retry_pending,0u);
+    observations=true;ms=40;drain();expect_indexed();EXPECT_EQ(a.live,0u);
+    events[index(9)].pending=2;events[index(36)].retry_pending=8;events[index(36)].pending=8;
+    aecp_open(&a);expect_indexed();
+    EXPECT_EQ(a.live,uint16_t(index(9)+1))<<"the open's rescan links what was set before it";
+}
+
+TEST_F(Indexed, RefusesAModelTheEventLinksCannotIndex)
+{
+    // A model every other check accepts, so only the links' bound refuses it.
+    std::vector<aecp_descriptor> many(0xffffu);std::vector<aecp_event> rows(0xffffu);
+    std::copy(descriptors.begin(),descriptors.begin()+model.count,many.begin());
+    for(size_t n=model.count;n<many.size();++n)many[n]={0,1,0,4,values.data(),values.data()};
+    aecp b{};aecp_model large{many.data(),many.size(),model.configurations};
+    aecp_config c=cfg;c.model=&large;c.events=rows.data();
+    EXPECT_FALSE(aecp_init(&b,&c,&ports))<<"aecp.live links descriptor indices + 1 in 16 bits";
+    large.count=0xfffeu;
+    EXPECT_TRUE(aecp_init(&b,&c,&ports))<<"the largest model the links index is accepted";
+}
+
+TEST_F(Indexed, RegistryScansSkipUnusedRegistrations)
+{
+    register_controller(CTLR);register_controller(CTLR+1);expect_indexed();
+    EXPECT_EQ(a.used[0],3u);
+    ask(37,{},0,CTLR);expect_indexed();EXPECT_EQ(a.used[0],2u)<<"deregistration clears its bit only";
+    sent.clear();ms=42345;drain();expect_indexed();
+    ASSERT_EQ(sent.size(),1u)<<"the remaining registration alone is probed";
+    auto reply=sent[0].second;put(reply,0,MAC,6);put(reply,6,CMAC,6);reply[15]=1;
+    aecp_rx(&a,0,reply.data(),reply.size());
+    EXPECT_EQ(a.registry[0][1].probing,0u)<<"a reply past an unused registration reaches its own";
+    sent.clear();ms=2*42345;drain();ms+=250;drain();ms+=250;drain();expect_indexed();
+    EXPECT_EQ(a.used[0],0u)<<"an unanswered probe frees its registration and its bit";
+    ask(4,Bytes(8),0,CTLR+1);expect_indexed();
+}
+
+// #665: aecp_find answers from aecp.runs. A model aecp_image_load built is one
+// run per key; any other placement is found as a scan of the model finds it.
+TEST_F(Indexed, FindAnswersEachKeyAsAScanOfTheModel)
+{
+    for(unsigned t=0;t<AECP_DESCRIPTOR_TYPES;++t) {
+        EXPECT_NE(a.runs[0][t].count,AECP_RUN_SCAN)<<"aecp_image_load's model is one run per key: "
+                                                      "aecp_find never scans it, type "<<t;
+    }
+    EXPECT_EQ(aecp_find(&a,0,0,0),&descriptors[0]);
+    // A model rebuilt for this case: runs that start past index 0, skip an
+    // index, recur after another key, or sit outside the indexed keys.
+    std::vector<aecp_descriptor> rows{
+        {0,0,0,4,nullptr,nullptr},{0,5,0,4,nullptr,nullptr},{0,5,1,4,nullptr,nullptr},
+        {0,6,1,4,nullptr,nullptr},{0,6,0,4,nullptr,nullptr},{0,6,2,4,nullptr,nullptr},
+        {0,9,0,4,nullptr,nullptr},{0,5,2,4,nullptr,nullptr},{1,5,0,4,nullptr,nullptr},
+        {0,AECP_DESCRIPTOR_TYPES,0,4,nullptr,nullptr},{0,9,2,4,nullptr,nullptr},{0,14,0,4,nullptr,nullptr},
+        {0,14,2,4,nullptr,nullptr}};
+    aecp_model irregular{rows.data(),rows.size(),2};
+    aecp b{};
+    b.cfg.model=&irregular;
+    aecp_index(&b);
+    EXPECT_EQ(b.runs[0][0].count,1u);
+    EXPECT_EQ(b.runs[0][1].count,0u)<<"a key the model lacks has an empty run";
+    for(unsigned t:{5u,6u,9u,14u}) {
+        EXPECT_EQ(b.runs[0][t].count,AECP_RUN_SCAN)<<"a key that is not one run from index 0 is scanned, type "<<t;
+    }
+    for(unsigned c=0;c<=2;++c) {
+        for(unsigned t=0;t<=AECP_DESCRIPTOR_TYPES+1;++t) {
+            for(unsigned i=0;i<=rows.size();++i) {
+                aecp_descriptor *want=nullptr;
+                for(auto &d:rows) {
+                    if(want==nullptr&&d.configuration==c&&d.type==t&&d.index==i) { want=&d; }
+                }
+                EXPECT_EQ(aecp_find(&b,uint16_t(c),uint16_t(t),uint16_t(i)),want)
+                    <<"aecp_find finds what a scan of the model finds: configuration "<<c<<", type "<<t<<", index "<<i;
+            }
+        }
+    }
+}
+
+TEST_F(Indexed, AKeyChangedAfterInitIsFoundOnlyAfterARebuild)
+{
+    auto &clock=desc(10);
+    clock.type=21; // in place, to a type the model lacks
+    EXPECT_NE(stale_key(),"")<<"a key changed after aecp_init is found where it was until aecp_index runs";
+    aecp_index(&a);
+    EXPECT_EQ(stale_key(),"");
+    EXPECT_EQ(aecp_find(&a,0,21,0),&clock)<<"aecp_index finds a changed key where it now is";
+    rekey([&]{clock.type=10;});
+    EXPECT_EQ(aecp_find(&a,0,21,0),nullptr)<<"a rebuilt index keeps no run of a key the model no longer holds";
+    EXPECT_EQ(aecp_find(&a,0,10,0),&clock);
+}
+
 TEST_F(Core, StaticMapsPreventOrphaningFormats)
 {
     auto &port=desc(14), &map=desc(10); // Replace an unrelated row with a synthetic AUDIO_MAP.
-    map.type=23;map.index=0;map.length=24;std::fill(map.value,map.value+24,0);
+    rekey([&]{map.type=23;map.index=0;});map.length=24;std::fill(map.value,map.value+24,0);
     put(map.value+4,8,2);put(map.value+6,2,2);
     put(map.value+8,1,2);put(map.value+10,7,2); // another stream does not constrain stream zero
     put(map.value+16,0,2);put(map.value+18,7,2);
@@ -1449,9 +1712,9 @@ TEST_F(Core, StaticMapsPreventOrphaningFormats)
         auto oldfield=get(map.value+damaged.first,2);put(map.value+damaged.first,damaged.second,2);
         ask(8,body,7);put(map.value+damaged.first,oldfield,2);
     }
-    map.length=7;ask(8,body,7);map.length=24;map.index=1;ask(8,body,7);map.index=0;
+    map.length=7;ask(8,body,7);map.length=24;rekey([&]{map.index=1;});ask(8,body,7);rekey([&]{map.index=0;});
     port.length=19;ask(8,body,7);port.length=20;
-    map.index=65535;put(port.value+18,65535,2);put(port.value+16,2,2);ask(8,body,7);
+    rekey([&]{map.index=65535;});put(port.value+18,65535,2);put(port.value+16,2,2);ask(8,body,7);
 }
 
 TEST_F(Core, OutputMappingsHaveOneGlobalOwner)
@@ -1489,7 +1752,7 @@ TEST_F(Core, MapTopologyFailuresAndEmptyPartitions)
     auto add=[&]{ask(44,b,7);EXPECT_EQ(maps[0].count,0u);};
     unsigned length=stream.length;stream.length=81;add();stream.length=length;
     length=cluster.length;cluster.length=85;add();cluster.length=length;
-    cluster.type=21;add();cluster.type=20;
+    rekey([&]{cluster.type=21;});add();rekey([&]{cluster.type=20;});
     auto geometry=get(port.value+12,4);put(port.value+12,2,2);put(port.value+14,65535,2);
     put(b,12,1,2);add();put(b,12,0,2);put(port.value+12,geometry,4);
     a.locked=true;a.lock_owner=CTLR+1;ask(44,b,3);a.locked=false;
@@ -1518,8 +1781,8 @@ TEST_F(Core, OutputPartitionGeometryUsesAllAdvertisedWidths)
     put(defaults.data()+82,65535,2);page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);
     put(defaults.data()+82,list,4);put(defaults.data()+84,65535,2);
     page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);put(defaults.data()+82,list,4);
-    auto &cluster=desc(20);cluster.type=21;query=target(14,0,8);
-    page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);cluster.type=20;
+    auto &cluster=desc(20);rekey([&]{cluster.type=21;});query=target(14,0,8);
+    page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);rekey([&]{cluster.type=20;});
     cluster.length=85;page=ask(43,query);EXPECT_EQ(get(page,44,2),1u);
     (void)port;s=original;
 }
@@ -1530,7 +1793,8 @@ TEST_F(Core, BootMapFaultsCannotPartlyReplaceTheSet)
     auto restore=[&](unsigned expected){EXPECT_EQ(aecp_map_restore(&a,&m,&row,1),expected);};
     m.index=65535;restore(10);m.index=0;
     desc(14).length=19;restore(10);desc(14).length=20;
-    desc(14).configuration=1;m.configuration=1;restore(10);m.configuration=0;desc(14).configuration=0;
+    rekey([&]{desc(14).configuration=1;});m.configuration=1;restore(10);m.configuration=0;
+    rekey([&]{desc(14).configuration=0;});
     put(desc(14).value+16,1,2);restore(7);put(desc(14).value+16,0,2);
     m.capacity=0;restore(7);m.capacity=64;
     a.in_port=true;restore(10);EXPECT_EQ(aecp_restore_settle(&a),10u);
@@ -1540,11 +1804,12 @@ TEST_F(Core, BootMapFaultsCannotPartlyReplaceTheSet)
     m.configuration=1;EXPECT_EQ(aecp_restore_settle(&a),0u);m.configuration=0;
     m.defaults=&row;m.default_count=1;ASSERT_TRUE(aecp_restore_defaults(&a));
     aecp_map_refused(&a,&m);desc(5).length=81;EXPECT_EQ(aecp_restore_settle(&a),10u);desc(5).length=154;
-    input_descriptor.index=65535;EXPECT_EQ(aecp_restore_settle(&a),10u);input_descriptor.index=0;
+    rekey([&]{input_descriptor.index=65535;});EXPECT_EQ(aecp_restore_settle(&a),10u);
+    rekey([&]{input_descriptor.index=0;});
     EXPECT_EQ(aecp_restore_settle(&a),0u);EXPECT_EQ(m.count,1u);
     events[&desc(14)-descriptors.data()].overrides=0;desc(5).length=81;
-    EXPECT_EQ(aecp_restore_settle(&a),10u);desc(5).length=154;input_descriptor.index=65535;
-    EXPECT_EQ(aecp_restore_settle(&a),10u);input_descriptor.index=0;
+    EXPECT_EQ(aecp_restore_settle(&a),10u);desc(5).length=154;rekey([&]{input_descriptor.index=65535;});
+    EXPECT_EQ(aecp_restore_settle(&a),10u);rekey([&]{input_descriptor.index=0;});
     aecp_mapping rows[]={{0,0,0,0},{0,1,0,0}};
     EXPECT_EQ(aecp_map_restore(&a,&m,rows,2),7u);EXPECT_EQ(m.count,1u);
 }
@@ -1618,19 +1883,19 @@ TEST_F(Core, CounterTimerArmsOnlyEligibleCompletedSnapshots)
 
 TEST_F(Core, MetadataConfigurationKeysAndRepeatedOverrides)
 {
-    auto &stream=desc(5);stream.configuration=1;
-    auto map=target(14,0,16);put(map,4,1,2);ask(44,map,7);stream.configuration=0;
+    auto &stream=desc(5);rekey([&]{stream.configuration=1;});
+    auto map=target(14,0,16);put(map,4,1,2);ask(44,map,7);rekey([&]{stream.configuration=0;});
     maps[0].configuration=1;auto body=target(5,0,12);put(body,4,get(stream.defaults+74,8),8);ask(8,body);
     maps[0].configuration=0;maps[0].count=1;input[0]={1,0,0,0};ask(8,body);
-    desc(14).configuration=1;ask(8,body);desc(14).configuration=0;
-    auto &other=desc(10);auto saved=other;other.type=0;other.length=4;
-    ask(6,Bytes(4));ask(6,Bytes(4));other=saved;
+    rekey([&]{desc(14).configuration=1;});ask(8,body);rekey([&]{desc(14).configuration=0;});
+    auto &other=desc(10);auto saved=other;rekey([&]{other.type=0;});other.length=4;
+    ask(6,Bytes(4));ask(6,Bytes(4));rekey([&]{other=saved;});
     auto si=target(6,0,84);put(si,4,0x20000000,4);put(si,24,100,4);ask(14,si);
     put(si,24,200,4);ask(14,si);EXPECT_EQ(latency[0],200u);
     auto fmt=target(5,0,12);put(fmt,4,(get(stream.defaults+74,8)&~(uint64_t(1023)<<22))|(uint64_t(4)<<22),8);
     ask(8,fmt);EXPECT_EQ(get(stream.value+74,8),get(fmt,4,8));
     // A row for a future configuration cannot increase the active output partition.
-    desc(6).configuration=1;auto page=ask(43,target(15,0,8));EXPECT_EQ(get(page,44,2),1u);
+    rekey([&]{desc(6).configuration=1;});auto page=ask(43,target(15,0,8));EXPECT_EQ(get(page,44,2),1u);
 }
 
 TEST_F(Core, MapsCompareEveryCoordinateAndBothDirectionsOnRestore)
@@ -1771,8 +2036,8 @@ TEST_F(Core, DescriptorAndObservationBoundaryFailures)
     auto&d=desc(5);d.length=AECP_FRAME_BYTES;auto b=Bytes(8);put(b,4,5,2);ask(4,b,8);d.length=154;
     put(d.value+126,2,2);ask(15,target(5,0),10);put(d.value+126,0,2);
     d.length=127;ask(15,target(5,0),10);ask(41,target(5,0));d.length=154;
-    auto&av=desc(9);av.index=AECP_TEST_INTERFACES;
-    ask(39,target(9,av.index),10);av.index=0;
+    auto&av=desc(9);rekey([&]{av.index=AECP_TEST_INTERFACES;});
+    ask(39,target(9,av.index),10);rekey([&]{av.index=0;});
     ON_CALL(mock,Path).WillByDefault([](unsigned,uint16_t,uint64_t*,size_t,size_t*n){*n=65;return true;});
     ask(40,Bytes(4),10);
     auto p=command(4,Bytes(8));p[15]=1;put(p,26,ENTITY,8);aecp_rx(&a,0,p.data(),p.size());
@@ -1856,10 +2121,18 @@ TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)
     receive(2);EXPECT_TRUE(adapter.core.response_owed);auto before=fabric.tx_sent;
     mbx_model_tx_pause(&fabric,false);service(100);
     EXPECT_FALSE(adapter.core.response_owed);EXPECT_GT(fabric.tx_sent,before);
+    for(unsigned n=0;n<5;++n)ASSERT_TRUE(adapter.ports.send(&adapter,0,filler.data(),filler.size(),200+n));
+    service(100);ASSERT_EQ(adapter.completion_count,0u);
+    const unsigned head=adapter.completion_head;
+    ASSERT_NE(head,0u)<<"the head has moved, so the full queue below wraps";
     for(unsigned n=0;n<AECP_MBX_COMPLETIONS;++n)
         ASSERT_TRUE(adapter.ports.send(&adapter,0,filler.data(),filler.size(),n));
     EXPECT_FALSE(adapter.ports.send(&adapter,0,filler.data(),filler.size(),100));
-    EXPECT_EQ(adapter.completion_count,AECP_MBX_COMPLETIONS);service(100);
+    EXPECT_EQ(adapter.completion_count,AECP_MBX_COMPLETIONS);
+    for(unsigned k=0;k<AECP_MBX_COMPLETIONS;++k)
+        EXPECT_EQ(adapter.completions[(head+k)%AECP_MBX_COMPLETIONS].cookie,k)
+            <<"a full queue holds every completion in its order across the wrap";
+    service(100);
     EXPECT_EQ(adapter.completion_count,0u);
     mbx_event e{};e.type=MBX_EV_TYPE_TIMER;e.timer_slot=6;e.timer_tag=adapter.tag;
     adapter.armed=false;loop.sinks[0].fn(loop.sinks[0].ctx,&e);EXPECT_EQ(adapter.stale_expiries,1u);
@@ -1875,7 +2148,7 @@ struct Latency : Mailbox {
         if(write&&offset==MBX_CH_BASE+MBX_CH_AECP*MBX_CH_STRIDE+MBX_CH_REG_TX_HEAD)s.commits.push_back(s.ns);
     }
     void SetUp() override {Mailbox::SetUp();mbx_host_trace(trace,this);}
-    void TearDown() override {mbx_host_trace(nullptr,nullptr);}
+    void TearDown() override {mbx_host_trace(nullptr,nullptr);Mailbox::TearDown();}
     void check(unsigned path,uint64_t origin,uint64_t end) {
         uint64_t elapsed=end-origin+1000100; // same F0-F4 desk CPU/observation allowance
         std::printf("H-AECP if=%u path=%u elapsed_ns=%llu accesses=%llu\n",MBX_N_IF,path,
@@ -2066,7 +2339,7 @@ struct Face : Core {
         ASSERT_TRUE(ctrl_loop_open(&loop,ENTITY,mac));
         mbx_host_trace(trace,this);ASSERT_TRUE(aecp_face_open(&face));aecp_mbx_open(&adapter);
     }
-    void TearDown() override {mbx_host_trace(nullptr,nullptr);mbx_model_far_bind(&fabric,nullptr);}
+    void TearDown() override {mbx_host_trace(nullptr,nullptr);mbx_model_far_bind(&fabric,nullptr);Core::TearDown();}
     void service(unsigned count=10){for(unsigned n=0;n<count;++n){(void)ctrl_loop_service(&loop);(void)aecp_face_poll(&face);}}
     //! One command and its response (its first frame), its status checked.
     Bytes receive(unsigned cmd,Bytes body={},unsigned status=0,uint64_t id=CTLR,unsigned interface=0) {
@@ -2531,9 +2804,11 @@ TEST_F(Face, DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing)
     auto &clock=desc(36,0);const size_t clock_length=clock.length;
     clock.length=60;face.ports.changed(&face,AECP_CHANGE_IDENTIFY,26,0);
     EXPECT_EQ(at(taken(0),MBX_FACE_REG_F_CLOCK,MBX_F_CLOCK_SOURCE_INDEX_LSB,16),0u)<<"a short CLOCK_DOMAIN";
-    clock.length=clock_length;clock.configuration=1;face.ports.changed(&face,AECP_CHANGE_IDENTIFY,26,0);
+    // #665: the face's core indexes the model's keys too, so the move rebuilds its index as well
+    clock.length=clock_length;rekey([&]{clock.configuration=1;aecp_index(&adapter.core);});
+    face.ports.changed(&face,AECP_CHANGE_IDENTIFY,26,0);
     EXPECT_EQ(at(taken(0),MBX_FACE_REG_F_CLOCK,MBX_F_CLOCK_SOURCE_INDEX_LSB,16),0u)<<"no CLOCK_DOMAIN in force";
-    clock.configuration=0;
+    rekey([&]{clock.configuration=0;aecp_index(&adapter.core);});
     far.reply=MBX_MODEL_SILENT;
     EXPECT_FALSE(face.ports.format(&face,6,0,get(desc(6).defaults+74,8)))<<"an unanswered verdict refuses";
 }
@@ -2641,7 +2916,7 @@ struct AppFace : Nvm {
         far.ack=acknowledged;
         ASSERT_EQ(ctrl_app_open_aecp(&bridge),acknowledged)<<"AECP opens only once the initial publication is acknowledged";
     }
-    void TearDown() override {mbx_host_trace(nullptr,nullptr);mbx_model_far_bind(&fabric,nullptr);}
+    void TearDown() override {mbx_host_trace(nullptr,nullptr);mbx_model_far_bind(&fabric,nullptr);Nvm::TearDown();}
     void service(unsigned count=20){for(unsigned i=0;i<count;++i)(void)ctrl_loop_service(&application.loop);}
     void aem(unsigned cmd,Bytes body={},uint64_t ctl=CTLR) {
         auto p=command(cmd,body,ctl);ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));service();

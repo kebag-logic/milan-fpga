@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 79 modules · 78 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
+**Totals:** 80 modules · 79 with a dedicated TB · 0 exercised-only · 32 field-fuzzed · 0 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -32,8 +32,8 @@ xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["ieee1722", "ieee17221", "ieee8021q", "ieee8021as", "common", "milan"]
     y-axis "modules" 0 --> 41
-    bar [40, 1, 8, 9, 10, 11]
-    bar [39, 1, 8, 9, 10, 11]
+    bar [40, 1, 8, 9, 10, 12]
+    bar [39, 1, 8, 9, 10, 12]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
@@ -45,7 +45,7 @@ The solid bar is the modules carrying a dedicated Verilator testbench; the pale 
 | IEEE 802.1Q | 8 | 8 | 0 | 0 | 0 | 0 |
 | IEEE 802.1AS | 9 | 9 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
-| Milan integration | 11 | 11 | 0 | 0 | 0 | 0 |
+| Milan integration | 12 | 12 | 0 | 0 | 0 | 0 |
 
 ## IEEE 1722.1 (ATDECC)
 
@@ -161,6 +161,7 @@ _datapath + top wrappers_
 |---|---|---|---|
 | ✅ `KL_mbx` | `milan/mailbox/KL_mbx.sv` | `mbx` | -- |
 | ✅ `KL_mbx_axil` | `milan/mailbox/KL_mbx_axil.sv` | `mbx` | -- |
+| ✅ `KL_mbx_dma` | `milan/mailbox/KL_mbx_dma.sv` | `mbx` | -- |
 | ✅ `KL_mbx_evt` | `milan/mailbox/KL_mbx_evt.sv` | `mbx` | -- |
 | 📦 `KL_mbx_pkg` | `milan/mailbox/KL_mbx_pkg.sv` | -- | -- |
 | ✅ `KL_mbx_ring` | `milan/mailbox/KL_mbx_ring.sv` | `mbx` | -- |
