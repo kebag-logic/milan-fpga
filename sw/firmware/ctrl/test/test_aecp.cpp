@@ -2804,9 +2804,11 @@ TEST_F(Face, DamagedDescriptorsAndAnInterfaceTheBuildLacksPublishNothing)
     auto &clock=desc(36,0);const size_t clock_length=clock.length;
     clock.length=60;face.ports.changed(&face,AECP_CHANGE_IDENTIFY,26,0);
     EXPECT_EQ(at(taken(0),MBX_FACE_REG_F_CLOCK,MBX_F_CLOCK_SOURCE_INDEX_LSB,16),0u)<<"a short CLOCK_DOMAIN";
-    clock.length=clock_length;clock.configuration=1;face.ports.changed(&face,AECP_CHANGE_IDENTIFY,26,0);
+    // #665: the face's core indexes the model's keys too, so the move rebuilds its index as well
+    clock.length=clock_length;rekey([&]{clock.configuration=1;aecp_index(&adapter.core);});
+    face.ports.changed(&face,AECP_CHANGE_IDENTIFY,26,0);
     EXPECT_EQ(at(taken(0),MBX_FACE_REG_F_CLOCK,MBX_F_CLOCK_SOURCE_INDEX_LSB,16),0u)<<"no CLOCK_DOMAIN in force";
-    clock.configuration=0;
+    rekey([&]{clock.configuration=0;aecp_index(&adapter.core);});
     far.reply=MBX_MODEL_SILENT;
     EXPECT_FALSE(face.ports.format(&face,6,0,get(desc(6).defaults+74,8)))<<"an unanswered verdict refuses";
 }
