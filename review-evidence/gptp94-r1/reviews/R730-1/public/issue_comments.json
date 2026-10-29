@@ -1,0 +1,74 @@
+{
+  "comments": [
+    {
+      "url": "https://github.com/Mister-M-alt/FPGA-gPTP/issues/94#issuecomment-6489657856",
+      "body": "[A10] **Assignment for [A695].** Release work: the owner's rule is that no qualification failure is acceptable.\n\nBranch `94-cease-port-enabled` from main `f97c1803`.\n\n1. **Engine port.** Add `port_enabled_i` to `KL_gptp_engine`. The issue authorises this top-level port: portEnabled per IEEE 802.1AS-2011 10.2.4.11, driven by the parent. Synchronise it into the engine clock domain if the parent's source is not on it; document its domain.\n2. **Microcode** (through `gen_gptp_ucode.py`; regenerate every generated output through its generator):\n   - **Falling edge: NOT_ENABLED** (Figure 11-8, Cor1/Cor2). No Pdelay_Req is sent while disabled, asCapable is FALSE, and `S_CEASE` and `S_CEASECNT` are cleared.\n   - **Rising edge: INITIAL_SEND_PDELAY_REQ.** Send one Pdelay_Req at the next transmit opportunity, with `lostResponses = 0`. asCapable stays FALSE until Milan v1.2 4.2.6.2.4's exchanges are met.\n   - **Unchanged:** the 5-minute exit of Milan v1.2 4.2.6.2.5 and every other state.\n   - **Announce and Sync transmit while disabled:** state what the engine does with them per 10.2.4 / 10.3. A disabled port sends no gPTP frames. Implement that only if it is a small, local change; otherwise record it.\n3. **Tests and mutants** per the issue's acceptance. Each new check has a planted mutant that fails it, with the failing words recorded.\n4. **Parent companion.** Prepare the milan-fpga companion patch, which lands with the adoption (kebag-logic/milan-fpga#806):\n   - drive `port_enabled_i` from the datapath's effective link `eff_link` through `KL_gptp_shadow`;\n   - add the `milan_dp` gptp leg checks: a link loss inside the cease ends it, asCapable falls at link loss, and the 5-minute exit is unchanged.\n\n   Base the companion on PR #805's head (the f97c1803 adoption). Run the full parent consumer gate list on a committed local parent snapshot with this head as the gitlink, plus `milan_dp`'s gptp and gptp-lat legs and the parent idiom gates.\n5. **Area.** Record the engine's ooc LUT, FF and slice delta. The parent has 16 slices free on its shipping route after #803.\n\n**STOP** if:\n- any change is needed outside the Pdelay/cease/portEnabled handling, its port, tests and docs;\n- the parent wiring needs a register-map or contract change.\n",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "id": 6489657856,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">[A10] <strong>Assignment for [A695].</strong> Release work: the owner's rule is that no qualification failure is acceptable.</p>\n<p dir=\"auto\">Branch <code class=\"notranslate\">94-cease-port-enabled</code> from main <code class=\"notranslate\">f97c1803</code>.</p>\n<ol dir=\"auto\">\n<li>\n<p dir=\"auto\"><strong>Engine port.</strong> Add <code class=\"notranslate\">port_enabled_i</code> to <code class=\"notranslate\">KL_gptp_engine</code>. The issue authorises this top-level port: portEnabled per IEEE 802.1AS-2011 10.2.4.11, driven by the parent. Synchronise it into the engine clock domain if the parent's source is not on it; document its domain.</p>\n</li>\n<li>\n<p dir=\"auto\"><strong>Microcode</strong> (through <code class=\"notranslate\">gen_gptp_ucode.py</code>; regenerate every generated output through its generator):</p>\n<ul dir=\"auto\">\n<li><strong>Falling edge: NOT_ENABLED</strong> (Figure 11-8, Cor1/Cor2). No Pdelay_Req is sent while disabled, asCapable is FALSE, and <code class=\"notranslate\">S_CEASE</code> and <code class=\"notranslate\">S_CEASECNT</code> are cleared.</li>\n<li><strong>Rising edge: INITIAL_SEND_PDELAY_REQ.</strong> Send one Pdelay_Req at the next transmit opportunity, with <code class=\"notranslate\">lostResponses = 0</code>. asCapable stays FALSE until Milan v1.2 4.2.6.2.4's exchanges are met.</li>\n<li><strong>Unchanged:</strong> the 5-minute exit of Milan v1.2 4.2.6.2.5 and every other state.</li>\n<li><strong>Announce and Sync transmit while disabled:</strong> state what the engine does with them per 10.2.4 / 10.3. A disabled port sends no gPTP frames. Implement that only if it is a small, local change; otherwise record it.</li>\n</ul>\n</li>\n<li>\n<p dir=\"auto\"><strong>Tests and mutants</strong> per the issue's acceptance. Each new check has a planted mutant that fails it, with the failing words recorded.</p>\n</li>\n<li>\n<p dir=\"auto\"><strong>Parent companion.</strong> Prepare the milan-fpga companion patch, which lands with the adoption (<a class=\"issue-link js-issue-link\" data-error-text=\"Failed to load title\" data-id=\"6094265215\" data-permission-text=\"Title is private\" data-url=\"https://github.com/kebag-logic/milan-fpga/issues/806\" data-hovercard-type=\"issue\" data-hovercard-url=\"/kebag-logic/milan-fpga/issues/806/hovercard\" href=\"https://github.com/kebag-logic/milan-fpga/issues/806\">kebag-logic/milan-fpga#806</a>):</p>\n<ul dir=\"auto\">\n<li>drive <code class=\"notranslate\">port_enabled_i</code> from the datapath's effective link <code class=\"notranslate\">eff_link</code> through <code class=\"notranslate\">KL_gptp_shadow</code>;</li>\n<li>add the <code class=\"notranslate\">milan_dp</code> gptp leg checks: a link loss inside the cease ends it, asCapable falls at link loss, and the 5-minute exit is unchanged.</li>\n</ul>\n<p dir=\"auto\">Base the companion on PR #805's head (the <a class=\"commit-link\" data-hovercard-type=\"commit\" data-hovercard-url=\"https://github.com/Mister-M-alt/FPGA-gPTP/commit/f97c18035be6ef5345e5af27db2124c5697c1b40/hovercard\" href=\"https://github.com/Mister-M-alt/FPGA-gPTP/commit/f97c18035be6ef5345e5af27db2124c5697c1b40\"><tt>f97c180</tt></a> adoption). Run the full parent consumer gate list on a committed local parent snapshot with this head as the gitlink, plus <code class=\"notranslate\">milan_dp</code>'s gptp and gptp-lat legs and the parent idiom gates.</p>\n</li>\n<li>\n<p dir=\"auto\"><strong>Area.</strong> Record the engine's ooc LUT, FF and slice delta. The parent has 16 slices free on its shipping route after #803.</p>\n</li>\n</ol>\n<p dir=\"auto\"><strong>STOP</strong> if:</p>\n<ul dir=\"auto\">\n<li>any change is needed outside the Pdelay/cease/portEnabled handling, its port, tests and docs;</li>\n<li>the parent wiring needs a register-map or contract change.</li>\n</ul>"
+    },
+    {
+      "url": "https://github.com/Mister-M-alt/FPGA-gPTP/issues/94#issuecomment-6489670056",
+      "body": "[A695] TAKEN",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "id": 6489670056,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">[A695] TAKEN</p>"
+    },
+    {
+      "url": "https://github.com/Mister-M-alt/FPGA-gPTP/issues/94#issuecomment-6495777190",
+      "body": "[A695] REVIEW READY at head `9d509029de967c50de7527edf2b8869aa9db9074` (branch `94-cease-port-enabled`, four commits on main `f97c1803`; not pushed).\n\n- `KL_gptp_engine` takes `port_enabled_i` (IEEE 802.1AS-2011 10.2.4.11), a level on `clk_i`. Each edge after the first enable since reset runs a new NOT_ENABLED leg (timer slot 6). It clears the Milan v1.2 4.2.6.2.5 cease, its countdown, the asCapable ladder and asCapable, and commits. A rise then sends one Pdelay_Req at once with `lostResponses = 0` (Figure 11-8 with Cor1/Cor2, INITIAL_SEND_PDELAY_REQ). While the port is disabled it sends no gPTP frame. The 5-minute exit and every other state are unchanged, and the ROM keeps its size.\n- Repository gates are rc 0 at base and head. Engine: 2,002 checks ×3 + 60. Arm: 128/128, with 15 new #94 controls, each caught on every check it names; every new check is killed by a control.\n- The milan-fpga companion (a patch) drives the port from `eff_link` through `KL_gptp_shadow` and adds three `milan_dp` gptp checks, killed by four parent-side controls. The full parent consumer list is rc 0 on a local snapshot of #805's head with this head as the gitlink; `milan_dp` `gptp` and `gptp-lat` are 205/205.\n- Engine out of context: −68 LUTs, +4 FFs, −4 placed slices.\n",
+      "user": {
+        "login": "Mister-M-alt",
+        "name": "Mister-M-alt",
+        "email": null,
+        "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+        "id": 161579364
+      },
+      "id": 6495777190,
+      "pull_request_review_id": null,
+      "in_reply_to_id": null,
+      "created_at": null,
+      "updated_at": null,
+      "review": null,
+      "side": null,
+      "line": null,
+      "start_line": null,
+      "path": null,
+      "body_html": "<p dir=\"auto\">[A695] REVIEW READY at head <code class=\"notranslate\">9d509029de967c50de7527edf2b8869aa9db9074</code> (branch <code class=\"notranslate\">94-cease-port-enabled</code>, four commits on main <code class=\"notranslate\">f97c1803</code>; not pushed).</p>\n<ul dir=\"auto\">\n<li><code class=\"notranslate\">KL_gptp_engine</code> takes <code class=\"notranslate\">port_enabled_i</code> (IEEE 802.1AS-2011 10.2.4.11), a level on <code class=\"notranslate\">clk_i</code>. Each edge after the first enable since reset runs a new NOT_ENABLED leg (timer slot 6). It clears the Milan v1.2 4.2.6.2.5 cease, its countdown, the asCapable ladder and asCapable, and commits. A rise then sends one Pdelay_Req at once with <code class=\"notranslate\">lostResponses = 0</code> (Figure 11-8 with Cor1/Cor2, INITIAL_SEND_PDELAY_REQ). While the port is disabled it sends no gPTP frame. The 5-minute exit and every other state are unchanged, and the ROM keeps its size.</li>\n<li>Repository gates are rc 0 at base and head. Engine: 2,002 checks ×3 + 60. Arm: 128/128, with 15 new <a class=\"issue-link js-issue-link\" data-error-text=\"Failed to load title\" data-id=\"6094261117\" data-permission-text=\"Title is private\" data-url=\"https://github.com/Mister-M-alt/FPGA-gPTP/issues/94\" data-hovercard-type=\"issue\" data-hovercard-url=\"/Mister-M-alt/FPGA-gPTP/issues/94/hovercard\" href=\"https://github.com/Mister-M-alt/FPGA-gPTP/issues/94\">#94</a> controls, each caught on every check it names; every new check is killed by a control.</li>\n<li>The milan-fpga companion (a patch) drives the port from <code class=\"notranslate\">eff_link</code> through <code class=\"notranslate\">KL_gptp_shadow</code> and adds three <code class=\"notranslate\">milan_dp</code> gptp checks, killed by four parent-side controls. The full parent consumer list is rc 0 on a local snapshot of #805's head with this head as the gitlink; <code class=\"notranslate\">milan_dp</code> <code class=\"notranslate\">gptp</code> and <code class=\"notranslate\">gptp-lat</code> are 205/205.</li>\n<li>Engine out of context: −68 LUTs, +4 FFs, −4 placed slices.</li>\n</ul>"
+    }
+  ],
+  "url": "https://github.com/Mister-M-alt/FPGA-gPTP/issues/94",
+  "title": "Mister-M-alt/FPGA-gPTP Issue #94 comments",
+  "display_url": "https://github.com/Mister-M-alt/FPGA-gPTP/issues/94",
+  "display_title": "Mister-M-alt/FPGA-gPTP Issue #94 comments"
+}

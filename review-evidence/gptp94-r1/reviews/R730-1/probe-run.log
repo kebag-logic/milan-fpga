@@ -1,0 +1,13 @@
+command: ['./obj_dir/Vprobe']
+OBS stalled fall=8402172 now=8410172 flags=f valid=1 sof=1
+FAIL probe disabled stalled port clears asCapable within 4ms got 0000000000000004 exp 0000000000000000
+OBS completed frames after disabled ready release=1
+FAIL probe no frame starts after disabled ready release got 0000000000000001 exp 0000000000000000
+OBS short toggle rise=19018096 first_request=19018384
+OBS late Follow_Up seq=12 delay_before=601 delay_after=701 commits=1 flags=b
+FAIL probe disabled outstanding exchange cannot publish delay got 00000000000002bd exp 0000000000000259
+FAIL probe disabled outstanding exchange cannot commit got 0000000000000010 exp 000000000000000f
+FAIL probe first rise after disabled warm reset ends cease within interval got 0000000000000000 exp 0000000000000001
+OBS reset rise=37638103 requests_after_one_interval=0
+OBS reset first_request=45438304 elapsed=7800201
+24 checks: 19 PASS, 5 FAIL

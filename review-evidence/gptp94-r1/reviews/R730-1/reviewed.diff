@@ -1,0 +1,1599 @@
+diff --git a/bench/arty/bench_arty_top.sv b/bench/arty/bench_arty_top.sv
+index 95da352..fc3b7ec 100644
+--- a/bench/arty/bench_arty_top.sv
++++ b/bench/arty/bench_arty_top.sv
+@@ -290,6 +290,9 @@ module bench_arty_top (
+       //! No admission control exists here: nothing downstream of the MII
+       //! gasket can refuse a frame, so the initiating legs keep credit.
+       .tx_credit_i        (1'b1),
++      //! This bench reads no PHY link status, so its port stays enabled:
++      //! the portEnabled edges (#94) are the engine suite's to exercise.
++      .port_enabled_i     (1'b1),
+       .phc_addend_we_o    (phc_add_we_w),
+       .phc_addend_o       (phc_add_w),
+       .phc_step_we_o      (phc_step_we_w),
+diff --git a/docs/HDL_DEVELOPER.md b/docs/HDL_DEVELOPER.md
+index 0c9326c..f43ae4e 100644
+--- a/docs/HDL_DEVELOPER.md
++++ b/docs/HDL_DEVELOPER.md
+@@ -245,6 +245,38 @@ A second response therefore leaves no pairable value.
+ 
+ Its exchange counts as lost at the next beat.
+ 
++## Port enable
++
++`port_en_r` registers `port_enabled_i` once.
++
++Every port gate reads that registered level.
++
++Region 1, word 2 then reads no credit.
++
++The SEND strobe never reaches a disabled serializer.
++
++Both claim-valid bits clear on every disabled cycle.
++
++That write wins over microcode in the same cycle.
++
++The first enable since reset raises no event.
++
++Each later edge queues a timer event for slot 6.
++
++A rise queues a slot 0 beat behind it.
++
++Both wait behind parser and timer events.
++
++Slot 6 is the NOTEN leg, not a timer.
++
++NOTEN clears the cease, countdown, streak and ladder.
++
++It sets `S_PDGOT`, so the next beat counts no loss.
++
++Its tail clears the interval and drops asCapable.
++
++The cease entry now ends in that tail.
++
+ ## Publication invariant
+ 
+ Microcode stages publication values first.
+diff --git a/docs/INTEGRATION.md b/docs/INTEGRATION.md
+index 62fd350..b686f23 100644
+--- a/docs/INTEGRATION.md
++++ b/docs/INTEGRATION.md
+@@ -189,6 +189,48 @@ Low credit also postpones request interval bookkeeping.
+ 
+ Restore credit to resume every normal cadence.
+ 
++## Port enable
++
++| Signal | Direction | Contract |
++|---|---|---|
++| `port_enabled_i` | Input | Carries 802.1AS-2011 portEnabled |
++
++Drive it as a level synchronous to `clk_i`.
++
++High means MAC_Operational and administrative enable together.
++
++The parent drives its effective link here.
++
++A low port transmits no gPTP frame.
++
++Initiating beats see no credit while it stays low.
++
++Every SEND issued while low is dropped.
++
++Both egress claims read empty while low.
++
++Received frames still dispatch; their replies are dropped.
++
++The first enable after reset raises nothing.
++
++The boot cadence already sends the first request.
++
++Each later edge clears asCapable and commits at once.
++
++It also ends the multiple-responder cease and its countdown.
++
++Milan 4.2.6.2.5 lists this toggle.
++
++A rise then sends one Pdelay_Req at once.
++
++That request counts no lost response.
++
++asCapable returns only after two good exchanges.
++
++The five-minute countdown remains the other exit.
++
++[Issue #94](https://github.com/Mister-M-alt/FPGA-gPTP/issues/94) records this contract.
++
+ ## PHC control
+ 
+ | Output | Meaning |
+@@ -733,6 +775,7 @@ Set `CLK_HZ_P` to the actual engine frequency.
+ - Hold result offers until acceptance.
+ - Report unmeasured results explicitly.
+ - Drive admission credit as a level.
++- Drive portEnabled from the effective link.
+ - Apply PHC pulses once.
+ - Count each step pulse as one step.
+ - Align the slew level with effective rate changes.
+diff --git a/docs/SOURCE_EVIDENCE.md b/docs/SOURCE_EVIDENCE.md
+index 99a73c3..274b080 100644
+--- a/docs/SOURCE_EVIDENCE.md
++++ b/docs/SOURCE_EVIDENCE.md
+@@ -7,28 +7,28 @@ Line numbers describe the current branch layout.
+ 
+ | Claim | Source evidence | Executable evidence |
+ |---|---|---|
+-| Single clock domain | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L60) | `make lint` |
+-| Four instantiated blocks | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L181) | `make lint` |
++| Single clock domain | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L62) | `make lint` |
++| Four instantiated blocks | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L203) | `make lint` |
+ | Any-byte receive refusal | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv) | Parser suite and named mutation controls |
+ | Deferred receive event | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L392) | Parser suite |
+-| Four-entry event queue | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L439) | Engine suite |
+-| Parser arbitration priority | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L466) | Engine suite |
+-| Priority timestamp return | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L377) | Engine suite |
+-| Accepted-beat result face | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L383) | Engine suite |
++| Four-entry event queue | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L461) | Engine suite |
++| Parser arbitration priority | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L488) | Engine suite |
++| Priority timestamp return | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L399) | Engine suite |
++| Accepted-beat result face | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L405) | Engine suite |
+ | Explicit lost result | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Retained Pdelay pairing context | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+-| Reset-backed pairing validity | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L263) | Engine suite |
+-| Transmit admission credit | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L102) | Engine suite |
+-| Eight timer slots | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L419) | Engine suite |
++| Reset-backed pairing validity | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L285) | Engine suite |
++| Transmit admission credit | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L104) | Engine suite |
++| Eight timer slots | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L441) | Engine suite |
+ | Six state regions | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L20) | Engine suite |
+ | Stable stalled transmission | [`KL_gptp_tx_slot`](../hdl/wire/KL_gptp_tx_slot.sv#L117) | Engine suite |
+-| Committed publication | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L128) | Engine suite |
++| Committed publication | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L138) | Engine suite |
+ | 1,024-word microcode ROM | [`KL_gptp_ucpu`](../hdl/ucpu/KL_gptp_ucpu.sv#L105) | MicroCPU suite |
+ | Sixteen registers | [`KL_gptp_ucpu`](../hdl/ucpu/KL_gptp_ucpu.sv#L113) | MicroCPU suite |
+ | Python image generation | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Media-dependent transmit flags | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine and tsngen suites |
+ | Step-versus-slew policy | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+-| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L111), [word 2](../hdl/top/KL_gptp_engine.sv#L1020), [word 3](../hdl/top/KL_gptp_engine.sv#L1025), [policy](../hdl/ucode/gen_gptp_ucode.py#L1001) | Engine suite and named mutation controls |
++| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L121), [word 2](../hdl/top/KL_gptp_engine.sv#L1050), [word 3](../hdl/top/KL_gptp_engine.sv#L1055), [policy](../hdl/ucode/gen_gptp_ucode.py#L1020) | Engine suite and named mutation controls |
+ | PHC rate envelope | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Ignored receive flag bits | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L472) | Engine suite |
+ | C++ test harnesses | [`tb/verilator`](../tb/verilator) | `make` |
+@@ -41,6 +41,8 @@ Line numbers describe the current branch layout.
+ | Mastership keeps both Sync watches | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Fifth lost response clears asCapable | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Duplicate response resets the exchange | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
++| Port enable ends the cease | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
++| Disabled port sends nothing | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv) | Engine suite and named mutation controls |
+ | Parent default enabled | [Pinned parent parameter](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L73) | Parent integration gates |
+ | Fabric owns product time | [Pinned parent contract](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L6) | Parent integration gates |
+ | Option-off verifies comparisons only | [Pinned parent boundary](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/ARCHITECTURE_HW_SW_SPLIT.md#L165-L175) | Parent integration gates |
+diff --git a/docs/TEST_DEVELOPER.md b/docs/TEST_DEVELOPER.md
+index 0e04858..20c68c0 100644
+--- a/docs/TEST_DEVELOPER.md
++++ b/docs/TEST_DEVELOPER.md
+@@ -134,6 +134,12 @@ Prefer independent protocol formulas and frame builders.
+ - Keeps asCapable through four lost Pdelay responses.
+ - Clears asCapable at the fifth, in each loss shape.
+ - Resets an exchange answered by duplicate responses.
++- Ends the multiple-responder cease on a port toggle.
++- Sends one request at once after each rise.
++- Clears asCapable at once on link loss.
++- Sends and commits nothing while the port is disabled.
++- Drops a frame built across the fall.
++- Keeps the cease countdown exit unchanged.
+ - Clears sync-ok on every handover to a peer.
+ - Appends thisClock to direct and multi-hop received paths.
+ - Checks the seven-entry, eight-entry, empty and absent path boundaries.
+diff --git a/hdl/top/KL_gptp_engine.sv b/hdl/top/KL_gptp_engine.sv
+index 859a216..73b1c79 100644
+--- a/hdl/top/KL_gptp_engine.sv
++++ b/hdl/top/KL_gptp_engine.sv
+@@ -24,7 +24,9 @@
+ //                                            delayed behind another never
+ //                                            reads a successor's frame)
+ //                  1  timestamp regs    RO  (0 ingress ts, 1 egress ts,
+-//                                            2 transmit admission credit)
++//                                            2 transmit admission credit,
++//                                            low while the port is
++//                                            disabled)
+ //                  2  scratch RAM       RW  (64 x 64, protocol state)
+ //                  3  publish bank      RW  (0 gm id, 1 parent id, 2 flags,
+ //                                            3 pdelay ns, 6 path count, 7..14
+@@ -101,6 +103,14 @@ module KL_gptp_engine
+     //! responses and both Follow_Up companions are never gated.
+     input  wire         tx_credit_i,
+ 
++    //! portEnabled (802.1AS-2011 10.2.4.11): MAC_Operational and the port
++    //! administratively enabled, a level synchronous to clk_i. While it is
++    //! low the port is NOT_ENABLED (Figure 11-8): it transmits nothing and
++    //! owes no egress stamp. Each change after the first enable since
++    //! reset clears asCapable and the Milan v1.2 4.2.6.2.5 cease; a rise
++    //! also sends a Pdelay_Req at once (#94).
++    input  wire         port_enabled_i,
++
+     //! PHC face (the parent timestamp_counter's knobs)
+     output logic        phc_addend_we_o,
+     output logic [31:0] phc_addend_o,
+@@ -140,6 +150,18 @@ module KL_gptp_engine
+     output logic  [4:0] dbg_status_o
+ );
+ 
++  // -------------------------------------------------------- portEnabled
++  //! #94. port_en_r is the level every gate below reads: the transmit
++  //! credit word, SEND and the egress claims. Received frames still raise
++  //! events; what they would send is dropped at SEND. port_seen_r
++  //! marks the first enable since reset, which the boot cadence already
++  //! serves, so only later edges raise events. Each edge owes the queue
++  //! a slot-6 timer event, the microcode's NOT_ENABLED leg, and a rise
++  //! then a slot-0 one, the request beat (INITIAL_SEND_PDELAY_REQ).
++  localparam logic [2:0] PE_SLOT_C = 3'd6;
++  logic port_en_r, port_seen_r;
++  logic pe_noten_r, pe_beat_r, pe_push_w;
++
+   // ---------------------------------------------------------- RX parser
+   logic        bank_we_w;
+   logic [4:0]  bank_addr_w;
+@@ -467,6 +489,7 @@ module KL_gptp_engine
+     push_w      = 1'b0;
+     push_data_w = '0;
+     tev_ready_w = 1'b0;
++    pe_push_w   = 1'b0;
+     ann_reject_w = pev_valid_w &&
+                    (pev_code_w == EV_RX_ANNOUNCE_C) &&
+                    !ann_event_capture_r;
+@@ -477,6 +500,12 @@ module KL_gptp_engine
+       push_w      = !evq_full_w;
+       push_data_w = {EV_TMR_C, 16'd0, 13'd0, tev_slot_w};
+       tev_ready_w = !evq_full_w;
++    end else if (pe_noten_r || pe_beat_r) begin
++      //! the portEnabled events (#94), NOT_ENABLED first, in timer form
++      push_w      = !evq_full_w;
++      pe_push_w   = !evq_full_w;
++      push_data_w = {EV_TMR_C, 16'd0, 13'd0,
++                     pe_noten_r ? PE_SLOT_C : 3'd0};
+     end
+   end
+ 
+@@ -763,10 +792,11 @@ module KL_gptp_engine
+       end
+       //! word 0 ingress, word 1 egress, word 2 the transmit admission
+       //! credit. The credit arm is selected by addr[1] alone, so neither
+-      //! timestamp read moves off its original one-bit select.
++      //! timestamp read moves off its original one-bit select. A disabled
++      //! port has no credit, so all three initiating beats skip (#94).
+       4'd1: begin
+         if (st_addr_w[1])
+-          st_rd_mux_w = {63'd0, tx_credit_i};
++          st_rd_mux_w = {63'd0, tx_credit_i && port_en_r};
+         else
+           st_rd_mux_w = st_addr_w[0] ? txts_r
+                                      : rxts_bank_r[disp_bank_r];
+@@ -1042,6 +1072,15 @@ module KL_gptp_engine
+         endcase
+       end
+ 
++      //! #94: a disabled port owes no egress stamp. Both claims read zero
++      //! while it is disabled and after, until written again, so a stamp
++      //! the down link never returns cannot block a later beat, and a late
++      //! one builds no companion. After the writes above, so it wins.
++      if (!port_en_r) begin
++        tmr_claim_valid_r  <= 1'b0;
++        resp_claim_valid_r <= 1'b0;
++      end
++
+       // gather: atomic millisecond snapshot
+       gx_valid_r <= gx_req_w && !gx_valid_r;
+       if (gx_req_w) begin
+@@ -1050,6 +1089,28 @@ module KL_gptp_engine
+     end
+   end
+ 
++  //! #94: the portEnabled level and the events its edges owe the queue.
++  //! A later edge re-raises NOT_ENABLED; a fall withdraws an owed beat.
++  always_ff @(posedge clk_i) begin : port_enable
++    if (!rst_n) begin
++      port_en_r   <= 1'b0;
++      port_seen_r <= 1'b0;
++      pe_noten_r  <= 1'b0;
++      pe_beat_r   <= 1'b0;
++    end else begin
++      port_en_r   <= port_enabled_i;
++      port_seen_r <= port_seen_r || port_en_r;
++      if (pe_push_w) begin
++        if (pe_noten_r) pe_noten_r <= 1'b0;
++        else            pe_beat_r  <= 1'b0;
++      end
++      if (port_seen_r && (port_enabled_i != port_en_r)) begin
++        pe_noten_r <= 1'b1;
++        pe_beat_r  <= port_enabled_i;
++      end
++    end
++  end
++
+   assign pub_gm_id_o     = pub_gm_r;
+   assign pub_parent_id_o = pub_parent_r;
+   //! gmPresent (#82): the µcode's bit 0 marks an elected peer; a
+@@ -1073,7 +1134,8 @@ module KL_gptp_engine
+       .rb_wdata_i (rb_wdata_w),
+       .rb_wstrb_i (rb_wstrb_w),
+       .rb_ready_o (rb_ready_w),
+-      .send_i     (resp_send_w),
++      //! #94: a frame built across the port's fall is dropped unsent
++      .send_i     (resp_send_w && port_en_r),
+       .send_len_i (resp_len_w),
+       .ser_idle_o (ser_idle_w),
+       .tx_valid_o (tx_valid_o),
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index 4b299e4..e221d3c 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -4,6 +4,24 @@
+ """gPTP µcode ROM image generator -- v8, the announce qualification and the
+ Pdelay_Resp_Follow_Up pairing rounds.
+ 
++FPGA-gPTP #94, portEnabled (802.1AS-2011 10.2.4.11: MAC_Operational and the
++port administratively enabled), which the engine now takes as an input:
++
++  * The Milan v1.2 4.2.6.2.5 cease ends on a link or portEnabled toggle as
++    well as on its 5-minute countdown. Each portEnabled edge after the
++    first enable since reset raises timer slot 6 (NOTEN). It clears the
++    cease, its countdown and streak, the asCapable ladder and asCapable,
++    and commits: Figure 11-8 (Cor1, Cor2) leaves NOT_ENABLED only through
++    INITIAL_SEND_PDELAY_REQ, with lostResponses = 0 and asCapable = FALSE.
++  * While the port is disabled the engine reads no transmit credit, drops
++    every SEND and holds both egress claims invalid, so it sends nothing.
++  * On a rise the engine queues the 1 s beat right behind NOTEN, so one
++    Pdelay_Req goes out at once and the cadence runs from it. NOTEN left
++    S_PDGOT set, so that beat counts no lost response.
++  * The countdown exit and every other state are unchanged. The cease entry
++    now ends in NOTEN's tail, which writes the same cells and commits the
++    same flags, so the ROM keeps its size.
++
+ FPGA-gPTP #89, #90 and #91, the receipt rules of 802.1AS-2011 as corrected
+ by Cor1 and Cor2, the edition Milan v1.2 profiles:
+ 
+@@ -356,7 +374,8 @@ S_CEASECNT = 36                          # cadence beats to resume
+ # and stay mutually consistent. There is no partial-reset path that could
+ # clear one and not the other. ADDING A SECOND WRITER to either gate
+ # breaks this: give the guarded cell an init write again, or write it in
+-# the new writer's own block.
++# the new writer's own block. NOTEN (#94) writes gate and guarded cell
++# zero together, so it is no setter.
+ S_TXQ_RESP = 41                          # the second egress-timestamp
+                                          # claim. Each claim holds the
+                                          # {messageType, sequenceId} its
+@@ -1501,7 +1520,8 @@ def _tmr_slot_dispatch(p):
+     p.emit("BRS", cnd=BRS_Z, label=LB["SRTO"])
+     p.emit("CMP", ra=REV, rb=0, fmt=FMT_W, imm=5)
+     p.emit("BRS", cnd=BRS_Z, label=LB["FUTO"])
+-    p.emit("END")
++    # slot 6 is no timer: the engine raises it on a portEnabled edge (#94)
++    p.emit("BR", label=LB["NOTEN"])
+     p.label("slot0")
+ 
+ 
+@@ -1627,17 +1647,14 @@ def _tmr_cease_rule(p):
+     p.emit("WRST", ra=RC, imm=RG_SCR | S_MULTI, fmt=FMT_Q)
+     p.emit("CMP", ra=RC, rb=0, fmt=FMT_D, imm=CEASE_N_C)
+     p.emit("BRS", cnd=BRS_LT, label="iv_clear")
+-    # cease: stop requesting, drop the verdict, load the countdown
+-    p.emit("MOVE", rd=RT, ra=0, imm=1)
+-    p.emit("WRST", ra=RT, imm=RG_SCR | S_CEASE, fmt=FMT_Q)
++    # cease: stop requesting, load the countdown, then NOTEN's tail clears
++    # the interval and drops the verdict (#94 shares it, word for word).
++    # RB still holds S_IVMULTI, which is 1 exactly here: its writers write
++    # 0 or 1 only, and the compare above took the branch on 1
++    p.emit("WRST", ra=RB, imm=RG_SCR | S_CEASE, fmt=FMT_Q)
+     p.emit("MOVE", rd=RT, ra=0, imm=max(1, RUNTIME["cease_ms"] // 1000))
+     p.emit("WRST", ra=RT, imm=RG_SCR | S_CEASECNT, fmt=FMT_Q)
+-    p.emit("WRST", ra=0, imm=RG_SCR | S_PDOK, fmt=FMT_Q)
+-    e_flags(p, andm=FL_PRESENT_C | FL_AMGM_C | FL_SYNCOK_C)
+-    p.emit("COMMIT")
+-    p.emit("WRST", ra=0, imm=RG_SCR | S_IVMULTI, fmt=FMT_Q)
+-    p.emit("WRST", ra=0, imm=RG_SCR | S_RSP1, fmt=FMT_Q)
+-    p.emit("END")
++    p.emit("BR", label=LB["NOTENTAIL"])
+     p.label("iv_clear")
+     p.emit("WRST", ra=0, imm=RG_SCR | S_IVMULTI, fmt=FMT_Q)
+     p.emit("WRST", ra=0, imm=RG_SCR | S_RSP1, fmt=FMT_Q)
+@@ -2160,6 +2177,32 @@ def prog_leg_resume(base: int) -> Prog:
+     return p
+ 
+ 
++def prog_leg_noten(base: int) -> Prog:
++    """A portEnabled edge (#94), timer slot 6, which the engine raises.
++
++    802.1AS-2011 Figure 11-8 (Cor1, Cor2) leaves NOT_ENABLED only through
++    INITIAL_SEND_PDELAY_REQ: lostResponses = 0 and asCapable = FALSE. Milan
++    v1.2 4.2.6.2.5 ends the cease on that toggle. So both edges clear the
++    cease, its countdown and streak, and the ladder and asCapable, and
++    commit. The engine sends nothing while the port is disabled. S_PDGOT
++    set makes the next beat's judgement count no loss, so its request goes
++    out with lostResponses = 0. On a rise the engine queues that beat next.
++
++    NOTENTAIL is the tail the cease entry shares: the interval's identity
++    bookkeeping, then PDPAIR's bad verdict, which clears S_PDOK and
++    asCapable and commits."""
++    p = Prog(base)
++    for s in (S_CEASE, S_CEASECNT, S_MULTI):
++        p.emit("WRST", ra=0, imm=RG_SCR | s, fmt=FMT_Q)
++    p.emit("MOVE", rd=RT, ra=0, imm=1)
++    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)
++    p.label("tail")
++    p.emit("WRST", ra=0, imm=RG_SCR | S_IVMULTI, fmt=FMT_Q)
++    p.emit("WRST", ra=0, imm=RG_SCR | S_RSP1, fmt=FMT_Q)
++    p.emit("BR", label=LB["PDBAD"])
++    return p
++
++
+ def prog_leg_srto(base: int) -> Prog:
+     """Sync receipt timeout (375 ms, #89): syncReceiptTimeoutTime has
+     passed. The port is marked, whatever role the expiry found, and an
+@@ -2338,6 +2381,7 @@ LEG_FNS = [
+     ("SLEW", prog_leg_slew), ("SVRATE", prog_leg_svrate),
+     ("RESUME", prog_leg_resume), ("PDREQ", prog_leg_pdreq),
+     ("TXLOST", prog_leg_txlost), ("TXT1OK", prog_leg_txt1ok),
++    ("NOTEN", prog_leg_noten),
+ ]
+ 
+ 
+@@ -2362,7 +2406,7 @@ def build(mac: int, seq_seed: int = 0,
+     # pass 1: measure (word counts are independent of branch targets)
+     for name, _ in LEG_FNS:
+         LB[name] = 0
+-    LB["PUBFLAGS"] = 0
++    LB["PUBFLAGS"] = LB["PDBAD"] = LB["NOTENTAIL"] = 0
+     fixed_sz = [(b, len(fn(b).words())) for b, fn in fixed]
+     leg_sz = [(name, len(fn(0).words())) for name, fn in LEG_FNS]
+ 
+@@ -2395,8 +2439,11 @@ def build(mac: int, seq_seed: int = 0,
+                 break
+         else:
+             raise AssertionError(f"leg {name} ({sz} words) does not fit")
+-    # PDPAIR's flags-publishing tail, which SRTO shares (#89)
++    # PDPAIR's flags-publishing tail, which SRTO shares (#89), and its bad
++    # verdict, which NOTEN ends in, as the cease entry does through its tail
+     LB["PUBFLAGS"] = prog_leg_pdpair(LB["PDPAIR"]).address("pubflags")
++    LB["PDBAD"] = prog_leg_pdpair(LB["PDPAIR"]).address("bad")
++    LB["NOTENTAIL"] = prog_leg_noten(LB["NOTEN"]).address("tail")
+ 
+     # pass 2: emit with real bases
+     rom = [None] * DEPTH
+diff --git a/syn/ooc/work/gptp_ucode.hex b/syn/ooc/work/gptp_ucode.hex
+index b15c67e..1844357 100644
+--- a/syn/ooc/work/gptp_ucode.hex
++++ b/syn/ooc/work/gptp_ucode.hex
+@@ -249,7 +249,7 @@ E00000000000
+ 180000000000
+ 42803002002C
+ 282820000000
+-100002000282
++10000200027A
+ 48283002000B
+ 180000000000
+ 480030020000
+@@ -522,7 +522,7 @@ E00000000000
+ 1000020003E0
+ 287810000005
+ 1000020000FE
+-180000000000
++0800000003F5
+ 408030020017
+ 280820000001
+ 100002000254
+@@ -613,29 +613,21 @@ E91001000001
+ 281020000000
+ 100002000267
+ 180000000000
+-0800000003F5
++0800000002B7
+ 410030020021
+ 281020000001
+ 10000200026D
+ 480030020022
+-08000000027E
++080000000276
+ 418030020022
+ E99800000001
+ 481830020022
+ 281820000003
+-10000300027E
+-228000000001
+-482830020023
++100003000276
++481030020023
+ 22800000012C
+ 482830020024
+-480030020007
+-428030030002
+-EAA80200000B
+-482830030002
+-A80000000000
+-480030020021
+-480030020020
+-180000000000
++0800000003FA
+ 480030020021
+ 480030020020
+ 48003002002C
+@@ -643,16 +635,16 @@ A80000000000
+ 420030020011
+ 40803002000C
+ 280830000000
+-100002000292
++10000200028A
+ E89881000000
+ 41003002000D
+ E92101000000
+ EA9006000020
+ 282820000000
+-10000200028D
+-080000000292
++100002000285
++08000000028A
+ 281020000000
+-100002000292
++10000200028A
+ E8880500001E
+ F50901000000
+ 48503002000E
+@@ -662,7 +654,7 @@ F50901000000
+ E92101000000
+ 45003002000E
+ 285030000000
+-10000200029B
++100002000293
+ F15100000000
+ E9100600001E
+ 428030020005
+@@ -676,31 +668,39 @@ EA2007000001
+ EAA000000050
+ EB2806000020
+ 283020000000
+-1000020002A8
+-0800000002B9
++1000020002A0
++0800000002B1
+ 282820000371
+-1000030002AB
+-0800000002B9
++1000030002A3
++0800000002B1
+ 428030020007
+ EAA800000001
+ 482830020007
+ 282820000002
+-1000030002BD
++1000030002B5
+ 428030030002
+ EB2802000004
+ EAA803000004
+ 482830030002
+ 283020000004
+-1000020002BD
++1000020002B5
+ 48003002002B
+ 48003002002E
+-0800000002BD
++0800000002B5
+ 480030020007
+ 428030030002
+ EAA80200000B
+ 482830030002
+ A80000000000
+ 180000000000
++480030020023
++480030020022
++480030020021
++480030020020
++480030020008
++228000000001
++48283002000B
++180000000000
+ E27F502493AE
+ E8F780000000
+ 480830020000
+@@ -1000,7 +1000,7 @@ EDD806000035
+ 285D20000000
+ 1000030003B1
+ 328500000000
+-0800000002BC
++0800000002B4
+ 487030020010
+ 228000000001
+ 482830020025
+@@ -1012,13 +1012,13 @@ EDD806000035
+ 0800000000F9
+ 180000000000
+ 480030020023
++480030020024
+ 480030020022
+-480030020021
+-480030020020
+-480030020008
+ 228000000001
+ 48283002000B
+-180000000000
++480030020021
++480030020020
++0800000002B1
+ 255251AABB9F
+ 000102A1B2FF
+ 0000FEC3D4E5
+diff --git a/tb/tsngen/gptp_ucode.hex b/tb/tsngen/gptp_ucode.hex
+index 4d84024..330ac6f 100644
+--- a/tb/tsngen/gptp_ucode.hex
++++ b/tb/tsngen/gptp_ucode.hex
+@@ -249,7 +249,7 @@ E00000000000
+ 180000000000
+ 42803002002C
+ 282820000000
+-100002000282
++10000200027A
+ 48283002000B
+ 180000000000
+ 480030020000
+@@ -522,7 +522,7 @@ E00000000000
+ 1000020003E0
+ 287810000005
+ 1000020000FE
+-180000000000
++0800000003F5
+ 408030020017
+ 280820000001
+ 100002000254
+@@ -613,29 +613,21 @@ E91001000001
+ 281020000000
+ 100002000267
+ 180000000000
+-0800000003F5
++0800000002B7
+ 410030020021
+ 281020000001
+ 10000200026D
+ 480030020022
+-08000000027E
++080000000276
+ 418030020022
+ E99800000001
+ 481830020022
+ 281820000003
+-10000300027E
+-228000000001
+-482830020023
++100003000276
++481030020023
+ 22800000012C
+ 482830020024
+-480030020007
+-428030030002
+-EAA80200000B
+-482830030002
+-A80000000000
+-480030020021
+-480030020020
+-180000000000
++0800000003FA
+ 480030020021
+ 480030020020
+ 48003002002C
+@@ -643,16 +635,16 @@ A80000000000
+ 420030020011
+ 40803002000C
+ 280830000000
+-100002000292
++10000200028A
+ E89881000000
+ 41003002000D
+ E92101000000
+ EA9006000020
+ 282820000000
+-10000200028D
+-080000000292
++100002000285
++08000000028A
+ 281020000000
+-100002000292
++10000200028A
+ E8880500001E
+ F50901000000
+ 48503002000E
+@@ -662,7 +654,7 @@ F50901000000
+ E92101000000
+ 45003002000E
+ 285030000000
+-10000200029B
++100002000293
+ F15100000000
+ E9100600001E
+ 428030020005
+@@ -676,31 +668,39 @@ EA2007000001
+ EAA000000050
+ EB2806000020
+ 283020000000
+-1000020002A8
+-0800000002B9
++1000020002A0
++0800000002B1
+ 282820000371
+-1000030002AB
+-0800000002B9
++1000030002A3
++0800000002B1
+ 428030020007
+ EAA800000001
+ 482830020007
+ 282820000002
+-1000030002BD
++1000030002B5
+ 428030030002
+ EB2802000004
+ EAA803000004
+ 482830030002
+ 283020000004
+-1000020002BD
++1000020002B5
+ 48003002002B
+ 48003002002E
+-0800000002BD
++0800000002B5
+ 480030020007
+ 428030030002
+ EAA80200000B
+ 482830030002
+ A80000000000
+ 180000000000
++480030020023
++480030020022
++480030020021
++480030020020
++480030020008
++228000000001
++48283002000B
++180000000000
+ E27F502493AE
+ E8F780000000
+ 480830020000
+@@ -1000,7 +1000,7 @@ EDD806000035
+ 285D20000000
+ 1000030003B1
+ 328500000000
+-0800000002BC
++0800000002B4
+ 487030020010
+ 228000000001
+ 482830020025
+@@ -1012,13 +1012,13 @@ EDD806000035
+ 0800000000F9
+ 180000000000
+ 480030020023
++480030020024
+ 480030020022
+-480030020021
+-480030020020
+-480030020008
+ 228000000001
+ 48283002000B
+-180000000000
++480030020021
++480030020020
++0800000002B1
+ 255251AABB9F
+ 000102A1B2FF
+ 0000FEC3D4E5
+diff --git a/tb/tsngen/tsngen_main.cpp b/tb/tsngen/tsngen_main.cpp
+index 6be7e6a..9852356 100644
+--- a/tb/tsngen/tsngen_main.cpp
++++ b/tb/tsngen/tsngen_main.cpp
+@@ -211,6 +211,7 @@ class TsnGenHarness {
+     dut->txts_valid_i = 0; dut->txts_ns_i = 0; dut->txts_seq_i = 0;
+     dut->txts_type_i = 0; dut->txts_ok_i = 0; dut->txts_gen_i = 0;
+     dut->tx_credit_i = 1;
++    dut->port_enabled_i = 1;              // the link is up throughout
+     for (int i = 0; i < 8; i++) tick();
+     dut->rst_n = 1;
+   }
+diff --git a/tb/verilator/engine/gptp_ucode.hex b/tb/verilator/engine/gptp_ucode.hex
+index 25e3def..3f50aba 100644
+--- a/tb/verilator/engine/gptp_ucode.hex
++++ b/tb/verilator/engine/gptp_ucode.hex
+@@ -249,7 +249,7 @@ E00000000000
+ 180000000000
+ 42803002002C
+ 282820000000
+-100002000282
++10000200027A
+ 48283002000B
+ 180000000000
+ 480030020000
+@@ -522,7 +522,7 @@ E00000000000
+ 1000020003E0
+ 287810000005
+ 1000020000FE
+-180000000000
++0800000003F5
+ 408030020017
+ 280820000001
+ 100002000254
+@@ -613,29 +613,21 @@ E91001000001
+ 281020000000
+ 100002000267
+ 180000000000
+-0800000003F5
++0800000002B7
+ 410030020021
+ 281020000001
+ 10000200026D
+ 480030020022
+-08000000027E
++080000000276
+ 418030020022
+ E99800000001
+ 481830020022
+ 281820000003
+-10000300027E
+-228000000001
+-482830020023
++100003000276
++481030020023
+ 228000000003
+ 482830020024
+-480030020007
+-428030030002
+-EAA80200000B
+-482830030002
+-A80000000000
+-480030020021
+-480030020020
+-180000000000
++0800000003FA
+ 480030020021
+ 480030020020
+ 48003002002C
+@@ -643,16 +635,16 @@ A80000000000
+ 420030020011
+ 40803002000C
+ 280830000000
+-100002000292
++10000200028A
+ E89881000000
+ 41003002000D
+ E92101000000
+ EA9006000020
+ 282820000000
+-10000200028D
+-080000000292
++100002000285
++08000000028A
+ 281020000000
+-100002000292
++10000200028A
+ E8880500001E
+ F50901000000
+ 48503002000E
+@@ -662,7 +654,7 @@ F50901000000
+ E92101000000
+ 45003002000E
+ 285030000000
+-10000200029B
++100002000293
+ F15100000000
+ E9100600001E
+ 428030020005
+@@ -676,31 +668,39 @@ EA2007000001
+ EAA000000050
+ EB2806000020
+ 283020000000
+-1000020002A8
+-0800000002B9
++1000020002A0
++0800000002B1
+ 282820000371
+-1000030002AB
+-0800000002B9
++1000030002A3
++0800000002B1
+ 428030020007
+ EAA800000001
+ 482830020007
+ 282820000002
+-1000030002BD
++1000030002B5
+ 428030030002
+ EB2802000004
+ EAA803000004
+ 482830030002
+ 283020000004
+-1000020002BD
++1000020002B5
+ 48003002002B
+ 48003002002E
+-0800000002BD
++0800000002B5
+ 480030020007
+ 428030030002
+ EAA80200000B
+ 482830030002
+ A80000000000
+ 180000000000
++480030020023
++480030020022
++480030020021
++480030020020
++480030020008
++228000000001
++48283002000B
++180000000000
+ E27F502493AE
+ E8F780000000
+ 480830020000
+@@ -1000,7 +1000,7 @@ EDD806000035
+ 285D20000000
+ 1000030003B1
+ 328500000000
+-0800000002BC
++0800000002B4
+ 487030020010
+ 228000000001
+ 482830020025
+@@ -1012,13 +1012,13 @@ EDD806000035
+ 0800000000F9
+ 180000000000
+ 480030020023
++480030020024
+ 480030020022
+-480030020021
+-480030020020
+-480030020008
+ 228000000001
+ 48283002000B
+-180000000000
++480030020021
++480030020020
++0800000002B1
+ 255251AABB9F
+ 000102A1B2FF
+ 0000FEC3D4E5
+diff --git a/tb/verilator/engine/mutants.py b/tb/verilator/engine/mutants.py
+index 5512d99..7f390b6 100644
+--- a/tb/verilator/engine/mutants.py
++++ b/tb/verilator/engine/mutants.py
+@@ -74,6 +74,7 @@ from mutation_verdict import TALLY, verdict  # noqa: E402
+ 
+ sys.path.insert(0, str(HERE))
+ from receipt_mutants import GENERATOR, RECEIPT_MUTATIONS  # noqa: E402
++from port_mutants import PORT_MUTATIONS  # noqa: E402
+ 
+ #: the RTL the suite builds, in the order the Makefile lists it
+ RTL_SOURCES = (
+@@ -531,6 +532,7 @@ MUTATIONS = [
+      " | #84 every master cycle publishes sync-ok"),
+     # ---- #89, #90 and #91: receipt_mutants.py -----------------------------
+     *RECEIPT_MUTATIONS,
++    *PORT_MUTATIONS,                                  # #94: port_mutants.py
+     ("dispatch ignores a busy serializer", "top/KL_gptp_engine.sv",
+      "                 disp_ready_w && ser_idle_w && !disp_valid_r;",
+      "                 disp_ready_w && !disp_valid_r;",
+@@ -885,11 +887,11 @@ def named_verdict(answer: str, breaks: str, output: str) -> str:
+             answer = "missed its named check"
+         else:
+             print(named[0])
+-    # #82, #84, #85, #87, #88, #89, #90 and #91 controls must fail every
++    # #82, #84, #85, #87, #88, #89, #90, #91 and #94 controls must fail every
+     # check they name, for the same reason: each of those checks needs its
+     # own failing defect.
+     if breaks.startswith(("#82 ", "#84 ", "#85 ", "#87 ", "#88 ", "#89 ",
+-                          "#90 ", "#91 ", P1_PREFIX)) and answer == "caught":
++                          "#90 ", "#91 ", "#94 ", P1_PREFIX)) and answer == "caught":
+         failed = [line for line in output.splitlines()
+                   if line.startswith("FAIL ")]
+         missed = [want for want in breaks.split(" | ")
+diff --git a/tb/verilator/engine/port_mutants.py b/tb/verilator/engine/port_mutants.py
+new file mode 100644
+index 0000000..9dbec4f
+--- /dev/null
++++ b/tb/verilator/engine/port_mutants.py
+@@ -0,0 +1,126 @@
++# SPDX-FileCopyrightText: 2026 Kebag Logic
++# SPDX-License-Identifier: CERN-OHL-W-2.0
++"""The portEnabled controls of the engine mutation arm (`mutants.py`).
++
++FPGA-gPTP #94 gives the engine portEnabled (802.1AS-2011 10.2.4.11). Its
++edges leave NOT_ENABLED through INITIAL_SEND_PDELAY_REQ (Figure 11-8, Cor1
++and Cor2) and end the Milan v1.2 4.2.6.2.5 cease; a disabled port sends
++nothing. Each control here lists, after its issue number, every named check
++it must fail. `mutants.py` runs them with the rest of the arm.
++
++Two writes of the NOT_ENABLED leg have no control, recorded rather than
++hidden. S_CEASECNT is read only behind S_CEASE, which the same leg clears,
++so its zero write is the cell's documented invariant, not a behaviour. The
++S_MULTI write matters only when a second responder's Pdelay_Resp lands
++between the leg and the request beat queued right behind it; the interval
++clear the leg also makes otherwise restarts the streak at that beat.
++
++The table lives in its own module so that the arm stays under the parent
++repository's module length ratchet. It is data only.
++"""
++
++from receipt_mutants import GENERATOR
++
++#: the engine top, under hdl/, which the RTL controls mutate
++ENGINE = "top/KL_gptp_engine.sv"
++
++#: the edge test of the portEnabled block
++EDGE = "      if (port_seen_r && (port_enabled_i != port_en_r)) begin\n"
++
++#: (name, file under hdl/, pattern, replacement, the checks it must fail)
++PORT_MUTATIONS = [
++    # ---- #94: the NOT_ENABLED leg (timer slot 6) ---------------------------
++    ("a portEnabled edge keeps the cease", GENERATOR,
++     "    for s in (S_CEASE, S_CEASECNT, S_MULTI):\n",
++     "    for s in (S_CEASECNT, S_MULTI):\n",
++     "#94 toggle: the first request comes within one interval of the rise"
++     " | #94 toggle: the first request goes out at once after the rise"
++     " | #94 toggle: then one request every interval"),
++    ("slot 6 runs no NOT_ENABLED leg", GENERATOR,
++     "    p.emit(\"BR\", label=LB[\"NOTEN\"])\n",
++     "    p.emit(\"END\")\n",
++     "#94 toggle: the first request goes out at once after the rise"
++     " | #94 link loss: asCapable falls at the falling edge"),
++    # word-neutral: the leg and the cease entry skip S_PDOK's clear
++    ("a portEnabled edge keeps the ladder", GENERATOR,
++     "    p.emit(\"BR\", label=LB[\"PDBAD\"])\n",
++     "    p.emit(\"BR\", label=LB[\"PDBAD\"] + 1)\n",
++     "#94 link loss: one exchange after the rise leaves asCapable clear"),
++    ("a portEnabled edge leaves the interval unanswered", GENERATOR,
++     "    p.emit(\"MOVE\", rd=RT, ra=0, imm=1)\n"
++     "    p.emit(\"WRST\", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)\n"
++     "    p.label(\"tail\")\n",
++     "    p.label(\"tail\")\n",
++     "#94 toggle: lostResponses starts at zero: four losses commit nothing"),
++    # ---- #94: the cease entry that now ends in NOTEN's tail ----------------
++    ("the countdown loads one beat less", GENERATOR,
++     "    p.emit(\"MOVE\", rd=RT, ra=0,"
++     " imm=max(1, RUNTIME[\"cease_ms\"] // 1000))\n",
++     "    p.emit(\"MOVE\", rd=RT, ra=0,"
++     " imm=max(1, RUNTIME[\"cease_ms\"] // 1000 - 1))\n",
++     "#94 countdown: the first request after the cease follows the last by"
++     " the countdown and two beats"),
++    ("the cease entry ends the cease at once", GENERATOR,
++     "    p.emit(\"BR\", label=LB[\"NOTENTAIL\"])\n",
++     "    p.emit(\"BR\", label=LB[\"NOTEN\"])\n",
++     "#94 toggle: the cease sends no request"
++     " | #94 countdown: the first request after the cease follows the last by"
++     " the countdown and two beats"),
++    # word-neutral: the cease holds, but nothing drops the verdict, and with
++    # no request there is no loss to drop it later
++    ("the cease entry keeps asCapable", GENERATOR,
++     "    p.emit(\"BR\", label=LB[\"NOTENTAIL\"])\n",
++     "    p.emit(\"END\")\n",
++     "#94 toggle: three multi-answered requests cease"
++     " | #94 countdown: three multi-answered requests cease"),
++    # ---- Milan v1.2 4.2.6.2.4, which every #94 rise re-earns ----------------
++    ("the ladder raises asCapable at the first exchange", GENERATOR,
++     "ASCAP_UP_C = 2  ",
++     "ASCAP_UP_C = 1  ",
++     "#94 toggle: one exchange after the rise leaves asCapable clear"
++     " | #94 link loss: one exchange after the rise leaves asCapable clear"),
++    # ---- #94: the engine's portEnabled block --------------------------------
++    ("the falling edge raises no event", ENGINE,
++     EDGE,
++     "      if (port_seen_r && port_enabled_i && !port_en_r) begin\n",
++     "#94 link loss: asCapable falls at the falling edge"),
++    ("a rise sends no request at once", ENGINE,
++     "        pe_beat_r  <= port_enabled_i;\n",
++     "        pe_beat_r  <= 1'b0;\n",
++     "#94 toggle: the first request goes out at once after the rise"
++     " | #94 link loss: the first request goes out at once after the rise"),
++    ("a disabled port keeps its transmit credit", ENGINE,
++     "          st_rd_mux_w = {63'd0, tx_credit_i && port_en_r};\n",
++     "          st_rd_mux_w = {63'd0, tx_credit_i};\n",
++     "#94 link loss: the publication holds while the port is disabled"),
++    ("a frame built across the fall is sent", ENGINE,
++     "      .send_i     (resp_send_w && port_en_r),\n",
++     "      .send_i     (resp_send_w),\n",
++     "#94 built across the fall: the response is not sent"
++     " | #94 link loss: nothing is transmitted while the port is disabled"),
++    # both transmit gates at once: either alone keeps a ceased port silent
++    ("a disabled port keeps its credit and its SEND", ENGINE,
++     [("          st_rd_mux_w = {63'd0, tx_credit_i && port_en_r};\n",
++       "          st_rd_mux_w = {63'd0, tx_credit_i};\n"),
++      ("      .send_i     (resp_send_w && port_en_r),\n",
++       "      .send_i     (resp_send_w),\n")],
++     None,
++     "#94 toggle: nothing is transmitted while the port is disabled"
++     " | #94 link loss: nothing is transmitted while the port is disabled"),
++    ("egress claims survive the fall", ENGINE,
++     "      if (!port_en_r) begin\n"
++     "        tmr_claim_valid_r  <= 1'b0;\n"
++     "        resp_claim_valid_r <= 1'b0;\n"
++     "      end\n",
++     "",
++     "#94 built across the fall: a request after the rise is answered at"
++     " once"),
++    # the boot cadence serves the first enable since reset, so an edge there
++    # adds a commit to the one every reset release makes (#82)
++    ("the first enable since reset raises events", ENGINE,
++     EDGE,
++     "      if (port_enabled_i != port_en_r) begin\n",
++     "#82 cold release: one commit before the first beat"
++     " | #82 warm reset: one commit in the first 2 ms"
++     " | p1 255 #82 cold release: one commit before the first beat"),
++]
+diff --git a/tb/verilator/engine/sim_main.cpp b/tb/verilator/engine/sim_main.cpp
+index b7ed097..4a9caf4 100644
+--- a/tb/verilator/engine/sim_main.cpp
++++ b/tb/verilator/engine/sim_main.cpp
+@@ -220,6 +220,20 @@
+ //         and a head that is not the grandmaster) are elected, publish
+ //         their path from its received head, and stop our Announce for a
+ //         whole interval of the parent's usable Sync
++// 44      #94, after 43: inside a Milan v1.2 4.2.6.2.5 cease the port
++//         falls for 1.2 s (802.1AS-2011 10.2.4.11). Nothing is sent while
++//         it is down; on the rise one Pdelay_Req goes out at once
++//         (INITIAL_SEND_PDELAY_REQ, Figure 11-8), then one per interval.
++//         Unanswered, only the fifth loss after the rise commits asCapable
++//         FALSE; answered, asCapable takes two exchanges (4.2.6.2.4)
++// 45      #94: a capable master's port falls for 6.5 s while the peer
++//         talks. asCapable falls with a commit within 2 ms, nothing is
++//         sent or committed while it is down, and on the rise one request
++//         goes out at once and asCapable takes two exchanges again
++// 46      #94: a Pdelay_Resp built after the fall is not sent, and its
++//         claim does not hold the next request after the rise
++// 47      #94: without a toggle the cease ends after its countdown and
++//         two beats, 5 s from the last request with this 3 s image
+ //
+ // A fourth pass (+not-gm-capable, an image built with --p1 255) runs only
+ // the phases a self publication passes through: boot, mastership, 36..38,
+@@ -423,6 +437,10 @@ class GptpEngineHarness {
+     age_a_grandmaster_whose_sync_fails();
+     age_the_port_whatever_role_the_timeout_finds();
+     defer_a_whole_interval_to_the_issue_shapes();
++    end_the_cease_on_a_port_toggle();
++    drop_ascapable_at_a_link_loss();
++    drop_a_frame_built_across_the_fall();
++    keep_the_countdown_exit();
+     hold_every_committed_path_coherent();
+     keep_sync_ok_in_every_master_cycle();
+     end_every_peer_path_with_thisclock();
+@@ -549,6 +567,9 @@ class GptpEngineHarness {
+   uint64_t pd_reqs_sent = 0;
+   std::vector<std::vector<uint8_t>> txf;
+   std::vector<uint64_t> txns;               // egress ts fed per frame
++  //! the cycle each frame's first byte left, per frame (#94)
++  std::vector<uint64_t> txsof;
++  uint64_t cur_sof = 0;
+   std::vector<uint8_t> cur;
+   bool in_tx = false;
+   bool auto_txts = false;
+@@ -720,12 +741,13 @@ class GptpEngineHarness {
+     phc_acc += static_cast<unsigned __int128>(
+         static_cast<uint64_t>((500ll << 24) + phc_adj));
+     if (tx_fire) {
+-      if (tx_sof) { cur.clear(); in_tx = true; }
++      if (tx_sof) { cur.clear(); in_tx = true; cur_sof = cyc; }
+       if (in_tx) cur.push_back(tx_data);
+       if (tx_eof && in_tx) {
+         if (type_of(cur) == 0x2) pd_reqs_sent++;
+         txf.push_back(cur);
+         txns.push_back(0);
++        txsof.push_back(cur_sof);
+         if (auto_txts) auto_pend = static_cast<int>(txf.size()) - 1;
+         in_tx = false;
+       }
+@@ -1309,6 +1331,9 @@ class GptpEngineHarness {
+     ts_offer = false;
+     drive_result_face();
+     dut->tx_credit_i = 1;
++    //! the port is enabled from before reset release, so the boot cadence
++    //! sends the first request and no portEnabled edge is raised (#94)
++    dut->port_enabled_i = 1;
+     for (int i = 0; i < 8; i++) tick();
+     //! ready is low through reset: a beat the engine would not record must
+     //! not look accepted to the producer
+@@ -5971,6 +5996,242 @@ class GptpEngineHarness {
+                                   SRC_H, {HEAD_H, SRC_H});
+   }
+ 
++  // ---- #94: portEnabled (802.1AS-2011 10.2.4.11) -------------------------
++  //! the Pdelay_Req interval, 1 s (Milan v1.2 Table 4.1), in 2 MHz cycles
++  static constexpr uint64_t INTERVAL_CYC = 1000ull * MS_CYC;
++  //! a frame whose SEND preceded the fall may still start this many cycles
++  //! after it: the registered port level and the serializer's first byte
++  static constexpr uint64_t FALL_SLACK_CYC = 16;
++
++  //! frames whose first byte left in cycles [from, to), of `mtype` or of
++  //! any type when it is negative
++  size_t frames_started_between(uint64_t from, uint64_t to, int mtype = -1) {
++    size_t n = 0;
++    for (size_t i = 0; i < txf.size(); i++)
++      if (txsof[i] >= from && txsof[i] < to &&
++          (mtype < 0 || type_of(txf[i]) == mtype))
++        n++;
++    return n;
++  }
++
++  //! the first-byte cycle of the `k`-th Pdelay_Req from frame `mark` on,
++  //! or all ones when there is none
++  uint64_t request_sof(size_t mark, size_t k) {
++    for (size_t i = mark; i < txf.size(); i++)
++      if (type_of(txf[i]) == 0x2 && k-- == 0) return txsof[i];
++    return ~0ull;
++  }
++
++  //! commits sampled in cycles [from, to), and those of them that carry
++  //! asCapable
++  size_t commits_between(uint64_t from, uint64_t to, bool capable = false) {
++    size_t n = 0;
++    for (const PubSnap &s : commit_snaps)
++      if (s.cyc >= from && s.cyc < to && (!capable || (s.flags & FL_ASCAP)))
++        n++;
++    return n;
++  }
++
++  //! the port falls for `span` cycles, the auto-peer serving, and rises.
++  //! Returns the rise cycle; `fall` gets the fall cycle
++  uint64_t toggle_the_port(uint64_t span, uint64_t *fall) {
++    *fall = cyc;
++    dut->port_enabled_i = 0;
++    run_svc(span);
++    dut->port_enabled_i = 1;
++    return cyc;
++  }
++
++  //! Milan v1.2 4.2.6.2.4 after a portEnabled edge: one answered exchange
++  //! leaves asCapable clear and the second raises it
++  void re_earn_in_two_exchanges(const char *tag) {
++    char n[112];
++    pd_mode = PD_NORMAL;
++    const bool one = wait_exchanges(pdm.count + 1, 3 * INTERVAL_CYC);
++    run(4000);
++    snprintf(n, sizeof n, "%s: one exchange after the rise leaves asCapable "
++             "clear", tag);
++    expect(n, one && (dut->pub_flags_o & FL_ASCAP) == 0, 1);
++    const bool two = wait_exchanges(pdm.count + 1, 2 * INTERVAL_CYC);
++    run(4000);
++    snprintf(n, sizeof n, "%s: the second exchange after the rise raises "
++             "asCapable", tag);
++    expect(n, two && (dut->pub_flags_o & FL_ASCAP) == FL_ASCAP, 1);
++  }
++
++  // ---- 44: #94, a portEnabled toggle ends the Milan v1.2 4.2.6.2.5 cease --
++  // Three requests answered by two identities cease Pdelay_Req (phase 27),
++  // and asCapable falls with the cease. 1.3 s into its 3 s countdown the
++  // port falls for 1.2 s, so one beat lands while it is down and the
++  // countdown has not yet resumed. 802.1AS-2011 Figure 11-8 (Cor1, Cor2)
++  // leaves NOT_ENABLED only through INITIAL_SEND_PDELAY_REQ, which sends
++  // at once with lostResponses = 0, and the toggle ends the cease. Nothing
++  // leaves the port while it is down. Unanswered, a request goes out every
++  // interval, and only the fifth loss after the rise commits asCapable
++  // FALSE again (Figure 11-8 RESET). Answered, asCapable takes two
++  // exchanges (Milan v1.2 4.2.6.2.4)
++  void end_the_cease_on_a_port_toggle() {
++    pd_mode = PD_NORMAL;
++    const bool capable = wait_flags(FL_ASCAP, FL_ASCAP, 8000000ull);
++    pd_mode = PD_DUAL;
++    expect("#94 toggle: three multi-answered requests cease",
++           capable && wait_flags(FL_ASCAP, 0, 16000000ull), 1);
++    const uint64_t r0 = pd_reqs_sent;
++    run_svc(1300ull * MS_CYC);
++    expect("#94 toggle: the cease sends no request", pd_reqs_sent, r0);
++    pd_mode = PD_OFF;
++    const size_t mark = txf.size();
++    uint64_t fall = 0;
++    const uint64_t rise = toggle_the_port(1200ull * MS_CYC, &fall);
++    expect("#94 toggle: the first request comes within one interval of "
++           "the rise", wait_requests(r0 + 1, INTERVAL_CYC), 1);
++    std::array<uint64_t, 6> s{};
++    s[0] = request_sof(mark, 0);
++    expect("#94 toggle: the first request goes out at once after the rise",
++           s[0] >= rise && s[0] - rise <= 2 * MS_CYC, 1);
++    expect("#94 toggle: nothing is transmitted while the port is disabled",
++           frames_started_between(fall + FALL_SLACK_CYC, rise), 0);
++    wait_requests(r0 + s.size(), s.size() * INTERVAL_CYC);
++    bool steady = true;
++    for (size_t k = 1; k < s.size(); k++) {
++      s[k] = request_sof(mark, k);
++      steady &= s[k] != ~0ull && s[k] - s[k - 1] >= INTERVAL_CYC - MS_CYC &&
++                s[k] - s[k - 1] <= INTERVAL_CYC + MS_CYC;
++    }
++    expect("#94 toggle: then one request every interval", steady, 1);
++    // the beat that sends request k + 1 judges request k first
++    expect("#94 toggle: lostResponses starts at zero: four losses commit "
++           "nothing", steady && commits_between(s[0], s[4] + 1) == 0, 1);
++    expect("#94 toggle: the fifth loss after the rise commits asCapable "
++           "FALSE", steady && commits_between(s[4] + 1, s[5]) == 1 &&
++                        commits_between(s[4] + 1, s[5], true) == 0, 1);
++    re_earn_in_two_exchanges("#94 toggle");
++  }
++
++  // ---- 45: #94, a link loss drops asCapable at once ----------------------
++  // From a capable master the port falls (MAC_Operational FALSE) for 6.5 s
++  // while the peer sends a Pdelay_Req, a better Announce and a Sync pair.
++  // asCapable falls with a commit within 2 ms of the fall, not at the fifth
++  // lost response, 4 s on. The port transmits nothing while it is down:
++  // no Sync, Announce, Pdelay_Req or response (802.1AS-2011 10.2.4.11,
++  // 10.3.1: a DisabledPort). Nothing commits after the fall, and the beats
++  // count no lost response. On the rise one request goes out at once and
++  // asCapable takes two exchanges again
++  void drop_ascapable_at_a_link_loss() {
++    const uint64_t GML = 0x0094A0FFFE000001ull;
++    pd_mode = PD_NORMAL;
++    expect("#94 link loss: a capable master before the loss",
++           wait_flags(FL_AMGM | FL_ASCAP, FL_AMGM | FL_ASCAP, 8000000ull), 1);
++    run_svc(300ull * MS_CYC);                    // Sync and Announce flow
++    const size_t c0 = commit_snaps.size();
++    const uint64_t fall = cyc;
++    dut->port_enabled_i = 0;
++    run_svc(2 * MS_CYC);
++    const PubSnap *f = first_commit_since(c0);
++    expect("#94 link loss: asCapable falls at the falling edge",
++           f != nullptr && (f->flags & FL_ASCAP) == 0 &&
++               f->cyc - fall <= 2 * MS_CYC &&
++               (dut->pub_flags_o & FL_ASCAP) == 0, 1);
++    const uint64_t held_from = cyc;
++    Frame q = ptp(0x2, 0x9451, 0, 0x0000, 20);   // the peer keeps talking
++    q.u64(0); q.u16(0); q.ts(0);
++    send_frame(q.b, phc());
++    send_announce(0x9452, 1, GML, 0, PEER_CID, {}, phc() + 100);
++    sync_pair(0x9453, phc() + 100, phc());
++    const uint64_t r0 = pd_reqs_sent;
++    run_svc(6500ull * MS_CYC);
++    const size_t mark = txf.size();
++    const uint64_t rise = cyc;
++    dut->port_enabled_i = 1;
++    expect("#94 link loss: the publication holds while the port is "
++           "disabled", commits_between(held_from, rise), 0);
++    expect("#94 link loss: the first request goes out at once after the "
++           "rise", wait_requests(r0 + 1, 2 * MS_CYC) &&
++               request_sof(mark, 0) - rise <= 2 * MS_CYC, 1);
++    expect("#94 link loss: nothing is transmitted while the port is "
++           "disabled", frames_started_between(fall + FALL_SLACK_CYC, rise), 0);
++    re_earn_in_two_exchanges("#94 link loss");
++  }
++
++  // ---- 46: #94, a frame built across the fall is dropped unsent ----------
++  // A peer's Pdelay_Req is answered (802.1AS-2011 11.2.16): the response's
++  // first byte leaves a fixed time after the request's last. 1 s later,
++  // when every cadence of this master is in the same phase, the same kind
++  // of request comes and the port falls half-way through that time. The
++  // handler builds the response after the fall, and it is not sent. Its
++  // egress claim is gone too: after the rise the next request is answered
++  // at once, not held behind a stamp the down port never owed
++  void drop_a_frame_built_across_the_fall() {
++    pd_mode = PD_NORMAL;
++    expect("#94 built across the fall: a capable master first",
++           wait_flags(FL_AMGM | FL_ASCAP, FL_AMGM | FL_ASCAP, 8000000ull), 1);
++    // the auto-peer stays silent, so only this master's own cadences,
++    // periodic in 1 s, share the engine with the two requests
++    pd_mode = PD_SKIP;
++    tx_seen = txf.size();
++    wait_tx(0x2, 2 * INTERVAL_CYC);              // away from our own beat
++    run(300ull * MS_CYC);
++    Frame q = ptp(0x2, 0x9461, 0, 0x0000, 20);
++    q.u64(0); q.u16(0); q.ts(0);
++    send_frame(q.b, phc());
++    const uint64_t e1 = cyc;
++    size_t ri = 0;
++    tx_seen = txf.size();
++    const bool answered = !wait_tx(0x3, 4 * MS_CYC, &ri).empty();
++    expect("#94 built across the fall: the request before it is answered",
++           answered, 1);
++    const uint64_t lat = answered ? txsof[ri] - e1 : 0;
++    run(e1 + INTERVAL_CYC - q.b.size() - cyc);   // the same phase, 1 s on
++    q = ptp(0x2, 0x9462, 0, 0x0000, 20);
++    q.u64(0); q.u16(0); q.ts(0);
++    send_frame(q.b, phc());
++    const uint64_t e2 = cyc;
++    run(lat / 2);
++    dut->port_enabled_i = 0;
++    run(200ull * MS_CYC);
++    expect("#94 built across the fall: the response is not sent",
++           answered && frames_started_between(e2, cyc, 0x3) == 0, 1);
++    dut->port_enabled_i = 1;
++    run(10ull * MS_CYC);
++    q = ptp(0x2, 0x9463, 0, 0x0000, 20);
++    q.u64(0); q.u16(0); q.ts(0);
++    send_frame(q.b, phc());
++    tx_seen = txf.size();
++    expect("#94 built across the fall: a request after the rise is "
++           "answered at once", !wait_tx(0x3, 2 * MS_CYC).empty(), 1);
++    pd_mode = PD_NORMAL;
++  }
++
++  // ---- 47: #94, without a toggle the countdown exit is unchanged ---------
++  // Milan v1.2 4.2.6.2.5's 5-minute exit is this image's 3 s (--cease-ms
++  // 3000). The beat that ceases sends nothing, three beats count down, the
++  // last of them resumes, and the next sends. So the first request after
++  // the cease follows the last before it by the countdown and two beats:
++  // 5 s here, 302 s at 5 minutes, as before #94
++  void keep_the_countdown_exit() {
++    pd_mode = PD_NORMAL;
++    expect("#94 countdown: capable before the storm",
++           wait_flags(FL_ASCAP, FL_ASCAP, 8000000ull), 1);
++    pd_mode = PD_DUAL;
++    const size_t mark = txf.size();
++    expect("#94 countdown: three multi-answered requests cease",
++           wait_flags(FL_ASCAP, 0, 16000000ull), 1);
++    uint64_t last = ~0ull;
++    for (size_t i = mark; i < txf.size(); i++)
++      if (type_of(txf[i]) == 0x2) last = txsof[i];
++    pd_mode = PD_NORMAL;
++    const size_t after = txf.size();
++    const uint64_t r0 = pd_reqs_sent;
++    const bool resumed = wait_requests(r0 + 1, 7 * INTERVAL_CYC);
++    const uint64_t first = request_sof(after, 0);
++    expect("#94 countdown: the first request after the cease follows the "
++           "last by the countdown and two beats",
++           resumed && last != ~0ull && first - last >= 5 * INTERVAL_CYC -
++               MS_CYC && first - last <= 5 * INTERVAL_CYC + MS_CYC, 1);
++    expect("#94 countdown: the ladder re-earns after the cease",
++           wait_flags(FL_ASCAP, FL_ASCAP, 8000000ull), 1);
++  }
++
+   // ---- 41: #89, sync receipt ageing needs gmPresent (priority1 255 pass) ---
+   // gmPresent is TRUE only while the grandmaster's priority1 is below 255
+   // (802.1AS-2011 10.2.3.13, 10.3.12.1.4 g), and 10.3.11 ages on a sync
+diff --git a/tb/verilator/ucpu/gptp_ucode.hex b/tb/verilator/ucpu/gptp_ucode.hex
+index b15c67e..1844357 100644
+--- a/tb/verilator/ucpu/gptp_ucode.hex
++++ b/tb/verilator/ucpu/gptp_ucode.hex
+@@ -249,7 +249,7 @@ E00000000000
+ 180000000000
+ 42803002002C
+ 282820000000
+-100002000282
++10000200027A
+ 48283002000B
+ 180000000000
+ 480030020000
+@@ -522,7 +522,7 @@ E00000000000
+ 1000020003E0
+ 287810000005
+ 1000020000FE
+-180000000000
++0800000003F5
+ 408030020017
+ 280820000001
+ 100002000254
+@@ -613,29 +613,21 @@ E91001000001
+ 281020000000
+ 100002000267
+ 180000000000
+-0800000003F5
++0800000002B7
+ 410030020021
+ 281020000001
+ 10000200026D
+ 480030020022
+-08000000027E
++080000000276
+ 418030020022
+ E99800000001
+ 481830020022
+ 281820000003
+-10000300027E
+-228000000001
+-482830020023
++100003000276
++481030020023
+ 22800000012C
+ 482830020024
+-480030020007
+-428030030002
+-EAA80200000B
+-482830030002
+-A80000000000
+-480030020021
+-480030020020
+-180000000000
++0800000003FA
+ 480030020021
+ 480030020020
+ 48003002002C
+@@ -643,16 +635,16 @@ A80000000000
+ 420030020011
+ 40803002000C
+ 280830000000
+-100002000292
++10000200028A
+ E89881000000
+ 41003002000D
+ E92101000000
+ EA9006000020
+ 282820000000
+-10000200028D
+-080000000292
++100002000285
++08000000028A
+ 281020000000
+-100002000292
++10000200028A
+ E8880500001E
+ F50901000000
+ 48503002000E
+@@ -662,7 +654,7 @@ F50901000000
+ E92101000000
+ 45003002000E
+ 285030000000
+-10000200029B
++100002000293
+ F15100000000
+ E9100600001E
+ 428030020005
+@@ -676,31 +668,39 @@ EA2007000001
+ EAA000000050
+ EB2806000020
+ 283020000000
+-1000020002A8
+-0800000002B9
++1000020002A0
++0800000002B1
+ 282820000371
+-1000030002AB
+-0800000002B9
++1000030002A3
++0800000002B1
+ 428030020007
+ EAA800000001
+ 482830020007
+ 282820000002
+-1000030002BD
++1000030002B5
+ 428030030002
+ EB2802000004
+ EAA803000004
+ 482830030002
+ 283020000004
+-1000020002BD
++1000020002B5
+ 48003002002B
+ 48003002002E
+-0800000002BD
++0800000002B5
+ 480030020007
+ 428030030002
+ EAA80200000B
+ 482830030002
+ A80000000000
+ 180000000000
++480030020023
++480030020022
++480030020021
++480030020020
++480030020008
++228000000001
++48283002000B
++180000000000
+ E27F502493AE
+ E8F780000000
+ 480830020000
+@@ -1000,7 +1000,7 @@ EDD806000035
+ 285D20000000
+ 1000030003B1
+ 328500000000
+-0800000002BC
++0800000002B4
+ 487030020010
+ 228000000001
+ 482830020025
+@@ -1012,13 +1012,13 @@ EDD806000035
+ 0800000000F9
+ 180000000000
+ 480030020023
++480030020024
+ 480030020022
+-480030020021
+-480030020020
+-480030020008
+ 228000000001
+ 48283002000B
+-180000000000
++480030020021
++480030020020
++0800000002B1
+ 255251AABB9F
+ 000102A1B2FF
+ 0000FEC3D4E5

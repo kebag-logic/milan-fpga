@@ -1,0 +1,1663 @@
+<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+# milan_dp — the `milan_datapath` integration suite
+
+`make` builds **fifteen elaborations** of `hdl/milan/milan_datapath.sv` (the vendor-neutral
+Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
+against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
+never on grepping the log — a compile error prints no `FAIL` line at all.
+
+The `sim_nxn` legs regenerate their descriptor image in a unique directory
+under `TMPDIR` (falling back to `/tmp`) and remove it after a successful load.
+Set `TMPDIR` to a filesystem with enough quota when review lanes run in
+parallel. A failed generator deliberately leaves that directory and names its
+log in the failure so the artifact can be inspected.
+
+The eleven ordinary simulations use `sim_pool.py` after all model builds.
+They include the #508 GET_STREAM_INFO checks in `obj_notify`,
+the #443 render CSR checks in `obj_aclk`, and `obj_crflic`.
+Focused build and mutation targets retain their existing recipes.
+`SIM_JOBS=2` is the default; `SIM_JOBS=1` reproduces sequential execution.
+Only these two values are accepted, independently of make flags.
+Build recipes, gPTP prerequisites and render mutation phases remain unchanged.
+The mutation driver starts only after every ordinary simulation succeeds.
+
+`run` then invokes `make counters`: four temporary `stream_counters.py`
+elaborations (shapes 1 and 8, `uncertain` and `frames-only`) under `TMPDIR`,
+each printing `RESULT: PASS`.
+See [the stream counter measurements](../../../docs/testing/726_STREAM_COUNTERS.md).
+
+Eight `sim_nxn` legs write only unique `milan_nxn_*` scratch directories:
+`obj_notify`, `obj_dynmap`, `obj_nxn`, `obj_nxndv`, `obj_nxn8`, `obj_nxn4c`,
+then `obj_maprec8` and `obj_maprec4`.
+Each writes `generator.log`, `image.bin`, `image.json`, and eleven builder files.
+Those include the private `gen/adp_shape_defaults.svh` shape header.
+`obj_dynmap`, `obj_maprec8` and `obj_maprec4` also write one unique
+`milan_nvm_*` directory each: its saved-state window.
+Timestamp and file-operation audits found no repository writes.
+The other six legs write no data files.
+All private write sets are disjoint; no exclusive marks remain.
+Any two ordinary legs can overlap within the two-child limit.
+Presence of `MILAN_COUNTER_FRAME_OUT` serializes the entire ordinary set.
+This includes empty values and preserves the final writer's outcome.
+
+Each child's complete stdout/stderr stays together under `obj_legs/`.
+Captures, banners and commands replay in legacy order.
+Failed, crashed or missing children fail the recipe.
+SIGINT, SIGTERM and SIGHUP terminate and reap owned descendants.
+Started children retain attributable partial logs; unstarted children are named.
+The ordered transcript also stays in `obj_legs/replay.log`.
+Blocked stdout never delays cancellation, descendant cleanup, or shutdown.
+Cancellation writes only immediately available stdout bytes after cleanup.
+Drain or inspect the disk transcript for any remaining output.
+Normal runs replay every byte, including through pipes.
+Linux subreaper support is required before any child starts.
+Run one suite invocation per working directory.
+
+```sh
+make -C tb/verilator/milan_dp run SIM_JOBS=1 VERILATOR_JOBS=8
+make -C tb/verilator/milan_dp run SIM_JOBS=2 VERILATOR_JOBS=8
+python3 tb/verilator/milan_dp/test_sim_pool.py
+python3 tb/verilator/milan_dp/test_sim_pool_backpressure.py
+```
+
+The runner tests use real processes with controlled shared writes.
+They cover exclusion, independent overlap, order, failures and descendant cleanup.
+They also check frame serialization, complete output and Makefile inventory.
+Backpressure controls execute both direct and actual Makefile paths.
+They cover blocked copies, final flushes, signals, and exit races.
+Their consumer stays blocked until shutdown and reaping are observed.
+Normal draining checks binary output against the complete ordered transcript.
+Runner diagnostics contribute no checks to `suite_tally.py`.
+
+| objdir | harness | shape | what it is for |
+|---|---|---|---|
+| `obj_dir` | `sim_main.cpp` | `endstation_arty_current`, N=1 | CSR, fabric protocol/media RX/TX, PHC, CLKV, CRF, RMON, and link guard |
+| `obj_nxn` | `sim_nxn.cpp` | `endstation_arty_4x4`, N=4 | the 0x800 window → real engines, per-stream routing, TRAP-1 |
+| `obj_nxndv` | `sim_nxn.cpp` | arty_4x4 with a GENERATED divergent header (input row 1 declares the 96 kHz base) | the per-row format facts: every tracked config is row-uniform, so only this leg can prove the verdict base and reset GET answer are the ADDRESSED row's and not row 0's -- same channel count on both rows, so the base is the one discriminator. `gen_divergent_shape.py` emits the header and the bench expectations at build time, like `ltn_rom.hex` |
+| `obj_nxn8` | `sim_nxn.cpp` | `endstation_ax7101_8x8`, N=8 | the AX 8×8 target, retired input-pool posture, dynamic output maps, and loopback lane |
+| `obj_nxn4c` | `sim_nxn.cpp` | `endstation_arty_4x4`, N=4, 4 wire channels | the shipping Arty shape (framer width ≠ shadow reset) |
+| `obj_nolpf` | `sim_main.cpp` | `endstation_arty_current`, `LPF_P=0` | the spent area lever: no digital acceptance surface may move |
+| `obj_prune` | `sim_prune.cpp` | all six tier-1 blocks pruned | the inert values are STRUCTURAL zeros, not not-armed-yet zeros; `SLIP_LB` (#390) is read behind listener 0 bound, fed well-formed AAF PDUs and then starved, so a built ring would count. The same section then establishes the lane the way the [register map](../../../docs/reference/REGISTER_MAP.md) instructs, and in that order: the whole `0x914` word is graded against the `0xDEADDEAD` not-a-measurement poison, and `CHMAP_SNAP[1]` valid with it, before any projection of it, because that poison projects to the same `{mask_valid, valid, fed}` = 1, 1, 0 this leg expects; behind those two grades the readback answers 1, 1, 0, so the zero is a measured absent lane, and a readback left un-armed fails this leg instead of passing it |
+| `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
+| `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): INTERNAL with the align loop engaged (#629 A2-a: the plan's -10.64 ppm drift gone, zero junction slips, the loop and NCO gate engaged; the aligner left disengaged at INTERNAL is mutant 3 of [`milan_dp_mclk`](../milan_dp_mclk/README.md#mutants), whose INTERNAL row it must fail), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and, since #629's A2-a holds the pop grid on it at INTERNAL too, shows zero dups at INTERNAL over the window in which the -10.64 ppm plan would dup once per fed pair. The closed form of that window: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup would come (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts that dup from the first beat and watches a window of 1.5 times the prediction. The same aim and window under CRF show zero too, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
+| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks, and (#790) an input's stream fields only while settled; its mutation campaign is `make gsi-mutants`. Then `[UNB]` (#653): an unbind of each locked sink, graded for wire order and the Table 5.6 pair; its campaign is `make unb-mutants` |
+| `obj_dynmap` | `sim_nxn.cpp` (`DYNMAP_DEFAULT_TB`), `dynmap_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the `obj_ax1x1` geometry, direct option OFF | `[DYNMAP]` (#658): the power-on audio maps on STREAM_PORT_INPUT 0 and STREAM_PORT_OUTPUT 0, over the wire and in both crossbar RAMs; SET_STREAM_FORMAT under Milan 5.4.2.7; the output clip in the boot window; a restored 4-channel input format; the boot window's guard arms, each staged on its own clock. Then, on a fresh boot, `[762-DP]` (#762) on this shipping geometry, with the elaborated parameters logged. Then `[MAPREC]` (#637): the channel-map records written and restored across a planted power cycle, the EMPTY list in both directions included. Its planted controls are `make dynmap-mutants`; see [the section below](#the-658-power-on-audio-maps-obj_dynmap) |
+| `obj_maprec8` | `sim_nxn.cpp` (`MAPREC_MP_TB`), `dynmap_probes.vlt` | `endstation_ax7101_8x8`, eight dynamic output ports, direct option OFF | `[MAPREC]` (#637) across ports: a stream channel moved between output ports in both port orders and around a cycle, saved by the writer and restored, graded on GET_AUDIO_MAP, every key's owner and cluster, and the capture RAM; keys two records claim; a refused put-back that rolls every map back; PP_STAT's composed verdicts |
+| `obj_maprec4` | `sim_nxn.cpp` (`MAPREC_MP_TB`), `dynmap_probes.vlt` | `endstation_arty_4x4`, four dynamic input ports, direct option OFF | `[MAPREC]` (#637) across ports: the first and last input ports' records and an emptied port between them, saved and restored, graded on GET_AUDIO_MAP, the stores and the render RAM; the last port's put-back under a restored 2-channel format |
+| `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; and `[TSPEC]` (#774) grades every Talker Advertise the DUT declares against its own source's Milan v1.2 Table 4.4 TSpec and the AVTPDU that source emits; its mutation campaign is `make crflic-mutants` |
+| `obj_tspec8` | `sim_crf_licence.cpp` (`TSPEC_ONLY_TB`) | `endstation_ax7101_8x8`, eight AAF talkers of 8 wire channels and the CRF Media Clock Output, the `obj_crflic` compressed grid | #774: `[TSPEC]` alone on the largest shape. Every source is probed once, MAAP grants nine addresses, and each of the nine sources' Talker Advertise values must carry its own format's Table 4.4 TSpec: 217 for each AAF talker, 29 for the CRF output, MaxIntervalFrames 1. Its planted control is in `make crflic-mutants` |
+| `obj_sidmove` | `sim_sid_move.cpp`, `sidmove_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the shipping shape, AAF talker 0 and the CRF Media Clock Output, the `obj_crflic` compressed grid | processor #202: a peer takes the claimed MAAP block while the sources stream; each declaring source moves to a new Stream ID at its grant, and the AVTP stream_id on the wire, the PROBE_TX answer, GET_STREAM_INFO selector 2 and the Talker Advertise name each source's published `src_stream_id_o` before the move and after it. `make sidmove` runs it alone |
+| `obj_sidmove8` | `sim_sid_move.cpp`, `sidmove_probes.vlt` | `endstation_ax7101_8x8`, AAF talkers 0 and 1, talker 1's TCTX unique ID named, the same grid | processor #202 as above on the 8x8 shape: the processor's published ID outranks a named TCTX unique ID on the wire. `make sidmove8` runs it alone |
+| `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
+| `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
+| `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602/#632: a 1.5 s PHC step under CRF selection asserts `tu`, and the presentation stage refuses and counts the PDUs stamped across the step, with no render re-base and unchanged `mr` and MEDIA_RESET; source-change and CRF propagation controls still toggle `mr`; the [`milan_dp_gm_steps`](../milan_dp_gm_steps) suite runs it: its `gmstep_mutants.py` plants five controls in the sweep and its `make gmstep-mutants` the whole inventory |
+
+The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
+
+| objdir | harness | shape | what it is for |
+|---|---|---|---|
+| `obj_ax1x1gptp` | `sim_ax1x1gptp.cpp` | AX7101 1x1 TDM8, gPTP ON, the [contract clock](../../../docs/integration/BAREMETAL_FIRMWARE.md#build-contract) | Physical timer cadence, independent scheduled peer, eight-channel diagnostic loopback, loss/recovery/reset and stalls |
+
+## Contents
+
+- **[First AX7101 1x1 eight-channel run](#first-ax7101-1x1-eight-channel-run)** -- Run the focused datapath baseline and identify its coverage limits.
+- **[AX7101 1x1 eight-channel gPTP physical-rate run](#ax7101-1x1-eight-channel-gptp-physical-rate-run)** -- Run combined clocks, peer exchange, and diagnostic audio checks.
+- **[The #530 CRF talker licence leg (obj_crflic)](#the-530-crf-talker-licence-leg-obj_crflic)** -- The compressed-time leg that reproduces the Run B CRF bursts and early emission, what each phase proves, the failing arms, and the current per-AVTPDU FRAMES_TX law
+- **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
+- **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
+- **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
+- **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
+- **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
+- **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
+- **[Check counts, before and after](#check-counts-before-and-after)** -- Per-leg check totals, with every row that was not re-measured after the last edit marked as such rather than projected
+- **[Render phase records from the mutation controls](#render-phase-records-from-the-mutation-controls)** -- The record the render mutation arm prints around each build and run it already makes: the fields, the fixed case labels, and the limits that keep it an observation rather than a result
+- **[Rules this suite is held to](#rules-this-suite-is-held-to)** -- The standing contract: gate on exit codes, never repoint a check to a structural zero without naming it as one, and never leave a check that passes vacuously
+
+## First AX7101 1x1 eight-channel run
+
+Run from the repository root:
+
+```sh
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
+make -C tb/verilator/milan_dp ax1x1 VERILATOR_JOBS=2
+```
+
+This selects the existing `obj_ax1x1` elaboration only.
+The complete `make` sweep still includes the identical leg.
+
+| Parameter | Selected baseline |
+|---|---|
+| Entity configuration | `endstation_ax7101_1x1_tdm8` |
+| AAF streams | One talker and one listener |
+| Wire channels | Eight |
+| Audio interface | TDM8 master |
+| Loopback lane | Enabled |
+| I2S playback / render LPF | Disabled |
+| Fabric gPTP | Disabled; ownerless verification boundary |
+| Datapath frequency parameter | Default 100 MHz, not deployment's 50 MHz |
+| Audio clocks | Toggled with the datapath, not the physical audio ratio |
+| Harness | Unchanged `sim_main.cpp` assertions |
+
+`VERILATOR_JOBS=2` limits compilation to two jobs.
+It does not change simulation parameters or assertions.
+
+Check the command's exit status and assertion summary.
+Preserve every printed `SKIP`, `GAP`, and guarded-check count.
+Excluded checks are not passes.
+
+This is a first datapath baseline, not product qualification.
+It excludes physical LiteEth/GMII behavior and CPU/DDR execution.
+The [suite boundaries](../../../docs/testing/SIMULATION.md) explain those distinctions.
+
+The separate `make gptp` target exercises fabric gPTP ownership.
+It does not select this complete eight-channel/TDM8 parameter set.
+The combined physical-rate leg below supplies separate evidence.
+
+## AX7101 1x1 eight-channel gPTP physical-rate run
+
+Run the focused leg with bounded compilation:
+
+```sh
+make -C tb/verilator/milan_dp ax1x1gptp VERILATOR_JOBS=4
+```
+
+The maintained DUT boundary is milan_datapath's AXI-Lite and MAC packet interfaces.
+LiteEth/PHY, CPU/DDR, physical clock primitives and hardware compliance are not covered by this task.
+
+The target elaborates one AAF stream in each direction.
+Both streams carry eight channels.
+TDM8 master and the backed loopback remain enabled.
+I2S playback and render LPF remain pruned.
+CSR shape words must both equal `0x48010002`.
+Packet lengths and channel fields are checked separately.
+
+| Model | Behavior |
+|---|---|
+| Milan and PHC | 50 MHz aliases; nominal PHC increment 20 ns |
+| Audio and TDM | Plan A, 782/1591 of Milan; 24,575,738.529 Hz |
+| Auxiliary phase clock | Explicit 200 MHz; four rising edges per Milan cycle |
+| Phase quantization | Audio edges rounded upward onto 10 ns half-cycles; auxiliary edges every 2.5 ns |
+| Reset | Both resets asserted together for 64 Milan cycles; release before the next falling edge; clocks continue |
+| TDM master | FSYNC cadence and captured-pair counters measured; serial input silent |
+| Peer clock | Independent 125 MHz timestamp edges; 10 us epoch offset; no drift |
+| Peer link | 320 ns each direction; 20 us residence; independent event timestamps |
+| Packet interface | Exact keep/last; RX beats every 80 ns; PTP ingress reservations; TX handshake collection |
+| Response memory | Ordered 592-byte store for AECP gPTP getters |
+| Descriptor memory | Builder-generated AEM image; 12-cycle initial read latency |
+| Auxiliary feedback | MMCM locked; DRP/phase acknowledgments idle; INTERNAL media selection |
+| Peer AAF talker | Six samples per PDU, one PDU per 3,072 audio-clock rising edges: it follows the DUT's INTERNAL media clock (#656) |
+| Ethernet liveness | Synthetic receive/transmit clock toggles |
+
+The ROM is separately generated as `gptp_ax1x1_ucode.hex`.
+Generation uses `--clk-hz 50000000`, station MAC, and priority1.
+The generator uses that frequency for its servo gains.
+The engine timer independently receives the same frequency.
+No gPTP or protocol-processor timers are compressed.
+Boot Pdelay waits 1.2 seconds; requests repeat each second.
+Sync/Follow_Up repeats every 125 milliseconds.
+Announce repeats each second, initially phased at 250 milliseconds.
+Sync loss waits beyond the real 375 ms timeout.
+Peer loss includes the fifth unanswered request interval.
+Recovery and reset reacquisition retain the original timers.
+
+The peer timestamps scheduled arrival and departure events.
+It never reads PHC to construct its timestamps.
+Its delay oracle uses actual accepted packet event times.
+The comparison allows 28 ns for timestamp quantization only.
+This allowance contains no physical calibration correction.
+
+Audio uses diagnostic provisioning through documented CSR windows.
+`AAF_CTRL[1]` bypasses talker admission.
+The listener stream override and capture-map window select loopback.
+This run is **not licensed end-to-end streaming evidence**.
+The closed admission gate is checked before enabling bypass.
+
+The peer talker follows the DUT's media clock.
+It sends one six-sample PDU per 3,072 rising edges of the modeled audio clock.
+Since #629's A2-a the grid aligner holds the packet grid on that clock's FSYNC at INTERNAL.
+The loopback queue fills from the received PDUs and drains on the packet grid.
+A talker paced on the axis clock runs 10.64 ppm faster than that grid.
+The queue then drops one sample every 1.958 s and counts it at `SLIP_LB`.
+That honest slip between two clocks failed the order checks below (#656).
+No duplicate or gap is the expectation only for a talker on the DUT's media clock.
+
+Incoming PCM32 encodes channel identity and a monotonic sample index.
+All eight returned channels must match that supplied ramp.
+Packet sequence must remain continuous. Sample order advances by one
+outside a declared settle recentre's exact consecutive events. Each output
+may carry that action in at most two consecutive PDUs, starting with the
+PDU containing its first action event. Other events in those PDUs and all
+events outside them remain strictly ordered, with no grace interval and
+unchanged loopback slip counters. The full-side declaration drops every
+excess event above the pre-PDU target of five; the empty side repeats the
+missing events, at most five.
+Within that span the wire checker requires the exact declared repeat or gap,
+including startup lock and reset reacquisition
+([ruling](https://github.com/kebag-logic/milan-fpga/issues/645#issuecomment-5990646410)).
+The expected step uses the declared eleven-event target less six arriving
+events and the first pair's fill before the decision beat. Read-only capture
+observations carry that expectation to the emitted PDU; observed audio and
+the DUT's hold/drop controls do not define the allowance. Each decision
+prints its step in events and both loopback slip counters. The checker
+requires unchanged counters and rejects a nonconsecutive action or a step
+extending into a third PDU. The six-phase capture regression also exercises
+two outputs with enable offsets 0 through 5 ticks and plants a nonconsecutive
+repeat, a third-PDU leak and an extra repeat outside the action.
+Acquisition, healthy streaming, stalls, loss, recovery, and reset are graded.
+Stable phases also compare outgoing uncertainty with public state.
+CSR and AECP getters must expose consistent GM/parent/delay/PathTrace.
+Identity reads consume both halves of each CSR snapshot, including reset checks.
+AECP status must report successful descriptor validation.
+Short responses retain Ethernet minimum-frame padding.
+Final cumulative assertions include traffic between named audio windows.
+Warm-up payload and transition-state comparisons are explicitly excluded.
+Every exclusion prints `NOT RUN` and contributes no pass.
+Cumulative assertions require their own executed comparisons.
+Per-window order, sequence, and uncertainty assertions require new comparisons.
+Earlier traffic cannot supply evidence for a later silent window.
+Without comparisons, each prints an explicit uncounted omission.
+Payload, sample-order, and packet-sequence counters are independent.
+Reset restarts ordering history, preserving cumulative comparison counts.
+A missing AEM image aborts before the first cycle.
+Only its setup failure counts; no audio assertion passes.
+The separate suite also grades this setup failure automatically.
+Two admission controls exercise initial silence and silence after traffic.
+Each silent window retains activity/payload failures and uncounted comparison omissions.
+Peer-delay and arrival comparisons require an accepted response in the current reset epoch.
+Cadence checks require two requests; stall comparisons require observed stalled beats.
+Their missing prerequisites produce explicit, uncounted omissions.
+
+The separate suite also runs two ordering controls through the real wire
+checker. The first incoming PDU generated after the decision output PDU
+repeats one sample's predecessor; its observed errors must be outside every
+decision PDU.
+The other leaves the real recentre unchanged but declares one fewer repeat,
+so the measured step is larger than its allowance. Both must fail the
+ordering assertion with valid channel payloads and packet sequence; unrelated
+assertions must stay clean. Their expected nonzero DUT verdicts remain in
+separate logs. The control driver returns zero only when both defects are
+caught at the required PDU location.
+
+For independent runs after one compilation:
+
+```sh
+make -j16 -C tb/verilator/milan_dp ax1x1gptp-build VERILATOR_JOBS=4
+python3 tb/verilator/milan_dp_gptp/verify_recentres.py --jobs 2
+```
+
+Physical omissions include MAC buffers, preamble, FCS, and PHY timing.
+Issue #360 remains outside this packet-interface simulation.
+Other omissions: CPU/DDR execution, NVM, and ACMP/SRP admission.
+Analog audio, pad delays, PLL lock transients, and metastability are absent.
+Oscillator drift, jitter, and MMCM actuation are absent.
+Physical rendering, CRF recovery, and multiple-responder cease are untested.
+No hardware compliance claim follows from this run.
+
+The negative control corrupts peer residence and one audio channel:
+
+```sh
+cd tb/verilator/milan_dp
+sha256sum obj_ax1x1gptp/Vmilan_dp_ax1x1gptp gptp_ax1x1_ucode.hex obj_ax1x1gptp/aemi.bin
+/usr/bin/time -f 'wall_clock_seconds=%e process_exit_status=%x' \
+  ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp --negative-control
+```
+
+Expected: nonzero exit, peer-delay failure, and audio-payload failure.
+The switch defaults off and changes no RTL or ROM.
+It stops after the first real Pdelay exchange.
+Later acquisition, loss/reset/stall arms are explicitly unexecuted.
+Negative-control results never enter the broad sweep's passing count.
+The 2026-09-07 control measured 27 checks and 3 expected failures, exit 1.
+It took 192.37 wall seconds; all five later phases stayed uncounted.
+The peer-delay assertion and both payload assertions detected corruption.
+
+The focused compilation limit is at most four jobs.
+Smaller positive `VERILATOR_JOBS` values remain available.
+
+The original fixed-window scenario spans 18.443565400 simulated seconds over 922178270 cycles.
+The opt-in extended target retains those windows.
+The default now ends transition windows upon observed public state.
+Polling uses AXI-Lite every simulated millisecond.
+Each reached transition gets another millisecond for packet/publication settling.
+Audio monitoring continues throughout polling and between named windows.
+No physical clock, protocol timer, or comparison threshold changes.
+
+| Phase | Required span and stopping condition |
+|---|---|
+| Geometry and initial audio | Clock measurement takes about 3.4 ms. Payload warm-up excludes 10 ms. The 20 ms audio window covers 160 PDUs and 960 samples. |
+| First Pdelay | Boot request occurs at 1.2 s. Inspection follows its response and Follow_Up, before the second request. |
+| Acquisition and public getters | Second exchange occurs at 2.2 s. Announce and Sync/Follow_Up select the GM at 2.25 s. The unchanged discontinuity holdover clears `tu` near 2.75 s. Stop on healthy CLKV, then compare GM/parent/delay/path through CSR and AECP. Original 1.8 s window remains the failure bound. |
+| Healthy audio | Twenty milliseconds compares all eight channels, ordering, and certain `tu`. |
+| Backpressure | Wait for the next DUT Pdelay at 3.2 s. Every transmitted frame stalls for 64 cycles. Stop after a stalled PTP frame, then settle its response. The earlier acquisition requires approximately 0.43 s before that same request. The polling bound permits one unchanged Pdelay interval; the cadence tolerance remains unchanged. |
+| Sync loss | Last selected Sync expires after 375 ms. Loss starts after the last Sync, leaving about 300 ms. That expiry makes this station grandmaster. Stop on that public grandmaster state; the original 450 ms failure bound remains. |
+| Peer loss | Five unanswered request intervals must finish. After the successful 3.2 s request, these finish around 9.2 s. Stop only after public loss and the sixth unanswered request. The combined loss deadline is 6.05 s. Audio remains graded, with certain `tu` after the grandmaster change holdover. |
+| Recovery | Two fresh exchanges and selected Announce/Sync are required. Then Announce/Sync and the discontinuity holdover must complete. Stop on healthy public state within the original 3 s bound, then grade 20 ms of certain audio. |
+| Reset | Assert both resets during active traffic. Warm-reset public health can return after one exchange. Continue through two completed exchanges, at 1.2/2.2 s, to grade the reset epoch's one-second cadence. Require healthy public state within 3 s, then grade 20 ms of certain audio. |
+
+The five missed intervals prevent a 600-second default run.
+Acquisition, recovery, and reset also require real Pdelay exchanges.
+The trimmed scenario requires 17.992742740 simulated seconds over 899637137 cycles.
+The closing transmit-flag phase adds four simulated seconds.
+Consequently, the physical leg runs separately from the default sweep:
+
+```sh
+VERILATOR_JOBS=4 scripts/run_all_suites.sh /tmp/physical-logs --physical-gptp
+make -C tb/verilator/milan_dp_gptp VERILATOR_JOBS=4
+```
+
+The wrapper calls the focused recipe and accounting regressions.
+The physical harness contributes 137 checks.
+Ten of them grade the transmitted flag words against Table 11-4.
+Setup-abort contributes six; two no-TX controls contribute twenty.
+The missing-response control contributes fourteen additional accounting checks.
+It preserves real unanswered requests and their failed response/publication assertions.
+The unchanged acquisition deadline expires before the acquired-publication check.
+First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
+Its separate deadline is 6900 seconds, including compilation.
+The four-core `ubuntu-24.04` job permits 145 minutes, including toolchain setup.
+Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
+[The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
+The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
+Physical regressions are therefore caught nightly, outside the PR aggregate.
+Expiry still reports TIMEOUT/UNKNOWN and exits nonzero.
+
+The former 2400-second hosted budget expired on 2026-09-07.
+Its twelve shard companions passed; the physical result remained unknown.
+The reference machine needed approximately 2080 simulation seconds.
+It uses an AMD EPYC 9554P with 128 logical CPUs.
+That established a hosted/local ratio above approximately 1.15.
+The killed run supplied no finite upper bound.
+The scheduling decision used that conservative, unbounded end.
+It did not treat the lower bound as a prediction.
+
+Round-three measurements used Verilator 5.050 on 2026-09-07.
+Each experiment was confined to four distinct logical CPUs.
+Each allocation also ran one CPU-bound SHA-256 background worker.
+Experiments used separate build directories and disjoint CPU allocations.
+Every build used four compilation jobs.
+All three tabulated models ran completely.
+
+| Build configuration | Fresh build and run | Simulation only | Checks / failures |
+|---|---:|---:|---:|
+| Baseline, single thread, `-O2` | 2079.57 s | 2058.94 s | 127 / 0 |
+| Verilator `-O3`, model/runtime C++ `-O3`, `--threads 1` | 2024.43 s | 2002.53 s | 127 / 0 |
+| Same optimization, `--threads 3 --threads-max-mtasks 3` | 2050.32 s | 2027.80 s | 127 / 0 |
+
+The three-thread build's coarse partition schedules all work serially.
+The user harness retains Verilator's `OPT_FAST` default, `-Os`.
+These measured flags do not set every translation unit to `-O3`.
+It proves equivalent output, without demonstrating parallel acceleration.
+Unrestricted parallel and intermediate partition trials were stopped as impractical.
+Those incomplete trials provide no passing coverage or equivalence verdict.
+The shipped recipe therefore selects the faster single-threaded optimization.
+It improves complete local runtime by 2.65 percent.
+
+All three completed simulation transcripts are byte-identical.
+Their SHA-256 is `15e5f27266e8c56a28122492282012dbc4d6361a2b360780742321485886bdad`.
+They retained 649624822 cycles and 12.992496440 simulated seconds.
+Their payload/order/sequence comparison counts were 4981392/622672/103937.
+Every publication value, phase, and assertion result was identical across them.
+
+The killed hosted workload divided by the measured baseline exceeds 1.15408.
+The optimistic optimized projection therefore exceeds 2336.36 seconds.
+The interval has no finite upper bound.
+A 30-percent margin would require at most 1680 seconds.
+Even its optimistic end misses that target substantially.
+The conservative, unbounded end therefore requires decision branch 2.
+The new nightly deadline remains an operational limit awaiting hosted evidence.
+
+The 2026-09-11 remeasurement covers the 16.992496440-second scenario.
+It used Verilator 5.052, four compilation jobs, and four confined logical CPUs under background load.
+The fresh build, physical run, and accounting controls took 3303.16 wall seconds.
+The physical simulation alone took 2774.55 seconds for 16.992496440 simulated seconds.
+The whole suite therefore used 61 percent of its 5400-second deadline locally.
+Three hosted nightly runs of the previous scenario completed on 2026-09-08, 2026-09-10 and 2026-09-11.
+Their whole suites took 2730.79, 4021.27 and 4091.59 seconds.
+The two slower runs' physical simulations took 3208.32 and 3261.56 seconds.
+Hosted simulation therefore took up to 1.58 times the 2058.94-second local baseline.
+The projection scales the slowest hosted run.
+Scaling its simulation by the cycle ratio 849624822/649624822 projects 4265.7 seconds.
+The 830-second hosted remainder covers the build, image generation, and three accounting controls.
+That remainder does not scale with the span.
+The projected hosted suite time is therefore about 5096 seconds, 94 percent of the deadline.
+Scaling by the measured local slowdown of 1.3476 instead projects about 5225 seconds, 97 percent.
+The 5400-second deadline therefore still holds on projection, with a margin between 3 and 6 percent.
+The 120-minute job keeps more than 30 minutes of margin on the same projection.
+That margin is smaller than the 50 percent spread between the fastest and slowest hosted runs.
+
+FPGA-gPTP #90 moved the asCapable loss to the fifth lost response.
+The current scenario therefore spans one more Pdelay interval, 899637137 cycles.
+Scaled by the cycle ratio 899637137/849624822, the two projections become 5347 and 5484 seconds.
+Those are 99.0 and 101.6 percent of the former 5400-second deadline.
+The hosted record already shows one 5400.003-second timeout of this suite.
+[#803](https://github.com/kebag-logic/milan-fpga/issues/803) therefore raised the deadline to 6900 seconds and the job to 145 minutes.
+The two projections are 77.5 and 79.5 percent of the new deadline, at most 80 percent.
+The job keeps its 30 minutes for toolchain setup and evidence upload.
+The 145-minute job keeps 53.6 to 55.9 minutes of margin on the same projections.
+A completed hosted run of the current scenario remains required to confirm the deadline.
+
+The original spans remain explicitly available:
+
+```sh
+make -C tb/verilator/milan_dp ax1x1gptp-extended VERILATOR_JOBS=4
+# Equivalent entry from the separate suite:
+make -C tb/verilator/milan_dp_gptp extended
+```
+
+Extended mode retains every original fixed-duration audio window.
+The 2026-09-11 extended run passed 137 checks in 3052.05 simulation seconds.
+Both modes execute the same assertions and comparison thresholds.
+The new elapsed-interval assertion also checks five unanswered Pdelay intervals.
+Extended mode is excluded from the default sweep.
+
+The normal log includes simulated duration and counted verdicts.
+The recipe records wall duration, process status, and SHA-256 hashes.
+Each phase has a bounded simulated deadline.
+Transport timeout aborts print the remaining unexecuted scope.
+
+The explicit physical driver runs this leg once through `milan_dp_gptp`.
+The `milan_dp` default retains its fifteen legs.
+`suite_tally.py` reads its separate physical-rate summary.
+It also counts 40 setup, audio and missing-response accounting checks.
+`suite_shards.py` selects `milan_dp_gptp` only through `--physical-gptp`.
+The nightly/manual job runs that selection without sharding.
+On GitHub the historical `milan_dp` directory runs as four `--ci-pieces` legs (#737).
+Each leg, `milan_dp__0` to `milan_dp__3`, runs on its own worker.
+Before #737 it ran alone on the last hosted worker (#444).
+The existing `gptp` compressed smoke remains separately counted.
+The option-OFF and fractional-audio legs retain their original models.
+
+## The #530 CRF talker licence leg (`obj_crflic`)
+
+Issue #530 records what the #117 silicon Run B measured on the AX7101 1x1
+TDM8 image's CRF Media Clock Output. Two items were defects and the third
+was a counter question:
+
+1. **A bound CRF talker ended its own bursts.** The bench AVB switch applies
+   a received LeaveAll per attribute type (802.1Q-2014 10.7.5.20 NOTE). The
+   DUT's LeaveAll MRPDU flagged only its Domain message, so the switch never
+   re-declared its Listener after it. The processor also re-aged the Listener
+   registration at every flagged VectorHeader of the switch's own LeaveAll
+   MRPDU. Once the 15 s PROBE_TX window had closed (Milan v1.2 4.3.3.1) the DA
+   gate closed and the DUT withdrew its Talker Advertise. The protocol
+   processor fixed both halves at pin `09f9bf38` (its issue 106).
+2. **Emission began before a reservation existed.** Every talker gate read
+   the processor's raw admission verdict, which the declaration alone raises,
+   instead of its ACTIVE: Talker Advertise declared, a Listener Ready or Ready
+   Failed registered, admitted (Milan v1.2 5.3.7.3). `milan_datapath` now
+   requires `pp_cd_srp_active_w` AND `pp_cd_srp_sr_admitted_w` (#551).
+3. **FRAMES_TX read 16 against 34,061 PDUs.** This historical result
+   reflects the superseded interval interpretation.
+   See [the current packet law](#frames_tx-counts-each-transmitted-avtpdu).
+
+`sim_crf_licence.cpp` elaborates `endstation_ax7101_1x1_tdm8`, where the CRF
+output is source uid 1. The processor's millisecond and `KL_maap`'s
+millisecond sit on one 100-cycle grid (the `pp_shadow` recipe), and the Table
+5.4 observation interval is 2000 of those milliseconds. The CRF grid is not
+compressed: it runs off `clk_audio`, one PDU every 49,152 cycles (491.52
+compressed ms). The leg writes the firmware boot values the #117 image
+wrote (`AAF_CTRL` `0x00020001`, `LWSRP_CTRL` `0x13`, `MAAP_CTRL` `0x201`,
+`CRFT_CTRL` `0x3`) and plays the two Run B peers:
+
+- **The listener** probes a source, retries 4 s after a
+  TALKER_DEST_MAC_FAIL answer and re-probes 0.5 s after a Talker Advertise
+  Leave.
+- **The switch port** declares Listener Ready 40 ms after the listener's
+  successful probe. It re-declares, 2 ms after a DUT LeaveAll, only the
+  attribute types that LeaveAll flags. It sends its own LeaveAll 9.99 s after
+  each DUT LeaveAll, in the capture's layout: Listener JoinMt first, then the
+  Domain, then LeaveAll-only Talker Advertise and Talker Failed vectors. It
+  withdraws its Listener 2 ms after a Talker Advertise Leave.
+
+The licence, both sources' ACTIVE, raw verdict, DA gate and Talker
+Advertise state are sampled on every cycle.
+
+| phase | what it proves |
+|---|---|
+| `[A]` | Run B's opening: both first probes go while `KL_maap` is still probing, so both are refused whatever the phase of the processor's 100 ms DA retry round; MAAP grants, the DUT declares Talker Advertise and is admitted, and no Listener Ready exists. No CRF or AAF PDU leaves, `CRFT_COUNT` stays 0 and `CRFT_CTRL[6]`/`[7]` read 0 (item 2). |
+| `[B]` | The first Listener Ready opens each gate on the cycle ACTIVE rises. Every CRF PDU is C-tagged {PCP 3, VID 2} with the stream {MAC, uid 1} and the MAAP DA. |
+| `[B2]` | The AAF closing edge: a withdrawn Listener closes the AAF gate on the cycle ACTIVE falls, while the talker still declares and is admitted. |
+| `[C]` | Item 1: 76 s bound across at least three DUT and three switch LeaveAll MRPDUs, the last 45 s or more held by the registration alone. No self-Leave, no licence drop, and no gap over 1.5 CRF periods. Every DUT LeaveAll flags all four MSRP attribute types. Each switch LeaveAll restarts the DUT's leavealltimer (802.1Q-2014 Table 10-5 rLA!, processor issue 108, since processor pin `b2db3a97`): every DUT LeaveAll comes at least 10 s after the switch's preceding one, which is why the phase holds three of each rather than five. |
+| `[D]` | A registered Asking Failed closes the licence; Ready Failed reopens it. |
+| `[E]` | The unbind: the licence closes when the Listener registration ends, inside a fresh probe window, not when the window closes (Run B's last burst ran 9.95 s past its unbind). |
+| `[F]` | FRAMES_TX follows wire AVTPDUs since STREAM_START, allowing one in-flight completion. The next STREAM_START resets it to the new run. |
+| `[G]` | Each source and admission phase, with the same TSpec preloaded: an oversized re-declaration raises optimistic ACTIVE but receives no real grant. No licence edge, STREAM_START/STREAM_STOP pair, per-run counter reset or PDU follows. |
+| `[H]` | Matching admitted re-declarations stream and reset the per-run counters. Logs measure ACTIVE-to-licence latency for each source and admission phase. |
+| `[I]` | A refused 20,000-byte TSpec follows an admissible 224-byte TSpec. Both sources and phases require no licence, counter pair, reset or PDU. This is a required default pass with processor #112. |
+| `[J]` | The reverse TSpec change admits 224 bytes after 20,000 bytes. Both sources and phases must stream; logs re-measure ACTIVE-to-licence latency. |
+| `[TSPEC]` | #774, after `[E]` and before the staged TSpecs of `[G]`: every Talker Advertise value the DUT sent for each source carries that source's Milan v1.2 4.3.3.2 Table 4.4 TSpec (IEEE 802.1Q-2018 35.2.2.8.4): 24 x 8 + 24 + 1 = 217 for the AAF talker, 28 + 1 = 29 for the CRF output, MaxIntervalFrames 1. A packed vector's value n carries FirstValue's TSpec, since incrementing touches only the Unique ID and the destination address (35.2.2.8). Each MaxFrameSize is also the longest AVTPDU that source emitted plus one octet. |
+| `[INV]` | Every cycle: CRF equals ACTIVE AND its real grant. AAF never opens without both terms. |
+
+**Refused re-declaration fixture (#551).**
+`crflic_probes.vlt` exposes captured SRP service request registers.
+The harness stages a pending DECLARE/WITHDRAW_TALKER tuple at that boundary.
+The processor executes it on the next clock.
+No admission result, registrar, optimistic flag or licence is forced.
+An actual MAC Listener Ready frame supplies the registering event.
+Its measured decoder delay aligns it immediately after re-declaration.
+The replay must reproduce that timing and raise optimistic ACTIVE.
+
+An oversized 20,000-byte TSpec exceeds the real admission ceiling.
+Cases `[G]` and `[H]` preload the graded TSpec.
+Cases `[I]` and `[J]` change it; all four run by default.
+`[TSPEC]` reads no declaration from `[G]` on, so these staged TSpecs are not graded as the source's own.
+Withdrawal clears its grant before each case starts.
+Both source indexes run at both phases of the two-cycle round.
+Nonzero counter seeds distinguish preservation from an unnoticed reset.
+Previous frames and observation intervals finish before those seeds apply.
+Each case refreshes its genuine ACMP/MAAP declaration window.
+The media clocks continue through several packet periods.
+Matching admitted cases use a 224-byte TSpec and must stream.
+This is boundary staging, not an end-to-end controller timing claim.
+
+The processor now evaluates the current TSpec before granting admission.
+Every declaration clears its source's grant until that evaluation completes.
+A round that meets any pending declaration publishes nothing.
+Other grants, the slope sum and over-limit retain their published values.
+This follows [processor #112](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/112), adopted through #508.
+
+The former `--unwarmed-refusal` opt-in is now unconditional.
+The same command remains usable after building `crflic`:
+
+```sh
+cd tb/verilator/milan_dp
+./obj_crflic/Vmilan_dp_crflic --unwarmed-refusal
+```
+
+The default and explicit invocations run the same cases.
+Every assertion remains mandatory; any failure returns exit status 1.
+The first declaration after reset is outside this arm's coverage.
+
+Measured ACTIVE-to-licence latency at processor pin `990f9652`, in admission-clock cycles:
+
+| TSpec history | Source | Round phase 0 | Round phase 1 |
+|---|---|---|---|
+| Same (224 to 224 bytes) | AAF source 0 | 5 | 5 |
+| Same (224 to 224 bytes) | CRF source 1 | 3 | 5 |
+| Changed (20,000 to 224 bytes) | AAF source 0 | 5 | 5 |
+| Changed (20,000 to 224 bytes) | CRF source 1 | 3 | 5 |
+
+The fixture uses a 100 MHz admission clock: 30--50 ns.
+At 50 MHz, those cycles represent 60--100 ns.
+Both histories fit the asserted bound of three two-source admission rounds.
+The ordinary Listener Ready cases add zero cycles.
+These measurements cover this two-source shape, not every supported geometry.
+The optimistic window counts three published admission rounds.
+Discarded rounds do not age it while a declaration remains pending.
+
+**Failing arms.** The #530 rows retain their dated evidence.
+The #551 campaign additionally removes each real-grant term.
+
+
+
+| arm | how | result |
+|---|---|---|
+| the licence mutants | `make crflic-mutants`: each consumer reads raw admission, removing ACTIVE | Three named checks must fail; the clean leg must pass. |
+| the real-grant mutants (#551) | Same command: every gate, CRF alone, or AAF source 0 alone reads ACTIVE without its real grant | Each refused-source licence check must fail. |
+| talker 0's TSpec on every source (#774) | Same command: `KL_pp_shadow` gets `{ACMP_SRC_C{tctx_maxf_w[0]}}`, the integration before #774, built once as `obj_crflic` and once as `obj_tspec8` | On both shapes "CRF TSpec MaxFrameSize is Milan v1.2 Table 4.4's 28 + 1" must fail; each clean leg must pass. |
+| the pre-#112 processor `7a47f578` | Local control only: temporarily repin the existing submodule, build the same leg in a fresh directory, run once, then restore the pin of record | 34 failures total: 28 `[I]` assertions and 6 `[J]` admitted-case timing checks. In `[I]`, both sources at both phases pulse a grant/licence, add STREAM_START/STREAM_STOP and reset all three seeded counters. The same fixture passed at `990f9652`, the measurement pin. |
+| the gate reverted | the first mutant, run as the reproduction before the fix | 23 of 85 fail, the Run B item 2 signature: the licence opens at 1770.38 ms, 1.34 ms after the first probe and before its TALKER_DEST_MAC_FAIL answer at 1772.00 ms; the first CRF PDU leaves at 1966.30 ms, 3.85 s before the first Listener Ready; and the licence never closes again, through Asking Failed and the unbind |
+| processor pin `424c688f` | by hand, one of the two arms that need a second processor checkout: `git -C protocol-processor checkout 424c688f`, `make crflic CRFLIC_MDIR=obj_crflic_oldpin`, then restore the pin | 17 of 85 fail, the Run B item 1 signature: every DUT LeaveAll flags only the Domain. ACTIVE and the licence fall six times by the end of `[C]`, each 5.0 s after a LeaveAll that aged the Listener registration with no re-declaration. The DUT withdraws its Talker Advertise four times: once at a registration loss 5.0 s after a switch LeaveAll, three times 15.1 s after the listener's latest probe, as Run B's bursts ended |
+| the previous processor pin `d352bbaa` | by hand, the other: `git -C protocol-processor checkout d352bbaa`, `make crflic CRFLIC_MDIR=obj_crflic_prevpin`, then restore the pin | 1 of 416 fails, the restart check: a received LeaveAll does not restart the timer at that pin, so `[C]` holds five DUT and five switch LeaveAll MRPDUs and the soonest DUT LeaveAll comes 2,210 ms after the switch's (10,210 ms at `b2db3a97`) |
+
+The mutants remain an explicit campaign outside the default sweep.
+Six additional elaborations exercise both missing-term failure modes.
+The normal licence leg remains part of the default sweep.
+
+**What it cannot show.** The switch's timing is modelled from the Run B
+capture: its LeaveAll 9.99 s after each DUT LeaveAll. A switch with a fixed
+LeaveAll period is not modelled. Since processor pin `b2db3a97` this
+station's leavealltimer restarts on a received LeaveAll (processor docs 10
+section 6.5, its issue 108), and `[C]` measures that lag, not the draw's
+upper bound. The silicon rerun of #530 is the acceptance.
+
+### FRAMES_TX counts each transmitted AVTPDU
+
+The [2026-10-12 ruling](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6125741685)
+supersedes the original interval interpretation.
+IEEE 1722.1-2021 7.4.42.2.5 Table 7.159 defines the packet total.
+`KL_talker_diag_ctx` counts every transmitted AVTPDU, with 32-bit wrap.
+Milan Table 5.4 still supplies the reset at each start.
+MEDIA_RESET and TIMESTAMP_UNCERTAIN retain their observation intervals.
+
+Run B's recorded 16 counts and 34,061 PDUs remain historical evidence.
+Those measurements describe the old implementation.
+The current `[F]` checks compare FRAMES_TX against wire PDUs.
+They allow one completion still in flight.
+After restart, only the new run's packets count.
+`CRFT_COUNT` remains the transmitter's independent PDU total at `0x764`.
+The `tkdiag` and stream-counter fixtures cover reset and wrap.
+
+## The #508 GET_STREAM_INFO seam (the GSI section of `obj_notify`)
+
+Since processor pin `a8f8ce81` the processor owns four Stream Input fields.
+Its top answers them from its own state:
+
+| Field | Milan clause | State owner | Selector | Response bytes |
+|---|---|---|---|---|
+| `probing_status`, `acmp_status` | 5.3.8.6 | listener record, committed | 7, internal | `@76` (frame 90) |
+| `msrp_failure_code` | 5.3.8.8 | SRP registrar | 4, byte `[15:8]` replaced | `@58` (frame 72) |
+| `msrp_failure_bridge_id` | 5.3.8.8 | SRP registrar, gated on FAILED | 5, internal | `@60..@67` (frame 74..81) |
+
+The processor never asks `milan_datapath` for selectors 5 and 7 of a Stream Input.
+So the datapath answers neither, and leaves the selector 4 byte zero.
+Its old bound/settled approximation and its zero bridge id are deleted.
+The validity flags stay the datapath's: `MSRP_FAILURE_VALID`, `REGISTERING_FAILED`, `BOUND`.
+
+Since processor pin `f65c8ff7` (processor #206, #790) the processor also gates
+three of the datapath's Stream Input words on its committed probing status.
+While it is not PROBING_COMPLETED, selector 0 has STREAM_ID_VALID,
+STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID (`0x52000000`) cleared, and
+selector 2 and selector 4 `[63:16]` answer 0 (Milan v1.2 5.4.2.10.1, Table 5.9).
+The datapath's own rule, bound and a nonzero stream_id in the binding view,
+is wider: the view keeps a stream's identity from settle to unbind. G11
+grades the answer the wire carries.
+
+`[GSI]` runs at the end of the timed leg, on the AX 1x1 shape.
+Its two sinks are the AAF input (0) and the CRF input (1).
+The section owns both MAC ports, so no frame is lost between waits.
+Controllers A and B register for notifications first.
+
+The adopted pin `0922e434` includes processor PR 115.
+It adds a notification for a latency-only Talker refresh.
+No existing notify or `[GSI]` check drives that isolated transition.
+`gsi_talker_failed()` always sends accumulated latency 500000 ns.
+G5 changes latency alongside initial registration and FailureInformation.
+Those events coalesce into the single notification G5 already checks.
+G6 repeats that latency unchanged; G7 changes FailureInformation alone.
+The earlier notify phases inject no registering Talker attribute.
+Their notification expectations therefore need no adaptation.
+The processor's response tests own isolated latency-change coverage.
+
+| Phase | What happens on the wire | Graded |
+|---|---|---|
+| G0 | nothing bound | both sinks DISABLED; STREAM_INPUT 2 answers NO_SUCH_DESCRIPTOR with the zero cdl-68 body |
+| G1 | BIND_RX sink 0; the talker never answers | ACTIVE with `acmp_status` 0 at once; the duplicate probe pushes nothing |
+| G2 | the second probe times out; sink 1's probe is refused | sink 0 ACTIVE/7 (LISTENER_TALKER_TIMEOUT), sink 1 ACTIVE/3 (TALKER_DEST_MAC_FAIL) |
+| G3 | each retry expires; no talker was discovered | both PASSIVE, `acmp_status` 0, no new probe |
+| G4 | UNBIND_RX sink 0, then fresh binds with answered probes | DISABLED, ACTIVE, then COMPLETED with the talker's stream_id |
+| G5 | the bridge declares Talker Failed on each stream | code and 64-bit bridge id per sink, distinct values, flags set |
+| G6 | the same Talker Failed, refreshed | no push |
+| G7 | sink 1's FailureInformation changes | one push for sink 1, new values; sink 0 untouched |
+| G8 | sink 0's Talker Failed is withdrawn | exactly two pushes per controller: registrar withdrawal, then settlement teardown; both PASSIVE with cleared failure fields; sink 1 quiet |
+| G9 | STOP_STREAMING(sink 1) from A | B gets STOP_STREAMING, A does not; A and B each get one GET_STREAM_INFO for sink 1, carrying STREAMING_WAIT (processor #192) |
+| G10 | a reset | both sinks DISABLED with nothing carried |
+| G11 | #790, after the reset: BIND_RX sink 0; its probe answered; 10 s with no Talker attribute registered and the talker never discovered (TMR_NO_TK, Milan v1.2 5.5.3.5.36); UNBIND_RX | the three Table 5.9 flags and stream_id, stream_dest_mac and stream_vlan_id: clear and zero while ACTIVE before the first answer, the talker's while COMPLETED, clear and zero while PASSIVE with the settled stream still in the binding view, clear and zero once unbound |
+
+Each named change pushes one GET_STREAM_INFO to each controller.
+G8 has two changes, producing exactly two pushes per controller.
+The first follows `srp_evt_tk_unreg_w`: the registrar withdraws its attribute.
+The second follows `lstn_gsi_changed_r`: settlement tears down to PASSIVE.
+Both trigger `protocol_processor_top.stri_events` at the adopted pin.
+Both responses carry PASSIVE, zero ACMP status, and cleared failures.
+The first already sees teardown because response gathers read live.
+See [F06.13, field lineage](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/990f96526bb89356c963a260ebbdcf2a77e6623a/docs/architecture/06_aecp_engine.md#fig-06-lineage) and [F05.5, settlement detail](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/990f96526bb89356c963a260ebbdcf2a77e6623a/docs/architecture/05_acmp_engine.md#fig-05-settled).
+G8 grades both ordered responses to each controller against that state.
+Both bodies equal the subsequent solicited answer; sink 1 stays quiet.
+Acceptance 2 names PASSIVE after a bind.
+The processor reads Milan 5.5.3.5.3 and 5.5.3.5.29 as ACTIVE first.
+A bind probes at once, and PASSIVE follows an unanswered probe's retry.
+G1 and G3 grade that order (processor issue 43, PR 111).
+
+**Failing arms.** `make gsi-mutants` runs `gsi_mutants.py`.
+It plants each defect in a copy of the processor tree or the datapath.
+The submodule checkout is never edited.
+Measured on 2026-09-25 UTC: the clean leg passes 380/380 checks.
+
+| Mutant | Named check that fails | Failures |
+|---|---|---|
+| the processor ties the bridge id to zero | G5 sink 0 `msrp_failure_bridge_id` | 7 of 380 |
+| selector 5 goes back to the datapath, which answers zero | G5 sink 0 `msrp_failure_bridge_id` | 7 of 380 |
+| the processor ties the failure code to zero | G5 sink 0 `msrp_failure_code` | 7 of 380 |
+| the failure-code byte is left to the datapath | G5 sink 1 `msrp_failure_code` | 7 of 380 |
+| the processor ties probing/ACMP status to zero | G2 sink 0 `acmp_status` | 21 of 380 |
+| the processor reads the other sink's owners | G5 sink 0 beside the other sink, bridge id | 42 of 380 |
+| the datapath's bound/settled approximation returns | G1 sink 0 `probing_status` | 14 of 380 |
+| the processor duplicates withdrawal after 4096 cycles | G8 sink 0 unsolicited GET_STREAM_INFO count to A | 2 of 396 |
+
+The duplicate also fails the exact count to B.
+It replays `srp_evt_tk_unreg_w` after the legitimate pushes drain.
+A simultaneous duplicate would coalesce, providing no extra push.
+
+The #632 rows grade the presentation offset (Milan v1.2 5.4.2.9, 5.4.2.10.2).
+An AAF output reads back its offset as set; the CRF output reads it applied.
+Measured on 2026-10-22 UTC at processor pin `93fb0b2d`, which carries the stored-offset gate (processor PR #199).
+The clean leg passes 461/461 checks.
+
+| Mutant | Named check that fails | Failures |
+|---|---|---|
+| the push gate compares with GET_STREAM_INFO's word again | `[NOTIFY]` SET_STREAM_INFO CRF step 3 | 3 of 461 |
+| GET_STREAM_INFO reads the CRF output's offset as set | `[NOTIFY]` SET_STREAM_INFO CRF step 2, the offset applied | 3 of 461 |
+| GET_STREAM_INFO reads every output's offset rounded | `[NOTIFY]` SET_STREAM_INFO step 2, the offset as set | 3 of 461 |
+
+The mutant's two extra responses receive the same content checks.
+That adds sixteen checks to its run.
+
+The #790 rows plant processor #206's settled gate open in the processor copy.
+Measured on 2026-10-27 UTC at processor pin `f65c8ff7`.
+The clean leg passes 499/499 checks, and every row above is still caught by its named check.
+Three of them fail more checks, because G11's four answers carry fields those defects also break.
+Tying probing/ACMP status to zero fails 24, reading the other sink's owners 50, and the old approximation 16.
+
+| Mutant | Named check that fails | Failures |
+|---|---|---|
+| selectors 0, 2 and 4 pass through while unsettled | G11 sink 0 back in PROBING_PASSIVE, the stale ID: `stream_id` is zero | 3 of 499 |
+| selector 0's three flags pass through | the same case: the three flags clear | 1 of 499 |
+| selector 4's `stream_dest_mac` passes through | the same case: `stream_dest_mac` is zero | 1 of 499 |
+
+The whole pass-through fails the stale case alone: the flags, `stream_id` and `stream_dest_mac`.
+Before the first answer and once unbound, the binding view holds no stream.
+So the datapath's own rule already reads unsettled there.
+Selector 6's VLAN stays the processor's in every row.
+
+The campaign runs explicitly: after the clean leg, thirteen mutant elaborations and fourteen mutant runs.
+The microcode row runs the clean build with its own ROM.
+
+**Every harness that binds a sink starts the restore walk.**
+Since the same pin, the processor holds its ACMP listener from reset.
+It releases it when the NVM binding walk ends.
+`PP_CTRL[1]` starts that walk, as the firmware's `nvm_boot()` does.
+`sim_main`, `sim_nxn`, `sim_aclk` and `milan_dp_render` now set it at boot.
+Without it the 1x1 leg fails 24 checks: no sink ever probes.
+
+**Every harness that sends AECP starts it too.** Since processor pin
+`d352bbaa` AECP is also held from reset until the D3 walk after the binding
+walk reaches its terminal, and that walk proves the AEM image first.
+`gmstep`, `gptp`, `gptp-lat` and `ax1x1gptp` serve the image from reset and
+start the walk before their first AECP command, each grading it COMPLETE
+(`PP_STAT` done 1, CLOSED 0). The image-less legs (`sim_main`'s main, `nolpf`
+and `ax1x1`, and `aclk`) serve no image, so their walk ends CLOSED
+(`PP_STAT[16]`, busy 0, done 0, fail 1, D3 cause 7): the listener is released
+and AECP stays held, and each leg grades that terminal. The `sim_nxn` legs
+start the walk once the descriptor memory answers (the firmware's order), and
+`milan_dp_render` waits out one commit-to-pin bound before T8 collects,
+because the D3 walk moves that leg against the frame grid.
+
+## The #653 unbind order and Table 5.6 pair (the UNB section of `obj_notify`)
+
+Issue #653 reports a counters push that left before its UNBIND_RX response.
+`[UNB]` runs that unbind at the end of the timed leg, after `[GSI]`.
+It uses the same ports, on the AAF input (0) and the CRF input (1).
+For each input it does the following:
+
+1. registers controllers A and B;
+2. binds from A, answers the PROBE_TX and locks the input off clean PDUs;
+3. keeps the talker streaming through the unbind;
+4. waits until the row has pushed nothing for one second;
+5. unbinds from A, then waits past both 100 ms silence timeouts.
+
+Step 4 opens the GET_COUNTERS limiter, so only the order can hold a push back.
+Milan v1.2 5.3.8.10 counts the unbind as one MEDIA_UNLOCKED, never a STREAM_INTERRUPTED.
+Table 5.6 then reads MEDIA_LOCKED = MEDIA_UNLOCKED: not synchronized.
+
+| Check | Graded |
+|---|---|
+| U1 | the UNBIND_RX response is SUCCESS |
+| U2 | a push reporting the unlock reaches each controller, and every such push leaves after the response |
+| U3 | the source pair reads 1/1 as the response's last byte leaves, and GET_COUNTERS reads 1/1/0 right after it |
+| U3 | every later push reads MEDIA_LOCKED = MEDIA_UNLOCKED |
+| U4 | 10.5 M cycles after the command, past both timeouts, the pair still reads 1/1/0 |
+
+Each input prints an `[i]` trace, in cycles after the command's last byte.
+Measured on 2026-10-04 UTC:
+
+| Event | AAF input 0 | CRF input 1 |
+|---|---|---|
+| listener queues its response | +193 | +193 |
+| debounced bind level falls | +199 | +199 |
+| MEDIA_UNLOCKED written at its source | +204 | +200 |
+| UNBIND_RX response leaves | +277 | +277 |
+| push reporting the unlock, to A / B | +2,294 / +3,057 | +2,294 / +3,057 |
+
+At dev `fea346e7` the response also led on both inputs.
+There the CRF unlock waited for the silence timeout, at +9,818,177.
+So for 100 ms an unbound CRF input read MEDIA_LOCKED 1, MEDIA_UNLOCKED 0.
+`KL_crf_rx` now counts the unlock on the bind fall, as the AAF monitor does.
+The unit-level cases are in `tb/verilator/crf_rx`, section `[UNB]`.
+
+**Failing arms.** `make unb-mutants` runs `unb_mutants.py`.
+It plants each defect in a copy of the processor tree or of `KL_crf_rx`.
+`CRFRX_SRC` in the Makefile names the CRF engine for that purpose.
+Each mutant must fail its named checks and still pass its named holds.
+Measured on 2026-10-04 UTC: the clean leg passes 421/421 checks.
+
+| Mutant | Named checks that fail | Failures |
+|---|---|---|
+| the ACMP lane is held 6,000 cycles, so the push overtakes the response | U2 order to A, AAF and CRF | 4 of 421 |
+| the CRF unbind does not count its unlock, as at dev `fea346e7` | CRF U3 as the response left, and right after it | 2 of 421 |
+| the CRF unbind keeps the lock, so the timeout counts again | CRF U4; CRF U3 every later push | 2 of 421 |
+| the CRF unbind also counts a STREAM_INTERRUPTED | CRF U3 STREAM_INTERRUPTED; CRF U4 | 2 of 421 |
+| the CRF unbind counts its unlock but arms no push | CRF U2 a push reached A | 2 of 421 |
+
+The first mutant's holds are U1 and the push arriving, so the catch is the order.
+Its 4 failures are exactly the four U2 order checks; nothing else in the leg moves.
+The last mutant's 2 are the push to A and to B.
+The campaign runs explicitly: five mutant elaborations and six runs.
+
+## The #658 power-on audio maps (`obj_dynmap`)
+
+The leg runs the shipping AX7101 1x1 TDM8 geometry. It grades #658's rulings
+(comments 5988293154 and 5988843004) in `[DYNMAP]`, then runs `[762-DP]` on a
+fresh boot, then [`[MAPREC]`](#the-channel-map-records-across-a-planted-power-cycle-maprec-637)
+over an erased window, and stops.
+
+- **The power-on map.** On both stream ports, stream channel c maps to
+  cluster c, for c below the smaller of the channel and cluster counts. Each
+  page is read with GET_AUDIO_MAP. The two crossbar RAMs are read through the
+  CSR snapshot: render keys 2..9 and capture keys 0..7.
+- **A format change.** Milan v1.2 5.4.2.7 governs. With channels 4..7 mapped,
+  8 -> 4 is refused BAD_ARGUMENTS, the format and both maps unchanged. A
+  REMOVE of channels 4..7 lets 8 -> 4 succeed, and 4 -> 8 keeps 4 mappings.
+- **The output clip.** No command can place a narrower output format, so
+  `dynmap_probes.vlt` opens the processor's output format row. The leg stages
+  4 channels there in a fresh boot window, and capture keys 4..7 must empty.
+  With the row invalid again, as a D3 roll-back leaves it, they must refill.
+- **A restore.** `gen_nvm_window.py` frames a saved-state window for the
+  shipping config, from `scripts/nvm_shape.py`'s record set and
+  `scripts/nvm_klj2.py`'s codec. Record `0x30` holds a 4-channel input format
+  and every other record is erased. The script writes nothing unless the
+  codec's own decoder accepts the container. The leg loads it as `nvm_boot()`
+  does: re-base, fill, RELOAD, publish. Then it starts the restore walk. GET
+  reads 4 channels and 4 identity mappings, and SET of 8 channels succeeds.
+- **The boot window's guard arms** (review R490-1 F1). Four arms keep the
+  stores and the crossbar RAMs one map across the window's end. The scenario
+  above cannot move any of them: its terminal is COMPLETE, no CSR write comes
+  near it, and AECP's first edit arrives long after the sweep. So each arm is
+  staged in a fresh boot on the clock it guards, through `dynmap_probes.vlt`.
+  - *The CSR hold and the CLOSED terminal.* The D3 writer's CLOSED flag is set
+    on a chosen clock. One CSR map write commits at each offset from two
+    clocks inside the window to four past the sweep, once per side. Each
+    write lands in both the store and the RAM, or in neither. It is refused
+    through offset 9 (the 8-key sweep and its drain clock) and lands from
+    offset 10. CLOSED holds AECP, so the stores are read through the probe
+    file.
+  - *The sweep after the terminal.* Both format rows hold 4 channels in the
+    window. A D3 roll-back invalidates them on the clock CLOSED ends the
+    window, so only the sweep can write the whole image into the RAMs.
+  - *The edit face's wait.* After a COMPLETE restore, output stream channels 6
+    and 7 are removed. Channel 7 is then ADDed back on cluster 6 while the
+    sweep after the terminal is held open for 1000 clocks. The ADD must be
+    answered only after the sweep ends, and capture key 7 must keep the ADD's
+    word: the boot writer writes the power-on word of every owned key.
+
+The media path is graded end to end elsewhere, with no map command issued.
+The listener: `tb/verilator/milan_dp_render`, `T18 POWER-ON`, decodes stream
+channel c at TDM8 serial slot c. The talker: `tb/verilator/capture_coherence`,
+the `milan_datapath` leg, decodes TDM capture slot c in stream channel c.
+
+**Failing arms.** `make dynmap-mutants` runs `dynmap_mutants.py`. It plants
+each defect in a copy of `milan_datapath.sv`, or of `KL_pp_shadow.sv` for the
+device-face arbiter, and builds the named leg through its own suite's recipe.
+Each mutant must fail its named check, every one of them where a row names
+several, and each leg's clean build must still pass. `DYNMAP_MUTANT_JOBS`
+runs that many at once, at most two of them building. Measured on 2026-10-20
+UTC at four jobs, from a clean clone: 63 of 63 mutants caught, each clean
+leg passing.
+
+| # | Leg | Mutant | Named check that fails | Failures |
+|---:|---|---|---|---|
+| 1 | dynmap | an empty reset: the power-on image holds no mapping | `[DYNMAP] power-on SPI 0: number_of_mappings` | 166 of 686 |
+| 2 | dynmap | no clip after the restore: the window ignores a restored input format | `[DYNMAP] restored SPI 0: number_of_mappings` | 14 of 686 |
+| 3 | dynmap | no output clip: the window ignores a STREAM_OUTPUT row | `[DYNMAP] window, output row staged at 4 ch: capture RAM keys 0..7 hold the output map` | 2 of 686 |
+| 4 | dynmap | the boot writer never fills the crossbar RAMs | `[DYNMAP] power-on: render RAM keys 2..9 hold the input map` | 178 of 686 |
+| 5 | dynmap | the CSR writer is not held while the boot writer is busy | `[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM` | 4 of 686 |
+| 6 | dynmap | the input store alone takes a CSR write while the writer is busy | `[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM` | 2 of 686 |
+| 7 | dynmap | the output store alone takes a CSR write while the writer is busy | `[DYNMAP] CSR hold, output: no CSR write splits the store from the RAM` | 2 of 686 |
+| 8 | dynmap | the boot window ignores the CLOSED terminal | `[DYNMAP] CSR hold, input: CSR lands in both once the sweep after CLOSED has ended` | 2 of 686 |
+| 9 | dynmap | no sweep after the restore's terminal | `[DYNMAP] CLOSED on the roll-back's clock: render RAM keys 2..9 hold the input map` | 6 of 686 |
+| 10 | dynmap | no drain clock: busy ends while the last boot write is in flight | `[DYNMAP] CSR hold, input: no CSR write splits the store from the RAM` | 4 of 686 |
+| 11 | dynmap | the edit face never waits for the boot writer | `[DYNMAP] edit meets the sweep: the ADD is answered only after the sweep ends` | 2 of 686 |
+| 12 | dynmap | the map writer never marks a record dirty | `[MAPREC] empty: the window holds the codec's records and the pend has fallen` | 32 of 686 |
+| 13 | dynmap | an empty saved list reads as an erased record (#763) | `[MAPREC] empty, after the power cycle: SPI 0: number_of_mappings` | 17 of 686 |
+| 14 | dynmap | no first-dirty window: the change is written at the next tick | `[MAPREC] empty: the write waited out the 500 ms first-dirty window` | 2 of 686 |
+| 15 | dynmap | the restore refuses every framed record | `[MAPREC] saved, after the power cycle: SPI 0: number_of_mappings` | 83 of 686 |
+| 16 | dynmap | the restore ignores the record's crc16 | `[MAPREC] torn input record: SPI 0: number_of_mappings` | 6 of 686 |
+| 17 | dynmap | a failed walk rolls nothing back | `[MAPREC] roll-back: SPI 0: number_of_mappings` | 26 of 686 |
+| 18 | dynmap | the roll-back sweeps the RAMs and leaves the stores | `[MAPREC] roll-back: SPI 0: number_of_mappings` | 26 of 686 |
+| 19 | dynmap | the roll-back puts the stores back and never sweeps the RAMs | `[MAPREC] roll-back: render RAM keys 2..9 hold the input list` | 8 of 686 |
+| 20 | dynmap | the map restore runs over the D3 walk's roll-back | `[MAPREC] D3 roll-back: SPI 0: number_of_mappings` | 6 of 686 |
+| 21 | dynmap | GET_AUDIO_MAP does not wait for the map restore | `[MAPREC] held GET: answered with the restored list` | 99 of 686 |
+| 22 | dynmap | the format judge does not wait for the map restore | `[MAPREC] held SET_STREAM_FORMAT: BAD_ARGUMENTS against the restored list` | 4 of 686 |
+| 23 | dynmap | the entity enable does not wait for the map restore | `[MAPREC] held GET: the entity enable waits for the map restore` | 1 of 686 |
+| 24 | dynmap | every phase-5 beat marks its record, changed or not (DR2b) | `[MAPREC] unchanged: no record write follows an unchanged edit` | 4 of 686 |
+| 25 | dynmap | a restore write counts as a change | `[MAPREC] saved: the restore itself writes no record` | 4 of 686 |
+| 26 | dynmap | a change after the latch does not taint the write | `[MAPREC] taint: the window ends on the final list` | 5 of 686 |
+| 27 | dynmap | a fourth attempt follows the third failure | `[MAPREC] failing writes: three attempts, then no more` | 1 of 686 |
+| 28 | dynmap | no backoff between attempts | `[MAPREC] failing writes: the attempts are at least 500 ms apart` | 1 of 686 |
+| 29 | dynmap | the last failed attempt raises no alarm | `[MAPREC] failing writes: PP_STAT[4], the alarm, is raised` | 1 of 686 |
+| 30 | dynmap | the map restore has no per-wait deadline | `[MAPREC] silent memory: the walk ends at its per-wait deadline` | 1 of 686 |
+| 31 | dynmap | the map restore has no aggregate deadline | `[MAPREC] slow memory: SPI 0: number_of_mappings` | 8 of 686 |
+| 32 | dynmap (arbiter, `KL_pp_shadow.sv`) | the arbiter does not drain a read the map writer abandoned | `[MAPREC] silent memory, late answer: a later change reaches the window` | 1 of 686 |
+| 33 | dynmap (arbiter, `KL_pp_shadow.sv`) | the arbiter's selection moves while the backend serves a command | `[MAPREC] shared face: both writers' records are in the window` | 1 of 686 |
+| 34 | dynmap (arbiter, `KL_pp_shadow.sv`) | the map writer's pending is not reported | `[MAPREC] empty: PP_STAT pend rises with the accepted change` | 1 of 686 |
+| 35 | dynmap (arbiter, `KL_pp_shadow.sv`) | the map writer's alarm does not reach nvm_alarm | `[MAPREC] failing writes: PP_STAT[4], the alarm, is raised` | 1 of 686 |
+| 36 | listener (`milan_dp_render`) | an empty reset, under the listener's end-to-end check | `T18 POWER-ON: with no map command since the reset, the lane renders injected events` | 8 of 264 |
+| 37 | talker (`capture_coherence`, `--quick`) | an empty reset, under the talker's end-to-end check | `[V] every requested column was decoded` | 20 of 134 |
+| 38 | dynmap | the map restore's roll-back is not composed into PP_STAT fail | `[MAPREC] roll-back: PP_STAT fail 1`; `[MAPREC] first-record device error: PP_STAT fail 1`; `[MAPREC] slow memory: PP_STAT fail 1`; `[MAPREC] silent memory: PP_STAT fail 1` | 4 of 686 |
+| 39 | dynmap | PP_STAT blank ignores a validated map record | `[MAPREC] saved, after the power cycle: PP_STAT blank 0`; `[MAPREC] empty, after the power cycle: PP_STAT blank 0` | 16 of 686 |
+| 40 | dynmap | PP_STAT blank ignores the map restore's failure | `[MAPREC] first-record device error: PP_STAT blank 0` | 1 of 686 |
+| 41 | dynmap | PP_STAT busy does not cover the map restore | `[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map restore holds` | 1 of 686 |
+| 42 | dynmap | PP_STAT done does not wait for the map restore | `[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map restore holds` | 1 of 686 |
+| 43 | dynmap | PP_STAT blank is published before the map restore ends | `[MAPREC] saved: PP_STAT reads busy, not done, not blank, while the map restore holds` | 1 of 686 |
+| 44 | dynmap | the map restore takes every record it reads for a validated one | `[MAPREC] first boot: PP_STAT blank 1` | 5 of 686 |
+| 45 | dynmap | a saved set the ADD rule refuses is never put back | `[MAPREC] put-back: SPI 0: number_of_mappings` | 3 of 686 |
+| 46 | dynmap | an erased or refused record's port is never put back | `[MAPREC] first boot: SPI 0: number_of_mappings` | 112 of 686 |
+| 47 | dynmap | no hole rule: a mapping after an UNUSED entry is not refused | `[MAPREC] hole, input: SPI 0: number_of_mappings`; `[MAPREC] hole, output: SPO 0: number_of_mappings` | 6 of 686 |
+| 48 | dynmap | the layout version is not judged | `[MAPREC] wrong layout, input: SPI 0: number_of_mappings`; `[MAPREC] wrong layout, output: SPO 0: number_of_mappings` | 10 of 686 |
+| 49 | dynmap | the record id is not judged | `[MAPREC] wrong id, input: SPI 0: number_of_mappings`; `[MAPREC] wrong id, output: SPO 0: number_of_mappings` | 10 of 686 |
+| 50 | dynmap | a field outside every ADD range is dropped, not refused | `[MAPREC] range, input stream channel: SPI 0: number_of_mappings`; `[MAPREC] range, input cluster: SPI 0: number_of_mappings`; `[MAPREC] range, output stream: SPO 0: number_of_mappings`; `[MAPREC] range, output cluster: SPO 0: number_of_mappings` | 12 of 686 |
+| 51 | dynmap | one input cluster, two mappings: not refused | `[MAPREC] conflicting keys, input: SPI 0: number_of_mappings` | 3 of 686 |
+| 52 | dynmap | one output stream channel, two clusters: not refused | `[MAPREC] conflicting keys, output: SPO 0: number_of_mappings` | 3 of 686 |
+| 53 | dynmap | the map restore runs over a D3 abort in pass 0 | `[MAPREC] D3 pass-0 abort: SPI 0: number_of_mappings` | 6 of 686 |
+| 54 | maprec8 | the round-1 ordering: a port's reset set comes down just before its saved set | `[MAPREC] transfers, after the power cycle: port 0: the mappings are the expected list` | 12 of 219 |
+| 55 | maprec8 | a refused put-back does not roll back | `[MAPREC] refused put-back: port 7: number_of_mappings` | 7 of 219 |
+| 56 | maprec8 | the map restore's roll-back is not composed into PP_STAT fail, 8x8 | `[MAPREC] refused put-back: PP_STAT fail 1` | 1 of 219 |
+| 57 | maprec8 | an output port refused a key another port holds is never put back | `[MAPREC] conflicting keys across ports: port 7: number_of_mappings` | 4 of 219 |
+| 58 | maprec8 | every output port writes and reads output port 0's record | `[MAPREC] transfers, after the power cycle: port 7: the mappings are the expected list` | 12 of 219 |
+| 59 | maprec4 | every input port writes and reads input port 0's record | `[MAPREC] inputs: the window holds the codec's records and the pend has fallen`; `[MAPREC] inputs, after the power cycle: port 0: the mappings are the expected list` | 8 of 137 |
+| 60 | maprec4 | the last input port's refused saved set is never put back | `[MAPREC] put-back, last port: port 3: number_of_mappings` | 3 of 137 |
+| 61 | dynmap | the validated-record test ignores the crc16 | `[MAPREC] lone crc-bad input record: PP_STAT blank 1` | 1 of 686 |
+| 62 | dynmap | the validated-record test ignores the layout and the id | `[MAPREC] lone wrong-layout input record: PP_STAT blank 1`; `[MAPREC] lone wrong-id output record: PP_STAT blank 1` | 2 of 686 |
+| 63 | dynmap | the validated-record test ignores the magic and the length | `[MAPREC] lone wrong-magic output record: PP_STAT blank 1` | 1 of 686 |
+
+**The hold's two RAM sites are equivalent on this shape.** The CSR writer's
+hold sits at four places: the input store, the output store and the two
+crossbar write muxes. The two store sites are planted alone and caught. The
+two RAM sites are not, because no stimulus on this shape can tell either one
+from its removal. Here the boot writer drives both crossbar write legs on
+every busy clock: all 8 input keys have a physical render key, and all 8
+output keys are dynamic. Each leaf's mux gives that leg priority over the CSR
+writer, so the RAMs drop a CSR write while the writer is busy, whether or not
+the RAM site is there. The RAM sites act only where the cursor leaves a leg
+idle: an input key with no physical render key, or a direction with no
+dynamic map (the Arty shapes' outputs). No leg grades that today. Removing all
+four sites at once is caught (the fifth dynmap row above, review R490-1's
+probe P1).
+
+### The channel-map records across a planted power cycle (`[MAPREC]`, #637)
+
+The dynmap leg then grades the parent's map record writer and restore
+(Milan v1.2 5.3.9.1, 5.3.10.1). A power cycle here resets the whole datapath
+and KEEPS the saved-state window memory, then runs the firmware's load of
+it: re-base, RELOAD, publish, and the restore walk. The window stands in for
+the slot the firmware commits and copies back; `tb/verilator/nvm_cosim`
+grades that commit and copy. The leg compiles the map writer's millisecond
+to 100 clocks (`-GAMR_MS_CYC_P`), so its 500 ms windows are 50,000 clocks and
+its deadlines count the same millisecond. The processor's own timebase is
+not compressed.
+
+The oracle for every record the writer leaves is the repository's codec.
+`gen_nvm_window.py` frames the expected records with `scripts/nvm_klj2.py`,
+and the window must hold exactly those bytes, every other record erased.
+
+- **The EMPTY list, both directions.** Every mapping of both ports is removed.
+  Pending rises with the change, the window then holds both records as
+  framed sets of UNUSED entries, and the write waited out the 500 ms window.
+  After the power cycle both ports read zero mappings, and both crossbar
+  RAMs are empty.
+- **A non-empty, non-default list.** Three input and two output mappings
+  that are not the power-on map. An unchanged ADD of the same list writes
+  nothing (DR2b). After the power cycle GET_AUDIO_MAP and both RAMs read the
+  lists, and the restore writes no record back.
+- **The torn-record control.** One payload byte of the input record changes
+  under its crc16, to a list the ADD rule would take. The input keeps its
+  reset set, and the whole output record still comes back.
+- **The parent's roll-back.** The output record's payload lanes answer a
+  read error after the input record was applied. Every map returns to its
+  reset set. The same on the input record, the walk's first, fails it
+  before any record was validated.
+- **The D3 walk rolled back.** The processor's roll-back terminal is planted
+  (`dynmap_probes.vlt`). No map is restored.
+- **A GET held at the terminal.** It reaches the read face while the map
+  restore holds it and is answered with the restored list. The entity
+  enable, requested with the walk, reaches the processor only after it.
+- **A SET_STREAM_FORMAT held at the terminal.** The saved input list maps
+  channel 6, so a 4-channel format would orphan it. The restore empties the
+  port in its stage 0, so a judge asked while it runs would accept. The
+  judge waits, sees the restored list and answers BAD_ARGUMENTS.
+- **A change during the record write.** Slowed lane writes let a second edit
+  land after the latch. The window ends on the final list.
+- **One device face, two initiators.** The processor's D3 writer commits a
+  user name with its lane writes slowed, while the map writer asks for the
+  backend. Both records reach the window.
+- **DR2c.** A record whose writes always fail is tried three times, at least
+  500 ms apart, then gives the change up with the alarm.
+- **A slow memory.** Every lane of both map records answers 15 ms late,
+  inside each wait's 20 ms. Only the aggregate from `PP_CTRL[1]` can end the
+  walk, and it does: the leg compiles that aggregate to 300 ms
+  (`-GAMR_RS_AGG_MS_P`, a test value; the product keeps DR3a's 1,000 ms),
+  and every map rolls back there.
+- **A silent memory.** The output record's payload never answers. The
+  restore ends at its 20 ms per-wait deadline, long before the aggregate,
+  and rolls every map back. When the memory answers at last, a later change
+  still reaches the window.
+- **The value arms.** Each is a framed, crc-clean record the restore must
+  refuse whole, in each direction, beside a whole record of the other
+  direction that still comes back: a hole (a mapping after an UNUSED entry),
+  a field outside every range an ADD accepts (an input stream channel or
+  cluster, an output stream or cluster), two mappings for one key, a layout
+  version that is not the parent's, and a record id that is not the port's.
+- **The legal maximum.** Every key of both ports mapped, none as the
+  power-on map maps it, comes back whole.
+- **The put-back.** A restored 4-channel input format refuses the saved
+  input list, and the port gets its reset set, clipped to 4 channels, back.
+- **A D3 abort in pass 0.** A device error on the input format record ends
+  the D3 walk done and failed, with no roll-back. The map restore runs after
+  COMPLETE only, so every port keeps its reset set.
+- **A lone record that is not validated.** The window's only record is a
+  framed map record failing one term of the validated-record test: its crc16
+  (a payload byte changed under it), its layout or its id, or its magic
+  (each re-sealed). Every port keeps its reset set, and PP_STAT reads blank:
+  neither walk validated a record.
+- **PP_STAT.** Each case reads the composed verdicts once the restore has
+  ended (done 1, busy 0, then fail and blank): blank on the first boot and
+  after each lone record, neither after empty or saved lists, fail after
+  each roll-back and both deadlines. Inside the saved case's map restore it
+  reads busy, and neither done nor blank.
+
+The healthy map restore held the faces 598 to 672 clocks after
+`restore_done`, under the processor's 4,096-clock gather watchdog. The window
+model answers with no latency, so the board's DDR latency adds to that
+figure.
+
+### The map records across ports (`obj_maprec8`, `obj_maprec4`, #637)
+
+The same section's second half (`MAPREC_MP_TB`) runs on the two shapes
+whose dynamic ports are several, with the dynmap leg's compressed writer
+millisecond. On the 8x8 shape a stream channel belongs to one of eight
+dynamic output ports, and a controller may move it between them. Port 1
+gives a channel to port 0, which comes first in the restore's walk. Port 0
+gives one to port 7, which comes last. Ports 2, 3 and 4 pass a channel each
+around a cycle. The writer saves the six changed records and a power cycle
+restores them. GET_AUDIO_MAP on all eight ports, every key's owner and
+cluster in the stores, and the capture RAM against its own reading before
+the cycle all agree. Two windows then plant inconsistent records. When two
+records claim one key, the first port's set wins and the other port gets
+its reset set back. When a saved set claims an erased port's reset key,
+that port's reset set cannot come back, so every map rolls back and
+PP_STAT reads fail. On the 4x4 shape the four dynamic input ports hold
+disjoint clusters. The leg saves and restores the first and last ports'
+records and an emptied port between them. It then restores the last port
+under a 2-channel format record that refuses its saved set, against a
+reference boot over the format record alone. At 8x8 the three stages held
+the faces about 13,700 clocks, past the processor's 4,096-clock gather
+watchdog; that stays open with the other 8x8 obligations (D3 18.4).
+
+## GM step re-base leg (#387)
+
+The true-ratio leg also commands an absolute software settime under the
+running stream. `RENDER-SETTIME` requires the domain's instants to move by the
+settime and every event, queued before it or stamped after it, to be
+presented at its presentation time with no slip and nothing refused: the
+presentation stage takes no re-base (#632).
+
+`make gmstep` builds `obj_gmstep` from `sim_gmstep.cpp` on the `gptp` leg's
+elaboration: the AX7101 1x1 TDM8 entity, fabric gPTP on, a 2 MHz fabric clock
+and an 8 ns PHC. It drives issue #387's acceptance 3: a grandmaster change
+that steps the PHC by 1.5 s while the AAF listener is bound and locked under
+CRF selection. The [#602 ruling](https://github.com/kebag-logic/milan-fpga/issues/602#issuecomment-5859297355) excludes PHC-only restart causes.
+
+| Phase | What it grades |
+|---|---|
+| Acquisition | Pdelay to asCapable, then GM A's Sync; the link-up pair steps once, above 20 us; the published grandmaster is GM A |
+| Media | SET_CLOCK_SOURCE to the CRF answers SUCCESS and the root resolves it; the CRF sink locks; the talker gate opens; the real source change toggles outgoing `mr` exactly once |
+| Baseline | every PDU's six events presented once, in order, at one offset after its send, nothing refused and no slip at the presentation stage; the talker streams with `tu` clear; the GM-change detector pulsed once from reset, at this station's own identity -> GM A, before the talker's first baseline PDU |
+| GM change | one plane step of 1.5 s, after the commit; `tu` set in the first cycle the bank names GM B, held at least a quarter tick after the step, then clear, with talker PDUs graded both inside the hold and after it; every talker PDU carries the verdict of its instant; the talker keeps its gate, sequence and rate, and no pause beyond four of its intervals up to the end of the window; the listener stays locked and its FRAMES_RX moves by the PDUs it accepted; the PDUs stamped in GM B's time and placed before this listener's step refused, each counted once, and their frames one counted slip; every other PDU presented once, in order, at the baseline's offset; outgoing `mr` stays unchanged; MEDIA_RESET adds zero |
+| Selected CRF restart | a received CRF `mr` toggle propagates exactly once; the sink stays locked; no PHC step supplies the restart |
+| Coincident restart | 32 delays between a received CRF toggle and software settime; at least one observed same-cycle overlap of the received pulse and PHC re-base pulse; every trial actually steps the PHC and emits exactly one outgoing toggle, with more than eight outgoing PDUs and the selected sink still locked |
+
+**The boot grandmaster is a grandmaster change.** Since FPGA-gPTP #82 the
+station is its own grandmaster from boot and publishes its own identity until
+a peer wins (IEEE 802.1AS-2011 9.6.2.1, 10.2.3.13). The step to GM A is
+therefore a change, and the datapath's detector (`g_gm_recentre`) pulses there;
+only the first publication out of reset, 0 -> id, is exempt. The baseline
+records that pulse and that the talker, opened after it, still streams.
+`gmstep_probes.vlt` opens the detector's pulse and register to the harness,
+read only.
+
+The coincident check grades suppression of the CRF restart.
+An extra request inside its pending window merges with that restart.
+The isolated PHC-step checks grade the exclusion of an added request.
+
+**The refused PDUs are the step's, not the commit's.** Every PDU the stage
+refuses must have been sent between the peer's step (at its first GM B Sync)
+and this listener's (the plane's step pulse), and the stage must count each.
+Outgoing `mr` stays unchanged throughout the window.
+The talker's counters are read before, between and after both events.
+MEDIA_RESET must not move in either interval.
+A stage emptied on the grandmaster identity change, which in this scenario
+lands about 160000 cycles before the step, or on the step itself loses PDUs
+the clean leg presents, uncounted, and fails.
+
+**The presentation law is graded at the stage's output.** Every sample names
+its PDU's sequence number and event, and the event handed to the TDM lane at
+each media event is decoded off the stage's first beat. In this compressed
+model the stage counts one frame per media tick (41.7 cycles) but divides
+timestamp differences by the true 48 kHz period, so the peer's 2 ms
+presentation offset puts every PDU a fixed 96 frames after the frame it
+arrives in. The presentation instant is graded at the true clock ratio by the
+true-ratio leg and by `milan_dp_render`; here the leg grades that every PDU
+keeps that one offset across the event.
+
+**Start phase.** The binary's optional second argument, `GMSTEP_FEED_DELAY`
+through `make`, idles that many fabric cycles before the peer's media feed
+starts. One media tick is 41.67 cycles at 2 MHz, so delays 0 to 41 cover every
+accept phase. At head `471892a9`, both round-2 reviews measured 103 checks
+and zero failures at all 42 delays ([R366-2](https://github.com/kebag-logic/milan-fpga/pull/603#issuecomment-5861287085),
+[R367-2](https://github.com/kebag-logic/milan-fpga/pull/603#issuecomment-5861301512)).
+
+**It runs in the default sweep, with its negative controls, in its own suite.**
+`run` here no longer runs it: the #621 phase made it this suite's costliest leg.
+The [`milan_dp_gm_steps`](../milan_dp_gm_steps) suite runs the clean leg once.
+Then it invokes its [`gmstep_mutants.py`](../milan_dp_gm_steps/gmstep_mutants.py).
+That driver rebuilds through this suite's `gmstep-build` recipe.
+In the sweep it passes `--no-small-steps`, which leaves out only the #621 phase.
+No sweep control names a check in that phase; its README tabulates them.
+`GMSTEP_MDIR` selects a disposable build directory.
+`DP_SRC`, `CLKV_SRC`, `RQ_SRC` and `MCR_SRC` select mutated copies.
+Each control must fail its named check:
+
+| Control | Planted in | Named check it fails | Runs in |
+|---|---|---|---|
+| the PHC re-base restart term is restored | datapath | restart: a PHC-only step leaves outgoing mr unchanged | the sweep |
+| the source-change term is removed | restart engine | source control: a real source change toggles mr once | the sweep |
+| selected CRF `mr` propagation is removed | datapath | CRF control: selected CRF mr propagates exactly once | the sweep |
+| the grandmaster identity empties the render stage | datapath | render: every PDU not presented was refused by the stage and counted once | the sweep |
+| the step empties the render stage (the effect of #387's retired re-base on the queue) | datapath | render: every PDU not presented was refused by the stage and counted once | the sweep |
+| the refused PDUs are not counted | render stage | render: every PDU not presented was refused by the stage and counted once | `gmstep-mutants` |
+| `tu` reaches the talkers four cycles late | clock validity | tu: set in the first cycle the bank names GM B | `gmstep-mutants` |
+| the plane's step does not re-arm the holdover | datapath | tu: held at least the 0.25 s holdover after the step | `gmstep-mutants` |
+| `tu` stops the talker | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
+| the grandmaster change stops the talker for good (the first detector pulse while the talker's gate is open: the GM A -> GM B event, not the boot pulse) | datapath | licence: the talker never pauses beyond four of its intervals | `gmstep-mutants` |
+| a gap in the presented frames leaves no counted slip | render stage | render: the refused PDUs' frames are one counted slip | `gmstep-mutants` |
+| software settime is restored as an `mr` cause | datapath | CLKV: the settime leaves mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+| PHC adjtime is restored as an `mr` cause | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+| both PHC restart causes are restored | datapath | CLKV: the settime leaves mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+| PHC adjtime becomes an `mr` cause 16 cycles later | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+| PHC adjtime becomes an `mr` cause 256 cycles later | datapath | CLKV: PHC-only steps leave INTERNAL mr unchanged (#602) | `gmstep-mutants`, option-off leg |
+| a PHC step suppresses a coincident CRF restart | datapath | coincident: a PHC step does not suppress the CRF restart | `gmstep-mutants` |
+| the detector exempts this station's own boot identity | datapath | boot grandmaster: the detector pulsed once, at this station's own identity -> GM A | `gmstep-mutants` |
+
+Each control costs one datapath elaboration.
+The sweep carries five controls named by the two acceptances.
+
+The explicit `make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` target runs all twenty-one controls.
+Each runs on the whole leg, the #621 phase included.
+The `CONTROLS` list in [`gmstep_mutants.py`](../milan_dp_gm_steps/gmstep_mutants.py) defines that inventory.
+
+It includes the eighteen tabulated above, plus three #545 controls.
+The additions cover the policy level and applied-rate tail.
+
+See the [explicit-campaign rule](../../../docs/testing/TESTING.md#1-verilator-rtl-harnesses---tbverilator-the-live-regression).
+Five controls grade the option-off leg (`sim_main.cpp`, rebuilt through
+`option-off-build` with `OPTOFF_MDIR` and `DP_SRC` overridden) on an INTERNAL
+media clock, where the harness issues a CLKV adjtime and then a software
+settime: neither changes `mr`, and settime adds no MEDIA_RESET.
+Each event compares its preceding `mr` level with its resulting level.
+The adjtime verdict uses the level after the settle interval, immediately
+before the settime baseline. The 16-cycle and 256-cycle delayed causes
+must fail the adjtime check alone.
+The adjtime-only control must leave the settime check clean.
+The settime-only control must leave the adjtime check clean.
+Restoring both causes must still fail the settime check.
+The runner enforces those sibling-check exclusions and prints every failure. A clean binary
+older than its recipe's inputs is rebuilt, not graded.
+
+What the leg does not grade:
+
+- The grid aligner. The TDM clocks are held, so it stays disengaged. By [owner decision on #387](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5810378282) it gets no re-centre of its own: #539 keeps the step out of its reference at the CRF servo, and #545 and #546 close the remaining paths. Option B, an explicit counted re-lock, is revisited only if #545 or #546 cannot close its path.
+- The CRF servo. The MMCM DRP answers zero. `Vphc_step` grades step and slew discard (#539, #545).
+- An lwSRP licence. The talker is opened by `AAF_CTRL[1]`; no SRP peer exists here.
+- A pending genuine restart. Under #602 a PHC-only step adds no request. Genuine requests still merge until a PDU at the adopted level has gone out (ruling 5818091077). `tb/verilator/tkdiag` T17 and T18 grade the restart engine PDU by PDU, and its `mcr_mutants.py` plants the engine that cancels, a shared target, and a pending window that ends at the adoption or runs to the end of the hold.
+- The step policy's thresholds. The donor's engine suite proves them; this leg only relies on them.
+- The physical re-base. The #117 bench measures it.
+
+The talker's cadence in this compressed model is not the product's, so its
+stream is graded against its own baseline rate.
+
+#632 retired the counted render re-base with the setpoint stage: the
+presentation stage places every PDU by its own timestamp and takes none.
+Until then the disabled-re-base control failed the counted-event check, as
+[#387 ruling 5802264260](https://github.com/kebag-logic/milan-fpga/issues/387#issuecomment-5802264260) recorded.
+The render stage and the media-clock restart remain separate.
+
+## 2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it
+
+The entire legacy IEEE 1722.1 / SRP control plane is **deleted**:
+`hdl/ieee17221/aecp/**`, `hdl/ieee17221/acmp/**`,
+`hdl/ieee17221/adp/{adp_advertiser, KL_adp_parser, adp_pkg}.sv` and
+`hdl/ieee8021q/srp/**`. `milan_datapath` instantiates `hdl/milan/KL_pp_shadow.sv`
+**unconditionally** as THE control plane, `tx_drain_i` is 0, and the processor's
+packed TX rides the control lane through `ctl_tx_mux`.
+
+That is not a refactor from a test's point of view. Whole classes of witness
+stopped existing, and a harness that kept reading them would have been asserting
+against structural zeros — the exact failure mode the zeros are documented to
+prevent. **Every deleted check below names its subject and why it is gone; every
+repointed check names its old witness and its new one.** Nothing was neutered to
+make a run pass.
+
+### What the plane deletion cost this suite, honestly
+
+Three things are structurally unreachable **on these legs**, and the reason is
+arithmetic rather than a defect:
+
+1. **The ADP advertisement.** Milan 5.6.3.5.2 makes the first advertisement wait
+   `T-ADP-DELAY-START`, a PRNG draw of 0…2000 ms. `milan_dp` passes no
+   `-GPP_TIM_DIV_*`, so the processor's millisecond is the silicon one —
+   100,000 axis cycles — and the draw is up to 2·10⁸ of them. *Measured: no
+   ADPDU in 40,000,000 cycles.*
+2. **The talker's destination address, and therefore ACMP `SUCCESS`, the SRP
+   Talker Advertise, MSRP/MVRP on the wire and every class-A tag.**
+   `acmp_declaring_o` is reachable only through a MAAP `ALLOC_DA` success, and
+   `KL_maap` is elaborated here at the silicon rate (`MAAP_CLK_HZ_P` defaults to
+   `MILAN_CLK_FREQ_HZ`), so its Annex B claim walk, four PROBEs about 550 ms
+   apart and then the announce, is ~1.6·10⁸ cycles away. *Measured: still PROBING after
+   40,000,000 cycles.* Waiting would add ~25 minutes **per elaboration** to a
+   ten-leg suite.
+3. **A MAAP-granted destination address for talkers `t > 0`**, which is the same
+   arithmetic as (2) seen from the framer: a source that never reaches
+   `acmp_declaring_o` never gets a DMAC. `cfg_aaf_bypass` (AAF_CTRL[1]) is the
+   escape hatch these legs use to keep the framers awake without one.
+
+**Where that coverage went:** `tb/verilator/pp_shadow` elaborates the *same*
+gateware with both millisecond scales compressed onto one grid
+(`-GPP_TIM_DIV_MS_P=100`, `-GMAAP_CLK_HZ_P=100000`) and grades the DA gate, the
+`SUCCESS` `PROBE_TX` answer with its `stream_id` and `stream_dest_mac`, the
+whole 82-octet ADPDU byte-exact against the `0x600` CSR group, and the
+MSRP/MVRP frames sharing `ctl_tx_mux` with MAAP. It is not lost coverage; it
+moved to the only suite that can run it.
+
+**What stayed here** is everything the data path owns and everything the control
+plane can still do at real-time rates: the listener BIND_RX ladder (the
+processor answers, launches its own PROBE_TX, and settles — this harness now
+plays the talker), the ACMP responder, the stream-table alias (TRAP-1), the SRP
+**Domain adoption** surface (`0x788` and the AAF C-TAG really do move together),
+AAF/CRF wire truth, the channel-map crossbars, PCMRX and fabric-render policy,
+I2S, CBS/queues/classifier, PTP, the TCAM/RX filter, latency taps, the loopback
+lane, and the LiteX CSR boundary itself.
+
+### Two RTL findings this suite used to report — both now CLOSED in `hdl/`
+
+**`aecp_in0_fmt` was tied to `64'd0`.** That net is `fmt0_i` for
+`KL_avtp_rx_monitor_ctx` — **the expected format for `STREAM_INPUT[0]`** — and
+the monitor's first acceptance term is `subtype == fmt[63:56]`, so against a
+zero format a *perfectly conformant* AAF PDU on the bound `stream_id` was
+counted `UNSUPPORTED_FORMAT` and never reached the depacketizer or fabric render.
+Stream 0 accepted nothing. `milan_datapath.sv` now folds the setting over the
+declaration: `aecp_in0_fmt` reads the processor's published SET_STREAM_FORMAT
+row 0 when a controller has set one and the generated `ADP_STRIN0_FMT_C`
+otherwise. Likewise, `aecp_pres_offset` uses its generated per-output default row.
+That row comes from `ADP_STROUT_PRES_NS_C`, rather than zero. The declaration is the default; the setter owns the rest
+(issue #67).
+
+`sim_main.cpp` grades the acceptance path again end to end and byte-exact:
+untagged and C-tagged conformant PDUs advance PCMRX and produce all six
+48-byte-payload render beats, `MEDIA_LOCKED` asserts, an unbound `stream_id` does not move
+`FRAMES_RX`, and the TCAM prefilter section proves both halves of its property
+again (the filtered observer leg goes silent **while** PCMRX and fabric render keep consuming).
+The gate is shown to be *discriminating* and not merely open by the wrong-rate
+PDU two sections later: `nsr 0x07` still counts `UNSUPPORTED_FORMAT` and
+delivers no PCMRX or render traffic.
+
+**The CRF clock-source compare had no driver.** `aem_crf_clksrc_w` lost its
+only writer with the old AECP response builder, while `KL_mmcm_drp_servo` and
+`mcr_restart_p_w` still compared it against `aecp_clk_src`; `0 == 0` read TRUE,
+so the fabric behaved as if the CRF media clock were selected. Both nets are
+**deleted** — first for an interim trio of constants, and since #74 for the
+LIVE resolve: `media_clk_resolve` compares the stored selection against the
+shape's generated `AEM_CRF_CLKSRC_C` once, registered, with the `16'hFFFF`
+no-descriptor fold keeping a CRF-less shape structurally false. The
+consumers read the resolved nets. `sim_main.cpp` and `sim_nxn.cpp` assert
+the consequence on this suite's never-selects-CRF legs — `mnco_servo_en_w`
+0 and `MCSRV_STAT[2:0]` IDLE at the live default — while `obj_aclk`'s [CRF]
+phase and `[CRF-SEL]` grade the selected half. On the broken build
+`MCSRV_STAT` read `0x21`.
+
+## The device answers AECP now — and what this suite can and cannot see of it
+
+"No AECP" is dead as a premise. The protocol processor carries an AECP µCPU
+(`KL_aecp_ucpu` + `KL_aecp_desc_store` + `KL_aecp_engine`, driven from
+`ucode.hex`) and handles 30 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
+set includes descriptor reads, lock and configuration operations, read-side
+stream and clock commands, sampling-rate and clock-source setters, the stream
+setters (`SET_STREAM_FORMAT` both directions and `SET_STREAM_INFO`'s
+MSRP_ACC_LAT_VALID sub-command, with this fabric answering the format verdict
+and consuming the published settings - the `#67` block in `sim_nxn.cpp` grades
+the whole loop), Identify,
+registration, counters, AVB information, AS path, and both audio-map
+directions. `IDENTIFY_NOTIFICATION` sent as a command returns `BAD_ARGUMENTS`
+(IEEE Section 7.4.39.2 beats Section 9.3.5.3.3). Commands outside the implemented inventory
+receive a conformant `NOT_IMPLEMENTED` echo with the command payload and length
+preserved and the frame padded to the 60-octet minimum. The exact inventory is
+gated by [`aecp_engine_steps.py`](../../../tests/steps/aecp_engine_steps.py) and
+the pinned processor's
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/44489453cf362c7a41c9e020f4896f967dc2a4d1/docs/architecture/06_aecp_engine.md).
+
+**This suite backs no descriptor memory, on purpose and on record.**
+`milan_datapath` exposes nine ports for the AEM image the store fetches
+(`o_desc_mem_req_valid` … `i_desc_mem_rsp_err`). Every leg here drives
+`i_desc_mem_req_ready` **low explicitly**, in the reset section, next to a
+comment that says what that means: it is `KL_aecp_desc_store`'s documented
+degrade path — the watchdog abandons the burst, the image never validates, and
+`READ_DESCRIPTOR` comes back well formed but empty-handed. A zero left at a port
+by accident and a zero driven by a decision look identical on a waveform, so it
+is stated. Until processor pin `d352bbaa` the `[AECP]` checks in `sim_nxn.cpp`
+graded that path (a `BAD_ARGUMENTS` answer at `cdl = 20`). That arm is retired
+in every leg: AECP is now held from reset until the restore, and the restore
+needs the image in place, so with no memory the command is never answered.
+The `[AECP]` checks grade the hold instead: the first `READ_DESCRIPTOR` is held
+unanswered, a second is dropped at the ingress slot gate and counted in
+snapshot word 37, and the held one is answered at the release once `[AECP-IMG]`
+serves the image and starts the walk. The wedged-response-memory arm
+(`[AECP-WTMO]`) needs AECP released, so it runs after `[AECP-IMG]` in every
+leg, `notify` included; its heal answers `SUCCESS`, and word 36 is read both
+at the wedge and after the heal.
+
+**The SERVED path lives in `tb/verilator/pp_shadow`**, which backs those ports
+with a real `AEMI` image and grades `SUCCESS` with the descriptor bytes compared
+octet for octet, the locate miss, the bad configuration index, the
+`NOT_IMPLEMENTED` echo, the two silent-refusal cases, and the no-memory degrade
+with recovery.
+
+**`[NOTIFY]` is Milan 5.4.5 on the wire (issue #69).** The broad `sim_nxn`
+legs elaborate the direct option-OFF verification boundary. Two controllers
+register, and the section grades requester exclusion, no-op suppression,
+per-controller sequence IDs, byte-identical notification content, and the
+departing-controller monitor over the real RX and TX trunks. Its gPTP block
+pins the ownerless option-OFF boundary: maximal writes to GM, parent, domain,
+pdelay, CLKV, and AS_PATH remain inert; public state stays
+zero with `tu=1`; solicited `GET_AVB_INFO`/`GET_AS_PATH` serve that ownerless
+state; and no gPTP, counter, or path notification is manufactured.
+
+The product-on assertions live in `obj_gptp`, where the fabric engine supplies
+the evidence. A selected peer drives Pdelay, Announce, and a legal
+Sync/Follow_Up through the real MAC tap. Sync lock and a later GM switch must
+move the CLOCK_DOMAIN LOCKED/UNLOCKED counters; the GM switch must also move
+AVB_INTERFACE GPTP_GM_CHANGED. Both dirty paths must appear at `pp_ctr_evt_*`,
+emit descriptor-specific unsolicited `GET_COUNTERS`, and match the following
+solicited counter bodies. The same CLKV verdict is checked in MAC-bound AAF and
+CRF headers as `tu=0` while locked and `tu=1` before Sync and during GM-change
+holdover. A LINK_DOWN/LINK_UP pair inside one compressed processor second also
+proves that the second AVB_INTERFACE event is suppressed, retained dirty, and
+released exactly once when that descriptor's limiter opens. These checks fail
+if either `ctr_avb_dirty_w`, `ctr_ckd_dirty_w`, or either media `tu` connection
+is removed.
+
+The timed option-OFF leg keeps the scheduler timebase compressed for the
+30–60 s controller monitor. `[CTRS]`/`[CTRS-OUT]`/`[CTRS2]` still grade the
+served counter geometry and lossless descriptor arbiter; their gPTP writes
+specifically prove that ownerless state cannot create a hidden counter edge.
+
+**`[CTRS-CRF]` is the CRF Media Clock Input's row (#529).** The shape appends
+that Stream Input at index `N_STREAMS`, and its ten Milan Table 5.16 counters
+are `KL_crf_rx`'s. On every broad `sim_nxn` leg, before the 5.3.8.7 section
+binds the sink, the section reads `GET_COUNTERS(STREAM_INPUT, N_STREAMS)`
+through the processor. It checks the full SUCCESS response from reset (cdl 148,
+mask `0xF3F`, ten zeros, every unclaimed quadlet zero). It writes a distinct
+full-width signature into each root tally wire by name and reads each quadlet
+back, with `CRF_STATUS` as the second reader of three of them. That arm grades
+the gather mux only: it cannot see which `KL_crf_rx` output drives a wire. It
+proves that no AAF input carries a CRF quadlet or loses `0xFFF`, and that index
+`N_STREAMS + 1` is still NO_SUCH_DESCRIPTOR with the empty body. Raising the
+bench lever at `0x738` is the not-bound to bound edge. It must wipe the row and
+reach the descriptor arbiter as {STREAM_INPUT, `N_STREAMS`} alone. The harness
+records every tuple the arbiter hands over in that window, of any type and at
+any index, so another STREAM_INPUT row, a STREAM_OUTPUT row (the CRF output's
+at the same index included), AVB_INTERFACE 0, CLOCK_DOMAIN 0 or any other tuple
+there fails. Real PDUs of the followed stream then carry FRAMES_RX (per-AVTPDU
+law) and STREAM_INTERRUPTED (per-event law) from `0xFFFFFFFF` through zero.
+Last, in a fresh era and with no tally seeded, each of the ten is moved by its
+own engine event to a count no other tally shares. The events are rejected
+PDUs, sequence gaps of one and of two or more, two runs of eight clean PDUs
+that each lock, `mr` toggles, `tu` bits, timestamps in the past and beyond the
+early limit, and the engine's 100 ms silence timeout for the unlock. The
+harness advances that timeout counter to its last millisecond, which runs for
+real. This arm grades each `KL_crf_rx` output binding, not only the mux. The
+timed leg's `[NOTIFY-CRF]` raises the same edge with two controllers
+registered. The push must reach both controllers, each copy byte-identical from
+the body on to the solicited answer. A second edge inside the same processor
+second is withheld until the one-second limit releases it, and the next two
+seconds without a change bring no further push. Each of these wiring mutations
+turns at least one of those checks red: the row removed, two quadlets permuted,
+a 16-bit slice, a claimed tv pair, the dirty source removed, the CRF row
+answering for the AAF inputs, the AAF guard answering for the CRF input, one
+tally unwired, the row's pending bit never cleared, and the CRF pulse also
+raising the AAF inputs, STREAM_OUTPUT `N_STREAMS`, AVB_INTERFACE 0,
+CLOCK_DOMAIN 0 or a tuple at an undeclared index. Each of the 45 pairwise
+exchanges of the ten `KL_crf_rx` output bindings turns both of its quadlets red
+on `obj_nxn` and `obj_nxn8`.
+
+**`[762-DP]` grades the AAF half of #762 through the datapath.** It runs on
+every broad `sim_nxn` leg, right after the 5.3.8.7 discard section, on AAF
+Stream Input 0. It also runs in `obj_dynmap`, after `[DYNMAP]` and before
+`[MAPREC]`, on the shipping AX7101 1x1 TDM8 geometry, which no broad leg
+elaborates. There a fresh boot precedes
+the TRAP-1 bind, the discard section and the case. The leg first prints the
+elaborated stream, audio and prune parameters, which `dynmap_probes.vlt` opens.
+Two checks require one AAF input and the CRF Media Clock Input at sink
+`N_STREAMS`, so sink 1 is the CRF sink. The leg keeps the `obj_ax1x1`
+verification substitutes: gPTP option OFF, the 100 MHz fabric clock and the
+render lane pruned. STOP_STREAMING and START_STREAMING arrive over the wire, and
+every count is read with `GET_COUNTERS(STREAM_INPUT, 0)`. Its PDUs carry the
+input's current format, read with GET_STREAM_FORMAT, because a PDU in another
+format counts UNSUPPORTED_FORMAT and is discarded (#765). While the input is
+stopped, a gap of two lost PDUs moves SEQ_NUM_MISMATCH and the 100 ms silence
+moves MEDIA_UNLOCKED, but neither moves STREAM_INTERRUPTED. After START and a
+relock past the 8-PDU settle window, the same gap counts STREAM_INTERRUPTED
+once. The harness advances the monitor's silence watchdog to 3 ms short of its
+limit, as the CRF arm does, and the last ticks run for real. The engine rule is
+graded in `tb/verilator/avtp_rxmon`; this section grades the one wire into it,
+`KL_avtp_rx_monitor_ctx`'s `stopped_i` port in `milan_datapath`. With that port
+tied to `'0` or fed sink 1's level, the stopped gap and the stopped silence each
+count. On `obj_dynmap`, sink 1's level is the CRF sink's. With it fed the bound
+level, the gap after START does not count.
+
+`sim_nxn.cpp`'s `[T66]` covers the other side of the same coin.
+`GET_AUDIO_MAP` succeeds on both Stream Port directions, and
+`ADD_AUDIO_MAPPINGS` plus `REMOVE_AUDIO_MAPPINGS` use the processor's two-pass
+transaction face to update the live root stores. The harness proves full-page
+ADD and readback, idempotent ADD, all-or-nothing refusal after a late invalid
+row, duplicate-safe REMOVE, cross-port output ownership, running-output
+refusal, and generated input-port geometry through the live crossbar RAM. It
+derives the AX7101 output cluster count from the generated descriptor, accepts
+and round-trips every published offset, preserves a clear fabric-source marker
+for unbacked clusters, rejects same-key and cross-port replacement, and refuses
+the first offset beyond the model.
+
+## Check counts, before and after
+
+"Before" is the state after the compile fix that made the suite build at all
+(`sim_nxn.cpp` reached deleted RTL through Verilator XMRs and did not compile,
+so *no* leg ran). Every after value below was measured in one broad run
+on 2026-09-06 UTC for Issue #367, except the separate physical suite.
+The eleven existing legs retain their 2026-09-02 counts.
+Round two separates the physical leg's driver deadline.
+No row projects unexecuted checks.
+These are pre-merge measurements from the two implementation branches.
+No count is inferred for their merged tree.
+
+Rows dated 2026-09-24 UTC were re-measured for #508, in one sweep at its head.
+These dated counts are historical, not re-measured for #602 here.
+The #602 gmstep run below was measured on 2026-09-27 UTC.
+Its controls now total twenty, five in the default sweep.
+
+| leg | before (measured) | #508 round 1 (measured; date noted below) | note | dev c266432d record / later dated measurement |
+|---|---|---|---|---|
+| `obj_gptp` (`sim_gptp`) | not available | **181 / 0** (2026-09-24 UTC) | product-default fabric-owner run; inert-write negatives, both counter dirty paths, limiter pending-release, AAF+CRF `tu`, the three drop-counter routes at 0x7E8/0x7EC | **164 / 0** |
+| `obj_dir` (`sim_main`) | 273 checks / 75 fail | **231 / 0** (2026-09-24 UTC) | the focused ownerless option-OFF target; exact CRF `tu=1` on every captured PDU | **233 / 0** (2026-09-24 UTC); historical #387 count, not re-measured here. #602 now checks PHC-only `mr` stability and zero step-caused MEDIA_RESET |
+| `obj_notify` (`sim_nxn`, timed) | not in the old table | **345 / 0** (2026-09-24 UTC) | the compressed-timebase 5.4.5 notify leg | **117 / 0**; **421 / 0** (#653, 2026-10-04 UTC): 383 at dev `fea346e7` plus 38 `[UNB]` checks |
+| `obj_crflic` (`sim_crf_licence`) | not in the old table | **85 / 0** (2026-09-24 UTC) | #530; its three mutants are caught by `make crflic-mutants` | same |
+| `obj_nxn` (`sim_nxn`) | 378 / - (did not compile) | **1709 / 0** (2026-09-24 UTC) | the old 145 was already stale at #294's merge (issue #314 measured 1673 there); the suite has kept growing since | **1679 / 0** |
+| `obj_nxndv` (`sim_nxn`) | not in the old table | **1711 / 0** (2026-09-24 UTC) | the divergent-shape leg | **1682 / 0** |
+| `obj_nxn8` (`sim_nxn`) | 512 / not available | **3137 / 0** (2026-09-24 UTC) | `[T66]` grades atomic audio-map mutation (the old row's "current run summary below" pointer named a section that never existed - this cell is the measurement) | **3179 / 0** |
+| `obj_nxn4c` (`sim_nxn`) | 378 / - | **1709 / 0** (2026-09-24 UTC) | | **1679 / 0** |
+| `obj_nolpf` (`sim_main`) | 273 / 75 | **231 / 0** (2026-09-24 UTC) | re-run current (the old "not rerun after the `tu` assertion" caveat is retired) | **233 / 0** (2026-09-24 UTC); historical #387 count, not re-measured here. #602 now checks PHC-only `mr` stability and zero step-caused MEDIA_RESET |
+| `obj_prune` (`sim_prune`) | 31 / 0 | **33 / 0** (2026-09-24 UTC) | the old 31 was already stale at #294's merge (issue #314 measured 28 there); #390 adds the `SLIP_LB` structural zero, read behind listener 0 bound, fed and then starved, plus the `CHMAP_LOOP` lane-establishment read that makes the zero a measurement, whole word against the `0xDEADDEAD` poison and `CHMAP_SNAP[1]` valid before the projection (5 checks) | **33 / 0** |
+| `obj_ax1x1` (`sim_main`) | 273 / 73 | **228 / 0** (2026-09-24 UTC) | 5 sections guarded out on this shape | **230 / 0** (2026-09-24 UTC); historical #387 count, not re-measured here. #602 now checks PHC-only `mr` stability and zero step-caused MEDIA_RESET |
+| `obj_aclk` (`sim_aclk`) | 5 / 0 | **140 / 0** (2026-09-24 UTC) | the #74 two-phase rework: INTERNAL drift kept, CRF alignment + servo + mr added; #390 adds the loopback-ring beat at INTERNAL, the zero-slip window under CRF, the SLIP CSR pair and the `CHMAP_LOOP` lane-establishment read behind its whole-word poison and `CHMAP_SNAP[1]` grades, and the priming PDU's loop-tap transit, which is what grades the drain that separates this phase's own priming PDU from one the render-law phases left in flight (25 checks); the balance is the #386 render law, which landed in this same leg with PR #435 | **139 / 0** |
+| `obj_gmstep` (`sim_gmstep`) | not in the old table | not in #508 round 1 | #387/#602; five controls in the sweep, twenty-one in `gmstep-mutants` (five option-off); 32 coincident-event delays | **103 / 0** (#602, 2026-09-27 UTC) |
+| `obj_ax1x1gptp` (`sim_ax1x1gptp`) | **126 / 0** before round two | **127 / 0** (2026-09-07 UTC) | Separate `milan_dp_gptp` suite; trimmed waits; additional four-interval assertion; original spans remain opt-in | same |
+
+Earlier re-measurement had stopped because the `protocol-processor` submodule
+working tree went out from under the build — `protocol_processor_top.sv` had an
+uncommitted `KL_aecp_engine` instantiation and a nine-pin `desc_mem_*` port that
+the source list did not name, so elaboration failed with `MODMISSING`. That is
+resolved: the submodule is at its recorded pin, the Makefile names
+`ucpu_pkg.sv`, `KL_aecp_ucpu.sv`, `KL_aecp_desc_store.sv` and
+`KL_aecp_engine.sv`, and it generates `ucode.hex` next to `ltn_rom.hex`.
+
+The `sim_nxn` drop is the deleted lwSRP attribute-row and ACMP context-table
+windows: eight whole sections whose subject is a table `milan_datapath` now ties
+to zero. Each one is replaced in place by a block comment naming the subject,
+the tie-off, the measurement behind "unreachable", and where the coverage went.
+
+### Two checks that were failing for reasons worth writing down
+
+* **`[T67]` cadence read 3072 cycles/PDU instead of 12500.** With
+  `aecp_odmap_dyn_w` tied off, `CHMAP_CTRL[0]` is the *whole* selector between
+  the `media_tick`-paced crossbar and the `clk_audio/512` zero-fill path, and
+  `[T66]` had deliberately left it at 0. Every leg but `obj_aclk` clocks
+  `clk_audio` 1:1 with `axis_clk`, so the static path measured 195.3 kHz and
+  looked like a 6× cadence defect. `[T66]` now leaves the crossbar armed and
+  `[T67]`'s banner states which grid it is on.
+* **The `0x002C` boot seed.** Until #658 there was no seeder, so key 0 read
+  empty, and the check was written to fail the day a seeder returned. One did:
+  the parent's boot writer fills the capture RAM with the power-on map. The
+  check now reads key 0 as the Pilot word, every output port's GET page as the
+  identity and every capture key as its cluster's word, with `CHMAP_CTRL[0]`
+  still 0.
+
+Issue #443 adds `RENDER-CSR` checks to `obj_aclk`.
+They read `RENDER_STAT` (`0x8DC`) through AXI-Lite.
+The expected word samples independent taps at the capture edge.
+Checks cover reset (idle, nothing queued), the lead queued ahead of the first presentation, convergence, the refused PDUs and backpressure.
+Talker and invalid-listener selections return zero; writes are ignored.
+
+The additional control campaign is explicit:
+
+```sh
+make -C tb/verilator/milan_dp render-csr-controls
+```
+
+| Control | Required result |
+|---|---|
+| Clean `--render-csr-only` | All checks pass, including reset after the refused PDUs |
+| Lead field tied zero | Fails `RENDER-CSR: queued mirrors taps` |
+| Bit 9 forces listener 0 | Fails `RENDER-CSR: bit 9 preserves talker rejection` |
+| Stage instance removed, outputs tied zero | `--render-csr-absent` passes despite accepted ingress |
+
+Temporary control sources leave tracked RTL unchanged.
+Three extra elaborations stay outside the default sweep's deadline.
+The default sweep still runs the positive CSR checks.
+The two-stream `milan_dp_render` leg separately checks listener selection.
+
+## Render phase records from the mutation controls
+
+`render_mutants.py` prints one flushed `RENDER-PHASE` line around each build
+and each short-mode run it already makes (Issue #445). They are an observation
+of WHEN each phase ran and nothing else: they add no check, no tally and no
+verdict, they change no command, argument, status or exit, and the `[PASS]` /
+`[FAIL]` lines and the closing check tally are the ones this driver printed
+before. The measurement they exist for is which case and phase the sweep's
+per-suite guard lands in when the suite is killed with results missing.
+
+Each line is `RENDER-PHASE ` followed by a JSON object. Every record carries
+`seq`, a sequence number that advances even when a write fails, so a lost
+record leaves a visible gap; and `t_s`, seconds since the `origin` record,
+from a monotonic clock read for observation only. Durations compare inside
+one run and mean nothing across runs.
+
+| `event` | when | fields beyond `seq`, `event`, `t_s` |
+|---|---|---|
+| `origin` | once, before any phase | `clock`, `unit`: the origin every later `t_s` counts from |
+| `baseline` | before the positive controls | `case`, `selected`: `prebuilt` when the executable the sweep already built was reused, `fallback-build` when this driver built the unmutated leg itself |
+| `start` | before an existing build or run call | `case`, `phase`, `mode`, `idle_s`: the gap since the previous phase ended, or since the origin |
+| `end` | after that call returned | `case`, `phase`, `mode`, `elapsed_s`, `status`, and `returncode` on a build |
+| `interrupted` | inside the existing SIGTERM handler | `state`: `active` with the running `case`, `phase`, `mode`, `elapsed_s` and `incomplete`, or `idle` with `idle_s` |
+| `end-of-run` | after the last phase, before the tally | `state`, `idle_s` |
+
+`case` is a fixed logical label: `control` for the unmutated leg, and the
+mutation's own name with spaces and hyphens turned into underscores for each
+of the four defects. `phase` is `build` or `simulation`. `mode` is the short
+mode the leg runs, and is `null` on a build, which serves both control legs.
+The six outcomes this arm grades are the two `control` modes and the four
+mutations, and `case` with `mode` names each one.
+
+`status` is what the existing call returned, so it reads differently per
+phase: a `simulation` end carries the child's integer return status (negative
+is the signal that killed it), and a `build` end carries `built` or
+`no-executable`, which is what the build helper returns to its caller.
+
+A `build` end carries `returncode` as well: the exit status the `make` recipe
+itself returned, which the helper does see. The two answer different questions,
+and a diagnostic needs both: a recipe that returned 0 and left no executable
+behind is a different failure from one that returned 2, and `status` alone
+reports them identically. A build that completed always observed the status,
+so a `null` `returncode` would mean it never reached the record.
+
+The limits, so a reader does not over-read a record:
+
+* **A phase with a `start` and no `end` is incomplete.** It earns no pass and
+  no caught mutation, and the driver's own verdict lines stay the only result.
+* **Missing records make the diagnostic incomplete, never a different
+  outcome.** A write that fails, a kill before the handler runs, or a log the
+  sweep truncated loses records; nothing recomputes them, and no case's result
+  is inferred from another's.
+* **A missing timing is `null`, not a number.** Reading the clock is part of
+  the telemetry, so a reading the clock will not give costs that record its
+  `t_s`, `elapsed_s` or `idle_s` and nothing else: no offset is estimated from
+  a neighbour, and the run's results, verdicts, tally, exit 143 and cleanup are
+  the ones it would have had with no instrument at all. A `null` origin makes
+  every later `t_s` `null`, which is a run with the phase order recorded and
+  no durations.
+* **`interrupted` reports which call was running, not which record was last.**
+  A phase stops being the running one before the record that closes it is
+  written, so a kill can never report a phase both ended and incomplete. In
+  the moment between a call returning and its `end` record reaching the log,
+  the driver is genuinely idle and a kill there says `idle`; the `end` record
+  it displaced is then one of the missing records above.
+* **Nothing about the child is recorded**: no path, no environment, no
+  captured output. The captured output still reaches the log through the
+  existing failure paths only.
+* **A case whose pattern check fails builds and runs nothing**, so it
+  contributes no phase record at all; its existing `[FAIL]` line is the report.
+* **The clock is the host's.** A duration includes whatever else that machine
+  was doing, and the per-suite guard (3600 s for this suite under #387) is
+  still owned by `scripts/run_all_suites.sh`.
+
+`test_render_phase_observation.py` holds this contract with pure fixtures: a
+fake clock (including one that refuses readings), a recording stream that can
+hand the kill to the installed handler at a chosen record, stubbed build and
+wait results, and a guard in place of the subprocess handle, so an arm that
+reaches a real process launch fails instead of running one.
+
+```sh
+python3 tb/verilator/milan_dp/test_render_phase_observation.py
+```
+
+## Rules this suite is held to
+
+* **Gate on exit codes.** A compile error prints no `FAILED` line, so grepping
+  the output for "fail" reads as green.
+* **A check that asserts a structural zero must say so, and say why.**
+  Otherwise it is deleted — a zero that nobody can distinguish from "idle" is
+  not evidence.
+* **No vacuous passes.** Where a property becomes unprovable (the class-A
+  tag withdrawal) the check is removed and the gap is printed as a `[GAP]`
+  line on every run, rather than left passing for the wrong reason. (The
+  10.4.3 `mr` gate carried such a line until #74 made the trigger reachable;
+  `obj_aclk`'s [MR] arm grades it now, both directions.)
+* **Name the shape.** Every leg puts its config's generated directory *first* on
+  the include path. Without it the build falls through to
+  `hdl/common/gen/`, which is whichever config last ran `--write-rtl`.
+
+The gmstep leg also drives a policy-legal 90 us offset.
+Real Sync pairs raise and clear the exported slew level.
+It measures fractional PHC advances into each staged servo sample.
+The last measured slew increment identifies the release tail.
+The phase checks wiring; it does not grade media-loop settling.
+Run `python3 gmstep_mutants.py --slew` in `../milan_dp_gm_steps` for the connection controls.
+Tied-low input, missing tail and added addend delay must fail.
+These controls also belong to that suite's `make gmstep-mutants`.
+
