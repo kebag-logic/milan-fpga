@@ -163,4 +163,3 @@ def all_arms(tree: Tree, require_rv32: bool) -> list[Outcome]:
 def coverage_arms(tree: Tree) -> list[Outcome]:
     """The arms that execute the platform's firmware, for the coverage run."""
     return [arm_plat(tree), arm_platboot(tree, 1), arm_platboot(tree, 2)]
-
