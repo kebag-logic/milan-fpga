@@ -1,0 +1,17 @@
+$ (cd .) python3 scripts/ci_make_cases_selftest.py
+make: *** [Makefile:10: build-buildfail] Error 1
+make case control: good: pass
+make case control: failing: failed
+make case control: masked: failed
+make case control: empty: failed
+make case control: uncounted: failed
+make case control: buildfail: build-failed
+make receipt form control: invalid registration refused
+make receipt form control: invalid registration refused
+make receipt form control: invalid registration refused
+make inventory control: 'good good' refused
+make inventory control: '' refused
+make inventory control: '../outside' refused
+make case runner: all controls pass
+rc=0
+tree clean after the gate

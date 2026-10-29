@@ -1,0 +1,73 @@
+diff --git a/sw/firmware/ctrl_nvm/plat/gen_flash_port.py b/sw/firmware/ctrl_nvm/plat/gen_flash_port.py
+index 3219f56a92..662702e194 100644
+--- a/sw/firmware/ctrl_nvm/plat/gen_flash_port.py
++++ b/sw/firmware/ctrl_nvm/plat/gen_flash_port.py
+@@ -425,6 +425,7 @@ def planted(edit: Callable[[dict], None]) -> dict:
+ def _set(path: tuple[str, ...], value: object) -> Callable[[dict], None]:
+     """An edit that sets one nested key."""
+     def apply(spec: dict) -> None:
++        """Set the key in spec."""
+         node = spec
+         for key in path[:-1]:
+             node = node[key]
+@@ -435,6 +436,7 @@ def _set(path: tuple[str, ...], value: object) -> Callable[[dict], None]:
+ def _drop(path: tuple[str, ...]) -> Callable[[dict], None]:
+     """An edit that removes one nested key."""
+     def apply(spec: dict) -> None:
++        """Remove the key from spec."""
+         node = spec
+         for key in path[:-1]:
+             node = node[key]
+diff --git a/tb/verilator/nvm_split_target/run.py b/tb/verilator/nvm_split_target/run.py
+index 61fb6dd539..221cd229ec 100644
+--- a/tb/verilator/nvm_split_target/run.py
++++ b/tb/verilator/nvm_split_target/run.py
+@@ -143,8 +143,8 @@ def table(results: list[dict], point: str) -> str:
+                       f"{c['ms']:.3f} ms against {c['bound_ms']} ms; longest step {c['longest_cycles']:,} cycles.", '',
+                       '| Phase | Steps | Longest step, CPU cycles | Longest, ms | Total, CPU cycles |',
+                       '|---|---:|---:|---:|---:|']
+-            lines += [f"| {p} | {row['steps']} | {row['longest_cycles']:,} | {row['longest_ms']:.3f} | {row['cycles']:,} |"
+-                      for p, row in sorted(r['phases'].items())]
++            lines += [f"| {p} | {row['steps']} | {row['longest_cycles']:,} | {row['longest_ms']:.3f} | "
++                      f"{row['cycles']:,} |" for p, row in sorted(r['phases'].items())]
+     return '\n'.join(lines) + '\n'
+ 
+ 
+diff --git a/tb/verilator/nvm_split_target/target_cases.py b/tb/verilator/nvm_split_target/target_cases.py
+index e5a4f8f88c..2fb042701c 100644
+--- a/tb/verilator/nvm_split_target/target_cases.py
++++ b/tb/verilator/nvm_split_target/target_cases.py
+@@ -196,7 +196,8 @@ def shape_bench(shape: str, work: Path) -> tuple[object, int, int]:
+ 
+ def payload_lengths(bench: object) -> tuple[int, ...]:
+     """Each record's payload length, the shape's records in ascending id: the order a capture walks them."""
+-    return tuple(plen for _key, plen in sorted(bench.expect.items(), key=lambda kv: rid_of_key(kv[0], bench.donor.base)))
++    ordered = sorted(bench.expect.items(), key=lambda kv: rid_of_key(kv[0], bench.donor.base))
++    return tuple(plen for _key, plen in ordered)
+ 
+ 
+ def frames_of(applied: dict[Key, bytes], expect: dict[Key, int], donor: object) -> dict[int, bytes]:
+diff --git a/tb/verilator/nvm_split_target/target_grade.py b/tb/verilator/nvm_split_target/target_grade.py
+index e241eb8052..4c9124863a 100644
+--- a/tb/verilator/nvm_split_target/target_grade.py
++++ b/tb/verilator/nvm_split_target/target_grade.py
+@@ -291,7 +291,8 @@ def guarded(obs: Observed) -> list[str]:
+     calls = [rest[2] for kind, *rest in obs.log.traced if kind == 'CALL' and (first is None or int(rest[1]) < first)]
+     erases, programs = calls.count('nvm_flash_litespi:ls_erase'), calls.count('nvm_flash_litespi:ls_program')
+     found = []
+-    if (erases, programs) != (GUARD_CALLS['erase_outside'] + GUARD_CALLS['erase_inside'], GUARD_CALLS['program_outside']):
++    want = (GUARD_CALLS['erase_outside'] + GUARD_CALLS['erase_inside'], GUARD_CALLS['program_outside'])
++    if (erases, programs) != want:
+         found.append(f'the probe reached the port with {erases} erases and {programs} programs')
+     if obs.flash_ops != [0xD8] or obs.flash.get('erases') != 1 or obs.flash.get('programs') != 0:
+         found.append(f'the device saw {obs.flash_ops} ({obs.flash}), not the one erase inside the journal')
+@@ -341,7 +342,8 @@ def grade_case(case: object, obs: Observed, ctx: Context, bench: object) -> dict
+     else:
+         restores = case.journal in ('saved', 'torn')
+         seen, order = apply_order(obs, ctx.applies if restores else [])
+-        result.update(applies=len(seen), boot_cycles=next((s.cycles for s in obs.spans if s.name == 'nvm_store_boot'), 0))
++        boot = next((s.cycles for s in obs.spans if s.name == 'nvm_store_boot'), 0)
++        result.update(applies=len(seen), boot_cycles=boot)
+         result['findings'] += order + unwritten(obs, ctx)
+         result['findings'] += held_to(obs, SAVED_NAME if restores else None, scenario.TALKER_A if restores else 0)
+     result['passed'] = not result['findings']

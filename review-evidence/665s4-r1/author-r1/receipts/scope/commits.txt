@@ -1,0 +1,5 @@
+9c2f12a804 Document the generator's two edit helpers and wrap four lines of the saved-state cases within the Python idiom gate (#665)
+19d798442d Record the saved-state store's measured CPU time on the split CPU, its capture over the 24.5 ms bound at both points, and the generated flash map in the store's, the harness's and the split architecture's pages (#665)
+76839359ba Boot, commit and guard the saved-state store on the split CPU with valid, absent, torn and wrong-version journals, grading its apply order and its capture against the 24.5 ms bound (#665)
+0d61b327cf Compile the CPU budget harness's image against the split SoC's flash map, place its LiteSPI and timer0 where the split SoC does and refuse any other placement, and trace the saved-state store's steps and owners (#665)
+9107e87cfd Generate the saved-state flash port's register and memory map from the split SoC's csr.csv, refusing a journal that is not the store's or that overlaps an image slot, and link the split image against it on request (#665)

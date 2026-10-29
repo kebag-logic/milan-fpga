@@ -1,0 +1,80 @@
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+
+<scratch>/s2-8x8-19d79844/native/Vsim <scratch>/s2-8x8-19d79844/results/backlog.txt -
+
+BUDGET backlog.event.if0: 14.803 ms over T_svc 10 ms
+BUDGET backlog.acmp_command.if0: 58.596 ms over T_svc 10 ms
+BUDGET backlog.service.adp.first.if0: 14.301 ms over T_svc 10 ms
+BUDGET backlog.service.adp.last.if1: 47.909 ms over T_svc 10 ms
+BUDGET backlog.service.acmp.first.if0: 14.258 ms over T_svc 10 ms
+BUDGET backlog.service.acmp.last.if0: 64.363 ms over T_svc 10 ms
+BUDGET backlog.service.aecp.first.if0: 14.294 ms over T_svc 10 ms
+BUDGET backlog.service.aecp.last.if1: 125.140 ms over T_svc 10 ms
+BUDGET backlog.service.maap.first.if0: 14.284 ms over T_svc 10 ms
+BUDGET backlog.service.maap.last.if0: 47.894 ms over T_svc 10 ms
+BUDGET backlog.service.srp.first.if0: 71.101 ms over T_svc 10 ms
+BUDGET backlog.service.srp.last.if1: 151.147 ms over T_svc 10 ms
+BUDGET backlog.adp_available.if0: 47.659 ms over T_svc 10 ms
+BUDGET backlog-adp.service.adp.first.if0: 12.105 ms over T_svc 10 ms
+BUDGET backlog-adp.service.adp.last.if0: 58.770 ms over T_svc 10 ms
+BUDGET backlog-adp.service.acmp.first.if0: 12.114 ms over T_svc 10 ms
+BUDGET backlog-adp.service.acmp.last.if0: 103.414 ms over T_svc 10 ms
+BUDGET backlog-adp.service.aecp.first.if0: 12.150 ms over T_svc 10 ms
+BUDGET backlog-adp.service.aecp.last.if1: 313.969 ms over T_svc 10 ms
+BUDGET backlog-adp.service.maap.first.if0: 12.140 ms over T_svc 10 ms
+BUDGET backlog-adp.service.maap.last.if0: 58.806 ms over T_svc 10 ms
+BUDGET backlog-adp.service.srp.first.if0: never released, at least 547.695 ms over T_svc 10 ms
+BUDGET backlog-adp.service.srp.last.if1: never released, at least 547.675 ms over T_svc 10 ms
+BUDGET backlog.adp_available_refill.if0: 53.368 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.adp.first.if0: 12.105 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.adp.last.if0: 63.883 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.acmp.first.if0: 12.114 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.acmp.last.if0: 103.840 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.aecp.first.if0: 12.150 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.aecp.last.if1: 314.391 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.maap.first.if0: 12.140 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.maap.last.if0: 57.692 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.srp.first.if0: never released, at least 593.354 ms over T_svc 10 ms
+BUDGET backlog-adp-refill.service.srp.last.if1: never released, at least 593.334 ms over T_svc 10 ms
+BUDGET backlog.owed.if0: 122.150 ms over T_svc 10 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 370.764 ms over T_svc 10 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 370.764 ms over T_svc 10 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 370.763 ms over T_svc 10 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 370.762 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.first.if0: 11.191 ms over T_svc 10 ms
+BUDGET backlog-owed.service.adp.last.if1: 43.704 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.first.if0: 11.149 ms over T_svc 10 ms
+BUDGET backlog-owed.service.acmp.last.if0: 63.101 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.first.if0: 11.185 ms over T_svc 10 ms
+BUDGET backlog-owed.service.aecp.last.if1: 140.632 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.first.if0: 11.174 ms over T_svc 10 ms
+BUDGET backlog-owed.service.maap.last.if0: 43.689 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.first.if0: 33.594 ms over T_svc 10 ms
+BUDGET backlog-owed.service.srp.last.if1: 160.553 ms over T_svc 10 ms
+BUDGET acmp.entity_departing.if0: 21.852 ms over T_svc 10 ms
+BUDGET acmp.entity_departing.if1: 23.099 ms over T_svc 10 ms
+BUDGET acmp.entity_available.if0: 22.798 ms over T_svc 10 ms
+BUDGET acmp.entity_available.if1: 24.077 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if0: 11.416 ms over T_svc 10 ms
+BUDGET aecp_fanout.set_name.if1: 12.398 ms over T_svc 10 ms
+BUDGET acmp.get_rx_state.if0: 18.849 ms over T_svc 10 ms
+BUDGET acmp.unbind_rx.if0: 12.306 ms over T_svc 10 ms
+BUDGET acmp.probe_tx.if0: 16.815 ms over T_svc 10 ms
+BUDGET acmp.disconnect_tx.if0: 16.452 ms over T_svc 10 ms
+BUDGET acmp.get_tx_connection.if0: 16.465 ms over T_svc 10 ms
+BUDGET acmp.bind_rx.if1: 16.902 ms over T_svc 10 ms
+BUDGET acmp.unbind_rx.if1: 13.426 ms over T_svc 10 ms
+17 groups graded, 0 refusals, 62 T_svc misses (62 of 182 probe instances, 30 of 129 paths)
+RC=0

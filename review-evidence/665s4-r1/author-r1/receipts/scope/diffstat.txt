@@ -1,0 +1,17 @@
+ docs/ARCHITECTURE_HW_SW_SPLIT.md                 |   4 +-
+ sw/firmware/ctrl/test/ctrl_configs.py            |  20 +-
+ sw/firmware/ctrl/test/ctrl_srp_image.py          |  38 +-
+ sw/firmware/ctrl_nvm/README.md                   |  79 +--
+ sw/firmware/ctrl_nvm/plat/gen_flash_port.py      | 641 +++++++++++++++++++++++
+ tb/verilator/ctrl_service_budget/README.md       |  22 +-
+ tb/verilator/ctrl_service_budget/build.py        | 179 ++++++-
+ tb/verilator/ctrl_service_budget/grade.py        |   4 +
+ tb/verilator/ctrl_service_budget/selftest.py     |  11 +-
+ tb/verilator/ctrl_service_budget/sim_main.cpp    |  36 +-
+ tb/verilator/ctrl_service_budget/split_soc.py    | 117 +++--
+ tb/verilator/nvm_split_target/README.md          | 223 ++++++++
+ tb/verilator/nvm_split_target/run.py             | 208 ++++++++
+ tb/verilator/nvm_split_target/target_cases.py    | 229 ++++++++
+ tb/verilator/nvm_split_target/target_grade.py    | 350 +++++++++++++
+ tb/verilator/nvm_split_target/target_selftest.py | 261 +++++++++
+ 16 files changed, 2292 insertions(+), 130 deletions(-)

@@ -1,0 +1,17 @@
+$ (cd .) python3 sw/builder/test_firmware_compiler.py --absent --audit <scratch>/gates-19d79844/scratch/rv32-absent.jsonl
+Traceback (most recent call last):
+  File "<checkout>/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "<checkout>/sw/builder/test_firmware_compiler.py", line 185, in main
+    run_gate(args.sdk_destination, args.audit, args.require_rv32)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<checkout>/sw/builder/test_firmware_compiler.py", line 77, in run_gate
+    with audit_path.open("w") as stream:
+         ~~~~~~~~~~~~~~~^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 771, in open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '<scratch>/gates-19d79844/scratch/rv32-absent.jsonl'
+rc=1
+tree clean after the gate

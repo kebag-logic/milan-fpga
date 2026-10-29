@@ -1,0 +1,26 @@
+# Saved-state cases on the split CPU, 8x8
+
+| Case | Verdict | Detail |
+|---|---|---|
+| commit | FAIL | the capture takes 103.227 ms, over its 24.5 ms bound |
+| capture-one-page-past | caught | at the bound 24.5000 ms fits; one page (99,676 cycles) past it, 26.4935 ms, is over |
+| valid | pass | 133 apply entries, boot 24,423,878 CPU cycles |
+| absent | pass | 0 apply entries, boot 1,746,898 CPU cycles |
+| torn | pass | 133 apply entries, boot 37,255,159 CPU cycles |
+| version | pass | 0 apply entries, boot 1,744,933 CPU cycles |
+| guard | pass |  |
+| reorder-settle | caught | apply order: entry 25 is aecp_value_restore, the container needs aecp_restore_settle (133 entries, 133 wanted) |
+| reorder-bindings | caught | apply order: entry 0 is aecp_map_restore, the container needs acmp_restore_binding (133 entries, 133 wanted) |
+| guard-removed | caught | flash write escaped the journal |
+
+Capture: 164 records in 165 steps, 5,161,328 CPU cycles, 103.227 ms against 24.5 ms; longest step 131,929 cycles.
+
+| Phase | Steps | Longest step, CPU cycles | Longest, ms | Total, CPU cycles |
+|---|---:|---:|---:|---:|
+| capture | 165 | 131,929 | 2.639 | 5,161,328 |
+| erase | 1 | 12,595 | 0.252 | 12,595 |
+| idle | 215 | 10,358 | 0.207 | 2,110,050 |
+| poll | 53 | 12,321 | 0.246 | 639,043 |
+| program | 52 | 101,577 | 2.032 | 5,249,584 |
+| read | 104 | 95,984 | 1.920 | 9,734,962 |
+| seal | 52 | 34,839 | 0.697 | 1,792,186 |
