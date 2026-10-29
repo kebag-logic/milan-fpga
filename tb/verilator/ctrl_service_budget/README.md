@@ -4,7 +4,9 @@ This harness measures the Mark II split firmware's service paths on the split pl
 That is the shipping VexiiRiscv with the split CPU's instruction cache ([#665 S2c](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860)), or without it (`--fetch-l1 none`), the cacheless core S2 measured.
 Its contract is the [S2 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409745905) on #665, which re-opens [#397](https://github.com/kebag-logic/milan-fpga/issues/397).
 The image is `ctrl_srp_image.py --with-aecp --layout split`, linked unmodified.
-Every figure is a measured clock count at the CPU's 50 MHz, never an estimate.
+Every figure is a measured clock count, never an estimate, at the CPU clock its table names.
+By default that is the product's split CPU clock, the Milan clock, 50 MHz; any other CPU clock is the labelled `--cpu-hz` option, never the default ([Run and reproduce](#run-and-reproduce)).
+The figures in [Results](#results), [The instruction cache](#the-instruction-cache) and [Controls and self-test](#controls-and-self-test) are all at the product's 50 MHz, with the bus at 100 MHz.
 Each is graded against its budget and its ceiling in [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
 A path's budget is min(T_svc, its family's ceiling), with T_svc = 20 ms, which the owner approved on 2026-10-29 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
 [Results](#results) and [The instruction cache](#the-instruction-cache) record S2's and S2c's runs, which were graded against the 10 ms then proposed.
@@ -12,7 +14,7 @@ A path's budget is min(T_svc, its family's ceiling), with T_svc = 20 ms, which t
 
 ## Contents
 
-- **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the two points, the labelled arms, the controls, reuse and the regrade.
+- **[Run and reproduce](#run-and-reproduce)** -- Prerequisites, the two points, the CPU clock and its labelled option, the per-pass share, the labelled arms, the controls, reuse and the regrade.
 - **[The test SoC](#the-test-soc)** -- What is the shipping CPU and memory, what is test-only, and where each device sits.
 - **[Markers and grading](#markers-and-grading)** -- The start and end of each path, the clock conversion, the pass bound, the defined load, its service and the verdicts.
 - **[Results](#results)** -- Per access, per pass, every response path, the fan-outs, the backlog rows and the load's service.
@@ -37,9 +39,9 @@ Each point builds the runtime, the image, the SoC and the native model, then run
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
-  --build-dir /tmp/budget-1x1 --record-budget-findings
+  --build-dir /tmp/budget-1x1 --record-budget-findings --record-share-findings
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
-  --build-dir /tmp/budget-8x8 --record-budget-findings
+  --build-dir /tmp/budget-8x8 --record-budget-findings --record-share-findings
 ```
 
 `1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface.
@@ -58,6 +60,29 @@ The figures in [Results](#results) and [The instruction cache](#the-instruction-
 
 Without `--record-budget-findings` a path over its budget fails the run.
 With it, the misses are recorded and the run still fails on any probe that was not measured.
+
+**The CPU clock.**
+By default the CPU runs at the product's split CPU clock: the point's `milan_clk_hz`, the Milan clock `milan_soc` drives the CPU from, which the builder's loader holds to the bare-metal build contract's 50 MHz.
+The bus runs at its 100 MHz.
+`--cpu-hz HZ` is a labelled test option, never the default: the CPU at HZ, the bus and the image unchanged.
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-8x8-100 --cpu-hz 100000000 --record-budget-findings --record-share-findings
+```
+
+`build.json` records `cpu_hz`, the product's `product_cpu_hz`, `cpu_clock` (`product` or `option`) and the option given, `cpu_hz_option`.
+A reused build at another clock is refused.
+Each `table.md` opens with the clock, `results.json` carries it, and the run prints it first and last, for example `CLOCK CPU 100 MHz, a labelled option: not the product's split CPU clock, 50 MHz, bus 100 MHz`.
+Every millisecond is CPU time at that clock.
+
+**The per-pass share.**
+Apart from the rows, every work pass of every group is held to the per-pass share ([`share.py`](share.py), `grade.pass_share`).
+An input waits for the pass running when it arrives and is answered in a later pass.
+The deepest wait the loop admits is seven owed frames, answered in pass 8 after the room returns, so nine passes must fit the smallest bound every input shares (`ctrl_loop.h`, THE SHARE).
+That bound is SRP's 18 ms, min(T_svc, its ceiling), so the share is 18 / 9 = 2.0 ms: 100,000 CPU cycles at the product's 50 MHz, 200,000 at the 100 MHz option.
+Without `--record-share-findings` a pass over the share fails the run even when every row fits; `--record-budget-findings` records the rows only.
+The table's per-pass share section gives each group's work passes, those over the share and the longest, and the run prints a `SHARE` line for each group with a pass over it.
 `--groups` selects groups and `--jobs` sets how many run at once.
 `--fetch-l1` selects the CPU's instruction cache: `split`, the split placement's own (the default); `none`, the cacheless core; or `SETSxWAYS`, a test-only sweep point of 64-byte lines.
 So the two commands above give the split cache's arms in [The instruction cache](#the-instruction-cache).
@@ -110,8 +135,9 @@ That is a CI change, outside this lane.
 
 [`split_soc.py`](split_soc.py) builds it; [`build.py`](build.py) links the image and compiles the model.
 
-- **The CPU** is MilanSoC's own VexiiRiscv path: RV32I, one hart, the CPU at the 50 MHz Milan clock, the bus at 100 MHz.
-  It has the split placement's instruction cache (`milan_soc.ctrl_cpu_args`), or the `--fetch-l1` selection; its data side is cacheless.
+- **The CPU** is MilanSoC's own VexiiRiscv path: RV32IM, one hart, the bus at 100 MHz.
+  By default the CPU runs at the product's split CPU clock, the Milan clock, 50 MHz (the point's `milan_clk_hz`, from which `milan_soc` clocks the CPU); any other CPU clock is the labelled `--cpu-hz` option ("The CPU clock", below).
+  It has the split placement's caches (`milan_soc.ctrl_cpu_args`: the 16 KiB two-way fetch L1 and the coherent 8 KiB data cache), or the `--fetch-l1` selection, where `none` is the CPU cacheless on both sides.
   The DMA port the shipping image has is kept; the split placement's record mover is its only master.
 - **The firmware memory** is `milan_soc.add_ctrl_memory`, the split placement's, built from the linked image.
   At `8x8` its plan is held to the ledgered point's 57.5 RAMB36 (`split_soc.ledgered_plan`).
@@ -191,7 +217,7 @@ Every probe is a `mark`, its stimulus and a bounded wait.
 - A response with frames owed ahead of it requires exactly those responses, by sequence_id and in order, between its input and its own.
 - A command the core may take and drop under the load (one behind the owed input) is a path too: a response that never comes is reported as **never answered**, a measured finding with no bound, not a refusal.
 
-Every conversion is one `Grader` method: CPU cycles from bus cycles (times 50/100, rounded up), bus cycles from CPU cycles, and milliseconds from either.
+Every conversion is one `Grader` method: CPU cycles from bus cycles (times the CPU clock over the bus clock, 50/100 at the product's clocks, rounded up), bus cycles from CPU cycles, and milliseconds from either.
 A pass runs from one committed entry of `ctrl_loop_service` to the next.
 The script's end cuts the pass in progress short, so the run of idle passes it flushes is no idle pass's figure.
 A mailbox access is timed at the CPU's load/store bus, from command to response.
@@ -895,7 +921,10 @@ Its checks:
 - the load/store observers follow the data cache's IO bus, without ids, an instruction cache without a data cache keeps the cacheless load/store observers, and a cached netlist with neither or both of the two load/store plugins is refused;
 - `run.main` builds and records the fetch L1 and the arm it selected, on temporary files with the build's toolchain steps replaced;
 - `run.main` refuses a reused build of another fetch L1 or arm, reuses the selected one, and takes a build that records no fetch L1 as the cacheless one;
-- the XIP arm's link script keeps the reset entry and the flash driver in `rom` and puts every other function in the flash window.
+- the XIP arm's link script keeps the reset entry and the flash driver in `rom` and puts every other function in the flash window;
+- the per-pass share is SRP's 18 ms over nine passes, 2.0 ms, restated; a pass at it fits and one a cycle over it does not; at twice the CPU clock it is twice the cycles; a pass over it fails a run whose rows all fit, unless `--record-share-findings` records it, and `--record-budget-findings` does not; the table names the clock and each group against the share, and `results.json` keeps the passes over it;
+- each point's product split CPU clock, its `milan_clk_hz`, is the bare-metal build contract's 50 MHz; `run.main` builds the CPU at it by default and records it so, builds and records `--cpu-hz` as a labelled option, names each on its clock line, and refuses a reused build at another CPU clock;
+  these two are [`selftest_share.py`](selftest_share.py)'s, which `selftest.py` runs.
 
 Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, and a named check must fail:
 
@@ -977,6 +1006,17 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | xip: the reset entry moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
 | xip: the flash driver moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
 | xip: the hot code and the rest stay in rom | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
+| share: T_svc over the passes, not the tightest family bound | the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, 100,000 CPU cycles at 50 MHz |
+| share: the bound over eight passes | the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, 100,000 CPU cycles at 50 MHz |
+| share: a pass at the share is over it | the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, 100,000 CPU cycles at 50 MHz |
+| share: in bus cycles, not CPU time | the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, 100,000 CPU cycles at 50 MHz |
+| share: the passes are not held to it | a work pass at the share fits it and one a cycle over it does not |
+| share: a pass over it is no finding | a pass over the share fails a run whose rows all fit, unless `--record-share-findings` records it; `--record-budget-findings` does not |
+| share: the rows option records the passes too | a pass over the share fails a run whose rows all fit, unless `--record-share-findings` records it; `--record-budget-findings` does not |
+| share: a pass over it fails the run only beside a row miss | a pass over the share fails a run whose rows all fit, unless `--record-share-findings` records it; `--record-budget-findings` does not |
+| clock: a labelled option is recorded as the product's clock | by default the CPU runs at the product's split CPU clock and `build.json` says so; another clock is a labelled option |
+| clock: the option is built at the product's clock | by default the CPU runs at the product's split CPU clock and `build.json` says so; another clock is a labelled option |
+| clock: a reused build at another CPU clock is taken | the run refuses a reused build at another CPU clock and reuses one at the selected clock |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.

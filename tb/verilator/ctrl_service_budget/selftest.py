@@ -52,6 +52,7 @@ import run  # noqa: E402
 import scenario  # noqa: E402
 import selftest_mutants  # noqa: E402
 from selftest_maximum import maximum_checks  # noqa: E402
+from selftest_share import clock_checks, share_checks  # noqa: E402
 
 FIXTURE_LOG = HERE / 'fixture.log'
 ORACLE = HERE / 'oracle.json'
@@ -844,8 +845,9 @@ def built(bdir: Path, *flags: str) -> tuple[str, dict]:
     """
     soc = types.ModuleType('split_soc')
     soc.fixture_addresses = lambda: {'flash': 0x20000000}
-    soc.build = lambda build_dir, shape, elf, n_if, cpu_regions, fetch_l1: dict(
-        sources=[], shape=shape, interfaces=n_if, cpu_regions=cpu_regions, fetch_l1=fetch_l1)
+    soc.build = lambda build_dir, shape, elf, n_if, core: dict(
+        sources=[], shape=shape, interfaces=n_if, cpu_regions=core.cpu_regions, fetch_l1=core.fetch_l1, sys_hz=SYS_HZ,
+        cpu_hz=core.cpu_hz or CPU_HZ, product_cpu_hz=CPU_HZ, cpu_hz_option=core.cpu_hz)
     soc.ledgered_plan = lambda name: contextlib.nullcontext()
     stubs = dict(
         firmware=lambda out, *a: write(out / 'image/ctrl_app.elf', b'elf'),
@@ -890,7 +892,7 @@ def cache_build_checks() -> list[Check]:
                 {k: v for k, v in runs['plain'][1].items() if k not in ('fetch_l1', 'xip')}))
             cases += [('no fetch L1 recorded', ('--fetch-l1', 'none'), True), ('no fetch L1 recorded', (), False)]
             got += [main_verdict(root / 'plain', '--reuse-build', *flags) for _, flags, _ in cases[-2:]]
-    refused = lambda verdict: verdict.startswith('exit 2:') and 'fetch L1 or arm' in verdict
+    refused = lambda verdict: verdict.startswith('exit 2:') and 'fetch L1, arm' in verdict
     wrong = [f'{name} {" ".join(flags) or "(split)"}: {verdict}' for (name, flags, reuse), verdict in zip(cases, got)
              if not (verdict == 'reached' if reuse else refused(verdict))]
     out.append(('the run refuses a reused build of another fetch L1 or arm and reuses the selected one; '
@@ -902,7 +904,8 @@ def checks() -> list[Check]:
     """Every named check and whether it holds."""
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
             *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
-            *build_checks(), *cache_checks(), *cache_build_checks()]
+            *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
+            *clock_checks(built, main_verdict)]
 
 
 def write_fixture(log: Path, build_json: Path) -> None:

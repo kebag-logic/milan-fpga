@@ -25,6 +25,8 @@ it and require a named failure:
                     released at its commit
   the owed frames   owed_ahead(): the responses committed ahead of a probe's
   the deadlines     scenario.T_SVC_MS, scenario.CEILING_MS, budget_ms() and verdicts()
+  the pass share    pass_share(): every work pass against share.py's share, apart from
+                    the rows
   the run           refuse_run(): an incomplete simulation, a trap or a bus error
 """
 from __future__ import annotations
@@ -33,6 +35,7 @@ import re
 from dataclasses import dataclass, field
 
 import scenario
+import share
 
 TX_RING = {n: (ch.tx_base // 4, ch.tx_words) for n, ch in enumerate(scenario.CONTRACT.channels)}
 CHANNEL = {n: ch.name for n, ch in enumerate(scenario.CONTRACT.channels)}
@@ -782,6 +785,15 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
                 window_ms=round(grader.ms(end - start), 5))
 
 
+def pass_share(log: Log) -> dict:
+    """Every work pass against the per-pass share (share.py), apart from the row verdicts: the share
+    in ms and in CPU cycles at the log's CPU clock, the work passes, and each one over it."""
+    limit = share.share_cycles(log.cpu_hz)
+    over = [p for p in log.passes if p.cycles > limit]
+    return dict(ms=share.share_ms(), cycles=limit, passes=len(log.passes), over=len(over),
+                over_passes=[dict(start_sys=p.start_sys, cycles=p.cycles) for p in over])
+
+
 def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
     """A group's log: every probe, its passes and its run evidence. Refuses a log that did not finish."""
     log = parse(text, sys_hz, cpu_hz)
@@ -818,5 +830,5 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
                             worst=dict(cycles=worst.cycles, ms=round(grader.cpu_ms(worst.cycles), 5),
                                        instr=worst.count('instr'), start_sys=worst.start_sys,
                                        modules=worst.modules) if worst else None,
-                            composed=window),
+                            composed=window, share=pass_share(log)),
                 summary=log.summary, modules=log.modules, code=log.code)

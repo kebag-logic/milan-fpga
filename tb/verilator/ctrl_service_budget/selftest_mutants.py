@@ -21,6 +21,7 @@ import build
 import grade
 import run
 import scenario
+import share
 
 Patches = Callable[[], list]
 
@@ -302,11 +303,23 @@ def _counts_per_instance() -> list:
 
 
 def _verdict(refusals_fail: bool, misses_fail: bool) -> Patches:
-    def verdict(args: object, groups: list, refusals: list, misses: list) -> int:
+    def verdict(args: object, groups: list, refusals: list, misses: list, shares: list = ()) -> int:
         """The mutant exit status: refusals or misses fail only where the flags say."""
         if refusals_fail and (refusals or not groups):
             return 1
+        if shares and not args.record_share_findings:
+            return 1
         return 1 if misses_fail and misses and not args.record_budget_findings else 0
+    return lambda: [patch.object(run, 'verdict', verdict)]
+
+
+def _shares_seen(keep: Callable[[object, list], bool]) -> Patches:
+    """run.verdict handed the passes over the share only where keep(args, misses) says."""
+    original = run.verdict
+
+    def verdict(args: object, groups: list, refusals: list, misses: list, shares: list = ()) -> int:
+        """The mutant exit status: the passes over the share dropped unless keep holds."""
+        return original(args, groups, refusals, misses, shares if keep(args, misses) else [])
     return lambda: [patch.object(run, 'verdict', verdict)]
 
 
@@ -495,4 +508,23 @@ MUTANTS: dict[str, Patches] = {
         build.XIP_TEXT[0], build.XIP_TEXT[1].replace(' *-nvm_flash_litespi.o(.text .text.*)', '')))],
     'xip: the hot code and the rest stay in rom': lambda: [patch.object(
         build, 'XIP_END', (build.XIP_END[0], build.XIP_END[0]))],
+    'share: T_svc over the passes, not the tightest family bound': lambda: [patch.object(
+        share, 'bound_ms', lambda: scenario.T_SVC_MS)],
+    'share: the bound over eight passes': lambda: [patch.object(share, 'SHARE_PASSES', 8)],
+    'share: a pass at the share is over it': lambda: [patch.object(
+        share, 'share_cycles', lambda hz, f=share.share_cycles: f(hz) - 1)],
+    'share: in bus cycles, not CPU time': lambda: [patch.object(
+        share, 'share_cycles', lambda hz, f=share.share_cycles: f(100_000_000))],
+    'share: the passes are not held to it': lambda: [patch.object(
+        grade, 'pass_share', lambda log, f=grade.pass_share: dict(f(log), over=0, over_passes=[]))],
+    'share: a pass over it is no finding': lambda: [patch.object(run, 'share_misses', lambda results: [])],
+    'share: the rows option records the passes too': _shares_seen(lambda args, misses: not args.record_budget_findings),
+    'share: a pass over it fails the run only beside a row miss': _shares_seen(lambda args, misses: bool(misses)),
+    "clock: a labelled option is recorded as the product's clock": _build_recorded(
+        lambda spec: dict(spec, cpu_clock='product')),
+    "clock: the option is built at the product's clock": _build_with(
+        lambda core: dataclasses.replace(core, cpu_hz=None)),
+    'clock: a reused build at another CPU clock is taken': lambda: [
+        patch.object(run, 'built_as', lambda spec, f=run.built_as: f(spec)[:-1]),
+        patch.object(run, 'selected', lambda args, shape, n_if, f=run.selected: f(args, shape, n_if)[:-1])],
 }

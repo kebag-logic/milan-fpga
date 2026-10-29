@@ -11,7 +11,14 @@ default refuses a probe that misses its budget, min(T_svc, its family's
 ceiling) (FR_NFR.md 3.4.1), unless --record-budget-findings is
 given; that option records the misses and still requires every probe of
 every selected group to be measured, so a missing log or script, or a
-missing or malformed observation, always fails the run.
+missing or malformed observation, always fails the run. Apart from the
+rows, every work pass is held to the per-pass share (share.py): the
+default refuses a pass over it even when every row fits, unless
+--record-share-findings is given, which records them.
+
+The CPU runs at the product's split CPU clock, the Milan clock, unless
+--cpu-hz names another, a labelled test option; build.json records both,
+and every table and the run's last lines name the clock its figures are at.
 """
 from __future__ import annotations
 
@@ -115,10 +122,43 @@ def counts(results: list[dict]) -> dict[str, int]:
                 instances=sum(e['instances'] for e in worst), instance_misses=sum(e['misses'] for e in worst))
 
 
-def table(results: list[dict], point: str) -> str:
-    """The Markdown rows of every path's worst instance, then every probe, then the timeouts."""
+def share_misses(results: list[dict]) -> list[str]:
+    """Each group with a work pass over the per-pass share (grade.pass_share), apart from its rows."""
+    out = []
+    for g in results:
+        s, worst = g['passes'].get('share'), g['passes'].get('worst')
+        if s and s['over']:
+            out.append(f"{g['group']}: {s['over']} of {s['passes']} work passes over the per-pass share "
+                       f"{s['ms']:.3f} ms ({s['cycles']:,} CPU cycles); the longest {worst['cycles']:,} "
+                       f"({worst['ms']:.3f} ms)")
+    return out
+
+
+def share_table(results: list[dict]) -> list[str]:
+    """The per-pass share's section of the table: each group's work passes against it."""
+    import share
+    graded = [g for g in results if g['passes'].get('share')]
+    shares = [g['passes']['share'] for g in graded]
+    if not shares:
+        return []
+    lines = ['', f"Per-pass share (share.py): {share.bound_ms():g} ms over {share.SHARE_PASSES} passes, "
+             f"{shares[0]['ms']:.3f} ms, {shares[0]['cycles']:,} CPU cycles. A work pass over it is a finding "
+             'whatever the rows say.', '',
+             '| Group | Work passes | Over the share | Longest pass, CPU cycles (ms) | Verdict |',
+             '|---|---:|---:|---:|---|']
+    for g, s in zip(graded, shares):
+        worst = g['passes']['worst']
+        longest = f"{worst['cycles']:,} ({worst['ms']:.3f})" if worst else '-'
+        lines.append(f"| {g['group']} | {s['passes']} | {s['over']} | {longest} | "
+                     f"{'OVER the share' if s['over'] else 'fits'} |")
+    return lines
+
+
+def table(results: list[dict], point: str, clock: str = '') -> str:
+    """The clock, the Markdown rows of every path's worst instance, the composed windows, the
+    per-pass share, then every probe, then the timeouts."""
     tally = counts(results)
-    lines = [f'### {point}', '',
+    lines = [f'### {point}', '', *([f'Clock: {clock}.', ''] if clock else []),
              f"{tally['path_misses']} of {tally['paths']} paths and {tally['instance_misses']} of "
              f"{tally['instances']} probe instances miss their budget.", '',
              '| Path | Interface | Worst instance | ms (bound) | Verdict | Records ahead | Instances | Misses |',
@@ -147,6 +187,7 @@ def table(results: list[dict], point: str) -> str:
                   f"{top['group']}{bound}.",
                   'Over the windows that released their whole load only: '
                   + (f"{done['cycles']:,} ({done['ms']:.3f} ms), {done['group']}." if done else 'none.')]
+    lines += share_table(results)
     lines += ['', '| Path | Probe | CPU cycles | ms | Budget (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
               '| Mailbox accesses (model) | Fetch share |',
               '|---|---|---:|---:|---:|---:|---|---:|---:|---:|']
@@ -166,12 +207,14 @@ def table(results: list[dict], point: str) -> str:
     return '\n'.join(lines) + '\n'
 
 
-def summary(point: str, build: str, results: list[dict], refusals: list[str], misses: list[str]) -> dict:
+def summary(point: str, build: str, results: list[dict], refusals: list[str], misses: list[str],
+            shares: list[str] = ()) -> dict:
     """results.json: every grade, every path's worst instance, the counts, the composed windows,
-    the composed maximum the table renders, the refusals and the misses."""
+    the composed maximum the table renders, the refusals, the misses and the passes over the
+    per-pass share (main adds the clock)."""
     return dict(point=point, build=build, results=results, paths=paths(results), counts=counts(results),
                 windows=windows(results), composed_maximum=composed_maximum(results),
-                refusals=refusals, misses=misses)
+                refusals=refusals, misses=misses, share_misses=list(shares))
 
 
 def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
@@ -192,6 +235,12 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
                         help='the labelled hybrid-XIP arm: the code past the reset entry executes from the '
                         'flash window behind the instruction cache')
     parser.add_argument('--record-budget-findings', action='store_true')
+    parser.add_argument('--record-share-findings', action='store_true',
+                        help='record a work pass over the per-pass share (share.py) instead of failing the run')
+    parser.add_argument('--cpu-hz', type=int, metavar='HZ',
+                        help="a labelled test option: the split CPU at HZ instead of the product's split CPU "
+                        "clock (the point's milan_clk_hz, 50 MHz); the bus keeps its clock, and build.json, "
+                        'the tables and the run lines name it')
     parser.add_argument('--mutation', choices=('none', *builder.MUTATIONS), default='none',
                         help='build a planted firmware defect; only its control group runs and must be caught')
     parser.add_argument('--variant', choices=('none', *builder.VARIANTS), default='none',
@@ -277,8 +326,9 @@ def as_built_faults(refusals: list) -> list:
     return [r for r in refusals if 'trapped' in r and re.search(rf'TRAP \d+ 0 ({causes}) ', r)]
 
 
-def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list) -> int:
-    """The run's exit status: a control must be caught by name; a measurement must be complete."""
+def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list, shares: list = ()) -> int:
+    """The run's exit status: a control must be caught by name; a measurement must be complete, and
+    its rows and its passes are each a failure unless their own option records them."""
     if args.cpu_regions == 'as-built':
         caught = as_built_faults(refusals)
         print(f'CONTROL as-built {"caught" if caught else "ESCAPED"}: an instruction or load access fault '
@@ -294,18 +344,21 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
         return 0
     if refusals or not groups:
         return 1
+    if shares and not args.record_share_findings:
+        return 1
     return 1 if misses and not args.record_budget_findings else 0
 
 
 def selected(args: argparse.Namespace, shape: str, n_if: int) -> tuple:
-    """What this run's build must be: point, CPU regions, mutation, variant, fetch L1 and arm."""
-    return shape, n_if, args.cpu_regions, args.mutation, args.variant, args.fetch_l1, args.xip
+    """What this run's build must be: point, CPU regions, mutation, variant, fetch L1, arm and CPU clock option."""
+    return shape, n_if, args.cpu_regions, args.mutation, args.variant, args.fetch_l1, args.xip, args.cpu_hz
 
 
 def built_as(spec: dict) -> tuple:
-    """What a build records it is, in selected()'s order; a build that records no fetch L1 is cacheless."""
+    """What a build records it is, in selected()'s order; a build that records no fetch L1 is cacheless,
+    and one that records no CPU clock option ran the CPU at the product's clock."""
     return (spec['shape'], spec['interfaces'], spec['cpu_regions'], spec['mutation'], spec['variant'],
-            spec.get('fetch_l1', 'none'), spec.get('xip', False))
+            spec.get('fetch_l1', 'none'), spec.get('xip', False), spec.get('cpu_hz_option'))
 
 
 def main() -> int:
@@ -322,6 +375,7 @@ def main() -> int:
     os.environ.setdefault('PYTHONHASHSEED', '0')
     import build as builder
     import scenario
+    import share
     shape, n_if = POINTS[args.point]
     if args.reuse_build or args.regrade:
         try:
@@ -330,10 +384,13 @@ def main() -> int:
             print(f'REFUSED {error}')
             return 1
         if built_as(spec) != selected(args, shape, n_if):
-            parser.error('the reused build is another point, CPU region set, mutation, variant, fetch L1 or arm')
+            parser.error('the reused build is another point, CPU region set, mutation, variant, fetch L1, arm '
+                         'or CPU clock')
     else:
         spec = builder.build(build_dir, shape, n_if, mutation=args.mutation, variant=args.variant,
-                             core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip))
+                             core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip, args.cpu_hz))
+    clock = builder.clock_line(spec)
+    print('CLOCK', clock, flush=True)
     groups = select(parser, args, scenario.all_groups(scenario.point(args.point, spec), spec))
     out = (args.out or build_dir / 'results').resolve()
     out.mkdir(parents=True, exist_ok=True)
@@ -345,18 +402,26 @@ def main() -> int:
             logs = list(pool.map(lambda g: run_group(build_dir, out, g, spec.get('flash_image') or '-'), groups))
     results, refusals, misses = graded(groups, logs, spec, out)
     refusals = absent + refusals
-    (out / 'table.md').write_text(table(results, args.point))
-    (out / 'results.json').write_text(json.dumps(summary(args.point, spec['executable_sha256'], results, refusals,
-                                                         misses), indent=1) + '\n')
+    shares = share_misses(results)
+    hz = dict(cpu_hz=spec['cpu_hz'], product_cpu_hz=spec.get('product_cpu_hz'), sys_hz=spec['sys_hz'], label=clock)
+    (out / 'table.md').write_text(table(results, args.point, clock))
+    record = dict(summary(args.point, spec['executable_sha256'], results, refusals, misses, shares), clock=hz)
+    (out / 'results.json').write_text(json.dumps(record, indent=1) + '\n')
     for line in refusals:
         print('REFUSED', line)
     for line in misses:
         print('BUDGET', line)
+    for line in shares:
+        print('SHARE', line)
     tally = counts(results)
+    passes = sum(g['passes']['share']['passes'] for g in results)
+    over = sum(g['passes']['share']['over'] for g in results)
     print(f'{len(results)} groups graded, {len(refusals)} refusals, {len(misses)} budget misses '
           f"({tally['instance_misses']} of {tally['instances']} probe instances, "
-          f"{tally['path_misses']} of {tally['paths']} paths)")
-    return verdict(args, groups, refusals, misses)
+          f"{tally['path_misses']} of {tally['paths']} paths), {over} of {passes} work passes over the per-pass "
+          f"share {share.share_ms():.3f} ms ({share.share_cycles(spec['cpu_hz']):,} CPU cycles)")
+    print('CLOCK', clock)
+    return verdict(args, groups, refusals, misses, shares)
 
 
 if __name__ == '__main__':

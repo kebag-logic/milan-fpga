@@ -567,11 +567,27 @@ class Core:
 
     cpu_regions: the generator's region set (split_soc.build); fetch_l1: its
     instruction cache (split_soc.fetch_l1_geometry); xip: the labelled
-    hybrid-XIP arm, the code past the reset entry in the flash window.
+    hybrid-XIP arm, the code past the reset entry in the flash window;
+    cpu_hz: None for the product's split CPU clock, or the labelled option's
+    clock (split_soc.build; clock_line names it).
     """
     cpu_regions: str = 'cover'
     fetch_l1: str = 'split'
     xip: bool = False
+    cpu_hz: int | None = None
+
+
+def clock_line(spec: dict) -> str:
+    """A build's CPU clock as every table and run line names it (#665): the product's split CPU
+    clock, or a labelled option that is not. A build recorded before the label names its clock only."""
+    mhz = lambda hz: f'{hz / 1e6:g} MHz'
+    bus = f"bus {mhz(spec['sys_hz'])}"
+    if 'cpu_clock' not in spec:
+        return f"CPU {mhz(spec['cpu_hz'])} (recorded before the CPU clock was labelled), {bus}"
+    if spec['cpu_clock'] == 'product':
+        return f"CPU {mhz(spec['cpu_hz'])}, the product's split CPU clock (the Milan clock), {bus}"
+    return (f"CPU {mhz(spec['cpu_hz'])}, a labelled option: not the product's split CPU clock, "
+            f"{mhz(spec['product_cpu_hz'])}, {bus}")
 
 
 def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', variant: str = 'none',
@@ -585,9 +601,10 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
         elf, rom_elf, flash_image = xip_image(build_dir, elf, split_soc.fixture_addresses()['flash'])
     table = symbols(elf)
     with split_soc.ledgered_plan(ledgered_point(shape, n_if)):
-        spec = split_soc.build(build_dir, shape, rom_elf, n_if, core.cpu_regions, core.fetch_l1)
+        spec = split_soc.build(build_dir, shape, rom_elf, n_if, core)
     spec['elf'] = str(elf)
     spec['xip'] = core.xip
+    spec['cpu_clock'] = 'product' if spec['cpu_hz'] == spec['product_cpu_hz'] else 'option'
     spec['flash_image'] = str(flash_image) if flash_image else None
     sys.path.insert(0, str(ROOT / 'sw/mailbox'))
     from mailbox_model import load

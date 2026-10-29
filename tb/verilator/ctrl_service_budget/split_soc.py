@@ -441,14 +441,18 @@ def ledgered_plan(name: str | None) -> contextlib.AbstractContextManager:
     return patch.object(milan_soc.ctrl_memory, 'plan', lambda image, **kw: plan(image, ledgered=name, **kw))
 
 
-def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 'cover',
-          fetch_l1: str = 'split') -> dict:
+def build(build_dir: Path, shape: str, elf: Path, n_if: int, core: object) -> dict:
     """Export the test SoC's Verilog and return the native build's inputs.
 
-    cpu_regions 'cover' gives the CPU generator each region at its
-    power-of-two cover; 'as-built' gives it the SoC's regions unchanged,
-    which reproduces the generator's rom decode defect (a control).
-    fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
+    core is the selection (build.Core). Its cpu_regions 'cover' gives the CPU
+    generator each region at its power-of-two cover; 'as-built' gives it the
+    SoC's regions unchanged, which reproduces the generator's rom decode
+    defect (a control). Its fetch_l1 selects the CPU's instruction cache
+    (fetch_l1_geometry). Its cpu_hz None runs the CPU at the product's split
+    CPU clock: the point's milan_clk_hz, the Milan clock MilanSoC clocks the
+    CPU from, which the builder's loader holds to the bare-metal build
+    contract's clock. Any other clock is a labelled test option (#665),
+    recorded beside the product's; the bus keeps its own clock either way.
     """
     addresses = fixture_addresses()
     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
@@ -458,10 +462,13 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
     if deviations:
         raise RuntimeError(f'the commit acknowledgement is not at the contract bound: {deviations}')
     platform = platform_for(contract, n_if)
+    cpu_regions, fetch_l1 = core.cpu_regions, core.fetch_l1
     cpu = CpuPatches(cpu_regions)
     geometry = fetch_l1_geometry(fetch_l1)
     scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
-    sys_hz, cpu_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
+    sys_hz, product_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
+    option = core.cpu_hz
+    cpu_hz = product_hz if option is None else option
     with cpu.applied():
         soc = milan_soc.MilanSoC(
             platform, sys_hz, xlen=params['xlen'], cpu_count=params['cpu_count'], cpu=params['cpu'],
@@ -482,7 +489,8 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
     spec = {
         'sources': [str(Path(s[0]).resolve()) for s in soc.platform.sources],
         'includes': soc.platform.verilog_include_paths,
-        'sys_hz': sys_hz, 'cpu_hz': cpu_hz, 'shape': shape, 'interfaces': n_if,
+        'sys_hz': sys_hz, 'cpu_hz': cpu_hz, 'product_cpu_hz': product_hz, 'cpu_hz_option': option,
+        'shape': shape, 'interfaces': n_if,
         'addresses': addresses, 'window_bytes': contract.window_bytes,
         'netlist': VexiiRiscv.netlist_name,
         'vexii_soc_args': {k: str(v) for k, v in sorted(vars(VexiiRiscv.soc_args).items())},
