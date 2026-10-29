@@ -21,7 +21,7 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `55680bff3b287b9a7b0c759f51471fa617c17335` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `gptp-processor` | `f97c18035be6ef5345e5af27db2124c5697c1b40` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `f65c8ff7c673aaa8e2ea8da654f081ddb13588d8` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
@@ -318,6 +318,68 @@ The route keeps +0.440 ns WNS.
 
 Slices fall by 55; block RAM and DSP hold.
 
+Issue #803 adopts gPTP pin `f97c1803`.
+
+The processor stays at `f65c8ff7`.
+
+| gPTP issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #89, Sync receipt timeout | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | A grandmaster whose Sync stops for 375 ms is aged while gmPresent holds (IEEE 802.1AS-2011 Section 10.3.11, Figure 10-13 with Cor1-2013); with no other peer this station becomes grandmaster at that timeout, and the Milan v1.2 Annex B.1.1 holdover arms; a priority1 255 grandmaster stays elected, and its timeout clears sync only |
+| #90, lost responses | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | asCapable clears at the fifth consecutive lost Pdelay response, where it cleared at the fourth (Figure 11-8 RESET) |
+| #91, duplicate responses | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | A second Pdelay_Resp for the outstanding request resets the exchange, and that interval counts as a lost response (Figure 11-8) |
+| #88, Announce qualification | [93](https://github.com/Mister-M-alt/FPGA-gPTP/pull/93) | Only Section 10.3.10.2.1 a) to c) disqualify: a path count other than stepsRemoved+1 and a path head other than the grandmaster are accepted; d) copies the path as received, its head included, and appends thisClock, so an empty path trace TLV gives `{thisClock}` |
+| #87, no path trace TLV | [93](https://github.com/Mister-M-alt/FPGA-gPTP/pull/93) | An Announce without the TLV writes no pathTrace, so the previous one stays: `{thisClock}` after reset or mastership, otherwise the last path copied, across a grandmaster change too |
+
+The engine's one port change is `pub_path_o`.
+
+It carries eight entries from entry 0.
+
+It carried seven, after the grandmaster.
+
+`KL_gptp_shadow` publishes all eight entries.
+
+`milan_datapath` serves GET_AS_PATH entry 0 from that head.
+
+Its clause is IEEE 1722.1-2021 7.4.41.2.
+
+Entry 0 was the grandmaster identity.
+
+It is now the received head or thisClock.
+
+The AS_PATH notification compares entry 0, count and entries.
+
+`milan_csr` keeps its seven-entry AS_PATH face.
+
+Only its port comments change.
+
+No top-level port, parameter or register changes.
+
+`KL_gptp_shadow.pub_path_o` widens with the engine's: eight entries from entry 0.
+
+Its test wrapper `gptp_shadow_wrap` adds `pub_path_head_o`.
+
+`gptp_ucode.hex` changes; its ledger row matches the donor's tracked image.
+
+The physical gPTP leg spans one more Pdelay interval.
+
+It runs 17.992742740 simulated seconds.
+
+Its nightly suite deadline rises to 6900 seconds.
+
+Its job's timeout rises to 145 minutes.
+
+Route-1x1 is 211 LUTs under the twelfth resource record.
+
+Its tolerance is 500 LUTs, so the gate passes.
+
+That record has dev `e78472ff`'s synthesis inputs.
+
+This adoption adds 53 FFs and 54 slices.
+
+Sixteen of 15,850 slices remain.
+
+Its shipping route meets timing at +0.303 ns WNS.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
@@ -449,10 +511,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 

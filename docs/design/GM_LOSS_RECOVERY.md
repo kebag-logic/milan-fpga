@@ -34,10 +34,19 @@ Receipt state machines infer each transition.
 | Observation | Engine result | Public result |
 |---|---|---|
 | Announce timeout | Re-run best-master selection | GM and path may change |
-| Sync timeout | Clear synchronized state | `tu` asserts |
-| Pdelay failure | Clear `asCapable` | Capability becomes false |
+| Sync timeout, GM priority1 below 255 | Age the port, re-run best-master selection | GM may become this station; `tu` asserts |
+| Sync timeout, GM priority1 255 | Clear synchronized state | `tu` asserts; the GM stays |
+| Pdelay failure, fifth lost response | Clear `asCapable` | Capability becomes false |
 | Better Announce | Select new priority vector | GM and parent change |
 | Valid Sync pair | Update servo | Synchronization may recover |
+
+A Sync timeout ages the port only while gmPresent holds.
+
+The rule is IEEE 802.1AS-2011 Figure 10-13 with Cor1.
+
+FPGA-gPTP #89 adopted it.
+
+Four consecutive lost Pdelay responses keep `asCapable` (Figure 11-8, FPGA-gPTP #90).
 
 A known GM may remain unsynchronized.
 

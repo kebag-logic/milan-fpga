@@ -23,8 +23,8 @@ make -C tb/verilator/milan_dp_gptp extended VERILATOR_JOBS=4
 ```
 
 The first command includes preflight, timeout, verdict, and tally handling.
-The [testing guide](../../../docs/testing/TESTING.md) declares 5400 seconds, including compilation.
-The separate four-core `ubuntu-24.04` workflow job permits 120 minutes.
+The [testing guide](../../../docs/testing/TESTING.md) declares 6900 seconds, including compilation.
+The separate four-core `ubuntu-24.04` workflow job permits 145 minutes.
 The reference machine uses an EPYC 9554P with 128 logical CPUs.
 Measurements restrict each job to four cores under background load.
 Completed hosted physical evidence remains required to validate that deadline.

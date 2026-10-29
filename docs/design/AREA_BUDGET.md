@@ -140,8 +140,9 @@ The adopted image does not meet it:
 | WNS / WHS | - | +0.440 / +0.036 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
 
 The table is the gate's record.
-The slice row is the binding limit: placement has 70 slices left.
-The [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) accepted this image's growth; Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
+The slice row is the binding limit: the shipping route at FPGA-gPTP `f97c1803` ([#803](https://github.com/kebag-logic/milan-fpga/issues/803)) on processor `f65c8ff7` places 15,834 slices, so placement has 16 of 15,850 left.
+The next growth on the shipping image therefore has no slice room and needs its own owner decision ([the extension](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062)).
+The record's route leaves 70 slices; the [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) accepted that image's growth, and Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
 The routed critical setup path has 18 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
 It runs from the AXI-Lite-to-Wishbone bridge state `FSM_onehot_socbushandler0_axilite2wishbone_state_reg[1]` to the SPI-flash PHY counter `milansoc_spiflash_phy_cnt_reg[8]`; its data delay is 9.531 ns, of which 6.252 ns is routing.
 The preceding [#632](https://github.com/kebag-logic/milan-fpga/issues/632) image, at `5282b8b6`, used 51,259 LUTs and 15,835 slices, 15 free, at +0.236 / +0.028 ns; its critical path had 13 logic levels from the SoC's write buffer level to `storage_13_dat1_reg[6]`.

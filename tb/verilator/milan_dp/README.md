@@ -197,7 +197,7 @@ Boot Pdelay waits 1.2 seconds; requests repeat each second.
 Sync/Follow_Up repeats every 125 milliseconds.
 Announce repeats each second, initially phased at 250 milliseconds.
 Sync loss waits beyond the real 375 ms timeout.
-Peer loss includes the fourth unanswered request interval.
+Peer loss includes the fifth unanswered request interval.
 Recovery and reset reacquisition retain the original timers.
 
 The peer timestamps scheduled arrival and departure events.
@@ -329,14 +329,14 @@ No physical clock, protocol timer, or comparison threshold changes.
 | Acquisition and public getters | Second exchange occurs at 2.2 s. Announce and Sync/Follow_Up select the GM at 2.25 s. The unchanged discontinuity holdover clears `tu` near 2.75 s. Stop on healthy CLKV, then compare GM/parent/delay/path through CSR and AECP. Original 1.8 s window remains the failure bound. |
 | Healthy audio | Twenty milliseconds compares all eight channels, ordering, and certain `tu`. |
 | Backpressure | Wait for the next DUT Pdelay at 3.2 s. Every transmitted frame stalls for 64 cycles. Stop after a stalled PTP frame, then settle its response. The earlier acquisition requires approximately 0.43 s before that same request. The polling bound permits one unchanged Pdelay interval; the cadence tolerance remains unchanged. |
-| Sync loss | Last selected Sync expires after 375 ms. Loss starts after the last Sync, leaving about 300 ms. Stop on public uncertain state; the original 450 ms failure bound remains. |
-| Peer loss | Four unanswered request intervals must finish. After the successful 3.2 s request, these finish around 8.2 s. Stop only after public loss and the fifth unanswered request. The combined loss deadline remains 5.05 s. Audio and uncertain `tu` remain graded. |
+| Sync loss | Last selected Sync expires after 375 ms. Loss starts after the last Sync, leaving about 300 ms. That expiry makes this station grandmaster. Stop on that public grandmaster state; the original 450 ms failure bound remains. |
+| Peer loss | Five unanswered request intervals must finish. After the successful 3.2 s request, these finish around 9.2 s. Stop only after public loss and the sixth unanswered request. The combined loss deadline is 6.05 s. Audio remains graded, with certain `tu` after the grandmaster change holdover. |
 | Recovery | Two fresh exchanges and selected Announce/Sync are required. Then Announce/Sync and the discontinuity holdover must complete. Stop on healthy public state within the original 3 s bound, then grade 20 ms of certain audio. |
 | Reset | Assert both resets during active traffic. Warm-reset public health can return after one exchange. Continue through two completed exchanges, at 1.2/2.2 s, to grade the reset epoch's one-second cadence. Require healthy public state within 3 s, then grade 20 ms of certain audio. |
 
-The four missed intervals prevent a 600-second default run.
+The five missed intervals prevent a 600-second default run.
 Acquisition, recovery, and reset also require real Pdelay exchanges.
-The trimmed scenario requires 16.992496440 simulated seconds over 849624822 cycles.
+The trimmed scenario requires 17.992742740 simulated seconds over 899637137 cycles.
 The closing transmit-flag phase adds four simulated seconds.
 Consequently, the physical leg runs separately from the default sweep:
 
@@ -353,8 +353,8 @@ The missing-response control contributes fourteen additional accounting checks.
 It preserves real unanswered requests and their failed response/publication assertions.
 The unchanged acquisition deadline expires before the acquired-publication check.
 First-exchange, arrival and delay comparisons remain uncounted without an accepted response.
-Its separate deadline is 5400 seconds, including compilation.
-The four-core `ubuntu-24.04` job permits 120 minutes, including toolchain setup.
+Its separate deadline is 6900 seconds, including compilation.
+The four-core `ubuntu-24.04` job permits 145 minutes, including toolchain setup.
 Per-suite deadlines follow the [workflow policy table](../../../docs/testing/CI_WORKFLOWS.md#exhaustive-validation).
 [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
 The [workflow policy](../../../docs/testing/CI_WORKFLOWS.md) assigns nightly and manual execution.
@@ -406,7 +406,7 @@ Even its optimistic end misses that target substantially.
 The conservative, unbounded end therefore requires decision branch 2.
 The new nightly deadline remains an operational limit awaiting hosted evidence.
 
-The 2026-09-11 remeasurement covers the current scenario.
+The 2026-09-11 remeasurement covers the 16.992496440-second scenario.
 It used Verilator 5.052, four compilation jobs, and four confined logical CPUs under background load.
 The fresh build, physical run, and accounting controls took 3303.16 wall seconds.
 The physical simulation alone took 2774.55 seconds for 16.992496440 simulated seconds.
@@ -424,6 +424,16 @@ Scaling by the measured local slowdown of 1.3476 instead projects about 5225 sec
 The 5400-second deadline therefore still holds on projection, with a margin between 3 and 6 percent.
 The 120-minute job keeps more than 30 minutes of margin on the same projection.
 That margin is smaller than the 50 percent spread between the fastest and slowest hosted runs.
+
+FPGA-gPTP #90 moved the asCapable loss to the fifth lost response.
+The current scenario therefore spans one more Pdelay interval, 899637137 cycles.
+Scaled by the cycle ratio 899637137/849624822, the two projections become 5347 and 5484 seconds.
+Those are 99.0 and 101.6 percent of the former 5400-second deadline.
+The hosted record already shows one 5400.003-second timeout of this suite.
+[#803](https://github.com/kebag-logic/milan-fpga/issues/803) therefore raised the deadline to 6900 seconds and the job to 145 minutes.
+The two projections are 77.5 and 79.5 percent of the new deadline, at most 80 percent.
+The job keeps its 30 minutes for toolchain setup and evidence upload.
+The 145-minute job keeps 53.6 to 55.9 minutes of margin on the same projections.
 A completed hosted run of the current scenario remains required to confirm the deadline.
 
 The original spans remain explicitly available:
@@ -437,7 +447,7 @@ make -C tb/verilator/milan_dp_gptp extended
 Extended mode retains every original fixed-duration audio window.
 The 2026-09-11 extended run passed 137 checks in 3052.05 simulation seconds.
 Both modes execute the same assertions and comparison thresholds.
-The new elapsed-interval assertion also checks four unanswered Pdelay intervals.
+The new elapsed-interval assertion also checks five unanswered Pdelay intervals.
 Extended mode is excluded from the default sweep.
 
 The normal log includes simulated duration and counted verdicts.

@@ -169,8 +169,8 @@ Its README provides measurement commands and the complete receipt.
 Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
 [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
 The default sweep excludes `milan_dp_gptp` and `nvm_capture_cpu`.
-The separate physical job permits 5400 seconds, including compilation.
-Its workflow job permits 120 minutes, including toolchain setup.
+The separate physical job permits 6900 seconds, including compilation.
+Its workflow job permits 145 minutes, including toolchain setup.
 Both target a four-core `ubuntu-24.04` hosted worker.
 These are operational deadlines, pending completed hosted physical evidence.
 
@@ -183,8 +183,8 @@ Four-core affinity and background load underpin the new local measurements.
 See the suite's [measurement and phase rationale](../../tb/verilator/milan_dp/README.md#ax7101-1x1-eight-channel-gptp-physical-rate-run).
 
 Every physical transition and original timer remains exercised.
-Four missed Pdelay intervals, recovery, and reset require physical seconds.
-The scenario spans 16.992496440 simulated seconds over 849624822 cycles.
+Five missed Pdelay intervals, recovery, and reset require physical seconds.
+The scenario spans 17.992742740 simulated seconds over 899637137 cycles.
 The [workflow policy](CI_WORKFLOWS.md) records nightly and manual execution.
 Physical regressions are caught nightly, outside the PR aggregate.
 Run the identical suite on demand:

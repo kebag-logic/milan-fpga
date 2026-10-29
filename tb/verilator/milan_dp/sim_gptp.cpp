@@ -345,6 +345,12 @@ class GptpPlaneHarness {
   milan::tb::GptpLaunchObserver observer{8};
   bool pp_ctr_avb_seen = false;
   bool pp_ctr_ckd_seen = false;
+  //! While set, every clock clears the info server's first match stage, so
+  //! the processor HOLDs the GSI beat it presents inside its bounded gather
+  //! wait (4096 cycles) and resumes when this is cleared.
+  bool hold_gsi_beat = false;
+  //! the last cycle a GET_AS_PATH path-entry request was presented
+  uint64_t asp_entry_cyc = 0;
 
   //! The PHC THIS CYCLE, read where the plane reads it, so the launch this
   //! harness reports carries no assumption about the counter's rate. The
@@ -417,6 +423,9 @@ class GptpPlaneHarness {
     rmem_edge(dut); dmem_edge(dut);
     dut->axis_clk = 1; dut->gtx_clk = 1;
     dut->clk_audio_i = 1; dut->clk_tdm_i = 1; dut->eval();
+    if (dut->rootp->milan_datapath__DOT__asp_resp_entry_w)
+      asp_entry_cyc = sim_cyc;
+    if (hold_gsi_beat) dut->rootp->milan_datapath__DOT__gsi_srv1_r = 0;
     sim_cyc++;
     return fire;
   }
@@ -484,6 +493,20 @@ class GptpPlaneHarness {
     }
     dut->s_axis_mac_rx_tvalid = 0;
     dut->s_axis_mac_rx_tlast = 0;
+  }
+
+  //! FPGA-gPTP #89: the plane ages a grandmaster whose Sync stops for
+  //! syncReceiptTimeout (375 ms, 750 000 cycles at this leg's 2 MHz) even
+  //! while its Announces continue (802.1AS-2011 10.3.11, Figure 10-13 with
+  //! Cor1). The selected peer therefore sends one Sync pair ahead of each
+  //! long wait these phases take, so it stays selected through all of them.
+  uint16_t selected_sync_seq_ = 0x7300;
+  void run_selected(Vmilan_datapath *dut, uint64_t n, bool pdelay = false) {
+    send_sync_pair(dut, selected_sync_seq_++);
+    if (pdelay)
+      run_peer(dut, n);
+    else
+      run(dut, n);
   }
 
   void send_sync_pair(Vmilan_datapath *dut, uint16_t seq) {
@@ -592,19 +615,23 @@ class GptpPlaneHarness {
   void announce(Vmilan_datapath *dut, uint16_t seq,
                        const std::vector<uint64_t> &path,
                        uint64_t gmid = GMID, uint64_t src = PEER_CID,
-                       uint8_t priority1 = 100) {
-    //! A fixed Announce may carry no PathTrace suffix; that selected shape must
-    //! reach the parent as raw count zero. A present TLV remains complete and
-    //! identity-aligned, with its count bound to stepsRemoved+1.
-    const uint16_t tlv = path.empty() ? 0
-                                      : static_cast<uint16_t>(4 + 8 * path.size());
+                       uint8_t priority1 = 100, bool empty_tlv = false) {
+    //! A fixed Announce may carry no PathTrace suffix; that selected shape
+    //! writes no pathTrace, so the previous one stays published (IEEE
+    //! 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #87). `empty_tlv` sends a
+    //! zero-length TLV instead, whose pathTrace is {thisClock}. A present TLV
+    //! remains complete and identity-aligned; neither its count nor its head
+    //! disqualifies it (FPGA-gPTP #88).
+    const bool has_tlv = !path.empty() || empty_tlv;
+    const uint16_t tlv = has_tlv ? static_cast<uint16_t>(4 + 8 * path.size())
+                                 : 0;
     Frame a = ptp(0xB, seq, 0, 0x0008, static_cast<uint16_t>(30 + tlv), src);
     for (int i = 0; i < 10; i++) a.u8(0);
     a.u16(0xFFC4); a.u8(0);
     a.u8(priority1); a.u32(PEER_CQ); a.u8(248);
     a.u64(gmid);
     a.u16(path.empty() ? 0 : static_cast<uint16_t>(path.size() - 1)); a.u8(0xA0);
-    if (!path.empty()) {
+    if (has_tlv) {
       a.u16(0x0008); a.u16(static_cast<uint16_t>(8 * path.size()));
       for (uint64_t hop : path) a.u64(hop);
     }
@@ -1237,7 +1264,7 @@ class GptpPlaneHarness {
   // before the later GM switch, without exceeding syncReceiptTimeout. Pdelay
   // service keeps the selected peer capable throughout.
   unsigned prove_the_path_trace_refresh_generations(Vmilan_datapath *dut) {
-    run_peer(dut, 150000);
+    run_selected(dut, 150000, true);
     const size_t changed_first = tx_frames.size();
     const unsigned gen_a = (axi_read(dut, 0x7E4) >> 4) & 0xF;
     const std::vector<uint64_t> path_b =
@@ -1255,7 +1282,7 @@ class GptpPlaneHarness {
     expect("tail-only refresh leaves parent stable",
            (static_cast<uint64_t>(axi_read(dut, 0x734)) << 32) | axi_read(dut, 0x730),
            PEER_CID);
-    run(dut, 200000);
+    run_selected(dut, 200000);
     expect("tail-only refresh emits one GET_AS_PATH push",
            unsolicited_count(changed_first, 0x0028), 1);
     const std::vector<uint8_t> changed_push =
@@ -1269,54 +1296,41 @@ class GptpPlaneHarness {
 
     const size_t identical_first = tx_frames.size();
     announce(dut, 0x7003, path_b);
-    run(dut, 200000);
+    run_selected(dut, 200000);
     expect("identical parent refresh keeps generation",
            (axi_read(dut, 0x7E4) >> 4) & 0xF, gen_b);
     expect("identical parent refresh emits no false AS_PATH push",
            unsolicited_count(identical_first, 0x0028), 0);
 
-    // A selected fixed Announce without PathTrace is not #227's software
-    // count-zero alias. Product fabric mode serves the actual empty sequence,
-    // advances once on present<->absent, and sends exactly that zero-count body.
+    // A selected fixed Announce without PathTrace writes no pathTrace (IEEE
+    // 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #87). Product fabric mode keeps
+    // serving path B: the count and generation hold, no GET_AS_PATH push
+    // leaves, and the solicited response is path B unchanged. Every gPTP
+    // drop counter holding shows the frame reached the engine.
     const size_t absent_first = tx_frames.size();
+    const uint32_t drops_w0 = axi_read(dut, 0x7E8);
+    const uint32_t drops_e0 = axi_read(dut, 0x7EC);
     announce(dut, 0x7004, {});
-    uint32_t asp_empty = axi_read(dut, 0x7E4);
-    for (int n = 0; n < 64 && (asp_empty & 0xF) != 0; n++) {
-      run(dut, 1000);
-      asp_empty = axi_read(dut, 0x7E4);
-    }
-    expect("TLV-less fabric publication preserves raw count zero",
-           asp_empty & 0xF, 0);
-    expect("present to absent advances fabric path generation once",
-           (asp_empty >> 4) & 0xF, (gen_b + 1) & 0xF);
+    run_selected(dut, 200000);
+    expect("TLV-less refresh is neither tapped off nor parser-dropped",
+           axi_read(dut, 0x7E8), drops_w0);
+    expect("TLV-less refresh is not event-dropped", axi_read(dut, 0x7EC),
+           drops_e0);
+    const uint32_t asp_kept = axi_read(dut, 0x7E4);
+    expect("TLV-less fabric publication keeps the path count",
+           asp_kept & 0xF, 5);
+    expect("TLV-less refresh keeps fabric path generation",
+           (asp_kept >> 4) & 0xF, gen_b);
     expect("TLV-less selection retains scalar GM",
            (static_cast<uint64_t>(axi_read(dut, 0x628)) << 32) | axi_read(dut, 0x624), GMID);
-    run(dut, 200000);
-    expect("present to absent emits one GET_AS_PATH push",
-           unsolicited_count(absent_first, 0x0028), 1);
-    const std::vector<uint8_t> absent_push =
-        last_unsolicited(absent_first, 0x0028);
-    std::vector<uint8_t> path_empty = aecp_xact(
+    expect("TLV-less refresh emits no GET_AS_PATH push",
+           unsolicited_count(absent_first, 0x0028), 0);
+    std::vector<uint8_t> path_kept = aecp_xact(
         dut, 0x0028, 0x7105, {0x00, 0x00, 0x00, 0x00});
-    expect("TLV-less GET_AS_PATH minimum-Ethernet wire length",
-           path_empty.size(), 60);
-    expect("TLV-less GET_AS_PATH SUCCESS", aecp_status(path_empty), 0);
-    expect("TLV-less GET_AS_PATH cdl", path_empty.size() >= 18
-           ? (((static_cast<unsigned>(path_empty[16]) & 7) << 8) | path_empty[17]) : 0, 16);
-    expect("TLV-less GET_AS_PATH serves count zero", path_empty.size() >= 42
-           ? be32(path_empty, 38) : ~0u, 0);
-    expect("absent push body equals solicited empty response",
-           same_from(absent_push, path_empty, 38), 1);
-
-    const size_t absent_same_first = tx_frames.size();
-    const unsigned gen_empty = (asp_empty >> 4) & 0xF;
-    announce(dut, 0x7005, {});
-    run(dut, 200000);
-    expect("identical absent refresh keeps fabric path generation",
-           (axi_read(dut, 0x7E4) >> 4) & 0xF, gen_empty);
-    expect("identical absent refresh emits no AS_PATH push",
-           unsolicited_count(absent_same_first, 0x0028), 0);
-    return gen_empty;
+    expect("TLV-less GET_AS_PATH serves the kept path B",
+           path_kept.size() == path_new.size() &&
+               same_from(path_kept, path_new, 38), 1);
+    return gen_b;
   }
 
   // The PathTrace cases above intentionally take longer than one Sync receipt
@@ -1324,14 +1338,15 @@ class GptpPlaneHarness {
   // proof, then reopen the compressed counter-notification limiter while the
   // domain is still locked.
   void prove_the_gm_switch_drives_both_counter_families(Vmilan_datapath *dut,
-                                                         unsigned gen_empty) {
+                                                         unsigned gen_kept) {
     send_sync_pair(dut, 0x7201);
     expect("pre-switch fabric domain is locked", await_fabric_lock(dut), 1);
     run_peer(dut, 150000);
 
-    // The scalar GM remains live independently of PathTrace. Switching between
-    // two selected TLV-less masters drives AVB_INFO and GPTP_GM_CHANGED, but the
-    // served AS_PATH is empty on both sides and therefore stays silent. It also
+    // The scalar GM remains live independently of PathTrace. Switching to a
+    // better master on a TLV-less Announce drives AVB_INFO and GPTP_GM_CHANGED,
+    // but writes no pathTrace (FPGA-gPTP #87): the served AS_PATH is path B on
+    // both sides, its head still GMID, and therefore stays silent. It also
     // drives the product counter families: AVB_INTERFACE records the GM change,
     // while the discontinuity makes the previously locked CLOCK_DOMAIN unlock.
     const std::vector<uint8_t> avb_ctr_before =
@@ -1353,10 +1368,10 @@ class GptpPlaneHarness {
                | axi_read(dut, 0x624);
     }
     expect("TLV-less better Announce changes scalar GM", empty_gm, GMID_EMPTY);
-    expect("absent GM switch retains raw-empty count", axi_read(dut, 0x7E4) & 0xF,
-           0);
-    expect("absent GM switch spends no path generation",
-           (axi_read(dut, 0x7E4) >> 4) & 0xF, gen_empty);
+    expect("TLV-less GM switch keeps the path count", axi_read(dut, 0x7E4) & 0xF,
+           5);
+    expect("TLV-less GM switch spends no path generation",
+           (axi_read(dut, 0x7E4) >> 4) & 0xF, gen_kept);
     expect("fabric GM switch asserts CLKV tu hold", axi_read(dut, 0x77C) & 1, 1);
     const MediaTuSeen switch_media =
         await_media_tu(dut, empty_gm_first, 1, 90000);
@@ -1389,21 +1404,32 @@ class GptpPlaneHarness {
            same_from(avb_ctr_push, avb_ctr_after, 38), 1);
     expect("CLOCK_DOMAIN push body equals solicited counters",
            same_from(ckd_ctr_push, ckd_ctr_after, 38), 1);
-    run(dut, 200000);
-    expect("absent GM switch emits no false GET_AS_PATH push",
+    run_selected(dut, 200000);
+    expect("TLV-less GM switch emits no false GET_AS_PATH push",
            unsolicited_count(empty_gm_first, 0x0028), 0);
-    expect("absent GM switch still emits one GET_AVB_INFO push",
+    expect("TLV-less GM switch still emits one GET_AVB_INFO push",
            unsolicited_count(empty_gm_first, 0x0027), 1);
-    expect("absent GM switch still increments GPTP_GM_CHANGED",
+    expect("TLV-less GM switch still increments GPTP_GM_CHANGED",
            dut->rootp->milan_datapath__DOT__ctr_gmchg_r - gmchg_before, 1);
+    std::vector<uint8_t> path_kept = aecp_xact(
+        dut, 0x0028, 0x710A, {0x00, 0x00, 0x00, 0x00});
+    expect("#87 TLV-less GM switch: GET_AS_PATH keeps count five",
+           path_kept.size() >= 42 ? be32(path_kept, 38) : 0, 5);
+    expect("#87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID",
+           path_kept.size() >= 50 ? be64(path_kept, 42) : 0, GMID);
+    expect("#87 TLV-less GM switch: GET_AS_PATH still ends with thisClock",
+           path_kept.size() >= 82 ? be64(path_kept, 74) : 0, THIS_CLOCK);
   }
 
-  // Explicit `[GM]` is distinct from absent. Snapshot a one-entry response,
-  // withdraw it after the first-count capture, and require the in-flight wire
-  // answer to remain wholly old while live state and the following read are
-  // wholly new. These checks kill fabric min-one and torn-response mutations.
+  // Explicit `[GM]` replaces the kept path. A GET_AS_PATH response is held at
+  // its count beat, after the first-count snapshot, while an empty PathTrace,
+  // {thisClock} (FPGA-gPTP #88), commits; only then are its entries gathered.
+  // Its count, entry 0 and entry 1 must remain wholly old while live state and
+  // the following read are wholly new: IEEE 1722.1-2021 7.4.41.2 pairs count
+  // with path_sequence. Serving the count, entry 0 or entries 1..7 from the
+  // live path instead of that snapshot fails here.
   uint32_t prove_explicit_and_withdrawn_path_trace_coherence(
-        Vmilan_datapath *dut, unsigned gen_empty) {
+        Vmilan_datapath *dut, unsigned gen_kept) {
     const std::vector<uint64_t> one_path = {GMID_EMPTY};
     const size_t one_first = tx_frames.size();
     announce(dut, 0x7007, one_path, GMID_EMPTY, GMID_EMPTY, 90);
@@ -1414,10 +1440,10 @@ class GptpPlaneHarness {
     }
     expect("explicit one-entry fabric PathTrace serves count two",
            asp_one & 0xF, 2);
-    expect("absent to explicit GM advances generation once",
-           (asp_one >> 4) & 0xF, (gen_empty + 1) & 0xF);
-    run(dut, 200000);
-    expect("absent to explicit GM emits one AS_PATH push",
+    expect("kept to explicit GM advances generation once",
+           (asp_one >> 4) & 0xF, (gen_kept + 1) & 0xF);
+    run_selected(dut, 200000);
+    expect("kept to explicit GM emits one AS_PATH push",
            unsolicited_count(one_first, 0x0028), 1);
     std::vector<uint8_t> path_one = aecp_xact(
         dut, 0x0028, 0x7106, {0x00, 0x00, 0x00, 0x00});
@@ -1445,45 +1471,58 @@ class GptpPlaneHarness {
            cut_capture, 1);
     const size_t withdraw_first = tx_frames.size();
     const unsigned gen_one = (asp_one >> 4) & 0xF;
-    //! Hold the already-captured response behind the real MAC boundary while
-    //! the independent gPTP plane commits the withdrawal. Releasing it afterward
-    //! makes old-response/new-live coherence observable rather than a timing
-    //! inference from a response that happened to leave first.
-    dut->m_axis_mac_tx_tready = 0;
-    announce(dut, 0x7008, {}, GMID_EMPTY, GMID_EMPTY, 90);
-    bool withdrew_before_old_wire = false;
-    for (int n = 0; n < 200000 && !withdrew_before_old_wire; n++) {
+    //! The processor gathers every entry within cycles of the count capture,
+    //! long before an Announce sent now can commit. So the captured response
+    //! is held at its count beat while the independent gPTP plane commits the
+    //! empty path: the publication lands after the snapshot and before the
+    //! first path-entry request (asp_resp_entry_w), well inside the gather
+    //! wait. A gather that had already finished would make an all-old answer
+    //! a false green.
+    const uint64_t capture_cyc = sim_cyc;
+    hold_gsi_beat = true;
+    announce(dut, 0x7008, {}, GMID_EMPTY, GMID_EMPTY, 90, true);
+    bool withdrew_in_gather = false;
+    for (int n = 0; n < 3000 && !withdrew_in_gather; n++) {
       tick(dut);
-      withdrew_before_old_wire =
-          dut->rootp->milan_datapath__DOT__gptp_pub_path_count_w == 0;
+      withdrew_in_gather =
+          dut->rootp->milan_datapath__DOT__gptp_pub_path_count_w == 1;
     }
-    expect("withdrawal commits before captured old response leaves wire",
-           withdrew_before_old_wire, 1);
-    dut->m_axis_mac_tx_tready = 1;
+    hold_gsi_beat = false;
+    const bool entry_before_commit = asp_entry_cyc >= capture_cyc;
+    printf("[cut] count beat held %llu cycles; commit seen %d; path-entry "
+           "request before the commit %d\n",
+           static_cast<unsigned long long>(sim_cyc - capture_cyc),
+           static_cast<int>(withdrew_in_gather),
+           static_cast<int>(entry_before_commit));
+    expect("empty path commits after first-count snapshot, before entry gather",
+           withdrew_in_gather && !entry_before_commit, 1);
     std::vector<uint8_t> cut_old = await_aecp(dut, cut_seq, 0x0028);
     expect("in-flight response remains wholly old count two",
            cut_old.size() >= 50 ? be32(cut_old, 38) : 0, 2);
     expect("in-flight response remains wholly old GM",
            cut_old.size() >= 50 ? be64(cut_old, 42) : 0, GMID_EMPTY);
+    expect("in-flight response remains wholly old: ends with thisClock",
+           cut_old.size() >= 58 ? be64(cut_old, 50) : 0, THIS_CLOCK);
     uint32_t asp_withdrawn = axi_read(dut, 0x7E4);
-    for (int n = 0; n < 64 && (asp_withdrawn & 0xF) != 0; n++) {
+    for (int n = 0; n < 64 && (asp_withdrawn & 0xF) != 1; n++) {
       run(dut, 1000);
       asp_withdrawn = axi_read(dut, 0x7E4);
     }
-    expect("explicit GM withdrawal restores raw-empty count",
-           asp_withdrawn & 0xF, 0);
-    expect("explicit GM withdrawal advances generation once",
+    expect("empty PathTrace serves count one", asp_withdrawn & 0xF, 1);
+    expect("explicit GM to empty path advances generation once",
            (asp_withdrawn >> 4) & 0xF, (gen_one + 1) & 0xF);
-    run(dut, 200000);
-    expect("explicit GM withdrawal emits one AS_PATH push",
+    run_selected(dut, 200000);
+    expect("explicit GM to empty path emits one AS_PATH push",
            unsolicited_count(withdraw_first, 0x0028), 1);
     const std::vector<uint8_t> withdraw_push =
         last_unsolicited(withdraw_first, 0x0028);
     std::vector<uint8_t> cut_new = aecp_xact(
         dut, 0x0028, 0x7108, {0x00, 0x00, 0x00, 0x00});
-    expect("post-cut response is wholly new count zero",
-           cut_new.size() >= 42 ? be32(cut_new, 38) : ~0u, 0);
-    expect("withdrawal push body equals post-cut solicited response",
+    expect("post-cut response is wholly new count one",
+           cut_new.size() >= 42 ? be32(cut_new, 38) : ~0u, 1);
+    expect("#88 post-cut response is {thisClock}",
+           cut_new.size() >= 50 ? be64(cut_new, 42) : 0, THIS_CLOCK);
+    expect("empty-path push body equals post-cut solicited response",
            same_from(withdraw_push, cut_new, 38), 1);
     return asp_withdrawn;
   }
@@ -1506,9 +1545,9 @@ class GptpPlaneHarness {
     }
     expect("maximum bounded fabric PathTrace serves count eight", asp_max & 0xF,
            8);
-    expect("empty to maximum path advances generation once",
+    expect("{thisClock} to maximum path advances generation once",
            (asp_max >> 4) & 0xF, (gen_withdrawn + 1) & 0xF);
-    run(dut, 200000);
+    run_selected(dut, 200000);
     expect("maximum path emits one GET_AS_PATH push",
            unsolicited_count(max_first, 0x0028), 1);
     expect("maximum path emits no false GET_AVB_INFO push",
@@ -1527,6 +1566,80 @@ class GptpPlaneHarness {
            ? be64(path_max_wire, 98) : 0, PEER_CID);
     expect("maximum push body equals solicited path",
            same_from(max_push, path_max_wire, 38), 1);
+  }
+
+  // FPGA-gPTP #88: a path not headed by its grandmaster is served as
+  // received. GET_AS_PATH entry 0 is the received head, never the
+  // grandmaster identity put in its place, and thisClock still ends it. The
+  // Table 5.22 push on a path change is proven above; this solicited read
+  // grades the served sequence itself.
+  void prove_the_served_head_is_the_received_head(Vmilan_datapath *dut) {
+    const unsigned gen_max = (axi_read(dut, 0x7E4) >> 4) & 0xF;
+    // The peer's Sync stopped in the leg above, so its port is aged (IEEE
+    // 802.1AS-2011 10.3.11, FPGA-gPTP #89); a usable pair clears that first.
+    run_selected(dut, 20000);
+    announce(dut, 0x710B, {PATH_B3, PEER_CID}, GMID_EMPTY, PEER_CID, 80);
+    uint32_t asp_head = axi_read(dut, 0x7E4);
+    for (int n = 0; n < 64 && (asp_head & 0xF) != 3; n++) {
+      run(dut, 1000);
+      asp_head = axi_read(dut, 0x7E4);
+    }
+    expect("#88 path headed elsewhere serves count three", asp_head & 0xF, 3);
+    expect("#88 path headed elsewhere advances generation once",
+           (asp_head >> 4) & 0xF, (gen_max + 1) & 0xF);
+    expect("#88 path headed elsewhere keeps the scalar GM",
+           (static_cast<uint64_t>(axi_read(dut, 0x628)) << 32) | axi_read(dut, 0x624),
+           GMID_EMPTY);
+    std::vector<uint8_t> path_head = aecp_xact(
+        dut, 0x0028, 0x710C, {0x00, 0x00, 0x00, 0x00});
+    expect("#88 GET_AS_PATH count three", path_head.size() >= 42
+           ? be32(path_head, 38) : 0, 3);
+    expect("#88 GET_AS_PATH entry 0 is the received head",
+           path_head.size() >= 50 ? be64(path_head, 42) : 0, PATH_B3);
+    expect("#88 GET_AS_PATH entry 1 is the parent",
+           path_head.size() >= 58 ? be64(path_head, 50) : 0, PEER_CID);
+    expect("#88 GET_AS_PATH ends with thisClock",
+           path_head.size() >= 66 ? be64(path_head, 58) : 0, THIS_CLOCK);
+  }
+
+  // Only entry 0 changes: the count and the tail are equal, so the served
+  // sequence differs only in its head. Milan Table 5.22 pushes GET_AS_PATH
+  // when the path sequence changes, and the 0x7E4 generation moves with it;
+  // a comparator that skips entry 0 misses both. The earlier registration
+  // has passed its 7.4.37.2 timeout this late in the leg, so register again;
+  // a refused registration fails the push check below.
+  void prove_an_entry_zero_change_is_a_path_change(Vmilan_datapath *dut) {
+    aecp_xact(dut, 0x0024, 0x710F, {0x00, 0x00, 0x00, 0x00});
+    run_selected(dut, 200000);
+    const size_t head_first = tx_frames.size();
+    const unsigned gen_before = (axi_read(dut, 0x7E4) >> 4) & 0xF;
+    announce(dut, 0x710D, {PATH_B2, PEER_CID}, GMID_EMPTY, PEER_CID, 80);
+    uint32_t asp_new = axi_read(dut, 0x7E4);
+    for (int n = 0; n < 64 && ((asp_new >> 4) & 0xF) == gen_before; n++) {
+      run(dut, 1000);
+      asp_new = axi_read(dut, 0x7E4);
+    }
+    expect("entry-0-only change keeps count three", asp_new & 0xF, 3);
+    expect("entry-0-only change advances generation once",
+           (asp_new >> 4) & 0xF, (gen_before + 1) & 0xF);
+    run_selected(dut, 200000);
+    expect("entry-0-only change emits one GET_AS_PATH push",
+           unsolicited_count(head_first, 0x0028), 1);
+    const std::vector<uint8_t> head_push =
+        last_unsolicited(head_first, 0x0028);
+    std::vector<uint8_t> path_new_head = aecp_xact(
+        dut, 0x0028, 0x710E, {0x00, 0x00, 0x00, 0x00});
+    expect("entry-0-only change: GET_AS_PATH count three",
+           path_new_head.size() >= 42 ? be32(path_new_head, 38) : 0, 3);
+    expect("entry-0-only change: GET_AS_PATH serves the new entry 0",
+           path_new_head.size() >= 50 ? be64(path_new_head, 42) : 0, PATH_B2);
+    expect("entry-0-only change: GET_AS_PATH keeps entry 1",
+           path_new_head.size() >= 58 ? be64(path_new_head, 50) : 0, PEER_CID);
+    expect("entry-0-only change: GET_AS_PATH keeps thisClock last",
+           path_new_head.size() >= 66 ? be64(path_new_head, 58) : 0,
+           THIS_CLOCK);
+    expect("entry-0-only push body equals solicited path",
+           same_from(head_push, path_new_head, 38), 1);
   }
 
   // ---- issue #207: the three drop counters through the real CSR route ----
@@ -1553,21 +1666,49 @@ class GptpPlaneHarness {
 
       // b) a full queue refuses the next accepted frame's event: only 0x7EC
       //    moves. The four-deep level is held full around exactly one valid
-      //    Sync - the same poke-the-corner idiom as the merge-stall arms -
-      //    while a first Sync keeps the uCPU inside its handler so nothing
-      //    pops a forced entry. The level is restored to the true wp-rp
-      //    afterwards; the refused frame's bank stays held, which nothing
-      //    after this arm asserts on.
+      //    Sync - the same poke-the-corner idiom as the merge-stall arms. A
+      //    forced level makes every slot look live, so dispatch must not be
+      //    able to pop inside the window: s1's Pdelay_Resp is held at the MAC
+      //    and s1b, a second real Pdelay_Req, waits at the queue head behind
+      //    s1's response claim (FPGA-gPTP #89: no stale entry runs, so what
+      //    it would run cannot decide this arm or any after it). The level is
+      //    forced to four on every cycle until s2's event has arrived; both
+      //    pointers must then equal their values before the window, and the
+      //    level is restored to its own, so the engine is left as found.
       auto *eng = &root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_lvl_r;
-      Frame s1 = ptp(0x0, 0x5108, 0, 0x0208, 10);
-      s1.ts(0);
+      const auto &evq_rp = root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_rp_r;
+      const auto &evq_wp = root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_wp_r;
+      const auto &resp_claim = root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__resp_claim_valid_r;
+      dut->m_axis_mac_tx_tready = 0;
+      Frame s1 = ptp(0x2, 0x5108, 0, 0x0000, 20);
+      s1.u64(0); s1.u16(0); s1.ts(0);
+      s1.b.resize(68);
       send_wide(dut, s1.b);
-      run(dut, 40);                       // the handler is now holding the uCPU
+      for (int n = 0; n < 20000 && !resp_claim; n++)
+        run(dut, 1);                      // s1's response is claimed, held
+      Frame s1b = ptp(0x2, 0x510A, 0, 0x0000, 20);
+      s1b.u64(0); s1b.u16(0); s1b.ts(0);
+      s1b.b.resize(68);
+      send_wide(dut, s1b.b);
+      for (int n = 0; n < 20000 && *eng == 0; n++)
+        run(dut, 1);                      // s1b now waits at the head
+      const unsigned lvl0 = *eng;
+      const unsigned rp0 = evq_rp;
+      const unsigned wp0 = evq_wp;
       *eng = 4; dut->eval();              // queue reads full; pushes refused
       Frame s2 = ptp(0x0, 0x5109, 0, 0x0208, 10);
       s2.ts(0);
       send_wide(dut, s2.b);
-      run(dut, 400);                      // s2's event arrives against full
+      for (int n = 0; n < 400; n++) {     // s2's event arrives against full
+        *eng = 4; dut->eval();
+        run(dut, 1);
+      }
+      const unsigned rp1 = evq_rp;
+      const unsigned wp1 = evq_wp;
+      *eng = static_cast<uint8_t>(lvl0);
+      dut->eval();
+      printf("[#207] full-queue window: level %u, rp %u->%u, wp %u->%u\n",
+             lvl0, rp0, rp1, wp0, wp1);
       uint32_t w2 = axi_read(dut, 0x7E8);
       uint32_t e2 = axi_read(dut, 0x7EC);
       expect("a full queue moves only the event count",
@@ -1575,15 +1716,9 @@ class GptpPlaneHarness {
       expect("the full-queue refusal leaves the parser count",
              w2 & 0xFFFF, w1 & 0xFFFF);
       expect("the full-queue refusal leaves the tap count", w2 >> 16, w1 >> 16);
-      // The restore is exact only if no pop fired inside the window; a pop
-      // needs the uCPU idle, which s1's still-running handler forbids, and
-      // an early pop would fail the full-queue expect above loudly. The one
-      // green-but-poisoned residue (a pop after the refusal, before this
-      // line) is benign only because this is the file's last arm - keep it
-      // last, or gate the restore on dbg_busy_o.
-      *eng = static_cast<uint8_t>((root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_wp_r
-              - root->milan_datapath__DOT__g_gptp_plane__DOT__u_gptp_shadow__DOT__u_engine__DOT__evq_rp_r) & 3);
-      dut->eval();
+      expect("the full-queue window pops and pushes no event",
+             rp1 == rp0 && wp1 == wp0, 1);
+      dut->m_axis_mac_tx_tready = 1;      // release the held response
       run(dut, 4000);                     // drain the real backlog
 
       // c) a back-to-back burst overruns the 2 KB tap FIFO: the shed frames
@@ -1776,14 +1911,16 @@ int GptpPlaneHarness::run() {
   prove_a_registered_controller_sees_no_retired_dirt(dut);
   prove_the_per_descriptor_one_second_limiter(dut);
   prove_the_sync_lock_reaches_the_clock_domain_counters(dut);
-  const unsigned gen_empty = prove_the_path_trace_refresh_generations(dut);
-  prove_the_gm_switch_drives_both_counter_families(dut, gen_empty);
+  const unsigned gen_kept = prove_the_path_trace_refresh_generations(dut);
+  prove_the_gm_switch_drives_both_counter_families(dut, gen_kept);
   const uint32_t asp_withdrawn =
-      prove_explicit_and_withdrawn_path_trace_coherence(dut, gen_empty);
+      prove_explicit_and_withdrawn_path_trace_coherence(dut, gen_kept);
   prove_the_maximum_bounded_path_trace(dut, asp_withdrawn);
   prove_the_three_drop_counters_through_the_csr(dut);
   prove_the_board_latency_corrections_reach_both_stamps(dut);
   emit_every_gptp_tx_flag_type(dut);
+  prove_the_served_head_is_the_received_head(dut);
+  prove_an_entry_zero_change_is_a_path_change(dut);
 
   return report();
 }

@@ -175,7 +175,7 @@ PHYSICAL_GPTP_CONTRACT: YamlMap = {
     'if': "${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == "
           "'schedule' || github.event_name == 'workflow_dispatch') }}",
     'runs-on': 'ubuntu-24.04',
-    'timeout-minutes': 120,
+    'timeout-minutes': 145,
     'steps': [   {'uses': 'actions/checkout@v4'},
                  {   'name': 'Fetch RTL dependencies',
                      'run': 'set -euo pipefail\n'
@@ -2005,7 +2005,7 @@ def check_physical_gptp(c: Contract, wf: YamlMap, policy: str) -> None:
     c.item(len(run_steps) == 1 and set(run_steps[0]) == {"name", "run"}
            and normalize_script(run_steps[0].get("run", "")) == normalize_script(expected_run),
            RTL_FULL, "default Verilator shards must use the pinned default inventory command")
-    for token in ("physical-gptp", "--physical-gptp", "5400", "120", "nightly"):
+    for token in ("physical-gptp", "--physical-gptp", "6900", "145", "nightly"):
         c.item(token in policy, POLICY, f"must document physical gPTP policy token `{token}`")
 
 

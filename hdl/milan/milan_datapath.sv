@@ -1637,7 +1637,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire [63:0] gptp_pub_gm_w, gptp_pub_parent_w, gptp_pub_annq_w;
   wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w;
   wire [31:0] gptp_pub_offset_w /* verilator public_flat_rd */;
-  wire [7*64-1:0] gptp_pub_path_w;
+  //! pathTrace entries 0..7 (FPGA-gPTP #87, #88). Entry 0, the received head
+  //! or thisClock, feeds GET_AS_PATH directly; the CSR's AS_PATH face keeps
+  //! its seven-entry width and takes entries 1..7.
+  wire [8*64-1:0] gptp_pub_path_w;
+  wire [63:0] gptp_pub_path_head_w = gptp_pub_path_w[63:0];
+  wire [7*64-1:0] gptp_pub_path_tail_w = gptp_pub_path_w[8*64-1:64];
   wire [3:0] gptp_pub_path_count_w, gptp_pub_path_gen_w;
   wire        gptp_pub_disc_w;
   wire signed [31:0] gptp_adj_w;
@@ -2283,31 +2288,36 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   wire        cfg_lpf_enable;
   wire        cfg_crf_en;
   wire [63:0] cfg_crf_sid;
-  //! gh #64 J4 selected PathTrace: the published tail GET_AS_PATH serves
-  //! behind the grandmaster. The notification edge is
-  //! derived below from the complete LIVE served sequence, not a raw CSR
-  //! generation. Product fabric mode preserves the donor's raw distinction:
-  //! count zero is an absent PathTrace and count one is `{thisClock}` before
-  //! a peer is elected (FPGA-gPTP #82); a received sequence gains thisClock,
-  //! so an explicit one-entry `[GM]` PathTrace is count two (FPGA-gPTP #85).
-  //! The option-off shape has no path owner. Every owner aliases to empty while no
-  //! grandmaster exists.
-  //! Slot count DERIVED from the port width (one source, as the CSR does).
+  //! gh #64 J4 selected PathTrace: the pathTrace GET_AS_PATH serves. The
+  //! notification edge is derived below from the complete LIVE served
+  //! sequence, not a raw CSR generation. Product fabric mode serves the
+  //! engine's pathTrace from entry 0 (FPGA-gPTP #87, #88): a received
+  //! pathSequence as received, its head included, with thisClock appended
+  //! (#85), so an explicit one-entry `[GM]` PathTrace is count two. Without a
+  //! TLV the previous pathTrace stays; `{thisClock}`, count one, is this
+  //! station's own path before a peer is elected (#82). The option-off shape
+  //! has no path owner. Every owner aliases to empty while no grandmaster
+  //! exists.
+  //! Tail slot count DERIVED from the CSR port width (one source, as the CSR
+  //! does); entry 0 comes from the engine's head output beside it.
   wire [7*64-1:0] asp_path_w /* verilator public_flat_rd */;
   wire [3:0]      asp_count_w /* verilator public_flat_rd */;
   wire [3:0]      asp_gen_w   /* verilator public_flat_rd */;
   localparam int unsigned ASP_SLOTS_C = $bits(asp_path_w) / 64;
-  //! milan_csr owner-selects o_asp_*: the engine's complete committed
-  //! PathTrace in product mode and structural zero in option-off mode.
-  //! Fabric count zero means empty even with a separately known GM.
-  //! The conditional head below is the exact entry-zero value GET_AS_PATH
-  //! serves and the Table 5.22 comparator observes.
+  //! milan_csr owner-selects o_asp_*: entries 1..7 of the engine's complete
+  //! committed pathTrace in product mode and structural zero in option-off
+  //! mode. Entry 0 takes the same owner selection here. The conditional
+  //! head below is the exact entry-zero value GET_AS_PATH serves and the
+  //! Table 5.22 comparator observes: the received head, which need not be
+  //! the grandmaster (#88), or thisClock.
   wire [3:0] asp_owner_count_w = GPTP_PLANE_EN_P ? asp_count_w : 4'd0;
+  wire [63:0] asp_owner_head_w = GPTP_PLANE_EN_P ? gptp_pub_path_head_w
+                                                 : 64'd0;
   wire [3:0] asp_live_count_w = !(|cfg_adp_gptp_gm) ? 4'd0
       : asp_owner_count_w;
   wire [7*64-1:0] asp_live_path_w = !(|cfg_adp_gptp_gm) ? '0
       : asp_path_w;
-  wire [63:0] asp_live_gm_w = (|asp_live_count_w) ? cfg_adp_gptp_gm
+  wire [63:0] asp_live_head_w = (|asp_live_count_w) ? asp_owner_head_w
       : 64'd0;
   wire [63:0] pcm_lpf_tdata;
   wire        pcm_lpf_tvalid;
@@ -2723,7 +2733,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .i_gptp_gm_id         (gptp_pub_gm_w),
     .i_gptp_parent_id     (gptp_pub_parent_w),
     .i_gptp_pdelay_ns     (gptp_pub_pdelay_w),
-    .i_gptp_asp_path      (gptp_pub_path_w),
+    .i_gptp_asp_path      (gptp_pub_path_tail_w),
     .i_gptp_asp_count     (gptp_pub_path_count_w),
     .i_gptp_asp_gen       (gptp_pub_path_gen_w),
     .i_gptp_tap_drop      (gptp_tap_drop_w),
@@ -6051,7 +6061,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! so a concurrent PUBLISH can select the next response but cannot splice
   //! its bytes into one already in flight.
   logic        gsi_req_q_r;
-  logic [63:0] asp_resp_gm_r;
+  logic [63:0] asp_resp_head_r;
   logic [3:0]  asp_resp_count_r;
   logic [7*64-1:0] asp_resp_path_r;
   logic [63:0] gsi_gm_snap_r;
@@ -6084,7 +6094,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       gsiq_sel_r  <= 4'd0;  gsiq_ord_r  <= 8'd0;
       gsi_srv1_r  <= 1'b0;  gsi_srv2_r  <= 1'b0;  gsi_data_r <= 64'd0;
       gsi_req_q_r <= 1'b0;
-      asp_resp_gm_r <= 64'd0;
+      asp_resp_head_r <= 64'd0;
       asp_resp_count_r <= 4'd0;
       asp_resp_path_r <= '0;
       gsi_gm_snap_r     <= 64'd0;
@@ -6105,7 +6115,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       gsi_srv2_r   <= pp_gsi_req_w && gsi_sel_match_w && gsi_srv1_r;
       gsi_data_r   <= gsi_ans_raw_w;
       if (asp_resp_capture_w) begin
-        asp_resp_gm_r    <= asp_live_gm_w;
+        asp_resp_head_r  <= asp_live_head_w;
         asp_resp_count_r <= asp_live_count_w;
         asp_resp_path_r  <= asp_live_path_w;
       end
@@ -6329,17 +6339,18 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   end
 
   //! ---- the served 802.1AS path (Milan 5.4.2.17 GET_AS_PATH) ----------
-  //! Entry 0, when count is nonzero, is the selected owner's grandmaster;
-  //! entries 1.. are its PathTrace tail. No grandmaster is always empty. With
-  //! a fabric GM, count zero is also empty because the selected Announce had
-  //! no PathTrace TLV. Option-off aliases are structural zero, so software
-  //! writes cannot create either a count or an entry.
+  //! Entry 0, when count is nonzero, is the head of the selected owner's
+  //! pathTrace: the received head, never replaced by the grandmaster identity
+  //! (IEEE 802.1AS-2011 10.3.10.2.1 d), FPGA-gPTP #88), or thisClock; entries
+  //! 1.. follow it. No grandmaster is always empty. Option-off aliases are
+  //! structural zero, so software writes cannot create either a count or an
+  //! entry.
   wire [3:0] asp_served_count_w = asp_resp_count_r;
   logic [63:0] asp_served_entry_w;
   always_comb begin : asp_entry_pick
     asp_served_entry_w = 64'd0;
     if (32'(gsiq_ord_r) < 32'(asp_served_count_w)) begin
-      if (gsiq_ord_r == 8'd0) asp_served_entry_w = asp_resp_gm_r;
+      if (gsiq_ord_r == 8'd0) asp_served_entry_w = asp_resp_head_r;
       else
         for (int unsigned k = 1; k < ASP_SLOTS_C + 1; k++)
           if (32'(gsiq_ord_r) == k)
@@ -6487,10 +6498,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! strobe or the unconditional grandmaster-identity edge.
   //! Milan Table 5.22 triggers GET_AS_PATH on "the path sequence changes",
   //! and this fabric serves that sequence from one selected owner. Compare
-  //! exactly `(count ? GM : 0, count, active tails)`, not a raw publication
-  //! generation. Thus fabric count 0 <-> 1 is a real sequence edge; GM A->B
-  //! while both fabric counts are zero is silent; every tail aliases to empty
-  //! while GM=0. Option OFF is ownerless and has no staging state to compare.
+  //! exactly `(count ? entry 0 : 0, count, active tails)`, not a raw
+  //! publication generation. Thus a GM A->B on a TLV-less Announce, which
+  //! keeps the previous pathTrace (FPGA-gPTP #87), is silent; every entry
+  //! aliases to empty while GM=0. Option OFF is ownerless and has no staging
+  //! state to compare.
   //!
   //! What is NOT a term is the gPTP domain number. It is a GET_AVB_INFO
   //! field (below) and an ADPDU field, but it is not a path entry, so a
@@ -6502,7 +6514,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! All of these are one-cycle strobes; the processor coalesces them into
   //! one push per class.
   logic gsi_ascap_q_r;
-  logic [63:0] gsi_asp_gm_q_r;
+  logic [63:0] gsi_asp_head_q_r;
   logic [3:0] gsi_asp_count_q_r;
   logic [7*64-1:0] gsi_asp_path_q_r;
   logic gsi_snap_v_r;
@@ -6512,7 +6524,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   always_ff @(posedge axis_clk) begin : gsi_change_edges
     if (!axis_resetn) begin
       gsi_ascap_q_r <= 1'b0;
-      gsi_asp_gm_q_r <= 64'd0;
+      gsi_asp_head_q_r <= 64'd0;
       gsi_asp_count_q_r <= 4'd0;
       gsi_asp_path_q_r  <= '0;
       gsi_snap_v_r  <= 1'b0;
@@ -6521,7 +6533,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       gsi_dom_q_r   <= 8'd0;
     end else begin
       gsi_ascap_q_r <= clkv_as_cap_w;
-      gsi_asp_gm_q_r <= asp_live_gm_w;
+      gsi_asp_head_q_r <= asp_live_head_w;
       gsi_asp_count_q_r <= asp_live_count_w;
       gsi_asp_path_q_r  <= asp_live_path_w;
       gsi_snap_v_r  <= 1'b1;
@@ -6539,10 +6551,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                             || (eff_gptp_pdelay_w   != gsi_pdly_q_r)
                             || (cfg_adp_gptp_domain != gsi_dom_q_r)));
   //! One source for the event and the answer: compare the complete served
-  //! sequence. gsi_gm_chg_w remains the AVB_INFO/counter identity edge, but
-  //! AS_PATH sees the GM only when its count makes entry zero present.
+  //! sequence. gsi_gm_chg_w remains the AVB_INFO/counter identity edge;
+  //! AS_PATH sees entry 0, not the GM, and only when its count makes it present.
   wire gsi_asp_chg_w = gsi_snap_v_r
-                    && ((asp_live_gm_w != gsi_asp_gm_q_r)
+                    && ((asp_live_head_w != gsi_asp_head_q_r)
                         || (asp_live_count_w != gsi_asp_count_q_r)
                         || (asp_live_path_w != gsi_asp_path_q_r));
 

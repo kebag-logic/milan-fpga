@@ -320,7 +320,7 @@ class Harness {
     drive(3 * kHz);
     check_.dec("good exchanges requalify after real fault", dut_->pub_flags_o & 4, 4);
     answer_ = false;
-    drive(5 * kHz);
+    drive(6 * kHz);  // FPGA-gPTP #90: the fifth loss clears asCapable
     check_.dec("missing peer still clears asCapable", dut_->pub_flags_o & 4, 0);
   }
 
@@ -346,7 +346,7 @@ class Harness {
     gm_epoch_ns_ += 10000000;
     announce(); next_announce_ = cycle_ + kHz;
     next_sync_ = target + 200;
-    drive(6 * kHz);
+    drive(7 * kHz);  // FPGA-gPTP #90: the fifth loss clears asCapable
     monitor_ = silent_after_probe_ = false;
     answer_probe_ = true;
     printf("ARM %s drops=%llu unanswered=%llu unanswered_at_drop=%llu\n", name,
@@ -357,23 +357,25 @@ class Harness {
 
   void exercise_liveness() {
     // A received response resets lostResponses (IEEE 802.1AS-2020 11.2.19).
-    // allowedLostResponses is 3 (11.2.13.4), so after a crossing exchange
-    // that is answered, the fourth unanswered request, not the third,
-    // clears asCapable when the next interval judges it lost.
+    // allowedLostResponses is 3 (11.2.13.4), and the MDPdelayReq RESET
+    // increments while lostResponses <= allowedLostResponses (802.1AS-2011
+    // Figure 11-8, FPGA-gPTP #90), so after a crossing exchange that is
+    // answered, the fifth unanswered request clears asCapable when the next
+    // interval judges it lost.
     requalify("liveness: answered exchanges requalify after silence");
     check_.dec("liveness: one grandmaster-driven step", silence_across_step("liveness", true), 1);
     check_.that("liveness: step falls between returned t1 and response",
                 probe_stamp_ < last_step_cycle_ && last_step_cycle_ < probe_response_);
     check_.dec("liveness: no invalid link-delay publication", bad_delays_, 0);
     check_.dec("liveness: asCapable falls once while the peer is silent", drops_, 1);
-    check_.dec("asCapable falls at the fourth unanswered request after a crossing exchange",
-               unanswered_at_drop_, 4);
+    check_.dec("asCapable falls at the fifth unanswered request after a crossing exchange",
+               unanswered_at_drop_, 5);
   }
 
   void exercise_unanswered_crossing() {
     // The same step, but the peer ignores the crossing request too. Without
     // a response nothing resets lostResponses (11.2.19): that request is the
-    // first lost, so the third unanswered request after it clears asCapable.
+    // first lost, so the fourth unanswered request after it clears asCapable.
     requalify("unanswered crossing: answered exchanges requalify after silence");
     check_.dec("unanswered crossing: one grandmaster-driven step",
                silence_across_step("unanswered crossing", false), 1);
@@ -384,8 +386,8 @@ class Harness {
                 probe_response_ == 0 && probe_follow_up_ == 0);
     check_.dec("unanswered crossing: no invalid link-delay publication", bad_delays_, 0);
     check_.dec("unanswered crossing: asCapable falls once while the peer is silent", drops_, 1);
-    check_.dec("asCapable falls at the third unanswered request after an unanswered crossing request",
-               unanswered_at_drop_, 3);
+    check_.dec("asCapable falls at the fourth unanswered request after an unanswered crossing request",
+               unanswered_at_drop_, 4);
   }
 };
 }

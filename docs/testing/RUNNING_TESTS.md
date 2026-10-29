@@ -85,7 +85,7 @@ The default selection contains 64 suites.
 Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
 [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
 The separate `milan_dp_gptp` selection uses
-5400 seconds, including compilation, and preserves physical clock and timer
+6900 seconds, including compilation, and preserves physical clock and timer
 rates. CI runs the default selection on nineteen `--ci-pieces` workers; the
 physical job runs nightly and on manual dispatch. Inspect a hosted worker's
 selection and the physical selection without compiling with:

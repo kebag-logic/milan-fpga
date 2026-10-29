@@ -103,8 +103,8 @@ The current AECP implementation answers these operations with real behavior:
   binding-record commit, with stopped-CRF observation preserved (issue #97)
 - `SET_STREAM_INFO` with Milan's one sub-command (MSRP_ACC_LAT_VALID), setting
   the presentation-time offset the AAF and CRF framers stamp (issue #67)
-- `GET_STREAM_INFO`, `GET_AVB_INFO`, and `GET_AS_PATH` (the grandmaster plus
-  the atomically published PathTrace tail)
+- `GET_STREAM_INFO`, `GET_AVB_INFO`, and `GET_AS_PATH` (the atomically
+  published pathTrace, from its entry 0)
 - `REGISTER_UNSOLICITED_NOTIFICATION` and `DEREGISTER_UNSOLICITED_NOTIFICATION`
 - `IDENTIFY_NOTIFICATION` commands with the required `BAD_ARGUMENTS` result
 - `GET_COUNTERS` for Stream Input, Stream Output, AVB Interface, and Clock Domain
@@ -160,23 +160,24 @@ the Table 5.22 observed triggers (counters, AVB info, AS_PATH) are wired from
 the fabric, and silent controllers are probed and deregistered (Milan 5.4.5.2
 and 5.4.5.3, issue #69). Persistence stays with issue #70.
 `GET_AS_PATH` follows the same owner selection. The product-default fabric
-owner publishes the bounded PathTrace from the selected Announce: no entries
-without a GM or when that Announce has no PathTrace TLV; otherwise the GM is
-followed by up to seven traversed identities in wire order. The engine and
-wrapper commit the complete count/tail atomically; software writes cannot forge
-it. The verification-only option-OFF elaboration is deliberately ownerless:
-its GM, parent, path and peer-delay publications are zero, sync/asCapable are
-zero, and `tu` is one. Writes to the retained address-map slots are inert and
-cannot manufacture live state. In the product build, fabric count 0 and 1 are
-distinct empty and `{thisClock}` sequences, so either transition notifies.
-Count one is this station's own path before a peer is elected (FPGA-gPTP #82),
-and a received sequence gains thisClock, so an explicit one-entry `[GM]`
-PathTrace is count two (FPGA-gPTP #85). A GM change
-while both fabric counts are zero is silent for AS_PATH but remains live for
-AVB/GM duties. GM=0 publications, inactive tail bytes, and identical
-republishes are silent. The response snapshots its selected path before
-gathering entries, so an in-flight response is wholly old and the next wholly
-new.
+owner publishes pathTrace (IEEE 802.1AS-2011 10.3.10.2.1 d)): no entries
+without a GM; otherwise up to eight identities from entry 0. A path trace TLV's
+pathSequence is copied as received, its head included even when that head is
+not the grandmaster, and thisClock is appended (FPGA-gPTP #85, #88), so an
+explicit one-entry `[GM]` PathTrace is count two and an empty one is
+`{thisClock}`. An Announce without the TLV writes no pathTrace, so the previous
+one stays (FPGA-gPTP #87). The engine and wrapper commit the complete
+count/entries atomically; software writes cannot forge them. The
+verification-only option-OFF elaboration is deliberately ownerless: its GM,
+parent, path and peer-delay publications are zero, sync/asCapable are zero,
+and `tu` is one. Writes to the retained address-map slots are inert and cannot
+manufacture live state. In the product build, count one is this station's own
+path, `{thisClock}`, before a peer is elected and after it departs
+(FPGA-gPTP #82). A GM change on a TLV-less Announce keeps the served path, so it
+is silent for AS_PATH but remains live for AVB/GM duties. GM=0 publications,
+inactive entry bytes, and identical republishes are silent. The response
+snapshots its selected path before gathering entries, so an in-flight response
+is wholly old and the next wholly new.
 
 The dated evidence and exact gate results are recorded in
 [the 2026-08-16 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md). The register
