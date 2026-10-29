@@ -24,6 +24,7 @@ from pathlib import Path
 import acmp_mutants
 import ctrl_arms
 import fw_gtest
+import mbx_dma_mutants
 from maap_mutants import mutants as maap_mutants
 from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal, Tree, test_source
 from ctrl_mutant import ACMP_C, ADP_C, Mutant
@@ -585,6 +586,7 @@ def unnamed_tests() -> list[str]:
 
 
 MUTANTS += maap_mutants(Mutant)
+MUTANTS += mbx_dma_mutants.MUTANTS
 
 MUTANTS += (
     Mutant("f3b-query-inside-allocation", "maap/maap_mbx.c",

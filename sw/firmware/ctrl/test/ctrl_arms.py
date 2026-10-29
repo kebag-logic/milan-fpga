@@ -194,7 +194,8 @@ def arm_reentry_release(tree: Tree) -> Outcome:
 def arm_unit(tree: Tree) -> Outcome:
     """The driver, the loop and the composition on GoogleMock's HAL and port-layer
     mocks; then the MMIO platform over a host window, the driver built for that
-    window, and the platform's memory primitives."""
+    window, the driver built as the split image builds it, with the record mover,
+    and the platform's memory primitives."""
     fw = tuple(n for n in PORTABLE if n != "port/shlan_port.c")
     objs = compile_c(tree, sources(tree, fw), "unit") + compile_tests(tree, UNIT_TESTS, "unit/tests")
     seams = execute("unit", link(tree, "test_unit", objs))
@@ -206,14 +207,20 @@ def arm_unit(tree: Tree) -> Outcome:
     driver = compile_c(tree, sources(tree, ("mbx/mbx.c",)), "mmio-driver", window)
     in_place = execute("unit", link(tree, "test_mmio_driver",
                                     driver + compile_tests(tree, ("test_mmio_driver.cpp",), "mmio-driver/tests")))
+    # The driver as the split image builds it: each record's payload moved by the record mover (plat/mbx_dma.h),
+    # over a register model of the mover (mmio_dma.h, #665).
+    dma = (*window, f"-include{HERE / 'mmio_dma.h'}", "-DCTRL_MBX_DMA_BASE=(ctrl_test_dma_base())")
+    mover = compile_c(tree, sources(tree, ("mbx/mbx.c",)), "mmio-dma", dma)
+    moved = execute("unit", link(tree, "test_mbx_dma_driver",
+                                 mover + compile_tests(tree, ("test_mbx_dma_driver.cpp",), "mmio-dma/tests")))
     # The platform's memcpy, memmove, memset and memcmp under names the host's C library does not own.
     renamed = ("-Dmemcpy=ctrl_mem_memcpy", "-Dmemmove=ctrl_mem_memmove", "-Dmemset=ctrl_mem_memset",
                "-Dmemcmp=ctrl_mem_memcmp")
     mem = compile_c(tree, sources(tree, ("plat/ctrl_mem.c",)), "mem", renamed)
     mem_tests = compile_tests(tree, ("test_ctrl_mem.cpp",), "mem/tests")
     memory = execute("unit", link(tree, "test_ctrl_mem", mem + mem_tests))
-    return Outcome("unit", max(seams.rc, platform.rc, in_place.rc, memory.rc),
-                   f"{seams.log}\n{platform.log}\n{in_place.log}\n{memory.log}")
+    return Outcome("unit", max(seams.rc, platform.rc, in_place.rc, moved.rc, memory.rc),
+                   f"{seams.log}\n{platform.log}\n{in_place.log}\n{moved.log}\n{memory.log}")
 
 
 #: The unit binary: the two link-seam mocks and the tests written on them.
