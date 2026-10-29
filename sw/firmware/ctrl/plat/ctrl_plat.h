@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // ctrl_plat.h - the split placement's control firmware on its target: the
-// boot sequence and the composition of F0-F5 and F1 on the MMIO HAL (#665 S3).
+// boot sequence and the composition of F0-F5 and F1 on the MMIO HAL (#665).
 //
 // THE BOOT, in the order of docs/ARCHITECTURE_HW_SW_SPLIT.md section 2, which
 // Milan v1.2 5.6.1 orders (step 1, the bitstream, precedes the firmware):

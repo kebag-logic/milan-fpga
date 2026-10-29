@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// test_plat_boot.cpp - the split platform's boot and composition (#665 S3;
+// test_plat_boot.cpp - the split platform's boot and composition (#665;
 // plat/ctrl_plat.c) on the host: the mailbox model behind mbx_hal.h, F1's
 // flash model behind the flash port, and the CSR window and UART of
 // plat_bus.hpp behind ctrl_plat_io.h, at the generated shape it is built for.

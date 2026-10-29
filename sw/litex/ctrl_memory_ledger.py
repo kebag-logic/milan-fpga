@@ -4,8 +4,8 @@
 planted ledgers that widen one.
 
 `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
-only by its own name: the size fixture's at 57.5 RAMB36 (rulings 6412739248 and 6425357821) and the target
-platform's at 59.0 (ruling 6505997821). A `Case` here is what the ledger reads of one image. test_ctrl_memory.py
+only by its own name, under #665's documented memory exceptions: the size fixture's at 57.5 RAMB36 and the target
+platform's at 59.0. A `Case` here is what the ledger reads of one image. test_ctrl_memory.py
 writes each as an ELF, through the `write` callable every function here takes, and grades what these return.
 """
 

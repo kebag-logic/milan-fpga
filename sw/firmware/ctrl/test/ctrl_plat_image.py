@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Link the split platform's image (#665 S3): plat/ctrl_plat_main.c's main, not a fixture's.
+"""Link the split platform's image (#665): plat/ctrl_plat_main.c's main, not a fixture's.
 
 The composition is the one ctrl_srp_image.py --with-aecp --layout split links,
 F0-F5 and F1 with the entity-sized lwSRP pool, but its entry is the platform's
@@ -15,7 +15,7 @@ flash port keeps its own addresses (ctrl_nvm/test/rv32/generated), as every
 split image at this base does.
 
 The link, the audits and the bank plan are ctrl_srp_image.py's, reused. The
-report adds the five largest .bss objects, the measurement S3 owes against the
+report adds the five largest .bss objects, the platform measurement against the
 56-tile budget, with the platform's one static object, ctrl_plat, counted as
 its members (each measured by sizeof, compiled as the image is).
 """

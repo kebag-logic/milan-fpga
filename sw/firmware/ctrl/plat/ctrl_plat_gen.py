@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Generate the split platform's two headers (#665 S3): its boot policy and its bus map.
+"""Generate the split platform's two headers (#665): its boot policy and its bus map.
 
 policy CONFIG -o ctrl_plat_policy_gen.h
     The generated identity and static product policy the platform writes to the

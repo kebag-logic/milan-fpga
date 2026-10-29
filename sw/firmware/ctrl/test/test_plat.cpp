@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // test_plat.cpp - the split platform's CSR window and console on the host bus
-// (#665 S3; plat/ctrl_plat_csr.c, plat/ctrl_plat_console.c, plat_bus.hpp):
+// (#665; plat/ctrl_plat_csr.c, plat/ctrl_plat_console.c, plat_bus.hpp):
 //
 //   C1  the identity: ID 'MILN' passes, anything else refuses; VERSION is read
 //   C2  the policy: configure_fabric()'s fifteen writes, in its order, each

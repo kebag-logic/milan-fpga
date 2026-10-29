@@ -1,6 +1,7 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The split boot simulation's SoC (#665 S3): S2's test-only split SoC, with the CSR window and UART on pads.
+"""The split boot simulation's SoC (#665): the CPU budget harness's test-only split SoC, with the CSR window
+and UART on pads.
 
 The CPU, its firmware memory, the mailbox and the flash are the CPU budget
 harness's (tb/verilator/ctrl_service_budget/split_soc.py, imported read only):

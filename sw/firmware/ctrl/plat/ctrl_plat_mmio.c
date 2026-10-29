@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// ctrl_plat_mmio.c - ctrl_plat_io.h on the split SoC's bus (#665 S3).
+// ctrl_plat_mmio.c - ctrl_plat_io.h on the split SoC's bus (#665).
 //
 // The CSR window and the UART are uncached I/O regions, as the mailbox window
 // is (mbx_plat_mmio.c): every access is one volatile 32-bit load or store, so

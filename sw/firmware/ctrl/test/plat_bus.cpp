@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// plat_bus.cpp - ctrl_plat_io.h on the host bus of plat_bus.hpp (#665 S3).
+// plat_bus.cpp - ctrl_plat_io.h on the host bus of plat_bus.hpp (#665).
 
 #include "plat_bus.hpp"
 

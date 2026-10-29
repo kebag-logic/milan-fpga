@@ -207,7 +207,7 @@ class Ledgered:
 #: static object (plat/ctrl_plat.h, `struct ctrl_plat ctrl_plat`, sized by
 #: MBX_N_IF and the shape's streams) at its size in that image, so a change to
 #: that struct refuses the override until the size is measured again here.
-#: Both are owed to lane S14 in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
+#: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
 #: every other point stays within 56.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_264), ("image_allocation", 16)),

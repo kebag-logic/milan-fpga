@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// plat_bus.hpp - the split platform's bus on the host (#665 S3): the datapath
+// plat_bus.hpp - the split platform's bus on the host (#665): the datapath
 // CSR window as a register file and LiteX's UART as two queues, behind
 // ctrl_plat_io.h. Every access is logged in order, so a test reads the boot's
 // writes as the bus would carry them.

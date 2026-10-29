@@ -79,7 +79,7 @@ def image_runs(work: Path) -> list[tuple[str, list[str]]]:
                               "--interfaces", interfaces, "--output", str(out), "--libc", str(absent / "libc.a"),
                               "--compiler-runtime", str(absent / "libcompiler_rt.a"),
                               *([composition] if composition else [])]))
-        # the split platform's image (#665 S3): its own entry, the same composition, the fixture's map
+        # the split platform's image (#665): its own entry, the same composition, the fixture's map
         for interfaces in ("1", "2"):
             out = work / "plat-image" / f"{shape}-if{interfaces}"
             runs.append((f"ctrl_plat_image.py {shape}, {interfaces} interface(s)",

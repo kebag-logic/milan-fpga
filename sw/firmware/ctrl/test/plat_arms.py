@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""plat_arms.py - the split platform's arms of the control-plane firmware's host test (#665 S3).
+"""plat_arms.py - the split platform's arms of the control-plane firmware's host test (#665).
 
   plat      the CSR window, the console and the MMIO platform, each on its own
             host bus (test_plat.cpp, test_plat_mmio.cpp);

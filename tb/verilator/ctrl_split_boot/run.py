@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The split boot simulation (#665 S3): the platform image from reset to ready, its CSR trace and its UART.
+"""The split boot simulation (#665): the platform image from reset to ready, its CSR trace and its UART.
 
 Builds, in order, all outside the checkout under --build-dir:
   1. the bare-metal runtime archives (the CPU budget harness's runtime_ssp.py);

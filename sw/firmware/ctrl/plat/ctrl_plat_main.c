@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // ctrl_plat_main.c - main() of the split image, which ctrl_split_start.S calls
-// after it sets the stack, copies .data and clears .bss (#665 S3).
+// after it sets the stack, copies .data and clears .bss (#665).
 //
 // It holds only what is the target's: the generated policy and streams
 // (ctrl_plat_policy_gen.h), the bus map from the SoC's csr.csv

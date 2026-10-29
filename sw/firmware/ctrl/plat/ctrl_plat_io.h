@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // ctrl_plat_io.h - the split platform's bus port for the devices beside the
-// mailbox: the datapath CSR window and the LiteX UART (#665 S3).
+// mailbox: the datapath CSR window and the LiteX UART (#665).
 //
 // Two calls, as mbx_hal.h is for the mailbox: one 32-bit load or store at a
 // bus address. ctrl_plat_mmio.c is the target's, a volatile access; the host

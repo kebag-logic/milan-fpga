@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""plat_trace.py - the split platform's CSR initialisation against milan_baremetal.c's (#665 S3).
+"""plat_trace.py - the split platform's CSR initialisation against milan_baremetal.c's (#665).
 
-S3's acceptance: the CSR initialisation writes exactly what milan_baremetal
+The platform's acceptance: the CSR initialisation writes exactly what milan_baremetal
 writes for the same shape. For every shipped config this compiles both on the
 host and compares their writes on the same register file:
 

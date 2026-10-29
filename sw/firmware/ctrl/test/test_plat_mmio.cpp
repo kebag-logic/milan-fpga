@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // test_plat_mmio.cpp - plat/ctrl_plat_mmio.c, ctrl_plat_io.h on the target's
-// bus, built over a host array (#665 S3):
+// bus, built over a host array (#665):
 //
 //   I1  a read is one 32-bit load of the word at the address
 //   I2  a write is one 32-bit store of the word at the address, and no other

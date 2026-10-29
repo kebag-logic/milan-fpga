@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// ctrl_plat_csr.h - the datapath CSR window in the split placement (#665 S3).
+// ctrl_plat_csr.h - the datapath CSR window in the split placement (#665).
 //
 // The split image keeps the Milan CSR map (docs/design/SPLIT_CONTROL_MEMORY.md
 // section 4). Its control firmware programs the generated identity and the

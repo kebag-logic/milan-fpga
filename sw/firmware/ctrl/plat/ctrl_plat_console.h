@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// ctrl_plat_console.h - the split image's UART console (#665 S3, decision D6).
+// ctrl_plat_console.h - the split image's UART console (#665, decision D6).
 //
 // The split image has no BIOS and no libmilan_baremetal, so it has no console
 // unless its control firmware brings one (docs/design/SPLIT_CONTROL_MEMORY.md
-// section 4). D6 (#665, issuecomment-6409738976) keeps only what the release
+// section 4). Decision D6 keeps only what the release
 // graders read: scripts/baremetal_uart_smoke.py sends milan_status and
 // milan_gettime and parses their lines, and the #396 plan counts boot banners.
 // So this console answers those two commands in the lines milan_baremetal.c

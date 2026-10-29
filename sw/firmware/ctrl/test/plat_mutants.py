@@ -1,6 +1,6 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""plat_mutants.py - the split platform's planted defects (#665 S3), in the control campaign's table.
+"""plat_mutants.py - the split platform's planted defects (#665), in the control campaign's table.
 
 ctrl_mutants.py plants each into a copy of sw/firmware/ctrl and requires the
 named GoogleTest test of the named arm to fail on the check's own words
@@ -37,10 +37,10 @@ def mutants(mutant: type) -> tuple:
 
 
 def csr_mutants(mutant: type) -> tuple:
-    """The CSR window's: S3's CSR write skipped, reordered or wrong, the identity and the time of day."""
+    """The CSR window's: a CSR write skipped, reordered or wrong, the identity and the time of day."""
     m = mutant
     return (
-        # the CSR initialisation (S3: skipped, reordered, wrong)
+        # the CSR initialisation: skipped, reordered, wrong
         m("plat-policy-write-skipped", CSR, "\twr(csr, CTRL_PLAT_CSR_LWSRP_VID, p->sr_vid);\n", "",
           "plat", C2, "C2 configure_fabric's writes, in its order, from the policy"),
         m("plat-policy-writes-reordered", CSR, EID[0] + EID[1], EID[1] + EID[0],

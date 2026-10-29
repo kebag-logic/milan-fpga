@@ -146,7 +146,7 @@ PART_OF = {
     "tb/verilator/mbx/mutants.py": "tb/verilator/mbx/Makefile",
     # the AECP arms, which the control gate builds; its own command, a developer's, builds a selection of them
     "sw/firmware/ctrl/test/aecp_arms.py": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
-    # the split platform's arms (#665 S3), which the control gate builds
+    # the split platform's arms (#665), which the control gate builds
     "sw/firmware/ctrl/test/plat_arms.py": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
     # the shared builder: its program is the stack's pin check (--stack-pin), which the bench's Makefile runs and
     # which compiles nothing; it compiles as the module of every builder of the firmware

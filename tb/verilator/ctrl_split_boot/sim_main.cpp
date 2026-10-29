@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// The testbench of the split boot simulation (#665 S3): the split SoC of
+// The testbench of the split boot simulation (#665): the split SoC of
 // boot_soc.py, booting the platform image from reset to its ready line, then
 // answering the release grader's commands on its UART.
 //
