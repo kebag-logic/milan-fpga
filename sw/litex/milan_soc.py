@@ -2812,11 +2812,12 @@ def _validate_cpu_options(cpu: str, with_fpu: bool, l2_bytes: Decimal | float | 
                          "omit the option or request a positive size")
 
 
-#: The split placement's instruction cache (#665, owner decision 2026-10-26: the CPU budget's
-#: first approach): VexiiRiscv's fetch L1 as (sets, ways) of the generator's fixed 64-byte line
-#: (FetchL1Plugin at the pinned revision). docs/design/SPLIT_CONTROL_MEMORY.md section 7 gives
-#: the measured sweep this is chosen from.
-CTRL_FETCH_L1 = (64, 1)
+#: The split placement's instruction cache (#665, owner decisions 2026-10-26 and 2026-10-29;
+#: NFR-SCOUT-01): VexiiRiscv's fetch L1 as (sets, ways) of the generator's fixed 64-byte line
+#: (FetchL1Plugin at the pinned revision), 16 KiB two-way. The generator replaces by its PLRU,
+#: which at two ways is LRU, and keeps its default of one refill at a time.
+#: docs/design/SPLIT_CONTROL_MEMORY.md sections 7, 12 and 13 give the measurements.
+CTRL_FETCH_L1 = (128, 2)
 
 #: The split placement's data cache (#665, owner decision 2026-10-28; NFR-SCOUT-01): VexiiRiscv's
 #: LSU L1 as (sets, ways) of the generator's 64-byte line, 8 KiB direct-mapped, the smallest size

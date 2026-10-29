@@ -20,11 +20,11 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
 SOC = ROOT / "sw/litex/milan_soc.py"
-#: The split CPU's generator options, restated here on purpose (#665,
-#: docs/design/SPLIT_CONTROL_MEMORY.md section 7, and the area plan's 1.5-tile
-#: debit): a 4 KiB fetch L1 of 64 sets, one way, of the generator's 64-byte
-#: line. A changed geometry must fail.
-SPLIT_FETCH_L1 = "--fetch-l1 --fetch-l1-sets=64 --fetch-l1-ways=1"
+#: The split CPU's generator options, restated here on purpose (#665, owner
+#: decision 2026-10-29; docs/design/SPLIT_CONTROL_MEMORY.md sections 7 and 13,
+#: and the area plan's debit): a 16 KiB fetch L1 of 128 sets, two ways, of the
+#: generator's 64-byte line. A changed geometry must fail.
+SPLIT_FETCH_L1 = "--fetch-l1 --fetch-l1-sets=128 --fetch-l1-ways=2"
 #: The split CPU's data cache (#665, owner decision 2026-10-28; section 9 of
 #: the same page): an 8 KiB LSU L1 of 128 sets, one way. Losing it or a
 #: changed geometry must fail.
@@ -262,9 +262,11 @@ def test_split_cache() -> None:
         ("the all-fabric CPU with the caches and RV32M", "            if ctrl_mailbox:" + split,
          "            if True:" + split),
         ("the split CPU without its data cache", lsu, 'f"")'),
-        ("a larger cache", "CTRL_FETCH_L1 = (64, 1)", "CTRL_FETCH_L1 = (128, 1)"),
-        ("a second way", "CTRL_FETCH_L1 = (64, 1)", "CTRL_FETCH_L1 = (64, 2)"),
-        ("a smaller cache", "CTRL_FETCH_L1 = (64, 1)", "CTRL_FETCH_L1 = (32, 1)"),
+        ("a larger cache", "CTRL_FETCH_L1 = (128, 2)", "CTRL_FETCH_L1 = (256, 2)"),
+        ("a third way", "CTRL_FETCH_L1 = (128, 2)", "CTRL_FETCH_L1 = (128, 3)"),
+        ("one way", "CTRL_FETCH_L1 = (128, 2)", "CTRL_FETCH_L1 = (128, 1)"),
+        ("a smaller cache", "CTRL_FETCH_L1 = (128, 2)", "CTRL_FETCH_L1 = (64, 2)"),
+        ("the 4 KiB direct-mapped cache it replaces", "CTRL_FETCH_L1 = (128, 2)", "CTRL_FETCH_L1 = (64, 1)"),
         ("a larger data cache", "CTRL_LSU_L1 = (128, 1)", "CTRL_LSU_L1 = (256, 1)"),
         ("a second data way", "CTRL_LSU_L1 = (128, 1)", "CTRL_LSU_L1 = (128, 2)"),
         ("a smaller data cache", "CTRL_LSU_L1 = (128, 1)", "CTRL_LSU_L1 = (64, 1)"),
@@ -280,7 +282,7 @@ def test_split_cache() -> None:
         _split_cache(directory)
         for label, old, new in controls:
             _killed(lambda: _split_cache(directory, [(old, new)]), label)
-    print("Split placement CPU: RV32M, the 4 KiB direct-mapped instruction cache and the 8 KiB direct-mapped "
+    print("Split placement CPU: RV32M, the 16 KiB two-way instruction cache and the 8 KiB direct-mapped "
           f"data cache on the split CPU only, {len(controls)} killed controls")
 
 
