@@ -1,0 +1,55 @@
+diff --git a/sw/firmware/ctrl/plat/ctrl_split.ld b/sw/firmware/ctrl/plat/ctrl_split.ld
+index a5d75d5035..3269aaafce 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split.ld
++++ b/sw/firmware/ctrl/plat/ctrl_split.ld
+@@ -103,7 +103,6 @@ SECTIONS
+ 		*-acmp.o(.text.respond)
+ 		*-acmp.o(.text.build)
+ 		*-acmp.o(.text.wire_put_be)
+-		*libcompiler_rt.a:lshrdi3.o(.text.__lshrdi3)
+ 		*-acmp.o(.text.transmit)
+ 		*-acmp.o(.text.publish)
+ 		*-acmp.o(.text.p_send)
+diff --git a/sw/firmware/ctrl/plat/ctrl_split_hot.txt b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+index 90f4da5882..fc7f52a6d6 100644
+--- a/sw/firmware/ctrl/plat/ctrl_split_hot.txt
++++ b/sw/firmware/ctrl/plat/ctrl_split_hot.txt
+@@ -95,7 +95,6 @@ ctrl_mem forward
+ acmp respond
+ acmp build
+ acmp wire_put_be
+-libcompiler_rt.a:lshrdi3 __lshrdi3
+ acmp transmit
+ acmp publish
+ acmp p_send
+diff --git a/sw/firmware/ctrl/test/ctrl_arms.py b/sw/firmware/ctrl/test/ctrl_arms.py
+index a10eb2afec..aa8e4070cd 100644
+--- a/sw/firmware/ctrl/test/ctrl_arms.py
++++ b/sw/firmware/ctrl/test/ctrl_arms.py
+@@ -393,10 +393,10 @@ LWSRP_SOURCES = ("src/core/mrp_mad.c", "src/core/mrp_pdu.c", "src/ports/timer.c"
+ #: The lwSRP revision port/shlan_port.h is written against (it restates that
+ #: revision's src/ports/alloc.h). Fetch it with
+ #:     git clone https://github.com/kebag-logic/lwSRP lwSRP
+-#:     git -C lwSRP checkout 08ee86e812a0eb5e1dc6cd61b494d8baf3491348
++#:     git -C lwSRP checkout fc06e7c0f8f7270d9c76b6f8daa666bc82d448dd
+ #: and pass --lwsrp lwSRP. Moving the pin is a reviewed change to this line.
+ LWSRP_URL = "https://github.com/kebag-logic/lwSRP"
+-LWSRP_REV = "08ee86e812a0eb5e1dc6cd61b494d8baf3491348"
++LWSRP_REV = "fc06e7c0f8f7270d9c76b6f8daa666bc82d448dd"
+ #: Every source and header the arm compiles lives under this directory.
+ LWSRP_TREE = "src"
+ 
+diff --git a/third_party/lwSRP b/third_party/lwSRP
+index 08ee86e812..fc06e7c0f8 160000
+--- a/third_party/lwSRP
++++ b/third_party/lwSRP
+@@ -1 +1 @@
+-Subproject commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348
++Subproject commit fc06e7c0f8f7270d9c76b6f8daa666bc82d448dd
+diff --git a/third_party/tsn-c-stack b/third_party/tsn-c-stack
+index 70936b77dc..6532c3b0f3 160000
+--- a/third_party/tsn-c-stack
++++ b/third_party/tsn-c-stack
+@@ -1 +1 @@
+-Subproject commit 70936b77dc41981e192438388cd0aced69954f18
++Subproject commit 6532c3b0f39a534be1d1f15913f97d3937b4c29b

@@ -1,0 +1,37 @@
+HEAD cf0f978b98c8ee897ec34fd3bebc1ad5d4fc0944
+$ (cd .) python3 sw/builder/test_soc_options.py
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+  killed: the split CPU without its caches or RV32M
+  killed: the all-fabric CPU with the caches and RV32M
+  killed: the split CPU without its data cache
+  killed: a larger cache
+  killed: a third way
+  killed: one way
+  killed: a smaller cache
+  killed: the 4 KiB direct-mapped cache it replaces
+  killed: a larger data cache
+  killed: a second data way
+  killed: a smaller data cache
+  killed: the split CPU without RV32M
+  killed: a multiply without the divide
+  killed: a radix-4 divider
+  killed: the caches without RV32M
+  killed: the cacheless arm without RV32M
+Split placement CPU: RV32M, the 16 KiB two-way instruction cache and the 8 KiB direct-mapped data cache on the split CPU only, 16 killed controls
+  killed: the flash window left cached
+  killed: the flash window left executable
+  killed: every region uncached
+Split placement CPU: the flash window uncached and not executable, 3 killed controls
+RESULT: PASS
+elapsed=30s
+tree: 0 changed path(s) after the gate
+rc=0

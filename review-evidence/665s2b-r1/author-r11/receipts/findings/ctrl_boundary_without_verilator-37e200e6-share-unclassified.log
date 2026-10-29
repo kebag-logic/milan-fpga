@@ -1,0 +1,15 @@
+HEAD 37e200e6de4c09d2c12f26649b265f3e41e7aa3b
+$ (cd .) python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --without verilator
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (10 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (406 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (121 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (328 s)
+    sw/litex/test_ctrl_memory.py --build-only: exit 0 (0 s)
+    tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (29 s)
+    tb/verilator/milan_dp/stream_counter_f5.py --build-only: exit 0 (28 s)
+REFUSED: tb/verilator/ctrl_service_budget/share.py names the firmware's tree, compiled nothing in the capture, and is neither a known builder (ctrl_configs.BUILDERS), one whose compiles are none of the firmware's (OUTSIDE), nor one that compiles only in a suite (SUITES)
+elapsed=980s
+tree: 0 changed path(s) after the gate
+rc=2
