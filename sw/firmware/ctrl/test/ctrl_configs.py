@@ -210,6 +210,9 @@ OUTSIDE = {
                                                      "compiles off, and reads the image's placeholder mailbox address "
                                                      "from ctrl_build.RV32_FLAGS and the flash port's generated map; "
                                                      "it compiles no firmware or stack source",
+    "tb/verilator/nvm_split_target/target_cases.py": "the saved-state cases' arms and planted defects on the split "
+                                                     "CPU (#665), which the CPU budget harness's build.py builds; it "
+                                                     "compiles nothing",
 }
 #: The builders found by text that compile only in a suite, which a suite builder's build-only run does not run,
 #: each with what it compiles there. The builds compile every source of the checkout these compile, against the
