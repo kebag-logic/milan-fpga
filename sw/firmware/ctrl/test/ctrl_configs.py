@@ -161,6 +161,8 @@ OUTSIDE = {
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
     "sw/firmware/ctrl/adp/adp_entity.py": "writes the ADP shape header; it compiles nothing",
     "sw/firmware/ctrl/test/ctrl_mutant.py": "the campaign tables' record of one defect; it compiles nothing",
+    "sw/firmware/ctrl/test/ctrl_hot.py": "compares the split link script's hot list with its recorded order and "
+                                         "a link map's sections (#665); it compiles nothing",
     "sw/firmware/ctrl_nvm/test/nvm_mutants.py": "the saved-state store campaign's planted defects, which "
                                                 "test_ctrl_nvm.py compiles; it compiles nothing",
     "sw/firmware/ctrl/test/ctrl_reuse.py": "cuts the processor's sources into fragments the arms compile; it "
