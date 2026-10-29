@@ -1,0 +1,13 @@
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.h b/sw/firmware/ctrl/loop/ctrl_loop.h
+index 47b0b09856..5302decbcc 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.h
++++ b/sw/firmware/ctrl/loop/ctrl_loop.h
+@@ -109,7 +109,7 @@ extern "C" {
+ // 3,140 at one interface, and ACMP's owed-frame bound 12,222 instead of 9,270,
+ // over the 10 ms T_svc first proposed at 1 us an access (docs/design/MAILBOX_SPLIT.md).
+ #define CTRL_LOOP_EVENTS_PER_PASS 8u    // event records one pass takes at most
+-#define CTRL_LOOP_RX_PER_PASS 2u        // RX records one pass takes per channel at most
++#define CTRL_LOOP_RX_PER_PASS 1u        // RX records one pass takes per channel at most
+ #define CTRL_LOOP_TICKS_PER_PASS 16u    // centiseconds one pass dispatches at most
+ 
+ // A1: the backlogs the bound assumes, in records.

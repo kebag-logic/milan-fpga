@@ -1,0 +1,287 @@
+HEAD 37e200e6de4c09d2c12f26649b265f3e41e7aa3b DIRTY 1
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <scratch>/clones/X/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $HOME/litex-milan/litex/litex/soc/software --output <scratch>/builds/X11-A8-50/runtime
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <scratch>/clones/X/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/clones/X/configs/endstation_ax7101_8x8.yaml --interfaces 2 --with-aecp --layout split --output <scratch>/builds/X11-A8-50/image --ledgered-point 8x8-two-interfaces --libc <scratch>/builds/X11-A8-50/runtime/libc.a --compiler-runtime <scratch>/builds/X11-A8-50/runtime/libcompiler_rt.a
+Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32 --with-mul --with-div --fetch-l1 --fetch-l1-sets=128 --fetch-l1-ways=2 --lsu-l1 --lsu-l1-sets=128 --lsu-l1-ways=1', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=True, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-10-29 23:01:12)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : SIM.
+INFO:SoC:System clock: 100.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+WARNING:SoC:SoCCore: unknown argument cpu_count ignored.
+INFO:SoC:Controller ctrl added.
+INFO:SoC:CPU vexiiriscv added.
+INFO:SoC:CPU vexiiriscv adding IO Region 0 at 0x80000000 (Size: 0x80000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoC:CPU vexiiriscv overriding sram mapping from 0x01000000 to 0x10000000.
+INFO:SoC:CPU vexiiriscv setting reset address to 0x00000000.
+INFO:SoC:CPU vexiiriscv adding Bus Master(s).
+INFO:SoCBusHandler:cpu_bus0 Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit.
+INFO:SoCBusHandler:cpu_bus0 added as Bus Master.
+INFO:SoC:CPU vexiiriscv adding Interrupt(s).
+INFO:SoCIRQHandler:noirq IRQ added at Location 0.
+INFO:SoC:CPU vexiiriscv adding DMA Bus.
+INFO:SoCDMABusHandler:Creating Bus Handler...
+INFO:SoCDMABusHandler:32-bit axi Bus, 4.0GiB Address Space.
+INFO:SoCDMABusHandler:Adding reserved Bus Regions...
+INFO:SoCDMABusHandler:Bus Handler created.
+INFO:SoCDMABusHandler:dma Region added at Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False.
+INFO:SoCDMABusHandler:dma added as Bus Slave.
+INFO:SoC:CPU vexiiriscv adding SoC components.
+INFO:SoCBusHandler:plic Region added at Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCBusHandler:clint Region added at Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True.
+INFO:SoCIRQHandler:uart IRQ allocated at Location 1.
+INFO:SoCRegion:Region size rounded internally from 0x00038000 to 0x00040000.
+INFO:SoCBusHandler:rom Region added at Origin: 0x00000000, Size: 0x00038000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:rom added as Bus Slave.
+INFO:SoCRegion:Region size rounded internally from 0x00038000 to 0x00040000.
+INFO:SoCBusHandler:sram Region added at Origin: 0x10000000, Size: 0x00038000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:sram added as Bus Slave.
+[milan] --ctrl-firmware <scratch>/builds/X11-A8-50/image/ctrl_app.elf: {"rom": {"bytes": 118560, "banks": [65536, 32768, 16384, 4096], "RAMB36": 29, "RAMB18": 0}, "sram": {"bytes": 111696, "banks": [65536, 32768, 8192, 4096, 2048], "RAMB36": 27, "RAMB18": 1}, "tiles": 56.5, "budget_tiles": 56, "ledgered": "8x8-two-interfaces", "ledgered_tiles": 57.5}
+wrote <scratch>/builds/X11-A8-50/mbx-variant/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/builds/X11-A8-50/mbx-variant/KL_mbx.sv (2 interfaces)
+wrote <scratch>/builds/X11-A8-50/mbx-variant/mbx_contract.h (2 interfaces)
+INFO:SoCCSRHandler:ctrl_mbx_dma CSR added at Location 29.
+INFO:SoCDMABusHandler:ctrl_mbx_dma added as Bus Master.
+INFO:SoCBusHandler:ctrl_mbx Region added at Origin: 0x80000000, Size: 0x00008000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:ctrl_mbx added as Bus Slave.
+INFO:SoCBusHandler:spiflash Region added at Origin: 0x20000000, Size: 0x01000000, Mode:  RX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:spiflash Bus offset by 0x20000000.
+INFO:SoCBusHandler:spiflash added as Bus Slave.
+INFO:SoCCSRHandler:spiflash_master CSR added at Location 6.
+INFO:SoCCSRHandler:timer0 CSR added at Location 7.
+INFO:SoCIRQHandler:timer0 IRQ allocated at Location 2.
+INFO:SoC:CSR Bridge csr added.
+INFO:SoCBusHandler:csr Region added at Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:csr added as Bus Slave.
+INFO:SoCCSRHandler:csr added as CSR Master.
+INFO:SoCBusHandler:Interconnect: InterconnectShared (1 <-> 5).
+INFO:SoCDMABusHandler:Interconnect: AXIInterconnectPointToPoint (1 <-> 1).
+INFO:SoCCSRHandler:ctrl CSR allocated at Location 0.
+INFO:SoCCSRHandler:identifier_mem CSR allocated at Location 1.
+INFO:SoCCSRHandler:spiflash CSR allocated at Location 2.
+INFO:SoCCSRHandler:uart CSR allocated at Location 3.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Finalized SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+IO Regions: (1)
+io0                 : Origin: 0x80000000, Size: 0x80000000, Mode:  RW, Cached: False, Linker: False
+Bus Regions: (7)
+rom                 : Origin: 0x00000000, Size: 0x00038000, Mode:  RX, Cached:  True, Linker: False
+sram                : Origin: 0x10000000, Size: 0x00038000, Mode: RWX, Cached:  True, Linker: False
+spiflash            : Origin: 0x20000000, Size: 0x01000000, Mode:  RX, Cached:  True, Linker: False
+ctrl_mbx            : Origin: 0x80000000, Size: 0x00008000, Mode:  RW, Cached: False, Linker: False
+csr                 : Origin: 0xf0000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+clint               : Origin: 0xf0010000, Size: 0x00010000, Mode:  RW, Cached: False, Linker:  True
+plic                : Origin: 0xf0c00000, Size: 0x00400000, Mode:  RW, Cached: False, Linker:  True
+Bus Masters: (1)
+- cpu_bus0          : rw
+Bus Slaves: (5)
+- rom               : rw
+- sram              : rw
+- ctrl_mbx          : rw
+- spiflash          : r
+- csr               : rw
+INFO:SoC:32-bit axi Bus, 4.0GiB Address Space.
+Bus Regions: (1)
+dma                 : Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached:  True, Linker: False
+Bus Masters: (1)
+- ctrl_mbx_dma      : rw
+Bus Slaves: (1)
+- dma               : rw
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+CSR Locations: (7)
+- ctrl            : 0
+- identifier_mem  : 1
+- spiflash        : 2
+- uart            : 3
+- spiflash_master : 6
+- timer0          : 7
+- ctrl_mbx_dma    : 29
+INFO:SoC:IRQ Handler (up to 32 Locations).
+IRQ Locations: (3)
+- noirq  : 0
+- uart   : 1
+- timer0 : 2
+INFO:SoC:--------------------------------------------------------------------------------
+VexiiRiscv netlist : VexiiRiscvLitex_c05c5a8e0bd42fc384567409f2a37e64
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:SoC Hierarchy:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:
+MilanSoC
+├── bus (SoCBusHandler)
+│    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    └── fsm (FSM)
+│    ├── offset_0 (Offset) [Gen]
+│    └── _interconnect (InterconnectShared)
+│         ├── arbiter (Arbiter)
+│         │    └── rr (RoundRobin)
+│         ├── decoder (Decoder)
+│         └── timeout (Timeout)
+│              └── waittimer_0 (WaitTimer) [Gen]
+├── csr (SoCCSRHandler)
+├── irq (SoCIRQHandler)
+├── ctrl (SoCController)
+├── cpu (VexiiRiscv)
+│    ├── soc_bus (SoCBusHandler)
+│    │    ├── axilite2wishbone_0 (AXILite2Wishbone) [Gen]
+│    │    │    └── fsm (FSM)
+│    │    ├── offset_0 (Offset) [Gen]
+│    │    └── _interconnect (InterconnectShared)
+│    │         ├── arbiter (Arbiter)
+│    │         │    └── rr (RoundRobin)
+│    │         ├── decoder (Decoder)
+│    │         └── timeout (Timeout)
+│    │              └── waittimer_0 (WaitTimer) [Gen]
+│    └── [BB:VexiiRiscvLitex_c05c5a8e0bd42fc384567409f2a37e64]
+├── dma_bus (SoCBusHandler)
+│    └── _interconnect (AXIInterconnectPointToPoint)
+├── identifier (Identifier)
+├── uart (UART)
+│    ├── ev (EventManager)
+│    │    ├── eventsourcelevel_0 (EventSourceLevel) [Gen]
+│    │    └── eventsourcelevel_1 (EventSourceLevel) [Gen]
+│    ├── phy (RS232PHYModel)
+│    ├── tx_fifo (SyncFIFO)
+│    │    └── fifo (SyncFIFOBuffered)
+│    │         └── fifo (SyncFIFO)
+│    └── rx_fifo (SyncFIFO)
+│         └── fifo (SyncFIFOBuffered)
+│              └── fifo (SyncFIFO)
+├── crg (SimClocks)
+├── rom (CtrlMemory)
+│    ├── bank0 (SRAM)
+│    ├── bank1 (SRAM)
+│    ├── bank2 (SRAM)
+│    ├── bank3 (SRAM)
+│    └── decoder (Decoder)
+├── sram (CtrlMemory)
+│    ├── bank0 (SRAM)
+│    ├── bank1 (SRAM)
+│    ├── bank2 (SRAM)
+│    ├── bank3 (SRAM)
+│    ├── bank4 (SRAM)
+│    └── decoder (Decoder)
+├── ctrl_mbx_dma (CtrlMailboxDma)
+│    └── [BB:KL_mbx_dma]
+├── ctrl_mbx (StimulusMailbox)
+│    ├── [BB:KL_mbx]
+│    └── [BB:KL_mbx_wb]
+├── spiflash (LiteSPI)
+│    ├── crossbar (LiteSPICrossbar)
+│    │    ├── rr (RoundRobin)
+│    │    ├── tx_mux (Multiplexer)
+│    │    └── rx_demux (Demultiplexer)
+│    ├── mmap (LiteSPIMMAP)
+│    │    ├── burst_timeout (WaitTimer)
+│    │    └── fsm (FSM)
+│    └── phy (FlashBoundary)
+├── spiflash_master (LiteSPIMaster)
+│    ├── tx_fifo (SyncFIFO)
+│    │    └── buffer_0 (Buffer) [Gen]
+│    │         ├── pipe_valid (PipeValid)
+│    │         └── pipeline (Pipeline)
+│    └── rx_fifo (SyncFIFO)
+│         └── buffer_0 (Buffer) [Gen]
+│              ├── pipe_valid (PipeValid)
+│              └── pipeline (Pipeline)
+├── timer0 (Timer)
+│    └── ev (EventManager)
+│         └── eventsourceprocess_0 (EventSourceProcess) [Gen]
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    ├── csrbank_0 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── csrbank_1 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── sram_0 (SRAM) [Gen]
+│    ├── csrbank_2 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    └── csrstorage_1 (CSRStorage) [Gen]
+│    ├── csrbank_3 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    └── csrstorage_2 (CSRStorage) [Gen]
+│    ├── csrbank_4 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_5 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/builds/X11-A8-50/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I<scratch>/clones/X/tb/common -I<scratch>/builds/X11-A8-50 -I<scratch>/clones/X/tb/verilator/fw_service_budget' <scratch>/clones/X/tb/verilator/ctrl_service_budget/observe.vlt <scratch>/builds/X11-A8-50/mbx-variant/KL_mbx_pkg.sv <scratch>/clones/X/hdl/milan/mailbox/KL_mbx_ring.sv <scratch>/clones/X/hdl/milan/mailbox/KL_mbx_rx.sv <scratch>/clones/X/hdl/milan/mailbox/KL_mbx_tx.sv <scratch>/clones/X/hdl/milan/mailbox/KL_mbx_evt.sv <scratch>/builds/X11-A8-50/mbx-variant/KL_mbx.sv <scratch>/clones/X/hdl/milan/mailbox/KL_mbx_wb.sv <scratch>/clones/X/hdl/milan/mailbox/KL_mbx_dma.sv $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_c05c5a8e0bd42fc384567409f2a37e64.v <scratch>/builds/X11-A8-50/gateware/sim.v <scratch>/clones/X/tb/verilator/ctrl_service_budget/sim_main.cpp
+COMMAND make -j16 -C <scratch>/builds/X11-A8-50/native -f Vsim.mk Vsim
+CLOCK CPU 50 MHz, the product's split CPU clock (the Milan clock), bus 100 MHz
+COMMANDCOMMANDCOMMAND  COMMAND<scratch>/builds/X11-A8-50/native/Vsim <scratch>/builds/X11-A8-50/results/backlog.txt -
+ <scratch>/builds/X11-A8-50/native/Vsim <scratch>/builds/X11-A8-50/results/backlog-adp.txt - <scratch>/builds/X11-A8-50/native/Vsim <scratch>/builds/X11-A8-50/results/backlog-owed.txt -
+<scratch>/builds/X11-A8-50/native/Vsim <scratch>/builds/X11-A8-50/results/backlog-adp-refill.txt -
+
+BUDGET backlog.service.aecp.last.if1: 21.274 ms over its budget 20 ms
+BUDGET backlog.service.srp.last.if1: 29.962 ms over its budget 18 ms
+BUDGET backlog-adp.service.aecp.last.if1: 22.844 ms over its budget 20 ms
+BUDGET backlog-adp.service.srp.last.if1: 34.868 ms over its budget 18 ms
+BUDGET backlog-adp-refill.service.aecp.last.if1: 22.446 ms over its budget 20 ms
+BUDGET backlog-adp-refill.service.srp.last.if1: 34.618 ms over its budget 18 ms
+BUDGET backlog.owed.if0: 66.374 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 360.879 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 360.878 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 360.877 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 360.877 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if1: 68.645 ms over its budget 20 ms
+BUDGET backlog-owed.service.srp.last.if1: 29.681 ms over its budget 18 ms
+SHARE backlog: 5 of 318 work passes over the per-pass share 2.000 ms (100,000 CPU cycles); the longest 142,049 (2.841 ms)
+SHARE backlog-adp: 4 of 340 work passes over the per-pass share 2.000 ms (100,000 CPU cycles); the longest 119,836 (2.397 ms)
+SHARE backlog-adp-refill: 4 of 343 work passes over the per-pass share 2.000 ms (100,000 CPU cycles); the longest 119,836 (2.397 ms)
+SHARE backlog-owed: 5 of 379 work passes over the per-pass share 2.000 ms (100,000 CPU cycles); the longest 119,836 (2.397 ms)
+4 groups graded, 0 refusals, 13 budget misses (13 of 49 probe instances, 4 of 17 paths), 18 of 1380 work passes over the per-pass share 2.000 ms (100,000 CPU cycles)
+CLOCK CPU 50 MHz, the product's split CPU clock (the Milan clock), bus 100 MHz
+elapsed=1150s
+rc=0

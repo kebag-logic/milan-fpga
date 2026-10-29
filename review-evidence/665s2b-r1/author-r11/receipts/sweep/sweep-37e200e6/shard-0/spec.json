@@ -1,0 +1,20 @@
+{
+ "cwd": "<lanes>/665s2b-a683m-sweep-shard0",
+ "head": "37e200e6de4c09d2c12f26649b265f3e41e7aa3b",
+ "base": "e76a755a",
+ "commands": [
+  [
+   "env",
+   "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=<home>/milan-fpga-management/tools/tsn-gen-deca300c",
+   "TMPDIR=<scratch>/tmp-sweep",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<scratch>/sweep-37e200e6/shard-0/logs",
+   "--wait",
+   "--shard",
+   "0/4"
+  ]
+ ]
+}

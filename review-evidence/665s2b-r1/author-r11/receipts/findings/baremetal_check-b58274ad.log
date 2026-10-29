@@ -1,0 +1,9 @@
+$ (cd .) python3 scripts/check_baremetal_only.py --check
+  - sw/firmware/ctrl/test/mbx_dma_mutants.py:20: [H] retired target host-plane surface 'dma-rx': 'Mutant("dma-rx-error-trusted", MBX_C, RX_MOVE, RX_MOVE.replace("false)) {", "false) && false) {"),' (#259: no dormant target driver/memory-ring contract)
+  - sw/firmware/ctrl/test/mbx_dma_mutants.py:22: [H] retired target host-plane surface 'dma-rx': 'Mutant("dma-rx-index-at-the-header", MBX_C, RX_MOVE, RX_MOVE.replace(" + MBX_RX_HDR_WORDS,", ","),' (#259: no dormant target driver/memory-ring contract)
+  - sw/firmware/ctrl/test/mbx_dma_mutants.py:24: [H] retired target host-plane surface 'dma-tx': 'Mutant("dma-tx-error-committed", MBX_C, TX_MOVE, TX_MOVE.replace("\\t\\t\\treturn MBX_STATUS_BAD;\\n", "' (#259: no dormant target driver/memory-ring contract)
+  - sw/firmware/ctrl/test/mbx_dma_mutants.py:26: [H] retired target host-plane surface 'dma-tx': 'Mutant("dma-tx-frame-off-a-word-moved", MBX_C, "\\tif (((uintptr_t)frame & 3u) == 0u) {\\n" + TX_MOVE,' (#259: no dormant target driver/memory-ring contract)
+  - sw/firmware/ctrl/test/mbx_dma_mutants.py:35: [H] retired target host-plane surface 'dma-ring': 'Mutant("dma-ring-size-unshifted", MBX_DMA_H, "((words - 1u) << MBX_DMA_CFG_MASK_LSB)", "(words - 1u)' (#259: no dormant target driver/memory-ring contract)
+baremetal-only: FAIL (5 finding(s) across 1455 scanned file(s))
+rc=1
+tree clean after the gate
