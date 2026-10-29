@@ -57,25 +57,14 @@ static struct aecp_mapping image_map_scratch[AECP_ENTITY_MAP_MAX];
 static struct aecp_map image_map_pools[AECP_ENTITY_MAPS] = AECP_ENTITY_MAPS_INIT(image_maps);
 static const struct aecp_value image_names[AECP_ENTITY_NAMES] = AECP_ENTITY_NAMES_INIT;
 
-// Explicit unavailable observations: this is a linked-size fixture. Board
-// observation and physical-apply ports must be supplied by target integration.
+// The observation and physical-apply ports are contract 2.3's face block
+// (aecp_face.c). GET_AS_PATH stays an explicit unavailable observation: this
+// is a linked-size fixture, and that port is target integration's.
 static uint32_t a_random(void *ctx) { (void)ctx; return mbx_now_ms(); }
-static bool a_stream(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_stream_info *v)
-{ (void)ctx; (void)i; (void)t; (void)n; (void)v; return false; }
-static bool a_avb(void *ctx, unsigned i, uint16_t n, struct aecp_avb_info *v)
-{ (void)ctx; (void)i; (void)n; (void)v; return false; }
 static bool a_path(void *ctx, unsigned i, uint16_t n, uint64_t *v, size_t cap, size_t *count)
 { (void)ctx; (void)i; (void)n; (void)v; (void)cap; (void)count; return false; }
-static bool a_counters(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_counters *v)
-{ (void)ctx; (void)i; (void)t; (void)n; (void)v; return false; }
-static void a_changed(void *ctx, enum aecp_change kind, uint16_t t, uint16_t n)
-{ (void)ctx; (void)kind; (void)t; (void)n; }
-static bool a_format(void *ctx, uint16_t t, uint16_t n, uint64_t value)
-{ (void)ctx; (void)t; (void)n; (void)value; return false; }
-static const struct aecp_ports image_aecp_environment = {
-    .random=a_random, .stream=a_stream, .avb=a_avb, .path=a_path,
-    .counters=a_counters, .changed=a_changed, .format=a_format
-};
+static const struct aecp_ports image_platform = {.random=a_random, .path=a_path};
+static struct aecp_face image_face;
 
 int main(void)
 {
@@ -103,9 +92,11 @@ int main(void)
     for (unsigned i=0;i<MBX_N_IF;++i) image_acmp.mac[i]=image_entity.mac;
     for (unsigned n=0;n<CTRL_SRP_SINKS;++n) image_acmp.sink_interface[n]=n%MBX_N_IF;
     for (unsigned n=0;n<CTRL_SRP_SOURCES;++n) image_acmp.source_interface[n]=n%MBX_N_IF;
+    aecp_face_init(&image_face,&image_platform);
     if (!ctrl_app_compose(&image_app,&cfg) ||
         !ctrl_app_compose_aecp(&image_app,&image_aecp_bridge,&image_aecp,&aecp,
-            &image_aecp_environment,&image_state)) return 5;
+            &image_face.ports,&image_state) ||
+        !ctrl_app_aecp_attach_face(&image_aecp_bridge,&image_face)) return 5;
     aecp_nvm_init(&image_state,&image_aecp.core,image_names,AECP_ENTITY_NAMES,
         image_map_scratch,AECP_ENTITY_MAP_MAX);
     acmp_nvm_init(&image_binding,&image_app.acmp.acmp,NVM_G_BIND,&image_state.port);

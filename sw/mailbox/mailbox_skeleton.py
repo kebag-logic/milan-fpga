@@ -9,7 +9,9 @@ and one ring instance per direction per channel. The bound-talker registers
 are the exception: the skeleton decodes them and ``KL_mbx_rx`` holds them, in
 distributed RAM beside the compare that reads them. The publication block is
 decoded and held here, and each of its fields leaves on a ``pub_*_o`` port
-named in ``PUB_OUTPUTS``, for the datapath of the split placement. The leaves it instantiates
+named in ``PUB_OUTPUTS``, for the datapath of the split placement. So is the face block
+(mailbox_face.py): the settings, their commit and the request and answer
+windows, each value on a port of its own beside its qualifier. The leaves it instantiates
 (``KL_mbx_ring``, ``KL_mbx_rx``, ``KL_mbx_tx``, ``KL_mbx_evt``) are written by
 hand against ``KL_mbx_pkg`` and are the same for every contract.
 
@@ -20,6 +22,7 @@ contract can never describe a field the skeleton silently reads as zero.
 
 from __future__ import annotations
 
+import mailbox_face as face
 from mailbox_emit import GENERATOR, SOURCE
 from mailbox_model import Contract, ContractError, Register
 
@@ -197,12 +200,8 @@ def _pub_ports() -> list[str]:
     out += ["  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_bound_o,   //! BINDING.BOUND per sink",
             "  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_sid_valid_o,   //! BINDING.SID_VALID per sink",
             "  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0] pub_started_o,   //! BINDING.STARTED per sink",
-            "  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] pub_sid_o   "
+            "  output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C*64-1:0] pub_sid_o,   "
             "//! SID_HI:SID_LO per sink, taken only while its SID_VALID is set",
-            ");",
-            "",
-            "  localparam int unsigned AW2_C = MBX_ADDR_W_C + 2;   //! byte-offset width",
-            "",
             ]
     return out
 
@@ -210,6 +209,8 @@ def _pub_ports() -> list[str]:
 def _core() -> list[str]:
     """NOW_MS, the request decode and the signals the leaves drive."""
     return [
+        "  localparam int unsigned AW2_C = MBX_ADDR_W_C + 2;   //! byte-offset width",
+        "",
         "  // ---- NOW_MS --------------------------------------------------------------",
         "  logic [31:0] now_ms_r;",
         "  always_ff @(posedge clk_i) begin : now_ms",
@@ -422,12 +423,13 @@ def _write_block(contract: Contract) -> list[str]:
         out.append(f"          {r.name.lower()}_r[c] <= 16'(host_wdata_i & ({_mask(r)}));")
     out += ["      end",
             "      // a refusal or a drop sets ERR; a write of 1 clears it; a set wins",
-            "      if (rx_err_p_w || tx_err_p_w || tmr_bad_p_w || refused_w) err_r <= 1'b1;"]
+            "      if (rx_err_p_w || tx_err_p_w || tmr_bad_p_w || refused_w || face_refused_w) err_r <= 1'b1;"]
     for (reg, fld), sig in STICKY.items():
         out.append(f"      else if (wr_w && off_w == {AW}'(MBX_REG_{reg}_C)")
         out.append(f"               && mbx_field_f(host_wdata_i, MBX_{reg}_{fld}_LSB_C, MBX_{reg}_{fld}_WIDTH_C) != 0)")
         out.append(f"        {sig} <= 1'b0;")
-    out += ["      if ((refused_w || tmr_bad_p_w) && bus_err_r != 16'hFFFF) bus_err_r <= bus_err_r + 16'd1;",
+    out += ["      if ((refused_w || tmr_bad_p_w || face_refused_w) && bus_err_r != 16'hFFFF) "
+            "bus_err_r <= bus_err_r + 16'd1;",
             "      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin",
             f"        if (rd_w && off_w == {AW}'(MBX_IF_BASE_C + i * MBX_IF_STRIDE_C + MBX_IF_REG_GM_LO_C)) begin",
             "          gm_hi_snap_r[i]  <= gm_id_i[64*i + 32 +: 32];",
@@ -472,6 +474,7 @@ def _read_block(contract: Contract) -> list[str]:
     for reg in contract.pub_sink_registers:
         out.append(f"    if (pub_at_w && pub_sink_w && pub_reg_w == {AW}'(MBX_PUB_SINK_REG_{reg.name}_C)) "
                    f"reg_rdata_w = 32'(pub_{reg.name.lower()}_r[pub_if_w][pub_k_w]);")
+    out += face.read(contract)
     out.append("    for (int c = 0; c < int'(MBX_N_CH_C); c++) begin")
     for reg in contract.ch_registers:
         base = f"MBX_CH_BASE_C + c * MBX_CH_STRIDE_C + MBX_CH_REG_{reg.name}_C"
@@ -595,6 +598,7 @@ def _check_wiring(contract: Contract) -> None:
     sid = [f for r in contract.pub_sink_registers if r.name in ("SID_LO", "SID_HI") for f in r.fields]
     if any(f.lsb != 0 or f.width != 32 for f in sid):
         raise ContractError("the skeleton joins SID_HI and SID_LO, each a whole word, into the 64-bit stream_id")
+    face.check(contract)
     bound = {t.offset for ch in contract.channels for t in ch.terms if t.test == "eq_bound"}
     if len(bound) > 1:
         raise ContractError(f"eq_bound terms read the fields at {sorted(bound)}: KL_mbx_rx compares one "
@@ -677,6 +681,7 @@ def _leaves(contract: Contract) -> list[str]:
         "    .tmr_bad_p_o       (tmr_bad_p_w),",
         "    .link_up_i         (link_up_i),", "    .gm_change_p_i     (gm_change_p_i),",
         "    .gm_id_i           (gm_id_i),", "    .gptp_domain_i     (gptp_domain_i),",
+        *(f"    .{port:<17} ({src})," for port, src in face.EVT_CONNECTIONS),
         "    .evt_tail_words_i  (evt_tail_r[15:0]),", "    .evt_head_words_o  (evt_head_w),",
         "    .wr_en_o           (evw_en_w),", "    .wr_addr_o         (evw_addr_w),",
         "    .wr_data_o         (evw_data_w)",
@@ -698,7 +703,9 @@ def _leaves(contract: Contract) -> list[str]:
 
 def emit_sv_top(contract: Contract) -> str:
     """KL_mbx.sv, the generated fabric skeleton."""
-    lines = (_banner() + _ports() + _pub_ports() + _core() + _bound_decode(contract) + _pub_decode(contract)
-             + _storage(contract) + _write_block(contract) + _pub_block(contract) + _read_block(contract)
-             + _ring_block(contract) + _mux_block(contract) + _leaves(contract))
+    _check_wiring(contract)
+    lines = (_banner() + _ports() + _pub_ports() + face.ports(contract) + _core() + _bound_decode(contract)
+             + _pub_decode(contract) + face.decode(contract) + face.block(contract) + _storage(contract)
+             + _write_block(contract) + _pub_block(contract) + _read_block(contract) + _ring_block(contract)
+             + _mux_block(contract) + _leaves(contract))
     return "\n".join(lines)

@@ -19,7 +19,9 @@ not built. This file is the one statement of that memory map. The SoC reads it
   words), largest first. Each bank maps to whole block RAMs with no rounding,
   so a region wastes less than one granule;
 - the allocation is held to the owner's 224 KB: 56 RAMB36 at 4,096 usable
-  bytes each, a RAMB18 counting half (#640 ruling 6101485877).
+  bytes each, a RAMB18 counting half (#640 ruling 6101485877). LEDGERED
+  names the one point allowed past it, only when its measurement asks for it
+  by name (#665); the SoC build asks for none.
 
 Every refusal names its check: `reset entry`, `memory map`, `memory-map
 overlap`, `allocation over budget` and `staging buffer`. RULES lists each
@@ -28,7 +30,7 @@ and a refusal names its rule too; test_ctrl_memory.py requires every rule to
 have an arm that fails when the rule is removed.
 
     python3 sw/litex/ctrl_memory.py regions <directory>
-    python3 sw/litex/ctrl_memory.py plan <elf> [--stage-bytes N]
+    python3 sw/litex/ctrl_memory.py plan <elf> [--stage-bytes N] [--ledgered-point NAME]
 """
 
 from __future__ import annotations
@@ -89,7 +91,9 @@ RULES: dict[str, Rule] = {
     "regions": Rule("memory-map overlap", "The two regions sharing an address"),
     "addresses": Rule("memory-map overlap", "Two sections sharing an address"),
     "initial bytes": Rule("memory-map overlap", "Two sections sharing a load address"),
-    "budget": Rule("allocation over budget", "Banks totalling more than 56 RAMB36, a RAMB18 counting half"),
+    "budget": Rule("allocation over budget", "Banks totalling more than 56 RAMB36, a RAMB18 counting half, or "
+                                             "more than a ledgered point's tiles; that point's override on any "
+                                             "other image"),
     "stage symbol": Rule("staging buffer", "An image with no `nvm_stage`"),
     "stage size": Rule("staging buffer", "An `nvm_stage` that is not the selected shape's stage: its KLJ2 "
                                          "container plus one record header"),
@@ -159,6 +163,8 @@ class Plan:
     ram_bytes: int
     rom_banks: tuple[int, ...]
     ram_banks: tuple[int, ...]
+    budget: float = BUDGET_TILES        # what the plan was held to
+    ledgered: str | None = None         # the LEDGERED point it was planned as, if any
 
     @property
     def tiles(self) -> float:
@@ -172,9 +178,48 @@ class Plan:
             return {"bytes": need, "banks": list(banks),
                     "RAMB36": sum(b // TILE_BYTES for b in banks),
                     "RAMB18": sum(b == GRANULE_BYTES for b in banks)}
+        held = {} if self.ledgered is None else {"ledgered": self.ledgered, "ledgered_tiles": self.budget}
         return {"rom": region(self.rom_bytes, self.rom_banks),
                 "sram": region(self.ram_bytes, self.ram_banks),
-                "tiles": self.tiles, "budget_tiles": BUDGET_TILES}
+                "tiles": self.tiles, "budget_tiles": BUDGET_TILES, **held}
+
+
+@dataclass(frozen=True)
+class Ledgered:
+    """A point the owner let plan past the budget, until the lane it is owed to recovers it."""
+
+    point: str                              # the point, as the ledger names it
+    symbols: tuple[tuple[str, int], ...]    # (symbol, size): what makes an image that point
+    tiles: float                            # what it may plan
+    owed: str                               # the lane that recovers the tiles, and the ruling
+
+
+#: The only points `plan` may let past BUDGET_TILES, each only when its own
+#: measurement names it (`plan --ledgered-point`, ctrl_srp_image.py); the product
+#: SoC build names none, so no product build is held to more than 56 RAMB36; the
+#: measurement harness names it for that point only (its image and SoC plan,
+#: tb/verilator/ctrl_service_budget/build.py, LEDGERED_POINTS). An image is the
+#: point when it carries every listed symbol at its listed size: the 8x8 shape's
+#: staging buffer and the size fixture's per-interface table at two interfaces
+#: (ctrl_aecp_image.c, `uint64_t image_allocation[MBX_N_IF]`). The tile and a
+#: half over budget are ledgered in docs/design/SPLIT_CONTROL_MEMORY.md section 5.
+LEDGERED: dict[str, Ledgered] = {
+    "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_264), ("image_allocation", 16)),
+                                   57.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
+                                         "6425357821)"),
+}
+
+
+def ledgered_tiles(image: Image, name: str) -> float:
+    """The tiles LEDGERED[name] may plan, refused for any image that is not its point."""
+    point = LEDGERED.get(name)
+    if point is None:
+        raise Refusal("budget", f"no ledgered point is named {name!r}; the ledger holds {sorted(LEDGERED)}")
+    carried = {symbol: image.symbols.get(symbol, (0, None))[1] for symbol, _ in point.symbols}
+    if carried != dict(point.symbols):
+        raise Refusal("budget", f"the override {name!r} is for the {point.point} image alone, the one "
+                      f"carrying {dict(point.symbols)}; this image carries {carried}")
+    return point.tiles
 
 
 def banks(need: int) -> tuple[int, ...]:
@@ -293,19 +338,26 @@ def check_map(image: Image, rom: Region = ROM, ram: Region = RAM) -> None:
 
 
 def plan(image: Image, rom: Region = ROM, ram: Region = RAM,
-         budget: int = BUDGET_TILES) -> Plan:
-    """The banks the image needs, refused when its map is wrong or it exceeds the budget."""
+         budget: float = BUDGET_TILES, ledgered: str | None = None) -> Plan:
+    """The banks the image needs, refused when its map is wrong or it exceeds the budget.
+
+    `ledgered` names a LEDGERED point; its tiles replace the budget, and any
+    image that is not that point is refused.
+    """
     check_map(image, rom, ram)
+    if ledgered is not None:
+        budget = ledgered_tiles(image, ledgered)
     rom_end = max((s.lma + s.size for s in image.sections if s.loaded), default=rom.origin)
     ram_end = max((s.vma + s.size for s in image.sections if ram.holds(s.vma, s.vma + s.size)),
                   default=ram.origin)
     need = Plan(rom_end - rom.origin, ram_end - ram.origin,
-                banks(rom_end - rom.origin), banks(ram_end - ram.origin))
+                banks(rom_end - rom.origin), banks(ram_end - ram.origin), budget, ledgered)
     if need.tiles > budget:
+        held = "" if ledgered is None else f" ledgered for {LEDGERED[ledgered].point}"
         raise Refusal("budget",
                       f"{need.tiles:g} RAMB36 ({rom.name} {need.rom_bytes} bytes in "
                       f"{sum(need.rom_banks)}, {ram.name} {need.ram_bytes} bytes in "
-                      f"{sum(need.ram_banks)}) exceeds the {budget}-RAMB36 budget")
+                      f"{sum(need.ram_banks)}) exceeds the {budget:g}-RAMB36 budget{held}")
     return need
 
 
@@ -363,6 +415,8 @@ def main(argv: list[str] | None = None) -> int:
     planned = sub.add_parser("plan", help="check a linked image and print its banks")
     planned.add_argument("elf", type=Path)
     planned.add_argument("--stage-bytes", type=int, help="the selected shape's staging buffer")
+    planned.add_argument("--ledgered-point", choices=sorted(LEDGERED),
+                         help="plan the one ledgered point to its ledgered tiles; any other image is refused")
     args = ap.parse_args(argv)
     if args.command == "regions":
         (args.directory / "regions.ld").write_text(regions_ld())
@@ -371,7 +425,7 @@ def main(argv: list[str] | None = None) -> int:
         image = read_elf(args.elf)
         if args.stage_bytes is not None:
             check_stage(image, args.stage_bytes, "requested")
-        print(json.dumps(plan(image).summary(), indent=2))
+        print(json.dumps(plan(image, ledgered=args.ledgered_point).summary(), indent=2))
     except Refusal as exc:
         print(f"REFUSED {exc}", file=sys.stderr)
         return 2

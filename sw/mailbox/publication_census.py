@@ -107,6 +107,11 @@ input ``i_tlk_lobs_v``.
 THE RULES. census_rules.py names every rule above, the shapes' and the
 tools' included, and each is enforced only where ``live()`` names it.
 
+EVERY PORT. census_ports.py classifies every port of the same pp_shadow cell,
+inputs and outputs, in each shape on the same netlist (#665): class-D,
+firmware-written, a window, an event, a frame path, or gone with a G output's
+cone ending only at its three terminals and the map writer's exclusion. Its findings join this census's.
+
 ``--selftest`` (census_selftest.py) elaborates a planted copy of the datapath,
 the wrapper or an included file for each defect of ``census_plants.PLANTS``,
 at a shape that builds the plant's branch, and requires each to be refused by
@@ -128,15 +133,18 @@ import sys
 import time
 from collections import defaultdict, deque
 from concurrent.futures import ProcessPoolExecutor
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
+import census_ports  # noqa: E402
 import mailbox_model  # noqa: E402
 from census_elab import (REPO, RECIPE, WORK, Cell, CensusError, Netlist, Shape, elaborate,  # noqa: E402
                          recipe, shapes, toolchain)
+import census_rules  # noqa: E402
 from census_rules import live  # noqa: E402
 
 DATAPATH = REPO / "hdl/milan/milan_datapath.sv"
@@ -159,6 +167,7 @@ CLASS_D_PORTS = frozenset({
 #: Each sink's started level, which the ruling of comment 6092086337 adds, and the wire the rows name it by.
 STARTED_PORT = "aecp_strm_started_o"
 STARTED = "pp_aecp_strm_started_w"
+census_ports.CLASS_D = CLASS_D_PORTS | {STARTED_PORT}
 
 
 @dataclass(frozen=True)
@@ -284,6 +293,7 @@ class Survey:
     problems: list[str]
     size: str
     shape: str = RECIPE.name
+    ports: census_ports.PortSurvey | None = None
 
 
 @dataclass
@@ -495,27 +505,44 @@ def multiple(fl: Flow, skip: set[str]) -> list[str]:
             for n, ds in sorted(out.items())]
 
 
-def survey(src: Sources, shape: Shape = RECIPE, net: Netlist | None = None) -> Survey:
-    """The population, its reads and their cones, from the datapath as elaborated in
-    shape, or from net when that elaboration is already done."""
+#: The last class-D survey of one netlist under one set of removed rules, kept so
+#: the self-test's port arms judge a netlist already surveyed without following
+#: its reads again: (netlist, removed rules, wrapper text) -> its flow and survey.
+_SURVEYED: list[tuple[Netlist, frozenset[str], str, Flow, Survey]] = []
+
+
+def survey(src: Sources, shape: Shape = RECIPE, net: Netlist | None = None, ports: dict | None = None,
+           excluded: tuple[str, ...] | None = None) -> Survey:
+    """The population, its reads and their cones, and every port of the wrapper
+    against the port table ports (census_ports.PORTS when None), from the
+    datapath as elaborated in shape, or from net when that elaboration is
+    already done."""
     net = net or elaborate(overlay(src), shape)
-    fl = flow(net)
-    pop, problems = population(fl, src.wrapper)
-    problems += multiple(fl, set(pop))
-    reads, unread = [], []
-    for wire in sorted(pop):
-        hits = first_hop(fl, wire)
-        unread += [wire] if not hits else []
-        reads += [Read(wire, c, cone(fl, at)) for c, at in sorted(hits.items())]
-    size = f"{len(net.cells)} cells, {len(net.names) - len(net.hidden)} named nets"
-    return Survey(pop, reads, unread, problems, size, shape.name)
+    # census_ports.py's rules shape only the port census, which is judged again below
+    off = frozenset(census_rules.OFF - census_ports.RULES)
+    hit = next((h for h in _SURVEYED if h[0] is net and h[1] == off and h[2] == src.wrapper), None)
+    if hit is None:
+        fl = flow(net)
+        pop, problems = population(fl, src.wrapper)
+        problems += multiple(fl, set(pop))
+        reads, unread = [], []
+        for wire in sorted(pop):
+            hits = first_hop(fl, wire)
+            unread += [wire] if not hits else []
+            reads += [Read(wire, c, cone(fl, at)) for c, at in sorted(hits.items())]
+        size = f"{len(net.cells)} cells, {len(net.names) - len(net.hidden)} named nets"
+        hit = (net, off, src.wrapper, fl, Survey(pop, reads, unread, problems, size, shape.name))
+        _SURVEYED[:] = [hit]
+    fl, base = hit[3], hit[4]
+    port_survey = census_ports.survey_ports(fl, sys.modules[__name__], ports, excluded, shape.name)
+    return Survey(base.population, base.reads, base.unread, list(base.problems), base.size, shape.name, port_survey)
 
 
-def surveyed(job: tuple[Sources, Shape]) -> Survey:
+def surveyed(job: tuple[Sources, Shape, dict | None, tuple[str, ...] | None]) -> Survey:
     """survey() of one shape in a worker process, a refusal naming the shape."""
-    src, shape = job
+    src, shape, ports, excluded = job
     try:
-        return survey(src, shape)
+        return survey(src, shape, None, ports, excluded)
     except CensusError as exc:
         raise CensusError(f"in the shape {shape.name}: {exc}") from exc
 
@@ -537,7 +564,7 @@ def fields(contract: mailbox_model.Contract) -> set[str]:
 
 def judge(sv: Survey, table: dict[tuple[str, str], Row], known: set[str]) -> list[str]:
     """Every way one shape's survey and the census disagree."""
-    out = list(sv.problems)
+    out = list(sv.problems) + (sv.ports.findings if sv.ports else [])
     for r in sv.reads:
         row = table.get((r.wire, r.consumer))
         where = f"{r.wire} -> {r.consumer}"
@@ -594,18 +621,34 @@ def verdict(svs: list[Survey], table: dict[tuple[str, str], Row], known: set[str
     return out + compare(svs)
 
 
-def census(src: Sources, table: dict[tuple[str, str], Row], known: set[str], at: tuple[Shape, ...] | None = None,
-           jobs: int = 1, nets: dict[str, Netlist] | None = None) -> tuple[list[str], list[Survey]]:
-    """Every finding over the shapes at (every shape the builder builds when None), and
-    each shape's survey. jobs elaborate at once; nets, when given, holds each shape's
-    netlist by name, elaborated only when missing."""
-    at = shapes() if at is None else at
+@dataclass(frozen=True)
+class Plan:
+    """How one census run is made: the shapes at (every shape the builder builds when
+    None), jobs elaborating at once, and nets, when given, holding each shape's netlist
+    by name, elaborated only when missing. ports and excluded replace the port census's
+    table and exclusion; plant, a function of a netlist, plants a defect into each
+    netlist after its elaboration (the self-test's netlist arms)."""
+
+    at: tuple[Shape, ...] | None = None
+    jobs: int = 1
+    nets: dict[str, Netlist] | None = None
+    ports: dict | None = None
+    excluded: tuple[str, ...] | None = None
+    plant: Callable[[Netlist], Netlist] | None = None
+
+
+def census(src: Sources, table: dict[tuple[str, str], Row], known: set[str],
+           plan: Plan | None = None) -> tuple[list[str], list[Survey]]:
+    """Every finding over the shapes plan names, and each shape's survey."""
+    plan = Plan() if plan is None else plan
+    jobs, nets, ports, excluded, plant = plan.jobs, plan.nets, plan.ports, plan.excluded, plan.plant
+    at = shapes() if plan.at is None else plan.at
     if nets is None and jobs > 1 and len(at) > 1:
         # the most streams first: the largest netlist is the longest elaboration
         order = sorted(at, key=lambda s: -dict(s.params).get("N_STREAMS", 1))
         WORK.roms()                    # once, here: the workers share this process's scratch directory
         with ProcessPoolExecutor(max_workers=jobs, mp_context=multiprocessing.get_context("fork")) as pool:
-            done = dict(zip((s.name for s in order), pool.map(surveyed, [(src, s) for s in order])))
+            done = dict(zip((s.name for s in order), pool.map(surveyed, [(src, s, ports, excluded) for s in order])))
         svs = [done[s.name] for s in at]
     else:
         svs = []
@@ -615,7 +658,7 @@ def census(src: Sources, table: dict[tuple[str, str], Row], known: set[str], at:
                 net = elaborate(overlay(src), shape)
                 if nets is not None:
                     nets[shape.name] = net
-            svs.append(survey(src, shape, net))
+            svs.append(survey(src, shape, plant(net) if plant else net, ports, excluded))
     return verdict(svs, table, known), svs
 
 
@@ -654,6 +697,11 @@ def report(svs: list[Survey], out: list[str], listing: bool, checking: bool) -> 
     for sv in svs:
         bound = " ".join(f"{k}={v}" for k, v in params.get(sv.shape, ())) or "the module's defaults"
         print(f"shape {sv.shape}: {sv.size}; {len(sv.reads)} read(s), {len(sv.unread)} unread net(s); {bound}")
+        if sv.ports:
+            c, e = sv.ports.counts, sv.ports.ends
+            print(f"  ports of {WRAPPER_CELL}: {c['ports']}: " + ", ".join(f"{k} {c[k]}" for k in census_ports.CLASSES)
+                  + "; G cones end at " + ", ".join(f"{k} {e.get(k, 0)}" for k in ("csr", "memory", "shim", "wire"))
+                  + f", stopped at {e.get('removed', 0)} net(s) removed with the wrapper")
     if checking:
         for f in out:
             print(f"[FAIL] {f}")
@@ -684,7 +732,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"publication census: elaborating {DATAPATH.relative_to(REPO)} with {toolchain()}")
         src = load(args.datapath, args.wrapper)
         if args.check or args.list:
-            out, svs = census(src, CENSUS, known, None, args.jobs)
+            out, svs = census(src, CENSUS, known, Plan(jobs=args.jobs))
             report(svs, out, args.list, args.check)
             print(f"publication census: {len(svs)} shape(s) elaborated and classified in "
                   f"{time.monotonic() - began:.0f} s at --jobs {args.jobs}")

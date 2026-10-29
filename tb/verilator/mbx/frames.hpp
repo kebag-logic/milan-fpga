@@ -13,6 +13,8 @@
 #include <cstdint>
 #include <vector>
 
+#include "mbx_contract.h"
+
 namespace mbx_tb {
 
 //! One frame the TX merge sent: its bytes, interface and channel.
@@ -42,6 +44,158 @@ inline bool same_pub(const PubView& a, const PubView& b) {
     return a.da_gate == b.da_gate && a.licence == b.licence && a.idle_slope_bps == b.idle_slope_bps &&
            a.vid == b.vid && a.priority == b.priority && a.adopted == b.adopted && a.talker_decl == b.talker_decl &&
            a.bound == b.bound && a.started == b.started && a.sid == b.sid;
+}
+
+//! One field of a face register: the register's offset inside an interface's
+//! face block, the field's place, and for a 64-bit value the offset of its
+//! high word (`reg` then holds the low one).
+struct FaceField {
+    std::uint32_t reg;
+    std::uint32_t lsb;
+    std::uint32_t width;
+    std::uint32_t hi = 0;
+};
+
+//! The face block's windows, in the contract's order.
+inline constexpr unsigned kWindows = 4;
+enum : unsigned { kWinCtr = 0, kWinAmap = 1, kWinEdit = 2, kWinGsi = 3 };
+
+//! A window's GO, status and data registers (data_hi == data_lo: one word).
+struct WindowRegs {
+    std::uint32_t go;
+    std::uint32_t status;
+    std::uint32_t data_lo;
+    std::uint32_t data_hi;
+};
+inline const WindowRegs kWindowRegs[kWindows] = {
+    {MBX_FACE_REG_CTR_CMD, MBX_FACE_REG_CTR_STATUS, MBX_FACE_REG_CTR_DATA, MBX_FACE_REG_CTR_DATA},
+    {MBX_FACE_REG_AMAP_CMD, MBX_FACE_REG_AMAP_STATUS, MBX_FACE_REG_AMAP_DATA_LO, MBX_FACE_REG_AMAP_DATA_HI},
+    {MBX_FACE_REG_EDIT_CMD, MBX_FACE_REG_EDIT_STATUS, MBX_FACE_REG_EDIT_DATA_LO, MBX_FACE_REG_EDIT_DATA_HI},
+    {MBX_FACE_REG_GSI_CMD, MBX_FACE_REG_GSI_STATUS, MBX_FACE_REG_GSI_DATA_LO, MBX_FACE_REG_GSI_DATA_HI},
+};
+inline constexpr std::uint32_t kWaitCycles[kWindows] = {MBX_WIN_CTR_WAIT_CYCLES, MBX_WIN_AMAP_WAIT_CYCLES,
+                                                        MBX_WIN_EDIT_WAIT_CYCLES, MBX_WIN_GSI_WAIT_CYCLES};
+
+//! Every setting field, in the order KL_mbx declares its fw_*_o ports.
+inline const std::vector<FaceField>& setting_fields() {
+    static const std::vector<FaceField> v = {
+        {MBX_FACE_REG_F_CTRL, MBX_F_CTRL_READY_LSB, MBX_F_CTRL_READY_WIDTH},
+        {MBX_FACE_REG_F_ENTITY, MBX_F_ENTITY_CUR_CONFIG_LSB, MBX_F_ENTITY_CUR_CONFIG_WIDTH},
+        {MBX_FACE_REG_F_ENTITY, MBX_F_ENTITY_IDENTIFY_LSB, MBX_F_ENTITY_IDENTIFY_WIDTH},
+        {MBX_FACE_REG_F_CLOCK, MBX_F_CLOCK_SOURCE_INDEX_LSB, MBX_F_CLOCK_SOURCE_INDEX_WIDTH},
+        {MBX_FACE_REG_F_AECP, MBX_F_AECP_LOCK_HELD_LSB, MBX_F_AECP_LOCK_HELD_WIDTH},
+        {MBX_FACE_REG_F_AECP, MBX_F_AECP_DYN_DIRTY_LSB, MBX_F_AECP_DYN_DIRTY_WIDTH},
+        {MBX_FACE_REG_F_RESTORE, MBX_F_RESTORE_BUSY_LSB, MBX_F_RESTORE_BUSY_WIDTH},
+        {MBX_FACE_REG_F_RESTORE, MBX_F_RESTORE_DONE_LSB, MBX_F_RESTORE_DONE_WIDTH},
+        {MBX_FACE_REG_F_RESTORE, MBX_F_RESTORE_FAIL_LSB, MBX_F_RESTORE_FAIL_WIDTH},
+        {MBX_FACE_REG_F_RESTORE, MBX_F_RESTORE_BLANK_LSB, MBX_F_RESTORE_BLANK_WIDTH},
+        {MBX_FACE_REG_F_RESTORE, MBX_F_RESTORE_CLOSED_LSB, MBX_F_RESTORE_CLOSED_WIDTH},
+        {MBX_FACE_REG_F_RESTORE, MBX_F_RESTORE_RB_LSB, MBX_F_RESTORE_RB_WIDTH},
+        {MBX_FACE_REG_F_RESTORE, MBX_F_RESTORE_RS_CAUSE_LSB, MBX_F_RESTORE_RS_CAUSE_WIDTH},
+        {MBX_FACE_REG_F_RESTORE, MBX_F_RESTORE_CAUSE_LSB, MBX_F_RESTORE_CAUSE_WIDTH},
+        {MBX_FACE_REG_F_NVM, MBX_F_NVM_BACKED_LSB, MBX_F_NVM_BACKED_WIDTH},
+        {MBX_FACE_REG_F_NVM, MBX_F_NVM_ALARM_LSB, MBX_F_NVM_ALARM_WIDTH},
+        {MBX_FACE_REG_F_NVM, MBX_F_NVM_DIRTY_LSB, MBX_F_NVM_DIRTY_WIDTH},
+        {MBX_FACE_REG_F_NVM, MBX_F_NVM_STALE_LSB, MBX_F_NVM_STALE_WIDTH},
+        {MBX_FACE_REG_F_NVM, MBX_F_NVM_PEND_LSB, MBX_F_NVM_PEND_WIDTH},
+        {MBX_FACE_REG_F_NVM, MBX_F_NVM_IMG_VALID_LSB, MBX_F_NVM_IMG_VALID_WIDTH},
+        {MBX_FACE_REG_F_NVM, MBX_F_NVM_VERDICT_LSB, MBX_F_NVM_VERDICT_WIDTH},
+    };
+    return v;
+}
+
+//! Window w's request fields, in the order KL_mbx declares their ports.
+inline const std::vector<FaceField>& window_fields(unsigned w) {
+    static const std::vector<FaceField> v[kWindows] = {
+        {{MBX_FACE_REG_CTR_REQ, MBX_CTR_REQ_TYPE_LSB, MBX_CTR_REQ_TYPE_WIDTH},
+         {MBX_FACE_REG_CTR_REQ, MBX_CTR_REQ_INDEX_LSB, MBX_CTR_REQ_INDEX_WIDTH},
+         {MBX_FACE_REG_CTR_WORD, MBX_CTR_WORD_WORD_LSB, MBX_CTR_WORD_WORD_WIDTH}},
+        {{MBX_FACE_REG_AMAP_REQ, MBX_AMAP_REQ_TYPE_LSB, MBX_AMAP_REQ_TYPE_WIDTH},
+         {MBX_FACE_REG_AMAP_REQ, MBX_AMAP_REQ_INDEX_LSB, MBX_AMAP_REQ_INDEX_WIDTH},
+         {MBX_FACE_REG_AMAP_PAGE, MBX_AMAP_PAGE_MAP_INDEX_LSB, MBX_AMAP_PAGE_MAP_INDEX_WIDTH},
+         {MBX_FACE_REG_AMAP_PAGE, MBX_AMAP_PAGE_SEL_LSB, MBX_AMAP_PAGE_SEL_WIDTH},
+         {MBX_FACE_REG_AMAP_PAGE, MBX_AMAP_PAGE_REC_LSB, MBX_AMAP_PAGE_REC_WIDTH}},
+        {{MBX_FACE_REG_EDIT_REQ, MBX_EDIT_REQ_TYPE_LSB, MBX_EDIT_REQ_TYPE_WIDTH},
+         {MBX_FACE_REG_EDIT_REQ, MBX_EDIT_REQ_INDEX_LSB, MBX_EDIT_REQ_INDEX_WIDTH},
+         {MBX_FACE_REG_EDIT_BEAT, MBX_EDIT_BEAT_PHASE_LSB, MBX_EDIT_BEAT_PHASE_WIDTH},
+         {MBX_FACE_REG_EDIT_BEAT, MBX_EDIT_BEAT_REMOVE_LSB, MBX_EDIT_BEAT_REMOVE_WIDTH},
+         {MBX_FACE_REG_EDIT_BEAT, MBX_EDIT_BEAT_REC_LSB, MBX_EDIT_BEAT_REC_WIDTH},
+         {MBX_FACE_REG_EDIT_BEAT, MBX_EDIT_BEAT_COUNT_LSB, MBX_EDIT_BEAT_COUNT_WIDTH},
+         {MBX_FACE_REG_EDIT_RECORD_LO, 0, 64, MBX_FACE_REG_EDIT_RECORD_HI},
+         {MBX_FACE_REG_EDIT_VALUE_LO, 0, 64, MBX_FACE_REG_EDIT_VALUE_HI}},
+        {{MBX_FACE_REG_GSI_REQ, MBX_GSI_REQ_TYPE_LSB, MBX_GSI_REQ_TYPE_WIDTH},
+         {MBX_FACE_REG_GSI_REQ, MBX_GSI_REQ_INDEX_LSB, MBX_GSI_REQ_INDEX_WIDTH},
+         {MBX_FACE_REG_GSI_SEL, MBX_GSI_SEL_KIND_LSB, MBX_GSI_SEL_KIND_WIDTH},
+         {MBX_FACE_REG_GSI_SEL, MBX_GSI_SEL_SEL_LSB, MBX_GSI_SEL_SEL_WIDTH},
+         {MBX_FACE_REG_GSI_SEL, MBX_GSI_SEL_ORD_LSB, MBX_GSI_SEL_ORD_WIDTH},
+         {MBX_FACE_REG_GSI_PROP_LO, 0, 64, MBX_FACE_REG_GSI_PROP_HI}},
+    };
+    return v[w];
+}
+
+//! What the face block drives into one interface's datapath (contract 2.3):
+//! each value as KL_mbx's fw_*_o and window ports carry it on the RTL, and as
+//! mbx_model_face_view() reports it on the host model.
+struct FaceView {
+    std::uint32_t send = 0;                     //!< fw_send_o: a commit waits for its acknowledgement
+    std::vector<std::uint64_t> setting;         //!< every setting field, in setting_fields() order
+    std::vector<std::uint64_t> pt_offset;       //!< per source: F_PT_OFFSET.NS
+    std::vector<std::uint64_t> fmt_out;         //!< per source: F_FMT_OUT_HI:F_FMT_OUT_LO
+    std::vector<std::uint64_t> fmt_in;          //!< per sink: F_FMT_IN_HI:F_FMT_IN_LO
+    std::uint32_t pt_offset_v = 0;              //!< bit s: F_SRC_VALID.PT_OFFSET of source s
+    std::uint32_t fmt_out_v = 0;                //!< bit s: F_SRC_VALID.FMT_OUT of source s
+    std::uint32_t fmt_in_v = 0;                 //!< bit k: F_SNK_VALID.FMT_IN of sink k
+    std::uint32_t req[kWindows] = {};           //!< <window>_req_o
+    std::uint32_t tag[kWindows] = {};           //!< <window>_tag_o
+    std::vector<std::uint64_t> fields[kWindows];   //!< each request field, in window_fields() order
+};
+
+inline bool same_face(const FaceView& a, const FaceView& b) {
+    bool same = a.send == b.send && a.setting == b.setting && a.pt_offset == b.pt_offset && a.fmt_out == b.fmt_out &&
+                a.fmt_in == b.fmt_in && a.pt_offset_v == b.pt_offset_v && a.fmt_out_v == b.fmt_out_v &&
+                a.fmt_in_v == b.fmt_in_v;
+    for (unsigned w = 0; w < kWindows; ++w) {
+        same = same && a.req[w] == b.req[w] && a.tag[w] == b.tag[w] && a.fields[w] == b.fields[w];
+    }
+    return same;
+}
+
+//! A FaceView from the register words a model holds: word(reg) is setting
+//! register reg's word, src(s, reg) and snk(k, reg) an entry's.
+template <class Word, class Src, class Snk, class Req>
+FaceView face_from_words(std::uint32_t send, Word word, Src src, Snk snk, const std::uint32_t* req,
+                         const std::uint32_t* tag, Req request) {
+    auto take = [](std::uint32_t w, std::uint32_t lsb, std::uint32_t width) -> std::uint64_t {
+        return width >= 32u ? w : ((w >> lsb) & ((1u << width) - 1u));
+    };
+    FaceView v;
+    v.send = send;
+    for (const FaceField& f : setting_fields()) {
+        v.setting.push_back(take(word(f.reg), f.lsb, f.width));
+    }
+    for (unsigned s = 0; s < MBX_N_PUB_SOURCES; ++s) {
+        v.pt_offset.push_back(src(s, MBX_FACE_SRC_REG_F_PT_OFFSET));
+        v.fmt_out.push_back((std::uint64_t{src(s, MBX_FACE_SRC_REG_F_FMT_OUT_HI)} << 32) |
+                            src(s, MBX_FACE_SRC_REG_F_FMT_OUT_LO));
+        const std::uint32_t valid = src(s, MBX_FACE_SRC_REG_F_SRC_VALID);
+        v.pt_offset_v |= static_cast<std::uint32_t>(take(valid, MBX_F_SRC_VALID_PT_OFFSET_LSB, 1)) << s;
+        v.fmt_out_v |= static_cast<std::uint32_t>(take(valid, MBX_F_SRC_VALID_FMT_OUT_LSB, 1)) << s;
+    }
+    for (unsigned k = 0; k < MBX_N_PUB_SINKS; ++k) {
+        v.fmt_in.push_back((std::uint64_t{snk(k, MBX_FACE_SNK_REG_F_FMT_IN_HI)} << 32) |
+                           snk(k, MBX_FACE_SNK_REG_F_FMT_IN_LO));
+        v.fmt_in_v |= static_cast<std::uint32_t>(take(snk(k, MBX_FACE_SNK_REG_F_SNK_VALID),
+                                                      MBX_F_SNK_VALID_FMT_IN_LSB, 1)) << k;
+    }
+    for (unsigned w = 0; w < kWindows; ++w) {
+        v.req[w] = req[w];
+        v.tag[w] = tag[w];
+        for (const FaceField& f : window_fields(w)) {
+            v.fields[w].push_back(f.width == 64u ? (std::uint64_t{request(w, f.hi)} << 32) | request(w, f.reg)
+                                                 : take(request(w, f.reg), f.lsb, f.width));
+        }
+    }
+    return v;
 }
 
 constexpr std::uint16_t kEtherAvtp = 0x22F0;   // IEEE 1722-2016 Table 5

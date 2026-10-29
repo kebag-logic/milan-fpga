@@ -556,3 +556,135 @@ def apply(src: Any, plant: Plant) -> Any:
             text = text.replace(old, new, 1)
         out = replace(out, **{where: text})
     return out
+
+
+# ---- every port of the wrapper (census_ports.py) -----------------------------
+# These arms change no source, so none elaborates: each is judged on the
+# netlist a tracked-source arm already elaborated at the recipe's shape
+# (#665). A table arm replaces the port table or the
+# exclusion; a netlist arm adds one consumer to a copy of the netlist, the
+# cells and ports an edit of the source would have elaborated to. Each terminal
+# of a G cone has an arm that moves a consumer past it (the ruling, item 2).
+
+@dataclass(frozen=True)
+class PortArm:
+    """One port-census arm: its table, exclusion or netlist plant, its words and its rule."""
+
+    what: str
+    word: str | tuple[str, ...]
+    rule: str
+    ports: Any = None               # a replacement port table, or None for census_ports.PORTS
+    excluded: Any = None            # a replacement exclusion, or None for census_ports.REMOVED_WITH_WRAPPER
+    plant: Any = None               # a function of a netlist returning a planted copy, or None
+
+    def __post_init__(self) -> None:
+        if self.rule not in RULES:
+            raise KeyError(f"port arm {self.what!r} names no census rule {self.rule}")
+
+
+#: The probe module a netlist arm's consumer is an input of: another module's input is the wire.
+PROBE_CELL = "u_probe_g"
+PROBE_MODULE = "KL_probe_g"
+
+
+def _bits(net: Any, name: str) -> tuple[int, ...]:
+    """The bits of a named net, refused by name when the netlist has no such net."""
+    if name not in net.names:
+        raise KeyError(f"the netlist names no net {name}: the arm's fixture moved")
+    return tuple(b for b in net.names[name] if isinstance(b, int))
+
+
+@dataclass(frozen=True)
+class ReadByProbe:
+    """A netlist plant: the input of a new probe module's cell reads net name."""
+
+    name: str
+
+    def __call__(self, net: Any) -> Any:
+        from census_elab import Cell
+        cells = {**net.cells, PROBE_CELL: Cell(PROBE_MODULE, {"a_i": "input"}, {"a_i": _bits(net, self.name)}, "")}
+        return replace(net, cells=cells, modules={**net.modules, PROBE_MODULE: {"a_i": "input"}})
+
+
+@dataclass(frozen=True)
+class ReadByCsr:
+    """A netlist plant: the CSR cell gains an input port reading net name."""
+
+    name: str
+    port: str
+
+    def __call__(self, net: Any) -> Any:
+        c = net.cells["csr"]
+        cell = replace(c, dirs={**c.dirs, self.port: "input"}, conns={**c.conns, self.port: _bits(net, self.name)})
+        return replace(net, cells={**net.cells, "csr": cell})
+
+
+@dataclass(frozen=True)
+class DrivenOut:
+    """A netlist plant: a new datapath output port carries net name."""
+
+    name: str
+    port: str
+
+    def __call__(self, net: Any) -> Any:
+        return replace(net, ports={**net.ports, self.port: ("output", _bits(net, self.name))})
+
+
+def port_arms(ports: dict, excluded: tuple[str, ...], row: Any) -> list[PortArm]:
+    """The port census's arms over the port table ports and the exclusion excluded;
+    row builds a row of the table (census_ports.Port)."""
+    def edited(**classes: dict) -> dict:
+        """The port table with each class named replaced."""
+        return {**ports, **classes}
+    f_rows, g_rows, m_rows = ports["F"], ports["G"], ports["M"]
+    reach = "reaches the wire at"
+    return [
+        # ---- the table ------------------------------------------------------
+        PortArm("a port no class names", "unmapped port: aecp_identify_o", "port-unmapped",
+                ports=edited(F={k: v for k, v in f_rows.items() if k != "aecp_identify_o"})),
+        PortArm("a port two classes name", "port gm_id_i is named in classes G and M", "port-one-class",
+                ports=edited(G={**g_rows, "gm_id_i": row((), "", "planted")})),
+        PortArm("a row naming a port the wrapper does not declare", "stale port row: class G names probe_gone_o",
+                "port-stale", ports=edited(G={**g_rows, "probe_gone_o": row((), "", "planted")})),
+        PortArm("a class C row the class-D census does not hold", "class C names aecp_identify_o", "port-class-d",
+                ports=edited(F={k: v for k, v in f_rows.items() if k != "aecp_identify_o"},
+                             C={**ports["C"], "aecp_identify_o": row((), "", "planted")})),
+        PortArm("an F carrier contract 2.3 does not define",
+                "F port aecp_identify_o: its carrier F_ENTITY.IDENT is not defined by contract 2.3", "port-contract",
+                ports=edited(F={**f_rows, "aecp_identify_o": row(("F_ENTITY.IDENT",), "", "planted")})),
+        PortArm("an M carrier KL_mbx does not declare", "M port link_up_i: its carrier link_i is not a port of KL_mbx",
+                "port-contract", ports=edited(M={**m_rows, "link_up_i": row(("link_i",), "", "planted")})),
+        PortArm("an F carrier narrower than its port",
+                ("F port aecp_cur_config_o is 16 bits", "its carrier F_ENTITY.IDENTIFY holds 8"), "port-width",
+                ports=edited(F={**f_rows, "aecp_cur_config_o": row(("F_ENTITY.IDENTIFY",), "", "planted")})),
+        PortArm("a per-sink carrier counted once", ("F port aecp_fmt_in_o is 128 bits", "holds 64 for 1 value(s)"),
+                "port-width", ports=edited(F={**f_rows, "aecp_fmt_in_o": row(("F_FMT_IN_LO.FMT", "F_FMT_IN_HI.FMT"),
+                                                                             "", "planted")})),
+        # ---- the exclusion --------------------------------------------------
+        PortArm("the exclusion emptied: the map writer's cones reach the wire",
+                "G port mrec_gnt_o reaches the wire at chan_map_capture", "g-on-wire", excluded=()),
+        PortArm("the exclusion naming a net no G cone reaches",
+                "the exclusion names amr_probe_r, which no G cone of this shape reaches", "g-exclusion-stale",
+                excluded=(*excluded, "amr_probe_r")),
+        PortArm("the exclusion naming a net outside the map writer",
+                "the exclusion names pp_amap_edit_req_w, which is not a net of the map writer", "g-exclusion-amr",
+                excluded=(*excluded, "pp_amap_edit_req_w")),
+        # ---- the netlist: a consumer moved past each terminal ---------------
+        PortArm("a G output read by another module's input", f"G port maap_state_o {reach} {PROBE_CELL}.a_i",
+                "g-on-wire", plant=ReadByProbe("pp_maap_int_state_nc_w")),
+        PortArm("a CSR terminal's net also read past it", f"G port host_rdata_o {reach} {PROBE_CELL}.a_i",
+                "g-on-wire", plant=ReadByProbe("pp_rdata_w")),
+        PortArm("a memory-master terminal's net also read past it",
+                f"G port desc_mem_req_valid_o {reach} {PROBE_CELL}.a_i", "g-on-wire",
+                plant=ReadByProbe("o_desc_mem_req_valid")),
+        PortArm("a map-record output read past the exclusion", f"G port mrec_gnt_o {reach} {PROBE_CELL}.a_i",
+                "g-on-wire", plant=ReadByProbe("mrec_gnt_w")),
+        PortArm("a MAAP shim output read past pp_shadow", f"G port maap_req_valid_o {reach} pp_maap_shim.req_valid_i",
+                "g-shim-terminal", plant=ReadByProbe("pp_maap_rsp_ok_w")),
+        PortArm("a G output on a CSR input outside the processor-status face",
+                f"G port rx_frames_o {reach} csr.i_probe_g", "g-csr-terminal",
+                plant=ReadByCsr("pp_rx_frames_w", "i_probe_g")),
+        PortArm("a G output on a datapath output outside the memory masters",
+                f"G port maap_state_o {reach} the datapath output probe_o", "g-memory-terminal",
+                plant=DrivenOut("pp_maap_int_state_nc_w", "probe_o")),
+    ]

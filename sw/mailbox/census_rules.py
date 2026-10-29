@@ -53,6 +53,20 @@ RULES = {
     "off-wire": "a status or processor row whose read reaches the wire fails",
     "status-not-processor": "a status row whose read reaches the processor wrapper fails",
     "stale-row": "a row no read matches fails",
+    # ---- every port of the wrapper (census_ports.py) -------------------------
+    "port-unmapped": "a port of the pp_shadow cell no class names fails",
+    "port-one-class": "a port two classes name fails",
+    "port-stale": "a port row naming a port the wrapper does not declare fails",
+    "port-class-d": "class C is exactly the class-D census's population",
+    "port-contract": "an F, R or E row's carrier is defined by contract 2.3, an M row's is a port of KL_mbx",
+    "port-width": "an F, R or E carrier is as wide as its port, per stream where the row says so, for no more "
+                  "streams than the contract carries",
+    "g-on-wire": "a G output whose cone reaches the wire fails",
+    "g-csr-terminal": "only the G_CSR inputs of the cell csr end a G cone at the CSR block",
+    "g-memory-terminal": "only the G_MEMORY datapath outputs end a G cone at the main-memory bridge",
+    "g-shim-terminal": "pp_maap_shim ends a G cone only while each of its outputs reaches pp_shadow's inputs alone",
+    "g-exclusion-stale": "each net the exclusion names is reached by a G cone of the shape",
+    "g-exclusion-amr": "each net the exclusion names is a net of the map writer and restore",
 }
 
 #: The rules the mutation check has removed; empty in every other run.

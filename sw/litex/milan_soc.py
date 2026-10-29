@@ -2719,6 +2719,33 @@ def add_ctrl_mailbox_dma(soc: SoCCore, addr_w: int, loc: int) -> CtrlMailboxDma:
     return soc.ctrl_mbx_dma
 
 
+def ctrl_mailbox_face_ports(contract: object) -> dict:
+    """KL_mbx's face-block ports (contract 2.3): every output a named Signal of its
+    generated width, left unread, and every input from the datapath held idle.
+    The names and widths are the generator's own (sw/mailbox/mailbox_face.py)."""
+    import mailbox_face
+    regs = {r.name: r for r in contract.face_registers}
+    n_if = contract.interfaces
+    out = {"o_fw_send_o": Signal(n_if), "i_fw_ack_p_i": 0}
+    for port, _reg, _fld, bits in mailbox_face.setting_ports(contract):
+        out[f"o_{port}"] = Signal(n_if * bits)
+    for table, count in ((mailbox_face.FACE_SOURCE_PORTS, contract.pub_sources),
+                         (mailbox_face.FACE_SINK_PORTS, contract.pub_sinks)):
+        for port, (_parts, bits) in table.items():
+            out[f"o_{port}"] = Signal(n_if * count * bits)
+    for w in contract.face_windows:
+        lw = w.name.lower()
+        tag = next(f.width for f in regs[w.status].fields if f.name == "TAG")
+        out[f"o_{lw}_req_o"] = Signal(n_if)
+        out[f"o_{lw}_tag_o"] = Signal(n_if * tag)
+        for port, _parts, bits in mailbox_face.request_ports(w, regs):
+            out[f"o_{port}"] = Signal(n_if * bits)
+        out.update({f"i_{lw}_ans_p_i": 0, f"i_{lw}_ans_tag_i": 0, f"i_{lw}_ans_data_i": 0})
+    out.update({"i_ctr_chg_p_i": 0, "i_ctr_chg_type_i": 0, "i_ctr_chg_index_i": 0, "i_avb_chg_p_i": 0,
+                "i_asp_chg_p_i": 0, "i_amap_wr_p_i": 0})
+    return out
+
+
 class CtrlMailbox(LiteXModule):
     """--ctrl-mailbox (#665 lane F0): the packet-mailbox skeleton on the CPU's Wishbone bus.
 
@@ -2732,8 +2759,12 @@ class CtrlMailbox(LiteXModule):
     with the protocol lanes that need it (#665 F2 to F5). The publication
     block's outputs (contract 2.2, the class-D state the firmware owner writes
     for the datapath) are left unread here too: only the split placement's
-    datapath reads them (#665, comment 6088423771). KL_mbx_wb reaches KL_mbx
-    through the record mover (`dma`, CtrlMailboxDma).
+    datapath reads them (#665, comment 6088423771). So are the face block's
+    (contract 2.3: the settings, the four request and answer windows and the
+    face events; #665): its outputs are named and unread,
+    and the datapath's answers, acknowledgements and events are held idle, so
+    a request times out and a commit waits, as the contract defines. KL_mbx_wb
+    reaches KL_mbx through the record mover (`dma`, CtrlMailboxDma).
     """
 
     def __init__(self, sys_clk_freq: int, contract: object, dma: CtrlMailboxDma) -> None:
@@ -2787,7 +2818,9 @@ class CtrlMailbox(LiteXModule):
             o_pub_bound_o=Signal(n_if * contract.pub_sinks),
             o_pub_sid_valid_o=Signal(n_if * contract.pub_sinks),
             o_pub_started_o=Signal(n_if * contract.pub_sinks),
-            o_pub_sid_o=Signal(n_if * contract.pub_sinks * 64))
+            o_pub_sid_o=Signal(n_if * contract.pub_sinks * 64),
+            # unread and held idle here, see the class docstring
+            **ctrl_mailbox_face_ports(contract))
         self.comb += self.ev.mbx.trigger.eq(irq)
 
 

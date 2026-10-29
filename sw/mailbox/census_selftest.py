@@ -13,6 +13,10 @@ the census table:
                      shape builds), refused by a finding carrying its words
   the table plants   a row naming a field the block does not define, and a
                      row no read matches
+  the port arms      census_plants.port_arms(): the port table, the
+                     exclusion, or one consumer added to the netlist, each
+                     judged on the netlist of an arm that elaborated the
+                     tracked sources, so none elaborates again (#665)
 
 THE MUTATION CHECK (#665, comment 6100024293). Each arm names the rule of
 census_rules.RULES whose removal must let it through (the positive control
@@ -37,17 +41,18 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
+import census_ports
 import census_rules
 import publication_census as pc
 from census_elab import RECIPE, WORK, CensusError, Shape, shapes, toolchain
-from census_plants import PLANTS, apply
+from census_plants import PLANTS, apply, port_arms
 from census_rules import RULES
 
 HERE = Path(__file__).resolve().parent
 #: The rules whose removal changes the elaboration: an arm judged without one is elaborated again.
 ELABORATION = frozenset({"shapes", "shape-params", "shape-header", "opener-guard", "keep-names"})
 #: The modules whose live() tests are the census's rules.
-ENFORCERS = ("census_elab.py", "publication_census.py")
+ENFORCERS = ("census_elab.py", "publication_census.py", "census_ports.py")
 LIVE = re.compile(r'\blive\("([^"]+)"\)')
 
 
@@ -62,6 +67,10 @@ class Arm:
     rule: str | None                        # the rule whose removal must let it through
     at: tuple[Any, ...] = ("recipe",)       # census_plants.Plant.at
     tool: tuple[str, ...] = ()              # a toolchain plant's tool, and the version line it prints
+    ports: Any = None                       # a port arm's port table, exclusion and netlist plant
+    excluded: Any = None
+    plant: Any = None
+    rides: bool = False                     # judged on the netlist of a tracked-source arm, never elaborated
 
 
 def arms(src: pc.Sources) -> list[Arm]:
@@ -78,6 +87,9 @@ def arms(src: pc.Sources) -> list[Arm]:
     out.append(Arm("a stale row", src, {**pc.CENSUS, ("pp_cd_srp_granted_slope_bps_w", "lwsrp_idle_slope"):
                                         pc.Row("status", "", "planted")},
                    "stale row: the datapath no longer reads pp_cd_srp_granted_slope_bps_w", "stale-row"))
+    out += [Arm(f"port census: {a.what}", src, pc.CENSUS, a.word, a.rule, ports=a.ports, excluded=a.excluded,
+                plant=a.plant, rides=True)
+            for a in port_arms(census_ports.PORTS, census_ports.REMOVED_WITH_WRAPPER, census_ports.Port)]
     return out
 
 
@@ -117,7 +129,8 @@ def outcome(arm: Arm, known: set[str], nets: dict) -> list[str]:
     try:
         if arm.tool:
             return pinned(*arm.tool)
-        got, _ = pc.census(arm.src, arm.table, known, pick(arm.at), 1, nets)
+        plan = pc.Plan(pick(arm.at), 1, nets, arm.ports, arm.excluded, arm.plant)
+        got, _ = pc.census(arm.src, arm.table, known, plan)
         return got
     except CensusError as exc:
         return [f"the census cannot read it: {exc}"]
@@ -134,23 +147,39 @@ def refused(arm: Arm, got: list[str]) -> tuple[bool, str]:
     return bool(hit), f"refused ({hit[0]})" if hit else f"accepted ({got[:1] or 'no finding'})"
 
 
-def run_arm(job: tuple[Arm, set[str]]) -> tuple[bool, str, bool | None]:
-    """One arm with every rule, then without its own: (its verdict, its line, whether
-    that removal let it through; None when it names no rule)."""
-    arm, known = job
-    if isinstance(arm.src, str):
-        return False, f"[BAD] planted {arm.what}: {arm.src}", None
+def run_arm(job: tuple[Arm, set[str], tuple[Arm, ...]]) -> list[tuple[Arm, bool, str, bool | None]]:
+    """One arm, then each arm riding on its netlist: (the arm, its verdict, its line,
+    whether removing its rule let it through; None when it names no rule)."""
+    arm, known, riders = job
     nets: dict = {}
+    return [judge_arm(a, known, nets) for a in (arm, *riders)]
+
+
+def judge_arm(arm: Arm, known: set[str], nets: dict) -> tuple[Arm, bool, str, bool | None]:
+    """One arm with every rule, then without its own, on the netlists nets holds. A
+    netlist arm plants each netlist once, so both judgements read one planted copy."""
+    if isinstance(arm.src, str):
+        return arm, False, f"[BAD] planted {arm.what}: {arm.src}", None
+    given = arm
+    if arm.plant is not None:
+        planted: dict[int, Any] = {}
+
+        def once(net: Any, plant: Any = arm.plant) -> Any:
+            """The arm's plant, made once per netlist, so both judgements read one planted copy."""
+            if id(net) not in planted:
+                planted[id(net)] = (net, plant(net))
+            return planted[id(net)][1]
+        arm = replace(arm, plant=once)
     ok, why = refused(arm, outcome(arm, known, nets))
     line = f"[{'ok' if ok else 'BAD'}] {'' if arm.word is None else 'planted '}{arm.what}: {why}"
     if arm.rule is None:
-        return ok, line, None
+        return given, ok, line, None
     census_rules.OFF.add(arm.rule)
     try:
         held, _ = refused(arm, outcome(arm, known, {} if arm.rule in ELABORATION else nets))
     finally:
         census_rules.OFF.discard(arm.rule)
-    return ok, line, not held
+    return given, ok, line, not held
 
 
 def enforced() -> set[str]:
@@ -180,16 +209,28 @@ def mutations(every: list[Arm], through: list[bool | None]) -> int:
 
 
 def selftest(src: pc.Sources, known: set[str], jobs: int) -> int:
-    """Every arm, the shaped ones first, jobs at a time, then every rule removed; the number of failures."""
+    """Every arm, the shaped ones first, jobs at a time, then every rule removed; the number of failures.
+    The port arms ride on the arms that elaborate the tracked sources at the recipe's shape, shared out
+    among them, so they add no elaboration."""
     began, every = time.monotonic(), arms(src)
     every.sort(key=lambda a: -sum(w != "recipe" for w in a.at))       # stable: the larger shapes first
+    riders = [a for a in every if a.rides]
+    hosts = [a for a in every if not a.rides and a.src is src and a.at == ("recipe",) and not a.tool]
+    if riders and not hosts:
+        raise CensusError("no arm elaborates the tracked sources for the port arms to ride on")
+    load = {id(h): tuple(riders[k::len(hosts)]) for k, h in enumerate(hosts)}
+    jobs_list = [(a, known, load.get(id(a), ())) for a in every if not a.rides]
+    # stable: the larger shapes first, then the hosts carrying port arms
+    jobs_list.sort(key=lambda j: (-sum(w != "recipe" for w in j[0].at), -len(j[2])))
     WORK.roms()                        # once, here: the workers share this process's scratch directory
-    failed, through = 0, []
+    failed, judged, through = 0, [], []
     with ProcessPoolExecutor(max_workers=jobs, mp_context=multiprocessing.get_context("fork")) as pool:
-        for ok, line, held in pool.map(run_arm, [(a, known) for a in every]):
-            print(line, flush=True)
-            failed += not ok
-            through.append(held)
-    print(f"selftest: {failed} of {len(every)} arm(s) failed; {len(every)} arm(s) and their rules' removals "
+        for results in pool.map(run_arm, jobs_list):
+            for arm, ok, line, held in results:
+                print(line, flush=True)
+                failed += not ok
+                judged.append(arm)
+                through.append(held)
+    print(f"selftest: {failed} of {len(judged)} arm(s) failed; {len(judged)} arm(s) and their rules' removals "
           f"in {time.monotonic() - began:.0f} s at --jobs {jobs}")
-    return failed + mutations(every, through)
+    return failed + mutations(judged, through)

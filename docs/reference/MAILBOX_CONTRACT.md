@@ -5,7 +5,7 @@
 Regenerate with `python3 sw/mailbox/gen_mailbox.py --write`.
 
 The design page is [MAILBOX_SPLIT.md](../design/MAILBOX_SPLIT.md).
-This page is contract version 2.2.
+This page is contract version 2.3.
 
 ## Byte order
 
@@ -320,6 +320,394 @@ Sink k's entry starts at `0x100 + 0x10 * k` inside interface i's publication blo
 | `[1]` | `SID_VALID` | SID_LO and SID_HI are the settled stream_id |
 | `[0]` | `BOUND` | the sink is bound |
 
+### Interface face registers
+
+Interface i's face block starts at `0x6000 + 0x400 * i`. The firmware writes the `F_*` settings, then `F_COMMIT`: `KL_mbx`'s `fw_send_o` rises and every setting holds on its `fw_*_o` port until the datapath's acknowledgement `fw_ack_p_i`, within 64 cycles. A window's `CMD.GO` opens a request held on its ports with its tag until the answer carrying that tag, or the window's timeout. A write that would move a held value is refused and counted in `BUS_ERR`.
+
+| Offset | Register | Access | Meaning |
+|---|---|---|---|
+| `0x000` | `F_CTRL` | rw | The control plane's ready level, in place of the processor's enable_i and restore_go_i (Milan v1.2 5.6.1): set once the saved state is applied and AECP is released, so the datapath sees no entity before the restored state. |
+| `0x004` | `F_ENTITY` | rw | The entity's current configuration (IEEE 1722.1-2021 7.4.7; the processor's aecp_cur_config_o) and its IDENTIFY control value, 0 or 255 (Milan v1.2 5.4.2.12; aecp_identify_o). |
+| `0x008` | `F_CLOCK` | rw | CLOCK_DOMAIN 0's clock_source_index as SET_CLOCK_SOURCE set it (IEEE 1722.1-2021 7.4.23; the processor's aecp_clk_src_index_o), which the media clock resolves. |
+| `0x00C` | `F_AECP` | rw | LOCK_HELD is set while a LOCK_ENTITY is held (IEEE 1722.1-2021 7.4.2; Milan v1.2 5.4.2.27 and 5.4.2.28 forbid a local map change meanwhile; the processor's aecp_lock_held_o). DYN_DIRTY is set while a persisted setting moved and is not saved (aecp_dyn_dirty_o). |
+| `0x010` | `F_RESTORE` | rw | The saved-state restore's status, as the processor's restore_*_o and rs_cause_o report it to the CSRs: the firmware's saved-state store writes it before AECP is released and again on every change. |
+| `0x014` | `F_NVM` | rw | The saved-state store's status, as the processor's nvm_*_o report it to the CSRs: written before AECP is released and again on every change. |
+| `0x018` | `F_COMMIT` | wo | Writing GO publishes every F_* value of this interface: fw_send_o rises and the values hold until the acknowledgement. Refused while F_STATUS.BUSY is set. |
+| `0x01C` | `F_STATUS` | ro | The commit handshake. BUSY is set from a commit until its acknowledgement returns. |
+| `0x040` | `CTR_REQ` | rw | The descriptor GET_COUNTERS asks about. |
+| `0x044` | `CTR_WORD` | rw | The quadlet asked for, 0 to 31 a counters_block quadlet, 32 the counters_valid mask. |
+| `0x048` | `CTR_CMD` | wo | Writing GO asks the datapath for the quadlet. Refused while CTR_STATUS.BUSY is set. |
+| `0x04C` | `CTR_STATUS` | ro | The window's request, open or answered. |
+| `0x050` | `CTR_DATA` | ro | The quadlet, in IEEE 1722.1 value order. |
+| `0x060` | `AMAP_REQ` | rw | The Stream Port the read asks about. |
+| `0x064` | `AMAP_PAGE` | rw | The word asked for. |
+| `0x068` | `AMAP_CMD` | wo | Writing GO asks the datapath for the word. Refused while AMAP_STATUS.BUSY is set. |
+| `0x06C` | `AMAP_STATUS` | ro | The window's request, open or answered. |
+| `0x070` | `AMAP_DATA_LO` | ro | The word, low half. |
+| `0x074` | `AMAP_DATA_HI` | ro | The word, high half (0 unless a mapping record). |
+| `0x080` | `EDIT_REQ` | rw | The Stream Port the transaction edits. |
+| `0x084` | `EDIT_BEAT` | rw | One beat of the transaction: PHASE 0 begins validation, 1 begins the commit, 2 finishes, 3 aborts, 4 validates record REC and 5 commits it; REMOVE names a REMOVE_AUDIO_MAPPINGS; COUNT the records. |
+| `0x088` | `EDIT_RECORD_LO` | rw | The mapping record, low half (mapping_cluster_offset, mapping_cluster_channel). |
+| `0x08C` | `EDIT_RECORD_HI` | rw | The mapping record, high half (mapping_stream_index, mapping_stream_channel). |
+| `0x090` | `EDIT_VALUE_LO` | rw | The beat's value lane, low half (the processor's amap_edit_value_o). |
+| `0x094` | `EDIT_VALUE_HI` | rw | The beat's value lane, high half. |
+| `0x098` | `EDIT_CMD` | wo | Writing GO presents the beat. Refused while EDIT_STATUS.BUSY is set. |
+| `0x09C` | `EDIT_STATUS` | ro | The window's request, open or answered. |
+| `0x0A0` | `EDIT_DATA_LO` | ro | The beat's verdict, low half (bit 0 accepted, or for a finish a mapping changed). |
+| `0x0A4` | `EDIT_DATA_HI` | ro | The beat's verdict, high half. |
+| `0x0C0` | `GSI_REQ` | rw | The descriptor the word belongs to. |
+| `0x0C4` | `GSI_SEL` | rw | The word asked for: KIND 0 GET_STREAM_INFO, 1 GET_AVB_INFO, 2 GET_AS_PATH; SEL the word within the kind (kind 0 selector 15 is SET_STREAM_FORMAT's verdict on GSI_PROP); ORD an array ordinal. |
+| `0x0C8` | `GSI_PROP_LO` | rw | The proposed stream format kind 0 selector 15 judges, low half. |
+| `0x0CC` | `GSI_PROP_HI` | rw | The proposed stream format, high half. |
+| `0x0D0` | `GSI_CMD` | wo | Writing GO asks the datapath for the word. Refused while GSI_STATUS.BUSY is set. |
+| `0x0D4` | `GSI_STATUS` | ro | The window's request, open or answered. |
+| `0x0D8` | `GSI_DATA_LO` | ro | The word, low half. |
+| `0x0DC` | `GSI_DATA_HI` | ro | The word, high half. |
+
+`F_CTRL` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[0]` | `READY` | the firmware control plane is running |
+
+`F_ENTITY` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[23:16]` | `IDENTIFY` | the IDENTIFY control's value |
+| `[15:0]` | `CUR_CONFIG` | current_configuration |
+
+`F_CLOCK` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[15:0]` | `SOURCE_INDEX` | clock_source_index |
+
+`F_AECP` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[1]` | `DYN_DIRTY` | a persisted setting is not saved yet |
+| `[0]` | `LOCK_HELD` | a LOCK_ENTITY is held |
+
+`F_RESTORE` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[13:12]` | `CAUSE` | the binding walk's cause: 1 torn, 2 device, 3 deadline |
+| `[10:8]` | `RS_CAUSE` | the walk's abort cause: 1 torn, 2 device, 3 deadline, 5 passes disagree, 6 descriptor, 7 image |
+| `[5]` | `RB` | the walk rolled back to the defaults |
+| `[4]` | `CLOSED` | the walk ended CLOSED |
+| `[3]` | `BLANK` | the completed walk validated no record |
+| `[2]` | `FAIL` | the completed restore did not restore |
+| `[1]` | `DONE` | the restore sequencing completed (not a verdict) |
+| `[0]` | `BUSY` | the restore walk is running |
+
+`F_NVM` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[11:8]` | `VERDICT` | the verdict on the last image offered |
+| `[5]` | `IMG_VALID` | the image in the window was validated |
+| `[4]` | `PEND` | accepted work no verified slot holds and DIRTY does not report |
+| `[3]` | `STALE` | a writer loss not made good |
+| `[2]` | `DIRTY` | committable work no slot holds |
+| `[1]` | `ALARM` | a record producer exhausted its write attempts |
+| `[0]` | `BACKED` | the store answers |
+
+`F_COMMIT` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[0]` | `GO` | publish |
+
+`F_STATUS` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[0]` | `BUSY` | a commit waits for its acknowledgement |
+
+`CTR_REQ` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:16]` | `INDEX` | descriptor_index |
+| `[15:0]` | `TYPE` | descriptor_type |
+
+`CTR_WORD` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[5:0]` | `WORD` | quadlet |
+
+`CTR_CMD` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[0]` | `GO` | ask |
+
+`CTR_STATUS` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[11:8]` | `TAG` | the last request's tag |
+| `[2]` | `TIMEOUT` | the last request had no answer within wait_cycles |
+| `[1]` | `DONE` | the answer of the last request is in DATA |
+| `[0]` | `BUSY` | the request is open |
+
+`CTR_DATA` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `DATA` | the quadlet |
+
+`AMAP_REQ` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:16]` | `INDEX` | descriptor_index |
+| `[15:0]` | `TYPE` | descriptor_type |
+
+`AMAP_PAGE` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:24]` | `REC` | the record's ordinal within the page |
+| `[17:16]` | `SEL` | 0 number_of_maps, 1 the page's geometry, 2 a mapping record |
+| `[15:0]` | `MAP_INDEX` | map_index |
+
+`AMAP_CMD` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[0]` | `GO` | ask |
+
+`AMAP_STATUS` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[11:8]` | `TAG` | the last request's tag |
+| `[2]` | `TIMEOUT` | the last request had no answer within wait_cycles |
+| `[1]` | `DONE` | the answer of the last request is in DATA |
+| `[0]` | `BUSY` | the request is open |
+
+`AMAP_DATA_LO` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `DATA` | word[31:0] |
+
+`AMAP_DATA_HI` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `DATA` | word[63:32] |
+
+`EDIT_REQ` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:16]` | `INDEX` | descriptor_index |
+| `[15:0]` | `TYPE` | descriptor_type |
+
+`EDIT_BEAT` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:16]` | `COUNT` | number_of_mappings |
+| `[15:8]` | `REC` | the record's ordinal |
+| `[4]` | `REMOVE` | a REMOVE_AUDIO_MAPPINGS |
+| `[2:0]` | `PHASE` | the beat's phase |
+
+`EDIT_RECORD_LO` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `RECORD` | record[31:0] |
+
+`EDIT_RECORD_HI` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `RECORD` | record[63:32] |
+
+`EDIT_VALUE_LO` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `VALUE` | value[31:0] |
+
+`EDIT_VALUE_HI` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `VALUE` | value[63:32] |
+
+`EDIT_CMD` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[0]` | `GO` | present the beat |
+
+`EDIT_STATUS` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[11:8]` | `TAG` | the last request's tag |
+| `[2]` | `TIMEOUT` | the last request had no answer within wait_cycles |
+| `[1]` | `DONE` | the answer of the last request is in DATA |
+| `[0]` | `BUSY` | the request is open |
+
+`EDIT_DATA_LO` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `DATA` | verdict[31:0] |
+
+`EDIT_DATA_HI` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `DATA` | verdict[63:32] |
+
+`GSI_REQ` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:16]` | `INDEX` | descriptor_index |
+| `[15:0]` | `TYPE` | descriptor_type |
+
+`GSI_SEL` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[15:8]` | `ORD` | the array ordinal |
+| `[7:4]` | `SEL` | the word selector |
+| `[1:0]` | `KIND` | the command family |
+
+`GSI_PROP_LO` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `FMT` | format[31:0] |
+
+`GSI_PROP_HI` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `FMT` | format[63:32] |
+
+`GSI_CMD` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[0]` | `GO` | ask |
+
+`GSI_STATUS` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[11:8]` | `TAG` | the last request's tag |
+| `[2]` | `TIMEOUT` | the last request had no answer within wait_cycles |
+| `[1]` | `DONE` | the answer of the last request is in DATA |
+| `[0]` | `BUSY` | the request is open |
+
+`GSI_DATA_LO` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `DATA` | word[31:0] |
+
+`GSI_DATA_HI` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `DATA` | word[63:32] |
+
+### Interface face source registers
+
+Source s's entry starts at `0x100 + 0x10 * s` inside interface i's face block, for 16 sources (one per talker stream).
+
+| Offset | Register | Access | Meaning |
+|---|---|---|---|
+| `0x000` | `F_PT_OFFSET` | rw | Source s's presentation time offset, nanoseconds, as SET_STREAM_INFO's msrp_accumulated_latency set it (Milan v1.2 5.4.2.9; the processor's aecp_pt_offset_o), taken while F_SRC_VALID.PT_OFFSET is set. |
+| `0x004` | `F_FMT_OUT_LO` | rw | Source s's stream_format, low half (Milan v1.2 5.4.2.7; aecp_fmt_out_o). |
+| `0x008` | `F_FMT_OUT_HI` | rw | Source s's stream_format, high half. |
+| `0x00C` | `F_SRC_VALID` | rw | Which of source s's settings a controller set (aecp_pt_offset_v_o, aecp_fmt_out_v_o). |
+
+`F_PT_OFFSET` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `NS` | presentation time offset |
+
+`F_FMT_OUT_LO` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `FMT` | stream_format[31:0] |
+
+`F_FMT_OUT_HI` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `FMT` | stream_format[63:32] |
+
+`F_SRC_VALID` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[1]` | `FMT_OUT` | F_FMT_OUT holds a set value |
+| `[0]` | `PT_OFFSET` | F_PT_OFFSET holds a set value |
+
+### Interface face sink registers
+
+Sink k's entry starts at `0x200 + 0x10 * k` inside interface i's face block, for 16 sinks (one per listener stream). A hole, an entry past the last and an interface the build does not have read 0 and take no write.
+
+| Offset | Register | Access | Meaning |
+|---|---|---|---|
+| `0x000` | `F_FMT_IN_LO` | rw | Sink k's stream_format, low half (Milan v1.2 5.4.2.7; aecp_fmt_in_o). |
+| `0x004` | `F_FMT_IN_HI` | rw | Sink k's stream_format, high half. |
+| `0x008` | `F_SNK_VALID` | rw | Whether a controller set sink k's format (aecp_fmt_in_v_o). |
+
+`F_FMT_IN_LO` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `FMT` | stream_format[31:0] |
+
+`F_FMT_IN_HI` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `FMT` | stream_format[63:32] |
+
+`F_SNK_VALID` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[0]` | `FMT_IN` | F_FMT_IN holds a set value |
+
+### Face windows
+
+| Window | GO | Status | Request | Answer | Answered or timed out within |
+|---|---|---|---|---|---:|
+| `CTR` | `CTR_CMD` | `CTR_STATUS` | `CTR_REQ`, `CTR_WORD` | `CTR_DATA` | 64 cycles |
+| `AMAP` | `AMAP_CMD` | `AMAP_STATUS` | `AMAP_REQ`, `AMAP_PAGE` | `AMAP_DATA_LO`, `AMAP_DATA_HI` | 64 cycles |
+| `EDIT` | `EDIT_CMD` | `EDIT_STATUS` | `EDIT_REQ`, `EDIT_BEAT`, `EDIT_RECORD_LO`, `EDIT_RECORD_HI`, `EDIT_VALUE_LO`, `EDIT_VALUE_HI` | `EDIT_DATA_LO`, `EDIT_DATA_HI` | 64 cycles |
+| `GSI` | `GSI_CMD` | `GSI_STATUS` | `GSI_REQ`, `GSI_SEL`, `GSI_PROP_LO`, `GSI_PROP_HI` | `GSI_DATA_LO`, `GSI_DATA_HI` | 64 cycles |
+
+### COUNTERS_CHANGED descriptors
+
+One pending bit per entry below, per interface; a change naming any other descriptor sets the ALL bit. A descriptor posts at most once in each 1000 ms epoch of `NOW_MS`.
+
+| Family | descriptor_type | Entries |
+|---|---|---:|
+| `STREAM_INPUT` | `0x0005` | 16 |
+| `STREAM_OUTPUT` | `0x0006` | 16 |
+| `AVB_INTERFACE` | `0x0009` | 1 |
+| `CLOCK_DOMAIN` | `0x0024` | 1 |
+
 ### Channel registers
 
 Channel c's block starts at `0x100 + 0x20 * c`.
@@ -416,6 +804,16 @@ One fabric event, four words. Sources are coalesced: a source that fires again b
 | GM event | word 3 | `[7:0]` | `DOMAIN` | gptp_domain_number at posting |
 | TICK event | word 1 | `[15:0]` | `COUNT` | ticks since the previous TICK record |
 | TICK event | word 3 | `[31:0]` | `NOW_MS` | NOW_MS at posting |
+| COUNTERS_CHANGED event | word 1 | `[31:16]` | `INDEX` | descriptor_index (0 with ALL) |
+| COUNTERS_CHANGED event | word 1 | `[15:0]` | `TYPE` | descriptor_type (0 with ALL) |
+| COUNTERS_CHANGED event | word 2 | `[0]` | `ALL` | every served descriptor may have moved |
+| COUNTERS_CHANGED event | word 3 | `[31:0]` | `NOW_MS` | NOW_MS at posting |
+| AVB_INFO_CHANGED event | word 1 | `[15:0]` | `COUNT` | changes since the previous record |
+| AVB_INFO_CHANGED event | word 3 | `[31:0]` | `NOW_MS` | NOW_MS at posting |
+| AS_PATH_CHANGED event | word 1 | `[15:0]` | `COUNT` | changes since the previous record |
+| AS_PATH_CHANGED event | word 3 | `[31:0]` | `NOW_MS` | NOW_MS at posting |
+| AMAP_LIVE_WRITE event | word 1 | `[15:0]` | `COUNT` | live writes since the previous record |
+| AMAP_LIVE_WRITE event | word 3 | `[31:0]` | `NOW_MS` | NOW_MS at posting |
 
 An RX or TX record is the header words, then ceil(LEN/4) payload words.
 
@@ -425,6 +823,10 @@ An RX or TX record is the header words, then ceil(LEN/4) payload words.
 | `LINK` | 2 | The interface's link level changed. |
 | `GM` | 3 | The gPTP plane published a grandmaster change on the interface. |
 | `TICK` | 4 | Centiseconds elapsed (TICK_CTL.EN set). COUNT is the ticks counted since the previous TICK record, at least 1 and saturating; the firmware calls its centisecond timer port COUNT times. |
+| `COUNTERS_CHANGED` | 5 | The counters of a descriptor the datapath serves moved (the processor's ctr_change face; Milan v1.2 Table 5.22 makes it a GET_COUNTERS notification, at most one per descriptor per second). A descriptor that moves again before its record is posted, or within holdoff_ms of its last record, posts once. ALL set: a change named a descriptor the source keeps no bit for, so every served descriptor may have moved. |
+| `AVB_INFO_CHANGED` | 6 | A GET_AVB_INFO word the datapath serves changed on the interface (the processor's gsi_avb_chg_i; Milan v1.2 Table 5.22). COUNT is the changes since the previous record, at least 1 and saturating. |
+| `AS_PATH_CHANGED` | 7 | The AS_PATH sequence the datapath serves changed on the interface (the processor's gsi_asp_chg_i; Milan v1.2 Table 5.22). COUNT as for AVB_INFO_CHANGED. |
+| `AMAP_LIVE_WRITE` | 8 | An edit's commit beat changed the live audio map (the processor's amap_live_wr_i). COUNT is the live writes since the previous record, at least 1 and saturating. |
 
 ## Channels and the ingress filter
 
@@ -521,7 +923,7 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | Name | Value |
 |---|---:|
 | `MBX_VERSION_MAJOR` | `0x2` |
-| `MBX_VERSION_MINOR` | `0x2` |
+| `MBX_VERSION_MINOR` | `0x3` |
 | `MBX_MAGIC` | `0x4d42` |
 | `MBX_WINDOW_BYTES` | `0x8000` |
 | `MBX_REGISTER_SPACE_BYTES` | `0x400` |
@@ -697,6 +1099,231 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_BINDING_SID_VALID_WIDTH` | `0x1` |
 | `MBX_BINDING_STARTED_LSB` | `0x2` |
 | `MBX_BINDING_STARTED_WIDTH` | `0x1` |
+| `MBX_FACE_BASE` | `0x6000` |
+| `MBX_FACE_STRIDE` | `0x400` |
+| `MBX_FACE_ACK_CYCLES` | `0x40` |
+| `MBX_FACE_REG_F_CTRL` | `0x0` |
+| `MBX_F_CTRL_READY_LSB` | `0x0` |
+| `MBX_F_CTRL_READY_WIDTH` | `0x1` |
+| `MBX_FACE_REG_F_ENTITY` | `0x4` |
+| `MBX_F_ENTITY_CUR_CONFIG_LSB` | `0x0` |
+| `MBX_F_ENTITY_CUR_CONFIG_WIDTH` | `0x10` |
+| `MBX_F_ENTITY_IDENTIFY_LSB` | `0x10` |
+| `MBX_F_ENTITY_IDENTIFY_WIDTH` | `0x8` |
+| `MBX_FACE_REG_F_CLOCK` | `0x8` |
+| `MBX_F_CLOCK_SOURCE_INDEX_LSB` | `0x0` |
+| `MBX_F_CLOCK_SOURCE_INDEX_WIDTH` | `0x10` |
+| `MBX_FACE_REG_F_AECP` | `0xc` |
+| `MBX_F_AECP_LOCK_HELD_LSB` | `0x0` |
+| `MBX_F_AECP_LOCK_HELD_WIDTH` | `0x1` |
+| `MBX_F_AECP_DYN_DIRTY_LSB` | `0x1` |
+| `MBX_F_AECP_DYN_DIRTY_WIDTH` | `0x1` |
+| `MBX_FACE_REG_F_RESTORE` | `0x10` |
+| `MBX_F_RESTORE_BUSY_LSB` | `0x0` |
+| `MBX_F_RESTORE_BUSY_WIDTH` | `0x1` |
+| `MBX_F_RESTORE_DONE_LSB` | `0x1` |
+| `MBX_F_RESTORE_DONE_WIDTH` | `0x1` |
+| `MBX_F_RESTORE_FAIL_LSB` | `0x2` |
+| `MBX_F_RESTORE_FAIL_WIDTH` | `0x1` |
+| `MBX_F_RESTORE_BLANK_LSB` | `0x3` |
+| `MBX_F_RESTORE_BLANK_WIDTH` | `0x1` |
+| `MBX_F_RESTORE_CLOSED_LSB` | `0x4` |
+| `MBX_F_RESTORE_CLOSED_WIDTH` | `0x1` |
+| `MBX_F_RESTORE_RB_LSB` | `0x5` |
+| `MBX_F_RESTORE_RB_WIDTH` | `0x1` |
+| `MBX_F_RESTORE_RS_CAUSE_LSB` | `0x8` |
+| `MBX_F_RESTORE_RS_CAUSE_WIDTH` | `0x3` |
+| `MBX_F_RESTORE_CAUSE_LSB` | `0xc` |
+| `MBX_F_RESTORE_CAUSE_WIDTH` | `0x2` |
+| `MBX_FACE_REG_F_NVM` | `0x14` |
+| `MBX_F_NVM_BACKED_LSB` | `0x0` |
+| `MBX_F_NVM_BACKED_WIDTH` | `0x1` |
+| `MBX_F_NVM_ALARM_LSB` | `0x1` |
+| `MBX_F_NVM_ALARM_WIDTH` | `0x1` |
+| `MBX_F_NVM_DIRTY_LSB` | `0x2` |
+| `MBX_F_NVM_DIRTY_WIDTH` | `0x1` |
+| `MBX_F_NVM_STALE_LSB` | `0x3` |
+| `MBX_F_NVM_STALE_WIDTH` | `0x1` |
+| `MBX_F_NVM_PEND_LSB` | `0x4` |
+| `MBX_F_NVM_PEND_WIDTH` | `0x1` |
+| `MBX_F_NVM_IMG_VALID_LSB` | `0x5` |
+| `MBX_F_NVM_IMG_VALID_WIDTH` | `0x1` |
+| `MBX_F_NVM_VERDICT_LSB` | `0x8` |
+| `MBX_F_NVM_VERDICT_WIDTH` | `0x4` |
+| `MBX_FACE_REG_F_COMMIT` | `0x18` |
+| `MBX_F_COMMIT_GO_LSB` | `0x0` |
+| `MBX_F_COMMIT_GO_WIDTH` | `0x1` |
+| `MBX_FACE_REG_F_STATUS` | `0x1c` |
+| `MBX_F_STATUS_BUSY_LSB` | `0x0` |
+| `MBX_F_STATUS_BUSY_WIDTH` | `0x1` |
+| `MBX_FACE_REG_CTR_REQ` | `0x40` |
+| `MBX_CTR_REQ_TYPE_LSB` | `0x0` |
+| `MBX_CTR_REQ_TYPE_WIDTH` | `0x10` |
+| `MBX_CTR_REQ_INDEX_LSB` | `0x10` |
+| `MBX_CTR_REQ_INDEX_WIDTH` | `0x10` |
+| `MBX_FACE_REG_CTR_WORD` | `0x44` |
+| `MBX_CTR_WORD_WORD_LSB` | `0x0` |
+| `MBX_CTR_WORD_WORD_WIDTH` | `0x6` |
+| `MBX_FACE_REG_CTR_CMD` | `0x48` |
+| `MBX_CTR_CMD_GO_LSB` | `0x0` |
+| `MBX_CTR_CMD_GO_WIDTH` | `0x1` |
+| `MBX_FACE_REG_CTR_STATUS` | `0x4c` |
+| `MBX_CTR_STATUS_BUSY_LSB` | `0x0` |
+| `MBX_CTR_STATUS_BUSY_WIDTH` | `0x1` |
+| `MBX_CTR_STATUS_DONE_LSB` | `0x1` |
+| `MBX_CTR_STATUS_DONE_WIDTH` | `0x1` |
+| `MBX_CTR_STATUS_TIMEOUT_LSB` | `0x2` |
+| `MBX_CTR_STATUS_TIMEOUT_WIDTH` | `0x1` |
+| `MBX_CTR_STATUS_TAG_LSB` | `0x8` |
+| `MBX_CTR_STATUS_TAG_WIDTH` | `0x4` |
+| `MBX_FACE_REG_CTR_DATA` | `0x50` |
+| `MBX_CTR_DATA_DATA_LSB` | `0x0` |
+| `MBX_CTR_DATA_DATA_WIDTH` | `0x20` |
+| `MBX_FACE_REG_AMAP_REQ` | `0x60` |
+| `MBX_AMAP_REQ_TYPE_LSB` | `0x0` |
+| `MBX_AMAP_REQ_TYPE_WIDTH` | `0x10` |
+| `MBX_AMAP_REQ_INDEX_LSB` | `0x10` |
+| `MBX_AMAP_REQ_INDEX_WIDTH` | `0x10` |
+| `MBX_FACE_REG_AMAP_PAGE` | `0x64` |
+| `MBX_AMAP_PAGE_MAP_INDEX_LSB` | `0x0` |
+| `MBX_AMAP_PAGE_MAP_INDEX_WIDTH` | `0x10` |
+| `MBX_AMAP_PAGE_SEL_LSB` | `0x10` |
+| `MBX_AMAP_PAGE_SEL_WIDTH` | `0x2` |
+| `MBX_AMAP_PAGE_REC_LSB` | `0x18` |
+| `MBX_AMAP_PAGE_REC_WIDTH` | `0x8` |
+| `MBX_FACE_REG_AMAP_CMD` | `0x68` |
+| `MBX_AMAP_CMD_GO_LSB` | `0x0` |
+| `MBX_AMAP_CMD_GO_WIDTH` | `0x1` |
+| `MBX_FACE_REG_AMAP_STATUS` | `0x6c` |
+| `MBX_AMAP_STATUS_BUSY_LSB` | `0x0` |
+| `MBX_AMAP_STATUS_BUSY_WIDTH` | `0x1` |
+| `MBX_AMAP_STATUS_DONE_LSB` | `0x1` |
+| `MBX_AMAP_STATUS_DONE_WIDTH` | `0x1` |
+| `MBX_AMAP_STATUS_TIMEOUT_LSB` | `0x2` |
+| `MBX_AMAP_STATUS_TIMEOUT_WIDTH` | `0x1` |
+| `MBX_AMAP_STATUS_TAG_LSB` | `0x8` |
+| `MBX_AMAP_STATUS_TAG_WIDTH` | `0x4` |
+| `MBX_FACE_REG_AMAP_DATA_LO` | `0x70` |
+| `MBX_AMAP_DATA_LO_DATA_LSB` | `0x0` |
+| `MBX_AMAP_DATA_LO_DATA_WIDTH` | `0x20` |
+| `MBX_FACE_REG_AMAP_DATA_HI` | `0x74` |
+| `MBX_AMAP_DATA_HI_DATA_LSB` | `0x0` |
+| `MBX_AMAP_DATA_HI_DATA_WIDTH` | `0x20` |
+| `MBX_FACE_REG_EDIT_REQ` | `0x80` |
+| `MBX_EDIT_REQ_TYPE_LSB` | `0x0` |
+| `MBX_EDIT_REQ_TYPE_WIDTH` | `0x10` |
+| `MBX_EDIT_REQ_INDEX_LSB` | `0x10` |
+| `MBX_EDIT_REQ_INDEX_WIDTH` | `0x10` |
+| `MBX_FACE_REG_EDIT_BEAT` | `0x84` |
+| `MBX_EDIT_BEAT_PHASE_LSB` | `0x0` |
+| `MBX_EDIT_BEAT_PHASE_WIDTH` | `0x3` |
+| `MBX_EDIT_BEAT_REMOVE_LSB` | `0x4` |
+| `MBX_EDIT_BEAT_REMOVE_WIDTH` | `0x1` |
+| `MBX_EDIT_BEAT_REC_LSB` | `0x8` |
+| `MBX_EDIT_BEAT_REC_WIDTH` | `0x8` |
+| `MBX_EDIT_BEAT_COUNT_LSB` | `0x10` |
+| `MBX_EDIT_BEAT_COUNT_WIDTH` | `0x10` |
+| `MBX_FACE_REG_EDIT_RECORD_LO` | `0x88` |
+| `MBX_EDIT_RECORD_LO_RECORD_LSB` | `0x0` |
+| `MBX_EDIT_RECORD_LO_RECORD_WIDTH` | `0x20` |
+| `MBX_FACE_REG_EDIT_RECORD_HI` | `0x8c` |
+| `MBX_EDIT_RECORD_HI_RECORD_LSB` | `0x0` |
+| `MBX_EDIT_RECORD_HI_RECORD_WIDTH` | `0x20` |
+| `MBX_FACE_REG_EDIT_VALUE_LO` | `0x90` |
+| `MBX_EDIT_VALUE_LO_VALUE_LSB` | `0x0` |
+| `MBX_EDIT_VALUE_LO_VALUE_WIDTH` | `0x20` |
+| `MBX_FACE_REG_EDIT_VALUE_HI` | `0x94` |
+| `MBX_EDIT_VALUE_HI_VALUE_LSB` | `0x0` |
+| `MBX_EDIT_VALUE_HI_VALUE_WIDTH` | `0x20` |
+| `MBX_FACE_REG_EDIT_CMD` | `0x98` |
+| `MBX_EDIT_CMD_GO_LSB` | `0x0` |
+| `MBX_EDIT_CMD_GO_WIDTH` | `0x1` |
+| `MBX_FACE_REG_EDIT_STATUS` | `0x9c` |
+| `MBX_EDIT_STATUS_BUSY_LSB` | `0x0` |
+| `MBX_EDIT_STATUS_BUSY_WIDTH` | `0x1` |
+| `MBX_EDIT_STATUS_DONE_LSB` | `0x1` |
+| `MBX_EDIT_STATUS_DONE_WIDTH` | `0x1` |
+| `MBX_EDIT_STATUS_TIMEOUT_LSB` | `0x2` |
+| `MBX_EDIT_STATUS_TIMEOUT_WIDTH` | `0x1` |
+| `MBX_EDIT_STATUS_TAG_LSB` | `0x8` |
+| `MBX_EDIT_STATUS_TAG_WIDTH` | `0x4` |
+| `MBX_FACE_REG_EDIT_DATA_LO` | `0xa0` |
+| `MBX_EDIT_DATA_LO_DATA_LSB` | `0x0` |
+| `MBX_EDIT_DATA_LO_DATA_WIDTH` | `0x20` |
+| `MBX_FACE_REG_EDIT_DATA_HI` | `0xa4` |
+| `MBX_EDIT_DATA_HI_DATA_LSB` | `0x0` |
+| `MBX_EDIT_DATA_HI_DATA_WIDTH` | `0x20` |
+| `MBX_FACE_REG_GSI_REQ` | `0xc0` |
+| `MBX_GSI_REQ_TYPE_LSB` | `0x0` |
+| `MBX_GSI_REQ_TYPE_WIDTH` | `0x10` |
+| `MBX_GSI_REQ_INDEX_LSB` | `0x10` |
+| `MBX_GSI_REQ_INDEX_WIDTH` | `0x10` |
+| `MBX_FACE_REG_GSI_SEL` | `0xc4` |
+| `MBX_GSI_SEL_KIND_LSB` | `0x0` |
+| `MBX_GSI_SEL_KIND_WIDTH` | `0x2` |
+| `MBX_GSI_SEL_SEL_LSB` | `0x4` |
+| `MBX_GSI_SEL_SEL_WIDTH` | `0x4` |
+| `MBX_GSI_SEL_ORD_LSB` | `0x8` |
+| `MBX_GSI_SEL_ORD_WIDTH` | `0x8` |
+| `MBX_FACE_REG_GSI_PROP_LO` | `0xc8` |
+| `MBX_GSI_PROP_LO_FMT_LSB` | `0x0` |
+| `MBX_GSI_PROP_LO_FMT_WIDTH` | `0x20` |
+| `MBX_FACE_REG_GSI_PROP_HI` | `0xcc` |
+| `MBX_GSI_PROP_HI_FMT_LSB` | `0x0` |
+| `MBX_GSI_PROP_HI_FMT_WIDTH` | `0x20` |
+| `MBX_FACE_REG_GSI_CMD` | `0xd0` |
+| `MBX_GSI_CMD_GO_LSB` | `0x0` |
+| `MBX_GSI_CMD_GO_WIDTH` | `0x1` |
+| `MBX_FACE_REG_GSI_STATUS` | `0xd4` |
+| `MBX_GSI_STATUS_BUSY_LSB` | `0x0` |
+| `MBX_GSI_STATUS_BUSY_WIDTH` | `0x1` |
+| `MBX_GSI_STATUS_DONE_LSB` | `0x1` |
+| `MBX_GSI_STATUS_DONE_WIDTH` | `0x1` |
+| `MBX_GSI_STATUS_TIMEOUT_LSB` | `0x2` |
+| `MBX_GSI_STATUS_TIMEOUT_WIDTH` | `0x1` |
+| `MBX_GSI_STATUS_TAG_LSB` | `0x8` |
+| `MBX_GSI_STATUS_TAG_WIDTH` | `0x4` |
+| `MBX_FACE_REG_GSI_DATA_LO` | `0xd8` |
+| `MBX_GSI_DATA_LO_DATA_LSB` | `0x0` |
+| `MBX_GSI_DATA_LO_DATA_WIDTH` | `0x20` |
+| `MBX_FACE_REG_GSI_DATA_HI` | `0xdc` |
+| `MBX_GSI_DATA_HI_DATA_LSB` | `0x0` |
+| `MBX_GSI_DATA_HI_DATA_WIDTH` | `0x20` |
+| `MBX_FACE_SOURCE_BASE` | `0x100` |
+| `MBX_FACE_SOURCE_STRIDE` | `0x10` |
+| `MBX_FACE_SRC_REG_F_PT_OFFSET` | `0x0` |
+| `MBX_F_PT_OFFSET_NS_LSB` | `0x0` |
+| `MBX_F_PT_OFFSET_NS_WIDTH` | `0x20` |
+| `MBX_FACE_SRC_REG_F_FMT_OUT_LO` | `0x4` |
+| `MBX_F_FMT_OUT_LO_FMT_LSB` | `0x0` |
+| `MBX_F_FMT_OUT_LO_FMT_WIDTH` | `0x20` |
+| `MBX_FACE_SRC_REG_F_FMT_OUT_HI` | `0x8` |
+| `MBX_F_FMT_OUT_HI_FMT_LSB` | `0x0` |
+| `MBX_F_FMT_OUT_HI_FMT_WIDTH` | `0x20` |
+| `MBX_FACE_SRC_REG_F_SRC_VALID` | `0xc` |
+| `MBX_F_SRC_VALID_PT_OFFSET_LSB` | `0x0` |
+| `MBX_F_SRC_VALID_PT_OFFSET_WIDTH` | `0x1` |
+| `MBX_F_SRC_VALID_FMT_OUT_LSB` | `0x1` |
+| `MBX_F_SRC_VALID_FMT_OUT_WIDTH` | `0x1` |
+| `MBX_FACE_SINK_BASE` | `0x200` |
+| `MBX_FACE_SINK_STRIDE` | `0x10` |
+| `MBX_FACE_SNK_REG_F_FMT_IN_LO` | `0x0` |
+| `MBX_F_FMT_IN_LO_FMT_LSB` | `0x0` |
+| `MBX_F_FMT_IN_LO_FMT_WIDTH` | `0x20` |
+| `MBX_FACE_SNK_REG_F_FMT_IN_HI` | `0x4` |
+| `MBX_F_FMT_IN_HI_FMT_LSB` | `0x0` |
+| `MBX_F_FMT_IN_HI_FMT_WIDTH` | `0x20` |
+| `MBX_FACE_SNK_REG_F_SNK_VALID` | `0x8` |
+| `MBX_F_SNK_VALID_FMT_IN_LSB` | `0x0` |
+| `MBX_F_SNK_VALID_FMT_IN_WIDTH` | `0x1` |
+| `MBX_WIN_CTR_WAIT_CYCLES` | `0x40` |
+| `MBX_WIN_CTR_DATA_WORDS` | `0x1` |
+| `MBX_WIN_AMAP_WAIT_CYCLES` | `0x40` |
+| `MBX_WIN_AMAP_DATA_WORDS` | `0x2` |
+| `MBX_WIN_EDIT_WAIT_CYCLES` | `0x40` |
+| `MBX_WIN_EDIT_DATA_WORDS` | `0x2` |
+| `MBX_WIN_GSI_WAIT_CYCLES` | `0x40` |
+| `MBX_WIN_GSI_DATA_WORDS` | `0x2` |
 | `MBX_CH_BASE` | `0x100` |
 | `MBX_CH_STRIDE` | `0x20` |
 | `MBX_CH_REG_RX_HEAD` | `0x0` |
@@ -754,6 +1381,22 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_EVREC_W0_IF_WIDTH` | `0x4` |
 | `MBX_EVREC_W0_SEQ_LSB` | `0x10` |
 | `MBX_EVREC_W0_SEQ_WIDTH` | `0x10` |
+| `MBX_CTRCHG_HOLDOFF_MS` | `0x3e8` |
+| `MBX_CTRCHG_STREAM_INPUT_TYPE` | `0x5` |
+| `MBX_CTRCHG_STREAM_INPUT_COUNT` | `0x10` |
+| `MBX_CTRCHG_STREAM_INPUT_FIRST` | `0x0` |
+| `MBX_CTRCHG_STREAM_OUTPUT_TYPE` | `0x6` |
+| `MBX_CTRCHG_STREAM_OUTPUT_COUNT` | `0x10` |
+| `MBX_CTRCHG_STREAM_OUTPUT_FIRST` | `0x10` |
+| `MBX_CTRCHG_AVB_INTERFACE_TYPE` | `0x9` |
+| `MBX_CTRCHG_AVB_INTERFACE_COUNT` | `0x1` |
+| `MBX_CTRCHG_AVB_INTERFACE_FIRST` | `0x20` |
+| `MBX_CTRCHG_CLOCK_DOMAIN_TYPE` | `0x24` |
+| `MBX_CTRCHG_CLOCK_DOMAIN_COUNT` | `0x1` |
+| `MBX_CTRCHG_CLOCK_DOMAIN_FIRST` | `0x21` |
+| `MBX_CTRCHG_N_SRC` | `0x4` |
+| `MBX_CTRCHG_ALL_BIT` | `0x22` |
+| `MBX_CTRCHG_N_PEND` | `0x23` |
 | `MBX_EV_TYPE_TIMER` | `0x1` |
 | `MBX_EV_TIMER_W1_TAG_LSB` | `0x0` |
 | `MBX_EV_TIMER_W1_TAG_WIDTH` | `0x10` |
@@ -780,6 +1423,30 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_EV_TICK_W1_COUNT_WIDTH` | `0x10` |
 | `MBX_EV_TICK_W3_NOW_MS_LSB` | `0x0` |
 | `MBX_EV_TICK_W3_NOW_MS_WIDTH` | `0x20` |
+| `MBX_EV_TYPE_COUNTERS_CHANGED` | `0x5` |
+| `MBX_EV_COUNTERS_CHANGED_W1_TYPE_LSB` | `0x0` |
+| `MBX_EV_COUNTERS_CHANGED_W1_TYPE_WIDTH` | `0x10` |
+| `MBX_EV_COUNTERS_CHANGED_W1_INDEX_LSB` | `0x10` |
+| `MBX_EV_COUNTERS_CHANGED_W1_INDEX_WIDTH` | `0x10` |
+| `MBX_EV_COUNTERS_CHANGED_W2_ALL_LSB` | `0x0` |
+| `MBX_EV_COUNTERS_CHANGED_W2_ALL_WIDTH` | `0x1` |
+| `MBX_EV_COUNTERS_CHANGED_W3_NOW_MS_LSB` | `0x0` |
+| `MBX_EV_COUNTERS_CHANGED_W3_NOW_MS_WIDTH` | `0x20` |
+| `MBX_EV_TYPE_AVB_INFO_CHANGED` | `0x6` |
+| `MBX_EV_AVB_INFO_CHANGED_W1_COUNT_LSB` | `0x0` |
+| `MBX_EV_AVB_INFO_CHANGED_W1_COUNT_WIDTH` | `0x10` |
+| `MBX_EV_AVB_INFO_CHANGED_W3_NOW_MS_LSB` | `0x0` |
+| `MBX_EV_AVB_INFO_CHANGED_W3_NOW_MS_WIDTH` | `0x20` |
+| `MBX_EV_TYPE_AS_PATH_CHANGED` | `0x7` |
+| `MBX_EV_AS_PATH_CHANGED_W1_COUNT_LSB` | `0x0` |
+| `MBX_EV_AS_PATH_CHANGED_W1_COUNT_WIDTH` | `0x10` |
+| `MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_LSB` | `0x0` |
+| `MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_WIDTH` | `0x20` |
+| `MBX_EV_TYPE_AMAP_LIVE_WRITE` | `0x8` |
+| `MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_LSB` | `0x0` |
+| `MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_WIDTH` | `0x10` |
+| `MBX_EV_AMAP_LIVE_WRITE_W3_NOW_MS_LSB` | `0x0` |
+| `MBX_EV_AMAP_LIVE_WRITE_W3_NOW_MS_WIDTH` | `0x20` |
 | `MBX_CH_ADP` | `0x0` |
 | `MBX_CH_ADP_RX_BASE` | `0x1000` |
 | `MBX_CH_ADP_RX_WORDS` | `0x100` |

@@ -15,8 +15,15 @@
 //                published, each expired timer with the tag of the arm it
 //                belongs to, and, while TICK_CTL.EN is set, the centisecond
 //                tick count the firmware's timer port (lwSRP's
-//                shlan_timer_tick) is driven by. Fixed priority: link, then
-//                grandmaster, then the lowest expired slot, then the tick.
+//                shlan_timer_tick) is driven by. Since contract 2.3 (#665)
+//                it also posts the datapath's face events: a live audio-map
+//                write, an AVB_INFO or AS_PATH change, each with the count
+//                since its last record, and a served descriptor's counter
+//                change, one pending bit per descriptor (Milan v1.2 Table
+//                5.22). Fixed priority: link, then
+//                grandmaster, then the lowest expired slot, then the tick,
+//                then the map write, AVB_INFO, AS_PATH, and last the lowest
+//                pending descriptor of the lowest interface.
 //
 //                The one decision that matters: every source is COALESCED.
 //                A source holds at most one unposted record and posts its
@@ -32,7 +39,11 @@
 //                posted as one record carrying the count. An expiry already
 //                in the ring when its slot is re-armed or cancelled stays
 //                there with its old tag, and the core discards it by that
-//                tag.
+//                tag. A descriptor whose counters move again before its
+//                record is posted posts once, and one posted in the current
+//                holdoff epoch of NOW_MS (CTRCHG_HOLDOFF_MS, the Table 5.22
+//                second) waits pending for the next, so counters that move
+//                with every frame cost one record per descriptor per epoch.
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -58,6 +69,13 @@ module KL_mbx_evt
   input  wire  [MBX_N_IF_C*64-1:0]      gm_id_i,            //! gptp_grandmaster_id per interface
   input  wire  [MBX_N_IF_C*8-1:0]       gptp_domain_i,      //! gptp_domain_number per interface
 
+  input  wire  [MBX_N_IF_C-1:0]         ctr_chg_p_i,        //! one-cycle pulse per interface: a served descriptor's counters moved
+  input  wire  [MBX_N_IF_C*16-1:0]      ctr_chg_type_i,     //! its descriptor_type, valid with ctr_chg_p_i
+  input  wire  [MBX_N_IF_C*16-1:0]      ctr_chg_index_i,    //! its descriptor_index, valid with ctr_chg_p_i
+  input  wire  [MBX_N_IF_C-1:0]         avb_chg_p_i,        //! one-cycle pulse per interface: a served GET_AVB_INFO word changed
+  input  wire  [MBX_N_IF_C-1:0]         asp_chg_p_i,        //! one-cycle pulse per interface: the served AS_PATH sequence changed
+  input  wire  [MBX_N_IF_C-1:0]         amap_wr_p_i,        //! one-cycle pulse per interface: an edit's commit changed the live map
+
   input  wire  [15:0]                   evt_tail_words_i,   //! EVT_TAIL, words the core consumed
   output logic [15:0]                   evt_head_words_o,   //! EVT_HEAD, words posted here
 
@@ -68,6 +86,8 @@ module KL_mbx_evt
 
   localparam int unsigned NT_C = MBX_N_TIMERS_C;
   localparam int unsigned SW_C = (NT_C > 1) ? $clog2(NT_C) : 1;   //! scanner index width
+  localparam int unsigned NP_C = MBX_CTRCHG_N_PEND_C;              //! counter-change pending bits per interface
+  localparam int unsigned PW_C = $clog2(NP_C);                     //! a pending bit's index width
 
   // ---- the timer bank -------------------------------------------------------------
   logic [NT_C-1:0] armed_r;
@@ -82,7 +102,8 @@ module KL_mbx_evt
   assign tmr_bad_p_o = tmr_cmd_p_i && !cmd_ok_w;
 
   // ---- the poster's choice -----------------------------------------------------------
-  typedef enum logic [1:0] {SRC_LINK_S, SRC_GM_S, SRC_TIMER_S, SRC_TICK_S} src_t;
+  typedef enum logic [2:0] {SRC_LINK_S, SRC_GM_S, SRC_TIMER_S, SRC_TICK_S, SRC_AMAP_S, SRC_AVB_S, SRC_ASP_S,
+                            SRC_CTR_S} src_t;
 
   logic [MBX_N_IF_C-1:0] posted_up_r;   //! the link level the last LINK record carried
   logic [MBX_N_IF_C-1:0] gm_pend_r;     //! a grandmaster change not yet posted
@@ -93,6 +114,27 @@ module KL_mbx_evt
   logic [31:0]           rec_r [4];
   logic [7:0]            tick_div_r;    //! milliseconds counted toward the next tick
   logic [15:0]           tick_cnt_r;    //! ticks counted and not yet posted, saturating
+  logic [15:0]           amap_cnt_r [MBX_N_IF_C];   //! live map writes not yet posted, saturating
+  logic [15:0]           avb_cnt_r  [MBX_N_IF_C];   //! AVB_INFO changes not yet posted, saturating
+  logic [15:0]           asp_cnt_r  [MBX_N_IF_C];   //! AS_PATH changes not yet posted, saturating
+  logic [NP_C-1:0]       ctr_pend_r [MBX_N_IF_C];   //! descriptors whose counters moved, not yet posted
+  logic [NP_C-1:0]       ctr_seen_r [MBX_N_IF_C];   //! descriptors posted in this holdoff epoch
+  logic [15:0]           ctr_epoch_r;   //! NOW_MS milliseconds into the holdoff epoch
+
+  //! the pending bit a counter change names: its descriptor's, or ALL for a
+  //! descriptor no family keeps a bit for
+  function automatic logic [NP_C-1:0] ctr_bit_f(input logic [15:0] dtype, input logic [15:0] index);
+    logic [NP_C-1:0] b;
+    b = '0;
+    b[MBX_CTRCHG_ALL_BIT_C] = 1'b1;
+    for (int f = 0; f < int'(MBX_CTRCHG_N_SRC_C); f++) begin
+      if (32'(dtype) == MBX_CTRCHG_TYPE_TBL_C[f] && 32'(index) < MBX_CTRCHG_COUNT_TBL_C[f]) begin
+        b = '0;
+        b[PW_C'(MBX_CTRCHG_FIRST_TBL_C[f] + 32'(index))] = 1'b1;
+      end
+    end
+    return b;
+  endfunction : ctr_bit_f
 
   logic tick_p_w;   //! a tick completes this cycle
   assign tick_p_w = tick_en_i && ms_tick_p_i && (32'(tick_div_r) + 32'd1 >= MBX_TICK_MS_C);
@@ -101,6 +143,7 @@ module KL_mbx_evt
   src_t        src_w;
   logic [MBX_IF_W_C-1:0] src_if_w;
   logic [SW_C-1:0] src_slot_w;
+  logic [PW_C-1:0] src_bit_w;   //! the counter-change pending bit posted
   logic [15:0] used_w;   //! words posted and not released (a bad EVT_TAIL makes it exceed the ring)
   logic [15:0] free_w;
   always_comb begin : choose
@@ -133,6 +176,38 @@ module KL_mbx_evt
       any_w = 1'b1;
       src_w = SRC_TICK_S;
     end
+    src_bit_w = '0;
+    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+      if (!any_w && amap_cnt_r[i] != 16'd0) begin
+        any_w    = 1'b1;
+        src_w    = SRC_AMAP_S;
+        src_if_w = MBX_IF_W_C'(i);
+      end
+    end
+    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+      if (!any_w && avb_cnt_r[i] != 16'd0) begin
+        any_w    = 1'b1;
+        src_w    = SRC_AVB_S;
+        src_if_w = MBX_IF_W_C'(i);
+      end
+    end
+    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+      if (!any_w && asp_cnt_r[i] != 16'd0) begin
+        any_w    = 1'b1;
+        src_w    = SRC_ASP_S;
+        src_if_w = MBX_IF_W_C'(i);
+      end
+    end
+    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+      for (int b = 0; b < int'(NP_C); b++) begin
+        if (!any_w && ctr_pend_r[i][b] && !ctr_seen_r[i][b]) begin
+          any_w     = 1'b1;
+          src_w     = SRC_CTR_S;
+          src_if_w  = MBX_IF_W_C'(i);
+          src_bit_w = PW_C'(b);
+        end
+      end
+    end
     used_w = head_r - evt_tail_words_i;
     free_w = (used_w > 16'(MBX_EVT_WORDS_C)) ? 16'd0 : 16'(MBX_EVT_WORDS_C) - used_w;
   end : choose
@@ -147,9 +222,25 @@ module KL_mbx_evt
   logic [31:0] w3_w;
   always_comb begin : record
     logic [31:0] etype;
+    logic [31:0] dtype;
+    logic [31:0] dindex;
     etype = (src_w == SRC_LINK_S)  ? MBX_EV_TYPE_LINK_C
           : (src_w == SRC_GM_S)    ? MBX_EV_TYPE_GM_C
-          : (src_w == SRC_TIMER_S) ? MBX_EV_TYPE_TIMER_C : MBX_EV_TYPE_TICK_C;
+          : (src_w == SRC_TIMER_S) ? MBX_EV_TYPE_TIMER_C
+          : (src_w == SRC_TICK_S)  ? MBX_EV_TYPE_TICK_C
+          : (src_w == SRC_AMAP_S)  ? MBX_EV_TYPE_AMAP_LIVE_WRITE_C
+          : (src_w == SRC_AVB_S)   ? MBX_EV_TYPE_AVB_INFO_CHANGED_C
+          : (src_w == SRC_ASP_S)   ? MBX_EV_TYPE_AS_PATH_CHANGED_C : MBX_EV_TYPE_COUNTERS_CHANGED_C;
+    // the descriptor a counter-change bit stands for; ALL names none
+    dtype  = '0;
+    dindex = '0;
+    for (int f = 0; f < int'(MBX_CTRCHG_N_SRC_C); f++) begin
+      if (32'(src_bit_w) >= MBX_CTRCHG_FIRST_TBL_C[f]
+          && 32'(src_bit_w) < MBX_CTRCHG_FIRST_TBL_C[f] + MBX_CTRCHG_COUNT_TBL_C[f]) begin
+        dtype  = MBX_CTRCHG_TYPE_TBL_C[f];
+        dindex = 32'(src_bit_w) - MBX_CTRCHG_FIRST_TBL_C[f];
+      end
+    end
     w0_w = (etype << MBX_EVREC_W0_TYPE_LSB_C) | (32'(src_if_w) << MBX_EVREC_W0_IF_LSB_C)
          | (32'(seq_r) << MBX_EVREC_W0_SEQ_LSB_C);
     unique case (src_w)
@@ -169,10 +260,32 @@ module KL_mbx_evt
         w2_w = dl_r[src_slot_w] << MBX_EV_TIMER_W2_DEADLINE_MS_LSB_C;
         w3_w = now_ms_i << MBX_EV_TIMER_W3_NOW_MS_LSB_C;
       end
-      default: begin
+      SRC_TICK_S: begin
         w1_w = 32'(tick_cnt_r) << MBX_EV_TICK_W1_COUNT_LSB_C;
         w2_w = '0;
         w3_w = now_ms_i << MBX_EV_TICK_W3_NOW_MS_LSB_C;
+      end
+      SRC_AMAP_S: begin
+        w1_w = 32'(amap_cnt_r[src_if_w]) << MBX_EV_AMAP_LIVE_WRITE_W1_COUNT_LSB_C;
+        w2_w = '0;
+        w3_w = now_ms_i << MBX_EV_AMAP_LIVE_WRITE_W3_NOW_MS_LSB_C;
+      end
+      SRC_AVB_S: begin
+        w1_w = 32'(avb_cnt_r[src_if_w]) << MBX_EV_AVB_INFO_CHANGED_W1_COUNT_LSB_C;
+        w2_w = '0;
+        w3_w = now_ms_i << MBX_EV_AVB_INFO_CHANGED_W3_NOW_MS_LSB_C;
+      end
+      SRC_ASP_S: begin
+        w1_w = 32'(asp_cnt_r[src_if_w]) << MBX_EV_AS_PATH_CHANGED_W1_COUNT_LSB_C;
+        w2_w = '0;
+        w3_w = now_ms_i << MBX_EV_AS_PATH_CHANGED_W3_NOW_MS_LSB_C;
+      end
+      default: begin
+        w1_w = mbx_place_f(dtype, MBX_EV_COUNTERS_CHANGED_W1_TYPE_LSB_C, MBX_EV_COUNTERS_CHANGED_W1_TYPE_WIDTH_C)
+             | mbx_place_f(dindex, MBX_EV_COUNTERS_CHANGED_W1_INDEX_LSB_C, MBX_EV_COUNTERS_CHANGED_W1_INDEX_WIDTH_C);
+        w2_w = mbx_place_f(32'(32'(src_bit_w) == MBX_CTRCHG_ALL_BIT_C), MBX_EV_COUNTERS_CHANGED_W2_ALL_LSB_C,
+                           MBX_EV_COUNTERS_CHANGED_W2_ALL_WIDTH_C);
+        w3_w = now_ms_i << MBX_EV_COUNTERS_CHANGED_W3_NOW_MS_LSB_C;
       end
     endcase
   end : record
@@ -205,6 +318,25 @@ module KL_mbx_evt
     end
   end : timers
 
+  // the counter-change sources' next state: a change in the posting cycle stays
+  // pending, and a post in the cycle the epoch ends counts in the next epoch
+  logic            ctr_roll_w;   //! the holdoff epoch ends this cycle
+  logic [NP_C-1:0] ctr_pend_n_w [MBX_N_IF_C];
+  logic [NP_C-1:0] ctr_seen_n_w [MBX_N_IF_C];
+  assign ctr_roll_w = ms_tick_p_i && (32'(ctr_epoch_r) + 32'd1 >= MBX_CTRCHG_HOLDOFF_MS_C);
+  always_comb begin : ctr_next
+    for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+      ctr_pend_n_w[i] = ctr_pend_r[i];
+      ctr_seen_n_w[i] = ctr_roll_w ? '0 : ctr_seen_r[i];
+      if (start_w && src_w == SRC_CTR_S && src_if_w == MBX_IF_W_C'(i)) begin
+        ctr_pend_n_w[i][src_bit_w] = 1'b0;
+        ctr_seen_n_w[i][src_bit_w] = 1'b1;
+      end
+      if (ctr_chg_p_i[i])
+        ctr_pend_n_w[i] = ctr_pend_n_w[i] | ctr_bit_f(ctr_chg_type_i[16*i +: 16], ctr_chg_index_i[16*i +: 16]);
+    end
+  end : ctr_next
+
   always_ff @(posedge clk_i) begin : poster
     if (!rst_n) begin
       posted_up_r <= '0;
@@ -215,8 +347,28 @@ module KL_mbx_evt
       busy_r      <= 1'b0;
       tick_div_r  <= '0;
       tick_cnt_r  <= '0;
+      ctr_epoch_r <= '0;
       for (int k = 0; k < 4; k++) rec_r[k] <= '0;
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        amap_cnt_r[i] <= '0;
+        avb_cnt_r[i]  <= '0;
+        asp_cnt_r[i]  <= '0;
+        ctr_pend_r[i] <= '0;
+        ctr_seen_r[i] <= '0;
+      end
     end else begin
+      // the face events: a pulse in the posting cycle counts toward the next record
+      for (int i = 0; i < int'(MBX_N_IF_C); i++) begin
+        if (start_w && src_w == SRC_AMAP_S && src_if_w == MBX_IF_W_C'(i)) amap_cnt_r[i] <= 16'(amap_wr_p_i[i]);
+        else if (amap_wr_p_i[i] && amap_cnt_r[i] != 16'hFFFF) amap_cnt_r[i] <= amap_cnt_r[i] + 16'd1;
+        if (start_w && src_w == SRC_AVB_S && src_if_w == MBX_IF_W_C'(i)) avb_cnt_r[i] <= 16'(avb_chg_p_i[i]);
+        else if (avb_chg_p_i[i] && avb_cnt_r[i] != 16'hFFFF) avb_cnt_r[i] <= avb_cnt_r[i] + 16'd1;
+        if (start_w && src_w == SRC_ASP_S && src_if_w == MBX_IF_W_C'(i)) asp_cnt_r[i] <= 16'(asp_chg_p_i[i]);
+        else if (asp_chg_p_i[i] && asp_cnt_r[i] != 16'hFFFF) asp_cnt_r[i] <= asp_cnt_r[i] + 16'd1;
+        ctr_pend_r[i] <= ctr_pend_n_w[i];
+        ctr_seen_r[i] <= ctr_seen_n_w[i];
+      end
+      if (ms_tick_p_i) ctr_epoch_r <= ctr_roll_w ? '0 : ctr_epoch_r + 16'd1;
       // the tick: a disabled tick holds nothing; a tick in the posting cycle
       // counts toward the next record
       if (!tick_en_i) begin

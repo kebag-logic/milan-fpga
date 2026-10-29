@@ -6,8 +6,9 @@ One reading for every output. ``load()`` turns the YAML into a ``Contract``
 and refuses a contract that could not be built (an overlapping field, a ring
 that is not a power of two, a channel two EtherType rules both claim, a
 match tuple naming a VLAN tag's TPID, message types with no subtype, a
-bound-talker table that spills its block, or a publication block that spills
-its interface stride or runs into a ring).
+bound-talker table that spills its block, a publication block that spills
+its interface stride or runs into a ring, or a face block whose windows are
+not each a request, a GO, a status and its data).
 ``constants()`` flattens it into the one named list every emitter writes, so
 the SystemVerilog package, the C header and the reference page carry the same
 names with the same values, and ``gen_mailbox.py --selftest`` can compare the
@@ -122,6 +123,27 @@ class EventType:
 
 
 @dataclass(frozen=True)
+class Window:
+    """One request and answer window of the face block (class R)."""
+
+    name: str
+    wait_cycles: int        # the request is answered or times out within this many clk_i cycles of its GO
+    go: str                 # the wo register whose GO starts the request
+    status: str             # the ro register holding BUSY, DONE, TIMEOUT and TAG
+    data: tuple[str, ...]   # the ro registers the answer lands in, low word first
+    request: tuple[str, ...]   # the rw registers the request carries
+
+
+@dataclass(frozen=True)
+class CounterSource:
+    """One descriptor family COUNTERS_CHANGED keeps a pending bit per entry for."""
+
+    name: str
+    type: int               # its descriptor_type
+    count: int              # entries 0 .. count-1
+
+
+@dataclass(frozen=True)
 class Contract:
     """The whole validated contract."""
 
@@ -153,6 +175,19 @@ class Contract:
     pub_sink_stride: int
     pub_registers: tuple[Register, ...]
     pub_sink_registers: tuple[Register, ...]
+    face_base: int
+    face_stride: int
+    face_ack_cycles: int
+    face_source_base: int
+    face_source_stride: int
+    face_sink_base: int
+    face_sink_stride: int
+    face_registers: tuple[Register, ...]
+    face_source_registers: tuple[Register, ...]
+    face_sink_registers: tuple[Register, ...]
+    face_windows: tuple[Window, ...]
+    ctrchg_holdoff_ms: int
+    ctrchg_sources: tuple[CounterSource, ...]
     ch_base: int
     ch_stride: int
     ch_registers: tuple[Register, ...]
@@ -431,6 +466,114 @@ def _check_publication(contract: Contract) -> None:
             raise ContractError(f"the publication block {start:#x}..{end:#x} overlaps the {label}")
 
 
+#: The status fields every window carries, and the one field of its GO register.
+WINDOW_STATUS_FIELDS = ("BUSY", "DONE", "TIMEOUT", "TAG")
+#: The face block's two registers outside the settings and the windows.
+FACE_COMMIT = "F_COMMIT"
+FACE_STATUS = "F_STATUS"
+
+
+def _check_face(contract: Contract) -> None:
+    """The face block: its entries inside its interface stride, its whole block
+    inside the window above the register space and clear of every ring and of
+    the publication block, and its registers each a setting, the commit, the
+    commit's status or one window's request, GO, status or data."""
+    regs = {r.name: r for r in contract.face_registers}
+    if not 1 <= contract.face_ack_cycles <= 0xFFFF:
+        raise ContractError(f"face ack_cycles {contract.face_ack_cycles} is not 1..65535")
+    if any(r.offset >= contract.face_source_base for r in contract.face_registers):
+        raise ContractError(f"face registers run into the source entries at {contract.face_source_base:#x}")
+    if any(r.offset >= contract.face_source_stride for r in contract.face_source_registers):
+        raise ContractError(f"face source registers spill out of their {contract.face_source_stride:#x} entry")
+    if any(r.offset >= contract.face_sink_stride for r in contract.face_sink_registers):
+        raise ContractError(f"face sink registers spill out of their {contract.face_sink_stride:#x} entry")
+    if contract.face_source_base + contract.pub_sources * contract.face_source_stride > contract.face_sink_base:
+        raise ContractError(f"{contract.pub_sources} face source entries run into the sink entries at "
+                            f"{contract.face_sink_base:#x}")
+    if contract.face_sink_base + contract.pub_sinks * contract.face_sink_stride > contract.face_stride:
+        raise ContractError(f"{contract.pub_sinks} face sink entries spill out of their {contract.face_stride:#x} "
+                            f"interface stride")
+    start = contract.face_base
+    end = contract.face_base + contract.interfaces * contract.face_stride
+    if start % 4 or start < REGISTER_SPACE_BYTES or end > contract.window_bytes:
+        raise ContractError(f"the face block {start:#x}..{end:#x} is not inside the window above the register space")
+    spans = [(contract.evt_base, 4 * contract.evt_words, "event ring"),
+             (contract.pub_base, contract.interfaces * contract.pub_stride, "publication block")]
+    for ch in contract.channels:
+        spans += [(ch.rx_base, 4 * ch.rx_words, f"{ch.name} rx"), (ch.tx_base, 4 * ch.tx_words, f"{ch.name} tx")]
+    for base, size, label in spans:
+        if base < end and start < base + size:
+            raise ContractError(f"the face block {start:#x}..{end:#x} overlaps the {label}")
+    if any(r.access != "rw" for r in contract.face_source_registers + contract.face_sink_registers):
+        raise ContractError("the face block's source and sink registers are settings, rw only")
+    owned: dict[str, str] = {}
+    for w in contract.face_windows:
+        if not 1 <= w.wait_cycles <= 0xFFFF:
+            raise ContractError(f"window {w.name}: wait_cycles {w.wait_cycles} is not 1..65535")
+        if not 1 <= len(w.data) <= 2 or not w.request:
+            raise ContractError(f"window {w.name}: one or two data registers and at least one request register")
+        for role, names, access in (("go", (w.go,), "wo"), ("status", (w.status,), "ro"),
+                                    ("data", w.data, "ro"), ("request", w.request, "rw")):
+            for n in names:
+                if n not in regs:
+                    raise ContractError(f"window {w.name}: its {role} register {n} is not a face register")
+                if regs[n].access != access:
+                    raise ContractError(f"window {w.name}: its {role} register {n} is {regs[n].access}, not {access}")
+                if n in owned:
+                    raise ContractError(f"window {w.name}: {n} already belongs to window {owned[n]}")
+                owned[n] = w.name
+        if tuple(f.name for f in regs[w.go].fields) != ("GO",):
+            raise ContractError(f"window {w.name}: {w.go} holds exactly the field GO")
+        if tuple(sorted(f.name for f in regs[w.status].fields)) != tuple(sorted(WINDOW_STATUS_FIELDS)):
+            raise ContractError(f"window {w.name}: {w.status} holds exactly {', '.join(WINDOW_STATUS_FIELDS)}")
+    if len({w.name for w in contract.face_windows}) != len(contract.face_windows):
+        raise ContractError("two face windows share a name")
+    rest = [r for r in contract.face_registers if r.name not in owned]
+    others = sorted((r.name, r.access) for r in rest if r.access != "rw")
+    if others != sorted([(FACE_COMMIT, "wo"), (FACE_STATUS, "ro")]):
+        raise ContractError(f"the face block's settings are rw, beside one wo {FACE_COMMIT} and one ro {FACE_STATUS}")
+    if tuple(f.name for f in regs[FACE_COMMIT].fields) != ("GO",) or \
+            tuple(f.name for f in regs[FACE_STATUS].fields) != ("BUSY",):
+        raise ContractError(f"{FACE_COMMIT} holds exactly GO and {FACE_STATUS} exactly BUSY")
+    if not 1 <= contract.ctrchg_holdoff_ms <= 0xFFFF:
+        raise ContractError(f"counters_changed holdoff_ms {contract.ctrchg_holdoff_ms} is not 1..65535")
+    types = [s.type for s in contract.ctrchg_sources]
+    if not contract.ctrchg_sources or len(set(types)) != len(types) or len({s.name for s in contract.ctrchg_sources}) \
+            != len(types) or any(not 1 <= s.count <= 32 or not 0 <= s.type <= 0xFFFF for s in contract.ctrchg_sources):
+        raise ContractError("counters_changed names distinct descriptor types 0..0xFFFF, each of 1..32 entries")
+
+
+def _face(raw: dict[str, Any]) -> dict[str, Any]:
+    """The face block and the COUNTERS_CHANGED source."""
+    fr = _need(raw, "interface_face_registers", "contract")
+    where = "interface_face_registers"
+    cc = _need(raw, "counters_changed", "contract")
+    return {
+        "face_base": int(_need(fr, "base", where)), "face_stride": int(_need(fr, "stride", where)),
+        "face_ack_cycles": int(_need(fr, "ack_cycles", where)),
+        "face_source_base": int(_need(fr, "source_base", where)),
+        "face_source_stride": int(_need(fr, "source_stride", where)),
+        "face_sink_base": int(_need(fr, "sink_base", where)), "face_sink_stride": int(_need(fr, "sink_stride", where)),
+        "face_registers": _registers(_need(fr, "registers", where), where, REGISTER_SPACE_BYTES),
+        "face_source_registers": _registers(_need(fr, "source_registers", where), f"{where}.source_registers",
+                                            REGISTER_SPACE_BYTES),
+        "face_sink_registers": _registers(_need(fr, "sink_registers", where), f"{where}.sink_registers",
+                                          REGISTER_SPACE_BYTES),
+        "face_windows": tuple(Window(str(_need(w, "name", f"{where}.windows")),
+                                     int(_need(w, "wait_cycles", f"{where}.windows")),
+                                     str(_need(w, "go", f"{where}.windows")),
+                                     str(_need(w, "status", f"{where}.windows")),
+                                     tuple(str(n) for n in _need(w, "data", f"{where}.windows")),
+                                     tuple(str(n) for n in _need(w, "request", f"{where}.windows")))
+                              for w in _need(fr, "windows", where)),
+        "ctrchg_holdoff_ms": int(_need(cc, "holdoff_ms", "counters_changed")),
+        "ctrchg_sources": tuple(CounterSource(str(_need(d, "name", "counters_changed")),
+                                              int(_need(d, "type", "counters_changed")),
+                                              int(_need(d, "count", "counters_changed")))
+                                for d in _need(cc, "descriptors", "counters_changed")),
+    }
+
+
 def _records(raw: dict[str, Any]) -> dict[str, Any]:
     """The three record layouts."""
     rx = _need(raw, "rx_frame", "records")
@@ -487,6 +630,7 @@ def load(path: Path = CONTRACT) -> Contract:
                                  "interface_publication_registers", REGISTER_SPACE_BYTES),
         pub_sink_registers=_registers(_need(pubr, "sink_registers", "interface_publication_registers"),
                                       "interface_publication_registers.sink_registers", REGISTER_SPACE_BYTES),
+        **_face(raw),
         ch_base=int(chr_["base"]), ch_stride=int(chr_["stride"]),
         ch_registers=_registers(chr_["registers"], "channel_registers", REGISTER_SPACE_BYTES),
         evt_base=int(raw["event_ring"]["base"]), evt_words=int(raw["event_ring"]["words"]),
@@ -539,6 +683,7 @@ def _check_contract(contract: Contract) -> None:
     _check_channels(contract)
     _check_blocks(contract)
     _check_publication(contract)
+    _check_face(contract)
 
 
 def _field_constants(prefix: str, fields: tuple[Field, ...], doc: str) -> list[Constant]:
@@ -582,6 +727,27 @@ def _register_constants(contract: Contract) -> list[Constant]:
     for reg in contract.pub_sink_registers:
         out.append(Constant(f"PUB_SINK_REG_{reg.name}", reg.offset, reg.doc, True))
         out += _field_constants(reg.name, reg.fields, reg.name)
+    out.append(Constant("FACE_BASE", contract.face_base, "first interface's face block", True))
+    out.append(Constant("FACE_STRIDE", contract.face_stride, "bytes per interface's face block", True))
+    out.append(Constant("FACE_ACK_CYCLES", contract.face_ack_cycles,
+                        "clk_i cycles within which a commit's acknowledgement returns", False))
+    for reg in contract.face_registers:
+        out.append(Constant(f"FACE_REG_{reg.name}", reg.offset, reg.doc, True))
+        out += _field_constants(reg.name, reg.fields, reg.name)
+    out.append(Constant("FACE_SOURCE_BASE", contract.face_source_base, "first source entry inside a face block", True))
+    out.append(Constant("FACE_SOURCE_STRIDE", contract.face_source_stride, "bytes per face source entry", True))
+    for reg in contract.face_source_registers:
+        out.append(Constant(f"FACE_SRC_REG_{reg.name}", reg.offset, reg.doc, True))
+        out += _field_constants(reg.name, reg.fields, reg.name)
+    out.append(Constant("FACE_SINK_BASE", contract.face_sink_base, "first sink entry inside a face block", True))
+    out.append(Constant("FACE_SINK_STRIDE", contract.face_sink_stride, "bytes per face sink entry", True))
+    for reg in contract.face_sink_registers:
+        out.append(Constant(f"FACE_SNK_REG_{reg.name}", reg.offset, reg.doc, True))
+        out += _field_constants(reg.name, reg.fields, reg.name)
+    for w in contract.face_windows:
+        out.append(Constant(f"WIN_{w.name}_WAIT_CYCLES", w.wait_cycles,
+                            f"window {w.name}: clk_i cycles within which a request is answered or times out", False))
+        out.append(Constant(f"WIN_{w.name}_DATA_WORDS", len(w.data), f"window {w.name}: its answer's words", False))
     out.append(Constant("CH_BASE", contract.ch_base, "first channel register block", True))
     out.append(Constant("CH_STRIDE", contract.ch_stride, "bytes per channel block", True))
     for reg in contract.ch_registers:
@@ -605,6 +771,17 @@ def _record_constants(contract: Contract) -> list[Constant]:
         out += _field_constants(f"TXREC_W{word.index}", word.fields, f"TX record word {word.index}")
     for word in contract.ev_header:
         out += _field_constants(f"EVREC_W{word.index}", word.fields, f"event word {word.index}")
+    out.append(Constant("CTRCHG_HOLDOFF_MS", contract.ctrchg_holdoff_ms,
+                        "COUNTERS_CHANGED: NOW_MS milliseconds a descriptor waits after its record", False))
+    first = 0
+    for s in contract.ctrchg_sources:
+        out += [Constant(f"CTRCHG_{s.name}_TYPE", s.type, f"COUNTERS_CHANGED: the {s.name} descriptor_type", True),
+                Constant(f"CTRCHG_{s.name}_COUNT", s.count, f"COUNTERS_CHANGED: {s.name} entries kept", False),
+                Constant(f"CTRCHG_{s.name}_FIRST", first, f"COUNTERS_CHANGED: the pending bit of {s.name} 0", False)]
+        first += s.count
+    out.append(Constant("CTRCHG_N_SRC", len(contract.ctrchg_sources), "COUNTERS_CHANGED: descriptor families", False))
+    out.append(Constant("CTRCHG_ALL_BIT", first, "COUNTERS_CHANGED: the pending bit of every other descriptor", False))
+    out.append(Constant("CTRCHG_N_PEND", first + 1, "COUNTERS_CHANGED: pending bits per interface", False))
     for etype in contract.event_types:
         out.append(Constant(f"EV_TYPE_{etype.name}", etype.value, etype.doc, False))
         for word in etype.words:

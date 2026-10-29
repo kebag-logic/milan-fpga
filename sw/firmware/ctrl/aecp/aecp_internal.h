@@ -14,12 +14,15 @@ void aecp_port_end(struct aecp *);
 // key changed after that is found only once aecp_index runs again (#665).
 struct aecp_descriptor *aecp_find(struct aecp *, uint16_t, uint16_t, uint16_t);
 void aecp_index(struct aecp *);
+bool aecp_other_lock(const struct aecp *);
 bool aecp_foreign_lock(const struct aecp *);
 unsigned aecp_name_offset(uint16_t, uint16_t);
 unsigned aecp_scalar_validate(struct aecp *, const struct aecp_descriptor *, enum aecp_change, const uint8_t *);
 bool aecp_overridden(const struct aecp *, const struct aecp_descriptor *, unsigned);
 void aecp_override(struct aecp *, const struct aecp_descriptor *, unsigned);
 void aecp_note(struct aecp *, enum aecp_change, uint16_t, uint16_t);
+// Record the n bytes at a value a command is about to change (#665).
+void aecp_keep(struct aecp *, void *, size_t);
 bool aecp_stream_read(struct aecp *, uint16_t, uint16_t, struct aecp_stream_info *);
 // A response's Ethernet header and AECPDU common data, through command_type.
 #define AECP_HEADER_BYTES 38u

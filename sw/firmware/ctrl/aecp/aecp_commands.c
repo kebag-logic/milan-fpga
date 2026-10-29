@@ -49,9 +49,18 @@ static void body(uint8_t *out, size_t *bytes, size_t length)
 	memset(out, 0, length);
 }
 
+// Another controller holds the lock in force: one that expired holds, by its
+// owner, until the platform applied its release (#665; Milan v1.2 5.4.2.2).
+bool aecp_other_lock(const struct aecp *a)
+{
+	return (a->locked || a->unlocked) && a->lock_owner != a->requester;
+}
+
+// The lock check, which also refuses every change while one waits for the
+// platform (#665).
 bool aecp_foreign_lock(const struct aecp *a)
 {
-	return a->locked && a->lock_owner != a->requester;
+	return a->refusing || aecp_other_lock(a);
 }
 
 bool aecp_overridden(const struct aecp *a, const struct aecp_descriptor *d, unsigned bit)
@@ -59,13 +68,28 @@ bool aecp_overridden(const struct aecp *a, const struct aecp_descriptor *d, unsi
 	return (a->cfg.events[(size_t)(d - a->cfg.model->descriptors)].overrides & bit) != 0u;
 }
 
+void aecp_keep(struct aecp *a, void *at, size_t n)
+{
+	if (a->kept < AECP_KEPT) {
+		struct aecp_kept *k = &a->keep[a->kept++];
+		k->at = at;
+		k->n = (uint8_t)n;
+		memcpy(k->was, at, n);
+	}
+}
+
 void aecp_override(struct aecp *a, const struct aecp_descriptor *d, unsigned bit)
 {
-	a->cfg.events[(size_t)(d - a->cfg.model->descriptors)].overrides |= (uint8_t)bit;
+	uint8_t *overrides = &a->cfg.events[(size_t)(d - a->cfg.model->descriptors)].overrides;
+	aecp_keep(a, overrides, 1u);
+	*overrides |= (uint8_t)bit;
 }
 
 void aecp_note(struct aecp *a, enum aecp_change kind, uint16_t type, uint16_t index)
 {
+	a->noted = kind;
+	a->noted_type = type;
+	a->noted_index = index;
 	aecp_port_begin(a);
 	a->ports->changed(a->ports->ctx, kind, type, index);
 	aecp_port_end(a);
@@ -161,15 +185,18 @@ static unsigned configuration(struct aecp *a, bool set, const uint8_t *in, size_
 		} else {
 			struct aecp_descriptor *entity = aecp_find(a, 0, 0, 0);
 			bool changed = a->configuration != wire_be16(in + 2) || !aecp_overridden(a, entity, 1u);
+			aecp_keep(a, &a->configuration, sizeof a->configuration);
 			a->configuration = (uint16_t)wire_be16(in + 2);
-			// ENTITY may be represented in every configuration's descriptor list.
+			aecp_override(a, entity, 1u);
+			// ENTITY may be represented in every configuration's descriptor list;
+			// READ_DESCRIPTOR reads configuration 0's (IEEE 7.4.5.1)
 			for (size_t n = 0; n < a->cfg.model->count; ++n) {
 				struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
 				if (d->type == 0u && d->length >= 312u) {
+					aecp_keep(a, d->value + 310, 2u);
 					wire_put_be(d->value + 310, a->configuration, 2);
 				}
 			}
-			aecp_override(a, entity, 1u);
 			if (changed) {
 				aecp_note(a, AECP_CHANGE_CONFIGURATION, 0, 0);
 			}
@@ -306,6 +333,7 @@ static unsigned scalar(struct aecp *a, uint16_t cmd, const uint8_t *in, size_t l
 		return AECP_BAD_ARGUMENTS;
 	}
 	if (!aecp_overridden(a, d, 1u) || memcmp(d->value + offset, in + 4, width) != 0) {
+		aecp_keep(a, d->value + offset, width);
 		memcpy(d->value + offset, in + 4, width);
 		aecp_override(a, d, 1u);
 		aecp_note(a, kind, type, index);
@@ -375,6 +403,7 @@ static unsigned stream_info(struct aecp *a, bool set, const uint8_t *in, size_t 
 			return AECP_BAD_ARGUMENTS;
 		}
 		if (!aecp_overridden(a, d, 2u) || a->cfg.latency[index] != latency) {
+			aecp_keep(a, &a->cfg.latency[index], sizeof latency);
 			a->cfg.latency[index] = latency;
 			aecp_override(a, d, 2u);
 			aecp_note(a, AECP_CHANGE_LATENCY, type, index);
@@ -488,10 +517,17 @@ static unsigned lock(struct aecp *a, const uint8_t *in, size_t len, uint8_t *out
 		status = AECP_ENTITY_LOCKED;
 	} else {
 		bool take = (wire_be32(in) & 1u) == 0u;
-		a->notify = take != a->locked;
+		bool moved = take != a->locked;
+		aecp_keep(a, &a->locked, sizeof a->locked);
+		aecp_keep(a, &a->lock_owner, sizeof a->lock_owner);
+		aecp_keep(a, &a->lock_deadline, sizeof a->lock_deadline);
+		a->notify = moved;
 		a->locked = take;
 		a->lock_owner = take ? a->requester : 0u;
 		a->lock_deadline = a->now + 60000u;
+		if (moved) {
+			aecp_note(a, AECP_CHANGE_LOCK, 0, 0);
+		}
 	}
 	wire_put_be(out + 4, a->lock_owner, 8);
 	return status;
@@ -525,6 +561,8 @@ static unsigned control(struct aecp *a, bool set, const uint8_t *in, size_t len,
 			return AECP_BAD_ARGUMENTS;
 		}
 		if (a->identify != in[4]) {
+			aecp_keep(a, &a->identify, 1u);
+			aecp_keep(a, d->value + 108, 1u);
 			a->identify = in[4];
 			d->value[108] = in[4];
 			aecp_note(a, AECP_CHANGE_IDENTIFY, 26u, index);
@@ -601,8 +639,9 @@ unsigned aecp_command(struct aecp *a, unsigned interface, uint16_t cmd,
 		return AECP_NOT_SUPPORTED;
 	case 1: return lock(a, in, len, out, bytes);
 	case 2:
+		// the lock in force (aecp_other_lock)
 		body(out, bytes, 20u);
-		wire_put_be(out, a->locked ? 2u : 0u, 4);
+		wire_put_be(out, a->locked || a->unlocked ? 2u : 0u, 4);
 		wire_put_be(out + 12, a->lock_owner, 8);
 		return AECP_SUCCESS;
 	case 4: return descriptor(a, interface, in, len, out, bytes);

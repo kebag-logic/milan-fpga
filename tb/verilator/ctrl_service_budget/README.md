@@ -44,6 +44,18 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 
 `1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface.
 `8x8` is `endstation_ax7101_8x8` with two.
+`8x8` is the planner's one ledgered point, `8x8-two-interfaces`, which may plan 57.5 RAMB36 against the 56-RAMB36 budget ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit), section 5).
+So at `8x8`, and only there, `build.py` names that point for the image (`ctrl_srp_image.py --ledgered-point`) and for the SoC's firmware memory plan (`LEDGERED_POINTS`, `split_soc.ledgered_plan`).
+The planner refuses the override on any other image, and the product SoC build names none.
+
+**The commit acknowledgement is at the contract's bound.**
+The image's AECP owner publishes its settings through contract 2.3's face block, and commits each interface's block before AECP opens (`aecp_face_open`, called by `ctrl_app_open_aecp`).
+`milan_soc.CtrlMailbox` holds every input from the datapath idle, the commit acknowledgement among them.
+With the acknowledgement held idle here, the first commit is never acknowledged and AECP never opens: the fixture's `main` returns 6 about 125 ms into the boot, the hart parks (`ctrl_split_start.S`), and no group reaches a measurement.
+So this SoC differs from `CtrlMailbox` in that one input: it acknowledges each commit at the slowest the contract allows ([The test SoC](#the-test-soc)).
+The harness measures a CPU budget, so each commit is measured with the longest wait the contract allows.
+The figures in [Results](#results) and [The instruction cache](#the-instruction-cache) were measured before contract 2.3.
+
 Without `--record-budget-findings` a path over its budget fails the run.
 With it, the misses are recorded and the run still fails on any probe that was not measured.
 `--groups` selects groups and `--jobs` sets how many run at once.
@@ -70,7 +82,9 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   --build-dir /tmp/budget-1x1-shutdown --variant shutdown-entry --record-budget-findings
 ```
 
-- `answering-ports` (arm B) makes the fixture's four observation callbacks answer.
+- `answering-ports` (arm B) makes the four observation ports answer zeroed values.
+  Three are contract 2.3's face block, `stream`, `avb` and `counters` (`aecp_face.c`): the arm replaces them in the face's ports before the core takes them, so it reads no window.
+  The fourth is the fixture's own `path` port, which answers an empty sequence.
   It runs three of the four backlog rows, `backlog`, `backlog-adp` and `backlog-owed`, without `backlog-adp-refill`, so its composed maximum is partial.
 - `shutdown-entry` adds the SHUTDOWN path's only input: a poll that calls `adp_mbx_set_enable(false)` once, at NOW_MS 2,500.
   It runs the `adp-shutdown` and `control-shutdown` groups only.
@@ -100,11 +114,22 @@ That is a CI change, outside this lane.
   It has the split placement's instruction cache (`milan_soc.ctrl_cpu_args`), or the `--fetch-l1` selection; its data side is cacheless.
   The DMA port the shipping image has is kept; the split placement's record mover is its only master.
 - **The firmware memory** is `milan_soc.add_ctrl_memory`, the split placement's, built from the linked image.
+  At `8x8` its plan is held to the ledgered point's 57.5 RAMB36 (`split_soc.ledgered_plan`).
 - **The mailbox** is this harness's own instance of `KL_mbx` behind `KL_mbx_wb`, with CtrlMailbox's hookup.
   `KL_mbx_wb` reaches it through the split placement's record mover (`milan_soc.CtrlMailboxDma`, #665), whose CSR bank sits where the image addresses it (`ctrl_build.SPLIT_MBX_DMA_BASE`).
   The host-port pads are `KL_mbx`'s side, so the mover's ring accesses are observed with the CPU's; the mover holds each request's fields through its answer, as `KL_mbx_wb` does.
-  Its datapath side is on pads that [`sim_main.cpp`](sim_main.cpp) drives.
-  `milan_soc.CtrlMailbox` and its idle tie-offs are not used.
+  Its receive and transmit streams, link levels and grandmaster are on pads that [`sim_main.cpp`](sim_main.cpp) drives.
+  Every other port is connected as `milan_soc.CtrlMailbox` connects it.
+  The publication block's outputs (contract 2.2) are named and unread.
+  The face block's ports (contract 2.3) come from `milan_soc.ctrl_mailbox_face_ports`, at the build's interface count: its outputs are named and unread, and its inputs are held idle by name (`split_soc.FACE_IDLE_INPUTS`, refused unless they are exactly the inputs CtrlMailbox holds idle).
+  So no window request is answered and each times out, as the split SoC with no datapath fabric sees it.
+  The one exception is the commit acknowledgement, `fw_ack_p_i`, which models the slowest datapath the contract allows (`StimulusMailbox.slowest_ack`).
+  Each interface's acknowledgement is a one-cycle pulse `FACE_ACK_CYCLES` bus cycles after that interface's `fw_send_o` rises, 64 in contract 2.3 (`ack_cycles`, `sw/mailbox/mailbox.yaml`).
+  The firmware waits that bound for it (`mbx_face_commit`, `MBX_FACE_ACK_CYCLES`).
+  The bound is read from the generated constant, never restated.
+  Before it builds the SoC, the build simulates this acknowledgement against `KL_mbx`'s commit rule, with back-to-back commits on one interface and an overlapping one on the other.
+  It refuses the build if the bound is not the firmware's `MBX_FACE_ACK_CYCLES`, or if any commit is not acknowledged by exactly one pulse at the bound (`split_soc.ack_deviations`).
+  The build refuses a mailbox instance that leaves a port unconnected: Verilator reports it as PINMISSING, which `-Wno-fatal` would let pass.
   At two interfaces the RTL is `gen_mailbox.py`'s variant, written into the build directory.
 - **The flash** keeps LiteSPI's crossbar, memory-mapped reader and command master.
   The serial device is [`fw_service_budget/flash.hpp`](../fw_service_budget/flash.hpp) with that harness's byte timing.
@@ -127,6 +152,19 @@ The CPU generator is handed each region at its power-of-two cover (256 KiB for `
 Generated from the 224 KiB regions, its region check excludes every `rom` address with bit 15 set, and the image faults ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
 The two netlists differ only in address-decode lines, so the cover changes no timing.
 `--cpu-regions as-built` builds the regions unchanged and reproduces the fault.
+
+The TSN stack boundary gate finds six of this harness's files by text, because they name the firmware's tree.
+Each is listed in [`ctrl_configs.py`](../../../sw/firmware/ctrl/test/ctrl_configs.py) with its reason.
+None is one of the gate's known builders.
+No hosted job can run the harness's build, which needs picolibc's and compiler-rt's packages, the patched LiteX tree and Verilator together.
+
+- `build.py`, `runtime_ssp.py`, `scenario.py`, `selftest.py` and `split_soc.py` are in `OUTSIDE`.
+  `build.py` hands its image to `ctrl_srp_image.py`, run unchanged at the shapes, interface counts and AECP composition the gate runs it at.
+  The `--xip` arm relinks the image's objects through `ctrl_srp_image.link`, with the reset entry copied unchanged and only the linker script edited.
+  Its own compiles build the Verilator model.
+- `fixture_variant.py` is in `SUITES`: it compiles only in the labelled variant arms, from an edited copy of the size fixture.
+
+A new file here that names the firmware's tree must be listed there too, or the gate refuses it by name.
 
 ## Markers and grading
 
@@ -193,6 +231,12 @@ A table's verdict is **fits** within the budget, **MISS T_svc** over T_svc but w
 
 ## Results
 
+Every figure in this section and in [The instruction cache](#the-instruction-cache) was measured on the firmware of `dev-soft-core` `e76a755a`, before contract 2.3's face block (#665).
+PR #792, which brought this harness, and PR #796, which brought the cache, change no firmware source.
+In that firmware the size fixture's own observation callbacks (`a_stream`, `a_avb`, `a_counters` and `a_format` in `ctrl_aecp_image.c`) reported unavailable, and AECP opened with no acknowledgement.
+At this head the image boots, and the groups run with each face commit acknowledged at the contract's bound ([Run and reproduce](#run-and-reproduce)).
+The figures here have not been measured again at this head.
+
 These are S2's results, on the cacheless core, graded against the T_svc = 10 ms then proposed:
 
 ```sh
@@ -205,7 +249,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 Arms B and S add `--fetch-l1 none` to their commands in [Run and reproduce](#run-and-reproduce) in the same way.
 [The instruction cache](#the-instruction-cache) gives the same groups on the split CPU's cache.
 Arm A is the image as linked, the formal measurement.
-Arm B is the labelled second arm, whose fixture callbacks answer.
+Arm B is the labelled second arm, whose observation ports answer.
 The SHUTDOWN row comes from the labelled `shutdown-entry` arm.
 In the path tables a cell is a path's worst measured instance across the groups that measure it, "ms (the pass bound)"; **miss** is over T_svc, **over ceiling** over the 3.4.1 ceiling as well.
 A record never released or a command never answered is worse than any time measured, and its cell gives the time it had waited, at least.
@@ -259,7 +303,7 @@ Arm A's 8x8 composed maximum, `backlog-adp-refill`'s 2,209,308 cycles, is `memse
 
 ### ADP
 
-| Path ([`MAILBOX_SPLIT.md:495-502`](../../../docs/design/MAILBOX_SPLIT.md#service-latency)) | 1x1 ms (bound) | 8x8 if0 / if1 ms (bound) | Accesses in the taking pass, 1x1 / 8x8 (model) |
+| Path ([`MAILBOX_SPLIT.md:516-523`](../../../docs/design/MAILBOX_SPLIT.md#service-latency)) | 1x1 ms (bound) | 8x8 if0 / if1 ms (bound) | Accesses in the taking pass, 1x1 / 8x8 (model) |
 |---|---:|---:|---:|
 | RCV_ADP_DISCOVER -> TMR_DELAY armed | 0.29 (1.63) | 2.57 (9.27) / 2.86 (9.27) | 38 / 73 (31) |
 | TMR_DELAY expiry -> ENTITY_AVAILABLE, TMR_ADVERTISE armed | 0.87 (3.57) | 2.64 (9.09) / 3.70 (10.87) | 46 / 47 (39) |
@@ -271,7 +315,7 @@ Arm A's 8x8 composed maximum, `backlog-adp-refill`'s 2,209,308 cycles, is `memse
 
 ### ACMP
 
-| Path ([`MAILBOX_SPLIT.md:645-657`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | A: 1x1 ms (bound) | A: 8x8 if0 / if1 | B: 1x1 | B: 8x8 if0 / if1 | Accesses, A 1x1 / 8x8 (model) |
+| Path ([`MAILBOX_SPLIT.md:666-678`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | A: 1x1 ms (bound) | A: 8x8 if0 / if1 | B: 1x1 | B: 8x8 if0 / if1 | Accesses, A 1x1 / 8x8 (model) |
 |---|---:|---:|---:|---:|---:|
 | BIND_RX | 1.62 (3.96) | 4.51 (13.22) / 11.36 (31.60) **miss** | 1.62 (3.96) | 4.51 (13.22) / 4.22 (12.59) | 82 / 90 (77) |
 | UNBIND_RX | 6.56 (26.86) | 6.75 (27.03) / 19.80 (40.08) **miss** | 1.07 (3.22) | 3.99 (10.46) / 3.95 (12.55) | 119 / 176 (50) |
@@ -349,7 +393,7 @@ Only the first SET of a value notifies, so the sampling rate (the image has one)
 | ADD_AUDIO_MAPPINGS (STREAM_PORT_OUTPUT 0) | - | - / - | 8.75 (10.00) | 15.08 (22.40) **miss** / 15.02 (22.34) **miss** | 13,271 (B) / 13,376 (B) |
 | BIND_RX -> its GET_STREAM_INFO notice | - | - / - | 14.80 (15.95) **miss** | 25.79 (29.12) **over ceiling** / 28.92 (34.78) **over ceiling** | 18,358 (B) / 18,359 (B) |
 
-- In arm A, the fixture's stream observation reports unavailable, so the image refuses SET_CONFIGURATION and SET_STREAM_INFO (ENTITY_MISBEHAVING), and an output map edit, and never sends BIND_RX's GET_STREAM_INFO notice: AECP retries it every millisecond.
+- In arm A as measured (firmware `e76a755a`), the fixture's stream observation reported unavailable, so the image refused SET_CONFIGURATION and SET_STREAM_INFO (ENTITY_MISBEHAVING), and an output map edit, and never sent BIND_RX's GET_STREAM_INFO notice: AECP retried it every millisecond.
   Those paths are arm B's.
 - At 8x8 the image's input maps have capacity 0, so only an output map edit can change a map, in arm B.
 - Over every fan-out measured, on every interface, a recipient costs 11,786 to 22,030 CPU cycles (11,818 to 20,486 in arm A).
@@ -396,7 +440,7 @@ The ADP, AECP and SRP rings are offered their burst, which is fewer records than
 Under sustained arrivals the bucket keeps admitting one record per period, so those rings can hold more: their rows are observed at the burst, not bounded by it.
 `backlog-adp-refill` measures that for the bound-talker row: the burst, then one more ENTITY_DISCOVER per refill period, up to the ring's room, then the input.
 
-| Backlog row ([`MAILBOX_SPLIT.md:753-758`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | Desk bound, accesses IF=1 / IF=2 | A: 1x1 ms (bound) [records ahead] | A: 8x8 | B: 1x1 | B: 8x8 |
+| Backlog row ([`MAILBOX_SPLIT.md:773-778`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency)) | Desk bound, accesses IF=1 / IF=2 | A: 1x1 ms (bound) [records ahead] | A: 8x8 | B: 1x1 | B: 8x8 |
 |---|---:|---:|---:|---:|---:|
 | an event behind 15 others | 10,569 / 13,287 | 15.49 (29.11) **miss** [15 ahead] | 44.65 (73.70) **miss** [16 ahead] | 15.49 (29.11) **miss** [15 ahead] | 44.65 (73.70) **miss** [16 ahead] |
 | an ACMP command behind a full acmp ring | 38,753 / 48,719 | 63.30 (70.05) **over ceiling** [11 ahead] | 108.71 (120.30) **over ceiling** [11 ahead] | 63.30 (70.05) **over ceiling** [11 ahead] | 108.71 (120.30) **over ceiling** [11 ahead] |
@@ -475,7 +519,7 @@ Every window committed exactly its defined load (the run refuses one that did no
 
 - Per-pass CPU work, not mailbox accesses, sets the time.
   The 1x1 worst pass makes 365 mailbox accesses, about 3,300 of its 1,565,803 cycles.
-  [`MAILBOX_SPLIT.md:753-758`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency) allows each row 0.10 to 0.94 us an access to fit T_svc.
+  [`MAILBOX_SPLIT.md:773-778`](../../../docs/design/MAILBOX_SPLIT.md#acmp-service-latency) allows each row 0.10 to 0.94 us an access to fit T_svc.
   The measured access is 0.18 us, inside every allowance but the full-ADP-ring row's; the passes around the accesses are 1.3 to 60 ms.
 - The single passes break the [#397 one-hart rule](https://github.com/kebag-logic/milan-fpga/issues/397#issuecomment-5857491046).
   A pass is the loop's only opportunity to take an input, and the smallest deadline every duty shares is T_svc.
@@ -503,7 +547,7 @@ Every window committed exactly its defined load (the run refuses one that did no
   SET_NAME misses T_svc at both points, and at 1x1 so do arm B's SET_STREAM_INFO (11.68 ms) and BIND_RX's GET_STREAM_INFO notice (14.80 ms).
   Every fan-out misses it at 8x8, and there BIND_RX's GET_STREAM_INFO notice (25.79 and 28.92 ms) and SET_STREAM_INFO on interface 1 (32.78 ms) are over the 24 ms ceiling (arm B).
 - **For D4 (a), a per-pass cap**, the measured consumers are, in order:
-  - `memset` and `memcpy`, byte loops on RV32I: each AECP response zeroes its 1,514-byte frame (`aecp.c:58`) and the 1,476-byte payload in it (`aecp_commands.c:555`), and a 1x1 READ_DESCRIPTOR pass spends 153,929 to 156,240 cycles (3.1 ms) in `memset`;
+  - `memset` and `memcpy`, byte loops on RV32I: each AECP response zeroes its 1,514-byte frame (`aecp.c:66`) and the 1,476-byte payload in it (`aecp_commands.c:593`), and a 1x1 READ_DESCRIPTOR pass spends 153,929 to 156,240 cycles (3.1 ms) in `memset`;
   - lwSRP's link reset and declarations (`mrp_mad`), 474,000 cycles in the 8x8 link-up pass and 430,000 in the 8x8 composed passes;
   - AECP's two modules (mostly their polls), about 47,000 cycles of every 1x1 pass and 94,000 at 8x8;
   - each fan-out's notices, one a recipient in one pass (`aecp.c`, `transmit`), 11,786 to 22,030 cycles each (11,818 to 20,486 in arm A);
@@ -518,11 +562,12 @@ Every window committed exactly its defined load (the run refuses one that did no
   - So a smaller ring or bucket removes whole passes from the ring rows, but no row fits T_svc while one pass can exceed it.
     The refill leg shows the other side: its input arrives behind 4 records instead of 7, but during the longest passes, and takes 88.33 ms against 67.93.
   - The ACMP ring's room (12) exceeds the core's owed responses (8): with the egress held, the difference is dropped.
-- **The fixture's AECP retries every millisecond.**
-  For each pending change notice, `aecp.c:461-495` builds the response and, when the observation port reports unavailable, sets `retry_at = a->now + 1u`.
-  The fixture's ports always report unavailable, so after a bind every pass rebuilds the notices: up to 1.57 M cycles, 31 ms, at 1x1.
-  Arm B, whose callbacks answer, takes the same H-DISC paths in 0.35 to 0.99 ms at 1x1, its bound-talker row in 36.72 ms against arm A's 67.93, and serves SRP in every window.
+- **The fixture's AECP retried every millisecond.**
+  For each pending change notice, `aecp.c:535-569` builds the response and, when the observation port reports unavailable, sets `retry_at = a->now + 1u`.
+  The fixture's ports always reported unavailable (firmware `e76a755a`), so after a bind every pass rebuilt the notices: up to 1.57 M cycles, 31 ms, at 1x1.
+  Arm B, whose callbacks answered, took the same H-DISC paths in 0.35 to 0.99 ms at 1x1, its bound-talker row in 36.72 ms against arm A's 67.93, and served SRP in every window.
   The retry has no backoff, so a real port that reports unavailable would do the same.
+  At this head those ports are the face block's window reads, which this SoC never answers, so they report unavailable too, each after its bounded wait.
 
 **D5, the smaller core** (deferred until after the flip): the shipping core already misses at both points, so a slower core would miss by more until S2b's per-pass cap lands.
 
@@ -540,7 +585,8 @@ Every window committed exactly its defined load (the run refuses one that did no
 1. **The split image cannot run on the CPU the split SoC builds** ([#791](https://github.com/kebag-logic/milan-fpga/issues/791)).
    The generator decodes a region whose size is not a power of two wrongly.
    For the 224 KiB `rom` at 0 its fetch and load checks are `(address & 0xfffc8000) == 0`, which excludes every address with bit 15 set.
-   The image's first call above 0x8000 (`jal aecp_image_load`, 0x6880 to 0xb1ec) takes an instruction access fault, cause 1, traps to 0 and restarts, forever.
+   In the firmware of `e76a755a`, the image's first call above 0x8000 (`jal aecp_image_load`, 0x6880 to 0xb1ec) took an instruction access fault, cause 1, trapped to 0 and restarted, forever.
+   At this head the 1x1 image's `.data` load image is at 0x197b0, which has bit 15 set, so the start code's first copy load (`lw` at 0x24, `ctrl_split_start.S`) takes a load access fault first, cause 5, and restarts the same way.
 2. **The linked image addresses placeholders**, not the split SoC (the address table above).
    S3's target firmware owns the real addresses.
 3. **#723 is open**: the runtime recipe builds without `-fno-stack-protector` and the image does not link.
@@ -814,6 +860,7 @@ Their commands are those in [Controls and self-test](#controls-and-self-test), w
 - `slow-adp-rx`: the planted RCV_ADP_DISCOVER measures 16.556 ms against 0.513 ms unplanted. The planted loop now runs from the cache, so it is shorter than the cacheless 24.614 ms, and still over T_svc.
 - `slow-adp-shutdown`: SHUTDOWN measures 16.328 ms against 0.333 ms unplanted. The `shutdown-entry` arm's SHUTDOWN is 0.33 ms at 1x1 and 0.32 / 0.64 ms at 8x8.
 - `as-built`: handed the SoC's regions, the cached CPU takes the same instruction access fault, cause 1, at the same call (`0x6880`). The cache does not change #791's decode.
+  At this head the cached CPU is caught as the cacheless one is, with a load access fault, cause 5, at the start code's first `.data` copy load (`TRAP ... 0 5 00000020`).
 
 ## Controls and self-test
 
@@ -842,6 +889,7 @@ Its checks:
 - the records ahead of an input; a served record's: an earlier record released after its commit is ahead of it, one released before is not; each path's worst instance, a starved one first, and the misses per path and per instance;
 - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
 - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
+- the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; every labelled arm and control plant applies to the checkout's sources.
 - the fetch observers follow the CPU's fetch plugin, a refill's 16 beats are read off the netlist's line-aligned refill address, and a cached netlist without that address is refused;
 - the load/store observers follow the data cache's IO bus, without ids, an instruction cache without a data cache keeps the cacheless load/store observers, and a cached netlist with neither or both of the two load/store plugins is refused;
 - `run.main` builds and records the fetch L1 and the arm it selected, on temporary files with the build's toolchain steps replaced;
@@ -916,6 +964,8 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | tables: misses are counted per probe instance only (earlier rule) | misses are counted per path and per probe instance |
 | tables: a control instance is its own path (earlier rule) | a control instance is its functional path |
 | tables: a starved instance is not its path's worst | a starved instance is its path's worst |
+| build: the 1x1 point names the ledgered override too | the ledgered point is named at 8x8 with two interfaces only, as the planner ledgers it |
+| build: arm B anchors the fixture's own observation callbacks (earlier rule) | every labelled arm and control plant applies to the checkout's sources |
 | fetch bus: the cacheless observers on a cached CPU | the fetch observers follow the CPU's fetch plugin |
 | fetch bus: one beat a refill | a refill's beats are read off the netlist |
 | lsu bus: the cacheless observers on a data-cached CPU | the load/store observers follow the data cache's IO bus, without ids |
@@ -961,7 +1011,16 @@ The controls are the cacheless core's.
 Behind the split CPU's own caches, the 16 KiB fetch L1 and the data cache, the spin takes 17.3 ms at its 50 MHz (RCV_ADP_DISCOVER 17.324 ms, SHUTDOWN 17.406 ms), which fits the budget.
 No spin count serves both cores: the `control-shutdown` group waits to 50 ms past the SHUTDOWN and then at most 20 ms for the loop to settle, and a spin that took 25 ms on the cached CPU would take about 70 ms on the cacheless one.
 `as-built` hands the generator the SoC's regions unchanged.
-The run must refuse the boot with an instruction access fault, cause 1, and prints `CONTROL as-built caught`.
+The run must refuse the boot with an access fault of cause 1 (a fetch) or cause 5 (a load), and prints `CONTROL as-built caught`.
+Either is the decode defect of [#791](https://github.com/kebag-logic/milan-fpga/issues/791); which access meets it first depends on the image's layout (defect 1 in [Findings](#findings)).
+The self-test requires both causes to be caught, and a clean boot or a trap of any other cause to escape.
+
+These figures are the firmware of `e76a755a`.
+At this head `slow-adp-rx` is caught again: RCV_ADP_DISCOVER measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
+`slow-adp-shutdown` has not been run at this head.
+At this head `as-built` is caught with a load access fault, cause 5, at the start code's first `.data` copy load, the `lw` at 0x24 (`TRAP ... 0 5 00000020`; the trap line's last field is the last committed PC, the `bgeu` before it), and the run prints `CONTROL as-built caught`.
+The generator's decode defect is the one `e76a755a` met with cause 1; the access that meets it first changed, because this head's 1x1 image has its `.data` load image above 0x8000 (defect 1 in [Findings](#findings)).
+The same run with the generator handed the regions' cover, so that the CPU decodes correctly and the image boots clean, is graded with no trap and prints `CONTROL as-built ESCAPED`.
 
 ## Limits
 
@@ -971,7 +1030,13 @@ The run must refuse the boot with an instruction access fault, cause 1, and prin
 - A record's service ends at the end of the pass that released it; lwSRP may keep a record for replay (`pending_rx`) and finish it in a later pass.
 - SHUTDOWN is measured through a test-only entry, because the linked image never disables ADP.
 - START_STREAMING calls a port the fixture leaves empty, so it is not run.
-- SET_STREAM_FORMAT is refused in both arms, whose format port answers unsupported (`ctrl_aecp_image.c`, `a_format`), so its fan-out is not run.
+- SET_STREAM_FORMAT was refused in both arms, whose format port answered unsupported (`a_format` in the fixture at `e76a755a`), so its fan-out is not run.
+  At this head that port is the face block's GSI window (`aecp_face.c`, `format`), which this SoC never answers, and arm B leaves it in place.
+- The face block's datapath is held idle, as `milan_soc.CtrlMailbox` holds it, except for the commit acknowledgement: no window request is answered, and each commit is acknowledged at the contract's bound, `FACE_ACK_CYCLES` bus cycles after `fw_send_o` rises.
+  A datapath that acknowledges sooner makes no commit wait longer than measured here.
+  On the cacheless core it measures the same: the firmware's first F_STATUS read after a commit comes more than 64 bus cycles after it, so a one-cycle acknowledgement and one at the bound give identical figures.
+  That comparison has not been run on the split's cache.
+  Each window read is measured to its timeout.
 - The lock expiry's notice (60 s after a LOCK_ENTITY) and the counter pushes are not run: the first is beyond the simulation's length, and the fixture changes no counter.
 - The fixture's sources are never allocated, so a Listener Ready grants no licence; that path ends at the record's release.
 - Ends are mailbox commits; wire departure, ingress, egress and the network (H-ACMP's round trip) are not measured.

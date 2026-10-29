@@ -3,10 +3,10 @@
 **System:** a small **Milan v1.2** audio endpoint (PAAD  -  Professional Audio AVB
 Device)  -  a **stereo (2-channel) talker + listener at 48 kHz**  -  implemented on
 the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101). The
-release uses one control hart (NFR-SCOUT-01: cacheless RV32I in the all-fabric
-placement, RV32IM with instruction and data caches in the split) and scales media
-capacity through fabric stream contexts, channels, sample rates, and, in future
-profiles, replicated physical ports.
+release uses one control hart: in the split placement it is RV32IM with a 16 KiB two-way instruction cache
+(64-byte lines, one refill at a time) and an 8 KiB direct-mapped data cache; in the all-fabric placement it is RV32I
+and stays cacheless (NFR-SCOUT-01).
+The release scales media capacity through fabric stream contexts, channels, sample rates, and, in future profiles, replicated physical ports.
 
 - **Current Milan v1.2 implementation verdict:** [`../testing/MILAN_V12_AUDIT_2026-08-16.md`](../testing/MILAN_V12_AUDIT_2026-08-16.md)
 - **Current entity definitions:** [`configs/endstation_*.yaml`](../../configs) through the [end-station builder](../ENDSTATION_BUILDER.md)
@@ -343,6 +343,7 @@ So each moved path is graded against `min(T_svc, C)`, where `C` is its family's 
 | SRP/MRP | 18 ms | 18 ms | IEEE 802.1Q-2018 10.7.11; Milan v1.2 Table 4.3: JoinTime 180 ms x 10 % |
 | ACMP, and discovery to connection | 20 ms | 20 ms | Milan v1.2 5.5.2.3, Table 5.26: 200 ms x 10 % |
 | AECP responses and notifications | 24 ms | 20 ms | IEEE 1722.1-2021 9.3.2.6 and 7.5.2; Milan v1.2 5.4.3.4 and 5.4.5.2: 240 ms x 10 % |
+| An AECP command answered IN_PROGRESS | 12 ms | 12 ms | The IN_PROGRESS cadence in the AECP derivation row below: 120 ms x 10 %. Answered only by a change of face state the datapath has not acknowledged (#665) |
 | MAAP | 50 ms | 20 ms | IEEE 1722-2016 B.3.4.2, Table B.8: 500 ms x 10 % |
 | ADP | 200 ms | 20 ms | Milan v1.2 5.6.3.5.2: 2 s x 10 % |
 | Optional identification | 15 ms | 15 ms | IEEE 1722.1-2021 7.5.1: 150 ms x 10 %. Not enabled; it is the bound if it ever is |
@@ -373,7 +374,7 @@ Their transition service has the same project bound.
 | ADP SHUTDOWN to DEPARTING | Milan v1.2 5.6.3.5.8/.11 requires transmission, without a numeric shutdown-response maximum | Related ADP minimum positive window extent is 2 s, giving 200 ms. The 20 ms service bound, T_svc, is project policy | Stop the applicable timer and send DEPARTING. Preserve its order before a restart's AVAILABLE |
 | Listener ADP AVAILABLE, DEPARTING and discovery aging | Milan v1.2 5.6.4.1, Table 5.54 and 5.6.4.5.1-.4: process each matching bound sink; arm/reset TMR_NO_ADP from received `valid_time`. IEEE 1722.1-2021 6.2.2.5: two-second units; Milan 5.6.2 sends 10, hence 20 s | Milan validity 20 s gives 2 s; the minimum legal received validity is 2 s, giving 200 ms (also the related ADP startup ceiling). A resulting ACMP action uses the tighter 200 ms transaction interval (Milan 5.5.2.3, Table 5.26), giving 20 ms, equal to T_svc. The same 20 ms bound covers reception or original expiry through discovery and connection commitments, including any resulting TX commit | Preserve received validity, interface/GM/domain guards and restart event ordering. Record normative connection waits separately; do not restart the service allowance at discovery-to-connection handoff |
 | ACMP PROBE_TX, GET_TX_STATE, BIND_RX, UNBIND_RX, GET_RX_STATE | Milan v1.2 5.5.2.3, Table 5.26: each transaction times out at 200 ms, replacing the applicable IEEE 1722.1-2021 Table 8-1 value | 200 ms x 10% = 20 ms, equal to T_svc; service <= 20 ms. The complete command transaction must finish inside 200 ms with measured margin | A retry cannot enlarge one attempt's timeout; delayed probe/backoff events retain Milan 5.5.3 timers |
-| AECP solicited AEM, descriptor and counter responses | IEEE 1722.1-2021 9.3.2.6: respond within 240 ms; transaction timeout 250 ms | min(240, 250) ms x 10% = 24 ms; service <= T_svc = 20 ms. The complete response must meet 240 ms with margin | The existing no-IN_PROGRESS policy remains. If adopted later, its 120 ms cadence yields a tighter 12 ms ceiling, which would then be the bound |
+| AECP solicited AEM, descriptor and counter responses | IEEE 1722.1-2021 9.3.2.6: respond within 240 ms; transaction timeout 250 ms | min(240, 250) ms x 10% = 24 ms; service <= T_svc = 20 ms; a command answered IN_PROGRESS, 12 ms (the last column). The complete response must meet 240 ms with margin | IN_PROGRESS is answered only by a change of face state whose acknowledgement it waits for (#665, [the face's writer](../design/MAILBOX_SPLIT.md#the-firmwares-writer)); its one final response follows within the 120 ms cadence, whose 12 ms ceiling is below T_svc and so is that path's bound, min(T_svc, 12 ms). No getter answers IN_PROGRESS |
 | AECP MVU response | Milan v1.2 5.4.3.4: response within 240 ms; transaction timeout 250 ms | 240 ms x 10% = 24 ms; service <= T_svc = 20 ms, with the same wire-response margin | Apply the MVU-specific response and refusal rules |
 | AECP successful-command and asynchronous notifications | Milan v1.2 5.4.5.2; IEEE 1722.1-2021 7.5.2: immediate notification after the successful state-changing response; Table 5.22 defines asynchronous triggers, without a numeric delivery maximum | Related AECP response interval 240 ms gives 24 ms; the bound is `T_svc=20 ms`, a project event-to-commit budget, not a new normative timeout | Response precedes its notification, including cross-protocol causality (#653). Do not wait out T_svc deliberately; notify immediately |
 | AECP GET_COUNTERS push | Milan v1.2 5.4.5.2, Table 5.22: at most one notification per descriptor per second. Counter updates: Milan 5.3.7.7/5.3.8.10, at most 1 s | Spacing gives 100 ms; shared AECP response interval tightens the ceiling to 24 ms. Service <= T_svc = 20 ms once eligible; record the preceding rate-limit wait separately | One second is minimum spacing, not a maximum delivery latency. Coalesce pending changes; preserve counter observation and reset semantics |
@@ -385,7 +386,8 @@ Their transition service has the same project bound.
 The tightest mandatory ceiling above is 18 ms for MRP, below T_svc, so MRP's paths are graded against 18 ms.
 ACMP's ceiling, which also bounds a discovery input's resulting ACMP action, equals T_svc at 20 ms.
 Every other family's ceiling is above T_svc, so T_svc is its bound.
-Optional identification would bound its path at 15 ms, and a future IN_PROGRESS cadence an AECP response at 12 ms; neither is enabled.
+An AECP command answered IN_PROGRESS is bound by its 120 ms cadence at 12 ms, below T_svc.
+Optional identification would bound its path at 15 ms; it is not enabled.
 MRP timer resolution is a separate precision requirement, not service allowance.
 
 Normative timer bounds include service and egress effects where applicable.

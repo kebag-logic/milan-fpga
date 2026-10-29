@@ -195,8 +195,9 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
     parser.add_argument('--mutation', choices=('none', *builder.MUTATIONS), default='none',
                         help='build a planted firmware defect; only its control group runs and must be caught')
     parser.add_argument('--variant', choices=('none', *builder.VARIANTS), default='none',
-                        help="a labelled test-code arm: answering-ports (the fixture's observation callbacks "
-                        'answer) or shutdown-entry (the SHUTDOWN path\'s test-only input)')
+                        help='a labelled test-code arm: answering-ports (the observation ports answer: the face '
+                        "block's stream, avb and counters and the fixture's path) or shutdown-entry (the SHUTDOWN "
+                        "path's test-only input)")
     parser.add_argument('--regrade', action='store_true',
                         help='grade the logs already in --out; a selected group whose script or log is '
                         'absent, or whose script the scenario no longer makes, is refused by name')
@@ -265,11 +266,23 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
     return results, refusals, misses
 
 
+#: The access faults #791's region decode raises: whichever access first meets a rom
+#: address with bit 15 set, an instruction fetch (cause 1) or a load (cause 5).
+AS_BUILT_CAUSES = (1, 5)
+
+
+def as_built_faults(refusals: list) -> list:
+    """The trap refusals that name an access fault of AS_BUILT_CAUSES."""
+    causes = '|'.join(map(str, AS_BUILT_CAUSES))
+    return [r for r in refusals if 'trapped' in r and re.search(rf'TRAP \d+ 0 ({causes}) ', r)]
+
+
 def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list) -> int:
     """The run's exit status: a control must be caught by name; a measurement must be complete."""
     if args.cpu_regions == 'as-built':
-        caught = [r for r in refusals if 'trapped' in r and re.search(r'TRAP \d+ 0 1 ', r)]
-        print(f'CONTROL as-built {"caught" if caught else "ESCAPED"}: an instruction access fault (cause 1)')
+        caught = as_built_faults(refusals)
+        print(f'CONTROL as-built {"caught" if caught else "ESCAPED"}: an instruction or load access fault '
+              f'(cause {" or ".join(map(str, AS_BUILT_CAUSES))})')
         return 0 if caught else 1
     if args.mutation != 'none':
         paths_ = [p.name for g in groups for p in g.probes if p.name.startswith('control.')]

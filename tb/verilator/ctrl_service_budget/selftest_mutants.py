@@ -450,6 +450,14 @@ MUTANTS: dict[str, Patches] = {
     'run: a CPU trap is not refused': lambda: [patch.object(grade, 'refuse_run', _run_ignores_traps)],
     'run: a budget miss never fails the run': _verdict(refusals_fail=True, misses_fail=False),
     'run: a refusal does not fail the run': _verdict(refusals_fail=False, misses_fail=True),
+    'run: the as-built control is caught by an instruction access fault only (earlier rule)': lambda: [patch.object(
+        run, 'AS_BUILT_CAUSES', (1,))],
+    'run: the as-built control is caught by any trap': lambda: [patch.object(
+        run, 'as_built_faults', lambda refusals: [r for r in refusals if 'trapped' in r])],
+    "run: the as-built control matches the cause's leading digit": lambda: [patch.object(
+        run, 'as_built_faults', lambda refusals: [r for r in refusals if re.search(r'TRAP \d+ 0 [15]', r)])],
+    'run: the as-built control is caught whatever the boot does': lambda: [patch.object(
+        run, 'as_built_faults', lambda refusals: ['planted'])],
     'regrade: a selected group without its log is dropped (earlier rule)':
         lambda: [patch.object(run, 'recorded', _recorded_drops)],
     'reuse: an input outside the checkout is not rechecked (earlier rule)':
@@ -462,6 +470,12 @@ MUTANTS: dict[str, Patches] = {
     'tables: a control instance is its own path (earlier rule)': _control_own_path,
     "tables: a starved instance is not its path's worst": lambda: [patch.object(
         run, 'severity', lambda r: (False, r['ms']))],
+    'build: the 1x1 point names the ledgered override too': lambda: [patch.dict(
+        build.LEDGERED_POINTS, {('endstation_ax7101_1x1_tdm8', 1): '8x8-two-interfaces'})],
+    "build: arm B anchors the fixture's own observation callbacks (earlier rule)": lambda: [patch.dict(
+        build.VARIANTS, {'answering-ports': [(
+            '{ (void)ctx; (void)i; (void)t; (void)n; (void)v; return false; }\nstatic bool a_avb',
+            '{ (void)ctx; (void)i; (void)t; (void)n; memset(v, 0, sizeof *v); return true; }\nstatic bool a_avb')]})],
     'fetch bus: the cacheless observers on a cached CPU':
         lambda: [patch.object(build, 'fetch_bus', _fetch_bus_cacheless)],
     'fetch bus: one beat a refill': lambda: [patch.object(build, 'fetch_bus', _fetch_bus_one_beat)],
