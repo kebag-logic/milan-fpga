@@ -22,6 +22,7 @@ Keep the build directory outside the checkout:
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-1x1
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-8x8 --shape endstation_ax7101_8x8
 python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-1x1 --regrade
+python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-plants --self-test
 ```
 
 The run builds the runtime archives, then links the platform image (`ctrl_plat_image.py`) twice.
@@ -29,6 +30,7 @@ The first link is against a provisional map, and the boot SoC's export with that
 The second link is against that `csr.csv`, and the run refuses it unless the second export's rows equal the first's: the map does not depend on the image.
 It then builds the native model and runs it.
 `--regrade` grades the log a run left in the build directory.
+`--self-test` builds and runs each planted control in a planted copy of the firmware's tree, and requires each to be graded a finding of its own kind ([What is graded](#what-is-graded)).
 Exit 0 is a pass, 1 a finding and 2 a refusal.
 
 ## The SoC and the testbench
@@ -59,6 +61,7 @@ After the ready line the testbench types `milan_status`, then `milan_gettime`, w
 - **BOOT**: the ready line, exactly one banner (the #396 plan counts boots by their banners), and the boot-to-ready time against the 20 s ADP valid time (Milan v1.2 5.6.2/5.6.3).
 - **TRACE**: the window's writes before ready. The first fifteen must equal `configure_fabric()`'s for the same config, compiled on the host as builder gate 35 runs it on the same seeded file ([`plat_trace.py`](../../../sw/firmware/ctrl/test/plat_trace.py)). The next three must be MAAP's one-owner report. No write may set `ADP_CTRL[0]` or `PP_CTRL[0]`.
 - **UART**: each command's span, its wait to the first response byte, and its longest gap between two response bytes, which bounds the loop pass that sends them. Each is compared with #397's 500 ms tick rule and T_svc = 10 ms.
+- **Controls** (`--self-test`): a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; a console that spins about 0.6 s at the CPU's clock before its response must be a UART finding, past #397's tick rule.
 - **GRADER**: `baremetal_uart_smoke.py`'s own `grade()` on the three answers. The firmware's checks (`aem-image`, `phc-advances`) must pass. `fabric-enabled` must fail, the listed difference. The checks whose words are the stand-in register file's are printed and never counted.
 
 ## Results
