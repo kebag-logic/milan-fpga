@@ -22,6 +22,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[9. The CPU's data cache](#9-the-cpus-data-cache)** -- The split CPU's LSU L1: its size from the composed bursts, why it is coherent, the windows it never caches, its area against the ledger, and the requirement amended for it.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
 - **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at 100 MHz and at 150 MHz.
+- **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at 100 MHz, and what a larger fetch L1 would save by the model.
 
 ## 1. Memory map
 
@@ -530,7 +531,8 @@ At 100 MHz, before the changes:
   The events holding a notice or a retry are linked in descriptor order through their rows (`aecp.live`), and `arm` and the notice scan of `aecp_poll` walk only them.
   A bit per registration (`aecp.used`) leaves the registry scans only the used ones.
   `aecp_open` relinks every row, as its rescan read every row.
-  `aecp_find`, the descriptor lookup, is unchanged: on these rows it reads the ENTITY, the model's first descriptor, in 44 instructions a record.
+  `aecp_find`, the descriptor lookup, is unchanged here: on these rows it reads the ENTITY, the model's first descriptor, in 44 instructions a record.
+  Section 12 indexes it.
 - **(b) The SRP adapter keeps its copies until something they copy changes** (`sw/firmware/ctrl/srp/srp_mbx.c`).
   `snapshot` walks the registrar only after a Registrar state change (lwSRP's transition observer), an indication, a binding, or one of the adapter's own declarations, which rewrite the value of an attribute a registration may share.
   Otherwise it keeps the copies and runs each sink's capture, as a walk would.
@@ -626,4 +628,132 @@ With (a) and (b) alone, the 1x1 `backlog` windows refilled more lines than befor
   - lwSRP's receive (`rx_on_attr`, `parse_pass`).
   Instruction refills are still 4.9 to 11.3 ms of each window at 100 MHz.
 
-Setting the product clock stays the owner's decision.
+The owner kept the product clock on 2026-10-29; section 12 takes the firmware levers left at it.
+
+## 12. The remaining firmware levers at the present clock
+
+The owner kept the split CPU and its bus at their clocks on 2026-10-29 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6488028169)), and the [assignment of the same day](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6489248781) took the firmware levers left on the record paths.
+Every figure here is at the 100 MHz CPU clock, measured with section 11's profiling variant.
+No clock, cache geometry, admission, `ACMP_OWED_MAX`, scenario hold or RTL changed.
+
+### The changes
+
+- **`aecp_find` answers from an index** (`sw/firmware/ctrl/aecp/aecp_commands.c`).
+  `aecp_init` builds it from the model's keys (`aecp_index`, `aecp.runs`): for each configuration and each descriptor type of IEEE 1722.1-2021 Table 7-1, where its descriptors start and how many there are, each at the position of its index.
+  A lookup is the run's start plus the index.
+  A model `aecp_image_load` built is one run per key.
+  A key outside the indexed configurations (the first; every shipped model has one) or types, or placed any other way, is scanned for as before, so every model is found as it was.
+  The firmware never changes a key after `aecp_init`.
+  The self-test's cases that do now rebuild the index with the change, and the fixture's teardown fails any case that leaves `aecp_find` answering differently from a scan of the model.
+- **The hot list is gated** (`sw/firmware/ctrl/test/ctrl_hot.py`).
+  `plat/ctrl_split_hot.txt` records section 11's order with the traces it came from.
+  The script's list must be that one, entry for entry, and every entry must name a section of the linked image, read from its link map.
+  `ctrl_srp_image.py` applies both rules to every split image it links, and the firmware self-test runs the gate's planted defects.
+- **ACMP's 64-bit wire fields** are packed by the TSN stack's `wire_put_be` (`include/wire.h`).
+  Its 64-bit shift by a variable count is a call to the compiler runtime's `__lshrdi3` for each byte.
+  Packing in two 32-bit halves takes the call out, bit for bit.
+  The stack is pinned (`ctrl_build.stack_pin` refuses any other tree), so this is a change to tsn-c-stack, drafted for that repository's own review and not in this branch.
+  It is measured below with the pin moved in a scratch tree only.
+  With it nothing calls `__lshrdi3`, so the runtime's hot-list entry goes with the pin move: the gate refuses the image until it does.
+- **The mailbox driver's record copies** were checked and left as they are.
+  - A received record is copied once, from its ring into the loop's frame, a word at a time, and every module reads it there.
+  - A transmitted record is built once and copied once into its ring, a word at a time when the frame starts on a word.
+    In the traced windows only MAAP's frames start elsewhere: its transmit queue sits at an unaligned offset of the stack's `struct maap`, seven frames a window.
+  - The other copies are the stack's (ACMP's owed queue copies a frame it built on the stack) and the SRP adapter's retry, which copies a record only after lwSRP refused it storage.
+- **lwSRP's receive path** (`parse_pass`, `rx_on_attr` and the attribute lookups, with the helpers they call) takes 2.8 to 4.2 ms of each window that carries SRP records, 14 to 31 %.
+  It is the largest single path there, but it holds no row: without any of it, the rows' worst instances would still be 10.7 ms at 1x1 and 17.2 ms at 8x8.
+  lwSRP is unchanged.
+
+### The rows
+
+Each cell is the worst instance over the four groups in ms, arm A / arm B, bold where it misses T_svc (10 ms).
+"Before" is section 11's "after"; "with the stack's change" adds the tsn-c-stack draft to this branch.
+
+| 1x1/1if: row | before | after | with the stack's change |
+|---|---:|---:|---:|
+| ACMP record, last | 6.99 / 7.20 | 6.62 / 6.76 | 6.06 / 6.37 |
+| ADP record, last | 4.87 / 5.08 | 4.94 / 5.06 | 4.27 / 4.50 |
+| MAAP record, last | 4.86 / 5.12 | 4.93 / 5.09 | 4.31 / 4.54 |
+| AECP record, last | **13.95** / **14.62** | **13.45** / **14.37** | **12.95** / **13.44** |
+| SRP record, last | **15.14** / **14.59** | **15.30** / **14.84** | **14.28** / **13.91** |
+| AECP record, last, in the owed window | **64.20** / **64.19** | **64.19** / **64.22** | **64.16** / **64.07** |
+| A response with 7 frames owed ahead of it | **62.92** / **62.91** | **62.90** / **62.94** | **62.90** / **62.88** |
+| An ACMP command behind the owed input | **never** / **never** | **never** / **never** | **never** / **never** |
+| An ACMP command behind a full ACMP ring | 5.34 / 5.38 | 5.44 / 5.40 | 4.89 / 4.86 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 3.59 / 3.88 | 3.63 / 3.86 | 3.18 / 3.42 |
+| An event behind 15 others | 1.54 / 1.55 | 1.57 / 1.57 | 1.44 / 1.43 |
+| ACMP, ADP, AECP, MAAP record, first | 1.37 to 1.43 | 1.40 to 1.44 | 1.27 to 1.32 |
+| SRP record, first | 2.77 / 2.79 | 2.83 / 2.83 | 2.62 / 2.60 |
+
+| 8x8/2if: row | before | after | with the stack's change |
+|---|---:|---:|---:|
+| ACMP record, last | **11.30** / **10.72** | **10.69** / **10.70** | **10.51** / **10.59** |
+| ADP record, last | 8.70 / 8.18 | 8.13 / 8.14 | 8.01 / 8.06 |
+| MAAP record, last | 8.69 / 8.17 | 8.12 / 8.13 | 8.00 / 8.04 |
+| AECP record, last | **19.50** / **19.60** | **19.26** / **19.73** | **19.11** / **20.39** |
+| SRP record, last | **22.47** / **20.94** | **21.76** / **21.07** | **21.30** / **20.86** |
+| AECP record, last, in the owed window | **66.89** / **66.41** | **66.52** / **66.64** | **66.68** / **66.74** |
+| A response with 7 frames owed ahead of it | **64.99** / **65.03** | **64.70** / **64.82** | **64.85** / **64.91** |
+| An ACMP command behind the owed input | **never** / **never** | **never** / **never** | **never** / **never** |
+| An ACMP command behind a full ACMP ring | **10.44** / 9.88 | 9.85 / 9.86 | 9.66 / 9.73 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 5.70 / 5.34 | 5.45 / 5.34 | 5.24 / 5.43 |
+| An event behind 15 others | 2.74 / 2.68 | 2.65 / 2.66 | 2.61 / 2.61 |
+| ACMP, ADP, AECP, MAAP record, first | 2.51 to 2.62 | 2.48 to 2.53 | 2.44 to 2.48 |
+| SRP record, first | 5.60 / 5.42 | 5.36 / 5.35 | 5.27 / 5.29 |
+
+The ENTITY_AVAILABLE behind the ADP ring with its bucket refilling, an observation, stays under 0.5 ms in every run.
+Arm A's 8x8 ACMP command behind a full ring now fits.
+Some rows moved the other way (the 1x1 last SRP record in arm A, the 8x8 last AECP record in arm B): code that moves changes which lines the fetch L1 holds.
+
+### Instruction refills per window
+
+The line refills of the work passes in each group's composed window, arm A / arm B, and their wait in ms.
+
+| Window | before | after | with the stack's change |
+|---|---:|---:|---:|
+| 1x1 `backlog` | 5,559 / 5,654 (4.92 / 4.99) | 5,551 / 5,539 (4.90 / 4.90) | 5,471 / 5,473 (4.84 / 4.84) |
+| 1x1 `backlog-adp` | 9,582 / 9,409 (8.58 / 8.35) | 10,053 / 9,766 (8.92 / 8.63) | 9,655 / 9,354 (8.53 / 8.27) |
+| 1x1 `backlog-adp-refill` | 11,450 / 10,113 (10.24 / 8.98) | 11,698 / 10,463 (10.38 / 9.25) | 11,260 / 10,064 (9.95 / 8.90) |
+| 1x1 `backlog-owed` | 11,340 / 11,555 (10.12 / 10.25) | 11,629 / 11,627 (10.32 / 10.28) | 11,362 / 11,284 (10.03 / 9.96) |
+| 8x8 `backlog` | 9,063 / 9,148 (8.10 / 8.17) | 9,029 / 9,087 (8.04 / 8.08) | 8,985 / 9,111 (7.96 / 8.07) |
+| 8x8 `backlog-adp` | 10,874 / 10,390 (9.74 / 9.25) | 10,686 / 10,380 (9.53 / 9.26) | 10,575 / 10,215 (9.40 / 9.03) |
+| 8x8 `backlog-adp-refill` | 11,523 / 10,925 (10.33 / 9.75) | 11,626 / 10,906 (10.35 / 9.71) | 11,608 / 10,713 (10.31 / 9.48) |
+| 8x8 `backlog-owed` | 12,526 / 12,588 (11.24 / 11.26) | 12,331 / 12,592 (11.01 / 11.25) | 12,427 / 12,474 (11.05 / 11.06) |
+
+The levers took out instructions, 3 to 10 % of a window's with the stack's change, and no refills: each window refills within 5 % of before.
+
+### What holds the rows
+
+In each window still over T_svc, instruction refills wait 43 to 61 % of the window (7.1 to 9.6 ms) and a data cache line refill is outstanding for 8 to 19 % (1.0 to 3.9 ms).
+By function, the largest are the memory primitives' copies and fills (`ctrl_mem`'s `forward` and `memset`, 1.2 to 1.6 ms each at 8x8, called most from ACMP's views and records and from the AECP command bodies), the mailbox driver (`mbx_rx_take` and `mbx_tx_send`, about 1.0 to 1.2 ms each), lwSRP's receive path (above) and ACMP's core.
+None of them alone would bring a missing row within T_svc.
+
+### What a larger fetch L1 would save, by the model
+
+Section 11's model of the fetch L1 (64-byte lines, a miss on each committed PC whose line is not held) takes its size and ways as parameters here, with least recently used replacement.
+It ran on committed-PC traces of every window, arm A, at both points, of this branch and with the stack's change.
+At the product's 4 KiB direct-mapped geometry it reads 3 to 8 % fewer refills than the traces measured.
+Each window's measured refill wait is scaled by the fraction of refills the model removes; nothing else in the window moves.
+The worst window of each row that misses, in ms, bold where it would still miss:
+
+| Row | Geometry now | 4 KiB 2-way | 4 KiB 4-way | 8 KiB 1-way | 8 KiB 2-way | 16 KiB 1-way | 16 KiB 2-way | 16 KiB 4-way |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1x1 AECP record, last | **13.46** | **13.16** | **13.14** | **11.85** | **10.98** | 9.93 | 8.96 | 8.75 |
+| 1x1 SRP record, last | **15.34** | **14.98** | **14.97** | **13.42** | **12.30** | **11.11** | 9.91 | 9.58 |
+| 8x8 ACMP record, last | **10.74** | **10.33** | **10.24** | 9.91 | 9.26 | 9.29 | 8.40 | 8.37 |
+| 8x8 AECP record, last | **19.27** | **18.84** | **18.69** | **17.67** | **16.95** | **15.36** | **14.44** | **13.99** |
+| 8x8 SRP record, last | **21.80** | **21.34** | **21.16** | **19.93** | **19.17** | **17.10** | **16.09** | **15.47** |
+| 1x1 AECP record, last, with the stack's change | **12.96** | **12.87** | **12.81** | **11.13** | **10.32** | 9.34 | 8.34 | 8.23 |
+| 1x1 SRP record, last, with the stack's change | **14.31** | **14.20** | **14.14** | **12.24** | **11.34** | **10.14** | 8.90 | 8.74 |
+| 8x8 ACMP record, last, with the stack's change | **10.56** | 9.98 | 9.68 | 9.68 | 8.82 | 9.14 | 8.09 | 8.01 |
+| 8x8 AECP record, last, with the stack's change | **19.12** | **18.70** | **18.38** | **17.49** | **16.41** | **15.41** | **14.29** | **13.96** |
+| 8x8 SRP record, last, with the stack's change | **21.33** | **20.87** | **20.51** | **19.43** | **18.22** | **17.01** | **15.66** | **15.23** |
+
+By the model, a 16 KiB two-way fetch L1 brings both 1x1 rows within T_svc, and 8 KiB direct-mapped the 8x8 last ACMP record.
+At 8x8 no geometry up to 16 KiB four-way brings the last AECP or SRP record within T_svc: the instructions themselves, the data cache's refills and the mailbox's bus waits are left.
+The geometry stays the owner's decision.
+
+### What is left
+
+- At 100 MHz the last AECP and SRP records still miss at both points, 12.95 to 15.30 ms at 1x1 and 19.11 to 21.76 ms at 8x8, and at 8x8 the last ACMP record, 10.51 to 10.70 ms.
+- The stack's change reaches this branch only through tsn-c-stack's own review, then a pin move with the hot list's runtime entry removed.

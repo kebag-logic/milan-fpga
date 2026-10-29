@@ -796,6 +796,7 @@ With the instruction cache in, the core's own lever left is its data side: loads
 A data cache was the owner's option, with the coherent interconnect it needs; the owner took it on 2026-10-28 (see [split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#9-the-cpus-data-cache)), and the clock stays the owner's.
 [Its section 10](../../../docs/design/SPLIT_CONTROL_MEMORY.md#10-the-cpu-clock-the-composed-rows-need) measures the CPU clock the backlog rows need, with this harness and three labelled variants of it.
 [Its section 11](../../../docs/design/SPLIT_CONTROL_MEMORY.md#11-the-firmwares-work-on-the-record-paths) cuts the firmware's work on the AECP and SRP record paths and measures the rows again, with this harness and a labelled profiling variant of it.
+[Its section 12](../../../docs/design/SPLIT_CONTROL_MEMORY.md#12-the-remaining-firmware-levers-at-the-present-clock) takes the firmware levers left at the present clock and models what a larger fetch L1 would save, with the same variant and committed-PC traces of the windows.
 
 ### Controls with the cache
 
