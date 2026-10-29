@@ -212,20 +212,20 @@ The flip (S13) still requires 56 RAMB36 or fewer at every point, with S14 merged
 These figures are planned, not mapped.
 
 The [target platform](../../sw/firmware/ctrl/plat/README.md)'s image (#665 S3) replaces the size fixture's `main` with the platform's, and links with `ctrl_plat_image.py`.
-Planned by `ctrl_memory.plan` from the firmware of `2adab625`, beside the fixture at the same commit, both linked with the same runtime:
+Planned by `ctrl_memory.plan` from the firmware of `b8628704`, beside the fixture at the same commit, both linked with the same runtime:
 
 | Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform minus fixture, B | Against the budget |
 |---|---:|---:|---:|---:|---:|---|
-| 1x1, one interface (shipping) | 109,552 / 47,168 | 39.0 | 104,448 / 46,272 | 37.0 | +5,104 / +896 | within |
-| 1x1, two interfaces | 111,192 / 58,592 | 42.0 | 106,032 / 57,648 | 40.5 | +5,160 / +944 | within |
-| 8x8, one interface | 123,296 / 87,760 | 52.0 | 118,168 / 86,848 | 50.5 | +5,128 / +912 | within |
-| 8x8, two interfaces (largest) | 125,040 / 113,936 | 59.0 | 119,824 / 113,008 | 57.5 | +5,216 / +928 | **over by 3.0 tiles, ledgered at 59.0, owed to lane S14** |
+| 1x1, one interface (shipping) | 109,560 / 47,168 | 39.0 | 104,448 / 46,272 | 37.0 | +5,112 / +896 | within |
+| 1x1, two interfaces | 111,200 / 58,592 | 42.0 | 106,032 / 57,648 | 40.5 | +5,168 / +944 | within |
+| 8x8, one interface | 123,304 / 87,760 | 52.0 | 118,168 / 86,848 | 50.5 | +5,136 / +912 | within |
+| 8x8, two interfaces (largest) | 125,048 / 113,936 | 59.0 | 119,824 / 113,008 | 57.5 | +5,224 / +928 | **over by 3.0 tiles, ledgered at 59.0, owed to lane S14** |
 
-At 8x8 with two interfaces the platform's `rom` banks hold 125,040 B in 126,976 and its `sram` banks 113,936 B in 114,688.
+At 8x8 with two interfaces the platform's `rom` banks hold 125,048 B in 126,976 and its `sram` banks 113,936 B in 114,688.
 That is 59.0 RAMB36, three tiles over the budget and a tile and a half over the fixture's 57.5.
 It cannot reach 57.5 within the platform's files, because each region is planned in power-of-two banks of whole granules.
 The fixture's own `sram` (113,008 B) already needs 28.0 tiles, so `rom` would have to fit 29.5 tiles (120,832 B).
-That is a cut of 4,208 B from the platform's 5,216 B of `rom`.
+That is a cut of 4,216 B from the platform's 5,224 B of `rom`.
 The owner's ruling of 2026-10-29 (#665, 6505997821) ledgers that point at 59.0, owed to lane S14 under decision D3: the boot and the CSR policy are cold code, which D3 moves to flash.
 It amends ruling 6425357821's 57.5 for this one image, and `ctrl_memory.LEDGERED` names it `platform-8x8-two-interfaces` ([section 3](#3-named-refusals)).
 Every other point stays within 56 RAMB36.
@@ -237,7 +237,7 @@ By part, from the two link maps, with one section per function and object, the p
 |---|---:|---:|---:|---:|
 | The boot: `ctrl_plat_boot` with the composition, MAAP owner and SRP source set-up it inlines, `ctrl_plat_step` and the image hook; the three configurations it holds (`config`, `aecp_config`, `srp_config`) | +1,528 / +128 | +1,656 / +144 | +1,532 / +128 | +1,692 / +144 |
 | The CSR policy: identity, the fifteen writes, status and time of day (`ctrl_plat_csr.c`) | +788 / 0 | +788 / 0 | +788 / 0 | +788 / 0 |
-| The console (`ctrl_plat_console.c`, its digit table and its state) | +1,744 / +588 | +1,744 / +588 | +1,744 / +588 | +1,744 / +588 |
+| The console (`ctrl_plat_console.c`, its digit table and its state) | +1,748 / +588 | +1,748 / +588 | +1,748 / +588 | +1,748 / +588 |
 | The console's and the boot's strings, merged | +762 / 0 | +762 / 0 | +762 / 0 | +762 / 0 |
 | MAAP's port: the window's two accesses, the allocation report and `maap_csr.c`, with its state | +916 / +32 | +916 / +32 | +916 / +32 | +916 / +32 |
 | ACMP's talker sources: `source`, `locked`, `stream`, `notice` | +164 / 0 | +164 / 0 | +164 / 0 | +164 / 0 |
@@ -248,8 +248,8 @@ By part, from the two link maps, with one section per function and object, the p
 | The rest of `struct ctrl_plat`, against the fixture's `image_allocation`, `image_licences` and two constant port tables | -80 / +114 | -80 / +128 | -80 / +107 | -80 / +114 |
 | The size fixture's `main` and its callbacks, removed (`ctrl_aecp_image.c`) | -980 / 0 | -1,052 / 0 | -1,012 / 0 | -1,088 / 0 |
 | Every other object: the same sources, built against the platform's bus map | +16 / 0 | +16 / 0 | +16 / 0 | +16 / 0 |
-| Alignment | +2 / -22 | +2 / -4 | -2 / +1 | +2 / -6 |
-| **The platform minus the fixture** | **+5,104 / +896** | **+5,160 / +944** | **+5,128 / +912** | **+5,216 / +928** |
+| Alignment | +6 / -22 | +6 / -4 | +2 / +1 | +6 / -6 |
+| **The platform minus the fixture** | **+5,112 / +896** | **+5,168 / +944** | **+5,136 / +912** | **+5,224 / +928** |
 
 The other members of `struct ctrl_plat` are the objects the fixture holds with the same types: the application, SRP, AECP, its bridge and face, ACMP's configuration, the saved state and the sources.
 They are equal in both images, and so are the AEM image, its pools and lwSRP's pool.

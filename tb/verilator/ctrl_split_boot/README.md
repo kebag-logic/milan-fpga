@@ -9,7 +9,7 @@ Its contract is S3's acceptance on [#665](https://github.com/kebag-logic/milan-f
 
 - **[Run](#run)** -- The prerequisites, the command, and the regrade.
 - **[The SoC and the testbench](#the-soc-and-the-testbench)** -- What is the CPU budget harness's, what this simulation adds, and what the testbench answers.
-- **[What is graded](#what-is-graded)** -- The boot, the trace, each UART duty and the smoke grader's own checks.
+- **[What is graded](#what-is-graded)** -- The model's own verdict, the boot, the trace, each UART duty, the smoke grader's own checks, and the controls of each.
 - **[Results](#results)** -- The two shapes' boot times, traces and UART duties, and the grader's verdicts.
 - **[Limits](#limits)** -- What a simulation without the datapath cannot show.
 
@@ -70,12 +70,13 @@ After the ready line the testbench types `milan_status`, then `milan_gettime`, w
 
 ## Results
 
-The platform image of this lane's head, at the shipping shape and the largest that fits 56 tiles:
+The platform image of the firmware of `b8628704`, at the shipping shape and the largest that fits 56 tiles.
+Every figure is simulated time, the split CPU at 50 MHz and its bus at 100 MHz; the native model completed each run (NATIVE exit status 0, its tally `checks: 1   failures: 0`):
 
-| Shape | Boot to ready | CPU cycles | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
+| Shape | Boot to ready | CPU cycles at 50 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
 |---|---:|---:|---|---|---|
-| 1x1, one interface | 84.389 ms | 4,219,428 | 18 of 18 equal | 21.632 / 1.963 / 1.273 ms | 2.536 / 1.236 / 1.275 ms |
-| 8x8, one interface | 184.610 ms | 9,230,494 | 18 of 18 equal | 40.209 / 2.853 / 2.204 ms | 4.047 / 2.125 / 1.858 ms |
+| 1x1, one interface | 84.383 ms | 4,219,150 | 18 of 18 equal | 21.531 / 1.962 / 1.265 ms | 2.523 / 1.238 / 1.265 ms |
+| 8x8, one interface | 184.647 ms | 9,232,360 | 18 of 18 equal | 40.197 / 2.855 / 2.205 ms | 4.051 / 2.131 / 1.857 ms |
 
 Both boots are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
