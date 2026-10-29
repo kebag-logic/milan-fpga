@@ -4,10 +4,10 @@
 // ctrl_mem.c - memcpy, memmove, memset and memcmp for the control core
 // (#665; NFR-SCOUT-01/03, FR_NFR.md 3.4.1).
 //
-// The core is a cacheless RV32I hart and fetch-bound: every instruction
-// costs about ten CPU cycles from block RAM, so a byte loop costs about fifty
-// cycles a byte, and the AECP responses alone moved several kilobytes a
-// pass. These move one 32-bit word per access once the destination is
+// The cacheless RV32I core this was written for is fetch-bound: every
+// instruction costs about ten CPU cycles from block RAM, so a byte loop costs
+// about fifty cycles a byte, and the AECP responses alone moved several
+// kilobytes a pass. These move one 32-bit word per access once the destination is
 // aligned, and in bulk where the alignment allows (#665, 2026-10-29: most
 // calls on the split placement's record paths fill or copy a few tens of
 // aligned bytes, so a call's fixed instructions weigh as much as its words):

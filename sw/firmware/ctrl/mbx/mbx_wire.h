@@ -61,8 +61,8 @@ static inline void ring_lanes_unpack4(uint32_t word, uint8_t *p)
 // On a little-endian core a ring word's lanes are its bytes in memory order,
 // so the four frame bytes at a word-aligned p are the word itself. The two
 // below are ring_lanes_unpack4 and ring_lanes_pack4 in one 32-bit access
-// there (#665: the split core's data side is uncached, and each byte access
-// is a bus transaction of 9 CPU cycles), and are those two on any other core.
+// there (#665: the mailbox window is uncached, and each byte access is a bus
+// transaction of 9 CPU cycles), and are those two on any other core.
 // p must be word-aligned.
 #if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 #define RING_LANES_NATIVE 1
