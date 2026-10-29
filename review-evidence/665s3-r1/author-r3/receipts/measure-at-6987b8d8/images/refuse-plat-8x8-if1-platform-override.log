@@ -1,0 +1,6 @@
+HEAD 6987b8d8a3b00db5970e69106e3284ce77b54970
+$ python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7101_8x8.yaml --interfaces 1 --ledgered-point platform-8x8-two-interfaces --csr-csv <boot-soc-endstation_ax7101_8x8>/csr.csv --output <out>/refuse-plat-81 --libc <runtime>/libc.a --compiler-runtime <runtime>/libcompiler_rt.a
+REFUSED: allocation over budget: the override 'platform-8x8-two-interfaces' is for the target platform's 8x8, two interfaces image alone, the one carrying {'nvm_stage': 13264, 'ctrl_plat': 21240}; this image carries {'nvm_stage': 13264, 'ctrl_plat': 19088}
+elapsed=5s
+rc=2
+want=2

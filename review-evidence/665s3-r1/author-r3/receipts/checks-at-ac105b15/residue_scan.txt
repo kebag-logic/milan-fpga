@@ -1,0 +1,26 @@
+Added lines of f4c9ad4f..HEAD (C, C++, Python, csv, assembly, SystemVerilog) matching a lane label (S<n>),
+"issuecomment", "lane", "ruling(s) <n>" or a ten-digit number; each classified as a comment line or not.
+HEAD ac105b158bb740a65e0154305377fd4a7d0f6f87
+22 line(s); comment lines: 0
+sw/firmware/ctrl/plat/ctrl_plat_console.c:52: [string or code] put(c, "0123456789abcdef"[(value >> shift) & 0xfu]);
+sw/firmware/ctrl/plat/ctrl_plat_console.c:59: [string or code] static const uint32_t tens[] = {1000000000u, 100000000u, 10000000u, 1000000u, 100000u,
+sw/firmware/ctrl/test/ctrl_configs.py:167: [string or code] "sw/firmware/ctrl/test/plat_mutants.py": "the split platform's planted defects (#665 S3), which the control "
+sw/firmware/ctrl/test/ctrl_configs.py:169: [string or code] "sw/firmware/ctrl/plat/ctrl_plat_gen.py": "writes the split platform's policy and bus map headers (#665 S3); it "
+sw/firmware/ctrl/test/ctrl_configs.py:171: [string or code] "tb/verilator/ctrl_split_boot/run.py": "the split boot simulation (#665 S3), which no hosted job can run (the "
+sw/firmware/ctrl/test/ctrl_configs.py:234: [string or code] "sw/firmware/ctrl/test/plat_trace.py": "the split platform's CSR trace arm (#665 S3, test_ctrl_firmware.py's "
+sw/firmware/ctrl/test/plat_mutants.py:86: [string or code] "\t\tctrl_plat_console_puts(c, \"TAI_NS=0x0000000000000000\\r\\n\");\n",
+sw/firmware/ctrl/test/test_plat.cpp:104: [string or code] EXPECT_EQ(ns, 0x0123456789abcdefull) << "C4 HI:LO";
+sw/firmware/ctrl/test/test_plat.cpp:139: [string or code] "TAI_NS=0x0000000100001000\r\n")
+sw/firmware/ctrl/test/test_plat.cpp:223: [string or code] bus().csr[CTRL_PLAT_CSR_PDELAY] = 4294967295u;
+sw/firmware/ctrl/test/test_plat.cpp:224: [string or code] EXPECT_NE(answer("milan_status\r").find(" PDELAY_NS=4294967295 "), std::string::npos) << "K6 the largest";
+sw/firmware/ctrl/test/test_plat.cpp:225: [string or code] bus().csr[CTRL_PLAT_CSR_PDELAY] = 1000000000u;
+sw/firmware/ctrl/test/test_plat.cpp:226: [string or code] EXPECT_NE(answer("milan_status\r").find(" PDELAY_NS=1000000000 "), std::string::npos) << "K6 inner zeros";
+sw/litex/ctrl_memory.py:218: [string or code] "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+sw/litex/ctrl_memory.py:219: [string or code] "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+tb/verilator/ctrl_split_boot/run.py:134: [string or code] 'TU=0 GPTP_LAT=029000db\r\nTAI_NS=0x0000000000001000\r\n'),
+tb/verilator/ctrl_split_boot/run.py:135: [string or code] ('milan_gettime', 'TAI_NS=0x0000000000002000\r\n'), ('milan_gettime', 'TAI_NS=0x0000000000003000\r\n'))
+tb/verilator/ctrl_split_boot/run.py:187: [string or code] f'constexpr std::uint64_t sim_limit_ps = {SIM_LIMIT_MS}ULL * 1000000000ULL;',
+tb/verilator/ctrl_split_boot/sim_main.cpp:210: [string or code] const std::array<std::uint64_t, 2> offset = {0, (500000000000ULL / cpu_hz - 500000000000ULL / sys_hz)};
+tb/verilator/ctrl_split_boot/sim_main.cpp:211: [string or code] for (unsigned i = 0; i < next.size(); ++i) next[i] = 500000000000ULL / frequency[i] + offset[i];
+tb/verilator/ctrl_split_boot/sim_main.cpp:222: [string or code] next[i] = edge[i] * (500000000000ULL / frequency[i])
+tb/verilator/ctrl_split_boot/sim_main.cpp:223: [string or code] + edge[i] * (500000000000ULL % frequency[i]) / frequency[i] + offset[i];
