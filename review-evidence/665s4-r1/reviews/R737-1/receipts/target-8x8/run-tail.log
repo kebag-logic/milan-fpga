@@ -1,0 +1,14 @@
+| read | 104 | 95,984 | 1.920 | yes | 9,734,962 |
+| seal | 52 | 34,839 | 0.697 | yes | 1,792,186 |
+
+CASE commit pass: 
+CONTROL step-over-t-svc caught: every phase's longest step at T_svc (500,000 cycles) passes and one cycle past it is caught: capture, erase, idle, poll, program, read, seal
+CASE valid pass: 
+CASE absent pass: 
+CASE torn pass: 
+CASE version pass: 
+CASE guard pass: 
+CONTROL reorder-settle caught: apply order: entry 25 is aecp_value_restore, the container needs aecp_restore_settle (133 entries, 133 wanted)
+CONTROL reorder-bindings caught: apply order: entry 0 is aecp_map_restore, the container needs acmp_restore_binding (133 entries, 133 wanted)
+CONTROL guard-removed caught: flash write escaped the journal
+CONTROL slow-step caught: step 0 (idle) takes 30.2139 ms of CPU time, over T_svc 10.0 ms

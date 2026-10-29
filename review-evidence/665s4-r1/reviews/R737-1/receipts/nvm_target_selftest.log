@@ -1,0 +1,42 @@
+PASS: the capture's CPU time is its steps' cycles, its elapsed time its first step's start to its last step's end
+PASS: a capture of twice 24.5 ms of CPU time, every step within T_svc, is no finding
+PASS: a capture that latched one record fewer than the shape is refused
+PASS: every service step is classified by its calls, the closing step as the capture's
+PASS: a step of exactly T_svc passes, in the capture, seal, erase, poll, program and read phases
+PASS: a step one CPU cycle over T_svc is a finding naming it and its phase, in the capture, seal, erase, poll, program and read phases
+PASS: any one step stretched one cycle over T_svc, the idle step among them, is that step alone, its phase kept
+PASS: the step control: each phase's longest step at T_svc passes and one cycle past it is caught
+PASS: a service step over T_svc fails its case, one at T_svc does not
+PASS: the report grades every step against T_svc and gives the capture no bound
+PASS: the bindings first, then the D3 records in ascending id, settle before the first name
+PASS: a container with no name settles last
+PASS: the container's own order passes
+PASS: the settle after the names is caught
+PASS: a binding after the D3 walk is caught
+PASS: a name before a map is caught
+PASS: one apply missing is caught
+PASS: one apply too many is caught
+PASS: two boots are refused
+PASS: the answers are read by sequence_id: the name and the talker
+PASS: the shape's records and pages
+PASS: saved: slot A accepted, slot B blank
+PASS: torn: slot A accepted, the newer slot B refused
+PASS: version: slot A refused for its version, slot B blank
+PASS: torn: the newer slot is the next sequence, its last page erased
+PASS: every arm and planted defect applies to the checkout's sources
+PASS: a control is caught by its words and escapes without them
+PASS: the removal plant applies to the current writer's grader: its 24.5 ms check is there once
+PASS: the current flash writer's capture is held to 24.5 ms: exactly 24.5 ms passes, one system tick more is refused
+PASS: mutant caught: steps: strictly below T_svc
+PASS: mutant caught: steps: only the capture's steps graded
+PASS: mutant caught: steps: the idle step not graded
+PASS: mutant caught: steps: no step graded against T_svc
+PASS: mutant caught: step control: the planted cycle not added
+PASS: mutant caught: capture: the closing step is not the capture's
+PASS: mutant caught: capture: the elapsed time is its CPU time
+PASS: mutant caught: capture: the current writer's 24.5 ms bound imposed on F1
+PASS: mutant caught: order: settle last whatever the names
+PASS: mutant caught: order: only the first entry compared
+PASS: mutant caught: answers: any sequence_id
+PASS: mutant caught: the current flash writer: its 24.5 ms check removed from its grader
+checks: 41   failures: 0
