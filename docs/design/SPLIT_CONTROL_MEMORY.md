@@ -139,6 +139,8 @@ The split image loses:
 It keeps the UART, `timer0`, `ctrl` (reset, scratch, bus errors) and the identifier memory.
 It also keeps the `ppmem` observer and every Milan CSR.
 Any console in the split image is the control firmware's.
+The [target platform](../../sw/firmware/ctrl/plat/README.md#the-console) brings one, under decision D6 (#665): `milan_status` and `milan_gettime` in `milan_baremetal.c`'s lines, and one boot banner.
+It also writes the CSR initialisation `milan_baremetal.c` writes for the same shape ([the CSR window](../../sw/firmware/ctrl/plat/README.md#the-csr-window)).
 
 The CSR map is unchanged: a split export's `csr.csv` equals the base `--ctrl-mailbox` export's.
 Only the `rom` and `sram` region sizes differ.
@@ -193,6 +195,20 @@ The rulings of 2026-10-26 ledger this point as owed to S14: one tile (#665, 6412
 Only that point's measurement plans it, by name ([section 3](#3-named-refusals)), and every SoC build is still refused past 56.
 The flip (S13) still requires 56 RAMB36 or fewer at every point, with S14 merged.
 These figures are planned, not mapped.
+
+The [target platform](../../sw/firmware/ctrl/plat/README.md)'s image (#665 S3) replaces the size fixture's `main` with the platform's, and links with `ctrl_plat_image.py`.
+Planned by `ctrl_memory.plan` against the fixture at its base `f4c9ad4f`, linked with the same runtime:
+
+| Point | `rom` need, B | `sram` need, B | Planned RAMB36 | Fixture at `f4c9ad4f` | Against the budget |
+|---|---:|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 109,504 | 47,168 | 39.0 | 37.0 | within |
+| 1x1, two interfaces | 111,152 | 58,592 | 42.0 | 40.5 | within |
+| 8x8, one interface | 123,248 | 87,760 | 52.0 | 50.5 | within |
+| 8x8, two interfaces (largest) | 125,000 | 113,936 | 59.0 | 57.5 | **over 56, and over the 57.5 ledgered for the fixture** |
+
+The platform adds 5,064 to 5,184 B of `rom` and 912 to 944 B of `sram` at each point.
+The ledgered override recognises the fixture's image by its symbols, so it refuses the platform's: that point needs a ruling (D3, the plan's option (b), or S14's cold code in flash).
+The five largest `.bss` objects at the shipping point are lwSRP's pool (9,920 B), the application (8,872 B), SRP (4,824 B), the descriptor image's values (4,527 B) and AECP (3,352 B).
 
 The figures below link the firmware of `8ab2b539`, which carries dev `c6bd08c6`: F-INT's publication writers and lwSRP `08ee86e8`.
 Mapped out of context by `syn/ooc/ctrl_memory_ooc.py`: Vivado 2026.1, `xc7a100t-fgg484-2`, `AreaOptimized_high`.
