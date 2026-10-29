@@ -40,6 +40,12 @@ python3 -B tb/verilator/nvm_split_target/run.py --point 8x8 --build-dir /tmp/nvm
 `--regrade` grades the runs recorded in `--out` on reused builds, and refuses a case whose recorded script or journal is not the one the run would use.
 A service step over T_svc fails its case, and so the run.
 
+Each run writes `results.json` and `table.md` to `--out`.
+`results.json` holds the point, its shape, T_svc and every case's result, and the CPU and bus clocks every figure was converted and graded at (`cpu_hz`, `sys_hz`).
+Those clocks are the ones every arm's `build.json` records, from the shape's constraints; builds that record different clocks are refused (`run.clocks`).
+`table.md` names the same clocks, in MHz and in hertz, on the line above each of its tables.
+The run is refused, exit 2 and no `table.md`, when the record lacks a clock, when a figure in it is not its CPU cycles at the record's CPU clock, or when its clocks are not its builds' (`run.provenance`, `run.against_build`).
+
 The directory has no Makefile on purpose: the serial sweep discovers every Makefile, and `scripts/suite_shards.py` must then register the suite.
 
 ## The flash port's map
@@ -147,7 +153,9 @@ The owner's decision of 2026-10-29 19:05 on #665, option (c), restates the first
 
 ## Results
 
-Measured at the head this harness lands with, on the split's 4 KiB instruction cache:
+Measured at the head this harness lands with, on the split's 4 KiB instruction cache.
+Every figure below is at the clocks both points' builds recorded: the CPU at 50 MHz (50,000,000 Hz) and the bus at 100 MHz (100,000,000 Hz).
+Each run's `results.json` and `table.md` carry them.
 
 ```sh
 python3 -B tb/verilator/nvm_split_target/run.py --point 1x1 --build-dir /tmp/nvm-target-1x1
@@ -158,7 +166,7 @@ Both runs exit 0: every case passes, no step is over T_svc, and every control is
 
 ### The capture
 
-Recorded, not bounded ([The capture's timing](#the-captures-timing)):
+Recorded, not bounded ([The capture's timing](#the-captures-timing)); CPU 50 MHz, bus 100 MHz:
 
 | Point | Records, container | Capture steps | CPU time, cycles | CPU time, ms | Elapsed, ms | Longest step, ms | Fixed a step, cycles | A payload byte, cycles | Idle step, cycles |
 |---|---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -171,6 +179,8 @@ The elapsed time is the loop's pacing, one record a 10 ms tick; the CPU time is 
 For comparison, the current flash writer's capture copies 13,210 bytes at 8x8 in 13.86 ms (`nvm_capture_cpu/measurements.json`), about 52 cycles a byte, holding its owners while it does.
 
 ### The commit's steps
+
+CPU 50 MHz, bus 100 MHz:
 
 | Phase | 1x1: steps, longest CPU cycles (ms) | 8x8: steps, longest CPU cycles (ms) |
 |---|---|---|
@@ -187,6 +197,8 @@ The commit erased one block and programmed 14 pages at 1x1 and 52 at 8x8, and th
 
 ### The boots
 
+CPU 50 MHz, bus 100 MHz:
+
 | Case | 1x1: apply entries, `nvm_store_boot` CPU cycles (ms) | 8x8 |
 |---|---|---|
 | `valid` | 44, 5,027,209 (100.5) | 133, 24,423,878 (488.5) |
@@ -201,6 +213,8 @@ The boot runs before the loop.
 A refusal stands only on two reads of the same bytes ([`ctrl_nvm/README.md`](../../../sw/firmware/ctrl_nvm/README.md#boot), "Boot" item 3), so the `torn` boot reads its refused slot twice, beside the accepted slot and its re-stage.
 
 ### The controls
+
+CPU 50 MHz, bus 100 MHz:
 
 | Control | 1x1 | 8x8 |
 |---|---|---|
@@ -234,6 +248,15 @@ It requires:
 - a step of exactly T_svc to pass, and one CPU cycle over it to be a finding naming it and its phase, in every phase;
 - that finding to fail its case, and the step control to be caught in every phase;
 - the run's report to grade every step against T_svc and give the capture no bound;
+- the run's clocks to travel with its results. A synthetic commit at CPU 62.5 MHz and bus 125 MHz:
+  - `results.json` must carry those clocks, through JSON;
+  - the report must name them beside every table, and none at 50 MHz;
+  - its figures must be its cycles at 62.5 MHz;
+- a record to be refused when it lacks either clock, when a clock is not a whole positive number of hertz, when it names a CPU clock its figures were not converted at, or when its clocks are not its builds';
+- builds that disagree on their clocks, lack one or are none, to be refused;
+- `run.py`'s own `main`, on builds recording the 62.5 MHz clocks, to write them to `results.json` and beside every table of `table.md`. It must refuse, with exit 2 and no `table.md`:
+  - results graded at another CPU clock than their record names;
+  - a run whose clocks are not its builds';
 - the container's own apply order to pass, and each of these to be caught: the settle after the names, a binding after the D3 walk, a name before a map, one apply missing, one too many and two boots;
 - the derived journals to be judged by the reference codec as the cases need them, and every arm and planted defect to apply to the checkout's sources.
 
@@ -256,6 +279,14 @@ Then it replaces each grading rule in turn with a weaker one, and a named check 
 | order: settle last whatever the names | the bindings first, then the D3 records in ascending id, settle before the first name |
 | order: only the first entry compared | the settle after the names is caught |
 | answers: any sequence_id | the answers are read by sequence_id: the name and the talker |
+| clocks: the report names the product clocks whatever it was given | a run at other clocks is reported at them: its clocks named, its figures converted at its CPU clock |
+| clocks: the last table without its clock line | every table of the report has the clocks beside it |
+| clocks: results.json without its clocks | the results record carries the clocks its builds recorded, through JSON |
+| clocks: a missing clock not refused | a record without its sys_hz is refused |
+| clocks: the figures not checked against the CPU clock | a record whose CPU clock is not the one its figures were converted at is refused |
+| clocks: the record not compared with its builds' | run.py refuses a run whose clocks are not its builds', writing no table |
+| clocks: the first build's clocks taken for all | builds that disagree on their clocks, lack one or are none are refused |
+| clocks: an unconditional 50 MHz and 100 MHz for the run | run.py writes its builds' clocks to results.json and beside every table of table.md |
 | the current flash writer: its 24.5 ms check removed from its grader | the current flash writer's capture is held to 24.5 ms: exactly 24.5 ms passes, one system tick more is refused |
 
 The last mutant deletes the check's three lines from `grade_rows`'s source, writes the result to a scratch copy and imports it in place of the grader.

@@ -220,7 +220,7 @@ The publication block's outputs remain unread until the placement switch selects
 F1's flash port runs on the split SoC's generated map, and its state port on the image's owners.
 Their [target cases](../tb/verilator/nvm_split_target/README.md) run on the split CPU's test SoC.
 There every step is within T_svc at both points; the capture is recorded, not bounded.
-At 8x8 it takes 103.2 ms of CPU time over 1.64 s elapsed.
+At 8x8, with the CPU at 50 MHz and the bus at 100 MHz, it takes 103.2 ms of CPU time over 1.64 s elapsed.
 Access counts and model time do not prove target service latency.
 F2 to F5 must close the [timing hooks](reference/FR_NFR.md#342-control-service-test-hooks).
 

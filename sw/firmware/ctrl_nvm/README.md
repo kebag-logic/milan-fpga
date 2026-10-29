@@ -341,7 +341,8 @@ access to the command master costs 40 ns, and CPU work costs none of it.
   [`nvm_split_target`](../../../tb/verilator/nvm_split_target/README.md#results)
   runs it on the CPU budget harness's test SoC: the shipping VexiiRiscv at
   50 MHz with the split's instruction cache, its block RAM, and LiteSPI on
-  the split SoC's map. What it shows:
+  the split SoC's map, the bus at 100 MHz. Every figure below is at those
+  clocks, which each run's results carry. What it shows:
   - every step, of a commit and of every boot case, is within T_svc, graded
     against the CPU budget harness's `T_SVC_MS`. That is still the 10 ms
     proposal at this base, under every family's bound at the approved 20 ms.
