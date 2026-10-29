@@ -1,0 +1,26 @@
+[A693b] REVIEW READY
+Commit: 2b1565fd9095d6ec8be514849ba9b92b8f4c5b31 (branch 803-adopt-gptp-f97c1803, PR #805; six commits on fb182b19, on dev 5fcec84b; not pushed)
+Changed (the round 2 ruling, item by item):
+1. F1: `tb/verilator/milan_dp/sim_gptp.cpp` holds the in-flight GET_AS_PATH response at its count beat, inside the processor's bounded gather wait, while the empty path commits. The commit lands after the first-count snapshot and before the first path-entry request (held 474 cycles at this head). New check `empty path commits after first-count snapshot, before entry gather`; new check `in-flight response remains wholly old: ends with thisClock`, beside count two and entry 0 (IEEE 1722.1-2021 7.4.41.2: "The count field is set to the number of ClockIdentities present in the path_sequence field"). The arm comment now states what the arm proves. No RTL change: the comment beside `asp_resp_entry_w` is now true as written.
+2. F2: `docs/reference/SUBMODULES.md:310-314` and `CHANGELOG.md:72-75`: no top-level port, parameter or register change; `KL_gptp_shadow.pub_path_o` widens with the engine's, eight entries from entry 0; the test wrapper `gptp_shadow_wrap` adds `pub_path_head_o`.
+3. R1: `SUBMODULES.md:334` "Its shipping route meets timing at +0.333 ns WNS."
+4. S1: the #207 full-queue window is pop-free. A second real Pdelay_Req waits at the queue head behind the first one's response claim, so no stale entry runs. Both queue pointers are graded equal before and after (new check `the full-queue window pops and pushes no event`; at this head `level 1, rp 1->1, wp 2->2`), and the level is restored to its own value.
+5. Physical deadline, re-projected at this head by the README's method (scenario unchanged, 899,637,137 cycles): 5,347 to 5,484 s, 99.0 to 101.6 % of 5,400 s. Raised only the nightly/manual `physical-gptp` job: suite deadline 6,900 s (77.5 to 79.5 %, `scripts/run_all_suites.sh:259`) and its job 120 -> 145 min, keeping the 30 min setup allowance (template `.github/ci-templates/rtl.yml:321`, generated through `scripts/ci_gate_workflows.py`; the workflow diff is that one line). Pinned contracts follow: `scripts/ci_events.py:178, 2008`, `scripts/measure_test_evidence.py:673, 680` and its self-test. The projection is recorded in `tb/verilator/milan_dp/README.md:429-435`; the CI policy, testing guides and adoption record are updated. PR-gating jobs and every other timeout are unchanged.
+6. Slice figures: `docs/design/AREA_BUDGET.md:140` gives the head's route, 15,843 placed, 7 of 15,850 free; :141, that the next growth needs its own owner decision, is unchanged. Not ruled.
+Validation (all at 2b1565fd; each command unpiped, its own log):
+- milan_dp `gptp` and `gptp-lat` legs: 202 checks, 202 PASS, 0 FAIL each (200 before: one check replaced, two added).
+- Planted defects, one at a time in a clean clone with a fresh build:
+  - the reviewers' probe-m9 (entry 0 live) prints `FAIL in-flight response remains wholly old GM`, and probe-m9b (entries 1..7 live) prints `FAIL in-flight response remains wholly old: ends with thisClock`, in both legs;
+  - at fb182b19 both survive, 200/200 (reproduced);
+  - the count served live, and harness controls without the hold and without the queued Pdelay_Req, each fail their named check. The last one (three stale pops) also fails seven later #88 checks;
+  - round 1's eleven milan_dp defects (P1-P6, D1-D4, D6) are killed again.
+  - 19 of 19 rows killed.
+- milan_dp_gptp (physical), `scripts/run_all_suites.sh <logs> --wait --physical-gptp` with no SUITE_TIMEOUT: 205 checks, 0 failures, 17.992742740 simulated s; 5,391 s, 78.1 % of the new 6,900 s, on this loaded host.
+- Full sweep, 4 shard units: 64/64 suites, 2,191,421 checks, 0 failures, 0 timed out (four units all rc 0; capture_coherence 42/42 on four CPUs within the 10 GB cap).
+- Docs workflow under GNU Make 4.3: 44 steps, 42 run all rc 0, 2 skipped by rule. It includes ci_events --check/--selftest, ci_gate_workflows --check and its self-test, measure_test_evidence, the four idiom gates, em dash, concise style, TOC and docs_check. The LiteX builder leg, the Markdown gates on CPython 3.12 and the no-git gates are rc 0. The builder legs leave round 1's two NOT RUN arms (gate 1b, gate 11).
+- Not re-run, because no input changed (`git diff fb182b19..2b1565fd -- hdl sw configs syn avdecc features` and the submodules is empty, and no rtl-fast job reads a round-2 file): Vivado route-1x1 / ooc-1x1 / ooc-8x8 (route-1x1 +481 LUT, tolerance 500, WNS +0.333 ns), Yosys 60/60, lint, xvlog, rtl-fast.
+Acceptance criteria: all consumer gates rc 0 at this head: met. FPGA-gPTP 87-91 close after an image passes the in-house scenarios on the test machine: outside this lane.
+Open risks/questions:
+1. Slice headroom is still an owner decision: 7 of 15,850 slices free, 20 over dev's own route. AREA_BUDGET.md states it and is not ruled here.
+2. The physical deadline is a projection until a hosted run of the current scenario completes.
+3. Interpretation: the ruling says the clean leg "stays 200/200"; it now reports 202/202. I read that as every clean check passing: the two added checks (entry 1 of the in-flight response, and the #207 pointer check) are the ones the ruling asks for, and one check was replaced by the stronger ordering check.

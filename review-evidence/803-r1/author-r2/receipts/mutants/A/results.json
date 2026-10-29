@@ -1,0 +1,177 @@
+[
+ {
+  "mutant": "C0 clean milan_dp_gptp_leg",
+  "rc": 0,
+  "all_failed": [],
+  "verdict": "CLEAN"
+ },
+ {
+  "mutant": "C0 clean milan_dp_gptplat_leg",
+  "rc": 0,
+  "all_failed": [],
+  "verdict": "CLEAN"
+ },
+ {
+  "mutant": "M9 GET_AS_PATH entry 0 served from the live head, not the first-count snapshot",
+  "file": "hdl/milan/milan_datapath.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "in-flight response remains wholly old GM"
+    ],
+    "failed_named": [
+     "in-flight response remains wholly old GM"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "in-flight response remains wholly old GM"
+    ]
+   },
+   "milan_dp_gptplat_leg": {
+    "rc": 2,
+    "named": [
+     "in-flight response remains wholly old GM"
+    ],
+    "failed_named": [
+     "in-flight response remains wholly old GM"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "in-flight response remains wholly old GM"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "M9b GET_AS_PATH entries 1..7 served from the live path, not the first-count snapshot",
+  "file": "hdl/milan/milan_datapath.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "in-flight response remains wholly old: ends with thisClock"
+    ],
+    "failed_named": [
+     "in-flight response remains wholly old: ends with thisClock"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "in-flight response remains wholly old: ends with thisClock"
+    ]
+   },
+   "milan_dp_gptplat_leg": {
+    "rc": 2,
+    "named": [
+     "in-flight response remains wholly old: ends with thisClock"
+    ],
+    "failed_named": [
+     "in-flight response remains wholly old: ends with thisClock"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "in-flight response remains wholly old: ends with thisClock"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "M9c GET_AS_PATH count served live, not from the first-count snapshot",
+  "file": "hdl/milan/milan_datapath.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "in-flight response remains wholly old count two"
+    ],
+    "failed_named": [
+     "in-flight response remains wholly old count two"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "in-flight response remains wholly old count two",
+     "in-flight response remains wholly old: ends with thisClock"
+    ]
+   },
+   "milan_dp_gptplat_leg": {
+    "rc": 2,
+    "named": [
+     "in-flight response remains wholly old count two"
+    ],
+    "failed_named": [
+     "in-flight response remains wholly old count two"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "in-flight response remains wholly old count two",
+     "in-flight response remains wholly old: ends with thisClock"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "H1 the in-flight cut without its count-beat hold",
+  "file": "tb/verilator/milan_dp/sim_gptp.cpp",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "empty path commits after first-count snapshot, before entry gather"
+    ],
+    "failed_named": [
+     "empty path commits after first-count snapshot, before entry gather"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "empty path commits after first-count snapshot, before entry gather"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "H2 the #207 window without the held Pdelay_Req at the queue head",
+  "file": "tb/verilator/milan_dp/sim_gptp.cpp",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 2,
+    "named": [
+     "the full-queue window pops and pushes no event"
+    ],
+    "failed_named": [
+     "the full-queue window pops and pushes no event"
+    ],
+    "not_failed": [],
+    "all_failed": [
+     "the full-queue window pops and pushes no event",
+     "#88 path headed elsewhere serves count three",
+     "#88 path headed elsewhere advances generation once",
+     "#88 path headed elsewhere keeps the scalar GM",
+     "#88 GET_AS_PATH count three",
+     "#88 GET_AS_PATH entry 0 is the received head",
+     "#88 GET_AS_PATH entry 1 is the parent",
+     "#88 GET_AS_PATH ends with thisClock"
+    ]
+   }
+  },
+  "verdict": "KILLED"
+ }
+]

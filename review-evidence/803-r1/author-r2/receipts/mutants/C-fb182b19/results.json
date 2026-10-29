@@ -1,0 +1,50 @@
+[
+ {
+  "mutant": "C0 clean milan_dp_gptp_leg",
+  "rc": 0,
+  "all_failed": [],
+  "verdict": "CLEAN"
+ },
+ {
+  "mutant": "M9 GET_AS_PATH entry 0 served from the live head, not the first-count snapshot",
+  "file": "hdl/milan/milan_datapath.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 0,
+    "named": [
+     "in-flight response remains wholly old GM"
+    ],
+    "failed_named": [],
+    "not_failed": [
+     "in-flight response remains wholly old GM"
+    ],
+    "all_failed": []
+   }
+  },
+  "verdict": "ESCAPED"
+ },
+ {
+  "mutant": "M9b GET_AS_PATH entries 1..7 served from the live path, not the first-count snapshot",
+  "file": "hdl/milan/milan_datapath.sv",
+  "pattern_counts": [
+   1
+  ],
+  "suites": {
+   "milan_dp_gptp_leg": {
+    "rc": 0,
+    "named": [
+     "in-flight response remains wholly old: ends with thisClock"
+    ],
+    "failed_named": [],
+    "not_failed": [
+     "in-flight response remains wholly old: ends with thisClock"
+    ],
+    "all_failed": []
+   }
+  },
+  "verdict": "ESCAPED"
+ }
+]

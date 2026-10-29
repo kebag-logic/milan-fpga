@@ -1,0 +1,173 @@
+## C0-milan_dp_gptp_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+202 checks: 202 PASS, 0 FAIL
+
+## D1-milan_dp_gptp_leg.log
+FAIL TLV-less fabric publication keeps the path count got 0000000000000001 exp 0000000000000005
+FAIL TLV-less refresh keeps fabric path generation got 0000000000000004 exp 0000000000000003
+FAIL TLV-less refresh emits no GET_AS_PATH push got 0000000000000001 exp 0000000000000000
+FAIL TLV-less GET_AS_PATH serves the kept path B got 0000000000000000 exp 0000000000000001
+FAIL TLV-less GM switch keeps the path count got 0000000000000001 exp 0000000000000005
+FAIL TLV-less GM switch spends no path generation got 0000000000000004 exp 0000000000000003
+FAIL #87 TLV-less GM switch: GET_AS_PATH keeps count five got 0000000000000001 exp 0000000000000005
+FAIL #87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL #87 TLV-less GM switch: GET_AS_PATH still ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL kept to explicit GM advances generation once got 0000000000000005 exp 0000000000000004
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+202 checks: 192 PASS, 10 FAIL
+
+## D1.log
+
+
+## D2-milan_dp_gptp_leg.log
+FAIL TLV-less fabric publication keeps the path count got 0000000000000000 exp 0000000000000005
+FAIL TLV-less refresh keeps fabric path generation got 0000000000000004 exp 0000000000000003
+FAIL TLV-less refresh emits no GET_AS_PATH push got 0000000000000001 exp 0000000000000000
+FAIL TLV-less GET_AS_PATH serves the kept path B got 0000000000000000 exp 0000000000000001
+FAIL TLV-less GM switch keeps the path count got 0000000000000000 exp 0000000000000005
+FAIL TLV-less GM switch spends no path generation got 0000000000000004 exp 0000000000000003
+FAIL #87 TLV-less GM switch: GET_AS_PATH keeps count five got 0000000000000000 exp 0000000000000005
+FAIL #87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID got 0000000000000000 exp 00aaccfffe010203
+FAIL #87 TLV-less GM switch: GET_AS_PATH still ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL kept to explicit GM advances generation once got 0000000000000005 exp 0000000000000004
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+202 checks: 192 PASS, 10 FAIL
+
+## D2.log
+
+
+## D3-milan_dp_gptp_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+FAIL #88 GET_AS_PATH entry 0 is the received head got 00aaccfffe010204 exp 001122fffe000044
+FAIL entry-0-only change advances generation once got 0000000000000008 exp 0000000000000009
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL entry-0-only change: GET_AS_PATH serves the new entry 0 got 00aaccfffe010204 exp 001122fffe000022
+FAIL entry-0-only push body equals solicited path got 0000000000000000 exp 0000000000000001
+202 checks: 197 PASS, 5 FAIL
+
+## D3.log
+
+
+## D4-milan_dp_gptp_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+FAIL #88 path headed elsewhere serves count three got 0000000000000001 exp 0000000000000003
+FAIL #88 path headed elsewhere advances generation once got 0000000000000007 exp 0000000000000008
+FAIL #88 path headed elsewhere keeps the scalar GM got 02a1b2fffec3d4e5 exp 00aaccfffe010204
+FAIL #88 GET_AS_PATH count three    got 0000000000000001 exp 0000000000000003
+FAIL #88 GET_AS_PATH entry 0 is the received head got 02a1b2fffec3d4e5 exp 001122fffe000044
+FAIL #88 GET_AS_PATH entry 1 is the parent got 0000000000000000 exp 0080e1fffe112233
+FAIL #88 GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL entry-0-only change keeps count three got 0000000000000001 exp 0000000000000003
+FAIL entry-0-only change advances generation once got 0000000000000007 exp 0000000000000008
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL entry-0-only change: GET_AS_PATH count three got 0000000000000001 exp 0000000000000003
+FAIL entry-0-only change: GET_AS_PATH serves the new entry 0 got 02a1b2fffec3d4e5 exp 001122fffe000022
+FAIL entry-0-only change: GET_AS_PATH keeps entry 1 got 0000000000000000 exp 0080e1fffe112233
+FAIL entry-0-only change: GET_AS_PATH keeps thisClock last got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL entry-0-only push body equals solicited path got 0000000000000000 exp 0000000000000001
+202 checks: 187 PASS, 15 FAIL
+
+## D4.log
+
+
+## D6-milan_dp_gptp_leg.log
+[cut] count beat held 3011 cycles; commit seen 0; path-entry request before the commit 0
+FAIL empty path commits after first-count snapshot, before entry gather got 0000000000000000 exp 0000000000000001
+FAIL empty PathTrace serves count one got 0000000000000002 exp 0000000000000001
+FAIL explicit GM to empty path advances generation once got 0000000000000004 exp 0000000000000005
+FAIL explicit GM to empty path emits one AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL post-cut response is wholly new count one got 0000000000000002 exp 0000000000000001
+FAIL #88 post-cut response is {thisClock} got 00aaccfffe010204 exp 02a1b2fffec3d4e5
+FAIL empty-path push body equals post-cut solicited response got 0000000000000000 exp 0000000000000001
+[#207] full-queue window: level 1, rp 0->0, wp 1->1
+202 checks: 195 PASS, 7 FAIL
+
+## D6.log
+
+
+## P1-milan_dp_gptp_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+FAIL entry-0-only change advances generation once got 0000000000000008 exp 0000000000000009
+202 checks: 201 PASS, 1 FAIL
+
+## P1.log
+
+
+## P2-milan_dp_gptp_leg.log
+FAIL GET_AS_PATH ordered GM         got 0000000000000000 exp 00aaccfffe010203
+FAIL #87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID got 0000000000000000 exp 00aaccfffe010203
+FAIL explicit one-entry GET_AS_PATH head got 0000000000000000 exp 00aaccfffe010204
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+FAIL in-flight response remains wholly old GM got 0000000000000000 exp 00aaccfffe010204
+FAIL #88 post-cut response is {thisClock} got 0000000000000000 exp 02a1b2fffec3d4e5
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+FAIL #88 GET_AS_PATH entry 0 is the received head got 0000000000000000 exp 001122fffe000044
+FAIL entry-0-only change advances generation once got 0000000000000008 exp 0000000000000009
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL entry-0-only change: GET_AS_PATH serves the new entry 0 got 0000000000000000 exp 001122fffe000022
+FAIL entry-0-only push body equals solicited path got 0000000000000000 exp 0000000000000001
+202 checks: 192 PASS, 10 FAIL
+
+## P2.log
+
+
+## P3-milan_dp_gptp_leg.log
+FAIL TLV-less GM switch emits no false GET_AS_PATH push got 0000000000000001 exp 0000000000000000
+FAIL #87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID got 00aaccfffe010204 exp 00aaccfffe010203
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+FAIL #88 post-cut response is {thisClock} got 00aaccfffe010204 exp 02a1b2fffec3d4e5
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+FAIL #88 GET_AS_PATH entry 0 is the received head got 00aaccfffe010204 exp 001122fffe000044
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL entry-0-only change: GET_AS_PATH serves the new entry 0 got 00aaccfffe010204 exp 001122fffe000022
+FAIL entry-0-only push body equals solicited path got 0000000000000000 exp 0000000000000001
+202 checks: 195 PASS, 7 FAIL
+
+## P3.log
+
+
+## P4-milan_dp_gptp_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+FAIL entry-0-only change emits one GET_AS_PATH push got 0000000000000000 exp 0000000000000001
+FAIL entry-0-only push body equals solicited path got 0000000000000000 exp 0000000000000001
+202 checks: 200 PASS, 2 FAIL
+
+## P4.log
+
+
+## P5-milan_dp_gptp_leg.log
+FAIL GET_AS_PATH ordered bridge one got 00aaccfffe010203 exp 001122fffe000011
+FAIL GET_AS_PATH ordered bridge two got 001122fffe000011 exp 001122fffe000022
+FAIL GET_AS_PATH ordered parent     got 001122fffe000022 exp 0080e1fffe112233
+FAIL GET_AS_PATH ends with thisClock got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL tail-only refresh reaches solicited path got 001122fffe000011 exp 445566fffe000033
+FAIL #87 TLV-less GM switch: GET_AS_PATH still ends with thisClock got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL explicit one-entry GET_AS_PATH ends with thisClock got 00aaccfffe010204 exp 02a1b2fffec3d4e5
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+FAIL in-flight response remains wholly old: ends with thisClock got 00aaccfffe010204 exp 02a1b2fffec3d4e5
+FAIL maximum GET_AS_PATH final identity got 001122fffe000077 exp 0080e1fffe112233
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+FAIL #88 GET_AS_PATH entry 1 is the parent got 001122fffe000044 exp 0080e1fffe112233
+FAIL #88 GET_AS_PATH ends with thisClock got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+FAIL entry-0-only change: GET_AS_PATH keeps entry 1 got 001122fffe000022 exp 0080e1fffe112233
+FAIL entry-0-only change: GET_AS_PATH keeps thisClock last got 0080e1fffe112233 exp 02a1b2fffec3d4e5
+202 checks: 189 PASS, 13 FAIL
+
+## P5.log
+
+
+## P6-milan_dp_gptp_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+FAIL a full queue moves only the event count got 0000000000000000 exp 0000000000000001
+202 checks: 201 PASS, 1 FAIL
+
+## P6.log
+
