@@ -808,8 +808,8 @@ A data cache was the owner's option, with the coherent interconnect it needs; th
 
 ### Controls with the cache
 
-The three controls run again on the cached CPU, and each is caught.
-Their commands are those in [Controls and self-test](#controls-and-self-test), with `--fetch-l1 64x1`, the split's geometry, in place of `--fetch-l1 none`:
+S2c ran the three controls again on its cached CPU, with the planted spin then of 16,000 turns, against the 10 ms T_svc then proposed, and each was caught.
+Their commands are those in [Controls and self-test](#controls-and-self-test), with `--fetch-l1 64x1`, S2c's geometry, in place of `--fetch-l1 none`:
 
 - `slow-adp-rx`: the planted RCV_ADP_DISCOVER measures 16.556 ms against 0.513 ms unplanted. The planted loop now runs from the cache, so it is shorter than the cacheless 24.614 ms, and still over T_svc.
 - `slow-adp-shutdown`: SHUTDOWN measures 16.328 ms against 0.333 ms unplanted. The `shutdown-entry` arm's SHUTDOWN is 0.33 ms at 1x1 and 0.32 / 0.64 ms at 8x8.
@@ -951,11 +951,15 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   --build-dir /tmp/budget-as-built --fetch-l1 none --cpu-regions as-built
 ```
 
-`slow-adp-rx` builds a scratch copy of the firmware whose ADP receive handler spins first.
-The `control` group's RCV_ADP_DISCOVER must miss T_svc: it measures 24.614 ms, and the run prints `CONTROL slow-adp-rx caught`.
-The ordinary image measures the same path at 0.294 ms.
-`slow-adp-shutdown` makes disabling ADP spin before its ENTITY_DEPARTINGs, in the `shutdown-entry` arm.
-The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss T_svc: it measures 24.903 ms against 0.582 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
+`slow-adp-rx` builds a scratch copy of the firmware whose ADP receive handler spins 32,000 turns first.
+The `control` group's RCV_ADP_DISCOVER must miss its 20 ms budget: it measures 48.697 ms, and the run prints `CONTROL slow-adp-rx caught`.
+The ordinary image measures the same path at 0.057 ms.
+`slow-adp-shutdown` makes disabling ADP spin as long before its ENTITY_DEPARTINGs, in the `shutdown-entry` arm.
+The `control-shutdown` group's SHUTDOWN, an instance of the same path, must miss its 20 ms budget: it measures 48.932 ms against 0.291 ms unplanted, and the run prints `CONTROL slow-adp-shutdown caught`.
+The spin was 16,000 turns while T_svc was the 10 ms proposed, 24.6 ms on this core; at the approved budget that would have left 4.6 ms.
+The controls are the cacheless core's.
+Behind the split CPU's own caches, the 16 KiB fetch L1 and the data cache, the spin takes 17.3 ms at its 50 MHz (RCV_ADP_DISCOVER 17.324 ms, SHUTDOWN 17.406 ms), which fits the budget.
+No spin count serves both cores: the `control-shutdown` group waits to 50 ms past the SHUTDOWN and then at most 20 ms for the loop to settle, and a spin that took 25 ms on the cached CPU would take about 70 ms on the cacheless one.
 `as-built` hands the generator the SoC's regions unchanged.
 The run must refuse the boot with an instruction access fault, cause 1, and prints `CONTROL as-built caught`.
 

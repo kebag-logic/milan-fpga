@@ -45,7 +45,7 @@ def run(argv: list[str], log: Path, cwd: Path | None = None) -> None:
 MUTATIONS = {
     # #665's planted over-budget path: ADP's receive handler spins before it hands the
     # record to the core, so every ADP record's service exceeds its 20 ms budget, min(T_svc,
-    # 200 ms) (FR_NFR.md 3.4.1), on the cacheless CPU and behind the split's fetch L1.
+    # 200 ms) (FR_NFR.md 3.4.1), on the cacheless CPU the controls run on (README, Controls).
     'slow-adp-rx': ('adp/adp_mbx.c', '\tadp_rx(&i->adp, f->bytes, f->len);\n}',
                     '\tfor (volatile uint32_t n = 0; n < 32000u; ++n) {\n\t}\n'
                     '\tadp_rx(&i->adp, f->bytes, f->len);\n}', 'control', 'none'),
