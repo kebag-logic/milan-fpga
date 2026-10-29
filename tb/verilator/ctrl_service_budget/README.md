@@ -5,7 +5,10 @@ That is the shipping VexiiRiscv with the split CPU's instruction cache ([#665 S2
 Its contract is the [S2 assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409745905) on #665, which re-opens [#397](https://github.com/kebag-logic/milan-fpga/issues/397).
 The image is `ctrl_srp_image.py --with-aecp --layout split`, linked unmodified.
 Every figure is a measured clock count at the CPU's 50 MHz, never an estimate.
-Each is compared with T_svc = 10 ms and its ceiling in [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
+Each is graded against its budget and its ceiling in [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
+A path's budget is min(T_svc, its family's ceiling), with T_svc = 20 ms, which the owner approved on 2026-10-29 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
+[Results](#results) and [The instruction cache](#the-instruction-cache) record S2's and S2c's runs, which were graded against the 10 ms then proposed.
+[Split placement control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover) has the composed rows at the approved budget.
 
 ## Contents
 
@@ -41,7 +44,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 
 `1x1` is `endstation_ax7101_1x1_tdm8` with one AVB interface.
 `8x8` is `endstation_ax7101_8x8` with two.
-Without `--record-budget-findings` a path over T_svc fails the run.
+Without `--record-budget-findings` a path over its budget fails the run.
 With it, the misses are recorded and the run still fails on any probe that was not measured.
 `--groups` selects groups and `--jobs` sets how many run at once.
 `--fetch-l1` selects the CPU's instruction cache: `split`, the split placement's own (the default); `none`, the cacheless core; or `SETSxWAYS`, a test-only sweep point of 64-byte lines.
@@ -175,7 +178,7 @@ The self-test counts every window's stimulus against the same loads, restated, s
 
 The window must also service its load.
 For each loaded channel, the window's first and last record are graded from their receive commit to the end of the pass that released them, as the SRP rows end: the handler runs after the release, inside that pass (`ctrl_loop.c`, `service_rx`).
-A record no release reached is **never released**: its row carries the time it had waited by the run's end, a lower bound, and fits neither T_svc nor its ceiling.
+A record no release reached is **never released**: its row carries the time it had waited by the run's end, a lower bound, and fits neither its budget nor its ceiling.
 A served record's records ahead are its channel's earlier records not yet released at its commit.
 A window that left records unreleased names them, and its passes ran without that work, so its longest pass is a lower bound of a load the firmware did not finish.
 The composed maximum is the longest pass over every backlog row's window, each of which committed its defined load (`run.composed_maximum`).
@@ -184,11 +187,13 @@ A run that did not include every backlog row names the rows not run, and its fig
 The longest pass of the windows that released their whole load is reported beside it, labelled as such: it leaves out the windows the firmware never finished, so it is not the composed maximum.
 
 The ceilings are 3.4.1's: ADP 200 ms, a discovery input's ACMP action and ACMP 20 ms, AECP 24 ms, a notification 24 ms, MAAP 50 ms, MRP 18 ms.
-A path with a normative wait W, such as SRP's JoinTime, is bounded by W + T_svc, and its ceiling by W plus the ceiling.
+Each path's budget is min(T_svc, its ceiling) (`grade.budget_ms`): 18 ms for SRP, 20 ms for every other family.
+A path with a normative wait W, such as SRP's JoinTime, is bounded by W plus its budget, and its ceiling by W plus the ceiling.
+A table's verdict is **fits** within the budget, **MISS T_svc** over T_svc but within a looser ceiling (AECP, a notification, MAAP, ADP), and **MISS ceiling** over the ceiling, which is the budget where it is the tighter (SRP, ACMP, a discovery input's ACMP action).
 
 ## Results
 
-These are S2's results, on the cacheless core:
+These are S2's results, on the cacheless core, graded against the T_svc = 10 ms then proposed:
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
@@ -546,7 +551,7 @@ Every window committed exactly its defined load (the run refuses one that did no
 The [S2c assignment](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6421463860) gives the split CPU an L1 instruction cache, VexiiRiscv's fetch L1, through the pinned generator's own options (`milan_soc.ctrl_cpu_args`).
 The split CPU's cache is 4 KiB, direct-mapped, of 64-byte lines; its data side stays cacheless.
 [Split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#7-the-cpus-instruction-cache) states the parameters and why, and debits the block RAM.
-This section runs the same groups as [Results](#results) on the cached CPU, at the split's size and at the sweep's other sizes, at both points, graded as Results are.
+This section runs the same groups as [Results](#results) on the cached CPU, at the split's size and at the sweep's other sizes, at both points, graded as Results are, against the T_svc = 10 ms then proposed.
 Every run's `table.md` lists every path's worst instance and every probe, in CPU cycles and ms.
 
 ### The sweep
@@ -817,9 +822,11 @@ The fixture has a short composed window: one record on every receive channel and
 Its checks:
 
 - the fixture's digest, each of its seven rows with its pass bound and the records ahead, each loaded channel's first and last record served in its window, its worst pass and its composed maximum with the window's population and its release;
-- a planted over-budget path (the recorded BIND_RX response moved past T_svc) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window must report its load unreleased;
-- every clock conversion; the ceilings and T_svc, restated in [`selftest.py`](selftest.py) so a changed table fails;
-- an exact-budget path passes and one bus cycle more misses; W + T_svc passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling;
+- a planted over-budget path (the recorded BIND_RX response moved past its 20 ms budget) must miss; the window with its MAAP record's commit deleted, and with that record also left out of its declaration, must be refused by name, and so must the window against a defined load one record smaller; with SRP's release deleted, SRP must be reported never released and the window must report its load unreleased;
+- every clock conversion; T_svc, the ceilings and each family's budget, restated in [`selftest.py`](selftest.py) so a changed value or table fails;
+- an exact-budget path passes and one bus cycle more misses;
+- each family against min(T_svc, its ceiling): an SRP instance at its 18 ms ceiling fits, and one cycle over it and one at 19 ms miss, though under T_svc; an AECP instance at 22 ms and a MAAP instance at 30 ms miss T_svc within their ceilings;
+- W plus the budget passes, one cycle more misses within W plus the ceiling, and past that it is over the ceiling; for SRP, whose budget is its ceiling, one cycle past W plus 18 ms misses both;
 - the probe's own tagged frame starts it; a commit after a refused frame is the next frame's; a commit that follows no frame is refused;
 - a response to another sequence_id, or on the other interface, does not end it; the last required output ends it; the expected response is checked;
 - a timer path starts at its armed deadline; a test-only entry at its own function's entry; the pass bound runs from the running pass at the bus ratio;
@@ -892,13 +899,15 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | owed: the responses ahead are not checked | the responses owed ahead are checked: ['31'] |
 | owed: a command never answered fits | a command never answered is reported, unbounded, where it may be dropped |
 | notify: the fan-out registers one controller an interface (earlier rule) | the fan-out group registers the firmware's capacity, every registration a recipient |
-| deadline: T_svc 20 ms | fixture row fixture.service.srp.first.if0 |
+| deadline: T_svc pinned at the 10 ms proposal (earlier rule) | fixture row fixture.service.srp.first.if0 |
+| deadline: SRP graded against T_svc alone, not its 18 ms ceiling | an SRP instance one cycle over 18 ms misses, under T_svc |
+| deadline: each family graded against its ceiling alone, not T_svc | an AECP instance at 22 ms misses T_svc, within its ceiling |
 | deadline: strictly below the budget | exact budget passes |
 | deadline: the normative wait is not added | W + T_svc passes |
 | deadline: the ceiling drops the normative wait | W + T_svc passes |
-| deadline: the ACMP ceiling is the transaction timeout | ceilings pinned |
+| deadline: the ACMP ceiling is the transaction timeout | T_svc and the ceilings pinned |
 | run: a CPU trap is not refused | a CPU trap is refused |
-| run: a T_svc miss never fails the run | a T_svc miss fails the run unless recorded |
+| run: a budget miss never fails the run | a budget miss fails the run unless recorded |
 | run: a refusal does not fail the run | a refusal fails the run, recorded or not |
 | regrade: a selected group without its log is dropped (earlier rule) | a regrade refuses each absent log or script, and a stale script, by name |
 | reuse: an input outside the checkout is not rechecked (earlier rule) | reuse refuses the image |
@@ -916,6 +925,7 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | build: the CPU is built with the split's cache whatever the selection | the run builds and records the fetch L1 and the arm it selected |
 | xip: the reset entry moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
 | xip: the flash driver moves to flash with the other code | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
+| xip: the hot code and the rest stay in rom | the XIP arm keeps the reset entry and the flash driver in rom and moves the other code to flash |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
