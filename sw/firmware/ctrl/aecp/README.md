@@ -78,6 +78,8 @@ Solicited responses never wait on a retry, so their 240 ms bound (IEEE 1722.1-20
 Other eligible snapshots continue during that wait.
 The retry timer permits the event loop to sleep.
 Backpressure retains the completed snapshot and its remaining recipients.
+The event scans walk only the events holding a notice or a retry, linked in descriptor order through their rows (`aecp.live`), and the registry scans visit only the used registrations (`aecp.used`), so a record's pass no longer walks every descriptor (#665).
+`aecp_open` relinks every row, so what was set before the open is seen.
 
 [`aecp_mbx.c`](aecp_mbx.c) attaches the AECP channel and one timer slot. Accepted
 TX_HEAD publication and completed TX_TAIL retirement are separate events. The

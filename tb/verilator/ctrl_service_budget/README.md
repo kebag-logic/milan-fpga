@@ -795,6 +795,7 @@ The residual is the data side's, and in order of size:
 With the instruction cache in, the core's own lever left is its data side: loads and stores wait 39 to 40 % of the cycles.
 A data cache was the owner's option, with the coherent interconnect it needs; the owner took it on 2026-10-28 (see [split placement control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#9-the-cpus-data-cache)), and the clock stays the owner's.
 [Its section 10](../../../docs/design/SPLIT_CONTROL_MEMORY.md#10-the-cpu-clock-the-composed-rows-need) measures the CPU clock the backlog rows need, with this harness and three labelled variants of it.
+[Its section 11](../../../docs/design/SPLIT_CONTROL_MEMORY.md#11-the-firmwares-work-on-the-record-paths) cuts the firmware's work on the AECP and SRP record paths and measures the rows again, with this harness and a labelled profiling variant of it.
 
 ### Controls with the cache
 

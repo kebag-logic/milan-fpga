@@ -76,6 +76,10 @@ It never calls its owning application.
 This obeys lwSRP's [integrator contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/doc/integrator.md#L324-L326)
 and [filter contract](https://github.com/kebag-logic/lwSRP/blob/08ee86e812a0eb5e1dc6cd61b494d8baf3491348/src/include/shish_lan/mrp.h#L292-L294).
 Registrar visits run outside callbacks, before and after receive.
+A visit walks the registrar only after a change to what it copies (#665).
+Such a change is a Registrar state change (lwSRP's transition observer), an indication, a binding, or one of the adapter's own declarations, which rewrite the value of an attribute a registration may share.
+Otherwise it keeps the copies and runs each sink's capture, as a walk would, so a record that changes no registration walks nothing (`srp_mbx.walks` counts the walks).
+The reclaims of freeable attributes likewise run only after a transition or a receive, and stay owed while the participant holds the owed frame.
 Receive return observes the last event, including partial allocation refusal.
 Thus atomic JoinIn/JoinMt replacements remain continuous registrations.
 Lv then New remains two transitions, even inside one PDU.

@@ -21,6 +21,7 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[8. The CPU's multiply and divide](#8-the-cpus-multiply-and-divide)** -- The split CPU's RV32M, the image built and audited for it, its logic out of context, and the requirement amended for it.
 - **[9. The CPU's data cache](#9-the-cpus-data-cache)** -- The split CPU's LSU L1: its size from the composed bursts, why it is coherent, the windows it never caches, its area against the ledger, and the requirement amended for it.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
+- **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at 100 MHz and at 150 MHz.
 
 ## 1. Memory map
 
@@ -496,3 +497,133 @@ Out of context, with nothing else on the device, these are upper bounds; the int
 
 So the CPU and its bus would both have to move, to about 215 MHz at 1x1 and 385 MHz at 8x8, and 215 MHz already fails out of context.
 Setting the product clock is the owner's decision.
+[Section 11](#11-the-firmwares-work-on-the-record-paths) measures the rows again after the firmware's own changes.
+
+## 11. The firmware's work on the record paths
+
+Before the product clock is chosen, the owner asked for the firmware work every clock needs on the AECP and SRP record paths ([assignment of 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6486770462)).
+This section is what those paths executed, the three changes, and the composed rows after them, at the 100 MHz CPU clock and with the CPU and its bus at 150 MHz.
+No clock, cache geometry, admission, `ACMP_OWED_MAX` or scenario hold changed.
+
+### What a window executed
+
+The harness ran with a labelled, test-only profiling variant, not in the tree.
+It charges each CPU cycle to the function of the last committed PC, each instruction line refill to the function that holds the line, and each data cache line refill and write-back to the running function.
+A helper's cycles (`ctrl_mem`, the compiler runtime) are charged to the function that called it.
+With its own lines removed, its 16 group logs at 100 MHz are byte-identical to section 10's.
+Each window runs from the group's first loaded record's commit to the row's release, as in section 10.
+
+At 100 MHz, before the changes:
+
+- Instruction line refills took 6.1 to 16.8 ms of each window, 35 to 64 % of it outside the owed window.
+  The windows' passes run 203 functions, some 46 KB of code, through the 4 KiB direct-mapped fetch L1.
+  In the four windows traced, 35 to 55 % of the refills fetched a line the same pass had already fetched.
+- In the 8x8 bound-talker windows, a data cache line refill was outstanding for 6.2 to 10.9 ms.
+- In arm A's 8x8 `backlog-adp` window, the last SRP record's (40.66 ms):
+  - AECP's event scans in `arm` and `aecp_poll` took 7.8 ms. Every call walked the events of all 124 descriptors, while the image's unanswered stream observations kept a few retrying.
+  - The SRP adapter's registrar walks took 8.6 ms: `snapshot` through `mrp_attr_visit` and `registrations`, with the `memcmp` they call. It walked once before and once after every record, every poll and every tick, on each interface.
+  - `mrp_reclaim` walked each participant's attributes twice a poll, 1.0 ms.
+
+### The three changes
+
+- **(a) AECP's scans walk an index** (`sw/firmware/ctrl/aecp/aecp.c`).
+  The events holding a notice or a retry are linked in descriptor order through their rows (`aecp.live`), and `arm` and the notice scan of `aecp_poll` walk only them.
+  A bit per registration (`aecp.used`) leaves the registry scans only the used ones.
+  `aecp_open` relinks every row, as its rescan read every row.
+  `aecp_find`, the descriptor lookup, is unchanged: on these rows it reads the ENTITY, the model's first descriptor, in 44 instructions a record.
+- **(b) The SRP adapter keeps its copies until something they copy changes** (`sw/firmware/ctrl/srp/srp_mbx.c`).
+  `snapshot` walks the registrar only after a Registrar state change (lwSRP's transition observer), an indication, a binding, or one of the adapter's own declarations, which rewrite the value of an attribute a registration may share.
+  Otherwise it keeps the copies and runs each sink's capture, as a walk would.
+  A record that changes no registration walks nothing; of the composed load's 32 Listener Ready records, only the first changes one.
+  `mrp_reclaim` runs only after a transition or a receive, and stays owed while the participant holds the owed frame, which lwSRP never reclaims.
+  lwSRP itself is unchanged.
+- **(c) The service loop's hot code first** (`sw/firmware/ctrl/plat/ctrl_split.ld`).
+  The 203 functions a service pass ran in the composed windows, 46,064 bytes, are placed ahead of the rest of `.text`, in the order a pass first ran them.
+  The order comes from committed-PC traces of four windows, and a model of the fetch L1 (4 KiB, direct mapped, 64-byte lines) chose it.
+  The model reads 4 to 8 % fewer refills than those windows measured.
+  In it, packing the same functions in their linked order saves at most 5 % of the refills, and their run order 17 to 29 %; an order learned at one point holds at the other.
+  In run order, a function a pass runs after another takes the next cache sets instead of evicting it.
+
+Behaviour is unchanged apart from timing:
+
+- The firmware self-test passes with its existing tests unchanged.
+  Each change adds unit tests, with 100 % line and branch coverage on both files, and planted defects that those tests catch.
+- In every group log, at both points, in both arms and at both clocks, each mailbox channel's egress frames, per interface and in order, are those before the changes.
+  So is each mailbox register's own sequence of values, but for:
+  - ADP at 8x8: which interface's first advertisement leaves first at boot, and in `backlog-owed` one periodic advertisement fewer in the shorter run;
+  - MAAP's address, which the TSN stack seeds with the clock at start, so it follows boot timing;
+  - the transmit records' `SEQ`, which counts frames across channels in send order;
+  - the timer deadlines and the event ring's acknowledgements, which carry milliseconds.
+
+### The rows after
+
+Each cell is the worst instance over the four groups in ms, arm A / arm B, bold where it misses T_svc (10 ms).
+The 150 MHz columns move the CPU and its bus together, with section 10's variants; their "before" is section 10's run.
+| 1x1/1if: row | CPU 100, before | CPU 100, after | CPU and bus 150, before | CPU and bus 150, after |
+|---|---:|---:|---:|---:|
+| ACMP record, last | 9.72 / 8.55 | 6.99 / 7.20 | 5.78 / 5.97 | 4.88 / 4.76 |
+| ADP record, last | 6.66 / 6.14 | 4.87 / 5.08 | 4.11 / 4.14 | 3.39 / 3.39 |
+| MAAP record, last | 6.69 / 6.12 | 4.86 / 5.12 | 4.14 / 4.17 | 3.41 / 3.41 |
+| AECP record, last | **20.07** / **18.78** | **13.95** / **14.62** | **12.75** / **12.94** | 9.26 / 9.64 |
+| SRP record, last | **21.40** / **20.03** | **15.14** / **14.59** | **14.22** / **12.93** | 9.91 / 9.85 |
+| AECP record, last, in the owed window | **65.76** / **65.76** | **64.20** / **64.19** | **63.69** / **63.78** | **62.74** / **62.78** |
+| A response with 7 frames owed ahead of it | **64.06** / **64.03** | **62.92** / **62.91** | **62.56** / **62.63** | **62.13** / **61.96** |
+| An ACMP command behind the owed input | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
+| An ACMP command behind a full ACMP ring | 6.21 / 6.19 | 5.34 / 5.38 | 4.14 / 4.13 | 3.56 / 3.59 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 5.04 / 4.29 | 3.59 / 3.88 | 3.04 / 3.13 | 2.58 / 2.59 |
+| An event behind 15 others | 1.82 / 1.80 | 1.54 / 1.55 | 1.21 / 1.20 | 1.03 / 1.03 |
+| ACMP, ADP, AECP, MAAP record, first | 1.61 to 1.66 | 1.37 to 1.43 | 1.07 to 1.10 | 0.92 to 0.95 |
+| SRP record, first | 3.31 / 3.23 | 2.77 / 2.79 | 2.16 / 2.15 | 1.85 / 1.86 |
+
+| 8x8/2if: row | CPU 100, before | CPU 100, after | CPU and bus 150, before | CPU and bus 150, after |
+|---|---:|---:|---:|---:|
+| ACMP record, last | **15.99** / **14.31** | **11.30** / **10.72** | **11.01** / 9.07 | 7.47 / 7.26 |
+| ADP record, last | **10.60** / 9.89 | 8.70 / 8.18 | 7.59 / 6.86 | 5.75 / 5.57 |
+| MAAP record, last | **10.64** / 9.91 | 8.69 / 8.17 | 7.62 / 6.85 | 5.74 / 5.56 |
+| AECP record, last | **33.42** / **30.52** | **19.50** / **19.60** | **23.14** / **19.64** | **13.23** / **13.61** |
+| SRP record, last | **43.15** / **30.49** | **22.47** / **20.94** | **25.67** / **20.43** | **14.52** / **13.60** |
+| AECP record, last, in the owed window | **71.55** / **70.91** | **66.89** / **66.41** | **67.55** / **67.15** | **64.59** / **64.47** |
+| A response with 7 frames owed ahead of it | **68.32** / **67.73** | **64.99** / **65.03** | **65.40** / **65.03** | **63.33** / **63.27** |
+| An ACMP command behind the owed input | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
+| An ACMP command behind a full ACMP ring | **12.37** / **12.02** | **10.44** / 9.88 | 8.52 / 8.27 | 6.90 / 6.70 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 7.91 / 7.42 | 5.70 / 5.34 | 5.64 / 4.39 | 4.06 / 3.81 |
+| An event behind 15 others | 3.09 / 3.13 | 2.74 / 2.68 | 2.06 / 2.09 | 1.83 / 1.79 |
+| ACMP, ADP, AECP, MAAP record, first | 2.91 to 2.98 | 2.51 to 2.62 | 1.94 to 1.99 | 1.68 to 1.74 |
+| SRP record, first | 8.14 / 8.06 | 5.60 / 5.42 | 4.21 / 4.32 | 3.70 / 3.61 |
+
+The ENTITY_AVAILABLE behind the ADP ring with its bucket refilling, an observation, stays under 0.5 ms in every run.
+
+### Instruction refills per window
+
+The line refills of the work passes in each group's composed window, arm A / arm B, and their wait in ms.
+
+| Window | CPU 100, before | CPU 100, after | CPU and bus 150, before | CPU and bus 150, after |
+|---|---:|---:|---:|---:|
+| 1x1 `backlog` | 7,215 / 7,282 (6.39 / 6.44) | 5,559 / 5,654 (4.92 / 4.99) | 7,000 / 7,064 (4.13 / 4.16) | 5,524 / 5,524 (3.26 / 3.25) |
+| 1x1 `backlog-adp` | 13,180 / 13,889 (11.66 / 12.27) | 9,582 / 9,409 (8.58 / 8.35) | 13,474 / 13,439 (7.95 / 7.91) | 9,539 / 9,554 (5.70 / 5.66) |
+| 1x1 `backlog-adp-refill` | 14,943 / 14,889 (13.22 / 13.15) | 11,450 / 10,113 (10.24 / 8.98) | 15,830 / 14,875 (9.33 / 8.76) | 11,521 / 10,216 (6.87 / 6.04) |
+| 1x1 `backlog-owed` | 16,373 / 16,749 (14.48 / 14.79) | 11,340 / 11,555 (10.12 / 10.25) | 16,298 / 17,102 (9.61 / 10.07) | 11,304 / 11,521 (6.72 / 6.81) |
+| 8x8 `backlog` | 12,742 / 12,176 (11.38 / 10.87) | 9,063 / 9,148 (8.10 / 8.17) | 12,481 / 11,914 (7.43 / 7.09) | 8,905 / 9,107 (5.31 / 5.42) |
+| 8x8 `backlog-adp` | 15,990 / 13,711 (14.31 / 12.28) | 10,874 / 10,390 (9.74 / 9.25) | 14,955 / 13,860 (8.92 / 8.28) | 10,641 / 10,123 (6.36 / 6.01) |
+| 8x8 `backlog-adp-refill` | 16,906 / 14,428 (15.13 / 12.93) | 11,523 / 10,925 (10.33 / 9.75) | 16,584 / 15,105 (9.89 / 9.03) | 12,044 / 10,992 (7.20 / 6.53) |
+| 8x8 `backlog-owed` | 18,788 / 18,133 (16.80 / 16.31) | 12,526 / 12,588 (11.24 / 11.26) | 19,216 / 18,319 (11.45 / 10.99) | 12,740 / 12,506 (7.63 / 7.46) |
+
+The changes take out 21 to 34 % of each window's refills.
+(a) and (b) took out instructions and data cache refills, and (c) most of the instruction refills.
+With (a) and (b) alone, the 1x1 `backlog` windows refilled more lines than before (7,661 / 7,415), their code having moved.
+
+### What is left
+
+- **At 100 MHz**:
+  - at 1x1, the last AECP and SRP records, 13.95 to 15.14 ms;
+  - at 8x8, the last ACMP record (11.30 / 10.72), arm A's ACMP command behind a full ring (10.44), and the last AECP and SRP records (19.50 to 22.47 ms).
+- **With the CPU and its bus at 150 MHz**:
+  - every composed row at 1x1 fits but section 10's three rows no clock moves;
+  - at 8x8, the last AECP and SRP records still miss, 13.23 to 14.52 ms.
+- **What the windows now run**:
+  - the mailbox driver's record copies (`mbx_rx_take`, `mbx_tx_send`, `memcpy`, `memset`);
+  - ACMP's core (`finish`, and `wire_put_be`'s 64-bit shifts through `__lshrdi3`);
+  - lwSRP's receive (`rx_on_attr`, `parse_pass`).
+  Instruction refills are still 4.9 to 11.3 ms of each window at 100 MHz.
+
+Setting the product clock stays the owner's decision.
