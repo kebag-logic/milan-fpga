@@ -21,7 +21,7 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `f97c18035be6ef5345e5af27db2124c5697c1b40` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `gptp-processor` | `135afd043309369a87ddbc8d6550aff8ec52a157` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `f65c8ff7c673aaa8e2ea8da654f081ddb13588d8` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
@@ -511,10 +511,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 
