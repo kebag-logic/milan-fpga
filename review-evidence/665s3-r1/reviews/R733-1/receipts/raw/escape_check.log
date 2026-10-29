@@ -1,0 +1,53 @@
+ESCAPE-CHECK r733-saved-state-after-mailbox-open: arm platboot1 rc 0; ['RESULT: PASS', 'verdict: PASS (9 tests, 0 failures, exit 0)']
+ESCAPE-CHECK r733-store-service-not-bound: arm platboot1 rc 0; ['RESULT: PASS', 'verdict: PASS (9 tests, 0 failures, exit 0)']
+wrote <packet>/scratch/escape/r733-window-read-any-interface/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/escape/r733-window-read-any-interface/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/escape/r733-window-read-any-interface/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+Traceback (most recent call last):
+  File "<clone>/sw/firmware/ctrl/test/plat_arms.py", line 90, in arm_platboot
+    objs = fw_gtest.compile_c(tree.build, C_FLAGS, inc, firmware, out / "fw")
+  File "<clone>/sw/firmware/gtest/fw_gtest.py", line 150, in compile_c
+    compile_many(build, [([build.cc, *use, *includes, "-c", str(src), "-o", str(obj)], src)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                         for src, obj in zip(sources, objects)])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<clone>/sw/firmware/gtest/fw_gtest.py", line 139, in compile_many
+    future.result()
+    ~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 447, in result
+    return self.__get_result()
+           ~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.14/concurrent/futures/_base.py", line 396, in __get_result
+    raise self._exception
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 86, in run
+    result = ctx.run(self.task)
+  File "/usr/lib/python3.14/concurrent/futures/thread.py", line 73, in run
+    return fn(*args, **kwargs)
+  File "<clone>/sw/firmware/gtest/fw_gtest.py", line 131, in _compile
+    raise BuildError(f"{src.name} does not compile:\n{res.stderr}")
+fw_gtest.BuildError: ctrl_plat.c does not compile:
+<packet>/scratch/escape/r733-window-read-any-interface/work/ctrl/plat/ctrl_plat.c: In function ‘window_read’:
+<packet>/scratch/escape/r733-window-read-any-interface/work/ctrl/plat/ctrl_plat.c:47:49: error: unused parameter ‘interface’ [-Werror=unused-parameter]
+   47 | static uint32_t window_read(void *ctx, unsigned interface, uint32_t offset)
+      |                                        ~~~~~~~~~^~~~~~~~~
+cc1: all warnings being treated as errors
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<packet>/scripts/r733_escape_check.py", line 35, in <module>
+    out = arms[m.arm](tree)
+  File "<packet>/scripts/r733_escape_check.py", line 28, in <lambda>
+    "platboot2": lambda t: plat_arms.arm_platboot(t, 2)}
+                           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "<clone>/sw/firmware/ctrl/test/plat_arms.py", line 97, in arm_platboot
+    raise Refusal(str(exc)) from exc
+ctrl_build.Refusal: ctrl_plat.c does not compile:
+<packet>/scratch/escape/r733-window-read-any-interface/work/ctrl/plat/ctrl_plat.c: In function ‘window_read’:
+<packet>/scratch/escape/r733-window-read-any-interface/work/ctrl/plat/ctrl_plat.c:47:49: error: unused parameter ‘interface’ [-Werror=unused-parameter]
+   47 | static uint32_t window_read(void *ctx, unsigned interface, uint32_t offset)
+      |                                        ~~~~~~~~~^~~~~~~~~
+cc1: all warnings being treated as errors
+
+rc=1

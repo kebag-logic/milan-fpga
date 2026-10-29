@@ -1,0 +1,37 @@
+toolchain: {'cc': 'gcc (GCC) 16.2.1 20260810', 'cxx': 'g++ (GCC) 16.2.1 20260810', 'gcov': 'gcov (GCC) 16.2.1 20260810', 'gtest': '1.18.0', 'gmock': '1.18.0'}
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+wrote <packet>/scratch/arms/checkout/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/arms/checkout/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/arms/checkout/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ok] arm plat
+    == ctrl split platform CSR window and console (host bus): checks: 10   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (10 tests, 0 failures, exit 0)
+    == ctrl split platform MMIO (host array): checks: 2   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (2 tests, 0 failures, exit 0)
+[ok] arm platboot
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+[ok] arm platboot
+    == ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 9   failures: 0 ==
+    RESULT: PASS
+    verdict: PASS (9 tests, 0 failures, exit 0)
+[ok] arm platrv32
+    38 objects; runtime dependencies: ['__lshrdi3', '__muldi3', '__mulsi3', '__udivdi3', '__udivsi3', '__umoddi3', '__umodsi3', 'memcmp', 'memcpy', 'memmove', 'memset', 'vsnprintf']
+    largest static frame: 1600 bytes (not a call-chain bound)
+    == ctrl split platform RV32I build: checks: 1   failures: 0 ==
+    RESULT: PASS
+[ok] arm plattrace
+    endstation_arty_4x4: 15 writes, equal to configure_fabric()'s 15
+    endstation_arty_8ch: 15 writes, equal to configure_fabric()'s 15
+    endstation_arty_current: 15 writes, equal to configure_fabric()'s 15
+    endstation_ax7101_1x1_tdm8: 15 writes, equal to configure_fabric()'s 15
+    endstation_ax7101_8x8: 15 writes, equal to configure_fabric()'s 15
+    plant a write skipped: caught
+    plant two writes reordered: caught
+    plant a wrong word: caught
+    == ctrl split platform CSR initialisation against milan_baremetal: checks: 8   failures: 0 ==
+    RESULT: PASS
+r733 platform arms: PASS

@@ -1,0 +1,41 @@
+r733 campaign: mode --all, 55 defects, member 0 of 3
+[ok] mutant plat-policy-write-skipped (plat): 1 check(s) failed
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+[ok] mutant plat-policy-advertiser-left-on (plat): 2 check(s) failed
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+[ok] mutant plat-tod-no-snapshot (plat): 1 check(s) failed
+    first: [FAIL] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords: C4 the snapshot strobe comes first
+[ok] mutant plat-tod-torn-printed (plat): 1 check(s) failed
+    first: [FAIL] Plat.K2MilanGettimeAnswersTaiNs: K2 a torn read prints no number
+[ok] mutant plat-dec-leading-zeros (plat): 4 check(s) failed
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+[ok] mutant plat-tx-unbounded (plat): 1 check(s) failed
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 at most TX_PER_PASS bytes out
+[ok] mutant plat-command-without-room (plat): 3 check(s) failed
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 a command runs only with room for the longest response
+[ok] mutant plat-mmio-read-neighbour (plat): 1 check(s) failed
+    first: [FAIL] PlatMmio.I1ReadIsTheWordAtTheAddress: I1 a read returns the word at the address
+[ok] mutant plat-adp-not-held (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+[ok] mutant plat-maap-port-unrefused (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B4RefusedStreamCountStopsAfterThePolicy: B4 MAAP's port refuses nine AAF outputs
+[ok] mutant plat-aecp-unchecked (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B6UnacknowledgedFaceStopsAtAecp: B6 no acknowledgement, no AECP
+[ok] mutant plat-source-address (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 source n holds base + n
+[ok] mutant plat-source-vid (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B9SrpSourcesCarryTheGeneratedStreams: B9 on the SR class VID
+[ok] mutant r733-stopped-boot-console-silent (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B3RefusedImageStopsAtImage: B3 the console reports AEM=disabled
+[ESCAPED] mutant r733-store-service-not-bound (platboot1): 0 check(s) failed, none named platboot1: its check on ''
+[ok] mutant r733-srp-mac-unset (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B9SrpSourcesCarryTheGeneratedStreams: B9 the entity MAC on every interface
+wrote <packet>/scratch/camp0/mutants/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/camp0/mutants/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/camp0/mutants/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ok] mutant r733-csr-dropped-uncounted (platboot2): 1 check(s) failed
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 interface 1 has no window: its writes are dropped
+[ESCAPED] mutant r733-tod-no-snapshot-wait (plat): 0 check(s) failed, none named plat: its check on ''
+[ESCAPED] mutant r733-response-max-too-small (plat): 0 check(s) failed, none named plat: its check on ''
+mutants: 16 of 19 caught
+r733 campaign member 0/3: SOME ESCAPED

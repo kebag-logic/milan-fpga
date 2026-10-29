@@ -1,0 +1,104 @@
+wrote <packet>/scratch/images/plat-8x8-if2-ledgered/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/images/plat-8x8-if2-ledgered/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/images/plat-8x8-if2-ledgered/contract/mbx_contract.h (2 interfaces)
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 2,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 98280,
+    ".rodata": 26254,
+    ".data": 504,
+    ".bss": 105228,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "largest_bss": [
+    {
+      "symbol": "arena",
+      "bytes": 48064
+    },
+    {
+      "symbol": "nvm_stage",
+      "bytes": 13264
+    },
+    {
+      "symbol": "values",
+      "bytes": 11753
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 10064
+    },
+    {
+      "symbol": "ctrl_plat.srp",
+      "bytes": 5896
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3352,
+    "aecp_config": 48,
+    "app": 10064,
+    "binding": 40,
+    "bridge": 132,
+    "config": 56,
+    "console": 588,
+    "face": 88,
+    "maap_csr": 32,
+    "sources": 576,
+    "srp": 5896,
+    "srp_config": 40,
+    "state": 84
+  },
+  "split": {
+    "rom": {
+      "bytes": 125040,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        4096
+      ],
+      "RAMB36": 31,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 113936,
+      "banks": [
+        65536,
+        32768,
+        16384
+      ],
+      "RAMB36": 28,
+      "RAMB18": 0
+    },
+    "tiles": 59.0,
+    "budget_tiles": 56,
+    "ledgered": "platform-8x8-two-interfaces",
+    "ledgered_tiles": 59.0
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "0addb2a0811d3797b0b91ca1e3cc2fa28d9b465608d088c157b664f24d3ad543"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "8510f73a28b97131ae1b4440cf7f2bf1e1916721b0a7b88eb570bc13b63744ce"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 157404,
+      "sha256": "d7a7e67d6ab670ad1e152552f0d4c47eb0276535db2a753df3aff1ab871f2a2e"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 177016,
+      "sha256": "3f342eaa840c0a20ce6f51334f3ff77e5e16337e71db2f6eec6a557dcb1553f0"
+    }
+  ]
+}
