@@ -1726,12 +1726,29 @@ class GptpPlaneHarness {
   // A link loss is portEnabled FALSE, so asCapable falls at once rather than
   // at the fifth lost response, 4 s on.
   void prove_ascapable_falls_at_a_link_loss(Vmilan_datapath *dut) {
-    await_ascapable(dut, true, 100);
+    expect("#94 asCapable is TRUE before the link loss",
+           await_ascapable(dut, true, 100), 1);
     dut->i_link_up = 0;
     run(dut, 2 * kGptpMsCyc);
     expect("#94 asCapable falls at link loss", fabric_ascapable(dut), 0);
     run(dut, 500 * kGptpMsCyc);
     dut->i_link_up = 1;
+  }
+
+  // eff_link is the PHY link AND LINK_CTRL[0], the firmware's link
+  // qualification, AND the link guard's estimate; each term is portEnabled's
+  // (IEEE 802.1AS-2011 10.2.4.11). With the PHY link up, LINK_CTRL[0] alone
+  // withdrawn clears asCapable at once too.
+  void prove_ascapable_falls_when_link_ctrl_withdraws_the_link(
+      Vmilan_datapath *dut) {
+    expect("#94 asCapable is TRUE before LINK_CTRL[0] withdraws the link",
+           await_ascapable(dut, true, 100), 1);
+    axi_write(dut, 0x71C, 0u);
+    run(dut, 2 * kGptpMsCyc);
+    expect("#94 asCapable falls when LINK_CTRL[0] withdraws the link",
+           fabric_ascapable(dut), 0);
+    run(dut, 500 * kGptpMsCyc);
+    axi_write(dut, 0x71C, 1u);
   }
 
   // Inside the cease, 1.3 s into its 3 s countdown, the link drops for
@@ -1765,6 +1782,25 @@ class GptpPlaneHarness {
            "request", last != ~0ull && req != ~0ull &&
            req - last >= 5 * kIntervalCyc - kGptpMsCyc &&
            req - last <= 5 * kIntervalCyc + kGptpMsCyc, 1);
+  }
+
+  //! KL_link_guard's DEAD_CYC_C, which the datapath leaves at its default:
+  //! the cycles without a receive-clock transition that declare it dead
+  static constexpr uint64_t kGuardDeadCyc = 4096;
+
+  // The guard's estimate is eff_link's third term: the receive clock, which
+  // this leg never ran, so the guard was never armed. One transition arms
+  // it; after DEAD_CYC_C cycles with no other the guard declares the clock
+  // dead, eff_link falls and asCapable with it. This phase runs last: the
+  // guard then starts its MAC recovery for a clock that never returns here.
+  void prove_ascapable_falls_when_the_guard_loses_the_receive_clock(
+      Vmilan_datapath *dut) {
+    expect("#94 asCapable is TRUE before the guard loses the receive clock",
+           await_ascapable(dut, true, 100), 1);
+    dut->i_ethrx_tgl ^= 1;
+    run(dut, kGuardDeadCyc + 2 * kGptpMsCyc);
+    expect("#94 asCapable falls when the guard loses the receive clock",
+           fabric_ascapable(dut), 0);
   }
 
   // ---- issue #207: the three drop counters through the real CSR route ----
@@ -2048,8 +2084,10 @@ int GptpPlaneHarness::run() {
   prove_the_served_head_is_the_received_head(dut);
   prove_an_entry_zero_change_is_a_path_change(dut);
   prove_ascapable_falls_at_a_link_loss(dut);
+  prove_ascapable_falls_when_link_ctrl_withdraws_the_link(dut);
   prove_a_link_loss_inside_the_cease_ends_it(dut);
   prove_the_cease_countdown_exit_is_unchanged(dut);
+  prove_ascapable_falls_when_the_guard_loses_the_receive_clock(dut);
 
   return report();
 }
