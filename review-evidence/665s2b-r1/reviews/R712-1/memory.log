@@ -1,0 +1,21 @@
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from CtrlMem
+[ RUN      ] CtrlMem.W1MemcpyEveryAlignmentAndLength
+[       OK ] CtrlMem.W1MemcpyEveryAlignmentAndLength (44 ms)
+[ RUN      ] CtrlMem.W2MemmoveEveryOverlap
+[       OK ] CtrlMem.W2MemmoveEveryOverlap (326 ms)
+[ RUN      ] CtrlMem.W3MemsetEveryAlignmentLengthAndValue
+[       OK ] CtrlMem.W3MemsetEveryAlignmentLengthAndValue (13 ms)
+[ RUN      ] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition
+[       OK ] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition (120 ms)
+[ RUN      ] CtrlMem.W4NoAccessOutsideEitherRange
+[       OK ] CtrlMem.W4NoAccessOutsideEitherRange (0 ms)
+[----------] 5 tests from CtrlMem (504 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (504 ms total)
+[  PASSED  ] 5 tests.
+== ctrl memory primitives (host): checks: 5   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (5 tests, 0 failures, exit 0)

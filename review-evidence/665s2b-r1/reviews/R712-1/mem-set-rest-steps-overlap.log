@@ -1,0 +1,34 @@
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from CtrlMem
+[ RUN      ] CtrlMem.W1MemcpyEveryAlignmentAndLength
+[       OK ] CtrlMem.W1MemcpyEveryAlignmentAndLength (47 ms)
+[ RUN      ] CtrlMem.W2MemmoveEveryOverlap
+[       OK ] CtrlMem.W2MemmoveEveryOverlap (353 ms)
+[ RUN      ] CtrlMem.W3MemsetEveryAlignmentLengthAndValue
+$REVIEWS/r712-1-665s2b/sw/firmware/ctrl/test/test_ctrl_mem.cpp:117: Failure
+Expected equality of these values:
+  *p
+    Which is: '\xEE' (238)
+  want
+    Which is: '\0'
+W3 memset byte 32 dst+0 n 17 c 0
+
+  [FAIL] CtrlMem.W3MemsetEveryAlignmentLengthAndValue: W3 memset byte 32 dst+0 n 17 c 0
+[  FAILED  ] CtrlMem.W3MemsetEveryAlignmentLengthAndValue (0 ms)
+[ RUN      ] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition
+[       OK ] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition (131 ms)
+[ RUN      ] CtrlMem.W4NoAccessOutsideEitherRange
+[       OK ] CtrlMem.W4NoAccessOutsideEitherRange (0 ms)
+[----------] 5 tests from CtrlMem (533 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (533 ms total)
+[  PASSED  ] 4 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] CtrlMem.W3MemsetEveryAlignmentLengthAndValue
+
+ 1 FAILED TEST
+== ctrl memory primitives (host): checks: 5   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 5 checks, exit 1)
