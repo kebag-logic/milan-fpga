@@ -1255,6 +1255,84 @@ TEST_F(Core, UnavailableNoticeRetriesBackOffToEightMilliseconds)
     EXPECT_GT(reads,before)<<"a delivered notice starts the next backoff at 1 ms";
 }
 
+// #665: the event and registry scans walk aecp.live and aecp.used only, so
+// each must hold exactly what the full scans visited: the events holding a
+// notice or a retry, in descriptor order, and the used registrations.
+namespace {
+struct Indexed : Core {
+    void expect_indexed() {
+        std::vector<size_t> live,held;
+        for(unsigned k=a.live;k!=0u&&live.size()<=model.count;k=events[k-1].next)live.push_back(k-1);
+        for(size_t n=0;n<model.count;++n)if(events[n].pending|events[n].retry_pending)held.push_back(n);
+        EXPECT_EQ(live,held)<<"aecp.live holds the events with a notice or a retry, in descriptor order";
+        for(unsigned i=0;i<AECP_INTERFACES;++i)for(unsigned n=0;n<AECP_REGISTRATIONS;++n)
+            EXPECT_EQ((a.used[i]>>n)&1u,a.registry[i][n].used?1u:0u)<<"aecp.used mirrors registration "<<i<<","<<n;
+    }
+    size_t index(unsigned type,unsigned at=0) { return size_t(&desc(type,at)-descriptors.data()); }
+};
+}
+
+TEST_F(Indexed, LiveEventsAreTheHeldNoticesInDescriptorOrder)
+{
+    register_controller();sent.clear();expect_indexed();
+    ASSERT_LT(index(5),index(6));ASSERT_LT(index(6),index(9));ASSERT_LT(index(9),index(36));
+    aecp_changed(&a,36,0,8);expect_indexed();     // the first, into an empty list
+    aecp_changed(&a,5,0,1);expect_indexed();      // ahead of every held event
+    aecp_changed(&a,9,0,2);expect_indexed();      // between two held events
+    aecp_changed(&a,6,0,1);expect_indexed();
+    aecp_changed(&a,5,0,8);expect_indexed();      // an event already held is not linked twice
+    aecp_changed(&a,0,0,15);expect_indexed();     // the ENTITY supports none: nothing is held
+    EXPECT_EQ(events[index(0)].pending,0u);
+    std::vector<std::pair<unsigned,unsigned>> order;
+    for(unsigned n=0;n<8&&a.live!=0u;++n){
+        sent.clear();drain();expect_indexed();
+        for(auto&[i,p]:sent){(void)i;order.emplace_back(get(p,36,2)&0x7fffu,get(p,38,2));}
+    }
+    EXPECT_EQ(order,(std::vector<std::pair<unsigned,unsigned>>{{15,5},{41,5},{15,6},{39,9},{41,36}}))
+        <<"notices leave in descriptor order whatever order their changes came in";
+    EXPECT_EQ(a.live,0u)<<"a built notice that leaves its event holding nothing unlinks it";
+}
+
+TEST_F(Indexed, FailedNoticesStayLinkedAndOpenRelinksDirectWrites)
+{
+    register_controller();sent.clear();observations=false;
+    aecp_changed(&a,6,0,1);aecp_changed(&a,5,0,9);expect_indexed();
+    for(ms=0;ms<20;++ms){drain();expect_indexed();}
+    EXPECT_TRUE(sent.empty());EXPECT_NE(events[index(5)].retry_pending,0u);
+    observations=true;ms=40;drain();expect_indexed();EXPECT_EQ(a.live,0u);
+    events[index(9)].pending=2;events[index(36)].retry_pending=8;events[index(36)].pending=8;
+    aecp_open(&a);expect_indexed();
+    EXPECT_EQ(a.live,uint16_t(index(9)+1))<<"the open's rescan links what was set before it";
+}
+
+TEST_F(Indexed, RefusesAModelTheEventLinksCannotIndex)
+{
+    // A model every other check accepts, so only the links' bound refuses it.
+    std::vector<aecp_descriptor> many(0xffffu);std::vector<aecp_event> rows(0xffffu);
+    std::copy(descriptors.begin(),descriptors.begin()+model.count,many.begin());
+    for(size_t n=model.count;n<many.size();++n)many[n]={0,1,0,4,values.data(),values.data()};
+    aecp b{};aecp_model large{many.data(),many.size(),model.configurations};
+    aecp_config c=cfg;c.model=&large;c.events=rows.data();
+    EXPECT_FALSE(aecp_init(&b,&c,&ports))<<"aecp.live links descriptor indices + 1 in 16 bits";
+    large.count=0xfffeu;
+    EXPECT_TRUE(aecp_init(&b,&c,&ports))<<"the largest model the links index is accepted";
+}
+
+TEST_F(Indexed, RegistryScansSkipUnusedRegistrations)
+{
+    register_controller(CTLR);register_controller(CTLR+1);expect_indexed();
+    EXPECT_EQ(a.used[0],3u);
+    ask(37,{},0,CTLR);expect_indexed();EXPECT_EQ(a.used[0],2u)<<"deregistration clears its bit only";
+    sent.clear();ms=42345;drain();expect_indexed();
+    ASSERT_EQ(sent.size(),1u)<<"the remaining registration alone is probed";
+    auto reply=sent[0].second;put(reply,0,MAC,6);put(reply,6,CMAC,6);reply[15]=1;
+    aecp_rx(&a,0,reply.data(),reply.size());
+    EXPECT_EQ(a.registry[0][1].probing,0u)<<"a reply past an unused registration reaches its own";
+    sent.clear();ms=2*42345;drain();ms+=250;drain();ms+=250;drain();expect_indexed();
+    EXPECT_EQ(a.used[0],0u)<<"an unanswered probe frees its registration and its bit";
+    ask(4,Bytes(8),0,CTLR+1);expect_indexed();
+}
+
 TEST_F(Core, StaticMapsPreventOrphaningFormats)
 {
     auto &port=desc(14), &map=desc(10); // Replace an unrelated row with a synthetic AUDIO_MAP.

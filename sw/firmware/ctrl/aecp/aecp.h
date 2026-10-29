@@ -129,6 +129,7 @@ struct aecp_event {
 	bool awaiting_output;
 	uint8_t overrides; // bit 0 scalar, bit 1 latency: a default-valued SET counts
 	uint8_t retry_ms;  // the next retry's wait, 0 before the first (AECP_RETRY_MAX_MS)
+	uint16_t next;     // the next event in aecp.live: its descriptor index + 1, 0 at the end
 };
 struct aecp_config {
 	uint64_t entity_id;
@@ -157,6 +158,12 @@ struct aecp {
 	bool open;
 	bool start_pending;
 	bool notices; // an event may hold a notice or a retry: the event scans run only then (#665)
+	// The events holding a notice or a retry, in descriptor order, linked through
+	// aecp_event.next: the first one's index + 1, 0 when none. The event scans walk
+	// only these (#665).
+	uint16_t live;
+	// Bit n of used[i]: registry[i][n].used. The registry scans visit only these (#665).
+	uint16_t used[AECP_INTERFACES];
 	unsigned awaiting; // events whose snapshot awaits its frame's completion: aecp_tx_complete scans only then
 	uint8_t response[AECP_FRAME_BYTES];
 	size_t response_bytes;
