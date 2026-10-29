@@ -452,6 +452,7 @@ verified blocks outside the shipping datapath; the station-address rules
   The power campaign completes 200 unattended cycles.
   150 are cold cuts from the power strip: 100 idle, 50 inside journal commits.
   50 are soft resets with power held on.
+  Each is the controller's AECP REBOOT of ENTITY 0 (IEEE 1722.1-2021 7.4.43, #787).
   A soft reset never counts as a cold cut, nor a cut as a reset.
   Soft-reset authority: Milan v1.2 5.5.1.4, "a power cycle or a simple reset".
   Every cycle restores the eight Milan items of #70's inventory and the binding.

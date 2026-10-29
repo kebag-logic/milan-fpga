@@ -958,3 +958,4 @@ def step_tp_release_commit_verdict(context: Context, verdict: str) -> None:
     """The verdict REQ-VER-06 owes the case."""
     actual, detail = context.release_commit_result
     assert actual == verdict, detail
+
