@@ -1,0 +1,177 @@
+candidate 0a9f398b699da726e1d9244e3a4d9c44478889f8 parents: 5fcec84b1aa72c43048eff28bb63a982add830dd 865c2f9d82f2394b3453f36ccf92c49317a7fddd
+merge-base(PR head, dev) 97aab1d0f28bd753a3e11df6278d5cac54f964dd
+merge-tree --write-tree 5fcec84b1 865c2f9d8:
+5795b6769b96c1e99e4bce47c83d5fdb11dc2e57
+
+Auto-merging docs/testing/TESTING.md
+Auto-merging tb/tools/torture_campaign.py
+Auto-merging tests/features/torture_campaign_plan.feature
+candidate tree 5795b6769b96c1e99e4bce47c83d5fdb11dc2e57
+
+dev predecessor commits 97aab1d0f28bd753a3e11df6278d5cac54f964dd..5fcec84b1:
+5fcec84b1 Merge PR #786: Write the #396 release gate plan: 24 h soak with audio inside, 200 power cycles, stricter criteria (#396 part A)
+70b351a5b Merge dev 97aab1d0 into 396-release-gate-plan
+a7a514fbf Promise coverage, not position, for each audio event outside the exactness scope, gate every unit by it, and add a control that leaves a slip uncovered on one channel (#396)
+5fdabc1c4 Bound each audio listing from 63 samples before its event's first word to 63 after its last, check each listing, and fuzz events inside excursions on both capture lengths (#396)
+73be3b364 List a constant-mask excursion that a slip interrupts from its first word, and pin it with its control (#396)
+b206d88b9 State that the slip-before sweep's masks make no channel number zero or another channel's, and that each event is listed on each channel it changes (#396)
+9c20c08ea Give each release control 1200 seconds before a timeout counts as no kill (#396)
+6c9d566df Claim for every audio capture that a DUT event never grades PASS and is listed, gate it by a seeded composition fuzz, scope exact classes to the swept shapes and pin two shapes outside them (#396)
+910d4b94c Stop the composition sweeps at their first failing case, after a clean-capture check, so a broken grader fails them at once (#396)
+17a43ef2c Pin the interrupted constant-mask excursion with a DUT slip as well as a planted one (#396)
+4a460fc33 Balance every audio reading against its decoded shift, hold excursions at the offset in force, grade one-word events beside them and sweep each planted arm's neighbours (#396)
+85da3e459 Grade a whole-block slip after a one-word corruption, let the arm log decide bit-identical readings and keep constant-mask excursions whole beside one-word events (#396)
+4d69e1923 Grade the invalid-anchor arm against its capture's qualified length so each anchor defect decides the verdict (#396)
+9da26126a Qualify only the observed audio interval, grade boundary block slips unresolved and one constant mask at every length (#396)
+a3e24ac5e Make the audio counter non-repeating and grade tags, holds, commit cuts, planted windows and capture-loss clocks exactly (#396)
+21faa4824 Plan the 24-hour soak, its audio run and the 200-cycle power gate (#396)
+
+PR files: 61; dev files: 11
+OVERLAP:
+docs/testing/TESTING.md
+tb/tools/torture_campaign.py
+tests/features/torture_campaign_plan.feature
+== docs/testing/TESTING.md dev hunks
+ -1021,0 +1022 
+ -1023 +1024,2 
+ -1025,2 +1027,4 
+ -1032 +1036 
+ -1034,5 +1038,6 
+ -1050,2 +1055,5 
+ -1054,2 +1062,2 
+ -1058 +1066 
+ -1062,3 +1070,4 
+ -1086 +1095 
+ -1092,2 +1101,2 
+ -1099,0 +1109,13 
+ -1248 +1270,322 
+ -1263,2 +1606,4 
+ -1266,0 +1612,17 
+ -1273 +1635 
+ -1305 +1667 
+ -1311 +1673 
+ -1313 +1675 
+ -1321 +1683,20 
+ -1326 +1707,10 
+ -1330,5 +1720 
+== docs/testing/TESTING.md PR hunks
+ -275 +275 
+ -405,2 +405,3 
+ -414,0 +416,2 
+ -541 +544 
+ -546 +549 
+ -552 +555 
+ -554 +557 
+== tb/tools/torture_campaign.py dev hunks
+ -135,0 +136 
+ -2428 +2429,2 
+ -2438,0 +2441,3 
+ -2439,0 +2445,6 
+ -3106,0 +3118,22 
+ -3112 +3145 
+ -3115,3 +3148,4 
+ -3125,0 +3160,6 
+ -3129 +3169,2 
+ -3135,2 +3176,6 
+ -3155 +3200 
+ -3165,3 +3210,10 
+ -3219,4 +3271,7 
+ -3226,2 +3281,4 
+ -3229 +3286,4 
+ -3237 +3297,2 
+ -3251 +3312 
+ -3253,2 +3314,2 
+ -3259,0 +3321,99 
+ -3313 +3473 
+ -3345,0 +3506,1819 
+ -3588,0 +5568 
+ -3591,2 +5571 
+ -3598 +5577,9 
+ -3632,0 +5620,105 
+ -3635 +5727,5 
+ -3636,0 +5733 
+ -3638 +5735,3 
+ -3639,0 +5739 
+ -3641,6 +5741,15 
+ -3652 +5760,0 
+ -3658 +5766 
+ -3660,0 +5769,4 
+ -3662,2 +5774,3 
+ -3666 +5779,6 
+ -3687,8 +5805,83 
+ -3756 +5949 
+ -3908 +6101,6 
+ -3910 +6108,3 
+ -3915,9 +6115,3 
+ -3927,0 +6122,29 
+ -4841,0 +7065,3 
+ -4843,8 +7069,14 
+ -4853,3 +7085,3 
+ -4857 +7089,4 
+ -4861 +7095,0 
+ -4864,0 +7099,5 
+ -4865,0 +7105,23 
+ -4872 +7134,5 
+ -4877 +7143 
+ -4887 +7153 
+ -4903 +7169 
+ -4918 +7184,2 
+ -4920,2 +7187,2 
+ -4934 +7201,5 
+ -4946,2 +7217,3 
+ -4948,0 +7221,3 
+ -4953,3 +7228,7 
+ -4958 +7237,3 
+ -4960 +7241 
+ -4963 +7244 
+ -4976 +7257 
+ -4978,2 +7259,2 
+ -4981 +7262,2 
+ -4985 +7267,3 
+ -4988,2 +7272,3 
+ -4992,0 +7278 
+ -4994 +7280 
+ -4997,5 +7283,7 
+ -5012,3 +7300,5 
+ -5015,0 +7306 
+ -5020 +7311,2 
+ -5021,0 +7314 
+ -5023,0 +7317,17 
+ -5025,0 +7336 
+ -5063,15 +7374,24 
+ -5079,4 +7399,12 
+ -5105 +7433 
+ -5108 +7436,4 
+ -5133 +7464 
+ -5137 +7468,4 
+ -5252 +7586,2 
+ -5253,0 +7589,29 
+ -5266 +7630,3 
+ -5281 +7647,3 
+ -5286 +7654 
+ -5703,0 +8072,1757 
+ -5989,2 +10114,2 
+ -6027,0 +10153,2 
+ -6029,0 +10157,4 
+ -6045,7 +10176,9 
+ -6076 +10209 
+== tb/tools/torture_campaign.py PR hunks
+ -2646,7 +2646,10 
+ -2657,4 +2660,12 
+== tests/features/torture_campaign_plan.feature dev hunks
+ -303,0 +304,3 
+ -316,0 +320 
+ -329,0 +334,3 
+ -335 +342 
+ -337,2 +344,3 
+ -340,0 +349,236 
+ -378,0 +623,12 
+== tests/features/torture_campaign_plan.feature PR hunks
+ -241,4 +241,6 
+ -247 +249,2 
+
+PR-head vs candidate diff limited to PR files (expect only dev-side hunks in overlap files):
+ docs/testing/TESTING.md                      |  454 ++-
+ tb/tools/torture_campaign.py                 | 4419 +++++++++++++++++++++++++-
+ tests/features/torture_campaign_plan.feature |  262 +-
+ 3 files changed, 4955 insertions(+), 180 deletions(-)
