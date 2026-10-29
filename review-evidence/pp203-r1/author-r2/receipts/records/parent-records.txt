@@ -1,0 +1,26 @@
+# scratch parent records (round 2)
+repository: a committed local clone of milan-fpga dev, origin fetch = the trusted dev clone 1e80128f
+push url: DISABLED-never-push
+dev base: 1e80128f0a467b58bf884b7d9bf62e013a2fb141
+head: 8fb40ef07279aafa83bc535196278de2f3d6ec0b
+gitlink protocol-processor at head: ec1ff275a72d885f0908fd213d8009e9e4dda4d9
+gitlink gptp-processor at head: f97c18035be6ef5345e5af27db2124c5697c1b40
+
+## commits dev..head
+d48fdeb4b9 scratch: pin processor 1fde6ea (issue #203, reboot_req_o unconnected)
+ec54c28756 scratch: pin processor 5fd298c (issue #203, reboot_req_o unconnected)
+65e7503c2f scratch: name the processor's reboot_req_o open in KL_pp_shadow, until milan-fpga #787 wires the reset
+fc9648e360 scratch: ROM digest rows for processor 5fd298c (ooc.sh --record-rom-digests)
+fd02ed112b scratch: list REBOOT in the served inventories (behave SERVED, the feature ledger and its documents)
+6fff40d73b scratch: pin processor 1be824f (issue #203 head, reboot_req_o unconnected)
+2ca58ec07c scratch: ROM digest rows for processor 1be824f (ooc.sh --record-rom-digests)
+ab0b91859a scratch: document the processor pin 1be824f and regenerate the submodule boundaries diagram
+44b9c12f01 scratch: pin processor ec1ff27 (issue #203 round 2, reboot_req_o unconnected)
+3138e758f5 scratch: ROM digest rows for processor ec1ff27 (ooc.sh --record-rom-digests)
+8fb40ef072 scratch: document the processor pin ec1ff27 and regenerate the submodule boundaries diagram
+
+## KL_pp_shadow reboot_req_o connection
+1254:      .reboot_req_o        (),  // REBOOT request (processor #203), open until milan-fpga #787 wires the reset
+
+## working tree
+(clean if nothing above)

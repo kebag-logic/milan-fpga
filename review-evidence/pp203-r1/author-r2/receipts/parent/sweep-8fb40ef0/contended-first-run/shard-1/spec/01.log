@@ -1,0 +1,26 @@
+shard: 1/4   selected suites: 17
+PASS     aaf_latency_taps
+PASS     adp_tx
+PASS     avtp_parser
+PASS     avtp_rxmon
+PASS     cdc
+PASS     crf_tx
+PASS     gptp_shadow
+PASS     gptp_tables
+PASS     ifg
+PASS     media_nco
+PASS     milan_dp_gm_steps
+PASS     milan_dp_mclk
+TIMEOUT  milan_dp_render   (1800s wall clock - result UNKNOWN, not a failure)
+PASS     nvm_backend
+PASS     pcmlpf
+PASS     ptp_sync
+PASS     tdm_render
+----------------------------------------------------------------
+suites: 17   passed: 16   failed: 0   timed out: 1
+checks: 14359   in-suite failures: 0
+TIMED OUT (result unknown, NOT a failure): milan_dp_render
+  A suite killed by the wall clock proves nothing either way. This is
+  usually CPU contention from a parallel sweep in another worktree -
+  re-run those suites uncontended, or raise SUITE_TIMEOUT.
+logs: <runs>/parent-sweep/shard-1/logs

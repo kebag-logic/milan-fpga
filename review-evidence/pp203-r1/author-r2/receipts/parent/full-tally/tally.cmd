@@ -1,0 +1,1 @@
+python3 scripts/suite_tally.py <runs>/parent-sweep/shard-0-rerun/logs <runs>/parent-sweep/shard-1-rerun/logs <runs>/parent-sweep/shard-2-rerun/logs <runs>/parent-sweep/shard-3-rerun/logs --expect-suite-root tb/verilator

@@ -1,0 +1,274 @@
+control reboot: rc=0 PASS
+rbt-request-at-acceptance: rc=2 failures=16 named=1 KILLED
+    FAIL: RBT6 the holder's REBOOT of ENTITY 0: SUCCESS echoing Figure 7-68's four bytes at cdl 16, byte-exact
+    FAIL: RBT6 reboot_req_o rises after the SUCCESS response's last byte left (267650, -1)
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (-1 -1 267650)
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (-1 -1 267650)
+    FAIL: RBT6 no ENTITY_AVAILABLE follows the ENTITY_DEPARTING, ENTITY_DISCOVER included
+    FAIL: RBT7 reboot_req_o stays 0 while the MAC holds the SUCCESS response's last byte
+    FAIL: RBT7 the held SUCCESS response leaves whole, byte-exact
+    FAIL: RBT7 reboot_req_o rises after the released response's last byte (330598, -1)
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (341841 -1 341783)
+rbt-response-unwatched: rc=2 failures=3 named=1 KILLED
+    FAIL: RBT7 reboot_req_o stays 0 while the MAC holds the SUCCESS response's last byte
+    FAIL: RBT7 the held SUCCESS response leaves whole, byte-exact
+    FAIL: RBT7 reboot_req_o rises after the released response's last byte (331049, -1)
+rbt-notifications-unwatched: rc=2 failures=6 named=1 KILLED
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (-1 -1 267922)
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (342118 -1 342122)
+    FAIL: RBT9 the REBOOT notification reaches each other registered controller, byte-exact, and not the requester
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (465921 -1 616134 616136)
+rbt-notification-flight-unwatched: rc=2 failures=3 named=1 KILLED
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (342249 -1 342314)
+    FAIL: RBT9 every byte the MAC took belongs to a whole frame (1 not)
+rbt-no-shutdown: rc=2 failures=8 named=1 KILLED
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (267811 -1 267921)
+    FAIL: RBT9 the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 reboot_req_o stays 0 while the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 the held ENTITY_DEPARTING leaves once, whole, byte-exact (0)
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (466023 466232 -1 466236)
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (3 frames; last byte offered at 466232, departing at -1)
+    FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (9 frames; last byte offered at 12542021, departing at -1)
+rbt-departing-unwatched: rc=2 failures=6 named=1 KILLED
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (267811 -1 267921)
+    FAIL: RBT6 no ENTITY_AVAILABLE follows the ENTITY_DEPARTING, ENTITY_DISCOVER included
+    FAIL: RBT9 reboot_req_o stays 0 while the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 the held ENTITY_DEPARTING leaves once, whole, byte-exact (0)
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (466023 466232 -1 466236)
+rbt-departing-flight-unwatched: rc=2 failures=6 named=1 KILLED
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (267811 -1 268015)
+    FAIL: RBT6 no ENTITY_AVAILABLE follows the ENTITY_DEPARTING, ENTITY_DISCOVER included
+    FAIL: RBT9 reboot_req_o stays 0 while the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 the held ENTITY_DEPARTING leaves once, whole, byte-exact (0)
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (466117 466326 -1 466424)
+rbt-request-pulse: rc=2 failures=5 named=1 KILLED
+    FAIL: RBT6 no ENTITY_AVAILABLE follows the ENTITY_DEPARTING, ENTITY_DISCOVER included
+    FAIL: RBT6 reboot_req_o is held from its rise to the end of the run
+    FAIL: RBT9 reboot_req_o is held while the reset is withheld
+    FAIL: RBT10 reboot_req_o is held while the reset is withheld
+    FAIL: RBT10 while the reset is withheld the originator (CONTROLLER_AVAILABLE) asks to send
+rbt-rx-gate-dropped: rc=2 failures=1 named=0 UNPROVEN
+    FAIL: RBT7 ACMP commands that arrive while the response is held get no answer (1 ACMP frames)
+age -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<tmp>/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__4.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<tmp>/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__5.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<tmp>/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap__Dpi.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vpp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpp_top_sim
+rm Vpp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<tmp>/tb/pp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 17.273 MB sources in 49 modules, into 8.801 MB in 14 C++ files needing 0.003 MB
+- Verilator: Walltime 27.007 s (elab=0.677, cvt=5.441, bld=20.224); cpu 6.040 s on 16 threads; allocated 131.836 MB
+./obj_dir/Vpp_top_sim --reboot-only
+FAIL: RBT7 ACMP commands that arrive while the response is held get no answer (1 ACMP frames)
+RBT: 119 checks, 1 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 119 checks, 1 failures
+make: *** [Makefile:117: reboot] Error 1
+make: Leaving directory '<tmp>/tb/pp_top'
+
+rbt-engine-hold-dropped: rc=2 failures=5 named=0 UNPROVEN
+    FAIL: RBT6 the engine takes the REBOOT and no command after it (2 taken)
+    FAIL: RBT7 the command queued behind the held REBOOT is never served (1 answers)
+    FAIL: RBT7 the engine takes the REBOOT and no command after it (2 taken)
+    FAIL: RBT9 while the reset is withheld the unsolicited AECP lane (lock expiry, notifications) asks to send
+    FAIL: RBT9 the engine takes the REBOOT and no command after it (2 taken)
+sr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<tmp>/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap___024root__2__Slow.cpp
+g++   -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<tmp>/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.slow -c Vpp_top_wrap__Syms__Slow.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vpp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpp_top_sim
+rm Vpp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<tmp>/tb/pp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 17.272 MB sources in 49 modules, into 8.804 MB in 14 C++ files needing 0.003 MB
+- Verilator: Walltime 27.775 s (elab=0.266, cvt=2.275, bld=24.981); cpu 2.884 s on 16 threads; allocated 131.660 MB
+./obj_dir/Vpp_top_sim --reboot-only
+FAIL: RBT6 the engine takes the REBOOT and no command after it (2 taken)
+FAIL: RBT7 the command queued behind the held REBOOT is never served (1 answers)
+FAIL: RBT7 the engine takes the REBOOT and no command after it (2 taken)
+FAIL: RBT9 while the reset is withheld the unsolicited AECP lane (lock expiry, notifications) asks to send
+FAIL: RBT9 the engine takes the REBOOT and no command after it (2 taken)
+RBT: 119 checks, 5 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 119 checks, 5 failures
+make: *** [Makefile:117: reboot] Error 1
+make: Leaving directory '<tmp>/tb/pp_top'
+
+rbt-accept-any-status: rc=2 failures=33 named=1 KILLED
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the entity still serves a command after it
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: byte-exact at cdl 16
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of CONFIGURATION 0: NOT_SUPPORTED: byte-exact at cdl 16
+rbt-short-gate-dropped: rc=2 failures=35 named=1 KILLED
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: byte-exact at cdl 16
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: no REBOOT notification reaches the registered controller
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the entity still serves a command after it
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: byte-exact at cdl 16
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+rbt-type-gate-dropped: rc=2 failures=27 named=1 KILLED
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: no REBOOT notification reaches the registered controller
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of CONFIGURATION 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of CONFIGURATION 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of CONFIGURATION 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: the entity still serves a command after it
+    FAIL: RBT3 REBOOT of ENTITY 0x7FFF: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+rbt-index-unchecked: rc=2 failures=20 named=1 KILLED
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: no REBOOT notification reaches the registered controller
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: the entity still serves a command after it
+    FAIL: RBT3 REBOOT of ENTITY 0x7FFF: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+    FAIL: RBT3 REBOOT of ENTITY 0x7FFF: NO_SUCH_DESCRIPTOR: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT3 REBOOT of ENTITY 0x7FFF: NO_SUCH_DESCRIPTOR: the entity still serves a command after it
+    FAIL: RBT4: controller 0202c2c2c2c2 takes the lock, got status -1
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: byte-exact at cdl 16
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: the entity still serves a command after it
+    FAIL: RBT4b: controller 0202c2c2c2c2 takes the lock, got status -1
+rbt-lock-unchecked: rc=2 failures=13 named=1 KILLED
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: byte-exact at cdl 16
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: no REBOOT notification reaches the registered controller
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: the entity still serves a command after it
+    FAIL: RBT4b: controller 0202c2c2c2c2 takes the lock, got status -1
+    FAIL: RBT4b REBOOT of MEMORY_OBJECT 0 under another controller's lock: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT4b REBOOT of MEMORY_OBJECT 0 under another controller's lock: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT4b REBOOT of MEMORY_OBJECT 0 under another controller's lock: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT4c: controller 0202c2c2c2c2 takes the lock, got status -1
+    FAIL: RBT4c REBOOT of ENTITY 1 under another controller's lock: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+    FAIL: RBT4c REBOOT of ENTITY 1 under another controller's lock: NO_SUCH_DESCRIPTOR: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT4c REBOOT of ENTITY 1 under another controller's lock: NO_SUCH_DESCRIPTOR: the entity still serves a command after it
+rbt-notify-dropped: rc=2 failures=6 named=1 KILLED
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (-1 -1 267888)
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (342084 -1 342088)
+    FAIL: RBT9 the REBOOT notification reaches each other registered controller, byte-exact, and not the requester
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (465887 -1 616066 616068)
+rbt-notification-type: rc=2 failures=6 named=1 KILLED
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (-1 -1 268097)
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (342293 -1 342400)
+    FAIL: RBT9 the REBOOT notification reaches each other registered controller, byte-exact, and not the requester
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (466199 -1 616587 616589)
+rbt-quiet-gate-dropped: rc=2 failures=2 named=1 KILLED
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (211 frames; last byte offered at 8042576, departing at 616587)
+    FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (77 frames; last byte offered at 14835406, departing at 8355237)
+rbt-quiet-from-the-request: rc=2 failures=1 named=1 KILLED
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (1 frames; last byte offered at 616660, departing at 616587)
+rbt-quiet-opens-notifications: rc=2 failures=1 named=1 KILLED
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (15 frames; last byte offered at 623714, departing at 616587)
+rbt-quiet-opens-originator: rc=2 failures=1 named=1 KILLED
+    FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (6 frames; last byte offered at 13345575, departing at 8355237)
+rbt-quiet-opens-listener: rc=2 failures=1 named=1 KILLED
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (13 frames; last byte offered at 3373285, departing at 616587)
+rbt-quiet-opens-maap: rc=2 failures=1 named=1 KILLED
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (2 frames; last byte offered at 616778, departing at 616587)
+rbt-quiet-opens-srp: rc=2 failures=2 named=1 KILLED
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (4 frames; last byte offered at 842576, departing at 616587)
+    FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (68 frames; last byte offered at 14835406, departing at 8355237)
+rbt-adp-reenabled: rc=2 failures=1 named=0 UNPROVEN
+    FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (7 frames; last byte offered at 13001928, departing at 8355237)
+nused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<tmp>/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__5.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<tmp>/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap__Dpi.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vpp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpp_top_sim
+rm Vpp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<tmp>/tb/pp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 17.273 MB sources in 49 modules, into 8.804 MB in 14 C++ files needing 0.003 MB
+- Verilator: Walltime 23.717 s (elab=0.261, cvt=2.269, bld=20.923); cpu 2.882 s on 16 threads; allocated 131.914 MB
+./obj_dir/Vpp_top_sim --reboot-only
+  RBT10 after the final ENTITY_DEPARTING: clock 8503228, subtype fa, message 00, to 91e0f0010000
+  RBT10 after the final ENTITY_DEPARTING: clock 9312328, subtype fa, message 00, to 91e0f0010000
+  RBT10 after the final ENTITY_DEPARTING: clock 9973728, subtype fa, message 00, to 91e0f0010000
+  RBT10 after the final ENTITY_DEPARTING: clock 10713528, subtype fa, message 00, to 91e0f0010000
+  RBT10 after the final ENTITY_DEPARTING: clock 11283428, subtype fa, message 00, to 91e0f0010000
+  RBT10 after the final ENTITY_DEPARTING: clock 12180828, subtype fa, message 00, to 91e0f0010000
+  RBT10 after the final ENTITY_DEPARTING: clock 13001928, subtype fa, message 00, to 91e0f0010000
+FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (7 frames; last byte offered at 13001928, departing at 8355237)
+RBT: 119 checks, 1 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 119 checks, 1 failures
+make: *** [Makefile:117: reboot] Error 1
+make: Leaving directory '<tmp>/tb/pp_top'
+
+rbt-quiet-opens-talker-answers: rc=2 failures=1 named=0 UNPROVEN
+    FAIL: RBT7 ACMP commands that arrive while the response is held get no answer (2 ACMP frames)
+age -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<tmp>/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__4.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<tmp>/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap___024root__5.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<tmp>/tb/pp_top -Wall -Wextra   -include Vpp_top_wrap__pch.h.fast -c Vpp_top_wrap__Dpi.cpp
+g++    sim_main.o verilated.o verilated_dpi.o verilated_threads.o Vpp_top_wrap__ALL.a    -pthread -lpthread -latomic   -o Vpp_top_sim
+rm Vpp_top_wrap__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<tmp>/tb/pp_top/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 17.273 MB sources in 49 modules, into 8.802 MB in 14 C++ files needing 0.003 MB
+- Verilator: Walltime 23.771 s (elab=0.394, cvt=2.714, bld=20.392); cpu 3.469 s on 16 threads; allocated 131.930 MB
+./obj_dir/Vpp_top_sim --reboot-only
+FAIL: RBT7 ACMP commands that arrive while the response is held get no answer (2 ACMP frames)
+RBT: 119 checks, 1 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 119 checks, 1 failures
+make: *** [Makefile:117: reboot] Error 1
+make: Leaving directory '<tmp>/tb/pp_top'
+
+rbt-quiet-opens-aecp-answers: rc=2 failures=8 named=1 KILLED
+    FAIL: RBT6 an AEM command after the acceptance gets no answer
+    FAIL: RBT6 the command queued behind the REBOOT is never served (1 answers)
+    FAIL: RBT6 the engine takes the REBOOT and no command after it (3 taken)
+    FAIL: RBT7 the command queued behind the held REBOOT is never served (1 answers)
+    FAIL: RBT7 the engine takes the REBOOT and no command after it (2 taken)
+    FAIL: RBT7 ACMP commands that arrive while the response is held get no answer (1 ACMP frames)
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (1 frames; last byte offered at 588950, departing at 588887)
+    FAIL: RBT9 the engine takes the REBOOT and no command after it (2 taken)
+rbt-quiet-closes-departing: rc=2 failures=20 named=1 KILLED
+    FAIL: RBT6 reboot_req_o rises after the holder's REBOOT
+    FAIL: RBT6 reboot_req_o rises after the SUCCESS response's last byte left (-1, 267708)
+    FAIL: RBT6 reboot_req_o rises after both notifications left (267811 267917 -1)
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (267811 -1 -1)
+    FAIL: RBT6 reboot_req_o is held from its rise to the end of the run
+    FAIL: RBT9 the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 reboot_req_o rises once ENTITY_DEPARTING has left
+    FAIL: RBT9 the held ENTITY_DEPARTING leaves once, whole, byte-exact (0)
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (485369 485578 -1 -1)
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (3 frames; last byte offered at 485578, departing at -1)
+    FAIL: RBT9 reboot_req_o is held while the reset is withheld
+rbt-quiet-closes-notifications: rc=2 failures=25 named=1 KILLED
+    FAIL: RBT6 reboot_req_o rises after the holder's REBOOT
+    FAIL: RBT6 reboot_req_o rises after the SUCCESS response's last byte left (-1, 267708)
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (-1 -1 -1)
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (-1 -1 -1)
+    FAIL: RBT6 reboot_req_o is held from its rise to the end of the run
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (361463 -1 -1)
+    FAIL: RBT8 an entity that is not advertising raises reboot_req_o with no ENTITY_DEPARTING (0)
+    FAIL: RBT9 the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 reboot_req_o rises once ENTITY_DEPARTING has left
+30 checks: 26 PASS, 4 FAIL

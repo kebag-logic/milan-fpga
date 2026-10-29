@@ -1,0 +1,918 @@
+[
+  {
+    "arm": "control aecp-dispatch",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "control aecp-line",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "control d3",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "control line-guards",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "control reboot",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "m9-guard-set-stream-format",
+    "patch": "m9-guard-set-stream-format",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-set-stream-info",
+    "patch": "m9-guard-set-stream-info",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-set-name",
+    "patch": "m9-guard-set-name",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 2,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-get-name",
+    "patch": "m9-guard-get-name",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-add-mappings",
+    "patch": "m9-guard-add-mappings",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-remove-mappings",
+    "patch": "m9-guard-remove-mappings",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-dynamic-info",
+    "patch": "m9-guard-dynamic-info",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "m9-guard-get-avb-info",
+    "patch": "m9-guard-get-avb-info",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 14,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "gavb-other-type-not-implemented",
+    "patch": "gavb-other-type-not-implemented",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 13,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "gavb-other-type-header-only",
+    "patch": "gavb-other-type-header-only",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 13,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "gavb-other-type-full-body",
+    "patch": "gavb-other-type-full-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 13,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "gavb-type-gate-dropped",
+    "patch": "gavb-type-gate-dropped",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 13,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "gavb-type-low-byte",
+    "patch": "gavb-type-low-byte",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "gavb-interface-not-supported",
+    "patch": "gavb-interface-not-supported",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 16,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "gavb-locate-miss-ignored",
+    "patch": "gavb-locate-miss-ignored",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "gavb-padded-refused",
+    "patch": "gavb-padded-refused",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "gavb-floor-14",
+    "patch": "gavb-floor-14",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-request-at-acceptance",
+    "patch": "rbt-request-at-acceptance",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 17,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-response-unwatched",
+    "patch": "rbt-response-unwatched",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-notifications-unwatched",
+    "patch": "rbt-notifications-unwatched",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 5,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-notification-flight-unwatched",
+    "patch": "rbt-notification-flight-unwatched",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-no-shutdown",
+    "patch": "rbt-no-shutdown",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 10,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-departing-unwatched",
+    "patch": "rbt-departing-unwatched",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 8,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-departing-flight-unwatched",
+    "patch": "rbt-departing-flight-unwatched",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-request-pulse",
+    "patch": "rbt-request-pulse",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 6,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-rx-gate-dropped",
+    "patch": "rbt-rx-gate-dropped",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-engine-hold-dropped",
+    "patch": "rbt-engine-hold-dropped",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 5,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-accept-any-status",
+    "patch": "rbt-accept-any-status",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 33,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-short-gate-dropped",
+    "patch": "rbt-short-gate-dropped",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 35,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-type-gate-dropped",
+    "patch": "rbt-type-gate-dropped",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 27,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-index-unchecked",
+    "patch": "rbt-index-unchecked",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 20,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-lock-unchecked",
+    "patch": "rbt-lock-unchecked",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 13,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-notify-dropped",
+    "patch": "rbt-notify-dropped",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-notification-type",
+    "patch": "rbt-notification-type",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-gate-dropped",
+    "patch": "rbt-quiet-gate-dropped",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-from-the-request",
+    "patch": "rbt-quiet-from-the-request",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-notifications",
+    "patch": "rbt-quiet-opens-notifications",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-originator",
+    "patch": "rbt-quiet-opens-originator",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-listener",
+    "patch": "rbt-quiet-opens-listener",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-maap",
+    "patch": "rbt-quiet-opens-maap",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-srp",
+    "patch": "rbt-quiet-opens-srp",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-adp-reenabled",
+    "patch": "rbt-adp-reenabled",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-talker-answers",
+    "patch": "rbt-quiet-opens-talker-answers",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-aecp-answers",
+    "patch": "rbt-quiet-opens-aecp-answers",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 10,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-at-the-shutdown",
+    "patch": "rbt-quiet-at-the-shutdown",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-closes-departing",
+    "patch": "rbt-quiet-closes-departing",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 22,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-closes-notifications",
+    "patch": "rbt-quiet-closes-notifications",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 28,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-ssrate-lock-nop",
+    "patch": "lk-ssrate-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-ssrate-miss-lock-nop",
+    "patch": "lk-ssrate-miss-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-sclks-lock-nop",
+    "patch": "lk-sclks-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-sclks-miss-lock-nop",
+    "patch": "lk-sclks-miss-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-sctrl-lock-nop",
+    "patch": "lk-sctrl-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 13,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-sctrl-miss-lock-nop",
+    "patch": "lk-sctrl-miss-lock-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "lk-prefix-zero-body",
+    "patch": "lk-prefix-zero-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sctrl-badarg-zero-body",
+    "patch": "sctrl-badarg-zero-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "ov-oversize-never",
+    "patch": "ov-oversize-never",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 18,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "ov-oversize-at-576",
+    "patch": "ov-oversize-at-576",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "ov-top-oversize-dropped",
+    "patch": "ov-top-oversize-dropped",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 18,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "pg-append-524",
+    "patch": "pg-append-524",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 14,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "pg-cap-dropped",
+    "patch": "pg-cap-dropped",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 10,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "pg-cap-off-by-one",
+    "patch": "pg-cap-off-by-one",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-base-no-overlay",
+    "patch": "rd-base-no-overlay",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 9,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-au-image-only",
+    "patch": "rd-au-image-only",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-au-unset-overlays",
+    "patch": "rd-au-unset-overlays",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-cd-image-only",
+    "patch": "rd-cd-image-only",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-str-unset-overlays",
+    "patch": "rd-str-unset-overlays",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-so-reads-input-row",
+    "patch": "rd-so-reads-input-row",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-cfg-any",
+    "patch": "rd-cfg-any",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-tail-uncut",
+    "patch": "rd-tail-uncut",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 17,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rd-str-short-guard-nop",
+    "patch": "rd-str-short-guard-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 6,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-base-no-overlay",
+    "patch": "rdc-base-no-overlay",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 8,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-unset-image",
+    "patch": "rdc-unset-image",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-voffset-guard-nop",
+    "patch": "rdc-voffset-guard-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-vtype-int16",
+    "patch": "rdc-vtype-int16",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-vtype-uint8-only",
+    "patch": "rdc-vtype-uint8-only",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-short-floor-111",
+    "patch": "rdc-short-floor-111",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-unit-shift-8",
+    "patch": "rdc-unit-shift-8",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 8,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-ident-reset-255",
+    "patch": "rdc-ident-reset-255",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 5,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-sctrl-no-write",
+    "patch": "rdc-sctrl-no-write",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 11,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-ctype-any",
+    "patch": "rdc-ctype-any",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 5,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-ctype-w82-nop",
+    "patch": "rdc-ctype-w82-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-ctype-w84-nop",
+    "patch": "rdc-ctype-w84-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-ctype-w86-nop",
+    "patch": "rdc-ctype-w86-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-ctype-w88-nop",
+    "patch": "rdc-ctype-w88-nop",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rdc-ctype-status-kept",
+    "patch": "rdc-ctype-status-kept",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 5,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "line-floor-rounded",
+    "patch": "line-floor-rounded",
+    "target": "line-guards",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "line-ceiling-dropped",
+    "patch": "line-ceiling-dropped",
+    "target": "line-guards",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "line-buffer-fixed-592",
+    "patch": "line-buffer-fixed-592",
+    "target": "aecp-line",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rb-rounded-buffer-no-page-cap",
+    "patch": "rb-rounded-buffer-no-page-cap",
+    "target": "aecp-line",
+    "rc": 2,
+    "failures": 10,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sclks-bound-three",
+    "patch": "sclks-bound-three",
+    "target": "d3",
+    "rc": 2,
+    "failures": 11,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sclks-bound-inclusive",
+    "patch": "sclks-bound-inclusive",
+    "target": "d3",
+    "rc": 2,
+    "failures": 6,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sclks-miss-target-next-word",
+    "patch": "sclks-miss-target-next-word",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sclks-miss-preload-dropped",
+    "patch": "sclks-miss-preload-dropped",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "sclks-miss-branch-dropped",
+    "patch": "sclks-miss-branch-dropped",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "scfg-range-bad-arguments",
+    "patch": "scfg-range-bad-arguments",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "scfg-nsd-zero-body",
+    "patch": "scfg-nsd-zero-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "scfg-nsd-stores",
+    "patch": "scfg-nsd-stores",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 5,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "scfg-nsd-notifies",
+    "patch": "scfg-nsd-notifies",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "scfg-refusal-short-body",
+    "patch": "scfg-refusal-short-body",
+    "target": "aecp-dispatch",
+    "rc": 2,
+    "failures": 4,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]

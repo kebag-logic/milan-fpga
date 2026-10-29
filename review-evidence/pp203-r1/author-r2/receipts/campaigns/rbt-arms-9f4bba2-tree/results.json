@@ -1,0 +1,277 @@
+[
+  {
+    "arm": "control reboot",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "rbt-request-at-acceptance",
+    "patch": "rbt-request-at-acceptance",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 17,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-response-unwatched",
+    "patch": "rbt-response-unwatched",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-notifications-unwatched",
+    "patch": "rbt-notifications-unwatched",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 5,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-notification-flight-unwatched",
+    "patch": "rbt-notification-flight-unwatched",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-no-shutdown",
+    "patch": "rbt-no-shutdown",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 10,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-departing-unwatched",
+    "patch": "rbt-departing-unwatched",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 8,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-departing-flight-unwatched",
+    "patch": "rbt-departing-flight-unwatched",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-request-pulse",
+    "patch": "rbt-request-pulse",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 6,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-rx-gate-dropped",
+    "patch": "rbt-rx-gate-dropped",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-engine-hold-dropped",
+    "patch": "rbt-engine-hold-dropped",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 5,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-accept-any-status",
+    "patch": "rbt-accept-any-status",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 33,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-short-gate-dropped",
+    "patch": "rbt-short-gate-dropped",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 35,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-type-gate-dropped",
+    "patch": "rbt-type-gate-dropped",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 27,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-index-unchecked",
+    "patch": "rbt-index-unchecked",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 20,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-lock-unchecked",
+    "patch": "rbt-lock-unchecked",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 13,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-notify-dropped",
+    "patch": "rbt-notify-dropped",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-notification-type",
+    "patch": "rbt-notification-type",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-gate-dropped",
+    "patch": "rbt-quiet-gate-dropped",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-from-the-request",
+    "patch": "rbt-quiet-from-the-request",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-notifications",
+    "patch": "rbt-quiet-opens-notifications",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-originator",
+    "patch": "rbt-quiet-opens-originator",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-listener",
+    "patch": "rbt-quiet-opens-listener",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-maap",
+    "patch": "rbt-quiet-opens-maap",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 1,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-srp",
+    "patch": "rbt-quiet-opens-srp",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 3,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-adp-reenabled",
+    "patch": "rbt-adp-reenabled",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-talker-answers",
+    "patch": "rbt-quiet-opens-talker-answers",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-opens-aecp-answers",
+    "patch": "rbt-quiet-opens-aecp-answers",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 10,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-at-the-shutdown",
+    "patch": "rbt-quiet-at-the-shutdown",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 2,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-closes-departing",
+    "patch": "rbt-quiet-closes-departing",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 22,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-quiet-closes-notifications",
+    "patch": "rbt-quiet-closes-notifications",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 28,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]

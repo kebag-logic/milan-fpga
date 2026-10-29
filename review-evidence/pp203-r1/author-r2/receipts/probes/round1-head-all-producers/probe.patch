@@ -1,0 +1,56 @@
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index 580bd3d..93a69aa 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -12524,6 +12524,8 @@ struct RebootPhase {
+ 
+   // ---- RBT5, RBT6: the holder's REBOOT, its notifications and the request ---
+   void success_with_notifications() {
++    io.d->cfg_maap_internal_i = 1;
++    io.d->cfg_maap_count_i = 8;
+     auto last_av = boot(true, "RBT6");
+     register_ctlr(CTLR_MAC, CTLR_EID, "RBT6");      // the requester, registered too
+     register_ctlr(C2_MAC, CTLR2_EID, "RBT6");
+@@ -12536,6 +12538,9 @@ struct RebootPhase {
+           "so no REBOOT meets ENTITY_ACQUIRED (got status %d)", st(q));
+     //! the requester holds the lock: its LOCK notifies C2 and C3, so both
+     //! entries' sequence_ids stand at 1 before the REBOOT
++    io.feed(acmp_frame(CTLR_MAC, 6, 0, 0, CTLR_EID, T1_EID, EID, T1_UID, 1,
++                       0, 0, 0x4701, 0, 0));
++    io.run_ms(5);
+     lock(CTLR_MAC, CTLR_EID, true, "RBT6");
+     io.run_ms(20);
+     while (!io.q_adp.empty()) {
+@@ -12634,6 +12639,32 @@ struct RebootPhase {
+     CHECK(queued_answers == 0,
+           "RBT6 the command queued behind the REBOOT is never served (%d answers)",
+           queued_answers);
++    for (int k = 0; k < 7; ++k) {
++      io.run_ms(5000);
++      io.d->gsi_avb_chg_i = 1; io.d->gm_change_i = 1; io.d->gsi_asp_chg_i = 1;
++      io.d->ctr_change_desc_type_i = 0x0005; io.d->ctr_change_desc_index_i = 0;
++      io.d->ctr_change_i = 1;
++      io.step();
++      io.d->gsi_avb_chg_i = 0; io.d->gm_change_i = 0; io.d->gsi_asp_chg_i = 0;
++      io.d->ctr_change_i = 0;
++      io.run_ms(5000);
++    }
++    long final_departure = -1;
++    for (const auto& e : io.tx_log)
++      if (departing(e.second)) final_departure = long(e.first);
++    int late_frames = 0;
++    for (const auto& e : io.tx_log) {
++      if (final_departure >= 0 && long(e.first) > final_departure) {
++        ++late_frames;
++        printf("POST_DEPARTURE frame cycle=%llu departure=%ld request=%ld da=%012llx ethertype=%02x%02x subtype=%02x mt=%02x opcode=%04x unsolicited=%u len=%zu\n",
++               (unsigned long long)e.first, final_departure, io.reboot_rise_t,
++               (unsigned long long)dst(e.second),
++               e.second[12], e.second[13], e.second[14], e.second[15],
++               aecp(e.second) ? ct(e.second) : 0,
++               aecp(e.second) ? unsigned(e.second[36] >> 7) : 0, e.second.size());
++      }
++    }
++    printf("PROBE late frames %d\n", late_frames);
+   }
+ 
+   // ---- RBT7: the request follows the response's transmit-done --------------

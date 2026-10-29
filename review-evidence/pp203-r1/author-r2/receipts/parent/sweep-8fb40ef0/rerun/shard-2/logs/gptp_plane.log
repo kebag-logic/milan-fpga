@@ -1,0 +1,44 @@
+make: Entering directory '<clone>/tb/verilator/gptp_plane'
+<tool>/verilator --cc --exe --build -j 0 --top-module gptp_plane_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I<clone>/tb/verilator/gptp_plane -Wall -Wextra" gptp_plane_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vgptp_plane_sim
+python3 phc_step.py --mutants
+make[1]: Entering directory '<clone>/tb/verilator/gptp_plane/obj_dir'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '<clone>/tb/verilator/gptp_plane/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.012 s (elab=0.000, cvt=0.000, bld=0.011); cpu 0.001 s on 4 threads; allocated 16.496 MB
+./obj_dir/Vgptp_plane_sim
+TX flags Sync: 1 frames, 0 wrong, expected 0x0200
+TX flags Follow_Up: 1 frames, 0 wrong, expected 0x0000
+TX flags Pdelay_Req: 5 frames, 0 wrong, expected 0x0000
+29 checks: 29 PASS, 0 FAIL
+STEP cycle=20000941 ns=1000001000
+STEP cycle=48800871 ns=10000000
+ARM forward drops=0 outage_ns=0 exchanges=4 last_req=73600209
+STEP cycle=80800871 ns=-10000000
+ARM backward drops=0 outage_ns=0 exchanges=4 last_req=105600209
+STEP cycle=113601272 ns=10000000
+ARM t1 before forward step drops=0 outage_ns=0 exchanges=4 last_req=137600209
+STEP cycle=145601272 ns=-10000000
+ARM t1 before backward step drops=0 outage_ns=0 exchanges=4 last_req=169600209
+STEP cycle=177607672 ns=10000000
+ARM response before step drops=0 outage_ns=0 exchanges=4 last_req=201600209
+STEP cycle=209610072 ns=-10000000
+ARM deferred t1 after step drops=0 outage_ns=0 exchanges=4 last_req=233600209
+STEP cycle=361601272 ns=10000000
+LOSS cycle=409600097 delay=500 since_step_ns=5999853125 unanswered=5
+ARM liveness drops=1 unanswered=6 unanswered_at_drop=5
+STEP cycle=449601272 ns=10000000
+LOSS cycle=489600097 delay=500 since_step_ns=4999853125 unanswered=4
+ARM unanswered crossing drops=1 unanswered=6 unanswered_at_drop=4
+== phc_step: checks: 62   failures: 0 ==
+RESULT: PASS
+PASS control nocease-control: every check passes
+PASS planted defect stale-rate-window: asCapable never falls after step
+PASS planted defect crossing-exchange: no invalid link-delay publication
+PASS planted defect never-rearm-measurement: real excessive delay still clears asCapable
+PASS planted defect liveness-not-marked: asCapable falls at the fifth unanswered request after a crossing exchange
+PASS planted defect r571-no-liveness: asCapable falls at the fifth unanswered request after a crossing exchange
+PASS planted defect credit-on-step: asCapable falls at the fourth unanswered request after an unanswered crossing request
+phc_step campaign: 8 checks: 8 PASS, 0 FAIL
+make: Leaving directory '<clone>/tb/verilator/gptp_plane'
