@@ -1,0 +1,28 @@
+python3 scripts/check_port_contracts.py
+python3 scripts/check_port_contracts.py --selftest
+python3 scripts/check_wire_accountability.py --self-test
+python3 scripts/check_sv_idiom.py
+python3 scripts/check_sv_idiom.py --selftest
+python3 scripts/check_cpp_idiom.py
+python3 scripts/check_cpp_idiom.py --selftest
+python3 scripts/check_py_idiom.py
+python3 scripts/check_py_idiom.py --selftest
+python3 scripts/check_rtl_source_lists.py
+python3 scripts/check_rtl_source_lists.py --selftest
+python3 scripts/pp_srcs.py --check --selftest
+python3 scripts/check_hygiene.py --check
+python3 scripts/check_hygiene.py --selftest
+python3 scripts/check_todo_ownership.py
+python3 scripts/check_todo_ownership.py --selftest
+python3 scripts/check_doc_paths.py
+python3 scripts/lint_rtl.py --check --jobs 4
+python3 scripts/lint_rtl.py --self-test
+python3 scripts/check_entity_shape.py --self-test
+cd tests && behave --no-capture -f plain
+syn/yosys/run.sh --mode elaborate --no-structural --top milan_datapath --top KL_pp_shadow --top KL_gptp_shadow
+env PATH=<vivado-bin>:$PATH python3 scripts/xvlog_gate.py --check
+python3 scripts/check_feature_status.py
+python3 scripts/check_feature_status.py --self-test
+python3 scripts/docs_check.py
+python3 scripts/check_doc_style.py
+<pinned-renderer-python> scripts/check_em_dash.py --base 1e80128f

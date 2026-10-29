@@ -1,0 +1,8 @@
+FAIL:  decode: ADD_AUDIO_MAPPINGS: command per is 8, the gcd of accepted offsets from floor 20 is 0
+FAIL:  decode: REMOVE_AUDIO_MAPPINGS: command per is 8, the gcd of accepted offsets from floor 20 is 0
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x002C AMADD: observed {"answers": {"11": "20"}, "cdls": "20", "floor": 20}, recorded {"answers": {"11": "echo"}, "cdls": "20, 28, 36", "floor": 20} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x002C NSUPPE: observed {"answers": {"11": "echo"}, "cdls": "20, 100", "floor": 20}, recorded {"answers": {"11": "echo"}, "cdls": "20, 28, 36, 100", "floor": 20} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x002D AMREMOVE: observed {"answers": {"11": "20"}, "cdls": "20", "floor": 20}, recorded {"answers": {"11": "echo"}, "cdls": "20, 28, 36", "floor": 20} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x002D NSUPPE: observed {"answers": {"11": "echo"}, "cdls": "20, 100", "floor": 20}, recorded {"answers": {"11": "echo"}, "cdls": "20, 28, 36, 100", "floor": 20} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "95076194e61bd53fe0a458d853662ffa181e6bca5594c87ff537f4867137d8eb", recorded "bda37001a017b0462c2546cd9902b2d68564343e0d8fd0022447eaa3565f26af" (make -C tb/aecp_cmds record)
+aecp_cmds: 617956 trials swept; 181 checks: 178 PASS, 3 FAIL

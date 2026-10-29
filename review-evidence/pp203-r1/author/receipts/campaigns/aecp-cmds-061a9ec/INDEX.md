@@ -1,0 +1,66 @@
+# Index of `receipts/campaigns/aecp-cmds-061a9ec`
+
+Generated from the files present (sha256 truncated to 16 hex).
+
+| File | Bytes | sha256 |
+|---|---|---|
+| `camp-aecpcmds.log` | 4661 | `48dd8f0926ff5d8d` |
+| `camp-aecpcmds.rc` | 2 | `9a271f2a916b0b6e` |
+| `out/floor-set-clock-source-16-build.log` | 10137 | `7935190f8bf9f671` |
+| `out/floor-set-clock-source-16-run.log` | 1419 | `11a4d4304b1b1293` |
+| `out/floor-set-clock-source-16-sweep.log` | 143 | `23d925e4b9316542` |
+| `out/gavb-other-type-not-implemented-build.log` | 10137 | `c69ff3da9a687cf2` |
+| `out/gavb-other-type-not-implemented-run.log` | 1138 | `c1c69aaadc332115` |
+| `out/gavb-other-type-not-implemented-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/gdi-member-dispatch-build.log` | 10137 | `4bd82e1a89edf124` |
+| `out/gdi-member-dispatch-run.log` | 839 | `90d952d5667c83ee` |
+| `out/gdi-member-dispatch-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/gdi-member-refused-build.log` | 10136 | `88545c9d52835347` |
+| `out/gdi-member-refused-run.log` | 1097 | `833145d2151461bb` |
+| `out/gdi-member-refused-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/gdi-record-length-build.log` | 10137 | `cff0687dab9e9df3` |
+| `out/gdi-record-length-run.log` | 972 | `59abf5ad0447c838` |
+| `out/gdi-record-length-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/golden-build.log` | 10135 | `b9f7307c33ca1ca0` |
+| `out/golden-run.log` | 61 | `5ad4c3c5734d2010` |
+| `out/golden-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/mappings-accepted-between-records-build.log` | 10137 | `7d79ea39e48bf000` |
+| `out/mappings-accepted-between-records-run.log` | 2820 | `d845bec23d70a63c` |
+| `out/mappings-accepted-between-records-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/mappings-four-byte-record-build.log` | 10137 | `cefa6e30faabfab5` |
+| `out/mappings-four-byte-record-run.log` | 1902 | `cfaefd3646aadf94` |
+| `out/mappings-four-byte-record-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/mappings-sixteen-byte-record-build.log` | 10137 | `a59919a0b1c3276f` |
+| `out/mappings-sixteen-byte-record-run.log` | 1622 | `2ea05bb05c3228ba` |
+| `out/mappings-sixteen-byte-record-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/message-type-guard-dropped-build.log` | 10137 | `6056d175ba15e245` |
+| `out/message-type-guard-dropped-run.log` | 2049 | `9957ecf515e72364` |
+| `out/message-type-guard-dropped-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/mvu-protocol-id-tail-unchecked-build.log` | 10137 | `da3ae5e24da78063` |
+| `out/mvu-protocol-id-tail-unchecked-run.log` | 712 | `8472954b2685299b` |
+| `out/mvu-protocol-id-tail-unchecked-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/mvu-sub-decode-other-command-type-build.log` | 10137 | `681c5d2ded62fddc` |
+| `out/mvu-sub-decode-other-command-type-run.log` | 1577 | `05f3abef6ae747f1` |
+| `out/mvu-sub-decode-other-command-type-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/q1-set-clock-source-to-gclks-build.log` | 10137 | `6e5876b6620eedf6` |
+| `out/q1-set-clock-source-to-gclks-run.log` | 1044 | `215e8b72ed429058` |
+| `out/q1-set-clock-source-to-gclks-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/q2-set-clock-source-decoded-on-get-build.log` | 10137 | `c3ab85949d21741b` |
+| `out/q2-set-clock-source-decoded-on-get-run.log` | 3617 | `6fea2515a25eb7c1` |
+| `out/q2-set-clock-source-decoded-on-get-sweep.log` | 143 | `23d925e4b9316542` |
+| `out/response-field-dropped-build.log` | 10136 | `a2ade9822a7bc9b0` |
+| `out/response-field-dropped-run.log` | 1425 | `2ac18056d7951790` |
+| `out/response-field-dropped-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/restored-build.log` | 10135 | `1273efca8f195a1c` |
+| `out/restored-run.log` | 61 | `5ad4c3c5734d2010` |
+| `out/restored-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/results.json` | 5179 | `f6ee34747aa0d341` |
+| `out/unserved-opcode-decoded-build.log` | 10137 | `47f61f828d63765c` |
+| `out/unserved-opcode-decoded-run.log` | 872 | `8aee153693053a2d` |
+| `out/unserved-opcode-decoded-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/unsolicited-body-build.log` | 10137 | `cdf88a31ac6d7e44` |
+| `out/unsolicited-body-run.log` | 781 | `24438e1560c0e89d` |
+| `out/unsolicited-body-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `out/unsolicited-command-type-build.log` | 10137 | `44269d8780e125c4` |
+| `out/unsolicited-command-type-run.log` | 771 | `1b7a8ab32c02a2d1` |
+| `out/unsolicited-command-type-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |

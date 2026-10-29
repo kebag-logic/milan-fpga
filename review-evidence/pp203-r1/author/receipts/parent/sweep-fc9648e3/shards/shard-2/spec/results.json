@@ -1,0 +1,24 @@
+{
+  "head": "fc9648e3609fafb0246c8312cb446f2f1c2bcd18",
+  "base": "1e80128f0a467b58bf884b7d9bf62e013a2fb141",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<tool>:<tool>:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR=<tool>/verilator",
+        "TSN_GEN_ROOT=<scratch>/tsn-gen",
+        "TMPDIR=<runs>/parent-tmp",
+        "bash",
+        "scripts/run_all_suites.sh",
+        "<runs>/parent-sweep/shard-2/logs",
+        "--wait",
+        "--shard",
+        "2/4"
+      ],
+      "exit_code": 0,
+      "seconds": 4853.674,
+      "log": "<runs>/parent-sweep/shard-2/spec/01.log"
+    }
+  ]
+}

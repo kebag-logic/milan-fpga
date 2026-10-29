@@ -1,0 +1,64 @@
+# Index of `receipts/campaigns/aecp-cmds-061a9ec/out`
+
+Generated from the files present (sha256 truncated to 16 hex).
+
+| File | Bytes | sha256 |
+|---|---|---|
+| `floor-set-clock-source-16-build.log` | 10137 | `7935190f8bf9f671` |
+| `floor-set-clock-source-16-run.log` | 1419 | `11a4d4304b1b1293` |
+| `floor-set-clock-source-16-sweep.log` | 143 | `23d925e4b9316542` |
+| `gavb-other-type-not-implemented-build.log` | 10137 | `c69ff3da9a687cf2` |
+| `gavb-other-type-not-implemented-run.log` | 1138 | `c1c69aaadc332115` |
+| `gavb-other-type-not-implemented-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `gdi-member-dispatch-build.log` | 10137 | `4bd82e1a89edf124` |
+| `gdi-member-dispatch-run.log` | 839 | `90d952d5667c83ee` |
+| `gdi-member-dispatch-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `gdi-member-refused-build.log` | 10136 | `88545c9d52835347` |
+| `gdi-member-refused-run.log` | 1097 | `833145d2151461bb` |
+| `gdi-member-refused-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `gdi-record-length-build.log` | 10137 | `cff0687dab9e9df3` |
+| `gdi-record-length-run.log` | 972 | `59abf5ad0447c838` |
+| `gdi-record-length-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `golden-build.log` | 10135 | `b9f7307c33ca1ca0` |
+| `golden-run.log` | 61 | `5ad4c3c5734d2010` |
+| `golden-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `mappings-accepted-between-records-build.log` | 10137 | `7d79ea39e48bf000` |
+| `mappings-accepted-between-records-run.log` | 2820 | `d845bec23d70a63c` |
+| `mappings-accepted-between-records-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `mappings-four-byte-record-build.log` | 10137 | `cefa6e30faabfab5` |
+| `mappings-four-byte-record-run.log` | 1902 | `cfaefd3646aadf94` |
+| `mappings-four-byte-record-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `mappings-sixteen-byte-record-build.log` | 10137 | `a59919a0b1c3276f` |
+| `mappings-sixteen-byte-record-run.log` | 1622 | `2ea05bb05c3228ba` |
+| `mappings-sixteen-byte-record-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `message-type-guard-dropped-build.log` | 10137 | `6056d175ba15e245` |
+| `message-type-guard-dropped-run.log` | 2049 | `9957ecf515e72364` |
+| `message-type-guard-dropped-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `mvu-protocol-id-tail-unchecked-build.log` | 10137 | `da3ae5e24da78063` |
+| `mvu-protocol-id-tail-unchecked-run.log` | 712 | `8472954b2685299b` |
+| `mvu-protocol-id-tail-unchecked-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `mvu-sub-decode-other-command-type-build.log` | 10137 | `681c5d2ded62fddc` |
+| `mvu-sub-decode-other-command-type-run.log` | 1577 | `05f3abef6ae747f1` |
+| `mvu-sub-decode-other-command-type-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `q1-set-clock-source-to-gclks-build.log` | 10137 | `6e5876b6620eedf6` |
+| `q1-set-clock-source-to-gclks-run.log` | 1044 | `215e8b72ed429058` |
+| `q1-set-clock-source-to-gclks-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `q2-set-clock-source-decoded-on-get-build.log` | 10137 | `c3ab85949d21741b` |
+| `q2-set-clock-source-decoded-on-get-run.log` | 3617 | `6fea2515a25eb7c1` |
+| `q2-set-clock-source-decoded-on-get-sweep.log` | 143 | `23d925e4b9316542` |
+| `response-field-dropped-build.log` | 10136 | `a2ade9822a7bc9b0` |
+| `response-field-dropped-run.log` | 1425 | `2ac18056d7951790` |
+| `response-field-dropped-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `restored-build.log` | 10135 | `1273efca8f195a1c` |
+| `restored-run.log` | 61 | `5ad4c3c5734d2010` |
+| `restored-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `results.json` | 5179 | `f6ee34747aa0d341` |
+| `unserved-opcode-decoded-build.log` | 10137 | `47f61f828d63765c` |
+| `unserved-opcode-decoded-run.log` | 872 | `8aee153693053a2d` |
+| `unserved-opcode-decoded-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `unsolicited-body-build.log` | 10137 | `cdf88a31ac6d7e44` |
+| `unsolicited-body-run.log` | 781 | `24438e1560c0e89d` |
+| `unsolicited-body-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |
+| `unsolicited-command-type-build.log` | 10137 | `44269d8780e125c4` |
+| `unsolicited-command-type-run.log` | 771 | `1b7a8ab32c02a2d1` |
+| `unsolicited-command-type-sweep.log` | 143 | `e0f4d2cf6b1cd0a8` |

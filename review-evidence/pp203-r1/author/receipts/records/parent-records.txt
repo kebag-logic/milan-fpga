@@ -1,0 +1,82 @@
+# scratch parent records (local clone of milan-fpga dev, never pushed)
+push url: DISABLED-never-push
+base (dev): 1e80128f0a467b58bf884b7d9bf62e013a2fb141
+head: ab0b91859affd612bda44c4a1977c18364c1a9ce tree 32d97fae5aa4d9c36b8798cab289b0fc8b3f5bc4
+
+## commits base..head (sha subject)
+d48fdeb4b93ac08bdadcd12fd91e310c83cfd769 scratch: pin processor 1fde6ea (issue #203, reboot_req_o unconnected)
+ec54c287564b75374c0be65a6c82aa4fd3eb1265 scratch: pin processor 5fd298c (issue #203, reboot_req_o unconnected)
+65e7503c2fc7f0d30385dd320a748b1881a10e8c scratch: name the processor's reboot_req_o open in KL_pp_shadow, until milan-fpga #787 wires the reset
+fc9648e3609fafb0246c8312cb446f2f1c2bcd18 scratch: ROM digest rows for processor 5fd298c (ooc.sh --record-rom-digests)
+fd02ed112b35431dd422627fc121fa66123908f3 scratch: list REBOOT in the served inventories (behave SERVED, the feature ledger and its documents)
+6fff40d73b896a37778f95e583e8ee5f2e77ef2f scratch: pin processor 1be824f (issue #203 head, reboot_req_o unconnected)
+2ca58ec07c7e29ebd4f3a98b90ed930672d14f3c scratch: ROM digest rows for processor 1be824f (ooc.sh --record-rom-digests)
+ab0b91859affd612bda44c4a1977c18364c1a9ce scratch: document the processor pin 1be824f and regenerate the submodule boundaries diagram
+
+## submodule status at head
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ f97c18035be6ef5345e5af27db2124c5697c1b40 gptp-processor (remotes/origin/main-22-gf97c180)
+ 1be824fccbda5d3341737f5fe033d60edd27af57 protocol-processor (v2.0-850-g1be824f)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+
+## git diff --stat base head (processor gitlink and scratch adoption edits)
+ README.md                                  |   3 ++-
+ docs/MILAN_V12_ROADMAP.md                  |   3 ++-
+ docs/diagrams/PNG_MANIFEST.json            |   4 ++--
+ docs/diagrams/submodule_boundaries.drawio  |   2 +-
+ docs/diagrams/submodule_boundaries.png     | Bin 437663 -> 437565 bytes
+ docs/diagrams/submodule_boundaries.svg     |   2 +-
+ docs/reference/MILAN_COMPLIANCE_MATRIX.md  |   2 +-
+ docs/reference/MILAN_FEATURE_STATUS.md     |   3 ++-
+ docs/reference/SUBMODULES.md               |   2 +-
+ docs/reference/milan_feature_status.json   |   1 +
+ docs/testing/MILAN_V12_AUDIT_2026-08-16.md |   2 +-
+ hdl/milan/KL_pp_shadow.sv                  |   1 +
+ protocol-processor                         |   2 +-
+ syn/yosys/rom_digests.tsv                  |   4 ++++
+ tb/verilator/milan_dp/README.md            |   2 +-
+ tests/steps/aecp_engine_steps.py           |   6 ++++++
+ 16 files changed, 27 insertions(+), 12 deletions(-)
+
+## the sweep ran at fc9648e3 (pin 5fd298c); what changed after it
+ README.md                                  |   3 ++-
+ docs/MILAN_V12_ROADMAP.md                  |   3 ++-
+ docs/diagrams/PNG_MANIFEST.json            |   4 ++--
+ docs/diagrams/submodule_boundaries.drawio  |   2 +-
+ docs/diagrams/submodule_boundaries.png     | Bin 437663 -> 437565 bytes
+ docs/diagrams/submodule_boundaries.svg     |   2 +-
+ docs/reference/MILAN_COMPLIANCE_MATRIX.md  |   2 +-
+ docs/reference/MILAN_FEATURE_STATUS.md     |   3 ++-
+ docs/reference/SUBMODULES.md               |   2 +-
+ docs/reference/milan_feature_status.json   |   1 +
+ docs/testing/MILAN_V12_AUDIT_2026-08-16.md |   2 +-
+ protocol-processor                         |   2 +-
+ syn/yosys/rom_digests.tsv                  |   2 ++
+ tb/verilator/milan_dp/README.md            |   2 +-
+ tests/steps/aecp_engine_steps.py           |   6 ++++++
+ 15 files changed, 24 insertions(+), 12 deletions(-)
+
+## processor between the two pins
+ docs/guides/operator.md | 1 +
+ tb/aecp_cmds/README.md  | 5 ++++-
+ tb/pp_top/README.md     | 5 +++--
+ 3 files changed, 8 insertions(+), 3 deletions(-)
+
+## KL_pp_shadow diff (the open connection)
+diff --git a/hdl/milan/KL_pp_shadow.sv b/hdl/milan/KL_pp_shadow.sv
+index b9831dbc5a..1a0a208848 100644
+--- a/hdl/milan/KL_pp_shadow.sv
++++ b/hdl/milan/KL_pp_shadow.sv
+@@ -1251,6 +1251,7 @@ module KL_pp_shadow #(
+       .aecp_nvm_stb_o      (aecp_nvm_stb_w),
+       .aecp_nvm_mark_o     (aecp_nvm_mark_w),
+       .aecp_lock_held_o    (aecp_lock_held_o),
++      .reboot_req_o        (),  // REBOOT request (processor #203), open until milan-fpga #787 wires the reset
+ 
+       .entity_id_i         (entity_id_i),
+       .entity_model_id_i   (entity_model_id_i),
+
+## tree status
+(end)
