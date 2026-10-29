@@ -10,6 +10,7 @@ The suite carries no `-Wno-*` flags, including `-Wno-fatal`.
 
 - **[Run it](#run-it)** -- Default builds, generated fixtures, and independent expectations.
 - **[Pending from live writes](#pending-from-live-writes)** -- Real programs expose the unsaved interval.
+- **[The reset on an AECP REBOOT (#787)](#the-reset-on-an-aecp-reboot-787)** -- Section `[RB]`: a REBOOT on the wire to the PHY hold and the IPROG words at the datapath ports.
 - **[The premise inverted (2026-08-13)](#the-premise-inverted-2026-08-13)** -- This suite used to prove the processor transmitted NOTHING; with the legacy plane deleted its TX is the wire, so every discipline check was turned around
 - **[What it proves](#what-it-proves)** -- The class-D fabric face, the byte-exact ADPDU rebuilt from the 0x600 CSR group, the ACMP answer, and clean interleaving with MAAP through the shared control arbiter
 - **[The AECP answer, and the memory behind it](#the-aecp-answer-and-the-memory-behind-it)** -- What the µCPU actually answers, why every check decodes the response frame instead of a counter, and how the harness backs the nine descriptor-memory ports with a real AEMI image
@@ -111,6 +112,31 @@ It copies only the parent shadow into temporary storage.
 Restoring the late-mark trigger must fail both K10 and K12.
 A build failure cannot count as a killed mutant.
 No processor source is edited.
+
+## The reset on an AECP REBOOT (#787)
+
+Section `[RB]` runs last on every full leg, because an accepted REBOOT ends the processor's service until reset.
+It resets the plane, completes the boot walk and enables the entity, so the REBOOT's SHUTDOWN sends ENTITY_DEPARTING.
+A REBOOT of ENTITY 1 is answered NO_SUCH_DESCRIPTOR and must raise no request, hold no PHY and send no word.
+A REBOOT of ENTITY 0 is answered SUCCESS at cdl 16.
+The processor's `reboot_req_o` rises after the response's last byte and after ENTITY_DEPARTING.
+`o_reboot_phy_hold` rises two clocks later, because this harness has no flash writer (`nvm_backed` 0).
+After more than 3,500 harness milliseconds, and at most one tick more, `o_icap_csib` is low for exactly eight clocks.
+`o_icap_i` carries the eight IPROG words, bit-reversed per byte; they repeat after another hold.
+The hold stays up to the end.
+No cycle of the run before the REBOOT holds the PHY or drops CSIB.
+The waits are the shipping ones; the harness millisecond is the datapath tick's, `PP_MS_CYCLES` clocks.
+The drain's other exits are [`reboot_ctrl`](../reboot_ctrl/README.md)'s.
+
+```sh
+make -C tb/verilator/pp_shadow build-base exec-base SIM_ARGS=--reboot-only
+make -C tb/verilator/pp_shadow reboot-mutant
+```
+
+`reboot-mutant` builds the base leg twice and runs `[RB]` alone.
+The clean control must pass.
+The second build disconnects the request in a private copy of `milan_datapath.sv`.
+It must fail `RB the PHY hold rises two clocks after the REBOOT request`.
 
 ## The premise inverted (2026-08-13)
 

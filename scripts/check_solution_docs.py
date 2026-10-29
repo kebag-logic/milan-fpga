@@ -167,11 +167,8 @@ PORT_GROUPS = (
             r"o_phy_reset_n",
             r"i_link_up",
             r"i_full_duplex",
-            r"i_ethrx_tgl",
-            r"i_ethtx_tgl",
-            r"i_ethact_tgl",
-            r"o_eth_rst",
-            r"o_eth_guard",
+            r"i_ethrx_tgl", r"i_ethtx_tgl", r"i_ethact_tgl",
+            r"o_eth_rst", r"o_eth_guard",
         ),
     ),
     PortGroup(
@@ -181,6 +178,9 @@ PORT_GROUPS = (
         "Clear every `i_gptp_txrec_*` and `i_gptp_txseal_ack`; leave the seal outputs open",
         (r"i_gptp_txrec_.*", r"[io]_gptp_txseal_.*"),
     ),
+    PortGroup("End-station reset", "`o_reboot_phy_hold`, `o_icap_*`",
+              "Hold the PHY in reset and drive ICAPE2 for an AECP REBOOT",
+              "Leave open: a REBOOT then only takes the entity offline", (r"o_reboot_phy_hold", r"o_icap_.*")),
     PortGroup(
         "Interrupt",
         "`o_irq_csr`",

@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - AECP REBOOT resets the end station](#unreleased---aecp-reboot-resets-the-end-station)** -- Reloads from flash.
 - **[Unreleased - gPTP pin f97c1803](#unreleased---gptp-pin-f97c1803)** -- Sync loss ages the grandmaster.
 - **[Unreleased - processor pin f65c8ff7](#unreleased---processor-pin-f65c8ff7)** -- Moved Stream IDs; settled-only stream fields.
 - **[Unreleased - processor pin ed211803](#unreleased---processor-pin-ed211803)** -- A wrong-type GET_AVB_INFO is NOT_SUPPORTED.
@@ -47,6 +48,25 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - AECP REBOOT resets the end station
+
+- Issue #787 adopts processor `1be824fc` for its #203.
+- It is the #203 lane head until that PR merges.
+- REBOOT of ENTITY 0 answers SUCCESS (IEEE 7.4.43).
+- The processor then sends ENTITY_DEPARTING and raises `reboot_req_o`.
+- The top adds that one output.
+- `KL_reboot_ctrl` resets the end station on it.
+- It waits up to 10 s for saved state.
+- It then holds the PHY reset for 3.5 s.
+- Then it sends IPROG on an ICAPE2 port.
+- The configuration reloads from flash as at power-on.
+- `MilanMAC` instantiates the primitive and the PHY hold.
+- No CSR or register field is added.
+- The #396 power area's soft resets are AECP REBOOTs.
+- Each soft reset grades its exchange and the gPTP relock.
+- The UART smoke grades a reboot with `--after-reboot`.
+- The behave SERVED table lists REBOOT.
 
 ## Unreleased - gPTP pin f97c1803
 

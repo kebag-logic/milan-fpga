@@ -522,7 +522,9 @@ by itself exclude a supply dip or a `PROGRAM_B` reconfiguration, which reloads
 the fabric yet leaves `BOOTSTS` reading a fresh single configuration; the single
 core restart in the console, with the design running for minutes afterwards
 under the grader, is what argues against those. A fallback status or a set
-`IPROG` bit read after a first boot is a different fault, not this one.
+`IPROG` bit read after a first boot is a different fault, not this one. After
+an AECP REBOOT a set `IPROG` bit is the expected reading: the end station
+reloads itself through ICAPE2 IPROG (#787, [reset design](../design/REBOOT_RESET.md)).
 
 The UART smoke above is unaffected: it drives the console that the boot leaves
 behind, so the number of BIOS passes before that prompt is not its business.
