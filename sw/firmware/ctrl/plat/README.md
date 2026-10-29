@@ -91,6 +91,10 @@ python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7
   --csr-csv "$SOC/csr.csv" --output "$OUT" --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
 ```
 
+At 8x8 with two interfaces the image plans 59.0 RAMB36.
+The owner's ruling (#665, 6505997821) ledgers that one point, owed to lane S14, so its command adds `--interfaces 2 --ledgered-point platform-8x8-two-interfaces`.
+Every other point is within 56 ([split control memory](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
+
 ## Tests and evidence
 
 `sw/firmware/ctrl/test/test_ctrl_firmware.py` runs four arms ([`plat_arms.py`](../test/plat_arms.py)):
@@ -107,7 +111,9 @@ The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) 
 
 ## Not yet done
 
-- **SRP's live stream configuration.** `srp_mbx.c` copies its sources at init, and nothing re-declares a source whose destination MAAP has since allocated. The sources stay unallocated, and declare Talker Failed, until an SRP adapter entry takes the allocation. That entry is in `srp/`, outside this lane's files; it needs a ruling.
+- **SRP's live stream configuration.** `srp_mbx.c` copies its sources at init, and nothing re-declares a source whose destination MAAP has since allocated. The sources stay unallocated, and declare Talker Failed, until an SRP adapter entry takes the allocation. By the owner's ruling (#665, 6505997821) that entry, in `srp/`, comes in a later S3 round, once S2b's `srp_mbx.c` changes are on `dev-soft-core`.
+- **The graders on a split image.** The smoke grader's `fabric-enabled` check and the #396 campaign's one BIOS pass per cold cut cannot hold on a split image, which never sets `ADP_CTRL[0]` or `PP_CTRL[0]` and has no BIOS. The same ruling accepts both as listed differences; the graders' split mode is owed to the bench lane (S12).
+- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 59.0 RAMB36, ledgered and owed to lane S14 (decision D3), above.
 - **ACMP's asking-failed source flag** reads false: the SRP adapter exposes no per-source Listener Asking Failed registration.
 - **GET_AS_PATH** answers unavailable.
 - **F1's flash port** keeps its fixture addresses; lane S4 generates them from the SoC's `csr.csv`.

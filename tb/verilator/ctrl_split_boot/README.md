@@ -76,7 +76,8 @@ The platform image of this lane's head, at the shipping shape and the largest th
 Both boots are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
 A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
-The 8x8 image with two interfaces plans 59.0 RAMB36, over the 57.5 its ledger allows, so no SoC is built for it ([plat](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
+The 8x8 image with two interfaces plans 59.0 RAMB36, which the owner's ruling (#665, 6505997821) ledgers by name, owed to lane S14.
+This simulation names no override, so it builds no SoC for that point ([plat](../../../sw/firmware/ctrl/plat/README.md#not-yet-done)).
 
 The smoke grader's verdicts on the simulated UART:
 
@@ -93,4 +94,4 @@ The smoke grader's verdicts on the simulated UART:
 - The datapath is not built: the CSR window is a register file, so the trace shows what the firmware writes, not what a datapath does with it.
 - The flash is blank, so the boot's saved-state terminal is BLANK. Valid, torn and wrong-version slots are lane S4's.
 - The UART is LiteX's `sim` stream, with no baud rate: a span is CPU and loop time. At 115,200 baud the 305-byte status line takes about 26.5 ms on the wire, longer than any span here.
-- `fabric-enabled` and the boot-banner count need the graders' ruling for split images.
+- `fabric-enabled` and the #396 campaign's one BIOS pass per cold cut cannot hold on a split image. The owner's ruling (#665, 6505997821) accepts both as listed differences, and the graders' split mode is owed to the bench lane (S12).
