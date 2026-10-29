@@ -24,8 +24,9 @@ int main(void) {
 
 
 def threshold(accesses: int) -> str:
-    """The 10 ms limit in microseconds per access, rounded down to two decimal places."""
-    hundredths = 1000000 // accesses
+    """The 20 ms bound (FR_NFR.md 3.4.1: T_svc and the ACMP ceiling) in microseconds per access,
+    rounded down to two decimal places."""
+    hundredths = 2000000 // accesses
     return f"{hundredths // 100}.{hundredths % 100:02}"
 
 
@@ -47,10 +48,10 @@ def expected(counts: list[list[int]]) -> list[str]:
     events = [(row[1] + 1) * row[0] for row in counts]
     lines.append(f"At 1 us per access, event envelopes are {events[0] / 1000:.3f} / {events[1] / 1000:.3f} ms.")
     others = [(row[index] + 1) * row[0] for row in counts for index in range(2, 5)]
-    if not all(value <= 10000 for value in events) or not all(value > 20000 for value in others):
-        raise Refusal("pass bounds changed: reconsider the published 10 ms and 20 ms conclusions")
-    lines += ["Both fit T_svc = 10 ms; none of the other rows does, and none of them",
-              "fits the 20 ms ACMP ceiling."]
+    if not all(value <= 20000 for value in events) or not all(value > 20000 for value in others):
+        raise Refusal("pass bounds changed: reconsider the published 20 ms conclusion")
+    lines += ["Both fit the 20 ms bound, T_svc and the ACMP ceiling alike; none of the",
+              "other rows does."]
     return lines
 
 

@@ -162,7 +162,7 @@ Expired refusal clears the retained record and increments `rx_discarded` once,
 without incrementing `received` or `malformed`.
 Earlier applied attributes remain; MRP refresh and aging recover the lost suffix.
 Later input on every interface and binding calls can then proceed.
-This recovery limit does not enlarge the 10 ms service budget.
+This recovery limit does not enlarge the service bound.
 Destroy cancels it; link reset cancels only its interface's record.
 
 Every output starts with Talker Advertise or Talker Failed (Milan 5.5.2.7).
@@ -317,8 +317,9 @@ The H-SRP desk test timestamps the actual mailbox access path at 100 ns per acce
 It adds one aggregate 1 ms CPU/preemption allowance and 100 ns uncertainty per
 action. It records full elapsed time and subtracts only the applicable normative
 Join wait; periodic and Leave expiry start at their original deadlines.
-All overhead shares the single 10 ms service allowance in
-[FR_NFR 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
+All overhead shares one 10 ms service allowance, the T_svc first proposed in
+[FR_NFR 3.4.1](../../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing),
+tighter than the 18 ms bound SRP has under the approved budget.
 An 11 ms full-ring stall deliberately fails that budget predicate without
 restarting the origin when space becomes available.
 These are explicit host-envelope assumptions, not measured target execution or

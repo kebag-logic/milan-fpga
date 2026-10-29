@@ -444,7 +444,7 @@ The current ROM parameter does not establish Mark II capacity.
 **Verification:** F0 mailbox tests on both adapters, filter mutation campaigns,
 F1 store tests, F2-F5 unit and differential protocol suites,
 RV32 execution and the [service hooks](../reference/FR_NFR.md#342-control-service-test-hooks).
-Prove 10 ms project service under bounded ingress, SRP churn,
+Prove each path's service bound, min(T_svc = 20 ms, its ceiling), under bounded ingress, SRP churn,
 full rings, all recipients, flash activity and delayed events.
 Prove wire deadlines separately; mailbox commit is insufficient evidence.
 Retain all-fabric suites and compare reused stimuli at unchanged counts.
@@ -1287,7 +1287,7 @@ M0s changes measurement support only; acceptance schema and policy stay fixed.
   It authorizes neither a pass nor raised thresholds.
 - **Bounded timing.** D3 requires deterministic internal service bounds.
   Normative deadlines retain margin and ordering remains independent.
-  The 10 ms project budget cannot replace a wire deadline.
+  The 20 ms project budget cannot replace a wire deadline.
   Fast connect, restart under one second and capture bounds remain.
 - **Interfaces.** This planning stage changes no port, register or parameter.
   Future split integration and D4 own their approved interface migrations.

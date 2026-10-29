@@ -17,7 +17,7 @@ const struct ctrl_pool_class srp_pool_classes[SRP_POOL_N_CLASSES] = {
 };
 
 // Stop retrying allocation refusal after one periodic interval from arrival.
-// This recovery limit does not extend the 10 ms service budget.
+// This recovery limit does not extend the service bound (FR_NFR.md 3.4.1).
 #define SRP_RX_RETRY_MS 1000u
 
 // Every source has its bit of the publication block's LICENCE and TALKER_DECL.

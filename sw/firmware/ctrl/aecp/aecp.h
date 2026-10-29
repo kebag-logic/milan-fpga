@@ -19,8 +19,8 @@ extern "C" {
 // never does (aecp_ready), so the 240 ms response bound of IEEE 1722.1-2021
 // 9.3.2.6 (9.2.1.2.5 in 1722.1-2013) and Milan v1.2 5.4.3.4 is untouched.
 // Once the port answers, the notice of Milan v1.2 5.4.5.2 and Table 5.22 is
-// built within 8 ms plus the pass that takes it, inside T_svc = 10 ms and
-// the 24 ms notification ceiling of FR_NFR.md 3.4.1; GET_COUNTERS keeps its
+// built within 8 ms plus the pass that takes it, inside its 20 ms bound,
+// min(T_svc, the 24 ms notification ceiling), of FR_NFR.md 3.4.1; GET_COUNTERS keeps its
 // one-second spacing, and the 60 s unlock and the controller monitor of
 // Milan v1.2 5.4.2.2 and 5.4.5.3 are not retries.
 #define AECP_RETRY_MAX_MS 8u

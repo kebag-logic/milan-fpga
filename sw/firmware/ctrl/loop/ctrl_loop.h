@@ -53,12 +53,13 @@
 // A protocol composes its own figures from these (ADP_MBX_PASS_MAX).
 //
 // THE SHARE (#665, #397's one-hart rule). A pass is the only opportunity to
-// take an input, and the smallest deadline every input shares is T_svc =
-// 10 ms (FR_NFR.md 3.4.1). An input waits for the pass running when it
-// arrives, then is taken N passes later and answered in that pass, so
-// (N + 1) passes must fit T_svc. The deepest admitted wait is the A3 row of
-// seven owed frames, answered in pass 8 after the room returns, so no pass
-// may exceed T_svc / 9, about 1.1 ms or 55,500 CPU cycles at 50 MHz. Every
+// take an input, and the smallest bound every input shares is SRP's 18 ms,
+// min(T_svc = 20 ms, its ceiling) (FR_NFR.md 3.4.1). An input waits for the
+// pass running when it arrives, then is taken N passes later and answered in
+// that pass, so (N + 1) passes must fit that bound. The deepest admitted wait
+// is the A3 row of seven owed frames, answered in pass 8 after the room
+// returns. The share was sized against the 10 ms T_svc first proposed: no
+// pass may exceed 10 ms / 9, about 1.1 ms or 55,500 CPU cycles at 50 MHz. Every
 // slice serves that share, and each module's work in one pass is bounded,
 // the rest resumed on the next pass:
 //   * the loop: the events, records and centiseconds per pass above;
@@ -106,7 +107,7 @@ extern "C" {
 // take an event behind a full ring by the first pass, but every pass's bound
 // would carry sixteen events: CTRL_APP_PASS_MAX 4,036 accesses instead of
 // 3,140 at one interface, and ACMP's owed-frame bound 12,222 instead of 9,270,
-// over T_svc at 1 us an access (docs/design/MAILBOX_SPLIT.md).
+// over the 10 ms T_svc first proposed at 1 us an access (docs/design/MAILBOX_SPLIT.md).
 #define CTRL_LOOP_EVENTS_PER_PASS 8u    // event records one pass takes at most
 #define CTRL_LOOP_RX_PER_PASS 2u        // RX records one pass takes per channel at most
 #define CTRL_LOOP_TICKS_PER_PASS 16u    // centiseconds one pass dispatches at most
