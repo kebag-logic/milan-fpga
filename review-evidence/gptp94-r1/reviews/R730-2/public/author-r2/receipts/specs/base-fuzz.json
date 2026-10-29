@@ -1,0 +1,30 @@
+{
+ "cwd": "<scratch>/runs/base-px",
+ "head": "e06ade312a80eb578579365134ab797cda90622b",
+ "base": "e06ade312a80eb578579365134ab797cda90622b",
+ "commands": [
+  [
+   "env",
+   "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR_ROOT=<verilator-5.050-root>",
+   "TMPDIR=<scratch>/tmp",
+   "HOME=<home>",
+   "TSN_GEN_ROOT=<scratch>/ext/tsn-gen",
+   "make",
+   "-C",
+   "tb/verilator/tsn_fuzz",
+   "ptp"
+  ],
+  [
+   "env",
+   "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR_ROOT=<verilator-5.050-root>",
+   "TMPDIR=<scratch>/tmp",
+   "HOME=<home>",
+   "TSN_GEN_ROOT=<scratch>/ext/tsn-gen",
+   "git",
+   "status",
+   "--porcelain"
+  ]
+ ]
+}

@@ -1,0 +1,345 @@
+diff --git a/hdl/top/KL_gptp_engine.sv b/hdl/top/KL_gptp_engine.sv
+index 859a216..653f34d 100644
+--- a/hdl/top/KL_gptp_engine.sv
++++ b/hdl/top/KL_gptp_engine.sv
+@@ -24,7 +24,9 @@
+ //                                            delayed behind another never
+ //                                            reads a successor's frame)
+ //                  1  timestamp regs    RO  (0 ingress ts, 1 egress ts,
+-//                                            2 transmit admission credit)
++//                                            2 transmit admission credit,
++//                                            low while the port is
++//                                            disabled)
+ //                  2  scratch RAM       RW  (64 x 64, protocol state)
+ //                  3  publish bank      RW  (0 gm id, 1 parent id, 2 flags,
+ //                                            3 pdelay ns, 6 path count, 7..14
+@@ -51,7 +53,9 @@
+ //                only requester context, but that owner's stamp bypasses it
+ //                and releases the claim before the later request dispatches.
+ //                Dispatch is gated on the serializer being idle so a handler
+-//                never builds into a slot still on the wire.
++//                never builds into a slot still on the wire. The portEnabled
++//                NOT_ENABLED leg alone goes ahead of every other event and
++//                skips that wait: it builds and sends nothing (#94).
+ //                r14 carries the frame's ingress timestamp (or the
+ //                egress stamp for EV_TX_TS).
+ //---------------------------------------------------------------------------//
+@@ -101,6 +105,14 @@ module KL_gptp_engine
+     //! responses and both Follow_Up companions are never gated.
+     input  wire         tx_credit_i,
+ 
++    //! portEnabled (802.1AS-2011 10.2.4.11): MAC_Operational and the port
++    //! administratively enabled, a level synchronous to clk_i. While it is
++    //! low the port is NOT_ENABLED (Figure 11-8): it starts no frame, owes
++    //! no egress stamp and completes no Pdelay exchange. Each change after
++    //! the first sample since reset clears asCapable and the Milan v1.2
++    //! 4.2.6.2.5 cease; a rise also sends a Pdelay_Req at once (#94).
++    input  wire         port_enabled_i,
++
+     //! PHC face (the parent timestamp_counter's knobs)
+     output logic        phc_addend_we_o,
+     output logic [31:0] phc_addend_o,
+@@ -140,6 +152,22 @@ module KL_gptp_engine
+     output logic  [4:0] dbg_status_o
+ );
+ 
++  // -------------------------------------------------------- portEnabled
++  //! #94. port_en_r is the level every gate below reads: the transmit
++  //! credit word, the serializer's unstarted frame and the egress claims.
++  //! Received frames still raise events; what they would send is withdrawn
++  //! before its first byte. port_ref_r marks the first sample since reset
++  //! as the reference level, so only a later change is an edge: a port
++  //! enabled at release raises nothing, the boot cadence serving it, and a
++  //! port disabled at release raises both events at its rise (Figure 11-8:
++  //! BEGIN enters NOT_ENABLED whatever scratch retained). Each edge owes a
++  //! slot-6 timer event, the microcode's NOT_ENABLED leg, which dispatches
++  //! ahead of every other event; a rise then owes the queue a slot-0 one,
++  //! the request beat (INITIAL_SEND_PDELAY_REQ).
++  localparam logic [2:0] PE_SLOT_C = 3'd6;
++  logic port_en_r, port_ref_r;
++  logic pe_noten_r, pe_beat_r, pe_push_w, pe_pop_w;
++
+   // ---------------------------------------------------------- RX parser
+   logic        bank_we_w;
+   logic [4:0]  bank_addr_w;
+@@ -467,6 +495,7 @@ module KL_gptp_engine
+     push_w      = 1'b0;
+     push_data_w = '0;
+     tev_ready_w = 1'b0;
++    pe_push_w   = 1'b0;
+     ann_reject_w = pev_valid_w &&
+                    (pev_code_w == EV_RX_ANNOUNCE_C) &&
+                    !ann_event_capture_r;
+@@ -477,6 +506,12 @@ module KL_gptp_engine
+       push_w      = !evq_full_w;
+       push_data_w = {EV_TMR_C, 16'd0, 13'd0, tev_slot_w};
+       tev_ready_w = !evq_full_w;
++    end else if (pe_beat_r) begin
++      //! the rise's request beat (#94), in timer form. NOT_ENABLED does
++      //! not queue: it dispatches ahead of the queue, so it runs first
++      push_w      = !evq_full_w;
++      pe_push_w   = !evq_full_w;
++      push_data_w = {EV_TMR_C, 16'd0, 13'd0, 3'd0};
+     end
+   end
+ 
+@@ -582,9 +617,15 @@ module KL_gptp_engine
+   //! and silently eat the second event (the bug the 44-check engine
+   //! suite caught: become-master ran with a TX-timestamp event's
+   //! operands and the timestamp event vanished)
+-  assign txts_pop_w = txts_pend_r && disp_ready_w && ser_idle_w &&
+-                      !disp_valid_r;
+-  assign pop_w = !txts_pend_r && !evq_empty_w && !pdreq_block_w &&
++  //! #94: NOT_ENABLED goes ahead of the result and the queue, so no event
++  //! dispatched after an edge runs before its leg, and it skips the
++  //! serializer wait: the leg builds and sends nothing, so a frame stalled
++  //! on the wire cannot hold asCapable up on a disabled port
++  assign pe_pop_w   = pe_noten_r && disp_ready_w && !disp_valid_r;
++  assign txts_pop_w = txts_pend_r && !pe_noten_r && disp_ready_w &&
++                      ser_idle_w && !disp_valid_r;
++  assign pop_w = !txts_pend_r && !pe_noten_r && !evq_empty_w &&
++                 !pdreq_block_w &&
+                  disp_ready_w && ser_idle_w && !disp_valid_r;
+ 
+   logic [UPC_W_C-1:0] disp_upc_r;
+@@ -606,9 +647,18 @@ module KL_gptp_engine
+       disp_pd_cid_r <= '0;
+       disp_pd_pn_r <= '0;
+     end else begin
+-      if (txts_pop_w || pop_w) disp_valid_r <= 1'b1;
++      if (txts_pop_w || pop_w || pe_pop_w) disp_valid_r <= 1'b1;
+       else if (!disp_ready_w)  disp_valid_r <= 1'b0;   // accepted
+-      if (txts_pop_w) begin
++      if (pe_pop_w) begin
++        //! the timer entry, slot 6: the table's default arm, which
++        //! EV_TMR_C reaches
++        disp_upc_r   <= UPC_W_C'(512);
++        disp_bank_r  <= 1'b0;
++        disp_pdreq_r <= 1'b0;
++        disp_announce_r <= 1'b0;
++        disp_ev_r    <= {24'd0, EV_TMR_C, 16'd0, 13'd0, PE_SLOT_C};
++        disp_ts0_r   <= {32'd0, ms_now_w};
++      end else if (txts_pop_w) begin
+         disp_upc_r  <= UPC_W_C'(448);
+         disp_bank_r <= 1'b0;
+         disp_pdreq_r <= 1'b0;
+@@ -763,10 +813,11 @@ module KL_gptp_engine
+       end
+       //! word 0 ingress, word 1 egress, word 2 the transmit admission
+       //! credit. The credit arm is selected by addr[1] alone, so neither
+-      //! timestamp read moves off its original one-bit select.
++      //! timestamp read moves off its original one-bit select. A disabled
++      //! port has no credit, so all three initiating beats skip (#94).
+       4'd1: begin
+         if (st_addr_w[1])
+-          st_rd_mux_w = {63'd0, tx_credit_i};
++          st_rd_mux_w = {63'd0, tx_credit_i && port_en_r};
+         else
+           st_rd_mux_w = st_addr_w[0] ? txts_r
+                                      : rxts_bank_r[disp_bank_r];
+@@ -1042,6 +1093,15 @@ module KL_gptp_engine
+         endcase
+       end
+ 
++      //! #94: a disabled port owes no egress stamp. Both claims read zero
++      //! while it is disabled and after, until written again, so a stamp
++      //! the down link never returns cannot block a later beat, and a late
++      //! one builds no companion. After the writes above, so it wins.
++      if (!port_en_r) begin
++        tmr_claim_valid_r  <= 1'b0;
++        resp_claim_valid_r <= 1'b0;
++      end
++
+       // gather: atomic millisecond snapshot
+       gx_valid_r <= gx_req_w && !gx_valid_r;
+       if (gx_req_w) begin
+@@ -1050,6 +1110,27 @@ module KL_gptp_engine
+     end
+   end
+ 
++  //! #94: the portEnabled level and the events its edges owe. The first
++  //! sample after release is the reference, whatever its level. A later
++  //! edge re-raises NOT_ENABLED; a fall withdraws an owed beat.
++  always_ff @(posedge clk_i) begin : port_enable
++    if (!rst_n) begin
++      port_en_r   <= 1'b0;
++      port_ref_r  <= 1'b0;
++      pe_noten_r  <= 1'b0;
++      pe_beat_r   <= 1'b0;
++    end else begin
++      port_en_r   <= port_enabled_i;
++      port_ref_r  <= 1'b1;
++      if (pe_pop_w)  pe_noten_r <= 1'b0;
++      if (pe_push_w) pe_beat_r  <= 1'b0;
++      if (port_ref_r && (port_enabled_i != port_en_r)) begin
++        pe_noten_r <= 1'b1;
++        pe_beat_r  <= port_enabled_i;
++      end
++    end
++  end
++
+   assign pub_gm_id_o     = pub_gm_r;
+   assign pub_parent_id_o = pub_parent_r;
+   //! gmPresent (#82): the µcode's bit 0 marks an elected peer; a
+@@ -1075,6 +1156,9 @@ module KL_gptp_engine
+       .rb_ready_o (rb_ready_w),
+       .send_i     (resp_send_w),
+       .send_len_i (resp_len_w),
++      //! #94: a disabled port starts no frame. One whose first byte still
++      //! waits for ready is withdrawn, so is one SENT while disabled
++      .cancel_i   (!port_en_r),
+       .ser_idle_o (ser_idle_w),
+       .tx_valid_o (tx_valid_o),
+       .tx_data_o  (tx_data_o),
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index 4b299e4..a684255 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -4,6 +4,30 @@
+ """gPTP µcode ROM image generator -- v8, the announce qualification and the
+ Pdelay_Resp_Follow_Up pairing rounds.
+ 
++FPGA-gPTP #94, portEnabled (802.1AS-2011 10.2.4.11: MAC_Operational and the
++port administratively enabled), which the engine now takes as an input:
++
++  * The Milan v1.2 4.2.6.2.5 cease ends on a link or portEnabled toggle as
++    well as on its 5-minute countdown. Each portEnabled change after the
++    first sample since reset raises timer slot 6 (NOTEN), so a port that
++    is disabled at a warm reset's release ends a retained cease at its
++    rise. NOTEN clears the cease, its countdown and streak, the asCapable
++    ladder and asCapable, and commits: Figure 11-8 (Cor1, Cor2) leaves
++    NOT_ENABLED only through INITIAL_SEND_PDELAY_REQ, with lostResponses =
++    0 and asCapable = FALSE. It also disarms the outstanding exchange, so
++    no Follow_Up heard while the port is disabled pairs or publishes.
++  * While the port is disabled the engine reads no transmit credit,
++    withdraws every frame whose first byte is unaccepted, a SEND issued
++    while disabled included, and holds both egress claims invalid, so it
++    starts no frame. NOTEN dispatches ahead of every other event and does
++    not wait for a stalled frame.
++  * On a rise the engine queues the 1 s beat right behind NOTEN, so one
++    Pdelay_Req goes out at once and the cadence runs from it. NOTEN left
++    S_PDGOT set, so that beat counts no lost response.
++  * The countdown exit and every other state are unchanged. The cease entry
++    now ends in NOTEN's tail, which writes the same cells and commits the
++    same flags; NOTEN's disarm adds one word.
++
+ FPGA-gPTP #89, #90 and #91, the receipt rules of 802.1AS-2011 as corrected
+ by Cor1 and Cor2, the edition Milan v1.2 profiles:
+ 
+@@ -356,7 +380,8 @@ S_CEASECNT = 36                          # cadence beats to resume
+ # and stay mutually consistent. There is no partial-reset path that could
+ # clear one and not the other. ADDING A SECOND WRITER to either gate
+ # breaks this: give the guarded cell an init write again, or write it in
+-# the new writer's own block.
++# the new writer's own block. NOTEN (#94) writes gate and guarded cell
++# zero together, so it is no setter.
+ S_TXQ_RESP = 41                          # the second egress-timestamp
+                                          # claim. Each claim holds the
+                                          # {messageType, sequenceId} its
+@@ -1501,7 +1526,8 @@ def _tmr_slot_dispatch(p):
+     p.emit("BRS", cnd=BRS_Z, label=LB["SRTO"])
+     p.emit("CMP", ra=REV, rb=0, fmt=FMT_W, imm=5)
+     p.emit("BRS", cnd=BRS_Z, label=LB["FUTO"])
+-    p.emit("END")
++    # slot 6 is no timer: the engine raises it on a portEnabled edge (#94)
++    p.emit("BR", label=LB["NOTEN"])
+     p.label("slot0")
+ 
+ 
+@@ -1627,17 +1653,14 @@ def _tmr_cease_rule(p):
+     p.emit("WRST", ra=RC, imm=RG_SCR | S_MULTI, fmt=FMT_Q)
+     p.emit("CMP", ra=RC, rb=0, fmt=FMT_D, imm=CEASE_N_C)
+     p.emit("BRS", cnd=BRS_LT, label="iv_clear")
+-    # cease: stop requesting, drop the verdict, load the countdown
+-    p.emit("MOVE", rd=RT, ra=0, imm=1)
+-    p.emit("WRST", ra=RT, imm=RG_SCR | S_CEASE, fmt=FMT_Q)
++    # cease: stop requesting, load the countdown, then NOTEN's tail clears
++    # the interval and drops the verdict (#94 shares it, word for word).
++    # RB still holds S_IVMULTI, which is 1 exactly here: its writers write
++    # 0 or 1 only, and the compare above took the branch on 1
++    p.emit("WRST", ra=RB, imm=RG_SCR | S_CEASE, fmt=FMT_Q)
+     p.emit("MOVE", rd=RT, ra=0, imm=max(1, RUNTIME["cease_ms"] // 1000))
+     p.emit("WRST", ra=RT, imm=RG_SCR | S_CEASECNT, fmt=FMT_Q)
+-    p.emit("WRST", ra=0, imm=RG_SCR | S_PDOK, fmt=FMT_Q)
+-    e_flags(p, andm=FL_PRESENT_C | FL_AMGM_C | FL_SYNCOK_C)
+-    p.emit("COMMIT")
+-    p.emit("WRST", ra=0, imm=RG_SCR | S_IVMULTI, fmt=FMT_Q)
+-    p.emit("WRST", ra=0, imm=RG_SCR | S_RSP1, fmt=FMT_Q)
+-    p.emit("END")
++    p.emit("BR", label=LB["NOTENTAIL"])
+     p.label("iv_clear")
+     p.emit("WRST", ra=0, imm=RG_SCR | S_IVMULTI, fmt=FMT_Q)
+     p.emit("WRST", ra=0, imm=RG_SCR | S_RSP1, fmt=FMT_Q)
+@@ -2160,6 +2183,42 @@ def prog_leg_resume(base: int) -> Prog:
+     return p
+ 
+ 
++def prog_leg_noten(base: int) -> Prog:
++    """A portEnabled edge (#94), timer slot 6, which the engine raises.
++
++    802.1AS-2011 Figure 11-8 (Cor1, Cor2) leaves NOT_ENABLED only through
++    INITIAL_SEND_PDELAY_REQ: lostResponses = 0 and asCapable = FALSE. Milan
++    v1.2 4.2.6.2.5 ends the cease on that toggle. So both edges clear the
++    cease, its countdown and streak, and the ladder and asCapable, and
++    commit. The engine sends nothing while the port is disabled. S_PDGOT
++    set makes the next beat's judgement count no loss, so its request goes
++    out with lostResponses = 0. On a rise the engine queues that beat next.
++
++    NOT_ENABLED takes no Pdelay_Resp_Follow_Up, so both edges also disarm
++    the outstanding exchange: S_RSPSEQ zero refuses its Follow_Up in
++    PDPOST, and S_PDGOT set refuses a later response's arm until the next
++    request. A pair already frozen for its t1 cannot complete either: the
++    stamp finds no claim while the port is disabled (KL_gptp_engine.sv),
++    and the next request cancels the pair.
++
++    The engine dispatches this leg ahead of every other event and without
++    waiting for the serializer, so it must never build or SEND.
++
++    NOTENTAIL is the tail the cease entry shares: the interval's identity
++    bookkeeping, then PDPAIR's bad verdict, which clears S_PDOK and
++    asCapable and commits."""
++    p = Prog(base)
++    for s in (S_CEASE, S_CEASECNT, S_MULTI, S_RSPSEQ):
++        p.emit("WRST", ra=0, imm=RG_SCR | s, fmt=FMT_Q)
++    p.emit("MOVE", rd=RT, ra=0, imm=1)
++    p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)
++    p.label("tail")
++    p.emit("WRST", ra=0, imm=RG_SCR | S_IVMULTI, fmt=FMT_Q)
++    p.emit("WRST", ra=0, imm=RG_SCR | S_RSP1, fmt=FMT_Q)
++    p.emit("BR", label=LB["PDBAD"])
++    return p
++
++
+ def prog_leg_srto(base: int) -> Prog:
+     """Sync receipt timeout (375 ms, #89): syncReceiptTimeoutTime has
+     passed. The port is marked, whatever role the expiry found, and an
+@@ -2338,6 +2397,7 @@ LEG_FNS = [
+     ("SLEW", prog_leg_slew), ("SVRATE", prog_leg_svrate),
+     ("RESUME", prog_leg_resume), ("PDREQ", prog_leg_pdreq),
+     ("TXLOST", prog_leg_txlost), ("TXT1OK", prog_leg_txt1ok),
++    ("NOTEN", prog_leg_noten),
+ ]
+ 
+ 
+@@ -2362,7 +2422,7 @@ def build(mac: int, seq_seed: int = 0,
+     # pass 1: measure (word counts are independent of branch targets)
+     for name, _ in LEG_FNS:
+         LB[name] = 0
+-    LB["PUBFLAGS"] = 0
++    LB["PUBFLAGS"] = LB["PDBAD"] = LB["NOTENTAIL"] = 0
+     fixed_sz = [(b, len(fn(b).words())) for b, fn in fixed]
+     leg_sz = [(name, len(fn(0).words())) for name, fn in LEG_FNS]
+ 
+@@ -2395,8 +2455,11 @@ def build(mac: int, seq_seed: int = 0,
+                 break
+         else:
+             raise AssertionError(f"leg {name} ({sz} words) does not fit")
+-    # PDPAIR's flags-publishing tail, which SRTO shares (#89)
++    # PDPAIR's flags-publishing tail, which SRTO shares (#89), and its bad
++    # verdict, which NOTEN ends in, as the cease entry does through its tail
+     LB["PUBFLAGS"] = prog_leg_pdpair(LB["PDPAIR"]).address("pubflags")
++    LB["PDBAD"] = prog_leg_pdpair(LB["PDPAIR"]).address("bad")
++    LB["NOTENTAIL"] = prog_leg_noten(LB["NOTEN"]).address("tail")
+ 
+     # pass 2: emit with real bases
+     rom = [None] * DEPTH

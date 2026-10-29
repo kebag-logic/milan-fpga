@@ -1,0 +1,43 @@
+control: egress claims survive the fall
+rc: 1
+named verdict: caught
+FAIL wait_tx type 3: timeout
+FAIL #94 built across the fall: the request before it is answered got 0000000000000000 exp 0000000000000001
+FAIL #94 built across the fall: the response is not sent got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 3: timeout
+FAIL #94 built across the fall: a request after the rise is answered at once got 0000000000000000 exp 0000000000000001
+FAIL #94 countdown: capable before the storm got 0000000000000000 exp 0000000000000001
+FAIL #94 countdown: the first request after the cease follows the last by the countdown and two beats got 0000000000000000 exp 0000000000000001
+FAIL #94 countdown: the ladder re-earns after the cease got 0000000000000000 exp 0000000000000001
+FAIL #94 Follow_Up after the fall: a capable port first got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL #94 Follow_Up after the fall: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 Follow_Up after the fall: the second exchange after the rise raises asCapable got 0000000000000000 exp 0000000000000001
+FAIL #94 t1 after the fall: a capable port first got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL wait_tx type 2: timeout
+FAIL #94 t1 after the fall: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 t1 after the fall: the second exchange after the rise raises asCapable got 0000000000000000 exp 0000000000000001
+FAIL #94 Follow_Up queued before the fall: a capable port first got 0000000000000000 exp 0000000000000001
+FAIL wait_tx type 2: timeout
+FAIL #94 Follow_Up queued before the fall: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 Follow_Up queued before the fall: the second exchange after the rise raises asCapable got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: a capable master first got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: a frame waits at its first byte got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: the second exchange after the rise raises asCapable got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 1: a capable port first got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 1: the started frame keeps its place got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 1: the started frame completes whole got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 1: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: a capable port first got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: the started frame keeps its place got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: the started frame completes whole got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: a capable port first got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: the started frame keeps its place got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: the started frame completes whole got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 disabled warm reset: three multi-answered requests cease got 0000000000000000 exp 0000000000000001
+2114 checks: 2075 PASS, 39 FAIL

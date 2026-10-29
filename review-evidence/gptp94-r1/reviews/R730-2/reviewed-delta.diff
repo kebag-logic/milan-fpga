@@ -1,0 +1,1274 @@
+diff --git a/docs/HDL_DEVELOPER.md b/docs/HDL_DEVELOPER.md
+index f43ae4e..8db343e 100644
+--- a/docs/HDL_DEVELOPER.md
++++ b/docs/HDL_DEVELOPER.md
+@@ -181,6 +181,8 @@ Data and markers remain stable during stalls.
+ 
+ State advances only after ready acceptance.
+ 
++A disabled port withdraws a frame before its first acceptance.
++
+ [WaveDrom source](diagrams/wavedrom/tx_backpressure.json) defines this timing.
+ 
+ ## Microcode receipt state
+@@ -253,26 +255,46 @@ Every port gate reads that registered level.
+ 
+ Region 1, word 2 then reads no credit.
+ 
+-The SEND strobe never reaches a disabled serializer.
++`cancel_i` withdraws a frame whose first byte waits.
++
++A SEND issued while disabled is withdrawn the same way.
++
++The serializer masks valid in that same cycle.
++
++A started frame runs on until its last byte.
+ 
+ Both claim-valid bits clear on every disabled cycle.
+ 
+ That write wins over microcode in the same cycle.
+ 
+-The first enable since reset raises no event.
++`port_ref_r` makes the first sample after release the reference.
++
++Only a later change of level is an edge.
++
++Each edge raises the slot 6 NOTEN event.
+ 
+-Each later edge queues a timer event for slot 6.
++NOTEN dispatches ahead of the result and the queue.
+ 
+-A rise queues a slot 0 beat behind it.
++It does not wait for an idle serializer.
+ 
+-Both wait behind parser and timer events.
++Its leg must therefore never build or SEND.
++
++A rise also queues a slot 0 beat.
++
++That beat waits behind parser and timer events.
+ 
+ Slot 6 is the NOTEN leg, not a timer.
+ 
+ NOTEN clears the cease, countdown, streak and ladder.
+ 
++It zeroes `S_RSPSEQ`, so no Follow_Up pairs.
++
+ It sets `S_PDGOT`, so the next beat counts no loss.
+ 
++`S_PDGOT` also refuses a new response arm.
++
++A pair frozen for its t1 finds no claim.
++
+ Its tail clears the interval and drops asCapable.
+ 
+ The cease entry now ends in that tail.
+diff --git a/docs/INTEGRATION.md b/docs/INTEGRATION.md
+index b686f23..44be0b9 100644
+--- a/docs/INTEGRATION.md
++++ b/docs/INTEGRATION.md
+@@ -121,8 +121,22 @@ A transfer needs both valid and ready.
+ 
+ Outputs remain stable while ready stays low.
+ 
++One exception serves a disabled port.
++
++A frame still waiting at its first byte is withdrawn.
++
++Its valid falls with no transfer.
++
++A started frame always runs to its last byte.
++
++The face has no abort signal.
++
++Consume accepted transfers only, never a held valid.
++
+ The serializer blocks new event dispatches.
+ 
++The NOT_ENABLED leg alone skips that wait.
++
+ ## Egress timestamp results
+ 
+ | Signal | Direction | Contract |
+@@ -201,26 +215,44 @@ High means MAC_Operational and administrative enable together.
+ 
+ The parent drives its effective link here.
+ 
+-A low port transmits no gPTP frame.
++A low port starts no gPTP frame.
+ 
+ Initiating beats see no credit while it stays low.
+ 
+-Every SEND issued while low is dropped.
++Every frame still waiting at its first byte is withdrawn.
++
++That includes a frame whose SEND came while low.
++
++A frame already started completes, as the transmit interface states.
+ 
+ Both egress claims read empty while low.
+ 
+ Received frames still dispatch; their replies are dropped.
+ 
+-The first enable after reset raises nothing.
++No Pdelay exchange completes while the port is low.
+ 
+-The boot cadence already sends the first request.
++The first sample after reset is the reference level.
+ 
+-Each later edge clears asCapable and commits at once.
++A port high at release raises nothing.
++
++The boot cadence then sends the first request.
++
++A port low at release makes its rise an edge.
++
++Each edge clears asCapable and commits at once.
++
++A stalled transmit path does not delay that commit.
+ 
+ It also ends the multiple-responder cease and its countdown.
+ 
++That holds for a cease retained across a warm reset.
++
+ Milan 4.2.6.2.5 lists this toggle.
+ 
++Each edge also disarms the outstanding Pdelay exchange.
++
++Its Follow_Up and its late t1 pair nothing.
++
+ A rise then sends one Pdelay_Req at once.
+ 
+ That request counts no lost response.
+@@ -229,6 +261,8 @@ asCapable returns only after two good exchanges.
+ 
+ The five-minute countdown remains the other exit.
+ 
++A change made while reset is held is not seen.
++
+ [Issue #94](https://github.com/Mister-M-alt/FPGA-gPTP/issues/94) records this contract.
+ 
+ ## PHC control
+diff --git a/docs/SOURCE_EVIDENCE.md b/docs/SOURCE_EVIDENCE.md
+index 274b080..9207c37 100644
+--- a/docs/SOURCE_EVIDENCE.md
++++ b/docs/SOURCE_EVIDENCE.md
+@@ -7,28 +7,28 @@ Line numbers describe the current branch layout.
+ 
+ | Claim | Source evidence | Executable evidence |
+ |---|---|---|
+-| Single clock domain | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L62) | `make lint` |
+-| Four instantiated blocks | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L203) | `make lint` |
++| Single clock domain | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L64) | `make lint` |
++| Four instantiated blocks | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L209) | `make lint` |
+ | Any-byte receive refusal | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv) | Parser suite and named mutation controls |
+ | Deferred receive event | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L392) | Parser suite |
+-| Four-entry event queue | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L461) | Engine suite |
+-| Parser arbitration priority | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L488) | Engine suite |
+-| Priority timestamp return | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L399) | Engine suite |
+-| Accepted-beat result face | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L405) | Engine suite |
++| Four-entry event queue | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L467) | Engine suite |
++| Parser arbitration priority | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L494) | Engine suite |
++| Priority timestamp return | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L405) | Engine suite |
++| Accepted-beat result face | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L411) | Engine suite |
+ | Explicit lost result | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Retained Pdelay pairing context | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+-| Reset-backed pairing validity | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L285) | Engine suite |
+-| Transmit admission credit | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L104) | Engine suite |
+-| Eight timer slots | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L441) | Engine suite |
++| Reset-backed pairing validity | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L291) | Engine suite |
++| Transmit admission credit | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L106) | Engine suite |
++| Eight timer slots | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L447) | Engine suite |
+ | Six state regions | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L20) | Engine suite |
+-| Stable stalled transmission | [`KL_gptp_tx_slot`](../hdl/wire/KL_gptp_tx_slot.sv#L117) | Engine suite |
+-| Committed publication | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L138) | Engine suite |
++| Stable stalled transmission | [`KL_gptp_tx_slot`](../hdl/wire/KL_gptp_tx_slot.sv#L129) | Engine suite |
++| Committed publication | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L140) | Engine suite |
+ | 1,024-word microcode ROM | [`KL_gptp_ucpu`](../hdl/ucpu/KL_gptp_ucpu.sv#L105) | MicroCPU suite |
+ | Sixteen registers | [`KL_gptp_ucpu`](../hdl/ucpu/KL_gptp_ucpu.sv#L113) | MicroCPU suite |
+ | Python image generation | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Media-dependent transmit flags | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine and tsngen suites |
+ | Step-versus-slew policy | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+-| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L121), [word 2](../hdl/top/KL_gptp_engine.sv#L1050), [word 3](../hdl/top/KL_gptp_engine.sv#L1055), [policy](../hdl/ucode/gen_gptp_ucode.py#L1020) | Engine suite and named mutation controls |
++| Registered policy slew level | [Port](../hdl/top/KL_gptp_engine.sv#L123), [word 2](../hdl/top/KL_gptp_engine.sv#L1071), [word 3](../hdl/top/KL_gptp_engine.sv#L1076), [policy](../hdl/ucode/gen_gptp_ucode.py#L1026) | Engine suite and named mutation controls |
+ | PHC rate envelope | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Ignored receive flag bits | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L472) | Engine suite |
+ | C++ test harnesses | [`tb/verilator`](../tb/verilator) | `make` |
+@@ -43,6 +43,10 @@ Line numbers describe the current branch layout.
+ | Duplicate response resets the exchange | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Port enable ends the cease | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Disabled port sends nothing | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv) | Engine suite and named mutation controls |
++| Disabled port withdraws an unstarted frame | [`KL_gptp_tx_slot`](../hdl/wire/KL_gptp_tx_slot.sv) | Engine suite and named mutation controls |
++| NOT_ENABLED dispatches first | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv) | Engine suite and named mutation controls |
++| NOT_ENABLED completes no exchange | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
++| First sample is the port reference | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv) | Engine suite and named mutation controls |
+ | Parent default enabled | [Pinned parent parameter](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/hdl/milan/milan_datapath.sv#L73) | Parent integration gates |
+ | Fabric owns product time | [Pinned parent contract](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/design/GPTP_PLANE.md#L6) | Parent integration gates |
+ | Option-off verifies comparisons only | [Pinned parent boundary](https://github.com/kebag-logic/milan-fpga/blob/ac2c5e77bba1c0ae20ce2f69f711a1d17ead94a5/docs/ARCHITECTURE_HW_SW_SPLIT.md#L165-L175) | Parent integration gates |
+diff --git a/docs/TEST_DEVELOPER.md b/docs/TEST_DEVELOPER.md
+index 20c68c0..9d18ac2 100644
+--- a/docs/TEST_DEVELOPER.md
++++ b/docs/TEST_DEVELOPER.md
+@@ -140,6 +140,11 @@ Prefer independent protocol formulas and frame builders.
+ - Sends and commits nothing while the port is disabled.
+ - Drops a frame built across the fall.
+ - Keeps the cease countdown exit unchanged.
++- Withdraws a frame stalled at its first byte.
++- Completes a frame stalled after its first byte.
++- Clears asCapable at once behind a stalled byte face.
++- Pairs no Follow_Up or late t1 across the fall.
++- Ends a cease retained across a disabled warm reset.
+ - Clears sync-ok on every handover to a peer.
+ - Appends thisClock to direct and multi-hop received paths.
+ - Checks the seven-entry, eight-entry, empty and absent path boundaries.
+diff --git a/hdl/top/KL_gptp_engine.sv b/hdl/top/KL_gptp_engine.sv
+index 73b1c79..653f34d 100644
+--- a/hdl/top/KL_gptp_engine.sv
++++ b/hdl/top/KL_gptp_engine.sv
+@@ -53,7 +53,9 @@
+ //                only requester context, but that owner's stamp bypasses it
+ //                and releases the claim before the later request dispatches.
+ //                Dispatch is gated on the serializer being idle so a handler
+-//                never builds into a slot still on the wire.
++//                never builds into a slot still on the wire. The portEnabled
++//                NOT_ENABLED leg alone goes ahead of every other event and
++//                skips that wait: it builds and sends nothing (#94).
+ //                r14 carries the frame's ingress timestamp (or the
+ //                egress stamp for EV_TX_TS).
+ //---------------------------------------------------------------------------//
+@@ -105,10 +107,10 @@ module KL_gptp_engine
+ 
+     //! portEnabled (802.1AS-2011 10.2.4.11): MAC_Operational and the port
+     //! administratively enabled, a level synchronous to clk_i. While it is
+-    //! low the port is NOT_ENABLED (Figure 11-8): it transmits nothing and
+-    //! owes no egress stamp. Each change after the first enable since
+-    //! reset clears asCapable and the Milan v1.2 4.2.6.2.5 cease; a rise
+-    //! also sends a Pdelay_Req at once (#94).
++    //! low the port is NOT_ENABLED (Figure 11-8): it starts no frame, owes
++    //! no egress stamp and completes no Pdelay exchange. Each change after
++    //! the first sample since reset clears asCapable and the Milan v1.2
++    //! 4.2.6.2.5 cease; a rise also sends a Pdelay_Req at once (#94).
+     input  wire         port_enabled_i,
+ 
+     //! PHC face (the parent timestamp_counter's knobs)
+@@ -152,15 +154,19 @@ module KL_gptp_engine
+ 
+   // -------------------------------------------------------- portEnabled
+   //! #94. port_en_r is the level every gate below reads: the transmit
+-  //! credit word, SEND and the egress claims. Received frames still raise
+-  //! events; what they would send is dropped at SEND. port_seen_r
+-  //! marks the first enable since reset, which the boot cadence already
+-  //! serves, so only later edges raise events. Each edge owes the queue
+-  //! a slot-6 timer event, the microcode's NOT_ENABLED leg, and a rise
+-  //! then a slot-0 one, the request beat (INITIAL_SEND_PDELAY_REQ).
++  //! credit word, the serializer's unstarted frame and the egress claims.
++  //! Received frames still raise events; what they would send is withdrawn
++  //! before its first byte. port_ref_r marks the first sample since reset
++  //! as the reference level, so only a later change is an edge: a port
++  //! enabled at release raises nothing, the boot cadence serving it, and a
++  //! port disabled at release raises both events at its rise (Figure 11-8:
++  //! BEGIN enters NOT_ENABLED whatever scratch retained). Each edge owes a
++  //! slot-6 timer event, the microcode's NOT_ENABLED leg, which dispatches
++  //! ahead of every other event; a rise then owes the queue a slot-0 one,
++  //! the request beat (INITIAL_SEND_PDELAY_REQ).
+   localparam logic [2:0] PE_SLOT_C = 3'd6;
+-  logic port_en_r, port_seen_r;
+-  logic pe_noten_r, pe_beat_r, pe_push_w;
++  logic port_en_r, port_ref_r;
++  logic pe_noten_r, pe_beat_r, pe_push_w, pe_pop_w;
+ 
+   // ---------------------------------------------------------- RX parser
+   logic        bank_we_w;
+@@ -500,12 +506,12 @@ module KL_gptp_engine
+       push_w      = !evq_full_w;
+       push_data_w = {EV_TMR_C, 16'd0, 13'd0, tev_slot_w};
+       tev_ready_w = !evq_full_w;
+-    end else if (pe_noten_r || pe_beat_r) begin
+-      //! the portEnabled events (#94), NOT_ENABLED first, in timer form
++    end else if (pe_beat_r) begin
++      //! the rise's request beat (#94), in timer form. NOT_ENABLED does
++      //! not queue: it dispatches ahead of the queue, so it runs first
+       push_w      = !evq_full_w;
+       pe_push_w   = !evq_full_w;
+-      push_data_w = {EV_TMR_C, 16'd0, 13'd0,
+-                     pe_noten_r ? PE_SLOT_C : 3'd0};
++      push_data_w = {EV_TMR_C, 16'd0, 13'd0, 3'd0};
+     end
+   end
+ 
+@@ -611,9 +617,15 @@ module KL_gptp_engine
+   //! and silently eat the second event (the bug the 44-check engine
+   //! suite caught: become-master ran with a TX-timestamp event's
+   //! operands and the timestamp event vanished)
+-  assign txts_pop_w = txts_pend_r && disp_ready_w && ser_idle_w &&
+-                      !disp_valid_r;
+-  assign pop_w = !txts_pend_r && !evq_empty_w && !pdreq_block_w &&
++  //! #94: NOT_ENABLED goes ahead of the result and the queue, so no event
++  //! dispatched after an edge runs before its leg, and it skips the
++  //! serializer wait: the leg builds and sends nothing, so a frame stalled
++  //! on the wire cannot hold asCapable up on a disabled port
++  assign pe_pop_w   = pe_noten_r && disp_ready_w && !disp_valid_r;
++  assign txts_pop_w = txts_pend_r && !pe_noten_r && disp_ready_w &&
++                      ser_idle_w && !disp_valid_r;
++  assign pop_w = !txts_pend_r && !pe_noten_r && !evq_empty_w &&
++                 !pdreq_block_w &&
+                  disp_ready_w && ser_idle_w && !disp_valid_r;
+ 
+   logic [UPC_W_C-1:0] disp_upc_r;
+@@ -635,9 +647,18 @@ module KL_gptp_engine
+       disp_pd_cid_r <= '0;
+       disp_pd_pn_r <= '0;
+     end else begin
+-      if (txts_pop_w || pop_w) disp_valid_r <= 1'b1;
++      if (txts_pop_w || pop_w || pe_pop_w) disp_valid_r <= 1'b1;
+       else if (!disp_ready_w)  disp_valid_r <= 1'b0;   // accepted
+-      if (txts_pop_w) begin
++      if (pe_pop_w) begin
++        //! the timer entry, slot 6: the table's default arm, which
++        //! EV_TMR_C reaches
++        disp_upc_r   <= UPC_W_C'(512);
++        disp_bank_r  <= 1'b0;
++        disp_pdreq_r <= 1'b0;
++        disp_announce_r <= 1'b0;
++        disp_ev_r    <= {24'd0, EV_TMR_C, 16'd0, 13'd0, PE_SLOT_C};
++        disp_ts0_r   <= {32'd0, ms_now_w};
++      end else if (txts_pop_w) begin
+         disp_upc_r  <= UPC_W_C'(448);
+         disp_bank_r <= 1'b0;
+         disp_pdreq_r <= 1'b0;
+@@ -1089,22 +1110,21 @@ module KL_gptp_engine
+     end
+   end
+ 
+-  //! #94: the portEnabled level and the events its edges owe the queue.
+-  //! A later edge re-raises NOT_ENABLED; a fall withdraws an owed beat.
++  //! #94: the portEnabled level and the events its edges owe. The first
++  //! sample after release is the reference, whatever its level. A later
++  //! edge re-raises NOT_ENABLED; a fall withdraws an owed beat.
+   always_ff @(posedge clk_i) begin : port_enable
+     if (!rst_n) begin
+       port_en_r   <= 1'b0;
+-      port_seen_r <= 1'b0;
++      port_ref_r  <= 1'b0;
+       pe_noten_r  <= 1'b0;
+       pe_beat_r   <= 1'b0;
+     end else begin
+       port_en_r   <= port_enabled_i;
+-      port_seen_r <= port_seen_r || port_en_r;
+-      if (pe_push_w) begin
+-        if (pe_noten_r) pe_noten_r <= 1'b0;
+-        else            pe_beat_r  <= 1'b0;
+-      end
+-      if (port_seen_r && (port_enabled_i != port_en_r)) begin
++      port_ref_r  <= 1'b1;
++      if (pe_pop_w)  pe_noten_r <= 1'b0;
++      if (pe_push_w) pe_beat_r  <= 1'b0;
++      if (port_ref_r && (port_enabled_i != port_en_r)) begin
+         pe_noten_r <= 1'b1;
+         pe_beat_r  <= port_enabled_i;
+       end
+@@ -1134,9 +1154,11 @@ module KL_gptp_engine
+       .rb_wdata_i (rb_wdata_w),
+       .rb_wstrb_i (rb_wstrb_w),
+       .rb_ready_o (rb_ready_w),
+-      //! #94: a frame built across the port's fall is dropped unsent
+-      .send_i     (resp_send_w && port_en_r),
++      .send_i     (resp_send_w),
+       .send_len_i (resp_len_w),
++      //! #94: a disabled port starts no frame. One whose first byte still
++      //! waits for ready is withdrawn, so is one SENT while disabled
++      .cancel_i   (!port_en_r),
+       .ser_idle_o (ser_idle_w),
+       .tx_valid_o (tx_valid_o),
+       .tx_data_o  (tx_data_o),
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index e221d3c..a684255 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -8,19 +8,25 @@ FPGA-gPTP #94, portEnabled (802.1AS-2011 10.2.4.11: MAC_Operational and the
+ port administratively enabled), which the engine now takes as an input:
+ 
+   * The Milan v1.2 4.2.6.2.5 cease ends on a link or portEnabled toggle as
+-    well as on its 5-minute countdown. Each portEnabled edge after the
+-    first enable since reset raises timer slot 6 (NOTEN). It clears the
+-    cease, its countdown and streak, the asCapable ladder and asCapable,
+-    and commits: Figure 11-8 (Cor1, Cor2) leaves NOT_ENABLED only through
+-    INITIAL_SEND_PDELAY_REQ, with lostResponses = 0 and asCapable = FALSE.
+-  * While the port is disabled the engine reads no transmit credit, drops
+-    every SEND and holds both egress claims invalid, so it sends nothing.
++    well as on its 5-minute countdown. Each portEnabled change after the
++    first sample since reset raises timer slot 6 (NOTEN), so a port that
++    is disabled at a warm reset's release ends a retained cease at its
++    rise. NOTEN clears the cease, its countdown and streak, the asCapable
++    ladder and asCapable, and commits: Figure 11-8 (Cor1, Cor2) leaves
++    NOT_ENABLED only through INITIAL_SEND_PDELAY_REQ, with lostResponses =
++    0 and asCapable = FALSE. It also disarms the outstanding exchange, so
++    no Follow_Up heard while the port is disabled pairs or publishes.
++  * While the port is disabled the engine reads no transmit credit,
++    withdraws every frame whose first byte is unaccepted, a SEND issued
++    while disabled included, and holds both egress claims invalid, so it
++    starts no frame. NOTEN dispatches ahead of every other event and does
++    not wait for a stalled frame.
+   * On a rise the engine queues the 1 s beat right behind NOTEN, so one
+     Pdelay_Req goes out at once and the cadence runs from it. NOTEN left
+     S_PDGOT set, so that beat counts no lost response.
+   * The countdown exit and every other state are unchanged. The cease entry
+     now ends in NOTEN's tail, which writes the same cells and commits the
+-    same flags, so the ROM keeps its size.
++    same flags; NOTEN's disarm adds one word.
+ 
+ FPGA-gPTP #89, #90 and #91, the receipt rules of 802.1AS-2011 as corrected
+ by Cor1 and Cor2, the edition Milan v1.2 profiles:
+@@ -2188,11 +2194,21 @@ def prog_leg_noten(base: int) -> Prog:
+     set makes the next beat's judgement count no loss, so its request goes
+     out with lostResponses = 0. On a rise the engine queues that beat next.
+ 
++    NOT_ENABLED takes no Pdelay_Resp_Follow_Up, so both edges also disarm
++    the outstanding exchange: S_RSPSEQ zero refuses its Follow_Up in
++    PDPOST, and S_PDGOT set refuses a later response's arm until the next
++    request. A pair already frozen for its t1 cannot complete either: the
++    stamp finds no claim while the port is disabled (KL_gptp_engine.sv),
++    and the next request cancels the pair.
++
++    The engine dispatches this leg ahead of every other event and without
++    waiting for the serializer, so it must never build or SEND.
++
+     NOTENTAIL is the tail the cease entry shares: the interval's identity
+     bookkeeping, then PDPAIR's bad verdict, which clears S_PDOK and
+     asCapable and commits."""
+     p = Prog(base)
+-    for s in (S_CEASE, S_CEASECNT, S_MULTI):
++    for s in (S_CEASE, S_CEASECNT, S_MULTI, S_RSPSEQ):
+         p.emit("WRST", ra=0, imm=RG_SCR | s, fmt=FMT_Q)
+     p.emit("MOVE", rd=RT, ra=0, imm=1)
+     p.emit("WRST", ra=RT, imm=RG_SCR | S_PDGOT, fmt=FMT_Q)
+diff --git a/hdl/wire/KL_gptp_tx_slot.sv b/hdl/wire/KL_gptp_tx_slot.sv
+index 50ef517..ce7fef7 100644
+--- a/hdl/wire/KL_gptp_tx_slot.sv
++++ b/hdl/wire/KL_gptp_tx_slot.sv
+@@ -19,6 +19,9 @@
+ //                on the TX byte face with sof/eof marks. The engine gates
+ //                dispatch of the next event on ser_idle_o, so a µprogram
+ //                never builds into a slot that is still on the wire.
++//                cancel_i withdraws a frame no byte of which has been
++//                accepted; a frame already started runs to its last byte,
++//                since the byte face has no abort (#94).
+ //---------------------------------------------------------------------------//
+ `default_nettype none
+ 
+@@ -40,6 +43,9 @@ module KL_gptp_tx_slot
+     //! send request (µCPU OP_SEND_RESP)
+     input  wire         send_i,
+     input  wire  [10:0] send_len_i,
++    //! the port is disabled (#94): withdraw the frame while its first byte
++    //! is unaccepted, and drop valid in the same cycle
++    input  wire         cancel_i,
+     output logic        ser_idle_o,
+ 
+     //! TX byte face
+@@ -112,9 +118,15 @@ module KL_gptp_tx_slot
+   logic [AW_C-1:0] ser_addr_r;
+   logic [10:0]     ser_left_r;
+   logic            ser_sof_r;
++  //! a frame not yet started while cancel_i is high: no byte of it has
++  //! been accepted, so withdrawing it leaves the face at a frame boundary.
++  //! ser_sof_r implies ser_run_r: both rise on SEND, and the first
++  //! accepted byte clears ser_sof_r
++  logic            ser_drop_w;
+ 
++  assign ser_drop_w = cancel_i && ser_sof_r;
+   assign ser_idle_o = !ser_run_r;
+-  assign tx_valid_o = ser_run_r;
++  assign tx_valid_o = ser_run_r && !ser_drop_w;
+   assign tx_data_o  = slot_r[ser_addr_r];
+   assign tx_sof_o   = ser_sof_r;
+   assign tx_eof_o   = ser_run_r && (ser_left_r == 11'd1);
+@@ -133,6 +145,9 @@ module KL_gptp_tx_slot
+           ser_left_r <= send_len_i;
+           ser_sof_r  <= 1'b1;
+         end
++      end else if (ser_drop_w) begin
++        ser_run_r  <= 1'b0;
++        ser_sof_r  <= 1'b0;
+       end else if (tx_ready_i) begin
+         ser_sof_r  <= 1'b0;
+         ser_addr_r <= ser_addr_r + AW_C'(1);
+diff --git a/scripts/check_source_evidence.py b/scripts/check_source_evidence.py
+index c8eef1a..eda2309 100644
+--- a/scripts/check_source_evidence.py
++++ b/scripts/check_source_evidence.py
+@@ -30,7 +30,7 @@ EXPECTED = {
+     "Transmit admission credit": [(ENGINE, "input  wire         tx_credit_i,")],
+     "Eight timer slots": [(ENGINE, "KL_gptp_timer #(")],
+     "Six state regions": [(ENGINE, "//                  0  message bank      RO  (parser-written, PING-PONG")],
+-    "Stable stalled transmission": [("hdl/wire/KL_gptp_tx_slot.sv", "assign tx_valid_o = ser_run_r;")],
++    "Stable stalled transmission": [("hdl/wire/KL_gptp_tx_slot.sv", "assign tx_valid_o = ser_run_r && !ser_drop_w;")],
+     "Committed publication": [(ENGINE, "output logic        pub_commit_o,")],
+     "1,024-word microcode ROM": [(UCPU, "// ------------------------------------------------------------------ ROM")],
+     "Sixteen registers": [(UCPU, "// 16 x 64 distributed RAM, 1W3R (SET_MASKED reads rd as well).")],
+diff --git a/scripts/generate_diagrams.py b/scripts/generate_diagrams.py
+index 7a7c110..86d29cf 100644
+--- a/scripts/generate_diagrams.py
++++ b/scripts/generate_diagrams.py
+@@ -65,7 +65,7 @@ EVIDENCE = {
+         "fin_r    <= 1'b1;",
+     ),
+     "hdl/wire/KL_gptp_tx_slot.sv": (
+-        "assign tx_valid_o = ser_run_r;",
++        "assign tx_valid_o = ser_run_r && !ser_drop_w;",
+         "assign tx_data_o  = slot_r[ser_addr_r];",
+         "assign tx_sof_o   = ser_sof_r;",
+         "assign tx_eof_o   = ser_run_r && (ser_left_r == 11'd1);",
+diff --git a/syn/ooc/work/gptp_ucode.hex b/syn/ooc/work/gptp_ucode.hex
+index 1844357..4e17598 100644
+--- a/syn/ooc/work/gptp_ucode.hex
++++ b/syn/ooc/work/gptp_ucode.hex
+@@ -522,7 +522,7 @@ E00000000000
+ 1000020003E0
+ 287810000005
+ 1000020000FE
+-0800000003F5
++0800000002B7
+ 408030020017
+ 280820000001
+ 100002000254
+@@ -613,7 +613,7 @@ E91001000001
+ 281020000000
+ 100002000267
+ 180000000000
+-0800000002B7
++0800000003F5
+ 410030020021
+ 281020000001
+ 10000200026D
+@@ -627,7 +627,7 @@ E99800000001
+ 481030020023
+ 22800000012C
+ 482830020024
+-0800000003FA
++0800000002BD
+ 480030020021
+ 480030020020
+ 48003002002C
+@@ -694,14 +694,14 @@ EAA80200000B
+ A80000000000
+ 180000000000
+ 480030020023
++480030020024
+ 480030020022
+-480030020021
+-480030020020
+-480030020008
++480030020027
+ 228000000001
+ 48283002000B
+-180000000000
+-E27F502493AE
++480030020021
++480030020020
++0800000002B1
+ E8F780000000
+ 480830020000
+ E8F781000000
+@@ -1012,13 +1012,13 @@ EDD806000035
+ 0800000000F9
+ 180000000000
+ 480030020023
+-480030020024
+ 480030020022
+-228000000001
+-48283002000B
+ 480030020021
+ 480030020020
+-0800000002B1
++480030020008
++228000000001
++48283002000B
++180000000000
+ 255251AABB9F
+ 000102A1B2FF
+ 0000FEC3D4E5
+diff --git a/tb/tsngen/gptp_ucode.hex b/tb/tsngen/gptp_ucode.hex
+index 330ac6f..1779037 100644
+--- a/tb/tsngen/gptp_ucode.hex
++++ b/tb/tsngen/gptp_ucode.hex
+@@ -522,7 +522,7 @@ E00000000000
+ 1000020003E0
+ 287810000005
+ 1000020000FE
+-0800000003F5
++0800000002B7
+ 408030020017
+ 280820000001
+ 100002000254
+@@ -613,7 +613,7 @@ E91001000001
+ 281020000000
+ 100002000267
+ 180000000000
+-0800000002B7
++0800000003F5
+ 410030020021
+ 281020000001
+ 10000200026D
+@@ -627,7 +627,7 @@ E99800000001
+ 481030020023
+ 22800000012C
+ 482830020024
+-0800000003FA
++0800000002BD
+ 480030020021
+ 480030020020
+ 48003002002C
+@@ -694,14 +694,14 @@ EAA80200000B
+ A80000000000
+ 180000000000
+ 480030020023
++480030020024
+ 480030020022
+-480030020021
+-480030020020
+-480030020008
++480030020027
+ 228000000001
+ 48283002000B
+-180000000000
+-E27F502493AE
++480030020021
++480030020020
++0800000002B1
+ E8F780000000
+ 480830020000
+ E8F781000000
+@@ -1012,13 +1012,13 @@ EDD806000035
+ 0800000000F9
+ 180000000000
+ 480030020023
+-480030020024
+ 480030020022
+-228000000001
+-48283002000B
+ 480030020021
+ 480030020020
+-0800000002B1
++480030020008
++228000000001
++48283002000B
++180000000000
+ 255251AABB9F
+ 000102A1B2FF
+ 0000FEC3D4E5
+diff --git a/tb/verilator/engine/gptp_ucode.hex b/tb/verilator/engine/gptp_ucode.hex
+index 3f50aba..f68acd0 100644
+--- a/tb/verilator/engine/gptp_ucode.hex
++++ b/tb/verilator/engine/gptp_ucode.hex
+@@ -522,7 +522,7 @@ E00000000000
+ 1000020003E0
+ 287810000005
+ 1000020000FE
+-0800000003F5
++0800000002B7
+ 408030020017
+ 280820000001
+ 100002000254
+@@ -613,7 +613,7 @@ E91001000001
+ 281020000000
+ 100002000267
+ 180000000000
+-0800000002B7
++0800000003F5
+ 410030020021
+ 281020000001
+ 10000200026D
+@@ -627,7 +627,7 @@ E99800000001
+ 481030020023
+ 228000000003
+ 482830020024
+-0800000003FA
++0800000002BD
+ 480030020021
+ 480030020020
+ 48003002002C
+@@ -694,14 +694,14 @@ EAA80200000B
+ A80000000000
+ 180000000000
+ 480030020023
++480030020024
+ 480030020022
+-480030020021
+-480030020020
+-480030020008
++480030020027
+ 228000000001
+ 48283002000B
+-180000000000
+-E27F502493AE
++480030020021
++480030020020
++0800000002B1
+ E8F780000000
+ 480830020000
+ E8F781000000
+@@ -1012,13 +1012,13 @@ EDD806000035
+ 0800000000F9
+ 180000000000
+ 480030020023
+-480030020024
+ 480030020022
+-228000000001
+-48283002000B
+ 480030020021
+ 480030020020
+-0800000002B1
++480030020008
++228000000001
++48283002000B
++180000000000
+ 255251AABB9F
+ 000102A1B2FF
+ 0000FEC3D4E5
+diff --git a/tb/verilator/engine/port_mutants.py b/tb/verilator/engine/port_mutants.py
+index 9dbec4f..20ce9ff 100644
+--- a/tb/verilator/engine/port_mutants.py
++++ b/tb/verilator/engine/port_mutants.py
+@@ -15,6 +15,11 @@ S_MULTI write matters only when a second responder's Pdelay_Resp lands
+ between the leg and the request beat queued right behind it; the interval
+ clear the leg also makes otherwise restarts the streak at that beat.
+ 
++Three disable paths have controls of their own: a frame stalled on the
++byte face (withdrawn before its first byte, completed after it, and never
++holding NOT_ENABLED back), an exchange still armed or queued at the fall,
++and a warm reset released with the port disabled.
++
+ The table lives in its own module so that the arm stays under the parent
+ repository's module length ratchet. It is data only.
+ """
+@@ -25,14 +30,29 @@ from receipt_mutants import GENERATOR
+ ENGINE = "top/KL_gptp_engine.sv"
+ 
+ #: the edge test of the portEnabled block
+-EDGE = "      if (port_seen_r && (port_enabled_i != port_en_r)) begin\n"
++EDGE = "      if (port_ref_r && (port_enabled_i != port_en_r)) begin\n"
++#: the serializer, whose unstarted frame a disabled port withdraws
++TXSLOT = "wire/KL_gptp_tx_slot.sv"
++DROP = "  assign ser_drop_w = cancel_i && ser_sof_r;\n"
++#: the engine's withdrawal input to it
++CANCEL = "      .cancel_i   (!port_en_r),\n"
++#: NOT_ENABLED's own dispatch, ahead of the result and the queue
++PE_POP = "  assign pe_pop_w   = pe_noten_r && disp_ready_w && !disp_valid_r;\n"
++#: the checks every stalled byte position of phase 49 makes
++STALL_K = (1, 34, 67)
++
++
++def at_each_stall(check: str) -> str:
++    """`check` of phase 49, named at each of its byte positions."""
++    return " | ".join(f"#94 stalled at byte {k}: {check}" for k in STALL_K)
++
+ 
+ #: (name, file under hdl/, pattern, replacement, the checks it must fail)
+ PORT_MUTATIONS = [
+     # ---- #94: the NOT_ENABLED leg (timer slot 6) ---------------------------
+     ("a portEnabled edge keeps the cease", GENERATOR,
+-     "    for s in (S_CEASE, S_CEASECNT, S_MULTI):\n",
+-     "    for s in (S_CEASECNT, S_MULTI):\n",
++     "    for s in (S_CEASE, S_CEASECNT, S_MULTI, S_RSPSEQ):\n",
++     "    for s in (S_CEASECNT, S_MULTI, S_RSPSEQ):\n",
+      "#94 toggle: the first request comes within one interval of the rise"
+      " | #94 toggle: the first request goes out at once after the rise"
+      " | #94 toggle: then one request every interval"),
+@@ -82,7 +102,7 @@ PORT_MUTATIONS = [
+     # ---- #94: the engine's portEnabled block --------------------------------
+     ("the falling edge raises no event", ENGINE,
+      EDGE,
+-     "      if (port_seen_r && port_enabled_i && !port_en_r) begin\n",
++     "      if (port_ref_r && port_enabled_i && !port_en_r) begin\n",
+      "#94 link loss: asCapable falls at the falling edge"),
+     ("a rise sends no request at once", ENGINE,
+      "        pe_beat_r  <= port_enabled_i;\n",
+@@ -93,17 +113,21 @@ PORT_MUTATIONS = [
+      "          st_rd_mux_w = {63'd0, tx_credit_i && port_en_r};\n",
+      "          st_rd_mux_w = {63'd0, tx_credit_i};\n",
+      "#94 link loss: the publication holds while the port is disabled"),
+-    ("a frame built across the fall is sent", ENGINE,
+-     "      .send_i     (resp_send_w && port_en_r),\n",
+-     "      .send_i     (resp_send_w),\n",
++    # a SEND issued while disabled is withdrawn like a stalled frame, so
++    # this one tie stands for both
++    ("a disabled port starts an unstarted frame", ENGINE,
++     CANCEL,
++     "      .cancel_i   (1'b0),\n",
+      "#94 built across the fall: the response is not sent"
+-     " | #94 link loss: nothing is transmitted while the port is disabled"),
++     " | #94 link loss: nothing is transmitted while the port is disabled"
++     " | #94 stalled first byte: the frame is withdrawn"
++     " | #94 stalled first byte: no frame starts while the port is"
++     " disabled"),
+     # both transmit gates at once: either alone keeps a ceased port silent
+-    ("a disabled port keeps its credit and its SEND", ENGINE,
++    ("a disabled port keeps its credit and starts its frames", ENGINE,
+      [("          st_rd_mux_w = {63'd0, tx_credit_i && port_en_r};\n",
+        "          st_rd_mux_w = {63'd0, tx_credit_i};\n"),
+-      ("      .send_i     (resp_send_w && port_en_r),\n",
+-       "      .send_i     (resp_send_w),\n")],
++      (CANCEL, "      .cancel_i   (1'b0),\n")],
+      None,
+      "#94 toggle: nothing is transmitted while the port is disabled"
+      " | #94 link loss: nothing is transmitted while the port is disabled"),
+@@ -115,6 +139,13 @@ PORT_MUTATIONS = [
+      "",
+      "#94 built across the fall: a request after the rise is answered at"
+      " once"),
++    # the request's own claim alone: a frozen pair's late t1 still finds it
++    ("the request claim survives the fall", ENGINE,
++     "      if (!port_en_r) begin\n"
++     "        tmr_claim_valid_r  <= 1'b0;\n",
++     "      if (!port_en_r) begin\n",
++     "#94 t1 after the fall: nothing commits after NOT_ENABLED"
++     " | #94 t1 after the fall: the delay holds"),
+     # the boot cadence serves the first enable since reset, so an edge there
+     # adds a commit to the one every reset release makes (#82)
+     ("the first enable since reset raises events", ENGINE,
+@@ -123,4 +154,59 @@ PORT_MUTATIONS = [
+      "#82 cold release: one commit before the first beat"
+      " | #82 warm reset: one commit in the first 2 ms"
+      " | p1 255 #82 cold release: one commit before the first beat"),
++    # ---- #94: a frame stalled on the byte face -----------------------------
++    # valid stays up for the cycle that withdraws the frame, so a ready
++    # downstream takes one byte of a frame that never ends
++    ("the withdrawn frame stays offered for a cycle", TXSLOT,
++     "  assign tx_valid_o = ser_run_r && !ser_drop_w;\n",
++     "  assign tx_valid_o = ser_run_r;\n",
++     "#94 link loss: nothing is transmitted while the port is disabled"),
++    ("a disabled port tears a started frame", TXSLOT,
++     DROP,
++     "  assign ser_drop_w = cancel_i && ser_run_r;\n",
++     at_each_stall("the started frame keeps its place") + " | "
++     + at_each_stall("the started frame completes whole")),
++    ("NOT_ENABLED waits for the serializer", ENGINE,
++     PE_POP,
++     "  assign pe_pop_w   = pe_noten_r && disp_ready_w && ser_idle_w &&\n"
++     "                      !disp_valid_r;\n",
++     at_each_stall("asCapable falls within 2 ms of the fall")),
++    # both: the frame stays offered and NOT_ENABLED waits for it, a
++    # serializer with no withdrawal
++    ("a stalled frame holds NOT_ENABLED back", ENGINE,
++     [(PE_POP,
++       "  assign pe_pop_w   = pe_noten_r && disp_ready_w && ser_idle_w &&\n"
++       "                      !disp_valid_r;\n"),
++      (CANCEL, "      .cancel_i   (1'b0),\n")],
++     None,
++     "#94 stalled first byte: asCapable falls within 2 ms of the fall"),
++    # ---- #94: an exchange armed or queued at the fall ----------------------
++    ("NOT_ENABLED keeps the armed response", GENERATOR,
++     "    for s in (S_CEASE, S_CEASECNT, S_MULTI, S_RSPSEQ):\n",
++     "    for s in (S_CEASE, S_CEASECNT, S_MULTI):\n",
++     "#94 Follow_Up after the fall: nothing commits after NOT_ENABLED"
++     " | #94 Follow_Up after the fall: the delay holds"
++     " | #94 Follow_Up queued before the fall: nothing commits after"
++     " NOT_ENABLED"
++     " | #94 Follow_Up queued before the fall: the delay holds"),
++    # NOT_ENABLED dispatches last, behind the result and the queue
++    ("NOT_ENABLED queues behind earlier events", ENGINE,
++     [(PE_POP,
++       "  assign pe_pop_w   = pe_noten_r && !txts_pend_r && evq_empty_w &&\n"
++       "                      disp_ready_w && !disp_valid_r;\n"),
++      ("  assign txts_pop_w = txts_pend_r && !pe_noten_r && disp_ready_w &&\n",
++       "  assign txts_pop_w = txts_pend_r && disp_ready_w &&\n"),
++      ("  assign pop_w = !txts_pend_r && !pe_noten_r && !evq_empty_w &&\n",
++       "  assign pop_w = !txts_pend_r && !evq_empty_w &&\n")],
++     None,
++     "#94 Follow_Up queued before the fall: the delay holds"),
++    # ---- #94: a warm reset released with the port disabled -----------------
++    # only a sample with the port enabled arms the edges
++    ("the first rise after a disabled release raises nothing", ENGINE,
++     "      port_ref_r  <= 1'b1;\n",
++     "      port_ref_r  <= port_ref_r || port_en_r;\n",
++     "#94 disabled warm reset: the first request comes within one interval"
++     " of the rise"
++     " | #94 disabled warm reset: the first request goes out at once after"
++     " the rise"),
+ ]
+diff --git a/tb/verilator/engine/sim_main.cpp b/tb/verilator/engine/sim_main.cpp
+index 4a9caf4..3c113e3 100644
+--- a/tb/verilator/engine/sim_main.cpp
++++ b/tb/verilator/engine/sim_main.cpp
+@@ -234,6 +234,16 @@
+ //         claim does not hold the next request after the rise
+ // 47      #94: without a toggle the cease ends after its countdown and
+ //         two beats, 5 s from the last request with this 3 s image
++// 48      #94: a Follow_Up after the fall, a t1 after it, or a Follow_Up
++//         queued behind a stall before it completes no exchange while
++//         the port is disabled
++// 49      #94: a frame stalled at its first byte is withdrawn at the
++//         fall, asCapable falls within 2 ms, and no frame starts while
++//         the port is disabled
++// 50      #94: a frame stalled after 1, 34 or 67 accepted bytes keeps its
++//         place and completes whole; asCapable still falls within 2 ms
++// 51      #94: a warm reset taken with the port disabled inside a cease:
++//         the first rise sends a request at once
+ //
+ // A fourth pass (+not-gm-capable, an image built with --p1 255) runs only
+ // the phases a self publication passes through: boot, mastership, 36..38,
+@@ -437,13 +447,22 @@ class GptpEngineHarness {
+     age_a_grandmaster_whose_sync_fails();
+     age_the_port_whatever_role_the_timeout_finds();
+     defer_a_whole_interval_to_the_issue_shapes();
++    run_the_port_enable_phases();
++    hold_every_committed_path_coherent();
++    keep_sync_ok_in_every_master_cycle();
++    end_every_peer_path_with_thisclock();
++  }
++
++  //! #94, phases 44 to 51: portEnabled, in file order
++  void run_the_port_enable_phases() {
+     end_the_cease_on_a_port_toggle();
+     drop_ascapable_at_a_link_loss();
+     drop_a_frame_built_across_the_fall();
+     keep_the_countdown_exit();
+-    hold_every_committed_path_coherent();
+-    keep_sync_ok_in_every_master_cycle();
+-    end_every_peer_path_with_thisclock();
++    complete_no_exchange_across_the_fall();
++    withdraw_a_frame_stalled_at_its_first_byte();
++    finish_a_frame_started_before_the_fall();
++    end_a_retained_cease_at_the_first_rise();
+   }
+ 
+   //! flags bit 0 in a self publication: gmPresent when thisClock is
+@@ -569,6 +588,9 @@ class GptpEngineHarness {
+   std::vector<uint64_t> txns;               // egress ts fed per frame
+   //! the cycle each frame's first byte left, per frame (#94)
+   std::vector<uint64_t> txsof;
++  //! the cycle of every accepted first byte, a frame that never ended
++  //! included (#94)
++  std::vector<uint64_t> txstarts;
+   uint64_t cur_sof = 0;
+   std::vector<uint8_t> cur;
+   bool in_tx = false;
+@@ -741,7 +763,12 @@ class GptpEngineHarness {
+     phc_acc += static_cast<unsigned __int128>(
+         static_cast<uint64_t>((500ll << 24) + phc_adj));
+     if (tx_fire) {
+-      if (tx_sof) { cur.clear(); in_tx = true; cur_sof = cyc; }
++      if (tx_sof) {
++        cur.clear();
++        in_tx = true;
++        cur_sof = cyc;
++        txstarts.push_back(cyc);
++      }
+       if (in_tx) cur.push_back(tx_data);
+       if (tx_eof && in_tx) {
+         if (type_of(cur) == 0x2) pd_reqs_sent++;
+@@ -6003,13 +6030,17 @@ class GptpEngineHarness {
+   //! after it: the registered port level and the serializer's first byte
+   static constexpr uint64_t FALL_SLACK_CYC = 16;
+ 
+-  //! frames whose first byte left in cycles [from, to), of `mtype` or of
+-  //! any type when it is negative
++  //! frames whose first byte left in cycles [from, to): complete frames of
++  //! `mtype`, or, when it is negative, every accepted first byte, so a
++  //! frame torn after it counts as well
+   size_t frames_started_between(uint64_t from, uint64_t to, int mtype = -1) {
+     size_t n = 0;
++    if (mtype < 0) {
++      for (const uint64_t c : txstarts) n += c >= from && c < to;
++      return n;
++    }
+     for (size_t i = 0; i < txf.size(); i++)
+-      if (txsof[i] >= from && txsof[i] < to &&
+-          (mtype < 0 || type_of(txf[i]) == mtype))
++      if (txsof[i] >= from && txsof[i] < to && type_of(txf[i]) == mtype)
+         n++;
+     return n;
+   }
+@@ -6232,6 +6263,222 @@ class GptpEngineHarness {
+            wait_flags(FL_ASCAP, FL_ASCAP, 8000000ull), 1);
+   }
+ 
++  //! the first commit since `c0` clears asCapable within 2 ms of `fall`,
++  //! and the published flags carry it clear
++  bool ascap_fell_at_once(size_t c0, uint64_t fall) {
++    const PubSnap *f = first_commit_since(c0);
++    return f != nullptr && (f->flags & FL_ASCAP) == 0 &&
++           f->cyc - fall <= 2 * MS_CYC && (dut->pub_flags_o & FL_ASCAP) == 0;
++  }
++
++  //! the port rises: true when a Pdelay_Req's first byte leaves within 2 ms
++  bool rise_sends_a_request_at_once() {
++    const uint64_t r0 = pd_reqs_sent;
++    const size_t mark = txf.size();
++    const uint64_t rise = cyc;
++    dut->port_enabled_i = 1;
++    return wait_requests(r0 + 1, 2 * MS_CYC) &&
++           request_sof(mark, 0) - rise <= 2 * MS_CYC;
++  }
++
++  //! a peer's Pdelay_Req whose response then waits at its first byte, ready
++  //! held low (phase D5's stall)
++  void stall_a_response_at_its_first_byte(uint16_t rq) {
++    dut->tx_ready_i = 0;
++    send_peer_request(rq, phc() + 1000);
++    for (int j = 0; j < 200000 && !(dut->tx_valid_o && dut->tx_sof_o); j++)
++      tick();
++  }
++
++  // ---- 48: #94, NOT_ENABLED completes no Pdelay exchange -----------------
++  // 802.1AS-2011 Figure 11-8 leaves WAITING_FOR_PDELAY_RESP_FOLLOW_UP for
++  // NOT_ENABLED on the fall, and NOT_ENABLED takes no Follow_Up. A capable
++  // port's request is answered with a Pdelay_Resp before the fall, and
++  //   0: its Follow_Up arrives 2 ms after the fall;
++  //   1: the request's t1 is withheld, so the complete pair waits for it
++  //      (#31), and the t1 is returned 2 ms after the fall;
++  //   2: its Follow_Up arrives before the fall, but waits in the queue
++  //      behind a response of ours stalled after its first byte, which
++  //      completes when ready returns after the fall.
++  // Each pairing would publish a delay 100 ns above the last. None
++  // publishes or commits while the port is disabled, and after each rise
++  // asCapable takes two fresh exchanges
++  void complete_no_exchange_across_the_fall() {
++    refuse_a_pair_across_the_fall(0, "#94 Follow_Up after the fall");
++    refuse_a_pair_across_the_fall(1, "#94 t1 after the fall");
++    refuse_a_pair_across_the_fall(2, "#94 Follow_Up queued before the fall");
++  }
++
++  void refuse_a_pair_across_the_fall(int how, const char *tag) {
++    char n[120];
++    pd_mode = PD_NORMAL;
++    snprintf(n, sizeof n, "%s: a capable port first", tag);
++    expect(n, wait_flags(FL_ASCAP, FL_ASCAP, 8000000ull), 1);
++    pd_mode = PD_SKIP;
++    tx_seen = txf.size();
++    size_t ri = 0;
++    const bool got = !wait_tx(0x2, 2 * INTERVAL_CYC, &ri).empty();
++    uint16_t seq = got ? seq_of(txf[ri]) : 0;
++    if (how == 1) {                     // the next request's t1 is withheld
++      seq = static_cast<uint16_t>(seq + 1);
++      withhold(0x2, seq);
++      wait_tx(0x2, 2 * INTERVAL_CYC, &ri);
++    }
++    for (int k = 0; k < 4000 && how != 1 && txns[ri] == 0; k++) tick();
++    const uint64_t t1 = how == 1 ? phc() + 200 : txns[ri];
++    const uint64_t t2 = peer_ns(t1 + 300);
++    const uint64_t t4 = t1 + 21200;
++    const uint64_t t3 = t2 + 19800;
++    send_peer_response(seq, t2, t4);
++    if (how == 1) send_peer_follow_up(seq, t3, t4 + 1000);
++    if (how == 2) {                     // one byte out, then held
++      stall_a_response_at_its_first_byte(0x9450);
++      dut->tx_ready_i = 1;
++      tick();
++      dut->tx_ready_i = 0;
++      send_peer_follow_up(seq, t3, t4 + 1000);
++    }
++    const uint32_t pd0 = dut->pub_pdelay_ns_o;
++    dut->port_enabled_i = 0;
++    run(2 * MS_CYC);
++    const size_t c1 = commit_snaps.size();
++    if (how == 0) send_peer_follow_up(seq, t3, t4 + 1000);
++    if (how == 1) {
++      deliver_result_by_tag(t1, seq, 0x2, true);
++      txns[ri] = t1;                    // so the auto-peer walks past it
++    }
++    dut->tx_ready_i = 1;
++    run(4000);
++    snprintf(n, sizeof n, "%s: nothing commits after NOT_ENABLED", tag);
++    expect(n, commit_snaps.size() - c1, 0);
++    snprintf(n, sizeof n, "%s: the delay holds", tag);
++    expect(n, dut->pub_pdelay_ns_o, pd0);
++    run_svc(500ull * MS_CYC);
++    dut->port_enabled_i = 1;
++    re_earn_in_two_exchanges(tag);
++  }
++
++  // ---- 49: #94, a frame stalled at its first byte is withdrawn ------------
++  // A capable master's next frame waits at its first byte, ready held low,
++  // and the port falls. Disable does not wait for the byte face: asCapable
++  // falls with a commit within 2 ms, and the frame is withdrawn, so when
++  // ready returns with the port still disabled, a beat included, no frame
++  // starts (802.1AS-2011 10.2.4.11). No egress claim is stranded: on the
++  // rise one request goes out at once and asCapable takes two exchanges
++  void withdraw_a_frame_stalled_at_its_first_byte() {
++    pd_mode = PD_NORMAL;
++    expect("#94 stalled first byte: a capable master first",
++           wait_flags(FL_AMGM | FL_ASCAP, FL_AMGM | FL_ASCAP, 8000000ull), 1);
++    pd_mode = PD_SKIP;
++    drain_automatic_results();
++    dut->tx_ready_i = 0;
++    for (uint64_t k = 0; k < 2 * INTERVAL_CYC && !dut->tx_valid_o; k++) tick();
++    expect("#94 stalled first byte: a frame waits at its first byte",
++           dut->tx_valid_o && dut->tx_sof_o, 1);
++    const size_t c0 = commit_snaps.size();
++    const uint64_t fall = cyc;
++    dut->port_enabled_i = 0;
++    run(2 * MS_CYC);
++    expect("#94 stalled first byte: asCapable falls within 2 ms of the fall",
++           ascap_fell_at_once(c0, fall), 1);
++    expect("#94 stalled first byte: the frame is withdrawn", dut->tx_valid_o,
++           0);
++    dut->tx_ready_i = 1;
++    run_svc(1200ull * MS_CYC);
++    expect("#94 stalled first byte: no frame starts while the port is "
++           "disabled", frames_started_between(fall, cyc), 0);
++    expect("#94 stalled first byte: the first request goes out at once after "
++           "the rise", rise_sends_a_request_at_once(), 1);
++    re_earn_in_two_exchanges("#94 stalled first byte");
++  }
++
++  // ---- 50: #94, a frame started before the fall runs to its end ----------
++  // A peer's Pdelay_Req is answered with ready held low. After k accepted
++  // bytes of the 68-byte response, k = 1, 34 and 67, the stall is held
++  // across the fall and a beat. The byte face has no abort, so the started
++  // frame keeps its place and completes whole when ready returns, and
++  // nothing else starts while the port is disabled. NOT_ENABLED does not
++  // wait for it: at every k asCapable falls with a commit within 2 ms of
++  // the fall, and on the rise one request goes out at once
++  void finish_a_frame_started_before_the_fall() {
++    char n[120];
++    uint16_t rq = 0x9491;
++    for (const int k : {1, 34, 67}) {
++      pd_mode = PD_NORMAL;
++      snprintf(n, sizeof n, "#94 stalled at byte %d: a capable port first",
++               k);
++      expect(n, wait_flags(FL_ASCAP, FL_ASCAP, 8000000ull), 1);
++      pd_mode = PD_SKIP;
++      drain_automatic_results();
++      for (int j = 0; j < 40000 && (dut->dbg_busy_o || dut->tx_valid_o); j++)
++        tick();
++      const size_t mark = txf.size();
++      stall_a_response_at_its_first_byte(rq);
++      for (int b = 0; b < k; b++) {
++        dut->tx_ready_i = 1;
++        tick();
++        dut->tx_ready_i = 0;
++      }
++      const size_t c0 = commit_snaps.size();
++      const uint64_t fall = cyc;
++      dut->port_enabled_i = 0;
++      run(2 * MS_CYC);
++      snprintf(n, sizeof n, "#94 stalled at byte %d: asCapable falls within "
++               "2 ms of the fall", k);
++      expect(n, ascap_fell_at_once(c0, fall), 1);
++      snprintf(n, sizeof n, "#94 stalled at byte %d: the started frame keeps "
++               "its place", k);
++      expect(n, dut->tx_valid_o, 1);
++      run_svc(1100ull * MS_CYC);
++      dut->tx_ready_i = 1;
++      run_svc(10ull * MS_CYC);
++      const int resp = find_tx(mark, 0x3, rq);
++      snprintf(n, sizeof n, "#94 stalled at byte %d: the started frame "
++               "completes whole", k);
++      expect(n, resp >= 0 && txf[resp].size() == 68 && txsof[resp] < fall, 1);
++      snprintf(n, sizeof n, "#94 stalled at byte %d: nothing else starts "
++               "while the port is disabled", k);
++      expect(n, frames_started_between(fall, cyc), 0);
++      snprintf(n, sizeof n, "#94 stalled at byte %d: the first request goes "
++               "out at once after the rise", k);
++      expect(n, rise_sends_a_request_at_once(), 1);
++      rq++;
++    }
++  }
++
++  // ---- 51: #94, a warm reset taken with the port disabled ends the cease --
++  // Scratch, and a Milan v1.2 4.2.6.2.5 cease with it, survives a warm reset
++  // (phase 28). 802.1AS-2011 Figure 11-8 enters NOT_ENABLED at BEGIN, and
++  // the port's rise leaves it through INITIAL_SEND_PDELAY_REQ whatever
++  // scratch retained. So 1.3 s into the countdown the port falls with a
++  // warm reset and stays disabled 1.3 s past its release, a boot beat
++  // included. Its first rise sends a request at once instead of waiting
++  // out the countdown, and asCapable takes two fresh exchanges
++  void end_a_retained_cease_at_the_first_rise() {
++    pd_mode = PD_NORMAL;
++    const bool capable = wait_flags(FL_ASCAP, FL_ASCAP, 8000000ull);
++    pd_mode = PD_DUAL;
++    expect("#94 disabled warm reset: three multi-answered requests cease",
++           capable && wait_flags(FL_ASCAP, 0, 16000000ull), 1);
++    run_svc(1300ull * MS_CYC);
++    pd_mode = PD_OFF;
++    dut->port_enabled_i = 0;
++    dut->rst_n = 0;
++    for (int i = 0; i < 8; i++) tick();
++    dut->rst_n = 1;
++    run_svc(1300ull * MS_CYC);
++    const uint64_t r0 = pd_reqs_sent;
++    const size_t mark = txf.size();
++    const uint64_t rise = cyc;
++    dut->port_enabled_i = 1;
++    expect("#94 disabled warm reset: the first request comes within one "
++           "interval of the rise", wait_requests(r0 + 1, INTERVAL_CYC), 1);
++    const uint64_t s0 = request_sof(mark, 0);
++    expect("#94 disabled warm reset: the first request goes out at once "
++           "after the rise", s0 != ~0ull && s0 - rise <= 2 * MS_CYC, 1);
++    re_earn_in_two_exchanges("#94 disabled warm reset");
++  }
++
+   // ---- 41: #89, sync receipt ageing needs gmPresent (priority1 255 pass) ---
+   // gmPresent is TRUE only while the grandmaster's priority1 is below 255
+   // (802.1AS-2011 10.2.3.13, 10.3.12.1.4 g), and 10.3.11 ages on a sync
+diff --git a/tb/verilator/ucpu/gptp_ucode.hex b/tb/verilator/ucpu/gptp_ucode.hex
+index 1844357..4e17598 100644
+--- a/tb/verilator/ucpu/gptp_ucode.hex
++++ b/tb/verilator/ucpu/gptp_ucode.hex
+@@ -522,7 +522,7 @@ E00000000000
+ 1000020003E0
+ 287810000005
+ 1000020000FE
+-0800000003F5
++0800000002B7
+ 408030020017
+ 280820000001
+ 100002000254
+@@ -613,7 +613,7 @@ E91001000001
+ 281020000000
+ 100002000267
+ 180000000000
+-0800000002B7
++0800000003F5
+ 410030020021
+ 281020000001
+ 10000200026D
+@@ -627,7 +627,7 @@ E99800000001
+ 481030020023
+ 22800000012C
+ 482830020024
+-0800000003FA
++0800000002BD
+ 480030020021
+ 480030020020
+ 48003002002C
+@@ -694,14 +694,14 @@ EAA80200000B
+ A80000000000
+ 180000000000
+ 480030020023
++480030020024
+ 480030020022
+-480030020021
+-480030020020
+-480030020008
++480030020027
+ 228000000001
+ 48283002000B
+-180000000000
+-E27F502493AE
++480030020021
++480030020020
++0800000002B1
+ E8F780000000
+ 480830020000
+ E8F781000000
+@@ -1012,13 +1012,13 @@ EDD806000035
+ 0800000000F9
+ 180000000000
+ 480030020023
+-480030020024
+ 480030020022
+-228000000001
+-48283002000B
+ 480030020021
+ 480030020020
+-0800000002B1
++480030020008
++228000000001
++48283002000B
++180000000000
+ 255251AABB9F
+ 000102A1B2FF
+ 0000FEC3D4E5

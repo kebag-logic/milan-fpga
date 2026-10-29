@@ -1,0 +1,27 @@
+control: slot 6 runs no NOT_ENABLED leg
+rc: 1
+named verdict: caught
+FAIL #94 toggle: the first request comes within one interval of the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: then one request every interval got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: lostResponses starts at zero: four losses commit nothing got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: the fifth loss after the rise commits asCapable FALSE got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: asCapable falls at the falling edge got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: the publication holds while the port is disabled got 0000000000000003 exp 0000000000000000
+FAIL #94 link loss: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 countdown: the first request after the cease follows the last by the countdown and two beats got 0000000000000000 exp 0000000000000001
+FAIL #94 Follow_Up after the fall: nothing commits after NOT_ENABLED got 0000000000000001 exp 0000000000000000
+FAIL #94 Follow_Up after the fall: the delay holds got 00000000000002bd exp 0000000000000259
+FAIL #94 Follow_Up after the fall: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 t1 after the fall: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 Follow_Up queued before the fall: nothing commits after NOT_ENABLED got 0000000000000001 exp 0000000000000000
+FAIL #94 Follow_Up queued before the fall: the delay holds got 00000000000002bd exp 0000000000000259
+FAIL #94 Follow_Up queued before the fall: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 1: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 disabled warm reset: the first request comes within one interval of the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 disabled warm reset: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+2108 checks: 2085 PASS, 23 FAIL

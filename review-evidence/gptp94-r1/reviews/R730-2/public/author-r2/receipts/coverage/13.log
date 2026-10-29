@@ -1,0 +1,8 @@
+control: a disabled port starts an unstarted frame
+rc: 1
+named verdict: caught
+FAIL #94 link loss: nothing is transmitted while the port is disabled got 0000000000000001 exp 0000000000000000
+FAIL #94 built across the fall: the response is not sent got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: the frame is withdrawn got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled first byte: no frame starts while the port is disabled got 0000000000000001 exp 0000000000000000
+2108 checks: 2104 PASS, 4 FAIL

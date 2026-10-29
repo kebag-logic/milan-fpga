@@ -1,0 +1,18 @@
+control: the ladder raises asCapable at the first exchange
+rc: 1
+named verdict: caught
+FAIL one exchange not capable     got 0000000000000004 exp 0000000000000000
+FAIL capable at two exchanges     got 0000000000000001 exp 0000000000000002
+FAIL one good is not enough       got 0000000000000004 exp 0000000000000000
+FAIL 26b: asCapable down, one exchange in got 0000000000000004 exp 0000000000000000
+FAIL replayed identical pair: not a second exchange got 0000000000000004 exp 0000000000000000
+FAIL skewed replay: not a second exchange got 0000000000000004 exp 0000000000000000
+FAIL #94 toggle: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 Follow_Up after the fall: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 t1 after the fall: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 Follow_Up queued before the fall: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 disabled warm reset: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL p1 255 capable at two exchanges     got 0000000000000001 exp 0000000000000002
+2108 checks: 2094 PASS, 14 FAIL

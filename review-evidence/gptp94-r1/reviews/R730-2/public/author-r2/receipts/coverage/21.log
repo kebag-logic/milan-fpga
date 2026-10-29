@@ -1,0 +1,13 @@
+control: a stalled frame holds NOT_ENABLED back
+rc: 1
+named verdict: caught
+FAIL #94 link loss: nothing is transmitted while the port is disabled got 0000000000000001 exp 0000000000000000
+FAIL #94 built across the fall: the response is not sent got 0000000000000000 exp 0000000000000001
+FAIL #94 Follow_Up queued before the fall: nothing commits after NOT_ENABLED got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled first byte: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: the frame is withdrawn got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled first byte: no frame starts while the port is disabled got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled at byte 1: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+2108 checks: 2099 PASS, 9 FAIL

@@ -1,0 +1,47 @@
+make: Entering directory '<scratch>/runs/head-px/tb/verilator/tsn_fuzz'
+== gPTP/802.1AS field campaign (tsn-gen driven) ==
+
+[802.1AS model inventory (tsn-gen)]
+
+[independent decode: wire.py vs packet_gen (no shift)]
+
+[boot: the first Pdelay_Req, graded field by field]
+
+[climb: exchanges up, asCapable within the ladder]
+
+[as grandmaster: Announce / Sync / Follow_Up conform]
+
+[parser gates: what must drop, drops; what 11.4.1 ignores, passes]
+  ..... unlisted-type windows: 0x1:1 0x4:2 0x5:1 0x6:1 0x7:1 0x9:1 0xD:1 0xE:1 0xF:1 (1 re-roll(s) over 9 types)
+
+[pdelay responder: Resp + Resp_Follow_Up conform]
+
+[BTCA under fuzz: only a legal better vector moves the grandmaster]
+
+[sync consumption: clean pairs move the servo, malformed ones cannot]
+
+[the accept side of the length oracle: one over-minimum frame per parsed type, accepted and ACTED ON]
+
+[Milan 4.2.6.2.5: multiple responders cease Pdelay_Req; duplicates do not]
+
+[re-climb before the storm: exchanges up, asCapable within the ladder]
+
+[constrained-random storms + the asCapable canary]
+  ..... storm: 192 frames, rx_drop 65 -> 91
+
+[the two-sided canary: asCapable falls in a response drought, then climbs again]
+
+[recovery: exchanges up, asCapable within the ladder]
+
+[every Ethernet TX flag word: model and Table 11-4]
+  ..... tx_sync.flags: 129 emitted frames
+  ..... tx_follow_up.flags: 129 emitted frames
+  ..... tx_pdelay_req.flags: 41 emitted frames
+  ..... tx_pdelay_resp.flags: 32 emitted frames
+  ..... tx_pdelay_resp_fu.flags: 32 emitted frames
+
+results -> ../../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md
+
+== gPTP/802.1AS field campaign (tsn-gen driven): 675 pass, 0 fail, 0 known gaps ==
+campaign artifact freshness (hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md): 1 checks: 1 PASS, 0 FAIL
+make: Leaving directory '<scratch>/runs/head-px/tb/verilator/tsn_fuzz'

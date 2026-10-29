@@ -1,0 +1,48 @@
+Published hashes verified: 211
+Named mutation failures verified: a portEnabled edge keeps the cease
+Named mutation failures verified: slot 6 runs no NOT_ENABLED leg
+Named mutation failures verified: a portEnabled edge keeps the ladder
+Named mutation failures verified: a portEnabled edge leaves the interval unanswered
+Named mutation failures verified: the countdown loads one beat less
+Named mutation failures verified: the cease entry ends the cease at once
+Named mutation failures verified: the cease entry keeps asCapable
+Named mutation failures verified: the ladder raises asCapable at the first exchange
+Named mutation failures verified: the falling edge raises no event
+Named mutation failures verified: a rise sends no request at once
+Named mutation failures verified: a disabled port keeps its transmit credit
+Named mutation failures verified: a disabled port starts an unstarted frame
+Named mutation failures verified: a disabled port keeps its credit and starts its frames
+Named mutation failures verified: egress claims survive the fall
+Named mutation failures verified: the request claim survives the fall
+Named mutation failures verified: the first enable since reset raises events
+Named mutation failures verified: the withdrawn frame stays offered for a cycle
+Named mutation failures verified: a disabled port tears a started frame
+Named mutation failures verified: NOT_ENABLED waits for the serializer
+Named mutation failures verified: a stalled frame holds NOT_ENABLED back
+Named mutation failures verified: NOT_ENABLED keeps the armed response
+Named mutation failures verified: NOT_ENABLED queues behind earlier events
+Named mutation failures verified: the first rise after a disabled release raises nothing
+Covered issue checks: 71; port controls: 23
+repo-base-fast: head=f97c18035be6ef5345e5af27db2124c5697c1b40; 13 commands rc 0
+repo-head-fast: head=409c3075a6c5525d283de5a93584ad87a4528137; 13 commands rc 0
+repo-base-arm: head=f97c18035be6ef5345e5af27db2124c5697c1b40; 2 commands rc 0
+repo-head-arm: head=409c3075a6c5525d283de5a93584ad87a4528137; 2 commands rc 0
+parent-base-A: head=e06ade312a80eb578579365134ab797cda90622b; 14 commands rc 0
+parent-base-B: head=e06ade312a80eb578579365134ab797cda90622b; 1 commands rc 0
+parent-head-A: head=6c3246871647abbdcf7cf2505c184d55e06d426e; 14 commands rc 0
+parent-head-B: head=6c3246871647abbdcf7cf2505c184d55e06d426e; 1 commands rc 0
+parent-head-extra: head=6c3246871647abbdcf7cf2505c184d55e06d426e; 5 commands rc 0
+repo-base-arm: 113/113
+repo-head-arm: 136/136
+parent-head-A/12.log: 205/205
+parent-head-A/13.log: 205/205
+Parent physical-simulation event/verdict lines identical to base
+Companion donor gitlink: exact reviewed head
+Companion verified preimage and postimage: docs/design/GPTP_PLANE.md 204afddd84 -> 9eeee3af91
+Companion verified preimage and postimage: hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv 8d9c40df7d -> 835400eabc
+Companion verified preimage and postimage: hdl/milan/milan_datapath.sv 0b741c4d39 -> 505ea2c05c
+Companion verified preimage and postimage: tb/verilator/gptp_plane/gptp_plane_wrap.sv ae812ae0d4 -> ee113fd81a
+Companion verified preimage and postimage: tb/verilator/gptp_shadow/gptp_shadow_wrap.sv f0748a54d0 -> a132da7123
+Companion verified preimage and postimage: tb/verilator/gptp_txts/gptp_txts_wrap.sv 29ba0a12a4 -> 199f086490
+Companion verified preimage and postimage: tb/verilator/milan_dp/README.md 9d09fff577 -> 3455d133c7
+Companion verified preimage and postimage: tb/verilator/milan_dp/sim_gptp.cpp 6a115c899b -> b01cf6bbda

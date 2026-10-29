@@ -1,0 +1,59 @@
+control: dispatch ignores a busy serializer
+rc: 1
+named verdict: caught
+FAIL #84 takeover: nothing commits while dispatch is held got 000000000000012e exp 000000000000012d
+FAIL torn better announce adopts  got 00beeffffe000002 exp 00cafefffe000003
+FAIL its announcer is the parent  got 00beeffffe000001 exp 00cafefffe000004
+FAIL neg exchange ran             got 0000000000000000 exp 0000000000000001
+FAIL neg pdelay in floor          got 0000000000000000 exp 0000000000000001
+FAIL far exchange ran             got 0000000000000000 exp 0000000000000001
+FAIL far pdelay over thresh       got 0000000000000000 exp 0000000000000001
+FAIL threshold clears capable     got 0000000000000004 exp 0000000000000000
+FAIL recovery ex1 ran             got 0000000000000000 exp 0000000000000001
+FAIL one good is not enough       got 0000000000000004 exp 0000000000000000
+FAIL recovery ex2 ran             got 0000000000000000 exp 0000000000000001
+FAIL #90 no response: runs from a completed exchange got 0000000000000000 exp 0000000000000001
+FAIL #90 no response: request 1 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no response: request 2 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no response: request 3 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no response: request 4 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no response: request 5 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no response: request 6 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no response: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+FAIL #90 no follow-up: runs from a completed exchange got 0000000000000000 exp 0000000000000001
+FAIL #90 no follow-up: request 1 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no follow-up: request 2 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no follow-up: request 3 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no follow-up: request 4 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no follow-up: request 5 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no follow-up: request 6 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no follow-up: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+FAIL #91 duplicated response: runs from a completed exchange got 0000000000000000 exp 0000000000000001
+FAIL #91 duplicated response: request 1 goes out got 0000000000000000 exp 0000000000000001
+FAIL #91 duplicated response: request 2 goes out got 0000000000000000 exp 0000000000000001
+FAIL #91 duplicated response: request 3 goes out got 0000000000000000 exp 0000000000000001
+FAIL #91 duplicated response: request 4 goes out got 0000000000000000 exp 0000000000000001
+FAIL #91 duplicated response: request 5 goes out got 0000000000000000 exp 0000000000000001
+FAIL #91 duplicated response: request 6 goes out got 0000000000000000 exp 0000000000000001
+FAIL #91 duplicated response: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+FAIL #91 three responses: runs from a completed exchange got 0000000000000000 exp 0000000000000001
+FAIL #91 three responses: request 1 goes out got 0000000000000000 exp 0000000000000001
+FAIL #91 three responses: request 2 goes out got 0000000000000000 exp 0000000000000001
+FAIL #91 three responses: request 3 goes out got 0000000000000000 exp 0000000000000001
+FAIL #91 three responses: request 4 goes out got 0000000000000000 exp 0000000000000001
+FAIL #91 three responses: request 5 goes out got 0000000000000000 exp 0000000000000001
+FAIL #91 three responses: request 6 goes out got 0000000000000000 exp 0000000000000001
+FAIL #91 three responses: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+FAIL post-gap exchange ran        got 0000000000000000 exp 0000000000000001
+FAIL gap took the stale path      got 0000000000000000 exp 0000000000000001
+FAIL 26b: asCapable down, one exchange in got 0000000000000004 exp 0000000000000000
+FAIL replayed identical pair: not a second exchange got 0000000000000004 exp 0000000000000000
+FAIL skewed replay: not a second exchange got 0000000000000004 exp 0000000000000000
+FAIL storm clears capable... eventually got 0000000000000000 exp 0000000000000001
+FAIL forged pairs cannot climb mid-cease got 0000000000000004 exp 0000000000000000
+FAIL resume timer restarts requests got 0000000000000000 exp 0000000000000001
+FAIL #91 duplicates are not a storm: requests keep going out got 0000000000000000 exp 0000000000000001
+FAIL 27b: a late second identity still ceases got 0000000000000000 exp 0000000000000001
+FAIL 27b: the countdown resumes requests got 0000000000000000 exp 0000000000000001
+FAIL second storm ceases          got 0000000000000000 exp 0000000000000001
+2108 checks: 2053 PASS, 55 FAIL
