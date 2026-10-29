@@ -199,7 +199,6 @@ SECTIONS
 		*-aecp_commands.o(.text.aecp_stream_read)
 		*-aecp_mbx.o(.text.stream)
 		*-ctrl_app_aecp.o(.text.stream)
-		*-ctrl_aecp_image.o(.text.a_stream)
 		*-srp_mbx.o(.text.apply_receive)
 		*-mrp_mad.o(.text.mrp_rx)
 		*-mrp_pdu.o(.text.mrpdu_parse)

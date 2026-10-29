@@ -8,7 +8,9 @@
 # 300,000 bus cycles before its first record's commit for 900,000 committed PCs
 # (BUDGET_TRACE_AFTER, BUDGET_TRACE_PCS), with the AECP event and registry indexes
 # and the SRP walk gate of docs/design/SPLIT_CONTROL_MEMORY.md section 11 in place.
-# The 8x8/2if traces ran the same functions. The traces' sha256:
+# The 8x8/2if traces ran the same functions. Contract 2.3's face block (#665)
+# replaced the size fixture's stream observation, ctrl_aecp_image a_stream, so
+# its entry is gone; the face's own port stays with the rest. The traces' sha256:
 #   backlog      869b1aca4b0e1ecc5be8b30d3f5bebd9ba4c8a5b0829595697c618cfa494a753
 #   backlog-adp  d2c80da7ea69b4f97b1b65babc52c7f9f3822f12e4a0efeedc6de77e03cbb21a
 #
@@ -189,7 +191,6 @@ aecp wire_put_be
 aecp_commands aecp_stream_read
 aecp_mbx stream
 ctrl_app_aecp stream
-ctrl_aecp_image a_stream
 srp_mbx apply_receive
 mrp_mad mrp_rx
 mrp_pdu mrpdu_parse
