@@ -163,6 +163,10 @@ OUTSIDE = {
     "sw/firmware/ctrl/test/ctrl_mutant.py": "the campaign tables' record of one defect; it compiles nothing",
     "sw/firmware/ctrl_nvm/test/nvm_mutants.py": "the saved-state store campaign's planted defects, which "
                                                 "test_ctrl_nvm.py compiles; it compiles nothing",
+    "sw/firmware/ctrl_nvm/plat/gen_flash_port.py": "writes the flash port's register and memory map from a split "
+                                                   "SoC's csr.csv (#665); its self-test compiles a probe of the "
+                                                   "headers it writes with the host compiler, no firmware or stack "
+                                                   "source",
     "sw/firmware/ctrl/test/ctrl_reuse.py": "cuts the processor's sources into fragments the arms compile; it "
                                            "compiles nothing",
     "sw/firmware/ctrl/test/srp_reuse.py": "cuts the processor's SRP sources into fragments the SRP arms compile; it "

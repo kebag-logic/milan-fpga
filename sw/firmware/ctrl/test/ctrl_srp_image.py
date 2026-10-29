@@ -10,7 +10,11 @@ into the split placement's block RAM (sw/litex/ctrl_memory.py) behind its reset
 entry and reports the bank plan the SoC would build for it.
 The ADP, ACMP and MAAP cores come from the TSN stack (--stack-source, the
 tsn-c-stack submodule by default), or from a --ctrl-source that predates #697
-and still holds them.
+and still holds them. The saved-state store comes from --nvm-source
+(sw/firmware/ctrl_nvm by default). Its flash port compiles against the RV32
+stand-ins' placeholder addresses, or with --flash-map against the headers
+gen_flash_port.py generated from a split SoC's csr.csv, whose clock must be the
+shape's (#665).
 """
 from __future__ import annotations
 import argparse
@@ -48,8 +52,20 @@ def source_tree(ctrl: Path, stack: Path, out: Path) -> Tree:
     return Tree(ctrl,out,out/"reuse",fw_gtest.Build(jobs=4),legacy or stack)
 
 
-def aecp_inputs(tree: Tree, config: Path, out: Path) -> tuple[list[str], list[Path]]:
-    """Add the generated AECP model and the existing saved-state owner."""
+def flash_port(flash_map: Path | None, clock_hz: int) -> list[str]:
+    """The include directory of the flash port's generated map, ahead of the RV32 stand-ins; none without one.
+    A map whose SoC clock is not the shape's is refused: timer0 counts the SoC's clock."""
+    if flash_map is None:
+        return []
+    soc_hz=json.loads((flash_map/"flash_port.json").read_text())["clock_hz"]
+    if soc_hz != clock_hz:
+        raise Refusal(f"the flash map's SoC runs at {soc_hz} Hz, the shape at {clock_hz} Hz")
+    return [f"-I{flash_map}"]
+
+
+def aecp_inputs(tree: Tree, config: Path, out: Path, nvm: Path,
+                flash_map: Path | None) -> tuple[list[str], list[Path]]:
+    """Add the generated AECP model and the existing saved-state owner, the store from nvm."""
     sys.path.insert(0,str(NVM_DIR/"test"))
     import nvm_bench
     from aecp_arms import AECP_SOURCES
@@ -58,9 +74,10 @@ def aecp_inputs(tree: Tree, config: Path, out: Path) -> tuple[list[str], list[Pa
     nvm_bench.write_headers(out/"gen",header,shape.clock_hz)
     checked([sys.executable,"-B",str(CTRL/"aecp/aecp_entity.py"),str(config),
              "-o",str(out/"aecp_entity_gen.h")])
-    inc=[f"-I{tree.src/'aecp'}",f"-I{out/'gen'}",f"-I{NVM_DIR/'plat'}",f"-I{NVM_DIR/'test/rv32'}"]
+    inc=[f"-I{tree.src/'aecp'}",*flash_port(flash_map,shape.clock_hz),f"-I{out/'gen'}",f"-I{nvm/'plat'}",
+         f"-I{nvm/'test/rv32'}"]
     sources=[tree.src/"aecp"/s for s in (*AECP_SOURCES,"aecp_mbx.c","aecp_nvm.c","aecp_face.c")]
-    sources += [tree.src/"app/ctrl_app_aecp.c",*[NVM_DIR/s for s in
+    sources += [tree.src/"app/ctrl_app_aecp.c",*[nvm/s for s in
                 ("nvm_klj2.c","nvm_store.c","plat/nvm_flash_litespi.c")]]
     return inc,sources
 
@@ -101,6 +118,9 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--output",type=Path,required=True)
     parser.add_argument("--ctrl-source",type=Path,default=CTRL)
     parser.add_argument("--stack-source",type=Path,default=STACK)
+    parser.add_argument("--nvm-source",type=Path,default=NVM_DIR,help="the saved-state store's tree")
+    parser.add_argument("--flash-map",type=Path,
+                        help="the flash port's map generated from a split SoC's csr.csv (gen_flash_port.py)")
     parser.add_argument("--without-srp",action="store_true")
     parser.add_argument("--with-aecp",action="store_true")
     parser.add_argument("--interfaces",type=int,choices=(1,2),default=1)
@@ -120,6 +140,8 @@ def main() -> int:
     try:
         if args.ledgered_point is not None and args.layout != "split":
             raise Refusal("--ledgered-point plans a split image; it needs --layout split")
+        if args.flash_map is not None and not args.with_aecp:
+            raise Refusal("--flash-map maps the saved-state store's flash port, which only --with-aecp links")
         cc=fw_rv32.compiler()
         if cc is None:
             raise Refusal("the pinned RV32 compiler is required")
@@ -128,13 +150,15 @@ def main() -> int:
         checked([sys.executable,"-B",str(CTRL/"adp/adp_entity.py"),str(args.config),
                  "-o",str(out/"adp_entity_gen.h")])
         flags=[*RV32_FLAGS,"-DNDEBUG","-fno-pie","-ffunction-sections","-fdata-sections"]
-        inc += [f"-I{out}",f"-I{NVM_DIR}",*fw_rv32.includes(cc)]
+        nvm=args.nvm_source.resolve()
+        inc += [f"-I{out}",f"-I{nvm}",*fw_rv32.includes(cc)]
         sources=[source(variant if name.startswith("mbx/") else tree.src,tree.stack,name) for name in PORTABLE]
         sources += [tree.src/"plat/mbx_plat_mmio.c",HERE/("ctrl_aecp_image.c" if args.with_aecp else "ctrl_image.c")]
         if args.with_aecp:
             if args.without_srp:
                 raise Refusal("AECP sizing requires the complete SRP composition")
-            extra_inc, extra_sources = aecp_inputs(tree,args.config,out)
+            flash_map=args.flash_map.resolve() if args.flash_map else None
+            extra_inc, extra_sources = aecp_inputs(tree,args.config,out,nvm,flash_map)
             inc += extra_inc
             sources += extra_sources
         libraries=[args.libc.resolve(),args.compiler_runtime.resolve()]
