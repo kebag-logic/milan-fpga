@@ -106,6 +106,10 @@ clocked by the datapath clock the words are generated in (50 MHz on the AX7101, 
 The PHY hold crosses into `sys` through a `MultiReg` and sets the PHY reset's CSR storage.
 A CPU write to that CSR in the same cycle can clear it for that one cycle, and the hold sets it again on the next.
 No firmware writes it.
+While the PHY is held its receive clock stops, so [`KL_link_guard`](../../hdl/common/KL_link_guard.sv) declares the
+clock dead and holds the MAC's resets, as for any link loss ([clock-domain guide](../litex/CLOCK_DOMAINS.md#reset-ownership)).
+The guard's toggles are reset-less observers outside the hold, so it cannot deadlock on it, and the reload follows
+before anything waits for the recovery.
 
 **The contract change is one documented reset-control bit, `o_reboot_phy_hold`, and the ICAPE2 port that carries the
 fixed IPROG words to the primitive.** No CSR, no register field and no processor port beyond #203's `reboot_req_o` is
