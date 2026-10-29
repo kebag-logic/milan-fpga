@@ -1,0 +1,263 @@
+{
+ "platform": {
+  "needs": [
+   125040,
+   113936
+  ],
+  "tiles": 59.0,
+  "parts": {
+   "shared": [
+    94879,
+    14457
+   ],
+   "maap": [
+    916,
+    0
+   ],
+   "mmio": [
+    16,
+    0
+   ],
+   "csr": [
+    788,
+    0
+   ],
+   "console": [
+    1744,
+    0
+   ],
+   "acmp": [
+    164,
+    0
+   ],
+   "aecp": [
+    12,
+    0
+   ],
+   "srp": [
+    48,
+    0
+   ],
+   "boot": [
+    1692,
+    0
+   ],
+   "main": [
+    224,
+    56
+   ],
+   "library": [
+    1972,
+    0
+   ],
+   "alignment": [
+    19,
+    8222
+   ],
+   "strings": [
+    762,
+    0
+   ],
+   "pools": [
+    21804,
+    69961
+   ],
+   "state": [
+    0,
+    21240
+   ]
+  },
+  "ram_detail": {
+   "ctrl_plat.o:.data.maps": 448,
+   "ctrl_plat.o:.bss.map_scratch": 576,
+   "ctrl_plat.o:.bss.map_rows": 4608,
+   "ctrl_plat.o:.bss.latency": 36,
+   "ctrl_plat.o:.bss.events": 2480,
+   "ctrl_plat.o:.bss.values": 11753,
+   "ctrl_plat.o:.bss.descriptors": 1984,
+   "ctrl_plat.o:.bss.model": 12,
+   "ctrl_plat.o:.bss.arena": 48064,
+   "ctrl_plat.o:.bss.ctrl_plat": 21240
+  },
+  "members": {
+   "acmp": 96,
+   "aecp": 3352,
+   "aecp_config": 48,
+   "app": 10064,
+   "binding": 40,
+   "bridge": 132,
+   "config": 56,
+   "console": 588,
+   "face": 88,
+   "maap_csr": 32,
+   "sources": 576,
+   "srp": 5896,
+   "srp_config": 40,
+   "state": 84
+  }
+ },
+ "fixture": {
+  "needs": [
+   119824,
+   113008
+  ],
+  "tiles": 57.5,
+  "parts": {
+   "shared": [
+    94863,
+    14457
+   ],
+   "entry": [
+    1088,
+    0
+   ],
+   "library": [
+    1972,
+    0
+   ],
+   "alignment": [
+    17,
+    8228
+   ],
+   "state": [
+    80,
+    20362
+   ],
+   "pools": [
+    21804,
+    69961
+   ]
+  },
+  "ram_detail": {
+   "ctrl_aecp_image.o:.data.image_map_pools": 448,
+   "ctrl_aecp_image.o:.bss.image_face": 88,
+   "ctrl_aecp_image.o:.bss.image_map_scratch": 576,
+   "ctrl_aecp_image.o:.bss.image_maps": 4608,
+   "ctrl_aecp_image.o:.bss.image_latency": 36,
+   "ctrl_aecp_image.o:.bss.image_events": 2480,
+   "ctrl_aecp_image.o:.bss.image_values": 11753,
+   "ctrl_aecp_image.o:.bss.image_descriptors": 1984,
+   "ctrl_aecp_image.o:.bss.image_model": 12,
+   "ctrl_aecp_image.o:.bss.image_binding": 40,
+   "ctrl_aecp_image.o:.bss.image_state": 84,
+   "ctrl_aecp_image.o:.bss.image_aecp_bridge": 132,
+   "ctrl_aecp_image.o:.bss.image_aecp": 3352,
+   "ctrl_aecp_image.o:.bss.image_arena": 48064,
+   "ctrl_aecp_image.o:.bss.image_allocation": 16,
+   "ctrl_aecp_image.o:.bss.image_licences": 18,
+   "ctrl_aecp_image.o:.bss.image_sources": 576,
+   "ctrl_aecp_image.o:.bss.image_acmp": 96,
+   "ctrl_aecp_image.o:.bss.image_srp": 5896,
+   "ctrl_aecp_image.o:.bss.image_app": 10064
+  },
+  "members": {}
+ },
+ "delta": {
+  "boot": [
+   1692,
+   0
+  ],
+  "csr": [
+   788,
+   0
+  ],
+  "console": [
+   1744,
+   0
+  ],
+  "strings": [
+   762,
+   0
+  ],
+  "maap": [
+   916,
+   0
+  ],
+  "acmp": [
+   164,
+   0
+  ],
+  "srp": [
+   48,
+   0
+  ],
+  "aecp": [
+   12,
+   0
+  ],
+  "main": [
+   224,
+   56
+  ],
+  "mmio": [
+   16,
+   0
+  ],
+  "state": [
+   -80,
+   878
+  ],
+  "pools": [
+   0,
+   0
+  ],
+  "entry": [
+   -1088,
+   0
+  ],
+  "shared": [
+   16,
+   0
+  ],
+  "library": [
+   0,
+   0
+  ],
+  "alignment": [
+   2,
+   -6
+  ]
+ },
+ "need_delta": [
+  5216,
+  928
+ ],
+ "sum": [
+  5216,
+  928
+ ],
+ "state_sram": {
+  "the paired members (app, srp, aecp, sources, bridge, acmp, face, state, binding) against the fixture's objects": 0,
+  "`console`": 588,
+  "`maap_csr`": 32,
+  "`config`, `aecp_config` and `srp_config`, held statically": 144,
+  "the other fields and padding, against the fixture's `image_allocation`, `image_licences`": 114
+ },
+ "state_sums_match": true
+}
+
+| Part | `rom`, B | `sram`, B |
+|---|---:|---:|
+| the boot: `ctrl_plat_boot` with its inlined composition, MAAP owner and SRP source set-up, `ctrl_plat_step`, the image hook | +1,692 | +0 |
+| the CSR window: identity, policy, status and time of day (`ctrl_plat_csr.c`) | +788 | +0 |
+| the console (`ctrl_plat_console.c`, its digit table) | +1,744 | +0 |
+| the console's and the boot's strings, merged | +762 | +0 |
+| MAAP's port: the window's two accesses and the allocation report (`ctrl_plat.c`), and `maap_csr.c` | +916 | +0 |
+| ACMP's talker sources: `source`, `locked`, `stream`, `notice` | +164 | +0 |
+| SRP's licence port | +48 | +0 |
+| AECP's observations: `random_value`, `path` | +12 | +0 |
+| `main`, the generated policy and stream table, `env` (`ctrl_plat_main.c`) | +224 | +56 |
+| the bus port (`ctrl_plat_mmio.c`) | +16 | +0 |
+| the state: `struct ctrl_plat` against the fixture's state objects | -80 | +878 |
+| the size fixture's entry, removed (`ctrl_aecp_image.c`'s `main` and callbacks) | -1,088 | +0 |
+| every other object, the same sources (compiled with the platform's bus map) | +16 | +0 |
+| alignment | +2 | -6 |
+| **The platform minus the fixture** | **+5,216** | **+928** |
+
+| The state's `sram`, by member | B |
+|---|---:|
+| the paired members (app, srp, aecp, sources, bridge, acmp, face, state, binding) against the fixture's objects | +0 |
+| `console` | +588 |
+| `maap_csr` | +32 |
+| `config`, `aecp_config` and `srp_config`, held statically | +144 |
+| the other fields and padding, against the fixture's `image_allocation`, `image_licences` | +114 |

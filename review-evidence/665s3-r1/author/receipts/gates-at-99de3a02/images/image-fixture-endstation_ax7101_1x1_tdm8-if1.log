@@ -1,0 +1,94 @@
+HEAD 99de3a023abfda5604a70832e23baf7ff73481a3
+$ python3 sw/firmware/ctrl/test/ctrl_srp_image.py --config configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --with-aecp --layout split --output <out>/fix-endstation_ax7101_1x1_tdm8-1 --libc <runtime>/libc.a --compiler-runtime <runtime>/libcompiler_rt.a
+{
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "srp": true,
+  "aecp": true,
+  "sections": {
+    ".text": 92192,
+    ".rodata": 12198,
+    ".data": 56,
+    ".bss": 38004,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "static_storage": {
+    "image_acmp": 96,
+    "image_aecp": 3352,
+    "image_aecp_bridge": 132,
+    "image_allocation": 8,
+    "image_app": 8880,
+    "image_arena": 9920,
+    "image_binding": 40,
+    "image_descriptors": 672,
+    "image_entity": 40,
+    "image_env": 24,
+    "image_events": 840,
+    "image_face": 88,
+    "image_latency": 8,
+    "image_licences": 2,
+    "image_map_pools": 56,
+    "image_maps": 200,
+    "image_map_scratch": 136,
+    "image_model": 12,
+    "image_names": 468,
+    "image_platform": 56,
+    "image_sources": 64,
+    "image_srp": 4824,
+    "image_state": 84,
+    "image_values": 4527
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "20b18ca092ddf14939b7aa62ae03cd737695c202ae8a608a6e24c8f05e102741"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "f6fd4a009d19fec6c67fc6fcbf7b54cd58dd44956b39297fcce8f83daf20c1b4"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 135532,
+      "sha256": "5653c2845f567749b41697acc34c0945291453abf3e66948ec263c1c17ff0847"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 155562,
+      "sha256": "6469e4527c0b019fc6183f7b6650656fa36a8d76e1d7f04c459cee530a2cc30c"
+    }
+  ],
+  "ram_sections": 150642,
+  "split": {
+    "rom": {
+      "bytes": 104448,
+      "banks": [
+        65536,
+        32768,
+        4096,
+        2048
+      ],
+      "RAMB36": 25,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 46272,
+      "banks": [
+        32768,
+        8192,
+        4096,
+        2048
+      ],
+      "RAMB36": 11,
+      "RAMB18": 1
+    },
+    "tiles": 37.0,
+    "budget_tiles": 56
+  }
+}
+elapsed=5s
+rc=0
+want=0
