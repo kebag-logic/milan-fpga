@@ -1,0 +1,23 @@
+CHANGELOG.md [^## Unreleased - gPTP pin f97c1803] 2b1565fd: 34 lines, e06ade31: 35 lines
+  only 2b1565fd : - Over dev's own route it adds 310 LUTs, 20 slices.
+  only 2b1565fd : - Seven slices remain free; WNS is +0.333 ns.
+  only 2b1565fd : - route-1x1 is 481 LUTs over the record; tolerance 500.
+  only e06ade31 : - Sixteen slices remain free; WNS is +0.303 ns.
+  only e06ade31 : - That record has dev `e78472ff`'s synthesis inputs.
+  only e06ade31 : - This adoption adds 53 FFs and 54 slices.
+  only e06ade31 : - route-1x1 is 211 LUTs under the twelfth record; tolerance 500.
+CHANGELOG.md [^## Unreleased - processor pin f65c8ff7] e78472ff: 30 lines, e06ade31: 30 lines
+docs/reference/SUBMODULES.md [^Issue #803 adopts] 2b1565fd: 33 lines, e06ade31: 34 lines
+  only 2b1565fd : It adds 20 slices; seven of 15,850 remain.
+  only 2b1565fd : Its shipping route meets timing at +0.333 ns WNS.
+  only 2b1565fd : Over dev's own route, this adoption adds 310 LUTs.
+  only 2b1565fd : Route-1x1 is 481 LUTs over the current resource record.
+  only 2b1565fd : The processor stays at `ed211803`.
+  only e06ade31 : Its shipping route meets timing at +0.303 ns WNS.
+  only e06ade31 : Route-1x1 is 211 LUTs under the twelfth resource record.
+  only e06ade31 : Sixteen of 15,850 slices remain.
+  only e06ade31 : That record has dev `e78472ff`'s synthesis inputs.
+  only e06ade31 : The processor stays at `f65c8ff7`.
+  only e06ade31 : This adoption adds 53 FFs and 54 slices.
+docs/reference/SUBMODULES.md [^Issue #799 adopts] e78472ff: 28 lines, e06ade31: 28 lines
+docs/reference/SUBMODULES.md [^The ROM ledger records current] e78472ff: 22 lines, e06ade31: 22 lines
