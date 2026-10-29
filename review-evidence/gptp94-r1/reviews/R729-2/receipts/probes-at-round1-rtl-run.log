@@ -1,0 +1,33 @@
+INFO #82 cold release graded for 2400617 cycles to the first beat
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset -1 ns, trim 1174470
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset 1 ns, trim 1174350
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1976 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000661 cycles after asCapable rises
+FAIL #94 Follow_Up after the fall: nothing commits after NOT_ENABLED got 0000000000000001 exp 0000000000000000
+FAIL #94 Follow_Up after the fall: the delay holds got 00000000000002bd exp 0000000000000259
+FAIL #94 Follow_Up queued before the fall: nothing commits after NOT_ENABLED got 0000000000000002 exp 0000000000000000
+FAIL #94 Follow_Up queued before the fall: the delay holds got 00000000000002bd exp 0000000000000259
+FAIL #94 stalled first byte: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: the frame is withdrawn got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled first byte: no frame starts while the port is disabled got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled at byte 1: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 disabled warm reset: the first request comes within one interval of the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 disabled warm reset: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+PROBE Q1c enabled control: commits 1, pdelay 601 -> 701
+PROBE Q1 Resp and Follow_Up while disabled: commits 0, pdelay 601 -> 601
+PROBE Q2: first request 1400201 cycles after the rise
+FAIL PROBE Q2: the rise sends at once got 0000000000000000 exp 0000000000000001
+PROBE Q2: request gap 1 = 2000000 cycles (1000.000 ms)
+PROBE Q2: request gap 2 = 2000000 cycles (1000.000 ms)
+PROBE Q2: request gap 3 = 2000000 cycles (1000.000 ms)
+PROBE Q2: request gap 4 = -593871208 cycles (-296935.604 ms)
+FAIL PROBE Q2: request gap 4 is one interval got 0000000000000000 exp 0000000000000001
+PROBE Q3: request sent, 357 cycles after the glitch
+PROBE Q4: requests in 1.2 s after an enabled release: 0
+PROBE Q6: request 384 cycles after ready returned
+INFO #82 869 commits graded for the self path
+INFO #84 411281858 master cycles graded, 48 handovers to a peer
+INFO #85 588 peer commits graded for thisClock last
+2084 checks: 2070 PASS, 14 FAIL

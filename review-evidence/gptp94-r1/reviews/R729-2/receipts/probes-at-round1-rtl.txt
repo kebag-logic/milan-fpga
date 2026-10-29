@@ -1,0 +1,14 @@
+rc=1
+PROBE Q1c enabled control: commits 1, pdelay 601 -> 701
+PROBE Q1 Resp and Follow_Up while disabled: commits 0, pdelay 601 -> 601
+PROBE Q2: first request 1400201 cycles after the rise
+FAIL PROBE Q2: the rise sends at once got 0000000000000000 exp 0000000000000001
+PROBE Q2: request gap 1 = 2000000 cycles (1000.000 ms)
+PROBE Q2: request gap 2 = 2000000 cycles (1000.000 ms)
+PROBE Q2: request gap 3 = 2000000 cycles (1000.000 ms)
+PROBE Q2: request gap 4 = -593871208 cycles (-296935.604 ms)
+FAIL PROBE Q2: request gap 4 is one interval got 0000000000000000 exp 0000000000000001
+PROBE Q3: request sent, 357 cycles after the glitch
+PROBE Q4: requests in 1.2 s after an enabled release: 0
+PROBE Q6: request 384 cycles after ready returned
+2084 checks: 2070 PASS, 14 FAIL
