@@ -291,7 +291,7 @@ def _first_instance(results: list[dict]) -> list[dict]:
                                                               row=r['row'], instances=0, misses=0,
                                                               worst=dict(r, group=group['group'])))
                 entry['instances'] += 1
-                entry['misses'] += not r['within_t_svc']
+                entry['misses'] += not r['within_budget']
     return list(out.values())
 
 
@@ -433,18 +433,22 @@ MUTANTS: dict[str, Patches] = {
         grade, 'owed_ahead', lambda grader, probe, *a: list(probe.owed))],
     'owed: a command never answered fits': lambda: [patch.object(
         grade, 'never_answered', lambda grader, probe, row, start: dict(row, status='measured', ms=0.0, start_sys=start,
-                                                                        within_t_svc=True, within_ceiling=True))],
+                                                                        within_budget=True, within_ceiling=True))],
     'notify: the fan-out registers one controller an interface (earlier rule)': lambda: [patch.object(
         scenario, 'registrations', lambda: 1)],
-    'deadline: T_svc 20 ms': lambda: [patch.object(scenario, 'T_SVC_MS', 20.0)],
-    'deadline: strictly below the budget': _verdicts(lambda v, ms, probe: dict(v, within_t_svc=ms < v['t_svc_ms'])),
+    'deadline: T_svc pinned at the 10 ms proposal (earlier rule)': lambda: [patch.object(scenario, 'T_SVC_MS', 10.0)],
+    'deadline: SRP graded against T_svc alone, not its 18 ms ceiling': lambda: [patch.object(
+        grade, 'budget_ms', lambda probe: scenario.T_SVC_MS + probe.wait_ms)],
+    'deadline: each family graded against its ceiling alone, not T_svc': lambda: [patch.object(
+        grade, 'budget_ms', lambda probe: scenario.CEILING_MS[probe.family] + probe.wait_ms)],
+    'deadline: strictly below the budget': _verdicts(lambda v, ms, probe: dict(v, within_budget=ms < v['budget_ms'])),
     'deadline: the normative wait is not added': _verdicts(lambda v, ms, probe: dict(
-        v, within_t_svc=ms <= scenario.T_SVC_MS)),
+        v, within_budget=ms <= min(scenario.T_SVC_MS, scenario.CEILING_MS[probe.family]))),
     'deadline: the ceiling drops the normative wait': _verdicts(lambda v, ms, probe: dict(
         v, within_ceiling=ms <= scenario.CEILING_MS[probe.family])),
     'deadline: the ACMP ceiling is the transaction timeout': lambda: [patch.dict(scenario.CEILING_MS, {'acmp': 200.0})],
     'run: a CPU trap is not refused': lambda: [patch.object(grade, 'refuse_run', _run_ignores_traps)],
-    'run: a T_svc miss never fails the run': _verdict(refusals_fail=True, misses_fail=False),
+    'run: a budget miss never fails the run': _verdict(refusals_fail=True, misses_fail=False),
     'run: a refusal does not fail the run': _verdict(refusals_fail=False, misses_fail=True),
     'regrade: a selected group without its log is dropped (earlier rule)':
         lambda: [patch.object(run, 'recorded', _recorded_drops)],

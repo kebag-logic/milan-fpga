@@ -44,14 +44,15 @@ def run(argv: list[str], log: Path, cwd: Path | None = None) -> None:
 #: the control group its control paths are in, and the variant it needs.
 MUTATIONS = {
     # #665's planted over-budget path: ADP's receive handler spins before it hands the
-    # record to the core, so every ADP record's service exceeds T_svc = 10 ms.
+    # record to the core, so every ADP record's service exceeds its 20 ms budget, min(T_svc,
+    # 200 ms) (FR_NFR.md 3.4.1), on the cacheless CPU and behind the split's fetch L1.
     'slow-adp-rx': ('adp/adp_mbx.c', '\tadp_rx(&i->adp, f->bytes, f->len);\n}',
-                    '\tfor (volatile uint32_t n = 0; n < 16000u; ++n) {\n\t}\n'
+                    '\tfor (volatile uint32_t n = 0; n < 32000u; ++n) {\n\t}\n'
                     '\tadp_rx(&i->adp, f->bytes, f->len);\n}', 'control', 'none'),
     # The SHUTDOWN path's planted defect (MAILBOX_SPLIT.md:502): disabling ADP spins before
-    # each interface's ENTITY_DEPARTING, so the path exceeds T_svc.
+    # each interface's ENTITY_DEPARTING, so the path exceeds its 20 ms budget.
     'slow-adp-shutdown': ('adp/adp_mbx.c', '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tadp_set_enable(',
-                          '\tfor (volatile uint32_t n = 0; !enable && n < 16000u; ++n) {\n\t}\n'
+                          '\tfor (volatile uint32_t n = 0; !enable && n < 32000u; ++n) {\n\t}\n'
                           '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tadp_set_enable(',
                           'control-shutdown', 'shutdown-entry'),
 }

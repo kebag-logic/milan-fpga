@@ -87,8 +87,9 @@ def binding_word(interface: int, sink: int) -> int:
 TMR_CMD_WORD = word(REG['TMR_CMD'])
 EVT_TAIL_WORD = word(REG['EVT_TAIL'])
 
-#: The project budget and each path family's normative ceiling, FR_NFR.md 3.4.1.
-T_SVC_MS = 10.0
+#: The project budget, approved at 20 ms (owner, 2026-10-29), and each path family's
+#: normative ceiling, FR_NFR.md 3.4.1. A path is graded against min(T_svc, its ceiling).
+T_SVC_MS = 20.0
 CEILING_MS = {
     'adp': 200.0,     # Milan v1.2 5.6.3.5.2: 2 s random window x 10 % (the whole ADP function)
     'disc': 20.0,     # Milan v1.2 5.5.2.3, Table 5.26: a resulting ACMP action, 200 ms x 10 %
@@ -108,7 +109,7 @@ class Probe:
     family: str          # key of CEILING_MS
     start: str
     ends: list[str]      # every listed end must occur; the path ends at the last of them
-    wait_ms: float = 0.0  # a normative wait W the path may include (3.4.1: elapsed <= W + T_svc)
+    wait_ms: float = 0.0  # a normative wait W the path may include (3.4.1: elapsed <= W + its budget)
     expect: str = ''     # an expected response check, see grade.py
     accesses: int | None = None  # the host model's measured or bound accesses in the pass, for comparison
     until: str = ''      # a later mark bounding the search; '' is the next mark

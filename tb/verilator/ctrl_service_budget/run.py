@@ -7,7 +7,8 @@ The test SoC (split_soc.py) runs the linked split image unmodified on the
 split placement's core (--fetch-l1 none: the cacheless core), and
 sim_main.cpp drives its mailbox. Each group is
 one boot and one stimulus script (scenario.py); grade.py reads the log. The
-default refuses a probe that misses T_svc unless --record-budget-findings is
+default refuses a probe that misses its budget, min(T_svc, its family's
+ceiling) (FR_NFR.md 3.4.1), unless --record-budget-findings is
 given; that option records the misses and still requires every probe of
 every selected group to be measured, so a missing log or script, or a
 missing or malformed observation, always fails the run.
@@ -43,13 +44,14 @@ def run_group(build_dir: Path, out: Path, group: object, flash: str) -> Path:
 
 
 def verdict_word(r: dict) -> str:
-    """fits, MISS T_svc, MISS ceiling (over the 3.4.1 ceiling as well), STARVED (never released) or
-    NEVER ANSWERED (a command taken and dropped)."""
+    """fits (within its budget), MISS T_svc (over T_svc, within a looser ceiling), MISS ceiling (over the
+    3.4.1 ceiling, the budget where it is tighter than T_svc), STARVED (never released) or NEVER ANSWERED
+    (a command taken and dropped)."""
     if r.get('starved'):
         return 'STARVED: never released'
     if r.get('unanswered'):
         return 'NEVER ANSWERED'
-    return 'fits' if r['within_t_svc'] else 'MISS T_svc' if r['within_ceiling'] else 'MISS ceiling'
+    return 'fits' if r['within_budget'] else 'MISS T_svc' if r['within_ceiling'] else 'MISS ceiling'
 
 
 def severity(r: dict) -> tuple[bool, float]:
@@ -100,14 +102,14 @@ def paths(results: list[dict]) -> list[dict]:
             entry = out.setdefault(tuple(r['path']), dict(path=r['path'][0], interface=r['path'][1], row=r['row'],
                                                           instances=0, misses=0, worst=None))
             entry['instances'] += 1
-            entry['misses'] += not r['within_t_svc']
+            entry['misses'] += not r['within_budget']
             if entry['worst'] is None or severity(r) > severity(entry['worst']):
                 entry['worst'] = dict(r, group=group['group'])
     return sorted(out.values(), key=lambda e: (e['path'], e['interface']))
 
 
 def counts(results: list[dict]) -> dict[str, int]:
-    """T_svc misses counted per path and per probe instance."""
+    """Budget misses counted per path and per probe instance."""
     worst = paths(results)
     return dict(paths=len(worst), path_misses=sum(1 for e in worst if e['misses']),
                 instances=sum(e['instances'] for e in worst), instance_misses=sum(e['misses'] for e in worst))
@@ -118,7 +120,7 @@ def table(results: list[dict], point: str) -> str:
     tally = counts(results)
     lines = [f'### {point}', '',
              f"{tally['path_misses']} of {tally['paths']} paths and {tally['instance_misses']} of "
-             f"{tally['instances']} probe instances miss T_svc.", '',
+             f"{tally['instances']} probe instances miss their budget.", '',
              '| Path | Interface | Worst instance | ms (bound) | Verdict | Records ahead | Instances | Misses |',
              '|---|---:|---|---:|---|---:|---:|---:|']
     for e in paths(results):
@@ -145,7 +147,7 @@ def table(results: list[dict], point: str) -> str:
                   f"{top['group']}{bound}.",
                   'Over the windows that released their whole load only: '
                   + (f"{done['cycles']:,} ({done['ms']:.3f} ms), {done['group']}." if done else 'none.')]
-    lines += ['', '| Path | Probe | CPU cycles | ms | T_svc (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
+    lines += ['', '| Path | Probe | CPU cycles | ms | Budget (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
               '| Mailbox accesses (model) | Fetch share |',
               '|---|---|---:|---:|---:|---:|---|---:|---:|---:|']
     for group in results:
@@ -155,7 +157,7 @@ def table(results: list[dict], point: str) -> str:
                 lines.append(cells + ' - | - | - |')
                 continue
             model = f" ({r['model_accesses']})" if 'model_accesses' in r else ''
-            lines.append(f"| {r['row']} | `{r['probe']}` | {r['cpu_cycles']:,} | {r['ms']:.3f} | {r['t_svc_ms']:g} | "
+            lines.append(f"| {r['row']} | `{r['probe']}` | {r['cpu_cycles']:,} | {r['ms']:.3f} | {r['budget_ms']:g} | "
                          f"{r['ceiling_ms']:g} | {verdict_word(r)} | {r.get('pass_cycles', 0):,} | "
                          f"{r.get('pass_mbx_accesses', '-')}{model} | {r.get('pass_fetch_share', 0):.3f} |")
     timeouts = [f"- `{g['group']}`: {t}" for g in results for t in g['timeouts']]
@@ -241,7 +243,7 @@ def recorded(groups: list, out: Path) -> tuple[list, list[Path], list[str]]:
 
 
 def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list, list, list]:
-    """Every group's grade, the refusals and the T_svc misses; each grade is written beside its log."""
+    """Every group's grade, the refusals and the budget misses; each grade is written beside its log."""
     import grade
     results, refusals, misses = [], [], []
     for group, log in zip(groups, logs):
@@ -257,9 +259,9 @@ def graded(groups: list, logs: list[Path], spec: dict, out: Path) -> tuple[list,
                 refusals.append(f"{r['probe']}: {r['status']}: {r['reason']}")
             elif r.get('starved') or r.get('unanswered'):
                 misses.append(f"{r['probe']}: never {'released' if r.get('starved') else 'answered'}, "
-                              f"at least {r['ms']:.3f} ms over T_svc {r['t_svc_ms']:g} ms")
-            elif not r['within_t_svc']:
-                misses.append(f"{r['probe']}: {r['ms']:.3f} ms over T_svc {r['t_svc_ms']:g} ms")
+                              f"at least {r['ms']:.3f} ms over its budget {r['budget_ms']:g} ms")
+            elif not r['within_budget']:
+                misses.append(f"{r['probe']}: {r['ms']:.3f} ms over its budget {r['budget_ms']:g} ms")
     return results, refusals, misses
 
 
@@ -273,9 +275,9 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
         paths_ = [p.name for g in groups for p in g.probes if p.name.startswith('control.')]
         caught = [m for m in misses if m.split(':')[0] in paths_]
         if refusals or not paths_ or len(caught) != len(paths_):
-            print(f'CONTROL {args.mutation} ESCAPED: {len(caught)} of {len(paths_)} control paths missed T_svc')
+            print(f'CONTROL {args.mutation} ESCAPED: {len(caught)} of {len(paths_)} control paths missed their budget')
             return 1
-        print(f'CONTROL {args.mutation} caught: every control path missed T_svc')
+        print(f'CONTROL {args.mutation} caught: every control path missed its budget')
         return 0
     if refusals or not groups:
         return 1
@@ -338,7 +340,7 @@ def main() -> int:
     for line in misses:
         print('BUDGET', line)
     tally = counts(results)
-    print(f'{len(results)} groups graded, {len(refusals)} refusals, {len(misses)} T_svc misses '
+    print(f'{len(results)} groups graded, {len(refusals)} refusals, {len(misses)} budget misses '
           f"({tally['instance_misses']} of {tally['instances']} probe instances, "
           f"{tally['path_misses']} of {tally['paths']} paths)")
     return verdict(args, groups, refusals, misses)

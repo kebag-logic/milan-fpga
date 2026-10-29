@@ -55,11 +55,14 @@ import selftest_mutants  # noqa: E402
 FIXTURE_LOG = HERE / 'fixture.log'
 ORACLE = HERE / 'oracle.json'
 SYS_HZ, CPU_HZ = 100_000_000, 50_000_000
-PINNED = ('status', 'start_sys', 'end_sys', 'sys_cycles', 'cpu_cycles', 'ms', 'within_t_svc', 'within_ceiling',
-          'pass_cycles', 'pass_mbx_accesses', 'passes', 'bound_cpu_cycles', 'bound_ms', 'bound_within_t_svc',
+PINNED = ('status', 'start_sys', 'end_sys', 'sys_cycles', 'cpu_cycles', 'ms', 'within_budget', 'within_ceiling',
+          'pass_cycles', 'pass_mbx_accesses', 'passes', 'bound_cpu_cycles', 'bound_ms', 'bound_within_budget',
           'ring', 'ahead')
-#: FR_NFR.md 3.4.1's ceilings, restated here on purpose: a changed table must fail.
+#: FR_NFR.md 3.4.1's approved T_svc (owner, 2026-10-29), its ceilings, and each family's budget,
+#: min(T_svc, ceiling), restated here on purpose: a changed value or table must fail.
+T_SVC = 20.0
 CEILINGS = {'adp': 200.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 24.0, 'notify': 24.0, 'maap': 50.0, 'srp': 18.0}
+BUDGETS = {'adp': 20.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 20.0, 'notify': 20.0, 'maap': 20.0, 'srp': 18.0}
 #: Each composed row's defined load, restated here on purpose (README, Backlog rows): every
 #: channel's records one instant admits (ADP, AECP, SRP at their bucket's burst; ACMP, MAAP at
 #: their ring's room), the refill leg's ADP at the ring's room, fifteen GM changes and the
@@ -166,13 +169,13 @@ def fixture_checks() -> list[Check]:
     got = headline(result)
     out.append(('fixture passes: worst pass and composed maximum', got == oracle['passes'],
                 differences(got, oracle['passes'])))
-    # A planted over-budget path in the recorded trace: the BIND_RX response moved past T_svc.
+    # A planted over-budget path in the recorded trace: the BIND_RX response moved past its 20 ms budget.
     row = oracle['rows']['fixture.bind_rx.if0']
-    late = row['start_sys'] + 1_000_001
+    late = row['start_sys'] + 2_000_001
     planted = re.sub(rf'^TXC {row["end_sys"]} ', f'TXC {late} ', FIXTURE_LOG.read_text(), count=1, flags=re.M)
     planted = re.sub(rf'\b{row["end_sys"]}:', f'{late}:', planted)
     hit = {r['probe']: r for r in regraded(oracle, planted)['probes']}['fixture.bind_rx.if0']
-    caught = hit.get('status') == 'measured' and hit.get('within_t_svc') is False and hit.get('sys_cycles', 0) > 1e6
+    caught = hit.get('status') == 'measured' and hit.get('within_budget') is False and hit.get('sys_cycles', 0) > 2e6
     out.append(('planted over-budget path is caught', caught, str({k: hit.get(k) for k in PINNED})))
     # A composed load with one channel left out (the MAAP record's commit deleted) is refused by name.
     window = re.findall(r'^MARK (\d+) composed(?:_end)?$', FIXTURE_LOG.read_text(), re.M)
@@ -206,7 +209,7 @@ def fixture_checks() -> list[Check]:
     rows = [r for r in result['probes'] if '.service.srp.' in r['probe']]
     window_row = result['passes']['composed']
     out.append(('a starved channel is reported by name, and its window reports its load unreleased',
-                len(rows) == 2 and all(r['starved'] and r['status'] == 'measured' and r['within_t_svc'] is False
+                len(rows) == 2 and all(r['starved'] and r['status'] == 'measured' and r['within_budget'] is False
                                        and r['within_ceiling'] is False for r in rows)
                 and window_row['serviced'] is False and window_row['unreleased'] == {'srp': 1},
                 str((rows, window_row.get('unreleased')))))
@@ -228,13 +231,14 @@ def marker_checks() -> list[Check]:
     g = grade.Grader(grade.Log(SYS_HZ, CPU_HZ))
     conversions = (g.cpu_cycles(1_000_000), g.cpu_cycles(3), g.ms(1_000_000), g.bus_cycles(500_000), g.cpu_ms(500_000))
     out.append(('clock conversion', conversions == (500_000, 2, 10.0, 1_000_000, 10.0), str(conversions)))
-    out.append(('ceilings pinned', scenario.CEILING_MS == CEILINGS and scenario.T_SVC_MS == 10.0,
+    out.append(('T_svc and the ceilings pinned', scenario.CEILING_MS == CEILINGS and scenario.T_SVC_MS == T_SVC,
                 f'{scenario.CEILING_MS} {scenario.T_SVC_MS}'))
     probe = scenario.Probe('s.cmd.if0', 'GET_RX_STATE', 'acmp', f'rxc:{ACMP}', [f'resp:{ACMP}:41'])
     frame_lines = ['MARK 1000 s.cmd.if0', *received(ACMP, 's.cmd.if0')]
-    for delta, within, name in ((1_000_000, True, 'exact budget passes'), (1_000_001, False, 'one cycle over misses')):
+    for delta, within, name in ((2_000_000, True, 'exact budget passes'), (2_000_001, False, 'one cycle over misses')):
         r = one(synthetic(frame_lines + tx_record(ACMP, 0, acmp_response(0x41), 0, 1173 + delta)), probe)
-        out.append((name, r.get('within_t_svc') is within and r.get('sys_cycles') == delta, str(r)))
+        out.append((name, r.get('within_budget') is within and r.get('sys_cycles') == delta, str(r)))
+    out += budget_checks(frame_lines)
     # Tags: the probe's own frame, the second on the channel, starts the path.
     lines = ['MARK 1000 s.cmd.if0', *received(ACMP, '-'), *received(ACMP, 's.cmd.if0', 1200),
              *tx_record(ACMP, 0, acmp_response(0x41), 0, 5273)]
@@ -268,6 +272,27 @@ def marker_checks() -> list[Check]:
     return out
 
 
+def budget_checks(frame_lines: list[str]) -> list[Check]:
+    """Each family against min(T_svc, its ceiling) (FR_NFR.md 3.4.1, owner 2026-10-29): SRP's 18 ms
+    ceiling is tighter than T_svc, so an SRP instance between 18 and 20 ms misses; AECP's 24 ms and
+    MAAP's 50 ms are looser, so T_svc grades them; then the whole budget table."""
+    out = []
+    for family, delta, within, ceiling, name in (
+            ('srp', 1_800_000, True, True, 'an SRP instance at its 18 ms ceiling fits'),
+            ('srp', 1_800_001, False, False, 'an SRP instance one cycle over 18 ms misses, under T_svc'),
+            ('srp', 1_900_000, False, False, 'an SRP instance at 19 ms misses its 18 ms budget'),
+            ('aecp', 2_200_000, False, True, 'an AECP instance at 22 ms misses T_svc, within its ceiling'),
+            ('maap', 3_000_000, False, True, 'a MAAP instance at 30 ms misses T_svc, within its ceiling')):
+        probe = scenario.Probe('s.cmd.if0', 'budget', family, f'rxc:{ACMP}', [f'resp:{ACMP}:41'])
+        r = one(synthetic(frame_lines + tx_record(ACMP, 0, acmp_response(0x41), 0, 1173 + delta)), probe)
+        out.append((name, (r.get('within_budget'), r.get('within_ceiling'), r.get('sys_cycles'))
+                    == (within, ceiling, delta), str({k: r.get(k) for k in ('ms', 'budget_ms', 'within_budget',
+                                                                          'within_ceiling')})))
+    got = {family: grade.budget_ms(scenario.Probe('s.x.if0', 'budget', family, '', [])) for family in CEILINGS}
+    out.append(("each family's budget is min(T_svc, its ceiling)", got == BUDGETS, str(got)))
+    return out
+
+
 def timing_checks() -> list[Check]:
     """A timer path's origin, a function entry's start, the normative wait and the pass bound."""
     out = []
@@ -287,14 +312,19 @@ def timing_checks() -> list[Check]:
     r = one(synthetic(lines), shutdown)
     out.append(('an entry start is its own function\'s', r.get('start_sys') == 5000 and r.get('status') == 'measured',
                 str(r)))
-    # A normative wait W extends the bound to W + T_svc and the ceiling to W + ceiling (3.4.1), and nothing more.
-    waited = scenario.Probe('s.cmd.if0', 'Domain', 'srp', f'rxc:{ACMP}', [f'resp:{ACMP}:41'], wait_ms=200.0)
+    # A normative wait W extends the budget to W + min(T_svc, ceiling) and the ceiling to W + ceiling
+    # (3.4.1), and nothing more: an AECP path's budget, W + 20 ms, is under its ceiling, W + 24 ms; SRP's
+    # Domain path's budget is its ceiling, W + 18 ms.
     frame_lines = ['MARK 1000 s.cmd.if0', *received(ACMP, 's.cmd.if0')]
-    for delta, within, ceiling, name in ((21_000_000, True, True, 'W + T_svc passes'),
-                                         (21_000_001, False, True, 'W + T_svc + 1 misses, within W + ceiling'),
-                                         (21_800_001, False, False, 'W + ceiling + 1 is over the ceiling')):
+    for family, delta, within, ceiling, name in (
+            ('aecp', 22_000_000, True, True, 'W + T_svc passes'),
+            ('aecp', 22_000_001, False, True, 'W + T_svc + 1 misses, within W + ceiling'),
+            ('aecp', 22_400_001, False, False, 'W + ceiling + 1 is over the ceiling'),
+            ('srp', 21_800_000, True, True, "W + SRP's ceiling passes, its budget"),
+            ('srp', 21_800_001, False, False, "W + SRP's ceiling + 1 misses its budget and its ceiling")):
+        waited = scenario.Probe('s.cmd.if0', 'Domain', family, f'rxc:{ACMP}', [f'resp:{ACMP}:41'], wait_ms=200.0)
         r = one(synthetic(frame_lines + tx_record(ACMP, 0, acmp_response(0x41), 0, 1173 + delta)), waited)
-        out.append((name, r.get('within_t_svc') is within and r.get('within_ceiling') is ceiling, str(r)))
+        out.append((name, r.get('within_budget') is within and r.get('within_ceiling') is ceiling, str(r)))
     # The pass bound runs from the start of the pass running at the input (1000, for 1000 CPU
     # cycles) to the end of the taking pass (3000, 500 CPU cycles): 3000 bus cycles, 1500 CPU cycles.
     probe = scenario.Probe('s.cmd.if0', 'GET_RX_STATE', 'acmp', f'rxc:{ACMP}', [f'rxtail:{ACMP}'])
@@ -326,8 +356,8 @@ def notify_checks() -> list[Check]:
     r = notification([(0, to(CTL1), 401173), (1, to(CTL1, 1), 601173)])
     out.append(('two recipients across interfaces end at the last', r.get('end_sys') == 601173 and
                 r.get('status') == 'measured', str(r)))
-    r = notification([(0, to(CTL1), 401173), (1, to(CTL1, 1), 1401173)])
-    out.append(('a late recipient misses T_svc', r.get('ms') == 14.0 and r.get('within_t_svc') is False, str(r)))
+    r = notification([(0, to(CTL1), 401173), (1, to(CTL1, 1), 2201173)])
+    out.append(('a late recipient misses its budget', r.get('ms') == 22.0 and r.get('within_budget') is False, str(r)))
     r = notification([(0, to(CTL1), 401173)])
     out.append(('a missing recipient is refused', r.get('status') == 'no end', str(r)))
     r = notification([(0, to(CTL1), 401173), (0, to(CTL1, 1), 601173)])
@@ -373,7 +403,7 @@ def composition_checks() -> list[Check]:
     out.append(("a served record's records ahead are those not yet released at its commit", got == want,
                 str(got)))
     row = lambda name, ms, within, group: dict(probe=name, row='r', status='measured', path=['p.x', 0], ms=ms,
-                                               within_t_svc=within, group=group, bound_ms=ms, ring='acmp', ahead=0,
+                                               within_budget=within, group=group, bound_ms=ms, ring='acmp', ahead=0,
                                                within_ceiling=True)
     results = [dict(group='a', probes=[row('a.x.if0', 10.5, False, 'a')], timeouts=[]),
                dict(group='b', probes=[row('b.x.if0', 12.0, False, 'b'), row('b.y.if0', 11.0, False, 'b')],
@@ -493,7 +523,7 @@ def window_checks() -> list[Check]:
     for drop, tail in ((True, []), (True, tx_record(ACMP, 0, acmp_response(0x41), 0, 5000)), (False, [])):
         probe = scenario.Probe('s.cmd.if0', 'behind', 'acmp', f'rxc:{ACMP}', [f'resp:{ACMP}:41'], may_drop=drop)
         r = one(synthetic(lines + tail), probe)
-        got.append((r.get('status'), r.get('unanswered'), r.get('within_t_svc'), r.get('within_ceiling')))
+        got.append((r.get('status'), r.get('unanswered'), r.get('within_budget'), r.get('within_ceiling')))
     out.append(('a command never answered is reported, unbounded, where it may be dropped',
                 got == [('measured', True, False, False), ('measured', None, True, True), ('no end', None, None, None)],
                 str(got)))
@@ -573,7 +603,7 @@ def path_checks() -> list[Check]:
     times = {'adp.shutdown.if0': 0.58, 'adp.shutdown.if1': 1.17, 'control.shutdown.if0': 24.9}
     results = [dict(group=g.name, timeouts=[], probes=[
         dict(probe=pr.name, row=pr.row, status='measured', path=list(pr.path_key()), ms=times[pr.name],
-             within_t_svc=times[pr.name] <= 10, within_ceiling=True, ring='events', ahead=0)
+             within_budget=times[pr.name] <= 20, within_ceiling=True, ring='events', ahead=0)
         for pr in g.probes]) for g in scenario.shutdown_groups(points(oracle)[1])]
     worst = {(e['path'], e['interface']): e['worst']['probe'] for e in run.paths(results)}
     tally = run.counts(results)
@@ -644,7 +674,7 @@ def run_checks() -> list[Check]:
     out = []
     args = lambda record: argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=record)
     g = scenario.Group('g')
-    out.append(('a T_svc miss fails the run unless recorded',
+    out.append(('a budget miss fails the run unless recorded',
                 (run.verdict(args(False), [g], [], ['m']), run.verdict(args(True), [g], [], ['m'])) == (1, 0), ''))
     out.append(('a refusal fails the run, recorded or not',
                 (run.verdict(args(True), [g], ['r'], []), run.verdict(args(False), [g], ['r'], [])) == (1, 1), ''))
