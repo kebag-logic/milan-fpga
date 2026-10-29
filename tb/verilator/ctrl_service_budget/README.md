@@ -10,7 +10,7 @@ The figures in [Results](#results), [The instruction cache](#the-instruction-cac
 Each is graded against its budget and its ceiling in [FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
 A path's budget is min(T_svc, its family's ceiling), with T_svc = 20 ms, which the owner approved on 2026-10-29 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
 [Results](#results) and [The instruction cache](#the-instruction-cache) record S2's and S2c's runs, which were graded against the 10 ms then proposed.
-[Split placement control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#13-the-larger-fetch-l1-and-the-record-mover) has the composed rows at the approved budget.
+[Split placement control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#at-the-products-clock-and-the-per-pass-share) has the composed rows and the passes at the approved budget, at the product's 50 MHz and at the 100 MHz option.
 
 ## Contents
 
@@ -1056,7 +1056,7 @@ The run must refuse the boot with an access fault of cause 1 (a fetch) or cause 
 Either is the decode defect of [#791](https://github.com/kebag-logic/milan-fpga/issues/791); which access meets it first depends on the image's layout (defect 1 in [Findings](#findings)).
 The self-test requires both causes to be caught, and a clean boot or a trap of any other cause to escape.
 
-These figures are this head's, with contract 2.3's face writer merged (#665); each control was run again there.
+These figures are this head's, with contract 2.3's face writer merged (#665); each control was run again there, and again with the per-pass share and the clock option, at the product's 50 MHz, with the same figures.
 At this head `as-built` is caught with a load access fault, cause 5, at the start code's first `.data` copy load, the `lw` at 0x24 (`TRAP ... 0 5 00000020`; the trap line's last field is the last committed PC, the `bgeu` before it), on the cacheless core and behind the split's caches alike, and the run prints `CONTROL as-built caught`.
 The generator's decode defect is the one `e76a755a` met with cause 1; the access that meets it first changed, because this head's 1x1 image has its `.data` load image above 0x8000 (defect 1 in [Findings](#findings)).
 Before the merge, at `01879189` (round 9, whose harness and firmware are `bf1773c0`'s), the two spins measured 48.697 and 48.932 ms and `as-built` met the defect with cause 1.

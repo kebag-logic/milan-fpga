@@ -21,9 +21,9 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[8. The CPU's multiply and divide](#8-the-cpus-multiply-and-divide)** -- The split CPU's RV32M, the image built and audited for it, its logic out of context, and the requirement amended for it.
 - **[9. The CPU's data cache](#9-the-cpus-data-cache)** -- The split CPU's LSU L1: its size from the composed bursts, why it is coherent, the windows it never caches, its area against the ledger, and the requirement amended for it.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
-- **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at 100 MHz and at 150 MHz.
-- **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at 100 MHz, and what a larger fetch L1 would save by the model.
-- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at 100 MHz, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, and what holds the 8x8 rows.
+- **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at a 100 MHz test clock and at 150 MHz.
+- **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at a 100 MHz test clock, and what a larger fetch L1 would save by the model.
+- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, and every row and pass at the product's 50 MHz and at the 100 MHz option.
 
 ## 1. Memory map
 
@@ -577,7 +577,8 @@ Setting the product clock is the owner's decision.
 ## 11. The firmware's work on the record paths
 
 Before the product clock is chosen, the owner asked for the firmware work every clock needs on the AECP and SRP record paths ([assignment of 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6486770462)).
-This section is what those paths executed, the three changes, and the composed rows after them, at the 100 MHz CPU clock and with the CPU and its bus at 150 MHz.
+This section is what those paths executed, the three changes, and the composed rows after them, at a 100 MHz CPU clock and with the CPU and its bus at 150 MHz.
+Neither is the product's: the product clocks the split CPU at 50 MHz and its bus at 100 MHz, and those clocks are unchanged ([section 13](#at-the-products-clock-and-the-per-pass-share)).
 No clock, cache geometry, admission, `ACMP_OWED_MAX` or scenario hold changed.
 
 ### What a window executed
@@ -703,12 +704,13 @@ With (a) and (b) alone, the 1x1 `backlog` windows refilled more lines than befor
   - lwSRP's receive (`rx_on_attr`, `parse_pass`).
   Instruction refills are still 4.9 to 11.3 ms of each window at 100 MHz.
 
-The owner kept the product clock on 2026-10-29; section 12 takes the firmware levers left at it.
+The owner kept the product's clocks on 2026-10-29, the CPU at 50 MHz and its bus at 100 MHz; section 12 takes the firmware levers left at them.
 
 ## 12. The remaining firmware levers at the present clock
 
-The owner kept the split CPU and its bus at their clocks on 2026-10-29 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6488028169)), and the [assignment of the same day](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6489248781) took the firmware levers left on the record paths.
-Every figure here is at the 100 MHz CPU clock, measured with section 11's profiling variant.
+The owner kept the split CPU and its bus at their clocks on 2026-10-29 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6488028169)), the CPU at 50 MHz and its bus at 100 MHz, and the [assignment of the same day](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6489248781) took the firmware levers left on the record paths.
+Every figure here is at a 100 MHz CPU clock, a test clock and not the product's 50 MHz, measured with section 11's profiling variant.
+[Section 13](#at-the-products-clock-and-the-per-pass-share) measures the rows at the product's clock.
 No clock, cache geometry, admission, `ACMP_OWED_MAX`, scenario hold or RTL changed.
 
 ### The changes
@@ -841,7 +843,10 @@ The owner took three of section 12's open items on 2026-10-29 ([decision and ass
 - a firmware and bus-path round for the 8x8 rows: bulk copies and fills, a DMA for the mailbox driver's record transfers, and a change to lwSRP's receive path;
 - the TSN stack's wire-halves change from section 12, measured staged as there.
 
-Every figure here is at the 100 MHz CPU clock, measured with section 11's profiling variant.
+Every figure in this section up to [At the product's clock](#at-the-products-clock-and-the-per-pass-share) is at a 100 MHz CPU clock with the bus at 100 MHz: section 11's profiling variant ran the split CPU at that clock (`CSB_CPU_HZ`), and is now the harness's labelled `--cpu-hz` option.
+It is a test clock, not the product's.
+The product clocks the split CPU from the Milan clock, 50 MHz, with its bus at 100 MHz (`milan_soc.py`, `cpu_clk` from `ClockSignal("milan")`; `milan_clk_hz` in both ax7101 configurations).
+That subsection has every row and every pass at both clocks.
 
 ### The fetch L1
 
@@ -897,8 +902,10 @@ Its four control registers are a CSR bank of their own (`milan_soc.CTRL_MBX_DMA_
 The driver (`plat/mbx_dma.h`) writes three of them and polls the fourth: four register accesses a record instead of one uncached access a word.
 The split image moves every received payload and every transmitted payload on a word with it; any other build keeps the word loops.
 
-Out of context at 10 ns, with the mailbox's recipe, it takes 395 LUTs, 700 FFs and no block RAM, with 4.086 ns of slack.
-Its bench checks it against a driver's word loop written from the contract, with a model of `KL_mbx`'s port and an AXI4 memory that stalls and errs; 17 planted defects are caught.
+Its word count is formed in 13 bits, so every length the 12-bit field allows, 4093 to 4095 included, is its whole words; in 12 bits those three wrapped to none, and a receive held the host port.
+Out of context at 10 ns, with the mailbox's recipe, it takes 396 LUTs, 700 FFs and no block RAM, with 4.775 ns of setup and 0.189 ns of hold slack; before the 13-bit sum it took 395 LUTs.
+Its bench checks it against a driver's word loop written from the contract, with a model of `KL_mbx`'s port and an AXI4 memory that stalls and errs, at every length to 96 bytes, the largest frame and the field's largest lengths; 21 planted defects are caught.
+The driver's own use of it, the split image's record-mover arm, has a host test over a register model of the mover ([`test_mbx_dma_driver.cpp`](../../sw/firmware/ctrl/test/test_mbx_dma_driver.cpp)).
 
 The CPU budget harness puts the same mover in its own test SoC and observes `KL_mbx`'s side of it.
 Each request holds its fields through its answer, as `KL_mbx_wb`'s do, so the harness's observer and grader are unchanged.
@@ -965,7 +972,7 @@ Behaviour is unchanged apart from timing, group by group, by section 12's compar
 
 The owner approved T_svc = 20 ms on 2026-10-29 and kept 8x8 in the split's scope ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
 NFR-SCOUT-03 still requires every numeric normative timeout to hold with margin, so each path is graded against min(T_svc, its family's ceiling), and the CPU budget harness grades so (`grade.budget_ms`).
-Every composed row was measured again at the branch's head, at 100 MHz, at both points, in both arms, with the two drafts staged and without them, as above.
+Every composed row was measured again at the branch's head, at the 100 MHz test clock, at both points, in both arms, with the two drafts staged and without them, as above.
 Every group log and every linked image is byte-identical to the legs above: the firmware, the RTL and what the harness observes are unchanged, and only the grading moved.
 
 | Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
@@ -982,7 +989,7 @@ Every group log and every linked image is byte-identical to the legs above: the 
 | A response with 7 frames owed ahead of it | 20 | **61.70** / **61.64** | **61.60** / **61.68** | **63.44** / **63.51** | **63.78** / **63.42** |
 | An ACMP command behind the owed input | 20 | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
 
-Every row the CPU decides fits, at both points, in both arms, with the drafts staged or not.
+At the 100 MHz test clock every row the CPU decides fits, at both points, in both arms, with the drafts staged or not.
 The tightest is the 8x8 last SRP record: 1.61 ms under its 18 ms bound without the drafts, and 2.19 ms with them.
 The 8x8 last AECP record keeps 4.11 ms without them and 4.78 ms with them.
 The three bold rows are the egress's, at every clock and with every lever: the 60 ms egress hold sets the owed window's AECP record and the response with 7 frames owed ahead of it, and `ACMP_OWED_MAX` drops the command behind the owed input.
@@ -995,7 +1002,7 @@ The CPU budget harness acknowledges each commit at the contract's bound, `FACE_A
 The record mover, the fetch L1, the bulk primitives and the hot list stay as above.
 The hot list lost one entry, the size fixture's `a_stream`, which the face's port replaced ([section 11](#11-the-firmwares-work-on-the-record-paths)).
 The CPU's netlist is unchanged.
-Every composed row was measured again at the merge, at 100 MHz, at both points, in both arms, with the two drafts staged and without them, graded as above:
+Every composed row was measured again at the merge, at the 100 MHz test clock, at both points, in both arms, with the two drafts staged and without them, graded as above:
 
 | Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
 |---|---:|---:|---:|---:|---:|
@@ -1011,7 +1018,7 @@ Every composed row was measured again at the merge, at 100 MHz, at both points, 
 | A response with 7 frames owed ahead of it | 20 | **61.99** / **62.06** | **62.01** / **62.00** | **63.70** / **63.64** | **63.69** / **63.74** |
 | An ACMP command behind the owed input | 20 | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
 
-Every row the CPU decides still fits, at both points, in both arms, with the drafts staged or not.
+At the 100 MHz test clock every row the CPU decides still fits, at both points, in both arms, with the drafts staged or not.
 The tightest is the 8x8 last SRP record: 1.05 ms under its 18 ms bound without the drafts, 0.56 ms less than before the merge, and 2.40 ms with them.
 The 8x8 last AECP record keeps 4.16 ms without the drafts and 5.39 ms with them.
 At 1x1 every such row keeps at least 7.47 ms: the last SRP record takes 10.53 ms against 18.
@@ -1048,12 +1055,107 @@ By module family it is spread: lwSRP 2.4 to 3.5 ms, ACMP's core 2.3 to 2.6, the 
 No single function holds 1.3 ms.
 The levers this page has named are taken; what is left is the work itself at the composed 8x8 load.
 
+### At the product's clock, and the per-pass share
+
+The product clocks the split CPU from the Milan clock, 50 MHz, with its bus at 100 MHz (`milan_soc.py`: `cpu_clk` from `ClockSignal("milan")`; `milan_clk_hz` in both ax7101 configurations, which the builder holds to the bare-metal build contract's clock).
+The figures above in this section, and in sections 11 and 12, are at a 100 MHz CPU clock, or 150 MHz where section 11 says so: test clocks, not the product's ([#665 correction](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6508196970)).
+The owner's decisions of 2026-10-29, no clock increase and T_svc = 20 ms, were taken on those figures, and the clock question is with the owner again.
+
+The CPU budget harness now runs the split CPU at the product's clock by default, and any other CPU clock only as its labelled `--cpu-hz` option.
+`build.json` records which, and every table and run line names the clock ([its README](../../tb/verilator/ctrl_service_budget/README.md#run-and-reproduce)).
+Every composed row was measured at both clocks, at both points, in both arms, with the two drafts staged and without them, graded as above.
+The images are byte-identical to the merge's legs above, the CPU's netlist is the same, and at 100 MHz every probe's CPU cycles at 1x1 arm A equal those legs'.
+The mover's word count now takes the length field's 4093 to 4095 without a wrap; no record has such a length, and the rows do not move.
+
+With the CPU at the product's split CPU clock, 50 MHz, and the bus at 100 MHz (ms, arm A / arm B, bold over the row's own bound):
+
+| Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|---:|
+| ACMP record, last | 20 | 8.65 / 8.90 | 7.64 / 7.46 | 14.37 / 14.72 | 13.79 / 13.80 |
+| ADP record, last | 20 | 6.08 / 6.38 | 5.51 / 5.36 | 11.20 / 11.23 | 10.59 / 10.61 |
+| MAAP record, last | 20 | 6.11 / 6.42 | 5.50 / 5.34 | 11.19 / 11.21 | 10.57 / 10.59 |
+| AECP record, last | 20 | 15.95 / 17.05 | 14.87 / 15.76 | **25.02** / **25.61** | **24.02** / **24.11** |
+| SRP record, last | 18 | 17.81 / 17.02 | 16.34 / 16.26 | **28.25** / **27.25** | **25.66** / **25.45** |
+| An ACMP command behind a full ACMP ring | 20 | 6.83 / 6.78 | 6.01 / 6.09 | 13.57 / 13.60 | 12.71 / 12.72 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 20 | 4.55 / 4.88 | 4.38 / 4.26 | 7.63 / 7.87 | 7.32 / 7.23 |
+| An event behind 15 others | 20 | 2.06 / 2.06 | 1.88 / 1.89 | 3.63 / 3.64 | 3.46 / 3.48 |
+| AECP record, last, in the owed window | 20 | **64.73** / **64.67** | **64.66** / **64.65** | **68.53** / **68.46** | **68.71** / **68.75** |
+| A response with 7 frames owed ahead of it | 20 | **63.41** / **63.33** | **63.35** / **63.33** | **66.26** / **66.20** | **66.41** / **66.45** |
+| An ACMP command behind the owed input | 20 | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
+
+With the CPU at the labelled 100 MHz option and the bus at 100 MHz, the same legs as the merge's above, now through the committed option:
+
+| Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|---:|
+| ACMP record, last | 20 | 5.51 / 5.30 | 4.60 / 4.76 | 8.79 / 8.82 | 8.30 / 8.12 |
+| ADP record, last | 20 | 3.93 / 3.77 | 3.28 / 3.41 | 6.67 / 6.69 | 6.31 / 6.33 |
+| MAAP record, last | 20 | 3.97 / 3.81 | 3.26 / 3.44 | 6.65 / 6.68 | 6.29 / 6.32 |
+| AECP record, last | 20 | 10.25 / 10.43 | 9.36 / 9.98 | 15.10 / 15.84 | 13.74 / 14.61 |
+| SRP record, last | 18 | 10.53 / 10.40 | 9.97 / 10.19 | 16.95 / 16.32 | 15.60 / 15.40 |
+| An ACMP command behind a full ACMP ring | 20 | 4.07 / 4.04 | 3.64 / 3.70 | 8.13 / 8.15 | 7.64 / 7.45 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 20 | 3.02 / 2.87 | 2.58 / 2.60 | 4.13 / 4.32 | 3.33 / 4.03 |
+| An event behind 15 others | 20 | 1.24 / 1.23 | 1.14 / 1.15 | 2.09 / 2.10 | 2.01 / 2.02 |
+| AECP record, last, in the owed window | 20 | **62.81** / **62.90** | **62.84** / **62.83** | **65.03** / **64.94** | **65.02** / **65.09** |
+| A response with 7 frames owed ahead of it | 20 | **61.99** / **62.06** | **62.01** / **62.00** | **63.70** / **63.64** | **63.69** / **63.74** |
+| An ACMP command behind the owed input | 20 | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
+
+At the product's 50 MHz:
+- **At 1x1/1if every row the CPU decides fits**, in both arms, with the drafts staged or not.
+  The tightest is the last SRP record, 17.81 ms against 18; the last AECP record takes at most 17.05 ms.
+- **At 8x8/2if the last AECP record misses its bound**: 25.02 to 25.61 ms against 20, and 24.02 to 24.11 with both drafts.
+- **At 8x8/2if the last SRP record misses its bound**: 27.25 to 28.25 ms against 18, and 25.45 to 25.66 with both drafts.
+- Every other row the CPU decides fits at 8x8; the tightest of them is the last ACMP record, at most 14.72 ms against 20.
+
+At the 100 MHz option every row the CPU decides fits at both points, as above.
+The three egress-held rows miss at both clocks, as before.
+
+**The per-pass share.**
+A pass is the only opportunity to take an input, and the deepest admitted wait is seven owed frames, answered in pass 8 after the room returns, so nine passes must fit the smallest bound every input shares (`ctrl_loop.h`, THE SHARE).
+That bound is SRP's 18 ms, so the share is 2.0 ms of CPU time: 100,000 CPU cycles at 50 MHz and 200,000 at 100 MHz.
+The harness holds every work pass of every group to it, apart from the rows (`share.py`, `grade.pass_share`), and a pass over it fails the run unless `--record-share-findings` records it.
+
+Each group's work passes against the share, over the four groups' runs (arm A / arm B: the passes over it of the passes run, and the longest pass in ms, bold where any is over):
+
+| CPU clock | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|
+| 50 MHz (product) | 0 of 1273, 1.89 / 0 of 1245, 1.89 | 0 of 1264, 1.71 / 0 of 1246, 1.72 | **32 of 1310, 3.46** / **30 of 1286, 3.47** | **24 of 1307, 3.28** / **23 of 1285, 3.30** |
+| 100 MHz (option) | 0 of 1272, 1.14 / 0 of 1248, 1.14 | 0 of 1273, 1.04 / 0 of 1249, 1.06 | **1 of 1311, 2.29** / **2 of 1284, 2.30** | **1 of 1332, 2.20** / **1 of 1298, 2.20** |
+
+- **At 1x1/1if every pass fits the share at both clocks**: the longest is 1.89 ms at 50 MHz.
+- **At 8x8/2if, at 50 MHz, 23 to 32 of each run's passes are over it**, in two kinds:
+  - in every group, three passes before any load, at about 172, 368 and 568 ms of the run: 101,111 to 120,378 cycles, 2.02 to 2.41 ms; lwSRP's MRP work for the two interfaces is about half of each (`mrp_mad`, 59,778 of the 119,836 cycles of the one the experiment below shows);
+  - in every composed window, up to six of its first passes: 100,328 to 173,282 cycles, 2.01 to 3.47 ms, whose largest modules are the memory primitives, ACMP's core, lwSRP and the SRP adapter.
+- **At 8x8/2if, at 100 MHz, one or two passes are over it**: the `backlog` window's first, 2.29 to 2.30 ms, and 2.20 ms with both drafts.
+
+**A split by the loop's own constant does not bring them within it.**
+In a labelled experiment, not on this branch, `CTRL_LOOP_RX_PER_PASS` took one record of a channel a pass instead of two (owner decision D4(b) set two), at 8x8/2if, arm A, without the drafts:
+
+| 8x8/2if, arm A, without the drafts | Bound, ms | CPU 50 MHz (product): two records a pass (the branch) | one (the experiment) | CPU 100 MHz (option): two | one |
+|---|---:|---:|---:|---:|---:|
+| ACMP record, last | 20 | 14.37 | 19.25 | 8.79 | 11.79 |
+| ADP record, last | 20 | 11.20 | 13.99 | 6.67 | 8.32 |
+| MAAP record, last | 20 | 11.19 | 12.64 | 6.65 | 7.50 |
+| AECP record, last | 20 | **25.02** | **22.84** | 15.10 | 14.11 |
+| SRP record, last | 18 | **28.25** | **34.87** | 16.95 | **20.86** |
+| An ACMP command behind a full ACMP ring | 20 | 13.57 | 17.69 | 8.13 | 10.42 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 20 | 7.63 | 11.69 | 4.13 | 7.29 |
+| An event behind 15 others | 20 | 3.63 | 3.02 | 2.09 | 1.77 |
+| Work passes over the 2.0 ms share | 2.0 | **32 of 1310, longest 3.46 ms** | **18 of 1380, longest 2.84 ms** | **1 of 1311, longest 2.29 ms** | 0 of 1380, longest 1.67 ms |
+
+At 50 MHz it shortens the composed windows' longest pass but leaves the passes before any load as they were, and it lengthens the last SRP and ACMP records, which take twice as many passes.
+At 100 MHz every pass then fits the share, and the last SRP record misses its 18 ms bound.
+No figure of records a pass serves both the share and the rows at 8x8, so the branch keeps two.
+The passes before any load are lwSRP's MRP work, which a record count does not reach.
+So at the product's clock the 8x8 last AECP and SRP records and the 8x8 passes miss, and the split CPU's clock is the owner's decision.
+
 ### What is left
 
-- The owner kept 8x8 in the Mark II split's scope and approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)).
-  At the approved budget every row the CPU decides fits at both points; the least margin is the 8x8 last SRP record's, 1.61 ms without the drafts.
-  With contract 2.3's face writer merged it is 1.05 ms ([above](#with-contract-23s-face-writer)).
-- At 1x1 every such row keeps at least 7.47 ms with the face writer: the last SRP record takes 10.53 ms against 18.
+- The owner kept 8x8 in the Mark II split's scope and approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)), on figures at the 100 MHz test clock.
+- **At the product's 50 MHz** ([above](#at-the-products-clock-and-the-per-pass-share)), 1x1 fits every row the CPU decides and every pass; its least margin is the last SRP record's, 0.19 ms.
+  At 8x8 the last AECP record misses by 4.0 to 5.6 ms and the last SRP record by 7.5 to 10.3 ms, with the drafts staged or not, and 23 to 32 passes of each run are over the 2.0 ms share, by up to 1.47 ms.
+- **At the 100 MHz option** every row the CPU decides fits at both points, with the least margin the 8x8 last SRP record's, 1.05 ms; one or two 8x8 passes are over the share, by up to 0.30 ms.
+- No split by the loop's records per pass fits both the share and the rows at 8x8; the passes before any load are lwSRP's MRP work.
+  The split CPU's clock, and whether the share or the rows give at 8x8, are the owner's to decide.
 - The TSN stack's and lwSRP's changes reach this branch only through those repositories' reviews, then a pin move: the TSN stack's with the hot list's runtime entry removed, lwSRP's with `ctrl_arms.LWSRP_REV`.
 - The three rows no CPU lever moves are unchanged: the 60 ms egress hold, `ACMP_OWED_MAX`, and the command behind the owed input. They stay with [tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26).
 - The block-RAM ledger, 124 against 121.5 ([the area plan](MARK_II_AREA_PLAN.md)), is commissioned separately.
