@@ -1,0 +1,11 @@
+COMMAND: python3 -B focused.py --mode trace --jobs 4
+  endstation_arty_4x4: 15 writes, equal to configure_fabric()'s 15
+  endstation_arty_8ch: 15 writes, equal to configure_fabric()'s 15
+  endstation_arty_current: 15 writes, equal to configure_fabric()'s 15
+  endstation_ax7101_1x1_tdm8: 15 writes, equal to configure_fabric()'s 15
+  endstation_ax7101_8x8: 15 writes, equal to configure_fabric()'s 15
+  plant a write skipped: caught
+  plant two writes reordered: caught
+  plant a wrong word: caught
+== ctrl split platform CSR initialisation against milan_baremetal: checks: 8   failures: 0 ==
+RESULT: PASS

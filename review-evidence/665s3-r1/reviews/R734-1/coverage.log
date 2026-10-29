@@ -1,0 +1,10 @@
+Focused exact-head coverage of four newly instrumented platform C files.
+Main is not in the host coverage population; it executes in the published boot simulation.
+The existing mailbox MMIO file is in the published 35-file full coverage receipt.
+file                                                 lines    branches   after exclusions
+sw/firmware/ctrl/plat/ctrl_plat.c                130/132      42/48      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat_console.c        118/118      66/66      lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat_csr.c             52/52        6/6       lines 100.00 %  branches 100.00 %
+sw/firmware/ctrl/plat/ctrl_plat_mmio.c             5/5         0/0       lines 100.00 %  branches 100.00 %
+Exclusion findings: []
+Ratchet findings: []
