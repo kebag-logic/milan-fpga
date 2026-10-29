@@ -2644,13 +2644,13 @@ def ctrl_mailbox_contract() -> object:
 
 
 #: The record mover's control registers (#665, owner decision 2026-10-29), in
-#: this order, one 32-bit word each from its CSR bank's base: RING ([15:0] the
+#: this order, one 32-bit word each from its CSR bank's base: CFG ([15:0] the
 #: ring's word 0 as a word address in the mailbox window, [31:16] the ring's
 #: words less one), MEM (the memory side's first byte, on a word), CMD ([15:0]
 #: the ring index of the first word, [27:16] the bytes to move, [31] 1 for
 #: memory to the ring; a write starts the transfer) and STATUS ([0] BUSY,
 #: [1] ERR). sw/firmware/ctrl/plat/mbx_dma.h restates them for the firmware.
-CTRL_MBX_DMA_REGISTERS = ("ring", "mem", "cmd", "status")
+CTRL_MBX_DMA_REGISTERS = ("cfg", "mem", "cmd", "status")
 
 
 class CtrlMailboxDma(LiteXModule):
@@ -2671,7 +2671,7 @@ class CtrlMailboxDma(LiteXModule):
             return dict(req=Signal(), we=Signal(), addr=Signal(addr_w), wdata=Signal(32), be=Signal(4),
                         ack=Signal(), rdata=Signal(32))
         self.cpu, self.host = port(), port()
-        self.ring = CSRStorage(32, description="[15:0] the ring's word 0, a word address in the window; "
+        self.cfg = CSRStorage(32, description="[15:0] the ring's word 0, a word address in the window; "
                                                "[31:16] the ring's words less one")
         self.mem = CSRStorage(32, description="The memory side's first byte, on a word")
         self.cmd = CSRStorage(32, description="[15:0] the first word's ring index; [27:16] the bytes to move; "
@@ -2685,7 +2685,7 @@ class CtrlMailboxDma(LiteXModule):
         c, h = self.cpu, self.host
         self.specials += Instance("KL_mbx_dma",
             i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
-            i_ring_base_i=self.ring.storage[:addr_w], i_ring_mask_i=self.ring.storage[16:32],
+            i_ring_base_i=self.cfg.storage[:addr_w], i_ring_mask_i=self.cfg.storage[16:32],
             i_ring_index_i=self.cmd.storage[0:16], i_mem_addr_i=self.mem.storage,
             i_len_bytes_i=self.cmd.storage[16:28], i_to_ring_i=self.cmd.storage[31],
             i_start_p_i=start, o_busy_o=busy, o_err_o=err,

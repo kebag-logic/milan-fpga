@@ -9,7 +9,7 @@
 // register accesses a record instead of one uncached access a word. Its
 // registers are one 32-bit word each from CTRL_MBX_DMA_BASE, in the order
 // milan_soc.CTRL_MBX_DMA_REGISTERS gives them:
-//   RING    [15:0] the ring's word 0 as a word address in the mailbox
+//   CFG     [15:0] the ring's word 0 as a word address in the mailbox
 //           window; [31:16] the ring's words less one;
 //   MEM     the memory side's first byte, on a word;
 //   CMD     [15:0] the ring index of the payload's first word; [27:16] its
@@ -32,11 +32,11 @@
 #error "CTRL_MBX_DMA_BASE: define the record mover's CSR bank address (the SoC's generated memory map)"
 #endif
 
-#define MBX_DMA_REG_RING 0x0u
+#define MBX_DMA_REG_CFG 0x0u
 #define MBX_DMA_REG_MEM 0x4u
 #define MBX_DMA_REG_CMD 0x8u
 #define MBX_DMA_REG_STATUS 0xCu
-#define MBX_DMA_RING_MASK_LSB 16u
+#define MBX_DMA_CFG_MASK_LSB 16u
 #define MBX_DMA_CMD_LEN_LSB 16u
 #define MBX_DMA_CMD_TO_RING (1u << 31)
 #define MBX_DMA_STATUS_BUSY 0x1u
@@ -56,7 +56,7 @@ static inline volatile uint32_t *mbx_dma_reg(uint32_t reg)
 static inline bool mbx_dma_move(uint32_t base, uint32_t words, uint32_t index, const void *p, uint32_t len,
 				bool to_ring)
 {
-	*mbx_dma_reg(MBX_DMA_REG_RING) = (base >> 2) | ((words - 1u) << MBX_DMA_RING_MASK_LSB);
+	*mbx_dma_reg(MBX_DMA_REG_CFG) = (base >> 2) | ((words - 1u) << MBX_DMA_CFG_MASK_LSB);
 	*mbx_dma_reg(MBX_DMA_REG_MEM) = (uint32_t)(uintptr_t)p;
 	*mbx_dma_reg(MBX_DMA_REG_CMD) = (index & 0xFFFFu) | (len << MBX_DMA_CMD_LEN_LSB) |
 					(to_ring ? MBX_DMA_CMD_TO_RING : 0u);
