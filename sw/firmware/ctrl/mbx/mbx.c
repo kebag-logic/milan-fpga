@@ -29,6 +29,9 @@
 #ifdef CTRL_MBX_BASE
 #include "../plat/mbx_mmio.h"
 #endif
+#ifdef CTRL_MBX_DMA_BASE
+#include "../plat/mbx_dma.h"
+#endif
 
 // The window's two accesses. Built for the memory-mapped window
 // (CTRL_MBX_BASE), the driver makes each in place, the load or store
@@ -304,6 +307,13 @@ enum mbx_status mbx_rx_take(unsigned ch, struct mbx_frame *f)
 	    len > max_frame[ch] || occupied > rx_words[ch] || record > occupied) {
 		return rx_resync(ch, head);
 	}
+#ifdef CTRL_MBX_DMA_BASE
+	// The split placement's record mover copies the payload (mbx_dma.h); a
+	// move that ends in error leaves no record to trust.
+	if (!mbx_dma_move(rx_base[ch], rx_words[ch], (uint32_t)tail + MBX_RX_HDR_WORDS, f->bytes, len, false)) {
+		return rx_resync(ch, head);
+	}
+#else
 	// The payload's words in ring order, each whole word but a short last one,
 	// a whole word stored at once (the frame's bytes start on a word).
 	const uint32_t base = rx_base[ch];
@@ -316,6 +326,7 @@ enum mbx_status mbx_rx_take(unsigned ch, struct mbx_frame *f)
 	if (len % 4u != 0u) {
 		ring_lanes_unpack(mbx_bus_read32(base + 4u * (at & mask)), p, len % 4u);
 	}
+#endif
 	f->len = (uint16_t)len;
 	f->interface = (uint8_t)mbx_field(w0, MBX_RXREC_W0_IF_LSB, MBX_RXREC_W0_IF_WIDTH);
 	f->arrival_ms = mbx_field(w1, MBX_RXREC_W1_ARRIVAL_MS_LSB, MBX_RXREC_W1_ARRIVAL_MS_WIDTH);
@@ -339,6 +350,29 @@ static void tx_word(unsigned ch, uint32_t index, uint32_t value)
 	mbx_bus_write32(tx_base[ch] + 4u * (index & (tx_words[ch] - 1u)), value);
 }
 
+// The payload's words in ring order from ring index at, each whole word but a
+// short last one; a frame that starts on a word gives each whole word in one
+// load. The two loops stay apart, or the compiler takes the byte form for
+// both.
+static inline void tx_payload(unsigned ch, uint32_t at, const uint8_t *frame, uint16_t len)
+{
+	const uint32_t base = tx_base[ch];
+	const uint32_t mask = tx_words[ch] - 1u;
+	const uint8_t *p = frame;
+	if (((uintptr_t)frame & 3u) == 0u) {
+		for (uint32_t whole = len / 4u; whole != 0u; --whole, ++at, p += 4) {
+			mbx_bus_write32(base + 4u * (at & mask), ring_lanes_load4(p));
+		}
+	} else {
+		for (uint32_t whole = len / 4u; whole != 0u; --whole, ++at, p += 4) {
+			mbx_bus_write32(base + 4u * (at & mask), ring_lanes_pack4(p));
+		}
+	}
+	if (len % 4u != 0u) {
+		mbx_bus_write32(base + 4u * (at & mask), ring_lanes_pack(p, len % 4u));
+	}
+}
+
 enum mbx_status mbx_tx_send(unsigned ch, unsigned interface, const uint8_t *frame, uint16_t len)
 {
 	if (ch >= MBX_N_CH || interface >= MBX_N_IF || len < 14u || len > max_frame[ch]) {
@@ -356,25 +390,20 @@ enum mbx_status mbx_tx_send(unsigned ch, unsigned interface, const uint8_t *fram
 				  mbx_place(interface, MBX_TXREC_W0_IF_LSB, MBX_TXREC_W0_IF_WIDTH) |
 				  mbx_place(MBX_TX_KIND, MBX_TXREC_W0_KIND_LSB, MBX_TXREC_W0_KIND_WIDTH));
 	tx_word(ch, (uint32_t)head + 1u, mbx_place(tx_seq, MBX_TXREC_W1_SEQ_LSB, MBX_TXREC_W1_SEQ_WIDTH));
-	// The payload's words in ring order, each whole word but a short last one;
-	// a frame that starts on a word gives each whole word in one load. The
-	// two loops stay apart, or the compiler takes the byte form for both.
-	const uint32_t base = tx_base[ch];
-	const uint32_t mask = tx_words[ch] - 1u;
-	uint32_t at = (uint32_t)head + MBX_TX_HDR_WORDS;
-	const uint8_t *p = frame;
+	const uint32_t at = (uint32_t)head + MBX_TX_HDR_WORDS;
+#ifdef CTRL_MBX_DMA_BASE
+	// The split placement's record mover takes a frame on a word (mbx_dma.h);
+	// a record whose payload did not reach the ring is not committed.
 	if (((uintptr_t)frame & 3u) == 0u) {
-		for (uint32_t whole = len / 4u; whole != 0u; --whole, ++at, p += 4) {
-			mbx_bus_write32(base + 4u * (at & mask), ring_lanes_load4(p));
+		if (!mbx_dma_move(tx_base[ch], tx_words[ch], at, frame, len, true)) {
+			return MBX_STATUS_BAD;
 		}
 	} else {
-		for (uint32_t whole = len / 4u; whole != 0u; --whole, ++at, p += 4) {
-			mbx_bus_write32(base + 4u * (at & mask), ring_lanes_pack4(p));
-		}
+		tx_payload(ch, at, frame, len);
 	}
-	if (len % 4u != 0u) {
-		mbx_bus_write32(base + 4u * (at & mask), ring_lanes_pack(p, len % 4u));
-	}
+#else
+	tx_payload(ch, at, frame, len);
+#endif
 	tx_head[ch] = (uint16_t)(head + record);
 	tx_seq = (uint16_t)(tx_seq + 1u);
 	mbx_bus_write32(ch_reg(ch, MBX_CH_REG_TX_HEAD), tx_head[ch]);
