@@ -7,13 +7,17 @@
 // The core is a cacheless RV32I hart and fetch-bound: every instruction
 // costs about ten CPU cycles from block RAM, so a byte loop costs about fifty
 // cycles a byte, and the AECP responses alone moved several kilobytes a
-// pass. These move one 32-bit word per access, four words a turn, once the
-// destination is aligned:
-//   * memset fills the aligned middle with words;
+// pass. These move one 32-bit word per access once the destination is
+// aligned, and in bulk where the alignment allows (#665, 2026-10-29: most
+// calls on the split placement's record paths fill or copy a few tens of
+// aligned bytes, so a call's fixed instructions weigh as much as its words):
+//   * memset fills the aligned middle eight words a turn, then the rest by
+//     the bits of what is left, a step each: four words, two, one, a
+//     halfword, a byte;
 //   * memcpy, and memmove when the destination does not overlap the source
-//     from above, copy words when the source shares the destination's
-//     alignment, and otherwise build each destination word from two aligned
-//     source words (the merge);
+//     from above, copy the same way when the source shares the
+//     destination's alignment, and otherwise build each destination word
+//     from two aligned source words (the merge);
 //   * memmove when the destination overlaps the source from above copies
 //     from the top down, in words when the two share their alignment and
 //     otherwise by the same merge from the top (an insertion into a packed
@@ -57,6 +61,17 @@ static void store(unsigned char *p, uint32_t w)
 	*(uint32_t *)(void *)p = w;
 }
 
+// A halfword, at an even address only.
+static uint16_t load_half(const unsigned char *p)
+{
+	return *(const uint16_t *)(const void *)p;
+}
+
+static void store_half(unsigned char *p, uint16_t h)
+{
+	*(uint16_t *)(void *)p = h;
+}
+
 static unsigned misalignment(const void *p)
 {
 	return (unsigned)((uintptr_t)p & WORD_MASK);
@@ -74,17 +89,52 @@ static void *forward(void *dst, const void *src, size_t n)
 	}
 	unsigned off = misalignment(s);
 	if (off == 0u) {
-		for (; n >= 4u * WORD_BYTES; n -= 4u * WORD_BYTES, d += 4u * WORD_BYTES, s += 4u * WORD_BYTES) {
+		// Both aligned: eight words a turn, then the rest (under 32 bytes)
+		// by its bits, each step leaving both pointers aligned for the next.
+		for (; n >= 8u * WORD_BYTES; n -= 8u * WORD_BYTES, d += 8u * WORD_BYTES, s += 8u * WORD_BYTES) {
+			uint32_t w0 = load(s), w1 = load(s + 4), w2 = load(s + 8), w3 = load(s + 12);
+			uint32_t w4 = load(s + 16), w5 = load(s + 20), w6 = load(s + 24), w7 = load(s + 28);
+			store(d, w0);
+			store(d + 4, w1);
+			store(d + 8, w2);
+			store(d + 12, w3);
+			store(d + 16, w4);
+			store(d + 20, w5);
+			store(d + 24, w6);
+			store(d + 28, w7);
+		}
+		if ((n & 16u) != 0u) {
 			uint32_t w0 = load(s), w1 = load(s + 4), w2 = load(s + 8), w3 = load(s + 12);
 			store(d, w0);
 			store(d + 4, w1);
 			store(d + 8, w2);
 			store(d + 12, w3);
+			d += 16;
+			s += 16;
 		}
-		for (; n >= WORD_BYTES; n -= WORD_BYTES, d += WORD_BYTES, s += WORD_BYTES) {
+		if ((n & 8u) != 0u) {
+			uint32_t w0 = load(s), w1 = load(s + 4);
+			store(d, w0);
+			store(d + 4, w1);
+			d += 8;
+			s += 8;
+		}
+		if ((n & 4u) != 0u) {
 			store(d, load(s));
+			d += 4;
+			s += 4;
 		}
-	} else if (n >= 2u * WORD_BYTES - off) {
+		if ((n & 2u) != 0u) {
+			store_half(d, load_half(s));
+			d += 2;
+			s += 2;
+		}
+		if ((n & 1u) != 0u) {
+			*d = *s;
+		}
+		return dst;
+	}
+	if (n >= 2u * WORD_BYTES - off) {
 		// The merge. prev holds the aligned source word below the next
 		// output word, with s[0..] in its top lanes (composed from bytes);
 		// an output word is prev's top lanes over the next word's bottom
@@ -191,18 +241,38 @@ void *memset(void *dst, int c, size_t n)
 		*d++ = byte;
 		--n;
 	}
-	for (; n >= 4u * WORD_BYTES; n -= 4u * WORD_BYTES, d += 4u * WORD_BYTES) {
+	for (; n >= 8u * WORD_BYTES; n -= 8u * WORD_BYTES, d += 8u * WORD_BYTES) {
 		store(d, fill);
 		store(d + 4, fill);
 		store(d + 8, fill);
 		store(d + 12, fill);
+		store(d + 16, fill);
+		store(d + 20, fill);
+		store(d + 24, fill);
+		store(d + 28, fill);
 	}
-	for (; n >= WORD_BYTES; n -= WORD_BYTES, d += WORD_BYTES) {
+	if ((n & 16u) != 0u) {
 		store(d, fill);
+		store(d + 4, fill);
+		store(d + 8, fill);
+		store(d + 12, fill);
+		d += 16;
 	}
-	while (n != 0u) {
-		*d++ = byte;
-		--n;
+	if ((n & 8u) != 0u) {
+		store(d, fill);
+		store(d + 4, fill);
+		d += 8;
+	}
+	if ((n & 4u) != 0u) {
+		store(d, fill);
+		d += 4;
+	}
+	if ((n & 2u) != 0u) {
+		store_half(d, (uint16_t)fill);
+		d += 2;
+	}
+	if ((n & 1u) != 0u) {
+		*d = byte;
 	}
 	return dst;
 }

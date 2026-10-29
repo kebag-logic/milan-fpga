@@ -433,6 +433,20 @@ MUTANTS = (
     Mutant("mem-copy-returns-source", "plat/ctrl_mem.c", "\treturn forward(dst, src, n);\n}\n\nvoid *memmove",
            "\t(void)forward(dst, src, n);\n\treturn (void *)(uintptr_t)src;\n}\n\nvoid *memmove",
            "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W5 memcpy returns dst"),
+    # the bulk turns and the bit steps after them (#665, 2026-10-29)
+    Mutant("mem-copy-bulk-drops-a-word", "plat/ctrl_mem.c", "\t\t\tstore(d + 28, w7);\n", "",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W1 memcpy byte"),
+    Mutant("mem-copy-rest-halfword-dropped", "plat/ctrl_mem.c", "store_half(d, load_half(s));",
+           "(void)load_half(s);",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W1 memcpy byte"),
+    Mutant("mem-copy-rest-byte-dropped", "plat/ctrl_mem.c", "\t\t\t*d = *s;\n", "",
+           "unit", "CtrlMem.W1MemcpyEveryAlignmentAndLength", "W1 memcpy byte"),
+    Mutant("mem-set-bulk-drops-a-word", "plat/ctrl_mem.c", "\t\tstore(d + 28, fill);\n", "",
+           "unit", "CtrlMem.W3MemsetEveryAlignmentLengthAndValue", "W3 memset byte"),
+    Mutant("mem-set-rest-steps-overlap", "plat/ctrl_mem.c", "\t\td += 16;\n\t}\n", "\t}\n",
+           "unit", "CtrlMem.W3MemsetEveryAlignmentLengthAndValue", "W3 memset byte"),
+    Mutant("mem-set-rest-halfword-dropped", "plat/ctrl_mem.c", "\t\tstore_half(d, (uint16_t)fill);\n", "",
+           "unit", "CtrlMem.W3MemsetEveryAlignmentLengthAndValue", "W3 memset byte"),
     # ---- #665 lane FC: the full-tuple filter on the model, one defect per rule, the RTL arms' twins ----
     # 1. tagged frames never reach a mailbox: a front end that strips a C-tag
     #    before the filter, and the RTL arm's twin, a TPID taken for any EtherType
