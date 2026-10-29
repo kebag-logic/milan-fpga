@@ -1,0 +1,56 @@
+[
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/787",
+    "title": "Reset the end-station on the processor's REBOOT request (AECP REBOOT, for the #396 soft resets)",
+    "issue_number": 787,
+    "body": "**Perform the end-station reset on the processor's REBOOT request, so the release gate's 50 soft resets can run (#396).**\n\nThe processor will accept AECP REBOOT (IEEE 1722.1-2021 7.4.43) and raise `reboot_req_o` after its SUCCESS response leaves (processor issue Mister-M-alt/protocol-processor-control-plane-avb-milan#203). The end-station must then reset itself without a power cut, and come back as after a cold boot.\n\n**Decide and record (design first):** which reset.\n- **(a)** A fabric and CPU soft reset, without FPGA reconfiguration.\n- **(b)** A configuration reload from flash (IPROG through ICAPE2), which reloads the bitstream like a power-on.\n- For each, state what is and is not reset: the PHY, the RGMII/GMII clocking and MMCMs, the gPTP timestamping path, the persistence journal and the boot path.\n- A JTAG reload is excluded, because it is known to leave TX timestamps wrong. The chosen reset must show it does not have that defect.\n\n**Required:**\n- On `reboot_req_o`, the chosen reset happens within a stated bound. A journal write in progress completes or is safely abandoned, as for a cold cut.\n- After the reset:\n  - the eight Milan state items are restored;\n  - ADP re-advertises within its valid time;\n  - gPTP locks again with correct TX timestamps;\n  - bound streams rebind inside #75's bound.\n  These are the #396 power-area checks.\n- The bench smoke and the #396 plan's `power` area use REBOOT for the 50 soft resets.\n- Tests: a simulation of the request-to-reset path, and a mutant that ignores the request.\n- The adoption of the processor pin that carries #203 lands in the same PR, or before it.\n\nRelates to #396.\n",
+    "state": "open",
+    "user": {
+      "login": "Mister-M-alt",
+      "name": "Mister-M-alt",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+      "id": 161579364
+    },
+    "assignees": null,
+    "labels": null,
+    "milestone": null,
+    "state_reason": null,
+    "comments": 3,
+    "created_at": "2026-10-26T05:44:18Z",
+    "updated_at": "2026-10-29T21:20:33Z",
+    "closed_at": null,
+    "display_url": "https://github.com/kebag-logic/milan-fpga/issues/787",
+    "display_title": "Reset the end-station on the processor's REBOOT request (AECP REBOOT, for the #396 soft resets)"
+  },
+  {
+    "url": "https://github.com/kebag-logic/milan-fpga/issues/396",
+    "title": "[Release] Week-long soak and power-cycle torture as release gates",
+    "issue_number": 396,
+    "body": "\nDrafted from the README product roadmap, phase P3 (README.md lines 334 to 337: \"week-long soak + power-cycle torture as release gates\"). No open issue owns the gate at dev f46215cf: #76 runs the final qualification once, #70 owns the power-cut soak of persistence, #117 and #213 own two-board soaks of the gPTP plane, #366 is a power-cycle finding. None turns the two campaigns into a standing release criterion.\n\n## Objective and evidence\n\nDefine, tool and enforce two release gates: a continuous soak of at least seven days with streams bound in both directions, and a power-cycle torture of a stated cycle count, each with pass criteria, artifacts and a runnable plan, so that no candidate ships without both.\n\n- The standing invariant is stated but not gated: README.md lines 349 to 352 (\"every closed bitstream is flashed and soaked\"); REQUIREMENTS.md lines 201 to 209 (REQ-VER-05 and the blocker sentence) name the duty without a duration, a cycle count or a criterion.\n- The desk half exists: `tb/tools/torture_campaign.py` lines 1 to 30 (the plan and assertion contract; the runner lives in the bench repository), its physical family (lines 2966 to 2975 move the GM loss and the DUT power cycle to the last-run `physical` area; lines 2984 to 3010 define the before-and-after snapshot rule; lines 3125 to 3145 carry `state.restored-after-power-cycle` and `state.self-consistent-after-power-cycle`), the `@torture` behave tier (tests/README.md lines 105 to 123) and docs/testing/TESTING.md lines 655 to 670 (6d: the desk half here, the power-cut soak is #70's). Nothing states how long a soak runs or how many cycles a torture performs.\n- The defects this gate exists for are the ones single runs missed: #75 (the stream restart delay grows with repeated reconnects), #366 (only the first cold boot after a flash misbehaves), the `e1` GMII-RX fault that was \"cold-soak-proven\" (docs/integration/BUILDING.md lines 184 to 185), and the compliance matrix's open \"tolerance edges and long-duration holds\" for the gPTP timers (docs/reference/MILAN_COMPLIANCE_MATRIX.md line 80, audit B11).\n- Evidence retention is defined (TESTING.md lines 639 to 653, 6b) and the per-flash grader exists (`scripts/baremetal_uart_smoke.py`).\n\n## Authority and scope\n\n- Milan v1.2 5.3.8.10 with Table 5.6, 5.3.5.1, 5.3.7.1, 5.3.8.7, 5.3.11.1, 5.3.13, 4.2.6.2.2 and 4.2.6.2.3 with Tables 4.1 and 4.2, 5.5.1.4 and 5.5.2.6, Annex B.1.1; IEEE 1722-2016 4.4.4.6 and 4.4.4.7.\n- REQUIREMENTS.md section 8; CONTRIBUTING.md section 3; docs/testing/TESTING.md sections 6, 6b and 6d; docs/testing/methodology.md; docs/reference/FR_NFR.md NFR-REL-01 and NFR-REL-02.\n- Context: `tb/tools/torture_campaign.py`, `tests/features/torture_campaign_plan.feature`, `scripts/baremetal_uart_smoke.py`, the bench runner in the private repository (referenced, not tracked here), the bench power strip's remote outlets.\n- Decisions first, recorded here: the soak duration (seven days is the README's number); the power-cycle count and the mix of cold cuts versus resets and of cuts at idle versus during a journal commit; the pass criteria (zero `SEQ_NUM_MISMATCH`, `STREAM_INTERRUPTED`, unexplained `MEDIA_UNLOCKED`, `asCapable` loss or `tu` beyond holdover over the soak; every cycle restores the eight Milan state items, re-advertises within the ADP valid time and rebinds inside #75's bound); and where the gate is written (REQUIREMENTS.md section 8 as a REQ-VER row, CONTRIBUTING.md, or both).\n\nOut of scope: fixing what the gates find (each finding becomes its own issue); the final qualification run itself (#76); the persistence implementation (#70).\n\n## Acceptance and validation\n\n1. The decisions are recorded here; REQUIREMENTS.md section 8 gains the gate as a MUST row with the duration, the cycle count and the criteria, and REQ-VER-05's blocker sentence references it.\n2. `torture_campaign.py --plan` emits a `soak` area (periodic counter walks of every stream index and the CRF sink per Table 5.6, gPTP publication reads, `AVTPRX_TSD` margin, uptime monotonicity, with interval and duration as parameters) and a `power` area with the cycle count and the cut-phase mix; `tests/features/torture_campaign_plan.feature` asserts that both areas cover every index, both directions and the CRF stream; `--self-test` passes.\n3. One soak of the decided duration and one torture of the decided count run on the shipping image on the two-board bench; verdict logs, UART transcripts, captures and image hashes are retained per TESTING.md 6b and linked from `docs/findings/`; a finding is filed for every failed assertion.\n4. A negative control proves the gate can fail: a run against an image with a known defect (the #366 first-boot restart, or a build with persistence disabled) produces the corresponding failed assertion.\n5. TESTING.md 6d and CONTRIBUTING.md name the gate and its artifacts; `python3 -B scripts/docs_check.py`, `scripts/check_doc_paths.py` and the behave tier pass.\n\n## Lane and review\n\nExecutor: unassigned. Independent reviewer: unassigned. Assigned by the manager when the lane opens.\n\nDependencies: #70 (persistence restore is what the power cycles test), #117 (two-board bench), #366 and #75 (known findings the gate must reproduce), the temperature-signoff item (its log rides the soak). Lane conflicts: any branch touching `torture_campaign.py` or REQUIREMENTS.md section 8.\n\nUnresolved decisions: the four above. Backlog until recorded.\n",
+    "state": "open",
+    "user": {
+      "login": "Mister-M-alt",
+      "name": "Mister-M-alt",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+      "id": 161579364
+    },
+    "assignees": null,
+    "labels": [
+      {
+        "name": "enhancement",
+        "color": "a2eeef",
+        "description": "New feature or request"
+      }
+    ],
+    "milestone": 6,
+    "state_reason": null,
+    "comments": 44,
+    "created_at": "2026-09-07T03:54:17Z",
+    "updated_at": "2026-10-27T16:31:23Z",
+    "closed_at": null,
+    "display_url": "https://github.com/kebag-logic/milan-fpga/issues/396",
+    "display_title": "[Release] Week-long soak and power-cycle torture as release gates"
+  }
+]

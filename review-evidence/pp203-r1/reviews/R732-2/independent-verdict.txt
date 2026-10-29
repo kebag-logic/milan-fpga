@@ -1,0 +1,14 @@
+[R732] NEGATIVE - exact head ec1ff275a72d885f0908fd213d8009e9e4dda4d9
+Independent delta verdict recorded after source examination, public evidence audit and focused executions. No other reviewer's report was read. The prior R732-1 public findings were read only after the independent diff pass.
+R732-F1: original post-DEPARTING automatic-unlock defect resolved; exact published probe passes. The remaining no-DEPARTING terminal edge is R732-F3.
+R732-F2: requirement-ID heading residue resolved.
+R732-F3 MAJOR: no-advertising shutdown raises reboot_req_o during an autonomous ACMP frame. Request cycle 16184473; frame EOF 16184542. Conformance, RTL, Robustness, Tests, Docs UNCLEAN.
+R732-F4 MINOR: live PR validation numbers remain round-one measurements without historical qualification; source-head counts and area disagree with published round-two receipts. Docs and Tests UNCLEAN.
+
+lens | CLEAN/UNCLEAN | examined artifacts | covering round | exact head
+Conformance | UNCLEAN F3 | frozen issue and scope comments; REQ-FWX-001; interfaces F02.10; shutdown sequence; wire observations | R732-2 delta, R732-1 unchanged paths | ec1ff275a72d885f0908fd213d8009e9e4dda4d9
+RTL | UNCLEAN F3 | top arb_req/rbt gate/RB_DEP; arbiter selection/serializer; ADP pending/builder/enable; unchanged AECP acceptance | R732-2 delta, R732-1 unchanged paths | ec1ff275a72d885f0908fd213d8009e9e4dda4d9
+Robustness | UNCLEAN F3 | held EOF, slot exhaustion, delayed reset, producer demand, non-advertising active-frame probe | R732-2 | ec1ff275a72d885f0908fd213d8009e9e4dda4d9
+Tests | UNCLEAN F3 F4 | RBT1-11; original reviewer probe; new probe; 30 named mutation receipt audits; source gate receipts; live PR | R732-2 delta, R732-1 unchanged gates | ec1ff275a72d885f0908fd213d8009e9e4dda4d9
+Docs | UNCLEAN F3 F4 | docs/README; compliance matrix; interface/packet/ADP/AECP docs; integrator/operator guides; test README; live PR; port heading | R732-2 delta, R732-1 unchanged artifacts | ec1ff275a72d885f0908fd213d8009e9e4dda4d9
+R732-2 FINISHED

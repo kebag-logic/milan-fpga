@@ -1,0 +1,24 @@
+{
+  "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/203",
+  "title": "Implement AECP REBOOT (IEEE 1722.1-2021 7.4.43): answer SUCCESS, then raise reboot_req_o for the integrator",
+  "issue_number": 203,
+  "body": "**Implement AECP REBOOT (IEEE 1722.1-2021 7.4.43) and signal the integrator to reset.**\n\nToday the AECP engine answers REBOOT with `NOT_IMPLEMENTED` (REQ-FWX-001, `docs/00_MILAN_COMPLIANCE_REVIEW.md:546`, GAP-13). Milan v1.2 does not mandate REBOOT. The owner decided on 2026-10-26 that the end-station implements it: the milan-fpga release gate's 50 soft resets (milan-fpga #396) are sent by the controller.\n\n**Required:**\n- REBOOT addressed to the ENTITY descriptor 0 is answered SUCCESS, echoing the command (IEEE 1722.1-2021 7.4.43, Figure 7-75).\n  - Another descriptor is answered NOT_SUPPORTED.\n  - A non-zero index is answered NO_SUCH_DESCRIPTOR.\n  - A short command is answered BAD_ARGUMENTS.\n  - REBOOT while the entity is ACQUIRED or LOCKED by another controller is answered ENTITY_ACQUIRED or ENTITY_LOCKED (7.4.43 with 7.4.1 and 7.4.2).\n- After the SUCCESS response has left the transmit path, the processor top raises one new output, `reboot_req_o` (a one-cycle pulse or a held level, stated in the interface documents), and accepts no further command.\n  - This is the only allowed top-level change.\n  - The response must not be lost: the request follows the transmit-done of that response.\n- Before the request, send ENTITY_DEPARTING if the entity is advertising. Find the clause in IEEE 1722.1-2021 6.2.1 / 6.2.6 and Milan v1.2 5.2, and state it.\n- Update REQ-FWX-001, GAP-13, the AECP command model and the compliance review entry. Add tests for every status above, and a mutant that raises the request before the response is sent.\n\nThe reset itself, how the end-station resets and restores, is the integrator's: a milan-fpga issue tracks it.\n",
+  "state": "open",
+  "user": {
+    "login": "Mister-M-alt",
+    "name": "Mister-M-alt",
+    "email": null,
+    "avatar_url": "https://avatars.githubusercontent.com/u/161579364?v=4",
+    "id": 161579364
+  },
+  "assignees": null,
+  "labels": null,
+  "milestone": null,
+  "state_reason": null,
+  "comments": 6,
+  "created_at": "2026-10-26T05:44:06Z",
+  "updated_at": "2026-10-29T22:50:42Z",
+  "closed_at": null,
+  "display_url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/203",
+  "display_title": "Implement AECP REBOOT (IEEE 1722.1-2021 7.4.43): answer SUCCESS, then raise reboot_req_o for the integrator"
+}

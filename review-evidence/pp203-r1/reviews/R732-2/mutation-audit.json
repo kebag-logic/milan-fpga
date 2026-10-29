@@ -1,0 +1,212 @@
+[
+  {
+    "arm": "rbt-request-at-acceptance",
+    "verdict": "KILLED",
+    "failures": 17,
+    "named": 1,
+    "expected": "RBT7 reboot_req_o stays 0 while the MAC holds the SUCCESS response's last byte"
+  },
+  {
+    "arm": "rbt-response-unwatched",
+    "verdict": "KILLED",
+    "failures": 3,
+    "named": 1,
+    "expected": "RBT7 reboot_req_o stays 0 while the MAC holds the SUCCESS response's last byte"
+  },
+  {
+    "arm": "rbt-notifications-unwatched",
+    "verdict": "KILLED",
+    "failures": 5,
+    "named": 1,
+    "expected": "RBT6 reboot_req_o rises after both notifications left"
+  },
+  {
+    "arm": "rbt-notification-flight-unwatched",
+    "verdict": "KILLED",
+    "failures": 3,
+    "named": 1,
+    "expected": "RBT8 reboot_req_o rises after the response and the notification left"
+  },
+  {
+    "arm": "rbt-no-shutdown",
+    "verdict": "KILLED",
+    "failures": 10,
+    "named": 1,
+    "expected": "RBT6 one ENTITY_DEPARTING"
+  },
+  {
+    "arm": "rbt-departing-unwatched",
+    "verdict": "KILLED",
+    "failures": 8,
+    "named": 1,
+    "expected": "RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o"
+  },
+  {
+    "arm": "rbt-departing-flight-unwatched",
+    "verdict": "KILLED",
+    "failures": 7,
+    "named": 1,
+    "expected": "RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o"
+  },
+  {
+    "arm": "rbt-request-pulse",
+    "verdict": "KILLED",
+    "failures": 6,
+    "named": 1,
+    "expected": "RBT6 reboot_req_o is held from its rise to the end of the run"
+  },
+  {
+    "arm": "rbt-rx-gate-dropped",
+    "verdict": "KILLED",
+    "failures": 1,
+    "named": 1,
+    "expected": "RBT7 ACMP commands that arrive while the response is held get no answer"
+  },
+  {
+    "arm": "rbt-engine-hold-dropped",
+    "verdict": "KILLED",
+    "failures": 5,
+    "named": 1,
+    "expected": "RBT6 the engine takes the REBOOT and no command after it"
+  },
+  {
+    "arm": "rbt-accept-any-status",
+    "verdict": "KILLED",
+    "failures": 33,
+    "named": 1,
+    "expected": "RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0"
+  },
+  {
+    "arm": "rbt-short-gate-dropped",
+    "verdict": "KILLED",
+    "failures": 35,
+    "named": 1,
+    "expected": "RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: byte-exact at cdl 16"
+  },
+  {
+    "arm": "rbt-type-gate-dropped",
+    "verdict": "KILLED",
+    "failures": 27,
+    "named": 1,
+    "expected": "RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: byte-exact at cdl 16"
+  },
+  {
+    "arm": "rbt-index-unchecked",
+    "verdict": "KILLED",
+    "failures": 20,
+    "named": 1,
+    "expected": "RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16"
+  },
+  {
+    "arm": "rbt-lock-unchecked",
+    "verdict": "KILLED",
+    "failures": 13,
+    "named": 1,
+    "expected": "RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: byte-exact at cdl 16"
+  },
+  {
+    "arm": "rbt-notify-dropped",
+    "verdict": "KILLED",
+    "failures": 7,
+    "named": 1,
+    "expected": "RBT6 the REBOOT notification reaches every other registered controller"
+  },
+  {
+    "arm": "rbt-notification-type",
+    "verdict": "KILLED",
+    "failures": 7,
+    "named": 1,
+    "expected": "RBT6 the REBOOT notification reaches every other registered controller"
+  },
+  {
+    "arm": "rbt-quiet-gate-dropped",
+    "verdict": "KILLED",
+    "failures": 3,
+    "named": 1,
+    "expected": "RBT9 no byte on tx_* after the final ENTITY_DEPARTING"
+  },
+  {
+    "arm": "rbt-quiet-from-the-request",
+    "verdict": "KILLED",
+    "failures": 1,
+    "named": 1,
+    "expected": "RBT9 no byte on tx_* after the final ENTITY_DEPARTING"
+  },
+  {
+    "arm": "rbt-quiet-opens-notifications",
+    "verdict": "KILLED",
+    "failures": 2,
+    "named": 1,
+    "expected": "RBT9 no byte on tx_* after the final ENTITY_DEPARTING"
+  },
+  {
+    "arm": "rbt-quiet-opens-originator",
+    "verdict": "KILLED",
+    "failures": 1,
+    "named": 1,
+    "expected": "RBT10 no byte on tx_* after the final ENTITY_DEPARTING"
+  },
+  {
+    "arm": "rbt-quiet-opens-listener",
+    "verdict": "KILLED",
+    "failures": 2,
+    "named": 1,
+    "expected": "RBT9 no byte on tx_* after the final ENTITY_DEPARTING"
+  },
+  {
+    "arm": "rbt-quiet-opens-maap",
+    "verdict": "KILLED",
+    "failures": 1,
+    "named": 1,
+    "expected": "RBT9 no byte on tx_* after the final ENTITY_DEPARTING"
+  },
+  {
+    "arm": "rbt-quiet-opens-srp",
+    "verdict": "KILLED",
+    "failures": 3,
+    "named": 1,
+    "expected": "RBT9 no byte on tx_* after the final ENTITY_DEPARTING"
+  },
+  {
+    "arm": "rbt-adp-reenabled",
+    "verdict": "KILLED",
+    "failures": 2,
+    "named": 1,
+    "expected": "RBT10 no byte on tx_* after the final ENTITY_DEPARTING"
+  },
+  {
+    "arm": "rbt-quiet-opens-talker-answers",
+    "verdict": "KILLED",
+    "failures": 2,
+    "named": 1,
+    "expected": "RBT10 no byte on tx_* after the final ENTITY_DEPARTING"
+  },
+  {
+    "arm": "rbt-quiet-opens-aecp-answers",
+    "verdict": "KILLED",
+    "failures": 10,
+    "named": 1,
+    "expected": "RBT9 no byte on tx_* after the final ENTITY_DEPARTING"
+  },
+  {
+    "arm": "rbt-quiet-at-the-shutdown",
+    "verdict": "KILLED",
+    "failures": 2,
+    "named": 1,
+    "expected": "RBT11 ENTITY_DEPARTING still leaves, then reboot_req_o"
+  },
+  {
+    "arm": "rbt-quiet-closes-departing",
+    "verdict": "KILLED",
+    "failures": 22,
+    "named": 1,
+    "expected": "RBT6 one ENTITY_DEPARTING"
+  },
+  {
+    "arm": "rbt-quiet-closes-notifications",
+    "verdict": "KILLED",
+    "failures": 28,
+    "named": 1,
+    "expected": "RBT6 the REBOOT notification reaches every other registered controller"
+  }
+]

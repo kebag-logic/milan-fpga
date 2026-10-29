@@ -1,0 +1,26 @@
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -12634,6 +12634,23 @@
+     CHECK(queued_answers == 0,
+           "RBT6 the command queued behind the REBOOT is never served (%d answers)",
+           queued_answers);
++
++    long final_departure = -1;
++    for (const auto& e : io.tx_log)
++      if (departing(e.second)) final_departure = long(e.first);
++    int late_frames = 0;
++    for (const auto& e : io.tx_log) {
++      if (final_departure >= 0 && long(e.first) > final_departure) {
++        ++late_frames;
++        printf("POST_DEPARTURE frame cycle=%llu departure=%ld request=%ld ethertype=%02x%02x subtype=%02x mt=%02x opcode=%04x unsolicited=%u\n",
++               (unsigned long long)e.first, final_departure, io.reboot_rise_t,
++               e.second[12], e.second[13], e.second[14], e.second[15],
++               aecp(e.second) ? ct(e.second) : 0,
++               aecp(e.second) ? unsigned(e.second[36] >> 7) : 0);
++      }
++    }
++    CHECK(final_departure >= 0 && late_frames == 0,
++          "PROBE no control-plane frame after ENTITY_DEPARTING while reset is withheld (%d frames)", late_frames);
+   }
+ 
+   // ---- RBT7: the request follows the response's transmit-done --------------
