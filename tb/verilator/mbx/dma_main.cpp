@@ -327,15 +327,24 @@ class Bench {
     bool cpu_ack_ = false;          // cpu_ack_o in the cycle just stepped
     bool prev_req_ = false;         // a host request in the cycle before, and its fields
     bool prev_we_ = false;
-    std::uint32_t prev_addr_ = 0, prev_wdata_ = 0;
+    std::uint32_t prev_addr_ = 0;
+    std::uint32_t prev_wdata_ = 0;
     std::uint32_t cpu_rdata_ = 0;
     bool ack_next_ = false;
     std::uint32_t rdata_next_ = 0;
-    std::deque<Burst> aw_q_, r_q_;
+    std::deque<Burst> aw_q_;
+    std::deque<Burst> r_q_;
     std::deque<bool> b_q_;
-    bool aw_wait_ = false, w_wait_ = false, ar_wait_ = false;
-    std::uint32_t aw_addr_ = 0, w_data_ = 0, ar_addr_ = 0;
-    unsigned aw_len_ = 0, w_strb_ = 0, w_last_ = 0, ar_len_ = 0;
+    bool aw_wait_ = false;          // each channel's VALID waited last cycle, and its payload then
+    bool w_wait_ = false;
+    bool ar_wait_ = false;
+    std::uint32_t aw_addr_ = 0;
+    std::uint32_t w_data_ = 0;
+    std::uint32_t ar_addr_ = 0;
+    unsigned aw_len_ = 0;
+    unsigned w_strb_ = 0;
+    unsigned w_last_ = 0;
+    unsigned ar_len_ = 0;
 };
 
 std::uint8_t pattern(std::uint32_t i) { return static_cast<std::uint8_t>(0x5Au ^ (i * 29u + (i >> 5))); }
@@ -361,7 +370,8 @@ void receive_case(Bench& b, milan::tb::Checker& check, std::uint32_t addr, std::
     b.start(kBase, kMask, index, addr, len, false);
     if (!check.that((std::string("D1 a receive transfer ends, ") + tag).c_str(), b.wait_idle())) return;
     check.that((std::string("D1 a receive transfer sets no ERR, ") + tag).c_str(), !b.err());
-    bool exact = true, outside = true;
+    bool exact = true;
+    bool outside = true;
     for (std::uint32_t i = 0; i < kMemBytes; ++i) {
         const std::uint32_t a = kMemBase + i;
         if (a >= addr && a < addr + len) {
@@ -384,7 +394,8 @@ void transmit_case(Bench& b, milan::tb::Checker& check, std::uint32_t addr, std:
     if (!check.that((std::string("D2 a transmit transfer ends, ") + tag).c_str(), b.wait_idle())) return;
     check.that((std::string("D2 a transmit transfer sets no ERR, ") + tag).c_str(), !b.err());
     const std::uint32_t words = (len + 3u) / 4u;
-    bool exact = true, others = true;
+    bool exact = true;
+    bool others = true;
     for (std::uint32_t w = 0; w <= kMask; ++w) {
         const std::uint32_t k = (w - index) & kMask;   // the record's word k, if k < words
         if (k < words) {
@@ -511,7 +522,8 @@ void errors(Bench& b, milan::tb::Checker& check) {
     b.start(kBase, kMask, 0, kErrBase - 64, 300, true);
     check.that("D6 a transmit transfer with an error response ends", b.wait_idle());
     check.that("D6 a read error response sets ERR", b.err());
-    bool good = true, none = true;
+    bool good = true;
+    bool none = true;
     for (std::uint32_t k = 0; k < 16; ++k) {
         std::uint32_t want = 0;
         for (unsigned lane = 0; lane < 4; ++lane) want |= std::uint32_t(b.mem[kErrBase - 64 - kMemBase + 4 * k + lane]) << (8 * lane);

@@ -306,6 +306,8 @@ build_inventory() {
     "KL_mbx|$R/hdl/milan/mailbox/KL_mbx_pkg.sv $R/hdl/milan/mailbox/KL_mbx_ring.sv $R/hdl/milan/mailbox/KL_mbx_rx.sv $R/hdl/milan/mailbox/KL_mbx_tx.sv $R/hdl/milan/mailbox/KL_mbx_evt.sv $R/hdl/milan/mailbox/KL_mbx.sv"
     "KL_mbx_wb|$R/hdl/milan/mailbox/KL_mbx_pkg.sv $R/hdl/milan/mailbox/KL_mbx_wb.sv"
     "KL_mbx_axil|$R/hdl/milan/mailbox/KL_mbx_pkg.sv $R/hdl/milan/mailbox/KL_mbx_axil.sv"
+    # the split placement's record mover on the mailbox host port (#665)
+    "KL_mbx_dma|$R/hdl/milan/mailbox/KL_mbx_pkg.sv $R/hdl/milan/mailbox/KL_mbx_dma.sv"
     "axis_fifo|$A/axis_fifo.v"
     "axis_demux|$A/axis_demux.v"
     "axis_arb_mux|$A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v"

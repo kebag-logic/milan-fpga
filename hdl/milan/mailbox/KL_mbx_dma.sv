@@ -84,7 +84,7 @@ module KL_mbx_dma
   output logic [ID_W_P-1:0]        axi_awid_o,       //! AWID, always 0
   output logic [31:0]              axi_awaddr_o,     //! AWADDR, the burst's first byte
   output logic [7:0]               axi_awlen_o,      //! AWLEN, beats less one (at most 15)
-  output logic [2:0]               axi_awsize_o,     //! AWSIZE, four bytes a beat
+  output logic [2:0]               axi_awsize_o,     //! AWSIZE, 2: a beat is the whole 32-bit word
   output logic [1:0]               axi_awburst_o,    //! AWBURST, INCR
   output logic                     axi_awlock_o,     //! AWLOCK, normal
   output logic [3:0]               axi_awcache_o,    //! AWCACHE, 0
@@ -94,7 +94,7 @@ module KL_mbx_dma
   output logic                     axi_wvalid_o,     //! WVALID
   input  wire                      axi_wready_i,     //! WREADY
   output logic [31:0]              axi_wdata_o,      //! WDATA
-  output logic [3:0]               axi_wstrb_o,      //! WSTRB: all four bytes but on the record's last word
+  output logic [3:0]               axi_wstrb_o,      //! WSTRB: every lane but on the record's last word
   output logic                     axi_wlast_o,      //! WLAST
   // ---- write response ---------------------------------------------------------
   input  wire                      axi_bvalid_i,     //! BVALID
@@ -107,7 +107,7 @@ module KL_mbx_dma
   output logic [ID_W_P-1:0]        axi_arid_o,       //! ARID, always 0
   output logic [31:0]              axi_araddr_o,     //! ARADDR, the burst's first byte
   output logic [7:0]               axi_arlen_o,      //! ARLEN, beats less one (at most 15)
-  output logic [2:0]               axi_arsize_o,     //! ARSIZE, four bytes a beat
+  output logic [2:0]               axi_arsize_o,     //! ARSIZE, 2: a beat is the whole 32-bit word
   output logic [1:0]               axi_arburst_o,    //! ARBURST, INCR
   output logic                     axi_arlock_o,     //! ARLOCK, normal
   output logic [3:0]               axi_arcache_o,    //! ARCACHE, 0

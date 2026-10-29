@@ -2665,7 +2665,9 @@ class CtrlMailboxDma(LiteXModule):
     """
 
     def __init__(self, addr_w: int) -> None:
+        """`addr_w` is the mailbox window's word-address width (KL_mbx_pkg's MBX_ADDR_W_C)."""
         def port() -> dict[str, Signal]:
+            """One host port's signals, as KL_mbx names them."""
             return dict(req=Signal(), we=Signal(), addr=Signal(addr_w), wdata=Signal(32), be=Signal(4),
                         ack=Signal(), rdata=Signal(32))
         self.cpu, self.host = port(), port()

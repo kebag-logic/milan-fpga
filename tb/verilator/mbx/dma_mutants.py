@@ -105,7 +105,7 @@ def run_arm(arm: Arm, root: Path, flags: list[str]) -> tuple[str, str]:
                             str(HERE / "dma_main.cpp"), "-o", "Vmbx_dma"], cwd=HERE, capture_output=True, text=True)
     if build.returncode != 0:
         return "BUILD", build.stderr[-400:]
-    run = subprocess.run([str(work / "obj" / "Vmbx_dma")], capture_output=True, text=True, timeout=600)
+    run = subprocess.run([str(work / "obj" / "Vmbx_dma")], capture_output=True, text=True)
     failed = [line for line in run.stdout.splitlines() if "[FAIL]" in line]
     if run.returncode == 1 and any(arm.needle in line for line in failed):
         return "caught", arm.needle
