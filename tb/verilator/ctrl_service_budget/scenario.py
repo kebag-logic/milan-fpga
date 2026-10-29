@@ -87,8 +87,7 @@ def binding_word(interface: int, sink: int) -> int:
 TMR_CMD_WORD = word(REG['TMR_CMD'])
 EVT_TAIL_WORD = word(REG['EVT_TAIL'])
 
-#: The project budget, approved at 20 ms (owner, 2026-10-29), and each path family's
-#: normative ceiling, FR_NFR.md 3.4.1. A path is graded against min(T_svc, its ceiling).
+#: T_svc, approved at 20 ms (owner, 2026-10-29), and each family's ceiling, FR_NFR.md 3.4.1: a budget is the lower.
 T_SVC_MS = 20.0
 CEILING_MS = {
     'adp': 200.0,     # Milan v1.2 5.6.3.5.2: 2 s random window x 10 % (the whole ADP function)

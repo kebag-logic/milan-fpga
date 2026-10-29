@@ -10,6 +10,7 @@ from dataclasses import dataclass, asdict
 from pathlib import Path
 
 import aecp_arms
+import aecp_index_mutants
 import fw_gtest
 from ctrl_build import CTRL, ROOT, HERE, STACK, Tree, Refusal, Outcome, stack_pin
 
@@ -552,84 +553,6 @@ DEFECTS = (
            '(void)a;',
            ('AecpDebug.EveryInputRejectsSynchronousPortDelivery',
             'died but not with expected exit code')),
-    # #665: the event scans walk aecp.live and the registry scans aecp.used.
-    defect('live-list-appends', 'aecp.c',
-           'while (*link != 0u && *link <= n) {',
-           'while (*link != 0u) {',
-           ('Indexed.LiveEventsAreTheHeldNoticesInDescriptorOrder',
-            'notices leave in descriptor order whatever order their changes came in')),
-    defect('changed-event-not-linked', 'aecp.c',
-           '\t\t\tlist(a, n);\n',
-           '\t\t\t(void)list; (void)n;\n',
-           ('Indexed.LiveEventsAreTheHeldNoticesInDescriptorOrder',
-            'aecp.live holds the events with a notice or a retry, in descriptor order')),
-    defect('built-event-not-unlinked', 'aecp.c',
-           '\t\t\t\t\t*link = e->next;\n',
-           '\t\t\t\t\t(void)link;\n',
-           ('Indexed.LiveEventsAreTheHeldNoticesInDescriptorOrder',
-            'a built notice that leaves its event holding nothing unlinks it')),
-    defect('live-list-not-rebuilt-at-open', 'aecp.c',
-           '\trelist(a);\n',
-           '\t(void)relist;\n',
-           ('Indexed.FailedNoticesStayLinkedAndOpenRelinksDirectWrites',
-            "the open's rescan links what was set before it")),
-    defect('event-links-unbounded', 'aecp.c',
-           'cfg->model->count >= 0xffffu || ',
-           '',
-           ('Indexed.RefusesAModelTheEventLinksCannotIndex',
-            'aecp.live links descriptor indices + 1 in 16 bits')),
-    defect('registration-bit-not-set', 'aecp.c',
-           '\t\ta->used[interface] |= (uint16_t)(1u << (found - a->registry[interface]));\n',
-           '',
-           ('Indexed.RegistryScansSkipUnusedRegistrations',
-            'aecp.used mirrors registration')),
-    defect('deregistration-bit-kept', 'aecp.c',
-           '\t\t\ta->used[interface] &= (uint16_t)~(1u << (found - a->registry[interface]));\n',
-           '',
-           ('Indexed.RegistryScansSkipUnusedRegistrations',
-            'deregistration clears its bit only')),
-    defect('probe-expiry-bit-kept', 'aecp.c',
-           '\t\t\t\ta->used[i] &= (uint16_t)~(1u << n);\n',
-           '',
-           ('Indexed.RegistryScansSkipUnusedRegistrations',
-            'an unanswered probe frees its registration and its bit')),
-    # #665: aecp_find answers from aecp.runs, which aecp_index builds from the keys.
-    defect('index-run-skips-an-index', 'aecp_commands.c',
-           'd->index == r->count && r->first',
-           'r->first',
-           ('Indexed.FindAnswersEachKeyAsAScanOfTheModel',
-            'aecp_find finds what a scan of the model finds')),
-    defect('index-run-joins-a-later-run', 'aecp_commands.c',
-           ' && r->first + (size_t)r->count == n',
-           '',
-           ('Indexed.FindAnswersEachKeyAsAScanOfTheModel',
-            'aecp_find finds what a scan of the model finds')),
-    defect('index-run-never-grows', 'aecp_commands.c',
-           '\t\t\t++r->count;\n',
-           '\t\t\tr->count = AECP_RUN_SCAN;\n',
-           ('Indexed.FindAnswersEachKeyAsAScanOfTheModel',
-            "aecp_image_load's model is one run per key")),
-    defect('find-past-the-run', 'aecp_commands.c',
-           'return index < r->count ?',
-           'return index <= r->count ?',
-           ('Indexed.FindAnswersEachKeyAsAScanOfTheModel',
-            'aecp_find finds what a scan of the model finds')),
-    defect('find-ignores-the-scan-mark', 'aecp_commands.c',
-           '\t\tif (r->count != AECP_RUN_SCAN) {\n',
-           '\t\tif (r != NULL) {\n',
-           ('Indexed.FindAnswersEachKeyAsAScanOfTheModel',
-            'aecp_find finds what a scan of the model finds')),
-    defect('index-rebuild-keeps-old-runs', 'aecp_commands.c',
-           '\tmemset(a->runs, 0, sizeof a->runs);\n',
-           '',
-           ('Indexed.AKeyChangedAfterInitIsFoundOnlyAfterARebuild',
-            'a rebuilt index keeps no run of a key the model no longer holds')),
-    # The fixture's TearDown fails any key changed after aecp_init without a rebuild.
-    defect('key-changed-after-init', 'aecp.c',
-           '\ta->open = true;\n',
-           '\ta->open = true;\n\t++a->cfg.model->descriptors[a->cfg.model->count - 1u].index;\n',
-           ('Indexed.FindAnswersEachKeyAsAScanOfTheModel',
-            'a key changed after aecp_init needs aecp_index')),
     # contract 2.3 (#665): the face block's settings written before their
     # response, in their own field, never skipped; every window read and commit
     # bounded; a counter change event never missed
@@ -927,7 +850,7 @@ DEFECTS = (
            'if (!aecp_face_open(c->face)) return false;', '(void)aecp_face_open(c->face);',
            ('AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged',
             'AECP opens only once the initial publication is acknowledged')),
-)
+) + tuple(defect(*row) for row in aecp_index_mutants.ROWS)
 
 
 def caught(test: str, words: str, result: Outcome) -> bool:

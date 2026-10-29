@@ -129,6 +129,14 @@ def hot_list(src: Path, mapfile: Path, layout: str) -> None:
         raise Refusal("\n".join(found))
 
 
+def memory_calls_nothing(nm: str, sources: list[Path], objects: list[Path]) -> None:
+    """The platform's memory primitives reference no symbol (#665): a call the compiler made inside memcpy,
+    memmove or memset would recurse."""
+    for src,obj in zip(sources,objects):
+        if src.name == "ctrl_mem.c" and checked([nm,"-u",str(obj)]).strip():
+            raise Refusal(f"{obj.name} references a symbol: the platform's memory primitives call nothing")
+
+
 def arguments() -> argparse.Namespace:
     """Parse the shape, composition and isolated runtime inputs."""
     parser=argparse.ArgumentParser(description=__doc__)
@@ -192,10 +200,7 @@ def main() -> int:
         if findings:
             raise Refusal(str(findings))
         nm=cc.removesuffix("gcc")+"nm"
-        for src,obj in zip(sources,objects):
-            # A call the compiler made inside memcpy, memmove or memset would recurse.
-            if src.name == "ctrl_mem.c" and checked([nm,"-u",str(obj)]).strip():
-                raise Refusal(f"{obj.name} references a symbol: the platform's memory primitives call nothing")
+        memory_calls_nothing(nm,sources,objects)
         elf,mapfile=link(cc,tree.src,out,objects,libraries,args.layout)
         verify_abi(cc,elf,isa); hot_list(tree.src,mapfile,args.layout)
         symbols=checked([nm,"-S",str(elf)])
