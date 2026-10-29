@@ -1,0 +1,10 @@
+INFO #82 cold release graded for 2400617 cycles to the first beat
+R729 D low-at-release: first request 3000 ms after the rise
+FAIL R729 D low-at-release: the rise ends the cease within one interval got 0000000000000000 exp 0000000000000001
+R729 D fall-after-release: first request 0 ms after the rise
+R729 A: pdelay before 601 after 701; commits after the FU 1
+FAIL R729 A: a Follow_Up heard while disabled commits nothing got 0000000000000001 exp 0000000000000000
+FAIL R729 A: a Follow_Up heard while disabled leaves the delay got 00000000000002bd exp 0000000000000259
+R729 B1: request 1 at +288 cycles, commits 2
+R729 B3: request 1 at +286 cycles, commits 2
+122 checks: 119 PASS, 3 FAIL
