@@ -1,0 +1,98 @@
+HEAD ac105b158bb740a65e0154305377fd4a7d0f6f87
+$ (cd .) python3 -B <lane-output> . <work>/ac105b15/q-armlog armlog plat-command-read-past-its-end
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from Plat
+[ RUN      ] Plat.C1IdentityIsMilnAndReadsVersion
+[       OK ] Plat.C1IdentityIsMilnAndReadsVersion (0 ms)
+[ RUN      ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder
+[       OK ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder (0 ms)
+[ RUN      ] Plat.C3StatusIsReadInMilanStatusOrder
+[       OK ] Plat.C3StatusIsReadInMilanStatusOrder (0 ms)
+[ RUN      ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords
+[       OK ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords (0 ms)
+[ RUN      ] Plat.K1MilanStatusAnswersTheGradersLines
+[       OK ] Plat.K1MilanStatusAnswersTheGradersLines (0 ms)
+[ RUN      ] Plat.K2MilanGettimeAnswersTaiNs
+[       OK ] Plat.K2MilanGettimeAnswersTaiNs (0 ms)
+[ RUN      ] Plat.K3LinesEndOnceAndOthersAreRefused
+
+  [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: crashed on signal 6
+== ctrl split platform CSR window and console (host bus): checks: 7   failures: 1 ==
+RESULT: FAIL
+=================================================================
+==860148==ERROR: AddressSanitizer: global-buffer-overflow on address 0x000000453c6d at pc 0x000000408912 bp 0x7fffa52b59d0 sp 0x7fffa52b59c0
+READ of size 1 at 0x000000453c6d thread T0
+    #0 0x000000408911 in ctrl_plat_console_poll (<work>/ac105b15/q-armlog/planted/work/build/test_plat+0x408911) (BuildId: 8c5b5a01bb40d075459824c10d578ecd3ebe6ecd)
+    #1 0x000000419eed in drain <work>/ac105b15/rc/sw/firmware/ctrl/test/test_plat.cpp:55
+    #2 0x000000419eed in answer <work>/ac105b15/rc/sw/firmware/ctrl/test/test_plat.cpp:61
+    #3 0x00000041c843 in TestBody <work>/ac105b15/rc/sw/firmware/ctrl/test/test_plat.cpp:162
+    #4 0x7fbef5570ec6  (/usr/lib/libgtest.so.1.18.0+0x59ec6) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #5 0x7fbef555c347 in testing::Test::Run() (/usr/lib/libgtest.so.1.18.0+0x45347) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #6 0x7fbef555c556 in testing::TestInfo::Run() (/usr/lib/libgtest.so.1.18.0+0x45556) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #7 0x7fbef555c773 in testing::TestSuite::Run() (/usr/lib/libgtest.so.1.18.0+0x45773) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #8 0x7fbef5568ef7 in testing::internal::UnitTestImpl::RunAllTests() (/usr/lib/libgtest.so.1.18.0+0x51ef7) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #9 0x7fbef5569800 in testing::UnitTest::Run() (/usr/lib/libgtest.so.1.18.0+0x52800) (BuildId: ed9602e3781ce027b0f91d145abf3eece6433384)
+    #10 0x000000452b76 in RUN_ALL_TESTS() /usr/include/gtest/gtest.h:2344
+    #11 0x000000452b76 in main <work>/ac105b15/rc/sw/firmware/gtest/fw_gtest_main.cpp:199
+    #12 0x7fbef4627780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #13 0x7fbef46278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #14 0x000000404774 in _start (<work>/ac105b15/q-armlog/planted/work/build/test_plat+0x404774) (BuildId: 8c5b5a01bb40d075459824c10d578ecd3ebe6ecd)
+
+0x000000453c6d is located 0 bytes after global variable '*.LC26' defined in '<work>/ac105b15/q-armlog/planted/work/ctrl/plat/ctrl_plat_console.c' (0x000000453c60) of size 13
+  '*.LC26' is ascii string 'milan_status'
+0x000000453c6d is located 51 bytes before global variable '*.LC27' defined in '<work>/ac105b15/q-armlog/planted/work/ctrl/plat/ctrl_plat_console.c' (0x000000453ca0) of size 14
+  '*.LC27' is ascii string 'milan_gettime'
+SUMMARY: AddressSanitizer: global-buffer-overflow (<work>/ac105b15/q-armlog/planted/work/build/test_plat+0x408911) (BuildId: 8c5b5a01bb40d075459824c10d578ecd3ebe6ecd) in ctrl_plat_console_poll
+Shadow bytes around the buggy address:
+  0x000000453980: f9 f9 f9 f9 00 01 f9 f9 f9 f9 f9 f9 00 06 f9 f9
+  0x000000453a00: f9 f9 f9 f9 00 04 f9 f9 f9 f9 f9 f9 00 00 f9 f9
+  0x000000453a80: f9 f9 f9 f9 00 06 f9 f9 f9 f9 f9 f9 00 04 f9 f9
+  0x000000453b00: f9 f9 f9 f9 07 f9 f9 f9 f9 f9 f9 f9 00 04 f9 f9
+  0x000000453b80: f9 f9 f9 f9 05 f9 f9 f9 f9 f9 f9 f9 00 03 f9 f9
+=>0x000000453c00: f9 f9 f9 f9 04 f9 f9 f9 f9 f9 f9 f9 00[05]f9 f9
+  0x000000453c80: f9 f9 f9 f9 00 06 f9 f9 f9 f9 f9 f9 00 00 00 00
+  0x000000453d00: 00 f9 f9 f9 f9 f9 f9 f9 00 00 00 00 00 00 00 00
+  0x000000453d80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x000000453e00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+  0x000000453e80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==860148==ABORTING
+  verdict: FAIL (its tallies report 1 failure(s) across 7 checks, exit -6)
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from PlatMmio
+[ RUN      ] PlatMmio.I1ReadIsTheWordAtTheAddress
+[       OK ] PlatMmio.I1ReadIsTheWordAtTheAddress (0 ms)
+[ RUN      ] PlatMmio.I2WriteIsTheWordAtTheAddressAlone
+[       OK ] PlatMmio.I2WriteIsTheWordAtTheAddressAlone (0 ms)
+[----------] 2 tests from PlatMmio (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+== ctrl split platform MMIO (host array): checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+plat_quick armlog plat-command-read-past-its-end: arm plat rc 1; caught True
+elapsed=9s
+tree: 0 changed path(s) after the gate
+rc=0
