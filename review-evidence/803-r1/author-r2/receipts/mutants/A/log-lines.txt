@@ -1,0 +1,81 @@
+## C0-milan_dp_gptp_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+202 checks: 202 PASS, 0 FAIL
+
+## C0-milan_dp_gptplat_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+202 checks: 202 PASS, 0 FAIL
+
+## H1-milan_dp_gptp_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 1
+FAIL empty path commits after first-count snapshot, before entry gather got 0000000000000000 exp 0000000000000001
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+202 checks: 201 PASS, 1 FAIL
+
+## H1.log
+
+
+## H2-milan_dp_gptp_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+[#207] full-queue window: level 0, rp 1->0, wp 1->1
+FAIL the full-queue window pops and pushes no event got 0000000000000000 exp 0000000000000001
+FAIL #88 path headed elsewhere serves count three got 0000000000000001 exp 0000000000000003
+FAIL #88 path headed elsewhere advances generation once got 0000000000000007 exp 0000000000000008
+FAIL #88 path headed elsewhere keeps the scalar GM got 02a1b2fffec3d4e5 exp 00aaccfffe010204
+FAIL #88 GET_AS_PATH count three    got 0000000000000001 exp 0000000000000003
+FAIL #88 GET_AS_PATH entry 0 is the received head got 02a1b2fffec3d4e5 exp 001122fffe000044
+FAIL #88 GET_AS_PATH entry 1 is the parent got 0000000000000000 exp 0080e1fffe112233
+FAIL #88 GET_AS_PATH ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+202 checks: 194 PASS, 8 FAIL
+
+## H2.log
+
+
+## M9-milan_dp_gptp_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+FAIL in-flight response remains wholly old GM got 02a1b2fffec3d4e5 exp 00aaccfffe010204
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+202 checks: 201 PASS, 1 FAIL
+
+## M9-milan_dp_gptplat_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+FAIL in-flight response remains wholly old GM got 02a1b2fffec3d4e5 exp 00aaccfffe010204
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+202 checks: 201 PASS, 1 FAIL
+
+## M9.log
+
+
+## M9b-milan_dp_gptp_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+FAIL in-flight response remains wholly old: ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+202 checks: 201 PASS, 1 FAIL
+
+## M9b-milan_dp_gptplat_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+FAIL in-flight response remains wholly old: ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+202 checks: 201 PASS, 1 FAIL
+
+## M9b.log
+
+
+## M9c-milan_dp_gptp_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+FAIL in-flight response remains wholly old count two got 0000000000000001 exp 0000000000000002
+FAIL in-flight response remains wholly old: ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+202 checks: 200 PASS, 2 FAIL
+
+## M9c-milan_dp_gptplat_leg.log
+[cut] count beat held 474 cycles; commit seen 1; path-entry request before the commit 0
+FAIL in-flight response remains wholly old count two got 0000000000000001 exp 0000000000000002
+FAIL in-flight response remains wholly old: ends with thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+[#207] full-queue window: level 1, rp 1->1, wp 2->2
+202 checks: 200 PASS, 2 FAIL
+
+## M9c.log
+

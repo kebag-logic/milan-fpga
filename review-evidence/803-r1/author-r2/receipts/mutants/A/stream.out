@@ -1,0 +1,7 @@
+CLEAN    C0 clean milan_dp_gptp_leg
+CLEAN    C0 clean milan_dp_gptplat_leg
+KILLED   M9 GET_AS_PATH entry 0 served from the live head, not the first-count snapshot
+KILLED   M9b GET_AS_PATH entries 1..7 served from the live path, not the first-count snapshot
+KILLED   M9c GET_AS_PATH count served live, not from the first-count snapshot
+KILLED   H1 the in-flight cut without its count-beat hold
+KILLED   H2 the #207 window without the held Pdelay_Req at the queue head

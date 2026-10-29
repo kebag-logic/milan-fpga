@@ -1,0 +1,4 @@
+  [gate 1b] COSTS. RETIRED this round (#408, #409), each with an accepted case measured GREEN in the loop above and RED at dev 759da623, and each replaced by an instrument rather than narrowed by exception: a conditional reaching milan_init(), configure_fabric(), entity_advertise() or the three CSR 
+1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 1b] the MAKEFLAGS += -e mutation: this make does not re-read MAKEFLAGS mid-parse, so the construct hands the environment nothing here and the entry would be a control with nothing to detect. No tool is missing from this runner; the mutant has no effect to observe on THIS make
+ALL GATES PASS EXCEPT 1 NOT RUN
