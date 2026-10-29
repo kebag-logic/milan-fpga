@@ -356,7 +356,14 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! unlike the read-only descriptor image, an overlap here is silent
   //! corruption of whatever it lands on. The SoC derives BOTH bases from its
   //! own main_ram map and states why they cannot collide.
-  parameter logic [31:0] PP_RESP_BASE_P  = 32'h2010_0000
+  parameter logic [31:0] PP_RESP_BASE_P  = 32'h2010_0000,
+  //! ---- the end-station reset on an AECP REBOOT (#787) -------------------
+  //! KL_reboot_ctrl's two waits, in the datapath's milliseconds (the tick
+  //! AMR_MS_CYC_P clocks long): the saved-state drain bound and the PHY
+  //! hold before each IPROG. Product builds keep these values; the bound
+  //! and the reasons are in docs/design/REBOOT_RESET.md
+  parameter int REBOOT_DRAIN_MS_P = 10_000,
+  parameter int REBOOT_HOLD_MS_P  = 3_500
 )(
   //! ---- AECP descriptor-image READ master (to the SoC's main memory) -----
   //! The protocol processor's entity model lives in DDR3. This is its fetch
@@ -566,6 +573,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                                        //! (SoC syncs it into eth_tx/eth_rx as the MAC's
                                        //! eth-domain reset; released BEFORE o_mac_reinit)
   input  wire        i_full_duplex,
+  //! THE END-STATION RESET ON AN AECP REBOOT (#787, docs/design/REBOOT_RESET.md).
+  //! o_reboot_phy_hold is the reset-control bit: 1 = hold the PHY in reset
+  //! (the SoC sets the LiteEth PHY reset from it), rising once the saved
+  //! state has drained and held until the reconfiguration. The ICAPE2 port
+  //! carries the IPROG sequence that reloads the configuration from flash:
+  //! the SoC instantiates the primitive on it, RDWRB tied to write.
+  output wire        o_reboot_phy_hold,
+  output wire        o_icap_csib,      //! ICAPE2 CSIB, active low
+  output wire [31:0] o_icap_i,         //! ICAPE2 I, bits of each byte reversed
   //! async divide-by-2 toggles from the SoC's eth clock domains (link guard
   //! liveness sensing; tie high on TBs/tops without a PHY - a static level
   //! reads as a dead clock only until the guard is disabled via LINK_CTRL[2])
@@ -2492,6 +2508,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! the pending bit of SAVED_STATE_SNAPSHOT_OWNERSHIP.md section 6.1,
   //! published to a controller at PP_STAT[11]
   logic        pp_nvm_pend_w;
+  logic        pp_reboot_req_w;  //! the processor's REBOOT request (#203)
   logic [3:0]  pp_nvm_verdict_w;
   logic [15:0] pp_rx_frames_w, pp_tx_frames_w;
   logic [7:0]  pp_rx_drops_w;
@@ -9430,6 +9447,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       //! Same live lock level as the processor AECP engine. Milan 5.4.2.27
       //! and 5.4.2.28 prohibit local map changes while it is asserted.
       .aecp_lock_held_o    (aecp_locked),
+      .reboot_req_o        (pp_reboot_req_w),
       //! GET_COUNTERS: the processor asks, this file answers (see the
       //! Table 7-157 mux above)
       .ctr_req_o         (pp_ctr_req_w),
@@ -9701,6 +9719,26 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .maap_conflicts_o        (pp_maap_int_confl_nc_w),
       .maap_defends_o          (pp_maap_int_dfnd_nc_w),
       .dbg_now_ms_o      ()
+    );
+
+  //! ---- the end-station reset on an AECP REBOOT (#787) -------------------
+  //! The processor's held request becomes a configuration reload from flash
+  //! once the saved state has drained (KL_reboot_ctrl's banner). The waits
+  //! count the datapath's millisecond tick, the map writer's amr_tick_r.
+  KL_reboot_ctrl #(
+      .T_DRAIN_MS_P (REBOOT_DRAIN_MS_P),
+      .T_HOLD_MS_P  (REBOOT_HOLD_MS_P)
+    ) reboot_ctrl (
+      .clk_i        (axis_clk),
+      .rst_n        (axis_resetn),
+      .ms_tick_i    (amr_tick_r),
+      .reboot_req_i (pp_reboot_req_w),
+      .nvm_backed_i (pp_nvm_backed_w),
+      .nvm_dirty_i  (pp_nvm_dirty_w),
+      .nvm_pend_i   (pp_nvm_pend_w),
+      .phy_hold_o   (o_reboot_phy_hold),
+      .icap_csib_o  (o_icap_csib),
+      .icap_i_o     (o_icap_i)
     );
 
   //! ------------------------------------------------------------------

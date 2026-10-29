@@ -590,6 +590,9 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee8021q/filtering/tcam.sv", "hdl/ieee8021q/filtering/rx_mac_filter.sv",
     "hdl/common/tx_ifg_gasket.sv", "hdl/ieee1722/aaf/KL_pcm_lpf.sv",
     "hdl/common/KL_link_guard.sv",
+    # the end-station reset on an AECP REBOOT (#787): the datapath drives
+    # the PHY hold and the ICAPE2 port MilanMAC instantiates
+    "hdl/milan/KL_reboot_ctrl.sv",
     # ADP TX arbitration survives the scenario-B substitution: the advertiser
     # itself is the processor's KL_adp_engine now, but the two-source TX merge
     # in front of the MAC is still this module.
@@ -2047,6 +2050,31 @@ class MilanMAC(LiteXModule):
             o_dbg_overrun_o = self.gptp_txobs_ovr,
         )
 
+        # THE END-STATION RESET ON AN AECP REBOOT (#787,
+        # docs/design/REBOOT_RESET.md). The datapath's KL_reboot_ctrl owns the
+        # sequence; this is only its two attachments. The PHY hold sets the
+        # LiteEth PHY reset itself (the `milan_mac_phy_crg_reset` CSR storage
+        # that drives the PHY's reset pin), so the PHY is held in reset and the
+        # link drops as after a power cut. It is a level that only rises, and a
+        # CPU write in the same cycle can clear it for that one cycle only. The
+        # ICAPE2 takes the IPROG sequence that reloads the configuration from
+        # flash, clocked by the datapath clock it is generated in (at most
+        # 100 MHz) and always writing.
+        self.reboot_phy_hold = Signal()
+        self.icap_csib       = Signal()
+        self.icap_i          = Signal(32)
+        reboot_phy_hold_sys  = Signal()
+        self.specials += MultiReg(self.reboot_phy_hold, reboot_phy_hold_sys, odomain="sys")
+        self.sync += If(reboot_phy_hold_sys, self.phy.crg._reset.storage.eq(1))
+        self.specials += Instance("ICAPE2",
+            p_ICAP_WIDTH = "X32",
+            i_CLK   = ClockSignal(milan_cd),
+            i_CSIB  = self.icap_csib,
+            i_RDWRB = 0,
+            i_I     = self.icap_i,
+            o_O     = Signal(32),
+        )
+
         self.dp_ports = dict(
             o_o_mac_reinit      = self.reinit,
             o_o_eth_rst         = self.eth_rst,
@@ -2068,6 +2096,9 @@ class MilanMAC(LiteXModule):
             # the LiteEth phy_crg_reset chain (v2); v1 guards the milan-csr
             # levers inside the datapath; the CSR remains the control boundary
             o_o_eth_guard       = self.eth_guard,
+            o_o_reboot_phy_hold = self.reboot_phy_hold,
+            o_o_icap_csib       = self.icap_csib,
+            o_o_icap_i          = self.icap_i,
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
             i_m_axis_mac_tx_tready = tx_dp.dp.ready,

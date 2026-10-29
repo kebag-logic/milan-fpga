@@ -132,7 +132,8 @@ class PpShadowHarness {
     //! the model is owned for the whole of `run()`: the destructor runs
     //! `final()` and frees it on every path out, so there is no teardown at
     //! the bottom of this function to skip (R.11, R.20, C.149)
-    int run(bool pending_only, bool first_probe_only, bool crf_stop_only) {
+    int run(bool pending_only, bool first_probe_only, bool crf_stop_only,
+            bool reboot_only) {
         const milan::tb::Model<Vmilan_datapath> model;
         dut = model.get();                  // the harness's observing pointer
 
@@ -142,7 +143,9 @@ class PpShadowHarness {
         build_desc_image();
         do_reset();
 
-        if (first_probe_only) {
+        if (reboot_only) {
+            grade_reboot_resets_the_end_station();
+        } else if (first_probe_only) {
             provision_the_identity_before_enable();
             enable_the_entity_and_read_the_class_d_baseline();
             grade_maap_refuses_without_wedging();
@@ -178,11 +181,13 @@ class PpShadowHarness {
             grade_backend_rejection_reaches_the_processor();
             grade_generated_domain_binding();
         }
-        if (!first_probe_only && !crf_stop_only) {
+        if (!first_probe_only && !crf_stop_only && !reboot_only) {
             grade_pending_live_writes();
 #if DECLARATION_OUTPUTS == 2
             if (!pending_only) grade_crf_stop_regression();
 #endif
+            //! LAST: an accepted REBOOT ends the processor's service until reset
+            if (!pending_only) grade_reboot_resets_the_end_station();
         }
 
         printf("----------------------------------------------------------------\n");
@@ -303,6 +308,47 @@ class PpShadowHarness {
                 tx_open = false;
             }
         }
+        reboot_observe();
+    }
+
+    //! [RB]'s evidence: the reset outputs at the datapath ports, on every
+    //! cycle of the run. Before the [RB] REBOOT is sent no cycle may hold the
+    //! PHY or drop CSIB; after it, the request's rise, the hold's rise and
+    //! every word the ICAPE2 port carries are recorded with their cycle.
+    struct RebootObs {
+        bool armed = false;
+        long early_hold = 0;
+        long early_csib = 0;
+        bool req_seen = false;
+        bool hold_seen = false;
+        bool hold_dropped = false;
+        bool backed_at_req = true;
+        uint64_t req_rise = 0;
+        uint64_t hold_rise = 0;
+        std::vector<std::pair<uint64_t, uint32_t>> words;
+    };
+    RebootObs rb;
+
+    void reboot_observe() {
+        const auto* rp = dut->rootp;
+        const bool hold = dut->o_reboot_phy_hold;
+        const bool csib_low = !dut->o_icap_csib;
+        if (!rb.armed) {
+            if (hold) ++rb.early_hold;
+            if (csib_low) ++rb.early_csib;
+            return;
+        }
+        if (!rb.req_seen && rp->milan_datapath__DOT__pp_reboot_req_w) {
+            rb.req_seen = true;
+            rb.req_rise = cycle_count;
+            rb.backed_at_req = rp->milan_datapath__DOT__pp_nvm_backed_w;
+        }
+        if (!rb.hold_seen && hold) {
+            rb.hold_seen = true;
+            rb.hold_rise = cycle_count;
+        }
+        if (rb.hold_seen && !hold) rb.hold_dropped = true;
+        if (csib_low) rb.words.emplace_back(cycle_count, dut->o_icap_i);
     }
 
     //! K10/K12 use real microprograms and real parent map storage. The
@@ -4065,6 +4111,156 @@ class PpShadowHarness {
         ck("P3: ...and that walk is blank, not a restore",
            (axi_read(A_PP_STAT) >> 7) & 1, 1u);
     }
+
+    // ---- RB. THE END-STATION RESET ON AN AECP REBOOT (#787) ----------------
+    // The whole request-to-reset path on the real wiring: a controller's
+    // REBOOT of ENTITY 0 on the MAC RX port, the processor's SUCCESS response
+    // and ENTITY_DEPARTING on the MAC TX port (IEEE 1722.1-2021 7.4.43, Milan
+    // v1.2 5.6.3.3), its reboot_req_o through KL_pp_shadow into milan_datapath,
+    // and KL_reboot_ctrl's PHY hold and IPROG words at the datapath's own
+    // ports (docs/design/REBOOT_RESET.md). This harness has no flash writer,
+    // so nvm_backed is 0 and the drain ends at once; the drain's other arms
+    // are tb/verilator/reboot_ctrl's. The waits are the shipping ones
+    // (3,500 ms of hold) at the harness millisecond of PP_MS_CYCLES clocks,
+    // which is also the datapath tick's (AMR_MS_CYC_P = PP_TIM_DIV_US_P x
+    // PP_TIM_DIV_MS_P). A REBOOT the processor refuses must reset nothing.
+    //! the documented hold (docs/design/REBOOT_RESET.md), an independent literal
+    static constexpr uint64_t RB_HOLD_MS = 3500;
+    //! the IPROG words, each byte bit-reversed for ICAPE2's X32 bus: dummy,
+    //! sync, NOOP, write WBSTAR, 0, write CMD, IPROG, NOOP (0xFFFFFFFF,
+    //! 0xAA995566, 0x20000000, 0x30020001, 0, 0x30008001, 0xF, 0x20000000)
+    static constexpr uint32_t RB_WORDS[8] = {
+        0xFFFFFFFFu, 0x5599AA66u, 0x04000000u, 0x0C400080u,
+        0x00000000u, 0x0C000180u, 0x000000F0u, 0x04000000u};
+
+    std::vector<uint8_t> reboot_command(uint16_t index, uint16_t seq) {
+        uint8_t frame[96];
+        uint8_t pl[4];
+        put16be(pl + 0, 0x0000);                 // descriptor_type ENTITY
+        put16be(pl + 2, index);                  // descriptor_index
+        const size_t at = tx_frames.size();
+        const size_t n = build_aecp(frame, 0, TEST_EID, 0x002A, seq, pl, sizeof pl);
+        inject_rx(frame, n, 400);
+        for (int i = 0; i < 400 && !rb.req_seen; ++i) {
+            run_idle(64);
+            for (size_t k = at; k < tx_frames.size(); ++k)
+                if (classify(tx_frames[k]) == FR_AECP && tx_frames[k].bytes.size() >= 38
+                    && get_be(tx_frames[k].bytes, 34, 2) == seq)
+                    return tx_frames[k].bytes;
+        }
+        const int k = last_aecp(at);
+        return k >= 0 ? tx_frames[k].bytes : std::vector<uint8_t>{};
+    }
+
+    void grade_reboot_burst(const char* tag, size_t first, uint64_t entry,
+                            uint64_t hold_cycles_min, uint64_t hold_cycles_max) {
+        char w[160];
+        snprintf(w, sizeof w, "RB %s: eight IPROG words are recorded", tag);
+        const bool present = rb.words.size() >= first + 8;
+        ck_true(w, present, present ? "eight words" : "fewer than eight words");
+        if (!present) return;
+        bool consecutive = true;
+        bool exact = true;
+        for (size_t k = 0; k < 8; ++k) {
+            consecutive = consecutive && rb.words[first + k].first == rb.words[first].first + k;
+            exact = exact && rb.words[first + k].second == RB_WORDS[k];
+        }
+        snprintf(w, sizeof w, "RB %s: CSIB is low for exactly eight consecutive clocks", tag);
+        ck_true(w, consecutive && (rb.words.size() == first + 8
+                                   || rb.words[first + 8].first > rb.words[first].first + 8),
+                "eight in a row");
+        snprintf(w, sizeof w, "RB %s: dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, "
+                 "bits reversed per byte", tag);
+        ck_true(w, exact, exact ? "the sequence" : "a word differs");
+        const uint64_t hold = rb.words[first].first - entry;
+        printf("  [i]    RB %s: %llu clocks of PHY hold before the words, bound (%llu, %llu]\n",
+               tag, static_cast<unsigned long long>(hold),
+               static_cast<unsigned long long>(hold_cycles_min),
+               static_cast<unsigned long long>(hold_cycles_max));
+        snprintf(w, sizeof w, "RB %s: the PHY is held more than 3,500 ms before the words", tag);
+        ck_true(w, hold > hold_cycles_min, "the hold");
+        snprintf(w, sizeof w, "RB %s: ...and at most one tick more", tag);
+        ck_true(w, hold <= hold_cycles_max, "the hold");
+    }
+
+    void grade_reboot_resets_the_end_station() {
+        printf("[RB] AECP REBOOT -> reboot_req -> PHY hold -> IPROG on the ICAPE2 port\n");
+        ck("RB no cycle of the run before the REBOOT held the PHY",
+           static_cast<uint32_t>(rb.early_hold), 0u);
+        ck("RB no cycle of the run before the REBOOT dropped CSIB",
+           static_cast<uint32_t>(rb.early_csib), 0u);
+        do_reset();
+        provision_the_identity_before_enable();
+        const bool walk = restore_walk_completes();
+        ck_true("RB the boot restore walk ends, so AECP serves", walk,
+                walk ? "restore_done set" : "restore_done never set");
+        //! advertising, so the REBOOT's SHUTDOWN sends ENTITY_DEPARTING first
+        axi_write(A_PP_CTRL, 0x1);
+        const uint64_t rb_enable_at = cycle_count;
+        const size_t adv_at = tx_frames.size();
+        bool advertised = false;
+        for (uint64_t c = 0; c < 4000 * PP_MS_CYCLES && !advertised; c += 64) {
+            run_idle(64);
+            for (size_t k = adv_at; k < tx_frames.size(); ++k)
+                advertised = advertised || (classify(tx_frames[k]) == FR_ADP
+                                            && (tx_frames[k].bytes[15] & 0x0F) == 0);
+        }
+        printf("  [i]    RB first ENTITY_AVAILABLE %llu clocks after the enable\n",
+               static_cast<unsigned long long>(cycle_count - rb_enable_at));
+        ck_true("RB the entity advertises before the REBOOT", advertised, "ENTITY_AVAILABLE");
+        rb.armed = true;
+
+        // a REBOOT the processor refuses resets nothing
+        const std::vector<uint8_t> refused = reboot_command(1, 0x0B01);
+        ck("RB REBOOT of ENTITY 1 is answered NO_SUCH_DESCRIPTOR",
+           refused.size() >= 38 ? (refused[16] >> 3) & 31u : 255u, 2u);
+        run_idle(50 * PP_MS_CYCLES);
+        ck("RB ...and raises no request", rb.req_seen, 0u);
+        ck("RB ...and holds no PHY", rb.hold_seen, 0u);
+        ck("RB ...and sends no IPROG word", static_cast<uint32_t>(rb.words.size()), 0u);
+
+        // the REBOOT of ENTITY 0
+        const size_t at = tx_frames.size();
+        const std::vector<uint8_t> resp = reboot_command(0, 0x0B02);
+        const bool answered = resp.size() >= 42;
+        ck_true("RB REBOOT of ENTITY 0 is answered", answered, answered ? "response" : "none");
+        if (answered) {
+            grade_common(resp, "RB SUCCESS", 0x002A, 0x0B02, 1);
+            ck("RB SUCCESS: status SUCCESS", (resp[16] >> 3) & 31u, 0u);
+            grade_len(resp, "RB SUCCESS", 4);
+            ck("RB SUCCESS: {ENTITY, 0} echoed",
+               static_cast<uint32_t>(get_be(resp, 38, 4)), 0u);
+        }
+        const uint64_t limit = (2 * (RB_HOLD_MS + 1) + 100) * PP_MS_CYCLES;
+        for (uint64_t c = 0; c < limit && rb.words.size() < 16; c += 64) run_idle(64);
+
+        uint64_t resp_end = 0;
+        uint64_t dep_end = 0;
+        for (size_t k = at; k < tx_frames.size(); ++k) {
+            const TxFrame& t = tx_frames[k];
+            if (classify(t) == FR_AECP && t.bytes.size() >= 38 && get_be(t.bytes, 34, 2) == 0x0B02)
+                resp_end = t.end_cycle;
+            if (classify(t) == FR_ADP && (t.bytes[15] & 0x0F) == 1 && dep_end == 0)
+                dep_end = t.end_cycle;
+        }
+        ck_true("RB the processor raises its REBOOT request", rb.req_seen, "reboot_req_o");
+        ck_true("RB the request follows the SUCCESS response's last byte",
+                resp_end != 0 && rb.req_rise > resp_end, "order");
+        ck_true("RB ENTITY_DEPARTING left before the request",
+                dep_end != 0 && dep_end < rb.req_rise, "order");
+        ck("RB no flash writer is live in this harness (nvm_backed 0)", rb.backed_at_req, 0u);
+        ck_true("RB the PHY hold rises", rb.hold_seen, "o_reboot_phy_hold");
+        ck("RB the PHY hold rises two clocks after the REBOOT request",
+           static_cast<uint32_t>(rb.hold_rise - rb.req_rise), 2u);
+        grade_reboot_burst("first IPROG", 0, rb.hold_rise, RB_HOLD_MS * PP_MS_CYCLES,
+                           (RB_HOLD_MS + 1) * PP_MS_CYCLES);
+        if (rb.words.size() >= 16)
+            grade_reboot_burst("retry", 8, rb.words[0].first + 8, RB_HOLD_MS * PP_MS_CYCLES,
+                               (RB_HOLD_MS + 1) * PP_MS_CYCLES);
+        else
+            ck_true("RB retry: the words repeat after another hold", false, "no second burst");
+        ck("RB the PHY hold stays up to the end of the run", rb.hold_dropped, 0u);
+    }
 };
 
 }  // namespace
@@ -4074,5 +4270,6 @@ int main(int argc, char** argv) {
     PpShadowHarness harness;
     return harness.run(argc == 2 && std::strcmp(argv[1], "--pending-only") == 0,
                        argc == 2 && std::strcmp(argv[1], "--first-probe-only") == 0,
-                       argc == 2 && std::strcmp(argv[1], "--crf-stop-only") == 0);
+                       argc == 2 && std::strcmp(argv[1], "--crf-stop-only") == 0,
+                       argc == 2 && std::strcmp(argv[1], "--reboot-only") == 0);
 }
