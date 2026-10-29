@@ -87,7 +87,8 @@ The offset is local time minus grandmaster time.
 | Locked | Every later pair | 100 us | 100 us |
 
 - Every reset clears asCapable, so it re-arms link-up.
-- Nothing else re-arms link-up.
+- A link loss clears it too (FPGA-gPTP #94).
+- Only an asCapable fall and rise re-arms link-up.
 - A grandmaster change keeps the servo locked.
 - So does a 375 ms Sync receipt timeout.
 - So does a return from grandmaster duty.
