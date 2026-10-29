@@ -19,8 +19,8 @@ import os
 import sys
 from pathlib import Path
 
-from ctrl_build import (C_FLAGS, CTRL, HERE, HOST, NVM_DIR, PORTABLE, ROOT, Outcome, Refusal, Tree, compile_c,
-                        compile_tests, execute, link, run, source)
+from ctrl_build import (C_FLAGS, CTRL, HERE, HOST, NVM_DIR, PORTABLE, ROOT, STACK_TESTS, Outcome, Refusal, Tree,
+                        compile_c, compile_tests, execute, link, run, source)
 import fw_gtest
 
 #: The shape the boot arm is generated for: the shipping 1x1.
@@ -100,8 +100,9 @@ def arm_platboot(tree: Tree, interfaces: int) -> Outcome:
         objs += fw_gtest.compile_c(tree.build, C_FLAGS, inc, models, out / "models", measured=False)
         objs += fw_gtest.compile_c(tree.build, ("-std=c11", "-O2", "-Wall", "-Wextra", "-Wpedantic"), inc,
                                    [lw / "src" / n for n in LWSRP_SOURCES], out / "lwsrp", measured=False)
-        objs += fw_gtest.compile_tests(tree.build, [*inc, label], [HERE / "plat_bus.cpp",
-                                                                   HERE / "test_plat_boot.cpp"], out / "tests")
+        # the stack's ACMPDU builder (acmp_fake.hpp) for B10's bind, last, so it shadows no firmware header
+        objs += fw_gtest.compile_tests(tree.build, [*inc, label, f"-I{STACK_TESTS}"],
+                                       [HERE / "plat_bus.cpp", HERE / "test_plat_boot.cpp"], out / "tests")
     except fw_gtest.BuildError as exc:
         raise Refusal(str(exc)) from exc
     return execute("platboot", link(tree, f"test_plat_boot_if{interfaces}", objs))

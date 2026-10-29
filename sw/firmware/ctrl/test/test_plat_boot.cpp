@@ -5,14 +5,16 @@
 // plat/ctrl_plat.c) on the host: the mailbox model behind mbx_hal.h, F1's
 // flash model behind the flash port, and the CSR window and UART of
 // plat_bus.hpp behind ctrl_plat_io.h, at the generated shape it is built for.
-// Every access of the three goes into one order (Seq), so a test reads the
-// boot's steps as the buses carry them (docs/ARCHITECTURE_HW_SW_SPLIT.md
+// Every mailbox access records the CSR and UART accesses before it, and every
+// flash access the mailbox accesses before it, so a test reads the boot's
+// steps in the order the buses carry them (docs/ARCHITECTURE_HW_SW_SPLIT.md
 // section 2, Milan v1.2 5.6.1):
 //
 //   B1  the boot reaches READY in step order: the identity read first, the
 //       policy's fifteen writes, MAAP's invalid report taking the stream
-//       window from the fabric allocator, then the mailbox; the face commit
-//       before ADP's first timer; the banner first and the ready line last
+//       window from the fabric allocator, the saved state read from the
+//       flash, then the mailbox; the face commit before ADP's first timer;
+//       the banner first and the ready line last
 //   B2  a window that is not a Milan datapath stops the boot at IDENTITY,
 //       before any write and any mailbox access
 //   B3  a refused AEM image stops it at IMAGE, after the policy and before the
@@ -27,14 +29,19 @@
 //   B8  the platform's ports: MAAP's allocation reaches the window and then
 //       ACMP's source port, the other ports answer as documented
 //   B9  SRP's sources carry the generated streams on every interface
+//   B10 a controller's bind after READY is written back to the flash by the
+//       store's service on the loop's centisecond tick (Milan v1.2 5.5.2.4,
+//       acmp_nvm.h's boot order)
 
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <cstdint>
 #include <cstring>
 #include <string>
 #include <vector>
 
+#include "acmp_fake.hpp"
 #include "fw_gtest.hpp"
 #include "plat_bus.hpp"
 
@@ -45,9 +52,11 @@ extern "C" {
 }
 #include "mbx_hal.h"
 #include "mbx_model.h"
-// the store's shape header asserts in C11's spelling
+// the store's headers carry no extern "C", and its shape header asserts in C11's spelling
 #define _Static_assert static_assert
+extern "C" {
 #include "nvm_store.h"
+}
 #undef _Static_assert
 
 FW_TALLY_LABEL("ctrl split platform boot (host model, " PLAT_TEST_SHAPE ")");
@@ -68,6 +77,24 @@ struct Mbx {
 mbx_model fabric;
 std::vector<Mbx> mailbox;
 bool other_contract = false;
+// mailbox.size() at each flash read, program and erase
+std::vector<std::size_t> media;
+
+// F1's flash port on the model, each media access stamped with the mailbox's
+int flash_read(void* ctx, std::uint32_t addr, std::uint8_t* dst, std::uint32_t len) {
+    media.push_back(mailbox.size());
+    return nvm_fmodel_port.read(ctx, addr, dst, len);
+}
+
+int flash_program(void* ctx, std::uint32_t addr, const std::uint8_t* src, std::uint32_t len) {
+    media.push_back(mailbox.size());
+    return nvm_fmodel_port.program(ctx, addr, src, len);
+}
+
+int flash_erase(void* ctx, std::uint32_t addr) {
+    media.push_back(mailbox.size());
+    return nvm_fmodel_port.erase(ctx, addr);
+}
 
 struct Far {
     bool ack = true;
@@ -110,11 +137,13 @@ struct Boot : ::testing::Test {
     Far far{};
     mbx_model_far side{&far, Far::answer, Far::commit};
     ctrl_plat_env env{};
+    nvm_flash flash{};
     std::vector<std::uint8_t> image;
 
     void SetUp() override {
         bus().reset();
         mailbox.clear();
+        media.clear();
         other_contract = false;
         mbx_model_reset(&fabric);
         mbx_model_far_bind(&fabric, &side);
@@ -123,7 +152,9 @@ struct Boot : ::testing::Test {
         nvm_fmodel_power_on();
         nvm_fmodel_window(NVM_SLOT_A, NVM_SLOT_B + NVM_SLOT_BYTES);
         nvm_fmodel_times(1000, 100);
-        env.flash = &nvm_fmodel_port;
+        flash = {flash_read, flash_program, flash_erase, nvm_fmodel_port.busy, nvm_fmodel_port.now_us,
+                 nvm_fmodel_port.ctx};
+        env.flash = &flash;
         env.csr = kCsr;
         env.uart = plat_bus::kUartRegs;
         env.policy = &kPolicy;
@@ -176,6 +207,11 @@ struct Boot : ::testing::Test {
 
 TEST_F(Boot, B1ReachesReadyInStepOrder) {
     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY) << "B1 the boot reaches its ready state";
+    // steps 6-7 before the open: the bindings are restored before any ACMP command can arrive
+    ASSERT_FALSE(media.empty()) << "B1 the saved state is read from the flash";
+    EXPECT_EQ(*std::max_element(media.begin(), media.end()), 0u)
+        << "B1 the saved state is read before the mailbox's first access";
+    EXPECT_EQ(nvm_store_status()->terminal, NVM_T_BLANK) << "B1 a blank flash restores nothing";
     ASSERT_FALSE(bus().log.empty()) << "B1 the identity is read before anything";
     EXPECT_TRUE(!bus().log[0].write && bus().log[0].address == kCsr + CTRL_PLAT_CSR_ID)
         << "B1 the identity is read before anything";
@@ -337,6 +373,32 @@ TEST_F(Boot, B9SrpSourcesCarryTheGeneratedStreams) {
         EXPECT_EQ(ctrl_plat.srp_config.mac[i], mac) << "B9 the entity MAC on every interface";
     }
     EXPECT_EQ(ctrl_plat.srp_config.link_rate_bps, CTRL_PLAT_LINK_BPS) << "B9 the generated link rate";
+}
+
+TEST_F(Boot, B10ABindAfterReadyIsWrittenBackThroughTheLoop) {
+    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
+    const unsigned commits = nvm_store_status()->commits_ok;
+    const unsigned programs = nvm_fmodel_count()->programs;
+    // a controller binds sink 0 through the mailbox, as the datapath delivers it
+    acmp_test::Pdu bind;
+    bind.msg = spec::MSG_BIND_RX_COMMAND;
+    bind.controller = acmp_test::kCtl1;
+    bind.talker = acmp_test::kTkA;
+    bind.listener = ctrl_plat.config.entity->entity_id;
+    const auto frame = acmp_test::acmpdu(bind);
+    ASSERT_TRUE(mbx_model_rx(&fabric, frame.data(), frame.size(), 0)) << "B10 the bind reaches the mailbox";
+    // the loop's passes, 10 ms of both clocks apart, so each carries one centisecond
+    for (unsigned k = 0; k < 2000u && nvm_store_status()->commits_ok == commits; ++k) {
+        mbx_model_advance_ms(&fabric, 10u);
+        nvm_fmodel_advance_us(10000u);
+        ctrl_plat_step();
+    }
+    acmp_sink_view sink{};
+    ASSERT_TRUE(acmp_view(&ctrl_plat.app.acmp.acmp, 0, &sink));
+    EXPECT_TRUE(sink.bound) << "B10 the bind is taken";
+    EXPECT_EQ(nvm_store_status()->commits_ok, commits + 1u)
+        << "B10 the bind is written back by the store's service on the loop's tick";
+    EXPECT_GT(nvm_fmodel_count()->programs, programs) << "B10 the bind reaches the flash";
 }
 
 }  // namespace

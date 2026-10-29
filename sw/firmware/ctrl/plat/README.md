@@ -100,13 +100,13 @@ Every other point is within 56 ([split control memory](../../../../docs/design/S
 
 `sw/firmware/ctrl/test/test_ctrl_firmware.py` runs four arms ([`plat_arms.py`](../test/plat_arms.py)):
 
-- `plat`: the CSR window, the console and the MMIO platform on host buses (`test_plat.cpp`, `test_plat_mmio.cpp`);
-- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order;
+- `plat`: the CSR window, the console and the MMIO platform on host buses (`test_plat.cpp`, `test_plat_mmio.cpp`); the CSR window and the console run under AddressSanitizer, whose report fails the test that sent the line;
+- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; and a controller's bind after ready, written back to the flash by the store's service on the loop's tick;
 - `platrv32`: the whole platform cross-compiled freestanding for RV32I;
 - `plattrace`: the CSR policy's writes against `milan_baremetal.c`'s own `configure_fabric()`, compiled as builder gate 35 compiles it, for every shipped config, with three planted controls ([`plat_trace.py`](../test/plat_trace.py)).
 
-The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 37 defects, each caught by a named test on its own words.
-They include a CSR write skipped, reordered or wrong, and a console that holds the pass past its slice.
+The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 40 defects, each caught by a named test on its own words.
+They include a CSR write skipped, reordered or wrong, a console that holds the pass past its slice, a command compared past its terminator, the saved state read after the mailbox opens, and its service left off the loop.
 
 The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) boots the linked image on the split CPU to its ready line, compares its CSR trace with `configure_fabric()`'s and grades the UART with the smoke grader's own parse.
 

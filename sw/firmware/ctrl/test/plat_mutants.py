@@ -9,11 +9,15 @@ the console, the MMIO platform), `platboot1` and `platboot2` (the boot at one
 and two interfaces). The CSR initialisation's trace against milan_baremetal.c
 carries its own three plants (plat_trace.py).
 
-The table holds S3's named controls: a CSR write skipped, reordered or wrong,
-caught by the write list; a console that blocks past #397's tick rule (input
-or output past its per-pass slice, a write into a full FIFO, a command run
-without room), caught by the pass bound; and the boot's order of Milan v1.2
-5.6.1, caught by the step order.
+The table holds the platform's named controls: a CSR write skipped, reordered
+or wrong, caught by the write list; a console that blocks past #397's tick
+rule (input or output past its per-pass slice, a write into a full FIFO, a
+command run without room), caught by the pass bound; a console that reads past
+a command's terminator, caught by AddressSanitizer in the test that sent the
+line; the boot's order of Milan v1.2 5.6.1, caught by the step order, the
+saved state's place among the steps by the flash's accesses in that order;
+and the saved state's write-back, caught by a bind after ready reaching the
+flash.
 """
 from __future__ import annotations
 
@@ -29,6 +33,12 @@ K4 = "Plat.K4EachPassIsBounded"
 #: The reorder plant's two writes, as ctrl_plat_csr.c holds them and swapped.
 EID = ("\twr(csr, CTRL_PLAT_CSR_ADP_EID_LO, p->entity_id_lo);\n",
        "\twr(csr, CTRL_PLAT_CSR_ADP_EID_HI, p->entity_id_hi);\n")
+#: Steps 6-7 and the open, as ctrl_plat.c holds them: the saved state's boot, its service's binding, the mailbox.
+SAVED = "\tnvm_store_boot(env->flash, &p->binding.port);\n"
+SERVICE = "\t(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_service);\n"
+OPEN = ("\tif (!ctrl_app_open_held(&p->app, &p->config)) {\n"
+        "\t\treturn reach(p, CTRL_PLAT_MAILBOX, \"Milan split: mailbox contract mismatch; entity disabled\\r\\n\");\n"
+        "\t}\n")
 
 
 def mutants(mutant: type) -> tuple:
@@ -79,6 +89,12 @@ def console_mutants(mutant: type) -> tuple:
           "plat", "Plat.K3LinesEndOnceAndOthersAreRefused", "K3 a prefix is no command"),
         m("plat-overflow-kept", CONSOLE, "\t\tc->discarding = true;\n\t\tc->len = 0;\n", "\t\tc->len = 0;\n",
           "plat", "Plat.K3LinesEndOnceAndOthersAreRefused", "K3 an overflowed line is dropped whole"),
+        # a NUL where a command's name ends, compared past the command's terminator: AddressSanitizer's report
+        # aborts the run, and the harness names the test the line was sent in
+        m("plat-command-read-past-its-end", CONSOLE,
+          "while (n < c->len && command[n] != '\\0' && command[n] == c->line[n]) {",
+          "while (n < c->len && command[n] == c->line[n]) {",
+          "plat", "Plat.K3LinesEndOnceAndOthersAreRefused", "crashed on signal 6"),
         m("plat-dec-leading-zeros", CONSOLE, "if (digit != '0' || !leading || tens[k] == 1u) {",
           "if (digit != '0' || leading || tens[k] == 1u) {",
           "plat", "Plat.K6NumbersAtTheirEdges", "K6 no leading zeros"),
@@ -89,12 +105,6 @@ def console_mutants(mutant: type) -> tuple:
           "plat", "Plat.K5TextPastTheRingIsDroppedAndCounted", "K5 the ring holds TX_BYTES and drops the rest"),
         # the console's bound: a duty that holds the pass past #397's tick rule
         m("plat-tx-unbounded", CONSOLE, "for (unsigned n = 0; n < CTRL_PLAT_TX_PER_PASS && c->head != c->tail; ++n) {",
-        # a NUL where a command's name ends, compared past the command's terminator: AddressSanitizer's report
-        # aborts the run, and the harness names the test the line was sent in
-        m("plat-command-read-past-its-end", CONSOLE,
-          "while (n < c->len && command[n] != '\\0' && command[n] == c->line[n]) {",
-          "while (n < c->len && command[n] == c->line[n]) {",
-          "plat", "Plat.K3LinesEndOnceAndOthersAreRefused", "crashed on signal 6"),
           "for (unsigned n = 0; n < CTRL_PLAT_TX_BYTES && c->head != c->tail; ++n) {", "plat", K4,
           "K4 at most TX_PER_PASS bytes out"),
         m("plat-rx-unbounded", CONSOLE, "while (taken < CTRL_PLAT_RX_PER_PASS && !c->waiting) {",
@@ -150,6 +160,13 @@ def boot_mutants(mutant: type) -> tuple:
         m("plat-aecp-unchecked", PLAT, "\tif (!ctrl_app_open_aecp(&p->bridge)) {",
           "\tif (!ctrl_app_open_aecp(&p->bridge) && false) {",
           "platboot1", "Boot.B6UnacknowledgedFaceStopsAtAecp", "B6 no acknowledgement, no AECP"),
+        # steps 6-7: the saved state before the mailbox opens, and its write-back bound to the loop
+        m("plat-saved-state-after-mailbox-open", PLAT, SAVED + SERVICE + OPEN, SERVICE + OPEN + SAVED,
+          "platboot1", "Boot.B1ReachesReadyInStepOrder",
+          "B1 the saved state is read before the mailbox's first access"),
+        m("plat-store-service-unbound", PLAT, SERVICE, "",
+          "platboot1", "Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop",
+          "B10 the bind is written back by the store's service on the loop's tick"),
         m("plat-loop-before-ready", PLAT, "\tif (ctrl_plat.stage == CTRL_PLAT_READY) {",
           "\tif (ctrl_plat.stage >= CTRL_PLAT_MAILBOX) {",
           "platboot1", "Boot.B7OnlyAReadyBootServicesTheLoop", "B7 and never services the loop"),
