@@ -1,0 +1,53 @@
+[==========] Running 5 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 5 tests from CtrlMem
+[ RUN      ] CtrlMem.W1MemcpyEveryAlignmentAndLength
+$REVIEWS/r712-1-665s2b/sw/firmware/ctrl/test/test_ctrl_mem.cpp:73: Failure
+Expected equality of these values:
+  *p
+    Which is: 'm' (109, 0x6D)
+  want
+    Which is: '\xD9' (217)
+W1 memcpy byte 40 dst+0 src+0 n 32
+
+  [FAIL] CtrlMem.W1MemcpyEveryAlignmentAndLength: W1 memcpy byte 40 dst+0 src+0 n 32
+[  FAILED  ] CtrlMem.W1MemcpyEveryAlignmentAndLength (0 ms)
+[ RUN      ] CtrlMem.W2MemmoveEveryOverlap
+$REVIEWS/r712-1-665s2b/sw/firmware/ctrl/test/test_ctrl_mem.cpp:97: Failure
+Expected equality of these values:
+  buf.bytes[i]
+    Which is: 'm' (109, 0x6D)
+  want[i]
+    Which is: '\xD9' (217)
+W2 memmove byte 72 src+0 dst+32 n 32
+
+  [FAIL] CtrlMem.W2MemmoveEveryOverlap: W2 memmove byte 72 src+0 dst+32 n 32
+[  FAILED  ] CtrlMem.W2MemmoveEveryOverlap (9 ms)
+[ RUN      ] CtrlMem.W3MemsetEveryAlignmentLengthAndValue
+[       OK ] CtrlMem.W3MemsetEveryAlignmentLengthAndValue (18 ms)
+[ RUN      ] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition
+[       OK ] CtrlMem.W6MemcmpEveryAlignmentLengthAndPosition (202 ms)
+[ RUN      ] CtrlMem.W4NoAccessOutsideEitherRange
+$REVIEWS/r712-1-665s2b/sw/firmware/ctrl/test/test_ctrl_mem.cpp:192: Failure
+Expected equality of these values:
+  std::memcmp(d, s, n)
+    Which is: -108
+  0
+W4 memcpy up to a guard, n 32 shift 0
+
+  [FAIL] CtrlMem.W4NoAccessOutsideEitherRange: W4 memcpy up to a guard, n 32 shift 0
+[  FAILED  ] CtrlMem.W4NoAccessOutsideEitherRange (0 ms)
+[----------] 5 tests from CtrlMem (231 ms total)
+
+[----------] Global test environment tear-down
+[==========] 5 tests from 1 test suite ran. (231 ms total)
+[  PASSED  ] 2 tests.
+[  FAILED  ] 3 tests, listed below:
+[  FAILED  ] CtrlMem.W1MemcpyEveryAlignmentAndLength
+[  FAILED  ] CtrlMem.W2MemmoveEveryOverlap
+[  FAILED  ] CtrlMem.W4NoAccessOutsideEitherRange
+
+ 3 FAILED TESTS
+== ctrl memory primitives (host): checks: 5   failures: 3 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 3 failure(s) across 5 checks, exit 1)

@@ -1,0 +1,19 @@
+COMMAND ['python3', '-B', 'tb/verilator/mbx/dma_mutants.py', '--jobs', '4', '--keep', '$REVIEWS/665s2b-r712-1-packet/scratch/dma-mutants']
+  [ok] tail-strobe-full: D1 no byte outside [addr, addr + len) is written
+  [ok] tx-lanes-unmasked: D2 the ring holds the record's words, the lanes past len zero
+  [ok] ring-index-unwrapped: D1 memory holds the record's bytes in ring order
+  [ok] burst-crosses-line: D3 a burst stays inside one 64-byte line
+  [ok] wlast-early: D3 WLAST marks a burst's last beat only
+  [ok] cpu-request-dropped: D4 a CPU access is answered
+  [ok] ack-misrouted: D4 a CPU access held for a transfer completes after it
+  [ok] misaligned-accepted: D5 a start off a word sets ERR
+  [ok] busy-start-accepted: D5 a start while a transfer runs sets ERR
+  [ok] bresp-ignored: D6 a write error response sets ERR
+  [ok] rresp-error-written: D6 no ring word is written from an errored beat or after it
+  [ok] err-not-cleared: D6 the next accepted start clears ERR
+  [ok] zero-length-runs: D7 a length of 0 runs no transfer
+  [ok] reset-keeps-state: D8 a reset leaves the mover idle
+  [ok] hold-address-moves: D9 a request's address holds through its answer
+  [ok] hold-data-moves: D9 a write's data holds through its answer
+  [ok] single-beat-bursts: D9 a line's sixteen ring reads end within 32 cycles
+mbx record mover mutants: 17 of 17 caught
