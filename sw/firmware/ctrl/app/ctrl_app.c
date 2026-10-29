@@ -70,7 +70,9 @@ bool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg)
 	if (cfg->acmp != NULL) {
 		acmp_mbx_open(&app->acmp);
 	}
-	adp_mbx_set_enable(&app->adp, true);
+	if (!cfg->adp_held) {
+		ctrl_app_release_adp(app);
+	}
 	// MAAP reads each interface's link and begins once the channels are open
 	// (maap_mbx.h); compose refused a preferred range it would refuse
 	if (cfg->maap_allocation != NULL) {
@@ -81,6 +83,11 @@ bool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg)
 		}
 	}
 	return true;
+}
+
+void ctrl_app_release_adp(struct ctrl_app *app)
+{
+	adp_mbx_set_enable(&app->adp, true);
 }
 
 bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg)
