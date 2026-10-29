@@ -100,7 +100,9 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--csr-csv", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--interfaces", type=int, choices=(1, 2), default=1)
-    parser.add_argument("--ledgered-point", choices=sorted(image.ctrl_memory.LEDGERED))
+    parser.add_argument("--ledgered-point", choices=sorted(image.ctrl_memory.LEDGERED),
+                        help="plan a ledgered point's image to its ledgered tiles (ctrl_memory.LEDGERED); the "
+                             "platform's is platform-8x8-two-interfaces, and any other image is refused")
     parser.add_argument("--libc", type=Path, required=True)
     parser.add_argument("--compiler-runtime", type=Path, required=True)
     return parser.parse_args()

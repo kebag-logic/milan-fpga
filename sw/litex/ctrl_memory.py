@@ -20,8 +20,8 @@ not built. This file is the one statement of that memory map. The SoC reads it
   so a region wastes less than one granule;
 - the allocation is held to the owner's 224 KB: 56 RAMB36 at 4,096 usable
   bytes each, a RAMB18 counting half (#640 ruling 6101485877). LEDGERED
-  names the one point allowed past it, only when its measurement asks for it
-  by name (#665); the SoC build asks for none.
+  names the images allowed past it, each only when its measurement asks for
+  it by name (#665); the SoC build asks for none.
 
 Every refusal names its check: `reset entry`, `memory map`, `memory-map
 overlap`, `allocation over budget` and `staging buffer`. RULES lists each
@@ -194,19 +194,30 @@ class Ledgered:
     owed: str                               # the lane that recovers the tiles, and the ruling
 
 
-#: The only points `plan` may let past BUDGET_TILES, each only when its own
-#: measurement names it (`plan --ledgered-point`, ctrl_srp_image.py); the product
-#: SoC build names none, so no product build is held to more than 56 RAMB36; the
-#: measurement harness names it for that point only (its image and SoC plan,
+#: The only images `plan` may let past BUDGET_TILES, each only when its own
+#: measurement names it (`plan --ledgered-point`, ctrl_srp_image.py,
+#: ctrl_plat_image.py); the product SoC build names none, so no product build
+#: is held to more than 56 RAMB36; the measurement harness names the size
+#: fixture's for that point only (its image and SoC plan,
 #: tb/verilator/ctrl_service_budget/build.py, LEDGERED_POINTS). An image is the
 #: point when it carries every listed symbol at its listed size: the 8x8 shape's
-#: staging buffer and the size fixture's per-interface table at two interfaces
-#: (ctrl_aecp_image.c, `uint64_t image_allocation[MBX_N_IF]`). The tile and a
-#: half over budget are ledgered in docs/design/SPLIT_CONTROL_MEMORY.md section 5.
+#: staging buffer, and the image's own object sized by two interfaces. The size
+#: fixture's is its per-interface table (ctrl_aecp_image.c,
+#: `uint64_t image_allocation[MBX_N_IF]`). The target platform's is its one
+#: static object (plat/ctrl_plat.h, `struct ctrl_plat ctrl_plat`, sized by
+#: MBX_N_IF and the shape's streams) at its size in that image, so a change to
+#: that struct refuses the override until the size is measured again here.
+#: Both are owed to lane S14 in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
+#: every other point stays within 56.
 LEDGERED: dict[str, Ledgered] = {
     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_264), ("image_allocation", 16)),
                                    57.5, "lane S14, the hybrid XIP (#665 decision D3, rulings 6412739248 and "
                                          "6425357821)"),
+    "platform-8x8-two-interfaces": Ledgered("target platform's 8x8, two interfaces",
+                                            ((STAGE_SYMBOL, 13_264), ("ctrl_plat", 21_240)), 59.0,
+                                            "lane S14, the hybrid XIP (#665 decision D3: the boot and the CSR "
+                                            "policy are cold code; ruling 6505997821, amending 6425357821 for this "
+                                            "image)"),
 }
 
 
@@ -416,7 +427,7 @@ def main(argv: list[str] | None = None) -> int:
     planned.add_argument("elf", type=Path)
     planned.add_argument("--stage-bytes", type=int, help="the selected shape's staging buffer")
     planned.add_argument("--ledgered-point", choices=sorted(LEDGERED),
-                         help="plan the one ledgered point to its ledgered tiles; any other image is refused")
+                         help="plan a ledgered point's image to its ledgered tiles; any other image is refused")
     args = ap.parse_args(argv)
     if args.command == "regions":
         (args.directory / "regions.ld").write_text(regions_ld())
