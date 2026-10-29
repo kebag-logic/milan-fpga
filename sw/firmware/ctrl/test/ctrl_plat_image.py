@@ -40,9 +40,9 @@ PLAT_SOURCES = ("plat/mbx_plat_mmio.c", "plat/ctrl_plat_mmio.c", "plat/ctrl_plat
 #: What the image must hold for the platform's boot to have been linked, not discarded.
 REQUIRED = {"main", "ctrl_plat", "ctrl_plat_boot", "ctrl_plat_step", "ctrl_plat_csr_identity",
             "ctrl_plat_csr_policy", "ctrl_plat_console_poll", "maap_csr_allocation", "ctrl_app_compose",
-            "ctrl_app_open", "ctrl_app_open_held", "ctrl_app_release_adp", "ctrl_app_compose_aecp", "ctrl_app_open_aecp",
-            "ctrl_app_attach_srp", "srp_mbx_init", "aecp_image_load", "nvm_store_boot", "nvm_store_service",
-            "ctrl_loop_step"}
+            "ctrl_app_open", "ctrl_app_open_held", "ctrl_app_release_adp", "ctrl_app_compose_aecp",
+            "ctrl_app_open_aecp", "ctrl_app_attach_srp", "srp_mbx_init", "aecp_image_load", "nvm_store_boot",
+            "nvm_store_service", "ctrl_loop_step"}
 #: The fixture's placeholder for the mailbox (ctrl_build.RV32_FLAGS); the map's replaces it.
 PLACEHOLDER = re.compile(r"-DCTRL_MBX_BASE=.*")
 

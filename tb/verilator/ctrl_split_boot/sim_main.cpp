@@ -169,11 +169,19 @@ private:
     std::map<std::uint32_t, std::uint32_t> words_;
     std::string transcript_;
     std::deque<std::uint8_t> typed_;
-    std::uint64_t sys_ = 0, flash_at_ = 0, wait_until_ = 0;
-    std::uint32_t csr_rdata_ = 0, flash_response_ = 0;
-    unsigned csr_reads_ = 0, csr_writes_ = 0, step_ = 0;
+    std::uint64_t sys_ = 0;
+    std::uint64_t flash_at_ = 0;
+    std::uint64_t wait_until_ = 0;
+    std::uint32_t csr_rdata_ = 0;
+    std::uint32_t flash_response_ = 0;
+    unsigned csr_reads_ = 0;
+    unsigned csr_writes_ = 0;
+    unsigned step_ = 0;
     std::size_t mark_ = 0;
-    bool csr_ack_ = false, flash_cs_ = false, flash_pending_ = false, done_ = false;
+    bool csr_ack_ = false;
+    bool flash_cs_ = false;
+    bool flash_pending_ = false;
+    bool done_ = false;
 };
 
 void initialize(Vsim& dut) {

@@ -26,16 +26,24 @@ C2 = "Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder"
 K4 = "Plat.K4EachPassIsBounded"
 
 
+#: The reorder plant's two writes, as ctrl_plat_csr.c holds them and swapped.
+EID = ("\twr(csr, CTRL_PLAT_CSR_ADP_EID_LO, p->entity_id_lo);\n",
+       "\twr(csr, CTRL_PLAT_CSR_ADP_EID_HI, p->entity_id_hi);\n")
+
+
 def mutants(mutant: type) -> tuple:
     """The table, built with the campaign's Mutant (ctrl_mutant.py)."""
+    return csr_mutants(mutant) + console_mutants(mutant) + boot_mutants(mutant)
+
+
+def csr_mutants(mutant: type) -> tuple:
+    """The CSR window's: S3's CSR write skipped, reordered or wrong, the identity and the time of day."""
     m = mutant
     return (
         # the CSR initialisation (S3: skipped, reordered, wrong)
         m("plat-policy-write-skipped", CSR, "\twr(csr, CTRL_PLAT_CSR_LWSRP_VID, p->sr_vid);\n", "",
           "plat", C2, "C2 configure_fabric's writes, in its order, from the policy"),
-        m("plat-policy-writes-reordered", CSR,
-          "\twr(csr, CTRL_PLAT_CSR_ADP_EID_LO, p->entity_id_lo);\n\twr(csr, CTRL_PLAT_CSR_ADP_EID_HI, p->entity_id_hi);\n",
-          "\twr(csr, CTRL_PLAT_CSR_ADP_EID_HI, p->entity_id_hi);\n\twr(csr, CTRL_PLAT_CSR_ADP_EID_LO, p->entity_id_lo);\n",
+        m("plat-policy-writes-reordered", CSR, EID[0] + EID[1], EID[1] + EID[0],
           "plat", C2, "C2 configure_fabric's writes, in its order, from the policy"),
         m("plat-policy-word-wrong", CSR, "p->lwsrp_ctrl_reset | CTRL_PLAT_LWSRP_LIVE", "p->lwsrp_ctrl_reset | 0x2u",
           "plat", C2, "C2 configure_fabric's writes, in its order, from the policy"),
@@ -53,6 +61,13 @@ def mutants(mutant: type) -> tuple:
         m("plat-tod-torn-accepted", CSR, "if (rd(csr, CTRL_PLAT_CSR_TOD_RD_HI) == hi) {",
           "if (rd(csr, CTRL_PLAT_CSR_TOD_RD_HI) == hi || true) {",
           "plat", "Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords", "C4 the agreeing high word"),
+    )
+
+
+def console_mutants(mutant: type) -> tuple:
+    """The console's: its lines, its numbers, and a duty that holds the pass past #397's tick rule."""
+    m = mutant
+    return (
         # the console's lines
         m("plat-status-aem-inverted", CONSOLE, "c->aem_loaded ? \" AEM=loaded\\r\\n\" : \" AEM=disabled\\r\\n\"",
           "c->aem_loaded ? \" AEM=disabled\\r\\n\" : \" AEM=loaded\\r\\n\"",
@@ -95,6 +110,13 @@ def mutants(mutant: type) -> tuple:
         m("plat-mmio-write-neighbour", "plat/ctrl_plat_mmio.c", "*(volatile uint32_t *)address = value;",
           "*((volatile uint32_t *)address + 1) = value;",
           "plat", "PlatMmio.I2WriteIsTheWordAtTheAddressAlone", "I2 a write lands in the word at the address"),
+    )
+
+
+def boot_mutants(mutant: type) -> tuple:
+    """The boot's: its order (Milan v1.2 5.6.1), each stage's refusal, and the platform's ports."""
+    m = mutant
+    return (
         # the boot's order (Milan v1.2 5.6.1, ARCHITECTURE_HW_SW_SPLIT.md section 2)
         m("plat-adp-before-aecp", PLAT,
           "\tif (!ctrl_app_open_aecp(&p->bridge)) {",

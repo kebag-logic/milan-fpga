@@ -99,8 +99,10 @@ struct ctrl_plat_policy {
 // milan_status_handler() reads them: the gPTP publication first, each 64-bit
 // pair low word then high word, then identity and control.
 struct ctrl_plat_status {
-	uint32_t gm_lo, gm_hi;
-	uint32_t parent_lo, parent_hi;
+	uint32_t gm_lo;
+	uint32_t gm_hi;
+	uint32_t parent_lo;
+	uint32_t parent_hi;
 	uint32_t pdelay_ns;
 	uint32_t as_path;
 	uint32_t clkv_stat;

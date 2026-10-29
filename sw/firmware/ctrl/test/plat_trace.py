@@ -24,6 +24,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from types import ModuleType
 
 from ctrl_build import C_FLAGS, CTRL, ROOT, Outcome, Refusal
 
@@ -64,7 +65,7 @@ PLANTS = (
 WRITE = re.compile(r"(?m)^W 0x([0-9a-f]+) 0x([0-9a-f]{8})$")
 
 
-def gate35():
+def gate35() -> ModuleType:
     """The builder gate's module, for its host run of configure_fabric()."""
     sys.path.insert(0, str(ROOT / "sw/builder"))
     sys.path.insert(0, str(ROOT / "sw/litex"))
