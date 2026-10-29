@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - processor pin f65c8ff7](#unreleased---processor-pin-f65c8ff7)** -- Moved Stream IDs; settled-only stream fields.
 - **[Unreleased - processor pin ed211803](#unreleased---processor-pin-ed211803)** -- A wrong-type GET_AVB_INFO is NOT_SUPPORTED.
 - **[Unreleased - per-source TSpec](#unreleased---per-source-tspec)** -- The CRF output declares 29.
 - **[Unreleased - talker capture-to-wire latency](#unreleased---talker-capture-to-wire-latency)** -- Stamps cover the wire path.
@@ -45,6 +46,38 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - processor pin f65c8ff7
+
+- Issue #799 adopts processor `f65c8ff7` (PRs #204, #207, #208).
+- FPGA-gPTP stays at `55680bff`.
+- Processor #202: a MAAP conflict moves a declared Stream ID.
+- The new ID keeps the upper 48 bits.
+- It is declared at once, without a LeaveAll wait.
+- The 802.1Q wait guards only a returning StreamID.
+- Milan Table 5.3 allows another Stream ID.
+- `src_stream_id_o` publishes each source's current ID.
+- `KL_pp_shadow` passes it out; the AAF and CRF frames carry it.
+- An output's GET_STREAM_INFO stream_id is that ID.
+- A TCTX unique ID no longer reaches the wire.
+- STRMW talker SID words keep a source's first ID.
+- milan_dp's `sidmove` and `sidmove8` legs drive a real conflict.
+- The torture plan no longer expects a two-LeaveAll wait.
+- Processor #205: unknown-source GET_TX_STATE echoes the listener fields.
+- Milan Table 5.46 gives them.
+- Processor #206: an unsettled input reports no stream fields.
+- Its three Table 5.9 flags stay clear.
+- This closes #790; `[GSI]` G11 and `pp_shadow` `[GSI]` grade four cases.
+- `make gsi-mutants` plants the pass-through in the processor copy.
+- Both processor ROM digests match the `ed211803` rows.
+- The top adds one output; no parameter or register changes.
+- Mailbox contract 2.3 publishes each source's current Stream ID.
+- `KL_mbx` adds `pub_src_sid_o`; #665's firmware writes it later.
+- The publication census maps both stamps to `SRC_SID_LO`.
+- Issue #800 tracks the 8x8 MAAP source index width.
+- The resource gate re-baselines under an owner decision.
+- The route grows 753 LUTs and 499 FFs.
+- 70 slices stay free; Mark II (#640) recovers the area.
 
 ## Unreleased - processor pin ed211803
 

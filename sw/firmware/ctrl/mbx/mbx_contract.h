@@ -16,7 +16,7 @@
 /* contract major version */
 #define MBX_VERSION_MAJOR 2u
 /* contract minor version */
-#define MBX_VERSION_MINOR 2u
+#define MBX_VERSION_MINOR 3u
 /* ID.MAGIC */
 #define MBX_MAGIC 0x4D42u
 /* host window size */
@@ -337,6 +337,22 @@
 #define MBX_TALKER_DECL_DECLARED_LSB 0u
 /* TALKER_DECL: bit s: source s has a Talker declaration */
 #define MBX_TALKER_DECL_DECLARED_WIDTH 16u
+/* first source entry inside a publication block */
+#define MBX_PUB_SRC_BASE 0x80u
+/* bytes per publication source entry */
+#define MBX_PUB_SRC_STRIDE 0x8u
+/* Source s's current stream_id, low word: the ID its Talker attribute declares and its stream data AVTPDUs carry (IEEE 1722-2016 4.4.4.8; Milan v1.2 5.3.7.5 Table 5.3; the processor's src_stream_id_o). The datapath stamps SRC_SID_HI:SRC_SID_LO on source s's frames. The owner writes both words while source s's DA_GATE bit is clear, before it opens the gate and before the declaration or the PROBE_TX response that carries the ID, so no frame carries a half-written stream_id; after a MAAP conflict the gate is closed until the new allocation (Milan v1.2 5.5.4.1; protocol-processor #202). */
+#define MBX_PUB_SRC_REG_SRC_SID_LO 0x0u
+/* SRC_SID_LO: stream_id[31:0] */
+#define MBX_SRC_SID_LO_SID_LSB 0u
+/* SRC_SID_LO: stream_id[31:0] */
+#define MBX_SRC_SID_LO_SID_WIDTH 32u
+/* Source s's current stream_id, high word, written with SRC_SID_LO. */
+#define MBX_PUB_SRC_REG_SRC_SID_HI 0x4u
+/* SRC_SID_HI: stream_id[63:32] */
+#define MBX_SRC_SID_HI_SID_LSB 0u
+/* SRC_SID_HI: stream_id[63:32] */
+#define MBX_SRC_SID_HI_SID_WIDTH 32u
 /* first sink entry inside a publication block */
 #define MBX_PUB_SINK_BASE 0x100u
 /* bytes per publication sink entry */

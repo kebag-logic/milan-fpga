@@ -80,12 +80,14 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
 | `obj_prune` | `sim_prune.cpp` | all six tier-1 blocks pruned | the inert values are STRUCTURAL zeros, not not-armed-yet zeros; `SLIP_LB` (#390) is read behind listener 0 bound, fed well-formed AAF PDUs and then starved, so a built ring would count. The same section then establishes the lane the way the [register map](../../../docs/reference/REGISTER_MAP.md) instructs, and in that order: the whole `0x914` word is graded against the `0xDEADDEAD` not-a-measurement poison, and `CHMAP_SNAP[1]` valid with it, before any projection of it, because that poison projects to the same `{mask_valid, valid, fed}` = 1, 1, 0 this leg expects; behind those two grades the readback answers 1, 1, 0, so the zero is a measured absent lane, and a readback left un-armed fails this leg instead of passing it |
 | `obj_ax1x1` | `sim_main.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF | AX7101 geometry and media datapath coverage plus exact ownerless gPTP state; this verification elaboration is not a flashable product image |
 | `obj_aclk` | `sim_aclk.cpp` | same ownerless option-OFF geometry, true 391/1591 `clk_audio` ratio | two phases (#74): INTERNAL with the align loop engaged (#629 A2-a: the plan's -10.64 ppm drift gone, zero junction slips, the loop and NCO gate engaged; the aligner left disengaged at INTERNAL is mutant 3 of [`milan_dp_mclk`](../milan_dp_mclk/README.md#mutants), whose INTERNAL row it must fail), then CRF selected - the grids aligned (|ppm| < 0.5, zero junction slips), the servo in ACQUIRE through the live select, both 4.4.4.3 `mr` triggers and the 10.4.3 negative; the #390 ring phases ride the same instrument: the loopback ring is fed at the physical rate (6 x 512 x 1591/391 = 12500 + 52/391 axis cycles per PDU, the cadence a peer disciplined to the same CRF produces) and, since #629's A2-a holds the pop grid on it at INTERNAL too, shows zero dups at INTERNAL over the window in which the -10.64 ppm plan would dup once per fed pair. The closed form of that window: the burst-vs-tick phase walks 52/391 cycle per PDU, so the first dup would come (P - phi) / (52/391) PDUs after a restart (P = 2083.33 cycles, phi = the offset of the burst's first beat after the preceding tick); the harness aims the restart burst's `tlast` 0.93 of a tick after a media tick (band 0.90 to 0.96), predicts that dup from the first beat and watches a window of 1.5 times the prediction. The same aim and window under CRF show zero too, a ONE-SIDED sensitivity: a pop grid faster than the push by more than 7 ppm dups inside the window, a slower one would need about 300 ppm to skip (the grids' own two-sided check is [CRF] abs(ppm) < 0.5). `SLIP_LB`/`SLIP_TDM` (`0x8D4`/`0x8D8`) read their taps after induced ring and TDM-junction slips, and `CHMAP_LOOP` reads `{mask_valid, valid, fed}` = 1, 1, 1 here, behind the same whole-word `0xDEADDEAD` and `CHMAP_SNAP[1]` valid grades - the fed half of the two-leg lane-establishment pair whose other half is `obj_prune` |
-| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks; its mutation campaign is `make gsi-mutants`. Then `[UNB]` (#653): an unbind of each locked sink, graded for wire order and the Table 5.6 pair; its campaign is `make unb-mutants` |
+| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second limit and 30–60 s departing-controller monitor; retained gPTP writes are graded inert and emit no notification. Then `[GSI]` (#508): every GET_STREAM_INFO field the processor owns, through real ACMP, MSRP and AECP transitions on both sinks, and (#790) an input's stream fields only while settled; its mutation campaign is `make gsi-mutants`. Then `[UNB]` (#653): an unbind of each locked sink, graded for wire order and the Table 5.6 pair; its campaign is `make unb-mutants` |
 | `obj_dynmap` | `sim_nxn.cpp` (`DYNMAP_DEFAULT_TB`), `dynmap_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the `obj_ax1x1` geometry, direct option OFF | `[DYNMAP]` (#658): the power-on audio maps on STREAM_PORT_INPUT 0 and STREAM_PORT_OUTPUT 0, over the wire and in both crossbar RAMs; SET_STREAM_FORMAT under Milan 5.4.2.7; the output clip in the boot window; a restored 4-channel input format; the boot window's guard arms, each staged on its own clock. Then, on a fresh boot, `[762-DP]` (#762) on this shipping geometry, with the elaborated parameters logged. Then `[MAPREC]` (#637): the channel-map records written and restored across a planted power cycle, the EMPTY list in both directions included. Its planted controls are `make dynmap-mutants`; see [the section below](#the-658-power-on-audio-maps-obj_dynmap) |
 | `obj_maprec8` | `sim_nxn.cpp` (`MAPREC_MP_TB`), `dynmap_probes.vlt` | `endstation_ax7101_8x8`, eight dynamic output ports, direct option OFF | `[MAPREC]` (#637) across ports: a stream channel moved between output ports in both port orders and around a cycle, saved by the writer and restored, graded on GET_AUDIO_MAP, every key's owner and cluster, and the capture RAM; keys two records claim; a refused put-back that rolls every map back; PP_STAT's composed verdicts |
 | `obj_maprec4` | `sim_nxn.cpp` (`MAPREC_MP_TB`), `dynmap_probes.vlt` | `endstation_arty_4x4`, four dynamic input ports, direct option OFF | `[MAPREC]` (#637) across ports: the first and last input ports' records and an emptied port between them, saved and restored, graded on GET_AUDIO_MAP, the stores and the render RAM; the last port's put-back under a restored 2-channel format |
 | `obj_crflic` | `sim_crf_licence.cpp` | `endstation_ax7101_1x1_tdm8`, direct option OFF, the processor and `KL_maap` millisecond on one 100-cycle grid, a 2000 ms Table 5.4 interval | #530: nothing is emitted before a Listener Ready, the CRF and AAF gates require ACTIVE AND their per-source real grant every cycle (#551); changed-TSpec refusal keeps both licences closed with processor #112, and a bound CRF talker keeps its Talker Advertise through the Run B per-type LeaveAll exchange; and `[TSPEC]` (#774) grades every Talker Advertise the DUT declares against its own source's Milan v1.2 Table 4.4 TSpec and the AVTPDU that source emits; its mutation campaign is `make crflic-mutants` |
 | `obj_tspec8` | `sim_crf_licence.cpp` (`TSPEC_ONLY_TB`) | `endstation_ax7101_8x8`, eight AAF talkers of 8 wire channels and the CRF Media Clock Output, the `obj_crflic` compressed grid | #774: `[TSPEC]` alone on the largest shape. Every source is probed once, MAAP grants nine addresses, and each of the nine sources' Talker Advertise values must carry its own format's Table 4.4 TSpec: 217 for each AAF talker, 29 for the CRF output, MaxIntervalFrames 1. Its planted control is in `make crflic-mutants` |
+| `obj_sidmove` | `sim_sid_move.cpp`, `sidmove_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the shipping shape, AAF talker 0 and the CRF Media Clock Output, the `obj_crflic` compressed grid | processor #202: a peer takes the claimed MAAP block while the sources stream; each declaring source moves to a new Stream ID at its grant, and the AVTP stream_id on the wire, the PROBE_TX answer, GET_STREAM_INFO selector 2 and the Talker Advertise name each source's published `src_stream_id_o` before the move and after it. `make sidmove` runs it alone |
+| `obj_sidmove8` | `sim_sid_move.cpp`, `sidmove_probes.vlt` | `endstation_ax7101_8x8`, AAF talkers 0 and 1, talker 1's TCTX unique ID named, the same grid | processor #202 as above on the 8x8 shape: the processor's published ID outranks a named TCTX unique ID on the wire. `make sidmove8` runs it alone |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes |
 | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
 | `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602/#632: a 1.5 s PHC step under CRF selection asserts `tu`, and the presentation stage refuses and counts the PDUs stamped across the step, with no render re-base and unchanged `mr` and MEDIA_RESET; source-change and CRF propagation controls still toggle `mr`; the [`milan_dp_gm_steps`](../milan_dp_gm_steps) suite runs it: its `gmstep_mutants.py` plants five controls in the sweep and its `make gmstep-mutants` the whole inventory |
@@ -632,6 +634,15 @@ So the datapath answers neither, and leaves the selector 4 byte zero.
 Its old bound/settled approximation and its zero bridge id are deleted.
 The validity flags stay the datapath's: `MSRP_FAILURE_VALID`, `REGISTERING_FAILED`, `BOUND`.
 
+Since processor pin `f65c8ff7` (processor #206, #790) the processor also gates
+three of the datapath's Stream Input words on its committed probing status.
+While it is not PROBING_COMPLETED, selector 0 has STREAM_ID_VALID,
+STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID (`0x52000000`) cleared, and
+selector 2 and selector 4 `[63:16]` answer 0 (Milan v1.2 5.4.2.10.1, Table 5.9).
+The datapath's own rule, bound and a nonzero stream_id in the binding view,
+is wider: the view keeps a stream's identity from settle to unbind. G11
+grades the answer the wire carries.
+
 `[GSI]` runs at the end of the timed leg, on the AX 1x1 shape.
 Its two sinks are the AAF input (0) and the CRF input (1).
 The section owns both MAC ports, so no frame is lost between waits.
@@ -661,6 +672,7 @@ The processor's response tests own isolated latency-change coverage.
 | G8 | sink 0's Talker Failed is withdrawn | exactly two pushes per controller: registrar withdrawal, then settlement teardown; both PASSIVE with cleared failure fields; sink 1 quiet |
 | G9 | STOP_STREAMING(sink 1) from A | B gets STOP_STREAMING, A does not; A and B each get one GET_STREAM_INFO for sink 1, carrying STREAMING_WAIT (processor #192) |
 | G10 | a reset | both sinks DISABLED with nothing carried |
+| G11 | #790, after the reset: BIND_RX sink 0; its probe answered; 10 s with no Talker attribute registered and the talker never discovered (TMR_NO_TK, Milan v1.2 5.5.3.5.36); UNBIND_RX | the three Table 5.9 flags and stream_id, stream_dest_mac and stream_vlan_id: clear and zero while ACTIVE before the first answer, the talker's while COMPLETED, clear and zero while PASSIVE with the settled stream still in the binding view, clear and zero once unbound |
 
 Each named change pushes one GET_STREAM_INFO to each controller.
 G8 has two changes, producing exactly two pushes per controller.
@@ -710,7 +722,26 @@ The clean leg passes 461/461 checks.
 
 The mutant's two extra responses receive the same content checks.
 That adds sixteen checks to its run.
-The campaign runs explicitly: eight mutant elaborations and nine runs.
+
+The #790 rows plant processor #206's settled gate open in the processor copy.
+Measured on 2026-10-27 UTC at processor pin `f65c8ff7`.
+The clean leg passes 499/499 checks, and every row above is still caught by its named check.
+Three of them fail more checks, because G11's four answers carry fields those defects also break.
+Tying probing/ACMP status to zero fails 24, reading the other sink's owners 50, and the old approximation 16.
+
+| Mutant | Named check that fails | Failures |
+|---|---|---|
+| selectors 0, 2 and 4 pass through while unsettled | G11 sink 0 back in PROBING_PASSIVE, the stale ID: `stream_id` is zero | 3 of 499 |
+| selector 0's three flags pass through | the same case: the three flags clear | 1 of 499 |
+| selector 4's `stream_dest_mac` passes through | the same case: `stream_dest_mac` is zero | 1 of 499 |
+
+The whole pass-through fails the stale case alone: the flags, `stream_id` and `stream_dest_mac`.
+Before the first answer and once unbound, the binding view holds no stream.
+So the datapath's own rule already reads unsettled there.
+Selector 6's VLAN stays the processor's in every row.
+
+The campaign runs explicitly: after the clean leg, thirteen mutant elaborations and fourteen mutant runs.
+The microcode row runs the clean build with its own ROM.
 
 **Every harness that binds a sink starts the restore walk.**
 Since the same pin, the processor holds its ACMP listener from reset.

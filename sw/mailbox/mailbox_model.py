@@ -149,9 +149,12 @@ class Contract:
     pub_sinks: int
     pub_base: int
     pub_stride: int
+    pub_source_base: int
+    pub_source_stride: int
     pub_sink_base: int
     pub_sink_stride: int
     pub_registers: tuple[Register, ...]
+    pub_source_registers: tuple[Register, ...]
     pub_sink_registers: tuple[Register, ...]
     ch_base: int
     ch_stride: int
@@ -406,13 +409,19 @@ def _check_blocks(contract: Contract) -> None:
 
 
 def _check_publication(contract: Contract) -> None:
-    """The publication block: its sizes, its interface registers before its sink
-    entries, the entries inside the interface stride, and the whole block inside
-    the window above the register space, clear of every ring."""
+    """The publication block: its sizes, its interface registers before its source
+    entries and those before its sink entries, the entries inside the interface
+    stride, and the whole block inside the window above the register space,
+    clear of every ring."""
     if not 1 <= contract.pub_sources <= 32 or not 1 <= contract.pub_sinks <= 32:
         raise ContractError(f"publication sources {contract.pub_sources} and sinks {contract.pub_sinks} are not 1..32")
-    if any(r.offset >= contract.pub_sink_base for r in contract.pub_registers):
-        raise ContractError(f"publication registers run into the sink entries at {contract.pub_sink_base:#x}")
+    if any(r.offset >= contract.pub_source_base for r in contract.pub_registers):
+        raise ContractError(f"publication registers run into the source entries at {contract.pub_source_base:#x}")
+    if any(r.offset >= contract.pub_source_stride for r in contract.pub_source_registers):
+        raise ContractError(f"publication source registers spill out of their {contract.pub_source_stride:#x} entry")
+    if contract.pub_source_base + contract.pub_sources * contract.pub_source_stride > contract.pub_sink_base:
+        raise ContractError(f"{contract.pub_sources} publication source entries run into the sink entries at "
+                            f"{contract.pub_sink_base:#x}")
     if any(r.offset >= contract.pub_sink_stride for r in contract.pub_sink_registers):
         raise ContractError(f"publication sink registers spill out of their {contract.pub_sink_stride:#x} entry")
     if contract.pub_sink_base + contract.pub_sinks * contract.pub_sink_stride > contract.pub_stride:
@@ -459,6 +468,8 @@ def load(path: Path = CONTRACT) -> Contract:
     bndr = _need(raw, "interface_bound_registers", "contract")
     pub = _need(raw, "publication", "contract")
     pubr = _need(raw, "interface_publication_registers", "contract")
+    pub_source_base = int(_need(pubr, "source_base", "interface_publication_registers"))
+    pub_source_stride = int(_need(pubr, "source_stride", "interface_publication_registers"))
     pub_sink_base = int(_need(pubr, "sink_base", "interface_publication_registers"))
     pub_sink_stride = int(_need(pubr, "sink_stride", "interface_publication_registers"))
     chr_ = _need(raw, "channel_registers", "contract")
@@ -482,9 +493,12 @@ def load(path: Path = CONTRACT) -> Contract:
         pub_sources=int(_need(pub, "sources", "publication")), pub_sinks=int(_need(pub, "sinks", "publication")),
         pub_base=int(_need(pubr, "base", "interface_publication_registers")),
         pub_stride=int(_need(pubr, "stride", "interface_publication_registers")),
+        pub_source_base=pub_source_base, pub_source_stride=pub_source_stride,
         pub_sink_base=pub_sink_base, pub_sink_stride=pub_sink_stride,
         pub_registers=_registers(_need(pubr, "registers", "interface_publication_registers"),
                                  "interface_publication_registers", REGISTER_SPACE_BYTES),
+        pub_source_registers=_registers(_need(pubr, "source_registers", "interface_publication_registers"),
+                                        "interface_publication_registers.source_registers", REGISTER_SPACE_BYTES),
         pub_sink_registers=_registers(_need(pubr, "sink_registers", "interface_publication_registers"),
                                       "interface_publication_registers.sink_registers", REGISTER_SPACE_BYTES),
         ch_base=int(chr_["base"]), ch_stride=int(chr_["stride"]),
@@ -576,6 +590,12 @@ def _register_constants(contract: Contract) -> list[Constant]:
     out.append(Constant("PUB_STRIDE", contract.pub_stride, "bytes per interface's publication block", True))
     for reg in contract.pub_registers:
         out.append(Constant(f"PUB_REG_{reg.name}", reg.offset, reg.doc, True))
+        out += _field_constants(reg.name, reg.fields, reg.name)
+    out.append(Constant("PUB_SRC_BASE", contract.pub_source_base, "first source entry inside a publication block",
+                        True))
+    out.append(Constant("PUB_SRC_STRIDE", contract.pub_source_stride, "bytes per publication source entry", True))
+    for reg in contract.pub_source_registers:
+        out.append(Constant(f"PUB_SRC_REG_{reg.name}", reg.offset, reg.doc, True))
         out += _field_constants(reg.name, reg.fields, reg.name)
     out.append(Constant("PUB_SINK_BASE", contract.pub_sink_base, "first sink entry inside a publication block", True))
     out.append(Constant("PUB_SINK_STRIDE", contract.pub_sink_stride, "bytes per publication sink entry", True))

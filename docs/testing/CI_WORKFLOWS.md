@@ -447,22 +447,24 @@ The workflow keeps the public aggregate names `verilator-suites` and
 relevant PR must run them successfully, while a docs-only PR emits them as
 explicit successful skipped results.
 
-Verilator schedules 81 units on seventeen native matrix workers. The ordinary
+Verilator schedules 81 units on nineteen native matrix workers. The ordinary
 serial command still runs the original 64 suites. CI expands six long suites
 into driver-derived case partitions: `milan_dp` (four legs), `milan_dp_mclk`
 (four), `capture_coherence` (four), `maap` (four), `milan_dp_render` (three), and
-`pp_shadow` (four). The source drivers enumerate 19, 31, 31, 66, 3 and 4 units,
-respectively. A unit can carry several original checks; it is never split by
+`pp_shadow` (four). At this head the source drivers enumerate 24, 34, 43, 66, 3
+and 4 units, respectively. A unit can carry several original checks; it is never split by
 resetting a carried history. No test predicate or per-suite timeout changes.
 
 `scripts/suite_shards.py` assigns the longest measured pieces first. It pins
 `tsn_fuzz` to worker 1 and `chmap_capture` to worker 3 for their specialized
-installs. Worker 16 owns only media-clock leg A, whose continuous history is
-indivisible under #737's ruling. Sixteen workers project at most 1605 seconds
-including a conservative 122-second setup allowance. Leg A projects to 1910
-seconds before setup and 2032 seconds with it. This is the explicit round-one
-exception; the coordinating role measures the actual hosted head before the
-owner decides any remaining acceleration. Regular workers have 45-minute
+installs. Worker 18 owns only media-clock leg A, whose continuous history is
+indivisible under #737's ruling. Eighteen workers project at most 1615 seconds
+including a conservative 122-second setup allowance. Leg A projects to 988
+seconds before setup and 1110 seconds with it, its largest window in #799's
+hosted runs; #737's round-one projection was 1910 and 2032 seconds. Its
+dedicated worker is the explicit round-one exception; the coordinating role
+measures the actual hosted head before the owner decides any remaining
+acceleration. Regular workers have 45-minute
 limits; leg A retains a 60-minute allowance within its former 120-minute job
 limit. The separate nightly physical-rate job keeps its existing deadline.
 
@@ -470,7 +472,27 @@ The seventeenth worker is #781's: `media_phase` timed out at 900 seconds on
 hosted, and its 1400-second budget plus the 122-second allowance fits no
 16-worker balance under the 1620-second bound. The added worker keeps the
 45-minute limit, the 122-second allowance and the 1620-second rule, and the
-selector places `media_phase` on worker 4, projected at 1539 seconds.
+selector then placed `media_phase` on worker 4, projected at 1539 seconds.
+
+The eighteenth and nineteenth workers are #799's. Its protocol-processor
+f65c8ff7 adoption adds two `milan_dp` cases, which re-deals that suite's
+round-robin legs. The adoption also changes the windows of the suites its
+sources reach, and hosted run 40740015218 cancelled worker 6/17 at its
+45-minute limit. The suites of the ruled #799 replay carry their largest
+window in the pull-request runs 40724689169 and 40740015218: those whose
+Makefile compiles a source this PR changes, plus `maap`, `csr`, `nvm_backend`
+and `nvm_cosim`, re-measured in the same runs. `media_phase` keeps 1400
+seconds, `milan_dp_gm_steps` keeps its higher 926 seconds, and `follow_ring`,
+cut off on both runs, is at 1493 seconds, its largest complete hosted window.
+That work exceeds what sixteen regular workers hold under the 1620-second
+bound: 24693 seconds against 16 x 1498. Eighteen regular workers project at
+most 1615 seconds. Both added workers keep the 45-minute limit, the 122-second
+allowance and the 1620-second rule. The selector places `media_phase` on
+worker 5 at 1522 seconds, `follow_ring` alone on worker 0 at 1615 seconds, and
+`gptp_tables` on worker 3 at 1448 seconds. `mmcm_servo` keeps its 1145-second
+figure, which is older than this adoption and below its recent hosted windows;
+#799 names that as an open risk. The figures are keyed by leg index, so an
+inventory change re-targets them (#804).
 
 `gptp_tables` (#713) joins the balanced inventory whole, as every unsplit
 suite does. Dev registered it at the provisional 1800-second `suite_timeout`
@@ -480,10 +502,10 @@ its figure is a hosted window: 568 seconds on worker 0/6 of dev run
 38601263345 at `f6260253`, where that worker passed all eight of its suites;
 the pull-request run 38538854504 measured 474 seconds. At the provisional
 figure its worker would project 1922 seconds, over the 1620-second bound. The
-selector places it on worker 3, projected at 1538 seconds. The template keeps
+selector then placed it on worker 3, projected at 1538 seconds. The template keeps
 dev's six-worker matrix, its shard 5/6 `milan_dp` ownership arm and its
 `--expect 6`; the generator replaces the matrix and `--expect` with the
-seventeen workers and removes the arm; the selector's self-test proves that the
+nineteen workers and removes the arm; the selector's self-test proves that the
 last worker runs `milan_dp_mclk__0` alone.
 
 The selector refuses a missing or extra duration, duplicate ownership, a
@@ -491,9 +513,10 @@ changed specialized owner, or a regular worker projected above 1620 seconds.
 Its existing 60%-of-deadline control applies separately to each worker's own
 timeout: 1620 seconds for regular workers, 2160 seconds for leg A. Controls
 plant a shorter regular timeout and a 1621-second ordinary worker under a
-deliberately wide timeout; each must fail its respective bound. The figures for split suites apportion baseline
-`7032bca5` windows using measured local leg durations; they are predictions,
-not measurements of the resulting hosted graph. Refresh them from the next
+deliberately wide timeout; each must fail its respective bound. The figures for split suites are
+hosted leg windows from #799's pull-request runs, measured with
+`scripts/suite_shards.py --measure`. They replaced the earlier apportionment of
+baseline `7032bca5` windows by local leg durations. Refresh them from the next
 complete hosted run. The ordinary unsharded scheduling mode remains available.
 
 Every selected leg writes source-bound case receipts. Each of six union jobs
@@ -502,7 +525,7 @@ current driver inventory, and requires every case exactly once. Dropping a
 case from every leg and every claimed inventory still fails against that fresh
 inventory. The union checks verdicts and checked-output digests, then assembles
 the original physical suite log. The final `verilator-suites` aggregate requires
-all seventeen workers and all six unions. It rechecks raw case evidence against
+all nineteen workers and all six unions. It rechecks raw case evidence against
 the union artifact, proves every original log's ownership and exact head, then
 runs the unchanged tally. Missing, duplicated, extra, failed, cancelled or
 skipped workers cannot release the protected context.
@@ -651,7 +674,7 @@ The `physical-gptp` job owns the physical-rate `milan_dp_gptp` suite.
 It runs nightly at 01:17 UTC and on manual dispatch.
 PR and push events exclude this job from execution.
 Physical regressions therefore report nightly, outside the required PR aggregate.
-The seventeen default workers retain every other suite.
+The nineteen default workers retain every other suite.
 
 The physical suite has a 5400-second build-and-run deadline.
 Its separate four-core `ubuntu-24.04` job permits 120 minutes total.
@@ -1480,7 +1503,7 @@ validates one tree. The workflow makes that explicit and machine-checked
   reads it;
 - both aggregates run `scripts/ci_events.py --require-target-sha` over the
   downloaded shards before they tally anything, passing `--expect` the
-  worker matrix size (`--expect 17` for Verilator, `--expect 4` for Yosys)
+  worker matrix size (`--expect 19` for Verilator, `--expect 4` for Yosys)
   and exactly three sources, `--sha gate="$GATE_SHA"`
   (the gate's `target_sha` through the step env), `--sha run="$GITHUB_SHA"`
   and `--sha checkout="$(git rev-parse HEAD)"`, and print the SHA in their
@@ -2429,7 +2452,7 @@ Docker teardown remains paused until absence is actually established, with the
 PGID and operator recovery action printed. Docker-daemon-owned containers are
 independently contained by the same verified cleanup.
 
-The sharded exhaustive workers (seventeen Verilator, four Yosys) carry their
+The sharded exhaustive workers (nineteen Verilator, four Yosys) carry their
 checked denominator through the singleton `matrix.total` dimension.
 `scripts/ci_events.py` proves that value
 equals the `matrix.shard` list length and that every job name and shard command
@@ -3056,29 +3079,32 @@ plus 60 seconds for download, extraction and execution evidence.
 | `yosys-shards 1/4` | 85 | 1044 | 959 |
 | `yosys-shards 2/4` | 92 | 1044 | 952 |
 | `yosys-shards 3/4` | 91 | 1044 | 953 |
-| `verilator-shards 0/17` | 1605 | 1620 | 15 |
-| `verilator-shards 1/17` | 1541 | 1620 | 79 |
-| `verilator-shards 2/17` | 1572 | 1620 | 48 |
-| `verilator-shards 3/17` | 1538 | 1620 | 82 |
-| `verilator-shards 4/17` | 1539 | 1620 | 81 |
-| `verilator-shards 5/17` | 1538 | 1620 | 82 |
-| `verilator-shards 6/17` | 1539 | 1620 | 81 |
-| `verilator-shards 7/17` | 1539 | 1620 | 81 |
-| `verilator-shards 8/17` | 1540 | 1620 | 80 |
-| `verilator-shards 9/17` | 1541 | 1620 | 79 |
-| `verilator-shards 10/17` | 1537 | 1620 | 83 |
-| `verilator-shards 11/17` | 1540 | 1620 | 80 |
-| `verilator-shards 12/17` | 1539 | 1620 | 81 |
-| `verilator-shards 13/17` | 1537 | 1620 | 83 |
-| `verilator-shards 14/17` | 1537 | 1620 | 83 |
-| `verilator-shards 15/17` | 1538 | 1620 | 82 |
-| `verilator-shards 16/17` | 2032 | 2160 | 128 |
+| `verilator-shards 0/19` | 1615 | 1620 | 5 |
+| `verilator-shards 1/19` | 1445 | 1620 | 175 |
+| `verilator-shards 2/19` | 1558 | 1620 | 62 |
+| `verilator-shards 3/19` | 1448 | 1620 | 172 |
+| `verilator-shards 4/19` | 1551 | 1620 | 69 |
+| `verilator-shards 5/19` | 1522 | 1620 | 98 |
+| `verilator-shards 6/19` | 1447 | 1620 | 173 |
+| `verilator-shards 7/19` | 1522 | 1620 | 98 |
+| `verilator-shards 8/19` | 1541 | 1620 | 79 |
+| `verilator-shards 9/19` | 1494 | 1620 | 126 |
+| `verilator-shards 10/19` | 1445 | 1620 | 175 |
+| `verilator-shards 11/19` | 1443 | 1620 | 177 |
+| `verilator-shards 12/19` | 1531 | 1620 | 89 |
+| `verilator-shards 13/19` | 1552 | 1620 | 68 |
+| `verilator-shards 14/19` | 1444 | 1620 | 176 |
+| `verilator-shards 15/19` | 1443 | 1620 | 177 |
+| `verilator-shards 16/19` | 1444 | 1620 | 176 |
+| `verilator-shards 17/19` | 1444 | 1620 | 176 |
+| `verilator-shards 18/19` | 1110 | 2160 | 1050 |
 
 Verilator figures already include their 122-second overhead allowance.
-Worker 3 carries `gptp_tables` at 1538 seconds: 82 inside its bound and 262
-inside 30 minutes, before downstream collection. Worker 4 carries
-`media_phase`'s kept 1400-second budget at 1539 seconds: 81 inside its bound.
-The continuous media-clock exception remains explicit at 2032 seconds.
+Worker 3 carries `gptp_tables` at 1448 seconds: 172 inside its bound and 352
+inside 30 minutes, before downstream collection. Worker 5 carries
+`media_phase`'s kept 1400-second budget at 1522 seconds: 98 inside its bound.
+Worker 0 carries `follow_ring` alone at 1615 seconds (#799).
+The continuous media-clock exception remains explicit at 1110 seconds.
 Docs now projects at 1395 seconds for its slowest worker, `docs-gates-0`.
 Allowing 60 seconds each for aggregate and collector, one 120-second
 watcher interval and 30 seconds for the tail gives 1665 seconds,
@@ -3245,8 +3271,8 @@ syn/yosys/run.sh
 Useful read-only inspection commands are:
 
 ```sh
-scripts/run_all_suites.sh --ci-pieces --shard 0/17 --list
-scripts/run_all_suites.sh --ci-pieces --shard 16/17 --list   # continuous media-clock history
+scripts/run_all_suites.sh --ci-pieces --shard 0/19 --list
+scripts/run_all_suites.sh --ci-pieces --shard 18/19 --list   # continuous media-clock history
 syn/yosys/run.sh --list
 syn/yosys/run.sh --shard 0/4 --list
 ```

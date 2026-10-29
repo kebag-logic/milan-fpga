@@ -87,6 +87,7 @@ module tb_mbx_top
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_PRIORITY_WIDTH_C-1:0] pub_dom_prio_o,  //! SR_DOMAIN.PRIORITY
   output logic [MBX_N_IF_C*MBX_SR_DOMAIN_ADOPTED_WIDTH_C-1:0]  pub_dom_adopted_o, //! SR_DOMAIN.ADOPTED
   output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C-1:0]          pub_talker_decl_o, //! TALKER_DECL.DECLARED
+  output logic [MBX_N_IF_C*MBX_N_PUB_SOURCES_C*64-1:0]       pub_src_sid_o,     //! SRC_SID_HI:SRC_SID_LO per source
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0]            pub_bound_o,       //! BINDING.BOUND per sink
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0]            pub_sid_valid_o,   //! BINDING.SID_VALID per sink
   output logic [MBX_N_IF_C*MBX_N_PUB_SINKS_C-1:0]            pub_started_o,     //! BINDING.STARTED per sink
@@ -204,6 +205,7 @@ module tb_mbx_top
     .pub_dom_prio_o    (pub_dom_prio_o),
     .pub_dom_adopted_o (pub_dom_adopted_o),
     .pub_talker_decl_o (pub_talker_decl_o),
+    .pub_src_sid_o     (pub_src_sid_o),
     .pub_bound_o       (pub_bound_o),
     .pub_sid_valid_o   (pub_sid_valid_o),
     .pub_started_o     (pub_started_o),

@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `55680bff3b287b9a7b0c759f51471fa617c17335` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `ed2118035e4cec76fb1b59cfbf8a053aeacc8af8` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `f65c8ff7c673aaa8e2ea8da654f081ddb13588d8` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
@@ -272,6 +272,51 @@ No port, parameter or register changes.
 `ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `93fb0b2d` rows.
 
 No parent test, model or document expected status 1 here.
+
+Issue #799 adopts processor pin `f65c8ff7`.
+
+FPGA-gPTP stays at `55680bff`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #202, Stream ID after a MAAP conflict | [204](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/204) | After a MAAP conflict a declared source moves to a new Stream ID with the same upper 48 bits at its next grant, and declares it at once: IEEE 802.1Q-2018 Section 35.2.2.8 asks for two LeaveAllTime periods only before the same StreamID returns with another FirstValue, and Milan v1.2 Table 5.3 lets the PAAD use another Stream ID. The top gains the output `src_stream_id_o`, each source's current ID; `KL_pp_shadow` passes it out, and `milan_datapath` stamps it on the AAF and CRF frames (IEEE 1722-2016 Section 4.4.4.8) and answers an output's GET_STREAM_INFO stream_id with it (IEEE 1722.1-2021 Section 7.4.16.2). A TCTX unique ID no longer reaches the wire. The milan_dp `sidmove` and `sidmove8` legs drive a real conflict |
+| #205, GET_TX_STATE refusal | [207](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/207) | A GET_TX_STATE whose talker_unique_id names no valid source answers TALKER_UNKNOWN_ID with the command's listener_entity_id and listener_unique_id (Milan v1.2 Section 5.5.4.3 step 1, Table 5.46); SUCCESS keeps both 0 (Table 5.47) |
+| #206, GET_STREAM_INFO while not settled | [208](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/208) | An input that is not settled reports stream_id, stream_dest_mac and stream_vlan_id as 0 with STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear (Milan v1.2 Section 5.4.2.10.1, Table 5.9): the processor gates the parent's selectors 0, 2 and 4 on its committed probing status. This closes #790; milan_dp `[GSI]` G11 and the `pp_shadow` `[GSI]` group grade its four cases, and `make gsi-mutants` plants the pass-through |
+
+The top adds one output, `src_stream_id_o`; no parameter or register changes.
+
+The parent's mailbox contract moves to 2.3.
+Each source's current Stream ID gets a publication entry.
+
+`KL_mbx` gains `pub_src_sid_o`, which the split datapath reads.
+The split firmware's writer is #665's work.
+
+The [publication census](../../sw/mailbox/publication_census.py) maps both stamps to `SRC_SID_LO`.
+
+`ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `ed211803` rows.
+
+STRMW talker SID words (`0x814`, `0x818`) keep a source's first ID.
+
+The torture plan no longer expects a two-LeaveAll wait.
+
+The [resource gate](../design/AREA_BUDGET.md#the-resource-gate) measured this adoption against the eleventh record.
+
+| Endpoint | LUT | FF | Gate |
+|---|---|---|---|
+| `route-1x1` | +753 (+1.47 %) | +499 | refused: LUT tolerance 500 |
+| `ooc-1x1` | +518 | +404 | refused: tolerances 250 and 250 |
+| `ooc-8x8` | +1,689 | +1,562 | refused: tolerances 316 and 339 |
+
+The [owner accepted](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) this growth on 2026-10-28.
+The twelfth record is measured at `8b76de69`.
+
+The mailbox change moved no figure.
+
+Almost all growth is the processor's #202 logic.
+
+The route keeps +0.440 ns WNS.
+
+Slices fall by 55; block RAM and DSP hold.
 
 The ROM ledger records current and earlier pins.
 
