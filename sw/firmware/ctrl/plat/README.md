@@ -29,7 +29,7 @@ The rest is the image's `main` and the platform it composes: the boot sequence, 
 | 4 | `aecp_image_load` verifies the generated AEM image's CRC and form. |
 | 5 | The application, AECP and contract 2.3's face are composed into one loop, with the console's poll. |
 | 6, 7 | `nvm_store_boot` reads and validates the saved state and applies bindings, then the D3 transaction, through the state port; the store's service joins the loop. |
-| 8 | The mailbox opens (`ctrl_app_open`, ADP held), SRP attaches, and `ctrl_app_open_aecp` releases AECP only at an accepted terminal with every face acknowledged. |
+| 8 | The mailbox opens with ADP held (`ctrl_app_open_held`), SRP attaches, and `ctrl_app_open_aecp` releases AECP only at an accepted terminal with every face acknowledged. |
 | 9 | `ctrl_app_release_adp` starts ADP last, once AECP and ACMP accept requests. |
 
 A stage that refuses stops the boot there and prints one line naming it.

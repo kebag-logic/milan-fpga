@@ -37,6 +37,7 @@ bool ctrl_app_compose(struct ctrl_app *app, const struct ctrl_app_config *cfg)
 	if (!ctrl_pool_init(&app->pool, cfg->arena, cfg->arena_bytes, cfg->classes, cfg->n_classes)) {
 		return false;
 	}
+	app->adp_held = false;
 	shlan_port_bind_pool(&app->pool);
 	ctrl_debug_bind(cfg->sink, cfg->sink_ctx);
 	ctrl_loop_init(&app->loop);
@@ -70,9 +71,7 @@ bool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg)
 	if (cfg->acmp != NULL) {
 		acmp_mbx_open(&app->acmp);
 	}
-	if (!cfg->adp_held) {
-		ctrl_app_release_adp(app);
-	}
+	adp_mbx_set_enable(&app->adp, !app->adp_held);
 	// MAAP reads each interface's link and begins once the channels are open
 	// (maap_mbx.h); compose refused a preferred range it would refuse
 	if (cfg->maap_allocation != NULL) {
@@ -85,8 +84,15 @@ bool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg)
 	return true;
 }
 
+bool ctrl_app_open_held(struct ctrl_app *app, const struct ctrl_app_config *cfg)
+{
+	app->adp_held = true;
+	return ctrl_app_open(app, cfg);
+}
+
 void ctrl_app_release_adp(struct ctrl_app *app)
 {
+	app->adp_held = false;
 	adp_mbx_set_enable(&app->adp, true);
 }
 

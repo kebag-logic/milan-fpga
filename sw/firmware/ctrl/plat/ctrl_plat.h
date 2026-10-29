@@ -16,9 +16,9 @@
 //        contract 2.3's face are composed (ctrl_app.h, ctrl_app_aecp.h);
 //   6-7  the saved state is read and validated, and the accepted bindings then
 //        the D3 transaction applied, through the state port (nvm_store.h);
-//   8    the mailbox opens, SRP attaches, and AECP is released only at an
-//        accepted terminal with every interface's face acknowledged
-//        (ctrl_app_open_aecp);
+//   8    the mailbox opens with ADP held (ctrl_app_open_held), SRP attaches,
+//        and AECP is released only at an accepted terminal with every
+//        interface's face acknowledged (ctrl_app_open_aecp);
 //   9    ADP starts last, once AECP and ACMP accept requests
 //        (ctrl_app_release_adp). The console and the store's service joined
 //        the loop at composition, and the loop is first serviced now.

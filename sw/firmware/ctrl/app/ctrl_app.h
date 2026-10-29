@@ -96,6 +96,7 @@ struct ctrl_app {
 	const struct acmp_env *acmp_owner;
 	struct acmp_env acmp_delivery;
 	struct ctrl_app_srp_request srp_requests[ACMP_MAX_SINKS];
+	bool adp_held;                          // ctrl_app_open_held(): ADP waits for ctrl_app_release_adp()
 };
 
 struct ctrl_app_config {
@@ -119,10 +120,6 @@ struct ctrl_app_config {
 	maap_allocation_fn maap_allocation;
 	void *maap_ctx;
 	uint64_t maap_preferred;
-	// True holds ADP disabled through the open, for a platform that releases
-	// AECP first (Milan v1.2 5.6.1: ADP starts only once AECP and ACMP accept
-	// requests); it then starts ADP with ctrl_app_release_adp().
-	bool adp_held;
 };
 
 // Bind everything into the loop; no mailbox access. False when the pool
@@ -134,11 +131,16 @@ bool ctrl_app_compose(struct ctrl_app *app, const struct ctrl_app_config *cfg);
 // when the bitstream carries another contract.
 bool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_config *cfg);
 
+// ctrl_app_open() with ADP held disabled, for a platform that releases AECP
+// first: Milan v1.2 5.6.1 starts ADP only once AECP and ACMP accept requests.
+// ctrl_app_release_adp() then starts it. Every other step is the open's.
+bool ctrl_app_open_held(struct ctrl_app *app, const struct ctrl_app_config *cfg);
+
+// Start ADP on every interface after ctrl_app_open_held().
+void ctrl_app_release_adp(struct ctrl_app *app);
+
 // ctrl_app_compose() then ctrl_app_open().
 bool ctrl_app_start(struct ctrl_app *app, const struct ctrl_app_config *cfg);
-
-// Start ADP on every interface, after an open whose configuration held it.
-void ctrl_app_release_adp(struct ctrl_app *app);
 
 // Explicit F2 composition: ctrl_app_start() with cfg's MAAP fields replaced by
 // allocation, ctx and preferred. False, with nothing opened, when allocation

@@ -208,7 +208,7 @@ static bool compose(struct ctrl_plat *p)
 	p->acmp_env = (struct acmp_env){p, locked, source, stream, notice, notice};
 	p->config = (struct ctrl_app_config){.entity = &entity, .arena = arena, .arena_bytes = sizeof arena,
 		.classes = srp_pool_classes, .n_classes = SRP_POOL_N_CLASSES, .acmp = &p->acmp,
-		.acmp_env = &p->acmp_env, .maap_allocation = allocation, .maap_ctx = p, .adp_held = true};
+		.acmp_env = &p->acmp_env, .maap_allocation = allocation, .maap_ctx = p};
 	p->aecp_config.entity_id = entity.entity_id;
 	p->aecp_config.interfaces = MBX_N_IF;
 	p->aecp_config.model = &model;
@@ -256,7 +256,7 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	acmp_nvm_init(&p->binding, &p->app.acmp.acmp, NVM_G_BIND, &p->state.port);
 	nvm_store_boot(env->flash, &p->binding.port);
 	(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_service);
-	if (!ctrl_app_open(&p->app, &p->config)) {
+	if (!ctrl_app_open_held(&p->app, &p->config)) {
 		return reach(p, CTRL_PLAT_MAILBOX, "Milan split: mailbox contract mismatch; entity disabled\r\n");
 	}
 	configure_sources(p);
