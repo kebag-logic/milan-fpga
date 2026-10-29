@@ -1,0 +1,40 @@
+gate_workflows rc=0 (0.5 s) tree clean
+gate_workflows_selftest rc=0 (11.8 s) tree clean
+case_receipts_selftest rc=0 (0.6 s) tree clean
+make_cases_selftest rc=0 (0.2 s) tree clean
+maap_cases_selftest rc=0 (0.1 s) tree clean
+capture_cases_selftest rc=0 (0.1 s) tree clean
+suite_pieces_selftest rc=0 (7.4 s) tree clean
+suite_collect_selftest rc=0 (3.2 s) tree clean
+fail_fast_selftest rc=0 (0.9 s) tree clean
+install_cache_selftest rc=0 (0.2 s) tree clean
+workflow_plan_selftest rc=0 (0.2 s) tree clean
+manifest_selftest rc=0 (0.1 s) tree clean
+evidence_pins rc=0 (0.1 s) tree clean
+ci_events rc=0 (0.7 s) tree clean
+ci_events_selftest rc=0 (191.7 s) tree clean
+git_diff_check rc=0 (0.1 s) tree clean
+bdd_conformance rc=0 (2.1 s) tree clean
+Traceback (most recent call last):
+  File "<home>/milan-fpga-management/2026-09-23/665s2b-a683l/scripts/gates_s2b3.py", line 146, in <module>
+    rc = subprocess.run(argv, cwd=checkout / cwd, stdout=sink, stderr=subprocess.STDOUT,
+         ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        env=ENV.get(name)).returncode
+                        ^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 555, in run
+    with Popen(*popenargs, **kwargs) as process:
+         ~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1039, in __init__
+    self._execute_child(args, executable, preexec_fn, close_fds,
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                        pass_fds, cwd, env,
+                        ^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+                        gid, gids, uid, umask,
+                        ^^^^^^^^^^^^^^^^^^^^^^
+                        start_new_session, process_group)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1990, in _execute_child
+    raise child_exception_type(errno_num, err_msg, err_filename)
+FileNotFoundError: [Errno 2] No such file or directory: '<round-4 scratch>/venv-hdl/bin/python3'
+rc=1

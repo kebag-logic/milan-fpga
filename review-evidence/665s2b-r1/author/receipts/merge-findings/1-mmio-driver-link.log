@@ -1,0 +1,8 @@
+# c5676878 with the ten window accesses S1 added (mbx.c:274, :290, :313, :325, :366, :370, :372, :374, :379, :380) back on mbx_hal_read32/mbx_hal_write32: the merge before its accessor fix
+$ python3 -B sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --jobs 4
+REFUSED: test_mmio_driver does not link:
+/usr/bin/ld: <scratch>/fx/mb/checkout/mmio-driver/mbx_mbx.o: in function `mbx_pub_licensed':
+mbx.c:(.text+0x2fe): undefined reference to `mbx_hal_read32'
+/usr/bin/ld: <scratch>/fx/mb/checkout/mmio-driver/mbx_mbx.o: in function `mbx_face_write':
+mbx.c:(.text+0x33d): undefined reference to `mbx_hal_write32'
+rc=2

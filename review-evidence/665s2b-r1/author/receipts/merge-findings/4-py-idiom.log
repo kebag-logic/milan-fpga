@@ -1,0 +1,10 @@
+# db77201b (before 51fa5f18)
+$ python3 scripts/check_py_idiom.py
+FAIL: long function 10 > ratchet 9. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+FAIL: long module 13 > ratchet 10. New Python complies immediately; see Rule 12 in docs/development/CODE_QUALITY.md.
+rc=1
+$ python3 scripts/check_py_idiom.py --list (the four files the merge grew)
+sw/firmware/ctrl/test/aecp_mutants.py                    long module=1
+sw/firmware/ctrl/test/ctrl_srp_image.py                  long function=1
+tb/verilator/ctrl_service_budget/scenario.py             long module=1
+tb/verilator/ctrl_service_budget/selftest.py             long module=1

@@ -1,0 +1,13 @@
+# c5676878 (the merge, before 7efee8fb's test fix): the generator refuses to record a drop
+$ python3 -B sw/firmware/gtest/fw_coverage.py --write --jobs 4
+sw/firmware/ctrl/aecp/aecp_face.c                172/172     151/152     lines 100.00 %  branches  99.34 %
+REFUSED: sw/firmware/ctrl/aecp/aecp_face.c: branches 151/152 fell below the recorded 144/144
+
+# with rekey rebuilding only the fixture's own core's index (the face's core keeps its stale index)
+sw/firmware/ctrl/aecp/aecp_face.c                172/172     151/152     lines 100.00 %  branches  99.34 %
+REFUSED: sw/firmware/ctrl/aecp/aecp_face.c: branches 151/152 fell below the recorded 144/144
+
+# 7efee8fb: the face's core's index rebuilt as well
+  == ctrl_nvm saved-state store, recorded vector (endstation_ax7101_8x8): checks: 2   failures: 0 ==
+sw/firmware/ctrl/aecp/aecp_face.c                172/172     152/152     lines 100.00 %  branches 100.00 %
+recorded 33 files in sw/firmware/gtest/coverage.ratchet

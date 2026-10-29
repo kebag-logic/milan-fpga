@@ -1,0 +1,24 @@
+{
+  "head": "51fa5f1813e2995fa8545bb8213edeeb5b74eeaf",
+  "base": "e76a755a",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+        "TSN_GEN_ROOT=<home>/milan-fpga-management/tools/tsn-gen-deca300c",
+        "TMPDIR=<scratch>/tmp-sweep",
+        "bash",
+        "scripts/run_all_suites.sh",
+        "<scratch>/sweep-51fa5f18/shard-1/logs",
+        "--wait",
+        "--shard",
+        "1/4"
+      ],
+      "exit_code": 0,
+      "seconds": 3955.215,
+      "log": "<scratch>/sweep-51fa5f18/shard-1/spec/01.log"
+    }
+  ]
+}
