@@ -201,6 +201,8 @@ OUTSIDE = {
                                                     "aecp.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/selftest.py": "the harness's grader self-test; it reads AECP_REGISTRATIONS from "
                                                     "aecp.h and compiles nothing",
+    "tb/verilator/ctrl_service_budget/share.py": "the per-pass share from scenario.py's bounds and ctrl_loop.h's "
+                                                 "derivation, which it names; it compiles nothing",
     "tb/verilator/ctrl_service_budget/split_soc.py": "exports the test SoC with LiteX, its software and gateware "
                                                      "compiles off, and reads the image's placeholder addresses from "
                                                      "ctrl_build.RV32_FLAGS and the store's generated headers; it "
