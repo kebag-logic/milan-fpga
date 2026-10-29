@@ -108,6 +108,7 @@ The current AECP implementation answers these operations with real behavior:
 - `REGISTER_UNSOLICITED_NOTIFICATION` and `DEREGISTER_UNSOLICITED_NOTIFICATION`
 - `IDENTIFY_NOTIFICATION` commands with the required `BAD_ARGUMENTS` result
 - `GET_COUNTERS` for Stream Input, Stream Output, AVB Interface, and Clock Domain
+- `REBOOT` of ENTITY 0, answered before the end station resets (processor #203; #787)
 - `GET_AUDIO_MAP` for both stream-port directions
 - `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`
 - `GET_DYNAMIC_INFO` for the IEEE fixed-getter whitelist
@@ -392,7 +393,7 @@ implementation boundary.
 > **Most of this campaign was overtaken by the 2026-08-13 substitution**, and
 > the AECP half of it has since been partly discharged. The RTL that carried
 > these packages is deleted: the ADP, ACMP and SRP items are now the protocol
-> processor's to satisfy. The processor's AECP uCPU serves **thirty** AEM
+> processor's to satisfy. The processor's AECP uCPU serves **thirty-one** AEM
 > opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x0055`, so some AECP rows
 > below are closed and some are not, and the per-clause status is **not** kept
 > here. [The dated audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) records

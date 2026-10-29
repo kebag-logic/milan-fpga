@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `f97c18035be6ef5345e5af27db2124c5697c1b40` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `f65c8ff7c673aaa8e2ea8da654f081ddb13588d8` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `1be824fccbda5d3341737f5fe033d60edd27af57` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |

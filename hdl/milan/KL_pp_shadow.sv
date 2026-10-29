@@ -1251,6 +1251,7 @@ module KL_pp_shadow #(
       .aecp_nvm_stb_o      (aecp_nvm_stb_w),
       .aecp_nvm_mark_o     (aecp_nvm_mark_w),
       .aecp_lock_held_o    (aecp_lock_held_o),
+      .reboot_req_o        (),  // REBOOT request (processor #203): open until #787 wires the reset
 
       .entity_id_i         (entity_id_i),
       .entity_model_id_i   (entity_model_id_i),
