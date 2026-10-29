@@ -1,0 +1,108 @@
+COMMAND: python3 -B focused.py --mode platform --jobs 4
+wrote $REVIEWS/665s3-r734-1-packet/scratch/platform/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s3-r734-1-packet/scratch/platform/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s3-r734-1-packet/scratch/platform/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from Plat
+[ RUN      ] Plat.C1IdentityIsMilnAndReadsVersion
+[       OK ] Plat.C1IdentityIsMilnAndReadsVersion (0 ms)
+[ RUN      ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder
+[       OK ] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder (0 ms)
+[ RUN      ] Plat.C3StatusIsReadInMilanStatusOrder
+[       OK ] Plat.C3StatusIsReadInMilanStatusOrder (0 ms)
+[ RUN      ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords
+[       OK ] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords (0 ms)
+[ RUN      ] Plat.K1MilanStatusAnswersTheGradersLines
+[       OK ] Plat.K1MilanStatusAnswersTheGradersLines (0 ms)
+[ RUN      ] Plat.K2MilanGettimeAnswersTaiNs
+[       OK ] Plat.K2MilanGettimeAnswersTaiNs (0 ms)
+[ RUN      ] Plat.K3LinesEndOnceAndOthersAreRefused
+[       OK ] Plat.K3LinesEndOnceAndOthersAreRefused (0 ms)
+[ RUN      ] Plat.K4EachPassIsBounded
+[       OK ] Plat.K4EachPassIsBounded (0 ms)
+[ RUN      ] Plat.K5TextPastTheRingIsDroppedAndCounted
+[       OK ] Plat.K5TextPastTheRingIsDroppedAndCounted (0 ms)
+[ RUN      ] Plat.K6NumbersAtTheirEdges
+[       OK ] Plat.K6NumbersAtTheirEdges (0 ms)
+[----------] 10 tests from Plat (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 10 tests.
+== ctrl split platform CSR window and console (host bus): checks: 10   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (10 tests, 0 failures, exit 0)
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from PlatMmio
+[ RUN      ] PlatMmio.I1ReadIsTheWordAtTheAddress
+[       OK ] PlatMmio.I1ReadIsTheWordAtTheAddress (0 ms)
+[ RUN      ] PlatMmio.I2WriteIsTheWordAtTheAddressAlone
+[       OK ] PlatMmio.I2WriteIsTheWordAtTheAddressAlone (0 ms)
+[----------] 2 tests from PlatMmio (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (0 ms total)
+[  PASSED  ] 2 tests.
+== ctrl split platform MMIO (host array): checks: 2   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (2 tests, 0 failures, exit 0)
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from Boot
+[ RUN      ] Boot.B1ReachesReadyInStepOrder
+[       OK ] Boot.B1ReachesReadyInStepOrder (3 ms)
+[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity
+[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+[ RUN      ] Boot.B3RefusedImageStopsAtImage
+[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy
+[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+[ RUN      ] Boot.B5OtherContractStopsAtMailbox
+[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp
+[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop
+[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (1 ms)
+[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented
+[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams
+[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+[----------] 9 tests from Boot (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (7 ms total)
+[  PASSED  ] 9 tests.
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 9   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (9 tests, 0 failures, exit 0)
+[==========] Running 9 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 9 tests from Boot
+[ RUN      ] Boot.B1ReachesReadyInStepOrder
+[       OK ] Boot.B1ReachesReadyInStepOrder (2 ms)
+[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity
+[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+[ RUN      ] Boot.B3RefusedImageStopsAtImage
+[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy
+[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+[ RUN      ] Boot.B5OtherContractStopsAtMailbox
+[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp
+[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop
+[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (1 ms)
+[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented
+[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams
+[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+[----------] 9 tests from Boot (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 9 tests from 1 test suite ran. (6 ms total)
+[  PASSED  ] 9 tests.
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if2): checks: 9   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (9 tests, 0 failures, exit 0)

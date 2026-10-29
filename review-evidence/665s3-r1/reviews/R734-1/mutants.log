@@ -1,0 +1,80 @@
+COMMAND: python3 -B focused.py --mode mutants --jobs 4
+Selected 37 platform mutants; full named-test inventory retained.
+[ok] mutant plat-policy-write-skipped (plat): 1 check(s) failed
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+[ok] mutant plat-policy-writes-reordered (plat): 1 check(s) failed
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+[ok] mutant plat-policy-word-wrong (plat): 1 check(s) failed
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+[ok] mutant plat-policy-advertiser-left-on (plat): 2 check(s) failed
+    first: [FAIL] Plat.C2PolicyIsConfigureFabricsFifteenWritesInOrder: C2 configure_fabric's writes, in its order, from the policy
+[ok] mutant plat-identity-unchecked (plat, platboot1): 4 check(s) failed
+    first: [FAIL] Plat.C1IdentityIsMilnAndReadsVersion: C1 any other ID is refused
+[ok] mutant plat-status-pair-high-first (plat): 1 check(s) failed
+    first: [FAIL] Plat.C3StatusIsReadInMilanStatusOrder: C3 each pair low then high, the gPTP half first
+[ok] mutant plat-tod-no-snapshot (plat): 1 check(s) failed
+    first: [FAIL] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords: C4 the snapshot strobe comes first
+[ok] mutant plat-tod-torn-accepted (plat): 4 check(s) failed
+    first: [FAIL] Plat.C4TimeOfDayIsSnapshotThenAgreeingHighWords: C4 the agreeing high word
+[ok] mutant plat-status-aem-inverted (plat): 2 check(s) failed
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+[ok] mutant plat-tod-torn-printed (plat): 1 check(s) failed
+    first: [FAIL] Plat.K2MilanGettimeAnswersTaiNs: K2 a torn read prints no number
+[ok] mutant plat-prefix-is-a-command (plat): 3 check(s) failed
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 a prefix is no command
+[ok] mutant plat-overflow-kept (plat): 2 check(s) failed
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 an overflowed line is dropped whole
+[ok] mutant plat-dec-leading-zeros (plat): 4 check(s) failed
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+[ok] mutant plat-hex-seven-digits (plat): 3 check(s) failed
+    first: [FAIL] Plat.K1MilanStatusAnswersTheGradersLines: K1 milan_status's lines, field for field
+[ok] mutant plat-ring-drop-uncounted (plat): 1 check(s) failed
+    first: [FAIL] Plat.K5TextPastTheRingIsDroppedAndCounted: K5 the ring holds TX_BYTES and drops the rest
+[ok] mutant plat-tx-unbounded (plat): 1 check(s) failed
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 at most TX_PER_PASS bytes out
+[ok] mutant plat-rx-unbounded (plat): 2 check(s) failed
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 a full slice of input is owed another pass
+[ok] mutant plat-tx-into-full-fifo (plat): 2 check(s) failed
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 never into a full FIFO
+[ok] mutant plat-command-without-room (plat): 3 check(s) failed
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 a command runs only with room for the longest response
+[ok] mutant plat-input-while-waiting (plat): 6 check(s) failed
+    first: [FAIL] Plat.K4EachPassIsBounded: K4 output is owed after the pass
+[ok] mutant plat-slice-not-owed (plat): 4 check(s) failed
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 a line of CTRL_PLAT_LINE_MAX bytes is kept
+[ok] mutant plat-mmio-read-neighbour (plat): 1 check(s) failed
+    first: [FAIL] PlatMmio.I1ReadIsTheWordAtTheAddress: I1 a read returns the word at the address
+[ok] mutant plat-mmio-write-neighbour (plat): 2 check(s) failed
+    first: [FAIL] PlatMmio.I2WriteIsTheWordAtTheAddressAlone: I2 a write lands in the word at the address
+[ok] mutant plat-adp-before-aecp (platboot1, platboot1): 4 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+[ok] mutant plat-adp-not-held (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+[ok] mutant app-adp-hold-ignored (platboot1, platboot1): 4 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 ADP's first timer after the face commit
+[ok] mutant plat-no-one-maap-owner (platboot1, platboot1): 4 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the mailbox only after the policy and the one MAAP owner
+[ok] mutant plat-maap-port-unrefused (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B4RefusedStreamCountStopsAfterThePolicy: B4 MAAP's port refuses nine AAF outputs
+[ok] mutant plat-image-unchecked (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B3RefusedImageStopsAtImage: B3 a refused image stops the boot
+[ok] mutant plat-mailbox-unchecked (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B5OtherContractStopsAtMailbox: B5 another contract stops the boot
+[ok] mutant plat-aecp-unchecked (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B6UnacknowledgedFaceStopsAtAecp: B6 no acknowledgement, no AECP
+[ok] mutant plat-loop-before-ready (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B7OnlyAReadyBootServicesTheLoop: B7 and never services the loop
+[ok] mutant plat-source-past-count (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 a source past the reported count has no destination
+[ok] mutant plat-source-address (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 source n holds base + n
+wrote $REVIEWS/665s3-r734-1-packet/scratch/mutants/mutants/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote $REVIEWS/665s3-r734-1-packet/scratch/mutants/mutants/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote $REVIEWS/665s3-r734-1-packet/scratch/mutants/mutants/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ok] mutant plat-window-interface-ignored (platboot2): 3 check(s) failed
+    first: [FAIL] Boot.B3RefusedImageStopsAtImage: B3 after the policy and the one MAAP owner
+[ok] mutant plat-licence-sticky (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 a revocation clears it
+[ok] mutant plat-source-vid (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B9SrpSourcesCarryTheGeneratedStreams: B9 on the SR class VID
+mutants: 37 of 37 caught

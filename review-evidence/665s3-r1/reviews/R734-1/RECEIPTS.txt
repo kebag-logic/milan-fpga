@@ -1,0 +1,32 @@
+R734-1 receipt notes
+
+Logs are retained verbatim; no local path-prefix substitutions were applied.
+Local executable/build paths in command output are provenance, not dependencies
+of the portable scripts. They contain no credentials or author working notes.
+
+focused.py starts four independent foreground-owned subprocesses and waits for
+all of them. Each arm uses at most four compile jobs, for a maximum of sixteen.
+It writes platform, mutants, trace and rv32 logs and rc files. All returned 0.
+The memory suite returned 0. Its independent invocation was:
+  TMPDIR=<packet>/scratch PYTHONDONTWRITEBYTECODE=1 MILAN_RV32_CC=<compiler> \
+    <project-python> -B sw/litex/test_ctrl_memory.py
+
+collect_coverage.py writes coverage.log using the focused test build outputs.
+probe_boot_exit.py returns 1 when the reviewed defect is reproduced, as it did.
+Its timing values are synthetic controls at CPU 50 MHz and bus 100 MHz, not
+product performance measurements. Product timing in REPORT.md is identified
+separately as published simulation evidence at those same clocks.
+
+verify_checkout.py validates raw file bytes, modes, index and submodule links.
+checkout-integrity.rc is 0. Simulator identity is an identity check only; no
+new native simulation run is claimed by this reviewer.
+
+Public prior-review collections were checked after the independent verdict.
+prior-review-state.json records their empty results and the timeline observation.
+The externally published source receipts remain at their linked evidence commit;
+evidence-check.log records 434 successfully verified published hashes.
+
+All scripts and publishable receipts are listed in MANIFEST.sha256. Scratch
+contains disposable builds, controlled executables and downloaded public inputs;
+it is excluded from publication. No private source notes or reviewer reports
+were read. REPORT.md is the completed reviewer-owned verdict and ledger.
