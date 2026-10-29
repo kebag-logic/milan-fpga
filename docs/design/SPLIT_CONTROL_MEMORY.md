@@ -197,18 +197,19 @@ The flip (S13) still requires 56 RAMB36 or fewer at every point, with S14 merged
 These figures are planned, not mapped.
 
 The [target platform](../../sw/firmware/ctrl/plat/README.md)'s image (#665 S3) replaces the size fixture's `main` with the platform's, and links with `ctrl_plat_image.py`.
-Planned by `ctrl_memory.plan` against the fixture at its base `f4c9ad4f`, linked with the same runtime:
+Planned by `ctrl_memory.plan`, beside the fixture at the same head, both linked with the same runtime:
 
-| Point | `rom` need, B | `sram` need, B | Planned RAMB36 | Fixture at `f4c9ad4f` | Against the budget |
+| Point | `rom` need, B | `sram` need, B | Planned RAMB36 | Fixture, RAMB36 | Against the budget |
 |---|---:|---:|---:|---:|---|
-| 1x1, one interface (shipping) | 109,504 | 47,168 | 39.0 | 37.0 | within |
-| 1x1, two interfaces | 111,152 | 58,592 | 42.0 | 40.5 | within |
-| 8x8, one interface | 123,248 | 87,760 | 52.0 | 50.5 | within |
-| 8x8, two interfaces (largest) | 125,000 | 113,936 | 59.0 | 57.5 | **over 56, and over the 57.5 ledgered for the fixture** |
+| 1x1, one interface (shipping) | 109,552 | 47,168 | 39.0 | 37.0 | within |
+| 1x1, two interfaces | 111,192 | 58,592 | 42.0 | 40.5 | within |
+| 8x8, one interface | 123,296 | 87,760 | 52.0 | 50.5 | within |
+| 8x8, two interfaces (largest) | 125,040 | 113,936 | 59.0 | 57.5 | **over 56, and over the 57.5 ledgered for the fixture** |
 
-The platform adds 5,064 to 5,184 B of `rom` and 912 to 944 B of `sram` at each point.
+The platform adds 5,104 to 5,216 B of `rom` and 896 to 944 B of `sram` to the fixture at each point.
 The ledgered override recognises the fixture's image by its symbols, so it refuses the platform's: that point needs a ruling (D3, the plan's option (b), or S14's cold code in flash).
-The five largest `.bss` objects at the shipping point are lwSRP's pool (9,920 B), the application (8,872 B), SRP (4,824 B), the descriptor image's values (4,527 B) and AECP (3,352 B).
+The five largest `.bss` objects at the shipping point are lwSRP's pool (9,920 B), the application (8,880 B), SRP (4,824 B), the descriptor image's values (4,527 B) and AECP (3,352 B).
+The held open (`ctrl_app_open_held`) adds 24 B of `rom` and 16 B of `sram` to the fixture too; at the shipping point its `rom` then fills its last granule exactly, still 37.0.
 
 The figures below link the firmware of `8ab2b539`, which carries dev `c6bd08c6`: F-INT's publication writers and lwSRP `08ee86e8`.
 Mapped out of context by `syn/ooc/ctrl_memory_ooc.py`: Vivado 2026.1, `xc7a100t-fgg484-2`, `AreaOptimized_high`.

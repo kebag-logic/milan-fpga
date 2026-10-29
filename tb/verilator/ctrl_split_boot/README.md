@@ -70,8 +70,8 @@ The platform image of this lane's head, at the shipping shape and the largest th
 
 | Shape | Boot to ready | CPU cycles | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
 |---|---:|---:|---|---|---|
-| 1x1, one interface | 84.392 ms | 4,219,600 | 18 of 18 equal | 21.549 / 1.961 / 1.263 ms | 2.520 / 1.233 / 1.266 ms |
-| 8x8, one interface | 184.708 ms | 9,235,419 | 18 of 18 equal | 40.549 / 2.871 / 2.225 ms | 4.081 / 2.143 / 1.873 ms |
+| 1x1, one interface | 84.389 ms | 4,219,428 | 18 of 18 equal | 21.632 / 1.963 / 1.273 ms | 2.536 / 1.236 / 1.275 ms |
+| 8x8, one interface | 184.610 ms | 9,230,494 | 18 of 18 equal | 40.209 / 2.853 / 2.204 ms | 4.047 / 2.125 / 1.858 ms |
 
 Both boots are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
