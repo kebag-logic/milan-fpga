@@ -95,6 +95,12 @@ PLANTS = {
         '\t\tnvm.st.bind_terminal = NVM_T_COMPLETE;\n\t}\n'
         '\tif (nvm_model_proven() && chosen != NVM_NONE) {\n\t\tnvm.st.terminal = nvm_walk_d3();\n'
         '\t\tnvm.st.bind_terminal = nvm_walk_bind();\n\t}\n'),
+    # The store's first service step spins on its own clock until 30 ms past the step's start, over
+    # T_svc (FR_NFR.md 3.4.1, at most 20 ms): the step the grade must fail.
+    'slow-step': build.Plant(
+        'slow-step', 'ctrl_nvm/nvm_store.c', '\tnvm_step();\n\tnvm.st.steps++;\n',
+        '\tnvm_step();\n\tif (nvm.st.steps == 0u)\n'
+        '\t\twhile (nvm_now() - nvm.now_us < 30000u) {\n\t\t}\n\tnvm.st.steps++;\n'),
     # The port's guard passes every address.
     'guard-removed': build.Plant(
         'guard-removed', 'ctrl_nvm/plat/nvm_flash_litespi.c',
@@ -111,7 +117,8 @@ class Case:
 
     journal: 'blank' (erased flash), or 'saved', 'torn' or 'version', built from the commit
     case's journal (journals()). commit: the case lets a capture of every record commit.
-    control: the case is a planted defect that must be caught, with the words its grade needs.
+    control: the case is a planted defect that must be caught, with the words its grade needs
+    ('apply order' and 'over T_svc' name the grading rule whose findings are the words).
     """
     name: str
     arm: str
@@ -131,6 +138,7 @@ CASES = (
     Case('reorder-settle', 'fixture', 'settle-after-names', 'saved', control='apply order'),
     Case('reorder-bindings', 'fixture', 'bindings-after-d3', 'saved', control='apply order'),
     Case('guard-removed', 'guard-probe', 'guard-removed', 'blank', control='flash write escaped the journal'),
+    Case('slow-step', 'fixture', 'slow-step', 'blank', control='over T_svc'),
 )
 
 

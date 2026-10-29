@@ -14,9 +14,11 @@ Usage:
     python3 -B tb/verilator/nvm_split_target/run.py --point 8x8 --build-dir DIR [--cases a,b] [--jobs N]
     python3 -B tb/verilator/nvm_split_target/run.py --self-test
 
-Exit 0 = every case passed and every planted control was caught (a step over
-T_svc fails the run unless --record-budget-findings); 1 = a case failed or a
-control escaped; 2 = a build or an input failed.
+Exit 0 = every case passed (no service step over T_svc among them) and every
+planted control was caught; 1 = a case failed or a control escaped; 2 = a
+build or an input failed. The capture's CPU and elapsed times are recorded and
+graded against no bound of their own (#665 owner decision 2026-10-29, option
+(c)).
 """
 from __future__ import annotations
 
@@ -37,21 +39,6 @@ import target_grade as tg  # noqa: E402
 
 build, scenario = cases.build, cases.scenario
 POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2)}
-
-
-def bound_control(obs: object, measured: dict, length: int, cpu_hz: int) -> dict:
-    """The capture's bound, planted in the measured commit: its capture lengthened to exactly the bound must
-    fit, and lengthened one page of its own measured cost (its cycles a byte, times a page) past the bound
-    must be caught."""
-    bound = tg.recipe.HOLD_FLOOR_MS * cpu_hz // 2000
-    page = -(-measured['cycles'] * cases.PAGE // length)
-    at = tg.capture(tg.lengthened(obs, bound - measured['cycles']), measured['latches'], cpu_hz)
-    past = tg.capture(tg.lengthened(obs, bound - measured['cycles'] + page), measured['latches'], cpu_hz)
-    caught = at['within_bound'] and not past['within_bound']
-    words = [f"at the bound {at['ms']:.4f} ms fits; one page ({page:,} cycles) past it, {past['ms']:.4f} ms, "
-             f"is over"] if caught else []
-    return dict(case='capture-one-page-past', caught=caught, words=words, passed=caught, findings=[],
-                page_cycles=page)
 
 
 def built(root: Path, key: str, point: str, reuse: bool) -> dict:
@@ -110,8 +97,8 @@ def run_cases(selected: list[cases.Case], specs: dict[str, dict], point: str, ou
     plens = cases.payload_lengths(bench)
     base = tg.Context(any_spec['cpu_hz'], records, pages, b'\xff' * 2 * slot, saved, {}, [], plens)
     results = [tg.grade_case(commit, obs, base, bench)]
-    if 'capture' in results[0] and results[0]['capture']['latches']:
-        results.append(bound_control(obs, results[0]['capture'], length, any_spec['cpu_hz']))
+    if tg.service(obs):
+        results.append(tg.step_control(obs, any_spec['cpu_hz']))
     journals = cases.journals(saved, bench, slot)
     applied = bench.decode(saved[:int.from_bytes(saved[16:20], 'little')])[1]
     applies = tg.expected_applies(applied, bench.expect, bench.donor.base)
@@ -136,30 +123,33 @@ def table(results: list[dict], point: str) -> str:
         detail = '; '.join(r.get('words') or r['findings']) or (
             f"{r['applies']} apply entries, boot {r['boot_cycles']:,} CPU cycles" if 'applies' in r else '')
         lines.append(f"| {r['case']} | {verdict} | {detail} |")
+    lines += ['', f'Every service step is graded against T_svc = {scenario.T_SVC_MS} ms of CPU time.', '',
+              '| Case | Service steps | Longest step, CPU cycles | Longest, ms |', '|---|---:|---:|---:|']
+    lines += [f"| {r['case']} | {r['service_steps']} | {r['longest_step_cycles']:,} | {r['longest_step_ms']:.3f} |"
+              for r in results if 'service_steps' in r]
     for r in results:
         if 'capture' in r:
             c = r['capture']
-            lines += ['', f"Capture: {c['latches']} records in {c['steps']} steps, {c['cycles']:,} CPU cycles, "
-                      f"{c['ms']:.3f} ms against {c['bound_ms']} ms; longest step {c['longest_cycles']:,} cycles.", '',
-                      '| Phase | Steps | Longest step, CPU cycles | Longest, ms | Total, CPU cycles |',
-                      '|---|---:|---:|---:|---:|']
+            lines += ['', f"Capture, measured (no bound of its own): {c['latches']} records in {c['steps']} steps; "
+                      f"CPU time {c['cycles']:,} cycles, {c['ms']:.3f} ms; elapsed {c['elapsed_cycles']:,} cycles, "
+                      f"{c['elapsed_ms']:.3f} ms; longest step {c['longest_cycles']:,} cycles, "
+                      f"{c['longest_ms']:.3f} ms.", '',
+                      '| Phase | Steps | Longest step, CPU cycles | Longest, ms | Within T_svc | Total, CPU cycles |',
+                      '|---|---:|---:|---:|---|---:|']
             lines += [f"| {p} | {row['steps']} | {row['longest_cycles']:,} | {row['longest_ms']:.3f} | "
-                      f"{row['cycles']:,} |" for p, row in sorted(r['phases'].items())]
+                      f"{'yes' if row['within_t_svc'] else '**no**'} | {row['cycles']:,} |"
+                      for p, row in sorted(r['phases'].items())]
     return '\n'.join(lines) + '\n'
 
 
-def exit_status(results: list[dict], record: bool) -> int:
-    """0 when every case passed and every control was caught; a T_svc miss fails unless recorded."""
-    failed = [r['case'] for r in results if not r['passed']]
-    misses = [f"{r['case']}: {p}" for r in results for p in r.get('t_svc_misses', [])]
+def exit_status(results: list[dict]) -> int:
+    """0 when every case passed, no step over T_svc among them, and every control was caught."""
     for r in results:
         if 'caught' in r:
             print(f"CONTROL {r['case']} {'caught' if r['caught'] else 'ESCAPED'}: {'; '.join(r['words'])}")
         else:
             print(f"CASE {r['case']} {'pass' if r['passed'] else 'FAIL'}: {'; '.join(r['findings'])}")
-    for m in misses:
-        print(f'T_SVC {m} has a step over T_svc')
-    return 1 if failed or (misses and not record) else 0
+    return 1 if any(not r['passed'] for r in results) else 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -172,7 +162,6 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument('--jobs', type=int, default=4)
     ap.add_argument('--reuse-build', action='store_true')
     ap.add_argument('--regrade', action='store_true', help='grade the runs recorded in --out on a reused build')
-    ap.add_argument('--record-budget-findings', action='store_true')
     ap.add_argument('--self-test', action='store_true')
     args = ap.parse_args(argv)
     if args.self_test:
@@ -200,7 +189,7 @@ def main(argv: list[str] | None = None) -> int:
     (out / 'results.json').write_text(json.dumps(results, indent=1, default=str) + '\n')
     (out / 'table.md').write_text(table(results, args.point))
     print(table(results, args.point))
-    return exit_status(results, args.record_budget_findings)
+    return exit_status(results)
 
 
 if __name__ == '__main__':

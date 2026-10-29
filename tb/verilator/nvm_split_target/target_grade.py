@@ -17,12 +17,19 @@ calls. A service step is classified by the calls inside it:
   read     ls_read (the blank check, or the verify);
   idle     none of them.
 
+EVERY STEP of the store, in every phase and every case, must take at most the
+loop's T_svc of CPU time (FR_NFR.md 3.4.1, scenario.T_SVC_MS); a step over it
+is a finding of its case. That is the only timing bound the split writer F1
+has (#665 owner decision 2026-10-29, option (c)): F1 holds no owner while it
+captures, and a change behind its cursor opens its own window (DR2a).
+
 THE CAPTURE is the store's capture phase for one work set, every record of the
-shape dirty: the sum of its steps' CPU cycles at the CPU's clock. It must be at
-most half the shipping writer's unchanged hold floor
-(tb/verilator/nvm_capture_cpu/recipe.py HOLD_FLOOR_MS / 2 = 24.5 ms), the bound
-check_nvm_capture.py holds the shipping capture to. Each step's CPU time is
-graded against the loop's T_svc (FR_NFR.md 3.4.1, scenario.T_SVC_MS).
+shape dirty. It is measured and recorded, and has no bound of its own: its CPU
+time (the sum of its steps' CPU cycles at the CPU's clock) and its elapsed time
+(from its first step's start to its last step's end). The 24.5 ms bound
+(tb/verilator/nvm_capture_cpu/recipe.py HOLD_FLOOR_MS / 2) is D5's on the
+current flash writer's capture, which check_nvm_capture.py holds; it is not
+F1's.
 
 THE APPLY ORDER is read inside the one nvm_store_boot span: the owners' apply
 entries in order must be the saved container's, record by record: every
@@ -41,15 +48,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
-for path in (ROOT / 'tb/verilator/ctrl_service_budget', ROOT / 'tb/verilator/nvm_capture_cpu'):
-    sys.path.insert(0, str(path))
+sys.path.insert(0, str(ROOT / 'tb/verilator/ctrl_service_budget'))
 
 import grade as budget  # noqa: E402  the service-budget harness's parser, read only
-import recipe  # noqa: E402
 import scenario  # noqa: E402
 
-#: The capture's bound: half the shipping writer's guaranteed hold floor (check_nvm_capture.py).
-BOUND_MS = recipe.HOLD_FLOOR_MS / 2
 #: The owners' entries the boot's two walks make, by the record kind that makes each.
 APPLY = ('acmp_restore_binding', 'aecp_value_restore', 'aecp_map_restore', 'aecp_restore_settle')
 #: Each record group's apply entry (aecp_nvm.c apply: SUID and MCR are applied by no owner).
@@ -138,38 +141,60 @@ def decomposed(obs: Observed, plens: list[int]) -> dict:
                 idle_step_cycles=idle[len(idle) // 2] if idle else 0, payload_bytes=sum(plens[:n]))
 
 
-def fits(capture_ms: float) -> bool:
-    """A capture fits at or under its bound."""
-    return capture_ms <= BOUND_MS
+def within_t_svc(cycles: int, cpu_hz: int) -> bool:
+    """A step's CPU cycles at or under T_svc at the CPU's clock."""
+    return cycles * 1000 <= scenario.T_SVC_MS * cpu_hz
+
+
+def over_t_svc(obs: Observed, cpu_hz: int) -> list[str]:
+    """A finding for each of the store's service steps, in any phase, whose CPU time is over T_svc."""
+    return [f'step {i} ({s.phase}) takes {ms(s.cycles, cpu_hz):.4f} ms of CPU time, over T_svc '
+            f'{scenario.T_SVC_MS} ms' for i, s in enumerate(service(obs)) if not within_t_svc(s.cycles, cpu_hz)]
 
 
 def capture(obs: Observed, records: int, cpu_hz: int) -> dict:
-    """The capture of a full work set: its steps, CPU cycles and ms, its longest step, and findings."""
+    """The capture of a full work set, measured: its steps, its CPU time (the sum of its steps' CPU cycles),
+    its elapsed time (its first step's start to its last step's end) and its longest step. It has no bound
+    of its own; the only finding is a capture that is not the shape's records and the step that ends it."""
     steps = [s for s in service(obs) if s.phase == 'capture']
     latches = sum(s.calls.count('acmp_nvm:latch') for s in steps)
     cycles = sum(s.cycles for s in steps)
+    elapsed = steps[-1].cpu + steps[-1].cycles - steps[0].cpu if steps else 0
+    longest = max((s.cycles for s in steps), default=0)
     findings = []
     if latches != records or len(steps) != records + 1:
         findings.append(f'the capture latched {latches} records in {len(steps)} steps, not the shape\'s '
                         f'{records} records and the step that ends it')
-    result = dict(steps=len(steps), latches=latches, cycles=cycles, ms=ms(cycles, cpu_hz),
-                  longest_cycles=max((s.cycles for s in steps), default=0), bound_ms=BOUND_MS)
-    result['within_bound'] = fits(result['ms'])
-    if not result['within_bound']:
-        findings.append(f"the capture takes {result['ms']:.3f} ms, over its {BOUND_MS} ms bound")
-    return dict(result, findings=findings)
+    return dict(steps=len(steps), latches=latches, cycles=cycles, ms=ms(cycles, cpu_hz), elapsed_cycles=elapsed,
+                elapsed_ms=ms(elapsed, cpu_hz), longest_cycles=longest, longest_ms=ms(longest, cpu_hz),
+                findings=findings)
 
 
-def lengthened(obs: Observed, extra: int) -> Observed:
-    """The observation with its capture's closing step `extra` CPU cycles longer, its calls as they were: the
-    capture made that much slower. The bound's control plants it in the measured commit (run.py)."""
+def stretched(obs: Observed, index: int, cycles: int) -> Observed:
+    """The observation with its index-th service step `cycles` CPU cycles long, its calls and every other
+    step as they were. The step control plants it in the measured commit."""
     spans = [Step(s.name, s.sys, s.cpu, s.cycles, list(s.calls), s.phase) for s in obs.spans]
-    closing = [s for s in service(Observed(obs.log, spans, obs.flash, obs.flash_ops, obs.text))
-               if s.phase == 'capture']
-    if not closing:
-        raise ValueError('the capture has no closing step to lengthen')
-    closing[-1].cycles += extra
-    return Observed(obs.log, spans, obs.flash, obs.flash_ops, obs.text)
+    planted = Observed(obs.log, spans, obs.flash, obs.flash_ops, obs.text)
+    service(planted)[index].cycles = cycles
+    return planted
+
+
+def step_control(obs: Observed, cpu_hz: int) -> dict:
+    """T_svc, planted in the measured commit: each phase's longest step stretched to exactly T_svc must add
+    no finding, and stretched one CPU cycle past it must add exactly one, naming that step and its phase."""
+    limit = int(scenario.T_SVC_MS * cpu_hz // 1000)
+    steps, base = service(obs), over_t_svc(obs, cpu_hz)
+    caught, escaped = [], []
+    for phase in sorted({s.phase for s in steps}):
+        index = max((i for i, s in enumerate(steps) if s.phase == phase), key=lambda i: steps[i].cycles)
+        at = over_t_svc(stretched(obs, index, limit), cpu_hz)
+        past = [f for f in over_t_svc(stretched(obs, index, limit + 1), cpu_hz) if f not in base]
+        named = len(past) == 1 and past[0].startswith(f'step {index} ({phase}) ')
+        (caught if at == base and named else escaped).append(phase)
+    words = [f"every phase's longest step at T_svc ({limit:,} cycles) passes and one cycle past it is caught: "
+             f"{', '.join(caught)}"] if caught and not escaped else []
+    return dict(case='step-over-t-svc', caught=bool(words), words=words, passed=bool(words), findings=[],
+                escaped=escaped, limit_cycles=limit)
 
 
 def phases(obs: Observed, cpu_hz: int) -> dict[str, dict]:
@@ -182,7 +207,7 @@ def phases(obs: Observed, cpu_hz: int) -> dict[str, dict]:
         row['longest_cycles'] = max(row['longest_cycles'], step.cycles)
     for row in out.values():
         row['longest_ms'] = ms(row['longest_cycles'], cpu_hz)
-        row['within_t_svc'] = row['longest_ms'] <= scenario.T_SVC_MS
+        row['within_t_svc'] = within_t_svc(row['longest_cycles'], cpu_hz)
     return out
 
 
@@ -321,22 +346,26 @@ def committed(obs: Observed, ctx: Context, bench: object) -> list[str]:
 
 
 def grade_case(case: object, obs: Observed, ctx: Context, bench: object) -> dict:
-    """One case's verdict: its measurement where it has one, its findings, and whether it passed (a control
-    passes when its planted defect is caught by its words)."""
+    """One case's verdict: its measurement where it has one, its findings (every service step over T_svc
+    among them), and whether it passed (a control passes when its planted defect is caught by its words)."""
     from target_cases import SAVED_NAME
     result: dict = dict(case=case.name, findings=completed(obs))
     if case.control:
-        words = [f for f in apply_order(obs, ctx.applies)[1]] if case.control == 'apply order' else \
+        words = apply_order(obs, ctx.applies)[1] if case.control == 'apply order' else \
+            over_t_svc(obs, ctx.cpu_hz) if case.control == 'over T_svc' else \
             [case.control] if case.control in obs.text else []
         result.update(caught=bool(words), words=words, passed=bool(words))
         return result
+    longest = max((s.cycles for s in service(obs)), default=0)
+    result.update(service_steps=len(service(obs)), longest_step_cycles=longest,
+                  longest_step_ms=ms(longest, ctx.cpu_hz))
+    result['findings'] += over_t_svc(obs, ctx.cpu_hz)
     if case.commit:
         result['capture'] = capture(obs, ctx.records, ctx.cpu_hz)
         result['capture']['decomposed'] = decomposed(obs, list(ctx.plens))
         result['phases'] = phases(obs, ctx.cpu_hz)
         result['findings'] += result['capture'].pop('findings') + committed(obs, ctx, bench)
         result['findings'] += held_to(obs, SAVED_NAME, scenario.TALKER_A)
-        result['t_svc_misses'] = [p for p, row in result['phases'].items() if not row['within_t_svc']]
     elif case.name == 'guard':
         result['findings'] += guarded(obs)
     else:
