@@ -248,13 +248,13 @@ It requires:
 - a step of exactly T_svc to pass, and one CPU cycle over it to be a finding naming it and its phase, in every phase;
 - that finding to fail its case, and the step control to be caught in every phase;
 - the run's report to grade every step against T_svc and give the capture no bound;
-- the run's clocks to travel with its results. A synthetic commit at CPU 62.5 MHz and bus 125 MHz:
+- the run's clocks to travel with its results, shown on a synthetic commit at CPU 62.5 MHz and bus 125 MHz:
   - `results.json` must carry those clocks, through JSON;
   - the report must name them beside every table, and none at 50 MHz;
   - its figures must be its cycles at 62.5 MHz;
 - a record to be refused when it lacks either clock, when a clock is not a whole positive number of hertz, when it names a CPU clock its figures were not converted at, or when its clocks are not its builds';
 - builds that disagree on their clocks, lack one or are none, to be refused;
-- `run.py`'s own `main`, on builds recording the 62.5 MHz clocks, to write them to `results.json` and beside every table of `table.md`. It must refuse, with exit 2 and no `table.md`:
+- `run.py`'s own `main`, on builds recording the 62.5 MHz clocks, to write them to `results.json` and beside every table of `table.md`, and to refuse, with exit 2 and no `table.md`:
   - results graded at another CPU clock than their record names;
   - a run whose clocks are not its builds';
 - the container's own apply order to pass, and each of these to be caught: the settle after the names, a binding after the D3 walk, a name before a map, one apply missing, one too many and two boots;
