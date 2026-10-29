@@ -189,6 +189,15 @@ module KL_gptp_shadow #(
     input  wire epi_dis_i,
     output wire recov_req_o,
 
+    //! portEnabled for the engine (IEEE 802.1AS-2011 10.2.4.11): MAC_Operational
+    //! and the port administratively enabled, a level in this clock domain.
+    //! While it is low the engine starts no frame; each edge after its first
+    //! sample since reset ends the Milan v1.2 4.2.6.2.5 cease and clears
+    //! asCapable (FPGA-gPTP #94). A frame whose first byte is unaccepted is
+    //! withdrawn: the gearbox and the ticket below take accepted bytes only,
+    //! so it leaves nothing here. A started frame completes into tx_fifo
+    input  wire port_enabled_i,
+
     //! sole live publication bank
     output logic [63:0] pub_gm_id_o,
     output logic [63:0] pub_parent_id_o,
@@ -699,6 +708,7 @@ module KL_gptp_shadow #(
       .txts_ok_i          (eng_txts_ok_w),
       .txts_gen_i         (eng_txts_gen_w),
       .tx_credit_i        (eng_tx_credit_w),
+      .port_enabled_i     (port_enabled_i),
       .phc_addend_we_o    (adj_we_w),
       .phc_addend_o       (adj_val_w),
       .phc_step_we_o      (phc_step_we_o),

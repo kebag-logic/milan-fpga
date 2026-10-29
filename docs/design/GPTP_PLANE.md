@@ -59,6 +59,7 @@ Normative behavior remains in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | TX | Dedicated control-lane input | Hold complete frames through downstream stalls |
 | Launch records | The MAC's own transmit stream | One ordered record per launched frame, plus the echo that re-bases the position |
 | Recovery | The link guard's episode evidence | Resolve a fenced epoch only after a qualified episode completes |
+| Port enable | The effective link, `eff_link` | The engine's portEnabled: disabled, the port sends nothing; each edge ends the Pdelay_Req cease |
 | PHC | `timestamp_counter` controls | Apply engine rate and phase changes |
 | Publication | CSR and protocol consumers | Sample one committed generation |
 
@@ -93,6 +94,26 @@ Reset is synchronous and active-low.
 - `pub_commit_o` exposes one complete state generation.
 - `pub_disc_o` exposes pre-commit health discontinuities.
 - Consumers never combine different publication generations.
+
+### Port enable
+
+- `KL_gptp_shadow` passes `eff_link` to the engine's `port_enabled_i`.
+- That is the PHY link, gated by `LINK_CTRL[0]` and the link guard's estimate.
+- All three are `axis_clk` levels, so no synchroniser sits between them.
+- It stands for IEEE 802.1AS-2011 portEnabled (10.2.4.11).
+- While it is low the plane starts no gPTP frame.
+- The engine withdraws a frame whose first byte is still unaccepted.
+- The gearbox and the ticket take accepted bytes only, so nothing is left.
+- A frame already started completes into the frame FIFO.
+- A link loss clears asCapable at once, not at the fifth lost response.
+- A stalled transmit lane does not delay that clear.
+- No Pdelay exchange completes while the port is low.
+- The first sample after reset is the reference level.
+- Each later edge ends the Milan v1.2 4.2.6.2.5 Pdelay_Req cease.
+- A link that returns after a warm reset ends a retained cease too.
+- The link's return sends one Pdelay_Req at once.
+- asCapable then takes two exchanges, as after any loss.
+- The 5-minute countdown remains the cease's other exit.
 
 ### Peer delay during PHC steps
 

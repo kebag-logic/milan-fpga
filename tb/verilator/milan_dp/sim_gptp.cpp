@@ -533,6 +533,9 @@ class GptpPlaneHarness {
   int pd_answers = 0;
   int64_t pd_target = 600;
   int64_t pd_expect = 0;
+  //! FPGA-gPTP #94: when nonzero, a second clock identity answers every
+  //! request too, the Milan v1.2 4.2.6.2.5 multiple-responder shape
+  uint64_t pd_second = 0;
   void service_pdelay(Vmilan_datapath *dut) {
     while (pd_scan < tx_frames.size()) {
       const std::vector<uint8_t> req = tx_frames[pd_scan];
@@ -595,6 +598,13 @@ class GptpPlaneHarness {
       for (int i = 0; i < 10; i++) resp.u8(req[34 + i]);
       send_wide(dut, resp.b);
       run(dut, 16);
+      if (pd_second != 0) {
+        Frame dup = ptp(0x3, seq, 0, 0x0200, 20, pd_second);
+        dup.ts(t2);
+        for (int i = 0; i < 10; i++) dup.u8(req[34 + i]);
+        send_wide(dut, dup.b);
+        run(dut, 16);
+      }
       Frame fup = ptp(0xA, seq, 0, 0x0000, 20);
       fup.ts(t3);
       for (int i = 0; i < 10; i++) fup.u8(req[34 + i]);
@@ -1642,6 +1652,121 @@ class GptpPlaneHarness {
            same_from(head_push, path_new_head, 38), 1);
   }
 
+  // ---- FPGA-gPTP #94: the engine's portEnabled is eff_link ---------------
+  //! fabric cycles per gPTP millisecond and per Pdelay_Req interval at this
+  //! leg's 2 MHz clock (the engine's timer counts these, not kPpMsCyc)
+  static constexpr uint64_t kGptpMsCyc = 2000;
+  static constexpr uint64_t kIntervalCyc = 1000 * kGptpMsCyc;
+  //! the second responder of the storm shape
+  static constexpr uint64_t SECOND_CID = 0x0080E1FFFE445566ull;
+
+  static bool is_pdreq(const std::vector<uint8_t> &f) {
+    return f.size() >= 54 && f[12] == 0x88 && f[13] == 0xF7
+        && (f[14] & 0xF) == 0x2;
+  }
+
+  bool fabric_ascapable(Vmilan_datapath *dut) {
+    return ((axi_read(dut, 0x77C) >> 16) & 1) != 0;
+  }
+
+  //! Serve the peer, polling every 50 ms, until asCapable reads `want`.
+  bool await_ascapable(Vmilan_datapath *dut, bool want, unsigned polls) {
+    for (unsigned n = 0; n < polls; n++) {
+      if (fabric_ascapable(dut) == want) return true;
+      run_peer(dut, 50 * kGptpMsCyc);
+    }
+    return fabric_ascapable(dut) == want;
+  }
+
+  //! the cycle the first beat of the `k`-th Pdelay_Req from frame `first` on
+  //! reached the MAC, or all ones
+  uint64_t pdreq_cyc(size_t first, size_t k) const {
+    for (size_t i = first; i < tx_frames.size(); i++)
+      if (is_pdreq(tx_frames[i]) && k-- == 0) return tx_sof_ns[i] / 8;
+    return ~0ull;
+  }
+
+  //! Serve the peer until a Pdelay_Req from frame `first` on has reached the
+  //! MAC, at most `cycles`; its cycle, or all ones
+  uint64_t await_pdreq(Vmilan_datapath *dut, size_t first, uint64_t cycles) {
+    for (uint64_t n = 0; n < cycles && pdreq_cyc(first, 0) == ~0ull;
+         n += kGptpMsCyc)
+      run_peer(dut, kGptpMsCyc);
+    return pdreq_cyc(first, 0);
+  }
+
+  //! The storm: two identities answer each request until the cease drops
+  //! asCapable (Milan v1.2 4.2.6.2.5). The cycle of the last request it
+  //! answered before the cease, or all ones.
+  uint64_t cease_on_two_responders(Vmilan_datapath *dut) {
+    const size_t first = tx_frames.size();
+    pd_second = SECOND_CID;
+    const bool ceased = await_ascapable(dut, false, 200);
+    pd_second = 0;
+    uint64_t last = ~0ull;
+    for (size_t i = first; ceased && i < tx_frames.size(); i++)
+      if (is_pdreq(tx_frames[i])) last = tx_sof_ns[i] / 8;
+    return last;
+  }
+
+  // The LINK_CTRL[0] toggle above cleared eff_link, so the plane's port was
+  // NOT_ENABLED for it (IEEE 802.1AS-2011 10.2.4.11, Figure 11-8): asCapable
+  // fell and the peer's vector with it. Two fresh exchanges re-earn it
+  // (Milan v1.2 4.2.6.2.4) and the peer is selected again, Sync-fed, before
+  // the Sync phase. Setup only: the #94 phases at the end grade the port.
+  void re_earn_the_port_after_the_link_returns(Vmilan_datapath *dut) {
+    await_ascapable(dut, true, 100);
+    announce(dut, 0x7001, {GMID, PATH_B1, PATH_B2, PEER_CID});
+    for (int n = 0; n < 32 && axi_read(dut, 0x624) !=
+         static_cast<uint32_t>(GMID); n++)
+      run(dut, 1000);
+    send_sync_pair(dut, selected_sync_seq_++);
+  }
+
+  // A link loss is portEnabled FALSE, so asCapable falls at once rather than
+  // at the fifth lost response, 4 s on.
+  void prove_ascapable_falls_at_a_link_loss(Vmilan_datapath *dut) {
+    await_ascapable(dut, true, 100);
+    dut->i_link_up = 0;
+    run(dut, 2 * kGptpMsCyc);
+    expect("#94 asCapable falls at link loss", fabric_ascapable(dut), 0);
+    run(dut, 500 * kGptpMsCyc);
+    dut->i_link_up = 1;
+  }
+
+  // Inside the cease, 1.3 s into its 3 s countdown, the link drops for
+  // 0.5 s. The toggle ends the cease (4.2.6.2.5), and the first Pdelay_Req
+  // reaches the MAC within one interval of the link's return.
+  void prove_a_link_loss_inside_the_cease_ends_it(Vmilan_datapath *dut) {
+    await_ascapable(dut, true, 100);
+    const uint64_t last = cease_on_two_responders(dut);
+    run_peer(dut, 1300 * kGptpMsCyc);
+    dut->i_link_up = 0;
+    run_peer(dut, 500 * kGptpMsCyc);
+    const size_t first = tx_frames.size();
+    dut->i_link_up = 1;
+    const uint64_t back = sim_cyc;
+    const uint64_t req = await_pdreq(dut, first, 2 * kIntervalCyc);
+    expect("#94 a link loss inside the cease ends it: a Pdelay_Req within "
+           "one interval of the return", last != ~0ull && req != ~0ull &&
+           req - back <= kIntervalCyc, 1);
+  }
+
+  // Without a link loss the countdown is the exit, as before #94: the beat
+  // that ceases sends nothing, three beats count down (this leg's 3 s
+  // image), the last resumes, the next sends. The first request after the
+  // cease follows the last before it by 5 s (302 s at the 5-minute default).
+  void prove_the_cease_countdown_exit_is_unchanged(Vmilan_datapath *dut) {
+    await_ascapable(dut, true, 100);
+    const uint64_t last = cease_on_two_responders(dut);
+    const size_t first = tx_frames.size();
+    const uint64_t req = await_pdreq(dut, first, 7 * kIntervalCyc);
+    expect("#94 the cease countdown exit is unchanged: 5 s from the last "
+           "request", last != ~0ull && req != ~0ull &&
+           req - last >= 5 * kIntervalCyc - kGptpMsCyc &&
+           req - last <= 5 * kIntervalCyc + kGptpMsCyc, 1);
+  }
+
   // ---- issue #207: the three drop counters through the real CSR route ----
   // Each counter moves through its own refusing stage, injected at the MAC
   // RX seam and read at 0x7E8/0x7EC over the same AXI path software uses.
@@ -1910,6 +2035,7 @@ int GptpPlaneHarness::run() {
   prove_uncertainty_stamps_both_media_wires(dut);
   prove_a_registered_controller_sees_no_retired_dirt(dut);
   prove_the_per_descriptor_one_second_limiter(dut);
+  re_earn_the_port_after_the_link_returns(dut);
   prove_the_sync_lock_reaches_the_clock_domain_counters(dut);
   const unsigned gen_kept = prove_the_path_trace_refresh_generations(dut);
   prove_the_gm_switch_drives_both_counter_families(dut, gen_kept);
@@ -1921,6 +2047,9 @@ int GptpPlaneHarness::run() {
   emit_every_gptp_tx_flag_type(dut);
   prove_the_served_head_is_the_received_head(dut);
   prove_an_entry_zero_change_is_a_path_change(dut);
+  prove_ascapable_falls_at_a_link_loss(dut);
+  prove_a_link_loss_inside_the_cease_ends_it(dut);
+  prove_the_cease_countdown_exit_is_unchanged(dut);
 
   return report();
 }

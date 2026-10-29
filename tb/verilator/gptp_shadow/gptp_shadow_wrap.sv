@@ -319,6 +319,9 @@ module gptp_shadow_wrap #(
       .epi_busy_i      (epi_busy_w),
       .epi_dis_i       (linkg_dis_i),
       .recov_req_o     (recov_req_w),
+      //! this wrapper's link stays up: the portEnabled edges (FPGA-gPTP
+      //! #94) are the donor suite's and the milan_dp gptp leg's to drive
+      .port_enabled_i  (1'b1),
       .pub_gm_id_o     (pub_gm_id_o),
       .pub_parent_id_o (pub_parent_id_o),
       .pub_flags_o     (pub_flags_o),
