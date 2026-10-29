@@ -475,4 +475,6 @@ MUTANTS: dict[str, Patches] = {
         build, 'XIP_TEXT', (build.XIP_TEXT[0], build.XIP_TEXT[1].replace('} > rom', '} > flash')))],
     'xip: the flash driver moves to flash with the other code': lambda: [patch.object(build, 'XIP_TEXT', (
         build.XIP_TEXT[0], build.XIP_TEXT[1].replace(' *-nvm_flash_litespi.o(.text .text.*)', '')))],
+    'xip: the hot code and the rest stay in rom': lambda: [patch.object(
+        build, 'XIP_END', (build.XIP_END[0], build.XIP_END[0]))],
 }

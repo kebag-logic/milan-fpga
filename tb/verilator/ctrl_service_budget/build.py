@@ -153,9 +153,12 @@ def firmware(out: Path, shape: str, n_if: int, mutation: str = 'none', variant: 
 #: through its cacheless data bus. The driver stays in block RAM as D3 requires: a CPU fetching
 #: from the flash cannot also hold the flash's command master, so the driver's own fetches would
 #: wait behind its chip select.
-XIP_TEXT = ('\t.text : { KEEP(*(.text.start)) *(.text .text.*) } > rom\n',
+XIP_TEXT = ('\t.text :\n\t{\n\t\tKEEP(*(.text.start))\n',
             '\t.entry : { KEEP(*(.text.start)) *-nvm_flash_litespi.o(.text .text.*) } > rom\n'
-            '\t.text : ALIGN(4) { *(.text .text.*) } > flash\n')
+            '\t.text : ALIGN(4)\n\t{\n')
+#: The close of that placement and what replaces it: the service loop's hot code, which the script
+#: places ahead of the rest (#665), moves to flash with it, in the same order.
+XIP_END = ('\t\t*(.text .text.*)\n\t} > rom\n', '\t\t*(.text .text.*)\n\t} > flash\n')
 
 
 def xip_offset() -> int:
@@ -168,9 +171,10 @@ def xip_offset() -> int:
 
 def xip_script(script: str, flash: int, end: int) -> str:
     """plat/ctrl_split.ld with its code past the reset entry in a flash region from flash to end."""
-    if script.count(XIP_TEXT[0]) != 1 or script.count('INCLUDE regions.ld\n') != 1:
+    if (script.count(XIP_TEXT[0]) != 1 or script.count(XIP_END[0]) != 1 or
+            script.count('INCLUDE regions.ld\n') != 1):
         raise RuntimeError('xip: plat/ctrl_split.ld no longer has its rom code placement')
-    return script.replace(XIP_TEXT[0], XIP_TEXT[1]).replace(
+    return script.replace(XIP_TEXT[0], XIP_TEXT[1]).replace(XIP_END[0], XIP_END[1]).replace(
         'INCLUDE regions.ld\n', f'INCLUDE regions.ld\nMEMORY {{ flash (rx) : ORIGIN = 0x{flash:08x}, '
         f'LENGTH = 0x{end - flash:x} }}\n')
 
