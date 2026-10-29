@@ -18,7 +18,11 @@ This SoC puts each device where the unmodified image addresses it, and reads
 those addresses from the fixture's own sources, never restating them. The
 mailbox is this harness's own instance of KL_mbx behind KL_mbx_wb, the
 CtrlMailbox hookup with the datapath on pads the testbench drives;
-milan_soc.CtrlMailbox and its idle tie-offs are not used. The flash keeps
+milan_soc.CtrlMailbox and its idle tie-offs are not used. KL_mbx_wb reaches
+KL_mbx through the split placement's record mover, milan_soc's own
+CtrlMailboxDma on the CPU's DMA bus, its CSR bank where the image addresses
+it (ctrl_build.SPLIT_MBX_DMA_BASE); the host-port pads are KL_mbx's side, so
+the testbench sees the mover's ring accesses and the CPU's alike. The flash keeps
 LiteSPI's crossbar, memory-mapped reader and command master, with the master
 in its own CSR bank, and the serial device is the sibling service-budget
 harness's native model (fw_service_budget/flash.hpp).
@@ -70,6 +74,10 @@ def fixture_addresses() -> dict[str, int]:
         match = re.fullmatch(r'-DCTRL_MBX_BASE=(0x[0-9a-fA-F]+)u?', flag)
         if match:
             found['mailbox'] = int(match.group(1), 16)
+    for flag in ctrl_build.SPLIT_RV32_FLAGS:
+        match = re.fullmatch(r'-DCTRL_MBX_DMA_BASE=(0x[0-9a-fA-F]+)u?', flag)
+        if match:
+            found['mbx_dma'] = int(match.group(1), 16)
     csr_h = (FIXTURE_GEN / 'csr.h').read_text()
     mem_h = (FIXTURE_GEN / 'mem.h').read_text()
     for key, text, name in (('master', csr_h, 'CSR_SPIFLASH_MASTER_BASE'),
@@ -91,7 +99,7 @@ def fixture_addresses() -> dict[str, int]:
                        r'csr_(?:wr|rd)\(CSR_TIMER0_BASE \+ (0x[0-9a-f]+)u', csr_h)
     if timer != TIMER_LAYOUT:
         raise RuntimeError('fixture timer0 layout is not load, reload, en, update_value, value')
-    if set(found) != {'mailbox', 'master', 'timer0', 'flash', 'flash_size'}:
+    if set(found) != {'mailbox', 'mbx_dma', 'master', 'timer0', 'flash', 'flash_size'}:
         raise RuntimeError(f'fixture addresses incomplete: {sorted(found)}')
     return found
 
@@ -159,9 +167,9 @@ def platform_for(contract: object, n_if: int) -> object:
 
 
 class StimulusMailbox(LiteXModule):
-    """CtrlMailbox's hookup of KL_mbx_wb and KL_mbx, its datapath on the testbench's pads."""
+    """CtrlMailbox's hookup of KL_mbx_wb, the record mover and KL_mbx, its datapath on the testbench's pads."""
 
-    def __init__(self, pads: object, sys_clk_freq: int, contract: object, n_if: int) -> None:
+    def __init__(self, pads: object, sys_clk_freq: int, contract: object, n_if: int, dma: object) -> None:
         self.bus = wishbone.Interface(data_width=32, adr_width=30)
         # NOW_MS's one-cycle pulse per millisecond of the bus clock, as CtrlMailbox.
         ms_div = int(sys_clk_freq) // 1000
@@ -169,22 +177,21 @@ class StimulusMailbox(LiteXModule):
         ms_tick = Signal()
         self.sync += If(ms_cnt == ms_div - 1, ms_cnt.eq(0), ms_tick.eq(1)).Else(
             ms_cnt.eq(ms_cnt + 1), ms_tick.eq(0))
-        req, we, ack = Signal(), Signal(), Signal()
-        addr, wdata, rdata, be = Signal(widths(contract, n_if)['addr']), Signal(32), Signal(32), Signal(4)
-        self.comb += [pads.host_req.eq(req), pads.host_we.eq(we), pads.host_addr.eq(addr),
-                      pads.host_wdata.eq(wdata), pads.host_ack.eq(ack), pads.host_rdata.eq(rdata),
+        c, h = dma.cpu, dma.host
+        self.comb += [pads.host_req.eq(h['req']), pads.host_we.eq(h['we']), pads.host_addr.eq(h['addr']),
+                      pads.host_wdata.eq(h['wdata']), pads.host_ack.eq(h['ack']), pads.host_rdata.eq(h['rdata']),
                       pads.ms_tick.eq(ms_tick)]
         self.specials += Instance('KL_mbx_wb',
             i_clk_i=ClockSignal('sys'), i_rst_n=~ResetSignal('sys'),
             i_wb_cyc_i=self.bus.cyc, i_wb_stb_i=self.bus.stb, i_wb_we_i=self.bus.we,
             i_wb_adr_i=self.bus.adr, i_wb_dat_i=self.bus.dat_w, i_wb_sel_i=self.bus.sel,
             o_wb_ack_o=self.bus.ack, o_wb_dat_o=self.bus.dat_r, o_wb_err_o=self.bus.err,
-            o_host_req_o=req, o_host_we_o=we, o_host_addr_o=addr, o_host_wdata_o=wdata,
-            o_host_be_o=be, i_host_ack_i=ack, i_host_rdata_i=rdata)
+            o_host_req_o=c['req'], o_host_we_o=c['we'], o_host_addr_o=c['addr'], o_host_wdata_o=c['wdata'],
+            o_host_be_o=c['be'], i_host_ack_i=c['ack'], i_host_rdata_i=c['rdata'])
         self.specials += Instance('KL_mbx',
             i_clk_i=ClockSignal('sys'), i_rst_n=~ResetSignal('sys'),
-            i_host_req_i=req, i_host_we_i=we, i_host_addr_i=addr, i_host_wdata_i=wdata,
-            i_host_be_i=be, o_host_ack_o=ack, o_host_rdata_o=rdata, o_irq_o=Signal(),
+            i_host_req_i=h['req'], i_host_we_i=h['we'], i_host_addr_i=h['addr'], i_host_wdata_i=h['wdata'],
+            i_host_be_i=h['be'], o_host_ack_o=h['ack'], o_host_rdata_o=h['rdata'], o_irq_o=Signal(),
             i_ms_tick_p_i=ms_tick,
             i_link_up_i=pads.link_up, i_gm_change_p_i=pads.gm_change, i_gm_id_i=pads.gm_id,
             i_gptp_domain_i=pads.domain,
@@ -228,8 +235,13 @@ class FlashBoundary(LiteXModule):
 
 
 def add_devices(soc: object, platform: object, addresses: dict[str, int], contract: object, n_if: int) -> None:
-    """The mailbox, the flash and timer0, each where the fixture addresses it."""
-    soc.ctrl_mbx = StimulusMailbox(platform.request('mbx'), soc.sys_clk_freq, contract, n_if)
+    """The mailbox and its record mover, the flash and timer0, each where the fixture addresses it."""
+    csr_base = soc.mem_map['csr']
+    loc, rest = divmod(addresses['mbx_dma'] - csr_base, CSR_BANK_BYTES)
+    if rest or loc != soc.csr.n_locs - 3:
+        raise RuntimeError('fixture record mover is not the CSR bank milan_soc.add_ctrl_mailbox pins (n_locs - 3)')
+    dma = milan_soc.add_ctrl_mailbox_dma(soc, widths(contract, n_if)['addr'], loc)
+    soc.ctrl_mbx = StimulusMailbox(platform.request('mbx'), soc.sys_clk_freq, contract, n_if, dma)
     soc.bus.add_slave('ctrl_mbx', soc.ctrl_mbx.bus, region=SoCRegion(
         origin=addresses['mailbox'], size=contract.window_bytes, cached=False))
     module = N25Q128A13(SpiCodes.READ_1_1_1_FAST)
@@ -244,7 +256,6 @@ def add_devices(soc: object, platform: object, addresses: dict[str, int], contra
     soc.add_module(name='spiflash', module=spiflash)
     soc.bus.add_slave(name='spiflash', slave=spiflash.bus, strip_origin=True, region=SoCRegion(
         origin=addresses['flash'], size=module.total_size, mode=spiflash.bus.mode + 'x'))
-    csr_base = soc.mem_map['csr']
     for name in ('master', 'timer0'):
         if (addresses[name] - csr_base) % CSR_BANK_BYTES:
             raise RuntimeError(f'fixture {name} is not at a CSR bank boundary')

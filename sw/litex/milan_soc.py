@@ -2632,6 +2632,7 @@ _CTRL_MAILBOX_SOURCES = [
     "hdl/milan/mailbox/KL_mbx_evt.sv",
     "hdl/milan/mailbox/KL_mbx.sv",
     "hdl/milan/mailbox/KL_mbx_wb.sv",
+    "hdl/milan/mailbox/KL_mbx_dma.sv",
 ]
 
 
@@ -2640,6 +2641,80 @@ def ctrl_mailbox_contract() -> object:
     sys.path.insert(0, str(REPO_ROOT / "sw" / "mailbox"))
     from mailbox_model import load as load_mailbox_contract
     return load_mailbox_contract()
+
+
+#: The record mover's control registers (#665, owner decision 2026-10-29), in
+#: this order, one 32-bit word each from its CSR bank's base: RING ([15:0] the
+#: ring's word 0 as a word address in the mailbox window, [31:16] the ring's
+#: words less one), MEM (the memory side's first byte, on a word), CMD ([15:0]
+#: the ring index of the first word, [27:16] the bytes to move, [31] 1 for
+#: memory to the ring; a write starts the transfer) and STATUS ([0] BUSY,
+#: [1] ERR). sw/firmware/ctrl/plat/mbx_dma.h restates them for the firmware.
+CTRL_MBX_DMA_REGISTERS = ("ring", "mem", "cmd", "status")
+
+
+class CtrlMailboxDma(LiteXModule):
+    """The split placement's record mover (KL_mbx_dma, #665): its CSR bank and its DMA master.
+
+    KL_mbx_dma sits on KL_mbx's host port between KL_mbx_wb and KL_mbx and
+    moves a record's payload between a ring and the CPU's memory over `bus`,
+    an AXI4 master the SoC adds to its DMA bus, so through the CPU's coherent
+    DMA port. `cpu` is the host port KL_mbx_wb drives, `host` the one KL_mbx
+    takes; the mailbox hookups (CtrlMailbox, the CPU budget harness's own)
+    connect each to their adapter and their mailbox.
+    """
+
+    def __init__(self, addr_w: int) -> None:
+        def port() -> dict[str, Signal]:
+            return dict(req=Signal(), we=Signal(), addr=Signal(addr_w), wdata=Signal(32), be=Signal(4),
+                        ack=Signal(), rdata=Signal(32))
+        self.cpu, self.host = port(), port()
+        self.ring = CSRStorage(32, description="[15:0] the ring's word 0, a word address in the window; "
+                                               "[31:16] the ring's words less one")
+        self.mem = CSRStorage(32, description="The memory side's first byte, on a word")
+        self.cmd = CSRStorage(32, description="[15:0] the first word's ring index; [27:16] the bytes to move; "
+                                              "[31] 1: memory to the ring. A write starts the transfer")
+        self.status = CSRStatus(32, description="[0] BUSY; [1] ERR")
+        self.bus = bus = axi.AXIInterface(data_width=32, address_width=32, id_width=4)
+        busy, err, start = Signal(), Signal(), Signal()
+        # CSRStorage takes the written word at the end of its write cycle: start the cycle after.
+        self.sync += start.eq(self.cmd.re)
+        self.comb += self.status.status.eq(Cat(busy, err))
+        c, h = self.cpu, self.host
+        self.specials += Instance("KL_mbx_dma",
+            i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
+            i_ring_base_i=self.ring.storage[:addr_w], i_ring_mask_i=self.ring.storage[16:32],
+            i_ring_index_i=self.cmd.storage[0:16], i_mem_addr_i=self.mem.storage,
+            i_len_bytes_i=self.cmd.storage[16:28], i_to_ring_i=self.cmd.storage[31],
+            i_start_p_i=start, o_busy_o=busy, o_err_o=err,
+            i_cpu_req_i=c["req"], i_cpu_we_i=c["we"], i_cpu_addr_i=c["addr"], i_cpu_wdata_i=c["wdata"],
+            i_cpu_be_i=c["be"], o_cpu_ack_o=c["ack"], o_cpu_rdata_o=c["rdata"],
+            o_host_req_o=h["req"], o_host_we_o=h["we"], o_host_addr_o=h["addr"], o_host_wdata_o=h["wdata"],
+            o_host_be_o=h["be"], i_host_ack_i=h["ack"], i_host_rdata_i=h["rdata"],
+            o_axi_awvalid_o=bus.aw.valid, i_axi_awready_i=bus.aw.ready, o_axi_awid_o=bus.aw.id,
+            o_axi_awaddr_o=bus.aw.addr, o_axi_awlen_o=bus.aw.len, o_axi_awsize_o=bus.aw.size,
+            o_axi_awburst_o=bus.aw.burst, o_axi_awlock_o=bus.aw.lock, o_axi_awcache_o=bus.aw.cache,
+            o_axi_awprot_o=bus.aw.prot, o_axi_awqos_o=bus.aw.qos,
+            o_axi_wvalid_o=bus.w.valid, i_axi_wready_i=bus.w.ready, o_axi_wdata_o=bus.w.data,
+            o_axi_wstrb_o=bus.w.strb, o_axi_wlast_o=bus.w.last,
+            i_axi_bvalid_i=bus.b.valid, o_axi_bready_o=bus.b.ready, i_axi_bid_i=bus.b.id, i_axi_bresp_i=bus.b.resp,
+            o_axi_arvalid_o=bus.ar.valid, i_axi_arready_i=bus.ar.ready, o_axi_arid_o=bus.ar.id,
+            o_axi_araddr_o=bus.ar.addr, o_axi_arlen_o=bus.ar.len, o_axi_arsize_o=bus.ar.size,
+            o_axi_arburst_o=bus.ar.burst, o_axi_arlock_o=bus.ar.lock, o_axi_arcache_o=bus.ar.cache,
+            o_axi_arprot_o=bus.ar.prot, o_axi_arqos_o=bus.ar.qos,
+            i_axi_rvalid_i=bus.r.valid, o_axi_rready_o=bus.r.ready, i_axi_rid_i=bus.r.id,
+            i_axi_rdata_i=bus.r.data, i_axi_rresp_i=bus.r.resp, i_axi_rlast_i=bus.r.last)
+
+
+def add_ctrl_mailbox_dma(soc: SoCCore, addr_w: int, loc: int) -> CtrlMailboxDma:
+    """The record mover in its own CSR bank at `loc`, its master on the CPU's DMA bus (#665)."""
+    if not hasattr(soc, "dma_bus"):
+        raise ValueError("--ctrl-mailbox: the record mover needs the CPU's coherent DMA port, "
+                         "and this SoC has no DMA bus")
+    soc.csr.add("ctrl_mbx_dma", n=loc)
+    soc.ctrl_mbx_dma = CtrlMailboxDma(addr_w)
+    soc.dma_bus.add_master("ctrl_mbx_dma", master=soc.ctrl_mbx_dma.bus)
+    return soc.ctrl_mbx_dma
 
 
 class CtrlMailbox(LiteXModule):
@@ -2655,10 +2730,11 @@ class CtrlMailbox(LiteXModule):
     with the protocol lanes that need it (#665 F2 to F5). The publication
     block's outputs (contract 2.2, the class-D state the firmware owner writes
     for the datapath) are left unread here too: only the split placement's
-    datapath reads them (#665, comment 6088423771).
+    datapath reads them (#665, comment 6088423771). KL_mbx_wb reaches KL_mbx
+    through the record mover (`dma`, CtrlMailboxDma).
     """
 
-    def __init__(self, sys_clk_freq: int, contract: object) -> None:
+    def __init__(self, sys_clk_freq: int, contract: object, dma: CtrlMailboxDma) -> None:
         from litex.soc.interconnect import wishbone
         from litex.soc.interconnect.csr_eventmanager import EventManager, EventSourceLevel
         self.bus = wishbone.Interface(data_width=32, adr_width=30)
@@ -2679,19 +2755,19 @@ class CtrlMailbox(LiteXModule):
         # width, a bit per source or sink, and 64 bits per sink's stream_id
         n_if = contract.interfaces
         pub_w = {(r.name, f.name): f.width for r in contract.pub_registers for f in r.fields}
-        req, we, ack, irq = Signal(), Signal(), Signal(), Signal()
-        addr, wdata, rdata, be = Signal(addr_w), Signal(32), Signal(32), Signal(4)
+        irq = Signal()
+        c, h = dma.cpu, dma.host
         self.specials += Instance("KL_mbx_wb",
             i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
             i_wb_cyc_i=self.bus.cyc, i_wb_stb_i=self.bus.stb, i_wb_we_i=self.bus.we,
             i_wb_adr_i=self.bus.adr, i_wb_dat_i=self.bus.dat_w, i_wb_sel_i=self.bus.sel,
             o_wb_ack_o=self.bus.ack, o_wb_dat_o=self.bus.dat_r, o_wb_err_o=self.bus.err,
-            o_host_req_o=req, o_host_we_o=we, o_host_addr_o=addr, o_host_wdata_o=wdata,
-            o_host_be_o=be, i_host_ack_i=ack, i_host_rdata_i=rdata)
+            o_host_req_o=c["req"], o_host_we_o=c["we"], o_host_addr_o=c["addr"], o_host_wdata_o=c["wdata"],
+            o_host_be_o=c["be"], i_host_ack_i=c["ack"], i_host_rdata_i=c["rdata"])
         self.specials += Instance("KL_mbx",
             i_clk_i=ClockSignal("sys"), i_rst_n=~ResetSignal("sys"),
-            i_host_req_i=req, i_host_we_i=we, i_host_addr_i=addr, i_host_wdata_i=wdata,
-            i_host_be_i=be, o_host_ack_o=ack, o_host_rdata_o=rdata, o_irq_o=irq,
+            i_host_req_i=h["req"], i_host_we_i=h["we"], i_host_addr_i=h["addr"], i_host_wdata_i=h["wdata"],
+            i_host_be_i=h["be"], o_host_ack_o=h["ack"], o_host_rdata_o=h["rdata"], o_irq_o=irq,
             i_ms_tick_p_i=ms_tick,
             # held idle in F0, see the class docstring
             i_link_up_i=0, i_gm_change_p_i=0, i_gm_id_i=0, i_gptp_domain_i=0,
@@ -2721,7 +2797,8 @@ def add_ctrl_mailbox(soc: SoCCore, platform: object, sys_clk_freq: int) -> None:
     # below the observer's page, where automatic allocation reaches last.
     contract = ctrl_mailbox_contract()
     soc.csr.add("ctrl_mbx", n=soc.csr.n_locs - 2)
-    soc.ctrl_mbx = CtrlMailbox(sys_clk_freq, contract)
+    dma = add_ctrl_mailbox_dma(soc, (contract.window_bytes // 4 - 1).bit_length(), soc.csr.n_locs - 3)
+    soc.ctrl_mbx = CtrlMailbox(sys_clk_freq, contract, dma)
     soc.bus.add_slave("ctrl_mbx", soc.ctrl_mbx.bus,
                       region=SoCRegion(origin=CTRL_MBX_BASE, size=contract.window_bytes, cached=False))
     if soc.irq.enabled:
