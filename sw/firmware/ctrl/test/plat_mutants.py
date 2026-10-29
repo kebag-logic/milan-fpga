@@ -89,6 +89,12 @@ def console_mutants(mutant: type) -> tuple:
           "plat", "Plat.K5TextPastTheRingIsDroppedAndCounted", "K5 the ring holds TX_BYTES and drops the rest"),
         # the console's bound: a duty that holds the pass past #397's tick rule
         m("plat-tx-unbounded", CONSOLE, "for (unsigned n = 0; n < CTRL_PLAT_TX_PER_PASS && c->head != c->tail; ++n) {",
+        # a NUL where a command's name ends, compared past the command's terminator: AddressSanitizer's report
+        # aborts the run, and the harness names the test the line was sent in
+        m("plat-command-read-past-its-end", CONSOLE,
+          "while (n < c->len && command[n] != '\\0' && command[n] == c->line[n]) {",
+          "while (n < c->len && command[n] == c->line[n]) {",
+          "plat", "Plat.K3LinesEndOnceAndOthersAreRefused", "crashed on signal 6"),
           "for (unsigned n = 0; n < CTRL_PLAT_TX_BYTES && c->head != c->tail; ++n) {", "plat", K4,
           "K4 at most TX_PER_PASS bytes out"),
         m("plat-rx-unbounded", CONSOLE, "while (taken < CTRL_PLAT_RX_PER_PASS && !c->waiting) {",

@@ -3,7 +3,8 @@
 """plat_arms.py - the split platform's arms of the control-plane firmware's host test (#665).
 
   plat      the CSR window, the console and the MMIO platform, each on its own
-            host bus (test_plat.cpp, test_plat_mmio.cpp);
+            host bus (test_plat.cpp, test_plat_mmio.cpp); the CSR window and the
+            console under AddressSanitizer, whose report fails the test it is in;
   platboot  the boot and composition of ctrl_plat.c, at the shipping shape with
             one and with two AVB interfaces, on the mailbox model, F1's flash
             model and the host bus (test_plat_boot.cpp);
@@ -13,6 +14,8 @@
 """
 from __future__ import annotations
 
+import dataclasses
+import os
 import sys
 from pathlib import Path
 
@@ -34,11 +37,17 @@ def nvm_tree(tree: Tree) -> Path:
 
 
 def arm_plat(tree: Tree) -> Outcome:
-    """The CSR window and the console on the host bus; the MMIO platform over a host array."""
+    """The CSR window and the console on the host bus, under AddressSanitizer: a received line is external input,
+    so a read past what the console holds aborts the run, and the harness's signal handler names the test it was in
+    (fw_gtest_main.cpp), as nvm_bench runs its prefix binary. The MMIO platform over a host array, without it: its
+    planted neighbour accesses stay inside that array, and are caught by their checks' words."""
     inc = (f"-I{tree.src / 'plat'}",)
-    objs = compile_c(tree, [tree.src / n for n in CSR_CONSOLE], "plat", inc)
-    units = execute("plat", link(tree, "test_plat", objs + compile_tests(
-        tree, ("plat_bus.cpp", "test_plat.cpp"), "plat/tests", inc)))
+    sanitized = dataclasses.replace(tree, build=dataclasses.replace(tree.build, address_sanitizer=True))
+    objs = compile_c(sanitized, [tree.src / n for n in CSR_CONSOLE], "plat", inc)
+    exe = link(sanitized, "test_plat", objs + compile_tests(sanitized, ("plat_bus.cpp", "test_plat.cpp"),
+                                                            "plat/tests", inc))
+    ok, log = fw_gtest.run_binary(exe, env={**os.environ, "ASAN_OPTIONS": "abort_on_error=1"})
+    units = Outcome("plat", 0 if ok else 1, log)
     mmio = compile_c(tree, [tree.src / "plat/ctrl_plat_mmio.c"], "plat/mmio", inc)
     platform = execute("plat", link(tree, "test_plat_mmio", mmio + compile_tests(
         tree, ("test_plat_mmio.cpp",), "plat/mmio/tests", inc)))

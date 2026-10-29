@@ -15,7 +15,8 @@
 //       field, with AEM loaded or disabled
 //   K2  milan_gettime answers TAI_NS, or no number when the read is torn
 //   K3  lines: CR, LF and CR LF end one; an empty line is no command; any
-//       other line is refused; a line past CTRL_PLAT_LINE_MAX is dropped whole
+//       other line is refused, a NUL where a command's name ends among them;
+//       a line past CTRL_PLAT_LINE_MAX is dropped whole
 //   K4  the bound: at most CTRL_PLAT_RX_PER_PASS bytes in and
 //       CTRL_PLAT_TX_PER_PASS out per pass, never into a full FIFO, one
 //       command per pass, run only with room for the longest response
@@ -156,7 +157,11 @@ TEST_F(Plat, K3LinesEndOnceAndOthersAreRefused) {
     EXPECT_EQ(answer("help\r"), "?\r\n") << "K3 any other line is refused in one line";
     EXPECT_EQ(answer("milan_statu\r"), "?\r\n") << "K3 a prefix is no command";
     EXPECT_EQ(answer("milan_status_\r"), "?\r\n") << "K3 a longer word is no command";
-    EXPECT_EQ(console.refused, 3u) << "K3 refusals are counted";
+    // a NUL where a command's name ends: refused, read no further than the
+    // command's terminator (this binary runs under AddressSanitizer)
+    EXPECT_EQ(answer(std::string("milan_status\0XYZ\r", 17)), "?\r\n") << "K3 a line holding a NUL is no command";
+    EXPECT_EQ(answer(std::string("milan_gettime\0\r", 15)), "?\r\n") << "K3 a line holding a NUL is no command";
+    EXPECT_EQ(console.refused, 5u) << "K3 refusals are counted";
     std::string longest(CTRL_PLAT_LINE_MAX, 'x');
     EXPECT_EQ(answer(longest + "\r"), "?\r\n") << "K3 a line of CTRL_PLAT_LINE_MAX bytes is kept";
     EXPECT_EQ(answer(longest + "milan_gettime\rmilan_gettime\r").find("?"), std::string::npos)

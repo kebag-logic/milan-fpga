@@ -69,6 +69,7 @@ The console is a loop poll and never waits on the UART:
 
 So a pass's console share is at most 104 bus accesses and one response's formatting.
 The split image defines no `CTRL_MBX_WFI`, so its loop never sleeps and the console runs every pass.
+A command's name is compared only as far as its terminator, so a received NUL (a UART yields 0x00 on a break) ends no command, and nothing past the name is read.
 
 ## The ports
 

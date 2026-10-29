@@ -126,11 +126,13 @@ static void status(struct ctrl_plat_console *c)
 	tod(c);
 }
 
-// the line is exactly command (the runtime has no strcmp)
+// the line is exactly command (the runtime has no strcmp); the compare stops
+// at the command's end, so a received NUL there ends no command and nothing
+// past the command's terminator is read (#665: a UART yields 0x00 on a break)
 static bool is(const struct ctrl_plat_console *c, const char *command)
 {
 	unsigned n = 0;
-	while (n < c->len && command[n] == c->line[n]) {
+	while (n < c->len && command[n] != '\0' && command[n] == c->line[n]) {
 		++n;
 	}
 	return n == c->len && command[n] == '\0';
