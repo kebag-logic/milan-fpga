@@ -1,0 +1,18 @@
+control: a disabled port keeps its credit and starts its frames
+rc: 1
+named verdict: caught
+FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: nothing is transmitted while the port is disabled got 0000000000000001 exp 0000000000000000
+FAIL #94 toggle: then one request every interval got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: lostResponses starts at zero: four losses commit nothing got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: the fifth loss after the rise commits asCapable FALSE got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: the publication holds while the port is disabled got 0000000000000001 exp 0000000000000000
+FAIL #94 link loss: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: nothing is transmitted while the port is disabled got 0000000000000007 exp 0000000000000000
+FAIL #94 built across the fall: the response is not sent got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: the frame is withdrawn got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled first byte: no frame starts while the port is disabled got 0000000000000002 exp 0000000000000000
+FAIL #94 stalled at byte 1: nothing else starts while the port is disabled got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled at byte 34: nothing else starts while the port is disabled got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled at byte 67: nothing else starts while the port is disabled got 0000000000000001 exp 0000000000000000
+2108 checks: 2094 PASS, 14 FAIL

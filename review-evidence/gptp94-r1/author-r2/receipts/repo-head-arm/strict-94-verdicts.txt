@@ -1,0 +1,71 @@
+[PASS] mutant caught: a portEnabled edge keeps the cease - breaks "#94 toggle: the first request comes within one interval of the rise | #94 toggle: the first request goes out at once after the rise | #94 toggle: then one request every interval"
+    FAIL #94 toggle: the first request comes within one interval of the rise got 0000000000000000 exp 0000000000000001
+    FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+    FAIL #94 toggle: then one request every interval got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slot 6 runs no NOT_ENABLED leg - breaks "#94 toggle: the first request goes out at once after the rise | #94 link loss: asCapable falls at the falling edge"
+    FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+    FAIL #94 link loss: asCapable falls at the falling edge got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a portEnabled edge keeps the ladder - breaks "#94 link loss: one exchange after the rise leaves asCapable clear"
+    FAIL #94 link loss: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a portEnabled edge leaves the interval unanswered - breaks "#94 toggle: lostResponses starts at zero: four losses commit nothing"
+    FAIL #94 toggle: lostResponses starts at zero: four losses commit nothing got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the countdown loads one beat less - breaks "#94 countdown: the first request after the cease follows the last by the countdown and two beats"
+    FAIL #94 countdown: the first request after the cease follows the last by the countdown and two beats got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the cease entry ends the cease at once - breaks "#94 toggle: the cease sends no request | #94 countdown: the first request after the cease follows the last by the countdown and two beats"
+    FAIL #94 toggle: the cease sends no request got 00000000000000d2 exp 00000000000000d1
+    FAIL #94 countdown: the first request after the cease follows the last by the countdown and two beats got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the cease entry keeps asCapable - breaks "#94 toggle: three multi-answered requests cease | #94 countdown: three multi-answered requests cease"
+    FAIL #94 toggle: three multi-answered requests cease got 0000000000000000 exp 0000000000000001
+    FAIL #94 countdown: three multi-answered requests cease got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the ladder raises asCapable at the first exchange - breaks "#94 toggle: one exchange after the rise leaves asCapable clear | #94 link loss: one exchange after the rise leaves asCapable clear"
+    FAIL #94 toggle: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+    FAIL #94 link loss: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the falling edge raises no event - breaks "#94 link loss: asCapable falls at the falling edge"
+    FAIL #94 link loss: asCapable falls at the falling edge got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a rise sends no request at once - breaks "#94 toggle: the first request goes out at once after the rise | #94 link loss: the first request goes out at once after the rise"
+    FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+    FAIL #94 link loss: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a disabled port keeps its transmit credit - breaks "#94 link loss: the publication holds while the port is disabled"
+    FAIL #94 link loss: the publication holds while the port is disabled got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: a disabled port starts an unstarted frame - breaks "#94 built across the fall: the response is not sent | #94 link loss: nothing is transmitted while the port is disabled | #94 stalled first byte: the frame is withdrawn | #94 stalled first byte: no frame starts while the port is disabled"
+    FAIL #94 built across the fall: the response is not sent got 0000000000000000 exp 0000000000000001
+    FAIL #94 link loss: nothing is transmitted while the port is disabled got 0000000000000001 exp 0000000000000000
+    FAIL #94 stalled first byte: the frame is withdrawn got 0000000000000001 exp 0000000000000000
+    FAIL #94 stalled first byte: no frame starts while the port is disabled got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: a disabled port keeps its credit and starts its frames - breaks "#94 toggle: nothing is transmitted while the port is disabled | #94 link loss: nothing is transmitted while the port is disabled"
+    FAIL #94 toggle: nothing is transmitted while the port is disabled got 0000000000000001 exp 0000000000000000
+    FAIL #94 link loss: nothing is transmitted while the port is disabled got 0000000000000007 exp 0000000000000000
+[PASS] mutant caught: egress claims survive the fall - breaks "#94 built across the fall: a request after the rise is answered at once"
+    FAIL #94 built across the fall: a request after the rise is answered at once got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the request claim survives the fall - breaks "#94 t1 after the fall: nothing commits after NOT_ENABLED | #94 t1 after the fall: the delay holds"
+    FAIL #94 t1 after the fall: nothing commits after NOT_ENABLED got 0000000000000001 exp 0000000000000000
+    FAIL #94 t1 after the fall: the delay holds got 00000000000002bd exp 0000000000000259
+[PASS] mutant caught: the first enable since reset raises events - breaks "#82 cold release: one commit before the first beat | #82 warm reset: one commit in the first 2 ms | p1 255 #82 cold release: one commit before the first beat"
+    FAIL #82 cold release: one commit before the first beat got 0000000000000002 exp 0000000000000001
+    FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000002 exp 0000000000000001
+    FAIL p1 255 #82 cold release: one commit before the first beat got 0000000000000002 exp 0000000000000001
+[PASS] mutant caught: the withdrawn frame stays offered for a cycle - breaks "#94 link loss: nothing is transmitted while the port is disabled"
+    FAIL #94 link loss: nothing is transmitted while the port is disabled got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: a disabled port tears a started frame - breaks "#94 stalled at byte 1: the started frame keeps its place | #94 stalled at byte 34: the started frame keeps its place | #94 stalled at byte 67: the started frame keeps its place | #94 stalled at byte 1: the started frame completes whole | #94 stalled at byte 34: the started frame completes whole | #94 stalled at byte 67: the started frame completes whole"
+    FAIL #94 stalled at byte 1: the started frame keeps its place got 0000000000000000 exp 0000000000000001
+    FAIL #94 stalled at byte 34: the started frame keeps its place got 0000000000000000 exp 0000000000000001
+    FAIL #94 stalled at byte 67: the started frame keeps its place got 0000000000000000 exp 0000000000000001
+    FAIL #94 stalled at byte 1: the started frame completes whole got 0000000000000000 exp 0000000000000001
+    FAIL #94 stalled at byte 34: the started frame completes whole got 0000000000000000 exp 0000000000000001
+    FAIL #94 stalled at byte 67: the started frame completes whole got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: NOT_ENABLED waits for the serializer - breaks "#94 stalled at byte 1: asCapable falls within 2 ms of the fall | #94 stalled at byte 34: asCapable falls within 2 ms of the fall | #94 stalled at byte 67: asCapable falls within 2 ms of the fall"
+    FAIL #94 stalled at byte 1: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+    FAIL #94 stalled at byte 34: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+    FAIL #94 stalled at byte 67: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a stalled frame holds NOT_ENABLED back - breaks "#94 stalled first byte: asCapable falls within 2 ms of the fall"
+    FAIL #94 stalled first byte: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: NOT_ENABLED keeps the armed response - breaks "#94 Follow_Up after the fall: nothing commits after NOT_ENABLED | #94 Follow_Up after the fall: the delay holds | #94 Follow_Up queued before the fall: nothing commits after NOT_ENABLED | #94 Follow_Up queued before the fall: the delay holds"
+    FAIL #94 Follow_Up after the fall: nothing commits after NOT_ENABLED got 0000000000000001 exp 0000000000000000
+    FAIL #94 Follow_Up after the fall: the delay holds got 00000000000002bd exp 0000000000000259
+    FAIL #94 Follow_Up queued before the fall: nothing commits after NOT_ENABLED got 0000000000000001 exp 0000000000000000
+    FAIL #94 Follow_Up queued before the fall: the delay holds got 00000000000002bd exp 0000000000000259
+[PASS] mutant caught: NOT_ENABLED queues behind earlier events - breaks "#94 Follow_Up queued before the fall: the delay holds"
+    FAIL #94 Follow_Up queued before the fall: the delay holds got 00000000000002bd exp 0000000000000259
+[PASS] mutant caught: the first rise after a disabled release raises nothing - breaks "#94 disabled warm reset: the first request comes within one interval of the rise | #94 disabled warm reset: the first request goes out at once after the rise"
+    FAIL #94 disabled warm reset: the first request comes within one interval of the rise got 0000000000000000 exp 0000000000000001
+    FAIL #94 disabled warm reset: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001

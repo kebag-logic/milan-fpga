@@ -1,0 +1,57 @@
+[
+ {
+  "control": "the shadow ties the engine's port enabled",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "rc": 2,
+  "tally": "205 checks: 203 PASS, 2 FAIL",
+  "named": [
+   "#94 asCapable falls at link loss",
+   "#94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return"
+  ],
+  "missed": [],
+  "fails": [
+   "FAIL #94 asCapable falls at link loss got 0000000000000001 exp 0000000000000000",
+   "FAIL #94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return got 0000000000000000 exp 0000000000000001"
+  ]
+ },
+ {
+  "control": "a portEnabled edge keeps the cease",
+  "file": "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+  "rc": 2,
+  "tally": "205 checks: 203 PASS, 2 FAIL",
+  "named": [
+   "#94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return"
+  ],
+  "missed": [],
+  "fails": [
+   "FAIL #94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return got 0000000000000000 exp 0000000000000001",
+   "FAIL #94 the cease countdown exit is unchanged: 5 s from the last request got 0000000000000000 exp 0000000000000001"
+  ]
+ },
+ {
+  "control": "the falling edge raises no event",
+  "file": "gptp-processor/hdl/top/KL_gptp_engine.sv",
+  "rc": 2,
+  "tally": "205 checks: 204 PASS, 1 FAIL",
+  "named": [
+   "#94 asCapable falls at link loss"
+  ],
+  "missed": [],
+  "fails": [
+   "FAIL #94 asCapable falls at link loss got 0000000000000001 exp 0000000000000000"
+  ]
+ },
+ {
+  "control": "the countdown loads one beat less",
+  "file": "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+  "rc": 2,
+  "tally": "205 checks: 204 PASS, 1 FAIL",
+  "named": [
+   "#94 the cease countdown exit is unchanged: 5 s from the last request"
+  ],
+  "missed": [],
+  "fails": [
+   "FAIL #94 the cease countdown exit is unchanged: 5 s from the last request got 0000000000000000 exp 0000000000000001"
+  ]
+ }
+]

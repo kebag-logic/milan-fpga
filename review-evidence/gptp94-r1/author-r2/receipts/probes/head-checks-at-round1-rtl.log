@@ -1,0 +1,21 @@
+INFO #82 cold release graded for 2400617 cycles to the first beat
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset -1 ns, trim 1174470
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset 1 ns, trim 1174350
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1976 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000661 cycles after asCapable rises
+FAIL #94 Follow_Up after the fall: nothing commits after NOT_ENABLED got 0000000000000001 exp 0000000000000000
+FAIL #94 Follow_Up after the fall: the delay holds got 00000000000002bd exp 0000000000000259
+FAIL #94 Follow_Up queued before the fall: nothing commits after NOT_ENABLED got 0000000000000002 exp 0000000000000000
+FAIL #94 Follow_Up queued before the fall: the delay holds got 00000000000002bd exp 0000000000000259
+FAIL #94 stalled first byte: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: the frame is withdrawn got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled first byte: no frame starts while the port is disabled got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled at byte 1: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 disabled warm reset: the first request comes within one interval of the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 disabled warm reset: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+INFO #82 838 commits graded for the self path
+INFO #84 378268561 master cycles graded, 48 handovers to a peer
+INFO #85 588 peer commits graded for thisClock last
+2048 checks: 2036 PASS, 12 FAIL

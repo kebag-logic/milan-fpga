@@ -1,0 +1,16 @@
+control: the request claim survives the fall
+rc: 1
+named verdict: caught
+FAIL #94 t1 after the fall: nothing commits after NOT_ENABLED got 0000000000000001 exp 0000000000000000
+FAIL #94 t1 after the fall: the delay holds got 00000000000002bd exp 0000000000000259
+FAIL #94 stalled first byte: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled first byte: the second exchange after the rise raises asCapable got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 1: a capable port first got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 1: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: a capable port first got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: a capable port first got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 disabled warm reset: three multi-answered requests cease got 0000000000000000 exp 0000000000000001
+2108 checks: 2096 PASS, 12 FAIL
