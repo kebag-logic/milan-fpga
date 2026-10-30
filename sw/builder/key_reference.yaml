@@ -1,0 +1,634 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# The hand-kept input of sw/builder/gen_key_reference.py (#797). One entry per
+# key load_config reads; `a.{b,c}` expands to one entry per name.
+#
+#   meaning       one line. No digits: a number comes from a builder
+#                 constant, written {NAME}, {NAME[key]} or {NAME|filter}
+#                 (filters: keys, bits, hexN), or from a probe below.
+#   need          `required` when omitting the key is refused by a check
+#                 about the key itself; optional otherwise.
+#   default       a value; omitting the key must build what stating it does.
+#   default_text  prose for a derived default (optional keys only).
+#   allowed       prose for the accepted values; same digit rule.
+#   range         [lo, hi]: lo and hi load, lo - 1 and hi + 1 are refused.
+#   length        n: an n-octet string loads, one octet more is refused.
+#   bad           values each refused by the builder; the first names the
+#                 refusing check in the table.
+#   unchecked     prose saying why no value is refused (instead of bad).
+#   base          the tracked configs/<base>.yaml to probe against, when the
+#                 shipping 1x1 shape cannot carry the key.
+#
+# The generator refuses an entry for a key the loaders do not read, a key
+# they read with no entry, and any probe the builder does not honour.
+
+schema:
+  meaning: Schema identity; anything else is refused before a section is read.
+  need: required
+  allowed: "{SCHEMA_ID}"
+  bad: [kebag-logic/another-schema]
+
+schema_version:
+  meaning: Schema version; the major must match the builder's.
+  need: required
+  allowed: "a version whose major is {SCHEMA_MAJOR}"
+  bad: ["2.0.0"]
+
+entity.name:
+  meaning: ENTITY name a controller shows; never model shape.
+  need: required
+  length: 63
+  bad: [{repeat: x, times: 64}]
+
+entity.entity_model_id:
+  meaning: Model identity, hash-derived from the model shape or a literal.
+  need: required
+  allowed: "`hash-derived`, or a quoted {EUI64_MAX|bits}-bit hex string, not zero nor all ones"
+  bad: ["0x0000000000000000", "0xFFFFFFFFFFFFFFFF", 1234]
+
+entity.model_id_pin:
+  meaning: A fixed model identity that wins over every other source.
+  default_text: absent
+  allowed: "a quoted {EUI64_MAX|bits}-bit hex string, not zero nor all ones"
+  bad: ["0xFFFFFFFFFFFFFFFF"]
+
+entity.entity_id:
+  meaning: Entity identity, expanded from the station MAC or a literal.
+  default: mac-derived
+  allowed: "`mac-derived`, or a quoted {EUI64_MAX|bits}-bit hex string"
+  bad: [1234, "0x1_"]
+
+entity.vendor_oui:
+  meaning: OUI prefix of a hash-derived model identity.
+  default_text: "{MODEL_ID_OUI|hex6}"
+  allowed: a quoted hex OUI with the I/G bit clear; it must match a pinned or literal identity
+  bad: ["0x010000", "0x1234567"]
+
+entity.entity_capabilities:
+  meaning: Declared and verified copy of the ADP engine's capability word.
+  default_text: the ADP engine's `ADP_ENTITY_CAPS_C`
+  allowed: only the ADP engine's `ADP_ENTITY_CAPS_C`
+  bad: ["0x00000000"]
+
+entity.vendor_name:
+  meaning: ENTITY vendor name string.
+  default: Kebag Logic
+  allowed: a string
+  ok: [{repeat: x, times: 200}]
+  unchecked: no length check; a longer name reaches the overlay uncut
+
+entity.serial_number:
+  meaning: ENTITY serial number string; per board.
+  need: required
+  length: 63
+  bad: [{repeat: x, times: 64}]
+
+entity.group_name:
+  meaning: ENTITY group name string.
+  default: ""
+  length: 63
+  bad: [{repeat: x, times: 64}]
+
+entity.firmware_rev:
+  meaning: Firmware respin appended to the gateware-derived firmware version.
+  default: 0
+  allowed: a non-negative integer
+  bad: [-1, "one"]
+
+entity.firmware_version:
+  meaning: Not a key; the version is derived from the gateware.
+  default_text: absent
+  allowed: none; declaring it is refused
+  bad: ["1.0.0"]
+
+entity.locale:
+  meaning: LOCALE identifier.
+  default_text: the descriptor layer's `LOCALE_IDENTIFIER`
+  length: 64
+  bad: ["", "a\0b"]
+
+board.target:
+  meaning: The board; every constraint is checked against its table.
+  need: required
+  allowed: "{BOARDS|keys}"
+  bad: [nexys]
+
+board.constraints.sys_clk_hz:
+  meaning: System clock; must not be below the Milan clock.
+  default: 100000000
+  allowed: at least `milan_clk_hz`
+  bad: [1]
+
+board.constraints.milan_clk_hz:
+  meaning: Milan datapath and bare-metal CPU clock.
+  need: required
+  allowed: "only {BAREMETAL_CLK_HZ}, the capture recipe's `CPU_HZ`"
+  bad: [100000000]
+
+board.constraints.l2_bytes:
+  meaning: CPU cache size; the bare-metal product core has none.
+  need: required
+  allowed: zero only
+  bad: [65536, 3]
+
+board.constraints.phy:
+  meaning: PHY kind; checked against the board table, not emitted.
+  need: required
+  allowed: "the board's own: `arty` {BOARDS[arty][phy]}, `ax7101` {BOARDS[ax7101][phy]}"
+  bad: [mii-100]
+
+board.constraints.gtx_tx_invert:
+  meaning: GMII transmit clock inversion knob.
+  default: false
+  allowed: a boolean; GMII boards only
+  bad: []
+  unchecked: any truthy value is read as true on a GMII board
+
+board.constraints.floorplan:
+  meaning: Apply the board floorplan constraints.
+  default: false
+  allowed: a boolean
+  unchecked: any value is read as a boolean
+
+board.constraints.flashboot:
+  meaning: What the QSPI flash boots.
+  default: baremetal
+  allowed: "`none` or `baremetal`"
+  bad: [linux]
+
+board.constraints.uart_baudrate:
+  meaning: Console UART rate.
+  default: 115200
+  allowed: an integer
+  bad: [fast]
+
+board.constraints.num_queues:
+  meaning: Shaper queue count; must equal the RTL's queue count.
+  default: 5
+  allowed: an integer above `srp.class_queue`
+  bad: [9, 0]
+
+board.constraints.eth_port:
+  meaning: Which Ethernet port the image is built for.
+  default_text: absent, the board's default port
+  allowed: "one of the board's ports: {BOARDS[ax7101][eth_ports]} on `ax7101`, none on `arty`"
+  bad: [e3]
+
+board.features.media_clock_servo:
+  meaning: Keep the media-clock servo; pruning needs internal-only clocking.
+  default: true
+  allowed: "a boolean; `false` emits {OPTIONAL_BLOCKS[@][0]} and sets {OPTIONAL_BLOCKS[@][1]} to zero"
+  bad: [false, "yes"]
+
+board.features.latency_taps:
+  meaning: Keep the AAF latency taps.
+  default: true
+  allowed: "a boolean; `false` emits {OPTIONAL_BLOCKS[@][0]} and sets {OPTIONAL_BLOCKS[@][1]} to zero"
+  bad: ["yes"]
+
+board.features.maap:
+  meaning: Keep MAAP; every declared talker needs it.
+  default: true
+  allowed: "`true`; `false`, which would emit {OPTIONAL_BLOCKS[@][0]}, is refused"
+  bad: [false]
+
+board.features.i2s_playback:
+  meaning: Keep the I2S DAC playback path.
+  default: true
+  allowed: "a boolean; the render lane decides which value loads; `false` emits {OPTIONAL_BLOCKS[@][0]} and sets {OPTIONAL_BLOCKS[@][1]} to zero"
+  bad: [true]
+
+board.features.rx_mac_filter:
+  meaning: Keep the receive MAC filter hardware.
+  default: true
+  allowed: "a boolean; `false` emits {OPTIONAL_BLOCKS[@][0]} and sets {OPTIONAL_BLOCKS[@][1]} to zero"
+  bad: ["yes"]
+
+board.features.render_lpf:
+  meaning: Keep the render low-pass filter; needs I2S playback.
+  default: true
+  allowed: "a boolean; `false` when playback is pruned; `false` emits {OPTIONAL_BLOCKS[@][0]} and sets {OPTIONAL_BLOCKS[@][1]} to zero"
+  bad: [true]
+
+board.features.datapath_probes:
+  meaning: Keep the datapath probe registers.
+  default: true
+  allowed: "a boolean; `false` emits {OPTIONAL_BLOCKS[@][0]} and sets {OPTIONAL_BLOCKS[@][1]} to zero"
+  bad: ["yes"]
+
+board.features.fabric_gptp:
+  meaning: The fabric gPTP plane, the product's only time owner.
+  default: true
+  allowed: "`true`; it needs a `gptp:` section"
+  bad: [false]
+
+clocking.sampling_rate_hz:
+  meaning: Current media clock rate of the AUDIO_UNIT.
+  need: required
+  allowed: "one of {BASE_RATE_HZ|keys}"
+  bad: [44100]
+
+clocking.audio_unit_rates_hz:
+  meaning: AUDIO_UNIT sample rate list; part of the model shape.
+  default_text: the list holding `sampling_rate_hz`
+  allowed: "at most {MAX_AUDIO_UNIT_RATES} distinct base rates, including `sampling_rate_hz`"
+  bad: [[96000], [48000, 48000]]
+
+clocking.media_clock_sources:
+  meaning: The CLOCK_SOURCE set, emitted in class order whatever the listed order.
+  default: [internal, crf]
+  allowed: "a non-empty subset of {CLOCK_SOURCE_CLASS_ORDER}; outputs need `internal`"
+  bad: [[], [internal, internal], [internal, word_clock]]
+
+clocking.default_source:
+  meaning: Validated against the source set and printed; selects nothing.
+  default_text: the first entry of `media_clock_sources`
+  allowed: a member of `media_clock_sources`
+  bad: [word_clock]
+
+clocking.crf_sink:
+  meaning: The CRF STREAM_INPUT and its clock source; must agree with `crf` in the source set.
+  default: true
+  allowed: "a boolean; `true` exactly when `media_clock_sources` offers `crf`"
+  bad: [false]
+
+clocking.crf_format:
+  meaning: CRF STREAM_INPUT format word.
+  default: "0x041060010000BB80"
+  allowed: "only {CRF_FORMAT_DEFAULT}, quoted"
+  bad: ["0x041060010000BB81", 1234]
+
+clocking.crf_output.enabled:
+  meaning: The CRF Media Clock Output; required with two or more AAF listeners.
+  default: false
+  allowed: a boolean
+  base: endstation_ax7101_8x8
+  bad: [false]
+
+clocking.crf_output.format:
+  meaning: CRF STREAM_OUTPUT format word.
+  default: "0x041060010000BB80"
+  allowed: "only {CRF_FORMAT_DEFAULT}, quoted"
+  bad: ["0x041060010000BB81"]
+
+clocking.crf_output.presentation_time_offset_ns:
+  meaning: Factory presentation time offset of the CRF output.
+  default: 2000000
+  allowed: "only {PRESENTATION_TIME_OFFSET_NS}"
+  bad: [1000000]
+
+clocking.audio_pll_hz:
+  meaning: AES3 serial-clock reference; must equal the fabric's audio clock.
+  default: 24576000
+  allowed: only the SoC's `AUDIO_CLK_HZ`
+  bad: [22579200]
+
+audio_interface.kind:
+  meaning: Physical audio interface family.
+  need: required
+  allowed: "{INTERFACES|keys}"
+  bad: [adat]
+
+audio_interface.word_length_bits:
+  meaning: Valid sample bits; the slot stays the family's width.
+  default: 24
+  allowed: the family's word lengths
+  bad: [20]
+
+audio_interface.cluster_mapping.policy:
+  meaning: How AUDIO_CLUSTERs are laid out per stream port.
+  default: cluster-per-stream-channel
+  allowed: "{CLUSTER_POLICIES}"
+  bad: [one-cluster]
+
+audio_interface.cluster_mapping.rule:
+  meaning: Retired name of `policy`; declaring it is refused.
+  default_text: absent
+  allowed: none; declaring it is refused
+  bad: [cluster-per-stream-channel]
+
+audio_interface.physical_channels.capture:
+  meaning: Capture channels the board really routes.
+  default_text: the interface family's width
+  allowed: zero up to the family's width
+  bad: [9, -1]
+
+audio_interface.physical_channels.render:
+  meaning: Render channels the board really routes.
+  default_text: the interface family's width
+  allowed: zero up to the family's width
+  bad: [9]
+
+audio_interface.cluster_mapping.pools.pilot:
+  meaning: One pilot-tone cluster per talker port (role pools only).
+  default: false
+  allowed: a boolean
+  unchecked: any value is read as a boolean
+
+audio_interface.cluster_mapping.pools.loopback:
+  meaning: Loopback clusters per talker port (role pools only).
+  default: 0
+  allowed: an integer; non-zero when the loopback lane is built
+  bad: [0]
+
+audio_interface.cluster_mapping.fabric.loopback_lane:
+  meaning: Build the receive-to-talker loopback lane.
+  default: false
+  allowed: a boolean; needs loopback clusters
+  unchecked: any value is read as a boolean
+
+audio_interface.channel_names:
+  meaning: Names for each port channel; never model shape.
+  default_text: absent, clusters are named for their role
+  allowed: a list of non-empty strings, one per channel of the widest physical pool
+  bad: [[FL, FR], [""], FL]
+
+streams.listeners[].name:
+  meaning: STREAM_INPUT name; never model shape.
+  default_text: "`Stream In` and the listener's index"
+  allowed: a string
+  unchecked: the name is not length-checked here
+
+streams.listeners[].channels:
+  meaning: Listener channel count; sets the default current format.
+  need: required
+  range: [1, 32]
+  bad: [0, eight]
+
+streams.listeners[].formats:
+  meaning: Current format first; the builder derives the rest of the family.
+  default: []
+  allowed: "a list of quoted AAF format words, at most {MAX_STREAM_FORMATS} after derivation"
+  bad: ["0x0205022002006000", ["0x041060010000BB80"], ["0x0215022002006000"]]
+
+streams.listeners[].clusters:
+  meaning: Listener AUDIO_CLUSTER count under the legacy policies.
+  default_text: the stream's `channels`
+  range: [1, 32]
+  bad: [0]
+
+streams.listeners[].map_mode:
+  meaning: Listener audio map mode; Milan requires dynamic.
+  default: dynamic
+  allowed: "`dynamic`"
+  bad: [static]
+
+streams.listeners[].map_page:
+  meaning: Dynamic map scratch page.
+  default_text: absent
+  range: [1, 11]
+  bad: [12]
+
+streams.listeners[].buffer_length_ns:
+  meaning: STREAM_INPUT buffer length; part of the model shape.
+  default: 2126000
+  allowed: "an integer from {BUFLEN_DEFAULT_NS} up to {UINT32_MAX}"
+  bad: [2125999, 2126000.5]
+
+streams.listeners[].presentation_time_offset_ns:
+  meaning: Not a listener key; declaring it is refused.
+  default_text: absent
+  allowed: none; declaring it is refused
+  bad: [2000000]
+
+streams.talkers[].name:
+  meaning: STREAM_OUTPUT name; never model shape.
+  default_text: "`Stream Out` and the talker's index"
+  allowed: a string
+  unchecked: the name is not length-checked here
+
+streams.talkers[].channels:
+  meaning: Talker channel count; sets the framer's wire width.
+  need: required
+  allowed: "the wire width derived from it is clamped to {WIRE_CHANS_MIN} to {WIRE_CHANS_MAX}"
+  range: [1, 32]
+  bad: [0, eight]
+
+streams.talkers[].formats:
+  meaning: Talker formats; no family completion.
+  default: []
+  allowed: a list of quoted AAF format words
+  bad: [["0x041060010000BB80"]]
+
+streams.talkers[].clusters:
+  meaning: Talker AUDIO_CLUSTER count under the legacy policies.
+  default_text: the stream's `channels`
+  range: [1, 32]
+  bad: [0]
+
+streams.talkers[].map_mode:
+  meaning: Talker audio map mode; one mode for every talker.
+  default: static
+  allowed: "`static` or `dynamic`, the same on every talker"
+  bad: [both]
+
+streams.talkers[].map_page:
+  meaning: Dynamic map scratch page.
+  default_text: absent
+  range: [1, 11]
+  bad: [12]
+
+streams.talkers[].buffer_length_ns:
+  meaning: Read but dropped; only a STREAM_INPUT carries a buffer length.
+  default: 2126000
+  allowed: any value
+  unchecked: a talker value reaches no descriptor
+
+streams.talkers[].presentation_time_offset_ns:
+  meaning: Factory presentation time offset of the stream output.
+  default: 2000000
+  allowed: "only {PRESENTATION_TIME_OFFSET_NS}"
+  bad: [1000000]
+
+srp.sr_class:
+  meaning: Stream reservation class.
+  default: A
+  allowed: "{SRP_SR_CLASSES|keys}"
+  bad: [B]
+
+srp.vid:
+  meaning: Startup SR VLAN identifier.
+  default: 2
+  allowed: "only {SRP_DEFAULTS[vid]}"
+  bad: [3, 0]
+
+srp.stream_dmac_base:
+  meaning: Legacy table destination base; MAAP allocates the live addresses.
+  default: "0x91E0F000FE01"
+  allowed: "`maap`, or a quoted multicast MAC-format hex string"
+  bad: ["0x90E0F000FE01", 1234]
+
+srp.accumulated_latency_ns:
+  meaning: Reset value of the accumulated latency register.
+  default: 0
+  allowed: an unsigned integer that fits the register
+  bad: [-1]
+
+srp.class_queue:
+  meaning: Class A queue select reset value; legacy scratch.
+  default: 4
+  allowed: "below `num_queues`; it must fit {SRP_QUEUE_BITS} bits"
+  bad: [5, 8]
+
+srp.enable_at_reset:
+  meaning: Reset admission bit of the reservation control word.
+  default: false
+  allowed: a boolean
+  bad: [2]
+
+srp.talker_declare_at_reset:
+  meaning: Reset talker-declare bit of the reservation control word.
+  default: false
+  allowed: a boolean
+  bad: [2]
+
+srp.bandwidth_limit_pct:
+  meaning: Build-time class A budget; not the live admission ceiling.
+  default: 75
+  allowed: "an integer up to {SRP_DEFAULTS[bandwidth_limit_pct]}, and enough for this shape's reservation"
+  bad: [76, 0, 2]
+
+srp.rtl_table:
+  meaning: This config owns the tracked reservation CSR header.
+  default: false
+  allowed: a boolean
+  bad: ["yes"]
+
+srp.timers_ms.join:
+  meaning: Fixed MRP join timer assertion.
+  default: 200
+  allowed: "only {SRP_DEFAULTS[join_time_ms]}"
+  bad: [100]
+
+srp.timers_ms.leave:
+  meaning: Fixed MRP leave timer assertion.
+  default: 5000
+  allowed: "only {SRP_DEFAULTS[leave_time_ms]}"
+  bad: [600]
+
+srp.timers_ms.leaveall:
+  meaning: Lower bound of the randomized LeaveAll interval.
+  default: 10000
+  allowed: "only {SRP_DEFAULTS[leaveall_time_ms]}"
+  bad: [15000]
+
+srp.tspec.policy:
+  meaning: How the talker TSpec is formed.
+  default: derived
+  allowed: "{SRP_TSPEC_POLICIES}"
+  bad: [pinned]
+
+srp.tspec.interval_frames:
+  meaning: TSpec MaxIntervalFrames assertion.
+  default: 1
+  allowed: "only {SRP_DEFAULTS[interval_frames]}"
+  bad: [2, 0]
+
+srp.tspec.max_frame_bytes:
+  meaning: Legacy TSpec scratch word; changes neither wire nor budget.
+  default: 224
+  range: [1, 65535]
+  bad: [0]
+
+platform.mac_address:
+  meaning: Station MAC; becomes the entity ID and the gPTP clock identity.
+  need: required
+  allowed: a quoted unicast non-zero MAC, colon, dash or plain hex
+  bad: ["01:00:00:00:00:01", "00:00:00:00:00:00", "0:2", 20000000002]
+
+platform.pp_mem_phys:
+  meaning: Base of the protocol-processor DRAM window.
+  default: "{PLATFORM_DEFAULTS[pp_mem_phys]|hex8}"
+  allowed: "a positive, page-aligned address; the window is {PP_MEM_BYTES|hex6} octets"
+  bad: [0, 1340080129]
+
+platform.rx_address_filter:
+  meaning: Receive address filter posture at reset and boot.
+  default: promiscuous
+  allowed: "`promiscuous`"
+  bad: [hardware]
+
+soc.cpu:
+  meaning: CPU core.
+  default: vexiiriscv
+  allowed: "{SOC_DEFAULTS[cpu]}"
+  bad: [naxriscv, picorv]
+
+soc.cpu_count:
+  meaning: Firmware hart count.
+  default: 1
+  allowed: "{SOC_DEFAULTS[cpu_count]}"
+  bad: [2]
+
+soc.software_profile:
+  meaning: Firmware contract.
+  default: baremetal
+  allowed: "`baremetal`"
+  bad: [linux]
+
+soc.xlen:
+  meaning: CPU word width.
+  default: 32
+  allowed: "{SOC_DEFAULTS[xlen]}"
+  bad: [64, 16]
+
+soc.full:
+  meaning: Elaborate the complete SoC.
+  default: true
+  allowed: "`true`"
+  bad: [false]
+
+soc.timing_opt:
+  meaning: Emit the timing-optimisation flag.
+  default: true
+  allowed: a boolean
+  unchecked: any value is passed to the argv decision
+
+soc.scala_args:
+  meaning: CPU generator arguments.
+  default: []
+  allowed: "`[]`"
+  bad: [["--with-l2"]]
+
+gptp.priority1:
+  meaning: Announce priority1 of the fabric engine; part of the model shape.
+  default: 248
+  range: [0, 255]
+  bad: [256]
+
+gptp.{priority2,clock_class,clock_accuracy,offset_scaled_log_variance,log_sync_interval,log_announce_interval,log_pdelay_interval}:
+  meaning: Announced by the fabric engine from a constant; stated only to match it.
+  default_text: the engine's constant
+  allowed: only the fabric engine's value
+  bad: [77]
+
+gptp.domain:
+  meaning: gPTP domain number.
+  default: 0
+  allowed: zero only
+  bad: [1]
+
+gptp.{ingress_latency_ns,egress_latency_ns}:
+  meaning: Measured board timestamp correction; no default, by design.
+  need: required
+  range: [0, 65535]
+  bad: [-1]
+
+names.{configuration,audio_unit,avb_interface,clock_domain,control_identify}:
+  meaning: Object name of that singleton descriptor; never model shape.
+  default_text: "{OBJECT_NAMES[@]}"
+  length: 64
+  bad: [""]
+
+names.clock_sources.{internal,crf,stream}:
+  meaning: Object name of that CLOCK_SOURCE class; never model shape.
+  default_text: "{CLOCK_SOURCE_NAMES[@]}"
+  length: 64
+  bad: [""]
+
+model_lint_waivers:
+  meaning: Processor model-lint waivers, passed through to the packer.
+  default: []
+  allowed: a list of waivers the packer validates
+  unchecked: the builder passes them unread; the packer refuses a bad one

@@ -43,6 +43,9 @@ Every current render needs visual inspection.
 | `flash_layout` | Derived QSPI layout | [`flash_layout.gen.py`](flash_layout.gen.py), `flash_layout.drawio` | `flash_layout.svg`, `flash_layout.png` | Integrators |
 | `timesync_chain` | Clock ownership chain | [`timesync_chain.gen.py`](timesync_chain.gen.py), `timesync_chain.drawio` | `timesync_chain.svg`, `timesync_chain.png` | Developers and integrators |
 | `milan_tx_rx_datapath` | Datapath block map | `../milan_tx_rx_datapath.drawio` | Editable master only | Implementation developers |
+| `endstation_flow` | Builder data flow, YAML to the wire | [`endstation_definition.gen.py`](endstation_definition.gen.py) | Inline Mermaid in the [definition guide](../guides/DEFINING_THE_END_STATION.md#what-the-builder-generates) | Integrators and developers |
+| `aem_tree_1x1` | Shipping 1x1 AEM descriptor tree | [`endstation_definition.gen.py`](endstation_definition.gen.py) | Inline Mermaid in the [definition guide](../guides/DEFINING_THE_END_STATION.md#the-1x1-descriptor-tree) | Integrators and developers |
+| `model_id_resolution` | How `entity_model_id` is resolved | [`endstation_definition.gen.py`](endstation_definition.gen.py) | Inline Mermaid in the [definition guide](../guides/DEFINING_THE_END_STATION.md#when-the-model-id-moves) | Integrators and developers |
 
 The [submodule reference](../reference/SUBMODULES.md) embeds its verified map.
 
@@ -115,6 +118,8 @@ python3 docs/diagrams/submodule_boundaries.gen.py --check
 python3 docs/diagrams/submodule_boundaries.gen.py --selftest
 python3 docs/diagrams/timesync_chain.gen.py --check
 python3 docs/diagrams/timesync_chain.gen.py --selftest
+python3 docs/diagrams/endstation_definition.gen.py --check
+python3 docs/diagrams/endstation_definition.gen.py --selftest
 python3 scripts/check_submodule_docs.py
 python3 scripts/check_diagram_pngs.py
 python3 scripts/check_diagram_pngs.py --selftest

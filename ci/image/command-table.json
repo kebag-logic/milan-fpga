@@ -5383,6 +5383,14 @@
           "--selftest"
         ],
         [
+          "docs/diagrams/endstation_definition.gen.py",
+          "--check"
+        ],
+        [
+          "docs/diagrams/endstation_definition.gen.py",
+          "--selftest"
+        ],
+        [
           "docs/diagrams/submodule_boundaries.gen.py",
           "--check"
         ],
@@ -6093,6 +6101,14 @@
           "sva_campaign.py",
           "--verilator",
           "verilator"
+        ],
+        [
+          "sw/builder/gen_key_reference.py",
+          "--check"
+        ],
+        [
+          "sw/builder/gen_key_reference.py",
+          "--selftest"
         ],
         [
           "sw/builder/test_builder.py",
@@ -13435,6 +13451,11 @@
   ],
   "schema": 1,
   "scripts": {
+    "docs/diagrams/endstation_definition.gen.py": {
+      "class": "reviewed non-installing",
+      "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+      "sha256": "ce1dcda397aeafdc1adc0f84f2d1f9bd76774675eb989ebda433f1abb6549ac6"
+    },
     "docs/diagrams/submodule_boundaries.gen.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
@@ -13770,6 +13791,11 @@
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
       "sha256": "84878e539e61c1e2f1f057c63ea390ce6e707d475d1d68d4816ae917c9e3fcc6"
+    },
+    "sw/builder/gen_key_reference.py": {
+      "class": "reviewed non-installing",
+      "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+      "sha256": "deb7a14614f026b35932a13b0de00f7f0d31b64c13ca7f4afdabb3106a91775d"
     },
     "sw/builder/test_builder.py": {
       "class": "reviewed non-installing",
