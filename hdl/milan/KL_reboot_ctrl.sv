@@ -36,14 +36,21 @@
                          store-and-forward FIFO, the LiteEth core and the
                          PHY stage. A PHY reset there drops it, and with it
                          ENTITY_DEPARTING (Milan v1.2 5.6.3.5.8, 5.6.3.5.11).
-                         From the phase's first clock the MAC port finishes
-                         the frame in progress and starts no other
-                         (mac_tx_stop_o). The phase ends on a millisecond
-                         tick once every frame the port handed the MAC has
-                         left the MAC's PHY interface and one more whole
-                         tick has passed with nothing left, which covers the
-                         PHY's own transmit path. A MAC that never finishes
-                         ends it after T_EGRESS_MS_C.
+                         The phase ends on a millisecond tick once no frame
+                         is half taken at the MAC port and none the port
+                         handed over is still in the MAC, and the path has
+                         stayed that way since the previous tick: a whole
+                         quiet millisecond after the last frame left the
+                         MAC's PHY interface covers the PHY's own transmit
+                         path. A MAC that never finishes ends it after
+                         T_EGRESS_MS_C. The port is not stopped: no gate may
+                         sit between the MAC-boundary arbiter and the MAC
+                         handshake (the gPTP plane's direct path, #187), and
+                         every frame the REBOOT owes the network was handed
+                         over before the request. A frame other sources
+                         start later is waited for while the path still
+                         empties, and is lost with the reset after that, as
+                         at a cut.
                   HOLD   phy_hold_o rises and stays up until the
                          reconfiguration takes the pins away, so the PHY is
                          held in reset and the link drops as after a cut.
@@ -126,18 +133,15 @@ module KL_reboot_ctrl #(
   input  wire        nvm_dirty_i,    //! committable image work no slot holds
   input  wire        nvm_pend_i,     //! accepted work not yet committable
 
-  //! the datapath's MAC port, after mac_tx_stop_o: a beat is taken
+  //! the datapath's MAC port: a beat is taken
   input  wire        mac_tx_beat_i,
-  input  wire        mac_tx_last_i,  //! ...and it is a frame's last
+  input  wire        mac_tx_frame_i, //! ...and it is a frame's last
   //! ASYNCHRONOUS: the MAC flips it on the last octet of every frame it
   //! hands its PHY. Frames end at least 84 octet times apart (IEEE 802.3
   //! minFrameSize, preamble, start delimiter and gap), 672 ns at 1 Gb/s
   input  wire        mac_txend_tgl_i,
   //! the link guard holds the MAC's whole transmit side in reset
   input  wire        mac_flush_i,
-  //! the MAC port must start no new frame: from the egress wait's first
-  //! clock, once the frame in progress has ended, until reset
-  output logic       mac_tx_stop_o,
 
   //! hold the PHY in reset: rises when the egress wait ends, held until reset
   output logic       phy_hold_o,
@@ -218,8 +222,7 @@ module KL_reboot_ctrl #(
   logic [MS_W_C-1:0]  ms_r;
   logic [2:0]         idx_r;
   logic               hold_r;
-  logic               stop_r;     //! the port starts no new frame
-  logic               quiet_r;    //! the last tick found the egress path empty
+  logic               quiet_r;    //! the egress path has been empty since the last tick
   logic               in_frame_r; //! the port has taken a frame's first beat, not its last
   logic [FLY_W_C-1:0] fly_r;      //! frames handed to the MAC and not yet at its PHY
   logic [2:0]         txend_sync_r;
@@ -232,7 +235,7 @@ module KL_reboot_ctrl #(
   //! a frame's last octet reached the PHY: one edge of the synchronised toggle
   assign txend_w      = txend_sync_r[2] ^ txend_sync_r[1];
   //! the port handed the MAC a whole frame
-  assign took_w       = mac_tx_beat_i & mac_tx_last_i;
+  assign took_w       = mac_tx_beat_i & mac_tx_frame_i;
   //! nothing on its way to the PHY: no frame half taken, none in the MAC
   assign idle_w       = ~in_frame_r & (fly_r == '0);
   //! a wait expires on the tick past its bound, so it never ends early
@@ -247,7 +250,7 @@ module KL_reboot_ctrl #(
       fly_r        <= '0;
     end else begin
       txend_sync_r <= {txend_sync_r[1:0], mac_txend_tgl_i};
-      if (mac_tx_beat_i) in_frame_r <= ~mac_tx_last_i;
+      if (mac_tx_beat_i) in_frame_r <= ~mac_tx_frame_i;
       //! saturating both ways: a count above the truth only lengthens the
       //! wait to its bound, and an edge with nothing counted (the first
       //! clocks after a reset) must not wrap it
@@ -266,7 +269,6 @@ module KL_reboot_ctrl #(
       ms_r    <= '0;
       idx_r   <= '0;
       hold_r  <= 1'b0;
-      stop_r  <= 1'b0;
       quiet_r <= 1'b0;
     end else begin
       case (state_r)
@@ -278,13 +280,13 @@ module KL_reboot_ctrl #(
           if (drained_w || drain_exp_w) begin
             state_r <= S_EGRESS;
             ms_r    <= '0;
-            stop_r  <= 1'b1;
+            quiet_r <= 1'b0;
           end else if (ms_tick_i) begin
             ms_r <= ms_r + 1'b1;
           end
         end
         S_EGRESS: begin
-          //! the path was empty at the last tick and still is at this one
+          //! empty at the last tick, on every clock since, and at this one
           if ((ms_tick_i && quiet_r && idle_w) || egress_exp_w) begin
             state_r <= S_HOLD;
             ms_r    <= '0;
@@ -292,6 +294,8 @@ module KL_reboot_ctrl #(
           end else if (ms_tick_i) begin
             ms_r    <= ms_r + 1'b1;
             quiet_r <= idle_w;
+          end else if (!idle_w) begin
+            quiet_r <= 1'b0;
           end
         end
         S_HOLD: begin
@@ -307,14 +311,12 @@ module KL_reboot_ctrl #(
           if (idx_r == 3'd7) state_r <= S_HOLD;
         end
         //! no other encoding is reachable; the held request restarts the
-        //! sequence, and hold_r and stop_r stay as they are
+        //! sequence, and hold_r stays as it is
         default: state_r <= S_IDLE;
       endcase
     end
   end : seq
 
-  //! registered terms only, so the port's own handshake cannot loop back
-  assign mac_tx_stop_o = stop_r & ~in_frame_r;
   assign phy_hold_o    = hold_r;
   assign icap_csib_o   = (state_r != S_IPROG);
   //! idx_r rests at 0 outside S_IPROG, whose word is the dummy word

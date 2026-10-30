@@ -13,28 +13,26 @@
 // against the RTL's own constants.
 //
 // The harness is also the datapath and the MAC around the module. As the
-// datapath it offers frames at the MAC port and lets a beat through only
-// when mac_tx_stop_o allows it, which is the gate milan_datapath applies.
-// As the MAC it flips mac_txend_tgl_i when a frame it was given reaches its
-// PHY, and raises mac_flush_i for a link-guard episode.
+// datapath it hands the MAC frames at the MAC port. As the MAC it flips
+// mac_txend_tgl_i when a frame it was given reaches its PHY, and raises
+// mac_flush_i for a link-guard episode.
 //
 // Graded, each by its own labelled checks:
 //   U0  idle: no request, no PHY hold, CSIB high and the dummy word, whatever
 //       the saved-state status does
 //   U1  no live writer (backed 0, even with dirty and pending work), nothing
-//       in the MAC: the egress wait starts two clocks after the request, the
-//       PHY hold more than one tick and at most two ticks and two clocks
-//       after the request, the hold lasts more than 3,500 ms and at most one
+//       in the MAC: no PHY hold two clocks after the request, the hold more
+//       than one tick and at most two ticks and two clocks after it, the hold lasts more than 3,500 ms and at most one
 //       tick more, then exactly eight clocks of CSIB low carry the IPROG
 //       words, bit-reversed per byte; the PHY hold stays up, and the
 //       sequence repeats after another hold
 //   U2  durable (backed 1, dirty 0, pend 0): the same
-//   U3  dirty work with a live writer: no egress wait and no PHY hold while
-//       it is dirty, the egress wait on the clock the dirty bit clears
+//   U3  dirty work with a live writer: no PHY hold while it is dirty, the
+//       hold within two ticks of the clock the dirty bit clears
 //   U4  the same for pending work
 //   U5  a writer that never commits: the drain ends after more than
-//       10,000 ms and at most one tick more
-//   U6  the writer lost during the drain: the egress wait on that clock
+//       10,000 ms and at most one tick more, the hold two ticks later
+//   U6  the writer lost during the drain: the hold within two ticks of it
 //   U7  a one-clock request still resets: the module latches it
 //   U8  status moves after the drain end change nothing
 //   U9  reset during the hold: back to idle, no IPROG
@@ -46,8 +44,8 @@
 //       five clocks later; a frame taken on the clock another one ends is
 //       counted
 //   U13 a frame in progress at the port when the wait starts, held back in
-//       its middle across ticks: no PHY hold while it is taken, the port
-//       takes the rest of it, starts no new frame, and the hold waits for it
+//       its middle across ticks: no PHY hold while it is taken, and the hold
+//       waits for it to reach the PHY
 //   U14 the bound: a MAC that never finishes ends the wait after more than
 //       the derived egress bound and at most one tick more, inside the
 //       bound stated for a durable state
@@ -57,6 +55,8 @@
 //       after it is still waited for
 //   U17 the stated bound from the request to the IPROG word, with a writer
 //       that never commits and a MAC that never finishes
+//   U18 the quiet millisecond is continuous: a frame that comes and goes
+//       between two ticks restarts it
 
 #include "VKL_reboot_ctrl.h"
 #include "verilated.h"
@@ -126,10 +126,9 @@ class RebootBench {
         while (n < limit && !pred()) { step(); ++n; }
         return n;
     }
-    //! the datapath's gate: offer one beat, which the port takes only when
-    //! mac_tx_stop_o allows it; true when it was taken
+    //! the port takes one beat
     bool offer_beat(bool last);
-    //! a whole frame of `beats` beats, back to back; true when all were taken
+    //! a whole frame of `beats` beats, back to back
     bool offer_frame(unsigned beats);
     //! the MAC hands a frame's last octet to its PHY, then lets the toggle
     //! settle as frames at least 84 octet times apart would
@@ -175,6 +174,7 @@ class RebootBench {
     void prove_a_flush_clears_the_account();
     void prove_a_stray_end_does_not_wrap();
     void prove_the_stated_bound();
+    void prove_the_quiet_millisecond_is_continuous();
 
     VKL_reboot_ctrl* dut = nullptr;
     milan::tb::Checker ck{"reboot_ctrl"};
@@ -194,7 +194,7 @@ void RebootBench::reset(unsigned phase) {
     dut->rst_n = 0;
     dut->reboot_req_i = 0;
     dut->mac_tx_beat_i = 0;
-    dut->mac_tx_last_i = 0;
+    dut->mac_tx_frame_i = 0;
     dut->mac_flush_i = 0;
     status(false, false, false);
     run(4);
@@ -203,14 +203,12 @@ void RebootBench::reset(unsigned phase) {
 }
 
 bool RebootBench::offer_beat(bool last) {
-    dut->clk_i = 0; dut->eval();
-    const bool take = dut->mac_tx_stop_o == 0;
-    dut->mac_tx_beat_i = take;
-    dut->mac_tx_last_i = take && last;
+    dut->mac_tx_beat_i = 1;
+    dut->mac_tx_frame_i = last;
     step();
     dut->mac_tx_beat_i = 0;
-    dut->mac_tx_last_i = 0;
-    return take;
+    dut->mac_tx_frame_i = 0;
+    return true;
 }
 
 bool RebootBench::offer_frame(unsigned beats) {
@@ -272,23 +270,19 @@ void RebootBench::prove_idle_is_inert() {
         dut->mac_flush_i = (i >> 11) & 1;
         step();
         inert = inert && dut->phy_hold_o == 0 && dut->icap_csib_o == 1
-                && dut->icap_i_o == 0xFFFFFFFFu && dut->mac_tx_stop_o == 0;
+                && dut->icap_i_o == 0xFFFFFFFFu;
     }
     dut->mac_flush_i = 0;
-    ck.that("U0 no request: no PHY hold, no stop, CSIB high and the dummy word for longer than "
-            "every wait", inert);
+    ck.that("U0 no request: no PHY hold, CSIB high and the dummy word for longer than every wait",
+            inert);
 }
 
 void RebootBench::prove_reset_without_a_writer() {
     reset(0);
     status(false, true, true);          // a dead writer's leftover work
     dut->reboot_req_i = 1;
-    step();
-    ck.dec("U1 no writer: no stop on the clock the request is sampled", dut->mac_tx_stop_o, 0);
-    step();
-    ck.dec("U1 no writer: the egress wait starts two clocks after the request",
-           dut->mac_tx_stop_o, 1);
-    ck.dec("U1 no writer: ...with no PHY hold yet", dut->phy_hold_o, 0);
+    run(2);
+    ck.dec("U1 no writer: no PHY hold two clocks after the request", dut->phy_hold_o, 0);
     const uint64_t n = 2 + run_until([&] { return dut->phy_hold_o == 1; }, 4 * kMsCycles);
     grade_quiet("U1 no writer, nothing in the MAC: from the request", n, 2);
     const uint64_t hold = grade_burst("U1", (kHoldMs + 4) * kMsCycles);
@@ -302,7 +296,6 @@ void RebootBench::prove_reset_without_a_writer() {
     const uint64_t again = grade_burst("U1 retry", (kHoldMs + 4) * kMsCycles);
     ck.that("U1 retry: the IPROG words repeat after another hold of more than 3,500 ms",
             again > kHoldMs * kMsCycles && again <= (kHoldMs + 1) * kMsCycles);
-    ck.dec("U1 the stop stays up to the end", dut->mac_tx_stop_o, 1);
 }
 
 void RebootBench::prove_reset_of_a_durable_state() {
@@ -323,16 +316,12 @@ void RebootBench::prove_dirty_work_is_waited_for() {
     bool held_off = true;
     for (uint64_t i = 0; i < 4000 * kMsCycles; ++i) {
         step();
-        held_off = held_off && dut->phy_hold_o == 0 && dut->icap_csib_o == 1
-                   && dut->mac_tx_stop_o == 0;
+        held_off = held_off && dut->phy_hold_o == 0 && dut->icap_csib_o == 1;
     }
-    ck.that("U3 dirty work with a live writer: no stop, no PHY hold and no IPROG for 4,000 ms",
-            held_off);
+    ck.that("U3 dirty work with a live writer: no PHY hold and no IPROG for 4,000 ms", held_off);
     status(true, false, false);         // the commit's acknowledgement
-    step();
-    ck.dec("U3 the egress wait starts on the clock the dirty bit clears", dut->mac_tx_stop_o, 1);
     const uint64_t n = run_until([&] { return dut->phy_hold_o == 1; }, 4 * kMsCycles);
-    grade_quiet("U3 nothing in the MAC: from the drain's end", n, 1);
+    grade_quiet("U3 nothing in the MAC: from the clock the dirty bit clears", n, 2);
     grade_burst("U3", (kHoldMs + 4) * kMsCycles);
 }
 
@@ -343,15 +332,15 @@ void RebootBench::prove_pending_work_is_waited_for() {
     bool held_off = true;
     for (uint64_t i = 0; i < 1500 * kMsCycles; ++i) {
         step();
-        held_off = held_off && dut->phy_hold_o == 0 && dut->mac_tx_stop_o == 0;
+        held_off = held_off && dut->phy_hold_o == 0;
     }
-    ck.that("U4 pending work with a live writer: no stop and no PHY hold for 1,500 ms", held_off);
+    ck.that("U4 pending work with a live writer: no PHY hold for 1,500 ms", held_off);
     status(true, true, false);          // the producer wrote it: now dirty
     run(100 * kMsCycles);
-    ck.dec("U4 the work moves from pending to dirty: still no stop", dut->mac_tx_stop_o, 0);
+    ck.dec("U4 the work moves from pending to dirty: still no PHY hold", dut->phy_hold_o, 0);
     status(true, false, false);
-    step();
-    ck.dec("U4 the egress wait starts on the clock the work is durable", dut->mac_tx_stop_o, 1);
+    const uint64_t n = run_until([&] { return dut->phy_hold_o == 1; }, 4 * kMsCycles);
+    grade_quiet("U4 nothing in the MAC: from the clock the work is durable", n, 2);
 }
 
 void RebootBench::prove_the_drain_deadline() {
@@ -359,17 +348,17 @@ void RebootBench::prove_the_drain_deadline() {
     status(true, true, true);           // a live writer that never commits
     dut->reboot_req_i = 1;
     step();                             // the request is sampled
-    const uint64_t drain = run_until([&] { return dut->mac_tx_stop_o == 1; },
-                                     (kDrainMs + 4) * kMsCycles);
-    std::printf("  [i] U5 drain %llu clocks, bound (%llu, %llu]\n",
+    //! the drain's deadline lands on a tick, and the quiet millisecond
+    //! after it ends on the second tick from there
+    const uint64_t drain = run_until([&] { return dut->phy_hold_o == 1; },
+                                     (kDrainMs + 6) * kMsCycles);
+    std::printf("  [i] U5 drain and quiet millisecond %llu clocks, bound (%llu, %llu]\n",
                 static_cast<unsigned long long>(drain),
-                static_cast<unsigned long long>(kDrainMs * kMsCycles),
-                static_cast<unsigned long long>((kDrainMs + 1) * kMsCycles));
-    ck.that("U5 a writer that never commits: the drain ends after more than 10,000 ms",
-            drain > kDrainMs * kMsCycles);
-    ck.that("U5 ...and at most one tick after 10,000 ms", drain <= (kDrainMs + 1) * kMsCycles);
-    const uint64_t n = run_until([&] { return dut->phy_hold_o == 1; }, 4 * kMsCycles);
-    grade_quiet("U5 nothing in the MAC: from the drain's end", n, 1);
+                static_cast<unsigned long long>((kDrainMs + 2) * kMsCycles),
+                static_cast<unsigned long long>((kDrainMs + 3) * kMsCycles));
+    ck.that("U5 a writer that never commits: the PHY hold more than 10,000 ms and two ticks "
+            "after the request", drain > (kDrainMs + 2) * kMsCycles);
+    ck.that("U5 ...and at most one tick more", drain <= (kDrainMs + 3) * kMsCycles);
     const uint64_t hold = grade_burst("U5", (kHoldMs + 4) * kMsCycles);
     ck.that("U5 the hold after a deadline is still longer than 3,500 ms",
             hold > kHoldMs * kMsCycles && hold <= (kHoldMs + 1) * kMsCycles);
@@ -380,10 +369,10 @@ void RebootBench::prove_a_lost_writer_ends_the_drain() {
     status(true, true, false);
     dut->reboot_req_i = 1;
     run(2000 * kMsCycles);
-    ck.dec("U6 dirty work, live writer: no stop after 2,000 ms", dut->mac_tx_stop_o, 0);
+    ck.dec("U6 dirty work, live writer: no PHY hold after 2,000 ms", dut->phy_hold_o, 0);
     status(false, true, false);         // T-NVM-WRITER-ALIVE expired: backed falls
-    step();
-    ck.dec("U6 the writer is lost: the egress wait starts on that clock", dut->mac_tx_stop_o, 1);
+    const uint64_t n = run_until([&] { return dut->phy_hold_o == 1; }, 4 * kMsCycles);
+    grade_quiet("U6 the writer is lost: from that clock", n, 2);
 }
 
 void RebootBench::prove_a_one_clock_request_is_latched() {
@@ -423,13 +412,12 @@ void RebootBench::prove_reset_during_the_hold() {
     step();
     dut->reboot_req_i = 0;
     dut->rst_n = 1;
-    bool idle = dut->phy_hold_o == 0 && dut->mac_tx_stop_o == 0;
+    bool idle = dut->phy_hold_o == 0;
     for (uint64_t i = 0; i < (kHoldMs + 4) * kMsCycles; ++i) {
         step();
-        idle = idle && dut->phy_hold_o == 0 && dut->icap_csib_o == 1 && dut->mac_tx_stop_o == 0;
+        idle = idle && dut->phy_hold_o == 0 && dut->icap_csib_o == 1;
     }
-    ck.that("U9 a reset during the hold: back to idle, the port open, and no IPROG afterwards",
-            idle);
+    ck.that("U9 a reset during the hold: back to idle, and no IPROG afterwards", idle);
 }
 
 void RebootBench::prove_reset_during_the_words() {
@@ -475,10 +463,8 @@ void RebootBench::prove_frames_in_the_mac_are_waited_for() {
     status(false, false, false);
     dut->reboot_req_i = 1;
     run(20 * kMsCycles);
-    ck.dec("U12 frames in the MAC at the request: the egress wait has started",
-           dut->mac_tx_stop_o, 1);
-    ck.dec("U12 ...and no PHY hold 20 ms later with three frames still in the MAC",
-           dut->phy_hold_o, 0);
+    ck.dec("U12 frames in the MAC at the request: no PHY hold 20 ms later with three frames "
+           "still in the MAC", dut->phy_hold_o, 0);
     wire_end();
     run(3 * kMsCycles);
     ck.dec("U12 two frames still in the MAC: no PHY hold", dut->phy_hold_o, 0);
@@ -522,27 +508,16 @@ void RebootBench::prove_the_frame_in_progress_finishes() {
             offer_beat(false) && first);
     status(true, false, false);         // the drain ends with that frame half taken
     step();
-    ck.dec("U13 the egress wait starts with a frame half taken: the port stays open for it",
-           dut->mac_tx_stop_o, 0);
     //! the MAC holds the port back in the middle of the frame across ticks
     run(3 * kMsCycles);
     ck.dec("U13 a frame still being taken 3 ms into the wait: no PHY hold", dut->phy_hold_o, 0);
-    ck.dec("U13 ...and the port still open for it", dut->mac_tx_stop_o, 0);
-    bool rest = true;
-    for (int b = 0; b < 3; ++b) rest = offer_beat(b == 2) && rest;
-    ck.that("U13 the port takes the rest of the frame in progress", rest);
-    ck.dec("U13 ...then starts no new frame", dut->mac_tx_stop_o, 1);
-    bool refused = true;
-    for (int k = 0; k < 4; ++k) refused = !offer_frame(2) && refused;
-    ck.that("U13 a frame offered after it is not taken", refused);
+    for (int b = 0; b < 3; ++b) offer_beat(b == 2);
     run(10 * kMsCycles);
-    ck.dec("U13 the frame in progress is still in the MAC: no PHY hold", dut->phy_hold_o, 0);
+    ck.dec("U13 the frame in progress is in the MAC: no PHY hold", dut->phy_hold_o, 0);
     wire_end();
     const uint64_t n = (kSyncClocks + 1) + run_until([&] { return dut->phy_hold_o == 1; },
                                                      4 * kMsCycles);
     grade_quiet("U13 it reaches the PHY: from its end", n, kSyncClocks + 2);
-    run((kHoldMs + 1) * kMsCycles);
-    ck.dec("U13 the port stays stopped through the hold", dut->mac_tx_stop_o, 1);
 }
 
 void RebootBench::prove_the_egress_bound() {
@@ -550,8 +525,7 @@ void RebootBench::prove_the_egress_bound() {
     ck.that("U14 the port takes a frame the MAC will never send", offer_frame(2));
     dut->reboot_req_i = 1;
     step();
-    step();
-    ck.dec("U14 the egress wait starts", dut->mac_tx_stop_o, 1);
+    step();                             // no writer: the egress wait starts here
     const uint64_t n = run_until([&] { return dut->phy_hold_o == 1; },
                                  (kEgressMs + 4) * kMsCycles);
     std::printf("  [i] U14 egress wait %llu clocks, bound (%llu, %llu]\n",
@@ -608,6 +582,23 @@ void RebootBench::prove_the_stated_bound() {
     }
 }
 
+void RebootBench::prove_the_quiet_millisecond_is_continuous() {
+    reset(0);
+    dut->reboot_req_i = 1;
+    run(2);                             // no writer: the egress wait starts here
+    //! to the clock after a tick the egress wait sampled, which found it
+    //! empty: at least one step, so that tick is not the drain's last clock
+    do { step(); } while ((cyc % kMsCycles) != tick_phase + 1);
+    ck.that("U18 a frame comes and goes between two ticks", offer_frame(1));
+    wire_end();
+    const uint64_t to_tick = kMsCycles - (kSyncClocks + 2);
+    run(to_tick);
+    ck.dec("U18 ...no PHY hold at the next tick", dut->phy_hold_o, 0);
+    const uint64_t n = (kSyncClocks + 1) + to_tick
+                     + run_until([&] { return dut->phy_hold_o == 1; }, 4 * kMsCycles);
+    grade_quiet("U18 from that frame's end", n, kSyncClocks + 2);
+}
+
 int RebootBench::execute(bool egress_only) {
     const milan::tb::Model<VKL_reboot_ctrl> model;
     dut = model.get();
@@ -640,6 +631,7 @@ int RebootBench::execute(bool egress_only) {
     prove_a_flush_clears_the_account();
     prove_a_stray_end_does_not_wrap();
     prove_the_stated_bound();
+    prove_the_quiet_millisecond_is_continuous();
 
     return ck.report();
 }

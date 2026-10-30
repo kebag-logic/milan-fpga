@@ -18,7 +18,6 @@ a frame is still in the MAC fail there, not at the datapath's port:
   egress-ignores-the-mac-fifo  the wait ends once the datapath's port is idle
   egress-without-a-bound       a MAC that never finishes keeps the hold off
   txend-unwired                the MAC's frame-end toggle is not connected
-  stop-unwired                 the datapath ignores KL_reboot_ctrl's stop
 
 Mutant logs stay in the private directory. Exit 0 = the clean control passed
 and every arm was caught by its named check; 1 = otherwise.
@@ -46,9 +45,9 @@ ARMS = [
     ("early-request", DATAPATH,
      "      .reboot_req_i    (pp_reboot_req_w),\n",
      "      .reboot_req_i    (pp_reboot_req_w | (pp_shadow.u_pp.rbt_st_r != 3'd0)),\n",
-     "[FAIL] RB advertising: the SUCCESS response leaves the MAC whole before the PHY hold"),
+     "[FAIL] RB advertising: the PHY hold follows the processor's REBOOT request"),
     ("hold-on-the-request-alone", CTRL,
-     "            state_r <= S_EGRESS;\n            ms_r    <= '0;\n            stop_r  <= 1'b1;",
+     "            state_r <= S_EGRESS;\n            ms_r    <= '0;\n            quiet_r <= 1'b0;",
      "            state_r <= S_HOLD;\n            ms_r    <= '0;\n            hold_r  <= 1'b1;",
      DEPARTING),
     ("egress-ignores-the-mac-fifo", CTRL,
@@ -63,10 +62,6 @@ ARMS = [
      "      .mac_txend_tgl_i (i_ethtxend_tgl),\n",
      "      .mac_txend_tgl_i (i_ethtxend_tgl & 1'b0),\n",
      "[FAIL] RB advertising: ...and at most two ticks and eight clocks after it"),
-    ("stop-unwired", DATAPATH,
-     "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid & ~reboot_tx_stop_w;\n",
-     "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid & ~(reboot_tx_stop_w & 1'b0);\n",
-     "[FAIL] RB advertising: no frame starts at the MAC port from then to the end of the run"),
 ]
 
 

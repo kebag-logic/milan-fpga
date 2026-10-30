@@ -334,8 +334,9 @@ class PpShadowHarness {
     // does at phy.sink, and that toggle survives every reset like the real
     // one. kMacHoldCycles after o_reboot_phy_hold rises the PHY is in reset
     // (MilanMAC's two-flop crossing and the PHY reset storage): the frame on
-    // the wire is cut there, every frame still queued is lost, and so is any
-    // frame that enters afterwards. `dead` stops the transmit clock.
+    // the wire is cut there and every frame still queued is lost. A frame
+    // that enters afterwards is counted apart: it was offered to a MAC whose
+    // PHY was already held, as at a cut. `dead` stops the transmit clock.
     static constexpr uint64_t kMacSfCycles   = 8;
     static constexpr uint64_t kMacHoldCycles = 3;
     static constexpr uint64_t kMacGapOctets  = 12;
@@ -357,7 +358,9 @@ class PpShadowHarness {
         uint64_t gap = 0;
         std::vector<WireFrame> wire;
         std::vector<std::vector<uint8_t>> cut;    //! on the wire when the PHY reset hit
-        std::vector<std::vector<uint8_t>> lost;   //! in the MAC then, or entering later
+        std::vector<std::vector<uint8_t>> lost;   //! in the MAC then
+        bool in_reset = false;
+        long late = 0;                            //! entered while the PHY was held
     };
     MacModel mac;
 
@@ -369,18 +372,25 @@ class PpShadowHarness {
         mac.cur.clear();
         mac.left = mac.gap = 0;
         mac.hold_cycles = 0;
+        mac.in_reset = false;
     }
 
     void mac_step() {
         MacModel& m = mac;
         m.hold_cycles = dut->o_reboot_phy_hold ? m.hold_cycles + 1 : 0;
         if (m.hold_cycles >= kMacHoldCycles) {
-            if (m.busy) m.cut.push_back(m.cur);
-            for (auto& q : m.queue) m.lost.push_back(std::move(q.second));
+            if (!m.in_reset) {
+                if (m.busy) m.cut.push_back(m.cur);
+                for (auto& q : m.queue) m.lost.push_back(std::move(q.second));
+            } else {
+                m.late += static_cast<long>(m.queue.size());
+            }
+            m.in_reset = true;
             m.queue.clear();
             m.busy = false;
             m.gap = 0;
         } else if (!m.dead) {
+            m.in_reset = false;
             if (m.busy) {
                 if (--m.left == 0) {
                     m.wire.push_back({m.cur, m.cur_start, cycle_count});
@@ -403,23 +413,18 @@ class PpShadowHarness {
 
     //! [RB]'s evidence: the reset outputs at the datapath ports, on every
     //! cycle of the run. Before the [RB] REBOOT is sent no cycle may hold the
-    //! PHY or drop CSIB; after it, the request's rise, the egress wait's
-    //! start (KL_reboot_ctrl's stop), the hold's rise and every word the
-    //! ICAPE2 port carries are recorded with their cycle, with the clocks of
-    //! the stop on which KL_maap offered a frame.
+    //! PHY or drop CSIB; after it, the request's rise, the hold's rise and
+    //! every word the ICAPE2 port carries are recorded with their cycle.
     struct RebootObs {
         bool armed = false;
         long early_hold = 0;
         long early_csib = 0;
         bool req_seen = false;
-        bool stop_seen = false;
         bool hold_seen = false;
         bool hold_dropped = false;
         bool backed_at_req = true;
         uint64_t req_rise = 0;
-        uint64_t stop_rise = 0;
         uint64_t hold_rise = 0;
-        long maap_offered = 0;
         std::vector<std::pair<uint64_t, uint32_t>> words;
     };
     RebootObs rb;
@@ -438,11 +443,6 @@ class PpShadowHarness {
             rb.req_rise = cycle_count;
             rb.backed_at_req = rp->milan_datapath__DOT__pp_nvm_backed_w;
         }
-        if (!rb.stop_seen && rp->milan_datapath__DOT__reboot_ctrl__DOT__stop_r) {
-            rb.stop_seen = true;
-            rb.stop_rise = cycle_count;
-        }
-        if (rb.stop_seen && rp->milan_datapath__DOT__maap_tx_tvalid) ++rb.maap_offered;
         if (!rb.hold_seen && hold) {
             rb.hold_seen = true;
             rb.hold_rise = cycle_count;
@@ -4226,8 +4226,8 @@ class PpShadowHarness {
     // REBOOTs, each from reset:
     //   advertising, a second controller registered: the response, the
     //     notification and ENTITY_DEPARTING in that order, then the hold, the
-    //     IPROG words and their retry. KL_maap probes throughout, so the
-    //     port's stop has frames to hold back.
+    //     IPROG words and their retry. KL_maap probes throughout, a source
+    //     the processor's own transmit gate does not stop.
     //   not advertising: no DEPARTING, and the hold still waits for the last
     //     frame the port started.
     //   a dead transmit clock: nothing leaves, and the hold still rises, at
@@ -4304,23 +4304,6 @@ class PpShadowHarness {
         return r;
     }
 
-    //! the port's stop as the evidence for it: no frame starts at the MAC
-    //! port from the egress wait's first clock on, while KL_maap offers some
-    void grade_reboot_port_stop(const char* tag, size_t from) {
-        char w[160];
-        unsigned started = 0;
-        for (size_t k = from; k < tx_frames.size(); ++k)
-            if (rb.stop_seen && tx_frames[k].start_cycle > rb.stop_rise) ++started;
-        snprintf(w, sizeof w, "RB %s: the egress wait starts", tag);
-        ck_true(w, rb.stop_seen, "KL_reboot_ctrl stop_r");
-        snprintf(w, sizeof w, "RB %s: no frame starts at the MAC port from then to the end of the run", tag);
-        ck(w, started, 0u);
-        printf("  [i]    RB %s: KL_maap offered a frame on %ld clocks of the stop\n", tag,
-               rb.maap_offered);
-        snprintf(w, sizeof w, "RB %s: ...though KL_maap offered one", tag);
-        ck_true(w, rb.maap_offered > 0, "maap_tx_tvalid while stopped");
-    }
-
     //! the order and completeness every REBOOT owes the wire before the PHY
     //! hold, and the hold's distance from the last frame
     void grade_reboot_on_the_wire(const char* tag, const RbWire& r, size_t cut_at,
@@ -4329,6 +4312,8 @@ class PpShadowHarness {
         const uint64_t hold = rb.hold_rise;
         snprintf(w, sizeof w, "RB %s: the PHY hold rises", tag);
         ck_true(w, rb.hold_seen, "o_reboot_phy_hold");
+        snprintf(w, sizeof w, "RB %s: the PHY hold follows the processor's REBOOT request", tag);
+        ck_true(w, rb.req_seen && rb.hold_seen && hold > rb.req_rise, "order");
         snprintf(w, sizeof w, "RB %s: the SUCCESS response leaves the MAC whole before the PHY hold", tag);
         ck_true(w, r.resp_end != 0 && r.resp_end < hold, "on the wire");
         snprintf(w, sizeof w, "RB %s: the notification to the other registered controller "
@@ -4429,7 +4414,8 @@ class PpShadowHarness {
         ck_true("RB the entity advertises before the REBOOT", advertised, "ENTITY_AVAILABLE");
         //! the notification's recipient (an unsolicited notification never
         //! goes to its requester), and a frame source the processor's own
-        //! transmit gate does not stop: KL_maap's probes
+        //! transmit gate does not stop: KL_maap's probes, which the egress
+        //! account must count like any other frame
         register_c2(0x0024, 0x0B10);
         axi_write(A_MAAP_CTRL, (DECLARATION_OUTPUTS << 8) | 1);
         rb.armed = true;
@@ -4478,7 +4464,6 @@ class PpShadowHarness {
         ck("RB no flash writer is live in this harness (nvm_backed 0)", rb.backed_at_req, 0u);
         grade_reboot_on_the_wire("advertising", reboot_wire(wire_at, 0x0B02), cut_at, lost_at,
                                  true);
-        grade_reboot_port_stop("advertising", at);
         grade_reboot_burst("first IPROG", 0, rb.hold_rise, RB_HOLD_MS * PP_MS_CYCLES,
                            (RB_HOLD_MS + 1) * PP_MS_CYCLES);
         if (rb.words.size() >= 16)

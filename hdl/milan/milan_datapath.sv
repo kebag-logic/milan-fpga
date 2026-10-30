@@ -1604,15 +1604,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .frame_tu_o (aaf_frame_tu_w),
     .frame_mr_o (aaf_frame_mr_w)
   );
-  // arbiter out -> MAC-facing TX. On an AECP REBOOT the port finishes the
-  // frame in progress and starts no other until reset (#787), so the frames
-  // already in the MAC are the last ones the PHY hold waits for.
-  logic reboot_tx_stop_w;
+  // arbiter out -> MAC-facing TX
   assign m_axis_mac_tx_tdata  = tx_axis_to_mac.tdata;
   assign m_axis_mac_tx_tkeep  = tx_axis_to_mac.tkeep;
-  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid & ~reboot_tx_stop_w;
+  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;
   assign m_axis_mac_tx_tlast  = tx_axis_to_mac.tlast;
-  assign tx_axis_to_mac.tready = m_axis_mac_tx_tready & ~reboot_tx_stop_w;
+  assign tx_axis_to_mac.tready = m_axis_mac_tx_tready;
   //! MAC-facing RX -> the shared pre-filter tap. The ptp_ts_top RX stamper
   //! that sat on this hop was a combinational pass-through whose records
   //! nothing consumed; the fabric gPTP plane stamps its own ingress off
@@ -9071,8 +9068,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! silicon" root cause). The remaining MAC-internal lanes pass through from
   //! i_mac_events; its good-frame bits are ignored to make double-counting
   //! structurally impossible.
-  wire tx_mac_good_w = m_axis_mac_tx_tvalid & m_axis_mac_tx_tready
-                     & m_axis_mac_tx_tlast;
+  //! an accepted beat, and an accepted `tlast` beat; KL_reboot_ctrl's egress
+  //! account counts frames in on the same two terms (#787)
+  wire tx_mac_beat_w = m_axis_mac_tx_tvalid & m_axis_mac_tx_tready;
+  wire tx_mac_good_w = tx_mac_beat_w & m_axis_mac_tx_tlast;
   wire rx_mac_good_w = s_axis_mac_rx_tvalid & s_axis_mac_rx_tready
                      & s_axis_mac_rx_tlast;
   logic [_ETH_EVENT_COUNTER-1:0] mac_events_w;
@@ -9743,8 +9742,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! once the saved state has drained and the MAC has sent every frame it
   //! was given (KL_reboot_ctrl's banner). The waits count the datapath's
   //! millisecond tick, the map writer's amr_tick_r. The account sees the
-  //! MAC port after the stop, and the flush is the link guard's episode with
-  //! both the MAC's sys side and its eth side held in reset.
+  //! MAC port itself, and the flush is the link guard's episode with both
+  //! the MAC's sys side and its eth side held in reset.
   KL_reboot_ctrl #(
       .T_DRAIN_MS_P    (REBOOT_DRAIN_MS_P),
       .T_HOLD_MS_P     (REBOOT_HOLD_MS_P),
@@ -9758,11 +9757,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .nvm_backed_i    (pp_nvm_backed_w),
       .nvm_dirty_i     (pp_nvm_dirty_w),
       .nvm_pend_i      (pp_nvm_pend_w),
-      .mac_tx_beat_i   (m_axis_mac_tx_tvalid & m_axis_mac_tx_tready),
-      .mac_tx_last_i   (m_axis_mac_tx_tlast),
+      .mac_tx_beat_i   (tx_mac_beat_w),
+      .mac_tx_frame_i  (tx_mac_good_w),
       .mac_txend_tgl_i (i_ethtxend_tgl),
       .mac_flush_i     (linkg_reinit_w & linkg_eth_rst_w),
-      .mac_tx_stop_o   (reboot_tx_stop_w),
       .phy_hold_o      (o_reboot_phy_hold),
       .icap_csib_o     (o_icap_csib),
       .icap_i_o        (o_icap_i)
