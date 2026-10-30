@@ -1,0 +1,21 @@
+changed code lines:
+   +static int phy_live;
+   -	if (!nvm_started)
+   +	if (!nvm_started) {
+   +		if (phy_live)
+   +			phy_link_tick(gettime_ns());
+   +	}
+   -			printf("Milan NVM: the restore walk did not sequence in time.\n");
+   +			printf("Milan NVM: the restore walk has not reached its terminal; the fabric holds the entity enable until it does.\n");
+   +	phy_live = 1;
+   +		set_idle_hook(nvm_service);
+   -	printf("Milan baremetal: fabric entity enabled; UART diagnostics ready.\n");
+   +	printf("Milan baremetal: fabric entity enable requested; the fabric holds it until the restore releases it; UART diagnostics ready.\n");
+changed code lines naming PP_CTRL/ADP_CTRL/aem_loaded/entity_advertise: none
+entity_advertise: found base=True head=True identical_without_printf=True
+configure_fabric: found base=True head=True identical_without_printf=True
+nvm_restore_walk: found base=True head=True identical_without_printf=True
+milan_init: found base=True head=True identical_without_printf=True
+load_aem_image: found base=True head=True identical_without_printf=True
+base enable-register store sites: [(1533, 'milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 0x2u);'), (1541, 'milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) & ~0x2u);'), (1799, 'milan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) & ~1u);'), (1800, 'milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) & ~1u);'), (1831, 'milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 1u);'), (1832, 'milan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) | 1u);')]
+head enable-register store sites: [(1548, 'milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 0x2u);'), (1556, 'milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) & ~0x2u);'), (1818, 'milan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) & ~1u);'), (1819, 'milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) & ~1u);'), (1855, 'milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 1u);'), (1856, 'milan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) | 1u);')]

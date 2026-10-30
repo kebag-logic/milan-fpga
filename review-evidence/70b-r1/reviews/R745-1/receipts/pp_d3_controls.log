@@ -1,0 +1,10 @@
+# job pp_d3_controls  dir=$REVIEWS/r745-1-70b/protocol-processor  start=2026-10-30T11:07:58Z
+# cmd: python3 tb/pp_top/d3_mutants.py --output $REVIEWS/70b-r745-1-packet/scratch/d3out --verilator $VALIDATION_TOOLS/pinned-verilator-5.050/verilator --jobs 2 --only identify_is_a_change registry_survives_reset lock_survives_reset identify_survives_reset
+{"mutant": "golden-pp_top", "verdict": "PASS"}
+{"mutant": "golden-pp_top-volatile-only", "verdict": "PASS"}
+{"mutant": "registry_survives_reset", "verdict": "KILLED", "missing": []}
+{"mutant": "lock_survives_reset", "verdict": "KILLED", "missing": []}
+{"mutant": "identify_survives_reset", "verdict": "KILLED", "missing": []}
+{"mutant": "identify_is_a_change", "verdict": "KILLED", "missing": []}
+D3 mutations: 4 of 4 KILLED by their named checks; goldens PASS
+# end=2026-10-30T11:14:23Z rc=0
