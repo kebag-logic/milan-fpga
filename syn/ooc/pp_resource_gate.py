@@ -22,6 +22,18 @@ check and record --write also refuse a default integrated route whose
 hierarchy report names any control role in other than its all-fabric number
 (pp_placement.py), after the identity comparison; a printed record is not judged.
 
+A route endpoint is judged on a route set (issue #818, the #814 ruling): the
+recipe's three placement directives, the shipping route with a --comparison
+for each route the recipe places from its synthesis checkpoint, or one route
+marked --shipping-selection. The gate selects the route with the best
+worst-corner WNS, names its directive, and judges WNS and WHS against their
+floors at every signoff corner the flow's timing grade declares, and every
+other figure against its tolerance, on that route. A timing figure that fell
+from the record by more than its timing fall prints a WARNING and never
+fails. Every route of a set is read whole and judged on its route status; the
+identity comparison ignores which of the three directives a route was placed
+at, and record --write stores the selected route, its flow naming its directive.
+
 Exit status of check, record and check-baseline: 0 within tolerance; 1 a
 material regression, an incomplete route included, and nothing else; 2 not
 comparable, an unreadable measurement or an unusable baseline. For check,
@@ -45,14 +57,17 @@ goes through one of two converters: whole() takes 1 to 15 ASCII digits, so
 every whole number is exact as a float, and real() refuses a decimal whose
 float is not finite.
 
-    pp_resource_gate.py check <directory> --endpoint route-1x1
-    pp_resource_gate.py record <directory> --endpoint route-1x1 [--write]
+    pp_resource_gate.py check <directory> --endpoint route-1x1 --comparison <directory> --comparison <directory>
+    pp_resource_gate.py check <directory> --endpoint route-1x1 --shipping-selection
+    pp_resource_gate.py check <directory> --endpoint ooc-1x1
+    pp_resource_gate.py record <directory> --endpoint route-1x1 <the route arguments of check> [--write]
     pp_resource_gate.py check-baseline
     pp_resource_gate.py --selftest
     pp_resource_gate.py --fuzz 20000 [check <directory> --endpoint route-1x1] [--seed 234]
 """
 
 import argparse
+from collections.abc import Callable
 import hashlib
 import json
 import math
@@ -113,6 +128,22 @@ INCLUDES = re.compile(r" -include_dirs \{([^}]*)\}")
 GENERICS = re.compile(r" -generic \{([^}]*)\}")
 #: One route status row, `# of <label>....... :  <count> :`.
 STATUS_ROW = re.compile(r"^[ \t]*#[ \t]*(?:of[ \t]+)?(\S.*?)\.*[ \t]*:[ \t]*(\S+)[ \t]*:[ \t]*$", re.M)
+#: The recipe's placement directives, the shipping one first (PP_SHADOW_BASELINE_RECIPE.md, integrated measurements).
+#: A route set holds each once, and a tie in worst-corner WNS goes to the one listed first.
+DIRECTIVES = ("ExtraPostPlacementOpt", "AltSpreadLogic_high", "ExtraTimingOpt")
+PLACE = re.compile(r"place_design -directive (\S+)")
+#: The script the recipe writes for each other directive: the shipping thread setting, the shipping synthesis
+#: checkpoint opened, then every command of the shipping script after TAIL with only the placement directive changed.
+COMPARISON = "baseline_implementation.tcl"
+TAIL = "# Add pre-optimize commands"
+CHECKPOINT = "alinx_ax7101_synth.dcp"
+THREADS = re.compile(r"^set_param general\.maxThreads [0-9]+$", re.M)
+OPENS = re.compile(r"(set_param general\.maxThreads [0-9]+)\nopen_checkpoint \{([^{}\n]+)\}\n")
+#: The flow's timing grade (part, grade, junction endpoints, corner models) and the prefix its signoff hook
+#: (sw/litex/timing_grade.tcl) writes <prefix>_<model>_<junction>C_timing.rpt under, one per model and endpoint.
+GRADE = re.compile(r"^kl_timing_grade_configure \{[^{}\n]*\} \{[^{}\n]*\} \{(-?[0-9]+)\} \{(-?[0-9]+)\} "
+                   r"\{([A-Za-z]+(?: [A-Za-z]+)*)\}[ \t]*$", re.M)
+SIGNOFF = re.compile(r"^kl_timing_grade_reports (\S+)[ \t]*$", re.M)
 
 
 class Refusal(Exception):
@@ -287,8 +318,20 @@ def kind_of(directory: Path) -> str:
 
 def record(directory: Path, kind: str, placement: str = "all-fabric") -> dict:
     """Read one recipe measurement directory into a comparable record."""
+    return measure(directory, kind, placement)[0]
+
+
+def measure(directory: Path, kind: str, placement: str = "all-fabric",
+            shipping: Path | None = None) -> tuple[dict, dict | None]:
+    """Read one recipe measurement directory into a comparable record and, for a route, its signoff corners.
+
+    A comparison route names the shipping route it was placed from: bound() gives its flow, and its inputs are the
+    shipping route's, whose synthesis it placed. Every figure, scope and corner is its own.
+    """
     try:
-        script = (directory / SCRIPTS[kind]).read_text()
+        own = (directory / (SCRIPTS[kind] if shipping is None else COMPARISON)).read_text()
+        source = directory if shipping is None else shipping
+        script = own if shipping is None else bound(directory, shipping, (shipping / SCRIPTS[kind]).read_text())
         if placement != "all-fabric" and kind != "route":
             raise Refusal("selected split placement requires an integrated route")
         pp_placement.validate(directory, script, placement)
@@ -297,11 +340,68 @@ def record(directory: Path, kind: str, placement: str = "all-fabric") -> dict:
         figures.update(timing((directory / "baseline_timing.rpt").read_text()))
         carry = census(directory)
         figures["CARRY4"] = carry[""]
-        return {"kind": kind, "identity": identity(directory, script, report),
-                "inputs_sha256": inputs(directory, script, placement), "figures": figures,
-                "scopes": scopes(directory, kind, carry, placement)}
+        measured = {"kind": kind, "identity": identity(directory, script, report),
+                    "inputs_sha256": inputs(source, script, placement), "figures": figures,
+                    "scopes": scopes(directory, kind, carry, placement)}
+        return measured, corners(directory, own, figures) if kind == "route" else None
     except (OSError, ValueError, KeyError, IndexError, TypeError, RecursionError) as error:
         raise Refusal(f"unreadable measurement {directory}: {type(error).__name__}: {error}") from error
+
+
+def bound(directory: Path, shipping: Path, script: str) -> str:
+    """Bind a comparison route to the shipping route it was placed from; return the shipping script at its directive.
+
+    Its script must be the one the recipe writes from the shipping script: that thread setting, that route's synthesis
+    checkpoint opened, then its commands after TAIL at another of the recipe's directives. So its flow identity is the
+    shipping route's but for the placement directive.
+    """
+    comparison = (directory / COMPARISON).read_text()
+    shipped = f"place_design -directive {DIRECTIVES[0]}"
+    threads, (_, marker, tail) = THREADS.findall(script), script.partition(TAIL)
+    if len(threads) != 1 or not marker or script.count(shipped) != 1 or shipped not in tail:
+        raise Refusal(f"{shipping} is not a shipping route the recipe compares: its script needs one thread setting, "
+                      f"then the line {TAIL!r}, then {shipped!r} once")
+    head = OPENS.match(comparison)
+    if head is None or Path(head[2]).resolve() != (shipping / CHECKPOINT).resolve():
+        raise Refusal(f"{directory}: {COMPARISON} does not open the shipping checkpoint {shipping / CHECKPOINT}")
+    if head[1] != threads[0]:
+        raise Refusal(f"{directory}: {COMPARISON} sets {head[1]!r}, not the shipping route's {threads[0]!r}")
+    for other in DIRECTIVES[1:]:
+        if comparison == head[0] + tail.replace(shipped, f"place_design -directive {other}"):
+            return script.replace(shipped, f"place_design -directive {other}")
+    raise Refusal(f"{directory}: {COMPARISON} is not the script the recipe writes from {shipping} "
+                  f"for {' or '.join(DIRECTIVES[1:])}")
+
+
+def signoff(script: str) -> dict[str, str]:
+    """Map each signoff corner the flow's one timing grade declares to the report its signoff hook writes."""
+    grades, prefixes = GRADE.findall(script), SIGNOFF.findall(script)
+    if len(grades) != 1 or len(prefixes) != 1:
+        raise Refusal(f"the route script configures {len(grades)} timing grades and writes {len(prefixes)} "
+                      "signoff report sets, not one of each")
+    low, high, models = grades[0]
+    return {f"{model}_{temp}C": f"{prefixes[0]}_{model}_{temp}C_timing.rpt"
+            for model in models.split() for temp in dict.fromkeys((low, high))}
+
+
+def corners(directory: Path, script: str, figures: dict) -> dict[str, dict[str, float]]:
+    """Read WNS and WHS at every signoff corner, refusing reports whose worst corner is not the timing summary's.
+
+    The hook writes them on the routed state the summary then reads across every corner at once
+    (docs/integration/BUILDING.md section 5), so another worst corner means reports of another run.
+    """
+    result = {}
+    for name, report in signoff(script).items():
+        try:
+            result[name] = timing((directory / report).read_text())
+        except (Refusal, ValueError) as error:
+            raise Refusal(f"{report}: {error}") from error
+    for figure in TIMING:
+        worst = min(slacks[figure] for slacks in result.values())
+        if worst != figures[figure]:
+            raise Refusal(f"the signoff corners' worst {figure} is {worst} and the timing summary's "
+                          f"{figures[figure]}: the reports are not of one run")
+    return result
 
 
 def routing(directory: Path, kind: str) -> list[str]:
@@ -330,37 +430,122 @@ def routing(directory: Path, kind: str) -> list[str]:
     return problems
 
 
-def judge(entry: dict, candidate: dict, unrouted: list[str] | None = None,
-          wrong: list[str] | None = None) -> tuple[int, list[str]]:
+def route_set(directory: Path, kind: str, placement: str, comparisons: list[Path], marked: bool) -> list[dict]:
+    """Read the routes an endpoint is judged on, each with its directive, directory, record and signoff corners.
+
+    A route is judged on the recipe's three placement directives, the shipping route first, or alone when marked as
+    the shipping selection (#818). A standalone synthesis has no placement and takes neither.
+    """
+    if kind != "route":
+        if comparisons or marked:
+            raise Refusal("a standalone synthesis has no placement directive; --comparison and "
+                          "--shipping-selection name routes")
+        return [{"directive": None, "directory": directory, "record": record(directory, kind, placement),
+                 "corners": None}]
+    if bool(comparisons) == marked:
+        raise Refusal("judge a route on the recipe's three placement directives, the shipping route with a "
+                      "--comparison for each other one, or alone with --shipping-selection")
+    if comparisons and placement != "all-fabric":
+        raise Refusal("a selected split placement is judged alone, with --shipping-selection")
+    routes = []
+    for folder, shipping in ((directory, None), *((path.resolve(), directory) for path in comparisons)):
+        measured, slacks = measure(folder, kind, placement, shipping)
+        routes.append({"directive": directive(measured), "directory": folder, "record": measured, "corners": slacks})
+    held = sorted(route["directive"] for route in routes)
+    if comparisons and held != sorted(DIRECTIVES):
+        raise Refusal(f"a route set holds each of {', '.join(DIRECTIVES)} once, not {', '.join(held)}")
+    return routes
+
+
+def directive(measured: dict) -> str:
+    """Name the placement directive a route record's flow places at; a route flow holds one placement command."""
+    found = [match[1] for match in map(PLACE.fullmatch, measured["identity"]["flow"]) if match]
+    if len(found) != 1:
+        raise Refusal(f"a route flow holds {len(found)} placement commands, not one")
+    return found[0]
+
+
+def best(routes: list[dict]) -> dict:
+    """The route with the best worst-corner WNS; a tie goes to the directive the recipe lists first."""
+    if len(routes) == 1:
+        return routes[0]
+    return max(routes, key=lambda route: (route["record"]["figures"]["WNS_ns"], -DIRECTIVES.index(route["directive"])))
+
+
+def selection(routes: list[dict], selected: dict) -> list[str]:
+    """Name the directive judged and, for a set, each route's worst-corner WNS and WHS in the recipe's order."""
+    if selected["directive"] is None:
+        return []
+    if len(routes) == 1:
+        return [f"directive {selected['directive']}: the one route, marked as the shipping selection"]
+    lines = [f"route set: the recipe's {len(routes)} placement directives, worst-corner WNS_ns and WHS_ns"]
+    for route in sorted(routes, key=lambda route: DIRECTIVES.index(route["directive"])):
+        figures = route["record"]["figures"]
+        lines.append(f"  {route['directive']:<24}{figures['WNS_ns']:>8}{figures['WHS_ns']:>8}  {route['directory']}")
+    return lines + [f"directive {selected['directive']} selected: the best worst-corner WNS, "
+                    f"{selected['record']['figures']['WNS_ns']} ns"]
+
+
+def across(routes: list[dict], read: Callable[[Path], list[str]]) -> list[str]:
+    """Every problem read() names in a route set's directories, each led by its directive when the set holds several."""
+    return [(f"{route['directive']}: " if len(routes) > 1 else "") + problem
+            for route in routes for problem in read(route["directory"])]
+
+
+def recipe(held: dict) -> dict:
+    """An identity with each of the recipe's placement directives written as one: a route set selects among them."""
+    flow = [f"place_design -directive {'|'.join(DIRECTIVES)}" if (match := PLACE.fullmatch(line))
+            and match[1] in DIRECTIVES else line for line in held["flow"]]
+    return {**held, "flow": flow}
+
+
+def judge(entry: dict, candidate: dict, unrouted: list[str] | None = None, wrong: list[str] | None = None,
+          slacks: dict | None = None, others: tuple = ()) -> tuple[int, list[str]]:
     """Compare one record with its baseline entry; return the exit status and report.
 
-    ``unrouted`` is what routing() found incomplete in the candidate's route,
+    ``unrouted`` is what routing() found incomplete in the candidate's route set,
     or None for a bare record whose route status was never read. ``wrong`` is
     what misplaced() found in a default route's population, read after identity.
+    ``slacks`` holds a route's WNS and WHS per signoff corner, where the timing
+    floors are judged. ``others`` are the records of a set's routes not
+    selected: each shares the baseline's identity but for its directive, and
+    one placed as the baseline was, from the same inputs, reproduces it.
     """
     base = entry["record"]
     if candidate["kind"] != base["kind"]:
         return 2, [f"NOT COMPARABLE: endpoint kind {candidate['kind']} against {base['kind']}"]
-    changed = sorted(key for key in base["identity"]
-                     if base["identity"][key] != candidate["identity"].get(key))
-    if changed:
-        return 2, [f"NOT COMPARABLE: tool or recipe change in {', '.join(changed)}; measure the "
-                   "baseline again under the new identity instead of comparing across it"]
+    for measured in (candidate, *others):
+        changed = sorted(key for key in base["identity"]
+                         if recipe(base["identity"])[key] != recipe(measured["identity"]).get(key))
+        if changed:
+            return 2, [f"NOT COMPARABLE: tool or recipe change in {', '.join(changed)}; measure the "
+                       "baseline again under the new identity instead of comparing across it"]
     if wrong:
         return 2, [f"NOT COMPARABLE: {'; '.join(wrong)}; measure a split image with its --placement"]
-    if candidate["inputs_sha256"] == base["inputs_sha256"] and candidate["figures"] != base["figures"]:
-        return 2, ["NOT COMPARABLE: identical inputs measured differently (non-determinism or "
-                   "an unrecorded tool setting), which is not an architectural change"]
+    for measured in (candidate, *others):
+        if measured["inputs_sha256"] == base["inputs_sha256"] and measured["identity"] == base["identity"] \
+                and measured["figures"] != base["figures"]:
+            return 2, ["NOT COMPARABLE: identical inputs measured differently (non-determinism or "
+                       "an unrecorded tool setting), which is not an architectural change"]
     status, lines = 0, [f"{'figure':<10}{'baseline':>12}{'candidate':>12}{'delta':>10}  verdict"]
-    improved = []
+    improved, warned = [], []
     for figure in GATED[base["kind"]]:
         before, after = base["figures"][figure], candidate["figures"][figure]
-        verdict, ok = verdict_for(entry, figure, before, after)
+        verdict, ok = verdict_for(entry, figure, before, after, slacks)
         status = status if ok else 1
         lines.append(f"{figure:<10}{before:>12}{after:>12}{round(after - before, 3):>10}  {verdict}")
+        warned += [figure] if verdict.startswith("WARNING") else []
         gain = after - before if figure in TIMING else before - after
         if gain > entry["tolerance"][figure]:
             improved.append(figure)
+    if slacks:
+        floors = " and ".join(f"{figure} {entry['floor'][figure]}" for figure in TIMING)
+        lines.append(f"signoff corners, against the floors {floors}:")
+        lines += [f"  {name:<10}WNS_ns {held['WNS_ns']:>8}  WHS_ns {held['WHS_ns']:>8}"
+                  for name, held in slacks.items()]
+    if warned:
+        lines.append(f"WARNING: {', '.join(warned)} fell from the record by more than the timing fall; "
+                     "reported, never gated (#818)")
     for figure, ceiling in entry.get("ceiling", {}).items():
         if candidate["figures"][figure] > ceiling:
             status = 1
@@ -378,15 +563,18 @@ def judge(entry: dict, candidate: dict, unrouted: list[str] | None = None,
     return status, lines
 
 
-def verdict_for(entry: dict, figure: str, before: float, after: float) -> tuple[str, bool]:
-    """Apply one figure's tolerance, and a timing figure's floor."""
+def verdict_for(entry: dict, figure: str, before: float, after: float,
+                slacks: dict | None = None) -> tuple[str, bool]:
+    """Apply one figure's tolerance; a timing figure meets its floor at every signoff corner and warns of a fall."""
     tolerance = entry["tolerance"][figure]
     if figure in TIMING:
         floor = entry["floor"][figure]
-        if after < floor:
-            return f"REGRESSION: below the floor {floor}", False
+        missed = [name for name, held in slacks.items() if held[figure] < floor]
+        if missed:
+            return f"REGRESSION: below the floor {floor} at {', '.join(missed)}", False
         if before - after > tolerance:
-            return f"REGRESSION: fell by more than {tolerance}", False
+            # #818: at near-full slice use, unchanged logic moves this much between routes; it measures placement.
+            return f"WARNING: fell by more than {tolerance} from the record", True
         return "ok", True
     if after - before > tolerance:
         return f"REGRESSION: grew by more than {tolerance}", False
@@ -624,7 +812,8 @@ def run_case(work: Path, target: tuple[Path, str], files: dict, baseline: bytes,
         if data is not None:
             (folder / name).write_bytes(data)
     (work / "baseline.json").write_bytes(baseline)
-    runs = [("check", *cli("check", folder, "--endpoint", endpoint, "--baseline", work / "baseline.json"))]
+    marked = ("--shipping-selection",) if kind_of(directory) == "route" else ()
+    runs = [("check", *cli("check", folder, "--endpoint", endpoint, *marked, "--baseline", work / "baseline.json"))]
     if audit:
         runs.append(("check-baseline", *cli("check-baseline", "--baseline", work / "baseline.json",
                                             "--budget", work / "budget.md")))
@@ -665,7 +854,9 @@ def fuzz(cases: int, seed: int, directory: Path | None = None, endpoint: str | N
         reports = []
         for folder, name in targets:
             base["endpoints"][name]["record"]["inputs_sha256"] = "0" * 64
-            names = [*generated.REPORTS, *(path.name for path in folder.glob("*_route_status.rpt")), "clock.xdc"]
+            script = folder / SCRIPTS["route"]
+            names = [*generated.REPORTS, *(path.name for path in folder.glob("*_route_status.rpt")), "clock.xdc",
+                     *(signoff(script.read_text()).values() if script.is_file() else ())]
             reports.append({report: (folder / report).read_text() for report in names if (folder / report).is_file()})
         pristine, rng, tally, failures = generated.dump(base, {}).encode(), random.Random(seed), {}, []
         digest = hashlib.sha256()
@@ -720,6 +911,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--baseline", type=Path, default=BASELINE)
     parser.add_argument("--budget", type=Path, default=BUDGET, help="check-baseline: the page with the policy table")
     parser.add_argument("--write", action="store_true", help="record: replace the endpoint's recorded figures")
+    parser.add_argument("--comparison", type=Path, action="append", default=[], metavar="DIRECTORY",
+                        help="a route's comparison route at another of the recipe's placement directives; name both")
+    parser.add_argument("--shipping-selection", action="store_true",
+                        help="judge the one route alone, marked as the directive the shipping image is built from")
     parser.add_argument("--selftest", action="store_true")
     parser.add_argument("--fuzz", type=int, metavar="N", help="run N generated cases: on the self-test's fixtures, "
                         "or, after check, on the directory and --endpoint against --baseline and --budget")
@@ -758,23 +953,27 @@ def main(argv: list[str] | None = None) -> int:
         if problems:
             raise Refusal(f"baseline endpoint {args.endpoint} is unusable: {'; '.join(problems)}")
         directory = args.directory.resolve()
-        candidate = record(directory, kind_of(directory), args.placement)
-        unrouted = routing(directory, candidate["kind"]) if args.command == "check" else []
+        routes = route_set(directory, kind_of(directory), args.placement, args.comparison, args.shipping_selection)
+        picked = best(routes)
+        candidate, kind = picked["record"], picked["record"]["kind"]
+        # Every route of a set is read for completeness and population; the selected one is judged and recorded.
+        unrouted = across(routes, lambda folder: routing(folder, kind)) if args.command == "check" else []
         # Printing a record judges and writes nothing; check and --write read the population.
-        wrong = [] if printing else misplaced(directory, candidate["kind"], args.placement)
+        wrong = [] if printing else across(routes, lambda folder: misplaced(folder, kind, args.placement))
         if args.command == "record":
             if wrong:
                 raise Refusal(f"{'; '.join(wrong)}; acceptance records only the all-fabric image")
-            emit([json.dumps(candidate, indent=1)])
+            emit([*selection(routes, picked), json.dumps(candidate, indent=1)])
             if args.write:
                 baseline["endpoints"].setdefault(args.endpoint, {})["record"] = candidate
                 text = json.dumps(baseline, indent=1) + "\n"
                 load(args.baseline, text)  # never write a baseline the next read would refuse
                 args.baseline.write_text(text)
             return 0
-        status, lines = judge(baseline["endpoints"][args.endpoint], candidate, unrouted, wrong)
+        status, lines = judge(baseline["endpoints"][args.endpoint], candidate, unrouted, wrong, picked["corners"],
+                              tuple(route["record"] for route in routes if route is not picked))
         selected = [f"placement {args.placement}: intermediate comparison"] if args.placement != "all-fabric" else []
-        emit([f"endpoint {args.endpoint}: {args.directory}", *selected, *lines])
+        emit([f"endpoint {args.endpoint}: {args.directory}", *selected, *selection(routes, picked), *lines])
         return status
     except Exception as error:  # the barrier: whatever escapes, expected or not, is a reason and exit 2
         emit([f"NOT COMPARABLE: {error if isinstance(error, Refusal) else f'{type(error).__name__}: {error}'}"])
