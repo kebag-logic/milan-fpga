@@ -685,49 +685,32 @@ class Deriver:
                 raise Refusal(f"{RTL}: the {name} range decode this generator documents is gone")
         out = []
         ns = self.sym.value("NS")
-        out.append(self.array("STATS", a["A_STATS_BASE"], ns, 4, [Field(31, 0, "STAT_SNAP", "R", "0")],
+        out.append(array_register("STATS", a["A_STATS_BASE"], (ns, 4), [Field(31, 0, "STAT_SNAP", "R", "0")],
                               [0] * ns, "read: A_STATS_BASE to A_STATS_END (stat_snap)"))
         nq = self.sym.value("NUM_QUEUES")
         mask = (1 << WORD_BITS) - 1
         for off, key, table in ((0x0, "CBS_IDLE", "CBS_IDLE_RST"), (0x4, "CBS_HI", "CBS_HI_RST"),
                                 (0x8, "CBS_LO", "CBS_LO_RST")):
             resets = [v & mask for v in self.f.cbs[table][:nq]]
-            out.append(self.array(key, a["A_CBS_BASE"] + off, nq, 0x20, [Field(31, 0, key, "R/W", "see table")],
+            out.append(array_register(key, a["A_CBS_BASE"] + off, (nq, 0x20), [Field(31, 0, key, "R/W", "see table")],
                                   resets, f"reset: A_CBS_BASE + 0x{off:X} + 0x20 * q ({table})"))
         en = Expr(self.f.cbs_en_reset, self.sym).value()[0]
-        out.append(self.array("CBS_EN", a["A_CBS_BASE"] + 0xC, nq, 0x20,
+        out.append(array_register("CBS_EN", a["A_CBS_BASE"] + 0xC, (nq, 0x20),
                               [Field(31, 1, "RESERVED", "R", "0"), Field(0, 0, "CBS_EN", "R/W", "see table")],
                               [(en >> q) & 1 for q in range(nq)], "reset: A_CBS_BASE + 0xC + 0x20 * q (CBS_EN_RST)"))
         n_ltap = (a["A_LTAP_END"] - a["A_LTAP_BASE"]) // 4
-        out.append(self.array("LTAP", a["A_LTAP_BASE"], n_ltap, 4, [Field(31, 0, "LTAP_REGS", "R", "X")],
+        out.append(array_register("LTAP", a["A_LTAP_BASE"], (n_ltap, 4), [Field(31, 0, "LTAP_REGS", "R", "X")],
                               None, "read: A_LTAP_BASE to A_LTAP_END (i_ltap_regs)"))
         n_aprb = (a["A_APRB_END"] - a["A_APRB_BASE"]) // 4
-        out.append(self.array("APRB", a["A_APRB_BASE"], n_aprb, 4, [Field(31, 0, "APRB_REGS", "R", "X")],
+        out.append(array_register("APRB", a["A_APRB_BASE"], (n_aprb, 4), [Field(31, 0, "APRB_REGS", "R", "X")],
                               None, "read: A_APRB_BASE to A_APRB_END (i_aprb_regs)"))
         n_gap = (a["A_RSVD_GAP_END"] - a["A_RSVD_GAP_BASE"]) // 4
-        out.append(self.array("RSVD_GAP", a["A_RSVD_GAP_BASE"], n_gap, 4, [Field(31, 0, "RESERVED", "R", "0")],
+        out.append(array_register("RSVD_GAP", a["A_RSVD_GAP_BASE"], (n_gap, 4), [Field(31, 0, "RESERVED", "R", "0")],
                               [0] * n_gap, "read: A_RSVD_GAP_BASE to A_RSVD_GAP_END"))
         n_cnt = (a["A_STRMW_CNT_END"] - a["A_STRMW_CNT0"]) // 4
-        out.append(self.array("STRMW_CNT", a["A_STRMW_CNT0"], n_cnt, 4, [Field(31, 0, "SNAP_SHADOW", "R", "X")],
+        out.append(array_register("STRMW_CNT", a["A_STRMW_CNT0"], (n_cnt, 4), [Field(31, 0, "SNAP_SHADOW", "R", "X")],
                               None, f"read: A_STRMW_CNT0..{n_cnt - 1} (A_STRMW_CNT0 to A_STRMW_CNT_END)"))
         return out
-
-    def array(self, label: str, offset: int, count: int, stride: int, fields: list[Field],
-              resets: list[int] | None, source: str) -> Register:
-        """One array of identical words; `source` names the RTL range."""
-        reg = Register(label, offset, fields, count=count, stride=stride, array_resets=resets)
-        reg.rtl_range = source.split(": ", 1)[1] if ": " in source else source
-        reg.sources.append(source)
-        if resets is None:
-            reg.reset = "0xXXXXXXXX"
-        elif len(set(resets)) == 1:
-            reg.reset = f"0x{resets[0]:08X}"
-        else:
-            reg.reset = "see table"
-        for fl in fields:
-            if fl.reset == "see table" and resets is not None and len(set(resets)) == 1:
-                fl.reset = reset_text([(resets[0] >> k) & 1 for k in range(fl.lo, fl.hi + 1)], short=True)
-        return reg
 
     def all_registers(self) -> list[Register]:
         """Every register and array, in offset order; range markers skipped."""
@@ -754,6 +737,26 @@ class Deriver:
             if b.write_name.endswith("_r") or self.f.signals.get(b.write_name, WORD_BITS) < WORD_BITS:
                 return name
         return reg.label
+
+
+def array_register(label: str, offset: int, geometry: tuple[int, int], fields: list[Field],
+          resets: list[int] | None, source: str) -> Register:
+    """One array of identical words, `geometry` = (count, stride); `source`
+    names the RTL range."""
+    count, stride = geometry
+    reg = Register(label, offset, fields, count=count, stride=stride, array_resets=resets)
+    reg.rtl_range = source.split(": ", 1)[1] if ": " in source else source
+    reg.sources.append(source)
+    if resets is None:
+        reg.reset = "0xXXXXXXXX"
+    elif len(set(resets)) == 1:
+        reg.reset = f"0x{resets[0]:08X}"
+    else:
+        reg.reset = "see table"
+    for fl in fields:
+        if fl.reset == "see table" and resets is not None and len(set(resets)) == 1:
+            fl.reset = reset_text([(resets[0] >> k) & 1 for k in range(fl.lo, fl.hi + 1)], short=True)
+    return reg
 
 
 def reset_text(values: list[int | None], short: bool = False) -> str:

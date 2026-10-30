@@ -604,14 +604,69 @@ def bit_usage(text: str, names: set[str], sym: Symbols) -> dict[str, set[int] | 
     return used
 
 
+def labelled_items(block: str, selector: str) -> list[tuple[str, str]]:
+    """(label, body) for every non-default label of a case statement."""
+    return [(label_name(lab), body) for labels, body in case_items(block, selector)
+            for lab in labels if lab != "default"]
+
+
+def decodes(text: str) -> tuple[dict, dict, dict, dict]:
+    """The reset values, the write arms, the read arms and the stream-window
+    reads of the comment-stripped RTL."""
+    resets: dict[str, str] = {}
+    for m in re.finditer(r"if\s*\(\s*!aresetn\s*\)\s*", text):
+        rest = text[m.end():]
+        for r in re.finditer(r"(\w+)\s*<=\s*([^;]+);", rest[:statement_end(rest, 0)]):
+            resets.setdefault(r.group(1), r.group(2).strip())
+    write_arms: dict[str, list[tuple[str, str]]] = {}
+    for block_name in ("register_write", "pp_regs"):
+        block = find_block(text, r"always_ff\s*@\(posedge aclk\)\s*begin\s*:\s*" + block_name + r"\b")
+        for label, body in labelled_items(block, "wr_addr"):
+            write_arms.setdefault(label, []).append((block_name, body))
+    read_arms: dict[str, tuple[str, str]] = {}
+    for block_name, target in (("read_mux", "live_mux"), ("pp_read", "pp_rd_data_w")):
+        block = find_block(text, r"always_comb\s*begin\s*:\s*" + block_name + r"\b")
+        for label, body in labelled_items(block, "rd_addr_q"):
+            read_arms[label] = (target, body)
+    window_reads: dict[str, str] = {}
+    strm = find_block(text, r"always_comb\s*begin\s*:\s*strm_read_mux\b")
+    for m in re.finditer(r"rd_addr_q\s*==\s*(A_\w+)\)\s*\n?\s*strm_mux\s*=\s*([^;]+);", strm):
+        window_reads[m.group(1)] = "strm_mux = " + m.group(2).strip() + ";"
+    window_reads.update(labelled_items(strm, "rd_addr_q"))
+    return resets, write_arms, read_arms, window_reads
+
+
+def tables(text: str) -> tuple[dict, set, dict, str]:
+    """The defaults ROM, the plain-RW set, the CBS reset tables and the CBS
+    enable reset of the comment-stripped RTL."""
+    fn = text[text.index("function automatic [31:0] csr_default"):]
+    fn = fn[:fn.index("endfunction")]
+    defaults = {}
+    for label, body in labelled_items(fn, "a"):
+        mm = re.match(r"csr_default\s*=\s*(.*);\s*$", body, re.S)
+        if mm:
+            defaults[label] = mm.group(1).strip()
+    fn = text[text.index("function automatic logic is_plain_rw"):]
+    fn = fn[:fn.index("endfunction")]
+    plain = {label for label, _ in labelled_items(fn, "a")}
+    cbs = {}
+    for name in ("CBS_IDLE_RST", "CBS_HI_RST", "CBS_LO_RST"):
+        m = re.search(name + r"\s*\[0:\d+\]\s*=\s*'\{([^}]*)\}", text)
+        if not m:
+            raise Refusal(f"{RTL}: no {name} table")
+        cbs[name] = [int(v.strip().replace("_", "")) for v in m.group(1).split(",")]
+    m = re.search(r"CBS_EN_RST\s*=\s*([^;]+);", text)
+    if not m:
+        raise Refusal(f"{RTL}: no CBS_EN_RST")
+    return defaults, plain, cbs, m.group(1).strip()
+
+
 def load_rtl(root: Path, shape: str, overrides: dict[str, int]) -> RtlFacts:
     """Read milan_csr.sv, its two generated includes and the parameters the
     shipping build passes, into one set of facts."""
-    raw = read_text(root, RTL)
-    text = strip_comments(raw)
+    text = strip_comments(read_text(root, RTL))
     sym = Symbols()
-    pkg = strip_comments(read_text(root, ETH_PKG))
-    define_constants(pkg, sym)
+    define_constants(strip_comments(read_text(root, ETH_PKG)), sym)
     for inc in re.findall(r'`include\s+"([^"]+)"', text):
         candidates = [f"{CSR_INCLUDE_DIR}/{inc}", f"{SHAPE_INCLUDE_DIR.format(shape=shape)}/{inc}"]
         path = next((c for c in candidates if (root / c).is_file()), None)
@@ -628,75 +683,14 @@ def load_rtl(root: Path, shape: str, overrides: dict[str, int]) -> RtlFacts:
     declared, arrays = declared_signals(text, sym)
     for name, rng in declared.items():
         sym.decl_width.setdefault(name, rng)
-
     addresses = {}
     for m in re.finditer(r"\b(A_\w+)\s*=\s*([^,;]+)", text):
-        name, expr = m.group(1), m.group(2).strip()
-        if name in addresses:
-            continue
-        addresses[name] = Expr(expr, sym).value()[0]
-
-    write_arms: dict[str, list[tuple[str, str]]] = {}
-    resets: dict[str, str] = {}
-    for m in re.finditer(r"if\s*\(\s*!aresetn\s*\)\s*", text):
-        rest = text[m.end():]
-        stop = statement_end(rest, 0)
-        for r in re.finditer(r"(\w+)\s*<=\s*([^;]+);", rest[:stop]):
-            resets.setdefault(r.group(1), r.group(2).strip())
-    for block_name in ("register_write", "pp_regs"):
-        block = find_block(text, r"always_ff\s*@\(posedge aclk\)\s*begin\s*:\s*" + block_name + r"\b")
-        for labels, body in case_items(block, "wr_addr"):
-            for lab in labels:
-                if lab != "default":
-                    write_arms.setdefault(label_name(lab), []).append((block_name, body))
-
-    read_arms: dict[str, tuple[str, str]] = {}
-    for block_name, target in (("read_mux", "live_mux"), ("pp_read", "pp_rd_data_w")):
-        block = find_block(text, r"always_comb\s*begin\s*:\s*" + block_name + r"\b")
-        for labels, body in case_items(block, "rd_addr_q"):
-            for lab in labels:
-                if lab != "default":
-                    read_arms[label_name(lab)] = (target, body)
-
-    window_reads: dict[str, str] = {}
-    strm = find_block(text, r"always_comb\s*begin\s*:\s*strm_read_mux\b")
-    for m in re.finditer(r"rd_addr_q\s*==\s*(A_\w+)\)\s*\n?\s*strm_mux\s*=\s*([^;]+);", strm):
-        window_reads[m.group(1)] = "strm_mux = " + m.group(2).strip() + ";"
-    for labels, body in case_items(strm, "rd_addr_q"):
-        for lab in labels:
-            if lab != "default":
-                window_reads[label_name(lab)] = body
-
-    defaults: dict[str, str] = {}
-    fn = text[text.index("function automatic [31:0] csr_default"):]
-    fn = fn[:fn.index("endfunction")]
-    for labels, body in case_items(fn, "a"):
-        for lab in labels:
-            if lab != "default":
-                mm = re.match(r"csr_default\s*=\s*(.*);\s*$", body, re.S)
-                if mm:
-                    defaults[label_name(lab)] = mm.group(1).strip()
-
-    fn = text[text.index("function automatic logic is_plain_rw"):]
-    fn = fn[:fn.index("endfunction")]
-    plain = set()
-    for labels, _ in case_items(fn, "a"):
-        plain.update(label_name(lab) for lab in labels if lab != "default")
-
-    assigns = {}
-    for m in re.finditer(r"\bassign\s+(o_\w+)\s*=\s*([^;]+);", text):
-        assigns[m.group(1)] = " ".join(m.group(2).split())
-
-    cbs = {}
-    for name in ("CBS_IDLE_RST", "CBS_HI_RST", "CBS_LO_RST"):
-        m = re.search(name + r"\s*\[0:\d+\]\s*=\s*'\{([^}]*)\}", text)
-        if not m:
-            raise Refusal(f"{RTL}: no {name} table")
-        cbs[name] = [int(v.strip().replace("_", "")) for v in m.group(1).split(",")]
-    m = re.search(r"CBS_EN_RST\s*=\s*([^;]+);", text)
-    if not m:
-        raise Refusal(f"{RTL}: no CBS_EN_RST")
-
+        if m.group(1) not in addresses:
+            addresses[m.group(1)] = Expr(m.group(2).strip(), sym).value()[0]
+    resets, write_arms, read_arms, window_reads = decodes(text)
+    defaults, plain, cbs, cbs_en = tables(text)
+    assigns = {m.group(1): " ".join(m.group(2).split())
+               for m in re.finditer(r"\bassign\s+(o_\w+)\s*=\s*([^;]+);", text)}
     signals = {}
     for name in list(sym.decl_width):
         try:
@@ -705,16 +699,15 @@ def load_rtl(root: Path, shape: str, overrides: dict[str, int]) -> RtlFacts:
             continue
         if w is not None:
             signals[name] = w
-    params_int = {}
-    for name in params:
-        params_int[name] = sym.value(name)
+    params_int = {name: sym.value(name) for name in params}
     storage = {n for n in signals if not n.startswith(("i_", "o_"))}
     usage = bit_usage(text[body_start:], storage, sym)
     wires = {w.group(1): " ".join(w.group(2).split()) for w in
              re.finditer(r"\bwire\s*(?:\[[^\]]+\])?\s*(\w+)\s*=\s*([^;]+);", text)}
     return RtlFacts(sym, addresses, params_int, write_arms, read_arms, window_reads, defaults,
-                    plain, resets, assigns, signals, cbs, m.group(1).strip(), sym.value("VERSION"),
+                    plain, resets, assigns, signals, cbs, cbs_en, sym.value("VERSION"),
                     arrays, usage, text, wires)
+
 
 
 # ------------------------------------------------------------- the SoC side --
