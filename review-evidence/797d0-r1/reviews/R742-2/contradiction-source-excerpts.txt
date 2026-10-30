@@ -1,0 +1,331 @@
+
+sw/litex/milan_soc.py
+1402: #: this file has enough of those. Named here so the eight crossings still say
+1403: #: the same number in one place.
+1404: _AXIS_CDC_DEPTH = 16
+1405: 
+1406: #: Bits `stream.AsyncFIFO` stores above a record's payload and params: its
+1407: #: `first` and `last` flags, in that order.
+
+sw/litex/milan_soc.py
+1498:     LINK_CTRL[1] reinit resets both sides of each crossing together."""
+1499:     return {"sys": "macsys", milan_cd: "macdp"}
+1500: 
+1501: 
+1502: def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath, rename=None):
+1503:     """Cross one AXIS lane between the sys domain (memory bridge / MAC core) and the
+1504:     datapath's `milan_cd` domain with an async-FIFO `stream.ClockDomainCrossing`
+1505:     boundary, `_AXIS_CDC_DEPTH` beats deep. `to_datapath=True` is a sys->milan_cd
+1506:     lane; False is milan_cd->sys. When `milan_cd == "sys"` there is no
+1507:     crossing: `.dp` and `.sys` are the same endpoint (direct wire)."""
+1508:     if milan_cd == "sys":
+1509:         ep = stream.Endpoint(layout)
+1510:         return _AxisDP(dp=ep, sys=ep)
+1511:     # buffered=True (AsyncFIFOBuffered) re-registers dout in the read domain:
+1512:     # the BRAM CLK->Q cone otherwise fans straight into the datapath consumers
+1513:     # (AX33 x3-seed violator, storage cell = mac_rx_cdc). +1 cycle on a
+1514:     # handshaked stream = transparent.
+1515:     # `rename` maps the CDC's internal clock domains onto shadow domains whose
+1516:     # resets are EXTENDED (the 07-29 wedge lesson: these FIFOs sat outside
+1517:     # every recovery reset - LINK_CTRL[1] reinit reset the MAC core + tx_sf
+1518:     # around a possibly-corrupt crossing it could not touch). Both sides must
+1519:     # rename TOGETHER: resetting one side of an async FIFO skews the gray
+1520:     # pointers past the depth invariant and can MANUFACTURE the permanent-full
+1521:     # state it is meant to clear.
+1522:     if to_datapath:                                        # sys -> milan_cd
+1523:         cdc = stream.ClockDomainCrossing(layout, cd_from="sys", cd_to=milan_cd,
+1524:                                          depth=_AXIS_CDC_DEPTH, buffered=True)
+1525:         if rename: cdc = ClockDomainsRenamer(rename)(cdc)
+1526:         setattr(host, name, cdc)                           # LiteXModule auto-submodule
+1527:         return _AxisDP(dp=cdc.source, sys=cdc.sink)
+1528:     # milan_cd -> sys
+1529:     cdc = stream.ClockDomainCrossing(layout, cd_from=milan_cd, cd_to="sys",
+1530:                                      depth=_AXIS_CDC_DEPTH, buffered=True)
+1531:     if rename: cdc = ClockDomainsRenamer(rename)(cdc)
+
+sw/litex/milan_soc.py
+1740:         # fragment the peer NIC discards WITHOUT counting (total silence). Sim-reproduced
+1741:         # (starved source -> 6 bubbles/frame) and sim-fixed by this FIFO: it releases a
+1742:         # frame downstream only once COMPLETELY buffered, so the drain is always gapless.
+1743:         # 512 x 8 B = 4 KB >= 2 max-size frames; 8 frame slots.
+1744:         # (Full LiteEthMAC has SRAM buffering for exactly this reason; we drive the bare
+1745:         # core, so we provide the gapless drain FIFO here.)
+1746:         self.tx_sf = ClockDomainsRenamer({"sys": "macsys"})(
+1747:                          PacketFIFO(eth_phy_description(data_width),
+1748:                                     # 512 x 8 B = 4 KB >= 2 max frames (the
+1749:                                     # original sizing); 1024 put the BRAM's
+1750:                                     # ADDR[9] pointer cone on the AX critical
+1751:                                     # path (AX31/32: storage_32 CLKARDCLK->
+1752:                                     # ADDRARDADDR[9] -0.25 ns, 8 seeds missed)
+1753:                                     payload_depth=512, param_depth=8,
+1754:                                     # buffered => migen SyncFIFOBuffered, whose
+1755:                                     # read port is SYNCHRONOUS. The default
+1756:                                     # fwft SyncFIFO reads the storage
+1757:                                     # ASYNCHRONOUSLY, and an async read can
+1758:                                     # only be distributed RAM: this one array
+
+sw/litex/milan_soc.py
+1800:             self.comb += self.cd_macdp.clk.eq(ClockSignal(milan_cd))
+1801:             self.specials += AsyncResetSynchronizer(
+1802:                 self.cd_macdp, ResetSignal(milan_cd) | self.reinit)
+1803:             mac_cdc_rename = _mac_cdc_rename(milan_cd)
+1804:         else:
+1805:             mac_cdc_rename = None
+1806:         tx_dp = _axis_dp_cdc(self, "mac_tx_cdc", L, milan_cd, to_datapath=False,
+1807:                              rename=mac_cdc_rename)  # dp -> MAC
+1808:         rx_dp = _axis_dp_cdc(self, "mac_rx_cdc", L, milan_cd, to_datapath=True,
+1809:                              rename=mac_cdc_rename)  # MAC -> dp
+
+configs/endstation_ax7101_1x1_tdm8.yaml
+40:     datapath_probes: true # APRB/PBK diagnostics back on - the 8x8 pruned
+41:                           # them for area; this shape has the headroom
+42:   constraints:
+43:     sys_clk_hz: 100000000
+44:     milan_clk_hz: 50000000   # 64-bit plane still carries 3.2 Gb/s; the
+45:                               # option-on fabric and cacheless CPU close here
+46:     l2_bytes: 0      # cacheless RV32I bare-metal core; no L1/L2/MMU
+
+sw/litex/milan_soc.py
+3035:                 iodelay_clk_freq = 200e6)
+3036:             dram_module = (MT41K128M16 if board == "arty" else MT41J256M16)
+3037:             self.add_sdram("sdram",
+3038:                 phy    = self.ddrphy,
+3039:                 module = dram_module(sys_clk_freq, "1:4"),
+3040:                 # The product profile is cacheless end to end.
+3041:                 l2_cache_size = 0)
+3042: 
+3043:         # ---- QSPI config flash (memory-mapped) + selected boot manifest ----
+3044:         # Maps the on-board 16 MiB part into the CPU address space. `flashboot`
+3045:         # selects whether deployment carries the bitstream/AEM pair.
+3046:         if with_spiflash:
+3047:             from litespi.modules import N25Q128A13, S25FL128S
+3048:             from litespi.opcodes import SpiNorFlashOpCodes as SpiCodes
+3049:             # Arty A7-100: S25FL128S (16 MB, same geometry class as the N25Q128).
+3050:             # Both boards use the same timing-robust single-lane recipe.
+3051:             # The litespi S25FL128S table only
+3052:             # lists plain READ_1_1_1 (0x03) on one lane - valid to 50 MHz on
+3053:             # this chip, and our effective SCK at sys 83.333 MHz is ~20.8 MHz.
+3054:             flash_module = (S25FL128S(SpiCodes.READ_1_1_1) if board == "arty"
+3055:                             else N25Q128A13(SpiCodes.READ_1_1_1_FAST))
+3056:             # Quad read (0x6B, 3-byte addr → whole 16 MB); mode="4x" drives all four DQ so
+3057:             # WP#/HOLD# are never floating. Micron 0x6B needs no quad-enable bit.
+3058:             # SINGLE-LANE fast read (0x0B, 1-1-1) + 25 MHz clock cap. At sys=112.5 MHz the
+3059:             # 4x QUAD read (0x6B) CRC-failed QSPI flashboot NON-DETERMINISTICALLY even after
+3060:             # the SCK cap (silicon 2026-07-08: got=685383e7 then 2eac15ab, expected constant)
+3061:             #  -  the sys-domain sampling of the four DQ lanes is marginal at the faster clock.
+3062:             # 1x drops 3 of the 4 DQ timing paths (only MISO), the most timing-robust MMAP
+3063:             # read; at 25 MHz SCK the sampling window is huge vs a 112.5 MHz sys. Flashboot
+3064:             # reads a few MB → still <1 s. Correct at ANY sys clock; 100 MHz builds unaffected.
+3065:             # 12.5 MHz requested => ~25 MHz effective SPI read clk (was 50 MHz at the
+3066:             # 25e6 request): doubles the sampling margin. build_hsq0's placement made
+3067:             # 50 MHz reads corrupt (CRC differs per read); r2slots was borderline-OK.
+3068:             self.add_spi_flash(mode="1x", module=flash_module,
+3069:                                clk_freq=int(12.5e6), with_master=True)
+3070:             # The BIOS boot-time auto-calibration (liblitespi spiflash_freq_init) re-tunes the
+3071:             # divisor UP from this default as long as a short CRC test block reads stably  -  on
+3072:             # this board it locked div=2 (50 MHz) and the marginality only shows on MB-scale
+3073:             # reads (silicon 2026-07-10: short probes passed, then a large-image
+3074:             # length word read as garbage). The compiled divisor is the one with
+3075:             # margin; skip the calibration so it actually holds.
+3076:             self.add_constant("SPIFLASH_SKIP_FREQ_INIT")
+3077:             self._add_flashboot_constants(flashboot)
+3078: 
+
+sw/litex/milan_soc.py
+4036:         _validate_cpu_options(args.cpu, args.with_fpu, args.l2_bytes)
+4037:     except ValueError as exc:
+4038:         ap.error(str(exc))
+4039:     if args.cpu != "vexiiriscv" or args.xlen != 32 or args.cpu_count != 1:
+4040:         ap.error("--software-profile baremetal requires --cpu vexiiriscv "
+4041:                  "--xlen 32 --cpu-count 1")
+4042:     if args.with_fpu or args.l2_bytes or args.scala_args:
+4043:         ap.error("--software-profile baremetal requires no FPU, --l2-bytes 0, "
+4044:                  "and no --scala-args overrides")
+4045:     if (args.milan_clk_freq or args.sys_clk_freq) != BAREMETAL_CLK_HZ:
+4046:         ap.error(f"baremetal clock: effective --milan-clk-freq must be {BAREMETAL_CLK_HZ} Hz "
+4047:                  "(docs/integration/BAREMETAL_FIRMWARE.md build contract); "
+
+sw/litex/build.sh
+374:     regenerate "$cfg" || return 1
+375:     argv=$(read_design_argv "$cfg") || return 1
+376:     echo "$argv --entity-gen-dir $REPO_ROOT/configs/generated/$(basename "$cfg" .yaml)"
+377: }
+378: cfg_ax7101() {   # shipping bare-metal shape (endstation_ax7101_1x1_tdm8): flow flags
+379:     echo "--synth-directive AreaOptimized_high --opt-directive ExploreArea \
+380:           --place-directive ExtraPostPlacementOpt"
+381: }
+382: cfg_ax8x8() {    # 8-stream (64ch) bare-metal shape (endstation_ax7101_8x8): flow flags
+383:     # The deployed 0x00010022 gateware came from the x32f1_eto sweep; this
+384:     # recipe has never produced a bitstream. Its design facts are the
+385:     # config's: RV32 single hart (#157), the cacheless bare-metal product
+386:     # (#259), the SPENT render-filter area lever (docs/design/AREA_BUDGET.md).
+387:     # So is the Ethernet port (e1, the bench default). If the AX cable is on
+388:     # e2, append `-- --eth-port e2`; AX42's guard reset scope covers either
+389:     # PHY's tx/gtx path.
+390:     echo "--synth-directive AreaOptimized_high --opt-directive ExploreArea \
+391:           --place-directive AltSpreadLogic_high"
+392: }
+393: cfg_arty() {     # Arty A7-100 bare-metal (endstation_arty_current): Vivado defaults
+394:     # -1 die: 100 MHz datapath does NOT close (measured -1.0 WNS); the config
+395:     # runs the datapath at 50 MHz with sys 83.333 (VCO 1000; 90e6 has NO
+396:     # solution with the 25 MHz eth ref). Proven to reach the Instance
+397:     # (test_builder gate 23g), not built: the board is a retired DUT.
+398:     echo ""
+399: }
+400: 
+
+hdl/milan/KL_pp_shadow.sv
+1112:       restore_busy_q <= 1'b0;
+1113:       //! no walk has run yet: a done with no walk behind it is blind
+1114:       walk_blind_r   <= 1'b1;
+1115:     end else begin
+1116:       restore_busy_q <= restore_busy_o;
+1117:       //! fresh evidence when a walk starts, then any blind cycle sticks
+1118:       if (restore_busy_o && !restore_busy_q)       walk_blind_r <= ~nvm_img_valid_w;
+1119:       else if (restore_busy_o && !nvm_img_valid_w) walk_blind_r <= 1'b1;
+1120:     end
+1121:   end
+1122: 
+1123:   KL_nvm_backend #(
+1124:       .CLK_HZ_P        (CLK_HZ_P),
+1125:       .N_STREAM_IN_P   (N_STREAM_IN_P),
+1126:       .N_STREAM_OUT_P  (N_STREAM_OUT_P),
+1127:       .N_SPORT_IN_P    (N_SPORT_IN_P),
+1128:       .N_SPORT_OUT_P   (N_SPORT_OUT_P),
+1129:       .N_AUDIO_UNIT_P  (N_AUDIO_UNIT_P),
+1130:       .N_CLK_DOM_P     (N_CLK_DOM_P),
+1131:       //! one NAME record per name-store entry: the same count the processor's
+1132:       //! descriptor store is built with, so the two cannot disagree
+1133:       .N_NAME_P        (DESC_NAME_ENTRIES_P)
+1134:   ) u_nvm (
+1135:       .clk_i           (clk_i),
+
+docs/design/SAVED_STATE_MATERIALIZATION.md
+12: > with it: `milan_init()` loads and CRC-checks the image before `nvm_boot()`.
+13: > From pin `ead80360` the processor's D3 writer and walk also carry the user
+14: > names (stage 2; [processor PR #150](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/150), lane P1).
+15: > The parent's lane 3 (section 18.3) has not adopted them: name pending is not
+16: > transferred, and no parent test grades a name across a power cycle.
+17: > Amended by the processor's ruling on its issue 83 (2026-10-03): the channel
+18: > maps (stage 3) are the parent's to write, restore and roll back, and the
+19: > processor's roll-back resets its two stores only (section 15 item 2, amended).
+20: > #637 implements stage 3 in the parent (section 18.4): `milan_datapath.sv`
+21: > writes records `0x60` and `0x70` from its own phase-5 change and restores
+22: > them after the D3 walk's COMPLETE terminal, through a device-face arbiter
+23: > `KL_pp_shadow.sv` adds beside the processor's port. The record format is
+24: > unchanged. Its board cold cycle is still owed.
+
+docs/design/SAVED_STATE_MATERIALIZATION.md
+159: - **[18. Child-lane contracts](#18-child-lane-contracts)** -- Lanes 1-5: acceptance, negative controls, dependencies and physical results.
+160: 
+161: ## 1. Context
+162: 
+163: The binding survives a cold power cycle on silicon since 2026-09-21
+164: (issue #70). Its records, ids `0x20` to `0x2F`, are written by
+165: `KL_acmp_nvm_shadow` through `KL_pp_nvm_port`.
+166: 
+167: Since processor pin `d352bbaa` (adopted by #70 lane 2) the D3 writer,
+168: manager 1 of `KL_pp_nvm_mgr_arb`, also writes and restores the scalar
+
+docs/design/SAVED_STATE_MATERIALIZATION.md
+198: | `0x00` | configuration index | `KL_aecp_dyn_state` selector 0, flops with a valid flag | the D3 writer's per-record dirty bit (`d3_unflushed_o`), set by the accepted write that changes `{value, valid}` and retired at the record's window write |
+199: | `0x02`.. | sampling rate | selector 1 | the same per-record bit |
+200: | `0x0A`.. | clock source | selector 2 | the same per-record bit |
+201: | `0x30`.. and `0x40`.. | stream formats in and out | selectors 3 and 4 | the same per-record bit |
+202: | `0x50`.. | presentation time offset | selector 5 | the same per-record bit |
+203: | `0x60` to `0x7F` | channel maps in and out (written and restored by the parent since #637, section 18.4) | the PARENT: `hdl/milan/milan_datapath.sv` holds the input store and the output owner and cluster registers, and `hdl/ieee1722/aaf/KL_chan_map_capture.sv` the output map RAM. The processor reaches them only through the GET_AUDIO_MAP read face and the ADD/REMOVE edit face. Their reset value is the power-on identity of #658 (stream channel c on the port's cluster c), clipped to the restored formats until the restore's terminal (`milan_datapath.sv` blocks `amap_boot_clip`, `amap_boot_walk` and `amap_edit_commit`; the crossbar RAMs take the same set from the boot writer) | actual phase-5 write enable `amap_edit_live_wr_p`, held sticky |
+204: | `0x80`.. | user names | the writable name table of `KL_aecp_desc_store`, on chip, initialized from the image by the store's walk | accepted `aecp_name_wr_o` pulse, held sticky |
+205: 
+206: `0x01` (system unique id) and `0x12` to `0x19` (media clock reference) are
+207: allocated, but no AECP program writes them, so they have nothing to
+208: materialize and stay erased records.
+
+hdl/milan/milan_datapath.sv
+650:   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) tx_axis_to_mac();
+651:   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_from_mac();
+652:   axi_stream_if #(.TDATA_WIDTH_P(TDATA_WIDTH)) rx_axis_fabric();
+653: 
+654:   //! NO GENERAL-DATA TX CHAIN. The 802.1Q classifier / per-queue FIFOs /
+655:   //! 802.1Qav CBS shaper (traffic_controller_802_1q) and the ptp_ts_top TX/RX
+656:   //! record stampers left this wrapper with the retired target (#259): removing
+657:   //! the retired transmit path left the shaper's ONLY input structurally idle, and
+658:   //! every product source - the AAF talkers, the CRF talker, MAAP, the
+659:   //! protocol processor and the fabric gPTP plane - joins the TX trunk in the
+660:   //! arbiter cascade below, AFTER the point the shaper occupied, so no frame
+661:   //! could ever reach it. An elaborated chain on a tied-off input is silicon
+662:   //! spent on nothing in a packing-bound build and a CSR face advertising a
+663:   //! shaper the product cannot exercise. The modules stay verified stand-alone
+664:   //! (tb/verilator/{classifier,queues,cbs,shaper_core,datapath,
+665:   //! controller_rate,ptp_ts}) as the building blocks of a class-A shaping lane
+666:   //! for the fabric's own streams, which is a separate lane. The CSR words
+667:   //! that configured the chain (0x300 CLS_*, 0x400 CBS_*) are WRITE-ONLY
+668:   //! SCRATCH. PTP_*_LAT (0x540/0x544) are readable, inert scratch: plain RW
+669:   //! with no timestamp-correction consumer at VERSION 0x0002_0057.
+670:   //! CAP.CBS / IRQ_STATUS[0] are
+
+hdl/milan/milan_datapath.sv
+6674:   //! deleted. The processor has its own NVM restore walk, answered here by a
+6675:   //! BLANK-FLASH responder inside KL_pp_shadow, so nothing is restored.
+6676:   assign acmp_rest_ack_w = 1'b0;
+6677:   assign acmp_rest_status_w = 2'd0;
+6678:   assign jnl_stat_w = 32'd0;
+6679:   assign jnl_seq_w = 32'd0;
+6680: 
+6681:   // ==========================================================================
+6682:   //  AVTP RX monitor (Milan v1.2 §5.4.5.3, Table 7-156) — non-intrusive
+
+hdl/milan/milan_datapath.sv
+8807:   //  the fabric gPTP plane (issue #114, product default ON since #116)
+8808:   // ==========================================================================
+8809:   //! Joins the control lane AFTER the min-IFG gasket (the CRF rationale:
+8810:   //! a time-critical frame must not queue 512 cycles per control burst)
+8811:   //! through its own staggered merge (ctl 2^15 -> this 2^16 -> boundary
+8812:   //! 2^17). The egress stamper observes the TRUE MAC boundary; ingress
+8813:   //! rides the same rx_axis_fabric tap every plane uses (input only,
+8814:   //! tvalid && tready qualified). The publication bank directly owns the GM,
+8815:   //! parent, pdelay, tu/asCapable, CSR, and protocol-answer faces. The direct
+8816:   //! option-OFF arm has no owner: those publications are zero, tu is one, and
+8817:   //! every retained publication write is inert.
+8818:   wire [TDATA_WIDTH-1:0]   ctlg3_tdata;
+8819:   wire [TDATA_WIDTH/8-1:0] ctlg3_tkeep;
+8820:   wire                     ctlg3_tvalid, ctlg3_tlast, ctlg3_tready;
+8821:   wire [15:0] gptp_tap_drop_w, gptp_rx_drop_w, gptp_ev_drop_w;
+8822:   //! #360: egress launch records that closed with no timestamp. Published
+8823:   //! at GPTP_DROPE[31:16] beside the event-queue losses, because a lost
+8824:   //! timestamp and a lost event are the same class of fact about the
+8825:   //! plane and an integrator reads them in one access.
+
+sw/firmware/milan_baremetal/Makefile
+1: include ../include/generated/variables.mak
+2: include $(SOC_DIRECTORY)/software/common.mak
+3: 
+4: CFLAGS += -I$(BIOS_DIRECTORY)
+5: 
+6: OBJECTS = milan_baremetal.o
+7: 
+8: all: libmilan_baremetal.a
+9: 
+10: libmilan_baremetal.a: $(OBJECTS)
+11: 	$(AR) crs $@ $(OBJECTS)
+12: 
+13: -include $(OBJECTS:.o=.d)
+14: 
+15: %.o: $(LIBMILAN_BAREMETAL_DIRECTORY)/%.c
+
+docs/design/TRACE_LOGGING.md
+240: 
+241: Always point the reader at the unpacked directory containing the bundle's own
+242: `metadata` file.
+243: 
+244: ## 11. Scope and limits
+245: 
+246: This repository supplies the ABI, generated producer, freestanding ring,
+247: segment-copy contract, workstation bundle tools, reader, and executable tests.
+248: The physical acquisition link and its scheduling are board-integration choices;
+249: they must preserve packet boundaries and satisfy the three-call ownership
+250: protocol.
+251: 
+252: The ring is volatile until acquisition copies a segment. A producer can lap an
+253: open segment if acquisition stalls, but the API reports that condition. The
+254: workstation recovery path can return a structurally valid packet prefix from
+255: incomplete input; it cannot reconstruct bytes that were never copied.

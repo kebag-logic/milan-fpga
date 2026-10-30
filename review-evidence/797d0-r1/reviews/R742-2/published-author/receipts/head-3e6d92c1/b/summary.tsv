@@ -1,0 +1,36 @@
+001	0	0s	python3 scripts/check_sh_idiom.py
+002	0	1s	python3 scripts/check_sh_idiom.py --selftest
+003	0	0s	python3 scripts/check_doc_paths.py
+004	0	0s	python3 scripts/check_archive.py
+005	0	0s	python3 scripts/check_archive.py --selftest
+006	0	1s	python3 scripts/gen_toc.py --selftest
+007	0	4s	python3 scripts/gen_toc.py --verify-anchors
+008	0	8s	python3 scripts/gen_toc.py --check
+009	0	2s	python3 scripts/docs_inventory.py --check
+010	0	1s	python3 scripts/docs_inventory.py --selftest
+011	0	0s	python3 avdecc/gen_aem_store.py --self-test
+012	0	16s	python3 scripts/check_sweep_shape.py --self-test
+013	0	0s	python3 scripts/check_deploy_shape.py --self-test
+014	0	75s	python3 scripts/check_entity_shape.py --self-test
+015	0	1s	python3 scripts/ci_gate_workflows.py --check
+016	0	14s	python3 scripts/ci_gate_workflows_selftest.py
+017	0	1s	python3 scripts/ci_case_receipts_selftest.py
+018	0	0s	python3 scripts/ci_make_cases_selftest.py
+019	0	0s	python3 scripts/ci_maap_cases_selftest.py
+020	0	0s	python3 scripts/ci_capture_cases_selftest.py
+021	0	7s	python3 scripts/ci_suite_pieces_selftest.py
+022	0	4s	python3 scripts/ci_suite_collect_selftest.py
+023	0	0s	python3 scripts/ci_fail_fast_selftest.py
+024	0	6s	python3 scripts/ci_runtime_evidence_selftest.py
+025	0	0s	python3 scripts/ci_install_cache_selftest.py
+026	0	0s	python3 scripts/generate_ci_evidence_pins.py --check
+027	0	0s	python3 scripts/ci_workflow_plan_selftest.py
+028	0	0s	python3 scripts/ci_manifest_selftest.py
+029	0	1s	python3 scripts/ci_events.py --check
+030	0	191s	python3 scripts/ci_events.py --selftest
+031	0	0s	python3 scripts/check_wire_accountability.py --self-test
+032	0	69s	python3 scripts/act_ci.py --selftest
+033	0	31s	d=$(mktemp -d) && install -m 0555 scripts/act_ci.py "$d/act_ci.py" && python3 -I "$d/act_ci.py" --selftest --worktree "$PWD"; rc=$?; rm -rf "$d"; exit $rc
+034	0	9s	d=$(mktemp -d) && git archive HEAD | tar -x -C "$d" && (cd "$d" && python3 scripts/docs_check.py && python3 scripts/check_feature_status.py); rc=$?; rm -rf "$d"; exit $rc
+035	0	1s	d=$(mktemp -d) && git archive HEAD | tar -x -C "$d" && (cd "$d" && python3 scripts/docs_inventory.py --check); rc=$?; rm -rf "$d"; exit $rc
+036	0	3s	d=$(mktemp -d) && git clone -q --no-recurse-submodules "$PWD" "$d/c" && (cd "$d/c" && git checkout -q "$(git -C "$OLDPWD" rev-parse HEAD)" 2>/dev/null; python3 scripts/docs_inventory.py --check); rc=$?; rm -rf "$d"; exit $rc

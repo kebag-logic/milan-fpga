@@ -1,0 +1,356 @@
+
+sw/firmware/milan_baremetal/milan_baremetal.c
+1836: static int load_aem_image(void)
+1837: {
+1838: #if defined(SPIFLASH_BASE) && defined(MILAN_AEM_FLASH_OFFSET)
+1839: 	const volatile uint8_t *src =
+1840: 		(const volatile uint8_t *)(SPIFLASH_BASE + MILAN_AEM_FLASH_OFFSET);
+1841: 	volatile uint8_t *dst = (volatile uint8_t *)MILAN_AEM_DESC_BASE;
+1842: 	unsigned int i;
+1843: 	uint32_t got;
+1844: 
+1845: 	if (src[0] != 'A' || src[1] != 'E' || src[2] != 'M' || src[3] != 'I') {
+1846: 		printf("Milan baremetal: AEM image missing at QSPI +0x%08x; entity disabled.\n",
+1847: 		       MILAN_AEM_FLASH_OFFSET);
+1848: 		return 0;
+1849: 	}
+1850: 	for (i = 0; i < MILAN_AEM_IMAGE_BYTES; ++i)
+1851: 		dst[i] = src[i];
+1852: 	__asm__ volatile("fence rw, rw" ::: "memory");
+1853: 	got = crc32((const unsigned char *)MILAN_AEM_DESC_BASE,
+1854: 	            MILAN_AEM_IMAGE_BYTES);
+1855: 	if (got != MILAN_AEM_IMAGE_CRC32) {
+1856: 		printf("Milan baremetal: AEM CRC failed (expected %08lx, got %08lx); entity disabled.\n",
+1857: 		       (unsigned long)MILAN_AEM_IMAGE_CRC32, (unsigned long)got);
+1858: 		return 0;
+1859: 	}
+1860: 	printf("Milan baremetal: AEM %u B copied QSPI +0x%08x -> 0x%08x, CRC %08lx.\n",
+1861: 	       MILAN_AEM_IMAGE_BYTES, MILAN_AEM_FLASH_OFFSET,
+1862: 	       MILAN_AEM_DESC_BASE, (unsigned long)got);
+1863: 	return 1;
+1864: #else
+1865: 	printf("Milan baremetal: no QSPI AEM slot; entity disabled.\n");
+1866: 	return 0;
+1867: #endif
+
+sw/firmware/milan_baremetal/Makefile
+1: include ../include/generated/variables.mak
+2: include $(SOC_DIRECTORY)/software/common.mak
+3: 
+4: CFLAGS += -I$(BIOS_DIRECTORY)
+5: 
+6: OBJECTS = milan_baremetal.o
+7: 
+8: all: libmilan_baremetal.a
+9: 
+10: libmilan_baremetal.a: $(OBJECTS)
+11: 	$(AR) crs $@ $(OBJECTS)
+12: 
+
+scripts/docs_inventory.json
+183:    "quote": "Migen scripts lack one aggregate runner.",
+184:    "source": "`scripts/run_litex_sims.sh` lines 98-106 (`INVENTORY`) and line 150 (`run_aggregate`) run every standalone Migen simulation as one aggregate and refuse a missing or unlisted member; the page itself names the runner at line 23",
+185:    "correction": "Say that `scripts/run_litex_sims.sh` is the aggregate runner of the standalone Migen simulations."
+186:   },
+187:   {
+188:    "id": "D0-027",
+189:    "page": "docs/guides/VERIFICATION_DEVELOPER.md",
+190:    "quote": "C has no general harness framework.",
+191:    "source": "`sw/firmware/gtest/README.md` lines 3-13: the bare-metal control-plane firmware and its saved-state store are unit-tested on the host with GoogleTest and GoogleMock through one shared harness, graded by `sw/firmware/ctrl/test/test_ctrl_firmware.py` and `sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py`",
+192:    "correction": "Name the shared host harness `sw/firmware/gtest/` for the control-plane firmware's C, and keep the trace round-trip as the check of the shipping trace producer."
+193:   },
+
+scripts/docs_inventory.json
+244:    "id": "D0-035",
+245:    "page": "docs/integration/QSPI_FLASHBOOT.md",
+246:    "quote": "The AEM copy goes through the BIOS's `copy_image_from_flash_to_ram`, so the",
+247:    "source": "`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1836-1866: `load_aem_image()` checks the `AEMI` magic, copies `MILAN_AEM_IMAGE_BYTES` with its own loop and then compares the CRC32 with the compiled-in `MILAN_AEM_IMAGE_CRC32`; nothing under `sw/` calls `copy_image_from_flash_to_ram`",
+248:    "correction": "Name `load_aem_image()` and its three checks (magic, compiled-in length, CRC32 after the copy), and keep the consequence: a failed check leaves the entity disabled."
+
+scripts/docs_inventory.json
+292:   {
+293:    "id": "D0-042",
+294:    "page": "docs/reference/REGISTER_MAP_CLASSES.md",
+295:    "quote": "| `0x4xx` | CBS queue window, classifier map | **needed** | live |",
+296:    "source": "`docs/reference/EGRESS_QUEUE_MAP.md` lines 3-12 and `hdl/milan/milan_datapath.sv` lines 654-664: no classifier, queue or shaper is instantiated since VERSION 0x0056, so the 0x4xx words are write-only scratch and `CAP.CBS` reads 0 (`hdl/common/csr/milan_csr.sv` lines 1996-2000)",
+297:    "correction": "Mark the group write-only scratch with no consumer in the shipping image, and drop \"boot software programs it\" as production configuration."
+
+hdl/common/csr/milan_csr.sv
+2050:   //! plain-RW register (readback == stored word): served by the shadow.
+2051:   //! Strobe/W1C/live registers and unmapped addresses are NOT shadow-written.
+2052:   function automatic logic is_plain_rw(input [ADDR_WIDTH-1:0] a);
+2053:     is_plain_rw = 1'b0;
+2054:     unique case (a)
+2055:       A_SCRATCH, A_IRQ_MASK,
+2056:       A_MAC_CTRL, A_MAC_IFG, A_MAC_ALO, A_MAC_AHI, A_MC_LO, A_MC_HI,
+2057:       //! A_PHY_RST / A_LINK_CTRL are NOT here (ETH GUARD, USER 08-06): their
+2058:       //! writes gate on eth_guard, so the readback serves the FLOPS via
+2059:       //! live_mux - a refused write must never read back as accepted
+2060:       A_CLS_CTRL, A_CLS_DPCP, A_CLS_MAP, A_CLS_REGEN, A_CLS_TCQ,
+2061:       A_PTP_CTRL, A_PTP_INCR, A_PTP_ADJ, A_PTP_TWLO, A_PTP_TWHI,
+2062:       A_PTP_OFLO, A_PTP_OFHI, A_PTP_ILAT, A_PTP_ELAT,
+2063:       //! A_PPS_CTRL is NOT here: live read (the RO built bit and the
+2064:       //! self-clearing arm strobe sit above/beside the stored enable)
+2065:       A_PPS_TGLO, A_PPS_TGHI,
+2066:       A_ADP_CTRL, A_ADP_EIDLO, A_ADP_EIDHI, A_ADP_MIDLO, A_ADP_MIDHI,
+2067:       //! A_ADP_TALK / A_ADP_LIST are NOT here: RO shape (VERSION 0x0015)
+2068:       A_ADP_ECAPS, A_ADP_CCAPS, A_ADP_IDX0, A_ADP_IDX1, A_ADP_ASLO, A_ADP_ASHI,
+2069:       A_AAF_CTRL, A_AAF_DMLO, A_AAF_DMHI, A_ACMP_LOBS,
+2070:       A_LWSRP_CTRL, A_LWSRP_VID, A_LWSRP_DMLO, A_LWSRP_DMHI,
+2071:       A_LWSRP_TSPEC, A_LWSRP_LAT,
+2072:       A_TCAM_CTRL, A_TCAM_KLO, A_TCAM_KHI, A_TCAM_MLO, A_TCAM_MHI, A_TCAM_ACT,
+2073:       A_MAAP_CTRL, A_TONE_CTRL,
+2074:       A_ENT_NAME_LO, A_ENT_NAME_HI, A_LPF_CTRL,
+2075:       A_CRF_SIDLO, A_CRF_SIDHI,
+2076:       //! A_CRFT_CTRL is NOT here: live read (status above the RW bits)
+2077:       A_CRFT_SIDLO, A_CRFT_SIDHI, A_CRFT_DMLO, A_CRFT_DMHI,
+2078:       A_REST_TKLO, A_REST_TKHI, A_REST_META, A_REST_CTLO, A_REST_CTHI:
+2079:         is_plain_rw = 1'b1;
+2080:       default:
+2081:         if (a >= A_CBS_BASE && a < A_CBS_END)
+2082:           is_plain_rw = (a[4:0] == 5'h00) || (a[4:0] == 5'h04) ||
+2083:                         (a[4:0] == 5'h08) || (a[4:0] == 5'h0C);
+2084:     endcase
+
+tb/verilator/csr/sim_main.cpp
+525: 
+526:   axi_write(A_MAC_ALO, 0x33221100);
+527:   axi_write(A_MAC_AHI, 0x00005544);
+528:   dut->eval();
+529:   ck("o_mac_addr", dut->o_mac_addr, 0x554433221100ULL);
+530: 
+531:   axi_write(A_CBS1_IDLE, 0x0AABBCCD);
+532:   ck("CBS1_IDLE rw (scratch)", axi_read(A_CBS1_IDLE), 0x0AABBCCD);
+533: 
+534:   axi_write(A_CBS3_CTRL, 0x1);           // CTRL readback is masked to bit 0
+535:   ck("CBS3_CTRL rw (scratch, bit 0)", axi_read(A_CBS3_CTRL), 0x1);
+536:   axi_write(A_CBS3_CTRL, 0x0);
+537: 
+538:   // the TOP queue's row is still addressable (write -> readback)
+539:   axi_write(A_CBS4_IDLE, 0x0C0FFEE0);
+540:   ck("CBS4_IDLE rw (scratch)", axi_read(A_CBS4_IDLE), 0x0C0FFEE0);
+541:   axi_write(A_CBS4_CTRL, 0x1);
+542:   ck("CBS4_CTRL rw (scratch, bit 0)", axi_read(A_CBS4_CTRL), 0x1);
+543:   axi_write(A_CBS4_CTRL, 0x0);
+544:   axi_write(A_CBS4_IDLE, 450000000u);
+
+docs/reference/REGISTER_MAP_CLASSES.md
+55: "diagnoses a failure through local diagnostics **or AECP**". The processor now serves a broader
+56: AECP inventory, including `READ_DESCRIPTOR`, `GET_COUNTERS`, stream-state
+57: getters, clock-source operations, Identify controls, and Milan information.
+58: The tracked builder generates `aem_desc.bin`, and the bare-metal firmware
+59: verifies and copies the paired descriptor image before enabling the entity.
+60: Custom integrations that omit that boot-time copy still fail closed with
+61: `BAD_ARGUMENTS`.
+62: 
+63: AECP does not replace the local observability plane. Several root dynamic-state
+64: connections remain absent, and processor diagnostics live in its side-port
+65: snapshot window rather than this legacy CSR group. (The CRF Stream Input
+66: counter bank, once absent from the solicited gather face, is served since
+67: #529.) The CSR classes below are
+68: therefore based on the live consumer and source of each word, not on an obsolete
+69: assumption that AECP answers only one command.
+70: 
+71: ## Classification
+72: 
+73: <!-- milan-feature-status:start -->
+74: | Feature ID | Status | Canonical value |
+
+docs/integration/INTEGRATION_GUIDE.md
+159: - Load and verify descriptor memory before `PP_CTRL[1]`; a restore started
+160:   without it cannot prove the image and ends CLOSED.
+161: - Connect response memory before entity enablement.
+162: - Start the restore walk with `PP_CTRL[1]` on every boot.
+163: - The ACMP listener answers nothing until that walk ends.
+164: - AECP answers nothing until the D3 walk ends.
+165: - `PP_STAT[2]` reports the end, and `PP_STAT[16]` a CLOSED one.
+166: - A silent device ends each wait at 20 ms.
+167: - The whole restore is bounded at 1,000 ms.
+
+sw/litex/milan_soc.py
+848:     ports = dict(
+849:         # clocks / reset  -  the whole datapath runs in `milan_cd`
+850:         i_axis_clk    = ClockSignal(milan_cd),  i_axis_resetn = ~ResetSignal(milan_cd),
+851:         i_clk_audio_i = ClockSignal("audio"),
+852:         i_gtx_clk     = ClockSignal(milan_cd),  i_gtx_resetn  = ~ResetSignal(milan_cd),
+
+protocol-processor/hdl/top/protocol_processor_top.sv
+160:     //! written reduced so it never multiplies or overflows (08 §2).
+161:     //! T-NVM-RS-DEADLINE (F08.1), P-NVM-RS-TMO-CYC (F01.5): each restore
+162:     //! wait of both walks (the binding walk's reads; every D3 wait, the
+163:     //! roll-back's debt wait and re-LOCATE included) fails its walk after
+164:     //! this many clock cycles without progress. Size it above the slowest
+165:     //! single record read your NVM device face can take and above the
+166:     //! descriptor image walk; a silent device then ends each walk here
+167:     //! instead of holding the listener, AECP and the ADP enable for ever.
+168:     //! DR3a ratifies 20 ms: ceil(CLK_HZ_P / 50) clock cycles.
+169:     parameter int unsigned NVM_RS_TMO_CYC_P    = (CLK_HZ_P / 32'd50)
+170:                                                  + (((CLK_HZ_P % 32'd50) != 32'd0) ? 32'd1 : 32'd0),
+171:     //! T-NVM-RS-AGGREGATE (F08.1), P-NVM-RS-AGG-CYC (F01.5): the restore
+172:     //! takes its per-wait deadline's path this many clock cycles after the
+173:     //! accepted restore start (restore_go_i), counting the binding walk,
+174:     //! both passes and the roll-back, however promptly each single wait is
+175:     //! answered. It never closes a provable image: a binding walk still
+176:     //! reading fails whole, and the D3 walk then proves the image and ends
+177:     //! DEFAULTS (rs_cause_o 3). DR3a ratifies 1,000 ms as an enforced
+178:     //! bound: CLK_HZ_P clock cycles.
+179:     parameter int unsigned NVM_RS_AGG_CYC_P    = CLK_HZ_P,
+180:     //! DR2c (P-NVM-RETRY-BACKOFF-CYC, F01.5): clk_i cycles a record
+
+hdl/milan/milan_datapath.sv
+3128:   //! the 64-bit PHC (REQ-PTP-01/02): gtx_clk == axis_clk in every real
+3129:   //! instantiation, which is what lets ptp_now_w be read synchronously
+3130:   timestamp_counter #(
+3131:     .COUNTER_WIDTH (64),
+3132:     .INCR_WIDTH    (32),
+3133:     .FRAC_WIDTH    (24),
+3134:     .PPS_P             (PPS_P),
+3135:     .PPS_WIDTH_CYC_P (PPS_WIDTH_CYC_P)
+3136:   ) ts_counter (
+3137:     .clk                  (gtx_clk),
+3138:     .resetn               (gtx_resetn),
+3139:     .enable_i             (phc_enable_ts_w),
+3140:     .incr_i               (phc_incr_ts_w),
+3141:     .adj_i                (phc_adj_ts_w),
+3142:     .tod_wr_i             (phc_tod_wr_ts_w),
+3143:     .cmd_load_i           (phc_load_ts_w),
+3144:     .offset_i             (phc_offset_ts_w),
+3145:     .cmd_adjust_i         (phc_adjust_ts_w),
+
+sw/firmware/milan_baremetal/milan_baremetal.c
+1880: 	/* PHC and fabric gPTP are live from reset, independent of the AEM gate. */
+1881: 	configure_fabric();
+1882: 	/* The AEM image is loaded and CRC-checked BEFORE the saved state is
+1883: 	 * restored (docs/design/SAVED_STATE_MATERIALIZATION.md section 5.3): the
+1884: 	 * restore judges every value against the image, and one started
+1885: 	 * without it cannot prove the image and ends CLOSED, holding AECP until
+1886: 	 * reset. nvm_boot() starts the walk on every path, a failed image
+1887: 	 * included (the binding walk still releases the listener), and the
+1888: 	 * verifier's verdict then flows straight into the choke point. */
+1889: 	aem_loaded = load_aem_image();
+1890: 	nvm_boot();
+1891: 	entity_advertise(aem_loaded);
+protocol-processor/hdl/top/protocol_processor_top.sv
+3553: 
+3554:   //! Milan 5.4.2.10.1 and Table 5.9: an input's stream_id, stream_dest_mac
+3555:   //! and stream_vlan_id, and their STREAM_ID_VALID, STREAM_DEST_MAC_VALID
+3556:   //! and STREAM_VLAN_ID_VALID flags, are valid if, and only if, the Stream
+3557:   //! Input is settled, which is probing_status PROBING_COMPLETED (Milan
+3558:   //! 5.3.8.5, Table 5.5; IEEE 1722.1-2021 7.4.16.2). The selector 7 status
+3559:   //! decides it for the integrator's words too: the published binding view
+3560:   //! keeps a stream's identity from settle to unbind, so an integrator
+3561:   //! that reads it would report a sink back in probing as settled on its
+3562:   //! last stream (issue #206).
+3563:   assign gsi_settled_w = (32'(gsi_desc_index_o) < N_STREAM_IN_P)
+3564:                          && (gsi_status_w[7:5] == pp_acmp_pkg::PB_COMPLETED_C);
+3565: 
+3566:   always_comb begin : gsi_answer
+3567:     aecp_gsi_data_w = gsi_data_i;
+3568:     if (gsi_input_w) begin
+3569:       case (gsi_sel_o)
+3570:         4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
+3571:         4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;
+3572:         // Milan 5.3.8.9 and 5.4.2.10: report the full received VLAN.
+3573:         4'd6: aecp_gsi_data_w = {gsi_settled_w
+3574:               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+3575:         4'd7: aecp_gsi_data_w = {32'd0, gsi_status_w, 24'd0};
+3576:         default: begin end
+3577:       endcase
+3578:       // Table 5.9 while unsettled: clear the three flags (0x52000000) in
+3579:       // selector 0's flags, and zero selector 2's stream_id and selector
+3580:       // 4's stream_dest_mac [63:16].
+3581:       if (!gsi_settled_w) begin
+3582:         case (gsi_sel_o)
+3583:           4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;
+3584:           4'd2: aecp_gsi_data_w = 64'd0;
+3585:           4'd4: aecp_gsi_data_w[63:16] = 48'd0;
+3586:           default: begin end
+3587:         endcase
+3588:       end
+3589:     end
+
+hdl/milan/milan_datapath.sv
+5995:   //! ==== the Milan-info answer block (06 SS6.2/SS6.10) ====================
+5996:   //! GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH, one word at a time; the
+5997:   //! processor lays the responses out and THIS fabric owns every value and
+5998:   //! every validity flag it is asked for, because the truth lives here: the
+5999:   //! pp's own class-D binding view and SRP registrars (read back on the same
+6000:   //! nets every other consumer reads), the declared stream identities, the
+6001:   //! gPTP CSR pair and the clock-validator's asCapable.
+6002:   //!
+6003:   //! THREE STREAM_INPUT FIELDS ARE THE PROCESSOR'S, NOT THIS FACE'S (#508,
+6004:   //! processor issues 43 and 49). It never asks for a STREAM_INPUT's
+6005:   //! selector 5 (msrp_failure_bridge_id, from its SRP registrar) or
+6006:   //! selector 7 (probing_status and acmp_status, from its listener's
+6007:   //! committed record), and it replaces selector 4's failure-code byte
+6008:   //! [15:8] from the same registrar. This face therefore answers neither
+6009:   //! selector for an input and leaves that byte zero: a second copy here
+6010:   //! would be a second state owner, and it was one - a bound/settled
+6011:   //! approximation of pbsta that never said ACTIVE, and a zero bridge id.
+6012:   //! The MSRP_FAILURE_VALID and REGISTERING_FAILED flags stay this face's.
+6013:   //!
+6014:   //! HONESTY LEDGER (what this face says and why):
+6015:   //!  - an input's stream_id, DA and VLAN and their STREAM_ID_VALID,
+6016:   //!    STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID flags are valid only
+6017:   //!    while the sink is settled, probing_status PROBING_COMPLETED (Milan
+6018:   //!    v1.2 5.4.2.10.1, Table 5.9; 5.3.8.5, Table 5.5). This face cannot
+6019:   //!    see probing_status, so the PROCESSOR applies that rule to the words
+6020:   //!    below (processor #206, #790): while its committed status is not
+6021:   //!    PROBING_COMPLETED it clears 0x52000000 in selector 0 and answers
+6022:   //!    0 for selector 2 and selector 4 [63:16]. This face's own gate,
+6023:   //!    gsi_setl_w (bound, and the binding view's stream_id nonzero), is
+6024:   //!    wider: the view latches the identity at settle and zeroes it only
+6025:   //!    at unbind, so a sink back in probing still reads "settled" here.
+
+hdl/milan/milan_datapath.sv
+6413:           //! an input's stream_vlan_id [63:48] is unused: the processor
+6414:           //! replaces it with all 16 received VLAN bits (#708)
+6415:           4'd6: gsi_ans_raw_w = {gsi_setl_w
+6416:                                  ? {4'd0, pp_cd_acmp_bound_vlan_w[12*gsi_six_w +: 12]}
+6417:                                  : gsi_decl_w
+6418:                                  ? {4'd0, pp_cd_srp_class_a_vid_w}
+6419:                                  : 16'd0,
+6420:                                  16'd0, gsi_flags_ex_w};
+
+docs/integration/INTEGRATION_GUIDE.md
+58: GET_STREAM_INFO has two owners (#508).
+59: 
+60: - The processor answers four Stream Input fields itself.
+61: - They are probing status and ACMP status.
+62: - They are also the failure code and bridge id.
+63: - It reads its listener record and SRP registrar live.
+64: - `milan_datapath` answers every other word and every validity flag.
+65: - Never add a second source for the processor's four fields.
+
+docs/DOCUMENTATION_AUDIT.md
+270: | [docs/integration/BOARD_PORTING_AX7101.md](integration/BOARD_PORTING_AX7101.md) | 187 | integrator | Board porting - Alinx AX7101 (XC7A100T-2FGG484I) | `sw/litex` | stale | 3 finding(s): D0-010, D0-038, D0-039 | D0 | reference |
+271: | [docs/integration/BUILDING.md](integration/BUILDING.md) | 725 | integrator | Building bitstreams - the AX7101 build flow | `sw/litex`, `scripts`, `sw/builder` | current | no recorded contradiction | D0 | reference |
+272: | [docs/integration/INTEGRATION_GUIDE.md](integration/INTEGRATION_GUIDE.md) | 204 | integrator | Datapath integration contract | `sw/litex`, `tb/verilator/milan_dp` | current | no recorded contradiction | D0 | reference |
+273: | [docs/integration/PORTING_GUIDE.md](integration/PORTING_GUIDE.md) | 97 | integrator | Porting guide | `syn/yosys` | current | no recorded contradiction | D0 | reference |
+
+sw/firmware/milan_baremetal/milan_baremetal.c
+329: #define NVM_SLOT_BYTES (MILAN_FLASH_JOURNAL_SIZE / 2u)
+330: #define NVM_SLOT_A     MILAN_FLASH_JOURNAL_OFFSET
+331: #define NVM_SLOT_B     (MILAN_FLASH_JOURNAL_OFFSET + NVM_SLOT_BYTES)
+332: #define NVM_SLOT_NONE  0xffffffffu
+333: #define NVM_FLASH_PAGE 256u
+334: #define NVM_CMD_WREN   0x06u
+335: #define NVM_CMD_RDSR   0x05u
+
+sw/litex/milan_soc.py
+168: FLASH_ERASE_BLOCK = 0x1_0000     # 64 KiB - the unit of erase, and of slot alignment
+169: FLASHBOOT_RESERVED = {
+170:     # Keep these stable across product revisions: moving them intentionally
+171:     # starts with empty persistence and requires an explicit migration plan.
+172:     "journal": {"offset": 0xEE_0000, "size": 0x02_0000},   # 128 KiB, raw A/B
+173:     "user":    {"offset": 0xF0_0000, "size": 0x10_0000},   # 1 MiB raw records
+174: }
+
+hdl/milan/milan_datapath.sv
+8552:   //! NO SHAPER READS THE SLOPE OR THE VERDICT HERE. The 802.1Qav chain is
+8553:   //! not in this wrapper (NO GENERAL-DATA TX CHAIN at the top of the file,
+8554:   //! HONEST BOUND at the CRF merge): no AAF or CRF frame is credit-shaped.
+8555:   //! The grant OR and slope sum reach one diagnostic word each:
+8556:   //! lwsrp_slope_en -> LWSRP_STATUS[9] and lwsrp_idle_slope -> LWSRP_SLOPE
+8557:   //! 0x698. Licences also read the raw grant PER SOURCE, never that OR or
+8558:   //! sum. No shaper consumes either diagnostic.
