@@ -1,0 +1,26 @@
+prm_old: rc=2 ['RBT: 25 checks, 2 failures'] 2 FAIL lines
+    FAIL: PRM-NA reboot_req_o stays 0 while the MAC holds another lane's frame mid-frame (rise 105454)
+    FAIL: PRM-NA reboot_req_o rises after every frame's last byte and no byte is offered from the rise (rise 105454, last 155514, offered 155514, 1 after)
+	Command being timed: "python3 -I scripts/probe_mid.py $REVIEWS/pp203-r731-2-packet/scratch/old $REVIEWS/pp203-r731-2-packet/scratch receipts/prm_old.out $VALIDATION_TOOLS/pinned-verilator-5.050/verilator"
+	User time (seconds): 162.52
+	System time (seconds): 6.40
+	Percent of CPU this job got: 327%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:51.56
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 496124
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 1
+	Minor (reclaiming a frame) page faults: 1187441
+	Voluntary context switches: 733
+	Involuntary context switches: 44161
+	Swaps: 0
+	File system inputs: 256
+	File system outputs: 416240
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

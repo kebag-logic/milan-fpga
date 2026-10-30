@@ -1,0 +1,47 @@
+--- a/tb/pp_top/sim_main.cpp	2026-10-29 19:30:08.000000000 +0100
++++ b/tb/pp_top/sim_main.cpp	2026-10-30 00:27:22.399650464 +0100
+@@ -12511,7 +12511,44 @@
+           what);
+   }
+ 
++  //! reviewer probe: not advertising, the requester's lock expiring while
++  //! the MAC holds the REBOOT notification's last byte, so the automatic
++  //! unlock's notification waits at the arbiter when the round ends
++  void probe_window(bool advertise, const char* tag) {
++    boot(advertise, tag);
++    register_ctlr(C2_MAC, CTLR2_EID, tag);
++    lock(CTLR_MAC, CTLR_EID, true, tag);
++    io.run_ms(20);
++    io.tx_log.clear();
++    io.stall_rbt_ntf_at_eof = true;
++    send(CTLR_MAC, CTLR_EID, AEM_REBOOT, ti(DT_ENTITY, 0));
++    for (long c = 0; c < 2000L * MS_CYC && !io.tx_eof_stalled; ++c) io.step();
++    CHECK(io.tx_eof_stalled, "%s the MAC holds the REBOOT notification's last byte", tag);
++    io.run_ms(1000);
++    io.stall_rbt_ntf_at_eof = false;
++    io.mac_tx_ready = true;
++    for (long c = 0; c < 3000L * MS_CYC && io.reboot_rise_t < 0; ++c) io.step();
++    io.run_ms(50);
++    int after = 0;
++    for (const auto& e : io.tx_log) {
++      printf("  %s frame: last byte at %ld, subtype %02x, msg %02x, to %012llx, u %d, ct %04x\n",
++             tag, long(e.first), e.second[14], e.second[15],
++             static_cast<unsigned long long>(dst(e.second)),
++             aecp(e.second) ? ((e.second[36] >> 7) & 1) : -1,
++             aecp(e.second) ? ct(e.second) : 0);
++      if (long(e.first) > io.reboot_rise_t) ++after;
++    }
++    printf("  %s reboot_req_o rose at %ld; last byte offered at %ld; %d frame(s) end after the rise\n",
++           tag, io.reboot_rise_t, io.tx_offer_t, after);
++    CHECK(io.reboot_rise_t >= 0 && after == 0 && io.tx_offer_t < io.reboot_rise_t,
++          "%s no byte on tx_* from reboot_req_o's rise (rise %ld, last offered %ld, %d frames after)",
++          tag, io.reboot_rise_t, io.tx_offer_t, after);
++  }
++
+   void run() {
++    probe_window(false, "PRB-NA");
++    probe_window(true, "PRB-ADV");
++    return;
+     refusals();
+     success_with_notifications();
+     a_held_response_holds_the_request();

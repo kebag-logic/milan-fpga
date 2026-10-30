@@ -1,0 +1,61 @@
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -12519,6 +12519,7 @@
+     silent_until_a_delayed_reset();
+     the_controller_probe_stays_silent();
+     every_slot_taken_at_the_shutdown();
++    nonadvertising_pending_frame_probe();
+   }
+ 
+   // ---- RBT1 to RBT4: every refusal, on one boot -----------------------------
+@@ -12767,6 +12768,50 @@
+     CHECK(io.reboot_rise_t >= 0 && deps == 0,
+           "RBT8 an entity that is not advertising raises reboot_req_o with no "
+           "ENTITY_DEPARTING (%d)", deps);
++  }
++
++
++  void nonadvertising_pending_frame_probe() {
++    boot(false, "PROBE_NO_ADV");
++    io.d->link_up_i = 1;
++    io.idle(50);
++    register_ctlr(C2_MAC, CTLR2_EID, "PROBE_NO_ADV");
++    lock(CTLR_MAC, CTLR_EID, true, "PROBE_NO_ADV");
++    for (uint16_t k = 0; k < 8; ++k)
++      io.feed(acmp_frame(CTLR_MAC, 6, 0, 0, CTLR_EID, T1_EID, EID, k, k, 0, 0,
++                         uint16_t(0x4A00 + k), 0, 0));
++    io.feed(adp_frame(0, T1_MAC, T1_EID, 31, 1, GM0, DOM0, 0xBBB0000000000001ULL, 8,
++                      TKCAP, 0, 0, 0x0000C588u, 0, 0));
++    io.run_ms(20);
++    io.tx_log.clear();
++    io.stall_rbt_ntf_at_eof = true;
++    send(CTLR_MAC, CTLR_EID, AEM_REBOOT, ti(DT_ENTITY, 0));
++    for (long c=0; c<2000L*MS_CYC && !io.tx_eof_stalled; ++c) io.step();
++    CHECK(io.tx_eof_stalled, "PROBE_NO_ADV required notification held at EOF");
++    io.run_ms(5000);
++    printf("PROBE_NO_ADV free standard slots=%u\n", unsigned(io.d->dbg_txs_free_o - io.d->dbg_txs_slot4_free_o));
++    io.stall_rbt_ntf_at_eof = false;
++    io.mac_tx_ready = true;
++    for (long c=0; c<3000L*MS_CYC && io.reboot_rise_t<0; ++c) io.step();
++    printf("PROBE_NO_ADV request=%ld in_frame=%u bytes=%zu valid=%u\n",io.reboot_rise_t, unsigned(io.in_frame), io.cur.size(), unsigned(io.d->tx_valid_o));
++    io.run_ms(2000);
++    int late=0, deps=0, success=0, notifications=0;
++    for (const auto& e: io.tx_log) {
++      if (departing(e.second)) ++deps;
++      if (aecp(e.second) && ct(e.second)==AEM_REBOOT) {
++        if (e.second[36]&0x80) ++notifications;
++        else if (st(e.second)==AECP_SUCCESS) ++success;
++      }
++      if (long(e.first)>=io.reboot_rise_t) {
++        ++late;
++        printf("PROBE_NO_ADV late frame cycle=%llu request=%ld ethertype=%02x%02x subtype=%02x mt=%02x\n", (unsigned long long)e.first, io.reboot_rise_t,e.second[12],e.second[13],e.second[14],e.second[15]);
++      }
++    }
++    CHECK(deps==0 && success==1 && notifications==1 && io.reboot_rise_t>=0,
++      "PROBE_NO_ADV legitimate no-advertising shutdown (%d departures %d success %d notifications)",deps,success,notifications);
++    CHECK(io.tx_offer_t < io.reboot_rise_t && late==0,
++      "PROBE_NO_ADV no byte offered after reset request (%d frames, last offer %ld request %ld)",late,io.tx_offer_t,io.reboot_rise_t);
++    CHECK(io.d->reboot_req_o && !io.reboot_fell, "PROBE_NO_ADV request remains held");
+   }
+ 
+   // ---- RBT9: nothing on tx_* from the final DEPARTING to a delayed reset -----

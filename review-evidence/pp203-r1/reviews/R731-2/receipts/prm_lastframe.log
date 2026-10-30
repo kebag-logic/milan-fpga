@@ -1,0 +1,27 @@
+prm_lastframe: rc=2 ['RBT: 25 checks, 3 failures'] 3 FAIL lines
+    FAIL: PRM-NA reboot_req_o stays 0 while the MAC holds another lane's frame mid-frame (rise 105454)
+    FAIL: PRM-NA reboot_req_o rises after every frame's last byte and no byte is offered from the rise (rise 105454, last 155514, offered 155514, 1 after)
+    FAIL: PRM-ADV reboot_req_o rises after every frame's last byte and no byte is offered from the rise (rise 627089, last 627169, offered 627169, 1 after)
+	Command being timed: "python3 -I scripts/probe_mid.py $REVIEWS/pp203-r731-2-packet/scratch/head $REVIEWS/pp203-r731-2-packet/scratch receipts/prm_lastframe.out $VALIDATION_TOOLS/pinned-verilator-5.050/verilator $REVIEWS/pp203-r731-2-packet/scratch/head/tb/pp_top/aecp_dispatch_mutations/rbt-last-frame-unwatched.patch"
+	User time (seconds): 159.25
+	System time (seconds): 6.39
+	Percent of CPU this job got: 342%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:48.38
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 493740
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1204425
+	Voluntary context switches: 798
+	Involuntary context switches: 41822
+	Swaps: 0
+	File system inputs: 88
+	File system outputs: 416768
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

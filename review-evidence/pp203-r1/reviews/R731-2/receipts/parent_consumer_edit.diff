@@ -1,0 +1,13 @@
+diff --git a/hdl/milan/KL_pp_shadow.sv b/hdl/milan/KL_pp_shadow.sv
+index b9831db..7a8a3df 100644
+--- a/hdl/milan/KL_pp_shadow.sv
++++ b/hdl/milan/KL_pp_shadow.sv
+@@ -1264,6 +1264,8 @@ module KL_pp_shadow #(
+       //! no identification button on this board yet: tied off, and never read
+       //! while EN_IDENTIFY_NOTIF_P is 0 (IEEE 1722.1-2021 7.5.1, Milan 5.4.5.4)
+       .identify_button_i   (1'b0),
++      //! reviewer consumer probe: REBOOT request left open (issue #203)
++      .reboot_req_o        (),
+ 
+       .entity_enable_i     (enable_i),
+       .link_up_i           (link_up_i),

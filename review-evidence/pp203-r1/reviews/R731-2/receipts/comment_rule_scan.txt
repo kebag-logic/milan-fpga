@@ -1,0 +1,22 @@
+22:73:+  //!    another lane had selected before the transmit gate closed (a lock
+31:133:+| `rbt-response-unwatched` | the sequence leaves RB_RESP without the response's last byte, so the transmit gate closes while the MAC still holds it (the last frame's wait still holds the request) | `RBT7 every TX lane is open while the MAC holds the SUCCESS response's last byte` | 1 |
+33:135:+| `rbt-notification-flight-unwatched` | RB_NTF without the unsolicited frame in flight (`tx_fly_uns_r`), so the gate closes while the MAC still holds the notification and no other lane's frame follows it | `RBT12 every TX lane is open while the MAC holds the REBOOT notification's last byte` | 10 |
+42:160:+| `rbt-quiet-opens-notifications` | the unsolicited AECP lane let through the gate (lock expiry, every notification) | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 3 |
+43:163:+| `rbt-quiet-opens-listener` | the listener's lane let through (its probes) | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 3 |
+44:166:+| `rbt-quiet-opens-srp` | SRP's lane let through | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 4 |
+47:183:+round's waits are named by the open gate while the MAC holds that frame (RBT7, RBT12),
+56:208:+  selected as the notification round ends. One controller is registered and
+58:210:+  byte 1 s (every TX lane still open meanwhile), so the lock expires and its
+71:234:+    # the response's and the notification round's, whose loss now closes the
+75:242:+     "RBT7 every TX lane is open while the MAC holds the SUCCESS response's last byte"),
+76:247:+     "RBT12 every TX lane is open while the MAC holds the REBOOT notification's last byte"),
+118:396:+    lock_expiry_in_flight_at_the_round_end();
+121:406:+          "RBT7 every TX lane is open while the MAC holds the SUCCESS response's last "
+124:416:+  // ---- RBT12, RBT13: not advertising, another lane's frame at the round's end
+126:418:+  //! the notification round has left, and a frame another lane selected by
+139:431:+  void lock_expiry_in_flight_at_the_round_end() {
+144:436:+    const auto held = another_frame_at_the_round_end("RBT12", 1000);
+163:455:+    const auto held = another_frame_at_the_round_end("RBT13", 5000);
+172:464:+  //! (every lane still open), then the next frame's last byte instead.
+174:466:+  std::vector<uint8_t> another_frame_at_the_round_end(const char* tag, int ms) {
+182:474:+          "%s every TX lane is open while the MAC holds the REBOOT notification's last "

@@ -1,0 +1,24 @@
+301:  assign busy_o      = (arb_st_r == A_STREAM);
+M6 rc=2
+FAIL: B1 stream byte-exact, no model mismatch
+FAIL: B2 clean
+FAIL: B3 clean
+FAIL: C both frames byte-exact and uninterrupted
+FAIL: D clean
+FAIL: E pacing rounds byte-exact and model-matched
+FAIL: F clean
+FAIL: G busy_o from each selection to its last byte taken (3084 off)
+FAIL: H accepted retry is byte-exact and frees the pool
+67 checks: 58 PASS, 9 FAIL
+301:  assign busy_o      = (arb_st_r != A_IDLE) && !(ser_valid_i && ser_last_i);
+M7 rc=2
+FAIL: B1 stream byte-exact, no model mismatch
+FAIL: B2 clean
+FAIL: B3 clean
+FAIL: C both frames byte-exact and uninterrupted
+FAIL: D clean
+FAIL: E pacing rounds byte-exact and model-matched
+FAIL: F clean
+FAIL: G busy_o from each selection to its last byte taken (1491 off)
+FAIL: H accepted retry is byte-exact and frees the pool
+67 checks: 58 PASS, 9 FAIL
