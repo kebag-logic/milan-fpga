@@ -1,0 +1,75 @@
+== D0 control: unmodified head
+rc=0
+    inventory: 63 Markdown files, OK
+== D1 fake operation OP_FAKE = 5'd30 appended to the enum
+    planted: 87:    OP_SHIFT_R    = 5'd29,
+    planted: 88:    OP_FAKE      = 5'd30   // logical right shift by imm[5:0]
+rc=1
+    INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: says 30 operations, the enum declares 31
+    INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: table lacks FAKE
+    inventory: 63 Markdown files, 2 FAILURES
+== D2 the stale row dropped from the 09 §7 target table
+rc=1
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table lacks `stale`
+    inventory: 63 Markdown files, 1 FAILURES
+== D3 the inventory row dropped from the 09 §7 target table
+rc=1
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table lacks `inventory`
+    inventory: 63 Markdown files, 1 FAILURES
+== D4 a target (newgate) added to the check rule
+    planted: 17:check: lint wavedrom-check links matrix reqtags modmatrix params aecpcmd ids figures inventory stale newgate
+rc=1
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table lacks `newgate`
+    inventory: 63 Markdown files, 1 FAILURES
+== D5 06 restored to its 18a4dc1 text
+rc=1
+    INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: says 29 operations, the enum declares 30
+    INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: table lacks SHIFT_R
+    inventory: 63 Markdown files, 2 FAILURES
+== D6 SHIFT_R removed from the Ops cell, still named in the Notes cell
+    planted: 1434:| Data | `MOVE`, `COMPARE`, `SET_MASKED` | flag-word assembly; `SHIFT_R` shifts the 64-bit operand right, logically, by `imm[5:0]` |
+rc=1
+    INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: table lacks SHIFT_R
+    inventory: 63 Markdown files, 1 FAILURES
+== D7 µISA heading count off by one (31)
+rc=1
+    INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: says 31 operations, the enum declares 30
+    inventory: 63 Markdown files, 1 FAILURES
+== D8 an operation named twice (MOVE added to Flow)
+rc=1
+    INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: table names MOVE twice
+    inventory: 63 Markdown files, 1 FAILURES
+== D9 make check with D1 planted (rc of the make target)
+make inventory rc=2
+    INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: table lacks FAKE
+    inventory: 63 Markdown files, 2 FAILURES
+    make: *** [Makefile:77: inventory] Error 1
+== L1 limit: a second check rule line adds a prerequisite (make merges both)
+    make -n check lines: 31
+    make database: check: lint wavedrom-check links matrix reqtags modmatrix params aecpcmd ids figures inventory stale newgate
+rc=0
+    inventory: 63 Markdown files, OK
+== L2 limit: the check rule continued with a backslash
+    planted: 17:check: lint \
+    planted: 18-  wavedrom-check links matrix reqtags modmatrix params aecpcmd ids figures inventory stale
+rc=1
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table lacks `\`
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `links`, which `check` does not run
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `wavedrom-check`, which `check` does not run
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `matrix`, which `check` does not run
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `reqtags`, which `check` does not run
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `modmatrix`, which `check` does not run
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `params`, which `check` does not run
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `aecpcmd`, which `check` does not run
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `ids`, which `check` does not run
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `figures`, which `check` does not run
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `inventory`, which `check` does not run
+    INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `stale`, which `check` does not run
+    inventory: 63 Markdown files, 12 FAILURES
+== L3 limit: the µISA count restated elsewhere (concept page banner says 29-operation)
+    present at head: 18:> | a micro-ISA with `READ_MEMORY`, `WRITE_DESCRIPTOR`, `CHECK_ACQUIRE`, `ALLOCATE_CONNECTION`, `SEND_UNSOLICITED` and others (§9) | a different 29-operation ISA in [`hdl/aecp/ucpu_pkg.sv`](hdl/aecp/ucpu_pkg.sv); [06 §8](docs/architecture/06_aecp_engine.md) records which sketch operations were dropped and why |
+rc=0
+    inventory: 63 Markdown files, OK
+== end state
+    0ea635ea22eeb6d97335c4e814eede1ac0d67ebc
+    ?? .venv-wavedrom
