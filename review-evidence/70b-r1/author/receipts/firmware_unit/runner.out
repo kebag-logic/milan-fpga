@@ -1,0 +1,9 @@
+rc=0  <tools>/md-venv-40cdefe08ebd/bin/python3 sw/firmware/gtest/tally_selftest.py
+rc=0  <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/ci_rv32_sdk_selftest.py
+rc=0  <tools>/md-venv-40cdefe08ebd/bin/python3 sw/firmware/gtest/fw_rv32_selftest.py --require-rv32
+rc=0  <tools>/md-venv-40cdefe08ebd/bin/python3 sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32 --self-test --jobs 8
+rc=0  <tools>/md-venv-40cdefe08ebd/bin/python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs 8
+rc=0  <tools>/md-venv-40cdefe08ebd/bin/python3 sw/firmware/gtest/fw_coverage.py --selftest
+rc=0  <tools>/md-venv-40cdefe08ebd/bin/python3 sw/firmware/gtest/fw_coverage.py --check --jobs 8
+steps: 7  failing: 0
+elapsed=2963s rc=0

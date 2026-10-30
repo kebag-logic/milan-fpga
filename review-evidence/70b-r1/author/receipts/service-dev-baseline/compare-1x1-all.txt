@@ -1,0 +1,32 @@
+1x1 'all' plan, populated, product CPU 50 MHz / system 100 MHz
+dev 1e80128f findings [] | this lane c71364bd findings []
+duty                             dev ms      lane ms   delta ms
+boot_to_entity_enabled        359.42385    359.41313   -0.01072
+aem_copy_crc                  330.05353    330.04281   -0.01072
+restore_walk                    1.72574      1.71502   -0.01072
+milan_status                    8.78129      8.78271   +0.00142
+milan_gettime                   2.32431      2.32573   +0.00142
+milan_nvm                     220.89859    220.95131   +0.05272
+milan_nvm commit              290.77593    290.86409   +0.08816
+milan_nvm commit              290.78841    290.86473   +0.07632
+milan_nvm                     221.37401    221.42675   +0.05274
+milan_nvm wipe                 41.19605     41.19893   +0.00288
+wipe_erase_envelope            19.33046     19.33190   +0.00144
+wipe_erase_envelope            20.52602     20.52602   +0.00000
+milan_nvm                       8.07051      8.07195   +0.00144
+milan_nvm invalid               1.97617      1.97759   +0.00142
+milan_settime 0 0               2.45675      2.45817   +0.00142
+milan_settime 18446744073 709551615      5.63955      5.64109   +0.00154
+milan_settime 18446744073 709551616      5.43637      5.43791   +0.00154
+milan_settime invalid           2.42463      2.42605   +0.00142
+milan_utc 0 0 37                3.37813      3.37955   +0.00142
+milan_utc 18446744073709551615 0 1      6.43833      6.43989   +0.00156
+milan_utc invalid 0 0           2.53259      2.53401   +0.00142
+milan_status                    8.85139      8.85281   +0.00142
+journal_commit_bracket        164.27578    164.32124   +0.04546
+erase_enclosed_to_first_program     20.55191     20.55191   +0.00000
+journal_commit_bracket        164.27766    164.32124   +0.04358
+erase_enclosed_to_first_program     20.55191     20.55191   +0.00000
+maximum_heartbeat_gap         265.93300    266.01756   +0.08456
+heartbeat period margin ms: dev 234.067 lane 233.98244
+liveness margin ms: dev 1734.067 lane 1733.98244

@@ -1,0 +1,8 @@
+HEAD c71364bd34c31ea23c1f6be4758f389c138c63dd
+[FAIL] the unmutated gateware does NOT pass the dynmap leg (caught) - its mutant results are meaningless
+[FAIL] mutant 'the lock survives the power cycle' failed, but not the named check ('[VOLATILE] the lock is clear after the restore: SET_NAME from B is SUCCESS')
+[FAIL] mutant 'the registered-controller list survives the power cycle' failed, but not the named check ('[VOLATILE] the registry is empty after the restore')
+[FAIL] mutant 'the IDENTIFY value survives the power cycle' failed, but not the named check ('[VOLATILE] IDENTIFY reads 0 after the restore')
+
+4 checks: 0 PASS, 4 FAIL
+elapsed=143s rc=1
