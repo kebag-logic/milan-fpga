@@ -140,7 +140,8 @@ The adopted image does not meet it:
 | WNS / WHS | - | +0.440 / +0.036 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
 
 The table is the gate's record.
-The slice row is the binding limit: the shipping route at FPGA-gPTP `f97c1803` ([#803](https://github.com/kebag-logic/milan-fpga/issues/803)) on processor `f65c8ff7` places 15,834 slices, so placement has 16 of 15,850 left.
+The slice row is the binding limit: the shipping route at FPGA-gPTP `135afd04` ([#806](https://github.com/kebag-logic/milan-fpga/issues/806)) on processor `f65c8ff7` places 15,823 slices, so placement has 27 of 15,850 left.
+That route meets the build floor at every corner, at +0.032 / +0.034 ns, but its WNS is 0.408 ns under the record's, beyond the gate's 0.25 ns tolerance, so the gate refuses it; [#806](https://github.com/kebag-logic/milan-fpga/issues/806) holds the owner decision that refusal needs.
 The next growth on the shipping image therefore has no slice room and needs its own owner decision ([the extension](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062)).
 The record's route leaves 70 slices; the [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) accepted that image's growth, and Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
 The routed critical setup path has 18 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
