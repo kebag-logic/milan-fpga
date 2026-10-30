@@ -1,0 +1,26 @@
+boot-walk endstation_ax7101_1x1_tdm8: 7 boot paths; 16 finding(s)
+BOOT-WALK FINDING: boot walk, cold boot: the enable request was reported 0 time(s), expected once
+BOOT-WALK FINDING: boot walk, cold boot: the console claims the entity enabled ('entity enabled') with done=1 closed=0
+BOOT-WALK FINDING: boot walk, refused window: the enable request was reported 0 time(s), expected once
+BOOT-WALK FINDING: boot walk, refused window: the console claims the entity enabled ('entity enabled') with done=1 closed=0
+BOOT-WALK FINDING: boot walk, persistence disabled: the enable request was reported 0 time(s), expected once
+BOOT-WALK FINDING: boot walk, persistence disabled: the console claims the entity enabled ('entity enabled') with done=1 closed=0
+BOOT-WALK FINDING: boot walk, cold boot, CLOSED restore: the enable request was reported 0 time(s), expected once
+BOOT-WALK FINDING: boot walk, cold boot, CLOSED restore: the console claims the entity enabled ('entity enabled') with done=0 closed=1
+BOOT-WALK FINDING: boot walk, persistence disabled, CLOSED restore: the enable request was reported 0 time(s), expected once
+BOOT-WALK FINDING: boot walk, persistence disabled, CLOSED restore: the console claims the entity enabled ('entity enabled') with done=0 closed=1
+BOOT-WALK FINDING: boot walk, cold boot, stalled restore: the timeout did not report that the restore has not reached its terminal and the fabric holds the enable
+BOOT-WALK FINDING: boot walk, cold boot, stalled restore: the enable request was reported 0 time(s), expected once
+BOOT-WALK FINDING: boot walk, cold boot, stalled restore: the console claims the entity enabled ('entity enabled') with done=0 closed=0
+BOOT-WALK FINDING: boot walk, persistence disabled, stalled restore: the timeout did not report that the restore has not reached its terminal and the fabric holds the enable
+BOOT-WALK FINDING: boot walk, persistence disabled, stalled restore: the enable request was reported 0 time(s), expected once
+BOOT-WALK FINDING: boot walk, persistence disabled, stalled restore: the console claims the entity enabled ('entity enabled') with done=0 closed=0
+CAUGHT boot walk, cold boot, CLOSED restore: the console claims the entity enabled
+CAUGHT boot walk, cold boot, stalled restore: the timeout did not report
+PHY_BOOT shipping: transfers=54 publishes=16 idle_publishes=8 status=13
+PHY_BOOT persistence disabled: transfers=0 publishes=0 idle_publishes=0 status=0
+PHY_BOOT identity mismatch: transfers=0 publishes=0 idle_publishes=0 status=0
+PHY FINDING: PHY boot path persistence disabled: the link-status CSR holds 0, not the peer's 1000BASE-T full duplex (13)
+PHY FINDING: PHY boot path persistence disabled: 0 publication(s) in 1000 ms of console idle, fewer than one per 250 ms
+CAUGHT PHY boot path persistence disabled: the link-status CSR holds 0
+DEV CONTROLS: every named check fails on dev's firmware

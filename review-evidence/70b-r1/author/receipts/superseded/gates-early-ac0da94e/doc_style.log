@@ -1,0 +1,7 @@
+$ (cd .) python3 scripts/check_doc_style.py
+docs/guides/BOARD_DEPLOYMENT.md:221: sentence has 12 words; maximum is 10: The fabric holds the entity until the saved-state restore reaches its terminal.
+docs/guides/BOARD_DEPLOYMENT.md:221: paragraph has 30 words; maximum is 20: The third line prints only after the model check passes. It reports that the firmware requested the enable. The fabric holds the entity until the saved-state restore reaches its terminal.
+docs/guides/BOARD_DEPLOYMENT.md:221: paragraph has too many sentences: The third line prints only after the model check passes. It reports that the firmware requested the enable. The fabric holds the entity until the saved-state restore reaches its terminal.
+documentation style: FAIL (3 findings)
+rc=1
+tree clean after the gate

@@ -1,0 +1,161 @@
+$ (cd tests) behave
+USING RUNNER: behave.runner:Runner
+@aecp @cmd:READ_DESCRIPTOR @class:getter
+Feature: READ_DESCRIPTOR is answered again (IEEE 1722.1-2021 7.4.5) # features/aecp_read_descriptor.feature:5
+  On 2026-08-12 this repository's AECP/AEM RTL was deleted and this tier went
+  with it, on the premise "this device answers no AECP command at all". The
+  protocol-processor submodule then landed its AECP uCPU and the premise
+  expired: READ_DESCRIPTOR (0x0004) is one of the processor's served AEM
+  commands. It reads the supplied descriptor image and answers its two failure
+  cases apart from each other.
+  THREE ANSWERS, ONE COMMAND. Success is configuration_index, a reserved
+  halfword and the descriptor itself, so the AECPDU is 28 + N. A locate that
+  finds no such (configuration, type, index) is NO_SUCH_DESCRIPTOR. A
+  configuration_index outside configurations_count is BAD_ARGUMENTS, because
+  the microprogram range-checks the configuration BEFORE it locates - the two
+  statuses come from two different checks and this feature keeps them apart.
+  BOTH failures answer the IEEE 7.4.5 four-octet {descriptor_type,
+  descriptor_index} stub, "in the same location as in the command frame", so
+  a controller can tell which read failed without keeping its own book.
+  WHAT IS DELIBERATELY NOT HERE. This feature covers READ_DESCRIPTOR only. The
+  served inventory, including GET_COUNTERS, has command-specific BDD and RTL
+  coverage. Commands outside that inventory and the Table 5.22 unsolicited
+  push remain separate gaps. A scenario that asserts an answer nothing gives
+  would be a conformance claim with no device behind it.
+  This is an OFFLINE model (tests/README.md T1) - a Python mirror of the
+  shipped command path in tests/steps/aecp_engine_steps.py, which lists the
+  submodule sources it was derived from. It proves the CONTRACT, not the
+  Verilog; the submodule owns benches for the Verilog.
+  @aecp @cmd:READ_DESCRIPTOR @class:getter
+  Feature: READ_DESCRIPTOR is answered again (IEEE 1722.1-2021 7.4.5)  # features/aecp_read_descriptor.feature:5
+
+  @class:getter
+  Scenario: reading ENTITY[0] answers SUCCESS with the whole response shape          # features/aecp_read_descriptor.feature:39
+    Given the protocol-processor AECP engine with the 8-descriptor Milan image       # steps/aecp_engine_steps.py:309
+    When the controller reads descriptor type 0 index 0 in configuration 0           # steps/aecp_engine_steps.py:342
+    Then the AECP response status is 0                                               # steps/aecp_engine_steps.py:534
+    And the AECP response message_type is 1                                          # steps/aecp_engine_steps.py:541
+    And the AECP response echoes command_type 4 with u clear                         # steps/aecp_engine_steps.py:601
+    And the AECP response target_entity_id is our own                                # steps/aecp_engine_steps.py:635
+    And the AECP response echoes the sequence_id and the controller_entity_id        # steps/aecp_engine_steps.py:623
+... 4007 lines omitted; see LARGE-FILES.txt ...
+    Then every CRF format verdict is PASS                                         # steps/wire_truth_steps.py:483
+    And the expected CRF rate is 500 PDUs per second                              # steps/wire_truth_steps.py:556
+    And the analyser reports PASS on "crf.pdu-rate"                               # steps/wire_truth_steps.py:472
+
+  @class:invariant @negative-control
+  Scenario: a CRF timestamp_interval of 48 fails Milan 7.3.2  # features/wire_truth_avtp.feature:236
+    Given the wire-truth analyser is importable               # steps/wire_truth_steps.py:65
+    Given a hand-built CRF frame with timestamp interval 48   # steps/wire_truth_steps.py:162
+    When the analyser checks the CRF format and rate          # steps/wire_truth_steps.py:435
+    Then the analyser reports FAIL on "crf.milan-format"      # steps/wire_truth_steps.py:472
+
+  @class:invariant @clause:17221-6.2.1
+  Scenario: the 82-octet ADPDU rule and the available_index that must advance  # features/wire_truth_avtp.feature:243
+    Given the wire-truth analyser is importable                                # steps/wire_truth_steps.py:65
+    Given hand-built ADPDUs with available indices 1,2,3                       # steps/wire_truth_steps.py:197
+    When the analyser checks the ADP frame rule                                # steps/wire_truth_steps.py:443
+    Then every ADP verdict is PASS                                             # steps/wire_truth_steps.py:483
+    And the built ADPDU frame is 82 octets                                     # steps/wire_truth_steps.py:564
+
+  @class:invariant @negative-control
+  Scenario: a repeated available_index reads as an incoherent entity  # features/wire_truth_avtp.feature:250
+    Given the wire-truth analyser is importable                       # steps/wire_truth_steps.py:65
+    Given hand-built ADPDUs with available indices 5,5,6              # steps/wire_truth_steps.py:197
+    When the analyser checks the ADP frame rule                       # steps/wire_truth_steps.py:443
+    Then the analyser reports FAIL on "available-index-advances"      # steps/wire_truth_steps.py:472
+
+  @class:invariant @clause:17221-9.2.1.1.6 @regression
+  Scenario: a frame that lies about its control_data_length is caught  # features/wire_truth_avtp.feature:258
+    Given the wire-truth analyser is importable                        # steps/wire_truth_steps.py:65
+    Given a hand-built ADPDU that claims control_data_length 200       # steps/wire_truth_steps.py:207
+    When the analyser checks control length honesty                    # steps/wire_truth_steps.py:450
+    Then the analyser reports FAIL on "length-honest"                  # steps/wire_truth_steps.py:472
+    And the liar's declared control_data_length is 200                 # steps/wire_truth_steps.py:573
+
+  @class:honesty @negative-control
+  Scenario: an empty capture is a FAIL, never a clean pass    # features/wire_truth_avtp.feature:267
+    Given the wire-truth analyser is importable               # steps/wire_truth_steps.py:65
+    When the analyser checks the capture shape                # steps/wire_truth_steps.py:457
+    Then the analyser reports FAIL on "stream-frames-present" # steps/wire_truth_steps.py:472
+
+  @class:decoder @regression
+  Scenario: a ProfiShark tap capture only decodes with its 28-octet offset  # features/wire_truth_avtp.feature:274
+    Given the wire-truth analyser is importable                             # steps/wire_truth_steps.py:65
+    Given a written pcap of 3 tap records with a 28 octet header and an FCS # steps/wire_truth_steps.py:241
+    When the analyser reads it with the tap offset                          # steps/wire_truth_steps.py:262
+    Then the analyser reports PASS on "stream-frames-present"               # steps/wire_truth_steps.py:472
+    When the analyser reads it without the tap offset                       # steps/wire_truth_steps.py:272
+    Then the analyser reports FAIL on "stream-frames-present"               # steps/wire_truth_steps.py:472
+
+  @class:honesty @negative-control @rule:empty-collection-is-a-SKIP
+  Scenario: an empty capture leaves NO check silent and NO check passing  # features/wire_truth_avtp.feature:286
+    Given the wire-truth analyser is importable                           # steps/wire_truth_steps.py:65
+    When the analyser checks an empty capture end to end                  # steps/wire_truth_steps.py:581
+    Then no check verdict is PASS                                         # steps/wire_truth_steps.py:588
+    And every check family is represented                                 # steps/wire_truth_steps.py:619
+    And every SKIP names what was absent                                  # steps/wire_truth_steps.py:630
+    And the capture-shape verdict is FAIL                                 # steps/wire_truth_steps.py:639
+
+  @class:srp @clause:8021Q-35.2.2 @clause:Milan-5.3.7.2
+  Scenario: the Talker Advertise FirstValue decodes to its 25 clause-defined octets  # features/wire_truth_avtp.feature:307
+    Given the wire-truth analyser is importable                                      # steps/wire_truth_steps.py:65
+    Given a hand-built MSRP Talker Advertise for stream 0200000000020003             # steps/wire_truth_steps.py:649
+    When the analyser decodes the MRPDU                                              # steps/wire_truth_steps.py:671
+    Then the attribute is a Talker Advertise                                         # steps/wire_truth_steps.py:682
+    And the declared destination address is 91e0f000fe07                             # steps/wire_truth_steps.py:689
+    And the declared vlan identifier is 2                                            # steps/wire_truth_steps.py:697
+    And the declared MaxFrameSize is 1024                                            # steps/wire_truth_steps.py:705
+    And the attribute is declaring                                                   # steps/wire_truth_steps.py:712
+
+  @class:srp @clause:8021Q-35.2.2.8.2
+  Scenario: a Listener attribute's declaration type rides the FourPackedEvents vector  # features/wire_truth_avtp.feature:321
+    Given the wire-truth analyser is importable                                        # steps/wire_truth_steps.py:65
+    Given a hand-built MSRP Listener Ready for stream 0200000000020003                 # steps/wire_truth_steps.py:663
+    When the analyser decodes the MRPDU                                                # steps/wire_truth_steps.py:671
+    Then the listener declaration is "Ready"                                           # steps/wire_truth_steps.py:719
+
+  @class:srp @clause:Milan-5.3.7.2 @regression
+  Scenario: a talker Stream Output that never declares is found from the wire  # features/wire_truth_avtp.feature:330
+    Given the wire-truth analyser is importable                                # steps/wire_truth_steps.py:65
+    Given the entity declares 5 talker stream ids from 0200000000020000        # steps/wire_truth_steps.py:727
+    And only stream 0200000000020000 and 0200000000020001 advertise            # steps/wire_truth_steps.py:738
+    When the analyser checks the SRP declarations                              # steps/wire_truth_steps.py:790
+    Then the analyser reports FAIL on "talker-advertise-declared"              # steps/wire_truth_steps.py:472
+    And the missing declarations are named                                     # steps/wire_truth_steps.py:796
+
+  @class:srp @clause:Milan-5.3.7.3 @negative-control
+  Scenario: frames on the wire with no Listener Ready are unreserved              # features/wire_truth_avtp.feature:343
+    Given the wire-truth analyser is importable                                   # steps/wire_truth_steps.py:65
+    Given a stream on the wire whose only Listener declaration is "Asking Failed" # steps/wire_truth_steps.py:748
+    When the analyser checks the SRP declarations                                 # steps/wire_truth_steps.py:790
+    Then the analyser reports FAIL on "listener-declaration-present"              # steps/wire_truth_steps.py:472
+
+  @class:srp @clause:Milan-5.3.7.4 @negative-control
+  Scenario Outline: the declaration and the frames must agree about dmac -- @1.1   # features/wire_truth_avtp.feature:363
+    Given the wire-truth analyser is importable                                    # steps/wire_truth_steps.py:65
+    Given a stream whose wire dmac differs from its declaration                    # steps/wire_truth_steps.py:764
+    When the analyser checks the SRP declarations                                  # steps/wire_truth_steps.py:790
+    Then the analyser reports FAIL on "declared-dmac-matches-wire"                 # steps/wire_truth_steps.py:472
+
+  @class:srp @clause:Milan-5.3.7.4 @negative-control
+  Scenario Outline: the declaration and the frames must agree about vid -- @1.2   # features/wire_truth_avtp.feature:364
+    Given the wire-truth analyser is importable                                   # steps/wire_truth_steps.py:65
+    Given a stream whose wire vid differs from its declaration                    # steps/wire_truth_steps.py:764
+    When the analyser checks the SRP declarations                                 # steps/wire_truth_steps.py:790
+    Then the analyser reports FAIL on "declared-vid-matches-wire"                 # steps/wire_truth_steps.py:472
+
+  @class:srp @clause:8021Q-35.2.2.9
+  Scenario: a capture with no MRP frames says the tap is what is missing  # features/wire_truth_avtp.feature:367
+    Given the wire-truth analyser is importable                           # steps/wire_truth_steps.py:65
+    Given a stream on the wire with no MRP frames captured at all         # steps/wire_truth_steps.py:782
+    When the analyser checks the SRP declarations                         # steps/wire_truth_steps.py:790
+    Then every SRP verdict is SKIP                                        # steps/wire_truth_steps.py:805
+    And the SRP skip says an inline tap is required                       # steps/wire_truth_steps.py:814
+
+14 features passed, 0 failed, 0 skipped
+495 scenarios passed, 0 failed, 0 skipped
+2288 steps passed, 0 failed, 0 skipped
+Took 0min 2.679s
+rc=0
+tree clean after the gate

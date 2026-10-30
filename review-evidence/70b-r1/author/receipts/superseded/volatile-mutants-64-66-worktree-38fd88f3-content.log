@@ -1,0 +1,7 @@
+[PASS] the unmutated gateware still passes the dynmap leg
+[PASS] mutant caught: the lock survives the power cycle - breaks "[VOLATILE] the lock is clear after the restore: SET_NAME from B is SUCCESS" (its tallies report 3 failure(s) across 711 checks)
+[PASS] mutant caught: the registered-controller list survives the power cycle - breaks "[VOLATILE] the registry is empty after the restore" (its tallies report 1 failure(s) across 711 checks)
+[PASS] mutant caught: the IDENTIFY value survives the power cycle - breaks "[VOLATILE] IDENTIFY reads 0 after the restore" (its tallies report 1 failure(s) across 711 checks)
+
+4 checks: 4 PASS, 0 FAIL
+elapsed=657s rc=0

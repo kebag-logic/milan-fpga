@@ -1,0 +1,14 @@
+HEAD c71364bd34c31ea23c1f6be4758f389c138c63dd + run.py 5c2a6477f3172ff241c549828604c40fa5230d49b86d4b2093fc16d2ee6d9058
+gen rc=0
+repeat rc=0
+repeat byte-identical
+5853255ddcfb9e5206e4b2731a83e619569ea870be2c13ff3c52bde40a568c3c  tb/verilator/fw_service_budget/oracle.json
+135343 tb/verilator/fw_service_budget/oracle.json
+== fw_service_budget_flash: checks: 14   failures: 0 ==
+RESULT: PASS
+PASS: dispatch removal caught by continuous backing and per-line checks
+fw_service_budget_oracle: checks: 55 failures: 0
+PASS: over-budget duty, marker integrity and product dispatch census
+selftest rc=0
+ M tb/verilator/fw_service_budget/oracle.json
+ M tb/verilator/fw_service_budget/run.py
