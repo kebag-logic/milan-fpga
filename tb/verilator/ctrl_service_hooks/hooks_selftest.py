@@ -356,6 +356,10 @@ def check_aging_group() -> None:
     discovered = min(n for n, s in enumerate(steps) if s.startswith('mark hooks-disc-aging.available'))
     expect(len(answered) == 2 and max(answered) < discovered,
            f'the PROBE_TX answers {answered}, the input {discovered}')
+    binds = [n for n, s in enumerate(steps) if s.startswith('frame ') and n < discovered
+             and bytes.fromhex(s.split()[2])[15] & 0xF == f.ACMP['BIND_RX']]
+    expect(len(binds) == 2 and binds[0] < answered[0] < binds[1] < answered[1],
+           f'each sink is not answered before the next is bound: binds {binds}, answers {answered}')
     for i in range(2):
         mark = steps.index(f'mark hooks-disc-aging.tmr_no_adp.if{i}')
         frame = steps.index(f'mark hooks-disc-aging.available.if{i}')
@@ -429,6 +433,13 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
      'the aging window opens after the arm'),
     ('aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule)', mutant(scenario, 'probe_answer',
                                                                                      lambda i, status=0: 'gap 20'),
+     'the aging window opens after the arm'),
+    ('aging: both sinks bound before either is answered (the earlier rule)', mutant(hooks, 'aging_group',
+     lambda p: Group('hooks-disc-aging', steps=[*(f'frame {i} {scenario.acmp_cmd(p, "BIND_RX", i, 1).hex()}'
+                                                  for i in range(2)), *(scenario.probe_answer(i) for i in range(2)),
+                                                *(f'mark hooks-disc-aging.available.if{i}' for i in range(2)),
+                                                *(f'wait tmr {2 + i} 1 within 1' for i in range(2)),
+                                                *(f'mark hooks-disc-aging.tmr_no_adp.if{i}' for i in range(2))])),
      'the aging window opens after the arm'),
     ('findings: a path over its bound is not a finding', mutant(run, 'hook_row', lambda r, g: dict(
         HOOK_ROW(r, g), within=True)), 'findings by hook'),

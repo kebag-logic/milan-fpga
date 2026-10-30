@@ -396,7 +396,8 @@ SUPERSEDED = {'acmp.tmr_no_adp': 'hooks-disc-aging'}
 
 def aging_group(p: Point) -> Group:
     """H-DISC's aging (FR_NFR.md 3.4.2), as the CPU budget harness's acmp-disc reaches it: each interface's sink
-    bound, its PROBE_TX answered and its talker discovered, so its one timer waits only on discovery; then an
+    bound and its PROBE_TX answered, one interface at a time, and its talker discovered, so its one timer waits only
+    on discovery; then an
     ENTITY_AVAILABLE with valid_time 1 (2 s, IEEE 1722.1-2021 6.2.2.5) from its RX_HEAD to TMR_NO_ADP armed, then
     that timer's expiry, from its armed deadline, to its action, with the window opened after the arm. A sink still
     waiting for its PROBE_TX_RESPONSE would keep its timer on that earlier deadline, and the arm would not be
@@ -409,10 +410,12 @@ def aging_group(p: Point) -> Group:
     g = Group('hooks-disc-aging', sim_ms=4500)
     scenario.ready(g, p)
     ifs = range(p.interfaces)
-    g.add(*[f'frame {i} {scenario.acmp_cmd(p, "BIND_RX", i, 0x7600 + i).hex()}' for i in ifs],
-          f'wait tx {acmp} {2 * p.interfaces} within {400 * MS}', 'wait quiet 3 within 2000000',
-          *[scenario.probe_answer(i) for i in ifs], 'wait quiet 3 within 2000000',
-          *[f'frame {i} {avail(10, 0).hex()}' for i in ifs], 'wait quiet 3 within 2000000')
+    # One interface at a time: probe_answer replies to the newest PROBE_TX the firmware sent, on any interface.
+    for i in ifs:
+        bind = scenario.acmp_cmd(p, 'BIND_RX', i, 0x7600 + i)
+        g.add(f'frame {i} {bind.hex()}', f'wait tx {acmp} 2 within {400 * MS}', 'wait quiet 3 within 2000000',
+              scenario.probe_answer(i), 'wait quiet 3 within 2000000')
+    g.add(*[f'frame {i} {avail(10, 0).hex()}' for i in ifs], 'wait quiet 3 within 2000000')
     for i in ifs:
         g.probe(Probe(f'hooks-disc-aging.available.if{i}', 'ENTITY_AVAILABLE from its RX_HEAD (H-DISC)', 'disc',
                       f'rxc:{adp}', [f'arm:{slot(i)}'], path='acmp.entity_available'),
