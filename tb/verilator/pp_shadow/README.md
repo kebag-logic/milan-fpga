@@ -122,19 +122,18 @@ The model is `MilanMAC`'s shape. A frame may leave 8 clocks after its last beat 
 leave in order with their preamble, padding, FCS and gap, at 4 clocks per octet in `[RB]`. The model flips
 `i_ethtxend_tgl` on each frame's last octet, as `MilanMAC`'s toggle does at `phy.sink`, and keeps it across resets.
 Three clocks after `o_reboot_phy_hold` rises the PHY is in reset: a frame on the wire is cut, and every frame still
-queued is lost.
+queued is lost; a frame offered after that is counted apart, as one offered to a MAC whose PHY was already held.
 
 Three REBOOTs of ENTITY 0, each after a reset and the boot walk; this harness has no flash writer (`nvm_backed` 0):
 
 - **Advertising**, with a second controller registered and KL_maap probing. A REBOOT of ENTITY 1 first is answered
   NO_SUCH_DESCRIPTOR and must raise no request, hold no PHY and send no word. The REBOOT of ENTITY 0 is answered
   SUCCESS at cdl 16. At the port, `reboot_req_o` rises after the response's last byte and after ENTITY_DEPARTING.
-  On the wire, the response, the notification to the other controller and ENTITY_DEPARTING leave whole and in
-  that order before the PHY hold. The hold cuts no frame and leaves none in the MAC, and rises more than one
-  millisecond and at most two ticks and eight clocks after the last frame, inside the 28 ms egress bound of
-  `milan_datapath`'s default MAC statement. From the egress wait's start (KL_reboot_ctrl's stop) no frame starts at
-  the port to the end of the run, although KL_maap offers some. After more than 3,500 harness milliseconds, and at
-  most one tick more, `o_icap_csib` is low for exactly eight clocks; `o_icap_i` carries the eight IPROG words,
+  The PHY hold follows that request. On the wire, the response, the notification to the other controller and
+  ENTITY_DEPARTING leave whole and in that order before the PHY hold. The hold cuts no frame and leaves none in the
+  MAC, and rises more than one millisecond and at most two ticks and eight clocks after the last frame, inside the
+  28 ms egress bound of `milan_datapath`'s default MAC statement. KL_maap's probes are counted like any other frame.
+  After more than 3,500 harness milliseconds, and at most one tick more, `o_icap_csib` is low for exactly eight clocks; `o_icap_i` carries the eight IPROG words,
   bit-reversed per byte; they repeat after another hold, and the hold stays up to the end.
 - **Not advertising** (Milan v1.2 Table 5.51): no ENTITY_DEPARTING at the port or on the wire; the response and the
   notification leave whole and in order before the hold, and the hold waits for the last frame the port started.
@@ -156,12 +155,11 @@ defect in a private copy of `milan_datapath.sv` or `KL_reboot_ctrl.sv` and must 
 | Arm | Plant | Named check |
 |---|---|---|
 | `request-ignored` | KL_reboot_ctrl never sees the request | RB advertising: the PHY hold rises |
-| `early-request` | the request at the processor's acceptance, before the response has left | RB advertising: the SUCCESS response leaves the MAC whole before the PHY hold |
+| `early-request` | the request at the processor's acceptance, before the response has left | RB advertising: the PHY hold follows the processor's REBOOT request |
 | `hold-on-the-request-alone` | the PHY hold on the request, the shape silicon ran | RB advertising: ENTITY_DEPARTING leaves after the notification, before the PHY hold |
 | `egress-ignores-the-mac-fifo` | the wait ends once the port is idle | the same |
 | `egress-without-a-bound` | a MAC that never finishes keeps the hold off | RB dead transmit clock: the PHY hold still rises |
 | `txend-unwired` | the frame-end toggle is not connected | RB advertising: ...and at most two ticks and eight clocks after it |
-| `stop-unwired` | the datapath ignores the stop | RB advertising: no frame starts at the MAC port from then to the end of the run |
 
 ## The premise inverted (2026-08-13)
 

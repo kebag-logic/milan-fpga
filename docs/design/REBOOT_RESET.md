@@ -77,7 +77,7 @@ It counts the datapath's millisecond tick and runs four phases on the processor'
 | Phase | Ends when | Bound |
 |---|---|---|
 | DRAIN | `nvm_backed = 0`, or `nvm_dirty = 0` and `nvm_pend = 0`; otherwise at the deadline | at most `REBOOT_DRAIN_MS_P` = 10,000 ms + 1 tick |
-| EGRESS | from its first clock the MAC port finishes the frame in progress and starts no other; the phase ends on a tick once every frame the port handed the MAC has left the MAC's PHY interface and one more tick has passed with nothing left; otherwise at the deadline | at most `T_EGRESS_MS_C` + 1 tick, derived from the MAC's statement: 2 ms on the AX7101, 11 ms on the Arty, 28 ms at the datapath's default |
+| EGRESS | ends on a tick once no frame is half taken at the MAC port and none it handed over is still in the MAC, and the path has stayed so since the previous tick: a whole quiet millisecond after the last frame left the MAC's PHY interface; otherwise at the deadline | at most `T_EGRESS_MS_C` + 1 tick, derived from the MAC's statement: 2 ms on the AX7101, 11 ms on the Arty, 28 ms at the datapath's default |
 | HOLD | `o_reboot_phy_hold` rises at its start and stays up; the phase lasts its bound | more than `REBOOT_HOLD_MS_P` = 3,500 ms, at most 1 tick more |
 | IPROG | eight clocks of ICAPE2 words, CSIB low | 8 clocks; then HOLD again, so the words repeat every 3,500 ms while the device still runs |
 
@@ -104,13 +104,17 @@ was handed over before it. The datapath's own MAC port counts a frame in on its 
 `MilanMAC` flips a reset-less toggle, `ethtxend_tgl`, on the last octet of every frame at LiteEth's `phy.sink`, the
 stream the PHY's transmit register stage consumes and the seam `KL_gptp_gmii_launch` already observes. The toggle
 reaches the datapath as `i_ethtxend_tgl` and is synchronised there like the link guard's three toggles. The wait ends
-once no frame is half taken at the port and none is in the MAC, after one more whole tick with nothing left, which
-covers the PHY's own transmit path. Everything is parent code; LiteEth is used as pinned.
+on a tick once no frame is half taken at the port and none is in the MAC, and the path has stayed so on every clock
+since the previous tick: a whole quiet millisecond after the last frame, which covers the PHY's own transmit path.
+Everything is parent code; LiteEth is used as pinned.
 
-**What it stops.** From the phase's first clock the datapath's MAC port finishes the frame in progress and starts no
-other until reset (`mac_tx_stop_o`). The frames the PHY hold waits for are therefore the last the MAC is given, and
-the wait is finite even while a talker streams. Frames offered after that, a stream's next PDU or a MAAP probe, stay
-in the datapath and are lost with the reload, as at a cut.
+**What it does not stop.** The MAC port is not gated: no gate may sit between the MAC-boundary arbiter and the MAC
+handshake, which is the gPTP plane's direct path (#187, builder gate 1b). It does not need one. Every frame the REBOOT
+owes the network, the response, the notifications and ENTITY_DEPARTING, was handed to the MAC before the request, so
+the account holds it from the moment the request rose. Frames other sources start later, a stream's next PDU, a MAAP
+probe or a gPTP message, are counted like any other and waited for while the path still empties. One that starts
+after the wait has ended is lost with the PHY reset and the reload, as at a cut; traffic that never leaves a quiet
+millisecond ends the wait at its bound.
 
 **The bound, derived.** A MAC that never finishes, with a stopped transmit clock for example, ends the wait at
 `T_EGRESS_MS_C`: the time to send `REBOOT_MAC_TX_OCTETS_P` at `REBOOT_MAC_MIN_MBPS_P`, rounded up to whole
@@ -246,8 +250,8 @@ The [UART smoke](../integration/BAREMETAL_FIRMWARE.md#uart-commands) grades the 
 
 | Evidence | What it proves |
 |---|---|
-| [`tb/verilator/reboot_ctrl`](../../tb/verilator/reboot_ctrl/README.md) | every drain exit; the egress account (frames in the MAC at the request, a frame in progress held back across ticks, a take on the clock of an end, a flush, a stray end) and the port's stop; every bound against the documented and derived values at three tick phases and at two MAC statements, with the stated bound from the request to the IPROG word; the eight words bit-reversed, the PHY hold held through and after them, the retry, a one-clock request, resets during the hold and the words; 33 planted mutants, each caught by its named check |
-| [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow/README.md) section `[RB]` | the real wiring from an AECP REBOOT on the MAC RX port, graded at a MAC model's wire-side output: SUCCESS, the notification and ENTITY_DEPARTING whole and in order before the PHY hold, the hold more than a tick and at most two after the last frame, no frame started at the port from the egress wait on while KL_maap offers some, the words after the hold and their retry; without advertising, no DEPARTING and the hold after the last frame the port started; with a dead transmit clock, the hold at the egress bound; a refused REBOOT resets nothing; no cycle of the rest of the run holds the PHY or drops CSIB. `make reboot-mutant` plants seven arms, each caught by its named check: the request ignored, an early request, the PHY hold on the request alone, an egress wait that ignores the MAC FIFO or has no bound, the toggle unwired and the stop unwired |
+| [`tb/verilator/reboot_ctrl`](../../tb/verilator/reboot_ctrl/README.md) | every drain exit; the egress account (frames in the MAC at the request, a frame in progress held back across ticks, a take on the clock of an end, a flush, a stray end, a frame between two ticks); every bound against the documented and derived values at three tick phases and at two MAC statements, with the stated bound from the request to the IPROG word; the eight words bit-reversed, the PHY hold held through and after them, the retry, a one-clock request, resets during the hold and the words; 30 planted mutants, each caught by its named check |
+| [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow/README.md) section `[RB]` | the real wiring from an AECP REBOOT on the MAC RX port, graded at a MAC model's wire-side output: the hold after the processor's request, SUCCESS, the notification and ENTITY_DEPARTING whole and in order before the PHY hold, the hold more than a tick and at most two after the last frame, the words after the hold and their retry; without advertising, no DEPARTING and the hold after the last frame the port started; with a dead transmit clock, the hold at the egress bound; a refused REBOOT resets nothing; no cycle of the rest of the run holds the PHY or drops CSIB. `make reboot-mutant` plants six arms, each caught by its named check: the request ignored, an early request, the PHY hold on the request alone, an egress wait that ignores the MAC FIFO or has no bound, and the toggle unwired |
 | `sw/builder/test_builder.py` gates 1f and 23m | the FIFOs built from the named depths, the statement from `_mac_tx_egress_octets` and the PHY table, the toggle reset-less in `eth_tx` on `phy.sink`'s last octet, the no-MAC stub's zero toggle, nine cuts each refused by name; every config's Instance binding exactly the builder's evaluated statement |
 | The shipping route | the resource gate on `route-1x1`, `ooc-1x1` and `ooc-8x8` ([SUBMODULES.md](../reference/SUBMODULES.md), the #787 adoption record) |
 | The bench | the #396 `power` area's 50 soft resets on the shipping image, the manager's step after merge |

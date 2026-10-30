@@ -58,7 +58,6 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The top adds that one output.
 - `KL_reboot_ctrl` resets the end station on it.
 - It waits up to 10 s for saved state.
-- It then stops the MAC port after the frame in progress.
 - It waits until every frame given to the MAC has reached its PHY.
 - `MilanMAC` flips a frame-end toggle at `phy.sink` for that.
 - The MAC states its buffering; the wait's bound derives from it.

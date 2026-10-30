@@ -359,7 +359,7 @@ this table whenever `hdl/` changes shape.
 | module | description |
 |---|---|
 | `KL_pp_maap_shim` | adapter between this fabric's BLOCK allocator (`KL_maap`) and the processor's per-source ALLOC/RELEASE face — the same block+uid law on both sides |
-| `KL_reboot_ctrl` | the end-station reset on the processor's AECP REBOOT request (#787): waits for the saved state to drain, then stops the MAC port and waits until every frame given to the MAC has reached its PHY (the MAC's `ethtxend_tgl`), holds the PHY in reset and sends the IPROG sequence on the ICAPE2 port the SoC instantiates ([reset design](../design/REBOOT_RESET.md)) |
+| `KL_reboot_ctrl` | the end-station reset on the processor's AECP REBOOT request (#787): waits for the saved state to drain and until every frame given to the MAC has reached its PHY (the MAC's `ethtxend_tgl`), holds the PHY in reset and sends the IPROG sequence on the ICAPE2 port the SoC instantiates ([reset design](../design/REBOOT_RESET.md)) |
 | `KL_pp_shadow` | **this device's entire IEEE 1722.1 / SRP control plane**: the consumer-side wrapper around the pinned `protocol-processor` submodule (ADP, ACMP talker + listener, SRP, and the live AECP uCPU), its classify-first control-frame tap, its blank-flash NVM responder, the root gather faces used by counters and audio-map reads, and the class-D face republished 1:1. The [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md) owns the exact served-command inventory |
 | `milan_datapath` | the single clean HW/gateware boundary the LiteX SoC ([sw/litex/milan_soc.py](../../sw/litex/milan_soc.py)) instantiates — including the read-only descriptor-memory master (`o_desc_mem_*`) the AECP store fetches the entity model over |
 
