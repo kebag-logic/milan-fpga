@@ -1,0 +1,20 @@
+control_unmutated                  expect=pass rc=0 | 
+stale_rom_shipping                 expect=fail rc=1 | docs check: FAIL (1 findings)
+stale_rom_seeded                   expect=fail rc=1 | docs check: FAIL (1 findings)
+stale_rom_free_only                expect=fail rc=1 | docs check: FAIL (1 findings)
+deleted_rom_row                    expect=fail rc=1 | docs check: FAIL (1 findings)
+drifted_constant                   expect=fail rc=1 | docs check: FAIL (1 findings)
+drifted_constant_comma             expect=fail rc=1 | docs check: FAIL (1 findings)
+drifted_depth                      expect=fail rc=1 | docs check: FAIL (1 findings)
+unknown_constant                   expect=fail rc=1 | docs check: FAIL (1 findings)
+generator_constant_changed         expect=fail rc=1 | docs check: FAIL (1 findings)
+generator_comment_only             expect=pass rc=0 | 
+deleted_status_row                 expect=fail rc=1 | docs check: FAIL (1 findings)
+wrong_status_value                 expect=fail rc=1 | docs check: FAIL (1 findings)
+row_for_missing_page               expect=fail rc=1 | docs check: FAIL (1 findings)
+new_page_without_row               expect=fail rc=1 | docs check: FAIL (1 findings)
+deleted_history_row                expect=fail rc=1 | docs check: FAIL (1 findings)
+limit_deleted_constant_row         expect=pass? rc=0 | 
+limit_reformatted_constant_cell    expect=pass? rc=0 | 
+limit_cadence_literal              expect=pass? rc=0 | 
+limit_prose_copy                   expect=pass? rc=0 | 

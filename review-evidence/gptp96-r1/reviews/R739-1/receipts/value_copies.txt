@@ -1,0 +1,40 @@
+docs/MANAGER.md:61:| Shipping | 1,022 of 1,024 | 2 |
+docs/MANAGER.md:62:| Seeded regression | 1,023 of 1,024 | 1 |
+docs/MANAGER.md:64:Used words include thisClock's data words 1022 and 1023.
+docs/INTEGRATION.md:275:asCapable returns only after two good exchanges.
+docs/INTEGRATION.md:366:| Link-up | 20 us | 20 us |
+docs/INTEGRATION.md:367:| Locked | 100 us | 100 us |
+docs/INTEGRATION.md:381:Nothing else re-arms the 20 us threshold.
+docs/INTEGRATION.md:394:A 375 ms Sync receipt timeout ages the grandmaster instead.
+docs/INTEGRATION.md:406:So the next pair uses the 100 us threshold.
+docs/INTEGRATION.md:414:That whole trim never exceeds 200 ppm in magnitude.
+docs/INTEGRATION.md:436:A 100 us slew needs at least 0.5 s.
+docs/INTEGRATION.md:438:The master's own rate offset shares the 200 ppm bound.
+docs/INTEGRATION.md:444:A master over 200 ppm apart outruns the trim.
+docs/INTEGRATION.md:446:Its offset then grows past 100 us and steps.
+docs/INTEGRATION.md:495:| Missing Sync; 375 ms receipt timeout | Ages the grandmaster; becoming grandmaster applies |
+docs/INTEGRATION.md:497:| Missing Follow_Up; 125 ms timeout | Discard pending pair; retain level and rate |
+docs/INTEGRATION.md:537:Its remaining offset is at most 100 us.
+docs/INTEGRATION.md:705:Announce silence for 3 s ages the peer out.
+docs/INTEGRATION.md:707:So do 375 ms without a usable Sync pair.
+docs/INTEGRATION.md:725:Adopting a new grandmaster starts its 375 ms Sync watch.
+docs/INTEGRATION.md:749:A Sync pending at takeover keeps its 125 ms watch.
+docs/INTEGRATION.md:793:Each 1 s interval without a completed exchange counts one.
+docs/INTEGRATION.md:803:The fifth consecutive loss clears it.
+docs/INTEGRATION.md:814:  --p1 248 \
+docs/INTEGRATION.md:843:| `P1_C` | 248 | Default announced priority1 | Milan 4.2.6.2.1 |
+docs/INTEGRATION.md:847:| `NPD_HI_C` | 800 | neighborPropDelayThresh, ns | Milan 4.2.6.1.1 |
+docs/INTEGRATION.md:852:| `CEASE_MS_C` | 300,000 | Default cease countdown, ms | Milan 4.2.6.2.5 |
+docs/INTEGRATION.md:858:| `ROM_CID_HI_C` | 1,022 | ROM word holding thisClock's high half | Issue #82 |
+docs/INTEGRATION.md:863:The engine suite uses 3,000 ms to stay fast.
+docs/INTEGRATION.md:871:| Pdelay_Req interval | 1 s | 0 | Milan 4.2.6.2.2, Table 4.1 |
+docs/INTEGRATION.md:872:| Sync interval | 125 ms | 1 | Milan 4.2.6.2.2, Table 4.1 |
+docs/INTEGRATION.md:873:| announceReceiptTimeout | 3 s | 2 | Milan 4.2.6.2.3, Table 4.2 |
+docs/INTEGRATION.md:874:| Announce interval | 1 s | 3 | Milan 4.2.6.2.2, Table 4.1 |
+docs/HDL_DEVELOPER.md:166:ROM word 1022 bit 32 marks that capability.
+docs/HDL_DEVELOPER.md:174:- Bit 32 of word 1022 marks grandmaster capability.
+docs/HDL_DEVELOPER.md:203:Timer slot 4 is the 375 ms Sync receipt watch.
+docs/HDL_DEVELOPER.md:255:The fifth consecutive loss clears asCapable.
+docs/TEST_DEVELOPER.md:129:- Keeps every written addend inside 200 ppm.
+docs/TEST_DEVELOPER.md:143:- Times each takeover against the 375 ms Sync watch.
+docs/TEST_DEVELOPER.md:154:- Clears asCapable at the fifth, in each loss shape.

@@ -1,0 +1,11 @@
+FPGA-gPTP #58 open delayAsymmetry management input, timestamp-calibration triple, and the live UART tuner from the prototype line
+parent #117 open gPTP plane silicon validation: one-DUT sync against the reference peer, GM loss and return, conformance
+parent #64 open Measure and deploy the gPTP ingress/egress timestamp-latency split
+parent #488 open [Verification] Instrument-backed measurements: PPS against an external reference, and the PHY-boundary timestamp split and window
+parent #545 closed CRF servo integrates a policy-legal 100 us PHC slew at 200 ppm and drops to ACQUIRE
+parent #797 open Weekend 10-31/11-01: full documentation sweep (inventory, verify against code and specs, rewrite for readability, retire obsolete)
+FPGA-gPTP #68 closed Record and implement the PHC step-versus-slew policy
+FPGA-gPTP #75 closed Export a PHC slew-active level so a consumer can discard measurements taken during a policy slew
+FPGA-gPTP #82 closed Grandmaster ID 0 and an empty path before the first peer; must be thisClock and {thisClock}
+FPGA-gPTP #84 closed tu is set on every talker AVTPDU while the instance is the gPTP grandmaster
+FPGA-gPTP #94 closed The Pdelay_Req cease survives a link or portEnabled toggle; only the 5-minute countdown ends it (Milan v1.2 4.2.6.2.5, 802.1AS-2011 10.2.4.11, Figure 11-8)

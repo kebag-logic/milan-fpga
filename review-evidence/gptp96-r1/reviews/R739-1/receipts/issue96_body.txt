@@ -1,0 +1,24 @@
+Documentation sweep: inventory, verify against code and IEEE 802.1AS-2011, readability, retire obsolete (milan-fpga #797)
+open
+This repository's part of the documentation sweep in kebag-logic/milan-fpga#797.
+
+**Scope:**
+- Inventory every Markdown file with its purpose, audience, the code it describes, and its status.
+- Verify every normative or numeric statement against the source and against IEEE 802.1AS-2011 with Cor1 and Cor2, the edition Milan v1.2 profiles, and Milan v1.2 chapter 4. Fix each, or flag it with file:line.
+- Rewrite for a new reader: a start-here README, a short summary at the top of each long page, and defined terms.
+- Retire obsolete material: delete it, or banner it with a pointer to its replacement.
+
+**Rules:**
+- Values live in one table and are linked, never copied.
+- Cite clauses by number. Commands are plain shell.
+- No private host or device names. No tool or model names. No lane or review labels in text.
+- Every existing docs and CI gate stays green.
+
+**Acceptance:**
+- every document has a status;
+- no document marked current contradicts the code or a clause;
+- the start-here path exists;
+- the docs gates pass.
+
+The work lands by one PR, with two reviews.
+

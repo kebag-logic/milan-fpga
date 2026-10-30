@@ -1,0 +1,19 @@
+== hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv#L150 @1e80128f
+   147	    //! Registered engine policy level (clk_i), independent of publication.
+   148	    //! Rises before the slew addend; falls with its replacement pulse.
+   149	    //! Consumers must cover their retained-rate and PHC pipeline tail.
+   150	    output wire                phc_slew_active_o,
+       
+   151	    //! TX: one wide control-lane leg (whole frames, FRAME_FIFO-held)
+   152	    output wire [TDATA_WIDTH_P-1:0]   tx_tdata_o,
+== hdl/milan/milan_datapath.sv#L7329 @1e80128f
+  7326	    .clk_audio_i   (clk_audio_i),
+  7327	    .ps_clk_i      (i_ps_clk),
+  7328	    .ptp_now_i     (ptp_now_w),
+  7329	    .phc_slew_active_i (gptp_slew_eff_w),
+  7330	    //! one bit since #629: the registered decode above says a stream source
+  7331	    //! is followed; the index compare left the servo for media_clk_resolve
+  7332	    .sel_i         (follow_sel_r),
+parent #545: state=closed closed_at=2026-09-25T21:38:35Z title=CRF servo integrates a policy-legal 100 us PHC slew at 200 ppm and drops to ACQUIRE
+1e80128f exists: 1e80128f0a467b58bf884b7d9bf62e013a2fb141 2026-10-29T09:59:44Z
+dev vs 1e80128f: status=identical ahead=0 behind=0

@@ -1,0 +1,34 @@
+    [control_unmutated] docs check: PASS (14 current pages, 18 historical pages)
+    [stale_rom_shipping] docs check: FAIL (1 findings)
+    [stale_rom_shipping]   docs/MANAGER.md: Shipping image reads 1021 of 1024 with 3 free; generator builds 1022 of 1024
+    [stale_rom_seeded] docs check: FAIL (1 findings)
+    [stale_rom_seeded]   docs/MANAGER.md: Seeded regression image reads 1022 of 1024 with 2 free; generator builds 1023 of 1024
+    [stale_rom_free_only] docs check: FAIL (1 findings)
+    [stale_rom_free_only]   docs/MANAGER.md: Shipping image reads 1022 of 1024 with 3 free; generator builds 1022 of 1024
+    [deleted_rom_row] docs check: FAIL (1 findings)
+    [deleted_rom_row]   docs/MANAGER.md: no ROM budget row for the Seeded regression image
+    [drifted_constant] docs check: FAIL (1 findings)
+    [drifted_constant]   docs/INTEGRATION.md: SYNC_RTO_MS_C is 376, generator has 375
+    [drifted_constant_comma] docs check: FAIL (1 findings)
+    [drifted_constant_comma]   docs/INTEGRATION.md: CEASE_MS_C is 30,000, generator has 300000
+    [drifted_depth] docs check: FAIL (1 findings)
+    [drifted_depth]   docs/INTEGRATION.md: DEPTH is 2,048, generator has 1024
+    [unknown_constant] docs check: FAIL (1 findings)
+    [unknown_constant]   docs/INTEGRATION.md: P1_X is not a generator constant
+    [generator_constant_changed] docs check: FAIL (1 findings)
+    [generator_constant_changed]   docs/INTEGRATION.md: NPD_HI_C is 800, generator has 900
+    [generator_comment_only] docs check: PASS (14 current pages, 18 historical pages)
+    [deleted_status_row] docs check: FAIL (1 findings)
+    [deleted_status_row]   docs/README.md: no status row for tb/verilator/gaskets/README.md
+    [wrong_status_value] docs check: FAIL (1 findings)
+    [wrong_status_value]   docs/README.md: docs/GLOSSARY.md: status 'Historical', expected 'Current'
+    [row_for_missing_page] docs check: FAIL (1 findings)
+    [row_for_missing_page]   docs/README.md: status row names a missing page: docs/GONE.md
+    [new_page_without_row] docs check: FAIL (1 findings)
+    [new_page_without_row]   docs/README.md: no status row for tb/newsuite/README.md
+    [deleted_history_row] docs check: FAIL (1 findings)
+    [deleted_history_row]   docs/README.md: no status row for docs/history/v1/
+    [limit_deleted_constant_row] docs check: PASS (14 current pages, 18 historical pages)
+    [limit_reformatted_constant_cell] docs check: PASS (14 current pages, 18 historical pages)
+    [limit_cadence_literal] docs check: PASS (14 current pages, 18 historical pages)
+    [limit_prose_copy] docs check: PASS (14 current pages, 18 historical pages)
