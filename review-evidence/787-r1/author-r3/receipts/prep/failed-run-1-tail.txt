@@ -1,0 +1,25 @@
+WARNING: [Synth 8-11376] The 'ram_style' set on 'evq_pd_ctx_r' is ignored because '88'b0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000' is an not a valid value. The default value 'auto' will be used. [<scratch>/clone/gptp-processor/hdl/top/KL_gptp_engine.sv:444]
+ERROR: [Synth 8-6156] failed synthesizing module 'KL_gptp_engine' [<scratch>/clone/gptp-processor/hdl/top/KL_gptp_engine.sv:60]
+ERROR: [Synth 8-6156] failed synthesizing module 'KL_gptp_shadow' [<scratch>/clone/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv:75]
+ERROR: [Synth 8-525] part-select width could not be resolved to a constant [<scratch>/clone/hdl/milan/milan_datapath.sv:6174]
+ERROR: [Synth 8-525] part-select width could not be resolved to a constant [<scratch>/clone/hdl/milan/milan_datapath.sv:6176]
+ERROR: [Synth 8-525] part-select width could not be resolved to a constant [<scratch>/clone/hdl/milan/milan_datapath.sv:6180]
+ERROR: [Synth 8-525] part-select width could not be resolved to a constant [<scratch>/clone/hdl/milan/milan_datapath.sv:6181]
+ERROR: [Synth 8-525] part-select width could not be resolved to a constant [<scratch>/clone/hdl/milan/milan_datapath.sv:6234]
+ERROR: [Synth 8-525] part-select width could not be resolved to a constant [<scratch>/clone/hdl/milan/milan_datapath.sv:6309]
+ERROR: [Synth 8-525] part-select width could not be resolved to a constant [<scratch>/clone/hdl/milan/milan_datapath.sv:6330]
+ERROR: [Synth 8-525] part-select width could not be resolved to a constant [<scratch>/clone/hdl/milan/milan_datapath.sv:6955]
+ERROR: [Synth 8-6156] failed synthesizing module 'milan_datapath' [<scratch>/clone/hdl/milan/milan_datapath.sv:64]
+ERROR: [Synth 8-6156] failed synthesizing module 'alinx_ax7101' [<work>/ax7101/gateware/alinx_ax7101.v:23]
+---------------------------------------------------------------------------------
+Finished RTL Elaboration : Time (s): cpu = 00:00:06 ; elapsed = 00:00:07 . Memory (MB): peak = 2546.605 ; gain = 559.109 ; free physical = 29022 ; free virtual = 73051
+---------------------------------------------------------------------------------
+RTL Elaboration failed
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+106 Infos, 275 Warnings, 0 Critical Warnings and 14 Errors encountered.
+synth_design failed
+synth_design: Time (s): cpu = 00:00:10 ; elapsed = 00:00:11 . Memory (MB): peak = 2546.613 ; gain = 559.117 ; free physical = 28973 ; free virtual = 73003
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 2031.675; main = 1661.808; forked = 369.867
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 3579.023; main = 2546.609; forked = 1032.414
+ERROR: [Common 17-69] Command failed: Synthesis failed - please see the console or run log file for details
+INFO: [Common 17-206] Exiting Vivado at Fri Oct 30 17:13:07 2026...
