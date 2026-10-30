@@ -1,0 +1,271 @@
+{
+  "head": "32f0d9b5425a8526ac9d39e5913c01944c36e4d0",
+  "head_after": "32f0d9b5425a8526ac9d39e5913c01944c36e4d0",
+  "tracked_changes": "",
+  "rtl_fast": "partial",
+  "failed": [],
+  "jobs": {
+    "changes": {
+      "result": "success",
+      "rc": 0,
+      "outputs": {
+        "rtl": "true"
+      },
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/changes.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Classify the change conservatively",
+          "rc": 0,
+          "seconds": 22.9,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/changes.2.log",
+          "log_bytes": 18248,
+          "log_sha256": "ea7aea028e8bab87ca55c6d935238591d8820a6429b98577d3a5522288811916",
+          "body_sha256": "329b7111e943d1e0cd7b3891cf221a81fdb62c1f5ba3c99784fa4ff6e4e7a237"
+        },
+        {
+          "step": 3,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 4,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "bdd-conformance": {
+      "result": "success",
+      "rc": 0,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/bdd-conformance.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Cache exact Python downloads",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 3,
+          "name": "Fetch the processor model inputs",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/bdd-conformance.3.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ae0d4628c2d94654ff3ce54bee71113cf2a3188ef666003a4dc23da6c8cf7eea"
+        },
+        {
+          "step": 4,
+          "name": "Install behave",
+          "rc": 0,
+          "seconds": 1.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/bdd-conformance.4.log",
+          "log_bytes": 111,
+          "log_sha256": "04e0d7c9c990296ac0c2d2525b471f28830d632c3b542e4b03f3e6aecb95e7ef",
+          "body_sha256": "e328f6621ef87d9a7a321e653775e936bfc97b646c066e78e2859593411e698a"
+        },
+        {
+          "step": 5,
+          "name": "Run the specification-facing suite",
+          "rc": 0,
+          "seconds": 4.2,
+          "cwd": "tests",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/bdd-conformance.5.log",
+          "log_bytes": 230808,
+          "log_sha256": "34e8f239ed2d02b2b4282720723acd81f14c86a556d6a8ed8c76cda59e4e3d32",
+          "body_sha256": "e06196e68346b988a04aed0b8a179f1fc634254ecbf97676ce509b8af23c38d2"
+        },
+        {
+          "step": 6,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 7,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    },
+    "yosys-elaboration": {
+      "result": "success",
+      "rc": 0,
+      "outputs": {},
+      "steps": [
+        {
+          "step": 0,
+          "name": "Run actions/checkout@v4",
+          "skipped": "uses: actions/checkout@v4"
+        },
+        {
+          "step": 1,
+          "name": "Set CPU-derived job budgets",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.1.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "ca8fbe7d4cd44bd9156d8981ee7f242d2459f74e14bc0ea22113706194db3818"
+        },
+        {
+          "step": 2,
+          "name": "Fetch RTL dependencies",
+          "rc": 0,
+          "seconds": 0.0,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.2.log",
+          "log_bytes": 0,
+          "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "body_sha256": "fb79bbfd41608dbb5864814d2373765a85c17cd7b8d18f9efb47e47c7ab3d832"
+        },
+        {
+          "step": 3,
+          "name": "Restore the pinned Yosys build",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 4,
+          "name": "Install the pinned Yosys and prove the version",
+          "skipped": "sudo ln into /usr/local/bin; Yosys 0.66 is on PATH here"
+        },
+        {
+          "step": 5,
+          "name": "Cache verified sv2v archive",
+          "skipped": "uses: actions/cache@v4"
+        },
+        {
+          "step": 6,
+          "name": "Install the pinned sv2v release",
+          "skipped": "downloads into /usr/local/bin; sv2v v0.0.12 is on PATH here"
+        },
+        {
+          "step": 7,
+          "name": "Elaborate the integration-heavy tops",
+          "rc": 0,
+          "seconds": 108.6,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.7.log",
+          "log_bytes": 369,
+          "log_sha256": "4fe0a8ab238cf86d1edd1456eb6db27307f6e4c2d3957ac3ad313f07057967ac",
+          "body_sha256": "b034c192fef15d57ad64195e084ec24c6b196d48f61d8f98d3b87a4460e1750c"
+        },
+        {
+          "step": 8,
+          "name": "Prove the OOC read sets come from run.sh and refuse a bad one",
+          "rc": 0,
+          "seconds": 551.5,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.8.log",
+          "log_bytes": 58739,
+          "log_sha256": "2d30280e141a47a9e5ad820bda5e21b4bb052a48bf865b70bfa50bab74da020b",
+          "body_sha256": "dab5cf626551cb9e2fdcb58a7be85bbff5cb66aea80a74aeea1cfede7e915cca"
+        },
+        {
+          "step": 9,
+          "name": "Prove ooc.sh generates the ROMs and fails on a failed top",
+          "rc": 0,
+          "seconds": 40.3,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.9.log",
+          "log_bytes": 43,
+          "log_sha256": "d4febc14ba490cf79a72567d657e1653d21792043ae463564d52c831f69179e0",
+          "body_sha256": "b4e80a3f521467fbe4bfd232a3e116ce57c27ac0ce4631901b758922a9b3fa08"
+        },
+        {
+          "step": 10,
+          "name": "Prove both synthesis flows refuse active elaboration guards",
+          "rc": 0,
+          "seconds": 33.7,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.10.log",
+          "log_bytes": 48,
+          "log_sha256": "ef3e088cff19ae241583bce9d81868c00a735f87019056b11a9011a4bb54ba1f",
+          "body_sha256": "99e346884f90f2a71ccd8359408df6f416e5a44efd54932e0a94ef4c415fc839"
+        },
+        {
+          "step": 11,
+          "name": "Prove the result cache refuses a planted entry",
+          "rc": 0,
+          "seconds": 56.8,
+          "cwd": ".",
+          "opt_verilator_substituted": false,
+          "dropped_lines": [],
+          "log": "logs/yosys-elaboration.11.log",
+          "log_bytes": 190,
+          "log_sha256": "d8e090cf8c0c656d14381ecbb41901c83ad1870f0f38fed8b382815197e4dfa5",
+          "body_sha256": "66b163a00d692128f3a091516bef2bb8afbc22101c6be09521790d8b54d399c7"
+        },
+        {
+          "step": 12,
+          "name": "Record actual job execution",
+          "skipped": "reads the hosted runner job context"
+        },
+        {
+          "step": 13,
+          "name": "Upload actual job execution",
+          "skipped": "uses: actions/upload-artifact@v4"
+        }
+      ]
+    }
+  }
+}
