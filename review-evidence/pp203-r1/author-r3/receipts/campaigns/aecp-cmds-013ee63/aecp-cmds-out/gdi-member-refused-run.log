@@ -1,0 +1,5 @@
+FAIL:  decode: GET_COUNTERS: the table makes it a GET_DYNAMIC_INFO member and the engine refuses a record of it
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: gdi members 0x0029: observed nothing, recorded {"GCTRS": "0:136", "GCTRSNS": "0:136", "copied": "0:0, 0:2, 0:4"} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: gdi refused BADARG: observed "0x0000-0x0006, 0x0008, 0x000A, 0x000C, 0x000E, 0x0010, 0x0012, 0x0014, 0x0016, 0x0018-0x001C, 0x001E-0x0047, 0x0049, 0x004B-0x007F", recorded "0x0000-0x0006, 0x0008, 0x000A, 0x000C, 0x000E, 0x0010, 0x0012, 0x0014, 0x0016, 0x0018-0x001C, 0x001E-0x0028, 0x002A-0x0047, 0x0049, 0x004B-0x007F" (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "45eecde3ed234355c04ccfc4f01a8e226804afddd6f8937dfd447bbb045dc77b", recorded "bda37001a017b0462c2546cd9902b2d68564343e0d8fd0022447eaa3565f26af" (make -C tb/aecp_cmds record)
+aecp_cmds: 617956 trials swept; 180 checks: 178 PASS, 2 FAIL

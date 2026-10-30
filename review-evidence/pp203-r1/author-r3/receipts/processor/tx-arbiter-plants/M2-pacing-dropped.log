@@ -1,0 +1,42 @@
+/usr/bin/verilator --cc --exe --build -j 0 --top-module tx_arbiter_harness -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I<runs>/txarb-plants-1/scratch/M2-pacing-dropped/tb/tx_arbiter -Wall -Wextra" ../../hdl/common/pp_pkg.sv ../../hdl/packet_engine/KL_pp_tx_slots.sv ../../hdl/packet_engine/KL_pp_tx_arbiter.sv tx_arbiter_harness.sv sim_main.cpp -o Vtx_arbiter_sim
+make[1]: Entering directory '<runs>/txarb-plants-1/scratch/M2-pacing-dropped/tb/tx_arbiter/obj_dir'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<runs>/txarb-plants-1/scratch/M2-pacing-dropped/tb/tx_arbiter -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<runs>/txarb-plants-1/scratch/M2-pacing-dropped/tb/tx_arbiter -Wall -Wextra   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<runs>/txarb-plants-1/scratch/M2-pacing-dropped/tb/tx_arbiter -Wall -Wextra   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtx_arbiter_harness.cpp Vtx_arbiter_harness___024root__0.cpp Vtx_arbiter_harness___024root__Slow.cpp Vtx_arbiter_harness___024root__0__Slow.cpp Vtx_arbiter_harness__Syms__Slow.cpp > Vtx_arbiter_harness__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I<runs>/txarb-plants-1/scratch/M2-pacing-dropped/tb/tx_arbiter -Wall -Wextra   -c -o Vtx_arbiter_harness__ALL.o Vtx_arbiter_harness__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vtx_arbiter_harness__ALL.a    -pthread -lpthread -latomic   -o Vtx_arbiter_sim
+rm Vtx_arbiter_harness__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<runs>/txarb-plants-1/scratch/M2-pacing-dropped/tb/tx_arbiter/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.052 2026-09-05 rev v5.052
+- Verilator: Built from 0.144 MB sources in 5 modules, into 0.182 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 12.599 s (elab=0.006, cvt=0.032, bld=12.542); cpu 0.058 s on 16 threads; allocated 18.211 MB
+./obj_dir/Vtx_arbiter_sim
+  gnt mismatch: dut=4 model=2 pend=1c pace=1
+FAIL: E grant #1 is 4 exp 2
+  gnt mismatch: dut=3 model=2 pend=0c pace=1
+FAIL: E grant #2 is 3 exp 4
+FAIL: E grant #4 is 2 exp 3
+FAIL: E grant #5 is -1 exp 2
+FAIL: E pacing rounds byte-exact and model-matched
+  errs: mism=2 byte=0 sof=0 eof=0 spur=0 onehot=0 pulse=0 midfrm=0 stall=0 alloc=0 busy=0
+  gnt mismatch: dut=3 model=0 pend=09 pace=1
+  gnt mismatch: dut=3 model=2 pend=0c pace=1
+  gnt mismatch: dut=4 model=0 pend=11 pace=1
+  gnt mismatch: dut=3 model=2 pend=2d pace=1
+  gnt mismatch: dut=3 model=0 pend=0b pace=1
+  gnt mismatch: dut=3 model=5 pend=28 pace=1
+  gnt mismatch: dut=3 model=5 pend=28 pace=1
+  gnt mismatch: dut=3 model=5 pend=2a pace=1
+  gnt mismatch: dut=3 model=0 pend=39 pace=1
+  gnt mismatch: dut=3 model=0 pend=09 pace=1
+  gnt mismatch: dut=3 model=2 pend=1d pace=1
+  gnt mismatch: dut=3 model=2 pend=2c pace=1
+  gnt mismatch: dut=3 model=5 pend=28 pace=1
+  gnt mismatch: dut=3 model=2 pend=2c pace=1
+  gnt mismatch: dut=3 model=2 pend=0f pace=1
+  gnt mismatch: dut=4 model=0 pend=39 pace=1
+FAIL: G every grant matched to the model (18 off)
+67 checks: 61 PASS, 6 FAIL
+  errs: mism=18 byte=0 sof=0 eof=0 spur=0 onehot=0 pulse=0 midfrm=0 stall=0 alloc=0 busy=0
+make: *** [Makefile:21: run] Error 1

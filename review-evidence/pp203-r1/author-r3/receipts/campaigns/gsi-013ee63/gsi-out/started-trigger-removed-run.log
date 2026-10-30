@@ -1,0 +1,11 @@
+GI latency walks added: 5568 checks, 0 failures
+FAIL: GI REBIND-SW: exactly one unsolicited response for sink 0, got 0
+FAIL: GI REBIND-SW unsolicited: complete Milan response
+FAIL: GI REBIND-SW: solicited and unsolicited bodies agree
+FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0
+FAIL: GI STOP-BY-A: exactly one GET_STREAM_INFO for sink 0 at B, got 0
+FAIL: GI STOP-BY-A: nothing else is sent, got 2 frames
+FAIL: GI START-BY-A: exactly one GET_STREAM_INFO for sink 0 at A, the requester, got 0
+FAIL: GI START-BY-A: exactly one GET_STREAM_INFO for sink 0 at B, got 0
+FAIL: GI START-BY-A: nothing else is sent, got 2 frames
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 6379 checks, 9 failures

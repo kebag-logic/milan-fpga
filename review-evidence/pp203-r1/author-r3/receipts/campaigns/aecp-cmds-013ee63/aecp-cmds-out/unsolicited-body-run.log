@@ -1,0 +1,5 @@
+FAIL:  decode: SET_CLOCK_SOURCE: the PP_UNS_CLKS_C job answers 0x0016 with GSRATE, the table says 0x0016 with GCLKS
+FAIL:  decode: the engine's PP_UNS_CLKS_C job answers 0x0016 with GSRATE, which is no table command's notification
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "56c7cf268901970ddc30af36abb155fe819732b4e490adb26c0b27a94cf149e5", recorded "bda37001a017b0462c2546cd9902b2d68564343e0d8fd0022447eaa3565f26af" (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: unsolicited PP_UNS_CLKS_C: observed {"GSRATE": ["0x0016:20"]}, recorded {"GCLKS": ["0x0016:20"]} (make -C tb/aecp_cmds record)
+aecp_cmds: 617956 trials swept; 181 checks: 178 PASS, 3 FAIL

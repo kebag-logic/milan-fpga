@@ -1,0 +1,266 @@
+control reboot: rc=0 PASS
+rbt-request-at-acceptance: rc=2 failures=32 named=1 KILLED
+    FAIL: RBT6 the holder's REBOOT of ENTITY 0: SUCCESS echoing Figure 7-68's four bytes at cdl 16, byte-exact
+    FAIL: RBT6 reboot_req_o rises after the SUCCESS response's last byte left (267650, -1)
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (-1 -1 267650)
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (-1 -1 267650)
+    FAIL: RBT6 no ENTITY_AVAILABLE follows the ENTITY_DEPARTING, ENTITY_DISCOVER included
+    FAIL: RBT7 every TX lane is open while the MAC holds the SUCCESS response's last byte (open 08)
+    FAIL: RBT7 reboot_req_o stays 0 while the MAC holds the SUCCESS response's last byte
+    FAIL: RBT7 the held SUCCESS response leaves whole, byte-exact
+    FAIL: RBT7 reboot_req_o rises after the released response's last byte (330598, -1)
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+rbt-response-unwatched: rc=2 failures=1 named=1 KILLED
+    FAIL: RBT7 every TX lane is open while the MAC holds the SUCCESS response's last byte (open 08)
+rbt-notifications-unwatched: rc=2 failures=17 named=1 KILLED
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (267811 -1 267922)
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (342118 -1 342122)
+    FAIL: RBT9 the REBOOT notification reaches each other registered controller, byte-exact, and not the requester
+    FAIL: RBT12 the MAC holds the REBOOT notification's last byte
+    FAIL: RBT12 every TX lane is open while the MAC holds the REBOOT notification's last byte (open 08)
+    FAIL: RBT12 another lane's frame follows the REBOOT notification, its last byte held
+    FAIL: RBT12 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame (rise 15682585)
+    FAIL: RBT12 that frame is the lock's unlock notification (LOCK_ENTITY, u = 1, to the other controller)
+    FAIL: RBT12 the SUCCESS response, the notification, then that frame, and no ENTITY_DEPARTING (15682581 -1 15682581, 0)
+    FAIL: RBT13 the MAC holds the REBOOT notification's last byte
+rbt-notification-flight-unwatched: rc=2 failures=10 named=1 KILLED
+    FAIL: RBT12 every TX lane is open while the MAC holds the REBOOT notification's last byte (open 08)
+    FAIL: RBT12 another lane's frame follows the REBOOT notification, its last byte held
+    FAIL: RBT12 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame (rise 15783181)
+    FAIL: RBT12 that frame is the lock's unlock notification (LOCK_ENTITY, u = 1, to the other controller)
+    FAIL: RBT12 the SUCCESS response, the notification, then that frame, and no ENTITY_DEPARTING (15683075 15783179 15783179, 0)
+    FAIL: RBT13 every TX lane is open while the MAC holds the REBOOT notification's last byte (open 08)
+    FAIL: RBT13 another lane's frame follows the REBOOT notification, its last byte held
+    FAIL: RBT13 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame (rise 16796191)
+    FAIL: RBT13 that frame is the listener's (ACMP CONNECT_TX_COMMAND)
+    FAIL: RBT13 the SUCCESS response, the notification, then that frame, and no ENTITY_DEPARTING (16296085 16796189 16796189, 0)
+rbt-no-shutdown: rc=2 failures=10 named=1 KILLED
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (267811 -1 267921)
+    FAIL: RBT9 the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 reboot_req_o stays 0 while the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 the held ENTITY_DEPARTING leaves once, whole, byte-exact (0)
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (466023 466232 -1 466236)
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (3 frames; last byte offered at 466232, departing at -1)
+    FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (9 frames; last byte offered at 12542021, departing at -1)
+    FAIL: RBT11 ENTITY_DEPARTING still leaves, then reboot_req_o (0 DEPARTING, rise 15496865)
+    FAIL: RBT11 the DEPARTING is byte-exact and no byte follows it (4 frames)
+rbt-departing-unwatched: rc=2 failures=12 named=1 KILLED
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (267811 -1 267921)
+    FAIL: RBT6 no ENTITY_AVAILABLE follows the ENTITY_DEPARTING, ENTITY_DISCOVER included
+    FAIL: RBT9 reboot_req_o stays 0 while the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 the held ENTITY_DEPARTING leaves once, whole, byte-exact (0)
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (466023 466232 -1 466236)
+    FAIL: RBT11 ENTITY_DEPARTING still leaves, then reboot_req_o (0 DEPARTING, rise 15477622)
+    FAIL: RBT11 the DEPARTING is byte-exact and no byte follows it (4 frames)
+    FAIL: RBT12 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame (rise 15782879)
+    FAIL: RBT12 reboot_req_o rises after that frame's last byte, and no byte is offered on tx_* from the rise through 5000 ms to the reset (rise 15782879, last byte 15784939, last offered 15784939, 1 frames after)
+    FAIL: RBT13 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame (rise 16790953)
+    FAIL: RBT13 reboot_req_o rises after that frame's last byte, and no byte is offered on tx_* from the rise through 5000 ms to the reset (rise 16790953, last byte 16793023, last offered 16793023, 1 frames after)
+rbt-last-frame-unwatched: rc=2 failures=11 named=1 KILLED
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (267811 -1 268015)
+    FAIL: RBT6 no ENTITY_AVAILABLE follows the ENTITY_DEPARTING, ENTITY_DISCOVER included
+    FAIL: RBT9 reboot_req_o stays 0 while the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 the held ENTITY_DEPARTING leaves once, whole, byte-exact (0)
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (466117 466326 -1 466424)
+    FAIL: RBT11 ENTITY_DEPARTING still leaves, then reboot_req_o (0 DEPARTING, rise 15478239)
+    FAIL: RBT12 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame (rise 15783496)
+    FAIL: RBT12 reboot_req_o rises after that frame's last byte, and no byte is offered on tx_* from the rise through 5000 ms to the reset (rise 15783496, last byte 15785556, last offered 15785556, 1 frames after)
+    FAIL: RBT13 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame (rise 16791570)
+    FAIL: RBT13 reboot_req_o rises after that frame's last byte, and no byte is offered on tx_* from the rise through 5000 ms to the reset (rise 16791570, last byte 16793640, last offered 16793640, 1 frames after)
+rbt-last-byte-offered: rc=2 failures=7 named=1 KILLED
+    FAIL: RBT9 reboot_req_o stays 0 while the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 the held ENTITY_DEPARTING leaves once, whole, byte-exact (0)
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (466198 466407 -1 466586)
+    FAIL: RBT12 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame (rise 15783799)
+    FAIL: RBT12 reboot_req_o rises after that frame's last byte, and no byte is offered on tx_* from the rise through 5000 ms to the reset (rise 15783799, last byte 15785799, last offered 15785799, 1 frames after)
+    FAIL: RBT13 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame (rise 16791883)
+    FAIL: RBT13 reboot_req_o rises after that frame's last byte, and no byte is offered on tx_* from the rise through 5000 ms to the reset (rise 16791883, last byte 16793883, last offered 16793883, 1 frames after)
+rbt-request-pulse: rc=2 failures=9 named=1 KILLED
+    FAIL: RBT6 no ENTITY_AVAILABLE follows the ENTITY_DEPARTING, ENTITY_DISCOVER included
+    FAIL: RBT6 reboot_req_o is held from its rise to the end of the run
+    FAIL: RBT9 reboot_req_o is held while the reset is withheld
+    FAIL: RBT10 reboot_req_o is held while the reset is withheld
+    FAIL: RBT10 while the reset is withheld the originator (CONTROLLER_AVAILABLE) asks to send
+    FAIL: RBT11 the DEPARTING is byte-exact and no byte follows it (0 frames)
+    FAIL: RBT12 reboot_req_o is held while the reset is withheld
+    FAIL: RBT13 reboot_req_o rises after that frame's last byte, and no byte is offered on tx_* from the rise through 5000 ms to the reset (rise 16793894, last byte 17286013, last offered 17286013, 18 frames after)
+    FAIL: RBT13 reboot_req_o is held while the reset is withheld
+rbt-rx-gate-dropped: rc=2 failures=1 named=1 KILLED
+    FAIL: RBT7 ACMP commands that arrive while the response is held get no answer (1 ACMP frames)
+rbt-engine-hold-dropped: rc=2 failures=5 named=1 KILLED
+    FAIL: RBT6 the engine takes the REBOOT and no command after it (2 taken)
+    FAIL: RBT7 the command queued behind the held REBOOT is never served (1 answers)
+    FAIL: RBT7 the engine takes the REBOOT and no command after it (2 taken)
+    FAIL: RBT9 while the reset is withheld the unsolicited AECP lane (lock expiry, notifications) asks to send
+    FAIL: RBT9 the engine takes the REBOOT and no command after it (2 taken)
+rbt-accept-any-status: rc=2 failures=33 named=1 KILLED
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the entity still serves a command after it
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: byte-exact at cdl 16
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of CONFIGURATION 0: NOT_SUPPORTED: byte-exact at cdl 16
+rbt-short-gate-dropped: rc=2 failures=35 named=1 KILLED
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: byte-exact at cdl 16
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: no REBOOT notification reaches the registered controller
+    FAIL: RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the entity still serves a command after it
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: byte-exact at cdl 16
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT1 REBOOT of 2 payload bytes (cdl 14): BAD_ARGUMENTS: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+rbt-type-gate-dropped: rc=2 failures=27 named=1 KILLED
+    FAIL: RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: no REBOOT notification reaches the registered controller
+    FAIL: RBT2 REBOOT of AUDIO_UNIT 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT2 REBOOT of CONFIGURATION 0: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT2 REBOOT of CONFIGURATION 0: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT2 REBOOT of CONFIGURATION 0: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: the entity still serves a command after it
+    FAIL: RBT3 REBOOT of ENTITY 0x7FFF: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+rbt-index-unchecked: rc=2 failures=20 named=1 KILLED
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: no REBOOT notification reaches the registered controller
+    FAIL: RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: the entity still serves a command after it
+    FAIL: RBT3 REBOOT of ENTITY 0x7FFF: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+    FAIL: RBT3 REBOOT of ENTITY 0x7FFF: NO_SUCH_DESCRIPTOR: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT3 REBOOT of ENTITY 0x7FFF: NO_SUCH_DESCRIPTOR: the entity still serves a command after it
+    FAIL: RBT4: controller 0202c2c2c2c2 takes the lock, got status -1
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: byte-exact at cdl 16
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: the entity still serves a command after it
+    FAIL: RBT4b: controller 0202c2c2c2c2 takes the lock, got status -1
+rbt-lock-unchecked: rc=2 failures=13 named=1 KILLED
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: byte-exact at cdl 16
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: no REBOOT notification reaches the registered controller
+    FAIL: RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: the entity still serves a command after it
+    FAIL: RBT4b: controller 0202c2c2c2c2 takes the lock, got status -1
+    FAIL: RBT4b REBOOT of MEMORY_OBJECT 0 under another controller's lock: NOT_SUPPORTED: byte-exact at cdl 16
+    FAIL: RBT4b REBOOT of MEMORY_OBJECT 0 under another controller's lock: NOT_SUPPORTED: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT4b REBOOT of MEMORY_OBJECT 0 under another controller's lock: NOT_SUPPORTED: the entity still serves a command after it
+    FAIL: RBT4c: controller 0202c2c2c2c2 takes the lock, got status -1
+    FAIL: RBT4c REBOOT of ENTITY 1 under another controller's lock: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16
+    FAIL: RBT4c REBOOT of ENTITY 1 under another controller's lock: NO_SUCH_DESCRIPTOR: the REBOOT is not accepted and reboot_req_o stays 0
+    FAIL: RBT4c REBOOT of ENTITY 1 under another controller's lock: NO_SUCH_DESCRIPTOR: the entity still serves a command after it
+rbt-notify-dropped: rc=2 failures=19 named=1 KILLED
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (-1 -1 267888)
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (342084 -1 342088)
+    FAIL: RBT9 the REBOOT notification reaches each other registered controller, byte-exact, and not the requester
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (465887 -1 616066 616068)
+    FAIL: RBT11 the MAC holds the REBOOT notification's last byte
+    FAIL: RBT12 the MAC holds the REBOOT notification's last byte
+    FAIL: RBT12 every TX lane is open while the MAC holds the REBOOT notification's last byte (open 08)
+    FAIL: RBT12 another lane's frame follows the REBOOT notification, its last byte held
+    FAIL: RBT12 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame (rise 15881565)
+    FAIL: RBT12 that frame is the lock's unlock notification (LOCK_ENTITY, u = 1, to the other controller)
+rbt-notification-type: rc=2 failures=19 named=1 KILLED
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (-1 -1 268097)
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (342293 -1 342400)
+    FAIL: RBT9 the REBOOT notification reaches each other registered controller, byte-exact, and not the requester
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (466199 -1 616587 616589)
+    FAIL: RBT11 the MAC holds the REBOOT notification's last byte
+    FAIL: RBT12 the MAC holds the REBOOT notification's last byte
+    FAIL: RBT12 every TX lane is open while the MAC holds the REBOOT notification's last byte (open 08)
+    FAIL: RBT12 another lane's frame follows the REBOOT notification, its last byte held
+    FAIL: RBT12 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame (rise 15882398)
+    FAIL: RBT12 that frame is the lock's unlock notification (LOCK_ENTITY, u = 1, to the other controller)
+rbt-quiet-gate-dropped: rc=2 failures=4 named=1 KILLED
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (211 frames; last byte offered at 8042576, departing at 616587)
+    FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (77 frames; last byte offered at 14835406, departing at 8355237)
+    FAIL: RBT11 the DEPARTING is byte-exact and no byte follows it (9 frames)
+    FAIL: RBT13 reboot_req_o rises after that frame's last byte, and no byte is offered on tx_* from the rise through 5000 ms to the reset (rise 16794000, last byte 17286119, last offered 17286119, 18 frames after)
+rbt-quiet-from-the-request: rc=2 failures=2 named=1 KILLED
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (1 frames; last byte offered at 616660, departing at 616587)
+    FAIL: RBT13 reboot_req_o rises after that frame's last byte, and no byte is offered on tx_* from the rise through 5000 ms to the reset (rise 16794000, last byte 16794071, last offered 16794071, 1 frames after)
+rbt-quiet-opens-notifications: rc=2 failures=3 named=1 KILLED
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (15 frames; last byte offered at 623714, departing at 616587)
+    FAIL: RBT11 the DEPARTING is byte-exact and no byte follows it (6 frames)
+    FAIL: RBT13 reboot_req_o rises after that frame's last byte, and no byte is offered on tx_* from the rise through 5000 ms to the reset (rise 16793894, last byte 16794022, last offered 16794022, 1 frames after)
+rbt-quiet-opens-originator: rc=2 failures=1 named=1 KILLED
+    FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (6 frames; last byte offered at 13345575, departing at 8355237)
+rbt-quiet-opens-listener: rc=2 failures=3 named=1 KILLED
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (13 frames; last byte offered at 3373285, departing at 616587)
+    FAIL: RBT11 the DEPARTING is byte-exact and no byte follows it (1 frames)
+    FAIL: RBT13 reboot_req_o rises after that frame's last byte, and no byte is offered on tx_* from the rise through 5000 ms to the reset (rise 16793894, last byte 17248521, last offered 17248521, 5 frames after)
+rbt-quiet-opens-maap: rc=2 failures=1 named=1 KILLED
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (2 frames; last byte offered at 616778, departing at 616587)
+rbt-quiet-opens-srp: rc=2 failures=4 named=1 KILLED
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (4 frames; last byte offered at 842576, departing at 616587)
+    FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (68 frames; last byte offered at 14835406, departing at 8355237)
+    FAIL: RBT11 the DEPARTING is byte-exact and no byte follows it (3 frames)
+    FAIL: RBT13 reboot_req_o rises after that frame's last byte, and no byte is offered on tx_* from the rise through 5000 ms to the reset (rise 16793927, last byte 16793958, last offered 16793958, 1 frames after)
+rbt-adp-reenabled: rc=2 failures=2 named=1 KILLED
+    FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (7 frames; last byte offered at 13001928, departing at 8355237)
+    FAIL: RBT11 the DEPARTING is byte-exact and no byte follows it (1 frames)
+rbt-quiet-opens-talker-answers: rc=2 failures=2 named=1 KILLED
+    FAIL: RBT7 ACMP commands that arrive while the response is held get no answer (2 ACMP frames)
+    FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (1 frames; last byte offered at 8856487, departing at 8355308)
+rbt-quiet-opens-aecp-answers: rc=2 failures=10 named=1 KILLED
+    FAIL: RBT6 an AEM command after the acceptance gets no answer
+    FAIL: RBT6 the command queued behind the REBOOT is never served (1 answers)
+    FAIL: RBT6 the engine takes the REBOOT and no command after it (3 taken)
+    FAIL: RBT7 the command queued behind the held REBOOT is never served (1 answers)
+    FAIL: RBT7 the engine takes the REBOOT and no command after it (2 taken)
+    FAIL: RBT7 ACMP commands that arrive while the response is held get no answer (1 ACMP frames)
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (1 frames; last byte offered at 589021, departing at 588958)
+    FAIL: RBT9 the engine takes the REBOOT and no command after it (2 taken)
+    FAIL: RBT10 no byte on tx_* after the final ENTITY_DEPARTING, through 65000 ms (1 frames; last byte offered at 8829974, departing at 8327608)
+    FAIL: RBT10 the engine takes the REBOOT and no command after it (2 taken)
+rbt-quiet-at-the-shutdown: rc=2 failures=2 named=1 KILLED
+    FAIL: RBT11 ENTITY_DEPARTING still leaves, then reboot_req_o (0 DEPARTING, rise -1)
+    FAIL: RBT11 the DEPARTING is byte-exact and no byte follows it (4 frames)
+rbt-quiet-closes-departing: rc=2 failures=22 named=1 KILLED
+    FAIL: RBT6 reboot_req_o rises after the holder's REBOOT
+    FAIL: RBT6 reboot_req_o rises after the SUCCESS response's last byte left (-1, 267708)
+    FAIL: RBT6 reboot_req_o rises after both notifications left (267811 267917 -1)
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (267811 -1 -1)
+    FAIL: RBT6 reboot_req_o is held from its rise to the end of the run
+    FAIL: RBT9 the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 reboot_req_o rises once ENTITY_DEPARTING has left
+    FAIL: RBT9 the held ENTITY_DEPARTING leaves once, whole, byte-exact (0)
+    FAIL: RBT9 the response, the notifications, ENTITY_DEPARTING, then reboot_req_o (485369 485578 -1 -1)
+    FAIL: RBT9 no byte on tx_* after the final ENTITY_DEPARTING, through 75000 ms to the delayed reset (3 frames; last byte offered at 485578, departing at -1)
+    FAIL: RBT9 reboot_req_o is held while the reset is withheld
+rbt-quiet-closes-notifications: rc=2 failures=42 named=1 KILLED
+    FAIL: RBT6 reboot_req_o rises after the holder's REBOOT
+    FAIL: RBT6 reboot_req_o rises after the SUCCESS response's last byte left (-1, 267708)
+    FAIL: RBT6 the REBOOT notification reaches every other registered controller, u = 1, at its entry's sequence_id 1, byte-exact
+    FAIL: RBT6 reboot_req_o rises after both notifications left (-1 -1 -1)
+    FAIL: RBT6 one ENTITY_DEPARTING (0), byte-exact after the last ENTITY_AVAILABLE
+    FAIL: RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o (-1 -1 -1)
+    FAIL: RBT6 reboot_req_o is held from its rise to the end of the run
+    FAIL: RBT8 the registered controller's REBOOT notification, entry sequence_id 0, byte-exact
+    FAIL: RBT8 reboot_req_o rises after the response and the notification left (361463 -1 -1)
+    FAIL: RBT8 an entity that is not advertising raises reboot_req_o with no ENTITY_DEPARTING (0)
+    FAIL: RBT9 the MAC holds ENTITY_DEPARTING's last byte
+    FAIL: RBT9 reboot_req_o rises once ENTITY_DEPARTING has left
+32 checks: 32 PASS, 0 FAIL
+rc=0

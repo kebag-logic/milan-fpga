@@ -1,0 +1,36 @@
+inventory KL_acmp_nvm_shadow.g_backoff_check: hdl/acmp/KL_acmp_nvm_shadow.sv:538
+inventory KL_acmp_nvm_shadow.g_rs_tmo_check: hdl/acmp/KL_acmp_nvm_shadow.sv:545
+inventory KL_pp_acmp_listener.g_strm_tmo_check: hdl/acmp/KL_pp_acmp_listener.sv:346
+inventory KL_aecp_desc_store.gen_g_line_align: hdl/aecp/KL_aecp_desc_store.sv:263
+inventory KL_aecp_desc_store.gen_g_beats: hdl/aecp/KL_aecp_desc_store.sv:267
+inventory KL_aecp_desc_store.gen_g_names: hdl/aecp/KL_aecp_desc_store.sv:270
+inventory KL_aecp_desc_store.gen_g_base_align: hdl/aecp/KL_aecp_desc_store.sv:273
+inventory KL_aecp_engine.gen_g_frame_fit: hdl/aecp/KL_aecp_engine.sv:976
+inventory KL_aecp_engine.gen_g_resp_cap_fit: hdl/aecp/KL_aecp_engine.sv:981
+inventory KL_aecp_engine.gen_g_line_step: hdl/aecp/KL_aecp_engine.sv:996
+inventory KL_aecp_engine.gen_g_gamap_page_fit: hdl/aecp/KL_aecp_engine.sv:1000
+inventory KL_aecp_engine.gen_g_line_ceiling: hdl/aecp/KL_aecp_engine.sv:1004
+inventory KL_aecp_notify.g_rows_guard: hdl/aecp/KL_aecp_notify.sv:390
+inventory KL_aecp_nvm_writer.g_shape_check: hdl/aecp/KL_aecp_nvm_writer.sv:315
+inventory KL_aecp_nvm_writer.g_backoff_check: hdl/aecp/KL_aecp_nvm_writer.sv:318
+inventory KL_aecp_nvm_writer.g_rs_tmo_check: hdl/aecp/KL_aecp_nvm_writer.sv:322
+inventory KL_aecp_nvm_writer.g_rs_agg_check: hdl/aecp/KL_aecp_nvm_writer.sv:326
+inventory KL_aecp_resp_buf.gen_g_base_align: hdl/aecp/KL_aecp_resp_buf.sv:194
+inventory KL_aecp_resp_buf.gen_g_size: hdl/aecp/KL_aecp_resp_buf.sv:197
+inventory KL_aecp_resp_buf.gen_g_beats: hdl/aecp/KL_aecp_resp_buf.sv:201
+inventory KL_aecp_ucpu.gen_g_d8_cap: hdl/aecp/KL_aecp_ucpu.sv:297
+inventory KL_pp_nvm_port.g_tmo_check: hdl/packet_engine/KL_pp_nvm_port.sv:189
+inventory KL_pp_nvm_port.g_maxp_check: hdl/packet_engine/KL_pp_nvm_port.sv:198
+inventory KL_pp_originator.g_inflight_check: hdl/packet_engine/KL_pp_originator.sv:149
+inventory KL_pp_release_merge.g_slot_count_check: hdl/packet_engine/KL_pp_release_merge.sv:38
+inventory KL_srp_encoder.g_depth_check: hdl/srp/KL_srp_encoder.sv:148
+inventory protocol_processor_top.gen_g_avb_if: hdl/top/protocol_processor_top.sv:914
+inventory protocol_processor_top.gen_g_tmr_aw: hdl/top/protocol_processor_top.sv:918
+inventory protocol_processor_top.gen_g_tmr_fit: hdl/top/protocol_processor_top.sv:922
+inventory protocol_processor_top.gen_g_tmr_overlap: hdl/top/protocol_processor_top.sv:935
+inventory protocol_processor_top.gen_g_owner_overlap: hdl/top/protocol_processor_top.sv:949
+GUARD verilator KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:315:5: KL_aecp_nvm_writer: a group outgrows its record-id block
+FAIL: ELAB  verilator KL_aecp_nvm_writer.g_shape_check N_NAME_P=128: rc 1: %Warning-USERFATAL: hdl/aecp/KL_aecp_nvm_writer.sv:315:5: KL_aecp_nvm_writer: a group outgrows its record-id block
+GUARD yosys KL_aecp_nvm_writer.g_shape_check N_NAME_P=129: all.v:10190: ERROR: System task `$finish' executed.
+FAIL: ELAB  yosys KL_aecp_nvm_writer.g_shape_check N_NAME_P=128: rc 1: no output
+elab guards: 35 checks: 33 PASS, 2 FAIL

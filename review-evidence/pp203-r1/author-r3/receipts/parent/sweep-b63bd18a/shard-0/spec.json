@@ -1,0 +1,21 @@
+{
+ "cwd": "<shard>0",
+ "head": "b63bd18a6d7d7ecd944a5f5450048d93124fa9ce",
+ "base": "1e80128f0a467b58bf884b7d9bf62e013a2fb141",
+ "commands": [
+  [
+   "env",
+   "PATH=<tool>/pinned-verilator-5.050:<tool>/sv2v-v0.0.12:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=<tool>/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=<tsn-gen>",
+   "TMPDIR=<parent-runs>/parent-tmp",
+   "SUITE_TIMEOUT=7200",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<parent-runs>/parent-sweep/shard-0/logs",
+   "--wait",
+   "--shard",
+   "0/4"
+  ]
+ ]
+}

@@ -1,0 +1,5 @@
+FAIL:  decode: AEM 0x0005 is no table command and the engine dispatches it to GCFG, not only NOTIMPL
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0005 GCFG: observed {"answers": {"0": "16"}, "cdls": "12-100", "floor": 12}, recorded nothing (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: decode AEM 0x0005 NOTIMPL: observed nothing, recorded {"answers": {"1": "echo"}, "cdls": "12-100", "floor": 12} (make -C tb/aecp_cmds record)
+FAIL:  decode: tb/aecp_cmds/decode.json is not what the engine does: sweep inputs hdl/aecp/KL_aecp_engine.sv: observed "a4fcbc40f6600915e306ff51015dc3b6f730dd0b62559a6621ea75f252642717", recorded "bda37001a017b0462c2546cd9902b2d68564343e0d8fd0022447eaa3565f26af" (make -C tb/aecp_cmds record)
+aecp_cmds: 617956 trials swept; 182 checks: 180 PASS, 2 FAIL

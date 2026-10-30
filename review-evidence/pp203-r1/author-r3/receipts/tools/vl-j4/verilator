@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# the host's Verilator with its C++ build parallelism capped (-j 0 -> -j N; N was 4, then 1 while the processor sweep ran beside the campaigns, then 2), so concurrent campaign arms
+# stay inside the unit's memory; nothing else in the command changes
+args=()
+prev=""
+for a in "$@"; do
+  if [ "$prev" = "-j" ] && [ "$a" = "0" ]; then a=2; fi
+  args+=("$a")
+  prev=$a
+done
+exec /usr/bin/verilator "${args[@]}"

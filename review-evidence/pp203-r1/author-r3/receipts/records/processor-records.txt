@@ -1,0 +1,48 @@
+# processor records (round 3)
+origin: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+branch: 203-aecp-reboot
+base (main): f65c8ff7c673aaa8e2ea8da654f081ddb13588d8
+round-2 head: ec1ff275a72d885f0908fd213d8009e9e4dda4d9
+head: 013ee63fd42455987ddbbbeb3b66f5af106b5793
+head tree: b0f66acb645e958b1c9212c9e4d842991154a9a8
+merge-base head f65c8ff7: f65c8ff7c673aaa8e2ea8da654f081ddb13588d8
+
+## commits ec1ff27..head
+013ee63 Say in the architecture, guides and compliance review that reboot_req_o waits for the last frame started, of any lane (issue #203)
+cb73ff3 Raise reboot_req_o only once the TX arbiter is idle, so a frame another lane started leaves whole first, with or without a DEPARTING, and grade it with the reviewers' two non-advertising cases (issue #203)
+
+## commit bodies and trailers (empty means one-line subject only)
+013ee63fd42455987ddbbbeb3b66f5af106b5793 body: []
+cb73ff3f8cda26397ac173755def96af1a550d15 body: []
+
+## diff stat ec1ff27..head
+ docs/00_MILAN_COMPLIANCE_REVIEW.md                 |   7 +-
+ docs/architecture/02_interfaces.md                 |   8 +-
+ docs/architecture/03_packet_engine.md              |   2 +-
+ docs/architecture/04_adp_engine.md                 |   2 +-
+ docs/architecture/06_aecp_engine.md                |  33 +++--
+ docs/guides/integrator.md                          |   5 +-
+ docs/guides/operator.md                            |   2 +-
+ hdl/packet_engine/KL_pp_tx_arbiter.sv              |   6 +
+ hdl/top/protocol_processor_top.sv                  |  32 +++--
+ tb/pp_top/README.md                                |  57 ++++++---
+ tb/pp_top/aecp_dispatch_mutants.py                 |  16 ++-
+ .../rbt-departing-unwatched.patch                  |   4 +-
+ .../rbt-last-byte-offered.patch                    |  11 ++
+ ...atched.patch => rbt-last-frame-unwatched.patch} |   4 +-
+ .../rbt-request-pulse.patch                        |   4 +-
+ tb/pp_top/pp_top_wrap.sv                           |   7 +-
+ tb/pp_top/sim_main.cpp                             | 137 +++++++++++++++++++++
+ tb/tx_arbiter/README.md                            |  15 ++-
+ tb/tx_arbiter/sim_main.cpp                         |  16 ++-
+ tb/tx_arbiter/tx_arbiter_harness.sv                |   2 +
+ 20 files changed, 297 insertions(+), 73 deletions(-)
+
+## top-level port/parameter lines added or removed in hdl/top/protocol_processor_top.sv, ec1ff27..head (empty = none)
+
+## the same over the whole PR, f65c8ff7..head
++    output logic                         reboot_req_o,
+
+## register map files changed f65c8ff7..head (empty = none)
+
+## lane working tree (empty = clean)

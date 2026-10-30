@@ -1,0 +1,1 @@
+python3 scripts/check_submodule_docs.py
