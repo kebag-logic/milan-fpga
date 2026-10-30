@@ -219,12 +219,14 @@ Milan baremetal: fabric entity enable requested; the fabric holds it until the r
 ```
 
 The third line prints only after the model check passes.
-It reports that the firmware requested the enable.
-The fabric holds the entity until the saved-state restore reaches its terminal.
 
 Without it the controller cannot see the board.
 
 Flash both images again in that case.
+
+The third line reports that the firmware requested the enable.
+
+The saved-state restore releases the enable at its terminal.
 
 Within fifteen seconds the controller lists the entity.
 
