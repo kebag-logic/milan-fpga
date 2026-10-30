@@ -426,7 +426,9 @@ The tolerance is 0.25 ns, so the gate refuses.
 
 The slowest path is the SoC's bridge-to-flash path.
 
-#806 holds the owner decision this refusal needs.
+Timing recovery is ruled under #814/#818.
+
+The best directive meets the build floor at every corner.
 
 Both standalone endpoints equal the record in every figure.
 
