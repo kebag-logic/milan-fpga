@@ -534,7 +534,7 @@ def judge(entry: dict, candidate: dict, unrouted: list[str] | None = None, wrong
         verdict, ok = verdict_for(entry, figure, before, after, slacks)
         status = status if ok else 1
         lines.append(f"{figure:<10}{before:>12}{after:>12}{round(after - before, 3):>10}  {verdict}")
-        warned += [figure] if verdict.startswith("WARNING") else []
+        warned += [figure] if "WARNING: fell" in verdict else []
         gain = after - before if figure in TIMING else before - after
         if gain > entry["tolerance"][figure]:
             improved.append(figure)
@@ -570,12 +570,12 @@ def verdict_for(entry: dict, figure: str, before: float, after: float,
     if figure in TIMING:
         floor = entry["floor"][figure]
         missed = [name for name, held in slacks.items() if held[figure] < floor]
-        if missed:
-            return f"REGRESSION: below the floor {floor} at {', '.join(missed)}", False
+        notes = [f"REGRESSION: below the floor {floor} at {', '.join(missed)}"] if missed else []
         if before - after > tolerance:
             # #818: at near-full slice use, unchanged logic moves this much between routes; it measures placement.
-            return f"WARNING: fell by more than {tolerance} from the record", True
-        return "ok", True
+            # The fall is published whatever the floor verdict.
+            notes.append(f"WARNING: fell by more than {tolerance} from the record")
+        return "; ".join(notes) or "ok", not missed
     if after - before > tolerance:
         return f"REGRESSION: grew by more than {tolerance}", False
     return ("ok, below the baseline" if after < before else "ok"), True
