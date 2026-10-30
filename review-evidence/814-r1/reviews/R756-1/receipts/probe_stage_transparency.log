@@ -1,0 +1,68 @@
+seed 1
+  [ok  ] AXIReadyStage aw: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] AXIReadyStage aw: output VALID and payload held until the handshake (0 violations)
+  [ok  ] AXIReadyStage ar: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] AXIReadyStage ar: output VALID and payload held until the handshake (0 violations)
+  [ok  ] AXIReadyStage w: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] AXIReadyStage w: output VALID and payload held until the handshake (0 violations)
+  [ok  ] SPIPHYStage tx: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] SPIPHYStage tx: output VALID and payload held until the handshake (0 violations)
+  [ok  ] SPIPHYStage rx: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] SPIPHYStage rx: output VALID and payload held until the handshake (0 violations)
+  [ok  ] SPIPHYStage cs: PHY chip select is the core's one cycle later over 4000 cycles
+seed 2
+  [ok  ] AXIReadyStage aw: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] AXIReadyStage aw: output VALID and payload held until the handshake (0 violations)
+  [ok  ] AXIReadyStage ar: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] AXIReadyStage ar: output VALID and payload held until the handshake (0 violations)
+  [ok  ] AXIReadyStage w: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] AXIReadyStage w: output VALID and payload held until the handshake (0 violations)
+  [ok  ] SPIPHYStage tx: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] SPIPHYStage tx: output VALID and payload held until the handshake (0 violations)
+  [ok  ] SPIPHYStage rx: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] SPIPHYStage rx: output VALID and payload held until the handshake (0 violations)
+  [ok  ] SPIPHYStage cs: PHY chip select is the core's one cycle later over 4000 cycles
+seed 3
+  [ok  ] AXIReadyStage aw: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] AXIReadyStage aw: output VALID and payload held until the handshake (0 violations)
+  [ok  ] AXIReadyStage ar: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] AXIReadyStage ar: output VALID and payload held until the handshake (0 violations)
+  [ok  ] AXIReadyStage w: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] AXIReadyStage w: output VALID and payload held until the handshake (0 violations)
+  [ok  ] SPIPHYStage tx: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] SPIPHYStage tx: output VALID and payload held until the handshake (0 violations)
+  [ok  ] SPIPHYStage rx: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] SPIPHYStage rx: output VALID and payload held until the handshake (0 violations)
+  [ok  ] SPIPHYStage cs: PHY chip select is the core's one cycle later over 4000 cycles
+planted lossy registered-ready stage (must FAIL):
+  [FAIL] LossyAXIStage aw: 300 beats in, 247 out, in order, none lost or duplicated
+  [FAIL] LossyAXIStage aw: output VALID and payload held until the handshake (175 violations)
+  [FAIL] LossyAXIStage ar: 300 beats in, 251 out, in order, none lost or duplicated
+  [FAIL] LossyAXIStage ar: output VALID and payload held until the handshake (166 violations)
+  [ok  ] LossyAXIStage w: 300 beats in, 300 out, in order, none lost or duplicated
+  [ok  ] LossyAXIStage w: output VALID and payload held until the handshake (0 violations)
+  [ok  ] the planted lossy stage fails the probe (4 failures)
+RESULT: PASS (0 problems)
+	Command being timed: "<home>/litex-milan/venv/bin/python scripts/probe_stage_transparency.py $REVIEWS/r756-1-814/sw/litex 4000"
+	User time (seconds): 20.98
+	System time (seconds): 0.05
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:21.17
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 39140
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 8011
+	Voluntary context switches: 11
+	Involuntary context switches: 70
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
