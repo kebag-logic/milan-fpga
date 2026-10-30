@@ -1,0 +1,10 @@
+[
+ {"id": "D0-046", "page": "README.md",
+  "quote": "proof (#394)",
+  "source": "#394 closed on 2026-09-29; the one-port link loss and return proof is recorded in `docs/findings/599_394_E1_LINK_CYCLES.md`, and the same figure marks the closed #389 as done",
+  "correction": "Mark the #394 link-loss and return proof done, with a pointer to the finding, as the figure does for #389."},
+ {"id": "D0-047", "page": "README.md",
+  "quote": "open is the write side. See the mandatory gaps in",
+  "source": "`docs/reference/milan_feature_status.json` `missing_mandatory_aem_operations` is empty and the README's own gated block (lines 135-138) says every mandated operation is served since 0x0002_0054, the setters included (`docs/reference/MILAN_COMPLIANCE_MATRIX.md` rows 5.4.2.5 to 5.4.2.16)",
+  "correction": "Name what is still open instead (the saved-state cold cycles, Auto Connect, the media plane's adoption of the sampling rate) and link the feature ledger."}
+]

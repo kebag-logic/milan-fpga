@@ -1,0 +1,6 @@
+[
+ {"id": "D0-061", "page": "docs/integration/BAREMETAL_FIRMWARE.md",
+  "quote": "writes these words in this order and no others",
+  "source": "`sw/firmware/milan_baremetal/milan_baremetal.c` line 1809: `configure_fabric()` also writes `MILAN_TCAM_CTRL` (0x700) with `MILAN_TCAM_CTRL_BOOT` = 1 (`sw/litex/boot_policy.py` line 59), right after `MAC_CTRL`; the table has no `TCAM_CTRL` row",
+  "correction": "Add the `TCAM_CTRL` (`0x700`) row between `MAC_CTRL` and `AAF_CTRL`: value `MILAN_TCAM_CTRL_BOOT` (1), the existing accept-all posture."}
+]

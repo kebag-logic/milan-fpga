@@ -1,0 +1,6693 @@
+{
+  "configurations": [
+    {
+      "config": "configs/endstation_arty_4x4.yaml",
+      "image_bytes": 10728,
+      "sha256": "bbf1f5e45b2b4d6a0b517a0599c014bff21c5e0e9c8e1190f4690d443eb2d991",
+      "model_id": {
+        "value": "0x001BC549808B210C",
+        "source": "hash",
+        "hash": "0x001BC549808B210C"
+      },
+      "adp": {
+        "talker_stream_sources": 5,
+        "listener_stream_sinks": 5,
+        "talker_capabilities": 18433,
+        "listener_capabilities": 18433
+      },
+      "rows": [
+        {
+          "configuration": 0,
+          "type": 0,
+          "index": 0,
+          "image_offset": 288,
+          "length": 312,
+          "stride": 312,
+          "name_base": 0,
+          "fields": {
+            "entity_id": "0x020000FFFE000002",
+            "model_id": "0x001BC549808B210C",
+            "capabilities": "0x0000C588",
+            "talker_sources": 5,
+            "talker_caps": 18433,
+            "listener_sinks": 5,
+            "listener_caps": 18433,
+            "configurations": 1,
+            "current_config": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 1,
+          "index": 0,
+          "image_offset": 600,
+          "length": 106,
+          "stride": 112,
+          "name_base": 2,
+          "fields": {
+            "counts_offset": 74,
+            "counts_count": 8,
+            "counts": [
+              [
+                2,
+                1
+              ],
+              [
+                5,
+                5
+              ],
+              [
+                6,
+                5
+              ],
+              [
+                9,
+                1
+              ],
+              [
+                36,
+                1
+              ],
+              [
+                10,
+                6
+              ],
+              [
+                26,
+                1
+              ],
+              [
+                12,
+                1
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 2,
+          "index": 0,
+          "image_offset": 712,
+          "length": 148,
+          "stride": 152,
+          "name_base": 3,
+          "fields": {
+            "rates_offset": 144,
+            "rates_count": 1,
+            "current_rate": 48000,
+            "rates": [
+              48000
+            ],
+            "input_ports": [
+              4,
+              0
+            ],
+            "output_ports": [
+              4,
+              0
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 0,
+          "image_offset": 864,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022001006000",
+            "formats": [
+              "0x0205022001006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 1,
+          "image_offset": 1024,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022001006000",
+            "formats": [
+              "0x0205022001006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 2,
+          "image_offset": 1184,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022001006000",
+            "formats": [
+              "0x0205022001006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 3,
+          "image_offset": 1344,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022001006000",
+            "formats": [
+              "0x0205022001006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 4,
+          "image_offset": 1504,
+          "length": 146,
+          "stride": 152,
+          "name_base": 8,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 3,
+            "current_format": "0x041060010000BB80",
+            "formats": [
+              "0x041060010000BB80"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 0,
+          "image_offset": 1656,
+          "length": 146,
+          "stride": 152,
+          "name_base": 9,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022001006000",
+            "formats": [
+              "0x0205022001006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 1,
+          "image_offset": 1808,
+          "length": 146,
+          "stride": 152,
+          "name_base": 9,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022001006000",
+            "formats": [
+              "0x0205022001006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 2,
+          "image_offset": 1960,
+          "length": 146,
+          "stride": 152,
+          "name_base": 9,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022001006000",
+            "formats": [
+              "0x0205022001006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 3,
+          "image_offset": 2112,
+          "length": 146,
+          "stride": 152,
+          "name_base": 9,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022001006000",
+            "formats": [
+              "0x0205022001006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 4,
+          "image_offset": 2264,
+          "length": 146,
+          "stride": 152,
+          "name_base": 9,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 3,
+            "current_format": "0x041060010000BB80",
+            "formats": [
+              "0x041060010000BB80"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 9,
+          "index": 0,
+          "image_offset": 2416,
+          "length": 102,
+          "stride": 104,
+          "name_base": 14,
+          "fields": {
+            "port_number": 1,
+            "mac": "020000000002",
+            "clock_identity": "020000fffe000002",
+            "controls": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 0,
+          "image_offset": 2520,
+          "length": 86,
+          "stride": 88,
+          "name_base": 15,
+          "fields": {
+            "source_type": 0,
+            "location_type": 10,
+            "location_index": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 1,
+          "image_offset": 2608,
+          "length": 86,
+          "stride": 88,
+          "name_base": 15,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 4
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 2,
+          "image_offset": 2696,
+          "length": 86,
+          "stride": 88,
+          "name_base": 15,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 3,
+          "image_offset": 2784,
+          "length": 86,
+          "stride": 88,
+          "name_base": 15,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 4,
+          "image_offset": 2872,
+          "length": 86,
+          "stride": 88,
+          "name_base": 15,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 2
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 5,
+          "image_offset": 2960,
+          "length": 86,
+          "stride": 88,
+          "name_base": 15,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 3
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 12,
+          "index": 0,
+          "image_offset": 3048,
+          "length": 72,
+          "stride": 72,
+          "name_base": 65535,
+          "fields": {}
+        },
+        {
+          "configuration": 0,
+          "type": 13,
+          "index": 0,
+          "image_offset": 3120,
+          "length": 452,
+          "stride": 456,
+          "name_base": 65535,
+          "fields": {}
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 0,
+          "image_offset": 3576,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 4,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 1,
+          "image_offset": 3600,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 4,
+            "base_cluster": 4,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 2,
+          "image_offset": 3624,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 4,
+            "base_cluster": 8,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 3,
+          "image_offset": 3648,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 4,
+            "base_cluster": 12,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 0,
+          "image_offset": 3672,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 4,
+            "base_cluster": 16,
+            "maps": 1,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 1,
+          "image_offset": 3696,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 4,
+            "base_cluster": 20,
+            "maps": 1,
+            "base_map": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 2,
+          "image_offset": 3720,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 4,
+            "base_cluster": 24,
+            "maps": 1,
+            "base_map": 2
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 3,
+          "image_offset": 3744,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 4,
+            "base_cluster": 28,
+            "maps": 1,
+            "base_map": 3
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 0,
+          "image_offset": 3768,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 1,
+          "image_offset": 3864,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 2,
+          "image_offset": 3960,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 3,
+          "image_offset": 4056,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 4,
+          "image_offset": 4152,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 5,
+          "image_offset": 4248,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 6,
+          "image_offset": 4344,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 7,
+          "image_offset": 4440,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 8,
+          "image_offset": 4536,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 9,
+          "image_offset": 4632,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 10,
+          "image_offset": 4728,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 11,
+          "image_offset": 4824,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 12,
+          "image_offset": 4920,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 13,
+          "image_offset": 5016,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 14,
+          "image_offset": 5112,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 15,
+          "image_offset": 5208,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 16,
+          "image_offset": 5304,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 17,
+          "image_offset": 5400,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 18,
+          "image_offset": 5496,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 19,
+          "image_offset": 5592,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 20,
+          "image_offset": 5688,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 21,
+          "image_offset": 5784,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 22,
+          "image_offset": 5880,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 23,
+          "image_offset": 5976,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 24,
+          "image_offset": 6072,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 25,
+          "image_offset": 6168,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 26,
+          "image_offset": 6264,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 27,
+          "image_offset": 6360,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 28,
+          "image_offset": 6456,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 29,
+          "image_offset": 6552,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 30,
+          "image_offset": 6648,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 31,
+          "image_offset": 6744,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 23,
+          "index": 0,
+          "image_offset": 6840,
+          "length": 40,
+          "stride": 40,
+          "name_base": 65535,
+          "fields": {
+            "mappings_offset": 8,
+            "mappings_count": 4,
+            "mappings": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                1,
+                0
+              ],
+              [
+                0,
+                2,
+                2,
+                0
+              ],
+              [
+                0,
+                3,
+                3,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 23,
+          "index": 1,
+          "image_offset": 6880,
+          "length": 40,
+          "stride": 40,
+          "name_base": 65535,
+          "fields": {
+            "mappings_offset": 8,
+            "mappings_count": 4,
+            "mappings": [
+              [
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                2,
+                2,
+                0
+              ],
+              [
+                1,
+                3,
+                3,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 23,
+          "index": 2,
+          "image_offset": 6920,
+          "length": 40,
+          "stride": 40,
+          "name_base": 65535,
+          "fields": {
+            "mappings_offset": 8,
+            "mappings_count": 4,
+            "mappings": [
+              [
+                2,
+                0,
+                0,
+                0
+              ],
+              [
+                2,
+                1,
+                1,
+                0
+              ],
+              [
+                2,
+                2,
+                2,
+                0
+              ],
+              [
+                2,
+                3,
+                3,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 23,
+          "index": 3,
+          "image_offset": 6960,
+          "length": 40,
+          "stride": 40,
+          "name_base": 65535,
+          "fields": {
+            "mappings_offset": 8,
+            "mappings_count": 4,
+            "mappings": [
+              [
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                3,
+                1,
+                1,
+                0
+              ],
+              [
+                3,
+                2,
+                2,
+                0
+              ],
+              [
+                3,
+                3,
+                3,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 26,
+          "index": 0,
+          "image_offset": 7000,
+          "length": 113,
+          "stride": 120,
+          "name_base": 53,
+          "fields": {
+            "control_type": "0x90E0F00000000001",
+            "reset_time": 0,
+            "values_offset": 104
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 36,
+          "index": 0,
+          "image_offset": 7120,
+          "length": 88,
+          "stride": 88,
+          "name_base": 54,
+          "fields": {
+            "sources_offset": 76,
+            "sources_count": 6,
+            "sources": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "config": "configs/endstation_arty_8ch.yaml",
+      "image_bytes": 15976,
+      "sha256": "b57352b985a3718793da8a266fd340de384814449ed9a299d73bfe822f28853b",
+      "model_id": {
+        "value": "0x001BC55491CCAA9B",
+        "source": "hash",
+        "hash": "0x001BC55491CCAA9B"
+      },
+      "adp": {
+        "talker_stream_sources": 5,
+        "listener_stream_sinks": 5,
+        "talker_capabilities": 18433,
+        "listener_capabilities": 18433
+      },
+      "rows": [
+        {
+          "configuration": 0,
+          "type": 0,
+          "index": 0,
+          "image_offset": 288,
+          "length": 312,
+          "stride": 312,
+          "name_base": 0,
+          "fields": {
+            "entity_id": "0x020000FFFE000002",
+            "model_id": "0x001BC55491CCAA9B",
+            "capabilities": "0x0000C588",
+            "talker_sources": 5,
+            "talker_caps": 18433,
+            "listener_sinks": 5,
+            "listener_caps": 18433,
+            "configurations": 1,
+            "current_config": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 1,
+          "index": 0,
+          "image_offset": 600,
+          "length": 106,
+          "stride": 112,
+          "name_base": 2,
+          "fields": {
+            "counts_offset": 74,
+            "counts_count": 8,
+            "counts": [
+              [
+                2,
+                1
+              ],
+              [
+                5,
+                5
+              ],
+              [
+                6,
+                5
+              ],
+              [
+                9,
+                1
+              ],
+              [
+                36,
+                1
+              ],
+              [
+                10,
+                6
+              ],
+              [
+                26,
+                1
+              ],
+              [
+                12,
+                1
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 2,
+          "index": 0,
+          "image_offset": 712,
+          "length": 148,
+          "stride": 152,
+          "name_base": 3,
+          "fields": {
+            "rates_offset": 144,
+            "rates_count": 1,
+            "current_rate": 48000,
+            "rates": [
+              48000
+            ],
+            "input_ports": [
+              4,
+              0
+            ],
+            "output_ports": [
+              4,
+              0
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 0,
+          "image_offset": 864,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 1,
+          "image_offset": 1024,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 2,
+          "image_offset": 1184,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 3,
+          "image_offset": 1344,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 4,
+          "image_offset": 1504,
+          "length": 146,
+          "stride": 152,
+          "name_base": 8,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 3,
+            "current_format": "0x041060010000BB80",
+            "formats": [
+              "0x041060010000BB80"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 0,
+          "image_offset": 1656,
+          "length": 146,
+          "stride": 152,
+          "name_base": 9,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 1,
+          "image_offset": 1808,
+          "length": 146,
+          "stride": 152,
+          "name_base": 9,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 2,
+          "image_offset": 1960,
+          "length": 146,
+          "stride": 152,
+          "name_base": 9,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 3,
+          "image_offset": 2112,
+          "length": 146,
+          "stride": 152,
+          "name_base": 9,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 4,
+          "image_offset": 2264,
+          "length": 146,
+          "stride": 152,
+          "name_base": 9,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 3,
+            "current_format": "0x041060010000BB80",
+            "formats": [
+              "0x041060010000BB80"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 9,
+          "index": 0,
+          "image_offset": 2416,
+          "length": 102,
+          "stride": 104,
+          "name_base": 14,
+          "fields": {
+            "port_number": 1,
+            "mac": "020000000002",
+            "clock_identity": "020000fffe000002",
+            "controls": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 0,
+          "image_offset": 2520,
+          "length": 86,
+          "stride": 88,
+          "name_base": 15,
+          "fields": {
+            "source_type": 0,
+            "location_type": 10,
+            "location_index": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 1,
+          "image_offset": 2608,
+          "length": 86,
+          "stride": 88,
+          "name_base": 15,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 4
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 2,
+          "image_offset": 2696,
+          "length": 86,
+          "stride": 88,
+          "name_base": 15,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 3,
+          "image_offset": 2784,
+          "length": 86,
+          "stride": 88,
+          "name_base": 15,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 4,
+          "image_offset": 2872,
+          "length": 86,
+          "stride": 88,
+          "name_base": 15,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 2
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 5,
+          "image_offset": 2960,
+          "length": 86,
+          "stride": 88,
+          "name_base": 15,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 3
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 12,
+          "index": 0,
+          "image_offset": 3048,
+          "length": 72,
+          "stride": 72,
+          "name_base": 65535,
+          "fields": {}
+        },
+        {
+          "configuration": 0,
+          "type": 13,
+          "index": 0,
+          "image_offset": 3120,
+          "length": 452,
+          "stride": 456,
+          "name_base": 65535,
+          "fields": {}
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 0,
+          "image_offset": 3576,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 1,
+          "image_offset": 3600,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 8,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 2,
+          "image_offset": 3624,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 16,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 3,
+          "image_offset": 3648,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 24,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 0,
+          "image_offset": 3672,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 32,
+            "maps": 1,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 1,
+          "image_offset": 3696,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 40,
+            "maps": 1,
+            "base_map": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 2,
+          "image_offset": 3720,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 48,
+            "maps": 1,
+            "base_map": 2
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 3,
+          "image_offset": 3744,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 56,
+            "maps": 1,
+            "base_map": 3
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 0,
+          "image_offset": 3768,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 1,
+          "image_offset": 3864,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 2,
+          "image_offset": 3960,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 3,
+          "image_offset": 4056,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 4,
+          "image_offset": 4152,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 5,
+          "image_offset": 4248,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 6,
+          "image_offset": 4344,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 7,
+          "image_offset": 4440,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 8,
+          "image_offset": 4536,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 9,
+          "image_offset": 4632,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 10,
+          "image_offset": 4728,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 11,
+          "image_offset": 4824,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 12,
+          "image_offset": 4920,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 13,
+          "image_offset": 5016,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 14,
+          "image_offset": 5112,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 15,
+          "image_offset": 5208,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 16,
+          "image_offset": 5304,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 17,
+          "image_offset": 5400,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 18,
+          "image_offset": 5496,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 19,
+          "image_offset": 5592,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 20,
+          "image_offset": 5688,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 21,
+          "image_offset": 5784,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 22,
+          "image_offset": 5880,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 23,
+          "image_offset": 5976,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 24,
+          "image_offset": 6072,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 25,
+          "image_offset": 6168,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 26,
+          "image_offset": 6264,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 27,
+          "image_offset": 6360,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 28,
+          "image_offset": 6456,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 29,
+          "image_offset": 6552,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 30,
+          "image_offset": 6648,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 31,
+          "image_offset": 6744,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 32,
+          "image_offset": 6840,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 33,
+          "image_offset": 6936,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 34,
+          "image_offset": 7032,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 35,
+          "image_offset": 7128,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 36,
+          "image_offset": 7224,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 37,
+          "image_offset": 7320,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 38,
+          "image_offset": 7416,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 39,
+          "image_offset": 7512,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 40,
+          "image_offset": 7608,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 41,
+          "image_offset": 7704,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 42,
+          "image_offset": 7800,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 43,
+          "image_offset": 7896,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 44,
+          "image_offset": 7992,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 45,
+          "image_offset": 8088,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 46,
+          "image_offset": 8184,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 47,
+          "image_offset": 8280,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 48,
+          "image_offset": 8376,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 49,
+          "image_offset": 8472,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 50,
+          "image_offset": 8568,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 51,
+          "image_offset": 8664,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 52,
+          "image_offset": 8760,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 53,
+          "image_offset": 8856,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 54,
+          "image_offset": 8952,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 55,
+          "image_offset": 9048,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 56,
+          "image_offset": 9144,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 57,
+          "image_offset": 9240,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 58,
+          "image_offset": 9336,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 59,
+          "image_offset": 9432,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 60,
+          "image_offset": 9528,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 61,
+          "image_offset": 9624,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 62,
+          "image_offset": 9720,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 63,
+          "image_offset": 9816,
+          "length": 90,
+          "stride": 96,
+          "name_base": 21,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 23,
+          "index": 0,
+          "image_offset": 9912,
+          "length": 72,
+          "stride": 72,
+          "name_base": 65535,
+          "fields": {
+            "mappings_offset": 8,
+            "mappings_count": 8,
+            "mappings": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                1,
+                0
+              ],
+              [
+                0,
+                2,
+                2,
+                0
+              ],
+              [
+                0,
+                3,
+                3,
+                0
+              ],
+              [
+                0,
+                4,
+                4,
+                0
+              ],
+              [
+                0,
+                5,
+                5,
+                0
+              ],
+              [
+                0,
+                6,
+                6,
+                0
+              ],
+              [
+                0,
+                7,
+                7,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 23,
+          "index": 1,
+          "image_offset": 9984,
+          "length": 72,
+          "stride": 72,
+          "name_base": 65535,
+          "fields": {
+            "mappings_offset": 8,
+            "mappings_count": 8,
+            "mappings": [
+              [
+                1,
+                0,
+                0,
+                0
+              ],
+              [
+                1,
+                1,
+                1,
+                0
+              ],
+              [
+                1,
+                2,
+                2,
+                0
+              ],
+              [
+                1,
+                3,
+                3,
+                0
+              ],
+              [
+                1,
+                4,
+                4,
+                0
+              ],
+              [
+                1,
+                5,
+                5,
+                0
+              ],
+              [
+                1,
+                6,
+                6,
+                0
+              ],
+              [
+                1,
+                7,
+                7,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 23,
+          "index": 2,
+          "image_offset": 10056,
+          "length": 72,
+          "stride": 72,
+          "name_base": 65535,
+          "fields": {
+            "mappings_offset": 8,
+            "mappings_count": 8,
+            "mappings": [
+              [
+                2,
+                0,
+                0,
+                0
+              ],
+              [
+                2,
+                1,
+                1,
+                0
+              ],
+              [
+                2,
+                2,
+                2,
+                0
+              ],
+              [
+                2,
+                3,
+                3,
+                0
+              ],
+              [
+                2,
+                4,
+                4,
+                0
+              ],
+              [
+                2,
+                5,
+                5,
+                0
+              ],
+              [
+                2,
+                6,
+                6,
+                0
+              ],
+              [
+                2,
+                7,
+                7,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 23,
+          "index": 3,
+          "image_offset": 10128,
+          "length": 72,
+          "stride": 72,
+          "name_base": 65535,
+          "fields": {
+            "mappings_offset": 8,
+            "mappings_count": 8,
+            "mappings": [
+              [
+                3,
+                0,
+                0,
+                0
+              ],
+              [
+                3,
+                1,
+                1,
+                0
+              ],
+              [
+                3,
+                2,
+                2,
+                0
+              ],
+              [
+                3,
+                3,
+                3,
+                0
+              ],
+              [
+                3,
+                4,
+                4,
+                0
+              ],
+              [
+                3,
+                5,
+                5,
+                0
+              ],
+              [
+                3,
+                6,
+                6,
+                0
+              ],
+              [
+                3,
+                7,
+                7,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 26,
+          "index": 0,
+          "image_offset": 10200,
+          "length": 113,
+          "stride": 120,
+          "name_base": 85,
+          "fields": {
+            "control_type": "0x90E0F00000000001",
+            "reset_time": 0,
+            "values_offset": 104
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 36,
+          "index": 0,
+          "image_offset": 10320,
+          "length": 88,
+          "stride": 88,
+          "name_base": 86,
+          "fields": {
+            "sources_offset": 76,
+            "sources_count": 6,
+            "sources": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "config": "configs/endstation_arty_current.yaml",
+      "image_bytes": 5952,
+      "sha256": "785d2c015fcd3f81b6c852f630ce73a43c209fd3b55c24030c6d44f2f17e552b",
+      "model_id": {
+        "value": "0x001BC50AC1000006",
+        "source": "pin",
+        "hash": "0x001BC5E4438F5B7B"
+      },
+      "adp": {
+        "talker_stream_sources": 1,
+        "listener_stream_sinks": 2,
+        "talker_capabilities": 16385,
+        "listener_capabilities": 18433
+      },
+      "rows": [
+        {
+          "configuration": 0,
+          "type": 0,
+          "index": 0,
+          "image_offset": 288,
+          "length": 312,
+          "stride": 312,
+          "name_base": 0,
+          "fields": {
+            "entity_id": "0x020000FFFE000002",
+            "model_id": "0x001BC50AC1000006",
+            "capabilities": "0x0000C588",
+            "talker_sources": 1,
+            "talker_caps": 16385,
+            "listener_sinks": 2,
+            "listener_caps": 18433,
+            "configurations": 1,
+            "current_config": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 1,
+          "index": 0,
+          "image_offset": 600,
+          "length": 106,
+          "stride": 112,
+          "name_base": 2,
+          "fields": {
+            "counts_offset": 74,
+            "counts_count": 8,
+            "counts": [
+              [
+                2,
+                1
+              ],
+              [
+                5,
+                2
+              ],
+              [
+                6,
+                1
+              ],
+              [
+                9,
+                1
+              ],
+              [
+                36,
+                1
+              ],
+              [
+                10,
+                3
+              ],
+              [
+                26,
+                1
+              ],
+              [
+                12,
+                1
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 2,
+          "index": 0,
+          "image_offset": 712,
+          "length": 156,
+          "stride": 160,
+          "name_base": 3,
+          "fields": {
+            "rates_offset": 144,
+            "rates_count": 3,
+            "current_rate": 48000,
+            "rates": [
+              48000,
+              96000,
+              192000
+            ],
+            "input_ports": [
+              1,
+              0
+            ],
+            "output_ports": [
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 0,
+          "image_offset": 872,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022000806000",
+            "formats": [
+              "0x0205022000806000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 1,
+          "image_offset": 1032,
+          "length": 146,
+          "stride": 152,
+          "name_base": 5,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 3,
+            "current_format": "0x041060010000BB80",
+            "formats": [
+              "0x041060010000BB80"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 0,
+          "image_offset": 1184,
+          "length": 146,
+          "stride": 152,
+          "name_base": 6,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022000806000",
+            "formats": [
+              "0x0205022000806000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 9,
+          "index": 0,
+          "image_offset": 1336,
+          "length": 102,
+          "stride": 104,
+          "name_base": 7,
+          "fields": {
+            "port_number": 1,
+            "mac": "020000000002",
+            "clock_identity": "020000fffe000002",
+            "controls": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 0,
+          "image_offset": 1440,
+          "length": 86,
+          "stride": 88,
+          "name_base": 8,
+          "fields": {
+            "source_type": 0,
+            "location_type": 10,
+            "location_index": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 1,
+          "image_offset": 1528,
+          "length": 86,
+          "stride": 88,
+          "name_base": 8,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 2,
+          "image_offset": 1616,
+          "length": 86,
+          "stride": 88,
+          "name_base": 8,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 12,
+          "index": 0,
+          "image_offset": 1704,
+          "length": 72,
+          "stride": 72,
+          "name_base": 65535,
+          "fields": {}
+        },
+        {
+          "configuration": 0,
+          "type": 13,
+          "index": 0,
+          "image_offset": 1776,
+          "length": 452,
+          "stride": 456,
+          "name_base": 65535,
+          "fields": {}
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 0,
+          "image_offset": 2232,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 0,
+          "image_offset": 2256,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 8,
+            "maps": 1,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 0,
+          "image_offset": 2280,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 1,
+          "image_offset": 2376,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 2,
+          "image_offset": 2472,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 3,
+          "image_offset": 2568,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 4,
+          "image_offset": 2664,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 5,
+          "image_offset": 2760,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 6,
+          "image_offset": 2856,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 7,
+          "image_offset": 2952,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 8,
+          "image_offset": 3048,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 9,
+          "image_offset": 3144,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 10,
+          "image_offset": 3240,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 11,
+          "image_offset": 3336,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 12,
+          "image_offset": 3432,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 13,
+          "image_offset": 3528,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 14,
+          "image_offset": 3624,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 15,
+          "image_offset": 3720,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 23,
+          "index": 0,
+          "image_offset": 3816,
+          "length": 72,
+          "stride": 72,
+          "name_base": 65535,
+          "fields": {
+            "mappings_offset": 8,
+            "mappings_count": 8,
+            "mappings": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                1,
+                0
+              ],
+              [
+                0,
+                2,
+                2,
+                0
+              ],
+              [
+                0,
+                3,
+                3,
+                0
+              ],
+              [
+                0,
+                4,
+                4,
+                0
+              ],
+              [
+                0,
+                5,
+                5,
+                0
+              ],
+              [
+                0,
+                6,
+                6,
+                0
+              ],
+              [
+                0,
+                7,
+                7,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 26,
+          "index": 0,
+          "image_offset": 3888,
+          "length": 113,
+          "stride": 120,
+          "name_base": 27,
+          "fields": {
+            "control_type": "0x90E0F00000000001",
+            "reset_time": 0,
+            "values_offset": 104
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 36,
+          "index": 0,
+          "image_offset": 4008,
+          "length": 82,
+          "stride": 88,
+          "name_base": 28,
+          "fields": {
+            "sources_offset": 76,
+            "sources_count": 3,
+            "sources": [
+              0,
+              1,
+              2
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "config": "configs/endstation_ax7101_1x1_tdm8.yaml",
+      "image_bytes": 7512,
+      "sha256": "4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d",
+      "model_id": {
+        "value": "0x001BC5C1935893E1",
+        "source": "hash",
+        "hash": "0x001BC5C1935893E1"
+      },
+      "adp": {
+        "talker_stream_sources": 2,
+        "listener_stream_sinks": 2,
+        "talker_capabilities": 18433,
+        "listener_capabilities": 18433
+      },
+      "rows": [
+        {
+          "configuration": 0,
+          "type": 0,
+          "index": 0,
+          "image_offset": 272,
+          "length": 312,
+          "stride": 312,
+          "name_base": 0,
+          "fields": {
+            "entity_id": "0x020000FFFE000001",
+            "model_id": "0x001BC5C1935893E1",
+            "capabilities": "0x0000C588",
+            "talker_sources": 2,
+            "talker_caps": 18433,
+            "listener_sinks": 2,
+            "listener_caps": 18433,
+            "configurations": 1,
+            "current_config": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 1,
+          "index": 0,
+          "image_offset": 584,
+          "length": 106,
+          "stride": 112,
+          "name_base": 2,
+          "fields": {
+            "counts_offset": 74,
+            "counts_count": 8,
+            "counts": [
+              [
+                2,
+                1
+              ],
+              [
+                5,
+                2
+              ],
+              [
+                6,
+                2
+              ],
+              [
+                9,
+                1
+              ],
+              [
+                36,
+                1
+              ],
+              [
+                10,
+                3
+              ],
+              [
+                26,
+                1
+              ],
+              [
+                12,
+                1
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 2,
+          "index": 0,
+          "image_offset": 696,
+          "length": 148,
+          "stride": 152,
+          "name_base": 3,
+          "fields": {
+            "rates_offset": 144,
+            "rates_count": 1,
+            "current_rate": 48000,
+            "rates": [
+              48000
+            ],
+            "input_ports": [
+              1,
+              0
+            ],
+            "output_ports": [
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 0,
+          "image_offset": 848,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 1,
+          "image_offset": 1008,
+          "length": 146,
+          "stride": 152,
+          "name_base": 5,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 3,
+            "current_format": "0x041060010000BB80",
+            "formats": [
+              "0x041060010000BB80"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 0,
+          "image_offset": 1160,
+          "length": 146,
+          "stride": 152,
+          "name_base": 6,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 1,
+          "image_offset": 1312,
+          "length": 146,
+          "stride": 152,
+          "name_base": 6,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 3,
+            "current_format": "0x041060010000BB80",
+            "formats": [
+              "0x041060010000BB80"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 9,
+          "index": 0,
+          "image_offset": 1464,
+          "length": 102,
+          "stride": 104,
+          "name_base": 8,
+          "fields": {
+            "port_number": 1,
+            "mac": "020000000001",
+            "clock_identity": "020000fffe000001",
+            "controls": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 0,
+          "image_offset": 1568,
+          "length": 86,
+          "stride": 88,
+          "name_base": 9,
+          "fields": {
+            "source_type": 0,
+            "location_type": 10,
+            "location_index": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 1,
+          "image_offset": 1656,
+          "length": 86,
+          "stride": 88,
+          "name_base": 9,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 2,
+          "image_offset": 1744,
+          "length": 86,
+          "stride": 88,
+          "name_base": 9,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 12,
+          "index": 0,
+          "image_offset": 1832,
+          "length": 72,
+          "stride": 72,
+          "name_base": 65535,
+          "fields": {}
+        },
+        {
+          "configuration": 0,
+          "type": 13,
+          "index": 0,
+          "image_offset": 1904,
+          "length": 452,
+          "stride": 456,
+          "name_base": 65535,
+          "fields": {}
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 0,
+          "image_offset": 2360,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 0,
+          "image_offset": 2384,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 17,
+            "base_cluster": 8,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 0,
+          "image_offset": 2408,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 1,
+          "image_offset": 2504,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 2,
+          "image_offset": 2600,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 3,
+          "image_offset": 2696,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 4,
+          "image_offset": 2792,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 5,
+          "image_offset": 2888,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 6,
+          "image_offset": 2984,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 7,
+          "image_offset": 3080,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 8,
+          "image_offset": 3176,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 9,
+          "image_offset": 3272,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 10,
+          "image_offset": 3368,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 11,
+          "image_offset": 3464,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 12,
+          "image_offset": 3560,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 13,
+          "image_offset": 3656,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 14,
+          "image_offset": 3752,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 15,
+          "image_offset": 3848,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 16,
+          "image_offset": 3944,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 17,
+          "image_offset": 4040,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 18,
+          "image_offset": 4136,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 19,
+          "image_offset": 4232,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 20,
+          "image_offset": 4328,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 21,
+          "image_offset": 4424,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 22,
+          "image_offset": 4520,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 23,
+          "image_offset": 4616,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 24,
+          "image_offset": 4712,
+          "length": 90,
+          "stride": 96,
+          "name_base": 12,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 26,
+          "index": 0,
+          "image_offset": 4808,
+          "length": 113,
+          "stride": 120,
+          "name_base": 37,
+          "fields": {
+            "control_type": "0x90E0F00000000001",
+            "reset_time": 0,
+            "values_offset": 104
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 36,
+          "index": 0,
+          "image_offset": 4928,
+          "length": 82,
+          "stride": 88,
+          "name_base": 38,
+          "fields": {
+            "sources_offset": 76,
+            "sources_count": 3,
+            "sources": [
+              0,
+              1,
+              2
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "config": "configs/endstation_ax7101_8x8.yaml",
+      "image_bytes": 19520,
+      "sha256": "d8296833b03fe12405e75fe6b9c9690abc968fa6c15b25e4f698c4010b8aa7bc",
+      "model_id": {
+        "value": "0x001BC5572467AF35",
+        "source": "hash",
+        "hash": "0x001BC5572467AF35"
+      },
+      "adp": {
+        "talker_stream_sources": 9,
+        "listener_stream_sinks": 9,
+        "talker_capabilities": 18433,
+        "listener_capabilities": 18433
+      },
+      "rows": [
+        {
+          "configuration": 0,
+          "type": 0,
+          "index": 0,
+          "image_offset": 272,
+          "length": 312,
+          "stride": 312,
+          "name_base": 0,
+          "fields": {
+            "entity_id": "0x020000FFFE000001",
+            "model_id": "0x001BC5572467AF35",
+            "capabilities": "0x0000C588",
+            "talker_sources": 9,
+            "talker_caps": 18433,
+            "listener_sinks": 9,
+            "listener_caps": 18433,
+            "configurations": 1,
+            "current_config": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 1,
+          "index": 0,
+          "image_offset": 584,
+          "length": 106,
+          "stride": 112,
+          "name_base": 2,
+          "fields": {
+            "counts_offset": 74,
+            "counts_count": 8,
+            "counts": [
+              [
+                2,
+                1
+              ],
+              [
+                5,
+                9
+              ],
+              [
+                6,
+                9
+              ],
+              [
+                9,
+                1
+              ],
+              [
+                36,
+                1
+              ],
+              [
+                10,
+                10
+              ],
+              [
+                26,
+                1
+              ],
+              [
+                12,
+                1
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 2,
+          "index": 0,
+          "image_offset": 696,
+          "length": 148,
+          "stride": 152,
+          "name_base": 3,
+          "fields": {
+            "rates_offset": 144,
+            "rates_count": 1,
+            "current_rate": 48000,
+            "rates": [
+              48000
+            ],
+            "input_ports": [
+              8,
+              0
+            ],
+            "output_ports": [
+              8,
+              0
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 0,
+          "image_offset": 848,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 1,
+          "image_offset": 1008,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 2,
+          "image_offset": 1168,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 3,
+          "image_offset": 1328,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 4,
+          "image_offset": 1488,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 5,
+          "image_offset": 1648,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 6,
+          "image_offset": 1808,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 7,
+          "image_offset": 1968,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 8,
+          "image_offset": 2128,
+          "length": 146,
+          "stride": 152,
+          "name_base": 12,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 3,
+            "current_format": "0x041060010000BB80",
+            "formats": [
+              "0x041060010000BB80"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 0,
+          "image_offset": 2280,
+          "length": 146,
+          "stride": 152,
+          "name_base": 13,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 1,
+          "image_offset": 2432,
+          "length": 146,
+          "stride": 152,
+          "name_base": 13,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 2,
+          "image_offset": 2584,
+          "length": 146,
+          "stride": 152,
+          "name_base": 13,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 3,
+          "image_offset": 2736,
+          "length": 146,
+          "stride": 152,
+          "name_base": 13,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 4,
+          "image_offset": 2888,
+          "length": 146,
+          "stride": 152,
+          "name_base": 13,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 5,
+          "image_offset": 3040,
+          "length": 146,
+          "stride": 152,
+          "name_base": 13,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 6,
+          "image_offset": 3192,
+          "length": 146,
+          "stride": 152,
+          "name_base": 13,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 7,
+          "image_offset": 3344,
+          "length": 146,
+          "stride": 152,
+          "name_base": 13,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022002006000",
+            "formats": [
+              "0x0205022002006000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 8,
+          "image_offset": 3496,
+          "length": 146,
+          "stride": 152,
+          "name_base": 13,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 3,
+            "current_format": "0x041060010000BB80",
+            "formats": [
+              "0x041060010000BB80"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 9,
+          "index": 0,
+          "image_offset": 3648,
+          "length": 102,
+          "stride": 104,
+          "name_base": 22,
+          "fields": {
+            "port_number": 1,
+            "mac": "020000000001",
+            "clock_identity": "020000fffe000001",
+            "controls": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 0,
+          "image_offset": 3752,
+          "length": 86,
+          "stride": 88,
+          "name_base": 23,
+          "fields": {
+            "source_type": 0,
+            "location_type": 10,
+            "location_index": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 1,
+          "image_offset": 3840,
+          "length": 86,
+          "stride": 88,
+          "name_base": 23,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 8
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 2,
+          "image_offset": 3928,
+          "length": 86,
+          "stride": 88,
+          "name_base": 23,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 3,
+          "image_offset": 4016,
+          "length": 86,
+          "stride": 88,
+          "name_base": 23,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 4,
+          "image_offset": 4104,
+          "length": 86,
+          "stride": 88,
+          "name_base": 23,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 2
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 5,
+          "image_offset": 4192,
+          "length": 86,
+          "stride": 88,
+          "name_base": 23,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 3
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 6,
+          "image_offset": 4280,
+          "length": 86,
+          "stride": 88,
+          "name_base": 23,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 4
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 7,
+          "image_offset": 4368,
+          "length": 86,
+          "stride": 88,
+          "name_base": 23,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 5
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 8,
+          "image_offset": 4456,
+          "length": 86,
+          "stride": 88,
+          "name_base": 23,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 6
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 9,
+          "image_offset": 4544,
+          "length": 86,
+          "stride": 88,
+          "name_base": 23,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 7
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 12,
+          "index": 0,
+          "image_offset": 4632,
+          "length": 72,
+          "stride": 72,
+          "name_base": 65535,
+          "fields": {}
+        },
+        {
+          "configuration": 0,
+          "type": 13,
+          "index": 0,
+          "image_offset": 4704,
+          "length": 452,
+          "stride": 456,
+          "name_base": 65535,
+          "fields": {}
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 0,
+          "image_offset": 5160,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 0,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 1,
+          "image_offset": 5184,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 0,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 2,
+          "image_offset": 5208,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 0,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 3,
+          "image_offset": 5232,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 0,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 4,
+          "image_offset": 5256,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 0,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 5,
+          "image_offset": 5280,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 0,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 6,
+          "image_offset": 5304,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 0,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 7,
+          "image_offset": 5328,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 0,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 0,
+          "image_offset": 5352,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 9,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 1,
+          "image_offset": 5376,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 9,
+            "base_cluster": 9,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 2,
+          "image_offset": 5400,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 9,
+            "base_cluster": 18,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 3,
+          "image_offset": 5424,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 9,
+            "base_cluster": 27,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 4,
+          "image_offset": 5448,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 9,
+            "base_cluster": 36,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 5,
+          "image_offset": 5472,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 9,
+            "base_cluster": 45,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 6,
+          "image_offset": 5496,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 9,
+            "base_cluster": 54,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 7,
+          "image_offset": 5520,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 9,
+            "base_cluster": 63,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 0,
+          "image_offset": 5544,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 1,
+          "image_offset": 5640,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 2,
+          "image_offset": 5736,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 3,
+          "image_offset": 5832,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 4,
+          "image_offset": 5928,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 5,
+          "image_offset": 6024,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 6,
+          "image_offset": 6120,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 7,
+          "image_offset": 6216,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 8,
+          "image_offset": 6312,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 9,
+          "image_offset": 6408,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 10,
+          "image_offset": 6504,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 11,
+          "image_offset": 6600,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 12,
+          "image_offset": 6696,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 13,
+          "image_offset": 6792,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 14,
+          "image_offset": 6888,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 15,
+          "image_offset": 6984,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 16,
+          "image_offset": 7080,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 17,
+          "image_offset": 7176,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 18,
+          "image_offset": 7272,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 19,
+          "image_offset": 7368,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 20,
+          "image_offset": 7464,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 21,
+          "image_offset": 7560,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 22,
+          "image_offset": 7656,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 23,
+          "image_offset": 7752,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 24,
+          "image_offset": 7848,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 25,
+          "image_offset": 7944,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 26,
+          "image_offset": 8040,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 27,
+          "image_offset": 8136,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 28,
+          "image_offset": 8232,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 29,
+          "image_offset": 8328,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 30,
+          "image_offset": 8424,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 31,
+          "image_offset": 8520,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 32,
+          "image_offset": 8616,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 33,
+          "image_offset": 8712,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 34,
+          "image_offset": 8808,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 35,
+          "image_offset": 8904,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 36,
+          "image_offset": 9000,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 37,
+          "image_offset": 9096,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 38,
+          "image_offset": 9192,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 39,
+          "image_offset": 9288,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 40,
+          "image_offset": 9384,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 41,
+          "image_offset": 9480,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 42,
+          "image_offset": 9576,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 43,
+          "image_offset": 9672,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 44,
+          "image_offset": 9768,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 45,
+          "image_offset": 9864,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 46,
+          "image_offset": 9960,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 47,
+          "image_offset": 10056,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 48,
+          "image_offset": 10152,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 49,
+          "image_offset": 10248,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 50,
+          "image_offset": 10344,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 51,
+          "image_offset": 10440,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 52,
+          "image_offset": 10536,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 53,
+          "image_offset": 10632,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 54,
+          "image_offset": 10728,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 55,
+          "image_offset": 10824,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 56,
+          "image_offset": 10920,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 57,
+          "image_offset": 11016,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 58,
+          "image_offset": 11112,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 59,
+          "image_offset": 11208,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 60,
+          "image_offset": 11304,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 61,
+          "image_offset": 11400,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 62,
+          "image_offset": 11496,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 63,
+          "image_offset": 11592,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 64,
+          "image_offset": 11688,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 65,
+          "image_offset": 11784,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 66,
+          "image_offset": 11880,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 67,
+          "image_offset": 11976,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 68,
+          "image_offset": 12072,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 69,
+          "image_offset": 12168,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 70,
+          "image_offset": 12264,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 71,
+          "image_offset": 12360,
+          "length": 90,
+          "stride": 96,
+          "name_base": 33,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 26,
+          "index": 0,
+          "image_offset": 12456,
+          "length": 113,
+          "stride": 120,
+          "name_base": 105,
+          "fields": {
+            "control_type": "0x90E0F00000000001",
+            "reset_time": 0,
+            "values_offset": 104
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 36,
+          "index": 0,
+          "image_offset": 12576,
+          "length": 96,
+          "stride": 96,
+          "name_base": 106,
+          "fields": {
+            "sources_offset": 76,
+            "sources_count": 10,
+            "sources": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "packer_probes": [
+    {
+      "rule": "control",
+      "probe": "pristine shipping document",
+      "result": "accepted",
+      "image_bytes": 5952
+    },
+    {
+      "rule": "L1",
+      "probe": "output port shares input cluster block",
+      "result": "refused",
+      "reason": "L1 single-parent: cfg 0 AUDIO_CLUSTER 0: claimed by STREAM_PORT_INPUT 0, STREAM_PORT_OUTPUT 0 (Milan v1.2 \u00a75.3.2)\nL1 single-parent: cfg 0 AUDIO_CLUSTER 1: claimed by STREAM_PORT_INPUT 0, STREAM_PORT_OUTPUT 0 (Milan v1.2 \u00a75.3.2)\nL1 single-parent: cfg 0 AUDIO_CLUSTER 2: claimed by STREAM_PORT_INPUT 0, STREAM_PORT_OUTPUT 0 (Milan v1.2 \u00a75.3.2)\nL1 single-parent: cfg 0 AUDIO_CLUSTER 3: claimed by STREAM_PORT_INPUT 0, STREAM_PORT_OUTPUT 0 (Milan v1.2 \u00a75.3.2)\nL1 single-parent: cfg 0 AUDIO_CLUSTER 4: claimed by STREAM_PORT_INPUT 0, STREAM_PORT_OUTPUT 0 (Milan v1.2 \u00a75.3.2)\nL1 single-parent: cfg 0 AUDIO_CLUSTER 5: claimed by STREAM_PORT_INPUT 0, STREAM_PORT_OUTPUT 0 (Milan v1.2 \u00a75.3.2)\nL1 single-parent: cfg 0 AUDIO_CLUSTER 6: claimed by STREAM_PORT_INPUT 0, STREAM_PORT_OUTPUT 0 (Milan v1.2 \u00a75.3.2)\nL1 single-parent: cfg 0 AUDIO_CLUSTER 7: claimed by STREAM_PORT_INPUT 0, STREAM_PORT_OUTPUT 0 (Milan v1.2 \u00a75.3.2)\nL1 has-parent: cfg 0 AUDIO_CLUSTER 8: no descriptor's range claims it (Milan v1.2 \u00a75.3.2)\nL1 has-parent: cfg 0 AUDIO_CLUSTER 9: no descriptor's range claims it (Milan v1.2 \u00a75.3.2)\nL1 has-parent: cfg 0 AUDIO_CLUSTER 10: no descriptor's range claims it (Milan v1.2 \u00a75.3.2)\nL1 has-parent: cfg 0 AUDIO_CLUSTER 11: no descriptor's range claims it (Milan v1.2 \u00a75.3.2)\nL1 has-parent: cfg 0 AUDIO_CLUSTER 12: no descriptor's range claims it (Milan v1.2 \u00a75.3.2)\nL1 has-parent: cfg 0 AUDIO_CLUSTER 13: no descriptor's range claims it (Milan v1.2 \u00a75.3.2)\nL1 has-parent: cfg 0 AUDIO_CLUSTER 14: no descriptor's range claims it (Milan v1.2 \u00a75.3.2)\nL1 has-parent: cfg 0 AUDIO_CLUSTER 15: no descriptor's range claims it (Milan v1.2 \u00a75.3.2)"
+    },
+    {
+      "rule": "L2",
+      "probe": "metadata index gap",
+      "result": "refused",
+      "reason": "cfg 0 directory key type 0x000A index 2 disagrees with body type 0x000A index 1"
+    },
+    {
+      "rule": "L2",
+      "probe": "duplicate row",
+      "result": "refused",
+      "reason": "duplicate descriptor cfg 0 type 0x0000 index 0"
+    },
+    {
+      "rule": "packing",
+      "probe": "ENTITY name differs from name table",
+      "result": "refused",
+      "reason": "cfg 0 ENTITY entity_name differs from name-table entry 0"
+    },
+    {
+      "rule": "L2",
+      "probe": "wire index differs from metadata",
+      "result": "refused",
+      "reason": "cfg 0 directory key type 0x000A index 0 disagrees with body type 0x000A index 9"
+    },
+    {
+      "rule": "L2",
+      "probe": "wire type differs from metadata",
+      "result": "refused",
+      "reason": "cfg 0 directory key type 0x000A index 0 disagrees with body type 0x0009 index 0"
+    },
+    {
+      "rule": "L4",
+      "probe": "buffer at 2126000 ns",
+      "result": "accepted",
+      "image_bytes": 5952
+    },
+    {
+      "rule": "L4",
+      "probe": "buffer one ns below floor",
+      "result": "refused",
+      "reason": "L4 buffer-length: cfg 0 STREAM_INPUT 0: buffer_length 2125999 ns, below 2126000 (Milan v1.2 \u00a75.3.3.4)"
+    },
+    {
+      "rule": "L4",
+      "probe": "CLASS_A cleared",
+      "result": "refused",
+      "reason": "L4 class-a: cfg 0 STREAM_INPUT 0: stream_flags 0x0001 without CLASS_A (Milan v1.2 \u00a75.3.3.4, \u00a77.3.3)"
+    },
+    {
+      "rule": "L4",
+      "probe": "current format outside list",
+      "result": "refused",
+      "reason": "L4 current-format: cfg 0 STREAM_INPUT 0: current_format 0x0000000000000000 is not in its list (Milan v1.2 \u00a75.3.3.4)"
+    },
+    {
+      "rule": "L4",
+      "probe": "mixed AAF and CRF formats",
+      "result": "refused",
+      "reason": "L3 base-channel-completeness: cfg 0 STREAM_INPUT 0: Base 48 kHz without channel counts [1, 4, 6, 8] (Milan v1.2 \u00a76.4)\nL4 format-family: cfg 0 STREAM_INPUT 0: lists both CRF and AAF formats (Milan v1.2 \u00a75.3.3.4)"
+    },
+    {
+      "rule": "L4",
+      "probe": "46 formats at 2021 Table 7-8 cap (506 octets)",
+      "result": "refused",
+      "reason": "L3 base-channel-completeness: cfg 0 STREAM_INPUT 0: Base 48 kHz without channel counts [1, 4, 6, 8] (Milan v1.2 \u00a76.4)"
+    },
+    {
+      "rule": "L4",
+      "probe": "47 formats above 2021 Table 7-8 cap (514 octets)",
+      "result": "refused",
+      "reason": "L3 base-channel-completeness: cfg 0 STREAM_INPUT 0: Base 48 kHz without channel counts [1, 4, 6, 8] (Milan v1.2 \u00a76.4)\nL4 format-count: cfg 0 STREAM_INPUT 0: number_of_formats 47, above 46 (IEEE 1722.1-2021 \u00a77.2, \u00a77.2.6 Table 7-8)\nL12 descriptor-maximum: cfg 0 STREAM_INPUT 0: is 514 bytes, above 508 (IEEE 1722.1-2021 \u00a77.2)"
+    },
+    {
+      "rule": "L4",
+      "probe": "48 formats below line-buffer cap",
+      "result": "refused",
+      "reason": "L3 base-channel-completeness: cfg 0 STREAM_INPUT 0: Base 48 kHz without channel counts [1, 4, 6, 8] (Milan v1.2 \u00a76.4)\nL4 format-count: cfg 0 STREAM_INPUT 0: number_of_formats 48, above 46 (IEEE 1722.1-2021 \u00a77.2, \u00a77.2.6 Table 7-8)\nL12 descriptor-maximum: cfg 0 STREAM_INPUT 0: is 522 bytes, above 508 (IEEE 1722.1-2021 \u00a77.2)"
+    },
+    {
+      "rule": "L6",
+      "probe": "source list reversed",
+      "result": "refused",
+      "reason": "L6 domain-source-identity: cfg 0 CLOCK_DOMAIN 0: clock_sources [0, 1, 0], not 0..2; the SET_CLOCK_SOURCE range check is the membership test only for the identity list (IEEE 1722.1-2021 \u00a77.2.32; 06 \u00a76.4)"
+    },
+    {
+      "rule": "L7",
+      "probe": "input port declares a static map",
+      "result": "refused",
+      "reason": "L1 single-parent: cfg 0 AUDIO_MAP 0: claimed by STREAM_PORT_INPUT 0, STREAM_PORT_OUTPUT 0 (Milan v1.2 \u00a75.3.2)\nL7 input-port-maps: cfg 0 STREAM_PORT_INPUT 0: number_of_maps 1; input mappings are dynamic (Milan v1.2 \u00a75.3.3.7, \u00a75.3.3.9)"
+    },
+    {
+      "rule": "L7",
+      "probe": "cluster channel_count two",
+      "result": "refused",
+      "reason": "L7 cluster-channels: cfg 0 AUDIO_CLUSTER 0: channel_count 2 (Milan v1.2 \u00a75.3.3.8)"
+    },
+    {
+      "rule": "L7",
+      "probe": "duplicate output stream channel",
+      "result": "refused",
+      "reason": "L7 unique-mapping: cfg 0 AUDIO_MAP 0: stream 0 channel 0 is also mapped by AUDIO_MAP 0 (Milan v1.2 \u00a75.3.3.9)"
+    },
+    {
+      "rule": "L8",
+      "probe": "CONTROL is not IDENTIFY",
+      "result": "refused",
+      "reason": "L8 identify-index: cfg 0 CONTROL: no index holds an IDENTIFY CONTROL in every configuration, and the ADPDU advertises identify_control_index as valid (Milan v1.2 \u00a75.3.3.10, \u00a75.6.2)"
+    },
+    {
+      "rule": "L9",
+      "probe": "zero model ID",
+      "result": "refused",
+      "reason": "L9 model-id-valid: cfg 0 ENTITY 0: entity_model_id 0x0000000000000000 is not a valid EUI-64 (Milan v1.2 \u00a75.3.3.1, \u00a75.6.2)"
+    },
+    {
+      "rule": "L9",
+      "probe": "all-ones model ID",
+      "result": "refused",
+      "reason": "L9 model-id-valid: cfg 0 ENTITY 0: entity_model_id 0xFFFFFFFFFFFFFFFF is not a valid EUI-64 (Milan v1.2 \u00a75.3.3.1, \u00a75.6.2)"
+    },
+    {
+      "rule": "L10",
+      "probe": "eight full rate words",
+      "result": "accepted",
+      "image_bytes": 5968
+    },
+    {
+      "rule": "L10",
+      "probe": "nine full rate words",
+      "result": "refused",
+      "reason": "L10 rate-count: cfg 0 AUDIO_UNIT 0: sampling_rates_count 9; SET_SAMPLING_RATE consults the first 8 (07 \u00a73.1 L10)"
+    },
+    {
+      "rule": "L10",
+      "probe": "offset 143",
+      "result": "refused",
+      "reason": "L10 rate-offset: cfg 0 AUDIO_UNIT 0: sampling_rates_offset 143; SET_SAMPLING_RATE reads the list at 144 (IEEE 1722.1-2021 \u00a77.2.3, \u00a77.4.21.1; 07 \u00a73.1)\nL10 current-rate: cfg 0 AUDIO_UNIT 0: current_sampling_rate 0x0000BB80 is not one of 0x030000BB, 0x80000177, 0x000002EE (Milan v1.2 \u00a75.3.3.3)"
+    },
+    {
+      "rule": "L10",
+      "probe": "count disagrees with extent",
+      "result": "refused",
+      "reason": "L10 rate-length: cfg 0 AUDIO_UNIT 0: is 156 bytes; 4 rates make 160 (IEEE 1722.1-2021 \u00a77.2.3; 07 \u00a73.1)"
+    },
+    {
+      "rule": "L10",
+      "probe": "one byte short",
+      "result": "refused",
+      "reason": "L10 rate-length: cfg 0 AUDIO_UNIT 0: is 155 bytes; 3 rates make 156 (IEEE 1722.1-2021 \u00a77.2.3; 07 \u00a73.1)"
+    },
+    {
+      "rule": "ADP",
+      "probe": "ENTITY talker count disagrees",
+      "result": "refused",
+      "reason": "L11 talker-sources: cfg 0 ENTITY 0: talker_stream_sources 2; the most STREAM_OUTPUTs of any configuration is 1 (Milan v1.2 \u00a75.3.3.1)"
+    },
+    {
+      "rule": "ADP",
+      "probe": "ENTITY listener count disagrees",
+      "result": "refused",
+      "reason": "L11 listener-sinks: cfg 0 ENTITY 0: listener_stream_sinks 3; the most STREAM_INPUTs of any configuration is 2 (Milan v1.2 \u00a75.3.3.1)"
+    },
+    {
+      "rule": "packing",
+      "probe": "opaque 576-byte row",
+      "result": "refused",
+      "reason": "L1 entity-count: cfg 0 ENTITY: the model has no ENTITY descriptor (Milan v1.2 \u00a75.3.3.1; IEEE 1722.1-2021 \u00a77.4.5.2)\nL1 required-type: cfg 0 AVB_INTERFACE: configuration 0 has no AVB_INTERFACE (Milan v1.2 \u00a75.3.2, \u00a75.3.3.5, \u00a75.3.3.6, \u00a75.3.3.11)\nL1 required-type: cfg 0 CLOCK_DOMAIN: configuration 0 has no CLOCK_DOMAIN (Milan v1.2 \u00a75.3.2, \u00a75.3.3.5, \u00a75.3.3.6, \u00a75.3.3.11)\nL1 required-type: cfg 0 CLOCK_SOURCE: configuration 0 has no CLOCK_SOURCE (Milan v1.2 \u00a75.3.2, \u00a75.3.3.5, \u00a75.3.3.6, \u00a75.3.3.11)\nL3 stream-presence: cfg 0: no STREAM_INPUT and no STREAM_OUTPUT (Milan v1.2 \u00a75.3.3.4)\nL8 identify-index: cfg 0 CONTROL: no index holds an IDENTIFY CONTROL in every configuration, and the ADPDU advertises identify_control_index as valid (Milan v1.2 \u00a75.3.3.10, \u00a75.6.2)\nL12 descriptor-maximum: cfg 0 0xFFFE 0: is 576 bytes, above 508 (IEEE 1722.1-2021 \u00a77.2)"
+    },
+    {
+      "rule": "packing",
+      "probe": "opaque 577-byte row",
+      "result": "refused",
+      "reason": "cfg 0 type 0xFFFE index 0 is 577 bytes, over the 576-byte store line buffer \u2014 the store would answer NO_SUCH_DESCRIPTOR for it"
+    }
+  ],
+  "config_probes": [
+    {
+      "rule": "control",
+      "probe": "unchanged YAML",
+      "loader": "accepted",
+      "image": "accepted",
+      "image_bytes": 5952,
+      "rows": [
+        {
+          "configuration": 0,
+          "type": 0,
+          "index": 0,
+          "image_offset": 288,
+          "length": 312,
+          "stride": 312,
+          "name_base": 0,
+          "fields": {
+            "entity_id": "0x020000FFFE000002",
+            "model_id": "0x001BC50AC1000006",
+            "capabilities": "0x0000C588",
+            "talker_sources": 1,
+            "talker_caps": 16385,
+            "listener_sinks": 2,
+            "listener_caps": 18433,
+            "configurations": 1,
+            "current_config": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 1,
+          "index": 0,
+          "image_offset": 600,
+          "length": 106,
+          "stride": 112,
+          "name_base": 2,
+          "fields": {
+            "counts_offset": 74,
+            "counts_count": 8,
+            "counts": [
+              [
+                2,
+                1
+              ],
+              [
+                5,
+                2
+              ],
+              [
+                6,
+                1
+              ],
+              [
+                9,
+                1
+              ],
+              [
+                36,
+                1
+              ],
+              [
+                10,
+                3
+              ],
+              [
+                26,
+                1
+              ],
+              [
+                12,
+                1
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 2,
+          "index": 0,
+          "image_offset": 712,
+          "length": 156,
+          "stride": 160,
+          "name_base": 3,
+          "fields": {
+            "rates_offset": 144,
+            "rates_count": 3,
+            "current_rate": 48000,
+            "rates": [
+              48000,
+              96000,
+              192000
+            ],
+            "input_ports": [
+              1,
+              0
+            ],
+            "output_ports": [
+              1,
+              0
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 0,
+          "image_offset": 872,
+          "length": 154,
+          "stride": 160,
+          "name_base": 4,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 2,
+            "flags": 3,
+            "current_format": "0x0205022000806000",
+            "formats": [
+              "0x0205022000806000",
+              "0x0215022002006000"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 154,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 5,
+          "index": 1,
+          "image_offset": 1032,
+          "length": 146,
+          "stride": 152,
+          "name_base": 5,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 3,
+            "current_format": "0x041060010000BB80",
+            "formats": [
+              "0x041060010000BB80"
+            ],
+            "buffer_ns": 2126000,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 6,
+          "index": 0,
+          "image_offset": 1184,
+          "length": 146,
+          "stride": 152,
+          "name_base": 6,
+          "fields": {
+            "formats_offset": 138,
+            "formats_count": 1,
+            "flags": 2,
+            "current_format": "0x0205022000806000",
+            "formats": [
+              "0x0205022000806000"
+            ],
+            "buffer_ns": 0,
+            "redundant_offset": 146,
+            "redundant_count": 0,
+            "timing": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 9,
+          "index": 0,
+          "image_offset": 1336,
+          "length": 102,
+          "stride": 104,
+          "name_base": 7,
+          "fields": {
+            "port_number": 1,
+            "mac": "020000000002",
+            "clock_identity": "020000fffe000002",
+            "controls": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 0,
+          "image_offset": 1440,
+          "length": 86,
+          "stride": 88,
+          "name_base": 8,
+          "fields": {
+            "source_type": 0,
+            "location_type": 10,
+            "location_index": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 1,
+          "image_offset": 1528,
+          "length": 86,
+          "stride": 88,
+          "name_base": 8,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 10,
+          "index": 2,
+          "image_offset": 1616,
+          "length": 86,
+          "stride": 88,
+          "name_base": 8,
+          "fields": {
+            "source_type": 2,
+            "location_type": 5,
+            "location_index": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 12,
+          "index": 0,
+          "image_offset": 1704,
+          "length": 72,
+          "stride": 72,
+          "name_base": 65535,
+          "fields": {}
+        },
+        {
+          "configuration": 0,
+          "type": 13,
+          "index": 0,
+          "image_offset": 1776,
+          "length": 452,
+          "stride": 456,
+          "name_base": 65535,
+          "fields": {}
+        },
+        {
+          "configuration": 0,
+          "type": 14,
+          "index": 0,
+          "image_offset": 2232,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 0,
+            "maps": 0,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 15,
+          "index": 0,
+          "image_offset": 2256,
+          "length": 20,
+          "stride": 24,
+          "name_base": 65535,
+          "fields": {
+            "clusters": 8,
+            "base_cluster": 8,
+            "maps": 1,
+            "base_map": 0
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 0,
+          "image_offset": 2280,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 1,
+          "image_offset": 2376,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 2,
+          "image_offset": 2472,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 3,
+          "image_offset": 2568,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 4,
+          "image_offset": 2664,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 5,
+          "image_offset": 2760,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 6,
+          "image_offset": 2856,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 7,
+          "image_offset": 2952,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 8,
+          "image_offset": 3048,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 9,
+          "image_offset": 3144,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 10,
+          "image_offset": 3240,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 11,
+          "image_offset": 3336,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 12,
+          "image_offset": 3432,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 13,
+          "image_offset": 3528,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 14,
+          "image_offset": 3624,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 20,
+          "index": 15,
+          "image_offset": 3720,
+          "length": 90,
+          "stride": 96,
+          "name_base": 11,
+          "fields": {
+            "channel_count": 1
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 23,
+          "index": 0,
+          "image_offset": 3816,
+          "length": 72,
+          "stride": 72,
+          "name_base": 65535,
+          "fields": {
+            "mappings_offset": 8,
+            "mappings_count": 8,
+            "mappings": [
+              [
+                0,
+                0,
+                0,
+                0
+              ],
+              [
+                0,
+                1,
+                1,
+                0
+              ],
+              [
+                0,
+                2,
+                2,
+                0
+              ],
+              [
+                0,
+                3,
+                3,
+                0
+              ],
+              [
+                0,
+                4,
+                4,
+                0
+              ],
+              [
+                0,
+                5,
+                5,
+                0
+              ],
+              [
+                0,
+                6,
+                6,
+                0
+              ],
+              [
+                0,
+                7,
+                7,
+                0
+              ]
+            ]
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 26,
+          "index": 0,
+          "image_offset": 3888,
+          "length": 113,
+          "stride": 120,
+          "name_base": 27,
+          "fields": {
+            "control_type": "0x90E0F00000000001",
+            "reset_time": 0,
+            "values_offset": 104
+          }
+        },
+        {
+          "configuration": 0,
+          "type": 36,
+          "index": 0,
+          "image_offset": 4008,
+          "length": 82,
+          "stride": 88,
+          "name_base": 28,
+          "fields": {
+            "sources_offset": 76,
+            "sources_count": 3,
+            "sources": [
+              0,
+              1,
+              2
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "rule": "L3",
+      "probe": "empty listener list",
+      "loader": "refused",
+      "reason": "streams.listeners: needs at least one listener stream"
+    },
+    {
+      "rule": "L4",
+      "probe": "buffer one ns below floor",
+      "loader": "refused",
+      "reason": "streams.listeners[0].buffer_length_ns: must be an integer >= 2126000 ns (Milan v1.2 5.3.3.4 listener buffer floor)"
+    },
+    {
+      "rule": "L4",
+      "probe": "non-Milan CRF word",
+      "loader": "refused",
+      "reason": "clocking.crf_format: CRF format must be 0x041060010000BB80 (Milan v1.2 7.3.2 Table 7.1)"
+    },
+    {
+      "rule": "L4",
+      "probe": "48 AAF output formats",
+      "loader": "refused",
+      "reason": "streams.talkers[0].formats: format count 48 exceeds 46 (IEEE 1722.1-2021 Table 7-8; final list including derived entries)"
+    },
+    {
+      "rule": "L4",
+      "probe": "mixed output format families",
+      "loader": "refused",
+      "reason": "streams.talkers[0].formats: must contain only AAF formats (Milan v1.2 5.3.3.4; AAF/CRF families must not mix)"
+    },
+    {
+      "rule": "L6",
+      "probe": "outputs without INTERNAL",
+      "loader": "refused",
+      "reason": "clocking.media_clock_sources: every Stream Output requires INTERNAL among its clock sources (Milan v1.2 5.3.3.6)"
+    },
+    {
+      "rule": "L7",
+      "probe": "static input map",
+      "loader": "refused",
+      "reason": "streams.listeners[0]: map_mode static is forbidden for a Stream Port Input; Milan v1.2 5.3.3.9 requires dynamic mappings on every Stream Port Input"
+    },
+    {
+      "rule": "L9",
+      "probe": "zero model ID pin",
+      "loader": "refused",
+      "reason": "entity.model_id_pin: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)"
+    },
+    {
+      "rule": "L9",
+      "probe": "all-ones model ID pin",
+      "loader": "refused",
+      "reason": "entity.model_id_pin: entity_model_id must not be zero or all ones (Milan v1.2 5.3.3.1 ENTITY; 5.6.2 ADPDU)"
+    },
+    {
+      "rule": "L10",
+      "probe": "eight distinct rates",
+      "loader": "accepted",
+      "image": "refused",
+      "reason": "unsupported sampling rates [192000, 96000, 44100, 88200, 176400, 32000, 24000, 48000]"
+    },
+    {
+      "rule": "L10",
+      "probe": "nine distinct rates",
+      "loader": "refused",
+      "reason": "clocking.audio_unit_rates_hz has 9 entries; processor walk bound is 8 (L10, protocol-processor/docs/architecture/07_memory_maps.md section 3.1)"
+    },
+    {
+      "rule": "L10",
+      "probe": "duplicate rates",
+      "loader": "refused",
+      "reason": "clocking.audio_unit_rates_hz contains duplicate entries"
+    }
+  ],
+  "map_probes": [
+    {
+      "probe": "legal output fanout",
+      "result": "accepted"
+    },
+    {
+      "probe": "duplicate output stream channel",
+      "result": "refused",
+      "reason": "STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,0,1,0): 1722.1-2021 7.2.19 for a STREAM_PORT_OUTPUT - \"There is at most one entry for each mapping_stream_index and mapping_stream_channel across the entire Configuration\" - and (0,0) is already mapped by STREAM_PORT_OUTPUT[0] AUDIO_MAP[1] mapping (0,0,0,0)"
+    }
+  ],
+  "identity_probe": {
+    "model_id": "0x001BC549808B210C",
+    "model_id_source": "hash",
+    "before_sha256": "bbf1f5e45b2b4d6a0b517a0599c014bff21c5e0e9c8e1190f4690d443eb2d991",
+    "after_sha256": "59b556dc44c7588dbf6a9f7476ad4c9584d4acd96c196de2067cfb56a031b504",
+    "changed_image_offsets": [
+      7093
+    ],
+    "before_entity": {
+      "entity_id": "0x020000FFFE000002",
+      "model_id": "0x001BC549808B210C",
+      "capabilities": "0x0000C588",
+      "talker_sources": 5,
+      "talker_caps": 18433,
+      "listener_sinks": 5,
+      "listener_caps": 18433,
+      "configurations": 1,
+      "current_config": 0
+    },
+    "after_entity": {
+      "entity_id": "0x020000FFFE000002",
+      "model_id": "0x001BC549808B210C",
+      "capabilities": "0x0000C588",
+      "talker_sources": 5,
+      "talker_caps": 18433,
+      "listener_sinks": 5,
+      "listener_caps": 18433,
+      "configurations": 1,
+      "current_config": 0
+    }
+  },
+  "multi_configuration": "NOT RUN: every shipping image has one configuration"
+}

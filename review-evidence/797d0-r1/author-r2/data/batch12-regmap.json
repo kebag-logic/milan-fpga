@@ -1,0 +1,6 @@
+[
+ {"id": "D0-057", "page": "docs/reference/REGISTER_MAP.md",
+  "quote": "presentation-time offset is pinned at the Milan 2 ms",
+  "source": "The page's own 0x0053 note (lines 351-356): SET_STREAM_INFO is served and \"the stored offset feeds the framers' transit entries\"; `docs/reference/MILAN_COMPLIANCE_MATRIX.md` row 5.3.7.6 / 4.4.2.1: the 2 ms default is settable via SET_STREAM_INFO and the stamp adds the offset as set",
+  "correction": "Say that 2 ms is the default and that SET_STREAM_INFO sets each Stream Output's offset, which the framers apply."}
+]

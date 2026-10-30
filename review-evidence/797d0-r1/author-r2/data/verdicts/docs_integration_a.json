@@ -1,0 +1,65 @@
+[
+ {
+  "page": "docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md",
+  "v": {
+   "3": "ok: scope sentence; sw/litex/milan_soc.py is the supported integration",
+   "15": "F: D0-034 (third sentence); first two ok: hdl/milan/milan_datapath.sv:65 TDATA_WIDTH = 64, byte order and tkeep rule held by tb/verilator/milan_dp",
+   "20": "F: D0-033 (third sentence); the rest ok: sw/litex/milan_soc.py:2621 default all-fabric, ARCHITECTURE_HW_SW_SPLIT.md:6-8 acceptance, milan_datapath.sv:654-664 no general-data chain",
+   "32": "ok: hdl/common/csr/milan_csr.sv A_IRQ_STATUS 0x010; the FR_NFR.md anchor is held by the anchor gate",
+   "40": "ok: milan_baremetal.c load_aem_image (1836-1866) then entity_advertise (1827-1833); KL_pp_shadow descriptor memory face is read-only",
+   "47": "policy: evidence rule"
+  }
+ },
+ {
+  "page": "docs/integration/PORTING_GUIDE.md",
+  "v": {
+   "3": "policy",
+   "23": "policy: porting table",
+   "24": "policy: porting table",
+   "28": "ok: git grep of hdl/ (tb excluded) finds no MMCME2, PLLE2, BUFG, IDDR/ODDR, IBUFDS, xpm_ or RAMB instance; ASYNC_REG attributes are used (hdl/common/cdc_handshake.sv)",
+   "36": "policy",
+   "45": "policy",
+   "58": "policy",
+   "63": "policy",
+   "70": "policy",
+   "93": "policy"
+  }
+ },
+ {
+  "page": "docs/integration/QSPI_FLASHBOOT.md",
+  "v": {
+   "27": "ok: docs/diagrams/flash_layout.gen.py reads FLASHBOOT_LAYOUT and FLASHBOOT_RESERVED (sw/litex/milan_soc.py:137-174)",
+   "34": "ok: docs/diagrams/flash_layout.gen.py exists (auto)",
+   "39": "ok: milan_soc.py check_flash_map() (line 190) overlap, erase-block and past-the-device checks",
+   "45": "ok: sw/litex/milan_soc.py:3704 --software-profile baremetal default; FLASHBOOT_MANIFESTS baremetal (line 143)",
+   "51": "ok: milan_soc.py:138 bitstream 0x00_0000 size 0x40_0000; sw/litex/deploy.sh:394 '-f --verify'",
+   "52": "ok: milan_soc.py:139 aem 0x40_0000 size 0x01_0000; milan_baremetal.c:1845 AEMI magic, 1853 CRC32",
+   "54": "ok: as line 52; MILAN_AEM_IMAGE_BYTES/CRC32 are compiled in",
+   "58": "F: D0-024 (second sentence), D0-025 (third sentence); first sentence ok: FLASHBOOT_MANIFESTS (milan_soc.py:141-144) names no reserved range",
+   "66": "ok: sw/litex/build.sh:101-140 reads <build>/flashboot_layout.json for flash-pair",
+   "73": "ok: sw/litex/build.sh flash with INSTALLED_BUILD (lines 125-140)",
+   "79": "ok: sw/litex/deploy.sh flash-pair; sw/builder/test_builder.py:18248 gate 1e grades the one transition and the refusals (#259)",
+   "90": "ok: milan_init()/load_aem_image()/entity_advertise() in milan_baremetal.c; FLASHBOOT_MANIFESTS has no boot image",
+   "96": "F: D0-035 (first sentence); second sentence ok: load_aem_image returns 0 and entity_advertise does nothing",
+   "107": "F: D0-037",
+   "110": "ok: as line 73",
+   "116": "ok: as line 79",
+   "121": "ok: VERSION 0x0002_0060 = milan_csr.sv; option-OFF publications zero and tu one (milan_datapath.sv:1653-1658, 8815-8818)",
+   "129": "ok: sw/litex/deploy.sh:33, 398-400",
+   "132": "ok: deploy.sh flash-images case (line 520) behind ALLOW_NONATOMIC_FLASH",
+   "137": "ok: deploy.sh:398-400 escape; build.sh flash path never exports ALLOW_NONATOMIC_FLASH",
+   "145": "ok: deploy.sh:145 do_load, case at line 516",
+   "157": "ok: as lines 79, 129",
+   "161": "F: D0-036; first clause ok: milan_soc.py:167 FLASH_SIZE 16 MiB, N25Q128A13",
+   "164": "policy: same contract as line 79",
+   "167": "ok: milan_soc.py:1022-1040 PP_DESC_BASE_P is the top 1 MiB of main_ram, compile-time",
+   "187": "ok: milan_soc.py:3599-3601 MILAN_FLASHBOOT_* constants",
+   "189": "ok: FLASHBOOT_MANIFESTS baremetal = [aem] (milan_soc.py:143)",
+   "192": "partial: gate 1e (sw/builder/test_builder.py:18248) grades a before and an after prefix for every write; the count 28 is two per write of the run-time write list and was not recomputed",
+   "197": "ok: links exist (auto)",
+   "207": "ok: dated field note; the fix is in milan_soc.py:3076 SPIFLASH_SKIP_FREQ_INIT",
+   "214": "ok: scripts/baremetal_uart_smoke.py:108 requires major 2, minor >= 0x0056",
+   "217": "ok: milan_baremetal.c milan_nvm_handler and status commands; no register shell"
+  }
+ }
+]

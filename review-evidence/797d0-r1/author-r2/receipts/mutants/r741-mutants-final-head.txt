@@ -1,0 +1,12 @@
+baseline selftest rc=0 check rc=0
+check-always-fresh: PATTERN-NOT-UNIQUE (0)
+check-returns-0-when-stale: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+git-listing-includes-untracked: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+git-listing-keeps-gitlinks: selftest SURVIVED (rc=0); check on real tree PASSED (rc=0)
+locate-never-finds: selftest KILLED (rc=1); check on real tree CAUGHT (rc=1)
+stale-rule-removed: PATTERN-NOT-UNIQUE (0)
+release-facing-empty: selftest SURVIVED (rc=0); check on real tree PASSED (rc=0)
+lines-off-by-one: selftest KILLED (rc=1); check on real tree CAUGHT (rc=1)
+readme-only-not-a-document: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+banner-scan-1-line: selftest KILLED (rc=1); check on real tree CAUGHT (rc=1)
+restored selftest rc=0 check rc=0

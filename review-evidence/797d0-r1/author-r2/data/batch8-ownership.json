@@ -1,0 +1,18 @@
+[
+ {"id": "D0-050", "page": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md",
+  "quote": "| arty_current | 32 | 5792 | 2 / 1 | 1 / 1 | 16 / 1 | 1 / 2 |",
+  "source": "`python3 scripts/audit_pp_descriptors.py --output <file>` at this head measures 33 descriptors and 5952 bytes for arty_current, 68/10728 for arty_4x4, 100/15976 for arty_8ch, 42/7512 for ax7101_1x1_tdm8 and 124/19520 for ax7101_8x8; the CLOCK_DOMAIN offsets are 4008, 7120, 10320, 4928 and 12576 (the page's second table says 3920, 6768, 9968, 4840, 11872): the tables predate one INPUT_STREAM clock source per AAF input (#629)",
+  "correction": "Regenerate both measurement tables from the audit receipt at the head the page states."},
+ {"id": "D0-051", "page": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md",
+  "quote": "All singleton counts are one; CLOCK_SOURCE count is two.",
+  "source": "The same audit: the CONFIGURATION descriptor counts 3 CLOCK_SOURCEs on arty_current and ax7101_1x1_tdm8, 6 on arty_4x4 and arty_8ch, 10 on ax7101_8x8 (INTERNAL, CRF and one per AAF input, #629; the page's own row L6 at line 91 says so)",
+  "correction": "State the CLOCK_SOURCE count as 2 plus the AAF input count, per configuration."},
+ {"id": "D0-052", "page": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md",
+  "quote": "Every domain's source list is exactly `[0,1]`.",
+  "source": "The same audit: the CLOCK_DOMAIN source lists are [0..2] (arty_current, ax7101_1x1_tdm8), [0..5] (arty_4x4, arty_8ch) and [0..9] (ax7101_8x8), with lengths 82, 88 and 96",
+  "correction": "Give the measured source lists and lengths, and the AAF-input entries the CRF-only text omits."},
+ {"id": "D0-053", "page": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md",
+  "quote": "| arty_current | `0x001BC50AC1000005` | pin |",
+  "source": "The same audit: the entity_model_id values are 0x001BC50AC1000006 (arty_current, pin), 0x001BC549808B210C (arty_4x4), 0x001BC55491CCAA9B (arty_8ch), 0x001BC5C1935893E1 (ax7101_1x1_tdm8) and 0x001BC5572467AF35 (ax7101_8x8), all five different from the table",
+  "correction": "Regenerate the identity table from the audit receipt, or state the head it was measured at."}
+]

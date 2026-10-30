@@ -1,0 +1,68 @@
+[
+ {
+  "page": "docs/guides/README.md",
+  "v": {
+   "39": "policy: archive rule, as docs/README.md:135",
+   "40": "policy: AGENTS.md section 4"
+  }
+ },
+ {
+  "page": "docs/guides/SYSTEM_INTEGRATOR.md",
+  "v": {
+   "14": "ok: hdl/milan/milan_datapath.sv is the module docs/integration/INTEGRATION_GUIDE.md integrates",
+   "16": "ok: RV32I matches sw/litex/milan_soc.py:3706 ('cacheless RV32I M-mode Vexii core'); the interface groups are held by scripts/check_solution_docs.py (gate a015 rc 0)",
+   "54": "policy: integration step",
+   "58": "policy: integration step",
+   "60": "policy: CONTRIBUTING CDC rule",
+   "92": "ok: milan_baremetal.c entity_advertise(aem_loaded) after load_aem_image (line 1889-1891)",
+   "94": "ok: milan_baremetal.c nvm_boot comment 'PHC and fabric gPTP are live from reset, independent of the AEM gate'",
+   "100": "policy: integration step",
+   "110": "policy: test step",
+   "117": "ok: tb/verilator/milan_dp/Makefile exists (auto)",
+   "123": "ok: both scripts exist and are in scripts/run_litex_sims.sh INVENTORY (lines 98-106)",
+   "128": "policy: evidence boundary",
+   "130": "policy: evidence rule",
+   "136": "ok: sw/litex/milan_sim.py defines --xlen, --non-interactive, --output-dir (auto)",
+   "145": "ok: milan_csr.sv:1994 ID reset 0x4D49_4C4E ('MILN') read little-endian as 4e 4c 49 4d at MILAN_CSR_BASE 0x9000_0000 (sw/litex/milan_soc.py:99, sw/litex/milan_sim.py:7)",
+   "154": "policy: gate rule"
+  }
+ },
+ {
+  "page": "docs/guides/IMPLEMENTATION_DEVELOPER.md",
+  "v": {
+   "26": "policy",
+   "60": "policy",
+   "62": "policy",
+   "64": "policy: AGENTS.md section 8",
+   "68": "policy",
+   "74": "policy",
+   "81": "ok: AXI-Stream rule; docs/diagrams/wd_axis_backpressure.json shows tdata/tkeep held while tready low",
+   "82": "ok: same diagram, tlast sampled on the accepted beat",
+   "88": "ok: docs/diagrams/wd_cdc_handshake.json holds src_in through req_tog/ack (cdc_handshake.sv data_hold)",
+   "91": "ok: same diagram carries one reset per domain",
+   "92": "ok: hdl/common/cdc_handshake.sv:24-25 DEST_SYNC_FF = SRC_SYNC_FF = 2, synchroniser vectors [2:0]; docs/diagrams/wd_cdc_handshake.json draws ack_sync[0..2] and req_sync[0..2]",
+   "110": "policy"
+  }
+ },
+ {
+  "page": "docs/guides/PROJECT_MANAGER.md",
+  "v": {
+   "16": "ok: REQUIREMENTS.md exists",
+   "18": "ok: docs/reference/MILAN_FEATURE_STATUS.md exists",
+   "20": "policy",
+   "22": "policy: CONTRIBUTING exact-head rule",
+   "31": "policy: flow diagram of the readiness rule",
+   "42": "policy",
+   "45": "policy: AGENTS.md section 7",
+   "47": "policy",
+   "53": "policy",
+   "56": "policy",
+   "57": "policy: AGENTS.md severities",
+   "65": "policy",
+   "67": "policy",
+   "70": "policy: AGENTS.md section 7",
+   "72": "policy: AGENTS.md section 7 head rule",
+   "73": "policy: AGENTS.md section 7"
+  }
+ }
+]

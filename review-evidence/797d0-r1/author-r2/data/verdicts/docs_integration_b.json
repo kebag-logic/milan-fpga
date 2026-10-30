@@ -1,0 +1,41 @@
+[
+ {
+  "page": "docs/integration/BOARD_PORTING_AX7101.md",
+  "v": {
+   "3": "ok: sw/litex/platforms/alinx_ax7101.py exists; sw/litex/milan_soc.py:3980 --full",
+   "19": "hist: vendor source of the pin data",
+   "24": "ok: alinx_ax7101.py part xc7a100t (line 325 IDCODE note) FGG484",
+   "25": "ok: alinx_ax7101.py:27-28 R4/T4 DIFF_SSTL15",
+   "26": "ok: alinx_ax7101.py:30 cpu_reset_n T6 LVCMOS15",
+   "27": "ok: alinx_ax7101.py:34-35 tx AB15 rx AA15 LVCMOS33",
+   "28": "ok: alinx_ax7101.py:39-40 E17, F16",
+   "29": "hist: vendor board fact (four RTL8211E); e1/e2 are the ports the platform carries",
+   "30": "ok: alinx_ax7101.py:9 512 MB MT41J256M16; milan_soc.py:3036 MT41J256M16 on the AX7101",
+   "37": "hist: method record",
+   "40": "hist: method record",
+   "44": "hist: method record",
+   "48": "hist: method record",
+   "54": "ok: GMII correction matches MilanMAC phy_model gmii default (milan_soc.py MilanMAC); #259 CLOSED holds the retired capture, #117 OPEN",
+   "63": "ok: MilanMAC uses LiteEthPHYGMII (milan_soc.py MilanMAC imports)",
+   "71": "ok: alinx_ax7101.py pins as lines 24-28",
+   "79": "F: D0-038",
+   "88": "F: D0-039",
+   "90": "ok: LiteX main_ram origin 0x4000_0000 (milan_soc.py:3214-3224 reads the region)",
+   "92": "hist: measured count of a past elaboration, not recomputed",
+   "93": "ok: MilanMAC with LiteEthPHYGMII",
+   "94": "hist: names a retired toolkit as such",
+   "99": "F: D0-010 (the #599 sentence at line 110); pins ok: alinx_ax7101.py:62-78 mdc J17, mdio L16 with PULLUP, e2 mdio AB22",
+   "112": "ok: #259 CLOSED holds the retired captures, #117 OPEN",
+   "117": "ok: sw/litex/deploy.sh:7 FT232H 0403:6014; deploy.sh:13 factory demo 9600 baud",
+   "130": "ok: sw/builder/endstation_builder.py:4103-4111 refuses a missing gptp latency key (#358)",
+   "139": "ok: measurement method; consistent with GPTP_LAT semantics (REGISTER_MAP 0x7F0)",
+   "143": "policy: method",
+   "152": "ok: method arithmetic",
+   "155": "ok: method arithmetic",
+   "160": "policy: method",
+   "166": "ok: one tap clock sees only the sum (both corrections enter the turnaround with one sign)",
+   "170": "ok: configs/endstation_ax7101_1x1_tdm8.yaml:122-123 656/219 ns, a 3:1 split",
+   "181": "ok: milan_baremetal.c:1917-1926 prints GPTP_LAT on milan_status; Milan v1.2 4.2.6.1.1 neighborPropDelayThresh 800 ns"
+  }
+ }
+]

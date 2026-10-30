@@ -1,0 +1,10 @@
+[
+ {"id": "D0-038", "page": "docs/integration/BOARD_PORTING_AX7101.md",
+  "quote": "`s7ddrphy.A7DDRPHY` + `add_sdram(module=MT41J256M16, l2_cache_size=8192)` behind a new",
+  "source": "`sw/litex/milan_soc.py` lines 3037-3041: `add_sdram(..., l2_cache_size = 0)` with the comment \"The product profile is cacheless end to end\"; line 4042 refuses any `--l2-bytes` in the bare-metal profile",
+  "correction": "Write `l2_cache_size=0` and say the product SoC is cacheless."},
+ {"id": "D0-039", "page": "docs/integration/BOARD_PORTING_AX7101.md",
+  "quote": "`./sw/litex/milan_soc.py --full --xlen 64` elaborates and **exports a P&R-ready",
+  "source": "`sw/litex/milan_soc.py` lines 3704-3707 make `baremetal` the only `--software-profile`, and lines 4039-4041 refuse it unless `--xlen 32`, so the command exits with an argument error instead of elaborating",
+  "correction": "Give the current elaboration command (RV32, the bare-metal profile) or mark section 4 as the dated record of an earlier RV64 build; the Contents entry repeats the same command."}
+]

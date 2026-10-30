@@ -1,0 +1,6 @@
+[
+ {"id": "D0-060", "page": "docs/reference/REGISTER_MAP.md",
+  "quote": "and the shipping AX7101 shape is 8",
+  "source": "`sw/litex/build.sh` line 378: the shipping AX7101 recipe is `endstation_ax7101_1x1_tdm8`, and lines 382-384 say the 8x8 recipe has never produced a bitstream; `configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh` declares 2 talker sources and 2 listener sinks (one AAF stream each way plus CRF)",
+  "correction": "Say the shipping AX7101 (`endstation_ax7101_1x1_tdm8`) is the one-AAF-stream shape and that `endstation_ax7101_8x8.yaml` declares 8 of each."}
+]
