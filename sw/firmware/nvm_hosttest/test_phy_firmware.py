@@ -38,9 +38,9 @@ PHY_RE = re.compile(r"HOST phy at=(\w+) transfers=(\d+) publishes=(\d+) status=(
 BOOT_MUTANTS = {
     # the heartbeat as at dev 1e80128f: the poll behind the writer's gate
     "phy_behind_the_writer": (
-        "\tif (phy_live)\n\t\tphy_link_tick(gettime_ns());\n\tif (!nvm_started)\n"
-        "\t\treturn;\n\tnow = gettime_ns();\n",
-        "\tif (!nvm_started)\n\t\treturn;\n\tnow = gettime_ns();\n\n\tphy_link_tick(now);\n",
+        "\tif (!nvm_started) {\n\t\tif (phy_live)\n\t\t\tphy_link_tick(gettime_ns());\n"
+        "\t\treturn;\n\t}\n",
+        "\tif (!nvm_started)\n\t\treturn;\n",
         "PHY boot path persistence disabled: the link-status CSR holds 0"),
     # the persistence-disabled path returning without the console idle hook
     "disabled_path_no_idle_hook": (
@@ -48,14 +48,18 @@ BOOT_MUTANTS = {
         "\t\t * writer behind the hook is never admitted (nvm_started 0). */\n"
         "\t\tset_idle_hook(nvm_service);\n", "",
         "PHY boot path persistence disabled: 0 publication(s) in 1000 ms of console idle"),
-    # the poll never armed, on any path
+    # the poll never armed: only an admitted writer's path polls the PHY
     "phy_never_armed": ("\tphy_live = 1;\n", "",
-                        "PHY boot path shipping: the link-status CSR holds 0"),
+                        "PHY boot path persistence disabled: the link-status CSR holds 0"),
+    # the poll taken off the admitted writer's path, the shipping one
+    "phy_off_the_writer_path": ("\tnow = gettime_ns();\n\n\tphy_link_tick(now);\n",
+                                "\tnow = gettime_ns();\n\n",
+                                "PHY boot path shipping: the link-status CSR holds 0"),
     # the poll without its identity guard: the dispatch hook bit-bangs the
     # pins of a fabric that failed its CSR identity check
     "phy_unguarded": (
-        "\tif (phy_live)\n\t\tphy_link_tick(gettime_ns());\n",
-        "\tphy_link_tick(gettime_ns());\n",
+        "\t\tif (phy_live)\n\t\t\tphy_link_tick(gettime_ns());\n",
+        "\t\tphy_link_tick(gettime_ns());\n",
         "PHY boot path identity mismatch: "),
 }
 

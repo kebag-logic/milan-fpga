@@ -1090,17 +1090,20 @@ static void phy_link_tick(uint64_t now)
 /* Re-arm T-NVM-WRITER-ALIVE at most every NVM_HEARTBEAT_NS; the first
  * call answers at once, so the restore walk runs behind a live writer.
  * The PHY poll rides on the same opportunities but is not the writer's:
- * it runs whether or not a writer was admitted (#70). */
+ * with no writer admitted it still runs on every path that reached
+ * nvm_boot() (#70), and nothing else does. */
 static void nvm_heartbeat_tick(void)
 {
 	uint64_t now;
 
-	if (phy_live)
-		phy_link_tick(gettime_ns());
-	if (!nvm_started)
+	if (!nvm_started) {
+		if (phy_live)
+			phy_link_tick(gettime_ns());
 		return;
+	}
 	now = gettime_ns();
 
+	phy_link_tick(now);
 	/* a retired writer answers no more: nvm_backed must fall */
 	if (nvm_retired)
 		return;
