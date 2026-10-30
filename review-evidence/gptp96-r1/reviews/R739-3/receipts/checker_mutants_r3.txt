@@ -1,0 +1,27 @@
+control                            selftest rc=0 gate rc=0 | docs selftest: PASS (42 arms)
+silence_const_drift                selftest rc=1 gate rc=0 | docs selftest: drifted constant escaped
+silence_const_duplicate            selftest rc=1 gate rc=0 | docs selftest: duplicate constant row escaped
+silence_const_missing_row          selftest rc=1 gate rc=0 | docs selftest: deleted constant row escaped
+silence_const_no_rows              selftest rc=0 gate rc=0 | docs selftest: PASS (42 arms)
+silence_const_not_decimal          selftest rc=1 gate rc=0 | docs selftest: bold constant cell escaped
+silence_const_not_generator        selftest rc=0 gate rc=0 | docs selftest: PASS (42 arms)
+silence_copy                       selftest rc=1 gate rc=0 | docs selftest: plain constant copy escaped
+silence_rom_counts_not_decimal     selftest rc=0 gate rc=0 | docs selftest: PASS (42 arms)
+silence_rom_drift                  selftest rc=1 gate rc=0 | docs selftest: drifted ROM count escaped
+silence_rom_duplicate              selftest rc=1 gate rc=0 | docs selftest: duplicate ROM row escaped
+silence_rom_missing_row            selftest rc=1 gate rc=0 | docs selftest: missing ROM row escaped
+silence_rom_not_n_of_m             selftest rc=1 gate rc=0 | docs selftest: formatted ROM count escaped
+silence_status_duplicate           selftest rc=1 gate rc=0 | docs selftest: duplicate status row escaped
+silence_status_missing_page        selftest rc=1 gate rc=0 | docs selftest: status row for a missing page escaped
+silence_status_no_history_row      selftest rc=0 gate rc=0 | docs selftest: PASS (42 arms)
+silence_status_no_rows             selftest rc=0 gate rc=0 | docs selftest: PASS (42 arms)
+silence_status_unlisted            selftest rc=1 gate rc=0 | docs selftest: unlisted page escaped
+silence_status_wrong               selftest rc=1 gate rc=0 | docs selftest: wrong status escaped
+weak_decimal_accepts_any           selftest rc=1 gate rc=0 | docs selftest: bold constant cell escaped
+weak_home_never_exempt             selftest rc=1 gate rc=1 | docs selftest: linked constant or its home row failed
+weak_no_const_duplicate            selftest rc=1 gate rc=0 | docs selftest: duplicate constant row escaped
+weak_no_lookbehind                 selftest rc=1 gate rc=0 | docs selftest: unrelated number failed
+weak_no_minutes_word               selftest rc=1 gate rc=0 | docs selftest: spelled constant copy escaped
+weak_no_required_set               selftest rc=1 gate rc=0 | docs selftest: deleted constant row escaped
+weak_no_rom_duplicate              selftest rc=1 gate rc=0 | docs selftest: duplicate ROM row escaped
+weak_no_us_conversion              selftest rc=1 gate rc=0 | docs selftest: converted constant copy escaped

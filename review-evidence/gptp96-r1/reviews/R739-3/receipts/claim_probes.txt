@@ -1,0 +1,47 @@
+control                    doc=pass rc=0 agrees      | docs check: PASS (14 current pages, 18 historical pages)
+d_decimal_min              doc=pass rc=1 CONTRADICTS | docs/HDL_DEVELOPER.md:420: '5 min' restates CEASE_MS_C; link its constants row
+d_decimal_minutes          doc=pass rc=1 CONTRADICTS | docs/HDL_DEVELOPER.md:420: '5 min' restates CEASE_MS_C; link its constants row
+d_decimal_ms               doc=pass rc=0 agrees      | docs check: PASS (14 current pages, 18 historical pages)
+d_decimal_s                doc=pass rc=0 agrees      | docs check: PASS (14 current pages, 18 historical pages)
+d_word_ms                  doc=pass rc=0 agrees      | docs check: PASS (14 current pages, 18 historical pages)
+d_word_us                  doc=pass rc=0 agrees      | docs check: PASS (14 current pages, 18 historical pages)
+f_five_minimum             doc=-    rc=1 info        | docs/HDL_DEVELOPER.md:420: '5 min' restates CEASE_MS_C; link its constants row
+f_twenty_five_min          doc=-    rc=0 info        | docs check: PASS (14 current pages, 18 historical pages)
+f_twenty_five_minutes      doc=-    rc=1 info        | docs/HDL_DEVELOPER.md:420: 'five minutes' restates CEASE_MS_C; link its constants row
+i_grouped                  doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '300,000 ms' restates CEASE_MS_C; link its constants row
+i_hyphen                   doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '375-ms' restates SYNC_RTO_MS_C; link its constants row
+i_nospace                  doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '375ms' restates SYNC_RTO_MS_C; link its constants row
+i_ppm                      doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '200 ppm' restates RATE_PPM_C; link its constants row
+i_space                    doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '375 ms' restates SYNC_RTO_MS_C; link its constants row
+i_ungrouped_ns             doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '20000 ns' restates STEP_LINKUP_NS_C; link its constants row
+k_drift                    doc=fail rc=1 agrees      | docs/INTEGRATION.md: SYNC_RTO_MS_C is 376, generator has 375
+k_duplicate                doc=fail rc=1 agrees      | docs/INTEGRATION.md: duplicate constant row: SYNC_RTO_MS_C
+k_formatted                doc=fail rc=1 agrees      | docs/INTEGRATION.md: SYNC_RTO_MS_C value '**375**' is not a plain decimal
+k_generator_changed        doc=fail rc=1 agrees      | docs/INTEGRATION.md: NPD_HI_C is 800, generator has 900
+k_missing                  doc=fail rc=1 agrees      | docs/INTEGRATION.md: no protocol constant row for P1_C
+m_digits                   doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '5 min' restates CEASE_MS_C; link its constants row
+m_digits_minutes           doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '5 min' restates CEASE_MS_C; link its constants row
+m_nospace                  doc=-    rc=0 info        | docs check: PASS (14 current pages, 18 historical pages)
+m_word                     doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: 'five minutes' restates CEASE_MS_C; link its constants row
+m_word_hyphen              doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: 'five-minute' restates CEASE_MS_C; link its constants row
+m_word_min                 doc=-    rc=0 info        | docs check: PASS (14 current pages, 18 historical pages)
+r_seeded_drift             doc=fail rc=1 agrees      | docs/MANAGER.md: Seeded regression image reads 1022 of 1024 with 2 free; generator builds 1023 of 1024
+r_seeded_duplicate         doc=fail rc=1 agrees      | docs/MANAGER.md: duplicate ROM budget row: Seeded regression
+r_shipping_drift           doc=fail rc=1 agrees      | docs/MANAGER.md: Shipping image reads 1021 of 1024 with 3 free; generator builds 1022 of 1024
+s_greek_mu                 doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '100 μs' restates STEP_LOCKED_NS_C; link its constants row
+s_micro_sign               doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '100 µs' restates STEP_LOCKED_NS_C; link its constants row
+s_seconds                  doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '300 s' restates CEASE_MS_C; link its constants row
+s_us                       doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '20 us' restates STEP_LINKUP_NS_C; link its constants row
+u_meaning_comma_control    doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '375 ms' restates SYNC_RTO_MS_C; link its constants row
+u_meaning_ends_in_ms       doc=fail rc=0 CONTRADICTS | docs check: PASS (14 current pages, 18 historical pages)
+u_meaning_paren            doc=pass rc=0 agrees      | docs check: PASS (14 current pages, 18 historical pages)
+u_unitless_depth           doc=pass rc=0 agrees      | docs check: PASS (14 current pages, 18 historical pages)
+u_unitless_ordinal         doc=pass rc=0 agrees      | docs check: PASS (14 current pages, 18 historical pages)
+x_fenced_backtick          doc=pass rc=0 agrees      | docs check: PASS (14 current pages, 18 historical pages)
+x_fenced_tilde             doc=pass rc=1 CONTRADICTS | docs/HDL_DEVELOPER.md:421: '375 ms' restates SYNC_RTO_MS_C; link its constants row
+x_history_page             doc=pass rc=0 agrees      | docs check: PASS (14 current pages, 18 historical pages)
+x_home_section             doc=pass rc=0 agrees      | docs check: PASS (14 current pages, 18 historical pages)
+x_html_comment             doc=-    rc=1 info        | docs/HDL_DEVELOPER.md:420: '375 ms' restates SYNC_RTO_MS_C; link its constants row
+x_inline_code              doc=fail rc=1 agrees      | docs/HDL_DEVELOPER.md:420: '375 ms' restates SYNC_RTO_MS_C; link its constants row
+x_integration_elsewhere    doc=fail rc=1 agrees      | docs/INTEGRATION.md:932: '375 ms' restates SYNC_RTO_MS_C; link its constants row
+x_tb_readme                doc=fail rc=1 agrees      | tb/tsngen/README.md:22: '375 ms' restates SYNC_RTO_MS_C; link its constants row

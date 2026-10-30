@@ -1,0 +1,35 @@
++- Sample on `pub_commit_o`; staging writes change outputs first.
++The commit cycle always presents a complete tuple.
++`make docs` fails when a row drifts from its constant.
++Units come from Meaning cells ending ms, ns or ppm.
++
++Elsewhere on current pages, `make docs` rejects that row value as:
++
++- the integer and its unit symbol, as in `7 ms`;
++- ms in whole seconds, ns in whole microseconds, by symbol;
++- ms as one to ten whole minutes: `2 min`, `two minutes`.
++
++Fenced code and this section are exempt.
++
++Rows without such a unit are not checked for copies.
++
++Decimals and other unit words, such as milliseconds, pass.
++
++Review keeps those forms out.
++The seeded row is checked with `--seq-seed 0x200000`.
++
++The measurement reports are at parent commit `4999d8d6`:
++
++- [baseline utilization](https://github.com/kebag-logic/milan-fpga/blob/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author/baseline-engine_util.rpt)
++- [candidate utilization](https://github.com/kebag-logic/milan-fpga/blob/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author/candidate-engine_util.rpt)
++- [baseline timing](https://github.com/kebag-logic/milan-fpga/blob/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author/baseline-engine_timing.rpt)
++- [candidate timing](https://github.com/kebag-logic/milan-fpga/blob/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author/candidate-engine_timing.rpt)
++# syntax is reported rather than silently skipped (#96).
++# value spelled with its unit elsewhere is a copy the table cannot correct (#96).
++    sys.dont_write_bytecode = True  # keep the gate from writing into hdl/ (#96)
++    arms += 1
++    row = next(line for line in good.splitlines() if "`SYNC_RTO_MS_C`" in line)
++    named = constant_findings(f"{good}{row}\n", generator)
++    if not any("duplicate constant row: SYNC_RTO_MS_C" in finding for finding in named):
++        print("docs selftest: duplicate constant row escaped")
++        return 1
