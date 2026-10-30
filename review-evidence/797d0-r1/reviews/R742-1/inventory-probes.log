@@ -1,0 +1,53 @@
+Independent tracked-document census: 210 documents; exact set and every line count match.
+
+archive without metadata or submodules: rc=0; expected=0
+documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+
+archive docs gate: rc=0; expected=0
+docs_check: 0 finding(s) across 210 md files + 1425 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+
+archive status gate: rc=0; expected=0
+feature_status: 0 finding(s)
+
+planted stale audit: rc=1; expected=1
+docs/DOCUMENTATION_AUDIT.md: STALE (2 lines differ); first difference at line 477:
+  committed: Planted stale audit.
+  generated: 
+regenerate with: python3 scripts/docs_inventory.py --write
+
+planted edited data-file finding quote: rc=1; expected=1
+docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 454:
+  committed: | D0-001 | [README.md](../README.md) | 60 | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and the default build carri
+  generated: | D0-001 | [README.md](../README.md) | re-verify: quote not found | Planted quotation absent from the page. | `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and the default build car
+regenerate with: python3 scripts/docs_inventory.py --write
+
+planted stale source-page metadata: rc=1; expected=1
+docs/DOCUMENTATION_AUDIT.md: STALE (3 lines differ); first difference at line 28:
+  committed: | current | 182 | 74,476 |
+  generated: | current | 182 | 74,477 |
+regenerate with: python3 scripts/docs_inventory.py --write
+
+planted edited finding quotation: rc=1; expected=1
+docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 454:
+  committed: | D0-001 | [README.md](../README.md) | 60 | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and the default build carri
+  generated: | D0-001 | [README.md](../README.md) | re-verify: quote not found | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and
+regenerate with: python3 scripts/docs_inventory.py --write
+
+same-line numeric edit survives freshness check: rc=0; expected=0
+documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+
+restored archive: rc=0; expected=0
+documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+
+area findings export: rc=0; expected=0
+<packet>/scratch/findings/overview-and-guides.md: 6 finding(s)
+<packet>/scratch/findings/reference.md: 17 finding(s)
+
+Git checkout without submodules: rc=0; expected=0
+documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+
+Git checkout without submodules docs gate: rc=0; expected=0
+docs_check: 0 finding(s) across 210 md files + 1425 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+
+Git checkout without submodules status gate: rc=0; expected=0
+feature_status: 0 finding(s)

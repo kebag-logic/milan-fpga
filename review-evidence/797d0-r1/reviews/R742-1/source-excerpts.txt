@@ -1,0 +1,705 @@
+Exact head: bd16b371ae5de1c4d36ea2a018e7d756c62d4b5a
+
+== shipping-placement ==
+sw/litex/milan_soc.py:2616: 
+sw/litex/milan_soc.py:2617: # ---- #665 lane F0: the packet mailbox of the control-plane firmware ------------------------------
+sw/litex/milan_soc.py:2618: # The fabric half of the contract sw/mailbox/mailbox.yaml holds (registers,
+sw/litex/milan_soc.py:2619: # rings, the ingress filter, the fabric timers, the event ring, one interrupt),
+sw/litex/milan_soc.py:2620: # reached by the CPU over Wishbone through KL_mbx_wb. It exists ONLY under
+sw/litex/milan_soc.py:2621: # --ctrl-mailbox, whose default is off: the default build carries no mailbox
+sw/litex/milan_soc.py:2622: # source, instance, bus region, CSR bank or interrupt, so every shipped
+sw/litex/milan_soc.py:2623: # config's top .v and source list are byte-identical to a build without this
+sw/litex/milan_soc.py:2624: # block (docs/design/MAILBOX_SPLIT.md, section "Default build"). Package
+sw/litex/milan_soc.py:2625: # first; tb/verilator/mbx/Makefile compiles the same set.
+sw/litex/milan_soc.py:2626: CTRL_MBX_BASE = 0x9010_0000
+sw/litex/milan_soc.py:3838:     ap.add_argument("--ctrl-mailbox", action="store_true",
+sw/litex/milan_soc.py:3839:                     help="#665 lane F0: add the packet mailbox of the control-plane "
+sw/litex/milan_soc.py:3840:                          "firmware (sw/mailbox/mailbox.yaml: KL_mbx behind KL_mbx_wb at "
+sw/litex/milan_soc.py:3841:                          "0x9010_0000, its CSR bank and one interrupt). Its datapath side "
+
+== media-selection ==
+hdl/milan/milan_datapath.sv:1750:   always_ff @(posedge axis_clk) begin : media_clk_resolve
+hdl/milan/milan_datapath.sv:1751:     if (!axis_resetn) begin
+hdl/milan/milan_datapath.sv:1752:       media_clk_src_r    <= 16'd0;
+hdl/milan/milan_datapath.sv:1753:       crf_clk_selected_r <= 1'b0;
+hdl/milan/milan_datapath.sv:1754:       aaf_clk_selected_r <= 1'b0;
+hdl/milan/milan_datapath.sv:1755:       aaf_follow_idx_r   <= '0;
+hdl/milan/milan_datapath.sv:1756:       follow_sel_r       <= 1'b0;
+hdl/milan/milan_datapath.sv:1757:       int_clk_selected_r <= 1'b0;
+hdl/milan/milan_datapath.sv:1758:     end
+hdl/milan/milan_datapath.sv:1759:     else begin
+hdl/milan/milan_datapath.sv:1760:       media_clk_src_r    <= pp_aecp_clk_src_index_w;
+hdl/milan/milan_datapath.sv:1761:       crf_clk_selected_r <= (pp_aecp_clk_src_index_w == AEM_CRF_CLKSRC_C)
+hdl/milan/milan_datapath.sv:1762:                             && (AEM_CRF_CLKSRC_C != 16'hFFFF);
+hdl/milan/milan_datapath.sv:1763:       aaf_clk_selected_r <= aaf_sel_w;
+hdl/milan/milan_datapath.sv:1764:       aaf_follow_idx_r   <= aaf_sel_w ? aaf_idx_w : '0;
+hdl/milan/milan_datapath.sv:1765:       follow_sel_r       <= aaf_sel_w ||
+hdl/milan/milan_datapath.sv:1766:                             ((pp_aecp_clk_src_index_w == AEM_CRF_CLKSRC_C)
+hdl/milan/milan_datapath.sv:1767:                              && (AEM_CRF_CLKSRC_C != 16'hFFFF));
+hdl/milan/milan_datapath.sv:1768:       int_clk_selected_r <= int_sel_w;
+hdl/milan/milan_datapath.sv:1769:     end
+hdl/milan/milan_datapath.sv:1770:   end : media_clk_resolve
+hdl/milan/milan_datapath.sv:790:   always_ff @(posedge axis_clk) begin : media_lrclk_tp
+hdl/milan/milan_datapath.sv:791:     if (!axis_resetn)        media_lrclk_r <= 1'b0;
+hdl/milan/milan_datapath.sv:792:     else if (media_tick_p)   media_lrclk_r <= ~media_lrclk_r;
+hdl/milan/milan_datapath.sv:793:   end : media_lrclk_tp
+hdl/milan/milan_datapath.sv:794:   assign media_lrclk_o = media_lrclk_r;
+hdl/milan/milan_datapath.sv:795: 
+hdl/milan/milan_datapath.sv:796:   KL_media_nco #(
+hdl/milan/milan_datapath.sv:797:     .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+hdl/milan/milan_datapath.sv:798:     .FS_HZ_P       (48_000),
+hdl/milan/milan_datapath.sv:799:     .TRIMW_P       (18)
+hdl/milan/milan_datapath.sv:800:   ) media_nco (
+hdl/milan/milan_datapath.sv:801:     .clk_i        (axis_clk),
+hdl/milan/milan_datapath.sv:802:     .rst_n        (axis_resetn),
+hdl/milan/milan_datapath.sv:803:     //! the direct trim is unused here: the grid follows the servo or it
+hdl/milan/milan_datapath.sv:804:     //! free-runs, and nothing else in this design commands it in LSB
+hdl/milan/milan_datapath.sv:805:     .trim_i       (18'sd0),
+hdl/milan/milan_datapath.sv:806:     .servo_trim_i (mnco_servo_trim_w),
+hdl/milan/milan_datapath.sv:807:     .servo_en_i   (mnco_servo_en_w),
+hdl/milan/milan_datapath.sv:808:     .tick_o       (media_tick_p),
+hdl/milan/milan_datapath.sv:809:     .phase_o      (media_tick_phase_w)
+hdl/milan/milan_datapath.sv:810:   );
+hdl/milan/milan_datapath.sv:811: 
+hdl/milan/milan_datapath.sv:812:   //! media-grid pilot for the capture crossbar: the SAME table, stepped by
+hdl/milan/milan_datapath.sv:813:   //! the SAME media_tick_p the crossbar's walk drains on - producer and
+hdl/milan/milan_datapath.sv:814:   //! consumer share one grid by construction. Also an axis-domain
+hdl/milan/milan_datapath.sv:815:   //! register, so the raw clk_audio -> axis crossing into the walk's mux is
+hdl/milan/milan_datapath.sv:816:   //! gone. TONE_CTRL 0x6DC en/att semantics unchanged (shared with the
+hdl/milan/milan_datapath.sv:817:   //! front-end instance above).
+hdl/milan/milan_datapath.sv:818:   KL_tone_gen #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C), .USE_EXT_ADV_P(1'b1))
+hdl/milan/milan_datapath.sv:819:   tone_gen_media (
+hdl/milan/milan_datapath.sv:820:     .clk_i (axis_clk), .rst_n (axis_resetn), .adv_i (media_tick_p),
+
+== steerable-grid ==
+hdl/ieee1722/crf/KL_media_nco.sv:108:   output logic                    tick_o,  //! one-cycle sample strobe
+hdl/ieee1722/crf/KL_media_nco.sv:109:   //! fractional accumulator, for the media-clock testbench and CSR taps: it
+hdl/ieee1722/crf/KL_media_nco.sv:110:   //! is the sub-sample phase of the grid and it is the only way to see the
+hdl/ieee1722/crf/KL_media_nco.sv:111:   //! trim take effect faster than the beat period
+hdl/ieee1722/crf/KL_media_nco.sv:112:   output logic [$clog2(FS_HZ_P)-1:0] phase_o
+hdl/ieee1722/crf/KL_media_nco.sv:113: );
+hdl/ieee1722/crf/KL_media_nco.sv:114: 
+hdl/ieee1722/crf/KL_media_nco.sv:115:   // ---------------------------------------------------------------------- //
+hdl/ieee1722/crf/KL_media_nco.sv:116:   // Derived sizing                                                          //
+hdl/ieee1722/crf/KL_media_nco.sv:117:   // ---------------------------------------------------------------------- //
+hdl/ieee1722/crf/KL_media_nco.sv:118:   localparam int unsigned DIV_C   = CLK_FREQ_HZ_P / FS_HZ_P;
+hdl/ieee1722/crf/KL_media_nco.sv:119:   localparam int unsigned REM_C   = CLK_FREQ_HZ_P % FS_HZ_P;
+hdl/ieee1722/crf/KL_media_nco.sv:120:   localparam int unsigned DEN_C   = FS_HZ_P;
+hdl/ieee1722/crf/KL_media_nco.sv:121:   localparam int unsigned FRACW_C = $clog2(DEN_C);
+hdl/ieee1722/crf/KL_media_nco.sv:122:   localparam int unsigned CNTW_C  = $clog2(DIV_C + 2);
+hdl/ieee1722/crf/KL_media_nco.sv:123:   //! signed span of sum_w: [ REM_C - TRIM_MAX_P , DEN_C-1 + REM_C + TRIM_MAX_P ]
+hdl/ieee1722/crf/KL_media_nco.sv:124:   localparam int unsigned SUMW_C  = $clog2(2*DEN_C + TRIM_MAX_P + 2) + 1;
+hdl/ieee1722/crf/KL_media_nco.sv:125: 
+hdl/ieee1722/crf/KL_media_nco.sv:126:   //! The guards that make ONE correction step sufficient. Both are true of
+hdl/ieee1722/crf/KL_media_nco.sv:127:   //! the shipping shape (100 MHz / 48 kHz: REM_C 16000, TRIM_MAX_P 20000).
+hdl/ieee1722/crf/KL_media_nco.sv:128:   if (REM_C + TRIM_MAX_P > DEN_C) begin : gen_guard_hi
+hdl/ieee1722/crf/KL_media_nco.sv:129:     $error("KL_media_nco: REM_C=%0d + TRIM_MAX_P=%0d exceeds DEN_C=%0d, so the accumulator can reach 2*DEN_C and one subtraction no longer re-normalises it - the grid would silently drop a sample. Leave TRIM_MAX_P at its derived default (%0d LSB here) or lower it.",
+hdl/ieee1722/crf/KL_media_nco.sv:130:            REM_C, TRIM_MAX_P, DEN_C, DEN_C - REM_C);
+hdl/ieee1722/crf/KL_media_nco.sv:131:   end
+hdl/ieee1722/crf/KL_media_nco.sv:132:   else if (TRIM_MAX_P >= REM_C + DEN_C) begin : gen_guard_lo
+hdl/ieee1722/crf/KL_media_nco.sv:133:     $error("KL_media_nco: TRIM_MAX_P=%0d can drive the accumulator below -DEN_C=%0d, so one addition no longer re-normalises it. Lower TRIM_MAX_P.",
+hdl/ieee1722/crf/KL_media_nco.sv:134:            TRIM_MAX_P, DEN_C);
+hdl/ieee1722/crf/KL_media_nco.sv:135:   end
+hdl/ieee1722/crf/KL_media_nco.sv:136:   else if (DIV_C < 2) begin : gen_guard_div
+hdl/ieee1722/crf/KL_media_nco.sv:137:     $error("KL_media_nco: CLK_FREQ_HZ_P=%0d / FS_HZ_P=%0d = %0d leaves no room for the borrowed cycle (a trim that shortens the period needs DIV_C >= 2). This grid needs a faster datapath clock.",
+hdl/ieee1722/crf/KL_media_nco.sv:138:            CLK_FREQ_HZ_P, FS_HZ_P, DIV_C);
+hdl/ieee1722/crf/KL_media_nco.sv:139:   end
+hdl/ieee1722/crf/KL_media_nco.sv:140: 
+hdl/ieee1722/crf/KL_media_nco.sv:141:   // ---------------------------------------------------------------------- //
+hdl/ieee1722/crf/KL_media_nco.sv:142:   // Grid                                                                    //
+hdl/ieee1722/crf/KL_media_nco.sv:143:   // ---------------------------------------------------------------------- //
+hdl/ieee1722/crf/KL_media_nco.sv:144:   logic [CNTW_C-1:0]  cnt_r;
+hdl/ieee1722/crf/KL_media_nco.sv:145:   logic [FRACW_C-1:0] frac_r;
+hdl/ieee1722/crf/KL_media_nco.sv:146: 
+hdl/ieee1722/crf/KL_media_nco.sv:147:   //! SERVO PATH. The servo's u > 0 means SPEED UP (KL_mmcm_drp_servo.sv:604);
+hdl/ieee1722/crf/KL_media_nco.sv:148:   //! this NCO's trim > 0 LENGTHENS the period, i.e. slows down. Hence the
+hdl/ieee1722/crf/KL_media_nco.sv:149:   //! negation. u is 1/16 ppm and one LSB here is 1/PPM_LSB_P ppm, so the
+hdl/ieee1722/crf/KL_media_nco.sv:150:   //! conversion is -(u * PPM_LSB_P) / 16. The servo clamps u to +-200 ppm
+hdl/ieee1722/crf/KL_media_nco.sv:151:   //! (U_MAX_P), which lands at +-200*PPM_LSB_P LSB - 20000 at 100 MHz, inside
+hdl/ieee1722/crf/KL_media_nco.sv:152:   //! the derived TRIM_MAX_P of 32000, so the two authorities agree by
+hdl/ieee1722/crf/KL_media_nco.sv:153:   //! construction rather than by a comment.
+hdl/ieee1722/crf/KL_media_nco.sv:154:   //! use_dsp="no": PPM_LSB_P is a COMPILE-TIME CONSTANT (100 at 100 MHz), so
+hdl/ieee1722/crf/KL_media_nco.sv:155:   //! this is a constant multiply - two shift-adds in fabric, about a
+hdl/ieee1722/crf/KL_media_nco.sv:156:   //! nanosecond. Vivado inferred a DSP48E1 for it anyway, and a combinational
+hdl/ieee1722/crf/KL_media_nco.sv:157:   //! DSP costs ~5 ns of a 10 ns period on a path that then still has to reach
+
+== phy-publication ==
+sw/firmware/milan_baremetal/milan_baremetal.c:1086: static void nvm_heartbeat_tick(void)
+sw/firmware/milan_baremetal/milan_baremetal.c:1087: {
+sw/firmware/milan_baremetal/milan_baremetal.c:1088: 	uint64_t now;
+sw/firmware/milan_baremetal/milan_baremetal.c:1089: 
+sw/firmware/milan_baremetal/milan_baremetal.c:1090: 	if (!nvm_started)
+sw/firmware/milan_baremetal/milan_baremetal.c:1091: 		return;
+sw/firmware/milan_baremetal/milan_baremetal.c:1092: 	now = gettime_ns();
+sw/firmware/milan_baremetal/milan_baremetal.c:1093: 
+sw/firmware/milan_baremetal/milan_baremetal.c:1094: 	phy_link_tick(now);
+sw/firmware/milan_baremetal/milan_baremetal.c:1095: 	/* a retired writer answers no more: nvm_backed must fall */
+sw/firmware/milan_baremetal/milan_baremetal.c:1096: 	if (nvm_retired)
+sw/firmware/milan_baremetal/milan_baremetal.c:1097: 		return;
+sw/firmware/milan_baremetal/milan_baremetal.c:1098: 	if (nvm_hb_last == 0 || now < nvm_hb_last ||
+sw/firmware/milan_baremetal/milan_baremetal.c:1099: 	    now - nvm_hb_last >= NVM_HEARTBEAT_NS) {
+sw/firmware/milan_baremetal/milan_baremetal.c:1100: 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_HB);
+sw/firmware/milan_baremetal/milan_baremetal.c:1655: 	bios_dispatch_hook_required();
+sw/firmware/milan_baremetal/milan_baremetal.c:1656: 	if (!nvm_shape_consistent()) {
+sw/firmware/milan_baremetal/milan_baremetal.c:1657: 		printf("Milan NVM: the record set does not match the generated shape; persistence disabled.\n");
+sw/firmware/milan_baremetal/milan_baremetal.c:1658: 		/* The restore walk still runs, blind, as it does after a refused
+sw/firmware/milan_baremetal/milan_baremetal.c:1659: 		 * window: the processor holds its ACMP listener and AECP from reset
+sw/firmware/milan_baremetal/milan_baremetal.c:1660: 		 * until the walk reaches its terminal, so a boot that never starts
+sw/firmware/milan_baremetal/milan_baremetal.c:1661: 		 * it leaves the entity deaf and uncontrollable. No image stands
+sw/firmware/milan_baremetal/milan_baremetal.c:1662: 		 * behind the device face, so the entity comes up on its defaults
+sw/firmware/milan_baremetal/milan_baremetal.c:1663: 		 * and the status says so (restore fail 1). */
+sw/firmware/milan_baremetal/milan_baremetal.c:1664: 		if (!nvm_restore_ended())
+sw/firmware/milan_baremetal/milan_baremetal.c:1665: 			nvm_restore_walk();
+sw/firmware/milan_baremetal/milan_baremetal.c:1666: 		return;
+sw/firmware/milan_baremetal/milan_baremetal.c:1667: 	}
+sw/firmware/milan_baremetal/milan_baremetal.c:1668: 	nvm_started = 1;
+sw/firmware/milan_baremetal/milan_baremetal.c:1669: 	rd_a = nvm_judge_slot(NVM_SLOT_A);
+sw/firmware/milan_baremetal/milan_baremetal.c:1670: 	rd_b = nvm_judge_slot(NVM_SLOT_B);
+sw/firmware/milan_baremetal/milan_baremetal.c:1671: 	nvm_verdict_a = rd_a.vd;
+sw/firmware/milan_baremetal/milan_baremetal.c:1672: 	nvm_verdict_b = rd_b.vd;
+sw/litex/milan_soc.py:1893:         self.link_status = CSRStorage(fields=[
+sw/litex/milan_soc.py:1894:             CSRField("link_up", size=1, offset=0, reset=1,
+sw/litex/milan_soc.py:1895:                      description="PHY link is up (MAC_STATUS[0]). Software-published "
+sw/litex/milan_soc.py:1896:                                  "from the MDIO autoneg result; reset 1 = the "
+sw/litex/milan_soc.py:1897:                                  "pre-2026-07-26 hardwired constant."),
+sw/litex/milan_soc.py:1898:             CSRField("speed", size=2, offset=1,
+sw/litex/milan_soc.py:1899:                      reset=(0b01 if phy_model == "mii" else 0b10),
+sw/litex/milan_soc.py:1900:                      description="Negotiated speed (MAC_STATUS[2:1]): 0=10, 1=100, "
+sw/litex/milan_soc.py:1901:                                  "2=1000 Mb/s. Feeds milan_csr i_speed, hence "
+sw/litex/milan_soc.py:1902:                                  "o_mac_is_1g (REQ-MAC-03) unless MAC_CTRL[5] "
+sw/litex/milan_soc.py:1903:                                  "manual-override is set. Reset = the board's PHY "
+sw/litex/milan_soc.py:1904:                                  "wiring (mii -> 100, gmii -> 1000)."),
+sw/litex/milan_soc.py:1905:             CSRField("full_duplex", size=1, offset=3, reset=1,
+sw/litex/milan_soc.py:1906:                      description="Full-duplex indication (MAC_STATUS[3])."),
+sw/litex/milan_soc.py:1907:         ], description="PHY/MAC link status published by software (MDIO). See "
+
+== boot-policy ==
+sw/litex/boot_policy.py:40:     mid = int(overlay["entity"]["entity_model_id"], 16)
+sw/litex/boot_policy.py:41:     mac = bytes.fromhex(overlay["adp"]["mac_address"].replace(":", ""))
+sw/litex/boot_policy.py:42:     reset_words = lwsrp["reset_words"]
+sw/litex/boot_policy.py:43:     return {
+sw/litex/boot_policy.py:44:         "MILAN_ENTITY_ID_LO": eid & 0xFFFF_FFFF,
+sw/litex/boot_policy.py:45:         "MILAN_ENTITY_ID_HI": eid >> 32,
+sw/litex/boot_policy.py:46:         "MILAN_MODEL_ID_LO": mid & 0xFFFF_FFFF,
+sw/litex/boot_policy.py:47:         "MILAN_MODEL_ID_HI": mid >> 32,
+sw/litex/boot_policy.py:48:         "MILAN_STATION_MAC_LO": int.from_bytes(mac[:4], "little"),
+sw/litex/boot_policy.py:49:         "MILAN_STATION_MAC_HI": int.from_bytes(mac[4:], "little"),
+sw/litex/boot_policy.py:50:         "MILAN_N_TALKERS": sum(s.get("kind", "aaf") == "aaf"
+sw/litex/boot_policy.py:51:                                for s in overlay["stream_outputs"]),
+sw/litex/boot_policy.py:52:         "MILAN_SR_VID": int(reset_words["LWSRP_VID"], 16),
+sw/litex/boot_policy.py:53:         "MILAN_LWSRP_CTRL_RESET": int(reset_words["LWSRP_CTRL"], 16),
+sw/litex/boot_policy.py:54:         # Neutral hardware resets; firmware supplies this shape's policy.
+sw/litex/boot_policy.py:55:         "MILAN_AAF_CTRL_BOOT": (int(reset_words["LWSRP_VID"], 16) << 16) | 1,
+sw/litex/boot_policy.py:56:         "MILAN_MAAP_CTRL_BOOT": (len(overlay["stream_outputs"]) << 8) | 1,
+sw/litex/boot_policy.py:57:         # Existing accept-all posture, even with the filter hardware present.
+sw/litex/boot_policy.py:58:         "MILAN_MAC_CTRL_SET": 1 << 3,
+sw/litex/boot_policy.py:59:         "MILAN_TCAM_CTRL_BOOT": 1,
+sw/litex/boot_policy.py:60:         # clocking.crf_output.enabled owns the CRF talker: a declared output
+sw/litex/boot_policy.py:61:         # runs as a class-A stream, and an undeclared one leaves CRFT_CTRL[0]
+sw/litex/boot_policy.py:62:         # clear and declares nothing.
+sw/litex/boot_policy.py:63:         "MILAN_CRF_TX_CTRL_BOOT": (
+sw/litex/boot_policy.py:64:             CRFT_TALKER_ENABLE | CRFT_CLASS_A_DECLARE
+sw/firmware/milan_baremetal/milan_baremetal.c:1802: 	milan_write(MILAN_ADP_EID_HI, MILAN_ENTITY_ID_HI);
+sw/firmware/milan_baremetal/milan_baremetal.c:1803: 	milan_write(MILAN_ADP_MID_LO, MILAN_MODEL_ID_LO);
+sw/firmware/milan_baremetal/milan_baremetal.c:1804: 	milan_write(MILAN_ADP_MID_HI, MILAN_MODEL_ID_HI);
+sw/firmware/milan_baremetal/milan_baremetal.c:1805: 	milan_write(MILAN_MAC_ADDR_LO, MILAN_STATION_MAC_LO);
+sw/firmware/milan_baremetal/milan_baremetal.c:1806: 	milan_write(MILAN_MAC_ADDR_HI, MILAN_STATION_MAC_HI);
+sw/firmware/milan_baremetal/milan_baremetal.c:1807: 	/* Existing promiscuous posture: bypass station selection on TCAM misses. */
+sw/firmware/milan_baremetal/milan_baremetal.c:1808: 	milan_write(MILAN_MAC_CTRL, milan_read(MILAN_MAC_CTRL) | MILAN_MAC_CTRL_SET);
+sw/firmware/milan_baremetal/milan_baremetal.c:1809: 	milan_write(MILAN_TCAM_CTRL, MILAN_TCAM_CTRL_BOOT);
+sw/firmware/milan_baremetal/milan_baremetal.c:1810: 
+sw/firmware/milan_baremetal/milan_baremetal.c:1811: 	/* Fabric owns media/control. Firmware only provides the generated policy. */
+sw/firmware/milan_baremetal/milan_baremetal.c:1812: 	milan_write(MILAN_AAF_CTRL, MILAN_AAF_CTRL_BOOT);
+sw/firmware/milan_baremetal/milan_baremetal.c:1813: 	milan_write(MILAN_LWSRP_VID, MILAN_SR_VID);
+sw/firmware/milan_baremetal/milan_baremetal.c:1814: 	milan_write(MILAN_LWSRP_CTRL, MILAN_LWSRP_CTRL_RESET | 3u);
+sw/firmware/milan_baremetal/milan_baremetal.c:1815: 	milan_write(MILAN_MAAP_CTRL, MILAN_MAAP_CTRL_BOOT);
+sw/firmware/milan_baremetal/milan_baremetal.c:1816: 	/* clocking.crf_output.enabled: talker enable + class-A declare, or 0. */
+sw/firmware/milan_baremetal/milan_baremetal.c:1817: 	milan_write(MILAN_CRF_TX_CTRL, MILAN_CRF_TX_CTRL_BOOT);
+sw/firmware/milan_baremetal/milan_baremetal.c:1818: }
+
+== ethernet-guard ==
+hdl/common/csr/milan_csr.sv:883:   localparam [ADDR_WIDTH-1:0] A_AEMP_FIELD = 'h7CC;  //! W: [2:0] 0 format, 1 sampling rate, 2 clock source
+hdl/common/csr/milan_csr.sv:884:   localparam [ADDR_WIDTH-1:0] A_AEMP_DATA  = 'h7D0;  //! W: payload word, MSW first (write-only)
+hdl/common/csr/milan_csr.sv:885:   localparam [ADDR_WIDTH-1:0] A_AEMP_CTRL  = 'h7D4;  //! W1S: [0] commit, [1] abort; R live: engine status/verdict
+hdl/common/csr/milan_csr.sv:886:   //! ETHERNET GUARD (USER 2026-08-06: "a kill switch that should let the
+hdl/common/csr/milan_csr.sv:887:   //! ethernet up on running until the software un-guards it"). Reset =
+hdl/common/csr/milan_csr.sv:888:   //! GUARDED: while [0]=1 the CPU's eth-disruption levers are refused -
+hdl/common/csr/milan_csr.sv:889:   //! A_PHY_RST writes are DROPPED, A_LINK_CTRL[1] (mac_reinit) is MASKED,
+hdl/common/csr/milan_csr.sv:890:   //! and o_eth_guard gates the LiteX phy_crg_reset chain in milan_soc.py -
+hdl/common/csr/milan_csr.sv:891:   //! so no bad firmware state or accidental CSR write can take the streams'
+hdl/common/csr/milan_csr.sv:892:   //! MAC down. The fabric link guard's
+hdl/common/csr/milan_csr.sv:893:   //! own auto-recovery is NOT gated: it is the trusted fabric plane.
+hdl/common/csr/milan_csr.sv:894:   //! UNGUARD by writing the magic 32'h554E_4C4B ("UNLK"); ANY other write
+hdl/common/csr/milan_csr.sv:895:   //! re-arms the guard. Software unguards once healthy and may re-arm
+hdl/common/csr/milan_csr.sv:896:   //! before risky work - the lease idiom, not a boot-once flag.
+hdl/common/csr/milan_csr.sv:897:   localparam [ADDR_WIDTH-1:0] A_ETH_GUARD  = 'h7D8;  //! [0] guarded (RW via magic)
+hdl/common/csr/milan_csr.sv:1574:     if (!aresetn) begin
+hdl/common/csr/milan_csr.sv:1575:       scratch <= 32'h0; irq_mask <= 32'h0; irq_status <= 32'h0;
+hdl/common/csr/milan_csr.sv:1576:       mac_ctrl <= 32'h13; mac_ifg <= 32'h0C; mac_alo <= 32'h0; mac_ahi <= 32'h0;
+hdl/common/csr/milan_csr.sv:1577:       mc_lo <= 32'h0; mc_hi <= 32'h0; phy_rst <= 32'h1;
+hdl/common/csr/milan_csr.sv:1578:       eth_guard <= 1'b1;                //! guarded from power-on (USER 08-06)
+hdl/common/csr/milan_csr.sv:1579:       // CLS_* and the CBS window: no flops. Their documented reset values
+hdl/common/csr/milan_csr.sv:1580:       // (CLS_CTRL 0x5, the identity PCP maps, the 5-queue TC map, the
+hdl/common/csr/milan_csr.sv:1681:           A_MAC_IFG:   mac_ifg  <= s_axi_wdata;
+hdl/common/csr/milan_csr.sv:1682:           A_MAC_ALO:   mac_alo  <= s_axi_wdata;
+hdl/common/csr/milan_csr.sv:1683:           A_MAC_AHI:   mac_ahi  <= s_axi_wdata;
+hdl/common/csr/milan_csr.sv:1684:           A_MC_LO:     mc_lo    <= s_axi_wdata;
+hdl/common/csr/milan_csr.sv:1685:           A_MC_HI:     mc_hi    <= s_axi_wdata;
+hdl/common/csr/milan_csr.sv:1686:           //! guarded: the write is DROPPED, not an error - the guard is a
+hdl/common/csr/milan_csr.sv:1687:           //! kill switch for effects, the bus contract stays boring
+hdl/common/csr/milan_csr.sv:1688:           A_PHY_RST:   if (!eth_guard) phy_rst <= s_axi_wdata;
+hdl/common/csr/milan_csr.sv:1689:           A_STATS_CTRL: begin
+hdl/common/csr/milan_csr.sv:1725:           A_MAAP_CTRL:  maap_ctrl  <= s_axi_wdata;
+hdl/common/csr/milan_csr.sv:1726:           //! guarded: [1] (mac_reinit) is masked; [0] (sw_link mirror) stays
+hdl/common/csr/milan_csr.sv:1727:           //! writable - it is telemetry into counters/ADP, not a reset lever
+hdl/common/csr/milan_csr.sv:1728:           A_LINK_CTRL:  link_ctrl  <= eth_guard
+hdl/common/csr/milan_csr.sv:1729:                             ? {s_axi_wdata[31:2], 1'b0, s_axi_wdata[0]}
+hdl/common/csr/milan_csr.sv:1730:                             : s_axi_wdata;
+hdl/common/csr/milan_csr.sv:1731:           A_ETH_GUARD:  eth_guard  <= (s_axi_wdata != 32'h554E_4C4B);
+hdl/common/csr/milan_csr.sv:1732:           //! CLKV_CTRL is now deliberately absent from the write case: its
+hdl/common/csr/milan_csr.sv:2386:       //! ETH GUARD family: truth from the flops (see is_plain_rw carve-out)
+hdl/common/csr/milan_csr.sv:2387:       A_PHY_RST:    live_mux = phy_rst;
+hdl/common/csr/milan_csr.sv:2388:       A_LINK_CTRL:  live_mux = link_ctrl;
+hdl/common/csr/milan_csr.sv:2389:       A_ETH_GUARD:  live_mux = {31'd0, eth_guard};
+hdl/common/csr/milan_csr.sv:2390:       A_ACMP_TALKER: live_mux = {28'd0, i_aaf_gate, o_acmp_lobs, i_acmp_talker_active, i_acmp_probe_armed};
+sw/litex/milan_soc.py:2061:             i_i_gptp_txrec_seq   = self.gptp_txrec_seq,
+sw/litex/milan_soc.py:2062:             i_i_gptp_txrec_delta = self.gptp_txrec_delta,
+sw/litex/milan_soc.py:2063:             i_i_gptp_txrec_abort = self.gptp_txrec_abort,
+sw/litex/milan_soc.py:2064:             o_o_gptp_txseal_req  = self.gptp_txseal_req,
+sw/litex/milan_soc.py:2065:             o_o_gptp_txseal_gen  = self.gptp_txseal_gen,
+sw/litex/milan_soc.py:2066:             i_i_gptp_txseal_ack  = self.gptp_txseal_ack,
+sw/litex/milan_soc.py:2067:             # ETH GUARD (USER 08-06): exported for future SoC-side gating of
+sw/litex/milan_soc.py:2068:             # the LiteEth phy_crg_reset chain (v2); v1 guards the milan-csr
+sw/litex/milan_soc.py:2069:             # levers inside the datapath; the CSR remains the control boundary
+sw/litex/milan_soc.py:2070:             o_o_eth_guard       = self.eth_guard,
+sw/litex/milan_soc.py:2071:             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
+sw/litex/milan_soc.py:2072:             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
+sw/litex/milan_soc.py:2073:             i_m_axis_mac_tx_tready = tx_dp.dp.ready,
+sw/litex/milan_soc.py:2074:             i_s_axis_mac_rx_tdata  = rx_dp.dp.data,  i_s_axis_mac_rx_tkeep = rx_dp.dp.keep,
+sw/litex/milan_soc.py:2075:             i_s_axis_mac_rx_tvalid = rx_dp.dp.valid, i_s_axis_mac_rx_tlast = rx_dp.dp.last,
+sw/litex/milan_soc.py:2076:             o_s_axis_mac_rx_tready = rx_dp.dp.ready,
+sw/litex/milan_soc.py:2077:             # MAC status: from the `link_status` CSR above (software-published MDIO
+sw/litex/milan_soc.py:2078:             # autoneg result), NOT constants - see the block comment there for why a
+sw/litex/milan_soc.py:2079:             # CSR is the only honest source on a LiteEth GMII/MII PHY.
+sw/litex/milan_soc.py:2080:             # RMON: real pulses from KL_mac_rmon_events above (this line was
+sw/litex/milan_soc.py:2081:             # `i_i_mac_events = 0` until 2026-07-26 - the tie that made a
+sw/litex/milan_soc.py:2082:             # fully-tested counter block dead in silicon). `cap` tells software
+sw/litex/milan_soc.py:2083:             # which of the nine lanes those pulses actually cover.
+sw/litex/milan_soc.py:2084:             i_i_mac_speed = self.link_status.fields.speed,
+sw/litex/milan_soc.py:2085:             i_i_link_up = link_up_cd, i_i_full_duplex = full_duplex_cd,
+sw/litex/milan_soc.py:2086:             i_i_mac_events = mac_events,
+sw/litex/milan_soc.py:2087:             i_i_mac_events_cap = mac_events_cap,
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:26: +            self.specials += DDROutput(0 if tx_clk_invert else 1,
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:27: +                                       1 if tx_clk_invert else mii_mode,
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:28: +                                       clock_pads.gtx, ClockSignal("eth_tx"))
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:29:              eth_tx_clk = Signal()
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:30:              self.comb += [
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:31:                  If(mii_mode,
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:32: @@ -92,9 +99,22 @@
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:33:                  self.comb += reset.eq(self._reset.storage)
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:34:              if hasattr(pads, "rst_n"):
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:35:                  self.comb += pads.rst_n.eq(~reset)
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:36: +            # ext_reset (e.g. KL_link_guard eth_rst): an external hardware request OR-ed
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:37: +            # into the eth-domain reset so cd_eth_tx/cd_eth_rx - the PHY TX register stage
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:38: +            # (LiteEthPHYGMIITX) and the gtx clock-forward (DDROutput) - re-init exactly
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:39: +            # like phy_crg_reset: async-asserted (fires even while the eth clock is
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:40: +            # stopped, e.g. GMII RXC dropped on a link bounce) / sync-released per eth
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:41: +            # clock. It is deliberately NOT fed to pads.rst_n: the physical PHY chip must
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:42: +            # NOT be reset (that restarts autoneg and would break the sub-50 ms link-guard
+sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch:43: +            # recovery). ext_reset=None -> eth_reset is `reset` verbatim, so the generated
+
+== inactive-shaping ==
+hdl/common/csr/milan_csr.sv:1993:     unique case (a)
+hdl/common/csr/milan_csr.sv:1994:       A_ID[10:0]:         csr_default = 32'h4D49_4C4E;      // "MILN"
+hdl/common/csr/milan_csr.sv:1995:       A_VERSION[10:0]:    csr_default = VERSION;
+hdl/common/csr/milan_csr.sv:1996:       //! CAP[8] CBS = 0: no shaper is elaborated (REQ-CSR-05 - unsupported
+hdl/common/csr/milan_csr.sv:1997:       //! is explicit). [3:0] num_queues stays the 0x400 window's geometry.
+hdl/common/csr/milan_csr.sv:1998:       A_CAP[10:0]:        csr_default = { 8'h00, 8'd64,
+hdl/common/csr/milan_csr.sv:1999:                                           1'b0, 1'b1, 1'b1, 1'b1,
+hdl/common/csr/milan_csr.sv:2000:                                           1'b1, 1'b1, 1'b1, 1'b0,
+hdl/common/csr/milan_csr.sv:2001:                                           4'h0, 4'(NUM_QUEUES) };
+hdl/common/csr/milan_csr.sv:2002:       A_MAC_CTRL[10:0]:   csr_default = 32'h13;
+hdl/common/csr/milan_csr.sv:2003:       A_MAC_IFG[10:0]:    csr_default = 32'h0C;
+docs/reference/EGRESS_QUEUE_MAP.md:3: The classifier, queue bank, and 802.1Qav credit logic remain implemented and
+docs/reference/EGRESS_QUEUE_MAP.md:4: independently verified, but the bare-metal product boundary supplies no packet
+docs/reference/EGRESS_QUEUE_MAP.md:5: source to them, and since VERSION `0x0056` `milan_datapath` **does not
+docs/reference/EGRESS_QUEUE_MAP.md:6: instantiate them at all**: the retired transmit path that was their only source left
+docs/reference/EGRESS_QUEUE_MAP.md:7: with #259, so an elaborated chain would have been silicon on a tied-off input
+docs/reference/EGRESS_QUEUE_MAP.md:8: and a CSR face advertising a shaper no frame could reach. Product AAF, CRF,
+docs/reference/EGRESS_QUEUE_MAP.md:9: MAAP, protocol, and fabric-gPTP traffic joins the trunk at the merges that sat
+docs/reference/EGRESS_QUEUE_MAP.md:10: below the chain. The CSR words below are write-only scratch and `CAP.CBS` reads
+docs/reference/EGRESS_QUEUE_MAP.md:11: 0 ([REGISTER_MAP.md](REGISTER_MAP.md)); the blocks are building material for a
+docs/reference/EGRESS_QUEUE_MAP.md:12: class-A shaping lane over the fabric's own sources, which is a separate lane.
+docs/reference/FR_NFR.md:169: | **FR-CLK-01/02/05** (gPTP, PHC, HW timestamps) | **MET** | Untouched by the substitution |
+docs/reference/FR_NFR.md:170: | **FR-CLK-03/04** (select the media clock among INTERNAL, the CRF sink's source and one source per AAF Stream Input; recover it from the selected CRF or AAF stream) | **CRF following MET AT THE ROOT INTEGRATION (#74); AAF following implemented and graded in simulation (#629, PR #634); bench acceptance open** | The processor stores `SET_CLOCK_SOURCE` and refuses an index the CLOCK_DOMAIN does not list with `BAD_ARGUMENTS` (the current index answered, nothing stored or notified), `KL_pp_shadow.sv` exports the stored index, and the root's `media_clk_resolve` arms the MMCM-DRP servo and the `KL_media_grid_align` packet-grid chain from it: grid alignment proven in sim at the true 391/1591 ratio, `mr` reachable on both 4.4.4.3 triggers. **The #389 record, as reversed by #629.** Issue #389's decision (a) (2026-09-09) cut the advertised set to INTERNAL and the CRF sink's INPUT_STREAM source, with no CLOCK_SOURCE on an AAF listener and no stream-derived recovery, because a source was then advertised, stored and served with no recovery engine behind it. The owner decision recorded in #629's body (2026-10-01) reverses that decision for AAF Stream Inputs and keeps the CRF path: the entity follows either a CRF talker's or an AAF talker's media clock, one selected source at a time, by the design in [`MEDIA_CLOCK_FOLLOWING.md`](../design/MEDIA_CLOCK_FOLLOWING.md). FR-CLK-03 and FR-CLK-04 in Section 2.6 are amended to that decision. The silicon J11.8-vs-J11.9 probe stays open on issue #74, and the bench acceptance of AAF following is a later #629 bench lane |
+docs/reference/FR_NFR.md:171: | **FR-STR-01/02/04/05** (AAF encapsulation, de-encapsulation, listener counters, parameterisation) | **MET** | The media plane is intact |
+docs/reference/FR_NFR.md:172: | **FR-STR-03/03a/03b** (listener format adaptation via SET_STREAM_FORMAT) | **MET AT THE CONTROL PLANE (0x0053); wire reshape deferred** | `SET_STREAM_FORMAT` is served for both stream directions with the Milan 5.4.2.7 refusals and a per-row format verdict; a stored setting becomes the served current format and drives STREAM_INPUT 0's acceptance filter. The *wire-truth* rule still governs de-interleaving, so render adaptation follows channels_per_frame off the wire; what remains deferred is the framers re-shaping from a stored format, recorded in the audit with the SET_CONFIGURATION precedent. Since #765 the filter compares the channel count, and the CRF input its subtype: a mismatch counts `UNSUPPORTED_FORMAT` and is discarded (`avtp_rxmon` `[UF]`, `crf_rx` `[FMT]`). Inputs above 0 still read their format from the LCTX window, not from `SET_STREAM_FORMAT` |
+docs/reference/FR_NFR.md:173: | **FR-QOS-01..03** | **MET** | Classifier + CBS untouched; the Σ idleSlope ceiling is enforced by the processor's admission now |
+docs/reference/FR_NFR.md:174: | **FR-MGT-01** (IDENTIFY) | **IMPLEMENTED IN THE PROCESSOR, UNCONSUMED AT ROOT** | Identify `SET_CONTROL` and `GET_CONTROL` are served by the processor, and `KL_pp_shadow.sv` exports `aecp_identify_o` to the root wire `pp_aecp_identify_w`. Nothing consumes the wire and the root ties `o_identify` low. The controller-visible state exists while the physical Identify output remains dark. An inbound `IDENTIFY_NOTIFICATION` command is separately refused with `BAD_ARGUMENTS` as required by Section 7.4.39.2 |
+docs/reference/FR_NFR.md:175: | **FR-MGT-02** (names settable and persisted) | **PARTLY MET** | `SET_NAME` and `GET_NAME` are served for every generated semantic name, and SET is coherent with READ_DESCRIPTOR. The writable names are volatile because nonvolatile restoration remains open |
+docs/reference/FR_NFR.md:176: | **NFR-\*** | unchanged in kind | The budgets and bounds still apply. Two are worth re-reading against the new plane: **NFR-LAT-01** (the presentation-time bound is now the Milan **2 ms default and is not configurable**, since `SET_MAX_TRANSIT_TIME` is unimplemented — a default, not a zero) and **NFR-SCUP-04** (the AEM memory it sizes has moved out of the gateware into main memory) |
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:260: | Clause | Requirement | Owner | Status / evidence |
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:261: |---|---|---|---|
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:262: | 9.4 / 9.6 | C-TAG TPID 0x8100; TCI = PCP·DEI·VID | fabric | implemented — RTL cls / classifier |
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:263: | 6.9.3 / 6.9.4 | PCP encoding on transmit; priority regeneration on receive | fabric | implemented — RTL aaf/crf_tx TCI bytes; RTL cls |
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:264: | 8.6.6 + Table 8-4 | queue per traffic class | fabric | implemented — RTL queues / classifier |
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:265: | 8.6.8.1 | strict priority (non-CBS queues) | fabric | implemented — RTL shaper_core (all priority pairs) |
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:266: | 8.6.8.2 | credit-based shaper: idleSlope/sendSlope, transmitAllowed (hiCredit/loCredit per informative Annex L.1) | fabric | implemented — RTL cbs, bit-exact vs a cycle-accurate replica |
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:267: | 34.3 / 34.6.1 | per-class idleSlope from reservations; class measurement interval 125 µs (A) / 250 µs (B) | fabric + processor | implemented — granted slope drives the class-A queue's idleSlope; TSpec from real frame geometry |
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:268: | 35.2.2.4 | MSRP attributes: Talker Advertise/Failed, Listener, Domain | processor | implemented — PP srp_decoder / srp_encoder / srp_stream_fsms |
+
+== missed-persistence ==
+docs/integration/QSPI_FLASHBOOT.md:53: 
+docs/integration/QSPI_FLASHBOOT.md:54: The AEM slot sits at `0x40_0000`, immediately after the bitstream budget.
+docs/integration/QSPI_FLASHBOOT.md:55: Always flash the AEM from the same build as the bitstream: its entity/model identity,
+docs/integration/QSPI_FLASHBOOT.md:56: length, CRC and destination are compiled into that firmware.
+docs/integration/QSPI_FLASHBOOT.md:57: 
+docs/integration/QSPI_FLASHBOOT.md:58: The `journal` and `user` ranges are RESERVED: no manifest writes them and a
+docs/integration/QSPI_FLASHBOOT.md:59: reflash must not erase them. The saved-state journal that used those slots
+docs/integration/QSPI_FLASHBOOT.md:60: was deleted 2026-08-13 with this repository's own AECP/AEM engine, so nothing
+docs/integration/QSPI_FLASHBOOT.md:61: writes or reads them today. Persistence is a genuine loss, not a relocation:
+docs/integration/QSPI_FLASHBOOT.md:62: the protocol processor's NVM face is answered by a blank-flash responder, so a
+docs/integration/QSPI_FLASHBOOT.md:63: restore walk always completes with zero records and nothing survives a power
+docs/integration/QSPI_FLASHBOOT.md:64: cycle.
+hdl/milan/KL_pp_shadow.sv:1123:   KL_nvm_backend #(
+hdl/milan/KL_pp_shadow.sv:1124:       .CLK_HZ_P        (CLK_HZ_P),
+hdl/milan/KL_pp_shadow.sv:1125:       .N_STREAM_IN_P   (N_STREAM_IN_P),
+hdl/milan/KL_pp_shadow.sv:1126:       .N_STREAM_OUT_P  (N_STREAM_OUT_P),
+hdl/milan/KL_pp_shadow.sv:1127:       .N_SPORT_IN_P    (N_SPORT_IN_P),
+hdl/milan/KL_pp_shadow.sv:1128:       .N_SPORT_OUT_P   (N_SPORT_OUT_P),
+hdl/milan/KL_pp_shadow.sv:1129:       .N_AUDIO_UNIT_P  (N_AUDIO_UNIT_P),
+hdl/milan/KL_pp_shadow.sv:1130:       .N_CLK_DOM_P     (N_CLK_DOM_P),
+hdl/milan/KL_pp_shadow.sv:1131:       //! one NAME record per name-store entry: the same count the processor's
+hdl/milan/KL_pp_shadow.sv:1132:       //! descriptor store is built with, so the two cannot disagree
+hdl/milan/KL_pp_shadow.sv:1133:       .N_NAME_P        (DESC_NAME_ENTRIES_P)
+hdl/milan/KL_pp_shadow.sv:1134:   ) u_nvm (
+hdl/milan/KL_pp_shadow.sv:1135:       .clk_i           (clk_i),
+hdl/milan/KL_pp_shadow.sv:1136:       .rst_n           (rst_n),
+hdl/milan/KL_pp_shadow.sv:1137:       .dev_req_i       (nvm_req_w),
+hdl/milan/KL_pp_shadow.sv:1138:       .dev_gnt_o       (nvm_gnt_w),
+hdl/milan/KL_pp_shadow.sv:1139:       .dev_op_i        (nvm_op_w),
+hdl/milan/KL_pp_shadow.sv:1140:       .dev_region_i    (nvm_region_w),
+hdl/milan/KL_pp_shadow.sv:1141:       .dev_offset_i    (nvm_offset_w),
+hdl/milan/KL_pp_shadow.sv:1142:       .dev_len_i       (nvm_len_w),
+hdl/milan/KL_pp_shadow.sv:1143:       .dev_wvalid_i    (nvm_wvalid_w),
+hdl/milan/KL_pp_shadow.sv:1144:       .dev_wready_o    (nvm_wready_w),
+hdl/milan/KL_pp_shadow.sv:1145:       .dev_wdata_i     (nvm_wdata_w),
+hdl/milan/KL_pp_shadow.sv:1146:       .dev_rvalid_o    (nvm_rvalid_w),
+hdl/milan/KL_pp_shadow.sv:1147:       .dev_rdata_o     (nvm_rdata_w),
+hdl/milan/KL_pp_shadow.sv:1148:       .dev_rready_i    (nvm_rready_w),
+sw/firmware/milan_baremetal/milan_baremetal.c:1393: static int nvm_commit(const char *why)
+sw/firmware/milan_baremetal/milan_baremetal.c:1394: {
+sw/firmware/milan_baremetal/milan_baremetal.c:1395: 	uint32_t next = nvm_seq + 1u;
+sw/firmware/milan_baremetal/milan_baremetal.c:1396: 	uint32_t target = (nvm_auth_slot == NVM_SLOT_A) ? NVM_SLOT_B : NVM_SLOT_A;
+sw/firmware/milan_baremetal/milan_baremetal.c:1397: 	struct nvm_cap cap;
+sw/firmware/milan_baremetal/milan_baremetal.c:1398: 	unsigned int vd;
+sw/firmware/milan_baremetal/milan_baremetal.c:1399: 
+sw/firmware/milan_baremetal/milan_baremetal.c:1400: 	nvm_in_commit = 1;
+sw/firmware/milan_baremetal/milan_baremetal.c:1401: 	cap = nvm_capture();
+sw/firmware/milan_baremetal/milan_baremetal.c:1402: 	if (!cap.ok) {
+sw/firmware/milan_baremetal/milan_baremetal.c:1403: 		printf("Milan NVM: commit (%s) deferred, the capture was not attested.\n",
+sw/firmware/milan_baremetal/milan_baremetal.c:1404: 		       why);
+sw/firmware/milan_baremetal/milan_baremetal.c:1405: 		nvm_captures_refused++;
+sw/firmware/milan_baremetal/milan_baremetal.c:1406: 		nvm_dirty_since = 0;
+sw/firmware/milan_baremetal/milan_baremetal.c:1407: 		nvm_in_commit = 0;
+sw/firmware/milan_baremetal/milan_baremetal.c:1408: 		return 0;
+sw/firmware/milan_baremetal/milan_baremetal.c:1409: 	}
+sw/firmware/milan_baremetal/milan_baremetal.c:1410: 	nvm_write_header(next);
+sw/firmware/milan_baremetal/milan_baremetal.c:1411: 	nvm_seal();
+sw/firmware/milan_baremetal/milan_baremetal.c:1412: 	vd = nvm_validate(NVM_STG);
+sw/firmware/milan_baremetal/milan_baremetal.c:1413: 	if (vd != VD_OK) {
+sw/firmware/milan_baremetal/milan_baremetal.c:1414: 		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_RELEASE);
+sw/firmware/milan_baremetal/milan_baremetal.c:1415: 		printf("Milan NVM: commit (%s) deferred, the attested capture reads %s.\n",
+sw/firmware/milan_baremetal/milan_baremetal.c:1416: 		       why, nvm_verdict_name[vd]);
+sw/firmware/milan_baremetal/milan_baremetal.c:1417: 		nvm_dirty_since = 0;
+sw/firmware/milan_baremetal/milan_baremetal.c:1418: 		nvm_in_commit = 0;
+sw/firmware/milan_baremetal/milan_baremetal.c:1419: 		return 0;
+sw/firmware/milan_baremetal/milan_baremetal.c:1420: 	}
+sw/firmware/milan_baremetal/milan_baremetal.c:1421: 	milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_START);
+sw/firmware/milan_baremetal/milan_baremetal.c:1422: 	if (!nvm_slot_erase(target))
+sw/firmware/milan_baremetal/milan_baremetal.c:1423: 		vd = VD_ERASE;
+sw/firmware/milan_baremetal/milan_baremetal.c:1424: 	else if (!nvm_slot_program(target))
+sw/firmware/milan_baremetal/milan_baremetal.c:1425: 		vd = VD_PROGRAM;
+sw/firmware/milan_baremetal/milan_baremetal.c:1426: 	else if (nvm_validate(nvm_slot(target)) != VD_OK ||
+sw/firmware/milan_baremetal/milan_baremetal.c:1427: 		 nvm_seq_of(nvm_slot(target)) != next || !nvm_slot_matches(target))
+sw/firmware/milan_baremetal/milan_baremetal.c:1428: 		vd = VD_VERIFY;
+sw/firmware/milan_baremetal/milan_baremetal.c:1429: 	nvm_last_verdict = vd;
+sw/firmware/milan_baremetal/milan_baremetal.c:1430: 	nvm_dirty_since = 0;
+sw/firmware/milan_baremetal/milan_baremetal.c:1431: 	nvm_in_commit = 0;
+sw/firmware/milan_baremetal/milan_baremetal.c:1665: 			nvm_restore_walk();
+sw/firmware/milan_baremetal/milan_baremetal.c:1666: 		return;
+sw/firmware/milan_baremetal/milan_baremetal.c:1667: 	}
+sw/firmware/milan_baremetal/milan_baremetal.c:1668: 	nvm_started = 1;
+sw/firmware/milan_baremetal/milan_baremetal.c:1669: 	rd_a = nvm_judge_slot(NVM_SLOT_A);
+sw/firmware/milan_baremetal/milan_baremetal.c:1670: 	rd_b = nvm_judge_slot(NVM_SLOT_B);
+sw/firmware/milan_baremetal/milan_baremetal.c:1671: 	nvm_verdict_a = rd_a.vd;
+sw/firmware/milan_baremetal/milan_baremetal.c:1672: 	nvm_verdict_b = rd_b.vd;
+sw/firmware/milan_baremetal/milan_baremetal.c:1673: 	seq_a = rd_a.seq;
+sw/firmware/milan_baremetal/milan_baremetal.c:1674: 	seq_b = rd_b.seq;
+sw/firmware/milan_baremetal/milan_baremetal.c:1883: 	 * restored (docs/design/SAVED_STATE_MATERIALIZATION.md section 5.3): the
+sw/firmware/milan_baremetal/milan_baremetal.c:1884: 	 * restore judges every value against the image, and one started
+sw/firmware/milan_baremetal/milan_baremetal.c:1885: 	 * without it cannot prove the image and ends CLOSED, holding AECP until
+sw/firmware/milan_baremetal/milan_baremetal.c:1886: 	 * reset. nvm_boot() starts the walk on every path, a failed image
+sw/firmware/milan_baremetal/milan_baremetal.c:1887: 	 * included (the binding walk still releases the listener), and the
+sw/firmware/milan_baremetal/milan_baremetal.c:1888: 	 * verifier's verdict then flows straight into the choke point. */
+sw/firmware/milan_baremetal/milan_baremetal.c:1889: 	aem_loaded = load_aem_image();
+sw/firmware/milan_baremetal/milan_baremetal.c:1890: 	nvm_boot();
+sw/firmware/milan_baremetal/milan_baremetal.c:1891: 	entity_advertise(aem_loaded);
+sw/firmware/milan_baremetal/milan_baremetal.c:1892: }
+sw/firmware/milan_baremetal/milan_baremetal.c:1893: 
+
+== missed-test-frameworks ==
+docs/guides/VERIFICATION_DEVELOPER.md:22: | Behave | Specification-facing offline contracts | `cd tests && behave -f plain` |
+docs/guides/VERIFICATION_DEVELOPER.md:23: | Migen simulation | LiteX module behavior | `scripts/run_litex_sims.sh <logs>` |
+docs/guides/VERIFICATION_DEVELOPER.md:24: | C++ Verilator | Cycle-accurate RTL behavior | `make -C tb/verilator/<suite>` |
+docs/guides/VERIFICATION_DEVELOPER.md:25: | C with Python | Shipping trace producer | `python3 sw/trace/test_trace_roundtrip.py` |
+docs/guides/VERIFICATION_DEVELOPER.md:26: | Protocol donor | Donor RTL behavior | `protocol-processor/scripts/run_suites.sh` |
+docs/guides/VERIFICATION_DEVELOPER.md:27: | gPTP donor | Donor engine behavior | `make -C gptp-processor` |
+docs/guides/VERIFICATION_DEVELOPER.md:28: | Root sweep | Integrated RTL regression | `scripts/run_all_suites.sh <logs>` |
+docs/guides/VERIFICATION_DEVELOPER.md:29: 
+docs/guides/VERIFICATION_DEVELOPER.md:30: - Root sweeps discover suites dynamically.
+docs/guides/VERIFICATION_DEVELOPER.md:31: - Donor suites remain separate.
+docs/guides/VERIFICATION_DEVELOPER.md:32: - Migen scripts lack one aggregate runner.
+docs/guides/VERIFICATION_DEVELOPER.md:33: - CI ownership differs between layers.
+docs/guides/VERIFICATION_DEVELOPER.md:34: 
+docs/guides/VERIFICATION_DEVELOPER.md:35: Read [`CI_WORKFLOWS.md`](../testing/CI_WORKFLOWS.md) before claiming coverage.
+docs/guides/VERIFICATION_DEVELOPER.md:36: 
+docs/guides/VERIFICATION_DEVELOPER.md:37: ## Understand language ownership
+docs/guides/VERIFICATION_DEVELOPER.md:38: 
+docs/guides/VERIFICATION_DEVELOPER.md:39: | Language | Primary responsibility | Avoid |
+docs/guides/VERIFICATION_DEVELOPER.md:40: |---|---|---|
+docs/guides/VERIFICATION_DEVELOPER.md:41: | Python | Models, orchestration, builders, gates, decoding | Mirroring RTL assumptions blindly |
+docs/guides/VERIFICATION_DEVELOPER.md:42: | C++ | Verilator stimulus, clocks, assertions, reference models | Silent failures or uncounted checks |
+docs/guides/VERIFICATION_DEVELOPER.md:43: | C | Firmware and trace-producing target code | Treating target code as its oracle |
+docs/guides/VERIFICATION_DEVELOPER.md:44: | SystemVerilog | DUT wrappers and observable signals | Reimplementing expected behavior |
+docs/guides/VERIFICATION_DEVELOPER.md:45: | Shell and Make | Reproducible build entry points | Parsing logs as sole verdicts |
+docs/guides/VERIFICATION_DEVELOPER.md:46: 
+docs/guides/VERIFICATION_DEVELOPER.md:47: Python drives several independent layers.
+docs/guides/VERIFICATION_DEVELOPER.md:48: 
+scripts/run_litex_sims.sh:95: 
+scripts/run_litex_sims.sh:96: #: Every supported standalone LiteX simulation, by basename. Growing sw/litex
+scripts/run_litex_sims.sh:97: #: means growing this list - the UNLISTED reconciliation makes forgetting it
+scripts/run_litex_sims.sh:98: #: a red run, and docs/testing/TESTING.md section 2 names the rule.
+scripts/run_litex_sims.sh:99: INVENTORY=(
+scripts/run_litex_sims.sh:100:   test_cpu_memory_port_cdc
+scripts/run_litex_sims.sh:101:   test_ctrl_memory
+scripts/run_litex_sims.sh:102:   test_gmii_rx_capture
+scripts/run_litex_sims.sh:103:   test_gptp_tx_timestamp
+scripts/run_litex_sims.sh:104:   test_pp_boot_bus_freeze
+scripts/run_litex_sims.sh:105:   test_pp_mem_bridge
+scripts/run_litex_sims.sh:106:   test_retained_cdc_storage
+scripts/run_litex_sims.sh:107: )
+scripts/run_litex_sims.sh:108: 
+scripts/run_litex_sims.sh:150:   local out="$1"
+scripts/run_litex_sims.sh:151:   mkdir -p "$out"
+scripts/run_litex_sims.sh:152:   rm -f "$out"/*.log     # a stale log from a previous run is not evidence
+scripts/run_litex_sims.sh:153: 
+scripts/run_litex_sims.sh:154:   local pass=0 fail=0 skip=0 tmo=0 failed="" timedout="" t f name
+scripts/run_litex_sims.sh:155:   declare -A pinned=()
+scripts/run_litex_sims.sh:156:   for t in "${INVENTORY[@]}"; do pinned["$t"]=1; done
+scripts/run_litex_sims.sh:157: 
+scripts/run_litex_sims.sh:158:   # Reconciliation, both directions, before anything runs.
+scripts/run_litex_sims.sh:159:   for t in "${INVENTORY[@]}"; do
+scripts/run_litex_sims.sh:160:     if [ ! -f "$SIM_DIR/$t.py" ]; then
+scripts/run_litex_sims.sh:161:       fail=$((fail + 1)); failed="$failed $t"
+scripts/run_litex_sims.sh:162:       printf 'FAIL     %s   (MISSING: pinned in the inventory, no such file - a deleted\n' "$t"
+scripts/run_litex_sims.sh:163:       printf '         or renamed test may not vanish silently; reconcile the inventory)\n'
+scripts/run_litex_sims.sh:164:     fi
+scripts/run_litex_sims.sh:165:   done
+scripts/run_litex_sims.sh:166:   for f in "$SIM_DIR"/test_*.py; do
+scripts/run_litex_sims.sh:167:     [ -e "$f" ] || continue
+scripts/run_litex_sims.sh:168:     name="$(basename "$f" .py)"
+scripts/run_litex_sims.sh:169:     if [ -z "${pinned[$name]:-}" ]; then
+scripts/run_litex_sims.sh:170:       fail=$((fail + 1)); failed="$failed $name"
+scripts/run_litex_sims.sh:171:       printf 'FAIL     %s   (UNLISTED: present in sw/litex/ but not in the pinned\n' "$name"
+scripts/run_litex_sims.sh:172:       printf '         inventory - "one command runs every supported simulation" just\n'
+scripts/run_litex_sims.sh:173:       printf '         stopped being true; add it to INVENTORY in %s)\n' "scripts/run_litex_sims.sh"
+scripts/run_litex_sims.sh:174:     fi
+scripts/run_litex_sims.sh:175:   done
+scripts/run_litex_sims.sh:176: 
+scripts/run_litex_sims.sh:177:   local py="" find_rc=0
+scripts/run_litex_sims.sh:178:   py="$(find_interpreter)" || find_rc=$?
+sw/firmware/gtest/README.md:4: The bare-metal control-plane firmware ([`ctrl`](../ctrl/README.md)) and its
+sw/firmware/gtest/README.md:5: saved-state store ([`ctrl_nvm`](../ctrl_nvm/README.md)) are tested on the host
+sw/firmware/gtest/README.md:6: with GoogleTest and GoogleMock. The firmware stays C11 with no heap; the tests
+sw/firmware/gtest/README.md:7: are C++ and include its C headers through `extern "C"`. This directory holds
+sw/firmware/gtest/README.md:8: what both host gates share: the `main()` and tally listener every test binary
+sw/firmware/gtest/README.md:9: links, the build and grading helpers, the coverage gate and its ratchet.
+sw/firmware/gtest/README.md:10: 
+sw/firmware/gtest/README.md:11: The gates are unchanged in name and exit status:
+sw/firmware/gtest/README.md:12: `sw/firmware/ctrl/test/test_ctrl_firmware.py` and
+sw/firmware/gtest/README.md:13: `sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py`. Both now build GoogleTest
+sw/firmware/gtest/README.md:14: binaries and grade each one by the tally it prints.
+sw/firmware/gtest/fw_gtest_main.cpp:24: #include <gmock/gmock.h>
+sw/firmware/gtest/fw_gtest_main.cpp:25: #include <gtest/gtest.h>
+sw/firmware/gtest/fw_gtest_main.cpp:26: #include <unistd.h>
+sw/firmware/gtest/fw_gtest_main.cpp:27: 
+sw/firmware/gtest/fw_gtest_main.cpp:28: #include <csignal>
+
+== missed-queue-roles ==
+docs/reference/EGRESS_QUEUE_MAP.md:31: ## Reset map
+docs/reference/EGRESS_QUEUE_MAP.md:32: 
+docs/reference/EGRESS_QUEUE_MAP.md:33: The five-queue CSR geometry remains stable:
+docs/reference/EGRESS_QUEUE_MAP.md:34: 
+docs/reference/EGRESS_QUEUE_MAP.md:35: | queue | reset role | shaping at reset |
+docs/reference/EGRESS_QUEUE_MAP.md:36: |---:|---|---|
+docs/reference/EGRESS_QUEUE_MAP.md:37: | q4 | class A | disabled until a valid admitted slope is supplied |
+docs/reference/EGRESS_QUEUE_MAP.md:38: | q3 | gPTP classification target | disabled |
+docs/reference/EGRESS_QUEUE_MAP.md:39: | q2 | class B | disabled until configured |
+docs/reference/EGRESS_QUEUE_MAP.md:40: | q1 | control | disabled |
+hdl/common/ethernet_packet_pkg.sv:217: typedef enum logic [PRIORITY_QUEUES_BIT_WIDTH-1:0] {
+hdl/common/ethernet_packet_pkg.sv:218:   BEST_EFFORT    = 3'd0, //!< q0: default for non-prioritized traffic (lowest)
+hdl/common/ethernet_packet_pkg.sv:219:   CONTROL_CLASS  = 3'd1, //!< q1: MAAP/MSRP/MVRP + 1722.1 ADP/ACMP/AECP
+hdl/common/ethernet_packet_pkg.sv:220:   GPTP_CLASS     = 3'd2, //!< q2: gPTP (Generalized Precision Time Protocol)
+hdl/common/ethernet_packet_pkg.sv:221:   SRB_CLASS      = 3'd3, //!< q3: Stream Reservation Class B (CBS shaped)
+hdl/common/ethernet_packet_pkg.sv:222:   SRA_CLASS      = 3'd4  //!< q4: Stream Reservation Class A (highest priority)
+hdl/common/ethernet_packet_pkg.sv:223: } network_priority_t;
+hdl/common/csr/milan_csr.sv:2005:       A_CLS_CTRL[10:0]:   csr_default = 32'h5;
+hdl/common/csr/milan_csr.sv:2006:       A_CLS_MAP[10:0]:    csr_default = 32'h00FAC688;
+hdl/common/csr/milan_csr.sv:2007:       A_CLS_REGEN[10:0]:  csr_default = 32'h00FAC688;
+hdl/common/csr/milan_csr.sv:2008:       A_CLS_TCQ[10:0]:    csr_default = 32'h004898C0;
+hdl/common/csr/milan_csr.sv:2009:       A_PTP_CTRL[10:0]:   csr_default = 32'h1;
+
+== three-corrections ==
+docs/README.md:70: | Understand fabric time | [Fabric gPTP plane](design/GPTP_PLANE.md) |
+docs/README.md:71: | Handle grandmaster loss | [Grandmaster recovery](design/GM_LOSS_RECOVERY.md) |
+docs/README.md:72: | Follow a stream's media clock | [Media-clock following, implemented](design/MEDIA_CLOCK_FOLLOWING.md) |
+docs/README.md:73: | Review the firmware saved-state store | [Saved-state store, F1](../sw/firmware/ctrl_nvm/README.md) |
+docs/README.md:74: | Review the firmware AECP owner and its evidence | [AECP core and adapters, F5](../sw/firmware/ctrl/aecp/README.md) |
+docs/guides/VERIFICATION_DEVELOPER.md:123: 
+docs/guides/VERIFICATION_DEVELOPER.md:124: ### One LiteX simulation
+docs/guides/VERIFICATION_DEVELOPER.md:125: 
+docs/guides/VERIFICATION_DEVELOPER.md:126: Activate the documented [LiteX environment](../litex/LITEX_SOC.md#7-reproducibility---versions).
+docs/guides/VERIFICATION_DEVELOPER.md:127: 
+docs/guides/VERIFICATION_DEVELOPER.md:128: ```sh
+docs/guides/VERIFICATION_DEVELOPER.md:129: python3 sw/litex/test_gmii_rx_capture.py
+docs/guides/VERIFICATION_DEVELOPER.md:130: ```
+docs/reference/REGISTER_MAP.md:423: Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`.
+docs/reference/REGISTER_MAP.md:424: It reads Clause-22 link, speed and duplex over bit-bang MDIO.
+docs/reference/REGISTER_MAP.md:425: The existing CDC carries this publication to MAC_STATUS.
+docs/reference/REGISTER_MAP.md:426: Fabric LINK_UP and LINK_DOWN counters consume the resulting link edges.
+docs/reference/REGISTER_MAP.md:427: The PHY polling budget is documented in the [firmware contract](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer).
+docs/reference/REGISTER_MAP.md:428: Physical switch-cycle acceptance is recorded in the [#599 link-cycle finding](../findings/599_394_E1_LINK_CYCLES.md).
+docs/reference/REGISTER_MAP.md:429: 
+docs/design/MEDIA_CLOCK_FOLLOWING.md:1: <!-- SPDX-FileCopyrightText: 2026 Kebag Logic -->
+docs/design/MEDIA_CLOCK_FOLLOWING.md:2: <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+docs/design/MEDIA_CLOCK_FOLLOWING.md:3: 
+docs/design/MEDIA_CLOCK_FOLLOWING.md:4: # Media-clock following: one selected AAF or CRF source
+docs/design/MEDIA_CLOCK_FOLLOWING.md:5: 
+docs/design/MEDIA_CLOCK_FOLLOWING.md:6: Relates to #629. **Implemented by lane M2** on branch `629-media-clock-impl`;
+docs/design/MEDIA_CLOCK_FOLLOWING.md:7: [Implementation notes](#implementation-notes) lists where the implementation
+docs/design/MEDIA_CLOCK_FOLLOWING.md:8: departs from a statement below. Its processor part **landed at `631eeb34`**
+docs/design/MEDIA_CLOCK_FOLLOWING.md:9: ([Protocol-processor changes](#protocol-processor-changes)). The design was
+docs/design/MEDIA_CLOCK_FOLLOWING.md:10: written against dev `d4dd7426`. Every code citation is `path:line` at that
+docs/design/MEDIA_CLOCK_FOLLOWING.md:11: commit, and every `protocol-processor/` path is at the then-pinned submodule
+docs/design/MEDIA_CLOCK_FOLLOWING.md:12: commit `b2db3a97`.
+docs/design/MEDIA_CLOCK_FOLLOWING.md:13: 
+docs/design/MEDIA_CLOCK_FOLLOWING.md:14: The end station is to follow either an AAF talker's media clock or a CRF
+docs/design/MEDIA_CLOCK_FOLLOWING.md:15: talker's media clock, with exactly one source selected at a time through its
+docs/design/MEDIA_CLOCK_FOLLOWING.md:16: CLOCK_DOMAIN. The decision is recorded in #629's body (2026-10-01). It reverses
+docs/design/MEDIA_CLOCK_FOLLOWING.md:17: #389 option (a) for AAF Stream Inputs, and the CRF path stays.
+docs/design/MEDIA_CLOCK_FOLLOWING.md:18: 
+docs/design/MEDIA_CLOCK_FOLLOWING.md:19: This page records the clause reading behind the change, the current state, the
+docs/design/MEDIA_CLOCK_FOLLOWING.md:20: design with its options, the change lists for this repository and for the
+docs/design/MEDIA_CLOCK_FOLLOWING.md:21: protocol processor, and the test plan. The page itself carried no RTL,
+docs/design/MEDIA_CLOCK_FOLLOWING.md:22: builder, model, configuration or processor change; lane M2 made them.
+docs/design/MEDIA_CLOCK_FOLLOWING.md:23: 
+docs/design/MEDIA_CLOCK_FOLLOWING.md:24: **Where the decisions stand: every one is ruled.**
+docs/design/MEDIA_CLOCK_FOLLOWING.md:25: 
+docs/design/MEDIA_CLOCK_FOLLOWING.md:26: - The [rulings on round 1](https://github.com/kebag-logic/milan-fpga/issues/629#issuecomment-5935520588)
+docs/design/MEDIA_CLOCK_FOLLOWING.md:27:   accepted D2, D3 and D6, filed D7 as
+docs/design/MEDIA_CLOCK_FOLLOWING.md:28:   [#632](https://github.com/kebag-logic/milan-fpga/issues/632) and the
+sw/litex/test_gmii_rx_capture.py:1: #!/usr/bin/env python3
+sw/litex/test_gmii_rx_capture.py:2: # SPDX-FileCopyrightText: 2026 Kebag Logic
+sw/litex/test_gmii_rx_capture.py:3: # SPDX-License-Identifier: CERN-OHL-W-2.0
+sw/litex/test_gmii_rx_capture.py:4: """Check GMII capture against its pre-patch synchronous-reset contract.
+sw/litex/test_gmii_rx_capture.py:5: 
+sw/litex/test_gmii_rx_capture.py:6: The oracle follows pad samples, not the implementation's internal signals.
+sw/litex/test_gmii_rx_capture.py:7: Every byte is sampled with both valid levels and both reset levels. Reset
+sw/litex/test_gmii_rx_capture.py:8: also changes between edges, including at the last-byte boundary. A reset
+sw/litex/test_gmii_rx_capture.py:9: mask using the live reset instead of its sampled value must fail here.
+sw/litex/test_gmii_rx_capture.py:10: """
+sw/litex/test_gmii_rx_capture.py:11: 
+sw/litex/test_gmii_rx_capture.py:12: from collections.abc import Generator
+sw/litex/test_gmii_rx_capture.py:13: import argparse
+sw/litex/test_gmii_rx_capture.py:14: from pathlib import Path
+sw/litex/test_gmii_rx_capture.py:15: import re
+sw/litex/test_gmii_rx_capture.py:16: 
+sw/litex/test_gmii_rx_capture.py:17: from migen import ClockDomain, Instance, Module, Record, Signal
+sw/litex/test_gmii_rx_capture.py:18: from migen.fhdl import verilog
+sw/litex/test_gmii_rx_capture.py:19: from migen.sim import run_simulation
+sw/litex/test_gmii_rx_capture.py:20: from liteeth.phy.gmii import LiteEthPHYGMIIRX
+docs/findings/599_394_E1_LINK_CYCLES.md:1: <!-- SPDX-FileCopyrightText: 2026 Kebag Logic -->
+docs/findings/599_394_E1_LINK_CYCLES.md:2: <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
+docs/findings/599_394_E1_LINK_CYCLES.md:3: 
+docs/findings/599_394_E1_LINK_CYCLES.md:4: # Published link state over ten e1 switch power cycles
+docs/findings/599_394_E1_LINK_CYCLES.md:5: 
+docs/findings/599_394_E1_LINK_CYCLES.md:6: Refs #599 and #394. Operator [A438], measured 2026-09-29, under the
+docs/findings/599_394_E1_LINK_CYCLES.md:7: [bench assignment](https://github.com/kebag-logic/milan-fpga/issues/599#issuecomment-5884216527).
+docs/findings/599_394_E1_LINK_CYCLES.md:8: 
+docs/findings/599_394_E1_LINK_CYCLES.md:9: | Acceptance | Verdict | Evidence |
+docs/findings/599_394_E1_LINK_CYCLES.md:10: |---|---|---|
+docs/findings/599_394_E1_LINK_CYCLES.md:11: | #599 acceptance 4, first half: does a switch cycle drop the DUT PHY link? | PASS: it drops | The firmware's BMSR publication fell 2.31-2.56 s after OFF and returned 37.07-37.32 s after OFF. The inline capture point does not hold the link up. See [Link-drop proof](#link-drop-proof). |
+docs/findings/599_394_E1_LINK_CYCLES.md:12: | #599 acceptance 4: +1/+1 on LINK_DOWN/LINK_UP in every cycle | PASS | Ten of ten cycles: LINK_DOWN +1 and LINK_UP +1, DUT 2/1 before cycle 1 and 12/11 after cycle 10. MAC_STATUS went `0x0d`, `0x00`, `0x0d` in every cycle. |
+docs/findings/599_394_E1_LINK_CYCLES.md:13: | #394 acceptance 2, e1 only | PASS | Ten of ten cycles recovered the reservation, both bindings, asCapable and MEDIA_LOCKED with no reboot and no re-bind. GET_COUNTERS showed LINK_DOWN, LINK_UP and MEDIA_UNLOCKED +1 each per cycle. gPTP recovered in 0.544-1.786 s against the 5 s bound. The restart time is recorded, not graded against #75. |
+docs/findings/599_394_E1_LINK_CYCLES.md:14: 
+docs/findings/599_394_E1_LINK_CYCLES.md:15: These are operator measurements, not review verdicts.
+docs/findings/599_394_E1_LINK_CYCLES.md:16: 
+docs/findings/599_394_E1_LINK_CYCLES.md:17: The [#387 page](387_SOFTWARE_GM_STEP.md) records the same session's grandmaster steps.
+docs/findings/599_394_E1_LINK_CYCLES.md:18: 
+docs/findings/599_394_E1_LINK_CYCLES.md:19: ## Contents
+docs/findings/599_394_E1_LINK_CYCLES.md:20: 
+docs/findings/599_394_E1_LINK_CYCLES.md:21: - **[Identity and setup](#identity-and-setup)** -- The image, its identity readback, and the starting bench state.
+docs/findings/599_394_E1_LINK_CYCLES.md:22: - **[Method and limits](#method-and-limits)** -- How the link state was read, what was sampled, and the timing limits.
+docs/findings/599_394_E1_LINK_CYCLES.md:23: - **[Link-drop proof](#link-drop-proof)** -- The read-only switch cycle that answered #599's first question.
+docs/findings/599_394_E1_LINK_CYCLES.md:24: - **[Per-cycle results](#per-cycle-results)** -- Link edges, counters, recovery and restart in each of ten cycles.
+docs/findings/599_394_E1_LINK_CYCLES.md:25: - **[Counters and media](#counters-and-media)** -- Counter blocks before and after, and the media observations.
+docs/findings/599_394_E1_LINK_CYCLES.md:26: - **[Restore and validation](#restore-and-validation)** -- The restored bench, the DUT's saved-state residue and its cause.
+docs/findings/599_394_E1_LINK_CYCLES.md:27: - **[Artifact hashes](#artifact-hashes)** -- Image, tool and raw-capture identities, and where the packet and raw captures are kept.
+docs/findings/599_394_E1_LINK_CYCLES.md:28: 
+docs/findings/599_394_E1_LINK_CYCLES.md:29: ## Identity and setup
+docs/findings/599_394_E1_LINK_CYCLES.md:30: 
+docs/findings/599_394_E1_LINK_CYCLES.md:31: The image is dev `13eda870d1a6cf3f946fc228a98862366b08d102`, seed `eto`.
+docs/findings/599_394_E1_LINK_CYCLES.md:32: 
+docs/findings/599_394_E1_LINK_CYCLES.md:33: The lane base is the same commit, so no source differs.
+docs/findings/599_394_E1_LINK_CYCLES.md:34: 
+docs/findings/599_394_E1_LINK_CYCLES.md:35: | Identity check | Result |
+
+== all finding quotations located independently ==
+D0-001: README.md:60: ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.
+D0-002: README.md:141: clock-source selection now reaches the media plane's wrapper but nothing there
+D0-003: README.md:418: Stream restart latency after an ACMP rebind (2026-08, OPEN)
+D0-004: README.md:440: **Not the index-bus narrowing** in `KL_lwsrp_ctx.sv`
+D0-005: README.md:470: is **steerability**. `media_tick_p` is a compile-time constant with no
+D0-006: docs/reference/REGISTER_MAP.md:1226: attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value
+D0-007: docs/reference/REGISTER_MAP.md:1286: (STREAM_INPUT[0], Milan Table 7-156)
+D0-008: docs/reference/REGISTER_MAP.md:199: The Milan Table 7-156 stream counters
+D0-009: docs/reference/REGISTER_MAP.md:423: Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`.
+D0-010: docs/integration/BOARD_PORTING_AX7101.md:110: acceptance remains on [#599](https://github.com/kebag-logic/milan-fpga/issues/599).
+D0-011: docs/integration/BAREMETAL_FIRMWARE.md:215: pending #403, which decides the receive-filter posture
+D0-012: docs/integration/BAREMETAL_FIRMWARE.md:218: `srp.talker_declare_at_reset`, pending #400
+D0-013: docs/integration/BAREMETAL_FIRMWARE.md:219: block count `MILAN_N_TALKERS` + 1 in `[15:8]`
+D0-014: docs/reference/REGISTER_MAP.md:1427: | `0x7D4` | `AEMP_CTRL` | W1S / RO |
+D0-015: docs/reference/REGISTER_MAP.md:419: `[0]` phy_reset_n (0 = hold PHY in reset)
+D0-016: docs/reference/REGISTER_MAP.md:752: `[1]` manual mac_reinit (hold MAC sys-side in reset)
+D0-017: docs/reference/REGISTER_MAP.md:416: | `0x110` | `MAC_STATUS` | RO | – |
+D0-018: docs/reference/REGISTER_MAP_CLASSES.md:101: | `0x7C8–0x7D4` | AEM saved-state write master |
+D0-019: docs/reference/FR_NFR.md:173: | **FR-QOS-01..03** | **MET** | Classifier + CBS untouched;
+D0-020: docs/reference/FR_NFR.md:277: 802.1Q / 802.1Qav  *(already in HW)*
+D0-021: docs/reference/MILAN_COMPLIANCE_MATRIX.md:265: | 8.6.8.1 | strict priority (non-CBS queues) | fabric | implemented
+D0-022: docs/reference/MILAN_COMPLIANCE_MATRIX.md:266: | 8.6.8.2 | credit-based shaper: idleSlope/sendSlope, transmitAllowed
+D0-023: README.md:41: | TSN datapath in fabric | MAC · 802.1Qav CBS · gPTP
+
+Deleted module check: []
+Changed paths:
+.github/ci-templates/docs.yml
+.github/workflows/docs.yml
+ci/image/command-table.json
+docs/DOCUMENTATION_AUDIT.md
+docs/README.md
+docs/guides/VERIFICATION_DEVELOPER.md
+docs/reference/REGISTER_MAP.md
+scripts/ci_events.py
+scripts/docs_inventory.json
+scripts/docs_inventory.py
+

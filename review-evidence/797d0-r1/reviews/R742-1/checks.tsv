@@ -1,0 +1,45 @@
+id	rc	seconds	command
+1	0	8.78	python3 scripts/docs_check.py
+2	0	3.52	python3 scripts/check_em_dash.py --base 1e80128f
+3	0	3.57	python3 scripts/check_em_dash.py --selftest
+4	0	0.07	python3 scripts/check_doc_style.py
+5	0	0.04	python3 scripts/check_doc_style.py --selftest
+6	0	0.1	python3 scripts/check_doc_paths.py
+7	0	0.27	python3 scripts/check_gptp_docs.py
+8	0	0.3	python3 scripts/check_gptp_docs.py --selftest
+9	0	0.26	python3 scripts/check_gptp_docs.py --with-submodule
+10	0	0.15	python3 scripts/check_solution_docs.py
+11	0	4.2	python3 scripts/check_solution_docs.py --selftest
+12	0	0.61	python3 scripts/check_submodule_docs.py
+13	0	0.06	python3 scripts/check_submodule_docs.py --selftest
+14	0	0.38	python3 scripts/check_diagram_pngs.py
+15	0	8.02	python3 scripts/check_diagram_pngs.py --selftest
+16	0	1.45	python3 scripts/check_feature_status.py --self-test
+17	0	29.24	python3 scripts/check_baremetal_only.py --check
+18	0	10.08	python3 scripts/check_baremetal_only.py --selftest
+19	0	0.55	python3 scripts/check_archive.py
+20	0	0.06	python3 scripts/check_archive.py --selftest
+21	0	1.1	python3 scripts/gen_toc.py --selftest
+22	0	5.82	python3 scripts/gen_toc.py --verify-anchors
+23	0	7.69	python3 scripts/gen_toc.py --check
+24	0	1.84	python3 scripts/docs_inventory.py --check
+25	0	0.26	python3 scripts/docs_inventory.py --selftest
+26	0	0.71	python3 scripts/ci_gate_workflows.py --check
+27	0	0.93	python3 scripts/ci_events.py --check
+28	0	213.32	python3 scripts/ci_events.py --selftest
+29	0	6.57	python3 scripts/check_py_idiom.py
+30	0	6.52	python3 scripts/check_py_idiom.py --selftest
+31	0	0.27	python3 scripts/check_sh_idiom.py
+32	0	0.27	python3 scripts/check_sh_idiom.py --selftest
+33	0	0.49	python3 scripts/check_hygiene.py --check
+34	0	0.5	python3 scripts/check_hygiene.py --selftest
+35	0	2.37	python3 scripts/check_todo_ownership.py
+36	0	2.46	python3 scripts/check_todo_ownership.py --selftest
+37	0	0.41	python3 docs/DOC_MAP.gen.py --check
+38	0	0.5	python3 docs/DOC_MAP.gen.py --selftest
+39	0	0.38	python3 docs/diagrams/timesync_chain.gen.py --check
+40	0	0.48	python3 docs/diagrams/timesync_chain.gen.py --selftest
+41	0	0.51	python3 docs/diagrams/submodule_boundaries.gen.py --check
+42	0	0.6	python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+43	0	1.45	python3 docs/traceability/gen_module_matrix.py --check
+44	0	0.01	bash scripts/run_litex_sims.sh --list
