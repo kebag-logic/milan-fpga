@@ -268,6 +268,12 @@ def registered(g: Group, p: Point, seq: list[int]) -> tuple[tuple[int, int], ...
     return tuple((ctl, i) for i in range(p.interfaces) for ctl in controllers)
 
 
+def refilled_ms() -> int:
+    """The longest any channel's token bucket takes to refill from empty, burst x refill_ms (KL_mbx_rx.sv), plus
+    one period: a composed window opened after the registrations waits this long, so it opens on full buckets."""
+    return max((ch.burst + 1) * ch.refill_ms for ch in scenario.CONTRACT.channels)
+
+
 def counter_descriptors(build: dict) -> list[tuple[int, int]]:
     """Every (type, index) of the configuration in force whose counters the datapath serves."""
     return [(kind, index) for config, kind, index, _ in scenario.descriptors(build)
@@ -320,7 +326,7 @@ def loaded_notify_group(p: Point) -> Group:
     scenario.ready(g, p)
     scenario.announced(g)
     everyone = registered(g, p, [0x5700])
-    g.add('gap 1', 'mark composed')
+    g.add(f'wait cycles {refilled_ms() * MS}', 'gap 1', 'mark composed')
     scenario.gm_run(g, p)
     scenario.composed_load(g, p, own='aecp')
     burst = scenario.admission('aecp', f.read_descriptor(f.Aem(p.entity_id, scenario.CTL1, scenario.CTL_MAC,
@@ -349,7 +355,7 @@ def loaded_counters_group(p: Point) -> Group:
     scenario.ready(g, p)
     scenario.announced(g)
     everyone = registered(g, p, [0x5800])
-    g.add('gap 1', 'mark composed')
+    g.add(f'wait cycles {refilled_ms() * MS}', 'gap 1', 'mark composed')
     scenario.gm_run(g, p)
     scenario.composed_load(g, p, own='')
     g.probe(Probe('counters.loaded.if0', 'GET_COUNTERS push under the composed load (H-COUNTERS)', 'notify',

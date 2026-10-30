@@ -367,6 +367,22 @@ def check_aging_group() -> None:
         expect(armed < mark, f'interface {i}: the window opens before the arm ({armed} > {mark})')
 
 
+def check_buckets_full() -> None:
+    """Each composed row of this harness opens its window after the registrations and a wait for every channel's
+    token bucket to refill from empty (burst x refill_ms, mailbox.yaml)."""
+    expect(hooks.refilled_ms() >= max(ch.burst * ch.refill_ms for ch in scenario.CONTRACT.channels),
+           f'refill wait {hooks.refilled_ms()} ms')
+    point = scenario.Point('1x1', 'endstation_ax7101_1x1_tdm8', 1, 1, 2, 1, 1)
+    for make in (hooks.loaded_notify_group, hooks.loaded_counters_group):
+        steps = make(point).steps
+        opened = steps.index('mark composed')
+        last = max(n for n, s in enumerate(steps) if s.startswith('frame ') and n < opened)
+        waits = [s for s in steps[last:opened] if s.startswith('wait cycles ')]
+        cycles = sum(int(s.split()[2]) for s in waits)
+        expect(cycles >= hooks.refilled_ms() * MS, f'{make.__name__}: {cycles} bus cycles between the last '
+                                                   f'registration and the window')
+
+
 CHECKS: dict[str, Callable[[], None]] = {
     'bounds pinned': check_bounds, 'an 18 to 20 ms SRP path misses': check_srp_instance,
     'the exact bound fits and W adds': check_exact_bound, 'the hooks map': check_hooks_map,
@@ -377,6 +393,7 @@ CHECKS: dict[str, Callable[[], None]] = {
     'the held push': check_held_push, 'H-MAAP ordering': check_maap_order, 'H-SRP ordering': check_srp_order,
     'findings by hook': check_findings, 'a refusal is superseded only by its own path': check_superseded,
     'the aging window opens after the arm': check_aging_group,
+    'a composed row opens on full buckets': check_buckets_full,
 }
 
 
@@ -441,6 +458,9 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
                                                 *(f'wait tmr {2 + i} 1 within 1' for i in range(2)),
                                                 *(f'mark hooks-disc-aging.tmr_no_adp.if{i}' for i in range(2))])),
      'the aging window opens after the arm'),
+    ('buckets: the window opens right after the registrations (the earlier rule)', mutant(hooks, 'refilled_ms',
+                                                                                     lambda: 0),
+     'a composed row opens on full buckets'),
     ('findings: a path over its bound is not a finding', mutant(run, 'hook_row', lambda r, g: dict(
         HOOK_ROW(r, g), within=True)), 'findings by hook'),
 ]
