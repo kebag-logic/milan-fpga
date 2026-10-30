@@ -1,0 +1,7 @@
+PASS: fresh 1x1 record equals author published record, including every case, cycle count and verdict
+PASS: all 7 build.json records agree with result clocks
+PASS: raw result, table, case scripts, simulation logs and journals retained
+Real regrade missing-clock rc: 2
+REFUSED: the builds record different clocks (CPU Hz, bus Hz): {'capture-all': (None, 100000000), 'fixture': (50000000, 100000000), 'guard-probe': (50000000, 100000000), 'fixture+settle-after-names': (50000000, 100000000), 'fixture+bindings-after-d3': (50000000, 100000000), 'guard-probe+guard-removed': (50000000, 100000000), 'fixture+slow-step': (50000000, 100000000)}
+OBSERVED: real missing-clock refusal retains the previous successful table byte-for-byte
+PASS: disposable build record restored byte-for-byte

@@ -1,0 +1,8 @@
+PASS: 1x1 published figures independently convert at 50 MHz; 3 tables reproduce byte-for-byte
+PASS: 1x1 missing clocks and relabelled 100 MHz refused
+PASS: 8x8 published figures independently convert at 50 MHz; 3 tables reproduce byte-for-byte
+PASS: 8x8 missing clocks and relabelled 100 MHz refused
+PASS: differently clocked synthetic input renders 62.5/125 MHz at all 3 tables
+OBSERVED: successful run rc=0; wrong-build-clock rerun rc=2; previous table remains byte-identical
+OBSERVED: retained table says 62.5/125 MHz; replaced results.json says 50/100 MHz
+OBSERVED: built-in main_run uses a new TemporaryDirectory per invocation, so does not test this case
