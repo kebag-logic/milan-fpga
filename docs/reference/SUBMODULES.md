@@ -382,7 +382,9 @@ Its shipping route meets timing at +0.303 ns WNS.
 
 Issue #787 adopts processor pin `013ee63f`.
 
-It is the reviewed head of processor issue #203's lane, processor PR #209.
+It is the reviewed head of processor PR #209.
+
+That PR carries processor issue #203.
 
 The pin stays local until that PR merges.
 
@@ -390,11 +392,11 @@ Its merge commit carries the same tree, `b0f66acb`.
 
 The lane first pinned `1be824fc`.
 
-At `013ee63f` the request rises only after every frame already started has left the processor.
+At `013ee63f`, every started frame leaves before the request.
 
 That holds with or without an ENTITY_DEPARTING.
 
-Neither the top's ports nor its parameters change between the two pins.
+The top's ports and parameters match across both pins.
 
 FPGA-gPTP stays at `f97c1803`.
 
@@ -410,9 +412,13 @@ No parameter or register changes.
 
 `KL_reboot_ctrl` resets the end station on it.
 
-The request now rises after the last frame has left the processor, but before it has left the MAC.
+The request rises once frames leave the processor.
 
-So `KL_reboot_ctrl` holds the PHY only once every frame given to the MAC has reached its PHY.
+They may still be inside the MAC then.
+
+So `KL_reboot_ctrl` first waits for the MAC to empty.
+
+Only then does it hold the PHY in reset.
 
 The [reset design](../design/REBOOT_RESET.md) records that decision.
 
