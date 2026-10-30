@@ -1,0 +1,10 @@
+$ gate check <probes>/comparison-population/ax7101/gateware --endpoint route-1x1 --comparison <probes>/comparison-population/ax7101-AltSpreadLogic_high --comparison <probes>/comparison-population/ax7101-ExtraTimingOpt
+endpoint route-1x1: <probes>/comparison-population/ax7101/gateware
+route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns
+  ExtraPostPlacementOpt      0.303   0.028  <probes>/comparison-population/ax7101/gateware
+  AltSpreadLogic_high         0.23   0.014  <probes>/comparison-population/ax7101-AltSpreadLogic_high
+  ExtraTimingOpt             0.106   0.054  <probes>/comparison-population/ax7101-ExtraTimingOpt
+directive ExtraPostPlacementOpt selected: the best worst-corner WNS, 0.303 ns
+NOT COMPARABLE: ExtraTimingOpt: wrong placement all-fabric: adp (KL_adp_engine) count 0, expected 1..1; measure a split image with its --placement
+
+rc=2

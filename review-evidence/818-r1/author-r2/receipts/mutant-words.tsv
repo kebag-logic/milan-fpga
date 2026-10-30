@@ -1,0 +1,17 @@
+mutant	selftest rc	failing words
+timing floor	1	AssertionError: route arm 'WNS below the floor': exit 0, wanted 1 naming 'below the floor 0.03 at Slow_0C, Slow_85C'
+timing floor boundary	1	AssertionError: route arm 'WNS at the floor': exit 1, wanted 0 naming 'RESULT: PASS'
+timing fall	1	AssertionError: route arm 'WNS below the floor and fell more than the timing fall: both reported': exit 1, wanted 1 naming ('REGRESSION: below the floor 0.03 at Slow_0C, Slow_85C; WARNING: fell by more than 0.25 from the record', 'WARNING: WNS_ns fell from the record', 'RESULT: MATERIAL REGRESSION')
+timing fall boundary	1	AssertionError: route arm 'WNS fell by exactly the timing fall': exit 0, wanted 0 naming 'RESULT: PASS' and not 'WARNING'
+verdict status	1	AssertionError: route arm 'LUT growth over the tolerance': exit 0, wanted 1 naming 'LUT'
+floor names its corners	1	AssertionError: route arm 'WNS below the floor': exit 1, wanted 1 naming 'below the floor 0.03 at Slow_0C, Slow_85C'
+a fall never fails	1	AssertionError: route arm 'WNS fell more than the timing fall: a warning, never a failure': exit 1, wanted 0 naming ('WARNING: fell by more than 0.25 from the record', 'WARNING: WNS_ns fell from the record', 'RESULT: PASS') and not 'REGRESSION'
+fall warned beside a floor miss	1	AssertionError: route arm 'WNS below the floor and fell more than the timing fall: both reported': exit 1, wanted 1 naming ('REGRESSION: below the floor 0.03 at Slow_0C, Slow_85C; WARNING: fell by more than 0.25 from the record', 'WARNING: WNS_ns fell from the record', 'RESULT: MATERIAL REGRESSION')
+fall warning summarized beside a floor miss	1	AssertionError: route arm 'WNS below the floor and fell more than the timing fall: both reported': exit 1, wanted 1 naming ('REGRESSION: below the floor 0.03 at Slow_0C, Slow_85C; WARNING: fell by more than 0.25 from the record', 'WARNING: WNS_ns fell from the record', 'RESULT: MATERIAL REGRESSION')
+fall warning summarized	1	AssertionError: route arm 'WNS below the floor and fell more than the timing fall: both reported': exit 1, wanted 1 naming ('REGRESSION: below the floor 0.03 at Slow_0C, Slow_85C; WARNING: fell by more than 0.25 from the record', 'WARNING: WNS_ns fell from the record', 'RESULT: MATERIAL REGRESSION')
+corners agree with the summary	1	AssertionError: route arm "a corner's WNS below the summary's": exit 0, wanted 2 naming "the signoff corners' worst WNS_ns is 0.45 and the timing summary's 0.5: the reports are not of one run"
+corners agree in both directions	1	AssertionError: route arm "the summary's WNS below every corner's, under the floor": exit 0, wanted 2 naming "the signoff corners' worst WNS_ns is 0.5 and the timing summary's 0.01: the reports are not of one run"
+corners agree in the other direction	1	AssertionError: route arm "a corner's WNS below the summary's": exit 0, wanted 2 naming "the signoff corners' worst WNS_ns is 0.45 and the timing summary's 0.5: the reports are not of one run"
+ceiling judged on the selected route	1	AssertionError: route-set arm 'a selected comparison is judged on the BRAM tile ceiling': exit 0, wanted 1 naming ('directive AltSpreadLogic_high selected', 'REGRESSION: 5.5 exceeds the ceiling 5.0')
+ceiling not judged on a route not selected	1	AssertionError: route-set arm 'a route not selected is not judged on the BRAM tile ceiling': exit 1, wanted 0 naming ('RESULT: PASS',) and not 'ceiling'
+ceiling	1	AssertionError: route arm 'BRAM tiles over the ceiling': exit 0, wanted 1 naming 'ceiling'

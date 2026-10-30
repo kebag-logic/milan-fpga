@@ -1,0 +1,29 @@
+PASS dev-control: rc=0 want 0
+PASS ctrl-control: rc=0 want 0
+PASS best-whs-one-corner: rc=1 want 1
+PASS best-wns-one-corner: rc=1 want 1
+PASS other-below-floor: rc=0 want 0
+PASS shipping-misses-best-meets: rc=0 want 0
+PASS shipping-misses-marked-alone: rc=1 want 1
+PASS large-fall: rc=0 want 0
+PASS selected-lut-over: rc=1 want 1
+PASS unselected-lut-over: rc=0 want 0
+PASS comparison-extra-command: rc=2 want 2
+PASS comparison-other-checkpoint: rc=2 want 2
+PASS comparison-threads: rc=2 want 2
+PASS comparison-shipping-directive: rc=2 want 2
+PASS duplicate-comparison: rc=2 want 2
+PASS one-comparison: rc=2 want 2
+PASS shipping-as-comparison: rc=2 want 2
+PASS set-and-mark: rc=2 want 2
+PASS comparison-tool: rc=2 want 2
+PASS comparison-population: rc=2 want 2
+PASS comparison-unrouted: rc=1 want 1
+PASS comparison-corner-missing: rc=2 want 2
+PASS selected-corner-foreign: rc=2 want 2
+PASS record-write: rc=0 want 0
+PASS record-write-content: WNS 0.342
+PASS record-write-recheck: rc=0 want 0
+PASS record-write-marked-shipping: rc=0 want 0
+PASS record-write-baseline: rc=0 want 0
+route probes: 28 PASS, 0 FAIL []

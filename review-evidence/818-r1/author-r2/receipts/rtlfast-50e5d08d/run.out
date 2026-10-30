@@ -1,0 +1,17 @@
+rc=0     0.0s changes[1] Set CPU-derived job budgets
+rc=0    20.3s changes[2] Classify the change conservatively
+JOB changes: success
+rc=0     0.0s bdd-conformance[1] Set CPU-derived job budgets
+rc=0     0.0s bdd-conformance[3] Fetch the processor model inputs
+rc=0     1.4s bdd-conformance[4] Install behave
+rc=0     3.5s bdd-conformance[5] Run the specification-facing suite
+JOB bdd-conformance: success
+rc=0     0.0s yosys-elaboration[1] Set CPU-derived job budgets
+rc=0     0.0s yosys-elaboration[2] Fetch RTL dependencies
+rc=0   103.3s yosys-elaboration[7] Elaborate the integration-heavy tops
+rc=0   551.7s yosys-elaboration[8] Prove the OOC read sets come from run.sh and refuse a bad one
+rc=0    41.4s yosys-elaboration[9] Prove ooc.sh generates the ROMs and fails on a failed top
+rc=0    39.5s yosys-elaboration[10] Prove both synthesis flows refuse active elaboration guards
+rc=0    53.8s yosys-elaboration[11] Prove the result cache refuses a planted entry
+JOB yosys-elaboration: success
+rtl-fast: partial; failed jobs: none; head 50e5d08dda6e89cf010a740cea5cf4539807db01

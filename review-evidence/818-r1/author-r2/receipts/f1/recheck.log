@@ -1,0 +1,18 @@
+endpoint route-1x1: <work>/ax7101/gateware
+directive ExtraPostPlacementOpt: the one route, marked as the shipping selection
+figure        baseline   candidate     delta  verdict
+LUT              51801       51801         0  ok
+FF               53760       53760         0  ok
+SLICE            15834       15834         0  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns           0.303       0.303       0.0  ok
+WHS_ns           0.028       0.028       0.0  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.303  WHS_ns    0.051
+  Slow_85C  WNS_ns    0.303  WHS_ns    0.051
+  Fast_0C   WNS_ns    1.633  WHS_ns    0.028
+  Fast_85C  WNS_ns    1.633  WHS_ns    0.028
+route status: complete, no unrouted net and no routing error
+RESULT: PASS
