@@ -737,7 +737,8 @@ def control(name: str, mutate: Mutation, want: int, needle: str = "", says: str 
 def append(path: str, text: str) -> Mutation:
     """A mutation appending text to one fixture file."""
     def mutate(root: Path) -> None:
-        """Append the text."""
+        """Append the text, creating the file and its directory when absent."""
+        (root / path).parent.mkdir(parents=True, exist_ok=True)
         with (root / path).open("a", encoding="utf-8") as handle:
             handle.write(text)
     return mutate
@@ -771,6 +772,12 @@ def add_tracked(path: str, text: str) -> Mutation:
     return mutate
 
 
+def without_git(root: Path) -> None:
+    """A tree with no Git metadata whose submodule is checked out: an archive of a recursive clone."""
+    shutil.rmtree(root / ".git")
+    append("protocol-processor/README.md", "# Submodule page\n")(root)
+
+
 def selftest() -> int:
     """`--check` itself on Git fixtures: every status rule, planted stale pages and the data refusals."""
     stale_cell = "| stale | 1 finding(s): D0-001 |"
@@ -799,8 +806,8 @@ def selftest() -> int:
         ("lines as wc -l counts them", lambda root: None, 0, "\n| [docs/guides/A.md](guides/A.md) | 3 |"),
         ("an unterminated last line counts", lambda root: None, 0, "\n| [docs/guides/C.md](guides/C.md) | 3 |"),
         ("a README without .md is a document", lambda root: None, 0, "| [tb/README](../tb/README) |"),
-        ("the walk without Git renders the same page", lambda root: shutil.rmtree(root / ".git"), 0, "",
-         "is fresh"),
+        ("the walk without Git renders the same page and skips a checked-out submodule", without_git, 0,
+         "", "is fresh", "protocol-processor/README.md"),
         ("supersession banner", append("docs/guides/B.md", "\n> Superseded by [A](A.md).\n"), 1,
          "| superseded | banner at line 5 names `docs/guides/A.md` |", "STALE"),
         ("archive page is obsolete with its successor", lambda root: None, 0,
