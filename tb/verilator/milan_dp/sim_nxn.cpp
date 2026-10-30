@@ -5849,11 +5849,16 @@ class NxnDatapathHarness {
     //  notifications (IEEE 1722.1-2021 7.4.37), sets IDENTIFY to 255
     //  (SET_CONTROL, 7.4.25) and locks the entity (LOCK_ENTITY, 7.4.2), and
     //  each is proved to have taken before the cycle, so no reading after it
-    //  can pass on a premise that never held. The planted power cycle then
-    //  resets the whole datapath with the saved-state window KEPT, loads it
-    //  as the firmware does and walks the restore to its terminal. After it
-    //  GET_CONTROL reads IDENTIFY 0, and controller B's SET_NAME is accepted
-    //  (no lock) and notifies nobody (no registry entry). Nothing the parent
+    //  can pass on a premise that never held. The window holds a saved
+    //  entity name, so the restore before the cycle and the one after it
+    //  each apply a record, and the cut lands inside the processor's
+    //  debounce: the window still holds the saved set, and B's unsaved name
+    //  is lost (D3 section 7.1). The planted power cycle then resets the
+    //  whole datapath with the saved-state window KEPT, loads it as the
+    //  firmware does and walks the restore to its terminal. After it the
+    //  saved name is back, GET_CONTROL reads IDENTIFY 0, and controller B's
+    //  SET_NAME is accepted (no lock) and notifies nobody (no registry
+    //  entry). Nothing the parent
     //  owns can carry the three across the cycle (D3 section 9: none is on
     //  the state bus or has a record id), so dynmap_mutants.py's three
     //  volatile arms delete each one's reset term in a copy of the processor
@@ -5875,11 +5880,42 @@ class NxnDatapathHarness {
         const std::vector<uint8_t> r = aecp_xact_from(c, kAemGetControl, volatile_sq++, key);
         return (r.size() >= 43 && aecp_status(r) == 0) ? static_cast<long>(r[42]) : -1L;
     }
+    //! the entity_name GET_NAME answers `c` ("" when it is not SUCCESS)
+    std::string volatile_entity_name(const Ctlr& c) {
+        const std::vector<uint8_t> key(8, 0);           // ENTITY 0, name 0, cfg 0
+        const std::vector<uint8_t> r = aecp_xact_from(c, 0x0011, volatile_sq++, key);
+        if (r.size() < 110 || aecp_status(r) != 0) return std::string();
+        const char* name = reinterpret_cast<const char*>(r.data() + 46);
+        return std::string(name, strnlen(name, 64));
+    }
 
     void volatile_set_across_a_power_cycle_section() {
         printf("-- [VOLATILE] #70: the lock, the registry and IDENTIFY across a "
                "planted power cycle --\n");
-        if (!maprec_first_boot()) return;
+        static const char kSaved[] = "Volatile-saved";
+        std::string name_hex = "0x80=";
+        for (size_t i = 0; i < 64; i++) {
+            char b[4];
+            snprintf(b, sizeof b, "%02x",
+                     i < sizeof kSaved - 1 ? static_cast<unsigned char>(kSaved[i]) : 0u);
+            name_hex += b;
+        }
+        bring_the_datapath_out_of_reset();
+        axi_write(A_ADP_EIDHI, 0x020000FF);
+        axi_write(A_ADP_EIDLO, 0xFE000001);
+        std::string why;
+        const bool loaded = load_the_saved_state_window(AEMI_CFG_C, {name_hex}, &why);
+        ck("[VOLATILE] a first boot over a window holding a saved entity name",
+           static_cast<unsigned long>(loaded), 1);
+        if (!loaded) {
+            printf("  [i]    %s\n", why.c_str());
+            return;
+        }
+        const std::vector<uint8_t> saved = nmem;
+        start_the_boot_restore_walk();
+        for (int c = 0; c < 2000; c++) step();
+        ck("[VOLATILE] premise: the restore applied the saved entity name",
+           static_cast<unsigned long>(volatile_entity_name(CTL_A) == kSaved), 1);
         notify_clear();
         const std::vector<uint8_t> flags(4, 0);
         ck("[VOLATILE] premise: REGISTER_UNSOLICITED_NOTIFICATION from A is SUCCESS",
@@ -5907,12 +5943,19 @@ class NxnDatapathHarness {
         const std::vector<uint8_t> b2 = notify_set_name(CTL_B, "Volatile-B2", volatile_sq++);
         ck("[VOLATILE] premise: SET_NAME from B is refused ENTITY_LOCKED",
            aecp_status(b2), kAecpEntityLocked);
+        //! B's accepted name is pending in the processor's debounce (D3
+        //! DR2a): a window that moved would make the next check's restore
+        //! a different one, so say so rather than grade it
+        ck("[VOLATILE] premise: the cut lands inside the processor's debounce: the "
+           "window still holds the saved set", static_cast<unsigned long>(nmem == saved), 1);
 
         maprec_power_cycle("[VOLATILE] the power cycle", false);
         const uint32_t st = axi_read(A_PP_STAT);
         printf("  [i]    [VOLATILE] after the power cycle: PP_STAT %08x\n", st);
-        ck("[VOLATILE] the restore reached its terminal: PP_STAT done 1, busy 0, fail 0",
-           static_cast<unsigned long>((st & (kPpDone | kPpBusy | kPpFail)) == kPpDone), 1);
+        ck("[VOLATILE] the restore reached its terminal: PP_STAT done 1, busy 0, fail 0, blank 0",
+           static_cast<unsigned long>((st & (kPpDone | kPpBusy | kPpFail | kPpBlank)) == kPpDone), 1);
+        ck("[VOLATILE] the restore applied the saved entity name again, B's unsaved one lost",
+           static_cast<unsigned long>(volatile_entity_name(CTL_B) == kSaved), 1);
         notify_clear();
         ck("[VOLATILE] IDENTIFY reads 0 after the restore (Milan v1.2 5.3.12)",
            volatile_identify(CTL_B), 0);

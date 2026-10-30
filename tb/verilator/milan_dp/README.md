@@ -883,13 +883,16 @@ stops.
 
 **The volatile set (`[VOLATILE]`, #70).** Milan v1.2 5.3.4.1 clears the lock
 by a power cycle, 5.3.4.2 the registered-controller list, and 5.3.12 makes
-IDENTIFY 0 after reset (D3 section 9). Controller A registers, and
+IDENTIFY 0 after reset (D3 section 9). The leg boots over a window holding
+a saved entity name, and GET_NAME reads it back. Controller A registers, and
 controller B's SET_NAME then notifies A. A sets IDENTIFY to 255, and
 GET_CONTROL reads it back. A then locks the entity, and B's SET_NAME is
-refused ENTITY_LOCKED while `AECP_STAT0[16]` reads the lock. The planted power
-cycle `[MAPREC]` uses follows: the datapath reset with the window kept, the
-firmware's load and the restore walk to its terminal. After it, GET_CONTROL
-reads 0 and `AECP_STAT0[16]` reads no lock. B's SET_NAME is accepted, and that
+refused ENTITY_LOCKED while `AECP_STAT0[16]` reads the lock. The window still
+holds the saved set: B's name is pending in the processor's debounce. The
+planted power cycle `[MAPREC]` uses follows: the datapath reset with the window
+kept, the firmware's load and the restore walk to its terminal. After it the
+restore has applied the saved name again (PP_STAT blank 0), GET_CONTROL reads
+0 and `AECP_STAT0[16]` reads no lock. B's SET_NAME is accepted, and that
 accepted change notifies no controller. The registry check counts only over
 an accepted change, so a lock that survives fails it as well. Nothing the
 parent owns can carry these three across the cycle. So rows 64 to 66 below
@@ -911,8 +914,8 @@ runs that many at once, at most two of them building. Measured on 2026-10-20
 UTC at four jobs, from a clean clone: 63 of 63 mutants caught, each clean
 leg passing. Rows 64 to 66 plant in a copy of the processor's `hdl/` tree
 instead (`PP_DIR`); measured on 2026-10-30 at three jobs: 3 of 3 caught, the
-clean dynmap leg passing at 708 checks. Rows 1 to 63 were measured before
-`[VOLATILE]` added its 22 checks, so their dynmap totals read 686.
+clean dynmap leg passing at 711 checks. Rows 1 to 63 were measured before
+`[VOLATILE]` added its 25 checks, so their dynmap totals read 686.
 
 | # | Leg | Mutant | Named check that fails | Failures |
 |---:|---|---|---|---|
@@ -979,9 +982,9 @@ clean dynmap leg passing at 708 checks. Rows 1 to 63 were measured before
 | 61 | dynmap | the validated-record test ignores the crc16 | `[MAPREC] lone crc-bad input record: PP_STAT blank 1` | 1 of 686 |
 | 62 | dynmap | the validated-record test ignores the layout and the id | `[MAPREC] lone wrong-layout input record: PP_STAT blank 1`; `[MAPREC] lone wrong-id output record: PP_STAT blank 1` | 2 of 686 |
 | 63 | dynmap | the validated-record test ignores the magic and the length | `[MAPREC] lone wrong-magic output record: PP_STAT blank 1` | 1 of 686 |
-| 64 | dynmap (processor copy, `KL_aecp_notify.sv`) | the lock survives the power cycle | `[VOLATILE] the lock is clear after the restore: SET_NAME from B is SUCCESS` | 3 of 708 |
-| 65 | dynmap (processor copy, `KL_aecp_notify.sv`) | the registered-controller list survives the power cycle | `[VOLATILE] the registry is empty after the restore: B's accepted change notifies no controller` | 1 of 708 |
-| 66 | dynmap (processor copy, `KL_aecp_dyn_state.sv`) | the IDENTIFY value survives the power cycle | `[VOLATILE] IDENTIFY reads 0 after the restore` | 1 of 708 |
+| 64 | dynmap (processor copy, `KL_aecp_notify.sv`) | the lock survives the power cycle | `[VOLATILE] the lock is clear after the restore: SET_NAME from B is SUCCESS` | 3 of 711 |
+| 65 | dynmap (processor copy, `KL_aecp_notify.sv`) | the registered-controller list survives the power cycle | `[VOLATILE] the registry is empty after the restore: B's accepted change notifies no controller` | 1 of 711 |
+| 66 | dynmap (processor copy, `KL_aecp_dyn_state.sv`) | the IDENTIFY value survives the power cycle | `[VOLATILE] IDENTIFY reads 0 after the restore` | 1 of 711 |
 
 **The hold's two RAM sites are equivalent on this shape.** The CSR writer's
 hold sits at four places: the input store, the output store and the two

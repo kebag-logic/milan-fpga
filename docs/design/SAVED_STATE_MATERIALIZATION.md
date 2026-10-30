@@ -1874,7 +1874,8 @@ The parent's desk check is the `[VOLATILE]` section of
 cycle: a registration that a second controller's change reaches, IDENTIFY
 read back at 255, and a lock that refuses the second controller. Then it
 resets the whole datapath with the saved-state window kept, loads the window
-and walks the restore. Nothing the parent owns can carry the three across, so
+and walks the restore. The window holds a saved entity name, so that restore
+applies a record, and the name comes back while the three do not. Nothing the parent owns can carry the three across, so
 `dynmap_mutants.py`'s three volatile arms delete each one's reset term in a
 copy of the processor, and each fails its own check. A cold cycle on the
 board is still owed (section 10).
