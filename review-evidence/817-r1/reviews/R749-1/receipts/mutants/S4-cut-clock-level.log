@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+    import sys; sys.path.insert(0, 'sw/builder'); import test_clock_constraints as t; t.test_servo_reset_sync()
+                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<packet>/scratch/mut/S4-cut-clock-level/sw/builder/test_clock_constraints.py", line 246, in test_servo_reset_sync
+    assert result.returncode == 0 and not result.stderr, result.stdout + result.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+servo reset synchronizer cut and refusal controls PASS
+servo cut missing or widened: {set_false_path -from milan -to ps}
+stage order changed the cut: {set_false_path -from milan -to ps}
+

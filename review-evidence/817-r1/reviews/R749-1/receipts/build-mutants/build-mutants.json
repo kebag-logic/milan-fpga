@@ -1,0 +1,58 @@
+[
+ {
+  "mutant": "C1-control-ship",
+  "file": null,
+  "rc": 0,
+  "seconds": 3,
+  "expected": null,
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "E1-hook-call-removed",
+  "file": "sw/litex/milan_soc.py",
+  "rc": 1,
+  "seconds": 3,
+  "expected": "hook missing, duplicated or renamed: []",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "E2-hook-call-duplicated",
+  "file": "sw/litex/milan_soc.py",
+  "rc": 1,
+  "seconds": 3,
+  "expected": "hook missing, duplicated or renamed",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "E3-hook-names-sys-clock",
+  "file": "sw/litex/milan_soc.py",
+  "rc": 1,
+  "seconds": 2,
+  "expected": "hook missing, duplicated or renamed",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "E4-tcl-sourced-twice",
+  "file": "sw/litex/clock_constraints.py",
+  "rc": 1,
+  "seconds": 2,
+  "expected": "constraint Tcl sourced 2 times",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "E5-hook-moved-pre-placement",
+  "file": "sw/litex/clock_constraints.py",
+  "rc": 1,
+  "seconds": 2,
+  "expected": "servo reset synchronizer hook outside pre-optimize",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "E6-hook-skipped-with-servo-present",
+  "file": "sw/litex/milan_soc.py",
+  "rc": 0,
+  "seconds": 2,
+  "expected": "hook missing, duplicated or renamed: []",
+  "verdict": "SURVIVED"
+ }
+]
