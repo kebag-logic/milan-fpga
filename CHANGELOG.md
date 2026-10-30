@@ -51,8 +51,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Unreleased - AECP REBOOT resets the end station
 
-- Issue #787 adopts processor `1be824fc` for its #203.
-- It is the #203 lane head until that PR merges.
+- Issue #787 adopts processor `013ee63f` for its #203.
+- It is the reviewed #203 lane head until that PR merges.
 - REBOOT of ENTITY 0 answers SUCCESS (IEEE 7.4.43).
 - The processor then sends ENTITY_DEPARTING and raises `reboot_req_o`.
 - The top adds that one output.

@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `f97c18035be6ef5345e5af27db2124c5697c1b40` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `1be824fccbda5d3341737f5fe033d60edd27af57` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `013ee63fd42455987ddbbbeb3b66f5af106b5793` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
@@ -380,17 +380,27 @@ Sixteen of 15,850 slices remain.
 
 Its shipping route meets timing at +0.303 ns WNS.
 
-Issue #787 adopts processor pin `1be824fc`.
+Issue #787 adopts processor pin `013ee63f`.
 
-It is the head of processor issue #203's lane.
+It is the reviewed head of processor issue #203's lane, processor PR #209.
 
 The pin stays local until that PR merges.
+
+Its merge commit carries the same tree, `b0f66acb`.
+
+The lane first pinned `1be824fc`.
+
+At `013ee63f` the request rises only after every frame already started has left the processor.
+
+That holds with or without an ENTITY_DEPARTING.
+
+Neither the top's ports nor its parameters change between the two pins.
 
 FPGA-gPTP stays at `f97c1803`.
 
 | Processor issue | Merged PR | Parent-visible result |
 |---|---|---|
-| #203, AECP REBOOT | not yet merged; lane head `1be824fc` | REBOOT of ENTITY 0 answers SUCCESS (IEEE 1722.1-2021 7.4.43, Figure 7-68) and notifies the other registered controllers (7.5.2). Where advertising, ENTITY_DEPARTING follows (Milan v1.2 5.6.3.3). The top then holds the new output `reboot_req_o` and serves no further command. Another descriptor type answers NOT_SUPPORTED, a non-zero index NO_SUCH_DESCRIPTOR, a cdl below 16 BAD_ARGUMENTS and another controller's lock ENTITY_LOCKED |
+| #203, AECP REBOOT | not yet merged; reviewed lane head `013ee63f` | REBOOT of ENTITY 0 answers SUCCESS (IEEE 1722.1-2021 7.4.43, Figure 7-68) and notifies the other registered controllers (7.5.2). Where advertising, ENTITY_DEPARTING follows (Milan v1.2 5.6.3.3). Once every frame it started has left, the top holds the new output `reboot_req_o` and serves no further command. Another descriptor type answers NOT_SUPPORTED, a non-zero index NO_SUCH_DESCRIPTOR, a cdl below 16 BAD_ARGUMENTS and another controller's lock ENTITY_LOCKED |
 
 The top adds one output, `reboot_req_o`.
 
@@ -407,6 +417,10 @@ The [reset design](../design/REBOOT_RESET.md) records that decision.
 `ltn_rom.hex` is unchanged.
 
 The behave SERVED table lists REBOOT at cdl 16.
+
+`013ee63f` carries `1be824fc`'s two ROM images, byte for byte.
+
+The route below was measured at `1be824fc`.
 
 Route-1x1 uses 51,828 LUTs, 184 under the record.
 
@@ -427,6 +441,8 @@ Both standalone endpoints pass the gate.
 `ooc-1x1` moves -53 LUTs and +7 FFs.
 
 `ooc-8x8` moves +104 LUTs and +16 FFs.
+
+The route is redone at the re-pin after #814 merges.
 
 The ROM ledger records current and earlier pins.
 
