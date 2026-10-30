@@ -1,0 +1,24 @@
+PASS published receipt/script manifest: 373 files; source 999e04e9c417e080d988a0747359c60d2e9edb8a
+PASS inherited input scopes: c71364bd sw/builder, sw/firmware, hdl, configs, protocol-processor, gptp-processor, tb/verilator/nvm_cosim
+PASS inherited input scopes: dc7b1417 sw/firmware/ctrl, sw/firmware/ctrl_nvm, sw/firmware/gtest, third_party/tsn-c-stack
+PASS inherited input scopes: 1767346a tb/verilator/milan_dp, hdl, protocol-processor, gptp-processor, configs
+All later paths after c71364bd: ci/image/command-table.json
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+tb/verilator/fw_service_budget/oracle.json
+tb/verilator/fw_service_budget/run.py
+tb/verilator/nvm_capture_cpu/measurements.json
+PASS capture firmware digest: 60799c75d009ebbedbe0476ea0a8efe81f60d342141743956a8fd9a46229a625
+PASS capture raw rows: author/receipts/capture/measurement-1x1-50-on.json maximum_ms 3.9649000000000005
+PASS capture raw rows: author/receipts/capture/measurement-1x1-50-off.json maximum_ms 3.9117800000000003
+PASS capture raw rows: author/receipts/capture/measurement-8x8-50-on.json maximum_ms 13.86052
+PASS capture raw rows: author/receipts/capture/measurement-8x8-50-off.json maximum_ms 13.68956
+PASS capture raw rows: author/receipts/capture/measurement-8x8-100-on.json maximum_ms 10.4263
+PASS capture raw rows: author/receipts/capture/measurement-8x8-100-off.json maximum_ms 10.41516
+PASS service oracle exact published fields: author/receipts/service/service-1x1-all-1-0-0.json budget findings unchanged from base: []
+PASS enforced service rule: author/receipts/service/service-1x1-all-1-0-0.json [] heartbeat gap ms 266.01756 maximum PHY bound ms 178.12012000000001
+PASS service oracle exact published fields: author/receipts/service/service-8x8-all-1-0-0.json budget findings unchanged from base: ['over-budget duty: milan_nvm', 'over-budget duty: milan_nvm']
+PASS enforced service rule: author/receipts/service/service-8x8-all-1-0-0.json [] heartbeat gap ms 323.6789 maximum PHY bound ms 244.51803111111113
+PASS service oracle exact published fields: author/receipts/service/service-1x1-uart-paced-1-0-0.json budget findings unchanged from base: []
+PASS enforced service rule: author/receipts/service/service-1x1-uart-paced-1-0-0.json [] heartbeat gap ms 257.63916 maximum PHY bound ms 184.78212000000002
+PASS oracle regeneration digest: 5853255ddcfb9e5206e4b2731a83e619569ea870be2c13ff3c52bde40a568c3c
+PASS evidence audit; execution receipts remain author evidence, not reviewer or manager runs
