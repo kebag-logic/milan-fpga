@@ -140,12 +140,6 @@ def without_key(doc: dict, key: str) -> dict:
     return out
 
 
-def declares(doc: dict, key: str) -> bool:
-    """Does `doc` state `key`?"""
-    found = _parent(copy.deepcopy(doc), key, create=False)
-    return found is not None and isinstance(found[0], dict) and found[1] in found[0]
-
-
 def _scrub(text: str) -> str:
     """Builder text with this checkout's location removed; refuse any left."""
     text = text.replace(str(ROOT) + os.sep, "").replace(str(ROOT), ".")
