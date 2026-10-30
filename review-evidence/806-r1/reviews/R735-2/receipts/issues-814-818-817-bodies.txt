@@ -1,0 +1,67 @@
+=== #814
+Cut the SoC bridge-to-SPI-flash and SDRAM-arbitration timing paths that decide every route [OPEN]
+Two release adoptions are refused by the resource gate on their 1x1 route. In both, the refusal is on WNS alone, and the failing path is a SoC `sys`-domain path that neither change touches.
+
+| Lane | route-1x1 WNS | Fall from the +0.440 ns record | Worst setup path |
+|---|---:|---:|---|
+| #806 (PR #813) | +0.032 ns | 0.408 ns | `FSM_onehot_socbushandler0_axilite2wishbone_state_reg[1]` -> `milansoc_spiflash_phy_cnt_reg[8]`: AXI-Lite-to-Wishbone bridge into the SPI-flash PHY counter, 17-19 levels, about 66 % routing |
+| #787 | +0.107 ns | 0.333 ns | `milansoc_read_beat_count_reg[5]` -> `storage_10_dat1_reg[13]`: SDRAM bank-machine arbitration into a LiteX LUTRAM FIFO, 13 levels, 82 % routing |
+
+Both routes meet the build floor (+0.030 ns setup, 0 ns hold). The gate allows a 0.25 ns fall, so at the current record it binds at +0.190 ns. Recorded routes have ranged from +0.101 to +0.440 ns, and the bridge-to-SPI-flash path is the usual worst path (`docs/design/AREA_BUDGET.md`). Those two SoC paths, not the adopted logic, decide each record. Under #787's AltSpreadLogic_high comparison route, the bridge path is the worst again, at +0.193 ns.
+
+**Ruling.** This applies the #708 rule for this class of route miss (issuecomment-6100507393): cut the failing paths in logic, in the SoC wiring (`sw/litex/milan_soc.py`), in every image. The Vivado recipe is unchanged. No pblocks, no floorplanning, and no floor or fall-limit exception.
+
+**Scope**
+- A register boundary on the bridge -> SPI-flash path. One option is a registered Wishbone stage in front of the flash core, or between the bridge and its decoder.
+- A register boundary on the SDRAM arbitration -> FIFO path.
+- Each cut must keep its bus contract: LiteX Wishbone for the flash, the LiteDRAM port for the SDRAM.
+
+**Acceptance**
+- With the cuts, route-1x1 at the unchanged recipe (the shipping directive, plus the two comparison directives) no longer has either path within 0.3 ns of the worst path. The 8x8 shape stays out-of-context only (ooc-8x8, as `AREA_BUDGET.md` records); corrected 2026-10-30, since the 8x8 recipe has never fit this device.
+- The gate passes against the record, and the record is re-recorded from this route through its generator.
+- Flash boot, `check_nvm_capture.py`'s 24.5 ms bound and the flash-boot simulations pass. The bridge stage adds latency to every flash access, so the capture is measured again and its margin recorded.
+- The SDRAM path: the SoC simulations and every DDR-backed suite pass.
+- The full sweep passes, rtl-fast (including behave) passes, and the docs gates pass.
+
+**Then** #806 and #787 each merge dev and re-route against the new record.
+
+Relates to #76.
+
+
+=== #818
+Resource gate: judge WNS on the build floor at every corner on the best of the three directives; report the fall from the record as a warning [OPEN]
+The owner/manager ruling of 2026-10-30 (#814 thread) changes the resource gate's WNS rule for adoptions.
+
+**Change `scripts/pp_resource_gate.py`** (and its docs: `docs/design/AREA_BUDGET.md` and `docs/integration/BUILDING.md` section 5):
+- **WNS and WHS:** a route set passes when the best of the recipe's three directives meets the build floor (+0.030 ns setup, 0 ns hold) at every signoff corner. The checker takes the three routed reports, or a single one marked as the shipping selection, and names the directive it selected.
+- **The fall from the record** is computed and printed as `WARNING`, with no failure.
+- **Every other tolerance is unchanged:** LUT, FF, slices, RAMB and DSP.
+- **The re-record** stores the selected directive's figures and names the directive.
+
+**Self-test, with each case planted and checked for its expected verdict:**
+- a route set whose best directive misses the floor at one corner fails;
+- a set whose shipping directive misses the floor but whose best meets it passes, and names the best;
+- a large fall passes with a WARNING;
+- a resource over tolerance still fails.
+
+**Acceptance:** the self-test passes; dev `1e80128f`'s three recorded routes from #814 round 1 pass and select ExtraPostPlacementOpt (+0.303 ns, the best worst-corner WNS of the three); the docs gates pass.
+
+Relates to #76.
+
+=== #817
+Constrain the media-clock servo's reset synchroniser crossing (milan to PS clock) as asynchronous, not as a single-cycle path [OPEN]
+`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv:1292-1296` synchronises `rst_n` into `ps_clk_i` with a two-flop synchroniser (`psrst_sync_r <= {psrst_sync_r[0], rst_n}`). Its source is the milan domain's reset flip-flop (`FDPE`, a high-fanout net), on the 50 MHz domain. The destination runs at 200 MHz. Both clocks come from one MMCM, so Vivado treats them as related and times the crossing as a synchronous single-cycle path.
+
+In #814's route of dev plus the cuts, at the shipping directive, this is the worst path of the design: +0.128 ns, 1 level, 86 % routing. It is not a real timing path, because the synchroniser exists to absorb that crossing.
+
+**Fix.** Constrain the crossing as what it is. Use `set_max_delay -datapath_only` to bound the reset's data path to the destination period, or `set_false_path` into the first flop with ASYNC_REG on both flops. Apply it in the place the repository's other CDC constraints are generated. Check that the constraint survives into the routed design: the #607 build refuses silently dropped clock-crossing constraints.
+
+**Acceptance:**
+- The routed report no longer times this path as synchronous, and a constraint report shows that the constraint applied.
+- No other path's constraint changes.
+- A planted removal of the constraint fails the existing constraint-presence check.
+- The CDC report lists the crossing as safe.
+- route-1x1 at the shipping directive meets the floor at every corner.
+
+Relates to #76.
+
