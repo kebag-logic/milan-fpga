@@ -1,0 +1,24 @@
+Control c1 against the head's export (both from clean clones at 8b28ebaf, the same milan_soc.py arguments).
+The control elaborates through control_wire_phy.py: SPIPHYStage replaced by wires (WirePHYStage).
+
+Identifiers present in one generated alinx_ax7101.v and not the other, outside milansoc_milansoc_stage_spi_phy_*:
+  head only: 06
+  control only: c1
+  head only: h1
+  head only: pipe_ready
+  head only: SPIPHYStage
+  control only: WirePHYStage
+  (SPIPHYStage, WirePHYStage and pipe_ready are in the module-tree comment; h1 and c1 are in the absolute paths of the image parameters, whose files are identical (below); 06 is in the generation time.)
+  stage_spi_phy identifiers in the head only: 100; in the control only: 0
+
+SHA-256 (first 16) of the other export files:
+  alinx_ax7101.v head 61858e2312b28c46 control f310139639c37052
+  alinx_ax7101.xdc head 81bbf89c34dd0e91 control 81bbf89c34dd0e91
+  alinx_ax7101_rom.init head 3a0222030ead0409 control 3a0222030ead0409
+  alinx_ax7101_mem.init head d1657b93f1791073 control d1657b93f1791073
+  alinx_ax7101_sram.init head e3b0c44298fc1c14 control e3b0c44298fc1c14
+  baseline_images.json differs only by its absolute paths:
+  identical after replacing the work-directory names
+  image sw/builder/out/endstation_ax7101_1x1_tdm8/gptp_ucode.hex head ee216c4d1a13103f control ee216c4d1a13103f
+  image configs/generated/ltn_rom.hex head 23cc67eeadc7ecad control 23cc67eeadc7ecad
+  image configs/generated/ucode.hex head 1f78804e448c385d control 1f78804e448c385d
