@@ -1,0 +1,26 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Oct 30 13:21:20 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_cdc -summary -file <scratch>/post-dev/out/cdc_design_summary.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+CDC Report
+
+Severity  Source Clock                 Destination Clock            CDC Type                 Exceptions           Endpoints  Safe  Unsafe  Unknown  No ASYNC_REG  
+--------  ---------------------------  ---------------------------  -----------------------  -------------------  ---------  ----  ------  -------  ------------  
+Critical  milansoc_crg_clkout0         eth_clocks0_rx               No Common Primary Clock  False Path                   2     0       2        0             0  
+Critical  milansoc_crg_clkout1         eth_clocks0_rx               No Common Primary Clock  False Path                   4     0       4        0             0  
+Critical  milansoc_crg_clkout1         milansoc_crg_clkout0         User Ignored             Asynch Clock Groups        236   235       1        0             0  
+Critical  milansoc_crg_clkout0         milansoc_crg_clkout1         User Ignored             Asynch Clock Groups        264   261       3        0             0  
+Warning   milansoc_crg_clkout1         milansoc_crg_audio_mclk_raw  No Common Period         Asynch Clock Groups          9     9       0        0             9  
+Warning   milansoc_crg_audio_mclk_raw  milansoc_crg_clkout1         No Common Period         Asynch Clock Groups         60    60       0        0             9  
+Info      input port clock             milansoc_crg_clkout0         No Common Primary Clock  False Path                   2     2       0        0             0  
+Info      milansoc_crg_clkout4         milansoc_crg_clkout1         Safely Timed             None                         3     3       0        0             0  
+Info      milansoc_crg_clkout1         milansoc_crg_clkout4         Safely Timed             None                        17    17       0        0             0  
+

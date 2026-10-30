@@ -1,0 +1,20 @@
+[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+[constraints] generated namespace, optional domain, both ports, hook order and template refusal PASS
+CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+CONSTRAINTS: quasi_static cells=0 setup=4 hold=3
+CONSTRAINTS: eth=eth bounded=sys milan async=audio budget_ns=8.000
+CONSTRAINTS: MultiReg eth=1 part=2 other=1
+scoped exception and wrong-name controls PASS
+Traceback (most recent call last):
+  File "<scratch>/clone-mut/sw/builder/test_clock_constraints.py", line 357, in <module>
+    test_servo_reset_sync()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "<scratch>/clone-mut/sw/builder/test_clock_constraints.py", line 246, in test_servo_reset_sync
+    assert result.returncode == 0 and not result.stderr, result.stdout + result.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+servo reset synchronizer cut and refusal controls PASS
+servo cut missing or widened: 
+stage order changed the cut: 
+

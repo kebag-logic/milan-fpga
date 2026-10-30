@@ -1,0 +1,127 @@
+[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+[constraints] generated namespace, optional domain, both ports, hook order and template refusal PASS
+CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+CONSTRAINTS: quasi_static cells=0 setup=4 hold=3
+CONSTRAINTS: eth=eth bounded=sys milan async=audio budget_ns=8.000
+CONSTRAINTS: MultiReg eth=1 part=2 other=1
+scoped exception and wrong-name controls PASS
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+servo reset synchronizer cut and refusal controls PASS
+[constraints] <scratch>/mut/tmp/constraint-log-iacu60xf/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit as <scratch>/mut/tmp/constraint-log-iacu60xf/alinx_ax7101.bit.rejected
+[constraints] <scratch>/mut/tmp/constraint-log-iacu60xf/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+Traceback (most recent call last):
+  File "<scratch>/clone-mut/sw/builder/test_clock_constraints.py", line 360, in <module>
+    test_shipping_constraints()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "<scratch>/clone-mut/sw/builder/test_shipping_clock_constraints.py", line 135, in test_shipping_constraints
+    assert result.returncode == 0, result.stdout[-4000:] + result.stderr[-4000:]
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Namespace(update_repo='no', no_netlist_cache=False, vexii_args='--xlen=32', isa=[], with_aia=False, cpu_count=1, with_cpu_clk=True, with_axi3=False, with_axilite_xlen=False, with_dma=True, with_jtag_tap=False, with_jtag_instruction=False, l2_bytes=0, l2_ways=4, l2_self_flush=None, with_aplic=False, imsic_interrupt_number=0, video=[], mac_sg=[], mem_map=[], io_map=None, cpu_variant='baremetal')
+wrote <scratch>/clone-mut/configs/generated/ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+<scratch>/clone-mut/configs/generated/ucode.hex: 2048 words, 92 programs
+VexiiRiscv netlist : VexiiRiscvLitex_f5f08b170311db53220574624f819159
+CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    ├── csrstatus_3 (CSRStatus) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    └── csrstorage_3 (CSRStorage) [Gen]
+│    ├── csrbank_3 (CSRBank) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    ├── csrstatus_3 (CSRStatus) [Gen]
+│    │    └── csrstatus_4 (CSRStatus) [Gen]
+│    ├── csrbank_4 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstorage_4 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstorage_5 (CSRStorage) [Gen]
+│    │    ├── csrstorage_6 (CSRStorage) [Gen]
+│    │    ├── csrstorage_7 (CSRStorage) [Gen]
+│    │    ├── csrstorage_8 (CSRStorage) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstorage_9 (CSRStorage) [Gen]
+│    │    ├── csrstorage_10 (CSRStorage) [Gen]
+│    │    ├── csrstorage_11 (CSRStorage) [Gen]
+│    │    ├── csrstorage_12 (CSRStorage) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    ├── csrstorage_13 (CSRStorage) [Gen]
+│    │    ├── csrstorage_14 (CSRStorage) [Gen]
+│    │    ├── csrstorage_15 (CSRStorage) [Gen]
+│    │    ├── csrstorage_16 (CSRStorage) [Gen]
+│    │    └── csrstatus_3 (CSRStatus) [Gen]
+│    ├── csrbank_5 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstorage_4 (CSRStorage) [Gen]
+│    │    ├── csrstorage_5 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    └── csrstorage_6 (CSRStorage) [Gen]
+│    ├── csrbank_6 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_7 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<scratch>/clone-mut/sw/builder/test_shipping_clock_constraints.py", line 151, in <module>
+    elaborate_shipping(args.config, args.port, args.output_dir)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clone-mut/sw/builder/test_shipping_clock_constraints.py", line 119, in elaborate_shipping
+    milan_soc.main()
+    ~~~~~~~~~~~~~~^^
+  File "<scratch>/clone-mut/sw/litex/milan_soc.py", line 4361, in main
+    builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/clone-mut/sw/builder/test_shipping_clock_constraints.py", line 100, in build
+    assert servo == [f"kl_servo_reset_sync_constraints {clocks[1]}"], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: shipping servo reset synchronizer hook missing, duplicated or renamed: []
+

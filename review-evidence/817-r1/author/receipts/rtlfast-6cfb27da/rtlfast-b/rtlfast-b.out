@@ -1,0 +1,11 @@
+rc=0     0.0s yosys-tool[1] Set CPU-derived job budgets
+JOB yosys-tool: success
+rc=0     0.0s yosys-elaboration[1] Set CPU-derived job budgets
+rc=0     0.0s yosys-elaboration[2] Fetch RTL dependencies
+rc=0   141.4s yosys-elaboration[7] Elaborate the integration-heavy tops
+rc=0   718.0s yosys-elaboration[8] Prove the OOC read sets come from run.sh and refuse a bad one
+rc=0    43.7s yosys-elaboration[9] Prove ooc.sh generates the ROMs and fails on a failed top
+rc=0    35.6s yosys-elaboration[10] Prove both synthesis flows refuse active elaboration guards
+rc=0    55.6s yosys-elaboration[11] Prove the result cache refuses a planted entry
+JOB yosys-elaboration: success
+rtl-fast: partial; failed jobs: none; head 6cfb27dacafb2e5b693412db3342ca0fccc9c0bc

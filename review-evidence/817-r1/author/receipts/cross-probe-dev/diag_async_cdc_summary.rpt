@@ -1,0 +1,18 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Oct 30 14:24:15 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_cdc -from [get_clocks -of_objects [get_nets milansoc_crg_clkout1]] -to [get_clocks -of_objects [get_pins -of_objects [get_cells -hierarchical -filter {NAME =~ "*mmcm_servo/psrst_sync_r_reg[0]"}] -filter {IS_CLOCK == 1}]] -summary -file <scratch>/cross-dev/out/diag_async_cdc_summary.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CDC Report
+
+Severity  Source Clock          Destination Clock     CDC Type      Exceptions           Endpoints  Safe  Unsafe  Unknown  No ASYNC_REG  
+--------  --------------------  --------------------  ------------  -------------------  ---------  ----  ------  -------  ------------  
+Warning   milansoc_crg_clkout1  milansoc_crg_clkout4  User Ignored  Asynch Clock Groups         17    17       0        0             1  
+

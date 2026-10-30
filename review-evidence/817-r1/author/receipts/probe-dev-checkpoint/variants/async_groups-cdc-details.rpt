@@ -1,0 +1,43 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Oct 30 12:59:33 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_cdc -from [get_clocks milansoc_crg_clkout1] -to [get_clocks -of_objects [get_pins -of_objects [get_cells {{milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]}}] -filter {IS_CLOCK == 1}]] -details -file <scratch>/probe-var/out/async_groups-cdc-details.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+CDC Report
+
+ID      Severity  Count  Description
+------  --------  -----  ----------------------------------------------
+CDC-3   Info          2  1-bit synchronized with ASYNC_REG property
+CDC-15  Warning      15  Clock enable controlled CDC structure detected
+
+Source Clock: milansoc_crg_clkout1
+Destination Clock: milansoc_crg_clkout4
+CDC Type: User Ignored
+
+Row  ID      Severity  Description                                     Depth  Exception            Source (From)                                                          Destination (To)
+---  ------  --------  ----------------------------------------------  -----  -------------------  ---------------------------------------------------------------------  ----------------------------------------------------------------------
+  1  CDC-3   Info      1-bit synchronized with ASYNC_REG property          2  Asynch Clock Groups  FDPE_3/C                                                               milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]/D
+  2  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[0]/C   milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[0]/D
+  3  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[1]/C   milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[1]/D
+  4  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[2]/C   milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[2]/D
+  5  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[3]/C   milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[3]/D
+  6  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[4]/C   milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[4]/D
+  7  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[5]/C   milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[5]/D
+  8  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[6]/C   milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[6]/D
+  9  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[7]/C   milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[7]/D
+ 10  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[8]/C   milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[8]/D
+ 11  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[9]/C   milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[9]/D
+ 12  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[10]/C  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[10]/D
+ 13  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[11]/C  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[11]/D
+ 14  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[12]/C  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[12]/D
+ 15  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[13]/C  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[13]/D
+ 16  CDC-15  Warning   Clock enable controlled CDC structure detected      0  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/data_hold_reg[14]/C  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[14]/D
+ 17  CDC-3   Info      1-bit synchronized with ASYNC_REG property          2  Asynch Clock Groups  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/req_tog_reg/C        milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/req_sync_reg[0]/D
+

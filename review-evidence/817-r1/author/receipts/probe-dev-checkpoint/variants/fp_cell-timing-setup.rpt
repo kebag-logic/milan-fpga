@@ -1,0 +1,75 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Oct 30 12:58:16 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_timing -to [get_pins -of_objects [get_cells {{milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]}}] -filter {REF_PIN_NAME == D}] -delay_type max -file <scratch>/probe-var/out/fp_cell-timing-setup.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack:                    inf
+  Source:                 FDPE_3/C
+                            (rising edge-triggered cell FDPE clocked by milansoc_crg_clkout1  {rise@0.000ns fall@10.000ns period=20.000ns})
+  Destination:            milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout4  {rise@0.000ns fall@2.500ns period=5.000ns})
+  Path Group:             (none)
+  Path Type:              Setup (Max at Slow Process Corner)
+  Data Path Delay:        2.671ns  (logic 0.630ns (23.585%)  route 2.041ns (76.415%))
+  Logic Levels:           1  (LUT1=1)
+  Clock Path Skew:        -0.352ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.842ns
+    Source Clock Delay      (SCD):    7.194ns
+    Clock Pessimism Removal (CPR):    0.000ns
+  Clock Uncertainty:      0.183ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.104ns
+    Phase Error              (PE):    0.120ns
+  Timing Exception:       False Path
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout1 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT1)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT1
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout1
+    BUFGCTRL_X0Y5        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG_1/O
+                         net (fo=52318, routed)       1.524     7.194    milan_clk
+    SLICE_X8Y33          FDPE                                         r  FDPE_3/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X8Y33          FDPE (Prop_fdpe_C_Q)         0.398     7.592 f  FDPE_3/Q
+                         net (fo=277, routed)         1.524     9.117    milan_datapath/pp_shadow/u_pp/u_aecp/lopt
+    SLICE_X2Y8           LUT1 (Prop_lut1_I0_O)        0.232     9.349 r  milan_datapath/pp_shadow/u_pp/u_aecp/KL_aecp_engine_LUT1_4/O
+                         net (fo=78, routed)          0.517     9.865    milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]_0
+    SLICE_X0Y4           FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout4 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813     0.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628     2.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078     2.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319     3.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT4)
+                                                      0.073     3.911 r  PLLE2_ADV/CLKOUT4
+                         net (fo=1, routed)           1.371     5.281    milansoc_crg_clkout4
+    BUFGCTRL_X0Y3        BUFG (Prop_bufg_I_O)         0.077     5.358 r  BUFG_6/O
+                         net (fo=76, routed)          1.484     6.842    milan_datapath/g_mmcm_servo.mmcm_servo/idelay_clk
+    SLICE_X0Y4           FDRE                                         r  milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]/C
+
+
+
+

@@ -1,0 +1,935 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Fri Oct 30 14:22:19 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_timing -delay_type max -max_paths 10 -nworst 1 -unique_pins -sort_by slack -file <scratch>/post-head/out/top10_max.rpt
+| Design       : alinx_ax7101
+| Device       : 7a100t-fgg484
+| Speed File   : -2  PRODUCTION 1.23 2018-06-13
+| Design State : Physopt postRoute
+------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Timing Report
+
+Slack (MET) :             0.166ns  (required time - arrival time)
+  Source:                 milansoc_liteethmaccore_tx_crc_crc_packet_reg[7]/C
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Destination:            KL_gptp_gmii_launch/mine_r_reg/D
+                            (rising edge-triggered cell FDRE clocked by eth_clocks0_rx  {rise@0.000ns fall@4.000ns period=8.000ns})
+  Path Group:             eth_clocks0_rx
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            8.000ns  (eth_clocks0_rx rise@8.000ns - eth_clocks0_rx rise@0.000ns)
+  Data Path Delay:        7.662ns  (logic 1.888ns (24.642%)  route 5.774ns (75.358%))
+  Logic Levels:           10  (LUT4=4 LUT5=3 LUT6=3)
+  Clock Path Skew:        -0.098ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    4.324ns = ( 12.324 - 8.000 ) 
+    Source Clock Delay      (SCD):    4.648ns
+    Clock Pessimism Removal (CPR):    0.226ns
+  Clock Uncertainty:      0.035ns  ((TSJ^2 + TIJ^2)^1/2 + DJ) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Total Input Jitter      (TIJ):    0.000ns
+    Discrete Jitter          (DJ):    0.000ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock eth_clocks0_rx rise edge)
+                                                      0.000     0.000 r  <hidden>
+    K18                                               0.000     0.000 r  eth_clocks0_rx
+                         net (fo=0)                   0.000     0.000    eth_clocks0_rx
+    K18                  IBUF (Prop_ibuf_I_O)         1.419     1.419 r  eth_clocks0_rx_IBUF_inst/O
+                         net (fo=2, routed)           1.709     3.128    milansoc_phy_eth_tx_clk_reg
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.081     3.209 r  BUFG_8/O
+                         net (fo=413, routed)         1.439     4.648    eth_tx_clk
+    SLICE_X5Y74          FDRE                                         r  milansoc_liteethmaccore_tx_crc_crc_packet_reg[7]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X5Y74          FDRE (Prop_fdre_C_Q)         0.348     4.996 f  milansoc_liteethmaccore_tx_crc_crc_packet_reg[7]/Q
+                         net (fo=1, routed)           0.823     5.819    KL_gptp_gmii_launch/milansoc_liteethmaccore_tx_crc_crc_packet[7]
+    SLICE_X5Y74          LUT6 (Prop_lut6_I0_O)        0.239     6.058 f  KL_gptp_gmii_launch/eth0_tx_data[7]_i_3/O
+                         net (fo=1, routed)           1.077     7.135    KL_gptp_gmii_launch/eth0_tx_data[7]_i_3_n_0
+    SLICE_X14Y69         LUT4 (Prop_lut4_I1_O)        0.118     7.253 f  KL_gptp_gmii_launch/eth0_tx_data[7]_i_2/O
+                         net (fo=1, routed)           0.543     7.796    KL_gptp_gmii_launch/eth0_tx_data[7]_i_2_n_0
+    SLICE_X15Y69         LUT4 (Prop_lut4_I0_O)        0.264     8.060 f  KL_gptp_gmii_launch/eth0_tx_data[7]_i_1/O
+                         net (fo=8, routed)           0.527     8.588    KL_gptp_gmii_launch/milansoc_liteethmaccore_tx_gap_source_payload_data[3]
+    SLICE_X14Y66         LUT4 (Prop_lut4_I2_O)        0.108     8.696 r  KL_gptp_gmii_launch/cand_r_i_20/O
+                         net (fo=1, routed)           0.610     9.306    KL_gptp_gmii_launch/cand_r_i_20_n_0
+    SLICE_X14Y66         LUT5 (Prop_lut5_I4_O)        0.286     9.592 r  KL_gptp_gmii_launch/cand_r_i_16/O
+                         net (fo=1, routed)           0.335     9.927    KL_gptp_gmii_launch/cand_r_i_16_n_0
+    SLICE_X14Y65         LUT4 (Prop_lut4_I3_O)        0.105    10.032 r  KL_gptp_gmii_launch/cand_r_i_13/O
+                         net (fo=1, routed)           0.251    10.283    KL_gptp_gmii_launch/cand_r_i_13_n_0
+    SLICE_X14Y67         LUT5 (Prop_lut5_I4_O)        0.105    10.388 r  KL_gptp_gmii_launch/cand_r_i_5/O
+                         net (fo=1, routed)           0.232    10.620    KL_gptp_gmii_launch/cand_r_i_5_n_0
+    SLICE_X14Y68         LUT6 (Prop_lut6_I1_O)        0.105    10.725 r  KL_gptp_gmii_launch/cand_r_i_2/O
+                         net (fo=2, routed)           0.531    11.256    KL_gptp_gmii_launch/cand_w
+    SLICE_X14Y65         LUT6 (Prop_lut6_I0_O)        0.105    11.361 r  KL_gptp_gmii_launch/mine_r_i_2/O
+                         net (fo=1, routed)           0.469    11.830    KL_gptp_gmii_launch/mine_r_i_2_n_0
+    SLICE_X14Y65         LUT5 (Prop_lut5_I0_O)        0.105    11.935 r  KL_gptp_gmii_launch/mine_r_i_1/O
+                         net (fo=1, routed)           0.374    12.310    KL_gptp_gmii_launch/mine_r_i_1_n_0
+    SLICE_X13Y66         FDRE                                         r  KL_gptp_gmii_launch/mine_r_reg/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock eth_clocks0_rx rise edge)
+                                                      8.000     8.000 r  <hidden>
+    K18                                               0.000     8.000 r  eth_clocks0_rx
+                         net (fo=0)                   0.000     8.000    eth_clocks0_rx
+    K18                  IBUF (Prop_ibuf_I_O)         1.353     9.353 r  eth_clocks0_rx_IBUF_inst/O
+                         net (fo=2, routed)           1.620    10.974    milansoc_phy_eth_tx_clk_reg
+    BUFGCTRL_X0Y16       BUFG (Prop_bufg_I_O)         0.077    11.051 r  BUFG_8/O
+                         net (fo=413, routed)         1.274    12.324    KL_gptp_gmii_launch/eth_tx_clk
+    SLICE_X13Y66         FDRE                                         r  KL_gptp_gmii_launch/mine_r_reg/C
+                         clock pessimism              0.226    12.550    <hidden>
+                         clock uncertainty           -0.035    12.515    <hidden>
+    SLICE_X13Y66         FDRE (Setup_fdre_C_D)       -0.039    12.476    KL_gptp_gmii_launch/mine_r_reg
+  -------------------------------------------------------------------
+                         required time                         12.476    <hidden>
+                         arrival time                         -12.310    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.166    <hidden>
+
+Slack (MET) :             0.196ns  (required time - arrival time)
+  Source:                 milansoc_sdram_zqcs_timer_count1_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            milansoc_sdram_bankmachine1_level_reg[0]/CE
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.490ns  (logic 2.008ns (21.159%)  route 7.482ns (78.841%))
+  Logic Levels:           15  (LUT2=2 LUT3=5 LUT4=1 LUT5=2 LUT6=5)
+  Clock Path Skew:        -0.088ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.762ns = ( 16.762 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.236ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7219, routed)        1.566     7.236    sys_clk
+    SLICE_X78Y189        FDRE                                         r  milansoc_sdram_zqcs_timer_count1_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X78Y189        FDRE (Prop_fdre_C_Q)         0.433     7.669 r  milansoc_sdram_zqcs_timer_count1_reg[10]/Q
+                         net (fo=2, routed)           0.796     8.466    milansoc_sdram_zqcs_timer_count1_reg[10]
+    SLICE_X81Y189        LUT6 (Prop_lut6_I0_O)        0.105     8.571 f  alinx_ax7101_LUT6_1258/O
+                         net (fo=1, routed)           0.224     8.795    alinx_ax7101_net_841
+    SLICE_X81Y190        LUT6 (Prop_lut6_I5_O)        0.105     8.900 f  alinx_ax7101_LUT6_1259/O
+                         net (fo=1, routed)           0.243     9.143    alinx_ax7101_net_843
+    SLICE_X80Y188        LUT6 (Prop_lut6_I5_O)        0.105     9.248 f  alinx_ax7101_LUT6_1260/O
+                         net (fo=1, routed)           0.388     9.636    alinx_ax7101_net_844
+    SLICE_X81Y195        LUT3 (Prop_lut3_I2_O)        0.105     9.741 f  alinx_ax7101_LUT3_161/O
+                         net (fo=5, routed)           0.124     9.864    alinx_ax7101_net_1343
+    SLICE_X81Y195        LUT5 (Prop_lut5_I4_O)        0.105     9.969 r  subfragments_bankmachine0_state[3]_i_10/O
+                         net (fo=2, routed)           0.530    10.499    subfragments_bankmachine0_state[3]_i_10_n_0
+    SLICE_X77Y192        LUT3 (Prop_lut3_I2_O)        0.105    10.604 f  alinx_ax7101_LUT3_162/O
+                         net (fo=62, routed)          0.753    11.357    alinx_ax7101_net_845
+    SLICE_X76Y189        LUT3 (Prop_lut3_I2_O)        0.105    11.462 r  alinx_ax7101_LUT3_163/O
+                         net (fo=2, routed)           0.530    11.991    alinx_ax7101_net_846
+    SLICE_X76Y186        LUT6 (Prop_lut6_I5_O)        0.105    12.096 r  alinx_ax7101_LUT6_1266/O
+                         net (fo=1, routed)           0.630    12.726    alinx_ax7101_net_849
+    SLICE_X79Y189        LUT5 (Prop_lut5_I3_O)        0.105    12.831 r  alinx_ax7101_LUT5_191/O
+                         net (fo=9, routed)           0.475    13.306    alinx_ax7101_net_912
+    SLICE_X79Y190        LUT3 (Prop_lut3_I1_O)        0.105    13.411 f  milansoc_sdram_bankmachine1_consume[2]_i_5/O
+                         net (fo=1, routed)           0.361    13.772    milansoc_sdram_bankmachine1_consume[2]_i_5_n_0
+    SLICE_X75Y190        LUT6 (Prop_lut6_I3_O)        0.105    13.877 f  alinx_ax7101_LUT6_1283/O
+                         net (fo=2, routed)           0.325    14.202    milansoc_sdram_bankmachine1_consume[2]_i_4_n_0
+    SLICE_X75Y191        LUT3 (Prop_lut3_I0_O)        0.105    14.307 f  milansoc_sdram_bankmachine1_consume[2]_i_3/O
+                         net (fo=20, routed)          0.710    15.017    milansoc_sdram_bankmachine1_consume[2]_i_3_n_0
+    SLICE_X69Y192        LUT4 (Prop_lut4_I3_O)        0.105    15.122 r  alinx_ax7101_LUT4_513/O
+                         net (fo=25, routed)          0.388    15.509    milansoc_sdram_bankmachine1_syncfifo1_re
+    SLICE_X68Y192        LUT2 (Prop_lut2_I1_O)        0.105    15.614 r  alinx_ax7101_LUT2_317/O
+                         net (fo=4, routed)           0.323    15.938    alinx_ax7101_net_875
+    SLICE_X69Y192        LUT2 (Prop_lut2_I1_O)        0.105    16.043 r  alinx_ax7101_LUT2_318/O
+                         net (fo=4, routed)           0.684    16.726    milansoc_sdram_bankmachine1_level[3]_i_1_n_0
+    SLICE_X69Y186        FDRE                                         r  milansoc_sdram_bankmachine1_level_reg[0]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=7219, routed)        1.404    16.762    sys_clk
+    SLICE_X69Y186        FDRE                                         r  milansoc_sdram_bankmachine1_level_reg[0]/C
+                         clock pessimism              0.386    17.148    <hidden>
+                         clock uncertainty           -0.058    17.091    <hidden>
+    SLICE_X69Y186        FDRE (Setup_fdre_C_CE)      -0.168    16.923    milansoc_sdram_bankmachine1_level_reg[0]
+  -------------------------------------------------------------------
+                         required time                         16.923    <hidden>
+                         arrival time                         -16.726    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.196    <hidden>
+
+Slack (MET) :             0.196ns  (required time - arrival time)
+  Source:                 milansoc_sdram_zqcs_timer_count1_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            milansoc_sdram_bankmachine1_level_reg[1]/CE
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.490ns  (logic 2.008ns (21.159%)  route 7.482ns (78.841%))
+  Logic Levels:           15  (LUT2=2 LUT3=5 LUT4=1 LUT5=2 LUT6=5)
+  Clock Path Skew:        -0.088ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.762ns = ( 16.762 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.236ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7219, routed)        1.566     7.236    sys_clk
+    SLICE_X78Y189        FDRE                                         r  milansoc_sdram_zqcs_timer_count1_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X78Y189        FDRE (Prop_fdre_C_Q)         0.433     7.669 r  milansoc_sdram_zqcs_timer_count1_reg[10]/Q
+                         net (fo=2, routed)           0.796     8.466    milansoc_sdram_zqcs_timer_count1_reg[10]
+    SLICE_X81Y189        LUT6 (Prop_lut6_I0_O)        0.105     8.571 f  alinx_ax7101_LUT6_1258/O
+                         net (fo=1, routed)           0.224     8.795    alinx_ax7101_net_841
+    SLICE_X81Y190        LUT6 (Prop_lut6_I5_O)        0.105     8.900 f  alinx_ax7101_LUT6_1259/O
+                         net (fo=1, routed)           0.243     9.143    alinx_ax7101_net_843
+    SLICE_X80Y188        LUT6 (Prop_lut6_I5_O)        0.105     9.248 f  alinx_ax7101_LUT6_1260/O
+                         net (fo=1, routed)           0.388     9.636    alinx_ax7101_net_844
+    SLICE_X81Y195        LUT3 (Prop_lut3_I2_O)        0.105     9.741 f  alinx_ax7101_LUT3_161/O
+                         net (fo=5, routed)           0.124     9.864    alinx_ax7101_net_1343
+    SLICE_X81Y195        LUT5 (Prop_lut5_I4_O)        0.105     9.969 r  subfragments_bankmachine0_state[3]_i_10/O
+                         net (fo=2, routed)           0.530    10.499    subfragments_bankmachine0_state[3]_i_10_n_0
+    SLICE_X77Y192        LUT3 (Prop_lut3_I2_O)        0.105    10.604 f  alinx_ax7101_LUT3_162/O
+                         net (fo=62, routed)          0.753    11.357    alinx_ax7101_net_845
+    SLICE_X76Y189        LUT3 (Prop_lut3_I2_O)        0.105    11.462 r  alinx_ax7101_LUT3_163/O
+                         net (fo=2, routed)           0.530    11.991    alinx_ax7101_net_846
+    SLICE_X76Y186        LUT6 (Prop_lut6_I5_O)        0.105    12.096 r  alinx_ax7101_LUT6_1266/O
+                         net (fo=1, routed)           0.630    12.726    alinx_ax7101_net_849
+    SLICE_X79Y189        LUT5 (Prop_lut5_I3_O)        0.105    12.831 r  alinx_ax7101_LUT5_191/O
+                         net (fo=9, routed)           0.475    13.306    alinx_ax7101_net_912
+    SLICE_X79Y190        LUT3 (Prop_lut3_I1_O)        0.105    13.411 f  milansoc_sdram_bankmachine1_consume[2]_i_5/O
+                         net (fo=1, routed)           0.361    13.772    milansoc_sdram_bankmachine1_consume[2]_i_5_n_0
+    SLICE_X75Y190        LUT6 (Prop_lut6_I3_O)        0.105    13.877 f  alinx_ax7101_LUT6_1283/O
+                         net (fo=2, routed)           0.325    14.202    milansoc_sdram_bankmachine1_consume[2]_i_4_n_0
+    SLICE_X75Y191        LUT3 (Prop_lut3_I0_O)        0.105    14.307 f  milansoc_sdram_bankmachine1_consume[2]_i_3/O
+                         net (fo=20, routed)          0.710    15.017    milansoc_sdram_bankmachine1_consume[2]_i_3_n_0
+    SLICE_X69Y192        LUT4 (Prop_lut4_I3_O)        0.105    15.122 r  alinx_ax7101_LUT4_513/O
+                         net (fo=25, routed)          0.388    15.509    milansoc_sdram_bankmachine1_syncfifo1_re
+    SLICE_X68Y192        LUT2 (Prop_lut2_I1_O)        0.105    15.614 r  alinx_ax7101_LUT2_317/O
+                         net (fo=4, routed)           0.323    15.938    alinx_ax7101_net_875
+    SLICE_X69Y192        LUT2 (Prop_lut2_I1_O)        0.105    16.043 r  alinx_ax7101_LUT2_318/O
+                         net (fo=4, routed)           0.684    16.726    milansoc_sdram_bankmachine1_level[3]_i_1_n_0
+    SLICE_X69Y186        FDRE                                         r  milansoc_sdram_bankmachine1_level_reg[1]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=7219, routed)        1.404    16.762    sys_clk
+    SLICE_X69Y186        FDRE                                         r  milansoc_sdram_bankmachine1_level_reg[1]/C
+                         clock pessimism              0.386    17.148    <hidden>
+                         clock uncertainty           -0.058    17.091    <hidden>
+    SLICE_X69Y186        FDRE (Setup_fdre_C_CE)      -0.168    16.923    milansoc_sdram_bankmachine1_level_reg[1]
+  -------------------------------------------------------------------
+                         required time                         16.923    <hidden>
+                         arrival time                         -16.726    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.196    <hidden>
+
+Slack (MET) :             0.196ns  (required time - arrival time)
+  Source:                 milansoc_sdram_zqcs_timer_count1_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            milansoc_sdram_bankmachine1_level_reg[2]/CE
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.490ns  (logic 2.008ns (21.159%)  route 7.482ns (78.841%))
+  Logic Levels:           15  (LUT2=2 LUT3=5 LUT4=1 LUT5=2 LUT6=5)
+  Clock Path Skew:        -0.088ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.762ns = ( 16.762 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.236ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7219, routed)        1.566     7.236    sys_clk
+    SLICE_X78Y189        FDRE                                         r  milansoc_sdram_zqcs_timer_count1_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X78Y189        FDRE (Prop_fdre_C_Q)         0.433     7.669 r  milansoc_sdram_zqcs_timer_count1_reg[10]/Q
+                         net (fo=2, routed)           0.796     8.466    milansoc_sdram_zqcs_timer_count1_reg[10]
+    SLICE_X81Y189        LUT6 (Prop_lut6_I0_O)        0.105     8.571 f  alinx_ax7101_LUT6_1258/O
+                         net (fo=1, routed)           0.224     8.795    alinx_ax7101_net_841
+    SLICE_X81Y190        LUT6 (Prop_lut6_I5_O)        0.105     8.900 f  alinx_ax7101_LUT6_1259/O
+                         net (fo=1, routed)           0.243     9.143    alinx_ax7101_net_843
+    SLICE_X80Y188        LUT6 (Prop_lut6_I5_O)        0.105     9.248 f  alinx_ax7101_LUT6_1260/O
+                         net (fo=1, routed)           0.388     9.636    alinx_ax7101_net_844
+    SLICE_X81Y195        LUT3 (Prop_lut3_I2_O)        0.105     9.741 f  alinx_ax7101_LUT3_161/O
+                         net (fo=5, routed)           0.124     9.864    alinx_ax7101_net_1343
+    SLICE_X81Y195        LUT5 (Prop_lut5_I4_O)        0.105     9.969 r  subfragments_bankmachine0_state[3]_i_10/O
+                         net (fo=2, routed)           0.530    10.499    subfragments_bankmachine0_state[3]_i_10_n_0
+    SLICE_X77Y192        LUT3 (Prop_lut3_I2_O)        0.105    10.604 f  alinx_ax7101_LUT3_162/O
+                         net (fo=62, routed)          0.753    11.357    alinx_ax7101_net_845
+    SLICE_X76Y189        LUT3 (Prop_lut3_I2_O)        0.105    11.462 r  alinx_ax7101_LUT3_163/O
+                         net (fo=2, routed)           0.530    11.991    alinx_ax7101_net_846
+    SLICE_X76Y186        LUT6 (Prop_lut6_I5_O)        0.105    12.096 r  alinx_ax7101_LUT6_1266/O
+                         net (fo=1, routed)           0.630    12.726    alinx_ax7101_net_849
+    SLICE_X79Y189        LUT5 (Prop_lut5_I3_O)        0.105    12.831 r  alinx_ax7101_LUT5_191/O
+                         net (fo=9, routed)           0.475    13.306    alinx_ax7101_net_912
+    SLICE_X79Y190        LUT3 (Prop_lut3_I1_O)        0.105    13.411 f  milansoc_sdram_bankmachine1_consume[2]_i_5/O
+                         net (fo=1, routed)           0.361    13.772    milansoc_sdram_bankmachine1_consume[2]_i_5_n_0
+    SLICE_X75Y190        LUT6 (Prop_lut6_I3_O)        0.105    13.877 f  alinx_ax7101_LUT6_1283/O
+                         net (fo=2, routed)           0.325    14.202    milansoc_sdram_bankmachine1_consume[2]_i_4_n_0
+    SLICE_X75Y191        LUT3 (Prop_lut3_I0_O)        0.105    14.307 f  milansoc_sdram_bankmachine1_consume[2]_i_3/O
+                         net (fo=20, routed)          0.710    15.017    milansoc_sdram_bankmachine1_consume[2]_i_3_n_0
+    SLICE_X69Y192        LUT4 (Prop_lut4_I3_O)        0.105    15.122 r  alinx_ax7101_LUT4_513/O
+                         net (fo=25, routed)          0.388    15.509    milansoc_sdram_bankmachine1_syncfifo1_re
+    SLICE_X68Y192        LUT2 (Prop_lut2_I1_O)        0.105    15.614 r  alinx_ax7101_LUT2_317/O
+                         net (fo=4, routed)           0.323    15.938    alinx_ax7101_net_875
+    SLICE_X69Y192        LUT2 (Prop_lut2_I1_O)        0.105    16.043 r  alinx_ax7101_LUT2_318/O
+                         net (fo=4, routed)           0.684    16.726    milansoc_sdram_bankmachine1_level[3]_i_1_n_0
+    SLICE_X69Y186        FDRE                                         r  milansoc_sdram_bankmachine1_level_reg[2]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=7219, routed)        1.404    16.762    sys_clk
+    SLICE_X69Y186        FDRE                                         r  milansoc_sdram_bankmachine1_level_reg[2]/C
+                         clock pessimism              0.386    17.148    <hidden>
+                         clock uncertainty           -0.058    17.091    <hidden>
+    SLICE_X69Y186        FDRE (Setup_fdre_C_CE)      -0.168    16.923    milansoc_sdram_bankmachine1_level_reg[2]
+  -------------------------------------------------------------------
+                         required time                         16.923    <hidden>
+                         arrival time                         -16.726    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.196    <hidden>
+
+Slack (MET) :             0.196ns  (required time - arrival time)
+  Source:                 milansoc_sdram_zqcs_timer_count1_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            milansoc_sdram_bankmachine1_level_reg[3]/CE
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.490ns  (logic 2.008ns (21.159%)  route 7.482ns (78.841%))
+  Logic Levels:           15  (LUT2=2 LUT3=5 LUT4=1 LUT5=2 LUT6=5)
+  Clock Path Skew:        -0.088ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.762ns = ( 16.762 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.236ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7219, routed)        1.566     7.236    sys_clk
+    SLICE_X78Y189        FDRE                                         r  milansoc_sdram_zqcs_timer_count1_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X78Y189        FDRE (Prop_fdre_C_Q)         0.433     7.669 r  milansoc_sdram_zqcs_timer_count1_reg[10]/Q
+                         net (fo=2, routed)           0.796     8.466    milansoc_sdram_zqcs_timer_count1_reg[10]
+    SLICE_X81Y189        LUT6 (Prop_lut6_I0_O)        0.105     8.571 f  alinx_ax7101_LUT6_1258/O
+                         net (fo=1, routed)           0.224     8.795    alinx_ax7101_net_841
+    SLICE_X81Y190        LUT6 (Prop_lut6_I5_O)        0.105     8.900 f  alinx_ax7101_LUT6_1259/O
+                         net (fo=1, routed)           0.243     9.143    alinx_ax7101_net_843
+    SLICE_X80Y188        LUT6 (Prop_lut6_I5_O)        0.105     9.248 f  alinx_ax7101_LUT6_1260/O
+                         net (fo=1, routed)           0.388     9.636    alinx_ax7101_net_844
+    SLICE_X81Y195        LUT3 (Prop_lut3_I2_O)        0.105     9.741 f  alinx_ax7101_LUT3_161/O
+                         net (fo=5, routed)           0.124     9.864    alinx_ax7101_net_1343
+    SLICE_X81Y195        LUT5 (Prop_lut5_I4_O)        0.105     9.969 r  subfragments_bankmachine0_state[3]_i_10/O
+                         net (fo=2, routed)           0.530    10.499    subfragments_bankmachine0_state[3]_i_10_n_0
+    SLICE_X77Y192        LUT3 (Prop_lut3_I2_O)        0.105    10.604 f  alinx_ax7101_LUT3_162/O
+                         net (fo=62, routed)          0.753    11.357    alinx_ax7101_net_845
+    SLICE_X76Y189        LUT3 (Prop_lut3_I2_O)        0.105    11.462 r  alinx_ax7101_LUT3_163/O
+                         net (fo=2, routed)           0.530    11.991    alinx_ax7101_net_846
+    SLICE_X76Y186        LUT6 (Prop_lut6_I5_O)        0.105    12.096 r  alinx_ax7101_LUT6_1266/O
+                         net (fo=1, routed)           0.630    12.726    alinx_ax7101_net_849
+    SLICE_X79Y189        LUT5 (Prop_lut5_I3_O)        0.105    12.831 r  alinx_ax7101_LUT5_191/O
+                         net (fo=9, routed)           0.475    13.306    alinx_ax7101_net_912
+    SLICE_X79Y190        LUT3 (Prop_lut3_I1_O)        0.105    13.411 f  milansoc_sdram_bankmachine1_consume[2]_i_5/O
+                         net (fo=1, routed)           0.361    13.772    milansoc_sdram_bankmachine1_consume[2]_i_5_n_0
+    SLICE_X75Y190        LUT6 (Prop_lut6_I3_O)        0.105    13.877 f  alinx_ax7101_LUT6_1283/O
+                         net (fo=2, routed)           0.325    14.202    milansoc_sdram_bankmachine1_consume[2]_i_4_n_0
+    SLICE_X75Y191        LUT3 (Prop_lut3_I0_O)        0.105    14.307 f  milansoc_sdram_bankmachine1_consume[2]_i_3/O
+                         net (fo=20, routed)          0.710    15.017    milansoc_sdram_bankmachine1_consume[2]_i_3_n_0
+    SLICE_X69Y192        LUT4 (Prop_lut4_I3_O)        0.105    15.122 r  alinx_ax7101_LUT4_513/O
+                         net (fo=25, routed)          0.388    15.509    milansoc_sdram_bankmachine1_syncfifo1_re
+    SLICE_X68Y192        LUT2 (Prop_lut2_I1_O)        0.105    15.614 r  alinx_ax7101_LUT2_317/O
+                         net (fo=4, routed)           0.323    15.938    alinx_ax7101_net_875
+    SLICE_X69Y192        LUT2 (Prop_lut2_I1_O)        0.105    16.043 r  alinx_ax7101_LUT2_318/O
+                         net (fo=4, routed)           0.684    16.726    milansoc_sdram_bankmachine1_level[3]_i_1_n_0
+    SLICE_X69Y186        FDRE                                         r  milansoc_sdram_bankmachine1_level_reg[3]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=7219, routed)        1.404    16.762    sys_clk
+    SLICE_X69Y186        FDRE                                         r  milansoc_sdram_bankmachine1_level_reg[3]/C
+                         clock pessimism              0.386    17.148    <hidden>
+                         clock uncertainty           -0.058    17.091    <hidden>
+    SLICE_X69Y186        FDRE (Setup_fdre_C_CE)      -0.168    16.923    milansoc_sdram_bankmachine1_level_reg[3]
+  -------------------------------------------------------------------
+                         required time                         16.923    <hidden>
+                         arrival time                         -16.726    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.196    <hidden>
+
+Slack (MET) :             0.336ns  (required time - arrival time)
+  Source:                 milansoc_sdram_zqcs_timer_count1_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            milansoc_sdram_bankmachine3_level_reg[0]/CE
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.390ns  (logic 2.008ns (21.385%)  route 7.382ns (78.615%))
+  Logic Levels:           15  (LUT2=2 LUT3=6 LUT5=2 LUT6=5)
+  Clock Path Skew:        -0.048ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.802ns = ( 16.802 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.236ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7219, routed)        1.566     7.236    sys_clk
+    SLICE_X78Y189        FDRE                                         r  milansoc_sdram_zqcs_timer_count1_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X78Y189        FDRE (Prop_fdre_C_Q)         0.433     7.669 r  milansoc_sdram_zqcs_timer_count1_reg[10]/Q
+                         net (fo=2, routed)           0.796     8.466    milansoc_sdram_zqcs_timer_count1_reg[10]
+    SLICE_X81Y189        LUT6 (Prop_lut6_I0_O)        0.105     8.571 f  alinx_ax7101_LUT6_1258/O
+                         net (fo=1, routed)           0.224     8.795    alinx_ax7101_net_841
+    SLICE_X81Y190        LUT6 (Prop_lut6_I5_O)        0.105     8.900 f  alinx_ax7101_LUT6_1259/O
+                         net (fo=1, routed)           0.243     9.143    alinx_ax7101_net_843
+    SLICE_X80Y188        LUT6 (Prop_lut6_I5_O)        0.105     9.248 f  alinx_ax7101_LUT6_1260/O
+                         net (fo=1, routed)           0.388     9.636    alinx_ax7101_net_844
+    SLICE_X81Y195        LUT3 (Prop_lut3_I2_O)        0.105     9.741 f  alinx_ax7101_LUT3_161/O
+                         net (fo=5, routed)           0.124     9.864    alinx_ax7101_net_1343
+    SLICE_X81Y195        LUT5 (Prop_lut5_I4_O)        0.105     9.969 r  subfragments_bankmachine0_state[3]_i_10/O
+                         net (fo=2, routed)           0.530    10.499    subfragments_bankmachine0_state[3]_i_10_n_0
+    SLICE_X77Y192        LUT3 (Prop_lut3_I2_O)        0.105    10.604 f  alinx_ax7101_LUT3_162/O
+                         net (fo=62, routed)          0.753    11.357    alinx_ax7101_net_845
+    SLICE_X76Y189        LUT3 (Prop_lut3_I2_O)        0.105    11.462 r  alinx_ax7101_LUT3_163/O
+                         net (fo=2, routed)           0.530    11.991    alinx_ax7101_net_846
+    SLICE_X76Y186        LUT6 (Prop_lut6_I5_O)        0.105    12.096 r  alinx_ax7101_LUT6_1266/O
+                         net (fo=1, routed)           0.630    12.726    alinx_ax7101_net_849
+    SLICE_X79Y189        LUT5 (Prop_lut5_I3_O)        0.105    12.831 r  alinx_ax7101_LUT5_191/O
+                         net (fo=9, routed)           0.475    13.306    alinx_ax7101_net_912
+    SLICE_X79Y190        LUT3 (Prop_lut3_I1_O)        0.105    13.411 f  milansoc_sdram_bankmachine1_consume[2]_i_5/O
+                         net (fo=1, routed)           0.361    13.772    milansoc_sdram_bankmachine1_consume[2]_i_5_n_0
+    SLICE_X75Y190        LUT6 (Prop_lut6_I3_O)        0.105    13.877 f  alinx_ax7101_LUT6_1283/O
+                         net (fo=2, routed)           0.325    14.202    milansoc_sdram_bankmachine1_consume[2]_i_4_n_0
+    SLICE_X75Y191        LUT3 (Prop_lut3_I0_O)        0.105    14.307 f  milansoc_sdram_bankmachine1_consume[2]_i_3/O
+                         net (fo=20, routed)          0.616    14.923    milansoc_sdram_bankmachine1_consume[2]_i_3_n_0
+    SLICE_X69Y192        LUT3 (Prop_lut3_I1_O)        0.105    15.028 r  alinx_ax7101_LUT3_168/O
+                         net (fo=25, routed)          0.436    15.464    milansoc_sdram_bankmachine3_syncfifo3_re
+    SLICE_X69Y190        LUT2 (Prop_lut2_I1_O)        0.105    15.569 r  alinx_ax7101_LUT2_324/O
+                         net (fo=4, routed)           0.576    16.145    alinx_ax7101_net_881
+    SLICE_X73Y187        LUT2 (Prop_lut2_I1_O)        0.105    16.250 r  alinx_ax7101_LUT2_325/O
+                         net (fo=4, routed)           0.376    16.626    milansoc_sdram_bankmachine3_level[3]_i_1_n_0
+    SLICE_X72Y184        FDRE                                         r  milansoc_sdram_bankmachine3_level_reg[0]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=7219, routed)        1.444    16.802    sys_clk
+    SLICE_X72Y184        FDRE                                         r  milansoc_sdram_bankmachine3_level_reg[0]/C
+                         clock pessimism              0.386    17.188    <hidden>
+                         clock uncertainty           -0.058    17.131    <hidden>
+    SLICE_X72Y184        FDRE (Setup_fdre_C_CE)      -0.168    16.963    milansoc_sdram_bankmachine3_level_reg[0]
+  -------------------------------------------------------------------
+                         required time                         16.963    <hidden>
+                         arrival time                         -16.626    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.336    <hidden>
+
+Slack (MET) :             0.336ns  (required time - arrival time)
+  Source:                 milansoc_sdram_zqcs_timer_count1_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            milansoc_sdram_bankmachine3_level_reg[1]/CE
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.390ns  (logic 2.008ns (21.385%)  route 7.382ns (78.615%))
+  Logic Levels:           15  (LUT2=2 LUT3=6 LUT5=2 LUT6=5)
+  Clock Path Skew:        -0.048ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.802ns = ( 16.802 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.236ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7219, routed)        1.566     7.236    sys_clk
+    SLICE_X78Y189        FDRE                                         r  milansoc_sdram_zqcs_timer_count1_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X78Y189        FDRE (Prop_fdre_C_Q)         0.433     7.669 r  milansoc_sdram_zqcs_timer_count1_reg[10]/Q
+                         net (fo=2, routed)           0.796     8.466    milansoc_sdram_zqcs_timer_count1_reg[10]
+    SLICE_X81Y189        LUT6 (Prop_lut6_I0_O)        0.105     8.571 f  alinx_ax7101_LUT6_1258/O
+                         net (fo=1, routed)           0.224     8.795    alinx_ax7101_net_841
+    SLICE_X81Y190        LUT6 (Prop_lut6_I5_O)        0.105     8.900 f  alinx_ax7101_LUT6_1259/O
+                         net (fo=1, routed)           0.243     9.143    alinx_ax7101_net_843
+    SLICE_X80Y188        LUT6 (Prop_lut6_I5_O)        0.105     9.248 f  alinx_ax7101_LUT6_1260/O
+                         net (fo=1, routed)           0.388     9.636    alinx_ax7101_net_844
+    SLICE_X81Y195        LUT3 (Prop_lut3_I2_O)        0.105     9.741 f  alinx_ax7101_LUT3_161/O
+                         net (fo=5, routed)           0.124     9.864    alinx_ax7101_net_1343
+    SLICE_X81Y195        LUT5 (Prop_lut5_I4_O)        0.105     9.969 r  subfragments_bankmachine0_state[3]_i_10/O
+                         net (fo=2, routed)           0.530    10.499    subfragments_bankmachine0_state[3]_i_10_n_0
+    SLICE_X77Y192        LUT3 (Prop_lut3_I2_O)        0.105    10.604 f  alinx_ax7101_LUT3_162/O
+                         net (fo=62, routed)          0.753    11.357    alinx_ax7101_net_845
+    SLICE_X76Y189        LUT3 (Prop_lut3_I2_O)        0.105    11.462 r  alinx_ax7101_LUT3_163/O
+                         net (fo=2, routed)           0.530    11.991    alinx_ax7101_net_846
+    SLICE_X76Y186        LUT6 (Prop_lut6_I5_O)        0.105    12.096 r  alinx_ax7101_LUT6_1266/O
+                         net (fo=1, routed)           0.630    12.726    alinx_ax7101_net_849
+    SLICE_X79Y189        LUT5 (Prop_lut5_I3_O)        0.105    12.831 r  alinx_ax7101_LUT5_191/O
+                         net (fo=9, routed)           0.475    13.306    alinx_ax7101_net_912
+    SLICE_X79Y190        LUT3 (Prop_lut3_I1_O)        0.105    13.411 f  milansoc_sdram_bankmachine1_consume[2]_i_5/O
+                         net (fo=1, routed)           0.361    13.772    milansoc_sdram_bankmachine1_consume[2]_i_5_n_0
+    SLICE_X75Y190        LUT6 (Prop_lut6_I3_O)        0.105    13.877 f  alinx_ax7101_LUT6_1283/O
+                         net (fo=2, routed)           0.325    14.202    milansoc_sdram_bankmachine1_consume[2]_i_4_n_0
+    SLICE_X75Y191        LUT3 (Prop_lut3_I0_O)        0.105    14.307 f  milansoc_sdram_bankmachine1_consume[2]_i_3/O
+                         net (fo=20, routed)          0.616    14.923    milansoc_sdram_bankmachine1_consume[2]_i_3_n_0
+    SLICE_X69Y192        LUT3 (Prop_lut3_I1_O)        0.105    15.028 r  alinx_ax7101_LUT3_168/O
+                         net (fo=25, routed)          0.436    15.464    milansoc_sdram_bankmachine3_syncfifo3_re
+    SLICE_X69Y190        LUT2 (Prop_lut2_I1_O)        0.105    15.569 r  alinx_ax7101_LUT2_324/O
+                         net (fo=4, routed)           0.576    16.145    alinx_ax7101_net_881
+    SLICE_X73Y187        LUT2 (Prop_lut2_I1_O)        0.105    16.250 r  alinx_ax7101_LUT2_325/O
+                         net (fo=4, routed)           0.376    16.626    milansoc_sdram_bankmachine3_level[3]_i_1_n_0
+    SLICE_X72Y184        FDRE                                         r  milansoc_sdram_bankmachine3_level_reg[1]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=7219, routed)        1.444    16.802    sys_clk
+    SLICE_X72Y184        FDRE                                         r  milansoc_sdram_bankmachine3_level_reg[1]/C
+                         clock pessimism              0.386    17.188    <hidden>
+                         clock uncertainty           -0.058    17.131    <hidden>
+    SLICE_X72Y184        FDRE (Setup_fdre_C_CE)      -0.168    16.963    milansoc_sdram_bankmachine3_level_reg[1]
+  -------------------------------------------------------------------
+                         required time                         16.963    <hidden>
+                         arrival time                         -16.626    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.336    <hidden>
+
+Slack (MET) :             0.336ns  (required time - arrival time)
+  Source:                 milansoc_sdram_zqcs_timer_count1_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            milansoc_sdram_bankmachine3_level_reg[2]/CE
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.390ns  (logic 2.008ns (21.385%)  route 7.382ns (78.615%))
+  Logic Levels:           15  (LUT2=2 LUT3=6 LUT5=2 LUT6=5)
+  Clock Path Skew:        -0.048ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.802ns = ( 16.802 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.236ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7219, routed)        1.566     7.236    sys_clk
+    SLICE_X78Y189        FDRE                                         r  milansoc_sdram_zqcs_timer_count1_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X78Y189        FDRE (Prop_fdre_C_Q)         0.433     7.669 r  milansoc_sdram_zqcs_timer_count1_reg[10]/Q
+                         net (fo=2, routed)           0.796     8.466    milansoc_sdram_zqcs_timer_count1_reg[10]
+    SLICE_X81Y189        LUT6 (Prop_lut6_I0_O)        0.105     8.571 f  alinx_ax7101_LUT6_1258/O
+                         net (fo=1, routed)           0.224     8.795    alinx_ax7101_net_841
+    SLICE_X81Y190        LUT6 (Prop_lut6_I5_O)        0.105     8.900 f  alinx_ax7101_LUT6_1259/O
+                         net (fo=1, routed)           0.243     9.143    alinx_ax7101_net_843
+    SLICE_X80Y188        LUT6 (Prop_lut6_I5_O)        0.105     9.248 f  alinx_ax7101_LUT6_1260/O
+                         net (fo=1, routed)           0.388     9.636    alinx_ax7101_net_844
+    SLICE_X81Y195        LUT3 (Prop_lut3_I2_O)        0.105     9.741 f  alinx_ax7101_LUT3_161/O
+                         net (fo=5, routed)           0.124     9.864    alinx_ax7101_net_1343
+    SLICE_X81Y195        LUT5 (Prop_lut5_I4_O)        0.105     9.969 r  subfragments_bankmachine0_state[3]_i_10/O
+                         net (fo=2, routed)           0.530    10.499    subfragments_bankmachine0_state[3]_i_10_n_0
+    SLICE_X77Y192        LUT3 (Prop_lut3_I2_O)        0.105    10.604 f  alinx_ax7101_LUT3_162/O
+                         net (fo=62, routed)          0.753    11.357    alinx_ax7101_net_845
+    SLICE_X76Y189        LUT3 (Prop_lut3_I2_O)        0.105    11.462 r  alinx_ax7101_LUT3_163/O
+                         net (fo=2, routed)           0.530    11.991    alinx_ax7101_net_846
+    SLICE_X76Y186        LUT6 (Prop_lut6_I5_O)        0.105    12.096 r  alinx_ax7101_LUT6_1266/O
+                         net (fo=1, routed)           0.630    12.726    alinx_ax7101_net_849
+    SLICE_X79Y189        LUT5 (Prop_lut5_I3_O)        0.105    12.831 r  alinx_ax7101_LUT5_191/O
+                         net (fo=9, routed)           0.475    13.306    alinx_ax7101_net_912
+    SLICE_X79Y190        LUT3 (Prop_lut3_I1_O)        0.105    13.411 f  milansoc_sdram_bankmachine1_consume[2]_i_5/O
+                         net (fo=1, routed)           0.361    13.772    milansoc_sdram_bankmachine1_consume[2]_i_5_n_0
+    SLICE_X75Y190        LUT6 (Prop_lut6_I3_O)        0.105    13.877 f  alinx_ax7101_LUT6_1283/O
+                         net (fo=2, routed)           0.325    14.202    milansoc_sdram_bankmachine1_consume[2]_i_4_n_0
+    SLICE_X75Y191        LUT3 (Prop_lut3_I0_O)        0.105    14.307 f  milansoc_sdram_bankmachine1_consume[2]_i_3/O
+                         net (fo=20, routed)          0.616    14.923    milansoc_sdram_bankmachine1_consume[2]_i_3_n_0
+    SLICE_X69Y192        LUT3 (Prop_lut3_I1_O)        0.105    15.028 r  alinx_ax7101_LUT3_168/O
+                         net (fo=25, routed)          0.436    15.464    milansoc_sdram_bankmachine3_syncfifo3_re
+    SLICE_X69Y190        LUT2 (Prop_lut2_I1_O)        0.105    15.569 r  alinx_ax7101_LUT2_324/O
+                         net (fo=4, routed)           0.576    16.145    alinx_ax7101_net_881
+    SLICE_X73Y187        LUT2 (Prop_lut2_I1_O)        0.105    16.250 r  alinx_ax7101_LUT2_325/O
+                         net (fo=4, routed)           0.376    16.626    milansoc_sdram_bankmachine3_level[3]_i_1_n_0
+    SLICE_X72Y184        FDRE                                         r  milansoc_sdram_bankmachine3_level_reg[2]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=7219, routed)        1.444    16.802    sys_clk
+    SLICE_X72Y184        FDRE                                         r  milansoc_sdram_bankmachine3_level_reg[2]/C
+                         clock pessimism              0.386    17.188    <hidden>
+                         clock uncertainty           -0.058    17.131    <hidden>
+    SLICE_X72Y184        FDRE (Setup_fdre_C_CE)      -0.168    16.963    milansoc_sdram_bankmachine3_level_reg[2]
+  -------------------------------------------------------------------
+                         required time                         16.963    <hidden>
+                         arrival time                         -16.626    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.336    <hidden>
+
+Slack (MET) :             0.336ns  (required time - arrival time)
+  Source:                 milansoc_sdram_zqcs_timer_count1_reg[10]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            milansoc_sdram_bankmachine3_level_reg[3]/CE
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.390ns  (logic 2.008ns (21.385%)  route 7.382ns (78.615%))
+  Logic Levels:           15  (LUT2=2 LUT3=6 LUT5=2 LUT6=5)
+  Clock Path Skew:        -0.048ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.802ns = ( 16.802 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.236ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7219, routed)        1.566     7.236    sys_clk
+    SLICE_X78Y189        FDRE                                         r  milansoc_sdram_zqcs_timer_count1_reg[10]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X78Y189        FDRE (Prop_fdre_C_Q)         0.433     7.669 r  milansoc_sdram_zqcs_timer_count1_reg[10]/Q
+                         net (fo=2, routed)           0.796     8.466    milansoc_sdram_zqcs_timer_count1_reg[10]
+    SLICE_X81Y189        LUT6 (Prop_lut6_I0_O)        0.105     8.571 f  alinx_ax7101_LUT6_1258/O
+                         net (fo=1, routed)           0.224     8.795    alinx_ax7101_net_841
+    SLICE_X81Y190        LUT6 (Prop_lut6_I5_O)        0.105     8.900 f  alinx_ax7101_LUT6_1259/O
+                         net (fo=1, routed)           0.243     9.143    alinx_ax7101_net_843
+    SLICE_X80Y188        LUT6 (Prop_lut6_I5_O)        0.105     9.248 f  alinx_ax7101_LUT6_1260/O
+                         net (fo=1, routed)           0.388     9.636    alinx_ax7101_net_844
+    SLICE_X81Y195        LUT3 (Prop_lut3_I2_O)        0.105     9.741 f  alinx_ax7101_LUT3_161/O
+                         net (fo=5, routed)           0.124     9.864    alinx_ax7101_net_1343
+    SLICE_X81Y195        LUT5 (Prop_lut5_I4_O)        0.105     9.969 r  subfragments_bankmachine0_state[3]_i_10/O
+                         net (fo=2, routed)           0.530    10.499    subfragments_bankmachine0_state[3]_i_10_n_0
+    SLICE_X77Y192        LUT3 (Prop_lut3_I2_O)        0.105    10.604 f  alinx_ax7101_LUT3_162/O
+                         net (fo=62, routed)          0.753    11.357    alinx_ax7101_net_845
+    SLICE_X76Y189        LUT3 (Prop_lut3_I2_O)        0.105    11.462 r  alinx_ax7101_LUT3_163/O
+                         net (fo=2, routed)           0.530    11.991    alinx_ax7101_net_846
+    SLICE_X76Y186        LUT6 (Prop_lut6_I5_O)        0.105    12.096 r  alinx_ax7101_LUT6_1266/O
+                         net (fo=1, routed)           0.630    12.726    alinx_ax7101_net_849
+    SLICE_X79Y189        LUT5 (Prop_lut5_I3_O)        0.105    12.831 r  alinx_ax7101_LUT5_191/O
+                         net (fo=9, routed)           0.475    13.306    alinx_ax7101_net_912
+    SLICE_X79Y190        LUT3 (Prop_lut3_I1_O)        0.105    13.411 f  milansoc_sdram_bankmachine1_consume[2]_i_5/O
+                         net (fo=1, routed)           0.361    13.772    milansoc_sdram_bankmachine1_consume[2]_i_5_n_0
+    SLICE_X75Y190        LUT6 (Prop_lut6_I3_O)        0.105    13.877 f  alinx_ax7101_LUT6_1283/O
+                         net (fo=2, routed)           0.325    14.202    milansoc_sdram_bankmachine1_consume[2]_i_4_n_0
+    SLICE_X75Y191        LUT3 (Prop_lut3_I0_O)        0.105    14.307 f  milansoc_sdram_bankmachine1_consume[2]_i_3/O
+                         net (fo=20, routed)          0.616    14.923    milansoc_sdram_bankmachine1_consume[2]_i_3_n_0
+    SLICE_X69Y192        LUT3 (Prop_lut3_I1_O)        0.105    15.028 r  alinx_ax7101_LUT3_168/O
+                         net (fo=25, routed)          0.436    15.464    milansoc_sdram_bankmachine3_syncfifo3_re
+    SLICE_X69Y190        LUT2 (Prop_lut2_I1_O)        0.105    15.569 r  alinx_ax7101_LUT2_324/O
+                         net (fo=4, routed)           0.576    16.145    alinx_ax7101_net_881
+    SLICE_X73Y187        LUT2 (Prop_lut2_I1_O)        0.105    16.250 r  alinx_ax7101_LUT2_325/O
+                         net (fo=4, routed)           0.376    16.626    milansoc_sdram_bankmachine3_level[3]_i_1_n_0
+    SLICE_X72Y184        FDRE                                         r  milansoc_sdram_bankmachine3_level_reg[3]/CE
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=7219, routed)        1.444    16.802    sys_clk
+    SLICE_X72Y184        FDRE                                         r  milansoc_sdram_bankmachine3_level_reg[3]/C
+                         clock pessimism              0.386    17.188    <hidden>
+                         clock uncertainty           -0.058    17.131    <hidden>
+    SLICE_X72Y184        FDRE (Setup_fdre_C_CE)      -0.168    16.963    milansoc_sdram_bankmachine3_level_reg[3]
+  -------------------------------------------------------------------
+                         required time                         16.963    <hidden>
+                         arrival time                         -16.626    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.336    <hidden>
+
+Slack (MET) :             0.390ns  (required time - arrival time)
+  Source:                 milansoc_write_w_buffer_level0_reg[2]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            storage_10_dat1_reg[14]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.263ns  (logic 2.046ns (22.088%)  route 7.217ns (77.913%))
+  Logic Levels:           13  (LUT2=4 LUT3=1 LUT4=3 LUT5=2 LUT6=2 RAMD32=1)
+  Clock Path Skew:        -0.041ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.760ns = ( 16.760 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.187ns
+    Clock Pessimism Removal (CPR):    0.386ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7219, routed)        1.517     7.187    sys_clk
+    SLICE_X71Y182        FDRE                                         r  milansoc_write_w_buffer_level0_reg[2]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X71Y182        FDRE (Prop_fdre_C_Q)         0.348     7.535 r  milansoc_write_w_buffer_level0_reg[2]/Q
+                         net (fo=7, routed)           0.728     8.264    milansoc_write_w_buffer_level0_reg[2]
+    SLICE_X71Y183        LUT4 (Prop_lut4_I0_O)        0.262     8.526 r  milansoc_grant_i_9/O
+                         net (fo=1, routed)           0.535     9.060    milansoc_grant_i_9_n_0
+    SLICE_X70Y183        LUT5 (Prop_lut5_I4_O)        0.268     9.328 f  alinx_ax7101_LUT5_91/O
+                         net (fo=1, routed)           0.339     9.668    alinx_ax7101_net_270
+    SLICE_X69Y183        LUT6 (Prop_lut6_I4_O)        0.105     9.773 r  alinx_ax7101_LUT6_1005/O
+                         net (fo=2, routed)           0.461    10.233    milansoc_grant_i_3_n_0
+    SLICE_X68Y186        LUT2 (Prop_lut2_I1_O)        0.105    10.338 f  milansoc_sdram_bankmachine0_produce[2]_i_5/O
+                         net (fo=35, routed)          0.708    11.046    milansoc_port_cmd_payload_we
+    SLICE_X69Y187        LUT4 (Prop_lut4_I1_O)        0.105    11.151 f  alinx_ax7101_LUT4_132/O
+                         net (fo=13, routed)          0.565    11.716    milansoc_sdram_bankmachine1_produce[2]_i_3_n_0
+    SLICE_X70Y188        LUT6 (Prop_lut6_I3_O)        0.105    11.821 r  alinx_ax7101_LUT6_1009/O
+                         net (fo=3, routed)           0.801    12.622    alinx_ax7101_net_287
+    SLICE_X67Y189        LUT5 (Prop_lut5_I1_O)        0.105    12.727 f  alinx_ax7101_LUT5_96/O
+                         net (fo=1, routed)           0.112    12.839    alinx_ax7101_net_294
+    SLICE_X67Y189        LUT4 (Prop_lut4_I3_O)        0.105    12.944 f  alinx_ax7101_LUT4_138/O
+                         net (fo=2, routed)           0.460    13.404    alinx_ax7101_net_295
+    SLICE_X69Y187        LUT2 (Prop_lut2_I1_O)        0.105    13.509 r  alinx_ax7101_LUT2_65/O
+                         net (fo=18, routed)          0.389    13.898    alinx_ax7101_net_952
+    SLICE_X68Y185        LUT2 (Prop_lut2_I0_O)        0.105    14.003 r  milansoc_write_pipe_valid_source_param_id[4]_i_2/O
+                         net (fo=5, routed)           0.260    14.263    milansoc_write_pipe_valid_source_param_id[4]_i_2_n_0
+    SLICE_X66Y185        LUT2 (Prop_lut2_I1_O)        0.105    14.368 r  alinx_ax7101_LUT2_66/O
+                         net (fo=46, routed)          0.217    14.585    milansoc_write_sink_sink_ready
+    SLICE_X66Y185        LUT3 (Prop_lut3_I2_O)        0.105    14.690 r  alinx_ax7101_LUT3_22/O
+                         net (fo=43, routed)          0.990    15.680    storage_10_reg_0_3_12_17/ADDRB0
+    SLICE_X66Y187        RAMD32 (Prop_ramd32_RADR0_O)
+                                                      0.118    15.798 r  storage_10_reg_0_3_12_17/RAMB/O
+                         net (fo=1, routed)           0.653    16.450    storage_10_dat10[14]
+    SLICE_X67Y188        FDRE                                         r  storage_10_dat1_reg[14]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=7219, routed)        1.402    16.760    sys_clk
+    SLICE_X67Y188        FDRE                                         r  storage_10_dat1_reg[14]/C
+                         clock pessimism              0.386    17.146    <hidden>
+                         clock uncertainty           -0.058    17.089    <hidden>
+    SLICE_X67Y188        FDRE (Setup_fdre_C_D)       -0.248    16.841    storage_10_dat1_reg[14]
+  -------------------------------------------------------------------
+                         required time                         16.841    <hidden>
+                         arrival time                         -16.450    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.390    <hidden>
+
+
+
+

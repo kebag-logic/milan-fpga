@@ -1,0 +1,4 @@
+family	worst_setup_slack	levels	startpoint	endpoint
+zqcs_timer_to_bank_machines	0.303	14	milansoc_sdram_zqcs_timer_count1_reg[13]/C	milansoc_sdram_bankmachine7_level_reg[0]/CE
+eth_tx_crc_to_gptp_launch	1.320	9	milansoc_liteethmaccore_tx_crc_pipe_valid_source_payload_data_reg[7]/C	KL_gptp_gmii_launch/mine_r_reg/D
+milan_to_ps_handshake	1.964	1	milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[1]/C	milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/dest_out_r_reg[0]/R

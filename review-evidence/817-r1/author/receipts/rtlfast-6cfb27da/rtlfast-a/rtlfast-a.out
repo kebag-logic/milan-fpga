@@ -1,0 +1,14 @@
+rc=0     0.0s changes[1] Set CPU-derived job budgets
+rc=0    30.3s changes[2] Classify the change conservatively
+JOB changes: success
+rc=0     0.0s verilator-lint[1] Set CPU-derived job budgets
+rc=0     0.0s verilator-lint[2] Fetch RTL dependencies
+rc=0    34.6s verilator-lint[7] Run the ratcheted whole-tree lint gate
+rc=0     0.4s verilator-lint[8] Prove protocol-processor source lists are derived
+JOB verilator-lint: success
+rc=0     0.0s bdd-conformance[1] Set CPU-derived job budgets
+rc=0     0.0s bdd-conformance[3] Fetch the processor model inputs
+rc=0     1.3s bdd-conformance[4] Install behave
+rc=0     5.8s bdd-conformance[5] Run the specification-facing suite
+JOB bdd-conformance: success
+rtl-fast: partial; failed jobs: none; head 6cfb27dacafb2e5b693412db3342ca0fccc9c0bc

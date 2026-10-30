@@ -1,0 +1,4 @@
+dev exceptions: 25   head exceptions: 26
+only at dev: 0
+only at head: 1
+  1 x [get_clocks -of_objects [get_nets milansoc_crg_clkout1]] | * | [get_pins {milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]/D}] | false | false | 

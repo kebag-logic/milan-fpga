@@ -1,0 +1,12 @@
+sync cells: 2
+hier: milan_datapath/g_mmcm_servo.mmcm_servo
+hier: milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs
+hier: milan_datapath/g_mmcm_servo.mmcm_servo/u_tick_cdc
+milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0] REF_NAME=FDRE ASYNC_REG= LOC=SLICE_X0Y4 BEL=SLICEL.BFF
+  clock=milansoc_crg_clkout4
+  D net=milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]_0 driver=milan_datapath/pp_shadow/u_pp/u_aecp/KL_aecp_engine_LUT1_4/O driver_ref=LUT1
+  driver INIT=2'h1
+    in milan_datapath/pp_shadow/u_pp/u_aecp/KL_aecp_engine_LUT1_4/I0 net=milan_datapath/pp_shadow/u_pp/u_aecp/lopt driver=FDPE_3/Q ref=FDPE
+milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[1] REF_NAME=FDRE ASYNC_REG= LOC=SLICE_X0Y4 BEL=SLICEL.CFF
+  clock=milansoc_crg_clkout4
+  D net=milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r[0] driver=milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]/Q driver_ref=FDRE
