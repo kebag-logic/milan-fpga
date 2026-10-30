@@ -94,11 +94,20 @@ def elaborate_shipping(config: str, port: str, output: Path) -> None:
             synth = next(i for i, line in enumerate(commands) if line.startswith("synth_design "))
             optimize = next(i for i, line in enumerate(commands) if line.startswith("opt_design "))
             assert synth < commands.index(hooks[0]) < optimize, "shipping hook outside pre-optimize"
+            # #817: the servo reset synchronizer cut names the milan PLL output.
+            servo = [line for line in commands if line.startswith("kl_servo_reset_sync_constraints")]
+            assert servo == [f"kl_servo_reset_sync_constraints {clocks[1]}"], \
+                f"shipping servo reset synchronizer hook missing, duplicated or renamed: {servo}"
+            sources = [i for i, line in enumerate(commands)
+                       if line.startswith("source ") and line.endswith("clock_constraints.tcl}")]
+            assert len(sources) == 1, f"constraint Tcl sourced {len(sources)} times"
+            assert synth < sources[0] < commands.index(servo[0]) < optimize, \
+                "servo reset synchronizer hook outside pre-optimize"
             assert_timing_grade_hooks(commands)
             assert not any("mr_ff" in line and not line.lstrip().startswith("#")
                            for line in xdc.splitlines()), "generic MultiReg false path in shipping XDC"
             assert not list(directory.glob("*.bit")), "elaboration produced a bitstream"
-            observed.append(hooks[0])
+            observed.append(f"{hooks[0]}; {servo[0]}")
             return namespace
 
     # Even an accidental change to Builder's run handling cannot launch Vivado.
