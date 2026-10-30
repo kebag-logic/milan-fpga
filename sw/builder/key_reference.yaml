@@ -155,7 +155,7 @@ board.constraints.flashboot:
   meaning: What the QSPI flash boots.
   default: baremetal
   allowed: "`none` or `baremetal`"
-  bad: [linux]
+  bad: [rom]
 
 board.constraints.uart_baudrate:
   meaning: Console UART rate.
@@ -565,7 +565,7 @@ soc.software_profile:
   meaning: Firmware contract.
   default: baremetal
   allowed: "`baremetal`"
-  bad: [linux]
+  bad: [hosted]
 
 soc.xlen:
   meaning: CPU word width.

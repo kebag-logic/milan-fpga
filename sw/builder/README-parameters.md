@@ -282,7 +282,7 @@ The contract row is the key's row in
 | Key | Meaning | Need | Default | Allowed and limits | Refused by | Clause | Row |
 |---|---|---|---|---|---|---|---|
 | `board.constraints.eth_port` | Which Ethernet port the image is built for. | optional | absent, the board's default port | one of the board's ports: `e1`, `e2` on `ax7101`, none on `arty` | `_load_board`: board.constraints.eth_port 'e3' invalid for ax7101 (choices ('e1', 'e2')) | - | 5a |
-| `board.constraints.flashboot` | What the QSPI flash boots. | optional | `baremetal` | `none` or `baremetal` | `_load_board`: flashboot 'linux' not none\|baremetal | - | 5a |
+| `board.constraints.flashboot` | What the QSPI flash boots. | optional | `baremetal` | `none` or `baremetal` | `_load_board`: flashboot 'rom' not none\|baremetal | - | 5a |
 | `board.constraints.floorplan` | Apply the board floorplan constraints. | optional | `false` | a boolean | - (any value is read as a boolean) | - | 5a |
 | `board.constraints.gtx_tx_invert` | GMII transmit clock inversion knob. | optional | `false` | a boolean; GMII boards only | - (any truthy value is read as true on a GMII board) | - | 5a |
 | `board.constraints.l2_bytes` | CPU cache size; the bare-metal product core has none. | required | - | zero only | `_load_soc`: baremetal SoC requires l2_bytes: 0 and no scala_args overrides | - | 5a |
@@ -396,7 +396,7 @@ The contract row is the key's row in
 | `soc.cpu_count` | Firmware hart count. | optional | `1` | `1` | `_load_soc`: baremetal SoC requires VexiiRiscv RV32 and one hart | - | 34 |
 | `soc.full` | Elaborate the complete SoC. | optional | `true` | `true` | `_load_soc`: soc.full must be true for the product SoC | - | 34 |
 | `soc.scala_args` | CPU generator arguments. | optional | `[]` | `[]` | `_load_soc`: baremetal SoC requires l2_bytes: 0 and no scala_args overrides | - | 34 |
-| `soc.software_profile` | Firmware contract. | optional | `baremetal` | `baremetal` | `_load_soc`: soc.software_profile 'linux' is retired (#259): the product and repository are bare-metal only | - | 34 |
+| `soc.software_profile` | Firmware contract. | optional | `baremetal` | `baremetal` | `_load_soc`: soc.software_profile 'hosted' is retired (#259): the product and repository are bare-metal only | - | 34 |
 | `soc.timing_opt` | Emit the timing-optimisation flag. | optional | `true` | a boolean | - (any value is passed to the argv decision) | - | 34 |
 | `soc.xlen` | CPU word width. | optional | `32` | `32` | `_load_soc`: baremetal SoC requires VexiiRiscv RV32 and one hart | - | 34 |
 

@@ -160,7 +160,8 @@ def derive(config: Path) -> Any:
 
 
 # ------------------------------------------------------------------ blocks --
-def block_flow(tmp: Path, consumers=CONSUMERS, steps=STEPS) -> str:
+def block_flow(tmp: Path, consumers: tuple[tuple[str, str, str], ...] = CONSUMERS,
+               steps: tuple[tuple[str, str, str], ...] = STEPS) -> str:
     """The builder data flow, every label checked against the implementation."""
     config = write_probe(tmp, Path(BASE).stem, base_doc())
     # The builder's own account of its outputs: every path build() returns.
@@ -224,6 +225,7 @@ def block_aem_tree(tmp: Path, counts_override: dict | None = None) -> str:
     lines = ["```mermaid", "flowchart TD"]
 
     def node(ident: str, kind: str, label: str, n: int = 1) -> None:
+        """Draw one node standing for `n` descriptors of `kind`, and count them."""
         drawn[kind] = drawn.get(kind, 0) + n
         lines.append(f'    {ident}["{label}"]')
 
