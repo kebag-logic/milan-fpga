@@ -1724,7 +1724,8 @@ class GptpPlaneHarness {
   }
 
   // A link loss is portEnabled FALSE, so asCapable falls at once rather than
-  // at the fifth lost response, 4 s on.
+  // at the fifth lost response, 4 s on. The return's edge is taken before the
+  // next phase reads asCapable, so that phase's TRUE is one earned after it.
   void prove_ascapable_falls_at_a_link_loss(Vmilan_datapath *dut) {
     expect("#94 asCapable is TRUE before the link loss",
            await_ascapable(dut, true, 100), 1);
@@ -1733,6 +1734,7 @@ class GptpPlaneHarness {
     expect("#94 asCapable falls at link loss", fabric_ascapable(dut), 0);
     run(dut, 500 * kGptpMsCyc);
     dut->i_link_up = 1;
+    run(dut, 2 * kGptpMsCyc);
   }
 
   // eff_link is the PHY link AND LINK_CTRL[0], the firmware's link
@@ -1749,6 +1751,7 @@ class GptpPlaneHarness {
            fabric_ascapable(dut), 0);
     run(dut, 500 * kGptpMsCyc);
     axi_write(dut, 0x71C, 1u);
+    run(dut, 2 * kGptpMsCyc);
   }
 
   // Inside the cease, 1.3 s into its 3 s countdown, the link drops for
