@@ -1634,8 +1634,13 @@ The checklist's unchecked obligations remain open after contract adoption.
       started/stopped survive a reset that is proven to have cleared the rows
       first (the vacuity trap: a restore that writes nothing and a store that was
       never reset both pass a naive read-back).
-- [ ] The volatile set does NOT survive: after restore the lock is clear, the
-      controller registry is empty, IDENTIFY is 0.
+- [x] The volatile set does NOT survive: after restore the lock is clear, the
+      controller registry is empty, IDENTIFY is 0: in the parent,
+      `tb/verilator/milan_dp`'s dynmap leg, section `[VOLATILE]`, across a
+      planted power cycle with each premise proved first, and three mutants
+      that each keep one item across it are caught by their own checks
+      ([D3 section 9](SAVED_STATE_MATERIALIZATION.md#9-what-must-not-persist));
+      the board reading after a cold cycle is still owed.
 - [ ] A commit interrupted at every stage leaves a complete image in one slot.
 
 **The live-write triggers**
@@ -1644,9 +1649,11 @@ The checklist's unchecked obligations remain open after contract adoption.
       Delete each trigger and each replay independently.
       Each deletion must fail that group's save/restore value check.
       Input/output formats and maps count separately; names cover every ordinal.
-- [ ] Adding IDENTIFY to persistence fails D3's exclusion control.
+- [x] Adding IDENTIFY to persistence fails D3's exclusion control.
       See [D3 section 9](SAVED_STATE_MATERIALIZATION.md#9-what-must-not-persist).
       Milan 5.3.12 keeps its value volatile.
+      The pinned processor's `tb/pp_top/d3_mutants.py` arm `identify_is_a_change`
+      makes IDENTIFY a persisted change, and section D3S7 fails on it.
 
 **The area**
 
