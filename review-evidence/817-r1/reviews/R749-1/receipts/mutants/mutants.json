@@ -1,0 +1,182 @@
+[
+ {
+  "mutant": "C0-control-stub",
+  "kind": "stub",
+  "file": null,
+  "rc": 0,
+  "seconds": 1,
+  "expected": null,
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "C1-control-ship",
+  "kind": "ship",
+  "file": null,
+  "rc": 1,
+  "seconds": 1,
+  "expected": null,
+  "verdict": "CONTROL-FAILED"
+ },
+ {
+  "mutant": "S1-cut-removed",
+  "kind": "stub",
+  "file": "sw/litex/clock_constraints.tcl",
+  "rc": 1,
+  "seconds": 1,
+  "expected": "servo cut missing or widened",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "S2-cut-widened-no-from",
+  "kind": "stub",
+  "file": "sw/litex/clock_constraints.tcl",
+  "rc": 1,
+  "seconds": 1,
+  "expected": "servo cut missing or widened",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "S3-cut-on-second-stage",
+  "kind": "stub",
+  "file": "sw/litex/clock_constraints.tcl",
+  "rc": 1,
+  "seconds": 1,
+  "expected": "servo cut missing or widened",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "S4-cut-clock-level",
+  "kind": "stub",
+  "file": "sw/litex/clock_constraints.tcl",
+  "rc": 1,
+  "seconds": 1,
+  "expected": "servo cut missing or widened",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "S5-asyncreg-check-dropped",
+  "kind": "stub",
+  "file": "sw/litex/clock_constraints.tcl",
+  "rc": 1,
+  "seconds": 1,
+  "expected": "accepted: *lacks ASYNC_REG*",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "S6-asyncreg-check-nonstrict",
+  "kind": "stub",
+  "file": "sw/litex/clock_constraints.tcl",
+  "rc": 1,
+  "seconds": 1,
+  "expected": "accepted: *lacks ASYNC_REG*",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "S7-stage-count-check-dropped",
+  "kind": "stub",
+  "file": "sw/litex/clock_constraints.tcl",
+  "rc": 1,
+  "seconds": 0,
+  "expected": "wrong refusal",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "S8-chain-check-dropped",
+  "kind": "stub",
+  "file": "sw/litex/clock_constraints.tcl",
+  "rc": 1,
+  "seconds": 0,
+  "expected": "not a two-flop chain",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "S9-clock-check-dropped",
+  "kind": "stub",
+  "file": "sw/litex/clock_constraints.tcl",
+  "rc": 1,
+  "seconds": 0,
+  "expected": "not one clock distinct from milan",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "S10-clock-distinct-half-dropped",
+  "kind": "stub",
+  "file": "sw/litex/clock_constraints.tcl",
+  "rc": 1,
+  "seconds": 1,
+  "expected": "not one clock distinct from milan",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "S11-clock-single-half-dropped",
+  "kind": "stub",
+  "file": "sw/litex/clock_constraints.tcl",
+  "rc": 1,
+  "seconds": 1,
+  "expected": "not one clock distinct from milan",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "S12-src-clock-unchecked",
+  "kind": "stub",
+  "file": "sw/litex/clock_constraints.tcl",
+  "rc": 1,
+  "seconds": 1,
+  "expected": "missing clock accepted",
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "E1-hook-call-removed",
+  "kind": "ship",
+  "file": "sw/litex/milan_soc.py",
+  "rc": 1,
+  "seconds": 1,
+  "expected": "hook missing, duplicated or renamed: []",
+  "verdict": "FAILED-UNEXPECTEDLY"
+ },
+ {
+  "mutant": "E2-hook-call-duplicated",
+  "kind": "ship",
+  "file": "sw/litex/milan_soc.py",
+  "rc": 1,
+  "seconds": 1,
+  "expected": "hook missing, duplicated or renamed",
+  "verdict": "FAILED-UNEXPECTEDLY"
+ },
+ {
+  "mutant": "E3-hook-names-sys-clock",
+  "kind": "ship",
+  "file": "sw/litex/milan_soc.py",
+  "rc": 1,
+  "seconds": 0,
+  "expected": "hook missing, duplicated or renamed",
+  "verdict": "FAILED-UNEXPECTEDLY"
+ },
+ {
+  "mutant": "E4-tcl-sourced-twice",
+  "kind": "ship",
+  "file": "sw/litex/clock_constraints.py",
+  "rc": 1,
+  "seconds": 0,
+  "expected": "constraint Tcl sourced 2 times",
+  "verdict": "FAILED-UNEXPECTEDLY"
+ },
+ {
+  "mutant": "E5-hook-moved-pre-placement",
+  "kind": "ship",
+  "file": "sw/litex/clock_constraints.py",
+  "rc": 1,
+  "seconds": 0,
+  "expected": "servo reset synchronizer hook outside pre-optimize",
+  "verdict": "FAILED-UNEXPECTEDLY"
+ },
+ {
+  "mutant": "E6-hook-skipped-with-servo-present",
+  "kind": "ship",
+  "file": "sw/litex/milan_soc.py",
+  "rc": 1,
+  "seconds": 0,
+  "expected": "hook missing, duplicated or renamed: []",
+  "verdict": "FAILED-UNEXPECTEDLY"
+ }
+]
