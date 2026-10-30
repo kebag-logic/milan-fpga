@@ -2093,7 +2093,15 @@ reads `blank=1 fail=0 backed=1`, the register map's "blank media behind a
 validated image" row, and no longer `0x5B00_008C`. The AEM image is loaded
 and CRC-checked before `nvm_boot()` (the order block above, the D3 page's
 section 5.3 change 1), so the walk can prove it; a walk started without the
-image ends CLOSED and holds AECP until reset.
+image ends CLOSED and holds AECP until reset. The wait for the terminal is
+bounded by `MILAN_NVM_RESTORE_TIMEOUT_MS` and decides nothing (change 3): at
+its timeout the firmware prints that the restore has not reached its terminal
+and that the fabric holds the entity enable. `entity_advertise()` then prints
+that it requested the enable, never that the entity is enabled: it still
+writes `PP_CTRL[0]` and `ADP_CTRL[0]`, the fabric holds them until the
+restore releases them, and a CLOSED restore holds them until reset.
+`test_boot_walk.py` grades both lines on every boot path, a restore that
+never reaches its terminal included.
 
 **Runtime.** The product BIOS calls `command_dispatch_hook` after each line.
 [Patch 0006](../../sw/litex/patches/0006-bios-dispatch-hook.patch) supplies the hook and required link marker.
@@ -2163,6 +2171,11 @@ A second MDIO read separates the loss and recovery publications across the CDC.
 Repeated stable readings leave the fabric edge counters unchanged.
 Missing acknowledgements and incomplete negotiation publish link down.
 Discovery probes one PHY address per service opportunity.
+The poll runs on every boot path that passed the CSR identity check ([#70](https://github.com/kebag-logic/milan-fpga/issues/70)).
+`nvm_boot()` arms it before its shape check, so the persistence-disabled path publishes the link too.
+That path also installs the console idle hook; the writer behind it is never admitted.
+After an identity mismatch nothing touches the MDIO pins.
+`sw/firmware/nvm_hosttest/test_phy_firmware.py` boots all three paths against a pin-level peer.
 The link-status CSR feeds MAC_STATUS and the existing fabric consumers.
 The stated maximum publication period is 250 ms for the measured duties.
 The poll trigger is 125 ms, half that allowance.
