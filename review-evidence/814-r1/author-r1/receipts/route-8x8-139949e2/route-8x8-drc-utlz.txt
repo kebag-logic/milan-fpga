@@ -1,0 +1,36 @@
+route-8x8 at 139949e2 (ax8x8 export, place directive AltSpreadLogic_high, recipe unchanged): vivado.out lines 5205-5232
+##     kl_timing_grade_check
+##     report_timing_summary -delay_type min_max -report_unconstrained \
+##         -check_timing_verbose -max_paths 5 -file ${prefix}_all_timing.rpt
+##     report_clock_interaction -delay_type min_max -file ${prefix}_clock_interaction.rpt
+##     report_cdc -details -file ${prefix}_cdc.rpt
+##     check_timing -verbose -file ${prefix}_check_timing.rpt
+## }
+# kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}
+# place_design -directive AltSpreadLogic_high
+Command: place_design -directive AltSpreadLogic_high
+Attempting to get a license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-349] Got license for feature 'Vivado_Implementation' and/or device 'xc7a100t'
+INFO: [Common 17-83] Releasing license: Vivado_Implementation
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+INFO: [Vivado_Tcl 4-2302] The placer was invoked with the 'AltSpreadLogic_high' directive.
+Running DRC as a precondition to command place_design
+INFO: [DRC 23-27] Running DRC with 32 threads
+ERROR: [DRC UTLZ-1] Resource utilization: LUT as Logic over-utilized in Top Level Design (This design requires more LUT as Logic cells than are available in the target device. This design requires 70686 of such cell types but only 63400 compatible sites are available in the target device. Please analyze your synthesis results and constraints to ensure the design is mapped to Xilinx primitives as expected. If so, please consider targeting a larger device. Please set tcl parameter "drc.disableLUTOverUtilError" to 1 to change this error to warning.)
+INFO: [Vivado_Tcl 4-198] DRC finished with 1 Errors, 42 Warnings
+INFO: [Vivado_Tcl 4-199] Please refer to the DRC report (report_drc) for more information.
+ERROR: [Vivado_Tcl 4-23] Error(s) found during DRC. Placer not run.
+7 Infos, 0 Warnings, 0 Critical Warnings and 2 Errors encountered.
+place_design failed
+place_design: Time (s): cpu = 00:00:19 ; elapsed = 00:00:07 . Memory (MB): peak = 9902.727 ; gain = 0.000 ; free physical = 33518 ; free virtual = 75118
+ERROR: [Common 17-39] 'place_design' failed due to earlier errors.
+
+    while executing
+"place_design -directive AltSpreadLogic_high"
+
+== opt_design and the bank's run lines
+4983:INFO: [Opt 31-389] Phase Retarget created 43 cells and removed 278 cells
+5136:opt_design completed successfully
+91:== EXPORT-8x8-DONE 2026-10-30T06:31:39Z MemAvailable 30610276 kB
+92:== VIVADO-START route-8x8 2026-10-30T06:31:39Z MemAvailable 30610448 kB
+93:== VIVADO-END route-8x8 rc=1 2026-10-30T07:36:42Z MemAvailable 55319032 kB
