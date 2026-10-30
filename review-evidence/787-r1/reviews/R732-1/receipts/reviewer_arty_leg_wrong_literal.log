@@ -1,0 +1,66 @@
+verilator --cc --exe --build -j 4 --top-module KL_reboot_ctrl -Wall -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=10" -GMAC_TX_OCTETS_P=11656 -GMAC_MIN_MBPS_P=10 --Mdir <packet>/scratch/obj_arty_wrong ../../../hdl/milan/KL_reboot_ctrl.sv sim_main.cpp -o Vreboot_ctrl_sim
+g++  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=10   -Os  -c -o sim_main.o ../t1/tb/verilator/reboot_ctrl/sim_main.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=10   -c -o verilated.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=10   -c -o verilated_threads.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_reboot_ctrl.cpp VKL_reboot_ctrl___024root__0.cpp VKL_reboot_ctrl__ConstPool__0__Slow.cpp VKL_reboot_ctrl___024root__Slow.cpp VKL_reboot_ctrl___024root__0__Slow.cpp VKL_reboot_ctrl__Syms__Slow.cpp > VKL_reboot_ctrl__ALL.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=10   -c -o VKL_reboot_ctrl__ALL.o VKL_reboot_ctrl__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_reboot_ctrl__ALL.a    -pthread -lpthread -latomic   -o Vreboot_ctrl_sim
+rm VKL_reboot_ctrl__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.055 MB sources in 2 modules, into 0.060 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 5.695 s (elab=0.001, cvt=0.007, bld=5.682); cpu 0.015 s on 4 threads; allocated 346.793 MB
+<packet>/scratch/obj_arty_wrong/Vreboot_ctrl_sim --egress-only
+=== KL_reboot_ctrl: AECP REBOOT -> drain -> egress -> PHY hold -> IPROG (egress bound 10 ms) ===
+  [ ok ] U14 the port takes a frame the MAC will never send
+  [i] U14 egress wait 89 clocks, bound (80, 88]
+  [ ok ] U14 a MAC that never finishes: the PHY hold still rises
+  [ ok ] U14 ...after more than the derived egress bound
+  [FAIL] U14 ...and at most one tick more
+  [ ok ] U14 CSIB falls for the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U14 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U14 the bus returns to the dummy word    got=0xffffffff exp=0xffffffff
+  [ ok ] U14 the PHY hold stays up after the words got=1 exp=1
+  [i] U14 durable, the egress deadline: request to the IPROG word 28105 clocks, bound 28104
+  [FAIL] U14 durable, the egress deadline: the IPROG word comes inside the stated bound
+  [ ok ] U17 phase 0 CSIB falls for the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U17 phase 0 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U17 phase 0 the bus returns to the dummy word got=0xffffffff exp=0xffffffff
+  [ ok ] U17 phase 0 the PHY hold stays up after the words got=1 exp=1
+  [i] U17 phase 0 deadline and bound: request to the IPROG word 108116 clocks, bound 108112
+  [FAIL] U17 phase 0 deadline and bound: the IPROG word comes inside the stated bound
+  [ ok ] U17 phase 7 CSIB falls for the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U17 phase 7 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U17 phase 7 the bus returns to the dummy word got=0xffffffff exp=0xffffffff
+  [ ok ] U17 phase 7 the PHY hold stays up after the words got=1 exp=1
+  [i] U17 phase 7 deadline and bound: request to the IPROG word 108113 clocks, bound 108112
+  [FAIL] U17 phase 7 deadline and bound: the IPROG word comes inside the stated bound
+== reboot_ctrl: checks: 46   failures: 4 ==
+RESULT: FAIL
+make: *** [Makefile:51: run] Error 1

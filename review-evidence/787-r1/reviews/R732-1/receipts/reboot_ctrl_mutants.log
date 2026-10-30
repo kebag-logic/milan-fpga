@@ -1,0 +1,63 @@
+golden: PASS (exit 0)
+request-ignored: KILLED by its named check, 165 failing checks
+  named check: U1 no writer, nothing in the MAC: from the request the PHY hold rises more than one tick later
+drain-ignores-dirty: KILLED by its named check, 6 failing checks
+  named check: U3 dirty work with a live writer: no PHY hold and no IPROG for 4,000 ms
+drain-ignores-pend: KILLED by its named check, 3 failing checks
+  named check: U4 pending work with a live writer: no PHY hold for 1,500 ms
+drain-ignores-a-lost-writer: KILLED by its named check, 28 failing checks
+  named check: U6 the writer is lost: from that clock ...and at most two ticks and the crossing later
+no-drain-deadline: KILLED by its named check, 37 failing checks
+  named check: U5 ...and at most one tick more
+drain-deadline-a-tick-early: KILLED by its named check, 1 failing checks
+  named check: U5 a writer that never commits: the PHY hold more than 10,000 ms and two ticks after the request
+hold-skipped: KILLED by its named check, 7 failing checks
+  named check: U1 the hold is longer than 3,500 ms
+hold-a-tick-short: KILLED by its named check, 7 failing checks
+  named check: U1 the hold is longer than 3,500 ms
+hold-a-tick-long: KILLED by its named check, 10 failing checks
+  named check: U1 the hold is at most one tick longer than 3,500 ms
+bits-not-reversed: KILLED by its named check, 12 failing checks
+  named check: U1 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+wbstar-write-dropped: KILLED by its named check, 12 failing checks
+  named check: U1 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+desync-for-iprog: KILLED by its named check, 11 failing checks
+  named check: U1 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+words-repeat-without-a-hold: KILLED by its named check, 12 failing checks
+  named check: U1 CSIB is high again after the eighth word
+phy-hold-released-for-iprog: KILLED by its named check, 100 failing checks
+  named check: U1 the PHY hold stays up through the IPROG words
+request-not-latched: KILLED by its named check, 12 failing checks
+  named check: U7 a one-clock request: the PHY hold still rises
+hold-survives-reset: KILLED by its named check, 42 failing checks
+  named check: U9 a reset during the hold: back to idle, and no IPROG afterwards
+hold-on-the-request-alone: KILLED by its named check, 25 failing checks
+  named check: U12 frames in the MAC at the request: no PHY hold 20 ms later with three frames still in the MAC
+egress-ignores-the-mac-fifo: KILLED by its named check, 15 failing checks
+  named check: U12 frames in the MAC at the request: no PHY hold 20 ms later with three frames still in the MAC
+egress-without-a-bound: KILLED by its named check, 39 failing checks
+  named check: U14 a MAC that never finishes: the PHY hold still rises
+egress-bound-a-tick-short: KILLED by its named check, 2 failing checks
+  named check: U14 ...after more than the derived egress bound
+egress-bound-a-tick-long: KILLED by its named check, 4 failing checks
+  named check: U14 ...and at most one tick more
+egress-bound-rounded-down: KILLED by its named check, 2 failing checks
+  named check: U14 ...after more than the derived egress bound
+egress-without-the-quiet-tick: KILLED by its named check, 13 failing checks
+  named check: U12 the last frame reaches the PHY: from its end the PHY hold rises more than one tick later
+egress-ignores-the-frame-at-the-port: KILLED by its named check, 3 failing checks
+  named check: U13 a frame still being taken 3 ms into the wait: no PHY hold
+frames-taken-not-counted: KILLED by its named check, 15 failing checks
+  named check: U12 frames in the MAC at the request: no PHY hold 20 ms later with three frames still in the MAC
+end-read-as-a-level: KILLED by its named check, 9 failing checks
+  named check: U12 two frames still in the MAC: no PHY hold
+end-wins-over-a-take: KILLED by its named check, 2 failing checks
+  named check: U12 coincide: the second frame is still in the MAC: no PHY hold
+count-wraps-below-zero: KILLED by its named check, 8 failing checks
+  named check: U16 it reaches the PHY: from its end ...and at most two ticks and the crossing later
+flush-ignored: KILLED by its named check, 1 failing checks
+  named check: U15 a flush in the wait: from the flush ...and at most two ticks and the crossing later
+egress-quiet-sampled-only-at-ticks: KILLED by its named check, 2 failing checks
+  named check: U18 ...no PHY hold at the next tick
+== reboot_ctrl mutants: checks: 31   failures: 0 ==
+RESULT: PASS (golden PASS, 30 of 30 controls killed)
