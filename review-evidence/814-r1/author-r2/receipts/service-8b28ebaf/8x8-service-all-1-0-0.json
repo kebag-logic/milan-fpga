@@ -1,0 +1,3610 @@
+{
+  "media": {
+    "image_bytes": 13256,
+    "records": 164,
+    "aem_bytes": 19520,
+    "populated": true,
+    "slots_sha256": "c78743fef78c8a2f873fd119c9cf98f21897632881c477339ee5d27077d436be",
+    "plan": "all",
+    "shape": "endstation_ax7101_8x8"
+  },
+  "shape": "endstation_ax7101_8x8",
+  "cpu_hz": 50000000,
+  "sys_hz": 100000000,
+  "device_wait_us": 0,
+  "program_wait_us": 0,
+  "raw_log": "\n\r\u001b[1m        __   _ __      _  __\u001b[0m\n\r\u001b[1m       / /  (_) /____ | |/_/\u001b[0m\n\r\u001b[1m      / /__/ / __/ -_)>  <\u001b[0m\n\r\u001b[1m     /____/_/\\__/\\__/_/|_|\u001b[0m\n\r\u001b[1m   Build your hardware, easily!\u001b[0m\n\r\n\r (c) Copyright 2012-2026 Enjoy-Digital\n\r (c) Copyright 2007-2015 M-Labs\n\r\n\r\n\r LiteX git sha1: a1e1c36\n\r\n\r--================ \u001b[1mSoC\u001b[0m =================--\n\r\u001b[1mCPU\u001b[0m:\t\tVexiiRiscv (rv32i2p0__zicsr_zifencei) @ 100MHz\n\r\u001b[1mBUS\u001b[0m:\t\twishbone 32-bit data/32-bit addr\n\r\u001b[1mCSR\u001b[0m:\t\t32-bit data big ordering\n\r\u001b[1mROM\u001b[0m:\t\t128.0KiB\n\r\u001b[1mSRAM\u001b[0m:\t\t8.0KiB\n\r\u001b[1mFLASH\u001b[0m:\t\t16.0MiB\n\r\u001b[1mSDRAM\u001b[0m:\t\t1.0GiB 32-bit @ 800MT/s (CL-7 CWL-5)\n\r\u001b[1mMAIN RAM\u001b[0m:\t1.0GiB\n\r\n\r--=========== \u001b[1mInitialization\u001b[0m ===========--\n\rInitializing SDRAM @0x40000000...\n\rSwitching SDRAM to software control.\n\rSwitching SDRAM to hardware control.\n\r\n\rInitializing n25q128a13 SPI Flash @0x01000000...\n\rMemspeed at 0x1000000 (Sequential, 4.0KiB)...\n\r   Read speed: 1.3MiB/s\n\rMemspeed at 0x1000000 (Random, 4.0KiB)...\n\r   Read speed: 447.3KiB/s\n\r\n\rMilan baremetal: CSR ID=4d494c4e VERSION=00020060, RV32I machine mode, no MMU/cache.\n\r\nEVENT cycle=2946409 kind=write address=2336 value=0 requests=0 responses=0 errors=0\n\nEVENT cycle=2947236 kind=aem_read\nMilan baremetal: AEM 19520 B copied QSPI +0x00400000 -> 0x7f700000, CRC 2104c2d3.\n\r\nEVENT cycle=124806497 kind=write address=2364 value=64 requests=0 responses=0 errors=0\n\nEVENT cycle=124807831 kind=write address=2336 value=2 requests=0 responses=0 errors=0\n\nEVENT cycle=124873283 kind=phy_read status=13 up=1 down=0\n\nEVENT cycle=124873427 kind=ticks first=124807992 last=124807992 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=124873427 kind=write address=2364 value=1 requests=32 responses=32 errors=0\n\nEVENT cycle=125345031 kind=ticks first=124874010 last=125343582 count=341 max_gap=1408 gap_start=125079844\n\nEVENT cycle=125345031 kind=write address=2336 value=0 requests=2665 responses=2665 errors=0\nMilan NVM: slot A VD_OK seq 1, slot B VD_OK seq 1; offered A seq 1 (VD_OK), 13256 B at 0x7f7ef000; walk done=1 fail=0 blank=0 backed=1 closed=0 rolled_back=0 cause=0/0; read faults=0 unread=0.\n\r\nEVENT cycle=125690137 kind=write address=2336 value=1 requests=2665 responses=2665 errors=0\nMilan baremetal: fabric entity enabled; UART diagnostics ready.\n\r--============== \u001b[1mConsole\u001b[0m ===============--\n\r\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=125842464 kind=boot_prompt\n\nEVENT cycle=125842465 kind=command_start index=0 tx_bytes=1513\nmilan_status\n\rID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000a01 PP_CTRL=00000001 PP_STAT=5b000444 AEM=loaded\n\rGPTP_GM=020000fffe000001 GPTP_PARENT=0000000000000000 PDELAY_NS=0 AS_PATH_COUNT=1 AS_PATH_GEN=1 CLKV_STAT=00000001 SYNC=0 ASCAPABLE=0 TU=1 GPTP_LAT=029000db\n\rTAI_NS=0x000000004b774020\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=126724658 kind=ticks first=125941768 last=125941768 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=126724658 kind=command_end index=0 erases=0 programs=0 bytes=0 tx_bytes=1841\n\nEVENT cycle=126724659 kind=command_start index=1 tx_bytes=1841\nmilan_gettime\n\rTAI_NS=0x000000004b9b58e8\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=126961122 kind=ticks first=126830750 last=126830750 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=126961122 kind=command_end index=1 erases=0 programs=0 bytes=0 tx_bytes=1901\n\nEVENT cycle=126961123 kind=command_start index=2 tx_bytes=1901\nmilan_nvm\n\r\nEVENT cycle=137536143 kind=phy_read status=13 up=1 down=0\n\nEVENT cycle=157322147 kind=phy_read status=0 up=1 down=1\n\nEVENT cycle=157331323 kind=phy_read status=0 up=1 down=1\n\nEVENT cycle=157331529 kind=ticks first=127040174 last=157312226 count=58 max_gap=8628918 gap_start=148683308\n\nEVENT cycle=157331529 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\nEVENT cycle=170090341 kind=phy_read status=0 up=1 down=1\n\nEVENT cycle=182441779 kind=ticks first=159304514 last=182440932 count=40 max_gap=1975320 gap_start=167203840\n\nEVENT cycle=182441779 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\nEVENT cycle=182882369 kind=phy_read status=13 up=2 down=1\n\nEVENT cycle=200002977 kind=phy_read status=13 up=2 down=1\n\nEVENT cycle=207901001 kind=ticks first=182826956 last=207900160 count=27 max_gap=8628918 gap_start=191327702\n\nEVENT cycle=207901001 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\nNVM: slot A VD_OK seq 1, slot B VD_OK seq 1, authoritative A, image seq 1, 164 records, 13256 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=0 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=212964454 kind=ticks first=209875492 last=211850812 count=2 max_gap=1975320 gap_start=209875492\n\nEVENT cycle=212964454 kind=command_end index=2 erases=0 programs=0 bytes=0 tx_bytes=2272\n\nEVENT cycle=212964455 kind=command_start index=3 tx_bytes=2272\nmilan_nvm commit\nEVENT cycle=213137189 kind=phy_read status=13 up=2 down=1\n\n\r\nEVENT cycle=221449341 kind=ticks first=213090826 last=213090826 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=221449341 kind=write address=2364 value=8 requests=2665 responses=2665 errors=0\n\nEVENT cycle=222799151 kind=write address=2364 value=16 requests=2665 responses=2665 errors=0\n\nEVENT cycle=225747745 kind=phy_read status=13 up=2 down=1\n\nEVENT cycle=232981581 kind=ticks first=222807906 last=232980734 count=43 max_gap=286850 gap_start=225701382\n\nEVENT cycle=232981581 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\nEVENT cycle=238277731 kind=phy_read status=13 up=2 down=1\n\nEVENT cycle=254424707 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=258177183 kind=ticks first=233221878 last=258176342 count=69 max_gap=5567214 gap_start=248792986\n\nEVENT cycle=258177183 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\nEVENT cycle=262245279 kind=ticks first=259427616 last=261931522 count=3 max_gap=1251998 gap_start=259427616\n\nEVENT cycle=262245279 kind=write address=2364 value=4 requests=2665 responses=2665 errors=0\n\nEVENT cycle=262247925 kind=flash opcode=216 wait_cycles=0\n\nEVENT cycle=270118140 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=270185079 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=270311120 kind=ticks first=270120572 last=270120572 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=270311120 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=270440278 kind=ticks first=270313552 last=270313552 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=270440278 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=270569440 kind=ticks first=270442710 last=270442710 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=270569440 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=270698562 kind=ticks first=270571872 last=270571872 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=270698562 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=270827720 kind=ticks first=270700994 last=270700994 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=270827720 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=270956878 kind=ticks first=270830152 last=270830152 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=270956878 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=271086036 kind=ticks first=270959310 last=270959310 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=271086036 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=271215158 kind=ticks first=271088468 last=271088468 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=271215158 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=271344316 kind=ticks first=271217590 last=271217590 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=271344316 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=271473478 kind=ticks first=271346748 last=271346748 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=271473478 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=271602636 kind=ticks first=271475910 last=271475910 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=271602636 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=271731758 kind=ticks first=271605068 last=271605068 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=271731758 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=271860870 kind=ticks first=271734190 last=271734190 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=271860870 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=271990028 kind=ticks first=271863302 last=271863302 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=271990028 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=272119150 kind=ticks first=271992460 last=271992460 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=272119150 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=272248308 kind=ticks first=272121582 last=272121582 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=272248308 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=272377470 kind=ticks first=272250740 last=272250740 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=272377470 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=272506628 kind=ticks first=272379902 last=272379902 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=272506628 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=272635750 kind=ticks first=272509060 last=272509060 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=272635750 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=272764862 kind=ticks first=272638182 last=272638182 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=272764862 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=272894020 kind=ticks first=272767294 last=272767294 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=272894020 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=273023142 kind=ticks first=272896452 last=272896452 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=273023142 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=273152300 kind=ticks first=273025574 last=273025574 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=273152300 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=273281462 kind=ticks first=273154732 last=273154732 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=273281462 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=273410620 kind=ticks first=273283894 last=273283894 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=273410620 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=273539742 kind=ticks first=273413052 last=273413052 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=273539742 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=273668854 kind=ticks first=273542174 last=273542174 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=273668854 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=273798012 kind=ticks first=273671286 last=273671286 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=273798012 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=273927134 kind=ticks first=273800444 last=273800444 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=273927134 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=274056292 kind=ticks first=273929566 last=273929566 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=274056292 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=274185454 kind=ticks first=274058724 last=274058724 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=274185454 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=274314612 kind=ticks first=274187886 last=274187886 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=274314612 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=274443734 kind=ticks first=274317044 last=274317044 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=274443734 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=274572846 kind=ticks first=274446166 last=274446166 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=274572846 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=274702004 kind=ticks first=274575278 last=274575278 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=274702004 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=274831126 kind=ticks first=274704436 last=274704436 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=274831126 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=274960284 kind=ticks first=274833558 last=274833558 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=274960284 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=275089446 kind=ticks first=274962716 last=274962716 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=275089446 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=275218604 kind=ticks first=275091878 last=275091878 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=275218604 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=275347726 kind=ticks first=275221036 last=275221036 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=275347726 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=275476838 kind=ticks first=275350158 last=275350158 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=275476838 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=275605996 kind=ticks first=275479270 last=275479270 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=275605996 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=275735118 kind=ticks first=275608428 last=275608428 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=275735118 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=275864276 kind=ticks first=275737550 last=275737550 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=275864276 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=275993438 kind=ticks first=275866708 last=275866708 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=275993438 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=276122596 kind=ticks first=275995870 last=275995870 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=276122596 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=276251718 kind=ticks first=276125028 last=276125028 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=276251718 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=276380830 kind=ticks first=276254150 last=276254150 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=276380830 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=276509988 kind=ticks first=276383262 last=276383262 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=276509988 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=276639110 kind=ticks first=276512420 last=276512420 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=276639110 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=276741332 kind=ticks first=276641542 last=276641542 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=276741332 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=282996551 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=283382733 kind=ticks first=276743764 last=283381886 count=19 max_gap=449848 gap_start=282932038\n\nEVENT cycle=283382733 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\nEVENT cycle=295797679 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=309120577 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=309120783 kind=ticks first=283767910 last=309056070 count=40 max_gap=8628918 gap_start=298453374\n\nEVENT cycle=309120783 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\nEVENT cycle=327915239 kind=ticks first=311094794 last=318994636 count=5 max_gap=1975320 gap_start=317019316\n\nEVENT cycle=327915239 kind=write address=2364 value=65538 requests=2665 responses=2665 errors=0\nMilan NVM: commit (console) seq 2 -> slot B, 13256 B, capture 1 acknowledged.\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=328055566 kind=command_end index=3 erases=1 programs=52 bytes=13256 tx_bytes=2387\n\nEVENT cycle=328055567 kind=command_start index=4 tx_bytes=2387\nmilan_nvm commit\nEVENT cycle=328246517 kind=phy_read status=11 up=2 down=1\n\n\r\nEVENT cycle=336558739 kind=ticks first=328182004 last=328182004 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=336558739 kind=write address=2364 value=8 requests=2665 responses=2665 errors=0\n\nEVENT cycle=337908769 kind=write address=2364 value=16 requests=2665 responses=2665 errors=0\n\nEVENT cycle=337918371 kind=ticks first=337917524 last=337917524 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=337918371 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\nEVENT cycle=340875513 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=353423485 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=363014143 kind=ticks first=338158746 last=363013302 count=104 max_gap=304980 gap_start=340811000\n\nEVENT cycle=363014143 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\nEVENT cycle=369570297 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=377390869 kind=ticks first=363459506 last=377077112 count=10 max_gap=5567214 gap_start=363938576\n\nEVENT cycle=377390869 kind=write address=2364 value=4 requests=2665 responses=2665 errors=0\n\nEVENT cycle=377393515 kind=flash opcode=216 wait_cycles=0\n\nEVENT cycle=385263730 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=385330669 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=385456710 kind=ticks first=385266162 last=385266162 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=385456710 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=385585868 kind=ticks first=385459142 last=385459142 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=385585868 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=385715030 kind=ticks first=385588300 last=385588300 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=385715030 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=385844152 kind=ticks first=385717462 last=385717462 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=385844152 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=385973310 kind=ticks first=385846584 last=385846584 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=385973310 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=386102468 kind=ticks first=385975742 last=385975742 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=386102468 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=386231626 kind=ticks first=386104900 last=386104900 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=386231626 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=386360748 kind=ticks first=386234058 last=386234058 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=386360748 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=386489906 kind=ticks first=386363180 last=386363180 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=386489906 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=386619068 kind=ticks first=386492338 last=386492338 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=386619068 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=386748226 kind=ticks first=386621500 last=386621500 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=386748226 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=386877348 kind=ticks first=386750658 last=386750658 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=386877348 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=387006460 kind=ticks first=386879780 last=386879780 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=387006460 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=387135618 kind=ticks first=387008892 last=387008892 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=387135618 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=387264740 kind=ticks first=387138050 last=387138050 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=387264740 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=387393898 kind=ticks first=387267172 last=387267172 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=387393898 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=387523060 kind=ticks first=387396330 last=387396330 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=387523060 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=387652218 kind=ticks first=387525492 last=387525492 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=387652218 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=387781340 kind=ticks first=387654650 last=387654650 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=387781340 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=387910452 kind=ticks first=387783772 last=387783772 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=387910452 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=388039610 kind=ticks first=387912884 last=387912884 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=388039610 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=388042883 kind=ticks first=388042042 last=388042042 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=388042883 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\nEVENT cycle=388168814 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=388297976 kind=ticks first=388171246 last=388171246 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=388297976 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=388427098 kind=ticks first=388300408 last=388300408 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=388427098 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=388556256 kind=ticks first=388429530 last=388429530 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=388556256 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=388685414 kind=ticks first=388558688 last=388558688 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=388685414 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=388814572 kind=ticks first=388687846 last=388687846 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=388814572 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=388943694 kind=ticks first=388817004 last=388817004 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=388943694 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=389072852 kind=ticks first=388946126 last=388946126 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=389072852 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=389202014 kind=ticks first=389075284 last=389075284 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=389202014 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=389331172 kind=ticks first=389204446 last=389204446 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=389331172 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=389460294 kind=ticks first=389333604 last=389333604 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=389460294 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=389589406 kind=ticks first=389462726 last=389462726 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=389589406 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=389718564 kind=ticks first=389591838 last=389591838 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=389718564 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=389847686 kind=ticks first=389720996 last=389720996 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=389847686 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=389976844 kind=ticks first=389850118 last=389850118 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=389976844 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=390106006 kind=ticks first=389979276 last=389979276 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=390106006 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=390235164 kind=ticks first=390108438 last=390108438 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=390235164 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=390364286 kind=ticks first=390237596 last=390237596 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=390364286 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=390493398 kind=ticks first=390366718 last=390366718 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=390493398 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=390622556 kind=ticks first=390495830 last=390495830 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=390622556 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=390751678 kind=ticks first=390624988 last=390624988 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=390751678 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=390880836 kind=ticks first=390754110 last=390754110 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=390880836 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=391009998 kind=ticks first=390883268 last=390883268 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=391009998 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=391139156 kind=ticks first=391012430 last=391012430 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=391139156 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=391268278 kind=ticks first=391141588 last=391141588 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=391268278 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=391397390 kind=ticks first=391270710 last=391270710 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=391397390 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=391526548 kind=ticks first=391399822 last=391399822 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=391526548 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=391655670 kind=ticks first=391528980 last=391528980 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=391655670 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=391784828 kind=ticks first=391658102 last=391658102 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=391784828 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=391887050 kind=ticks first=391787260 last=391787260 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=391887050 kind=flash opcode=2 wait_cycles=0\n\nEVENT cycle=398142269 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=410943349 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=413257977 kind=ticks first=391889482 last=413257136 count=56 max_gap=737824 gap_start=412027558\n\nEVENT cycle=413257977 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\nEVENT cycle=424266295 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=443060829 kind=ticks first=413599092 last=434140346 count=8 max_gap=8628918 gap_start=413599092\n\nEVENT cycle=443060829 kind=write address=2364 value=131074 requests=2665 responses=2665 errors=0\nMilan NVM: commit (console) seq 3 -> slot A, 13256 B, capture 2 acknowledged.\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=443201140 kind=command_end index=4 erases=2 programs=104 bytes=26512 tx_bytes=2502\n\nEVENT cycle=443201141 kind=command_start index=5 tx_bytes=2502\nmilan_nvm\nEVENT cycle=443344725 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=443344951 kind=ticks first=443280196 last=443280196 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=443344951 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\n\r\nEVENT cycle=456174127 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=473698863 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=473699069 kind=ticks first=443372406 last=473634356 count=57 max_gap=8628918 gap_start=465005438\n\nEVENT cycle=473699069 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\nEVENT cycle=486503313 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=498854751 kind=ticks first=475672054 last=498853904 count=40 max_gap=1975320 gap_start=483571380\n\nEVENT cycle=498854751 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\nEVENT cycle=499304441 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=516443201 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=524341227 kind=ticks first=499239928 last=524340386 count=27 max_gap=8628918 gap_start=507749776\n\nEVENT cycle=524341227 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\nNVM: slot A VD_OK seq 3, slot B VD_OK seq 2, authoritative A, image seq 3, 164 records, 13256 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=529406498 kind=ticks first=526315718 last=528291038 count=2 max_gap=1975320 gap_start=526315718\n\nEVENT cycle=529406498 kind=command_end index=5 erases=2 programs=104 bytes=26512 tx_bytes=2873\n\nEVENT cycle=529406499 kind=command_start index=6 tx_bytes=2873\nmilan_nvm wipe\nEVENT cycle=529583867 kind=phy_read status=11 up=2 down=1\n\n\r\nEVENT cycle=529604281 kind=ticks first=529519354 last=529519354 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=529604281 kind=flash opcode=216 wait_cycles=0\n\nEVENT cycle=537352297 kind=ticks first=537348724 last=537348724 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=537352297 kind=flash opcode=216 wait_cycles=0\nNVM: slot A erased, slot B erased; the staged image is unchanged, reboot to observe a blank boot.\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=545219868 kind=command_end index=6 erases=4 programs=104 bytes=26512 tx_bytes=3006\n\nEVENT cycle=545219869 kind=command_start index=7 tx_bytes=3006\nmilan_nvm\nEVENT cycle=545363437 kind=phy_read status=11 up=2 down=1\n\n\rNVM: slot A VD_BLANK seq 0, slot B VD_BLANK seq 0, authoritative -, image seq 3, 164 records, 13256 B at 0x7f7ef000, writer live\n\rNVM: PP_NVM_STAT=c30000e4 backed=1 dirty=0 stale=0 valid=1 commit_busy=0 dev_busy=0 pend=0 unres=0 load_pend=0 load_acc=1 reload_ref=0 verdict=VD_OK; commits ok=2 failed=0 captures refused=0 acks refused=0 last=VD_OK\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=546057672 kind=ticks first=545298924 last=545298924 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=546057672 kind=command_end index=7 erases=4 programs=104 bytes=26512 tx_bytes=3383\n\nEVENT cycle=546057673 kind=command_start index=8 tx_bytes=3383\nmilan_nvm invalid\n\rmilan_nvm [commit|wipe]\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=546255290 kind=ticks first=546190808 last=546190808 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=546255290 kind=command_end index=8 erases=4 programs=104 bytes=26512 tx_bytes=3445\n\nEVENT cycle=546255291 kind=command_start index=9 tx_bytes=3445\nmilan_settime 0 0\n\rTAI_NS=0x0000000000000320\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=546500966 kind=ticks first=546388488 last=546388488 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=546500966 kind=command_end index=9 erases=4 programs=104 bytes=26512 tx_bytes=3509\n\nEVENT cycle=546500967 kind=command_start index=10 tx_bytes=3509\nmilan_settime 18446744073 709551615\nEVENT cycle=546820235 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=546820381 kind=ticks first=546755782 last=546755782 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=546820381 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\n\rTAI_NS=0x000000000000031f\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=547083034 kind=command_end index=10 erases=4 programs=104 bytes=26512 tx_bytes=3591\n\nEVENT cycle=547083035 kind=command_start index=11 tx_bytes=3591\nmilan_settime 18446744073 709551616\nEVENT cycle=547402323 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=547402489 kind=ticks first=547337850 last=547337850 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=547402489 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\n\rmilan_settime <tai-seconds> [nanoseconds]\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=547644824 kind=command_end index=11 erases=4 programs=104 bytes=26512 tx_bytes=3689\n\nEVENT cycle=547644825 kind=command_start index=12 tx_bytes=3689\nmilan_settime invalid\n\rmilan_settime <tai-seconds> [nanoseconds]\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=547887288 kind=ticks first=547805000 last=547805000 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=547887288 kind=command_end index=12 erases=4 programs=104 bytes=26512 tx_bytes=3773\n\nEVENT cycle=547887289 kind=command_start index=13 tx_bytes=3773\nmilan_utc 0 0 37\n\rUTC applied with TAI-UTC=37 s; TAI_NS=0x000000089d6584c0\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=548225102 kind=ticks first=548013664 last=548013664 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=548225102 kind=command_end index=13 erases=4 programs=104 bytes=26512 tx_bytes=3867\n\nEVENT cycle=548225103 kind=command_start index=14 tx_bytes=3867\nmilan_utc 18446744073709551615 0 1\nEVENT cycle=548537743 kind=phy_read status=11 up=2 down=1\n\nEVENT cycle=548537963 kind=ticks first=548473220 last=548473220 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=548537963 kind=write address=2364 value=1 requests=2665 responses=2665 errors=0\n\n\rmilan_utc <utc-seconds> <nanoseconds> <tai-minus-utc>\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=548887088 kind=command_end index=14 erases=4 programs=104 bytes=26512 tx_bytes=3976\n\nEVENT cycle=548887089 kind=command_start index=15 tx_bytes=3976\nmilan_utc invalid 0 0\n\rmilan_utc <utc-seconds> <nanoseconds> <tai-minus-utc>\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=549140348 kind=ticks first=549047264 last=549047264 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=549140348 kind=command_end index=15 erases=4 programs=104 bytes=26512 tx_bytes=4072\n\nEVENT cycle=549140349 kind=command_start index=16 tx_bytes=4072\nmilan_status\n\rID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000a01 PP_CTRL=00000001 PP_STAT=5b000444 AEM=loaded\n\rGPTP_GM=020000fffe000001 GPTP_PARENT=0000000000000000 PDELAY_NS=0 AS_PATH_COUNT=1 AS_PATH_GEN=1 CLKV_STAT=00000009 SYNC=0 ASCAPABLE=0 TU=1 GPTP_LAT=029000db\n\rTAI_NS=0x000000089e783a60\n\r\u001b[92;1mlitex\u001b[0m> \nEVENT cycle=550025488 kind=ticks first=549239684 last=549239684 count=1 max_gap=0 gap_start=0\n\nEVENT cycle=550025488 kind=command_end index=16 erases=4 programs=104 bytes=26512 tx_bytes=4400\n\nPHY_TIMING transactions=210 publications=34 max_transaction_cycles=8785 max_poll_cycles=65174 down_edges=1 up_edges=1\nBACKING armed=1 unbacked_cycles=0\n== fw_service_budget: checks: 1   failures: 0 ==\nRESULT: PASS\n",
+  "input_hashes": {
+    "sw/firmware/milan_baremetal/milan_baremetal.c": "497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed",
+    "sw/firmware/milan_baremetal/Makefile": "e50b8d465728756e043591140e710d7d854954bbc01aeed16a24e3699796635d",
+    "sw/litex/milan_soc.py": "f89ab23174a2d5c9823c31a8ca69a0a689e46aeaee63c2eec44a92335df8419c",
+    "sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch": "eb44cc0365eb2f20b8c76412032b080242c7daca2e67ac84f166976e5dd8018a",
+    "sw/litex/patches/0004-vexiiriscv-baremetal-variant.patch": "cfbd904607759b1effec0705bcc501d821684c6cdddf4cedb2dd2c14eafa9ea8",
+    "sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch": "e464f6a7adf5c643961808f2dfadd00e4c431caf613bb9d71ab3be90f98dcab0",
+    "sw/litex/patches/0006-bios-dispatch-hook.patch": "f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f",
+    "sw/litex/patches/0007-liteeth-gmii-rx-capture.patch": "1d26df59aa0bbd9285f84c7be7852a1833bfd88810fdfd002473e98ac833a20f",
+    "configs/endstation_ax7101_1x1_tdm8.yaml": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1",
+    "configs/endstation_ax7101_8x8.yaml": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b",
+    "tb/verilator/nvm_capture_cpu/firmware.py": "772ffdc689f08a3dc59889d87a72ce7559230dff739d4ebe1caf2aca3fc892c8",
+    "tb/verilator/nvm_capture_cpu/probe.py": "3d59723dbac96b06a29335bf4e8ffed2a53fc425ef7fa8f14fb8cde94827b911",
+    "tb/verilator/nvm_capture_cpu/recipe.py": "0c00b7865a2d595bb975953d7455494bc6b308266b2633797a0aca429d8bba25",
+    "tb/verilator/nvm_capture_cpu/run.py": "c230cb3e6289bf991554b8d967e0993ec7860e119afb44579580c339a8191659",
+    "tb/verilator/nvm_capture_cpu/soc.py": "e782993b5affe15fa8c368bb0a52873d185a7d9ce0e7ffd1fcb838060be27b02",
+    "tb/verilator/fw_service_budget/build.py": "c3daeac7698fb6e4e9c310c30118dfb6f44ed9cbc2906909903e621fa331d44d",
+    "tb/verilator/fw_service_budget/flash.hpp": "ffd30ea46c3aec139583d92f1ce8d8ecd8efc9b409e94b261d85c29337ec9f90",
+    "tb/verilator/fw_service_budget/flash_test.cpp": "9a0ed225ee928c328d929e3e634ef11075bd9507a0ceb2bb789455a25927dc3d",
+    "tb/verilator/fw_service_budget/gen_oracle.py": "6e80cbcbebb0cdb137114ba7466fd289208d3e47445867bc33fc3b441acb1b50",
+    "tb/verilator/fw_service_budget/observe.vlt": "9936d6c81bdc5348a34322e70419a67e8d6315893856d18c83f1d2cfdb340c60",
+    "tb/verilator/fw_service_budget/phy.hpp": "8dc44be45e6efef3a704399e5511115cfa20f6e0c607468557294af2e12178f9",
+    "tb/verilator/fw_service_budget/phy.py": "16d8518d6f18d1ada142db1b029df27070435af6dc76363f285fa89c8b0cc341",
+    "tb/verilator/fw_service_budget/run.py": "01d74794e2f588911fc9f40014002af4ee1b5b3456c0e81040cbd4856e8c4ca7",
+    "tb/verilator/fw_service_budget/sim_main.cpp": "86153ee62fa7719852e6e5b0bf1e4d533cf5cd10b1fbd457bf6ccbf0a5d0c634"
+  },
+  "build_hashes": {
+    "configs/endstation_ax7101_1x1_tdm8.yaml": "6e1463f68ec2cf8b97b7c89a8b5930ed62e05e267ddb16bd87bf2b36dd992fa1",
+    "configs/endstation_ax7101_8x8.yaml": "ca491ba5c172fce3e4a99ef9ecbe7412804b8234320c8459e6b8e150e5e3635b",
+    "gptp-processor/hdl/common/KL_gptp_timer.sv": "a77c78058d282865f8e980981e6e23c7ca74e0adf8e3f733357858cf8f23706f",
+    "gptp-processor/hdl/top/KL_gptp_engine.sv": "af5b25a15accbf7ba00967dd1d4417c94e17d76124e7ed0cef985ff8ce267de2",
+    "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv": "fa4d9ffd04ab68f24a77aa08c7e7f3b98f0015bc97e11d7f3969bb3d79df8647",
+    "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv": "f9e43432d8d121a27b15544d8e33e3d8f85fa05432399e7b75d5e6c4125d7b35",
+    "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv": "ad215f8c87c39b266eae4575bb3ffc4f64ca2482e49631921c59fe137391900b",
+    "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv": "f5d1dbf6acafa6197d7afd7830f920b0c324f0628738deabc5af92fbca7dbdc1",
+    "hdl/common/KL_link_guard.sv": "85c716fdbf90f92bece9c11e81d3704c4b3aaea935c50e9f9a2733208da73a53",
+    "hdl/common/axi_stream_if.sv": "f3787e00690a6182572af8817b1fe19d7b8abb7215cd51cc8ce43f9770d91c6c",
+    "hdl/common/cdc_handshake.sv": "047bad93e2c1507798ce9617ff7f8413e163edb786e4b1371d2219a146096c79",
+    "hdl/common/cdc_pair_fifo.sv": "d6c043df6e2c99e00cb5dd5a9595c459351133968229e4ad7f6246824c61c025",
+    "hdl/common/cdc_pulse.sv": "abcbeb59c175b7fbc8de5555474146bfb4e426d086c4b68f915c148e9c677ad3",
+    "hdl/common/csr/milan_csr.sv": "9cd822789d8cd921b7569f2e1a71131c6cf583667b77c5cd40d92bdea7c4af4c",
+    "hdl/common/eth_event_counter/KL_mac_rmon_events.sv": "9b45703f19dd59656107ed11d619bfe1a2b6d232d160faf20f3fe5a1b0355f4b",
+    "hdl/common/eth_event_counter/ethernet_events.sv": "e7b87c05dc031981db1bd1ce012761a8c043a2598855fdbcf8e2c7d1baaa99b6",
+    "hdl/common/eth_event_counter/event_counter.sv": "564927ba2161ccf445a63ba60af214e34d2d4ec0068a80833dd80ac79f08a466",
+    "hdl/common/ethernet_packet_pkg.sv": "91c82f1696af7e46518deec7247c683cd13a8dc482fc957e3f0775549dc64713",
+    "hdl/common/tx_ifg_gasket.sv": "c2038c55d20a01b22c1e8c71a2238a0cdb430db2a53a3ea01b660a8b2c955ac8",
+    "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv": "08c5847ed67e550b33e0917f747ad365ed59f2345ce198e459438d8a1ed4f6de",
+    "hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv": "5aa7571a27cee85f6ae2c39cb58332886b6c7063ceda502c233af7b04306e144",
+    "hdl/ieee1722/aaf/KL_aaf_latency_taps.sv": "2fb2ecb429b1125d368f61dd36c131302da136bfb41603346e9ac084a9441e8e",
+    "hdl/ieee1722/aaf/KL_aaf_packetizer.sv": "e2fb295b2e69a97282b26dde14b2467ca92b7267e9659717f942e432430a3465",
+    "hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv": "b963f375a09102b55b3b34e2734c9ec16c01742aebc5ad3c22ffe04caacf557d",
+    "hdl/ieee1722/aaf/KL_chan_map_capture.sv": "95a9f57a958683eb68b555138ea02f7f943ee67a70f44b361b56ca866ea1b794",
+    "hdl/ieee1722/aaf/KL_chan_map_render.sv": "d645deb04c8d5554f013a43e2de6b7a4b2e1a3538e65cde0dda725a2e392e5fe",
+    "hdl/ieee1722/aaf/KL_i2s_feed_mux.sv": "721ce0c974668d062d5d6b099454e2218ea85be4515fb34996e4e1c11a5784e4",
+    "hdl/ieee1722/aaf/KL_i2s_playback.sv": "f79b1ff10545c2a18e6af8637ad31ff50cce0e1654f2fb06305507afc301cd11",
+    "hdl/ieee1722/aaf/KL_media_adv.sv": "65029f520cb945ba679e872c9b60580342ebb6ccfd002a31400b4aec2b68ae99",
+    "hdl/ieee1722/aaf/KL_pair_blend.sv": "7b10ab08be2722970674eb959d7b65d60f327153e60e0ca72f6d4d0181b1591a",
+    "hdl/ieee1722/aaf/KL_pair_zero_fill.sv": "3a0b8adef03b9373d66426d88cc49c0989258007020276a7ff78e03051116acd",
+    "hdl/ieee1722/aaf/KL_pcm_lpf.sv": "de148eea2d2e298cb7ead685e133eebd745ec5f7192ce41877cacde9b2cdb121",
+    "hdl/ieee1722/aaf/KL_pcm_route.sv": "696979b3075883e293825974f347fc36119515dd6c73aa65ef63a4cd347177b6",
+    "hdl/ieee1722/aaf/KL_render_queue.sv": "1f43d6390fac261cb00b773350fcfb1e323ac82e4ad93c8d9c977428ae2182d3",
+    "hdl/ieee1722/aaf/KL_tdm_capture.sv": "ec077533729fe07f60df4d7e777ce4fa74bb893d03e2a1f530908e40eb89cd60",
+    "hdl/ieee1722/aaf/KL_tdm_capture_master.sv": "b4a4b7f7487499153b64553d36e34011cfab0bdbc47cbd0c40a7ed457e821ffc",
+    "hdl/ieee1722/aaf/KL_tdm_render.sv": "2e155f55c8c0e00099c028520fe19517373bbcbbe0ad998272fdf5ab66ede46b",
+    "hdl/ieee1722/aaf/KL_tdm_render_master.sv": "abdb08d03210316872077d7a67ea9417b6860b5af12afad4a07cb21fdc24d951",
+    "hdl/ieee1722/aaf/KL_tone_gen.sv": "b8b83919ff2f92da3e9de81de80c2c8714d544b4bc1d54c8ea57baf7e1884a3b",
+    "hdl/ieee1722/aaf/aaf_talker_i2s.sv": "1ba47abe7164abd3dce44c119360c80c159e8cf596b5938fe9712c25bd787a65",
+    "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv": "6f85ffd1eb3e0d38f5352169d2ec66b5dbff61f8736680db64a3034b422b775f",
+    "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv": "a91de85118a60a255f7f52d411b2d694cbb570f2a5ceb75205f0ac92f9237c90",
+    "hdl/ieee1722/avtp/KL_media_clock_restart.sv": "0d8ea233c2e15f32ae5451af24c6a9a6d05b3f29316dba6cc2e56ebc92511060",
+    "hdl/ieee1722/avtp/KL_stream_table.sv": "cebf68fe297a46c0825b5bcb0ab7b231e881be65ebda1d6c27cbaa5b393da7cc",
+    "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv": "d5fdc05084998fba3f66cafdd2f30ae06551991b970a95fcd6cc76659634dbb4",
+    "hdl/ieee1722/avtp/avtp_stream_parser.sv": "43d3a69b6be07d82b4082131de03525078fe4562139135fd837a1dc735ee6a58",
+    "hdl/ieee1722/avtp/avtp_subtype_pkg.sv": "6442ccd6a6ac6071b558b7d37a063e50638b976f390112ba6189351c0ae105b9",
+    "hdl/ieee1722/crf/KL_aaf_clock_meter.sv": "7011dde80bf448554729aade2ef98aaadb452fcd436a10420e80cb0c92c7d670",
+    "hdl/ieee1722/crf/KL_crf_rx.sv": "03fd04be322525fe3fc1a8b9e1c8452bf5cd6e6d590aaf4edd8ac19af9df35bb",
+    "hdl/ieee1722/crf/KL_crf_tx.sv": "d3244659ca61f9ac8ef560f8a7382759366b5c4a3ba4880b59ad21037fbe418c",
+    "hdl/ieee1722/crf/KL_media_domain_event.sv": "2c1ce862e30c1d4fe7881d6ec53dd1603161a4b26b580dd9643ba042fa6f813a",
+    "hdl/ieee1722/crf/KL_media_grid_align.sv": "50fae464ebd8c89287115922b63c80c71a26ae6ef112253fc745cba14b2d41ed",
+    "hdl/ieee1722/crf/KL_media_if_latency_pkg.sv": "127abd3dc9c03e3060f32a6d192df7345e817eb6f27c082e223d81593ae12c39",
+    "hdl/ieee1722/crf/KL_media_nco.sv": "4faec8b7c0d57a20ed5497bb794d35920f69996f7869f829aec699afbc6bcb52",
+    "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv": "0d026bd79829b1a57e2c79133b56e616e0503f8b033147b72ae9aa256f38a9e2",
+    "hdl/ieee1722/crf/KL_mtt_round.sv": "0b92f9305418932509f3f121531bfa06d5c9bb7fe9f4ae207e242115b59b0593",
+    "hdl/ieee1722/maap/KL_maap.sv": "f013203b1b8020c237f828c66fff6406c27fd01df2e0ce482b18db3fff656dda",
+    "hdl/ieee17221/adp/adp_tx_arbiter.sv": "3a7e171107c0f5554b5f76721ada4f972378e5c829700b16c323cfede4ec3b5f",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv": "191a8e3a39cefcd68586f78c41b2eecd1063a58fac29334f6ecb9fd83eb2da29",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv": "8043d2eb16cba5fcb50a80783105bda8a1baa1cedd586b1097fc989cb43d2d8b",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv": "8f43908852afb4018951045c509f2229eeabf1c5f17c84be1f1299b5a9d96e6c",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv": "90fdcfa69e62abb2a377156f99d4065ba0748d1d4b6b76e9e53b8233f4cba184",
+    "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv": "af8dc99c4da6a0f1709fb91803474e430e283fa265750597728b58f8a9107cee",
+    "hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv": "fac8feb49e61cf946a215162f4694935d75a9bc24e09240a2d44635ef1ec91cc",
+    "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv": "89813f3420f7aa4ea80aee478b25ca6a9fa562572025447fc07b1c949bda1a33",
+    "hdl/ieee8021q/filtering/rx_mac_filter.sv": "607612707a3c7a01d664daf8fa3cc443e1f52ae34351b99ee0d591bfa726560f",
+    "hdl/ieee8021q/filtering/tcam.sv": "2fb50884ba72fefc8f0c4be096513b49ffe71f1d4635c58eaa6cfd1d88c77e8b",
+    "hdl/milan/KL_nvm_backend.sv": "a352f0dd0812b3bcf882b5189e926e93cecf1a1b8ebfebd380a67bf81312e1aa",
+    "hdl/milan/KL_pp_maap_shim.sv": "965fbee050c985f767423bf63f2c0f0a507faf5ede7cc81e3a939bee963ba98e",
+    "hdl/milan/KL_pp_shadow.sv": "37108cdc297f288be4e40c069d3b9cb5f54f848138ad38ce71d1817dceb44cce",
+    "hdl/milan/milan_datapath.sv": "eb245fdaf605caf3d84ad135a32aa9b2273d0d066cd584b670aa32fe06394fba",
+    "protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv": "464770f169394780f403ea994332f9a1cf02c8650543f96ae71d794d02041c67",
+    "protocol-processor/hdl/acmp/KL_acmp_talker.sv": "00086327ce109c1af587f62e343c708c1b39c1b2ac92ba72e89a53efdfb4d030",
+    "protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv": "b4ae6829130f5f9e73f7a6bdc1da16e556c46f49ce063c75b43e4ca6db1041bd",
+    "protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv": "af9ea8ab5bf36ee186ff7882551fb57304bcfd3643f3c24537a0d29e7919d905",
+    "protocol-processor/hdl/acmp/pp_acmp_pkg.sv": "5f72042acefec18ad4f2bf5d362aea225f3da659b0bf5de88f804b74c3be130a",
+    "protocol-processor/hdl/adp/KL_adp_engine.sv": "41c46313e81331bab93a456e1ba448932f7c4fcc6b29839be6bced078c1fc460",
+    "protocol-processor/hdl/adp/pp_adp_pkg.sv": "5e396186e1b2495c73fe3d4d09fcdc388b7ce24048cb60f80b4c74da390f2ed2",
+    "protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv": "524570696cdf2c8c6874e8b015d3e8624fc17a77ebf4a86ae848feceb7129131",
+    "protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv": "781223168d76c57342a761b278962ef10c818cdb1b48ea8c26f4977582934098",
+    "protocol-processor/hdl/aecp/KL_aecp_desc_store.sv": "e8b7962c2a2534c85219b3dbc4082d024c2c026956c65812574c5b0a599b1bf9",
+    "protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv": "35c138e1d0084eb38352e04895d9a42ac81b7a473d65ba1ad3ba0ec73ccc0266",
+    "protocol-processor/hdl/aecp/KL_aecp_engine.sv": "c343abfbed5b2892fc91964a03686a2ea78cbf78a1072757ce4e8da33a3370be",
+    "protocol-processor/hdl/aecp/KL_aecp_notify.sv": "671a6d7a079eadee9417c3f6b4331617436bae47154a962d205e163968597668",
+    "protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv": "3cad0795787eca8aeb19171085a683feb71a6bc10bec71f08b0be4a221f44387",
+    "protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv": "33470e68dfe5ea603c9de5e9206b860ec56d6628db52143e61de786d2bec7256",
+    "protocol-processor/hdl/aecp/KL_aecp_ucpu.sv": "cbc20cffb01ba8ec95dd6ec41496e4518ac8b558fd523c971cb388780279a652",
+    "protocol-processor/hdl/aecp/ucpu_pkg.sv": "07b0d29baa395df75f38d5ffd1263a1c936bd452b71f7cedc7a26c7368b3cea1",
+    "protocol-processor/hdl/common/KL_pp_prng.sv": "e44e469b9c3dfac811b7e17b08092b974941946df8308485e3f75d11a61015fd",
+    "protocol-processor/hdl/common/KL_pp_timer_service.sv": "8214f9db0dea43942eca9cb057bd80c993c9eaad0ab65124e58fb05578f5d69c",
+    "protocol-processor/hdl/common/pp_pkg.sv": "790a076a1490418a9e7a7c1a044a56016135e1b2cfaa780c44ca3e7f8be2ab0f",
+    "protocol-processor/hdl/maap/KL_pp_maap.sv": "b4f2968d851305dc0e2ef871ef5e179d4a1b0cc81c13fe74aa94f8b58142b1fe",
+    "protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv": "da2322019be49129a6ea088933e650ef377a80ddd578a4dd741d0533f3f858a4",
+    "protocol-processor/hdl/packet_engine/KL_pp_event_router.sv": "f7c559bc17b245d0095f9fb9cc41b1d4ca3152e2b4d493f965191694006d1f1d",
+    "protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv": "b3e36db689572c27f2d4d343fa804dfb3fa835e3db0eaa488679cc9eb386bd32",
+    "protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv": "0aae4f414a2f5c892f546797d192227a1fbf1929493cbf36378776e4b47a2701",
+    "protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv": "a1922d134ef8ba3230b6998a3a2423b0b5c8490ede8f644c8c4ee11cc7e834eb",
+    "protocol-processor/hdl/packet_engine/KL_pp_originator.sv": "e2b77da50e50e89d5c22c96ca42e7846a5f31a5f18778df7f1910268a2161635",
+    "protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv": "0e533e8e7c53fded1e43d1a3ed4d8b4125984ae10f6810072e5323faefb77fab",
+    "protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv": "6d7418e4ddf91a0c519a0ee4f4013ef18e2985459d99ab57c302a173205d756f",
+    "protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv": "5785ee26cc75f25547b5632ec175a34410eb2fb6f67387ae5835d5af48181ea4",
+    "protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv": "1f74700603bbd2d512f66e8b115bc59417db4fbc3ceb32787807df282aaf8588",
+    "protocol-processor/hdl/packet_engine/KL_pp_side_port.sv": "06eeda9875e5c63c3c175f52ca0c985e127b05c9b9b43906ff208b2990890852",
+    "protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv": "c4fa8ba6bfc89a924f60ccae0be1c396a229b26bfcecc93b0d38923561aa5d16",
+    "protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv": "a2e614b21c57b68ac3fa4dd8686d358a64e2c5df4dc3047695a6d80d3759e1ba",
+    "protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv": "ba19e7456c48ac26641a81167d998ffd117f534efa38c1d42b662b76f1c16be2",
+    "protocol-processor/hdl/srp/KL_srp_admission.sv": "d0ce6690fbbd48e4f059fbde5b7fec96fb1d18e43f42ee41c717257dcb813f7c",
+    "protocol-processor/hdl/srp/KL_srp_decoder.sv": "255adc30e55463a874f38b2c64d4f494896b1b7c114ea5cfa474f1dd77641bd0",
+    "protocol-processor/hdl/srp/KL_srp_domain.sv": "b7409911dae95bc2b5a079155e74db3178826179e6d75ac04f19cf5208ef8581",
+    "protocol-processor/hdl/srp/KL_srp_encoder.sv": "4a0b6d76d3ceeb25f076b3c0ee62d9b258ca3e342e026a28187270fab13ca483",
+    "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv": "807cea7cb15d772ccd94315cf7937ccea9ae5e8a72e659d191f0685920005eb8",
+    "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv": "0478d1d5f9beb7d72d30e7b2b23111664bb550509b697409686c5ed519187612",
+    "protocol-processor/hdl/srp/KL_srp_top.sv": "6ee88cbea8dc3814ca29a3bf064a55045ffcbc2ba93341627a5a4c9d747ce584",
+    "protocol-processor/hdl/srp/KL_srp_vlan.sv": "ff8d2c81a994c7dafc4174d558f70ebfd69675447136b49d8e314762542253b9",
+    "protocol-processor/hdl/srp/srp_pkg.sv": "d96fab2df62a69669b4c6121423b4a6a018478f26f1ce5a35ad646467aa4e192",
+    "protocol-processor/hdl/top/KL_mrp_strip.sv": "0a238b74de2f1621afffeb10b631f6d9433380e0c0fa507fcf4233291f5828cb",
+    "protocol-processor/hdl/top/protocol_processor_top.sv": "77b1d206e35d7fbf5d5b5d97f8abe7414ec2b8b851c93220f56b1b359e4353d8",
+    "sw/firmware/milan_baremetal/Makefile": "e50b8d465728756e043591140e710d7d854954bbc01aeed16a24e3699796635d",
+    "sw/firmware/milan_baremetal/milan_baremetal.c": "497845e6243b919638285ce4de18e6687beff6a509d72c8e2e2f2d45ba7b1bed",
+    "sw/litex/milan_soc.py": "f89ab23174a2d5c9823c31a8ca69a0a689e46aeaee63c2eec44a92335df8419c",
+    "sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch": "eb44cc0365eb2f20b8c76412032b080242c7daca2e67ac84f166976e5dd8018a",
+    "sw/litex/patches/0004-vexiiriscv-baremetal-variant.patch": "cfbd904607759b1effec0705bcc501d821684c6cdddf4cedb2dd2c14eafa9ea8",
+    "sw/litex/patches/0005-vexiiriscv-cacheless-litex.patch": "e464f6a7adf5c643961808f2dfadd00e4c431caf613bb9d71ab3be90f98dcab0",
+    "sw/litex/patches/0006-bios-dispatch-hook.patch": "f1d235638070ca2008dc61cda0baf8fd708afbfd175f26d4a3de3c9e5356555f",
+    "sw/litex/patches/0007-liteeth-gmii-rx-capture.patch": "1d26df59aa0bbd9285f84c7be7852a1833bfd88810fdfd002473e98ac833a20f",
+    "tb/verilator/fw_service_budget/build.py": "c3daeac7698fb6e4e9c310c30118dfb6f44ed9cbc2906909903e621fa331d44d",
+    "tb/verilator/fw_service_budget/flash.hpp": "ffd30ea46c3aec139583d92f1ce8d8ecd8efc9b409e94b261d85c29337ec9f90",
+    "tb/verilator/fw_service_budget/observe.vlt": "9936d6c81bdc5348a34322e70419a67e8d6315893856d18c83f1d2cfdb340c60",
+    "tb/verilator/fw_service_budget/phy.hpp": "8dc44be45e6efef3a704399e5511115cfa20f6e0c607468557294af2e12178f9",
+    "tb/verilator/fw_service_budget/phy.py": "16d8518d6f18d1ada142db1b029df27070435af6dc76363f285fa89c8b0cc341",
+    "tb/verilator/fw_service_budget/sim_main.cpp": "86153ee62fa7719852e6e5b0bf1e4d533cf5cd10b1fbd457bf6ccbf0a5d0c634",
+    "tb/verilator/nvm_capture_cpu/firmware.py": "772ffdc689f08a3dc59889d87a72ce7559230dff739d4ebe1caf2aca3fc892c8",
+    "tb/verilator/nvm_capture_cpu/probe.py": "3d59723dbac96b06a29335bf4e8ffed2a53fc425ef7fa8f14fb8cde94827b911",
+    "tb/verilator/nvm_capture_cpu/recipe.py": "0c00b7865a2d595bb975953d7455494bc6b308266b2633797a0aca429d8bba25",
+    "tb/verilator/nvm_capture_cpu/run.py": "c230cb3e6289bf991554b8d967e0993ec7860e119afb44579580c339a8191659",
+    "tb/verilator/nvm_capture_cpu/soc.py": "e782993b5affe15fa8c368bb0a52873d185a7d9ce0e7ffd1fcb838060be27b02",
+    "third_party/verilog-axis/rtl/arbiter.v": "d54d337db4812f927b2e9b5788dfa39f9bd578ad01b7846c5fa7f2610b0923fa",
+    "third_party/verilog-axis/rtl/axis_arb_mux.v": "bee8d11f32f7fb1c5afdd6cdad872cd7de9dc94bcb4787f9aa119f2ebbc489a6",
+    "third_party/verilog-axis/rtl/axis_fifo.v": "aefddc67fc3552d919280424606fc6b048e61d7df9ee7ee0f8801c082c1cfc39",
+    "third_party/verilog-axis/rtl/priority_encoder.v": "df28220d95b47df349a72803a9751aad331eb8e1435416e8686d00572a974dd5",
+    "build/aem_desc.bin": "d8296833b03fe12405e75fe6b9c9690abc968fa6c15b25e4f698c4010b8aa7bc",
+    "build/gateware/sim.v": "4fa142e8ba220c2dc4105c8f61a5a6b8b8fbda1ce2ca467aee2eb1a269dccee5",
+    "build/gateware/sim_mem.init": "d1657b93f1791073b22bd153501d5b9474a7676633af2a6c7b049a155b818335",
+    "build/gateware/sim_rom.init": "05f5f2047bb5ac6140cc39206628dbe7950b0cb3cff1ef41fbef6e89fddda0f1",
+    "build/gateware/sim_sram.init": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build/generated/endstation_ax7101_8x8/adp_shape_defaults.svh": "e9a2a76a634501da2a0660f09074b4b54f5cc721aa55388af072f25540998535",
+    "build/generated/endstation_ax7101_8x8/aecp_aem_rom.svh": "f78129a09fb3c3e51b3996543c09386132f523d15b57601048264933a16ec6ff",
+    "build/generated/endstation_ax7101_8x8/gen/adp_shape_defaults.svh": "e9a2a76a634501da2a0660f09074b4b54f5cc721aa55388af072f25540998535",
+    "build/generated/endstation_ax7101_8x8/lwsrp_csr_defaults.svh": "c9849c561b9aab3f682e2974ce1ba81443c2696a0c1a4e53d3975f2557c159c4",
+    "build/generated/endstation_ax7101_8x8/lwsrp_table.svh": "eed72271ec9a0e3d68b8ca9f367d83251140c5464272a65ef0843a00ce95525e",
+    "build/native/Vsim": "49faa1835eed3abea1e47741d81784e4f91395d93a86a01a38a8721f79bd4163",
+    "build/retirement.hpp": "033ef54d491bb161b9b23cd688f2154f8248f473989c17fec6c4e99e80d94383",
+    "build/software/bios/bios.bin": "63eeb30286945649b4e78488063d4bf39cc55b32613137ab65af3712b9d20725",
+    "build/software/bios/bios.elf": "f9730b3fa0092ae9320ebff5aef4941f9b762b76ffd1659b0d9fe33014d150b1",
+    "build/software/include/generated/csr.h": "b565a34da67405522cd7cf9ac7f062a2b6a4202147ca13690ecaf64b7200ac3d",
+    "build/software/include/generated/git.h": "3fc3cb2f32f3cc9d029f9d3ba3258abd5895d66e09fd2db1e785260899c00d08",
+    "build/software/include/generated/mem.h": "1939d6807b172ccf80bc7d9042271a2c8d4446817bc1123f7e64518314824d77",
+    "build/software/include/generated/sdram_phy.h": "f1607e3281bf86b9236ace9594333c9b5c4fa751481d812aa946aa06aebe0d73",
+    "build/software/include/generated/soc.h": "4942ac93455f3bff00ca760b5da3ebaa4d4900553e9fa42b63d8d5e606357b32",
+    "external/Ram_1w_1ra_Generic.v": "c8361e5fd0bc23be5f91cb2b63a091ab41bcdd857cc1c97f6e7e4ef8b6f61626",
+    "external/Ram_1w_1rs_Generic.v": "c319d54c5a0bbe20a72ab9b394a3a1e57ef34866ae2478c5caed50e064a72523",
+    "external/VexiiRiscvLitex_f5f08b170311db53220574624f819159.v": "c208df0b7fafcaab190dba3f1734f2a38acd54645b33a834b0e59282e6a7813d"
+  },
+  "log_sha256": "e04253ea2dbf253a7566116b186a2e93941ec2ada19abfc3d4ac0d545df02258",
+  "rows": [
+    {
+      "duty": "boot_to_entity_enabled",
+      "start_sys_cycle": 64,
+      "end_sys_cycle": 125690137,
+      "sys_cycles": 125690073,
+      "cpu_cycles": 62845037,
+      "ms": 1256.90073,
+      "device_wait_ms": 0.0,
+      "service_ms": 1256.90073,
+      "budget_ms": 20000,
+      "margin_ms": 18743.09927,
+      "tick_calls": 342,
+      "no_tick_sys_cycles": 124807928,
+      "no_tick_ms": 1248.07928,
+      "no_tick_start": 64,
+      "no_tick_end": 124807992,
+      "uart_tx_allowance_ms": 0.0,
+      "period_bound_ms": 1498.07928,
+      "period_bound_margin_ms": -998.0792799999999,
+      "liveness_bound_margin_ms": 501.9207200000001
+    },
+    {
+      "duty": "aem_copy_crc",
+      "start_sys_cycle": 2947236,
+      "end_sys_cycle": 125690137,
+      "sys_cycles": 122742901,
+      "cpu_cycles": 61371451,
+      "ms": 1227.42901,
+      "device_wait_ms": 0.0,
+      "service_ms": 1227.42901,
+      "budget_ms": null,
+      "margin_ms": null,
+      "tick_calls": 342,
+      "no_tick_sys_cycles": 121860756,
+      "no_tick_ms": 1218.60756,
+      "no_tick_start": 2947236,
+      "no_tick_end": 124807992,
+      "uart_tx_allowance_ms": 0.0,
+      "period_bound_ms": 1468.60756,
+      "period_bound_margin_ms": -968.6075599999999,
+      "liveness_bound_margin_ms": 531.3924400000001,
+      "armed_start_sys_cycle": 124807992,
+      "armed_no_tick_ms": 3.46555,
+      "armed_period_bound_ms": 253.46555,
+      "phy_publication_bound_ms": 4.907940000000007
+    },
+    {
+      "duty": "restore_walk",
+      "start_sys_cycle": 124807831,
+      "end_sys_cycle": 125345031,
+      "sys_cycles": 537200,
+      "cpu_cycles": 268600,
+      "ms": 5.372,
+      "device_wait_ms": 0.0,
+      "service_ms": 5.372,
+      "budget_ms": 3000,
+      "margin_ms": 2994.628,
+      "tick_calls": 342,
+      "no_tick_sys_cycles": 66018,
+      "no_tick_ms": 0.66018,
+      "no_tick_start": 124807992,
+      "no_tick_end": 124874010,
+      "uart_tx_allowance_ms": 0.0,
+      "period_bound_ms": 250.66018,
+      "period_bound_margin_ms": 249.33982,
+      "liveness_bound_margin_ms": 1749.33982,
+      "armed_start_sys_cycle": 124807992,
+      "armed_no_tick_ms": 0.66018,
+      "armed_period_bound_ms": 250.66018,
+      "phy_publication_bound_ms": 2.102569999999997
+    },
+    {
+      "duty": "milan_status",
+      "start_sys_cycle": 125842465,
+      "end_sys_cycle": 126724658,
+      "sys_cycles": 882193,
+      "cpu_cycles": 441097,
+      "ms": 8.82193,
+      "device_wait_ms": 0.0,
+      "service_ms": 8.82193,
+      "budget_ms": 500,
+      "margin_ms": 491.17807,
+      "command_index": 0,
+      "uart_bytes": 341,
+      "uart_115200_ms": 29.600694444444443,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 782890,
+      "no_tick_ms": 7.8289,
+      "no_tick_start": 125941768,
+      "no_tick_end": 126724658,
+      "uart_tx_allowance_ms": 28.47222222222222,
+      "period_bound_ms": 286.3011222222222,
+      "period_bound_margin_ms": 213.6988777777778,
+      "liveness_bound_margin_ms": 1713.6988777777779,
+      "phy_publication_bound_ms": 162.7435122222222
+    },
+    {
+      "duty": "milan_gettime",
+      "start_sys_cycle": 126724659,
+      "end_sys_cycle": 126961122,
+      "sys_cycles": 236463,
+      "cpu_cycles": 118232,
+      "ms": 2.36463,
+      "device_wait_ms": 0.0,
+      "service_ms": 2.36463,
+      "budget_ms": 500,
+      "margin_ms": 497.63537,
+      "command_index": 1,
+      "uart_bytes": 74,
+      "uart_115200_ms": 6.423611111111111,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 130372,
+      "no_tick_ms": 1.30372,
+      "no_tick_start": 126830750,
+      "no_tick_end": 126961122,
+      "uart_tx_allowance_ms": 5.208333333333333,
+      "period_bound_ms": 256.5120533333333,
+      "period_bound_margin_ms": 243.4879466666667,
+      "liveness_bound_margin_ms": 1743.4879466666666,
+      "phy_publication_bound_ms": 132.9544433333333
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 126961123,
+      "end_sys_cycle": 212964454,
+      "sys_cycles": 86003331,
+      "cpu_cycles": 43001666,
+      "ms": 860.03331,
+      "device_wait_ms": 0.0,
+      "service_ms": 860.03331,
+      "budget_ms": 500,
+      "margin_ms": -360.03331000000003,
+      "command_index": 2,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 127,
+      "no_tick_sys_cycles": 8628918,
+      "no_tick_ms": 86.28918,
+      "no_tick_start": 148683308,
+      "no_tick_end": 157312226,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.4940411111111,
+      "period_bound_margin_ms": 131.50595888888893,
+      "liveness_bound_margin_ms": 1631.505958888889,
+      "phy_publication_bound_ms": 244.93643111111106
+    },
+    {
+      "duty": "milan_nvm commit",
+      "start_sys_cycle": 212964455,
+      "end_sys_cycle": 328055566,
+      "sys_cycles": 115091111,
+      "cpu_cycles": 57545556,
+      "ms": 1150.91111,
+      "device_wait_ms": 0.0,
+      "service_ms": 1150.91111,
+      "budget_ms": 8000,
+      "margin_ms": 6849.08889,
+      "command_index": 3,
+      "uart_bytes": 132,
+      "uart_115200_ms": 11.458333333333334,
+      "tick_calls": 231,
+      "no_tick_sys_cycles": 9717080,
+      "no_tick_ms": 97.1708,
+      "no_tick_start": 213090826,
+      "no_tick_end": 222807906,
+      "uart_tx_allowance_ms": 9.98263888888889,
+      "period_bound_ms": 357.1534388888889,
+      "period_bound_margin_ms": 142.8465611111111,
+      "liveness_bound_margin_ms": 1642.846561111111,
+      "phy_publication_bound_ms": 233.5958288888889
+    },
+    {
+      "duty": "milan_nvm commit",
+      "start_sys_cycle": 328055567,
+      "end_sys_cycle": 443201140,
+      "sys_cycles": 115145573,
+      "cpu_cycles": 57572787,
+      "ms": 1151.45573,
+      "device_wait_ms": 0.0,
+      "service_ms": 1151.45573,
+      "budget_ms": 8000,
+      "margin_ms": 6848.54427,
+      "command_index": 4,
+      "uart_bytes": 132,
+      "uart_115200_ms": 11.458333333333334,
+      "tick_calls": 231,
+      "no_tick_sys_cycles": 9735520,
+      "no_tick_ms": 97.3552,
+      "no_tick_start": 328182004,
+      "no_tick_end": 337917524,
+      "uart_tx_allowance_ms": 9.98263888888889,
+      "period_bound_ms": 357.3378388888889,
+      "period_bound_margin_ms": 142.66216111111112,
+      "liveness_bound_margin_ms": 1642.6621611111111,
+      "phy_publication_bound_ms": 233.78022888888887
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 443201141,
+      "end_sys_cycle": 529406498,
+      "sys_cycles": 86205357,
+      "cpu_cycles": 43102679,
+      "ms": 862.05357,
+      "device_wait_ms": 0.0,
+      "service_ms": 862.05357,
+      "budget_ms": 500,
+      "margin_ms": -362.05357000000004,
+      "command_index": 5,
+      "uart_bytes": 381,
+      "uart_115200_ms": 33.072916666666664,
+      "tick_calls": 127,
+      "no_tick_sys_cycles": 8628918,
+      "no_tick_ms": 86.28918,
+      "no_tick_start": 465005438,
+      "no_tick_end": 473634356,
+      "uart_tx_allowance_ms": 32.204861111111114,
+      "period_bound_ms": 368.4940411111111,
+      "period_bound_margin_ms": 131.50595888888893,
+      "liveness_bound_margin_ms": 1631.505958888889,
+      "phy_publication_bound_ms": 244.93643111111106
+    },
+    {
+      "duty": "milan_nvm wipe",
+      "start_sys_cycle": 529406499,
+      "end_sys_cycle": 545219868,
+      "sys_cycles": 15813369,
+      "cpu_cycles": 7906685,
+      "ms": 158.13369,
+      "device_wait_ms": 0.0,
+      "service_ms": 158.13369,
+      "budget_ms": null,
+      "margin_ms": null,
+      "command_index": 6,
+      "uart_bytes": 148,
+      "uart_115200_ms": 12.847222222222221,
+      "tick_calls": 2,
+      "no_tick_sys_cycles": 7871144,
+      "no_tick_ms": 78.71144,
+      "no_tick_start": 537348724,
+      "no_tick_end": 545219868,
+      "uart_tx_allowance_ms": 11.54513888888889,
+      "period_bound_ms": 340.2565788888889,
+      "period_bound_margin_ms": 159.7434211111111,
+      "liveness_bound_margin_ms": 1659.743421111111,
+      "phy_publication_bound_ms": 216.69896888888888
+    },
+    {
+      "duty": "wipe_erase_envelope",
+      "start_sys_cycle": 529604281,
+      "end_sys_cycle": 537352297,
+      "sys_cycles": 7748016,
+      "cpu_cycles": 3874008,
+      "ms": 77.48016,
+      "device_wait_ms": 0.0,
+      "service_ms": 77.48016,
+      "budget_ms": 3500,
+      "margin_ms": 3422.51984,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 7744443,
+      "no_tick_ms": 77.44443,
+      "no_tick_start": 529604281,
+      "no_tick_end": 537348724,
+      "uart_tx_allowance_ms": 11.54513888888889,
+      "period_bound_ms": 338.9895688888889,
+      "period_bound_margin_ms": 161.01043111111107,
+      "liveness_bound_margin_ms": 1661.010431111111,
+      "phy_publication_bound_ms": 215.43195888888891
+    },
+    {
+      "duty": "wipe_erase_envelope",
+      "start_sys_cycle": 537352297,
+      "end_sys_cycle": 545219868,
+      "sys_cycles": 7867571,
+      "cpu_cycles": 3933786,
+      "ms": 78.67571,
+      "device_wait_ms": 0.0,
+      "service_ms": 78.67571,
+      "budget_ms": 3500,
+      "margin_ms": 3421.32429,
+      "tick_calls": 0,
+      "no_tick_sys_cycles": 7867571,
+      "no_tick_ms": 78.67571,
+      "no_tick_start": 537352297,
+      "no_tick_end": 545219868,
+      "uart_tx_allowance_ms": 11.54513888888889,
+      "period_bound_ms": 340.2208488888889,
+      "period_bound_margin_ms": 159.7791511111111,
+      "liveness_bound_margin_ms": 1659.779151111111,
+      "phy_publication_bound_ms": 216.66323888888888
+    },
+    {
+      "duty": "milan_nvm",
+      "start_sys_cycle": 545219869,
+      "end_sys_cycle": 546057672,
+      "sys_cycles": 837803,
+      "cpu_cycles": 418902,
+      "ms": 8.37803,
+      "device_wait_ms": 0.0,
+      "service_ms": 8.37803,
+      "budget_ms": 500,
+      "margin_ms": 491.62197,
+      "command_index": 7,
+      "uart_bytes": 387,
+      "uart_115200_ms": 33.59375,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 758748,
+      "no_tick_ms": 7.58748,
+      "no_tick_start": 545298924,
+      "no_tick_end": 546057672,
+      "uart_tx_allowance_ms": 32.72569444444444,
+      "period_bound_ms": 290.3131744444445,
+      "period_bound_margin_ms": 209.68682555555552,
+      "liveness_bound_margin_ms": 1709.6868255555555,
+      "phy_publication_bound_ms": 166.75556444444447
+    },
+    {
+      "duty": "milan_nvm invalid",
+      "start_sys_cycle": 546057673,
+      "end_sys_cycle": 546255290,
+      "sys_cycles": 197617,
+      "cpu_cycles": 98809,
+      "ms": 1.97617,
+      "device_wait_ms": 0.0,
+      "service_ms": 1.97617,
+      "budget_ms": 500,
+      "margin_ms": 498.02383,
+      "command_index": 8,
+      "uart_bytes": 80,
+      "uart_115200_ms": 6.944444444444445,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 133135,
+      "no_tick_ms": 1.33135,
+      "no_tick_start": 546057673,
+      "no_tick_end": 546190808,
+      "uart_tx_allowance_ms": 5.381944444444445,
+      "period_bound_ms": 256.71329444444444,
+      "period_bound_margin_ms": 243.28670555555556,
+      "liveness_bound_margin_ms": 1743.2867055555555,
+      "phy_publication_bound_ms": 133.15568444444443
+    },
+    {
+      "duty": "milan_settime 0 0",
+      "start_sys_cycle": 546255291,
+      "end_sys_cycle": 546500966,
+      "sys_cycles": 245675,
+      "cpu_cycles": 122838,
+      "ms": 2.45675,
+      "device_wait_ms": 0.0,
+      "service_ms": 2.45675,
+      "budget_ms": 500,
+      "margin_ms": 497.54325,
+      "command_index": 9,
+      "uart_bytes": 82,
+      "uart_115200_ms": 7.118055555555555,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 133197,
+      "no_tick_ms": 1.33197,
+      "no_tick_start": 546255291,
+      "no_tick_end": 546388488,
+      "uart_tx_allowance_ms": 5.555555555555555,
+      "period_bound_ms": 256.88752555555556,
+      "period_bound_margin_ms": 243.11247444444444,
+      "liveness_bound_margin_ms": 1743.1124744444444,
+      "phy_publication_bound_ms": 133.32991555555554
+    },
+    {
+      "duty": "milan_settime 18446744073 709551615",
+      "start_sys_cycle": 546500967,
+      "end_sys_cycle": 547083034,
+      "sys_cycles": 582067,
+      "cpu_cycles": 291034,
+      "ms": 5.82067,
+      "device_wait_ms": 0.0,
+      "service_ms": 5.82067,
+      "budget_ms": 500,
+      "margin_ms": 494.17933,
+      "command_index": 10,
+      "uart_bytes": 118,
+      "uart_115200_ms": 10.243055555555555,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 327252,
+      "no_tick_ms": 3.27252,
+      "no_tick_start": 546755782,
+      "no_tick_end": 547083034,
+      "uart_tx_allowance_ms": 7.118055555555555,
+      "period_bound_ms": 260.39057555555553,
+      "period_bound_margin_ms": 239.60942444444447,
+      "liveness_bound_margin_ms": 1739.6094244444444,
+      "phy_publication_bound_ms": 136.83296555555552
+    },
+    {
+      "duty": "milan_settime 18446744073 709551616",
+      "start_sys_cycle": 547083035,
+      "end_sys_cycle": 547644824,
+      "sys_cycles": 561789,
+      "cpu_cycles": 280895,
+      "ms": 5.61789,
+      "device_wait_ms": 0.0,
+      "service_ms": 5.61789,
+      "budget_ms": 500,
+      "margin_ms": 494.38211,
+      "command_index": 11,
+      "uart_bytes": 134,
+      "uart_115200_ms": 11.631944444444445,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 306974,
+      "no_tick_ms": 3.06974,
+      "no_tick_start": 547337850,
+      "no_tick_end": 547644824,
+      "uart_tx_allowance_ms": 8.506944444444445,
+      "period_bound_ms": 261.5766844444444,
+      "period_bound_margin_ms": 238.42331555555558,
+      "liveness_bound_margin_ms": 1738.4233155555555,
+      "phy_publication_bound_ms": 138.0190744444444
+    },
+    {
+      "duty": "milan_settime invalid",
+      "start_sys_cycle": 547644825,
+      "end_sys_cycle": 547887288,
+      "sys_cycles": 242463,
+      "cpu_cycles": 121232,
+      "ms": 2.42463,
+      "device_wait_ms": 0.0,
+      "service_ms": 2.42463,
+      "budget_ms": 500,
+      "margin_ms": 497.57537,
+      "command_index": 12,
+      "uart_bytes": 106,
+      "uart_115200_ms": 9.20138888888889,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 160175,
+      "no_tick_ms": 1.60175,
+      "no_tick_start": 547644825,
+      "no_tick_end": 547805000,
+      "uart_tx_allowance_ms": 7.291666666666667,
+      "period_bound_ms": 258.89341666666667,
+      "period_bound_margin_ms": 241.10658333333333,
+      "liveness_bound_margin_ms": 1741.1065833333332,
+      "phy_publication_bound_ms": 135.33580666666666
+    },
+    {
+      "duty": "milan_utc 0 0 37",
+      "start_sys_cycle": 547887289,
+      "end_sys_cycle": 548225102,
+      "sys_cycles": 337813,
+      "cpu_cycles": 168907,
+      "ms": 3.37813,
+      "device_wait_ms": 0.0,
+      "service_ms": 3.37813,
+      "budget_ms": 500,
+      "margin_ms": 496.62187,
+      "command_index": 13,
+      "uart_bytes": 111,
+      "uart_115200_ms": 9.635416666666666,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 211438,
+      "no_tick_ms": 2.11438,
+      "no_tick_start": 548013664,
+      "no_tick_end": 548225102,
+      "uart_tx_allowance_ms": 8.159722222222221,
+      "period_bound_ms": 260.2741022222222,
+      "period_bound_margin_ms": 239.7258977777778,
+      "liveness_bound_margin_ms": 1739.7258977777778,
+      "phy_publication_bound_ms": 136.7164922222222
+    },
+    {
+      "duty": "milan_utc 18446744073709551615 0 1",
+      "start_sys_cycle": 548225103,
+      "end_sys_cycle": 548887088,
+      "sys_cycles": 661985,
+      "cpu_cycles": 330993,
+      "ms": 6.61985,
+      "device_wait_ms": 0.0,
+      "service_ms": 6.61985,
+      "budget_ms": 500,
+      "margin_ms": 493.38015,
+      "command_index": 14,
+      "uart_bytes": 144,
+      "uart_115200_ms": 12.5,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 413868,
+      "no_tick_ms": 4.13868,
+      "no_tick_start": 548473220,
+      "no_tick_end": 548887088,
+      "uart_tx_allowance_ms": 9.461805555555555,
+      "period_bound_ms": 263.60048555555557,
+      "period_bound_margin_ms": 236.39951444444443,
+      "liveness_bound_margin_ms": 1736.3995144444443,
+      "phy_publication_bound_ms": 140.04287555555555
+    },
+    {
+      "duty": "milan_utc invalid 0 0",
+      "start_sys_cycle": 548887089,
+      "end_sys_cycle": 549140348,
+      "sys_cycles": 253259,
+      "cpu_cycles": 126630,
+      "ms": 2.53259,
+      "device_wait_ms": 0.0,
+      "service_ms": 2.53259,
+      "budget_ms": 500,
+      "margin_ms": 497.46741,
+      "command_index": 15,
+      "uart_bytes": 118,
+      "uart_115200_ms": 10.243055555555555,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 160175,
+      "no_tick_ms": 1.60175,
+      "no_tick_start": 548887089,
+      "no_tick_end": 549047264,
+      "uart_tx_allowance_ms": 8.333333333333334,
+      "period_bound_ms": 259.93508333333335,
+      "period_bound_margin_ms": 240.06491666666665,
+      "liveness_bound_margin_ms": 1740.0649166666667,
+      "phy_publication_bound_ms": 136.37747333333334
+    },
+    {
+      "duty": "milan_status",
+      "start_sys_cycle": 549140349,
+      "end_sys_cycle": 550025488,
+      "sys_cycles": 885139,
+      "cpu_cycles": 442570,
+      "ms": 8.85139,
+      "device_wait_ms": 0.0,
+      "service_ms": 8.85139,
+      "budget_ms": 500,
+      "margin_ms": 491.14861,
+      "command_index": 16,
+      "uart_bytes": 341,
+      "uart_115200_ms": 29.600694444444443,
+      "tick_calls": 1,
+      "no_tick_sys_cycles": 785804,
+      "no_tick_ms": 7.85804,
+      "no_tick_start": 549239684,
+      "no_tick_end": 550025488,
+      "uart_tx_allowance_ms": 28.47222222222222,
+      "period_bound_ms": 286.33026222222225,
+      "period_bound_margin_ms": 213.66973777777775,
+      "liveness_bound_margin_ms": 1713.6697377777778,
+      "phy_publication_bound_ms": 162.77265222222223
+    },
+    {
+      "duty": "journal_commit_bracket",
+      "start_sys_cycle": 262245279,
+      "end_sys_cycle": 327915239,
+      "sys_cycles": 65669960,
+      "cpu_cycles": 32834980,
+      "ms": 656.6996,
+      "device_wait_ms": 0.0,
+      "service_ms": 656.6996,
+      "budget_ms": 8000,
+      "margin_ms": 7343.3004,
+      "tick_calls": 115,
+      "no_tick_sys_cycles": 8920603,
+      "no_tick_ms": 89.20603,
+      "no_tick_start": 318994636,
+      "no_tick_end": 327915239,
+      "uart_tx_allowance_ms": 9.98263888888889,
+      "period_bound_ms": 349.1886688888889,
+      "period_bound_margin_ms": 150.8113311111111,
+      "liveness_bound_margin_ms": 1650.811331111111,
+      "phy_publication_bound_ms": 225.6310588888889
+    },
+    {
+      "duty": "erase_enclosed_to_first_program",
+      "start_sys_cycle": 262247925,
+      "end_sys_cycle": 270118140,
+      "sys_cycles": 7870215,
+      "cpu_cycles": 3935108,
+      "ms": 78.70215,
+      "device_wait_ms": 0.0,
+      "service_ms": 78.70215,
+      "budget_ms": 3500,
+      "margin_ms": 3421.29785,
+      "tick_calls": 0,
+      "no_tick_sys_cycles": 7870215,
+      "no_tick_ms": 78.70215,
+      "no_tick_start": 262247925,
+      "no_tick_end": 270118140,
+      "uart_tx_allowance_ms": 9.98263888888889,
+      "period_bound_ms": 338.68478888888893,
+      "period_bound_margin_ms": 161.31521111111107,
+      "liveness_bound_margin_ms": 1661.315211111111,
+      "phy_publication_bound_ms": 215.12717888888892
+    },
+    {
+      "duty": "journal_commit_bracket",
+      "start_sys_cycle": 377390869,
+      "end_sys_cycle": 443060829,
+      "sys_cycles": 65669960,
+      "cpu_cycles": 32834980,
+      "ms": 656.6996,
+      "device_wait_ms": 0.0,
+      "service_ms": 656.6996,
+      "budget_ms": 8000,
+      "margin_ms": 7343.3004,
+      "tick_calls": 115,
+      "no_tick_sys_cycles": 8920483,
+      "no_tick_ms": 89.20483,
+      "no_tick_start": 434140346,
+      "no_tick_end": 443060829,
+      "uart_tx_allowance_ms": 9.98263888888889,
+      "period_bound_ms": 349.18746888888893,
+      "period_bound_margin_ms": 150.81253111111107,
+      "liveness_bound_margin_ms": 1650.8125311111112,
+      "phy_publication_bound_ms": 225.62985888888892
+    },
+    {
+      "duty": "erase_enclosed_to_first_program",
+      "start_sys_cycle": 377393515,
+      "end_sys_cycle": 385263730,
+      "sys_cycles": 7870215,
+      "cpu_cycles": 3935108,
+      "ms": 78.70215,
+      "device_wait_ms": 0.0,
+      "service_ms": 78.70215,
+      "budget_ms": 3500,
+      "margin_ms": 3421.29785,
+      "tick_calls": 0,
+      "no_tick_sys_cycles": 7870215,
+      "no_tick_ms": 78.70215,
+      "no_tick_start": 377393515,
+      "no_tick_end": 385263730,
+      "uart_tx_allowance_ms": 9.98263888888889,
+      "period_bound_ms": 338.68478888888893,
+      "period_bound_margin_ms": 161.31521111111107,
+      "liveness_bound_margin_ms": 1661.315211111111,
+      "phy_publication_bound_ms": 215.12717888888892
+    },
+    {
+      "duty": "maximum_heartbeat_gap",
+      "start_sys_cycle": 124873427,
+      "end_sys_cycle": 157331529,
+      "sys_cycles": 32458102,
+      "cpu_cycles": 16229051,
+      "ms": 324.58102,
+      "device_wait_ms": 0.0,
+      "service_ms": 324.58102,
+      "budget_ms": 500,
+      "margin_ms": 175.41897999999998,
+      "plan": "all",
+      "tick_calls": 401,
+      "no_tick_sys_cycles": 8628918,
+      "no_tick_ms": 86.28918,
+      "no_tick_start": 148683308,
+      "no_tick_end": 157312226,
+      "uart_tx_allowance_ms": 0.0,
+      "period_bound_ms": 336.28918,
+      "period_bound_margin_ms": 163.71082,
+      "liveness_bound_margin_ms": 1663.71082
+    }
+  ],
+  "events": [
+    {
+      "cycle": 2946409,
+      "kind": "write",
+      "address": 2336,
+      "value": 0,
+      "requests": 0,
+      "responses": 0,
+      "errors": 0
+    },
+    {
+      "cycle": 2947236,
+      "kind": "aem_read"
+    },
+    {
+      "cycle": 124806497,
+      "kind": "write",
+      "address": 2364,
+      "value": 64,
+      "requests": 0,
+      "responses": 0,
+      "errors": 0
+    },
+    {
+      "cycle": 124807831,
+      "kind": "write",
+      "address": 2336,
+      "value": 2,
+      "requests": 0,
+      "responses": 0,
+      "errors": 0
+    },
+    {
+      "cycle": 124873283,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 1,
+      "down": 0
+    },
+    {
+      "cycle": 124873427,
+      "kind": "ticks",
+      "first": 124807992,
+      "last": 124807992,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 124873427,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 32,
+      "responses": 32,
+      "errors": 0
+    },
+    {
+      "cycle": 125345031,
+      "kind": "ticks",
+      "first": 124874010,
+      "last": 125343582,
+      "count": 341,
+      "max_gap": 1408,
+      "gap_start": 125079844
+    },
+    {
+      "cycle": 125345031,
+      "kind": "write",
+      "address": 2336,
+      "value": 0,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 125690137,
+      "kind": "write",
+      "address": 2336,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 125842464,
+      "kind": "boot_prompt"
+    },
+    {
+      "cycle": 125842465,
+      "kind": "command_start",
+      "index": 0,
+      "tx_bytes": 1513
+    },
+    {
+      "cycle": 126724658,
+      "kind": "ticks",
+      "first": 125941768,
+      "last": 125941768,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 126724658,
+      "kind": "command_end",
+      "index": 0,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 1841
+    },
+    {
+      "cycle": 126724659,
+      "kind": "command_start",
+      "index": 1,
+      "tx_bytes": 1841
+    },
+    {
+      "cycle": 126961122,
+      "kind": "ticks",
+      "first": 126830750,
+      "last": 126830750,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 126961122,
+      "kind": "command_end",
+      "index": 1,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 1901
+    },
+    {
+      "cycle": 126961123,
+      "kind": "command_start",
+      "index": 2,
+      "tx_bytes": 1901
+    },
+    {
+      "cycle": 137536143,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 1,
+      "down": 0
+    },
+    {
+      "cycle": 157322147,
+      "kind": "phy_read",
+      "status": 0,
+      "up": 1,
+      "down": 1
+    },
+    {
+      "cycle": 157331323,
+      "kind": "phy_read",
+      "status": 0,
+      "up": 1,
+      "down": 1
+    },
+    {
+      "cycle": 157331529,
+      "kind": "ticks",
+      "first": 127040174,
+      "last": 157312226,
+      "count": 58,
+      "max_gap": 8628918,
+      "gap_start": 148683308
+    },
+    {
+      "cycle": 157331529,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 170090341,
+      "kind": "phy_read",
+      "status": 0,
+      "up": 1,
+      "down": 1
+    },
+    {
+      "cycle": 182441779,
+      "kind": "ticks",
+      "first": 159304514,
+      "last": 182440932,
+      "count": 40,
+      "max_gap": 1975320,
+      "gap_start": 167203840
+    },
+    {
+      "cycle": 182441779,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 182882369,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 200002977,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 207901001,
+      "kind": "ticks",
+      "first": 182826956,
+      "last": 207900160,
+      "count": 27,
+      "max_gap": 8628918,
+      "gap_start": 191327702
+    },
+    {
+      "cycle": 207901001,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 212964454,
+      "kind": "ticks",
+      "first": 209875492,
+      "last": 211850812,
+      "count": 2,
+      "max_gap": 1975320,
+      "gap_start": 209875492
+    },
+    {
+      "cycle": 212964454,
+      "kind": "command_end",
+      "index": 2,
+      "erases": 0,
+      "programs": 0,
+      "bytes": 0,
+      "tx_bytes": 2272
+    },
+    {
+      "cycle": 212964455,
+      "kind": "command_start",
+      "index": 3,
+      "tx_bytes": 2272
+    },
+    {
+      "cycle": 213137189,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 221449341,
+      "kind": "ticks",
+      "first": 213090826,
+      "last": 213090826,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 221449341,
+      "kind": "write",
+      "address": 2364,
+      "value": 8,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 222799151,
+      "kind": "write",
+      "address": 2364,
+      "value": 16,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 225747745,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 232981581,
+      "kind": "ticks",
+      "first": 222807906,
+      "last": 232980734,
+      "count": 43,
+      "max_gap": 286850,
+      "gap_start": 225701382
+    },
+    {
+      "cycle": 232981581,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 238277731,
+      "kind": "phy_read",
+      "status": 13,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 254424707,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 258177183,
+      "kind": "ticks",
+      "first": 233221878,
+      "last": 258176342,
+      "count": 69,
+      "max_gap": 5567214,
+      "gap_start": 248792986
+    },
+    {
+      "cycle": 258177183,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 262245279,
+      "kind": "ticks",
+      "first": 259427616,
+      "last": 261931522,
+      "count": 3,
+      "max_gap": 1251998,
+      "gap_start": 259427616
+    },
+    {
+      "cycle": 262245279,
+      "kind": "write",
+      "address": 2364,
+      "value": 4,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 262247925,
+      "kind": "flash",
+      "opcode": 216,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 270118140,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 270185079,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 270311120,
+      "kind": "ticks",
+      "first": 270120572,
+      "last": 270120572,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 270311120,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 270440278,
+      "kind": "ticks",
+      "first": 270313552,
+      "last": 270313552,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 270440278,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 270569440,
+      "kind": "ticks",
+      "first": 270442710,
+      "last": 270442710,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 270569440,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 270698562,
+      "kind": "ticks",
+      "first": 270571872,
+      "last": 270571872,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 270698562,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 270827720,
+      "kind": "ticks",
+      "first": 270700994,
+      "last": 270700994,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 270827720,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 270956878,
+      "kind": "ticks",
+      "first": 270830152,
+      "last": 270830152,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 270956878,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 271086036,
+      "kind": "ticks",
+      "first": 270959310,
+      "last": 270959310,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 271086036,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 271215158,
+      "kind": "ticks",
+      "first": 271088468,
+      "last": 271088468,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 271215158,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 271344316,
+      "kind": "ticks",
+      "first": 271217590,
+      "last": 271217590,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 271344316,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 271473478,
+      "kind": "ticks",
+      "first": 271346748,
+      "last": 271346748,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 271473478,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 271602636,
+      "kind": "ticks",
+      "first": 271475910,
+      "last": 271475910,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 271602636,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 271731758,
+      "kind": "ticks",
+      "first": 271605068,
+      "last": 271605068,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 271731758,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 271860870,
+      "kind": "ticks",
+      "first": 271734190,
+      "last": 271734190,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 271860870,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 271990028,
+      "kind": "ticks",
+      "first": 271863302,
+      "last": 271863302,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 271990028,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 272119150,
+      "kind": "ticks",
+      "first": 271992460,
+      "last": 271992460,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 272119150,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 272248308,
+      "kind": "ticks",
+      "first": 272121582,
+      "last": 272121582,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 272248308,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 272377470,
+      "kind": "ticks",
+      "first": 272250740,
+      "last": 272250740,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 272377470,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 272506628,
+      "kind": "ticks",
+      "first": 272379902,
+      "last": 272379902,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 272506628,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 272635750,
+      "kind": "ticks",
+      "first": 272509060,
+      "last": 272509060,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 272635750,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 272764862,
+      "kind": "ticks",
+      "first": 272638182,
+      "last": 272638182,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 272764862,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 272894020,
+      "kind": "ticks",
+      "first": 272767294,
+      "last": 272767294,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 272894020,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 273023142,
+      "kind": "ticks",
+      "first": 272896452,
+      "last": 272896452,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 273023142,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 273152300,
+      "kind": "ticks",
+      "first": 273025574,
+      "last": 273025574,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 273152300,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 273281462,
+      "kind": "ticks",
+      "first": 273154732,
+      "last": 273154732,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 273281462,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 273410620,
+      "kind": "ticks",
+      "first": 273283894,
+      "last": 273283894,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 273410620,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 273539742,
+      "kind": "ticks",
+      "first": 273413052,
+      "last": 273413052,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 273539742,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 273668854,
+      "kind": "ticks",
+      "first": 273542174,
+      "last": 273542174,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 273668854,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 273798012,
+      "kind": "ticks",
+      "first": 273671286,
+      "last": 273671286,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 273798012,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 273927134,
+      "kind": "ticks",
+      "first": 273800444,
+      "last": 273800444,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 273927134,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 274056292,
+      "kind": "ticks",
+      "first": 273929566,
+      "last": 273929566,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 274056292,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 274185454,
+      "kind": "ticks",
+      "first": 274058724,
+      "last": 274058724,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 274185454,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 274314612,
+      "kind": "ticks",
+      "first": 274187886,
+      "last": 274187886,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 274314612,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 274443734,
+      "kind": "ticks",
+      "first": 274317044,
+      "last": 274317044,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 274443734,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 274572846,
+      "kind": "ticks",
+      "first": 274446166,
+      "last": 274446166,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 274572846,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 274702004,
+      "kind": "ticks",
+      "first": 274575278,
+      "last": 274575278,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 274702004,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 274831126,
+      "kind": "ticks",
+      "first": 274704436,
+      "last": 274704436,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 274831126,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 274960284,
+      "kind": "ticks",
+      "first": 274833558,
+      "last": 274833558,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 274960284,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 275089446,
+      "kind": "ticks",
+      "first": 274962716,
+      "last": 274962716,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 275089446,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 275218604,
+      "kind": "ticks",
+      "first": 275091878,
+      "last": 275091878,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 275218604,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 275347726,
+      "kind": "ticks",
+      "first": 275221036,
+      "last": 275221036,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 275347726,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 275476838,
+      "kind": "ticks",
+      "first": 275350158,
+      "last": 275350158,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 275476838,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 275605996,
+      "kind": "ticks",
+      "first": 275479270,
+      "last": 275479270,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 275605996,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 275735118,
+      "kind": "ticks",
+      "first": 275608428,
+      "last": 275608428,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 275735118,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 275864276,
+      "kind": "ticks",
+      "first": 275737550,
+      "last": 275737550,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 275864276,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 275993438,
+      "kind": "ticks",
+      "first": 275866708,
+      "last": 275866708,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 275993438,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 276122596,
+      "kind": "ticks",
+      "first": 275995870,
+      "last": 275995870,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 276122596,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 276251718,
+      "kind": "ticks",
+      "first": 276125028,
+      "last": 276125028,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 276251718,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 276380830,
+      "kind": "ticks",
+      "first": 276254150,
+      "last": 276254150,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 276380830,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 276509988,
+      "kind": "ticks",
+      "first": 276383262,
+      "last": 276383262,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 276509988,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 276639110,
+      "kind": "ticks",
+      "first": 276512420,
+      "last": 276512420,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 276639110,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 276741332,
+      "kind": "ticks",
+      "first": 276641542,
+      "last": 276641542,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 276741332,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 282996551,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 283382733,
+      "kind": "ticks",
+      "first": 276743764,
+      "last": 283381886,
+      "count": 19,
+      "max_gap": 449848,
+      "gap_start": 282932038
+    },
+    {
+      "cycle": 283382733,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 295797679,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 309120577,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 309120783,
+      "kind": "ticks",
+      "first": 283767910,
+      "last": 309056070,
+      "count": 40,
+      "max_gap": 8628918,
+      "gap_start": 298453374
+    },
+    {
+      "cycle": 309120783,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 327915239,
+      "kind": "ticks",
+      "first": 311094794,
+      "last": 318994636,
+      "count": 5,
+      "max_gap": 1975320,
+      "gap_start": 317019316
+    },
+    {
+      "cycle": 327915239,
+      "kind": "write",
+      "address": 2364,
+      "value": 65538,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 328055566,
+      "kind": "command_end",
+      "index": 3,
+      "erases": 1,
+      "programs": 52,
+      "bytes": 13256,
+      "tx_bytes": 2387
+    },
+    {
+      "cycle": 328055567,
+      "kind": "command_start",
+      "index": 4,
+      "tx_bytes": 2387
+    },
+    {
+      "cycle": 328246517,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 336558739,
+      "kind": "ticks",
+      "first": 328182004,
+      "last": 328182004,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 336558739,
+      "kind": "write",
+      "address": 2364,
+      "value": 8,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 337908769,
+      "kind": "write",
+      "address": 2364,
+      "value": 16,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 337918371,
+      "kind": "ticks",
+      "first": 337917524,
+      "last": 337917524,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 337918371,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 340875513,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 353423485,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 363014143,
+      "kind": "ticks",
+      "first": 338158746,
+      "last": 363013302,
+      "count": 104,
+      "max_gap": 304980,
+      "gap_start": 340811000
+    },
+    {
+      "cycle": 363014143,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 369570297,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 377390869,
+      "kind": "ticks",
+      "first": 363459506,
+      "last": 377077112,
+      "count": 10,
+      "max_gap": 5567214,
+      "gap_start": 363938576
+    },
+    {
+      "cycle": 377390869,
+      "kind": "write",
+      "address": 2364,
+      "value": 4,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 377393515,
+      "kind": "flash",
+      "opcode": 216,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 385263730,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 385330669,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 385456710,
+      "kind": "ticks",
+      "first": 385266162,
+      "last": 385266162,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 385456710,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 385585868,
+      "kind": "ticks",
+      "first": 385459142,
+      "last": 385459142,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 385585868,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 385715030,
+      "kind": "ticks",
+      "first": 385588300,
+      "last": 385588300,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 385715030,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 385844152,
+      "kind": "ticks",
+      "first": 385717462,
+      "last": 385717462,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 385844152,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 385973310,
+      "kind": "ticks",
+      "first": 385846584,
+      "last": 385846584,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 385973310,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 386102468,
+      "kind": "ticks",
+      "first": 385975742,
+      "last": 385975742,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 386102468,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 386231626,
+      "kind": "ticks",
+      "first": 386104900,
+      "last": 386104900,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 386231626,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 386360748,
+      "kind": "ticks",
+      "first": 386234058,
+      "last": 386234058,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 386360748,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 386489906,
+      "kind": "ticks",
+      "first": 386363180,
+      "last": 386363180,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 386489906,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 386619068,
+      "kind": "ticks",
+      "first": 386492338,
+      "last": 386492338,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 386619068,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 386748226,
+      "kind": "ticks",
+      "first": 386621500,
+      "last": 386621500,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 386748226,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 386877348,
+      "kind": "ticks",
+      "first": 386750658,
+      "last": 386750658,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 386877348,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 387006460,
+      "kind": "ticks",
+      "first": 386879780,
+      "last": 386879780,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 387006460,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 387135618,
+      "kind": "ticks",
+      "first": 387008892,
+      "last": 387008892,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 387135618,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 387264740,
+      "kind": "ticks",
+      "first": 387138050,
+      "last": 387138050,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 387264740,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 387393898,
+      "kind": "ticks",
+      "first": 387267172,
+      "last": 387267172,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 387393898,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 387523060,
+      "kind": "ticks",
+      "first": 387396330,
+      "last": 387396330,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 387523060,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 387652218,
+      "kind": "ticks",
+      "first": 387525492,
+      "last": 387525492,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 387652218,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 387781340,
+      "kind": "ticks",
+      "first": 387654650,
+      "last": 387654650,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 387781340,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 387910452,
+      "kind": "ticks",
+      "first": 387783772,
+      "last": 387783772,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 387910452,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 388039610,
+      "kind": "ticks",
+      "first": 387912884,
+      "last": 387912884,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 388039610,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 388042883,
+      "kind": "ticks",
+      "first": 388042042,
+      "last": 388042042,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 388042883,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 388168814,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 388297976,
+      "kind": "ticks",
+      "first": 388171246,
+      "last": 388171246,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 388297976,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 388427098,
+      "kind": "ticks",
+      "first": 388300408,
+      "last": 388300408,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 388427098,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 388556256,
+      "kind": "ticks",
+      "first": 388429530,
+      "last": 388429530,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 388556256,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 388685414,
+      "kind": "ticks",
+      "first": 388558688,
+      "last": 388558688,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 388685414,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 388814572,
+      "kind": "ticks",
+      "first": 388687846,
+      "last": 388687846,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 388814572,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 388943694,
+      "kind": "ticks",
+      "first": 388817004,
+      "last": 388817004,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 388943694,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 389072852,
+      "kind": "ticks",
+      "first": 388946126,
+      "last": 388946126,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 389072852,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 389202014,
+      "kind": "ticks",
+      "first": 389075284,
+      "last": 389075284,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 389202014,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 389331172,
+      "kind": "ticks",
+      "first": 389204446,
+      "last": 389204446,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 389331172,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 389460294,
+      "kind": "ticks",
+      "first": 389333604,
+      "last": 389333604,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 389460294,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 389589406,
+      "kind": "ticks",
+      "first": 389462726,
+      "last": 389462726,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 389589406,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 389718564,
+      "kind": "ticks",
+      "first": 389591838,
+      "last": 389591838,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 389718564,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 389847686,
+      "kind": "ticks",
+      "first": 389720996,
+      "last": 389720996,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 389847686,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 389976844,
+      "kind": "ticks",
+      "first": 389850118,
+      "last": 389850118,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 389976844,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 390106006,
+      "kind": "ticks",
+      "first": 389979276,
+      "last": 389979276,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 390106006,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 390235164,
+      "kind": "ticks",
+      "first": 390108438,
+      "last": 390108438,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 390235164,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 390364286,
+      "kind": "ticks",
+      "first": 390237596,
+      "last": 390237596,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 390364286,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 390493398,
+      "kind": "ticks",
+      "first": 390366718,
+      "last": 390366718,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 390493398,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 390622556,
+      "kind": "ticks",
+      "first": 390495830,
+      "last": 390495830,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 390622556,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 390751678,
+      "kind": "ticks",
+      "first": 390624988,
+      "last": 390624988,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 390751678,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 390880836,
+      "kind": "ticks",
+      "first": 390754110,
+      "last": 390754110,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 390880836,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 391009998,
+      "kind": "ticks",
+      "first": 390883268,
+      "last": 390883268,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 391009998,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 391139156,
+      "kind": "ticks",
+      "first": 391012430,
+      "last": 391012430,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 391139156,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 391268278,
+      "kind": "ticks",
+      "first": 391141588,
+      "last": 391141588,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 391268278,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 391397390,
+      "kind": "ticks",
+      "first": 391270710,
+      "last": 391270710,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 391397390,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 391526548,
+      "kind": "ticks",
+      "first": 391399822,
+      "last": 391399822,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 391526548,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 391655670,
+      "kind": "ticks",
+      "first": 391528980,
+      "last": 391528980,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 391655670,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 391784828,
+      "kind": "ticks",
+      "first": 391658102,
+      "last": 391658102,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 391784828,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 391887050,
+      "kind": "ticks",
+      "first": 391787260,
+      "last": 391787260,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 391887050,
+      "kind": "flash",
+      "opcode": 2,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 398142269,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 410943349,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 413257977,
+      "kind": "ticks",
+      "first": 391889482,
+      "last": 413257136,
+      "count": 56,
+      "max_gap": 737824,
+      "gap_start": 412027558
+    },
+    {
+      "cycle": 413257977,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 424266295,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 443060829,
+      "kind": "ticks",
+      "first": 413599092,
+      "last": 434140346,
+      "count": 8,
+      "max_gap": 8628918,
+      "gap_start": 413599092
+    },
+    {
+      "cycle": 443060829,
+      "kind": "write",
+      "address": 2364,
+      "value": 131074,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 443201140,
+      "kind": "command_end",
+      "index": 4,
+      "erases": 2,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 2502
+    },
+    {
+      "cycle": 443201141,
+      "kind": "command_start",
+      "index": 5,
+      "tx_bytes": 2502
+    },
+    {
+      "cycle": 443344725,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 443344951,
+      "kind": "ticks",
+      "first": 443280196,
+      "last": 443280196,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 443344951,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 456174127,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 473698863,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 473699069,
+      "kind": "ticks",
+      "first": 443372406,
+      "last": 473634356,
+      "count": 57,
+      "max_gap": 8628918,
+      "gap_start": 465005438
+    },
+    {
+      "cycle": 473699069,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 486503313,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 498854751,
+      "kind": "ticks",
+      "first": 475672054,
+      "last": 498853904,
+      "count": 40,
+      "max_gap": 1975320,
+      "gap_start": 483571380
+    },
+    {
+      "cycle": 498854751,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 499304441,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 516443201,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 524341227,
+      "kind": "ticks",
+      "first": 499239928,
+      "last": 524340386,
+      "count": 27,
+      "max_gap": 8628918,
+      "gap_start": 507749776
+    },
+    {
+      "cycle": 524341227,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 529406498,
+      "kind": "ticks",
+      "first": 526315718,
+      "last": 528291038,
+      "count": 2,
+      "max_gap": 1975320,
+      "gap_start": 526315718
+    },
+    {
+      "cycle": 529406498,
+      "kind": "command_end",
+      "index": 5,
+      "erases": 2,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 2873
+    },
+    {
+      "cycle": 529406499,
+      "kind": "command_start",
+      "index": 6,
+      "tx_bytes": 2873
+    },
+    {
+      "cycle": 529583867,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 529604281,
+      "kind": "ticks",
+      "first": 529519354,
+      "last": 529519354,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 529604281,
+      "kind": "flash",
+      "opcode": 216,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 537352297,
+      "kind": "ticks",
+      "first": 537348724,
+      "last": 537348724,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 537352297,
+      "kind": "flash",
+      "opcode": 216,
+      "wait_cycles": 0
+    },
+    {
+      "cycle": 545219868,
+      "kind": "command_end",
+      "index": 6,
+      "erases": 4,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 3006
+    },
+    {
+      "cycle": 545219869,
+      "kind": "command_start",
+      "index": 7,
+      "tx_bytes": 3006
+    },
+    {
+      "cycle": 545363437,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 546057672,
+      "kind": "ticks",
+      "first": 545298924,
+      "last": 545298924,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 546057672,
+      "kind": "command_end",
+      "index": 7,
+      "erases": 4,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 3383
+    },
+    {
+      "cycle": 546057673,
+      "kind": "command_start",
+      "index": 8,
+      "tx_bytes": 3383
+    },
+    {
+      "cycle": 546255290,
+      "kind": "ticks",
+      "first": 546190808,
+      "last": 546190808,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 546255290,
+      "kind": "command_end",
+      "index": 8,
+      "erases": 4,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 3445
+    },
+    {
+      "cycle": 546255291,
+      "kind": "command_start",
+      "index": 9,
+      "tx_bytes": 3445
+    },
+    {
+      "cycle": 546500966,
+      "kind": "ticks",
+      "first": 546388488,
+      "last": 546388488,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 546500966,
+      "kind": "command_end",
+      "index": 9,
+      "erases": 4,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 3509
+    },
+    {
+      "cycle": 546500967,
+      "kind": "command_start",
+      "index": 10,
+      "tx_bytes": 3509
+    },
+    {
+      "cycle": 546820235,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 546820381,
+      "kind": "ticks",
+      "first": 546755782,
+      "last": 546755782,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 546820381,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 547083034,
+      "kind": "command_end",
+      "index": 10,
+      "erases": 4,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 3591
+    },
+    {
+      "cycle": 547083035,
+      "kind": "command_start",
+      "index": 11,
+      "tx_bytes": 3591
+    },
+    {
+      "cycle": 547402323,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 547402489,
+      "kind": "ticks",
+      "first": 547337850,
+      "last": 547337850,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 547402489,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 547644824,
+      "kind": "command_end",
+      "index": 11,
+      "erases": 4,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 3689
+    },
+    {
+      "cycle": 547644825,
+      "kind": "command_start",
+      "index": 12,
+      "tx_bytes": 3689
+    },
+    {
+      "cycle": 547887288,
+      "kind": "ticks",
+      "first": 547805000,
+      "last": 547805000,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 547887288,
+      "kind": "command_end",
+      "index": 12,
+      "erases": 4,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 3773
+    },
+    {
+      "cycle": 547887289,
+      "kind": "command_start",
+      "index": 13,
+      "tx_bytes": 3773
+    },
+    {
+      "cycle": 548225102,
+      "kind": "ticks",
+      "first": 548013664,
+      "last": 548013664,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 548225102,
+      "kind": "command_end",
+      "index": 13,
+      "erases": 4,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 3867
+    },
+    {
+      "cycle": 548225103,
+      "kind": "command_start",
+      "index": 14,
+      "tx_bytes": 3867
+    },
+    {
+      "cycle": 548537743,
+      "kind": "phy_read",
+      "status": 11,
+      "up": 2,
+      "down": 1
+    },
+    {
+      "cycle": 548537963,
+      "kind": "ticks",
+      "first": 548473220,
+      "last": 548473220,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 548537963,
+      "kind": "write",
+      "address": 2364,
+      "value": 1,
+      "requests": 2665,
+      "responses": 2665,
+      "errors": 0
+    },
+    {
+      "cycle": 548887088,
+      "kind": "command_end",
+      "index": 14,
+      "erases": 4,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 3976
+    },
+    {
+      "cycle": 548887089,
+      "kind": "command_start",
+      "index": 15,
+      "tx_bytes": 3976
+    },
+    {
+      "cycle": 549140348,
+      "kind": "ticks",
+      "first": 549047264,
+      "last": 549047264,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 549140348,
+      "kind": "command_end",
+      "index": 15,
+      "erases": 4,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 4072
+    },
+    {
+      "cycle": 549140349,
+      "kind": "command_start",
+      "index": 16,
+      "tx_bytes": 4072
+    },
+    {
+      "cycle": 550025488,
+      "kind": "ticks",
+      "first": 549239684,
+      "last": 549239684,
+      "count": 1,
+      "max_gap": 0,
+      "gap_start": 0
+    },
+    {
+      "cycle": 550025488,
+      "kind": "command_end",
+      "index": 16,
+      "erases": 4,
+      "programs": 104,
+      "bytes": 26512,
+      "tx_bytes": 4400
+    }
+  ],
+  "heartbeat_max_gap_ms": 324.58102,
+  "heartbeat_500ms_met": true,
+  "budget_findings": [
+    "over-budget duty: milan_nvm",
+    "over-budget duty: milan_nvm"
+  ],
+  "heartbeat": {
+    "plan": "all",
+    "start_sys_cycle": 124873427,
+    "end_sys_cycle": 157331529,
+    "right_censored": false,
+    "period_margin_ms": 175.41897999999998,
+    "liveness_margin_ms": 1675.41898
+  },
+  "liveness": [
+    {
+      "command_index": 0,
+      "backed": 1,
+      "sampled_by_sys_cycle": 126724658
+    },
+    {
+      "command_index": 2,
+      "backed": 1,
+      "sampled_by_sys_cycle": 212964454
+    },
+    {
+      "command_index": 5,
+      "backed": 1,
+      "sampled_by_sys_cycle": 529406498
+    },
+    {
+      "command_index": 7,
+      "backed": 1,
+      "sampled_by_sys_cycle": 546057672
+    },
+    {
+      "command_index": 16,
+      "backed": 1,
+      "sampled_by_sys_cycle": 550025488
+    }
+  ],
+  "phy": {
+    "transactions": 210,
+    "publications": 34,
+    "max_transaction_sys_cycles": 8785,
+    "max_poll_sys_cycles": 65174,
+    "down_edges": 1,
+    "up_edges": 1,
+    "scheduling_charge_sys_cycles": 144239
+  },
+  "service_findings": []
+}
