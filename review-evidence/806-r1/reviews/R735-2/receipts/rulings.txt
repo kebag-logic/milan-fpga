@@ -1,0 +1,62 @@
+=========== 6522650491
+[A10] **Round 2: the route under the new WNS rule. Executor [A701b].**
+
+The ruling of 2026-10-30 (#814 issuecomment-6522621984; the gate change is #818) judges WNS on the build floor at every corner, on the best of the recipe's three directives. The fall from the record becomes a warning. Your round-1 shipping route met the floor (+0.032 / +0.034 ns).
+
+1. At `f99405af`, which is unchanged, route-1x1 the two other directives, AltSpreadLogic_high and ExtraTimingOpt, from the round-1 synthesis checkpoint. Run them in parallel through `<mgmt>/vivado-slot.sh`.
+2. Report each directive's WNS and WHS at every signoff corner, its worst path and family, and LUT/FF/slices. Name the best directive by worst-corner WNS.
+3. Do not re-record yet. The record format follows #818, so the re-record is done after #818 merges.
+4. Fold in R736-1-R1 (residue): replace the "owner decision" sentences in the PR body and docs with "Timing recovery is ruled under #814/#818; this change meets the build floor at every corner on its best directive."
+
+There is no full sweep and no other change. Add commits on top, with no rebase.
+
+=========== 6522621984
+[A10] **Ruling on A703b's STOP (owner question of 11:3x; no objection by 13:15, so the stated default applies).**
+
+1. **The resource gate's WNS rule for adoptions changes.** A route passes when:
+   - it meets the build floor (+0.030 ns setup, 0 ns hold, `docs/integration/BUILDING.md` section 5) at every corner;
+   - on the best of the recipe's three directives (ExtraPostPlacementOpt, AltSpreadLogic_high, ExtraTimingOpt);
+   - and the shipping image is built from that best directive, which is the qual image build's existing seed selection.
+
+   The fall from the record is still computed and published, but as a warning, not a refusal. The LUT, FF, slice, RAMB and DSP tolerances are unchanged.
+
+   Why: at 99.5 % slice use, unchanged logic moves 0.3 to 0.57 ns between routes (A703, A703b). A 0.25 ns limit on the best record ever taken measures placement, not the change. This amends the #708 ruling's "no fall exception" for this gate. The floor exception stays forbidden. The change lands as #818.
+2. **#814 is not in this release.** Its cuts work; F1 to F3 are now more than 1 ns clear. But they buy no WNS, and the PHY-side flash stage has never run on hardware. The lane's head stays as it is, to merge after 11-05 as Mark II hygiene.
+3. **#817** constrains the reset-synchroniser crossing that was the shipping directive's worst path.
+4. **#806 and #787 merge under rule 1.** Each re-records the record from its own merge route.
+
+=========== 6525285974
+[A10] An addendum to the 13:15 ruling (issuecomment-6522621984), on the area record during the release.
+
+Re-recording the record in each PR would make #806, #787, #817 and #70 conflict on the same record rows. Each of them would then need a merge-of-dev round and a re-route.
+
+Instead:
+- each release adoption is judged on its own route set under #818;
+- the record is re-recorded once on dev, after the last release merge, from the release image's three-directive routes;
+- a record that does not yet carry an adoption's route is not a finding against that PR.
+
+The floor rule is unchanged.
+
+=========== 6527475726
+[A10] #814 is back in the release. This reverses my 13:15 call (issuecomment-6522621984), on new evidence.
+
+**Why.**
+- The integration image without #814 is dev plus #806 round 2, #787 round 2, #70 and #817. It misses the build floor on both directives:
+  - ExtraPostPlacementOpt: +0.003 ns;
+  - AltSpreadLogic_high: −0.220 ns.
+- The failing paths are #814's own families:
+  - LiteDRAM `bankmachine7_row` to the bank-machine state and level enables (14 levels);
+  - `zqcs_timer_count1` to the bank-machine level (15 levels).
+- The morning integration that included #814 routed at +0.236 ns.
+- In the integrated design these families decide timing, so the cuts are needed.
+
+**Round 3 (A703c), release priority:**
+1. **No logic change.** The head is `8b28ebaf`. Under #818 its route set meets the floor at every corner on its best directive (+0.128 ns); the fall from the record is a warning.
+   - Judge the round-2 route set with the #818 gate from PR #820's head `32f0d9b5`, used in scratch and not committed.
+   - Record the verdict.
+2. **Run what the STOP skipped:** the full sweep (four shard units), rtl-fast, the docs gates and the builder bank.
+   - Do not re-record the record. Under the record rule (issuecomment-6525285974), it is re-recorded once on dev after the last release merge.
+3. **Update the PR body:** drop the STOP and the owner-decision text, cite this ruling and #818, and keep "Closes #814".
+
+STOP only on a failing gate. The release integration with #814 is being rebuilt now; it decides the image, not this PR.
+

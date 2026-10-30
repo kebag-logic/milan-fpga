@@ -1,0 +1,24 @@
+manifest entries 425 mismatches 0 unlisted files 0 []
+INDEX MISMATCH HANDOFF.md
+INDEX MISMATCH scripts/collect_directives.sh
+INDEX MISMATCH scripts/copy_receipts.py
+INDEX MISMATCH scripts/docs_run.sh
+INDEX MISMATCH scripts/docs_static.sh
+INDEX MISMATCH scripts/docs_steps.py
+INDEX MISMATCH scripts/docs_steps_md312.py
+INDEX MISMATCH scripts/env.sh
+INDEX MISMATCH scripts/make_clone.sh
+INDEX MISMATCH scripts/viv_run.sh
+index entries 89 mismatches 10
+rc=0
+redaction-check HANDOFF.md index==original: True path_redacted: True
+redaction-check scripts/collect_directives.sh index==original: True path_redacted: True
+redaction-check scripts/copy_receipts.py index==original: True path_redacted: True
+redaction-check scripts/docs_run.sh index==original: True path_redacted: True
+redaction-check scripts/docs_static.sh index==original: True path_redacted: True
+redaction-check scripts/docs_steps.py index==original: True path_redacted: True
+redaction-check scripts/docs_steps_md312.py index==original: True path_redacted: True
+redaction-check scripts/env.sh index==original: True path_redacted: True
+redaction-check scripts/make_clone.sh index==original: True path_redacted: True
+redaction-check scripts/viv_run.sh index==original: True path_redacted: True
+author-r2 redacted files: 10
