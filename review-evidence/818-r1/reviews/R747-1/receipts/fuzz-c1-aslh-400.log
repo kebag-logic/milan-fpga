@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "<clone>/syn/ooc/pp_resource_gate.py", line 984, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<clone>/syn/ooc/pp_resource_gate.py", line 935, in main
+    return fuzz(args.fuzz, args.seed, args.directory, args.endpoint, args.baseline, args.budget)
+  File "<clone>/syn/ooc/pp_resource_gate.py", line 875, in fuzz
+    runs = run_case(work, targets[target], files, data, audit)
+  File "<clone>/syn/ooc/pp_resource_gate.py", line 815, in run_case
+    marked = ("--shipping-selection",) if kind_of(directory) == "route" else ()
+                                          ~~~~~~~^^^^^^^^^^^
+  File "<clone>/syn/ooc/pp_resource_gate.py", line 315, in kind_of
+    raise Refusal(f"{directory} holds {len(kinds)} recipe scripts, not one")
+Refusal: <814-control-routes>/ax7101-AltSpreadLogic_high holds 0 recipe scripts, not one
