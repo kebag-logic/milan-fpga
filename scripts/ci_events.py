@@ -1149,6 +1149,11 @@ CARRIER_STEP_LISTS = {
              'python3 scripts/gen_toc.py --verify-anchors',
              'python3 scripts/gen_toc.py --check',
          )},
+        {"name": "Documentation inventory freshness gate",
+         "run": (
+             'python3 scripts/docs_inventory.py --check',
+             'python3 scripts/docs_inventory.py --selftest',
+         )},
         {"name": "AEM store generator self-test",
          "run": (
              'python3 avdecc/gen_aem_store.py --self-test',

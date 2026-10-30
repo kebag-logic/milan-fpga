@@ -420,6 +420,18 @@ jobs:
           python3 scripts/gen_toc.py --verify-anchors
           python3 scripts/gen_toc.py --check
 
+      # Documentation inventory gate (#797): docs/DOCUMENTATION_AUDIT.md is
+      # generated from every tracked Markdown file and README and from the
+      # verified findings in scripts/docs_inventory.json. A document added,
+      # removed or edited without regenerating the page fails here, and so
+      # does a hand edit of the page. --selftest plants a stale page, a fixed
+      # statement and malformed findings and requires each to be caught. It
+      # reads first-party files only.
+      - name: Documentation inventory freshness gate
+        run: |
+          python3 scripts/docs_inventory.py --check
+          python3 scripts/docs_inventory.py --selftest
+
       # AEM store generator self-test (#464): the AUDIO_MAP bounds gate, the
       # two-level directory gate and the Milan 6.4 Base-format check in
       # avdecc/gen_aem_store.py each prove they can refuse, every AUDIO_MAP

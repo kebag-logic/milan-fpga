@@ -1,0 +1,167 @@
+{
+ "verified_at": "1e80128f",
+ "judged": {},
+ "findings": [
+  {
+   "id": "D0-001",
+   "page": "README.md",
+   "quote": "ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.",
+   "source": "`sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and the default build carries no mailbox; the same section says all-fabric is the shipping default",
+   "correction": "Say that the Mark II split placement moves ADP, ACMP, AECP, MAAP and SRP into bare-metal firmware, and that the default build keeps all of them in fabric."
+  },
+  {
+   "id": "D0-002",
+   "page": "README.md",
+   "quote": "clock-source selection now reaches the media plane's wrapper but nothing there",
+   "source": "`hdl/milan/milan_datapath.sv` lines 704-720: the stored CLOCK_SOURCE is resolved in `media_clk_resolve` and consumed by the INTERNAL, CRF and AAF followers (#74, #629)",
+   "correction": "State that SET_CLOCK_SOURCE selects the followed media clock (INTERNAL, CRF or one AAF input), and link the media-clock following design."
+  },
+  {
+   "id": "D0-003",
+   "page": "README.md",
+   "quote": "Stream restart latency after an ACMP rebind (2026-08, OPEN)",
+   "source": "#75 is closed; the measurement is `docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md`; the roadmap figure repeats it as open (12 to 90 s)",
+   "correction": "Retire section P1.6 and the roadmap bullet, and point at the #75 finding."
+  },
+  {
+   "id": "D0-004",
+   "page": "README.md",
+   "quote": "**Not the index-bus narrowing** in `KL_lwsrp_ctx.sv`",
+   "source": "Commit `eff99a9c` (2026-08-13) deleted the fabric SRP context; no `KL_lwsrp_ctx.sv` is tracked, and `JOIN_TIME_MS_C` (line 447) has no definition in the tree",
+   "correction": "Remove the analysis of the deleted module with section P1.6."
+  },
+  {
+   "id": "D0-005",
+   "page": "README.md",
+   "quote": "is **steerability**. `media_tick_p` is a compile-time constant with no",
+   "source": "`hdl/ieee1722/crf/KL_media_nco.sv` (steerable media grid, 2026-08-10) and `hdl/ieee1722/crf/KL_media_grid_align.sv` (#74) replaced the constant divider",
+   "correction": "Rewrite P1.7 as the current media-clock status (#629, #74) with a link to the media-clock following design, or retire it."
+  },
+  {
+   "id": "D0-006",
+   "page": "docs/reference/REGISTER_MAP.md",
+   "quote": "attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value",
+   "source": "IEEE 802.1Q-2022 (and 802.1Q-2018) define MSRP FourPackedEvents in 35.2.2.7.2 with Table 35-3; there is no 35.2.2.7.4",
+   "correction": "Cite IEEE 802.1Q 35.2.2.7.2 (Table 35-3)."
+  },
+  {
+   "id": "D0-007",
+   "page": "docs/reference/REGISTER_MAP.md",
+   "quote": "(STREAM_INPUT[0], Milan Table 7-156)",
+   "source": "Table 7-156 is IEEE 1722.1-2021's STREAM_INPUT counters_valid table; Milan v1.2 lists the Stream Input counters in Table 5.6 (5.3.8.10)",
+   "correction": "Write IEEE 1722.1-2021 Table 7-156 (Milan v1.2 Table 5.6)."
+  },
+  {
+   "id": "D0-008",
+   "page": "docs/reference/REGISTER_MAP.md",
+   "quote": "The Milan Table 7-156 stream counters",
+   "source": "Same as D0-007: Table 7-156 belongs to IEEE 1722.1-2021",
+   "correction": "Write the IEEE 1722.1-2021 Table 7-156 stream counters, in the section description and its Contents entry."
+  },
+  {
+   "id": "D0-009",
+   "page": "docs/reference/REGISTER_MAP.md",
+   "quote": "Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`.",
+   "source": "`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1086-1094: `phy_link_tick()` runs inside `nvm_heartbeat_tick()`, which returns until `nvm_started` (line 1668) is set; a refused record-set shape never sets it",
+   "correction": "Add that publication runs only while the saved-state writer runs; otherwise MAC_STATUS keeps its reset value (link up, 1000 Mb/s, full duplex)."
+  },
+  {
+   "id": "D0-010",
+   "page": "docs/integration/BOARD_PORTING_AX7101.md",
+   "quote": "acceptance remains on [#599](https://github.com/kebag-logic/milan-fpga/issues/599).",
+   "source": "#599 closed as completed on 2026-09-29; the bench result is `docs/findings/599_394_E1_LINK_CYCLES.md`",
+   "correction": "Point at the #599 link-cycle finding instead of an open issue."
+  },
+  {
+   "id": "D0-011",
+   "page": "docs/integration/BAREMETAL_FIRMWARE.md",
+   "quote": "pending #403, which decides the receive-filter posture",
+   "source": "#403 closed as completed on 2026-09-26; `sw/litex/boot_policy.py` line 58 generates `MILAN_MAC_CTRL_SET` (bit 3), written at `sw/firmware/milan_baremetal/milan_baremetal.c` line 1808",
+   "correction": "Name the generated `MILAN_MAC_CTRL_SET` word and drop the pending reference."
+  },
+  {
+   "id": "D0-012",
+   "page": "docs/integration/BAREMETAL_FIRMWARE.md",
+   "quote": "`srp.talker_declare_at_reset`, pending #400",
+   "source": "#400 closed as completed on 2026-09-26; the firmware writes `MILAN_LWSRP_CTRL_RESET | 3u` at `sw/firmware/milan_baremetal/milan_baremetal.c` line 1814",
+   "correction": "Drop the pending reference and state the forced bits as the shipped behaviour."
+  },
+  {
+   "id": "D0-013",
+   "page": "docs/integration/BAREMETAL_FIRMWARE.md",
+   "quote": "block count `MILAN_N_TALKERS` + 1 in `[15:8]`",
+   "source": "`sw/litex/boot_policy.py` line 56: `MILAN_MAAP_CTRL_BOOT` is `len(stream_outputs) << 8 | 1`, so the extra block exists only when the CRF output is declared",
+   "correction": "Write the generated `MILAN_MAAP_CTRL_BOOT`: one block per declared AAF output, plus one when the CRF output is enabled."
+  },
+  {
+   "id": "D0-014",
+   "page": "docs/reference/REGISTER_MAP.md",
+   "quote": "| `0x7D4` | `AEMP_CTRL` | W1S / RO |",
+   "source": "`hdl/common/csr/milan_csr.sv` lines 885-897 (`A_ETH_GUARD` at 0x7D8), 1578 (reset armed), 1731 (write rule), 2389 (readback); the map has no 0x7D8 row, against REQ-CSR-01's acceptance",
+   "correction": "Add `0x7D8 ETH_GUARD`: RW, reset 1 (armed); writing 0x554E4C4B disarms, any other write re-arms; while armed PHY_RESET writes are dropped and LINK_CTRL[1] is masked; the link guard's own recovery is not gated."
+  },
+  {
+   "id": "D0-015",
+   "page": "docs/reference/REGISTER_MAP.md",
+   "quote": "`[0]` phy_reset_n (0 = hold PHY in reset)",
+   "source": "`hdl/common/csr/milan_csr.sv` line 2692 drives `o_phy_reset_n` and line 1688 drops writes while ETH_GUARD is armed; `sw/litex/milan_soc.py` never connects the datapath's `o_phy_reset_n`; the pin is driven by LiteEth's CRG reset CSR (`sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch`, `pads.rst_n` from `self._reset`)",
+   "correction": "Document PHY_RESET as inert in the shipping SoC, and document `milan_mac_phy_crg_reset` (LiteX CSR) as the reset that reaches the PHY for the `--eth-port` the image is built for."
+  },
+  {
+   "id": "D0-016",
+   "page": "docs/reference/REGISTER_MAP.md",
+   "quote": "`[1]` manual mac_reinit (hold MAC sys-side in reset)",
+   "source": "`hdl/common/csr/milan_csr.sv` lines 1726-1730: while ETH_GUARD is armed a LINK_CTRL write stores bit 1 as 0",
+   "correction": "Add that bit 1 is masked to 0 while ETH_GUARD (0x7D8) is armed."
+  },
+  {
+   "id": "D0-017",
+   "page": "docs/reference/REGISTER_MAP.md",
+   "quote": "| `0x110` | `MAC_STATUS` | RO | – |",
+   "source": "`sw/litex/milan_soc.py` lines 1893-1907 and 2084-2085: MAC_STATUS is the LiteX `milan_mac_link_status` CSR, reset link up, 1000 Mb/s on GMII (100 on MII), full duplex",
+   "correction": "State the reset value and that the bits follow the PHY only while firmware publishes them (D0-009); point to LINKG_STAT (0x774) and the AVB_INTERFACE LINK_UP/LINK_DOWN counters."
+  },
+  {
+   "id": "D0-018",
+   "page": "docs/reference/REGISTER_MAP_CLASSES.md",
+   "quote": "| `0x7C8–0x7D4` | AEM saved-state write master |",
+   "source": "`hdl/common/csr/milan_csr.sv` line 897 allocates `A_ETH_GUARD` at 0x7D8, between the 0x7C8-0x7D4 and 0x7DC-0x7E4 rows; the page judges every CSR group",
+   "correction": "Add a 0x7D8 ETH_GUARD row with its production class."
+  },
+  {
+   "id": "D0-019",
+   "page": "docs/reference/FR_NFR.md",
+   "quote": "| **FR-QOS-01..03** | **MET** | Classifier + CBS untouched;",
+   "source": "`docs/reference/EGRESS_QUEUE_MAP.md` lines 3-8 and `hdl/common/csr/milan_csr.sv` lines 1996-2000 (CAP.CBS = 0): since VERSION 0x0056 `milan_datapath` instantiates no classifier or shaper; the same page says so at lines 50 and 228-230",
+   "correction": "Mark FR-QOS-01 and FR-QOS-02 not met in the product (the blocks exist and are verified, but are not instantiated), and keep FR-QOS-03 as the processor's admission ceiling."
+  },
+  {
+   "id": "D0-020",
+   "page": "docs/reference/FR_NFR.md",
+   "quote": "802.1Q / 802.1Qav  *(already in HW)*",
+   "source": "Same as D0-019: the classifier and CBS are not instantiated in the shipping datapath",
+   "correction": "Drop the already-in-HW marker, or say the blocks are verified but not instantiated."
+  },
+  {
+   "id": "D0-021",
+   "page": "docs/reference/MILAN_COMPLIANCE_MATRIX.md",
+   "quote": "| 8.6.8.1 | strict priority (non-CBS queues) | fabric | implemented",
+   "source": "`docs/reference/EGRESS_QUEUE_MAP.md` lines 3-8: `milan_datapath` does not instantiate the shaper since 0x0056; the page describes the shipping image (line 3)",
+   "correction": "Mark the row as verified RTL that is not instantiated in the shipping image."
+  },
+  {
+   "id": "D0-022",
+   "page": "docs/reference/MILAN_COMPLIANCE_MATRIX.md",
+   "quote": "| 8.6.8.2 | credit-based shaper: idleSlope/sendSlope, transmitAllowed",
+   "source": "Same as D0-021",
+   "correction": "Mark the row as verified RTL that is not instantiated in the shipping image."
+  },
+  {
+   "id": "D0-023",
+   "page": "README.md",
+   "quote": "| TSN datapath in fabric | MAC · 802.1Qav CBS · gPTP",
+   "source": "Same as D0-019: CAP.CBS reads 0 and no shaper is instantiated since 0x0056",
+   "correction": "Remove CBS from the shipping datapath row, or mark it as an earlier measurement on an older image."
+  }
+ ]
+}

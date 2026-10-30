@@ -1,217 +1,476 @@
 # Documentation audit
 
-This audit records verified documentation findings.
+**GENERATED** by `scripts/docs_inventory.py` from the tracked documents.
+Do not hand-edit.
 
-It covers current root documentation and pinned imports.
+Regenerate after any document change, then run the gate.
+
+```sh
+python3 scripts/docs_inventory.py --write
+python3 scripts/docs_inventory.py --check
+```
 
 ## Contents
 
-- **[Method](#method)** — Explain each evidence source.
-- **[Audience paths](#audience-paths)** — Separate reader responsibilities.
-- **[Measured baseline](#measured-baseline)** — Record dated repository facts.
-- **[Authority conflicts](#authority-conflicts)** — Keep contradictions visible.
-- **[History policy](#history-policy)** — Separate obsolete material safely.
-- **[Device wording](#device-wording)** — Preserve neutral public examples.
-- **[Diagram verification](#diagram-verification)** — Check data and readability.
-- **[Follow-up work](#follow-up-work)** — Link discovered work publicly.
+- **[Summary](#summary)** -- Counts by status and by lane.
+- **[Status rules](#status-rules)** -- How each status is decided.
+- **[Module directories](#module-directories)** -- Which code directories carry a README.
+- **[Inventory](#inventory)** -- Every document, grouped by area.
+- **[Findings](#findings)** -- Verified contradictions, with their corrections.
 
-## Method
+## Summary
 
-- Git supplied every recorded submodule revision.
-- RTL supplied interface and timing facts.
-- Executable tests supplied verification ownership.
-- Generated renders received visual inspection.
-- Current authorities excluded historical claims.
+Statements on D0 pages were checked at dev `1e80128f`.
+Other pages wait for their area lane.
 
-## Audience paths
+| Status | Pages | Lines |
+|---|---:|---:|
+| current | 182 | 74,476 |
+| stale | 7 | 6,633 |
+| superseded | 0 | 0 |
+| obsolete | 21 | 8,002 |
+| **total** | **210** | **89,111** |
 
-| Reader | New path | Primary decision |
+| Lane | Pages | Current | Stale | Superseded | Obsolete | Verified by D0 |
+|---|---:|---:|---:|---:|---:|---:|
+| archive | 22 | 1 | 0 | 0 | 21 | 0 |
+| design | 24 | 24 | 0 | 0 | 0 | 0 |
+| findings | 23 | 23 | 0 | 0 | 0 | 0 |
+| module READMEs | 80 | 80 | 0 | 0 | 0 | 0 |
+| overview and guides | 21 | 20 | 1 | 0 | 0 | 12 |
+| reference | 22 | 16 | 6 | 0 | 0 | 18 |
+| repository contract | 4 | 4 | 0 | 0 | 0 | 0 |
+| testing and CI | 14 | 14 | 0 | 0 | 0 | 0 |
+
+## Status rules
+
+| Status | Rule | Evidence shown |
 |---|---|---|
-| Implementation developer | [`guides/IMPLEMENTATION_DEVELOPER.md`](guides/IMPLEMENTATION_DEVELOPER.md) | Change product code safely |
-| Verification developer | [`guides/VERIFICATION_DEVELOPER.md`](guides/VERIFICATION_DEVELOPER.md) | Produce defect-detecting evidence |
-| System integrator | [`guides/SYSTEM_INTEGRATOR.md`](guides/SYSTEM_INTEGRATOR.md) | Wire every product boundary |
-| Project manager | [`guides/PROJECT_MANAGER.md`](guides/PROJECT_MANAGER.md) | Judge readiness from evidence |
+| obsolete | The page is in the versioned archive under `docs/history/`. | The archive banner's current successor. |
+| superseded | A banner in the first 15 lines names a replacement, or the data file records the judgement. | The banner line or the recorded judgement. |
+| stale | The data file records a verified contradiction on the page. | The finding identifiers. |
+| current | None of the above holds. | The page's generator, or no recorded contradiction. |
 
-The developer views remain intentionally separate.
+## Module directories
 
-Code providers follow implementation ownership.
+The README count includes subdirectories.
 
-Test providers follow verification ownership.
+| Directory | README here | READMEs below |
+|---|---|---:|
+| `hdl/` | no | 14 |
+| `hdl/common/` | yes | 3 |
+| `hdl/ieee1722/` | no | 4 |
+| `hdl/ieee17221/` | no | 1 |
+| `hdl/ieee8021as/` | no | 2 |
+| `hdl/ieee8021q/` | no | 2 |
+| `hdl/milan/` | yes | 2 |
+| `sw/` | yes | 11 |
+| `sw/builder/` | yes | 1 |
+| `sw/firmware/` | no | 7 |
+| `sw/litex/` | no | 1 |
+| `sw/mailbox/` | no | 0 |
+| `sw/trace/` | yes | 1 |
+| `tb/` | no | 27 |
+| `tb/avtp_packet_gen_sv/` | yes | 1 |
+| `tb/common/` | no | 0 |
+| `tb/itests/` | yes | 1 |
+| `tb/tools/` | no | 0 |
+| `tb/utests/` | no | 1 |
+| `tb/verilator/` | yes | 24 |
+| `syn/` | no | 2 |
+| `syn/ooc/` | no | 0 |
+| `syn/resmap/` | no | 0 |
+| `syn/yosys/` | yes | 2 |
+| `configs/` | no | 0 |
+| `configs/generated/` | no | 0 |
+| `scripts/` | no | 0 |
 
-## Measured baseline
+## Inventory
 
-Measurements describe the 2026-08-31 baseline.
+Areas follow the directory tree.
 
-Volatile counts never define future coverage.
+- [root](#root) (7)
+- [.github](#github) (1)
+- [avdecc](#avdecc) (1)
+- [docs](#docs) (10)
+- [docs/design](#docsdesign) (14)
+- [docs/development](#docsdevelopment) (1)
+- [docs/diagrams](#docsdiagrams) (1)
+- [docs/findings](#docsfindings) (23)
+- [docs/fpga](#docsfpga) (2)
+- [docs/guides](#docsguides) (10)
+- [docs/history](#docshistory) (22)
+- [docs/integration](#docsintegration) (7)
+- [docs/limitations](#docslimitations) (2)
+- [docs/litex](#docslitex) (2)
+- [docs/overview](#docsoverview) (3)
+- [docs/reference](#docsreference) (10)
+- [docs/templates](#docstemplates) (2)
+- [docs/testing](#docstesting) (12)
+- [docs/traceability](#docstraceability) (3)
+- [hdl](#hdl) (36)
+- [sw](#sw) (11)
+- [syn](#syn) (2)
+- [tb](#tb) (27)
+- [tests](#tests) (1)
 
-| Evidence | Observed result | Documentation consequence |
-|---|---|---|
-| `scripts/run_all_suites.sh --list` | 54 root Verilator suites | Avoid copied suite inventories |
-| `cd tests && behave -f plain` | 14 features, 312 scenarios, 1,467 steps | Existing published counts are stale |
-| `sw/litex/test_*.py` | 12 standalone scripts | Missing aggregate ownership needs follow-up |
-| Root Verilator sweep | Donor suites excluded | Donor and root evidence stay separate |
-| C++ harnesses | Clocks, stimulus, assertions, reference models | Verification guide assigns cycle checking |
-| Python tests | Models, orchestration, gates, decoding | Verification guide assigns control flow |
-| C sources | Firmware, research microbenchmarks, and trace tooling | Keep target and host roles separate |
+### root
 
-## Authority conflicts
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [AGENTS.md](../AGENTS.md) | 452 | maintainer | AGENTS.md - AI agent operating contract | `scripts`, `hdl`, 1722.1-2021, 1722-2016 | current | no recorded contradiction | area lane | repository contract |
+| [CHANGELOG.md](../CHANGELOG.md) | 1007 | maintainer | Milan FPGA product changelog | `tb/verilator/milan_dp`, `tb/verilator/pp_shadow`, `tb/verilator/nvm_cosim`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | repository contract |
+| [CONTRIBUTING.md](../CONTRIBUTING.md) | 736 | maintainer | Contributing - house rules that keep this repo shippable | `scripts`, `syn/yosys`, `syn/ooc`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | repository contract |
+| [QUICKSTART.md](../QUICKSTART.md) | 370 | all readers | QUICKSTART - clone → green test run in 30 minutes | `syn/yosys`, `tb/verilator`, `third_party/verilog-axis`, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | overview and guides |
+| [README.md](../README.md) | 481 | all readers | milan-fpga: IEEE 1722 / 1722.1 and Milan on FPGA | `sw/litex`, `scripts`, `syn/yosys`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | stale | 6 finding(s): D0-001, D0-002, D0-003, D0-004, D0-005, D0-023 | D0 | overview and guides |
+| [REQUIREMENTS.md](../REQUIREMENTS.md) | 546 | all readers | TSN/Milan FPGA requirements | `sw/firmware/ctrl_nvm`, `tb/verilator/gptp_txts`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | D0 | reference |
+| [THIRD_PARTY.md](../THIRD_PARTY.md) | 59 | integrator | Third-party dependencies | `sw/trace`, `scripts`, `third_party/lwSRP` | current | no recorded contradiction | area lane | reference |
 
-These conflicts cannot be resolved through summaries.
+### .github
 
-Each conflict keeps its original authority.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [.github/PULL_REQUEST_TEMPLATE.md](../.github/PULL_REQUEST_TEMPLATE.md) | 70 | maintainer | PULL_REQUEST_TEMPLATE.md | -- | current | no recorded contradiction | area lane | testing and CI |
 
-| Conflict | Implementation evidence | Current treatment |
-|---|---|---|
-| Donor gPTP README says default-off | `hdl/milan/milan_datapath.sv` defaults `GPTP_PLANE_EN_P` on | Track donor Issue [#48](https://github.com/Mister-M-alt/FPGA-gPTP/issues/48) |
-| Donor gPTP README retains retired host services | Full solution specifies bare-metal firmware | Treat donor runtime prose as historical |
-| Donor protocol page retains word-wide RX | `protocol_processor_top.sv` exposes byte RX without ready | Track donor Issue [#27](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/27) |
-| Archived v1 integration guide omits response memory | `milan_datapath.sv` exposes `resp_mem_*` | Current contract classifies every port group |
-| Existing Behave counts are stale | Executed baseline reports 14/312/1,467 | New guide avoids volatile counts |
-| Current Milan audit says gPTP is unintegrated | Root RTL defaults fabric gPTP on | Managers use the feature ledger |
+### avdecc
 
-## History policy
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [avdecc/README.md](../avdecc/README.md) | 19 | integrator | AVDECC model tools | `avdecc`, `configs`, `sw/builder` | current | no recorded contradiction | area lane | module READMEs |
 
-Obsolete evidence belongs under `docs/history/v1/`.
+### docs
 
-Moves preserve filenames whenever practical.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/AAF_LATENCY_TAPS.md](AAF_LATENCY_TAPS.md) | 229 | maintainer | AAF end-to-end latency - where every tap sits (roadmap item-11) | `hdl/ieee1722/aaf`, `configs`, `sw/builder`, 1722-2016 | current | no recorded contradiction | area lane | design |
+| [docs/ARCHITECTURE_HW_SW_SPLIT.md](ARCHITECTURE_HW_SW_SPLIT.md) | 273 | firmware developer | Fabric and bare-metal firmware ownership | `tb/verilator/milan_dp`, `sw/firmware/ctrl_nvm`, `sw/firmware/ctrl`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | design |
+| [docs/CHANNEL_MAP_64.md](CHANNEL_MAP_64.md) | 432 | maintainer | 64-channel fabric map | `hdl/ieee1722/aaf`, `avdecc`, `configs`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | design |
+| [docs/DOCUMENTATION_AUDIT.md](DOCUMENTATION_AUDIT.md) | 476 | maintainer | Documentation audit | `scripts` | current | generated by `scripts/docs_inventory.py` | area lane | repository contract |
+| [docs/DOC_GENERATION.md](DOC_GENERATION.md) | 358 | maintainer | Generate documentation | `scripts`, `tools/hdl_reference`, `tools/markdown` | current | no recorded contradiction | area lane | overview and guides |
+| [docs/ENDSTATION_BUILDER.md](ENDSTATION_BUILDER.md) | 1185 | maintainer | Software-defined End-Station builder - spec basis (roadmap item 4) | `sw/litex`, `avdecc`, `hdl/common/csr`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | design |
+| [docs/GLOSSARY.md](GLOSSARY.md) | 93 | all readers | Glossary | Milan v1.2, 1722.1-2021, 1722-2016, 802.1AS | current | no recorded contradiction | area lane | overview and guides |
+| [docs/LATENCY_HISTORY_RING.md](LATENCY_HISTORY_RING.md) | 175 | maintainer | AAF latency history ring (`KL_lat_history_ring`) | `tb/verilator/lat_history_ring` | current | no recorded contradiction | area lane | design |
+| [docs/MILAN_V12_ROADMAP.md](MILAN_V12_ROADMAP.md) | 563 | maintainer | Milan v1.2 - the road to full compliance | `protocol-processor`, `tb/verilator/milan_dp`, `avdecc`, Milan v1.2, 1722.1-2021, 802.1AS | current | no recorded contradiction | area lane | design |
+| [docs/README.md](README.md) | 149 | all readers | Documentation index | `sw/firmware/ctrl`, `sw/firmware/ctrl_nvm`, `sw/firmware/gtest` | current | no recorded contradiction | D0 | overview and guides |
 
-Every moved page needs status metadata.
+### docs/design
 
-Every moved page names its current successor.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/design/AREA_BUDGET.md](design/AREA_BUDGET.md) | 584 | maintainer | Area budget | `syn/ooc`, `syn/yosys`, `configs/generated` | current | no recorded contradiction | area lane | design |
+| [docs/design/GM_LOSS_RECOVERY.md](design/GM_LOSS_RECOVERY.md) | 343 | maintainer | Grandmaster loss and recovery | `tb/verilator/milan_dp_gm_steps`, 1722-2016, 802.1AS | current | no recorded contradiction | area lane | design |
+| [docs/design/GPTP_PLANE.md](design/GPTP_PLANE.md) | 593 | maintainer | Fabric gPTP plane | `tb/verilator/gptp_txts`, `tb/verilator/milan_dp`, `sw/litex`, Milan v1.2, 802.1AS | current | no recorded contradiction | area lane | design |
+| [docs/design/MAAP_FABRIC.md](design/MAAP_FABRIC.md) | 381 | maintainer | MAAP in fabric - design + reference contract (task #18) | `hdl/ieee1722/maap`, `hdl/milan`, `tb/verilator/maap`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | design |
+| [docs/design/MAILBOX_SPLIT.md](design/MAILBOX_SPLIT.md) | 1362 | firmware developer | Packet mailbox split: the contract, the HAL and the ADP slice (#665 lane F0) | `sw/firmware/ctrl`, `hdl/milan/mailbox`, `sw/mailbox`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | design |
+| [docs/design/MARK_II_AREA_PLAN.md](design/MARK_II_AREA_PLAN.md) | 1468 | maintainer | Mark II area plan | `syn/ooc`, `sw/litex`, `hdl/milan`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | design |
+| [docs/design/MEDIA_CLOCK_FOLLOWING.md](design/MEDIA_CLOCK_FOLLOWING.md) | 2516 | maintainer | Media-clock following: one selected AAF or CRF source | `hdl/ieee1722/crf`, `hdl/milan`, `sw/builder`, Milan v1.2, 1722.1-2021, 1722-2016 | current | no recorded contradiction | area lane | design |
+| [docs/design/PRESENTATION_TIME_WRAP.md](design/PRESENTATION_TIME_WRAP.md) | 340 | maintainer | Presentation time, the 4.295 s wrap, and why a far-off clock alternates | `hdl/ieee1722/aaf`, `hdl/ieee1722/avtp`, `hdl/milan`, 1722-2016 | current | no recorded contradiction | area lane | design |
+| [docs/design/SAVED_STATE_FASTCONNECT.md](design/SAVED_STATE_FASTCONNECT.md) | 1665 | maintainer | Saved state and fast connect - the backing store decision | `scripts`, `hdl/milan`, `sw/litex`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | design |
+| [docs/design/SAVED_STATE_MATERIALIZATION.md](design/SAVED_STATE_MATERIALIZATION.md) | 2969 | maintainer | Saved-state materialization: who writes the non-binding records, and how they come back | `hdl`, `tb`, `scripts`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | design |
+| [docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md](design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md) | 2025 | maintainer | Saved-state snapshot ownership and acknowledgement identity | `hdl/milan`, `sw/firmware/milan_baremetal`, `tb/verilator/nvm_cosim` | current | no recorded contradiction | area lane | design |
+| [docs/design/SPLIT_CONTROL_MEMORY.md](design/SPLIT_CONTROL_MEMORY.md) | 207 | firmware developer | Split placement control memory | `sw/litex`, `sw/firmware/ctrl`, `syn/ooc` | current | no recorded contradiction | area lane | design |
+| [docs/design/TIME_SYNC.md](design/TIME_SYNC.md) | 781 | maintainer | Time synchronization | `tb/verilator/capture_coherence`, `tb/verilator/ptp`, `scripts`, Milan v1.2, 1722-2016, 802.1AS | current | no recorded contradiction | area lane | design |
+| [docs/design/TRACE_LOGGING.md](design/TRACE_LOGGING.md) | 255 | firmware developer | Fault tracing: bare-metal DRAM ring and workstation bundles | `sw/trace` | current | no recorded contradiction | area lane | design |
 
-Current indexes must exclude archived authorities.
+### docs/development
 
-Normative requirements remain outside this migration.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/development/CODE_QUALITY.md](development/CODE_QUALITY.md) | 2880 | maintainer | Code quality - the maintainability contract | `scripts`, `protocol-processor`, `syn/yosys`, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | testing and CI |
 
-Mixed pages need factual extraction before movement.
+### docs/diagrams
 
-## Device wording
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/diagrams/README.md](diagrams/README.md) | 144 | maintainer | Diagram catalog | `scripts` | current | no recorded contradiction | area lane | overview and guides |
 
-Tracked documentation contains no forbidden peer name.
+### docs/findings
 
-New examples use `test device`.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/findings/117_AUDIO_CONTINUITY.md](findings/117_AUDIO_CONTINUITY.md) | 1349 | bench/qualification | Audio continuity against the reference peer on the ec0cc0c1 image | `avdecc`, `scripts`, 1722.1-2021 | current | no recorded contradiction | area lane | findings |
+| [docs/findings/117_GPTP_SILICON_EVIDENCE.md](findings/117_GPTP_SILICON_EVIDENCE.md) | 1104 | bench/qualification | gPTP silicon evidence for issue 117: one AX7101 against the reference peer | `scripts`, `configs`, `tb/tools`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | findings |
+| [docs/findings/234_PP_SHADOW_AREA_BASELINE.md](findings/234_PP_SHADOW_AREA_BASELINE.md) | 1426 | bench/qualification | Protocol processor area baseline for issue #234 | `hdl/milan`, `hdl/ieee1722/aaf`, `hdl/ieee1722/maap`, 1722-2016 | current | no recorded contradiction | area lane | findings |
+| [docs/findings/387_SOFTWARE_GM_STEP.md](findings/387_SOFTWARE_GM_STEP.md) | 556 | bench/qualification | Software grandmaster steps on a running CRF stream | -- | current | no recorded contradiction | area lane | findings |
+| [docs/findings/394_387_E1_SWITCH_CYCLES.md](findings/394_387_E1_SWITCH_CYCLES.md) | 477 | bench/qualification | Ten e1 switch power cycles | `sw/litex`, `hdl/ieee1722/avtp` | current | no recorded contradiction | area lane | findings |
+| [docs/findings/397_SERVICE_BUDGET.md](findings/397_SERVICE_BUDGET.md) | 337 | bench/qualification | Firmware service intervals at 50 MHz | `tb/verilator/fw_service_budget`, Milan v1.2 | current | no recorded contradiction | area lane | findings |
+| [docs/findings/451_TDM8_FIRST_LIGHT.md](findings/451_TDM8_FIRST_LIGHT.md) | 438 | bench/qualification | TDM8 first light, 2026-09-28 | `configs/generated`, `hdl/ieee1722/aaf`, `hdl/milan` | current | no recorded contradiction | area lane | findings |
+| [docs/findings/451_TDM8_TIMING_SOC_BOARD.md](findings/451_TDM8_TIMING_SOC_BOARD.md) | 393 | bench/qualification | TDM8 link timing at the SoC board on the ec0cc0c1 image | -- | current | no recorded contradiction | area lane | findings |
+| [docs/findings/451_USB_AUDIO_CAPTURE.md](findings/451_USB_AUDIO_CAPTURE.md) | 224 | bench/qualification | Capture through the USB Audio device on the ec0cc0c1 image | -- | current | no recorded contradiction | area lane | findings |
+| [docs/findings/599_394_E1_LINK_CYCLES.md](findings/599_394_E1_LINK_CYCLES.md) | 433 | bench/qualification | Published link state over ten e1 switch power cycles | `scripts` | current | no recorded contradiction | area lane | findings |
+| [docs/findings/606_FIRST_BIND_MEASUREMENT.md](findings/606_FIRST_BIND_MEASUREMENT.md) | 350 | bench/qualification | First talker bind on the 13eda870 image | `scripts`, 802.1Q | current | no recorded contradiction | area lane | findings |
+| [docs/findings/608_75_WITHDRAWAL_AND_RESTART.md](findings/608_75_WITHDRAWAL_AND_RESTART.md) | 561 | bench/qualification | Listener withdrawal and reconnect restart on the 13eda870 image | Milan v1.2, 802.1Q | current | no recorded contradiction | area lane | findings |
+| [docs/findings/617_DIN_FRAME_COHERENCE_BENCH.md](findings/617_DIN_FRAME_COHERENCE_BENCH.md) | 285 | bench/qualification | DIN frame coherence on the ec0cc0c1 image | -- | current | no recorded contradiction | area lane | findings |
+| [docs/findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md](findings/629_MEDIA_CLOCK_FOLLOWING_BENCH.md) | 5317 | bench/qualification | Media-clock following graded by THD+N, on the ec0cc0c1, bbf704ec and 5603c353 images | `tools`, `scripts`, `hdl/milan`, Milan v1.2, 1722.1-2021, 1722-2016 | current | no recorded contradiction | area lane | findings |
+| [docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md](findings/649_RESOURCE_MAP_AND_SENSITIVITY.md) | 1227 | bench/qualification | Whole-image resource map and design-parameter sensitivity for issue #649 | `syn/resmap`, `sw/litex`, `syn/yosys` | current | no recorded contradiction | area lane | findings |
+| [docs/findings/653_DISCONNECT_ORDER_BENCH.md](findings/653_DISCONNECT_ORDER_BENCH.md) | 908 | bench/qualification | Disconnect order seen by a controller, on the bbf704ec image | Milan v1.2, 1722.1-2021, 1722-2016 | current | no recorded contradiction | area lane | findings |
+| [docs/findings/667_TALKER_START_BENCH.md](findings/667_TALKER_START_BENCH.md) | 510 | bench/qualification | Talker startup and soak observations | Milan v1.2, 1722.1-2021, 1722-2016 | current | no recorded contradiction | area lane | findings |
+| [docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md](findings/75_RECONNECT_RESTART_MEASUREMENT.md) | 1287 | bench/qualification | Reconnect restart measurement | `scripts`, `tools` | current | no recorded contradiction | area lane | findings |
+| [docs/findings/B14_BENCH_5603C353.md](findings/B14_BENCH_5603C353.md) | 711 | bench/qualification | B14 bench on dev 5603c353, 2026-10-10 | `hdl/ieee1722/avtp`, `hdl/ieee1722/crf`, `hdl/milan`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | findings |
+| [docs/findings/CBS_DATAPATH_BUG.md](findings/CBS_DATAPATH_BUG.md) | 173 | bench/qualification | CBS datapath bug - classifier `tdest` mis-timing under back-to-back frames [FIXED] | `tb/verilator/classifier`, `tb/verilator/controller_rate`, `hdl/common/csr`, 802.1Q | current | no recorded contradiction | area lane | findings |
+| [docs/findings/COMMERCIAL_TIMING_395.md](findings/COMMERCIAL_TIMING_395.md) | 196 | bench/qualification | Commercial-grade timing measurement for issue 395 | `sw/litex` | current | no recorded contradiction | area lane | findings |
+| [docs/findings/PP_SHADOW_BASELINE.md](findings/PP_SHADOW_BASELINE.md) | 605 | bench/qualification | Protocol processor area baseline | -- | current | no recorded contradiction | area lane | findings |
+| [docs/findings/README.md](findings/README.md) | 36 | bench/qualification | Findings retained in the bare-metal product tree | `scripts`, Milan v1.2 | current | no recorded contradiction | area lane | findings |
 
-The privacy gate remains mandatory.
+### docs/fpga
 
-The full solution names only bare-metal firmware.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/fpga/DATAPLANE_WALKTHROUGH.md](fpga/DATAPLANE_WALKTHROUGH.md) | 214 | maintainer | One AAF frame, hop by hop | `hdl/milan` | current | no recorded contradiction | area lane | design |
+| [docs/fpga/FPGA_DESIGN.md](fpga/FPGA_DESIGN.md) | 423 | maintainer | FPGA design reference - every module in `hdl/`, and how they compose | `hdl/milan`, `hdl/common`, `hdl/common/csr`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | design |
 
-A product-document guard rejects retired platform substrings.
+### docs/guides
 
-Historical runtime profiling remains under `docs/history/v1/`.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/guides/BOARD_DEPLOYMENT.md](guides/BOARD_DEPLOYMENT.md) | 234 | bench/qualification | Board deployment guide | `sw/litex`, `configs`, `sw/builder` | current | no recorded contradiction | D0 | overview and guides |
+| [docs/guides/IMPLEMENTATION_DEVELOPER.md](guides/IMPLEMENTATION_DEVELOPER.md) | 110 | maintainer | Implementation developer guide | `hdl/milan`, `sw/litex`, `hdl/common/csr` | current | no recorded contradiction | D0 | overview and guides |
+| [docs/guides/PROJECT_MANAGER.md](guides/PROJECT_MANAGER.md) | 77 | bench/qualification | Project manager guide | -- | current | no recorded contradiction | D0 | overview and guides |
+| [docs/guides/README.md](guides/README.md) | 48 | all readers | Choose your documentation path | -- | current | no recorded contradiction | D0 | overview and guides |
+| [docs/guides/SYSTEM_INTEGRATOR.md](guides/SYSTEM_INTEGRATOR.md) | 154 | integrator | System integrator guide | `sw/litex`, `tb/verilator/milan_dp` | current | no recorded contradiction | D0 | overview and guides |
+| [docs/guides/VERIFICATION_DEVELOPER.md](guides/VERIFICATION_DEVELOPER.md) | 182 | verification | Verification developer guide | `scripts`, `sw/trace`, `protocol-processor` | current | no recorded contradiction | D0 | overview and guides |
+| [docs/guides/gptp/HDL_DEVELOPER.md](guides/gptp/HDL_DEVELOPER.md) | 102 | maintainer | Fabric gPTP HDL-developer guide | `sw/builder` | current | no recorded contradiction | D0 | overview and guides |
+| [docs/guides/gptp/MANAGER.md](guides/gptp/MANAGER.md) | 65 | bench/qualification | Fabric gPTP manager guide | -- | current | no recorded contradiction | D0 | overview and guides |
+| [docs/guides/gptp/SYSTEM_INTEGRATOR.md](guides/gptp/SYSTEM_INTEGRATOR.md) | 94 | integrator | Fabric gPTP system-integrator guide | -- | current | no recorded contradiction | D0 | overview and guides |
+| [docs/guides/gptp/TEST_DEVELOPER.md](guides/gptp/TEST_DEVELOPER.md) | 131 | verification | Fabric gPTP test-developer guide | `tb/verilator/gptp_shadow`, `tb/verilator/gptp_txts`, `gptp-processor` | current | no recorded contradiction | D0 | overview and guides |
 
-Host tooling names remain outside product descriptions.
+### docs/history
 
-## Diagram verification
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/history/v1/MVP_TALKER.md (historical)](history/v1/MVP_TALKER.md) | 125 | maintainer | MVP Milan Talker (Arty, flash-standalone) | `hdl/ieee1722/crf`, `tb/verilator/aaf`, 1722-2016, 802.1Q | obsolete | versioned archive; successor [docs/fpga/DATAPLANE_WALKTHROUGH.md](fpga/DATAPLANE_WALKTHROUGH.md) | archive | archive |
+| [docs/history/v1/NXN_ARCHITECTURE.md (historical)](history/v1/NXN_ARCHITECTURE.md) | 1491 | maintainer | NxN AAF Milan Streams - Shared Engines + Per-Stream Context RAM | `sw/builder`, `hdl/milan`, `configs`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | obsolete | versioned archive; successor [docs/overview/ARCHITECTURE.md](overview/ARCHITECTURE.md) | archive | archive |
+| [docs/history/v1/README.md](history/v1/README.md) | 96 | maintainer | Version one history | `tests`, 1722.1-2021, 1722-2016, 802.1AS | current | archive index, held by `scripts/check_archive.py` | archive | archive |
+| [docs/history/v1/SPEC_TRACEABILITY.md (historical)](history/v1/SPEC_TRACEABILITY.md) | 556 | maintainer | Spec ↔ test traceability matrix | `hdl/milan`, `protocol-processor`, `sw/builder`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | obsolete | versioned archive; successor [docs/traceability/MODULE_MATRIX.md](traceability/MODULE_MATRIX.md) | archive | archive |
+| [docs/history/v1/design/GM_LOSS_RECOVERY.md (historical)](history/v1/design/GM_LOSS_RECOVERY.md) | 194 | maintainer | Grandmaster loss and recovery - one fabric-owned mechanism | 802.1AS | obsolete | versioned archive; successor [docs/design/GM_LOSS_RECOVERY.md](design/GM_LOSS_RECOVERY.md) | archive | archive |
+| [docs/history/v1/design/GPTP_PLANE.md (historical)](history/v1/design/GPTP_PLANE.md) | 269 | maintainer | The fabric gPTP plane | `gptp-processor`, `hdl/ieee8021as/gptp_plane`, `tb/verilator/gptp_shadow`, Milan v1.2, 802.1AS | obsolete | versioned archive; successor [docs/design/GPTP_PLANE.md](design/GPTP_PLANE.md) | archive | archive |
+| [docs/history/v1/design/MILAN_TALKER_SM.md (historical)](history/v1/design/MILAN_TALKER_SM.md) | 282 | maintainer | Minimal Milan v1.2 talker - ACMP state machine + AECP streaming (design) | `hdl/milan`, `tb/verilator/milan_dp`, `hdl/ieee17221`, Milan v1.2, 1722.1-2021 | obsolete | versioned archive; successor [docs/overview/ARCHITECTURE.md](overview/ARCHITECTURE.md) | archive | archive |
+| [docs/history/v1/design/TIME_SYNC.md (historical)](history/v1/design/TIME_SYNC.md) | 694 | maintainer | Time synchronization - gPTP, the PHC, and the media clock | `hdl/ieee1722/crf`, `hdl/ieee1722/aaf`, `sw/litex`, Milan v1.2, 1722-2016, 802.1AS | obsolete | versioned archive; successor [docs/design/TIME_SYNC.md](design/TIME_SYNC.md) | archive | archive |
+| [docs/history/v1/findings/ADP_SHAPE_STATIC_0727.md (historical)](history/v1/findings/ADP_SHAPE_STATIC_0727.md) | 246 | maintainer | The 8×8 board advertised the 1×1 shape - and the CRF talker with it | `configs`, `sw/builder`, `sw/litex` | obsolete | versioned archive; successor [docs/ENDSTATION_BUILDER.md](ENDSTATION_BUILDER.md) | archive | archive |
+| [docs/history/v1/findings/MEDIA_CLOCK_LOCK_0810.md (historical)](history/v1/findings/MEDIA_CLOCK_LOCK_0810.md) | 294 | maintainer | Media clock lock: the periodic one sample slip (2026-08-10) | `hdl/ieee1722/crf`, `tb/verilator/aaf`, `tb/verilator/media_nco`, 1722-2016 | obsolete | versioned archive; successor [docs/design/TIME_SYNC.md](design/TIME_SYNC.md) | archive | archive |
+| [docs/history/v1/findings/PERFORMANCE_GOAL.md (historical)](history/v1/findings/PERFORMANCE_GOAL.md) | 252 | maintainer | Throughput campaign record - >500 Mbit/s RX and TX (closed 2026-07-10/11) | -- | obsolete | versioned archive; successor [docs/overview/FULL_FPGA_SOLUTION.md](overview/FULL_FPGA_SOLUTION.md) | archive | archive |
+| [docs/history/v1/findings/PP_SHADOW_AREA_0812.md (historical)](history/v1/findings/PP_SHADOW_AREA_0812.md) | 500 | maintainer | The protocol-processor plane, measured - 2026-08-12 | `syn/ooc`, `syn/yosys`, `configs/generated`, 1722.1-2021 | obsolete | versioned archive; successor [docs/design/AREA_BUDGET.md](design/AREA_BUDGET.md) | archive | archive |
+| [docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md (historical)](history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md) | 327 | maintainer | Milan v1.2 → FR/NFR dependency matrix | `hdl/milan`, `avdecc`, `protocol-processor`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | obsolete | versioned archive; successor [docs/reference/FR_NFR.md](reference/FR_NFR.md) | archive | archive |
+| [docs/history/v1/reference/PROTOCOL_TRACEABILITY.md (historical)](history/v1/reference/PROTOCOL_TRACEABILITY.md) | 522 | maintainer | Protocol Traceability Map | `hdl/milan`, `hdl/ieee1722/aaf`, `hdl/ieee1722/avtp`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | obsolete | versioned archive; successor [docs/traceability/MODULE_MATRIX.md](traceability/MODULE_MATRIX.md) | archive | archive |
+| [docs/history/v1/testing/MILAN_COMPLIANCE_MATRIX.md (historical)](history/v1/testing/MILAN_COMPLIANCE_MATRIX.md) | 270 | maintainer | Milan v1.2 compliance matrix - counters + notifications first | `hdl/milan`, Milan v1.2, 1722.1-2021 | obsolete | versioned archive; successor [docs/reference/MILAN_FEATURE_STATUS.md](reference/MILAN_FEATURE_STATUS.md) | archive | archive |
+| [docs/history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md (historical)](history/v1/testing/PDU_GETTER_SETTER_VERIFICATION.md) | 426 | maintainer | Item-10 - PDU getter/setter verification (the plan, and what the AECP half can and cannot run) | `hdl/milan`, `protocol-processor`, `sw/builder`, Milan v1.2, 1722.1-2021 | obsolete | versioned archive; successor [docs/testing/MILAN_V12_AUDIT_2026-08-16.md](testing/MILAN_V12_AUDIT_2026-08-16.md) | archive | archive |
+| [docs/history/v1/testing/PROTOCOL_SWEEP_PLAN.md (historical)](history/v1/testing/PROTOCOL_SWEEP_PLAN.md) | 342 | maintainer | Full protocol sweep - every mandatory command, every state machine, verified per clause | `tb/verilator/pp_shadow`, `hdl/milan`, `tb/tools`, Milan v1.2, 1722.1-2021, 802.1Q | obsolete | versioned archive; successor [docs/testing/RUNNING_TESTS.md](testing/RUNNING_TESTS.md) | archive | archive |
+| [docs/history/v1/tests/CONFORMANCE_TESTING_HOWTO.md (historical)](history/v1/tests/CONFORMANCE_TESTING_HOWTO.md) | 405 | maintainer | BDD Conformance Testing - How It Runs | `tests/features`, `hdl/ieee17221`, `tests`, Milan v1.2, 1722.1-2021 | obsolete | versioned archive; successor [tests/README.md](../tests/README.md) | archive | archive |
+| [docs/history/v1/traceability/ieee1722-2016.md (historical)](history/v1/traceability/ieee1722-2016.md) | 144 | maintainer | Traceability - IEEE 1722-2016 (AVTP: common header / AAF / CRF / MAAP) | `hdl/milan`, `hdl/ieee1722`, `hdl/ieee1722/avtp`, Milan v1.2, 1722-2016 | obsolete | versioned archive; successor [docs/traceability/MODULE_MATRIX.md](traceability/MODULE_MATRIX.md) | archive | archive |
+| [docs/history/v1/traceability/ieee1722_1-2021.md (historical)](history/v1/traceability/ieee1722_1-2021.md) | 307 | maintainer | Traceability - IEEE 1722.1-2021 (ATDECC: ADP / ACMP / AECP+AEM) | `hdl/milan`, `tb/verilator/pp_shadow`, `avdecc`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1AS | obsolete | versioned archive; successor [docs/testing/MILAN_V12_AUDIT_2026-08-16.md](testing/MILAN_V12_AUDIT_2026-08-16.md) | archive | archive |
+| [docs/history/v1/traceability/ieee8021as.md (historical)](history/v1/traceability/ieee8021as.md) | 73 | maintainer | Traceability - IEEE 802.1AS-2020 (gPTP) - hardware-assist scope | `hdl/ieee8021as/gptp_plane`, `tb/verilator/tsn_fuzz`, `hdl/ieee8021as/ptp_timestamp`, Milan v1.2, 802.1AS | obsolete | versioned archive; successor [docs/traceability/ieee8021as.md](traceability/ieee8021as.md) | archive | archive |
+| [docs/history/v1/traceability/milan-v12.md (historical)](history/v1/traceability/milan-v12.md) | 283 | maintainer | Traceability - Milan v1.2 (Consolidated, 2023-11-30) - profile deltas | `hdl/milan`, `tb/verilator/pp_shadow`, `protocol-processor`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | obsolete | versioned archive; successor [docs/reference/FR_NFR.md](reference/FR_NFR.md) | archive | archive |
 
-Diagram facts come from Git and verified root paths.
+### docs/integration
 
-Audience paths come from validated repository files.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md](integration/AXIS_CORES_ON_BAREMETAL_SOC.md) | 50 | integrator | Fabric AXI-Stream cores on the bare-metal SoC | `tb/verilator/milan_dp` | current | no recorded contradiction | D0 | reference |
+| [docs/integration/BAREMETAL_FIRMWARE.md](integration/BAREMETAL_FIRMWARE.md) | 2308 | firmware developer | Bare-metal AX7101 firmware profile | `sw/litex`, `sw/builder`, `configs` | stale | 3 finding(s): D0-011, D0-012, D0-013 | D0 | reference |
+| [docs/integration/BOARD_PORTING_AX7101.md](integration/BOARD_PORTING_AX7101.md) | 187 | integrator | Board porting - Alinx AX7101 (XC7A100T-2FGG484I) | `sw/litex` | stale | 1 finding(s): D0-010 | D0 | reference |
+| [docs/integration/BUILDING.md](integration/BUILDING.md) | 725 | integrator | Building bitstreams - the AX7101 build flow | `sw/litex`, `scripts`, `sw/builder` | current | no recorded contradiction | D0 | reference |
+| [docs/integration/INTEGRATION_GUIDE.md](integration/INTEGRATION_GUIDE.md) | 204 | integrator | Datapath integration contract | `sw/litex`, `tb/verilator/milan_dp` | current | no recorded contradiction | D0 | reference |
+| [docs/integration/PORTING_GUIDE.md](integration/PORTING_GUIDE.md) | 97 | integrator | Porting guide | `syn/yosys` | current | no recorded contradiction | D0 | reference |
+| [docs/integration/QSPI_FLASHBOOT.md](integration/QSPI_FLASHBOOT.md) | 219 | integrator | QSPI flash-boot - skip the multi-minute serial upload | `sw/litex`, `scripts` | current | no recorded contradiction | D0 | reference |
 
-Submodule generation rejects missing integration evidence.
+### docs/limitations
 
-Audience generation rejects missing reader paths.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/limitations/RECURRING_DEFECT_PATTERNS.md](limitations/RECURRING_DEFECT_PATTERNS.md) | 394 | maintainer | Recurring defect patterns - how this project's bugs actually look | `sw/litex`, `scripts`, `sw/builder`, 1722.1-2021 | current | no recorded contradiction | area lane | overview and guides |
+| [docs/limitations/TROUBLESHOOTING.md](limitations/TROUBLESHOOTING.md) | 1082 | bench/qualification | Troubleshooting - every problem hit bringing up the full-FPGA solution, and its fix | `tb/verilator/milan_dp`, `hdl/common`, `hdl/milan`, 1722.1-2021, 802.1Q | current | no recorded contradiction | area lane | overview and guides |
 
-Path-derived node identities prevent edge rebinding.
+### docs/litex
 
-The PNG manifest pins every reviewed decompressed raster.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/litex/CLOCK_DOMAINS.md](litex/CLOCK_DOMAINS.md) | 442 | integrator | Clock domains, resets, and crossings | `sw/litex`, `hdl/common`, `hdl/milan` | current | no recorded contradiction | area lane | design |
+| [docs/litex/LITEX_SOC.md](litex/LITEX_SOC.md) | 183 | integrator | LiteX bare-metal SoC | `sw/litex`, `configs`, `scripts` | current | no recorded contradiction | area lane | design |
 
-Valid blank-raster mutations fail every generator.
+### docs/overview
 
-Renderer changes require regeneration and visual review.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/overview/ARCHITECTURE.md](overview/ARCHITECTURE.md) | 131 | all readers | Architecture | `hdl/common/csr`, `hdl/ieee1722`, `hdl/ieee8021q/ts`, Milan v1.2 | current | no recorded contradiction | area lane | overview and guides |
+| [docs/overview/FULL_FPGA_SOLUTION.md](overview/FULL_FPGA_SOLUTION.md) | 129 | all readers | Full FPGA solution | `sw/litex`, Milan v1.2, 802.1AS | current | no recorded contradiction | area lane | overview and guides |
+| [docs/overview/SYSTEM_DOMAIN_MAP.md](overview/SYSTEM_DOMAIN_MAP.md) | 41 | all readers | System domain map | `sw/litex`, `sw/firmware`, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | overview and guides |
 
-### Draw.io print review
+### docs/reference
 
-Draw.io desktop produced the inspected PNG and PDF.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/reference/EGRESS_QUEUE_MAP.md](reference/EGRESS_QUEUE_MAP.md) | 143 | integrator | Egress queue map | `tb/verilator/milan_dp`, 802.1Q | current | no recorded contradiction | D0 | reference |
+| [docs/reference/FR_NFR.md](reference/FR_NFR.md) | 630 | all readers | Milan v1.2 endpoint - Functional & Non-Functional Requirements (FR/NFR) | `configs`, `sw/mailbox`, `hdl/milan`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | stale | 2 finding(s): D0-019, D0-020 | D0 | reference |
+| [docs/reference/MAILBOX_CONTRACT.md](reference/MAILBOX_CONTRACT.md) | 971 | firmware developer | Packet mailbox contract, generated reference | `sw/mailbox`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | generated by `sw/mailbox/gen_mailbox.py` | D0 | reference |
+| [docs/reference/MILAN_COMPLIANCE_MATRIX.md](reference/MILAN_COMPLIANCE_MATRIX.md) | 294 | all readers | Milan v1.2 compliance matrix - all five standards, one page | `tb/verilator/aaf_clock_meter`, `hdl/milan`, `tb/verilator`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | stale | 2 finding(s): D0-021, D0-022 | D0 | reference |
+| [docs/reference/MILAN_FEATURE_STATUS.md](reference/MILAN_FEATURE_STATUS.md) | 145 | all readers | Milan feature status ledger | `scripts`, Milan v1.2 | current | no recorded contradiction | D0 | reference |
+| [docs/reference/PP_DESCRIPTOR_OWNERSHIP.md](reference/PP_DESCRIPTOR_OWNERSHIP.md) | 392 | integrator | Processor descriptor ownership and evidence | `avdecc`, `sw/builder`, `scripts`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | D0 | reference |
+| [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 2580 | integrator | Milan TSN CSR - register map (ABI) | `configs`, `hdl/milan`, `tb/verilator/milan_dp`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | stale | 8 finding(s): D0-006, D0-007, D0-008, D0-009, D0-014, D0-015, D0-016, D0-017 | D0 | reference |
+| [docs/reference/REGISTER_MAP_CLASSES.md](reference/REGISTER_MAP_CLASSES.md) | 153 | integrator | Register-map production classes - needed / optional / debug | Milan v1.2, 1722-2016, 802.1AS | stale | 1 finding(s): D0-018 | D0 | reference |
+| [docs/reference/SUBMODULES.md](reference/SUBMODULES.md) | 533 | integrator | Submodule integration map | `sw/firmware/ctrl`, `protocol-processor`, `third_party/lwSRP`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | D0 | reference |
+| [docs/reference/TRACE_EVENTS.md](reference/TRACE_EVENTS.md) | 400 | firmware developer | What is being logged - the trace event catalogue | `sw/trace` | current | generated by `sw/trace/gen_trace_events.py` | D0 | reference |
 
-Temporary render files stayed under `/tmp`.
+### docs/templates
 
-Desktop export requires an available display.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/templates/README-parameters.template.md](templates/README-parameters.template.md) | 51 | verification | README-parameters - `<module name(s)>` (TEMPLATE) | `hdl`, `configs`, `sw/builder`, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+| [docs/templates/README-tests.template.md](templates/README-tests.template.md) | 48 | verification | README-tests - `<module name(s)>` (TEMPLATE) | `hdl`, `tb/verilator`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | module READMEs |
 
-| Diagram | Direct PNG | Native PDF | A4 PNG | Result |
-|---|---:|---:|---:|---|
-| Audience paths | 3,526 × 2,030 | 1,270.08 × 731.04 points | 1,754 × 1,241 | PASS |
-| Submodule boundaries | 2,866 × 1,664 | 1,032 × 599.04 points | 1,754 × 1,241 | PASS |
+### docs/testing
 
-| Check | Inspected evidence | Result |
-|---|---|---|
-| Editable structure | Parsed Draw.io XML | PASS |
-| A4 print simulation | 841.89 × 595.276 points | PASS |
-| Text extraction | Every native PDF label appeared | PASS |
-| Visual inspection | No clipping or overlaps | PASS |
-| Audience data | Twenty-four repository paths exist | PASS |
-| Git data | Four exact Gitlinks matched | PASS |
-| Raster provenance | Four manifest digests matched | PASS |
-| Wrong-raster controls | Seven independent mutations failed | PASS |
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/testing/726_STREAM_COUNTERS.md](testing/726_STREAM_COUNTERS.md) | 237 | bench/qualification | Stream counter packet counts and notification gaps | `tb/verilator/milan_dp`, `tb/tools`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | testing and CI |
+| [docs/testing/ASSERTIONS.md](testing/ASSERTIONS.md) | 301 | verification | Assertion-based verification with bound SVA checkers | `tb/verilator/ptp_ts`, `tb/common`, `hdl/common` | current | no recorded contradiction | area lane | testing and CI |
+| [docs/testing/CI_IMAGE.md](testing/CI_IMAGE.md) | 908 | verification | CI tools image | `ci/image`, `scripts`, `tb/verilator/milan_dp` | current | no recorded contradiction | area lane | testing and CI |
+| [docs/testing/CI_SIGNATURE.md](testing/CI_SIGNATURE.md) | 151 | verification | CI execution signatures | `scripts` | current | no recorded contradiction | area lane | testing and CI |
+| [docs/testing/CI_WORKFLOWS.md](testing/CI_WORKFLOWS.md) | 3414 | verification | CI workflow policy | `scripts`, `sw/builder`, `sw/litex` | current | no recorded contradiction | area lane | testing and CI |
+| [docs/testing/MILAN_V12_AUDIT_2026-08-16.md](testing/MILAN_V12_AUDIT_2026-08-16.md) | 424 | bench/qualification | Milan v1.2 implementation audit, 2026-08-16 | `tb/verilator/milan_dp`, `hdl/milan`, `protocol-processor`, Milan v1.2, 1722.1-2021, 802.1AS | current | no recorded contradiction | area lane | testing and CI |
+| [docs/testing/PP_SHADOW_BASELINE_RECIPE.md](testing/PP_SHADOW_BASELINE_RECIPE.md) | 619 | verification | Protocol processor baseline recipe | `syn/ooc`, `configs/generated`, `sw/builder` | current | no recorded contradiction | area lane | testing and CI |
+| [docs/testing/RUNNING_TESTS.md](testing/RUNNING_TESTS.md) | 246 | verification | Running the tests | `scripts`, `sw/litex`, `sw/builder` | current | no recorded contradiction | area lane | testing and CI |
+| [docs/testing/SIMULATION.md](testing/SIMULATION.md) | 365 | verification | Simulation - how the Milan design is simulated and verified | `tb/verilator`, `tb/verilator/milan_dp`, `sw/litex`, Milan v1.2, 1722.1-2021, 802.1Q | current | no recorded contradiction | area lane | testing and CI |
+| [docs/testing/TESTING.md](testing/TESTING.md) | 1877 | verification | Testing & verification - the complete map | `scripts`, `sw/litex`, `tb/verilator`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | testing and CI |
+| [docs/testing/evidence/REBASE-REGRESSION-2026-08-01-55a68a45.md](testing/evidence/REBASE-REGRESSION-2026-08-01-55a68a45.md) | 58 | verification | REBASE REGRESSION - targeted gate record against 55a68a45 | `scripts`, `tb/verilator` | current | no recorded contradiction | area lane | testing and CI |
+| [docs/testing/methodology.md](testing/methodology.md) | 165 | verification | Testing methodology - levels, oracles, and the rules every lane is bound by | `scripts`, `tb/tools`, `tests` | current | no recorded contradiction | area lane | testing and CI |
 
-All labels remained readable at page scale.
+### docs/traceability
 
-Light fills preserve monochrome contrast.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [docs/traceability/MODULE_MATRIX.md](traceability/MODULE_MATRIX.md) | 174 | verification | Module ↔ spec ↔ test traceability matrix | 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | reference |
+| [docs/traceability/ieee8021as.md](traceability/ieee8021as.md) | 83 | verification | IEEE 802.1AS traceability | 802.1AS | current | no recorded contradiction | area lane | reference |
+| [docs/traceability/ieee8021q.md](traceability/ieee8021q.md) | 164 | verification | Traceability - IEEE 802.1Q-2022 (VLAN / FQTSS-CBS / MRP / MSRP / MVRP) | `hdl/milan`, `tb/verilator/pp_shadow`, `hdl/ieee8021q/filtering`, Milan v1.2, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | reference |
 
-Connector captions remained distinguishable.
+### hdl
 
-Reproduce the print review locally.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [hdl/common/README-tests.md](../hdl/common/README-tests.md) | 19 | verification | `common/common` -- modules & test coverage | `hdl/common` | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/common/csr/README-tests.md](../hdl/common/csr/README-tests.md) | 13 | verification | `common/csr` -- modules & test coverage | `hdl/common/csr` | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/common/csr/doc/milan_csr.md](../hdl/common/csr/doc/milan_csr.md) | 172 | maintainer | Entity: milan_csr | `hdl/common/csr`, `tb/verilator/csr`, `hdl/milan`, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/common/eth_event_counter/README-tests.md](../hdl/common/eth_event_counter/README-tests.md) | 15 | verification | `common/eth_event_counter` -- modules & test coverage | `hdl/common/eth_event_counter` | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/common/eth_event_counter/doc/ethernet_events.md](../hdl/common/eth_event_counter/doc/ethernet_events.md) | 59 | maintainer | Entity: ethernet_events | `hdl/common/eth_event_counter` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/common/eth_event_counter/doc/event_counter.md](../hdl/common/eth_event_counter/doc/event_counter.md) | 45 | maintainer | Entity: event_counter | `hdl/common/eth_event_counter` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee1722/aaf/README-parameters.md](../hdl/ieee1722/aaf/README-parameters.md) | 71 | maintainer | README-parameters - `KL_i2s_playback` | `hdl/ieee1722/aaf`, `hdl`, `configs` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee1722/aaf/README-tests.md](../hdl/ieee1722/aaf/README-tests.md) | 36 | verification | `ieee1722/aaf` -- modules & test coverage | `hdl/ieee1722/aaf`, 1722-2016 | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/ieee1722/aaf/doc/KL_aaf_rx_depacketizer/KL_aaf_rx_depacketizer.md](../hdl/ieee1722/aaf/doc/KL_aaf_rx_depacketizer/KL_aaf_rx_depacketizer.md) | 58 | maintainer | Entity: KL_aaf_rx_depacketizer | `hdl/ieee1722/aaf`, Milan v1.2, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee1722/aaf/doc/KL_i2s_playback/KL_i2s_playback.md](../hdl/ieee1722/aaf/doc/KL_i2s_playback/KL_i2s_playback.md) | 21 | maintainer | Entity: KL_i2s_playback | `hdl/ieee1722/aaf` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee1722/aaf/doc/TEST_RESULTS.md](../hdl/ieee1722/aaf/doc/TEST_RESULTS.md) | 17 | verification | AAF receive path - test results | `hdl/ieee1722/aaf`, `hdl/ieee1722/avtp`, `tb/verilator/aaf` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee1722/aaf/doc/audio_frontend_family.md](../hdl/ieee1722/aaf/doc/audio_frontend_family.md) | 99 | maintainer | Audio capture front-end family - interface contract | `hdl/ieee1722/aaf`, `sw/builder`, `tb/verilator/aes3` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee1722/avtp/README-tests.md](../hdl/ieee1722/avtp/README-tests.md) | 20 | verification | `ieee1722/avtp` -- modules & test coverage | `hdl/ieee1722/avtp`, 1722-2016 | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/ieee1722/avtp/doc/KL_avtp_rx_monitor/KL_avtp_rx_monitor.md](../hdl/ieee1722/avtp/doc/KL_avtp_rx_monitor/KL_avtp_rx_monitor.md) | 58 | maintainer | Entity: KL_avtp_rx_monitor | `hdl/ieee1722/avtp`, Milan v1.2, 1722.1-2021, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee1722/avtp/doc/TEST_RESULTS.md](../hdl/ieee1722/avtp/doc/TEST_RESULTS.md) | 225 | verification | AAF/AVTP stream field campaign (tsn-gen driven) | `hdl/ieee1722/avtp`, `tb/verilator/tsn_fuzz`, `hdl/ieee1722/aaf` | current | generated page | area lane | module READMEs |
+| [hdl/ieee1722/avtp/doc/kl-avtp-common-parser/KL_avtp_common_parser.md](../hdl/ieee1722/avtp/doc/kl-avtp-common-parser/KL_avtp_common_parser.md) | 100 | maintainer | Entity: KL_avtp_common_parser | `hdl/ieee1722/avtp`, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee1722/crf/README-tests.md](../hdl/ieee1722/crf/README-tests.md) | 21 | verification | `ieee1722/crf` -- modules & test coverage | `hdl/ieee1722/crf`, 1722-2016 | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/ieee1722/maap/README-tests.md](../hdl/ieee1722/maap/README-tests.md) | 13 | verification | `ieee1722/maap` -- modules & test coverage | `hdl/ieee1722/maap`, 1722-2016 | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/ieee1722/maap/doc/KL_maap/KL_maap.md](../hdl/ieee1722/maap/doc/KL_maap/KL_maap.md) | 38 | maintainer | Entity: KL_maap | `hdl/ieee1722/maap`, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee17221/adp/README-tests.md](../hdl/ieee17221/adp/README-tests.md) | 13 | verification | `ieee17221/adp` -- modules & test coverage | `hdl/ieee17221/adp`, 1722.1-2021 | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/ieee8021as/gptp_plane/README-tests.md](../hdl/ieee8021as/gptp_plane/README-tests.md) | 16 | verification | `ieee8021as/gptp_plane` -- modules & test coverage | `hdl/ieee8021as/gptp_plane`, 802.1AS | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md](../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) | 772 | verification | gPTP/802.1AS field campaign (tsn-gen driven) | `hdl/ieee8021as/gptp_plane`, `gptp-processor`, `tb/verilator/tsn_fuzz`, Milan v1.2, 802.1AS | current | generated page | area lane | module READMEs |
+| [hdl/ieee8021as/ptp_timestamp/README-tests.md](../hdl/ieee8021as/ptp_timestamp/README-tests.md) | 17 | verification | `ieee8021as/ptp_timestamp` -- modules & test coverage | `hdl/ieee8021as/ptp_timestamp`, 802.1AS | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/ieee8021as/ptp_timestamp/doc/ptp_ts_core.md](../hdl/ieee8021as/ptp_timestamp/doc/ptp_ts_core.md) | 108 | maintainer | Entity: ptp_ts_core | `hdl/ieee8021as/ptp_timestamp`, `hdl/common` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee8021as/ptp_timestamp/doc/ptp_ts_top.md](../hdl/ieee8021as/ptp_timestamp/doc/ptp_ts_top.md) | 84 | maintainer | Entity: ptp_ts_top | `hdl/ieee8021as/ptp_timestamp` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee8021as/ptp_timestamp/doc/timestamp_counter.md](../hdl/ieee8021as/ptp_timestamp/doc/timestamp_counter.md) | 40 | maintainer | Entity: timestamp_counter | `hdl/ieee8021as/ptp_timestamp` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee8021q/filtering/README-tests.md](../hdl/ieee8021q/filtering/README-tests.md) | 14 | verification | `ieee8021q/filtering` -- modules & test coverage | `hdl/ieee8021q/filtering`, 802.1Q | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/ieee8021q/filtering/doc/tcam.md](../hdl/ieee8021q/filtering/doc/tcam.md) | 98 | maintainer | `tcam` - ternary CAM destination-MAC database (design doc) | `hdl/ieee8021q/filtering`, `tb/verilator/tcam` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee8021q/ts/README-tests.md](../hdl/ieee8021q/ts/README-tests.md) | 18 | verification | `ieee8021q/ts` -- modules & test coverage | `hdl/ieee8021q/ts`, 802.1Q | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/ieee8021q/ts/doc/credit_based_shaper/credit_based_shaper.md](../hdl/ieee8021q/ts/doc/credit_based_shaper/credit_based_shaper.md) | 55 | maintainer | Entity: credit_based_shaper | `hdl/ieee8021q/ts` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee8021q/ts/doc/traffic_classifier/traffic_classifier.md](../hdl/ieee8021q/ts/doc/traffic_classifier/traffic_classifier.md) | 89 | maintainer | Entity: traffic_classifier | `hdl/ieee8021q/ts` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee8021q/ts/doc/traffic_controller_802_1q/traffic_controller_802_1q.md](../hdl/ieee8021q/ts/doc/traffic_controller_802_1q/traffic_controller_802_1q.md) | 56 | maintainer | Entity: traffic_controller_802_1q | `hdl/ieee8021q/ts`, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee8021q/ts/doc/traffic_queues/traffic_queues.md](../hdl/ieee8021q/ts/doc/traffic_queues/traffic_queues.md) | 96 | maintainer | Entity: traffic_queues | `hdl/ieee8021q/ts` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/ieee8021q/ts/doc/traffic_shaping_core/traffic_shaping_core.md](../hdl/ieee8021q/ts/doc/traffic_shaping_core/traffic_shaping_core.md) | 48 | maintainer | Entity: traffic_shaping_core | `hdl/ieee8021q/ts` | current | no recorded contradiction | area lane | module READMEs |
+| [hdl/milan/README-tests.md](../hdl/milan/README-tests.md) | 16 | verification | `milan/milan` -- modules & test coverage | `hdl/milan` | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
+| [hdl/milan/mailbox/README-tests.md](../hdl/milan/mailbox/README-tests.md) | 20 | verification | `milan/mailbox` -- modules & test coverage | `hdl/milan/mailbox` | current | generated by `docs/traceability/gen_module_matrix.py` | area lane | module READMEs |
 
-```sh
-render_dir=$(mktemp -d)
-python3 docs/DOC_MAP.gen.py --check
-python3 docs/diagrams/submodule_boundaries.gen.py --check
-drawio --export --format pdf --crop \
-  --output "$render_dir/native.pdf" \
-  docs/diagrams/submodule_boundaries.drawio
-drawio --export --format png --crop --scale 2 \
-  --output "$render_dir/direct.png" \
-  docs/diagrams/submodule_boundaries.drawio
-drawio --export --format png --crop --scale 2 \
-  --output "$render_dir/audiences.png" \
-  docs/DOC_MAP.drawio
-pdftocairo -svg "$render_dir/native.pdf" "$render_dir/native.svg"
-rsvg-convert -f pdf \
-  --page-width 297mm --page-height 210mm \
-  -w 277mm -h 160.73mm --left 10mm --top 24.635mm -a \
-  "$render_dir/native.svg" -o "$render_dir/a4.pdf"
-pdftoppm -png -r 150 -singlefile \
-  "$render_dir/a4.pdf" "$render_dir/a4"
-```
+### sw
 
-### WaveDrom review
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [sw/README.md](../sw/README.md) | 64 | integrator | `sw/` - build the bare-metal Milan SoC | `sw`, `sw/litex`, `scripts` | current | no recorded contradiction | area lane | module READMEs |
+| [sw/builder/README-parameters.md](../sw/builder/README-parameters.md) | 245 | integrator | End-station builder parameters | `sw/builder`, `configs`, `scripts`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | module READMEs |
+| [sw/firmware/ctrl/README.md](../sw/firmware/ctrl/README.md) | 742 | firmware developer | ctrl: the bare-metal control-plane firmware (#665) | `sw/firmware/ctrl`, `tests`, `third_party/tsn-c-stack`, Milan v1.2, 1722.1-2021, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+| [sw/firmware/ctrl/aecp/README.md](../sw/firmware/ctrl/aecp/README.md) | 218 | firmware developer | AECP firmware owner | `sw/firmware/ctrl`, `sw/firmware/gtest`, `tb/verilator/milan_dp`, Milan v1.2, 1722.1-2021 | current | no recorded contradiction | area lane | module READMEs |
+| [sw/firmware/ctrl/maap/README.md](../sw/firmware/ctrl/maap/README.md) | 226 | firmware developer | Bare-metal MAAP | `sw/firmware/ctrl`, `sw/firmware/gtest`, `third_party/tsn-c-stack`, Milan v1.2, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+| [sw/firmware/ctrl/srp/README.md](../sw/firmware/ctrl/srp/README.md) | 384 | firmware developer | Bare-metal MSRP and MVRP | `sw/firmware/ctrl`, `configs`, `sw/firmware/gtest`, Milan v1.2, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
+| [sw/firmware/ctrl_nvm/README.md](../sw/firmware/ctrl_nvm/README.md) | 510 | firmware developer | ctrl_nvm: the bare-metal saved-state store (#665 F1) | `sw/firmware/ctrl_nvm`, `sw/firmware/ctrl`, `scripts` | current | no recorded contradiction | area lane | module READMEs |
+| [sw/firmware/gtest/README.md](../sw/firmware/gtest/README.md) | 454 | firmware developer | gtest: the host unit tests of the bare-metal firmware (#665 lane FT) | `sw/firmware/gtest`, `sw/firmware/ctrl_nvm`, `sw/firmware/ctrl` | current | no recorded contradiction | area lane | module READMEs |
+| [sw/firmware/nvm_hosttest/README.md](../sw/firmware/nvm_hosttest/README.md) | 328 | firmware developer | nvm_hosttest: the saved-state writer on a host model | `sw/firmware/nvm_hosttest`, `scripts`, `sw/firmware/milan_baremetal` | current | no recorded contradiction | area lane | module READMEs |
+| [sw/litex/patches/README.md](../sw/litex/patches/README.md) | 52 | maintainer | LiteX ecosystem patches | `sw/litex`, `scripts` | current | no recorded contradiction | area lane | module READMEs |
+| [sw/trace/README.md](../sw/trace/README.md) | 118 | firmware developer | `sw/trace/` - the CTF fault log | `sw/trace` | current | no recorded contradiction | area lane | module READMEs |
 
-WaveDrom timing matches inspected RTL edges.
+### syn
 
-White backgrounds preserve dark-theme visibility.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [syn/yosys/README.md](../syn/yosys/README.md) | 533 | maintainer | Open-toolchain synthesis check (Yosys) - device portability | `syn/yosys`, `scripts`, `tb/verilator`, 1722.1-2021, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
+| [syn/yosys/bench/README.md](../syn/yosys/bench/README.md) | 330 | maintainer | Yosys single-process bench | `syn/yosys`, `protocol-processor` | current | no recorded contradiction | area lane | module READMEs |
 
-| Diagram | Verified behavior | RTL authority |
-|---|---|---|
-| AXI-Stream backpressure | Acceptance equals `tvalid && tready` | `hdl/common/axi_stream_if.sv` |
-| CDC handshake | Capture occurs on destination rising edges | `hdl/common/cdc_handshake.sv` |
-| CDC handshake | Separate resets remain visible | `hdl/common/cdc_handshake.sv` |
-| CDC handshake | Default synchronizer depths drive shown latency | `hdl/common/cdc_handshake.sv` |
+### tb
 
-Committed PNG renders received direct inspection.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [tb/avtp_packet_gen_sv/README.md](../tb/avtp_packet_gen_sv/README.md) | 26 | verification | Docs | `tb/avtp_packet_gen_sv` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/itests/README.md](../tb/itests/README.md) | 16 | verification | Integration testbenches (legacy, Vivado xsim) | `tb/itests`, `tb/avtp_packet_gen_sv`, `tb/common` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/utests/802_1q_traffic_shaper/README.md](../tb/utests/802_1q_traffic_shaper/README.md) | 16 | verification | Legacy 802.1Q traffic-shaper unit tests (Vivado xsim) | `tb/utests`, `tb/verilator`, `tb/verilator/cbs`, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/README.md](../tb/verilator/README.md) | 150 | verification | Verilator verification harnesses | `tb/verilator`, `scripts`, `syn/yosys`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/aaf/README.md](../tb/verilator/aaf/README.md) | 108 | verification | AAF talker checks | `tb/verilator/aaf`, Milan v1.2, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/avtp_parser/README.md](../tb/verilator/avtp_parser/README.md) | 111 | verification | avtp_parser - the listener ACCEPT VERDICT, at every shipping shape | `tb/verilator/avtp_parser`, `hdl/ieee1722/avtp`, `tb/verilator/avtp_stream`, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/avtp_stream/README.md](../tb/verilator/avtp_stream/README.md) | 16 | verification | avtp_stream - AVTP stream parser verification | `tb/verilator/avtp_stream`, `hdl/ieee1722/avtp` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/cbs/README.md](../tb/verilator/cbs/README.md) | 119 | verification | CBS verification harness (IEEE 802.1Qav credit-based shaper) | `tb/verilator/cbs`, `hdl/common`, `hdl/ieee8021q/ts`, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/controller_rate/README.md](../tb/verilator/controller_rate/README.md) | 22 | verification | controller_rate - CBS end-to-end shaping/interference regression (bug FIXED; gating) | `tb/verilator/controller_rate`, `tb/verilator/classifier` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/csr/README.md](../tb/verilator/csr/README.md) | 106 | verification | CSR verification harness (`milan_csr` AXI4-Lite control plane) | `tb/verilator/csr`, `hdl/common/csr`, `tb/common` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/fw_service_budget/README.md](../tb/verilator/fw_service_budget/README.md) | 271 | verification | Firmware service-budget measurement | `tb/verilator/fw_service_budget`, `tb/verilator/nvm_capture_cpu`, Milan v1.2 | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/gptp_plane/README.md](../tb/verilator/gptp_plane/README.md) | 65 | verification | gptp_plane -- the time-sync plane against the real PHC | `tb/verilator/gptp_plane`, `tb/verilator/gptp_shadow`, `hdl/ieee8021as/ptp_timestamp`, 802.1AS | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/gptp_shadow/README.md](../tb/verilator/gptp_shadow/README.md) | 135 | verification | gptp_shadow -- the fabric slice, wide faces, loop closed in fabric | `tb/verilator/gptp_shadow`, `tb/verilator/gptp_plane`, `third_party/verilog-axis` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/gptp_tables/README.md](../tb/verilator/gptp_tables/README.md) | 108 | verification | gptp_tables -- per-table lockstep of the fabric gPTP plane | `tb/verilator/gptp_tables`, `scripts`, `tb/verilator/gptp_shadow` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/gptp_txts/README.md](../tb/verilator/gptp_txts/README.md) | 89 | verification | `gptp_txts` - the gPTP egress timestamp closed loop | `tb/verilator/gptp_txts`, `sw/litex`, `hdl/common` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/mbx/README.md](../tb/verilator/mbx/README.md) | 345 | verification | mbx: the packet-mailbox fabric skeleton, through both bus adapters | `tb/verilator/mbx`, `sw/mailbox`, `sw/firmware/ctrl`, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/media_grid_align/README.md](../tb/verilator/media_grid_align/README.md) | 78 | verification | media_grid_align - the #74 grid-alignment loop, closed over the real NCO | `tb/verilator/media_grid_align`, `tb/verilator/milan_dp` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/media_nco/README.md](../tb/verilator/media_nco/README.md) | 146 | verification | `media_nco` - the steerable media sample grid | `tb/verilator/media_nco`, `hdl/ieee1722/crf`, `tb/verilator/capture_coherence`, Milan v1.2 | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/milan_dp/README.md](../tb/verilator/milan_dp/README.md) | 1662 | verification | milan_dp - the `milan_datapath` integration suite | `tb/verilator/milan_dp`, `scripts`, `tb/verilator/milan_dp_gm_steps`, Milan v1.2, 1722.1-2021, 802.1Q, 802.1AS | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/milan_dp_gm_steps/README.md](../tb/verilator/milan_dp_gm_steps/README.md) | 126 | verification | milan_dp_gm_steps: the GM step leg and its controls (#387, #602, #621) | `tb/verilator/milan_dp_gm_steps`, `tb/verilator/milan_dp` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/milan_dp_gptp/README.md](../tb/verilator/milan_dp_gptp/README.md) | 44 | verification | AX7101 physical gPTP integration suite | `tb/verilator/milan_dp_gptp`, `scripts`, `tb/verilator/milan_dp` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/milan_dp_mclk/README.md](../tb/verilator/milan_dp_mclk/README.md) | 114 | verification | milan_dp_mclk: media-clock following at the root (#629) | `tb/verilator/milan_dp_mclk`, `tb/verilator/milan_dp`, `tb/verilator/follow_ring`, 1722-2016 | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/nvm_backend/README.md](../tb/verilator/nvm_backend/README.md) | 144 | verification | nvm_backend -- the saved-state backing store, graded on bytes | `tb/verilator/nvm_backend`, `scripts`, `hdl/milan` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/nvm_capture_cpu/README.md](../tb/verilator/nvm_capture_cpu/README.md) | 195 | verification | Product CPU capture measurement | `tb/verilator/nvm_capture_cpu`, `scripts`, `sw/litex` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/nvm_cosim/README.md](../tb/verilator/nvm_cosim/README.md) | 202 | verification | nvm_cosim -- the saved-state snapshot ownership co-simulation | `tb/verilator/nvm_cosim`, `hdl/milan`, `scripts` | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/pp_shadow/README.md](../tb/verilator/pp_shadow/README.md) | 453 | verification | pp_shadow - milan_datapath with the protocol processor AS the control plane | `tb/verilator/pp_shadow`, `hdl/ieee17221`, `hdl/ieee17221/adp`, Milan v1.2, 1722.1-2021, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
+| [tb/verilator/tsn_fuzz/README.md](../tb/verilator/tsn_fuzz/README.md) | 456 | verification | `tsn_fuzz` - IEEE 1722 field-validation campaign | `tb/verilator/tsn_fuzz`, `scripts`, `hdl/ieee1722/avtp`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1AS | current | no recorded contradiction | area lane | module READMEs |
 
-Reproduce both current timing diagrams.
+### tests
 
-Create a temporary WaveDrom environment.
+| Page | Lines | Audience | Purpose | Describes | Status | Evidence | Verified | Lane |
+|---|---:|---|---|---|---|---|---|---|
+| [tests/README.md](../tests/README.md) | 185 | verification | AECP Test Strategy | `tests`, `tb/tools`, `scripts`, 1722.1-2021, 1722-2016, 802.1Q | current | no recorded contradiction | area lane | module READMEs |
 
-```sh
-python3 -m venv /tmp/milan-wavedrom
-/tmp/milan-wavedrom/bin/pip install wavedrom==2.0.3.post3
-```
+## Findings
 
-Install `rsvg-convert` through your system package manager.
+Each statement is quoted exactly from its page.
+Its area lane fixes it and removes the entry.
 
-```sh
-/tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
-  docs/diagrams/wd_axis_backpressure.json --background=white
-/tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
-  docs/diagrams/wd_cdc_handshake.json --background=white
-/tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
-  docs/diagrams/wd_axis_backpressure.json --background=white --check
-/tmp/milan-wavedrom/bin/python3 scripts/gen_wavedrom.py \
-  docs/diagrams/wd_cdc_handshake.json --background=white --check
-```
-
-## Follow-up work
-
-- Donor gPTP wording uses [Issue #48](https://github.com/Mister-M-alt/FPGA-gPTP/issues/48).
-- Donor protocol history uses [Issue #27](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/27).
-- LiteX aggregation uses [root Issue #297](https://github.com/kebag-logic/milan-fpga/issues/297).
+| ID | Page | Line | Statement | Contradicted by | Correction |
+|---|---|---:|---|---|---|
+| D0-001 | [README.md](../README.md) | 60 | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and the default build carries no mailbox; the same section says all-fabric is the shipping default | Say that the Mark II split placement moves ADP, ACMP, AECP, MAAP and SRP into bare-metal firmware, and that the default build keeps all of them in fabric. |
+| D0-002 | [README.md](../README.md) | 141 | clock-source selection now reaches the media plane's wrapper but nothing there | `hdl/milan/milan_datapath.sv` lines 704-720: the stored CLOCK_SOURCE is resolved in `media_clk_resolve` and consumed by the INTERNAL, CRF and AAF followers (#74, #629) | State that SET_CLOCK_SOURCE selects the followed media clock (INTERNAL, CRF or one AAF input), and link the media-clock following design. |
+| D0-003 | [README.md](../README.md) | 418 | Stream restart latency after an ACMP rebind (2026-08, OPEN) | #75 is closed; the measurement is `docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md`; the roadmap figure repeats it as open (12 to 90 s) | Retire section P1.6 and the roadmap bullet, and point at the #75 finding. |
+| D0-004 | [README.md](../README.md) | 440 | **Not the index-bus narrowing** in `KL_lwsrp_ctx.sv` | Commit `eff99a9c` (2026-08-13) deleted the fabric SRP context; no `KL_lwsrp_ctx.sv` is tracked, and `JOIN_TIME_MS_C` (line 447) has no definition in the tree | Remove the analysis of the deleted module with section P1.6. |
+| D0-005 | [README.md](../README.md) | 470 | is **steerability**. `media_tick_p` is a compile-time constant with no | `hdl/ieee1722/crf/KL_media_nco.sv` (steerable media grid, 2026-08-10) and `hdl/ieee1722/crf/KL_media_grid_align.sv` (#74) replaced the constant divider | Rewrite P1.7 as the current media-clock status (#629, #74) with a link to the media-clock following design, or retire it. |
+| D0-023 | [README.md](../README.md) | 41 | \| TSN datapath in fabric \| MAC · 802.1Qav CBS · gPTP | Same as D0-019: CAP.CBS reads 0 and no shaper is instantiated since 0x0056 | Remove CBS from the shipping datapath row, or mark it as an earlier measurement on an older image. |
+| D0-011 | [docs/integration/BAREMETAL_FIRMWARE.md](integration/BAREMETAL_FIRMWARE.md) | 215 | pending #403, which decides the receive-filter posture | #403 closed as completed on 2026-09-26; `sw/litex/boot_policy.py` line 58 generates `MILAN_MAC_CTRL_SET` (bit 3), written at `sw/firmware/milan_baremetal/milan_baremetal.c` line 1808 | Name the generated `MILAN_MAC_CTRL_SET` word and drop the pending reference. |
+| D0-012 | [docs/integration/BAREMETAL_FIRMWARE.md](integration/BAREMETAL_FIRMWARE.md) | 218 | `srp.talker_declare_at_reset`, pending #400 | #400 closed as completed on 2026-09-26; the firmware writes `MILAN_LWSRP_CTRL_RESET \| 3u` at `sw/firmware/milan_baremetal/milan_baremetal.c` line 1814 | Drop the pending reference and state the forced bits as the shipped behaviour. |
+| D0-013 | [docs/integration/BAREMETAL_FIRMWARE.md](integration/BAREMETAL_FIRMWARE.md) | 219 | block count `MILAN_N_TALKERS` + 1 in `[15:8]` | `sw/litex/boot_policy.py` line 56: `MILAN_MAAP_CTRL_BOOT` is `len(stream_outputs) << 8 \| 1`, so the extra block exists only when the CRF output is declared | Write the generated `MILAN_MAAP_CTRL_BOOT`: one block per declared AAF output, plus one when the CRF output is enabled. |
+| D0-010 | [docs/integration/BOARD_PORTING_AX7101.md](integration/BOARD_PORTING_AX7101.md) | 110 | acceptance remains on [#599](https://github.com/kebag-logic/milan-fpga/issues/599). | #599 closed as completed on 2026-09-29; the bench result is `docs/findings/599_394_E1_LINK_CYCLES.md` | Point at the #599 link-cycle finding instead of an open issue. |
+| D0-019 | [docs/reference/FR_NFR.md](reference/FR_NFR.md) | 173 | \| **FR-QOS-01..03** \| **MET** \| Classifier + CBS untouched; | `docs/reference/EGRESS_QUEUE_MAP.md` lines 3-8 and `hdl/common/csr/milan_csr.sv` lines 1996-2000 (CAP.CBS = 0): since VERSION 0x0056 `milan_datapath` instantiates no classifier or shaper; the same page says so at lines 50 and 228-230 | Mark FR-QOS-01 and FR-QOS-02 not met in the product (the blocks exist and are verified, but are not instantiated), and keep FR-QOS-03 as the processor's admission ceiling. |
+| D0-020 | [docs/reference/FR_NFR.md](reference/FR_NFR.md) | 277 | 802.1Q / 802.1Qav *(already in HW)* | Same as D0-019: the classifier and CBS are not instantiated in the shipping datapath | Drop the already-in-HW marker, or say the blocks are verified but not instantiated. |
+| D0-021 | [docs/reference/MILAN_COMPLIANCE_MATRIX.md](reference/MILAN_COMPLIANCE_MATRIX.md) | 265 | \| 8.6.8.1 \| strict priority (non-CBS queues) \| fabric \| implemented | `docs/reference/EGRESS_QUEUE_MAP.md` lines 3-8: `milan_datapath` does not instantiate the shaper since 0x0056; the page describes the shipping image (line 3) | Mark the row as verified RTL that is not instantiated in the shipping image. |
+| D0-022 | [docs/reference/MILAN_COMPLIANCE_MATRIX.md](reference/MILAN_COMPLIANCE_MATRIX.md) | 266 | \| 8.6.8.2 \| credit-based shaper: idleSlope/sendSlope, transmitAllowed | Same as D0-021 | Mark the row as verified RTL that is not instantiated in the shipping image. |
+| D0-006 | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 1226 | attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value | IEEE 802.1Q-2022 (and 802.1Q-2018) define MSRP FourPackedEvents in 35.2.2.7.2 with Table 35-3; there is no 35.2.2.7.4 | Cite IEEE 802.1Q 35.2.2.7.2 (Table 35-3). |
+| D0-007 | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 1286 | (STREAM_INPUT[0], Milan Table 7-156) | Table 7-156 is IEEE 1722.1-2021's STREAM_INPUT counters_valid table; Milan v1.2 lists the Stream Input counters in Table 5.6 (5.3.8.10) | Write IEEE 1722.1-2021 Table 7-156 (Milan v1.2 Table 5.6). |
+| D0-008 | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 199 | The Milan Table 7-156 stream counters | Same as D0-007: Table 7-156 belongs to IEEE 1722.1-2021 | Write the IEEE 1722.1-2021 Table 7-156 stream counters, in the section description and its Contents entry. |
+| D0-009 | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 423 | Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`. | `sw/firmware/milan_baremetal/milan_baremetal.c` lines 1086-1094: `phy_link_tick()` runs inside `nvm_heartbeat_tick()`, which returns until `nvm_started` (line 1668) is set; a refused record-set shape never sets it | Add that publication runs only while the saved-state writer runs; otherwise MAC_STATUS keeps its reset value (link up, 1000 Mb/s, full duplex). |
+| D0-014 | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 1427 | \| `0x7D4` \| `AEMP_CTRL` \| W1S / RO \| | `hdl/common/csr/milan_csr.sv` lines 885-897 (`A_ETH_GUARD` at 0x7D8), 1578 (reset armed), 1731 (write rule), 2389 (readback); the map has no 0x7D8 row, against REQ-CSR-01's acceptance | Add `0x7D8 ETH_GUARD`: RW, reset 1 (armed); writing 0x554E4C4B disarms, any other write re-arms; while armed PHY_RESET writes are dropped and LINK_CTRL[1] is masked; the link guard's own recovery is not gated. |
+| D0-015 | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 419 | `[0]` phy_reset_n (0 = hold PHY in reset) | `hdl/common/csr/milan_csr.sv` line 2692 drives `o_phy_reset_n` and line 1688 drops writes while ETH_GUARD is armed; `sw/litex/milan_soc.py` never connects the datapath's `o_phy_reset_n`; the pin is driven by LiteEth's CRG reset CSR (`sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch`, `pads.rst_n` from `self._reset`) | Document PHY_RESET as inert in the shipping SoC, and document `milan_mac_phy_crg_reset` (LiteX CSR) as the reset that reaches the PHY for the `--eth-port` the image is built for. |
+| D0-016 | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 752 | `[1]` manual mac_reinit (hold MAC sys-side in reset) | `hdl/common/csr/milan_csr.sv` lines 1726-1730: while ETH_GUARD is armed a LINK_CTRL write stores bit 1 as 0 | Add that bit 1 is masked to 0 while ETH_GUARD (0x7D8) is armed. |
+| D0-017 | [docs/reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) | 416 | \| `0x110` \| `MAC_STATUS` \| RO \| – \| | `sw/litex/milan_soc.py` lines 1893-1907 and 2084-2085: MAC_STATUS is the LiteX `milan_mac_link_status` CSR, reset link up, 1000 Mb/s on GMII (100 on MII), full duplex | State the reset value and that the bits follow the PHY only while firmware publishes them (D0-009); point to LINKG_STAT (0x774) and the AVB_INTERFACE LINK_UP/LINK_DOWN counters. |
+| D0-018 | [docs/reference/REGISTER_MAP_CLASSES.md](reference/REGISTER_MAP_CLASSES.md) | 101 | \| `0x7C8–0x7D4` \| AEM saved-state write master \| | `hdl/common/csr/milan_csr.sv` line 897 allocates `A_ETH_GUARD` at 0x7D8, between the 0x7C8-0x7D4 and 0x7DC-0x7E4 rows; the page judges every CSR group | Add a 0x7D8 ETH_GUARD row with its production class. |
