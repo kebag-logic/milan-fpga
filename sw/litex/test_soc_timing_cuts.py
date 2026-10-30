@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The #814 register boundary on the SoC's bridge-to-SPI-flash timing path.
+"""The two #814 register boundaries on the SoC's sys-domain timing paths.
 
-The path decided the route WNS. It ran from the AXI-Lite-to-Wishbone bridge
-state through the bus decoder, the flash origin offset and LiteSPI's burst
-compare into the PHY's clock-generator counter.
-`milan_soc.add_staged_spi_flash` cuts it. This test builds the path on the
-real LiteX and LiteSPI code, with the shipping call, and grades it three ways:
+Two SoC paths set the route WNS. One ran from the AXI-Lite-to-Wishbone
+bridge state through the bus decoder, the flash origin offset and LiteSPI's
+burst compare into the PHY's clock-generator counter (the #806 route and
+earlier records). The other ran from LiteDRAM's flip-flops, the AXI
+burst-to-beat counters among them, through its command arbitration, back into
+the read address of a crossing FIFO's LUTRAM (two of the recipe's three
+placement directives on dev 1e80128f).
+`milan_soc.add_staged_spi_flash` and `milan_soc.cross_cpu_memory_ports` cut
+them. This test builds each path on the real LiteX and LiteDRAM code, with the
+shipping hook, and grades it three ways:
 
   1. STRUCTURE, read off the elaborated netlist and never off text. The
      netlist's combinational drivers are walked back from each endpoint
@@ -18,7 +23,8 @@ real LiteX and LiteSPI code, with the shipping call, and grades it three ways:
      structural arm can go red.
   3. BEHAVIOUR. Reads through the staged path return the flash image (in a
      burst, across bursts and after a gap) and take exactly the stated added
-     cycles. An abandoned access never answers the next request.
+     cycles. An abandoned access never answers the next request. The DRAM
+     port carries every AXI channel exactly under backpressure.
 
 Run: cd sw/litex && python3 test_soc_timing_cuts.py
 """
@@ -28,13 +34,17 @@ import sys
 from collections.abc import Generator, Iterable
 from pathlib import Path
 
-from migen import Module, Signal, run_simulation
+from migen import ClockDomain, Module, Signal, run_simulation
+from migen.fhdl.specials import _MemoryPort
 from migen.fhdl.structure import Case, If, _Assign
 from migen.fhdl.tools import list_signals, list_targets
 
 from litex.build.generic_platform import GenericPlatform
 from litex.soc.integration.soc import SoCCore
 from litex.soc.interconnect import axi, wishbone
+from litedram.frontend.axi import LiteDRAMAXI2Native
+from litedram.modules import MT41J256M16
+from litedram.phy.model import SDRAMPHYModel, get_sdram_phy_settings
 from litespi.modules import N25Q128A13
 from litespi.opcodes import SpiNorFlashOpCodes
 from litespi.phy.model import LiteSPIPHYModel
@@ -49,6 +59,9 @@ SYS_HZ = 100e6
 FLASH_ORIGIN = 0x0100_0000
 #: The stage's stated cost: one cycle to take the request, one to answer.
 STAGE_CYCLES = 2
+#: LiteX's main_ram origin, the base `add_sdram` gives the AXI-to-native converter;
+#: a native word is 32 bytes (256-bit port).
+MAIN_RAM = 0x4000_0000
 
 
 class Netlist:
@@ -148,7 +161,13 @@ class WirePassThrough(Module):
 
     def __init__(self, master: object, slave: object) -> None:
         """Connect the upstream face straight to the downstream face."""
-        self.comb += master.connect(slave)
+        if isinstance(master, axi.AXIInterface):
+            for name in ("aw", "w", "ar"):
+                self.comb += getattr(master, name).connect(getattr(slave, name))
+            for name in ("b", "r"):
+                self.comb += getattr(slave, name).connect(getattr(master, name))
+        else:
+            self.comb += master.connect(slave)
 
 
 # Flash -----------------------------------------------------------------------------------------------
@@ -356,6 +375,164 @@ def stage_abandon(problems: list[str]) -> None:
           f"(word {seen.get('word', 0):#x}, slave accesses {seen.get('started')})")
 
 
+# DRAM ------------------------------------------------------------------------------------------------
+
+class DramSoC(SoCCore):
+    """The SoC's DRAM path: a stand-in CPU memory port on its own `milan` clock,
+    the shipping `cross_cpu_memory_ports` hook, and LiteX's `add_sdram` with the
+    LiteDRAM controller on LiteDRAM's model PHY for the board's DDR3 part and
+    width."""
+
+    STAGE = "AXIReadyStage"
+
+    def __init__(self) -> None:
+        """Build it."""
+        platform = GenericPlatform("xc7a100tfgg484-2", _io)
+        SoCCore.__init__(self, platform, SYS_HZ, cpu_type=None, integrated_rom_size=0,
+                         integrated_sram_size=0, with_uart=False, with_timer=False, with_ctrl=False)
+        self.cd_milan = ClockDomain("milan")
+        cpu = self.cpu
+        cpu.cpu_clk = Signal()
+        cpu.memory_buses = []
+
+        def add_memory_buses(address_width: int, data_width: int) -> None:
+            """The CPU's own port, as LiteX's VexiiRiscv makes it."""
+            self.cpu_port = axi.AXIInterface(data_width=data_width, address_width=address_width,
+                                             id_width=8, version="axi4")
+            cpu.memory_buses.append(self.cpu_port)
+
+        cpu.add_memory_buses = add_memory_buses
+        milan_soc.cross_cpu_memory_ports(cpu, cd_from="milan", cd_to="sys")
+        settings = get_sdram_phy_settings(memtype="DDR3", data_width=32, clk_freq=SYS_HZ)
+        module = MT41J256M16(SYS_HZ, "1:4")
+        self.add_sdram("sdram", phy=SDRAMPHYModel(module, settings=settings, clk_freq=SYS_HZ),
+                       module=module, l2_cache_size=0)
+
+
+def dram_crossings(soc: DramSoC) -> tuple[list[str], bool, int]:
+    """LiteDRAM-side flip-flops reaching a request crossing FIFO's LUTRAM read address.
+
+    The request channels (aw, w, ar) cross into sys, so their FIFOs' read
+    ports are the crossing's sys-clocked read ports. Returns the paths that
+    reach one of those read addresses from a flip-flop of LiteDRAM's
+    AXI-to-native converter or its core through logic alone, named
+    `start -> end`. Then whether stage flip-flops feed every read address, and
+    how many read ports were examined.
+    """
+    netlist = Netlist(soc.get_fragment())
+    converters = find(soc, LiteDRAMAXI2Native)
+    if len(converters) != 1:
+        raise AssertionError(f"expected one AXI-to-native converter, found {len(converters)}")
+    dram = registers(converters[0]) | registers(soc.sdram)
+    stage = registers(soc.cpu.memory_port_stage0)
+    ports = [special for special in soc.cpu.memory_port_cdc0._fragment.specials
+             if isinstance(special, _MemoryPort) and special.we is None and special.clock.cd == "sys"]
+    paths, staged = [], True
+    for port in ports:
+        feeders = netlist.feeding(port.adr)
+        staged &= bool(feeders & stage)
+        paths += [f"{netlist.name(start)} -> {netlist.name(port.adr.duid)}" for start in sorted(feeders & dram)]
+    return paths, staged, len(ports)
+
+
+def dram_structure(problems: list[str]) -> None:
+    """Arms 1 and 2 for the DRAM path."""
+    paths, staged, examined = dram_crossings(build(DramSoC))
+    check(problems, examined == 3 and staged,
+          f"D0 the stage feeds the read address of each request crossing FIFO ({examined} of aw, w and ar)")
+    check(problems, not paths,
+          "D1 no flip-flop of LiteDRAM's AXI-to-native converter or core reaches a request crossing FIFO's "
+          "LUTRAM read address through logic alone" + (f": {paths[:4]}" if paths else ""))
+    paths, staged, _ = dram_crossings(build(DramSoC, stage=WirePassThrough))
+    counter = [path for path in paths if "beat_count" in path.split(" -> ")[0]]
+    check(problems, bool(counter) and not staged,
+          f"D2 the planted wire in place of the stage fails D0 and D1, naming the burst-to-beat counter "
+          f"({len(paths)} paths: {counter[:2]})")
+
+
+def dram_traffic(stage: type | None, beats: list[tuple[int, int]]) -> tuple[list[tuple], list[int]]:
+    """Write each `(address, word)` on the CPU port, then read each back. Returns every
+    handshake LiteDRAM's native ports saw, with its sys cycle, and each read's milan
+    cycles from the AR handshake to its R beat."""
+    soc = build(DramSoC, stage=stage)
+    port = soc.cpu_port
+    native, cycles = [], []
+    done = []
+
+    def master() -> Generator[None, None, None]:
+        """One single-beat burst at a time, every write before every read."""
+        for _ in range(200):
+            yield
+        yield port.b.ready.eq(1)
+        yield port.r.ready.eq(1)
+        for address, word in beats:
+            for name, value in (("addr", address), ("len", 0), ("size", 5), ("burst", 1), ("valid", 1)):
+                yield getattr(port.aw, name).eq(value)
+            for name, value in (("data", word), ("strb", 2**32 - 1), ("last", 1), ("valid", 1)):
+                yield getattr(port.w, name).eq(value)
+            aw_done = w_done = False
+            while not (aw_done and w_done):
+                yield
+                aw_done = aw_done or bool((yield port.aw.ready))
+                w_done = w_done or bool((yield port.w.ready))
+                if aw_done:
+                    yield port.aw.valid.eq(0)
+                if w_done:
+                    yield port.w.valid.eq(0)
+            while not (yield port.b.valid):
+                yield
+            yield
+        for address, _ in beats:
+            for name, value in (("addr", address), ("len", 0), ("size", 5), ("burst", 1), ("valid", 1)):
+                yield getattr(port.ar, name).eq(value)
+            yield
+            while not (yield port.ar.ready):
+                yield
+            yield port.ar.valid.eq(0)
+            count = 0
+            while not (yield port.r.valid):
+                yield
+                count += 1
+            cycles.append(count)
+            yield
+        done.append(True)
+
+    def monitor() -> Generator[None, None, None]:
+        """Every native-port command and write-data handshake, in order, with its cycle."""
+        cycle = 0
+        while not done:
+            for index, native_port in enumerate(soc.sdram.crossbar.masters):
+                if (yield native_port.cmd.valid) and (yield native_port.cmd.ready):
+                    native.append((cycle, index, "cmd", (yield native_port.cmd.we), (yield native_port.cmd.addr)))
+                if (yield native_port.wdata.valid) and (yield native_port.wdata.ready):
+                    native.append((cycle, index, "wdata", (yield native_port.wdata.data),
+                                   (yield native_port.wdata.we)))
+            yield
+            cycle += 1
+
+    run_simulation(soc, {"milan": [master()], "sys": [monitor()]}, clocks={"milan": 20, "sys": 10})
+    return native, cycles
+
+
+def dram_behaviour(problems: list[str]) -> None:
+    """Arm 3 for the DRAM path: the native port's contract, and no added cycle."""
+    beats = [(MAIN_RAM + 0x40, 0x1234_5678_9ABC_DEF0 << 96 | 0x55), (MAIN_RAM + 0x1000, 0xFEED_FACE << 200 | 0xAA),
+             (MAIN_RAM + 0x8040, 2**255 + 7), (MAIN_RAM + 0x20, 0x0F0F_0F0F)]
+    native, staged = dram_traffic(None, beats)
+    words = [(address - MAIN_RAM) >> 5 for address, _ in beats]
+    seen = [event[2:] for event in native]
+    writes = [event for event in seen if event[0] == "wdata"]
+    commands = [event for event in seen if event[0] == "cmd"]
+    check(problems, commands == [("cmd", 1, word) for word in words] + [("cmd", 0, word) for word in words]
+          and writes == [("wdata", data, 2**32 - 1) for _, data in beats]
+          and seen[:2] == [("cmd", 1, words[0]), ("wdata", beats[0][1], 2**32 - 1)],
+          "D3 LiteDRAM's native port sees each write's command, word and full mask, then each read's command, "
+          "in order, at the addresses written")
+    wired_native, wired = dram_traffic(WirePassThrough, beats)
+    check(problems, native == wired_native and staged == wired,
+          f"D4 the stage changes nothing the native port sees, cycle for cycle, and adds no cycle to a read "
+          f"(staged {staged}, wired {wired} milan cycles)")
+
 def main() -> int:
     """Every arm; exit 1 naming each failure."""
     problems: list[str] = []
@@ -363,6 +540,8 @@ def main() -> int:
     flash_structure(problems)
     flash_behaviour(problems)
     stage_abandon(problems)
+    dram_structure(problems)
+    dram_behaviour(problems)
     for problem in problems:
         print(f"FAIL: {problem}", file=sys.stderr)
     print(f"test_soc_timing_cuts: {len(problems)} failure(s)")

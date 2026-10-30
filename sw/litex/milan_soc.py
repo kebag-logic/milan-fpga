@@ -2350,7 +2350,8 @@ def cross_cpu_memory_ports(cpu: object, cd_from: str, cd_to: str) -> None:
     this wraps the CPU's own method, lets it build its `cd_from` port, and
     replaces each entry with a `cd_to` port fed through LiteX's
     `AXIClockDomainCrossing` (one async FIFO per AXI channel, both
-    directions). Port shape - data width, address width, id width, AXI
+    directions) and then `AXIReadyStage` (#814). Port shape - data width,
+    address width, id width, AXI
     version - is preserved, so LiteX's width conversion and `LiteDRAMAXI2Native`
     see what they saw before. A CPU without `cpu_clk` is left alone: when
     `milan_cd == "sys"` there is nothing to cross, and the simulation SoCs
@@ -2378,18 +2379,48 @@ def cross_cpu_memory_ports(cpu: object, cd_from: str, cd_to: str) -> None:
         """The CPU's own method, then the crossing behind each port it made."""
         original(address_width, data_width)
         for index, cpu_port in enumerate(cpu.memory_buses):
-            sys_port = axi.AXIInterface(
+            crossed, sys_port = (axi.AXIInterface(
                 data_width    = cpu_port.data_width,
                 address_width = cpu_port.address_width,
                 id_width      = cpu_port.id_width,
                 version       = cpu_port.version,
-                clock_domain  = cd_to)
+                clock_domain  = cd_to) for _ in range(2))
             setattr(cpu.submodules, f"memory_port_cdc{index}",
-                    axi.AXIClockDomainCrossing(cpu_port, sys_port,
+                    axi.AXIClockDomainCrossing(cpu_port, crossed,
                                                cd_from=cd_from, cd_to=cd_to))
+            setattr(cpu.submodules, f"memory_port_stage{index}", AXIReadyStage(crossed, sys_port))
             cpu.memory_buses[index] = sys_port
 
     cpu.add_memory_buses = add_memory_buses
+
+
+class AXIReadyStage(Module):
+    """Registered READY on an AXI port's request channels (#814).
+
+    It sits between the CPU memory port's crossing and the port LiteDRAM
+    connects. LiteDRAM's AXI-to-native converter arbitrates its read and write
+    commands for one native port, and its ready is the crossing FIFOs' read
+    enable. So LiteDRAM flip-flops (the burst-to-beat counters, the write
+    buffer level, the bank machines' FIFO levels) reached the FIFOs' LUTRAM
+    read addresses through logic alone (13 to 14 levels, about 80 % routing).
+    That path set the route WNS at two of the recipe's three placement
+    directives on dev 1e80128f. A LiteX `PipeReady` on aw, w and ar ends it at
+    a flip-flop: the FIFO's read enable becomes the pipe's registered "empty".
+    The payload still passes in the same cycle and a held beat goes out on
+    the next ready, so the stage adds no cycle, and the AXI handshake keeps
+    its order and its valid-until-ready rule. The response channels b and r
+    pass through.
+    """
+
+    def __init__(self, master: axi.AXIInterface, slave: axi.AXIInterface) -> None:
+        """The stage between `master` (the crossing's output) and `slave` (LiteDRAM's side)."""
+        for name in ("aw", "w", "ar"):
+            pipe = stream.PipeReady(getattr(master, name).description)
+            setattr(self.submodules, f"{name}_pipe", pipe)
+            self.comb += [getattr(master, name).connect(pipe.sink),
+                          pipe.source.connect(getattr(slave, name))]
+        for name in ("b", "r"):
+            self.comb += getattr(slave, name).connect(getattr(master, name))
 
 
 class WishboneSlaveStage(Module):
@@ -2461,10 +2492,11 @@ def add_staged_spi_flash(soc: SoCCore, **kwargs: object) -> None:
     """LiteX's `add_spi_flash(**kwargs)`, then the #814 stage in front of the core.
 
     The path from the AXI-Lite-to-Wishbone bridge state through the decoder, the
-    origin offset and LiteSPI's burst compare into the PHY's counter (17 to 19
-    levels) decided the route WNS. The stage ends it at a flip-flop, for two bus
-    cycles an access. A function so `test_soc_timing_cuts.py` builds the flash
-    path the SoC builds, on the real LiteX bridge, decoder and core.
+    origin offset and LiteSPI's burst compare into the PHY's counter (15 to 19
+    levels) set the WNS of the #806 route and of earlier records. The stage ends
+    it at a flip-flop, for two bus cycles an access. A function so
+    `test_soc_timing_cuts.py` builds the flash path the SoC builds, on the real
+    LiteX bridge, decoder and core.
     """
     soc.add_spi_flash(**kwargs)
     soc.submodules.spiflash_bus_stage = stage_bus_slave(soc.bus, "spiflash")
