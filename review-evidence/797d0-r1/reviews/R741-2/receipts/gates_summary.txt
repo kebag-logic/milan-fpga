@@ -1,0 +1,21 @@
+01	rc=0	scripts/docs_inventory.py --check
+02	rc=0	scripts/docs_inventory.py --selftest
+03	rc=0	scripts/docs_check.py
+04	rc=0	scripts/check_doc_style.py
+05	rc=0	scripts/check_em_dash.py --base 1e80128f0a467b58bf884b7d9bf62e013a2fb141
+06	rc=0	scripts/check_doc_paths.py
+07	rc=0	scripts/gen_toc.py --verify-anchors
+08	rc=0	scripts/gen_toc.py --check
+09	rc=2	scripts/check_baremetal_only.py --check
+10	rc=2	scripts/check_baremetal_only.py --selftest
+11	rc=1	scripts/ci_gate_workflows.py --check
+12	rc=1	scripts/ci_events.py --check
+13	rc=1	scripts/ci_events.py --selftest
+14	rc=0	scripts/check_archive.py
+15	rc=0	scripts/check_feature_status.py
+# 09-13 first ran under the scratch venv with -I (no pyyaml, no script dir on the path: environment rc 1/2, not gate verdicts); rerun with the system interpreter:
+09 rc=0 scripts/check_baremetal_only.py --check
+10 rc=0 scripts/check_baremetal_only.py --selftest
+11 rc=0 scripts/ci_gate_workflows.py --check
+12 rc=0 scripts/ci_events.py --check
+13 rc=0 scripts/ci_events.py --selftest

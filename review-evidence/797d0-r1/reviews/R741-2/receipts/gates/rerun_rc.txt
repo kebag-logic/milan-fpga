@@ -1,0 +1,5 @@
+09 rc=0 scripts/check_baremetal_only.py --check
+10 rc=0 scripts/check_baremetal_only.py --selftest
+11 rc=0 scripts/ci_gate_workflows.py --check
+12 rc=0 scripts/ci_events.py --check
+13 rc=0 scripts/ci_events.py --selftest

@@ -1,0 +1,47 @@
+== REQUIREMENTS.md:23-31 (status current)
+23: - Bare-metal firmware owns boot policy, CSR initialization, identity,
+24:   saved-state boot read/apply and write-back, and UART diagnostics.
+25: - ADP, ACMP, AECP (commands, unsolicited notifications and counter serving),
+26:   MAAP and SRP MUST each have build-selectable placement.
+27:   The Mark II default places them on the bare-metal core.
+28:   The all-fabric build remains a supported option.
+29:   It remains the shipping default until F2 to F5 pass
+30:   their suites and bench acceptance: all streams, counters and audio soak.
+31:   Requirement approval precedes that default flip (#664, #665).
+== FR_NFR.md:75-80 (D0-056)
+75: The diagram above describes the current all-fabric shipping default.
+76: Mark II selects ADP, ACMP, AECP, MAAP and SRP per function.
+77: Its default is bare-metal control over packet mailboxes.
+78: The all-fabric option remains supported.
+79: The shipping default changes only after F2 to F5 acceptance.
+80: That acceptance includes all streams, all counters and the audio soak.
+== AXIS_CORES_ON_BAREMETAL_SOC.md:20-25 (D0-033)
+20: The current shipping placement keeps control traffic in fabric.
+21: Mark II passes selected control frames through filtered packet mailboxes.
+22: ADP, ACMP, AECP, MAAP and SRP are selectable per function.
+23: Its default is bare-metal control; all-fabric remains supported.
+24: All-fabric stays the shipping default until F2 to F5 acceptance.
+25: That acceptance covers all streams, counters and the audio soak.
+== README.md:58-62 (D0-001)
+58: 
+59: [Mark II](docs/ARCHITECTURE_HW_SW_SPLIT.md) selects each control function at build time.
+60: ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.
+61: AECP includes descriptor serving, unsolicited notifications and counter serving.
+62: Framing, timestamps, ingress filtering, gPTP and media remain in fabric.
+== audit rows
+126:| [REQUIREMENTS.md](../REQUIREMENTS.md) | 546 | all readers | TSN/Milan FPGA requirements | `sw/firmware/ctrl_nvm`, `tb/verilator/gptp_txts`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | current | no recorded contradiction | D0 | reference |
+454:| D0-001 | [README.md](../README.md) | 60 | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and the default build carries no mailbox; the same section says all-fabric is the shipping default | Say that the Mark II split placement moves ADP, ACMP, AECP, MAAP and SRP into bare-metal firmware, and that the default build keeps all of them in fabric. |
+464:| D0-033 | [docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md](integration/AXIS_CORES_ON_BAREMETAL_SOC.md) | 23 | Its default is bare-metal control; all-fabric remains supported. | Same as D0-001: `sw/litex/milan_soc.py` line 2621, `--ctrl-mailbox` defaults off and the default build carries no mailbox; the page's next line says all-fabric is the shipping default | Say that the Mark II split placement puts the selected functions in bare-metal firmware and that the default build keeps all five in fabric. |
+482:| D0-056 | [docs/reference/FR_NFR.md](reference/FR_NFR.md) | 77 | Its default is bare-metal control over packet mailboxes. | Same as D0-001 and D0-033: `sw/litex/milan_soc.py` line 2621, `--ctrl-mailbox` defaults off and the default build carries no mailbox; the paragraph's first and fifth lines say all-fabric is the shipping default | Say that the Mark II split placement puts the selected functions in bare-metal firmware and that the default build keeps all five in fabric. |
+== build default
+2620: # reached by the CPU over Wishbone through KL_mbx_wb. It exists ONLY under
+2621: # --ctrl-mailbox, whose default is off: the default build carries no mailbox
+2622: # source, instance, bus region, CSR bank or interrupt, so every shipped
+3838:     ap.add_argument("--ctrl-mailbox", action="store_true",
+3839:                     help="#665 lane F0: add the packet mailbox of the control-plane "
+== release-facing repetitions
+README.md:60:ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.
+REQUIREMENTS.md:27:  The Mark II default places them on the bare-metal core.
+docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md:23:Its default is bare-metal control; all-fabric remains supported.
+docs/reference/FR_NFR.md:77:Its default is bare-metal control over packet mailboxes.
+docs/reference/FR_NFR.md:322:| NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP and SRP MUST each be build-selectable between bare-metal firmware and fabric. Mark II defaults to firmware; all-fabric remains supported and the shipping default until F2 to F5 pass suites and bench acceptance for all streams, counters and audio soak. Each function MUST have one state owner. Framing, timestamps, ingress filtering, gPTP and media MUST remain fabric-owned. The mailbox filter MUST exclude tagged frames, match each channel's exact VLAN-tag/destination-MAC/EtherType/AVTP-subtype tuple, then apply its identity term. Own unicast MUST mean the receiving AVB interface's MAC, never any unicast. AECP MUST accept (command AND target_entity_id = own) OR (response AND controller_entity_id = own). Untagged control frames failing their tuple MUST increment FILTER_MISMATCH. Per-channel token buckets MUST remain; NFR-SCOUT-08 defines the table and checks. | M | A |

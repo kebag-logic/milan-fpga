@@ -1,0 +1,99 @@
+== D0-035
+(above: callers under sw/)
+15:	for (i = 0; i < MILAN_AEM_IMAGE_BYTES; ++i)
+19:	            MILAN_AEM_IMAGE_BYTES);
+20:	if (got != MILAN_AEM_IMAGE_CRC32) {
+21:		printf("Milan baremetal: AEM CRC failed (expected %08lx, got %08lx); entity disabled.\n",
+22:		       (unsigned long)MILAN_AEM_IMAGE_CRC32, (unsigned long)got);
+25:	printf("Milan baremetal: AEM %u B copied QSPI +0x%08x -> 0x%08x, CRC %08lx.\n",
+26:	       MILAN_AEM_IMAGE_BYTES, MILAN_AEM_FLASH_OFFSET,
+== D0-036
+1:            flash_module = (S25FL128S(SpiCodes.READ_1_1_1) if board == "arty"
+2:                            else N25Q128A13(SpiCodes.READ_1_1_1_FAST))
+3:            # Quad read (0x6B, 3-byte addr → whole 16 MB); mode="4x" drives all four DQ so
+5:            # SINGLE-LANE fast read (0x0B, 1-1-1) + 25 MHz clock cap. At sys=112.5 MHz the
+6:            # 4x QUAD read (0x6B) CRC-failed QSPI flashboot NON-DETERMINISTICALLY even after
+7:            # the SCK cap (silicon 2026-07-08: got=685383e7 then 2eac15ab, expected constant)
+10:            # read; at 25 MHz SCK the sampling window is huge vs a 112.5 MHz sys. Flashboot
+12:            # 12.5 MHz requested => ~25 MHz effective SPI read clk (was 50 MHz at the
+14:            # 50 MHz reads corrupt (CRC differs per read); r2slots was borderline-OK.
+15:            self.add_spi_flash(mode="1x", module=flash_module,
+16:                               clk_freq=int(12.5e6), with_master=True)
+            self.add_constant("SPIFLASH_SKIP_FREQ_INIT")
+== D0-038
+            self.add_sdram("sdram",
+                phy    = self.ddrphy,
+                module = dram_module(sys_clk_freq, "1:4"),
+                # The product profile is cacheless end to end.
+                l2_cache_size = 0)
+        ap.error("--software-profile baremetal requires --cpu vexiiriscv "
+                 "--xlen 32 --cpu-count 1")
+    if args.with_fpu or args.l2_bytes or args.scala_args:
+        ap.error("--software-profile baremetal requires no FPU, --l2-bytes 0, "
+                 "and no --scala-args overrides")
+== D0-039
+    ap.add_argument("--software-profile", default="baremetal",
+                    choices=("baremetal",),
+                    help="firmware shape; the product uses the cacheless RV32I "
+                         "M-mode Vexii core and Milan UART/CSR firmware")
+    except ValueError as exc:
+        ap.error(str(exc))
+    if args.cpu != "vexiiriscv" or args.xlen != 32 or args.cpu_count != 1:
+        ap.error("--software-profile baremetal requires --cpu vexiiriscv "
+                 "--xlen 32 --cpu-count 1")
+    if args.with_fpu or args.l2_bytes or args.scala_args:
+== D0-041
+            ("sw/init.d/S50milan", "target-service"),
+            axi_write(A_ADP_TALK, 0x48010008);   // the retired S50milan poke
+1796:static void configure_fabric(void)
+1881:	configure_fabric();
+== D0-048
+docs/DOCUMENTATION_AUDIT.md
+docs/design/TRACE_LOGGING.md
+docs/development/CODE_QUALITY.md
+scripts/check_cpp_idiom.py
+scripts/check_py_idiom.py
+scripts/docs_inventory.json
+sw/builder/test_builder.py
+6:OBJECTS = milan_baremetal.o
+10:libmilan_baremetal.a: $(OBJECTS)
+== D0-057
+137:2. **Every Stream Output's presentation-time offset is pinned at the Milan 2 ms
+**0x0053: the stream setters land and the fabric consumes them.**
+SET_STREAM_FORMAT (both directions, the per-row format verdict with mapping
+survival) and SET_STREAM_INFO (the Milan 5.4.2.9 sub-command at the 2021
+shape) are served; the stored offset feeds the framers' transit entries and
+the stored format is served as current and drives the acceptance filter. No
+new CSRs.
+191:| 5.3.7.6 / 4.4.2.1 | 2 ms default presentation-time offset, settable via SET_STREAM_INFO; the timestamp is the crossing estimate plus a fixed delay of 0 to 125 us plus the offset | implemented. Since [#773](https://github.com/kebag-logic/milan-f
+== D0-060
+1578:**They both default to 1 in the RTL, and the shipping AX7101 shape is 8** —
+    echo "$argv --entity-gen-dir $REPO_ROOT/configs/generated/$(basename "$cfg" .yaml)"
+}
+cfg_ax7101() {   # shipping bare-metal shape (endstation_ax7101_1x1_tdm8): flow flags
+    echo "--synth-directive AreaOptimized_high --opt-directive ExploreArea \
+          --place-directive ExtraPostPlacementOpt"
+}
+cfg_ax8x8() {    # 8-stream (64ch) bare-metal shape (endstation_ax7101_8x8): flow flags
+    # The deployed 0x00010022 gateware came from the x32f1_eto sweep; this
+    # recipe has never produced a bitstream. Its design facts are the
+44 matches in 1 files:
+
+24:localparam int ADP_TALKER_SRC_C    = 2;
+27:localparam int ADP_LISTENER_SINK_C = 2;
+31:localparam int AEM_NAME_ENTRIES_C = 39;
+36:localparam int AEM_N_AUDIO_UNIT_C = 1;
+== D0-061
+	milan_write(MILAN_MAC_ADDR_LO, MILAN_STATION_MAC_LO);
+	milan_write(MILAN_MAC_ADDR_HI, MILAN_STATION_MAC_HI);
+	/* Existing promiscuous posture: bypass station selection on TCAM misses. */
+	milan_write(MILAN_MAC_CTRL, milan_read(MILAN_MAC_CTRL) | MILAN_MAC_CTRL_SET);
+	milan_write(MILAN_TCAM_CTRL, MILAN_TCAM_CTRL_BOOT);
+
+	/* Fabric owns media/control. Firmware only provides the generated policy. */
+	milan_write(MILAN_AAF_CTRL, MILAN_AAF_CTRL_BOOT);
+        "MILAN_TCAM_CTRL_BOOT": 1,
+== D0-062
+2259:record below is the shipping option-on measurement; an elaboration estimate
+The measured cell is commit `1e80a106`, configuration
+11:Its shipping route meets timing at +0.303 ns WNS.

@@ -1,0 +1,83 @@
+== D0-024/025 page
+|---|---:|---:|---|---|
+| bitstream | `0x00_0000` | 4 MiB | raw FPGA configuration | Written with `openFPGALoader -f --verify`; configuration logic reads it at power-on. |
+| AEM | `0x40_0000` | 64 KiB | raw `aem_desc.bin` | Begins with `AEMI`; never FBI-wrapped. Firmware copies it into paired DRAM and verifies the generated length and CRC32 before enabling ADP/processor. |
+
+The AEM slot sits at `0x40_0000`, immediately after the bitstream budget.
+Always flash the AEM from the same build as the bitstream: its entity/model identity,
+length, CRC and destination are compiled into that firmware.
+
+The `journal` and `user` ranges are RESERVED: no manifest writes them and a
+reflash must not erase them. The saved-state journal that used those slots
+was deleted 2026-08-13 with this repository's own AECP/AEM engine, so nothing
+writes or reads them today. Persistence is a genuine loss, not a relocation:
+the protocol processor's NVM face is answered by a blank-flash responder, so a
+restore walk always completes with zero records and nothing survives a power
+cycle.
+
+The build writes `<build>/flashboot_layout.json` (the single source of truth);
+== c:329-331
+#define NVM_SLOT_BYTES (MILAN_FLASH_JOURNAL_SIZE / 2u)
+#define NVM_SLOT_A     MILAN_FLASH_JOURNAL_OFFSET
+#define NVM_SLOT_B     (MILAN_FLASH_JOURNAL_OFFSET + NVM_SLOT_BYTES)
+== soc:172
+    # Keep these stable across product revisions: moving them intentionally
+    # starts with empty persistence and requires an explicit migration plan.
+    "journal": {"offset": 0xEE_0000, "size": 0x02_0000},   # 128 KiB, raw A/B
+    "user":    {"offset": 0xF0_0000, "size": 0x10_0000},   # 1 MiB raw records
+}
+== c:1393 1641 1890
+static int nvm_commit(const char *why)
+static void nvm_boot(void)
+	 * verifier's verdict then flows straight into the choke point. */
+	aem_loaded = load_aem_image();
+	nvm_boot();
+	entity_advertise(aem_loaded);
+== shadow:1123
+  end
+
+  KL_nvm_backend #(
+      .CLK_HZ_P        (CLK_HZ_P),
+== SSM:163
+The binding survives a cold power cycle on silicon since 2026-09-21
+== D0-026 page
+23:| Migen simulation | LiteX module behavior | `scripts/run_litex_sims.sh <logs>` |
+32:- Migen scripts lack one aggregate runner.
+== runner
+#: a red run, and docs/testing/TESTING.md section 2 names the rule.
+INVENTORY=(
+  test_cpu_memory_port_cdc
+  local out="$1"
+== D0-027
+49:C has no general harness framework.
+
+The bare-metal control-plane firmware ([`ctrl`](../ctrl/README.md)) and its
+saved-state store ([`ctrl_nvm`](../ctrl_nvm/README.md)) are tested on the host
+with GoogleTest and GoogleMock. The firmware stays C11 with no heap; the tests
+are C++ and include its C headers through `extern "C"`. This directory holds
+what both host gates share: the `main()` and tally listener every test binary
+links, the build and grading helpers, the coverage gate and its ratchet.
+
+The gates are unchanged in name and exit status:
+`sw/firmware/ctrl/test/test_ctrl_firmware.py` and
+`sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py`. Both now build GoogleTest
+sw/firmware/ctrl/test/test_ctrl_firmware.py  17.2K
+sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py  14.3K
+== D0-028
+
+| queue | reset role | shaping at reset |
+|---:|---|---|
+| q4 | class A | disabled until a valid admitted slope is supplied |
+| q3 | gPTP classification target | disabled |
+| q2 | class B | disabled until configured |
+| q1 | control | disabled |
+| q4 SR class A | 450 Mb/s | 45 % | 684 | −837 |
+| q3 SR class B | 150 Mb/s | 15 % | 228 | −1293 |
+| q2 gPTP | 50 Mb/s | 5 % | 76 | −1445 |
+| q1 control | 50 Mb/s | 5 % | 76 | −1445 |
+  BEST_EFFORT    = 3'd0, //!< q0: default for non-prioritized traffic (lowest)
+  CONTROL_CLASS  = 3'd1, //!< q1: MAAP/MSRP/MVRP + 1722.1 ADP/ACMP/AECP
+  GPTP_CLASS     = 3'd2, //!< q2: gPTP (Generalized Precision Time Protocol)
+  SRB_CLASS      = 3'd3, //!< q3: Stream Reservation Class B (CBS shaped)
+  SRA_CLASS      = 3'd4  //!< q4: Stream Reservation Class A (highest priority)
+      A_CLS_TCQ[10:0]:    csr_default = 32'h004898C0;

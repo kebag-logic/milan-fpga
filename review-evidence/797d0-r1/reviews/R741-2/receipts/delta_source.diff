@@ -1,0 +1,492 @@
+diff --git a/.github/ci-templates/docs.yml b/.github/ci-templates/docs.yml
+index 10b6a9286a..f7ffb2e75c 100644
+--- a/.github/ci-templates/docs.yml
++++ b/.github/ci-templates/docs.yml
+@@ -422,11 +422,14 @@ jobs:
+ 
+       # Documentation inventory gate (#797): docs/DOCUMENTATION_AUDIT.md is
+       # generated from every tracked Markdown file and README and from the
+-      # verified findings in scripts/docs_inventory.json. A document added,
+-      # removed or edited without regenerating the page fails here, and so
+-      # does a hand edit of the page. --selftest plants a stale page, a fixed
+-      # statement and malformed findings and requires each to be caught. It
+-      # reads first-party files only.
++      # verified findings in scripts/docs_inventory.json. A document added or
++      # removed, or edited in its line count, title, audience line, cited
++      # paths or standards, or in a quoted finding statement, without
++      # regenerating the page fails here, and so does a hand edit of the page
++      # or a page with an open finding marked current. --selftest runs this
++      # same --check on Git-initialised fixtures, through git ls-files, with a
++      # planted stale page, an edited quote, an untracked page and malformed
++      # findings, and requires each verdict. It reads first-party files only.
+       - name: Documentation inventory freshness gate
+         run: |
+           python3 scripts/docs_inventory.py --check
+diff --git a/scripts/docs_inventory.py b/scripts/docs_inventory.py
+index b50e9cc80c..23265b3a36 100755
+--- a/scripts/docs_inventory.py
++++ b/scripts/docs_inventory.py
+@@ -24,12 +24,24 @@ What is read from the files, and what this script owns:
+     supersession banner (or a judgement recorded in the data file), `stale`
+     for a page with a recorded verified contradiction, `current` otherwise.
+ 
++The status rule (#797): a page with an open finding is never current. A
++page that would otherwise render current renders stale, and `--check` reads
++the committed page itself and fails when it marks a page current that its
++own Findings table lists, so the rule holds even if a regenerated page was
++produced by a generator that lost it.
++
+ The verified contradictions live in `scripts/docs_inventory.json`. Each one
+ quotes the statement exactly, so the generator finds its line at every head;
+ a quote that is no longer on its page is rendered as needing re-verification
+ rather than silently dropped, and an area lane that fixes a statement removes
+ its entry in the same change.
+ 
++What `--check` sees: the committed page against a fresh render. A document
++added or removed, or edited in its line count, title, audience line, cited
++paths or standards, or in a quoted finding statement, makes the page stale.
++An edit that changes none of those renders the same page and passes; the
++gate ties the inventory to the files, not every sentence to its source.
++
+ Usage:
+     python3 scripts/docs_inventory.py --write      # regenerate the page
+     python3 scripts/docs_inventory.py --check      # gate: exit 1 when the page is stale
+@@ -43,10 +55,13 @@ Exit status: 0 fresh or written, 1 stale or a failed control, 2 refused
+ from __future__ import annotations
+ 
+ import argparse
++import contextlib
++import io
+ import json
++import os
+ import re
++import shutil
+ import subprocess
+-import sys
+ import tempfile
+ from collections import Counter
+ from collections.abc import Callable
+@@ -80,8 +95,8 @@ STANDARDS = (
+     ("802.1AS", re.compile(r"\b802\.1AS\b")),
+     ("802.1BA", re.compile(r"\b802\.1BA\b")),
+ )
+-#: The pages #797's D0 lane verified statement by statement (the plan's
+-#: "release-facing pages").
++#: The release-facing pages #797 verifies statement by statement: the README,
++#: `docs/README.md`, guides, integration, reference, `REQUIREMENTS.md` and `FR_NFR.md`.
+ RELEASE_FACING = re.compile(r"README\.md|REQUIREMENTS\.md|docs/README\.md|docs/(guides|integration|reference)/.*")
+ #: The area lane that owns each page in the sweep, first match wins.
+ LANES = (
+@@ -123,6 +138,12 @@ SUCCESSOR_RE = re.compile(r"^> Current successor: \[[^\]]+]\(([^)]+)\)$", re.MUL
+ HEADING_RE = re.compile(r"^#\s+(.+?)\s*#*\s*$")
+ FENCE_RE = re.compile(r"^\s*(```|~~~)")
+ BANNER_SCAN_LINES = 15
++#: The variables that point Git at another repository than the `-C` directory. A Git hook sets
++#: them, and the self-test's fixture must never write to, or list, the repository running it.
++GIT_LOCATION = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR", "GIT_OBJECT_DIRECTORY",
++                "GIT_ALTERNATE_OBJECT_DIRECTORIES", "GIT_NAMESPACE", "GIT_PREFIX")
++#: An inventory or Findings row: the first cell of one, the second of the other, links a page.
++ROW_LINK_RE = re.compile(r"^\[(.+?)(?: \(historical\))?\]\([^)]*\)$")
+ #: The first lines of the generated page, which also stand for its own row.
+ OWN_HEAD = ("# Documentation audit", "",
+             "**GENERATED** by `scripts/docs_inventory.py` from the tracked documents.",
+@@ -190,13 +211,18 @@ def is_document(path: str) -> bool:
+     return path.endswith(".md") or name.upper().startswith("README")
+ 
+ 
++def git_environment() -> dict[str, str]:
++    """This process's environment without the variables that redirect Git elsewhere."""
++    return {name: value for name, value in os.environ.items() if name not in GIT_LOCATION}
++
++
+ def listing(root: Path) -> Tree:
+     """Every tracked file (`git ls-files`), or a walk that skips submodules without Git."""
+     modules = tuple(sorted(re.findall(r"^\s*path\s*=\s*(\S+)", (root / ".gitmodules").read_text(),
+                                       re.MULTILINE))) if (root / ".gitmodules").is_file() else ()
+     if (root / ".git").exists():
+         listed = subprocess.run(["git", "-C", str(root), "ls-files", "-z"], capture_output=True,
+-                                text=True, check=False)
++                                text=True, check=False, env=git_environment())
+         if listed.returncode != 0:
+             raise Refusal("git ls-files failed: " + listed.stderr.strip())
+         paths = [p for p in listed.stdout.split("\0") if p and p not in modules]
+@@ -359,9 +385,8 @@ def archive_evidence(text: str, path: str) -> str:
+     return f"versioned archive; successor [{target}]({link})"
+ 
+ 
+-def status(text: str, path: str, judged: dict[str, tuple[str, str]],
+-           page_findings: list[Finding]) -> tuple[str, str]:
+-    """(status, evidence) for one page, by the rules in the module docstring."""
++def status(text: str, path: str, judged: dict[str, tuple[str, str]]) -> tuple[str, str]:
++    """(status, evidence) for one page before the status rule, by the rules in the module docstring."""
+     if path.startswith(ARCHIVE_PREFIX):
+         return ("current" if path == ARCHIVE_INDEX else "obsolete"), archive_evidence(text, path)
+     if path in judged:
+@@ -371,8 +396,6 @@ def status(text: str, path: str, judged: dict[str, tuple[str, str]],
+     if banner:
+         line = head[:banner.start()].count("\n") + 1
+         return "superseded", f"banner at line {line} names `{normalise(PurePosixPath(path).parent, banner.group(2))}`"
+-    if page_findings:
+-        return "stale", f"{len(page_findings)} finding(s): " + ", ".join(f.ident for f in page_findings)
+     generated = GENERATED_RE.search(head)
+     if generated:
+         tool = GENERATOR_RE.search(head)
+@@ -380,6 +403,18 @@ def status(text: str, path: str, judged: dict[str, tuple[str, str]],
+     return "current", "no recorded contradiction"
+ 
+ 
++def status_rule(state: str, evidence: str, page_findings: list[Finding]) -> tuple[str, str]:
++    """#797's status rule: a page with an open finding is never current; it renders stale.
++
++    It overrides every source of `current`: a recorded judgement, a generated
++    page and the archive index alike. A superseded or obsolete page keeps its
++    status, which already tells the reader not to trust it.
++    """
++    if page_findings and state == "current":
++        return "stale", f"{len(page_findings)} finding(s): " + ", ".join(f.ident for f in page_findings)
++    return state, evidence
++
++
+ def area_of(path: str) -> str:
+     """The page's directory group: the top level, `docs/<part>` or `docs`."""
+     parts = PurePosixPath(path).parts
+@@ -410,7 +445,7 @@ def build(tree: Tree, paths: list[str], own_lines: int) -> tuple[list[Page], Loc
+                                                                                           errors="replace")
+         page_findings = by_page.get(path, [])
+         located += [(f, locate(text, f.quote)) for f in page_findings]
+-        state, evidence = status(text, path, judged, page_findings)
++        state, evidence = status_rule(*status(text, path, judged), page_findings)
+         if path.startswith(ARCHIVE_PREFIX):
+             verified = "archive"
+         elif RELEASE_FACING.fullmatch(path):
+@@ -473,7 +508,8 @@ RULES = (
+     "| The archive banner's current successor. |",
+     "| superseded | A banner in the first 15 lines names a replacement, "
+     "or the data file records the judgement. | The banner line or the recorded judgement. |",
+-    "| stale | The data file records a verified contradiction on the page. | The finding identifiers. |",
++    "| stale | The data file records a verified contradiction on the page. A page with an open finding "
++    "is never current, and the gate fails a committed page that says otherwise. | The finding identifiers. |",
+     "| current | None of the above holds. | The page's generator, or no recorded contradiction. |",
+ )
+ 
+@@ -554,37 +590,79 @@ def write_findings(root: Path, directory: Path) -> int:
+     return 0
+ 
+ 
++def cells(row: str) -> list[str]:
++    """The cells of one rendered table row, split on its unescaped pipes."""
++    return [part.strip() for part in re.split(r"(?<!\\)\|", row)[1:-1]]
++
++
++def current_with_findings(page: str) -> list[str]:
++    """Pages an audit page marks current although its own Findings table lists them.
++
++    Read from the page text alone, so it judges the committed page whatever
++    generator produced it.
++    """
++    states: dict[str, str] = {}
++    listed: set[str] = set()
++    section = ""
++    for row in page.split("\n"):
++        if row.startswith("## "):
++            section = row[3:].strip()
++            continue
++        if not row.startswith("| "):
++            continue
++        parts = cells(row)
++        if section == "Inventory" and len(parts) == 9:
++            link = ROW_LINK_RE.match(parts[0])
++            if link:
++                states[link.group(1)] = parts[5]
++        elif section == "Findings" and len(parts) == 6:
++            link = ROW_LINK_RE.match(parts[1])
++            if link:
++                listed.add(link.group(1))
++    return sorted(path for path in listed if states.get(path) == "current")
++
++
+ def check(root: Path) -> int:
+-    """The freshness gate: the committed page must equal a fresh render."""
++    """The freshness gate: the status rule holds on the committed page, which equals a fresh render."""
+     expected = generate(root)
+     target = root / OUTPUT
+     actual = target.read_text(encoding="utf-8") if target.is_file() else ""
+-    if actual == expected:
++    broken = current_with_findings(actual)
++    for path in broken:
++        print(f"{OUTPUT}: {path} carries an open finding but is marked current (the status rule)")
++    if actual == expected and not broken:
+         print(f"documentation inventory: OK ({expected.count(chr(10))} lines, {OUTPUT} is fresh)")
+         return 0
+-    old, new = actual.split("\n"), expected.split("\n")
+-    changed = [n for n in range(max(len(old), len(new)))
+-               if (old[n] if n < len(old) else None) != (new[n] if n < len(new) else None)]
+-    print(f"{OUTPUT}: STALE ({len(changed)} lines differ); first difference at line {changed[0] + 1}:")
+-    print("  committed: " + (old[changed[0]] if changed[0] < len(old) else "(end of file)")[:200])
+-    print("  generated: " + (new[changed[0]] if changed[0] < len(new) else "(end of file)")[:200])
++    if actual != expected:
++        old, new = actual.split("\n"), expected.split("\n")
++        changed = [n for n in range(max(len(old), len(new)))
++                   if (old[n] if n < len(old) else None) != (new[n] if n < len(new) else None)]
++        print(f"{OUTPUT}: STALE ({len(changed)} lines differ); first difference at line {changed[0] + 1}:")
++        print("  committed: " + (old[changed[0]] if changed[0] < len(old) else "(end of file)")[:200])
++        print("  generated: " + (new[changed[0]] if changed[0] < len(new) else "(end of file)")[:200])
+     print("regenerate with: python3 scripts/docs_inventory.py --write")
+     return 1
+ 
+ 
+-def is_fresh(root: Path) -> bool:
+-    """Whether the committed page equals a fresh render, without printing."""
+-    target = root / OUTPUT
+-    return target.is_file() and target.read_text(encoding="utf-8") == generate(root)
++def track(root: Path) -> str | None:
++    """Stage every file of a fixture, as committing them would; the failure, or None."""
++    added = subprocess.run(["git", "-C", str(root), "add", "-A"], capture_output=True, text=True,
++                           check=False, env=git_environment())
++    return None if added.returncode == 0 else "git add failed: " + added.stderr.strip()
++
+ 
++def fixture(root: Path) -> str | None:
++    """A small Git-initialised tree carrying one page of each status and one recorded finding.
+ 
+-def fixture(root: Path) -> None:
+-    """A small tree carrying one page of each status and one recorded finding."""
++    Every file is staged, so the gate lists the population through `git
++    ls-files` as it does on a real checkout. The failure, or None.
++    """
+     pages = {
+         "README.md": "# Fixture " + EM_DASH + " landing page\n\nSee `hdl/milan/top.sv` and IEEE 1722.1.\n",
+         "docs/README.md": "# Documentation index\n\nAudience: integrator\n",
+         "docs/guides/A.md": "# Guide A\n\nThe register resets to 0x1.\n",
+         "docs/guides/B.md": "# Guide B\n\nCalls `protocol-processor/hdl/core.sv`.\n",
++        "docs/guides/C.md": "# Guide C\n\nNo final newline",
+         ".gitmodules": '[submodule "protocol-processor"]\n\tpath = protocol-processor\n',
+         "docs/history/v1/README.md": "# Archive index\n",
+         "docs/history/v1/OLD.md": ("[OBSOLETE + 2026-01-01]\n\n> Status: Historical\n>\n"
+@@ -592,6 +670,7 @@ def fixture(root: Path) -> None:
+         "hdl/milan/README-tests.md": "# `milan` tests\n",
+         "hdl/milan/top.sv": "module top; endmodule\n",
+         "scripts/tool.py": "\n",
++        "tb/README": "# Testbenches\n",
+     }
+     for path, text in pages.items():
+         (root / path).parent.mkdir(parents=True, exist_ok=True)
+@@ -600,29 +679,56 @@ def fixture(root: Path) -> None:
+             "findings": [{"id": "D0-001", "page": "docs/guides/A.md", "quote": "resets to 0x1",
+                           "source": "`hdl/milan/top.sv` line 1", "correction": "It resets to 0x0."}]}
+     (root / DATA).write_text(json.dumps(data), encoding="utf-8")
++    made = subprocess.run(["git", "-C", str(root), "init", "-q"], capture_output=True, text=True,
++                          check=False, env=git_environment())
++    return track(root) if made.returncode == 0 else "git init failed: " + made.stderr.strip()
++
++
++def gate(root: Path, *argv: str) -> tuple[int, str]:
++    """The command line the workflow runs, on another root: its exit status and what it printed."""
++    printed = io.StringIO()
++    with contextlib.redirect_stdout(printed):
++        code = main(list(argv), root)
++    return code, printed.getvalue()
+ 
+ 
+ Mutation = Callable[[Path], None]
+ 
+ 
+-def control(name: str, mutate: Mutation, expect_fresh: bool, needle: str = "") -> str | None:
+-    """Run one planted control on a fresh fixture; the failure message, or None when it held."""
++def control(name: str, mutate: Mutation, want: int, needle: str = "", says: str = "",
++            absent: str = "") -> str | None:
++    """One planted control on a fresh Git fixture; the failure message, or None when it held.
++
++    The fixture's page is written with `--write`, the mutation applied, and
++    `--check`, the workflow's own command, must exit `want` and print `says`.
++    Unless it refused (2), `--write` must then heal the tree, and the page it
++    regenerates must carry `needle`, lack `absent` and carry no em dash.
++    """
+     with tempfile.TemporaryDirectory() as scratch:
+         root = Path(scratch)
+-        fixture(root)
+-        (root / OUTPUT).write_text(generate(root), encoding="utf-8")
+-        try:
+-            mutate(root)
+-            fresh = is_fresh(root)
+-            rendered = generate(root)
+-        except Refusal as refusal:
+-            return None if needle == "REFUSED" else f"{name}: refused unexpectedly ({refusal})"
+-        if needle == "REFUSED":
+-            return f"{name}: rendered a population it must refuse"
+-        if fresh != expect_fresh:
+-            return f"{name}: gate said {'fresh' if fresh else 'stale'}"
++        broken = fixture(root)
++        if broken:
++            return f"{name}: {broken}"
++        code, printed = gate(root, "--write")
++        if code != 0:
++            return f"{name}: --write on the fixture exited {code}: {printed.strip()[:300]}"
++        mutate(root)
++        code, printed = gate(root, "--check")
++        if code != want:
++            return f"{name}: --check exited {code}, expected {want}: {printed.strip()[:300]}"
++        if says not in printed:
++            return f"{name}: --check did not print {says!r}"
++        if want == 2:
++            return None
++        written, _ = gate(root, "--write")
++        healed, printed = gate(root, "--check")
++        if written != 0 or healed != 0:
++            return f"{name}: --write did not heal the tree ({written}, {healed}): {printed.strip()[:300]}"
++        rendered = (root / OUTPUT).read_text(encoding="utf-8")
+         if needle and needle not in rendered:
+             return f"{name}: rendered page lacks {needle!r}"
++        if absent and absent in rendered:
++            return f"{name}: rendered page carries {absent!r}"
+         if EM_DASH in rendered:
+             return f"{name}: rendered page carries an em dash"
+         return None
+@@ -631,7 +737,8 @@ def control(name: str, mutate: Mutation, expect_fresh: bool, needle: str = "") -
+ def append(path: str, text: str) -> Mutation:
+     """A mutation appending text to one fixture file."""
+     def mutate(root: Path) -> None:
+-        """Append the text."""
++        """Append the text, creating the file and its directory when absent."""
++        (root / path).parent.mkdir(parents=True, exist_ok=True)
+         with (root / path).open("a", encoding="utf-8") as handle:
+             handle.write(text)
+     return mutate
+@@ -656,46 +763,79 @@ def edit_data(change: Callable[[dict], object]) -> Mutation:
+     return mutate
+ 
+ 
++def add_tracked(path: str, text: str) -> Mutation:
++    """A mutation adding one page and staging it."""
++    def mutate(root: Path) -> None:
++        """Write the page and stage it; a failed stage leaves it untracked and the control fails."""
++        append(path, text)(root)
++        track(root)
++    return mutate
++
++
++def without_git(root: Path) -> None:
++    """A tree with no Git metadata whose submodule is checked out: an archive of a recursive clone."""
++    shutil.rmtree(root / ".git")
++    append("protocol-processor/README.md", "# Submodule page\n")(root)
++
++
+ def selftest() -> int:
+-    """Every status rule, the freshness gate's stale-page mutants and the data refusals."""
++    """`--check` itself on Git fixtures: every status rule, planted stale pages and the data refusals."""
++    stale_cell = "| stale | 1 finding(s): D0-001 |"
+     controls = (
+-        ("unchanged tree is fresh", lambda root: None, True, "| D0-001 |"),
+-        ("planted stale page: one added line", append("docs/guides/B.md", "Added line.\n"), False, ""),
+-        ("new page without a row", append("docs/guides/NEW.md", "# New\n"), False, "docs/guides/NEW.md"),
+-        ("page removed", lambda root: (root / "docs/guides/B.md").unlink(), False, ""),
+-        ("hand-edited audit page", append(OUTPUT, "hand edit\n"), False, ""),
+-        ("finding marks its page stale", lambda root: None, True, "| stale | 1 finding(s): D0-001 |"),
+-        ("fixed statement asks for re-verification", replace("docs/guides/A.md", "0x1", "0x0"), False,
+-         "re-verify: quote not found"),
+-        ("supersession banner", append("docs/guides/B.md", "\n> Superseded by [A](A.md).\n"), False,
+-         "| superseded | banner at line 5 names `docs/guides/A.md` |"),
+-        ("archive page is obsolete with its successor", lambda root: None, True,
++        ("unchanged tree is fresh through `git ls-files`", lambda root: None, 0, "| D0-001 |", "is fresh"),
++        ("planted stale page: one added line", append("docs/guides/B.md", "Added line.\n"), 1, "", "STALE"),
++        ("planted edited quote in the data file",
++         edit_data(lambda d: d["findings"][0].update(quote="resets to 0x2")), 1, "re-verify: quote not found",
++         "STALE"),
++        ("fixed statement asks for re-verification", replace("docs/guides/A.md", "0x1", "0x0"), 1,
++         "re-verify: quote not found", "STALE"),
++        ("new tracked page without a row", add_tracked("docs/guides/NEW.md", "# New\n"), 1,
++         "| [docs/guides/NEW.md](guides/NEW.md) |", "STALE"),
++        ("untracked page stays out of the population", append("docs/guides/UNTRACKED.md", "# Untracked\n"), 0,
++         "", "is fresh", "UNTRACKED"),
++        ("tracked page removed", lambda root: (root / "docs/guides/B.md").unlink(), 1, "", "STALE",
++         "| [docs/guides/B.md](guides/B.md) |"),
++        ("hand-edited audit page", append(OUTPUT, "hand edit\n"), 1, "", "STALE"),
++        ("hand-edited status hides a finding",
++         replace(OUTPUT, stale_cell, "| current | no recorded contradiction |"), 1, stale_cell,
++         "docs/guides/A.md carries an open finding but is marked current"),
++        ("finding marks its page stale", lambda root: None, 0, stale_cell),
++        ("a recorded current judgement cannot hide a finding", edit_data(lambda d: d.update(
++            judged={"docs/guides/A.md": {"status": "current", "evidence": "judged"}})), 0, stale_cell),
++        # Each needle starts a line, so it reads the inventory row and never the Findings row.
++        ("lines as wc -l counts them", lambda root: None, 0, "\n| [docs/guides/A.md](guides/A.md) | 3 |"),
++        ("an unterminated last line counts", lambda root: None, 0, "\n| [docs/guides/C.md](guides/C.md) | 3 |"),
++        ("a README without .md is a document", lambda root: None, 0, "| [tb/README](../tb/README) |"),
++        ("the walk without Git renders the same page and skips a checked-out submodule", without_git, 0,
++         "", "is fresh", "protocol-processor/README.md"),
++        ("supersession banner", append("docs/guides/B.md", "\n> Superseded by [A](A.md).\n"), 1,
++         "| superseded | banner at line 5 names `docs/guides/A.md` |", "STALE"),
++        ("archive page is obsolete with its successor", lambda root: None, 0,
+          "| obsolete | versioned archive; successor [docs/guides/B.md](guides/B.md) |"),
+-        ("archive index stays current", lambda root: None, True, "archive index"),
+-        ("audience line overrides the table", lambda root: None, True, "| integrator | Documentation index |"),
+-        ("described code and standards", lambda root: None, True, "`hdl/milan`, 1722.1-2021"),
+-        ("a submodule path stands for its submodule, checked out or not", lambda root: None, True,
++        ("archive index stays current", lambda root: None, 0, "archive index"),
++        ("audience line overrides the table", lambda root: None, 0, "| integrator | Documentation index |"),
++        ("described code and standards", lambda root: None, 0, "`hdl/milan`, 1722.1-2021"),
++        ("a submodule path stands for its submodule, checked out or not", lambda root: None, 0,
+          "| `protocol-processor` |"),
+-        ("em dash in a title is rewritten", lambda root: None, True, "Fixture - landing page"),
+-        ("module directory without a README", lambda root: None, True, "| `scripts/` | no | 0 |"),
++        ("em dash in a title is rewritten", lambda root: None, 0, "Fixture - landing page"),
++        ("module directory without a README", lambda root: None, 0, "| `scripts/` | no | 0 |"),
+         ("finding on an untracked page", edit_data(lambda d: d["findings"][0].update(page="docs/NO.md")),
+-         False, "REFUSED"),
++         2, "", "REFUSED"),
+         ("duplicate finding id", edit_data(lambda d: d["findings"].append(dict(d["findings"][0]))),
+-         False, "REFUSED"),
++         2, "", "REFUSED"),
+         ("finding without a correction", edit_data(lambda d: d["findings"][0].update(correction="")),
+-         False, "REFUSED"),
++         2, "", "REFUSED"),
+         ("judgement with an unknown status", edit_data(lambda d: d.update(
+-            judged={"docs/guides/B.md": {"status": "retired", "evidence": "x"}})), False, "REFUSED"),
+-        ("malformed data file", lambda root: (root / DATA).write_text("{", encoding="utf-8"), False, "REFUSED"),
++            judged={"docs/guides/B.md": {"status": "retired", "evidence": "x"}})), 2, "", "REFUSED"),
++        ("malformed data file", lambda root: (root / DATA).write_text("{", encoding="utf-8"), 2, "", "REFUSED"),
+     )
+     failures = [message for message in (control(*arm) for arm in controls) if message]
+     with tempfile.TemporaryDirectory() as scratch:
+         root = Path(scratch)
+-        fixture(root)
+-        page = generate(root)
+-        own = f"| {page_link(OUTPUT)} | {line_count(page)} |"
+-        if own not in page:
+-            failures.append("the audit page's own row does not carry its own line count")
++        broken = fixture(root)
++        page = "" if broken else generate(root)
++        if broken or f"| {page_link(OUTPUT)} | {line_count(page)} |" not in page:
++            failures.append(broken or "the audit page's own row does not carry its own line count")
+     for message in failures:
+         print("selftest: FAIL " + message)
+     if failures:
+@@ -704,23 +844,23 @@ def selftest() -> int:
+     return 0
+ 
+ 
+-def main() -> int:
+-    """Write, check or self-test the inventory; 2 on a refusal."""
++def main(argv: list[str] | None = None, root: Path = ROOT) -> int:
++    """Write, check or self-test the inventory of `root`; 2 on a refusal."""
+     parser = argparse.ArgumentParser(description=__doc__.split("\n", 1)[0])
+     modes = parser.add_mutually_exclusive_group(required=True)
+     modes.add_argument("--write", action="store_true", help="regenerate " + OUTPUT)
+     modes.add_argument("--check", action="store_true", help="exit 1 when " + OUTPUT + " is stale")
+     modes.add_argument("--selftest", action="store_true", help="run the planted controls")
+     modes.add_argument("--findings-dir", type=Path, help="write one findings file per lane there")
+-    args = parser.parse_args()
++    args = parser.parse_args(argv)
+     try:
+         if args.selftest:
+             return selftest()
+         if args.findings_dir:
+-            return write_findings(ROOT, args.findings_dir)
++            return write_findings(root, args.findings_dir)
+         if args.check:
+-            return check(ROOT)
+-        (ROOT / OUTPUT).write_text(generate(ROOT), encoding="utf-8")
++            return check(root)
++        (root / OUTPUT).write_text(generate(root), encoding="utf-8")
+         print(f"wrote {OUTPUT}")
+         return 0
+     except Refusal as refusal:
