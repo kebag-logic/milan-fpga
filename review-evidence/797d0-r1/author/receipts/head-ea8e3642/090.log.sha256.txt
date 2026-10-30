@@ -1,0 +1,14 @@
+Large log moved out of the output directory (over 200 KB).
+original: receipts/head-ea8e3642/090.log
+sha256: 1b18affb9530e3551bce1d61c9649957fbc8353f119a4194053913c49c7bfde3
+bytes: 417041
+first line: $ python3 scripts/ci_events.py --selftest
+last 8 lines:
+  FAIL mutation not caught: [RV32 docs-check installation removed] expected a finding naming 'job `docs-check` must carry exactly 51 steps', got ['.github/workflows/docs.yml: job `docs-check` must carry exactly 52 steps, in the recorded order (found 51): an inserted step of ANY content runs before e
+  FAIL mutation not caught: [#295 docs-check inserted BASH_ENV writer breaks the sequence] expected a finding naming 'job `docs-check` must carry exactly 51 steps', got ['.github/workflows/docs.yml: job `docs-check` must carry exactly 52 steps, in the recorded order (found 53): an inserted step of A
+  FAIL mutation not caught: [#295 docs-check inserted step of benign content] expected a finding naming 'job `docs-check` must carry exactly 51 steps', got ['.github/workflows/docs.yml: job `docs-check` must carry exactly 52 steps, in the recorded order (found 53): an inserted step of ANY content ru
+  FAIL mutation not caught: [#303 docs-check imported gPTP gate removed] expected a finding naming 'job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)', got ['.github/workflows/docs.yml: job `docs-check` must carry exactly one step named `Imported gPTP documentation gate`
+  FAIL mutation not caught: [#295 docs-check recognised step removed] expected a finding naming 'job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)', got ['.github/workflows/docs.yml: job `docs-check` must carry exactly 52 steps, in the recorded order (found 51): an inser
+  FAIL mutation not caught: [#559 capture measurement gate removed] expected a finding naming 'job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)', got ['.github/workflows/docs.yml: job `docs-check` must carry exactly 52 steps, in the recorded order (found 51): an inserte
+  FAIL mutation not caught: [#378 em-dash gate step removed] expected a finding naming 'job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)', got ['.github/workflows/docs.yml: job `docs-check` must carry exactly one step named `Added-line em-dash gate` (found 0)', '.github
+selftest: 7 FAILURE(S)

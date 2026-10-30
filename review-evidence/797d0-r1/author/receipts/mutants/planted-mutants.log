@@ -1,0 +1,42 @@
+## head bd16b371ae5de1c4d36ea2a018e7d756c62d4b5a, clean tree: 0 changed paths
+documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+
+## mutant 1: planted stale page (one line appended to docs/guides/PROJECT_MANAGER.md)
+docs/DOCUMENTATION_AUDIT.md: STALE (3 lines differ); first difference at line 28:
+  committed: | current | 182 | 74,476 |
+  generated: | current | 182 | 74,477 |
+regenerate with: python3 scripts/docs_inventory.py --write
+rc=1
+documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+restored rc=0
+
+## mutant 2: a new tracked page without a row
+docs/DOCUMENTATION_AUDIT.md: STALE (256 lines differ); first difference at line 28:
+  committed: | current | 182 | 74,476 |
+  generated: | current | 183 | 74,478 |
+regenerate with: python3 scripts/docs_inventory.py --write
+rc=1
+documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+restored rc=0
+
+## mutant 3: the statement of finding D0-001 corrected on its page
+docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 454:
+  committed: | D0-001 | [README.md](../README.md) | 60 | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and the default build carri
+  generated: | D0-001 | [README.md](../README.md) | re-verify: quote not found | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and
+regenerate with: python3 scripts/docs_inventory.py --write
+rc=1
+| D0-001 | [README.md](../README.md) | re-verify: quote not found | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` line
+documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+restored rc=0
+
+## mutant 4: hand edit of the generated page
+docs/DOCUMENTATION_AUDIT.md: STALE (2 lines differ); first difference at line 477:
+  committed: hand edit
+  generated: 
+regenerate with: python3 scripts/docs_inventory.py --write
+rc=1
+documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+restored rc=0
+
+## final tree: 0 changed paths

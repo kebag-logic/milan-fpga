@@ -1,0 +1,28 @@
+DERIVED  line 369: 0x004 `VERSION` doc=`0x0002_0060` rtl=VERSION
+DERIVED  line 371: 0x008 `CAP` doc=param rtl={ 8'h00, 8'd64,
+                                          1'b0, 1'b1, 1'b1, 1'b1,
+                                          1'b1, 1'b1, 1'b1, 1'b0,
+                                          4'h0, 4'(NUM_QUEUES) }
+DERIVED  line 679: 0x504 `PTP_INCR` doc=derived rtl=PTP_INCR_RST_C
+NODEFAULT line 795: 0x784 `TXARB_DIAG` doc=`0xA7000000` (no csr_default literal: live or flop)
+NODEFAULT line 796: 0x788 `LWSRP_DOM` doc=`0x00030002` (no csr_default literal: live or flop)
+DERIVED  line 1047: 0x618 `ADP_TALKER` doc=`{ADP_TALKER_CAPS_C, ADP_TALKER_SRC_C}` rtl=ADP_TALK_C
+DERIVED  line 1048: 0x61C `ADP_LISTENER` doc=`{ADP_LISTENER_CAPS_C, ADP_LISTENER_SINK_C}` rtl=ADP_LIST_C
+DERIVED  line 1118: 0x654 `AAF_CTRL` doc=`0` rtl=AAF_CTRL_RST_C
+DERIVED  line 1221: 0x680 `LWSRP_CTRL` doc=`0x10` rtl=LWSRP_CTRL_RST_C
+DERIVED  line 1222: 0x684 `LWSRP_VID` doc=`2` rtl=LWSRP_VID_RST_C
+DERIVED  line 1223: 0x688 `LWSRP_DMAC_LO` doc=`0xF000_FE01` rtl=LWSRP_DMAC_LO_RST_C
+DERIVED  line 1224: 0x68C `LWSRP_DMAC_HI` doc=`0x91E0` rtl=LWSRP_DMAC_HI_RST_C
+DERIVED  line 1225: 0x690 `LWSRP_TSPEC` doc=`0x0001_00E0` rtl=LWSRP_TSPEC_RST_C
+DERIVED  line 1291: 0x6CC `MAAP_CTRL` doc=Neutral disabled reset `0`: `[0]` enable, `[1]` seed_valid, `[15:8]` block count, `[31:16]` seed offset. Firmware writes generated `MILAN_MAAP_CTRL_BOOT`, claiming exactly the declared AAF outputs plus one only when CRF output exists. rtl=MAAP_CTRL_RST_C
+NODEFAULT line 1828: 0x870 `LTAP_CTRL` doc=`0x2` (no csr_default literal: live or flop)
+NODEFAULT line 1832: 0x880 `LTAP_TX_D0_MIN` doc=`0xFFFF` (no csr_default literal: live or flop)
+NODEFAULT line 1834: 0x888 `LTAP_TX_D1_MIN` doc=`0xFFFF` (no csr_default literal: live or flop)
+NODEFAULT line 1836: 0x890 `LTAP_TX_D2_MIN` doc=`0xFFFF` (no csr_default literal: live or flop)
+NODEFAULT line 1840: 0x8A0 `LTAP_RX_D0_MIN` doc=`0xFFFF` (no csr_default literal: live or flop)
+NODEFAULT line 1842: 0x8A8 `LTAP_RX_D1_MIN` doc=`0xFFFF` (no csr_default literal: live or flop)
+NODEFAULT line 1844: 0x8B0 `LTAP_RX_D2_MIN` doc=`0xFFFF` (no csr_default literal: live or flop)
+NODEFAULT line 2071: 0x8DC `RENDER_STAT` doc=`0x00000100` (no csr_default literal: live or flop)
+NODEFAULT line 2233: 0x910 `CHMAP_SNAP` doc=`0xC500_0000` (no csr_default literal: live or flop)
+NODEFAULT line 2234: 0x914 `CHMAP_LOOP` doc=`0xDEAD_DEAD` (no csr_default literal: live or flop)
+NODEFAULT line 2453: 0x924 `PP_STAT` doc=`0x5B00_0000` (no csr_default literal: live or flop)
