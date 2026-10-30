@@ -43,6 +43,7 @@ Reset stays synchronous and active-low.
 | Launch records | Report every launched frame, in order |
 | Seal | Answer it with the observer's echo |
 | Recovery | Give the plane the guard's episode evidence |
+| Port enable | Drive portEnabled: the MAC is operational and the port administratively enabled (IEEE 802.1AS-2011 10.2.4.11); the product drives its effective link |
 | PHC | Apply rate levels and phase pulses |
 | Publication | Consume only committed generations |
 
