@@ -1,0 +1,41 @@
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 39
+index_off 0x000020  names_off 0x001398  image_bytes 7512  desc_max_len 452
+checksum 0xBCE6817E
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      1       154     160  0x000350          4
+    0  0x0005      1      1       146     152  0x0003F0          5
+    0  0x0006      0      2       146     152  0x000488          6
+    0  0x0009      0      1       102     104  0x0005B8          8
+    0  0x000A      0      3        86      88  0x000620          9
+    0  0x000C      0      1        72      72  0x000728          -
+    0  0x000D      0      1       452     456  0x000770          -
+    0  0x000E      0      1        20      24  0x000938          -
+    0  0x000F      0      1        20      24  0x000950          -
+    0  0x0014      0     25        90      96  0x000968         12
+    0  0x001A      0      1       113     120  0x0012C8         37
+    0  0x0024      0      1        82      88  0x001340         38
+
+
+STREAM_PORT_INPUT 0: clock_domain 0 flags 0x0001 clusters 8 base_cluster 0 maps 0 base_map 0
+STREAM_PORT_OUTPUT 0: clock_domain 0 flags 0x0000 clusters 17 base_cluster 8 maps 0 base_map 0
+CLOCK_SOURCE 0: 'Internal' type 0 location_type 0x000A location_index 0
+CLOCK_SOURCE 1: 'CRF Clock' type 2 location_type 0x0005 location_index 1
+CLOCK_SOURCE 2: 'Stream Clock' type 2 location_type 0x0005 location_index 0
+CLOCK_DOMAIN 0: 'Clock Reference Format'
+CONTROL 0: 'Identify'
+STREAM_INPUT 0: 'Stream In 0'
+STREAM_INPUT 1: 'CRF'
+STREAM_OUTPUT 0: 'Stream Out 0'
+STREAM_OUTPUT 1: 'CRF'
+AUDIO_CLUSTER 0: 'TDM8 Out FL'
+AUDIO_CLUSTER 7: 'TDM8 Out SR'
+AUDIO_CLUSTER 8: 'TDM8 In FL'
+AUDIO_CLUSTER 15: 'TDM8 In SR'
+AUDIO_CLUSTER 16: 'Pilot Tone'
+AUDIO_CLUSTER 17: 'Loopback S0 FL'
+AUDIO_CLUSTER 24: 'Loopback S0 SR'

@@ -1,0 +1,26 @@
+board.constraints.num_queues = 6 [page meaning: must equal the RTL's queue count] -> ACCEPTED
+board.constraints.num_queues = 8 [page: integer above srp.class_queue] -> ACCEPTED
+clocking.audio_unit_rates_hz = [48000, 44100] [page: base rates] -> ACCEPTED
+clocking.audio_unit_rates_hz = [48000, 96000, 192000] [page: base rates] -> ACCEPTED
+board.constraints.uart_baudrate = -5 [page: an integer] -> ACCEPTED
+board.constraints.uart_baudrate = 'abc' [page: ValueError] -> REFUSED ValueError in _load_board: invalid literal for int() with base 10: 'abc'
+entity.vendor_name = '<200 chars>' [page: no length check] -> ACCEPTED
+entity.group_name = '<63 chars>' [page: at most 63] -> ACCEPTED
+entity.group_name = '<64 chars>' [page: at most 63] -> REFUSED ConfigError in _load_entity: entity.group_name: exceeds 63 bytes (AEM cstr64)
+entity.locale = '<64 chars>' [page: at most 64] -> ACCEPTED
+entity.locale = '<65 chars>' [page: at most 64] -> REFUSED ConfigError in _aem_string: entity.locale: exceeds 64 bytes (AEM cstr64)
+srp.class_queue = 7 [page: below num_queues, fits 3 bits] -> REFUSED ConfigError in _srp_validate: srp.class_queue 7 >= the board's 5 shaper queues
+srp.bandwidth_limit_pct = 0 [page: integer up to 75] -> REFUSED ConfigError in _srp_validate: srp.bandwidth_limit_pct 0 outside 1..75 (build-time budget, not the live admission ceiling; IEEE 802.1Q 34.3.1
+platform.pp_mem_phys = 1340082176 [page: page-aligned] -> REFUSED ConfigError in load_platform: platform.pp_mem_phys must be a positive 4 KiB-aligned address
+gptp.priority1 = 0 [page: 0 to 255] -> ACCEPTED
+streams.listeners[].channels = 32 [page: 1 to 32] -> ACCEPTED
+streams.listeners[].channels = 33 [page: 1 to 32] -> REFUSED ConfigError in _streams: streams.listeners[0]: channels 33 outside 1..32
+board.constraints.floorplan = 'no' [page: any value read as boolean] -> ACCEPTED
+audio_interface.cluster_mapping.fabric.loopback_lane = 'no' [page: any value read as boolean] -> ACCEPTED
+board.features.maap = False [page: refused] -> REFUSED ConfigError in validate_features: board.features.maap: false removes the allocator required by every declared talker (Milan v1.2 4.3.3.1 and 4.3
+clocking.default_source = 'crf' [page: member of media_clock_sources] -> ACCEPTED
+entity.firmware_rev = True [page: non-negative integer] -> REFUSED ConfigError in _load_entity: entity.firmware_rev: True is not a non-negative integer
+srp.stream_dmac_base = 'maap' [page: maap or multicast] -> ACCEPTED
+board.constraints.sys_clk_hz = 50000000 [page: at least milan_clk_hz] -> ACCEPTED
+board.constraints.sys_clk_hz = 49999999 [page: at least milan_clk_hz] -> REFUSED ConfigError in _load_board: milan_clk_hz must not exceed sys_clk_hz
+soc.timing_opt = 'no' [page: any value] -> ACCEPTED

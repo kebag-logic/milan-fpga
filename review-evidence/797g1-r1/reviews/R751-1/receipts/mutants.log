@@ -1,0 +1,11 @@
+K1: rc=1 want 1 (stale cell) :: sw/builder/gen_key_reference.py --check :: README-parameters.md: key reference is stale; run python3 sw/builder/gen_key_reference.py
+K2: rc=2 want non-zero (default moved) :: sw/builder/gen_key_reference.py --check :: REFUSED: board.constraints.uart_baudrate: default 115200 is not what omitting the key builds
+K3: rc=2 want 2 (range probe) :: sw/builder/gen_key_reference.py --check :: REFUSED: streams.listeners[].channels: range 1 to 32 says 32 is accepted, the builder disagrees (ConfigError: streams.listeners[0]: channels 32 outside 1..32)
+K4: rc=2 want 2 (length probe) :: sw/builder/gen_key_reference.py --check :: REFUSED: entity.group_name: length 63 says 63 octets are accepted, the builder disagrees
+K5: rc=1 want non-zero (names default moved) :: sw/builder/gen_key_reference.py --check :: README-parameters.md: key reference is stale; run python3 sw/builder/gen_key_reference.py
+D1: rc=1 want 1 (stale tree) :: docs/diagrams/endstation_definition.gen.py --check :: DEFINING_THE_END_STATION.md: generated blocks are stale; run python3 docs/diagrams/endstation_definition.gen.py
+D2: rc=2 want 2 (consumer label) :: docs/diagrams/endstation_definition.gen.py --check :: REFUSED: sw/litex/sweep.sh does not name 'sweep_opts_'; the sweep_opts_ax7101.sh label is stale
+D3: rc=1 want 1 (tree label from overlay) :: docs/diagrams/endstation_definition.gen.py --check :: DEFINING_THE_END_STATION.md: generated blocks are stale; run python3 docs/diagrams/endstation_definition.gen.py
+D4: rc=2 want 2 (widest-probe claim) :: docs/diagrams/endstation_definition.gen.py --check :: REFUSED: the page's prose no longer holds: ['The widest probe is refused for another reason: names']
+D5: rc=1 want 1 (stale resources) :: docs/diagrams/endstation_definition.gen.py --check :: DEFINING_THE_END_STATION.md: generated blocks are stale; run python3 docs/diagrams/endstation_definition.gen.py
+D6: rc=1 want 1 (stale moves) :: docs/diagrams/endstation_definition.gen.py --check :: DEFINING_THE_END_STATION.md: generated blocks are stale; run python3 docs/diagrams/endstation_definition.gen.py
