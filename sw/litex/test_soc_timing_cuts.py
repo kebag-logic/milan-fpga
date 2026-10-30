@@ -1,30 +1,33 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""The two #814 register boundaries on the SoC's sys-domain timing paths.
+"""The three #814 register boundaries on the SoC's sys-domain timing paths.
 
-Two SoC paths set the route WNS. One ran from the AXI-Lite-to-Wishbone
-bridge state through the bus decoder, the flash origin offset and LiteSPI's
-burst compare into the PHY's clock-generator counter (the #806 route and
-earlier records). The other ran from LiteDRAM's flip-flops, the AXI
-burst-to-beat counters among them, through its command arbitration, back into
-the read address of a crossing FIFO's LUTRAM (two of the recipe's three
-placement directives on dev 1e80128f).
-`milan_soc.add_staged_spi_flash` and `milan_soc.cross_cpu_memory_ports` cut
-them. This test builds each path on the real LiteX and LiteDRAM code, with the
-shipping hook, and grades it three ways:
+Three families of SoC paths set the route WNS. The flash read path ran from
+the AXI-Lite-to-Wishbone bridge state through the bus decoder, the flash
+origin offset, LiteSPI's burst compare and mmap FSM, then through the chip
+select and command stream into the PHY's clock-generator counter (the #806
+route and earlier records). The DRAM path ran from LiteDRAM's flip-flops, the
+AXI burst-to-beat counters among them, through its command arbitration, back
+into the read address of a crossing FIFO's LUTRAM (two of the recipe's three
+placement directives on dev 1e80128f). The refresh path ran from LiteDRAM's
+ZQCS timer through the refresh request into each bank machine (the shipping
+directive's worst path on that dev). `MilanSoC.add_spi_flash`,
+`cross_cpu_memory_ports` and `add_staged_sdram` cut them. This test builds
+each path on the real LiteX, LiteSPI and LiteDRAM code, with the shipping
+call, and grades it three ways:
 
   1. STRUCTURE, read off the elaborated netlist and never off text. The
      netlist's combinational drivers are walked back from each endpoint
      register to the flip-flops that feed it through logic alone. The
      path's start flip-flops must not be among them.
-  2. PLANTED UNREGISTERED PATH. The same build with the stage replaced by a
-     wire must fail that check, naming the start and end flip-flops, so the
-     structural arm can go red.
-  3. BEHAVIOUR. Reads through the staged path return the flash image (in a
-     burst, across bursts and after a gap) and take exactly the stated added
-     cycles. An abandoned access never answers the next request. The DRAM
-     port carries every AXI channel exactly under backpressure.
+  2. PLANTED UNREGISTERED PATH. The same build with the stage replaced by
+     wires (or by LiteDRAM's own refresher) must fail that check, naming the
+     start and end flip-flops, so the structural arm can go red.
+  3. BEHAVIOUR. Reads through the staged flash path return the image (in a
+     burst, across bursts and after a gap) at exactly the stated added
+     cycles, each transfer inside its chip select. LiteDRAM's native port and
+     its DFI see the same traffic, the refresh one cycle later.
 
 Run: cd sw/litex && python3 test_soc_timing_cuts.py
 """
@@ -41,7 +44,7 @@ from migen.fhdl.tools import list_signals, list_targets
 
 from litex.build.generic_platform import GenericPlatform
 from litex.soc.integration.soc import SoCCore
-from litex.soc.interconnect import axi, wishbone
+from litex.soc.interconnect import axi, stream
 from litedram.core.bankmachine import BankMachine
 from litedram.core.refresher import Refresher
 from litedram.frontend.axi import LiteDRAMAXI2Native
@@ -59,8 +62,6 @@ SYS_HZ = 100e6
 #: The export's flash region (litex.log: "spiflash Region allocated at Origin:
 #: 0x01000000, Size: 0x01000000"), origin stripped as add_spi_flash does.
 FLASH_ORIGIN = 0x0100_0000
-#: The stage's stated cost: one cycle to take the request, one to answer.
-STAGE_CYCLES = 2
 #: LiteX's main_ram origin, the base `add_sdram` gives the AXI-to-native converter;
 #: a native word is 32 bytes (256-bit port).
 MAIN_RAM = 0x4000_0000
@@ -159,28 +160,38 @@ def check(problems: list[str], ok: bool, what: str) -> None:
 
 
 class WirePassThrough(Module):
-    """The planted unregistered path: a stage's two faces joined by wires."""
+    """The planted unregistered path: an AXI stage's two faces joined by wires."""
 
     def __init__(self, master: object, slave: object) -> None:
         """Connect the upstream face straight to the downstream face."""
-        if isinstance(master, axi.AXIInterface):
-            for name in ("aw", "w", "ar"):
-                self.comb += getattr(master, name).connect(getattr(slave, name))
-            for name in ("b", "r"):
-                self.comb += getattr(slave, name).connect(getattr(master, name))
-        else:
-            self.comb += master.connect(slave)
+        for name in ("aw", "w", "ar"):
+            self.comb += getattr(master, name).connect(getattr(slave, name))
+        for name in ("b", "r"):
+            self.comb += getattr(slave, name).connect(getattr(master, name))
+
+
+class WirePHYStage(Module):
+    """The planted unregistered path: `SPIPHYStage`'s faces joined to the PHY by wires."""
+
+    def __init__(self, phy: object) -> None:
+        """The stage's faces, wired straight to `phy`'s own."""
+        self.phy_sink, self.phy_source, self.phy_cs = phy.sink, phy.source, phy.cs
+        self.sink = stream.Endpoint(phy.sink.description)
+        self.source = stream.Endpoint(phy.source.description)
+        self.cs = Signal.like(phy.cs)
+        self.comb += [self.sink.connect(phy.sink), phy.source.connect(self.source), phy.cs.eq(self.cs)]
 
 
 # Flash -----------------------------------------------------------------------------------------------
 
 class FlashSoC(SoCCore):
-    """The SoC's flash path: an AXI-Lite master on the Wishbone bus, the shipping
-    `add_staged_spi_flash` call, and either the real PHY on the board's pads
-    (structure) or LiteSPI's model PHY (behaviour)."""
+    """The SoC's flash path: an AXI-Lite master on the Wishbone bus and the shipping
+    `MilanSoC.add_spi_flash`, with either the real PHY on the board's pads
+    (structure) or LiteSPI's model PHY (behaviour), staged the same way."""
 
     mem_map = {**SoCCore.mem_map, "spiflash": FLASH_ORIGIN}
-    STAGE = "WishboneSlaveStage"
+    STAGE = "SPIPHYStage"
+    add_spi_flash = milan_soc.MilanSoC.add_spi_flash
 
     def __init__(self, model_image: list[int] | None) -> None:
         """Build it; `model_image` selects the model PHY holding that image."""
@@ -193,7 +204,7 @@ class FlashSoC(SoCCore):
         kwargs = dict(mode="1x", module=module, clk_freq=int(12.5e6), with_master=True)
         if model_image is not None:
             kwargs["phy"] = LiteSPIPHYModel(module, init=model_image)
-        milan_soc.add_staged_spi_flash(self, **kwargs)
+        self.add_spi_flash(**kwargs)
 
 
 def build(cls: type, *args: object, stage: type | None = None, name: str | None = None) -> Module:
@@ -208,61 +219,78 @@ def build(cls: type, *args: object, stage: type | None = None, name: str | None 
         setattr(milan_soc, name, shipping)
 
 
-#: The Wishbone fields a request carries to the core, and those an answer carries back.
-REQUEST = ("cyc", "stb", "adr", "we", "sel", "dat_w", "cti", "bte")
-ANSWER = ("ack", "err", "dat_r")
+def faces(endpoint: object, inward: bool) -> list[Signal]:
+    """A stream face's signals one way: valid and payload going in, or its ready coming back."""
+    if inward:
+        return [endpoint.valid, *[getattr(endpoint, field) for field, _ in endpoint.description.payload_layout]]
+    return [endpoint.ready]
 
 
 def flash_crossings(soc: FlashSoC) -> tuple[list[str], list[str], bool, int]:
-    """The register-to-register paths that cross the flash slave's bus faces.
+    """The register-to-register paths that cross the stage between LiteSPI's core and its PHY.
 
-    Returns the AXI-Lite bridge flip-flops reaching a flash-core flip-flop
-    through the core's Wishbone face, and the core flip-flops reaching the
-    decoder's face of that slave, each through logic alone and named
-    `start -> end`. Then whether only stage flip-flops feed the core face, and
-    how many core flip-flops read that face.
+    Returns the AXI-Lite bridge or LiteSPI core flip-flops that reach a PHY
+    flip-flop through the PHY's own faces (command stream, data ready, chip
+    select), and the PHY flip-flops that reach a core flip-flop through the
+    stage's core faces, each through logic alone and named `start -> end`. Then
+    whether only stage flip-flops drive both faces, and how many PHY
+    flip-flops read the PHY faces.
     """
     netlist = Netlist(soc.get_fragment())
     bridges = find(soc.bus, axi.AXILite2Wishbone)
     if len(bridges) != 1:
         raise AssertionError(f"expected one AXI-Lite-to-Wishbone bridge, found {len(bridges)}")
-    bridge, core = registers(bridges[0]), registers(soc.spiflash)
-    stage = registers(soc.spiflash_bus_stage)
-    face = {getattr(soc.spiflash.bus, field).duid: getattr(soc.spiflash.bus, field) for field in REQUEST}
-    forward, readers = [], 0
-    for flop in sorted(core):
-        _, wires = netlist.cone(netlist.signals[flop])
-        through = [face[duid] for duid in wires & set(face)]
-        readers += bool(through)
-        starts = set().union(*(netlist.feeding(signal) for signal in through)) & bridge
-        forward += [f"{netlist.name(start)} -> {netlist.name(flop)}" for start in sorted(starts)]
-    feeders = set().union(*(netlist.feeding(signal) for signal in face.values()))
-    decoder = soc.bus.slaves["spiflash"]
-    back = set().union(*(netlist.feeding(getattr(decoder, field)) for field in ANSWER)) & core
-    backward = [f"{netlist.name(start)} -> decoder face" for start in sorted(back)]
-    return forward, backward, bool(feeders) and feeders <= stage, readers
+    stage_module = soc.spiflash.phy.stage
+    stage = registers(stage_module)
+    phy = registers(soc.spiflash.phy) - stage
+    core = registers(soc.spiflash) - registers(soc.spiflash.phy)
+    upstream = registers(bridges[0]) | core
+    into_phy = faces(stage_module.phy_sink, True) + faces(stage_module.phy_source, False) + [stage_module.phy_cs]
+    into_core = faces(stage_module.source, True) + faces(stage_module.sink, False)
+
+    def crossing(ends: set[int], face: list[Signal], starts: set[int]) -> tuple[list[str], int]:
+        """Paths from `starts` to `ends` that run through `face`, and how many `ends` read it."""
+        index = {signal.duid: signal for signal in face}
+        paths, readers = [], 0
+        for flop in sorted(ends):
+            flops, wires = netlist.cone(netlist.signals[flop])
+            readers += bool((flops | wires) & set(index))
+            through = [index[duid] for duid in wires & set(index)]
+            found = set().union(*(netlist.feeding(signal) for signal in through)) & starts
+            paths += [f"{netlist.name(start)} -> {netlist.name(flop)}" for start in sorted(found)]
+        return paths, readers
+
+    forward, readers = crossing(phy, into_phy, upstream)
+    backward, _ = crossing(core, into_core, phy)
+    # a face signal that is a flip-flop drives itself; a combinational one, the flip-flops behind it
+    drivers = set().union(*({signal.duid} if signal.duid in netlist.sync else netlist.feeding(signal)
+                            for signal in into_phy + into_core))
+    return forward, backward, bool(drivers) and drivers <= stage, readers
 
 
 def flash_structure(problems: list[str]) -> None:
     """Arms 1 and 2 for the flash path, on the real PHY."""
     forward, backward, staged, readers = flash_crossings(build(FlashSoC, None))
     check(problems, staged and readers > 0,
-          f"F0 only stage flip-flops feed the flash core's Wishbone face, and {readers} core flip-flops read it")
+          f"F0 only stage flip-flops drive the PHY's command, ready and chip select and the core's data and "
+          f"ready, and {readers} PHY flip-flops read them")
     check(problems, not forward and not backward,
-          "F1 no AXI-Lite bridge flip-flop reaches a flash-core flip-flop through the core's bus face, and no "
-          "core flip-flop reaches the decoder's face, through logic alone"
+          "F1 no AXI-Lite bridge or LiteSPI core flip-flop reaches a PHY flip-flop, and no PHY flip-flop "
+          "reaches a core flip-flop, through the stage's faces and logic alone"
           + (f": {(forward + backward)[:4]}" if forward or backward else ""))
-    forward, backward, staged, _ = flash_crossings(build(FlashSoC, None, stage=WirePassThrough))
-    counter = [path for path in forward if path.endswith("_cnt")]
+    forward, backward, staged, _ = flash_crossings(build(FlashSoC, None, stage=WirePHYStage))
+    counter = [path for path in forward if path.startswith("fsm_state") and path.endswith("_cnt")]
     check(problems, bool(counter) and bool(backward) and not staged,
-          f"F2 the planted wire in place of the stage fails F0 and F1, naming the bridge into the PHY counter "
+          f"F2 the planted wires in place of the stage fail F0 and F1, naming the bridge into the PHY counter "
           f"({len(forward)} forward, {len(backward)} back: {counter[:2]})")
 
 
-def flash_reads(stage: type | None, addresses: list[int], image: list[int]) -> tuple[list[int], list[int]]:
-    """AXI-Lite reads of `addresses` (word indices); returns the words and each read's cycles."""
+def flash_reads(stage: type | None, addresses: list[int], image: list[int]) -> tuple[list[int], list[int], list]:
+    """AXI-Lite reads of `addresses` (word indices). Returns the words, each read's cycles, and
+    the PHY side's chip-select edges and transfers in order."""
     soc = build(FlashSoC, image, stage=stage)
-    words, cycles = [], []
+    words, cycles, events = [], [], []
+    face = soc.spiflash.phy.stage
 
     def master() -> Generator[None, None, None]:
         """One read at a time: AR, then wait for R, counting cycles from AR valid."""
@@ -289,94 +317,44 @@ def flash_reads(stage: type | None, addresses: list[int], image: list[int]) -> t
             if index == addresses[len(addresses) // 2]:
                 for _ in range(400):    # beyond LiteSPI's 256-cycle burst timeout
                     yield
+        events.append("end")
 
-    run_simulation(soc, master())
-    return words, cycles
+    def watch() -> Generator[None, None, None]:
+        """The PHY side: each chip-select edge and each command it takes, and whether cs was up."""
+        last = 0
+        while not events or events[-1] != "end":
+            cs = (yield face.phy_cs)
+            if cs != last:
+                events.append(("cs", cs))
+                last = cs
+            if (yield face.phy_sink.valid) and (yield face.phy_sink.ready):
+                events.append(("tx", (yield face.phy_sink.len), (yield face.phy_sink.width), cs))
+            yield
+
+    run_simulation(soc, [master(), watch()])
+    return words, cycles, [event for event in events if event != "end"]
 
 
 def flash_behaviour(problems: list[str]) -> None:
     """Arm 3 for the flash path, on the model PHY."""
     image = [(0x5A00_0000 ^ (i * 0x9E37_79B1)) & 0xFFFF_FFFF for i in range(64)]
     addresses = [0, 1, 2, 3, 17, 18, 40, 9, 10, 11, 63, 62]
-    words, staged = flash_reads(None, addresses, image)
+    words, staged, seen = flash_reads(None, addresses, image)
     big_endian = [int.from_bytes(image[i].to_bytes(4, "little"), "big") for i in addresses]
     check(problems, words in ([image[i] for i in addresses], big_endian),
           "F3 reads through the stage return the image: a burst, new bursts and after the burst timeout")
-    _, wired = flash_reads(WirePassThrough, addresses, image)
+    _, wired, wired_seen = flash_reads(WirePHYStage, addresses, image)
     added = [s - w for s, w in zip(staged, wired)]
-    check(problems, added == [STAGE_CYCLES] * len(addresses),
-          f"F4 each flash read takes exactly {STAGE_CYCLES} more bus cycles through the stage "
-          f"(added {sorted(set(added))}; wired {min(wired)}..{max(wired)} cycles)")
-
-
-class SlowSlave(Module):
-    """A Wishbone slave answering each access `delay` cycles after it starts, with a word
-    derived from its address; it counts the accesses it saw begin."""
-
-    def __init__(self, bus: object, delay: int) -> None:
-        """The slave on `bus`."""
-        self.started = Signal(8)
-        count = Signal(8)
-        active = Signal()
-        self.sync += [
-            If(bus.cyc & bus.stb & ~active, active.eq(1), count.eq(0), self.started.eq(self.started + 1)),
-            If(active, count.eq(count + 1)),
-            If(bus.ack, active.eq(0)),
-        ]
-        self.comb += [
-            bus.ack.eq(active & (count == delay)),
-            bus.dat_r.eq(0xC0DE_0000 | bus.adr[:16]),
-        ]
-
-
-class StageBench(Module):
-    """The shipping stage alone between a scripted master and `SlowSlave`."""
-
-    def __init__(self) -> None:
-        """Both faces, the stage and the slave."""
-        self.master = wishbone.Interface(data_width=32, address_width=32, addressing="word")
-        core = wishbone.Interface(data_width=32, address_width=32, addressing="word")
-        self.submodules.stage = milan_soc.WishboneSlaveStage(self.master, core)
-        self.submodules.slave = SlowSlave(core, delay=12)
-
-
-def stage_abandon(problems: list[str]) -> None:
-    """Arm 3: a master that lets go mid-access is never answered, and the next request gets its own word."""
-    bench = StageBench()
-    seen: dict[str, object] = {"early_ack": False}
-
-    def master() -> Generator[None, None, None]:
-        """Start an access to 0x11, let go after 4 cycles, then read 0x22 at once."""
-        bus = bench.master
-        yield bus.adr.eq(0x11)
-        yield bus.cyc.eq(1)
-        yield bus.stb.eq(1)
-        for _ in range(4):
-            yield
-            seen["early_ack"] = seen["early_ack"] or (yield bus.ack)
-        yield bus.cyc.eq(0)
-        yield bus.stb.eq(0)
-        yield
-        yield bus.adr.eq(0x22)
-        yield bus.cyc.eq(1)
-        yield bus.stb.eq(1)
-        for cycle in range(60):
-            yield
-            if (yield bus.ack):
-                seen["word"] = (yield bus.dat_r)
-                seen["cycle"] = cycle
-                break
-        yield bus.cyc.eq(0)
-        yield bus.stb.eq(0)
-        for _ in range(4):
-            yield
-        seen["started"] = (yield bench.slave.started)
-
-    run_simulation(bench, master())
-    check(problems, not seen["early_ack"] and seen.get("word") == 0xC0DE_0022 and seen.get("started") == 2,
-          "F5 an abandoned access finishes at the slave unanswered; the next request gets its own word "
-          f"(word {seen.get('word', 0):#x}, slave accesses {seen.get('started')})")
-
+    continues = [i > 0 and a == addresses[i - 1] + 1 and addresses[i - 1] != addresses[len(addresses) // 2]
+                 for i, a in enumerate(addresses)]
+    expected = [2 if cont else 8 for cont in continues]
+    check(problems, added == expected,
+          f"F4 each flash read takes two more bus cycles in a burst and eight on a new burst (command, address, "
+          f"dummy, data) through the stage (added {added}; wired {min(wired)}..{max(wired)} cycles)")
+    inside = all(event[3] for event in seen if event[0] == "tx")
+    check(problems, inside and seen == wired_seen and sum(event[0] == "tx" for event in seen) > 20,
+          "F5 the PHY takes every command inside its chip select, with the same chip-select edges and commands "
+          f"in the same order as without the stage ({sum(event[0] == 'tx' for event in seen)} commands)")
 
 # DRAM ------------------------------------------------------------------------------------------------
 
@@ -625,7 +603,6 @@ def main() -> int:
     print("test_soc_timing_cuts: the #814 register boundaries on the SoC's sys-domain paths")
     flash_structure(problems)
     flash_behaviour(problems)
-    stage_abandon(problems)
     dram_structure(problems)
     dram_behaviour(problems)
     refresh_structure(problems)

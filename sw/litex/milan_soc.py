@@ -2462,83 +2462,49 @@ def add_staged_sdram(soc: SoCCore, name: str, **kwargs: object) -> None:
     soc.add_sdram(name, controller_settings=ControllerSettings(refresh_cls=RegisteredRefresher), **kwargs)
 
 
-class WishboneSlaveStage(Module):
-    """A registered Wishbone stage between the bus decoder and one slave (#814).
+class SPIPHYStage(Module):
+    """Registered streams and chip select between LiteSPI's core and its PHY (#814).
 
-    `master` faces the decoder (the stage is its slave); `slave` faces the core
-    (the stage is its master). Every signal the stage drives comes from a
-    flip-flop: it takes the request in IDLE, holds it on the slave side until
-    the slave's ack or err, and shows the registered answer to the master for
-    one cycle. So no combinational path runs through it in either direction.
-
-    The contract stays Wishbone classic, one access at a time, each request
-    held until its answer on both sides. An access costs two more bus cycles,
-    one each way. A master that lets go before its answer (a bus timeout)
-    abandons the access: the slave still finishes it, and the stage drops the
-    answer instead of showing it to the next request.
+    The flash read path ran from the AXI-Lite-to-Wishbone bridge state through
+    the decoder, the origin offset, LiteSPI's burst compare and its mmap FSM,
+    then through the chip select and the command stream into the PHY's
+    clock-generator counter (15 to 19 levels). It set the WNS of the #806 route
+    and of earlier records. A registered Wishbone stage in front of the core
+    left 17 of those levels: most of the path is the mmap FSM and the PHY. So
+    the boundary sits between them. The core-to-PHY command stream and the
+    PHY-to-core data stream each pass a LiteX `stream.Buffer` (registered valid,
+    payload and ready), and the chip select passes a flip-flop. The PHY sees the
+    chip select and the command one cycle later, both together, so a transfer
+    keeps its place inside the chip select. Each transfer costs one more bus
+    cycle each way: two a word in a burst, eight a new burst (command,
+    address, dummy and data).
     """
 
-    def __init__(self, master: object, slave: object) -> None:
-        """The stage between `master` (decoder side) and `slave` (core side)."""
-        busy = Signal()
-        answered = Signal()
-        abandoned = Signal()
-        dat_r = Signal(len(master.dat_r), reset_less=True)
-        err = Signal()
-        asked = master.cyc & master.stb
-        request = [(slave.adr, master.adr), (slave.dat_w, master.dat_w), (slave.sel, master.sel),
-                   (slave.we, master.we), (slave.cti, master.cti), (slave.bte, master.bte)]
-        self.sync += [
-            answered.eq(0),
-            If(~busy & ~answered & asked,
-                busy.eq(1), abandoned.eq(0),
-                *[held.eq(given) for held, given in request]),
-            If(busy,
-                If(~asked, abandoned.eq(1)),
-                If(slave.ack | slave.err,
-                    busy.eq(0),
-                    answered.eq(asked & ~abandoned),
-                    dat_r.eq(slave.dat_r), err.eq(slave.err))),
-        ]
-        self.comb += [
-            slave.cyc.eq(busy), slave.stb.eq(busy),
-            master.ack.eq(answered & ~err), master.err.eq(answered & err),
-            master.dat_r.eq(dat_r),
-        ]
+    def __init__(self, phy: object) -> None:
+        """The stage in front of `phy`; LiteSPI connects to `sink`, `source` and `cs` here."""
+        self.phy_sink, self.phy_source, self.phy_cs = phy.sink, phy.source, phy.cs
+        self.sink = stream.Endpoint(phy.sink.description)
+        self.source = stream.Endpoint(phy.source.description)
+        self.cs = Signal.like(phy.cs)
+        self.submodules.tx = tx = stream.Buffer(phy.sink.description, pipe_valid=True, pipe_ready=True)
+        self.submodules.rx = rx = stream.Buffer(phy.source.description, pipe_valid=True, pipe_ready=True)
+        self.comb += [self.sink.connect(tx.sink), tx.source.connect(phy.sink),
+                      phy.source.connect(rx.sink), rx.source.connect(self.source)]
+        self.sync += phy.cs.eq(self.cs)
 
 
-def stage_bus_slave(bus: object, name: str) -> WishboneSlaveStage:
-    """Put a `WishboneSlaveStage` between the SoC bus decoder and slave `name`.
+def stage_spi_phy(phy: object) -> object:
+    """Put an `SPIPHYStage` in front of `phy` and hand LiteSPI the stage's faces.
 
-    Call it after the slave is added and before the bus is finalized: the
-    decoder is built from `bus.slaves` at finalize, so the stage's master side
-    replaces the entry there and the core's interface moves behind the stage.
-    The caller owns the returned module. Wishbone only: a slave adapted to
-    another standard has no Wishbone face here, so it is refused rather than
-    left without the stage.
+    LiteSPI reads only `phy.sink`, `phy.source` and `phy.cs` (and `flash`,
+    `dummy_bits`), so those three move to the stage and the PHY keeps its
+    own, behind it. The stage becomes the PHY's submodule `stage`, so the
+    PHY's CSR names are unchanged.
     """
-    from litex.soc.interconnect import wishbone
-    core = bus.slaves[name]
-    if not isinstance(core, wishbone.Interface):
-        raise ValueError(f"stage_bus_slave: slave {name!r} is {type(core).__name__}, not Wishbone; "
-                         "the #814 stage needs the default --bus-standard wishbone")
-    decoder = wishbone.Interface.like(core)
-    bus.slaves[name] = decoder
-    return WishboneSlaveStage(decoder, core)
-
-
-def add_staged_spi_flash(soc: SoCCore, **kwargs: object) -> None:
-    """LiteX's `add_spi_flash(**kwargs)`, then the #814 stage in front of the core.
-
-    The path from the AXI-Lite-to-Wishbone bridge state through the decoder, the
-    origin offset and LiteSPI's burst compare into the PHY's counter (15 to 19
-    levels) set the WNS of the #806 route and of earlier records. The stage ends
-    it at a flip-flop, for two bus cycles an access. A function so
-    `test_soc_timing_cuts.py` builds the flash path the SoC builds, on the real
-    LiteX bridge, decoder and core.
-    """
-    soc.add_spi_flash(**kwargs)
-    soc.submodules.spiflash_bus_stage = stage_bus_slave(soc.bus, "spiflash")
+    stage = SPIPHYStage(phy)
+    phy.submodules.stage = stage
+    phy.sink, phy.source, phy.cs = stage.sink, stage.source, stage.cs
+    return phy
 
 
 def pp_mem_gate(m: Module, dfi_sel: Signal) -> Signal:
@@ -3214,8 +3180,8 @@ class MilanSoC(SoCCore):
             # 12.5 MHz requested => ~25 MHz effective SPI read clk (was 50 MHz at the
             # 25e6 request): doubles the sampling margin. build_hsq0's placement made
             # 50 MHz reads corrupt (CRC differs per read); r2slots was borderline-OK.
-            add_staged_spi_flash(self, mode="1x", module=flash_module,
-                                 clk_freq=int(12.5e6), with_master=True)
+            self.add_spi_flash(mode="1x", module=flash_module,
+                               clk_freq=int(12.5e6), with_master=True)
             # The BIOS boot-time auto-calibration (liblitespi spiflash_freq_init) re-tunes the
             # divisor UP from this default as long as a short CRC test block reads stably  -  on
             # this board it locked div=2 (50 MHz) and the marginality only shows on MB-scale
@@ -3700,6 +3666,28 @@ class MilanSoC(SoCCore):
         # off, so the default build is untouched; see CtrlMailbox).
         if ctrl_mailbox:
             add_ctrl_mailbox(self, platform, sys_clk_freq)
+
+    def add_spi_flash(self, phy: object = None, **kwargs: object) -> None:
+        """LiteX's `add_spi_flash(**kwargs)`, with the #814 `SPIPHYStage` in front of the PHY.
+
+        Without `phy`, it builds the PHY LiteX would build from the same
+        arguments: the same divisor, pads and `LiteSPIPHY`. A caller's own PHY
+        (a simulation's device model) is staged as well, so every SoC built
+        from this class carries the stage.
+        """
+        if phy is None:
+            import math
+            from litespi.phy.generic import LiteSPIPHY
+            named = {"name": "spiflash", "mode": "4x", "clk_freq": 20e6, "module": None, "rate": "1:1",
+                     "number": None, "software_debug": False}
+            arg = {key: kwargs.get(key, default) for key, default in named.items()}
+            divisor = math.ceil(self.sys_clk_freq / arg["clk_freq"])
+            divisor += divisor % 2 if arg["rate"] == "1:1" else 0
+            pads = self.platform.request(arg["name"] if arg["mode"] == "1x" else arg["name"] + arg["mode"],
+                                         number=arg["number"])
+            phy = LiteSPIPHY(pads, arg["module"], device=self.platform.device, default_divisor=divisor,
+                             rate=arg["rate"], **{key: value for key, value in kwargs.items() if key not in named})
+        return SoCCore.add_spi_flash(self, phy=stage_spi_phy(phy), **kwargs)
 
     def _add_flashboot_constants(self, manifest_name):
         """Emit the product flash constants and deployment manifest."""
