@@ -738,7 +738,21 @@ flash image through the stage at exactly two more bus cycles a word in a
 burst and eight on a new burst, every command inside its chip select. They
 require LiteDRAM's native port to see the same handshakes, cycle for cycle,
 with the DRAM stage and without it, and LiteDRAM's own precharge-all and
-refresh commands each exactly one cycle later at the same spacing.
+refresh commands each exactly one cycle later at the same spacing. With the
+ZQCS period cut to 6 cycles, which keeps the shipping period's gcd of 2 with
+tREFI, the precharge-all, refresh and ZQCS commands must each be LiteDRAM's
+own one cycle later. The run holds two ZQCS, the second after the ZQCS timer
+has re-phased at the first one's end. The stage with its ZQCS timer starting
+at reset, which issues no ZQCS there, must fail that arm. Then each stage's output is stalled
+at random: LiteDRAM's `aw` and `ar` READY, under back-to-back writes and then
+reads beside writes; the flash PHY's command READY, behind LiteSPI's own
+chip-select delay; and the core's flash data READY. The transfers must be the
+issued ones, in order, with VALID and payload held until taken, and each
+registered READY must hold beats. A planted lossy registered READY on each of
+those streams must fail. The DRAM arms grade the native port's transfers and
+one response a request, not read data: on the test's model PHY setup the DFI
+write burst goes out masked, so every read returns zero with or without the
+stage.
 
 `test_retained_cdc_storage.py` (#640 lane M2) covers the seven retained SoC
 crossing arrays: both MAC crossings and the five CSR channel FIFOs, built by

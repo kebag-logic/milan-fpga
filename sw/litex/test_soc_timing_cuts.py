@@ -28,16 +28,24 @@ call, and grades it three ways:
      burst, across bursts and after a gap) at exactly the stated added
      cycles, each transfer inside its chip select. LiteDRAM's native port and
      its DFI see the same traffic, the refresh and the ZQCS one cycle later.
+     Then each stage's output is stalled at random, and the flash PHY's
+     command READY also waits LiteSPI's own chip-select delay, so every
+     registered READY holds beats. The transfers must be the issued ones, in
+     order, with VALID and payload held until taken. A planted lossy
+     registered-READY stage must fail that arm.
 
 Run: cd sw/litex && python3 test_soc_timing_cuts.py
 """
 from __future__ import annotations
 
+import random
 import sys
 from collections.abc import Generator, Iterable
 from pathlib import Path
+from types import SimpleNamespace
 
-from migen import ClockDomain, Module, Signal, run_simulation
+from migen import ClockDomain, Module, Record, Signal, run_simulation
+from migen.fhdl import tracer
 from migen.fhdl.specials import _MemoryPort
 from migen.fhdl.structure import Case, If, _Assign
 from migen.fhdl.tools import list_signals, list_targets
@@ -50,6 +58,7 @@ from litedram.core.refresher import Refresher
 from litedram.frontend.axi import LiteDRAMAXI2Native
 from litedram.modules import MT41J256M16
 from litedram.phy.model import SDRAMPHYModel, get_sdram_phy_settings
+from litespi.cscontrol import LiteSPICSControl
 from litespi.modules import N25Q128A13
 from litespi.opcodes import SpiNorFlashOpCodes
 from litespi.phy.model import LiteSPIPHYModel
@@ -182,7 +191,90 @@ class WirePHYStage(Module):
         self.comb += [self.sink.connect(phy.sink), phy.source.connect(self.source), phy.cs.eq(self.cs)]
 
 
+class LossyReady(Module):
+    """The planted lossy skid: READY registered from the previous cycle's stall, the payload passed
+    straight through, so a beat offered into a fresh stall is taken and dropped."""
+
+    def __init__(self, layout: object) -> None:
+        """The skid on a stream of `layout`."""
+        self.sink, self.source = stream.Endpoint(layout), stream.Endpoint(layout)
+        stall = Signal()
+        self.sync += stall.eq(self.source.valid & ~self.source.ready)
+        self.comb += [self.sink.connect(self.source, omit={"ready"}), self.sink.ready.eq(~stall)]
+
+
+class LossyBuffer(Module):
+    """The planted lossy `stream.Buffer`: its registered valid, then `LossyReady` for its registered ready."""
+
+    def __init__(self, layout: object) -> None:
+        """The buffer on a stream of `layout`."""
+        self.submodules.pipe_valid = pipe_valid = stream.PipeValid(layout)
+        self.submodules.pipe_ready = pipe_ready = LossyReady(layout)
+        self.sink, self.source = pipe_valid.sink, pipe_ready.source
+        self.comb += pipe_valid.source.connect(pipe_ready.sink)
+
+
+def lossy_phy_stage(lossy: str) -> type:
+    """`SPIPHYStage` with the `lossy` stream's buffer ("tx" or "rx") a `LossyBuffer`."""
+
+    class LossyPHYStage(Module):
+        def __init__(self, phy: object) -> None:
+            """The stage in front of `phy`, one buffer lossy."""
+            self.phy_sink, self.phy_source, self.phy_cs = phy.sink, phy.source, phy.cs
+            self.sink = stream.Endpoint(phy.sink.description)
+            self.source = stream.Endpoint(phy.source.description)
+            self.cs = Signal.like(phy.cs)
+            tx, rx = (LossyBuffer(layout) if name == lossy else stream.Buffer(layout, pipe_valid=True, pipe_ready=True)
+                      for name, layout in (("tx", phy.sink.description), ("rx", phy.source.description)))
+            self.submodules.tx, self.submodules.rx = tx, rx
+            self.comb += [self.sink.connect(tx.sink), tx.source.connect(phy.sink),
+                          phy.source.connect(rx.sink), rx.source.connect(self.source)]
+            self.sync += phy.cs.eq(self.cs)
+
+    return LossyPHYStage
+
+
+class LossyAXIStage(Module):
+    """The planted lossy `AXIReadyStage`: `LossyReady` on aw and ar."""
+
+    def __init__(self, master: object, slave: object) -> None:
+        """The stage between `master` and `slave`."""
+        for name in ("aw", "ar"):
+            pipe = LossyReady(getattr(master, name).description)
+            setattr(self.submodules, f"{name}_pipe", pipe)
+            self.comb += [getattr(master, name).connect(pipe.sink), pipe.source.connect(getattr(slave, name))]
+        self.comb += master.w.connect(slave.w)
+        for name in ("b", "r"):
+            self.comb += getattr(slave, name).connect(getattr(master, name))
+
+
+class FaceWatch:
+    """One stream through a stage, watched at both faces each cycle: the cycles the stage holds a
+    beat while its output is stalled, and the cycles VALID or payload changed before the beat was taken."""
+
+    def __init__(self, inward: object, outward: object) -> None:
+        """`inward` is the face beats enter by, `outward` the face they leave by."""
+        self.inward, self.outward = inward, outward
+        self.inside = self.holds = self.broken = 0
+        self.offered = None
+
+    def step(self) -> Generator[None, None, None]:
+        """Read one cycle; run it once a cycle, before that cycle's `yield`."""
+        taken_in = (yield self.inward.valid) and (yield self.inward.ready)
+        valid, ready = (yield self.outward.valid), (yield self.outward.ready)
+        payload = []
+        for signal in faces(self.outward, True)[1:]:
+            payload.append((yield signal))
+        if self.offered is not None and (not valid or payload != self.offered):
+            self.broken += 1
+        if self.inside > 0 and valid and not ready:
+            self.holds += 1
+        self.offered = payload if valid and not ready else None
+        self.inside += int(bool(taken_in)) - int(bool(valid and ready))
+
+
 # Flash -----------------------------------------------------------------------------------------------
+
 
 class FlashSoC(SoCCore):
     """The SoC's flash path: an AXI-Lite master on the Wishbone bus and the shipping
@@ -203,12 +295,25 @@ class FlashSoC(SoCCore):
         module = N25Q128A13(SpiNorFlashOpCodes.READ_1_1_1_FAST)
         kwargs = dict(mode="1x", module=module, clk_freq=int(12.5e6), with_master=True)
         if model_image is not None:
-            kwargs["phy"] = LiteSPIPHYModel(module, init=model_image)
+            # The model's memory holds the image only (its core reads the size and the read opcode):
+            # sized from the whole part it is 4 Mi words, several GB and minutes of simulation setup
+            # a build. LiteSPI's mmap reads `phy.flash` and LiteX the region from `module`, so both
+            # still see the real part.
+            model = SimpleNamespace(total_size=4 * len(model_image), read_opcode=module.read_opcode)
+            phy = LiteSPIPHYModel(model, init=model_image)
+            phy.flash = module
+            kwargs["phy"] = phy
         self.add_spi_flash(**kwargs)
 
 
 def build(cls: type, *args: object, stage: type | None = None, name: str | None = None) -> Module:
-    """`cls(*args)` with `stage` standing in for the shipping class `name` (default `cls.STAGE`)."""
+    """`cls(*args)` with `stage` standing in for the shipping class `name` (default `cls.STAGE`).
+
+    migen's tracer keeps every object it has named, for its names' index suffixes, so each build
+    starts with that registry empty, as an elaboration in its own process does. Otherwise every SoC
+    this test builds, and each simulation's state, would stay in memory to the end.
+    """
+    tracer.classname_to_objs.clear()
     name = name or cls.STAGE
     shipping = getattr(milan_soc, name)
     if stage is not None:
@@ -226,15 +331,16 @@ def faces(endpoint: object, inward: bool) -> list[Signal]:
     return [endpoint.ready]
 
 
-def flash_crossings(soc: FlashSoC) -> tuple[list[str], list[str], bool, int]:
+def flash_crossings(soc: FlashSoC) -> tuple[list[str], list[str], bool, int, list[str]]:
     """The register-to-register paths that cross the stage between LiteSPI's core and its PHY.
 
     Returns the AXI-Lite bridge or LiteSPI core flip-flops that reach a PHY
     flip-flop through the PHY's own faces (command stream, data ready, chip
     select), and the PHY flip-flops that reach a core flip-flop through the
     stage's core faces, each through logic alone and named `start -> end`. Then
-    whether only stage flip-flops drive both faces, and how many PHY
-    flip-flops read the PHY faces.
+    whether only stage flip-flops drive both faces, how many PHY flip-flops
+    read the PHY faces, and the forward paths that start at an AXI-Lite
+    bridge flip-flop.
     """
     netlist = Netlist(soc.get_fragment())
     bridges = find(soc.bus, axi.AXILite2Wishbone)
@@ -248,8 +354,8 @@ def flash_crossings(soc: FlashSoC) -> tuple[list[str], list[str], bool, int]:
     into_phy = faces(stage_module.phy_sink, True) + faces(stage_module.phy_source, False) + [stage_module.phy_cs]
     into_core = faces(stage_module.source, True) + faces(stage_module.sink, False)
 
-    def crossing(ends: set[int], face: list[Signal], starts: set[int]) -> tuple[list[str], int]:
-        """Paths from `starts` to `ends` that run through `face`, and how many `ends` read it."""
+    def crossing(ends: set[int], face: list[Signal], starts: set[int]) -> tuple[list[tuple[int, int]], int]:
+        """Paths `(start, end)` from `starts` to `ends` that run through `face`, and how many `ends` read it."""
         index = {signal.duid: signal for signal in face}
         paths, readers = [], 0
         for flop in sorted(ends):
@@ -257,20 +363,26 @@ def flash_crossings(soc: FlashSoC) -> tuple[list[str], list[str], bool, int]:
             readers += bool((flops | wires) & set(index))
             through = [index[duid] for duid in wires & set(index)]
             found = set().union(*(netlist.feeding(signal) for signal in through)) & starts
-            paths += [f"{netlist.name(start)} -> {netlist.name(flop)}" for start in sorted(found)]
+            paths += [(start, flop) for start in sorted(found)]
         return paths, readers
+
+    def named(paths: list[tuple[int, int]]) -> list[str]:
+        """Each path as `start -> end`."""
+        return [f"{netlist.name(start)} -> {netlist.name(end)}" for start, end in paths]
 
     forward, readers = crossing(phy, into_phy, upstream)
     backward, _ = crossing(core, into_core, phy)
+    bridge = registers(bridges[0])
     # a face signal that is a flip-flop drives itself; a combinational one, the flip-flops behind it
     drivers = set().union(*({signal.duid} if signal.duid in netlist.sync else netlist.feeding(signal)
                             for signal in into_phy + into_core))
-    return forward, backward, bool(drivers) and drivers <= stage, readers
+    return (named(forward), named(backward), bool(drivers) and drivers <= stage, readers,
+            named([path for path in forward if path[0] in bridge]))
 
 
 def flash_structure(problems: list[str]) -> None:
     """Arms 1 and 2 for the flash path, on the real PHY."""
-    forward, backward, staged, readers = flash_crossings(build(FlashSoC, None))
+    forward, backward, staged, readers, _ = flash_crossings(build(FlashSoC, None))
     check(problems, staged and readers > 0,
           f"F0 only stage flip-flops drive the PHY's command, ready and chip select and the core's data and "
           f"ready, and {readers} PHY flip-flops read them")
@@ -278,19 +390,59 @@ def flash_structure(problems: list[str]) -> None:
           "F1 no AXI-Lite bridge or LiteSPI core flip-flop reaches a PHY flip-flop, and no PHY flip-flop "
           "reaches a core flip-flop, through the stage's faces and logic alone"
           + (f": {(forward + backward)[:4]}" if forward or backward else ""))
-    forward, backward, staged, _ = flash_crossings(build(FlashSoC, None, stage=WirePHYStage))
-    counter = [path for path in forward if path.startswith("fsm_state") and path.endswith("_cnt")]
+    forward, backward, staged, _, from_bridge = flash_crossings(build(FlashSoC, None, stage=WirePHYStage))
+    counter = [path for path in from_bridge if path.endswith("_cnt")]
     check(problems, bool(counter) and bool(backward) and not staged,
           f"F2 the planted wires in place of the stage fail F0 and F1, naming the bridge into the PHY counter "
           f"({len(forward)} forward, {len(backward)} back: {counter[:2]})")
 
 
-def flash_reads(stage: type | None, addresses: list[int], image: list[int]) -> tuple[list[int], list[int], list]:
-    """AXI-Lite reads of `addresses` (word indices). Returns the words, each read's cycles, and
-    the PHY side's chip-select edges and transfers in order."""
+def gated(upstream: object, downstream: object, go: Signal) -> list:
+    """`upstream` connected to `downstream`, its handshake passing only on the cycles `go` is high."""
+    return [upstream.connect(downstream, omit={"valid", "ready"}),
+            downstream.valid.eq(upstream.valid & go), upstream.ready.eq(downstream.ready & go)]
+
+
+def stalled_phy_stage(stage: type) -> type:
+    """`stage` stalled at random on both outputs, its PHY face's READY also behind LiteSPI's own
+    chip-select hold: a test harness, not a stage. The hold is `LiteSPICSControl` at its default
+    cs_delay, as LiteSPI's SDR PHY builds it for the shipping flash, so like the real PHY it waits
+    after each new chip select."""
+
+    class StalledPHYStage(Module):
+        def __init__(self, phy: object) -> None:
+            """`stage` in front of `phy`, stalled on both of its outputs."""
+            self.phy_sink, self.phy_source, self.phy_cs = phy.sink, phy.source, phy.cs
+            face = SimpleNamespace(sink=stream.Endpoint(phy.sink.description), source=phy.source, cs=phy.cs)
+            self.submodules.inner = inner = stage(face)
+            self.submodules.cs_control = control = LiteSPICSControl(Record([("cs_n", 1)]), phy.cs, with_sdr_cs=False)
+            self.sink, self.cs = inner.sink, inner.cs
+            self.source = stream.Endpoint(phy.source.description)
+            self.tx_go, self.rx_go = Signal(), Signal()
+            self.comb += gated(face.sink, phy.sink, control.enable & self.tx_go)
+            self.comb += gated(inner.source, self.source, self.rx_go)
+            self.tx, self.rx = FaceWatch(inner.sink, face.sink), FaceWatch(phy.source, inner.source)
+
+    return StalledPHYStage
+
+
+#: Sys cycles after which a stalled run is stopped and graded as it stands (a lost beat can hang it).
+#: A run also stops at its first broken hold.
+STALL_LIMIT = 4000
+
+
+def flash_reads(stage: type | None, addresses: list[int], image: list[int],
+                seed: int | None = None) -> tuple[list[int], list[int], list, dict[str, int]]:
+    """AXI-Lite reads of `addresses` (word indices). Returns the words, each read's cycles,
+    the PHY side's chip-select edges and transfers in order, and with a `seed` the stage
+    stalled at random: each face's held cycles and broken holds, and whether the run hit
+    `STALL_LIMIT`."""
+    if seed is not None:
+        stage = stalled_phy_stage(stage or milan_soc.SPIPHYStage)
     soc = build(FlashSoC, image, stage=stage)
-    words, cycles, events = [], [], []
+    words, cycles, events, stats = [], [], [], {}
     face = soc.spiflash.phy.stage
+    clock = [0]
 
     def master() -> Generator[None, None, None]:
         """One read at a time: AR, then wait for R, counting cycles from AR valid."""
@@ -305,12 +457,17 @@ def flash_reads(stage: type | None, addresses: list[int], image: list[int]) -> t
             while True:
                 yield
                 count += 1
-                if (yield axil.ar.ready):
+                if (yield axil.ar.ready) or clock[0] > STALL_LIMIT or stats.get("broken"):
                     break
             yield axil.ar.valid.eq(0)
-            while not (yield axil.r.valid):
+            while not (yield axil.r.valid) and clock[0] <= STALL_LIMIT and not stats.get("broken"):
                 yield
                 count += 1
+            if stats.get("broken"):
+                break
+            if clock[0] > STALL_LIMIT:
+                stats["timeout"] = 1
+                break
             words.append((yield axil.r.data))
             cycles.append(count)
             yield
@@ -320,7 +477,9 @@ def flash_reads(stage: type | None, addresses: list[int], image: list[int]) -> t
         events.append("end")
 
     def watch() -> Generator[None, None, None]:
-        """The PHY side: each chip-select edge and each command it takes, and whether cs was up."""
+        """The PHY side: each chip-select edge and each command it takes, and whether cs was up.
+        Stalled, also each stage output's random READY and its watch."""
+        rng = random.Random(seed)
         last = 0
         while not events or events[-1] != "end":
             cs = (yield face.phy_cs)
@@ -329,21 +488,32 @@ def flash_reads(stage: type | None, addresses: list[int], image: list[int]) -> t
                 last = cs
             if (yield face.phy_sink.valid) and (yield face.phy_sink.ready):
                 events.append(("tx", (yield face.phy_sink.len), (yield face.phy_sink.width), cs))
+            if seed is not None:
+                yield from face.tx.step()
+                yield from face.rx.step()
+                if face.tx.broken or face.rx.broken:
+                    stats["broken"] = 1     # graded already; a lost beat would only hang the run
+                yield face.tx_go.eq(rng.random() < 0.5)
+                yield face.rx_go.eq(rng.random() < 0.5)
+            clock[0] += 1
             yield
 
     run_simulation(soc, [master(), watch()])
-    return words, cycles, [event for event in events if event != "end"]
+    if seed is not None:
+        stats.update(tx_holds=face.tx.holds, tx_broken=face.tx.broken, rx_holds=face.rx.holds,
+                     rx_broken=face.rx.broken, cycles=clock[0])
+    return words, cycles, [event for event in events if event != "end"], stats
 
 
 def flash_behaviour(problems: list[str]) -> None:
     """Arm 3 for the flash path, on the model PHY."""
     image = [(0x5A00_0000 ^ (i * 0x9E37_79B1)) & 0xFFFF_FFFF for i in range(64)]
     addresses = [0, 1, 2, 3, 17, 18, 40, 9, 10, 11, 63, 62]
-    words, staged, seen = flash_reads(None, addresses, image)
+    words, staged, seen, _ = flash_reads(None, addresses, image)
     big_endian = [int.from_bytes(image[i].to_bytes(4, "little"), "big") for i in addresses]
     check(problems, words in ([image[i] for i in addresses], big_endian),
           "F3 reads through the stage return the image: a burst, new bursts and after the burst timeout")
-    _, wired, wired_seen = flash_reads(WirePHYStage, addresses, image)
+    _, wired, wired_seen, _ = flash_reads(WirePHYStage, addresses, image)
     added = [s - w for s, w in zip(staged, wired)]
     continues = [i > 0 and a == addresses[i - 1] + 1 and addresses[i - 1] != addresses[len(addresses) // 2]
                  for i, a in enumerate(addresses)]
@@ -355,6 +525,28 @@ def flash_behaviour(problems: list[str]) -> None:
     check(problems, inside and seen == wired_seen and sum(event[0] == "tx" for event in seen) > 20,
           "F5 the PHY takes every command inside its chip select, with the same chip-select edges and commands "
           f"in the same order as without the stage ({sum(event[0] == 'tx' for event in seen)} commands)")
+    read = words
+
+    def stalled(stage: type | None) -> tuple[bool, bool, str]:
+        """Under random stalls: whether the reads return `read` and the PHY sees `wired_seen`'s
+        events, every hold kept to the end; whether both outputs held beats; and a summary."""
+        got, _, events, stats = flash_reads(stage, addresses, image, seed=814)
+        kept = (got == read and events == wired_seen and not stats.get("timeout")
+                and stats["tx_broken"] == stats["rx_broken"] == 0)
+        summary = (f"{len(got)} of {len(addresses)} words, held cycles tx {stats['tx_holds']} rx "
+                   f"{stats['rx_holds']}, broken holds tx {stats['tx_broken']} rx {stats['rx_broken']}, "
+                   f"{stats['cycles']} sys cycles" + (", stopped at the cycle limit" if stats.get("timeout") else ""))
+        return kept, stats["tx_holds"] > 0 and stats["rx_holds"] > 0, summary
+
+    kept, held, summary = stalled(None)
+    check(problems, kept and held,
+          f"F6 with each stage output stalled at random and the PHY's command READY waiting LiteSPI's own "
+          f"chip-select delay, the reads return the same words, and the PHY the same chip-select edges and "
+          f"commands in order, with VALID and payload held until taken, and both registered READYs holding "
+          f"beats ({summary})")
+    for lossy in ("tx", "rx"):
+        kept, _, summary = stalled(lossy_phy_stage(lossy))
+        check(problems, not kept, f"F7 a planted lossy registered READY on the {lossy} stream fails F6 ({summary})")
 
 # DRAM ------------------------------------------------------------------------------------------------
 
@@ -517,6 +709,140 @@ def dram_behaviour(problems: list[str]) -> None:
           f"D4 the stage changes nothing the native port sees, cycle for cycle, and adds no cycle to a read "
           f"(staged {staged}, wired {wired} milan cycles)")
 
+    def stalled(stage: type) -> tuple[bool, bool, str]:
+        """Under random stalls: whether the native port sees the issued transfers in order, every write
+        and read gets its one response and every hold is kept to the end; whether aw and ar both held
+        beats; and a summary."""
+        got = dram_stalled(stage, 814)
+        holds, broken = got["holds"], got["broken"]
+        kept = (all(got[key] == got[f"issued_{key}"] for key in ("writes", "wdata", "reads"))
+                and got["b"] == len(got["issued_writes"]) and got["r"] == len(got["issued_reads"])
+                and not got["timeout"] and not any(broken.values()))
+        summary = (f"{len(got['writes'])} of {len(got['issued_writes'])} writes, {len(got['reads'])} of "
+                   f"{len(got['issued_reads'])} reads, held cycles aw {holds['aw']} ar {holds['ar']}, broken "
+                   f"holds aw {broken['aw']} ar {broken['ar']}, {got['cycles']} sys cycles"
+                   + (", stopped at the cycle limit" if got["timeout"] else ""))
+        return kept, holds["aw"] > 0 and holds["ar"] > 0, summary
+
+    kept, _, summary = stalled(WirePassThrough)
+    check(problems, kept, f"D5 the stall harness on the wired build: the issued transfers, in order ({summary})")
+    kept, held, summary = stalled(milan_soc.AXIReadyStage)
+    check(problems, kept and held,
+          f"D6 with LiteDRAM's aw and ar READY stalled at random under back-to-back writes, then reads beside "
+          f"writes, the native port sees every write's command and word and every read's command in the order "
+          f"issued, each write and read gets its response, VALID and payload hold until taken, and both "
+          f"registered READYs hold beats ({summary})")
+    kept, _, summary = stalled(LossyAXIStage)
+    check(problems, not kept, f"D7 a planted lossy registered READY on aw and ar fails D6 ({summary})")
+
+
+def stalled_axi_stage(stage: type) -> type:
+    """`stage` between the CPU memory port's crossing and LiteDRAM, its aw and ar handshakes into
+    LiteDRAM passing only on random cycles: a test harness, not a stage. w, b and r pass straight through."""
+
+    class StalledAXIStage(Module):
+        def __init__(self, master: object, slave: object) -> None:
+            """`stage` from `master`, stalled at its LiteDRAM face, then `slave`."""
+            face = axi.AXIInterface(data_width=slave.data_width, address_width=slave.address_width,
+                                    id_width=slave.id_width, version=slave.version, clock_domain="sys")
+            self.submodules.inner = stage(master, face)
+            self.go = {name: Signal() for name in ("aw", "ar")}
+            for name, go in self.go.items():
+                self.comb += gated(getattr(face, name), getattr(slave, name), go)
+            self.comb += [face.w.connect(slave.w), slave.b.connect(face.b), slave.r.connect(face.r)]
+            self.watch = {name: FaceWatch(getattr(master, name), getattr(face, name)) for name in ("aw", "ar")}
+
+    return StalledAXIStage
+
+
+def dram_stalled(stage: type, seed: int) -> dict:
+    """Back-to-back single-beat writes on the CPU port, then reads of them beside writes elsewhere,
+    each channel's VALID gapped at random, with `stage`'s LiteDRAM face stalled at random on aw and ar.
+
+    Returns what LiteDRAM's native port saw, per direction and in order (write commands, write
+    words, read commands), each against what was issued, the B and R beats counted on the CPU port,
+    the stage's held cycles and broken holds on aw and ar, the sys cycles run and whether the run
+    hit `STALL_LIMIT`. Read data are not graded: on this model PHY setup the DFI write burst goes
+    out masked, so every read returns zero with the stage and without it.
+    """
+    soc = build(DramSoC, stage=stalled_axi_stage(stage))
+    port, harness = soc.cpu_port, soc.cpu.memory_port_stage0
+    rng = random.Random(seed)
+    first = [(MAIN_RAM + 32 * word, rng.getrandbits(256)) for word in (3, 4, 5, 64, 65, 200, 7, 8, 1000, 9, 10, 11)]
+    second = [(MAIN_RAM + 32 * word, rng.getrandbits(256)) for word in (500, 501, 502, 600, 601, 700, 701, 702)]
+    got = {"writes": [], "wdata": [], "reads": [], "b": 0, "r": 0, "cycles": 0, "timeout": False,
+           "issued_writes": [(address - MAIN_RAM) >> 5 for address, _ in first + second],
+           "issued_wdata": [word for _, word in first + second],
+           "issued_reads": [(address - MAIN_RAM) >> 5 for address, _ in first]}
+    state = {"b": 0, "stop": False}
+
+    def send(endpoint: object, phases: list[tuple[list[dict[str, int]], int]], gaps: random.Random) -> Generator:
+        """Each phase's beats on `endpoint`, VALID held until READY, a random gap before some; a phase
+        `(beats, after)` starts once `after` write responses have come back, the first after 200 cycles."""
+        for _ in range(200):
+            yield
+        for beats, after in phases:
+            while state["b"] < after and not state["stop"]:
+                yield
+            for fields in beats:
+                while gaps.random() < 0.3:
+                    yield
+                for name, value in fields.items():
+                    yield getattr(endpoint, name).eq(value)
+                yield endpoint.valid.eq(1)
+                yield
+                while not (yield endpoint.ready):
+                    if state["stop"]:
+                        return
+                    yield
+                yield endpoint.valid.eq(0)
+
+    def responses() -> Generator:
+        """Every B and R beat counted, READY held high, until the monitor stops the run."""
+        yield port.b.ready.eq(1)
+        yield port.r.ready.eq(1)
+        while not state["stop"]:
+            if (yield port.b.valid):
+                state["b"] += 1
+            if (yield port.r.valid):
+                got["r"] += 1
+            yield
+
+    def monitor() -> Generator:
+        """The native port's handshakes, the stage's two faces and the random READY, each sys cycle."""
+        gate = random.Random(seed + 6)
+        for cycle in range(STALL_LIMIT):
+            for native_port in soc.sdram.crossbar.masters:
+                if (yield native_port.cmd.valid) and (yield native_port.cmd.ready):
+                    got["writes" if (yield native_port.cmd.we) else "reads"].append((yield native_port.cmd.addr))
+                if (yield native_port.wdata.valid) and (yield native_port.wdata.ready):
+                    got["wdata"].append((yield native_port.wdata.data))
+            for watch in harness.watch.values():
+                yield from watch.step()
+            if any(watch.broken for watch in harness.watch.values()):
+                break
+            for go in harness.go.values():
+                yield go.eq(gate.random() < 0.5)
+            got["cycles"] = cycle
+            if state["b"] == len(first) + len(second) and got["r"] == len(first):
+                break
+            yield
+        else:
+            got["timeout"] = True
+        got["b"] = state["b"]
+        state["stop"] = True
+
+    aw = [{"addr": address, "len": 0, "size": 5, "burst": 1} for address, _ in first + second]
+    w = [{"data": word, "strb": 2**32 - 1, "last": 1} for _, word in first + second]
+    n = len(first)
+    masters = [send(port.aw, [(aw[:n], 0), (aw[n:], n)], random.Random(seed + 1)),
+               send(port.w, [(w[:n], 0), (w[n:], n)], random.Random(seed + 2)),
+               send(port.ar, [(aw[:n], n)], random.Random(seed + 3)), responses()]
+    run_simulation(soc, {"milan": masters, "sys": [monitor()]}, clocks={"milan": 20, "sys": 10})
+    got["holds"] = {name: watch.holds for name, watch in harness.watch.items()}
+    got["broken"] = {name: watch.broken for name, watch in harness.watch.items()}
+    return got
+
 # Refresh ---------------------------------------------------------------------------------------------
 
 def refresh_crossings(soc: DramSoC) -> tuple[list[str], bool, int]:
@@ -560,8 +886,10 @@ def refresh_structure(problems: list[str]) -> None:
           f"bank machine's FIFO level ({len(paths)} paths: {timer[:2]})")
 
 
-def dfi_commands(stage: type | None, cycles: int) -> list[tuple[int, int, str, int]]:
-    """Every command on the controller's DFI over `cycles` idle sys cycles: `(cycle, phase, name, address)`."""
+def dfi_commands(stage: type | None, cycles: int,
+                 expect: list[tuple[int, int, str, int]] | None = None) -> list[tuple[int, int, str, int]]:
+    """Every command on the controller's DFI over `cycles` idle sys cycles: `(cycle, phase, name, address)`.
+    With `expect`, the run stops at the first cycle its commands differ from `expect`'s up to that cycle."""
     soc = build(DramSoC, stage=stage, name="RegisteredRefresher")
     names = {(0, 1, 0): "PRECHARGE", (0, 0, 1): "REFRESH", (1, 1, 0): "ZQCS"}
     seen = []
@@ -574,6 +902,8 @@ def dfi_commands(stage: type | None, cycles: int) -> list[tuple[int, int, str, i
                     code = ((yield phase.ras_n), (yield phase.cas_n), (yield phase.we_n))
                     if code != (1, 1, 1):
                         seen.append((cycle, index, names.get(code, str(code)), (yield phase.address)))
+            if expect is not None and seen != [command for command in expect if command[0] <= cycle]:
+                return
             yield
 
     run_simulation(soc, {"sys": [monitor()]}, clocks={"milan": 20, "sys": 10})
@@ -594,9 +924,10 @@ class UndelayedZQCSRefresher(Module):
 
 
 #: A ZQCS period short enough to reach in simulation, in the shipping parity class: at 100 MHz
-#: tREFI is 782 cycles and the shipping period 10^8, gcd 2; gcd(782, 842) is 2 as well. LiteDRAM's
-#: own refresher meets its first pulse at the end of the first refresh sequence, at cycle 841.
-ZQCS_PERIOD = 842
+#: tREFI is 782 cycles and the shipping period 10^8, gcd 2; gcd(782, 6) is 2 as well. An idle
+#: LiteDRAM refresher then puts ZQCS on the DFI at cycles 2410 and 3192, the second after the ZQCS
+#: timer has re-phased at the first one's end, so the arm grades the timer's start and its re-phase.
+ZQCS_PERIOD = 6
 
 
 def short_zqcs(cls: type) -> type:
@@ -625,20 +956,20 @@ def refresh_behaviour(problems: list[str]) -> None:
     check(problems, kinds == ["PRECHARGE", "REFRESH"] and len(staged) >= 6 and staged == shifted,
           f"Z3 the staged refresher issues LiteDRAM's own precharge-all and refresh commands, each exactly one "
           f"cycle later at the same spacing ({len(staged)} commands, first at {staged[0][0] if staged else None})")
-    cycles = 1700
+    cycles = 3300
     staged = dfi_commands(short_zqcs(milan_soc.RegisteredRefresher), cycles)
     plain = dfi_commands(short_zqcs(Refresher), cycles)
     shifted = [(cycle + 1, index, name, address) for cycle, index, name, address in plain if cycle + 1 < cycles]
     zqcs = [cycle for cycle, _, name, _ in staged if name == "ZQCS"]
     check(problems, sorted({name for _, _, name, _ in staged}) == ["PRECHARGE", "REFRESH", "ZQCS"]
-          and staged == shifted,
+          and len(zqcs) >= 2 and staged == shifted,
           f"Z4 with a {ZQCS_PERIOD}-cycle ZQCS period, the staged refresher issues LiteDRAM's own precharge-all, "
           f"refresh and ZQCS commands, each exactly one cycle later (ZQCS at {zqcs}, LiteDRAM's at "
           f"{[cycle for cycle, _, name, _ in plain if name == 'ZQCS']})")
-    planted = dfi_commands(short_zqcs(UndelayedZQCSRefresher), cycles)
+    planted = dfi_commands(short_zqcs(UndelayedZQCSRefresher), cycles, expect=shifted)
     check(problems, planted != shifted,
-          f"Z5 the stage with its ZQCS timer starting at reset fails Z4 (ZQCS at "
-          f"{[cycle for cycle, _, name, _ in planted if name == 'ZQCS']})")
+          f"Z5 the stage with its ZQCS timer starting at reset fails Z4: stopped at its first difference after "
+          f"{len(planted)} commands, ZQCS at {[cycle for cycle, _, name, _ in planted if name == 'ZQCS']}")
 
 
 def main() -> int:
