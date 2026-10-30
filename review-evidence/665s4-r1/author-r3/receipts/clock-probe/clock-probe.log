@@ -1,0 +1,39 @@
+== (a) the synthetic commit at CPU 62.5 MHz, bus 125 MHz
+# Saved-state cases on the split CPU, 1x1
+
+Clocks, as this run's builds recorded them: CPU 62.5 MHz (62,500,000 Hz), bus 125 MHz (125,000,000 Hz).
+
+| Case | Verdict | Detail |
+|---|---|---|
+| commit | pass |  |
+| step-over-t-svc | caught | every phase's longest step at T_svc (625,000 cycles) passes and one cycle past it is caught: capture, erase, idle, poll, program, read, seal |
+
+Every service step is graded against T_svc = 10.0 ms of CPU time.
+
+Clocks, as this run's builds recorded them: CPU 62.5 MHz (62,500,000 Hz), bus 125 MHz (125,000,000 Hz).
+
+| Case | Service steps | Longest step, CPU cycles | Longest, ms |
+|---|---:|---:|---:|
+| commit | 11 | 40,000 | 0.640 |
+
+Capture, measured (no bound of its own): 4 records in 5 steps; CPU time 161,000 cycles, 2.576 ms; elapsed 201,000 cycles, 3.216 ms; longest step 40,000 cycles, 0.640 ms.
+
+Clocks, as this run's builds recorded them: CPU 62.5 MHz (62,500,000 Hz), bus 125 MHz (125,000,000 Hz).
+
+| Phase | Steps | Longest step, CPU cycles | Longest, ms | Within T_svc | Total, CPU cycles |
+|---|---:|---:|---:|---|---:|
+| capture | 5 | 40,000 | 0.640 | yes | 161,000 |
+| erase | 1 | 300 | 0.005 | yes | 300 |
+| idle | 1 | 50 | 0.001 | yes | 50 |
+| poll | 1 | 300 | 0.005 | yes | 300 |
+| program | 1 | 300 | 0.005 | yes | 300 |
+| read | 1 | 300 | 0.005 | yes | 300 |
+| seal | 2 | 300 | 0.005 | yes | 600 |
+
+== (b) round 2 results.json (a bare list, no clocks), as a record without clocks
+REFUSED ValueError: the results carry no sound clock provenance: no cpu_hz recorded; no sys_hz recorded
+== (c) round 3 8x8 results.json with cpu_hz relabelled to 100,000,000
+REFUSED ValueError: the results carry no sound clock provenance: commit: longest step 2.63858 ms is not 131,929 CPU cycles at 100,000,000 Hz; commit: capture CPU time 103.22656 ms is not 5,161,328 CPU cycles at 100,000,000 Hz; commit: capture elapsed 1638.061 ms is not 81,903,050 CPU cycles at 100,000,000 Hz; commit: capture longest step 2.63858 ms is not 131,929 CPU cycles at 100,000,000 Hz; commit: capture longest step 2.63858 ms is not 131,929 CPU cycles at 100,000,000 Hz; commit: erase longest step 0.2519 ms is not 12,595 CPU cycles at 100,000,000 Hz; commit: idle longest step 0.20716 ms is not 10,358 CPU cycles at 100,000,000 Hz; commit: poll longest step 0.24642 ms is not 12,321 CPU cycles at 100,000,000 Hz; commit: program longest step 2.03154 ms is not 101,577 CPU cycles at 100,000,000 Hz; commit: read longest step 1.91968 ms is not 95,984 CPU cycles at 100,000,000 Hz; commit: seal longest step 0.69678 ms is not 34,839 CPU cycles at 100,000,000 Hz; step-over-t-svc: T_svc of 500,000 cycles is not T_svc at 100,000,000 Hz; valid: longest step 0.19568 ms is not 9,784 CPU cycles at 100,000,000 Hz; absent: longest step 0.19158 ms is not 9,579 CPU cycles at 100,000,000 Hz; torn: l
+== (d) round 3 8x8 results.json as written
+Clocks, as this run's builds recorded them: CPU 50 MHz (50,000,000 Hz), bus 100 MHz (100,000,000 Hz).
+PROBES PASS

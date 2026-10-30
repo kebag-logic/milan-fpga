@@ -1,0 +1,21 @@
+head ac45db8f18a5fde87c84be2225cc1be7d709eae9
+== unplanted: rc=0
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+CONTROL ignore-off-timing: detected planted grading change
+CONTROL off-time-limit: boundary and one-tick-over detected
+CONTROL receipt-opt-out: production bound applied despite a control field
+PASS: capture census, clocks, both timing arms and receipt agree
+
+== planted (the 24.5 ms check removed from grade_rows): rc=1
+CONTROL bytes: detected
+CONTROL records: detected
+CONTROL clock: detected
+CONTROL configured-clock: detected
+CONTROL system-clock: detected
+FAIL: OFF timing limit was ignored
+
+PLANT CAUGHT
