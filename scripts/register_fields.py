@@ -234,7 +234,7 @@ class Deriver:
                     off = top - c_hi
                     span = f"[{c_hi + off}:{c_lo + off}]" if c_hi != c_lo else f"[{c_hi + off}]"
                 return name, span, "consumer"
-        if setters or consumers or not self.used(sig, bit):
+        if setters or consumers:
             return "RESERVED", "", "reserved"
         return field_name(sig), "", "own"
 

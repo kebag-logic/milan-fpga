@@ -87,12 +87,12 @@ Every register's SVG is rendered from it.
 | [`regmap/lwsrp.json`](regmap/lwsrp.json) | lwSRP engine | 9 | `regmap/lwsrp/*.svg` |
 | [`regmap/acmpl.json`](regmap/acmpl.json) | ACMP listener SM | 21 | `regmap/acmpl/*.svg` |
 | [`regmap/tcam.json`](regmap/tcam.json) | RX destination-MAC TCAM filter | 7 | `regmap/tcam/*.svg` |
-| [`regmap/link.json`](regmap/link.json) | Link guard / MAC recovery | 2 | `regmap/link/*.svg` |
+| [`regmap/link.json`](regmap/link.json) | Link guard / MAC recovery (VERSION minor ≥ 0x0006) | 2 | `regmap/link/*.svg` |
 | [`regmap/overlay.json`](regmap/overlay.json) | identity / playback / 802.1AS overlay | 5 | `regmap/overlay/*.svg` |
 | [`regmap/crf.json`](regmap/crf.json) | CRF media-clock sink | 6 | `regmap/crf/*.svg` |
 | [`regmap/crft.json`](regmap/crft.json) | CRF media-clock talker | 6 | `regmap/crft/*.svg` |
-| [`regmap/bdbg.json`](regmap/bdbg.json) | AECP scan forensics (BDBG) and link-guard status | 4 | `regmap/bdbg/*.svg` |
-| [`regmap/clkv.json`](regmap/clkv.json) | Clock validity, TX arbiter and SRP domain | 5 | `regmap/clkv/*.svg` |
+| [`regmap/bdbg.json`](regmap/bdbg.json) | AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO, and the link-guard status | 4 | `regmap/bdbg/*.svg` |
+| [`regmap/clkv.json`](regmap/clkv.json) | Clock validity: the AVTP tu verdict (VERSION minor >= 0x0016), TX arbiter and SRP domain | 5 | `regmap/clkv/*.svg` |
 | [`regmap/rest.json`](regmap/rest.json) | ACMP bind-restore | 6 | `regmap/rest/*.svg` |
 | [`regmap/jnl.json`](regmap/jnl.json) | Persistence-journal ingest | 4 | `regmap/jnl/*.svg` |
 | [`regmap/aemp.json`](regmap/aemp.json) | AEM dynamic-state patch port | 4 | `regmap/aemp/*.svg` |

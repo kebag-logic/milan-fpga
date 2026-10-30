@@ -75,7 +75,7 @@ def anchor(text: str, seen: dict[str, int]) -> str:
 
 def cell(text: str) -> str:
     """Text safe inside one table cell."""
-    return " ".join(str(text).split()).replace("|", "\\|")
+    return re.sub(r"(?<!\\)\|", r"\\|", " ".join(str(text).split()))
 
 
 def human_size(n: int) -> str:
