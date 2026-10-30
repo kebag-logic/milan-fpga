@@ -47,7 +47,7 @@ from qspi_owner_transition import aem_image_binding, bitstream_binding
 
 from migen import (ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal,
                    Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue,
-                   NextState, Memory, Module, Record, READ_FIRST)
+                   NextState, Memory, Module, Record, ResetInserter, READ_FIRST)
 from migen.genlib import fifo as migen_fifo
 from migen.genlib.cdc import MultiReg
 from migen.genlib.record import layout_len
@@ -2436,8 +2436,22 @@ class RegisteredRefresher(Module):
     each bank machine's command FIFO through the multiplexer's grant (14 to 16
     levels, 73 % routing). Registering `valid` and `last` ends the path at a
     flip-flop. The command fields already leave LiteDRAM's executers from
-    flip-flops and `ready` passes back unchanged. So each refresh and ZQCS
-    starts and ends one cycle later, with its own tRP, tRFC and tZQCS spacing.
+    flip-flops and `ready` passes back unchanged. So the controller's grant,
+    and each refresh sequence after it, comes one cycle later.
+
+    LiteDRAM starts a ZQCS only when its ZQCS timer's one-cycle pulse lands on
+    the cycle the refresh sequence ends. That timer runs from reset and
+    re-phases when a ZQCS ends; the register does not delay it. Left alone,
+    the pulse would meet the delayed sequence end one cycle early. At the
+    board's 100 MHz on its DDR3, tREFI is 782 cycles and the ZQCS period
+    10^8, with gcd 2, so an idle controller would never issue ZQCS again
+    (LiteDRAM's own refresher issues its first at 76 s). So the ZQCS timer
+    leaves reset one cycle after the rest. Its later re-phases follow the
+    delayed ZQCS end on their own. On an idle controller every DFI command,
+    precharge-all, REFRESH and ZQCS, is LiteDRAM's own exactly one cycle later,
+    with its own tRP, tRFC and tZQCS spacing. Under traffic the grant waits
+    on the bank machines in both, so whether a ZQCS coincides depends on the
+    traffic in both.
     """
 
     def __init__(self, settings: object, clk_freq: float, zqcs_freq: float = 1e0, postponing: int = 1) -> None:
@@ -2449,6 +2463,10 @@ class RegisteredRefresher(Module):
         self.sync += [cmd.valid.eq(refresher.cmd.valid), cmd.last.eq(refresher.cmd.last)]
         self.comb += [refresher.cmd.connect(cmd, omit={"valid", "last", "ready"}),
                       refresher.cmd.ready.eq(cmd.ready)]
+        if hasattr(refresher, "zqcs_timer"):    # LiteDRAM builds it only when the module has tZQCS
+            started = Signal()
+            self.sync += started.eq(1)
+            self.comb += ResetInserter()(refresher.zqcs_timer).reset.eq(~started)
 
 
 def add_staged_sdram(soc: SoCCore, name: str, **kwargs: object) -> None:

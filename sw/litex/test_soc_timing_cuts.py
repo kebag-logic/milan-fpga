@@ -27,7 +27,7 @@ call, and grades it three ways:
   3. BEHAVIOUR. Reads through the staged flash path return the image (in a
      burst, across bursts and after a gap) at exactly the stated added
      cycles, each transfer inside its chip select. LiteDRAM's native port and
-     its DFI see the same traffic, the refresh one cycle later.
+     its DFI see the same traffic, the refresh and the ZQCS one cycle later.
 
 Run: cd sw/litex && python3 test_soc_timing_cuts.py
 """
@@ -580,13 +580,43 @@ def dfi_commands(stage: type | None, cycles: int) -> list[tuple[int, int, str, i
     return seen
 
 
+class UndelayedZQCSRefresher(Module):
+    """The planted ZQCS change: the request registered, the ZQCS timer left to start at reset."""
+
+    def __init__(self, settings: object, clk_freq: float, zqcs_freq: float = 1e0, postponing: int = 1) -> None:
+        """LiteDRAM's `Refresher` with `valid` and `last` registered and nothing else changed."""
+        self.submodules.refresher = refresher = Refresher(settings, clk_freq, zqcs_freq=zqcs_freq,
+                                                          postponing=postponing)
+        self.cmd = cmd = stream.Endpoint(refresher.cmd.description)
+        self.sync += [cmd.valid.eq(refresher.cmd.valid), cmd.last.eq(refresher.cmd.last)]
+        self.comb += [refresher.cmd.connect(cmd, omit={"valid", "last", "ready"}),
+                      refresher.cmd.ready.eq(cmd.ready)]
+
+
+#: A ZQCS period short enough to reach in simulation, in the shipping parity class: at 100 MHz
+#: tREFI is 782 cycles and the shipping period 10^8, gcd 2; gcd(782, 842) is 2 as well. LiteDRAM's
+#: own refresher meets its first pulse at the end of the first refresh sequence, at cycle 841.
+ZQCS_PERIOD = 842
+
+
+def short_zqcs(cls: type) -> type:
+    """`cls` built with its ZQCS period cut to `ZQCS_PERIOD` sys cycles and nothing else changed."""
+
+    class ShortZQCS(cls):
+        def __init__(self, settings: object, clk_freq: float, zqcs_freq: float = 1e0, postponing: int = 1) -> None:
+            """`cls(settings, clk_freq, clk_freq / ZQCS_PERIOD, postponing)`."""
+            cls.__init__(self, settings, clk_freq, zqcs_freq=clk_freq / ZQCS_PERIOD, postponing=postponing)
+
+    return ShortZQCS
+
+
 def refresh_behaviour(problems: list[str]) -> None:
-    """Arm 3 for the refresh path: LiteDRAM's own refresh commands, each one cycle later.
+    """Arm 3 for the refresh path: LiteDRAM's own refresh and ZQCS commands, each one cycle later.
 
     LiteDRAM issues a ZQCS only when its one-cycle ZQCS timer pulse meets the
-    refresh sequencer's end, which no simulation of this length reaches; the
-    ZQCS executer's commands leave the same registered fields, behind the same
-    two registers.
+    refresh sequence's end, and the shipping one-second period is out of reach
+    of a simulation. Z4 cuts the period to `ZQCS_PERIOD` in the same parity
+    class, so the coincidence the stage must keep happens inside the run.
     """
     staged = dfi_commands(None, 3200)
     plain = dfi_commands(Refresher, 3200)
@@ -595,6 +625,20 @@ def refresh_behaviour(problems: list[str]) -> None:
     check(problems, kinds == ["PRECHARGE", "REFRESH"] and len(staged) >= 6 and staged == shifted,
           f"Z3 the staged refresher issues LiteDRAM's own precharge-all and refresh commands, each exactly one "
           f"cycle later at the same spacing ({len(staged)} commands, first at {staged[0][0] if staged else None})")
+    cycles = 1700
+    staged = dfi_commands(short_zqcs(milan_soc.RegisteredRefresher), cycles)
+    plain = dfi_commands(short_zqcs(Refresher), cycles)
+    shifted = [(cycle + 1, index, name, address) for cycle, index, name, address in plain if cycle + 1 < cycles]
+    zqcs = [cycle for cycle, _, name, _ in staged if name == "ZQCS"]
+    check(problems, sorted({name for _, _, name, _ in staged}) == ["PRECHARGE", "REFRESH", "ZQCS"]
+          and staged == shifted,
+          f"Z4 with a {ZQCS_PERIOD}-cycle ZQCS period, the staged refresher issues LiteDRAM's own precharge-all, "
+          f"refresh and ZQCS commands, each exactly one cycle later (ZQCS at {zqcs}, LiteDRAM's at "
+          f"{[cycle for cycle, _, name, _ in plain if name == 'ZQCS']})")
+    planted = dfi_commands(short_zqcs(UndelayedZQCSRefresher), cycles)
+    check(problems, planted != shifted,
+          f"Z5 the stage with its ZQCS timer starting at reset fails Z4 (ZQCS at "
+          f"{[cycle for cycle, _, name, _ in planted if name == 'ZQCS']})")
 
 
 def main() -> int:
