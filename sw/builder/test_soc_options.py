@@ -5,8 +5,10 @@
 
 The builder runs the refusal bank, and the split placement's CPU check
 (#665): only the split CPU's generator options gain RV32M and the
-instruction and data caches, each at exactly its documented geometry, and
-the split CPU's flash window leaves its data cache.
+instruction and data caches, each at exactly its documented geometry, the
+split CPU's flash window leaves its data cache, and the split CPU runs on
+the sys clock with no clock of its own while the all-fabric CPU keeps the
+Milan clock (owner decision 2026-10-30).
 --netlists additionally requires the NaxRiscv data package and its generator
 sources; no missing dependency skips. Each export uses a fresh process
 because CPU wrappers retain class state.
@@ -57,9 +59,17 @@ from litex.soc.cores.cpu.vexiiriscv import VexiiRiscv
 class SetupStarted(Exception):
     pass
 recorded = {}
+def soc_under_construction():
+    """The MilanSoC whose constructor is handing the CPU its options."""
+    frame = sys._getframe()
+    while frame is not None and not isinstance(frame.f_locals.get("self"), mod.MilanSoC):
+        frame = frame.f_back
+    return frame.f_locals["self"]
 def vexii_setup(args):
-    """Record the generator options the constructor hands the CPU, then stop before setup."""
+    """Record the generator options and the CPU clock the constructor hands the CPU, then stop before setup."""
+    soc = soc_under_construction()
     recorded["vexii_args"] = args.vexii_args
+    recorded["clock"] = [soc.cpu_cd, soc.cpu_clk_freq, args.with_cpu_clk]
     recorded["split_args"] = mod.ctrl_cpu_args(mod.CTRL_FETCH_L1)
     recorded["cacheless_args"] = mod.ctrl_cpu_args(None)
     raise SetupStarted
@@ -286,6 +296,55 @@ def test_split_cache() -> None:
           f"data cache on the split CPU only, {len(controls)} killed controls")
 
 
+def _split_clock(directory, mutations=()):
+    """The CPU clocks of the all-fabric and the split placement (#665, owner decision 2026-10-30), checked.
+
+    The probe's sys clock is 50 MHz and its Milan clock, when it has one, 25 MHz, so the two cannot
+    be confused. The all-fabric CPU stays on the Milan clock behind the generator's crossing, or on
+    sys without one; the split CPU runs on sys, at the sys clock, with no clock of its own, by
+    default and when named; a split CPU on the Milan clock is refused before the CPU is set up.
+    """
+    milan = {"milan_clk_freq": 25000000}
+    split = {"ctrl_mailbox": True, "ctrl_firmware": "unread.elf"}
+    cases = {"all-fabric": milan, "all-fabric without a Milan clock": {}, "split": {**milan, **split},
+             "split, named": {**milan, **split, "ctrl_cpu_cd": "sys"}}
+    want = {"all-fabric": ["milan", 25000000, True], "all-fabric without a Milan clock": ["sys", 50000000, False],
+            "split": ["sys", 50000000, False], "split, named": ["sys", 50000000, False]}
+    got = {}
+    for name, options in cases.items():
+        result = _probe(directory, options=options, mutations=list(mutations))
+        got[name] = result.get("clock", result)
+    assert got == want, got
+    _refused(_probe(directory, options={**milan, **split, "ctrl_cpu_cd": "milan"}, mutations=list(mutations)),
+             "the split placement's CPU runs in the sys clock domain, the bus clock")
+
+
+def test_split_clock() -> None:
+    """Grade the split placement's CPU clock and kill its return to the Milan clock."""
+    domain = 'CTRL_CPU_CD = "sys"'
+    refusal = '    if ctrl_cpu_cd != CTRL_CPU_CD:\n        raise ValueError(f"the split'
+    default = "        if ctrl_mailbox and ctrl_cpu_cd is None:\n            ctrl_cpu_cd = CTRL_CPU_CD"
+    controls = [
+        ("the split CPU on the Milan clock", domain, 'CTRL_CPU_CD = "milan"'),
+        ("a split CPU on the Milan clock accepted", refusal,
+         refusal.replace("if ctrl_cpu_cd != CTRL_CPU_CD:", "if False:")),
+        ("the split CPU left to the all-fabric rule", default, default.replace("if ctrl_mailbox and", "if False and")),
+        ("the split CPU with a clock of its own", '_vex_args.with_cpu_clk = self.cpu_cd != "sys"',
+         "_vex_args.with_cpu_clk = bool(milan_clk_freq)"),
+        ("the all-fabric CPU moved to sys", 'else "milan" if milan_clk_freq else "sys")', 'else "sys")'),
+        ("the CPU's clock taken from the Milan clock",
+         'self.cpu_clk_freq = int(milan_clk_freq if self.cpu_cd == "milan" else sys_clk_freq)',
+         "self.cpu_clk_freq = int(milan_clk_freq or sys_clk_freq)"),
+    ]
+    with tempfile.TemporaryDirectory(prefix="soc-split-clock-") as tmp:
+        directory = Path(tmp)
+        _split_clock(directory)
+        for label, old, new in controls:
+            _killed(lambda: _split_clock(directory, [(old, new)]), label)
+    print("Split placement CPU: on sys at the sys clock with no clock of its own, the all-fabric CPU on the Milan "
+          f"clock, a split CPU on the Milan clock refused, {len(controls)} killed controls")
+
+
 _FLASH_PROBE = r'''
 import json, sys, types
 from pathlib import Path
@@ -379,6 +438,7 @@ if __name__ == "__main__":
     test_refusals()
     test_split_cache()
     test_split_flash()
+    test_split_clock()
     if args.netlists:
         test_netlists(args.nax_data_dir)
     print("RESULT: PASS")

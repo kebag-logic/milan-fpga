@@ -2774,7 +2774,8 @@ class CtrlMailbox(LiteXModule):
         self.ev = EventManager()
         self.ev.mbx = EventSourceLevel()
         self.ev.finalize()
-        # NOW_MS's one-cycle pulse per millisecond of the CPU clock.
+        # NOW_MS's one-cycle pulse per millisecond of the mailbox's own clock, sys, the bus
+        # clock, which the split CPU runs on too (#665, CTRL_CPU_CD).
         ms_div = int(sys_clk_freq) // 1000
         ms_cnt = Signal(max=ms_div)
         ms_tick = Signal()
@@ -2946,6 +2947,29 @@ CTRL_LSU_L1 = (128, 1)
 #: divides are instructions instead of the runtime's software loops.
 CTRL_MULDIV = "--with-mul --with-div"
 
+#: The split placement's CPU clock domain (#665, owner decision 2026-10-30): the SoC's sys clock,
+#: the 100 MHz bus clock the mailbox, its record mover and the firmware memory run on. The CPU is
+#: built without the generator's separate CPU clock (VexiiRiscv's with_cpu_clk), so no crossing
+#: sits between it and the bus. The Milan datapath clock is unchanged; only the all-fabric
+#: placement still runs its CPU from it, the bare-metal build contract's clock
+#: (docs/integration/BAREMETAL_FIRMWARE.md).
+CTRL_CPU_CD = "sys"
+
+
+def ctrl_cpu_domain(ctrl_cpu_cd: str) -> str:
+    """The split placement's CPU clock domain, refused unless it is CTRL_CPU_CD (#665).
+
+    The Milan clock is the datapath's, the bare-metal build contract's 50 MHz.
+    A split CPU left on it runs at half the bus clock behind the generator's
+    crossing and cross_cpu_memory_ports', which the owner's decision of
+    2026-10-30 retired.
+    """
+    if ctrl_cpu_cd != CTRL_CPU_CD:
+        raise ValueError(f"the split placement's CPU runs in the {CTRL_CPU_CD} clock domain, the bus clock "
+                         f"(#665, owner decision 2026-10-30): {ctrl_cpu_cd!r} is refused, and the Milan "
+                         "clock is the datapath's")
+    return ctrl_cpu_cd
+
 
 def ctrl_cpu_args(fetch_l1: tuple[int, int] | None) -> str:
     """The generator options the split placement adds to its CPU: RV32M, and its instruction
@@ -3005,11 +3029,22 @@ class MilanSoC(SoCCore):
                  gptp_plane=None,
                  gptp_ingress_lat_ns=0, gptp_egress_lat_ns=0,
                  render_lpf=True, optional_blocks=None,
-                 entity_gen_dir=None, ctrl_mailbox=False, ctrl_firmware=None, **kwargs):
+                 entity_gen_dir=None, ctrl_mailbox=False, ctrl_firmware=None, ctrl_cpu_cd=None,
+                 **kwargs):
         self._cpu_xlen = int(xlen)
         if software_profile != "baremetal":
             raise ValueError("unsupported software profile")
         _validate_cpu_options(cpu, with_fpu, l2_bytes)
+        # The CPU's clock domain and its clock (#665). ctrl_cpu_cd is the split CPU's,
+        # CTRL_CPU_CD under --ctrl-mailbox unless named, and refused unless sys
+        # (ctrl_cpu_domain); the CPU budget harness's test split SoC, which builds its own
+        # mailbox, names it too. Otherwise the all-fabric CPU keeps the Milan domain when the
+        # SoC has one. Every CPU-clock constant comes from cpu_clk_freq, never milan_clk_freq.
+        if ctrl_mailbox and ctrl_cpu_cd is None:
+            ctrl_cpu_cd = CTRL_CPU_CD
+        self.cpu_cd = (ctrl_cpu_domain(ctrl_cpu_cd) if ctrl_cpu_cd is not None
+                       else "milan" if milan_clk_freq else "sys")
+        self.cpu_clk_freq = int(milan_clk_freq if self.cpu_cd == "milan" else sys_clk_freq)
         # Resolve the one PHC owner once, before it fans out into RTL, firmware
         # constants and the flash artifact contract.  `none` is a real state
         # for the documented --no-milan bare-SoC path; a missing value is not
@@ -3044,11 +3079,13 @@ class MilanSoC(SoCCore):
             _vex_args.cpu_count   = cpu_count
             _vex_args.with_dma    = bool(with_milan)
             # The cacheless core trades latency for gates: its direct fetch/data
-            # TileLink paths trade latency for gates. Clock the CPU side with the
-            # already-present 50 MHz Milan domain; Vexii inserts its supported
-            # CPU/LiteX CDC when --with-cpu-clk is selected.  The sys fabric and
-            # audio reference stay at their silicon-proven 100 MHz recipe.
-            _vex_args.with_cpu_clk = bool(milan_clk_freq)
+            # TileLink paths trade latency for gates. Clock the all-fabric CPU
+            # side with the already-present 50 MHz Milan domain; Vexii inserts its
+            # supported CPU/LiteX CDC when --with-cpu-clk is selected.  The sys
+            # fabric and audio reference stay at their silicon-proven 100 MHz
+            # recipe. The split CPU runs on sys itself (#665, CTRL_CPU_CD), so it
+            # has no CPU clock of its own and no crossing.
+            _vex_args.with_cpu_clk = self.cpu_cd != "sys"
             _vex_args.l2_bytes    = int(l2_bytes) if l2_bytes else 0
             vexii_extra = " ".join(extra_scala_args) if extra_scala_args else ""
             if ctrl_mailbox:
@@ -3196,9 +3233,10 @@ class MilanSoC(SoCCore):
             # the generated Vexii wrapper retains litex_clk/reset on cd_sys.
             # Vexii crosses its peripheral and DMA buses back into sys itself;
             # its MEMORY master stays on cpu_clk, and this SoC crosses it
-            # (#359, see cross_cpu_memory_ports).
-            self.comb += self.cpu.cpu_clk.eq(ClockSignal("milan"))
-            cross_cpu_memory_ports(self.cpu, cd_from="milan", cd_to="sys")
+            # (#359, see cross_cpu_memory_ports). Only a CPU off sys has one:
+            # the all-fabric CPU on the Milan clock, never the split CPU (#665).
+            self.comb += self.cpu.cpu_clk.eq(ClockSignal(self.cpu_cd))
+            cross_cpu_memory_ports(self.cpu, cd_from=self.cpu_cd, cd_to="sys")
 
         # ---- DDR3 (LiteDRAM, A7DDRPHY)  -  migration §A.3. AX7101 = MT41J256M16
         # (512 MB, 2x16); Arty A7-100 = MT41K128M16 (256 MB, 1x16). ----
