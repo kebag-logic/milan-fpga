@@ -9,7 +9,9 @@ and requires a named check to fail. Run it through run.py --self-test.
 It holds the run's clock provenance: results.json carries the builds'
 recorded clocks, the report names them beside every table, a synthetic run at
 other clocks renders those clocks and its figures at them, and a record with
-a clock missing, misconverted or not its builds' is refused (#665).
+a clock missing, misconverted or not its builds' is refused (#665). A reused
+output directory holds one run's outputs: a refusal after a success leaves no
+table or results beside it, and a success after a refusal leaves no refusal.
 
 It also holds D5 on the current flash writer unchanged (#665 owner decision
 2026-10-29, option (c)): that writer's own grader, nvm_capture_cpu/run.py,
@@ -189,25 +191,108 @@ def unclocked_tables(text: str, words: str) -> list[str]:
             and not (i >= 2 and lines[i - 1] == '' and lines[i - 2].startswith('Clocks, ') and words in lines[i - 2])]
 
 
-def main_run(cpu_hz: int, sys_hz: int, graded_at: int = 0, planted: dict | None = None) -> tuple[int, dict, str]:
+#: A run's outputs as main_run reads them back: its exit status, results.json, table.md and refused.json.
+Run = tuple[int, dict, str, dict]
+
+
+def main_run(cpu_hz: int, sys_hz: int, graded_at: int = 0, planted: dict | None = None, root: Path | None = None,
+             builds: dict[str, dict] | None = None) -> Run:
     """run.py's main on builds recording cpu_hz and sys_hz, its cases graded at the clocks main passes them:
-    its exit status, results.json and table.md. graded_at plants a CPU clock for the grading, and planted the
-    run's clocks, other than the builds'."""
-    def built(root: Path, key: str, point: str, reuse: bool) -> dict:
+    its exit status (-1 when main crashes), results.json, table.md and refused.json ({} or '' for each it did
+    not leave). graded_at
+    plants a CPU clock for the grading, planted the run's clocks, other than the builds', and builds an arm's
+    recorded clocks in place of cpu_hz and sys_hz. root is the build directory, its results in root/results;
+    by default a fresh one, removed after the run."""
+    def built(build_root: Path, key: str, point: str, reuse: bool) -> dict:
         """A build that records only its clocks."""
-        return dict(cpu_hz=cpu_hz, sys_hz=sys_hz, build_dir=str(root / key))
+        return dict((builds or {}).get(key, dict(cpu_hz=cpu_hz, sys_hz=sys_hz)), build_dir=str(build_root / key))
 
     def run_cases(selected: list, specs: dict, point: str, out: Path, jobs: int, clk: dict) -> list[dict]:
         """The synthetic commit, graded at the clocks main passes, or at graded_at."""
         return graded_commit(graded_at or clk['cpu_hz'], clk['sys_hz'])
-    with tempfile.TemporaryDirectory() as tmp, replaced(RUN, 'built', built), \
-            replaced(RUN, 'run_cases', run_cases), contextlib.redirect_stdout(io.StringIO()), \
-            replaced(RUN, 'clocks', (lambda specs: planted) if planted else RUN.clocks):
-        status = RUN.main(['--point', '1x1', '--build-dir', tmp, '--cases', 'valid'])
-        out = Path(tmp) / 'results'
-        saved = json.loads((out / 'results.json').read_text()) if (out / 'results.json').is_file() else {}
+    with contextlib.ExitStack() as stack:
+        tmp = root or Path(stack.enter_context(tempfile.TemporaryDirectory()))
+        for name, value in (('built', built), ('run_cases', run_cases),
+                            ('clocks', (lambda specs: planted) if planted else RUN.clocks)):
+            stack.enter_context(replaced(RUN, name, value))
+        stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
+        try:
+            status = RUN.main(['--point', '1x1', '--build-dir', str(tmp), '--cases', 'valid'])
+        except (TypeError, KeyError):
+            status = -1    # a mutant's crash: neither an accepted nor a refused run
+        out = tmp / 'results'
+        saved, refused = ({}, {}) if not out.is_dir() else (
+            json.loads((out / name).read_text()) if (out / name).is_file() else {} for name in RUN_JSON)
         text = (out / 'table.md').read_text() if (out / 'table.md').is_file() else ''
-    return status, saved, text
+    return status, saved, text, refused
+
+
+#: The JSON files a run may leave: the accepted record, and the refusal in its place.
+RUN_JSON = ('results.json', 'refused.json')
+
+
+def accepted(run: Run, cpu_hz: int, words: str) -> bool:
+    """The run accepted: exit 0, results.json at cpu_hz, table.md beside every table naming words, no refusal."""
+    status, saved, text, refused = run
+    return status == 0 and saved.get('cpu_hz') == cpu_hz and words in text and not unclocked_tables(text, words) \
+        and not refused
+
+
+def refused_alone(run: Run, words: str) -> bool:
+    """The run refused: exit 2, neither results.json nor table.md, and refused.json naming words, shaped like no
+    accepted record (no clocks or results at its top)."""
+    status, saved, text, refused = run
+    return status == 2 and not saved and not text and words in refused.get('refused', '') and \
+        not {'cpu_hz', 'sys_hz', 'results'} & set(refused)
+
+
+def reused_checks() -> list[Check]:
+    """The output directory reused: a success, then a refusal of each class in the same directory, leaves the
+    refusal alone, no earlier table or record beside it; a refusal, then a success, leaves the success's pair
+    alone. accept writes nothing for a record it refuses, and refuse removes a pair already written."""
+    other = f'CPU 62.5 MHz ({OTHER_CPU_HZ:,} Hz), bus 125 MHz ({OTHER_SYS_HZ:,} Hz)'
+    unclocked = dict(sys_hz=OTHER_SYS_HZ)
+    refusals = {
+        'a build without its CPU clock': (dict(builds={'capture-all': unclocked, 'fixture': unclocked}),
+                                          'the builds record no usable clocks'),
+        'builds that disagree on their clocks': (dict(builds={'fixture': dict(cpu_hz=CPU_HZ, sys_hz=OTHER_SYS_HZ)}),
+                                                 'the builds record different clocks'),
+        "clocks that are not its builds'": (dict(planted=dict(cpu_hz=CPU_HZ, sys_hz=SYS_HZ)),
+                                            'capture-all: the build records CPU 62500000 Hz'),
+        'results misconverted': (dict(graded_at=CPU_HZ), 'is not 40,000 CPU cycles at 62,500,000 Hz')}
+    out = []
+    for label, (plant, words) in refusals.items():
+        with tempfile.TemporaryDirectory() as tmp:
+            first = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ, root=Path(tmp))
+            again = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ, root=Path(tmp), **plant)
+        out.append((f'a success, then {label} in the same directory: the refusal alone, no table or results left',
+                    accepted(first, OTHER_CPU_HZ, other) and refused_alone(again, words),
+                    f'{first[0]} {again[:3]} {again[3].get("refused", "")[:200]}'))
+    with tempfile.TemporaryDirectory() as tmp:
+        first = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ, root=Path(tmp), graded_at=CPU_HZ)
+        again = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ, root=Path(tmp))
+    out.append(('a refusal, then a success in the same directory: the success\'s pair alone, no refusal left',
+                refused_alone(first, 'is not 40,000 CPU cycles') and accepted(again, OTHER_CPU_HZ, other),
+                f'{first[0]} {again[0]} {again[3]}'))
+    rec = dict(graded_record(OTHER_CPU_HZ, OTHER_SYS_HZ), cpu_hz=CPU_HZ)
+    with tempfile.TemporaryDirectory() as tmp:
+        try:
+            RUN.accept(Path(tmp), rec, {'a': dict(cpu_hz=CPU_HZ, sys_hz=OTHER_SYS_HZ)})
+            words = ''
+        except (RuntimeError, ValueError, KeyError, TypeError) as error:
+            words = str(error)
+        left = sorted(p.name for p in Path(tmp).iterdir())
+    out.append(('accept writes nothing for a record it refuses', 'is not 40,000 CPU cycles' in words and not left,
+                f'{words[:200]} {left}'))
+    with tempfile.TemporaryDirectory() as tmp:
+        for name in RUN.ACCEPTED:
+            (Path(tmp) / name).write_text('{}')
+        RUN.refuse(Path(tmp), 'planted', None)
+        left = sorted(p.name for p in Path(tmp).iterdir())
+        kept = json.loads((Path(tmp) / RUN.REFUSAL).read_text()) if left == [RUN.REFUSAL] else {}
+    out.append(('refuse removes a pair already written and leaves its refusal alone',
+                kept == dict(refused='planted', record=None), str(left)))
+    return out
 
 
 def clock_checks() -> list[Check]:
@@ -251,16 +336,17 @@ def clock_checks() -> list[Check]:
             refused.append(label if 'clocks' in str(error) else f'{label}: {error}')
     out.append(('builds that disagree on their clocks, lack one or are none are refused',
                 refused == ['disagree', 'lack one', 'are none'], str(refused)))
-    status, saved, report = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ)
+    status, saved, report, _ = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ)
     out.append(("run.py writes its builds' clocks to results.json and beside every table of table.md",
                 status == 0 and (saved.get('cpu_hz'), saved.get('sys_hz')) == (OTHER_CPU_HZ, OTHER_SYS_HZ) and
                 other in report and not unclocked_tables(report, other), f'{status} {str(saved)[:200]}'))
-    status, saved, report = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ, graded_at=CPU_HZ)
+    status, saved, report, refused = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ, graded_at=CPU_HZ)
     out.append(('run.py refuses results graded at another CPU clock than their record names, writing no table',
-                status == 2 and not report, f'{status} {report[:200]}'))
-    status, saved, report = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ, planted=dict(cpu_hz=CPU_HZ, sys_hz=SYS_HZ))
+                status == 2 and not report and not saved, f'{status} {report[:200]}'))
+    status, saved, report, refused = main_run(OTHER_CPU_HZ, OTHER_SYS_HZ, planted=dict(cpu_hz=CPU_HZ, sys_hz=SYS_HZ))
     out.append(("run.py refuses a run whose clocks are not its builds', writing no table",
-                status == 2 and not report and saved.get('cpu_hz') == CPU_HZ, f'{status} {report[:200]}'))
+                status == 2 and not report and not saved and (refused.get('record') or {}).get('cpu_hz') == CPU_HZ,
+                f'{status} {report[:200]} {str(refused)[:200]}'))
     return out
 
 
@@ -453,8 +539,8 @@ def d5_checks() -> list[Check]:
 
 def checks() -> list[Check]:
     """Every check."""
-    return [*capture_checks(), *t_svc_checks(), *report_checks(), *clock_checks(), *order_checks(), *answer_checks(),
-            *journal_checks(), *plant_checks(), *control_checks(), *d5_checks()]
+    return [*capture_checks(), *t_svc_checks(), *report_checks(), *clock_checks(), *reused_checks(), *order_checks(),
+            *answer_checks(), *journal_checks(), *plant_checks(), *control_checks(), *d5_checks()]
 
 
 @contextlib.contextmanager
@@ -511,6 +597,33 @@ def _last_table_unclocked(rec: dict) -> str:
     return text[:at] + text[at + len(line):]
 
 
+_ACCEPT, _REFUSE = RUN.accept, RUN.refuse
+
+
+def _clear_pair_only(out: Path) -> None:
+    """clear, an earlier refusal left in place."""
+    for name in RUN.ACCEPTED:
+        (out / name).unlink(missing_ok=True)
+
+
+def _accept_unvalidated(out: Path, rec: dict, specs: dict[str, dict]) -> str:
+    """accept, results.json written before the record is validated."""
+    (out / 'results.json').write_text(json.dumps(rec, default=str))
+    return _ACCEPT(out, rec, specs)
+
+
+def _refuse_kept(out: Path, words: str, rec: dict | None) -> None:
+    """refuse, a pair already written left beside the refusal."""
+    (out / RUN.REFUSAL).write_text(json.dumps(dict(refused=words, record=rec), default=str))
+
+
+def _refusal_as_results(out: Path, words: str, rec: dict | None) -> None:
+    """refuse, the refused record written as results.json."""
+    _REFUSE(out, words, rec)
+    (out / RUN.REFUSAL).unlink()
+    (out / 'results.json').write_text(json.dumps(rec, default=str))
+
+
 #: Each grading rule replaced by a weaker one, and the check that must then fail.
 MUTANTS: tuple[tuple[str, object, str, object, str], ...] = (
     ('steps: strictly below T_svc', tg, 'within_t_svc',
@@ -561,6 +674,17 @@ MUTANTS: tuple[tuple[str, object, str, object, str], ...] = (
     ('clocks: an unconditional 50 MHz and 100 MHz for the run', RUN, 'clocks',
      lambda specs: dict(cpu_hz=CPU_HZ, sys_hz=SYS_HZ),
      "run.py writes its builds' clocks to results.json and beside every table of table.md"),
+    ("reuse: an earlier run's results and refusal left in place", RUN, 'clear', lambda out: None,
+     'a success, then a build without its CPU clock in the same directory: the refusal alone, no table or results '
+     'left'),
+    ('reuse: an earlier refusal left beside a success', RUN, 'clear', _clear_pair_only,
+     "a refusal, then a success in the same directory: the success's pair alone, no refusal left"),
+    ('reuse: results.json written before its record is validated', RUN, 'accept', _accept_unvalidated,
+     'accept writes nothing for a record it refuses'),
+    ('reuse: a refusal leaves a pair already written', RUN, 'refuse', _refuse_kept,
+     'refuse removes a pair already written and leaves its refusal alone'),
+    ('reuse: the refused record written as results.json', RUN, 'refuse', _refusal_as_results,
+     'a success, then results misconverted in the same directory: the refusal alone, no table or results left'),
     ('the current flash writer: its 24.5 ms check removed from its grader', SELF, 'shipping_source',
      _shipping_check_removed,
      "the current flash writer's capture is held to 24.5 ms: exactly 24.5 ms passes, one system tick more is "

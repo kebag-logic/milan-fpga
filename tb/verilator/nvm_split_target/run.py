@@ -26,6 +26,11 @@ those clocks beside the results, and table.md names them beside every table; a
 record with a clock missing, a figure not converted at its CPU clock, or clocks
 that are not its builds' is refused (#665, the timing figures name their
 clocks).
+
+results.json and table.md are one validated run's: a run removes the earlier
+run's pair and refusal before it builds, and writes the pair only once the
+record is validated. A refused run leaves refused.json alone in their place, a
+diagnostic of the refusal that is shaped like no accepted record (#665).
 """
 from __future__ import annotations
 
@@ -234,6 +239,40 @@ def table(rec: dict) -> str:
     return '\n'.join(lines) + '\n'
 
 
+#: What a run leaves in its results directory: the accepted pair, or the refusal in their place.
+ACCEPTED, REFUSAL = ('results.json', 'table.md'), 'refused.json'
+
+
+def clear(out: Path) -> None:
+    """Remove an earlier run's results.json, table.md and refusal from out, so that what it holds after this run
+    is this run's alone."""
+    for name in (*ACCEPTED, REFUSAL):
+        (out / name).unlink(missing_ok=True)
+
+
+def accept(out: Path, rec: dict, specs: dict[str, dict]) -> str:
+    """Validate the record, its clocks against its builds' and its figures at its clocks, then write it as
+    results.json and its report as table.md: both, and only once both are sound. The report's text."""
+    wrong = against_build(rec, specs)
+    if wrong:
+        raise RuntimeError('; '.join(wrong))
+    text = table(rec)
+    (out / 'results.json').write_text(json.dumps(rec, indent=1, default=str) + '\n')
+    (out / 'table.md').write_text(text)
+    return text
+
+
+def refuse(out: Path, words: str, rec: dict | None) -> None:
+    """A refused run's only output: whatever of the pair was written removed, and refused.json holding the
+    refusal's words and the record refused, if one was made. It has no clocks or results at its top, so it
+    reads as no accepted record."""
+    try:
+        clear(out)
+        (out / REFUSAL).write_text(json.dumps(dict(refused=words, record=rec), indent=1, default=str) + '\n')
+    except OSError as error:
+        print(f'REFUSED: and its refusal not recorded in {out}: {error}')
+
+
 def exit_status(results: list[dict]) -> int:
     """0 when every case passed, no step over T_svc among them, and every control was caught."""
     for r in results:
@@ -271,20 +310,18 @@ def main(argv: list[str] | None = None) -> int:
     root = args.build_dir.resolve()
     out = (args.out or root / 'results').resolve()
     out.mkdir(parents=True, exist_ok=True)
+    rec = None
     try:
+        clear(out)
         specs = {key: built(root, key, args.point, args.reuse_build)
                  for key in dict.fromkeys(cases.build_key(c) for c in selected)}
         clk = clocks(specs)
         rec = record(run_cases(selected, specs, args.point, out, args.jobs, clk), args.point, clk)
-        (out / 'results.json').write_text(json.dumps(rec, indent=1, default=str) + '\n')
-        wrong = against_build(rec, specs)
-        if wrong:
-            raise RuntimeError('; '.join(wrong))
-        text = table(rec)
+        text = accept(out, rec, specs)
     except (RuntimeError, OSError, ValueError) as error:
         print(f'REFUSED: {error}')
+        refuse(out, str(error), rec)
         return 2
-    (out / 'table.md').write_text(text)
     print(text)
     return exit_status(rec['results'])
 
