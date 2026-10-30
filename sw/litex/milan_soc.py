@@ -2404,21 +2404,25 @@ class AXIReadyStage(Module):
     buffer level, the bank machines' FIFO levels) reached the FIFOs' LUTRAM
     read addresses through logic alone (13 to 14 levels, about 80 % routing).
     That path set the route WNS at two of the recipe's three placement
-    directives on dev 1e80128f. A LiteX `PipeReady` on aw, w and ar ends it at
-    a flip-flop: the FIFO's read enable becomes the pipe's registered "empty".
-    The payload still passes in the same cycle and a held beat goes out on
-    the next ready, so the stage adds no cycle, and the AXI handshake keeps
-    its order and its valid-until-ready rule. The response channels b and r
-    pass through.
+    directives on dev 1e80128f, always into the aw or ar FIFO. A LiteX
+    `PipeReady` on aw and ar ends it at a flip-flop: the FIFO's read enable
+    becomes the pipe's registered "empty". The payload still passes in the
+    same cycle and a held beat goes out on the next ready, so the stage adds
+    no cycle, and the AXI handshake keeps its order and its valid-until-ready
+    rule. The w channel passes through: its FIFO's read register had more
+    than 4.1 ns of slack in all three routes, and a 293-bit pipe would cost
+    about 290 flip-flops and multiplexers. The response channels b and r pass
+    through.
     """
 
     def __init__(self, master: axi.AXIInterface, slave: axi.AXIInterface) -> None:
         """The stage between `master` (the crossing's output) and `slave` (LiteDRAM's side)."""
-        for name in ("aw", "w", "ar"):
+        for name in ("aw", "ar"):
             pipe = stream.PipeReady(getattr(master, name).description)
             setattr(self.submodules, f"{name}_pipe", pipe)
             self.comb += [getattr(master, name).connect(pipe.sink),
                           pipe.source.connect(getattr(slave, name))]
+        self.comb += master.w.connect(slave.w)
         for name in ("b", "r"):
             self.comb += getattr(slave, name).connect(getattr(master, name))
 

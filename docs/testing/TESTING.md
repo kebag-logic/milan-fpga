@@ -727,7 +727,7 @@ and `add_staged_sdram` under LiteX's `add_sdram`. Its structural arms walk the
 elaborated migen netlist from each endpoint back to the flip-flops that feed it
 through logic alone. No AXI-Lite bridge flip-flop may reach a flash-core
 flip-flop through the core's bus face. No LiteDRAM converter or core
-flip-flop may reach a request crossing FIFO's LUTRAM read address. No
+flip-flop may reach an address crossing FIFO's LUTRAM read address. No
 LiteDRAM refresher flip-flop may reach a bank-machine or multiplexer
 flip-flop through the refresh request. The same builds with each stage
 replaced by wires, or by LiteDRAM's own refresher, must fail those arms. The

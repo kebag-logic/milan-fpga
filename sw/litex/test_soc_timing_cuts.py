@@ -413,14 +413,14 @@ class DramSoC(SoCCore):
 
 
 def dram_crossings(soc: DramSoC) -> tuple[list[str], bool, int]:
-    """LiteDRAM-side flip-flops reaching a request crossing FIFO's LUTRAM read address.
+    """LiteDRAM-side flip-flops reaching an address crossing FIFO's LUTRAM read address.
 
-    The request channels (aw, w, ar) cross into sys, so their FIFOs' read
-    ports are the crossing's sys-clocked read ports. Returns the paths that
-    reach one of those read addresses from a flip-flop of LiteDRAM's
-    AXI-to-native converter or its core through logic alone, named
-    `start -> end`. Then whether stage flip-flops feed every read address, and
-    how many read ports were examined.
+    The address channels (aw, ar) cross into sys, so their FIFOs' read ports
+    are the crossing's sys-clocked read ports whose data reach the address
+    LiteDRAM's side reads. Returns the paths that reach one of those read
+    addresses from a flip-flop of LiteDRAM's AXI-to-native converter or its
+    core through logic alone, named `start -> end`. Then whether stage
+    flip-flops feed every read address, and how many read ports were examined.
     """
     netlist = Netlist(soc.get_fragment())
     converters = find(soc, LiteDRAMAXI2Native)
@@ -428,8 +428,11 @@ def dram_crossings(soc: DramSoC) -> tuple[list[str], bool, int]:
         raise AssertionError(f"expected one AXI-to-native converter, found {len(converters)}")
     dram = registers(converters[0]) | registers(soc.sdram)
     stage = registers(soc.cpu.memory_port_stage0)
+    dram_side = soc.cpu.memory_buses[0]
+    wires = netlist.cone(dram_side.aw.addr)[1] | netlist.cone(dram_side.ar.addr)[1]
     ports = [special for special in soc.cpu.memory_port_cdc0._fragment.specials
-             if isinstance(special, _MemoryPort) and special.we is None and special.clock.cd == "sys"]
+             if isinstance(special, _MemoryPort) and special.we is None and special.clock.cd == "sys"
+             and special.dat_r.duid in wires]
     paths, staged = [], True
     for port in ports:
         feeders = netlist.feeding(port.adr)
@@ -441,10 +444,10 @@ def dram_crossings(soc: DramSoC) -> tuple[list[str], bool, int]:
 def dram_structure(problems: list[str]) -> None:
     """Arms 1 and 2 for the DRAM path."""
     paths, staged, examined = dram_crossings(build(DramSoC))
-    check(problems, examined == 3 and staged,
-          f"D0 the stage feeds the read address of each request crossing FIFO ({examined} of aw, w and ar)")
+    check(problems, examined == 2 and staged,
+          f"D0 the stage feeds the read address of each address crossing FIFO ({examined} of aw and ar)")
     check(problems, not paths,
-          "D1 no flip-flop of LiteDRAM's AXI-to-native converter or core reaches a request crossing FIFO's "
+          "D1 no flip-flop of LiteDRAM's AXI-to-native converter or core reaches an address crossing FIFO's "
           "LUTRAM read address through logic alone" + (f": {paths[:4]}" if paths else ""))
     paths, staged, _ = dram_crossings(build(DramSoC, stage=WirePassThrough))
     counter = [path for path in paths if "beat_count" in path.split(" -> ")[0]]
