@@ -1,0 +1,4 @@
+[PASS] mutant caught: the lock survives the power cycle - breaks "[VOLATILE] the lock is clear after the restore: SET_NAME from B is SUCCESS" (its tallies report 3 failure(s) across 711 checks)
+[PASS] mutant caught: the registered-controller list survives the power cycle - breaks "[VOLATILE] the registry is empty after the restore" (its tallies report 1 failure(s) across 711 checks)
+[PASS] mutant caught: the IDENTIFY value survives the power cycle - breaks "[VOLATILE] IDENTIFY reads 0 after the restore" (its tallies report 1 failure(s) across 711 checks)
+PASS: all three new volatile mutants failed their named checks; see dynmap-clean for the positive control

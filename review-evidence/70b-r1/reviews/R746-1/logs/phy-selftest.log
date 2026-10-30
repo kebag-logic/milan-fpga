@@ -1,0 +1,56 @@
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=0 up=0 down=0
+PHY_PUBLISH value=13 up=1 down=0
+PHY_PUBLISH value=13 up=1 down=0
+PHY_PUBLISH value=0 up=1 down=1
+PHY_PUBLISH value=0 up=1 down=1
+PHY_PUBLISH value=0 up=1 down=1
+PHY_PUBLISH value=13 up=2 down=1
+PHY_PUBLISH value=13 up=2 down=1
+PHY_PUBLISH value=11 up=2 down=1
+PHY_PUBLISH value=3 up=2 down=1
+PHY_PUBLISH value=9 up=2 down=1
+PHY_PUBLISH value=1 up=2 down=1
+PHY_PUBLISH value=0 up=2 down=2
+PHY_PUBLISH value=11 up=3 down=2
+PHY_PUBLISH value=0 up=3 down=3
+PHY_PUBLISH value=11 up=4 down=3
+PHY_PUBLISH value=11 up=4 down=3
+PHY_PUBLISH value=11 up=4 down=3
+PHY_PUBLISH value=0 up=4 down=4
+PHY_PUBLISH value=0 up=4 down=4
+PHY_PUBLISH value=11 up=5 down=4
+PHY_OK transfers=78 delay_cycles=319488
+PHY_MUTANT no-publish: caught
+PHY_MUTANT defer-recovery: caught
+PHY_MUTANT late-sample: caught
+PHY_MUTANT ack-ignored: caught
+PHY_BOOT shipping: transfers=54 publishes=16 idle_publishes=8 status=13
+PHY_BOOT persistence disabled: transfers=54 publishes=16 idle_publishes=8 status=13
+PHY_BOOT identity mismatch: transfers=0 publishes=0 idle_publishes=0 status=0
+PHY_BOOT shipping: transfers=54 publishes=16 idle_publishes=8 status=13
+PHY_BOOT persistence disabled: transfers=0 publishes=0 idle_publishes=0 status=0
+PHY_BOOT identity mismatch: transfers=0 publishes=0 idle_publishes=0 status=0
+PHY_BOOT_MUTANT phy_behind_the_writer: caught by PHY boot path persistence disabled: the link-status CSR holds 0, not the peer's 1000BASE-T full duplex (13)
+PHY_BOOT shipping: transfers=54 publishes=16 idle_publishes=8 status=13
+PHY_BOOT persistence disabled: transfers=14 publishes=8 idle_publishes=0 status=13
+PHY_BOOT identity mismatch: transfers=0 publishes=0 idle_publishes=0 status=0
+PHY_BOOT_MUTANT disabled_path_no_idle_hook: caught by PHY boot path persistence disabled: 0 publication(s) in 1000 ms of console idle, fewer than one per 250 ms
+PHY_BOOT shipping: transfers=54 publishes=16 idle_publishes=8 status=13
+PHY_BOOT persistence disabled: transfers=0 publishes=0 idle_publishes=0 status=0
+PHY_BOOT identity mismatch: transfers=0 publishes=0 idle_publishes=0 status=0
+PHY_BOOT_MUTANT phy_never_armed: caught by PHY boot path persistence disabled: the link-status CSR holds 0, not the peer's 1000BASE-T full duplex (13)
+PHY_BOOT shipping: transfers=0 publishes=0 idle_publishes=0 status=0
+PHY_BOOT persistence disabled: transfers=54 publishes=16 idle_publishes=8 status=13
+PHY_BOOT identity mismatch: transfers=0 publishes=0 idle_publishes=0 status=0
+PHY_BOOT_MUTANT phy_off_the_writer_path: caught by PHY boot path shipping: the link-status CSR holds 0, not the peer's 1000BASE-T full duplex (13)
+PHY_BOOT shipping: transfers=54 publishes=16 idle_publishes=8 status=13
+PHY_BOOT persistence disabled: transfers=54 publishes=16 idle_publishes=8 status=13
+PHY_BOOT identity mismatch: transfers=1 publishes=1 idle_publishes=1 status=0
+PHY_BOOT_MUTANT phy_unguarded: caught by PHY boot path identity mismatch: 1 MDIO transfer(s) and 1 publication(s) on a fabric that failed its identity check
+PHY_BOOT_OK: every boot path past the identity check publishes the link

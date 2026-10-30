@@ -1,0 +1,14 @@
+{
+  "command": [
+    "make",
+    "-j16",
+    "-C",
+    "tb/verilator/milan_dp",
+    "dynmap",
+    "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+    "VERILATOR_JOBS=5"
+  ],
+  "cwd": "<packet>/scratch/probe",
+  "returncode": 0,
+  "elapsed_seconds": 232.569
+}
