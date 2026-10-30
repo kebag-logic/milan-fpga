@@ -439,7 +439,7 @@ The gate selects the route with the best worst-corner WNS and names its directiv
 That route's WNS and WHS must stay at or above their floors at every signoff corner.
 Those floors are the build floor of [BUILDING.md section 5](../integration/BUILDING.md#5-gates-before-a-build-is-good).
 Every other figure is judged on that route, against the unchanged tolerances and ceiling.
-A WNS or WHS fall from the record by more than the timing fall prints a WARNING and never fails.
+A WNS or WHS fall from the record by more than the timing fall prints a WARNING, also beside a floor failure, and never fails.
 Standalone timing is not gated: those syntheses have no I/O constraints.
 The tolerances, floors and ceiling are accepted as working policy (manager ruling).
 `check-baseline` reads this table and refuses a baseline whose policy differs from it in any cell.

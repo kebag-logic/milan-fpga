@@ -585,7 +585,7 @@ It prints each route's worst-corner WNS and WHS and names the selected directive
 It judges that route's WNS and WHS at every signoff corner, against the floors.
 The timing grade the flow configures declares the corners; each corner's `*_signoff_*_timing.rpt` is read.
 Every other figure of that route is judged against its tolerance or ceiling.
-A timing figure that fell from the record by more than the timing fall prints a WARNING and still passes.
+A timing figure that fell from the record by more than the timing fall prints a WARNING, also beside a floor failure; the fall alone never fails.
 Every route of the set is judged on its route status and its control population.
 A route already chosen as the one the shipping image is built from may be judged alone instead, marked `--shipping-selection`.
 A route named with neither, or with both, gives 2; so does a standalone endpoint named with either.

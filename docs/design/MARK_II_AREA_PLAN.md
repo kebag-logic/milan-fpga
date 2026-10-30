@@ -1337,11 +1337,12 @@ Future runs must also exclude competing heavy builds.
 **Historical mapping at `e6172750`.** The gate then described dev `54643724`.
 The [mapper](../../syn/resmap/resmap_map.py) required a matching recorded endpoint.
 The map was therefore tied to a scratch copy of [`syn/ooc/pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json) into which this route was recorded with `pp_resource_gate.py record --write --baseline <copy>`; the tracked baseline is unchanged.
-A Mark II lane maps its own route the same way:
+A Mark II lane maps its own route the same way.
+The map reads one routed checkpoint, so the record is of that one route, marked `--shipping-selection` rather than judged as a route set (#818):
 
 ```sh
 cp syn/ooc/pp_resource_baseline.json "$WORK/scratch_baseline.json"
-python3 syn/ooc/pp_resource_gate.py record "$WORK/ax7101/gateware" --endpoint route-1x1 \
+python3 syn/ooc/pp_resource_gate.py record "$WORK/ax7101/gateware" --endpoint route-1x1 --shipping-selection \
   --baseline "$WORK/scratch_baseline.json" --write
 mkdir "$WORK/route-map" && (cd "$WORK/route-map" && flock /tmp/milan-vivado.lock vivado -mode batch \
   -source "$REPO/syn/resmap/route_map.tcl" -nojournal -log route_map.log \
