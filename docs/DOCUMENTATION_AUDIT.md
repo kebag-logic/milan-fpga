@@ -48,7 +48,7 @@ Other pages wait for their area lane.
 |---|---|---|
 | obsolete | The page is in the versioned archive under `docs/history/`. | The archive banner's current successor. |
 | superseded | A banner in the first 15 lines names a replacement, or the data file records the judgement. | The banner line or the recorded judgement. |
-| stale | The data file records a verified contradiction on the page. | The finding identifiers. |
+| stale | The data file records a verified contradiction on the page. A page with an open finding is never current, and the gate fails a committed page that says otherwise. | The finding identifiers. |
 | current | None of the above holds. | The page's generator, or no recorded contradiction. |
 
 ## Module directories
