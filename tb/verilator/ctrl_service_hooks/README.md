@@ -181,7 +181,33 @@ It runs each ordering check on a clean synthetic log, which it must apply to and
 It checks every plant's and testbench addition's anchors against the checkout, the held push's eligibility, the findings by hook, the superseded rule and the aging window.
 Then it replaces each rule in turn, and a named check must fail:
 
-(table filled from the self-test's output)
+| Mutant | Caught by |
+|---|---|
+| bound: a stale T_svc of 10 ms | bounds pinned |
+| bound: SRP graded against T_svc alone | an 18 to 20 ms SRP path misses |
+| bound: the ceiling alone | bounds pinned |
+| bound: the normative wait is not added | the exact bound fits and W adds |
+| bound: the margin is not recorded | the exact bound fits and W adds |
+| map: the counter push is a notification | the hooks map |
+| map: no composed row of this harness is loaded | the hooks map |
+| label: the variant labelled the product's | the clock labels |
+| split: the counter change is no pad | own lines are split off |
+| H-ADP: the grandmaster is not checked | H-ADP ordering |
+| H-DISC: the sink's PROBE_TX_COMMAND is never recognised | H-DISC ordering |
+| H-ACMP: no response is matched to its command | H-ACMP ordering |
+| H-AECP: no face commit is recognised | H-AECP ordering |
+| H-NOTIFY: the notification is not found | H-NOTIFY ordering |
+| H-COUNTERS: spacing of 0.1 s accepted | H-COUNTERS spacing |
+| H-COUNTERS: the held push from its change | the held push |
+| H-MAAP: no allocation report is recognised | H-MAAP ordering |
+| H-MAAP: every AAF_CTRL store is a report (earlier rule) | H-MAAP ordering |
+| H-SRP: the ADOPTED bit is never seen set | H-SRP ordering |
+| plants: a plant edits nothing | the plants apply |
+| supersede: any later group supersedes a refusal | a refusal is superseded only by its own path |
+| aging: the window opens before the arm (the earlier rule) | the aging window opens after the arm |
+| findings: a path over its bound is not a finding | findings by hook |
+
+A mutant whose name ends in "(earlier rule)" restores a rule this harness had before its check, so that check is the test that fails on it.
 
 ## Results
 

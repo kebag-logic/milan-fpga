@@ -596,18 +596,26 @@ def replies_of(text: str) -> list[bytes]:
     return [bytes.fromhex(line.split()[3]) for line in text.splitlines() if line.startswith('REPLY ')]
 
 
+def next_adp_record(log: grade.Log, interface: int, after: int) -> int:
+    """The receive commit of the interface's next ADP record after `after`, tagged or not; far past the run when
+    there is none."""
+    return min((c for c, k, inter, _, _ in log.rxc if k == CH['adp'] and inter == interface and c > after),
+               default=1 << 62)
+
+
 def discovery_order(log: grade.Log, group: Group, own: list[list[str]], spec: dict) -> Checked:
     """H-DISC: after a bound talker's ENTITY_DEPARTING then ENTITY_AVAILABLE on an interface, a PROBE_TX_COMMAND
-    to that talker is committed on that interface after the AVAILABLE and before the talker's next record."""
+    to that talker is committed on that interface after the AVAILABLE and before the interface's next ADP record,
+    tagged or not."""
     out = Checked()
     adp = CH['adp']
     for i in range(spec['interfaces']):
         records = sorted((c, tag) for c, k, inter, tag, _ in log.rxc if k == adp and inter == i
                          and tag in (f'acmp.entity_departing.if{i}', f'acmp.entity_available.if{i}'))
-        for (c0, t0), (c1, t1), *rest in [records[n:n + 3] for n in range(len(records) - 1)]:
+        for (c0, t0), (c1, t1) in zip(records, records[1:]):
             if not (t0.endswith(f'departing.if{i}') and t1.endswith(f'available.if{i}')):
                 continue
-            until = rest[0][0] if rest else 1 << 62
+            until = next_adp_record(log, i, c1)
             probes = [c for c, ch, inter, fr in log.tx if ch == CH['acmp'] and inter == i and c1 < c < until
                       and len(fr) > 16 and fr[14] == 0xFC and fr[15] & 0xF == f.ACMP['PROBE_TX']]
             out.applied += 1

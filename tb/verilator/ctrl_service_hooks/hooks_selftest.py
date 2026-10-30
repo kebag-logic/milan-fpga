@@ -173,11 +173,16 @@ def check_disc_order() -> None:
     rxc = [(100, CH['adp'], 0, 'acmp.entity_departing.if0', 82), (200, CH['adp'], 0, 'acmp.entity_available.if0', 82)]
     probe = bytearray(70)
     probe[14], probe[15] = 0xFC, f.ACMP['PROBE_TX']
-    good = log(rxc=rxc, tx=[(300, CH['acmp'], 0, bytes(probe))])
-    ok, wrong = hooks.discovery_order(good, Group('g'), [], {'interfaces': 1}), hooks.discovery_order(
-        log(rxc=rxc), Group('g'), [], {'interfaces': 1})
+    later = (400, CH['adp'], 0, '-', 82)
+    good = log(rxc=[*rxc, later], tx=[(300, CH['acmp'], 0, bytes(probe))])
+    late = log(rxc=[*rxc, later], tx=[(500, CH['acmp'], 0, bytes(probe))])
+    spec = {'interfaces': 1}
+    ok, wrong = hooks.discovery_order(good, Group('g'), [], spec), hooks.discovery_order(log(rxc=rxc), Group('g'),
+                                                                                           [], spec)
     expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
     expect(wrong.findings and wrong.findings[0].startswith('ORDER H-DISC:'), f'defective: {wrong}')
+    after = hooks.discovery_order(late, Group('g'), [], spec)
+    expect(after.findings and after.findings[0].startswith('ORDER H-DISC:'), f'a probe after the next record: {after}')
 
 
 def acmp_frames(seqs: list[int], response: bool) -> list[bytes]:
@@ -391,8 +396,10 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
     ('split: the counter change is no pad', mutant(hooks, 'parsed', lambda t, s, c: (hooks.ORIGINAL_PARSE(
         hooks.split(t)[0], s, c), [])), 'own lines are split off'),
     ('H-ADP: the grandmaster is not checked', mutant(hooks, 'gm_steps', lambda g: []), 'H-ADP ordering'),
-    ('H-DISC: no probe is required', mutant(f, 'ACMP', {**f.ACMP, 'PROBE_TX': -1}), 'H-DISC ordering'),
-    ('H-ACMP: overlapping commands are not compared', mutant(hooks.grade, 'response_sequence', lambda fr: None),
+    ('H-DISC: the sink\'s PROBE_TX_COMMAND is never recognised', mutant(f, 'ACMP', {**f.ACMP, 'PROBE_TX': -1}), 'H-DISC ordering'),
+    ('H-DISC: the window never ends (the earlier rule ended it at the next tagged record)',
+     mutant(hooks, 'next_adp_record', lambda log, i, after: 1 << 62), 'H-DISC ordering'),
+    ('H-ACMP: no response is matched to its command', mutant(hooks.grade, 'response_sequence', lambda fr: None),
      'H-ACMP ordering'),
     ('H-AECP: no face commit is recognised', mutant(hooks, 'face_commit_words', lambda spec: set()),
      'H-AECP ordering'),
@@ -400,12 +407,12 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
                                                         lambda self, *a: ({(2, 0): None}, [])), 'H-NOTIFY ordering'),
     ('H-COUNTERS: spacing of 0.1 s accepted', mutant(hooks, 'COUNTERS_SPACING_MS', 50.0), 'H-COUNTERS spacing'),
     ('H-COUNTERS: the held push from its change', mutant(hooks, 'COUNTERS_SPACING_MS', 0.0), 'the held push'),
-    ('H-MAAP: the publication is not looked for', mutant(hooks, 'MAAP_REPORT_START', (-1, -1, -1)),
+    ('H-MAAP: no allocation report is recognised', mutant(hooks, 'MAAP_REPORT_START', (-1, -1, -1)),
      'H-MAAP ordering'),
     ('H-MAAP: every AAF_CTRL store is a report (earlier rule)', mutant(hooks, 'MAAP_REPORT_START', (0x654,)),
      'H-MAAP ordering'),
     ('H-SRP: the ADOPTED bit is never seen set', mutant(hooks, 'adopted', lambda v: False), 'H-SRP ordering'),
-    ('plants: an anchor may occur twice', mutant(hooks_build, 'plant_text', lambda src, edits: {}),
+    ('plants: a plant edits nothing', mutant(hooks_build, 'plant_text', lambda src, edits: {}),
      'the plants apply'),
     ('supersede: any later group supersedes a refusal', mutant(hooks, 'SUPERSEDED', {'acmp.tmr_no_adp': 'acmp-disc',
                                                                                   'acmp.bind_rx': 'hooks-disc-aging'}),
