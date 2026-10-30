@@ -1,0 +1,26 @@
+--- a/scripts/check_docs.py
++++ b/scripts/check_docs.py
+@@ -122,6 +122,7 @@
+ # spelled with its unit elsewhere is a copy the table cannot correct (#96).
+ UNIT_CELL_RE = re.compile(r"(?:,\s*|\s+|\()(ms|ns|ppm)\)?\s*$")
+ FENCE_MARKERS = ("```", "~~~")
++FENCE_RE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
+ NUMBER_WORDS = ("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")
+ ROM_PAGE = "docs/MANAGER.md"
+ ROM_HEADING = "## Current ROM budget"
+@@ -476,9 +477,12 @@
+     for relative, text in texts.items():
+         fence, home = "", False
+         for number, line in enumerate(text.splitlines(), start=1):
+-            marker = line.lstrip()[:3]
+-            if marker in FENCE_MARKERS and fence in ("", marker):
+-                fence = "" if fence else marker
++            run = FENCE_RE.match(line)
++            if run and not fence and not (run.group(1)[0] == "`" and "`" in run.group(2)):
++                fence = run.group(1)
++                continue
++            if run and fence and run.group(1)[0] == fence[0] and len(run.group(1)) >= len(fence) and not run.group(2).strip():
++                fence = ""
+                 continue
+             if line.startswith("## "):
+                 home = relative == CONSTANTS_PAGE and line.strip() == CONSTANTS_HEADING

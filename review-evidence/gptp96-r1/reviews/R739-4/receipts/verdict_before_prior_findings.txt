@@ -1,0 +1,6 @@
+[R739] NEGATIVE - exact head db9ab2215ba18aec4c1828090b3611b001dbf2b8
+Written before reading any other reviewer's round-3 findings.
+F1 MINOR Robustness,Tests: the round-4 tilde-fence handling lets a real copy escape after a long tilde fence or after a tilde line that has text after its marker. The round-3 head caught both.
+F2 MINOR Robustness,Tests: copies wrapped in underscore emphasis escape (_375 ms_, _5 minutes_, _five minutes_). This holds at both heads.
+Ledger: Conformance CLEAN | RTL CLEAN | Robustness UNCLEAN (F1,F2) | Tests UNCLEAN (F1,F2) | Docs CLEAN
+2026-10-30T12:33:08Z

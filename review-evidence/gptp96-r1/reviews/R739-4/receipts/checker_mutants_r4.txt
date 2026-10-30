@@ -1,0 +1,11 @@
+any_marker_close           rc=1 | docs selftest: copy after a tilde fence constant copy escaped
+control                    rc=0 | docs selftest: PASS (53 arms)
+digit_no_lookbehind        rc=1 | docs selftest: decimal minutes failed
+digit_no_trailing_b        rc=1 | docs selftest: word starting min failed
+digit_space_required       rc=1 | docs selftest: unspaced minutes constant copy escaped
+no_tilde                   rc=1 | docs selftest: tilde fence failed
+unit_comma_only            rc=1 | docs selftest: copy of a row whose Meaning ends 'syncReceiptTimeout ms' escaped
+unit_no_paren              rc=1 | docs selftest: copy of a row whose Meaning ends 'syncReceiptTimeout (ms)' escaped
+unit_no_space              rc=1 | docs selftest: copy of a row whose Meaning ends 'syncReceiptTimeout ms' escaped
+word_boundary              rc=1 | docs selftest: larger number word failed
+word_minutes_only          rc=1 | docs selftest: number word and min constant copy escaped

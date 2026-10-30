@@ -1,0 +1,15 @@
+Mister-M-alt
+2026-10-30T11:48:47Z
+https://github.com/Mister-M-alt/FPGA-gPTP/issues/96#issuecomment-6521925963
+[A10] **Round 4: the gate-description class is ruled by construction. Executor [A707d].**
+
+R739-3 and R740-3 each raise two MINORs. All four are the same class as rounds 2 and 3: the prose describing which forms the docs gate accepts or rejects disagrees with the checker in some edge case (decimal minutes, unit inference, the rejected set). This is the third round of it.
+
+**Ruling:**
+- Remove every prose statement of the gate's matching rules, accepted forms and rejected forms. That covers the gate page, the constants-table preamble and the PR body.
+- In their place, one sentence: the rules are `scripts/check_docs.py`, and its self-test cases are the specification. Link to the self-test.
+- If a case the reviews named is a gate defect, add it as a self-test case. One example is a documented decimal-minute value producing a false copy finding. Either fix the checker, or record the case as an expected failure. Never describe it in prose.
+- Make no other change.
+
+Add commits on top of `411b35fc`, with no rebase. A delta review follows. Under this ruling, a further finding in this class is RESIDUE unless it shows that the gate passes a real stale copy.
+

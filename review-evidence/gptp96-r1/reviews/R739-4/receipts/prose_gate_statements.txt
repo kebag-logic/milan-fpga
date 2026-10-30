@@ -1,0 +1,14 @@
+== pages: lines naming the docs gate or checker (git grep at HEAD)
+HEAD:README.md:70:make docs
+HEAD:docs/INTEGRATION.md:856:`make docs` rules are `scripts/check_docs.py`; its [`selftest()`](../scripts/check_docs.py) cases are the specification.
+HEAD:docs/MANAGER.md:59:`make docs` rules are `scripts/check_docs.py`; its [`selftest()`](../scripts/check_docs.py) cases are the specification.
+HEAD:docs/README.md:48:`make docs` rules are `scripts/check_docs.py`; its [`selftest()`](../scripts/check_docs.py) cases are the specification.
+HEAD:docs/README.md:84:make docs
+HEAD:docs/TEST_DEVELOPER.md:24:| Python | `scripts/check_docs.py` | Checks documentation rules and generated values |
+HEAD:docs/TEST_DEVELOPER.md:52:| `make docs` | Documentation, status, constants and diagram gates |
+HEAD:docs/diagrams/README.md:53:python3 scripts/generate_diagrams.py --selftest
+
+== pages: matching-rule vocabulary near gate words
+HEAD:docs/MANAGER.md:92:The [generator](../hdl/ucode/gen_gptp_ucode.py) rejects overflow and overlapping programs.
+HEAD:docs/TEST_DEVELOPER.md:176:- Rejects tied-low and early-clear slew indications.
+HEAD:docs/TEST_DEVELOPER.md:179:- Rejects idle qualification and retained mastership qualification mutants.

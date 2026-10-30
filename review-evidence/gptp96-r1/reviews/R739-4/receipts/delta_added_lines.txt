@@ -1,0 +1,46 @@
++`make docs` rules are `scripts/check_docs.py`; its [`selftest()`](../scripts/check_docs.py) cases are the specification.
++The seeded row counts the `--seq-seed 0x200000` image.
++`make docs` rules are `scripts/check_docs.py`; its [`selftest()`](../scripts/check_docs.py) cases are the specification.
++`make docs` rules are `scripts/check_docs.py`; its [`selftest()`](../scripts/check_docs.py) cases are the specification.
++# A Meaning cell ending in ms, ns or ppm gives the row's unit; that value
++# spelled with its unit elsewhere is a copy the table cannot correct (#96).
++UNIT_CELL_RE = re.compile(r"(?:,\s*|\s+|\()(ms|ns|ppm)\)?\s*$")
++FENCE_MARKERS = ("```", "~~~")
++        patterns += [
++            rf"(?<![\d.,])\b{minutes}[\s-]?min(?:ute)?s?\b",
++            rf"(?<![\w-]){word}[\s-]min(?:ute)?s?\b",
++        ]
++        fence, home = "", False
++            marker = line.lstrip()[:3]
++            if marker in FENCE_MARKERS and fence in ("", marker):
++                fence = "" if fence else marker
++            if fence or home:
++    for label, text in (
++        ("decimal minutes", "A 2.5 min hold."),
++        ("decimal minute word", "Wait 0.5 minutes."),
++        ("larger number word", "A twenty-five minutes soak."),
++        ("word starting min", "At least 5 minimum samples."),
++        ("tilde fence", "~~~\nsleep 375 ms\n~~~\n"),
++    ):
++        arms += 1
++        if copy_findings({"docs/GUIDE.md": text}, table, fixture):
++            print(f"docs selftest: {label} failed")
++            return 1
++    for label, copy, name in (
++        ("unspaced minutes", "A 5min countdown.", "CEASE_MS_C"),
++        ("number word and min", "A five min countdown.", "CEASE_MS_C"),
++        ("copy after a tilde fence", "~~~\n```\n~~~\nA 375 ms watch.\n", "SYNC_RTO_MS_C"),
++    ):
++        arms += 1
++        if not any(f"restates {name}" in finding
++                   for finding in copy_findings({"docs/GUIDE.md": copy}, table, fixture)):
++            print(f"docs selftest: {label} constant copy escaped")
++            return 1
++    for cell in ("syncReceiptTimeout ms", "syncReceiptTimeout in ms", "syncReceiptTimeout (ms)"):
++        arms += 1
++        unit = table.replace("syncReceiptTimeout, ms", cell)
++        if not any("restates SYNC_RTO_MS_C" in finding
++                   for finding in copy_findings({"docs/GUIDE.md": "A 375 ms watch."}, unit, fixture)):
++            print(f"docs selftest: copy of a row whose Meaning ends {cell!r} escaped")
++            return 1
++    usage ={"Shipping": (1000, 1024), "Seeded regression": (1001, 1024)}
