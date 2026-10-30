@@ -40,11 +40,17 @@ python3 -B tb/verilator/nvm_split_target/run.py --point 8x8 --build-dir /tmp/nvm
 `--regrade` grades the runs recorded in `--out` on reused builds, and refuses a case whose recorded script or journal is not the one the run would use.
 A service step over T_svc fails its case, and so the run.
 
-Each run writes `results.json` and `table.md` to `--out`.
+Each accepted run writes `results.json` and `table.md` to `--out`.
 `results.json` holds the point, its shape, T_svc and every case's result, and the CPU and bus clocks every figure was converted and graded at (`cpu_hz`, `sys_hz`).
 Those clocks are the ones every arm's `build.json` records, from the shape's constraints; builds that record different clocks are refused (`run.clocks`).
 `table.md` names the same clocks, in MHz and in hertz, on the line above each of its tables.
-The run is refused, exit 2 and no `table.md`, when the record lacks a clock, when a figure in it is not its CPU cycles at the record's CPU clock, or when its clocks are not its builds' (`run.provenance`, `run.against_build`).
+The run is refused, exit 2, when the record lacks a clock, when a figure in it is not its CPU cycles at the record's CPU clock, or when its clocks are not its builds' (`run.provenance`, `run.against_build`).
+
+The two files are one validated run's, so a reused `--out` never holds an earlier run's table beside a later run's record.
+A run first removes the earlier run's `results.json`, `table.md` and `refused.json` from `--out` (`run.clear`).
+It writes `results.json` and `table.md` only once the record is validated (`run.accept`).
+A refused run leaves `refused.json` alone in their place (`run.refuse`).
+That file holds the refusal's words as `refused` and the refused record, if one was made, as `record`; it has no clocks or results at its top, so it reads as no accepted record.
 
 The directory has no Makefile on purpose: the serial sweep discovers every Makefile, and `scripts/suite_shards.py` must then register the suite.
 
@@ -254,9 +260,13 @@ It requires:
   - its figures must be its cycles at 62.5 MHz;
 - a record to be refused when it lacks either clock, when a clock is not a whole positive number of hertz, when it names a CPU clock its figures were not converted at, or when its clocks are not its builds';
 - builds that disagree on their clocks, lack one or are none, to be refused;
-- `run.py`'s own `main`, on builds recording the 62.5 MHz clocks, to write them to `results.json` and beside every table of `table.md`, and to refuse, with exit 2 and no `table.md`:
+- `run.py`'s own `main`, on builds recording the 62.5 MHz clocks, to write them to `results.json` and beside every table of `table.md`, and to refuse, with exit 2 and neither file:
   - results graded at another CPU clock than their record names;
   - a run whose clocks are not its builds';
+- the output directory to hold one run's outputs when it is reused, through `main`:
+  - a success, then a refusal in the same directory, to leave `refused.json` alone, with no `results.json` or `table.md`, for each refusal: a build without its CPU clock, builds that disagree on their clocks, clocks that are not its builds', and results misconverted;
+  - a refusal, then a success, to leave the success's `results.json` and `table.md` alone;
+  - `run.accept` to write nothing for a record it refuses, and `run.refuse` to remove a pair already written;
 - the container's own apply order to pass, and each of these to be caught: the settle after the names, a binding after the D3 walk, a name before a map, one apply missing, one too many and two boots;
 - the derived journals to be judged by the reference codec as the cases need them, and every arm and planted defect to apply to the checkout's sources.
 
@@ -287,6 +297,11 @@ Then it replaces each grading rule in turn with a weaker one, and a named check 
 | clocks: the record not compared with its builds' | run.py refuses a run whose clocks are not its builds', writing no table |
 | clocks: the first build's clocks taken for all | builds that disagree on their clocks, lack one or are none are refused |
 | clocks: an unconditional 50 MHz and 100 MHz for the run | run.py writes its builds' clocks to results.json and beside every table of table.md |
+| reuse: an earlier run's results and refusal left in place | a success, then a build without its CPU clock in the same directory: the refusal alone, no table or results left |
+| reuse: an earlier refusal left beside a success | a refusal, then a success in the same directory: the success's pair alone, no refusal left |
+| reuse: results.json written before its record is validated | accept writes nothing for a record it refuses |
+| reuse: a refusal leaves a pair already written | refuse removes a pair already written and leaves its refusal alone |
+| reuse: the refused record written as results.json | a success, then results misconverted in the same directory: the refusal alone, no table or results left |
 | the current flash writer: its 24.5 ms check removed from its grader | the current flash writer's capture is held to 24.5 ms: exactly 24.5 ms passes, one system tick more is refused |
 
 The last mutant deletes the check's three lines from `grade_rows`'s source, writes the result to a scratch copy and imports it in place of the grader.
