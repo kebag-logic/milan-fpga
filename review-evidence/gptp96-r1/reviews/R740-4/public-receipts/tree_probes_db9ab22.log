@@ -1,0 +1,27 @@
+commit db9ab2215ba18aec4c1828090b3611b001dbf2b8
+control: expect pass; rc=0; OK :: docs check: PASS (14 current pages, 18 historical pages)
+decimal_min_2_5: expect pass; rc=0; OK :: docs check: PASS (14 current pages, 18 historical pages)
+decimal_minutes_7_5: expect pass; rc=0; OK :: docs check: PASS (14 current pages, 18 historical pages)
+decimal_minutes_0_5: expect pass; rc=0; OK :: docs check: PASS (14 current pages, 18 historical pages)
+decimal_min_1_5: expect pass; rc=0; OK :: docs check: PASS (14 current pages, 18 historical pages)
+tilde_fence: expect pass; rc=0; OK :: docs check: PASS (14 current pages, 18 historical pages)
+twenty_five_minutes: expect pass; rc=0; OK :: docs check: PASS (14 current pages, 18 historical pages)
+five_minimum: expect pass; rc=0; OK :: docs check: PASS (14 current pages, 18 historical pages)
+unspaced_5min: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: '5min' restates CEASE_MS_C; link its constants row"]
+five_min_word: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: 'five min' restates CEASE_MS_C; link its constants row"]
+cell_in_ms: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: '375 ms' restates SYNC_RTO_MS_C; link its constants row"]
+cell_no_comma: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: '375 ms' restates SYNC_RTO_MS_C; link its constants row"]
+cell_paren: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: '375 ms' restates SYNC_RTO_MS_C; link its constants row"]
+cell_comma_control: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: '375 ms' restates SYNC_RTO_MS_C; link its constants row"]
+copy_after_tilde_fence: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:423: '375 ms' restates SYNC_RTO_MS_C; link its constants row"]
+digits_5_min: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: '5 min' restates CEASE_MS_C; link its constants row"]
+word_five_minutes: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: 'five minutes' restates CEASE_MS_C; link its constants row"]
+word_five_minute: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: 'five-minute' restates CEASE_MS_C; link its constants row"]
+five_mins: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: '5 mins' restates CEASE_MS_C; link its constants row"]
+seconds_300_s: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: '300 s' restates CEASE_MS_C; link its constants row"]
+micro_20_us: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: '20 us' restates STEP_LINKUP_NS_C; link its constants row"]
+grouped_300000_ms: expect reject; rc=1; OK :: ["docs/HDL_DEVELOPER.md:420: '300,000 ms' restates CEASE_MS_C; link its constants row"]
+decimal_seconds: expect pass; rc=0; OK :: docs check: PASS (14 current pages, 18 historical pages)
+unit_word_ms: expect pass; rc=0; OK :: docs check: PASS (14 current pages, 18 historical pages)
+backtick_fence: expect pass; rc=0; OK :: docs check: PASS (14 current pages, 18 historical pages)
+probes: 25, differing from expectation: 0

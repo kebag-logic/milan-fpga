@@ -1,0 +1,11 @@
+control: rc=0 OK :: docs selftest: PASS (53 arms)
+unit_needs_comma: rc=1 OK :: docs selftest: copy of a row whose Meaning ends 'syncReceiptTimeout ms' escaped
+unit_no_paren: rc=1 OK :: docs selftest: copy of a row whose Meaning ends 'syncReceiptTimeout (ms)' escaped
+minute_digits_no_lookbehind: rc=1 OK :: docs selftest: decimal minutes failed
+minute_digits_need_space: rc=1 OK :: docs selftest: unspaced minutes constant copy escaped
+minute_digits_prefix_match: rc=1 OK :: docs selftest: word starting min failed
+minute_word_no_lookbehind: rc=1 OK :: docs selftest: larger number word failed
+minute_word_needs_minute: rc=1 OK :: docs selftest: number word and min constant copy escaped
+fence_backticks_only: rc=1 OK :: docs selftest: tilde fence failed
+fence_any_marker_closes: rc=1 OK :: docs selftest: copy after a tilde fence constant copy escaped
+mutants: 9 planted, 0 unexpected

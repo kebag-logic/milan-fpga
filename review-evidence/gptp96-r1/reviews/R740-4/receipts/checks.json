@@ -1,0 +1,192 @@
+[
+  {
+    "name": "docs",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "contract",
+    "command": [
+      "make",
+      "-j16",
+      "contract"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "lint",
+    "command": [
+      "make",
+      "-j16",
+      "lint"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "diff-check-base",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "135afd04",
+      "db9ab2215ba18aec4c1828090b3611b001dbf2b8"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "diff-check-previous",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "411b35fc",
+      "db9ab2215ba18aec4c1828090b3611b001dbf2b8"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "probe-stale-table-value",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "append": null,
+    "change": "stale"
+  },
+  {
+    "name": "probe-stale-duplicate-row",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "append": null,
+    "change": "duplicate"
+  },
+  {
+    "name": "probe-restated-unit-value",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "append": "The Sync watch is 375 ms.\n",
+    "change": null
+  },
+  {
+    "name": "probe-decimal-minutes",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0,
+    "append": "A 2.5 min hold.\n",
+    "change": null
+  },
+  {
+    "name": "probe-decimal-minute-word",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0,
+    "append": "Wait 0.5 minutes.\n",
+    "change": null
+  },
+  {
+    "name": "probe-larger-number-word",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0,
+    "append": "A twenty-five minutes soak.\n",
+    "change": null
+  },
+  {
+    "name": "probe-rejected-set-example",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "append": "A 5min countdown.\n",
+    "change": null
+  },
+  {
+    "name": "probe-number-word-min",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "append": "A five min countdown.\n",
+    "change": null
+  },
+  {
+    "name": "probe-unit-without-comma",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "append": "The Sync watch is 375 ms.\n",
+    "change": "unit"
+  },
+  {
+    "name": "probe-tilde-fence-control",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0,
+    "append": "~~~\nsleep 375 ms\n~~~\n",
+    "change": null
+  },
+  {
+    "name": "probe-tilde-other-marker-control",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "append": "~~~\n```\n~~~\n\nThe Sync watch is 375 ms.\n",
+    "change": null
+  },
+  {
+    "name": "probe-tilde-shorter-inner-marker",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0,
+    "append": "~~~~text\n~~~\n~~~~\n\nThe Sync watch is 375 ms.\n",
+    "change": null
+  },
+  {
+    "name": "probe-restored",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0
+  }
+]
