@@ -23,9 +23,11 @@ ACCESS_LEGEND = (
     ("W", "Write-only. The written value is used; a read returns 0."),
     ("R/W", "Read and write. A read returns the stored value."),
     ("W1C", "Write 1 to clear. Writing 0 has no effect."),
+    ("R/W1C", "A read returns the latched bit; writing 1 clears it."),
     ("W1S", "Write 1 to trigger a one-cycle action. The bit self-clears and reads 0."),
+    ("R/W1S", "A read returns the bit's status; writing 1 triggers the action."),
     ("RC", "Read clears. No register of this block clears on read."),
-    ("WO", "Write-only word whose write is the action. A read returns 0."),
+    ("WO", "Write-only word whose write is the action. This block shows such words as W."),
 )
 #: Reset column codes beyond a hex value.
 RESET_LEGEND = (

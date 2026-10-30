@@ -336,7 +336,8 @@ def legend() -> list[str]:
     out += table(["Reset code", "Meaning"],
                  [[f"`{c}`", m] for c, m in RESET_LEGEND]
                  + [["`0`, `5h`", "The reset value in hexadecimal; `h` marks hex digits."]])
-    out += ["Reserved fields read as `R-0`.", ""]
+    out += ["Reserved fields read as `R-0`.", "",
+            "A reserved `R/W` field stores bits that drive nothing.", ""]
     return out
 
 

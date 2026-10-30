@@ -207,9 +207,11 @@ A field's code reads as access, then reset value.
 | `W` | Write-only. The written value is used; a read returns 0. |
 | `R/W` | Read and write. A read returns the stored value. |
 | `W1C` | Write 1 to clear. Writing 0 has no effect. |
+| `R/W1C` | A read returns the latched bit; writing 1 clears it. |
 | `W1S` | Write 1 to trigger a one-cycle action. The bit self-clears and reads 0. |
+| `R/W1S` | A read returns the bit's status; writing 1 triggers the action. |
 | `RC` | Read clears. No register of this block clears on read. |
-| `WO` | Write-only word whose write is the action. A read returns 0. |
+| `WO` | Write-only word whose write is the action. This block shows such words as W. |
 
 | Reset code | Meaning |
 |---|---|
@@ -217,6 +219,8 @@ A field's code reads as access, then reset value.
 | `0`, `5h` | The reset value in hexadecimal; `h` marks hex digits. |
 
 Reserved fields read as `R-0`.
+
+A reserved `R/W` field stores bits that drive nothing.
 
 ## Build parameters
 
@@ -4434,7 +4438,7 @@ LiteX assigns these banks; each spans one CSR page.
 | `0xF0001800` | `milan_mac_phy_crg_reset` | 1 | RW | PHY reset of the port the image is built for (`--eth-port`): the PHY clock/reset block's `_reset` storage, which drives the PHY reset pin. This is the PHY reset; `PHY_RESET` (0x11C) is inert. `ETH_GUARD` does not gate it at this head. |
 | `0xF0001804` | `milan_mac_phy_mdio_w` | 1 | RW | Software bit-bang MDIO write register (clock, output enable, data). |
 | `0xF0001808` | `milan_mac_phy_mdio_r` | 1 | RO | Software bit-bang MDIO read register. |
-| `0xF000180C` | `milan_mac_core_preamble_crc` | 1 | RO | LiteEth MAC preamble and CRC checker status. |
+| `0xF000180C` | `milan_mac_core_preamble_crc` | 1 | RO | LiteEth status, reset 1: the MAC core inserts and checks preamble and CRC. |
 | `0xF0001810` | `milan_mac_core_rx_datapath_preamble_errors` | 1 | RO | LiteEth RX preamble error count. |
 | `0xF0001814` | `milan_mac_core_rx_datapath_crc_errors` | 1 | RO | LiteEth RX CRC error count. |
 | `0xF0001818` | `milan_mac_loopback` | 1 | RW | 1 = internal MAC TX to MAC RX loopback. |
