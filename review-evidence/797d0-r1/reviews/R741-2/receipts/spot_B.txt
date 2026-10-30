@@ -1,0 +1,81 @@
+== D0-029 matrix rows
+262:| 9.4 / 9.6 | C-TAG TPID 0x8100; TCI = PCP·DEI·VID | fabric | implemented — RTL cls / classifier |
+263:| 6.9.3 / 6.9.4 | PCP encoding on transmit; priority regeneration on receive | fabric | implemented — RTL aaf/crf_tx TCI bytes; RTL cls |
+264:| 8.6.6 + Table 8-4 | queue per traffic class | fabric | implemented — RTL queues / classifier |
+265:| 8.6.8.1 | strict priority (non-CBS queues) | fabric | implemented — RTL shaper_core (all priority pairs) |
+266:| 8.6.8.2 | credit-based shaper: idleSlope/sendSlope, transmitAllowed (hiCredit/loCredit per informative Annex L.1) | fabric | implemented — RTL cbs, bit-exact vs a cycle-accurate replica |
+267:| 34.3 / 34.6.1 | per-class idleSlope from reservations; class measurement interval 125 µs (A) / 250 µs (B) | fabric + processor | implemented — granted slope drives the class-A queue's idleSlope; TSpec from real frame geometry |
+== dp 654-664
+  //! NO GENERAL-DATA TX CHAIN. The 802.1Q classifier / per-queue FIFOs /
+  //! 802.1Qav CBS shaper (traffic_controller_802_1q) and the ptp_ts_top TX/RX
+  //! record stampers left this wrapper with the retired target (#259): removing
+  //! the retired transmit path left the shaper's ONLY input structurally idle, and
+  //! every product source - the AAF talkers, the CRF talker, MAAP, the
+  //! protocol processor and the fabric gPTP plane - joins the TX trunk in the
+  //! arbiter cascade below, AFTER the point the shaper occupied, so no frame
+  //! could ever reach it. An elaborated chain on a tied-off input is silicon
+  //! spent on nothing in a packing-bound build and a CSR face advertising a
+  //! shaper the product cannot exercise. The modules stay verified stand-alone
+  //! (tb/verilator/{classifier,queues,cbs,shaper_core,datapath,
+== aaf 514 crf 514 parser 159
+    fb[12]=8'h81; fb[13]=8'h00;
+      fb[12]=8'h81; fb[13]=8'h00;
+  wire        vlan     = (hbyte(12) == ETH_TYPE_VLAN[15:8]) &&
+== instances
+110:  //! expressed. The width lived in a `4'd2` inside KL_aaf_packetizer, so the
+465:  //! domain grid KL_crf_tx stamps, #632), and
+644:  // KL_aaf_packetizer / KL_acmp_lstn_ctx via its wrapper) — the P11
+1473:  //         worst hand-over after that estimate (KL_aaf_packetizer LEAD_P):
+1477:  //         event register and the PDU (KL_crf_tx TC_P): 2 periods at 1x1,
+hdl/common/csr/milan_csr.sv
+hdl/ieee1722/avtp/avtp_stream_parser.sv
+hdl/ieee8021q/ts/README-tests.md
+hdl/ieee8021q/ts/doc/traffic_classifier/traffic_classifier.md
+hdl/ieee8021q/ts/doc/traffic_controller_802_1q/traffic_controller_802_1q.md
+hdl/ieee8021q/ts/doc/traffic_queues/traffic_queues.md
+hdl/ieee8021q/ts/traffic_class_map.sv
+hdl/ieee8021q/ts/traffic_classifier.sv
+hdl/ieee8021q/ts/traffic_controller_802_1q.sv
+hdl/ieee8021q/ts/traffic_queues.sv
+== dp 8552-8558
+  //! NO SHAPER READS THE SLOPE OR THE VERDICT HERE. The 802.1Qav chain is
+  //! not in this wrapper (NO GENERAL-DATA TX CHAIN at the top of the file,
+  //! HONEST BOUND at the CRF merge): no AAF or CRF frame is credit-shaped.
+  //! The grant OR and slope sum reach one diagnostic word each:
+  //! lwsrp_slope_en -> LWSRP_STATUS[9] and lwsrp_idle_slope -> LWSRP_SLOPE
+  //! 0x698. Licences also read the raw grant PER SOURCE, never that OR or
+  //! sum. No shaper consumes either diagnostic.
+== D0-033 page
+may cross clock domains only with a complete-packet asynchronous FIFO.
+
+The current shipping placement keeps control traffic in fabric.
+Mark II passes selected control frames through filtered packet mailboxes.
+ADP, ACMP, AECP, MAAP and SRP are selectable per function.
+Its default is bare-metal control; all-fabric remains supported.
+All-fabric stays the shipping default until F2 to F5 acceptance.
+That acceptance covers all streams, counters and the audio soak.
+The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md#packet-mailbox-interface) defines the mailbox boundary.
+== soc 2621 3838
+# rings, the ingress filter, the fabric timers, the event ring, one interrupt),
+# reached by the CPU over Wishbone through KL_mbx_wb. It exists ONLY under
+# --ctrl-mailbox, whose default is off: the default build carries no mailbox
+# source, instance, bus region, CSR bank or interrupt, so every shipped
+# config's top .v and source list are byte-identical to a build without this
+3838:    ap.add_argument("--ctrl-mailbox", action="store_true",
+== D0-034
+18:may cross clock domains only with a complete-packet asynchronous FIFO.
+_AXIS_CDC_DEPTH = 16
+269:            # stay at sys; the CSR (AXI-Lite) crosses via AXILiteClockDomainCrossing.
+778:#: `AXILiteClockDomainCrossing` adds them.
+785:    `AXILiteClockDomainCrossing`, one 4-deep async FIFO per channel.
+795:    host.submodules.milan_axil_cdc = axi.AXILiteClockDomainCrossing(
+1412:    """The async FIFO inside one LiteX `stream.ClockDomainCrossing`, and the one
+1504:    datapath's `milan_cd` domain with an async-FIFO `stream.ClockDomainCrossing`
+1517:    # every recovery reset - LINK_CTRL[1] reinit reset the MAC core + tx_sf
+1523:        cdc = stream.ClockDomainCrossing(layout, cd_from="sys", cd_to=milan_cd,
+1529:    cdc = stream.ClockDomainCrossing(layout, cd_from=milan_cd, cd_to="sys",
+1557:        from litex.soc.interconnect.packet import PacketFIFO
+1746:        self.tx_sf = ClockDomainsRenamer({"sys": "macsys"})(
+1747:                         PacketFIFO(eth_phy_description(data_width),
+    sys_clk_hz: 100000000
+    milan_clk_hz: 50000000   # 64-bit plane still carries 3.2 Gb/s; the
