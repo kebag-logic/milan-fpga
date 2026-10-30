@@ -1,0 +1,93 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "cbs",
+  "heading": "0x400  -  802.1Qav CBS (per queue)  (REQ-CBS-01..03)",
+  "registers": [
+    {
+      "acronym": "CBS_IDLE_SLOPEn",
+      "offset": "0x400",
+      "svg": "docs/diagrams/regmap/cbs/CBS_IDLE_SLOPEn.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "CBS_IDLE",
+            "attr": "R/W-see table"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CBS_HI_CREDITn",
+      "offset": "0x404",
+      "svg": "docs/diagrams/regmap/cbs/CBS_HI_CREDITn.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "CBS_HI",
+            "attr": "R/W-see table"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CBS_LO_CREDITn",
+      "offset": "0x408",
+      "svg": "docs/diagrams/regmap/cbs/CBS_LO_CREDITn.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "CBS_LO",
+            "attr": "R/W-see table"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CBS_CTRLn",
+      "offset": "0x40C",
+      "svg": "docs/diagrams/regmap/cbs/CBS_CTRLn.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "CBS_EN",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 31,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

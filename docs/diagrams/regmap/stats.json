@@ -1,0 +1,78 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "stats",
+  "heading": "0x200  -  Statistics (RMON)  (REQ-MAC-04)",
+  "registers": [
+    {
+      "acronym": "STATS_CTRL",
+      "offset": "0x200",
+      "svg": "docs/diagrams/regmap/stats/STATS_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "STATS_SNAPSHOT",
+            "attr": "W1S-0"
+          },
+          {
+            "bits": 1,
+            "name": "STATS_RESET",
+            "attr": "W1S-0"
+          },
+          {
+            "bits": 30,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STATS_CAP",
+      "offset": "0x204",
+      "svg": "docs/diagrams/regmap/stats/STATS_CAP.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "STATS_CAP",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STATn",
+      "offset": "0x210",
+      "svg": "docs/diagrams/regmap/stats/STATn.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "STAT_SNAP",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

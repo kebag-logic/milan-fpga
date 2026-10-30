@@ -1,0 +1,97 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "aemp",
+  "heading": "0x7C8  -  AEM dynamic-state patch port  (saved-state fast-connect E4)",
+  "registers": [
+    {
+      "acronym": "AEMP_SEL",
+      "offset": "0x7C8",
+      "svg": "docs/diagrams/regmap/aemp/AEMP_SEL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "AEMP_WDATA",
+            "attr": "W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AEMP_FIELD",
+      "offset": "0x7CC",
+      "svg": "docs/diagrams/regmap/aemp/AEMP_FIELD.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "AEMP_WDATA",
+            "attr": "W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AEMP_DATA",
+      "offset": "0x7D0",
+      "svg": "docs/diagrams/regmap/aemp/AEMP_DATA.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "AEMP_WDATA",
+            "attr": "W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AEMP_CTRL",
+      "offset": "0x7D4",
+      "svg": "docs/diagrams/regmap/aemp/AEMP_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "AEMP_COMMIT",
+            "attr": "R/W1S-X"
+          },
+          {
+            "bits": 1,
+            "name": "AEMP_ABORT",
+            "attr": "R/W1S-X"
+          },
+          {
+            "bits": 30,
+            "name": "AEMP_STAT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

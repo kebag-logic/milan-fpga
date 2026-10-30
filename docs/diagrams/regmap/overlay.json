@@ -1,0 +1,143 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "overlay",
+  "heading": "0x724  -  identity / playback / 802.1AS overlay",
+  "registers": [
+    {
+      "acronym": "ENT_NAME_LO",
+      "offset": "0x724",
+      "svg": "docs/diagrams/regmap/overlay/ENT_NAME_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ENTITY_NAME8_7_0",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ENTITY_NAME8_15_8",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ENTITY_NAME8_23_16",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ENTITY_NAME8_31_24",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ENT_NAME_HI",
+      "offset": "0x728",
+      "svg": "docs/diagrams/regmap/overlay/ENT_NAME_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ENTITY_NAME8_7_0",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ENTITY_NAME8_15_8",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ENTITY_NAME8_23_16",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ENTITY_NAME8_31_24",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "LPF_CTRL",
+      "offset": "0x72C",
+      "svg": "docs/diagrams/regmap/overlay/LPF_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "LPF_ENABLE",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 31,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AS2_LO",
+      "offset": "0x730",
+      "svg": "docs/diagrams/regmap/overlay/AS2_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "GPTP_PARENT_RD_SNAP",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AS2_HI",
+      "offset": "0x734",
+      "svg": "docs/diagrams/regmap/overlay/AS2_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "GPTP_PARENT_RD_SNAP",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

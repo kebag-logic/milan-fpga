@@ -20523,12 +20523,12 @@ def test_lwsrp_reset_words_match_rtl() -> None:
     got = r["lwsrp"]["reset_words"]
     hdr = _svh_localparams(TRACKED_CSR_SVH.read_text())
     # (emitter name, milan_csr storage reg, milan_csr A_* enum, doc reset)
-    rows = [("LWSRP_CTRL", "lwsrp_ctrl", "A_LWSRP_CTRL", "0x10"),
-            ("LWSRP_VID", "lwsrp_vid", "A_LWSRP_VID", "2"),
-            ("LWSRP_DMAC_LO", "lwsrp_dmlo", "A_LWSRP_DMLO", "0xF000_FE01"),
-            ("LWSRP_DMAC_HI", "lwsrp_dmhi", "A_LWSRP_DMHI", "0x91E0"),
-            ("LWSRP_TSPEC", "lwsrp_tspec", "A_LWSRP_TSPEC", "0x0001_00E0"),
-            ("LWSRP_LATENCY", "lwsrp_lat", None, "0")]
+    rows = [("LWSRP_CTRL", "lwsrp_ctrl", "A_LWSRP_CTRL", "0x00000010"),
+            ("LWSRP_VID", "lwsrp_vid", "A_LWSRP_VID", "0x00000002"),
+            ("LWSRP_DMAC_LO", "lwsrp_dmlo", "A_LWSRP_DMLO", "0xF000FE01"),
+            ("LWSRP_DMAC_HI", "lwsrp_dmhi", "A_LWSRP_DMHI", "0x000091E0"),
+            ("LWSRP_TSPEC", "lwsrp_tspec", "A_LWSRP_TSPEC", "0x000100E0"),
+            ("LWSRP_LATENCY", "lwsrp_lat", None, "0x00000000")]
     for name, storage, enum, doc in rows:
         sym = name + "_RST_C"
         assert sym in hdr, f"{sym} missing from {eb.CSR_DEFAULTS_REL}"
@@ -20543,8 +20543,9 @@ def test_lwsrp_reset_words_match_rtl() -> None:
         if enum:
             assert re.search(rf"{enum}\[10:0\]:\s*csr_default = {sym};", csr), \
                 f"milan_csr csr_default {enum} no longer returns {sym}"
-        # documented Reset column of the REGISTER_MAP row
-        m = re.search(rf"\| `0x[0-9A-F]{{3}}` \| `{name}` \| RW \| `([^`]+)` \|",
+        # Reset column of the generated REGISTER_MAP summary row (#797:
+        # Offset | Acronym | Register name | Reset | Section)
+        m = re.search(rf"\| `0x[0-9A-F]{{3}}` \| `{name}` \| [^|]* \| `([^`]+)` \|",
                       reg)
         assert m, f"{name}: no REGISTER_MAP row"
         assert m.group(1) == doc, f"{name}: REGISTER_MAP reset {m.group(1)}"

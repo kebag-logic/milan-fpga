@@ -1,0 +1,464 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "acmpl",
+  "heading": "0x6A4  -  ACMP listener SM  (Milan v1.2 Section 5.5 listener, FR-CONN-01)",
+  "registers": [
+    {
+      "acronym": "ACMPL_STATE",
+      "offset": "0x6A4",
+      "svg": "docs/diagrams/regmap/acmpl/ACMPL_STATE.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ACMPL_STATE",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ACMPL_TALKER_LO",
+      "offset": "0x6A8",
+      "svg": "docs/diagrams/regmap/acmpl/ACMPL_TALKER_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ACMPL_TALKER_LO",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ACMPL_TALKER_HI",
+      "offset": "0x6AC",
+      "svg": "docs/diagrams/regmap/acmpl/ACMPL_TALKER_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ACMPL_TALKER_HI",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ACMPL_CNT",
+      "offset": "0x6B0",
+      "svg": "docs/diagrams/regmap/acmpl/ACMPL_CNT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ACMPL_CNT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ACMPL_TUID",
+      "offset": "0x6B4",
+      "svg": "docs/diagrams/regmap/acmpl/ACMPL_TUID.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ACMPL_TUID",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AVTPRX_STAT",
+      "offset": "0x6B8",
+      "svg": "docs/diagrams/regmap/acmpl/AVTPRX_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "AVTPRX_STAT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AVTPRX_FRX",
+      "offset": "0x6BC",
+      "svg": "docs/diagrams/regmap/acmpl/AVTPRX_FRX.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "AVTPRX_FRX",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AVTPRX_ERR",
+      "offset": "0x6C0",
+      "svg": "docs/diagrams/regmap/acmpl/AVTPRX_ERR.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "AVTPRX_ERR",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PCMRX_CNT",
+      "offset": "0x6C4",
+      "svg": "docs/diagrams/regmap/acmpl/PCMRX_CNT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "PCMRX_CNT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PCMRX_TS",
+      "offset": "0x6C8",
+      "svg": "docs/diagrams/regmap/acmpl/PCMRX_TS.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "PCMRX_TS",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "MAAP_CTRL",
+      "offset": "0x6CC",
+      "svg": "docs/diagrams/regmap/acmpl/MAAP_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "MAAP_ENABLE",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "MAAP_SEED_VALID",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "MAAP_COUNT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 16,
+            "name": "MAAP_SEED_OFFSET",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "MAAP_STAT0",
+      "offset": "0x6D0",
+      "svg": "docs/diagrams/regmap/acmpl/MAAP_STAT0.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "MAAP_STAT0",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "MAAP_STAT1",
+      "offset": "0x6D4",
+      "svg": "docs/diagrams/regmap/acmpl/MAAP_STAT1.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "MAAP_STAT1",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "I2SPB_STAT",
+      "offset": "0x6D8",
+      "svg": "docs/diagrams/regmap/acmpl/I2SPB_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 16,
+            "name": "I2SPB_CLR_OVER",
+            "attr": "R/W1C-X"
+          },
+          {
+            "bits": 16,
+            "name": "I2SPB_CLR_UNDER",
+            "attr": "R/W1C-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "TONE_CTRL",
+      "offset": "0x6DC",
+      "svg": "docs/diagrams/regmap/acmpl/TONE_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "TONE_ENABLE",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 3,
+            "name": "TONE_ATT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 28,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "I2SPB_TRIM",
+      "offset": "0x6E0",
+      "svg": "docs/diagrams/regmap/acmpl/I2SPB_TRIM.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "I2SPB_TRIM",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "GPTP_PDELAY",
+      "offset": "0x6E4",
+      "svg": "docs/diagrams/regmap/acmpl/GPTP_PDELAY.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "GPTP_PDELAY_NS",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ACMPL_DBG",
+      "offset": "0x6E8",
+      "svg": "docs/diagrams/regmap/acmpl/ACMPL_DBG.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ACMPL_DBG",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AVTPRX_TSD",
+      "offset": "0x6EC",
+      "svg": "docs/diagrams/regmap/acmpl/AVTPRX_TSD.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "AVTPRX_TSD",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "I2SPB_DBG",
+      "offset": "0x6F0",
+      "svg": "docs/diagrams/regmap/acmpl/I2SPB_DBG.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "I2SPB_DBG",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CTLR_DIAG",
+      "offset": "0x6F4",
+      "svg": "docs/diagrams/regmap/acmpl/CTLR_DIAG.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "CTLR_DIAG",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

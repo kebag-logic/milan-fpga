@@ -1,0 +1,232 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "mac",
+  "heading": "0x100  -  MAC control / status  (REQ-MAC-01..03)",
+  "registers": [
+    {
+      "acronym": "MAC_CTRL",
+      "offset": "0x100",
+      "svg": "docs/diagrams/regmap/mac/MAC_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "MAC_TX_EN",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 1,
+            "name": "MAC_RX_EN",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 1,
+            "name": "MAC_PROMISC",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "MAC_ALLMULTI",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "MAC_IS_1G",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 1,
+            "name": "MAC_IS_1G_SELECT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 26,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "MAC_IFG",
+      "offset": "0x104",
+      "svg": "docs/diagrams/regmap/mac/MAC_IFG.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "MAC_IFG",
+            "attr": "R/W-Ch"
+          },
+          {
+            "bits": 24,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "MAC_ADDR_LO",
+      "offset": "0x108",
+      "svg": "docs/diagrams/regmap/mac/MAC_ADDR_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "MAC_ADDR",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "MAC_ADDR_HI",
+      "offset": "0x10C",
+      "svg": "docs/diagrams/regmap/mac/MAC_ADDR_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 16,
+            "name": "MAC_ADDR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 16,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "MAC_STATUS",
+      "offset": "0x110",
+      "svg": "docs/diagrams/regmap/mac/MAC_STATUS.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "LINK_UP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 2,
+            "name": "SPEED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "FULL_DUPLEX",
+            "attr": "R-X"
+          },
+          {
+            "bits": 28,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "MC_HASH_LO",
+      "offset": "0x114",
+      "svg": "docs/diagrams/regmap/mac/MC_HASH_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "MC_HASH",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "MC_HASH_HI",
+      "offset": "0x118",
+      "svg": "docs/diagrams/regmap/mac/MC_HASH_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "MC_HASH",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PHY_RESET",
+      "offset": "0x11C",
+      "svg": "docs/diagrams/regmap/mac/PHY_RESET.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "PHY_RESET_N",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 31,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

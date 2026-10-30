@@ -1,0 +1,47 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "aafm",
+  "heading": "0x8E0  -  AAF clock meter  (#629, KL_aaf_clock_meter)",
+  "registers": [
+    {
+      "acronym": "AAFM_STAT",
+      "offset": "0x8E0",
+      "svg": "docs/diagrams/regmap/aafm/AAFM_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "AAFM_STAT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AAFM_RATE",
+      "offset": "0x8E4",
+      "svg": "docs/diagrams/regmap/aafm/AAFM_RATE.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "AAFM_RATE",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

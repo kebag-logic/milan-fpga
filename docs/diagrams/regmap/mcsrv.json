@@ -1,0 +1,58 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "mcsrv",
+  "heading": "0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo)",
+  "registers": [
+    {
+      "acronym": "MCSRV_STAT",
+      "offset": "0x8F8",
+      "svg": "docs/diagrams/regmap/mcsrv/MCSRV_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "MCSRV_STAT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "MCSRV_CTRL",
+      "offset": "0x8FC",
+      "svg": "docs/diagrams/regmap/mcsrv/MCSRV_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "MCSRV_PS_INVERT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "MCSRV_AUTO_REPAIR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 30,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

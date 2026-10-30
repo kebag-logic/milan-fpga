@@ -1,0 +1,406 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "adp",
+  "heading": "0x600  -  ADP advertiser  (IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)",
+  "registers": [
+    {
+      "acronym": "ADP_CTRL",
+      "offset": "0x600",
+      "svg": "docs/diagrams/regmap/adp/ADP_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "ADP_ENABLE",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 5,
+            "name": "ADP_VALID_TIME",
+            "attr": "R/W-Ah"
+          },
+          {
+            "bits": 19,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_ENTITY_ID_LO",
+      "offset": "0x604",
+      "svg": "docs/diagrams/regmap/adp/ADP_ENTITY_ID_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ADP_ENTITY_ID",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_ENTITY_ID_HI",
+      "offset": "0x608",
+      "svg": "docs/diagrams/regmap/adp/ADP_ENTITY_ID_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ADP_ENTITY_ID",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_MODEL_ID_LO",
+      "offset": "0x60C",
+      "svg": "docs/diagrams/regmap/adp/ADP_MODEL_ID_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ADP_ENTITY_MODEL_ID",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_MODEL_ID_HI",
+      "offset": "0x610",
+      "svg": "docs/diagrams/regmap/adp/ADP_MODEL_ID_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ADP_ENTITY_MODEL_ID",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_ENTITY_CAPS",
+      "offset": "0x614",
+      "svg": "docs/diagrams/regmap/adp/ADP_ENTITY_CAPS.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ADP_ENTITY_CAPS",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_TALKER",
+      "offset": "0x618",
+      "svg": "docs/diagrams/regmap/adp/ADP_TALKER.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ADP_TALK",
+            "attr": "R-48010002h"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_LISTENER",
+      "offset": "0x61C",
+      "svg": "docs/diagrams/regmap/adp/ADP_LISTENER.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ADP_LIST",
+            "attr": "R-48010002h"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_CONTROLLER_CAPS",
+      "offset": "0x620",
+      "svg": "docs/diagrams/regmap/adp/ADP_CONTROLLER_CAPS.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ADP_CONTROLLER_CAPS",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_GPTP_GM_LO",
+      "offset": "0x624",
+      "svg": "docs/diagrams/regmap/adp/ADP_GPTP_GM_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "GPTP_GM_RD_SNAP",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_GPTP_GM_HI",
+      "offset": "0x628",
+      "svg": "docs/diagrams/regmap/adp/ADP_GPTP_GM_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "GPTP_GM_RD_SNAP",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_GPTP_DOMAIN",
+      "offset": "0x62C",
+      "svg": "docs/diagrams/regmap/adp/ADP_GPTP_DOMAIN.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ADP_DOMAIN",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_IDX0",
+      "offset": "0x630",
+      "svg": "docs/diagrams/regmap/adp/ADP_IDX0.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 16,
+            "name": "ADP_CURRENT_CONFIG",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 16,
+            "name": "ADP_IDENTIFY_INDEX",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_IDX1",
+      "offset": "0x634",
+      "svg": "docs/diagrams/regmap/adp/ADP_IDX1.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 16,
+            "name": "ADP_INTERFACE_INDEX",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 16,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_ASSOC_ID_LO",
+      "offset": "0x638",
+      "svg": "docs/diagrams/regmap/adp/ADP_ASSOC_ID_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ADP_ASSOCIATION_ID",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_ASSOC_ID_HI",
+      "offset": "0x63C",
+      "svg": "docs/diagrams/regmap/adp/ADP_ASSOC_ID_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ADP_ASSOCIATION_ID",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_CMD",
+      "offset": "0x640",
+      "svg": "docs/diagrams/regmap/adp/ADP_CMD.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "ADP_ADVERTISE",
+            "attr": "W1S-0"
+          },
+          {
+            "bits": 1,
+            "name": "ADP_DEPART",
+            "attr": "W1S-0"
+          },
+          {
+            "bits": 30,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_STATUS",
+      "offset": "0x644",
+      "svg": "docs/diagrams/regmap/adp/ADP_STATUS.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ADP_AVAILABLE_INDEX",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "tcam",
+  "heading": "0x700  -  RX destination-MAC TCAM filter  (REQ-MAC-02)",
+  "registers": [
+    {
+      "acronym": "TCAM_CTRL",
+      "offset": "0x700",
+      "svg": "docs/diagrams/regmap/tcam/TCAM_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "TCAM_DEFAULT_PASS",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 1,
+            "name": "TCAM_ADDR_FILT_EN",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 30,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "TCAM_KEY_LO",
+      "offset": "0x704",
+      "svg": "docs/diagrams/regmap/tcam/TCAM_KEY_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "TCAM_WR_KEY",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "TCAM_KEY_HI",
+      "offset": "0x708",
+      "svg": "docs/diagrams/regmap/tcam/TCAM_KEY_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 16,
+            "name": "TCAM_WR_KEY",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 16,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "TCAM_MASK_LO",
+      "offset": "0x70C",
+      "svg": "docs/diagrams/regmap/tcam/TCAM_MASK_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "TCAM_WR_MASK",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "TCAM_MASK_HI",
+      "offset": "0x710",
+      "svg": "docs/diagrams/regmap/tcam/TCAM_MASK_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 16,
+            "name": "TCAM_WR_MASK",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 16,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "TCAM_ACTION",
+      "offset": "0x714",
+      "svg": "docs/diagrams/regmap/tcam/TCAM_ACTION.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "TCAM_WR_ACTION",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 24,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "TCAM_CMD",
+      "offset": "0x718",
+      "svg": "docs/diagrams/regmap/tcam/TCAM_CMD.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 5,
+            "name": "TCAM_WR_INDEX",
+            "attr": "W-0"
+          },
+          {
+            "bits": 3,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "TCAM_WR_VALID",
+            "attr": "W-0"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "TCAM_WR_EN",
+            "attr": "W1S-0"
+          },
+          {
+            "bits": 15,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

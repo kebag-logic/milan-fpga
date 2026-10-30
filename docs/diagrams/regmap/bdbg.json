@@ -1,0 +1,87 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "bdbg",
+  "heading": "0x768  -  AECP scan forensics (BDBG) and link-guard status",
+  "registers": [
+    {
+      "acronym": "BDBG0",
+      "offset": "0x768",
+      "svg": "docs/diagrams/regmap/bdbg/BDBG0.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "BDBG0",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "BDBG1",
+      "offset": "0x76C",
+      "svg": "docs/diagrams/regmap/bdbg/BDBG1.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "BDBG1",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "BDBG2",
+      "offset": "0x770",
+      "svg": "docs/diagrams/regmap/bdbg/BDBG2.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "BDBG2",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "LINKG_STAT",
+      "offset": "0x774",
+      "svg": "docs/diagrams/regmap/bdbg/LINKG_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "LINKG_STAT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

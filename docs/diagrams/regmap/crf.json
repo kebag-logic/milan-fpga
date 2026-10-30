@@ -1,0 +1,138 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "crf",
+  "heading": "0x738  -  CRF media-clock sink  (Milan v1.2 7.3, KL_crf_rx)",
+  "registers": [
+    {
+      "acronym": "CRF_CTRL",
+      "offset": "0x738",
+      "svg": "docs/diagrams/regmap/crf/CRF_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "CRF_EN",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 30,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "CRF_LOCKED",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CRF_SIDLO",
+      "offset": "0x73C",
+      "svg": "docs/diagrams/regmap/crf/CRF_SIDLO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "CRF_SID",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CRF_SIDHI",
+      "offset": "0x740",
+      "svg": "docs/diagrams/regmap/crf/CRF_SIDHI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "CRF_SID",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CRF_DELTA",
+      "offset": "0x744",
+      "svg": "docs/diagrams/regmap/crf/CRF_DELTA.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "CRF_DELTA",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CRF_RATE",
+      "offset": "0x748",
+      "svg": "docs/diagrams/regmap/crf/CRF_RATE.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "CRF_RATE",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CRF_STATUS",
+      "offset": "0x74C",
+      "svg": "docs/diagrams/regmap/crf/CRF_STATUS.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "CRF_STATUS",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

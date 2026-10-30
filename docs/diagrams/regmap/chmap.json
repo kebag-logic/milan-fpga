@@ -1,0 +1,225 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "chmap",
+  "heading": "0x900  -  channel-map fabric  (Section 6 of docs/CHANNEL_MAP_64.md, KL_chan_map_render / KL_chan_map_capture)",
+  "registers": [
+    {
+      "acronym": "CHMAP_CTRL",
+      "offset": "0x900",
+      "svg": "docs/diagrams/regmap/chmap/CHMAP_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "CHMAP_ENABLE",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 31,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CHMAP_SEL",
+      "offset": "0x904",
+      "svg": "docs/diagrams/regmap/chmap/CHMAP_SEL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 6,
+            "name": "CHMAP_WR_ADDR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 2,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "CHMAP_WR_SIDE",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 23,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CHMAP_WORD",
+      "offset": "0x908",
+      "svg": "docs/diagrams/regmap/chmap/CHMAP_WORD.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 16,
+            "name": "CHMAP_WR_DATA",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 16,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CHMAP_STAT",
+      "offset": "0x90C",
+      "svg": "docs/diagrams/regmap/chmap/CHMAP_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 16,
+            "name": "CHMAP_COMMITS",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "CHMAP_REFUSED",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CHMAP_SNAP",
+      "offset": "0x910",
+      "svg": "docs/diagrams/regmap/chmap/CHMAP_SNAP.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "CMRD_BUSY",
+            "attr": "R/W1S-0"
+          },
+          {
+            "bits": 1,
+            "name": "CMRD_VALID",
+            "attr": "R-0"
+          },
+          {
+            "bits": 1,
+            "name": "CMRD_TO",
+            "attr": "R-0"
+          },
+          {
+            "bits": 1,
+            "name": "CMRD_UNSUP",
+            "attr": "R-0"
+          },
+          {
+            "bits": 1,
+            "name": "CMRD_ARMED",
+            "attr": "R-0"
+          },
+          {
+            "bits": 3,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 2,
+            "name": "CHMAP_RDBK",
+            "attr": "R-3h"
+          },
+          {
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 6,
+            "name": "CMRD_ADDR",
+            "attr": "R-0"
+          },
+          {
+            "bits": 1,
+            "name": "CMRD_SIDE",
+            "attr": "R-0"
+          },
+          {
+            "bits": 1,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "CHMAP_SNAP_TAG",
+            "attr": "R-C5h"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CHMAP_LOOP",
+      "offset": "0x914",
+      "svg": "docs/diagrams/regmap/chmap/CHMAP_LOOP.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "CHMAP_LOOP_RD",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}
