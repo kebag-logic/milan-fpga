@@ -1,0 +1,8 @@
+[ok] mutant plat-command-read-past-its-end (plat): 1 check(s) failed
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: crashed on signal 6
+[ok] mutant plat-saved-state-after-mailbox-open (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the saved state is read before the mailbox's first access
+[ok] mutant plat-store-service-unbound (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop: B10 the bind is written back by the store's service on the loop's tick
+mutants: 3 of 3 caught
+plat_quick mutants: ALL CAUGHT

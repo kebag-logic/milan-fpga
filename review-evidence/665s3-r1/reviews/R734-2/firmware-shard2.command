@@ -1,0 +1,1 @@
+['/usr/bin/python3', '-B', '$REVIEWS/r734-2-665s3/sw/firmware/ctrl/test/test_ctrl_firmware.py', '--require-rv32', '--self-test', '--shard', '2/4', '--jobs', '2', '--build-dir', '$REVIEWS/665s3-r734-2-packet/scratch/firmware-shard2']

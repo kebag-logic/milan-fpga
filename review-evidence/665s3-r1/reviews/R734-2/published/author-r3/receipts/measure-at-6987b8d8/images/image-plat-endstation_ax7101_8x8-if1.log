@@ -1,0 +1,105 @@
+HEAD 6987b8d8a3b00db5970e69106e3284ce77b54970
+$ python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7101_8x8.yaml --interfaces 1 --csr-csv <boot-soc-endstation_ax7101_8x8>/csr.csv --output <out>/plat-endstation_ax7101_8x8-1 --libc <runtime>/libc.a --compiler-runtime <runtime>/libcompiler_rt.a
+{
+  "shape": "endstation_ax7101_8x8",
+  "interfaces": 1,
+  "entry": "plat/ctrl_plat_main.c",
+  "sections": {
+    ".text": 96540,
+    ".rodata": 26254,
+    ".data": 504,
+    ".bss": 79044,
+    ".stack": 8192,
+    ".riscv.attributes": 28
+  },
+  "largest_bss": [
+    {
+      "symbol": "arena",
+      "bytes": 24032
+    },
+    {
+      "symbol": "nvm_stage",
+      "bytes": 13264
+    },
+    {
+      "symbol": "values",
+      "bytes": 11753
+    },
+    {
+      "symbol": "ctrl_plat.app",
+      "bytes": 8880
+    },
+    {
+      "symbol": "ctrl_plat.srp",
+      "bytes": 5256
+    }
+  ],
+  "ctrl_plat_members": {
+    "acmp": 96,
+    "aecp": 3352,
+    "aecp_config": 48,
+    "app": 8880,
+    "binding": 40,
+    "bridge": 132,
+    "config": 56,
+    "console": 588,
+    "face": 88,
+    "maap_csr": 32,
+    "sources": 288,
+    "srp": 5256,
+    "srp_config": 24,
+    "state": 84
+  },
+  "split": {
+    "rom": {
+      "bytes": 123304,
+      "banks": [
+        65536,
+        32768,
+        16384,
+        8192,
+        2048
+      ],
+      "RAMB36": 30,
+      "RAMB18": 1
+    },
+    "sram": {
+      "bytes": 87760,
+      "banks": [
+        65536,
+        16384,
+        4096,
+        2048
+      ],
+      "RAMB36": 21,
+      "RAMB18": 1
+    },
+    "tiles": 52.0,
+    "budget_tiles": 56
+  },
+  "artifacts": [
+    {
+      "name": "libc.a",
+      "size": 5478,
+      "sha256": "20b18ca092ddf14939b7aa62ae03cd737695c202ae8a608a6e24c8f05e102741"
+    },
+    {
+      "name": "libcompiler_rt.a",
+      "size": 29128,
+      "sha256": "f6fd4a009d19fec6c67fc6fcbf7b54cd58dd44956b39297fcce8f83daf20c1b4"
+    },
+    {
+      "name": "ctrl_app.elf",
+      "size": 153308,
+      "sha256": "8ea80d8b0febaed58af2b64b404772010a429a02dcb3e6285daeb41f8a3c0c77"
+    },
+    {
+      "name": "ctrl_app.map",
+      "size": 159463,
+      "sha256": "cec6fe74b626f88d624cd3daff4b75e0aebced97a8dda358a5002809053d9116"
+    }
+  ]
+}
+elapsed=4s
+rc=0
+want=0

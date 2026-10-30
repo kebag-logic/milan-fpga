@@ -1,0 +1,96 @@
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6409738976
+[A10] **The remaining Mark II split work: plan, decisions and the first two lanes.** All lanes target `dev-soft-core` (comment 6409455089). The manager's plan has 13 lanes: S1 the processor's other faces and contract 2.3; S2 the CPU budget; S3 the target platform firmware; S4 F1 on the target; S5 the F2-F5 hooks; S6 the placement switch; S7 lwSRP TX; S8 the ACMP and MAAP wire timing; S9 the split image and identity gate; S10 the 57-LUT term; S11 REBOOT on the core; S12 the bench; S13 the flip. The critical path is S1 → S6 → S9 → S12 → S13, then #640 M9.
+
+**Owner decisions, 2026-10-26:**
+- **D0: one placement key for all five functions** (ADP, ACMP, MAAP, SRP, AECP), all-fabric or split, matching ruling 6088423771. `REQUIREMENTS.md:24-25` and `docs/ARCHITECTURE_HW_SW_SPLIT.md:33-37` are amended, in S6's PR, to make per-function placement a later milestone. The owner approves the requirement text.
+- **D3: firmware memory is a hybrid XIP.**
+  - The hot paths stay in block RAM: the control loop, the mailbox, the ADP, ACMP and SRP state machines and the counters.
+  - Cold code (boot and restore, rare AECP commands) and the descriptor image execute or read from QSPI flash.
+  - No path inside T_svc may touch the flash, and that is proven by a link-map and timing gate. This adds lane S14, which depends on S2's fetch-share measurement and S3. It also prepares Mark III's full XIP.
+- **D4: on a CPU budget miss,** first cap work per pass in `ctrl_loop` (T_svc kept), then lower the admitted backlog (ring depths, token buckets). Never relax the requirement or raise the CPU clock without the owner.
+- **D8: the flip candidate's soak is 24 h**, the release gate's (#396), with the audio run inside it and the 200 power cycles after it. #757's 72 h re-soak is dropped.
+
+**Manager decisions:**
+- **D1:** the F/R/E/M/G/C disposition scheme in contract 2.3 (S1).
+- **D2:** split images before the flip keep VERSION `0x0002_0060`; they are identified by the SoC ident, `KL_mbx` `ID` and the image manifest.
+- **D5:** the smaller core is deferred until after the flip.
+- **D6:** the split console keeps only what the release graders read (`baremetal_uart_smoke.py` and the #396 plan).
+- **D7:** accept the 57-LUT term in the ledger, unless S9 lands within 300 LUT of M9's bar.
+- **D9:** #787 (REBOOT reset) lands on dev first, and S6 merges it in through the dev → `dev-soft-core` sync.
+
+**Bench:** the Arty A7-100T on the bench switch is the split bring-up target, with flashing allowed. A small lane S0 refreshes the Arty configs (MII PHY, board constraints) before S9. The AX7101 stays on the release.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6493622258
+[A10] **Mark II split: two more lanes in parallel with S2b** (owner 2026-10-29: "use more lanes for the split"). Both are based on `dev-soft-core` `f4c9ad4f`, and the PRs target `dev-soft-core`. Release work keeps priority on CPUs. These lanes are started by the host's lane load balancer when there is room.
+
+**S3, the target platform firmware. Executor [A697].** Branch `665-s3-platform`. The plan is [A678]'s section S3, in scope, acceptance, gates, mutants and measurements:
+- `ctrl_split_start.S` gets a real `main` that composes F0-F5 and F1 on the MMIO HAL.
+- It follows the boot sequence of `ARCHITECTURE_HW_SW_SPLIT.md:122-133`, steps 1-9, in the order Milan v1.2 5.6.1 sets.
+- It ports `milan_baremetal`'s duties, bounded by #397's rule:
+  - CSR initialisation, the generated identity and the static boot policy;
+  - the UART commands the bench graders read (D6);
+  - MAAP's `maap_csr_port`;
+  - SRP's live stream configuration and licence.
+- `milan_baremetal.c` is read, never edited.
+- Acceptance: a LiteX simulation boots the split SoC to the ready state, and the UART banner and graded commands answer. A register-write trace shows the CSR initialisation writes exactly what `milan_baremetal` writes for the same shape. `baremetal_uart_smoke.py` passes on the simulated UART, or each difference is listed.
+- Measure: the image's five largest BSS consumers against 56 tiles; boot-to-ready cycles against 20 s (Milan v1.2 5.6.2/5.6.3); the UART duties against the 500 ms tick rule.
+- The AECP ports are real from S1, now merged.
+
+**S4, the F1 flash and saved-state ports on the target. Executor [A698].** Branch `665-s4-f1-target`. The plan is section S4:
+- `nvm_flash_litespi.c` on the split SoC's LiteSPI addresses, generated from its `csr.csv` and never hand-written.
+- The state port bound to the real owners: ACMP's binding owner, and AECP's formats, maps and names through `aecp_nvm.c`.
+- A flash region guard: no erase or program outside the journal region that `check_nvm_record_space.py` names.
+- Acceptance: on the S2 CPU harness at 8x8, the capture runs at or under 24.5 ms. Boot works with valid, absent, torn and wrong-version slots. `nvm_cosim` and `nvm_capture_cpu` pass, and D3's apply order holds.
+- Start against `dev-soft-core`. Rebase on S3's head only if the composed boot needs it, and say so.
+
+**Decision D7 (the bound-talker term's 57-LUT overshoot): (a), accept it and close it in the ledger.** The gap to the M9 bar is far larger than 300 LUT. S10 takes no rounds. S9 records the close-out with its integrated route.
+
+S5 starts when S3 is review-ready. S6 and S11 wait for #787 and processor #203.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6505997821
+[A10] **S3 ruling on [A697b]'s STOP (issuecomment-6505966612). Executor [A697c] continues on `5edbba1d`.**
+
+1. **Option (a).** The platform image at 8x8 with two interfaces may plan **59.0** RAMB36. This is one named point over budget, owed to S14 (decision D3, hybrid XIP: the boot and CSR policy are cold code, which D3 moves to flash). It stays inside ruling 6412739248 item 1 and amends ruling 6425357821 item 1 for this one image.
+   - Add a second named entry in `sw/litex/ctrl_memory.py` `LEDGERED`. It recognises the platform image by its own symbols, as the fixture's entry does by `image_allocation`.
+   - Add its test: the override applies to that image at that point only, and a planted defect that widens it to another point or image must fail.
+   - Update `docs/design/SPLIT_CONTROL_MEMORY.md` section 5 with this head's figures at all four points, both images, and the platform's added `rom`/`sram` by part.
+   - **Unchanged:** every other point stays within 56. The flip (S13) needs 56 or fewer at every point, with S14 merged. STOP if any other point goes over 56, or if this point goes over 59.0.
+2. **Graders on a split image: accepted as listed.**
+   - `baremetal_uart_smoke.py` `fabric-enabled` reads ADP_CTRL[0] / PP_CTRL[0], which the split never sets.
+   - The #396 campaign's one-BIOS-pass-per-cut rule cannot hold, because the split has no BIOS.
+   - Both graders' split mode is owed to the bench lane (S12). State it in the PR body's limits and in the plan's S12 entry.
+3. **SRP's live stream configuration: deferred.** The `srp_mbx` adapter entry that re-declares a source once MAAP allocates its destination comes in a later S3 round, after S2b's `srp_mbx.c` changes land on `dev-soft-core`. Until then the sources declare Talker Failed. State it in the PR body's limits; I'm recording it on the S3 follow-up.
+4. **`scripts/run_litex_sims.sh`: accepted.** The split boot stays a recipe under `tb/verilator/ctrl_split_boot/` until #784 step 2 allows the RV32 SDK in that hosted job.
+
+Exit: REVIEW READY with the head and PR-BODY (base `dev-soft-core`, "Relates to #665"). Re-run the round-1 gates that the ledger change touches: `ctrl_plat_image.py` at all four points, `ctrl_memory` tests, the docs gates, the builder test and the firmware self-test.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6508869822
+[A10] **S3 round 3: R733-1 and R734-1 on PR #811** (head `99de3a02`). Executor [A697d].
+
+Both reviews are NEGATIVE:
+- R733-1: https://github.com/kebag-logic/milan-fpga/pull/811#issuecomment-6508864388
+- R734-1: https://github.com/kebag-logic/milan-fpga/pull/811#issuecomment-6508854695
+
+Read both reports and their probes exactly. Fix each finding:
+
+1. **R734-F1 (MAJOR): the split boot driver accepts a failed native simulation.**
+   - A nonzero exit from the native process, or a failed or incomplete native tally, must fail the normal gate.
+   - The saved evidence must carry the native status, so that a regrade rejects the same case.
+   - Keep a passing native control. Add controls with valid earlier observations followed by:
+     - a nonzero exit;
+     - a failed or incomplete completion.
+   - Both the normal path and the regrade must reject them.
+   - Re-run both positive boot points and both existing boot plants.
+2. **R733-F1 (MINOR):** `ctrl_plat_console.c` `is()` reads past the command literal when the line holds a NUL. Stop at the command's terminator. Make the reviewer's probe a permanent test, run under AddressSanitizer in the suite, with a planted defect.
+3. **R733-F2 (MINOR):** the boot tests must fail when:
+   - the saved-state step is moved after the mailbox opens;
+   - the store service is not bound.
+
+   Make both reviewer plants permanent mutants. They must be killed, and the boot-order and write-back checks are what kill them.
+4. **R734-R1 (residue):** new comments carry lane labels and comment IDs. Per the 2026-10-15 rule, comments state behaviour and reason with issue and requirement IDs only. Clean the comments in `comment-residue.txt`.
+
+Exit: REVIEW READY with the head, or STOP with the evidence. Run the gates each change touches, and the firmware self-test.
+

@@ -1,0 +1,16 @@
+COMMAND Vsim exited 0
+positive normal/regrade PASS []
+COMMAND Vsim exited 7
+nonzero-valid-tally normal/regrade NATIVE ['NATIVE: the model exited 7']
+COMMAND Vsim exited 0
+failed-tally-exit-zero normal/regrade NATIVE ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+COMMAND Vsim exited 0
+no-tally normal/regrade NATIVE ['NATIVE: the model printed no tally: it did not complete']
+COMMAND Vsim exited 0
+zero-checks normal/regrade NATIVE ['NATIVE: the model printed no tally: it did not complete']
+COMMAND Vsim exited 0
+truncated-tally normal/regrade NATIVE ['NATIVE: the model printed no tally: it did not complete']
+COMMAND Vsim exited 0
+failure-marker normal/regrade NATIVE ["NATIVE: the model's log reports a failure: it carries 1 [FAIL] line(s), first: [FAIL] boundary failure"]
+invalid saved status rejected ['NATIVE: the run saved no exit status (sim.status), so how the model ended is unknown']
+PASS: 8 native boundary probes

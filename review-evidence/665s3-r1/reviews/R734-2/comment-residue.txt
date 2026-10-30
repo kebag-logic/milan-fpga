@@ -1,0 +1,32 @@
+New comment/docstring instances in the reviewed delta; test case identifiers are not treated as lane names.
+sw/firmware/ctrl/plat/ctrl_plat.h:5: // boot sequence and the composition of F0-F5 and F1 on the MMIO HAL (#665 S3).
+sw/firmware/ctrl/plat/ctrl_plat_console.h:4: // ctrl_plat_console.h - the split image's UART console (#665 S3, decision D6).
+sw/firmware/ctrl/plat/ctrl_plat_console.h:8: // section 4). D6 (#665, issuecomment-6409738976) keeps only what the release
+sw/firmware/ctrl/plat/ctrl_plat_csr.h:4: // ctrl_plat_csr.h - the datapath CSR window in the split placement (#665 S3).
+sw/firmware/ctrl/plat/ctrl_plat_gen.py:4: """Generate the split platform's two headers (#665 S3): its boot policy and its bus map.
+sw/firmware/ctrl/plat/ctrl_plat_io.h:5: // mailbox: the datapath CSR window and the LiteX UART (#665 S3).
+sw/firmware/ctrl/plat/ctrl_plat_main.c:5: // after it sets the stack, copies .data and clears .bss (#665 S3).
+sw/firmware/ctrl/plat/ctrl_plat_mmio.c:4: // ctrl_plat_mmio.c - ctrl_plat_io.h on the split SoC's bus (#665 S3).
+sw/firmware/ctrl/test/ctrl_configs.py:149: # the split platform's arms (#665 S3), which the control gate builds
+sw/firmware/ctrl/test/ctrl_plat_csr.csv:2: # The split platform's map fixture (#665 S3), in the shape LiteX writes a csr.csv:
+sw/firmware/ctrl/test/ctrl_plat_image.py:4: """Link the split platform's image (#665 S3): plat/ctrl_plat_main.c's main, not a fixture's.
+sw/firmware/ctrl/test/ctrl_plat_image.py:7: F0-F5 and F1 with the entity-sized lwSRP pool, but its entry is the platform's
+sw/firmware/ctrl/test/ctrl_plat_image.py:18: report adds the five largest .bss objects, the measurement S3 owes against the
+sw/firmware/ctrl/test/ctrl_runs.py:82: # the split platform's image (#665 S3): its own entry, the same composition, the fixture's map
+sw/firmware/ctrl/test/plat_arms.py:3: """plat_arms.py - the split platform's arms of the control-plane firmware's host test (#665 S3).
+sw/firmware/ctrl/test/plat_bus.cpp:4: // plat_bus.cpp - ctrl_plat_io.h on the host bus of plat_bus.hpp (#665 S3).
+sw/firmware/ctrl/test/plat_bus.hpp:4: // plat_bus.hpp - the split platform's bus on the host (#665 S3): the datapath
+sw/firmware/ctrl/test/plat_mutants.py:3: """plat_mutants.py - the split platform's planted defects (#665 S3), in the control campaign's table.
+sw/firmware/ctrl/test/plat_mutants.py:12: The table holds S3's named controls: a CSR write skipped, reordered or wrong,
+sw/firmware/ctrl/test/plat_mutants.py:40: """The CSR window's: S3's CSR write skipped, reordered or wrong, the identity and the time of day."""
+sw/firmware/ctrl/test/plat_mutants.py:43: # the CSR initialisation (S3: skipped, reordered, wrong)
+sw/firmware/ctrl/test/plat_trace.py:3: """plat_trace.py - the split platform's CSR initialisation against milan_baremetal.c's (#665 S3).
+sw/firmware/ctrl/test/plat_trace.py:5: S3's acceptance: the CSR initialisation writes exactly what milan_baremetal
+sw/firmware/ctrl/test/test_plat.cpp:5: // (#665 S3; plat/ctrl_plat_csr.c, plat/ctrl_plat_console.c, plat_bus.hpp):
+sw/firmware/ctrl/test/test_plat_boot.cpp:4: // test_plat_boot.cpp - the split platform's boot and composition (#665 S3;
+sw/firmware/ctrl/test/test_plat_mmio.cpp:5: // bus, built over a host array (#665 S3):
+sw/litex/ctrl_memory_ledger.py:7: only by its own name: the size fixture's at 57.5 RAMB36 (rulings 6412739248 and 6425357821) and the target
+sw/litex/ctrl_memory_ledger.py:8: platform's at 59.0 (ruling 6505997821). A `Case` here is what the ledger reads of one image. test_ctrl_memory.py
+tb/verilator/ctrl_split_boot/boot_soc.py:3: """The split boot simulation's SoC (#665 S3): S2's test-only split SoC, with the CSR window and UART on pads.
+tb/verilator/ctrl_split_boot/run.py:4: """The split boot simulation (#665 S3): the platform image from reset to ready, its CSR trace and its UART.
+tb/verilator/ctrl_split_boot/sim_main.cpp:4: // The testbench of the split boot simulation (#665 S3): the split SoC of

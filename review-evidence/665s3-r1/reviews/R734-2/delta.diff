@@ -1,0 +1,1082 @@
+diff --git a/docs/design/SPLIT_CONTROL_MEMORY.md b/docs/design/SPLIT_CONTROL_MEMORY.md
+index e24fd9fdc6..ff434872b6 100644
+--- a/docs/design/SPLIT_CONTROL_MEMORY.md
++++ b/docs/design/SPLIT_CONTROL_MEMORY.md
+@@ -212,20 +212,20 @@ The flip (S13) still requires 56 RAMB36 or fewer at every point, with S14 merged
+ These figures are planned, not mapped.
+ 
+ The [target platform](../../sw/firmware/ctrl/plat/README.md)'s image (#665 S3) replaces the size fixture's `main` with the platform's, and links with `ctrl_plat_image.py`.
+-Planned by `ctrl_memory.plan` from the firmware of `2adab625`, beside the fixture at the same commit, both linked with the same runtime:
++Planned by `ctrl_memory.plan` from the firmware of `b8628704`, beside the fixture at the same commit, both linked with the same runtime:
+ 
+ | Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform minus fixture, B | Against the budget |
+ |---|---:|---:|---:|---:|---:|---|
+-| 1x1, one interface (shipping) | 109,552 / 47,168 | 39.0 | 104,448 / 46,272 | 37.0 | +5,104 / +896 | within |
+-| 1x1, two interfaces | 111,192 / 58,592 | 42.0 | 106,032 / 57,648 | 40.5 | +5,160 / +944 | within |
+-| 8x8, one interface | 123,296 / 87,760 | 52.0 | 118,168 / 86,848 | 50.5 | +5,128 / +912 | within |
+-| 8x8, two interfaces (largest) | 125,040 / 113,936 | 59.0 | 119,824 / 113,008 | 57.5 | +5,216 / +928 | **over by 3.0 tiles, ledgered at 59.0, owed to lane S14** |
++| 1x1, one interface (shipping) | 109,560 / 47,168 | 39.0 | 104,448 / 46,272 | 37.0 | +5,112 / +896 | within |
++| 1x1, two interfaces | 111,200 / 58,592 | 42.0 | 106,032 / 57,648 | 40.5 | +5,168 / +944 | within |
++| 8x8, one interface | 123,304 / 87,760 | 52.0 | 118,168 / 86,848 | 50.5 | +5,136 / +912 | within |
++| 8x8, two interfaces (largest) | 125,048 / 113,936 | 59.0 | 119,824 / 113,008 | 57.5 | +5,224 / +928 | **over by 3.0 tiles, ledgered at 59.0, owed to lane S14** |
+ 
+-At 8x8 with two interfaces the platform's `rom` banks hold 125,040 B in 126,976 and its `sram` banks 113,936 B in 114,688.
++At 8x8 with two interfaces the platform's `rom` banks hold 125,048 B in 126,976 and its `sram` banks 113,936 B in 114,688.
+ That is 59.0 RAMB36, three tiles over the budget and a tile and a half over the fixture's 57.5.
+ It cannot reach 57.5 within the platform's files, because each region is planned in power-of-two banks of whole granules.
+ The fixture's own `sram` (113,008 B) already needs 28.0 tiles, so `rom` would have to fit 29.5 tiles (120,832 B).
+-That is a cut of 4,208 B from the platform's 5,216 B of `rom`.
++That is a cut of 4,216 B from the platform's 5,224 B of `rom`.
+ The owner's ruling of 2026-10-29 (#665, 6505997821) ledgers that point at 59.0, owed to lane S14 under decision D3: the boot and the CSR policy are cold code, which D3 moves to flash.
+ It amends ruling 6425357821's 57.5 for this one image, and `ctrl_memory.LEDGERED` names it `platform-8x8-two-interfaces` ([section 3](#3-named-refusals)).
+ Every other point stays within 56 RAMB36.
+@@ -237,7 +237,7 @@ By part, from the two link maps, with one section per function and object, the p
+ |---|---:|---:|---:|---:|
+ | The boot: `ctrl_plat_boot` with the composition, MAAP owner and SRP source set-up it inlines, `ctrl_plat_step` and the image hook; the three configurations it holds (`config`, `aecp_config`, `srp_config`) | +1,528 / +128 | +1,656 / +144 | +1,532 / +128 | +1,692 / +144 |
+ | The CSR policy: identity, the fifteen writes, status and time of day (`ctrl_plat_csr.c`) | +788 / 0 | +788 / 0 | +788 / 0 | +788 / 0 |
+-| The console (`ctrl_plat_console.c`, its digit table and its state) | +1,744 / +588 | +1,744 / +588 | +1,744 / +588 | +1,744 / +588 |
++| The console (`ctrl_plat_console.c`, its digit table and its state) | +1,748 / +588 | +1,748 / +588 | +1,748 / +588 | +1,748 / +588 |
+ | The console's and the boot's strings, merged | +762 / 0 | +762 / 0 | +762 / 0 | +762 / 0 |
+ | MAAP's port: the window's two accesses, the allocation report and `maap_csr.c`, with its state | +916 / +32 | +916 / +32 | +916 / +32 | +916 / +32 |
+ | ACMP's talker sources: `source`, `locked`, `stream`, `notice` | +164 / 0 | +164 / 0 | +164 / 0 | +164 / 0 |
+@@ -248,8 +248,8 @@ By part, from the two link maps, with one section per function and object, the p
+ | The rest of `struct ctrl_plat`, against the fixture's `image_allocation`, `image_licences` and two constant port tables | -80 / +114 | -80 / +128 | -80 / +107 | -80 / +114 |
+ | The size fixture's `main` and its callbacks, removed (`ctrl_aecp_image.c`) | -980 / 0 | -1,052 / 0 | -1,012 / 0 | -1,088 / 0 |
+ | Every other object: the same sources, built against the platform's bus map | +16 / 0 | +16 / 0 | +16 / 0 | +16 / 0 |
+-| Alignment | +2 / -22 | +2 / -4 | -2 / +1 | +2 / -6 |
+-| **The platform minus the fixture** | **+5,104 / +896** | **+5,160 / +944** | **+5,128 / +912** | **+5,216 / +928** |
++| Alignment | +6 / -22 | +6 / -4 | +2 / +1 | +6 / -6 |
++| **The platform minus the fixture** | **+5,112 / +896** | **+5,168 / +944** | **+5,136 / +912** | **+5,224 / +928** |
+ 
+ The other members of `struct ctrl_plat` are the objects the fixture holds with the same types: the application, SRP, AECP, its bridge and face, ACMP's configuration, the saved state and the sources.
+ They are equal in both images, and so are the AEM image, its pools and lwSRP's pool.
+diff --git a/sw/firmware/ctrl/plat/README.md b/sw/firmware/ctrl/plat/README.md
+index 6a2b00c780..c0b1de3776 100644
+--- a/sw/firmware/ctrl/plat/README.md
++++ b/sw/firmware/ctrl/plat/README.md
+@@ -69,6 +69,7 @@ The console is a loop poll and never waits on the UART:
+ 
+ So a pass's console share is at most 104 bus accesses and one response's formatting.
+ The split image defines no `CTRL_MBX_WFI`, so its loop never sleeps and the console runs every pass.
++A command's name is compared only as far as its terminator, so a received NUL (a UART yields 0x00 on a break) ends no command, and nothing past the name is read.
+ 
+ ## The ports
+ 
+@@ -99,13 +100,13 @@ Every other point is within 56 ([split control memory](../../../../docs/design/S
+ 
+ `sw/firmware/ctrl/test/test_ctrl_firmware.py` runs four arms ([`plat_arms.py`](../test/plat_arms.py)):
+ 
+-- `plat`: the CSR window, the console and the MMIO platform on host buses (`test_plat.cpp`, `test_plat_mmio.cpp`);
+-- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order;
++- `plat`: the CSR window, the console and the MMIO platform on host buses (`test_plat.cpp`, `test_plat_mmio.cpp`); the CSR window and the console run under AddressSanitizer, whose report fails the test that sent the line;
++- `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; and a controller's bind after ready, written back to the flash by the store's service on the loop's tick;
+ - `platrv32`: the whole platform cross-compiled freestanding for RV32I;
+ - `plattrace`: the CSR policy's writes against `milan_baremetal.c`'s own `configure_fabric()`, compiled as builder gate 35 compiles it, for every shipped config, with three planted controls ([`plat_trace.py`](../test/plat_trace.py)).
+ 
+-The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 37 defects, each caught by a named test on its own words.
+-They include a CSR write skipped, reordered or wrong, and a console that holds the pass past its slice.
++The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 40 defects, each caught by a named test on its own words.
++They include a CSR write skipped, reordered or wrong, a console that holds the pass past its slice, a command compared past its terminator, the saved state read after the mailbox opens, and its service left off the loop.
+ 
+ The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) boots the linked image on the split CPU to its ready line, compares its CSR trace with `configure_fabric()`'s and grades the UART with the smoke grader's own parse.
+ 
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat.h b/sw/firmware/ctrl/plat/ctrl_plat.h
+index ceeb2e3e38..3f572a09c8 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat.h
++++ b/sw/firmware/ctrl/plat/ctrl_plat.h
+@@ -2,7 +2,7 @@
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+ // ctrl_plat.h - the split placement's control firmware on its target: the
+-// boot sequence and the composition of F0-F5 and F1 on the MMIO HAL (#665 S3).
++// boot sequence and the composition of F0-F5 and F1 on the MMIO HAL (#665).
+ //
+ // THE BOOT, in the order of docs/ARCHITECTURE_HW_SW_SPLIT.md section 2, which
+ // Milan v1.2 5.6.1 orders (step 1, the bitstream, precedes the firmware):
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_console.c b/sw/firmware/ctrl/plat/ctrl_plat_console.c
+index 5ae8fcfb33..7c938fe8be 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_console.c
++++ b/sw/firmware/ctrl/plat/ctrl_plat_console.c
+@@ -126,11 +126,13 @@ static void status(struct ctrl_plat_console *c)
+ 	tod(c);
+ }
+ 
+-// the line is exactly command (the runtime has no strcmp)
++// the line is exactly command (the runtime has no strcmp); the compare stops
++// at the command's end, so a received NUL there ends no command and nothing
++// past the command's terminator is read (#665: a UART yields 0x00 on a break)
+ static bool is(const struct ctrl_plat_console *c, const char *command)
+ {
+ 	unsigned n = 0;
+-	while (n < c->len && command[n] == c->line[n]) {
++	while (n < c->len && command[n] != '\0' && command[n] == c->line[n]) {
+ 		++n;
+ 	}
+ 	return n == c->len && command[n] == '\0';
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_console.h b/sw/firmware/ctrl/plat/ctrl_plat_console.h
+index 1c11949ea6..ad1a4a8194 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_console.h
++++ b/sw/firmware/ctrl/plat/ctrl_plat_console.h
+@@ -1,11 +1,11 @@
+ // SPDX-FileCopyrightText: 2026 Kebag Logic
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+-// ctrl_plat_console.h - the split image's UART console (#665 S3, decision D6).
++// ctrl_plat_console.h - the split image's UART console (#665, decision D6).
+ //
+ // The split image has no BIOS and no libmilan_baremetal, so it has no console
+ // unless its control firmware brings one (docs/design/SPLIT_CONTROL_MEMORY.md
+-// section 4). D6 (#665, issuecomment-6409738976) keeps only what the release
++// section 4). Decision D6 keeps only what the release
+ // graders read: scripts/baremetal_uart_smoke.py sends milan_status and
+ // milan_gettime and parses their lines, and the #396 plan counts boot banners.
+ // So this console answers those two commands in the lines milan_baremetal.c
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_csr.h b/sw/firmware/ctrl/plat/ctrl_plat_csr.h
+index 1253aa5873..5536cbb7d8 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_csr.h
++++ b/sw/firmware/ctrl/plat/ctrl_plat_csr.h
+@@ -1,7 +1,7 @@
+ // SPDX-FileCopyrightText: 2026 Kebag Logic
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+-// ctrl_plat_csr.h - the datapath CSR window in the split placement (#665 S3).
++// ctrl_plat_csr.h - the datapath CSR window in the split placement (#665).
+ //
+ // The split image keeps the Milan CSR map (docs/design/SPLIT_CONTROL_MEMORY.md
+ // section 4). Its control firmware programs the generated identity and the
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_gen.py b/sw/firmware/ctrl/plat/ctrl_plat_gen.py
+index 5cfaa7c1de..8dd54f2811 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_gen.py
++++ b/sw/firmware/ctrl/plat/ctrl_plat_gen.py
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env python3
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""Generate the split platform's two headers (#665 S3): its boot policy and its bus map.
++"""Generate the split platform's two headers (#665): its boot policy and its bus map.
+ 
+ policy CONFIG -o ctrl_plat_policy_gen.h
+     The generated identity and static product policy the platform writes to the
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_io.h b/sw/firmware/ctrl/plat/ctrl_plat_io.h
+index 5f7f111a53..8a61edb642 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_io.h
++++ b/sw/firmware/ctrl/plat/ctrl_plat_io.h
+@@ -2,7 +2,7 @@
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+ // ctrl_plat_io.h - the split platform's bus port for the devices beside the
+-// mailbox: the datapath CSR window and the LiteX UART (#665 S3).
++// mailbox: the datapath CSR window and the LiteX UART (#665).
+ //
+ // Two calls, as mbx_hal.h is for the mailbox: one 32-bit load or store at a
+ // bus address. ctrl_plat_mmio.c is the target's, a volatile access; the host
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_main.c b/sw/firmware/ctrl/plat/ctrl_plat_main.c
+index 257ee5d568..002eea1ae6 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_main.c
++++ b/sw/firmware/ctrl/plat/ctrl_plat_main.c
+@@ -2,7 +2,7 @@
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+ // ctrl_plat_main.c - main() of the split image, which ctrl_split_start.S calls
+-// after it sets the stack, copies .data and clears .bss (#665 S3).
++// after it sets the stack, copies .data and clears .bss (#665).
+ //
+ // It holds only what is the target's: the generated policy and streams
+ // (ctrl_plat_policy_gen.h), the bus map from the SoC's csr.csv
+diff --git a/sw/firmware/ctrl/plat/ctrl_plat_mmio.c b/sw/firmware/ctrl/plat/ctrl_plat_mmio.c
+index 357e7b6ac2..e0483efb9d 100644
+--- a/sw/firmware/ctrl/plat/ctrl_plat_mmio.c
++++ b/sw/firmware/ctrl/plat/ctrl_plat_mmio.c
+@@ -1,7 +1,7 @@
+ // SPDX-FileCopyrightText: 2026 Kebag Logic
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+-// ctrl_plat_mmio.c - ctrl_plat_io.h on the split SoC's bus (#665 S3).
++// ctrl_plat_mmio.c - ctrl_plat_io.h on the split SoC's bus (#665).
+ //
+ // The CSR window and the UART are uncached I/O regions, as the mailbox window
+ // is (mbx_plat_mmio.c): every access is one volatile 32-bit load or store, so
+diff --git a/sw/firmware/ctrl/test/ctrl_configs.py b/sw/firmware/ctrl/test/ctrl_configs.py
+index cd6b1571f4..afde4f2838 100644
+--- a/sw/firmware/ctrl/test/ctrl_configs.py
++++ b/sw/firmware/ctrl/test/ctrl_configs.py
+@@ -146,7 +146,7 @@ PART_OF = {
+     "tb/verilator/mbx/mutants.py": "tb/verilator/mbx/Makefile",
+     # the AECP arms, which the control gate builds; its own command, a developer's, builds a selection of them
+     "sw/firmware/ctrl/test/aecp_arms.py": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+-    # the split platform's arms (#665 S3), which the control gate builds
++    # the split platform's arms (#665), which the control gate builds
+     "sw/firmware/ctrl/test/plat_arms.py": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+     # the shared builder: its program is the stack's pin check (--stack-pin), which the bench's Makefile runs and
+     # which compiles nothing; it compiles as the module of every builder of the firmware
+diff --git a/sw/firmware/ctrl/test/ctrl_plat_csr.csv b/sw/firmware/ctrl/test/ctrl_plat_csr.csv
+index df1a4f0859..85f5713ebc 100644
+--- a/sw/firmware/ctrl/test/ctrl_plat_csr.csv
++++ b/sw/firmware/ctrl/test/ctrl_plat_csr.csv
+@@ -1,5 +1,5 @@
+ #--------------------------------------------------------------------------------
+-# The split platform's map fixture (#665 S3), in the shape LiteX writes a csr.csv:
++# The split platform's map fixture (#665), in the shape LiteX writes a csr.csv:
+ # the rows ctrl_plat_gen.py map reads, at placeholder addresses, for the builds
+ # that need an image's objects and no SoC (the boundary gate's image runs, the
+ # boot simulation's first link). An image that runs on a SoC takes that SoC's
+diff --git a/sw/firmware/ctrl/test/ctrl_plat_image.py b/sw/firmware/ctrl/test/ctrl_plat_image.py
+index 81d4546c96..30de74645f 100644
+--- a/sw/firmware/ctrl/test/ctrl_plat_image.py
++++ b/sw/firmware/ctrl/test/ctrl_plat_image.py
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env python3
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""Link the split platform's image (#665 S3): plat/ctrl_plat_main.c's main, not a fixture's.
++"""Link the split platform's image (#665): plat/ctrl_plat_main.c's main, not a fixture's.
+ 
+ The composition is the one ctrl_srp_image.py --with-aecp --layout split links,
+ F0-F5 and F1 with the entity-sized lwSRP pool, but its entry is the platform's
+@@ -15,7 +15,7 @@ flash port keeps its own addresses (ctrl_nvm/test/rv32/generated), as every
+ split image at this base does.
+ 
+ The link, the audits and the bank plan are ctrl_srp_image.py's, reused. The
+-report adds the five largest .bss objects, the measurement S3 owes against the
++report adds the five largest .bss objects, the platform measurement against the
+ 56-tile budget, with the platform's one static object, ctrl_plat, counted as
+ its members (each measured by sizeof, compiled as the image is).
+ """
+diff --git a/sw/firmware/ctrl/test/ctrl_runs.py b/sw/firmware/ctrl/test/ctrl_runs.py
+index 58cdca496b..2246372ec2 100644
+--- a/sw/firmware/ctrl/test/ctrl_runs.py
++++ b/sw/firmware/ctrl/test/ctrl_runs.py
+@@ -79,7 +79,7 @@ def image_runs(work: Path) -> list[tuple[str, list[str]]]:
+                               "--interfaces", interfaces, "--output", str(out), "--libc", str(absent / "libc.a"),
+                               "--compiler-runtime", str(absent / "libcompiler_rt.a"),
+                               *([composition] if composition else [])]))
+-        # the split platform's image (#665 S3): its own entry, the same composition, the fixture's map
++        # the split platform's image (#665): its own entry, the same composition, the fixture's map
+         for interfaces in ("1", "2"):
+             out = work / "plat-image" / f"{shape}-if{interfaces}"
+             runs.append((f"ctrl_plat_image.py {shape}, {interfaces} interface(s)",
+diff --git a/sw/firmware/ctrl/test/plat_arms.py b/sw/firmware/ctrl/test/plat_arms.py
+index c683fb1f63..b33be32dd8 100644
+--- a/sw/firmware/ctrl/test/plat_arms.py
++++ b/sw/firmware/ctrl/test/plat_arms.py
+@@ -1,9 +1,10 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""plat_arms.py - the split platform's arms of the control-plane firmware's host test (#665 S3).
++"""plat_arms.py - the split platform's arms of the control-plane firmware's host test (#665).
+ 
+   plat      the CSR window, the console and the MMIO platform, each on its own
+-            host bus (test_plat.cpp, test_plat_mmio.cpp);
++            host bus (test_plat.cpp, test_plat_mmio.cpp); the CSR window and the
++            console under AddressSanitizer, whose report fails the test it is in;
+   platboot  the boot and composition of ctrl_plat.c, at the shipping shape with
+             one and with two AVB interfaces, on the mailbox model, F1's flash
+             model and the host bus (test_plat_boot.cpp);
+@@ -13,11 +14,13 @@
+ """
+ from __future__ import annotations
+ 
++import dataclasses
++import os
+ import sys
+ from pathlib import Path
+ 
+-from ctrl_build import (C_FLAGS, CTRL, HERE, HOST, NVM_DIR, PORTABLE, ROOT, Outcome, Refusal, Tree, compile_c,
+-                        compile_tests, execute, link, run, source)
++from ctrl_build import (C_FLAGS, CTRL, HERE, HOST, NVM_DIR, PORTABLE, ROOT, STACK_TESTS, Outcome, Refusal, Tree,
++                        compile_c, compile_tests, execute, link, run, source)
+ import fw_gtest
+ 
+ #: The shape the boot arm is generated for: the shipping 1x1.
+@@ -34,11 +37,17 @@ def nvm_tree(tree: Tree) -> Path:
+ 
+ 
+ def arm_plat(tree: Tree) -> Outcome:
+-    """The CSR window and the console on the host bus; the MMIO platform over a host array."""
++    """The CSR window and the console on the host bus, under AddressSanitizer: a received line is external input,
++    so a read past what the console holds aborts the run, and the harness's signal handler names the test it was in
++    (fw_gtest_main.cpp), as nvm_bench runs its prefix binary. The MMIO platform over a host array, without it: its
++    planted neighbour accesses stay inside that array, and are caught by their checks' words."""
+     inc = (f"-I{tree.src / 'plat'}",)
+-    objs = compile_c(tree, [tree.src / n for n in CSR_CONSOLE], "plat", inc)
+-    units = execute("plat", link(tree, "test_plat", objs + compile_tests(
+-        tree, ("plat_bus.cpp", "test_plat.cpp"), "plat/tests", inc)))
++    sanitized = dataclasses.replace(tree, build=dataclasses.replace(tree.build, address_sanitizer=True))
++    objs = compile_c(sanitized, [tree.src / n for n in CSR_CONSOLE], "plat", inc)
++    exe = link(sanitized, "test_plat", objs + compile_tests(sanitized, ("plat_bus.cpp", "test_plat.cpp"),
++                                                            "plat/tests", inc))
++    ok, log = fw_gtest.run_binary(exe, env={**os.environ, "ASAN_OPTIONS": "abort_on_error=1"})
++    units = Outcome("plat", 0 if ok else 1, log)
+     mmio = compile_c(tree, [tree.src / "plat/ctrl_plat_mmio.c"], "plat/mmio", inc)
+     platform = execute("plat", link(tree, "test_plat_mmio", mmio + compile_tests(
+         tree, ("test_plat_mmio.cpp",), "plat/mmio/tests", inc)))
+@@ -91,8 +100,9 @@ def arm_platboot(tree: Tree, interfaces: int) -> Outcome:
+         objs += fw_gtest.compile_c(tree.build, C_FLAGS, inc, models, out / "models", measured=False)
+         objs += fw_gtest.compile_c(tree.build, ("-std=c11", "-O2", "-Wall", "-Wextra", "-Wpedantic"), inc,
+                                    [lw / "src" / n for n in LWSRP_SOURCES], out / "lwsrp", measured=False)
+-        objs += fw_gtest.compile_tests(tree.build, [*inc, label], [HERE / "plat_bus.cpp",
+-                                                                   HERE / "test_plat_boot.cpp"], out / "tests")
++        # the stack's ACMPDU builder (acmp_fake.hpp) for B10's bind, last, so it shadows no firmware header
++        objs += fw_gtest.compile_tests(tree.build, [*inc, label, f"-I{STACK_TESTS}"],
++                                       [HERE / "plat_bus.cpp", HERE / "test_plat_boot.cpp"], out / "tests")
+     except fw_gtest.BuildError as exc:
+         raise Refusal(str(exc)) from exc
+     return execute("platboot", link(tree, f"test_plat_boot_if{interfaces}", objs))
+diff --git a/sw/firmware/ctrl/test/plat_bus.cpp b/sw/firmware/ctrl/test/plat_bus.cpp
+index c30f90a7db..0c79e57c68 100644
+--- a/sw/firmware/ctrl/test/plat_bus.cpp
++++ b/sw/firmware/ctrl/test/plat_bus.cpp
+@@ -1,7 +1,7 @@
+ // SPDX-FileCopyrightText: 2026 Kebag Logic
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+-// plat_bus.cpp - ctrl_plat_io.h on the host bus of plat_bus.hpp (#665 S3).
++// plat_bus.cpp - ctrl_plat_io.h on the host bus of plat_bus.hpp (#665).
+ 
+ #include "plat_bus.hpp"
+ 
+diff --git a/sw/firmware/ctrl/test/plat_bus.hpp b/sw/firmware/ctrl/test/plat_bus.hpp
+index 91bae46eb6..861ff8a16a 100644
+--- a/sw/firmware/ctrl/test/plat_bus.hpp
++++ b/sw/firmware/ctrl/test/plat_bus.hpp
+@@ -1,7 +1,7 @@
+ // SPDX-FileCopyrightText: 2026 Kebag Logic
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+-// plat_bus.hpp - the split platform's bus on the host (#665 S3): the datapath
++// plat_bus.hpp - the split platform's bus on the host (#665): the datapath
+ // CSR window as a register file and LiteX's UART as two queues, behind
+ // ctrl_plat_io.h. Every access is logged in order, so a test reads the boot's
+ // writes as the bus would carry them.
+diff --git a/sw/firmware/ctrl/test/plat_mutants.py b/sw/firmware/ctrl/test/plat_mutants.py
+index dac129c6f9..625b6c2606 100644
+--- a/sw/firmware/ctrl/test/plat_mutants.py
++++ b/sw/firmware/ctrl/test/plat_mutants.py
+@@ -1,6 +1,6 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""plat_mutants.py - the split platform's planted defects (#665 S3), in the control campaign's table.
++"""plat_mutants.py - the split platform's planted defects (#665), in the control campaign's table.
+ 
+ ctrl_mutants.py plants each into a copy of sw/firmware/ctrl and requires the
+ named GoogleTest test of the named arm to fail on the check's own words
+@@ -9,11 +9,15 @@ the console, the MMIO platform), `platboot1` and `platboot2` (the boot at one
+ and two interfaces). The CSR initialisation's trace against milan_baremetal.c
+ carries its own three plants (plat_trace.py).
+ 
+-The table holds S3's named controls: a CSR write skipped, reordered or wrong,
+-caught by the write list; a console that blocks past #397's tick rule (input
+-or output past its per-pass slice, a write into a full FIFO, a command run
+-without room), caught by the pass bound; and the boot's order of Milan v1.2
+-5.6.1, caught by the step order.
++The table holds the platform's named controls: a CSR write skipped, reordered
++or wrong, caught by the write list; a console that blocks past #397's tick
++rule (input or output past its per-pass slice, a write into a full FIFO, a
++command run without room), caught by the pass bound; a console that reads past
++a command's terminator, caught by AddressSanitizer in the test that sent the
++line; the boot's order of Milan v1.2 5.6.1, caught by the step order, the
++saved state's place among the steps by the flash's accesses in that order;
++and the saved state's write-back, caught by a bind after ready reaching the
++flash.
+ """
+ from __future__ import annotations
+ 
+@@ -29,6 +33,12 @@ K4 = "Plat.K4EachPassIsBounded"
+ #: The reorder plant's two writes, as ctrl_plat_csr.c holds them and swapped.
+ EID = ("\twr(csr, CTRL_PLAT_CSR_ADP_EID_LO, p->entity_id_lo);\n",
+        "\twr(csr, CTRL_PLAT_CSR_ADP_EID_HI, p->entity_id_hi);\n")
++#: Steps 6-7 and the open, as ctrl_plat.c holds them: the saved state's boot, its service's binding, the mailbox.
++SAVED = "\tnvm_store_boot(env->flash, &p->binding.port);\n"
++SERVICE = "\t(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_service);\n"
++OPEN = ("\tif (!ctrl_app_open_held(&p->app, &p->config)) {\n"
++        "\t\treturn reach(p, CTRL_PLAT_MAILBOX, \"Milan split: mailbox contract mismatch; entity disabled\\r\\n\");\n"
++        "\t}\n")
+ 
+ 
+ def mutants(mutant: type) -> tuple:
+@@ -37,10 +47,10 @@ def mutants(mutant: type) -> tuple:
+ 
+ 
+ def csr_mutants(mutant: type) -> tuple:
+-    """The CSR window's: S3's CSR write skipped, reordered or wrong, the identity and the time of day."""
++    """The CSR window's: a CSR write skipped, reordered or wrong, the identity and the time of day."""
+     m = mutant
+     return (
+-        # the CSR initialisation (S3: skipped, reordered, wrong)
++        # the CSR initialisation: skipped, reordered, wrong
+         m("plat-policy-write-skipped", CSR, "\twr(csr, CTRL_PLAT_CSR_LWSRP_VID, p->sr_vid);\n", "",
+           "plat", C2, "C2 configure_fabric's writes, in its order, from the policy"),
+         m("plat-policy-writes-reordered", CSR, EID[0] + EID[1], EID[1] + EID[0],
+@@ -79,6 +89,12 @@ def console_mutants(mutant: type) -> tuple:
+           "plat", "Plat.K3LinesEndOnceAndOthersAreRefused", "K3 a prefix is no command"),
+         m("plat-overflow-kept", CONSOLE, "\t\tc->discarding = true;\n\t\tc->len = 0;\n", "\t\tc->len = 0;\n",
+           "plat", "Plat.K3LinesEndOnceAndOthersAreRefused", "K3 an overflowed line is dropped whole"),
++        # a NUL where a command's name ends, compared past the command's terminator: AddressSanitizer's report
++        # aborts the run, and the harness names the test the line was sent in
++        m("plat-command-read-past-its-end", CONSOLE,
++          "while (n < c->len && command[n] != '\\0' && command[n] == c->line[n]) {",
++          "while (n < c->len && command[n] == c->line[n]) {",
++          "plat", "Plat.K3LinesEndOnceAndOthersAreRefused", "crashed on signal 6"),
+         m("plat-dec-leading-zeros", CONSOLE, "if (digit != '0' || !leading || tens[k] == 1u) {",
+           "if (digit != '0' || leading || tens[k] == 1u) {",
+           "plat", "Plat.K6NumbersAtTheirEdges", "K6 no leading zeros"),
+@@ -144,6 +160,13 @@ def boot_mutants(mutant: type) -> tuple:
+         m("plat-aecp-unchecked", PLAT, "\tif (!ctrl_app_open_aecp(&p->bridge)) {",
+           "\tif (!ctrl_app_open_aecp(&p->bridge) && false) {",
+           "platboot1", "Boot.B6UnacknowledgedFaceStopsAtAecp", "B6 no acknowledgement, no AECP"),
++        # steps 6-7: the saved state before the mailbox opens, and its write-back bound to the loop
++        m("plat-saved-state-after-mailbox-open", PLAT, SAVED + SERVICE + OPEN, SERVICE + OPEN + SAVED,
++          "platboot1", "Boot.B1ReachesReadyInStepOrder",
++          "B1 the saved state is read before the mailbox's first access"),
++        m("plat-store-service-unbound", PLAT, SERVICE, "",
++          "platboot1", "Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop",
++          "B10 the bind is written back by the store's service on the loop's tick"),
+         m("plat-loop-before-ready", PLAT, "\tif (ctrl_plat.stage == CTRL_PLAT_READY) {",
+           "\tif (ctrl_plat.stage >= CTRL_PLAT_MAILBOX) {",
+           "platboot1", "Boot.B7OnlyAReadyBootServicesTheLoop", "B7 and never services the loop"),
+diff --git a/sw/firmware/ctrl/test/plat_trace.py b/sw/firmware/ctrl/test/plat_trace.py
+index 0bdcf59351..c906339cda 100644
+--- a/sw/firmware/ctrl/test/plat_trace.py
++++ b/sw/firmware/ctrl/test/plat_trace.py
+@@ -1,8 +1,8 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""plat_trace.py - the split platform's CSR initialisation against milan_baremetal.c's (#665 S3).
++"""plat_trace.py - the split platform's CSR initialisation against milan_baremetal.c's (#665).
+ 
+-S3's acceptance: the CSR initialisation writes exactly what milan_baremetal
++The platform's acceptance: the CSR initialisation writes exactly what milan_baremetal
+ writes for the same shape. For every shipped config this compiles both on the
+ host and compares their writes on the same register file:
+ 
+diff --git a/sw/firmware/ctrl/test/test_plat.cpp b/sw/firmware/ctrl/test/test_plat.cpp
+index 46da29fbf8..be44f5c009 100644
+--- a/sw/firmware/ctrl/test/test_plat.cpp
++++ b/sw/firmware/ctrl/test/test_plat.cpp
+@@ -2,7 +2,7 @@
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+ // test_plat.cpp - the split platform's CSR window and console on the host bus
+-// (#665 S3; plat/ctrl_plat_csr.c, plat/ctrl_plat_console.c, plat_bus.hpp):
++// (#665; plat/ctrl_plat_csr.c, plat/ctrl_plat_console.c, plat_bus.hpp):
+ //
+ //   C1  the identity: ID 'MILN' passes, anything else refuses; VERSION is read
+ //   C2  the policy: configure_fabric()'s fifteen writes, in its order, each
+@@ -15,7 +15,8 @@
+ //       field, with AEM loaded or disabled
+ //   K2  milan_gettime answers TAI_NS, or no number when the read is torn
+ //   K3  lines: CR, LF and CR LF end one; an empty line is no command; any
+-//       other line is refused; a line past CTRL_PLAT_LINE_MAX is dropped whole
++//       other line is refused, a NUL where a command's name ends among them;
++//       a line past CTRL_PLAT_LINE_MAX is dropped whole
+ //   K4  the bound: at most CTRL_PLAT_RX_PER_PASS bytes in and
+ //       CTRL_PLAT_TX_PER_PASS out per pass, never into a full FIFO, one
+ //       command per pass, run only with room for the longest response
+@@ -156,7 +157,11 @@ TEST_F(Plat, K3LinesEndOnceAndOthersAreRefused) {
+     EXPECT_EQ(answer("help\r"), "?\r\n") << "K3 any other line is refused in one line";
+     EXPECT_EQ(answer("milan_statu\r"), "?\r\n") << "K3 a prefix is no command";
+     EXPECT_EQ(answer("milan_status_\r"), "?\r\n") << "K3 a longer word is no command";
+-    EXPECT_EQ(console.refused, 3u) << "K3 refusals are counted";
++    // a NUL where a command's name ends: refused, read no further than the
++    // command's terminator (this binary runs under AddressSanitizer)
++    EXPECT_EQ(answer(std::string("milan_status\0XYZ\r", 17)), "?\r\n") << "K3 a line holding a NUL is no command";
++    EXPECT_EQ(answer(std::string("milan_gettime\0\r", 15)), "?\r\n") << "K3 a line holding a NUL is no command";
++    EXPECT_EQ(console.refused, 5u) << "K3 refusals are counted";
+     std::string longest(CTRL_PLAT_LINE_MAX, 'x');
+     EXPECT_EQ(answer(longest + "\r"), "?\r\n") << "K3 a line of CTRL_PLAT_LINE_MAX bytes is kept";
+     EXPECT_EQ(answer(longest + "milan_gettime\rmilan_gettime\r").find("?"), std::string::npos)
+diff --git a/sw/firmware/ctrl/test/test_plat_boot.cpp b/sw/firmware/ctrl/test/test_plat_boot.cpp
+index 8fa4053802..e98ea6948a 100644
+--- a/sw/firmware/ctrl/test/test_plat_boot.cpp
++++ b/sw/firmware/ctrl/test/test_plat_boot.cpp
+@@ -1,18 +1,20 @@
+ // SPDX-FileCopyrightText: 2026 Kebag Logic
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+-// test_plat_boot.cpp - the split platform's boot and composition (#665 S3;
++// test_plat_boot.cpp - the split platform's boot and composition (#665;
+ // plat/ctrl_plat.c) on the host: the mailbox model behind mbx_hal.h, F1's
+ // flash model behind the flash port, and the CSR window and UART of
+ // plat_bus.hpp behind ctrl_plat_io.h, at the generated shape it is built for.
+-// Every access of the three goes into one order (Seq), so a test reads the
+-// boot's steps as the buses carry them (docs/ARCHITECTURE_HW_SW_SPLIT.md
++// Every mailbox access records the CSR and UART accesses before it, and every
++// flash access the mailbox accesses before it, so a test reads the boot's
++// steps in the order the buses carry them (docs/ARCHITECTURE_HW_SW_SPLIT.md
+ // section 2, Milan v1.2 5.6.1):
+ //
+ //   B1  the boot reaches READY in step order: the identity read first, the
+ //       policy's fifteen writes, MAAP's invalid report taking the stream
+-//       window from the fabric allocator, then the mailbox; the face commit
+-//       before ADP's first timer; the banner first and the ready line last
++//       window from the fabric allocator, the saved state read from the
++//       flash, then the mailbox; the face commit before ADP's first timer;
++//       the banner first and the ready line last
+ //   B2  a window that is not a Milan datapath stops the boot at IDENTITY,
+ //       before any write and any mailbox access
+ //   B3  a refused AEM image stops it at IMAGE, after the policy and before the
+@@ -27,14 +29,19 @@
+ //   B8  the platform's ports: MAAP's allocation reaches the window and then
+ //       ACMP's source port, the other ports answer as documented
+ //   B9  SRP's sources carry the generated streams on every interface
++//   B10 a controller's bind after READY is written back to the flash by the
++//       store's service on the loop's centisecond tick (Milan v1.2 5.5.2.4,
++//       acmp_nvm.h's boot order)
+ 
+ #include <gtest/gtest.h>
+ 
++#include <algorithm>
+ #include <cstdint>
+ #include <cstring>
+ #include <string>
+ #include <vector>
+ 
++#include "acmp_fake.hpp"
+ #include "fw_gtest.hpp"
+ #include "plat_bus.hpp"
+ 
+@@ -45,9 +52,11 @@ extern "C" {
+ }
+ #include "mbx_hal.h"
+ #include "mbx_model.h"
+-// the store's shape header asserts in C11's spelling
++// the store's headers carry no extern "C", and its shape header asserts in C11's spelling
+ #define _Static_assert static_assert
++extern "C" {
+ #include "nvm_store.h"
++}
+ #undef _Static_assert
+ 
+ FW_TALLY_LABEL("ctrl split platform boot (host model, " PLAT_TEST_SHAPE ")");
+@@ -68,6 +77,24 @@ struct Mbx {
+ mbx_model fabric;
+ std::vector<Mbx> mailbox;
+ bool other_contract = false;
++// mailbox.size() at each flash read, program and erase
++std::vector<std::size_t> media;
++
++// F1's flash port on the model, each media access stamped with the mailbox's
++int flash_read(void* ctx, std::uint32_t addr, std::uint8_t* dst, std::uint32_t len) {
++    media.push_back(mailbox.size());
++    return nvm_fmodel_port.read(ctx, addr, dst, len);
++}
++
++int flash_program(void* ctx, std::uint32_t addr, const std::uint8_t* src, std::uint32_t len) {
++    media.push_back(mailbox.size());
++    return nvm_fmodel_port.program(ctx, addr, src, len);
++}
++
++int flash_erase(void* ctx, std::uint32_t addr) {
++    media.push_back(mailbox.size());
++    return nvm_fmodel_port.erase(ctx, addr);
++}
+ 
+ struct Far {
+     bool ack = true;
+@@ -110,11 +137,13 @@ struct Boot : ::testing::Test {
+     Far far{};
+     mbx_model_far side{&far, Far::answer, Far::commit};
+     ctrl_plat_env env{};
++    nvm_flash flash{};
+     std::vector<std::uint8_t> image;
+ 
+     void SetUp() override {
+         bus().reset();
+         mailbox.clear();
++        media.clear();
+         other_contract = false;
+         mbx_model_reset(&fabric);
+         mbx_model_far_bind(&fabric, &side);
+@@ -123,7 +152,9 @@ struct Boot : ::testing::Test {
+         nvm_fmodel_power_on();
+         nvm_fmodel_window(NVM_SLOT_A, NVM_SLOT_B + NVM_SLOT_BYTES);
+         nvm_fmodel_times(1000, 100);
+-        env.flash = &nvm_fmodel_port;
++        flash = {flash_read, flash_program, flash_erase, nvm_fmodel_port.busy, nvm_fmodel_port.now_us,
++                 nvm_fmodel_port.ctx};
++        env.flash = &flash;
+         env.csr = kCsr;
+         env.uart = plat_bus::kUartRegs;
+         env.policy = &kPolicy;
+@@ -176,6 +207,11 @@ struct Boot : ::testing::Test {
+ 
+ TEST_F(Boot, B1ReachesReadyInStepOrder) {
+     ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY) << "B1 the boot reaches its ready state";
++    // steps 6-7 before the open: the bindings are restored before any ACMP command can arrive
++    ASSERT_FALSE(media.empty()) << "B1 the saved state is read from the flash";
++    EXPECT_EQ(*std::max_element(media.begin(), media.end()), 0u)
++        << "B1 the saved state is read before the mailbox's first access";
++    EXPECT_EQ(nvm_store_status()->terminal, NVM_T_BLANK) << "B1 a blank flash restores nothing";
+     ASSERT_FALSE(bus().log.empty()) << "B1 the identity is read before anything";
+     EXPECT_TRUE(!bus().log[0].write && bus().log[0].address == kCsr + CTRL_PLAT_CSR_ID)
+         << "B1 the identity is read before anything";
+@@ -339,4 +375,30 @@ TEST_F(Boot, B9SrpSourcesCarryTheGeneratedStreams) {
+     EXPECT_EQ(ctrl_plat.srp_config.link_rate_bps, CTRL_PLAT_LINK_BPS) << "B9 the generated link rate";
+ }
+ 
++TEST_F(Boot, B10ABindAfterReadyIsWrittenBackThroughTheLoop) {
++    ASSERT_EQ(ctrl_plat_boot(&env), CTRL_PLAT_READY);
++    const unsigned commits = nvm_store_status()->commits_ok;
++    const unsigned programs = nvm_fmodel_count()->programs;
++    // a controller binds sink 0 through the mailbox, as the datapath delivers it
++    acmp_test::Pdu bind;
++    bind.msg = spec::MSG_BIND_RX_COMMAND;
++    bind.controller = acmp_test::kCtl1;
++    bind.talker = acmp_test::kTkA;
++    bind.listener = ctrl_plat.config.entity->entity_id;
++    const auto frame = acmp_test::acmpdu(bind);
++    ASSERT_TRUE(mbx_model_rx(&fabric, frame.data(), frame.size(), 0)) << "B10 the bind reaches the mailbox";
++    // the loop's passes, 10 ms of both clocks apart, so each carries one centisecond
++    for (unsigned k = 0; k < 2000u && nvm_store_status()->commits_ok == commits; ++k) {
++        mbx_model_advance_ms(&fabric, 10u);
++        nvm_fmodel_advance_us(10000u);
++        ctrl_plat_step();
++    }
++    acmp_sink_view sink{};
++    ASSERT_TRUE(acmp_view(&ctrl_plat.app.acmp.acmp, 0, &sink));
++    EXPECT_TRUE(sink.bound) << "B10 the bind is taken";
++    EXPECT_EQ(nvm_store_status()->commits_ok, commits + 1u)
++        << "B10 the bind is written back by the store's service on the loop's tick";
++    EXPECT_GT(nvm_fmodel_count()->programs, programs) << "B10 the bind reaches the flash";
++}
++
+ }  // namespace
+diff --git a/sw/firmware/ctrl/test/test_plat_mmio.cpp b/sw/firmware/ctrl/test/test_plat_mmio.cpp
+index 8001e28bc2..97dfe1b0f9 100644
+--- a/sw/firmware/ctrl/test/test_plat_mmio.cpp
++++ b/sw/firmware/ctrl/test/test_plat_mmio.cpp
+@@ -2,7 +2,7 @@
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+ // test_plat_mmio.cpp - plat/ctrl_plat_mmio.c, ctrl_plat_io.h on the target's
+-// bus, built over a host array (#665 S3):
++// bus, built over a host array (#665):
+ //
+ //   I1  a read is one 32-bit load of the word at the address
+ //   I2  a write is one 32-bit store of the word at the address, and no other
+diff --git a/sw/firmware/gtest/coverage.ratchet b/sw/firmware/gtest/coverage.ratchet
+index 89341f8b8a..3e26b34ad9 100644
+--- a/sw/firmware/gtest/coverage.ratchet
++++ b/sw/firmware/gtest/coverage.ratchet
+@@ -22,7 +22,7 @@ sw/firmware/ctrl/maap/maap_mbx.c  lines 127/127  branches 82/82
+ sw/firmware/ctrl/mbx/mbx.c  lines 302/302  branches 150/150
+ sw/firmware/ctrl/mbx/mbx_wire.h  lines 15/15  branches 12/12
+ sw/firmware/ctrl/plat/ctrl_plat.c  lines 130/130  branches 42/42
+-sw/firmware/ctrl/plat/ctrl_plat_console.c  lines 118/118  branches 66/66
++sw/firmware/ctrl/plat/ctrl_plat_console.c  lines 119/119  branches 68/68
+ sw/firmware/ctrl/plat/ctrl_plat_csr.c  lines 52/52  branches 6/6
+ sw/firmware/ctrl/plat/ctrl_plat_mmio.c  lines 5/5  branches 0/0
+ sw/firmware/ctrl/plat/mbx_plat_mmio.c  lines 10/10  branches 0/0
+diff --git a/sw/litex/ctrl_memory.py b/sw/litex/ctrl_memory.py
+index 3bb01e88c6..2bb30d5295 100644
+--- a/sw/litex/ctrl_memory.py
++++ b/sw/litex/ctrl_memory.py
+@@ -207,7 +207,7 @@ class Ledgered:
+ #: static object (plat/ctrl_plat.h, `struct ctrl_plat ctrl_plat`, sized by
+ #: MBX_N_IF and the shape's streams) at its size in that image, so a change to
+ #: that struct refuses the override until the size is measured again here.
+-#: Both are owed to lane S14 in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
++#: Both are owed to hybrid XIP work (#665 decision D3) in docs/design/SPLIT_CONTROL_MEMORY.md section 5;
+ #: every other point stays within 56.
+ LEDGERED: dict[str, Ledgered] = {
+     "8x8-two-interfaces": Ledgered("8x8, two interfaces", ((STAGE_SYMBOL, 13_264), ("image_allocation", 16)),
+diff --git a/sw/litex/ctrl_memory_ledger.py b/sw/litex/ctrl_memory_ledger.py
+index dbc2f9c413..e8d187e536 100644
+--- a/sw/litex/ctrl_memory_ledger.py
++++ b/sw/litex/ctrl_memory_ledger.py
+@@ -4,8 +4,8 @@
+ planted ledgers that widen one.
+ 
+ `ctrl_memory.LEDGERED` lets two images plan past the 56-RAMB36 budget, both at 8x8 with two interfaces, each
+-only by its own name: the size fixture's at 57.5 RAMB36 (rulings 6412739248 and 6425357821) and the target
+-platform's at 59.0 (ruling 6505997821). A `Case` here is what the ledger reads of one image. test_ctrl_memory.py
++only by its own name, under #665's documented memory exceptions: the size fixture's at 57.5 RAMB36 and the target
++platform's at 59.0. A `Case` here is what the ledger reads of one image. test_ctrl_memory.py
+ writes each as an ELF, through the `write` callable every function here takes, and grades what these return.
+ """
+ 
+diff --git a/tb/verilator/ctrl_split_boot/README.md b/tb/verilator/ctrl_split_boot/README.md
+index 821b981e35..d7d827fdd0 100644
+--- a/tb/verilator/ctrl_split_boot/README.md
++++ b/tb/verilator/ctrl_split_boot/README.md
+@@ -9,7 +9,7 @@ Its contract is S3's acceptance on [#665](https://github.com/kebag-logic/milan-f
+ 
+ - **[Run](#run)** -- The prerequisites, the command, and the regrade.
+ - **[The SoC and the testbench](#the-soc-and-the-testbench)** -- What is the CPU budget harness's, what this simulation adds, and what the testbench answers.
+-- **[What is graded](#what-is-graded)** -- The boot, the trace, each UART duty and the smoke grader's own checks.
++- **[What is graded](#what-is-graded)** -- The model's own verdict, the boot, the trace, each UART duty, the smoke grader's own checks, and the controls of each.
+ - **[Results](#results)** -- The two shapes' boot times, traces and UART duties, and the grader's verdicts.
+ - **[Limits](#limits)** -- What a simulation without the datapath cannot show.
+ 
+@@ -22,15 +22,17 @@ Keep the build directory outside the checkout:
+ python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-1x1
+ python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-8x8 --shape endstation_ax7101_8x8
+ python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-1x1 --regrade
++python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-native --native-controls
+ python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir /tmp/split-boot-plants --self-test
+ ```
+ 
+ The run builds the runtime archives, then links the platform image (`ctrl_plat_image.py`) twice.
+ The first link is against a provisional map, and the boot SoC's export with that image gives the SoC's own `csr.csv`.
+ The second link is against that `csr.csv`, and the run refuses it unless the second export's rows equal the first's: the map does not depend on the image.
+-It then builds the native model and runs it.
+-`--regrade` grades the log a run left in the build directory.
+-`--self-test` builds and runs each planted control in a planted copy of the firmware's tree, and requires each to be graded a finding of its own kind ([What is graded](#what-is-graded)).
++It then builds the native model, runs it, and saves its exit status beside its log (`sim.status`).
++`--regrade` grades the log and the status a run left in the build directory.
++`--native-controls` grades the native controls, with no build ([What is graded](#what-is-graded)).
++`--self-test` grades them, then builds and runs each planted control in a planted copy of the firmware's tree, and requires each to be graded a finding of its own kind.
+ Exit 0 is a pass, 1 a finding and 2 a refusal.
+ 
+ ## The SoC and the testbench
+@@ -58,20 +60,23 @@ After the ready line the testbench types `milan_status`, then `milan_gettime`, w
+ 
+ [`run.py`](run.py) grades the testbench's log:
+ 
++- **NATIVE**: the model's own verdict, which no observation before it discharges. Its saved exit status must be 0, and its checker's tally must have completed with no failure, read as the sweep reads a suite log (`scripts/suite_tally.py`). A regrade reads the same saved status, and a run that saved none is a finding.
+ - **BOOT**: the ready line, exactly one banner (the #396 plan counts boots by their banners), and the boot-to-ready time against the 20 s ADP valid time (Milan v1.2 5.6.2/5.6.3).
+ - **TRACE**: the window's writes before ready. The first fifteen must equal `configure_fabric()`'s for the same config, compiled on the host as builder gate 35 runs it on the same seeded file ([`plat_trace.py`](../../../sw/firmware/ctrl/test/plat_trace.py)). The next three must be MAAP's one-owner report. No write may set `ADP_CTRL[0]` or `PP_CTRL[0]`.
+ - **UART**: each command's span, its wait to the first response byte, and its longest gap between two response bytes, which bounds the loop pass that sends them. Each is compared with #397's 500 ms tick rule and T_svc = 10 ms.
+-- **Controls** (`--self-test`): a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; a console that spins 700,000 turns, about 0.7 s, before its response must be a UART finding, its span past #397's tick rule.
++- **Native controls** (`--native-controls`, and first in `--self-test`): a stand-in for the model prints a valid boot's observations, then ends in one of six ways. A pass must pass. A nonzero exit, a failed tally, a missing tally, and a failed tally with a nonzero exit must each be a NATIVE finding, on the run and on its regrade. A run whose saved status is gone must pass, and be a NATIVE finding on its regrade.
++- **Controls** (`--self-test`): a CSR write skipped (the `LWSRP_VID` write, out of `ctrl_plat_csr.c`) must be a TRACE finding; a console that spins 700,000 turns, about 0.7 s, before its `milan_status` response must be a UART finding, its span past #397's tick rule. Each must be found in a run the model completes, with no NATIVE finding, so its observations are a whole run's: the two `milan_gettime` answers do not spin, and the run ends inside its 2 s limit.
+ - **GRADER**: `baremetal_uart_smoke.py`'s own `grade()` on the three answers. The firmware's checks (`aem-image`, `phc-advances`) must pass. `fabric-enabled` must fail, the listed difference. The checks whose words are the stand-in register file's are printed and never counted.
+ 
+ ## Results
+ 
+-The platform image of this lane's head, at the shipping shape and the largest that fits 56 tiles:
++The platform image of the firmware of `b8628704`, at the shipping shape and the largest that fits 56 tiles.
++Every figure is simulated time, the split CPU at 50 MHz and its bus at 100 MHz; the native model completed each run (NATIVE exit status 0, its tally `checks: 1   failures: 0`):
+ 
+-| Shape | Boot to ready | CPU cycles | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
++| Shape | Boot to ready | CPU cycles at 50 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
+ |---|---:|---:|---|---|---|
+-| 1x1, one interface | 84.389 ms | 4,219,428 | 18 of 18 equal | 21.632 / 1.963 / 1.273 ms | 2.536 / 1.236 / 1.275 ms |
+-| 8x8, one interface | 184.610 ms | 9,230,494 | 18 of 18 equal | 40.209 / 2.853 / 2.204 ms | 4.047 / 2.125 / 1.858 ms |
++| 1x1, one interface | 84.383 ms | 4,219,150 | 18 of 18 equal | 21.531 / 1.962 / 1.265 ms | 2.523 / 1.238 / 1.265 ms |
++| 8x8, one interface | 184.647 ms | 9,232,360 | 18 of 18 equal | 40.197 / 2.855 / 2.205 ms | 4.051 / 2.131 / 1.857 ms |
+ 
+ Both boots are within the 20 s ADP valid time.
+ Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
+@@ -93,5 +98,5 @@ The smoke grader's verdicts on the simulated UART:
+ 
+ - The datapath is not built: the CSR window is a register file, so the trace shows what the firmware writes, not what a datapath does with it.
+ - The flash is blank, so the boot's saved-state terminal is BLANK. Valid, torn and wrong-version slots are lane S4's.
+-- The UART is LiteX's `sim` stream, with no baud rate: a span is CPU and loop time. At 115,200 baud the 305-byte status line takes about 26.5 ms on the wire, longer than any span here.
++- The UART is LiteX's `sim` stream, with no baud rate: a span is CPU and loop time. At 115,200 baud the 305-byte status line takes about 26.5 ms on the wire.
+ - `fabric-enabled` and the #396 campaign's one BIOS pass per cold cut cannot hold on a split image. The owner's ruling (#665, 6505997821) accepts both as listed differences, and the graders' split mode is owed to the bench lane (S12).
+diff --git a/tb/verilator/ctrl_split_boot/boot_soc.py b/tb/verilator/ctrl_split_boot/boot_soc.py
+index 642c8847d6..0e284547a1 100644
+--- a/tb/verilator/ctrl_split_boot/boot_soc.py
++++ b/tb/verilator/ctrl_split_boot/boot_soc.py
+@@ -1,6 +1,7 @@
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""The split boot simulation's SoC (#665 S3): S2's test-only split SoC, with the CSR window and UART on pads.
++"""The split boot simulation's SoC (#665): the CPU budget harness's test-only split SoC, with the CSR window
++and UART on pads.
+ 
+ The CPU, its firmware memory, the mailbox and the flash are the CPU budget
+ harness's (tb/verilator/ctrl_service_budget/split_soc.py, imported read only):
+diff --git a/tb/verilator/ctrl_split_boot/run.py b/tb/verilator/ctrl_split_boot/run.py
+index 861f41d9c4..74c553b00c 100644
+--- a/tb/verilator/ctrl_split_boot/run.py
++++ b/tb/verilator/ctrl_split_boot/run.py
+@@ -1,7 +1,7 @@
+ #!/usr/bin/env python3
+ # SPDX-FileCopyrightText: 2026 Kebag Logic
+ # SPDX-License-Identifier: CERN-OHL-W-2.0
+-"""The split boot simulation (#665 S3): the platform image from reset to ready, its CSR trace and its UART.
++"""The split boot simulation (#665): the platform image from reset to ready, its CSR trace and its UART.
+ 
+ Builds, in order, all outside the checkout under --build-dir:
+   1. the bare-metal runtime archives (the CPU budget harness's runtime_ssp.py);
+@@ -10,7 +10,12 @@ Builds, in order, all outside the checkout under --build-dir:
+      first image gives (the map does not depend on the image: the two
+      exports' csr.csv rows must be identical, or the run is refused);
+   3. the boot SoC (boot_soc.py) and its native model (sim_main.cpp).
+-Then it runs the model and grades the log:
++Then it runs the model, saves its exit status beside its log (sim.status), and grades the log:
++  - NATIVE: the model's own verdict, which no observation before it discharges:
++    its saved exit status is 0, and its checker's tally (verilator_harness.hpp),
++    read as the sweep reads a suite log (scripts/suite_tally.py), completed with
++    no failure; a regrade reads the same saved status, and refuses a run that
++    saved none;
+   - BOOT: the ready line, one banner, and the boot-to-ready time against the
+     20 s ADP valid time (Milan v1.2 5.6.2/5.6.3, ARCHITECTURE_HW_SW_SPLIT.md);
+   - TRACE: the CSR window's writes up to ready: the first fifteen are
+@@ -22,14 +27,19 @@ Then it runs the model and grades the log:
+     transcript, each check's verdict printed; and each command's duty against
+     #397's 500 ms tick rule and T_svc = 10 ms: its span, and its longest gap
+     between two response bytes, which bounds the loop pass that sends them.
+---self-test builds and runs each planted control (PLANTS) and requires the
+-grade to report it as a finding of its own kind: a CSR write skipped as
+-TRACE, a console that holds the loop past the tick rule as UART.
+-
+-Exit 0 when BOOT and TRACE pass, every UART duty is within its bounds, the
+-grader's firmware checks pass and its one listed difference (fabric-enabled)
+-fails as listed; the checks whose words are the stand-in register file's are
+-printed with their verdicts and never counted. 1 = a finding; 2 = refused.
++--native-controls grades the native controls (NATIVE_CONTROLS), with no
++build: a stand-in for the model prints a valid boot's observations, then ends
++as each control says, and each must be graded as it requires, on its run and
++on its regrade. --self-test grades them first, then builds and runs each
++planted control (PLANTS) and requires the grade to report it as a finding of
++its own kind: a CSR write skipped as TRACE, a console that holds the loop past
++the tick rule as UART.
++
++Exit 0 when NATIVE, BOOT and TRACE pass, every UART duty is within its bounds,
++the grader's firmware checks pass and its one listed difference
++(fabric-enabled) fails as listed; the checks whose words are the stand-in
++register file's are printed with their verdicts and never counted. 1 = a
++finding; 2 = refused.
+ """
+ from __future__ import annotations
+ 
+@@ -39,6 +49,7 @@ import re
+ import subprocess
+ import sys
+ from pathlib import Path
++from typing import NamedTuple
+ 
+ HERE = Path(__file__).resolve().parent
+ ROOT = HERE.parents[2]
+@@ -72,17 +83,56 @@ STAND_IN = {
+     'gptp-locked': 'no gPTP peer and no datapath: CLKV_STAT is the stand-in register file\'s word',
+ }
+ #: The planted controls of --self-test: (source file, unique anchor, replacement), and the finding's first word
+-#: the grade must give. A CSR write skipped is caught by the trace; a console that holds the loop past #397's
+-#: tick rule by the UART duty, its span measured: a spin of 700,000 turns before its response, about 0.7 s,
+-#: each turn a load and a store of the counter in sram, about 1 us.
++#: the grade must give, in a run the model completes. A CSR write skipped is caught by the trace; a console that
++#: holds the loop past #397's tick rule by the UART duty, its span measured: a spin of 700,000 turns before
++#: milan_status's response, about 0.7 s, each turn a load and a store of the counter in sram, about 1 us; the
++#: two milan_gettime answers do not spin, so the run ends inside SIM_LIMIT_MS.
+ PLANTS = {
+     'csr-write-skipped': ('plat/ctrl_plat_csr.c', '\twr(csr, CTRL_PLAT_CSR_LWSRP_VID, p->sr_vid);\n', '', 'TRACE'),
+-    'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {',
+-                       '\tfor (volatile uint32_t n = 0; n < 700000u; ++n) {\n\t}\n\tif (is(c, "milan_status")) {',
+-                       'UART'),
++    'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {\n\t\tstatus(c);',
++                       '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 700000u; ++n) {\n\t\t}'
++                       '\n\t\tstatus(c);', 'UART'),
+ }
+ #: The first link's map: the platform's fixture, at placeholder addresses.
+ PROVISIONAL = FIRMWARE_TEST / 'ctrl_plat_csr.csv'
++#: The file a run saves the native model's exit status in, beside its log, so that a regrade grades it too.
++STATUS = 'sim.status'
++#: The model's checker's last lines (verilator_harness.hpp), as a native control's stand-in ends its log: a pass,
++#: and the failure sim_main.cpp prints when the simulation passes its time limit.
++PASSED = '== ctrl_split_boot: checks: 1   failures: 0 ==\nRESULT: PASS\n'
++FAILED = ('FAIL: simulation exceeded its time limit\n  [FAIL] simulation completed without boundary failures\n'
++          '== ctrl_split_boot: checks: 1   failures: 1 ==\nRESULT: FAIL\n')
++
++
++class Control(NamedTuple):
++    """A native control: how its stand-in ends (its exit status and its log's end), whether the run's saved status
++    is kept for the regrade, and the verdicts the run and the regrade must give."""
++
++    status: int
++    ending: str
++    kept: bool
++    run: str
++    regrade: str
++
++
++#: The native controls. Each stand-in's observations before its end are a valid boot's, so the only finding a
++#: control may give is NATIVE: the passing control none; a nonzero exit, a failed or an incomplete tally one, on
++#: the run and on its regrade; a run whose saved status is gone (an older build directory) one on its regrade.
++NATIVE_CONTROLS = {
++    'native-passes': Control(0, PASSED, True, 'PASS', 'PASS'),
++    'native-exits-nonzero': Control(1, PASSED, True, 'NATIVE', 'NATIVE'),
++    'native-tally-failed': Control(0, FAILED, True, 'NATIVE', 'NATIVE'),
++    'native-incomplete': Control(0, '', True, 'NATIVE', 'NATIVE'),
++    'native-fails-and-exits-nonzero': Control(1, FAILED, True, 'NATIVE', 'NATIVE'),
++    'native-status-not-saved': Control(0, PASSED, False, 'PASS', 'NATIVE'),
++}
++#: A boot's lines and the answers the smoke grader passes, as the stand-in prints them.
++BANNER = 'Milan split control firmware: boot\r\nMilan split control firmware: ready\r\n'
++ANSWERS = (('milan_status', 'ID=4d494c4e VERSION=00020060 PTP_CTRL=00000001 ADP_CTRL=00000000 PP_CTRL=00000000 '
++                            'PP_STAT=00000000 AEM=loaded\r\nGPTP_GM=001bc5fffe001122 GPTP_PARENT=001bc5fffe334455 '
++                            'PDELAY_NS=600 AS_PATH_COUNT=3 AS_PATH_GEN=7 CLKV_STAT=00010002 SYNC=1 ASCAPABLE=1 '
++                            'TU=0 GPTP_LAT=029000db\r\nTAI_NS=0x0000000000001000\r\n'),
++           ('milan_gettime', 'TAI_NS=0x0000000000002000\r\n'), ('milan_gettime', 'TAI_NS=0x0000000000003000\r\n'))
+ 
+ 
+ def run(argv: list[str], log: Path, cwd: Path | None = None) -> None:
+@@ -195,11 +245,36 @@ def expected_writes(shape: str, work: Path) -> list[tuple[int, int]]:
+     return want + [(0x654, words[0x654] & ~1), (0x750, words[0x750] & ~1), (0x6CC, words[0x6CC] & ~1)]
+ 
+ 
+-def grade(log: str, transcript: str, spec: dict, work: Path) -> tuple[list[str], list[str]]:
+-    """The findings and the report lines."""
++def native(log: str, status: int | None) -> tuple[list[str], str]:
++    """The model's own verdict: its saved exit status, and its checker's tally read as the sweep reads a suite log
++    (suite_tally.scan, is_nocount, log_reports_failure), so a tally that is missing or measured nothing is a run
++    that did not complete. Its findings, and its report line."""
++    import suite_tally
++    findings = []
++    if status is None:
++        findings.append(f'NATIVE: the run saved no exit status ({STATUS}), so how the model ended is unknown')
++    elif status != 0:
++        findings.append(f'NATIVE: the model exited {status}')
++    checks, failures, matched, unparsed, skipped = suite_tally.scan(log)
++    errors = [ln.strip() for ln in log.splitlines() if ln.startswith('FAIL:')]
++    reason, failed = suite_tally.log_reports_failure(log)
++    if suite_tally.is_nocount(checks, failures, matched, skipped):
++        findings.append('NATIVE: the model printed no tally: it did not complete')
++    elif unparsed:
++        findings.append(f'NATIVE: a tally line the sweep cannot read: {unparsed[0]}')
++    elif failed:
++        findings.append(f'NATIVE: the model\'s log reports a failure: {reason}{"; " if errors else ""}'
++                        f'{"; ".join(errors)}')
++    tally = matched[-1][3] if matched else 'no tally'
++    return findings, f'NATIVE exit status {"not saved" if status is None else status}; {tally}'
++
++
++def grade(log: str, transcript: str, spec: dict, work: Path, status: int | None) -> tuple[list[str], list[str]]:
++    """The findings and the report lines; `status` is the model's saved exit status, None when there is none."""
+     sys.path.insert(0, str(ROOT / 'scripts'))
+     import baremetal_uart_smoke as smoke
+-    findings, report = [], []
++    findings, line = native(log, status)
++    report = [line]
+     to_ms = 1000.0 / spec['sys_hz']
+     ready = lines(log, 'READY')
+     if not ready:
+@@ -257,30 +332,95 @@ def grade(log: str, transcript: str, spec: dict, work: Path) -> tuple[list[str],
+     return findings, report
+ 
+ 
+-def point(out: Path, shape: str, n_if: int, regrade: bool, plant: str | None = None) -> tuple[list[str], list[str]]:
+-    """Build (unless regrading), run and grade one point; its findings and report."""
++def saved_status(out: Path) -> int | None:
++    """The model's exit status a run saved in `out`, or None when it saved none."""
++    try:
++        return int((out / STATUS).read_text())
++    except (OSError, ValueError):
++        return None
++
++
++def point(out: Path, shape: str, n_if: int, regrade: bool, plant: str | None = None,
++          model: tuple[Path, dict] | None = None) -> tuple[list[str], list[str]]:
++    """Build (unless regrading, or given the model and its spec: a native control's stand-in), run and grade one
++    point; its findings and report."""
+     if regrade:
+         spec = json.loads((out / 'soc/soc.json').read_text())
+     else:
+-        exe, spec = build(out, shape, n_if, plant)
++        exe, spec = build(out, shape, n_if, plant) if model is None else model
++        (out / STATUS).unlink(missing_ok=True)
+         # the model reads the image's ROM banks from the export's .init files
+         with (out / 'sim.log').open('w') as sink:
+             result = subprocess.run([str(exe), str(out / 'transcript.txt')], stdout=sink,
+                                     stderr=subprocess.STDOUT, check=False, cwd=out / 'soc/gateware')
++        (out / STATUS).write_text(f'{result.returncode}\n')
+         print(f'COMMAND Vsim exited {result.returncode}')
+-    return grade((out / 'sim.log').read_text(), (out / 'transcript.txt').read_text(), spec, out / 'baremetal')
++    return grade((out / 'sim.log').read_text(), (out / 'transcript.txt').read_text(), spec, out / 'baremetal',
++                 saved_status(out))
++
++
++def stand_in(out: Path, shape: str, n_if: int, control: Control) -> tuple[Path, dict]:
++    """A native control's model, and the spec its export would give: a program that writes a boot's transcript and
++    prints a valid boot's observations as sim_main.cpp prints them (configure_fabric()'s writes and MAAP's
++    one-owner report, the ready line, and the three commands answered as the grader passes them), then ends its log
++    and exits as the control says."""
++    spec = {'sys_hz': 100_000_000, 'cpu_hz': 50_000_000, 'shape': shape, 'interfaces': n_if}
++    rows = [f'CSRW {k + 1} {o:03x} {v:08x}' for k, (o, v) in enumerate(expected_writes(shape, out / 'oracle'))]
++    rows.append('READY 10000')
++    for k, (command, answer) in enumerate(ANSWERS):
++        start = 20000 + 100000 * k
++        rows += [f'IN {start} {command}', *(f'UART {start + 100 * (j + 1)} {b:02x}'
++                                             for j, b in enumerate(answer.encode()))]
++    log = '\n'.join(rows) + '\n' + control.ending
++    transcript = BANNER + ''.join(answer for _, answer in ANSWERS)
++    (out / 'soc/gateware').mkdir(parents=True, exist_ok=True)
++    (out / 'soc/soc.json').write_text(json.dumps(spec))
++    exe = out / 'stand-in'
++    exe.write_text(f'#!{sys.executable}\nimport pathlib, sys\npathlib.Path(sys.argv[1]).write_bytes('
++                   f'{transcript.encode()!r})\nsys.stdout.write({log!r})\nsys.exit({control.status})\n')
++    exe.chmod(0o755)
++    return exe, spec
++
++
++def verdict(findings: list[str]) -> str:
++    """PASS for none; NATIVE when every finding is the model's own verdict; OTHER when the observations failed."""
++    return 'PASS' if not findings else 'NATIVE' if all(f.startswith('NATIVE:') for f in findings) else 'OTHER'
++
++
++def native_controls(out: Path, shape: str, n_if: int) -> int:
++    """Each native control graded on its run and on its regrade; the number not graded as they require."""
++    wrong = 0
++    for name, control in NATIVE_CONTROLS.items():
++        where = out / name
++        where.mkdir(parents=True, exist_ok=True)
++        ran, _ = point(where, shape, n_if, False, model=stand_in(where, shape, n_if, control))
++        if not control.kept:
++            (where / STATUS).unlink(missing_ok=True)
++        regraded, _ = point(where, shape, n_if, True)
++        got = (verdict(ran), verdict(regraded))
++        ok = got == (control.run, control.regrade)
++        wrong += not ok
++        print(f'NATIVE-CONTROL {name}: {"as required" if ok else "WRONG"} (run {got[0]}, regrade {got[1]}; '
++              f'required {control.run}, {control.regrade}); findings: {ran} / {regraded}')
++    print(f'ctrl_split_boot native controls: {len(NATIVE_CONTROLS) - wrong} of {len(NATIVE_CONTROLS)} as required')
++    return wrong
+ 
+ 
+ def self_test(out: Path, shape: str, n_if: int) -> int:
+-    """Every plant must be graded a finding of its own kind; 0 when each is."""
++    """Every native control graded as it requires, then every plant graded a finding of its own kind in a run the
++    model completed (no NATIVE finding), so its observations are a whole run's; 0 when each is."""
++    wrong = native_controls(out / 'native', shape, n_if)
+     escaped = 0
+     for plant, (_, _, _, kind) in PLANTS.items():
+         findings, _ = point(out / f'plant-{plant}', shape, n_if, False, plant)
+-        caught = any(f.startswith(kind + ':') for f in findings)
++        completed = not any(f.startswith('NATIVE:') for f in findings)
++        caught = completed and any(f.startswith(kind + ':') for f in findings)
+         escaped += not caught
+-        print(f'PLANT {plant}: {"caught" if caught else "ESCAPED"} ({kind}); findings: {findings}')
+-    print(f'ctrl_split_boot self-test: {len(PLANTS) - escaped} of {len(PLANTS)} plants caught')
+-    return 1 if escaped else 0
++        print(f'PLANT {plant}: {"caught" if caught else "ESCAPED"} ({kind}; '
++              f'{"the run completed" if completed else "the model did not complete its run"}); findings: {findings}')
++    print(f'ctrl_split_boot self-test: {len(NATIVE_CONTROLS) - wrong} of {len(NATIVE_CONTROLS)} native controls as '
++          f'required; {len(PLANTS) - escaped} of {len(PLANTS)} plants caught')
++    return 1 if escaped or wrong else 0
+ 
+ 
+ def main() -> int:
+@@ -290,11 +430,16 @@ def main() -> int:
+     parser.add_argument('--shape', default='endstation_ax7101_1x1_tdm8')
+     parser.add_argument('--interfaces', type=int, choices=(1, 2), default=1)
+     parser.add_argument('--regrade', action='store_true', help='grade the log of an earlier run in --build-dir')
++    parser.add_argument('--native-controls', action='store_true',
++                        help='grade every native control (NATIVE_CONTROLS) under --build-dir, with no build')
+     parser.add_argument('--self-test', action='store_true',
+-                        help='build and run every planted control (PLANTS) under --build-dir; each must be caught')
++                        help='grade every native control, then build and run every planted control (PLANTS) under '
++                             '--build-dir; each must be graded as it requires')
+     args = parser.parse_args()
+     out = args.build_dir.resolve()
+     try:
++        if args.native_controls:
++            return 1 if native_controls(out, args.shape, args.interfaces) else 0
+         if args.self_test:
+             return self_test(out, args.shape, args.interfaces)
+         findings, report = point(out, args.shape, args.interfaces, args.regrade)
+diff --git a/tb/verilator/ctrl_split_boot/sim_main.cpp b/tb/verilator/ctrl_split_boot/sim_main.cpp
+index f28b1dbf8b..88710d9f67 100644
+--- a/tb/verilator/ctrl_split_boot/sim_main.cpp
++++ b/tb/verilator/ctrl_split_boot/sim_main.cpp
+@@ -1,7 +1,7 @@
+ // SPDX-FileCopyrightText: 2026 Kebag Logic
+ // SPDX-License-Identifier: CERN-OHL-W-2.0
+ //
+-// The testbench of the split boot simulation (#665 S3): the split SoC of
++// The testbench of the split boot simulation (#665): the split SoC of
+ // boot_soc.py, booting the platform image from reset to its ready line, then
+ // answering the release grader's commands on its UART.
+ //
