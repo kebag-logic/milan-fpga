@@ -58,10 +58,10 @@
 // pass running when it arrives, then is taken N passes later and answered in
 // that pass, so (N + 1) passes must fit that bound. The deepest admitted wait
 // is the A3 row of seven owed frames, answered in pass 8 after the room
-// returns. The share was sized against the 10 ms T_svc first proposed: no
-// pass may exceed 10 ms / 9, about 1.1 ms or 55,500 CPU cycles at 50 MHz. Every
-// slice serves that share, and each module's work in one pass is bounded,
-// the rest resumed on the next pass:
+// returns. So no pass may exceed 18 ms / 9 = 2.0 ms of CPU time: 200,000
+// cycles of the split CPU's own clock, the 100 MHz bus clock it runs on
+// (#665, owner decision 2026-10-30). Every slice serves that share, and each
+// module's work in one pass is bounded, the rest resumed on the next pass:
 //   * the loop: the events, records and centiseconds per pass above;
 //   * ADP and ACMP: the records the loop hands them, and one owed frame per
 //     interface (adp_mbx.h, acmp_mbx.h);
