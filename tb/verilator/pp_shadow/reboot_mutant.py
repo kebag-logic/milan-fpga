@@ -23,6 +23,7 @@ Mutant logs stay in the private directory. Exit 0 = the clean control passed
 and every arm was caught by its named check; 1 = otherwise.
 """
 
+import os
 import subprocess
 import sys
 import tempfile
@@ -89,8 +90,11 @@ def main() -> int:
         if originals[source].count(old) != 1:
             print(f"REFUSED: {name}: its anchor occurs {originals[source].count(old)} times")
             return 1
-    listing = subprocess.run(["make", "-s", "-C", "../milan_dp", "print-srcs"],
-                             cwd=HERE, check=True, capture_output=True, text=True)
+    #: read the list as the Makefile does: under an outer `make -C` an
+    #: inherited MAKEFLAGS prints directory lines into it
+    quiet = {key: value for key, value in os.environ.items() if key not in ("MAKEFLAGS", "MFLAGS")}
+    listing = subprocess.run(["make", "-s", "--no-print-directory", "-C", "../milan_dp", "print-srcs"],
+                             cwd=HERE, check=True, capture_output=True, text=True, env=quiet)
     sources = [(HERE / path).resolve() for path in listing.stdout.split()]
     for path in originals:
         if sources.count(path) != 1:
