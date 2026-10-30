@@ -1,0 +1,54 @@
+Changed files: 36
+Non-Markdown delta: ['Makefile', 'scripts/check-doc-inventory.py', 'scripts/check-links.py']
+All other tracked paths and modes, including RTL, generators, models, build recipes, workflow and committed outputs: IDENTICAL
+diff --git a/Makefile b/Makefile
+index 397efc7..78eb944 100644
+--- a/Makefile
++++ b/Makefile
+@@ -2,18 +2,19 @@
+ # Diagram regeneration + documentation lint.
+ # Targets: diagrams (drawio -> svg), lint (mermaid+wavedrom blocks), stale (export freshness),
+ # ids (P-/T- IDs against F01.5/F08.1), figures (docs/diagrams/ file classes),
+-# reqtags (REQ rows against the tags in tb/).
++# reqtags (REQ rows against the tags in tb/), inventory (docs/INVENTORY.md against
++# the Markdown files).
+ 
+ DRAWIO      ?= drawio
+ DRAWIO_SRC  := $(wildcard docs/diagrams/src/*.drawio)
+ DRAWIO_SVG  := $(patsubst docs/diagrams/src/%.drawio,docs/diagrams/%.svg,$(DRAWIO_SRC))
+ 
+-.PHONY: all check diagrams wavedrom wavedrom-check lint links matrix reqtags modmatrix params aecpcmd ids figures stale
++.PHONY: all check diagrams wavedrom wavedrom-check lint links matrix reqtags modmatrix params aecpcmd ids figures inventory stale
+ all: diagrams check
+ 
+ # everything the CI docs-gates job enforces: it runs this target (see
+ # docs/architecture/09_verification.md section 7)
+-check: lint wavedrom-check links matrix reqtags modmatrix params aecpcmd ids figures stale
++check: lint wavedrom-check links matrix reqtags modmatrix params aecpcmd ids figures inventory stale
+ 
+ diagrams: $(DRAWIO_SVG) wavedrom
+ 
+@@ -68,6 +69,12 @@ figures:
+ 	@python3 scripts/check-figures.py --selftest
+ 	@python3 scripts/check-figures.py
+ 
++# every Markdown file has one docs/INVENTORY.md row with a status, and no row
++# outlives its file; the self-test plants each fault first
++inventory:
++	@python3 scripts/check-doc-inventory.py --selftest
++	@python3 scripts/check-doc-inventory.py
++
+ # the module<->testbench matrix is GENERATED; drift and an untested module both fail
+ modmatrix:
+ 	@python3 scripts/gen_matrix.py --check
+
+Top Makefile: added read-only inventory target and check prerequisite only; no ROM/build/render recipe changed.
+Submodule gitlinks: 0 (none)
+base ucode lines 2048 sha256 49a993bede26a9a16179f66956387b4709d1f86dcd9bf5edb7a79c6e996e1176
+base generated SHIFT_R opcode=29 count 13 addresses [613, 619, 658, 661, 665, 1157, 1163, 1195, 1540, 1955, 1965, 1975, 1985]
+base listener lines 129 sha256 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+head ucode lines 2048 sha256 49a993bede26a9a16179f66956387b4709d1f86dcd9bf5edb7a79c6e996e1176
+head generated SHIFT_R opcode=29 count 13 addresses [613, 619, 658, 661, 665, 1157, 1163, 1195, 1540, 1955, 1965, 1975, 1985]
+head listener lines 129 sha256 23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+Generated ROM outputs: BYTE IDENTICAL
+Original checkout verified: 754 tracked blob bytes and executable modes, exact index tree, clean worktree.

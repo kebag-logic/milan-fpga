@@ -1,0 +1,162 @@
+hdl/top/protocol_processor_top.sv:103:     parameter int unsigned N_AVB_IF_P          = 1,
+hdl/top/protocol_processor_top.sv:111:     parameter int unsigned N_AUDIO_UNIT_P      = 1,
+hdl/top/protocol_processor_top.sv:112:     parameter int unsigned N_CLK_DOMAIN_P      = 1,
+hdl/top/protocol_processor_top.sv:115:     parameter int unsigned RX_SLOTS_P          = 4,
+hdl/top/protocol_processor_top.sv:116:     parameter int unsigned RX_SLOT_BYTES_P     = 576,
+hdl/top/protocol_processor_top.sv:118:     parameter int unsigned TX_STD_SLOTS_P      = 4,
+hdl/top/protocol_processor_top.sv:119:     parameter int unsigned TX_OVERSIZE_BYTES_P = 1600,
+hdl/top/protocol_processor_top.sv:121:     parameter int unsigned CLK_HZ_P            = 100_000_000,
+hdl/top/protocol_processor_top.sv:123:     parameter int unsigned TIM_DIV_US_P        = CLK_HZ_P / 32'd1_000_000,
+hdl/top/protocol_processor_top.sv:149:     parameter int unsigned DESC_LINE_BYTES_P   = 576,
+hdl/top/protocol_processor_top.sv:169:     parameter int unsigned NVM_RS_TMO_CYC_P    = (CLK_HZ_P / 32'd50)
+hdl/top/protocol_processor_top.sv:179:     parameter int unsigned NVM_RS_AGG_CYC_P    = CLK_HZ_P,
+hdl/top/protocol_processor_top.sv:184:     parameter int unsigned NVM_RETRY_BACKOFF_CYC_P = (CLK_HZ_P / 32'd2) + (CLK_HZ_P % 32'd2),
+hdl/top/protocol_processor_top.sv:197:     parameter int unsigned NVM_MEM_TMO_CYC_P   = CLK_HZ_P,
+hdl/top/protocol_processor_top.sv:1357:   assign rx_take_w = rx_valid_i && (rx_mid_r ? rx_adm_r : !aecp_reboot_w);
+hdl/top/protocol_processor_top.sv:2027:   assign adp_enable_w = entity_enable_i && restore_done_o && !rbt_adp_off_w;
+hdl/top/protocol_processor_top.sv:4869:   //!  - RB_NTF: the REBOOT's notification (class 9, every registered
+hdl/top/protocol_processor_top.sv:4879:   //!  - RB_DEP: ADP has nothing left to build or queue, and the arbiter is
+hdl/top/protocol_processor_top.sv:4928:   assign rbt_quiet_w = ((rbt_st_r == RB_DEP) && !adp_tx_busy_w)
+hdl/top/protocol_processor_top.sv:4943:         RB_NTF:  if (!ntfy_cmd_busy_w && !tx_fly_uns_r)
+hdl/top/protocol_processor_top.sv:4946:         RB_DEP:  if (!adp_tx_busy_w && (laneq_adp_cnt_r == 4'd0)
+hdl/top/protocol_processor_top.sv:4957:   assign reboot_req_o  = (rbt_st_r == RB_REQ);
+hdl/common/pp_pkg.sv:145:   localparam int unsigned PP_N_CTRL_C       = 16;  // P-N-CONTROLLERS
+hdl/common/pp_pkg.sv:146:   localparam int unsigned PP_CA_POOL_C      = 4;   // P-CA-POOL
+hdl/common/pp_pkg.sv:179:   localparam int unsigned PP_SRP_CAD_SLOTS_C = 7;
+hdl/common/pp_pkg.sv:181:   localparam int unsigned PP_SINGLETON_SLOTS_C = 5;
+hdl/common/pp_pkg.sv:186:   localparam int unsigned PP_MAAP_SLOTS_C = 2;
+hdl/common/pp_pkg.sv:196:     m.adp_adv   = 32'd0;
+hdl/common/pp_pkg.sv:197:     m.adp_noadp = m.adp_adv   + n_if;
+hdl/common/pp_pkg.sv:198:     m.lstn      = m.adp_noadp + si;
+hdl/common/pp_pkg.sv:199:     m.tkr       = m.lstn      + si;
+hdl/common/pp_pkg.sv:200:     m.regmon    = m.tkr       + so;
+hdl/common/pp_pkg.sv:201:     m.capool    = m.regmon    + (32'd2 * n_ctrl * n_if);
+hdl/common/pp_pkg.sv:202:     m.single    = m.capool    + ca_pool;
+hdl/common/pp_pkg.sv:203:     m.maap      = m.single    + PP_SINGLETON_SLOTS_C;
+hdl/common/pp_pkg.sv:204:     m.base_end  = m.maap      + PP_MAAP_SLOTS_C;
+hdl/common/pp_pkg.sv:210:     m.srp_end   = m.srp_cad + ((PP_SRP_CAD_SLOTS_C + si + so) * n_if);
+hdl/aecp/ucpu_pkg.sv:35:   localparam int unsigned UCODE_W_C  = 48;
+hdl/aecp/ucpu_pkg.sv:36:   localparam int unsigned UPC_W_C    = 11;   // P-UCODE-ROM-DEPTH = 2048
+hdl/aecp/ucpu_pkg.sv:87:     OP_SHIFT_R    = 5'd29   // logical right shift by imm[5:0]
+hdl/aecp/KL_aecp_ucpu.sv:150:   initial $readmemh(UCODE_HEX_P, rom_r);
+hdl/aecp/KL_aecp_ucpu.sv:681:                 OP_SHIFT_R: begin
+hdl/acmp/KL_pp_acmp_listener.sv:14: //                with the full F05.3 transition matrix in a $readmemh'd
+hdl/acmp/KL_pp_acmp_listener.sv:416:   // 128 x P-ACMP-TROM-W, $readmemh image from rom/gen_ltn_rom.py; sync
+hdl/acmp/KL_pp_acmp_listener.sv:423:   initial $readmemh(TROM_HEX_P, trom_r);
+hdl/acmp/KL_acmp_talker.sv:208:     parameter int unsigned MAAP_ACCEPT_CYC_P = 1024,
+hdl/acmp/KL_acmp_talker.sv:248:     parameter int unsigned MAAP_RSP_MS_P = 32'd10_000,
+hdl/acmp/KL_acmp_nvm_shadow.sv:139:     parameter int unsigned DEB_TICKS_P   = 500,
+hdl/acmp/KL_acmp_nvm_shadow.sv:142:     parameter int unsigned RETRY_MAX_P   = 2,
+hdl/aecp/KL_aecp_nvm_writer.sv:193:     parameter int unsigned DEB_MS_P       = 500,
+hdl/aecp/KL_aecp_nvm_writer.sv:195:     parameter int unsigned RETRY_MAX_P    = 2,
+hdl/packet_engine/KL_pp_trace_ring.sv:41:     parameter int unsigned RECORDS_P = 256,
+hdl/packet_engine/KL_pp_trace_ring.sv:43:     parameter int unsigned RECORD_W_P = 128,
+hdl/top/KL_mrp_strip.sv:40:     parameter int unsigned QUEUE_BYTES_P = 2048,
+hdl/aecp/KL_aecp_engine.sv:923:   localparam logic [10:0] UPC_RBOOT_C    = 11'd536;  // E_RBOOT
+hdl/aecp/KL_aecp_engine.sv:924:   localparam logic [10:0] UPC_RBOOTNS_C  = 11'd548;  // E_RBOOTNS
+hdl/aecp/KL_aecp_engine.sv:925:   localparam logic [10:0] UPC_RBOOTBAD_C = 11'd554;  // E_RBOOTBAD
+hdl/aecp/KL_aecp_engine.sv:2682:   assign txn_ready_o     = (a_st_r == A_IDLE) && !rsp_busy_w && !rbt_hold_r
+hdl/aecp/KL_aecp_engine.sv:2712:   assign reboot_o        = rbt_hold_r;
+hdl/aecp/KL_aecp_engine.sv:2804:       rbt_hold_r   <= 1'b0;
+hdl/aecp/KL_aecp_engine.sv:3655:               if (cmd_r.cdl < 11'd16)                 upc_r <= UPC_RBOOTBAD_C;
+hdl/aecp/KL_aecp_engine.sv:3656:               else if (cfg_ix_r != DT_ENTITY_C)       upc_r <= UPC_RBOOTNS_C;
+hdl/aecp/KL_aecp_engine.sv:3657:               else                                    upc_r <= UPC_RBOOT_C;
+hdl/aecp/KL_aecp_engine.sv:3970:             rbt_hold_r <= 1'b1;
+hdl/aecp/ucode/gen_ucode.py:2351: def _reboot(base):
+hdl/aecp/ucode/gen_ucode.py:2352:     return [
+hdl/aecp/ucode/gen_ucode.py:2353:         u('DESC_ADDR', ra=14, imm=RGN_LOCATE),   # miss -> NO_SUCH_DESCRIPTOR
+hdl/aecp/ucode/gen_ucode.py:2354:         u('BR_STATUS', cnd=0, imm=base + 5),     # ...and it survives the skip
+hdl/aecp/ucode/gen_ucode.py:2355:         u('CHECK_LOCK', ra=15, imm=base + 5),    # a different controller holds
+hdl/aecp/ucode/gen_ucode.py:2356:         u('SET_STATUS', imm=ST_OK),
+hdl/aecp/ucode/gen_ucode.py:2357:         u('NOTIFY_ENQ', imm=9),                  # REBOOT, requester excluded
+hdl/aecp/ucode/gen_ucode.py:2358:         u('BUILD_HDR', ra=15, rb=13),            # base + 5: every arm lands here
+hdl/aecp/ucode/gen_ucode.py:2359:         u('BUILD_FLD', ra=13, fmt=FMT_D),        # type + index          @24
+hdl/aecp/ucode/gen_ucode.py:2360:         u('SEND_RESP'),
+hdl/aecp/ucode/gen_ucode.py:2361:         u('END'),
+hdl/aecp/ucode/gen_ucode.py:2362:     ]
+hdl/aecp/ucode/gen_ucode.py:2363: 
+hdl/aecp/ucode/gen_ucode.py:2364: place(E_RBOOT, _reboot(E_RBOOT))
+hdl/aecp/ucode/gen_ucode.py:2365: place(E_RBOOTNS, _strm_refuse(ST_NSUPP))
+hdl/aecp/ucode/gen_ucode.py:2366: place(E_RBOOTBAD, _strm_refuse(ST_BADARG))
+hdl/top/protocol_processor_top.sv:4931:   always_comb begin : rbt_tx_gate
+hdl/top/protocol_processor_top.sv:4932:     rbt_tx_open_w             = {LANE_N_C{!rbt_quiet_w}};
+hdl/top/protocol_processor_top.sv:4933:     rbt_tx_open_w[LANE_ADP_C] = 1'b1;
+hdl/top/protocol_processor_top.sv:4934:   end
+hdl/top/protocol_processor_top.sv:4935: 
+hdl/top/protocol_processor_top.sv:4936:   always_ff @(posedge clk_i) begin : rbt_sequence
+hdl/top/protocol_processor_top.sv:4937:     if (!rst_n) begin
+hdl/top/protocol_processor_top.sv:4938:       rbt_st_r <= RB_RUN;
+hdl/top/protocol_processor_top.sv:4939:     end else begin
+hdl/top/protocol_processor_top.sv:4940:       unique case (rbt_st_r)
+hdl/top/protocol_processor_top.sv:4941:         RB_RUN:  if (aecp_reboot_w) rbt_st_r <= RB_RESP;
+hdl/top/protocol_processor_top.sv:4942:         RB_RESP: if (tx_last_w)     rbt_st_r <= RB_NTF;
+hdl/top/protocol_processor_top.sv:4943:         RB_NTF:  if (!ntfy_cmd_busy_w && !tx_fly_uns_r)
+hdl/top/protocol_processor_top.sv:4944:                                     rbt_st_r <= RB_DOWN;
+hdl/top/protocol_processor_top.sv:4945:         RB_DOWN:                    rbt_st_r <= RB_DEP;
+hdl/top/protocol_processor_top.sv:4946:         RB_DEP:  if (!adp_tx_busy_w && (laneq_adp_cnt_r == 4'd0)
+hdl/top/protocol_processor_top.sv:4947:                      && !arb_busy_w)
+hdl/top/protocol_processor_top.sv:4948:                                     rbt_st_r <= RB_REQ;
+hdl/top/protocol_processor_top.sv:4949:         RB_REQ:  ;
+hdl/top/protocol_processor_top.sv:4950:         default: rbt_st_r <= RB_RUN;
+hdl/top/protocol_processor_top.sv:4951:       endcase
+hdl/top/protocol_processor_top.sv:4952:     end
+hdl/top/protocol_processor_top.sv:4953:   end
+hdl/top/protocol_processor_top.sv:4954: 
+hdl/top/protocol_processor_top.sv:4955:   assign rbt_adp_off_w = (rbt_st_r == RB_DOWN) || (rbt_st_r == RB_DEP)
+hdl/top/protocol_processor_top.sv:4956:                        || (rbt_st_r == RB_REQ);
+hdl/top/protocol_processor_top.sv:4957:   assign reboot_req_o  = (rbt_st_r == RB_REQ);
+hdl/aecp/KL_aecp_ucpu.sv:679:                   wb_data_r <= merged_w;
+hdl/aecp/KL_aecp_ucpu.sv:680:                 end
+hdl/aecp/KL_aecp_ucpu.sv:681:                 OP_SHIFT_R: begin
+hdl/aecp/KL_aecp_ucpu.sv:682:                   wb_we_r <= 1'b1; wb_rd_r <= uop_e_r.rd;
+hdl/aecp/KL_aecp_ucpu.sv:683:                   wb_data_r <= opa_e_r >> uop_e_r.imm[5:0];
+hdl/aecp/KL_aecp_ucpu.sv:684:                 end
+hdl/aecp/KL_aecp_ucpu.sv:685:                 OP_READ_ST, OP_NAME_RD: begin
+hdl/aecp/KL_aecp_ucpu.sv:686:                   wb_we_r <= 1'b1; wb_rd_r <= uop_e_r.rd;
+hdl/aecp/KL_aecp_ucpu.sv:687:                   wb_data_r <= st_rdata_i;
+hdl/aecp/KL_aecp_ucpu.sv:688:                 end
+hdl/aecp/KL_aecp_ucpu.sv:689:                 OP_GATHER_EXT: begin
+hdl/aecp/ucpu_pkg.sv:48:   // ---- the 29 operations of 06 §8, group order --------------------------
+hdl/aecp/ucpu_pkg.sv:49:   typedef enum logic [4:0] {
+hdl/aecp/ucpu_pkg.sv:50:     // Flow
+hdl/aecp/ucpu_pkg.sv:51:     OP_NOP        = 5'd0,
+hdl/aecp/ucpu_pkg.sv:52:     OP_BRANCH     = 5'd1,
+hdl/aecp/ucpu_pkg.sv:53:     OP_BR_STATUS  = 5'd2,   // BRANCH_IF_STATUS
+hdl/aecp/ucpu_pkg.sv:54:     OP_END        = 5'd3,
+hdl/aecp/ucpu_pkg.sv:55:     // Data
+hdl/aecp/ucpu_pkg.sv:56:     OP_MOVE       = 5'd4,
+hdl/aecp/ucpu_pkg.sv:57:     OP_COMPARE    = 5'd5,
+hdl/aecp/ucpu_pkg.sv:58:     OP_SET_MASKED = 5'd6,
+hdl/aecp/ucpu_pkg.sv:59:     // Model (image + overlay via 07 §3)
+hdl/aecp/ucpu_pkg.sv:60:     OP_DESC_ADDR  = 5'd7,
+hdl/aecp/ucpu_pkg.sv:61:     OP_READ_ST    = 5'd8,   // READ_STATE
+hdl/aecp/ucpu_pkg.sv:62:     OP_WRITE_ST   = 5'd9,   // WRITE_STATE
+hdl/aecp/ucpu_pkg.sv:63:     OP_NAME_RD    = 5'd10,
+hdl/aecp/ucpu_pkg.sv:64:     OP_NAME_WR    = 5'd11,
+hdl/aecp/ucpu_pkg.sv:65:     OP_COPY_BUF   = 5'd12,  // COPY_BUFFER
+hdl/aecp/ucpu_pkg.sv:66:     // Checks
+hdl/aecp/ucpu_pkg.sv:67:     OP_CHECK_LOCK = 5'd13,
+hdl/aecp/ucpu_pkg.sv:68:     OP_CHECK_ARG  = 5'd14,
+hdl/aecp/ucpu_pkg.sv:69:     OP_MAP_VALID  = 5'd15,  // MAP_VALIDATE
+hdl/aecp/ucpu_pkg.sv:70:     // Gather
+hdl/aecp/ucpu_pkg.sv:71:     OP_GATHER_EXT = 5'd16,
+hdl/aecp/ucpu_pkg.sv:72:     OP_READ_CTRS  = 5'd17,  // READ_COUNTERS
+hdl/aecp/ucpu_pkg.sv:73:     // Iterate
+hdl/aecp/ucpu_pkg.sv:74:     OP_ITER_OPEN  = 5'd18,
+hdl/aecp/ucpu_pkg.sv:75:     OP_ITER_NEXT  = 5'd19,
+hdl/aecp/ucpu_pkg.sv:76:     OP_APPEND     = 5'd20,  // APPEND_RESP (skip-on-overflow, 06 §8)
+hdl/aecp/ucpu_pkg.sv:77:     // Effects
+hdl/aecp/ucpu_pkg.sv:78:     OP_COMMIT     = 5'd21,
+hdl/aecp/ucpu_pkg.sv:79:     OP_NVM_MARK   = 5'd22,
+hdl/aecp/ucpu_pkg.sv:80:     OP_NOTIFY_ENQ = 5'd23,
+hdl/aecp/ucpu_pkg.sv:81:     // Respond
+hdl/aecp/ucpu_pkg.sv:82:     OP_SET_STATUS = 5'd24,
+hdl/aecp/ucpu_pkg.sv:83:     OP_SET_LENGTH = 5'd25,
+hdl/aecp/ucpu_pkg.sv:84:     OP_BUILD_HDR  = 5'd26,  // BUILD_HEADER
+hdl/aecp/ucpu_pkg.sv:85:     OP_BUILD_FLD  = 5'd27,  // BUILD_FIELD
+hdl/aecp/ucpu_pkg.sv:86:     OP_SEND_RESP  = 5'd28,  // SEND_RESPONSE
+hdl/aecp/ucpu_pkg.sv:87:     OP_SHIFT_R    = 5'd29   // logical right shift by imm[5:0]
+hdl/aecp/ucpu_pkg.sv:88:   } ucpu_op_e;
+hdl/aecp/ucpu_pkg.sv:89: 
+hdl/aecp/ucpu_pkg.sv:90:   // ---- fmt codes ---------------------------------------------------------
+hdl/aecp/ucpu_pkg.sv:91:   localparam logic [2:0] FMT_B_C = 3'd0;

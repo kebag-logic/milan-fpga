@@ -1,0 +1,49 @@
+{
+  "issue-comments": [
+    {
+      "id": 6519117148,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/210#issuecomment-6519117148",
+      "time": "2026-10-30T09:07:19Z",
+      "body": "[A708] TAKEN\nBranch: `docs-sweep` from main `a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645` (#203 has merged, so the plan's precondition for this lane holds).\nAuthoritative references: this issue's scope, rules and acceptance; kebag-logic/milan-fpga#797 (rules) and its plan comment issuecomment-6518880512 (lane P); the clause texts of IEEE 1722.1-2021, IEEE 1722-2016, IEEE 802.1Q and Milan v1.2 that the docs cite.\nInterpreted scope: inventory every tracked Markdown file (purpose, audience, the code or clause it describes, status with evidence); verify normative and numeric statements against the RTL at this head and the cited clauses, fixing the docs or recording a finding with file:line, the RTL line and the clause; a start-here path in the README, a summary at the top of long pages, defined terms; retire or banner obsolete pages. Markdown only, plus a docs-gate script only where a freshness check is cheap. No RTL, generator, generated-file or test change: any doc that needs one becomes a finding.\nValidation plan: every docs and CI-hygiene gate the repository runs, at base and at head, rc 0; a planted mutant for any new check.\nBlockers: none\n"
+    },
+    {
+      "id": 6520341258,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/issues/210#issuecomment-6520341258",
+      "time": "2026-10-30T10:18:35Z",
+      "body": "[A708] REVIEW READY\nHead: `18a4dc1fcf91528a52737d5ea830b5acd5d543c4` on local branch `docs-sweep`, from main `a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645` (5 commits, not pushed; no PR opened in this lane).\nScope delivered: `docs/INVENTORY.md` (every Markdown file, with purpose, audience, what it describes, and a status with evidence), held by a new `make inventory` gate in `make check`; `docs/GLOSSARY.md`; a start-here path in the README; short summaries on the long pages; `docs/10_RESOURCE_AND_EFFORT.md` bannered superseded; and the missing `tb/dyn_state/README.md`. Corrected: a stale F01.5 timer-slot example, the shutdown model in 01 \u00a75, six citations of clauses that do not exist in IEEE 1722.1-2021 or 802.1Q-2014, ROMs that do not ship (F01.5, F07.1), a decision-ledger row that 01 \u00a77 contradicts, four drifted suite tallies, 16 anchors that pass the link gate but not GitHub (the gate's slug rule is fixed to GitHub's), and the lane labels.\nGates: `make check`, `gen_matrix.py --check`, `check_upc_map.py`, `check_m9_opcodes.py` (with `--selftest`) and `lint_hdl.sh` all rc 0 at base and head. Planted mutants fail the new and the fixed gate. The consumer gates at milan-fpga PR #805's head give the same verdicts with the processor at this base and at this head. The `tb/nvm_port` figures gate did not finish in the time available, but every README-derived input it reads is identical at base and head.\nOpen, recorded as findings: wrong clause numbers in five RTL and test comments (not changed: no RTL edits in this lane); 156 R-numbered review labels in nine suite READMEs' mutation records, which need the owner's choice of replacement reference. Because of the labels, the PR body says \"Refs #210\", not \"Closes\".\n"
+    }
+  ],
+  "pr-comments": [
+    {
+      "id": 6520839722,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/211#issuecomment-6520839722",
+      "time": "2026-10-30T10:47:38Z",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R743-1\n\nR743 (internal reviewer) reconstructs issue #['210'] / PR #211 at exact head `18a4dc1fcf91528a52737d5ea830b5acd5d543c4`, tree `7cdbc61bb2296f923585b42d3cd0a01baf6d3991`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+    },
+    {
+      "id": 6520847702,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/211#issuecomment-6520847702",
+      "time": "2026-10-30T10:48:06Z",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R744-1\n\nR744 (external reviewer) reconstructs issue #['210'] / PR #211 at exact head `18a4dc1fcf91528a52737d5ea830b5acd5d543c4`, tree `7cdbc61bb2296f923585b42d3cd0a01baf6d3991`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+    }
+  ],
+  "reviews": [],
+  "inline-reviews": [],
+  "read_after_independent_verdict": true,
+  "queried_at_utc": "2026-10-30T10:57:35.556977+00:00",
+  "pr-comments-final": [
+    {
+      "id": 6520839722,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/211#issuecomment-6520839722",
+      "time": "2026-10-30T10:47:38Z",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R743-1\n\nR743 (internal reviewer) reconstructs issue #['210'] / PR #211 at exact head `18a4dc1fcf91528a52737d5ea830b5acd5d543c4`, tree `7cdbc61bb2296f923585b42d3cd0a01baf6d3991`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+    },
+    {
+      "id": 6520847702,
+      "url": "https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/211#issuecomment-6520847702",
+      "time": "2026-10-30T10:48:06Z",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R744-1\n\nR744 (external reviewer) reconstructs issue #['210'] / PR #211 at exact head `18a4dc1fcf91528a52737d5ea830b5acd5d543c4`, tree `7cdbc61bb2296f923585b42d3cd0a01baf6d3991`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+    }
+  ],
+  "final_query_utc": "2026-10-30T10:59:24.333499+00:00"
+}
