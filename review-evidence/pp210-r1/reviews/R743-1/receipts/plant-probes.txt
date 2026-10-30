@@ -1,0 +1,72 @@
+### P0 clean head: inventory
+inventory: 63 Markdown files, OK
+  rc=0
+### P0 clean head: links
+links: 1404 checked, OK
+  rc=0
+### P1 stale entry: a row for a page that does not exist
+INVENTORY FAIL: NO FILE: tb/gone/README.md
+inventory: 63 Markdown files, 1 FAILURES
+  rc=1
+### P2 stale entry: a tracked page deleted, its row kept
+INVENTORY FAIL: NO FILE: tb/prng/README.md
+inventory: 62 Markdown files, 1 FAILURES
+  rc=1
+### P3 missing file: new untracked page with no row
+INVENTORY FAIL: NO ROW: docs/architecture/12_new.md
+inventory: 64 Markdown files, 1 FAILURES
+  rc=1
+### P4 missing file: new page staged (git add) with no row
+INVENTORY FAIL: NO ROW: tb/new_suite/README.md
+inventory: 64 Markdown files, 1 FAILURES
+  rc=1
+### P5 superseded page marked current
+INVENTORY FAIL: BANNERED: docs/10_RESOURCE_AND_EFFORT.md is current but a quoted line of its first 20 calls it superseded or obsolete
+inventory: 63 Markdown files, 1 FAILURES
+  rc=1
+### P6 current page bannered superseded
+INVENTORY FAIL: BANNERED: docs/guides/operator.md is current but a quoted line of its first 20 calls it superseded or obsolete
+inventory: 63 Markdown files, 1 FAILURES
+  rc=1
+### P7 row without its link form (plain path cell)
+INVENTORY FAIL: NO ROW: tb/prng/README.md
+inventory: 63 Markdown files, 1 FAILURES
+  rc=1
+### P8 status outside vocabulary
+INVENTORY FAIL: BAD STATUS: tb/prng/README.md: 'fresh' is not one of current, generated, stale, superseded, obsolete
+inventory: 63 Markdown files, 1 FAILURES
+  rc=1
+### P9 evidence emptied
+INVENTORY FAIL: NO EVIDENCE: tb/prng/README.md
+inventory: 63 Markdown files, 1 FAILURES
+  rc=1
+### P10 duplicate row
+INVENTORY FAIL: DUPLICATE ROW: tb/prng/README.md
+inventory: 63 Markdown files, 1 FAILURES
+  rc=1
+### P11 (limit probe) row text names one file, its link points at another existing page
+inventory: 63 Markdown files, OK
+  rc=0
+links: 1404 checked, OK
+  rc=0
+### P12 (limit probe) a page with an upper-case .MD suffix
+inventory: 63 Markdown files, OK
+  rc=0
+### L1 link checker: broken relative file link
+LINK FAIL: docs/README.md: missing target -> architecture/99_gone.md
+links: 1405 checked, 1 FAILURES
+  rc=1
+### L2 link checker: broken anchor on an existing page
+LINK FAIL: docs/README.md: missing anchor -> architecture/05_acmp_engine.md#no-such-heading
+links: 1405 checked, 1 FAILURES
+  rc=1
+### L3 link checker: the old collapsed-anchor form re-planted
+LINK FAIL: docs/guides/integrator.md: missing anchor -> ../architecture/05_acmp_engine.md#6bis-talker-side-stateless-responder
+links: 1404 checked, 1 FAILURES
+  rc=1
+### L4 make check fails through the new inventory target
+  make inventory rc=2
+  make check rc=2
+### END state
+?? .venv-wavedrom
+18a4dc1fcf91528a52737d5ea830b5acd5d543c4

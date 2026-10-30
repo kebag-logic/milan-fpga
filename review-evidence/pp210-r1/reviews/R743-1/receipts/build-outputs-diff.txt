@@ -1,0 +1,18 @@
+# build outputs, base a9e84b66 vs head 18a4dc1 (scripts/build_outputs.sh)
+1c1
+< 71fe35203258bf9744a2be46f51315f1f7d70d26749b00afe97e3fbf1d5e7185  06_after_write.md
+---
+> 807338bcd31eda348445431b37172766b6a6c0f77f55203222064d964e31c52e  06_after_write.md
+24c24
+< ecdb6a06112a8d12a705298fca27ae53469cd2824171297dc61a598036f30302  vcc/Vprotocol_processor_top.mk
+---
+> a5079b1a5e9bc83ee52343340218dab0450b75ffab23c125d043d968ee1bb4b1  vcc/Vprotocol_processor_top.mk
+## the .mk difference, after mapping the two temp work dirs to one name:
+identical
+## 06 after check_aecp_commands.py --write equals the committed 06 in each tree:
+base: equal
+head: equal
+## non-Markdown paths the PR changes:
+M	Makefile
+A	scripts/check-doc-inventory.py
+M	scripts/check-links.py
