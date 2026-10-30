@@ -2392,6 +2392,84 @@ def cross_cpu_memory_ports(cpu: object, cd_from: str, cd_to: str) -> None:
     cpu.add_memory_buses = add_memory_buses
 
 
+class WishboneSlaveStage(Module):
+    """A registered Wishbone stage between the bus decoder and one slave (#814).
+
+    `master` faces the decoder (the stage is its slave); `slave` faces the core
+    (the stage is its master). Every signal the stage drives comes from a
+    flip-flop: it takes the request in IDLE, holds it on the slave side until
+    the slave's ack or err, and shows the registered answer to the master for
+    one cycle. So no combinational path runs through it in either direction.
+
+    The contract stays Wishbone classic, one access at a time, each request
+    held until its answer on both sides. An access costs two more bus cycles,
+    one each way. A master that lets go before its answer (a bus timeout)
+    abandons the access: the slave still finishes it, and the stage drops the
+    answer instead of showing it to the next request.
+    """
+
+    def __init__(self, master: object, slave: object) -> None:
+        """The stage between `master` (decoder side) and `slave` (core side)."""
+        busy = Signal()
+        answered = Signal()
+        abandoned = Signal()
+        dat_r = Signal(len(master.dat_r), reset_less=True)
+        err = Signal()
+        asked = master.cyc & master.stb
+        request = [(slave.adr, master.adr), (slave.dat_w, master.dat_w), (slave.sel, master.sel),
+                   (slave.we, master.we), (slave.cti, master.cti), (slave.bte, master.bte)]
+        self.sync += [
+            answered.eq(0),
+            If(~busy & ~answered & asked,
+                busy.eq(1), abandoned.eq(0),
+                *[held.eq(given) for held, given in request]),
+            If(busy,
+                If(~asked, abandoned.eq(1)),
+                If(slave.ack | slave.err,
+                    busy.eq(0),
+                    answered.eq(asked & ~abandoned),
+                    dat_r.eq(slave.dat_r), err.eq(slave.err))),
+        ]
+        self.comb += [
+            slave.cyc.eq(busy), slave.stb.eq(busy),
+            master.ack.eq(answered & ~err), master.err.eq(answered & err),
+            master.dat_r.eq(dat_r),
+        ]
+
+
+def stage_bus_slave(bus: object, name: str) -> WishboneSlaveStage:
+    """Put a `WishboneSlaveStage` between the SoC bus decoder and slave `name`.
+
+    Call it after the slave is added and before the bus is finalized: the
+    decoder is built from `bus.slaves` at finalize, so the stage's master side
+    replaces the entry there and the core's interface moves behind the stage.
+    The caller owns the returned module. Wishbone only: a slave adapted to
+    another standard has no Wishbone face here, so it is refused rather than
+    left without the stage.
+    """
+    from litex.soc.interconnect import wishbone
+    core = bus.slaves[name]
+    if not isinstance(core, wishbone.Interface):
+        raise ValueError(f"stage_bus_slave: slave {name!r} is {type(core).__name__}, not Wishbone; "
+                         "the #814 stage needs the default --bus-standard wishbone")
+    decoder = wishbone.Interface.like(core)
+    bus.slaves[name] = decoder
+    return WishboneSlaveStage(decoder, core)
+
+
+def add_staged_spi_flash(soc: SoCCore, **kwargs: object) -> None:
+    """LiteX's `add_spi_flash(**kwargs)`, then the #814 stage in front of the core.
+
+    The path from the AXI-Lite-to-Wishbone bridge state through the decoder, the
+    origin offset and LiteSPI's burst compare into the PHY's counter (17 to 19
+    levels) decided the route WNS. The stage ends it at a flip-flop, for two bus
+    cycles an access. A function so `test_soc_timing_cuts.py` builds the flash
+    path the SoC builds, on the real LiteX bridge, decoder and core.
+    """
+    soc.add_spi_flash(**kwargs)
+    soc.submodules.spiflash_bus_stage = stage_bus_slave(soc.bus, "spiflash")
+
+
 def pp_mem_gate(m: Module, dfi_sel: Signal) -> Signal:
     """`mem_rdy`: the DFI has been handed BACK to the LiteDRAM controller.
 
@@ -3065,8 +3143,8 @@ class MilanSoC(SoCCore):
             # 12.5 MHz requested => ~25 MHz effective SPI read clk (was 50 MHz at the
             # 25e6 request): doubles the sampling margin. build_hsq0's placement made
             # 50 MHz reads corrupt (CRC differs per read); r2slots was borderline-OK.
-            self.add_spi_flash(mode="1x", module=flash_module,
-                               clk_freq=int(12.5e6), with_master=True)
+            add_staged_spi_flash(self, mode="1x", module=flash_module,
+                                 clk_freq=int(12.5e6), with_master=True)
             # The BIOS boot-time auto-calibration (liblitespi spiflash_freq_init) re-tunes the
             # divisor UP from this default as long as a short CRC test block reads stably  -  on
             # this board it locked div=2 (50 MHz) and the marginality only shows on MB-scale

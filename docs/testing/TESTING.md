@@ -719,6 +719,17 @@ every channel exactly between a 50 MHz-shaped source and a 100 MHz-shaped
 sink, while the pre-#359 direct connection across the same clocks loses or
 duplicates beats.
 
+`test_soc_timing_cuts.py` (#814) grades the register boundary on the SoC's
+bridge-to-SPI-flash path, which decided the route WNS. It builds the path on
+the real LiteX and LiteSPI code with the shipping `add_staged_spi_flash` call,
+behind an AXI-Lite master on the Wishbone bus. Its structural arm walks the
+elaborated migen netlist from each flash-core flip-flop back to the flip-flops
+that feed it through logic alone. No AXI-Lite bridge flip-flop may reach one
+through the core's bus face. The same build with the stage replaced by wires
+must fail that arm, naming the bridge state into the PHY counter. Its
+behaviour arms read the flash image through the stage at exactly two more bus
+cycles a read, and show an abandoned access never answering the next request.
+
 `test_retained_cdc_storage.py` (#640 lane M2) covers the seven retained SoC
 crossing arrays: both MAC crossings and the five CSR channel FIFOs, built by
 `milan_soc` with their RAM-friendly storage. The MAC crossings come from a
