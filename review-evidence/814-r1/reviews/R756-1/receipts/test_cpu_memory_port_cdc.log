@@ -1,0 +1,54 @@
+test_cpu_memory_port_cdc: the CPU memory port crosses into the LiteDRAM clock (#359)
+  [ok  ] one memory bus is handed to LiteDRAM
+  [ok  ] the LiteDRAM-facing port is in the sys domain
+  [ok  ] an AXIClockDomainCrossing sits behind the port
+  [ok  ] the port keeps the CPU port's data, address, id widths and version
+  [ok  ] a CPU without cpu_clk is left alone
+  [ok  ] a CPU port carrying LiteX's default sys label is still crossed (the label is not the fact)
+  [ok  ] cd_from == cd_to installs nothing (the simulation SoCs' shape)
+  [ok  ] equal-clock direct connection carries aw exactly (stimulus control)
+  [ok  ] equal-clock direct connection carries w exactly (stimulus control)
+  [ok  ] equal-clock direct connection carries b exactly (stimulus control)
+  [ok  ] equal-clock direct connection carries ar exactly (stimulus control)
+  [ok  ] equal-clock direct connection carries r exactly (stimulus control)
+  [ok  ] through the hook, aw is exact at periods (20, 10)
+  [ok  ] through the hook, w is exact at periods (20, 10)
+  [ok  ] through the hook, b is exact at periods (20, 10)
+  [ok  ] through the hook, ar is exact at periods (20, 10)
+  [ok  ] through the hook, r is exact at periods (20, 10)
+  [ok  ] through the hook, aw is exact at periods (30, 14)
+  [ok  ] through the hook, w is exact at periods (30, 14)
+  [ok  ] through the hook, b is exact at periods (30, 14)
+  [ok  ] through the hook, ar is exact at periods (30, 14)
+  [ok  ] through the hook, r is exact at periods (30, 14)
+  [ok  ] through the hook, aw is exact at periods (10, 20)
+  [ok  ] through the hook, w is exact at periods (10, 20)
+  [ok  ] through the hook, b is exact at periods (10, 20)
+  [ok  ] through the hook, ar is exact at periods (10, 20)
+  [ok  ] through the hook, r is exact at periods (10, 20)
+  [ok  ] the pre-#359 direct connection loses or duplicates beats across unequal clocks (15 of 15 arms)
+test_cpu_memory_port_cdc: 0 failure(s)
+RESULT: PASS
+	Command being timed: "<home>/litex-milan/venv/bin/python test_cpu_memory_port_cdc.py"
+	User time (seconds): 94.50
+	System time (seconds): 0.11
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:35.11
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 72596
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 15814
+	Voluntary context switches: 5
+	Involuntary context switches: 185
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 80
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

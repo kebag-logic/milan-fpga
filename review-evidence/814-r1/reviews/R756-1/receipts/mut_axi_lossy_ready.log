@@ -1,0 +1,1101 @@
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-10-30 20:05:44)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : xc7a100tfgg484-2.
+INFO:SoC:System clock: 100.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:CPU None added.
+INFO:SoC:CPU None adding IO Region 0 at 0x00000000 (Size: 0x100000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:main_ram Region added at Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:main_ram added as Bus Slave.
+INFO:SoC:CSR Bridge csr added.
+INFO:SoCBusHandler:csr Region added at Origin: 0x00000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:csr added as Bus Slave.
+INFO:SoCCSRHandler:csr added as CSR Master.
+INFO:SoCCSRHandler:sdram CSR allocated at Location 0.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Finalized SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+IO Regions: (1)
+io0                 : Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached: False, Linker: False
+Bus Regions: (2)
+csr                 : Origin: 0x00000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+main_ram            : Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False
+Bus Slaves: (2)
+- main_ram          : rw
+- csr               : rw
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+CSR Locations: (1)
+- sdram : 0
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:SoC Hierarchy:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:
+DramSoC
+├── bus (SoCBusHandler)
+├── csr (SoCCSRHandler)
+├── irq (SoCIRQHandler)
+├── cpu (CPUNone)
+│    ├── memory_port_cdc0 (AXIClockDomainCrossing)
+│    │    ├── clockdomaincrossing_0 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_1 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_2 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_3 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    └── clockdomaincrossing_4 (ClockDomainCrossing) [Gen]
+│    │         └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    └── memory_port_stage0 (Stage)
+│         ├── aw_pipe (LossyReady)
+│         └── ar_pipe (LossyReady)
+├── sdram (LiteDRAMCore)
+│    ├── dfii (DFIInjector)
+│    │    ├── pi0 (PhaseInjector)
+│    │    ├── pi1 (PhaseInjector)
+│    │    ├── pi2 (PhaseInjector)
+│    │    └── pi3 (PhaseInjector)
+│    ├── controller (LiteDRAMController)
+│    │    ├── refresher (RegisteredRefresher)
+│    │    │    └── refresher (Refresher)
+│    │    │         ├── timer (RefreshTimer)
+│    │    │         ├── postponer (RefreshPostponer)
+│    │    │         ├── sequencer (RefreshSequencer)
+│    │    │         │    └── refreshexecuter_0 (RefreshExecuter) [Gen]
+│    │    │         ├── zqcs_timer (RefreshTimer)
+│    │    │         ├── zqs_executer (ZQCSExecuter)
+│    │    │         └── fsm (FSM)
+│    │    ├── bankmachine_0 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_1 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_2 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_3 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_4 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_5 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_6 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_7 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    └── multiplexer (Multiplexer)
+│    │         ├── choose_cmd (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── choose_req (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── _steerer_0 (_Steerer) [Gen]
+│    │         ├── trrdcon (tXXDController)
+│    │         ├── tfawcon (tFAWController)
+│    │         ├── tccdcon (tXXDController)
+│    │         ├── twtrcon (tXXDController)
+│    │         └── fsm (FSM)
+│    └── crossbar (LiteDRAMCrossbar)
+│         ├── roundrobin_0 (RoundRobin) [Gen]
+│         ├── roundrobin_1 (RoundRobin) [Gen]
+│         ├── roundrobin_2 (RoundRobin) [Gen]
+│         ├── roundrobin_3 (RoundRobin) [Gen]
+│         ├── roundrobin_4 (RoundRobin) [Gen]
+│         ├── roundrobin_5 (RoundRobin) [Gen]
+│         ├── roundrobin_6 (RoundRobin) [Gen]
+│         └── roundrobin_7 (RoundRobin) [Gen]
+├── litedramaxi2native_0 (LiteDRAMAXI2Native) [Gen]
+│    ├── write (LiteDRAMAXI2NativeW)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── aw_burst2beat (AXIBurst2Beat)
+│    │    ├── w_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    └── fifo (SyncFIFO)
+│    │    └── syncfifo_1 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    ├── read (LiteDRAMAXI2NativeR)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── ar_burst2beat (AXIBurst2Beat)
+│    │    ├── r_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    └── syncfifo_0 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    └── roundrobin_0 (RoundRobin) [Gen]
+├── converter_0 (Converter) [Gen]
+│    └── upconverter_0 (UpConverter) [Gen]
+├── wishbone_bridge (LiteDRAMWishbone2Native)
+│    └── fsm (FSM)
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    └── csrbank_0 (CSRBank) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstorage_1 (CSRStorage) [Gen]
+│         ├── csrstorage_2 (CSRStorage) [Gen]
+│         ├── csrstorage_3 (CSRStorage) [Gen]
+│         ├── csrstorage_4 (CSRStorage) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstorage_5 (CSRStorage) [Gen]
+│         ├── csrstorage_6 (CSRStorage) [Gen]
+│         ├── csrstorage_7 (CSRStorage) [Gen]
+│         ├── csrstorage_8 (CSRStorage) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstorage_9 (CSRStorage) [Gen]
+│         ├── csrstorage_10 (CSRStorage) [Gen]
+│         ├── csrstorage_11 (CSRStorage) [Gen]
+│         ├── csrstorage_12 (CSRStorage) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstorage_13 (CSRStorage) [Gen]
+│         ├── csrstorage_14 (CSRStorage) [Gen]
+│         ├── csrstorage_15 (CSRStorage) [Gen]
+│         ├── csrstorage_16 (CSRStorage) [Gen]
+│         └── csrstatus_3 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+  [ok  ] D0 the stage feeds the read address of each address crossing FIFO (2 of aw and ar)
+  [ok  ] D1 no flip-flop of LiteDRAM's AXI-to-native converter or core reaches an address crossing FIFO's LUTRAM read address through logic alone
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-10-30 20:05:45)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : xc7a100tfgg484-2.
+INFO:SoC:System clock: 100.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:CPU None added.
+INFO:SoC:CPU None adding IO Region 0 at 0x00000000 (Size: 0x100000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:main_ram Region added at Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:main_ram added as Bus Slave.
+INFO:SoC:CSR Bridge csr added.
+INFO:SoCBusHandler:csr Region added at Origin: 0x00000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:csr added as Bus Slave.
+INFO:SoCCSRHandler:csr added as CSR Master.
+INFO:SoCCSRHandler:sdram CSR allocated at Location 0.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Finalized SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+IO Regions: (1)
+io0                 : Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached: False, Linker: False
+Bus Regions: (2)
+csr                 : Origin: 0x00000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+main_ram            : Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False
+Bus Slaves: (2)
+- main_ram          : rw
+- csr               : rw
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+CSR Locations: (1)
+- sdram : 0
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:SoC Hierarchy:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:
+DramSoC
+├── bus (SoCBusHandler)
+├── csr (SoCCSRHandler)
+├── irq (SoCIRQHandler)
+├── cpu (CPUNone)
+│    ├── memory_port_cdc0 (AXIClockDomainCrossing)
+│    │    ├── clockdomaincrossing_0 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_1 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_2 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_3 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    └── clockdomaincrossing_4 (ClockDomainCrossing) [Gen]
+│    │         └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    └── memory_port_stage0 (WirePassThrough)
+├── sdram (LiteDRAMCore)
+│    ├── dfii (DFIInjector)
+│    │    ├── pi0 (PhaseInjector)
+│    │    ├── pi1 (PhaseInjector)
+│    │    ├── pi2 (PhaseInjector)
+│    │    └── pi3 (PhaseInjector)
+│    ├── controller (LiteDRAMController)
+│    │    ├── refresher (RegisteredRefresher)
+│    │    │    └── refresher (Refresher)
+│    │    │         ├── timer (RefreshTimer)
+│    │    │         ├── postponer (RefreshPostponer)
+│    │    │         ├── sequencer (RefreshSequencer)
+│    │    │         │    └── refreshexecuter_0 (RefreshExecuter) [Gen]
+│    │    │         ├── zqcs_timer (RefreshTimer)
+│    │    │         ├── zqs_executer (ZQCSExecuter)
+│    │    │         └── fsm (FSM)
+│    │    ├── bankmachine_0 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_1 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_2 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_3 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_4 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_5 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_6 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_7 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    └── multiplexer (Multiplexer)
+│    │         ├── choose_cmd (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── choose_req (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── _steerer_0 (_Steerer) [Gen]
+│    │         ├── trrdcon (tXXDController)
+│    │         ├── tfawcon (tFAWController)
+│    │         ├── tccdcon (tXXDController)
+│    │         ├── twtrcon (tXXDController)
+│    │         └── fsm (FSM)
+│    └── crossbar (LiteDRAMCrossbar)
+│         ├── roundrobin_0 (RoundRobin) [Gen]
+│         ├── roundrobin_1 (RoundRobin) [Gen]
+│         ├── roundrobin_2 (RoundRobin) [Gen]
+│         ├── roundrobin_3 (RoundRobin) [Gen]
+│         ├── roundrobin_4 (RoundRobin) [Gen]
+│         ├── roundrobin_5 (RoundRobin) [Gen]
+│         ├── roundrobin_6 (RoundRobin) [Gen]
+│         └── roundrobin_7 (RoundRobin) [Gen]
+├── litedramaxi2native_0 (LiteDRAMAXI2Native) [Gen]
+│    ├── write (LiteDRAMAXI2NativeW)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── aw_burst2beat (AXIBurst2Beat)
+│    │    ├── w_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    └── fifo (SyncFIFO)
+│    │    └── syncfifo_1 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    ├── read (LiteDRAMAXI2NativeR)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── ar_burst2beat (AXIBurst2Beat)
+│    │    ├── r_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    └── syncfifo_0 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    └── roundrobin_0 (RoundRobin) [Gen]
+├── converter_0 (Converter) [Gen]
+│    └── upconverter_0 (UpConverter) [Gen]
+├── wishbone_bridge (LiteDRAMWishbone2Native)
+│    └── fsm (FSM)
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    └── csrbank_0 (CSRBank) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstorage_1 (CSRStorage) [Gen]
+│         ├── csrstorage_2 (CSRStorage) [Gen]
+│         ├── csrstorage_3 (CSRStorage) [Gen]
+│         ├── csrstorage_4 (CSRStorage) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstorage_5 (CSRStorage) [Gen]
+│         ├── csrstorage_6 (CSRStorage) [Gen]
+│         ├── csrstorage_7 (CSRStorage) [Gen]
+│         ├── csrstorage_8 (CSRStorage) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstorage_9 (CSRStorage) [Gen]
+│         ├── csrstorage_10 (CSRStorage) [Gen]
+│         ├── csrstorage_11 (CSRStorage) [Gen]
+│         ├── csrstorage_12 (CSRStorage) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstorage_13 (CSRStorage) [Gen]
+│         ├── csrstorage_14 (CSRStorage) [Gen]
+│         ├── csrstorage_15 (CSRStorage) [Gen]
+│         ├── csrstorage_16 (CSRStorage) [Gen]
+│         └── csrstatus_3 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+  [ok  ] D2 the planted wire in place of the stage fails D0 and D1, naming the burst-to-beat counter (76 paths: ['axiburst2beat_beat_count -> memory_adr', 'axiburst2beat_beat_count -> memory_adr'])
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-10-30 20:05:45)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : xc7a100tfgg484-2.
+INFO:SoC:System clock: 100.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:CPU None added.
+INFO:SoC:CPU None adding IO Region 0 at 0x00000000 (Size: 0x100000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:main_ram Region added at Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:main_ram added as Bus Slave.
+INFO:SoC:CSR Bridge csr added.
+INFO:SoCBusHandler:csr Region added at Origin: 0x00000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:csr added as Bus Slave.
+INFO:SoCCSRHandler:csr added as CSR Master.
+INFO:SoCCSRHandler:sdram CSR allocated at Location 0.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Finalized SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+IO Regions: (1)
+io0                 : Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached: False, Linker: False
+Bus Regions: (2)
+csr                 : Origin: 0x00000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+main_ram            : Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False
+Bus Slaves: (2)
+- main_ram          : rw
+- csr               : rw
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+CSR Locations: (1)
+- sdram : 0
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:SoC Hierarchy:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:
+DramSoC
+├── bus (SoCBusHandler)
+├── csr (SoCCSRHandler)
+├── irq (SoCIRQHandler)
+├── cpu (CPUNone)
+│    ├── memory_port_cdc0 (AXIClockDomainCrossing)
+│    │    ├── clockdomaincrossing_0 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_1 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_2 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_3 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    └── clockdomaincrossing_4 (ClockDomainCrossing) [Gen]
+│    │         └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    └── memory_port_stage0 (Stage)
+│         ├── aw_pipe (LossyReady)
+│         └── ar_pipe (LossyReady)
+├── sdram (LiteDRAMCore)
+│    ├── dfii (DFIInjector)
+│    │    ├── pi0 (PhaseInjector)
+│    │    ├── pi1 (PhaseInjector)
+│    │    ├── pi2 (PhaseInjector)
+│    │    └── pi3 (PhaseInjector)
+│    ├── controller (LiteDRAMController)
+│    │    ├── refresher (RegisteredRefresher)
+│    │    │    └── refresher (Refresher)
+│    │    │         ├── timer (RefreshTimer)
+│    │    │         ├── postponer (RefreshPostponer)
+│    │    │         ├── sequencer (RefreshSequencer)
+│    │    │         │    └── refreshexecuter_0 (RefreshExecuter) [Gen]
+│    │    │         ├── zqcs_timer (RefreshTimer)
+│    │    │         ├── zqs_executer (ZQCSExecuter)
+│    │    │         └── fsm (FSM)
+│    │    ├── bankmachine_0 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_1 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_2 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_3 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_4 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_5 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_6 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_7 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    └── multiplexer (Multiplexer)
+│    │         ├── choose_cmd (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── choose_req (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── _steerer_0 (_Steerer) [Gen]
+│    │         ├── trrdcon (tXXDController)
+│    │         ├── tfawcon (tFAWController)
+│    │         ├── tccdcon (tXXDController)
+│    │         ├── twtrcon (tXXDController)
+│    │         └── fsm (FSM)
+│    └── crossbar (LiteDRAMCrossbar)
+│         ├── roundrobin_0 (RoundRobin) [Gen]
+│         ├── roundrobin_1 (RoundRobin) [Gen]
+│         ├── roundrobin_2 (RoundRobin) [Gen]
+│         ├── roundrobin_3 (RoundRobin) [Gen]
+│         ├── roundrobin_4 (RoundRobin) [Gen]
+│         ├── roundrobin_5 (RoundRobin) [Gen]
+│         ├── roundrobin_6 (RoundRobin) [Gen]
+│         └── roundrobin_7 (RoundRobin) [Gen]
+├── litedramaxi2native_0 (LiteDRAMAXI2Native) [Gen]
+│    ├── write (LiteDRAMAXI2NativeW)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── aw_burst2beat (AXIBurst2Beat)
+│    │    ├── w_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    └── fifo (SyncFIFO)
+│    │    └── syncfifo_1 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    ├── read (LiteDRAMAXI2NativeR)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── ar_burst2beat (AXIBurst2Beat)
+│    │    ├── r_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    └── syncfifo_0 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    └── roundrobin_0 (RoundRobin) [Gen]
+├── converter_0 (Converter) [Gen]
+│    └── upconverter_0 (UpConverter) [Gen]
+├── wishbone_bridge (LiteDRAMWishbone2Native)
+│    └── fsm (FSM)
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    └── csrbank_0 (CSRBank) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstorage_1 (CSRStorage) [Gen]
+│         ├── csrstorage_2 (CSRStorage) [Gen]
+│         ├── csrstorage_3 (CSRStorage) [Gen]
+│         ├── csrstorage_4 (CSRStorage) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstorage_5 (CSRStorage) [Gen]
+│         ├── csrstorage_6 (CSRStorage) [Gen]
+│         ├── csrstorage_7 (CSRStorage) [Gen]
+│         ├── csrstorage_8 (CSRStorage) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstorage_9 (CSRStorage) [Gen]
+│         ├── csrstorage_10 (CSRStorage) [Gen]
+│         ├── csrstorage_11 (CSRStorage) [Gen]
+│         ├── csrstorage_12 (CSRStorage) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstorage_13 (CSRStorage) [Gen]
+│         ├── csrstorage_14 (CSRStorage) [Gen]
+│         ├── csrstorage_15 (CSRStorage) [Gen]
+│         ├── csrstorage_16 (CSRStorage) [Gen]
+│         └── csrstatus_3 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+  [ok  ] D3 LiteDRAM's native port sees each write's command, word and full mask, then each read's command, in order, at the addresses written
+INFO:SoC:        __   _ __      _  __  
+INFO:SoC:       / /  (_) /____ | |/_/  
+INFO:SoC:      / /__/ / __/ -_)>  <    
+INFO:SoC:     /____/_/\__/\__/_/|_|  
+INFO:SoC:  Build your hardware, easily!
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Creating SoC... (2026-10-30 20:06:07)
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:FPGA device : xc7a100tfgg484-2.
+INFO:SoC:System clock: 100.000MHz.
+INFO:SoCBusHandler:Creating Bus Handler...
+INFO:SoCBusHandler:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoCBusHandler:Adding reserved Bus Regions...
+INFO:SoCBusHandler:Bus Handler created.
+INFO:SoCCSRHandler:Creating CSR Handler...
+INFO:SoCCSRHandler:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoCCSRHandler:Adding reserved CSRs...
+INFO:SoCCSRHandler:CSR Handler created.
+INFO:SoCIRQHandler:Creating IRQ Handler...
+INFO:SoCIRQHandler:IRQ Handler (up to 32 Locations).
+INFO:SoCIRQHandler:Adding reserved IRQs...
+INFO:SoCIRQHandler:IRQ Handler created.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Initial SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:CPU None added.
+INFO:SoC:CPU None adding IO Region 0 at 0x00000000 (Size: 0x100000000).
+INFO:SoCBusHandler:io0 Region added at Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:main_ram Region added at Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False.
+INFO:SoCBusHandler:main_ram added as Bus Slave.
+INFO:SoC:CSR Bridge csr added.
+INFO:SoCBusHandler:csr Region added at Origin: 0x00000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False.
+INFO:SoCBusHandler:csr added as Bus Slave.
+INFO:SoCCSRHandler:csr added as CSR Master.
+INFO:SoCCSRHandler:sdram CSR allocated at Location 0.
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:Finalized SoC:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:32-bit wishbone Bus, 4.0GiB Address Space.
+IO Regions: (1)
+io0                 : Origin: 0x00000000, Size: 0x100000000, Mode:  RW, Cached: False, Linker: False
+Bus Regions: (2)
+csr                 : Origin: 0x00000000, Size: 0x00010000, Mode:  RW, Cached: False, Linker: False
+main_ram            : Origin: 0x40000000, Size: 0x40000000, Mode: RWX, Cached:  True, Linker: False
+Bus Slaves: (2)
+- main_ram          : rw
+- csr               : rw
+INFO:SoC:32-bit CSR Bus, 32-bit Aligned, 16.0KiB Address Space, 2048B Paging, big Ordering (Up to 32 Locations).
+CSR Locations: (1)
+- sdram : 0
+INFO:SoC:IRQ Handler (up to 32 Locations).
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:SoC Hierarchy:
+INFO:SoC:--------------------------------------------------------------------------------
+INFO:SoC:
+DramSoC
+├── bus (SoCBusHandler)
+├── csr (SoCCSRHandler)
+├── irq (SoCIRQHandler)
+├── cpu (CPUNone)
+│    ├── memory_port_cdc0 (AXIClockDomainCrossing)
+│    │    ├── clockdomaincrossing_0 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_1 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_2 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    ├── clockdomaincrossing_3 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+│    │    │              └── graycounter_1 (GrayCounter) [Gen]
+│    │    └── clockdomaincrossing_4 (ClockDomainCrossing) [Gen]
+│    │         └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │              └── fifo (AsyncFIFO)
+│    │                   ├── graycounter_0 (GrayCounter) [Gen]
+│    │                   └── graycounter_1 (GrayCounter) [Gen]
+│    └── memory_port_stage0 (WirePassThrough)
+├── sdram (LiteDRAMCore)
+│    ├── dfii (DFIInjector)
+│    │    ├── pi0 (PhaseInjector)
+│    │    ├── pi1 (PhaseInjector)
+│    │    ├── pi2 (PhaseInjector)
+│    │    └── pi3 (PhaseInjector)
+│    ├── controller (LiteDRAMController)
+│    │    ├── refresher (RegisteredRefresher)
+│    │    │    └── refresher (Refresher)
+│    │    │         ├── timer (RefreshTimer)
+│    │    │         ├── postponer (RefreshPostponer)
+│    │    │         ├── sequencer (RefreshSequencer)
+│    │    │         │    └── refreshexecuter_0 (RefreshExecuter) [Gen]
+│    │    │         ├── zqcs_timer (RefreshTimer)
+│    │    │         ├── zqs_executer (ZQCSExecuter)
+│    │    │         └── fsm (FSM)
+│    │    ├── bankmachine_0 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_1 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_2 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_3 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_4 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_5 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_6 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    ├── bankmachine_7 (BankMachine) [Gen]
+│    │    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    │    └── fifo (SyncFIFO)
+│    │    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    │    ├── pipe_valid (PipeValid)
+│    │    │    │    └── pipeline (Pipeline)
+│    │    │    ├── twtpcon (tXXDController)
+│    │    │    ├── trccon (tXXDController)
+│    │    │    ├── trascon (tXXDController)
+│    │    │    └── fsm (FSM)
+│    │    └── multiplexer (Multiplexer)
+│    │         ├── choose_cmd (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── choose_req (_CommandChooser)
+│    │         │    └── roundrobin_0 (RoundRobin) [Gen]
+│    │         ├── _steerer_0 (_Steerer) [Gen]
+│    │         ├── trrdcon (tXXDController)
+│    │         ├── tfawcon (tFAWController)
+│    │         ├── tccdcon (tXXDController)
+│    │         ├── twtrcon (tXXDController)
+│    │         └── fsm (FSM)
+│    └── crossbar (LiteDRAMCrossbar)
+│         ├── roundrobin_0 (RoundRobin) [Gen]
+│         ├── roundrobin_1 (RoundRobin) [Gen]
+│         ├── roundrobin_2 (RoundRobin) [Gen]
+│         ├── roundrobin_3 (RoundRobin) [Gen]
+│         ├── roundrobin_4 (RoundRobin) [Gen]
+│         ├── roundrobin_5 (RoundRobin) [Gen]
+│         ├── roundrobin_6 (RoundRobin) [Gen]
+│         └── roundrobin_7 (RoundRobin) [Gen]
+├── litedramaxi2native_0 (LiteDRAMAXI2Native) [Gen]
+│    ├── write (LiteDRAMAXI2NativeW)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── aw_burst2beat (AXIBurst2Beat)
+│    │    ├── w_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    ├── syncfifo_0 (SyncFIFO) [Gen]
+│    │    │    └── fifo (SyncFIFO)
+│    │    └── syncfifo_1 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    ├── read (LiteDRAMAXI2NativeR)
+│    │    ├── buffer_0 (Buffer) [Gen]
+│    │    │    ├── pipe_valid (PipeValid)
+│    │    │    └── pipeline (Pipeline)
+│    │    ├── ar_burst2beat (AXIBurst2Beat)
+│    │    ├── r_buffer (SyncFIFO)
+│    │    │    └── fifo (SyncFIFOBuffered)
+│    │    │         └── fifo (SyncFIFO)
+│    │    └── syncfifo_0 (SyncFIFO) [Gen]
+│    │         └── fifo (SyncFIFO)
+│    └── roundrobin_0 (RoundRobin) [Gen]
+├── converter_0 (Converter) [Gen]
+│    └── upconverter_0 (UpConverter) [Gen]
+├── wishbone_bridge (LiteDRAMWishbone2Native)
+│    └── fsm (FSM)
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    └── csrbank_0 (CSRBank) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstorage_1 (CSRStorage) [Gen]
+│         ├── csrstorage_2 (CSRStorage) [Gen]
+│         ├── csrstorage_3 (CSRStorage) [Gen]
+│         ├── csrstorage_4 (CSRStorage) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstorage_5 (CSRStorage) [Gen]
+│         ├── csrstorage_6 (CSRStorage) [Gen]
+│         ├── csrstorage_7 (CSRStorage) [Gen]
+│         ├── csrstorage_8 (CSRStorage) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstorage_9 (CSRStorage) [Gen]
+│         ├── csrstorage_10 (CSRStorage) [Gen]
+│         ├── csrstorage_11 (CSRStorage) [Gen]
+│         ├── csrstorage_12 (CSRStorage) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstorage_13 (CSRStorage) [Gen]
+│         ├── csrstorage_14 (CSRStorage) [Gen]
+│         ├── csrstorage_15 (CSRStorage) [Gen]
+│         ├── csrstorage_16 (CSRStorage) [Gen]
+│         └── csrstatus_3 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+  [ok  ] D4 the stage changes nothing the native port sees, cycle for cycle, and adds no cycle to a read (staged [12, 11, 15, 14], wired [12, 11, 15, 14] milan cycles)
+MUTANT axi_lossy_ready: SURVIVED (0 failures: [])
+	Command being timed: "<home>/litex-milan/venv/bin/python scripts/mutate_timing_cuts.py $REVIEWS/r756-1-814/sw/litex axi_lossy_ready"
+	User time (seconds): 43.04
+	System time (seconds): 0.10
+	Percent of CPU this job got: 99%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:43.35
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 79996
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 17842
+	Voluntary context switches: 7
+	Involuntary context switches: 60
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 128
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
