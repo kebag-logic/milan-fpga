@@ -163,7 +163,16 @@ Changed persisted state is latched from its authoritative owner.
 F1 writes the inactive slot and verifies the committed container.
 Its [write-back contract](../sw/firmware/ctrl_nvm/README.md#write-back)
 preserves complete-old-or-new recovery across power loss.
-The existing capture bound and boot deadlines remain integration obligations.
+F1's capture timing is the [owner's decision of 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6504551000), option (c).
+F1 is not held to D5's 24.5 ms capture bound.
+F1 holds no owner while it captures.
+A change behind its cursor opens its own window (DR2a).
+So the hold that bound protects does not exist in the split.
+Each F1 step stays bounded by T_svc, under [FR_NFR 3.4.1](reference/FR_NFR.md#341-control-service-budget-and-normative-timing) as amended (20 ms, graded per family).
+The total capture time has no bound of its own; it is measured and recorded.
+A power loss inside it loses at most the unsaved change, because the previous slot stays valid.
+The 24.5 ms bound covers the current flash writer's capture, which `scripts/check_nvm_capture.py` holds.
+The boot deadlines remain integration obligations.
 F1 is not yet linked into a shipping image.
 
 The gPTP engine and PHC run independently of descriptor enumeration.
@@ -210,7 +219,10 @@ It also selects M8a-1's [firmware block RAM](design/SPLIT_CONTROL_MEMORY.md), wi
 The [target platform](../sw/firmware/ctrl/plat/README.md) runs the boot sequence above on the split CPU, and a [simulation](../tb/verilator/ctrl_split_boot/README.md) boots it to ready.
 Its datapath faces stay idle until the placement switch connects them.
 The publication block's outputs remain unread until the placement switch selects them.
-F1's flash and state ports await integration with those owners.
+F1's flash port runs on the split SoC's generated map, and its state port on the image's owners.
+Their [target cases](../tb/verilator/nvm_split_target/README.md) run on the split CPU's test SoC.
+There every step is within T_svc at both points; the capture is recorded, not bounded.
+At 8x8, with the CPU at 50 MHz and the bus at 100 MHz, it takes 103.2 ms of CPU time over 1.64 s elapsed.
 Access counts and model time do not prove target service latency.
 F2 to F5 must close the [timing hooks](reference/FR_NFR.md#342-control-service-test-hooks).
 
@@ -250,6 +262,8 @@ Bench acceptance must exercise all streams, counters and the audio soak.
 All-fabric and mixed placements retain equivalent PDU and state-transaction behavior.
 The [#640 latency ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268)
 also preserves restart, fast-connect and saved-state capture bounds.
+The saved-state capture bound is D5's 24.5 ms on the current flash writer.
+F1 is held to T_svc per step instead ([section 2](#2-boot-sequence)).
 
 Documentation gates establish document consistency, not those runtime claims.
 The [verification contract](../CONTRIBUTING.md#3-verification-bar) remains applicable to implementation.

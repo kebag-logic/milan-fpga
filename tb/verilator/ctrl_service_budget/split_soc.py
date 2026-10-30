@@ -11,11 +11,16 @@ from the linked image. The capture harness's product simulation
 (tb/verilator/nvm_capture_cpu/soc.py) is imported read only, for its
 simulated clocks and its path to the product sources.
 
-The image ctrl_srp_image.py links is a size fixture whose bus addresses are
-placeholders (#665): the mailbox at ctrl_build.py's CTRL_MBX_BASE and the
-LiteSPI master, timer0 and flash window of ctrl_nvm/test/rv32/generated.
-This SoC puts each device where the unmodified image addresses it, and reads
-those addresses from the fixture's own sources, never restating them. The
+The image ctrl_srp_image.py links is a size fixture whose mailbox address is
+a placeholder (#665), ctrl_build.py's CTRL_MBX_BASE. Its saved-state flash
+port is compiled against the split SoC's own map: the LiteSPI command master,
+timer0 and the flash window where milan_soc.py's split export puts them,
+generated from that export's csr.csv (build.flash_map, gen_flash_port.py).
+This SoC puts each device where the image addresses it, reading the mailbox's
+address from the fixture's sources and the others from the generated map,
+never restating them. Its LiteSPI bank is the split SoC's layout, and the
+build refuses a csr.csv of its own that places any register the port uses, or
+the flash window, elsewhere than the split SoC's (map_deviations). The
 mailbox is this harness's own instance of KL_mbx behind KL_mbx_wb, the
 CtrlMailbox hookup with the receive and transmit streams, the link levels
 and the grandmaster on pads the testbench drives. Every other KL_mbx port is
@@ -28,9 +33,9 @@ FACE_ACK_CYCLES bus cycles after fw_send_o rises, the slowest datapath the
 contract allows, so the measured CPU budget includes the longest commit wait.
 The window answers and face events stay idle, so a window request times out
 as the fabric-less split SoC sees it. The flash keeps
-LiteSPI's crossbar, memory-mapped reader and command master, with the master
-in its own CSR bank, and the serial device is the sibling service-budget
-harness's native model (fw_service_budget/flash.hpp).
+LiteSPI's crossbar, memory-mapped reader and command master, in one CSR bank
+as add_spi_flash builds it, and the serial device is the sibling
+service-budget harness's native model (fw_service_budget/flash.hpp).
 """
 from __future__ import annotations
 
@@ -45,11 +50,13 @@ from unittest.mock import patch
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 CAPTURE = ROOT / 'tb/verilator/nvm_capture_cpu'
-FIXTURE_GEN = ROOT / 'sw/firmware/ctrl_nvm/test/rv32/generated'
 CSR_BANK_BYTES = 0x800
+#: Where build.flash_map writes the flash port's map, under the build directory.
+FLASH_MAP = Path('split-soc/flash-map')
 sys.path.insert(0, str(CAPTURE))
 import soc as capture_soc  # noqa: E402  the capture harness's simulation, read only
 from migen import ClockSignal, If, Instance, ResetSignal, Signal  # noqa: E402
+from litex.soc.interconnect.csr import CSRStorage  # noqa: E402
 from litex.build.generic_platform import Pins, Subsignal  # noqa: E402
 from litex.build.sim.config import SimConfig  # noqa: E402
 from litex.gen import LiteXModule  # noqa: E402
@@ -60,18 +67,16 @@ from litex.soc.interconnect import stream, wishbone  # noqa: E402
 from litex.tools.litex_sim import Platform  # noqa: E402
 from litespi import LiteSPI  # noqa: E402
 from litespi.common import spi_core2phy_layout, spi_phy2core_layout  # noqa: E402
-from litespi.core.master import LiteSPIMaster  # noqa: E402
 from litespi.modules import N25Q128A13  # noqa: E402
 from litespi.opcodes import SpiNorFlashOpCodes as SpiCodes  # noqa: E402
 
 milan_soc = capture_soc.milan_soc
-#: The fixture's register offsets, in the order its csr.h writes them.
-MASTER_LAYOUT = ([0x0, 0x4, 0x8], ['0xc'])
-TIMER_LAYOUT = [('load', '0x0'), ('reload', '0x4'), ('en', '0x8'), ('update_value', '0xc'), ('value', '0x10')]
 
 
-def fixture_addresses() -> dict[str, int]:
-    """The placeholder addresses the unmodified image is compiled against."""
+def fixture_addresses(flash_map: Path) -> dict[str, int]:
+    """Where the image addresses each device: the mailbox at the fixture's placeholder, and the
+    flash port's devices (the spiflash and timer0 CSR banks, the flash window) where the split
+    SoC puts them, as gen_flash_port.py wrote them into flash_map."""
     sys.path.insert(0, str(ROOT / 'sw/firmware/ctrl/test'))
     sys.path.insert(0, str(ROOT / 'sw/firmware/gtest'))
     import ctrl_build
@@ -80,30 +85,26 @@ def fixture_addresses() -> dict[str, int]:
         match = re.fullmatch(r'-DCTRL_MBX_BASE=(0x[0-9a-fA-F]+)u?', flag)
         if match:
             found['mailbox'] = int(match.group(1), 16)
-    csr_h = (FIXTURE_GEN / 'csr.h').read_text()
-    mem_h = (FIXTURE_GEN / 'mem.h').read_text()
-    for key, text, name in (('master', csr_h, 'CSR_SPIFLASH_MASTER_BASE'),
-                            ('timer0', csr_h, 'CSR_TIMER0_BASE'),
-                            ('flash', mem_h, 'SPIFLASH_BASE'),
-                            ('flash_size', mem_h, 'SPIFLASH_SIZE')):
-        values = re.findall(rf'#define {name}\s+(0x[0-9a-fA-F]+)u', text)
-        if len(values) != 1:
-            raise RuntimeError(f'fixture address {name} is not defined exactly once')
-        found[key] = int(values[0], 16)
-    # The master's four registers in the fixture's order, one 32-bit word each.
-    base = r'CSR_SPIFLASH_MASTER_BASE \+ (0x[0-9a-f]+)u'
-    offsets = [int(v, 16) for v in re.findall(
-        r'spiflash_master_(?:cs|phyconfig|rxtx)_write\(uint32_t v\) \{ csr_wr\(' + base, csr_h)]
-    status = re.findall(r'spiflash_master_status_read\(void\) \{ return csr_rd\(' + base, csr_h)
-    if (offsets, status) != MASTER_LAYOUT:
-        raise RuntimeError('fixture LiteSPI master layout is not cs, phyconfig, rxtx, status')
-    timer = re.findall(r'timer0_(\w+)_(?:write|read)\((?:uint32_t v|void)\) \{ (?:return )?'
-                       r'csr_(?:wr|rd)\(CSR_TIMER0_BASE \+ (0x[0-9a-f]+)u', csr_h)
-    if timer != TIMER_LAYOUT:
-        raise RuntimeError('fixture timer0 layout is not load, reload, en, update_value, value')
-    if set(found) != {'mailbox', 'master', 'timer0', 'flash', 'flash_size'}:
-        raise RuntimeError(f'fixture addresses incomplete: {sorted(found)}')
+    port = json.loads((flash_map / 'flash_port.json').read_text())
+    found.update(spiflash=port['banks']['spiflash'], timer0=port['banks']['timer0'],
+                 flash=port['flash']['base'], flash_size=port['flash']['size'])
+    if set(found) != {'mailbox', 'spiflash', 'timer0', 'flash', 'flash_size'}:
+        raise RuntimeError(f'device addresses incomplete: {sorted(found)}')
     return found
+
+
+def map_deviations(csr_csv: str, flash_map: Path) -> list[str]:
+    """Each register the flash port uses, and the flash window, that this SoC's csr.csv places
+    elsewhere than the split SoC's map; empty when every one is where the image addresses it."""
+    port = json.loads((flash_map / 'flash_port.json').read_text())
+    rows = [line.split(',') for line in csr_csv.splitlines() if not line.startswith('#')]
+    registers = {r[1]: int(r[2], 16) for r in rows if r[0] == 'csr_register'}
+    windows = [(int(r[2], 16), int(r[3])) for r in rows if r[0] == 'memory_region' and r[1] == 'spiflash']
+    out = [f'{name} is at {hex(registers[name]) if name in registers else "no address"}, the split SoC at {want:#x}'
+           for name, want in port['registers'].items() if registers.get(name) != want]
+    if windows != [(port['flash']['base'], port['flash']['size'])]:
+        out.append(f"the flash window is {windows}, the split SoC's {port['flash']}")
+    return out
 
 
 def mailbox_sources(n_if: int, gen_dir: Path) -> list[Path]:
@@ -328,12 +329,18 @@ def ack_deviations(contract: object, n_if: int = 2) -> list[str]:
 
 
 class FlashBoundary(LiteXModule):
-    """The LiteSPI PHY's endpoint on pads; the native model is the serial device."""
+    """The LiteSPI PHY's endpoint on pads; the native model is the serial device.
 
-    def __init__(self, pads: object, module: object) -> None:
+    It holds the generic PHY's two CSRs, its clock divisor and SPI mode, so the
+    spiflash bank is laid out as the split SoC's; the native model's byte timing
+    reads neither."""
+
+    def __init__(self, pads: object, module: object, divisor: int) -> None:
         self.flash = module
         self.sink = stream.Endpoint(spi_core2phy_layout)
         self.source = stream.Endpoint(spi_phy2core_layout)
+        self.clk_divisor = CSRStorage(len(self.sink.clk_div), reset=divisor)
+        self.mode = CSRStorage(2, reset=0)
         self.cs = Signal()
         self.dummy_bits = Signal(8)
         self.comb += [pads.cs.eq(self.cs), pads.tx_valid.eq(self.sink.valid),
@@ -344,28 +351,27 @@ class FlashBoundary(LiteXModule):
 
 
 def add_devices(soc: object, platform: object, addresses: dict[str, int], contract: object, n_if: int) -> None:
-    """The mailbox, the flash and timer0, each where the fixture addresses it."""
+    """The mailbox where the fixture addresses it; the flash and timer0 in the split SoC's banks and
+    window. The flash is add_spi_flash's (milan_soc.py: mode 1x, 12.5 MHz, with its command master)
+    with the native model as its PHY."""
     soc.ctrl_mbx = StimulusMailbox(platform.request('mbx'), soc.sys_clk_freq, contract, n_if)
     soc.bus.add_slave('ctrl_mbx', soc.ctrl_mbx.bus, region=SoCRegion(
         origin=addresses['mailbox'], size=contract.window_bytes, cached=False))
     module = N25Q128A13(SpiCodes.READ_1_1_1_FAST)
     if module.total_size != addresses['flash_size']:
-        raise RuntimeError('fixture flash window size differs from the shipping part')
-    phy = FlashBoundary(platform.request('flash'), module)
-    spiflash = LiteSPI(phy, mmap_endianness=soc.cpu.endianness, with_master=False)
+        raise RuntimeError("the split SoC's flash window size differs from the shipping part")
+    csr_base = soc.mem_map['csr']
+    for name in ('spiflash', 'timer0'):
+        if (addresses[name] - csr_base) % CSR_BANK_BYTES:
+            raise RuntimeError(f"the split SoC's {name} bank is not at a CSR bank boundary")
+    divisor = -(-int(soc.sys_clk_freq) // int(12.5e6))
+    phy = FlashBoundary(platform.request('flash'), module, divisor + divisor % 2)
+    spiflash = LiteSPI(phy, mmap_endianness=soc.cpu.endianness, with_master=True)
     spiflash.add_module(name='phy', module=phy)
-    master = LiteSPIMaster(tx_fifo_depth=1, rx_fifo_depth=1, cs_width=len(phy.cs))
-    port = spiflash.crossbar.get_port(master.cs)
-    spiflash.comb += [port.source.connect(master.sink), master.source.connect(port.sink)]
+    soc.csr.add('spiflash', n=(addresses['spiflash'] - csr_base) // CSR_BANK_BYTES)
     soc.add_module(name='spiflash', module=spiflash)
     soc.bus.add_slave(name='spiflash', slave=spiflash.bus, strip_origin=True, region=SoCRegion(
         origin=addresses['flash'], size=module.total_size, mode=spiflash.bus.mode + 'x'))
-    csr_base = soc.mem_map['csr']
-    for name in ('master', 'timer0'):
-        if (addresses[name] - csr_base) % CSR_BANK_BYTES:
-            raise RuntimeError(f'fixture {name} is not at a CSR bank boundary')
-    soc.csr.add('spiflash_master', n=(addresses['master'] - csr_base) // CSR_BANK_BYTES)
-    soc.add_module(name='spiflash_master', module=master)
     soc.csr.add('timer0', n=(addresses['timer0'] - csr_base) // CSR_BANK_BYTES)
     soc.add_timer('timer0')
 
@@ -439,7 +445,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
     which reproduces the generator's rom decode defect (a control).
     fetch_l1 selects the CPU's instruction cache (fetch_l1_geometry).
     """
-    addresses = fixture_addresses()
+    addresses = fixture_addresses(build_dir / FLASH_MAP)
     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
     clocks, params = cfg['constraints'], cfg['soc']
     contract = milan_soc.ctrl_mailbox_contract()
@@ -468,6 +474,9 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, cpu_regions: str = 
         sim_config.add_clocker('sys_clk', freq_hz=sys_hz)
         sim_config.add_clocker('milan_clk', freq_hz=cpu_hz)
         builder.build(run=False, sim_config=sim_config)
+    deviations = map_deviations((build_dir / 'csr.csv').read_text(), build_dir / FLASH_MAP)
+    if deviations:
+        raise RuntimeError(f"the test SoC does not place the flash port's devices as the split SoC does: {deviations}")
     spec = {
         'sources': [str(Path(s[0]).resolve()) for s in soc.platform.sources],
         'includes': soc.platform.verilog_include_paths,

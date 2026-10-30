@@ -7,10 +7,13 @@ change, with no OS and no heap. Every buffer is a static array sized from the
 entity shape at build time. It is the firmware side of the #70 saved-state
 design ([backing store](../../../docs/design/SAVED_STATE_FASTCONNECT.md),
 [materialization](../../../docs/design/SAVED_STATE_MATERIALIZATION.md)) for
-the Mark II split of #665. Nothing here is linked into any image yet: the
-store sits behind the #665 build switch, whose default is the all-fabric
-build, and the shipping writer in
-[`milan_baremetal`](../milan_baremetal/milan_baremetal.c) is unchanged.
+the Mark II split of #665. No shipping image links it yet: the split
+placement's size fixture does, behind the #665 build switch, whose default is
+the all-fabric build, and the shipping writer in
+[`milan_baremetal`](../milan_baremetal/milan_baremetal.c) is unchanged. On the
+split CPU the store boots and commits through the fixture's own owners, its
+flash port on the split SoC's generated map
+([`nvm_split_target`](../../../tb/verilator/nvm_split_target/README.md)).
 
 `python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --self-test`
 is the gate. Exit 0 means every check passed on every shipped shape, each
@@ -30,10 +33,10 @@ is an integration obligation, not a target-time result established here.
 - **[The flash port](#the-flash-port)** -- Five calls, two implementations, a local time base, bounded waits and calls, and the seam with F0's mailbox HAL.
 - **[Boot](#boot)** -- Each slot judged on as few as one read, the newer one staged, re-judged and applied in two walks, and the writer held while a slot is unread.
 - **[Write-back](#write-back)** -- One bounded step per service call: capture, seal, erase, blank check, program, read back.
-- **[The service bound](#the-service-bound)** -- What one step can cost, what is asserted, what is derived, and on what assumptions.
+- **[The service bound](#the-service-bound)** -- What one step can cost, what is asserted, the capture's time by the owner's decision, what the split CPU measures, and on what assumptions.
 - **[Static sizes](#static-sizes)** -- What each shipped shape costs, measured on the RV32I build.
 - **[The host suite](#the-host-suite)** -- Forty-two checks per shape at its own clock, 29 of them on both ports, the power-cut sweep and the planted defects.
-- **[What this does not prove](#what-this-does-not-prove)** -- The board, the generated headers, the switch, and a read fault that repeats itself exactly.
+- **[What this does not prove](#what-this-does-not-prove)** -- The board, the host suite's maps, a shipping image, the owners on the host, and a read fault that repeats itself exactly.
 
 ## Layout
 
@@ -44,7 +47,7 @@ is an integration obligation, not a target-time result established here.
 | [`nvm_flash.h`](nvm_flash.h) | the flash port |
 | [`nvm_state.h`](nvm_state.h) | the state port: where a saved value is applied and a changed one latched |
 | [`nvm_store.c`](nvm_store.c) | the boot restore and the write-back |
-| [`plat/`](plat) | the LiteSPI flash port and the target's constants header |
+| [`plat/`](plat) | the LiteSPI flash port, the target's constants header, and the generator of the port's map from a split SoC's `csr.csv` |
 | [`host/`](host) | the flash model with its faults, the LiteSPI command-master model, the state model |
 | [`test/`](test) | the scenario runner, the checks, the planted defects and the RV32 arm |
 
@@ -60,7 +63,11 @@ a media fault, never a verdict on the bytes.
   implementation, ported from the shipping writer's access code: reads
   through the memory-mapped QSPI window; write enable, page program, sector
   erase and status through the LiteSPI command master. It refuses a program
-  or erase outside the reserved journal.
+  or erase outside the reserved journal. In the split image its command
+  master, `timer0` and flash window are the split SoC's own, generated from
+  that SoC's `csr.csv` by [`plat/gen_flash_port.py`](plat/gen_flash_port.py),
+  which also refuses a SoC whose journal is not the one the store is built
+  with. The host suite and the RV32 arm compile it against stand-ins.
 - [`host/nvm_fmodel.c`](host/nvm_fmodel.c) is the host flash model. It can
   cut the power inside any erase or page program, leaving the edge cells half
   way. It can also hang, refuse or fail an erase or a program, flip a
@@ -268,7 +275,7 @@ The atomicity rules, from section 7 and the D3 register:
 
 ## The service bound
 
-Four statements, each with what it rests on. MODEL time is what the host
+Five statements, each with what it rests on. MODEL time is what the host
 models charge: each byte on the 1x 12.5 MHz link costs 0.64 us, each CSR
 access to the command master costs 40 ns, and CPU work costs none of it.
 
@@ -312,8 +319,43 @@ access to the command master costs 40 ns, and CPU work costs none of it.
 
   Without the deadline, the every-wait case holds one call for 41,970 us of
   model time (the planted defect `call_deadline_ignored`).
-- **CPU time, not measured.** This store is in no image, so nothing ran it on
-  the CPU. What can be said:
+- **The capture's time, by the owner's decision of 2026-10-29 19:05 on
+  [#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6504551000)
+  (option (c)).**
+  - This store, the split writer F1, is not held to D5's 24.5 ms capture
+    bound. It holds no owner while it captures, and a change behind its
+    cursor opens its own window (DR2a), so the hold the bound protects does
+    not exist in the split.
+  - Each step stays bounded by T_svc, under
+    [FR_NFR 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing)
+    as amended (20 ms, graded per family).
+  - The total capture time has no bound of its own. It is measured and
+    recorded. A power loss inside it loses at most the unsaved change,
+    because the previous slot stays valid (the torn-slot boot cases).
+  - The 24.5 ms bound covers the current flash writer's capture only: the
+    product firmware's, half its guaranteed 49 ms hold floor.
+    `scripts/check_nvm_capture.py` keeps it, and its 8x8 maximum of
+    13.863 ms stays gated.
+- **CPU time, measured on the split CPU.** The split placement's size
+  fixture links the store, and
+  [`nvm_split_target`](../../../tb/verilator/nvm_split_target/README.md#results)
+  runs it on the CPU budget harness's test SoC: the shipping VexiiRiscv at
+  50 MHz with the split's instruction cache, its block RAM, and LiteSPI on
+  the split SoC's map, the bus at 100 MHz. Every figure below is at those
+  clocks, which each run's results carry. What it shows:
+  - every step, of a commit and of every boot case, is within T_svc, graded
+    against the CPU budget harness's `T_SVC_MS`. That is still the 10 ms
+    proposal at this base, under every family's bound at the approved 20 ms.
+    The longest step is 2.64 ms at 8x8, the capture of a 576-byte map record,
+    and 2.02 ms at 1x1, a page program;
+  - the capture of a full work set, every record latched from its owner,
+    takes 1,361,143 CPU cycles (27.22 ms) at 1x1 and 5,161,328 (103.23 ms) at
+    8x8, spread over 0.53 s and 1.64 s elapsed at one record a 10 ms tick.
+    Both are recorded, not bounded (above). A capture step costs about 11,062
+    cycles at 1x1 and 16,500 at 8x8 before its record, mostly the port's
+    64-bit clock conversion, and about 264 and 206 cycles a payload byte. The
+    current flash writer copies 13,210 bytes at 8x8 in 13.86 ms, holding its
+    owners while it does;
   - a port call on chip is held to its own deadline, which is `timer0` time
     and so real time. A call still waiting on the master 2,000 us after it
     began fails within 64 more status reads, two timer reads and the
@@ -321,16 +363,7 @@ access to the command master costs 40 ns, and CPU work costs none of it.
     ready pace, at most the rest of one page program. That holds whatever a
     CSR access costs, provided `timer0` runs as "The flash port" requires.
     If it does not run, only the per-wait limit is left, and each of a page
-    program's 522 waits and two drains could take 4,096 reads;
-  - the store's own work in one step is DERIVED, as a floor only. The
-    longest is the capture of the largest record. At the capture receipt's
-    measured 1.05 us per captured byte
-    (`tb/verilator/nvm_capture_cpu/measurements.json`: the shipping writer's
-    copy of 13,210 bytes at 8x8 and 50 MHz in 13.86 ms), 1,158 bytes cost
-    about 1.2 ms. This store's copy, compare and crc16 do more work per
-    byte than that copy loop, so the figure is a floor and no ceiling is
-    claimed for it. Measuring it needs the store linked into an image behind
-    F0's switch.
+    program's 522 waits and two drains could take 4,096 reads.
 
 ## Static sizes
 
@@ -485,7 +518,8 @@ The three related defects restore `end` or shift `loaded`.
 ## What this does not prove
 
 - The board: the real LiteSPI timing, a real power cut, the real N25Q128.
-- The CPU time of a step: it is derived above, not measured.
+  The split CPU's figures are a simulation's, with a flash model whose
+  erase and program waits are zero.
 - A read fault that repeats itself exactly. Two reads of a slot that return
   the same bytes are taken as its content. A fault that corrupts a valid
   slot the same way on every boot read, without the port reporting it,
@@ -497,14 +531,15 @@ The three related defects restore `end` or shift `loaded`.
   CRC-32. It always tells apart two reads that differ in one or two bits,
   or only within 32 consecutive bits. Reads that differ in any other way
   are told apart except with a probability of about 2^-32.
-- The LiteX-generated headers: the RV32 arm compiles against MMIO stand-ins
-  for the CSR and memory maps (`test/rv32/`), and the host suite against
-  models of the command master and `timer0`. Only the clock is each shape's
-  own.
-- The #665 switch and its link: F0's switch is not merged, so no image links
-  this store.
-- The owners: the state model stands in for the AECP and map stores of F5.
-  The binding group's owner is F3's
-  [`acmp_nvm.c`](../ctrl/acmp/acmp_nvm.c); its arm `acmpnvm` in
-  [`../ctrl/test/`](../ctrl/test/) boots it from this store. No image links
-  the two either.
+- The host suite's and the RV32 arm's maps: they compile against MMIO
+  stand-ins for the CSR and memory maps (`test/rv32/`), and the host suite
+  against models of the command master and `timer0`. Only the clock is each
+  shape's own. The split image's port is compiled against the map generated
+  from the split SoC's `csr.csv`.
+- A shipping image: only the split placement's size fixture links this store.
+- The owners on the host: the state model stands in for the AECP and map
+  stores of F5, and the binding group's owner is F3's
+  [`acmp_nvm.c`](../ctrl/acmp/acmp_nvm.c), whose arm `acmpnvm` in
+  [`../ctrl/test/`](../ctrl/test/) boots it from this store. On the split
+  CPU the fixture's own owners, `acmp_nvm.c` over `aecp_nvm.c`, restore and
+  latch every record.

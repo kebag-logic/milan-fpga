@@ -705,11 +705,13 @@ def reuse_checks() -> list[Check]:
         root = Path(tmp)
         bdir, external, tree = root / 'build', root / 'litex' / 'netlist.v', root / 'firmware'
         files = {'image/ctrl_app.elf': b'elf', 'gateware/sim_rom_bank0.init': b'00000013\n', 'gateware/sim.v': b'v',
-                 'runtime/libc.a': b'a', 'native/Vsim': b'model', 'budget_config.hpp': b'h'}
+                 'runtime/libc.a': b'a', 'native/Vsim': b'model', 'budget_config.hpp': b'h',
+                 **{f'split-soc/flash-map/{name}': b'map' for name in build.FLASH_MAP_FILES}}
         for name, data in {**files, '../litex/netlist.v': b'cpu', '../firmware/adp.c': b'c'}.items():
             (bdir / name).parent.mkdir(parents=True, exist_ok=True)
             (bdir / name).write_bytes(data)
         spec = dict(elf=str(bdir / 'image/ctrl_app.elf'), sources=[str(bdir / 'gateware/sim.v'), str(external)],
+                    flash_map=str(bdir / 'split-soc/flash-map'),
                     shape='endstation_ax7101_1x1_tdm8', executable_sha256=hashlib.sha256(b'model').hexdigest())
 
         def attempt(edit: Callable[[], None]) -> str:
@@ -737,6 +739,8 @@ def reuse_checks() -> list[Check]:
         for name, edit, word in (
                 ('the image', lambda: (bdir / 'image/ctrl_app.elf').write_bytes(b'elf2'), 'changed'),
                 ('a ROM file', lambda: (bdir / 'gateware/sim_rom_bank0.init').write_bytes(b'0000006f\n'), 'changed'),
+                ("the flash port's map", lambda: (bdir / 'split-soc/flash-map/flash_port.json').write_bytes(b'map2'),
+                 'changed'),
                 ('the SoC Verilog', lambda: (bdir / 'gateware/sim.v').write_bytes(b'v2'), 'changed'),
                 ('the CPU netlist', lambda: external.write_bytes(b'cpu2'), 'changed'),
                 ('a firmware source', lambda: (tree / 'adp.c').write_bytes(b'c2'), 'changed'),
@@ -853,11 +857,14 @@ def built(bdir: Path, *flags: str) -> tuple[str, dict]:
     build.json are run.main's and build.build's own.
     """
     soc = types.ModuleType('split_soc')
-    soc.fixture_addresses = lambda: {'flash': 0x20000000}
+    soc.FLASH_MAP = Path('split-soc/flash-map')
+    soc.fixture_addresses = lambda flash_map: {'flash': 0x01000000}
     soc.build = lambda build_dir, shape, elf, n_if, cpu_regions, fetch_l1: dict(
         sources=[], shape=shape, interfaces=n_if, cpu_regions=cpu_regions, fetch_l1=fetch_l1)
     soc.ledgered_plan = lambda name: contextlib.nullcontext()
     stubs = dict(
+        flash_map=lambda generated, shape: [write(generated / name, b'map') for name in build.FLASH_MAP_FILES]
+        and generated,
         firmware=lambda out, *a: write(out / 'image/ctrl_app.elf', b'elf'),
         xip_image=lambda out, elf, window: (write(out / 'xip/ctrl_app.elf', b'xip'),
                                             write(out / 'xip/ctrl_app_rom.elf', b'rom'),

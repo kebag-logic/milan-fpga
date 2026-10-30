@@ -92,6 +92,7 @@ class Log:
     rxc: list[tuple[int, int, int, str, int]] = field(default_factory=list)  # cycle, channel, interface, tag, bytes
     refused: list[tuple[int, int, str, int]] = field(default_factory=list)   # last byte, interface, tag, bytes
     entries: list[tuple[int, str]] = field(default_factory=list)            # cycle, function entered
+    traced: list[tuple[str, ...]] = field(default_factory=list)              # SPAN and CALL lines' fields
     pads: list[tuple[int, str, int]] = field(default_factory=list)
     records: list[tuple[int, list[int]]] = field(default_factory=list)
     writes: list[tuple[int, int, int]] = field(default_factory=list)
@@ -154,6 +155,9 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.rxc.append((cycle, int(rest[1]), *owner(pending_rx, cycle, log.refused)))
         elif kind == 'ENTRY':
             log.entries.append((int(rest[0]), rest[1]))
+        elif kind in ('SPAN', 'CALL'):
+            # The saved-state store's traced calls (#665): nvm_split_target grades them; this grader reads none.
+            log.traced.append((kind, *rest))
         elif kind in ('LINK', 'GM'):
             log.pads.append((int(rest[0]), kind, int(rest[1])))
         elif kind == 'EVW':

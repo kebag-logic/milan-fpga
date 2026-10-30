@@ -175,6 +175,10 @@ OUTSIDE = {
                                            "its own compiles build the boot SoC's Verilator model",
     "sw/firmware/ctrl_nvm/test/nvm_mutants.py": "the saved-state store campaign's planted defects, which "
                                                 "test_ctrl_nvm.py compiles; it compiles nothing",
+    "sw/firmware/ctrl_nvm/plat/gen_flash_port.py": "writes the flash port's register and memory map from a split "
+                                                   "SoC's csr.csv (#665); its self-test compiles a probe of the "
+                                                   "headers it writes with the host compiler, no firmware or stack "
+                                                   "source",
     "sw/firmware/ctrl/test/ctrl_reuse.py": "cuts the processor's sources into fragments the arms compile; it "
                                            "compiles nothing",
     "sw/firmware/ctrl/test/srp_reuse.py": "cuts the processor's SRP sources into fragments the SRP arms compile; it "
@@ -201,8 +205,11 @@ OUTSIDE = {
                                                  "arm's image to fixture_variant.py and its runtime to runtime_ssp.py, "
                                                  "and the hybrid-XIP arm's relink of the image's objects to "
                                                  "ctrl_srp_image.link, which compiles the split layout's reset entry "
-                                                 "from an unchanged copy and changes only the linker script; its own "
-                                                 "compiles build the test SoC's Verilator model",
+                                                 "from an unchanged copy and changes only the linker script; the "
+                                                 "split SoC's export, for the flash port's map, to milan_soc.py and "
+                                                 "gen_flash_port.py, and a planted copy of the saved-state store's "
+                                                 "tree to ctrl_srp_image.py; its own compiles build the test SoC's "
+                                                 "Verilator model",
     "tb/verilator/ctrl_service_budget/runtime_ssp.py": "runs ctrl_image_runtime.py with -fno-stack-protector on its "
                                                        "compiles (#723): the bare-metal runtime from picolibc's and "
                                                        "compiler-rt's sources outside the checkout, no firmware or "
@@ -212,9 +219,12 @@ OUTSIDE = {
     "tb/verilator/ctrl_service_budget/selftest.py": "the harness's grader self-test; it reads AECP_REGISTRATIONS from "
                                                     "aecp.h and compiles nothing",
     "tb/verilator/ctrl_service_budget/split_soc.py": "exports the test SoC with LiteX, its software and gateware "
-                                                     "compiles off, and reads the image's placeholder addresses from "
-                                                     "ctrl_build.RV32_FLAGS and the store's generated headers; it "
-                                                     "compiles no firmware or stack source",
+                                                     "compiles off, and reads the image's placeholder mailbox address "
+                                                     "from ctrl_build.RV32_FLAGS and the flash port's generated map; "
+                                                     "it compiles no firmware or stack source",
+    "tb/verilator/nvm_split_target/target_cases.py": "the saved-state cases' arms and planted defects on the split "
+                                                     "CPU (#665), which the CPU budget harness's build.py builds; it "
+                                                     "compiles nothing",
 }
 #: The builders found by text that compile only in a suite, which a suite builder's build-only run does not run,
 #: each with what it compiles there. The builds compile every source of the checkout these compile, against the

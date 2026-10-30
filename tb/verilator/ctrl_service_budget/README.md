@@ -126,20 +126,23 @@ That is a CI change, outside this lane.
   It refuses the build if the bound is not the firmware's `MBX_FACE_ACK_CYCLES`, or if any commit is not acknowledged by exactly one pulse at the bound (`split_soc.ack_deviations`).
   The build refuses a mailbox instance that leaves a port unconnected: Verilator reports it as PINMISSING, which `-Wno-fatal` would let pass.
   At two interfaces the RTL is `gen_mailbox.py`'s variant, written into the build directory.
-- **The flash** keeps LiteSPI's crossbar, memory-mapped reader and command master.
+- **The flash** keeps LiteSPI's crossbar, memory-mapped reader and command master, in one CSR bank as `add_spi_flash` builds it.
   The serial device is [`fw_service_budget/flash.hpp`](../fw_service_budget/flash.hpp) with that harness's byte timing.
 - **timer0** is LiteX's timer.
 
-The linked image is a size fixture with placeholder bus addresses.
-The SoC puts each device where the unmodified image addresses it, read from the fixture's own sources:
+The linked image is a size fixture.
+Its saved-state flash port is compiled against the split SoC's own map ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6493622258)): `build.flash_map` exports `milan_soc.py --ctrl-mailbox --ctrl-firmware` for the point's config, and [`gen_flash_port.py`](../../../sw/firmware/ctrl_nvm/plat/gen_flash_port.py) writes the command master's, `timer0`'s and the flash window's addresses from that export's `csr.csv` (`ctrl_srp_image.py --flash-map`).
+The SoC places those devices from the same map, its `spiflash` bank laid out as the split SoC's, and refuses a build whose own `csr.csv` places a register the port uses, or the flash window, elsewhere (`split_soc.map_deviations`).
+The mailbox's address is still a placeholder, read from the fixture's own sources:
 
 | Device | The image addresses it at | The product SoC maps it at |
 |---|---|---|
 | Mailbox window | `0x8000_0000` (`ctrl_build.py`, `CTRL_MBX_BASE`) | `0x9010_0000` (`CTRL_MBX_BASE`, `milan_soc.py`) |
-| LiteSPI command master | `0xf000_3000` (`ctrl_nvm/test/rv32/generated/csr.h`) | `0xf000_2810` |
-| timer0 | `0xf000_3800` | `0xf000_3000` |
-| Flash window | `0x2000_0000` (`generated/mem.h`) | `0x0100_0000` |
+| LiteSPI command master | `0xf000_2810` (the generated map) | `0xf000_2810` |
+| timer0 | `0xf000_3000` (the generated map) | `0xf000_3000` |
+| Flash window | `0x0100_0000` (the generated map) | `0x0100_0000` |
 
+The figures in [Results](#results) and [The instruction cache](#the-instruction-cache) were measured with the flash port on the RV32 stand-ins' placeholders (`ctrl_nvm/test/rv32/generated`: the master at `0xf000_3000`, `timer0` at `0xf000_3800`, the window at `0x2000_0000`).
 Each reaches the same kind of device over the same peripheral bus in both maps, so the address does not change an access's cost.
 `--ctrl-mailbox` leaves the CSR map unchanged ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#4-boot-console-and-diagnostics)).
 
@@ -191,6 +194,8 @@ A pass runs from one committed entry of `ctrl_loop_service` to the next.
 The script's end cuts the pass in progress short, so the run of idle passes it flushes is no idle pass's figure.
 A mailbox access is timed at the CPU's load/store bus, from command to response.
 Instruction fetches are counted at the CPU's fetch bus, by region.
+The testbench also prints, passively, a SPAN line for every call of the saved-state store's boot and service step (entry to the commit of its return address) and a CALL line for every entry of the state port's owners and of the flash port's calls (`build.SPAN_SYMBOLS`, `build.CALL_SYMBOLS`).
+This grader reads none of them; [`nvm_split_target`](../nvm_split_target/README.md) grades them.
 Without the cache a fetch is one word; with it, one 64-byte line refill, whose wait runs to its last beat.
 
 One phase is one sample.
@@ -577,7 +582,8 @@ Every window committed exactly its defined load (the run refuses one that did no
    In the firmware of `e76a755a`, the image's first call above 0x8000 (`jal aecp_image_load`, 0x6880 to 0xb1ec) took an instruction access fault, cause 1, trapped to 0 and restarted, forever.
    At this head the 1x1 image's `.data` load image is at 0x197b0, which has bit 15 set, so the start code's first copy load (`lw` at 0x24, `ctrl_split_start.S`) takes a load access fault first, cause 5, and restarts the same way.
 2. **The linked image addresses placeholders**, not the split SoC (the address table above).
-   S3's target firmware owns the real addresses.
+   At this head only the mailbox's is; the flash port's are generated from the split SoC's `csr.csv`.
+   The target platform firmware owns the mailbox's.
 3. **#723 is open**: the runtime recipe builds without `-fno-stack-protector` and the image does not link.
    [`runtime_ssp.py`](runtime_ssp.py) runs it unchanged with that one flag.
 
@@ -1014,7 +1020,7 @@ The same run with the generator handed the regions' cover, so that the CPU decod
 - The lock expiry's notice (60 s after a LOCK_ENTITY) and the counter pushes are not run: the first is beyond the simulation's length, and the fixture changes no counter.
 - The fixture's sources are never allocated, so a Listener Ready grants no licence; that path ends at the record's release.
 - Ends are mailbox commits; wire departure, ingress, egress and the network (H-ACMP's round trip) are not measured.
-- The flash's erase and program waits are zero, so F1's commit is measured as CPU work only; S4 owns the target port.
+- The flash's erase and program waits are zero, so F1's commit is measured as CPU work only; the saved-state store's cases on this SoC are [`nvm_split_target`](../nvm_split_target/README.md)'s.
 - There is no datapath, no DDR3 and no packet traffic besides the stimulus; the CPU's DMA port is idle.
 - The firmware polls (`CTRL_MBX_WFI` undefined), as the fixture is linked.
 - The two-interface fixture gives both interfaces the same MAC, as `ctrl_aecp_image.c` does.
