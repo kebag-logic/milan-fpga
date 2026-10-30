@@ -1,0 +1,24 @@
+Public evidence commit 83d9cd72166c918d2356e8690e1c5fdceae3b57f
+180 extracted receipt/script files match published manifest hashes.
+stream1 head cf3ef596507374c4f51afe941f133b596669011f
+stream1/C0: CLEAN; rc 0; []
+stream1/P1: KILLED; rc 2; ['#94 asCapable falls at link loss', '#94 asCapable falls when LINK_CTRL[0] withdraws the link', '#94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return', '#94 asCapable falls when the guard loses the receive clock']
+stream1/P2: KILLED; rc 2; ['#94 asCapable is TRUE before the link loss', '#94 asCapable is TRUE before LINK_CTRL[0] withdraws the link', '#94 asCapable is TRUE before the guard loses the receive clock']
+stream1/P3: KILLED; rc 2; ['#94 asCapable falls when LINK_CTRL[0] withdraws the link', '#94 asCapable falls when the guard loses the receive clock']
+stream1/P4: KILLED; rc 2; ['#94 asCapable falls when LINK_CTRL[0] withdraws the link']
+stream2 head cf3ef596507374c4f51afe941f133b596669011f
+stream2/C0: CLEAN; rc 0; []
+stream2/P5: KILLED; rc 2; ['#94 asCapable falls when the guard loses the receive clock']
+stream2/D1: KILLED; rc 2; ['#94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return']
+stream2/D2: KILLED; rc 2; ['#94 asCapable falls at link loss', '#94 asCapable falls when LINK_CTRL[0] withdraws the link', '#94 asCapable falls when the guard loses the receive clock']
+stream3 head cf3ef596507374c4f51afe941f133b596669011f
+stream3/C0: CLEAN; rc 0; []
+stream3/D3: KILLED; rc 2; ['#94 asCapable falls at link loss', '#94 asCapable falls when LINK_CTRL[0] withdraws the link', '#94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return', '#94 asCapable falls when the guard loses the receive clock']
+stream3/D4: KILLED; rc 2; ['#94 the cease countdown exit is unchanged: 5 s from the last request']
+stream3/D5: KILLED; rc 2; ['#94 the cease countdown exit is unchanged: 5 s from the last request']
+Changed since mutation/route/physical head cf3ef596 (documents only):
+CHANGELOG.md
+docs/design/AREA_BUDGET.md
+docs/guides/gptp/SYSTEM_INTEGRATOR.md
+docs/reference/SUBMODULES.md
+

@@ -1,0 +1,19 @@
+companion sha256 and bytes:
+aeeab9c8785d016c9cf7f062970034fa229c41d7849f06f8e7eb412af1ec5934
+17728
+
+file | pre-image index | dev 1e80128f blob | post-image index | commit a20f458e blob
+docs/design/GPTP_PLANE.md | 204afddd84 | 204afddd84 | 9eeee3af91 | 9eeee3af91
+gptp-processor | gitlink hunk 409c3075, excluded: commit f911adec sets 135afd04 (identical tree b552de22)
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv | 8d9c40df7d | 8d9c40df7d | 835400eabc | 835400eabc
+hdl/milan/milan_datapath.sv | 0b741c4d39 | 0b741c4d39 | 505ea2c05c | 505ea2c05c
+tb/verilator/gptp_plane/gptp_plane_wrap.sv | ae812ae0d4 | ae812ae0d4 | ee113fd81a | ee113fd81a
+tb/verilator/gptp_shadow/gptp_shadow_wrap.sv | f0748a54d0 | f0748a54d0 | a132da7123 | a132da7123
+tb/verilator/gptp_txts/gptp_txts_wrap.sv | 29ba0a12a4 | 29ba0a12a4 | 199f086490 | 199f086490
+tb/verilator/milan_dp/README.md | 9d09fff577 | 9d09fff577 | 3455d133c7 | 3455d133c7
+tb/verilator/milan_dp/sim_gptp.cpp | 6a115c899b | 6a115c899b | b01cf6bbda | b01cf6bbda
+
+git -C gptp-processor rev-parse 409c3075^{tree} 135afd04^{tree}:
+b552de2244475b15bfc430b683f8a4fe9c6a7db3
+b552de2244475b15bfc430b683f8a4fe9c6a7db3
+135afd04 parents: f97c18035be6ef5345e5af27db2124c5697c1b40 409c3075a6c5525d283de5a93584ad87a4528137

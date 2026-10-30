@@ -1,0 +1,41 @@
+Public comment reconciliation after INDEPENDENT-VERDICT.md was written.
+Snapshot time 2026-10-30T04:15:33.211074+00:00
+PR conversation comments: 2; submitted reviews: 0; inline review comments: 0.
+PR conversation contains only internal and external review-start notices. No prior published findings to resolve or retain.
+https://github.com/kebag-logic/milan-fpga/pull/813#issuecomment-6514699044 [A10] INDEPENDENT REVIEW STARTED: R735-1
+https://github.com/kebag-logic/milan-fpga/pull/813#issuecomment-6514705640 [A10] INDEPENDENT REVIEW STARTED: R736-1
+
+https://github.com/kebag-logic/milan-fpga/issues/806#issuecomment-6509895143
+[A10] **Assignment [A701]: adopt FPGA-gPTP main `135afd04` (#94 merged, PR #95) and wire portEnabled.** Release work.
+
+**Base:** dev `1e80128f`, which includes the f97c1803 adoption (#803, PR #805). Branch `806-adopt-gptp-135afd04`; the gPTP pin moves from `f97c1803` to `135afd04`.
+
+1. **Adoption.**
+   - Bump the gptp-processor gitlink to `135afd04`.
+   - Apply PR #95's parent companion (sha256 `aeeab9c8…`, the version reviewed at `409c3075`). Then review and finish it as milan-fpga code: `port_enabled_i` from `eff_link` (the link guard's `link_est_o` AND `LINK_CTRL[0]`), routed through `KL_gptp_shadow`.
+   - Regenerate every pin-derived record through its generator.
+2. **Tests,** in the `milan_dp` gptp legs, each check killed by a planted mutant:
+   - a link loss inside the cease ends it, and the first Pdelay_Req follows the link's return within one interval;
+   - asCapable falls at the link loss;
+   - the 5-minute exit is unchanged.
+
+   These are Milan v1.2 4.2.6.2.5 and IEEE 802.1AS-2011 10.2.4.11, Figure 11-8 with Cor1/Cor2.
+3. **Gates:** every consumer gate that reads the engine:
+   - the full sweep, as four shard units;
+   - milan_dp (`gptp`, `gptp-lat`), milan_dp_gptp, milan_dp_gm_steps;
+   - tsn_fuzz `ptp`;
+   - rtl-fast with `behave`;
+   - Yosys, lint, both idiom gates and the docs gates.
+4. **Area:** route-1x1, ooc-1x1 and ooc-8x8 against the current record; record the delta. STOP if the route does not fit, or if timing misses the build floor.
+5. **Records:** the submodule adoption table and the CHANGELOG.
+
+**Exit:** REVIEW READY with the head. PR-BODY uses "Closes #806" only once the in-house link-toggle gPTP scenario has passed on the built image; until then it uses "Relates to #806". #787 (REBOOT reset) is in flight in parallel: whichever merges second merges dev.
+
+
+https://github.com/kebag-logic/milan-fpga/issues/806#issuecomment-6514731297
+[A10] PR #813 is open at `f99405af`, and R735 and R736 are queued.
+
+The resource gate refuses route-1x1 on the WNS fall alone: +0.032 ns against the +0.440 ns record. The failing path is in the SoC `sys` domain, outside this change. This is not an owner decision. It is the #708 class of route miss, delegated to the manager, and the ruling is a logic cut with no floor or fall exception. The cut is #814 (A703, release priority).
+
+Once #814 merges, this lane merges dev and re-routes against the new record. A delta review then covers that round.
+

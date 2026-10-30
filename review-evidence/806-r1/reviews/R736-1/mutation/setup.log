@@ -1,0 +1,30 @@
+$ ['git', 'clone', '--shared', '<review-root>', '<packet>/scratch/wiring-probe']
+Cloning into '<packet>/scratch/wiring-probe'...
+done.
+$ ['git', 'checkout', '--detach', 'f99405af0b2caad46e84f50f8251ffbffaa80836']
+HEAD is now at f99405af0b Record the gPTP 135afd04 adoption on the pin page, the changelog and the slice-headroom sentence: FPGA-gPTP #94, route-1x1 175 LUTs under the twelfth record, 36 LUTs and 28 FFs over dev, 27 of 15,850 slices free, and the gate's refusal of its +0.032 ns WNS, 0.408 ns under the record (#806)
+$ ['git', 'config', 'submodule.gptp-processor.url', '<review-root>/gptp-processor']
+$ ['git', '-c', 'protocol.file.allow=always', 'submodule', 'update', '--init', 'gptp-processor']
+Cloning into '<packet>/scratch/wiring-probe/gptp-processor'...
+done.
+Submodule path 'gptp-processor': checked out '135afd043309369a87ddbc8d6550aff8ec52a157'
+$ ['git', 'config', 'submodule.protocol-processor.url', '<review-root>/protocol-processor']
+$ ['git', '-c', 'protocol.file.allow=always', 'submodule', 'update', '--init', 'protocol-processor']
+Cloning into '<packet>/scratch/wiring-probe/protocol-processor'...
+done.
+Submodule path 'protocol-processor': checked out 'f65c8ff7c673aaa8e2ea8da654f081ddb13588d8'
+$ ['git', 'config', 'submodule.third_party/verilog-axis.url', '<review-root>/third_party/verilog-axis']
+$ ['git', '-c', 'protocol.file.allow=always', 'submodule', 'update', '--init', 'third_party/verilog-axis']
+Cloning into '<packet>/scratch/wiring-probe/third_party/verilog-axis'...
+done.
+Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+$ ['git', 'config', 'submodule.third_party/lwSRP.url', '<review-root>/third_party/lwSRP']
+$ ['git', '-c', 'protocol.file.allow=always', 'submodule', 'update', '--init', 'third_party/lwSRP']
+Cloning into '<packet>/scratch/wiring-probe/third_party/lwSRP'...
+done.
+Submodule path 'third_party/lwSRP': checked out '08ee86e812a0eb5e1dc6cd61b494d8baf3491348'
+$ ['git', 'config', 'submodule.third_party/tsn-c-stack.url', '<review-root>/third_party/tsn-c-stack']
+$ ['git', '-c', 'protocol.file.allow=always', 'submodule', 'update', '--init', 'third_party/tsn-c-stack']
+Cloning into '<packet>/scratch/wiring-probe/third_party/tsn-c-stack'...
+done.
+Submodule path 'third_party/tsn-c-stack': checked out '70936b77dc41981e192438388cd0aced69954f18'
