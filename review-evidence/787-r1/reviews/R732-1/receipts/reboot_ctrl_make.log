@@ -1,0 +1,391 @@
+verilator --cc --exe --build -j 4 --top-module KL_reboot_ctrl -Wall -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=28"  --Mdir obj_dir ../../../hdl/milan/KL_reboot_ctrl.sv sim_main.cpp -o Vreboot_ctrl_sim
+make[1]: Entering directory '<packet>/scratch/t1/tb/verilator/reboot_ctrl/obj_dir'
+g++  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=28   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=28   -c -o verilated.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=28   -c -o verilated_threads.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_reboot_ctrl.cpp VKL_reboot_ctrl___024root__0.cpp VKL_reboot_ctrl__ConstPool__0__Slow.cpp VKL_reboot_ctrl___024root__Slow.cpp VKL_reboot_ctrl___024root__0__Slow.cpp VKL_reboot_ctrl__Syms__Slow.cpp > VKL_reboot_ctrl__ALL.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=28   -c -o VKL_reboot_ctrl__ALL.o VKL_reboot_ctrl__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_reboot_ctrl__ALL.a    -pthread -lpthread -latomic   -o Vreboot_ctrl_sim
+rm VKL_reboot_ctrl__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '<packet>/scratch/t1/tb/verilator/reboot_ctrl/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.055 MB sources in 2 modules, into 0.060 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 6.121 s (elab=0.001, cvt=0.008, bld=6.107); cpu 0.016 s on 4 threads; allocated 346.926 MB
+<packet>/scratch/t1/tb/verilator/reboot_ctrl/obj_dir/Vreboot_ctrl_sim 
+=== KL_reboot_ctrl: AECP REBOOT -> drain -> egress -> PHY hold -> IPROG (egress bound 28 ms) ===
+  [ ok ] U0 no request: no PHY hold, CSIB high and the dummy word for longer than every wait
+  [ ok ] U1 no writer: no PHY hold two clocks after the request got=0 exp=0
+  [i] U1 no writer, nothing in the MAC: from the request 13 clocks, bound (8, 18]
+  [ ok ] U1 no writer, nothing in the MAC: from the request the PHY hold rises more than one tick later
+  [ ok ] U1 no writer, nothing in the MAC: from the request ...and at most two ticks and the crossing later
+  [ ok ] U1 CSIB falls for the IPROG words
+  [ ok ] U1 the PHY hold stays up through the IPROG words
+  [ ok ] U1 the PHY hold stays up through the IPROG words
+  [ ok ] U1 the PHY hold stays up through the IPROG words
+  [ ok ] U1 the PHY hold stays up through the IPROG words
+  [ ok ] U1 the PHY hold stays up through the IPROG words
+  [ ok ] U1 the PHY hold stays up through the IPROG words
+  [ ok ] U1 the PHY hold stays up through the IPROG words
+  [ ok ] U1 the PHY hold stays up through the IPROG words
+  [ ok ] U1 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U1 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U1 the bus returns to the dummy word     got=0xffffffff exp=0xffffffff
+  [ ok ] U1 the PHY hold stays up after the words got=1 exp=1
+  [i] U1 hold 28008 clocks, bound (28000, 28008]
+  [ ok ] U1 the hold is longer than 3,500 ms
+  [ ok ] U1 the hold is at most one tick longer than 3,500 ms
+  [ ok ] U1 retry CSIB falls for the IPROG words
+  [ ok ] U1 retry the PHY hold stays up through the IPROG words
+  [ ok ] U1 retry the PHY hold stays up through the IPROG words
+  [ ok ] U1 retry the PHY hold stays up through the IPROG words
+  [ ok ] U1 retry the PHY hold stays up through the IPROG words
+  [ ok ] U1 retry the PHY hold stays up through the IPROG words
+  [ ok ] U1 retry the PHY hold stays up through the IPROG words
+  [ ok ] U1 retry the PHY hold stays up through the IPROG words
+  [ ok ] U1 retry the PHY hold stays up through the IPROG words
+  [ ok ] U1 retry eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U1 retry CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U1 retry the bus returns to the dummy word got=0xffffffff exp=0xffffffff
+  [ ok ] U1 retry the PHY hold stays up after the words got=1 exp=1
+  [ ok ] U1 retry: the IPROG words repeat after another hold of more than 3,500 ms
+  [i] U2 durable, nothing in the MAC: from the request 17 clocks, bound (8, 18]
+  [ ok ] U2 durable, nothing in the MAC: from the request the PHY hold rises more than one tick later
+  [ ok ] U2 durable, nothing in the MAC: from the request ...and at most two ticks and the crossing later
+  [ ok ] U2 CSIB falls for the IPROG words
+  [ ok ] U2 the PHY hold stays up through the IPROG words
+  [ ok ] U2 the PHY hold stays up through the IPROG words
+  [ ok ] U2 the PHY hold stays up through the IPROG words
+  [ ok ] U2 the PHY hold stays up through the IPROG words
+  [ ok ] U2 the PHY hold stays up through the IPROG words
+  [ ok ] U2 the PHY hold stays up through the IPROG words
+  [ ok ] U2 the PHY hold stays up through the IPROG words
+  [ ok ] U2 the PHY hold stays up through the IPROG words
+  [ ok ] U2 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U2 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U2 the bus returns to the dummy word     got=0xffffffff exp=0xffffffff
+  [ ok ] U2 the PHY hold stays up after the words got=1 exp=1
+  [ ok ] U2 the hold is longer than 3,500 ms and at most one tick more
+  [i] U2 durable: request to the IPROG word 28031 clocks, bound 28248
+  [ ok ] U2 durable: the IPROG word comes inside the stated bound
+  [ ok ] U3 dirty work with a live writer: no PHY hold and no IPROG for 4,000 ms
+  [i] U3 nothing in the MAC: from the clock the dirty bit clears 16 clocks, bound (8, 18]
+  [ ok ] U3 nothing in the MAC: from the clock the dirty bit clears the PHY hold rises more than one tick later
+  [ ok ] U3 nothing in the MAC: from the clock the dirty bit clears ...and at most two ticks and the crossing later
+  [ ok ] U3 CSIB falls for the IPROG words
+  [ ok ] U3 the PHY hold stays up through the IPROG words
+  [ ok ] U3 the PHY hold stays up through the IPROG words
+  [ ok ] U3 the PHY hold stays up through the IPROG words
+  [ ok ] U3 the PHY hold stays up through the IPROG words
+  [ ok ] U3 the PHY hold stays up through the IPROG words
+  [ ok ] U3 the PHY hold stays up through the IPROG words
+  [ ok ] U3 the PHY hold stays up through the IPROG words
+  [ ok ] U3 the PHY hold stays up through the IPROG words
+  [ ok ] U3 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U3 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U3 the bus returns to the dummy word     got=0xffffffff exp=0xffffffff
+  [ ok ] U3 the PHY hold stays up after the words got=1 exp=1
+  [ ok ] U4 pending work with a live writer: no PHY hold for 1,500 ms
+  [ ok ] U4 the work moves from pending to dirty: still no PHY hold got=0 exp=0
+  [i] U4 nothing in the MAC: from the clock the work is durable 10 clocks, bound (8, 18]
+  [ ok ] U4 nothing in the MAC: from the clock the work is durable the PHY hold rises more than one tick later
+  [ ok ] U4 nothing in the MAC: from the clock the work is durable ...and at most two ticks and the crossing later
+  [i] U5 drain and quiet millisecond 80019 clocks, bound (80016, 80024]
+  [ ok ] U5 a writer that never commits: the PHY hold more than 10,000 ms and two ticks after the request
+  [ ok ] U5 ...and at most one tick more
+  [ ok ] U5 CSIB falls for the IPROG words
+  [ ok ] U5 the PHY hold stays up through the IPROG words
+  [ ok ] U5 the PHY hold stays up through the IPROG words
+  [ ok ] U5 the PHY hold stays up through the IPROG words
+  [ ok ] U5 the PHY hold stays up through the IPROG words
+  [ ok ] U5 the PHY hold stays up through the IPROG words
+  [ ok ] U5 the PHY hold stays up through the IPROG words
+  [ ok ] U5 the PHY hold stays up through the IPROG words
+  [ ok ] U5 the PHY hold stays up through the IPROG words
+  [ ok ] U5 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U5 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U5 the bus returns to the dummy word     got=0xffffffff exp=0xffffffff
+  [ ok ] U5 the PHY hold stays up after the words got=1 exp=1
+  [ ok ] U5 the hold after a deadline is still longer than 3,500 ms
+  [ ok ] U6 dirty work, live writer: no PHY hold after 2,000 ms got=0 exp=0
+  [i] U6 the writer is lost: from that clock 17 clocks, bound (8, 18]
+  [ ok ] U6 the writer is lost: from that clock the PHY hold rises more than one tick later
+  [ ok ] U6 the writer is lost: from that clock ...and at most two ticks and the crossing later
+  [ ok ] U7 a one-clock request: the PHY hold still rises got=1 exp=1
+  [ ok ] U7 CSIB falls for the IPROG words
+  [ ok ] U7 the PHY hold stays up through the IPROG words
+  [ ok ] U7 the PHY hold stays up through the IPROG words
+  [ ok ] U7 the PHY hold stays up through the IPROG words
+  [ ok ] U7 the PHY hold stays up through the IPROG words
+  [ ok ] U7 the PHY hold stays up through the IPROG words
+  [ ok ] U7 the PHY hold stays up through the IPROG words
+  [ ok ] U7 the PHY hold stays up through the IPROG words
+  [ ok ] U7 the PHY hold stays up through the IPROG words
+  [ ok ] U7 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U7 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U7 the bus returns to the dummy word     got=0xffffffff exp=0xffffffff
+  [ ok ] U7 the PHY hold stays up after the words got=1 exp=1
+  [ ok ] U8 status moves during the hold: the PHY hold stays up
+  [ ok ] U8 ...and the IPROG words still start after more than 3,500 ms
+  [ ok ] U9 the PHY hold is up 1,000 ms into the hold got=1 exp=1
+  [ ok ] U9 a reset during the hold: back to idle, and no IPROG afterwards
+  [ ok ] U10 the fourth IPROG word is on the bus  got=0xc400080 exp=0xc400080
+  [ ok ] U10 a reset in the middle of the words: CSIB is high on the next clock got=1 exp=1
+  [ ok ] U10 ...and the bus carries the dummy word got=0xffffffff exp=0xffffffff
+  [ ok ] U10 ...and no word follows it
+  [i] U11 phase 1 nothing in the MAC: from the request 11 clocks, bound (8, 18]
+  [ ok ] U11 phase 1 nothing in the MAC: from the request the PHY hold rises more than one tick later
+  [ ok ] U11 phase 1 nothing in the MAC: from the request ...and at most two ticks and the crossing later
+  [ ok ] U11 phase 1 CSIB falls for the IPROG words
+  [ ok ] U11 phase 1 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 1 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 1 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 1 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 1 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 1 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 1 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 1 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 1 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U11 phase 1 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U11 phase 1 the bus returns to the dummy word got=0xffffffff exp=0xffffffff
+  [ ok ] U11 phase 1 the PHY hold stays up after the words got=1 exp=1
+  [ ok ] U11 phase 1 the hold stays inside (3,500 ms, 3,501 ms]
+  [i] U11 phase 1 durable: request to the IPROG word 28025 clocks, bound 28248
+  [ ok ] U11 phase 1 durable: the IPROG word comes inside the stated bound
+  [i] U11 phase 7 nothing in the MAC: from the request 12 clocks, bound (8, 18]
+  [ ok ] U11 phase 7 nothing in the MAC: from the request the PHY hold rises more than one tick later
+  [ ok ] U11 phase 7 nothing in the MAC: from the request ...and at most two ticks and the crossing later
+  [ ok ] U11 phase 7 CSIB falls for the IPROG words
+  [ ok ] U11 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U11 phase 7 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U11 phase 7 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U11 phase 7 the bus returns to the dummy word got=0xffffffff exp=0xffffffff
+  [ ok ] U11 phase 7 the PHY hold stays up after the words got=1 exp=1
+  [ ok ] U11 phase 7 the hold stays inside (3,500 ms, 3,501 ms]
+  [i] U11 phase 7 durable: request to the IPROG word 28026 clocks, bound 28248
+  [ ok ] U11 phase 7 durable: the IPROG word comes inside the stated bound
+  [ ok ] U12 the port takes a frame before the request
+  [ ok ] U12 the port takes a frame before the request
+  [ ok ] U12 the port takes a frame before the request
+  [ ok ] U12 frames in the MAC at the request: no PHY hold 20 ms later with three frames still in the MAC got=0 exp=0
+  [ ok ] U12 two frames still in the MAC: no PHY hold got=0 exp=0
+  [ ok ] U12 one frame still in the MAC: no PHY hold got=0 exp=0
+  [i] U12 the last frame reaches the PHY: from its end 13 clocks, bound (8, 21]
+  [ ok ] U12 the last frame reaches the PHY: from its end the PHY hold rises more than one tick later
+  [ ok ] U12 the last frame reaches the PHY: from its end ...and at most two ticks and the crossing later
+  [ ok ] U12 coincide: the port takes a first frame
+  [ ok ] U12 coincide: the port takes a second frame's first beat
+  [ ok ] U12 coincide: ...and its last beat as the first frame's end lands
+  [ ok ] U12 coincide: the second frame is still in the MAC: no PHY hold got=0 exp=0
+  [i] U12 coincide: the second frame reaches the PHY: from its end 14 clocks, bound (8, 21]
+  [ ok ] U12 coincide: the second frame reaches the PHY: from its end the PHY hold rises more than one tick later
+  [ ok ] U12 coincide: the second frame reaches the PHY: from its end ...and at most two ticks and the crossing later
+  [ ok ] U13 the port takes a frame's first beats during the drain
+  [ ok ] U13 a frame still being taken 3 ms into the wait: no PHY hold got=0 exp=0
+  [ ok ] U13 the frame in progress is in the MAC: no PHY hold got=0 exp=0
+  [i] U13 it reaches the PHY: from its end 12 clocks, bound (8, 21]
+  [ ok ] U13 it reaches the PHY: from its end the PHY hold rises more than one tick later
+  [ ok ] U13 it reaches the PHY: from its end ...and at most two ticks and the crossing later
+  [ ok ] U14 the port takes a frame the MAC will never send
+  [i] U14 egress wait 228 clocks, bound (224, 232]
+  [ ok ] U14 a MAC that never finishes: the PHY hold still rises
+  [ ok ] U14 ...after more than the derived egress bound
+  [ ok ] U14 ...and at most one tick more
+  [ ok ] U14 CSIB falls for the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U14 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U14 the bus returns to the dummy word    got=0xffffffff exp=0xffffffff
+  [ ok ] U14 the PHY hold stays up after the words got=1 exp=1
+  [i] U14 durable, the egress deadline: request to the IPROG word 28244 clocks, bound 28248
+  [ ok ] U14 durable, the egress deadline: the IPROG word comes inside the stated bound
+  [ ok ] U15 two frames in the MAC: no PHY hold   got=0 exp=0
+  [i] U15 a flush in the wait: from the flush 11 clocks, bound (8, 22]
+  [ ok ] U15 a flush in the wait: from the flush the PHY hold rises more than one tick later
+  [ ok ] U15 a flush in the wait: from the flush ...and at most two ticks and the crossing later
+  [ ok ] U16 the port takes a frame after two stray ends
+  [ ok ] U16 the frame is still in the MAC: no PHY hold got=0 exp=0
+  [i] U16 it reaches the PHY: from its end 14 clocks, bound (8, 21]
+  [ ok ] U16 it reaches the PHY: from its end the PHY hold rises more than one tick later
+  [ ok ] U16 it reaches the PHY: from its end ...and at most two ticks and the crossing later
+  [ ok ] U17 phase 0 CSIB falls for the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U17 phase 0 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U17 phase 0 the bus returns to the dummy word got=0xffffffff exp=0xffffffff
+  [ ok ] U17 phase 0 the PHY hold stays up after the words got=1 exp=1
+  [i] U17 phase 0 deadline and bound: request to the IPROG word 108255 clocks, bound 108256
+  [ ok ] U17 phase 0 deadline and bound: the IPROG word comes inside the stated bound
+  [ ok ] U17 phase 7 CSIB falls for the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U17 phase 7 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U17 phase 7 the bus returns to the dummy word got=0xffffffff exp=0xffffffff
+  [ ok ] U17 phase 7 the PHY hold stays up after the words got=1 exp=1
+  [i] U17 phase 7 deadline and bound: request to the IPROG word 108249 clocks, bound 108256
+  [ ok ] U17 phase 7 deadline and bound: the IPROG word comes inside the stated bound
+  [ ok ] U18 a frame comes and goes between two ticks
+  [ ok ] U18 ...no PHY hold at the next tick      got=0 exp=0
+  [i] U18 from that frame's end 15 clocks, bound (8, 21]
+  [ ok ] U18 from that frame's end the PHY hold rises more than one tick later
+  [ ok ] U18 from that frame's end ...and at most two ticks and the crossing later
+== reboot_ctrl: checks: 221   failures: 0 ==
+RESULT: PASS
+make --no-print-directory run MDIR=obj_1g EGRESS_MS=2 LEG_ARGS=--egress-only \
+  LEG_G="-GMAC_TX_OCTETS_P=11656 -GMAC_MIN_MBPS_P=1000"
+verilator --cc --exe --build -j 4 --top-module KL_reboot_ctrl -Wall -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=2" -GMAC_TX_OCTETS_P=11656 -GMAC_MIN_MBPS_P=1000 --Mdir obj_1g ../../../hdl/milan/KL_reboot_ctrl.sv sim_main.cpp -o Vreboot_ctrl_sim
+g++  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=2   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=2   -c -o verilated.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=2   -c -o verilated_threads.o <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 <home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_reboot_ctrl.cpp VKL_reboot_ctrl___024root__0.cpp VKL_reboot_ctrl__ConstPool__0__Slow.cpp VKL_reboot_ctrl___024root__Slow.cpp VKL_reboot_ctrl___024root__0__Slow.cpp VKL_reboot_ctrl__Syms__Slow.cpp > VKL_reboot_ctrl__ALL.cpp
+g++ -Os  -I.  -MMD -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I<home>/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DEGRESS_MS=2   -c -o VKL_reboot_ctrl__ALL.o VKL_reboot_ctrl__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_reboot_ctrl__ALL.a    -pthread -lpthread -latomic   -o Vreboot_ctrl_sim
+rm VKL_reboot_ctrl__ALL.verilator_deplist.tmp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.055 MB sources in 2 modules, into 0.060 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 7.083 s (elab=0.001, cvt=0.008, bld=7.069); cpu 0.016 s on 4 threads; allocated 282.930 MB
+<packet>/scratch/t1/tb/verilator/reboot_ctrl/obj_1g/Vreboot_ctrl_sim --egress-only
+=== KL_reboot_ctrl: AECP REBOOT -> drain -> egress -> PHY hold -> IPROG (egress bound 2 ms) ===
+  [ ok ] U14 the port takes a frame the MAC will never send
+  [i] U14 egress wait 17 clocks, bound (16, 24]
+  [ ok ] U14 a MAC that never finishes: the PHY hold still rises
+  [ ok ] U14 ...after more than the derived egress bound
+  [ ok ] U14 ...and at most one tick more
+  [ ok ] U14 CSIB falls for the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 the PHY hold stays up through the IPROG words
+  [ ok ] U14 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U14 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U14 the bus returns to the dummy word    got=0xffffffff exp=0xffffffff
+  [ ok ] U14 the PHY hold stays up after the words got=1 exp=1
+  [i] U14 durable, the egress deadline: request to the IPROG word 28033 clocks, bound 28040
+  [ ok ] U14 durable, the egress deadline: the IPROG word comes inside the stated bound
+  [ ok ] U17 phase 0 CSIB falls for the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 0 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U17 phase 0 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U17 phase 0 the bus returns to the dummy word got=0xffffffff exp=0xffffffff
+  [ ok ] U17 phase 0 the PHY hold stays up after the words got=1 exp=1
+  [i] U17 phase 0 deadline and bound: request to the IPROG word 108044 clocks, bound 108048
+  [ ok ] U17 phase 0 deadline and bound: the IPROG word comes inside the stated bound
+  [ ok ] U17 phase 7 CSIB falls for the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 the PHY hold stays up through the IPROG words
+  [ ok ] U17 phase 7 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+  [ ok ] U17 phase 7 CSIB is high again after the eighth word got=1 exp=1
+  [ ok ] U17 phase 7 the bus returns to the dummy word got=0xffffffff exp=0xffffffff
+  [ ok ] U17 phase 7 the PHY hold stays up after the words got=1 exp=1
+  [i] U17 phase 7 deadline and bound: request to the IPROG word 108041 clocks, bound 108048
+  [ ok ] U17 phase 7 deadline and bound: the IPROG word comes inside the stated bound
+== reboot_ctrl: checks: 46   failures: 0 ==
+RESULT: PASS
+python3 mutants.py
+golden: PASS (exit 0)
+request-ignored: KILLED by its named check, 165 failing checks
+  named check: U1 no writer, nothing in the MAC: from the request the PHY hold rises more than one tick later
+drain-ignores-dirty: KILLED by its named check, 6 failing checks
+  named check: U3 dirty work with a live writer: no PHY hold and no IPROG for 4,000 ms
+drain-ignores-pend: KILLED by its named check, 3 failing checks
+  named check: U4 pending work with a live writer: no PHY hold for 1,500 ms
+drain-ignores-a-lost-writer: KILLED by its named check, 28 failing checks
+  named check: U6 the writer is lost: from that clock ...and at most two ticks and the crossing later
+no-drain-deadline: KILLED by its named check, 37 failing checks
+  named check: U5 ...and at most one tick more
+drain-deadline-a-tick-early: KILLED by its named check, 1 failing checks
+  named check: U5 a writer that never commits: the PHY hold more than 10,000 ms and two ticks after the request
+hold-skipped: KILLED by its named check, 7 failing checks
+  named check: U1 the hold is longer than 3,500 ms
+hold-a-tick-short: KILLED by its named check, 7 failing checks
+  named check: U1 the hold is longer than 3,500 ms
+hold-a-tick-long: KILLED by its named check, 10 failing checks
+  named check: U1 the hold is at most one tick longer than 3,500 ms
+bits-not-reversed: KILLED by its named check, 12 failing checks
+  named check: U1 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+wbstar-write-dropped: KILLED by its named check, 12 failing checks
+  named check: U1 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+desync-for-iprog: KILLED by its named check, 11 failing checks
+  named check: U1 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte
+words-repeat-without-a-hold: KILLED by its named check, 12 failing checks
+  named check: U1 CSIB is high again after the eighth word
+phy-hold-released-for-iprog: KILLED by its named check, 100 failing checks
+  named check: U1 the PHY hold stays up through the IPROG words
+request-not-latched: KILLED by its named check, 12 failing checks
+  named check: U7 a one-clock request: the PHY hold still rises
+hold-survives-reset: KILLED by its named check, 42 failing checks
+  named check: U9 a reset during the hold: back to idle, and no IPROG afterwards
+hold-on-the-request-alone: KILLED by its named check, 25 failing checks
+  named check: U12 frames in the MAC at the request: no PHY hold 20 ms later with three frames still in the MAC
+egress-ignores-the-mac-fifo: KILLED by its named check, 15 failing checks
+  named check: U12 frames in the MAC at the request: no PHY hold 20 ms later with three frames still in the MAC
+egress-without-a-bound: KILLED by its named check, 39 failing checks
+  named check: U14 a MAC that never finishes: the PHY hold still rises
+egress-bound-a-tick-short: KILLED by its named check, 2 failing checks
+  named check: U14 ...after more than the derived egress bound
+egress-bound-a-tick-long: KILLED by its named check, 4 failing checks
+  named check: U14 ...and at most one tick more
+egress-bound-rounded-down: KILLED by its named check, 2 failing checks
+  named check: U14 ...after more than the derived egress bound
+egress-without-the-quiet-tick: KILLED by its named check, 13 failing checks
+  named check: U12 the last frame reaches the PHY: from its end the PHY hold rises more than one tick later
+egress-ignores-the-frame-at-the-port: KILLED by its named check, 3 failing checks
+  named check: U13 a frame still being taken 3 ms into the wait: no PHY hold
+frames-taken-not-counted: KILLED by its named check, 15 failing checks
+  named check: U12 frames in the MAC at the request: no PHY hold 20 ms later with three frames still in the MAC
+end-read-as-a-level: KILLED by its named check, 9 failing checks
+  named check: U12 two frames still in the MAC: no PHY hold
+end-wins-over-a-take: KILLED by its named check, 2 failing checks
+  named check: U12 coincide: the second frame is still in the MAC: no PHY hold
+count-wraps-below-zero: KILLED by its named check, 8 failing checks
+  named check: U16 it reaches the PHY: from its end ...and at most two ticks and the crossing later
+flush-ignored: KILLED by its named check, 1 failing checks
+  named check: U15 a flush in the wait: from the flush ...and at most two ticks and the crossing later
+egress-quiet-sampled-only-at-ticks: KILLED by its named check, 2 failing checks
+  named check: U18 ...no PHY hold at the next tick
+== reboot_ctrl mutants: checks: 31   failures: 0 ==
+RESULT: PASS (golden PASS, 30 of 30 controls killed)

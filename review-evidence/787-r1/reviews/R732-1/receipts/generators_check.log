@@ -1,0 +1,15 @@
+### python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule diagram: OK (6 exact gitlinks, decoded PNG)
+rc=0
+### python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+submodule diagram selftest: OK (valid wrong-raster control)
+rc=0
+### python3 scripts/check_submodule_docs.py
+submodule documentation: OK (6 exact gitlinks)
+rc=0
+### python3 scripts/check_diagram_pngs.py
+diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+rc=0
+### python3 sw/litex/gen_mac_tx_model.py --check
+generated MAC transmit chain: OK (2719 lines, region ecb8a0ef998d, checked by product source, pins and bytes)
+rc=0
