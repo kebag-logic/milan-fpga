@@ -420,7 +420,7 @@ Missing measurements cannot qualify the default flip.
 
 ### The resource gate
 
-[`syn/ooc/pp_resource_gate.py`](../../syn/ooc/pp_resource_gate.py) judges one recipe measurement.
+[`syn/ooc/pp_resource_gate.py`](../../syn/ooc/pp_resource_gate.py) judges one recipe measurement, and the route endpoint on its route set.
 [`syn/ooc/pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json) records three endpoints: the shipping route and the 1x1 and 8x8 standalone syntheses.
 Each endpoint holds its measured record and its policy.
 The [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate) gives the commands.
@@ -432,16 +432,25 @@ The [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate) gives the co
 | `ooc-8x8` | +316 | +339 | - | +0 | +0 | +0 | - | - | - | - |
 
 A resource column is the growth a figure may take; a dash is not gated.
-WNS and WHS must stay at or above their floors and may each fall by at most the timing fall.
+The route endpoint is judged on its route set ([ruling on #814](https://github.com/kebag-logic/milan-fpga/issues/814#issuecomment-6522621984), [#818](https://github.com/kebag-logic/milan-fpga/issues/818)).
+The set is the recipe's three placement directives, ExtraPostPlacementOpt, AltSpreadLogic_high and ExtraTimingOpt.
+One route the shipping image is already built from may be judged alone instead, marked as the shipping selection.
+The gate selects the route with the best worst-corner WNS and names its directive.
+That route's WNS and WHS must stay at or above their floors at every signoff corner.
+Those floors are the build floor of [BUILDING.md section 5](../integration/BUILDING.md#5-gates-before-a-build-is-good).
+Every other figure is judged on that route, against the unchanged tolerances and ceiling.
+A WNS or WHS fall from the record by more than the timing fall prints a WARNING and never fails.
 Standalone timing is not gated: those syntheses have no I/O constraints.
 The tolerances, floors and ceiling are accepted as working policy (manager ruling).
 `check-baseline` reads this table and refuses a baseline whose policy differs from it in any cell.
 It also requires the route's BRAM tile ceiling.
 
-Growth beyond a tolerance, a ceiling crossed or a timing floor crossed exits 1.
-A route whose status report names an unrouted net or a routing error exits 1 too: the image does not fit.
-At the current +0.440 ns WNS record, the 0.25 ns fall limit binds first, at +0.190 ns, before the unchanged +0.030 ns floor.
-The fall limit and the zero WHS floor remain unchanged.
+Growth beyond a tolerance, a ceiling crossed or a timing floor crossed at any signoff corner exits 1.
+A route of the set whose status report names an unrouted net or a routing error exits 1 too: the image does not fit.
+Before #818, the 0.25 ns fall limit bound first: at +0.190 ns against the +0.440 ns record, above the +0.030 ns floor.
+The ruling makes the floors the timing bound and the fall a warning, amending the #708 ruling's "no fall exception" for this gate.
+At 99.5 % slice use, unchanged logic moved 0.3 to 0.57 ns between routes on #814; the fall measures placement, not the change.
+The floor exception stays forbidden, and the floors and the 0.25 ns column are unchanged.
 One more RAMB36, RAMB18 or DSP is always material.
 A primitive count moves only when storage or arithmetic changes its mapping.
 
@@ -468,6 +477,7 @@ The policy stays growth-only: recording the improved measurement is what lowers 
 
 Outside the Mark II exception below, a merge moving the shipping image records its own re-baseline ([manager ruling](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5972491855)).
 Its PR measures the three endpoints again on its merge result and writes them with `record --write`, the policy unchanged.
+The route endpoint is written from its route set: the selected route's figures, the record's flow naming its directive.
 So growth under a tolerance cannot pile up unrecorded across merges.
 Growth over one is accepted or refused as the change that made it, never as a later PR's.
 Each endpoint's `measured` note names the dev revision its record describes.

@@ -567,9 +567,16 @@ The [margin decision on #395](https://github.com/kebag-logic/milan-fpga/issues/3
 requires WNS >= +0.03 ns and WHS >= 0.
 Apply both thresholds at every declared corner.
 This is the AX7101 margin required after QSPI flashboot corruption.
-These thresholds are **not automatically enforced**.
+These thresholds are **not automatically enforced** by the build.
 The [margin correction](https://github.com/kebag-logic/milan-fpga/issues/395#issuecomment-5860783553)
 confirms that `sweep.sh` launches three placement directives; the seed pick is manual.
+For an adoption, the resource gate enforces both thresholds on its measurement route
+([ruling on #814](https://github.com/kebag-logic/milan-fpga/issues/814#issuecomment-6522621984), [#818](https://github.com/kebag-logic/milan-fpga/issues/818)).
+`pp_resource_gate.py check` takes the recipe's three placement directives and selects the one with the best worst-corner WNS.
+It passes on timing when that directive meets both thresholds at every signoff corner, and it names that directive.
+The shipping image is built from that directive, which is this seed selection.
+A fall from the gate's record is printed as a warning, never a failure.
+The [recipe](../testing/PP_SHADOW_BASELINE_RECIPE.md#resource-gate) gives the commands.
 
 For a saved routed checkpoint, generate the same report hook without rebuilding:
 
@@ -622,7 +629,8 @@ The Ethernet data pairs must read `Max Delay Datapath Only`, with no unsafe
 pair, and meet the 8 ns bound. Check WNS >= +0.03 ns and WHS >= 0 at every
 corner for AX7101, following the
 [#395 margin decision](https://github.com/kebag-logic/milan-fpga/issues/395).
-These timing margins remain manual acceptance checks.
+These timing margins remain manual acceptance checks of a build.
+An adoption's route set is held to them by the resource gate, as above.
 
 A build that reached a bitstream has already passed the IOB packing check
 (section 0). If it stopped before routing with `IOB-PACK FAIL`, the named
@@ -711,7 +719,10 @@ slice, and the check must `FAIL` naming that port.
 
 1. **AX7101 WNS >= +0.03 ns and WHS >= 0 at every declared corner**, as
    decided above. Read each `*_signoff_*_timing.rpt` Design Timing Summary.
-   The thresholds are not automatically enforced; select the sweep seed manually.
+   The build does not enforce the thresholds; select the sweep seed manually,
+   the directive with the best worst-corner WNS. For an adoption,
+   `pp_resource_gate.py` reads the same reports and enforces them on the
+   recipe's route set.
    The retired Arty recipe retains its WNS >= 0 rule.
 2. **Utilization** vs the AREA-70 scoreboard (`*_utilization_place.rpt`:
    Slice LUTs / Slice / Block RAM Tile rows; hierarchical variants for

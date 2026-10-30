@@ -53,7 +53,7 @@ The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaig
 | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) ([requirements](../reference/FR_NFR.md)) | At most 38,040 LUTs, 60 percent of 63,400 |
 | Planning margin, D8 | At least 1 percent below the limit: <= 37,659 LUTs |
 | Timing | Shipping 50 MHz datapath; every build-gate corner WNS >= +0.030 ns and WHS >= 0 |
-| Gate comparison | At the current +0.440 ns WNS record, the 0.25 ns fall limit binds first, at +0.190 ns, before the unchanged +0.030 ns floor |
+| Gate comparison | Since [#818](https://github.com/kebag-logic/milan-fpga/issues/818), the best of the three placement directives meets the +0.030 ns WNS and 0 ns WHS floors at every signoff corner; a fall of more than 0.25 ns from the +0.440 ns record is a warning |
 | Function | Equivalent PDUs and state transactions; suites and campaigns retain their counts |
 | Delivery | Milestone 12 by 2026-12-15, before P3 |
 
