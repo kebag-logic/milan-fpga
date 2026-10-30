@@ -1,0 +1,12 @@
+HEAD ac105b158bb740a65e0154305377fd4a7d0f6f87
+$ (cd .) /bin/bash <lane-output> . <work>/ac105b15/asan <lane-output> copy differs from the checkout's in 1 line(s)
+== fixed: build rc=0
+== fixed: run rc=0; console answered: ?
+commands 0 refused 1
+== reverted: build rc=0
+== reverted: run rc=1; console answered: 
+==853712==ERROR: AddressSanitizer: global-buffer-overflow on address 0x55f9a1b387cd at pc 0x55f9a1b36fc6 bp 0x7ffc8fa9d930 sp 0x7ffc8fa9d920
+SUMMARY: AddressSanitizer: global-buffer-overflow <work>/rev/ctrl_plat_console.c:135 in is
+elapsed=1s
+tree: 0 changed path(s) after the gate
+rc=0

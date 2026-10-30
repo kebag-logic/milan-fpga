@@ -1,0 +1,52 @@
+published/author-r3/receipts/gates-at-ac105b15/selftest-shard0.log:     RESULT: PASS
+test_ctrl_firmware: PASS
+elapsed=331s
+tree: 0 changed path(s) after the gate
+rc=0
+
+published/author-r3/receipts/gates-at-ac105b15/selftest-shard1.log: mutants: 568 of 568 caught
+test_ctrl_firmware: PASS
+elapsed=1162s
+tree: 0 changed path(s) after the gate
+rc=0
+
+published/author-r3/receipts/gates-at-ac105b15/selftest-shard2.log: [ok] aecp-opens-before-its-publication-is-acknowledged: AppFaceUnacknowledged.AecpOpensOnlyOnceTheInitialPublicationIsAcknowledged
+test_ctrl_firmware: PASS
+elapsed=460s
+tree: 0 changed path(s) after the gate
+rc=0
+
+published/author-r3/receipts/gates-at-ac105b15/selftest-shard3.log: [ok] lwSRP pin, another revision checked out: lwSRP at 9197193e47a6bb1c45a56d90a18c1784123aba44 is not the pinned 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 (fetch https://github.com/kebag-logic/lwSRP and check the pin out)
+test_ctrl_firmware: PASS
+elapsed=728s
+tree: 0 changed path(s) after the gate
+rc=0
+
+published/author-r3/receipts/gates-at-ac105b15/fw_coverage.log: third_party/tsn-c-stack/src/adp.c                206/208      99/106     lines 100.00 %  branches 100.00 %
+third_party/tsn-c-stack/src/maap.c               209/209     140/140     lines 100.00 %  branches 100.00 %
+firmware coverage: PASS (35 files)
+elapsed=284s
+tree: 0 changed path(s) after the gate
+rc=0
+
+published/author-r3/receipts/gates-at-ac105b15/test_ctrl_memory.log:   [ok  ] PLANTED ledger 'the size fixture's entry at the platform's 59.0' is caught: the 8x8-two-interfaces override plans its own point's image: 57.5 RAMB36, against the 56-RAMB36 budget and its ledgered 57.5 ((57.5, 56, '8x8-two-interfaces', 59.0))
+test_ctrl_memory: 0 failure(s)
+RESULT: PASS
+elapsed=69s
+tree: 0 changed path(s) after the gate
+rc=0
+
+published/author-r3/receipts/gates-at-ac105b15/builder_require_rv32.log: 1 GATE ARM(S) DID NOT RUN - this verdict does not cover them:
+  - [gate 11] real report not on disk (<litex-tree>/work/build_arty_eto_milanfinal48/gateware/digilent_arty_utilization_place.rpt) - the calibration gate needs the mf48 build tree
+ALL GATES PASS EXCEPT 1 NOT RUN
+elapsed=1507s
+tree: 0 changed path(s) after the gate
+rc=0
+
+image-plat-endstation_ax7101_1x1_tdm8-if1.log: {'shape': 'endstation_ax7101_1x1_tdm8', 'interfaces': 1, 'entry': 'plat/ctrl_plat_main.c', 'sections': {'.text': 96452, '.rodata': 12990, '.data': 112, '.bss': 38860, '.stack': 8192, '.riscv.attributes': 28}, 'largest_bss': [{'symbol': 'arena', 'bytes': 9920}, {'symbol': 'ctrl_plat.app', 'bytes': 8880}, {'symbol': 'ctrl_plat.srp', 'bytes': 4824}, {'symbol': 'values', 'bytes': 4527}, {'symbol': 'ctrl_plat.aecp', 'bytes': 3352}], 'ctrl_plat_members': {'acmp': 96, 'aecp': 3352, 'aecp_config': 48, 'app': 8880, 'binding': 40, 'bridge': 132, 'config': 56, 'console': 588, 'face': 88, 'maap_csr': 32, 'sources': 64, 'srp': 4824, 'srp_config': 24, 'state': 84}, 'split': {'rom': {'bytes': 109560, 'bank
+
+image-plat-endstation_ax7101_1x1_tdm8-if2.log: {'shape': 'endstation_ax7101_1x1_tdm8', 'interfaces': 2, 'entry': 'plat/ctrl_plat_main.c', 'sections': {'.text': 98092, '.rodata': 12990, '.data': 112, '.bss': 50276, '.stack': 8192, '.riscv.attributes': 28}, 'largest_bss': [{'symbol': 'arena', 'bytes': 19840}, {'symbol': 'ctrl_plat.app', 'bytes': 10064}, {'symbol': 'ctrl_plat.srp', 'bytes': 5032}, {'symbol': 'values', 'bytes': 4527}, {'symbol': 'ctrl_plat.aecp', 'bytes': 3352}], 'ctrl_plat_members': {'acmp': 96, 'aecp': 3352, 'aecp_config': 48, 'app': 10064, 'binding': 40, 'bridge': 132, 'config': 56, 'console': 588, 'face': 88, 'maap_csr': 32, 'sources': 128, 'srp': 5032, 'srp_config': 40, 'state': 84}, 'split': {'rom': {'bytes': 111200, '
+
+image-plat-endstation_ax7101_8x8-if1.log: {'shape': 'endstation_ax7101_8x8', 'interfaces': 1, 'entry': 'plat/ctrl_plat_main.c', 'sections': {'.text': 96540, '.rodata': 26254, '.data': 504, '.bss': 79044, '.stack': 8192, '.riscv.attributes': 28}, 'largest_bss': [{'symbol': 'arena', 'bytes': 24032}, {'symbol': 'nvm_stage', 'bytes': 13264}, {'symbol': 'values', 'bytes': 11753}, {'symbol': 'ctrl_plat.app', 'bytes': 8880}, {'symbol': 'ctrl_plat.srp', 'bytes': 5256}], 'ctrl_plat_members': {'acmp': 96, 'aecp': 3352, 'aecp_config': 48, 'app': 8880, 'binding': 40, 'bridge': 132, 'config': 56, 'console': 588, 'face': 88, 'maap_csr': 32, 'sources': 288, 'srp': 5256, 'srp_config': 24, 'state': 84}, 'split': {'rom': {'bytes': 123304, 'banks': [6
+
+image-plat-endstation_ax7101_8x8-if2.log: {'shape': 'endstation_ax7101_8x8', 'interfaces': 2, 'entry': 'plat/ctrl_plat_main.c', 'sections': {'.text': 98284, '.rodata': 26254, '.data': 504, '.bss': 105228, '.stack': 8192, '.riscv.attributes': 28}, 'largest_bss': [{'symbol': 'arena', 'bytes': 48064}, {'symbol': 'nvm_stage', 'bytes': 13264}, {'symbol': 'values', 'bytes': 11753}, {'symbol': 'ctrl_plat.app', 'bytes': 10064}, {'symbol': 'ctrl_plat.srp', 'bytes': 5896}], 'ctrl_plat_members': {'acmp': 96, 'aecp': 3352, 'aecp_config': 48, 'app': 10064, 'binding': 40, 'bridge': 132, 'config': 56, 'console': 588, 'face': 88, 'maap_csr': 32, 'sources': 576, 'srp': 5896, 'srp_config': 40, 'state': 84}, 'split': {'rom': {'bytes': 125048, 'banks':

@@ -1,0 +1,18 @@
+HEAD ac105b158bb740a65e0154305377fd4a7d0f6f87
+$ (cd .) python3 -B tb/verilator/ctrl_split_boot/run.py --build-dir <work>/ac105b15/boot-build/boot-native --native-controls
+COMMAND Vsim exited 0
+NATIVE-CONTROL native-passes: as required (run PASS, regrade PASS; required PASS, PASS); findings: [] / []
+COMMAND Vsim exited 1
+NATIVE-CONTROL native-exits-nonzero: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model exited 1'] / ['NATIVE: the model exited 1']
+COMMAND Vsim exited 0
+NATIVE-CONTROL native-tally-failed: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"] / ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+COMMAND Vsim exited 0
+NATIVE-CONTROL native-incomplete: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model printed no tally: it did not complete'] / ['NATIVE: the model printed no tally: it did not complete']
+COMMAND Vsim exited 1
+NATIVE-CONTROL native-fails-and-exits-nonzero: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model exited 1', "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"] / ['NATIVE: the model exited 1', "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+COMMAND Vsim exited 0
+NATIVE-CONTROL native-status-not-saved: as required (run PASS, regrade NATIVE; required PASS, NATIVE); findings: [] / ['NATIVE: the run saved no exit status (sim.status), so how the model ended is unknown']
+ctrl_split_boot native controls: 6 of 6 as required
+elapsed=8s
+tree: 0 changed path(s) after the gate
+rc=0

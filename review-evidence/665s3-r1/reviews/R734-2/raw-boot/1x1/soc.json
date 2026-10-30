@@ -1,0 +1,130 @@
+{
+  "sources": [
+    "$REVIEWS/r734-2-665s3/hdl/milan/mailbox/KL_mbx_pkg.sv",
+    "$REVIEWS/r734-2-665s3/hdl/milan/mailbox/KL_mbx_ring.sv",
+    "$REVIEWS/r734-2-665s3/hdl/milan/mailbox/KL_mbx_rx.sv",
+    "$REVIEWS/r734-2-665s3/hdl/milan/mailbox/KL_mbx_tx.sv",
+    "$REVIEWS/r734-2-665s3/hdl/milan/mailbox/KL_mbx_evt.sv",
+    "$REVIEWS/r734-2-665s3/hdl/milan/mailbox/KL_mbx.sv",
+    "$REVIEWS/r734-2-665s3/hdl/milan/mailbox/KL_mbx_wb.sv",
+    "$REVIEWS/665s3-r734-2-packet/scratch/cpu-package/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v",
+    "$REVIEWS/665s3-r734-2-packet/scratch/cpu-package/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v",
+    "$REVIEWS/665s3-r734-2-packet/scratch/cpu-package/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_903b010fc69f2a4188ee1b2191a0834e.v",
+    "$REVIEWS/665s3-r734-2-packet/scratch/boot-1x1/soc/gateware/sim.v"
+  ],
+  "includes": [],
+  "sys_hz": 100000000,
+  "cpu_hz": 50000000,
+  "shape": "endstation_ax7101_1x1_tdm8",
+  "interfaces": 1,
+  "addresses": {
+    "mailbox": 2147483648,
+    "master": 4026544128,
+    "timer0": 4026546176,
+    "flash": 536870912,
+    "flash_size": 16777216
+  },
+  "csr_base": 2415919104,
+  "csr_size": 65536,
+  "netlist": "VexiiRiscvLitex_903b010fc69f2a4188ee1b2191a0834e",
+  "memory_regions": [
+    [
+      0,
+      229376,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      229376,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      536870912,
+      16777216,
+      "rxc",
+      "p"
+    ],
+    [
+      2415919104,
+      65536,
+      "rw",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "cpu_memory_regions": [
+    [
+      0,
+      262144,
+      "rxc",
+      "p"
+    ],
+    [
+      268435456,
+      262144,
+      "rwxc",
+      "p"
+    ],
+    [
+      2147483648,
+      32768,
+      "rw",
+      "p"
+    ],
+    [
+      536870912,
+      16777216,
+      "rxc",
+      "p"
+    ],
+    [
+      2415919104,
+      65536,
+      "rw",
+      "p"
+    ],
+    [
+      4026531840,
+      65536,
+      "rw",
+      "p"
+    ]
+  ],
+  "ctrl_plan": {
+    "rom": {
+      "bytes": 109560,
+      "banks": [
+        65536,
+        32768,
+        8192,
+        4096
+      ],
+      "RAMB36": 27,
+      "RAMB18": 0
+    },
+    "sram": {
+      "bytes": 47168,
+      "banks": [
+        32768,
+        16384
+      ],
+      "RAMB36": 12,
+      "RAMB18": 0
+    },
+    "tiles": 39.0,
+    "budget_tiles": 56
+  }
+}
