@@ -1,0 +1,13 @@
+# job md_gates  dir=$REVIEWS/r745-1-70b  start=2026-10-30T11:13:04Z
+# cmd: $REVIEWS/70b-r745-1-packet/scripts/md_gates.sh $VALIDATION_TOOLS/md-venv/bin/python3 1e80128f
+### $VALIDATION_TOOLS/md-venv/bin/python3 scripts/check_em_dash.py --base 1e80128f
+check_em_dash: 0 finding(s) over 105 added line(s) in 7 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [1e80128f..HEAD]
+### rc=0 :: $VALIDATION_TOOLS/md-venv/bin/python3 scripts/check_em_dash.py --base 1e80128f
+### $VALIDATION_TOOLS/md-venv/bin/python3 scripts/gen_toc.py --verify-anchors
+anchor check: 542 existing cross-page fragment links reproduced
+### rc=0 :: $VALIDATION_TOOLS/md-venv/bin/python3 scripts/gen_toc.py --verify-anchors
+### $VALIDATION_TOOLS/md-venv/bin/python3 scripts/gen_toc.py --check
+TOC gate: OK (149 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+### rc=0 :: $VALIDATION_TOOLS/md-venv/bin/python3 scripts/gen_toc.py --check
+### overall fail=0
+# end=2026-10-30T11:13:18Z rc=0

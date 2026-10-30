@@ -1,0 +1,9 @@
+('endstation_ax7101_1x1_tdm8', 50000000, 'off') rows 16 ok True min_ms 3.90676 max_ms 3.9117800000000003 recomputed 3.90676 3.91178 hold_floor 49 margin 12.526266814595912
+('endstation_ax7101_1x1_tdm8', 50000000, 'on') rows 16 ok True min_ms 3.9589200000000004 max_ms 3.9649000000000005 recomputed 3.95892 3.9649 hold_floor 49 margin 12.358445358016594
+('endstation_ax7101_8x8', 50000000, 'off') rows 16 ok True min_ms 13.675379999999999 max_ms 13.68956 recomputed 13.67538 13.68956 hold_floor 49 margin 3.579369972446156
+('endstation_ax7101_8x8', 50000000, 'on') rows 16 ok True min_ms 13.84558 max_ms 13.86052 recomputed 13.84558 13.86052 hold_floor 49 margin 3.5352209008031448
+('endstation_ax7101_8x8', 100000000, 'off') rows 16 ok True min_ms 10.41406 max_ms 10.41516 recomputed 10.41406 10.41516 hold_floor 49 margin 4.7046804849853485
+('endstation_ax7101_8x8', 100000000, 'on') rows 16 ok True min_ms 10.418759999999999 max_ms 10.4263 recomputed 10.41876 10.4263 hold_floor 49 margin 4.6996537602025645
+repeat sys_cycles vs base: 39 of 96
+maxima [{'shape': 'endstation_ax7101_1x1_tdm8', 'cpu_hz': 50000000, 'maximum_ms': 3.9649000000000005, 'margin': 12.358445358016594}, {'shape': 'endstation_ax7101_8x8', 'cpu_hz': 50000000, 'maximum_ms': 13.86052, 'margin': 3.5352209008031448}, {'shape': 'endstation_ax7101_8x8', 'cpu_hz': 100000000, 'maximum_ms': 10.4263, 'margin': 4.6996537602025645}]
+contract 8x8 max 13.86052 limit 24.5
