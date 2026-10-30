@@ -1,0 +1,198 @@
+clone head 6d1d038343e1f0a6b2027cce857a33528b8c2ac7
+=== C0 control, unmodified
+plant: true
+diffstat: 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=0
+inventory: 63 Markdown files, OK
+links rc=0
+=== T1 fake op added to the 06 table
+plant: sed -i '/^| Data |/s/`SHIFT_R`/`SHIFT_R`, `FAKE_OP`/' docs/architecture/06_aecp_engine.md
+diffstat:  M docs/architecture/06_aecp_engine.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=1
+INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: table names FAKE_OP, which the enum does not declare
+inventory: 63 Markdown files, 1 FAILURES
+links rc=0
+=== T2 fake op added to the enum
+plant: sed -i 's/^\(\s*\)OP_SHIFT_R\(\s*\)= 5.d29/\1OP_FAKE_OP   = 5'"'"'d30,\n\1OP_SHIFT_R\2= 5'"'"'d29/' hdl/aecp/ucpu_pkg.sv
+diffstat:  M hdl/aecp/ucpu_pkg.sv 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=1
+INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: says 30 operations, the enum declares 31
+INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: table lacks FAKE_OP
+inventory: 63 Markdown files, 2 FAILURES
+links rc=0
+=== H1 heading count made 29
+plant: sed -i 's/^\*\*µISA (30 operations)\*\*/**µISA (29 operations)**/' docs/architecture/06_aecp_engine.md
+diffstat:  M docs/architecture/06_aecp_engine.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=1
+INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: says 29 operations, the enum declares 30
+inventory: 63 Markdown files, 1 FAILURES
+links rc=0
+=== H2 wrong count restated on the heading line
+plant: sed -i 's/^\(\*\*µISA (30 operations)\*\*\) —/\1 (an ISA of 29 ops) —/' docs/architecture/06_aecp_engine.md
+diffstat:  M docs/architecture/06_aecp_engine.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=1
+INVENTORY FAIL: RESTATED: docs/architecture/06_aecp_engine.md:1427: a µISA operation count; link 06 §8, whose count is derived
+inventory: 63 Markdown files, 1 FAILURES
+links rc=0
+=== H3 true count restated on the heading line, other form
+plant: sed -i 's/^\(\*\*µISA (30 operations)\*\*\) —/\1, a 30-operation ISA, —/' docs/architecture/06_aecp_engine.md
+diffstat:  M docs/architecture/06_aecp_engine.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=1
+INVENTORY FAIL: RESTATED: docs/architecture/06_aecp_engine.md:1427: a µISA operation count; link 06 §8, whose count is derived
+inventory: 63 Markdown files, 1 FAILURES
+links rc=0
+=== H4 count restated on 06's next line
+plant: sed -i '1428s/^/The ISA has 30 operations. /' docs/architecture/06_aecp_engine.md
+diffstat:  M docs/architecture/06_aecp_engine.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=1
+INVENTORY FAIL: RESTATED: docs/architecture/06_aecp_engine.md:1428: a µISA operation count; link 06 §8, whose count is derived
+inventory: 63 Markdown files, 1 FAILURES
+links rc=0
+=== B1 concept banner back to 29-operation
+plant: sed -i 's/a different ISA, the/a different 29-operation ISA, the/' IEEE_1722_1_Hardware_Protocol_Processor.md
+diffstat:  M IEEE_1722_1_Hardware_Protocol_Processor.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=1
+INVENTORY FAIL: RESTATED: IEEE_1722_1_Hardware_Protocol_Processor.md:18: a µISA operation count; link 06 §8, whose count is derived
+inventory: 63 Markdown files, 1 FAILURES
+links rc=0
+=== B2 concept banner given the true count
+plant: sed -i 's/a different ISA, the/a different 30-operation ISA, the/' IEEE_1722_1_Hardware_Protocol_Processor.md
+diffstat:  M IEEE_1722_1_Hardware_Protocol_Processor.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=1
+INVENTORY FAIL: RESTATED: IEEE_1722_1_Hardware_Protocol_Processor.md:18: a µISA operation count; link 06 §8, whose count is derived
+inventory: 63 Markdown files, 1 FAILURES
+links rc=0
+=== B3 retired body count changed (control, history)
+plant: sed -i '1098s/~20–30 instructions/29 operations, the ISA/' IEEE_1722_1_Hardware_Protocol_Processor.md
+diffstat:  M IEEE_1722_1_Hardware_Protocol_Processor.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=0
+inventory: 63 Markdown files, OK
+links rc=0
+=== R1 current page restates, one line
+plant: sed -i '5s/µISA before/µISA (30 operations) before/' tb/ucpu/README.md
+diffstat:  M tb/ucpu/README.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=1
+INVENTORY FAIL: RESTATED: tb/ucpu/README.md:5: a µISA operation count; link 06 §8, whose count is derived
+inventory: 63 Markdown files, 1 FAILURES
+links rc=0
+=== R2 current page heading-form restatement
+plant: printf '\n**µISA (30 operations)**\n' >> docs/guides/hdl-engineer.md
+diffstat:  M docs/guides/hdl-engineer.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=1
+INVENTORY FAIL: RESTATED: docs/guides/hdl-engineer.md:329: a µISA operation count; link 06 §8, whose count is derived
+inventory: 63 Markdown files, 1 FAILURES
+links rc=0
+=== L1 06 §8 heading renamed (concept banner and inventory link target)
+plant: sed -i 's/^## 8\. µcode architecture/## 8. µcode machine/' docs/architecture/06_aecp_engine.md
+diffstat:  M docs/architecture/06_aecp_engine.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=0
+inventory: 63 Markdown files, OK
+links rc=1
+LINK FAIL: IEEE_1722_1_Hardware_Protocol_Processor.md: missing anchor -> docs/architecture/06_aecp_engine.md#8-µcode-architecture
+LINK FAIL: docs/GLOSSARY.md: missing anchor -> architecture/06_aecp_engine.md#8-µcode-architecture
+LINK FAIL: docs/INVENTORY.md: missing anchor -> architecture/06_aecp_engine.md#8-µcode-architecture
+links: 1418 checked, 3 FAILURES
+=== L2 srp_top heading renamed (its own link target)
+plant: sed -i 's/^## Timer-arm FIFOs at every store shape (issue #230)/## Timer-arm FIFOs per store shape (issue #230)/' tb/srp_top/README.md
+diffstat:  M tb/srp_top/README.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=0
+inventory: 63 Markdown files, OK
+links rc=1
+LINK FAIL: tb/srp_top/README.md: missing anchor -> #timer-arm-fifos-at-every-store-shape-issue-230
+links: 1418 checked, 1 FAILURES
+=== L3 timer_map shape_elab.sh removed
+plant: git rm -q tb/timer_map/shape_elab.sh
+diffstat: D  tb/timer_map/shape_elab.sh 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=0
+inventory: 63 Markdown files, OK
+links rc=1
+LINK FAIL: tb/timer_map/README.md: missing target -> shape_elab.sh
+links: 1418 checked, 1 FAILURES
+=== L4 nvm_port measure_figures.py removed
+plant: git rm -q tb/nvm_port/measure_figures.py
+diffstat: D  tb/nvm_port/measure_figures.py 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=0
+inventory: 63 Markdown files, OK
+links rc=1
+LINK FAIL: docs/architecture/09_verification.md: missing target -> ../../tb/nvm_port/measure_figures.py
+links: 1418 checked, 1 FAILURES
+=== L5 acmp_nvm Makefile removed
+plant: git rm -q tb/acmp_nvm/Makefile
+diffstat: D  tb/acmp_nvm/Makefile 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=0
+inventory: 63 Markdown files, OK
+links rc=1
+LINK FAIL: docs/architecture/09_verification.md: missing target -> ../../tb/acmp_nvm/Makefile
+LINK FAIL: tb/acmp_nvm/README.md: missing target -> Makefile
+links: 1418 checked, 2 FAILURES
+=== L6 inventory dropped from the check rule
+plant: sed -i 's/^\(check:.*\) inventory /\1 /' Makefile
+diffstat:  M Makefile 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=1
+INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `inventory`, which `check` does not run
+inventory: 63 Markdown files, 1 FAILURES
+links rc=0
+=== L7 defining file ucpu_pkg.sv removed
+plant: git rm -q hdl/aecp/ucpu_pkg.sv
+diffstat: D  hdl/aecp/ucpu_pkg.sv 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=1
+INVENTORY FAIL: DERIVED MISSING: hdl/aecp/ucpu_pkg.sv
+inventory: 63 Markdown files, 1 FAILURES
+links rc=1
+LINK FAIL: IEEE_1722_1_Hardware_Protocol_Processor.md: missing target -> hdl/aecp/ucpu_pkg.sv
+links: 1418 checked, 1 FAILURES
+=== G1 limit: restatement wrapped across two lines
+plant: sed -i '5s/µISA before/µISA, all 30\noperations of it, before/' tb/ucpu/README.md
+diffstat:  M tb/ucpu/README.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=0
+inventory: 63 Markdown files, OK
+links rc=0
+=== G2 limit: count spelled out
+plant: sed -i '5s/µISA before/µISA (thirty operations) before/' tb/ucpu/README.md
+diffstat:  M tb/ucpu/README.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=0
+inventory: 63 Markdown files, OK
+links rc=0
+=== G3 limit: 30-op ISA
+plant: sed -i '5s/µISA before/µISA, a 30-op ISA, before/' tb/ucpu/README.md
+diffstat:  M tb/ucpu/README.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=0
+inventory: 63 Markdown files, OK
+links rc=0
+=== G4 limit: 30 opcodes
+plant: sed -i '5s/µISA before/µISA and its 30 opcodes before/' tb/ucpu/README.md
+diffstat:  M tb/ucpu/README.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=0
+inventory: 63 Markdown files, OK
+links rc=0
+=== G5 limit: micro-ISA count without the word ISA (µcode, 30 operations)
+plant: sed -i '5s/µISA before/µcode set of 30 operations before/' tb/ucpu/README.md
+diffstat:  M tb/ucpu/README.md 
+selftest rc=0 (inventory selftest: 30 cases, OK)
+inventory rc=0
+inventory: 63 Markdown files, OK
+links rc=0
+final head 6d1d038343e1f0a6b2027cce857a33528b8c2ac7 status []
