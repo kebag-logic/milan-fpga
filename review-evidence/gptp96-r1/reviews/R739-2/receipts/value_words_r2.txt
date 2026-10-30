@@ -1,0 +1,12 @@
+docs/HDL_DEVELOPER.md:8:- Five RTL modules share one clock under `KL_gptp_engine`.
+docs/HDL_DEVELOPER.md:359:That file defines the 10 ns `clk_i` clock.
+docs/HDL_DEVELOPER.md:373:Each timing report must show `clk` at 10 ns.
+docs/HDL_DEVELOPER.md:383:| `KL_gptp_engine` | Constrained | 4,852 | 3,652 | 1.5 | 4 | +1.773 ns |
+docs/HDL_DEVELOPER.md:384:| `KL_gptp_engine` | Unconstrained | 4,853 | 3,652 | 1.5 | 4 | +1.773 ns |
+docs/HDL_DEVELOPER.md:385:| `KL_gptp_ucpu` | Constrained | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
+docs/HDL_DEVELOPER.md:386:| `KL_gptp_ucpu` | Unconstrained | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
+docs/INTEGRATION.md:290:| `phc_addend_o[31:0]` | Carries signed Q8.24 ns-per-tick rate trim |
+docs/INTEGRATION.md:348:Parent issue #621 exercises both signed 10 ms steps.
+docs/INTEGRATION.md:430:`RATE_PPM_C` is the rate bound, in ppm.
+docs/INTEGRATION.md:442:A locked-threshold slew needs at least `STEP_LOCKED_NS_C / RATE_PPM_C` ms.
+docs/TEST_DEVELOPER.md:147:- Drives Sync every 250 ms, Follow_Up 60 ms after.

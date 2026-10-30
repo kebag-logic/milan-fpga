@@ -1,0 +1,54 @@
+    [control_unmutated] docs check: PASS (14 current pages, 18 historical pages)
+    [stale_const_plain] docs check: FAIL (1 findings)
+    [stale_const_plain]   docs/INTEGRATION.md: SYNC_RTO_MS_C is 376, generator has 375
+    [stale_const_bold] docs check: FAIL (1 findings)
+    [stale_const_bold]   docs/INTEGRATION.md: SYNC_RTO_MS_C value '**376**' is not a plain decimal
+    [stale_const_negative] docs check: FAIL (1 findings)
+    [stale_const_negative]   docs/INTEGRATION.md: SYNC_RTO_MS_C value '-1' is not a plain decimal
+    [stale_const_unit] docs check: FAIL (1 findings)
+    [stale_const_unit]   docs/INTEGRATION.md: SYNC_RTO_MS_C value '376 ms' is not a plain decimal
+    [stale_const_hex] docs check: FAIL (1 findings)
+    [stale_const_hex]   docs/INTEGRATION.md: SYNC_RTO_MS_C value '0x178' is not a plain decimal
+    [bad_grouping_const] docs check: FAIL (1 findings)
+    [bad_grouping_const]   docs/INTEGRATION.md: CEASE_MS_C value '3,00,000' is not a plain decimal
+    [deleted_const_row] docs check: FAIL (1 findings)
+    [deleted_const_row]   docs/INTEGRATION.md: no protocol constant row for P1_C
+    [unnamed_const_row] docs check: FAIL (1 findings)
+    [unnamed_const_row]   docs/INTEGRATION.md: no protocol constant row for P1_C
+    [stale_depth] docs check: FAIL (1 findings)
+    [stale_depth]   docs/INTEGRATION.md: DEPTH is 2,048, generator has 1024
+    [generator_const_changed] docs check: FAIL (1 findings)
+    [generator_const_changed]   docs/INTEGRATION.md: NPD_HI_C is 800, generator has 900
+    [rom_stale_shipping] docs check: FAIL (1 findings)
+    [rom_stale_shipping]   docs/MANAGER.md: Shipping image reads 1021 of 1024 with 3 free; generator builds 1022 of 1024
+    [rom_bold_count] docs check: FAIL (1 findings)
+    [rom_bold_count]   docs/MANAGER.md: Shipping row '**1,022** of 1,024' | '2' is not plain 'N of M' | N
+    [rom_word_free] docs check: FAIL (1 findings)
+    [rom_word_free]   docs/MANAGER.md: Shipping row '1,022 of 1,024' | 'two' is not plain 'N of M' | N
+    [rom_slash_count] docs check: FAIL (1 findings)
+    [rom_slash_count]   docs/MANAGER.md: Shipping row '1,022 / 1,024' | '2' is not plain 'N of M' | N
+    [rom_deleted_row] docs check: FAIL (1 findings)
+    [rom_deleted_row]   docs/MANAGER.md: no ROM budget row for the Seeded regression image
+    [rom_duplicate_row] docs check: FAIL (1 findings)
+    [rom_duplicate_row]   docs/MANAGER.md: duplicate ROM budget row: Shipping
+    [copy_hdl_375ms] docs check: FAIL (1 findings)
+    [copy_hdl_375ms]   docs/HDL_DEVELOPER.md:420: '375 ms' restates SYNC_RTO_MS_C; link its constants row
+    [copy_test_20us] docs check: FAIL (1 findings)
+    [copy_test_20us]   docs/TEST_DEVELOPER.md:219: '20 us' restates STEP_LINKUP_NS_C; link its constants row
+    [copy_glossary_200ppm] docs check: FAIL (1 findings)
+    [copy_glossary_200ppm]   docs/GLOSSARY.md:54: '200 ppm' restates RATE_PPM_C; link its constants row
+    [copy_manager_fiveminute] docs check: FAIL (1 findings)
+    [copy_manager_fiveminute]   docs/MANAGER.md:129: 'five-minute' restates CEASE_MS_C; link its constants row
+    [copy_readme_300s] docs check: FAIL (1 findings)
+    [copy_readme_300s]   README.md:100: '300 s' restates CEASE_MS_C; link its constants row
+    [copy_tbreadme_100micro] docs check: FAIL (1 findings)
+    [copy_tbreadme_100micro]   tb/tsngen/README.md:22: '100µs' restates STEP_LOCKED_NS_C; link its constants row
+    [copy_integration_20000ns] docs check: FAIL (1 findings)
+    [copy_integration_20000ns]   docs/INTEGRATION.md:918: '20,000 ns' restates STEP_LINKUP_NS_C; link its constants row
+    [copy_revert_hdl_line] docs check: FAIL (1 findings)
+    [copy_revert_hdl_line]   docs/HDL_DEVELOPER.md:203: '375 ms' restates SYNC_RTO_MS_C; link its constants row
+    [limit_decimal_seconds] docs check: PASS (14 current pages, 18 historical pages)
+    [limit_spelled_unit] docs check: PASS (14 current pages, 18 historical pages)
+    [limit_unitless_ordinal] docs check: PASS (14 current pages, 18 historical pages)
+    [limit_unitless_depth] docs check: PASS (14 current pages, 18 historical pages)
+    [limit_meaning_unit_dropped] docs check: PASS (14 current pages, 18 historical pages)
