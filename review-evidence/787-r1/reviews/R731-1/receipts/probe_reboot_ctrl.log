@@ -1,0 +1,25 @@
+sat-at-one: KILLED
+  leg default: exit 2, RESULT FAIL True, failing checks 3
+    [FAIL] U12 two frames still in the MAC: no PHY hold got=1 exp=0
+    [FAIL] U12 one frame still in the MAC: no PHY hold got=1 exp=0
+    [FAIL] U12 the last frame reaches the PHY: from its end the PHY hold rises more than one tick later
+  leg 1g: exit 0, RESULT FAIL False, failing checks 0
+in-frame-sticks: KILLED
+  leg default: exit 2, RESULT FAIL True, failing checks 9
+    [FAIL] U12 coincide: the second frame reaches the PHY: from its end the PHY hold rises more than one tick later
+    [FAIL] U12 coincide: the second frame reaches the PHY: from its end ...and at most two ticks and the crossing later
+    [FAIL] U13 it reaches the PHY: from its end the PHY hold rises more than one tick later
+  leg 1g: exit 0, RESULT FAIL False, failing checks 0
+exit-tick-not-idle: SURVIVED
+  leg default: exit 0, RESULT FAIL False, failing checks 0
+  leg 1g: exit 0, RESULT FAIL False, failing checks 0
+quiet-set-when-busy: SURVIVED
+  leg default: exit 0, RESULT FAIL False, failing checks 0
+  leg 1g: exit 0, RESULT FAIL False, failing checks 0
+bound-without-quiet-ms: KILLED
+  leg default: exit 2, RESULT FAIL True, failing checks 2
+    [FAIL] U12 the last frame reaches the PHY: from its end the PHY hold rises more than one tick later
+    [FAIL] U14 ...after more than the derived egress bound
+  leg 1g: exit 2, RESULT FAIL True, failing checks 1
+    [FAIL] U14 ...after more than the derived egress bound
+== probes: 5  survived: 2 ==
