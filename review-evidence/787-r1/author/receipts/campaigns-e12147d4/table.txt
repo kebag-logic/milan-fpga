@@ -1,0 +1,11 @@
+0 211s reboot_ctrl: make -C tb/verilator/reboot_ctrl
+0 37s pp_shadow_rb: make -C tb/verilator/pp_shadow build-base exec-base SIM_ARGS=--reboot-only BUILD_DIR=<scratch>/obj-camp-rb
+2 40s pp_shadow_reboot_mutant: make -C tb/verilator/pp_shadow reboot-mutant
+0 33s torture_selftest: python3 -B tb/tools/torture_campaign.py --self-test
+0 3s torture_behave: python3 -B -m behave tests/features/torture_campaign_plan.feature
+0 0s uart_smoke_selftest: python3 scripts/baremetal_uart_smoke.py --self-test
+2 96s pp_shadow_reboot_mutant_rerun: TMPDIR=<scratch>/tmp-rbmut make -C tb/verilator/pp_shadow reboot-mutant
+0 721s litex_sims: bash scripts/run_litex_sims.sh <scratch>/r/campaigns-e12147d4/litex-sims
+0 1s mac_tx_model_check_litex: <home>/litex-milan/venv/bin/python3 sw/litex/gen_mac_tx_model.py --check
+0 0s mac_tx_model_check_plain: python3 sw/litex/gen_mac_tx_model.py --check
+CAMPAIGNS-DONE

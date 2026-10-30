@@ -1,0 +1,396 @@
+diff --git a/hdl/milan/KL_reboot_ctrl.sv b/hdl/milan/KL_reboot_ctrl.sv
+index ed02c219af..5cba30e526 100644
+--- a/hdl/milan/KL_reboot_ctrl.sv
++++ b/hdl/milan/KL_reboot_ctrl.sv
+@@ -12,22 +12,31 @@
+                 protocol processor answers a controller's REBOOT of ENTITY 0
+                 with SUCCESS (IEEE 1722.1-2021 7.4.43), sends its
+                 notifications and, where advertising, ENTITY_DEPARTING
+-                (Milan v1.2 5.6.3.3), and then holds reboot_req_i (processor
+-                #203). This block turns that level into a configuration
++                (Milan v1.2 5.6.3.3). Once the last frame it started has
++                left its TX port, it holds reboot_req_i (processor #203).
++                This block turns that level into a configuration
+                 reload from flash: the same configuration a power-on runs,
+                 so the fabric, the CPU, the MMCMs and the gPTP timestamping
+                 path all start as from a cold boot
+                 (docs/design/REBOOT_RESET.md, the (b) decision).
+ 
+                 THREE PHASES, one millisecond counter.
+-                  DRAIN  the saved state settles. The phase ends when no
+-                         live writer exists (nvm_backed_i = 0) or nothing
+-                         accepted is outside a slot (nvm_dirty_i = 0 and
+-                         nvm_pend_i = 0), or after T_DRAIN_MS_P. A commit in
+-                         flight therefore completes, and one that does not
+-                         complete in time is abandoned exactly where a cold
+-                         cut would leave it: the A/B journal keeps the
+-                         previous slot (SAVED_STATE_FASTCONNECT.md 7).
++                  DRAIN  the saved state settles and the last frames reach
++                         the wire. The phase ends when no live writer
++                         exists (nvm_backed_i = 0) or nothing accepted is
++                         outside a slot (nvm_dirty_i = 0 and nvm_pend_i =
++                         0), but never before T_EGRESS_MS_P has passed; or
++                         after T_DRAIN_MS_P. A commit in flight therefore
++                         completes, and one that does not complete in time
++                         is abandoned exactly where a cold cut would leave
++                         it: the A/B journal keeps the previous slot
++                         (SAVED_STATE_FASTCONNECT.md 7). The frames the
++                         processor finished before its request are still in
++                         the SoC's MAC transmit path when it rises, and the
++                         PHY reset stops the transmitter, so the egress wait
++                         lets them leave first: the SUCCESS response, the
++                         notifications and ENTITY_DEPARTING reach the wire
++                         whole.
+                   HOLD   phy_hold_o rises and stays up until the
+                          reconfiguration takes the pins away, so the PHY is
+                          held in reset and the link drops as after a cut.
+@@ -46,6 +55,8 @@
+                 THE BOUND. From reboot_req_i to the IPROG word: at most
+                 T_DRAIN_MS_P + T_HOLD_MS_P + 2 ms + 8 clocks (one tick of
+                 each wait is the tick phase; the sampling adds a clock).
++                With the state already durable: at most T_EGRESS_MS_P +
++                T_HOLD_MS_P + 2 ms + 8 clocks.
+ 
+                 VENDOR-NEUTRAL. Nothing here names a primitive: the SoC
+                 instantiates ICAPE2 on icap_csib_o / icap_i_o with RDWRB
+@@ -72,7 +83,13 @@ module KL_reboot_ctrl #(
+   //! the media's worst-case 64 KiB sector erase, tSE(max) 3,000 ms
+   //! (SAVED_STATE_FASTCONNECT.md 9.4), plus the margin the writer's own
+   //! erase wait carries; far above the PHY's minimum reset pulse
+-  parameter int unsigned T_HOLD_MS_P  = 3_500
++  parameter int unsigned T_HOLD_MS_P  = 3_500,
++  //! the least time from the request to the PHY hold, in milliseconds. The
++  //! SoC's MAC transmit path (its clock crossing, the 4 KiB store-and-forward
++  //! FIFO of at most 8 frames, and the LiteEth core) holds under 5,000 byte
++  //! times with framing: 40 us at 1000 Mb/s, 400 us at 100 Mb/s. Every frame
++  //! it holds is on the wire well inside this wait (issue #787)
++  parameter int unsigned T_EGRESS_MS_P = 10
+ ) (
+   input  wire        clk_i,          //! the datapath clock (axis_clk)
+   input  wire        rst_n,          //! synchronous active-low reset
+@@ -110,6 +127,11 @@ module KL_reboot_ctrl #(
+     $error("KL_reboot_ctrl: T_DRAIN_MS_P=%0d and T_HOLD_MS_P=%0d must both be at least 1 ms.",
+            T_DRAIN_MS_P, T_HOLD_MS_P);
+   end
++  //! the deadline must not end the drain inside the egress wait
++  if (T_EGRESS_MS_P < 1 || T_EGRESS_MS_P >= T_DRAIN_MS_P) begin : g_refuse_egress
++    $error("KL_reboot_ctrl: T_EGRESS_MS_P=%0d must be at least 1 ms and below T_DRAIN_MS_P=%0d.",
++           T_EGRESS_MS_P, T_DRAIN_MS_P);
++  end
+ 
+   //! the IPROG sequence of the 7-series configuration interface, written as
+   //! the configuration words (type-1 packet headers: write = 0x3000_0000 |
+@@ -139,11 +161,14 @@ module KL_reboot_ctrl #(
+   logic [MS_W_C-1:0] ms_r;
+   logic [2:0]        idx_r;
+   logic              hold_r;
+-  logic              drained_w, drain_exp_w, hold_exp_w;
++  logic              drained_w, egress_w, drain_exp_w, hold_exp_w;
+ 
+   //! durable, or nobody left to make it durable (SAVED_STATE_FASTCONNECT.md
+   //! 9.3: backed 1 with dirty 0 and pend 0 is the durable row)
+   assign drained_w   = ~nvm_backed_i | (~nvm_dirty_i & ~nvm_pend_i);
++  //! more than T_EGRESS_MS_P since the request: the drain's counter has
++  //! seen a tick past the wait, and the first tick may come at once
++  assign egress_w    = (ms_r > MS_W_C'(T_EGRESS_MS_P));
+   //! a wait expires on the tick past its bound, so it never ends early
+   assign drain_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_DRAIN_MS_P));
+   assign hold_exp_w  = ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P));
+@@ -161,7 +186,7 @@ module KL_reboot_ctrl #(
+           if (reboot_req_i) state_r <= S_DRAIN;
+         end
+         S_DRAIN: begin
+-          if (drained_w || drain_exp_w) begin
++          if ((drained_w && egress_w) || drain_exp_w) begin
+             state_r <= S_HOLD;
+             ms_r    <= '0;
+             hold_r  <= 1'b1;
+diff --git a/tb/verilator/reboot_ctrl/mutants.py b/tb/verilator/reboot_ctrl/mutants.py
+index b3acb9fd94..1f58fff8eb 100644
+--- a/tb/verilator/reboot_ctrl/mutants.py
++++ b/tb/verilator/reboot_ctrl/mutants.py
+@@ -31,7 +31,10 @@ from pathlib import Path
+ HERE = Path(__file__).resolve().parent
+ SOURCE = HERE.parents[2] / "hdl" / "milan" / "KL_reboot_ctrl.sv"
+ 
+-REQ = "U1 no writer: the PHY hold rises two clocks after the request"
++REQ = "U1 no writer: the PHY hold rises more than 10 ms after the request"
++EGRESS = "U1 no writer: no PHY hold for 10 ms after the request"
++EGRESS_SHORT = "U11 phase 1 the PHY hold rises more than 10 ms after the request"
++EGRESS_LONG = "U1 no writer: ...and at most one tick and two clocks more"
+ DIRTY = "U3 dirty work with a live writer: no PHY hold and no IPROG for 4,000 ms"
+ PEND = "U4 pending work with a live writer: no PHY hold for 1,500 ms"
+ LOST = "U6 the writer is lost: the PHY hold rises on that clock"
+@@ -91,12 +94,25 @@ MUTATIONS = [
+      "            state_r <= S_IPROG;\n            ms_r    <= '0;",
+      "            state_r <= S_IPROG;\n            hold_r  <= 1'b0;\n            ms_r    <= '0;", HELD),
+     ("request-not-latched",
+-     "          if (drained_w || drain_exp_w) begin",
++     "          if ((drained_w && egress_w) || drain_exp_w) begin",
+      "          if (!reboot_req_i) begin\n            state_r <= S_IDLE;\n"
+-     "          end else if (drained_w || drain_exp_w) begin", LATCH),
++     "          end else if ((drained_w && egress_w) || drain_exp_w) begin", LATCH),
+     ("hold-survives-reset",
+      "      hold_r  <= 1'b0;\n    end else begin",
+      "    end else begin", RESET),
++    # the egress wait (the frames finished before the request reach the wire)
++    ("egress-wait-dropped",
++     "          if ((drained_w && egress_w) || drain_exp_w) begin",
++     "          if ((drained_w && (egress_w | 1'b1)) || drain_exp_w) begin", EGRESS),
++    ("egress-wait-a-tick-short",
++     "assign egress_w    = (ms_r > MS_W_C'(T_EGRESS_MS_P));",
++     "assign egress_w    = (ms_r > MS_W_C'(T_EGRESS_MS_P - 1));", EGRESS_SHORT),
++    ("egress-wait-a-tick-long",
++     "assign egress_w    = (ms_r > MS_W_C'(T_EGRESS_MS_P));",
++     "assign egress_w    = (ms_r > MS_W_C'(T_EGRESS_MS_P + 1));", EGRESS_LONG),
++    ("egress-wait-ends-the-drain",
++     "          if ((drained_w && egress_w) || drain_exp_w) begin",
++     "          if ((drained_w || egress_w) || drain_exp_w) begin", DIRTY),
+ ]
+ 
+ 
+diff --git a/tb/verilator/reboot_ctrl/sim_main.cpp b/tb/verilator/reboot_ctrl/sim_main.cpp
+index d55bc980fc..8b0a62dc85 100644
+--- a/tb/verilator/reboot_ctrl/sim_main.cpp
++++ b/tb/verilator/reboot_ctrl/sim_main.cpp
+@@ -4,8 +4,9 @@
+ // KL_reboot_ctrl self-checking harness (issue #787): the end-station reset on
+ // the protocol processor's AECP REBOOT request (IEEE 1722.1-2021 7.4.43).
+ //
+-// The module is built at its SHIPPING waits, 10,000 ms of drain and 3,500 ms
+-// of PHY hold (docs/design/REBOOT_RESET.md). Only the millisecond is
++// The module is built at its SHIPPING waits, 10,000 ms of drain, 3,500 ms of
++// PHY hold and 10 ms of egress (docs/design/REBOOT_RESET.md). Only the
++// millisecond is
+ // compressed: this harness drives ms_tick_i itself, one pulse every
+ // kMsCycles clocks, at a phase each scenario chooses, so the bounds are
+ // graded in ticks against the documented values rather than against the
+@@ -14,24 +15,29 @@
+ // Graded, each by its own labelled checks:
+ //   U0  idle: no request, no PHY hold, CSIB high and the dummy word, whatever
+ //       the saved-state status does
+-//   U1  no live writer (backed 0, even with dirty and pending work): the PHY
+-//       hold rises two clocks after the request, the hold lasts more than
+-//       3,500 ms and at most one tick more, then exactly eight clocks of
+-//       CSIB low carry the IPROG words, bit-reversed per byte; the PHY hold
+-//       stays up, and the sequence repeats after another hold
+-//   U2  durable (backed 1, dirty 0, pend 0): the same, at once
++//   U1  no live writer (backed 0, even with dirty and pending work): no PHY
++//       hold for the 10 ms egress wait, the hold more than 10 ms after the
++//       request and at most one tick and two clocks more, the hold lasts
++//       more than 3,500 ms and at most one tick more, then exactly eight
++//       clocks of CSIB low carry the IPROG words, bit-reversed per byte; the
++//       PHY hold stays up, and the sequence repeats after another hold
++//   U2  durable (backed 1, dirty 0, pend 0): the same, and the IPROG word
++//       at most 3,512 ms and 8 clocks after the request
+ //   U3  dirty work with a live writer: no PHY hold while it is dirty, the
+ //       hold on the clock the dirty bit clears
+ //   U4  the same for pending work
+ //   U5  a writer that never commits: the drain ends after more than
+-//       10,000 ms and at most one tick more
++//       10,000 ms and at most one tick more; the IPROG word at most
++//       13,502 ms and 8 clocks after the request
+ //   U6  the writer lost during the drain: the hold on that clock
+ //   U7  a one-clock request still resets: the module latches it
+ //   U8  status moves after the drain end change nothing
+ //   U9  reset during the hold: back to idle, no IPROG
+ //   U10 reset in the middle of the IPROG words: CSIB high at once, no word
+ //       after it
+-//   U11 the tick phase: two other phases keep the hold inside its bound
++//   U11 the tick phase: two other phases keep the egress wait, the hold and
++//       the durable bound inside theirs
++//   U12 work made durable inside the egress wait: the hold still waits for it
+ 
+ #include "VKL_reboot_ctrl.h"
+ #include "verilated.h"
+@@ -49,6 +55,9 @@ constexpr uint64_t kMsCycles = 8;
+ //! the documented waits (docs/design/REBOOT_RESET.md), independent literals
+ constexpr uint64_t kDrainMs = 10000;
+ constexpr uint64_t kHoldMs = 3500;
++constexpr uint64_t kEgressMs = 10;
++//! the stated bounds from the request to the IPROG word, beyond their ms
++constexpr uint64_t kBoundClocks = 8;
+ 
+ //! The 7-series IPROG sequence through ICAPE2, as configuration words: dummy,
+ //! sync, type-1 NOOP, type-1 write of one word to WBSTAR (register 0b10000),
+@@ -94,6 +103,12 @@ class RebootBench {
+     //! steps until CSIB falls, then grades one burst of IPROG words; returns
+     //! the steps spent before the burst
+     uint64_t grade_burst(const std::string& tag, uint64_t limit);
++    //! raises the request and grades the egress wait to the PHY hold;
++    //! returns the clocks from the request to the hold
++    uint64_t grade_egress(const std::string& tag);
++    //! grades the clocks from the request to the IPROG command word, the
++    //! seventh of a burst whose CSIB fell `to_burst` clocks after it
++    void grade_bound(const std::string& tag, uint64_t to_burst, uint64_t ms, const char* what);
+     std::string label(const std::string& tag, const char* what) const {
+         return tag + " " + what;
+     }
+@@ -110,6 +125,7 @@ class RebootBench {
+     void prove_reset_during_the_hold();
+     void prove_reset_during_the_words();
+     void prove_the_tick_phase();
++    void prove_work_durable_inside_the_egress_wait();
+ 
+     VKL_reboot_ctrl* dut = nullptr;
+     milan::tb::Checker ck{"reboot_ctrl"};
+@@ -158,6 +174,37 @@ uint64_t RebootBench::grade_burst(const std::string& tag, uint64_t limit) {
+     return before;
+ }
+ 
++uint64_t RebootBench::grade_egress(const std::string& tag) {
++    dut->reboot_req_i = 1;
++    uint64_t n = 0;
++    bool waited = true;
++    while (n < kEgressMs * kMsCycles) {
++        step();
++        ++n;
++        waited = waited && dut->phy_hold_o == 0 && dut->icap_csib_o == 1;
++    }
++    ck.that(label(tag, "no PHY hold for 10 ms after the request").c_str(), waited);
++    n += run_until([&] { return dut->phy_hold_o == 1; }, (kEgressMs + 4) * kMsCycles);
++    std::printf("  [i] %s request to PHY hold %llu clocks, bound (%llu, %llu]\n", tag.c_str(),
++                static_cast<unsigned long long>(n),
++                static_cast<unsigned long long>(kEgressMs * kMsCycles),
++                static_cast<unsigned long long>((kEgressMs + 1) * kMsCycles + 2));
++    ck.that(label(tag, "the PHY hold rises more than 10 ms after the request").c_str(),
++            dut->phy_hold_o == 1 && n > kEgressMs * kMsCycles);
++    ck.that(label(tag, "...and at most one tick and two clocks more").c_str(),
++            dut->phy_hold_o == 1 && n <= (kEgressMs + 1) * kMsCycles + 2);
++    return n;
++}
++
++void RebootBench::grade_bound(const std::string& tag, uint64_t to_burst, uint64_t ms,
++                              const char* what) {
++    const uint64_t to_iprog = to_burst + 6;
++    std::printf("  [i] %s request to the IPROG word %llu clocks, bound %llu\n", tag.c_str(),
++                static_cast<unsigned long long>(to_iprog),
++                static_cast<unsigned long long>(ms * kMsCycles + kBoundClocks));
++    ck.that(label(tag, what).c_str(), to_iprog <= ms * kMsCycles + kBoundClocks);
++}
++
+ void RebootBench::prove_idle_is_inert() {
+     reset(0);
+     bool inert = true;
+@@ -174,11 +221,7 @@ void RebootBench::prove_idle_is_inert() {
+ void RebootBench::prove_reset_without_a_writer() {
+     reset(0);
+     status(false, true, true);          // a dead writer's leftover work
+-    dut->reboot_req_i = 1;
+-    step();
+-    ck.dec("U1 no writer: no PHY hold on the clock the request is sampled", dut->phy_hold_o, 0);
+-    step();
+-    ck.dec("U1 no writer: the PHY hold rises two clocks after the request", dut->phy_hold_o, 1);
++    grade_egress("U1 no writer:");
+     const uint64_t hold = grade_burst("U1", (kHoldMs + 4) * kMsCycles);
+     std::printf("  [i] U1 hold %llu clocks, bound (%llu, %llu]\n",
+                 static_cast<unsigned long long>(hold),
+@@ -195,12 +238,12 @@ void RebootBench::prove_reset_without_a_writer() {
+ void RebootBench::prove_reset_of_a_durable_state() {
+     reset(3);
+     status(true, false, false);
+-    dut->reboot_req_i = 1;
+-    run(2);
+-    ck.dec("U2 durable: the PHY hold rises two clocks after the request", dut->phy_hold_o, 1);
++    const uint64_t egress = grade_egress("U2 durable:");
+     const uint64_t hold = grade_burst("U2", (kHoldMs + 4) * kMsCycles);
+     ck.that("U2 the hold is longer than 3,500 ms and at most one tick more",
+             hold > kHoldMs * kMsCycles && hold <= (kHoldMs + 1) * kMsCycles);
++    grade_bound("U2", egress + hold, kEgressMs + kHoldMs + 2,
++                "durable: the IPROG word at most 3,512 ms and 8 clocks after the request");
+ }
+ 
+ void RebootBench::prove_dirty_work_is_waited_for() {
+@@ -254,6 +297,8 @@ void RebootBench::prove_the_drain_deadline() {
+     const uint64_t hold = grade_burst("U5", (kHoldMs + 4) * kMsCycles);
+     ck.that("U5 the hold after a deadline is still longer than 3,500 ms",
+             hold > kHoldMs * kMsCycles && hold <= (kHoldMs + 1) * kMsCycles);
++    grade_bound("U5", 1 + drain + hold, kDrainMs + kHoldMs + 2,
++                "the IPROG word at most 13,502 ms and 8 clocks after the request");
+ }
+ 
+ void RebootBench::prove_a_lost_writer_ends_the_drain() {
+@@ -273,7 +318,7 @@ void RebootBench::prove_a_one_clock_request_is_latched() {
+     dut->reboot_req_i = 1;
+     step();
+     dut->reboot_req_i = 0;
+-    step();
++    run_until([&] { return dut->phy_hold_o == 1; }, (kEgressMs + 4) * kMsCycles);
+     ck.dec("U7 a one-clock request: the PHY hold still rises", dut->phy_hold_o, 1);
+     grade_burst("U7", (kHoldMs + 4) * kMsCycles);
+ }
+@@ -281,8 +326,7 @@ void RebootBench::prove_a_one_clock_request_is_latched() {
+ void RebootBench::prove_status_after_the_drain_changes_nothing() {
+     reset(6);
+     status(true, false, false);
+-    dut->reboot_req_i = 1;
+-    run(2);
++    grade_egress("U8 durable:");
+     bool steady = true;
+     uint64_t n = 0;
+     while (n < (kHoldMs + 4) * kMsCycles && dut->icap_csib_o == 1) {
+@@ -298,8 +342,8 @@ void RebootBench::prove_status_after_the_drain_changes_nothing() {
+ 
+ void RebootBench::prove_reset_during_the_hold() {
+     reset(0);
+-    dut->reboot_req_i = 1;
+-    run(2 + 1000 * kMsCycles);
++    grade_egress("U9 no writer:");
++    run(1000 * kMsCycles);
+     ck.dec("U9 the PHY hold is up 1,000 ms into the hold", dut->phy_hold_o, 1);
+     dut->rst_n = 0;
+     step();
+@@ -316,7 +360,7 @@ void RebootBench::prove_reset_during_the_hold() {
+ void RebootBench::prove_reset_during_the_words() {
+     reset(0);
+     dut->reboot_req_i = 1;
+-    run_until([&] { return dut->icap_csib_o == 0; }, (kHoldMs + 8) * kMsCycles);
++    run_until([&] { return dut->icap_csib_o == 0; }, (kEgressMs + kHoldMs + 8) * kMsCycles);
+     run(3);
+     ck.hex("U10 the fourth IPROG word is on the bus", dut->icap_i_o,
+            bit_reverse_bytes(kIprogWords[3]));
+@@ -338,13 +382,34 @@ void RebootBench::prove_reset_during_the_words() {
+ void RebootBench::prove_the_tick_phase() {
+     for (unsigned phase : {1u, static_cast<unsigned>(kMsCycles - 1)}) {
+         reset(phase);
+-        dut->reboot_req_i = 1;
+-        run(2);
+         const std::string tag = "U11 phase " + std::to_string(phase);
++        const uint64_t egress = grade_egress(tag);
+         const uint64_t hold = grade_burst(tag, (kHoldMs + 4) * kMsCycles);
+         ck.that(label(tag, "the hold stays inside (3,500 ms, 3,501 ms]").c_str(),
+                 hold > kHoldMs * kMsCycles && hold <= (kHoldMs + 1) * kMsCycles);
++        grade_bound(tag, egress + hold, kEgressMs + kHoldMs + 2,
++                    "the IPROG word at most 3,512 ms and 8 clocks after the request");
++    }
++}
++
++void RebootBench::prove_work_durable_inside_the_egress_wait() {
++    reset(2);
++    status(true, true, false);
++    dut->reboot_req_i = 1;
++    run(3 * kMsCycles);
++    status(true, false, false);         // the commit acknowledged 3 ms in
++    uint64_t n = 3 * kMsCycles;
++    bool waited = true;
++    while (n < kEgressMs * kMsCycles) {
++        step();
++        ++n;
++        waited = waited && dut->phy_hold_o == 0;
+     }
++    ck.that("U12 durable 3 ms after the request: still no PHY hold until 10 ms", waited);
++    n += run_until([&] { return dut->phy_hold_o == 1; }, (kEgressMs + 4) * kMsCycles);
++    ck.that("U12 ...then the hold, at most one tick and two clocks after 10 ms",
++            dut->phy_hold_o == 1 && n <= (kEgressMs + 1) * kMsCycles + 2);
++    grade_burst("U12", (kHoldMs + 4) * kMsCycles);
+ }
+ 
+ int RebootBench::execute() {
+@@ -365,6 +430,7 @@ int RebootBench::execute() {
+     prove_reset_during_the_hold();
+     prove_reset_during_the_words();
+     prove_the_tick_phase();
++    prove_work_durable_inside_the_egress_wait();
+ 
+     return ck.report();
+ }

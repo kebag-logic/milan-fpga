@@ -1,0 +1,46 @@
+=== milan_datapath + the protocol processor AS the control plane ===
+[RB] AECP REBOOT -> reboot_req -> PHY hold -> IPROG on the ICAPE2 port
+  [PASS] RB no cycle of the run before the REBOOT held the PHY got=0x00000000 exp=0x00000000
+  [PASS] RB no cycle of the run before the REBOOT dropped CSIB got=0x00000000 exp=0x00000000
+  [PASS] RB the boot restore walk ends, so AECP serves restore_done set
+  [i]    RB first ENTITY_AVAILABLE 89024 clocks after the enable
+  [PASS] RB the entity advertises before the REBOOT ENTITY_AVAILABLE
+  [PASS] RB REBOOT of ENTITY 1 is answered NO_SUCH_DESCRIPTOR got=0x00000002 exp=0x00000002
+  [PASS] RB ...and raises no request                got=0x00000000 exp=0x00000000
+  [PASS] RB ...and holds no PHY                     got=0x00000000 exp=0x00000000
+  [PASS] RB ...and sends no IPROG word              got=0x00000000 exp=0x00000000
+  [PASS] RB REBOOT of ENTITY 0 is answered          response
+  [PASS] RB SUCCESS: message_type = command + 1     got=0x00000001 exp=0x00000001
+  [PASS] RB SUCCESS: sv/version nibble is zero      got=0x00000000 exp=0x00000000
+  [PASS] RB SUCCESS: target_entity_id is OURS       got=0x001BC50C exp=0x001BC50C
+  [PASS] RB SUCCESS: controller_entity_id echoed    got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] RB SUCCESS: sequence_id echoed             got=0x00000B02 exp=0x00000B02
+  [PASS] RB SUCCESS: command_type echoed, u = 0     got=0x0000002A exp=0x0000002A
+  [PASS] RB SUCCESS: unicast back to the requester  got=0x02112233 exp=0x02112233
+  [PASS] RB SUCCESS: source address is the station MAC got=0x02000000 exp=0x02000000
+  [PASS] RB SUCCESS: status SUCCESS                 got=0x00000000 exp=0x00000000
+  [PASS] RB SUCCESS: control_data_length = 12 + payload got=0x00000010 exp=0x00000010
+  [PASS] RB SUCCESS: frame length matches (60-octet min) got=0x0000003C exp=0x0000003C
+  [PASS] RB SUCCESS: {ENTITY, 0} echoed             got=0x00000000 exp=0x00000000
+  [PASS] RB the processor raises its REBOOT request reboot_req_o
+  [PASS] RB the request follows the SUCCESS response's last byte order
+  [PASS] RB ENTITY_DEPARTING left before the request order
+  [PASS] RB no flash writer is live in this harness (nvm_backed 0) got=0x00000000 exp=0x00000000
+  [PASS] RB the PHY hold rises                      o_reboot_phy_hold
+  [PASS] RB the PHY hold rises two clocks after the REBOOT request got=0x00000002 exp=0x00000002
+  [PASS] RB first IPROG: eight IPROG words are recorded eight words
+  [PASS] RB first IPROG: CSIB is low for exactly eight consecutive clocks eight in a row
+  [PASS] RB first IPROG: dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte the sequence
+  [i]    RB first IPROG: 350006 clocks of PHY hold before the words, bound (350000, 350100]
+  [PASS] RB first IPROG: the PHY is held more than 3,500 ms before the words the hold
+  [PASS] RB first IPROG: ...and at most one tick more the hold
+  [PASS] RB retry: eight IPROG words are recorded   eight words
+  [PASS] RB retry: CSIB is low for exactly eight consecutive clocks eight in a row
+  [PASS] RB retry: dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte the sequence
+  [i]    RB retry: 350092 clocks of PHY hold before the words, bound (350000, 350100]
+  [PASS] RB retry: the PHY is held more than 3,500 ms before the words the hold
+  [PASS] RB retry: ...and at most one tick more     the hold
+  [PASS] RB the PHY hold stays up to the end of the run got=0x00000000 exp=0x00000000
+----------------------------------------------------------------
+pp_shadow: 38 checks, 0 failures
+RESULT: PASS

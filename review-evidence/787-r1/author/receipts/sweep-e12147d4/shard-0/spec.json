@@ -1,0 +1,20 @@
+{
+ "cwd": "<lanes>/787-a700c-shard0",
+ "head": "e12147d437065fd9296b0017687814f475ef550d",
+ "base": "1e80128f0a467b58bf884b7d9bf62e013a2fb141",
+ "commands": [
+  [
+   "env",
+   "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=<scratch-root>/a662/tsn-gen",
+   "TMPDIR=<scratch>/tmp-sweep",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "<scratch>/sweep-e12147d4/shard-0/logs",
+   "--wait",
+   "--shard",
+   "0/4"
+  ]
+ ]
+}

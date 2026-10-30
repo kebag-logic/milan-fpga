@@ -1,0 +1,233 @@
+[RB] AECP REBOOT -> reboot_req -> every frame on the wire -> PHY hold -> IPROG on the ICAPE2 port
+  [PASS] RB no cycle of the run before the REBOOT held the PHY got=0x00000000 exp=0x00000000
+  [PASS] RB no cycle of the run before the REBOOT dropped CSIB got=0x00000000 exp=0x00000000
+  [PASS] RB advertising: the boot restore walk ends, so AECP serves restore_done set
+  [i]    RB first ENTITY_AVAILABLE 89024 clocks after the enable
+  [PASS] RB the entity advertises before the REBOOT ENTITY_AVAILABLE
+  [PASS] RB REBOOT of ENTITY 1 is answered NO_SUCH_DESCRIPTOR got=0x00000002 exp=0x00000002
+  [PASS] RB ...and raises no request                got=0x00000000 exp=0x00000000
+  [PASS] RB ...and holds no PHY                     got=0x00000000 exp=0x00000000
+  [PASS] RB ...and sends no IPROG word              got=0x00000000 exp=0x00000000
+  [PASS] RB REBOOT of ENTITY 0 is answered          response
+  [PASS] RB SUCCESS: message_type = command + 1     got=0x00000001 exp=0x00000001
+  [PASS] RB SUCCESS: sv/version nibble is zero      got=0x00000000 exp=0x00000000
+  [PASS] RB SUCCESS: target_entity_id is OURS       got=0x001BC50C exp=0x001BC50C
+  [PASS] RB SUCCESS: controller_entity_id echoed    got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] RB SUCCESS: sequence_id echoed             got=0x00000B02 exp=0x00000B02
+  [PASS] RB SUCCESS: command_type echoed, u = 0     got=0x0000002A exp=0x0000002A
+  [PASS] RB SUCCESS: unicast back to the requester  got=0x02112233 exp=0x02112233
+  [PASS] RB SUCCESS: source address is the station MAC got=0x02000000 exp=0x02000000
+  [PASS] RB SUCCESS: status SUCCESS                 got=0x00000000 exp=0x00000000
+  [PASS] RB SUCCESS: control_data_length = 12 + payload got=0x00000010 exp=0x00000010
+  [PASS] RB SUCCESS: frame length matches (60-octet min) got=0x0000003C exp=0x0000003C
+  [PASS] RB SUCCESS: {ENTITY, 0} echoed             got=0x00000000 exp=0x00000000
+  [PASS] RB the processor raises its REBOOT request reboot_req_o
+  [PASS] RB at the port: the request follows the SUCCESS response's last byte order
+  [PASS] RB at the port: ENTITY_DEPARTING left before the request order
+  [PASS] RB no flash writer is live in this harness (nvm_backed 0) got=0x00000000 exp=0x00000000
+  [PASS] RB advertising: the PHY hold rises         o_reboot_phy_hold
+  [PASS] RB advertising: the PHY hold follows the processor's REBOOT request order
+  [PASS] RB advertising: the SUCCESS response leaves the MAC whole before the PHY hold on the wire
+  [PASS] RB advertising: the notification to the other registered controller leaves after it, before the PHY hold on the wire
+  [PASS] RB advertising: ENTITY_DEPARTING leaves after the notification, before the PHY hold on the wire
+  [PASS] RB advertising: the PHY hold cuts no frame on the wire got=0x00000000 exp=0x00000000
+  [PASS] RB advertising: ...and leaves none in the MAC got=0x00000000 exp=0x00000000
+  [i]    RB advertising: request 43904460, last frame off the wire 43904843, PHY hold 43905006
+  [PASS] RB advertising: the PHY hold rises more than one millisecond after the last frame left the MAC quiet
+  [PASS] RB advertising: ...and at most two ticks and eight clocks after it observed
+  [PASS] RB advertising: ...and inside the egress bound of the request bound
+  [PASS] RB first IPROG: eight IPROG words are recorded eight words
+  [PASS] RB first IPROG: CSIB is low for exactly eight consecutive clocks eight in a row
+  [PASS] RB first IPROG: dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte the sequence
+  [i]    RB first IPROG: 350100 clocks of PHY hold before the words, bound (350000, 350100]
+  [PASS] RB first IPROG: the PHY is held more than 3,500 ms before the words the hold
+  [PASS] RB first IPROG: ...and at most one tick more the hold
+  [PASS] RB retry: eight IPROG words are recorded   eight words
+  [PASS] RB retry: CSIB is low for exactly eight consecutive clocks eight in a row
+  [PASS] RB retry: dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte the sequence
+  [i]    RB retry: 350092 clocks of PHY hold before the words, bound (350000, 350100]
+  [PASS] RB retry: the PHY is held more than 3,500 ms before the words the hold
+  [PASS] RB retry: ...and at most one tick more     the hold
+  [PASS] RB the PHY hold stays up to the end of the run got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the boot restore walk ends, so AECP serves restore_done set
+  [PASS] RB not advertising: REBOOT of ENTITY 0 is answered SUCCESS got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the processor raises its REBOOT request reboot_req_o
+  [PASS] RB not advertising: no ENTITY_DEPARTING at the port either got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the PHY hold rises     o_reboot_phy_hold
+  [PASS] RB not advertising: the PHY hold follows the processor's REBOOT request order
+  [PASS] RB not advertising: the SUCCESS response leaves the MAC whole before the PHY hold on the wire
+  [PASS] RB not advertising: the notification to the other registered controller leaves after it, before the PHY hold on the wire
+  [PASS] RB not advertising: no ENTITY_DEPARTING reaches the wire got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the PHY hold cuts no frame on the wire got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: ...and leaves none in the MAC got=0x00000000 exp=0x00000000
+  [i]    RB not advertising: request 44628589, last frame off the wire 44628882, PHY hold 44629056
+  [PASS] RB not advertising: the PHY hold rises more than one millisecond after the last frame left the MAC quiet
+  [PASS] RB not advertising: ...and at most two ticks and eight clocks after it observed
+  [PASS] RB not advertising: ...and inside the egress bound of the request bound
+  [PASS] RB not advertising: the PHY hold waits for the last frame the port started its last octet is the last before the hold
+  [PASS] RB dead transmit clock: the boot restore walk ends, so AECP serves restore_done set
+  [PASS] RB dead transmit clock: REBOOT of ENTITY 0 is answered SUCCESS at the port got=0x00000000 exp=0x00000000
+  [PASS] RB dead transmit clock: the processor raises its REBOOT request reboot_req_o
+  [PASS] RB dead transmit clock: nothing reaches the wire got=0x00000000 exp=0x00000000
+  [PASS] RB dead transmit clock: the PHY hold still rises o_reboot_phy_hold
+  [i]    RB dead transmit clock: 2845 clocks from the request to the PHY hold, bound (2800, 2904]
+  [PASS] RB dead transmit clock: ...more than the 28 ms egress bound after the request the bound
+  [PASS] RB dead transmit clock: ...and at most one tick and four clocks more the bound
+pp_shadow: 719 checks, 0 failures
+RESULT: PASS
+[RB] AECP REBOOT -> reboot_req -> every frame on the wire -> PHY hold -> IPROG on the ICAPE2 port
+  [PASS] RB no cycle of the run before the REBOOT held the PHY got=0x00000000 exp=0x00000000
+  [PASS] RB no cycle of the run before the REBOOT dropped CSIB got=0x00000000 exp=0x00000000
+  [PASS] RB advertising: the boot restore walk ends, so AECP serves restore_done set
+  [i]    RB first ENTITY_AVAILABLE 89024 clocks after the enable
+  [PASS] RB the entity advertises before the REBOOT ENTITY_AVAILABLE
+  [PASS] RB REBOOT of ENTITY 1 is answered NO_SUCH_DESCRIPTOR got=0x00000002 exp=0x00000002
+  [PASS] RB ...and raises no request                got=0x00000000 exp=0x00000000
+  [PASS] RB ...and holds no PHY                     got=0x00000000 exp=0x00000000
+  [PASS] RB ...and sends no IPROG word              got=0x00000000 exp=0x00000000
+  [PASS] RB REBOOT of ENTITY 0 is answered          response
+  [PASS] RB SUCCESS: message_type = command + 1     got=0x00000001 exp=0x00000001
+  [PASS] RB SUCCESS: sv/version nibble is zero      got=0x00000000 exp=0x00000000
+  [PASS] RB SUCCESS: target_entity_id is OURS       got=0x001BC50C exp=0x001BC50C
+  [PASS] RB SUCCESS: controller_entity_id echoed    got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] RB SUCCESS: sequence_id echoed             got=0x00000B02 exp=0x00000B02
+  [PASS] RB SUCCESS: command_type echoed, u = 0     got=0x0000002A exp=0x0000002A
+  [PASS] RB SUCCESS: unicast back to the requester  got=0x02112233 exp=0x02112233
+  [PASS] RB SUCCESS: source address is the station MAC got=0x02000000 exp=0x02000000
+  [PASS] RB SUCCESS: status SUCCESS                 got=0x00000000 exp=0x00000000
+  [PASS] RB SUCCESS: control_data_length = 12 + payload got=0x00000010 exp=0x00000010
+  [PASS] RB SUCCESS: frame length matches (60-octet min) got=0x0000003C exp=0x0000003C
+  [PASS] RB SUCCESS: {ENTITY, 0} echoed             got=0x00000000 exp=0x00000000
+  [PASS] RB the processor raises its REBOOT request reboot_req_o
+  [PASS] RB at the port: the request follows the SUCCESS response's last byte order
+  [PASS] RB at the port: ENTITY_DEPARTING left before the request order
+  [PASS] RB no flash writer is live in this harness (nvm_backed 0) got=0x00000000 exp=0x00000000
+  [PASS] RB advertising: the PHY hold rises         o_reboot_phy_hold
+  [PASS] RB advertising: the PHY hold follows the processor's REBOOT request order
+  [PASS] RB advertising: the SUCCESS response leaves the MAC whole before the PHY hold on the wire
+  [PASS] RB advertising: the notification to the other registered controller leaves after it, before the PHY hold on the wire
+  [PASS] RB advertising: ENTITY_DEPARTING leaves after the notification, before the PHY hold on the wire
+  [PASS] RB advertising: the PHY hold cuts no frame on the wire got=0x00000000 exp=0x00000000
+  [PASS] RB advertising: ...and leaves none in the MAC got=0x00000000 exp=0x00000000
+  [i]    RB advertising: request 43904460, last frame off the wire 43904843, PHY hold 43905006
+  [PASS] RB advertising: the PHY hold rises more than one millisecond after the last frame left the MAC quiet
+  [PASS] RB advertising: ...and at most two ticks and eight clocks after it observed
+  [PASS] RB advertising: ...and inside the egress bound of the request bound
+  [PASS] RB first IPROG: eight IPROG words are recorded eight words
+  [PASS] RB first IPROG: CSIB is low for exactly eight consecutive clocks eight in a row
+  [PASS] RB first IPROG: dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte the sequence
+  [i]    RB first IPROG: 350100 clocks of PHY hold before the words, bound (350000, 350100]
+  [PASS] RB first IPROG: the PHY is held more than 3,500 ms before the words the hold
+  [PASS] RB first IPROG: ...and at most one tick more the hold
+  [PASS] RB retry: eight IPROG words are recorded   eight words
+  [PASS] RB retry: CSIB is low for exactly eight consecutive clocks eight in a row
+  [PASS] RB retry: dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte the sequence
+  [i]    RB retry: 350092 clocks of PHY hold before the words, bound (350000, 350100]
+  [PASS] RB retry: the PHY is held more than 3,500 ms before the words the hold
+  [PASS] RB retry: ...and at most one tick more     the hold
+  [PASS] RB the PHY hold stays up to the end of the run got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the boot restore walk ends, so AECP serves restore_done set
+  [PASS] RB not advertising: REBOOT of ENTITY 0 is answered SUCCESS got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the processor raises its REBOOT request reboot_req_o
+  [PASS] RB not advertising: no ENTITY_DEPARTING at the port either got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the PHY hold rises     o_reboot_phy_hold
+  [PASS] RB not advertising: the PHY hold follows the processor's REBOOT request order
+  [PASS] RB not advertising: the SUCCESS response leaves the MAC whole before the PHY hold on the wire
+  [PASS] RB not advertising: the notification to the other registered controller leaves after it, before the PHY hold on the wire
+  [PASS] RB not advertising: no ENTITY_DEPARTING reaches the wire got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the PHY hold cuts no frame on the wire got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: ...and leaves none in the MAC got=0x00000000 exp=0x00000000
+  [i]    RB not advertising: request 44628589, last frame off the wire 44628882, PHY hold 44629056
+  [PASS] RB not advertising: the PHY hold rises more than one millisecond after the last frame left the MAC quiet
+  [PASS] RB not advertising: ...and at most two ticks and eight clocks after it observed
+  [PASS] RB not advertising: ...and inside the egress bound of the request bound
+  [PASS] RB not advertising: the PHY hold waits for the last frame the port started its last octet is the last before the hold
+  [PASS] RB dead transmit clock: the boot restore walk ends, so AECP serves restore_done set
+  [PASS] RB dead transmit clock: REBOOT of ENTITY 0 is answered SUCCESS at the port got=0x00000000 exp=0x00000000
+  [PASS] RB dead transmit clock: the processor raises its REBOOT request reboot_req_o
+  [PASS] RB dead transmit clock: nothing reaches the wire got=0x00000000 exp=0x00000000
+  [PASS] RB dead transmit clock: the PHY hold still rises o_reboot_phy_hold
+  [i]    RB dead transmit clock: 2845 clocks from the request to the PHY hold, bound (2800, 2904]
+  [PASS] RB dead transmit clock: ...more than the 28 ms egress bound after the request the bound
+  [PASS] RB dead transmit clock: ...and at most one tick and four clocks more the bound
+pp_shadow: 719 checks, 0 failures
+RESULT: PASS
+[RB] AECP REBOOT -> reboot_req -> every frame on the wire -> PHY hold -> IPROG on the ICAPE2 port
+  [PASS] RB no cycle of the run before the REBOOT held the PHY got=0x00000000 exp=0x00000000
+  [PASS] RB no cycle of the run before the REBOOT dropped CSIB got=0x00000000 exp=0x00000000
+  [PASS] RB advertising: the boot restore walk ends, so AECP serves restore_done set
+  [i]    RB first ENTITY_AVAILABLE 73664 clocks after the enable
+  [PASS] RB the entity advertises before the REBOOT ENTITY_AVAILABLE
+  [PASS] RB REBOOT of ENTITY 1 is answered NO_SUCH_DESCRIPTOR got=0x00000002 exp=0x00000002
+  [PASS] RB ...and raises no request                got=0x00000000 exp=0x00000000
+  [PASS] RB ...and holds no PHY                     got=0x00000000 exp=0x00000000
+  [PASS] RB ...and sends no IPROG word              got=0x00000000 exp=0x00000000
+  [PASS] RB REBOOT of ENTITY 0 is answered          response
+  [PASS] RB SUCCESS: message_type = command + 1     got=0x00000001 exp=0x00000001
+  [PASS] RB SUCCESS: sv/version nibble is zero      got=0x00000000 exp=0x00000000
+  [PASS] RB SUCCESS: target_entity_id is OURS       got=0x001BC50C exp=0x001BC50C
+  [PASS] RB SUCCESS: controller_entity_id echoed    got=0xC0FFEE00 exp=0xC0FFEE00
+  [PASS] RB SUCCESS: sequence_id echoed             got=0x00000B02 exp=0x00000B02
+  [PASS] RB SUCCESS: command_type echoed, u = 0     got=0x0000002A exp=0x0000002A
+  [PASS] RB SUCCESS: unicast back to the requester  got=0x02112233 exp=0x02112233
+  [PASS] RB SUCCESS: source address is the station MAC got=0x02000000 exp=0x02000000
+  [PASS] RB SUCCESS: status SUCCESS                 got=0x00000000 exp=0x00000000
+  [PASS] RB SUCCESS: control_data_length = 12 + payload got=0x00000010 exp=0x00000010
+  [PASS] RB SUCCESS: frame length matches (60-octet min) got=0x0000003C exp=0x0000003C
+  [PASS] RB SUCCESS: {ENTITY, 0} echoed             got=0x00000000 exp=0x00000000
+  [PASS] RB the processor raises its REBOOT request reboot_req_o
+  [PASS] RB at the port: the request follows the SUCCESS response's last byte order
+  [PASS] RB at the port: ENTITY_DEPARTING left before the request order
+  [PASS] RB no flash writer is live in this harness (nvm_backed 0) got=0x00000000 exp=0x00000000
+  [PASS] RB advertising: the PHY hold rises         o_reboot_phy_hold
+  [PASS] RB advertising: the PHY hold follows the processor's REBOOT request order
+  [PASS] RB advertising: the SUCCESS response leaves the MAC whole before the PHY hold on the wire
+  [PASS] RB advertising: the notification to the other registered controller leaves after it, before the PHY hold on the wire
+  [PASS] RB advertising: ENTITY_DEPARTING leaves after the notification, before the PHY hold on the wire
+  [PASS] RB advertising: the PHY hold cuts no frame on the wire got=0x00000000 exp=0x00000000
+  [PASS] RB advertising: ...and leaves none in the MAC got=0x00000000 exp=0x00000000
+  [i]    RB advertising: request 45634247, last frame off the wire 45634630, PHY hold 45634799
+  [PASS] RB advertising: the PHY hold rises more than one millisecond after the last frame left the MAC quiet
+  [PASS] RB advertising: ...and at most two ticks and eight clocks after it observed
+  [PASS] RB advertising: ...and inside the egress bound of the request bound
+  [PASS] RB first IPROG: eight IPROG words are recorded eight words
+  [PASS] RB first IPROG: CSIB is low for exactly eight consecutive clocks eight in a row
+  [PASS] RB first IPROG: dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte the sequence
+  [i]    RB first IPROG: 350100 clocks of PHY hold before the words, bound (350000, 350100]
+  [PASS] RB first IPROG: the PHY is held more than 3,500 ms before the words the hold
+  [PASS] RB first IPROG: ...and at most one tick more the hold
+  [PASS] RB retry: eight IPROG words are recorded   eight words
+  [PASS] RB retry: CSIB is low for exactly eight consecutive clocks eight in a row
+  [PASS] RB retry: dummy, sync, NOOP, WBSTAR, 0, CMD, IPROG, NOOP, bits reversed per byte the sequence
+  [i]    RB retry: 350092 clocks of PHY hold before the words, bound (350000, 350100]
+  [PASS] RB retry: the PHY is held more than 3,500 ms before the words the hold
+  [PASS] RB retry: ...and at most one tick more     the hold
+  [PASS] RB the PHY hold stays up to the end of the run got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the boot restore walk ends, so AECP serves restore_done set
+  [PASS] RB not advertising: REBOOT of ENTITY 0 is answered SUCCESS got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the processor raises its REBOOT request reboot_req_o
+  [PASS] RB not advertising: no ENTITY_DEPARTING at the port either got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the PHY hold rises     o_reboot_phy_hold
+  [PASS] RB not advertising: the PHY hold follows the processor's REBOOT request order
+  [PASS] RB not advertising: the SUCCESS response leaves the MAC whole before the PHY hold on the wire
+  [PASS] RB not advertising: the notification to the other registered controller leaves after it, before the PHY hold on the wire
+  [PASS] RB not advertising: no ENTITY_DEPARTING reaches the wire got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the PHY hold cuts no frame on the wire got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: ...and leaves none in the MAC got=0x00000000 exp=0x00000000
+  [i]    RB not advertising: request 46358256, last frame off the wire 46358549, PHY hold 46358669
+  [PASS] RB not advertising: the PHY hold rises more than one millisecond after the last frame left the MAC quiet
+  [PASS] RB not advertising: ...and at most two ticks and eight clocks after it observed
+  [PASS] RB not advertising: ...and inside the egress bound of the request bound
+  [PASS] RB not advertising: the PHY hold waits for the last frame the port started its last octet is the last before the hold
+  [PASS] RB dead transmit clock: the boot restore walk ends, so AECP serves restore_done set
+  [PASS] RB dead transmit clock: REBOOT of ENTITY 0 is answered SUCCESS at the port got=0x00000000 exp=0x00000000
+  [PASS] RB dead transmit clock: the processor raises its REBOOT request reboot_req_o
+  [PASS] RB dead transmit clock: nothing reaches the wire got=0x00000000 exp=0x00000000
+  [PASS] RB dead transmit clock: the PHY hold still rises o_reboot_phy_hold
+  [i]    RB dead transmit clock: 2891 clocks from the request to the PHY hold, bound (2800, 2904]
+  [PASS] RB dead transmit clock: ...more than the 28 ms egress bound after the request the bound
+  [PASS] RB dead transmit clock: ...and at most one tick and four clocks more the bound
+pp_shadow: 759 checks, 0 failures
+RESULT: PASS
+pp_shadow: 317 checks, 0 failures
+RESULT: PASS

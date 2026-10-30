@@ -1,0 +1,13 @@
+make: Entering directory '<scratch>/clone-campaigns-e12147d4/tb/verilator/pp_shadow'
+python3 reboot_mutant.py
+clean control: [RB] PASS
+request-ignored: SURVIVED, it built nothing to grade (exit 2)
+early-request: SURVIVED, it built nothing to grade (exit 2)
+hold-on-the-request-alone: SURVIVED, it built nothing to grade (exit 2)
+egress-ignores-the-mac-fifo: SURVIVED, it built nothing to grade (exit 2)
+egress-without-a-bound: SURVIVED, it built nothing to grade (exit 2)
+txend-unwired: SURVIVED, it built nothing to grade (exit 2)
+== pp_shadow reboot mutants: arms: 6   survived: 6 ==
+RESULT: FAIL (request-ignored, early-request, hold-on-the-request-alone, egress-ignores-the-mac-fifo, egress-without-a-bound, txend-unwired)
+make: *** [Makefile:202: reboot-mutant] Error 1
+make: Leaving directory '<scratch>/clone-campaigns-e12147d4/tb/verilator/pp_shadow'
