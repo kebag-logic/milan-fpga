@@ -1,0 +1,5 @@
+milan_clock=milansoc_crg_clkout1 ps_clock=milansoc_crg_clkout4
+milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0] ASYNC_REG=1 LOC=SLICE_X3Y16 BEL=SLICEL.AFF
+milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[1] ASYNC_REG=1 LOC=SLICE_X3Y16 BEL=SLICEL.A5FF
+max: slack= requirement= exception=False Path datapath_delay=11.368 levels=1 start=FDPE_3/C start_clock=milansoc_crg_clkout1 end_clock=milansoc_crg_clkout4
+min: slack= requirement= exception=False Path datapath_delay=5.971 levels=1 start=FDPE_3/C start_clock=milansoc_crg_clkout1 end_clock=milansoc_crg_clkout4

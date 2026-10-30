@@ -1,0 +1,5 @@
+VARIANT fp_pin src=milansoc_crg_clkout1 dst=milansoc_crg_clkout4 slack= exception=False Path
+VARIANT fp_cell src=milansoc_crg_clkout1 dst=milansoc_crg_clkout4 slack= exception=False Path
+VARIANT mdd src=milansoc_crg_clkout1 dst=milansoc_crg_clkout4 slack=2.270 exception=MaxDelay Path 5.000ns -datapath_only
+VARIANT async_groups src=milansoc_crg_clkout1 dst=milansoc_crg_clkout4 slack= exception=Asynchronous Clock Groups
+VARIANT async_groups_noattr src=milansoc_crg_clkout1 dst=milansoc_crg_clkout4 slack= exception=Asynchronous Clock Groups
