@@ -7485,7 +7485,7 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#295 docs-check inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
-         "job `docs-check` must carry exactly 51 steps"),
+         "job `docs-check` must carry exactly 52 steps"),
         ("#295 docs-check-no-git inserted BASH_ENV writer breaks the sequence",
          _m_insert_step(DOCS, "docs-check-no-git",
                        {"name": "prep", "run": 'echo "BASH_ENV=$PWD/scripts/ci-bypass.sh" >> "$GITHUB_ENV"'}),
@@ -7499,7 +7499,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "job `elaborate` must carry exactly 21 steps"),
         ("#295 docs-check inserted step of benign content",
          _m_insert_step(DOCS, "docs-check", {"name": "tidy", "run": "true"}),
-         "job `docs-check` must carry exactly 51 steps"),
+         "job `docs-check` must carry exactly 52 steps"),
         ("#295 wire-accountability inserted step of benign content",
          _m_insert_step(DOCS, "wire-accountability", {"name": "tidy", "run": "true"}),
          "job `wire-accountability` must carry exactly 3 steps"),
@@ -7512,10 +7512,10 @@ def _carrier_step_list_arms() -> list[Arm]:
         ("#303 docs-check imported gPTP gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check",
                                  "check_gptp_docs.py --with-submodule")),
-         "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
+         "job `docs-check` must carry exactly 52 steps, in the recorded order (found 51)"),
         ("#295 docs-check recognised step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_baremetal_only")),
-         "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
+         "job `docs-check` must carry exactly 52 steps, in the recorded order (found 51)"),
         ("#295 elaborate patch-series step removed",
          (lambda w: _strip_steps(w, ELABORATE, "elaborate", "apply.sh")),
          "job `elaborate` must carry exactly 21 steps, in the recorded order (found 20)"),
@@ -7533,7 +7533,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          "(`Bare-metal scope gate`) must carry no `if`"),
         ("#559 capture measurement gate removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_nvm_capture.py")),
-         "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
+         "job `docs-check` must carry exactly 52 steps, in the recorded order (found 51)"),
         ("#559 capture measurement gate reordered",
          _m_swap_steps(DOCS, "docs-check", 26, 27),
          "job `docs-check` step 28 must be the step named `Capture measurement census and clock gate`"),
@@ -7573,7 +7573,7 @@ def _carrier_step_list_arms() -> list[Arm]:
          f"(`{EM_DASH_GATE_NAME}`) must carry no `if`"),
         ("#378 em-dash gate step removed",
          (lambda w: _strip_steps(w, DOCS, "docs-check", "check_em_dash.py")),
-         "job `docs-check` must carry exactly 51 steps, in the recorded order (found 50)"),
+         "job `docs-check` must carry exactly 52 steps, in the recorded order (found 51)"),
     ]
 
 
@@ -8108,7 +8108,7 @@ RV32_REQUIRED_STEPS = {
 def _rv32_sdk_arms() -> list[Arm]:
     """#504: missing provenance inputs, adoption guards and provisioning refuse."""
     arms = []
-    for path, jid, count in ((DOCS, "docs-check", 51),
+    for path, jid, count in ((DOCS, "docs-check", 52),
                              (ELABORATE, "elaborate", 21),
                              *((RTL_FAST, job, len(RTL_STEP_LISTS[(RTL_FAST, job)]))
                                for job in FIRMWARE_JOBS),
