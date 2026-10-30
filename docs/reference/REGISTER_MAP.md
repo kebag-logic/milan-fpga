@@ -137,7 +137,7 @@ Production classes are in [REGISTER_MAP_CLASSES.md](REGISTER_MAP_CLASSES.md).
 
 ## Memory map
 
-![Memory map of the shipping SoC](../../docs/diagrams/memory_map.svg)
+![Memory map of the shipping SoC](../diagrams/memory_map.svg)
 
 | Region | Start address | End address | Size | Description |
 |---|---|---|---|---|
@@ -288,7 +288,7 @@ Constant magic word that identifies the Milan CSR block.
 
 RTL name: `A_ID`.
 
-![ID bit fields](../../docs/diagrams/regmap/ident/ID.svg)
+![ID bit fields](../diagrams/regmap/ident/ID.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -302,7 +302,7 @@ This build's VERSION is `0x0002_0060`.
 
 RTL name: `A_VERSION`.
 
-![VERSION bit fields](../../docs/diagrams/regmap/ident/VERSION.svg)
+![VERSION bit fields](../diagrams/regmap/ident/VERSION.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -318,7 +318,7 @@ Constant capability flags and the queue-window geometry.
 
 RTL name: `A_CAP`.
 
-![CAP bit fields](../../docs/diagrams/regmap/ident/CAP.svg)
+![CAP bit fields](../diagrams/regmap/ident/CAP.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -341,7 +341,7 @@ Read/write word for bus liveness tests.
 
 RTL name: `A_SCRATCH`.
 
-![SCRATCH bit fields](../../docs/diagrams/regmap/ident/SCRATCH.svg)
+![SCRATCH bit fields](../diagrams/regmap/ident/SCRATCH.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -353,7 +353,7 @@ Latched interrupt events, cleared by writing 1.
 
 RTL name: `A_IRQ_STATUS`.
 
-![IRQ_STATUS bit fields](../../docs/diagrams/regmap/ident/IRQ_STATUS.svg)
+![IRQ_STATUS bit fields](../diagrams/regmap/ident/IRQ_STATUS.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -372,7 +372,7 @@ Enables each interrupt source onto the IRQ line.
 
 RTL name: `A_IRQ_MASK`.
 
-![IRQ_MASK bit fields](../../docs/diagrams/regmap/ident/IRQ_MASK.svg)
+![IRQ_MASK bit fields](../diagrams/regmap/ident/IRQ_MASK.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -384,7 +384,7 @@ Latched interrupt events before masking.
 
 RTL name: `A_IRQ_RAW`.
 
-![IRQ_RAW bit fields](../../docs/diagrams/regmap/ident/IRQ_RAW.svg)
+![IRQ_RAW bit fields](../diagrams/regmap/ident/IRQ_RAW.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -432,7 +432,7 @@ MAC enables, receive filtering modes and the link-rate override.
 
 RTL name: `A_MAC_CTRL`.
 
-![MAC_CTRL bit fields](../../docs/diagrams/regmap/mac/MAC_CTRL.svg)
+![MAC_CTRL bit fields](../diagrams/regmap/mac/MAC_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -454,7 +454,7 @@ Inter-frame gap in bytes.
 
 RTL name: `A_MAC_IFG`.
 
-![MAC_IFG bit fields](../../docs/diagrams/regmap/mac/MAC_IFG.svg)
+![MAC_IFG bit fields](../diagrams/regmap/mac/MAC_IFG.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -467,7 +467,7 @@ Station MAC address bits 31 to 0.
 
 RTL name: `A_MAC_ALO`.
 
-![MAC_ADDR_LO bit fields](../../docs/diagrams/regmap/mac/MAC_ADDR_LO.svg)
+![MAC_ADDR_LO bit fields](../diagrams/regmap/mac/MAC_ADDR_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -483,7 +483,7 @@ Station MAC address bits 47 to 32.
 
 RTL name: `A_MAC_AHI`.
 
-![MAC_ADDR_HI bit fields](../../docs/diagrams/regmap/mac/MAC_ADDR_HI.svg)
+![MAC_ADDR_HI bit fields](../diagrams/regmap/mac/MAC_ADDR_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -500,7 +500,7 @@ Link, speed and duplex as the SoC publishes them.
 
 RTL name: `A_MAC_STATUS`.
 
-![MAC_STATUS bit fields](../../docs/diagrams/regmap/mac/MAC_STATUS.svg)
+![MAC_STATUS bit fields](../diagrams/regmap/mac/MAC_STATUS.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -520,7 +520,7 @@ Multicast hash filter buckets 0 to 31.
 
 RTL name: `A_MC_LO`.
 
-![MC_HASH_LO bit fields](../../docs/diagrams/regmap/mac/MC_HASH_LO.svg)
+![MC_HASH_LO bit fields](../diagrams/regmap/mac/MC_HASH_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -532,7 +532,7 @@ Multicast hash filter buckets 32 to 63.
 
 RTL name: `A_MC_HI`.
 
-![MC_HASH_HI bit fields](../../docs/diagrams/regmap/mac/MC_HASH_HI.svg)
+![MC_HASH_HI bit fields](../diagrams/regmap/mac/MC_HASH_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -544,7 +544,7 @@ Stored PHY reset bit that the shipping SoC leaves unconnected.
 
 RTL name: `A_PHY_RST`.
 
-![PHY_RESET bit fields](../../docs/diagrams/regmap/mac/PHY_RESET.svg)
+![PHY_RESET bit fields](../diagrams/regmap/mac/PHY_RESET.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -598,7 +598,7 @@ Snapshot and reset strobes for the RMON counters.
 
 RTL name: `A_STATS_CTRL`.
 
-![STATS_CTRL bit fields](../../docs/diagrams/regmap/stats/STATS_CTRL.svg)
+![STATS_CTRL bit fields](../diagrams/regmap/stats/STATS_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -612,7 +612,7 @@ Marks which RMON counter lanes have a real source.
 
 RTL name: `A_STATS_CAP`.
 
-![STATS_CAP bit fields](../../docs/diagrams/regmap/stats/STATS_CAP.svg)
+![STATS_CAP bit fields](../diagrams/regmap/stats/STATS_CAP.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -628,7 +628,7 @@ Snapshot of one RMON counter, latched by STATS_CTRL.
 
 RTL name: `A_STATS_BASE to A_STATS_END (stat_snap)`.
 
-![STATn bit fields](../../docs/diagrams/regmap/stats/STATn.svg)
+![STATn bit fields](../diagrams/regmap/stats/STATn.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -673,7 +673,7 @@ Retained classifier control word; no logic reads it.
 
 RTL name: `A_CLS_CTRL`.
 
-![CLS_CTRL bit fields](../../docs/diagrams/regmap/cls/CLS_CTRL.svg)
+![CLS_CTRL bit fields](../diagrams/regmap/cls/CLS_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -689,7 +689,7 @@ Retained default-priority word; no logic reads it.
 
 RTL name: `A_CLS_DPCP`.
 
-![CLS_DEFAULT_PCP bit fields](../../docs/diagrams/regmap/cls/CLS_DEFAULT_PCP.svg)
+![CLS_DEFAULT_PCP bit fields](../diagrams/regmap/cls/CLS_DEFAULT_PCP.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -705,7 +705,7 @@ Retained PCP to traffic-class map; no logic reads it.
 
 RTL name: `A_CLS_MAP`.
 
-![CLS_PCP_TC_MAP bit fields](../../docs/diagrams/regmap/cls/CLS_PCP_TC_MAP.svg)
+![CLS_PCP_TC_MAP bit fields](../diagrams/regmap/cls/CLS_PCP_TC_MAP.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -717,7 +717,7 @@ Retained priority regeneration map; no logic reads it.
 
 RTL name: `A_CLS_REGEN`.
 
-![CLS_PRIO_REGEN bit fields](../../docs/diagrams/regmap/cls/CLS_PRIO_REGEN.svg)
+![CLS_PRIO_REGEN bit fields](../diagrams/regmap/cls/CLS_PRIO_REGEN.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -729,7 +729,7 @@ Retained traffic-class to queue map; no logic reads it.
 
 RTL name: `A_CLS_TCQ`.
 
-![CLS_TC_QUEUE_MAP bit fields](../../docs/diagrams/regmap/cls/CLS_TC_QUEUE_MAP.svg)
+![CLS_TC_QUEUE_MAP bit fields](../diagrams/regmap/cls/CLS_TC_QUEUE_MAP.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -791,7 +791,7 @@ Retained idleSlope word for one queue; nothing reads it.
 
 RTL name: `A_CBS_BASE + 0x0 + 0x20 * q (CBS_IDLE_RST)`.
 
-![CBS_IDLE_SLOPEn bit fields](../../docs/diagrams/regmap/cbs/CBS_IDLE_SLOPEn.svg)
+![CBS_IDLE_SLOPEn bit fields](../diagrams/regmap/cbs/CBS_IDLE_SLOPEn.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -811,7 +811,7 @@ Retained hiCredit word for one queue; nothing reads it.
 
 RTL name: `A_CBS_BASE + 0x4 + 0x20 * q (CBS_HI_RST)`.
 
-![CBS_HI_CREDITn bit fields](../../docs/diagrams/regmap/cbs/CBS_HI_CREDITn.svg)
+![CBS_HI_CREDITn bit fields](../diagrams/regmap/cbs/CBS_HI_CREDITn.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -831,7 +831,7 @@ Retained loCredit word for one queue; nothing reads it.
 
 RTL name: `A_CBS_BASE + 0x8 + 0x20 * q (CBS_LO_RST)`.
 
-![CBS_LO_CREDITn bit fields](../../docs/diagrams/regmap/cbs/CBS_LO_CREDITn.svg)
+![CBS_LO_CREDITn bit fields](../diagrams/regmap/cbs/CBS_LO_CREDITn.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -851,7 +851,7 @@ Retained shaping enable for one queue; nothing reads it.
 
 RTL name: `A_CBS_BASE + 0xC + 0x20 * q (CBS_EN_RST)`.
 
-![CBS_CTRLn bit fields](../../docs/diagrams/regmap/cbs/CBS_CTRLn.svg)
+![CBS_CTRLn bit fields](../diagrams/regmap/cbs/CBS_CTRLn.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -895,7 +895,7 @@ Enables the PTP hardware clock counter.
 
 RTL name: `A_PTP_CTRL`.
 
-![PTP_CTRL bit fields](../../docs/diagrams/regmap/ptp/PTP_CTRL.svg)
+![PTP_CTRL bit fields](../diagrams/regmap/ptp/PTP_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -908,7 +908,7 @@ Nominal clock increment per tick, Q8.24 nanoseconds.
 
 RTL name: `A_PTP_INCR`.
 
-![PTP_INCR bit fields](../../docs/diagrams/regmap/ptp/PTP_INCR.svg)
+![PTP_INCR bit fields](../diagrams/regmap/ptp/PTP_INCR.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -924,7 +924,7 @@ Signed addend applied on every tick.
 
 RTL name: `A_PTP_ADJ`.
 
-![PTP_ADJ bit fields](../../docs/diagrams/regmap/ptp/PTP_ADJ.svg)
+![PTP_ADJ bit fields](../diagrams/regmap/ptp/PTP_ADJ.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -936,7 +936,7 @@ Time-of-day target for settime, bits 31 to 0.
 
 RTL name: `A_PTP_TWLO`.
 
-![PTP_TOD_WR_LO bit fields](../../docs/diagrams/regmap/ptp/PTP_TOD_WR_LO.svg)
+![PTP_TOD_WR_LO bit fields](../diagrams/regmap/ptp/PTP_TOD_WR_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -952,7 +952,7 @@ Time-of-day target for settime, bits 63 to 32.
 
 RTL name: `A_PTP_TWHI`.
 
-![PTP_TOD_WR_HI bit fields](../../docs/diagrams/regmap/ptp/PTP_TOD_WR_HI.svg)
+![PTP_TOD_WR_HI bit fields](../diagrams/regmap/ptp/PTP_TOD_WR_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -968,7 +968,7 @@ Signed adjtime delta, bits 31 to 0.
 
 RTL name: `A_PTP_OFLO`.
 
-![PTP_OFFSET_LO bit fields](../../docs/diagrams/regmap/ptp/PTP_OFFSET_LO.svg)
+![PTP_OFFSET_LO bit fields](../diagrams/regmap/ptp/PTP_OFFSET_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -984,7 +984,7 @@ Signed adjtime delta, bits 63 to 32.
 
 RTL name: `A_PTP_OFHI`.
 
-![PTP_OFFSET_HI bit fields](../../docs/diagrams/regmap/ptp/PTP_OFFSET_HI.svg)
+![PTP_OFFSET_HI bit fields](../diagrams/regmap/ptp/PTP_OFFSET_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1000,7 +1000,7 @@ Strobes that apply settime, adjtime or a time snapshot.
 
 RTL name: `A_PTP_CMD`.
 
-![PTP_CMD bit fields](../../docs/diagrams/regmap/ptp/PTP_CMD.svg)
+![PTP_CMD bit fields](../diagrams/regmap/ptp/PTP_CMD.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1015,7 +1015,7 @@ Time of day latched by the last snapshot, low word.
 
 RTL name: `A_PTP_TRLO`.
 
-![PTP_TOD_RD_LO bit fields](../../docs/diagrams/regmap/ptp/PTP_TOD_RD_LO.svg)
+![PTP_TOD_RD_LO bit fields](../diagrams/regmap/ptp/PTP_TOD_RD_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1031,7 +1031,7 @@ Time of day latched by the last snapshot, high word.
 
 RTL name: `A_PTP_TRHI`.
 
-![PTP_TOD_RD_HI bit fields](../../docs/diagrams/regmap/ptp/PTP_TOD_RD_HI.svg)
+![PTP_TOD_RD_HI bit fields](../diagrams/regmap/ptp/PTP_TOD_RD_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1047,7 +1047,7 @@ Readable inert scratch; corrections are published at GPTP_LAT.
 
 RTL name: `A_PTP_ILAT`.
 
-![PTP_INGRESS_LAT bit fields](../../docs/diagrams/regmap/ptp/PTP_INGRESS_LAT.svg)
+![PTP_INGRESS_LAT bit fields](../diagrams/regmap/ptp/PTP_INGRESS_LAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1059,7 +1059,7 @@ Readable inert scratch; corrections are published at GPTP_LAT.
 
 RTL name: `A_PTP_ELAT`.
 
-![PTP_EGRESS_LAT bit fields](../../docs/diagrams/regmap/ptp/PTP_EGRESS_LAT.svg)
+![PTP_EGRESS_LAT bit fields](../diagrams/regmap/ptp/PTP_EGRESS_LAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1071,7 +1071,7 @@ PPS enable, arm strobe and the built capability bit.
 
 RTL name: `A_PPS_CTRL`.
 
-![PTP_PPS_CTRL bit fields](../../docs/diagrams/regmap/ptp/PTP_PPS_CTRL.svg)
+![PTP_PPS_CTRL bit fields](../diagrams/regmap/ptp/PTP_PPS_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1091,7 +1091,7 @@ Absolute PPS target to arm, bits 31 to 0.
 
 RTL name: `A_PPS_TGLO`.
 
-![PTP_PPS_TGT_LO bit fields](../../docs/diagrams/regmap/ptp/PTP_PPS_TGT_LO.svg)
+![PTP_PPS_TGT_LO bit fields](../diagrams/regmap/ptp/PTP_PPS_TGT_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1107,7 +1107,7 @@ Absolute PPS target to arm, bits 63 to 32.
 
 RTL name: `A_PPS_TGHI`.
 
-![PTP_PPS_TGT_HI bit fields](../../docs/diagrams/regmap/ptp/PTP_PPS_TGT_HI.svg)
+![PTP_PPS_TGT_HI bit fields](../diagrams/regmap/ptp/PTP_PPS_TGT_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1123,7 +1123,7 @@ Target the PHC publishes back, bits 31 to 0.
 
 RTL name: `A_PPS_RDLO`.
 
-![PTP_PPS_RD_LO bit fields](../../docs/diagrams/regmap/ptp/PTP_PPS_RD_LO.svg)
+![PTP_PPS_RD_LO bit fields](../diagrams/regmap/ptp/PTP_PPS_RD_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1139,7 +1139,7 @@ Target the PHC publishes back, bits 63 to 32.
 
 RTL name: `A_PPS_RDHI`.
 
-![PTP_PPS_RD_HI bit fields](../../docs/diagrams/regmap/ptp/PTP_PPS_RD_HI.svg)
+![PTP_PPS_RD_HI bit fields](../diagrams/regmap/ptp/PTP_PPS_RD_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1155,7 +1155,7 @@ PPS pulse width in PHC clock cycles.
 
 RTL name: `A_PPS_WIDTH`.
 
-![PTP_PPS_WIDTH bit fields](../../docs/diagrams/regmap/ptp/PTP_PPS_WIDTH.svg)
+![PTP_PPS_WIDTH bit fields](../diagrams/regmap/ptp/PTP_PPS_WIDTH.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1204,7 +1204,7 @@ Entity enable and the advertised valid time.
 
 RTL name: `A_ADP_CTRL`.
 
-![ADP_CTRL bit fields](../../docs/diagrams/regmap/adp/ADP_CTRL.svg)
+![ADP_CTRL bit fields](../diagrams/regmap/adp/ADP_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1219,7 +1219,7 @@ entity_id bits 31 to 0.
 
 RTL name: `A_ADP_EIDLO`.
 
-![ADP_ENTITY_ID_LO bit fields](../../docs/diagrams/regmap/adp/ADP_ENTITY_ID_LO.svg)
+![ADP_ENTITY_ID_LO bit fields](../diagrams/regmap/adp/ADP_ENTITY_ID_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1235,7 +1235,7 @@ entity_id bits 63 to 32.
 
 RTL name: `A_ADP_EIDHI`.
 
-![ADP_ENTITY_ID_HI bit fields](../../docs/diagrams/regmap/adp/ADP_ENTITY_ID_HI.svg)
+![ADP_ENTITY_ID_HI bit fields](../diagrams/regmap/adp/ADP_ENTITY_ID_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1251,7 +1251,7 @@ entity_model_id bits 31 to 0.
 
 RTL name: `A_ADP_MIDLO`.
 
-![ADP_MODEL_ID_LO bit fields](../../docs/diagrams/regmap/adp/ADP_MODEL_ID_LO.svg)
+![ADP_MODEL_ID_LO bit fields](../diagrams/regmap/adp/ADP_MODEL_ID_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1267,7 +1267,7 @@ entity_model_id bits 63 to 32.
 
 RTL name: `A_ADP_MIDHI`.
 
-![ADP_MODEL_ID_HI bit fields](../../docs/diagrams/regmap/adp/ADP_MODEL_ID_HI.svg)
+![ADP_MODEL_ID_HI bit fields](../diagrams/regmap/adp/ADP_MODEL_ID_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1283,7 +1283,7 @@ Stored and read back; the processor supplies the ADPDU field.
 
 RTL name: `A_ADP_ECAPS`.
 
-![ADP_ENTITY_CAPS bit fields](../../docs/diagrams/regmap/adp/ADP_ENTITY_CAPS.svg)
+![ADP_ENTITY_CAPS bit fields](../diagrams/regmap/adp/ADP_ENTITY_CAPS.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1295,7 +1295,7 @@ Constant talker sources and capabilities from the build config.
 
 RTL name: `A_ADP_TALK`.
 
-![ADP_TALKER bit fields](../../docs/diagrams/regmap/adp/ADP_TALKER.svg)
+![ADP_TALKER bit fields](../diagrams/regmap/adp/ADP_TALKER.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1311,7 +1311,7 @@ Constant listener sinks and capabilities from the build config.
 
 RTL name: `A_ADP_LIST`.
 
-![ADP_LISTENER bit fields](../../docs/diagrams/regmap/adp/ADP_LISTENER.svg)
+![ADP_LISTENER bit fields](../diagrams/regmap/adp/ADP_LISTENER.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1327,7 +1327,7 @@ Stored and read back; the processor supplies the ADPDU field.
 
 RTL name: `A_ADP_CCAPS`.
 
-![ADP_CONTROLLER_CAPS bit fields](../../docs/diagrams/regmap/adp/ADP_CONTROLLER_CAPS.svg)
+![ADP_CONTROLLER_CAPS bit fields](../diagrams/regmap/adp/ADP_CONTROLLER_CAPS.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1339,7 +1339,7 @@ Grandmaster identity bits 31 to 0, coherent with GMHI.
 
 RTL name: `A_ADP_GMLO`.
 
-![ADP_GPTP_GM_LO bit fields](../../docs/diagrams/regmap/adp/ADP_GPTP_GM_LO.svg)
+![ADP_GPTP_GM_LO bit fields](../diagrams/regmap/adp/ADP_GPTP_GM_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1355,7 +1355,7 @@ Grandmaster identity bits 63 to 32, coherent with GMLO.
 
 RTL name: `A_ADP_GMHI`.
 
-![ADP_GPTP_GM_HI bit fields](../../docs/diagrams/regmap/adp/ADP_GPTP_GM_HI.svg)
+![ADP_GPTP_GM_HI bit fields](../diagrams/regmap/adp/ADP_GPTP_GM_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1371,7 +1371,7 @@ The gPTP domain number, a structural zero.
 
 RTL name: `A_ADP_DOMAIN`.
 
-![ADP_GPTP_DOMAIN bit fields](../../docs/diagrams/regmap/adp/ADP_GPTP_DOMAIN.svg)
+![ADP_GPTP_DOMAIN bit fields](../diagrams/regmap/adp/ADP_GPTP_DOMAIN.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1387,7 +1387,7 @@ Current configuration and identify-control indices.
 
 RTL name: `A_ADP_IDX0`.
 
-![ADP_IDX0 bit fields](../../docs/diagrams/regmap/adp/ADP_IDX0.svg)
+![ADP_IDX0 bit fields](../diagrams/regmap/adp/ADP_IDX0.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1400,7 +1400,7 @@ Stored interface index; never reaches the wire.
 
 RTL name: `A_ADP_IDX1`.
 
-![ADP_IDX1 bit fields](../../docs/diagrams/regmap/adp/ADP_IDX1.svg)
+![ADP_IDX1 bit fields](../diagrams/regmap/adp/ADP_IDX1.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1417,7 +1417,7 @@ Stored association_id bits 31 to 0; never reaches the wire.
 
 RTL name: `A_ADP_ASLO`.
 
-![ADP_ASSOC_ID_LO bit fields](../../docs/diagrams/regmap/adp/ADP_ASSOC_ID_LO.svg)
+![ADP_ASSOC_ID_LO bit fields](../diagrams/regmap/adp/ADP_ASSOC_ID_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1433,7 +1433,7 @@ Stored association_id bits 63 to 32; never reaches the wire.
 
 RTL name: `A_ADP_ASHI`.
 
-![ADP_ASSOC_ID_HI bit fields](../../docs/diagrams/regmap/adp/ADP_ASSOC_ID_HI.svg)
+![ADP_ASSOC_ID_HI bit fields](../diagrams/regmap/adp/ADP_ASSOC_ID_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1449,7 +1449,7 @@ Advertise-now and depart strobes.
 
 RTL name: `A_ADP_CMD`.
 
-![ADP_CMD bit fields](../../docs/diagrams/regmap/adp/ADP_CMD.svg)
+![ADP_CMD bit fields](../diagrams/regmap/adp/ADP_CMD.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1467,7 +1467,7 @@ The available_index the processor advertises.
 
 RTL name: `A_ADP_STATUS`.
 
-![ADP_STATUS bit fields](../../docs/diagrams/regmap/adp/ADP_STATUS.svg)
+![ADP_STATUS bit fields](../diagrams/regmap/adp/ADP_STATUS.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1512,7 +1512,7 @@ Entity lock level and a retired command count.
 
 RTL name: `A_AECP_STAT0`.
 
-![AECP_STAT0 bit fields](../../docs/diagrams/regmap/aecp/AECP_STAT0.svg)
+![AECP_STAT0 bit fields](../diagrams/regmap/aecp/AECP_STAT0.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1530,7 +1530,7 @@ Retired AECP response count and configuration index.
 
 RTL name: `A_AECP_STAT1`.
 
-![AECP_STAT1 bit fields](../../docs/diagrams/regmap/aecp/AECP_STAT1.svg)
+![AECP_STAT1 bit fields](../diagrams/regmap/aecp/AECP_STAT1.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1547,7 +1547,7 @@ Retired ACMP command and response counts.
 
 RTL name: `A_ACMP_STAT`.
 
-![ACMP_STAT bit fields](../../docs/diagrams/regmap/aecp/ACMP_STAT.svg)
+![ACMP_STAT bit fields](../diagrams/regmap/aecp/ACMP_STAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1564,7 +1564,7 @@ AAF talker enable, gate bypass and stream VID.
 
 RTL name: `A_AAF_CTRL`.
 
-![AAF_CTRL bit fields](../../docs/diagrams/regmap/aecp/AAF_CTRL.svg)
+![AAF_CTRL bit fields](../diagrams/regmap/aecp/AAF_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1584,7 +1584,7 @@ AAF stream destination MAC bits 31 to 0.
 
 RTL name: `A_AAF_DMLO`.
 
-![AAF_DMLO bit fields](../../docs/diagrams/regmap/aecp/AAF_DMLO.svg)
+![AAF_DMLO bit fields](../diagrams/regmap/aecp/AAF_DMLO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1600,7 +1600,7 @@ AAF stream destination MAC bits 47 to 32.
 
 RTL name: `A_AAF_DMHI`.
 
-![AAF_DMHI bit fields](../../docs/diagrams/regmap/aecp/AAF_DMHI.svg)
+![AAF_DMHI bit fields](../diagrams/regmap/aecp/AAF_DMHI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1617,7 +1617,7 @@ AAF frames the talker has sent.
 
 RTL name: `A_AAF_FRAMES`.
 
-![AAF_FRAMES bit fields](../../docs/diagrams/regmap/aecp/AAF_FRAMES.svg)
+![AAF_FRAMES bit fields](../diagrams/regmap/aecp/AAF_FRAMES.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1629,7 +1629,7 @@ Audio sample pairs the talker front end captured.
 
 RTL name: `A_AAF_PAIRS`.
 
-![AAF_PAIRS bit fields](../../docs/diagrams/regmap/aecp/AAF_PAIRS.svg)
+![AAF_PAIRS bit fields](../diagrams/regmap/aecp/AAF_PAIRS.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1641,7 +1641,7 @@ Retired ADP depart and re-arm counters.
 
 RTL name: `A_ADP_DIAG`.
 
-![ADP_DIAG bit fields](../../docs/diagrams/regmap/aecp/ADP_DIAG.svg)
+![ADP_DIAG bit fields](../diagrams/regmap/aecp/ADP_DIAG.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1660,7 +1660,7 @@ Talker probe, active, observed and gate bits.
 
 RTL name: `A_ACMP_TALKER`.
 
-![ACMP_TALKER bit fields](../../docs/diagrams/regmap/aecp/ACMP_TALKER.svg)
+![ACMP_TALKER bit fields](../diagrams/regmap/aecp/ACMP_TALKER.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1680,7 +1680,7 @@ Manual listener_observed override for the AAF gate.
 
 RTL name: `A_ACMP_LOBS`.
 
-![ACMP_LOBS bit fields](../../docs/diagrams/regmap/aecp/ACMP_LOBS.svg)
+![ACMP_LOBS bit fields](../diagrams/regmap/aecp/ACMP_LOBS.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1693,7 +1693,7 @@ Retired ADP liveness and discover counters.
 
 RTL name: `A_ADP_DIAG2`.
 
-![ADP_DIAG2 bit fields](../../docs/diagrams/regmap/aecp/ADP_DIAG2.svg)
+![ADP_DIAG2 bit fields](../diagrams/regmap/aecp/ADP_DIAG2.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1751,7 +1751,7 @@ SRP admission enable and talker admission arm.
 
 RTL name: `A_LWSRP_CTRL`.
 
-![LWSRP_CTRL bit fields](../../docs/diagrams/regmap/lwsrp/LWSRP_CTRL.svg)
+![LWSRP_CTRL bit fields](../diagrams/regmap/lwsrp/LWSRP_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1771,7 +1771,7 @@ Software-owned default SR VID.
 
 RTL name: `A_LWSRP_VID`.
 
-![LWSRP_VID bit fields](../../docs/diagrams/regmap/lwsrp/LWSRP_VID.svg)
+![LWSRP_VID bit fields](../diagrams/regmap/lwsrp/LWSRP_VID.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1788,7 +1788,7 @@ Retained stream destination MAC bits 31 to 0.
 
 RTL name: `A_LWSRP_DMLO`.
 
-![LWSRP_DMAC_LO bit fields](../../docs/diagrams/regmap/lwsrp/LWSRP_DMAC_LO.svg)
+![LWSRP_DMAC_LO bit fields](../diagrams/regmap/lwsrp/LWSRP_DMAC_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1804,7 +1804,7 @@ Retained stream destination MAC bits 47 to 32.
 
 RTL name: `A_LWSRP_DMHI`.
 
-![LWSRP_DMAC_HI bit fields](../../docs/diagrams/regmap/lwsrp/LWSRP_DMAC_HI.svg)
+![LWSRP_DMAC_HI bit fields](../diagrams/regmap/lwsrp/LWSRP_DMAC_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1821,7 +1821,7 @@ Retained MaxFrameSize and MaxIntervalFrames words.
 
 RTL name: `A_LWSRP_TSPEC`.
 
-![LWSRP_TSPEC bit fields](../../docs/diagrams/regmap/lwsrp/LWSRP_TSPEC.svg)
+![LWSRP_TSPEC bit fields](../diagrams/regmap/lwsrp/LWSRP_TSPEC.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1838,7 +1838,7 @@ SRP registrar and declaration status from the processor.
 
 RTL name: `A_LWSRP_STATUS`.
 
-![LWSRP_STATUS bit fields](../../docs/diagrams/regmap/lwsrp/LWSRP_STATUS.svg)
+![LWSRP_STATUS bit fields](../diagrams/regmap/lwsrp/LWSRP_STATUS.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1854,7 +1854,7 @@ Granted idleSlope summed across admitted sources.
 
 RTL name: `A_LWSRP_SLOPE`.
 
-![LWSRP_SLOPE bit fields](../../docs/diagrams/regmap/lwsrp/LWSRP_SLOPE.svg)
+![LWSRP_SLOPE bit fields](../diagrams/regmap/lwsrp/LWSRP_SLOPE.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1866,7 +1866,7 @@ Retired MRPDU counters, a structural zero.
 
 RTL name: `A_LWSRP_CNT`.
 
-![LWSRP_CNT bit fields](../../docs/diagrams/regmap/lwsrp/LWSRP_CNT.svg)
+![LWSRP_CNT bit fields](../diagrams/regmap/lwsrp/LWSRP_CNT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1882,7 +1882,7 @@ TalkerAdvertise AccumulatedLatency in nanoseconds.
 
 RTL name: `A_LWSRP_LAT`.
 
-![LWSRP_LATENCY bit fields](../../docs/diagrams/regmap/lwsrp/LWSRP_LATENCY.svg)
+![LWSRP_LATENCY bit fields](../diagrams/regmap/lwsrp/LWSRP_LATENCY.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1941,7 +1941,7 @@ Bound state of listener sink 0 and its SRP bits.
 
 RTL name: `A_ACMPL_STATE`.
 
-![ACMPL_STATE bit fields](../../docs/diagrams/regmap/acmpl/ACMPL_STATE.svg)
+![ACMPL_STATE bit fields](../diagrams/regmap/acmpl/ACMPL_STATE.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1957,7 +1957,7 @@ Retired bound talker entity ID, a structural zero.
 
 RTL name: `A_ACMPL_TKLO`.
 
-![ACMPL_TALKER_LO bit fields](../../docs/diagrams/regmap/acmpl/ACMPL_TALKER_LO.svg)
+![ACMPL_TALKER_LO bit fields](../diagrams/regmap/acmpl/ACMPL_TALKER_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1973,7 +1973,7 @@ Retired bound talker entity ID, a structural zero.
 
 RTL name: `A_ACMPL_TKHI`.
 
-![ACMPL_TALKER_HI bit fields](../../docs/diagrams/regmap/acmpl/ACMPL_TALKER_HI.svg)
+![ACMPL_TALKER_HI bit fields](../diagrams/regmap/acmpl/ACMPL_TALKER_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -1989,7 +1989,7 @@ Retired listener command counts, a structural zero.
 
 RTL name: `A_ACMPL_CNT`.
 
-![ACMPL_CNT bit fields](../../docs/diagrams/regmap/acmpl/ACMPL_CNT.svg)
+![ACMPL_CNT bit fields](../diagrams/regmap/acmpl/ACMPL_CNT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2005,7 +2005,7 @@ Retired talker unique ID and the live failure code.
 
 RTL name: `A_ACMPL_TUID`.
 
-![ACMPL_TUID bit fields](../../docs/diagrams/regmap/acmpl/ACMPL_TUID.svg)
+![ACMPL_TUID bit fields](../diagrams/regmap/acmpl/ACMPL_TUID.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2021,7 +2021,7 @@ Stream Input 0 lock and interruption counters.
 
 RTL name: `A_AVTPRX_STAT`.
 
-![AVTPRX_STAT bit fields](../../docs/diagrams/regmap/acmpl/AVTPRX_STAT.svg)
+![AVTPRX_STAT bit fields](../diagrams/regmap/acmpl/AVTPRX_STAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2037,7 +2037,7 @@ Stream Input 0 FRAMES_RX, a full 32-bit counter.
 
 RTL name: `A_AVTPRX_FRX`.
 
-![AVTPRX_FRX bit fields](../../docs/diagrams/regmap/acmpl/AVTPRX_FRX.svg)
+![AVTPRX_FRX bit fields](../diagrams/regmap/acmpl/AVTPRX_FRX.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2049,7 +2049,7 @@ Stream Input 0 sequence, format and timestamp counters.
 
 RTL name: `A_AVTPRX_ERR`.
 
-![AVTPRX_ERR bit fields](../../docs/diagrams/regmap/acmpl/AVTPRX_ERR.svg)
+![AVTPRX_ERR bit fields](../diagrams/regmap/acmpl/AVTPRX_ERR.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2065,7 +2065,7 @@ Frames dropped and payloads emitted by the depacketizer.
 
 RTL name: `A_PCMRX_CNT`.
 
-![PCMRX_CNT bit fields](../../docs/diagrams/regmap/acmpl/PCMRX_CNT.svg)
+![PCMRX_CNT bit fields](../diagrams/regmap/acmpl/PCMRX_CNT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2081,7 +2081,7 @@ avtp_timestamp of the last depacketized PDU.
 
 RTL name: `A_PCMRX_TS`.
 
-![PCMRX_TS bit fields](../../docs/diagrams/regmap/acmpl/PCMRX_TS.svg)
+![PCMRX_TS bit fields](../diagrams/regmap/acmpl/PCMRX_TS.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2093,7 +2093,7 @@ MAAP enable, seed and block count.
 
 RTL name: `A_MAAP_CTRL`.
 
-![MAAP_CTRL bit fields](../../docs/diagrams/regmap/acmpl/MAAP_CTRL.svg)
+![MAAP_CTRL bit fields](../diagrams/regmap/acmpl/MAAP_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2113,7 +2113,7 @@ MAAP conflicts, defends and the claimed offset.
 
 RTL name: `A_MAAP_STAT0`.
 
-![MAAP_STAT0 bit fields](../../docs/diagrams/regmap/acmpl/MAAP_STAT0.svg)
+![MAAP_STAT0 bit fields](../diagrams/regmap/acmpl/MAAP_STAT0.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2129,7 +2129,7 @@ MAAP state and address-valid flag.
 
 RTL name: `A_MAAP_STAT1`.
 
-![MAAP_STAT1 bit fields](../../docs/diagrams/regmap/acmpl/MAAP_STAT1.svg)
+![MAAP_STAT1 bit fields](../diagrams/regmap/acmpl/MAAP_STAT1.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2145,7 +2145,7 @@ Underrun and overrun counts, each half cleared on write.
 
 RTL name: `A_I2SPB_STAT`.
 
-![I2SPB_STAT bit fields](../../docs/diagrams/regmap/acmpl/I2SPB_STAT.svg)
+![I2SPB_STAT bit fields](../diagrams/regmap/acmpl/I2SPB_STAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2162,7 +2162,7 @@ Pilot tone enable and attenuation.
 
 RTL name: `A_TONE_CTRL`.
 
-![TONE_CTRL bit fields](../../docs/diagrams/regmap/acmpl/TONE_CTRL.svg)
+![TONE_CTRL bit fields](../diagrams/regmap/acmpl/TONE_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2176,7 +2176,7 @@ Media-clock recovery trim and FIFO fill.
 
 RTL name: `A_I2SPB_TRIM`.
 
-![I2SPB_TRIM bit fields](../../docs/diagrams/regmap/acmpl/I2SPB_TRIM.svg)
+![I2SPB_TRIM bit fields](../diagrams/regmap/acmpl/I2SPB_TRIM.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2192,7 +2192,7 @@ Measured gPTP neighbor propagation delay in nanoseconds.
 
 RTL name: `A_GPTP_PDELAY`.
 
-![GPTP_PDELAY bit fields](../../docs/diagrams/regmap/acmpl/GPTP_PDELAY.svg)
+![GPTP_PDELAY bit fields](../diagrams/regmap/acmpl/GPTP_PDELAY.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2204,7 +2204,7 @@ Retired listener walker counters, a structural zero.
 
 RTL name: `A_ACMPL_DBG`.
 
-![ACMPL_DBG bit fields](../../docs/diagrams/regmap/acmpl/ACMPL_DBG.svg)
+![ACMPL_DBG bit fields](../diagrams/regmap/acmpl/ACMPL_DBG.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2216,7 +2216,7 @@ Signed timestamp delta at the last accepted PDU.
 
 RTL name: `A_AVTPRX_TSD`.
 
-![AVTPRX_TSD bit fields](../../docs/diagrams/regmap/acmpl/AVTPRX_TSD.svg)
+![AVTPRX_TSD bit fields](../diagrams/regmap/acmpl/AVTPRX_TSD.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2228,7 +2228,7 @@ Serial bits of the last left half-frame at the DAC.
 
 RTL name: `A_I2SPB_DBG`.
 
-![I2SPB_DBG bit fields](../../docs/diagrams/regmap/acmpl/I2SPB_DBG.svg)
+![I2SPB_DBG bit fields](../diagrams/regmap/acmpl/I2SPB_DBG.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2240,7 +2240,7 @@ Retired controller counter, a structural zero.
 
 RTL name: `A_CTLR_DIAG`.
 
-![CTLR_DIAG bit fields](../../docs/diagrams/regmap/acmpl/CTLR_DIAG.svg)
+![CTLR_DIAG bit fields](../diagrams/regmap/acmpl/CTLR_DIAG.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2272,7 +2272,7 @@ Default pass and address-filter enable for the RX filter.
 
 RTL name: `A_TCAM_CTRL`.
 
-![TCAM_CTRL bit fields](../../docs/diagrams/regmap/tcam/TCAM_CTRL.svg)
+![TCAM_CTRL bit fields](../diagrams/regmap/tcam/TCAM_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2290,7 +2290,7 @@ Match key bits 31 to 0 for the next commit.
 
 RTL name: `A_TCAM_KLO`.
 
-![TCAM_KEY_LO bit fields](../../docs/diagrams/regmap/tcam/TCAM_KEY_LO.svg)
+![TCAM_KEY_LO bit fields](../diagrams/regmap/tcam/TCAM_KEY_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2306,7 +2306,7 @@ Match key bits 47 to 32 for the next commit.
 
 RTL name: `A_TCAM_KHI`.
 
-![TCAM_KEY_HI bit fields](../../docs/diagrams/regmap/tcam/TCAM_KEY_HI.svg)
+![TCAM_KEY_HI bit fields](../diagrams/regmap/tcam/TCAM_KEY_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2323,7 +2323,7 @@ Care mask bits 31 to 0 for the next commit.
 
 RTL name: `A_TCAM_MLO`.
 
-![TCAM_MASK_LO bit fields](../../docs/diagrams/regmap/tcam/TCAM_MASK_LO.svg)
+![TCAM_MASK_LO bit fields](../diagrams/regmap/tcam/TCAM_MASK_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2339,7 +2339,7 @@ Care mask bits 47 to 32 for the next commit.
 
 RTL name: `A_TCAM_MHI`.
 
-![TCAM_MASK_HI bit fields](../../docs/diagrams/regmap/tcam/TCAM_MASK_HI.svg)
+![TCAM_MASK_HI bit fields](../diagrams/regmap/tcam/TCAM_MASK_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2356,7 +2356,7 @@ Action byte for the next commit.
 
 RTL name: `A_TCAM_ACT`.
 
-![TCAM_ACTION bit fields](../../docs/diagrams/regmap/tcam/TCAM_ACTION.svg)
+![TCAM_ACTION bit fields](../diagrams/regmap/tcam/TCAM_ACTION.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2373,7 +2373,7 @@ Commits one TCAM entry: index, add or remove.
 
 RTL name: `A_TCAM_CMD`.
 
-![TCAM_CMD bit fields](../../docs/diagrams/regmap/tcam/TCAM_CMD.svg)
+![TCAM_CMD bit fields](../diagrams/regmap/tcam/TCAM_CMD.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2404,7 +2404,7 @@ Firmware link qualification and link-guard controls.
 
 RTL name: `A_LINK_CTRL`.
 
-![LINK_CTRL bit fields](../../docs/diagrams/regmap/link/LINK_CTRL.svg)
+![LINK_CTRL bit fields](../diagrams/regmap/link/LINK_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2420,7 +2420,7 @@ Count of datapath reset releases, the reset canary.
 
 RTL name: `A_RST_EPOCH`.
 
-![RST_EPOCH bit fields](../../docs/diagrams/regmap/link/RST_EPOCH.svg)
+![RST_EPOCH bit fields](../diagrams/regmap/link/RST_EPOCH.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2454,7 +2454,7 @@ Board-name overlay characters 0 to 3.
 
 RTL name: `A_ENT_NAME_LO`.
 
-![ENT_NAME_LO bit fields](../../docs/diagrams/regmap/overlay/ENT_NAME_LO.svg)
+![ENT_NAME_LO bit fields](../diagrams/regmap/overlay/ENT_NAME_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2473,7 +2473,7 @@ Board-name overlay characters 4 to 7.
 
 RTL name: `A_ENT_NAME_HI`.
 
-![ENT_NAME_HI bit fields](../../docs/diagrams/regmap/overlay/ENT_NAME_HI.svg)
+![ENT_NAME_HI bit fields](../diagrams/regmap/overlay/ENT_NAME_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2492,7 +2492,7 @@ Enables the playback low-pass filter.
 
 RTL name: `A_LPF_CTRL`.
 
-![LPF_CTRL bit fields](../../docs/diagrams/regmap/overlay/LPF_CTRL.svg)
+![LPF_CTRL bit fields](../diagrams/regmap/overlay/LPF_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2505,7 +2505,7 @@ Parent clockIdentity bits 31 to 0, coherent with AS2_HI.
 
 RTL name: `A_AS2_LO`.
 
-![AS2_LO bit fields](../../docs/diagrams/regmap/overlay/AS2_LO.svg)
+![AS2_LO bit fields](../diagrams/regmap/overlay/AS2_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2521,7 +2521,7 @@ Parent clockIdentity bits 63 to 32, coherent with AS2_LO.
 
 RTL name: `A_AS2_HI`.
 
-![AS2_HI bit fields](../../docs/diagrams/regmap/overlay/AS2_HI.svg)
+![AS2_HI bit fields](../diagrams/regmap/overlay/AS2_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2593,7 +2593,7 @@ CRF sink enable and the locked flag.
 
 RTL name: `A_CRF_CTRL`.
 
-![CRF_CTRL bit fields](../../docs/diagrams/regmap/crf/CRF_CTRL.svg)
+![CRF_CTRL bit fields](../diagrams/regmap/crf/CRF_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2607,7 +2607,7 @@ Followed CRF stream_id bits 31 to 0.
 
 RTL name: `A_CRF_SIDLO`.
 
-![CRF_SIDLO bit fields](../../docs/diagrams/regmap/crf/CRF_SIDLO.svg)
+![CRF_SIDLO bit fields](../diagrams/regmap/crf/CRF_SIDLO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2623,7 +2623,7 @@ Followed CRF stream_id bits 63 to 32.
 
 RTL name: `A_CRF_SIDHI`.
 
-![CRF_SIDHI bit fields](../../docs/diagrams/regmap/crf/CRF_SIDHI.svg)
+![CRF_SIDHI bit fields](../diagrams/regmap/crf/CRF_SIDHI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2639,7 +2639,7 @@ Signed crf_ts minus ptp_now at the last PDU.
 
 RTL name: `A_CRF_DELTA`.
 
-![CRF_DELTA bit fields](../../docs/diagrams/regmap/crf/CRF_DELTA.svg)
+![CRF_DELTA bit fields](../diagrams/regmap/crf/CRF_DELTA.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2651,7 +2651,7 @@ Talker media clock rate measured against gPTP.
 
 RTL name: `A_CRF_RATE`.
 
-![CRF_RATE bit fields](../../docs/diagrams/regmap/crf/CRF_RATE.svg)
+![CRF_RATE bit fields](../diagrams/regmap/crf/CRF_RATE.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2663,7 +2663,7 @@ CRF PDUs accepted, format errors and sequence errors.
 
 RTL name: `A_CRF_STATUS`.
 
-![CRF_STATUS bit fields](../../docs/diagrams/regmap/crf/CRF_STATUS.svg)
+![CRF_STATUS bit fields](../diagrams/regmap/crf/CRF_STATUS.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2697,7 +2697,7 @@ CRF talker enable, class-A declare and live status.
 
 RTL name: `A_CRFT_CTRL`.
 
-![CRFT_CTRL bit fields](../../docs/diagrams/regmap/crft/CRFT_CTRL.svg)
+![CRFT_CTRL bit fields](../diagrams/regmap/crft/CRFT_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2715,7 +2715,7 @@ CRF talker stream_id bits 31 to 0.
 
 RTL name: `A_CRFT_SIDLO`.
 
-![CRFT_SIDLO bit fields](../../docs/diagrams/regmap/crft/CRFT_SIDLO.svg)
+![CRFT_SIDLO bit fields](../diagrams/regmap/crft/CRFT_SIDLO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2731,7 +2731,7 @@ CRF talker stream_id bits 63 to 32.
 
 RTL name: `A_CRFT_SIDHI`.
 
-![CRFT_SIDHI bit fields](../../docs/diagrams/regmap/crft/CRFT_SIDHI.svg)
+![CRFT_SIDHI bit fields](../diagrams/regmap/crft/CRFT_SIDHI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2747,7 +2747,7 @@ CRF talker destination MAC bits 31 to 0.
 
 RTL name: `A_CRFT_DMLO`.
 
-![CRFT_DMLO bit fields](../../docs/diagrams/regmap/crft/CRFT_DMLO.svg)
+![CRFT_DMLO bit fields](../diagrams/regmap/crft/CRFT_DMLO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2763,7 +2763,7 @@ CRF talker destination MAC bits 47 to 32.
 
 RTL name: `A_CRFT_DMHI`.
 
-![CRFT_DMHI bit fields](../../docs/diagrams/regmap/crft/CRFT_DMHI.svg)
+![CRFT_DMHI bit fields](../diagrams/regmap/crft/CRFT_DMHI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2780,7 +2780,7 @@ CRF PDUs emitted since reset.
 
 RTL name: `A_CRFT_COUNT`.
 
-![CRFT_COUNT bit fields](../../docs/diagrams/regmap/crft/CRFT_COUNT.svg)
+![CRFT_COUNT bit fields](../diagrams/regmap/crft/CRFT_COUNT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2808,7 +2808,7 @@ Retired AECP scan forensics, a structural zero.
 
 RTL name: `A_BDBG0`.
 
-![BDBG0 bit fields](../../docs/diagrams/regmap/bdbg/BDBG0.svg)
+![BDBG0 bit fields](../diagrams/regmap/bdbg/BDBG0.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2820,7 +2820,7 @@ Retired AECP scan forensics, a structural zero.
 
 RTL name: `A_BDBG1`.
 
-![BDBG1 bit fields](../../docs/diagrams/regmap/bdbg/BDBG1.svg)
+![BDBG1 bit fields](../diagrams/regmap/bdbg/BDBG1.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2836,7 +2836,7 @@ Retired AECP scan forensics, a structural zero.
 
 RTL name: `A_BDBG2`.
 
-![BDBG2 bit fields](../../docs/diagrams/regmap/bdbg/BDBG2.svg)
+![BDBG2 bit fields](../diagrams/regmap/bdbg/BDBG2.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2852,7 +2852,7 @@ Live link-guard state, flags and bounce count.
 
 RTL name: `A_LINKG_STAT`.
 
-![LINKG_STAT bit fields](../../docs/diagrams/regmap/bdbg/LINKG_STAT.svg)
+![LINKG_STAT bit fields](../diagrams/regmap/bdbg/LINKG_STAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2893,7 +2893,7 @@ Retained address; reads zero and writes change nothing.
 
 RTL name: `A_CLKV_CTRL`.
 
-![CLKV_CTRL bit fields](../../docs/diagrams/regmap/clkv/CLKV_CTRL.svg)
+![CLKV_CTRL bit fields](../diagrams/regmap/clkv/CLKV_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2905,7 +2905,7 @@ The tu verdict and the fabric sync and asCapable state.
 
 RTL name: `A_CLKV_STAT`.
 
-![CLKV_STAT bit fields](../../docs/diagrams/regmap/clkv/CLKV_STAT.svg)
+![CLKV_STAT bit fields](../diagrams/regmap/clkv/CLKV_STAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2921,7 +2921,7 @@ Seconds in which the talkers stamped tu.
 
 RTL name: `A_CLKV_TUCNT`.
 
-![CLKV_TUCNT bit fields](../../docs/diagrams/regmap/clkv/CLKV_TUCNT.svg)
+![CLKV_TUCNT bit fields](../diagrams/regmap/clkv/CLKV_TUCNT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2933,7 +2933,7 @@ TX trunk arbiter lock supervision per lane.
 
 RTL name: `A_TXARB_DIAG`.
 
-![TXARB_DIAG bit fields](../../docs/diagrams/regmap/clkv/TXARB_DIAG.svg)
+![TXARB_DIAG bit fields](../diagrams/regmap/clkv/TXARB_DIAG.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2949,7 +2949,7 @@ Operational SR class-A VID and priority.
 
 RTL name: `A_LWSRP_DOM`.
 
-![LWSRP_DOM bit fields](../../docs/diagrams/regmap/clkv/LWSRP_DOM.svg)
+![LWSRP_DOM bit fields](../diagrams/regmap/clkv/LWSRP_DOM.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -2987,7 +2987,7 @@ Saved talker_entity_id bits 31 to 0.
 
 RTL name: `A_REST_TKLO`.
 
-![REST_TK_LO bit fields](../../docs/diagrams/regmap/rest/REST_TK_LO.svg)
+![REST_TK_LO bit fields](../diagrams/regmap/rest/REST_TK_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3003,7 +3003,7 @@ Saved talker_entity_id bits 63 to 32.
 
 RTL name: `A_REST_TKHI`.
 
-![REST_TK_HI bit fields](../../docs/diagrams/regmap/rest/REST_TK_HI.svg)
+![REST_TK_HI bit fields](../diagrams/regmap/rest/REST_TK_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3019,7 +3019,7 @@ Saved talker_unique_id and VLAN.
 
 RTL name: `A_REST_META`.
 
-![REST_META bit fields](../../docs/diagrams/regmap/rest/REST_META.svg)
+![REST_META bit fields](../diagrams/regmap/rest/REST_META.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3036,7 +3036,7 @@ Saved controller_entity_id bits 31 to 0.
 
 RTL name: `A_REST_CTLO`.
 
-![REST_CTLR_LO bit fields](../../docs/diagrams/regmap/rest/REST_CTLR_LO.svg)
+![REST_CTLR_LO bit fields](../diagrams/regmap/rest/REST_CTLR_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3052,7 +3052,7 @@ Saved controller_entity_id bits 63 to 32.
 
 RTL name: `A_REST_CTHI`.
 
-![REST_CTLR_HI bit fields](../../docs/diagrams/regmap/rest/REST_CTLR_HI.svg)
+![REST_CTLR_HI bit fields](../diagrams/regmap/rest/REST_CTLR_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3068,7 +3068,7 @@ Commit and status of the retired bind-restore port.
 
 RTL name: `A_REST_CMD`.
 
-![REST_CMD bit fields](../../docs/diagrams/regmap/rest/REST_CMD.svg)
+![REST_CMD bit fields](../diagrams/regmap/rest/REST_CMD.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3109,7 +3109,7 @@ Start, end and abort strobes of the retired journal ingest.
 
 RTL name: `A_JNL_CTRL`.
 
-![JNL_CTRL bit fields](../../docs/diagrams/regmap/jnl/JNL_CTRL.svg)
+![JNL_CTRL bit fields](../diagrams/regmap/jnl/JNL_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3129,7 +3129,7 @@ Next journal word for the retired journal ingest.
 
 RTL name: `A_JNL_DATA`.
 
-![JNL_DATA bit fields](../../docs/diagrams/regmap/jnl/JNL_DATA.svg)
+![JNL_DATA bit fields](../diagrams/regmap/jnl/JNL_DATA.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3141,7 +3141,7 @@ Retired journal engine status, a structural zero.
 
 RTL name: `A_JNL_STAT`.
 
-![JNL_STAT bit fields](../../docs/diagrams/regmap/jnl/JNL_STAT.svg)
+![JNL_STAT bit fields](../diagrams/regmap/jnl/JNL_STAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3157,7 +3157,7 @@ Retired accepted-image sequence, a structural zero.
 
 RTL name: `A_JNL_SEQ`.
 
-![JNL_SEQ bit fields](../../docs/diagrams/regmap/jnl/JNL_SEQ.svg)
+![JNL_SEQ bit fields](../diagrams/regmap/jnl/JNL_SEQ.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3194,7 +3194,7 @@ Descriptor selection for the retired AEM patch port.
 
 RTL name: `A_AEMP_SEL`.
 
-![AEMP_SEL bit fields](../../docs/diagrams/regmap/aemp/AEMP_SEL.svg)
+![AEMP_SEL bit fields](../diagrams/regmap/aemp/AEMP_SEL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3206,7 +3206,7 @@ Field selection for the retired AEM patch port.
 
 RTL name: `A_AEMP_FIELD`.
 
-![AEMP_FIELD bit fields](../../docs/diagrams/regmap/aemp/AEMP_FIELD.svg)
+![AEMP_FIELD bit fields](../diagrams/regmap/aemp/AEMP_FIELD.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3222,7 +3222,7 @@ Payload word for the retired AEM patch port.
 
 RTL name: `A_AEMP_DATA`.
 
-![AEMP_DATA bit fields](../../docs/diagrams/regmap/aemp/AEMP_DATA.svg)
+![AEMP_DATA bit fields](../diagrams/regmap/aemp/AEMP_DATA.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3234,7 +3234,7 @@ Commit and abort strobes of the retired AEM patch port.
 
 RTL name: `A_AEMP_CTRL`.
 
-![AEMP_CTRL bit fields](../../docs/diagrams/regmap/aemp/AEMP_CTRL.svg)
+![AEMP_CTRL bit fields](../diagrams/regmap/aemp/AEMP_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3260,7 +3260,7 @@ Kill switch that refuses the CPU's Ethernet disruption levers.
 
 RTL name: `A_ETH_GUARD`.
 
-![ETH_GUARD bit fields](../../docs/diagrams/regmap/guard/ETH_GUARD.svg)
+![ETH_GUARD bit fields](../diagrams/regmap/guard/ETH_GUARD.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3295,7 +3295,7 @@ Retired AS_PATH address; reads zero.
 
 RTL name: `A_ASP_LO`.
 
-![ASP_LO bit fields](../../docs/diagrams/regmap/asp/ASP_LO.svg)
+![ASP_LO bit fields](../diagrams/regmap/asp/ASP_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3307,7 +3307,7 @@ Retired AS_PATH address; reads zero.
 
 RTL name: `A_ASP_HI`.
 
-![ASP_HI bit fields](../../docs/diagrams/regmap/asp/ASP_HI.svg)
+![ASP_HI bit fields](../diagrams/regmap/asp/ASP_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3319,7 +3319,7 @@ Generation and length of the fabric's selected PathTrace.
 
 RTL name: `A_ASP_CMD`.
 
-![ASP_CMD bit fields](../../docs/diagrams/regmap/asp/ASP_CMD.svg)
+![ASP_CMD bit fields](../diagrams/regmap/asp/ASP_CMD.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3347,7 +3347,7 @@ gPTP frames lost at the tap or the parser.
 
 RTL name: `A_GPTP_DROPW`.
 
-![GPTP_DROPW bit fields](../../docs/diagrams/regmap/gptpd/GPTP_DROPW.svg)
+![GPTP_DROPW bit fields](../diagrams/regmap/gptpd/GPTP_DROPW.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3360,7 +3360,7 @@ Lost launch records and refused gPTP events.
 
 RTL name: `A_GPTP_DROPE`.
 
-![GPTP_DROPE bit fields](../../docs/diagrams/regmap/gptpd/GPTP_DROPE.svg)
+![GPTP_DROPE bit fields](../diagrams/regmap/gptpd/GPTP_DROPE.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3388,7 +3388,7 @@ Ingress and egress timestamp corrections the plane applies.
 
 RTL name: `A_GPTP_LAT`.
 
-![GPTP_LAT bit fields](../../docs/diagrams/regmap/gptpl/GPTP_LAT.svg)
+![GPTP_LAT bit fields](../diagrams/regmap/gptpl/GPTP_LAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3465,7 +3465,7 @@ Selects the stream the 0x810 to 0x868 words view.
 
 RTL name: `A_STRM_SEL`.
 
-![STRM_SEL bit fields](../../docs/diagrams/regmap/strm/STRM_SEL.svg)
+![STRM_SEL bit fields](../diagrams/regmap/strm/STRM_SEL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3485,7 +3485,7 @@ Latches the selected stream's state and counters.
 
 RTL name: `A_STRM_SNAP`.
 
-![STRM_SNAP bit fields](../../docs/diagrams/regmap/strm/STRM_SNAP.svg)
+![STRM_SNAP bit fields](../diagrams/regmap/strm/STRM_SNAP.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3502,7 +3502,7 @@ Enable and route flags of the selected stream.
 
 RTL name: `A_STRMW_CTRL`.
 
-![STRMW_CTRL bit fields](../../docs/diagrams/regmap/strm/STRMW_CTRL.svg)
+![STRMW_CTRL bit fields](../diagrams/regmap/strm/STRMW_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3519,7 +3519,7 @@ stream_id bits 31 to 0 of the selected stream.
 
 RTL name: `A_STRMW_SID_LO`.
 
-![STRMW_SID_LO bit fields](../../docs/diagrams/regmap/strm/STRMW_SID_LO.svg)
+![STRMW_SID_LO bit fields](../diagrams/regmap/strm/STRMW_SID_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3535,7 +3535,7 @@ stream_id bits 63 to 32 of the selected stream.
 
 RTL name: `A_STRMW_SID_HI`.
 
-![STRMW_SID_HI bit fields](../../docs/diagrams/regmap/strm/STRMW_SID_HI.svg)
+![STRMW_SID_HI bit fields](../diagrams/regmap/strm/STRMW_SID_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3551,7 +3551,7 @@ Destination MAC bits 31 to 0 of the selected stream.
 
 RTL name: `A_STRMW_DMAC_LO`.
 
-![STRMW_DMAC_LO bit fields](../../docs/diagrams/regmap/strm/STRMW_DMAC_LO.svg)
+![STRMW_DMAC_LO bit fields](../diagrams/regmap/strm/STRMW_DMAC_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3567,7 +3567,7 @@ Destination MAC bits 47 to 32 of the selected stream.
 
 RTL name: `A_STRMW_DMAC_HI`.
 
-![STRMW_DMAC_HI bit fields](../../docs/diagrams/regmap/strm/STRMW_DMAC_HI.svg)
+![STRMW_DMAC_HI bit fields](../diagrams/regmap/strm/STRMW_DMAC_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3583,7 +3583,7 @@ Current stream format bits 31 to 0.
 
 RTL name: `A_STRMW_FMT_LO`.
 
-![STRMW_FMT_LO bit fields](../../docs/diagrams/regmap/strm/STRMW_FMT_LO.svg)
+![STRMW_FMT_LO bit fields](../diagrams/regmap/strm/STRMW_FMT_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3599,7 +3599,7 @@ Current stream format bits 63 to 32.
 
 RTL name: `A_STRMW_FMT_HI`.
 
-![STRMW_FMT_HI bit fields](../../docs/diagrams/regmap/strm/STRMW_FMT_HI.svg)
+![STRMW_FMT_HI bit fields](../diagrams/regmap/strm/STRMW_FMT_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3615,7 +3615,7 @@ Snapshot-latched state word of the selected stream.
 
 RTL name: `A_STRMW_STATE`.
 
-![STRMW_STATE bit fields](../../docs/diagrams/regmap/strm/STRMW_STATE.svg)
+![STRMW_STATE bit fields](../diagrams/regmap/strm/STRMW_STATE.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3631,7 +3631,7 @@ One of the ten snapshot-latched Stream Input counters.
 
 RTL name: `A_STRMW_CNT0..9 (A_STRMW_CNT0 to A_STRMW_CNT_END)`.
 
-![STRMW_CNTn bit fields](../../docs/diagrams/regmap/strm/STRMW_CNTn.svg)
+![STRMW_CNTn bit fields](../diagrams/regmap/strm/STRMW_CNTn.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3643,7 +3643,7 @@ Snapshot-latched PDU and drop counts of the selected stream.
 
 RTL name: `A_STRMW_PDUS`.
 
-![STRMW_PDUS bit fields](../../docs/diagrams/regmap/strm/STRMW_PDUS.svg)
+![STRMW_PDUS bit fields](../diagrams/regmap/strm/STRMW_PDUS.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3655,7 +3655,7 @@ SRP status of the selected stream.
 
 RTL name: `A_STRMW_SRP`.
 
-![STRMW_SRP bit fields](../../docs/diagrams/regmap/strm/STRMW_SRP.svg)
+![STRMW_SRP bit fields](../diagrams/regmap/strm/STRMW_SRP.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3667,7 +3667,7 @@ Retired binding controller ID, a structural zero.
 
 RTL name: `A_STRMW_CTLR_LO`.
 
-![STRMW_CTLR_LO bit fields](../../docs/diagrams/regmap/strm/STRMW_CTLR_LO.svg)
+![STRMW_CTLR_LO bit fields](../diagrams/regmap/strm/STRMW_CTLR_LO.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3683,7 +3683,7 @@ Retired binding controller ID, a structural zero.
 
 RTL name: `A_STRMW_CTLR_HI`.
 
-![STRMW_CTLR_HI bit fields](../../docs/diagrams/regmap/strm/STRMW_CTLR_HI.svg)
+![STRMW_CTLR_HI bit fields](../diagrams/regmap/strm/STRMW_CTLR_HI.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3699,7 +3699,7 @@ Retired binding flags and talker ID, a structural zero.
 
 RTL name: `A_STRMW_BIND`.
 
-![STRMW_BIND bit fields](../../docs/diagrams/regmap/strm/STRMW_BIND.svg)
+![STRMW_BIND bit fields](../diagrams/regmap/strm/STRMW_BIND.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3732,7 +3732,7 @@ Latency tap enable, clear strobe and live status.
 
 RTL name: `A_LTAP_CTRL`.
 
-![LTAP_CTRL bit fields](../../docs/diagrams/regmap/ltap/LTAP_CTRL.svg)
+![LTAP_CTRL bit fields](../diagrams/regmap/ltap/LTAP_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3750,7 +3750,7 @@ One packed readback word of the AAF latency taps.
 
 RTL name: `A_LTAP_BASE to A_LTAP_END (i_ltap_regs)`.
 
-![LTAP_Wn bit fields](../../docs/diagrams/regmap/ltap/LTAP_Wn.svg)
+![LTAP_Wn bit fields](../diagrams/regmap/ltap/LTAP_Wn.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3802,7 +3802,7 @@ One readback word of the RX stream-parser probe.
 
 RTL name: `A_APRB_BASE to A_APRB_END (i_aprb_regs)`.
 
-![APRB_Wn bit fields](../../docs/diagrams/regmap/aprb/APRB_Wn.svg)
+![APRB_Wn bit fields](../diagrams/regmap/aprb/APRB_Wn.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3835,7 +3835,7 @@ Retired telemetry word; reads zero and ignores writes.
 
 RTL name: `A_RSVD_GAP_BASE to A_RSVD_GAP_END`.
 
-![RSVD_GAPn bit fields](../../docs/diagrams/regmap/gap/RSVD_GAPn.svg)
+![RSVD_GAPn bit fields](../diagrams/regmap/gap/RSVD_GAPn.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3887,7 +3887,7 @@ Loopback-ring duplicate and skip counts.
 
 RTL name: `A_SLIP_LB`.
 
-![SLIP_LB bit fields](../../docs/diagrams/regmap/slip/SLIP_LB.svg)
+![SLIP_LB bit fields](../diagrams/regmap/slip/SLIP_LB.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3903,7 +3903,7 @@ TDM-junction duplicate and skip counts.
 
 RTL name: `A_SLIP_TDM`.
 
-![SLIP_TDM bit fields](../../docs/diagrams/regmap/slip/SLIP_TDM.svg)
+![SLIP_TDM bit fields](../diagrams/regmap/slip/SLIP_TDM.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3949,7 +3949,7 @@ Presentation state of the selected listener.
 
 RTL name: `A_RENDER_STAT`.
 
-![RENDER_STAT bit fields](../../docs/diagrams/regmap/render/RENDER_STAT.svg)
+![RENDER_STAT bit fields](../diagrams/regmap/render/RENDER_STAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -3993,7 +3993,7 @@ AAF clock meter status and diagnostics.
 
 RTL name: `A_AAFM_STAT`.
 
-![AAFM_STAT bit fields](../../docs/diagrams/regmap/aafm/AAFM_STAT.svg)
+![AAFM_STAT bit fields](../diagrams/regmap/aafm/AAFM_STAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4005,7 +4005,7 @@ Signed AAF media rate in CRF_RATE units.
 
 RTL name: `A_AAFM_RATE`.
 
-![AAFM_RATE bit fields](../../docs/diagrams/regmap/aafm/AAFM_RATE.svg)
+![AAFM_RATE bit fields](../diagrams/regmap/aafm/AAFM_RATE.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4032,7 +4032,7 @@ MMCM DRP servo state, trim and flags.
 
 RTL name: `A_MCSRV_STAT`.
 
-![MCSRV_STAT bit fields](../../docs/diagrams/regmap/mcsrv/MCSRV_STAT.svg)
+![MCSRV_STAT bit fields](../diagrams/regmap/mcsrv/MCSRV_STAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4048,7 +4048,7 @@ Servo direction knob and repair enable.
 
 RTL name: `A_MCSRV_CTRL`.
 
-![MCSRV_CTRL bit fields](../../docs/diagrams/regmap/mcsrv/MCSRV_CTRL.svg)
+![MCSRV_CTRL bit fields](../diagrams/regmap/mcsrv/MCSRV_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4140,7 +4140,7 @@ Arms the channel-map debug write window.
 
 RTL name: `A_CHMAP_CTRL`.
 
-![CHMAP_CTRL bit fields](../../docs/diagrams/regmap/chmap/CHMAP_CTRL.svg)
+![CHMAP_CTRL bit fields](../diagrams/regmap/chmap/CHMAP_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4153,7 +4153,7 @@ Map side and entry index for writes and readback.
 
 RTL name: `A_CHMAP_SEL`.
 
-![CHMAP_SEL bit fields](../../docs/diagrams/regmap/chmap/CHMAP_SEL.svg)
+![CHMAP_SEL bit fields](../diagrams/regmap/chmap/CHMAP_SEL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4168,7 +4168,7 @@ Map word committed through the shared write port.
 
 RTL name: `A_CHMAP_WORD`.
 
-![CHMAP_WORD bit fields](../../docs/diagrams/regmap/chmap/CHMAP_WORD.svg)
+![CHMAP_WORD bit fields](../diagrams/regmap/chmap/CHMAP_WORD.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4185,7 +4185,7 @@ Committed and refused map-word writes.
 
 RTL name: `A_CHMAP_STAT`.
 
-![CHMAP_STAT bit fields](../../docs/diagrams/regmap/chmap/CHMAP_STAT.svg)
+![CHMAP_STAT bit fields](../diagrams/regmap/chmap/CHMAP_STAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4199,7 +4199,7 @@ Arms a map RAM readback and reports its status.
 
 RTL name: `A_CHMAP_SNAP`.
 
-![CHMAP_SNAP bit fields](../../docs/diagrams/regmap/chmap/CHMAP_SNAP.svg)
+![CHMAP_SNAP bit fields](../diagrams/regmap/chmap/CHMAP_SNAP.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4226,7 +4226,7 @@ The map word the RAM holds, or 0xDEADDEAD.
 
 RTL name: `A_CHMAP_LOOP`.
 
-![CHMAP_LOOP bit fields](../../docs/diagrams/regmap/chmap/CHMAP_LOOP.svg)
+![CHMAP_LOOP bit fields](../diagrams/regmap/chmap/CHMAP_LOOP.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4281,7 +4281,7 @@ Entity enable and the restore-walk start.
 
 RTL name: `A_PP_CTRL`.
 
-![PP_CTRL bit fields](../../docs/diagrams/regmap/pp/PP_CTRL.svg)
+![PP_CTRL bit fields](../diagrams/regmap/pp/PP_CTRL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4295,7 +4295,7 @@ Presence tag, saved-state verdict and side-port status.
 
 RTL name: `A_PP_STAT`.
 
-![PP_STAT bit fields](../../docs/diagrams/regmap/pp/PP_STAT.svg)
+![PP_STAT bit fields](../diagrams/regmap/pp/PP_STAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4329,7 +4329,7 @@ Side-port word address; a write posts a read.
 
 RTL name: `A_PP_SPADDR`.
 
-![PP_SPADDR bit fields](../../docs/diagrams/regmap/pp/PP_SPADDR.svg)
+![PP_SPADDR bit fields](../diagrams/regmap/pp/PP_SPADDR.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4346,7 +4346,7 @@ Posted read data; a write posts a side-port write.
 
 RTL name: `A_PP_SPDATA`.
 
-![PP_SPDATA bit fields](../../docs/diagrams/regmap/pp/PP_SPDATA.svg)
+![PP_SPDATA bit fields](../diagrams/regmap/pp/PP_SPDATA.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4358,7 +4358,7 @@ Control frames sent, received and dropped.
 
 RTL name: `A_PP_DIAG`.
 
-![PP_DIAG bit fields](../../docs/diagrams/regmap/pp/PP_DIAG.svg)
+![PP_DIAG bit fields](../diagrams/regmap/pp/PP_DIAG.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4376,7 +4376,7 @@ Index of the backend word PP_NVM_DATA reads or writes.
 
 RTL name: `A_PP_NVM_SEL`.
 
-![PP_NVM_SEL bit fields](../../docs/diagrams/regmap/pp/PP_NVM_SEL.svg)
+![PP_NVM_SEL bit fields](../diagrams/regmap/pp/PP_NVM_SEL.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4393,7 +4393,7 @@ The backend word PP_NVM_SEL names.
 
 RTL name: `A_PP_NVM_DATA`.
 
-![PP_NVM_DATA bit fields](../../docs/diagrams/regmap/pp/PP_NVM_DATA.svg)
+![PP_NVM_DATA bit fields](../diagrams/regmap/pp/PP_NVM_DATA.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
@@ -4405,7 +4405,7 @@ Backend status word on read, strobe word on write.
 
 RTL name: `A_PP_NVM_STAT`.
 
-![PP_NVM_STAT bit fields](../../docs/diagrams/regmap/pp/PP_NVM_STAT.svg)
+![PP_NVM_STAT bit fields](../diagrams/regmap/pp/PP_NVM_STAT.svg)
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|

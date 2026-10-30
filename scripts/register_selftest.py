@@ -33,9 +33,9 @@ Entry = Callable[..., int]
 def copy_inputs(dst: Path) -> None:
     """The files the generator reads and writes, copied under `dst`."""
     shape = json.loads((ROOT / SOC).read_text(encoding="utf-8"))["shape"]
-    files = [RTL, DATAPATH, ETH_PKG, DESCRIPTIONS, SOC, LEDGER, PAGE, "docs/diagrams/README.md",
-             f"{SHAPE_INCLUDE_DIR.format(shape=shape)}/gen/adp_shape_defaults.svh"]
-    files += [p.relative_to(ROOT).as_posix() for p in (ROOT / CSR_INCLUDE_DIR / "gen").glob("*.svh")]
+    files = [RTL, DATAPATH, ETH_PKG, DESCRIPTIONS, SOC, LEDGER, PAGE, "docs/diagrams/README.md"]
+    for include_dir in (CSR_INCLUDE_DIR, SHAPE_INCLUDE_DIR.format(shape=shape)):
+        files += [p.relative_to(ROOT).as_posix() for p in (ROOT / include_dir / "gen").glob("*.svh")]
     files += [p.relative_to(ROOT).as_posix() for p in (ROOT / DIAGRAM_DIR).rglob("*") if p.is_file()]
     for rel in files:
         (dst / rel).parent.mkdir(parents=True, exist_ok=True)

@@ -73,9 +73,26 @@ def anchor(text: str, seen: dict[str, int]) -> str:
     return a if n == 0 else f"{a}-{n}"
 
 
+#: Repository directories a description's link may start from.
+REPO_ROOTS = ("hdl/", "sw/", "docs/", "scripts/", "configs/", "tb/", "syn/", "tests/", "avdecc/", "tools/",
+              "ci/", ".github/")
+LINK_TARGET_RE = re.compile(r"\]\((?!https?:|#|/)([^)\s]+)\)")
+
+
+def page_links(text: str) -> str:
+    """Descriptions spell link targets from the repository root; the page
+    needs them relative to itself."""
+    def _fix(m: re.Match) -> str:
+        target = m.group(1)
+        root_relative = (target.split("/", 1)[0] + "/") in REPO_ROOTS or target in (
+            "README.md", "CONTRIBUTING.md", "REQUIREMENTS.md", "AGENTS.md")
+        return f"]({relative(target)})" if root_relative else m.group(0)
+    return LINK_TARGET_RE.sub(_fix, text)
+
+
 def cell(text: str) -> str:
-    """Text safe inside one table cell."""
-    return re.sub(r"(?<!\\)\|", r"\\|", " ".join(str(text).split()))
+    """Text safe inside one table cell, its links made page-relative."""
+    return re.sub(r"(?<!\\)\|", r"\\|", page_links(" ".join(str(text).split())))
 
 
 def human_size(n: int) -> str:
@@ -108,9 +125,16 @@ def svg_path(module: Module, reg: Register, desc: dict) -> str:
 
 
 def relative(target: str, page: str = PAGE) -> str:
-    """A repository path as a link relative to the page."""
-    up = len(PurePosixPath(page).parent.parts)
-    return "../" * up + target
+    """A repository path as a link relative to the page's directory, the
+    shortest spelling (lexical; no filesystem access)."""
+    path, anchor_part = (target.split("#", 1) + [""])[:2]
+    here = PurePosixPath(page).parent.parts
+    there = PurePosixPath(path).parts
+    common = 0
+    while common < min(len(here), len(there)) and here[common] == there[common]:
+        common += 1
+    rel = "/".join([".."] * (len(here) - common) + list(there[common:]))
+    return rel + ("#" + anchor_part if anchor_part else "")
 
 
 # ----------------------------------------------------------- field details --
@@ -248,7 +272,7 @@ def notes_block(notes: list, level: str) -> list[str]:
             out += note_table(run)
             run = []
             if "heading" in item:
-                out += [f"{level} {item['heading']}", ""]
+                out += [f"{level} {page_links(item['heading'])}", ""]
                 for para in item.get("intro", []):
                     out += [para, ""]
                 out += notes_block(item.get("rows", []), level + "#" if len(level) < 4 else level)
@@ -354,7 +378,7 @@ def parameters(model: Model) -> list[str]:
 def module_section(model: Model, module: Module, seen: dict[str, int]) -> list[str]:
     """One module: purpose, summary table and one section per register."""
     desc = model.descriptions
-    out = [f"## {module.heading}", "", module.purpose, ""]
+    out = [f"## {page_links(module.heading)}", "", module.purpose, ""]
     anchor(module.heading, seen)
     heads = [heading(r, desc) for r in module.registers]
     local = dict(seen)

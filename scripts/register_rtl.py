@@ -801,8 +801,10 @@ def csr_parameters(root: Path, soc: dict) -> tuple[dict[str, int], list[tuple[st
         if name in header:
             sym.overrides[name] = value
     body = text[text.index(");", text.index("module milan_datapath")):]
-    shape_inc = f"{SHAPE_INCLUDE_DIR.format(shape=soc['shape'])}/gen/adp_shape_defaults.svh"
-    define_constants(strip_comments(read_text(root, shape_inc)), sym)
+    for inc in re.findall(r'`include\s+"([^"]+)"', text):
+        path = f"{SHAPE_INCLUDE_DIR.format(shape=soc['shape'])}/{inc}"
+        if (root / path).is_file():
+            define_constants(strip_comments(read_text(root, path)), sym)
     define_constants(body, sym)
     m = re.search(r"\bmilan_csr\s*#\s*\(", body)
     if not m:
