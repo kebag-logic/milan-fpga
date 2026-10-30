@@ -228,9 +228,9 @@ def constants_header(shape: Shape, donor: Donor,
     return "\n".join(lines) + "\n"
 
 
-def compile_bench(work: Path, firmware_text: str, header: str) -> Path:
-    """Build the harness and the (fence-blanked) firmware, with the writer's
-    CPU-only reset appended (`writer_restart.host_restart`), into `work`."""
+def compile_bench(work: Path, firmware_text: str, header: str, defines: tuple = ()) -> Path:
+    """Build the harness (with `defines`) and the (fence-blanked) firmware, with the
+    writer's CPU-only reset appended (`writer_restart.host_restart`), into `work`."""
     (work / "generated").mkdir(parents=True, exist_ok=True)
     (work / "generated/soc.h").write_text(header)
     fw = work / "milan_baremetal.c"
@@ -239,7 +239,7 @@ def compile_bench(work: Path, firmware_text: str, header: str) -> Path:
               f"-I{work}", f"-I{STUBS}"]
     host_defs = [f"-DNVM_HOST_JOURNAL_OFFSET=0x{JOURNAL:x}u",
                  f"-DNVM_HOST_AEM_OFFSET=0x{AEM_OFFSET:x}u",
-                 f"-DNVM_HOST_IMAGE_OFF=0x{IMAGE_OFF:x}u"]
+                 f"-DNVM_HOST_IMAGE_OFF=0x{IMAGE_OFF:x}u", *defines]
     steps = [
         common + host_defs + ["-c", str(HARNESS), "-o", str(work / "host.o")],
         common + ["-Wno-format", "-c", str(fw), "-o", str(work / "fw.o")],
@@ -252,7 +252,7 @@ def compile_bench(work: Path, firmware_text: str, header: str) -> Path:
     return work / "fw"
 
 
-def make_bench(cfg: Path, work: Path, firmware_text: str) -> Bench:
+def make_bench(cfg: Path, work: Path, firmware_text: str, defines: tuple = ()) -> Bench:
     """Run the builder for `cfg`, derive its shape and compile its harness."""
     names, dc, spi, spo = build(cfg, work / "builder")
     shape = Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo)
@@ -265,7 +265,7 @@ def make_bench(cfg: Path, work: Path, firmware_text: str) -> Bench:
     frames = {r: frame_record(r, payload_bytes(g, i, r, p), donor.layout)
               for g, i, r, p, _b in inventory(shape, donor.base) if r is not None}
     header = constants_header(shape, donor, fabric_constants(overlay, lwsrp))
-    binary = compile_bench(work, firmware_text, header)
+    binary = compile_bench(work, firmware_text, header, defines)
     return Bench(cfg=cfg, shape=shape, donor=donor, ident=ident, binary=binary,
                  work=work, frames=frames, expect=expected_payloads(shape))
 

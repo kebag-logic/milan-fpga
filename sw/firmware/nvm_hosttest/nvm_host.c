@@ -27,6 +27,12 @@
 #include "stubs/nvm_host.h"
 #include "stubs/command.h"
 #include "stubs/init.h"
+#ifdef NVM_HOST_PHY
+/* The PHY build (test_phy_firmware.py): the pin-level Clause-22 peer answers
+ * the firmware's MDIO pins and counts every link-status publication, so a
+ * boot path can be graded on whether it publishes the link at all (#70). */
+#include "phy_peer.h"
+#endif
 
 #define NS_PER_CYCLE     10u
 #define MS(n)            ((uint64_t)(n) * 1000000ull)
@@ -138,6 +144,9 @@ struct walk {
 	 * done, published at PP_STAT[16]; --walk-closed selects it */
 	int closed;
 	int end_closed;
+	/* a walk that never reaches a terminal: busy for ever, neither done
+	 * nor CLOSED, so the firmware's bounded wait runs out; --walk-stall */
+	int stall;
 	/* every PP_CTRL[1] rising edge, and whether PP_CTRL[0] (the entity
 	 * enable) was ever raised while no walk had yet started */
 	unsigned int starts;
@@ -459,7 +468,7 @@ static void advance(void)
 		be.stale = 0;
 	if (walk.pending && now_ns >= walk.at) {
 		walk.busy = 1;
-		if (now_ns >= walk.at + WALK_LEN_NS) {
+		if (!walk.stall && now_ns >= walk.at + WALK_LEN_NS) {
 			walk.pending = 0;
 			walk.busy = 0;
 			walk.closed = walk.end_closed;
@@ -897,6 +906,14 @@ static void run_uart(char *line)
 	settle();
 }
 
+#ifdef NVM_HOST_PHY
+static void phy_summary(const char *at)
+{
+	printf("HOST phy at=%s transfers=%u publishes=%u status=%u now_ms=%llu\n", at,
+	       transfers, publishes, status_word, (unsigned long long)(now_ns / 1000000ull));
+}
+#endif
+
 static void summary(void)
 {
 	printf("HOST hb=%u acks=%u starts=%u erases=%u programs=%u max_hb_gap_ms=%llu pagewrap=%u "
@@ -913,6 +930,9 @@ static void summary(void)
 	       be.unres, be.ack_ref, be.arm_ref, be.cap_id,
 	       walk.starts, walk.enable_first, walk.closed, reads, boot_reads,
 	       restart_reads, rf.hits, (unsigned long long)(now_ns / 1000000ull));
+#ifdef NVM_HOST_PHY
+	phy_summary("end");
+#endif
 }
 
 static void boot(void)
@@ -927,6 +947,9 @@ static void boot(void)
 	booting = NULL;
 	boot_reads = reads;
 	printf("HOST booted\n");
+#ifdef NVM_HOST_PHY
+	phy_summary("boot");
+#endif
 }
 
 int main(int argc, char **argv)
@@ -945,6 +968,17 @@ int main(int argc, char **argv)
 	/* not word 0, so the writer's first re-base is a CHANGE this model's
 	 * diffing settle can see */
 	be.sel = 0x3fu;
+#ifdef NVM_HOST_PHY
+	/* 1000BASE-T full duplex, negotiated, at the peer's address */
+	registers[0] = 0x1000;
+	registers[1] = 0x0124;
+	registers[2] = 0x001c;
+	registers[4] = 0x01e1;
+	registers[5] = 0x01e1;
+	registers[9] = 0x0300;
+	registers[10] = 0x0c00;
+	registers[15] = 0x3000;
+#endif
 	for (i = 1; i < argc; ++i) {
 		const char *a = argv[i];
 		const char *v = (i + 1 < argc) ? argv[i + 1] : NULL;
@@ -970,6 +1004,9 @@ int main(int argc, char **argv)
 			fl.erase_ns = MS(strtoul(v, NULL, 0));
 		else if (strcmp(a, "--walk-closed") == 0) {
 			walk.end_closed = 1;
+			takes = 0;
+		} else if (strcmp(a, "--walk-stall") == 0) {
+			walk.stall = 1;
 			takes = 0;
 		} else if (strcmp(a, "--refuse-loads") == 0 && v)
 			be.refuse_loads = (unsigned int)strtoul(v, NULL, 0);

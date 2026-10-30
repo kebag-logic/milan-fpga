@@ -649,8 +649,9 @@ maprec4-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_4x4_F)
 maprec4: maprec4-build
 	$(abspath $(MAPREC4_MDIR))/Vmilan_dp_maprec4
 
-# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: 63
-# mutated elaborations, 54 of the dynmap leg, 5 of maprec8, 2 of maprec4 and
+# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: 66
+# mutated elaborations, 57 of the dynmap leg (three against a processor copy,
+# PP_DIR), 5 of maprec8, 2 of maprec4 and
 # one each of the two end-to-end legs it names (milan_dp_render's and
 # capture_coherence's datapath leg), each leg with its clean control run.
 # DYNMAP_MUTANT_JOBS mutants run at once (at most two of them building).
