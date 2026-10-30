@@ -1,0 +1,32 @@
+endpoint route-1x1: $VALIDATION_STORAGE/scratch/787-a700/viv-head-a0e555a7/w1/ax7101/gateware
+directive ExtraPostPlacementOpt: the one route, marked as the shipping selection
+figure        baseline   candidate     delta  verdict
+LUT              52012       51828      -184  ok, below the baseline
+FF               53707       53799        92  ok
+SLICE            15780       15793        13  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns            0.44       0.107    -0.333  WARNING: fell by more than 0.25 from the record
+WHS_ns           0.036       0.016     -0.02  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.107  WHS_ns    0.055
+  Slow_85C  WNS_ns    0.107  WHS_ns    0.055
+  Fast_0C   WNS_ns    1.633  WHS_ns    0.016
+  Fast_85C  WNS_ns    1.633  WHS_ns    0.016
+WARNING: WNS_ns fell from the record by more than the timing fall; reported, never gated (#818)
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT -244, FF -24
+  u_pp: LUT -240, FF -24
+  u_pp/u_aecp: LUT -193, FF +2
+  u_pp/u_aecp/u_ucpu: LUT +88, FF +0
+  u_pp/u_aecp/u_d3: LUT -78, FF +0
+  u_pp/u_dispatch: LUT +71, FF +0
+  u_pp/u_dispatch/u_acmp_q: LUT +58, FF +0
+  u_pp/u_notify: LUT -52, FF +0
+  u_pp/u_srp: LUT -22, FF -29
+  u_pp/u_originator: LUT -43, FF +0
+  u_pp/u_srp/u_encoder: LUT -14, FF -24
+  u_pp/u_aecp/u_dyn: LUT -29, FF +0
+RESULT: PASS

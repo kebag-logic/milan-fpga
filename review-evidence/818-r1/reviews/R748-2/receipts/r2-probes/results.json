@@ -1,0 +1,192 @@
+[
+ {
+  "probe": "f2-wns-floor-and-fall",
+  "want_rc": 1,
+  "rc": 1,
+  "need": [
+   "directive ExtraPostPlacementOpt selected",
+   "REGRESSION: below the floor 0.03 at Slow_0C, Slow_85C; WARNING: fell by more than 0.25 from the record",
+   "WARNING: WNS_ns fell from the record by more than the timing fall",
+   "RESULT: MATERIAL REGRESSION"
+  ],
+  "forbid": [
+   "RESULT: PASS"
+  ],
+  "ok": true
+ },
+ {
+  "probe": "f2-wns-one-corner",
+  "want_rc": 1,
+  "rc": 1,
+  "need": [
+   "REGRESSION: below the floor 0.03 at Slow_85C; WARNING: fell by more than 0.25",
+   "WARNING: WNS_ns fell from the record"
+  ],
+  "forbid": [
+   "Slow_0C, Slow_85C",
+   "RESULT: PASS"
+  ],
+  "ok": true
+ },
+ {
+  "probe": "f2-whs-floor-and-fall",
+  "want_rc": 1,
+  "rc": 1,
+  "need": [
+   "directive ExtraPostPlacementOpt selected",
+   "REGRESSION: below the floor 0.0 at Fast_0C, Fast_85C; WARNING: fell by more than 0.25 from the record",
+   "WARNING: WHS_ns fell from the record",
+   "RESULT: MATERIAL REGRESSION"
+  ],
+  "forbid": [
+   "RESULT: PASS"
+  ],
+  "ok": true
+ },
+ {
+  "probe": "f2-whs-floor-no-fall",
+  "want_rc": 1,
+  "rc": 1,
+  "need": [
+   "REGRESSION: below the floor 0.0 at Fast_0C, Fast_85C",
+   "RESULT: MATERIAL REGRESSION"
+  ],
+  "forbid": [
+   "WARNING"
+  ],
+  "ok": true
+ },
+ {
+  "probe": "f2-whs-marked-alone",
+  "want_rc": 1,
+  "rc": 1,
+  "need": [
+   "REGRESSION: below the floor 0.0 at Fast_0C, Fast_85C"
+  ],
+  "forbid": [
+   "WARNING"
+  ],
+  "ok": true
+ },
+ {
+  "probe": "f2-wns-marked-alone",
+  "want_rc": 1,
+  "rc": 1,
+  "need": [
+   "REGRESSION: below the floor 0.03 at Slow_0C, Slow_85C; WARNING: fell by more than 0.25",
+   "WARNING: WNS_ns fell from the record",
+   "RESULT: MATERIAL REGRESSION"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "f3-summary-wns-below-corners",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "the reports are not of one run",
+   "worst WNS_ns"
+  ],
+  "forbid": [
+   "RESULT: PASS"
+  ],
+  "ok": true
+ },
+ {
+  "probe": "f3-summary-whs-below-corners",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "the reports are not of one run",
+   "worst WHS_ns"
+  ],
+  "forbid": [
+   "RESULT: PASS"
+  ],
+  "ok": true
+ },
+ {
+  "probe": "f3-summary-whs-below-corners-marked",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "the reports are not of one run",
+   "timing summary's -0.05"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "f3-corner-wns-below-summary",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "the reports are not of one run",
+   "worst WNS_ns is 0.1"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "f3-corner-whs-below-summary",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "the reports are not of one run",
+   "worst WHS_ns is 0.001"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "s1-selected-over-ceiling",
+  "want_rc": 1,
+  "rc": 1,
+  "need": [
+   "directive AltSpreadLogic_high selected",
+   "BRAM_TILE  REGRESSION: 130 exceeds the ceiling 121.5"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "s1-unselected-over-ceiling",
+  "want_rc": 0,
+  "rc": 0,
+  "need": [
+   "directive AltSpreadLogic_high selected",
+   "RESULT: PASS"
+  ],
+  "forbid": [
+   "exceeds the ceiling"
+  ],
+  "ok": true
+ },
+ {
+  "probe": "f1-mark2-record",
+  "rc": 0,
+  "ok": true,
+  "WNS_ns": 0.303
+ },
+ {
+  "probe": "f1-mark2-recheck",
+  "want_rc": 0,
+  "rc": 0,
+  "need": [
+   "RESULT: PASS"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "f1-mark2-unmarked-refused",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "NOT COMPARABLE"
+  ],
+  "forbid": [],
+  "ok": true
+ }
+]

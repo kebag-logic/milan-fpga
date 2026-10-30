@@ -1,0 +1,25 @@
+$ gate check scratch/probes/record-write/ax7101/gateware --endpoint route-1x1 --comparison scratch/probes/record-write/ax7101-AltSpreadLogic_high --comparison scratch/probes/record-write/ax7101-ExtraTimingOpt --baseline scratch/probes/record-write/baseline.json
+endpoint route-1x1: scratch/probes/record-write/ax7101/gateware
+route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns
+  ExtraPostPlacementOpt      0.168   0.025  $REVIEWS/818-r748-2-packet/scratch/probes/record-write/ax7101/gateware
+  AltSpreadLogic_high        0.342   0.034  $REVIEWS/818-r748-2-packet/scratch/probes/record-write/ax7101-AltSpreadLogic_high
+  ExtraTimingOpt               0.3   0.036  $REVIEWS/818-r748-2-packet/scratch/probes/record-write/ax7101-ExtraTimingOpt
+directive AltSpreadLogic_high selected: the best worst-corner WNS, 0.342 ns
+figure        baseline   candidate     delta  verdict
+LUT              51863       51863         0  ok
+FF               53849       53849         0  ok
+SLICE            15821       15821         0  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns           0.342       0.342       0.0  ok
+WHS_ns           0.034       0.034       0.0  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.342  WHS_ns    0.069
+  Slow_85C  WNS_ns    0.342  WHS_ns    0.069
+  Fast_0C   WNS_ns    1.513  WHS_ns    0.034
+  Fast_85C  WNS_ns    1.513  WHS_ns    0.034
+route status: complete, no unrouted net and no routing error
+RESULT: PASS
+
+rc=0

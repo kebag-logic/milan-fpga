@@ -1,0 +1,11 @@
+[
+ {"name": "Y1 WHS corners agree one way only", "old": "        if worst != figures[figure]:\n", "new": "        if worst < figures[figure] or (figure == \"WNS_ns\" and worst != figures[figure]):\n"},
+ {"name": "Y2 WNS corners agree one way only", "old": "        if worst != figures[figure]:\n", "new": "        if worst < figures[figure] or (figure == \"WHS_ns\" and worst != figures[figure]):\n"},
+ {"name": "Y3 corners agree for hold only", "old": "    for figure in TIMING:\n        worst", "new": "    for figure in TIMING[1:]:\n        worst"},
+ {"name": "Y4 floor note dropped beside a fall", "old": "] if missed else []\n", "new": "] if missed and before - after <= tolerance else []\n"},
+ {"name": "Y5 notes in the other order", "old": "        return \"; \".join(notes) or \"ok\", not missed\n", "new": "        return \"; \".join(reversed(notes)) or \"ok\", not missed\n"},
+ {"name": "Y6 summary warning on any WARNING text", "old": "if \"WARNING: fell\" in verdict", "new": "if \"WARNING\" in verdict"},
+ {"name": "Y7 floor miss passes when it also fell", "old": "        return \"; \".join(notes) or \"ok\", not missed\n", "new": "        return \"; \".join(notes) or \"ok\", not missed or before - after > tolerance\n"},
+ {"name": "Y8 ceiling boundary", "old": "        if candidate[\"figures\"][figure] > ceiling:\n", "new": "        if candidate[\"figures\"][figure] >= ceiling:\n"},
+ {"name": "Y9 fall warning only beside a floor miss", "old": "        if before - after > tolerance:\n", "new": "        if before - after > tolerance and missed:\n"}
+]

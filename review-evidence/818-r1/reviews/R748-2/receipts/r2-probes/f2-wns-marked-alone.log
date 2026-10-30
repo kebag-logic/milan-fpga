@@ -1,0 +1,35 @@
+$ gate check $REVIEWS/818-r748-2-packet/scratch/probes-r2/f2-wns-marked-alone/ax7101/gateware --endpoint route-1x1 --shipping-selection
+endpoint route-1x1: $REVIEWS/818-r748-2-packet/scratch/probes-r2/f2-wns-marked-alone/ax7101/gateware
+directive ExtraPostPlacementOpt: the one route, marked as the shipping selection
+figure        baseline   candidate     delta  verdict
+LUT              52012       51801      -211  ok, below the baseline
+FF               53707       53760        53  ok
+SLICE            15780       15834        54  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns            0.44        0.01     -0.43  REGRESSION: below the floor 0.03 at Slow_0C, Slow_85C; WARNING: fell by more than 0.25 from the record
+WHS_ns           0.036       0.028    -0.008  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns     0.01  WHS_ns    0.051
+  Slow_85C  WNS_ns     0.01  WHS_ns    0.051
+  Fast_0C   WNS_ns    1.633  WHS_ns    0.028
+  Fast_85C  WNS_ns    1.633  WHS_ns    0.028
+WARNING: WNS_ns fell from the record by more than the timing fall; reported, never gated (#818)
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT -313, FF -26
+  u_pp: LUT -305, FF -26
+  u_pp/u_aecp: LUT -210, FF +0
+  u_pp/u_aecp/u_dyn: LUT -153, FF +0
+  u_pp/u_srp: LUT -91, FF -26
+  u_pp/u_srp/u_encoder: LUT -22, FF -24
+  u_pp/u_aecp/u_d3: LUT -43, FF +0
+  u_pp/u_srp/u_listener: LUT -43, FF +0
+  u_pp/u_talker: LUT +17, FF +0
+  u_pp/u_srp/u_talker: LUT -14, FF -2
+  u_pp/u_originator: LUT -12, FF +0
+  u_pp/u_notify: LUT -8, FF +0
+RESULT: MATERIAL REGRESSION
+
+rc=1

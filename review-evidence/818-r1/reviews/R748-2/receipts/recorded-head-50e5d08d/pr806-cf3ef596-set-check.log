@@ -1,0 +1,35 @@
+endpoint route-1x1: $VALIDATION_STORAGE/scratch/806-a701/viv-cf3ef596/w1/ax7101/gateware
+route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns
+  ExtraPostPlacementOpt      0.032   0.034  $VALIDATION_STORAGE/scratch/806-a701/viv-cf3ef596/w1/ax7101/gateware
+  AltSpreadLogic_high        0.235   0.011  $VALIDATION_STORAGE/scratch/806-a701b/ax7101-AltSpreadLogic_high
+  ExtraTimingOpt             0.218   0.011  $VALIDATION_STORAGE/scratch/806-a701b/ax7101-ExtraTimingOpt
+directive AltSpreadLogic_high selected: the best worst-corner WNS, 0.235 ns
+figure        baseline   candidate     delta  verdict
+LUT              52012       51874      -138  ok, below the baseline
+FF               53707       53787        80  ok
+SLICE            15780       15837        57  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns            0.44       0.235    -0.205  ok
+WHS_ns           0.036       0.011    -0.025  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.235  WHS_ns    0.037
+  Slow_85C  WNS_ns    0.235  WHS_ns    0.037
+  Fast_0C   WNS_ns    1.633  WHS_ns    0.011
+  Fast_85C  WNS_ns    1.633  WHS_ns    0.011
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp: LUT -185, FF +0
+  wrapper: LUT -185, FF +0
+  u_pp/u_aecp/u_dyn: LUT -157, FF +0
+  u_pp/u_aecp: LUT -148, FF +0
+  u_pp/u_aecp/u_d3: LUT +40, FF +0
+  u_pp/u_srp: LUT -26, FF +0
+  u_pp/u_srp/u_listener: LUT -18, FF +0
+  u_pp/u_srp/u_talker: LUT -17, FF +0
+  u_pp/u_aecp/u_ucpu: LUT +14, FF +0
+  u_pp/u_talker: LUT -7, FF +0
+  u_pp/u_notify: LUT -6, FF +0
+  u_pp/u_rx_validator: LUT +6, FF +0
+RESULT: PASS

@@ -1,0 +1,38 @@
+$ gate check $REVIEWS/818-r748-2-packet/scratch/probes-r2/f2-whs-floor-no-fall/ax7101/gateware --endpoint route-1x1 --comparison $REVIEWS/818-r748-2-packet/scratch/probes-r2/f2-whs-floor-no-fall/ax7101-AltSpreadLogic_high --comparison $REVIEWS/818-r748-2-packet/scratch/probes-r2/f2-whs-floor-no-fall/ax7101-ExtraTimingOpt
+endpoint route-1x1: $REVIEWS/818-r748-2-packet/scratch/probes-r2/f2-whs-floor-no-fall/ax7101/gateware
+route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns
+  ExtraPostPlacementOpt      0.303   -0.01  $REVIEWS/818-r748-2-packet/scratch/probes-r2/f2-whs-floor-no-fall/ax7101/gateware
+  AltSpreadLogic_high         0.23   0.014  $REVIEWS/818-r748-2-packet/scratch/probes-r2/f2-whs-floor-no-fall/ax7101-AltSpreadLogic_high
+  ExtraTimingOpt             0.106   0.054  $REVIEWS/818-r748-2-packet/scratch/probes-r2/f2-whs-floor-no-fall/ax7101-ExtraTimingOpt
+directive ExtraPostPlacementOpt selected: the best worst-corner WNS, 0.303 ns
+figure        baseline   candidate     delta  verdict
+LUT              52012       51801      -211  ok, below the baseline
+FF               53707       53760        53  ok
+SLICE            15780       15834        54  ok
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns            0.44       0.303    -0.137  ok
+WHS_ns           0.036       -0.01    -0.046  REGRESSION: below the floor 0.0 at Fast_0C, Fast_85C
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.303  WHS_ns    0.051
+  Slow_85C  WNS_ns    0.303  WHS_ns    0.051
+  Fast_0C   WNS_ns    1.633  WHS_ns    -0.01
+  Fast_85C  WNS_ns    1.633  WHS_ns    -0.01
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT -313, FF -26
+  u_pp: LUT -305, FF -26
+  u_pp/u_aecp: LUT -210, FF +0
+  u_pp/u_aecp/u_dyn: LUT -153, FF +0
+  u_pp/u_srp: LUT -91, FF -26
+  u_pp/u_srp/u_encoder: LUT -22, FF -24
+  u_pp/u_aecp/u_d3: LUT -43, FF +0
+  u_pp/u_srp/u_listener: LUT -43, FF +0
+  u_pp/u_talker: LUT +17, FF +0
+  u_pp/u_srp/u_talker: LUT -14, FF -2
+  u_pp/u_originator: LUT -12, FF +0
+  u_pp/u_notify: LUT -8, FF +0
+RESULT: MATERIAL REGRESSION
+
+rc=1
