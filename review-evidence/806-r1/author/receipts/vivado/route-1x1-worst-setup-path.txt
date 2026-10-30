@@ -1,0 +1,121 @@
+Slack (MET) :             0.032ns  (required time - arrival time)
+  Source:                 FSM_onehot_socbushandler0_axilite2wishbone_state_reg[3]/C
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            milansoc_spiflash_phy_cnt_reg[8]/D
+                            (rising edge-triggered cell FDRE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.835ns  (logic 3.584ns (36.441%)  route 6.251ns (63.560%))
+  Logic Levels:           18  (CARRY4=3 LUT2=3 LUT3=4 LUT4=2 LUT5=1 LUT6=5)
+  Clock Path Skew:        -0.108ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.757ns = ( 16.757 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.192ns
+    Clock Pessimism Removal (CPR):    0.327ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns
+
+    Location             Delay type                Incr(ns)  Path(ns)    Netlist Resource(s)
+  -------------------------------------------------------------------    -------------------
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                      0.000     0.000 r  <hidden>
+    R4                                                0.000     0.000 r  clk200_p
+                         net (fo=0)                   0.000     0.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.851     0.851 r  IBUFDS/O
+                         net (fo=1, routed)           1.717     2.568    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.082     2.650 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.424     4.074    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.077     4.151 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.439     5.589    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.081     5.670 r  BUFG/O
+                         net (fo=7219, routed)        1.522     7.192    sys_clk
+    SLICE_X47Y186        FDRE                                         r  FSM_onehot_socbushandler0_axilite2wishbone_state_reg[3]/C
+  -------------------------------------------------------------------    -------------------
+    SLICE_X47Y186        FDRE (Prop_fdre_C_Q)         0.379     7.571 f  FSM_onehot_socbushandler0_axilite2wishbone_state_reg[3]/Q
+                         net (fo=23, routed)          0.518     8.089    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/milansoc_milansoc_data_reg[31][1]
+    SLICE_X48Y185        LUT2 (Prop_lut2_I0_O)        0.126     8.215 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/a_buffered_fork2/sram_reg_0_i_30_replica/O
+                         net (fo=18, routed)          0.706     8.921    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/FSM_onehot_socbushandler0_axilite2wishbone_state_reg[3]_0_repN_alias
+    SLICE_X43Y186        LUT2 (Prop_lut2_I0_O)        0.267     9.188 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_mmap_burst_adr[24]_i_7/O
+                         net (fo=1, routed)           0.000     9.188    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_mmap_burst_adr[24]_i_7_n_0
+    SLICE_X43Y186        CARRY4 (Prop_carry4_S[1]_CO[3])
+                                                      0.457     9.645 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_mmap_burst_adr_reg[24]_i_2/CO[3]
+                         net (fo=1, routed)           0.000     9.645    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_mmap_burst_adr_reg[24]_i_2_n_0
+    SLICE_X43Y187        CARRY4 (Prop_carry4_CI_O[3])
+                                                      0.260     9.905 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_mmap_burst_adr_reg[28]_i_2/O[3]
+                         net (fo=3, routed)           0.621    10.526    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_mmap_bus_adr[28]
+    SLICE_X41Y187        LUT6 (Prop_lut6_I1_O)        0.257    10.783 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/subfragments_litespimmap_state[2]_i_5/O
+                         net (fo=1, routed)           0.000    10.783    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/subfragments_litespimmap_state[2]_i_5_n_0
+    SLICE_X41Y187        CARRY4 (Prop_carry4_S[1]_CO[1])
+                                                      0.408    11.191 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/subfragments_litespimmap_state_reg[2]_i_3/CO[1]
+                         net (fo=1, routed)           0.450    11.642    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_mmap_request2
+    SLICE_X41Y191        LUT2 (Prop_lut2_I0_O)        0.275    11.917 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/subfragments_litespimmap_state[2]_i_2/O
+                         net (fo=3, routed)           0.637    12.553    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/subfragments_litespimmap_state[2]_i_2_n_0
+    SLICE_X48Y195        LUT4 (Prop_lut4_I2_O)        0.105    12.658 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/FDCE_8_i_2/O
+                         net (fo=5, routed)           0.266    12.925    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/FDCE_8_i_2_n_0
+    SLICE_X51Y196        LUT6 (Prop_lut6_I2_O)        0.105    13.030 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_last_sink_width[3]_i_3/O
+                         net (fo=2, routed)           0.491    13.520    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_last_sink_width[3]_i_3_n_0
+    SLICE_X52Y199        LUT6 (Prop_lut6_I0_O)        0.105    13.625 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_spi_clk_divisor_delayed[9]_i_6/O
+                         net (fo=2, routed)           0.336    13.962    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_spi_clk_divisor_delayed[9]_i_6_n_0
+    SLICE_X52Y198        LUT3 (Prop_lut3_I2_O)        0.105    14.067 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_spi_clk_divisor_delayed[9]_i_4/O
+                         net (fo=17, routed)          0.309    14.375    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_spi_clk_divisor_delayed[9]_i_4_n_0
+    SLICE_X57Y198        LUT6 (Prop_lut6_I4_O)        0.105    14.480 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[0]_i_2/O
+                         net (fo=2, routed)           0.436    14.917    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[0]_i_2_n_0
+    SLICE_X57Y197        LUT4 (Prop_lut4_I0_O)        0.105    15.022 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[2]_i_3/O
+                         net (fo=3, routed)           0.350    15.372    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[2]_i_3_n_0
+    SLICE_X55Y197        LUT3 (Prop_lut3_I1_O)        0.105    15.477 f  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[4]_i_3/O
+                         net (fo=3, routed)           0.225    15.703    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[4]_i_3_n_0
+    SLICE_X55Y197        LUT3 (Prop_lut3_I1_O)        0.105    15.808 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[6]_i_3/O
+                         net (fo=3, routed)           0.358    16.166    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[6]_i_3_n_0
+    SLICE_X55Y197        LUT3 (Prop_lut3_I1_O)        0.105    16.271 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[7]_i_3/O
+                         net (fo=2, routed)           0.233    16.503    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[7]_i_3_n_0
+    SLICE_X55Y198        LUT5 (Prop_lut5_I0_O)        0.105    16.608 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[8]_i_4/O
+                         net (fo=1, routed)           0.314    16.923    VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[8]_i_4_n_0
+    SLICE_X55Y199        LUT6 (Prop_lut6_I5_O)        0.105    17.028 r  VexiiRiscvLitex_f5f08b170311db53220574624f819159/peripheral_toAxiLite4_logic_bridge/milansoc_spiflash_phy_cnt[8]_i_1/O
+                         net (fo=1, routed)           0.000    17.028    VexiiRiscvLitex_f5f08b170311db53220574624f819159_n_95
+    SLICE_X55Y199        FDRE                                         r  milansoc_spiflash_phy_cnt_reg[8]/D
+  -------------------------------------------------------------------    -------------------
+
+                         (clock milansoc_crg_clkout0 rise edge)
+                                                     10.000    10.000 r  <hidden>
+    R4                                                0.000    10.000 r  clk200_p
+                         net (fo=0)                   0.000    10.000    clk200_p
+    R4                   IBUFDS (Prop_ibufds_I_O)     0.813    10.813 r  IBUFDS/O
+                         net (fo=1, routed)           1.628    12.441    IBUFDS_n_0_BUFG_inst_n_0
+    BUFGCTRL_X0Y7        BUFG (Prop_bufg_I_O)         0.078    12.519 r  IBUFDS_n_0_BUFG_inst/O
+                         net (fo=9, routed)           1.319    13.838    milansoc_crg_clkin_signal
+    PLLE2_ADV_X0Y1       PLLE2_ADV (Prop_plle2_adv_CLKIN1_CLKOUT0)
+                                                      0.073    13.911 r  PLLE2_ADV/CLKOUT0
+                         net (fo=1, routed)           1.371    15.281    milansoc_crg_clkout0
+    BUFGCTRL_X0Y0        BUFG (Prop_bufg_I_O)         0.077    15.358 r  BUFG/O
+                         net (fo=7219, routed)        1.399    16.757    sys_clk
+    SLICE_X55Y199        FDRE                                         r  milansoc_spiflash_phy_cnt_reg[8]/C
+                         clock pessimism              0.327    17.084    <hidden>
+                         clock uncertainty           -0.058    17.026    <hidden>
+    SLICE_X55Y199        FDRE (Setup_fdre_C_D)        0.033    17.059    milansoc_spiflash_phy_cnt_reg[8]
+  -------------------------------------------------------------------
+                         required time                         17.059    <hidden>
+                         arrival time                         -17.028    <hidden>
+  -------------------------------------------------------------------
+                         slack                                  0.032    <hidden>
+
+Slack (MET) :             0.268ns  (required time - arrival time)
+  Source:                 VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[2]_replica/C
+                            (rising edge-triggered cell FDCE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Destination:            VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bus_aw_rValid_reg/D
+                            (rising edge-triggered cell FDCE clocked by milansoc_crg_clkout0  {rise@0.000ns fall@5.000ns period=10.000ns})
+  Path Group:             milansoc_crg_clkout0
+  Path Type:              Setup (Max at Slow Process Corner)
+  Requirement:            10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+  Data Path Delay:        9.659ns  (logic 2.627ns (27.197%)  route 7.032ns (72.803%))
+  Logic Levels:           20  (LUT2=2 LUT3=5 LUT4=5 LUT5=2 LUT6=6)
+  Clock Path Skew:        -0.048ns (DCD - SCD + CPR)
+    Destination Clock Delay (DCD):    6.604ns = ( 16.604 - 10.000 ) 
+    Source Clock Delay      (SCD):    7.031ns
+    Clock Pessimism Removal (CPR):    0.378ns
+  Clock Uncertainty:      0.058ns  ((TSJ^2 + DJ^2)^1/2) / 2 + PE
+    Total System Jitter     (TSJ):    0.071ns
+    Discrete Jitter          (DJ):    0.091ns
+    Phase Error              (PE):    0.000ns

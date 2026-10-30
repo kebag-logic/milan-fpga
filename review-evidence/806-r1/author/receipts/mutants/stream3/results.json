@@ -1,0 +1,65 @@
+[
+ {
+  "mutant": "C0 clean milan_dp gptp leg",
+  "rc": 0,
+  "all_failed": [],
+  "verdict": "CLEAN"
+ },
+ {
+  "tag": "D3",
+  "mutant": "slot 6 runs no NOT_ENABLED leg",
+  "file": "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+  "pattern_counts": [
+   1
+  ],
+  "named": [
+   "#94 asCapable falls at link loss",
+   "#94 asCapable falls when LINK_CTRL[0] withdraws the link",
+   "#94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return",
+   "#94 asCapable falls when the guard loses the receive clock"
+  ],
+  "rc": 2,
+  "all_failed": [
+   "#94 asCapable falls at link loss",
+   "#94 asCapable falls when LINK_CTRL[0] withdraws the link",
+   "#94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return",
+   "#94 asCapable falls when the guard loses the receive clock"
+  ],
+  "not_failed": [],
+  "verdict": "KILLED"
+ },
+ {
+  "tag": "D4",
+  "mutant": "the countdown loads one beat less",
+  "file": "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+  "pattern_counts": [
+   1
+  ],
+  "named": [
+   "#94 the cease countdown exit is unchanged: 5 s from the last request"
+  ],
+  "rc": 2,
+  "all_failed": [
+   "#94 the cease countdown exit is unchanged: 5 s from the last request"
+  ],
+  "not_failed": [],
+  "verdict": "KILLED"
+ },
+ {
+  "tag": "D5",
+  "mutant": "the cease entry ends the cease at once",
+  "file": "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+  "pattern_counts": [
+   1
+  ],
+  "named": [
+   "#94 the cease countdown exit is unchanged: 5 s from the last request"
+  ],
+  "rc": 2,
+  "all_failed": [
+   "#94 the cease countdown exit is unchanged: 5 s from the last request"
+  ],
+  "not_failed": [],
+  "verdict": "KILLED"
+ }
+]

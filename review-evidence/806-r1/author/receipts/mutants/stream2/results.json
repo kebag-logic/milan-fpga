@@ -1,0 +1,65 @@
+[
+ {
+  "mutant": "C0 clean milan_dp gptp leg",
+  "rc": 0,
+  "all_failed": [],
+  "verdict": "CLEAN"
+ },
+ {
+  "tag": "P5",
+  "mutant": "the datapath portEnabled ignores the link guard estimate",
+  "file": "hdl/milan/milan_datapath.sv",
+  "pattern_counts": [
+   1
+  ],
+  "named": [
+   "#94 asCapable falls when the guard loses the receive clock"
+  ],
+  "rc": 2,
+  "all_failed": [
+   "#94 asCapable falls when the guard loses the receive clock"
+  ],
+  "not_failed": [],
+  "verdict": "KILLED"
+ },
+ {
+  "tag": "D1",
+  "mutant": "a portEnabled edge keeps the cease",
+  "file": "gptp-processor/hdl/ucode/gen_gptp_ucode.py",
+  "pattern_counts": [
+   1
+  ],
+  "named": [
+   "#94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return"
+  ],
+  "rc": 2,
+  "all_failed": [
+   "#94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return",
+   "#94 the cease countdown exit is unchanged: 5 s from the last request",
+   "#94 asCapable is TRUE before the guard loses the receive clock"
+  ],
+  "not_failed": [],
+  "verdict": "KILLED"
+ },
+ {
+  "tag": "D2",
+  "mutant": "the falling edge raises no event",
+  "file": "gptp-processor/hdl/top/KL_gptp_engine.sv",
+  "pattern_counts": [
+   1
+  ],
+  "named": [
+   "#94 asCapable falls at link loss",
+   "#94 asCapable falls when LINK_CTRL[0] withdraws the link",
+   "#94 asCapable falls when the guard loses the receive clock"
+  ],
+  "rc": 2,
+  "all_failed": [
+   "#94 asCapable falls at link loss",
+   "#94 asCapable falls when LINK_CTRL[0] withdraws the link",
+   "#94 asCapable falls when the guard loses the receive clock"
+  ],
+  "not_failed": [],
+  "verdict": "KILLED"
+ }
+]

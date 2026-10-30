@@ -1,0 +1,25 @@
+[A701] REVIEW READY
+Commit: f99405af0b2caad46e84f50f8251ffbffaa80836 (branch 806-adopt-gptp-135afd04, from dev 1e80128f; nine one-line commits; not pushed)
+Changed:
+- gptp-processor gitlink f97c1803 -> 135afd04 (FPGA-gPTP PR #95, merge of 409c3075, identical tree).
+- PR #95's parent companion (sha256 aeeab9c8, reviewed at 409c3075), applied without its gitlink hunk; every pre-image blob equals dev's and every post-image blob the patch's: KL_gptp_shadow gains port_enabled_i, milan_datapath drives it from eff_link_w (PHY link AND LINK_CTRL[0] AND the link guard's estimate, or the guard disabled), the three plane test wrappers tie it 1, and the milan_dp gptp leg checks the link loss, the cease's toggle exit and the unchanged countdown.
+- Review finish, tests: the companion's checks all drove i_link_up, so a datapath wiring port_enabled_i to i_link_up alone passed them; added "#94 asCapable falls when LINK_CTRL[0] withdraws the link", "#94 asCapable falls when the guard loses the receive clock" and a precondition before each loss. This lane's own campaign then found the donor defect "the falling edge raises no event" escaping the LINK_CTRL[0] check on a stale TRUE; each link return's edge is now taken before the next phase reads asCapable (cf3ef596).
+- Review finish, docs: the companion's GPTP_PLANE.md port-enable section failed check_doc_style.py (7 findings), now split to the limit; the loss page gains the link-loss row; the time-sync page says only an asCapable fall and rise re-arms link-up (the FPGA-gPTP #68 ruling); the integrator guide names the port-enable seam.
+- Pin-derived records through their generators: ROM ledger row (gptp_ucode.hex 99266fa9, equal to the donor's tracked images), pin table, boundary and time-sync diagrams, 19 donor links, port census header. The adoption record on the pin page, the changelog and the area page's slice-headroom sentence.
+Validation (head f99405af unless noted, every command rc 0 unless noted):
+- Full sweep, four shard units, then suite_tally.py <union> --quiet --expect-suite-root tb/verilator: 64/64 suites, 2,191,710 checks, 0 in-suite failures, 0 timed out. milan_dp gptp and gptp-lat 210/210 each; milan_dp_gm_steps 202; gptp_shadow 325; tsn_fuzz 897.
+- make -C tb/verilator/tsn_fuzz ptp: 675 pass, freshness PASS (the results file changes only its date stamp, so it stays).
+- milan_dp_gptp at cf3ef596 (its inputs equal the head's): 205 checks, 0 failures; 17.992742740 simulated s; suite 5,653 s of 6,900 s.
+- rtl-fast replica, every job of the aggregate: rtl-fast: success, failed jobs none (12 of 12); behave 14 features, 495 scenarios, 2,288 steps; base the live dev 1e80128f.
+- syn/yosys/run.sh: 60/60 tops, unjustified ties 0, TAP-PURITY PASS. lint_rtl.py --check 89 <= 89; xvlog 0 findings; SV, shell, C++ and Python idiom gates within ratchet; the static and pin-record bank 33/33 (builder: ALL GATES PASS EXCEPT the 2 NOT RUN arms #803 recorded).
+- Docs workflow replica (GNU Make 4.3, CPython 3.12.3): 44 steps, 0 failed, 2 skipped by rule; LiteX builder leg, Markdown gates and no-git gates rc 0.
+- Planted defects at cf3ef596, each alone in a clean clone, three clean passes first: 10 of 10 killed on every check they name (5 parent wiring defects, 5 of the donor's port controls by name); every new check has a killer.
+- Vivado at cf3ef596 (synthesis inputs equal the head's), pp_resource_gate.py check against the twelfth record: ooc-1x1 PASS and ooc-8x8 PASS (both equal the record); route-1x1 REFUSED, WNS only: LUT 51,837 (-175, tol. 500), FF 53,788 (+81, tol. 600), slices 15,823 (+43, tol. 80; 27 of 15,850 free), RAMB/DSP unchanged, WHS +0.034, WNS +0.032 ns (record +0.440, fell 0.408, tol. 0.25). Against dev's own route: +36 LUT, +28 FF, -11 slices, WNS -0.271 ns. Every corner meets the build floor (worst WNS +0.032, worst WHS +0.034 ns); the worst path is the SoC bridge-to-SPI-flash path AREA_BUDGET.md already names, outside the wrapper and the datapath.
+Acceptance criteria:
+- Parent gates and the full sweep pass: met (above).
+- The area gate passes: NOT met. route-1x1 is refused on its WNS tolerance; ooc-1x1 and ooc-8x8 pass. The STOP conditions are not met (the route fits; timing meets the build floor), so the delta is recorded and the decision is the owner's.
+- The in-house qualification's link-toggle gPTP scenario on the built image: not run (no bench access here); after merge. PR-BODY uses "Relates to #806".
+Open risks/questions:
+1. Owner decision: accept route-1x1 at +0.032 ns WNS and re-record, or recover the margin first. This lane re-records nothing.
+2. CI planning: on this host the milan_dp gptp case's user time goes 163.8 s (dev) -> 335.4 s (companion) -> 351.1 s (head). gptp sits in milan_dp leg 0, whose worker projects 1,551 s against the 1,620 s rule (69 s margin), so its hosted window will likely exceed the projection; the 45-minute timeout is not at risk. PIECE_SECONDS are hosted figures to refresh from this change's hosted run, as CI_WORKFLOWS.md prescribes.
+3. Milan v1.2 4.2.6.2.5's pttPortEnabled exit has no parent control (always enabled); recorded, not changed.

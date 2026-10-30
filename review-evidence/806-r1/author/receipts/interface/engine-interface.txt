@@ -1,0 +1,14 @@
+git -C gptp-processor diff --name-status f97c1803 135afd04 -- hdl
+M	hdl/top/KL_gptp_engine.sv
+M	hdl/ucode/gen_gptp_ucode.py
+M	hdl/wire/KL_gptp_tx_slot.sv
+
+port/parameter lines added or removed:
++    input  wire         port_enabled_i,
++  localparam logic [2:0] PE_SLOT_C = 3'd6;
++    input  wire         cancel_i,
+
+ROM ledger row vs donor tracked images at 135afd04:
+135afd043309369a87ddbc8d6550aff8ec52a157	gptp_ucode.hex	99266fa9197a17a75812ea11dfa0fb9e9e1bd403df1a6a06381857c94ecaed32
+syn/ooc/work/gptp_ucode.hex 99266fa9197a17a75812ea11dfa0fb9e9e1bd403df1a6a06381857c94ecaed32
+tb/verilator/ucpu/gptp_ucode.hex 99266fa9197a17a75812ea11dfa0fb9e9e1bd403df1a6a06381857c94ecaed32

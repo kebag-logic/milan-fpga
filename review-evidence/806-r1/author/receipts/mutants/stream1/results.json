@@ -1,0 +1,187 @@
+[
+ {
+  "mutant": "C0 clean milan_dp gptp leg",
+  "rc": 0,
+  "all_failed": [],
+  "verdict": "CLEAN"
+ },
+ {
+  "tag": "P1",
+  "mutant": "KL_gptp_shadow ties the engine portEnabled high",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "pattern_counts": [
+   1
+  ],
+  "named": [
+   "#94 asCapable falls at link loss",
+   "#94 asCapable falls when LINK_CTRL[0] withdraws the link",
+   "#94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return",
+   "#94 asCapable falls when the guard loses the receive clock"
+  ],
+  "rc": 2,
+  "all_failed": [
+   "#94 asCapable falls at link loss",
+   "#94 asCapable falls when LINK_CTRL[0] withdraws the link",
+   "#94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return",
+   "#94 asCapable falls when the guard loses the receive clock"
+  ],
+  "not_failed": [],
+  "verdict": "KILLED"
+ },
+ {
+  "tag": "P2",
+  "mutant": "KL_gptp_shadow ties the engine portEnabled low",
+  "file": "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+  "pattern_counts": [
+   1
+  ],
+  "named": [
+   "#94 asCapable is TRUE before the link loss",
+   "#94 asCapable is TRUE before LINK_CTRL[0] withdraws the link",
+   "#94 asCapable is TRUE before the guard loses the receive clock"
+  ],
+  "rc": 2,
+  "all_failed": [
+   "the plane's Pdelay_Req reaches the MAC",
+   "MAC-bound Pdelay_Req speaks the engine domain",
+   "three fresh Pdelay exchanges answered",
+   "fabric publication pdelay is nonzero",
+   "fabric asCapable reached the CSR",
+   "negative Pdelay exchange answered",
+   "negative Pdelay model reached signed noise",
+   "negative Pdelay retains asCapable",
+   "peer-driven GM reached live CSR",
+   "peer-driven parent reached live CSR",
+   "fabric live AS_PATH count is five",
+   "GET_AVB_INFO nonzero GM",
+   "GET_AVB_INFO domain/flags/map",
+   "GET_AS_PATH full-tail wire length",
+   "GET_AS_PATH cdl",
+   "GET_AS_PATH count five",
+   "GET_AS_PATH ordered GM",
+   "GET_AS_PATH ordered bridge one",
+   "GET_AS_PATH ordered bridge two",
+   "GET_AS_PATH ordered parent",
+   "GET_AS_PATH ends with thisClock",
+   "fabric Sync reaches CLKV sync-ok",
+   "fabric Sync clears CLKV tu after hold",
+   "fabric certainty reaches AAF tu",
+   "fabric certainty reaches CRF tu",
+   "CLKV lock edge reaches counter descriptor arbiter",
+   "CLKV lock emits one CLOCK_DOMAIN GET_COUNTERS push",
+   "fabric lock increments CLOCK_DOMAIN.LOCKED",
+   "CLOCK_DOMAIN push body equals solicited counters",
+   "tail-only parent refresh advances generation",
+   "tail-only refresh leaves GM stable",
+   "tail-only refresh leaves parent stable",
+   "tail-only refresh emits one GET_AS_PATH push",
+   "tail-only refresh reaches solicited path",
+   "changed push body equals current solicited path",
+   "TLV-less fabric publication keeps the path count",
+   "TLV-less selection retains scalar GM",
+   "pre-switch fabric domain is locked",
+   "TLV-less better Announce changes scalar GM",
+   "TLV-less GM switch keeps the path count",
+   "GM switch reaches AVB counter descriptor arbiter",
+   "GM-switch tu reaches CLOCK_DOMAIN descriptor arbiter",
+   "GM switch emits one AVB_INTERFACE GET_COUNTERS push",
+   "GM-switch tu emits one CLOCK_DOMAIN GET_COUNTERS push",
+   "GET_COUNTERS records fabric GPTP_GM_CHANGED",
+   "GET_COUNTERS records GM-switch CLOCK_DOMAIN.UNLOCKED",
+   "AVB counter push body equals solicited counters",
+   "CLOCK_DOMAIN push body equals solicited counters",
+   "TLV-less GM switch still emits one GET_AVB_INFO push",
+   "TLV-less GM switch still increments GPTP_GM_CHANGED",
+   "#87 TLV-less GM switch: GET_AS_PATH keeps count five",
+   "#87 TLV-less GM switch: GET_AS_PATH entry 0 is still GMID",
+   "#87 TLV-less GM switch: GET_AS_PATH still ends with thisClock",
+   "explicit one-entry fabric PathTrace serves count two",
+   "kept to explicit GM advances generation once",
+   "kept to explicit GM emits one AS_PATH push",
+   "explicit one-entry GET_AS_PATH cdl",
+   "explicit one-entry GET_AS_PATH count",
+   "explicit one-entry GET_AS_PATH head",
+   "explicit one-entry GET_AS_PATH ends with thisClock",
+   "in-flight response remains wholly old count two",
+   "in-flight response remains wholly old GM",
+   "in-flight response remains wholly old: ends with thisClock",
+   "explicit GM to empty path advances generation once",
+   "explicit GM to empty path emits one AS_PATH push",
+   "empty-path push body equals post-cut solicited response",
+   "maximum bounded fabric PathTrace serves count eight",
+   "{thisClock} to maximum path advances generation once",
+   "maximum path emits one GET_AS_PATH push",
+   "maximum GET_AS_PATH wire length",
+   "maximum GET_AS_PATH cdl",
+   "maximum GET_AS_PATH count",
+   "maximum GET_AS_PATH final identity",
+   "maximum push body equals solicited path",
+   "[T-LAT] the DUT answered the Pdelay_Req it was sent",
+   "[T-LAT] the DUT sent the two-step Follow_Up",
+   "[T-LAT] this harness's observer reported the response launch",
+   "#88 path headed elsewhere serves count three",
+   "#88 path headed elsewhere advances generation once",
+   "#88 path headed elsewhere keeps the scalar GM",
+   "#88 GET_AS_PATH count three",
+   "#88 GET_AS_PATH entry 0 is the received head",
+   "#88 GET_AS_PATH entry 1 is the parent",
+   "#88 GET_AS_PATH ends with thisClock",
+   "entry-0-only change keeps count three",
+   "entry-0-only change advances generation once",
+   "entry-0-only change emits one GET_AS_PATH push",
+   "entry-0-only change: GET_AS_PATH count three",
+   "entry-0-only change: GET_AS_PATH serves the new entry 0",
+   "entry-0-only change: GET_AS_PATH keeps entry 1",
+   "entry-0-only change: GET_AS_PATH keeps thisClock last",
+   "entry-0-only push body equals solicited path",
+   "#94 asCapable is TRUE before the link loss",
+   "#94 asCapable is TRUE before LINK_CTRL[0] withdraws the link",
+   "#94 a link loss inside the cease ends it: a Pdelay_Req within one interval of the return",
+   "#94 the cease countdown exit is unchanged: 5 s from the last request",
+   "#94 asCapable is TRUE before the guard loses the receive clock",
+   "Sync TX flags: frames observed",
+   "Follow_Up TX flags: frames observed",
+   "Pdelay_Req TX flags: frames observed",
+   "Pdelay_Resp TX flags: frames observed",
+   "Pdelay_Resp_Follow_Up TX flags: frames observed"
+  ],
+  "not_failed": [],
+  "verdict": "KILLED"
+ },
+ {
+  "tag": "P3",
+  "mutant": "the datapath drives portEnabled from the PHY link alone",
+  "file": "hdl/milan/milan_datapath.sv",
+  "pattern_counts": [
+   1
+  ],
+  "named": [
+   "#94 asCapable falls when LINK_CTRL[0] withdraws the link",
+   "#94 asCapable falls when the guard loses the receive clock"
+  ],
+  "rc": 2,
+  "all_failed": [
+   "#94 asCapable falls when LINK_CTRL[0] withdraws the link",
+   "#94 asCapable falls when the guard loses the receive clock"
+  ],
+  "not_failed": [],
+  "verdict": "KILLED"
+ },
+ {
+  "tag": "P4",
+  "mutant": "the datapath portEnabled ignores LINK_CTRL[0]",
+  "file": "hdl/milan/milan_datapath.sv",
+  "pattern_counts": [
+   1
+  ],
+  "named": [
+   "#94 asCapable falls when LINK_CTRL[0] withdraws the link"
+  ],
+  "rc": 2,
+  "all_failed": [
+   "#94 asCapable falls when LINK_CTRL[0] withdraws the link"
+  ],
+  "not_failed": [],
+  "verdict": "KILLED"
+ }
+]
