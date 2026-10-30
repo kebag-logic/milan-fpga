@@ -10,8 +10,8 @@ admits is A3's row of seven owed frames, answered in pass 8 after the room retur
 own pass and those eight, nine passes, must fit the smallest bound every input shares
 (sw/firmware/ctrl/loop/ctrl_loop.h, THE SHARE; #397's one-hart rule). That bound is the least over
 the families of min(T_svc, the family's ceiling) (FR_NFR.md 3.4.1), SRP's 18 ms. The share is that
-bound over the nine passes, 2.0 ms of CPU time at whatever clock the build runs the CPU: 100,000
-CPU cycles at the product's 50 MHz.
+bound over the nine passes, 2.0 ms of CPU time at whatever clock the build runs the CPU: 200,000
+CPU cycles at the product's split CPU clock, sys, 100 MHz.
 """
 from __future__ import annotations
 

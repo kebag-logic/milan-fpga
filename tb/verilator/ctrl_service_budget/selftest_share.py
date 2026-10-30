@@ -7,13 +7,15 @@ The share (share.py) is SRP's 18 ms, the tightest family bound, over nine passes
 at it and a cycle over it check grade.pass_share, and the run fails on a pass over it even when
 every row fits, unless --record-share-findings records it; --record-budget-findings, the rows'
 option, does not. The clock checks build through run.main with build.build's toolchain steps
-replaced (selftest.built): by default the CPU runs at the product's split CPU clock and build.json
-says so; --cpu-hz is a labelled option, named on every line, and a reused build at another clock is
-refused. Each check is (name, held, detail), as selftest.py's.
+replaced (selftest.built): the CPU runs in the split placement's clock domain, sys, at the bus
+clock, and build.json and every line say so; a build whose SoC puts the CPU on the Milan clock is
+refused, and so is a reused build that records its CPU there or records no domain. Each check is
+(name, held, detail), as selftest.py's.
 """
 from __future__ import annotations
 
 import argparse
+import json
 import runpy
 import tempfile
 from collections.abc import Callable
@@ -29,10 +31,13 @@ import scenario
 import share
 
 ROOT = Path(__file__).resolve().parents[3]
-#: The share and the product's split CPU clock, restated here on purpose: a changed value must fail.
+#: The share and the product's split CPU clock, the bus clock, restated here on purpose (#665, owner
+#: decision 2026-10-30): a changed value must fail. The Milan datapath clock stays the bare-metal
+#: build contract's.
 SHARE_MS = 2.0
 SHARE_CYCLES = {50_000_000: 100_000, 100_000_000: 200_000}
-PRODUCT_CPU_HZ = 50_000_000
+PRODUCT_CPU_HZ = 100_000_000
+MILAN_HZ = 50_000_000
 Check = tuple[str, bool, str]
 
 
@@ -41,7 +46,7 @@ def share_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     out = []
     got = (share.bound_ms(), share.share_ms(), {hz: share.share_cycles(hz) for hz in SHARE_CYCLES})
     out.append(("the per-pass share is SRP's 18 ms, the tightest family bound, over nine passes: 2.0 ms, "
-                '100,000 CPU cycles at 50 MHz', got == (18.0, SHARE_MS, SHARE_CYCLES), str(got)))
+                "200,000 CPU cycles at the product's 100 MHz", got == (18.0, SHARE_MS, SHARE_CYCLES), str(got)))
     limit = SHARE_CYCLES[cpu_hz]
     lines = [f'PASS {n} {s} {s // 2} {c} instr=10 store_mbx=1 W {s + 100}:1:0' for n, (s, c)
              in enumerate(((1000, limit), (400_000, limit + 1), (900_000, 50)), 1)]
@@ -74,35 +79,44 @@ def share_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
 
 
 def clock_checks(built: Callable[..., tuple[str, dict]], main_verdict: Callable[..., str]) -> list[Check]:
-    """The product's split CPU clock by default, the labelled option, and a reuse at another clock."""
+    """The split CPU on the bus clock, the refusal of one on the Milan clock, built or reused."""
     out = []
     contract = runpy.run_path(str(ROOT / 'tb/verilator/nvm_capture_cpu/recipe.py'))['CPU_HZ']
     points = {point: yaml.safe_load((ROOT / 'configs' / f'{shape}.yaml').read_text())['board']['constraints']
-              ['milan_clk_hz'] for point, (shape, _) in run.POINTS.items()}
-    out.append(("each point's product split CPU clock, its milan_clk_hz, is the bare-metal build contract's 50 MHz",
-                set(points.values()) == {contract} == {PRODUCT_CPU_HZ}, str((points, contract))))
+              for point, (shape, _) in run.POINTS.items()}
+    got = {point: (c['sys_clk_hz'], c['milan_clk_hz']) for point, c in points.items()}
+    out.append(("each point's split CPU clock is its bus clock, sys_clk_hz, 100 MHz; its Milan datapath clock stays "
+                "the bare-metal build contract's 50 MHz", set(got.values()) == {(PRODUCT_CPU_HZ, contract)}
+                and contract == MILAN_HZ, str((got, contract))))
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp).resolve()
         (root / 'firmware').mkdir()
         (root / 'firmware/adp.c').write_text('c')
         with patch.object(build, 'FIRMWARE_TREES', (str(root / 'firmware'),)):
-            runs = {'product': built(root / 'product'), 'option': built(root / 'option', '--cpu-hz', '100000000')}
-            got = {name: (verdict, spec.get('cpu_hz'), spec.get('cpu_clock'), spec.get('cpu_hz_option'))
-                   for name, (verdict, spec) in runs.items()}
-            want = {'product': ('reached', PRODUCT_CPU_HZ, 'product', None),
-                    'option': ('reached', 100_000_000, 'option', 100_000_000)}
-            out.append(("by default the CPU runs at the product's split CPU clock and build.json says so; another "
-                        'clock is a labelled option', got == want, str(got)))
-            lines = [build.clock_line(spec) for _, spec in runs.values()]
-            out.append(("the clock line names the product's clock, and the option as not the product's",
-                        lines == ["CPU 50 MHz, the product's split CPU clock (the Milan clock), bus 100 MHz",
-                                  "CPU 100 MHz, a labelled option: not the product's split CPU clock, 50 MHz, "
-                                  'bus 100 MHz'], str(lines)))
-            cases = [('product', (), True), ('product', ('--cpu-hz', '100000000'), False),
-                     ('option', ('--cpu-hz', '100000000'), True), ('option', (), False)]
-            verdicts = [main_verdict(root / name, '--reuse-build', *flags) for name, flags, _ in cases]
-    wrong = [f'{name} {flags}: {verdict}' for (name, flags, reuse), verdict in zip(cases, verdicts)
-             if not (verdict == 'reached' if reuse else verdict.startswith('exit 2:') and 'CPU clock' in verdict)]
-    out.append(('the run refuses a reused build at another CPU clock and reuses one at the selected clock', not wrong,
-                '; '.join(wrong)))
+            verdict, spec = built(root / 'product')
+            got = (verdict, spec.get('cpu_cd'), spec.get('cpu_hz'), spec.get('sys_hz'))
+            out.append(("the CPU runs in the split placement's clock domain, sys, at the bus clock, and build.json "
+                        'says so', got == ('reached', 'sys', PRODUCT_CPU_HZ, PRODUCT_CPU_HZ), str(got)))
+            line = build.clock_line(spec) if spec else ''
+            out.append(('the clock line names the CPU on sys at the product clock',
+                        line == "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz", line))
+            with patch.object(build, 'Core', lambda *a, core=build.Core: core(*a, cpu_cd='milan')):
+                verdict, spec = built(root / 'milan')
+            out.append(('a build whose SoC puts the CPU on the Milan clock is refused and records nothing',
+                        verdict.startswith('returned 1') and 'not on the bus clock' in verdict
+                        and 'milan clock domain' in verdict and not spec, verdict))
+            record = root / 'product/build.json'
+            kept = record.read_text() if record.is_file() else '{}'
+            cases = [('on sys', None, True), ('on the Milan clock', dict(cpu_cd='milan', cpu_hz=MILAN_HZ), False),
+                     ('on sys at half the bus clock', dict(cpu_hz=MILAN_HZ), False),
+                     ('with no domain recorded', dict(cpu_cd=None), False)]
+            verdicts = []
+            for _, edit, _ in cases:
+                record.write_text(kept if edit is None else json.dumps(
+                    {k: v for k, v in {**json.loads(kept), **edit}.items() if v is not None}))
+                verdicts.append(main_verdict(root / 'product', '--reuse-build'))
+    wrong = [f'{name}: {verdict}' for (name, _, reuse), verdict in zip(cases, verdicts)
+             if not (verdict == 'reached' if reuse else verdict.startswith('returned 1') and 'bus clock' in verdict)]
+    out.append(('the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or '
+                'with no CPU domain', not wrong, '; '.join(wrong)))
     return out

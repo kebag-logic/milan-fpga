@@ -90,7 +90,7 @@ public:
         if (steps_.empty() || steps_.back().op != "end") throw std::runtime_error("script must end with end");
     }
 
-    void sample(Vsim& dut, bool cpu_rising) {
+    void sample(Vsim& dut) {
         ++sys_;
         if (dut.sys_reset) return;
         if (dut.mbx_ms_tick) {
@@ -108,7 +108,7 @@ public:
         egress_sample(dut);
         ingress_sample(dut);
         flash_sample(dut);
-        if (cpu_rising) cpu_sample(dut);
+        cpu_sample(dut);
         run_script();
     }
 
@@ -546,31 +546,26 @@ void initialize(Vsim& dut) {
     dut.eval();
 }
 
-// fw_service_budget's clocking: aligned rising edges, the CPU at cpu_hz.
+// The split CPU runs on the bus clock (#665, owner decision 2026-10-30), so every rising edge
+// of sys is a CPU edge. The test SoC has no datapath: its Milan clock pad stays low.
+static_assert(cpu_hz == sys_hz, "the split CPU runs on the bus clock");
+
 void simulate(Vsim& dut, Bench& bench) {
-    const std::array<std::uint64_t, 2> frequency = {sys_hz, cpu_hz};
-    std::array<std::uint64_t, 2> edge = {1, 1};
-    std::array<std::uint64_t, 2> next{};
-    const std::array<std::uint64_t, 2> offset = {0, (500000000000ULL / cpu_hz - 500000000000ULL / sys_hz)};
-    for (unsigned i = 0; i < next.size(); ++i) next[i] = 500000000000ULL / frequency[i] + offset[i];
+    std::uint64_t edge = 1;
+    std::uint64_t next = 500000000000ULL / sys_hz;
     while (!Verilated::gotFinish() && !bench.done()) {
-        const auto time_ps = *std::min_element(next.begin(), next.end());
+        const auto time_ps = next;
         if (time_ps > sim_limit_ps) throw std::runtime_error("simulation exceeded its time limit");
         if (time_ps <= Verilated::threadContextp()->time()) throw std::runtime_error("nonmonotonic clock");
         Verilated::threadContextp()->time(time_ps);
-        if (next[0] == time_ps && !dut.sys_clk) {
+        if (!dut.sys_clk) {
             bench.latch_host(dut);
-            bench.sample(dut, next[1] == time_ps && !dut.milan_clk);
+            bench.sample(dut);
         }
-        for (unsigned i = 0; i < next.size(); ++i) {
-            if (next[i] != time_ps) continue;
-            if (i == 0) dut.sys_clk = !dut.sys_clk;
-            if (i == 1) dut.milan_clk = !dut.milan_clk;
-            ++edge[i];
-            next[i] = edge[i] * (500000000000ULL / frequency[i])
-                + edge[i] * (500000000000ULL % frequency[i]) / frequency[i] + offset[i];
-        }
-        if (edge[0] > 128) dut.sys_reset = 0;
+        dut.sys_clk = !dut.sys_clk;
+        ++edge;
+        next = edge * (500000000000ULL / sys_hz) + edge * (500000000000ULL % sys_hz) / sys_hz;
+        if (edge > 128) dut.sys_reset = 0;
         dut.eval();
         if (!dut.sys_clk && bench.drive(dut)) dut.eval();
     }

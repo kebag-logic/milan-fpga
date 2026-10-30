@@ -56,6 +56,9 @@ from selftest_share import clock_checks, share_checks  # noqa: E402
 
 FIXTURE_LOG = HERE / 'fixture.log'
 ORACLE = HERE / 'oracle.json'
+#: The grader's two clocks: the fixture's, recorded with the CPU on the Milan clock at half the bus
+#: clock, so a conversion that confuses them fails. The product's split CPU runs on the bus clock
+#: itself (#665; selftest_share.clock_checks).
 SYS_HZ, CPU_HZ = 100_000_000, 50_000_000
 PINNED = ('status', 'start_sys', 'end_sys', 'sys_cycles', 'cpu_cycles', 'ms', 'within_budget', 'within_ceiling',
           'pass_cycles', 'pass_mbx_accesses', 'passes', 'bound_cpu_cycles', 'bound_ms', 'bound_within_budget',
@@ -678,7 +681,8 @@ def reuse_checks() -> list[Check]:
             (bdir / name).parent.mkdir(parents=True, exist_ok=True)
             (bdir / name).write_bytes(data)
         spec = dict(elf=str(bdir / 'image/ctrl_app.elf'), sources=[str(bdir / 'gateware/sim.v'), str(external)],
-                    shape='endstation_ax7101_1x1_tdm8', executable_sha256=hashlib.sha256(b'model').hexdigest())
+                    shape='endstation_ax7101_1x1_tdm8', executable_sha256=hashlib.sha256(b'model').hexdigest(),
+                    cpu_cd='sys', cpu_hz=SYS_HZ, sys_hz=SYS_HZ)
 
         def attempt(edit: Callable[[], None]) -> str:
             """Record the build, apply one edit, and try to reuse it: '' when reused, else the refusal."""
@@ -839,15 +843,17 @@ def built(bdir: Path, *flags: str) -> tuple[str, dict]:
 
     The image, the XIP relink, the symbols and the native model are placeholder
     files, the SoC export records the selection it is handed, as
-    split_soc.build records it in soc.json, and the ledgered plan patches
+    split_soc.build records it in soc.json (a CPU in a domain other than sys
+    at the Milan clock, as a SoC that left it there would), and the ledgered plan patches
     nothing. The run's selection, the mailbox contract, the input digests and
     build.json are run.main's and build.build's own.
     """
     soc = types.ModuleType('split_soc')
     soc.fixture_addresses = lambda: {'flash': 0x20000000}
+    cpu_cd = lambda core: core.cpu_cd or 'sys'
     soc.build = lambda build_dir, shape, elf, n_if, core: dict(
         sources=[], shape=shape, interfaces=n_if, cpu_regions=core.cpu_regions, fetch_l1=core.fetch_l1, sys_hz=SYS_HZ,
-        cpu_hz=core.cpu_hz or CPU_HZ, product_cpu_hz=CPU_HZ, cpu_hz_option=core.cpu_hz)
+        cpu_cd=cpu_cd(core), cpu_hz=SYS_HZ if cpu_cd(core) == 'sys' else CPU_HZ, milan_hz=CPU_HZ)
     soc.ledgered_plan = lambda name: contextlib.nullcontext()
     stubs = dict(
         firmware=lambda out, *a: write(out / 'image/ctrl_app.elf', b'elf'),
@@ -892,7 +898,7 @@ def cache_build_checks() -> list[Check]:
                 {k: v for k, v in runs['plain'][1].items() if k not in ('fetch_l1', 'xip')}))
             cases += [('no fetch L1 recorded', ('--fetch-l1', 'none'), True), ('no fetch L1 recorded', (), False)]
             got += [main_verdict(root / 'plain', '--reuse-build', *flags) for _, flags, _ in cases[-2:]]
-    refused = lambda verdict: verdict.startswith('exit 2:') and 'fetch L1, arm' in verdict
+    refused = lambda verdict: verdict.startswith('exit 2:') and 'fetch L1 or arm' in verdict
     wrong = [f'{name} {" ".join(flags) or "(split)"}: {verdict}' for (name, flags, reuse), verdict in zip(cases, got)
              if not (verdict == 'reached' if reuse else refused(verdict))]
     out.append(('the run refuses a reused build of another fetch L1 or arm and reuses the selected one; '

@@ -16,9 +16,11 @@ rows, every work pass is held to the per-pass share (share.py): the
 default refuses a pass over it even when every row fits, unless
 --record-share-findings is given, which records them.
 
-The CPU runs at the product's split CPU clock, the Milan clock, unless
---cpu-hz names another, a labelled test option; build.json records both,
-and every table and the run's last lines name the clock its figures are at.
+The CPU runs in the split placement's clock domain, sys, at the bus clock,
+100 MHz (#665, owner decision 2026-10-30): build.json records its domain and
+clock, a build or reused build whose CPU is anywhere else, the Milan clock
+among them, is refused, and every table and the run's last lines name the
+clock its figures are at.
 """
 from __future__ import annotations
 
@@ -237,10 +239,6 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
     parser.add_argument('--record-budget-findings', action='store_true')
     parser.add_argument('--record-share-findings', action='store_true',
                         help='record a work pass over the per-pass share (share.py) instead of failing the run')
-    parser.add_argument('--cpu-hz', type=int, metavar='HZ',
-                        help="a labelled test option: the split CPU at HZ instead of the product's split CPU "
-                        "clock (the point's milan_clk_hz, 50 MHz); the bus keeps its clock, and build.json, "
-                        'the tables and the run lines name it')
     parser.add_argument('--mutation', choices=('none', *builder.MUTATIONS), default='none',
                         help='build a planted firmware defect; only its control group runs and must be caught')
     parser.add_argument('--variant', choices=('none', *builder.VARIANTS), default='none',
@@ -350,15 +348,15 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
 
 
 def selected(args: argparse.Namespace, shape: str, n_if: int) -> tuple:
-    """What this run's build must be: point, CPU regions, mutation, variant, fetch L1, arm and CPU clock option."""
-    return shape, n_if, args.cpu_regions, args.mutation, args.variant, args.fetch_l1, args.xip, args.cpu_hz
+    """What this run's build must be: point, CPU regions, mutation, variant, fetch L1 and arm. Its CPU
+    clock is the split CPU's on the bus clock, which build.reused holds every build to."""
+    return shape, n_if, args.cpu_regions, args.mutation, args.variant, args.fetch_l1, args.xip
 
 
 def built_as(spec: dict) -> tuple:
-    """What a build records it is, in selected()'s order; a build that records no fetch L1 is cacheless,
-    and one that records no CPU clock option ran the CPU at the product's clock."""
+    """What a build records it is, in selected()'s order; a build that records no fetch L1 is cacheless."""
     return (spec['shape'], spec['interfaces'], spec['cpu_regions'], spec['mutation'], spec['variant'],
-            spec.get('fetch_l1', 'none'), spec.get('xip', False), spec.get('cpu_hz_option'))
+            spec.get('fetch_l1', 'none'), spec.get('xip', False))
 
 
 def main() -> int:
@@ -384,11 +382,14 @@ def main() -> int:
             print(f'REFUSED {error}')
             return 1
         if built_as(spec) != selected(args, shape, n_if):
-            parser.error('the reused build is another point, CPU region set, mutation, variant, fetch L1, arm '
-                         'or CPU clock')
+            parser.error('the reused build is another point, CPU region set, mutation, variant, fetch L1 or arm')
     else:
-        spec = builder.build(build_dir, shape, n_if, mutation=args.mutation, variant=args.variant,
-                             core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip, args.cpu_hz))
+        try:
+            spec = builder.build(build_dir, shape, n_if, mutation=args.mutation, variant=args.variant,
+                                 core=builder.Core(args.cpu_regions, args.fetch_l1, args.xip))
+        except builder.ClockRefusal as error:
+            print(f'REFUSED {error}')
+            return 1
     clock = builder.clock_line(spec)
     print('CLOCK', clock, flush=True)
     groups = select(parser, args, scenario.all_groups(scenario.point(args.point, spec), spec))
@@ -403,7 +404,7 @@ def main() -> int:
     results, refusals, misses = graded(groups, logs, spec, out)
     refusals = absent + refusals
     shares = share_misses(results)
-    hz = dict(cpu_hz=spec['cpu_hz'], product_cpu_hz=spec.get('product_cpu_hz'), sys_hz=spec['sys_hz'], label=clock)
+    hz = dict(cpu_hz=spec['cpu_hz'], cpu_cd=spec.get('cpu_cd'), sys_hz=spec['sys_hz'], label=clock)
     (out / 'table.md').write_text(table(results, args.point, clock))
     record = dict(summary(args.point, spec['executable_sha256'], results, refusals, misses, shares), clock=hz)
     (out / 'results.json').write_text(json.dumps(record, indent=1) + '\n')

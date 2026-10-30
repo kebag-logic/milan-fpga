@@ -2,10 +2,12 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The test-only split SoC: the shipping CPU, the image's block RAM and a driven mailbox.
 
-The CPU is built by MilanSoC's own VexiiRiscv path: RV32I, one hart, the
-CPU at the 50 MHz Milan clock and the bus at 100 MHz, with the DMA port the
-shipping image has, and the split placement's instruction cache
-(milan_soc.ctrl_cpu_args) unless a build selects a sweep point or none. Its
+The CPU is built by MilanSoC's own VexiiRiscv path: RV32IM, one hart, in
+the split placement's clock domain (milan_soc.CTRL_CPU_CD, #665): the bus
+clock, sys, 100 MHz, with no CPU clock of its own and no crossing. It has the
+DMA port the shipping image has, and the split placement's instruction and
+data caches (milan_soc.ctrl_cpu_args) unless a build selects a sweep point or
+none. Its
 firmware memory is milan_soc.add_ctrl_memory, the split placement's, built
 from the linked image. The capture harness's product simulation
 (tb/verilator/nvm_capture_cpu/soc.py) is imported read only, for its
@@ -448,11 +450,12 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, core: object) -> di
     generator each region at its power-of-two cover; 'as-built' gives it the
     SoC's regions unchanged, which reproduces the generator's rom decode
     defect (a control). Its fetch_l1 selects the CPU's instruction cache
-    (fetch_l1_geometry). Its cpu_hz None runs the CPU at the product's split
-    CPU clock: the point's milan_clk_hz, the Milan clock MilanSoC clocks the
-    CPU from, which the builder's loader holds to the bare-metal build
-    contract's clock. Any other clock is a labelled test option (#665),
-    recorded beside the product's; the bus keeps its own clock either way.
+    (fetch_l1_geometry). Its cpu_cd is the split CPU's clock domain, MilanSoC's
+    ctrl_cpu_cd, None for the split placement's own (milan_soc.CTRL_CPU_CD,
+    sys): MilanSoC refuses any other, the Milan clock among them (#665, owner
+    decision 2026-10-30). The CPU's clock, cpu_hz, is the one MilanSoC derives
+    from that domain (cpu_clk_freq), never the point's milan_clk_hz, which is
+    the datapath's and is recorded only as milan_hz.
     """
     addresses = fixture_addresses()
     cfg = capture_soc.eb.load_config(str(ROOT / 'configs' / (shape + '.yaml')))
@@ -466,16 +469,18 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, core: object) -> di
     cpu = CpuPatches(cpu_regions)
     geometry = fetch_l1_geometry(fetch_l1)
     scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
-    sys_hz, product_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
-    option = core.cpu_hz
-    cpu_hz = product_hz if option is None else option
+    sys_hz, milan_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
+    cpu_cd = milan_soc.CTRL_CPU_CD if core.cpu_cd is None else core.cpu_cd
     with cpu.applied():
         soc = milan_soc.MilanSoC(
             platform, sys_hz, xlen=params['xlen'], cpu_count=params['cpu_count'], cpu=params['cpu'],
             board='ax7101', with_milan=False, with_mac=False, with_dram=False, with_spiflash=False,
-            flashboot=clocks['flashboot'], milan_clk_freq=cpu_hz, l2_bytes=clocks['l2_bytes'],
-            extra_scala_args=scala_args, uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
+            flashboot=clocks['flashboot'], milan_clk_freq=milan_hz, ctrl_cpu_cd=cpu_cd,
+            l2_bytes=clocks['l2_bytes'], extra_scala_args=scala_args, uart_name='sim',
+            uart_baudrate=clocks['uart_baudrate'],
             integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
+        if hasattr(soc.cpu, 'cpu_clk'):
+            raise RuntimeError(f'the split CPU has a clock of its own beside {soc.cpu_cd}: it runs on the bus clock')
         milan_soc.add_ctrl_memory(soc, elf)
         for path in mailbox_sources(n_if, build_dir / 'mbx-variant'):
             platform.add_source(str(path))
@@ -484,12 +489,12 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, core: object) -> di
                           csr_csv=str(build_dir / 'csr.csv'))
         sim_config = SimConfig()
         sim_config.add_clocker('sys_clk', freq_hz=sys_hz)
-        sim_config.add_clocker('milan_clk', freq_hz=cpu_hz)
+        sim_config.add_clocker('milan_clk', freq_hz=milan_hz)
         builder.build(run=False, sim_config=sim_config)
     spec = {
         'sources': [str(Path(s[0]).resolve()) for s in soc.platform.sources],
         'includes': soc.platform.verilog_include_paths,
-        'sys_hz': sys_hz, 'cpu_hz': cpu_hz, 'product_cpu_hz': product_hz, 'cpu_hz_option': option,
+        'sys_hz': sys_hz, 'cpu_cd': soc.cpu_cd, 'cpu_hz': soc.cpu_clk_freq, 'milan_hz': milan_hz,
         'shape': shape, 'interfaces': n_if,
         'addresses': addresses, 'window_bytes': contract.window_bytes,
         'netlist': VexiiRiscv.netlist_name,

@@ -568,26 +568,43 @@ class Core:
     cpu_regions: the generator's region set (split_soc.build); fetch_l1: its
     instruction cache (split_soc.fetch_l1_geometry); xip: the labelled
     hybrid-XIP arm, the code past the reset entry in the flash window;
-    cpu_hz: None for the product's split CPU clock, or the labelled option's
-    clock (split_soc.build; clock_line names it).
+    cpu_cd: the CPU's clock domain, None for the split placement's own
+    (split_soc.build; clock_line names it, and cpu_clock_refusals refuses any
+    other).
     """
     cpu_regions: str = 'cover'
     fetch_l1: str = 'split'
     xip: bool = False
-    cpu_hz: int | None = None
+    cpu_cd: str | None = None
+
+
+#: The split CPU's clock domain, restated here on purpose (#665, owner decision 2026-10-30;
+#: milan_soc.CTRL_CPU_CD): the SoC's sys clock, the bus clock. A build whose CPU runs in any other
+#: domain, the Milan clock among them, or records none (a build made before the CPU moved), is
+#: refused, whether it is built or reused.
+SPLIT_CPU_CD = 'sys'
+
+
+class ClockRefusal(RuntimeError):
+    """A build whose CPU is not the split placement's on the bus clock (cpu_clock_refusals)."""
+
+
+def cpu_clock_refusals(spec: dict) -> list[str]:
+    """Why a build's CPU is not the split CPU on the bus clock: its domain is not SPLIT_CPU_CD, or
+    its clock is not the bus clock. Empty when it is."""
+    out = []
+    if spec.get('cpu_cd') != SPLIT_CPU_CD:
+        out.append(f"the CPU runs in the {spec.get('cpu_cd') or 'unrecorded'} clock domain, not {SPLIT_CPU_CD}")
+    if spec.get('cpu_hz') != spec.get('sys_hz'):
+        out.append(f"the CPU's clock, {spec.get('cpu_hz')} Hz, is not the bus clock, {spec.get('sys_hz')} Hz")
+    return out
 
 
 def clock_line(spec: dict) -> str:
-    """A build's CPU clock as every table and run line names it (#665): the product's split CPU
-    clock, or a labelled option that is not. A build recorded before the label names its clock only."""
+    """A build's CPU clock as every table and run line names it (#665): the split CPU on the bus clock."""
     mhz = lambda hz: f'{hz / 1e6:g} MHz'
-    bus = f"bus {mhz(spec['sys_hz'])}"
-    if 'cpu_clock' not in spec:
-        return f"CPU {mhz(spec['cpu_hz'])} (recorded before the CPU clock was labelled), {bus}"
-    if spec['cpu_clock'] == 'product':
-        return f"CPU {mhz(spec['cpu_hz'])}, the product's split CPU clock (the Milan clock), {bus}"
-    return (f"CPU {mhz(spec['cpu_hz'])}, a labelled option: not the product's split CPU clock, "
-            f"{mhz(spec['product_cpu_hz'])}, {bus}")
+    domain = spec.get('cpu_cd', 'an unrecorded domain')
+    return f"CPU {mhz(spec['cpu_hz'])} on {domain}, the product's split CPU clock, bus {mhz(spec['sys_hz'])}"
 
 
 def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', variant: str = 'none',
@@ -602,9 +619,11 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     table = symbols(elf)
     with split_soc.ledgered_plan(ledgered_point(shape, n_if)):
         spec = split_soc.build(build_dir, shape, rom_elf, n_if, core)
+    refused = cpu_clock_refusals(spec)
+    if refused:
+        raise ClockRefusal(f"the split CPU is not on the bus clock: {'; '.join(refused)}")
     spec['elf'] = str(elf)
     spec['xip'] = core.xip
-    spec['cpu_clock'] = 'product' if spec['cpu_hz'] == spec['product_cpu_hz'] else 'option'
     spec['flash_image'] = str(flash_image) if flash_image else None
     sys.path.insert(0, str(ROOT / 'sw/mailbox'))
     from mailbox_model import load
@@ -632,9 +651,13 @@ def reused(build_dir: Path) -> dict:
     image, its runtime, the ROM files, the generated SoC and mailbox Verilog),
     the external CPU netlist and RAM models, and the firmware source trees.
     The ROM .init files and the runtime archives found now must be exactly
-    those recorded, and the native model must be the one built.
+    those recorded, and the native model must be the one built. Its CPU must
+    be the split CPU on the bus clock (cpu_clock_refusals), checked first.
     """
     spec = json.loads((build_dir / 'build.json').read_text())
+    refused = cpu_clock_refusals(spec)
+    if refused:
+        raise ClockRefusal(f"reused build's split CPU is not on the bus clock: {'; '.join(refused)}")
     inputs = spec.get('inputs') or {}
     for key, want in inputs.items():
         if key == 'tree:firmware':

@@ -370,6 +370,23 @@ def _build_with(edit: Callable[[build.Core], build.Core]) -> Patches:
     return lambda: [patch.object(build, 'build', build_)]
 
 
+def _refusals_kept(keep: Callable[[str], bool]) -> Patches:
+    """build.cpu_clock_refusals keeping only the refusals keep(refusal) holds for."""
+    original = build.cpu_clock_refusals
+    return lambda: [patch.object(build, 'cpu_clock_refusals', lambda spec: [r for r in original(spec) if keep(r)])]
+
+
+def _reuse_unchecked() -> Patches:
+    """build.reused without the CPU clock refusal; a new build keeps it."""
+    original = build.reused
+
+    def reused(build_dir: Path) -> dict:
+        """The mutant reuse: any CPU clock is taken."""
+        with patch.object(build, 'cpu_clock_refusals', lambda spec: []):
+            return original(build_dir)
+    return lambda: [patch.object(build, 'reused', reused)]
+
+
 MUTANTS: dict[str, Patches] = {
     'marker: the frame tag is ignored': _start_with(_tag_ignored),
     'marker: a timer path starts when its record is posted': _start_with(_timer_posted),
@@ -520,11 +537,12 @@ MUTANTS: dict[str, Patches] = {
     'share: a pass over it is no finding': lambda: [patch.object(run, 'share_misses', lambda results: [])],
     'share: the rows option records the passes too': _shares_seen(lambda args, misses: not args.record_budget_findings),
     'share: a pass over it fails the run only beside a row miss': _shares_seen(lambda args, misses: bool(misses)),
-    "clock: a labelled option is recorded as the product's clock": _build_recorded(
-        lambda spec: dict(spec, cpu_clock='product')),
-    "clock: the option is built at the product's clock": _build_with(
-        lambda core: dataclasses.replace(core, cpu_hz=None)),
-    'clock: a reused build at another CPU clock is taken': lambda: [
-        patch.object(run, 'built_as', lambda spec, f=run.built_as: f(spec)[:-1]),
-        patch.object(run, 'selected', lambda args, shape, n_if, f=run.selected: f(args, shape, n_if)[:-1])],
+    'clock: the CPU is built on the Milan clock': _build_with(
+        lambda core: dataclasses.replace(core, cpu_cd='milan')),
+    "clock: build.json records the point's Milan clock as the CPU's": _build_recorded(
+        lambda spec: dict(spec, cpu_hz=spec['milan_hz'])),
+    'clock: no CPU clock refusal': lambda: [patch.object(build, 'cpu_clock_refusals', lambda spec: [])],
+    "clock: the CPU's domain is not checked": _refusals_kept(lambda refusal: 'domain' not in refusal),
+    "clock: the CPU's clock is not checked against the bus clock": _refusals_kept(lambda refusal: 'domain' in refusal),
+    'clock: a reused build is not checked': _reuse_unchecked(),
 }
