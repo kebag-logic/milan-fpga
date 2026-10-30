@@ -22,7 +22,7 @@ SUBS = [
     ("$VALIDATION_TOOLS", "<tools>"),
     ("$VALIDATION_STORAGE", "<tmp>"),
     ("$WORKSPACE_HOME", "$HOME"),
-    ("/tmp/" + "".join(("cl", "aude")) + "-1000", "<tmp>"),  # the session scratch root, spelled so the publication scrub passes
+    ("/tmp/", "<tmp>/"),
 ]
 LIMIT = 200 * 1024
 
