@@ -393,6 +393,48 @@
    "quote": "Its default is bare-metal control over packet mailboxes.",
    "source": "Same as D0-001 and D0-033: `sw/litex/milan_soc.py` line 2621, `--ctrl-mailbox` defaults off and the default build carries no mailbox; the paragraph's first and fifth lines say all-fabric is the shipping default",
    "correction": "Say that the Mark II split placement puts the selected functions in bare-metal firmware and that the default build keeps all five in fabric."
+  },
+  {
+   "id": "D0-057",
+   "page": "docs/reference/REGISTER_MAP.md",
+   "quote": "presentation-time offset is pinned at the Milan 2 ms",
+   "source": "The page's own 0x0053 note (lines 351-356): SET_STREAM_INFO is served and \"the stored offset feeds the framers' transit entries\"; `docs/reference/MILAN_COMPLIANCE_MATRIX.md` row 5.3.7.6 / 4.4.2.1: the 2 ms default is settable via SET_STREAM_INFO and the stamp adds the offset as set",
+   "correction": "Say that 2 ms is the default and that SET_STREAM_INFO sets each Stream Output's offset, which the framers apply."
+  },
+  {
+   "id": "D0-058",
+   "page": "docs/reference/REGISTER_MAP.md",
+   "quote": "**Nothing in this device persists a binding across a power cycle.** The",
+   "source": "`hdl/milan/KL_pp_shadow.sv` line 1123 instantiates `KL_nvm_backend` behind the processor's NVM face (the blank-flash responder is gone; the page's own `PP_STAT` notes at lines 2390-2406 describe `nvm_backed` and the firmware journal writer); `docs/design/SAVED_STATE_MATERIALIZATION.md` line 163: the binding survives a cold power cycle on silicon since 2026-09-21 (#70)",
+   "correction": "Keep the 0x7A0 port a dead CSR face, and say that bindings persist through the processor's restore walk and `KL_nvm_backend`, pointing at the `PP_NVM_*` and `PP_STAT` rows."
+  },
+  {
+   "id": "D0-059",
+   "page": "docs/reference/REGISTER_MAP.md",
+   "quote": "is **not met by this build**. The",
+   "source": "Same as D0-058: the bound state is saved and restored by the processor's walk over `KL_nvm_backend` and the firmware's A/B journal, and survives a cold cycle on silicon (#70); only this retired 0x7B8 ingest face is dead (`hdl/milan/milan_datapath.sv` lines 6678-6679)",
+   "correction": "Say that this CSR face is retired and that Milan v1.2 5.3.8.2 is served by the saved-state store, with the open physical items (#70)."
+  },
+  {
+   "id": "D0-060",
+   "page": "docs/reference/REGISTER_MAP.md",
+   "quote": "and the shipping AX7101 shape is 8",
+   "source": "`sw/litex/build.sh` line 378: the shipping AX7101 recipe is `endstation_ax7101_1x1_tdm8`, and lines 382-384 say the 8x8 recipe has never produced a bitstream; `configs/generated/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh` declares 2 talker sources and 2 listener sinks (one AAF stream each way plus CRF)",
+   "correction": "Say the shipping AX7101 (`endstation_ax7101_1x1_tdm8`) is the one-AAF-stream shape and that `endstation_ax7101_8x8.yaml` declares 8 of each."
+  },
+  {
+   "id": "D0-061",
+   "page": "docs/integration/BAREMETAL_FIRMWARE.md",
+   "quote": "writes these words in this order and no others",
+   "source": "`sw/firmware/milan_baremetal/milan_baremetal.c` line 1809: `configure_fabric()` also writes `MILAN_TCAM_CTRL` (0x700) with `MILAN_TCAM_CTRL_BOOT` = 1 (`sw/litex/boot_policy.py` line 59), right after `MAC_CTRL`; the table has no `TCAM_CTRL` row",
+   "correction": "Add the `TCAM_CTRL` (`0x700`) row between `MAC_CTRL` and `AAF_CTRL`: value `MILAN_TCAM_CTRL_BOOT` (1), the existing accept-all posture."
+  },
+  {
+   "id": "D0-062",
+   "page": "docs/integration/BAREMETAL_FIRMWARE.md",
+   "quote": "record below is the shipping option-on measurement; an elaboration estimate",
+   "source": "The record below measures commit `1e80a106` (2026-08-19, line 2264): 15,849 of 15,850 slices and +0.033 ns WNS. The shipping route has moved since: the #803 adoption record in `docs/reference/SUBMODULES.md` lines 371-381 gives +0.303 ns WNS with 16 of 15,850 slices free at processor `f65c8ff7` and gPTP `f97c1803`, and the resource records live in `docs/design/AREA_BUDGET.md`",
+   "correction": "Call the table the first option-on record (commit `1e80a106`) and point at the current shipping route record instead of naming this one the shipping measurement."
   }
  ]
 }
