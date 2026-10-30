@@ -795,8 +795,9 @@ def selftest() -> int:
         ("finding marks its page stale", lambda root: None, 0, stale_cell),
         ("a recorded current judgement cannot hide a finding", edit_data(lambda d: d.update(
             judged={"docs/guides/A.md": {"status": "current", "evidence": "judged"}})), 0, stale_cell),
-        ("lines as wc -l counts them", lambda root: None, 0, "| [docs/guides/A.md](guides/A.md) | 3 |"),
-        ("an unterminated last line counts", lambda root: None, 0, "| [docs/guides/C.md](guides/C.md) | 3 |"),
+        # Each needle starts a line, so it reads the inventory row and never the Findings row.
+        ("lines as wc -l counts them", lambda root: None, 0, "\n| [docs/guides/A.md](guides/A.md) | 3 |"),
+        ("an unterminated last line counts", lambda root: None, 0, "\n| [docs/guides/C.md](guides/C.md) | 3 |"),
         ("a README without .md is a document", lambda root: None, 0, "| [tb/README](../tb/README) |"),
         ("the walk without Git renders the same page", lambda root: shutil.rmtree(root / ".git"), 0, "",
          "is fresh"),
