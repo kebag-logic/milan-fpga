@@ -8,7 +8,8 @@ RV32 compiler. ctrl_image.py links its own shapes (ctrl_image.SHAPES, the
 shipping one and the largest); ctrl_image_selftest.py runs its controls;
 ctrl_srp_image.py compiles those shapes at one and two interfaces, without
 SRP, with it, and with AECP: every source both images compile, the saved-state
-store's among them, as they compile it. ctrl_srp_image.py links against the
+store's among them, as they compile it. ctrl_plat_image.py compiles the split
+platform's image at those shapes and interface counts, on its fixture map. ctrl_srp_image.py links against the
 bare-metal runtime archives, which
 ctrl_image_runtime.py builds from sources outside the checkout: it is given
 archives that do not exist, so it compiles every object and then stops at its
@@ -78,13 +79,21 @@ def image_runs(work: Path) -> list[tuple[str, list[str]]]:
                               "--interfaces", interfaces, "--output", str(out), "--libc", str(absent / "libc.a"),
                               "--compiler-runtime", str(absent / "libcompiler_rt.a"),
                               *([composition] if composition else [])]))
+        # the split platform's image (#665): its own entry, the same composition, the fixture's map
+        for interfaces in ("1", "2"):
+            out = work / "plat-image" / f"{shape}-if{interfaces}"
+            runs.append((f"ctrl_plat_image.py {shape}, {interfaces} interface(s)",
+                         [py, "-B", str(HERE / "ctrl_plat_image.py"), "--config", str(CONFIGS / f"{shape}.yaml"),
+                          "--interfaces", interfaces, "--csr-csv", str(HERE / "ctrl_plat_csr.csv"),
+                          "--output", str(out), "--libc", str(absent / "libc.a"),
+                          "--compiler-runtime", str(absent / "libcompiler_rt.a")]))
     return runs
 
 
 def stopped_at_link(argv: list[str], res: subprocess.CompletedProcess) -> bool:
-    """Whether an image builder run stopped where a runtime-less one must: ctrl_srp_image.py at its link, on the
-    archives that do not exist; every other one passing."""
-    if Path(argv[2]).name != "ctrl_srp_image.py":
+    """Whether an image builder run stopped where a runtime-less one must: ctrl_srp_image.py and
+    ctrl_plat_image.py at their link, on the archives that do not exist; every other one passing."""
+    if Path(argv[2]).name not in ("ctrl_srp_image.py", "ctrl_plat_image.py"):
         return res.returncode == 0
     said = res.stdout + res.stderr
     return res.returncode == 2 and f"{ABSENT}/libc.a" in said and "No such file" in said

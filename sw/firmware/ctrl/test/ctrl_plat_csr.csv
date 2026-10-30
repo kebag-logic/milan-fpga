@@ -1,0 +1,13 @@
+#--------------------------------------------------------------------------------
+# The split platform's map fixture (#665), in the shape LiteX writes a csr.csv:
+# the rows ctrl_plat_gen.py map reads, at placeholder addresses, for the builds
+# that need an image's objects and no SoC (the boundary gate's image runs, the
+# boot simulation's first link). An image that runs on a SoC takes that SoC's
+# own csr.csv instead.
+#--------------------------------------------------------------------------------
+csr_register,uart_rxtx,0xf0001000,1,rw
+csr_register,uart_txfull,0xf0001004,1,ro
+csr_register,uart_rxempty,0xf0001008,1,ro
+csr_register,uart_ev_pending,0xf0001010,1,rw
+memory_region,milan_csr,0x90000000,65536,io
+memory_region,ctrl_mbx,0x80000000,65536,io

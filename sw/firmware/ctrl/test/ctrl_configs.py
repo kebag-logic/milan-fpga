@@ -126,6 +126,7 @@ BUILDERS = (
     Builder("third_party/tsn-c-stack/scripts/check_boundary.py", ()),
     Builder("sw/firmware/ctrl/test/ctrl_image.py", ()),
     Builder("sw/firmware/ctrl/test/ctrl_srp_image.py", ()),
+    Builder("sw/firmware/ctrl/test/ctrl_plat_image.py", ()),
     Builder("sw/firmware/ctrl/test/ctrl_image_selftest.py", ()),
     Builder("tb/verilator/mbx/Makefile",
             (("make", "-C", "tb/verilator/mbx", "VERILATOR={verilator}", "VBUILD_JOBS=4"),), "verilator"),
@@ -145,6 +146,8 @@ PART_OF = {
     "tb/verilator/mbx/mutants.py": "tb/verilator/mbx/Makefile",
     # the AECP arms, which the control gate builds; its own command, a developer's, builds a selection of them
     "sw/firmware/ctrl/test/aecp_arms.py": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
+    # the split platform's arms (#665), which the control gate builds
+    "sw/firmware/ctrl/test/plat_arms.py": "sw/firmware/ctrl/test/test_ctrl_firmware.py",
     # the shared builder: its program is the stack's pin check (--stack-pin), which the bench's Makefile runs and
     # which compiles nothing; it compiles as the module of every builder of the firmware
     "sw/firmware/ctrl/test/ctrl_build.py": "tb/verilator/mbx/Makefile",
@@ -161,6 +164,15 @@ OUTSIDE = {
     "scripts/ci_scope.py": "selects the CI scope from the paths a change touches; it compiles nothing",
     "sw/firmware/ctrl/adp/adp_entity.py": "writes the ADP shape header; it compiles nothing",
     "sw/firmware/ctrl/test/ctrl_mutant.py": "the campaign tables' record of one defect; it compiles nothing",
+    "sw/firmware/ctrl/test/plat_mutants.py": "the split platform's planted defects (#665 S3), which the control "
+                                             "campaign plants; it compiles nothing",
+    "sw/firmware/ctrl/plat/ctrl_plat_gen.py": "writes the split platform's policy and bus map headers (#665 S3); it "
+                                              "compiles nothing",
+    "tb/verilator/ctrl_split_boot/run.py": "the split boot simulation (#665 S3), which no hosted job can run (the "
+                                           "CPU budget harness's prerequisites): it delegates every compile of the "
+                                           "firmware to ctrl_plat_image.py, unchanged or given a planted copy of the "
+                                           "firmware's tree outside the checkout, and the runtime to runtime_ssp.py; "
+                                           "its own compiles build the boot SoC's Verilator model",
     "sw/firmware/ctrl_nvm/test/nvm_mutants.py": "the saved-state store campaign's planted defects, which "
                                                 "test_ctrl_nvm.py compiles; it compiles nothing",
     "sw/firmware/ctrl/test/ctrl_reuse.py": "cuts the processor's sources into fragments the arms compile; it "
@@ -219,6 +231,10 @@ SUITES = {
                                             "against them",
     "sw/firmware/gtest/fw_coverage_selftest.py": "the coverage reader's planted cases (fw_coverage.py --selftest): "
                                                  "programs it writes outside the checkout",
+    "sw/firmware/ctrl/test/plat_trace.py": "the split platform's CSR trace arm (#665 S3, test_ctrl_firmware.py's "
+                                           "plattrace): ctrl_plat_csr.c, or a planted copy of it outside the "
+                                           "checkout, and milan_baremetal.c as builder gate 35 compiles it, on the "
+                                           "host",
     "tb/verilator/ctrl_service_budget/fixture_variant.py": "the CPU budget harness's labelled variant arms (#665, "
                                                            "run.py --variant): ctrl_srp_image.py's compiles, the size "
                                                            "fixture read from build.py's edited copy outside the "

@@ -13,9 +13,9 @@ No BIOS ROM or BIOS SRAM is built there.
 
 - **[1. Memory map](#1-memory-map)** -- The two firmware regions, what each section of the image occupies, and why each region spans the whole budget.
 - **[2. Block RAM from the image](#2-block-ram-from-the-image)** -- Power-of-two banks of RAMB18 granules, the error answer past the last bank, and the build switch.
-- **[3. Named refusals](#3-named-refusals)** -- The checks every image passes before any block RAM is built, the one ledgered point's named override, and the three planted controls.
+- **[3. Named refusals](#3-named-refusals)** -- The checks every image passes before any block RAM is built, the two ledgered images' named overrides, and the three planted controls.
 - **[4. Boot console and diagnostics](#4-boot-console-and-diagnostics)** -- What the split image loses and keeps without a BIOS, and DDR3 until the wrapper is removed.
-- **[5. Fit](#5-fit)** -- Linked spans and block RAM at the four points, mapped out of context, and the ledger rows, with the one point over budget owed to lane S14.
+- **[5. Fit](#5-fit)** -- Linked spans and block RAM at the four points for the size fixture and the target platform, the platform's added bytes by part, mapped out of context, and the ledger rows, with the largest point over budget owed to lane S14.
 - **[6. Reproduce](#6-reproduce)** -- The link, the plan, the mapping and the test.
 - **[7. The CPU's instruction cache](#7-the-cpus-instruction-cache)** -- The split CPU's fetch L1: its parameters and why, its block RAM and logic against the ledger, the region decode, and the requirement it conflicts with.
 
@@ -88,15 +88,24 @@ Every refusal raises `ctrl_memory.Refusal`, whose `check` names it and whose `ru
 The budget is the owner's 224 KB at 4,096 usable bytes per RAMB36 (#640 ruling 6101485877).
 An allocation of exactly 56.0 RAMB36 is accepted; 56.5 is refused.
 
-One point may plan past the budget, and only by name (#665 rulings 6412739248 and 6425357821).
-`ctrl_memory.LEDGERED` holds `8x8-two-interfaces`, the 8x8 image with two interfaces, at 57.5 RAMB36.
-[Section 5](#5-fit) ledgers that tile and a half as owed to lane S14.
-Only that point's measurement names the override, through `ctrl_memory.py plan --ledgered-point` or `ctrl_srp_image.py --ledgered-point`.
+Two images may plan past the budget, each only by its own name (#665 rulings 6412739248, 6425357821 and 6505997821).
+Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed to lane S14:
+
+| Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
+|---|---|---|---:|
+| `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 57.5 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 21,240 B | 59.0 |
+
+Each override recognises its image by the image's own symbols.
+`nvm_stage` is the 8x8 shape's staging buffer.
+The second is the image's own object, sized by the two interfaces.
+For the size fixture it is the per-interface table `image_allocation`, 8 bytes per interface.
+For the platform it is its one static object, `struct ctrl_plat`, whose size follows the interface count and the shape's streams.
+A change to that struct changes the size, so the override refuses the image until its entry is measured again.
+Only a point's own measurement names its override, through `ctrl_memory.py plan --ledgered-point`, `ctrl_srp_image.py --ledgered-point` or `ctrl_plat_image.py --ledgered-point`.
 The product SoC build names none: `add_ctrl_memory` plans with no override, so every product SoC build is still held to 56 RAMB36.
-The [CPU budget harness](../../tb/verilator/ctrl_service_budget/README.md) names it for that point only, for its image and its SoC plan (`build.py`, `LEDGERED_POINTS`).
-The override recognises its image by the image's own symbols.
-These are the 8x8 shape's `nvm_stage` of 13,264 bytes and the size fixture's `image_allocation`, 8 bytes per interface, so 16.
-`budget` refuses the override on any other image, and refuses its point past 57.5 RAMB36.
+The [CPU budget harness](../../tb/verilator/ctrl_service_budget/README.md) names the size fixture's for that point only, for its image and its SoC plan (`build.py`, `LEDGERED_POINTS`).
+`budget` refuses either override on any other image, the other override's image among them, and refuses its point past its tiles.
 `rom`'s contents are the load segments' file bytes and nothing else.
 So `entry bytes` reads them as well as the sections: the first word at the reset address must be in them.
 `load coverage` requires them to carry every byte of every section with initial bytes.
@@ -104,11 +113,17 @@ So `entry bytes` reads them as well as the sections: the first word at the reset
 `main()` runs the staging check before any export; the shape comes from `--entity-gen-dir`.
 
 [`test_ctrl_memory.py`](../../sw/litex/test_ctrl_memory.py) plants a defect for every rule and requires that rule to refuse it.
-It plans the ledgered point at 57.5 RAMB36 by name, and requires `budget` to refuse that image in three cases: without the override, through `add_ctrl_memory`, and at 58.0 RAMB36.
-It also plants the override on the 1x1 images with one and two interfaces, on the 8x8 image with one interface, and on an image without `image_allocation`, and requires `budget` to refuse each.
+It plans each ledgered point's image at its tiles by name; [`ctrl_memory_ledger.py`](../../sw/litex/ctrl_memory_ledger.py) holds the cases.
+It requires `budget` to refuse that image in three cases: without the override, through `add_ctrl_memory`, and half a tile past its tiles.
+It also plants each override on the same image's three other points, on the other override's image, and on an 8x8 image carrying one of its two symbols alone, and requires `budget` to refuse each.
 An override name the ledger does not hold is refused by `budget` too.
+Six planted ledgers each widen one entry to another point or image, or past its tiles.
+The platform's entry loses its staging buffer or `ctrl_plat`, takes the 8x8 one-interface `ctrl_plat`, or plans 59.5.
+The fixture's loses `image_allocation`, or plans 59.0.
+Each must turn the test red with the ledger's own entries, which the test pins, set aside.
 It also requires this table to equal `ctrl_memory.RULES`.
 For every rule it rebuilds the code with that rule removed or weakened, and requires a named failure.
+Three of those rebuilds let an override plan any image, any image carrying its symbols, or any image with its staging buffer.
 
 The three planted controls fail by name in the test and in the SoC build itself.
 The test drives `milan_soc.py`'s own `main()` on the shipping 1x1 config's argv, with ELFs it writes:
@@ -139,6 +154,8 @@ The split image loses:
 It keeps the UART, `timer0`, `ctrl` (reset, scratch, bus errors) and the identifier memory.
 It also keeps the `ppmem` observer and every Milan CSR.
 Any console in the split image is the control firmware's.
+The [target platform](../../sw/firmware/ctrl/plat/README.md#the-console) brings one, under decision D6 (#665): `milan_status` and `milan_gettime` in `milan_baremetal.c`'s lines, and one boot banner.
+It also writes the CSR initialisation `milan_baremetal.c` writes for the same shape ([the CSR window](../../sw/firmware/ctrl/plat/README.md#the-csr-window)).
 
 The CSR map is unchanged: a split export's `csr.csv` equals the base `--ctrl-mailbox` export's.
 Only the `rom` and `sram` region sizes differ.
@@ -194,6 +211,54 @@ Only that point's measurement plans it, by name ([section 3](#3-named-refusals))
 The flip (S13) still requires 56 RAMB36 or fewer at every point, with S14 merged.
 These figures are planned, not mapped.
 
+The [target platform](../../sw/firmware/ctrl/plat/README.md)'s image (#665 S3) replaces the size fixture's `main` with the platform's, and links with `ctrl_plat_image.py`.
+Planned by `ctrl_memory.plan` from the firmware of `b8628704`, beside the fixture at the same commit, both linked with the same runtime:
+
+| Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Platform minus fixture, B | Against the budget |
+|---|---:|---:|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 109,560 / 47,168 | 39.0 | 104,448 / 46,272 | 37.0 | +5,112 / +896 | within |
+| 1x1, two interfaces | 111,200 / 58,592 | 42.0 | 106,032 / 57,648 | 40.5 | +5,168 / +944 | within |
+| 8x8, one interface | 123,304 / 87,760 | 52.0 | 118,168 / 86,848 | 50.5 | +5,136 / +912 | within |
+| 8x8, two interfaces (largest) | 125,048 / 113,936 | 59.0 | 119,824 / 113,008 | 57.5 | +5,224 / +928 | **over by 3.0 tiles, ledgered at 59.0, owed to lane S14** |
+
+At 8x8 with two interfaces the platform's `rom` banks hold 125,048 B in 126,976 and its `sram` banks 113,936 B in 114,688.
+That is 59.0 RAMB36, three tiles over the budget and a tile and a half over the fixture's 57.5.
+It cannot reach 57.5 within the platform's files, because each region is planned in power-of-two banks of whole granules.
+The fixture's own `sram` (113,008 B) already needs 28.0 tiles, so `rom` would have to fit 29.5 tiles (120,832 B).
+That is a cut of 4,216 B from the platform's 5,224 B of `rom`.
+The owner's ruling of 2026-10-29 (#665, 6505997821) ledgers that point at 59.0, owed to lane S14 under decision D3: the boot and the CSR policy are cold code, which D3 moves to flash.
+It amends ruling 6425357821's 57.5 for this one image, and `ctrl_memory.LEDGERED` names it `platform-8x8-two-interfaces` ([section 3](#3-named-refusals)).
+Every other point stays within 56 RAMB36.
+The flip (S13) needs 56 RAMB36 or fewer at every point, with S14 merged.
+
+By part, from the two link maps, with one section per function and object, the platform's bytes minus the fixture's at each point (`rom` / `sram`, B):
+
+| Part | 1x1, one interface | 1x1, two interfaces | 8x8, one interface | 8x8, two interfaces |
+|---|---:|---:|---:|---:|
+| The boot: `ctrl_plat_boot` with the composition, MAAP owner and SRP source set-up it inlines, `ctrl_plat_step` and the image hook; the three configurations it holds (`config`, `aecp_config`, `srp_config`) | +1,528 / +128 | +1,656 / +144 | +1,532 / +128 | +1,692 / +144 |
+| The CSR policy: identity, the fifteen writes, status and time of day (`ctrl_plat_csr.c`) | +788 / 0 | +788 / 0 | +788 / 0 | +788 / 0 |
+| The console (`ctrl_plat_console.c`, its digit table and its state) | +1,748 / +588 | +1,748 / +588 | +1,748 / +588 | +1,748 / +588 |
+| The console's and the boot's strings, merged | +762 / 0 | +762 / 0 | +762 / 0 | +762 / 0 |
+| MAAP's port: the window's two accesses, the allocation report and `maap_csr.c`, with its state | +916 / +32 | +916 / +32 | +916 / +32 | +916 / +32 |
+| ACMP's talker sources: `source`, `locked`, `stream`, `notice` | +164 / 0 | +164 / 0 | +164 / 0 | +164 / 0 |
+| SRP's licence port | +48 / 0 | +48 / 0 | +48 / 0 | +48 / 0 |
+| AECP's observations: `random_value`, `path` | +12 / 0 | +12 / 0 | +12 / 0 | +12 / 0 |
+| `main`, the generated policy and stream table, and `env` (`ctrl_plat_main.c`) | +168 / +56 | +168 / +56 | +224 / +56 | +224 / +56 |
+| The bus port (`ctrl_plat_mmio.c`) | +16 / 0 | +16 / 0 | +16 / 0 | +16 / 0 |
+| The rest of `struct ctrl_plat`, against the fixture's `image_allocation`, `image_licences` and two constant port tables | -80 / +114 | -80 / +128 | -80 / +107 | -80 / +114 |
+| The size fixture's `main` and its callbacks, removed (`ctrl_aecp_image.c`) | -980 / 0 | -1,052 / 0 | -1,012 / 0 | -1,088 / 0 |
+| Every other object: the same sources, built against the platform's bus map | +16 / 0 | +16 / 0 | +16 / 0 | +16 / 0 |
+| Alignment | +6 / -22 | +6 / -4 | +2 / +1 | +6 / -6 |
+| **The platform minus the fixture** | **+5,112 / +896** | **+5,168 / +944** | **+5,136 / +912** | **+5,224 / +928** |
+
+The other members of `struct ctrl_plat` are the objects the fixture holds with the same types: the application, SRP, AECP, its bridge and face, ACMP's configuration, the saved state and the sources.
+They are equal in both images, and so are the AEM image, its pools and lwSRP's pool.
+The ports' rows are the platform's callbacks; the fixture's stand-ins for them are in its removed `main` row.
+The rest of `struct ctrl_plat` is its stage, version, MAAP allocations, licences and drop count, and the ACMP and AECP port tables the fixture keeps constant in `rom`.
+The five largest `.bss` objects at the shipping point are lwSRP's pool (9,920 B), the application (8,880 B), SRP (4,824 B), the descriptor image's values (4,527 B) and AECP (3,352 B).
+At the largest point they are lwSRP's pool (48,064 B), F1's `nvm_stage` (13,264 B), the descriptor image's values (11,753 B), the application (10,064 B) and SRP (5,896 B).
+The held open (`ctrl_app_open_held`) adds 24 B of `rom` and 16 B of `sram` to the fixture too; at the shipping point its `rom` then fills its last granule exactly, still 37.0.
+
 The figures below link the firmware of `8ab2b539`, which carries dev `c6bd08c6`: F-INT's publication writers and lwSRP `08ee86e8`.
 Mapped out of context by `syn/ooc/ctrl_memory_ooc.py`: Vivado 2026.1, `xc7a100t-fgg484-2`, `AreaOptimized_high`.
 
@@ -247,6 +312,17 @@ python3 sw/litex/ctrl_memory.py plan "$OUT/ctrl_app.elf" --stage-bytes 13264 \
 This is the ledgered point, so both commands name its override.
 Without `--ledgered-point`, both refuse it at 57.5 RAMB36.
 Every other point takes no override, and refuses one.
+
+Link the target platform's image at the same point, against the `csr.csv` of a split export of that shape (`$SOC`):
+
+```sh
+python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7101_8x8.yaml \
+  --interfaces 2 --ledgered-point platform-8x8-two-interfaces --csr-csv "$SOC/csr.csv" --output "$OUT" \
+  --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
+```
+
+It names the platform's own override, and is refused at 59.0 RAMB36 without it or with the fixture's.
+Its report (`$OUT/size.json`) holds the plan and the five largest `.bss` objects, with `ctrl_plat` counted by member.
 
 `ctrl_image_runtime.py` builds the runtime archives; see the [control firmware](../../sw/firmware/ctrl/README.md#linked-size).
 

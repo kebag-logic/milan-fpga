@@ -107,7 +107,7 @@ def arguments() -> argparse.Namespace:
     parser.add_argument("--layout",choices=("flat","split"),default="flat",
                         help="flat: one RAM region (ctrl_image.ld); split: rom and sram behind the reset entry")
     parser.add_argument("--ledgered-point",choices=sorted(ctrl_memory.LEDGERED),
-                        help="split only: plan the one ledgered point to its ledgered tiles (ctrl_memory.LEDGERED)")
+                        help="split only: plan a ledgered point's image to its ledgered tiles (ctrl_memory.LEDGERED)")
     parser.add_argument("--libc",type=Path,required=True)
     parser.add_argument("--compiler-runtime",type=Path,required=True)
     return parser.parse_args()

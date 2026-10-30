@@ -371,6 +371,8 @@ plus deferred per-sink SRP registration feedback to ACMP. Neither direction
 needs target wiring; the remaining items below do.
 Target integration still supplies live stream configuration and MAAP allocation changes.
 It also connects the existing fabric licence output.
+The [target platform](../plat/README.md#the-ports) configures every source at boot from the generated stream table and records each licence.
+A live update of a source MAAP has since allocated still needs an entry in this adapter ([not yet done](../plat/README.md#not-yet-done)).
 The desk callback proves output ordering, not a connected target licence register.
 The mailbox SoC skeleton also needs its separate target integration and timing
 validation. No register-map change is made here.

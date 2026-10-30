@@ -88,7 +88,7 @@ def inventory(module: ModuleType, shard: tuple[int, int] | None = None,
                 return results
 
             context.enter_context(patch.object(module, "run_suites", with_future_suite))
-        for owner in (module.ctrl_arms, module.srp_arms, module.aecp_arms):
+        for owner in (module.ctrl_arms, module.srp_arms, module.aecp_arms, module.plat_arms):
             for name, value in vars(owner).copy().items():
                 if callable(value) and (name.startswith("arm_") or name in ("core_arm", "image_arm")):
                     context.enter_context(patch.object(owner, name, arm(owner.__name__ + "." + name)))

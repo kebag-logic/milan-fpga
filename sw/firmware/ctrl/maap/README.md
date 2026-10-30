@@ -89,6 +89,7 @@ No builder placement switch or shipping firmware entry point changes.
 Its ordered `maap_csr_port` accesses target the existing datapath CSR window
 for the selected interface, documented in the [register map](../../../../docs/reference/REGISTER_MAP.md).
 The platform supplies those read/write operations and exclusive stream-window ownership.
+The split placement's [target platform](../plat/README.md#the-ports) supplies them on interface 0's window.
 The callback first clears AAF and CRF admission and fabric MAAP enable.
 It writes AAF stream zero through 0x658/0x65c, later AAF streams through
 STRM_SEL and 0x81c/0x820, then CRF through 0x75c/0x760.
