@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """#607: inspect constraints emitted by real shipping AX7101 elaborations,
-including #395's timing-grade hooks in the same build Tcl."""
+including #395's timing-grade hooks and #817's servo reset synchronizer
+cut in the same build Tcl."""
 
 import argparse
 import importlib.abc
