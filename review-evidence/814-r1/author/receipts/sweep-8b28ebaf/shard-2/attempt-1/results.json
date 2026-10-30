@@ -1,0 +1,24 @@
+{
+  "head": "8b28ebaf035e786ccf5b8e50098dbc111f51831f",
+  "base": "1e80128f0a467b58bf884b7d9bf62e013a2fb141",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<tools>/pinned-verilator-5.050:<tools>/sv2v-v0.0.12:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR=<tools>/pinned-verilator-5.050/verilator",
+        "TSN_GEN_ROOT=<scratch-shared>/a662/tsn-gen",
+        "TMPDIR=<scratch>/tmp-sweep",
+        "bash",
+        "scripts/run_all_suites.sh",
+        "<scratch>/sweep/shard-2/logs",
+        "--wait",
+        "--shard",
+        "2/4"
+      ],
+      "exit_code": 2,
+      "seconds": 47.157,
+      "log": "<scratch>/sweep/shard-2/spec/01.log"
+    }
+  ]
+}

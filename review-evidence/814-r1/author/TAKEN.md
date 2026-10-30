@@ -1,0 +1,6 @@
+[A703c] TAKEN
+Branch: 814-soc-timing-cut, head 8b28ebaf035e786ccf5b8e50098dbc111f51831f (dev 1e80128f plus five commits; round 3 adds a commit only if a gate needs a fix)
+Authoritative references: #814 body and acceptance; the round-3 ruling (issuecomment-6527475726); the record rule (issuecomment-6525285974); #818 and PR #820 at 32f0d9b5 (the WNS gate, used in scratch, not committed); docs/design/AREA_BUDGET.md; docs/integration/BUILDING.md section 5
+Interpreted scope: no logic change. Judge the round-2 route-1x1 set at 8b28ebaf (ExtraPostPlacementOpt, AltSpreadLogic_high, ExtraTimingOpt) with #818's gate from 32f0d9b5 in a scratch checkout and record its verdict and selected directive. Run the gates round 2 skipped at the head: the full suite sweep in four shards, rtl-fast, the docs workflow gates and the builder bank. No Vivado run and no re-record (the record is re-recorded once on dev after the last release merge). Update the PR body: cite the ruling and #818, drop the STOP and owner-decision text, keep "Closes #814".
+Validation plan: #818's pp_resource_gate.py on the three round-2 routed reports; scripts/run_all_suites.sh in four shards; the rtl-fast and docs workflow step bodies replayed natively at the head (the head is unpushed); python3 sw/builder/test_builder.py.
+Blockers: none
