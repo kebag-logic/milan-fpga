@@ -719,21 +719,26 @@ every channel exactly between a 50 MHz-shaped source and a 100 MHz-shaped
 sink, while the pre-#359 direct connection across the same clocks loses or
 duplicates beats.
 
-`test_soc_timing_cuts.py` (#814) grades the two register boundaries on the
-SoC's `sys` paths that decided the route WNS. It builds each path on the real
-LiteX and LiteDRAM code with the shipping call: `add_staged_spi_flash` behind
-an AXI-Lite master on the Wishbone bus, and `cross_cpu_memory_ports` under
-LiteX's `add_sdram`. Its structural arms walk the elaborated migen netlist from
-each endpoint back to the flip-flops that feed it through logic alone. No
-AXI-Lite bridge flip-flop may reach a flash-core flip-flop through the core's
-bus face, and no LiteDRAM converter or core flip-flop may reach a request
-crossing FIFO's LUTRAM read address. The same builds with each stage replaced
-by wires must fail those arms, naming the bridge state into the PHY counter
-and the burst-to-beat counter into the FIFO address. Its behaviour arms read
-the flash image through the stage at exactly two more bus cycles a read, show
-an abandoned access never answering the next request, and require LiteDRAM's
-native port to see the same handshakes, cycle for cycle, with the DRAM stage
-and without it.
+`test_soc_timing_cuts.py` (#814) grades the three register boundaries on the
+SoC's `sys` paths that set the route WNS. It builds each path on the real
+LiteX, LiteSPI and LiteDRAM code with the shipping call: `add_staged_spi_flash`
+behind an AXI-Lite master on the Wishbone bus, and `cross_cpu_memory_ports`
+and `add_staged_sdram` under LiteX's `add_sdram`. Its structural arms walk the
+elaborated migen netlist from each endpoint back to the flip-flops that feed it
+through logic alone. No AXI-Lite bridge flip-flop may reach a flash-core
+flip-flop through the core's bus face. No LiteDRAM converter or core
+flip-flop may reach a request crossing FIFO's LUTRAM read address. No
+LiteDRAM refresher flip-flop may reach a bank-machine or multiplexer
+flip-flop through the refresh request. The same builds with each stage
+replaced by wires, or by LiteDRAM's own refresher, must fail those arms. The
+failures must name the bridge state into the PHY counter, the burst-to-beat
+counter into the FIFO address and a refresh timer into a bank machine's FIFO
+level. Its behaviour arms read the flash image through the stage at exactly
+two more bus cycles a read, show an abandoned access never answering the next
+request, and require LiteDRAM's native port to see the same handshakes, cycle
+for cycle, with the DRAM stage and without it. The refresh arm requires
+LiteDRAM's own precharge-all and refresh commands, each exactly one cycle
+later at the same spacing.
 
 `test_retained_cdc_storage.py` (#640 lane M2) covers the seven retained SoC
 crossing arrays: both MAC crossings and the five CSR channel FIFOs, built by

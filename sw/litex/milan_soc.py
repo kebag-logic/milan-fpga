@@ -2423,6 +2423,41 @@ class AXIReadyStage(Module):
             self.comb += getattr(slave, name).connect(getattr(master, name))
 
 
+class RegisteredRefresher(Module):
+    """LiteDRAM's own `Refresher`, its request to the controller registered (#814).
+
+    LiteDRAM's refresh FSM drives `cmd.valid` and `cmd.last` from logic, and in
+    DO-REFRESH `cmd.valid` reads the ZQCS timer's compare. The controller gives
+    `cmd.valid` to every bank machine as `refresh_req`, so that timer reached
+    each bank machine's command FIFO through the multiplexer's grant (14 to 16
+    levels, 73 % routing). Registering `valid` and `last` ends the path at a
+    flip-flop. The command fields already leave LiteDRAM's executers from
+    flip-flops and `ready` passes back unchanged. So each refresh and ZQCS
+    starts and ends one cycle later, with its own tRP, tRFC and tZQCS spacing.
+    """
+
+    def __init__(self, settings: object, clk_freq: float, zqcs_freq: float = 1e0, postponing: int = 1) -> None:
+        """LiteDRAM's `Refresher(settings, clk_freq, zqcs_freq, postponing)` behind the registers."""
+        from litedram.core.refresher import Refresher
+        self.submodules.refresher = refresher = Refresher(settings, clk_freq, zqcs_freq=zqcs_freq,
+                                                          postponing=postponing)
+        self.cmd = cmd = stream.Endpoint(refresher.cmd.description)
+        self.sync += [cmd.valid.eq(refresher.cmd.valid), cmd.last.eq(refresher.cmd.last)]
+        self.comb += [refresher.cmd.connect(cmd, omit={"valid", "last", "ready"}),
+                      refresher.cmd.ready.eq(cmd.ready)]
+
+
+def add_staged_sdram(soc: SoCCore, name: str, **kwargs: object) -> None:
+    """LiteX's `add_sdram(name, **kwargs)` with the #814 `RegisteredRefresher`.
+
+    LiteDRAM's controller builds its refresher from `ControllerSettings.refresh_cls`.
+    Every other controller setting keeps LiteDRAM's default, as before. A
+    function so `test_soc_timing_cuts.py` builds the controller the SoC builds.
+    """
+    from litedram.core.controller import ControllerSettings
+    soc.add_sdram(name, controller_settings=ControllerSettings(refresh_cls=RegisteredRefresher), **kwargs)
+
+
 class WishboneSlaveStage(Module):
     """A registered Wishbone stage between the bus decoder and one slave (#814).
 
@@ -3144,7 +3179,7 @@ class MilanSoC(SoCCore):
                 sys_clk_freq   = sys_clk_freq,
                 iodelay_clk_freq = 200e6)
             dram_module = (MT41K128M16 if board == "arty" else MT41J256M16)
-            self.add_sdram("sdram",
+            add_staged_sdram(self, "sdram",
                 phy    = self.ddrphy,
                 module = dram_module(sys_clk_freq, "1:4"),
                 # The product profile is cacheless end to end.

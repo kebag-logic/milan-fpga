@@ -42,6 +42,8 @@ from migen.fhdl.tools import list_signals, list_targets
 from litex.build.generic_platform import GenericPlatform
 from litex.soc.integration.soc import SoCCore
 from litex.soc.interconnect import axi, wishbone
+from litedram.core.bankmachine import BankMachine
+from litedram.core.refresher import Refresher
 from litedram.frontend.axi import LiteDRAMAXI2Native
 from litedram.modules import MT41J256M16
 from litedram.phy.model import SDRAMPHYModel, get_sdram_phy_settings
@@ -194,15 +196,16 @@ class FlashSoC(SoCCore):
         milan_soc.add_staged_spi_flash(self, **kwargs)
 
 
-def build(cls: type, *args: object, stage: type | None = None) -> Module:
-    """`cls(*args)` with `stage` standing in for the shipping stage class `cls.STAGE` names."""
-    shipping = getattr(milan_soc, cls.STAGE)
+def build(cls: type, *args: object, stage: type | None = None, name: str | None = None) -> Module:
+    """`cls(*args)` with `stage` standing in for the shipping class `name` (default `cls.STAGE`)."""
+    name = name or cls.STAGE
+    shipping = getattr(milan_soc, name)
     if stage is not None:
-        setattr(milan_soc, cls.STAGE, stage)
+        setattr(milan_soc, name, stage)
     try:
         return cls(*args)
     finally:
-        setattr(milan_soc, cls.STAGE, shipping)
+        setattr(milan_soc, name, shipping)
 
 
 #: The Wishbone fields a request carries to the core, and those an answer carries back.
@@ -379,9 +382,9 @@ def stage_abandon(problems: list[str]) -> None:
 
 class DramSoC(SoCCore):
     """The SoC's DRAM path: a stand-in CPU memory port on its own `milan` clock,
-    the shipping `cross_cpu_memory_ports` hook, and LiteX's `add_sdram` with the
-    LiteDRAM controller on LiteDRAM's model PHY for the board's DDR3 part and
-    width."""
+    the shipping `cross_cpu_memory_ports` hook, and the shipping `add_staged_sdram`
+    call with the LiteDRAM controller on LiteDRAM's model PHY for the board's
+    DDR3 part and width."""
 
     STAGE = "AXIReadyStage"
 
@@ -405,8 +408,8 @@ class DramSoC(SoCCore):
         milan_soc.cross_cpu_memory_ports(cpu, cd_from="milan", cd_to="sys")
         settings = get_sdram_phy_settings(memtype="DDR3", data_width=32, clk_freq=SYS_HZ)
         module = MT41J256M16(SYS_HZ, "1:4")
-        self.add_sdram("sdram", phy=SDRAMPHYModel(module, settings=settings, clk_freq=SYS_HZ),
-                       module=module, l2_cache_size=0)
+        milan_soc.add_staged_sdram(self, "sdram", phy=SDRAMPHYModel(module, settings=settings, clk_freq=SYS_HZ),
+                                   module=module, l2_cache_size=0)
 
 
 def dram_crossings(soc: DramSoC) -> tuple[list[str], bool, int]:
@@ -533,6 +536,86 @@ def dram_behaviour(problems: list[str]) -> None:
           f"D4 the stage changes nothing the native port sees, cycle for cycle, and adds no cycle to a read "
           f"(staged {staged}, wired {wired} milan cycles)")
 
+# Refresh ---------------------------------------------------------------------------------------------
+
+def refresh_crossings(soc: DramSoC) -> tuple[list[str], bool, int]:
+    """LiteDRAM refresher flip-flops reaching a bank-machine or multiplexer flip-flop
+    through the refresher's `valid` or `last`.
+
+    Returns those paths named `start -> end`, whether `valid` and `last` are
+    the stage's own flip-flops, and how many controller flip-flops read them.
+    The command fields leave LiteDRAM's executers from flip-flops and are not
+    this path, so they are not graded here.
+    """
+    netlist = Netlist(soc.get_fragment())
+    controller = soc.sdram.controller
+    outer = controller.refresher
+    inner = getattr(outer, "refresher", outer)
+    refresher, stage = registers(inner), registers(outer) - registers(inner)
+    machines = registers(controller.multiplexer).union(*(registers(bm) for bm in find(controller, BankMachine)))
+    request = {outer.cmd.valid.duid: outer.cmd.valid, outer.cmd.last.duid: outer.cmd.last}
+    paths, readers = [], 0
+    for flop in sorted(machines):
+        flops, wires = netlist.cone(netlist.signals[flop])
+        readers += bool((flops | wires) & set(request))
+        through = [request[duid] for duid in wires & set(request)]
+        starts = set().union(*(netlist.feeding(signal) for signal in through)) & refresher
+        paths += [f"{netlist.name(start)} -> {netlist.name(flop)}" for start in sorted(starts)]
+    return paths, set(request) <= stage, readers
+
+
+def refresh_structure(problems: list[str]) -> None:
+    """Arms 1 and 2 for the refresh path."""
+    paths, staged, readers = refresh_crossings(build(DramSoC))
+    check(problems, staged and readers > 0,
+          f"Z0 the refresh request is the stage's own flip-flops, and {readers} controller flip-flops read it")
+    check(problems, not paths,
+          "Z1 no LiteDRAM refresher flip-flop reaches a bank-machine or multiplexer flip-flop through the "
+          "refresh request through logic alone" + (f": {paths[:4]}" if paths else ""))
+    paths, staged, _ = refresh_crossings(build(DramSoC, stage=Refresher, name="RegisteredRefresher"))
+    timer = [path for path in paths if "refreshtimer" in path.split(" -> ")[0] and "level" in path]
+    check(problems, bool(timer) and not staged,
+          f"Z2 LiteDRAM's own Refresher in place of the stage fails Z0 and Z1, naming a refresh timer into a "
+          f"bank machine's FIFO level ({len(paths)} paths: {timer[:2]})")
+
+
+def dfi_commands(stage: type | None, cycles: int) -> list[tuple[int, int, str, int]]:
+    """Every command on the controller's DFI over `cycles` idle sys cycles: `(cycle, phase, name, address)`."""
+    soc = build(DramSoC, stage=stage, name="RegisteredRefresher")
+    names = {(0, 1, 0): "PRECHARGE", (0, 0, 1): "REFRESH", (1, 1, 0): "ZQCS"}
+    seen = []
+
+    def monitor() -> Generator[None, None, None]:
+        """Decode each phase's cs/ras/cas/we every cycle."""
+        for cycle in range(cycles):
+            for index, phase in enumerate(soc.sdram.controller.dfi.phases):
+                if not (yield phase.cs_n):
+                    code = ((yield phase.ras_n), (yield phase.cas_n), (yield phase.we_n))
+                    if code != (1, 1, 1):
+                        seen.append((cycle, index, names.get(code, str(code)), (yield phase.address)))
+            yield
+
+    run_simulation(soc, {"sys": [monitor()]}, clocks={"milan": 20, "sys": 10})
+    return seen
+
+
+def refresh_behaviour(problems: list[str]) -> None:
+    """Arm 3 for the refresh path: LiteDRAM's own refresh commands, each one cycle later.
+
+    LiteDRAM issues a ZQCS only when its one-cycle ZQCS timer pulse meets the
+    refresh sequencer's end, which no simulation of this length reaches; the
+    ZQCS executer's commands leave the same registered fields, behind the same
+    two registers.
+    """
+    staged = dfi_commands(None, 3200)
+    plain = dfi_commands(Refresher, 3200)
+    kinds = sorted({name for _, _, name, _ in staged})
+    shifted = [(cycle + 1, index, name, address) for cycle, index, name, address in plain]
+    check(problems, kinds == ["PRECHARGE", "REFRESH"] and len(staged) >= 6 and staged == shifted,
+          f"Z3 the staged refresher issues LiteDRAM's own precharge-all and refresh commands, each exactly one "
+          f"cycle later at the same spacing ({len(staged)} commands, first at {staged[0][0] if staged else None})")
+
+
 def main() -> int:
     """Every arm; exit 1 naming each failure."""
     problems: list[str] = []
@@ -542,6 +625,8 @@ def main() -> int:
     stage_abandon(problems)
     dram_structure(problems)
     dram_behaviour(problems)
+    refresh_structure(problems)
+    refresh_behaviour(problems)
     for problem in problems:
         print(f"FAIL: {problem}", file=sys.stderr)
     print(f"test_soc_timing_cuts: {len(problems)} failure(s)")
