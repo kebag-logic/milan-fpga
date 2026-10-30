@@ -1,0 +1,67 @@
+mutant	origin	rc	killed by	failing line
+floor names its corners	campaign	1	arm	AssertionError: route arm 'WNS below the floor': exit 1, wanted 1 naming 'below the floor 0.03 at Slow_0C, Slow_85C'
+a fall never fails	campaign	1	arm	AssertionError: route arm 'WNS fell more than the timing fall: a warning, never a failure': exit 1, wanted 0 naming ('WARNING: fell by more than 0.25 from the record', 'WARNING: WNS_ns fell from the record', 'RESULT: PASS') and not 'REGRESSION'
+fall warning summarized	campaign	1	arm	AssertionError: route arm 'WNS fell more than the timing fall: a warning, never a failure': exit 0, wanted 0 naming ('WARNING: fell by more than 0.25 from the record', 'WARNING: WNS_ns fell from the record', 'RESULT: PASS') and not 'REGRESSION'
+every junction endpoint read	campaign	1	arm	AssertionError: route arm 'WNS below the floor': exit 1, wanted 1 naming 'below the floor 0.03 at Slow_0C, Slow_85C'
+every corner model read	campaign	1	exception	pp_resource_gate.Refusal: the signoff corners' worst WHS_ns is 0.2 and the timing summary's 0.1: the reports are not of one run
+one timing grade	campaign	1	arm	AssertionError: route arm 'a second timing grade': exit 2, wanted 2 naming 'configures 2 timing grades'
+signoff report set required	campaign	1	arm	AssertionError: route arm 'signoff reports not written': exit 2, wanted 2 naming 'configures 1 timing grades and writes 0 signoff report sets'
+corners agree with the summary	campaign	1	arm	AssertionError: route arm "a corner's WNS below the summary's": exit 0, wanted 2 naming "the signoff corners' worst WNS_ns is 0.45 and the timing summary's 0.5: the reports are not of one run"
+corners agree for both slacks	campaign	1	arm	AssertionError: route arm "a corner's WHS below the summary's": exit 0, wanted 2 naming 'worst WHS_ns is 0.09'
+corner refusals of every kind named	campaign	1	arm	AssertionError: route arm 'a corner slack too long to be finite': exit 2, wanted 2 naming 'alinx_ax7101_signoff_Fast_0C_timing.rpt: WHS is not finite'
+corner refusals name their report	campaign	1	arm	AssertionError: route arm 'a corner report without its summary': exit 2, wanted 2 naming 'alinx_ax7101_signoff_Slow_0C_timing.rpt: expected one Design Timing Summary, found 0'
+best worst-corner WNS selected	campaign	1	arm	AssertionError: route-set arm 'a set whose shipping directive misses the floor and whose best meets it passes, naming the best': exit 1, wanted 0 naming ('directive AltSpreadLogic_high selected', 'RESULT: PASS') and not 'REGRESSION'
+tie to the recipe's first	campaign	1	arm	AssertionError: route-set arm 'a tie between the comparisons goes to the directive the recipe lists first': exit 0, wanted 0 naming 'directive AltSpreadLogic_high selected'
+a single route selected alone	campaign	1	exception	'NOT COMPARABLE: ValueError: tuple.index(x): x not in tuple'
+a set holds the three directives	campaign	1	arm	AssertionError: route-set arm 'a set of one comparison': exit 0, wanted 2 naming 'a route set holds each of ExtraPostPlacementOpt, AltSpreadLogic_high, ExtraTimingOpt once, not AltSpreadLogic_high, ExtraPostPlacementOpt'
+a set and a mark exclusive	campaign	1	arm	AssertionError: route-set arm 'a route both in a set and marked': exit 0, wanted 2 naming 'or alone with --shipping-selection'
+a route needs a set or a mark	campaign	1	arm	AssertionError: route-set arm 'a route neither in a set nor marked': exit 0, wanted 2 naming 'or alone with --shipping-selection'
+a standalone synthesis takes neither	campaign	1	arm	AssertionError: route-set arm 'a standalone synthesis with --shipping-selection': exit 0, wanted 2 naming 'a standalone synthesis has no placement directive'
+a split placement judged alone	campaign	1	arm	AssertionError: route-set arm 'a set of a selected split placement': exit 2, wanted 2 naming 'a selected split placement is judged alone'
+comparison script bound	campaign	1	arm	AssertionError: route-set arm 'route set control': exit 2, wanted 0 naming ('directive ExtraPostPlacementOpt selected', 'RESULT: PASS') and not 'REGRESSION'
+comparison opens the shipping checkpoint	campaign	1	arm	AssertionError: route-set arm 'a comparison opening another checkpoint': exit 0, wanted 2 naming 'does not open the shipping checkpoint'
+comparison thread setting	campaign	1	arm	AssertionError: route-set arm 'a comparison of another thread setting': exit 0, wanted 2 naming "sets 'set_param general.maxThreads 16', not the shipping route's 'set_param general.maxThreads 32'"
+shipping route of the recipe	campaign	1	arm	AssertionError: route-set arm 'a set whose shipping route is not at the shipping directive': exit 2, wanted 2 naming 'is not a shipping route the recipe compares'
+comparison flow at its directive	campaign	1	arm	AssertionError: route-set arm 'route set control': exit 2, wanted 0 naming ('directive ExtraPostPlacementOpt selected', 'RESULT: PASS') and not 'REGRESSION'
+comparison inputs the shipping route's	campaign	1	arm	AssertionError: route-set arm 'route set control': exit 2, wanted 0 naming ('directive ExtraPostPlacementOpt selected', 'RESULT: PASS') and not 'REGRESSION'
+comparison corners its own	campaign	1	arm	AssertionError: route-set arm 'route set control': exit 2, wanted 0 naming ('directive ExtraPostPlacementOpt selected', 'RESULT: PASS') and not 'REGRESSION'
+every route's identity	campaign	1	arm	AssertionError: route-set arm 'a comparison of another tool build, not selected': exit 0, wanted 2 naming 'tool or recipe change in tool'
+every route's identical inputs	campaign	1	arm	AssertionError: route-set arm "the shipping route not selected, measured differently from the record's inputs": exit 0, wanted 2 naming 'identical inputs'
+identical inputs at the record's directive	campaign	1	arm	AssertionError: route-set arm 'route set control': exit 2, wanted 0 naming ('directive ExtraPostPlacementOpt selected', 'RESULT: PASS') and not 'REGRESSION'
+directives compared as one	campaign	1	arm	AssertionError: route arm "placement directive another of the recipe's": exit 2, wanted 0 naming 'RESULT: PASS'
+only the recipe's directives compared as one	campaign	1	arm	AssertionError: route arm 'placement directive outside the recipe': exit 0, wanted 2 naming 'change in flow'
+every route's route status	campaign	1	arm	AssertionError: route-set arm 'an incomplete comparison route, not selected': exit 0, wanted 1 naming 'ROUTE INCOMPLETE: ExtraTimingOpt: 3 nets with routing errors'
+every route's population	campaign	1	arm	AssertionError: route-set arm 'a comparison with a wrong population': exit 0, wanted 2 naming 'ExtraTimingOpt: wrong placement all-fabric: adp (KL_adp_engine)'
+set problems led by their directive	campaign	1	arm	AssertionError: route-set arm 'an incomplete comparison route, not selected': exit 1, wanted 1 naming 'ROUTE INCOMPLETE: ExtraTimingOpt: 3 nets with routing errors'
+selection named	campaign	1	arm	AssertionError: route-set arm 'route set control': exit 0, wanted 0 naming ('directive ExtraPostPlacementOpt selected', 'RESULT: PASS') and not 'REGRESSION'
+marked route named	campaign	1	arm	AssertionError: route-set arm 'a marked route names its directive': exit 0, wanted 0 naming ('directive ExtraPostPlacementOpt: the one route, marked as the shipping selection', 'RESULT: PASS') and not 'route set'
+selected route judged and recorded	campaign	1	arm	AssertionError: route-set arm 'a selected comparison is judged on its own resources': exit 0, wanted 1 naming ('directive AltSpreadLogic_high selected', 'REGRESSION: grew by more than 5')
+fuzz marks a route	campaign	1	arm	AssertionError: a generated case broke the exit-code contract
+all-fabric population not read	campaign	1	arm	AssertionError: route-set arm 'a comparison with a wrong population': exit 0, wanted 2 naming 'ExtraTimingOpt: wrong placement all-fabric: adp (KL_adp_engine)'
+all-fabric population judged in a printed record	campaign	1	arm	AssertionError: wrapper replaced printed record: wanted 0 / "kind": "route", got (2, ['NOT COMPARABLE: wrong placement all-fabric: wrapper (KL_pp_shadow) count 0, expected 1..1; acceptance records only the all-fabric image'])
+identical-input refusal	campaign	1	arm	AssertionError: route arm 'identical inputs, different figures': exit 0, wanted 2 naming 'identical inputs'
+identical-input figures	campaign	1	arm	AssertionError: route arm 'identical inputs, different WNS': exit 0, wanted 2 naming 'identical inputs'
+timing floor	campaign	1	arm	AssertionError: route arm 'WNS below the floor': exit 0, wanted 1 naming 'below the floor 0.03 at Slow_0C, Slow_85C'
+timing floor boundary	campaign	1	arm	AssertionError: route arm 'WNS at the floor': exit 1, wanted 0 naming 'RESULT: PASS'
+route status of a route	campaign	1	arm	AssertionError: route arm 'nets with routing errors': exit 0, wanted 1 naming 'ROUTE INCOMPLETE: 3 nets with routing errors'
+check reads the route status	campaign	1	arm	AssertionError: command-line arm 'check of an unrouted route': exit 0, wanted 1 naming 'ROUTE INCOMPLETE'
+kind from the directory	campaign	1	arm	AssertionError: command-line arm 'check reads the kind from a standalone directory': exit 2, wanted 0 naming 'RESULT: PASS'
+timing fall	campaign	1	arm	AssertionError: route arm 'WNS fell more than the timing fall: a warning, never a failure': exit 0, wanted 0 naming ('WARNING: fell by more than 0.25 from the record', 'WARNING: WNS_ns fell from the record', 'RESULT: PASS') and not 'REGRESSION'
+timing fall boundary	campaign	1	arm	AssertionError: route arm 'WNS fell by exactly the timing fall': exit 0, wanted 0 naming 'RESULT: PASS' and not 'WARNING'
+X1 shipping thread count unchecked	extra	0	survived	placement gate: unchanged acceptance schema, record and policy PASS
+X2 shipping marker unchecked	extra	0	survived	placement gate: unchanged acceptance schema, record and policy PASS
+X3 shipping directive count unchecked	extra	0	survived	placement gate: unchanged acceptance schema, record and policy PASS
+X4 shipping directive in tail unchecked	extra	0	survived	placement gate: unchanged acceptance schema, record and policy PASS
+X5 corners agree one way only	extra	0	survived	placement gate: unchanged acceptance schema, record and policy PASS
+X6 corners agree other way only	extra	1	arm	AssertionError: route arm "a corner's WNS below the summary's": exit 0, wanted 2 naming "the signoff corners' worst WNS_ns is 0.45 and the timing summary's 0.5: the reports are not of one run"
+X7 hold floor not judged at corners	extra	1	arm	AssertionError: route arm 'WHS below the floor': exit 0, wanted 1 naming 'WHS_ns'
+X8 setup floor not judged at corners	extra	1	arm	AssertionError: route arm 'WNS below the floor': exit 0, wanted 1 naming 'below the floor 0.03 at Slow_0C, Slow_85C'
+X9 selection by WHS	extra	1	arm	AssertionError: route-set arm 'a set whose shipping directive misses the floor and whose best meets it passes, naming the best': exit 1, wanted 0 naming ('directive AltSpreadLogic_high selected', 'RESULT: PASS') and not 'REGRESSION'
+X10 selection by worst	extra	1	arm	AssertionError: route-set arm 'route set control': exit 0, wanted 0 naming ('directive ExtraPostPlacementOpt selected', 'RESULT: PASS') and not 'REGRESSION'
+X11 tie to the last	extra	1	arm	AssertionError: route-set arm 'a tie between the comparisons goes to the directive the recipe lists first': exit 0, wanted 0 naming 'directive AltSpreadLogic_high selected'
+X12 comparison may be at the shipping directive	extra	1	arm	AssertionError: route-set arm 'a comparison at the shipping directive': exit 2, wanted 2 naming 'is not the script the recipe writes'
+X13 floor judged on the summary only	extra	1	arm	AssertionError: route arm 'WNS below the floor at one corner': exit 1, wanted 1 naming 'below the floor 0.03 at Slow_85C' and not 'at Slow_0C'
+X14 only comparisons identity checked	extra	1	arm	AssertionError: route arm 'tool build changed': exit 0, wanted 2 naming 'tool'
+X15 warning on any fall	extra	1	arm	AssertionError: route arm 'WNS fell by exactly the timing fall': exit 0, wanted 0 naming 'RESULT: PASS' and not 'WARNING'
+X16 recorded route is the shipping one	extra	1	arm	AssertionError: record --write of a set exited 0 or wrote another route: ["route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns", '  ExtraPostPlacementOpt        0.5     0.1  /tmp/pp-resource-gate-68k8x9nq/route/arm/gateware', '  AltSpreadLogic_high          0.6     0.1  /tmp/pp-resource-gate-68k8x9nq/route/arm/ax7101-AltSpreadLogic_high', '  ExtraTimingOpt               
+X17 ceiling on the shipping route	extra	0	survived	placement gate: unchanged acceptance schema, record and policy PASS

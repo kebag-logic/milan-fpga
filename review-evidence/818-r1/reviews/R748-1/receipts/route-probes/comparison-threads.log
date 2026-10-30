@@ -1,0 +1,4 @@
+$ gate check $REVIEWS/818-r748-1-packet/scratch/probes/comparison-threads/ax7101/gateware --endpoint route-1x1 --comparison $REVIEWS/818-r748-1-packet/scratch/probes/comparison-threads/ax7101-AltSpreadLogic_high --comparison $REVIEWS/818-r748-1-packet/scratch/probes/comparison-threads/ax7101-ExtraTimingOpt
+NOT COMPARABLE: $REVIEWS/818-r748-1-packet/scratch/probes/comparison-threads/ax7101-ExtraTimingOpt: baseline_implementation.tcl sets 'set_param general.maxThreads 8', not the shipping route's 'set_param general.maxThreads 32'
+
+rc=2

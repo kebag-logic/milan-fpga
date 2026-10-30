@@ -1,0 +1,34 @@
+$ gate check $REVIEWS/818-r748-1-packet/scratch/probes/record-write/ax7101/gateware --endpoint route-1x1 --shipping-selection --baseline $REVIEWS/818-r748-1-packet/scratch/probes/record-write/baseline.json
+endpoint route-1x1: $REVIEWS/818-r748-1-packet/scratch/probes/record-write/ax7101/gateware
+directive ExtraPostPlacementOpt: the one route, marked as the shipping selection
+figure        baseline   candidate     delta  verdict
+LUT              51863       51803       -60  ok, below the baseline
+FF               53849       53849         0  ok
+SLICE            15821       15799       -22  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns           0.342       0.168    -0.174  ok
+WHS_ns           0.034       0.025    -0.009  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.168  WHS_ns    0.056
+  Slow_85C  WNS_ns    0.168  WHS_ns    0.056
+  Fast_0C   WNS_ns    1.362  WHS_ns    0.025
+  Fast_85C  WNS_ns    1.362  WHS_ns    0.025
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  u_pp: LUT -48, FF +0
+  wrapper: LUT -48, FF +0
+  u_pp/u_listener: LUT -8, FF +0
+  u_pp/u_notify: LUT -7, FF +0
+  u_pp/u_aecp/u_dyn: LUT -5, FF +0
+  u_pp/u_talker: LUT -5, FF +0
+  u_nvm: LUT +4, FF +0
+  u_pp/u_aecp: LUT -3, FF +0
+  u_pp/u_aecp/u_ucpu: LUT +3, FF +0
+  u_pp/u_nvm_port: LUT -3, FF +0
+  u_pp/u_originator: LUT -3, FF +0
+  u_pp/u_event_router: LUT -2, FF +0
+RESULT: PASS
+
+rc=0

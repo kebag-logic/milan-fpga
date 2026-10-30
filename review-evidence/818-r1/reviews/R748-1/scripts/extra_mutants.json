@@ -1,0 +1,19 @@
+[
+ {"name": "X1 shipping thread count unchecked", "old": "    if len(threads) != 1 or not marker or", "new": "    if not marker or"},
+ {"name": "X2 shipping marker unchecked", "old": "len(threads) != 1 or not marker or script", "new": "len(threads) != 1 or script"},
+ {"name": "X3 shipping directive count unchecked", "old": " or script.count(shipped) != 1 or shipped", "new": " or shipped"},
+ {"name": "X4 shipping directive in tail unchecked", "old": "script.count(shipped) != 1 or shipped not in tail:", "new": "script.count(shipped) != 1:"},
+ {"name": "X5 corners agree one way only", "old": "        if worst != figures[figure]:\n", "new": "        if worst < figures[figure]:\n"},
+ {"name": "X6 corners agree other way only", "old": "        if worst != figures[figure]:\n", "new": "        if worst > figures[figure]:\n"},
+ {"name": "X7 hold floor not judged at corners", "old": "if held[figure] < floor]", "new": "if held[figure] < floor and figure == \"WNS_ns\"]"},
+ {"name": "X8 setup floor not judged at corners", "old": "if held[figure] < floor]", "new": "if held[figure] < floor and figure == \"WHS_ns\"]"},
+ {"name": "X9 selection by WHS", "old": "(route[\"record\"][\"figures\"][\"WNS_ns\"], -DIRECTIVES", "new": "(route[\"record\"][\"figures\"][\"WHS_ns\"], -DIRECTIVES"},
+ {"name": "X10 selection by worst", "old": "    return max(routes, key=lambda route:", "new": "    return min(routes, key=lambda route:"},
+ {"name": "X11 tie to the last", "old": "-DIRECTIVES.index(route[\"directive\"])))", "new": "DIRECTIVES.index(route[\"directive\"])))"},
+ {"name": "X12 comparison may be at the shipping directive", "old": "    for other in DIRECTIVES[1:]:\n        if comparison ==", "new": "    for other in DIRECTIVES:\n        if comparison =="},
+ {"name": "X13 floor judged on the summary only", "old": "        missed = [name for name, held in slacks.items() if held[figure] < floor]", "new": "        missed = [name for name in slacks if after < floor]"},
+ {"name": "X14 only comparisons identity checked", "old": "    for measured in (candidate, *others):\n        changed", "new": "    for measured in others:\n        changed"},
+ {"name": "X15 warning on any fall", "old": "        if before - after > tolerance:\n            # #818", "new": "        if before - after > 0:\n            # #818"},
+ {"name": "X16 recorded route is the shipping one", "old": "            emit([*selection(routes, picked), json.dumps(candidate, indent=1)])", "new": "            candidate = routes[0][\"record\"]\n            emit([*selection(routes, picked), json.dumps(candidate, indent=1)])"},
+ {"name": "X17 ceiling on the shipping route", "old": "        if candidate[\"figures\"][figure] > ceiling:\n", "new": "        if (others[0] if others else candidate)[\"figures\"][figure] > ceiling:\n"}
+]

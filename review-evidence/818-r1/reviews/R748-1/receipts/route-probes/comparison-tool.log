@@ -1,0 +1,10 @@
+$ gate check $REVIEWS/818-r748-1-packet/scratch/probes/comparison-tool/ax7101/gateware --endpoint route-1x1 --comparison $REVIEWS/818-r748-1-packet/scratch/probes/comparison-tool/ax7101-AltSpreadLogic_high --comparison $REVIEWS/818-r748-1-packet/scratch/probes/comparison-tool/ax7101-ExtraTimingOpt
+endpoint route-1x1: $REVIEWS/818-r748-1-packet/scratch/probes/comparison-tool/ax7101/gateware
+route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns
+  ExtraPostPlacementOpt      0.303   0.028  $REVIEWS/818-r748-1-packet/scratch/probes/comparison-tool/ax7101/gateware
+  AltSpreadLogic_high         0.23   0.014  $REVIEWS/818-r748-1-packet/scratch/probes/comparison-tool/ax7101-AltSpreadLogic_high
+  ExtraTimingOpt             0.106   0.054  $REVIEWS/818-r748-1-packet/scratch/probes/comparison-tool/ax7101-ExtraTimingOpt
+directive ExtraPostPlacementOpt selected: the best worst-corner WNS, 0.303 ns
+NOT COMPARABLE: tool or recipe change in tool; measure the baseline again under the new identity instead of comparing across it
+
+rc=2

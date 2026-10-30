@@ -1,0 +1,298 @@
+[
+ {
+  "probe": "dev-control",
+  "want_rc": 0,
+  "rc": 0,
+  "need": [
+   "directive ExtraPostPlacementOpt selected",
+   "RESULT: PASS"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "ctrl-control",
+  "want_rc": 0,
+  "rc": 0,
+  "need": [
+   "directive AltSpreadLogic_high selected",
+   "RESULT: PASS"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "best-whs-one-corner",
+  "want_rc": 1,
+  "rc": 1,
+  "need": [
+   "directive ExtraPostPlacementOpt selected",
+   "REGRESSION: below the floor 0.0 at Fast_85C"
+  ],
+  "forbid": [
+   "at Fast_0C, Fast_85C",
+   "RESULT: PASS"
+  ],
+  "ok": true
+ },
+ {
+  "probe": "best-wns-one-corner",
+  "want_rc": 1,
+  "rc": 1,
+  "need": [
+   "directive ExtraPostPlacementOpt selected",
+   "REGRESSION: below the floor 0.03 at Slow_85C"
+  ],
+  "forbid": [
+   "Slow_0C, Slow_85C",
+   "RESULT: PASS"
+  ],
+  "ok": true
+ },
+ {
+  "probe": "other-below-floor",
+  "want_rc": 0,
+  "rc": 0,
+  "need": [
+   "directive ExtraPostPlacementOpt selected",
+   "RESULT: PASS"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "shipping-misses-best-meets",
+  "want_rc": 0,
+  "rc": 0,
+  "need": [
+   "directive AltSpreadLogic_high selected",
+   "RESULT: PASS"
+  ],
+  "forbid": [
+   "REGRESSION"
+  ],
+  "ok": true
+ },
+ {
+  "probe": "shipping-misses-marked-alone",
+  "want_rc": 1,
+  "rc": 1,
+  "need": [
+   "below the floor 0.03 at Slow_0C, Slow_85C"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "large-fall",
+  "want_rc": 0,
+  "rc": 0,
+  "need": [
+   "WARNING: fell by more than 0.25 from the record",
+   "RESULT: PASS"
+  ],
+  "forbid": [
+   "REGRESSION"
+  ],
+  "ok": true
+ },
+ {
+  "probe": "selected-lut-over",
+  "want_rc": 1,
+  "rc": 1,
+  "need": [
+   "directive AltSpreadLogic_high selected",
+   "REGRESSION: grew by more than"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "unselected-lut-over",
+  "want_rc": 0,
+  "rc": 0,
+  "need": [
+   "directive AltSpreadLogic_high selected",
+   "RESULT: PASS"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "comparison-extra-command",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "is not the script the recipe writes"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "comparison-other-checkpoint",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "does not open the shipping checkpoint"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "comparison-threads",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "not the shipping route's"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "comparison-shipping-directive",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "is not the script the recipe writes"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "duplicate-comparison",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "holds each of"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "one-comparison",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "holds each of"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "shipping-as-comparison",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "NOT COMPARABLE"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "set-and-mark",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "or alone with --shipping-selection"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "comparison-tool",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "tool or recipe change in tool"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "comparison-population",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "ExtraTimingOpt: ",
+   "wrong placement"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "comparison-unrouted",
+  "want_rc": 1,
+  "rc": 1,
+  "need": [
+   "ROUTE INCOMPLETE: ExtraTimingOpt:"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "comparison-corner-missing",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "alinx_ax7101_signoff_Fast_85C_timing.rpt"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "selected-corner-foreign",
+  "want_rc": 2,
+  "rc": 2,
+  "need": [
+   "the reports are not of one run"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "record-write",
+  "want_rc": 0,
+  "rc": 0,
+  "need": [
+   "directive AltSpreadLogic_high selected"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "record-write-content",
+  "ok": true,
+  "WNS_ns": 0.342
+ },
+ {
+  "probe": "record-write-recheck",
+  "want_rc": 0,
+  "rc": 0,
+  "need": [
+   "directive AltSpreadLogic_high selected",
+   "RESULT: PASS"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "record-write-marked-shipping",
+  "want_rc": 0,
+  "rc": 0,
+  "need": [
+   "RESULT: PASS"
+  ],
+  "forbid": [],
+  "ok": true
+ },
+ {
+  "probe": "record-write-baseline",
+  "want_rc": 0,
+  "rc": 0,
+  "need": [
+   "baseline PASS"
+  ],
+  "forbid": [],
+  "ok": true
+ }
+]
