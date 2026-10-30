@@ -395,9 +395,12 @@ SUPERSEDED = {'acmp.tmr_no_adp': 'hooks-disc-aging'}
 
 
 def aging_group(p: Point) -> Group:
-    """H-DISC's aging (FR_NFR.md 3.4.2): each interface's sink bound and its talker discovered, then an
+    """H-DISC's aging (FR_NFR.md 3.4.2), as the CPU budget harness's acmp-disc reaches it: each interface's sink
+    bound, its PROBE_TX answered and its talker discovered, so its one timer waits only on discovery; then an
     ENTITY_AVAILABLE with valid_time 1 (2 s, IEEE 1722.1-2021 6.2.2.5) from its RX_HEAD to TMR_NO_ADP armed, then
-    that timer's expiry, from its armed deadline, to its action, with the window opened after the arm."""
+    that timer's expiry, from its armed deadline, to its action, with the window opened after the arm. A sink still
+    waiting for its PROBE_TX_RESPONSE would keep its timer on that earlier deadline, and the arm would not be
+    the ENTITY_AVAILABLE's."""
     acmp, adp = CH['acmp'], CH['adp']
     slot = lambda i: p.interfaces + i               # ACMP's slot of interface i (ctrl_app.h)
     avail = lambda valid, index: f.adp(f.ADP_AVAILABLE, scenario.TALKER_A, scenario.TALKER_A_MAC,
@@ -408,6 +411,7 @@ def aging_group(p: Point) -> Group:
     ifs = range(p.interfaces)
     g.add(*[f'frame {i} {scenario.acmp_cmd(p, "BIND_RX", i, 0x7600 + i).hex()}' for i in ifs],
           f'wait tx {acmp} {2 * p.interfaces} within {400 * MS}', 'wait quiet 3 within 2000000',
+          *[scenario.probe_answer(i) for i in ifs], 'wait quiet 3 within 2000000',
           *[f'frame {i} {avail(10, 0).hex()}' for i in ifs], 'wait quiet 3 within 2000000')
     for i in ifs:
         g.probe(Probe(f'hooks-disc-aging.available.if{i}', 'ENTITY_AVAILABLE from its RX_HEAD (H-DISC)', 'disc',

@@ -348,10 +348,14 @@ def check_superseded() -> None:
 
 
 def check_aging_group() -> None:
-    """The aging group's window opens after the arm: its TMR_NO_ADP marks follow the ENTITY_AVAILABLE's wait for
-    the arm, on every interface."""
+    """The aging group answers each sink's PROBE_TX before its input, and its window opens after the arm: its
+    TMR_NO_ADP marks follow the ENTITY_AVAILABLE's wait for the arm, on every interface."""
     point = scenario.Point('8x8', 'endstation_ax7101_8x8', 2, 1, 2, 1, 1)
     steps = hooks.aging_group(point).steps
+    answered = [n for n, s in enumerate(steps) if s.startswith('reply ')]
+    discovered = min(n for n, s in enumerate(steps) if s.startswith('mark hooks-disc-aging.available'))
+    expect(len(answered) == 2 and max(answered) < discovered,
+           f'the PROBE_TX answers {answered}, the input {discovered}')
     for i in range(2):
         mark = steps.index(f'mark hooks-disc-aging.tmr_no_adp.if{i}')
         frame = steps.index(f'mark hooks-disc-aging.available.if{i}')
@@ -422,6 +426,9 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
         'hooks-disc-aging', steps=[*[f'mark hooks-disc-aging.available.if{i}' for i in range(2)],
                                    *[f'mark hooks-disc-aging.tmr_no_adp.if{i}' for i in range(2)],
                                    *[f'wait tmr {2 + i} 1 within 1' for i in range(2)]])),
+     'the aging window opens after the arm'),
+    ('aging: the sink still waits for its PROBE_TX_RESPONSE (the earlier rule)', mutant(scenario, 'probe_answer',
+                                                                                     lambda i, status=0: 'gap 20'),
      'the aging window opens after the arm'),
     ('findings: a path over its bound is not a finding', mutant(run, 'hook_row', lambda r, g: dict(
         HOOK_ROW(r, g), within=True)), 'findings by hook'),
