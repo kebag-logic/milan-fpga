@@ -1,0 +1,97 @@
+[
+ {
+  "page": "docs/guides/gptp/HDL_DEVELOPER.md",
+  "v": {
+   "29": "policy: AGENTS.md lane rule",
+   "47": "ok: docs/diagrams/wd_gptp_pdelay.json draws the queue without a correction term",
+   "48": "ok: hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv:108 TXTS_DELTA_EXP_P = 45; docs/diagrams/wd_gptp_pdelay.json:79 '45 transmit cycles'",
+   "58": "ok: sw/builder/test_builder.py:18197-18199 'gate 1d: axis_clk and gtx_clk must be one net'",
+   "62": "ok: hdl/milan/milan_datapath.sv:87 GPTP_PHC_TICK_NS_P, passed at line 8847",
+   "63": "ok: KL_gptp_txret.sv:321 $error when the derived increment is not DP_TICK_NS_P ns",
+   "65": "ok: the launch observer is reset by the MAC transmit reset (gptp/SYSTEM_INTEGRATOR.md:55 same contract)",
+   "67": "ok: hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv:12-27 crosses CSR commands and snapshot pulses",
+   "71": "policy: test contract",
+   "73": "policy: AXI-Stream rule",
+   "74": "policy: AXI-Stream rule",
+   "83": "policy",
+   "84": "policy",
+   "88": "policy",
+   "90": "policy"
+  }
+ },
+ {
+  "page": "docs/guides/gptp/MANAGER.md",
+  "v": {
+   "21": "ok: hdl/milan/milan_datapath.sv:2179-2199 clkv_tu_w from the clock-validity block feeds the AAF ts_uncertain_i (line 1559) and the CRF tu (line 3546)",
+   "29": "ok: docs/reference/MILAN_FEATURE_STATUS.md gPTP rows",
+   "30": "ok: gptp-processor/Makefile donor suites",
+   "31": "ok: tb/verilator/gptp_shadow exists",
+   "32": "ok: tb/verilator/milan_dp exists",
+   "33": "ok: #64 OPEN",
+   "34": "ok: #511 CLOSED as the exclusion decision; REQUIREMENTS.md:202-210 records it",
+   "35": "ok: #117 OPEN",
+   "36": "ok: docs/design/MEDIA_CLOCK_FOLLOWING.md:6 implemented",
+   "38": "policy",
+   "40": "policy",
+   "45": "ok: #117 OPEN covers the physical acceptance",
+   "49": "ok: #74 OPEN",
+   "53": "ok: gptp-processor gitlink f97c1803 (adopted by PR #805, the base's parent)",
+   "58": "policy",
+   "59": "policy",
+   "63": "ok: #117 OPEN"
+  }
+ },
+ {
+  "page": "docs/guides/gptp/SYSTEM_INTEGRATOR.md",
+  "v": {
+   "19": "ok: sw/builder/endstation_builder.py:4454 refuses fabric_gptp: false (retired, #259)",
+   "21": "ok: sw/builder/endstation_builder.py:4460 requires a gptp: section; every configs/*.yaml carries one",
+   "35": "ok: sw/builder/test_builder.py:18199 gate 1d ties gtx_clk to axis_clk",
+   "37": "ok: gptp plane resets are synchronous active-low (hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv rst_n)",
+   "43": "ok: the launch-record face of KL_gptp_txret",
+   "47": "ok: atomic publication contract (gptp/MANAGER.md:20)",
+   "49": "policy: observer rule",
+   "51": "ok: KL_gptp_gmii_launch watches the MAC transmit stream (TXTS_DELTA_EXP_P line 122)",
+   "55": "ok: as HDL_DEVELOPER.md:65",
+   "59": "ok: GPTP_DROPE[31:16] GPTP_TXTS_LOST counts records closed with no timestamp (REGISTER_MAP.md:1517)",
+   "74": "ok: hdl/common/csr/milan_csr.sv:907 A_GPTP_DROPE {txts_lost16, ev_drop16}",
+   "76": "ok: PathTrace publication rule (gptp engine)",
+   "78": "ok: same",
+   "90": "policy"
+  }
+ },
+ {
+  "page": "docs/guides/gptp/TEST_DEVELOPER.md",
+  "v": {
+   "21": "ok: no first-party gPTP C harness (sw/firmware/gtest covers ctrl and ctrl_nvm only)",
+   "26": "policy",
+   "28": "policy",
+   "43": "ok: tb/verilator/gptp_plane closed-loop suite",
+   "56": "policy",
+   "57": "policy",
+   "62": "policy",
+   "66": "policy",
+   "70": "policy",
+   "77": "policy",
+   "98": "ok: all named tests exist in tb/verilator/gptp_txts or gptp_shadow (32 names, receipt sampling/gptp-test-names.txt)",
+   "99": "ok: same",
+   "100": "ok: same",
+   "101": "ok: same",
+   "102": "ok: same",
+   "103": "ok: same",
+   "104": "ok: same",
+   "105": "ok: same",
+   "106": "ok: same",
+   "107": "ok: same",
+   "108": "ok: same",
+   "109": "ok: same",
+   "110": "ok: same",
+   "111": "ok: same",
+   "112": "ok: same",
+   "113": "ok: same",
+   "114": "ok: gptp-processor/tb/verilator/engine/sim_main.cpp exists (auto)",
+   "115": "ok: gptp-processor/Makefile",
+   "127": "policy"
+  }
+ }
+]

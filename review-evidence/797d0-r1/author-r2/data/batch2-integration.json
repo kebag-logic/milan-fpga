@@ -1,0 +1,30 @@
+[
+ {
+  "id": "D0-034",
+  "page": "docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md",
+  "quote": "may cross clock domains only with a complete-packet asynchronous FIFO.",
+  "source": "`sw/litex/milan_soc.py` lines 1500-1530 and 1806-1808: the shipping MAC adapter crosses each direction with a 16-beat buffered `stream.ClockDomainCrossing` (`_AXIS_CDC_DEPTH`, line 1404), not a complete-packet FIFO; the store-and-forward `PacketFIFO` (`tx_sf`, line 1746) is a separate transmit stage in the sys domain, and `configs/endstation_ax7101_1x1_tdm8.yaml` lines 43-44 put the datapath at 50 MHz against a 100 MHz sys clock, so the crossing is live",
+  "correction": "State the shipping crossing: a 16-beat buffered asynchronous FIFO per direction, with a store-and-forward packet FIFO before the MAC core on transmit; say what a port must preserve instead of naming a FIFO type the shipping SoC does not use."
+ },
+ {
+  "id": "D0-035",
+  "page": "docs/integration/QSPI_FLASHBOOT.md",
+  "quote": "The AEM copy goes through the BIOS's `copy_image_from_flash_to_ram`, so the",
+  "source": "`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1836-1866: `load_aem_image()` checks the `AEMI` magic, copies `MILAN_AEM_IMAGE_BYTES` with its own loop and then compares the CRC32 with the compiled-in `MILAN_AEM_IMAGE_CRC32`; nothing under `sw/` calls `copy_image_from_flash_to_ram`",
+  "correction": "Name `load_aem_image()` and its three checks (magic, compiled-in length, CRC32 after the copy), and keep the consequence: a failed check leaves the entity disabled."
+ },
+ {
+  "id": "D0-036",
+  "page": "docs/integration/QSPI_FLASHBOOT.md",
+  "quote": "reachable with the standard quad read (`READ_1_1_4`, 0x6B). `mode=\"4x\"` drives all four DQ,",
+  "source": "`sw/litex/milan_soc.py` lines 3054-3069: the AX7101 uses `N25Q128A13(SpiCodes.READ_1_1_1_FAST)` with `add_spi_flash(mode=\"1x\", clk_freq=int(12.5e6))`, because the quad read CRC-failed non-deterministically on silicon (2026-07-08); line 3076 skips the BIOS frequency calibration",
+  "correction": "State the single-lane fast read (0x0B, 1-1-1) at the 12.5 MHz request with `SPIFLASH_SKIP_FREQ_INIT`, and why the quad read was dropped."
+ },
+ {
+  "id": "D0-037",
+  "page": "docs/integration/QSPI_FLASHBOOT.md",
+  "quote": "`ax8x8` and `arty` differ from `ax7101` only in dataplane shape:",
+  "source": "`sw/litex/build.sh` lines 382-399: `ax8x8` has never produced a bitstream, and `arty` is a retired DUT on another board (datapath 50 MHz, sys 83.333 MHz); `sw/litex/milan_soc.py` lines 3049-3055 give the Arty an S25FL128S on `READ_1_1_1`",
+  "correction": "Say that the named configs share the {bitstream, AEM} manifest, that `ax8x8` differs in dataplane shape and has not been built, and that `arty` is a retired DUT on another board."
+ }
+]

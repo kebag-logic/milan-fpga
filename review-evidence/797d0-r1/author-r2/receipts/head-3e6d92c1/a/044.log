@@ -1,0 +1,70 @@
+$ python3 scripts/measure_naming.py --selftest
+[PASS] a documented unit missing from the name is a candidate
+[PASS] a name that already carries the unit is not
+[PASS] a 1-cycle pulse is timing prose, not a unit
+[PASS] a strobe held for N cycles is a shape, not a unit
+[PASS] shape phrasing does not swallow a real unit
+[PASS] a single-bit port carries no quantity
+[PASS] a protocol-fixed identifier is left alone
+[PASS] a prefix alone is not a protocol name
+[PASS] a port with no unit in its comment is not a candidate
+[PASS] an undocumented port is not a candidate
+[PASS] ordinary prose using second is not a time unit
+[PASS] a counted second is a time unit
+[PASS] the pronoun us is not microseconds
+[PASS] microseconds written as us in a unit context is
+[PASS] ms, kHz, MHz, Mbps and nsec are units
+[PASS] a capitalised unit is still a unit
+[PASS] a name carrying octets satisfies a comment saying octets
+[PASS] a singular noun for the value is excluded, visibly, not counted
+[PASS] a counted singular is a unit
+[PASS] a position noun with a number after it is a noun, not a count
+[PASS] a singular cycle in timing prose is not a quantity in cycles
+[PASS] a unit word joined by a hyphen is an identifier or an adjective, not a unit
+[PASS] consecutive standalone comment lines are one group comment
+[PASS] the comment may sit on the line above, as a group comment
+[PASS] a group comment covers the undocumented ports of its bundle
+[PASS] a port's own trailing comment is not inherited by the next port
+[PASS] a port with its own comment ends the bundle
+[PASS] output reg is parsed as a port, not as a name called reg
+[PASS] an int port has a width even without brackets
+[PASS] a package-typed port is a boundary
+[PASS] a two-dimensional port is a quantity
+[PASS] a declaration split across lines is one port
+[PASS] names sharing one declaration are each a port
+[PASS] a port-like line inside a block comment is not a port
+[PASS] a parameter is a boundary too
+[PASS] a parameter carrying its unit is not
+[PASS] a function argument in the body is not a boundary
+[PASS] an interface modport port parses as one name
+[PASS] a name carrying a unit of a different family than documented is a candidate
+[PASS] a same-family alias in the comment agrees with the name
+[PASS] a cycle count named for the tick it produces is the tree's own cross-family pair
+[PASS] a single-bit port with a wrong-unit suffix is still misleading
+[PASS] shape phrasing and a noun for the value do not contradict a unit-named port
+[PASS] a name carrying several tokens agrees when any of them matches
+[PASS] a comment that names the name's family anywhere is not a contradiction
+[PASS] in clocks is a cycle count; clocks outside a count are the verb or the signals
+[PASS] an exclusion names its reason
+[PASS] timing prose is excluded under its own reason
+[PASS] classify refuses a name whose unit family differs from the documented one
+[PASS] classify accepts a same-family alias
+[PASS] a mismatch is reported under its own reason
+[PASS] every spelling in both vocabularies has a family, and aliases share it
+[PASS] undocumented ports are counted, not silently skipped
+[PASS] a recorded candidate that is still a candidate is neither new nor gone
+[PASS] a new identity is refused
+[PASS] a processor identity is spelled submodule:path, never as a source literal
+[PASS] a recorded port that merely lost the unit from its comment is refused as stripped
+[PASS] a recorded port renamed with its unit has left legitimately
+[PASS] a recorded port that was removed has left legitimately
+[PASS] a recorded mismatch that is still one is neither new nor gone
+[PASS] a recorded mismatch whose comment now names the name's unit has left legitimately
+[PASS] a recorded mismatch that merely lost the unit from its comment is refused as stripped
+[PASS] a name without a unit still cannot leave by a comment edit
+[PASS] the live scan reads the tree
+[PASS] the live scan reaches gptp-processor
+[PASS] the live scan reaches protocol-processor
+[PASS] the budget is keyed on identity, not a count
+
+66 checks: 66 PASS, 0 FAIL

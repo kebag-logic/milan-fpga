@@ -1,0 +1,6 @@
+[
+ {"id": "D0-045", "page": "docs/reference/MILAN_COMPLIANCE_MATRIX.md",
+  "quote": "| 8.4.2.2 / 8.4.3 | event messages timestamped at the reference plane; general messages never | fabric (`ptp_ts_core/top`) |",
+  "source": "`hdl/milan/milan_datapath.sv` lines 654-657: the `ptp_ts_top` TX/RX record stampers left the datapath with the retired target (#259); the shipping event timestamps are the gPTP plane's RX-tap stamp and its reconstructed launch (`hdl/milan/milan_datapath.sv` lines 8812-8818, #360; `hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv`)",
+  "correction": "Name the gPTP plane's RX tap and launch reconstruction as the owner and its suites (`tb/verilator/gptp_txts`, `tb/verilator/gptp_shadow`) as the evidence."}
+]

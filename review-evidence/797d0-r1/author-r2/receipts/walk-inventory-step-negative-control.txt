@@ -1,0 +1,45 @@
+Traceback (most recent call last):
+  File "<out>/tools/walk_inventory_step.py", line 22, in <module>
+    audit.shell("python3 scripts/docs_inventory.py --check\npython3 scripts/docs_inventory.py --selftest\n",
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                ".github/workflows/docs.yml", tree)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/walk/mut/scripts/ci_command_table.py", line 255, in shell
+    Shell(self, where, argv0, dialect).run(source, directory or self.root)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/walk/mut/scripts/ci_shell_walk.py", line 986, in run
+    end = self.statements(tree.get('Stmts', []), directory)
+  File "<scratch>/walk/mut/scripts/ci_shell_walk.py", line 420, in statements
+    directory = self.statement(statement, directory)
+  File "<scratch>/walk/mut/scripts/ci_shell_walk.py", line 513, in statement
+    return self.call(node, directory, where, inline)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/walk/mut/scripts/ci_shell_walk.py", line 768, in call
+    result = self.builtin(args, node, directory, where, prefix)
+  File "<scratch>/walk/mut/scripts/ci_shell_walk.py", line 830, in builtin
+    self.audit.command(args, where, directory)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/walk/mut/scripts/ci_command_table.py", line 333, in command
+    self.python_command(words, where, directory, row)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/walk/mut/scripts/ci_command_table.py", line 480, in python_command
+    self.script(rest[0], where, directory, kind='isolated' if '-I' in flags else '')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/walk/mut/scripts/ci_command_table.py", line 234, in script
+    self.python_program(path, relative, working, isolated)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/walk/mut/scripts/ci_python_walk.py", line 110, in python_program
+    self.python(path.read_text(), relative, working)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/walk/mut/scripts/ci_python_walk.py", line 351, in python
+    self.python_calls(calls, assignments, where)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/walk/mut/scripts/ci_python_walk.py", line 546, in python_calls
+    self.command(value, f'{where}:{line}', working)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/walk/mut/scripts/ci_command_table.py", line 337, in command
+    self.git_command(words, where, directory, row)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<scratch>/walk/mut/scripts/ci_command_table.py", line 513, in git_command
+    raise Refusal(f'unclassified git command at {where}: {shlex.join(words)}')
+ci_command_table.Refusal: unclassified git command at scripts/docs_inventory.py:682: git -C '<dynamic>' init --quiet

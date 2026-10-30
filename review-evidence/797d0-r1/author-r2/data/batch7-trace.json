@@ -1,0 +1,10 @@
+[
+ {"id": "D0-048", "page": "docs/reference/TRACE_EVENTS.md",
+  "quote": "Every event type the bare-metal end-station can write into its DRAM",
+  "source": "Nothing outside `sw/trace/` includes `milan_trace.h` or calls `MILAN_TRACE`; `sw/firmware/milan_baremetal/Makefile` builds `milan_baremetal.c` alone, so the shipping image writes no trace record; `docs/design/TRACE_LOGGING.md` lines 246-250 leave the integration to the board",
+  "correction": "Say the catalogue is the ABI of the producer in `sw/trace/`, which the shipping bare-metal image does not link yet (the text comes from `sw/trace/gen_trace_events.py` line 117)."},
+ {"id": "D0-049", "page": "docs/reference/TRACE_EVENTS.md",
+  "quote": "Saved-state journal: 0x7C0 verdict + 0x7C4 SEQ, and the A/B slot decision on the write side.",
+  "source": "`hdl/milan/milan_datapath.sv` lines 6678-6679 tie `jnl_stat_w` and `jnl_seq_w` (0x7C0, 0x7C4) to zero: the journal-ingest CSR face is a structural zero, and the saved-state verdicts now live in the firmware's slot judgement (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 463-465, 1641-1675)",
+  "correction": "Describe the journal event from the firmware's slot verdicts (`nvm_verdict_a`/`_b`, the chosen slot) instead of the retired CSR pair; the text comes from `sw/trace/milan_trace.yaml`."}
+]

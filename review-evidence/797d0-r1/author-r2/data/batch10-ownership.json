@@ -1,0 +1,6 @@
+[
+ {"id": "D0-055", "page": "docs/reference/PP_DESCRIPTOR_OWNERSHIP.md",
+  "quote": "Each accepted; no semantic refusal",
+  "source": "`python3 scripts/audit_pp_descriptors.py` at this head: the packer probes for L10 (nine rate words, offset 143, count/extent mismatch, one byte short), L6 (source list reversed), L4 (buffer 2125999 ns, 47 formats) and L1, L2, L7, L8, L9 and ADP are all refused, by the processor's default model lint that #661 adopted (processor PR #144; the page's own lines 28 and 183 say so); the table records the earlier audit pin",
+  "correction": "Regenerate the processor rows from the current receipt, or mark the table as the record of the earlier pin and drop the PP60 defence-in-depth sentence that the lint has discharged."}
+]

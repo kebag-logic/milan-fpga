@@ -1,0 +1,25 @@
+head 3e6d92c17bd1d2118e9bc3d8a0e1fae90a69e8ee
+baseline selftest rc=0 check rc=0
+check-always-fresh: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+check-returns-0-when-stale: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+git-listing-includes-untracked: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+git-listing-keeps-gitlinks: selftest SURVIVED (rc=0); check on real tree PASSED (rc=0) (EQUIVALENT, not counted)
+locate-never-finds: selftest KILLED (rc=1); check on real tree CAUGHT (rc=1)
+status-rule-removed: selftest KILLED (rc=1); check on real tree CAUGHT (rc=1)
+release-facing-extra-alternative: selftest SURVIVED (rc=0); check on real tree PASSED (rc=0) (EQUIVALENT, not counted)
+lines-off-by-one: selftest KILLED (rc=1); check on real tree CAUGHT (rc=1)
+lines-unterminated-dropped: selftest KILLED (rc=1); check on real tree CAUGHT (rc=1)
+readme-only-not-a-document: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+banner-scan-1-line: selftest KILLED (rc=1); check on real tree CAUGHT (rc=1)
+invariant-never-runs: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+invariant-reads-wrong-cell: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+invariant-ignores-findings: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+check-on-the-real-tree: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+write-to-the-real-tree: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+refusal-exits-1: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+judged-current-wins: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+walk-includes-submodules: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+restored selftest rc=0 check rc=0
+hook environment: selftest rc=0 check rc=0; victim index UNCHANGED
+git-environment-not-cleaned under the hook environment: selftest KILLED (rc=1); victim index UNCHANGED
+counted mutants: 18, killed 18, survived 0

@@ -1,0 +1,51 @@
+[
+ {
+  "page": "docs/reference/EGRESS_QUEUE_MAP.md",
+  "v": {
+   "3": "ok: hdl/milan/milan_datapath.sv:654-664 no general-data TX chain; milan_csr.sv:1996-2000 CAP.CBS 0",
+   "33": "ok: NUM_QUEUES 5 (milan_csr.sv CAP reset 4'(NUM_QUEUES)); ethernet_packet_pkg.sv:217-223 five classes",
+   "37": "ok: ethernet_packet_pkg.sv:222 SRA_CLASS q4",
+   "38": "F: D0-028",
+   "39": "F: D0-028 (the swapped pair)",
+   "40": "ok: ethernet_packet_pkg.sv:219 CONTROL_CLASS q1",
+   "41": "ok: ethernet_packet_pkg.sv:218 BEST_EFFORT q0",
+   "43": "ok: hdl/ieee8021q/ts/traffic_class_map.sv:222-225 clamps a queue index >= NUMBER_OF_QUEUES to BEST_EFFORT; the focused suites exist (tb/verilator/classifier, queues, cbs)",
+   "55": "ok: ethernet_packet_pkg.sv:276-282 450 Mb/s; hiCredit 1522*0.45 = 684, loCredit 1522*(-0.55) = -837 (calc_hi/lo_credit, lines 301-318)",
+   "56": "ok: same, 150 Mb/s, 228, -1293",
+   "57": "ok: same, 50 Mb/s, 76, -1445",
+   "58": "ok: same, 50 Mb/s, 76, -1445",
+   "59": "ok: same, 25 Mb/s, 38, -1483",
+   "61": "ok: 450+150+50+50+25 = 725 Mb/s = 72.5 %, under the 75 % ceiling (ethernet_packet_pkg.sv:287-288)",
+   "66": "ok: historical (#530 CLOSED) and the not-instantiated statement as line 3",
+   "77": "ok: #551 CLOSED; REGISTER_MAP 0x750 [6] ACTIVE AND real grant",
+   "84": "ok: licence rule of #551 (REGISTER_MAP 0x750 [6]/[7])",
+   "87": "ok: same rule",
+   "92": "ok: processor #112 adopted through #508 (CLOSED)",
+   "98": "ok: REGISTER_MAP 0x750 [6]/[7] and 0x694 [6] OR of raw ACTIVE, [8] stream gate",
+   "104": "ok: milan_datapath.sv:8552-8558",
+   "109": "ok: milan_datapath.sv:8812-8818 timer-driven gPTP source, RX tap stamp, TX launch since #360",
+   "119": "ok: the classifier keeps the 0x88F7 rule; not instantiated (line 3)",
+   "131": "ok: no ingress queue CSR in milan_csr.sv",
+   "137": "ok: as line 3"
+  }
+ },
+ {
+  "page": "docs/reference/MILAN_FEATURE_STATUS.md",
+  "v": {
+   "3": "ok: scripts/check_feature_status.py checks the marked rows",
+   "8": "ok: same script's population rule",
+   "12": "ok: gate a027 rc 0 at round 1; --self-test defined (auto)",
+   "16": "ok: scripts/check_feature_status.py:25 ALLOWED_STATUSES",
+   "21": "policy: CONTRIBUTING submodule durability rule",
+   "30": "ok: the three prose forms are rows 38-40; #98 CLOSED is the history cited",
+   "38": "ok: scripts/check_feature_status.py:175 facts.gateware_version",
+   "39": "ok: scripts/check_feature_status.py:110 COUNT_FACTS",
+   "40": "ok: scripts/check_feature_status.py:120, 192 firmware_boot_order compared as a sequence",
+   "45": "ok: example block marked historic",
+   "51": "ok: value_documents in the ledger JSON",
+   "121": "ok: #510 owner decision cited; P4 (#416)",
+   "129": "ok: the missing-mandatory list is the ledger's",
+   "136": "ok: facts object keys (check_feature_status.py:175-198)"
+  }
+ }
+]

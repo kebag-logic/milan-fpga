@@ -1,0 +1,16 @@
+[
+ {
+  "id": "D0-058",
+  "page": "docs/reference/REGISTER_MAP.md",
+  "quote": "**Nothing in this device persists a binding across a power cycle.** The",
+  "source": "`hdl/milan/KL_pp_shadow.sv` line 1123 instantiates `KL_nvm_backend` behind the processor's NVM face (the blank-flash responder is gone; the page's own `PP_STAT` notes at lines 2390-2406 describe `nvm_backed` and the firmware journal writer); `docs/design/SAVED_STATE_MATERIALIZATION.md` line 163: the binding survives a cold power cycle on silicon since 2026-09-21 (#70)",
+  "correction": "Keep the 0x7A0 port a dead CSR face, and say that bindings persist through the processor's restore walk and `KL_nvm_backend`, pointing at the `PP_NVM_*` and `PP_STAT` rows."
+ },
+ {
+  "id": "D0-059",
+  "page": "docs/reference/REGISTER_MAP.md",
+  "quote": "is **not met by this build**. The",
+  "source": "Same as D0-058: the bound state is saved and restored by the processor's walk over `KL_nvm_backend` and the firmware's A/B journal, and survives a cold cycle on silicon (#70); only this retired 0x7B8 ingest face is dead (`hdl/milan/milan_datapath.sv` lines 6678-6679)",
+  "correction": "Say that this CSR face is retired and that Milan v1.2 5.3.8.2 is served by the saved-state store, with the open physical items (#70)."
+ }
+]

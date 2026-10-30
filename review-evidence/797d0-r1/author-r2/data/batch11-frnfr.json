@@ -1,0 +1,6 @@
+[
+ {"id": "D0-056", "page": "docs/reference/FR_NFR.md",
+  "quote": "Its default is bare-metal control over packet mailboxes.",
+  "source": "Same as D0-001 and D0-033: `sw/litex/milan_soc.py` line 2621, `--ctrl-mailbox` defaults off and the default build carries no mailbox; the paragraph's first and fifth lines say all-fabric is the shipping default",
+  "correction": "Say that the Mark II split placement puts the selected functions in bare-metal firmware and that the default build keeps all five in fabric."}
+]

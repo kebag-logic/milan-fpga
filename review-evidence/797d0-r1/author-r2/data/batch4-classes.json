@@ -1,0 +1,22 @@
+[
+ {"id": "D0-040", "page": "docs/reference/REGISTER_MAP_CLASSES.md",
+  "quote": "**Nothing in this device persists a binding across a power cycle**",
+  "source": "`docs/design/SAVED_STATE_MATERIALIZATION.md` line 163: the binding survives a cold power cycle on silicon since 2026-09-21 (#70), through `KL_nvm_backend` (`hdl/milan/KL_pp_shadow.sv` line 1123) and the firmware journal writer (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1393 and 1641); only this retired journal-ingest CSR face is a structural zero (`hdl/milan/milan_datapath.sv` line 6678)",
+  "correction": "Keep the row a structural zero for its CSR face and point at the saved-state store that does persist bindings (`PP_NVM_*`, 0x934-0x93C)."},
+ {"id": "D0-041", "page": "docs/reference/REGISTER_MAP_CLASSES.md",
+  "quote": "`S50milan` writes these every boot.",
+  "source": "`S50milan` was the retired Linux init script: `scripts/check_baremetal_only.py` line 1625 forbids `sw/init.d/S50milan`, and the test benches call its write \"the retired S50milan poke\" (`tb/verilator/milan_dp/sim_main.cpp` line 464); the bare-metal `milan_init()` writes the identity and enables (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1799-1802)",
+  "correction": "Say that the bare-metal firmware writes these words at every boot."},
+ {"id": "D0-042", "page": "docs/reference/REGISTER_MAP_CLASSES.md",
+  "quote": "| `0x4xx` | CBS queue window, classifier map | **needed** | live |",
+  "source": "`docs/reference/EGRESS_QUEUE_MAP.md` lines 3-12 and `hdl/milan/milan_datapath.sv` lines 654-664: no classifier, queue or shaper is instantiated since VERSION 0x0056, so the 0x4xx words are write-only scratch and `CAP.CBS` reads 0 (`hdl/common/csr/milan_csr.sv` lines 1996-2000)",
+  "correction": "Mark the group write-only scratch with no consumer in the shipping image, and drop \"boot software programs it\" as production configuration."},
+ {"id": "D0-043", "page": "docs/reference/REGISTER_MAP_CLASSES.md",
+  "quote": "Saved-state restoration remains absent",
+  "source": "`docs/design/SAVED_STATE_MATERIALIZATION.md` lines 19-23 and 203: since #637 `milan_datapath` writes channel-map records 0x60 and 0x70 and restores them after the D3 walk's COMPLETE terminal",
+  "correction": "Say that the channel maps are saved and restored by the parent (#637), and that their board cold cycle is still owed."},
+ {"id": "D0-044", "page": "docs/reference/REGISTER_MAP_CLASSES.md",
+  "quote": "   persistence remains absent.",
+  "source": "Same as D0-043 and D0-040: bindings, scalar records and channel maps are written to and restored from the journal",
+  "correction": "Replace with the implemented saved state and what still lacks physical evidence (names and channel maps across a board cold cycle)."}
+]
