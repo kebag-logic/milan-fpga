@@ -1,0 +1,47 @@
+HEAD 8b28ebaf035e786ccf5b8e50098dbc111f51831f
+TREE 1a9c6972e1e2c19edd9138e1d481a1bbcbe4fd4a
+INDEX-TREE 1a9c6972e1e2c19edd9138e1d481a1bbcbe4fd4a
+STATUS(incl. ignored, sw/ scripts/ ci/ docs/):
+!! scripts/__pycache__/
+!! sw/builder/__pycache__/
+!! sw/builder/out/
+!! sw/firmware/gtest/__pycache__/
+!! sw/litex/__pycache__/
+!! sw/litex/platforms/__pycache__/
+!! sw/mailbox/__pycache__/
+STATUS(tracked, whole tree):
+DIFF-vs-HEAD: 0 lines
+GITLINKS:
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit f97c18035be6ef5345e5af27db2124c5697c1b40	gptp-processor
+160000 commit f65c8ff7c673aaa8e2ea8da654f081ddb13588d8	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+SUBMODULE-STATUS:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ f97c18035be6ef5345e5af27db2124c5697c1b40 gptp-processor (f97c180)
+ f65c8ff7c673aaa8e2ea8da654f081ddb13588d8 protocol-processor (v2.0-841-gf65c8ff)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+after removing the session's ignored artifacts:
+HEAD 8b28ebaf035e786ccf5b8e50098dbc111f51831f
+INDEX-TREE 1a9c6972e1e2c19edd9138e1d481a1bbcbe4fd4a
+status --ignored (whole tree, excluding submodule internals):
+!! avdecc/__pycache__/
+!! configs/generated/ltn_rom.hex
+!! configs/generated/ucode.hex
+!! tb/verilator/gptp_txts/obj_pad/
+(end)
+after removing the aggregate's generated files:
+HEAD 8b28ebaf035e786ccf5b8e50098dbc111f51831f INDEX-TREE 1a9c6972e1e2c19edd9138e1d481a1bbcbe4fd4a
+status --ignored:
+(end: empty means clean)
+gitlinks:
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ f97c18035be6ef5345e5af27db2124c5697c1b40 gptp-processor (f97c180)
+ f65c8ff7c673aaa8e2ea8da654f081ddb13588d8 protocol-processor (v2.0-841-gf65c8ff)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
