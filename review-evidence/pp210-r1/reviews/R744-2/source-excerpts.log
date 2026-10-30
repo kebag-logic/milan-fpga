@@ -1,0 +1,179 @@
+
+docs/architecture/02_interfaces.md
+4: **In short.** The top presents six kinds of face: class A, the MAC receive and transmit
+5: byte streams; class B, the request and response contracts (`srp`, `maap`) and the read
+6: faces for gPTP, AVTP, media clock and counters; class C, event strobes; class D, level
+7: status wires, every one named once in F02.10; class E, the management side port; and
+8: class F, the NVM port. All of them are in the one core clock domain, and every clock-domain
+9: crossing, the MAC FIFOs included, is the integrator's but one: with
+10: P-EN-IDENTIFY-NOTIFICATION = 1, `identify_button_i` passes the processor's own two-flop
+11: synchronizer (§2 rule 3). Each class has one template
+12: handshake and per-instance tables. The [integrator guide](../guides/integrator.md) is the
+13: task-shaped view of the same contract.
+
+docs/architecture/02_interfaces.md
+280: `P-EN-SRP-ENGINE` selects it (the [F01.5](01_overview.md#7-parameter-master-table-f015) default), or by an external SRP stack otherwise — the ops, events
+281: and status signals below are identical either way; no consumer can tell the
+282: difference. That includes the shaper: the contract publishes the granted
+283: per-source idleSlope and admission (class-D) because IEEE 802.1Q §34.3(d) makes
+284: `operIdleSlope` the value "used by the credit-based shaper algorithm (8.6.8.2)
+285: as the idleSlope for the corresponding queue", §34.3.2 makes SRP its sole
+286: source whenever SRP is supported (§34.3(c): `adminIdleSlope` then has no
+287: effect), and §34.6.1 sets a Talker's per-stream idleSlope to that stream's
+288: bandwidth requirement, the per-stream value this field carries — an external
+289: stack must publish the same two fields or it cannot serve this contract.
+290: 
+
+docs/architecture/06_aecp_engine.md
+1427: **µISA (30 operations)** — revised from the original document
+1428: ([review §4](../00_MILAN_COMPLIANCE_REVIEW.md); dropped ops targeted objects that do
+1429: not exist in a Milan PAAD):
+1430: 
+1431: | Group | Ops | Notes |
+1432: |---|---|---|
+1433: | Flow | `NOP`, `BRANCH`, `BRANCH_IF_STATUS`, `END` | |
+1434: | Data | `MOVE`, `COMPARE`, `SET_MASKED`, `SHIFT_R` | flag-word assembly; `SHIFT_R` shifts the 64-bit operand right, logically, by `imm[5:0]` |
+1435: | Model | `DESC_ADDR`, `READ_STATE`, `WRITE_STATE`, `NAME_RD`, `NAME_WR`, `COPY_BUFFER` | image+overlay via [07 §3](07_memory_maps.md); `COPY_BUFFER` with `cnd` TAIL copies a descriptor's tail, its length less a lane-aligned start (§6.1) |
+1436: | Checks | `CHECK_LOCK`, `CHECK_ARG`, `MAP_VALIDATE` | first failure sets status + branches |
+1437: | Gather | `GATHER_EXT`, `READ_COUNTERS` | atomic snapshots (§6.2, §6.6) |
+1438: | Iterate | `ITER_OPEN`, `ITER_NEXT`, `APPEND_RESP` | GDI + list responses; APPEND has skip-on-overflow semantics: it skips a field that would end past cdl 524, or, with `cnd` D8 (the Milan §5.4.1 record loop, §3) and outside a GET_DYNAMIC_INFO batch, past the response buffer (`RESP_D8_CAP_BYTES_P`, 592) |
+1439: | Effects | `COMMIT`, `NVM_MARK`, `NOTIFY_ENQ` | commit is the atomicity point |
+1440: | Respond | `SET_STATUS`, `SET_LENGTH`, `BUILD_HEADER`, `BUILD_FIELD`, `SEND_RESPONSE` | |
+1441: 
+1442: Dropped from the original sketch: `ALLOCATE/RELEASE_CONNECTION`,
+
+hdl/aecp/ucpu_pkg.sv
+48:   // ---- the 29 operations of 06 §8, group order --------------------------
+49:   typedef enum logic [4:0] {
+50:     // Flow
+51:     OP_NOP        = 5'd0,
+52:     OP_BRANCH     = 5'd1,
+53:     OP_BR_STATUS  = 5'd2,   // BRANCH_IF_STATUS
+54:     OP_END        = 5'd3,
+55:     // Data
+56:     OP_MOVE       = 5'd4,
+57:     OP_COMPARE    = 5'd5,
+58:     OP_SET_MASKED = 5'd6,
+59:     // Model (image + overlay via 07 §3)
+60:     OP_DESC_ADDR  = 5'd7,
+61:     OP_READ_ST    = 5'd8,   // READ_STATE
+62:     OP_WRITE_ST   = 5'd9,   // WRITE_STATE
+63:     OP_NAME_RD    = 5'd10,
+64:     OP_NAME_WR    = 5'd11,
+65:     OP_COPY_BUF   = 5'd12,  // COPY_BUFFER
+66:     // Checks
+67:     OP_CHECK_LOCK = 5'd13,
+68:     OP_CHECK_ARG  = 5'd14,
+69:     OP_MAP_VALID  = 5'd15,  // MAP_VALIDATE
+70:     // Gather
+71:     OP_GATHER_EXT = 5'd16,
+72:     OP_READ_CTRS  = 5'd17,  // READ_COUNTERS
+73:     // Iterate
+74:     OP_ITER_OPEN  = 5'd18,
+75:     OP_ITER_NEXT  = 5'd19,
+76:     OP_APPEND     = 5'd20,  // APPEND_RESP (skip-on-overflow, 06 §8)
+77:     // Effects
+78:     OP_COMMIT     = 5'd21,
+79:     OP_NVM_MARK   = 5'd22,
+80:     OP_NOTIFY_ENQ = 5'd23,
+81:     // Respond
+82:     OP_SET_STATUS = 5'd24,
+83:     OP_SET_LENGTH = 5'd25,
+84:     OP_BUILD_HDR  = 5'd26,  // BUILD_HEADER
+85:     OP_BUILD_FLD  = 5'd27,  // BUILD_FIELD
+86:     OP_SEND_RESP  = 5'd28,  // SEND_RESPONSE
+87:     OP_SHIFT_R    = 5'd29   // logical right shift by imm[5:0]
+88:   } ucpu_op_e;
+
+hdl/aecp/KL_aecp_ucpu.sv
+675:                              : a_fmt_w;
+676:                 end
+677:                 OP_SET_MASKED: begin
+678:                   wb_we_r <= 1'b1; wb_rd_r <= uop_e_r.rd;
+679:                   wb_data_r <= merged_w;
+680:                 end
+681:                 OP_SHIFT_R: begin
+682:                   wb_we_r <= 1'b1; wb_rd_r <= uop_e_r.rd;
+683:                   wb_data_r <= opa_e_r >> uop_e_r.imm[5:0];
+684:                 end
+685:                 OP_READ_ST, OP_NAME_RD: begin
+686:                   wb_we_r <= 1'b1; wb_rd_r <= uop_e_r.rd;
+
+hdl/aecp/KL_aecp_notify.sv
+1022:   if (EN_IDENTIFY_NOTIF_P) begin : gen_ident
+1023:     //! Figure 7-142 WAITING; IDENTIFY split into its frames and their gaps
+1024:     localparam logic [1:0] I_WAIT = 2'd0;   // WAITING
+1025:     localparam logic [1:0] I_SEND = 2'd1;   // a frame is with the engine, then leaving
+1026:     localparam logic [1:0] I_GAP  = 2'd2;   // T-IDENT-BURST to the next frame
+1027:     localparam logic [1:0] I_HOLD = 2'd3;   // burst sent, until the timeout
+1028:     logic [1:0]  i_st_r;
+1029:     //! the 2FF synchroniser, the one CDC inside the core (integrator guide
+1030:     //! section 1: the pin to btn_q1_r is the integrator's to constrain)
+1031:     (* ASYNC_REG = "TRUE" *) logic btn_q1_r;
+1032:     (* ASYNC_REG = "TRUE" *) logic btn_q2_r;
+1033:     logic        job_r;                //! a frame is owed to the engine
+
+hdl/aecp/KL_aecp_notify.sv
+1093:         armb_r   <= 1'b0;
+1094:         armr_r   <= 1'b0;
+1095:       end else begin
+1096:         btn_q1_r <= identify_button_i;
+1097:         btn_q2_r <= btn_q1_r;
+1098:         if (id_arm_gnt_w) begin        // BURST first, then REARM
+1099:           if (armb_r) armb_r <= 1'b0;
+
+README.md
+28: [docs/INVENTORY.md](docs/INVENTORY.md) lists every page with its audience and whether it
+29: describes the tree today; the pages under its [Retired](docs/INVENTORY.md#retired) heading
+30: are kept for provenance only, and each says so in a banner.
+
+tb/nvm_port/README.md
+4: **In short.** The class F NVM port on its own, against independent device models: its
+5: handshakes, its device-face deadline, its behaviour across resets, and the coverage of every
+6: device-error arm. `make` builds and runs the suite at each of its deadline bounds, then the
+7: randomized harness at each of the harness's bounds (the [Makefile](Makefile)'s `BUILDS`
+8: counts them);
+9: `make figures` re-measures every figure this page quotes and fails if the page has
+10: drifted, and CI runs it.
+11: 
+
+tb/nvm_port/Makefile
+17: TMO       = 100
+18: TMO_ALT   = 37
+19: TMO_MIN   = 20
+20: FUZZ_TMOS = 1 2 3 37
+
+tb/nvm_port/Makefile
+41: BUILDS = $(words 1 2 3 $(FUZZ_TMOS))
+42: 
+43: # Each build prints its own tally and adds it to obj_dir/build_tally.txt; the
+44: # last line printed is the sum, which is the line run_suites.sh reads.
+45: run: elab
+46: 	@mkdir -p obj_dir && rm -f obj_dir/build_tally.txt
+47: 	$(call suite,$(TMO),obj_dir)
+48: 	$(call suite,$(TMO_ALT),obj_alt)
+49: 	$(call suite,$(TMO_MIN),obj_min)
+50: 	$(foreach t,$(FUZZ_TMOS),$(call fuzz_at,$(t)) && ) true
+51: 	@awk '{c += $$1; f += $$2} END {if (NR != $(BUILDS)) {print "FAIL: " NR " build tallies, expected $(BUILDS)"; exit 1} printf "%d checks: %d PASS, %d FAIL\n", c, c - f, f; exit (f != 0)}' \
+52: 	    obj_dir/build_tally.txt
+53: 
+
+docs/diagrams/22-aecp-descriptor-fetch.svg
+151:   <text x="878" y="781" font-size="10.5" fill="#a03030">60-byte ENTITY_MISBEHAVING</text>
+152:   <text x="878" y="798" font-size="10" fill="#4a5058">built entirely from registers.</text>
+153: 
+154:   <text x="42" y="852" font-size="11" fill="#16181d">All three faults are counted. The side-port snapshot window is where an integrator sees WHICH channel failed and how often — see the operator guide.</text>
+155:   <text x="42" y="876" font-size="11" fill="#4a5058">Latency is affordable by design: IEEE 1722.1-2021 §9.2.1.1 gives a controller 100 ms before it retries, against roughly one microsecond per memory access.</text>
+156:   <text x="42" y="900" font-size="11" fill="#4a5058">Modules: hdl/aecp/KL_aecp_engine.sv · KL_aecp_ucpu.sv · KL_aecp_desc_store.sv · KL_aecp_desc_mem_guard.sv · KL_aecp_resp_buf.sv</text>
+157:   <text x="42" y="924" font-size="11" fill="#4a5058">Suites that prove this path end to end: tb/desc_store, tb/desc_mem_guard, tb/resp_buf, tb/ucpu and scenario A + section B of tb/pp_top.</text>
+158: </svg>
+
+docs/guides/hdl-engineer.md
+313: |---|---|
+314: | ADP advertise machine has four states, not three | [F04.2](../architecture/04_adp_engine.md#fig-04-advsm) draws DOWN / DELAY / WAITING. [`pp_adp_pkg`](../../hdl/adp/pp_adp_pkg.sv) splits the delay into its two real hardware phases: `ADP_ADV_DRAW` (the PRNG rejection sampler is running) then `ADP_ADV_DELAY` (the timer is armed). The banner records this as a deliberate refinement of the figure, and the state is externally visible — see the [operator guide](operator.md). |
+315: | No dispatch ROM exists | [06 §4](../architecture/06_aecp_engine.md) specifies a dispatch ROM per opcode and [06 §8](../architecture/06_aecp_engine.md) fixes its entry shape, but no ROM and no generator ship. [`KL_aecp_engine`](../../hdl/aecp/KL_aecp_engine.sv) decodes the opcode directly, in two stages (pop, then a registered re-dispatch at the payload-walk exit), and its banner records that as a documented choice ([06 §8.1](../architecture/06_aecp_engine.md)). |
+316: | The transaction record has four origins; dispatch carries one | [03 §4](../architecture/03_packet_engine.md) keeps the RX / TIMER / SELF / MGMT origin field, and the normalizer has a producer port for each, but the top stamps RX alone: expiries reach their owners on the timer's expiry bus, AECP unsolicited responses (IDENTIFY_NOTIFICATION among them) are the engine's own SELF jobs on TX lane 1, and there is no MGMT producer. [03 §5](../architecture/03_packet_engine.md#5-origins-originator-and-event-router) now states this landed shape; the three ports stay tied off. |
+317: | The descriptor image is not on chip | Two places still show it inside the on-chip RAM complex: the rendered F03.1 figure, which says so under the image, and the `P-DESCR-IMAGE-BYTES` parameter, which has no consumer in the RTL. The current truth is [07 §3.3](../architecture/07_memory_maps.md) and diagram 22. |
+318: 
+319: ---
+320: 

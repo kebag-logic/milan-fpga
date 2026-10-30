@@ -1,0 +1,30 @@
+inventory selftest: clean fixture: clean
+inventory selftest: row dropped: caught
+inventory selftest: new page without a row: caught
+inventory selftest: row for a missing file: caught
+inventory selftest: duplicate row: caught
+inventory selftest: unknown status: caught
+inventory selftest: empty evidence: caught
+inventory selftest: cell dropped: caught
+inventory selftest: superseded page lost its banner: caught
+inventory selftest: current page carries a banner: caught
+inventory selftest: inventory emptied: caught
+inventory selftest: inventory deleted: caught
+inventory selftest: µISA clean fixture: clean
+inventory selftest: µISA count stale: caught
+inventory selftest: operation missing from the table: caught
+inventory selftest: table names an undeclared operation: caught
+inventory selftest: operation listed twice: caught
+inventory selftest: enum member in another form: caught
+inventory selftest: no µISA heading: caught
+inventory selftest: no operation enum: caught
+inventory selftest: targets clean fixture: clean
+inventory selftest: check runs a target the table lacks: caught
+inventory selftest: table names a target check does not run: caught
+inventory selftest: no check rule: caught
+inventory selftest: defining file missing: caught
+inventory selftest: 25 cases, OK
+INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: says 29 operations, the enum declares 30
+INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: table lacks SHIFT_R
+inventory: 63 Markdown files, 2 FAILURES
+make: *** [Makefile:77: inventory] Error 1

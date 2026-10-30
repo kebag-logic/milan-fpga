@@ -1,0 +1,28 @@
+a9e84b66..HEAD changed paths: 36
+Non-Markdown changes: Makefile, scripts/check-doc-inventory.py, scripts/check-links.py
+New workflow-label occurrences: {}
+Retained review-label occurrences in changed files: 178
+Added workflow-labelled lines (retained labels can appear in edited sentences):
++| `cfg-valid-no-reset` | pp_top `adp-config` | the valid flag has no reset, so it survives a reset that clears the row (review R406-1 F-1) | 5: AD7 (after a SUCCESS SET_CONFIGURATION(0) and a reset with nothing to restore, the advert carries the overlay's reset 0 while GET reads the image default 1, and the flag split from the store's), AD6, AD8 and AD9 likewise after the roll-back, the corrupt record and the torn read, and the flag split in AD5 until the restore writes the row (9 since the change for issues #52, #59, #61, #62, #63 and #83 added AD8 and AD9) |
++| `sctrl-badarg-zero-body` | E_SCTRL's out-of-range arm branches to the zero-bodied E_BADARG1 again, as at the change's base (R416-1 F1) | `LK3b IDENTIFY at 255, the holder's SET_CONTROL(128) carries 255: BAD_ARGUMENTS byte-exact` | 2 |
++  decision (review R420-1 S4, retained): the limiter predates this change and counts
++| `tf-heads-swapped` | lockstep, R458-1 | each FIFO head reads the other FIFO's memory | TF1, TF2 | 2 | 2 | 2 | 2 | 4 of 4 |
++| `walk-record-written-on-close` | lockstep, R459-1 (`wtsp-written-on-close`) | walk records also written by a gate close | WK3 | 1 | 1 | 1 | 1 | 4 of 4 |
++| `wtsp-first-open-only` | lockstep, R458-1 | walk TSpec written only by a source's first open | WK2, WK3, WK4, WK9 | 4 | 6 | 8 | 20 | 4 of 4 |
++| `wtsp-read-at-gate-source` | lockstep, R458-1 | walk TSpec read at the gate source | WK1, WK2, WK4, WK9 | 1 | 6 | 13 | 49 | 4 of 4 |
++| `wid-ram-first-open-only` | lockstep, R458-1 | RAM {stream_id, DA, VLAN} written only by the first open | WK2, WK3, WK4, WK9 | 0 (n/e) | 0 (n/e) | 8 | 20 | 2 of 4 |
++| `wid-ram-read-at-gate-source` | lockstep, R458-1 | RAM {stream_id, DA, VLAN} read at the gate source | WK1, WK2, WK4, WK9 | 0 (n/e) | 0 (n/e) | 13 | 49 | 2 of 4 |
++| `wid-flops-da-of-gate-source` | lockstep, R458-1 | flop arm reads the gate source's DA | WK1, WK2, WK4, WK9 | 1 | 6 | 0 (n/e) | 0 (n/e) | 2 of 4 |
++| `wsid-ram-first-settle-only` | lockstep, R458-1 | RAM stream_id written only by the first settle | WK8, WK10, WK12 (since issue #188's second round) | 0 (n/e) | 0 (n/e) | 11 | 19 | 2 of 4 |
++| `wsid-ram-written-on-teardown` | lockstep, R458-1, R459-1 | RAM stream_id also written by a teardown | WK7 | 0 (n/e) | 0 (n/e) | 1 | 1 | 2 of 4 |
++| `wsid-flops-of-control-sink` | lockstep, R458-1 | flop arm reads the control sink's stream_id | WK6, WK8, WK10, WK12 (since issue #188's second round) | 0 (equivalent in simulation) | 6 | 0 (n/e) | 0 (n/e) | 1 of 4 |
++| `slope-stored-at-stage-2-index` | lockstep, R458-1, R459-1 (`slope-store-at-stage-1-index`) | slope written at `cidx_q1_r`, not `cidx_q2_r` | 0 (equivalent) | 1,333 of 12,615 | 4,109 of 41,012 | 12,760 of 201,073 | 38,919 of 991,231 | 4 of 5 |
++"lockstep" names the change's own first lockstep controls, and "R458-1", "R459-1" and "R458-3"
+
+18a4dc1..HEAD changed paths: 12
+Non-Markdown changes: Makefile, scripts/check-doc-inventory.py
+New workflow-label occurrences: {}
+Retained review-label occurrences in changed files: 67
+Added workflow-labelled lines (retained labels can appear in edited sentences):
++| `cfg-valid-no-reset` | pp_top `adp-config` | the valid flag has no reset, so it survives a reset that clears the row (review R406-1 F-1) | 5: AD7 (after a SUCCESS SET_CONFIGURATION(0) and a reset with nothing to restore, the advert carries the overlay's reset 0 while GET reads the image default 1, and the flag split from the store's), AD6, AD8 and AD9 likewise after the roll-back, the corrupt record and the torn read, and the flag split in AD5 until the restore writes the row (9 since the change for issues #52, #59, #61, #62, #63 and #83 added AD8 and AD9) |
+
