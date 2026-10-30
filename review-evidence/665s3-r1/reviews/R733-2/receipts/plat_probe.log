@@ -1,0 +1,12 @@
+wrote <packet>/scratch/plat/head/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/plat/head/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/plat/head/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+HEAD arm plat: rc 0 (PASS);   verdict: PASS (2 tests, 0 failures, exit 0)
+HEAD arm platboot1: rc 0 (PASS);   verdict: PASS (10 tests, 0 failures, exit 0)
+HEAD arm platboot2: rc 0 (PASS);   verdict: PASS (10 tests, 0 failures, exit 0)
+MUTANT plat-command-read-past-its-end [plat] caught on Plat.K3LinesEndOnceAndOthersAreRefused 'crashed on signal 6' (required caught): as required; rc 1; 1 [FAIL] line(s); first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: crashed on signal 6
+MUTANT plat-saved-state-after-mailbox-open [platboot1] caught on Boot.B1ReachesReadyInStepOrder "B1 the saved state is read before the mailbox's first access" (required caught): as required; rc 1; 1 [FAIL] line(s); first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the saved state is read before the mailbox's first access
+MUTANT plat-store-service-unbound [platboot1] caught on Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop "B10 the bind is written back by the store's service on the loop's tick" (required caught): as required; rc 1; 2 [FAIL] line(s); first: [FAIL] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop: B10 the bind is written back by the store's service on the loop's tick
+MUTANT probe-saved-state-never-read [platboot1] caught on Boot.B1ReachesReadyInStepOrder 'B1 the boot reaches its ready state' (required caught): as required; rc 1; 6 [FAIL] line(s); first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the boot reaches its ready state
+MUTANT probe-compare-one-past [plat] caught on Plat.K3LinesEndOnceAndOthersAreRefused 'crashed on signal' (required caught): as required; rc 1; 1 [FAIL] line(s); first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: crashed on signal 6
+plat_probe: 6 of 6 as required

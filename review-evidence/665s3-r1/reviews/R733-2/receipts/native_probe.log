@@ -1,0 +1,24 @@
+COMMAND Vsim exited 0
+NATIVE-CONTROL native-passes: as required (run PASS, regrade PASS; required PASS, PASS); findings: [] / []
+COMMAND Vsim exited 1
+NATIVE-CONTROL native-exits-nonzero: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model exited 1'] / ['NATIVE: the model exited 1']
+COMMAND Vsim exited 0
+NATIVE-CONTROL native-tally-failed: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"] / ["NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+COMMAND Vsim exited 0
+NATIVE-CONTROL native-incomplete: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model printed no tally: it did not complete'] / ['NATIVE: the model printed no tally: it did not complete']
+COMMAND Vsim exited 1
+NATIVE-CONTROL native-fails-and-exits-nonzero: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings: ['NATIVE: the model exited 1', "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"] / ['NATIVE: the model exited 1', "NATIVE: the model's log reports a failure: its tallies report 1 failure(s) across 1 checks; FAIL: simulation exceeded its time limit"]
+COMMAND Vsim exited 0
+NATIVE-CONTROL native-status-not-saved: as required (run PASS, regrade NATIVE; required PASS, NATIVE); findings: [] / ['NATIVE: the run saved no exit status (sim.status), so how the model ended is unknown']
+ctrl_split_boot native controls: 6 of 6 as required
+PROBE 1 head native controls: as required (0 wrong)
+PROBE 2 probe-killed-by-signal: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings ['NATIVE: the model exited 245', 'NATIVE: the model printed no tally: it did not complete'] / ['NATIVE: the model exited 245', 'NATIVE: the model printed no tally: it did not complete']
+PROBE 2 probe-status-garbage: as required (run PASS, regrade NATIVE; required PASS, NATIVE); findings [] / ['NATIVE: the run saved no exit status (sim.status), so how the model ended is unknown']
+PROBE 2 probe-tally-unreadable: as required (run NATIVE, regrade NATIVE; required NATIVE, NATIVE); findings ['NATIVE: the model printed no tally: it did not complete'] / ['NATIVE: the model printed no tally: it did not complete']
+PROBE 3 status-ignored: killed by 1 control(s) ['native-exits-nonzero']
+PROBE 3 missing-status-ignored: killed by 1 control(s) ['native-status-not-saved']
+PROBE 3 nocount-ignored: killed by 1 control(s) ['native-incomplete']
+PROBE 3 failure-ignored: killed by 1 control(s) ['native-tally-failed']
+PROBE 3 regrade-reads-returncode-zero: killed by 2 control(s) ['native-exits-nonzero', 'native-status-not-saved']
+PROBE 3 run-not-saved: killed by 2 control(s) ['native-passes', 'native-status-not-saved']
+native_probe: PASS (0 not as required)

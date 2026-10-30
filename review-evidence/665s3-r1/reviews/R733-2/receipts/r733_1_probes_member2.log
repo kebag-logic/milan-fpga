@@ -1,0 +1,16 @@
+r733 campaign: mode --extras-only, 18 defects, member 2 of 3
+[ok] mutant r733-stopped-boot-console-silent (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B3RefusedImageStopsAtImage: B3 the console reports AEM=disabled
+[ok] mutant r733-store-service-not-bound (platboot1): 2 check(s) failed
+    first: [FAIL] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop: B10 the bind is written back by the store's service on the loop's tick
+[ok] mutant r733-srp-mac-unset (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B9SrpSourcesCarryTheGeneratedStreams: B9 the entity MAC on every interface
+wrote <packet>/scratch/r1camp-2/mutants/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/r1camp-2/mutants/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/r1camp-2/mutants/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ok] mutant r733-csr-dropped-uncounted (platboot2): 1 check(s) failed
+    first: [FAIL] Boot.B8PlatformPortsAnswerAsDocumented: B8 interface 1 has no window: its writes are dropped
+[ESCAPED] mutant r733-tod-no-snapshot-wait (plat): 0 check(s) failed, none named plat: its check on ''
+[ESCAPED] mutant r733-response-max-too-small (plat): 0 check(s) failed, none named plat: its check on ''
+mutants: 4 of 6 caught
+r733 campaign member 2/3: SOME ESCAPED
