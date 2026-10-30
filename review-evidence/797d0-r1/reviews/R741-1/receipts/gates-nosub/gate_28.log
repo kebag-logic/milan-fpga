@@ -1,0 +1,24 @@
+CONFIG ERROR: the gptp-processor submodule is not checked out, and its generator is the authority the gPTP descriptor dataset derives from ([R-parallel] on #228): run `git submodule update --init gptp-processor` before loading a config
+Traceback (most recent call last):
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/firmware/nvm_hosttest/test_nvm_firmware.py", line 1000, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/firmware/nvm_hosttest/test_nvm_firmware.py", line 970, in main
+    bench = replace(make_bench(cfg, work, firmware_text), jobs=max(1, a.jobs))
+                    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/firmware/nvm_hosttest/test_nvm_firmware.py", line 257, in make_bench
+    names, dc, spi, spo = build(cfg, work / "builder")
+                          ~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/scripts/nvm_shape.py", line 76, in build
+    subprocess.run([sys.executable, str(ROOT / "sw/builder/endstation_builder.py"),
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    str(cfg), "-o", str(out)],
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   check=True, cwd=ROOT, stdout=subprocess.DEVNULL)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['$REVIEWS/797d0-r741-1-packet/scratch/venv/bin/python3', '$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/endstation_builder.py', '$REVIEWS/797d0-r741-1-packet/scratch/nosub/configs/endstation_arty_4x4.yaml', '-o', '/tmp/nvmfw.wrd30dic/endstation_arty_4x4/builder']' returned non-zero exit status 1.
+
+[runner] rc=1 seconds=0.5

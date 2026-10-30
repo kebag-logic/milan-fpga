@@ -1,0 +1,57 @@
+OK	p00-unchanged	want=0	rc=0
+    documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+OK	p01-stale-page-append	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (3 lines differ); first difference at line 28:
+      committed: | current | 182 | 74,476 |
+      generated: | current | 182 | 74,477 |
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	p02-stale-page-heading	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 229:
+      committed: | [docs/guides/README.md](guides/README.md) | 48 | all readers | Choose your documentation path | -- | current | no recorded contradiction | D0 | overview and guides |
+      generated: | [docs/guides/README.md](guides/README.md) | 48 | all readers | Planted heading | -- | current | no recorded contradiction | D0 | overview and guides |
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	p03-edited-finding-quote	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 458:
+      committed: | D0-005 | [README.md](../README.md) | 470 | is **steerability**. `media_tick_p` is a compile-time constant with no | `hdl/ieee1722/crf/KL_media_nco.sv` (steerable media grid, 2026-08-10) and `hdl/iee
+      generated: | D0-005 | [README.md](../README.md) | re-verify: quote not found | is **steering**. `media_tick_p` is a compile-time constant with no | `hdl/ieee1722/crf/KL_media_nco.sv` (steerable media grid, 2026-
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	p04-edited-finding-source	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 454:
+      committed: | D0-001 | [README.md](../README.md) | 60 | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and the default build carri
+      generated: | D0-001 | [README.md](../README.md) | 60 | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and the default build carri
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	p05-fixed-statement-on-page	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 454:
+      committed: | D0-001 | [README.md](../README.md) | 60 | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and the default build carri
+      generated: | D0-001 | [README.md](../README.md) | re-verify: quote not found | ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware. | `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	p06-hand-edit-status-cell	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 121:
+      committed: | [AGENTS.md](../AGENTS.md) | 452 | maintainer | AGENTS.md - AI agent operating contract | `scripts`, `hdl`, 1722.1-2021, 1722-2016 | stale | no recorded contradiction | area lane | repository contrac
+      generated: | [AGENTS.md](../AGENTS.md) | 452 | maintainer | AGENTS.md - AI agent operating contract | `scripts`, `hdl`, 1722.1-2021, 1722-2016 | current | no recorded contradiction | area lane | repository contr
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	p07-hand-edit-quote-in-page	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 458:
+      committed: | D0-005 | [README.md](../README.md) | 470 | is **steering**. `media_tick_p` is a compile-time constant with no | `hdl/ieee1722/crf/KL_media_nco.sv` (steerable media grid, 2026-08-10) and `hdl/ieee172
+      generated: | D0-005 | [README.md](../README.md) | 470 | is **steerability**. `media_tick_p` is a compile-time constant with no | `hdl/ieee1722/crf/KL_media_nco.sv` (steerable media grid, 2026-08-10) and `hdl/iee
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	p08-untracked-md-ignored	want=0	rc=0
+    documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+OK	p09-new-tracked-md	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (258 lines differ); first difference at line 28:
+      committed: | current | 182 | 74,476 |
+      generated: | current | 183 | 74,478 |
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	p10-tracked-md-deleted	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (255 lines differ); first difference at line 28:
+      committed: | current | 182 | 74,476 |
+      generated: | current | 181 | 74,398 |
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	p11-untracked-build-output-ignored	want=0	rc=0
+    documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+OK	p12-malformed-data	want=2	rc=2
+    REFUSED: scripts/docs_inventory.json: not valid JSON: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+OK	p13-finding-on-untracked-page	want=2	rc=2
+    REFUSED: scripts/docs_inventory.json: finding D0-001 names an untracked page docs/NOPE.md
+OK	p14-same-length-body-edit	want=0	rc=0
+    documentation inventory: OK (476 lines, docs/DOCUMENTATION_AUDIT.md is fresh)

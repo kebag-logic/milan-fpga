@@ -1,0 +1,60 @@
+001	0	0s	git rev-parse HEAD && git status --short | wc -l
+002	0	1s	python3 scripts/gen_hdl_reference.py --selftest
+003	0	2s	d=$(mktemp -d) && python3 scripts/gen_hdl_reference.py --output "$d/ref"; rc=$?; rm -rf "$d"; exit $rc
+004	0	8s	python3 scripts/docs_check.py
+005	0	4s	python3 scripts/check_em_dash.py --base "$(git merge-base origin/dev HEAD)"
+006	0	4s	python3 scripts/check_em_dash.py --selftest
+007	0	0s	python3 scripts/check_doc_style.py
+008	0	0s	python3 scripts/check_doc_style.py --selftest
+009	0	0s	python3 scripts/check_gptp_docs.py
+010	0	0s	python3 scripts/check_gptp_docs.py --selftest
+011	0	1s	python3 docs/DOC_MAP.gen.py --check
+012	0	0s	python3 docs/DOC_MAP.gen.py --selftest
+013	0	0s	python3 docs/diagrams/timesync_chain.gen.py --check
+014	0	1s	python3 docs/diagrams/timesync_chain.gen.py --selftest
+015	0	0s	python3 scripts/check_solution_docs.py
+016	0	3s	python3 scripts/check_solution_docs.py --selftest
+017	0	1s	python3 docs/diagrams/submodule_boundaries.gen.py --check
+018	0	0s	python3 docs/diagrams/submodule_boundaries.gen.py --selftest
+019	0	1s	python3 scripts/check_submodule_docs.py
+020	0	0s	python3 scripts/check_submodule_docs.py --selftest
+021	0	0s	python3 scripts/gen_wavedrom.py --selftest
+022	0	1s	python3 scripts/gen_wavedrom.py docs/diagrams/wd_axis_backpressure.json --background=white --check
+023	0	0s	python3 scripts/gen_wavedrom.py docs/diagrams/wd_cdc_handshake.json --background=white --check
+024	0	0s	python3 scripts/gen_wavedrom.py docs/diagrams/wd_gptp_pdelay.json --background=white --check
+025	0	1s	python3 scripts/check_diagram_pngs.py
+026	0	7s	python3 scripts/check_diagram_pngs.py --selftest
+027	0	2s	python3 scripts/check_feature_status.py --self-test
+028	0	1s	python3 docs/traceability/gen_module_matrix.py --check
+029	0	0s	python3 scripts/check_gptp_docs.py --with-submodule
+030	0	1s	make -C gptp-processor docs
+031	0	0s	python3 scripts/measure_control_flow.py --selftest
+032	0	0s	python3 scripts/measure_cohesion.py --selftest
+033	0	28s	python3 scripts/check_baremetal_only.py --check
+034	0	6s	python3 scripts/check_baremetal_only.py --selftest
+035	0	2s	python3 scripts/check_nvm_record_space.py
+036	0	39s	python3 scripts/check_nvm_record_space.py --self-test
+037	0	1s	python3 scripts/check_nvm_capture.py
+038	0	0s	python3 scripts/check_soc_sources.py
+039	0	1s	python3 scripts/check_soc_sources.py --selftest
+040	0	2s	python3 sw/litex/iob_pack_selftest.py
+041	0	1s	python3 scripts/check_rtl_source_lists.py
+042	0	4s	python3 scripts/check_rtl_source_lists.py --selftest
+043	0	0s	python3 scripts/measure_naming.py --check
+044	0	1s	python3 scripts/measure_naming.py --selftest
+045	0	3s	python3 scripts/check_port_contracts.py
+046	0	3s	python3 scripts/check_port_contracts.py --selftest
+047	0	2s	python3 scripts/measure_fail_fast.py --check
+048	0	2s	python3 scripts/measure_fail_fast.py --selftest
+049	0	2s	python3 scripts/check_todo_ownership.py
+050	0	2s	python3 scripts/check_todo_ownership.py --selftest
+051	0	8s	python3 scripts/measure_test_evidence.py --check
+052	0	9s	python3 scripts/measure_test_evidence.py --selftest
+053	0	1s	python3 scripts/check_hygiene.py --check
+054	0	0s	python3 scripts/check_hygiene.py --selftest
+055	0	1s	python3 scripts/check_sv_idiom.py
+056	0	0s	python3 scripts/check_sv_idiom.py --selftest
+057	0	2s	python3 scripts/check_cpp_idiom.py
+058	0	2s	python3 scripts/check_cpp_idiom.py --selftest
+059	0	5s	python3 scripts/check_py_idiom.py
+060	0	5s	python3 scripts/check_py_idiom.py --selftest

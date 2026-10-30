@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/scripts/check_sweep_shape.py", line 992, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/scripts/check_sweep_shape.py", line 980, in main
+    bad = run_static(a.sweep) + check_build_sh() + check_launch_seed(
+          ~~~~~~~~~~^^^^^^^^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/scripts/check_sweep_shape.py", line 525, in run_static
+    bad += compare(board, v["cfg"], v["ns"], v["l2"],
+           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                   Path(sweep_path).name, opts=v["opts"])
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/scripts/check_sweep_shape.py", line 302, in compare
+    want = parse_flags(design_opts_expected(cfg_path))
+                       ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/scripts/check_sweep_shape.py", line 252, in design_opts_expected
+    return eb.emit_soc_argv(eb.load_config(p if p.is_absolute() else ROOT / p))
+                            ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/endstation_builder.py", line 4425, in load_config
+    gptp = _load_gptp(cfg)
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/endstation_builder.py", line 4158, in _load_gptp
+    pins = gptp_engine_pins()
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/endstation_builder.py", line 3653, in gptp_engine_pins
+    source = _engine_generator_text()
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/endstation_builder.py", line 3593, in _engine_generator_text
+    raise ConfigError(
+    ...<3 lines>...
+        "update --init gptp-processor` before loading a config")
+endstation_builder.ConfigError: the gptp-processor submodule is not checked out, and its generator is the authority the gPTP descriptor dataset derives from ([R-parallel] on #228): run `git submodule update --init gptp-processor` before loading a config
+
+[runner] rc=1 seconds=0.2

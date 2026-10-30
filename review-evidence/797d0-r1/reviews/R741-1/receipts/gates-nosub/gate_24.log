@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/test_firmware_compiler.py", line 189, in <module>
+    main()
+    ~~~~^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/test_firmware_compiler.py", line 181, in main
+    selftest()
+    ~~~~~~~~^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/test_firmware_compiler.py", line 140, in selftest
+    run_gate(None, Path(tmp) / "absent.jsonl", require=True)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/test_firmware_compiler.py", line 89, in run_gate
+    builder.test_baremetal_profile_contract()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/test_builder.py", line 3253, in test_baremetal_profile_contract
+    result = eb.build(path, OUT)
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/endstation_builder.py", line 5968, in build
+    art = _derive_artifacts(config_path)
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/endstation_builder.py", line 5803, in _derive_artifacts
+    cfg = load_config(config_path)
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/endstation_builder.py", line 4425, in load_config
+    gptp = _load_gptp(cfg)
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/endstation_builder.py", line 4158, in _load_gptp
+    pins = gptp_engine_pins()
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/endstation_builder.py", line 3653, in gptp_engine_pins
+    source = _engine_generator_text()
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/sw/builder/endstation_builder.py", line 3593, in _engine_generator_text
+    raise ConfigError(
+    ...<3 lines>...
+        "update --init gptp-processor` before loading a config")
+endstation_builder.ConfigError: the gptp-processor submodule is not checked out, and its generator is the authority the gPTP descriptor dataset derives from ([R-parallel] on #228): run `git submodule update --init gptp-processor` before loading a config
+
+[runner] rc=1 seconds=0.9

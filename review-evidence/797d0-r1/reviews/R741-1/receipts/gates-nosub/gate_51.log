@@ -1,0 +1,157 @@
+refused docs: missing inventory preparation in docs-gates-0
+refused docs: if preparation in docs-gates-0
+refused docs: continue-on-error preparation in docs-gates-0
+refused docs: missing inventory preparation in ci-manifest
+refused docs: if preparation in ci-manifest
+refused docs: continue-on-error preparation in ci-manifest
+refused elaborate: missing inventory preparation in ci-manifest
+refused elaborate: if preparation in ci-manifest
+refused elaborate: continue-on-error preparation in ci-manifest
+refused rtl: missing inventory preparation in verilator-shards
+refused rtl: if preparation in verilator-shards
+refused rtl: continue-on-error preparation in verilator-shards
+refused rtl: missing inventory preparation in verilator-suites
+refused rtl: if preparation in verilator-suites
+refused rtl: continue-on-error preparation in verilator-suites
+refused rtl: missing inventory preparation in union-milan_dp
+refused rtl: if preparation in union-milan_dp
+refused rtl: continue-on-error preparation in union-milan_dp
+refused rtl: missing inventory preparation in union-milan_dp_mclk
+refused rtl: if preparation in union-milan_dp_mclk
+refused rtl: continue-on-error preparation in union-milan_dp_mclk
+refused rtl: missing inventory preparation in union-capture_coherence
+refused rtl: if preparation in union-capture_coherence
+refused rtl: continue-on-error preparation in union-capture_coherence
+refused rtl: missing inventory preparation in union-maap
+refused rtl: if preparation in union-maap
+refused rtl: continue-on-error preparation in union-maap
+refused rtl: missing inventory preparation in union-milan_dp_render
+refused rtl: if preparation in union-milan_dp_render
+refused rtl: continue-on-error preparation in union-milan_dp_render
+refused rtl: missing inventory preparation in union-pp_shadow
+refused rtl: if preparation in union-pp_shadow
+refused rtl: continue-on-error preparation in union-pp_shadow
+refused rtl: missing inventory preparation in ci-manifest
+refused rtl: if preparation in ci-manifest
+refused rtl: continue-on-error preparation in ci-manifest
+refused rtl-fast: missing inventory preparation in ci-manifest
+refused rtl-fast: if preparation in ci-manifest
+refused rtl-fast: continue-on-error preparation in ci-manifest
+Scheduling: docs builder legs beside the contract worker; dependency-bound Yosys build PASS
+Fast Yosys tool: yosys-elaboration keeps every other template step in order, the tool job runs the checkout and the two moved steps, and the emitted workflow changes only their two keys
+Fast Yosys tool: only yosys-elaboration and the verdict change; a docs-only run stays green
+Fast Yosys tool refused tool key bound to the workflow files: tool key binds the workflow files; tool key lacks the build recipe; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool key without its script binding: tool key does not bind the scripts its build steps run: scripts/ci_install_cache.py; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool job under another environment: tool job env differs from yosys-elaboration's
+Fast Yosys tool refused tool key without the version: tool key lacks the pinned version; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool key without the source: tool key lacks the source commit; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool key without the recipe: tool key lacks the build recipe; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool key without the image: tool key lacks the runner image; yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused tool cache with a fallback: tool cache restores more than its exact key
+Fast Yosys tool refused tool job without its build: tool job does not carry the template cache and build steps
+Fast Yosys tool refused tool timeout above the budget: timeout changed or above the hosted budget: yosys-tool
+Fast Yosys tool refused consumer timeout raised: timeout changed or above the hosted budget: yosys-elaboration
+Fast Yosys tool refused tool job on another condition: tool job if differs from yosys-elaboration's
+Fast Yosys tool refused consumer builds again: yosys-elaboration builds Yosys
+Fast Yosys tool refused consumer without the tool need: yosys-elaboration does not need the tool job
+Fast Yosys tool refused restore accepts a miss: yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused restore with a fallback: yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused restore of another key: yosys-elaboration does not restore exactly the tool tree before its version proof
+Fast Yosys tool refused verdict without the tool need: rtl-fast verdict accepts a failed tool job
+Fast Yosys tool refused verdict without the tool pair: rtl-fast verdict accepts a failed tool job
+Fast Yosys tool retention refused actions/checkout@v4 dropped: yosys-elaboration drops actions/checkout@v4
+Fast Yosys tool retention refused Fetch RTL dependencies dropped: yosys-elaboration drops Fetch RTL dependencies
+Fast Yosys tool retention refused Install the pinned Yosys and prove the version dropped: yosys-elaboration drops Install the pinned Yosys and prove the version
+Fast Yosys tool retention refused Install the pinned sv2v release dropped: yosys-elaboration drops Install the pinned sv2v release
+Fast Yosys tool retention refused Elaborate the integration-heavy tops dropped: yosys-elaboration drops Elaborate the integration-heavy tops
+Fast Yosys tool retention refused Prove the OOC read sets come from run.sh and refuse a bad one dropped: yosys-elaboration drops Prove the OOC read sets come from run.sh and refuse a bad one
+Fast Yosys tool retention refused Prove ooc.sh generates the ROMs and fails on a failed top dropped: yosys-elaboration drops Prove ooc.sh generates the ROMs and fails on a failed top
+Fast Yosys tool retention refused Prove both synthesis flows refuse active elaboration guards dropped: yosys-elaboration drops Prove both synthesis flows refuse active elaboration guards
+Fast Yosys tool retention refused Prove the result cache refuses a planted entry dropped: yosys-elaboration drops Prove the result cache refuses a planted entry
+Fast Yosys tool retention refused a retained body rewritten: yosys-elaboration changes Elaborate the integration-heavy tops
+Fast Yosys tool retention refused a step added: yosys-elaboration adds Planted step
+Fast Yosys tool retention refused two retained steps swapped: yosys-elaboration reorders or repeats its retained steps
+Fast Yosys tool retention refused a retained step repeated: yosys-elaboration reorders or repeats its retained steps
+Fast Yosys tool retention refused the restore moved last: yosys-elaboration's one exact restore is not in its build's place
+Fast Yosys tool retention refused the restore accepting a miss: yosys-elaboration's one exact restore is not in its build's place
+Fast Yosys tool retention refused a consumer job key added: yosys-elaboration's job keys differ from the template's
+Fast Yosys tool retention refused a tool job step added: tool job steps are not the checkout and the two moved steps
+Fast Yosys tool retention refused the tool build rewritten: tool job steps are not the checkout and the two moved steps
+Fast Yosys tool retention refused a derivation that drops a self-test: yosys-elaboration drops Prove the result cache refuses a planted entry
+Fast Yosys tool emission refused yosys-elaboration without Run actions/checkout@v4: emitted yosys-elaboration drops Run actions/checkout@v4
+Fast Yosys tool emission refused yosys-elaboration without Set CPU-derived job budgets: emitted yosys-elaboration drops Set CPU-derived job budgets
+Fast Yosys tool emission refused yosys-elaboration without Fetch RTL dependencies: emitted yosys-elaboration drops Fetch RTL dependencies
+Fast Yosys tool emission refused yosys-elaboration without Restore the pinned Yosys build: emitted yosys-elaboration drops Restore the pinned Yosys build
+Fast Yosys tool emission refused yosys-elaboration without Install the pinned Yosys and prove the version: emitted yosys-elaboration drops Install the pinned Yosys and prove the version
+Fast Yosys tool emission refused yosys-elaboration without Cache verified sv2v archive: emitted yosys-elaboration drops Cache verified sv2v archive
+Fast Yosys tool emission refused yosys-elaboration without Install the pinned sv2v release: emitted yosys-elaboration drops Install the pinned sv2v release
+Fast Yosys tool emission refused yosys-elaboration without Elaborate the integration-heavy tops: emitted yosys-elaboration drops Elaborate the integration-heavy tops
+Fast Yosys tool emission refused yosys-elaboration without Prove the OOC read sets come from run.sh and refuse a bad one: emitted yosys-elaboration drops Prove the OOC read sets come from run.sh and refuse a bad one
+Fast Yosys tool emission refused yosys-elaboration without Prove ooc.sh generates the ROMs and fails on a failed top: emitted yosys-elaboration drops Prove ooc.sh generates the ROMs and fails on a failed top
+Fast Yosys tool emission refused yosys-elaboration without Prove both synthesis flows refuse active elaboration guards: emitted yosys-elaboration drops Prove both synthesis flows refuse active elaboration guards
+Fast Yosys tool emission refused yosys-elaboration without Prove the result cache refuses a planted entry: emitted yosys-elaboration drops Prove the result cache refuses a planted entry
+Fast Yosys tool emission refused yosys-elaboration without Record actual job execution: emitted yosys-elaboration drops Record actual job execution
+Fast Yosys tool emission refused yosys-elaboration without Upload actual job execution: emitted yosys-elaboration drops Upload actual job execution
+Fast Yosys tool emission refused yosys-tool without Run actions/checkout@v4: emitted yosys-tool drops Run actions/checkout@v4
+Fast Yosys tool emission refused yosys-tool without Set CPU-derived job budgets: emitted yosys-tool drops Set CPU-derived job budgets
+Fast Yosys tool emission refused yosys-tool without Cache the pinned Yosys build: emitted yosys-tool drops Cache the pinned Yosys build
+Fast Yosys tool emission refused yosys-tool without Resolve exact package downloads 2: emitted yosys-tool drops Resolve exact package downloads 2
+Fast Yosys tool emission refused yosys-tool without Cache exact package downloads 2: emitted yosys-tool drops Cache exact package downloads 2
+Fast Yosys tool emission refused yosys-tool without Build Yosys from source on cache miss: emitted yosys-tool drops Build Yosys from source on cache miss
+Fast Yosys tool emission refused yosys-tool without Record actual job execution: emitted yosys-tool drops Record actual job execution
+Fast Yosys tool emission refused yosys-tool without Upload actual job execution: emitted yosys-tool drops Upload actual job execution
+Fast Yosys tool emission refused a self-test body rewritten: emitted yosys-elaboration changes Prove the result cache refuses a planted entry
+Fast Yosys tool emission refused the tool build rewritten: emitted yosys-tool changes Build Yosys from source on cache miss
+Fast Yosys tool emission refused the tool evidence record rewritten: emitted yosys-tool changes Record actual job execution
+Fast Yosys tool emission refused a consumer step added: emitted yosys-elaboration adds Planted step
+Fast Yosys tool emission refused a tool step added before the cache save: emitted yosys-tool adds Planted step
+Fast Yosys tool emission refused two self-tests swapped: emitted yosys-elaboration reorders or repeats its steps
+Fast Yosys tool emission refused a consumer job key added: emitted yosys-elaboration's job keys differ from the transformed derivation's
+Fast Yosys tool emission refused a tool job key added: emitted yosys-tool's job keys differ from the transformed derivation's
+Fast Yosys tool emission refused another job's step dropped: emitted verilator-lint drops Fetch RTL dependencies
+Fast Yosys tool emission refused a job added: emitted jobs differ from the transformed derivation's: adds planted
+Fast Yosys tool emission refused the stand-in left in the restore: emitted yosys-elaboration's Restore the pinned Yosys build key is not its stand-in with one recipe bound; emitted yosys-elaboration changes Restore the pinned Yosys build
+Fast Yosys tool emission refused the restore bound to another recipe: emitted tool cache and its restore bind different recipes
+Fast Yosys tool emission refused a workflow env set after the digest: emitted workflow keys differ from the transformed derivation's: env
+Fast Yosys tool emission refused a key binding that drops a self-test: emitted yosys-elaboration drops Prove the result cache refuses a planted entry
+Fast Yosys tool key follows the build step, the workflow env and defaults, the job env, the generated build rewrite and budget exports, the scripts the build runs and the runner image
+Fast Yosys tool key unchanged by an edit outside the build recipe or of the tool job's schedule
+Fast Yosys tool generator refused yosys-tool: steps after the build that its key does not bind: Touch the built tree
+Fast Yosys tool generator refused a template key without its workflow-file digest: yosys-elaboration: Yosys cache key lacks its one workflow-file digest
+Fast Yosys tool generator refused a template build step removed: yosys-elaboration: missing or reordered Yosys build recipe
+Fast Yosys tool generator refused a template build before its cache: yosys-elaboration: missing or reordered Yosys build recipe
+Fast Yosys tool generator refused a template step between the cache and its build: yosys-elaboration: missing or reordered Yosys build recipe
+Fast Yosys tool generator refused a template consumer in a container the tool job would not carry: yosys-elaboration: job keys the tool job does not carry into the build: container
+Fast Yosys tool generator refused a template verdict without the elaboration pair: rtl-fast: verdict lacks its one yosys-elaboration result pair
+Fast Yosys tool: one cached build, an exact restore, a verdict that reads it PASS
+Builder split refused the docs template with its driver in a preparation line
+Builder split refused the docs template with its last line not the driver
+Builder split refused the elaborate template with its driver in a preparation line
+Builder split refused the elaborate template with its last line not the driver
+Suite generator refused a template arm index other than its total: template ownership step lacks its dedicated milan_dp arm
+Suite generator refused a template --expect other than its total: template verifier lacks its worker-count expectation
+Suite generator refused a template total without its arm and --expect: template ownership step lacks its dedicated milan_dp arm
+Suite generator: 19 workers, no dedicated milan_dp arm, --expect 19 PASS
+Traceback (most recent call last):
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/scripts/ci_gate_workflows_selftest.py", line 631, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/scripts/ci_gate_workflows_selftest.py", line 540, in main
+    cpu_controls()
+    ~~~~~~~~~~~~^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/scripts/ci_gate_workflows_selftest.py", line 204, in cpu_controls
+    child_controls(root)
+    ~~~~~~~~~~~~~~^^^^^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/scripts/ci_gate_workflows_selftest.py", line 186, in child_controls
+    child_budget(directory, target, width // 4)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/797d0-r741-1-packet/scratch/nosub/scripts/ci_gate_workflows_selftest.py", line 167, in child_budget
+    result = subprocess.run([*command, target, "VERILATOR=ci-budget-compiler", "MAKEFLAGS="], check=True,
+                            capture_output=True, text=True,
+                            env={**os.environ, "VERILATOR_JOBS": str(budget), "MAKEFLAGS": ""})
+  File "/usr/lib/python3.14/subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['make', '--no-print-directory', '-n', '-B', '-C', '$REVIEWS/797d0-r741-1-packet/scratch/nosub/tb/verilator/capture_coherence', 'build', 'VERILATOR=ci-budget-compiler', 'MAKEFLAGS=']' returned non-zero exit status 2.
+
+[runner] rc=1 seconds=20.9
