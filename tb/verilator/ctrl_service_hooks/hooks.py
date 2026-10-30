@@ -174,13 +174,18 @@ HOOKS: dict[str, Hook] = {h.name: h for h in (
          'response_before_notice',
          Plant((('aecp/aecp.c', NOTIFY_LOOP, '\tif (a->notify && a->recipient == 0u) {\n' + SPIN.replace('\t', '\t\t')
                  + '\t}\n' + NOTIFY_LOOP),), 'hooks-late-notify', 'LATE H-NOTIFY'),
-         Plant((('aecp/aecp.c',
-                 '\tif (a->response_owed) {\n\t\tif (!send(a)) {\n\t\t\treturn true;\n\t\t}\n'
-                 '\t\ta->response_owed = false;\n',
-                 '\tif (a->response_owed && !(a->notify && a->recipient < a->cfg.interfaces * AECP_REGISTRATIONS)) {'
-                 '\n\t\tif (!send(a)) {\n\t\t\treturn true;\n\t\t}\n\t\ta->response_owed = false;\n'),
+         Plant((('aecp/aecp.c', 'static bool transmit(struct aecp *a)\n{\n\tif (a->response_owed) {\n',
+                 'static bool transmit(struct aecp *a)\n{\n\tstatic uint8_t solicited[AECP_FRAME_BYTES];\n'
+                 '\tstatic size_t solicited_bytes;\n\tstatic unsigned solicited_interface;\n\tstatic bool reorder;\n'
+                 '\tif (a->response_owed && a->notify && !reorder) {\n'
+                 '\t\tmemcpy(solicited, a->response, a->response_bytes);\n'
+                 '\t\tsolicited_bytes = a->response_bytes;\n\t\tsolicited_interface = a->response_interface;\n'
+                 '\t\treorder = true;\n\t}\n\tif (a->response_owed && !reorder) {\n'),
                 ('aecp/aecp.c', '\t\t++a->recipient;\n\t}\n\ta->notify = false;\n\treturn false;\n}',
-                 '\t\t++a->recipient;\n\t}\n\ta->notify = false;\n\treturn a->response_owed;\n}')),
+                 '\t\t++a->recipient;\n\t}\n\ta->notify = false;\n\tif (reorder) {\n'
+                 '\t\tmemcpy(a->response, solicited, solicited_bytes);\n\t\ta->response_bytes = solicited_bytes;\n'
+                 '\t\ta->response_interface = solicited_interface;\n\t\tif (!send(a)) {\n\t\t\treturn true;\n\t\t}\n'
+                 '\t\treorder = false;\n\t\ta->response_owed = false;\n\t}\n\treturn false;\n}')),
                'aecp-fanout', 'ORDER H-NOTIFY')),
     Hook('H-COUNTERS', ('notify',), 'Milan v1.2 5.4.5.2, Table 5.22; 5.3.7.7, 5.3.8.10',
          'a descriptor\'s counter pushes to one recipient leave at least 1 s apart at the wire, and a change '

@@ -396,7 +396,8 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
     ('split: the counter change is no pad', mutant(hooks, 'parsed', lambda t, s, c: (hooks.ORIGINAL_PARSE(
         hooks.split(t)[0], s, c), [])), 'own lines are split off'),
     ('H-ADP: the grandmaster is not checked', mutant(hooks, 'gm_steps', lambda g: []), 'H-ADP ordering'),
-    ('H-DISC: the sink\'s PROBE_TX_COMMAND is never recognised', mutant(f, 'ACMP', {**f.ACMP, 'PROBE_TX': -1}), 'H-DISC ordering'),
+    ('H-DISC: the sink\'s PROBE_TX_COMMAND is never recognised', mutant(f, 'ACMP', {**f.ACMP, 'PROBE_TX': -1}),
+     'H-DISC ordering'),
     ('H-DISC: the window never ends (the earlier rule ended it at the next tagged record)',
      mutant(hooks, 'next_adp_record', lambda log, i, after: 1 << 62), 'H-DISC ordering'),
     ('H-ACMP: no response is matched to its command', mutant(hooks.grade, 'response_sequence', lambda fr: None),
