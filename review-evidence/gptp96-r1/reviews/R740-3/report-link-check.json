@@ -1,0 +1,242 @@
+[
+  {
+    "name": "baseline-engine_util.rpt",
+    "ref": "4999d8d6344e373e0204995cb36c93cf616e8f9e",
+    "blob": "9a9bc5646c3c79074a4c6921c96b02471b47f92f",
+    "sha256": "5804341bb2ba1a705338e929b601e6cb10adef01b89ca7306a4c9faa60ffdbbe",
+    "excerpts": [
+      {
+        "line": 34,
+        "text": "| Slice LUTs*                | 4773 |     0 |          0 |     63400 |  7.53 |"
+      },
+      {
+        "line": 36,
+        "text": "|   LUT as Memory            |  466 |     0 |          0 |     19000 |  2.45 |"
+      },
+      {
+        "line": 39,
+        "text": "| Slice Registers            | 3646 |     0 |          0 |    126800 |  2.88 |"
+      },
+      {
+        "line": 77,
+        "text": "| Block RAM Tile    |  1.5 |     0 |          0 |       135 |  1.11 |"
+      },
+      {
+        "line": 83,
+        "text": "* Note: Each Block RAM Tile only has one FIFO logic available and therefore can accommodate only one FIFO36E1 or one FIFO18E1. However, if a FIFO18E1 occupies a Block RAM Tile, that tile can still accommodate a RAMB18E1"
+      },
+      {
+        "line": 92,
+        "text": "| DSPs           |    4 |     0 |          0 |       240 |  1.67 |"
+      }
+    ]
+  },
+  {
+    "name": "candidate-engine_util.rpt",
+    "ref": "4999d8d6344e373e0204995cb36c93cf616e8f9e",
+    "blob": "24e4939cdd830984a99fefd3d3a97d934cac9deb",
+    "sha256": "bb1b7dfe4ce660dedbc27cac4aa48f9eed7ab65ecaf0752f1a5eefb32621e8d2",
+    "excerpts": [
+      {
+        "line": 34,
+        "text": "| Slice LUTs*                | 4853 |     0 |          0 |     63400 |  7.65 |"
+      },
+      {
+        "line": 36,
+        "text": "|   LUT as Memory            |  466 |     0 |          0 |     19000 |  2.45 |"
+      },
+      {
+        "line": 39,
+        "text": "| Slice Registers            | 3652 |     0 |          0 |    126800 |  2.88 |"
+      },
+      {
+        "line": 77,
+        "text": "| Block RAM Tile    |  1.5 |     0 |          0 |       135 |  1.11 |"
+      },
+      {
+        "line": 83,
+        "text": "* Note: Each Block RAM Tile only has one FIFO logic available and therefore can accommodate only one FIFO36E1 or one FIFO18E1. However, if a FIFO18E1 occupies a Block RAM Tile, that tile can still accommodate a RAMB18E1"
+      },
+      {
+        "line": 92,
+        "text": "| DSPs           |    4 |     0 |          0 |       240 |  1.67 |"
+      }
+    ]
+  },
+  {
+    "name": "baseline-engine_timing.rpt",
+    "ref": "4999d8d6344e373e0204995cb36c93cf616e8f9e",
+    "blob": "4273bd63838ff14836647bb47c0852109045156b",
+    "sha256": "b5cb968eded1264517ba72555c87af165afab892dc64c4576988c0f70d524ca8",
+    "excerpts": [
+      {
+        "line": 139,
+        "text": "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  "
+      },
+      {
+        "line": 162,
+        "text": "Clock             WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  "
+      },
+      {
+        "line": 172,
+        "text": "From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints  "
+      },
+      {
+        "line": 181,
+        "text": "Path Group    From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints  "
+      },
+      {
+        "line": 140,
+        "text": "    -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  "
+      },
+      {
+        "line": 141,
+        "text": "      2.249        0.000                      0                12119        3.870        0.000                       0                  4404  "
+      },
+      {
+        "line": 142,
+        "text": ""
+      },
+      {
+        "line": 143,
+        "text": ""
+      },
+      {
+        "line": 163,
+        "text": "-----             -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  "
+      },
+      {
+        "line": 164,
+        "text": "clk                 2.249        0.000                      0                12119        3.870        0.000                       0                  4404  "
+      },
+      {
+        "line": 165,
+        "text": ""
+      },
+      {
+        "line": 166,
+        "text": ""
+      },
+      {
+        "line": 173,
+        "text": "----------    --------          -------      -------  ---------------------  -------------------  "
+      },
+      {
+        "line": 174,
+        "text": ""
+      },
+      {
+        "line": 175,
+        "text": ""
+      },
+      {
+        "line": 176,
+        "text": "------------------------------------------------------------------------------------------------"
+      },
+      {
+        "line": 182,
+        "text": "----------    ----------    --------          -------      -------  ---------------------  -------------------  "
+      },
+      {
+        "line": 183,
+        "text": ""
+      },
+      {
+        "line": 184,
+        "text": ""
+      },
+      {
+        "line": 185,
+        "text": "------------------------------------------------------------------------------------------------"
+      }
+    ]
+  },
+  {
+    "name": "candidate-engine_timing.rpt",
+    "ref": "4999d8d6344e373e0204995cb36c93cf616e8f9e",
+    "blob": "911617f23b90f102e1a7e77347fb6153cb91015a",
+    "sha256": "ecac00cb8724a5263529f05f8d14bfc483d7b127015681f5eccc96dd0680ac1c",
+    "excerpts": [
+      {
+        "line": 139,
+        "text": "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  "
+      },
+      {
+        "line": 162,
+        "text": "Clock             WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints     WPWS(ns)     TPWS(ns)  TPWS Failing Endpoints  TPWS Total Endpoints  "
+      },
+      {
+        "line": 172,
+        "text": "From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints  "
+      },
+      {
+        "line": 181,
+        "text": "Path Group    From Clock    To Clock          WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints  "
+      },
+      {
+        "line": 140,
+        "text": "    -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  "
+      },
+      {
+        "line": 141,
+        "text": "      1.773        0.000                      0                12254        3.870        0.000                       0                  4410  "
+      },
+      {
+        "line": 142,
+        "text": ""
+      },
+      {
+        "line": 143,
+        "text": ""
+      },
+      {
+        "line": 163,
+        "text": "-----             -------      -------  ---------------------  -------------------     --------     --------  ----------------------  --------------------  "
+      },
+      {
+        "line": 164,
+        "text": "clk                 1.773        0.000                      0                12254        3.870        0.000                       0                  4410  "
+      },
+      {
+        "line": 165,
+        "text": ""
+      },
+      {
+        "line": 166,
+        "text": ""
+      },
+      {
+        "line": 173,
+        "text": "----------    --------          -------      -------  ---------------------  -------------------  "
+      },
+      {
+        "line": 174,
+        "text": ""
+      },
+      {
+        "line": 175,
+        "text": ""
+      },
+      {
+        "line": 176,
+        "text": "------------------------------------------------------------------------------------------------"
+      },
+      {
+        "line": 182,
+        "text": "----------    ----------    --------          -------      -------  ---------------------  -------------------  "
+      },
+      {
+        "line": 183,
+        "text": ""
+      },
+      {
+        "line": 184,
+        "text": ""
+      },
+      {
+        "line": 185,
+        "text": "------------------------------------------------------------------------------------------------"
+      }
+    ]
+  }
+]

@@ -1,0 +1,30 @@
+[
+  {
+    "name": "contract",
+    "command": [
+      "make",
+      "-j16",
+      "contract"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "lint",
+    "command": [
+      "make",
+      "-j16",
+      "lint"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "whitespace",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "135afd04..HEAD"
+    ],
+    "rc": 0
+  }
+]

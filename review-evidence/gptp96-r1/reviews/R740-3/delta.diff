@@ -1,0 +1,131 @@
+diff --git a/docs/HDL_DEVELOPER.md b/docs/HDL_DEVELOPER.md
+index 49057a2..2a8edb3 100644
+--- a/docs/HDL_DEVELOPER.md
++++ b/docs/HDL_DEVELOPER.md
+@@ -9,7 +9,7 @@ This guide explains structure, timing, and invariants.
+ - Microcode decides protocol policy; RTL moves bytes and time.
+ - The microCPU reaches engine state through six address regions.
+ - Scratch survives warm reset; validity bits do not.
+-- Consumers sample publication on `pub_commit_o`; staging moves outputs earlier.
++- Sample on `pub_commit_o`; staging writes change outputs first.
+ - Synthesis figures here are dated measurements.
+ 
+ Terms are defined in the [glossary](GLOSSARY.md).
+diff --git a/docs/INTEGRATION.md b/docs/INTEGRATION.md
+index fe9c1c3..6963d5b 100644
+--- a/docs/INTEGRATION.md
++++ b/docs/INTEGRATION.md
+@@ -564,7 +564,7 @@ Microcode writes the fields over several instructions.
+ 
+ Between pulses the outputs can show a partial tuple.
+ 
+-Only the commit cycle presents one complete tuple.
++The commit cycle always presents a complete tuple.
+ 
+ | Output group | Contents |
+ |---|---|
+@@ -851,13 +851,27 @@ This table is the single home of protocol values.
+ 
+ Each row names the generator constant it reads.
+ 
+-`make docs` fails when any value drifts from the generator.
++`make docs` fails when a row drifts from its constant.
+ 
+ It also fails on a missing, duplicate or formatted row.
+ 
+ Other pages name the constant and link its row.
+ 
+-`make docs` rejects a timed value restated with its unit.
++Units come from Meaning cells ending ms, ns or ppm.
++
++Elsewhere on current pages, `make docs` rejects that row value as:
++
++- the integer and its unit symbol, as in `7 ms`;
++- ms in whole seconds, ns in whole microseconds, by symbol;
++- ms as one to ten whole minutes: `2 min`, `two minutes`.
++
++Fenced code and this section are exempt.
++
++Rows without such a unit are not checked for copies.
++
++Decimals and other unit words, such as milliseconds, pass.
++
++Review keeps those forms out.
+ 
+ Clauses without a prefix are IEEE 802.1AS-2011.
+ 
+diff --git a/docs/MANAGER.md b/docs/MANAGER.md
+index 440d956..f780622 100644
+--- a/docs/MANAGER.md
++++ b/docs/MANAGER.md
+@@ -56,6 +56,8 @@ The generator prints this budget on every run.
+ 
+ `make docs` fails when this table drifts from it.
+ 
++The seeded row is checked with `--seq-seed 0x200000`.
++
+ | Image | Words used | Free |
+ |---|---|---:|
+ | Shipping | 1,022 of 1,024 | 2 |
+diff --git a/docs/history/v1/RESOURCE_DELTAS_2026_10.md b/docs/history/v1/RESOURCE_DELTAS_2026_10.md
+index b0cbe79..5136362 100644
+--- a/docs/history/v1/RESOURCE_DELTAS_2026_10.md
++++ b/docs/history/v1/RESOURCE_DELTAS_2026_10.md
+@@ -29,7 +29,12 @@ Memory LUTs remain 466; BRAM and DSP usage stay unchanged.
+ 
+ WNS moves from +2.249 ns; timing remains met.
+ 
+-The parent tree at `4999d8d6` holds the [measurement reports](https://github.com/kebag-logic/milan-fpga/tree/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author).
++The measurement reports are at parent commit `4999d8d6`:
++
++- [baseline utilization](https://github.com/kebag-logic/milan-fpga/blob/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author/baseline-engine_util.rpt)
++- [candidate utilization](https://github.com/kebag-logic/milan-fpga/blob/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author/candidate-engine_util.rpt)
++- [baseline timing](https://github.com/kebag-logic/milan-fpga/blob/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author/baseline-engine_timing.rpt)
++- [candidate timing](https://github.com/kebag-logic/milan-fpga/blob/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author/candidate-engine_timing.rpt)
+ 
+ ## Timer storage in distributed RAM
+ 
+diff --git a/scripts/check_docs.py b/scripts/check_docs.py
+index c5e4738..d106700 100644
+--- a/scripts/check_docs.py
++++ b/scripts/check_docs.py
+@@ -109,7 +109,7 @@ GENERATOR = "hdl/ucode/gen_gptp_ucode.py"
+ CONSTANTS_PAGE = "docs/INTEGRATION.md"
+ CONSTANTS_HEADING = "## Protocol constants"
+ # Rows are found by their name cell alone, so a value cell in any other
+-# syntax is reported rather than silently skipped.
++# syntax is reported rather than silently skipped (#96).
+ CONSTANT_ROW_RE = re.compile(r"^\|\s*`([A-Za-z_][A-Za-z0-9_]*)`\s*\|\s*([^|]*?)\s*\|")
+ DECIMAL_RE = re.compile(r"[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+")
+ CONSTANTS = (
+@@ -119,7 +119,7 @@ CONSTANTS = (
+     "DEPTH", "ROM_CID_HI_C", "ROM_GMCAP_BIT_C",
+ )
+ # A Meaning cell ending ", ms", ", ns" or ", ppm" gives the row's unit; that
+-# value spelled with its unit elsewhere is a copy the table cannot correct.
++# value spelled with its unit elsewhere is a copy the table cannot correct (#96).
+ UNIT_CELL_RE = re.compile(r",\s*(ms|ns|ppm)\s*$")
+ NUMBER_WORDS = ("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")
+ ROM_PAGE = "docs/MANAGER.md"
+@@ -391,7 +391,7 @@ def decimal(cell: str) -> int | None:
+ 
+ def load_generator(root: Path = ROOT):
+     """Import the microcode generator that owns the protocol constants."""
+-    sys.dont_write_bytecode = True  # keep the gate from writing into hdl/
++    sys.dont_write_bytecode = True  # keep the gate from writing into hdl/ (#96)
+     spec = importlib.util.spec_from_file_location(
+         "gen_gptp_ucode_docs", root / GENERATOR
+     )
+@@ -710,6 +710,12 @@ def selftest() -> int:
+     if not constant_findings(good.replace("`SYNC_RTO_MS_C`", "SYNC_RTO_MS_C"), generator):
+         print("docs selftest: unnamed constant row escaped")
+         return 1
++    arms += 1
++    row = next(line for line in good.splitlines() if "`SYNC_RTO_MS_C`" in line)
++    named = constant_findings(f"{good}{row}\n", generator)
++    if not any("duplicate constant row: SYNC_RTO_MS_C" in finding for finding in named):
++        print("docs selftest: duplicate constant row escaped")
++        return 1
+     fixture = types.SimpleNamespace(
+         SYNC_RTO_MS_C=375, CEASE_MS_C=300_000, STEP_LINKUP_NS_C=20_000, RATE_PPM_C=200
+     )

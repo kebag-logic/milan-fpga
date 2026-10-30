@@ -1,0 +1,30 @@
+control_unmutated                    expect=pass   rc=0 | 
+stale_const_plain                    expect=fail   rc=1 | docs check: FAIL (1 findings)
+stale_const_bold                     expect=fail   rc=1 | docs check: FAIL (1 findings)
+stale_const_negative                 expect=fail   rc=1 | docs check: FAIL (1 findings)
+stale_const_unit                     expect=fail   rc=1 | docs check: FAIL (1 findings)
+stale_const_hex                      expect=fail   rc=1 | docs check: FAIL (1 findings)
+bad_grouping_const                   expect=fail   rc=1 | docs check: FAIL (1 findings)
+deleted_const_row                    expect=fail   rc=1 | docs check: FAIL (1 findings)
+unnamed_const_row                    expect=fail   rc=1 | docs check: FAIL (1 findings)
+stale_depth                          expect=fail   rc=1 | docs check: FAIL (1 findings)
+generator_const_changed              expect=fail   rc=1 | docs check: FAIL (1 findings)
+rom_stale_shipping                   expect=fail   rc=1 | docs check: FAIL (1 findings)
+rom_bold_count                       expect=fail   rc=1 | docs check: FAIL (1 findings)
+rom_word_free                        expect=fail   rc=1 | docs check: FAIL (1 findings)
+rom_slash_count                      expect=fail   rc=1 | docs check: FAIL (1 findings)
+rom_deleted_row                      expect=fail   rc=1 | docs check: FAIL (1 findings)
+rom_duplicate_row                    expect=fail   rc=1 | docs check: FAIL (1 findings)
+copy_hdl_375ms                       expect=fail   rc=1 | docs check: FAIL (1 findings)
+copy_test_20us                       expect=fail   rc=1 | docs check: FAIL (1 findings)
+copy_glossary_200ppm                 expect=fail   rc=1 | docs check: FAIL (1 findings)
+copy_manager_fiveminute              expect=fail   rc=1 | docs check: FAIL (1 findings)
+copy_readme_300s                     expect=fail   rc=1 | docs check: FAIL (1 findings)
+copy_tbreadme_100micro               expect=fail   rc=1 | docs check: FAIL (1 findings)
+copy_integration_20000ns             expect=fail   rc=1 | docs check: FAIL (1 findings)
+copy_revert_hdl_line                 expect=fail   rc=1 | docs check: FAIL (1 findings)
+limit_decimal_seconds                expect=pass?  rc=0 | 
+limit_spelled_unit                   expect=pass?  rc=0 | 
+limit_unitless_ordinal               expect=pass?  rc=0 | 
+limit_unitless_depth                 expect=pass?  rc=0 | 
+limit_meaning_unit_dropped           expect=pass?  rc=0 | 

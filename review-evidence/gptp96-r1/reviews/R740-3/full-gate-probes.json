@@ -1,0 +1,56 @@
+[
+  {
+    "name": "docs-control",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "cadence-outside-gate",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "decimal-minute-full-gate",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2
+  },
+  {
+    "name": "decimal-symbol-full-gate",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0
+  },
+  {
+    "name": "duplicate-rule-muted",
+    "command": [
+      "/usr/bin/python3",
+      "scripts/check_docs.py",
+      "--selftest"
+    ],
+    "rc": 1
+  },
+  {
+    "name": "docs-restored",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0
+  }
+]

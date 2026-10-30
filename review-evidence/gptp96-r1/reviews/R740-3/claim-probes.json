@@ -1,0 +1,607 @@
+{
+  "head": "411b35fcc56d11c2361d861e7205307587a04a1d",
+  "usage": {
+    "Shipping": [
+      1022,
+      1024
+    ],
+    "Seeded regression": [
+      1023,
+      1024
+    ]
+  },
+  "probes": [
+    {
+      "name": "status-control",
+      "expected_reject": false,
+      "findings": [],
+      "expected_diagnostic": null,
+      "matches_claim": true
+    },
+    {
+      "name": "status-missing",
+      "expected_reject": true,
+      "findings": [
+        "docs/README.md: no status row for README.md"
+      ],
+      "expected_diagnostic": "no status row for README.md",
+      "matches_claim": true
+    },
+    {
+      "name": "status-duplicate",
+      "expected_reject": true,
+      "findings": [
+        "docs/README.md: duplicate status row: README.md"
+      ],
+      "expected_diagnostic": "duplicate status row: README.md",
+      "matches_claim": true
+    },
+    {
+      "name": "status-wrong-current",
+      "expected_reject": true,
+      "findings": [
+        "docs/README.md: README.md: status 'Historical', expected 'Current'"
+      ],
+      "expected_diagnostic": "expected 'Current'",
+      "matches_claim": true
+    },
+    {
+      "name": "status-wrong-archive",
+      "expected_reject": true,
+      "findings": [
+        "docs/README.md: docs/history/v1/: status 'Current', expected 'Historical'"
+      ],
+      "expected_diagnostic": "expected 'Historical'",
+      "matches_claim": true
+    },
+    {
+      "name": "status-missing-page",
+      "expected_reject": true,
+      "findings": [
+        "docs/README.md: status row names a missing page: gone.md",
+        "docs/README.md: no status row for README.md"
+      ],
+      "expected_diagnostic": "status row names a missing page",
+      "matches_claim": true
+    },
+    {
+      "name": "constants-control",
+      "expected_reject": false,
+      "findings": [],
+      "expected_diagnostic": null,
+      "matches_claim": true
+    },
+    {
+      "name": "status-empty",
+      "expected_reject": true,
+      "findings": [
+        "docs/README.md: no document status rows",
+        "docs/README.md: no status row for docs/history/v1/",
+        "docs/README.md: no status row for README.md",
+        "docs/README.md: no status row for docs/GLOSSARY.md",
+        "docs/README.md: no status row for docs/HDL_DEVELOPER.md",
+        "docs/README.md: no status row for docs/INTEGRATION.md",
+        "docs/README.md: no status row for docs/MANAGER.md",
+        "docs/README.md: no status row for docs/README.md",
+        "docs/README.md: no status row for docs/SOURCE_EVIDENCE.md",
+        "docs/README.md: no status row for docs/TEST_DEVELOPER.md",
+        "docs/README.md: no status row for docs/diagrams/README.md",
+        "docs/README.md: no status row for tb/tsngen/README.md",
+        "docs/README.md: no status row for tb/verilator/engine/README.md",
+        "docs/README.md: no status row for tb/verilator/gaskets/README.md",
+        "docs/README.md: no status row for tb/verilator/parser/README.md",
+        "docs/README.md: no status row for tb/verilator/ucpu/README.md"
+      ],
+      "expected_diagnostic": "no document status rows",
+      "matches_claim": true
+    },
+    {
+      "name": "status-no-archive",
+      "expected_reject": true,
+      "findings": [
+        "docs/README.md: no status row for docs/history/v1/"
+      ],
+      "expected_diagnostic": "no status row for docs/history/v1/",
+      "matches_claim": true
+    },
+    {
+      "name": "constants-empty",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: no protocol constant rows",
+        "docs/INTEGRATION.md: no protocol constant row for P1_C",
+        "docs/INTEGRATION.md: no protocol constant row for ASCAP_UP_C",
+        "docs/INTEGRATION.md: no protocol constant row for LOST_N_C",
+        "docs/INTEGRATION.md: no protocol constant row for LOST_CLEARS_AT_C",
+        "docs/INTEGRATION.md: no protocol constant row for NPD_HI_C",
+        "docs/INTEGRATION.md: no protocol constant row for NPD_LO_C",
+        "docs/INTEGRATION.md: no protocol constant row for SYNC_RTO_MS_C",
+        "docs/INTEGRATION.md: no protocol constant row for FU_RTO_MS_C",
+        "docs/INTEGRATION.md: no protocol constant row for CEASE_N_C",
+        "docs/INTEGRATION.md: no protocol constant row for CEASE_MS_C",
+        "docs/INTEGRATION.md: no protocol constant row for STEP_LINKUP_NS_C",
+        "docs/INTEGRATION.md: no protocol constant row for STEP_LOCKED_NS_C",
+        "docs/INTEGRATION.md: no protocol constant row for SLEW_SETTLED_NS_C",
+        "docs/INTEGRATION.md: no protocol constant row for RATE_PPM_C",
+        "docs/INTEGRATION.md: no protocol constant row for DEPTH",
+        "docs/INTEGRATION.md: no protocol constant row for ROM_CID_HI_C",
+        "docs/INTEGRATION.md: no protocol constant row for ROM_GMCAP_BIT_C"
+      ],
+      "expected_diagnostic": "no protocol constant rows",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-P1_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: P1_C is 249, generator has 248"
+      ],
+      "expected_diagnostic": "P1_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-ASCAP_UP_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: ASCAP_UP_C is 3, generator has 2"
+      ],
+      "expected_diagnostic": "ASCAP_UP_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-LOST_N_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: LOST_N_C is 4, generator has 3"
+      ],
+      "expected_diagnostic": "LOST_N_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-LOST_CLEARS_AT_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: LOST_CLEARS_AT_C is 6, generator has 5"
+      ],
+      "expected_diagnostic": "LOST_CLEARS_AT_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-NPD_HI_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: NPD_HI_C is 801, generator has 800"
+      ],
+      "expected_diagnostic": "NPD_HI_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-NPD_LO_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: NPD_LO_C is 81, generator has 80"
+      ],
+      "expected_diagnostic": "NPD_LO_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-SYNC_RTO_MS_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: SYNC_RTO_MS_C is 376, generator has 375"
+      ],
+      "expected_diagnostic": "SYNC_RTO_MS_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-FU_RTO_MS_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: FU_RTO_MS_C is 126, generator has 125"
+      ],
+      "expected_diagnostic": "FU_RTO_MS_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-CEASE_N_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: CEASE_N_C is 4, generator has 3"
+      ],
+      "expected_diagnostic": "CEASE_N_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-CEASE_MS_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: CEASE_MS_C is 300001, generator has 300000"
+      ],
+      "expected_diagnostic": "CEASE_MS_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-STEP_LINKUP_NS_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: STEP_LINKUP_NS_C is 20001, generator has 20000"
+      ],
+      "expected_diagnostic": "STEP_LINKUP_NS_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-STEP_LOCKED_NS_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: STEP_LOCKED_NS_C is 100001, generator has 100000"
+      ],
+      "expected_diagnostic": "STEP_LOCKED_NS_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-SLEW_SETTLED_NS_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: SLEW_SETTLED_NS_C is 101, generator has 100"
+      ],
+      "expected_diagnostic": "SLEW_SETTLED_NS_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-RATE_PPM_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: RATE_PPM_C is 201, generator has 200"
+      ],
+      "expected_diagnostic": "RATE_PPM_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-DEPTH",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: DEPTH is 1025, generator has 1024"
+      ],
+      "expected_diagnostic": "DEPTH is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-ROM_CID_HI_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: ROM_CID_HI_C is 1023, generator has 1022"
+      ],
+      "expected_diagnostic": "ROM_CID_HI_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-drift-ROM_GMCAP_BIT_C",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: ROM_GMCAP_BIT_C is 33, generator has 32"
+      ],
+      "expected_diagnostic": "ROM_GMCAP_BIT_C is",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-deleted",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: no protocol constant row for SYNC_RTO_MS_C"
+      ],
+      "expected_diagnostic": "no protocol constant row for SYNC_RTO_MS_C",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-unnamed",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: no protocol constant row for SYNC_RTO_MS_C"
+      ],
+      "expected_diagnostic": "no protocol constant row for SYNC_RTO_MS_C",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-duplicate",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: duplicate constant row: SYNC_RTO_MS_C"
+      ],
+      "expected_diagnostic": "duplicate constant row: SYNC_RTO_MS_C",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-unknown",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: ABSENT_C is not a generator constant",
+        "docs/INTEGRATION.md: no protocol constant row for SYNC_RTO_MS_C"
+      ],
+      "expected_diagnostic": "is not a generator constant",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-format-**375**",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: SYNC_RTO_MS_C value '**375**' is not a plain decimal"
+      ],
+      "expected_diagnostic": "not a plain decimal",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-format--1",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: SYNC_RTO_MS_C value '-1' is not a plain decimal"
+      ],
+      "expected_diagnostic": "not a plain decimal",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-format-375 ms",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: SYNC_RTO_MS_C value '375 ms' is not a plain decimal"
+      ],
+      "expected_diagnostic": "not a plain decimal",
+      "matches_claim": true
+    },
+    {
+      "name": "constant-format-3,75",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md: SYNC_RTO_MS_C value '3,75' is not a plain decimal"
+      ],
+      "expected_diagnostic": "not a plain decimal",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-plain",
+      "expected_reject": true,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: '375 ms' restates SYNC_RTO_MS_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-hyphen",
+      "expected_reject": true,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: '375-ms' restates SYNC_RTO_MS_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-grouped",
+      "expected_reject": true,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: '300,000 ms' restates CEASE_MS_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-ns",
+      "expected_reject": true,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: '20,000 ns' restates STEP_LINKUP_NS_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-ppm",
+      "expected_reject": true,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: '200 ppm' restates RATE_PPM_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-seconds",
+      "expected_reject": true,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: '300 s' restates CEASE_MS_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-us",
+      "expected_reject": true,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: '20 us' restates STEP_LINKUP_NS_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-micro-sign",
+      "expected_reject": true,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: '20 \u00b5s' restates STEP_LINKUP_NS_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-greek-mu",
+      "expected_reject": true,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: '20 \u03bcs' restates STEP_LINKUP_NS_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-minute-digit",
+      "expected_reject": true,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: '5 min' restates CEASE_MS_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-minute-word",
+      "expected_reject": true,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: 'five minutes' restates CEASE_MS_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-minute-hyphen",
+      "expected_reject": true,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: 'five-minute' restates CEASE_MS_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "copy-decimal-symbol",
+      "expected_reject": false,
+      "findings": [],
+      "expected_diagnostic": null,
+      "matches_claim": true
+    },
+    {
+      "name": "copy-unit-word",
+      "expected_reject": false,
+      "findings": [],
+      "expected_diagnostic": null,
+      "matches_claim": true
+    },
+    {
+      "name": "copy-no-unit-ordinal",
+      "expected_reject": false,
+      "findings": [],
+      "expected_diagnostic": null,
+      "matches_claim": true
+    },
+    {
+      "name": "copy-no-unit-depth",
+      "expected_reject": false,
+      "findings": [],
+      "expected_diagnostic": null,
+      "matches_claim": true
+    },
+    {
+      "name": "copy-fenced",
+      "expected_reject": false,
+      "findings": [],
+      "expected_diagnostic": null,
+      "matches_claim": true
+    },
+    {
+      "name": "copy-decimal-minute",
+      "expected_reject": false,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: '5 min' restates CEASE_MS_C; link its constants row"
+      ],
+      "expected_diagnostic": null,
+      "matches_claim": false
+    },
+    {
+      "name": "copy-decimal-minute-short",
+      "expected_reject": false,
+      "findings": [
+        "docs/HDL_DEVELOPER.md:1: '5 min' restates CEASE_MS_C; link its constants row"
+      ],
+      "expected_diagnostic": null,
+      "matches_claim": false
+    },
+    {
+      "name": "copy-home",
+      "expected_reject": false,
+      "findings": [],
+      "expected_diagnostic": null,
+      "matches_claim": true
+    },
+    {
+      "name": "copy-after-home",
+      "expected_reject": true,
+      "findings": [
+        "docs/INTEGRATION.md:933: '375 ms' restates SYNC_RTO_MS_C; link its constants row"
+      ],
+      "expected_diagnostic": "restates",
+      "matches_claim": true
+    },
+    {
+      "name": "rom-control",
+      "expected_reject": false,
+      "findings": [],
+      "expected_diagnostic": null,
+      "matches_claim": true
+    },
+    {
+      "name": "rom-shipping-drift",
+      "expected_reject": true,
+      "findings": [
+        "docs/MANAGER.md: Shipping image reads 1021 of 1024 with 2 free; generator builds 1022 of 1024"
+      ],
+      "expected_diagnostic": "Shipping image reads",
+      "matches_claim": true
+    },
+    {
+      "name": "rom-seeded-drift",
+      "expected_reject": true,
+      "findings": [
+        "docs/MANAGER.md: Seeded regression image reads 1022 of 1024 with 1 free; generator builds 1023 of 1024"
+      ],
+      "expected_diagnostic": "Seeded regression image reads",
+      "matches_claim": true
+    },
+    {
+      "name": "rom-free-drift",
+      "expected_reject": true,
+      "findings": [
+        "docs/MANAGER.md: Shipping image reads 1022 of 1024 with 3 free; generator builds 1022 of 1024"
+      ],
+      "expected_diagnostic": "Shipping image reads",
+      "matches_claim": true
+    },
+    {
+      "name": "rom-formatted",
+      "expected_reject": true,
+      "findings": [
+        "docs/MANAGER.md: Shipping row '**1,022** of 1,024' | '2' is not plain 'N of M' | N"
+      ],
+      "expected_diagnostic": "is not plain",
+      "matches_claim": true
+    },
+    {
+      "name": "rom-missing",
+      "expected_reject": true,
+      "findings": [
+        "docs/MANAGER.md: no ROM budget row for the Shipping image"
+      ],
+      "expected_diagnostic": "no ROM budget row for the Shipping",
+      "matches_claim": true
+    },
+    {
+      "name": "rom-duplicate",
+      "expected_reject": true,
+      "findings": [
+        "docs/MANAGER.md: duplicate ROM budget row: Shipping"
+      ],
+      "expected_diagnostic": "duplicate ROM budget row",
+      "matches_claim": true
+    },
+    {
+      "name": "rom-nondecimal",
+      "expected_reject": true,
+      "findings": [
+        "docs/MANAGER.md: Shipping counts are not plain decimals"
+      ],
+      "expected_diagnostic": "counts are not plain decimals",
+      "matches_claim": true
+    }
+  ]
+}
