@@ -107,6 +107,8 @@
 #include <cstdint>
 #include <vector>
 #include <array>
+#include <deque>
+#include <algorithm>
 
 // The ADPDU's entity_capabilities is the ENGINE's own constant. The Makefile
 // reads it out of pp_adp_pkg.sv and passes it here, so this harness cannot
@@ -236,6 +238,7 @@ class PpShadowHarness {
     // frame CONTENT is the evidence, so every egressed frame is retained.
     struct TxFrame {
         std::vector<uint8_t> bytes;
+        uint64_t start_cycle = 0;
         uint64_t end_cycle = 0;
         int  beats      = 0;
         bool short_beat = false;   // a non-final beat with a partial tkeep
@@ -292,7 +295,11 @@ class PpShadowHarness {
         if (rp->milan_datapath__DOT__pp_cd_acmp_declaring_w & 1u) mo.declaring_cycles++;
 
         if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
-            if (!tx_open) { tx_frames.push_back(TxFrame()); tx_open = true; }
+            if (!tx_open) {
+                tx_frames.push_back(TxFrame());
+                tx_frames.back().start_cycle = cycle_count;
+                tx_open = true;
+            }
             TxFrame& f = tx_frames.back();
             const uint8_t keep = static_cast<uint8_t>(dut->m_axis_mac_tx_tkeep);
             const uint64_t d   = dut->m_axis_mac_tx_tdata;
@@ -306,25 +313,113 @@ class PpShadowHarness {
             if (dut->m_axis_mac_tx_tlast) {
                 f.end_cycle = cycle_count;
                 tx_open = false;
+                mac.queue.emplace_back(cycle_count + kMacSfCycles, f.bytes);
             }
         }
+        mac_step();
         reboot_observe();
+    }
+
+    // ---- [RB]'s MAC: the transmit side behind the datapath's MAC port -----
+    // THE WIRE, NOT THE PORT (#787). On silicon a REBOOT's ENTITY_DEPARTING
+    // reached the datapath's MAC port and never the wire: the SoC's MilanMAC
+    // (sw/litex/milan_soc.py) still held it in its crossing and its
+    // store-and-forward FIFO when the PHY reset arrived. This model is that
+    // shape. A frame may leave kMacSfCycles after its last beat entered;
+    // frames leave in order, each taking its preamble and start delimiter,
+    // its bytes padded to 60, its FCS and the inter-frame gap at
+    // mac.octet_cycles clocks per octet. Its wire-side output is the graded
+    // seam: every frame is recorded with the clocks its first and last octet
+    // left. It flips i_ethtxend_tgl on each last octet, as MilanMAC's toggle
+    // does at phy.sink, and that toggle survives every reset like the real
+    // one. kMacHoldCycles after o_reboot_phy_hold rises the PHY is in reset
+    // (MilanMAC's two-flop crossing and the PHY reset storage): the frame on
+    // the wire is cut there, every frame still queued is lost, and so is any
+    // frame that enters afterwards. `dead` stops the transmit clock.
+    static constexpr uint64_t kMacSfCycles   = 8;
+    static constexpr uint64_t kMacHoldCycles = 3;
+    static constexpr uint64_t kMacGapOctets  = 12;
+    struct WireFrame {
+        std::vector<uint8_t> bytes;
+        uint64_t start = 0;
+        uint64_t end = 0;
+    };
+    struct MacModel {
+        uint64_t octet_cycles = 1;
+        bool dead = false;
+        bool tgl = false;
+        uint64_t hold_cycles = 0;
+        std::deque<std::pair<uint64_t, std::vector<uint8_t>>> queue;
+        bool busy = false;
+        std::vector<uint8_t> cur;
+        uint64_t cur_start = 0;
+        uint64_t left = 0;
+        uint64_t gap = 0;
+        std::vector<WireFrame> wire;
+        std::vector<std::vector<uint8_t>> cut;    //! on the wire when the PHY reset hit
+        std::vector<std::vector<uint8_t>> lost;   //! in the MAC then, or entering later
+    };
+    MacModel mac;
+
+    //! the reset the SoC's MAC shares with the datapath: everything it held
+    //! is gone, the toggle is not
+    void mac_reset() {
+        mac.queue.clear();
+        mac.busy = false;
+        mac.cur.clear();
+        mac.left = mac.gap = 0;
+        mac.hold_cycles = 0;
+    }
+
+    void mac_step() {
+        MacModel& m = mac;
+        m.hold_cycles = dut->o_reboot_phy_hold ? m.hold_cycles + 1 : 0;
+        if (m.hold_cycles >= kMacHoldCycles) {
+            if (m.busy) m.cut.push_back(m.cur);
+            for (auto& q : m.queue) m.lost.push_back(std::move(q.second));
+            m.queue.clear();
+            m.busy = false;
+            m.gap = 0;
+        } else if (!m.dead) {
+            if (m.busy) {
+                if (--m.left == 0) {
+                    m.wire.push_back({m.cur, m.cur_start, cycle_count});
+                    m.tgl = !m.tgl;
+                    m.busy = false;
+                    m.gap = kMacGapOctets * m.octet_cycles;
+                }
+            } else if (m.gap != 0) {
+                --m.gap;
+            } else if (!m.queue.empty() && m.queue.front().first <= cycle_count) {
+                m.cur = std::move(m.queue.front().second);
+                m.queue.pop_front();
+                m.busy = true;
+                m.cur_start = cycle_count;
+                m.left = (8 + std::max<uint64_t>(m.cur.size(), 60) + 4) * m.octet_cycles;
+            }
+        }
+        dut->i_ethtxend_tgl = m.tgl;
     }
 
     //! [RB]'s evidence: the reset outputs at the datapath ports, on every
     //! cycle of the run. Before the [RB] REBOOT is sent no cycle may hold the
-    //! PHY or drop CSIB; after it, the request's rise, the hold's rise and
-    //! every word the ICAPE2 port carries are recorded with their cycle.
+    //! PHY or drop CSIB; after it, the request's rise, the egress wait's
+    //! start (KL_reboot_ctrl's stop), the hold's rise and every word the
+    //! ICAPE2 port carries are recorded with their cycle, with the clocks of
+    //! the stop on which KL_maap offered a frame.
     struct RebootObs {
         bool armed = false;
         long early_hold = 0;
         long early_csib = 0;
         bool req_seen = false;
+        bool stop_seen = false;
         bool hold_seen = false;
         bool hold_dropped = false;
         bool backed_at_req = true;
         uint64_t req_rise = 0;
+        uint64_t stop_rise = 0;
         uint64_t hold_rise = 0;
+        long maap_offered = 0;
         std::vector<std::pair<uint64_t, uint32_t>> words;
     };
     RebootObs rb;
@@ -343,6 +438,11 @@ class PpShadowHarness {
             rb.req_rise = cycle_count;
             rb.backed_at_req = rp->milan_datapath__DOT__pp_nvm_backed_w;
         }
+        if (!rb.stop_seen && rp->milan_datapath__DOT__reboot_ctrl__DOT__stop_r) {
+            rb.stop_seen = true;
+            rb.stop_rise = cycle_count;
+        }
+        if (rb.stop_seen && rp->milan_datapath__DOT__maap_tx_tvalid) ++rb.maap_offered;
         if (!rb.hold_seen && hold) {
             rb.hold_seen = true;
             rb.hold_rise = cycle_count;
@@ -754,6 +854,7 @@ class PpShadowHarness {
         dut->s_axis_mac_rx_tvalid = 0;
         dut->m_axis_mac_tx_tready = 1;
         dut->i_mac_speed = 2; dut->i_link_up = 1; dut->i_full_duplex = 1; dut->i_mac_events = 0;
+        mac_reset();
         for (int i = 0; i < kResetHoldCycles; i++) step();
         dut->axis_resetn = 1; dut->gtx_resetn = 1;
         for (int i = 0; i < kResetSettleCycles; i++) step();
@@ -4114,18 +4215,38 @@ class PpShadowHarness {
 
     // ---- RB. THE END-STATION RESET ON AN AECP REBOOT (#787) ----------------
     // The whole request-to-reset path on the real wiring: a controller's
-    // REBOOT of ENTITY 0 on the MAC RX port, the processor's SUCCESS response
-    // and ENTITY_DEPARTING on the MAC TX port (IEEE 1722.1-2021 7.4.43, Milan
-    // v1.2 5.6.3.3), its reboot_req_o through KL_pp_shadow into milan_datapath,
-    // and KL_reboot_ctrl's PHY hold and IPROG words at the datapath's own
-    // ports (docs/design/REBOOT_RESET.md). This harness has no flash writer,
-    // so nvm_backed is 0 and the drain ends at once; the drain's other arms
-    // are tb/verilator/reboot_ctrl's. The waits are the shipping ones
-    // (3,500 ms of hold) at the harness millisecond of PP_MS_CYCLES clocks,
-    // which is also the datapath tick's (AMR_MS_CYC_P = PP_TIM_DIV_US_P x
-    // PP_TIM_DIV_MS_P). A REBOOT the processor refuses must reset nothing.
+    // REBOOT of ENTITY 0 on the MAC RX port; the processor's SUCCESS
+    // response, its notification to the other registered controller and,
+    // where advertising, ENTITY_DEPARTING (IEEE 1722.1-2021 7.4.43, Milan
+    // v1.2 5.6.3.3, 5.6.3.5.8); its reboot_req_o through KL_pp_shadow into
+    // milan_datapath; and KL_reboot_ctrl's PHY hold and IPROG words at the
+    // datapath's own ports (docs/design/REBOOT_RESET.md). The frames are
+    // graded where they leave the MAC model above, not at the datapath's
+    // port: each must be whole on the wire before the PHY hold. Three
+    // REBOOTs, each from reset:
+    //   advertising, a second controller registered: the response, the
+    //     notification and ENTITY_DEPARTING in that order, then the hold, the
+    //     IPROG words and their retry. KL_maap probes throughout, so the
+    //     port's stop has frames to hold back.
+    //   not advertising: no DEPARTING, and the hold still waits for the last
+    //     frame the port started.
+    //   a dead transmit clock: nothing leaves, and the hold still rises, at
+    //     the egress bound.
+    // This harness has no flash writer, so nvm_backed is 0 and the drain ends
+    // at once; the drain's other arms are tb/verilator/reboot_ctrl's. The
+    // waits are the shipping ones (3,500 ms of hold) at the harness
+    // millisecond of PP_MS_CYCLES clocks, which is also the datapath tick's
+    // (AMR_MS_CYC_P = PP_TIM_DIV_US_P x PP_TIM_DIV_MS_P). A REBOOT the
+    // processor refuses must reset nothing.
     //! the documented hold (docs/design/REBOOT_RESET.md), an independent literal
     static constexpr uint64_t RB_HOLD_MS = 3500;
+    //! the egress bound milan_datapath's default MAC statement derives,
+    //! 32,768 octets at 10 Mb/s: 262,144 bits at 10,000 bits per millisecond
+    //! is 27 ms rounded up, plus the quiet millisecond (an independent literal)
+    static constexpr uint64_t RB_EGRESS_MS = 28;
+    //! the model's line in [RB]: a control frame stays in the MAC for longer
+    //! than the two ticks an egress wait that ignored the MAC would last
+    static constexpr uint64_t RB_OCTET_CYCLES = 4;
     //! the IPROG words, each byte bit-reversed for ICAPE2's X32 bus: dummy,
     //! sync, NOOP, write WBSTAR, 0, write CMD, IPROG, NOOP (0xFFFFFFFF,
     //! 0xAA995566, 0x20000000, 0x30020001, 0, 0x30008001, 0xF, 0x20000000)
@@ -4150,6 +4271,93 @@ class PpShadowHarness {
         }
         const int k = last_aecp(at);
         return k >= 0 ? tx_frames[k].bytes : std::vector<uint8_t>{};
+    }
+
+    //! the [RB] REBOOT's three frames as the wire carried them, in the
+    //! frames the MAC model sent from `from` on
+    struct RbWire {
+        uint64_t resp_end = 0;   //! the SUCCESS response's last octet
+        uint64_t ntf_end = 0;    //! the REBOOT notification to C2's
+        uint64_t dep_end = 0;    //! the first ENTITY_DEPARTING's
+        unsigned deps = 0;       //! ENTITY_DEPARTINGs on the wire
+        uint64_t last_end = 0;   //! the last octet before the PHY hold
+    };
+    RbWire reboot_wire(size_t from, uint16_t seq) {
+        RbWire r;
+        for (size_t k = from; k < mac.wire.size(); ++k) {
+            const WireFrame& w = mac.wire[k];
+            TxFrame t;
+            t.bytes = w.bytes;
+            const FrClass c = classify(t);
+            //! command_type REBOOT, u = 0 on the response, 1 on the notification
+            if (c == FR_AECP && t.bytes.size() >= 38 && (get_be(t.bytes, 36, 2) & 0x7FFF) == 0x002A) {
+                const bool u = (t.bytes[36] & 0x80) != 0;
+                if (!u && get_be(t.bytes, 34, 2) == seq && r.resp_end == 0) r.resp_end = w.end;
+                if (u && memcmp(t.bytes.data(), C2_MAC, 6) == 0 && r.ntf_end == 0) r.ntf_end = w.end;
+            }
+            if (c == FR_ADP && (t.bytes[15] & 0x0F) == 1) {
+                ++r.deps;
+                if (r.dep_end == 0) r.dep_end = w.end;
+            }
+            if (!rb.hold_seen || w.end < rb.hold_rise) r.last_end = std::max(r.last_end, w.end);
+        }
+        return r;
+    }
+
+    //! the port's stop as the evidence for it: no frame starts at the MAC
+    //! port from the egress wait's first clock on, while KL_maap offers some
+    void grade_reboot_port_stop(const char* tag, size_t from) {
+        char w[160];
+        unsigned started = 0;
+        for (size_t k = from; k < tx_frames.size(); ++k)
+            if (rb.stop_seen && tx_frames[k].start_cycle > rb.stop_rise) ++started;
+        snprintf(w, sizeof w, "RB %s: the egress wait starts", tag);
+        ck_true(w, rb.stop_seen, "KL_reboot_ctrl stop_r");
+        snprintf(w, sizeof w, "RB %s: no frame starts at the MAC port from then to the end of the run", tag);
+        ck(w, started, 0u);
+        printf("  [i]    RB %s: KL_maap offered a frame on %ld clocks of the stop\n", tag,
+               rb.maap_offered);
+        snprintf(w, sizeof w, "RB %s: ...though KL_maap offered one", tag);
+        ck_true(w, rb.maap_offered > 0, "maap_tx_tvalid while stopped");
+    }
+
+    //! the order and completeness every REBOOT owes the wire before the PHY
+    //! hold, and the hold's distance from the last frame
+    void grade_reboot_on_the_wire(const char* tag, const RbWire& r, size_t cut_at,
+                                  size_t lost_at, bool advertising) {
+        char w[160];
+        const uint64_t hold = rb.hold_rise;
+        snprintf(w, sizeof w, "RB %s: the PHY hold rises", tag);
+        ck_true(w, rb.hold_seen, "o_reboot_phy_hold");
+        snprintf(w, sizeof w, "RB %s: the SUCCESS response leaves the MAC whole before the PHY hold", tag);
+        ck_true(w, r.resp_end != 0 && r.resp_end < hold, "on the wire");
+        snprintf(w, sizeof w, "RB %s: the notification to the other registered controller "
+                 "leaves after it, before the PHY hold", tag);
+        ck_true(w, r.ntf_end > r.resp_end && r.ntf_end < hold, "on the wire");
+        if (advertising) {
+            snprintf(w, sizeof w, "RB %s: ENTITY_DEPARTING leaves after the notification, "
+                     "before the PHY hold", tag);
+            ck_true(w, r.dep_end > r.ntf_end && r.dep_end < hold, "on the wire");
+        } else {
+            snprintf(w, sizeof w, "RB %s: no ENTITY_DEPARTING reaches the wire", tag);
+            ck(w, r.deps, 0u);
+        }
+        snprintf(w, sizeof w, "RB %s: the PHY hold cuts no frame on the wire", tag);
+        ck(w, static_cast<uint32_t>(mac.cut.size() - cut_at), 0u);
+        snprintf(w, sizeof w, "RB %s: ...and leaves none in the MAC", tag);
+        ck(w, static_cast<uint32_t>(mac.lost.size() - lost_at), 0u);
+        printf("  [i]    RB %s: request %llu, last frame off the wire %llu, PHY hold %llu\n", tag,
+               static_cast<unsigned long long>(rb.req_rise),
+               static_cast<unsigned long long>(r.last_end),
+               static_cast<unsigned long long>(hold));
+        snprintf(w, sizeof w, "RB %s: the PHY hold rises more than one millisecond after the "
+                 "last frame left the MAC", tag);
+        ck_true(w, rb.hold_seen && r.last_end != 0 && hold > r.last_end + PP_MS_CYCLES, "quiet");
+        snprintf(w, sizeof w, "RB %s: ...and at most two ticks and eight clocks after it", tag);
+        ck_true(w, rb.hold_seen && hold <= r.last_end + 2 * PP_MS_CYCLES + 8, "observed");
+        snprintf(w, sizeof w, "RB %s: ...and inside the egress bound of the request", tag);
+        ck_true(w, rb.hold_seen && hold <= rb.req_rise + (RB_EGRESS_MS + 1) * PP_MS_CYCLES + 4,
+                "bound");
     }
 
     void grade_reboot_burst(const char* tag, size_t first, uint64_t entry,
@@ -4183,18 +4391,29 @@ class PpShadowHarness {
         ck_true(w, hold <= hold_cycles_max, "the hold");
     }
 
+    //! a fresh entity for each [RB] REBOOT: reset, identity, the boot restore
+    //! walk, then the MAC model's [RB] line and a new observation
+    bool reboot_from_reset(const char* tag) {
+        do_reset();
+        mac.octet_cycles = RB_OCTET_CYCLES;
+        rb = RebootObs{};
+        provision_the_identity_before_enable();
+        const bool walk = restore_walk_completes();
+        char w[160];
+        snprintf(w, sizeof w, "RB %s: the boot restore walk ends, so AECP serves", tag);
+        ck_true(w, walk, walk ? "restore_done set" : "restore_done never set");
+        return walk;
+    }
+
     void grade_reboot_resets_the_end_station() {
-        printf("[RB] AECP REBOOT -> reboot_req -> PHY hold -> IPROG on the ICAPE2 port\n");
+        printf("[RB] AECP REBOOT -> reboot_req -> every frame on the wire -> PHY hold -> "
+               "IPROG on the ICAPE2 port\n");
         ck("RB no cycle of the run before the REBOOT held the PHY",
            static_cast<uint32_t>(rb.early_hold), 0u);
         ck("RB no cycle of the run before the REBOOT dropped CSIB",
            static_cast<uint32_t>(rb.early_csib), 0u);
-        do_reset();
-        provision_the_identity_before_enable();
-        const bool walk = restore_walk_completes();
-        ck_true("RB the boot restore walk ends, so AECP serves", walk,
-                walk ? "restore_done set" : "restore_done never set");
-        //! advertising, so the REBOOT's SHUTDOWN sends ENTITY_DEPARTING first
+        reboot_from_reset("advertising");
+        //! advertising, so the REBOOT's SHUTDOWN sends ENTITY_DEPARTING
         axi_write(A_PP_CTRL, 0x1);
         const uint64_t rb_enable_at = cycle_count;
         const size_t adv_at = tx_frames.size();
@@ -4208,6 +4427,11 @@ class PpShadowHarness {
         printf("  [i]    RB first ENTITY_AVAILABLE %llu clocks after the enable\n",
                static_cast<unsigned long long>(cycle_count - rb_enable_at));
         ck_true("RB the entity advertises before the REBOOT", advertised, "ENTITY_AVAILABLE");
+        //! the notification's recipient (an unsolicited notification never
+        //! goes to its requester), and a frame source the processor's own
+        //! transmit gate does not stop: KL_maap's probes
+        register_c2(0x0024, 0x0B10);
+        axi_write(A_MAAP_CTRL, (DECLARATION_OUTPUTS << 8) | 1);
         rb.armed = true;
 
         // a REBOOT the processor refuses resets nothing
@@ -4221,6 +4445,9 @@ class PpShadowHarness {
 
         // the REBOOT of ENTITY 0
         const size_t at = tx_frames.size();
+        const size_t wire_at = mac.wire.size();
+        const size_t cut_at = mac.cut.size();
+        const size_t lost_at = mac.lost.size();
         const std::vector<uint8_t> resp = reboot_command(0, 0x0B02);
         const bool answered = resp.size() >= 42;
         ck_true("RB REBOOT of ENTITY 0 is answered", answered, answered ? "response" : "none");
@@ -4231,7 +4458,7 @@ class PpShadowHarness {
             ck("RB SUCCESS: {ENTITY, 0} echoed",
                static_cast<uint32_t>(get_be(resp, 38, 4)), 0u);
         }
-        const uint64_t limit = (2 * (RB_HOLD_MS + 1) + 100) * PP_MS_CYCLES;
+        const uint64_t limit = (2 * (RB_HOLD_MS + 1) + RB_EGRESS_MS + 100) * PP_MS_CYCLES;
         for (uint64_t c = 0; c < limit && rb.words.size() < 16; c += 64) run_idle(64);
 
         uint64_t resp_end = 0;
@@ -4244,14 +4471,14 @@ class PpShadowHarness {
                 dep_end = t.end_cycle;
         }
         ck_true("RB the processor raises its REBOOT request", rb.req_seen, "reboot_req_o");
-        ck_true("RB the request follows the SUCCESS response's last byte",
+        ck_true("RB at the port: the request follows the SUCCESS response's last byte",
                 resp_end != 0 && rb.req_rise > resp_end, "order");
-        ck_true("RB ENTITY_DEPARTING left before the request",
+        ck_true("RB at the port: ENTITY_DEPARTING left before the request",
                 dep_end != 0 && dep_end < rb.req_rise, "order");
         ck("RB no flash writer is live in this harness (nvm_backed 0)", rb.backed_at_req, 0u);
-        ck_true("RB the PHY hold rises", rb.hold_seen, "o_reboot_phy_hold");
-        ck("RB the PHY hold rises two clocks after the REBOOT request",
-           static_cast<uint32_t>(rb.hold_rise - rb.req_rise), 2u);
+        grade_reboot_on_the_wire("advertising", reboot_wire(wire_at, 0x0B02), cut_at, lost_at,
+                                 true);
+        grade_reboot_port_stop("advertising", at);
         grade_reboot_burst("first IPROG", 0, rb.hold_rise, RB_HOLD_MS * PP_MS_CYCLES,
                            (RB_HOLD_MS + 1) * PP_MS_CYCLES);
         if (rb.words.size() >= 16)
@@ -4260,6 +4487,78 @@ class PpShadowHarness {
         else
             ck_true("RB retry: the words repeat after another hold", false, "no second burst");
         ck("RB the PHY hold stays up to the end of the run", rb.hold_dropped, 0u);
+
+        grade_reboot_without_advertising();
+        grade_reboot_with_a_dead_transmit_clock();
+    }
+
+    //! Milan v1.2 Table 5.51: an entity that does not advertise sends no
+    //! ENTITY_DEPARTING, and the PHY hold still waits for the frames the
+    //! port has started
+    void grade_reboot_without_advertising() {
+        reboot_from_reset("not advertising");
+        register_c2(0x0024, 0x0B20);
+        rb.armed = true;
+        const size_t at = tx_frames.size();
+        const size_t wire_at = mac.wire.size();
+        const size_t cut_at = mac.cut.size();
+        const size_t lost_at = mac.lost.size();
+        const std::vector<uint8_t> resp = reboot_command(0, 0x0B21);
+        ck("RB not advertising: REBOOT of ENTITY 0 is answered SUCCESS",
+           resp.size() >= 38 ? (resp[16] >> 3) & 31u : 255u, 0u);
+        const uint64_t limit = (RB_EGRESS_MS + 10) * PP_MS_CYCLES;
+        for (uint64_t c = 0; c < limit && !rb.hold_seen; c += 16) run_idle(16);
+        run_idle(10 * PP_MS_CYCLES);
+        ck_true("RB not advertising: the processor raises its REBOOT request", rb.req_seen,
+                "reboot_req_o");
+        unsigned port_deps = 0;
+        size_t last_started = tx_frames.size();
+        for (size_t k = at; k < tx_frames.size(); ++k) {
+            if (classify(tx_frames[k]) == FR_ADP && (tx_frames[k].bytes[15] & 0x0F) == 1)
+                ++port_deps;
+            if (rb.hold_seen && tx_frames[k].start_cycle < rb.hold_rise) last_started = k;
+        }
+        ck("RB not advertising: no ENTITY_DEPARTING at the port either", port_deps, 0u);
+        const RbWire r = reboot_wire(wire_at, 0x0B21);
+        grade_reboot_on_the_wire("not advertising", r, cut_at, lost_at, false);
+        //! the last frame the port started is the last one the wire carried
+        bool sent = false;
+        if (last_started < tx_frames.size())
+            for (size_t k = wire_at; k < mac.wire.size(); ++k)
+                sent = sent || (mac.wire[k].bytes == tx_frames[last_started].bytes
+                                && mac.wire[k].end == r.last_end);
+        ck_true("RB not advertising: the PHY hold waits for the last frame the port started",
+                sent, "its last octet is the last before the hold");
+    }
+
+    //! a MAC whose transmit clock has stopped never sends what it holds: the
+    //! egress wait ends at its bound, and the PHY hold still rises
+    void grade_reboot_with_a_dead_transmit_clock() {
+        reboot_from_reset("dead transmit clock");
+        rb.armed = true;
+        mac.dead = true;
+        const size_t wire_at = mac.wire.size();
+        const std::vector<uint8_t> resp = reboot_command(0, 0x0B31);
+        ck("RB dead transmit clock: REBOOT of ENTITY 0 is answered SUCCESS at the port",
+           resp.size() >= 38 ? (resp[16] >> 3) & 31u : 255u, 0u);
+        const uint64_t limit = (RB_EGRESS_MS + 10) * PP_MS_CYCLES;
+        for (uint64_t c = 0; c < limit && !rb.hold_seen; c += 16) run_idle(16);
+        mac.dead = false;
+        ck_true("RB dead transmit clock: the processor raises its REBOOT request", rb.req_seen,
+                "reboot_req_o");
+        ck("RB dead transmit clock: nothing reaches the wire",
+           static_cast<uint32_t>(mac.wire.size() - wire_at), 0u);
+        ck_true("RB dead transmit clock: the PHY hold still rises", rb.hold_seen,
+                "o_reboot_phy_hold");
+        const uint64_t waited = rb.hold_rise - rb.req_rise;
+        printf("  [i]    RB dead transmit clock: %llu clocks from the request to the PHY hold, "
+               "bound (%llu, %llu]\n", static_cast<unsigned long long>(waited),
+               static_cast<unsigned long long>(RB_EGRESS_MS * PP_MS_CYCLES),
+               static_cast<unsigned long long>((RB_EGRESS_MS + 1) * PP_MS_CYCLES + 4));
+        ck_true("RB dead transmit clock: ...more than the 28 ms egress bound after the request",
+                rb.hold_seen && waited > RB_EGRESS_MS * PP_MS_CYCLES, "the bound");
+        ck_true("RB dead transmit clock: ...and at most one tick and four clocks more",
+                rb.hold_seen && waited <= (RB_EGRESS_MS + 1) * PP_MS_CYCLES + 4, "the bound");
     }
 };
 

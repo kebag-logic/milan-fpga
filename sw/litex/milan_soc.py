@@ -877,8 +877,10 @@ def add_milan_datapath(host: Module, platform: object,
         # BOTH ties with the live KL_mac_rmon_events vector + mask.
         i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
         i_i_mac_events_cap = 0,
-        # no PHY in the stub: static toggles keep the link guard unarmed/inert
+        # no PHY in the stub: static toggles keep the link guard unarmed/inert,
+        # and a REBOOT's egress wait runs to its bound (#787)
         i_i_ethrx_tgl = 0, i_i_ethtx_tgl = 0, i_i_ethact_tgl = 0,
+        i_i_ethtxend_tgl = 0,
         # No MAC, so no launch observer: the plane receives no record, keeps
         # every ledger entry it allocates, delivers no timestamp and says so
         # through its counters. A tie that MANUFACTURED records would be the
@@ -1406,6 +1408,50 @@ class _AxisDP:
 #: the same number in one place.
 _AXIS_CDC_DEPTH = 16
 
+#: MilanMAC's transmit buffering, named because an AECP REBOOT's egress bound
+#: is derived from the same numbers the FIFOs are built with (#787). The
+#: store-and-forward packet FIFO's payload beats and frame slots:
+_MAC_TX_SF_PAYLOAD_DEPTH = 512
+_MAC_TX_SF_PARAM_DEPTH = 8
+#: LiteEthMACCore's own transmit crossing, in beats of the core width (the
+#: library default, passed so the bound and the build read one number)
+_MAC_CORE_TX_CDC_DEPTH = 32
+#: the registers between that crossing and the PHY that can hold a beat: the
+#: width converter's word and the core's pipeline stages
+_MAC_CORE_TX_STAGE_BEATS = 2
+#: octets of line time a frame takes beyond the bytes the MAC buffers:
+#: padding to minFrameSize less its FCS, the FCS, the preamble and start
+#: delimiter, and interPacketGap (IEEE 802.3-2022 3.2.1, 3.2.2, Table 4-2)
+_ETH_FRAME_OVERHEAD_OCTETS = 60 + 4 + 8 + 12
+#: one maximum frame already on the line: maxEnvelopeFrameSize, 2,000
+#: octets, with its preamble, start delimiter and gap (Table 4-2)
+_ETH_MAX_FRAME_LINE_OCTETS = 2000 + 8 + 12
+#: the width of MilanMAC's datapath-facing stream, in bits
+_MAC_DATA_WIDTH = 64
+#: each board's PHY model, and each model's slowest line rate in Mb/s:
+#: LiteEthPHYMII runs 10 and 100 Mb/s, LiteEthPHYGMII 1 Gb/s only.
+#: sw/builder/endstation_builder.py evaluates these and
+#: _mac_tx_egress_octets out of this file to state the same parameters
+_BOARD_PHY_MODEL = {"ax7101": "gmii", "arty": "mii"}
+_PHY_MODEL_MIN_MBPS = {"gmii": 1000, "mii": 10}
+
+
+def _mac_tx_egress_octets(nb, crossed):
+    """The most octets of line time MilanMAC's transmit side can still owe
+    when an AECP REBOOT's egress wait starts (#787): every beat its buffers
+    can hold, the framing of every frame those beats can belong to, and one
+    maximum frame already being sent. `nb` is the bytes per beat; `crossed`
+    is whether the datapath clock differs from sys, so `mac_tx_cdc` exists.
+    Each `buffered` FIFO keeps one more beat in its output register. Any beat
+    outside the store-and-forward FIFO may end a frame of its own; that FIFO
+    holds its frame slots, one in its output register and one arriving."""
+    cdc_beats = _AXIS_CDC_DEPTH + 1 if crossed else 0
+    sf_beats = _MAC_TX_SF_PAYLOAD_DEPTH + 1
+    core_beats = _MAC_CORE_TX_CDC_DEPTH + _MAC_CORE_TX_STAGE_BEATS
+    frames = cdc_beats + _MAC_TX_SF_PARAM_DEPTH + 2 + core_beats
+    return ((cdc_beats + sf_beats + core_beats) * nb
+            + frames * _ETH_FRAME_OVERHEAD_OCTETS + _ETH_MAX_FRAME_LINE_OCTETS)
+
 #: Bits `stream.AsyncFIFO` stores above a record's payload and params: its
 #: `first` and `last` flags, in that order.
 _FIFO_FRAMING_BITS = 2
@@ -1545,8 +1591,9 @@ class MilanMAC(LiteXModule):
     the Milan datapath owns *all* packet processing (classify/CBS/PTP/filter/ADP) and
     the MAC core just does L1/framing.
 
-    `dp_ports` is the dict of `milan_datapath` Instance ports this MAC drives  -  pass
-    it as `MilanNIC(..., board_ports=mac.dp_ports)`.
+    `dp_ports` is the dict of `milan_datapath` Instance ports this MAC drives, with
+    the two parameters by which it states its transmit side  -  pass it as
+    `MilanNIC(..., board_ports=mac.dp_ports)`.
 
     NOTE (board-gated): the exact `last_be`↔`tkeep` byte-enable mapping and the
     link/speed status (MDIO) are wired to sensible values for elaboration; they are
@@ -1704,6 +1751,15 @@ class MilanMAC(LiteXModule):
         self.sync.eth_tx += self.ethtx_tgl.eq(~self.ethtx_tgl)
         self.sync.eth_rx += If(self.phy.source.valid & self.phy.source.last,
                                self.ethact_tgl.eq(~self.ethact_tgl))
+        # One flip per frame the MAC hands its PHY, on the frame's last octet
+        # at `phy.sink` - the stream the PHY's transmit register stage
+        # consumes, the seam KL_gptp_gmii_launch observes. An AECP REBOOT's
+        # PHY hold waits until every frame the datapath gave this MAC has
+        # come out here (#787). Reset-less like the toggles above: a reset
+        # that flipped it back would count a frame that never left.
+        self.ethtxend_tgl = Signal(reset_less=True)
+        self.sync.eth_tx += If(self.phy.sink.valid & self.phy.sink.ready & self.phy.sink.last,
+                               self.ethtxend_tgl.eq(~self.ethtxend_tgl))
         # Sequenced eth-side CDC reset (gaps 5 RTL fix, 2026-07-22): the guard's
         # `eth_rst` re-initializes the MAC core's ETH-side CDC halves in hardware.
         # The MAC's eth domains are derived copies (maceth_tx/maceth_rx) whose reset
@@ -1735,7 +1791,8 @@ class MilanMAC(LiteXModule):
                                          "eth_tx": "maceth_tx",
                                          "eth_rx": "maceth_rx"})(
                         LiteEthMACCore(phy=self.phy, dw=data_width,
-                                       with_preamble_crc=True, with_padding=True))
+                                       with_preamble_crc=True, with_padding=True,
+                                       tx_cdc_depth=_MAC_CORE_TX_CDC_DEPTH))
         # Store-and-forward TX packet FIFO (HW-root-caused 2026-07-04): the bare MACCore is
         # CUT-THROUGH and GMII has no mid-frame flow control (`tx_en = sink.valid` cycle by
         # cycle), while a fabric source may pause mid-frame -> a single `valid` bubble
@@ -1753,7 +1810,8 @@ class MilanMAC(LiteXModule):
                                     # ADDR[9] pointer cone on the AX critical
                                     # path (AX31/32: storage_32 CLKARDCLK->
                                     # ADDRARDADDR[9] -0.25 ns, 8 seeds missed)
-                                    payload_depth=512, param_depth=8,
+                                    payload_depth=_MAC_TX_SF_PAYLOAD_DEPTH,
+                                    param_depth=_MAC_TX_SF_PARAM_DEPTH,
                                     # buffered => migen SyncFIFOBuffered, whose
                                     # read port is SYNCHRONOUS. The default
                                     # fwft SyncFIFO reads the storage
@@ -2052,7 +2110,9 @@ class MilanMAC(LiteXModule):
 
         # THE END-STATION RESET ON AN AECP REBOOT (#787,
         # docs/design/REBOOT_RESET.md). The datapath's KL_reboot_ctrl owns the
-        # sequence; this is only its two attachments. The PHY hold sets the
+        # sequence; this is only its attachments: the frame-end toggle above
+        # and this MAC's statement of its transmit side (both in dp_ports),
+        # the PHY hold and the ICAPE2. The PHY hold sets the
         # LiteEth PHY reset itself (the `milan_mac_phy_crg_reset` CSR storage
         # that drives the PHY's reset pin), so the PHY is held in reset and the
         # link drops as after a power cut. It is a level that only rises, and a
@@ -2099,6 +2159,11 @@ class MilanMAC(LiteXModule):
             o_o_reboot_phy_hold = self.reboot_phy_hold,
             o_o_icap_csib       = self.icap_csib,
             o_o_icap_i          = self.icap_i,
+            i_i_ethtxend_tgl    = self.ethtxend_tgl,
+            # The two parameters by which this MAC states its transmit side
+            # (#787); Instance reads the p_ prefix.
+            p_REBOOT_MAC_TX_OCTETS_P = _mac_tx_egress_octets(nb, milan_cd != "sys"),
+            p_REBOOT_MAC_MIN_MBPS_P  = _PHY_MODEL_MIN_MBPS[phy_model],
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
             i_m_axis_mac_tx_tready = tx_dp.dp.ready,
@@ -3116,10 +3181,10 @@ class MilanSoC(SoCCore):
             milan_cd = "milan" if milan_clk_freq else "sys"
             dp_ports, i2s_pads = _board_audio_ports(platform)
             if with_mac:
-                self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
+                self.milan_mac = MilanMAC(platform, data_width=_MAC_DATA_WIDTH, milan_cd=milan_cd,
                                           gtx_tx_invert=gtx_tx_invert,
                                           phy_index=eth_phy_index,
-                                          phy_model=("mii" if board == "arty" else "gmii"),
+                                          phy_model=_BOARD_PHY_MODEL[board],
                                           rgmii_tx_delay=rgmii_tx_delay,
                                           rgmii_rx_delay=rgmii_rx_delay)
                 if board == "ax7101":

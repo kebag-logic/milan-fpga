@@ -1,16 +1,27 @@
 #!/usr/bin/env python3
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""Require section [RB] to fail on a datapath whose reset ignores REBOOT (#787).
+"""Require section [RB] to fail on each planted defect of the REBOOT reset (#787).
 
-The control builds this suite's base leg twice and runs section [RB] alone
-(`--reboot-only`): once from the committed sources, which must pass, and once
-with a private copy of milan_datapath.sv in which KL_reboot_ctrl never sees
-the processor's request. That copy must fail [RB]'s named check, the PHY hold
-two clocks after the request. Mutant logs stay in the private directory.
+The control builds this suite's base leg and runs section [RB] alone
+(`--reboot-only`): once from the committed sources, which must pass, then
+once per arm with a private copy of one source carrying the arm's plant.
+Each copy must fail [RB] on the arm's named check. [RB] grades the frames
+where they leave its MAC model, so the arms that let the PHY hold rise while
+a frame is still in the MAC fail there, not at the datapath's port:
 
-Exit 0 = the clean control passed and the mutant was caught by its check;
-1 = otherwise.
+  request-ignored              KL_reboot_ctrl never sees the processor's request
+  early-request                the request rises at the processor's acceptance,
+                               before the SUCCESS response has left
+  hold-on-the-request-alone    the PHY hold on the request, the shape silicon
+                               ran: no egress wait at all
+  egress-ignores-the-mac-fifo  the wait ends once the datapath's port is idle
+  egress-without-a-bound       a MAC that never finishes keeps the hold off
+  txend-unwired                the MAC's frame-end toggle is not connected
+  stop-unwired                 the datapath ignores KL_reboot_ctrl's stop
+
+Mutant logs stay in the private directory. Exit 0 = the clean control passed
+and every arm was caught by its named check; 1 = otherwise.
 """
 
 import subprocess
@@ -20,10 +31,43 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
-SOURCE = (ROOT / "hdl" / "milan" / "milan_datapath.sv").resolve()
-CONNECTED = "      .reboot_req_i (pp_reboot_req_w),\n"
-IGNORED = "      .reboot_req_i (pp_reboot_req_w & 1'b0),\n"
-NAMED = "[FAIL] RB the PHY hold rises two clocks after the REBOOT request"
+DATAPATH = (ROOT / "hdl" / "milan" / "milan_datapath.sv").resolve()
+CTRL = (ROOT / "hdl" / "milan" / "KL_reboot_ctrl.sv").resolve()
+
+DEPARTING = ("[FAIL] RB advertising: ENTITY_DEPARTING leaves after the notification, "
+             "before the PHY hold")
+
+#: (name, source, old text, new text, the named check this must break)
+ARMS = [
+    ("request-ignored", DATAPATH,
+     "      .reboot_req_i    (pp_reboot_req_w),\n",
+     "      .reboot_req_i    (pp_reboot_req_w & 1'b0),\n",
+     "[FAIL] RB advertising: the PHY hold rises"),
+    ("early-request", DATAPATH,
+     "      .reboot_req_i    (pp_reboot_req_w),\n",
+     "      .reboot_req_i    (pp_reboot_req_w | (pp_shadow.u_pp.rbt_st_r != 3'd0)),\n",
+     "[FAIL] RB advertising: the SUCCESS response leaves the MAC whole before the PHY hold"),
+    ("hold-on-the-request-alone", CTRL,
+     "            state_r <= S_EGRESS;\n            ms_r    <= '0;\n            stop_r  <= 1'b1;",
+     "            state_r <= S_HOLD;\n            ms_r    <= '0;\n            hold_r  <= 1'b1;",
+     DEPARTING),
+    ("egress-ignores-the-mac-fifo", CTRL,
+     "assign idle_w       = ~in_frame_r & (fly_r == '0);",
+     "assign idle_w       = ~in_frame_r & ((fly_r == '0) | 1'b1);",
+     DEPARTING),
+    ("egress-without-a-bound", CTRL,
+     "assign egress_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_EGRESS_MS_C));",
+     "assign egress_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_EGRESS_MS_C)) & 1'b0;",
+     "[FAIL] RB dead transmit clock: the PHY hold still rises"),
+    ("txend-unwired", DATAPATH,
+     "      .mac_txend_tgl_i (i_ethtxend_tgl),\n",
+     "      .mac_txend_tgl_i (i_ethtxend_tgl & 1'b0),\n",
+     "[FAIL] RB advertising: ...and at most two ticks and eight clocks after it"),
+    ("stop-unwired", DATAPATH,
+     "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid & ~reboot_tx_stop_w;\n",
+     "  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid & ~(reboot_tx_stop_w & 1'b0);\n",
+     "[FAIL] RB advertising: no frame starts at the MAC port from then to the end of the run"),
+]
 
 
 def run_leg(directory: Path, label: str, sources: list[Path] | None = None) -> tuple[int, str]:
@@ -44,11 +88,20 @@ def run_leg(directory: Path, label: str, sources: list[Path] | None = None) -> t
 
 
 def main() -> int:
-    """The clean control, then the mutant; 0 when the mutant was caught."""
-    original = SOURCE.read_text()
-    if original.count(CONNECTED) != 1:
-        print("REFUSED: the request connection anchor changed")
-        return 1
+    """The clean control, then every arm; 0 when each arm was caught."""
+    originals = {path: path.read_text() for path in (DATAPATH, CTRL)}
+    for name, source, old, _new, _check in ARMS:
+        if originals[source].count(old) != 1:
+            print(f"REFUSED: {name}: its anchor occurs {originals[source].count(old)} times")
+            return 1
+    listing = subprocess.run(["make", "-s", "-C", "../milan_dp", "print-srcs"],
+                             cwd=HERE, check=True, capture_output=True, text=True)
+    sources = [(HERE / path).resolve() for path in listing.stdout.split()]
+    for path in originals:
+        if sources.count(path) != 1:
+            print(f"REFUSED: expected exactly one {path.name} in the datapath source list")
+            return 1
+    missed = []
     with tempfile.TemporaryDirectory(prefix="pp-reboot-") as temporary:
         directory = Path(temporary)
         status, text = run_leg(directory, "control")
@@ -56,29 +109,33 @@ def main() -> int:
             print(f"FAIL: the clean control did not pass [RB] (exit {status})")
             return 1
         print("clean control: [RB] PASS")
-        mutant = directory / "hdl" / "milan" / SOURCE.name
-        mutant.parent.mkdir(parents=True)
-        mutant.write_text(original.replace(CONNECTED, IGNORED))
-        listing = subprocess.run(["make", "-s", "-C", "../milan_dp", "print-srcs"],
-                                 cwd=HERE, check=True, capture_output=True, text=True)
-        sources = [(HERE / path).resolve() for path in listing.stdout.split()]
-        if sources.count(SOURCE) != 1:
-            print("REFUSED: expected exactly one shipping datapath source")
+        for name, source, old, new, check in ARMS:
+            mutant = directory / name / "hdl" / "milan" / source.name
+            mutant.parent.mkdir(parents=True)
+            mutant.write_text(originals[source].replace(old, new))
+            planted = [mutant if path == source else path for path in sources]
+            status, text = run_leg(directory, name, planted)
+            failing = sum(1 for line in text.splitlines()
+                          if line.lstrip().startswith("[FAIL]"))
+            caught = status != 0 and "RESULT: FAIL" in text and any(
+                line.lstrip().startswith(check) for line in text.splitlines())
+            if caught:
+                print(f"{name}: KILLED by its named check, {failing} failing checks")
+                print(f"  named check: {check[len('[FAIL] '):]}")
+            else:
+                reason = "it built nothing to grade" if "RESULT:" not in text else \
+                         "its named check passed"
+                print(f"{name}: SURVIVED, {reason} (exit {status})")
+                missed.append(name)
+    for path, text in originals.items():
+        if path.read_text() != text:
+            print(f"FAIL: {path.name} changed during the mutation")
             return 1
-        sources = [mutant if path == SOURCE else path for path in sources]
-        status, text = run_leg(directory, "request-ignored", sources)
-        caught = status != 0 and "RESULT: FAIL" in text and NAMED in text
-        failing = sum(1 for line in text.splitlines() if line.lstrip().startswith("[FAIL]"))
-        if SOURCE.read_text() != original:
-            print("FAIL: the shipping source changed during the mutation")
-            return 1
-        if not caught:
-            print(f"FAIL: request-ignored SURVIVED (exit {status})")
-            return 1
-        print(f"request-ignored: KILLED by its named check, {failing} failing checks")
-        print(f"  named check: {NAMED[len('[FAIL] '):]}")
-    print("PASS: the reset that ignores the REBOOT request is caught by [RB]; "
-          "clean control passes")
+    print(f"== pp_shadow reboot mutants: arms: {len(ARMS)}   survived: {len(missed)} ==")
+    if missed:
+        print("RESULT: FAIL (" + ", ".join(missed) + ")")
+        return 1
+    print(f"PASS: [RB] catches every arm ({len(ARMS)} of {len(ARMS)}); clean control passes")
     return 0
 
 

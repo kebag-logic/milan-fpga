@@ -31,10 +31,10 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE.parents[2] / "hdl" / "milan" / "KL_reboot_ctrl.sv"
 
-REQ = "U1 no writer: the PHY hold rises two clocks after the request"
-DIRTY = "U3 dirty work with a live writer: no PHY hold and no IPROG for 4,000 ms"
-PEND = "U4 pending work with a live writer: no PHY hold for 1,500 ms"
-LOST = "U6 the writer is lost: the PHY hold rises on that clock"
+REQ = "U1 no writer: the egress wait starts two clocks after the request"
+DIRTY = "U3 dirty work with a live writer: no stop, no PHY hold and no IPROG for 4,000 ms"
+PEND = "U4 pending work with a live writer: no stop and no PHY hold for 1,500 ms"
+LOST = "U6 the writer is lost: the egress wait starts on that clock"
 LATE = "U5 ...and at most one tick after 10,000 ms"
 EARLY = "U5 a writer that never commits: the drain ends after more than 10,000 ms"
 SHORT = "U1 the hold is longer than 3,500 ms"
@@ -44,7 +44,21 @@ WORDS = ("U1 eight consecutive clocks carry dummy, sync, NOOP, WBSTAR, 0, CMD, I
 CSIB = "U1 CSIB is high again after the eighth word"
 HELD = "U1 the PHY hold stays up through the IPROG words"
 LATCH = "U7 a one-clock request: the PHY hold still rises"
-RESET = "U9 a reset during the hold: back to idle, and no IPROG afterwards"
+RESET = "U9 a reset during the hold: back to idle, the port open, and no IPROG afterwards"
+# the egress wait (issue #787: no PHY hold before the frames in the MAC reach its PHY)
+IN_MAC = "U12 ...and no PHY hold 20 ms later with three frames still in the MAC"
+TWO_LEFT = "U12 two frames still in the MAC: no PHY hold"
+QUIET = "U12 the last frame reaches the PHY: from its end the PHY hold rises more than one tick later"
+COINCIDE = "U12 coincide: the second frame is still in the MAC: no PHY hold"
+IN_PROGRESS = "U13 a frame still being taken 3 ms into the wait: no PHY hold"
+OPEN = "U13 the egress wait starts with a frame half taken: the port stays open for it"
+STOPPED = "U13 ...then starts no new frame"
+HOLD_STOP = "U13 the port stays stopped through the hold"
+NO_BOUND = "U14 a MAC that never finishes: the PHY hold still rises"
+BOUND_SHORT = "U14 ...after more than the derived egress bound"
+BOUND_LONG = "U14 ...and at most one tick more"
+FLUSH = "U15 a flush in the wait: from the flush ...and at most two ticks and the crossing later"
+WRAP = "U16 it reaches the PHY: from its end ...and at most two ticks and the crossing later"
 
 #: (name, old text, new text, the named check this must break)
 MUTATIONS = [
@@ -52,32 +66,32 @@ MUTATIONS = [
      "if (reboot_req_i) state_r <= S_DRAIN;",
      "if (reboot_req_i & 1'b0) state_r <= S_DRAIN;", REQ),
     ("drain-ignores-dirty",
-     "assign drained_w   = ~nvm_backed_i | (~nvm_dirty_i & ~nvm_pend_i);",
-     "assign drained_w   = ~nvm_backed_i | (~(nvm_dirty_i & 1'b0) & ~nvm_pend_i);", DIRTY),
+     "assign drained_w    = ~nvm_backed_i | (~nvm_dirty_i & ~nvm_pend_i);",
+     "assign drained_w    = ~nvm_backed_i | (~(nvm_dirty_i & 1'b0) & ~nvm_pend_i);", DIRTY),
     ("drain-ignores-pend",
-     "assign drained_w   = ~nvm_backed_i | (~nvm_dirty_i & ~nvm_pend_i);",
-     "assign drained_w   = ~nvm_backed_i | (~nvm_dirty_i & ~(nvm_pend_i & 1'b0));", PEND),
+     "assign drained_w    = ~nvm_backed_i | (~nvm_dirty_i & ~nvm_pend_i);",
+     "assign drained_w    = ~nvm_backed_i | (~nvm_dirty_i & ~(nvm_pend_i & 1'b0));", PEND),
     ("drain-ignores-a-lost-writer",
-     "assign drained_w   = ~nvm_backed_i | (~nvm_dirty_i & ~nvm_pend_i);",
-     "assign drained_w   = ~(nvm_backed_i | 1'b1) | (~nvm_dirty_i & ~nvm_pend_i);", LOST),
+     "assign drained_w    = ~nvm_backed_i | (~nvm_dirty_i & ~nvm_pend_i);",
+     "assign drained_w    = ~(nvm_backed_i | 1'b1) | (~nvm_dirty_i & ~nvm_pend_i);", LOST),
     ("no-drain-deadline",
-     "assign drain_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_DRAIN_MS_P));",
-     "assign drain_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_DRAIN_MS_P)) & 1'b0;", LATE),
+     "assign drain_exp_w  = ms_tick_i & (ms_r == MS_W_C'(T_DRAIN_MS_P));",
+     "assign drain_exp_w  = ms_tick_i & (ms_r == MS_W_C'(T_DRAIN_MS_P)) & 1'b0;", LATE),
     ("drain-deadline-a-tick-early",
-     "assign drain_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_DRAIN_MS_P));",
-     "assign drain_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_DRAIN_MS_P - 1));", EARLY),
+     "assign drain_exp_w  = ms_tick_i & (ms_r == MS_W_C'(T_DRAIN_MS_P));",
+     "assign drain_exp_w  = ms_tick_i & (ms_r == MS_W_C'(T_DRAIN_MS_P - 1));", EARLY),
     ("hold-skipped",
-     "assign hold_exp_w  = ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P));",
-     "assign hold_exp_w  = 1'b1 | (ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P)));", SHORT),
+     "assign hold_exp_w   = ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P));",
+     "assign hold_exp_w   = 1'b1 | (ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P)));", SHORT),
     ("hold-a-tick-short",
-     "assign hold_exp_w  = ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P));",
-     "assign hold_exp_w  = ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P - 1));", SHORT),
+     "assign hold_exp_w   = ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P));",
+     "assign hold_exp_w   = ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P - 1));", SHORT),
     ("hold-a-tick-long",
-     "assign hold_exp_w  = ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P));",
-     "assign hold_exp_w  = ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P + 1));", LONG),
+     "assign hold_exp_w   = ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P));",
+     "assign hold_exp_w   = ms_tick_i & (ms_r == MS_W_C'(T_HOLD_MS_P + 1));", LONG),
     ("bits-not-reversed",
-     "assign icap_i_o    = byte_swap_bits_f(iprog_word_f(idx_r));",
-     "assign icap_i_o    = iprog_word_f(idx_r) | (byte_swap_bits_f(32'd0) & 32'd0);", WORDS),
+     "assign icap_i_o      = byte_swap_bits_f(iprog_word_f(idx_r));",
+     "assign icap_i_o      = iprog_word_f(idx_r) | (byte_swap_bits_f(32'd0) & 32'd0);", WORDS),
     ("wbstar-write-dropped",
      "3'd3:    iprog_word_f = 32'h3002_0001;",
      "3'd3:    iprog_word_f = 32'h2000_0000;", WORDS),
@@ -95,8 +109,63 @@ MUTATIONS = [
      "          if (!reboot_req_i) begin\n            state_r <= S_IDLE;\n"
      "          end else if (drained_w || drain_exp_w) begin", LATCH),
     ("hold-survives-reset",
-     "      hold_r  <= 1'b0;\n    end else begin",
-     "    end else begin", RESET),
+     "      hold_r  <= 1'b0;\n      stop_r  <= 1'b0;",
+     "      stop_r  <= 1'b0;", RESET),
+    # the [A10] arms of issuecomment-6518083444: today's PHY hold on the
+    # request alone, a drain that ignores the MAC FIFO, a drain with no bound
+    ("hold-on-the-request-alone",
+     "            state_r <= S_EGRESS;\n            ms_r    <= '0;\n            stop_r  <= 1'b1;",
+     "            state_r <= S_HOLD;\n            ms_r    <= '0;\n            hold_r  <= 1'b1;",
+     IN_MAC),
+    ("egress-ignores-the-mac-fifo",
+     "assign idle_w       = ~in_frame_r & (fly_r == '0);",
+     "assign idle_w       = ~in_frame_r & ((fly_r == '0) | 1'b1);", IN_MAC),
+    ("egress-without-a-bound",
+     "assign egress_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_EGRESS_MS_C));",
+     "assign egress_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_EGRESS_MS_C)) & 1'b0;", NO_BOUND),
+    ("egress-bound-a-tick-short",
+     "assign egress_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_EGRESS_MS_C));",
+     "assign egress_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_EGRESS_MS_C - 1));", BOUND_SHORT),
+    ("egress-bound-a-tick-long",
+     "assign egress_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_EGRESS_MS_C));",
+     "assign egress_exp_w = ms_tick_i & (ms_r == MS_W_C'(T_EGRESS_MS_C + 1));", BOUND_LONG),
+    ("egress-bound-rounded-down",
+     "localparam int unsigned T_SEND_MS_C    = (MAC_TX_OCTETS_P * 8 + BITS_PER_MS_C - 1)",
+     "localparam int unsigned T_SEND_MS_C    = (MAC_TX_OCTETS_P * 8 + 0 * BITS_PER_MS_C)",
+     BOUND_SHORT),
+    ("egress-without-the-quiet-tick",
+     "          if ((ms_tick_i && quiet_r && idle_w) || egress_exp_w) begin",
+     "          if ((ms_tick_i && (quiet_r | 1'b1) && idle_w) || egress_exp_w) begin", QUIET),
+    ("egress-ignores-the-frame-at-the-port",
+     "assign idle_w       = ~in_frame_r & (fly_r == '0);",
+     "assign idle_w       = ~(in_frame_r & 1'b0) & (fly_r == '0);", IN_PROGRESS),
+    ("frames-taken-not-counted",
+     "assign took_w       = mac_tx_beat_i & mac_tx_last_i;",
+     "assign took_w       = mac_tx_beat_i & mac_tx_last_i & 1'b0;", IN_MAC),
+    ("end-read-as-a-level",
+     "assign txend_w      = txend_sync_r[2] ^ txend_sync_r[1];",
+     "assign txend_w      = txend_sync_r[2] | (txend_sync_r[1] & 1'b0);", TWO_LEFT),
+    ("end-wins-over-a-take",
+     "      else if (txend_w && !took_w && fly_r != '0)",
+     "      else if (txend_w && fly_r != '0)", COINCIDE),
+    ("count-wraps-below-zero",
+     "      else if (txend_w && !took_w && fly_r != '0)",
+     "      else if (txend_w && !took_w)", WRAP),
+    ("flush-ignored",
+     "      if (mac_flush_i)\n        fly_r <= '0;\n      else if",
+     "      if (mac_flush_i & 1'b0)\n        fly_r <= '0;\n      else if", FLUSH),
+    ("stop-dropped",
+     "assign mac_tx_stop_o = stop_r & ~in_frame_r;",
+     "assign mac_tx_stop_o = stop_r & ~in_frame_r & 1'b0;", STOPPED),
+    ("stop-cuts-the-frame-in-progress",
+     "assign mac_tx_stop_o = stop_r & ~in_frame_r;",
+     "assign mac_tx_stop_o = stop_r | (in_frame_r & 1'b0);", OPEN),
+    ("stop-released-at-the-hold",
+     "            hold_r  <= 1'b1;\n",
+     "            hold_r  <= 1'b1;\n            stop_r  <= 1'b0;\n", HOLD_STOP),
+    ("stop-survives-reset",
+     "      stop_r  <= 1'b0;\n      quiet_r <= 1'b0;",
+     "      quiet_r <= 1'b0;", RESET),
 ]
 
 

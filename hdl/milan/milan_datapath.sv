@@ -363,7 +363,16 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! hold before each IPROG. Product builds keep these values; the bound
   //! and the reasons are in docs/design/REBOOT_RESET.md
   parameter int REBOOT_DRAIN_MS_P = 10_000,
-  parameter int REBOOT_HOLD_MS_P  = 3_500
+  parameter int REBOOT_HOLD_MS_P  = 3_500,
+  //! the MAC's statement of its transmit side, from which KL_reboot_ctrl
+  //! derives how long the PHY hold may wait for the frames already in it.
+  //! The SoC states it from the FIFOs it builds; the defaults are the
+  //! assumption for a MAC that states nothing. First the most octets of
+  //! line time the MAC can owe: every buffer, each buffered frame's framing,
+  //! one maximum frame being sent
+  parameter int REBOOT_MAC_TX_OCTETS_P = 32_768,
+  //! ...and the slowest line rate it runs at, in Mbps
+  parameter int REBOOT_MAC_MIN_MBPS_P  = 10
 )(
   //! ---- AECP descriptor-image READ master (to the SoC's main memory) -----
   //! The protocol processor's entity model lives in DDR3. This is its fetch
@@ -576,12 +585,17 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! THE END-STATION RESET ON AN AECP REBOOT (#787, docs/design/REBOOT_RESET.md).
   //! o_reboot_phy_hold is the reset-control bit: 1 = hold the PHY in reset
   //! (the SoC sets the LiteEth PHY reset from it), rising once the saved
-  //! state has drained and held until the reconfiguration. The ICAPE2 port
-  //! carries the IPROG sequence that reloads the configuration from flash:
-  //! the SoC instantiates the primitive on it, RDWRB tied to write.
+  //! state has drained and every frame given to the MAC has reached its
+  //! PHY, and held until the reconfiguration. The ICAPE2 port carries the
+  //! IPROG sequence that reloads the configuration from flash: the SoC
+  //! instantiates the primitive on it, RDWRB tied to write.
   output wire        o_reboot_phy_hold,
   output wire        o_icap_csib,      //! ICAPE2 CSIB, active low
   output wire [31:0] o_icap_i,         //! ICAPE2 I, bits of each byte reversed
+  //! async: the MAC flips it on the last octet of every frame it hands its
+  //! PHY (a reset-less toggle in the MAC's transmit domain). Tie 0 on a
+  //! build without a MAC: the REBOOT's egress wait then runs to its bound
+  input  wire        i_ethtxend_tgl,
   //! async divide-by-2 toggles from the SoC's eth clock domains (link guard
   //! liveness sensing; tie high on TBs/tops without a PHY - a static level
   //! reads as a dead clock only until the guard is disabled via LINK_CTRL[2])
@@ -1590,12 +1604,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .frame_tu_o (aaf_frame_tu_w),
     .frame_mr_o (aaf_frame_mr_w)
   );
-  // arbiter out -> MAC-facing TX
+  // arbiter out -> MAC-facing TX. On an AECP REBOOT the port finishes the
+  // frame in progress and starts no other until reset (#787), so the frames
+  // already in the MAC are the last ones the PHY hold waits for.
+  logic reboot_tx_stop_w;
   assign m_axis_mac_tx_tdata  = tx_axis_to_mac.tdata;
   assign m_axis_mac_tx_tkeep  = tx_axis_to_mac.tkeep;
-  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid;
+  assign m_axis_mac_tx_tvalid = tx_axis_to_mac.tvalid & ~reboot_tx_stop_w;
   assign m_axis_mac_tx_tlast  = tx_axis_to_mac.tlast;
-  assign tx_axis_to_mac.tready = m_axis_mac_tx_tready;
+  assign tx_axis_to_mac.tready = m_axis_mac_tx_tready & ~reboot_tx_stop_w;
   //! MAC-facing RX -> the shared pre-filter tap. The ptp_ts_top RX stamper
   //! that sat on this hop was a combinational pass-through whose records
   //! nothing consumed; the fabric gPTP plane stamps its own ingress off
@@ -9723,22 +9740,32 @@ module milan_datapath import ethernet_packet_pkg::*; #(
 
   //! ---- the end-station reset on an AECP REBOOT (#787) -------------------
   //! The processor's held request becomes a configuration reload from flash
-  //! once the saved state has drained (KL_reboot_ctrl's banner). The waits
-  //! count the datapath's millisecond tick, the map writer's amr_tick_r.
+  //! once the saved state has drained and the MAC has sent every frame it
+  //! was given (KL_reboot_ctrl's banner). The waits count the datapath's
+  //! millisecond tick, the map writer's amr_tick_r. The account sees the
+  //! MAC port after the stop, and the flush is the link guard's episode with
+  //! both the MAC's sys side and its eth side held in reset.
   KL_reboot_ctrl #(
-      .T_DRAIN_MS_P (REBOOT_DRAIN_MS_P),
-      .T_HOLD_MS_P  (REBOOT_HOLD_MS_P)
+      .T_DRAIN_MS_P    (REBOOT_DRAIN_MS_P),
+      .T_HOLD_MS_P     (REBOOT_HOLD_MS_P),
+      .MAC_TX_OCTETS_P (REBOOT_MAC_TX_OCTETS_P),
+      .MAC_MIN_MBPS_P  (REBOOT_MAC_MIN_MBPS_P)
     ) reboot_ctrl (
-      .clk_i        (axis_clk),
-      .rst_n        (axis_resetn),
-      .ms_tick_i    (amr_tick_r),
-      .reboot_req_i (pp_reboot_req_w),
-      .nvm_backed_i (pp_nvm_backed_w),
-      .nvm_dirty_i  (pp_nvm_dirty_w),
-      .nvm_pend_i   (pp_nvm_pend_w),
-      .phy_hold_o   (o_reboot_phy_hold),
-      .icap_csib_o  (o_icap_csib),
-      .icap_i_o     (o_icap_i)
+      .clk_i           (axis_clk),
+      .rst_n           (axis_resetn),
+      .ms_tick_i       (amr_tick_r),
+      .reboot_req_i    (pp_reboot_req_w),
+      .nvm_backed_i    (pp_nvm_backed_w),
+      .nvm_dirty_i     (pp_nvm_dirty_w),
+      .nvm_pend_i      (pp_nvm_pend_w),
+      .mac_tx_beat_i   (m_axis_mac_tx_tvalid & m_axis_mac_tx_tready),
+      .mac_tx_last_i   (m_axis_mac_tx_tlast),
+      .mac_txend_tgl_i (i_ethtxend_tgl),
+      .mac_flush_i     (linkg_reinit_w & linkg_eth_rst_w),
+      .mac_tx_stop_o   (reboot_tx_stop_w),
+      .phy_hold_o      (o_reboot_phy_hold),
+      .icap_csib_o     (o_icap_csib),
+      .icap_i_o        (o_icap_i)
     );
 
   //! ------------------------------------------------------------------

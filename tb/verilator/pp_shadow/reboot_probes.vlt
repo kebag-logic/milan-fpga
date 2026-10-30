@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
-// Read-only cycle probe for section [RB]: the processor's REBOOT request
-// where milan_datapath receives it (#787).
+// Read-only cycle probes for section [RB] (#787): the processor's REBOOT
+// request where milan_datapath receives it, KL_reboot_ctrl's stop (the
+// egress wait's start) and KL_maap's offer, the frame source the stop holds.
 `verilator_config
 public_flat_rd -module "milan_datapath" -var "pp_reboot_req_w"
+public_flat_rd -module "milan_datapath" -var "maap_tx_tvalid"
+public_flat_rd -module "KL_reboot_ctrl" -var "stop_r"
