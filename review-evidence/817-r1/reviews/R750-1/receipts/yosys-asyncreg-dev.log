@@ -1,0 +1,792 @@
+
+ /----------------------------------------------------------------------------\
+ |  yosys -- Yosys Open SYnthesis Suite                                       |
+ |  Copyright (C) 2012 - 2026  Claire Xenia Wolf <claire@yosyshq.com>         |
+ |  Distributed under an ISC-like license, type "license" to see terms        |
+ \----------------------------------------------------------------------------/
+ Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+
+-- Running command `read_verilog $REVIEWS/817-r750-1-packet/scratch/servo-dev.v; hierarchy -top KL_mmcm_drp_servo; proc; select -list KL_mmcm_drp_servo/a:ASYNC_REG' --
+
+1. Executing Verilog-2005 frontend: $REVIEWS/817-r750-1-packet/scratch/servo-dev.v
+Parsing Verilog input from `$REVIEWS/817-r750-1-packet/scratch/servo-dev.v' to AST representation.
+Generating RTLIL representation for module `\cdc_pulse'.
+Generating RTLIL representation for module `\cdc_handshake'.
+Generating RTLIL representation for module `\KL_mmcm_drp_servo'.
+Successfully finished Verilog frontend.
+
+2. Executing HIERARCHY pass (managing design hierarchy).
+
+2.1. Analyzing design hierarchy..
+Top module:  \KL_mmcm_drp_servo
+Used module:     \cdc_handshake
+Used module:     \cdc_pulse
+Parameter \WIDTH = 15
+
+2.2. Executing AST frontend in derive mode using pre-parsed AST for module `\cdc_handshake'.
+Parameter \WIDTH = 15
+Generating RTLIL representation for module `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111'.
+
+2.3. Analyzing design hierarchy..
+Top module:  \KL_mmcm_drp_servo
+Used module:     $paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111
+Used module:     \cdc_pulse
+
+2.4. Analyzing design hierarchy..
+Top module:  \KL_mmcm_drp_servo
+Used module:     $paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111
+Used module:     \cdc_pulse
+Removing unused module `\cdc_handshake'.
+Removed 1 unused modules.
+
+3. Executing PROC pass (convert processes to netlists).
+
+3.1. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Cleaned up 0 empty switches.
+
+3.2. Executing PROC_RMDEAD pass (remove dead branches from decision trees).
+Marked 4 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626 in module KL_mmcm_drp_servo.
+Removed 1 dead cases from process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293 in module KL_mmcm_drp_servo.
+Marked 36 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293 in module KL_mmcm_drp_servo.
+Marked 9 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234 in module KL_mmcm_drp_servo.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:380$160 in module KL_mmcm_drp_servo.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:373$158 in module KL_mmcm_drp_servo.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:306$153 in module KL_mmcm_drp_servo.
+Marked 2 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:278$149 in module KL_mmcm_drp_servo.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:89$729 in module $paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:83$726 in module $paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:77$723 in module $paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:64$718 in module $paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:24$4 in module cdc_pulse.
+Marked 1 switch rules as full_case in process $proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:18$1 in module cdc_pulse.
+Removed a total of 1 dead cases.
+
+3.3. Executing PROC_PRUNE pass (remove redundant assignments in processes).
+Removed 16 redundant assignments.
+Promoted 117 assignments to connections.
+
+3.4. Executing PROC_INIT pass (extract init attributes).
+
+3.5. Executing PROC_ARST pass (detect async resets in processes).
+
+3.6. Executing PROC_ROM pass (convert switches to ROMs).
+Converted 0 switches.
+<suppressed ~98 debug messages>
+
+3.7. Executing PROC_MUX pass (convert decision trees to multiplexers).
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:1062$714'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:1055$709'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:599$705'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:599$701'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:599$697'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:476$693'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:476$688'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:476$683'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:475$678'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:474$674'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:474$670'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:474$666'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:465$662'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:465$658'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:464$654'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:464$650'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:456$646'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:456$641'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:436$637'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+     1/10: $0\ps_en_o[0:0]
+     2/10: $0\ps_wd_r[7:0]
+     3/10: $0\pend_r[14:0]
+     4/10: $0\pend_v_r[0:0]
+     5/10: $0\ps_dir_r[0:0]
+     6/10: $0\ps_cnt_r[13:0]
+     7/10: $0\pstate_r[1:0]
+     8/10: $0\ps_fault_ps_r[0:0]
+     9/10: $0\ps_busy_ps_r[0:0]
+    10/10: $0\ps_incdec_o[0:0]
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:969$625'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+     1/220: $5\servo_engine.dispatch.a_v[31:0]
+     2/220: $4\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$123.$result[13:0]$589
+     3/220: $4\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$123.inp[13:0]$590
+     4/220: $4\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$122.$result[13:0]$587
+     5/220: $4\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$122.inp[13:0]$588
+     6/220: $5\servo_engine.dispatch.b_v[31:0]
+     7/220: $4\servo_engine.dispatch.b_v[31:0]
+     8/220: $3\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$123.inp[13:0]$582
+     9/220: $3\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$123.$result[13:0]$581
+    10/220: $3\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$122.inp[13:0]$580
+    11/220: $3\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$122.$result[13:0]$579
+    12/220: $4\servo_engine.dispatch.a_v[31:0]
+    13/220: $3\servo_engine.dispatch.b_v[31:0]
+    14/220: $3\servo_engine.dispatch.a_v[31:0]
+    15/220: $5\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$109.$result[23:0]$555
+    16/220: $5\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$114.inp[23:0]$557
+    17/220: $5\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$114.$result[23:0]$556
+    18/220: $4\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$109.$result[23:0]$551
+    19/220: $4\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$114.inp[23:0]$553
+    20/220: $4\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$114.$result[23:0]$552
+    21/220: $5\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:796$105.$result[23:0]$547
+    22/220: $5\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$108.inp[23:0]$549
+    23/220: $5\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$108.$result[23:0]$548
+    24/220: $4\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:796$105.$result[23:0]$543
+    25/220: $4\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$108.inp[23:0]$545
+    26/220: $4\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$108.$result[23:0]$544
+    27/220: $5\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$100.$result[23:0]$537
+    28/220: $5\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$104.inp[23:0]$539
+    29/220: $5\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$104.$result[23:0]$538
+    30/220: $4\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$100.$result[23:0]$533
+    31/220: $4\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$104.inp[23:0]$535
+    32/220: $4\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$104.$result[23:0]$534
+    33/220: $5\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$95.$result[23:0]$527
+    34/220: $5\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$99.inp[23:0]$529
+    35/220: $5\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$99.$result[23:0]$528
+    36/220: $4\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$95.$result[23:0]$523
+    37/220: $4\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$99.inp[23:0]$525
+    38/220: $4\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$99.$result[23:0]$524
+    39/220: $5\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:790$91.$result[23:0]$519
+    40/220: $5\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$94.inp[23:0]$521
+    41/220: $5\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$94.$result[23:0]$520
+    42/220: $4\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:790$91.$result[23:0]$515
+    43/220: $4\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$94.inp[23:0]$517
+    44/220: $4\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$94.$result[23:0]$516
+    45/220: $3\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$114.inp[23:0]$500
+    46/220: $3\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$114.$result[23:0]$499
+    47/220: $3\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$111.inp[31:0]$498
+    48/220: $3\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$111.$result[31:0]$497
+    49/220: $3\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$110.inp[31:0]$496
+    50/220: $3\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$110.$result[31:0]$495
+    51/220: $3\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$109.v[31:0]$494
+    52/220: $3\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$109.$result[23:0]$493
+    53/220: $3\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$108.inp[23:0]$492
+    54/220: $3\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$108.$result[23:0]$491
+    55/220: $3\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:796$105.v[31:0]$490
+    56/220: $3\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:796$105.$result[23:0]$489
+    57/220: $3\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$104.inp[23:0]$488
+    58/220: $3\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$104.$result[23:0]$487
+    59/220: $3\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$101.inp[31:0]$486
+    60/220: $3\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$101.$result[31:0]$485
+    61/220: $3\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$100.v[31:0]$484
+    62/220: $3\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$100.$result[23:0]$483
+    63/220: $3\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$99.inp[23:0]$482
+    64/220: $3\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$99.$result[23:0]$481
+    65/220: $3\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$96.inp[31:0]$480
+    66/220: $3\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$96.$result[31:0]$479
+    67/220: $3\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$95.v[31:0]$478
+    68/220: $3\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$95.$result[23:0]$477
+    69/220: $3\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$94.inp[23:0]$476
+    70/220: $3\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$94.$result[23:0]$475
+    71/220: $3\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:790$91.v[31:0]$474
+    72/220: $3\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:790$91.$result[23:0]$473
+    73/220: $3\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:775$89.inp[31:0]$472
+    74/220: $3\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:775$89.$result[31:0]$471
+    75/220: $3\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:767$88.inp[31:0]$470
+    76/220: $3\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:767$88.$result[31:0]$469
+    77/220: $2\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$123.inp[13:0]$449
+    78/220: $2\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$123.$result[13:0]$448
+    79/220: $2\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$122.inp[13:0]$447
+    80/220: $2\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$122.$result[13:0]$446
+    81/220: $2\servo_engine.dispatch.b_v[31:0]
+    82/220: $2\servo_engine.dispatch.a_v[31:0]
+    83/220: $2\servo_engine.disc_tally.n_v[6:0]
+    84/220: $2\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$121.$result[6:0]$444
+    85/220: $2\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$121.inp[6:0]$445
+    86/220: $2\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$120.$result[6:0]$442
+    87/220: $2\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$120.inp[6:0]$443
+    88/220: $2\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$119.$result[6:0]$440
+    89/220: $2\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$119.inp[6:0]$441
+    90/220: $2\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$118.$result[6:0]$438
+    91/220: $2\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$118.inp[6:0]$439
+    92/220: $2\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$114.inp[23:0]$437
+    93/220: $2\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$114.$result[23:0]$436
+    94/220: $2\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$111.inp[31:0]$435
+    95/220: $2\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$111.$result[31:0]$434
+    96/220: $2\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$110.inp[31:0]$433
+    97/220: $2\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$110.$result[31:0]$432
+    98/220: $2\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$109.v[31:0]$431
+    99/220: $2\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$109.$result[23:0]$430
+   100/220: $2\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$108.inp[23:0]$429
+   101/220: $2\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$108.$result[23:0]$428
+   102/220: $2\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:796$105.v[31:0]$427
+   103/220: $2\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:796$105.$result[23:0]$426
+   104/220: $2\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$104.inp[23:0]$425
+   105/220: $2\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$104.$result[23:0]$424
+   106/220: $2\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$101.inp[31:0]$423
+   107/220: $2\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$101.$result[31:0]$422
+   108/220: $2\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$100.v[31:0]$421
+   109/220: $2\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$100.$result[23:0]$420
+   110/220: $2\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$99.inp[23:0]$419
+   111/220: $2\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$99.$result[23:0]$418
+   112/220: $2\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$96.inp[31:0]$417
+   113/220: $2\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$96.$result[31:0]$416
+   114/220: $2\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$95.v[31:0]$415
+   115/220: $2\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$95.$result[23:0]$414
+   116/220: $2\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$94.inp[23:0]$413
+   117/220: $2\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$94.$result[23:0]$412
+   118/220: $2\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:790$91.v[31:0]$411
+   119/220: $2\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:790$91.$result[23:0]$410
+   120/220: $2\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:775$89.inp[31:0]$409
+   121/220: $2\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:775$89.$result[31:0]$408
+   122/220: $2\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:767$88.inp[31:0]$407
+   123/220: $2\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:767$88.$result[31:0]$406
+   124/220: $0\u_gain_r[31:0]
+   125/220: $0\drp_we_o[0:0]
+   126/220: $0\drp_en_o[0:0]
+   127/220: $1\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$123.inp[13:0]$386
+   128/220: $1\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$123.$result[13:0]$385
+   129/220: $1\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$122.inp[13:0]$384
+   130/220: $1\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$122.$result[13:0]$383
+   131/220: $1\servo_engine.dispatch.b_v[31:0]
+   132/220: $1\servo_engine.dispatch.a_v[31:0]
+   133/220: $1\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$121.inp[6:0]$382
+   134/220: $1\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$121.$result[6:0]$381
+   135/220: $1\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$120.inp[6:0]$380
+   136/220: $1\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$120.$result[6:0]$379
+   137/220: $1\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$119.inp[6:0]$378
+   138/220: $1\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$119.$result[6:0]$377
+   139/220: $1\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$118.inp[6:0]$376
+   140/220: $1\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$118.$result[6:0]$375
+   141/220: $1\servo_engine.disc_tally.n_v[6:0]
+   142/220: $1\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$114.inp[23:0]$374
+   143/220: $1\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$114.$result[23:0]$373
+   144/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$111.inp[31:0]$372
+   145/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$111.$result[31:0]$371
+   146/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$110.inp[31:0]$370
+   147/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$110.$result[31:0]$369
+   148/220: $1\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$109.v[31:0]$368
+   149/220: $1\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$109.$result[23:0]$367
+   150/220: $1\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$108.inp[23:0]$366
+   151/220: $1\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$108.$result[23:0]$365
+   152/220: $1\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:796$105.v[31:0]$364
+   153/220: $1\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:796$105.$result[23:0]$363
+   154/220: $1\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$104.inp[23:0]$362
+   155/220: $1\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$104.$result[23:0]$361
+   156/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$101.inp[31:0]$360
+   157/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$101.$result[31:0]$359
+   158/220: $1\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$100.v[31:0]$358
+   159/220: $1\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$100.$result[23:0]$357
+   160/220: $1\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$99.inp[23:0]$356
+   161/220: $1\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$99.$result[23:0]$355
+   162/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$96.inp[31:0]$354
+   163/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$96.$result[31:0]$353
+   164/220: $1\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$95.v[31:0]$352
+   165/220: $1\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$95.$result[23:0]$351
+   166/220: $1\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$94.inp[23:0]$350
+   167/220: $1\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$94.$result[23:0]$349
+   168/220: $1\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:790$91.v[31:0]$348
+   169/220: $1\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:790$91.$result[23:0]$347
+   170/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:775$89.inp[31:0]$346
+   171/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:775$89.$result[31:0]$345
+   172/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:767$88.inp[31:0]$344
+   173/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:767$88.$result[31:0]$343
+   174/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:676$79.inp[31:0]$342
+   175/220: $1\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:676$79.$result[31:0]$341
+   176/220: $0\win_slew_r[0:0]
+   177/220: $0\rst_settle_r[3:0]
+   178/220: $0\relock_r[17:0]
+   179/220: $0\drp_fault_r[0:0]
+   180/220: $0\mismatch_r[0:0]
+   181/220: $0\verified_r[0:0]
+   182/220: $0\rd_val_r[15:0]
+   183/220: $0\repairing_r[0:0]
+   184/220: $0\rd_second_r[0:0]
+   185/220: $0\drp_pass_r[0:0]
+   186/220: $0\ps_hold_r[0:0]
+   187/220: $0\hs_data_r[14:0]
+   188/220: $0\hs_send_r[0:0]
+   189/220: $0\acc_r[31:0]
+   190/220: $0\pp_du_r[31:0]
+   191/220: $0\pp_ut_r[23:0]
+   192/220: $0\pp_un_r[31:0]
+   193/220: $0\pp_igf_r[7:0]
+   194/220: $0\pp_ig_r[23:0]
+   195/220: $0\pp_thr_r[0:0]
+   196/220: $0\pp_ph_r[15:0]
+   197/220: $0\pp_ifr_r[7:0]
+   198/220: $0\pp_isum_r[31:0]
+   199/220: $0\pp_rate_r[31:0]
+   200/220: $0\pp_locerr_r[31:0]
+   201/220: $0\pp_spann_r[63:0]
+   202/220: $0\pp_d_r[63:0]
+   203/220: $0\pp_run_r[0:0]
+   204/220: $0\pp_seq_r[2:0]
+   205/220: $0\lock_cnt_r[2:0]
+   206/220: $0\integ_frac_r[7:0]
+   207/220: $0\u_cmd_r[23:0]
+   208/220: $0\integ_r[23:0]
+   209/220: $0\disc_cnt_r[5:0]
+   210/220: $0\disc_run_r[1:0]
+   211/220: $0\ew_r[31:0]
+   212/220: $0\win_skip_r[1:0]
+   213/220: $0\win_valid_r[0:0]
+   214/220: $0\win_start_r[63:0]
+   215/220: $0\tick_cnt_r[9:0]
+   216/220: $0\dstate_r[3:0]
+   217/220: $0\state_r[2:0]
+   218/220: $0\mmcm_rst_o[0:0]
+   219/220: $0\drp_di_o[15:0]
+   220/220: $0\drp_addr_o[6:0]
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+     1/39: $4\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:577$75.$result[25:0]$283
+     2/39: $4\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:577$75.inp[25:0]$284
+     3/39: $3\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:577$75.inp[25:0]$281
+     4/39: $3\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:577$75.$result[25:0]$280
+     5/39: $2\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:570$72.$result[25:0]$267
+     6/39: $2\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:570$72.inp[25:0]$268
+     7/39: $2\sv2v_cast_9$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:552$70.$result[8:0]$265
+     8/39: $2\sv2v_cast_9$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:552$70.inp[8:0]$266
+     9/39: $2\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:577$75.inp[25:0]$270
+    10/39: $2\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:577$75.$result[25:0]$269
+    11/39: $3\sv2v_cast_107F0$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:537$67.$result[27:0]$259
+    12/39: $3\sv2v_cast_107F0$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:537$67.inp[27:0]$260
+    13/39: $2\sv2v_cast_107F0$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:537$67.inp[27:0]$255
+    14/39: $2\sv2v_cast_107F0$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:537$67.$result[27:0]$254
+    15/39: $1\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:577$75.inp[25:0]$253
+    16/39: $1\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:577$75.$result[25:0]$252
+    17/39: $1\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:570$72.inp[25:0]$251
+    18/39: $1\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:570$72.$result[25:0]$250
+    19/39: $1\sv2v_cast_9$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:552$70.inp[8:0]$249
+    20/39: $1\sv2v_cast_9$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:552$70.$result[8:0]$248
+    21/39: $1\sv2v_cast_107F0$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:537$67.inp[27:0]$247
+    22/39: $1\sv2v_cast_107F0$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:537$67.$result[27:0]$246
+    23/39: $0\ph_set_cnt_r[2:0]
+    24/39: $0\ph_wcnt_r[8:0]
+    25/39: $0\ph_wvalid_r[0:0]
+    26/39: $0\ph_theta_v_r[0:0]
+    27/39: $0\ph_theta_r[15:0]
+    28/39: $0\ph_allin_r[0:0]
+    29/39: $0\ph_wok_r[0:0]
+    30/39: $0\ph_cnt_r[9:0]
+    31/39: $0\ph_sum_r[25:0]
+    32/39: $0\ph_ref_v_r[0:0]
+    33/39: $0\ph_ref_r[15:0]
+    34/39: $0\dv_cnt_r[4:0]
+    35/39: $0\dv_rem_r[17:0]
+    36/39: $0\dv_num_r[27:0]
+    37/39: $0\dv_busy_r[0:0]
+    38/39: $0\dom_fresh_r[0:0]
+    39/39: $0\dom_ns_r[31:0]
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:380$160'.
+     1/1: $0\ptp_jump_r[0:0]
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:373$158'.
+     1/1: $0\phc_slew_q_r[0:0]
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:368$157'.
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:306$153'.
+     1/3: $0\psfault_sync_r[1:0]
+     2/3: $0\psbusy_sync_r[1:0]
+     3/3: $0\locked_sync_r[1:0]
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:278$149'.
+     1/2: $0\tick_a_r[0:0]
+     2/2: $0\tick_div_r[14:0]
+Creating decoders for process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:269$148'.
+Creating decoders for process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:89$729'.
+     1/3: $0\dest_req_r[0:0]
+     2/3: $0\ack_tog[0:0]
+     3/3: $0\dest_out_r[14:0]
+Creating decoders for process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:83$726'.
+     1/1: $0\req_sync[2:0]
+Creating decoders for process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:77$723'.
+     1/1: $0\ack_sync[2:0]
+Creating decoders for process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:64$718'.
+     1/3: $0\src_send_d[0:0]
+     2/3: $0\data_hold[14:0]
+     3/3: $0\req_tog[0:0]
+Creating decoders for process `\cdc_pulse.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:24$4'.
+     1/1: $0\sync[2:0]
+Creating decoders for process `\cdc_pulse.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:18$1'.
+     1/1: $0\src_level[0:0]
+
+3.8. Executing PROC_DLATCH pass (convert process syncs to latches).
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_20_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:1062$128.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:1062$714'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_16_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:1055$126.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:1055$709'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_40_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:599$78.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:599$705'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_40_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:599$77.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:599$701'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_40_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:599$76.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:599$697'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_9432F_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:476$62.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:476$693'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_9432F$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:476$61.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:476$688'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_9432F$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:476$58.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:476$683'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_28F0B_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:475$55.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:475$678'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_28F0B_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:474$53.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:474$674'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_28F0B_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:474$51.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:474$670'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_28F0B_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:474$50.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:474$666'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_2681B_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:465$49.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:465$662'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_2681B_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:465$48.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:465$658'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_2681B_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:464$46.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:464$654'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_2681B_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:464$44.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:464$650'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_9432F_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:456$41.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:456$646'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_9432F$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:456$40.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:456$641'.
+No latch inferred for signal `\KL_mmcm_drp_servo.\sv2v_cast_A8CC3_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:436$35.$result' from process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:436$637'.
+
+3.9. Executing PROC_DFF pass (convert process syncs to FFs).
+Creating register for signal `\KL_mmcm_drp_servo.\ps_en_o' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+  created $dff cell `$procdff$3634' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ps_incdec_o' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+  created $dff cell `$procdff$3635' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ps_busy_ps_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+  created $dff cell `$procdff$3636' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ps_fault_ps_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+  created $dff cell `$procdff$3637' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pstate_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+  created $dff cell `$procdff$3638' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ps_cnt_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+  created $dff cell `$procdff$3639' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ps_dir_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+  created $dff cell `$procdff$3640' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pend_v_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+  created $dff cell `$procdff$3641' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pend_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+  created $dff cell `$procdff$3642' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ps_wd_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+  created $dff cell `$procdff$3643' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\psrst_sync_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:969$625'.
+  created $dff cell `$procdff$3644' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\drp_addr_o' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3645' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\drp_en_o' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3646' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\drp_we_o' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3647' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\drp_di_o' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3648' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\mmcm_rst_o' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3649' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\state_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3650' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\dstate_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3651' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\tick_cnt_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3652' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\win_start_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3653' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\win_valid_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3654' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\win_skip_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3655' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ew_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3656' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\disc_run_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3657' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\disc_cnt_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3658' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\integ_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3659' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\u_cmd_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3660' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\integ_frac_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3661' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\lock_cnt_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3662' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_seq_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3663' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_run_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3664' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_d_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3665' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_spann_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3666' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_locerr_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3667' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_rate_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3668' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_isum_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3669' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_ifr_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3670' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_ph_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3671' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_thr_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3672' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_ig_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3673' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_igf_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3674' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_un_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3675' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_ut_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3676' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\pp_du_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3677' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\u_gain_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3678' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\acc_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3679' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\hs_send_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3680' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\hs_data_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3681' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ps_hold_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3682' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\drp_pass_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3683' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\rd_second_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3684' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\repairing_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3685' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\rd_val_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3686' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\verified_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3687' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\mismatch_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3688' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\drp_fault_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3689' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\relock_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3690' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\rst_settle_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3691' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\win_slew_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3692' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:676$79.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3693' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:676$79.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3694' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:767$88.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3695' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:767$88.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3696' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:775$89.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3697' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:775$89.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3698' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:790$91.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3699' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:790$91.v' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3700' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$94.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3701' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$94.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3702' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$95.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3703' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$95.v' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3704' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$96.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3705' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:791$96.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3706' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$99.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3707' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$99.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3708' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$100.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3709' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$100.v' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3710' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$101.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3711' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:792$101.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3712' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$104.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3713' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$104.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3714' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:796$105.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3715' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:796$105.v' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3716' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$108.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3717' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$108.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3718' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$109.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3719' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\clamp_u$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$109.v' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3720' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$110.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3721' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$110.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3722' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$111.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3723' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_32_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:797$111.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3724' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$114.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3725' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_24_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:405$114.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3726' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\servo_engine.disc_tally.n_v' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3727' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$118.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3728' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$118.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3729' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$119.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3730' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$119.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3731' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$120.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3732' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$120.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3733' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$121.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3734' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_7$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:832$121.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3735' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\servo_engine.dispatch.a_v' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3736' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\servo_engine.dispatch.b_v' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3737' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$122.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3738' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$122.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3739' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$123.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3740' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_14_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:848$123.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+  created $dff cell `$procdff$3741' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\dom_ns_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3742' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\dom_fresh_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3743' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\dv_busy_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3744' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\dv_num_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3745' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\dv_rem_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3746' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\dv_cnt_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3747' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ph_ref_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3748' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ph_ref_v_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3749' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ph_sum_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3750' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ph_cnt_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3751' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ph_wok_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3752' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ph_allin_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3753' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ph_theta_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3754' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ph_theta_v_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3755' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ph_wvalid_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3756' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ph_wcnt_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3757' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ph_set_cnt_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3758' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_107F0$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:537$67.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3759' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_107F0$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:537$67.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3760' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_9$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:552$70.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3761' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_9$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:552$70.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3762' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:570$72.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3763' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:570$72.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3764' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:577$75.$result' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3765' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\sv2v_cast_E1E8D_signed$func$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:577$75.inp' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+  created $dff cell `$procdff$3766' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ptp_jump_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:380$160'.
+  created $dff cell `$procdff$3767' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\phc_slew_q_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:373$158'.
+  created $dff cell `$procdff$3768' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\ptp_q_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:368$157'.
+  created $dff cell `$procdff$3769' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\locked_sync_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:306$153'.
+  created $dff cell `$procdff$3770' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\psbusy_sync_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:306$153'.
+  created $dff cell `$procdff$3771' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\psfault_sync_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:306$153'.
+  created $dff cell `$procdff$3772' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\tick_div_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:278$149'.
+  created $dff cell `$procdff$3773' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\tick_a_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:278$149'.
+  created $dff cell `$procdff$3774' with positive edge clock.
+Creating register for signal `\KL_mmcm_drp_servo.\arst_sync_r' using process `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:269$148'.
+  created $dff cell `$procdff$3775' with positive edge clock.
+Creating register for signal `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.\dest_out_r' using process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:89$729'.
+  created $dff cell `$procdff$3776' with positive edge clock.
+Creating register for signal `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.\dest_req_r' using process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:89$729'.
+  created $dff cell `$procdff$3777' with positive edge clock.
+Creating register for signal `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.\ack_tog' using process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:89$729'.
+  created $dff cell `$procdff$3778' with positive edge clock.
+Creating register for signal `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.\req_sync' using process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:83$726'.
+  created $dff cell `$procdff$3779' with positive edge clock.
+Creating register for signal `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.\ack_sync' using process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:77$723'.
+  created $dff cell `$procdff$3780' with positive edge clock.
+Creating register for signal `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.\src_send_d' using process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:64$718'.
+  created $dff cell `$procdff$3781' with positive edge clock.
+Creating register for signal `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.\req_tog' using process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:64$718'.
+  created $dff cell `$procdff$3782' with positive edge clock.
+Creating register for signal `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.\data_hold' using process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:64$718'.
+  created $dff cell `$procdff$3783' with positive edge clock.
+Creating register for signal `\cdc_pulse.\sync' using process `\cdc_pulse.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:24$4'.
+  created $dff cell `$procdff$3784' with positive edge clock.
+Creating register for signal `\cdc_pulse.\src_level' using process `\cdc_pulse.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:18$1'.
+  created $dff cell `$procdff$3785' with positive edge clock.
+
+3.10. Executing PROC_MEMWR pass (convert process memory writes to cells).
+
+3.11. Executing PROC_CLEAN pass (remove empty switches from decision trees).
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:1062$714'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:1055$709'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:599$705'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:599$701'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:599$697'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:476$693'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:476$688'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:476$683'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:475$678'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:474$674'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:474$670'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:474$666'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:465$662'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:465$658'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:464$654'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:464$650'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:456$646'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:456$641'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:436$637'.
+Found and cleaned up 7 empty switches in `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:995$626'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:969$625'.
+Found and cleaned up 61 empty switches in `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:620$293'.
+Found and cleaned up 16 empty switches in `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:508$234'.
+Found and cleaned up 1 empty switch in `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:380$160'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:380$160'.
+Found and cleaned up 1 empty switch in `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:373$158'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:373$158'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:368$157'.
+Found and cleaned up 1 empty switch in `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:306$153'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:306$153'.
+Found and cleaned up 2 empty switches in `\KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:278$149'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:278$149'.
+Removing empty process `KL_mmcm_drp_servo.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:269$148'.
+Found and cleaned up 2 empty switches in `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:89$729'.
+Removing empty process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:89$729'.
+Found and cleaned up 1 empty switch in `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:83$726'.
+Removing empty process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:83$726'.
+Found and cleaned up 1 empty switch in `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:77$723'.
+Removing empty process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:77$723'.
+Found and cleaned up 2 empty switches in `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:64$718'.
+Removing empty process `$paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:64$718'.
+Found and cleaned up 1 empty switch in `\cdc_pulse.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:24$4'.
+Removing empty process `cdc_pulse.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:24$4'.
+Found and cleaned up 2 empty switches in `\cdc_pulse.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:18$1'.
+Removing empty process `cdc_pulse.$proc$$REVIEWS/817-r750-1-packet/scratch/servo-dev.v:18$1'.
+Cleaned up 98 empty switches.
+
+3.12. Executing OPT_EXPR pass (perform const folding).
+Optimizing module KL_mmcm_drp_servo.
+<suppressed ~353 debug messages>
+Optimizing module $paramod\cdc_handshake\WIDTH=s32'00000000000000000000000000001111.
+<suppressed ~8 debug messages>
+Optimizing module cdc_pulse.
+<suppressed ~2 debug messages>
+KL_mmcm_drp_servo/psfault_sync_r
+KL_mmcm_drp_servo/psbusy_sync_r
+KL_mmcm_drp_servo/locked_sync_r
+
+End of script. Logfile hash: 9092921d07, time: 0.14s, user: 0.13s, system: 0.01s, MEM: 41.04 MB peak
+Yosys 0.66 (git sha1 86f2ddebc-dirty, g++ 16.1.1 -march=x86-64 -mtune=generic -O2 -fno-plt -fexceptions -fstack-clash-protection -fcf-protection -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer -ffile-prefix-map=/build/yosys/src=/usr/src/debug/yosys -fPIC -O3) [startdir/yosys at makepkg]
+Time spent: 44% 1x proc_mux (0 sec), 27% 2x read_verilog (0 sec), ...

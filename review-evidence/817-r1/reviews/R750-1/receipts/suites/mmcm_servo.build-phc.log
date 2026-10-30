@@ -1,0 +1,8 @@
+$VALIDATION_TOOLS/pinned-verilator-5.050/verilator --cc --exe --build -j 0 -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --public-flat-rw --top-module KL_mmcm_drp_servo \
+  -Mdir obj_phc ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv sim_phc_step.cpp -o Vphc_step
+make[1]: Entering directory '$REVIEWS/817-r750-1-packet/scratch/tree/tb/verilator/mmcm_servo/obj_phc'
+make[1]: Nothing to be done for 'default'.
+make[1]: Leaving directory '$REVIEWS/817-r750-1-packet/scratch/tree/tb/verilator/mmcm_servo/obj_phc'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.008 s (elab=0.000, cvt=0.000, bld=0.007); cpu 0.001 s on 16 threads; allocated 16.496 MB
