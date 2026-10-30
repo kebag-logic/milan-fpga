@@ -1,0 +1,44 @@
+[==========] Running 10 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 10 tests from Boot
+[ RUN      ] Boot.B1ReachesReadyInStepOrder
+<checkout>/sw/firmware/ctrl/test/test_plat_boot.cpp:212: Failure
+Expected equality of these values:
+  *std::max_element(media.begin(), media.end())
+    Which is: 49
+  0u
+    Which is: 0
+B1 the saved state is read before the mailbox's first access
+
+  [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the saved state is read before the mailbox's first access
+[  FAILED  ] Boot.B1ReachesReadyInStepOrder (2 ms)
+[ RUN      ] Boot.B2ForeignWindowStopsAtIdentity
+[       OK ] Boot.B2ForeignWindowStopsAtIdentity (0 ms)
+[ RUN      ] Boot.B3RefusedImageStopsAtImage
+[       OK ] Boot.B3RefusedImageStopsAtImage (0 ms)
+[ RUN      ] Boot.B4RefusedStreamCountStopsAfterThePolicy
+[       OK ] Boot.B4RefusedStreamCountStopsAfterThePolicy (0 ms)
+[ RUN      ] Boot.B5OtherContractStopsAtMailbox
+[       OK ] Boot.B5OtherContractStopsAtMailbox (0 ms)
+[ RUN      ] Boot.B6UnacknowledgedFaceStopsAtAecp
+[       OK ] Boot.B6UnacknowledgedFaceStopsAtAecp (0 ms)
+[ RUN      ] Boot.B7OnlyAReadyBootServicesTheLoop
+[       OK ] Boot.B7OnlyAReadyBootServicesTheLoop (0 ms)
+[ RUN      ] Boot.B8PlatformPortsAnswerAsDocumented
+[       OK ] Boot.B8PlatformPortsAnswerAsDocumented (0 ms)
+[ RUN      ] Boot.B9SrpSourcesCarryTheGeneratedStreams
+[       OK ] Boot.B9SrpSourcesCarryTheGeneratedStreams (0 ms)
+[ RUN      ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop
+[       OK ] Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop (0 ms)
+[----------] 10 tests from Boot (6 ms total)
+
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (6 ms total)
+[  PASSED  ] 9 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Boot.B1ReachesReadyInStepOrder
+
+ 1 FAILED TEST
+== ctrl split platform boot (host model, endstation_ax7101_1x1_tdm8 if1): checks: 10   failures: 1 ==
+RESULT: FAIL
+  verdict: FAIL (its tallies report 1 failure(s) across 10 checks, exit 1)
