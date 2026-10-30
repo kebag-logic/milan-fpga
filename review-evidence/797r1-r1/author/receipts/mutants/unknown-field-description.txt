@@ -1,0 +1,7 @@
+# mutant: unknown-field-description
+$ python3 -c "import json;p='scripts/register_descriptions.json';d=json.load(open(p));d['registers']['ETH_GUARD']['fields']['NOT_IN_RTL']='x';open(p,'w').write(json.dumps(d,indent=2,ensure_ascii=False)+'\n')"
+--- planted: rc=2
+register reference: REFUSED: scripts/register_descriptions.json describes field ETH_GUARD.NOT_IN_RTL, which hdl/common/csr/milan_csr.sv lacks (its fields: ETH_GUARD, RESERVED)
+--- restored: rc=0
+register reference: fresh (202 registers, 34 modules, 238 files)
+dirty files after restore: 0

@@ -1,0 +1,10 @@
+# mutant: reset-value-change
+$ sed -i "s/\(A_MAC_IFG\[10:0\]:[ ]*csr_default = \)32'h0C;/\132'h0D;/" hdl/common/csr/milan_csr.sv
+--- planted: rc=1
+STALE docs/diagrams/regmap/mac.json
+STALE docs/diagrams/regmap/mac/MAC_IFG.svg
+STALE docs/reference/REGISTER_MAP.md
+register reference: STALE (3 files); run python3 scripts/gen_register_reference.py --write
+--- restored: rc=0
+register reference: fresh (202 registers, 34 modules, 238 files)
+dirty files after restore: 0

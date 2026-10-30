@@ -1,0 +1,51 @@
+0	docs-check	Build the validated HDL reference	rc=0	2s
+1	docs-check	Install the python gate dependencies	not rerun (setup step)	-
+2	docs-check	Install the pinned Markdown renderer	not rerun (setup step)	-
+3	docs-check	Install diagram gate dependencies	not rerun (setup step)	-
+4	docs-check	Link health, wording, dead-reference and local-info gate	rc=0	8s
+5	docs-check	Added-line em-dash gate	rc=0	6s
+6	docs-check	Concise audience documentation gate	rc=0	1s
+7	docs-check	Audience diagram no-drift gate	rc=0	2s
+8	docs-check	Product solution source-fact gate	rc=0	3s
+9	docs-check	Verified submodule documentation gate	rc=0	2s
+10	docs-check	HDL timing diagram no-drift gate	rc=0	2s
+11	docs-check	Published diagram PNG gate	rc=0	8s
+12	docs-check	Milan feature-status consistency gate	rc=0	1s
+13	docs-check	Traceability matrix no-drift gate	rc=0	1s
+14	docs-check	Fetch the builder source dependencies	not rerun (setup step)	-
+15	docs-check	Imported gPTP documentation gate	rc=0	1s
+16	docs-check	Code-quality measurement self-tests	rc=0	0s
+17	docs-check	Install the pinned sv2v release	not rerun (setup step)	-
+18	docs-check	Bare-metal scope gate	rc=0	33s
+19	docs-check	Install and verify the pinned RV32 SDK	rc=0	2s
+20	docs-check	Compiler-absent firmware controls	rc=0	740s
+21	docs-check	End-station builder gates	rc=0	1465s
+22	docs-check	NVM record-space gate	rc=0	50s
+23	docs-check	Capture measurement census and clock gate	rc=0	1s
+24	docs-check	Saved-state writer gate	rc=0	172s
+25	docs-check	SoC source-list gate (Vivado would fail 40 min in without this)	rc=0	2s
+26	docs-check	RTL source-list drift gate	rc=0	5s
+27	docs-check	Boundary-unit naming ratchet	rc=0	1s
+28	docs-check	Port contract gate	rc=0	6s
+29	docs-check	Fail-fast ratchet	rc=0	4s
+30	docs-check	TODO ownership gate	rc=0	4s
+31	docs-check	Test-evidence ratchet	rc=0	17s
+32	docs-check	Mechanical hygiene ratchet	rc=0	1s
+33	docs-check	SystemVerilog idiom gate	rc=0	1s
+34	docs-check	C and C++ idiom gate	rc=0	4s
+35	docs-check	Python idiom gate	rc=0	10s
+36	docs-check	Shell idiom gate	rc=0	0s
+37	docs-check	CI event and SHA contract gate	rc=0	178s
+38	docs-check	Local act runner contract gate	rc=0	96s
+39	docs-check	Doc cited-path gate	rc=0	0s
+40	docs-check	Archive integrity gate	rc=0	1s
+41	docs-check	Per-page contents gate	rc=0	10s
+42	docs-check	AEM store generator self-test	rc=0	0s
+43	docs-check	Sweep/build shape gate	rc=0	12s
+44	docs-check	Deploy shape gate	rc=0	0s
+45	docs-check	Entity shape gate	rc=0	67s
+46	docs-check	Register reference freshness gate	rc=0	5s
+47	docs-check	CI scheduling and evidence controls	rc=0	29s
+48	wire-accountability	Fetch the engine authority the builder derives from	not rerun (setup step)	-
+49	wire-accountability	Advertised-vs-emitted gate (green since 2026-07-28, item 00)	rc=0	1s
+50	docs-check-no-git	Strip git metadata, then run the docs gate	rc=0	9s

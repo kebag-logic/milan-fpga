@@ -1,0 +1,13 @@
+fragments: 1612; present on the new page: 1600; missing: 12
+MISSING: Milan TSN CSR - register map (ABI)
+MISSING: VERSION `0x0002_0055` adds lane 4 for `gptp_ctl_mux`, making five in fabric-gPTP builds.
+MISSING: Every Stream Output's presentation-time offset is pinned at the Milan 2 ms default** (`SET_MAX_TRANSIT_TIME` is gone).
+MISSING: phy_reset_n (0 = hold PHY in reset)
+MISSING: Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`.
+MISSING: Physical switch-cycle acceptance remains on [#599](https://github.com/kebag-logic/milan-fpga/issues/599).
+MISSING: is that attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value (0 none/ignore, 1 asking-failed, 2 ready, 3 ready-failed)
+MISSING: AVTP RX monitor (STREAM_INPUT[0], Milan Table 7-156):
+MISSING: Nothing in this device persists a binding across a power cycle.** The processor has its own NVM restore walk, but the device face behind it is a BLANK-FLASH responder inside `KL_pp_shadow` -- reads return `0xFF`, writes are accepted and dis
+MISSING: Milan v1.2 5.3.8.2 -- "The current bound state shall be saved in a non-volatile memory and restored after a power cycle" -- is **not met by this build**.
+MISSING: They both default to 1 in the RTL, and the shipping AX7101 shape is 8** -- `milan_datapath` drives both from its own `N_STREAMS`, which the builder sets to `max(listeners, talkers)` from the config, and [`configs/endstation_ax7101_8x8.yaml`
+MISSING: These five words are the view **upstream** of the match, and they were the missing instrument in the fabric-listener accept blocker ([`../limitations/TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md) Section 21).

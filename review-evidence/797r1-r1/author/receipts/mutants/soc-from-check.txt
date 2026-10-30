@@ -1,0 +1,6 @@
+# SoC extract against the shipping export (fresh), then against an export copy with one bank moved
+--- real export: rc=0
+register reference: fresh (202 registers, 34 modules, 238 files)
+--- moved bank: rc=1
+STALE scripts/register_map_soc.json (differs from the export at 797-a711-export-moved)
+register reference: STALE (1 files); run python3 scripts/gen_register_reference.py --write

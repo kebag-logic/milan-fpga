@@ -1,0 +1,47 @@
+Traceback (most recent call last):
+  File "/tmp/797-a711-tools/walk_regref_step.py", line 15, in <module>
+    audit.shell("python3 scripts/gen_register_reference.py --check\n"
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                "python3 scripts/gen_register_reference.py --selftest\n"
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                "python3 docs/diagrams/memory_map.gen.py --check\n", ".github/workflows/docs.yml", tree)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lane>/scripts/ci_command_table.py", line 255, in shell
+    Shell(self, where, argv0, dialect).run(source, directory or self.root)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lane>/scripts/ci_shell_walk.py", line 986, in run
+    end = self.statements(tree.get('Stmts', []), directory)
+  File "<lane>/scripts/ci_shell_walk.py", line 420, in statements
+    directory = self.statement(statement, directory)
+  File "<lane>/scripts/ci_shell_walk.py", line 513, in statement
+    return self.call(node, directory, where, inline)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lane>/scripts/ci_shell_walk.py", line 768, in call
+    result = self.builtin(args, node, directory, where, prefix)
+  File "<lane>/scripts/ci_shell_walk.py", line 830, in builtin
+    self.audit.command(args, where, directory)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lane>/scripts/ci_command_table.py", line 333, in command
+    self.python_command(words, where, directory, row)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lane>/scripts/ci_command_table.py", line 480, in python_command
+    self.script(rest[0], where, directory, kind='isolated' if '-I' in flags else '')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lane>/scripts/ci_command_table.py", line 234, in script
+    self.python_program(path, relative, working, isolated)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lane>/scripts/ci_python_walk.py", line 110, in python_program
+    self.python(path.read_text(), relative, working)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lane>/scripts/ci_python_walk.py", line 263, in python
+    if not self.python_import(name, where, directory):
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lane>/scripts/ci_python_walk.py", line 516, in python_import
+    self.script(str(path), where, path.parent, directory, kind='module')
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lane>/scripts/ci_command_table.py", line 236, in script
+    self.python(path.read_text(), relative, working)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<lane>/scripts/ci_python_walk.py", line 346, in python
+    raise Refusal(f'undeclared executing or network script {where!r}')
+ci_command_table.Refusal: undeclared executing or network script 'scripts/register_page.py'

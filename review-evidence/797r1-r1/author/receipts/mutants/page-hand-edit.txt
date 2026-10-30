@@ -1,0 +1,8 @@
+# mutant: page-hand-edit
+$ sed -i '0,/\[reset = 0x00000001\]/s//[reset = 0x00000000]/' docs/reference/REGISTER_MAP.md
+--- planted: rc=1
+STALE docs/reference/REGISTER_MAP.md
+register reference: STALE (1 files); run python3 scripts/gen_register_reference.py --write
+--- restored: rc=0
+register reference: fresh (202 registers, 34 modules, 238 files)
+dirty files after restore: 0

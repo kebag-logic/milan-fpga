@@ -1,0 +1,24 @@
+$ python3 scripts/gen_register_reference.py --check
+python3 scripts/gen_register_reference.py --selftest
+python3 docs/diagrams/memory_map.gen.py --check
+
+--- rc=0 seconds=4.5
+register reference: fresh (202 registers, 34 modules, 238 files)
+  ok   fresh copy: rc 0 (want 0)
+  ok   RTL field rename (output port of an undescribed field): rc 1 (want 1)
+  ok   RTL field rename of a described field: rc 2 (want 2)
+  ok   reset value change in csr_default: rc 1 (want 1)
+  ok   reset value change in the reset block: rc 1 (want 1)
+  ok   unlock key change in the ETH_GUARD write decode: rc 1 (want 1)
+  ok   new RTL address inside a module: rc 1 (want 1)
+  ok   new RTL address outside every module: rc 2 (want 2)
+  ok   hand edit of the page: rc 1 (want 1)
+  ok   deleted register diagram: rc 1 (want 1)
+  ok   extra stale diagram: rc 1 (want 1)
+  ok   edited WaveDrom source: rc 1 (want 1)
+  ok   edited SoC extract: rc 1 (want 1)
+  ok   description of a register the RTL lacks: rc 2 (want 2)
+  ok   description of a field the RTL lacks: rc 2 (want 2)
+  ok   description breaking the prose rules: rc 2 (want 2)
+register reference selftest: OK (16/16 controls)
+memory map diagram: fresh
