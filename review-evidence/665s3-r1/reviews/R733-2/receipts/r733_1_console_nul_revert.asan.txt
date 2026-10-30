@@ -1,0 +1,48 @@
+=================================================================
+==2139087==ERROR: AddressSanitizer: global-buffer-overflow on address 0x55a1201363ad at pc 0x55a120133721 bp 0x7ffd28fe6ef0 sp 0x7ffd28fe6ee0
+READ of size 1 at 0x55a1201363ad thread T0
+    #0 0x55a120133720 in is <packet>/scratch/cprobe/console_revert.c:135
+    #1 0x55a120133f8b in run <packet>/scratch/cprobe/console_revert.c:143
+    #2 0x55a120133f8b in ctrl_plat_console_poll <packet>/scratch/cprobe/console_revert.c:190
+    #3 0x55a120133439 in main <packet>/scratch/prior-probes/R733-1/scripts/r733_console_nul.c:26
+    #4 0x7f1ab5827780  (/usr/lib/libc.so.6+0x27780) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #5 0x7f1ab58278b8 in __libc_start_main (/usr/lib/libc.so.6+0x278b8) (BuildId: d320029ad1a23be2f4bce117fd321cbd23a2014b)
+    #6 0x55a120133184 in _start (<packet>/scratch/cprobe/nul_revert+0x2184) (BuildId: adc78a87fd16c39595070582c9aa86a7cd480ab1)
+
+0x55a1201363ad is located 51 bytes before global variable '*.LC10' defined in 'console_revert.c' (0x55a1201363e0) of size 4
+  '*.LC10' is ascii string 'ID='
+0x55a1201363ad is located 0 bytes after global variable '*.LC9' defined in 'console_revert.c' (0x55a1201363a0) of size 13
+  '*.LC9' is ascii string 'milan_status'
+SUMMARY: AddressSanitizer: global-buffer-overflow <packet>/scratch/cprobe/console_revert.c:135 in is
+Shadow bytes around the buggy address:
+  0x55a120136100: 00 00 00 00 00 00 00 01 f9 f9 f9 f9 00 00 01 f9
+  0x55a120136180: f9 f9 f9 f9 00 00 00 00 00 00 00 00 00 00 00 00
+  0x55a120136200: 00 00 00 00 00 00 01 f9 f9 f9 f9 f9 00 02 f9 f9
+  0x55a120136280: f9 f9 f9 f9 03 f9 f9 f9 f9 f9 f9 f9 00 06 f9 f9
+  0x55a120136300: f9 f9 f9 f9 00 06 f9 f9 f9 f9 f9 f9 00 00 f9 f9
+=>0x55a120136380: f9 f9 f9 f9 00[05]f9 f9 f9 f9 f9 f9 04 f9 f9 f9
+  0x55a120136400: f9 f9 f9 f9 00 02 f9 f9 f9 f9 f9 f9 00 03 f9 f9
+  0x55a120136480: f9 f9 f9 f9 00 03 f9 f9 f9 f9 f9 f9 00 02 f9 f9
+  0x55a120136500: f9 f9 f9 f9 00 02 f9 f9 f9 f9 f9 f9 00 01 f9 f9
+  0x55a120136580: f9 f9 f9 f9 00 06 f9 f9 f9 f9 f9 f9 00 04 f9 f9
+  0x55a120136600: f9 f9 f9 f9 00 00 f9 f9 f9 f9 f9 f9 00 06 f9 f9
+Shadow byte legend (one shadow byte represents 8 application bytes):
+  Addressable:           00
+  Partially addressable: 01 02 03 04 05 06 07 
+  Heap left redzone:       fa
+  Freed heap region:       fd
+  Stack left redzone:      f1
+  Stack mid redzone:       f2
+  Stack right redzone:     f3
+  Stack after return:      f5
+  Stack use after scope:   f8
+  Global redzone:          f9
+  Global init order:       f6
+  Poisoned by user:        f7
+  Container overflow:      fc
+  Array cookie:            ac
+  Intra object redzone:    bb
+  ASan internal:           fe
+  Left alloca redzone:     ca
+  Right alloca redzone:    cb
+==2139087==ABORTING

@@ -1,0 +1,13 @@
+head (fix): rc=0
+  asan reports: 0
+  commands 0 refused 1
+  revert diff: 135c135
+  revert diff: < 	while (n < c->len && command[n] != '\0' && command[n] == c->line[n]) {
+  revert diff: ---
+  revert diff: > 	while (n < c->len && command[n] == c->line[n]) {
+revert: rc=1
+  ==2139087==ERROR: AddressSanitizer: global-buffer-overflow on address <addr> at pc <addr> bp <addr> sp <addr>
+  SUMMARY: AddressSanitizer: global-buffer-overflow 665s3-r733-2-packet/scratch/cprobe/console_revert.c:135 in is
+commands 3 refused 0 dropped 0
+  wide: @@CMD 0
+  wide: ID=4d494c4e VERSION=ffffffff PTP_CTRL=ffffffff ADP_CTRL=ffffffff PP_CTRL=ffffffff PP_STAT=ffffffff AEM=disabled

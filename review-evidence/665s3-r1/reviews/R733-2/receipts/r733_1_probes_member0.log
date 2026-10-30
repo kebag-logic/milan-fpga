@@ -1,0 +1,17 @@
+r733 campaign: mode --extras-only, 18 defects, member 0 of 3
+[ok] mutant r733-saved-state-after-mailbox-open (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the saved state is read before the mailbox's first access
+[ok] mutant r733-banner-missing (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the banner first
+[ok] mutant r733-console-not-a-loop-poll (platboot1): 3 check(s) failed
+    first: [FAIL] Boot.B1ReachesReadyInStepOrder: B1 the banner first
+[ok] mutant r733-srp-link-rate-unset (platboot1): 1 check(s) failed
+    first: [FAIL] Boot.B9SrpSourcesCarryTheGeneratedStreams: B9 the generated link rate
+wrote <packet>/scratch/r1camp-0/mutants/work/build/platboot-if2/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <packet>/scratch/r1camp-0/mutants/work/build/platboot-if2/contract/KL_mbx.sv (2 interfaces)
+wrote <packet>/scratch/r1camp-0/mutants/work/build/platboot-if2/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] mutant r733-window-read-any-interface (platboot2): 0 check(s) failed, none named platboot2: its check on ''
+[ok] mutant r733-line-max-one-early (plat): 2 check(s) failed
+    first: [FAIL] Plat.K3LinesEndOnceAndOthersAreRefused: K3 a line of CTRL_PLAT_LINE_MAX bytes is kept
+mutants: 5 of 6 caught
+r733 campaign member 0/3: SOME ESCAPED
