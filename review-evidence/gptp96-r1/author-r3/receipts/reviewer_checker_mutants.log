@@ -1,0 +1,10 @@
+control_unmutated                selftest rc=0 | docs selftest: PASS (42 arms)
+no_required_set                  selftest rc=1 | docs selftest: deleted constant row escaped
+decimal_accepts_any              selftest rc=1 | docs selftest: bold constant cell escaped
+no_us_conversion                 selftest rc=1 | docs selftest: converted constant copy escaped
+no_minutes_word                  selftest rc=1 | docs selftest: spelled constant copy escaped
+home_never_exempt                selftest rc=1 | docs selftest: linked constant or its home row failed
+no_rom_duplicate                 selftest rc=1 | docs selftest: duplicate ROM row escaped
+no_const_duplicate               selftest rc=1 | docs selftest: duplicate constant row escaped
+no_lookbehind                    selftest rc=1 | docs selftest: unrelated number failed
+dup_const_row_real_tree          gate rc=1 |   docs/INTEGRATION.md: duplicate constant row: SYNC_RTO_MS_C
