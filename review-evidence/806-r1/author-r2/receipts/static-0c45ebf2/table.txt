@@ -1,0 +1,13 @@
+0 0s doc_style: python3 scripts/check_doc_style.py
+0 1s toc_selftest: <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --selftest
+0 5s toc_anchors: <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --verify-anchors
+0 6s toc_check: <tools>/md-venv-40cdefe08ebd/bin/python3 scripts/gen_toc.py --check
+0 0s check_baseline: python3 syn/ooc/pp_resource_gate.py check-baseline
+0 1s submodule_docs: python3 scripts/check_submodule_docs.py
+0 0s gptp_docs: python3 scripts/check_gptp_docs.py --with-submodule
+0 0s gptp_docs_plain: python3 scripts/check_gptp_docs.py
+0 1s hygiene: python3 scripts/check_hygiene.py --check
+0 2s todo_ownership: python3 scripts/check_todo_ownership.py
+0 1s feature_status: python3 scripts/check_feature_status.py
+0 8s docs_check: python3 scripts/docs_check.py
+STATIC-DONE

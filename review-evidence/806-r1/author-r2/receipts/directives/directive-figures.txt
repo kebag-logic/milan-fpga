@@ -1,0 +1,48 @@
+## ExtraPostPlacementOpt
+figures (gate parsers): LUT 51837, FF 53788, SLICE 15823, BRAM_TILE 87.5, RAMB36 74, RAMB18 27, DSP 13, WNS_ns 0.032, WHS_ns 0.034
+route status: 102983 routable nets, 0 with routing errors
+Slow_0C: WNS +0.032 TNS 0.000 WHS +0.052 THS 0.000
+Slow_85C: WNS +0.032 TNS 0.000 WHS +0.052 THS 0.000
+Fast_0C: WNS +1.638 TNS 0.000 WHS +0.034 THS 0.000
+Fast_85C: WNS +1.638 TNS 0.000 WHS +0.034 THS 0.000
+worst setup Slow_0C: slack +0.032 ns | FSM_onehot_socbushandler0_axilite2wishbone_state_reg[3]/C -> milansoc_spiflash_phy_cnt_reg[8]/D | group milansoc_crg_clkout0 | data path 9.835ns  (logic 3.584ns (36.441%)  route 6.251ns (63.560%)) | levels 18  (CARRY4=3 LUT2=3 LUT3=4 LUT4=2 LUT5=1 LUT6=5)
+worst hold Slow_0C: slack +0.052 ns | milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[1][15]/C -> milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_0/DIBDI[7] | group milansoc_crg_clkout1 | data path 0.742ns  (logic 0.304ns (40.991%)  route 0.438ns (59.009%)) | levels 0
+worst setup Slow_85C: slack +0.032 ns | FSM_onehot_socbushandler0_axilite2wishbone_state_reg[3]/C -> milansoc_spiflash_phy_cnt_reg[8]/D | group milansoc_crg_clkout0 | data path 9.835ns  (logic 3.584ns (36.441%)  route 6.251ns (63.560%)) | levels 18  (CARRY4=3 LUT2=3 LUT3=4 LUT4=2 LUT5=1 LUT6=5)
+worst hold Slow_85C: slack +0.052 ns | milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[1][15]/C -> milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_0/DIBDI[7] | group milansoc_crg_clkout1 | data path 0.742ns  (logic 0.304ns (40.991%)  route 0.438ns (59.009%)) | levels 0
+worst setup Fast_0C: slack +1.638 ns | FDPE_16/C -> FDPE_17/D | group milansoc_crg_clkout0 | data path 0.269ns  (logic 0.204ns (75.759%)  route 0.065ns (24.241%)) | levels 0
+worst hold Fast_0C: slack +0.034 ns | milansoc_dd_reg[30]/C -> storage_37_reg/DIBDI[6] | group milansoc_crg_clkout0 | data path 0.405ns  (logic 0.164ns (40.469%)  route 0.241ns (59.531%)) | levels 0
+worst setup Fast_85C: slack +1.638 ns | FDPE_16/C -> FDPE_17/D | group milansoc_crg_clkout0 | data path 0.269ns  (logic 0.204ns (75.759%)  route 0.065ns (24.241%)) | levels 0
+worst hold Fast_85C: slack +0.034 ns | milansoc_dd_reg[30]/C -> storage_37_reg/DIBDI[6] | group milansoc_crg_clkout0 | data path 0.405ns  (logic 0.164ns (40.469%)  route 0.241ns (59.531%)) | levels 0
+
+## AltSpreadLogic_high
+figures (gate parsers): LUT 51874, FF 53787, SLICE 15837, BRAM_TILE 87.5, RAMB36 74, RAMB18 27, DSP 13, WNS_ns 0.235, WHS_ns 0.011
+route status: 102971 routable nets, 0 with routing errors
+Slow_0C: WNS +0.235 TNS 0.000 WHS +0.037 THS 0.000
+Slow_85C: WNS +0.235 TNS 0.000 WHS +0.037 THS 0.000
+Fast_0C: WNS +1.633 TNS 0.000 WHS +0.011 THS 0.000
+Fast_85C: WNS +1.633 TNS 0.000 WHS +0.011 THS 0.000
+worst setup Slow_0C: slack +0.235 ns | FDPE_17/C -> KL_mac_rmon_events/fcs_cnt_r_reg[17]/R | group milansoc_crg_clkout0 | data path 9.105ns  (logic 0.348ns (3.822%)  route 8.757ns (96.178%)) | levels 0
+worst hold Slow_0C: slack +0.037 ns | milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[6][8]/C -> milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_2/DIADI[8] | group milansoc_crg_clkout1 | data path 0.622ns  (logic 0.319ns (51.295%)  route 0.303ns (48.705%)) | levels 0
+worst setup Slow_85C: slack +0.235 ns | FDPE_17/C -> KL_mac_rmon_events/fcs_cnt_r_reg[17]/R | group milansoc_crg_clkout0 | data path 9.105ns  (logic 0.348ns (3.822%)  route 8.757ns (96.178%)) | levels 0
+worst hold Slow_85C: slack +0.037 ns | milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[6][8]/C -> milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_2/DIADI[8] | group milansoc_crg_clkout1 | data path 0.622ns  (logic 0.319ns (51.295%)  route 0.303ns (48.705%)) | levels 0
+worst setup Fast_0C: slack +1.633 ns | FDPE_2/C -> FDPE_3/D | group milansoc_crg_clkout1 | data path 0.269ns  (logic 0.204ns (75.759%)  route 0.065ns (24.241%)) | levels 0
+worst hold Fast_0C: slack +0.011 ns | VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_to_ioBus_down_bus_a_rData_data_reg[31]/C -> VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/ram_reg_1/DIADI[9] | group milansoc_crg_clkout1 | data path 0.360ns  (logic 0.141ns (39.115%)  route 0.219ns (60.885%)) | levels 0
+worst setup Fast_85C: slack +1.633 ns | FDPE_2/C -> FDPE_3/D | group milansoc_crg_clkout1 | data path 0.269ns  (logic 0.204ns (75.759%)  route 0.065ns (24.241%)) | levels 0
+worst hold Fast_85C: slack +0.011 ns | VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_to_ioBus_down_bus_a_rData_data_reg[31]/C -> VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/ram_reg_1/DIADI[9] | group milansoc_crg_clkout1 | data path 0.360ns  (logic 0.141ns (39.115%)  route 0.219ns (60.885%)) | levels 0
+
+## ExtraTimingOpt
+figures (gate parsers): LUT 51849, FF 53787, SLICE 15837, BRAM_TILE 87.5, RAMB36 74, RAMB18 27, DSP 13, WNS_ns 0.218, WHS_ns 0.011
+route status: 102962 routable nets, 0 with routing errors
+Slow_0C: WNS +0.218 TNS 0.000 WHS +0.037 THS 0.000
+Slow_85C: WNS +0.218 TNS 0.000 WHS +0.037 THS 0.000
+Fast_0C: WNS +1.633 TNS 0.000 WHS +0.011 THS 0.000
+Fast_85C: WNS +1.633 TNS 0.000 WHS +0.011 THS 0.000
+worst setup Slow_0C: slack +0.218 ns | FSM_onehot_socbushandler0_axilite2wishbone_state_reg[3]/C -> milansoc_spiflash_phy_cnt_reg[8]/D | group milansoc_crg_clkout0 | data path 9.703ns  (logic 3.566ns (36.752%)  route 6.137ns (63.248%)) | levels 18  (CARRY4=3 LUT2=3 LUT3=4 LUT4=2 LUT5=1 LUT6=5)
+worst hold Slow_0C: slack +0.037 ns | milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[6][8]/C -> milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_2/DIADI[8] | group milansoc_crg_clkout1 | data path 0.622ns  (logic 0.319ns (51.295%)  route 0.303ns (48.705%)) | levels 0
+worst setup Slow_85C: slack +0.218 ns | FSM_onehot_socbushandler0_axilite2wishbone_state_reg[3]/C -> milansoc_spiflash_phy_cnt_reg[8]/D | group milansoc_crg_clkout0 | data path 9.703ns  (logic 3.566ns (36.752%)  route 6.137ns (63.248%)) | levels 18  (CARRY4=3 LUT2=3 LUT3=4 LUT4=2 LUT5=1 LUT6=5)
+worst hold Slow_85C: slack +0.037 ns | milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/bank_r_reg[6][8]/C -> milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/u_fcdc/mem_r_reg_2/DIADI[8] | group milansoc_crg_clkout1 | data path 0.622ns  (logic 0.319ns (51.295%)  route 0.303ns (48.705%)) | levels 0
+worst setup Fast_0C: slack +1.633 ns | FDPE_2/C -> FDPE_3/D | group milansoc_crg_clkout1 | data path 0.269ns  (logic 0.204ns (75.759%)  route 0.065ns (24.241%)) | levels 0
+worst hold Fast_0C: slack +0.011 ns | VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_to_ioBus_down_bus_a_rData_data_reg[31]/C -> VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/ram_reg_1/DIADI[9] | group milansoc_crg_clkout1 | data path 0.360ns  (logic 0.141ns (39.115%)  route 0.219ns (60.885%)) | levels 0
+worst setup Fast_85C: slack +1.633 ns | FDPE_2/C -> FDPE_3/D | group milansoc_crg_clkout1 | data path 0.269ns  (logic 0.204ns (75.759%)  route 0.065ns (24.241%)) | levels 0
+worst hold Fast_85C: slack +0.011 ns | VexiiRiscvLitex_f5f08b170311db53220574624f819159/unified_mBus_to_ioBus_down_bus_a_rData_data_reg[31]/C -> VexiiRiscvLitex_f5f08b170311db53220574624f819159/ioBus_to_peripheral_bus_cc/a_1/ram_reg_1/DIADI[9] | group milansoc_crg_clkout1 | data path 0.360ns  (logic 0.141ns (39.115%)  route 0.219ns (60.885%)) | levels 0
+
