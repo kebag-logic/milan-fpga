@@ -1,0 +1,67 @@
+PASS manifest: 425 entries, published hash mismatches []
+PASS manifest coverage: unlisted [], missing []
+record route-1x1 figures: {'LUT': 52012, 'FF': 53707, 'SLICE': 15780, 'BRAM_TILE': 87.5, 'RAMB36': 74, 'RAMB18': 27, 'DSP': 13, 'WNS_ns': 0.44, 'WHS_ns': 0.036, 'CARRY4': 3631}
+record floor: {'WNS_ns': 0.03, 'WHS_ns': 0.0} tolerance: {'LUT': 500, 'FF': 600, 'SLICE': 80, 'RAMB36': 0, 'RAMB18': 0, 'DSP': 0, 'WNS_ns': 0.25, 'WHS_ns': 0.25}
+== AltSpreadLogic_high
+gate utilization parse: {'LUT': 51874, 'FF': 53787, 'SLICE': 15837, 'BRAM_TILE': 87.5, 'RAMB36': 74, 'RAMB18': 27, 'DSP': 13}
+PASS LUT: author 51874 == parsed 51874
+PASS FF: author 53787 == parsed 53787
+PASS SLICE: author 15837 == parsed 15837
+PASS RAMB36: author 74 == parsed 74
+PASS RAMB18: author 27 == parsed 27
+PASS DSP: author 13 == parsed 13
+PASS BRAM_TILE: author 87.5 == parsed 87.5
+PASS four corners listed: ['Fast_0C', 'Fast_85C', 'Slow_0C', 'Slow_85C']
+PASS stated worst WNS 0.235 / WHS 0.011 equal the per-corner minima 0.235 / 0.011
+PASS Fast_0C: WNS 1.633 >= 0.03 and WHS 0.011 >= 0 (build floor)
+PASS Fast_85C: WNS 1.633 >= 0.03 and WHS 0.011 >= 0 (build floor)
+PASS Slow_0C: WNS 0.235 >= 0.03 and WHS 0.037 >= 0 (build floor)
+PASS Slow_85C: WNS 0.235 >= 0.03 and WHS 0.037 >= 0 (build floor)
+PASS Slow_0C negative-slack report holds no path
+PASS Slow_85C negative-slack report holds no path
+PASS Fast_0C negative-slack report holds no path
+PASS Fast_85C negative-slack report holds no path
+PASS route status: 0 nets with routing errors
+  gate verdict_for LUT: 52012 -> 51874: ok, below the baseline
+  gate verdict_for FF: 53707 -> 53787: ok
+  gate verdict_for SLICE: 15780 -> 15837: ok
+  gate verdict_for RAMB36: 74 -> 74: ok
+  gate verdict_for RAMB18: 27 -> 27: ok
+  gate verdict_for DSP: 13 -> 13: ok
+  gate verdict_for WNS_ns: 0.44 -> 0.235: ok
+  gate verdict_for WHS_ns: 0.036 -> 0.011: ok
+PASS script places once, with this directive
+PASS script opens the synthesis checkpoint
+== ExtraTimingOpt
+gate utilization parse: {'LUT': 51849, 'FF': 53787, 'SLICE': 15837, 'BRAM_TILE': 87.5, 'RAMB36': 74, 'RAMB18': 27, 'DSP': 13}
+PASS LUT: author 51849 == parsed 51849
+PASS FF: author 53787 == parsed 53787
+PASS SLICE: author 15837 == parsed 15837
+PASS RAMB36: author 74 == parsed 74
+PASS RAMB18: author 27 == parsed 27
+PASS DSP: author 13 == parsed 13
+PASS BRAM_TILE: author 87.5 == parsed 87.5
+PASS four corners listed: ['Fast_0C', 'Fast_85C', 'Slow_0C', 'Slow_85C']
+PASS stated worst WNS 0.218 / WHS 0.011 equal the per-corner minima 0.218 / 0.011
+PASS Fast_0C: WNS 1.633 >= 0.03 and WHS 0.011 >= 0 (build floor)
+PASS Fast_85C: WNS 1.633 >= 0.03 and WHS 0.011 >= 0 (build floor)
+PASS Slow_0C: WNS 0.218 >= 0.03 and WHS 0.037 >= 0 (build floor)
+PASS Slow_85C: WNS 0.218 >= 0.03 and WHS 0.037 >= 0 (build floor)
+PASS Slow_0C negative-slack report holds no path
+PASS Slow_85C negative-slack report holds no path
+PASS Fast_0C negative-slack report holds no path
+PASS Fast_85C negative-slack report holds no path
+PASS route status: 0 nets with routing errors
+  gate verdict_for LUT: 52012 -> 51849: ok, below the baseline
+  gate verdict_for FF: 53707 -> 53787: ok
+  gate verdict_for SLICE: 15780 -> 15837: ok
+  gate verdict_for RAMB36: 74 -> 74: ok
+  gate verdict_for RAMB18: 27 -> 27: ok
+  gate verdict_for DSP: 13 -> 13: ok
+  gate verdict_for WNS_ns: 0.44 -> 0.218: ok
+  gate verdict_for WHS_ns: 0.036 -> 0.011: ok
+PASS script places once, with this directive
+PASS script opens the synthesis checkpoint
+PASS scripts differ only at [('place_design -directive AltSpreadLogic_high', 'place_design -directive ExtraTimingOpt')]
+PASS synthesis checkpoint hash unchanged across the runs: 7253a8c03b16e2ba90992192e21a498c2f413b5df8e57d939a269a52b181e5fb
+RESULT: PASS
