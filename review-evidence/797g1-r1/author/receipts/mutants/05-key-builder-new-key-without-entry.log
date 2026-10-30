@@ -1,0 +1,7 @@
+planted in sw/builder/endstation_builder.py:
+- 'eth_port=c.get("eth_port"),'
++ 'eth_port=c.get("eth_port"), planted_probe=c.get("planted_probe"),'
+$ python3 sw/builder/gen_key_reference.py --check
+REFUSED: key_reference.yaml disagrees with the loaders: keys with no entry ['board.constraints.planted_probe']; entries naming no key the loaders read []
+rc=2
+restored; git status --short: (clean)

@@ -1,0 +1,7 @@
+planted in sw/builder/endstation_builder.py:
+- 'uart_baudrate=int(c.get("uart_baudrate", 115200)),'
++ 'uart_baudrate=int(c.get("uart_baudrate", 9600)),'
+$ python3 sw/builder/gen_key_reference.py --check
+REFUSED: board.constraints.uart_baudrate: default 115200 is not what omitting the key builds
+rc=2
+restored; git status --short: (clean)

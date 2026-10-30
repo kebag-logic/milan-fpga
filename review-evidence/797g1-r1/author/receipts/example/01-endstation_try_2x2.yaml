@@ -1,0 +1,212 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# Software-defined Milan End-Station config (USER 2026-08-05).
+# Shape: AX7101 1x1x8 TDM8 - ONE 8-channel AAF listener stream + ONE
+# 8-channel AAF talker stream, the 7.1 channel order [FL FR FC LFE RL RR
+# SL SR] named through `channel_names` (a PARAMETER, not a hardcode), physical
+# TDM8 capture and the 8-channel TDM8 loopback lane.
+#
+# Simplifications this shape buys (all measured pains of the 8x8):
+#   - one stream per direction => a mapping can never name a foreign
+#     stream (the cross-stream BAD_ARGUMENTS class vanishes);
+#   - loopback clusters are backed => mappings select live media instead of
+#     the protocol-visible, fabric-disabled behavior of lane-off shapes;
+#   - no secondary-network indices => every stream is cabled.
+
+schema: kebag-logic/milan-endstation-config
+schema_version: "1.2.0"
+
+entity:
+  name: "Milan FPGA 1x1 TDM8"
+  entity_model_id: hash-derived      # shape change -> NEW id, so a cached
+                                     # controller model (la_avdecc caches by
+                                     # entity_model_id) can never show this
+                                     # build another shape's ports
+  entity_id: mac-derived
+  vendor_name: "Kebag Logic"
+  serial_number: "AX7101-0001"
+  group_name: ""
+
+board:
+  target: ax7101
+  features:
+    fabric_gptp: true   # #114 plane, product default since #116 (kept explicit)
+    i2s_playback: false   # the AX routes NO audio pads (_connectors = [])
+    latency_taps: true    # item-11 telemetry: at 1x1 the taps fit with room
+                          # to spare, and the 0.44% stress-late residue wants
+                          # a taps build on silicon
+    render_lpf: false     # dependency of i2s_playback: false
+    datapath_probes: true # APRB/PBK diagnostics back on - the 8x8 pruned
+                          # them for area; this shape has the headroom
+  constraints:
+    sys_clk_hz: 100000000
+    milan_clk_hz: 50000000   # 64-bit plane still carries 3.2 Gb/s; the
+                              # option-on fabric and cacheless CPU close here
+    l2_bytes: 0      # cacheless RV32I bare-metal core; no L1/L2/MMU
+    phy: gmii-1g
+    gtx_tx_invert: true
+    floorplan: true
+    flashboot: baremetal
+    uart_baudrate: 115200
+    num_queues: 5
+    eth_port: e1
+
+srp:
+  sr_class: A
+  vid: 2
+  stream_dmac_base: "0x91E0F000FE01"
+  class_queue: 4
+  bandwidth_limit_pct: 75
+  tspec:
+    policy: derived                  # 8ch -> 216 B AVTPDU -> 16.512 Mb/s +
+                                     # the CRF row's Table 4.4 numbers
+    interval_frames: 1
+
+platform:
+  mac_address: "02:00:00:00:00:01"   # board 1
+  pp_mem_phys: 0x7f700000            # 1 MiB protocol-processor window
+
+soc:
+  software_profile: baremetal
+  xlen: 32
+  scala_args: []
+
+gptp:
+  # ONE source (USER 2026-08-05): these values generate the
+  # AVB_INTERFACE descriptor's clock fields and fabric microcode.
+  # priority1 248 = the Milan end-station DEFAULT: the device DEFERS rather
+  # than contesting the grandmaster role (Milan gPTP compliance posture is
+  # 246|248, and 248 is the deferring end of it). The older 238 "AX bench
+  # posture" deliberately BEAT the switch's 246 claim so the board would win
+  # the BMCA - useful for a bring-up bench, wrong for a shipping end station
+  # and wrong for a compliance run. Change HERE, nowhere else. The rest are
+  # the local-clock dataset the fabric gPTP engine announces from constants
+  # in gptp-processor/hdl/ucode/gen_gptp_ucode.py; the builder refuses any
+  # stated value the engine does not announce ([R-parallel] on #228). The
+  # old offset_scaled_log_variance 0xFFFF never went out on the wire (the
+  # engine announces 0x436A), so the key is deleted and derived.
+  priority1: 248
+  priority2: 248
+  clock_class: 248
+  clock_accuracy: 0xFE
+  domain: 0
+  log_sync_interval: -3
+  log_announce_interval: 0
+  log_pdelay_interval: 0
+
+  # THE BOARD'S TIMESTAMP LATENCY CORRECTIONS, nanoseconds (issue #358).
+  # MANDATORY for every board whose gPTP plane is on: the builder refuses a
+  # config that omits them, because a generated default would hide an
+  # unmeasured board behind a number nobody took.
+  #
+  # The fabric gPTP plane is the ONLY consumer. It subtracts the ingress
+  # value from every arrival stamp and adds the egress value to every
+  # reconstructed launch. PTP_INGRESS_LAT / PTP_EGRESS_LAT (0x540/0x544)
+  # stay inert scratch with no timestamp consumer, so nothing applies a
+  # correction twice; the applied pair is published read-only at 0x7F0.
+  #
+  # THE SUM IS MEASURED, THE SPLIT IS NOT. An inline tap on the DUT link
+  # (2026-09-20) compared the Pdelay turnaround seen on the wire with the
+  # t3 - t2 this board claims, against a certified peer on the same tap:
+  # 875 ns of total stamp error, +/-25 ns. The digital distance inside
+  # milan_datapath is PROVED ZERO in both directions by
+  # tb/verilator/milan_dp's gPTP leg, which prints and grades the counted
+  # cycles, so the whole 875 ns is physical plus the LiteEth receive chain.
+  # Splitting it needs a second instrument the project does not have, so
+  # the split is 3:1 receive:transmit - the 1000BASE-T receive DSP
+  # dominates - because the RTL8211E datasheet states no latency figure to
+  # use instead. 656 + 219 = 875. The split error moves the synchronized
+  # offset by its WHOLE value (the peer delay does not move, so nothing
+  # absorbs it); issue #488 owns the instrument that would close it.
+  ingress_latency_ns: 656
+  egress_latency_ns: 219
+
+clocking:
+  sampling_rate_hz: 48000
+  audio_unit_rates_hz: [48000]
+  media_clock_sources: [internal, crf, input_stream] # INTERNAL 0, CRF 1, AAF listener k at 2 + k (#629)
+  default_source: internal
+  crf_sink: true
+  crf_output:                        # one AAF media input makes the Milan
+    enabled: true                    # 7.2.3 CRF Media Clock Output optional,
+                                     # not forbidden - the bench media-clock
+                                     # chain (M-CLK-2, class-A CRF budget)
+                                     # stays as proven on the 8x8
+    format: "0x041060010000BB80"
+  audio_pll_hz: 24576000
+
+audio_interface:
+  kind: tdm8                         # 8 slots per direction = 4 pairs, the
+                                     # user's shape. MASTER role - the fabric
+                                     # generates bclk/fsync, so the front-end
+                                     # is real without a codec behind it.
+  word_length_bits: 24
+  physical_channels:                 # WHAT THE BOARD ACTUALLY ROUTES.
+    capture: 8                       # the TDM8 bus on J11.3-J11.8, driven as
+                                     # bus MASTER, so the front end is real
+                                     # with or without a codec behind it.
+                                     # Was 0 on the grounds that "the AX7101
+                                     # routes NOTHING (_connectors = [])" -
+                                     # true before the item-4 J11 header, and
+                                     # false since. BACKED as of 0x0042:
+                                     # milan_datapath feeds the crossbar's
+                                     # SLOT-INDEXED bucket (.tdm_pair_valid_i,
+                                     # tied to 1'b0 until then) and the
+                                     # builder emits a uniform src=2,
+                                     # idx=ch/2, so all four pair slots reach
+                                     # a cluster instead of collapsing onto
+                                     # the single-pair I2S hold.
+    render: 8                        # BACKED as of issue #447: the same TDM8
+                                     # bus, in the other direction, out of
+                                     # J11.5 (tdm.dout). What was missing was
+                                     # the CLOCK, not the pin -
+                                     # KL_tdm_render was a bus SLAVE whose
+                                     # serializer ran on posedge tdm_bclk_i,
+                                     # and a MASTER build ties that input to
+                                     # 0, so the bank filled and never
+                                     # shifted. KL_tdm_render_master is the
+                                     # sibling that consumes the capture
+                                     # master's exported bit-clock enables,
+                                     # and this count is what elaborates it
+                                     # (milan_datapath
+                                     # AUDIO_IF_RENDER_SLOTS_P).
+                                     #
+                                     # The render crossbar's key space is two
+                                     # LANES - the stereo DAC at keys 0/1 and
+                                     # the TDM slots at keys 2..9 - and this
+                                     # shape prunes the DAC, so its eight
+                                     # physical input clusters project onto
+                                     # keys 2..9. The first key and the count
+                                     # are separate quantities; neither is
+                                     # inferred from the eight below.
+  channel_names: [FL, FR, FC, LFE, RL, RR, SL, SR]
+                                     # USER 2026-08-05: the 7.1 order, as a
+                                     # PARAMETER. Names the physical clusters
+                                     # verbatim and prefixes loopback clusters;
+                                     # 1722.1-2021 6.2.2.8 excludes
+                                     # object_name from the model shape, so
+                                     # renaming never moves entity_model_id.
+  cluster_mapping:
+    policy: role-pools
+    pools:
+      pilot: true                    # one KL_tone_gen Pilot cluster on the
+                                     # talker port - the standing tone-based
+                                     # identity/THD+N test source
+      loopback: 8                    # the 8 TDM8 loopback channels: the
+                                     # received stream offered back to the
+                                     # talker, same media-clock domain
+    fabric:
+      loopback_lane: true            # BACKED on this build: 4 pair holds at
+                                     # 1x1 (the 8x8's 32-hold bucket cost
+                                     # +2303 LUT and was refused; this shape
+                                     # affords it, and the loopback clusters
+                                     # above stop being model-only)
+
+streams:
+  listeners:
+  - {name: Stream In 0, channels: 8, map_mode: dynamic}
+  - {name: Stream In 1, channels: 8, map_mode: dynamic}
+  talkers:
+  - {name: Stream Out 0, channels: 8, map_mode: dynamic}
+  - {name: Stream Out 1, channels: 8, map_mode: dynamic}

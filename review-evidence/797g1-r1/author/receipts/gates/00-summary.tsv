@@ -1,0 +1,49 @@
+# head cb07597bc33106933c708a45f92c91f17a7a3e61; tree before run: clean
+n	gate	command	rc
+1	docs_check	python3 scripts/docs_check.py	0
+2	docs_check-selftest	python3 scripts/docs_check.py --selftest	0
+3	check_doc_style	python3 scripts/check_doc_style.py	0
+4	check_doc_style-selftest	python3 scripts/check_doc_style.py --selftest	0
+5	check_em_dash	python3 scripts/check_em_dash.py --base 1e80128f0a467b58bf884b7d9bf62e013a2fb141	0
+6	check_em_dash-selftest	python3 scripts/check_em_dash.py --selftest	0
+7	check_doc_paths	python3 scripts/check_doc_paths.py	0
+8	gen_toc-selftest	python3 scripts/gen_toc.py --selftest	0
+9	gen_toc-verify-anchors	python3 scripts/gen_toc.py --verify-anchors	0
+10	gen_toc-check	python3 scripts/gen_toc.py --check	0
+11	check_baremetal_only-check	python3 scripts/check_baremetal_only.py --check	0
+12	check_baremetal_only-selftest	python3 scripts/check_baremetal_only.py --selftest	0
+13	check_archive	python3 scripts/check_archive.py	0
+14	check_archive-selftest	python3 scripts/check_archive.py --selftest	0
+15	check_diagram_pngs	python3 scripts/check_diagram_pngs.py	0
+16	check_diagram_pngs-selftest	python3 scripts/check_diagram_pngs.py --selftest	0
+17	check_feature_status	python3 scripts/check_feature_status.py	0
+18	check_feature_status-selftest	python3 scripts/check_feature_status.py --self-test	0
+19	check_gptp_docs	python3 scripts/check_gptp_docs.py	0
+20	check_gptp_docs-selftest	python3 scripts/check_gptp_docs.py --selftest	0
+21	check_solution_docs	python3 scripts/check_solution_docs.py	0
+22	check_solution_docs-selftest	python3 scripts/check_solution_docs.py --selftest	0
+23	DOC_MAP-check	python3 docs/DOC_MAP.gen.py --check	0
+24	DOC_MAP-selftest	python3 docs/DOC_MAP.gen.py --selftest	0
+25	timesync_chain-check	python3 docs/diagrams/timesync_chain.gen.py --check	0
+26	submodule_boundaries-check	python3 docs/diagrams/submodule_boundaries.gen.py --check	0
+27	check_submodule_docs	python3 scripts/check_submodule_docs.py	0
+28	gen_module_matrix-check	python3 docs/traceability/gen_module_matrix.py --check	0
+29	gen_key_reference-check	python3 sw/builder/gen_key_reference.py --check	0
+30	gen_key_reference-selftest	python3 sw/builder/gen_key_reference.py --selftest	0
+31	endstation_definition-check	python3 docs/diagrams/endstation_definition.gen.py --check	0
+32	endstation_definition-selftest	python3 docs/diagrams/endstation_definition.gen.py --selftest	0
+33	check_entity_shape-selftest	python3 scripts/check_entity_shape.py --self-test	0
+34	ci_gate_workflows-check	python3 scripts/ci_gate_workflows.py --check	0
+35	ci_gate_workflows_selftest	python3 scripts/ci_gate_workflows_selftest.py	0
+36	ci_events-check	python3 scripts/ci_events.py --check	0
+37	ci_events-selftest	python3 scripts/ci_events.py --selftest	0
+38	generate_ci_evidence_pins-check	python3 scripts/generate_ci_evidence_pins.py --check	0
+39	check_py_idiom	python3 scripts/check_py_idiom.py	0
+40	check_py_idiom-selftest	python3 scripts/check_py_idiom.py --selftest	0
+41	check_hygiene-check	python3 scripts/check_hygiene.py --check	0
+42	measure_naming-check	python3 scripts/measure_naming.py --check	0
+43	measure_fail_fast-check	python3 scripts/measure_fail_fast.py --check	0
+44	measure_test_evidence-check	python3 scripts/measure_test_evidence.py --check	0
+45	check_todo_ownership	python3 scripts/check_todo_ownership.py	0
+46	nogit-docs_check	python3 scripts/docs_check.py (git-free export)	0
+47	nogit-check_feature_status	python3 scripts/check_feature_status.py (git-free export)	0

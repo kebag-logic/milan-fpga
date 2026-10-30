@@ -1,0 +1,12 @@
+planted in sw/builder/README-parameters.md:
+- '| `board.constraints.uart_baudrate` | Console UART rate. | optional |'
++ '| `board.constraints.uart_baudrate` | Console UART rate. | required |'
+$ python3 sw/builder/gen_key_reference.py --check
+--- README-parameters.md (tracked)
++++ README-parameters.md (generated)
+@@ -293 +293 @@
+-| `board.constraints.uart_baudrate` | Console UART rate. | required | `115200` | an integer | no named refusal: `ValueError` in `_load_board` | - | 5a |
++| `board.constraints.uart_baudrate` | Console UART rate. | optional | `115200` | an integer | no named refusal: `ValueError` in `_load_board` | - | 5a |
+README-parameters.md: key reference is stale; run python3 sw/builder/gen_key_reference.py
+rc=1
+restored; git status --short: (clean)

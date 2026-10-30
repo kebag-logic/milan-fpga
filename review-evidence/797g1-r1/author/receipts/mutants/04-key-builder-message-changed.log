@@ -1,0 +1,12 @@
+planted in sw/builder/endstation_builder.py:
+- 'raise ConfigError(f"num_queues {cons[\'num_queues\']} outside 1..8")'
++ 'raise ConfigError(f"num_queues {cons[\'num_queues\']} out of range 1..8")'
+$ python3 sw/builder/gen_key_reference.py --check
+--- README-parameters.md (tracked)
++++ README-parameters.md (generated)
+@@ -290 +290 @@
+-| `board.constraints.num_queues` | Shaper queue count; must equal the RTL's queue count. | optional | `5` | an integer above `srp.class_queue` | `_load_board`: num_queues 9 outside 1..8 | - | 5c |
++| `board.constraints.num_queues` | Shaper queue count; must equal the RTL's queue count. | optional | `5` | an integer above `srp.class_queue` | `_load_board`: num_queues 9 out of range 1..8 | - | 5c |
+README-parameters.md: key reference is stale; run python3 sw/builder/gen_key_reference.py
+rc=1
+restored; git status --short: (clean)

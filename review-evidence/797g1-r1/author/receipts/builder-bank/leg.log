@@ -1,0 +1,30 @@
+head cb07597bc33106933c708a45f92c91f17a7a3e61
+$ python3 sw/builder/test_builder.py --require-rv32 --gates test_all_configs_build,test_bad_configs_rejected,test_model_id_hashing,test_resource_verdicts,test_schema_12_keys_reach_the_image,test_schema_12_refusals,test_builder_doc_key_map,test_name_count_fits_the_nvm_name_block --receipt leg-receipt.json
+test_all_configs_build:
+  [gate 1] arty_current: builds end-to-end (sw/builder/out/endstation_arty_current/)
+  [gate 1] arty_4x4: builds end-to-end (sw/builder/out/endstation_arty_4x4/)
+  [gate 1] arty_8ch: builds end-to-end (sw/builder/out/endstation_arty_8ch/)
+  [gate 1] ax7101_8x8: builds end-to-end (sw/builder/out/endstation_ax7101_8x8/)
+  [gate 1] ax7101_1x1_tdm8: builds end-to-end (sw/builder/out/endstation_ax7101_1x1_tdm8/)
+test_bad_configs_rejected:
+  [gate 5] 7/7 invalid configs rejected with ConfigError
+test_model_id_hashing:
+  [gate 8] model-id: deterministic, OUI-prefixed, shape-sensitive (3 mutations), instance-field-insensitive, 4x4 != 8x8, arty_current pinned to 0x001BC50AC1000006
+test_resource_verdicts:
+  [gate 13] arty_4x4: verdict OVER (worst LUT 84.9%, fits the part, shared-engine rows)
+  [gate 13] ax7101_8x8: verdict OVER (worst LUT 85.4%, fits the part, shared-engine rows)
+  [gate 13] thresholds OK/TIGHT/OVER at 70/80; arty_current verdict OVER (worst LUT 81.7%), no upper-bound rows
+test_schema_12_keys_reach_the_image:
+  [gate 25a] 5 tracked configs serve the pre-1.2 literals; all 11 schema 1.2 keys reach the image gen_aemi_image.py packs (id 0x001BC5C1935893E1 -> 0x123456C1935893E1: OUI only); 11/11 single-key mutants named alone
+test_schema_12_refusals:
+  [gate 25b] 20 schema 1.2 misdeclarations refused by reason, the divergent entity_capabilities naming protocol-processor/hdl/adp/pp_adp_pkg.sv:53; an OUI the pin agrees with is accepted; with the refusal severed the image contradicts the declaration
+test_builder_doc_key_map:
+  [gate 32] 114 loader keys == 114 keys across 65 rows of ENDSTATION_BUILDER.md section 3; planted row and dropped row both refused
+  [gate 32] census: 18 untaken loader arms, where a key read is not recorded: endstation_builder.py:1538 endstation_builder.py:1618 endstation_builder.py:1622 endstation_builder.py:1985 endstation_builder.py:1989 endstation_builder.py:3317 endstation_builder.py:3406 endstation_builder.py:3508 endstation_builder.py:3740 endstation_builder.py:3749 endstation_builder.py:3786 endstation_builder.py:3805 endstation_builder.py:3842 endstation_builder.py:4198 endstation_builder.py:4294 endstation_builder.py:4321 endstation_builder.py:4493 endstation_builder.py:4499
+test_name_count_fits_the_nvm_name_block:
+  [gate 38] capacity 128 read from hdl/milan/KL_nvm_backend.sv:248; 128 names built, 129 and the 8x8 TDM8 point (235) refused before any write, naming both figures; KL_nvm_backend elaborates at 128, refuses 129, and refuses 128 with N_NAME_MAX_C planted at 127
+  [gate 38] 9/9 planted defects turned their check red: capacity 127 vs 128 names; capacity 129 vs 129 names; capacity 235 vs 235 names; refusal naming no figure; refusal after a write; guard on a literal; declaration commented out; declaration in hex; declaration repeated
+
+SUBSET: 8 of 103 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS
+rc=0

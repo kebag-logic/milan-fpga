@@ -1,0 +1,7 @@
+planted in sw/builder/endstation_builder.py:
+- 'if not (isinstance(ch, int) and 1 <= ch <= 32):'
++ 'if not (isinstance(ch, int) and 1 <= ch <= 16):'
+$ python3 sw/builder/gen_key_reference.py --check
+REFUSED: streams.listeners[].channels: range 1 to 32 says 32 is accepted, the builder disagrees (ConfigError: streams.listeners[0]: channels 32 outside 1..32)
+rc=2
+restored; git status --short: (clean)
