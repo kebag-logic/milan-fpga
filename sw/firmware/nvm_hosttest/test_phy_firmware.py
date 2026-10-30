@@ -60,6 +60,14 @@ BOOT_MUTANTS = {
 }
 
 
+def phy_csr(work: Path) -> None:
+    """The stub CSR header with the MDIO path compiled in, ahead of the stubs'."""
+    (work / "generated").mkdir(parents=True, exist_ok=True)
+    (work / "generated/csr.h").write_text(
+        f'#include "{nvm.STUBS / "generated/csr.h"}"\n'
+        '#define CSR_MILAN_MAC_PHY_MDIO_W_ADDR 1\n')
+
+
 def boot_path_findings(cfg: Path, work: Path, source: str) -> list[str]:
     """Boot each path, idle the console, and grade the link-status CSR."""
     findings = []
@@ -69,7 +77,9 @@ def boot_path_findings(cfg: Path, work: Path, source: str) -> list[str]:
             if source.count(plant[0]) != 1:
                 raise RuntimeError("PHY boot-path anchor changed: " + label)
             text = source.replace(*plant)
-        bench = nvm.make_bench(cfg, work / label.replace(" ", "-"), text, phy=True)
+        bench_dir = work / label.replace(" ", "-")
+        phy_csr(bench_dir)
+        bench = nvm.make_bench(cfg, bench_dir, text, ("-DNVM_HOST_PHY",))
         raw, _, _ = nvm.run(bench, "--boot", "--uart", "milan_status",
                             "--idle-ms", str(IDLE_MS))
         if reached not in raw:
@@ -113,9 +123,7 @@ def main() -> None:
     with tempfile.TemporaryDirectory(prefix="milan-phy-") as temporary:
         work = Path(temporary)
         nvm.make_bench(nvm.ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml", work, source)
-        (work / "generated/csr.h").write_text(
-            f'#include "{nvm.STUBS / "generated/csr.h"}"\n'
-            '#define CSR_MILAN_MAC_PHY_MDIO_W_ADDR 1\n')
+        phy_csr(work)
         driver = Path(__file__).with_name("phy_host.c")
         command = ["gcc", "-std=gnu11", "-O1", "-Wall", "-Wextra", "-Werror", "-Wno-format",
                    "-ffunction-sections", "-fdata-sections", "-Wl,--gc-sections",

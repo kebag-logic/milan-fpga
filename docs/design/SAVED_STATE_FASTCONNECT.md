@@ -1652,7 +1652,7 @@ The checklist's unchecked obligations remain open after contract adoption.
 - [x] Adding IDENTIFY to persistence fails D3's exclusion control.
       See [D3 section 9](SAVED_STATE_MATERIALIZATION.md#9-what-must-not-persist).
       Milan 5.3.12 keeps its value volatile.
-      The pinned processor's `tb/pp_top/d3_mutants.py` arm `identify_is_a_change`
+      The pinned processor's `protocol-processor/tb/pp_top/d3_mutants.py` arm `identify_is_a_change`
       makes IDENTIFY a persisted change, and section D3S7 fails on it.
 
 **The area**

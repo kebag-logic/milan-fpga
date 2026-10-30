@@ -228,24 +228,18 @@ def constants_header(shape: Shape, donor: Donor,
     return "\n".join(lines) + "\n"
 
 
-def compile_bench(work: Path, firmware_text: str, header: str, phy: bool = False) -> Path:
-    """Build the harness and the (fence-blanked) firmware, with the writer's
-    CPU-only reset appended (`writer_restart.host_restart`), into `work`.
-    With `phy`, the firmware's MDIO path is compiled in and the harness's
-    pin-level PHY peer answers it (test_phy_firmware.py)."""
+def compile_bench(work: Path, firmware_text: str, header: str, defines: tuple = ()) -> Path:
+    """Build the harness (with `defines`) and the (fence-blanked) firmware, with the
+    writer's CPU-only reset appended (`writer_restart.host_restart`), into `work`."""
     (work / "generated").mkdir(parents=True, exist_ok=True)
     (work / "generated/soc.h").write_text(header)
-    if phy:
-        (work / "generated/csr.h").write_text(
-            f'#include "{STUBS / "generated/csr.h"}"\n'
-            '#define CSR_MILAN_MAC_PHY_MDIO_W_ADDR 1\n')
     fw = work / "milan_baremetal.c"
     fw.write_text(FENCE_RE.sub("(void)0;", firmware_text) + host_restart(firmware_text))
     common = ["gcc", "-std=gnu11", "-O1", "-g", "-Wall", "-Wextra", "-Werror",
               f"-I{work}", f"-I{STUBS}"]
     host_defs = [f"-DNVM_HOST_JOURNAL_OFFSET=0x{JOURNAL:x}u",
                  f"-DNVM_HOST_AEM_OFFSET=0x{AEM_OFFSET:x}u",
-                 f"-DNVM_HOST_IMAGE_OFF=0x{IMAGE_OFF:x}u"] + (["-DNVM_HOST_PHY"] if phy else [])
+                 f"-DNVM_HOST_IMAGE_OFF=0x{IMAGE_OFF:x}u", *defines]
     steps = [
         common + host_defs + ["-c", str(HARNESS), "-o", str(work / "host.o")],
         common + ["-Wno-format", "-c", str(fw), "-o", str(work / "fw.o")],
@@ -258,7 +252,7 @@ def compile_bench(work: Path, firmware_text: str, header: str, phy: bool = False
     return work / "fw"
 
 
-def make_bench(cfg: Path, work: Path, firmware_text: str, phy: bool = False) -> Bench:
+def make_bench(cfg: Path, work: Path, firmware_text: str, defines: tuple = ()) -> Bench:
     """Run the builder for `cfg`, derive its shape and compile its harness."""
     names, dc, spi, spo = build(cfg, work / "builder")
     shape = Shape(cfg=cfg, names=names, dc=dc, spi=spi, spo=spo)
@@ -271,7 +265,7 @@ def make_bench(cfg: Path, work: Path, firmware_text: str, phy: bool = False) -> 
     frames = {r: frame_record(r, payload_bytes(g, i, r, p), donor.layout)
               for g, i, r, p, _b in inventory(shape, donor.base) if r is not None}
     header = constants_header(shape, donor, fabric_constants(overlay, lwsrp))
-    binary = compile_bench(work, firmware_text, header, phy)
+    binary = compile_bench(work, firmware_text, header, defines)
     return Bench(cfg=cfg, shape=shape, donor=donor, ident=ident, binary=binary,
                  work=work, frames=frames, expect=expected_payloads(shape))
 

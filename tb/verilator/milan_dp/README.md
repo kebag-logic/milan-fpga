@@ -897,7 +897,7 @@ accepted change notifies no controller. The registry check counts only over
 an accepted change, so a lock that survives fails it as well. Nothing the
 parent owns can carry these three across the cycle. So rows 64 to 66 below
 delete each one's reset term in a copy of the processor's `hdl/` tree, the
-plant the processor's own `tb/pp_top/d3_mutants.py` volatile arms make.
+plant the processor's own `protocol-processor/tb/pp_top/d3_mutants.py` volatile arms make.
 
 The media path is graded end to end elsewhere, with no map command issued.
 The listener: `tb/verilator/milan_dp_render`, `T18 POWER-ON`, decodes stream
