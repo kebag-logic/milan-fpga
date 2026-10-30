@@ -286,7 +286,7 @@
    "id": "D0-041",
    "page": "docs/reference/REGISTER_MAP_CLASSES.md",
    "quote": "`S50milan` writes these every boot.",
-   "source": "`S50milan` was an init script of the retired operating-system image (#259): `scripts/check_baremetal_only.py` line 1625 forbids `sw/init.d/S50milan`, and the test benches call its write \"the retired S50milan poke\" (`tb/verilator/milan_dp/sim_main.cpp` line 464); the bare-metal `milan_init()` writes the identity and enables (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1799-1802)",
+   "source": "`S50milan` was an init script of the retired operating-system image (#259): `scripts/check_baremetal_only.py` line 1625 forbids its init.d path as a target service, and the test benches call its write \"the retired S50milan poke\" (`tb/verilator/milan_dp/sim_main.cpp` line 464); the bare-metal `milan_init()` writes the identity and enables (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1799-1802)",
    "correction": "Say that the bare-metal firmware writes these words at every boot."
   },
   {
