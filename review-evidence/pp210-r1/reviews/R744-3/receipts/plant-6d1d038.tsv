@@ -1,0 +1,22 @@
+S0 selftest	expect=pass	got=pass	inventory selftest: 30 cases, OK
+C0-clean-inventory	expect=pass	got=pass	rc=0	inventory: 63 Markdown files, OK 
+C1-clean-links	expect=pass	got=pass	rc=0	 
+M1-fake-op-in-06-table	expect=fail	got=fail	rc=1	INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: table names FAKE_OP, which the enum does not declare inventory: 63 Markdown files, 1 FAILURES 
+M2-wrong-heading-count	expect=fail	got=fail	rc=1	INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: says 29 operations, the enum declares 30 inventory: 63 Markdown files, 1 FAILURES 
+M3-count-restated-on-heading-line	expect=fail	got=fail	rc=1	INVENTORY FAIL: RESTATED: docs/architecture/06_aecp_engine.md:1427: a µISA operation count; link 06 §8, whose count is derived inventory: 63 Markdown files, 1 FAILURES 
+M4-banner-29-restored	expect=fail	got=fail	rc=1	INVENTORY FAIL: RESTATED: IEEE_1722_1_Hardware_Protocol_Processor.md:18: a µISA operation count; link 06 §8, whose count is derived inventory: 63 Markdown files, 1 FAILURES 
+M5-banner-true-30	expect=fail	got=fail	rc=1	INVENTORY FAIL: RESTATED: IEEE_1722_1_Hardware_Protocol_Processor.md:18: a µISA operation count; link 06 §8, whose count is derived inventory: 63 Markdown files, 1 FAILURES 
+M6-current-page-count	expect=fail	got=fail	rc=1	INVENTORY FAIL: RESTATED: docs/GLOSSARY.md:89: a µISA operation count; link 06 §8, whose count is derived inventory: 63 Markdown files, 1 FAILURES 
+M7-control-retired-body	expect=pass	got=pass	rc=0	inventory: 63 Markdown files, OK 
+M8-op-added-to-enum	expect=fail	got=fail	rc=1	INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: says 30 operations, the enum declares 31 INVENTORY FAIL: DERIVED: docs/architecture/06_aecp_engine.md against hdl/aecp/ucpu_pkg.sv: table lacks FAKE inventory: 63 Markdown files, 2 FAILURES 
+M9-09-target-row-dropped	expect=fail	got=fail	rc=1	INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table lacks `inventory` INVENTORY FAIL: DERIVED: docs/architecture/09_verification.md against Makefile: table names `inventoryX`, which `check` does not run inventory: 63 Markdown files, 2 FAILURES 
+M10-defining-file-dropped	expect=fail	got=fail	rc=1	INVENTORY FAIL: DERIVED MISSING: hdl/aecp/ucpu_pkg.sv inventory: 63 Markdown files, 1 FAILURES | links: LINK FAIL: IEEE_1722_1_Hardware_Protocol_Processor.md: missing target -> hdl/aecp/ucpu_pkg.sv 
+M11-linked-target-file-dropped	expect=fail	got=fail	rc=1	LINK FAIL: tb/timer_map/README.md: missing target -> shape_elab.sh 
+M12-linked-makefile-dropped	expect=fail	got=fail	rc=1	LINK FAIL: tb/srp_top/README.md: missing target -> ../srp_admission/Makefile 
+M13-banner-anchor-dropped	expect=fail	got=fail	rc=1	LINK FAIL: IEEE_1722_1_Hardware_Protocol_Processor.md: missing anchor -> docs/architecture/06_aecp_engine.md#8-µcode-architecture LINK FAIL: docs/GLOSSARY.md: missing anchor -> architecture/06_aecp_engine.md#8-µcode-architecture LINK FAIL: docs/INVENTORY.md: missing anchor -> architecture/06_aecp_engine.md#8-µcode-architecture 
+M14-srp_top-anchor-dropped	expect=fail	got=fail	rc=1	LINK FAIL: tb/srp_top/README.md: missing anchor -> #timer-arm-fifos-at-every-store-shape-issue-230 
+G1-count-wrapped-to-next-line	expect=pass	got=pass	rc=0	inventory: 63 Markdown files, OK 
+G2-count-before-uisa-word	expect=pass	got=pass	rc=0	inventory: 63 Markdown files, OK 
+G3-count-spelled	expect=pass	got=pass	rc=0	inventory: 63 Markdown files, OK 
+G4-instructions-word	expect=pass	got=pass	rc=0	inventory: 63 Markdown files, OK 
+R2-old-gate-on-old-banner	expect=pass	got=pass	rc=0	inventory: 63 Markdown files, OK 

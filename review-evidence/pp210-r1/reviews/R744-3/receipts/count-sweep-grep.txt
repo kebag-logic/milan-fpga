@@ -1,0 +1,69 @@
+docs/00_MILAN_COMPLIANCE_REVIEW.md:424:| REQ-ACMP-011 | Milan §5.5.3.2/.5 | Listener SM: 8 states with normative transition set | shall | I; traced | [GAP-02](#gap-02) | F05.2–F05.6 | 05 §6 | MTXW |
+docs/architecture/01_overview.md:190:| P-NVM-RS-AGG-CYC | P-CLK-HZ (1,000 ms) | DR3a **ratified** as an enforced bound (`NVM_RS_AGG_CYC_P`): clocks from the accepted restore start (`restore_go_i`) to the D3 terminal, the binding w
+docs/architecture/01_overview.md:200:| P-EN-IDENTIFY-NOTIFICATION | 0 | "should" (Milan §5.4.5.4) for a PAAD that gives its user a way to report itself; 1 only with a debounced `identify_button_i`. 0 builds no sequencer and never 
+docs/architecture/02_interfaces.md:37:is not a Milan requirement: Milan v1.2 states the wire behaviour of GET_STREAM_INFO,
+docs/architecture/02_interfaces.md:813:| The drain ends **only** on that operation's own `done` or `err`. | never on time here. A device that never ends the abandoned read is answered by the port's own deadline ([§8](#sec-02-nvm-d
+docs/architecture/05_acmp_engine.md:133:| SM | `sm_state` (3 b, 8 states) · `pbsta` (3 b) · `acmpsta` (5 b) |
+docs/architecture/05_acmp_engine.md:234:### 6.1 States
+docs/architecture/06_aecp_engine.md:548:| SET_STREAM_INFO (**implemented**, Milan §5.4.2.9) | `NOT_SUPPORTED` whole, at the response's own length (params come from PROBE_TX_RESPONSE) | exactly two shapes are accepted: 1722.1-2021 
+docs/architecture/06_aecp_engine.md:706:v1.2 §5.4.2.25 Tables 5.13 to 5.17; IEEE 1722.1-2021 Tables 7-152 to 7-159)
+docs/architecture/07_memory_maps.md:311:consumer's generated model is 22,561 B at the 8×8 shape (~5 RAMB36) *before* the
+docs/architecture/07_memory_maps.md:835:from the accepted restore start (`restore_go_i`), the binding walk, both passes and the
+docs/architecture/08_timing.md:276:overlap. The current allocation admits up to 16 sources and 31 sinks. Both maps and
+docs/architecture/09_verification.md:157:Two suites are MTXW walks in the sense of [§3](#3-test-categories), each from an
+docs/architecture/09_verification.md:343:The mutation records are in the two suites' READMEs; `tb/pp_top/notify_mutants.py`
+docs/architecture/09_verification.md:359:| each mutation is refused with its rule and check, on the arm its `detail` names where a check has several, and the same bytes pack with the lint off, so the refusal is the lint's and not 
+docs/architecture/09_verification.md:399:| the handshake models: unsolicited and coincident completion leave every check green; a short-read and a silent backend fail only service, and the run-wide checks hold under all nine model
+docs/architecture/09_verification.md:401:| the amended saved-state contract: a later change against a silent device is attempted three times, each ended DEADLINE with no device command, then `nvm_alarm_o` drops its pending bit; it
+docs/architecture/09_verification.md:442:The mutation records are in the two suites' READMEs.
+docs/architecture/09_verification.md:447:Three suites build it at 2, each in a build of its own, and the pp_top suite lints the
+docs/architecture/10_srp_engine.md:445:That is what MSRP asks: §35.2.3.1.1 maps REGISTER_STREAM.request onto a MAD_Join.request with
+docs/architecture/10_srp_engine.md:909:"Start leavealltimer" and Passive in both states, and §10.6 gives the reason:
+docs/guides/hdl-engineer.md:314:| ADP advertise machine has four states, not three | [F04.2](../architecture/04_adp_engine.md#fig-04-advsm) draws DOWN / DELAY / WAITING. [`pp_adp_pkg`](../../hdl/adp/pp_adp_pkg.sv) splits the delay
+docs/guides/integrator.md:113:| `EN_IDENTIFY_NOTIF_P` | [F01.5](../architecture/01_overview.md#fig-01-params), `P-EN-IDENTIFY-NOTIFICATION`; [06 §7, F06.16](../architecture/06_aecp_engine.md#fig-06-identify) | 1 builds the identif
+docs/guides/integrator.md:494:index; the IEEE offsets are four times it):
+docs/guides/integrator.md:514:| TIMESTAMP_VALID / TIMESTAMP_NOT_VALID (IEEE 1722.1-2021 Tables 7-156 and 7-157; not Milan's, kept only under `0x00000FFF`) | as IEEE Table 7-157 defines them: one for each received stream data AVTPD
+docs/guides/integrator.md:591:| `restore_closed_o`, `rs_cause_o[2:0]`, `restore_rb_o`, `restore_cause_o[1:0]` | the D3 walk's CLOSED terminal (never done), its cause (1 torn, 2 device, 3 deadline, 5 passes disagree, 6 descriptor r
+tb/acmp_nvm/README.md:250:  still owed, so a later change is attempted three times, each ended by the
+tb/acmp_nvm/README.md:320:`tb/nvm_port` manager BFM so both suites pin one on-media format.
+tb/acmp_talker/README.md:12:response is spelled out field-by-field from the F05.11 tables; the harness
+tb/acmp_talker/README.md:24:(`ASKING_FAILED`) — the two tables checked back-to-back on the same source so
+tb/acmp_talker/README.md:417:| S5 | One full lap of the 16-bit cursor, the moves 5 ms apart (a conflict's pace keeps each half of the unique IDs longer than the cursor guard's three quarantines): src1, src2, src4 and src5 move to 
+tb/acmp_talker/README.md:422:| S11 | src3, held declaring by a Listener, disabled and returned 65,528 times inside one millisecond, each return granted at once with a fresh DA: every return moves, up to `...FFFF`; the next return'
+tb/adp_engine/README.md:65:cell of two tables is driven from an **independent C++ transcription of Milan
+tb/adp_engine/README.md:352:| `arc-not-discovered-no-guard` | adp_engine | TK_NOT_DISCOVERED takes an ENTITY_AVAILABLE whatever its grandmaster and domain (the §5.6.4.5.1 step 1 guard) | 14: arc 3 and the arc count, the three GM a
+tb/adp_engine/README.md:358:| `arc-restart-skips-guard` | adp_engine | a stale index restarts the talker whatever its grandmaster and domain (the §5.6.4.5.2 step 2b guard) | 12: arc 6 and the arc count, the GM and domain mismatch 
+tb/desc_store/README.md:171:| L5 compared index by index on the indices two configurations share | `ConformingModelTest.test_second_interface_optional_per_configuration` |
+tb/desc_store/README.md:177:expected-pass entity-id control stays green, and its four targets that round 2
+tb/maap/README.md:138:after the yield-walk's first PROBE (the `W_IDLE` arc). Both times the next
+tb/maap/README.md:242:| `fit-compare-off-by-one` | the fit compare `<=` becomes `<`: the last fitting offset is refused | maap | U17 x3 (no PROBE, the boundary draw refused 1,745 times) and U17b x4: 7 FAIL of 195 |
+tb/nvm_port/README.md:21:every cut or poke inside an operation is named on the bus (see "Three bounds"
+tb/nvm_port/README.md:277:reads of a restore, which is the four states of the window that can move a final
+tb/nvm_port/README.md:777:### Three bounds (issue #15)
+tb/nvm_port/README.md:1018:the record because they are the same failure four times. Version one checked
+tb/nvm_port/README.md:1129:beside it, on the evidence of twelve arms and four models showing no
+tb/nvm_port/README.md:1311:stayed hidden after three models had been run.
+tb/pp_top/README.md:26:`make`: exit 0 = PASS. It builds the bench seven times (sections DV, ID, AX, TB,
+tb/pp_top/README.md:86:  a record whose WRITEs all fail is attempted three times in all, each
+tb/pp_top/README.md:564:  713 s, and the golden, the 20 variants and the restored run gave the same
+tb/pp_top/README.md:851:  10 §6.1 F10.2, F01.5 `P-SRP-DOM-DEF-VID`), in both builds on a fresh model:
+tb/pp_top/README.md:859:  untouched. Its image declares two configurations with default 1, and
+tb/pp_top/README.md:1107:| M22 | the refusal tail builds r12, the REJECTED rate, at @28 instead of r6, the current one (E_SSRATE+17, ROM word 1169) | 9 FAIL at 1,361 checks -- every refusal that is graded byte-exact: W9i, W9j, W9k
+tb/pp_top/README.md:1116:| M31 | control, not a defect: `KL_srp_top`'s own `DOM_DEF_VID_P` default changed from 2 to 7, binding intact | both builds PASS, 1,391 and 20: the child's default is no longer a source |
+tb/pp_top/README.md:1117:| M32 | the listener admission gate deleted (`KL_pp_acmp_lsn_admit` never owns: `own_r` resets to 0), the top's wiring before issue #92 | default build 5 FAIL of 1,401: BW1 four times (the GET before the w
+tb/pp_top/README.md:1150:tree: M32 then fails 8 (BW1 four times, BW2, BW3's saved-record check, and BW4
+tb/pp_top/README.md:1751:slot pools back afterwards; B11 proves a four-times-slower bridge only costs
+tb/pp_top/README.md:2085:DV runs on a fresh model in both builds, after reset and with the link down:
+tb/pp_top/README.md:2660:  06 §6.11 states.
+tb/resp_buf/README.md:21:Two models, neither of them a copy of DUT logic:
+tb/srp_top/README.md:237:whatever order they finish in. A label graded on two suites keeps one receipt,
+tb/srp_top/README.md:277:| `talker-lost-txla` | stream FSMs | 12 | same-edge Table 10-3 states/messages |
+tb/srp_top/README.md:278:| `listener-lost-txla` | stream FSMs | 12 | same-edge Table 10-3 states/messages |
+tb/srp_top/README.md:364:802.1Q-2014 Table 10-5 maps rLA! to "Start leavealltimer, Passive" in both
+tb/timer_map/README.md:4:`make` → `0` = PASS; tally `1360 checks: 1360 PASS, 0 FAIL` (re-measured 2026-10-30). Two gates run in
+tb/timer_map/README.md:18:shape header for its 8×8 build asks for **9** (`ADP_TALKER_SRC_C = 9`,
+tb/timer_map/README.md:32:Both maps are now **derived** in `pp_pkg` (`pp_timer_map`, `pp_evr_map`); the
+tb/timer_map/README.md:57:`timer_map_wrap.sv` elaborates both maps at the same shapes (`SI_TBL_C`, `SO_TBL_C`) and publishes
+tb/timer_map/README.md:81:  the 9×9 shape and *refuses* an over-large one. Neither runs 9-stream
+tb/timer_map/README.md:83:  8×8 shape only, so a 9-stream *functional* bug outside the maps would not
+tb/timer_map/README.md:93:| `timer_map_wrap.sv` | gate 2 DUT: both maps at gate 1's shapes, bases on ports |
