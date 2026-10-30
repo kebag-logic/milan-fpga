@@ -1,0 +1,26 @@
+Reset the end-station on the processor's REBOOT request (AECP REBOOT, for the #396 soft resets)
+OPEN
+**Perform the end-station reset on the processor's REBOOT request, so the release gate's 50 soft resets can run (#396).**
+
+The processor will accept AECP REBOOT (IEEE 1722.1-2021 7.4.43) and raise `reboot_req_o` after its SUCCESS response leaves (processor issue Mister-M-alt/protocol-processor-control-plane-avb-milan#203). The end-station must then reset itself without a power cut, and come back as after a cold boot.
+
+**Decide and record (design first):** which reset.
+- **(a)** A fabric and CPU soft reset, without FPGA reconfiguration.
+- **(b)** A configuration reload from flash (IPROG through ICAPE2), which reloads the bitstream like a power-on.
+- For each, state what is and is not reset: the PHY, the RGMII/GMII clocking and MMCMs, the gPTP timestamping path, the persistence journal and the boot path.
+- A JTAG reload is excluded, because it is known to leave TX timestamps wrong. The chosen reset must show it does not have that defect.
+
+**Required:**
+- On `reboot_req_o`, the chosen reset happens within a stated bound. A journal write in progress completes or is safely abandoned, as for a cold cut.
+- After the reset:
+  - the eight Milan state items are restored;
+  - ADP re-advertises within its valid time;
+  - gPTP locks again with correct TX timestamps;
+  - bound streams rebind inside #75's bound.
+  These are the #396 power-area checks.
+- The bench smoke and the #396 plan's `power` area use REBOOT for the 50 soft resets.
+- Tests: a simulation of the request-to-reset path, and a mutant that ignores the request.
+- The adoption of the processor pin that carries #203 lands in the same PR, or before it.
+
+Relates to #396.
+
