@@ -1,0 +1,11 @@
+label	want	rc	verdict	output
+control: copied dev set	0	0	OK	directive ExtraPostPlacementOpt selected: the best worst-corner WNS, 0.303 ns | RESULT: PASS
+F2-wns: every route below the setup floor, the selected one fell 0.42	1	1	UNEXPECTED	directive ExtraPostPlacementOpt selected: the best worst-corner WNS, 0.02 ns | WNS_ns            0.44        0.02     -0.42  REGRESSION: below the floor 0.03 at Slow_0C | RESULT: MATERIAL REGRESSION
+F2-whs: selected route WHS -0.300 at Fast_85C, a fall of 0.336	1	1	UNEXPECTED	directive ExtraPostPlacementOpt selected: the best worst-corner WNS, 0.303 ns | WHS_ns           0.036        -0.3    -0.336  REGRESSION: below the floor 0.0 at Fast_85C | RESULT: MATERIAL REGRESSION
+F2-whs-within: selected route WHS -0.005 at Fast_85C, a fall of 0.041: no warning	1	1	OK	directive ExtraPostPlacementOpt selected: the best worst-corner WNS, 0.303 ns | WHS_ns           0.036      -0.005    -0.041  REGRESSION: below the floor 0.0 at Fast_85C | RESULT: MATERIAL REGRESSION
+F3-a: every route's summary WNS 0.010, corners unchanged	2	2	OK	NOT COMPARABLE: the signoff corners' worst WNS_ns is 0.303 and the timing summary's 0.01: the reports are not of one run
+F3-b: the selected route's summary WNS 0.010, corners unchanged	2	2	OK	NOT COMPARABLE: the signoff corners' worst WNS_ns is 0.303 and the timing summary's 0.01: the reports are not of one run
+F3-c: the selected route's summary WHS -0.050, corners unchanged	2	2	OK	NOT COMPARABLE: the signoff corners' worst WHS_ns is 0.028 and the timing summary's -0.05: the reports are not of one run
+F3-d: a selected corner's WNS 0.250 below the summary's 0.303	2	2	OK	NOT COMPARABLE: the signoff corners' worst WNS_ns is 0.25 and the timing summary's 0.303: the reports are not of one run
+F3-e: a selected corner's WHS 0.010 below the summary's 0.028	2	2	OK	NOT COMPARABLE: the signoff corners' worst WHS_ns is 0.01 and the timing summary's 0.028: the reports are not of one run
+F3-f: a comparison's summary WNS 0.010 below its corners	2	2	OK	NOT COMPARABLE: the signoff corners' worst WNS_ns is 0.106 and the timing summary's 0.01: the reports are not of one run

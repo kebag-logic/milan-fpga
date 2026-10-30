@@ -1,0 +1,36 @@
+endpoint route-1x1: <route>/ax7101/gateware
+route set: the recipe's 3 placement directives, worst-corner WNS_ns and WHS_ns
+  ExtraPostPlacementOpt      0.128    0.03  <route>/ax7101/gateware
+  AltSpreadLogic_high        0.039   0.029  <route>/ax7101-AltSpreadLogic_high
+  ExtraTimingOpt              0.01   0.029  <route>/ax7101-ExtraTimingOpt
+directive ExtraPostPlacementOpt selected: the best worst-corner WNS, 0.128 ns
+figure        baseline   candidate     delta  verdict
+LUT              52012       51827      -185  ok, below the baseline
+FF               53707       54022       315  ok
+SLICE            15780       15764       -16  ok, below the baseline
+RAMB36              74          74         0  ok
+RAMB18              27          27         0  ok
+DSP                 13          13         0  ok
+WNS_ns            0.44       0.128    -0.312  WARNING: fell by more than 0.25 from the record
+WHS_ns           0.036        0.03    -0.006  ok
+signoff corners, against the floors WNS_ns 0.03 and WHS_ns 0.0:
+  Slow_0C   WNS_ns    0.128  WHS_ns    0.059
+  Slow_85C  WNS_ns    0.128  WHS_ns    0.059
+  Fast_0C   WNS_ns    1.311  WHS_ns     0.03
+  Fast_85C  WNS_ns    1.311  WHS_ns     0.03
+WARNING: WNS_ns fell from the record by more than the timing fall; reported, never gated (#818)
+route status: complete, no unrouted net and no routing error
+sub-block movements, not gated:
+  wrapper: LUT -322, FF -26
+  u_pp: LUT -314, FF -26
+  u_pp/u_aecp: LUT -217, FF +0
+  u_pp/u_aecp/u_dyn: LUT -155, FF +0
+  u_pp/u_srp: LUT -86, FF -26
+  u_pp/u_srp/u_encoder: LUT -25, FF -24
+  u_pp/u_aecp/u_d3: LUT -43, FF +0
+  u_pp/u_srp/u_listener: LUT -41, FF +0
+  u_pp/u_talker: LUT +18, FF +0
+  u_pp/u_srp/u_talker: LUT -12, FF -2
+  u_pp/u_originator: LUT -10, FF +0
+  u_pp/u_srp/u_domain: LUT -8, FF +0
+RESULT: PASS
