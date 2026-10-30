@@ -1,0 +1,6 @@
+control                            rc=0 | docs check: PASS (14 current pages, 18 historical pages)
+bold_stale_constant                rc=1 |   docs/INTEGRATION.md: SYNC_RTO_MS_C value '**376**' is not a plain decimal
+negative_stale_constant            rc=1 |   docs/INTEGRATION.md: SYNC_RTO_MS_C value '-1' is not a plain decimal
+unit_stale_constant                rc=1 |   docs/INTEGRATION.md: SYNC_RTO_MS_C value '376 ms' is not a plain decimal
+drifted_duplicate_threshold_table  rc=0 | docs check: PASS (14 current pages, 18 historical pages)
+drifted_prose_copy                 rc=0 | docs check: PASS (14 current pages, 18 historical pages)
