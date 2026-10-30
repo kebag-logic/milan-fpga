@@ -1,0 +1,16 @@
+rc=1
+--- stdout
+--- stderr
+Traceback (most recent call last):
+  File "$REVIEWS/817-r750-1-packet/scripts/servo_stub_driver.py", line 18, in <module>
+    t.test_servo_reset_sync()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/817-r750-1-packet/scratch/mut/K12-chain-check-first-only/sw/builder/test_clock_constraints.py", line 246, in test_servo_reset_sync
+    assert result.returncode == 0 and not result.stderr, result.stdout + result.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[1]/D
+servo reset synchronizer cut and refusal controls PASS
+accepted: *not a two-flop chain*
+

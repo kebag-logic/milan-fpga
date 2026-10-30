@@ -1,0 +1,110 @@
+[
+ {
+  "mutant": "K00-control-unmutated",
+  "rc": 0,
+  "verdict": "CONTROL-PASS",
+  "last_line": "DRIVER: test_servo_reset_sync returned"
+ },
+ {
+  "mutant": "K01-cut-removed",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "stage order changed the cut: "
+ },
+ {
+  "mutant": "K02-cut-widened-from-dropped",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "stage order changed the cut: {set_false_path -to {sv/psrst_sync_r_reg[0]/D}}"
+ },
+ {
+  "mutant": "K03-cut-on-second-stage",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "stage order changed the cut: {set_false_path -from milan -to {sv/psrst_sync_r_reg[1]/D}}"
+ },
+ {
+  "mutant": "K04-cut-setup-only",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "stage order changed the cut: {set_false_path -setup -from milan -to {sv/psrst_sync_r_reg[0]/D}}"
+ },
+ {
+  "mutant": "K05-cut-to-cell-not-pin",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "stage order changed the cut: {set_false_path -from milan -to {{sv/psrst_sync_r_reg[0]}}}"
+ },
+ {
+  "mutant": "K06-stage-count-check-dropped",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "wrong refusal: can't read \"::async(sv/psrst_sync_r_reg[2])\": no such element in array"
+ },
+ {
+  "mutant": "K07-asyncreg-check-dropped",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "accepted: *lacks ASYNC_REG*"
+ },
+ {
+  "mutant": "K08-asyncreg-check-first-listed-cell-only",
+  "rc": 0,
+  "verdict": "SURVIVED",
+  "last_line": "DRIVER: test_servo_reset_sync returned"
+ },
+ {
+  "mutant": "K09-asyncreg-check-last-listed-cell-only",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "accepted: *lacks ASYNC_REG*"
+ },
+ {
+  "mutant": "K10-asyncreg-non-strict-any-value",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "accepted: *lacks ASYNC_REG*"
+ },
+ {
+  "mutant": "K11-chain-check-dropped",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "accepted: *not a two-flop chain*"
+ },
+ {
+  "mutant": "K12-chain-check-first-only",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "accepted: *not a two-flop chain*"
+ },
+ {
+  "mutant": "K13-clock-check-dropped",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "accepted: *not one clock distinct from milan*"
+ },
+ {
+  "mutant": "K14-clock-check-distinct-only",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "accepted: *not one clock distinct from milan*"
+ },
+ {
+  "mutant": "K15-clock-check-count-only",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "accepted: *not one clock distinct from milan*"
+ },
+ {
+  "mutant": "K16-src-clock-unchecked",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "wrong refusal: "
+ },
+ {
+  "mutant": "K17-stage-filter-widened-to-any-psrst",
+  "rc": 1,
+  "verdict": "KILLED",
+  "last_line": "wrong refusal: CONSTRAINTS: expected two servo reset synchronizer flops, got "
+ }
+]

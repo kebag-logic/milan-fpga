@@ -1,0 +1,19 @@
+rc=1
+--- stdout
+--- stderr
+Traceback (most recent call last):
+  File "$REVIEWS/817-r750-1-packet/scripts/servo_stub_driver.py", line 18, in <module>
+    t.test_servo_reset_sync()
+    ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/817-r750-1-packet/scratch/mut/K17-stage-filter-widened-to-any-psrst/sw/builder/test_clock_constraints.py", line 246, in test_servo_reset_sync
+    assert result.returncode == 0 and not result.stderr, result.stdout + result.stderr
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: servo reset synchronizer cut and refusal controls PASS
+CONSTRAINTS: expected two servo reset synchronizer flops, got 
+servo cut missing or widened: 
+CONSTRAINTS: expected two servo reset synchronizer flops, got 
+stage order changed the cut: 
+wrong refusal: CONSTRAINTS: expected two servo reset synchronizer flops, got 
+wrong refusal: CONSTRAINTS: expected two servo reset synchronizer flops, got 
+wrong refusal: CONSTRAINTS: expected two servo reset synchronizer flops, got 
+
