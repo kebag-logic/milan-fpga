@@ -1,0 +1,27 @@
+head 806957b35c3c23a36505744d205f9692720d19e2; old checker from 8607347675743fe8d1ccaa370c63905c5ca1ccd5
+## real-tree defects: new checker rc, old checker rc, first finding
+OK   control: rc 0 (want 0); old rc 0; docs check: PASS (14 current pages, 18 historical pages)
+OK   const_plain_stale: rc 1 (want 1); old rc 1; docs/INTEGRATION.md: SYNC_RTO_MS_C is 376, generator has 375
+OK   const_bold_stale: rc 1 (want 1); old rc 0; docs/INTEGRATION.md: SYNC_RTO_MS_C value '**376**' is not a plain decimal
+OK   const_negative: rc 1 (want 1); old rc 0; docs/INTEGRATION.md: SYNC_RTO_MS_C value '-1' is not a plain decimal
+OK   const_unit_stale: rc 1 (want 1); old rc 0; docs/INTEGRATION.md: SYNC_RTO_MS_C value '376 ms' is not a plain decimal
+OK   const_row_deleted: rc 1 (want 1); old rc 0; docs/INTEGRATION.md: no protocol constant row for SYNC_RTO_MS_C
+OK   const_name_unbackticked: rc 1 (want 1); old rc 0; docs/INTEGRATION.md: no protocol constant row for SYNC_RTO_MS_C
+OK   code_drift: rc 1 (want 1); old rc 1; docs/INTEGRATION.md: SYNC_RTO_MS_C is 375, generator has 376
+OK   rom_formatted_stale: rc 1 (want 1); old rc 1; docs/MANAGER.md: Shipping row '**1,021** of 1,024' | '3' is not plain 'N of M' | N
+OK   rom_duplicate_row: rc 1 (want 1); old rc 0; docs/MANAGER.md: duplicate ROM budget row: Shipping
+OK   copy_hdl_prose: rc 1 (want 1); old rc 0; docs/HDL_DEVELOPER.md:207: '375 ms' restates SYNC_RTO_MS_C; link its constants row
+OK   copy_threshold_table: rc 1 (want 1); old rc 0; docs/INTEGRATION.md:368: '20 us' restates STEP_LINKUP_NS_C; link its constants row
+OK   copy_spelled_minutes: rc 1 (want 1); old rc 0; docs/INTEGRATION.md:279: 'five-minute' restates CEASE_MS_C; link its constants row
+OK   copy_test_ppm: rc 1 (want 1); old rc 0; docs/TEST_DEVELOPER.md:129: '200 ppm' restates RATE_PPM_C; link its constants row
+OK   copy_band_ns: rc 1 (want 1); old rc 0; docs/INTEGRATION.md:464: '100 ns' restates SLEW_SETTLED_NS_C; link its constants row
+OK   status_row_missing: rc 1 (want 1); old rc 1; docs/README.md: status row names a missing page: tb/tsngen/GONE.md
+## checker mutants: --selftest rc and message
+OK   required_set_removed: selftest rc 1; docs selftest: deleted constant row escaped
+OK   old_numeric_row_regex: selftest rc 1; docs selftest: bold constant cell escaped
+OK   decimal_accepts_markup: selftest rc 1; docs selftest: bold constant cell escaped
+OK   home_not_excluded: selftest rc 1; docs selftest: linked constant or its home row failed
+OK   no_unit_conversion: selftest rc 1; docs selftest: converted constant copy escaped
+OK   no_minute_words: selftest rc 1; docs selftest: spelled constant copy escaped
+OK   rom_duplicate_ignored: selftest rc 1; docs selftest: duplicate ROM row escaped
+probe failures: 0

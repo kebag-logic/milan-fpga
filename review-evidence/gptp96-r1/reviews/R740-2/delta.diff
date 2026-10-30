@@ -1,0 +1,771 @@
+diff --git a/README.md b/README.md
+index 6389db3..e346451 100644
+--- a/README.md
++++ b/README.md
+@@ -57,7 +57,7 @@ Read in this order:
+ - RTL owns parsing, queues, timers, and serialization.
+ - Egress timestamp results arrive on accepted beats.
+ - Admission credit postpones only initiating transmissions.
+-- Publication outputs expose committed protocol state.
++- Publication outputs are valid when `pub_commit_o` pulses.
+ 
+ Parent evidence is pinned at `ac2c5e77`.
+ 
+diff --git a/docs/GLOSSARY.md b/docs/GLOSSARY.md
+index 03fdb79..9bc8e24 100644
+--- a/docs/GLOSSARY.md
++++ b/docs/GLOSSARY.md
+@@ -16,7 +16,7 @@ Milan means the Milan v1.2 specification, chapter 4.
+ | asCapable | Port verdict that peer-delay exchanges with the neighbour work | 10.2.4.1, 11.2.2 |
+ | BTCA | Best master selection over received priority vectors | 10.3, Milan 4.2.6.1 |
+ | Cease | Pdelay_Req pause after repeated multiple responders | Milan 4.2.6.2.5 |
+-| Follow_Up companion | Two-step message carrying the precise transmit time | 11.4.3 |
++| Follow_Up companion | Two-step timestamp message: Follow_Up or Pdelay_Resp_Follow_Up | 11.4.4, 11.4.7 |
+ | gmPresent | True when the grandmaster's priority1 is below 255 | 10.3.12.1.4 g) |
+ | Grandmaster | Clock whose time the whole domain follows | 10.3 |
+ | pathTrace | Clock identities from grandmaster to this system | 10.3.8.21 |
+@@ -33,7 +33,7 @@ Milan means the Milan v1.2 specification, chapter 4.
+ |---|---|---|
+ | Claim | Scratch record of an egress timestamp still owed | [HDL guide](HDL_DEVELOPER.md#egress-result-ownership) |
+ | Cold start | FPGA configuration, which also clears scratch | [Integration guide](INTEGRATION.md#clock-and-reset) |
+-| Commit | `pub_commit_o` pulse exposing one staged publication | [Integration guide](INTEGRATION.md#publication) |
++| Commit | `pub_commit_o` pulse marking one complete staged publication | [Integration guide](INTEGRATION.md#publication) |
+ | Credit | `tx_credit_i` level permitting initiating transmissions | [Integration guide](INTEGRATION.md#transmit-admission-credit) |
+ | Image | Generated microcode ROM file for one configuration | [Integration guide](INTEGRATION.md#microcode-configuration) |
+ | Initiating beat | A Pdelay_Req, Sync or Announce transmission | [Integration guide](INTEGRATION.md#transmit-admission-credit) |
+diff --git a/docs/HDL_DEVELOPER.md b/docs/HDL_DEVELOPER.md
+index 2919929..49057a2 100644
+--- a/docs/HDL_DEVELOPER.md
++++ b/docs/HDL_DEVELOPER.md
+@@ -9,7 +9,7 @@ This guide explains structure, timing, and invariants.
+ - Microcode decides protocol policy; RTL moves bytes and time.
+ - The microCPU reaches engine state through six address regions.
+ - Scratch survives warm reset; validity bits do not.
+-- Publication changes only through one commit.
++- Consumers sample publication on `pub_commit_o`; staging moves outputs earlier.
+ - Synthesis figures here are dated measurements.
+ 
+ Terms are defined in the [glossary](GLOSSARY.md).
+@@ -163,15 +163,15 @@ Microcode bit 0 means only that a peer is elected.
+ 
+ The output also sets bit 0 for a grandmaster-capable thisClock.
+ 
+-ROM word 1022 bit 32 marks that capability.
++ROM word [`ROM_CID_HI_C`](INTEGRATION.md#protocol-constants), bit [`ROM_GMCAP_BIT_C`](INTEGRATION.md#protocol-constants), marks that capability.
+ 
+ Microcode reads of word 2 return the unmodified bits.
+ 
+ ## MicroCPU shape
+ 
+-- ROM contains 1,024 forty-eight-bit words.
++- ROM contains [`DEPTH`](INTEGRATION.md#protocol-constants) forty-eight-bit words.
+ - Its last two words hold thisClock as data.
+-- Bit 32 of word 1022 marks grandmaster capability.
++- Bit `ROM_GMCAP_BIT_C` of word `ROM_CID_HI_C` marks grandmaster capability.
+ - Register storage contains sixteen sixty-four-bit words.
+ - Integer logic supports common sixty-four-bit operations.
+ - Shifts run serially.
+@@ -200,7 +200,7 @@ A disabled port withdraws a frame before its first acceptance.
+ 
+ Values here come from the [protocol constants](INTEGRATION.md#protocol-constants).
+ 
+-Timer slot 4 is the 375 ms Sync receipt watch.
++Timer slot 4 is the [`SYNC_RTO_MS_C`](INTEGRATION.md#protocol-constants) Sync receipt watch.
+ 
+ Every usable Sync pair restarts it, in either role.
+ 
+@@ -252,7 +252,7 @@ Each Pdelay beat judges the previous request first.
+ 
+ An uncompleted interval adds one lost response.
+ 
+-The fifth consecutive loss clears asCapable.
++Consecutive loss [`LOST_CLEARS_AT_C`](INTEGRATION.md#protocol-constants) clears asCapable.
+ 
+ Scratch word 39 adds each matching response's armed sequence.
+ 
+@@ -316,7 +316,9 @@ The cease entry now ends in that tail.
+ 
+ Microcode stages publication values first.
+ 
+-`OP_COMMIT` exposes the complete staged tuple.
++`OP_COMMIT` marks the staged tuple complete.
++
++Staging writes reach the `pub_*_o` outputs at once.
+ 
+ Consumers sample only during `pub_commit_o`.
+ 
+diff --git a/docs/INTEGRATION.md b/docs/INTEGRATION.md
+index 6086c16..fe9c1c3 100644
+--- a/docs/INTEGRATION.md
++++ b/docs/INTEGRATION.md
+@@ -9,9 +9,11 @@ This guide defines the external engine contract.
+ - Receive takes validated gPTP bytes; it never backpressures.
+ - Transmit honors byte-level ready; started frames always finish.
+ - Egress timestamps return on a valid-ready result face.
+-- `tx_credit_i` and `port_enabled_i` gate initiating transmissions.
+-- PHC outputs are one-cycle step and rate pulses.
+-- Publication outputs change together on `pub_commit_o`.
++- `tx_credit_i` gates initiating transmissions.
++- A low `port_enabled_i` starts no frame.
++- PHC step and rate writes are one-cycle pulses.
++- `phc_slew_active_o` is a level.
++- Sample publication outputs on `pub_commit_o`; they change while staging.
+ - [Protocol constants](#protocol-constants) is the home of protocol values.
+ 
+ Terms are defined in the [glossary](GLOSSARY.md).
+@@ -272,9 +274,9 @@ A rise then sends one Pdelay_Req at once.
+ 
+ That request counts no lost response.
+ 
+-asCapable returns only after two good exchanges.
++asCapable returns only after [`ASCAP_UP_C`](#protocol-constants) good exchanges.
+ 
+-The five-minute countdown remains the other exit.
++The [`CEASE_MS_C`](#protocol-constants) countdown remains the other exit.
+ 
+ A change made while reset is held is not seen.
+ 
+@@ -361,10 +363,12 @@ Values here come from the [protocol constants](#protocol-constants).
+ 
+ The offset is local time minus grandmaster time.
+ 
+-| Servo state | Slews up to | Steps above |
+-|---|---|---|
+-| Link-up | 20 us | 20 us |
+-| Locked | 100 us | 100 us |
++| Servo state | Step threshold |
++|---|---|
++| Link-up | [`STEP_LINKUP_NS_C`](#protocol-constants) |
++| Locked | [`STEP_LOCKED_NS_C`](#protocol-constants) |
++
++Offsets up to the threshold slew; larger offsets step.
+ 
+ An offset of exactly the threshold slews.
+ 
+@@ -378,7 +382,7 @@ A link-up pair is the first after asCapable rises.
+ 
+ Every reset clears asCapable, so every reset re-arms link-up.
+ 
+-Nothing else re-arms the 20 us threshold.
++Nothing else re-arms the link-up threshold.
+ 
+ #### Locked
+ 
+@@ -391,7 +395,7 @@ These events clear the synchronization verdict and keep the lock:
+ - A grandmaster identity change.
+ - This plane returning from grandmaster duty.
+ 
+-A 375 ms Sync receipt timeout ages the grandmaster instead.
++A [`SYNC_RTO_MS_C`](#protocol-constants) Sync receipt timeout ages the grandmaster instead.
+ 
+ This plane then becomes grandmaster, which sets the verdict.
+ 
+@@ -403,7 +407,7 @@ Becoming grandmaster keeps the lock.
+ 
+ A grandmaster failover through a Sync lapse stays locked.
+ 
+-So the next pair uses the 100 us threshold.
++So the next pair uses the locked threshold.
+ 
+ A new parent under the same grandmaster changes nothing.
+ 
+@@ -411,18 +415,20 @@ A new parent under the same grandmaster changes nothing.
+ 
+ The trim sums a proportional and an integral term.
+ 
+-That whole trim never exceeds 200 ppm in magnitude.
++That whole trim never exceeds [`RATE_PPM_C`](#protocol-constants) in magnitude.
+ 
+ The integrator is clamped to the same bound.
+ 
+ In addend units the bound is this integer expression:
+ 
+ ```text
+-(200 * 2^24 * 1000 + clk_hz / 2) / clk_hz
++(RATE_PPM_C * 2^24 * 1000 + clk_hz / 2) / clk_hz
+ ```
+ 
+ Here `clk_hz` is the generator's `--clk-hz` value.
+ 
++`RATE_PPM_C` is the rate bound, in ppm.
++
+ The division truncates, so the bound rounds half up.
+ 
+ Derive a consumer's addend envelope from this expression.
+@@ -433,17 +439,17 @@ When consumption stops, the last trim stays applied.
+ 
+ That held trim is inside the bound too.
+ 
+-A 100 us slew needs at least 0.5 s.
++A locked-threshold slew needs at least `STEP_LOCKED_NS_C / RATE_PPM_C` ms.
+ 
+-The master's own rate offset shares the 200 ppm bound.
++The master's own rate offset shares that bound.
+ 
+ So a real slew can take much longer.
+ 
+ A slew can overshoot while its trim rides the bound.
+ 
+-A master over 200 ppm apart outruns the trim.
++A master further apart than the bound outruns the trim.
+ 
+-Its offset then grows past 100 us and steps.
++Its offset then grows past the locked threshold and steps.
+ 
+ #### Slew-active level
+ 
+@@ -455,7 +461,7 @@ It marks transient offset correction through the rate path.
+ 
+ The policy distinguishes correction from ordinary frequency tracking.
+ 
+-Its tracking band is inclusive: -100 ns through +100 ns.
++Its inclusive tracking band is ±[`SLEW_SETTLED_NS_C`](#protocol-constants) around zero.
+ 
+ This tolerance does not change either step threshold.
+ 
+@@ -492,9 +498,9 @@ Neither the synchronization flag nor addend magnitude determines it.
+ | Synchronous reset | Clear level and qualification immediately |
+ | Warm reset | Retained scratch cannot revive the level |
+ | asCapable loss | Hold level and applied rate; restart completion qualification |
+-| Missing Sync; 375 ms receipt timeout | Ages the grandmaster; becoming grandmaster applies |
++| Missing Sync; [`SYNC_RTO_MS_C`](#protocol-constants) receipt timeout | Ages the grandmaster; becoming grandmaster applies |
+ | The same timeout under priority1 255 | Hold level and rate; clear the verdict |
+-| Missing Follow_Up; 125 ms timeout | Discard pending pair; retain level and rate |
++| Missing Follow_Up; [`FU_RTO_MS_C`](#protocol-constants) timeout | Discard pending pair; retain level and rate |
+ | Grandmaster identity change | Hold level and rate; restart qualification |
+ | Replacement step | Hold through step; clear with its integral-only addend |
+ | Becoming grandmaster | Replace active correction with integral-only rate; clear together |
+@@ -506,7 +512,7 @@ Loss of capability alone cannot remove an applied correction.
+ 
+ A held slew can therefore remain active indefinitely.
+ 
+-There is no elapsed-time completion or 0.5 s watchdog.
++There is no elapsed-time completion or slew watchdog.
+ 
+ Completion follows the measured policy verdict above.
+ 
+@@ -534,7 +540,7 @@ Every consumed pair raises it, stepping or slewing.
+ 
+ So a slew may still be in progress.
+ 
+-Its remaining offset is at most 100 us.
++Its remaining offset is within the applicable step threshold.
+ 
+ `pub_offset_o` carries each pair's offset before correction.
+ 
+@@ -550,6 +556,16 @@ The engine publishes protocol state as wires.
+ 
+ Sample outputs when `pub_commit_o` rises.
+ 
++Each output follows its staging register directly.
++
++No register holds the outputs at commit.
++
++Microcode writes the fields over several instructions.
++
++Between pulses the outputs can show a partial tuple.
++
++Only the commit cycle presents one complete tuple.
++
+ | Output group | Contents |
+ |---|---|
+ | Identity | Grandmaster and parent identities |
+@@ -604,7 +620,7 @@ The previous path therefore stays published.
+ 
+ After reset or mastership, that is thisClock alone.
+ 
+-The grandmaster and its path change in one commit.
++The grandmaster and its path complete in one commit.
+ 
+ GET_AS_PATH can serve these entries unchanged.
+ 
+@@ -702,9 +718,9 @@ Values here come from the [protocol constants](#protocol-constants).
+ 
+ Three departures each return thisClock and {thisClock}.
+ 
+-Announce silence for 3 s ages the peer out.
++Announce silence for announceReceiptTimeout ages the peer out.
+ 
+-So do 375 ms without a usable Sync pair.
++So does [`SYNC_RTO_MS_C`](#protocol-constants) without a usable Sync pair.
+ 
+ That needs a grandmaster priority1 below 255.
+ 
+@@ -722,7 +738,7 @@ Nor is one naming another sequenceId.
+ 
+ An asCapable port then becomes grandmaster.
+ 
+-Adopting a new grandmaster starts its 375 ms Sync watch.
++Adopting a new grandmaster starts its [`SYNC_RTO_MS_C`](#protocol-constants) Sync watch.
+ 
+ A grandmaster never sending usable Sync is aged too.
+ 
+@@ -746,7 +762,7 @@ The next Announce after it elects the peer again, once.
+ 
+ That pair restarts the watch, so lapsing Sync ages again.
+ 
+-A Sync pending at takeover keeps its 125 ms watch.
++A Sync pending at takeover keeps its [`FU_RTO_MS_C`](#protocol-constants) watch.
+ 
+ A later Follow_Up pairs with nothing in either role.
+ 
+@@ -790,7 +806,7 @@ Values here come from the [protocol constants](#protocol-constants).
+ 
+ Cor1 and Cor2 correct that figure.
+ 
+-Each 1 s interval without a completed exchange counts one.
++Each Pdelay_Req interval without a completed exchange counts one.
+ 
+ That includes a Pdelay_Resp whose Follow_Up never comes.
+ 
+@@ -798,9 +814,9 @@ A second Pdelay_Resp for the outstanding request resets the exchange.
+ 
+ That reset also counts one, from either responder.
+ 
+-Four consecutive losses keep asCapable.
++Fewer consecutive losses than [`LOST_CLEARS_AT_C`](#protocol-constants) keep asCapable.
+ 
+-The fifth consecutive loss clears it.
++The loss that reaches it clears asCapable.
+ 
+ A completed exchange restarts the count.
+ 
+@@ -811,7 +827,6 @@ Generate one image for each hardware configuration.
+ ```sh
+ python3 hdl/ucode/gen_gptp_ucode.py \
+   --mac 0x02A1B2C3D4E5 \
+-  --p1 248 \
+   --clk-hz 100000000 \
+   -o gptp_ucode.hex
+ ```
+@@ -820,6 +835,8 @@ python3 hdl/ucode/gen_gptp_ucode.py \
+ 
+ Colon-separated addresses are refused.
+ 
++`--p1` sets priority1; [`P1_C`](#protocol-constants) is its default.
++
+ The generator prints its word count and leg placement.
+ 
+ Set `UCODE_HEX_P` to that generated image.
+@@ -836,6 +853,12 @@ Each row names the generator constant it reads.
+ 
+ `make docs` fails when any value drifts from the generator.
+ 
++It also fails on a missing, duplicate or formatted row.
++
++Other pages name the constant and link its row.
++
++`make docs` rejects a timed value restated with its unit.
++
+ Clauses without a prefix are IEEE 802.1AS-2011.
+ 
+ | Constant | Value | Meaning | Reference |
+diff --git a/docs/MANAGER.md b/docs/MANAGER.md
+index 0f00f18..440d956 100644
+--- a/docs/MANAGER.md
++++ b/docs/MANAGER.md
+@@ -17,7 +17,7 @@ Terms are defined in the [glossary](GLOSSARY.md).
+ 
+ - Timing control stays inside programmable logic.
+ - Protocol work shares one deterministic clock domain.
+-- Parent systems receive direct committed status.
++- Parent systems capture status on each commit pulse.
+ - Microcode supports rapid protocol-policy changes.
+ - Dedicated RTL handles predictable byte movement.
+ 
+@@ -31,7 +31,7 @@ Terms are defined in the [glossary](GLOSSARY.md).
+ | Receive path | Implemented and regression-tested | [HDL guide](HDL_DEVELOPER.md#receive-path) |
+ | Transmit path | Backpressure-tested | [TX timing](HDL_DEVELOPER.md#transmit-timing) |
+ | PHC control | Addend, step, and slew-level outputs implemented | [Integration guide](INTEGRATION.md#phc-control) |
+-| Publication | Atomic commit pulse implemented | [Integration guide](INTEGRATION.md#publication) |
++| Publication | Commit pulse marks each complete publication | [Integration guide](INTEGRATION.md#publication) |
+ | Bench evidence | Historical silicon campaigns available | [History](history/v1/README.md) |
+ 
+ Parent ownership references pin `dev` at `ac2c5e77`.
+@@ -42,11 +42,11 @@ No certification claim is made.
+ 
+ ## Latest measured snapshot
+ 
+-The [HDL guide](HDL_DEVELOPER.md#out-of-context-measurement) holds the current synthesis figures.
++The [HDL guide](HDL_DEVELOPER.md#out-of-context-measurement) holds the latest dated synthesis figures.
+ 
+-They come from main `5dce647a`, measured on 2026-10-11.
++That table records their commit, date and timing.
+ 
+-Both measured tops met timing at 100 MHz.
++Later RTL has landed since that measurement.
+ 
+ Earlier deltas live in the [resource-delta archive](history/v1/RESOURCE_DELTAS_2026_10.md).
+ 
+@@ -61,7 +61,9 @@ The generator prints this budget on every run.
+ | Shipping | 1,022 of 1,024 | 2 |
+ | Seeded regression | 1,023 of 1,024 | 1 |
+ 
+-Used words include thisClock's data words 1022 and 1023.
++Used words include thisClock's two data words.
++
++Those words start at [`ROM_CID_HI_C`](INTEGRATION.md#protocol-constants).
+ 
+ Free words lie scattered across packing gaps.
+ 
+diff --git a/docs/SOURCE_EVIDENCE.md b/docs/SOURCE_EVIDENCE.md
+index 9207c37..3a94641 100644
+--- a/docs/SOURCE_EVIDENCE.md
++++ b/docs/SOURCE_EVIDENCE.md
+@@ -23,7 +23,7 @@ Line numbers describe the current branch layout.
+ | Six state regions | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L20) | Engine suite |
+ | Stable stalled transmission | [`KL_gptp_tx_slot`](../hdl/wire/KL_gptp_tx_slot.sv#L129) | Engine suite |
+ | Committed publication | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L140) | Engine suite |
+-| 1,024-word microcode ROM | [`KL_gptp_ucpu`](../hdl/ucpu/KL_gptp_ucpu.sv#L105) | MicroCPU suite |
++| Microcode ROM depth | [`KL_gptp_ucpu`](../hdl/ucpu/KL_gptp_ucpu.sv#L105) | MicroCPU suite |
+ | Sixteen registers | [`KL_gptp_ucpu`](../hdl/ucpu/KL_gptp_ucpu.sv#L113) | MicroCPU suite |
+ | Python image generation | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Media-dependent transmit flags | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine and tsngen suites |
+@@ -39,7 +39,7 @@ Line numbers describe the current branch layout.
+ | Sync ageing needs gmPresent | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Unaged Sync timeout clears sync-ok | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Mastership keeps both Sync watches | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+-| Fifth lost response clears asCapable | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
++| Lost-response limit clears asCapable | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Duplicate response resets the exchange | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Port enable ends the cease | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Disabled port sends nothing | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv) | Engine suite and named mutation controls |
+diff --git a/docs/TEST_DEVELOPER.md b/docs/TEST_DEVELOPER.md
+index 4e13abe..71615a3 100644
+--- a/docs/TEST_DEVELOPER.md
++++ b/docs/TEST_DEVELOPER.md
+@@ -126,7 +126,7 @@ Values here come from the [protocol constants](INTEGRATION.md#protocol-constants
+ - Checks Pdelay, Announce, Sync, and servo behavior.
+ - Proves the link-up and locked step thresholds.
+ - Keeps the lock across timeouts, failovers and mastership.
+-- Keeps every written addend inside 200 ppm.
++- Keeps every written addend inside [`RATE_PPM_C`](INTEGRATION.md#protocol-constants).
+ - Checks slew decisions, completion, and held intervals.
+ - Checks reset, lost capability, missing Sync, steps, and mastership.
+ - Grades every cycle from cold release to the first beat.
+@@ -140,18 +140,19 @@ Values here come from the [protocol constants](INTEGRATION.md#protocol-constants
+ - Publishes sync-ok in every master cycle.
+ - Keeps it through a receipt timeout queued behind mastership.
+ - Ages a grandmaster when its Sync stops or turns unusable.
+-- Times each takeover against the 375 ms Sync watch.
++- Times each takeover against the [`SYNC_RTO_MS_C`](INTEGRATION.md#protocol-constants) Sync watch.
+ - Ages a grandmaster that never sends usable Sync.
+ - Holds mastership while the aged peer keeps announcing.
+ - Re-elects that peer once, after its Sync recovers.
+-- Keeps 250 ms Sync and 60 ms Follow_Ups in use.
++- Drives Sync every 250 ms, Follow_Up 60 ms after.
++- Proves those stimulus pairs stay usable.
+ - Ages again when Sync lapses after one master-heard pair.
+ - Ages on expiries found in the master role.
+ - Keeps a pending Sync's Follow_Up watch across the takeover.
+ - Never ages a priority1 255 grandmaster on Sync.
+ - Clears sync-ok when that grandmaster's Sync stops.
+-- Keeps asCapable through four lost Pdelay responses.
+-- Clears asCapable at the fifth, in each loss shape.
++- Keeps asCapable through losses short of [`LOST_CLEARS_AT_C`](INTEGRATION.md#protocol-constants).
++- Clears asCapable at that loss, in each loss shape.
+ - Resets an exchange answered by duplicate responses.
+ - Ends the multiple-responder cease on a port toggle.
+ - Sends one request at once after each rise.
+diff --git a/docs/history/v1/RESOURCE_DELTAS_2026_10.md b/docs/history/v1/RESOURCE_DELTAS_2026_10.md
+index ea9af08..b0cbe79 100644
+--- a/docs/history/v1/RESOURCE_DELTAS_2026_10.md
++++ b/docs/history/v1/RESOURCE_DELTAS_2026_10.md
+@@ -29,7 +29,7 @@ Memory LUTs remain 466; BRAM and DSP usage stay unchanged.
+ 
+ WNS moves from +2.249 ns; timing remains met.
+ 
+-The parent commit [`4999d8d6`](https://github.com/kebag-logic/milan-fpga/commit/4999d8d6344e373e0204995cb36c93cf616e8f9e) records the reports.
++The parent tree at `4999d8d6` holds the [measurement reports](https://github.com/kebag-logic/milan-fpga/tree/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author).
+ 
+ ## Timer storage in distributed RAM
+ 
+diff --git a/scripts/check_docs.py b/scripts/check_docs.py
+index 960f935..c5e4738 100644
+--- a/scripts/check_docs.py
++++ b/scripts/check_docs.py
+@@ -11,6 +11,7 @@ import re
+ import subprocess
+ import sys
+ import tempfile
++import types
+ from pathlib import Path
+ 
+ 
+@@ -107,13 +108,24 @@ STATUS_ROW_RE = re.compile(r"^\|\s*`([^`]+)`\s*\|(?:[^|]*\|){2}\s*([^|]*?)\s*\|\
+ GENERATOR = "hdl/ucode/gen_gptp_ucode.py"
+ CONSTANTS_PAGE = "docs/INTEGRATION.md"
+ CONSTANTS_HEADING = "## Protocol constants"
+-CONSTANT_ROW_RE = re.compile(r"^\|\s*`([A-Z][A-Z0-9_]*)`\s*\|\s*([0-9][0-9,]*)\s*\|")
++# Rows are found by their name cell alone, so a value cell in any other
++# syntax is reported rather than silently skipped.
++CONSTANT_ROW_RE = re.compile(r"^\|\s*`([A-Za-z_][A-Za-z0-9_]*)`\s*\|\s*([^|]*?)\s*\|")
++DECIMAL_RE = re.compile(r"[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+")
++CONSTANTS = (
++    "P1_C", "ASCAP_UP_C", "LOST_N_C", "LOST_CLEARS_AT_C", "NPD_HI_C",
++    "NPD_LO_C", "SYNC_RTO_MS_C", "FU_RTO_MS_C", "CEASE_N_C", "CEASE_MS_C",
++    "STEP_LINKUP_NS_C", "STEP_LOCKED_NS_C", "SLEW_SETTLED_NS_C", "RATE_PPM_C",
++    "DEPTH", "ROM_CID_HI_C", "ROM_GMCAP_BIT_C",
++)
++# A Meaning cell ending ", ms", ", ns" or ", ppm" gives the row's unit; that
++# value spelled with its unit elsewhere is a copy the table cannot correct.
++UNIT_CELL_RE = re.compile(r",\s*(ms|ns|ppm)\s*$")
++NUMBER_WORDS = ("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")
+ ROM_PAGE = "docs/MANAGER.md"
+ ROM_HEADING = "## Current ROM budget"
+-ROM_ROW_RE = re.compile(
+-    r"^\|\s*(Shipping|Seeded regression)\s*\|\s*([0-9,]+) of ([0-9,]+)\s*\|"
+-    r"\s*([0-9,]+)\s*\|\s*$"
+-)
++ROM_ROW_RE = re.compile(r"^\|\s*(Shipping|Seeded regression)\s*\|([^|]*)\|([^|]*)\|\s*$")
++ROM_USED_RE = re.compile(r"\s*([0-9,]+) of ([0-9,]+)\s*")
+ SEEDED_SEQ_SEED = 0x200000
+ 
+ TEXT_SUFFIXES = {
+@@ -369,8 +381,17 @@ def status_findings(root: Path = ROOT, text: str | None = None) -> list[str]:
+     return findings
+ 
+ 
++def decimal(cell: str) -> int | None:
++    """Return a plain or comma-grouped decimal cell, else None."""
++    cell = cell.strip()
++    if DECIMAL_RE.fullmatch(cell) is None:
++        return None
++    return int(cell.replace(",", ""))
++
++
+ def load_generator(root: Path = ROOT):
+     """Import the microcode generator that owns the protocol constants."""
++    sys.dont_write_bytecode = True  # keep the gate from writing into hdl/
+     spec = importlib.util.spec_from_file_location(
+         "gen_gptp_ucode_docs", root / GENERATOR
+     )
+@@ -394,14 +415,77 @@ def constant_findings(text: str, generator) -> list[str]:
+             findings.append(f"{CONSTANTS_PAGE}: duplicate constant row: {name}")
+         seen.add(name)
+         actual = getattr(generator, name, None)
++        value = decimal(cell)
+         if not isinstance(actual, int):
+             findings.append(f"{CONSTANTS_PAGE}: {name} is not a generator constant")
+-        elif int(cell.replace(",", "")) != actual:
++        elif value is None:
++            findings.append(
++                f"{CONSTANTS_PAGE}: {name} value {cell!r} is not a plain decimal"
++            )
++        elif value != actual:
+             findings.append(
+                 f"{CONSTANTS_PAGE}: {name} is {cell}, generator has {actual}"
+             )
+     if not seen:
+         findings.append(f"{CONSTANTS_PAGE}: no protocol constant rows")
++    findings.extend(
++        f"{CONSTANTS_PAGE}: no protocol constant row for {name}"
++        for name in CONSTANTS
++        if name not in seen
++    )
++    return findings
++
++
++def value_spellings(value: int, unit: str) -> list[str]:
++    """Return the patterns that restate `value` in `unit` or a larger unit."""
++    numbers = [(value, unit)]
++    if unit == "ms" and value % 1000 == 0:
++        numbers.append((value // 1000, "s"))
++    if unit == "ns" and value % 1000 == 0:
++        numbers.append((value // 1000, "(?:us|\u00b5s|\u03bcs)"))
++    patterns = [
++        rf"(?<![\d.,]){re.escape(text)}[\s-]?{suffix}\b"
++        for number, suffix in numbers
++        for text in {str(number), f"{number:,}"}
++    ]
++    minutes = value // 60000 if unit == "ms" and value % 60000 == 0 else 0
++    if 1 <= minutes <= len(NUMBER_WORDS):
++        word = NUMBER_WORDS[minutes - 1]
++        patterns += [rf"\b{minutes}[\s-]min", rf"\b{word}[\s-]minutes?\b"]
++    return patterns
++
++
++def copy_findings(texts: dict[str, str], constants_text: str, generator) -> list[str]:
++    """Reject a unit-bearing constant restated outside its constants row."""
++    spellings: list[tuple[str, re.Pattern[str]]] = []
++    for line in section_lines(constants_text, CONSTANTS_HEADING):
++        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
++        match = CONSTANT_ROW_RE.match(line.strip())
++        unit = UNIT_CELL_RE.search(cells[2]) if match and len(cells) > 2 else None
++        actual = getattr(generator, match.group(1), None) if match else None
++        if unit is not None and isinstance(actual, int):
++            spellings.extend(
++                (match.group(1), re.compile(pattern, re.IGNORECASE))
++                for pattern in value_spellings(actual, unit.group(1))
++            )
++    findings: list[str] = []
++    for relative, text in texts.items():
++        fenced = home = False
++        for number, line in enumerate(text.splitlines(), start=1):
++            if line.lstrip().startswith("```"):
++                fenced = not fenced
++                continue
++            if line.startswith("## "):
++                home = relative == CONSTANTS_PAGE and line.strip() == CONSTANTS_HEADING
++            if fenced or home:
++                continue
++            findings.extend(
++                f"{relative}:{number}: {found.group(0)!r} restates {name}; "
++                "link its constants row"
++                for name, pattern in spellings
++                for found in [pattern.search(line)]
++                if found
++            )
+     return findings
+ 
+ 
+@@ -427,9 +511,22 @@ def rom_findings(text: str, usage: dict[str, tuple[int, int]]) -> list[str]:
+         match = ROM_ROW_RE.match(line.strip())
+         if match is None:
+             continue
+-        image = match.group(1)
+-        used, depth, free = (int(value.replace(",", "")) for value in match.groups()[1:])
++        image, used_cell, free_cell = match.groups()
++        if image in seen:
++            findings.append(f"{ROM_PAGE}: duplicate ROM budget row: {image}")
+         seen.add(image)
++        counts = ROM_USED_RE.fullmatch(used_cell)
++        free = decimal(free_cell)
++        if counts is None or free is None:
++            findings.append(
++                f"{ROM_PAGE}: {image} row {used_cell.strip()!r} | "
++                f"{free_cell.strip()!r} is not plain 'N of M' | N"
++            )
++            continue
++        used, depth = (decimal(value) for value in counts.groups())
++        if used is None or depth is None:
++            findings.append(f"{ROM_PAGE}: {image} counts are not plain decimals")
++            continue
+         real_used, real_depth = usage[image]
+         if (used, depth, free) != (real_used, real_depth, real_depth - real_used):
+             findings.append(
+@@ -447,9 +544,13 @@ def rom_findings(text: str, usage: dict[str, tuple[int, int]]) -> list[str]:
+ def freshness_findings(root: Path = ROOT) -> list[str]:
+     """Tie the constants and ROM budget tables to the generator."""
+     generator = load_generator(root)
+-    findings = constant_findings(
+-        (root / CONSTANTS_PAGE).read_text(encoding="utf-8"), generator
+-    )
++    constants_text = (root / CONSTANTS_PAGE).read_text(encoding="utf-8")
++    findings = constant_findings(constants_text, generator)
++    pages = {
++        path.relative_to(root).as_posix(): path.read_text(encoding="utf-8")
++        for path in current_markdown(root)
++    }
++    findings.extend(copy_findings(pages, constants_text, generator))
+     usage = {
+         "Shipping": rom_usage(root),
+         "Seeded regression": rom_usage(root, "--seq-seed", hex(SEEDED_SEQ_SEED)),
+@@ -572,14 +673,17 @@ def selftest() -> int:
+             print("docs selftest: duplicate status row escaped")
+             return 1
+     generator = load_generator(ROOT)
+-    good = f"{CONSTANTS_HEADING}\n\n| `SYNC_RTO_MS_C` | {generator.SYNC_RTO_MS_C} | ms |\n"
++    good = f"{CONSTANTS_HEADING}\n\n| Constant | Value |\n|---|---:|\n" + "".join(
++        f"| `{name}` | {getattr(generator, name):,} |\n" for name in CONSTANTS
++    )
++    sync = f"| {generator.SYNC_RTO_MS_C} |"
++    stale = generator.SYNC_RTO_MS_C + 1
+     arms += 1
+     if constant_findings(good, generator):
+-        print("docs selftest: true constant failed")
++        print("docs selftest: true constants table failed")
+         return 1
+     arms += 1
+-    if not constant_findings(good.replace(f"| {generator.SYNC_RTO_MS_C} |",
+-                                          f"| {generator.SYNC_RTO_MS_C + 1} |"), generator):
++    if not constant_findings(good.replace(sync, f"| {stale} |"), generator):
+         print("docs selftest: drifted constant escaped")
+         return 1
+     arms += 1
+@@ -590,6 +694,57 @@ def selftest() -> int:
+     if not constant_findings(f"{CONSTANTS_HEADING}\n\nNo table.\n", generator):
+         print("docs selftest: empty constants table escaped")
+         return 1
++    for label, cell in (("bold", f"**{stale}**"), ("negative", "-1"),
++                        ("unit-bearing", f"{stale} ms"), ("bold true", f"**{stale - 1}**")):
++        arms += 1
++        named = constant_findings(good.replace(sync, f"| {cell} |"), generator)
++        if not any("SYNC_RTO_MS_C value" in finding for finding in named):
++            print(f"docs selftest: {label} constant cell escaped")
++            return 1
++    arms += 1
++    deleted = "".join(line + "\n" for line in good.splitlines() if "SYNC_RTO_MS_C" not in line)
++    if not constant_findings(deleted, generator):
++        print("docs selftest: deleted constant row escaped")
++        return 1
++    arms += 1
++    if not constant_findings(good.replace("`SYNC_RTO_MS_C`", "SYNC_RTO_MS_C"), generator):
++        print("docs selftest: unnamed constant row escaped")
++        return 1
++    fixture = types.SimpleNamespace(
++        SYNC_RTO_MS_C=375, CEASE_MS_C=300_000, STEP_LINKUP_NS_C=20_000, RATE_PPM_C=200
++    )
++    table = (f"{CONSTANTS_HEADING}\n\n| Constant | Value | Meaning |\n|---|---:|---|\n"
++             "| `SYNC_RTO_MS_C` | 375 | syncReceiptTimeout, ms |\n"
++             "| `CEASE_MS_C` | 300,000 | Cease countdown, ms |\n"
++             "| `STEP_LINKUP_NS_C` | 20,000 | Step threshold, ns |\n"
++             "| `RATE_PPM_C` | 200 | Rate bound, ppm |\n"
++             "| Sync interval | 375 ms | Literal kept in the home |\n")
++    linked = "The [`SYNC_RTO_MS_C`](INTEGRATION.md#protocol-constants) Sync watch.\n"
++    arms += 1
++    if copy_findings({"docs/GUIDE.md": linked, CONSTANTS_PAGE: table}, table, fixture):
++        print("docs selftest: linked constant or its home row failed")
++        return 1
++    arms += 1
++    if copy_findings({"docs/GUIDE.md": "```\nsleep 375 ms\n```\n"}, table, fixture):
++        print("docs selftest: fenced command failed")
++        return 1
++    arms += 1
++    if copy_findings({"docs/GUIDE.md": "A 1.375 ms gap and 3,750 ms.\n"}, table, fixture):
++        print("docs selftest: unrelated number failed")
++        return 1
++    for label, copy in (
++        ("plain", "A 375 ms Sync watch."),
++        ("grouped", "A 300,000 ms countdown."),
++        ("converted", "A 20 us threshold."),
++        ("second-converted", "A 300 s countdown."),
++        ("spelled", "The five-minute countdown."),
++        ("rate", "Inside 200 ppm."),
++        ("outside the home", f"{table}\n## Next\n\nA 375 ms watch.\n"),
++    ):
++        arms += 1
++        if not copy_findings({CONSTANTS_PAGE: copy}, table, fixture):
++            print(f"docs selftest: {label} constant copy escaped")
++            return 1
+     usage = {"Shipping": (1000, 1024), "Seeded regression": (1001, 1024)}
+     rom = (f"{ROM_HEADING}\n\n| Image | Words used | Free |\n|---|---|---:|\n"
+            "| Shipping | 1,000 of 1,024 | 24 |\n"
+@@ -611,6 +766,14 @@ def selftest() -> int:
+         print("docs selftest: missing ROM row escaped")
+         return 1
+     arms += 1
++    if not rom_findings(rom.replace("1,000 of", "**999** of"), usage):
++        print("docs selftest: formatted ROM count escaped")
++        return 1
++    arms += 1
++    if not rom_findings(rom + "| Shipping | 1,000 of 1,024 | 24 |\n", usage):
++        print("docs selftest: duplicate ROM row escaped")
++        return 1
++    arms += 1
+     if vocabulary_findings(ROOT):
+         print("docs selftest: production vocabulary failed")
+         return 1
+diff --git a/scripts/check_source_evidence.py b/scripts/check_source_evidence.py
+index eda2309..5914ba3 100644
+--- a/scripts/check_source_evidence.py
++++ b/scripts/check_source_evidence.py
+@@ -32,7 +32,7 @@ EXPECTED = {
+     "Six state regions": [(ENGINE, "//                  0  message bank      RO  (parser-written, PING-PONG")],
+     "Stable stalled transmission": [("hdl/wire/KL_gptp_tx_slot.sv", "assign tx_valid_o = ser_run_r && !ser_drop_w;")],
+     "Committed publication": [(ENGINE, "output logic        pub_commit_o,")],
+-    "1,024-word microcode ROM": [(UCPU, "// ------------------------------------------------------------------ ROM")],
++    "Microcode ROM depth": [(UCPU, "// ------------------------------------------------------------------ ROM")],
+     "Sixteen registers": [(UCPU, "// 16 x 64 distributed RAM, 1W3R (SET_MASKED reads rd as well).")],
+     "Registered policy slew level": [
+         (ENGINE, "output logic        phc_slew_active_o,"),

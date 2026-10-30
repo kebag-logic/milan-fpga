@@ -1,0 +1,1480 @@
+diff --git a/README.md b/README.md
+index ba8f44e..e346451 100644
+--- a/README.md
++++ b/README.md
+@@ -7,6 +7,35 @@ Fabric-native time synchronization for Milan FPGA systems.
+ 
+ The engine keeps protocol work inside programmable logic.
+ 
++## Start here
++
++FPGA-gPTP is an IEEE 802.1AS-2011 time-synchronization engine.
++
++It follows the Milan v1.2 chapter 4 profile.
++
++That profile adds 802.1AS-2011 Cor1 and Cor2.
++
++The parent end station instantiates it as `KL_gptp_engine`.
++
++Read in this order:
++
++1. This page, for scope and layout.
++2. The [glossary](docs/GLOSSARY.md), for defined terms.
++3. The guide for your role, below.
++4. The [source evidence](docs/SOURCE_EVIDENCE.md), to check claims.
++5. The [document status](docs/README.md#document-status) table.
++
++## Repository layout
++
++| Path | Contents |
++|---|---|
++| `hdl/` | Engine RTL and the microcode generator |
++| `tb/` | Simulation suites, mutation arms, contract check |
++| `bench/` | Bench-only board top, MII gaskets, capture verdict |
++| `syn/ooc/` | Out-of-context synthesis scripts and clock check |
++| `scripts/` | Documentation and diagram gates |
++| `docs/` | Guides, glossary, evidence, diagrams, history |
++
+ ## Choose your view
+ 
+ | Reader | Start here | Main questions |
+@@ -28,7 +57,7 @@ The engine keeps protocol work inside programmable logic.
+ - RTL owns parsing, queues, timers, and serialization.
+ - Egress timestamp results arrive on accepted beats.
+ - Admission credit postpones only initiating transmissions.
+-- Publication outputs expose committed protocol state.
++- Publication outputs are valid when `pub_commit_o` pulses.
+ 
+ Parent evidence is pinned at `ac2c5e77`.
+ 
+diff --git a/docs/GLOSSARY.md b/docs/GLOSSARY.md
+new file mode 100644
+index 0000000..9bc8e24
+--- /dev/null
++++ b/docs/GLOSSARY.md
+@@ -0,0 +1,52 @@
++<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
++# Glossary
++
++These terms carry one meaning across every current guide.
++
++Clause numbers cite IEEE 802.1AS-2011 unless marked otherwise.
++
++Cor1 and Cor2 are that edition's two corrigenda.
++
++Milan means the Milan v1.2 specification, chapter 4.
++
++## Protocol terms
++
++| Term | Meaning | Reference |
++|---|---|---|
++| asCapable | Port verdict that peer-delay exchanges with the neighbour work | 10.2.4.1, 11.2.2 |
++| BTCA | Best master selection over received priority vectors | 10.3, Milan 4.2.6.1 |
++| Cease | Pdelay_Req pause after repeated multiple responders | Milan 4.2.6.2.5 |
++| Follow_Up companion | Two-step timestamp message: Follow_Up or Pdelay_Resp_Follow_Up | 11.4.4, 11.4.7 |
++| gmPresent | True when the grandmaster's priority1 is below 255 | 10.3.12.1.4 g) |
++| Grandmaster | Clock whose time the whole domain follows | 10.3 |
++| pathTrace | Clock identities from grandmaster to this system | 10.3.8.21 |
++| Pdelay exchange | Request, response and response Follow_Up for link delay | 11.2.15, 11.2.16 |
++| portEnabled | MAC operational and administratively enabled, as one level | 10.2.4.11 |
++| priority1 | First announced selection field; lower wins | 8.6.2.1 |
++| syncReceiptTimeout | Interval after which a silent Sync source ages | 10.6.3.1, Milan Table 4.2 |
++| thisClock | Clock identity of this time-aware system | 10.2.3.22 |
++| Usable Sync pair | A Sync with its own matching Follow_Up | 11.2.13 |
++
++## Engine terms
++
++| Term | Meaning | Where |
++|---|---|---|
++| Claim | Scratch record of an egress timestamp still owed | [HDL guide](HDL_DEVELOPER.md#egress-result-ownership) |
++| Cold start | FPGA configuration, which also clears scratch | [Integration guide](INTEGRATION.md#clock-and-reset) |
++| Commit | `pub_commit_o` pulse marking one complete staged publication | [Integration guide](INTEGRATION.md#publication) |
++| Credit | `tx_credit_i` level permitting initiating transmissions | [Integration guide](INTEGRATION.md#transmit-admission-credit) |
++| Image | Generated microcode ROM file for one configuration | [Integration guide](INTEGRATION.md#microcode-configuration) |
++| Initiating beat | A Pdelay_Req, Sync or Announce transmission | [Integration guide](INTEGRATION.md#transmit-admission-credit) |
++| Leg | Shared microcode routine packed into a ROM gap | [Manager guide](MANAGER.md#current-rom-budget) |
++| Link-up pair | First Sync pair after asCapable rises | [Integration guide](INTEGRATION.md#link-up) |
++| Locked | Servo state after any consumed Sync pair | [Integration guide](INTEGRATION.md#locked) |
++| NOTEN | Microcode leg run on each portEnabled edge | [HDL guide](HDL_DEVELOPER.md#port-enable) |
++| Option-off | Parent build with `GPTP_PLANE_EN_P=0`; verification only | [Integration guide](INTEGRATION.md#option-off-behavior) |
++| PHC | Parent-owned hardware clock this engine steers | [Integration guide](INTEGRATION.md#phc-control) |
++| Scratch | Sixty-four protocol words that survive warm reset | [HDL guide](HDL_DEVELOPER.md#state-regions) |
++| Slew | Offset correction applied through the rate trim | [Integration guide](INTEGRATION.md#slew-active-level) |
++| Step | One phase jump written through `phc_step_o` | [Integration guide](INTEGRATION.md#pulse-semantics) |
++| sync-ok | Publication flags bit 3, the synchronization verdict | [Integration guide](INTEGRATION.md#grandmaster-synchronization) |
++| Warm reset | `rst_n` pulse without FPGA reconfiguration | [Integration guide](INTEGRATION.md#clock-and-reset) |
++
++Values live in the [protocol constants](INTEGRATION.md#protocol-constants) table.
+diff --git a/docs/HDL_DEVELOPER.md b/docs/HDL_DEVELOPER.md
+index 8db343e..49057a2 100644
+--- a/docs/HDL_DEVELOPER.md
++++ b/docs/HDL_DEVELOPER.md
+@@ -3,6 +3,17 @@
+ 
+ This guide explains structure, timing, and invariants.
+ 
++## Summary
++
++- Five RTL modules share one clock under `KL_gptp_engine`.
++- Microcode decides protocol policy; RTL moves bytes and time.
++- The microCPU reaches engine state through six address regions.
++- Scratch survives warm reset; validity bits do not.
++- Consumers sample publication on `pub_commit_o`; staging moves outputs earlier.
++- Synthesis figures here are dated measurements.
++
++Terms are defined in the [glossary](GLOSSARY.md).
++
+ ![FPGA-gPTP architecture](diagrams/gptp_architecture.png)
+ 
+ The editable source remains [available](diagrams/gptp_architecture.drawio).
+@@ -152,15 +163,15 @@ Microcode bit 0 means only that a peer is elected.
+ 
+ The output also sets bit 0 for a grandmaster-capable thisClock.
+ 
+-ROM word 1022 bit 32 marks that capability.
++ROM word [`ROM_CID_HI_C`](INTEGRATION.md#protocol-constants), bit [`ROM_GMCAP_BIT_C`](INTEGRATION.md#protocol-constants), marks that capability.
+ 
+ Microcode reads of word 2 return the unmodified bits.
+ 
+ ## MicroCPU shape
+ 
+-- ROM contains 1,024 forty-eight-bit words.
++- ROM contains [`DEPTH`](INTEGRATION.md#protocol-constants) forty-eight-bit words.
+ - Its last two words hold thisClock as data.
+-- Bit 32 of word 1022 marks grandmaster capability.
++- Bit `ROM_GMCAP_BIT_C` of word `ROM_CID_HI_C` marks grandmaster capability.
+ - Register storage contains sixteen sixty-four-bit words.
+ - Integer logic supports common sixty-four-bit operations.
+ - Shifts run serially.
+@@ -187,7 +198,9 @@ A disabled port withdraws a frame before its first acceptance.
+ 
+ ## Microcode receipt state
+ 
+-Timer slot 4 is the 375 ms Sync receipt watch.
++Values here come from the [protocol constants](INTEGRATION.md#protocol-constants).
++
++Timer slot 4 is the [`SYNC_RTO_MS_C`](INTEGRATION.md#protocol-constants) Sync receipt watch.
+ 
+ Every usable Sync pair restarts it, in either role.
+ 
+@@ -239,7 +252,7 @@ Each Pdelay beat judges the previous request first.
+ 
+ An uncompleted interval adds one lost response.
+ 
+-The fifth consecutive loss clears asCapable.
++Consecutive loss [`LOST_CLEARS_AT_C`](INTEGRATION.md#protocol-constants) clears asCapable.
+ 
+ Scratch word 39 adds each matching response's armed sequence.
+ 
+@@ -303,7 +316,9 @@ The cease entry now ends in that tail.
+ 
+ Microcode stages publication values first.
+ 
+-`OP_COMMIT` exposes the complete staged tuple.
++`OP_COMMIT` marks the staged tuple complete.
++
++Staging writes reach the `pub_*_o` outputs at once.
+ 
+ Consumers sample only during `pub_commit_o`.
+ 
+diff --git a/docs/INTEGRATION.md b/docs/INTEGRATION.md
+index 44be0b9..fe9c1c3 100644
+--- a/docs/INTEGRATION.md
++++ b/docs/INTEGRATION.md
+@@ -3,6 +3,21 @@
+ 
+ This guide defines the external engine contract.
+ 
++## Summary
++
++- One clock, one synchronous active-low reset.
++- Receive takes validated gPTP bytes; it never backpressures.
++- Transmit honors byte-level ready; started frames always finish.
++- Egress timestamps return on a valid-ready result face.
++- `tx_credit_i` gates initiating transmissions.
++- A low `port_enabled_i` starts no frame.
++- PHC step and rate writes are one-cycle pulses.
++- `phc_slew_active_o` is a level.
++- Sample publication outputs on `pub_commit_o`; they change while staging.
++- [Protocol constants](#protocol-constants) is the home of protocol values.
++
++Terms are defined in the [glossary](GLOSSARY.md).
++
+ ![FPGA-gPTP architecture](diagrams/gptp_architecture.png)
+ 
+ ## Parent ownership
+@@ -205,9 +220,11 @@ Restore credit to resume every normal cadence.
+ 
+ ## Port enable
+ 
++Values here come from the [protocol constants](#protocol-constants).
++
+ | Signal | Direction | Contract |
+ |---|---|---|
+-| `port_enabled_i` | Input | Carries 802.1AS-2011 portEnabled |
++| `port_enabled_i` | Input | Carries 802.1AS-2011 portEnabled (10.2.4.11) |
+ 
+ Drive it as a level synchronous to `clk_i`.
+ 
+@@ -257,9 +274,9 @@ A rise then sends one Pdelay_Req at once.
+ 
+ That request counts no lost response.
+ 
+-asCapable returns only after two good exchanges.
++asCapable returns only after [`ASCAP_UP_C`](#protocol-constants) good exchanges.
+ 
+-The five-minute countdown remains the other exit.
++The [`CEASE_MS_C`](#protocol-constants) countdown remains the other exit.
+ 
+ A change made while reset is held is not seen.
+ 
+@@ -319,14 +336,14 @@ Its mixed-epoch timestamps cannot replace the retained delay.
+ Ordinary missing-response and multiple-responder accounting remains active.
+ The next request resumes measurement normally.
+ 
+-These references are from IEEE 802.1AS-2020.
++These references are from IEEE 802.1AS-2011 with Cor1.
+ 
+ | Clause | Responsibility |
+ |---|---|
+ | 11.2.2 | Capability through peer delay |
+-| 11.2.19.3.3 | Neighbour rate estimation |
+-| 11.2.19.3.4 | Link-delay calculation |
+-| 11.2.20 | Responder timestamp pair |
++| 11.2.15.2.3 | Neighbour rate estimation |
++| 11.2.15.2.4 | Link-delay calculation |
++| 11.2.16 | Responder timestamp pair |
+ 
+ Parent issue #621 exercises both signed 10 ms steps.
+ Its real-counter regression uses an independent peer LocalClock.
+@@ -336,6 +353,8 @@ Count step pulses to count phase steps.
+ 
+ ### Step versus slew policy
+ 
++Values here come from the [protocol constants](#protocol-constants).
++
+ [Issue #68](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68) records this policy.
+ 
+ [The owner's decision](https://github.com/Mister-M-alt/FPGA-gPTP/issues/68#issuecomment-5794731372) sets both thresholds.
+@@ -344,10 +363,12 @@ Count step pulses to count phase steps.
+ 
+ The offset is local time minus grandmaster time.
+ 
+-| Servo state | Slews up to | Steps above |
+-|---|---|---|
+-| Link-up | 20 us | 20 us |
+-| Locked | 100 us | 100 us |
++| Servo state | Step threshold |
++|---|---|
++| Link-up | [`STEP_LINKUP_NS_C`](#protocol-constants) |
++| Locked | [`STEP_LOCKED_NS_C`](#protocol-constants) |
++
++Offsets up to the threshold slew; larger offsets step.
+ 
+ An offset of exactly the threshold slews.
+ 
+@@ -361,7 +382,7 @@ A link-up pair is the first after asCapable rises.
+ 
+ Every reset clears asCapable, so every reset re-arms link-up.
+ 
+-Nothing else re-arms the 20 us threshold.
++Nothing else re-arms the link-up threshold.
+ 
+ #### Locked
+ 
+@@ -374,7 +395,7 @@ These events clear the synchronization verdict and keep the lock:
+ - A grandmaster identity change.
+ - This plane returning from grandmaster duty.
+ 
+-A 375 ms Sync receipt timeout ages the grandmaster instead.
++A [`SYNC_RTO_MS_C`](#protocol-constants) Sync receipt timeout ages the grandmaster instead.
+ 
+ This plane then becomes grandmaster, which sets the verdict.
+ 
+@@ -386,7 +407,7 @@ Becoming grandmaster keeps the lock.
+ 
+ A grandmaster failover through a Sync lapse stays locked.
+ 
+-So the next pair uses the 100 us threshold.
++So the next pair uses the locked threshold.
+ 
+ A new parent under the same grandmaster changes nothing.
+ 
+@@ -394,18 +415,20 @@ A new parent under the same grandmaster changes nothing.
+ 
+ The trim sums a proportional and an integral term.
+ 
+-That whole trim never exceeds 200 ppm in magnitude.
++That whole trim never exceeds [`RATE_PPM_C`](#protocol-constants) in magnitude.
+ 
+ The integrator is clamped to the same bound.
+ 
+ In addend units the bound is this integer expression:
+ 
+ ```text
+-(200 * 2^24 * 1000 + clk_hz / 2) / clk_hz
++(RATE_PPM_C * 2^24 * 1000 + clk_hz / 2) / clk_hz
+ ```
+ 
+ Here `clk_hz` is the generator's `--clk-hz` value.
+ 
++`RATE_PPM_C` is the rate bound, in ppm.
++
+ The division truncates, so the bound rounds half up.
+ 
+ Derive a consumer's addend envelope from this expression.
+@@ -416,17 +439,17 @@ When consumption stops, the last trim stays applied.
+ 
+ That held trim is inside the bound too.
+ 
+-A 100 us slew needs at least 0.5 s.
++A locked-threshold slew needs at least `STEP_LOCKED_NS_C / RATE_PPM_C` ms.
+ 
+-The master's own rate offset shares the 200 ppm bound.
++The master's own rate offset shares that bound.
+ 
+ So a real slew can take much longer.
+ 
+ A slew can overshoot while its trim rides the bound.
+ 
+-A master over 200 ppm apart outruns the trim.
++A master further apart than the bound outruns the trim.
+ 
+-Its offset then grows past 100 us and steps.
++Its offset then grows past the locked threshold and steps.
+ 
+ #### Slew-active level
+ 
+@@ -438,7 +461,7 @@ It marks transient offset correction through the rate path.
+ 
+ The policy distinguishes correction from ordinary frequency tracking.
+ 
+-Its tracking band is inclusive: -100 ns through +100 ns.
++Its inclusive tracking band is ±[`SLEW_SETTLED_NS_C`](#protocol-constants) around zero.
+ 
+ This tolerance does not change either step threshold.
+ 
+@@ -475,9 +498,9 @@ Neither the synchronization flag nor addend magnitude determines it.
+ | Synchronous reset | Clear level and qualification immediately |
+ | Warm reset | Retained scratch cannot revive the level |
+ | asCapable loss | Hold level and applied rate; restart completion qualification |
+-| Missing Sync; 375 ms receipt timeout | Ages the grandmaster; becoming grandmaster applies |
++| Missing Sync; [`SYNC_RTO_MS_C`](#protocol-constants) receipt timeout | Ages the grandmaster; becoming grandmaster applies |
+ | The same timeout under priority1 255 | Hold level and rate; clear the verdict |
+-| Missing Follow_Up; 125 ms timeout | Discard pending pair; retain level and rate |
++| Missing Follow_Up; [`FU_RTO_MS_C`](#protocol-constants) timeout | Discard pending pair; retain level and rate |
+ | Grandmaster identity change | Hold level and rate; restart qualification |
+ | Replacement step | Hold through step; clear with its integral-only addend |
+ | Becoming grandmaster | Replace active correction with integral-only rate; clear together |
+@@ -489,7 +512,7 @@ Loss of capability alone cannot remove an applied correction.
+ 
+ A held slew can therefore remain active indefinitely.
+ 
+-There is no elapsed-time completion or 0.5 s watchdog.
++There is no elapsed-time completion or slew watchdog.
+ 
+ Completion follows the measured policy verdict above.
+ 
+@@ -503,9 +526,11 @@ Discard every measurement window overlapping the level's high interval.
+ 
+ A partly overlapping window remains affected after deassertion.
+ 
+-The parent must carry this level through `KL_gptp_shadow`.
++The parent carries this level through [`KL_gptp_shadow`](https://github.com/kebag-logic/milan-fpga/blob/1e80128f0a467b58bf884b7d9bf62e013a2fb141/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv#L150).
+ 
+-That consumer connection belongs to [parent #545](https://github.com/kebag-logic/milan-fpga/issues/545).
++[Parent #545](https://github.com/kebag-logic/milan-fpga/issues/545), now closed, connected its media-clock servo.
++
++Its [servo input](https://github.com/kebag-logic/milan-fpga/blob/1e80128f0a467b58bf884b7d9bf62e013a2fb141/hdl/milan/milan_datapath.sv#L7329) pins parent `dev` at `1e80128f`.
+ 
+ #### Publication during a slew
+ 
+@@ -515,7 +540,7 @@ Every consumed pair raises it, stepping or slewing.
+ 
+ So a slew may still be in progress.
+ 
+-Its remaining offset is at most 100 us.
++Its remaining offset is within the applicable step threshold.
+ 
+ `pub_offset_o` carries each pair's offset before correction.
+ 
+@@ -531,6 +556,16 @@ The engine publishes protocol state as wires.
+ 
+ Sample outputs when `pub_commit_o` rises.
+ 
++Each output follows its staging register directly.
++
++No register holds the outputs at commit.
++
++Microcode writes the fields over several instructions.
++
++Between pulses the outputs can show a partial tuple.
++
++Only the commit cycle presents one complete tuple.
++
+ | Output group | Contents |
+ |---|---|
+ | Identity | Grandmaster and parent identities |
+@@ -585,7 +620,7 @@ The previous path therefore stays published.
+ 
+ After reset or mastership, that is thisClock alone.
+ 
+-The grandmaster and its path change in one commit.
++The grandmaster and its path complete in one commit.
+ 
+ GET_AS_PATH can serve these entries unchanged.
+ 
+@@ -593,7 +628,7 @@ GET_AS_PATH can serve these entries unchanged.
+ 
+ [Issue #82](https://github.com/Mister-M-alt/FPGA-gPTP/issues/82) defines this self publication.
+ 
+-802.1AS-2020 clause 10.3.13.2.4 requires it.
++802.1AS-2011 10.3.12.1.4 i) requires it.
+ 
+ Every reset leaves no port vector.
+ 
+@@ -623,7 +658,7 @@ The engine reads it there at configuration.
+ 
+ Flags bit 0 publishes gmPresent.
+ 
+-802.1AS-2020 10.3.13.2.4 g) defines it.
++802.1AS-2011 10.3.12.1.4 g) defines it.
+ 
+ A priority1 below 255 makes thisClock grandmaster-capable.
+ 
+@@ -653,7 +688,7 @@ Its tu therefore clears during mastership.
+ 
+ Taking mastership from a peer changes the published grandmaster.
+ 
+-That change arms the parent's Annex B.1.1 holdover.
++That arms the parent's Milan Annex B.1.1 holdover.
+ 
+ Handing mastership to a peer clears bit 3.
+ 
+@@ -679,19 +714,21 @@ A better peer wins through normal selection.
+ 
+ ### Departure of the elected peer
+ 
++Values here come from the [protocol constants](#protocol-constants).
++
+ Three departures each return thisClock and {thisClock}.
+ 
+-Announce silence for 3 s ages the peer out.
++Announce silence for announceReceiptTimeout ages the peer out.
+ 
+-So do 375 ms without a usable Sync pair.
++So does [`SYNC_RTO_MS_C`](#protocol-constants) without a usable Sync pair.
+ 
+ That needs a grandmaster priority1 below 255.
+ 
+ A usable pair is a Sync with its own Follow_Up.
+ 
+-802.1AS-2011 10.3.11 states that rule.
++Figure 11-6 of 802.1AS-2011 states that rule.
+ 
+-Cor1 corrects its Figure 10-13.
++Ageing follows 10.3.11, whose Figure 10-13 Cor1 corrects.
+ 
+ It holds while the peer keeps announcing.
+ 
+@@ -701,7 +738,7 @@ Nor is one naming another sequenceId.
+ 
+ An asCapable port then becomes grandmaster.
+ 
+-Adopting a new grandmaster starts its 375 ms Sync watch.
++Adopting a new grandmaster starts its [`SYNC_RTO_MS_C`](#protocol-constants) Sync watch.
+ 
+ A grandmaster never sending usable Sync is aged too.
+ 
+@@ -725,7 +762,7 @@ The next Announce after it elects the peer again, once.
+ 
+ That pair restarts the watch, so lapsing Sync ages again.
+ 
+-A Sync pending at takeover keeps its 125 ms watch.
++A Sync pending at takeover keeps its [`FU_RTO_MS_C`](#protocol-constants) watch.
+ 
+ A later Follow_Up pairs with nothing in either role.
+ 
+@@ -763,11 +800,13 @@ Without Announces, mastership follows within one receipt interval.
+ 
+ ### Lost Pdelay responses
+ 
++Values here come from the [protocol constants](#protocol-constants).
++
+ 802.1AS-2011 Figure 11-8 counts lost responses.
+ 
+ Cor1 and Cor2 correct that figure.
+ 
+-Each 1 s interval without a completed exchange counts one.
++Each Pdelay_Req interval without a completed exchange counts one.
+ 
+ That includes a Pdelay_Resp whose Follow_Up never comes.
+ 
+@@ -775,9 +814,9 @@ A second Pdelay_Resp for the outstanding request resets the exchange.
+ 
+ That reset also counts one, from either responder.
+ 
+-Four consecutive losses keep asCapable.
++Fewer consecutive losses than [`LOST_CLEARS_AT_C`](#protocol-constants) keep asCapable.
+ 
+-The fifth consecutive loss clears it.
++The loss that reaches it clears asCapable.
+ 
+ A completed exchange restarts the count.
+ 
+@@ -787,18 +826,76 @@ Generate one image for each hardware configuration.
+ 
+ ```sh
+ python3 hdl/ucode/gen_gptp_ucode.py \
+-  --mac 02:a1:b2:c3:d4:e5 \
+-  --p1 248 \
++  --mac 0x02A1B2C3D4E5 \
+   --clk-hz 100000000 \
+-  -o /tmp/gptp_ucode.hex
++  -o gptp_ucode.hex
+ ```
+ 
++`--mac` takes one integer, such as `0x02A1B2C3D4E5`.
++
++Colon-separated addresses are refused.
++
++`--p1` sets priority1; [`P1_C`](#protocol-constants) is its default.
++
++The generator prints its word count and leg placement.
++
+ Set `UCODE_HEX_P` to that generated image.
+ 
+ The engine also reads thisClock from that image.
+ 
+ Set `CLK_HZ_P` to the actual engine frequency.
+ 
++## Protocol constants
++
++This table is the single home of protocol values.
++
++Each row names the generator constant it reads.
++
++`make docs` fails when any value drifts from the generator.
++
++It also fails on a missing, duplicate or formatted row.
++
++Other pages name the constant and link its row.
++
++`make docs` rejects a timed value restated with its unit.
++
++Clauses without a prefix are IEEE 802.1AS-2011.
++
++| Constant | Value | Meaning | Reference |
++|---|---:|---|---|
++| `P1_C` | 248 | Default announced priority1 | Milan 4.2.6.2.1 |
++| `ASCAP_UP_C` | 2 | Good exchanges before asCapable rises | Milan 4.2.6.2.4 |
++| `LOST_N_C` | 3 | allowedLostResponses | 11.5.3 |
++| `LOST_CLEARS_AT_C` | 5 | Consecutive lost response that clears asCapable | 11.2.15, Figure 11-8 |
++| `NPD_HI_C` | 800 | neighborPropDelayThresh, ns | Milan 4.2.6.1.1 |
++| `NPD_LO_C` | 80 | Largest tolerated negative delay magnitude, ns | Milan 4.2.6.2.7 |
++| `SYNC_RTO_MS_C` | 375 | syncReceiptTimeout, ms | Milan 4.2.6.2.3, Table 4.2 |
++| `FU_RTO_MS_C` | 125 | followUpReceiptTimeout, ms | Milan 4.2.6.2.3, Table 4.2 |
++| `CEASE_N_C` | 3 | Successive multi-answered requests before the cease | Milan 4.2.6.2.5 |
++| `CEASE_MS_C` | 300,000 | Default cease countdown, ms | Milan 4.2.6.2.5 |
++| `STEP_LINKUP_NS_C` | 20,000 | Link-up step threshold, ns | Issue #68 |
++| `STEP_LOCKED_NS_C` | 100,000 | Locked step threshold, ns | Issue #68 |
++| `SLEW_SETTLED_NS_C` | 100 | Tracking band half-width, ns | Issue #75 |
++| `RATE_PPM_C` | 200 | Rate trim and integrator bound, ppm | Issue #68 |
++| `DEPTH` | 1,024 | Microcode ROM words | [ROM budget](MANAGER.md#current-rom-budget) |
++| `ROM_CID_HI_C` | 1,022 | ROM word holding thisClock's high half | Issue #82 |
++| `ROM_GMCAP_BIT_C` | 32 | Grandmaster-capable bit in that word | Issue #82 |
++
++`--cease-ms` overrides the cease countdown per image.
++
++The engine suite uses 3,000 ms to stay fast.
++
++These cadences are literals inside generator legs.
++
++`make docs` does not check them.
++
++| Cadence | Value | Timer slot | Reference |
++|---|---:|---:|---|
++| Pdelay_Req interval | 1 s | 0 | Milan 4.2.6.2.2, Table 4.1 |
++| Sync interval | 125 ms | 1 | Milan 4.2.6.2.2, Table 4.1 |
++| announceReceiptTimeout | 3 s | 2 | Milan 4.2.6.2.3, Table 4.2 |
++| Announce interval | 1 s | 3 | Milan 4.2.6.2.2, Table 4.1 |
++
+ ## Integration checklist
+ 
+ - Use one shared synchronous clock.
+diff --git a/docs/MANAGER.md b/docs/MANAGER.md
+index 23ba46a..440d956 100644
+--- a/docs/MANAGER.md
++++ b/docs/MANAGER.md
+@@ -3,11 +3,21 @@
+ 
+ This page summarizes value, readiness, evidence, and risk.
+ 
++## Summary
++
++- Fabric gPTP owns product time in the parent.
++- Interfaces and protocol behavior are regression-tested in simulation.
++- Physical acceptance and timestamp calibration remain open.
++- The microcode ROM is nearly full.
++- No certification claim is made.
++
++Terms are defined in the [glossary](GLOSSARY.md).
++
+ ## Product value
+ 
+ - Timing control stays inside programmable logic.
+ - Protocol work shares one deterministic clock domain.
+-- Parent systems receive direct committed status.
++- Parent systems capture status on each commit pulse.
+ - Microcode supports rapid protocol-policy changes.
+ - Dedicated RTL handles predictable byte movement.
+ 
+@@ -21,7 +31,7 @@ This page summarizes value, readiness, evidence, and risk.
+ | Receive path | Implemented and regression-tested | [HDL guide](HDL_DEVELOPER.md#receive-path) |
+ | Transmit path | Backpressure-tested | [TX timing](HDL_DEVELOPER.md#transmit-timing) |
+ | PHC control | Addend, step, and slew-level outputs implemented | [Integration guide](INTEGRATION.md#phc-control) |
+-| Publication | Atomic commit pulse implemented | [Integration guide](INTEGRATION.md#publication) |
++| Publication | Commit pulse marks each complete publication | [Integration guide](INTEGRATION.md#publication) |
+ | Bench evidence | Historical silicon campaigns available | [History](history/v1/README.md) |
+ 
+ Parent ownership references pin `dev` at `ac2c5e77`.
+@@ -32,81 +42,30 @@ No certification claim is made.
+ 
+ ## Latest measured snapshot
+ 
+-Measurements used Vivado 2026.1 out-of-context synthesis.
+-
+-The target was `xc7a100tfgg484-2` at 100 MHz.
+-
+-Both flows measured main `5dce647a` on 2026-10-11.
+-
+-| Block | Flow | LUTs | Registers | BRAM tiles | DSPs | WNS |
+-|---|---|---:|---:|---:|---:|---:|
+-| Complete engine | Constrained | 4,852 | 3,652 | 1.5 | 4 | +1.773 ns |
+-| Complete engine | Unconstrained | 4,853 | 3,652 | 1.5 | 4 | +1.773 ns |
+-| Standalone microCPU | Constrained | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
+-| Standalone microCPU | Unconstrained | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
+-
+-The constrained flow reads the clock before synthesis.
+-
+-The unconstrained flow created the clock after synthesis.
+-
+-Only constrained WNS reflects a synthesis timing target.
+-
+-Constraining the clock removed one engine LUT; nothing else moved.
+-
+-The [HDL guide](HDL_DEVELOPER.md#out-of-context-measurement) describes both flows.
+-
+-PR #76 measurements finished on 2026-09-24.
+-
+-They used the unconstrained flow.
+-
+-PR #76 adds 80 LUTs and six registers.
++The [HDL guide](HDL_DEVELOPER.md#out-of-context-measurement) holds the latest dated synthesis figures.
+ 
+-The baseline used 4,773 LUTs and 3,646 registers.
++That table records their commit, date and timing.
+ 
+-Memory LUTs remain 466; BRAM and DSP usage stay unchanged.
++Later RTL has landed since that measurement.
+ 
+-WNS moves from +2.249 ns; timing remains met.
++Earlier deltas live in the [resource-delta archive](history/v1/RESOURCE_DELTAS_2026_10.md).
+ 
+-The [PR measurement reports](https://github.com/kebag-logic/milan-fpga/tree/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author) record the comparison.
+-
+-### M7 timer-storage measurement
+-
+-Measurements finished on 2026-10-10 for milan-fpga #640, lane M7.
+-
+-| Block | LUTs | Registers | BRAM tiles | DSPs | WNS |
+-|---|---:|---:|---:|---:|---:|
+-| Complete engine | 4,748 | 3,396 | 1.5 | 4 | +2.249 ns |
+-| Standalone microCPU | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
+-
+-These figures used the then-unconstrained `make ooc` flow.
+-
+-They describe timer storage at lane head `18dd997b`.
+-
+-The timer's deadlines move from registers to distributed RAM.
+-
+-The engine sheds 105 LUTs since PR #76.
+-
+-It also sheds 256 registers.
+-
+-Memory LUTs rise from 466 to 490.
+-
+-BRAM and DSP usage stay unchanged.
+-
+-WNS moves from +1.773 ns; timing remains met.
+-
+-The standalone microCPU repeats the PR #76 figures exactly.
++## Current ROM budget
+ 
+-See the [historical resource record](history/v1/RESOURCE_VALIDATION.md).
++The generator prints this budget on every run.
+ 
+-## Current ROM budget
++`make docs` fails when this table drifts from it.
+ 
+-Shipping usage: 1,021 of 1,024 words (99.7%).
++| Image | Words used | Free |
++|---|---|---:|
++| Shipping | 1,022 of 1,024 | 2 |
++| Seeded regression | 1,023 of 1,024 | 1 |
+ 
+-That count includes thisClock's two data words at 1022..1023.
++Used words include thisClock's two data words.
+ 
+-Only three words remain free, spread across packing gaps.
++Those words start at [`ROM_CID_HI_C`](INTEGRATION.md#protocol-constants).
+ 
+-Each seeded regression image uses one more word.
++Free words lie scattered across packing gaps.
+ 
+ Shared legs may occupy the formerly reserved prefix.
+ 
+diff --git a/docs/README.md b/docs/README.md
+index 352bc45..ec91ce4 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -3,6 +3,10 @@
+ 
+ Use current guides before historical records.
+ 
++New readers start at the [repository README](../README.md#start-here).
++
++The [glossary](GLOSSARY.md) defines every recurring term.
++
+ ## Reader guides
+ 
+ | Perspective | Guide | Focus |
+@@ -37,6 +41,34 @@ PNG previews embed their editable-source SHA-256.
+ 
+ The manifest also pins every committed diagram asset.
+ 
++## Document status
++
++Every Markdown page outside the archive has one row.
++
++`make docs` fails when a page lacks its row.
++
++Current means checked against the source and clauses.
++
++Historical pages carry their own archive banners.
++
++| Page | Audience | Describes | Status |
++|---|---|---|---|
++| `README.md` | Every reader | Start here: scope, layout, reading order | Current |
++| `docs/README.md` | Every reader | Documentation map and document status | Current |
++| `docs/GLOSSARY.md` | Every reader | Defined terms and their clauses | Current |
++| `docs/MANAGER.md` | Manager | Readiness, ROM budget, open risks | Current |
++| `docs/INTEGRATION.md` | System integrator | Engine ports, policy, protocol constants | Current |
++| `docs/HDL_DEVELOPER.md` | HDL contributor | `hdl/` modules, state regions, synthesis figures | Current |
++| `docs/TEST_DEVELOPER.md` | Test developer | `tb/` and `bench/` suites, gates, mutation arms | Current |
++| `docs/SOURCE_EVIDENCE.md` | Reviewer | Claims bound to source line anchors | Current |
++| `docs/diagrams/README.md` | Maintainer | Diagram sources, rendering and checks | Current |
++| `tb/verilator/engine/README.md` | Test developer | Engine suite entry point | Current |
++| `tb/verilator/parser/README.md` | Test developer | Parser suite entry point | Current |
++| `tb/verilator/ucpu/README.md` | Test developer | MicroCPU suite entry point | Current |
++| `tb/verilator/gaskets/README.md` | Test developer | Bench gasket suite entry point | Current |
++| `tb/tsngen/README.md` | Test developer | Independent decode suite entry point | Current |
++| `docs/history/v1/` | Maintainer | Dated campaigns, listed in the history index | Historical |
++
+ ## History
+ 
+ - [History index](history/v1/README.md)
+diff --git a/docs/SOURCE_EVIDENCE.md b/docs/SOURCE_EVIDENCE.md
+index 9207c37..3a94641 100644
+--- a/docs/SOURCE_EVIDENCE.md
++++ b/docs/SOURCE_EVIDENCE.md
+@@ -23,7 +23,7 @@ Line numbers describe the current branch layout.
+ | Six state regions | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L20) | Engine suite |
+ | Stable stalled transmission | [`KL_gptp_tx_slot`](../hdl/wire/KL_gptp_tx_slot.sv#L129) | Engine suite |
+ | Committed publication | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L140) | Engine suite |
+-| 1,024-word microcode ROM | [`KL_gptp_ucpu`](../hdl/ucpu/KL_gptp_ucpu.sv#L105) | MicroCPU suite |
++| Microcode ROM depth | [`KL_gptp_ucpu`](../hdl/ucpu/KL_gptp_ucpu.sv#L105) | MicroCPU suite |
+ | Sixteen registers | [`KL_gptp_ucpu`](../hdl/ucpu/KL_gptp_ucpu.sv#L113) | MicroCPU suite |
+ | Python image generation | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Media-dependent transmit flags | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine and tsngen suites |
+@@ -39,7 +39,7 @@ Line numbers describe the current branch layout.
+ | Sync ageing needs gmPresent | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Unaged Sync timeout clears sync-ok | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Mastership keeps both Sync watches | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+-| Fifth lost response clears asCapable | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
++| Lost-response limit clears asCapable | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Duplicate response resets the exchange | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Port enable ends the cease | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite and named mutation controls |
+ | Disabled port sends nothing | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv) | Engine suite and named mutation controls |
+diff --git a/docs/TEST_DEVELOPER.md b/docs/TEST_DEVELOPER.md
+index 9d18ac2..71615a3 100644
+--- a/docs/TEST_DEVELOPER.md
++++ b/docs/TEST_DEVELOPER.md
+@@ -3,6 +3,15 @@
+ 
+ This guide explains every verification layer.
+ 
++## Summary
++
++- `make` runs every local gate and returns nonzero on failure.
++- Six simulation suites cover arithmetic, parsing, protocol and transport.
++- Mutation arms plant defects that the suites must catch.
++- Documentation gates check style, links, status and generated values.
++
++Terms are defined in the [glossary](GLOSSARY.md).
++
+ ## Language layers
+ 
+ | Layer | Files | Purpose |
+@@ -10,6 +19,9 @@ This guide explains every verification layer.
+ | Python | `hdl/ucode/gen_gptp_ucode.py` | Generates configuration-specific ROM images |
+ | Python | `tb/check_phc_contract.py` | Guards the PHC and result boundaries |
+ | Python | `tb/verilator/*/mutants.py` | Plants defects that suites must catch |
++| Python | `tb/mutation_verdict.py` | Reads each mutant's verdict from suite output |
++| Python | `tb/tsngen/run_tsngen.py` | Cross-checks frames against independent protocol decoders |
++| Python | `scripts/check_docs.py` | Checks documentation rules and generated values |
+ | C | None | No first-party C harness exists |
+ | C++ | `tb/verilator/*/sim_main.cpp` | Drives and checks Verilated RTL |
+ | C++ | `bench/arty/bench_mii_tx_tag_test.cpp` | Checks timestamp-tag transport |
+@@ -33,10 +45,15 @@ No handwritten C harness exists.
+ | `make -C tb/verilator/engine` | Whole-plane protocol behavior |
+ | `make -C tb/verilator/engine mutants` | Engine mutation controls |
+ | `make -C tb/verilator/parser mutants` | Parser receive-error and PathTrace mutation controls |
++| `make -C tb/verilator/gaskets` | Bench MII gasket loopback and its mutation controls |
++| `make -C tb/tsngen` | Independent frame decode; skips without its checkout |
+ | `make -C bench/arty test` | MII timestamp-tag transport |
+ | `make lint` | Engine and bench lint |
++| `make docs` | Documentation, status, constants and diagram gates |
+ | `make` | Every required local gate |
+ 
++Bare `make` in parser, engine, gaskets and tsngen adds mutants.
++
+ Clean runs return zero.
+ 
+ Each simulation prints its check tally.
+@@ -102,12 +119,14 @@ Prefer independent protocol formulas and frame builders.
+ 
+ ### Engine suite
+ 
++Values here come from the [protocol constants](INTEGRATION.md#protocol-constants).
++
+ - Models a scripted protocol peer.
+ - Runs shipping and seeded ROM images.
+ - Checks Pdelay, Announce, Sync, and servo behavior.
+ - Proves the link-up and locked step thresholds.
+ - Keeps the lock across timeouts, failovers and mastership.
+-- Keeps every written addend inside 200 ppm.
++- Keeps every written addend inside [`RATE_PPM_C`](INTEGRATION.md#protocol-constants).
+ - Checks slew decisions, completion, and held intervals.
+ - Checks reset, lost capability, missing Sync, steps, and mastership.
+ - Grades every cycle from cold release to the first beat.
+@@ -121,18 +140,19 @@ Prefer independent protocol formulas and frame builders.
+ - Publishes sync-ok in every master cycle.
+ - Keeps it through a receipt timeout queued behind mastership.
+ - Ages a grandmaster when its Sync stops or turns unusable.
+-- Times each takeover against the 375 ms Sync watch.
++- Times each takeover against the [`SYNC_RTO_MS_C`](INTEGRATION.md#protocol-constants) Sync watch.
+ - Ages a grandmaster that never sends usable Sync.
+ - Holds mastership while the aged peer keeps announcing.
+ - Re-elects that peer once, after its Sync recovers.
+-- Keeps 250 ms Sync and 60 ms Follow_Ups in use.
++- Drives Sync every 250 ms, Follow_Up 60 ms after.
++- Proves those stimulus pairs stay usable.
+ - Ages again when Sync lapses after one master-heard pair.
+ - Ages on expiries found in the master role.
+ - Keeps a pending Sync's Follow_Up watch across the takeover.
+ - Never ages a priority1 255 grandmaster on Sync.
+ - Clears sync-ok when that grandmaster's Sync stops.
+-- Keeps asCapable through four lost Pdelay responses.
+-- Clears asCapable at the fifth, in each loss shape.
++- Keeps asCapable through losses short of [`LOST_CLEARS_AT_C`](INTEGRATION.md#protocol-constants).
++- Clears asCapable at that loss, in each loss shape.
+ - Resets an exchange answered by duplicate responses.
+ - Ends the multiple-responder cease on a port toggle.
+ - Sends one request at once after each rise.
+diff --git a/docs/history/v1/README.md b/docs/history/v1/README.md
+index 52a75a2..3cdda3b 100644
+--- a/docs/history/v1/README.md
++++ b/docs/history/v1/README.md
+@@ -23,6 +23,7 @@ They never define current behavior.
+ | [Engine test record](testing/ENGINE_TEST_RECORD.md) | `tb/verilator/engine/README.md` | 2026-08-31 | [Test guide](../../TEST_DEVELOPER.md) |
+ | [Parser test record](testing/PARSER_TEST_RECORD.md) | `tb/verilator/parser/README.md` | 2026-08-31 | [Test guide](../../TEST_DEVELOPER.md) |
+ | [MicroCPU test record](testing/UCPU_TEST_RECORD.md) | `tb/verilator/ucpu/README.md` | 2026-08-31 | [Test guide](../../TEST_DEVELOPER.md) |
++| [Resource deltas](RESOURCE_DELTAS_2026_10.md) | `docs/MANAGER.md` | 2026-10-30 | [HDL guide](../../HDL_DEVELOPER.md#out-of-context-measurement) |
+ 
+ ## Prototype line
+ 
+@@ -45,4 +46,4 @@ Their rendered diagrams live beside them under `prototype/diagrams/`.
+ | [asCapable bench](prototype/BENCH_ASCAPABLE.md) | `docs/BENCH_ASCAPABLE.md` | 2026-09-01 | [Manager guide](../../MANAGER.md) |
+ | [TAP wire truth](prototype/BENCH_TAP_WIRETRUTH.md) | `docs/BENCH_TAP_WIRETRUTH.md` | 2026-09-01 | [Manager guide](../../MANAGER.md) |
+ 
+-Archive total: 17 Markdown pages.
++Archive total: 18 Markdown pages.
+diff --git a/docs/history/v1/RESOURCE_DELTAS_2026_10.md b/docs/history/v1/RESOURCE_DELTAS_2026_10.md
+new file mode 100644
+index 0000000..b0cbe79
+--- /dev/null
++++ b/docs/history/v1/RESOURCE_DELTAS_2026_10.md
+@@ -0,0 +1,57 @@
++[OBSOLETE + 2026-10-30]
++
++> Status: Historical
++>
++> Original path: `docs/MANAGER.md`
++>
++> Archived: 2026-10-30
++>
++> Current successor: [current HDL guide](../../HDL_DEVELOPER.md)
++
++<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
++# Resource deltas before main `5dce647a`
++
++These two out-of-context measurements preceded the current snapshot.
++
++Both used the then-unconstrained `make ooc` flow.
++
++The current figures live in the HDL guide.
++
++## PR #76 slew-level output
++
++Measurements finished on 2026-09-24.
++
++PR #76 adds 80 LUTs and six registers.
++
++The baseline used 4,773 LUTs and 3,646 registers.
++
++Memory LUTs remain 466; BRAM and DSP usage stay unchanged.
++
++WNS moves from +2.249 ns; timing remains met.
++
++The parent tree at `4999d8d6` holds the [measurement reports](https://github.com/kebag-logic/milan-fpga/tree/4999d8d6344e373e0204995cb36c93cf616e8f9e/review-evidence/gptp75-r1/author).
++
++## Timer storage in distributed RAM
++
++Measurements finished on 2026-10-10 for milan-fpga #640.
++
++| Block | LUTs | Registers | BRAM tiles | DSPs | WNS |
++|---|---:|---:|---:|---:|---:|
++| Complete engine | 4,748 | 3,396 | 1.5 | 4 | +2.249 ns |
++| Standalone microCPU | 1,643 | 733 | 1.5 | 4 | +1.941 ns |
++
++They describe timer storage at head `18dd997b`.
++
++The timer's deadlines move from registers to distributed RAM.
++
++The engine sheds 105 LUTs since PR #76.
++
++It also sheds 256 registers.
++
++Memory LUTs rise from 466 to 490.
++
++BRAM and DSP usage stay unchanged.
++
++WNS moves from +1.773 ns; timing remains met.
++
++The standalone microCPU repeats the PR #76 figures exactly.
+diff --git a/scripts/check_docs.py b/scripts/check_docs.py
+index 8be88a4..c5e4738 100644
+--- a/scripts/check_docs.py
++++ b/scripts/check_docs.py
+@@ -6,9 +6,12 @@
+ from __future__ import annotations
+ 
+ import argparse
++import importlib.util
+ import re
++import subprocess
+ import sys
+ import tempfile
++import types
+ from pathlib import Path
+ 
+ 
+@@ -96,6 +99,35 @@ REQUIRED_CURRENT = {
+     ),
+ }
+ 
++STATUS_PAGE = "docs/README.md"
++STATUS_HEADING = "## Document status"
++STATUS_VALUES = ("Current", "Historical")
++HISTORY_ROW = "docs/history/v1/"
++STATUS_ROW_RE = re.compile(r"^\|\s*`([^`]+)`\s*\|(?:[^|]*\|){2}\s*([^|]*?)\s*\|\s*$")
++
++GENERATOR = "hdl/ucode/gen_gptp_ucode.py"
++CONSTANTS_PAGE = "docs/INTEGRATION.md"
++CONSTANTS_HEADING = "## Protocol constants"
++# Rows are found by their name cell alone, so a value cell in any other
++# syntax is reported rather than silently skipped.
++CONSTANT_ROW_RE = re.compile(r"^\|\s*`([A-Za-z_][A-Za-z0-9_]*)`\s*\|\s*([^|]*?)\s*\|")
++DECIMAL_RE = re.compile(r"[0-9]{1,3}(?:,[0-9]{3})+|[0-9]+")
++CONSTANTS = (
++    "P1_C", "ASCAP_UP_C", "LOST_N_C", "LOST_CLEARS_AT_C", "NPD_HI_C",
++    "NPD_LO_C", "SYNC_RTO_MS_C", "FU_RTO_MS_C", "CEASE_N_C", "CEASE_MS_C",
++    "STEP_LINKUP_NS_C", "STEP_LOCKED_NS_C", "SLEW_SETTLED_NS_C", "RATE_PPM_C",
++    "DEPTH", "ROM_CID_HI_C", "ROM_GMCAP_BIT_C",
++)
++# A Meaning cell ending ", ms", ", ns" or ", ppm" gives the row's unit; that
++# value spelled with its unit elsewhere is a copy the table cannot correct.
++UNIT_CELL_RE = re.compile(r",\s*(ms|ns|ppm)\s*$")
++NUMBER_WORDS = ("one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten")
++ROM_PAGE = "docs/MANAGER.md"
++ROM_HEADING = "## Current ROM budget"
++ROM_ROW_RE = re.compile(r"^\|\s*(Shipping|Seeded regression)\s*\|([^|]*)\|([^|]*)\|\s*$")
++ROM_USED_RE = re.compile(r"\s*([0-9,]+) of ([0-9,]+)\s*")
++SEEDED_SEQ_SEED = 0x200000
++
+ TEXT_SUFFIXES = {
+     ".md", ".py", ".sv", ".cpp", ".h", ".sh", ".tcl", ".xdc", ".yml", ".yaml",
+     ".svg",  # rendered diagrams carry visible labels the vocabulary rule owns
+@@ -303,6 +335,230 @@ def required_current_findings(root: Path = ROOT) -> list[str]:
+     return findings
+ 
+ 
++def section_lines(text: str, heading: str) -> list[str]:
++    """Return the lines under one second-level heading."""
++    lines: list[str] = []
++    inside = False
++    for line in text.splitlines():
++        if line.startswith("## "):
++            inside = line.strip() == heading
++            continue
++        if inside:
++            lines.append(line)
++    return lines
++
++
++def status_findings(root: Path = ROOT, text: str | None = None) -> list[str]:
++    """Require one status row for every maintained Markdown page."""
++    if text is None:
++        text = (root / STATUS_PAGE).read_text(encoding="utf-8")
++    findings: list[str] = []
++    seen: dict[str, str] = {}
++    for line in section_lines(text, STATUS_HEADING):
++        match = STATUS_ROW_RE.match(line.strip())
++        if match is None:
++            continue
++        page, status = match.groups()
++        if page in seen:
++            findings.append(f"{STATUS_PAGE}: duplicate status row: {page}")
++        seen[page] = status
++        expected = "Historical" if page == HISTORY_ROW else "Current"
++        if status != expected:
++            findings.append(
++                f"{STATUS_PAGE}: {page}: status {status!r}, expected {expected!r}"
++            )
++        target = root / page
++        if not (target.is_dir() if page == HISTORY_ROW else target.is_file()):
++            findings.append(f"{STATUS_PAGE}: status row names a missing page: {page}")
++    if not seen:
++        findings.append(f"{STATUS_PAGE}: no document status rows")
++    if HISTORY_ROW not in seen:
++        findings.append(f"{STATUS_PAGE}: no status row for {HISTORY_ROW}")
++    for path in current_markdown(root):
++        relative = path.relative_to(root).as_posix()
++        if relative not in seen:
++            findings.append(f"{STATUS_PAGE}: no status row for {relative}")
++    return findings
++
++
++def decimal(cell: str) -> int | None:
++    """Return a plain or comma-grouped decimal cell, else None."""
++    cell = cell.strip()
++    if DECIMAL_RE.fullmatch(cell) is None:
++        return None
++    return int(cell.replace(",", ""))
++
++
++def load_generator(root: Path = ROOT):
++    """Import the microcode generator that owns the protocol constants."""
++    sys.dont_write_bytecode = True  # keep the gate from writing into hdl/
++    spec = importlib.util.spec_from_file_location(
++        "gen_gptp_ucode_docs", root / GENERATOR
++    )
++    if spec is None or spec.loader is None:
++        raise ImportError(f"cannot load {GENERATOR}")
++    module = importlib.util.module_from_spec(spec)
++    spec.loader.exec_module(module)
++    return module
++
++
++def constant_findings(text: str, generator) -> list[str]:
++    """Bind each constants-table value to the generator constant it names."""
++    findings: list[str] = []
++    seen: set[str] = set()
++    for line in section_lines(text, CONSTANTS_HEADING):
++        match = CONSTANT_ROW_RE.match(line.strip())
++        if match is None:
++            continue
++        name, cell = match.groups()
++        if name in seen:
++            findings.append(f"{CONSTANTS_PAGE}: duplicate constant row: {name}")
++        seen.add(name)
++        actual = getattr(generator, name, None)
++        value = decimal(cell)
++        if not isinstance(actual, int):
++            findings.append(f"{CONSTANTS_PAGE}: {name} is not a generator constant")
++        elif value is None:
++            findings.append(
++                f"{CONSTANTS_PAGE}: {name} value {cell!r} is not a plain decimal"
++            )
++        elif value != actual:
++            findings.append(
++                f"{CONSTANTS_PAGE}: {name} is {cell}, generator has {actual}"
++            )
++    if not seen:
++        findings.append(f"{CONSTANTS_PAGE}: no protocol constant rows")
++    findings.extend(
++        f"{CONSTANTS_PAGE}: no protocol constant row for {name}"
++        for name in CONSTANTS
++        if name not in seen
++    )
++    return findings
++
++
++def value_spellings(value: int, unit: str) -> list[str]:
++    """Return the patterns that restate `value` in `unit` or a larger unit."""
++    numbers = [(value, unit)]
++    if unit == "ms" and value % 1000 == 0:
++        numbers.append((value // 1000, "s"))
++    if unit == "ns" and value % 1000 == 0:
++        numbers.append((value // 1000, "(?:us|\u00b5s|\u03bcs)"))
++    patterns = [
++        rf"(?<![\d.,]){re.escape(text)}[\s-]?{suffix}\b"
++        for number, suffix in numbers
++        for text in {str(number), f"{number:,}"}
++    ]
++    minutes = value // 60000 if unit == "ms" and value % 60000 == 0 else 0
++    if 1 <= minutes <= len(NUMBER_WORDS):
++        word = NUMBER_WORDS[minutes - 1]
++        patterns += [rf"\b{minutes}[\s-]min", rf"\b{word}[\s-]minutes?\b"]
++    return patterns
++
++
++def copy_findings(texts: dict[str, str], constants_text: str, generator) -> list[str]:
++    """Reject a unit-bearing constant restated outside its constants row."""
++    spellings: list[tuple[str, re.Pattern[str]]] = []
++    for line in section_lines(constants_text, CONSTANTS_HEADING):
++        cells = [cell.strip() for cell in line.strip().strip("|").split("|")]
++        match = CONSTANT_ROW_RE.match(line.strip())
++        unit = UNIT_CELL_RE.search(cells[2]) if match and len(cells) > 2 else None
++        actual = getattr(generator, match.group(1), None) if match else None
++        if unit is not None and isinstance(actual, int):
++            spellings.extend(
++                (match.group(1), re.compile(pattern, re.IGNORECASE))
++                for pattern in value_spellings(actual, unit.group(1))
++            )
++    findings: list[str] = []
++    for relative, text in texts.items():
++        fenced = home = False
++        for number, line in enumerate(text.splitlines(), start=1):
++            if line.lstrip().startswith("```"):
++                fenced = not fenced
++                continue
++            if line.startswith("## "):
++                home = relative == CONSTANTS_PAGE and line.strip() == CONSTANTS_HEADING
++            if fenced or home:
++                continue
++            findings.extend(
++                f"{relative}:{number}: {found.group(0)!r} restates {name}; "
++                "link its constants row"
++                for name, pattern in spellings
++                for found in [pattern.search(line)]
++                if found
++            )
++    return findings
++
++
++def rom_usage(root: Path = ROOT, *extra: str) -> tuple[int, int]:
++    """Run the generator as shipped and return (real words, depth)."""
++    with tempfile.TemporaryDirectory() as directory:
++        result = subprocess.run(
++            [sys.executable, str(root / GENERATOR), *extra,
++             "-o", str(Path(directory) / "gptp_ucode.hex")],
++            check=True, capture_output=True, text=True,
++        )
++    match = re.search(r": (\d+) words, (\d+) real ", result.stdout)
++    if match is None:
++        raise ValueError(f"unexpected generator report: {result.stdout!r}")
++    return int(match.group(2)), int(match.group(1))
++
++
++def rom_findings(text: str, usage: dict[str, tuple[int, int]]) -> list[str]:
++    """Bind the ROM budget table to the generator's own word count."""
++    findings: list[str] = []
++    seen: set[str] = set()
++    for line in section_lines(text, ROM_HEADING):
++        match = ROM_ROW_RE.match(line.strip())
++        if match is None:
++            continue
++        image, used_cell, free_cell = match.groups()
++        if image in seen:
++            findings.append(f"{ROM_PAGE}: duplicate ROM budget row: {image}")
++        seen.add(image)
++        counts = ROM_USED_RE.fullmatch(used_cell)
++        free = decimal(free_cell)
++        if counts is None or free is None:
++            findings.append(
++                f"{ROM_PAGE}: {image} row {used_cell.strip()!r} | "
++                f"{free_cell.strip()!r} is not plain 'N of M' | N"
++            )
++            continue
++        used, depth = (decimal(value) for value in counts.groups())
++        if used is None or depth is None:
++            findings.append(f"{ROM_PAGE}: {image} counts are not plain decimals")
++            continue
++        real_used, real_depth = usage[image]
++        if (used, depth, free) != (real_used, real_depth, real_depth - real_used):
++            findings.append(
++                f"{ROM_PAGE}: {image} image reads {used} of {depth} with {free} free; "
++                f"generator builds {real_used} of {real_depth}"
++            )
++    findings.extend(
++        f"{ROM_PAGE}: no ROM budget row for the {image} image"
++        for image in usage
++        if image not in seen
++    )
++    return findings
++
++
++def freshness_findings(root: Path = ROOT) -> list[str]:
++    """Tie the constants and ROM budget tables to the generator."""
++    generator = load_generator(root)
++    constants_text = (root / CONSTANTS_PAGE).read_text(encoding="utf-8")
++    findings = constant_findings(constants_text, generator)
++    pages = {
++        path.relative_to(root).as_posix(): path.read_text(encoding="utf-8")
++        for path in current_markdown(root)
++    }
++    findings.extend(copy_findings(pages, constants_text, generator))
++    usage = {
++        "Shipping": rom_usage(root),
++        "Seeded regression": rom_usage(root, "--seq-seed", hex(SEEDED_SEQ_SEED)),
++    }
++    findings.extend(rom_findings((root / ROM_PAGE).read_text(encoding="utf-8"), usage))
++    return findings
++
++
+ def check(root: Path = ROOT) -> list[str]:
+     """Run every documentation rule."""
+     findings: list[str] = []
+@@ -317,6 +573,8 @@ def check(root: Path = ROOT) -> list[str]:
+     findings.extend(local_link_findings(root))
+     findings.extend(archive_metadata_findings(root))
+     findings.extend(required_current_findings(root))
++    findings.extend(status_findings(root))
++    findings.extend(freshness_findings(root))
+     return findings
+ 
+ 
+@@ -375,6 +633,146 @@ def selftest() -> int:
+     if not any(victim in finding for finding in required_current_findings(Path("/nonexistent"))):
+         print("docs selftest: missing audience page escaped")
+         return 1
++    with tempfile.TemporaryDirectory() as directory:
++        root = Path(directory)
++        (root / "docs" / "history" / "v1").mkdir(parents=True)
++        (root / "README.md").write_text("# Root\n", encoding="utf-8")
++        (root / "docs" / "README.md").write_text("# Map\n", encoding="utf-8")
++        rows = {
++            "README.md": "Current",
++            STATUS_PAGE: "Current",
++            HISTORY_ROW: "Historical",
++        }
++
++        def table(entries: dict[str, str]) -> str:
++            """Render a status section holding one row per entry."""
++            body = "".join(
++                f"| `{page}` | Reader | Topic | {status} |\n"
++                for page, status in entries.items()
++            )
++            return f"{STATUS_HEADING}\n\n| Page | Audience | Describes | Status |\n|---|---|---|---|\n{body}"
++
++        arms += 1
++        if status_findings(root, table(rows)):
++            print("docs selftest: complete status table failed")
++            return 1
++        arms += 1
++        if not status_findings(root, table({k: v for k, v in rows.items() if k != "README.md"})):
++            print("docs selftest: unlisted page escaped")
++            return 1
++        arms += 1
++        if not status_findings(root, table({**rows, "docs/GONE.md": "Current"})):
++            print("docs selftest: status row for a missing page escaped")
++            return 1
++        arms += 1
++        if not status_findings(root, table({**rows, "README.md": "Stale"})):
++            print("docs selftest: wrong status escaped")
++            return 1
++        arms += 1
++        if not status_findings(root, table(rows) + "| `README.md` | Reader | Topic | Current |\n"):
++            print("docs selftest: duplicate status row escaped")
++            return 1
++    generator = load_generator(ROOT)
++    good = f"{CONSTANTS_HEADING}\n\n| Constant | Value |\n|---|---:|\n" + "".join(
++        f"| `{name}` | {getattr(generator, name):,} |\n" for name in CONSTANTS
++    )
++    sync = f"| {generator.SYNC_RTO_MS_C} |"
++    stale = generator.SYNC_RTO_MS_C + 1
++    arms += 1
++    if constant_findings(good, generator):
++        print("docs selftest: true constants table failed")
++        return 1
++    arms += 1
++    if not constant_findings(good.replace(sync, f"| {stale} |"), generator):
++        print("docs selftest: drifted constant escaped")
++        return 1
++    arms += 1
++    if not constant_findings(good.replace("SYNC_RTO_MS_C", "NO_SUCH_C"), generator):
++        print("docs selftest: unknown constant escaped")
++        return 1
++    arms += 1
++    if not constant_findings(f"{CONSTANTS_HEADING}\n\nNo table.\n", generator):
++        print("docs selftest: empty constants table escaped")
++        return 1
++    for label, cell in (("bold", f"**{stale}**"), ("negative", "-1"),
++                        ("unit-bearing", f"{stale} ms"), ("bold true", f"**{stale - 1}**")):
++        arms += 1
++        named = constant_findings(good.replace(sync, f"| {cell} |"), generator)
++        if not any("SYNC_RTO_MS_C value" in finding for finding in named):
++            print(f"docs selftest: {label} constant cell escaped")
++            return 1
++    arms += 1
++    deleted = "".join(line + "\n" for line in good.splitlines() if "SYNC_RTO_MS_C" not in line)
++    if not constant_findings(deleted, generator):
++        print("docs selftest: deleted constant row escaped")
++        return 1
++    arms += 1
++    if not constant_findings(good.replace("`SYNC_RTO_MS_C`", "SYNC_RTO_MS_C"), generator):
++        print("docs selftest: unnamed constant row escaped")
++        return 1
++    fixture = types.SimpleNamespace(
++        SYNC_RTO_MS_C=375, CEASE_MS_C=300_000, STEP_LINKUP_NS_C=20_000, RATE_PPM_C=200
++    )
++    table = (f"{CONSTANTS_HEADING}\n\n| Constant | Value | Meaning |\n|---|---:|---|\n"
++             "| `SYNC_RTO_MS_C` | 375 | syncReceiptTimeout, ms |\n"
++             "| `CEASE_MS_C` | 300,000 | Cease countdown, ms |\n"
++             "| `STEP_LINKUP_NS_C` | 20,000 | Step threshold, ns |\n"
++             "| `RATE_PPM_C` | 200 | Rate bound, ppm |\n"
++             "| Sync interval | 375 ms | Literal kept in the home |\n")
++    linked = "The [`SYNC_RTO_MS_C`](INTEGRATION.md#protocol-constants) Sync watch.\n"
++    arms += 1
++    if copy_findings({"docs/GUIDE.md": linked, CONSTANTS_PAGE: table}, table, fixture):
++        print("docs selftest: linked constant or its home row failed")
++        return 1
++    arms += 1
++    if copy_findings({"docs/GUIDE.md": "```\nsleep 375 ms\n```\n"}, table, fixture):
++        print("docs selftest: fenced command failed")
++        return 1
++    arms += 1
++    if copy_findings({"docs/GUIDE.md": "A 1.375 ms gap and 3,750 ms.\n"}, table, fixture):
++        print("docs selftest: unrelated number failed")
++        return 1
++    for label, copy in (
++        ("plain", "A 375 ms Sync watch."),
++        ("grouped", "A 300,000 ms countdown."),
++        ("converted", "A 20 us threshold."),
++        ("second-converted", "A 300 s countdown."),
++        ("spelled", "The five-minute countdown."),
++        ("rate", "Inside 200 ppm."),
++        ("outside the home", f"{table}\n## Next\n\nA 375 ms watch.\n"),
++    ):
++        arms += 1
++        if not copy_findings({CONSTANTS_PAGE: copy}, table, fixture):
++            print(f"docs selftest: {label} constant copy escaped")
++            return 1
++    usage = {"Shipping": (1000, 1024), "Seeded regression": (1001, 1024)}
++    rom = (f"{ROM_HEADING}\n\n| Image | Words used | Free |\n|---|---|---:|\n"
++           "| Shipping | 1,000 of 1,024 | 24 |\n"
++           "| Seeded regression | 1,001 of 1,024 | 23 |\n")
++    arms += 1
++    if rom_findings(rom, usage):
++        print("docs selftest: true ROM budget failed")
++        return 1
++    arms += 1
++    if not rom_findings(rom.replace("1,000 of", "999 of"), usage):
++        print("docs selftest: drifted ROM count escaped")
++        return 1
++    arms += 1
++    if not rom_findings(rom.replace("| 24 |", "| 25 |"), usage):
++        print("docs selftest: drifted free count escaped")
++        return 1
++    arms += 1
++    if not rom_findings(rom.replace("| Seeded regression |", "| Seeded |"), usage):
++        print("docs selftest: missing ROM row escaped")
++        return 1
++    arms += 1
++    if not rom_findings(rom.replace("1,000 of", "**999** of"), usage):
++        print("docs selftest: formatted ROM count escaped")
++        return 1
++    arms += 1
++    if not rom_findings(rom + "| Shipping | 1,000 of 1,024 | 24 |\n", usage):
++        print("docs selftest: duplicate ROM row escaped")
++        return 1
+     arms += 1
+     if vocabulary_findings(ROOT):
+         print("docs selftest: production vocabulary failed")
+diff --git a/scripts/check_source_evidence.py b/scripts/check_source_evidence.py
+index eda2309..5914ba3 100644
+--- a/scripts/check_source_evidence.py
++++ b/scripts/check_source_evidence.py
+@@ -32,7 +32,7 @@ EXPECTED = {
+     "Six state regions": [(ENGINE, "//                  0  message bank      RO  (parser-written, PING-PONG")],
+     "Stable stalled transmission": [("hdl/wire/KL_gptp_tx_slot.sv", "assign tx_valid_o = ser_run_r && !ser_drop_w;")],
+     "Committed publication": [(ENGINE, "output logic        pub_commit_o,")],
+-    "1,024-word microcode ROM": [(UCPU, "// ------------------------------------------------------------------ ROM")],
++    "Microcode ROM depth": [(UCPU, "// ------------------------------------------------------------------ ROM")],
+     "Sixteen registers": [(UCPU, "// 16 x 64 distributed RAM, 1W3R (SET_MASKED reads rd as well).")],
+     "Registered policy slew level": [
+         (ENGINE, "output logic        phc_slew_active_o,"),
+diff --git a/tb/tsngen/README.md b/tb/tsngen/README.md
+new file mode 100644
+index 0000000..1940c28
+--- /dev/null
++++ b/tb/tsngen/README.md
+@@ -0,0 +1,20 @@
++<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
++# Independent decode suite
++
++This suite cross-checks the engine against independent protocol decoders.
++
++Run it directly:
++
++```sh
++make
++```
++
++Transmitted frames are decoded against external 802.1AS protocol descriptions.
++
++Generated frames drive the engine against a Python model.
++
++Set `TSAGEN_DIR` to the decoder checkout.
++
++Without that checkout the suite skips and returns zero.
++
++See the [test developer guide](../../docs/TEST_DEVELOPER.md).
+diff --git a/tb/verilator/gaskets/README.md b/tb/verilator/gaskets/README.md
+new file mode 100644
+index 0000000..8a68245
+--- /dev/null
++++ b/tb/verilator/gaskets/README.md
+@@ -0,0 +1,20 @@
++<!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
++# Gasket suite
++
++This suite verifies the bench MII gaskets in loopback.
++
++Run it directly:
++
++```sh
++make
++```
++
++The chain mirrors the bench top's transmit and receive path.
++
++Corrupted nibbles prove the frame-check drop arm.
++
++Planted defects then prove its checks load-bearing.
++
++This RTL serves the bench only, never the product engine.
++
++See the [test developer guide](../../../docs/TEST_DEVELOPER.md).

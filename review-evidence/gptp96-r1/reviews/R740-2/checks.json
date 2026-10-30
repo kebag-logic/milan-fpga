@@ -1,0 +1,351 @@
+[
+  {
+    "name": "docs",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0,
+    "expected": "zero",
+    "diagnostic": null,
+    "passed": true
+  },
+  {
+    "name": "contract",
+    "command": [
+      "make",
+      "-j16",
+      "contract"
+    ],
+    "rc": 0,
+    "expected": "zero",
+    "diagnostic": null,
+    "passed": true
+  },
+  {
+    "name": "lint",
+    "command": [
+      "make",
+      "-j16",
+      "lint"
+    ],
+    "rc": 0,
+    "expected": "zero",
+    "diagnostic": null,
+    "passed": true
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check",
+      "135afd04..806957b35c3c23a36505744d205f9692720d19e2"
+    ],
+    "rc": 0,
+    "expected": "zero",
+    "diagnostic": null,
+    "passed": true
+  },
+  {
+    "name": "probe-stale",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "expected": "nonzero",
+    "diagnostic": "SYNC_RTO_MS_C is 376",
+    "passed": true
+  },
+  {
+    "name": "probe-bold-stale",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "expected": "nonzero",
+    "diagnostic": "SYNC_RTO_MS_C value '**376**'",
+    "passed": true
+  },
+  {
+    "name": "probe-negative",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "expected": "nonzero",
+    "diagnostic": "SYNC_RTO_MS_C value '-1'",
+    "passed": true
+  },
+  {
+    "name": "probe-unit-copy",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "expected": "nonzero",
+    "diagnostic": "'375 ms' restates SYNC_RTO_MS_C",
+    "passed": true
+  },
+  {
+    "name": "probe-converted-copy",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "expected": "nonzero",
+    "diagnostic": "'20 us' restates STEP_LINKUP_NS_C",
+    "passed": true
+  },
+  {
+    "name": "probe-broken-rom",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "expected": "nonzero",
+    "diagnostic": "Shipping row '**1,021** of 1,024'",
+    "passed": true
+  },
+  {
+    "name": "probe-duplicate-rom",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 2,
+    "expected": "nonzero",
+    "diagnostic": "duplicate ROM budget row: Shipping",
+    "passed": true
+  },
+  {
+    "name": "constant-P1_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "P1_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-ASCAP_UP_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "ASCAP_UP_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-LOST_N_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "LOST_N_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-LOST_CLEARS_AT_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "LOST_CLEARS_AT_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-NPD_HI_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "NPD_HI_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-NPD_LO_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "NPD_LO_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-SYNC_RTO_MS_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "SYNC_RTO_MS_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-FU_RTO_MS_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "FU_RTO_MS_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-CEASE_N_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "CEASE_N_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-CEASE_MS_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "CEASE_MS_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-STEP_LINKUP_NS_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "STEP_LINKUP_NS_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-STEP_LOCKED_NS_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "STEP_LOCKED_NS_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-SLEW_SETTLED_NS_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "SLEW_SETTLED_NS_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-RATE_PPM_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "RATE_PPM_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-DEPTH",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "DEPTH is ",
+    "passed": true
+  },
+  {
+    "name": "constant-ROM_CID_HI_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "ROM_CID_HI_C is ",
+    "passed": true
+  },
+  {
+    "name": "constant-ROM_GMCAP_BIT_C",
+    "command": [
+      "/usr/bin/python3",
+      "-B",
+      "scripts/check_docs.py"
+    ],
+    "rc": 1,
+    "expected": "nonzero",
+    "diagnostic": "ROM_GMCAP_BIT_C is ",
+    "passed": true
+  },
+  {
+    "name": "restored-control",
+    "command": [
+      "make",
+      "-j16",
+      "docs"
+    ],
+    "rc": 0,
+    "expected": "zero",
+    "diagnostic": null,
+    "passed": true
+  }
+]

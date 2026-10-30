@@ -1,0 +1,59 @@
+{
+  "pr_comment_count": 6,
+  "pr_review_count": 0,
+  "pr_inline_count": 0,
+  "check_runs": {
+    "total_count": 0,
+    "check_runs": []
+  },
+  "manager_pr_comments": [
+    {
+      "id": 6519799225,
+      "html_url": "https://github.com/Mister-M-alt/FPGA-gPTP/pull/97#issuecomment-6519799225",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R739-1\n\nR739 (internal reviewer) reconstructs issue #['96'] / PR #97 at exact head `8607347675743fe8d1ccaa370c63905c5ca1ccd5`, tree `7791e003a4c235379f7dcdb2efc215b22c85c105`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+    },
+    {
+      "id": 6519807111,
+      "html_url": "https://github.com/Mister-M-alt/FPGA-gPTP/pull/97#issuecomment-6519807111",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R740-1\n\nR740 (external reviewer) reconstructs issue #['96'] / PR #97 at exact head `8607347675743fe8d1ccaa370c63905c5ca1ccd5`, tree `7791e003a4c235379f7dcdb2efc215b22c85c105`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+    },
+    {
+      "id": 6520984155,
+      "html_url": "https://github.com/Mister-M-alt/FPGA-gPTP/pull/97#issuecomment-6520984155",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R739-2\n\nR739 (internal reviewer) reconstructs issue #['96'] / PR #97 at exact head `806957b35c3c23a36505744d205f9692720d19e2`, tree `a3920c96afb9a4917515d337514de26ced4857b3`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. Owner decision 2026-09-23: while the previously assigned internal review system is at its usage limit, the internal role runs as a separate cleared-context independent session with its own clone; the two reviews stay independent. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+    },
+    {
+      "id": 6520991799,
+      "html_url": "https://github.com/Mister-M-alt/FPGA-gPTP/pull/97#issuecomment-6520991799",
+      "body": "[A10] INDEPENDENT REVIEW STARTED: R740-2\n\nR740 (external reviewer) reconstructs issue #['96'] / PR #97 at exact head `806957b35c3c23a36505744d205f9692720d19e2`, tree `a3920c96afb9a4917515d337514de26ced4857b3`, in a cleared context from public scope, requirements, diff and evidence, applying all five lenses with a reviewer-owned ledger. No source edits or merge while this review runs; merge still requires two independent positive reviews and the full completion bar.\n"
+    }
+  ],
+  "issue_comments": [
+    {
+      "id": 6518954762,
+      "html_url": "https://github.com/Mister-M-alt/FPGA-gPTP/issues/96#issuecomment-6518954762",
+      "body": "[A707] TAKEN"
+    },
+    {
+      "id": 6519751211,
+      "html_url": "https://github.com/Mister-M-alt/FPGA-gPTP/issues/96#issuecomment-6519751211",
+      "body": "[A707] REVIEW READY 8607347675743fe8d1ccaa370c63905c5ca1ccd5"
+    },
+    {
+      "id": 6520243918,
+      "html_url": "https://github.com/Mister-M-alt/FPGA-gPTP/issues/96#issuecomment-6520243918",
+      "body": "[A10] **Round 2: R739-1 and R740-1 on PR #97. Executor [A707b].**\n\nBoth reviews are NEGATIVE, with MINOR findings only. Fix them all in one round:\n- **R740-1 F1 = R739-1 F3:** wrong claims about publication timing. Correct them against the RTL lines the reviews cite.\n- **R740-1 F2 = R739-1 F4:** stale constants escape the new gate. Extend `scripts/check_docs.py` so that each constant in the table is checked against its source. A planted stale value must fail.\n- **R740-1 F3 = R739-1 F5:** protocol values are still duplicated. Hold each value once, in the constants table, and link to it from every other page.\n- **R740-1 F4 = R739-1 F1:** the Follow_Up clause reference is wrong. Cite the right clause of IEEE 802.1AS-2011 with Cor1/Cor2.\n- **R739-1 F2:** `docs/history/v1/RESOURCE_DELTAS_2026_10.md:32` must link the measurement reports themselves, using label-free visible text, as R739-1 requires. The `docs/history` archive rule is \"preserve commit references for reproducibility\". This one-line repair restores the reference; it adds no new content.\n\nAdd commits on top of `86073476`, with no rebase. Re-run every docs and CI-hygiene gate at the head. A delta review follows.\n"
+    },
+    {
+      "id": 6520396161,
+      "html_url": "https://github.com/Mister-M-alt/FPGA-gPTP/issues/96#issuecomment-6520396161",
+      "body": "[A707b] TAKEN"
+    },
+    {
+      "id": 6520923345,
+      "html_url": "https://github.com/Mister-M-alt/FPGA-gPTP/issues/96#issuecomment-6520923345",
+      "body": "[A707b] REVIEW READY 806957b35c3c23a36505744d205f9692720d19e2"
+    }
+  ],
+  "other_review_read_after_seal": true
+}
