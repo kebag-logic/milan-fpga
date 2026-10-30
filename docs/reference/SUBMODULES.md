@@ -410,6 +410,10 @@ No parameter or register changes.
 
 `KL_reboot_ctrl` resets the end station on it.
 
+The request now rises after the last frame has left the processor, but before it has left the MAC.
+
+So `KL_reboot_ctrl` holds the PHY only once every frame given to the MAC has reached its PHY.
+
 The [reset design](../design/REBOOT_RESET.md) records that decision.
 
 `ucode.hex` changes; the ledger records its row.

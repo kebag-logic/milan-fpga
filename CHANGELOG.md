@@ -58,10 +58,17 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The top adds that one output.
 - `KL_reboot_ctrl` resets the end station on it.
 - It waits up to 10 s for saved state.
+- It then stops the MAC port after the frame in progress.
+- It waits until every frame given to the MAC has reached its PHY.
+- `MilanMAC` flips a frame-end toggle at `phy.sink` for that.
+- The MAC states its buffering; the wait's bound derives from it.
+- The bound is 2 ms on the AX7101 and 11 ms on the Arty.
+- So ENTITY_DEPARTING reaches the wire before the PHY reset.
 - It then holds the PHY reset for 3.5 s.
 - Then it sends IPROG on an ICAPE2 port.
 - The configuration reloads from flash as at power-on.
 - `MilanMAC` instantiates the primitive and the PHY hold.
+- The request to the IPROG word is at most 13,505 ms on the AX7101.
 - No CSR or register field is added.
 - The #396 power area's soft resets are AECP REBOOTs.
 - Each soft reset grades its exchange and the gPTP relock.
