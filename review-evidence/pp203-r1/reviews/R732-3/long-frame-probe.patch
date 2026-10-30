@@ -1,0 +1,140 @@
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -1002,6 +1002,9 @@
+   //! ... and of every frame whose first byte it took after the clock
+   //! `stall_after_t`, while that is 0 or more
+   long stall_after_t = -1;
++  bool probe_hold_body = false;
++  bool probe_hold_eof = false;
++  bool probe_stalled = false;
+   //! the last clock since the last reset that tx_valid_o was 1, taken or
+   //! not; the bytes the MAC took outside a sof-to-eof frame (a sof inside
+   //! one, or a byte between frames); and every TX arbiter lane that asked
+@@ -1680,6 +1683,12 @@
+ 
+   // ---- MAC TX capture ----
+   void capture_mac_tx() {
++    if (in_frame && cur.size() >= 80 && cur[14] == 0xFB
++        && (cur[36] & 0x80) && cur[37] == 0x29 && d->tx_valid_o
++        && (probe_hold_body || (probe_hold_eof && d->tx_eof_o))) {
++      mac_tx_ready = false;
++      probe_stalled = true;
++    }
+     if (stall_tx_at_eof && d->tx_valid_o && d->tx_eof_o) {
+       mac_tx_ready = false;
+       tx_eof_stalled = true;
+@@ -12520,7 +12529,114 @@
+           what);
+   }
+ 
++
++  void long_listener_frame(bool advertise, const char* tag) {
++    boot(advertise,tag);
++    io.d->link_up_i=1; io.idle(50);
++    register_ctlr(C2_MAC, CTLR2_EID,tag);
++    lock(CTLR_MAC,CTLR_EID,true,tag);
++    for(uint16_t k=0;k<8;++k)
++      io.feed(acmp_frame(CTLR_MAC,6,0,0,CTLR_EID,T1_EID,EID,k,k,0,0,uint16_t(0x4C00+k),0,0));
++    io.feed(adp_frame(0,T1_MAC,T1_EID,31,1,GM0,DOM0,0xBBB0000000000001ULL,8,TKCAP,0,0,0x0000C588u,0,0));
++    io.run_ms(20); io.tx_log.clear();
++    io.stall_rbt_ntf_at_eof=true;
++    send(CTLR_MAC,CTLR_EID,AEM_REBOOT,ti(DT_ENTITY,0));
++    for(long c=0;c<500L*MS_CYC && !io.tx_eof_stalled;++c) io.step();
++    CHECK(io.tx_eof_stalled,"%s notification reached held EOF",tag);
++    io.run_ms(5000);
++    io.stall_rbt_ntf_at_eof=false; io.stall_after_t=long(io.t);
++    io.tx_eof_stalled=false; io.mac_tx_ready=true;
++    for(long c=0;c<100L*MS_CYC && !io.tx_eof_stalled;++c) io.step();
++    CHECK(io.tx_eof_stalled && io.cur.size()>15 && io.cur[14]==0xFC,
++          "%s autonomous ACMP in flight after notification",tag);
++    auto held=io.cur; auto byte=io.d->tx_data_o;
++    long start=long(io.cur_sof_t);
++    io.run_ms(2000);
++    CHECK(io.reboot_rise_t<0 && io.d->tx_valid_o && io.d->tx_eof_o && io.d->tx_data_o==byte,
++          "%s request low with non-ADP frame stretched two seconds at EOF",tag);
++    held.push_back(byte);
++    io.stall_after_t=-1; io.mac_tx_ready=true;
++    for(long c=0;c<1000L*MS_CYC && io.reboot_rise_t<0;++c) io.step();
++    io.run_ms(100);
++    long rsp=-1,ntf=-1,dep=-1,last=-1,acmp=-1; int nd=0;
++    for(const auto& e:io.tx_log) {
++      const auto& f=e.second;last=long(e.first);
++      if(aecp(f) && ct(f)==AEM_REBOOT && st(f)==AECP_SUCCESS) {
++        if(f[36]&0x80) ntf=long(e.first);else rsp=long(e.first);
++      }
++      if(f==held) acmp=long(e.first);
++      if(departing(f)){dep=long(e.first);++nd;}
++    }
++    CHECK(rsp>=0 && ntf>rsp && acmp>ntf,"%s SUCCESS, notification, whole held ACMP",tag);
++    CHECK(advertise ? (nd==1 && dep>acmp) : nd==0,"%s departure follows whole non-ADP frame only when advertising",tag);
++    CHECK(io.reboot_rise_t>last && io.tx_offer_t==last && !io.in_frame && io.tx_torn==0,
++          "%s silence after request; no torn frame",tag);
++    printf("%s held bytes=%zu start=%ld end=%ld rsp=%ld ntf=%ld dep=%ld request=%ld\n",
++           tag,held.size(),start,acmp,rsp,ntf,dep,io.reboot_rise_t);
++    CHECK(io.d->reboot_req_o && !io.reboot_fell,"%s request held",tag);
++    io.reset();CHECK(!io.d->reboot_req_o,"%s reset clears request",tag);
++  }
++  void long_counter_frame(bool advertise, const char* tag) {
++    boot(advertise, tag);
++    register_ctlr(C2_MAC, CTLR2_EID, tag);
++    io.tx_log.clear();
++    io.stall_rbt_ntf_at_eof = true;
++    send(CTLR_MAC, CTLR_EID, AEM_REBOOT, ti(DT_ENTITY, 0));
++    for (long c=0; c<500L*MS_CYC && !io.tx_eof_stalled; ++c) io.step();
++    CHECK(io.tx_eof_stalled, "%s required REBOOT notification held",tag);
++    io.d->ctr_change_desc_type_i=0x0005;
++    io.d->ctr_change_desc_index_i=0;
++    io.d->ctr_change_i=1; io.step();
++    io.d->ctr_change_i=0; io.step();
++    io.run_ms(20);
++    io.probe_hold_body=true;
++    io.probe_stalled=false;
++    io.stall_rbt_ntf_at_eof=false;
++    io.mac_tx_ready=true;
++    for (long c=0; c<500L*MS_CYC && !io.probe_stalled; ++c) io.step();
++    CHECK(io.probe_stalled && io.cur.size()==80,
++          "%s long non-ADP counter notification stopped at byte 80 (%zu)",tag,io.cur.size());
++    const long started=long(io.cur_sof_t);
++    const auto data=io.d->tx_data_o;
++    io.run_ms(2000);
++    CHECK(io.reboot_rise_t<0 && io.d->tx_valid_o && io.d->tx_data_o==data,
++          "%s request low during 2-second mid-frame hold; byte stable",tag);
++    io.probe_hold_body=false; io.probe_hold_eof=true; io.probe_stalled=false;
++    io.mac_tx_ready=true;
++    for (long c=0; c<500L*MS_CYC && !io.probe_stalled; ++c) io.step();
++    CHECK(io.probe_stalled && io.cur.size()==173 && io.d->tx_eof_o,
++          "%s 174-byte counter frame held at EOF (%zu bytes accepted)",tag,io.cur.size());
++    io.run_ms(20);
++    CHECK(io.reboot_rise_t<0,"%s request low until non-ADP EOF accepted",tag);
++    io.probe_hold_eof=false; io.mac_tx_ready=true;
++    for (long c=0; c<500L*MS_CYC && io.reboot_rise_t<0; ++c) io.step();
++    io.run_ms(100);
++    long rsp=-1,ntf=-1,dep=-1,last=-1,counter=-1; int nd=0;
++    for (const auto& e:io.tx_log) {
++      const auto& f=e.second; last=long(e.first);
++      if (aecp(f) && ct(f)==AEM_REBOOT && st(f)==AECP_SUCCESS) {
++        if(f[36]&0x80) ntf=long(e.first); else rsp=long(e.first);
++      }
++      if (aecp(f) && ct(f)==0x29 && (f[36]&0x80)) counter=long(e.first);
++      if(departing(f)) {dep=long(e.first);++nd;}
++      printf("%s frame bytes=%zu subtype=%02x end=%ld\n",tag,f.size(),f[14],long(e.first));
++    }
++    CHECK(rsp>=0 && ntf>rsp && counter>ntf,
++          "%s SUCCESS then REBOOT notification then long counter frame",tag);
++    CHECK(advertise ? (nd==1 && dep>counter) : nd==0,
++          "%s departure only if advertising, after notification and whole counter frame",tag);
++    CHECK(io.reboot_rise_t>last && io.tx_offer_t==last && !io.in_frame && io.tx_torn==0,
++          "%s no frame or offered byte at/after request (%ld last=%ld start=%ld)",tag,io.reboot_rise_t,last,started);
++    CHECK(io.d->reboot_req_o && !io.reboot_fell,"%s request held through delayed reset",tag);
++    io.reset(); CHECK(!io.d->reboot_req_o,"%s reset clears request",tag);
++  }
++
+   void run() {
++    long_counter_frame(false,"LONG-NA");
++    long_counter_frame(true,"LONG-ADV");
++    long_listener_frame(false,"HELD-NA");
++    long_listener_frame(true,"HELD-ADV");
++    return;
+     refusals();
+     success_with_notifications();
+     a_held_response_holds_the_request();

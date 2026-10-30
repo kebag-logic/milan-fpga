@@ -1,0 +1,34 @@
+[
+  {
+    "arm": "control reboot",
+    "rc": 0,
+    "verdict": "PASS"
+  },
+  {
+    "arm": "rbt-request-at-acceptance",
+    "patch": "rbt-request-at-acceptance",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 32,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-last-frame-unwatched",
+    "patch": "rbt-last-frame-unwatched",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 11,
+    "named": 1,
+    "verdict": "KILLED"
+  },
+  {
+    "arm": "rbt-last-byte-offered",
+    "patch": "rbt-last-byte-offered",
+    "target": "reboot",
+    "rc": 2,
+    "failures": 7,
+    "named": 1,
+    "verdict": "KILLED"
+  }
+]

@@ -1,0 +1,1 @@
+python3 scripts/check_todo_ownership.py

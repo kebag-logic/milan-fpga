@@ -1,0 +1,41 @@
+# scratch parent records (round 3)
+repository: a committed local clone of milan-fpga dev, origin fetch = the trusted dev clone 1e80128f
+push url: DISABLED-never-push
+dev base: 1e80128f0a467b58bf884b7d9bf62e013a2fb141
+head: b63bd18a6d7d7ecd944a5f5450048d93124fa9ce
+gitlink protocol-processor at head: 013ee63fd42455987ddbbbeb3b66f5af106b5793
+gitlink gptp-processor at head: f97c18035be6ef5345e5af27db2124c5697c1b40
+
+## commits dev..head
+d48fdeb4b9 scratch: pin processor 1fde6ea (issue #203, reboot_req_o unconnected)
+ec54c28756 scratch: pin processor 5fd298c (issue #203, reboot_req_o unconnected)
+65e7503c2f scratch: name the processor's reboot_req_o open in KL_pp_shadow, until milan-fpga #787 wires the reset
+fc9648e360 scratch: ROM digest rows for processor 5fd298c (ooc.sh --record-rom-digests)
+fd02ed112b scratch: list REBOOT in the served inventories (behave SERVED, the feature ledger and its documents)
+6fff40d73b scratch: pin processor 1be824f (issue #203 head, reboot_req_o unconnected)
+2ca58ec07c scratch: ROM digest rows for processor 1be824f (ooc.sh --record-rom-digests)
+ab0b91859a scratch: document the processor pin 1be824f and regenerate the submodule boundaries diagram
+44b9c12f01 scratch: pin processor ec1ff27 (issue #203 round 2, reboot_req_o unconnected)
+3138e758f5 scratch: ROM digest rows for processor ec1ff27 (ooc.sh --record-rom-digests)
+8fb40ef072 scratch: document the processor pin ec1ff27 and regenerate the submodule boundaries diagram
+68d4cc3ad8 scratch: pin processor 013ee63 (issue #203 round 3, reboot_req_o unconnected)
+1c7c258f99 scratch: ROM digest rows for processor 013ee63 (ooc.sh --record-rom-digests)
+b63bd18a6d scratch: document the processor pin 013ee63 and regenerate the submodule boundaries diagram
+
+## this round's commits (round-2 head 8fb40ef0..head)
+68d4cc3ad8 scratch: pin processor 013ee63 (issue #203 round 3, reboot_req_o unconnected)
+1c7c258f99 scratch: ROM digest rows for processor 013ee63 (ooc.sh --record-rom-digests)
+b63bd18a6d scratch: document the processor pin 013ee63 and regenerate the submodule boundaries diagram
+ docs/diagrams/PNG_MANIFEST.json           |   4 ++--
+ docs/diagrams/submodule_boundaries.drawio |   2 +-
+ docs/diagrams/submodule_boundaries.png    | Bin 436960 -> 437877 bytes
+ docs/diagrams/submodule_boundaries.svg    |   2 +-
+ docs/reference/SUBMODULES.md              |   2 +-
+ protocol-processor                        |   2 +-
+ syn/yosys/rom_digests.tsv                 |   2 ++
+ 7 files changed, 8 insertions(+), 6 deletions(-)
+
+## KL_pp_shadow reboot_req_o connection
+hdl/milan/KL_pp_shadow.sv:1254:      .reboot_req_o        (),  // REBOOT request (processor #203), open until milan-fpga #787 wires the reset
+
+## working tree (clean if nothing below)

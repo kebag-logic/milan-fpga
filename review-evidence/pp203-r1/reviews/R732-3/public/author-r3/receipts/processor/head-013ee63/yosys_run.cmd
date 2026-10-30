@@ -1,0 +1,1 @@
+./syn/yosys/run.sh

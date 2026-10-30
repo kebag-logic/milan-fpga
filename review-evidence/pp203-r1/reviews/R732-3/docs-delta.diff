@@ -1,0 +1,281 @@
+diff --git a/docs/00_MILAN_COMPLIANCE_REVIEW.md b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+index 8e3e515..25b6b19 100644
+--- a/docs/00_MILAN_COMPLIANCE_REVIEW.md
++++ b/docs/00_MILAN_COMPLIANCE_REVIEW.md
+@@ -313,8 +313,9 @@ resets, milan-fpga #396, are sent by a controller): REBOOT of ENTITY 0 is implem
+ (IEEE 1722.1-2021 §7.4.43, [06 §6.11](architecture/06_aecp_engine.md#611-reboot)). It
+ answers SUCCESS, notifies the other registered controllers (§7.5.2, Milan §5.4.5.2),
+ sends ENTITY_DEPARTING where the entity was advertising (Milan §5.6.3.5.8,
+-§5.6.3.5.11), and then holds `reboot_req_o` until reset, sending no frame after the
+-final ENTITY_DEPARTING however long the reset is withheld. The reset and the restore
++§5.6.3.5.11), and then, once the last frame it started has left, holds `reboot_req_o`
++until reset, sending no frame after the final ENTITY_DEPARTING (after the request,
++where it was not advertising) however long the reset is withheld. The reset and the restore
+ after it are the integrator's (milan-fpga #787). A REBOOT that selects a MEMORY_OBJECT
+ firmware image is not implemented (`NOT_SUPPORTED`): this build has none.
+ 
+@@ -553,7 +554,7 @@ verification).
+ | REQ-REU-003 | project charter | One core clock domain; MAC boundaries cross via dual-clock FIFOs with frame-atomic handoff | design | A; no check | [GAP-10](#gap-10) | clocking contract; the dual-clock MAC FIFOs are the integrator's, outside the top, and the RX one presents only complete, FCS-good frames (the byte face has no err/abort) | 02 §2 rule 2, 02 §3; integrator guide §1, §3 | — |
+ | REQ-VER-001 | project charter | Requirement↔verification traceability: every REQ row names its Ver category or an explicit non-dynamic marker; release gate = the categories of 09 §3 + the CI gates of 09 §7 | design | A; no check | [GAP-11](#gap-11) | verification plan; the REQ tags in `tb/`, held by `scripts/check-req-tags.py` | 09 §3, 09 §7, 09 §8.10 | — |
+ | REQ-VER-002 | project charter | Single-source generation: ROMs, golden model, stimulus vectors and doc tables all derive from one command model | design | A; no check | [GAP-11](#gap-11) | <!-- AECP ARCH -->Registry: 62 fields, 30 held within their declared scope; 32 held to nothing (containers, rendering and explicit limits). Generated references: gate docstring, 09 §8.11 and PR field reference. Explicitly held to nothing: commands[].engine_status, commands[].oversize, common_status. Status-path claims trust these status exemptions. Every held field has a standing named mutation. F06.14 and ROM status/MVU data are generated; decode/dispatch and sizes are observed or gated. echo_entries membership is held, and its size exemption covers non-SUCCESS answers only. Echo command cdl with a declared floor is held only by echo equality (IDENTIFY_NOTIFICATION also by its unsolicited body); mapping per is held exactly by accepted-offset gcd. Six documented GDI rows have semantic opcode/rtl/gdi fields; name is diagnostic and section/cells render. Still hand-written: ROM programs and layout, field values/order, ACMP ROM, descriptor image, F05.3, F08.1 and reference models. GDI ceilings, opcodes above 0x007F and unswept outcomes are unproven; no golden model or stimulus generator.<!-- /AECP ARCH --> | 09 §1, 09 §8.11 | lint |
+-| REQ-FWX-001 | IEEE §9.3.5.3.3; IEEE §7.4.43, §7.5.2, §6.2.4, §6.2.5.2.2; Milan §5.4.5.2, §5.6.3.5.8, §5.6.3.5.11 (all outside Milan's mandatory command set; IEEE Annex D is informative) | No firmware update, MEMORY_OBJECT operations or AEM checksum; those opcodes take the unknown-opcode path → `NOT_IMPLEMENTED` echo. REBOOT of ENTITY 0 is implemented (issue #203): SUCCESS echoing the command, `BAD_ARGUMENTS` short, `NOT_SUPPORTED` for any other type, `NO_SUCH_DESCRIPTOR` for any other index, `ENTITY_LOCKED` under another controller's lock; on SUCCESS the notification to every other registered controller, ENTITY_DEPARTING where advertising, then `reboot_req_o` held until reset, each after the frames before it have left the transmit path, no command accepted after the SUCCESS, and no frame sent after the final ENTITY_DEPARTING until the reset | shall | A; traced | [GAP-13](#gap-13) | dispatch default; the A_PLD-exit REBOOT routes, `E_RBOOT`, the top's REBOOT sequence and transmit gate | 06 §6, §6.11; 02 F02.10 | DIR |
++| REQ-FWX-001 | IEEE §9.3.5.3.3; IEEE §7.4.43, §7.5.2, §6.2.4, §6.2.5.2.2; Milan §5.4.5.2, §5.6.3.5.8, §5.6.3.5.11 (all outside Milan's mandatory command set; IEEE Annex D is informative) | No firmware update, MEMORY_OBJECT operations or AEM checksum; those opcodes take the unknown-opcode path → `NOT_IMPLEMENTED` echo. REBOOT of ENTITY 0 is implemented (issue #203): SUCCESS echoing the command, `BAD_ARGUMENTS` short, `NOT_SUPPORTED` for any other type, `NO_SUCH_DESCRIPTOR` for any other index, `ENTITY_LOCKED` under another controller's lock; on SUCCESS the notification to every other registered controller, ENTITY_DEPARTING where advertising, then `reboot_req_o` held until reset, each after the frames before it have left the transmit path (the request after the last frame started, of any lane), no command accepted after the SUCCESS, and no frame sent after the final ENTITY_DEPARTING until the reset | shall | A; traced | [GAP-13](#gap-13) | dispatch default; the A_PLD-exit REBOOT routes, `E_RBOOT`, the top's REBOOT sequence and transmit gate, the TX arbiter's `busy_o` | 06 §6, §6.11; 02 F02.10 | DIR |
+ | REQ-DOC-001 | project charter | Every figure an editable artifact (Mermaid/WaveDrom/draw.io) with committed exports, regeneration and staleness gates | design | A; no check | [GAP-14](#gap-14) | Makefile gates, run whole by the CI docs-gates job (`make check`); hand-authored SVG is a listed class held by `make figures` | docs/README §3, 09 §7 | lint |
+ 
+ ## 7. Disposition of findings (F00.2)
+diff --git a/docs/architecture/02_interfaces.md b/docs/architecture/02_interfaces.md
+index 4227682..15405bf 100644
+--- a/docs/architecture/02_interfaces.md
++++ b/docs/architecture/02_interfaces.md
+@@ -135,8 +135,10 @@ Rules (behavioral — no vendor primitives):
+    `reboot_req_o`, a level held from its rise until `rst_n` (F02.10). How the end
+    station resets and restores is the integrator's (milan-fpga #787): it drives
+    `rst_n` and repeats the boot sequence, `restore_go_i` included. From the
+-   REBOOT's SUCCESS to that reset the processor accepts no command, and from its
+-   final ENTITY_DEPARTING it sends no frame, however long the reset is withheld
++   REBOOT's SUCCESS to that reset the processor accepts no command. The request
++   rises only once the last frame the processor started has left, and from its
++   final ENTITY_DEPARTING (from the request, where it was not advertising) it sends
++   no frame, however long the reset is withheld
+    ([06 §6.11](06_aecp_engine.md#611-reboot)).
+ 
+ <a id="sec-02-class-a"></a>
+@@ -579,7 +581,7 @@ internal are consumed inside the processor and add no top-level ports.
+ | `streaming[src]` | 1 | avtp | level | GET_STREAM_INFO(out) derivation | no port: the integrator's STREAM_OUTPUT answers on `gsi` kind 0 (selector 0 flags, selector 6 flags_ex) carry it, and its STREAM_START / STREAM_STOP counters count its edges (§4.6) |
+ | `mc_locked[domain]` | 1 | mclk | level, the integrator's | the integrator's CLOCK_DOMAIN counters | no port: the LOCKED / UNLOCKED counters it drives are `ctr_*` quadlets 0 and 1, mask `0x00000003` (§4.6) |
+ | `identify_active` | 1 | identify handler | out; level | device indicator | `aecp_identify_o` (0 or 255) |
+-| `reboot_req` | 1 | the REBOOT sequence ([06 §6.11](06_aecp_engine.md#611-reboot); issue #203) | out; a LEVEL, 0 from reset, rising once and HELD until `rst_n`, never a pulse. It rises only after a REBOOT's SUCCESS response, its unsolicited notifications and, where the entity was advertising, ENTITY_DEPARTING have each had their last byte taken by the MAC (`tx_valid_o`, `tx_eof_o`, `tx_ready_i`). It does not wait for persistence: `(\|nvm_unflushed_o) \| d3_unflushed_o` (§8.1) does. From its rise to `rst_n` nothing leaves on `tx_*` | the integrator's end-station reset (milan-fpga #787). Unconnected, the entity stays departed, silent, and takes no command until the next reset | `reboot_req_o` |
++| `reboot_req` | 1 | the REBOOT sequence ([06 §6.11](06_aecp_engine.md#611-reboot); issue #203) | out; a LEVEL, 0 from reset, rising once and HELD until `rst_n`, never a pulse. It rises only after a REBOOT's SUCCESS response, its unsolicited notifications and, where the entity was advertising, ENTITY_DEPARTING have each had their last byte taken by the MAC (`tx_valid_o`, `tx_eof_o`, `tx_ready_i`), and after the last frame the processor started, of any producer, has had its last byte taken too: with or without a DEPARTING, no frame is on `tx_*` at its rise. It does not wait for persistence: `(\|nvm_unflushed_o) \| d3_unflushed_o` (§8.1) does. From its rise to `rst_n` no byte is offered on `tx_*` | the integrator's end-station reset (milan-fpga #787). Unconnected, the entity stays departed, silent, and takes no command until the next reset | `reboot_req_o` |
+ | `identify_button` | 1 | pin (optional) | 2FF in the core; debounce by the integrator (Milan §5.4.5.4 leaves its mapping to the user's action vendor-specific) | identification notification ([06 F06.16](06_aecp_engine.md#fig-06-identify)), `identify_button_i` | `identify_button_i` |
+ 
+ ## 7. Class E — management side-port
+diff --git a/docs/architecture/03_packet_engine.md b/docs/architecture/03_packet_engine.md
+index d90543a..9cee44a 100644
+--- a/docs/architecture/03_packet_engine.md
++++ b/docs/architecture/03_packet_engine.md
+@@ -491,7 +491,7 @@ flowchart LR
+ | Frame-atomic | grant holds sof→eof ([F02.4](02_interfaces.md#fig-02-txwave)); no preemption |
+ | Withdrawal | the originator's registered mask reaches the lane queue and the arbiter's pre-start abort one clock after a cancellation is presented. For an immediate cancellation it arrives with the slot's registered release. When another exchange's matched response parks the cancellation, the mask leads that slot's release by one clock and alone withdraws a probe selected in the cancelling clock, before the pool starts it. A frame accepted in the cancelling clock itself is sent, and its slot is freed after its last byte |
+ | Starvation guard | aging promotes any requester older than `T-TX-AGING` to priority 1 |
+-| REBOOT gate | from the clock a REBOOT's last ENTITY_DEPARTING is built to `rst_n` the top masks every request but ADP's (`rbt_tx_open_w`; [06 §6.11](06_aecp_engine.md#611-reboot), issue #203, REQ-FWX-001). A masked request is never granted and a started frame is never cut; after the final ENTITY_DEPARTING nothing is sent until the reset |
++| REBOOT gate | from the clock a REBOOT's last ENTITY_DEPARTING is built to `rst_n` the top masks every request but ADP's (`rbt_tx_open_w`; [06 §6.11](06_aecp_engine.md#611-reboot), issue #203, REQ-FWX-001). A masked request is never granted and a started frame is never cut; after the final ENTITY_DEPARTING nothing is sent until the reset. The REBOOT's request waits for the arbiter's `busy_o` to fall (no frame selected, starting or streaming), so a frame started before the gate closed has left before it, with or without a DEPARTING |
+ | Notification pacing | fan-out engine spaces bursts so ≥ 1 slot/frame-time remains for solicited traffic; counters class additionally rate-limited ≤ 1/descriptor/s |
+ | Destination addressing | AECP: unicast to `src_mac` (or registry MAC for unsolicited). ACMP: **all** responses multicast `91-E0-F0-01-00-00`. ADP: multicast `91-E0-F0-01-00-00`. Identify: multicast `91-E0-F0-01-00-01` (IEEE Annex B). MRPDUs: MSRP `01-80-C2-00-00-0E` / MVRP `01-80-C2-00-00-21` |
+ 
+diff --git a/docs/architecture/04_adp_engine.md b/docs/architecture/04_adp_engine.md
+index 9fe4794..f643953 100644
+--- a/docs/architecture/04_adp_engine.md
++++ b/docs/architecture/04_adp_engine.md
+@@ -163,7 +163,7 @@ stateDiagram-v2
+ | ENTITY_DEPARTING **only** on SHUTDOWN; never on link-down | Milan §5.6.3.5.6/.10 |
+ | GM change ⇒ re-advertise (through DELAY) | Milan §5.6.3.5.7 (GPTP_GM_CHANGED is the integrator's counter, [02 §4.6](02_interfaces.md#sec-02-ctr)) |
+ | DOWN ignores DISCOVER/GM_CHANGE/SHUTDOWN; DELAY ignores DISCOVER/GM_CHANGE | Table 5.51; cell by cell in [F04.7](#fig-04-advcells) |
+-| Held in DOWN until `entity_enable` (boot gate) | Milan §5.6.1. The engine's `entity_enable_i` is the top's **effective** enable, `entity_enable_i && restore_done_o`: the top releases the requested enable only once both restore walks are done ([07 §5.3](07_memory_maps.md#fig-07-nvmflow), the third of its three releases). A REBOOT drops it for good once its SUCCESS response and notifications have left ([06 §6.11](06_aecp_engine.md#611-reboot), issue #203): that fall is the SHUTDOWN, so ENTITY_DEPARTING goes out wherever the machine was advertising, and the top raises `reboot_req_o` after it. Once the DEPARTINGs are built the top's TX arbiter starts no other lane's frame, so they are the last frames until the reset. The talker-discovery machines below are independent of it, and the side port's image-window lock keeps the requested enable |
++| Held in DOWN until `entity_enable` (boot gate) | Milan §5.6.1. The engine's `entity_enable_i` is the top's **effective** enable, `entity_enable_i && restore_done_o`: the top releases the requested enable only once both restore walks are done ([07 §5.3](07_memory_maps.md#fig-07-nvmflow), the third of its three releases). A REBOOT drops it for good once its SUCCESS response and notifications have left ([06 §6.11](06_aecp_engine.md#611-reboot), issue #203): that fall is the SHUTDOWN, so ENTITY_DEPARTING goes out wherever the machine was advertising, and the top raises `reboot_req_o` once it, and any frame started before it, has left. Once the DEPARTINGs are built the top's TX arbiter starts no other lane's frame, so they are the last frames until the reset. The talker-discovery machines below are independent of it, and the side port's image-window lock keeps the requested enable |
+ 
+ <a id="fig-04-advcells"></a>**F04.7 — Advertise SM cells (Milan Table 5.51 and §5.6.3.1–§5.6.3.5.11, each
+ with the IEEE 1722.1-2021 clause it replaces or follows)**
+diff --git a/docs/architecture/06_aecp_engine.md b/docs/architecture/06_aecp_engine.md
+index 3ec2fb5..ae86484 100644
+--- a/docs/architecture/06_aecp_engine.md
++++ b/docs/architecture/06_aecp_engine.md
+@@ -1100,9 +1100,16 @@ byte), for:
+    Figure 6-3), in the Advertising Entity and Interface state machines that §6.2.1
+    introduces; the Discovery state machine of §6.2.6 is the receiving controller's,
+    which removes the entity on it (`rcvdDeparting`, Figure 6-4). The top waits until
+-   ADP has nothing left to build, queue or send.
+-
+-Then `reboot_req_o` rises, and it is held until `rst_n`. It does not wait for
++   ADP has nothing left to build or queue;
++4. the last frame started, of any lane: the TX arbiter is idle (its `busy_o`, from a
++   frame's selection to the MAC taking its last byte), so every frame it started has
++   left. Where the entity advertised, that is the final ENTITY_DEPARTING. A frame
++   another lane selected before the transmit gate closed (below) is sent whole first,
++   with or without a DEPARTING. This wait is taken only with the gate closed and ADP's
++   queue empty, so no frame is being selected either.
++
++Then `reboot_req_o` rises, and it is held until `rst_n`. From its rise to `rst_n` no
++byte is offered on `tx_*`. It does not wait for
+ persistence: a change accepted just before the REBOOT may still be unflushed, and the
+ integrator holds its reset on `(|nvm_unflushed_o) | d3_unflushed_o`
+ ([02 §8.1](02_interfaces.md#81-what-the-integrator-reads-while-a-commit-is-outstanding)).
+@@ -1125,18 +1132,24 @@ them all. That is why the gate waits for the DEPARTINGs to be built: ADP builds
+ the same slots, and closed at the SHUTDOWN, frames already waiting could hold every
+ slot and leave none for the DEPARTING. Until it closes every lane drains, ahead of the
+ DEPARTINGs. An entity that was not advertising has no DEPARTING to build; its gate
+-closes two clocks after the notification round, and a frame granted in those two
+-clocks still goes.
++closes two clocks after the notification round, and a frame selected by then still
++goes, whole, before the request (step 4).
+ 
+ `tb/pp_top` section RBT grades every route byte-exact, the notification, the order of
+ the four events on the wire, the held level, and that no AEM, ACMP or ADP command is
+-answered after the acceptance. RBT9 and RBT10 withhold the reset 75 s and 65 s: the MAC
++answered after the acceptance (RBT7 with every lane still open while the MAC holds the
++response's last byte). RBT9 and RBT10 withhold the reset 75 s and 65 s: the MAC
+ is offered no byte after the final ENTITY_DEPARTING while lock expiry, notifications,
+ CONTROLLER_AVAILABLE, the listener's probes, MAAP and SRP each ask the arbiter to send,
+ and after the reset the entity advertises again. RBT11 has every TX slot taken when the
+-SHUTDOWN comes, and the DEPARTING and the request still follow. `tb/pp_top/aecp_dispatch_mutants.py`
+-plants each route, each wait and each guard, each producer let through the gate, and
+-the gate dropped or narrowed (`tb/pp_top/README.md`).
++SHUTDOWN comes, and the DEPARTING and the request still follow. RBT12 and RBT13 are
++not advertising, with another lane's frame selected as the notification round ends
++(the lock's unlock notification; the listener's probe with every TX slot taken), and
++the MAC holds that frame's last byte: the request stays 0 until the MAC takes it, and
++no byte is offered from the rise through a withheld reset.
++`tb/pp_top/aecp_dispatch_mutants.py` plants each route, each wait and each guard (the
++last frame's wait dropped, or read at its last byte offered instead of taken), each
++producer let through the gate, and the gate dropped or narrowed (`tb/pp_top/README.md`).
+ 
+ ## 7. Registry, notifications, liveness, identify
+ 
+@@ -1487,7 +1500,7 @@ to; they select nothing in the engine.
+ | 0x0018 / 0x0019 SET/GET_CONTROL | real volatile Identify control with values 0 and 255 |
+ | 0x0022 / 0x0023 START/STOP_STREAMING | real started/stopped state on the ACMP binding record (`pp_acmp_pkg.sv`'s `f_started`), which clears on unbind and is projected by the NVM shadow. The dynamic store's selector 6 is RETIRED rather than reused, so there is no second copy. The write-only request region separates capture from completion: success follows the record write or a confirmed no-op, and a bounded request that cannot start reports `ENTITY_MISBEHAVING` without changing the record. The same `st_err` arm also surfaces a descriptor-store write timeout as `ENTITY_MISBEHAVING` for every WRITE_ST user, where it was previously silently ignored. A Stream Output, and every other descriptor type, answers `NOT_SUPPORTED` per Milan Section 5.4.2.19/.20. A state-changing success sends the opcode-specific unsolicited response to every registered controller except the requester, and the Table 5.22 started/stopped change sends GET_STREAM_INFO to every registered controller, the requester included (§7, issue #192). |
+ | 0x0024 / 0x0025 REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | real bounded controller registry |
+-| 0x002A REBOOT | real for ENTITY 0 (§6.11): SUCCESS echoing the command at cdl 16, then the notification to every other registered controller, ENTITY_DEPARTING where the entity was advertising, and the held `reboot_req_o`; no command is accepted after the SUCCESS, and no frame is sent after the final ENTITY_DEPARTING until the reset. `BAD_ARGUMENTS` short of Figure 7-68's four bytes, `NOT_SUPPORTED` for any other type, `NO_SUCH_DESCRIPTOR` for any other index, `ENTITY_LOCKED` under another controller's lock (issue #203) |
++| 0x002A REBOOT | real for ENTITY 0 (§6.11): SUCCESS echoing the command at cdl 16, then the notification to every other registered controller, ENTITY_DEPARTING where the entity was advertising, and, once the last frame started has left, the held `reboot_req_o`; no command is accepted after the SUCCESS, and no frame is sent after the final ENTITY_DEPARTING until the reset. `BAD_ARGUMENTS` short of Figure 7-68's four bytes, `NOT_SUPPORTED` for any other type, `NO_SUCH_DESCRIPTOR` for any other index, `ENTITY_LOCKED` under another controller's lock (issue #203) |
+ | 0x0027 GET_AVB_INFO | real AVB Interface response from the integrator state face; `NO_SUCH_DESCRIPTOR` for an AVB_INTERFACE index the image lacks, `BAD_ARGUMENTS` for a command short of §7.4.40.1's four bytes, and `NOT_SUPPORTED` with the command echoed for any other descriptor_type (§6.10, issue #200) |
+ | 0x0028 GET_AS_PATH | real gPTP path response from the integrator state face |
+ | 0x0029 GET_COUNTERS | real for STREAM_INPUT, STREAM_OUTPUT, AVB_INTERFACE and CLOCK_DOMAIN: SUCCESS + `descriptor_type`/`descriptor_index`/`counters_valid` + all 32 quadlets (payload 136, cdl 148), the values coming from the integrator's counter face; `BAD_ARGUMENTS` on a command short of §7.4.42.1's four bytes |
+diff --git a/docs/guides/integrator.md b/docs/guides/integrator.md
+index b011227..05bb6a3 100644
+--- a/docs/guides/integrator.md
++++ b/docs/guides/integrator.md
+@@ -585,7 +585,7 @@ gate on them per cycle.
+ | `restore_closed_o`, `rs_cause_o[2:0]`, `restore_rb_o`, `restore_cause_o[1:0]` | the D3 walk's CLOSED terminal (never done), its cause (1 torn, 2 device, 3 deadline, 5 passes disagree, 6 descriptor read, 7 image unproven), its roll-back to DEFAULTS; and the binding walk's own cause. |
+ | `aecp_name_wr_o` | one `clk_i` cycle at each accepted live 64-bit name-lane write into the descriptor store. A multi-lane `SET_NAME` pulses once per written lane; unchanged lanes, boot loading, the D3 writer's restore of a saved name, refused/out-of-range commands and writes aborted before acceptance produce no pulse. Earlier accepted writes still count if a command later aborts. Sample at the accepting rising edge; no ready/ack. Leave unused with an explicit `.aecp_name_wr_o()` connection. |
+ | `aecp_nvm_stb_o`, `aecp_nvm_mark_o` | one cycle per committed command that marked a record group, and the group: 1 a dynamic-state field, 6 channel maps, 7 user names. A **completion notification**: it selects no record and is not a persistence trigger. Groups 1 and 7's records are written by the D3 writer from the accepted change itself (group 7's trigger is `aecp_name_wr_o`). Group 6's records, the channel maps, are **yours** (the manager's ruling on processor issue #83): write `0x60`/`0x70` + port from the accepted phase-5 edit beat (`amap_edit_req_o` with `amap_edit_phase_o == 5`), restore them and reset them on a roll-back (§9 step 4, [07 §5.1](../architecture/07_memory_maps.md#51-persisted-vs-volatile-normative-set-req-per-001002)). Your pending covers them; `d3_unflushed_o` never does. |
+-| `reboot_req_o` | a **held level**, 0 from reset (issue #203). It rises once, after a controller's REBOOT of ENTITY 0 was answered SUCCESS and three things have left on `tx_*` (each last byte taken with `tx_ready_i`): that response, the REBOOT's unsolicited notifications to the other registered controllers, and ENTITY_DEPARTING where the entity was advertising. It stays 1 until `rst_n`, so you cannot miss it. From the SUCCESS the processor accepts no command: the AECP engine serves nothing more, and a frame that starts on `rx_*` after it is discarded. From the final ENTITY_DEPARTING nothing leaves on `tx_*` until `rst_n`. It does **not** wait for persistence: to keep a change accepted just before the REBOOT, hold your reset until your pending bit, `(\|nvm_unflushed_o) \| d3_unflushed_o`, reads 0. A MAC that never takes a frame holds it back. Unconnected, a REBOOT leaves the entity departed and deaf until the next reset. |
++| `reboot_req_o` | a **held level**, 0 from reset (issue #203). It rises once, after a controller's REBOOT of ENTITY 0 was answered SUCCESS and three things have left on `tx_*` (each last byte taken with `tx_ready_i`): that response, the REBOOT's unsolicited notifications to the other registered controllers, and ENTITY_DEPARTING where the entity was advertising. It also waits for the last frame the processor started, of any kind, to leave the same way, so no frame is on `tx_*` when it rises and a reset taken on it cuts none. It stays 1 until `rst_n`, so you cannot miss it. From the SUCCESS the processor accepts no command: the AECP engine serves nothing more, and a frame that starts on `rx_*` after it is discarded. From the final ENTITY_DEPARTING, and in any case from its rise, nothing leaves on `tx_*` until `rst_n`. It does **not** wait for persistence: to keep a change accepted just before the REBOOT, hold your reset until your pending bit, `(\|nvm_unflushed_o) \| d3_unflushed_o`, reads 0. A MAC that never takes a frame holds it back. Unconnected, a REBOOT leaves the entity departed and deaf until the next reset. |
+ | `dbg_now_ms_o` | the free-running millisecond timebase |
+ 
+ The status dictionary these implement is catalogued in
+@@ -696,7 +696,8 @@ contract and its coherence bound are [06 F06.13](../architecture/06_aecp_engine.
+    to ADP only once `restore_done_o` is 1. Only then may the entity advertise.
+ 7. **On `reboot_req_o`, reset and start again at step 1** (issue #203; your reset and
+    what it restores are milan-fpga #787). A controller's REBOOT has been answered, the
+-   other registered controllers told, and ENTITY_DEPARTING sent, and the processor
++   other registered controllers told, and ENTITY_DEPARTING sent, every frame the
++   processor started has left (your reset cuts none), and the processor
+    sends nothing more: it waits, accepting no command and transmitting no frame, for
+    your `rst_n`, however long you hold it back. Its lock expiry, notifications,
+    CONTROLLER_AVAILABLE probes, ACMP probes, MAAP and SRP stay silent meanwhile.
+diff --git a/docs/guides/operator.md b/docs/guides/operator.md
+index 19c6129..cfdefb6 100644
+--- a/docs/guides/operator.md
++++ b/docs/guides/operator.md
+@@ -49,7 +49,7 @@ Two things it deliberately does **not** do, and which you should not go looking
+ | `IDENTIFY_NOTIFICATION` sent as a command | `BAD_ARGUMENTS` — the opcode-specific rule of IEEE 1722.1-2021 §7.4.39.2 beats the general fallback of §9.3.5.3.3 |
+ | The user presses the identify button (only in a build with `EN_IDENTIFY_NOTIF_P` = 1 and the button wired) | three unsolicited `IDENTIFY_NOTIFICATION` frames to 91:E0:F0:01:00:01, 150 ms apart, all with the same `sequence_id`, and another three every second while it is held (IEEE 1722.1-2021 §7.5.1). Every press after a release is answered with three, however short: a press made while three are still going out, or within 150 ms of the last one, sends its three 150 ms after that last frame, never sooner, and further presses before then share them. A controller must join that group to see them. The default build sends none |
+ | `ACQUIRE_ENTITY` | `NOT_SUPPORTED`. Milan §5.4.2.1 says acquisition shall never succeed |
+-| `REBOOT` of ENTITY 0 (issue #203) | `SUCCESS` with the command echoed, then an unsolicited REBOOT to every other registered controller, then `ENTITY_DEPARTING` if the entity was advertising, then nothing: it takes no further command and sends no frame, MAAP and SRP included, until the end station resets it (`reboot_req_o`). Any other descriptor type is `NOT_SUPPORTED`, any other index `NO_SUCH_DESCRIPTOR`, a short command `BAD_ARGUMENTS`, and another controller's lock `ENTITY_LOCKED` ([06 §6.11](../architecture/06_aecp_engine.md#611-reboot)) |
++| `REBOOT` of ENTITY 0 (issue #203) | `SUCCESS` with the command echoed, then an unsolicited REBOOT to every other registered controller, then `ENTITY_DEPARTING` if the entity was advertising, then, once a frame it had already started has finished, nothing: it takes no further command and sends no frame, MAAP and SRP included, until the end station resets it (`reboot_req_o`). Any other descriptor type is `NOT_SUPPORTED`, any other index `NO_SUCH_DESCRIPTOR`, a short command `BAD_ARGUMENTS`, and another controller's lock `ENTITY_LOCKED` ([06 §6.11](../architecture/06_aecp_engine.md#611-reboot)) |
+ | `DISCONNECT_TX` | `TALKER_UNKNOWN_ID` for an invalid `talker_unique_id`, otherwise `SUCCESS`; neither changes talker state (Milan §5.5.4.2 step 1, Tables 5.44/5.45) |
+ | `GET_TX_CONNECTION` | `NOT_SUPPORTED`, for the same reason |
+ | A command addressed to another entity | dropped and counted. A command that is an AECP *response* is dropped too — answering a response is how a control plane builds a storm |
+diff --git a/tb/pp_top/README.md b/tb/pp_top/README.md
+index d2acda2..f509b28 100644
+--- a/tb/pp_top/README.md
++++ b/tb/pp_top/README.md
+@@ -1422,14 +1422,15 @@ failed at the lane head.
+ | `gavb-locate-miss-ignored` | E_GAVB's locate-miss branch (E_GAVB + 1) replaced with NOP, so an absent AVB_INTERFACE answers SUCCESS | `V3: GET_AVB_INFO on a missing interface refuses NO_SUCH_DESCRIPTOR` | 1 |
+ | `gavb-padded-refused` | the length gate `cdl != 16` in place of `cdl < 16`, so a padded command is BAD_ARGUMENTS | `V1b: GET_AVB_INFO padded to cdl 20 answers V1's SUCCESS, byte-exact` | 2 |
+ | `gavb-floor-14` | the length floor 16 moved to 14, so a command short of its index reaches the type gate | `V4: short GET_AVB_INFO answers BAD_ARGUMENTS` | 1 |
+-| `rbt-request-at-acceptance` | `reboot_req_o` raised at the engine's acceptance, before the SUCCESS response is sent (issue #203) | `RBT7 reboot_req_o stays 0 while the MAC holds the SUCCESS response's last byte` | 17 |
+-| `rbt-response-unwatched` | the sequence leaves RB_RESP without the response's last byte | `RBT7 reboot_req_o stays 0 while the MAC holds the SUCCESS response's last byte` | 3 |
+-| `rbt-notifications-unwatched` | RB_NTF without the notify block's command work (`ntfy_cmd_busy_w`) | `RBT6 reboot_req_o rises after both notifications left` | 5 |
+-| `rbt-notification-flight-unwatched` | RB_NTF without the unsolicited frame in flight (`tx_fly_uns_r`) | `RBT8 reboot_req_o rises after the response and the notification left` | 3 |
++| `rbt-request-at-acceptance` | `reboot_req_o` raised at the engine's acceptance, before the SUCCESS response is sent (issue #203) | `RBT7 reboot_req_o stays 0 while the MAC holds the SUCCESS response's last byte` | 32 |
++| `rbt-response-unwatched` | the sequence leaves RB_RESP without the response's last byte, so the transmit gate closes while the MAC still holds it (the last frame's wait still holds the request) | `RBT7 every TX lane is open while the MAC holds the SUCCESS response's last byte` | 1 |
++| `rbt-notifications-unwatched` | RB_NTF without the notify block's command work (`ntfy_cmd_busy_w`) | `RBT6 reboot_req_o rises after both notifications left` | 17 |
++| `rbt-notification-flight-unwatched` | RB_NTF without the unsolicited frame in flight (`tx_fly_uns_r`), so the gate closes while the MAC still holds the notification and no other lane's frame follows it | `RBT12 every TX lane is open while the MAC holds the REBOOT notification's last byte` | 10 |
+ | `rbt-no-shutdown` | ADP's effective enable never dropped (`rbt_adp_off_w` 0), so no ENTITY_DEPARTING | `RBT6 one ENTITY_DEPARTING` | 10 |
+-| `rbt-departing-unwatched` | RB_DEP without any of its three conditions | `RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o` | 8 |
+-| `rbt-departing-flight-unwatched` | RB_DEP without the ADP frame in flight (`tx_fly_adp_r`) | `RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o` | 7 |
+-| `rbt-request-pulse` | RB_REQ returns to RB_RUN, so the request is a pulse, not held | `RBT6 reboot_req_o is held from its rise to the end of the run` | 6 |
++| `rbt-departing-unwatched` | RB_DEP without any of its three conditions | `RBT6 ENTITY_DEPARTING leaves after the notifications and before reboot_req_o` | 12 |
++| `rbt-last-frame-unwatched` | RB_DEP without the arbiter's `busy_o`, the last frame started of any lane (was `rbt-departing-flight-unwatched`, ADP's frame alone), so the request rises while another lane's frame, or the DEPARTING, is on `tx_*` (REQ-FWX-001) | `RBT12 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame` | 11 |
++| `rbt-last-byte-offered` | RB_DEP takes the last frame's byte offered (`tx_valid_o && tx_eof_o`) for taken, so the request rises while the MAC holds it | `RBT13 reboot_req_o stays 0 while the MAC holds the last byte of another lane's frame` | 7 |
++| `rbt-request-pulse` | RB_REQ returns to RB_RUN, so the request is a pulse, not held | `RBT6 reboot_req_o is held from its rise to the end of the run` | 9 |
+ | `rbt-rx-gate-dropped` | the top's frame gate removed (`rx_take_w = rx_valid_i`) | `RBT7 ACMP commands that arrive while the response is held get no answer` | 1 |
+ | `rbt-engine-hold-dropped` | the engine's hold removed from `txn_ready_o` and A_IDLE's take | `RBT6 the engine takes the REBOOT and no command after it` | 5 |
+ | `rbt-accept-any-status` | the acceptance latched on any REBOOT response, a refusal's included | `RBT1 REBOOT of 0 payload bytes (cdl 12): BAD_ARGUMENTS: the REBOOT is not accepted and reboot_req_o stays 0` | 33 |
+@@ -1437,21 +1438,21 @@ failed at the lane head.
+ | `rbt-type-gate-dropped` | the ENTITY type gate removed, so every type runs E_RBOOT | `RBT2 REBOOT of MEMORY_OBJECT 0: NOT_SUPPORTED: byte-exact at cdl 16` | 27 |
+ | `rbt-index-unchecked` | E_RBOOT's locate-miss branch (E_RBOOT + 1) replaced with NOP | `RBT3 REBOOT of ENTITY 1: NO_SUCH_DESCRIPTOR: byte-exact at cdl 16` | 20 |
+ | `rbt-lock-unchecked` | E_RBOOT's CHECK_LOCK (E_RBOOT + 2) replaced with NOP | `RBT4 REBOOT of ENTITY 0 under another controller's lock: ENTITY_LOCKED: byte-exact at cdl 16` | 13 |
+-| `rbt-notify-dropped` | E_RBOOT's NOTIFY_ENQ (E_RBOOT + 4) replaced with NOP | `RBT6 the REBOOT notification reaches every other registered controller` | 7 |
+-| `rbt-notification-type` | the class-9 job's REBOOT command_type dropped, so it answers START_STREAMING | `RBT6 the REBOOT notification reaches every other registered controller` | 7 |
+-| `rbt-quiet-gate-dropped` | the transmit gate removed (`rbt_tx_open_w` all ones), so every producer sends after the DEPARTING (REQ-FWX-001) | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 3 |
+-| `rbt-quiet-from-the-request` | the gate closed only with the request (RB_REQ), so a frame waiting while the MAC holds the DEPARTING's last byte follows it | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 1 |
+-| `rbt-quiet-opens-notifications` | the unsolicited AECP lane let through the gate (lock expiry, every notification) | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 2 |
++| `rbt-notify-dropped` | E_RBOOT's NOTIFY_ENQ (E_RBOOT + 4) replaced with NOP | `RBT6 the REBOOT notification reaches every other registered controller` | 19 |
++| `rbt-notification-type` | the class-9 job's REBOOT command_type dropped, so it answers START_STREAMING | `RBT6 the REBOOT notification reaches every other registered controller` | 19 |
++| `rbt-quiet-gate-dropped` | the transmit gate removed (`rbt_tx_open_w` all ones), so every producer sends after the DEPARTING (REQ-FWX-001) | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 4 |
++| `rbt-quiet-from-the-request` | the gate closed only with the request (RB_REQ), so a frame waiting while the MAC holds the DEPARTING's last byte follows it | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 2 |
++| `rbt-quiet-opens-notifications` | the unsolicited AECP lane let through the gate (lock expiry, every notification) | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 3 |
+ | `rbt-quiet-opens-originator` | the originator's lane let through (CONTROLLER_AVAILABLE) | `RBT10 no byte on tx_* after the final ENTITY_DEPARTING` | 1 |
+-| `rbt-quiet-opens-listener` | the listener's lane let through (its probes) | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 2 |
++| `rbt-quiet-opens-listener` | the listener's lane let through (its probes) | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 3 |
+ | `rbt-quiet-opens-maap` | MAAP's lane let through | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 1 |
+-| `rbt-quiet-opens-srp` | SRP's lane let through | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 3 |
++| `rbt-quiet-opens-srp` | SRP's lane let through | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 4 |
+ | `rbt-adp-reenabled` | ADP's enable back on with the request (`rbt_adp_off_w` without RB_REQ), so ADP advertises again | `RBT10 no byte on tx_* after the final ENTITY_DEPARTING` | 2 |
+ | `rbt-quiet-opens-talker-answers` | the talker's answering lane let through, with the frame gate in front of it removed | `RBT10 no byte on tx_* after the final ENTITY_DEPARTING` | 2 |
+ | `rbt-quiet-opens-aecp-answers` | the AECP solicited lane let through, with the frame gate and the engine's hold removed | `RBT9 no byte on tx_* after the final ENTITY_DEPARTING` | 10 |
+ | `rbt-quiet-at-the-shutdown` | the gate closed at the SHUTDOWN (RB_DOWN), before ADP has built its DEPARTING, so the waiting frames keep every TX slot | `RBT11 ENTITY_DEPARTING still leaves, then reboot_req_o` | 2 |
+ | `rbt-quiet-closes-departing` | ADP's lane closed with the others, a required shutdown frame suppressed | `RBT6 one ENTITY_DEPARTING` | 22 |
+-| `rbt-quiet-closes-notifications` | the gate closed from RB_NTF, the REBOOT's notifications suppressed | `RBT6 the REBOOT notification reaches every other registered controller` | 28 |
++| `rbt-quiet-closes-notifications` | the gate closed from RB_NTF, the REBOOT's notifications suppressed | `RBT6 the REBOOT notification reaches every other registered controller` | 42 |
+ | `lk-ssrate-lock-nop` | E_SSRATE's CHECK_LOCK (E_SSRATE+9) replaced with NOP (issue #53) | `LK1 unset rate row, ...: ENTITY_LOCKED byte-exact` | 9 |
+ | `lk-ssrate-miss-lock-nop` | E_SSRATE's locate-miss CHECK_LOCK (SSR_REFUSE) replaced with NOP | `LK4 foreign SET_SAMPLING_RATE on AUDIO_UNIT 3 (absent): ENTITY_LOCKED byte-exact` | 1 |
+ | `lk-sclks-lock-nop` | E_SCLKS's CHECK_LOCK (E_SCLKS+9) replaced with NOP | `LK1 unset clock-source row, ...: ENTITY_LOCKED byte-exact` | 9 |
+@@ -1510,7 +1511,12 @@ writers also fail their whole-body row and the read-back that proves the write
+ landed (M9b3, M9b4, M9b5). The REBOOT arms (issue #203) were counted in their
+ own run at that issue's head, the transmit gate's among them. The frame gate's and the
+ engine's hold arms are named by RBT7 and by the engine's own command count, because the
+-transmit gate leaves RBT6's later answers on no wire; `a5b-reboot-success-arm`, the issue #74 arm that
++transmit gate leaves RBT6's later answers on no wire. The response's and the notification
++round's waits are named by the open gate while the MAC holds that frame (RBT7, RBT12),
++because RB_DEP's wait for the last frame started, of any lane (the arbiter's `busy_o`),
++now holds the request through either loss; `rbt-departing-flight-unwatched` became
++`rbt-last-frame-unwatched` when that wait grew from ADP's frame to every lane's.
++`a5b-reboot-success-arm`, the issue #74 arm that
+ answered REBOOT SUCCESS, is retired with it, because SUCCESS is now the answer
+ (section RBT grades it). Each lock arm's
+ main-path NOP lets the foreign SET write: its byte-exact check, the holder's
+@@ -2662,8 +2668,9 @@ the MAC takes, with the clock of its last byte.
+   stays 0. Released, the response leaves whole and the request follows it. A
+   command queued behind the REBOOT is never served, and an ACMP GET_TX_STATE and
+   GET_RX_STATE that arrive while the byte is held, when every TX lane is still
+-  open, get no answer: the top's frame gate and the engine's hold are graded
+-  where the transmit gate cannot stand in for them.
++  open (`dbg_rbt_tx_open_o`, the gate's lanes, read all open), get no answer:
++  the top's frame gate and the engine's hold are graded where the transmit gate
++  cannot stand in for them.
+ - **RBT8**: an entity not advertising, one controller registered, a padded
+   command (cdl 20): SUCCESS at the response's cdl 16, the notification, no
+   ENTITY_DEPARTING, and the request after both frames.
+@@ -2696,6 +2703,20 @@ the MAC takes, with the clock of its last byte.
+   DEPARTING. The gate closes only once ADP has built its DEPARTING: closed at the
+   SHUTDOWN, the waiting frames would keep every slot and ADP would build nothing
+   (`rbt-quiet-at-the-shutdown`).
++- **RBT12**: not advertising, so no DEPARTING, with another lane's frame
++  selected as the notification round ends. One controller is registered and
++  the requester holds the lock; the MAC holds the REBOOT notification's last
++  byte 1 s (every TX lane still open meanwhile), so the lock expires and its
++  automatic unlock's notification (LOCK_ENTITY, u = 1) waits. Released, that
++  notification is the next frame, and the MAC holds its last byte 20 ms:
++  `reboot_req_o` stays 0. Released, the request rises after that byte, and
++  from the rise through a reset withheld 5 s no byte is offered on `tx_*`
++  (`tx_offer_t` is that frame's last byte), every byte belongs to a whole
++  frame, the request is held, and the reset clears it.
++- **RBT13**: the same with eight sinks bound to a discovered talker and the
++  link up: the MAC holds the REBOOT notification 5 s, no standard TX slot is
++  free at its release, and the next frame, the one held at its last byte, is
++  the listener's CONNECT_TX_COMMAND. The request waits for it the same way.
+ 
+ ## Lane C6: notifications and identify (issues #54, #58, #80, #86)
+ 

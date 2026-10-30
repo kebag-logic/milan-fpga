@@ -1,0 +1,18 @@
+FAIL: LONG-NA request low during 2-second mid-frame hold; byte stable
+FAIL: LONG-NA request low until non-ADP EOF accepted
+LONG-NA frame bytes=60 subtype=fb end=3032
+LONG-NA frame bytes=60 subtype=fb end=5138
+LONG-NA frame bytes=174 subtype=fb end=207317
+FAIL: LONG-NA no frame or offered byte at/after request (5142 last=207317 start=5142)
+LONG-ADV frame bytes=60 subtype=fb end=336464
+LONG-ADV frame bytes=60 subtype=fb end=338570
+LONG-ADV frame bytes=174 subtype=fb end=540749
+LONG-ADV frame bytes=82 subtype=fa end=540834
+FAIL: LONG-ADV no frame or offered byte at/after request (540754 last=540834 start=338574)
+FAIL: HELD-NA request low with non-ADP frame stretched two seconds at EOF
+FAIL: HELD-NA silence after request; no torn frame
+HELD-NA held bytes=70 start=1057189 end=1257259 rsp=557081 ntf=1057185 dep=-1 request=1057189
+FAIL: HELD-ADV silence after request; no torn frame
+HELD-ADV held bytes=70 start=1850056 end=2050126 rsp=1349948 ntf=1850052 dep=2050420 request=2050340
+RBT: 48 checks, 7 failures
+[build default, SRP_DOM_DEF_VID_P 0x0002, DESC_LINE_BYTES_P 576] 48 checks, 7 failures
