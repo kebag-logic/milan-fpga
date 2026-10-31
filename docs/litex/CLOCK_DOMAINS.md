@@ -274,6 +274,12 @@ The CPU DDR path is crossed since #359's fix:
 - LiteX labels every interface's `clock_domain` by default.
 - The label proved nothing; the asynchronous FIFO count did.
 - `sw/litex/test_cpu_memory_port_cdc.py` drives the hook on a stand-in CPU.
+- `AXIReadyStage` follows the crossing since #814.
+- It registers READY on `aw` and `ar`.
+- LiteDRAM's arbitration then stops at a flip-flop.
+- Before it, that path reached the FIFO read addresses.
+- The stage adds no cycle.
+- `sw/litex/test_soc_timing_cuts.py` checks that boundary in the netlist.
 
 See the generated [CDC census](../diagrams/cdc_census.svg).
 Its [generator](../diagrams/cdc_census.gen.py) inventories recognized primitive call sites.
