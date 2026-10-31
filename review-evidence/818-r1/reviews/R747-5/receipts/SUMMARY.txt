@@ -1,0 +1,18 @@
+ci_events_check rc=0 :: ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_events_selftest rc=0 :: selftest: PASS (2199 contract items, 5258 arms)
+doc_paths rc=0 :: doc path gate: OK (1075 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+docs_check rc=0 :: docs_check: 0 finding(s) across 210 md files + 1426 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+doc_style rc=0 :: documentation style: OK (23 current documents)
+em_dash_base_parent rc=0 :: check_em_dash: 0 finding(s) over 73 added line(s) in 6 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [7f4d7eea..HEAD]
+em_dash_base_srcbase rc=0 :: check_em_dash: 0 finding(s) over 114 added line(s) in 8 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [02ca829a..HEAD]
+evidence_pins rc=0 :: 
+gate_check_baseline rc=0 :: baseline PASS: 3 endpoints
+gate_mutants rc=0 :: resource gate mutants: control passes, all 236 mutants fail
+gate_selftest_documented rc=0 :: placement gate: unchanged acceptance schema, record and policy PASS
+gate_selftest rc=0 :: resource gate selftest: 312 arms and 500 generated cases PASS
+gen_toc_anchors rc=0 :: anchor check: 544 existing cross-page fragment links reproduced
+gen_toc_check rc=0 :: TOC gate: OK (149 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+gen_toc_selftest rc=0 :: TOC selftest: PASS (1501/1501 arm(s))
+hygiene_check rc=0 :: HYGIENE RATCHET: PASS (3 population(s), 1299 file(s))
+py_idiom rc=0 ::   over-long line: 0 <= 0
+submodule_docs rc=0 :: submodule documentation: OK (6 exact gitlinks)
