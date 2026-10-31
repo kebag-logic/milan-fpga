@@ -1,0 +1,1 @@
+python3 sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32 --jobs "$CI_CAMPAIGN_JOBS"

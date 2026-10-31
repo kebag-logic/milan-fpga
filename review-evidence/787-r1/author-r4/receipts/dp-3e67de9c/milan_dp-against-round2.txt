@@ -1,0 +1,45 @@
+milan_dp at the merge (13,796 checks) against this lane's round 2 sweep log (13,757; the log round 2 recorded as sha256 ac51e8b8f597b2eb3b19a480228075c8f3e6641e1814991a33724f15a5582761, 2,882,414 bytes)
+
+per tally, round 2 -> merge:
+  202 checks: 202 PASS  ->  210 checks: 210 PASS   CHANGED
+  202 checks: 202 PASS  ->  210 checks: 210 PASS   CHANGED
+  checks: 499   failures  ->  checks: 499   failures
+  checks: 427   failures  ->  checks: 427   failures
+  checks: 61   failures  ->  checks: 61   failures
+  checks: 50   failures  ->  checks: 50   failures
+  checks: 52   failures  ->  checks: 52   failures
+  checks: 688   failures  ->  checks: 711   failures   CHANGED
+  checks: 2098   failures  ->  checks: 2098   failures
+  checks: 2100   failures  ->  checks: 2100   failures
+  checks: 3998   failures  ->  checks: 3998   failures
+  checks: 2098   failures  ->  checks: 2098   failures
+  checks: 33   failures  ->  checks: 33   failures
+  checks: 219   failures  ->  checks: 219   failures
+  checks: 137   failures  ->  checks: 137   failures
+  6 checks: 6 PASS  ->  6 checks: 6 PASS
+
+the dynmap leg's check lines, round 2 (<) against the merge (>), by name and count:
+<       5   [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0)
+>       6   [ok]   [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0)
+>       1   [ok]   [MAPREC] [VOLATILE] the power cycle: the restore reached its terminal and the map restore ended
+<      35   [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])
+<      35   [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0)
+>      37   [ok]   [NVM] ...and holds it valid (PP_NVM_STAT[7])
+>      37   [ok]   [NVM] the backend accepted the window load (PP_NVM_STAT[2] 1, [11] 0)
+>       1   [ok]   [VOLATILE] a first boot over a window holding a saved entity name
+>       1   [ok]   [VOLATILE] IDENTIFY reads 0 after the restore (Milan v1.2 5.3.12)
+>       1   [ok]   [VOLATILE] premise: AECP_STAT0 reads the lock held
+>       1   [ok]   [VOLATILE] premise: B's change notifies A, the registered controller
+>       1   [ok]   [VOLATILE] premise: GET_CONTROL reads IDENTIFY 255
+>       1   [ok]   [VOLATILE] premise: LOCK_ENTITY from A is SUCCESS, locked_id A
+>       1   [ok]   [VOLATILE] premise: REGISTER_UNSOLICITED_NOTIFICATION from A is SUCCESS
+>       1   [ok]   [VOLATILE] premise: SET_CONTROL(IDENTIFY, 255) from A is SUCCESS
+>       1   [ok]   [VOLATILE] premise: SET_NAME from B is refused ENTITY_LOCKED
+>       1   [ok]   [VOLATILE] premise: SET_NAME from B is SUCCESS
+>       1   [ok]   [VOLATILE] premise: the cut lands inside the processor's debounce: the window still holds the saved set
+>       1   [ok]   [VOLATILE] premise: the restore applied the saved entity name
+>       1   [ok]   [VOLATILE] the lock is clear after the restore: AECP_STAT0 reads no lock (Milan v1.2 5.3.4.1)
+>       1   [ok]   [VOLATILE] the lock is clear after the restore: SET_NAME from B is SUCCESS (Milan v1.2 5.3.4.1)
+>       1   [ok]   [VOLATILE] the registry is empty after the restore: B's accepted change notifies no controller (Milan v1.2 5.3.4.2)
+>       1   [ok]   [VOLATILE] the restore applied the saved entity name again, B's unsaved one lost
+>       1   [ok]   [VOLATILE] the restore reached its terminal: PP_STAT done 1, busy 0, fail 0, blank 0

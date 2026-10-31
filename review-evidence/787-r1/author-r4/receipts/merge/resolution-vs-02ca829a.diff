@@ -1,0 +1,156 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+index 53f52adb6e..094e9ab0c1 100644
+--- a/CHANGELOG.md
++++ b/CHANGELOG.md
+@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ 
+ ## Contents
+ 
++- **[Unreleased - AECP REBOOT resets the end station](#unreleased---aecp-reboot-resets-the-end-station)** -- Reloads from flash.
+ - **[Unreleased - gPTP pin 135afd04](#unreleased---gptp-pin-135afd04)** -- A link toggle ends the cease.
+ - **[Unreleased - gPTP pin f97c1803](#unreleased---gptp-pin-f97c1803)** -- Sync loss ages the grandmaster.
+ - **[Unreleased - processor pin f65c8ff7](#unreleased---processor-pin-f65c8ff7)** -- Moved Stream IDs; settled-only stream fields.
+@@ -49,6 +50,34 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
+ - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
+ - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+ 
++## Unreleased - AECP REBOOT resets the end station
++
++- Issue #787 adopts processor `a9e84b66` for its #203.
++- It is processor PR #209's merge commit.
++- REBOOT of ENTITY 0 answers SUCCESS (IEEE 7.4.43).
++- The processor then sends ENTITY_DEPARTING and raises `reboot_req_o`.
++- The top adds that one output.
++- `KL_reboot_ctrl` resets the end station on it.
++- It waits up to 10 s for saved state.
++- It then waits for the MAC to send every frame.
++- `MilanMAC` flips a frame-end toggle at `phy.sink` for that.
++- The MAC states its buffering.
++- The wait's bound derives from it.
++- The bound is 2 ms on the AX7101.
++- It is 11 ms on the Arty.
++- So ENTITY_DEPARTING reaches the wire before the PHY reset.
++- It then holds the PHY reset for 3.5 s.
++- Then it sends IPROG on an ICAPE2 port.
++- The configuration reloads from flash as at power-on.
++- `MilanMAC` instantiates the primitive and the PHY hold.
++- IPROG follows the request by at most 13,505 ms.
++- That bound is the AX7101's.
++- No CSR or register field is added.
++- The #396 power area's soft resets are AECP REBOOTs.
++- Each soft reset grades its exchange and the gPTP relock.
++- The UART smoke grades a reboot with `--after-reboot`.
++- The behave SERVED table lists REBOOT.
++
+ ## Unreleased - gPTP pin 135afd04
+ 
+ - Issue #806 adopts gPTP `135afd04`, PR #95 (gPTP #94).
+diff --git a/docs/design/AREA_BUDGET.md b/docs/design/AREA_BUDGET.md
+index 7115676c25..ee233d6486 100644
+--- a/docs/design/AREA_BUDGET.md
++++ b/docs/design/AREA_BUDGET.md
+@@ -143,6 +143,10 @@ The table is the gate's record.
+ The slice row is the binding limit: the shipping route at FPGA-gPTP `135afd04` ([#806](https://github.com/kebag-logic/milan-fpga/issues/806)) on processor `f65c8ff7` places 15,823 slices, so placement has 27 of 15,850 left.
+ That route meets the build floor at every corner, at +0.032 / +0.034 ns, but its WNS is 0.408 ns under the record's, beyond the gate's 0.25 ns tolerance, so the gate refuses it.
+ Timing recovery is ruled under [#814](https://github.com/kebag-logic/milan-fpga/issues/814)/[#818](https://github.com/kebag-logic/milan-fpga/issues/818); this change meets the build floor at every corner on its best directive.
++The [#787](https://github.com/kebag-logic/milan-fpga/issues/787) route, processor `1be824fc` with the REBOOT reset, places 15,793 slices, so 57 are left.
++Its re-pin to processor `a9e84b66` is routed again after [#814](https://github.com/kebag-logic/milan-fpga/issues/814) merges.
++The resource gate refuses its WNS, +0.107 ns: 0.333 ns under the record's +0.440 ns against a 0.25 ns tolerance, still above the +0.030 ns floor.
++Its worst path is the SoC's SDRAM port arbitration on the 10 ns clock, 13 logic levels into a LiteX FIFO, outside the change.
+ The next growth on the shipping image therefore has no slice room and needs its own owner decision ([the extension](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062)).
+ The record's route leaves 70 slices; the [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) accepted that image's growth, and Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
+ The routed critical setup path has 18 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
+diff --git a/docs/reference/SUBMODULES.md b/docs/reference/SUBMODULES.md
+index a77a8d4fa7..57b5292534 100644
+--- a/docs/reference/SUBMODULES.md
++++ b/docs/reference/SUBMODULES.md
+@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
+ |---|---|---|---|
+ | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
+ | `gptp-processor` | `135afd043309369a87ddbc8d6550aff8ec52a157` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+-| `protocol-processor` | `f65c8ff7c673aaa8e2ea8da654f081ddb13588d8` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
++| `protocol-processor` | `a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+ | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
+ | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
+ | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
+@@ -432,6 +432,80 @@ The best directive meets the build floor at every corner.
+ 
+ Both standalone endpoints equal the record in every figure.
+ 
++Issue #787 adopts processor pin `a9e84b66`.
++
++It is the merge commit of processor PR #209.
++
++That PR carries processor issue #203.
++
++It merged during the lane's second round.
++
++Its tree, `b0f66acb`, is the reviewed head `013ee63f`'s.
++
++The lane pinned `1be824fc`, then `013ee63f`.
++
++Since `013ee63f`, every started frame leaves before the request.
++
++That holds with or without an ENTITY_DEPARTING.
++
++The top's ports and parameters match across all three pins.
++
++FPGA-gPTP stays at `135afd04`.
++
++| Processor issue | Merged PR | Parent-visible result |
++|---|---|---|
++| #203, AECP REBOOT | #209, merge commit `a9e84b66` | REBOOT of ENTITY 0 answers SUCCESS (IEEE 1722.1-2021 7.4.43, Figure 7-68) and notifies the other registered controllers (7.5.2). Where advertising, ENTITY_DEPARTING follows (Milan v1.2 5.6.3.3). Once every frame it started has left, the top holds the new output `reboot_req_o` and serves no further command. Another descriptor type answers NOT_SUPPORTED, a non-zero index NO_SUCH_DESCRIPTOR, a cdl below 16 BAD_ARGUMENTS and another controller's lock ENTITY_LOCKED |
++
++The top adds one output, `reboot_req_o`.
++
++No parameter or register changes.
++
++`KL_pp_shadow` passes it to `milan_datapath`.
++
++`KL_reboot_ctrl` resets the end station on it.
++
++The request rises once frames leave the processor.
++
++They may still be inside the MAC then.
++
++So `KL_reboot_ctrl` first waits for the MAC to empty.
++
++Only then does it hold the PHY in reset.
++
++The [reset design](../design/REBOOT_RESET.md) records that decision.
++
++`ucode.hex` changes; the ledger records its row.
++
++`ltn_rom.hex` is unchanged.
++
++The behave SERVED table lists REBOOT at cdl 16.
++
++`a9e84b66` carries `1be824fc`'s two ROM images, byte for byte.
++
++The route below was measured at `1be824fc`.
++
++Route-1x1 uses 51,828 LUTs, 184 under the record.
++
++It adds 92 FFs and 13 slices.
++
++57 of 15,850 slices remain.
++
++WNS is +0.107 ns, over its floor.
++
++The gate refuses its 0.333 ns fall.
++
++The worst path is the SoC's SDRAM port arbitration.
++
++That path lies outside this change.
++
++Both standalone endpoints pass the gate.
++
++`ooc-1x1` moves -53 LUTs and +7 FFs.
++
++`ooc-8x8` moves +104 LUTs and +16 FFs.
++
++The route is redone at the re-pin after #814 merges.
++
+ The ROM ledger records current and earlier pins.
+ 
+ The boundary diagram follows the current pin.

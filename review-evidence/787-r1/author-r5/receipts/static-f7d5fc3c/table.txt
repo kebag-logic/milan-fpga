@@ -1,0 +1,34 @@
+0 0s check_baseline: python3 syn/ooc/pp_resource_gate.py check-baseline
+0 1s rom_digests_record: bash syn/yosys/ooc.sh --record-rom-digests
+0 0s rom_digests_diff: git diff --exit-code syn/yosys/rom_digests.tsv
+0 0s boundaries_check: python3 docs/diagrams/submodule_boundaries.gen.py --check
+0 1s timesync_check: python3 docs/diagrams/timesync_chain.gen.py --check
+0 0s submodule_docs: python3 scripts/check_submodule_docs.py
+0 0s gptp_docs: python3 scripts/check_gptp_docs.py --with-submodule
+0 4s port_contracts: python3 scripts/check_port_contracts.py
+0 0s naming: python3 scripts/measure_naming.py --check
+0 10s test_evidence: python3 scripts/measure_test_evidence.py --check
+0 0s integrator_params: python3 protocol-processor/scripts/check-integrator-params.py
+0 21s lint: python3 scripts/lint_rtl.py --check
+0 23s lint_selftest: python3 scripts/lint_rtl.py --check --self-test
+APART 0s xvlog: run through the Vivado slot wrapper by xvlog_run.sh
+0 0s sv_idiom: python3 scripts/check_sv_idiom.py
+0 0s sh_idiom: python3 scripts/check_sh_idiom.py
+0 2s cpp_idiom: python3 scripts/check_cpp_idiom.py
+0 3s cpp_idiom_selftest: python3 scripts/check_cpp_idiom.py --selftest
+0 6s py_idiom: python3 scripts/check_py_idiom.py
+0 6s py_idiom_selftest: python3 scripts/check_py_idiom.py --selftest
+0 2s rtl_source_lists: python3 scripts/check_rtl_source_lists.py
+0 3s rtl_source_lists_selftest: python3 scripts/check_rtl_source_lists.py --selftest
+0 1s pp_srcs: python3 scripts/pp_srcs.py --check --selftest
+0 1977s builder_bank: python3 sw/builder/test_builder.py
+0 1s hygiene: python3 scripts/check_hygiene.py --check
+0 2s fail_fast: python3 scripts/measure_fail_fast.py --check
+0 2s todo_ownership: python3 scripts/check_todo_ownership.py
+0 1s module_matrix: python3 docs/traceability/gen_module_matrix.py --check
+0 0s soc_sources: python3 scripts/check_soc_sources.py
+0 1s nvm_capture: python3 scripts/check_nvm_capture.py
+0 1s gptp_docs_plain: python3 scripts/check_gptp_docs.py
+0 1s feature_status: python3 scripts/check_feature_status.py
+0 8s docs_check: python3 scripts/docs_check.py
+STATIC-DONE

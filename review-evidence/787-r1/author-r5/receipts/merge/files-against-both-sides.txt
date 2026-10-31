@@ -1,0 +1,23 @@
+Each file the merge changed, against each side (the lane 3e67de9c, #826 4ee2aa96) and the base 1e80128f:
+ci/image/exec-audit.json: lane unchanged, #826 changed; merge == #826's copy
+docs/litex/CLOCK_DOMAINS.md: lane changed, #826 changed; merge differs from #826's copy
+docs/testing/TESTING.md: lane changed, #826 changed; merge differs from #826's copy
+scripts/run_litex_sims.sh: lane unchanged, #826 changed; merge == #826's copy
+sw/litex/milan_soc.py: lane changed, #826 changed; merge differs from #826's copy
+sw/litex/test_soc_timing_cuts.py: lane unchanged, #826 changed; merge == #826's copy
+
+The CI command table (ci/image/command-table.json), declared script hashes that differ from the file, per tree:
+1e80128f: 32 mismatches
+3e67de9c: 33 mismatches
+4ee2aa96: 33 mismatches
+f7d5fc3c: 34 mismatches
+merge minus lane:
+>   scripts/run_litex_sims.sh
+#826 minus base:
+>   scripts/run_litex_sims.sh
+The table is a reviewed list, not a generated record; #826 itself does not re-record it.
+
+Per file, the merge's change against the lane and #826's change against the base, as patch-ids (equal: the merge applies #826's hunks and nothing else):
+docs/litex/CLOCK_DOMAINS.md: merge-vs-lane 34ba133f1f9a, #826-vs-base 34ba133f1f9a EQUAL
+docs/testing/TESTING.md: merge-vs-lane 185149244a60, #826-vs-base 185149244a60 EQUAL
+sw/litex/milan_soc.py: merge-vs-lane 0c4a4373b394, #826-vs-base 0c4a4373b394 EQUAL

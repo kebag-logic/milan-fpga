@@ -1,0 +1,37 @@
+base: hdl 2161, gptp-processor 125, protocol-processor 1766
+ours: hdl 2180, gptp-processor 125, protocol-processor 1771
+dev: hdl 2162, gptp-processor 127, protocol-processor 1766
+merged: hdl 2181, gptp-processor 127, protocol-processor 1771
+
+committed comment lines:
+1e80128f: # ports per tree: hdl 2158, gptp-processor 125, protocol-processor 1764
+4aa5666e: # ports per tree: hdl 2158, gptp-processor 125, protocol-processor 1764
+02ca829a: # ports per tree: hdl 2162, gptp-processor 127, protocol-processor 1766
+5640e4d7: # ports per tree: hdl 2162, gptp-processor 127, protocol-processor 1766
+3e67de9c: # ports per tree: hdl 2181, gptp-processor 127, protocol-processor 1771
+
+per-file deltas, this lane against base:
+  hdl/milan/KL_pp_shadow.sv: 218 -> 219
+  hdl/milan/KL_reboot_ctrl.sv: 0 -> 14
+  hdl/milan/milan_datapath.sv: 136 -> 140
+  protocol-processor/hdl/adp/KL_adp_engine.sv: 60 -> 61
+  protocol-processor/hdl/aecp/KL_aecp_engine.sv: 183 -> 184
+  protocol-processor/hdl/aecp/KL_aecp_notify.sv: 86 -> 87
+  protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv: 19 -> 20
+  protocol-processor/hdl/top/protocol_processor_top.sv: 214 -> 215
+per-file deltas, dev against base:
+  gptp-processor/hdl/top/KL_gptp_engine.sv: 43 -> 44
+  gptp-processor/hdl/wire/KL_gptp_tx_slot.sv: 15 -> 16
+  hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv: 67 -> 68
+per-file deltas, merged against base:
+  gptp-processor/hdl/top/KL_gptp_engine.sv: 43 -> 44
+  gptp-processor/hdl/wire/KL_gptp_tx_slot.sv: 15 -> 16
+  hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv: 67 -> 68
+  hdl/milan/KL_pp_shadow.sv: 218 -> 219
+  hdl/milan/KL_reboot_ctrl.sv: 0 -> 14
+  hdl/milan/milan_datapath.sv: 136 -> 140
+  protocol-processor/hdl/adp/KL_adp_engine.sv: 60 -> 61
+  protocol-processor/hdl/aecp/KL_aecp_engine.sv: 183 -> 184
+  protocol-processor/hdl/aecp/KL_aecp_notify.sv: 86 -> 87
+  protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv: 19 -> 20
+  protocol-processor/hdl/top/protocol_processor_top.sv: 214 -> 215

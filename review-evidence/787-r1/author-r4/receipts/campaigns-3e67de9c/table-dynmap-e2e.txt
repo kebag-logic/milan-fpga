@@ -1,0 +1,4 @@
+0 0s e2e_inputs_listener: make -C tb/verilator/milan_dp_render ltn_rom.hex ucode.hex tdm8r_aemi.bin
+0 1s e2e_inputs_talker: make -C tb/verilator/capture_coherence ltn_rom.hex ucode.hex
+0 896s dynmap_mutants_e2e_arms: python3 dynmap_mutants.py --jobs 2 36 37
+DYNMAP-E2E-DONE
