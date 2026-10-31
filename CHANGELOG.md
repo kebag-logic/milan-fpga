@@ -101,7 +101,8 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Every corner meets the build floor.
 - The slow corners' WNS is +0.032 ns.
 - The record holds +0.440 ns, tolerance 0.25.
-- The gate refuses that 0.408 ns fall.
+- Before #818 the gate refused that 0.408 ns fall.
+- Under #818 that fall is a WARNING.
 - Timing recovery is ruled under #814/#818.
 - The best directive meets the build floor at every corner.
 - ooc-1x1 and ooc-8x8 equal the record in every figure.

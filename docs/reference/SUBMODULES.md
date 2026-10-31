@@ -422,7 +422,11 @@ That is 0.408 ns under the record.
 
 The record holds +0.440 ns.
 
-The tolerance is 0.25 ns, so the gate refuses.
+The tolerance is 0.25 ns.
+
+Before #818 the gate refused that fall.
+
+Under #818 the fall prints a WARNING and passes.
 
 The slowest path is the SoC's bridge-to-flash path.
 

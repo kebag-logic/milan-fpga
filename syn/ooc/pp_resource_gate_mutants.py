@@ -22,14 +22,14 @@ MUTANTS = {
     "identity comparison": ("    if changed:\n", "    if False:\n"),
     "endpoint kind comparison": ('    if candidate["kind"] != base["kind"]:\n', "    if False:\n"),
     "identical-input refusal": (
-        '    if candidate["inputs_sha256"] == base["inputs_sha256"] and candidate["figures"] != base["figures"]:\n',
-        "    if False:\n"),
-    "identical-input figures": ('candidate["figures"] != base["figures"]:\n',
-                                'candidate["figures"]["LUT"] != base["figures"]["LUT"]:\n'),
+        '        if measured["inputs_sha256"] == base["inputs_sha256"] and measured["identity"]',
+        "        if False and measured[\"identity\"]"),
+    "identical-input figures": ('                and measured["figures"] != base["figures"]:\n',
+                                '                and measured["figures"]["LUT"] != base["figures"]["LUT"]:\n'),
     "resource tolerance": ("    if after - before > tolerance:\n", "    if False:\n"),
     "resource tolerance boundary": ("    if after - before > tolerance:\n", "    if after - before >= tolerance:\n"),
-    "timing floor": ("        if after < floor:\n", "        if False:\n"),
-    "timing floor boundary": ("        if after < floor:\n", "        if after <= floor:\n"),
+    "timing floor": ('or "ok", not missed\n', 'or "ok", True\n'),
+    "timing floor boundary": ("if held[figure] < floor]", "if held[figure] <= floor]"),
     "timing fall": ("        if before - after > tolerance:\n", "        if False:\n"),
     "timing fall boundary": ("        if before - after > tolerance:\n", "        if before - after >= tolerance:\n"),
     "ceiling": ('        if candidate["figures"][figure] > ceiling:\n', "        if False:\n"),
@@ -106,7 +106,8 @@ MUTANTS = {
     "image manifest shape": ("    if not isinstance(images, list) or not all(", "    if False and all("),
     "recipe script uniqueness": ("    if len(kinds) != 1:\n", "    if not kinds:\n"),
     "census header": ('    if not lines or lines[0] != "cell\\tprimitive":\n', "    if False:\n"),
-    "route status of a route": ('    if kind != "route":\n', "    if True:\n"),
+    "route status of a route": ('    if kind != "route":\n        return []\n    reports',
+                                "    if True:\n        return []\n    reports"),
     "one route status report": ("    if len(reports) != 1:\n", "    if not reports:\n"),
     "route status converter": ('.append(whole(value, f"route status row {label!a}"))', ".append(int(value))"),
     "undecodable route status": (
@@ -128,7 +129,7 @@ MUTANTS = {
     "complete route reported": (
         '        lines.append("route status: complete, no unrouted net and no routing error")\n', "        pass\n"),
     "check reads the route status": (
-        '        unrouted = routing(directory, candidate["kind"]) if args.command == "check" else []\n',
+        '        unrouted = across(routes, lambda folder: routing(folder, kind)) if args.command == "check" else []\n',
         "        unrouted = []\n"),
     "refusal exit status": ("{type(error).__name__}: {error}'}\"])\n        return 2\n",
                             "{type(error).__name__}: {error}'}\"])\n        return 0\n"),
@@ -139,8 +140,8 @@ MUTANTS = {
                      '    print(text if True else "".join(char if char == "\\n"'),
     "record --write validated": ("                load(args.baseline, text)  # never write",
                                  "                pass  # never write"),
-    "kind from the directory": ("        candidate = record(directory, kind_of(directory), args.placement)\n",
-                                '        candidate = record(directory, "route", args.placement)\n'),
+    "kind from the directory": ("route_set(directory, kind_of(directory), args.placement,",
+                                'route_set(directory, "route", args.placement,'),
     "unreadable baseline": ('raise Refusal(f"baseline {path} is unreadable: {error}") from error', "raise"),
     "baseline NaN and Infinity": ("parse_constant=constant, ", ""),
     "baseline decimals converted": ("parse_float=decimal,", ""),
@@ -283,10 +284,10 @@ RANK_MUTANTS = {
 #: The gate's reading of a default route's population; the census itself is in PLACEMENT_MUTANTS.
 POPULATION_MUTANTS = {
     "all-fabric population not read": (
-        '        wrong = [] if printing else misplaced(directory, candidate["kind"], args.placement)\n',
+        '        wrong = [] if printing else across(routes, lambda folder: misplaced(folder, kind, args.placement))\n',
         '        wrong = []\n'),
     "all-fabric population judged in a printed record": (
-        "wrong = [] if printing else misplaced(", "wrong = misplaced("),
+        "wrong = [] if printing else across(", "wrong = across("),
     "all-fabric population ignored by check": ('    if wrong:\n        return 2', '    if False:\n        return 2'),
     "all-fabric population ignored by record --write": (
         '            if wrong:\n                raise Refusal', '            if False:\n                raise Refusal'),
@@ -297,6 +298,85 @@ POPULATION_MUTANTS = {
     "missing wrapper root names no role": ('*misplaced(directory, kind, placement)]', ']'),
     "split fuzz refusal removed": ('        if args.placement != "all-fabric":\n            parser.error("--fuzz',
                                    '        if False:\n            parser.error("--fuzz'),
+}
+
+
+#: The route-set rule (#818): selection, the floor at every signoff corner, the fall as a warning and the bindings.
+SET_MUTANTS = {
+    "floor names its corners": (" at {', '.join(missed)}\"]", "\"]"),
+    "a fall never fails": ('or "ok", not missed\n', 'or "ok", not notes\n'),
+    "fall warned beside a floor miss": ("        if before - after > tolerance:\n",
+                                        "        if before - after > tolerance and not missed:\n"),
+    "fall warning summarized beside a floor miss": ('if "WARNING: fell" in verdict',
+                                                    'if verdict.startswith("WARNING")'),
+    "fall warning summarized": ("    if warned:\n", "    if False:\n"),
+    "every junction endpoint read": ("for temp in dict.fromkeys((low, high))}", "for temp in dict.fromkeys((low,))}"),
+    "every corner model read": ("for model in models.split() for temp", "for model in models.split()[:1] for temp"),
+    "one timing grade": ("    if len(grades) != 1 or len(prefixes) != 1:\n", "    if not grades or not prefixes:\n"),
+    "signoff report set required": ("    if len(grades) != 1 or len(prefixes) != 1:\n", "    if len(grades) != 1:\n"),
+    "corners agree with the summary": ("        if worst != figures[figure]:\n", "        if False:\n"),
+    "corners agree in both directions": ("        if worst != figures[figure]:\n",
+                                         "        if worst < figures[figure]:\n"),
+    "corners agree in the other direction": ("        if worst != figures[figure]:\n",
+                                             "        if worst > figures[figure]:\n"),
+    "corners agree for both slacks": ("    for figure in TIMING:\n        worst",
+                                      "    for figure in TIMING[:1]:\n        worst"),
+    "corner refusals of every kind named": ("        except (Refusal, ValueError) as error:\n            raise",
+                                            "        except Refusal as error:\n            raise"),
+    "corner refusals name their report": ('raise Refusal(f"{report}: {error}")', 'raise Refusal(f"{error}")'),
+    "best worst-corner WNS selected": (
+        '    return max(routes, key=lambda route: (route["record"]["figures"]["WNS_ns"], '
+        '-DIRECTIVES.index(route["directive"])))\n', "    return routes[0]\n"),
+    "tie to the recipe's first": ('-DIRECTIVES.index(route["directive"])))', "0))"),
+    "a single route selected alone": ("    if len(routes) == 1:\n        return routes[0]\n", ""),
+    "a set holds the three directives": ("    if comparisons and held != sorted(DIRECTIVES):\n", "    if False:\n"),
+    "a set and a mark exclusive": ("    if bool(comparisons) == marked:\n", "    if not comparisons and not marked:\n"),
+    "a route needs a set or a mark": ("    if bool(comparisons) == marked:\n", "    if comparisons and marked:\n"),
+    "a standalone synthesis takes neither": ("        if comparisons or marked:\n", "        if False:\n"),
+    "a split placement judged alone": ('    if comparisons and placement != "all-fabric":\n', "    if False:\n"),
+    "comparison script bound": (
+        '        if comparison == head[0] + tail.replace(shipped, f"place_design -directive {other}"):\n',
+        "        if True:\n"),
+    "comparison opens the shipping checkpoint": (
+        "    if head is None or Path(head[2]).resolve() != (shipping / CHECKPOINT).resolve():\n",
+        "    if head is None:\n"),
+    "comparison thread setting": ("    if head[1] != threads[0]:\n", "    if False:\n"),
+    "shipping route of the recipe": (" or script.count(shipped) != 1 or shipped not in tail:\n", ":\n"),
+    "comparison flow at its directive": ('            return script.replace(shipped, f"place',
+                                         '            return script or script.replace(shipped, f"place'),
+    "comparison inputs the shipping route's": ("        source = directory if shipping is None else shipping\n",
+                                               "        source = directory\n"),
+    "comparison corners its own": ("return measured, corners(directory, own, figures)",
+                                   "return measured, corners(source, own, figures)"),
+    "every route's identity": ("    for measured in (candidate, *others):\n        changed",
+                               "    for measured in (candidate,):\n        changed"),
+    "every route's identical inputs": ("    for measured in (candidate, *others):\n        if measured[",
+                                       "    for measured in (candidate,):\n        if measured["),
+    "identical inputs at the record's directive": (' and measured["identity"] == base["identity"] \\\n', " \\\n"),
+    "directives compared as one": ('if recipe(base["identity"])[key] != recipe(measured["identity"]).get(key))',
+                                   'if base["identity"][key] != measured["identity"].get(key))'),
+    "only the recipe's directives compared as one": ("            and match[1] in DIRECTIVES else line",
+                                                     "            else line"),
+    "every route's route status": ("across(routes, lambda folder: routing(folder, kind))",
+                                   "across([picked], lambda folder: routing(folder, kind))"),
+    "every route's population": ("across(routes, lambda folder: misplaced(folder, kind, args.placement))",
+                                 "across([picked], lambda folder: misplaced(folder, kind, args.placement))"),
+    "set problems led by their directive": (
+        """    return [(f"{route['directive']}: " if len(routes) > 1 else "") + problem\n""", "    return [problem\n"),
+    "selection named": ("""    return lines + [f"directive {selected['directive']} selected""",
+                        """    return lines + [f"directive selected"""),
+    "marked route named": ("""        return [f"directive {selected['directive']}: the one route, marked""",
+                           """        return [f"directive: the one route, marked"""),
+    "ceiling judged on the selected route": (
+        '        if candidate["figures"][figure] > ceiling:\n',
+        '        if (others[0] if others else candidate)["figures"][figure] > ceiling:\n'),
+    "ceiling not judged on a route not selected": (
+        '        if candidate["figures"][figure] > ceiling:\n',
+        '        if max(measured["figures"][figure] for measured in (candidate, *others)) > ceiling:\n'),
+    "selected route judged and recorded": ('        candidate, kind = picked["record"], picked["record"]["kind"]\n',
+                                           '        candidate, kind = routes[0]["record"], picked["record"]["kind"]\n'),
+    "fuzz marks a route": ('    marked = ("--shipping-selection",) if kind_of(directory) == "route" else ()\n',
+                           "    marked = ()\n"),
 }
 
 
@@ -330,7 +410,7 @@ def run(tmp: Path, here: Path, name: str, target: str, change: tuple[str, str] |
     folder = tmp / name.replace(" ", "_")
     folder.mkdir()
     for sibling in ("pp_resource_gate.py", "pp_baseline_rank.py", "pp_resource_gate_selftest.py",
-                    "pp_placement.py", "pp_placement_selftest.py"):
+                    "pp_resource_gate_set_selftest.py", "pp_placement.py", "pp_placement_selftest.py"):
         shutil.copy2(here / sibling, folder / sibling)
     (folder / target).write_text(changed)
     result = subprocess.run([sys.executable, "-B", str(folder / "pp_resource_gate.py"), "--selftest"],
@@ -348,6 +428,7 @@ def main() -> None:
     jobs = [("control", "pp_resource_gate.py", None),
             *((name, "pp_resource_gate.py", change) for name, change in POPULATION_MUTANTS.items()),
             *((name, "pp_resource_gate.py", change) for name, change in MUTANTS.items()),
+            *((name, "pp_resource_gate.py", change) for name, change in SET_MUTANTS.items()),
             *((name, "pp_baseline_rank.py", change) for name, change in RANK_MUTANTS.items()),
             *((name, "pp_placement.py", change) for name, change in PLACEMENT_MUTANTS.items())]
     with tempfile.TemporaryDirectory(prefix="pp-resource-gate-mutants-") as tmp, \
