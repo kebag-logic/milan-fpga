@@ -3263,6 +3263,12 @@
           "-C",
           "<runtime>",
           "ls-files",
+          "-z"
+        ],
+        [
+          "-C",
+          "<runtime>",
+          "ls-files",
           "-z",
           "*.md"
         ],
@@ -5783,6 +5789,14 @@
         ],
         [
           "scripts/docs_check.py"
+        ],
+        [
+          "scripts/docs_inventory.py",
+          "--check"
+        ],
+        [
+          "scripts/docs_inventory.py",
+          "--selftest"
         ],
         [
           "scripts/gen_hdl_reference.py",
@@ -13680,6 +13694,11 @@
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
       "sha256": "3c1359e6e9e72734ca780c4dca65ed6bbb0cba6aed37b86dafe012c3ec9ad081"
+    },
+    "scripts/docs_inventory.py": {
+      "class": "reviewed non-installing",
+      "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+      "sha256": "72f60bd7a6c9b9e3fadf303aaff568ff1c581025881791de5d74b5014114e72a"
     },
     "scripts/entity_shape_selftest.py": {
       "class": "reviewed non-installing",
