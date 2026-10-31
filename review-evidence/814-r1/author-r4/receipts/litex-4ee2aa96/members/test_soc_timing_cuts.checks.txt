@@ -1,0 +1,26 @@
+test_soc_timing_cuts: the #814 register boundaries on the SoC's sys-domain paths
+  [ok  ] F0 only stage flip-flops drive the PHY's command, ready and chip select and the core's data and ready, and 13 PHY flip-flops read them
+  [ok  ] F1 no AXI-Lite bridge or LiteSPI core flip-flop reaches a PHY flip-flop, and no PHY flip-flop reaches a core flip-flop, through the stage's faces and logic alone
+  [ok  ] F2 the planted wires in place of the stage fail F0 and F1, naming the bridge into the PHY counter (89 forward, 21 back: ['fsm_state -> litespiclkgen_cnt', 'fsm_state -> litespisdrphycore_sr_out_cnt'])
+  [ok  ] F3 reads through the stage return the image: a burst, new bursts and after the burst timeout
+  [ok  ] F4 each flash read takes two more bus cycles in a burst and eight on a new burst (command, address, dummy, data) through the stage (added [8, 2, 2, 2, 8, 2, 8, 8, 2, 2, 8, 8]; wired 40..95 cycles)
+  [ok  ] F5 the PHY takes every command inside its chip select, with the same chip-select edges and commands in the same order as without the stage (30 commands)
+  [ok  ] F6 with each stage output stalled at random and the PHY's command READY waiting LiteSPI's own chip-select delay, the reads return the same words, and the PHY the same chip-select edges and commands in order, with VALID and payload held until taken, and both registered READYs holding beats (12 of 12 words, held cycles tx 74 rx 36, broken holds tx 0 rx 0, 1396 sys cycles)
+  [ok  ] F7 a planted lossy registered READY on the tx stream fails F6 (0 of 12 words, held cycles tx 1 rx 0, broken holds tx 1 rx 0, 10 sys cycles)
+  [ok  ] F7 a planted lossy registered READY on the rx stream fails F6 (0 of 12 words, held cycles tx 4 rx 1, broken holds tx 0 rx 1, 58 sys cycles)
+  [ok  ] D0 the stage feeds the read address of each address crossing FIFO (2 of aw and ar)
+  [ok  ] D1 no flip-flop of LiteDRAM's AXI-to-native converter or core reaches an address crossing FIFO's LUTRAM read address through logic alone
+  [ok  ] D2 the planted wire in place of the stage fails D0 and D1, naming the burst-to-beat counter (76 paths: ['axiburst2beat_beat_count -> memory_adr', 'axiburst2beat_beat_count -> memory_adr'])
+  [ok  ] D3 LiteDRAM's native port sees each write's command, word and full mask, then each read's command, in order, at the addresses written
+  [ok  ] D4 the stage changes nothing the native port sees, cycle for cycle, and adds no cycle to a read (staged [12, 11, 15, 14], wired [12, 11, 15, 14] milan cycles)
+  [ok  ] D5 the stall harness on the wired build: the issued transfers, in order (20 of 20 writes, 12 of 12 reads, held cycles aw 0 ar 0, broken holds aw 0 ar 0, 663 sys cycles)
+  [ok  ] D6 with LiteDRAM's aw and ar READY stalled at random under back-to-back writes, then reads beside writes, the native port sees every write's command and word and every read's command in the order issued, each write and read gets its response, VALID and payload hold until taken, and both registered READYs hold beats (20 of 20 writes, 12 of 12 reads, held cycles aw 131 ar 141, broken holds aw 0 ar 0, 663 sys cycles)
+  [ok  ] D7 a planted lossy registered READY on aw and ar fails D6 (1 of 20 writes, 0 of 12 reads, held cycles aw 0 ar 0, broken holds aw 1 ar 0, 409 sys cycles)
+  [ok  ] Z0 the refresh request is the stage's own flip-flops, and 143 controller flip-flops read it
+  [ok  ] Z1 no LiteDRAM refresher flip-flop reaches a bank-machine or multiplexer flip-flop through the refresh request through logic alone
+  [ok  ] Z2 LiteDRAM's own Refresher in place of the stage fails Z0 and Z1, naming a refresh timer into a bank machine's FIFO level (715 paths: ['refreshtimer_count -> syncfifo_level', 'refreshtimer_count -> syncfifo_level'])
+  [ok  ] Z3 the staged refresher issues LiteDRAM's own precharge-all and refresh commands, each exactly one cycle later at the same spacing (8 commands, first at 788)
+  [ok  ] Z4 with a 6-cycle ZQCS period, the staged refresher issues LiteDRAM's own precharge-all, refresh and ZQCS commands, each exactly one cycle later (ZQCS at [2411, 3193], LiteDRAM's at [2410, 3192])
+  [ok  ] Z5 the stage with its ZQCS timer starting at reset fails Z4: stopped at its first difference after 6 commands, ZQCS at []
+test_soc_timing_cuts: 0 failure(s)
+RESULT: PASS
