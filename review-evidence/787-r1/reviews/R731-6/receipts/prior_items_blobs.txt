@@ -1,0 +1,7 @@
+2528a927 tb/verilator/reboot_ctrl/mutants.py
+43b1fc40 tb/tools/torture_campaign.py
+d2c74f47 hdl/milan/KL_reboot_ctrl.sv
+443c2085 hdl/milan/milan_datapath.sv
+mutants.py:113-114:
+    # the [A10] arms of issuecomment-6518083444: today's PHY hold on the
+    # request alone, a drain that ignores the MAC FIFO, a drain with no bound
