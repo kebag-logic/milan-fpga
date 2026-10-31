@@ -104,6 +104,7 @@ INVENTORY=(
   test_pp_boot_bus_freeze
   test_pp_mem_bridge
   test_retained_cdc_storage
+  test_soc_timing_cuts
 )
 
 TMO="${LITEX_SIM_TIMEOUT:-900}"

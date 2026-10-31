@@ -47,7 +47,7 @@ from qspi_owner_transition import aem_image_binding, bitstream_binding
 
 from migen import (ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal,
                    Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue,
-                   NextState, Memory, Module, Record, READ_FIRST)
+                   NextState, Memory, Module, Record, ResetInserter, READ_FIRST)
 from migen.genlib import fifo as migen_fifo
 from migen.genlib.cdc import MultiReg
 from migen.genlib.record import layout_len
@@ -2450,7 +2450,8 @@ def cross_cpu_memory_ports(cpu: object, cd_from: str, cd_to: str) -> None:
     this wraps the CPU's own method, lets it build its `cd_from` port, and
     replaces each entry with a `cd_to` port fed through LiteX's
     `AXIClockDomainCrossing` (one async FIFO per AXI channel, both
-    directions). Port shape - data width, address width, id width, AXI
+    directions) and then `AXIReadyStage` (#814). Port shape - data width,
+    address width, id width, AXI
     version - is preserved, so LiteX's width conversion and `LiteDRAMAXI2Native`
     see what they saw before. A CPU without `cpu_clk` is left alone: when
     `milan_cd == "sys"` there is nothing to cross, and the simulation SoCs
@@ -2478,18 +2479,150 @@ def cross_cpu_memory_ports(cpu: object, cd_from: str, cd_to: str) -> None:
         """The CPU's own method, then the crossing behind each port it made."""
         original(address_width, data_width)
         for index, cpu_port in enumerate(cpu.memory_buses):
-            sys_port = axi.AXIInterface(
+            crossed, sys_port = (axi.AXIInterface(
                 data_width    = cpu_port.data_width,
                 address_width = cpu_port.address_width,
                 id_width      = cpu_port.id_width,
                 version       = cpu_port.version,
-                clock_domain  = cd_to)
+                clock_domain  = cd_to) for _ in range(2))
             setattr(cpu.submodules, f"memory_port_cdc{index}",
-                    axi.AXIClockDomainCrossing(cpu_port, sys_port,
+                    axi.AXIClockDomainCrossing(cpu_port, crossed,
                                                cd_from=cd_from, cd_to=cd_to))
+            setattr(cpu.submodules, f"memory_port_stage{index}", AXIReadyStage(crossed, sys_port))
             cpu.memory_buses[index] = sys_port
 
     cpu.add_memory_buses = add_memory_buses
+
+
+class AXIReadyStage(Module):
+    """Registered READY on an AXI port's request channels (#814).
+
+    It sits between the CPU memory port's crossing and the port LiteDRAM
+    connects. LiteDRAM's AXI-to-native converter arbitrates its read and write
+    commands for one native port, and its ready is the crossing FIFOs' read
+    enable. So LiteDRAM flip-flops (the burst-to-beat counters, the write
+    buffer level, the bank machines' FIFO levels) reached the FIFOs' LUTRAM
+    read addresses through logic alone (13 to 14 levels, about 80 % routing).
+    That path set the route WNS at two of the recipe's three placement
+    directives on dev 1e80128f, always into the aw or ar FIFO. A LiteX
+    `PipeReady` on aw and ar ends it at a flip-flop: the FIFO's read enable
+    becomes the pipe's registered "empty". The payload still passes in the
+    same cycle and a held beat goes out on the next ready, so the stage adds
+    no cycle, and the AXI handshake keeps its order and its valid-until-ready
+    rule. The w channel passes through: its FIFO's read register had more
+    than 4.1 ns of slack in all three routes, and a 293-bit pipe would cost
+    about 290 flip-flops and multiplexers. The response channels b and r pass
+    through.
+    """
+
+    def __init__(self, master: axi.AXIInterface, slave: axi.AXIInterface) -> None:
+        """The stage between `master` (the crossing's output) and `slave` (LiteDRAM's side)."""
+        for name in ("aw", "ar"):
+            pipe = stream.PipeReady(getattr(master, name).description)
+            setattr(self.submodules, f"{name}_pipe", pipe)
+            self.comb += [getattr(master, name).connect(pipe.sink),
+                          pipe.source.connect(getattr(slave, name))]
+        self.comb += master.w.connect(slave.w)
+        for name in ("b", "r"):
+            self.comb += getattr(slave, name).connect(getattr(master, name))
+
+
+class RegisteredRefresher(Module):
+    """LiteDRAM's own `Refresher`, its request to the controller registered (#814).
+
+    LiteDRAM's refresh FSM drives `cmd.valid` and `cmd.last` from logic, and in
+    DO-REFRESH `cmd.valid` reads the ZQCS timer's compare. The controller gives
+    `cmd.valid` to every bank machine as `refresh_req`, so that timer reached
+    each bank machine's command FIFO through the multiplexer's grant (14 to 16
+    levels, 73 % routing). Registering `valid` and `last` ends the path at a
+    flip-flop. The command fields already leave LiteDRAM's executers from
+    flip-flops and `ready` passes back unchanged. So the controller's grant,
+    and each refresh sequence after it, comes one cycle later.
+
+    LiteDRAM starts a ZQCS only when its ZQCS timer's one-cycle pulse lands on
+    the cycle the refresh sequence ends. That timer runs from reset and
+    re-phases when a ZQCS ends; the register does not delay it. Left alone,
+    the pulse would meet the delayed sequence end one cycle early. At the
+    board's 100 MHz on its DDR3, tREFI is 782 cycles and the ZQCS period
+    10^8, with gcd 2, so an idle controller would never issue ZQCS again
+    (LiteDRAM's own refresher issues its first at 76 s). So the ZQCS timer
+    leaves reset one cycle after the rest. Its later re-phases follow the
+    delayed ZQCS end on their own. On an idle controller every DFI command,
+    precharge-all, REFRESH and ZQCS, is LiteDRAM's own exactly one cycle later,
+    with its own tRP, tRFC and tZQCS spacing. Under traffic the grant waits
+    on the bank machines in both, so whether a ZQCS coincides depends on the
+    traffic in both.
+    """
+
+    def __init__(self, settings: object, clk_freq: float, zqcs_freq: float = 1e0, postponing: int = 1) -> None:
+        """LiteDRAM's `Refresher(settings, clk_freq, zqcs_freq, postponing)` behind the registers."""
+        from litedram.core.refresher import Refresher
+        self.submodules.refresher = refresher = Refresher(settings, clk_freq, zqcs_freq=zqcs_freq,
+                                                          postponing=postponing)
+        self.cmd = cmd = stream.Endpoint(refresher.cmd.description)
+        self.sync += [cmd.valid.eq(refresher.cmd.valid), cmd.last.eq(refresher.cmd.last)]
+        self.comb += [refresher.cmd.connect(cmd, omit={"valid", "last", "ready"}),
+                      refresher.cmd.ready.eq(cmd.ready)]
+        if hasattr(refresher, "zqcs_timer"):    # LiteDRAM builds it only when the module has tZQCS
+            started = Signal()
+            self.sync += started.eq(1)
+            self.comb += ResetInserter()(refresher.zqcs_timer).reset.eq(~started)
+
+
+def add_staged_sdram(soc: SoCCore, name: str, **kwargs: object) -> None:
+    """LiteX's `add_sdram(name, **kwargs)` with the #814 `RegisteredRefresher`.
+
+    LiteDRAM's controller builds its refresher from `ControllerSettings.refresh_cls`.
+    Every other controller setting keeps LiteDRAM's default, as before. A
+    function so `test_soc_timing_cuts.py` builds the controller the SoC builds.
+    """
+    from litedram.core.controller import ControllerSettings
+    soc.add_sdram(name, controller_settings=ControllerSettings(refresh_cls=RegisteredRefresher), **kwargs)
+
+
+class SPIPHYStage(Module):
+    """Registered streams and chip select between LiteSPI's core and its PHY (#814).
+
+    The flash read path ran from the AXI-Lite-to-Wishbone bridge state through
+    the decoder, the origin offset, LiteSPI's burst compare and its mmap FSM,
+    then through the chip select and the command stream into the PHY's
+    clock-generator counter (15 to 19 levels). It set the WNS of the #806 route
+    and of earlier records. A registered Wishbone stage in front of the core
+    left 17 of those levels: most of the path is the mmap FSM and the PHY. So
+    the boundary sits between them. The core-to-PHY command stream and the
+    PHY-to-core data stream each pass a LiteX `stream.Buffer` (registered valid,
+    payload and ready), and the chip select passes a flip-flop. The PHY sees the
+    chip select and the command one cycle later, both together, so a transfer
+    keeps its place inside the chip select. Each transfer costs one more bus
+    cycle each way: two a word in a burst, eight a new burst (command,
+    address, dummy and data).
+    """
+
+    def __init__(self, phy: object) -> None:
+        """The stage in front of `phy`; LiteSPI connects to `sink`, `source` and `cs` here."""
+        self.phy_sink, self.phy_source, self.phy_cs = phy.sink, phy.source, phy.cs
+        self.sink = stream.Endpoint(phy.sink.description)
+        self.source = stream.Endpoint(phy.source.description)
+        self.cs = Signal.like(phy.cs)
+        self.submodules.tx = tx = stream.Buffer(phy.sink.description, pipe_valid=True, pipe_ready=True)
+        self.submodules.rx = rx = stream.Buffer(phy.source.description, pipe_valid=True, pipe_ready=True)
+        self.comb += [self.sink.connect(tx.sink), tx.source.connect(phy.sink),
+                      phy.source.connect(rx.sink), rx.source.connect(self.source)]
+        self.sync += phy.cs.eq(self.cs)
+
+
+def stage_spi_phy(phy: object) -> object:
+    """Put an `SPIPHYStage` in front of `phy` and hand LiteSPI the stage's faces.
+
+    LiteSPI reads only `phy.sink`, `phy.source` and `phy.cs` (and `flash`,
+    `dummy_bits`), so those three move to the stage and the PHY keeps its
+    own, behind it. The stage becomes the PHY's submodule `stage`, so the
+    PHY's CSR names are unchanged.
+    """
+    stage = SPIPHYStage(phy)
+    phy.submodules.stage = stage
+    phy.sink, phy.source, phy.cs = stage.sink, stage.source, stage.cs
+    return phy
 
 
 def pp_mem_gate(m: Module, dfi_sel: Signal) -> Signal:
@@ -3134,7 +3267,7 @@ class MilanSoC(SoCCore):
                 sys_clk_freq   = sys_clk_freq,
                 iodelay_clk_freq = 200e6)
             dram_module = (MT41K128M16 if board == "arty" else MT41J256M16)
-            self.add_sdram("sdram",
+            add_staged_sdram(self, "sdram",
                 phy    = self.ddrphy,
                 module = dram_module(sys_clk_freq, "1:4"),
                 # The product profile is cacheless end to end.
@@ -3655,6 +3788,28 @@ class MilanSoC(SoCCore):
         # off, so the default build is untouched; see CtrlMailbox).
         if ctrl_mailbox:
             add_ctrl_mailbox(self, platform, sys_clk_freq)
+
+    def add_spi_flash(self, phy: object = None, **kwargs: object) -> None:
+        """LiteX's `add_spi_flash(**kwargs)`, with the #814 `SPIPHYStage` in front of the PHY.
+
+        Without `phy`, it builds the PHY LiteX would build from the same
+        arguments: the same divisor, pads and `LiteSPIPHY`. A caller's own PHY
+        (a simulation's device model) is staged as well, so every SoC built
+        from this class carries the stage.
+        """
+        if phy is None:
+            import math
+            from litespi.phy.generic import LiteSPIPHY
+            named = {"name": "spiflash", "mode": "4x", "clk_freq": 20e6, "module": None, "rate": "1:1",
+                     "number": None, "software_debug": False}
+            arg = {key: kwargs.get(key, default) for key, default in named.items()}
+            divisor = math.ceil(self.sys_clk_freq / arg["clk_freq"])
+            divisor += divisor % 2 if arg["rate"] == "1:1" else 0
+            pads = self.platform.request(arg["name"] if arg["mode"] == "1x" else arg["name"] + arg["mode"],
+                                         number=arg["number"])
+            phy = LiteSPIPHY(pads, arg["module"], device=self.platform.device, default_divisor=divisor,
+                             rate=arg["rate"], **{key: value for key, value in kwargs.items() if key not in named})
+        return SoCCore.add_spi_flash(self, phy=stage_spi_phy(phy), **kwargs)
 
     def _add_flashboot_constants(self, manifest_name):
         """Emit the product flash constants and deployment manifest."""

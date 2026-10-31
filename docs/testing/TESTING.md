@@ -720,6 +720,41 @@ every channel exactly between a 50 MHz-shaped source and a 100 MHz-shaped
 sink, while the pre-#359 direct connection across the same clocks loses or
 duplicates beats.
 
+`test_soc_timing_cuts.py` (#814) grades the three register boundaries on the
+SoC's `sys` paths that set the route WNS. It builds each path on the real
+LiteX, LiteSPI and LiteDRAM code with the shipping call: `MilanSoC.add_spi_flash`
+behind an AXI-Lite master on the Wishbone bus, and `cross_cpu_memory_ports`
+and `add_staged_sdram` under LiteX's `add_sdram`. Its structural arms walk the
+elaborated migen netlist from each endpoint back to the flip-flops that feed it
+through logic alone. No AXI-Lite bridge or LiteSPI core flip-flop may reach a
+PHY flip-flop through the stage between them, and no PHY flip-flop a core
+flip-flop. No LiteDRAM converter or core flip-flop may reach an address
+crossing FIFO's LUTRAM read address. No LiteDRAM refresher flip-flop may
+reach a bank-machine or multiplexer flip-flop through the refresh request.
+The same builds with each stage replaced by wires, or by LiteDRAM's own
+refresher, must fail those arms. The failures must name the bridge state into
+the PHY counter, the burst-to-beat counter into the FIFO address and a
+refresh timer into a bank machine's FIFO level. Its behaviour arms read the
+flash image through the stage at exactly two more bus cycles a word in a
+burst and eight on a new burst, every command inside its chip select. They
+require LiteDRAM's native port to see the same handshakes, cycle for cycle,
+with the DRAM stage and without it, and LiteDRAM's own precharge-all and
+refresh commands each exactly one cycle later at the same spacing. With the
+ZQCS period cut to 6 cycles, which keeps the shipping period's gcd of 2 with
+tREFI, the precharge-all, refresh and ZQCS commands must each be LiteDRAM's
+own one cycle later. The run holds two ZQCS, the second after the ZQCS timer
+has re-phased at the first one's end. The stage with its ZQCS timer starting
+at reset, which issues no ZQCS there, must fail that arm. Then each stage's output is stalled
+at random: LiteDRAM's `aw` and `ar` READY, under back-to-back writes and then
+reads beside writes; the flash PHY's command READY, behind LiteSPI's own
+chip-select delay; and the core's flash data READY. The transfers must be the
+issued ones, in order, with VALID and payload held until taken, and each
+registered READY must hold beats. A planted lossy registered READY on each of
+those streams must fail. The DRAM arms grade the native port's transfers and
+one response a request, not read data: on the test's model PHY setup the DFI
+write burst goes out masked, so every read returns zero with or without the
+stage.
+
 `test_retained_cdc_storage.py` (#640 lane M2) covers the seven retained SoC
 crossing arrays: both MAC crossings and the five CSR channel FIFOs, built by
 `milan_soc` with their RAM-friendly storage. The MAC crossings come from a
