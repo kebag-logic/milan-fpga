@@ -184,6 +184,13 @@ DYNAMIC_EXEC_INVENTORY = {
         "reads a C `#define` bit expression out of the firmware source. Guarded "
         "by `re.fullmatch(r'[0-9A-Fa-fxX()~|&^<>+\\-\\s]*')` and a second pass "
         "refusing any residual identifier, with `__builtins__` emptied.",
+    "sw/builder/endstation_builder.py":
+        "evaluates MilanMAC's REBOOT egress statement (#787) - its named FIFO "
+        "depths, framing octets, PHY tables and `_mac_tx_egress_octets` - out of "
+        "milan_soc.py, so the builder states what the SoC binds without a second "
+        "copy of the arithmetic. Guarded by `ast.walk` of the extracted definitions "
+        "against `_REBOOT_MAC_NODES` (literals, names, integer arithmetic, one "
+        "conditional), with `__builtins__` emptied.",
     "sw/litex/test_ctrl_memory.py":
         "rebuilds one function or class of ctrl_memory.py or milan_soc.py, both "
         "already imported, from its own `inspect.getsource` text with one edit "

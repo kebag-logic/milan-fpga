@@ -659,11 +659,12 @@ verdicts and for check counts.
 | [`tb/verilator/nvm_cosim`](../../tb/verilator/nvm_cosim) | the same contract's ORDERINGS, with the FIRMWARE in the loop: the shipping `KL_nvm_backend` and the shipping writer compiled for the host, against the real donor producer path at the pinned revision. Every mutant the contract page names must be killed by the ONE check the page names for it; a 2-bit capture identity must alias where 16 bits must not; a capture whose identity wraps to 0 must be acknowledged like any other, graded at 2 identity bits, the minimum the backend's elaboration contract admits (`make wrap`); and with `LEGACY_DIR` a pre-contract backend and writer must reproduce the three historical defects |
 | [`tb/verilator/pair_fill`](../../tb/verilator/pair_fill) | `KL_pair_blend` + `KL_pair_zero_fill` |
 | [`tb/verilator/pcmlpf`](../../tb/verilator/pcmlpf) | — |
-| [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) | **the control plane.** `milan_datapath` with the protocol processor elaborated in: presence + the `PP_STAT` `0x5B` tag, RX classify → FIFO → serializer → validator on a real ADP `ENTITY_DISCOVER`, the classifier rejecting non-control traffic, the side port answering with the processor's own `KLPP` magic, the class-D fabric face moving (`adp_next_avail_index_o` advances), the MAAP adapter refusing safely and granting, and a global `accepted == answered` anti-wedge invariant. It carries **no** `-Wno-*` at all, so every warning is fatal. Needs the public HTTPS `protocol-processor` and `gptp-processor` submodules, the second one through `milan_dp`'s source list |
+| [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) | **the control plane.** `milan_datapath` with the protocol processor elaborated in: presence + the `PP_STAT` `0x5B` tag, RX classify → FIFO → serializer → validator on a real ADP `ENTITY_DISCOVER`, the classifier rejecting non-control traffic, the side port answering with the processor's own `KLPP` magic, the class-D fabric face moving (`adp_next_avail_index_o` advances), the MAAP adapter refusing safely and granting, a global `accepted == answered` anti-wedge invariant, and section `[RB]`: an AECP REBOOT on the wire, its SUCCESS response, notification and ENTITY_DEPARTING graded whole and in order at a MAC model's wire-side output before the PHY hold, then the hold and the IPROG words at the datapath ports, with and without advertising and with a dead transmit clock (#787; `make reboot-mutant` plants six arms, among them an early request, the PHY hold on the request alone, an egress wait that ignores the MAC FIFO and one with no bound, and requires `[RB]` to fail on each). It carries **no** `-Wno-*` at all, so every warning is fatal. Needs the public HTTPS `protocol-processor` and `gptp-processor` submodules, the second one through `milan_dp`'s source list |
 | [`tb/verilator/ptp`](../../tb/verilator/ptp) | PHC arithmetic vs an independent reference model, in **two elaborations**. The default `PPS_P=0` shape adds the option-off proof that `pps_o` is a structural zero while the PPS inputs are driven. The `PPS_P=1` shape (`pps_main.cpp`) grades the #260 output: twelve pulses on an ABSOLUTE `base + k*1e9` grid rather than pulse-to-pulse spacing, each within one counter increment of its boundary, the stretcher exactly `PPS_WIDTH_CYC_P` wide, and three negative controls  -  a fine fractional addend must move the edge in ticks and not in ns, the runtime enable alone must gate the pin, and enable arriving before the arm (the CDC order the one-word `PTP_PPS_CTRL` write produces) must emit no pulse and leave the target unadvanced |
 | [`tb/verilator/ptp_sync`](../../tb/verilator/ptp_sync) | the CSR↔PHC crossing, in **two elaborations**. Both grade the settime/adjtime payload alignment and the snapshot return; the `PPS_P=1` `obj_pps` leg adds the #260 alarm crossing: the enable reaches `ts_clk`, the arm lands as exactly one pulse with its 64-bit target already captured, and the live target publishes back to `aclk` on the free-running beat. A target that does not land with its arm pulse arms the comparator at a **stale boundary**, which is a pulse at the wrong time rather than a dead pin, so the default leg proves the parked arm holds a structural zero under the same stimulus |
 | [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) | `ptp_ts_top`'s record pipeline (its interference harness, unchanged), then **#372's representative bound-assertion target**: `axis_mux_rr_2in_1out` alone at TDATA_WIDTH 8 and 64, with the checker in `tb/common/sva/` bound by module name. An independent scoreboard grades every beat and round-robin order, 21 non-vacuous witness pairs are graded against the harness's port counts (15 equality checks, 2 floors, 4 presence checks), and `sva_campaign.py` makes every property fail on a defect written against it, with assertions-disabled, mistyped-bind, swapped-port and unused-path controls that the harness must refuse and the detection check must fail ([assertion guide](ASSERTIONS.md)) |
 | [`tb/verilator/queues`](../../tb/verilator/queues) | — |
+| [`tb/verilator/reboot_ctrl`](../../tb/verilator/reboot_ctrl) | `KL_reboot_ctrl`, the end-station reset on an AECP REBOOT (#787): every drain exit; the egress account that keeps the PHY hold off until every frame given to the MAC has reached its PHY; the drain, egress and PHY-hold bounds against the documented 10,000 ms, the derived egress bound and 3,500 ms at three tick phases and two MAC statements, with the stated bound to the IPROG word; the eight IPROG words bit-reversed per byte on the ICAPE2 port, the retry, a one-clock request and resets during the hold and the words; `make` then runs 30 planted mutants, the request ignored first, each caught by its named check. The datapath-level path from the wire is `pp_shadow` section `[RB]` |
 | [`tb/verilator/render_queue`](../../tb/verilator/render_queue) | `KL_render_queue`, the #632 listener presentation stage, byte-exact against a reference model of the law: each event in the frame its timestamp names (rounded to the nearest), each interface reading the frame its out-lead names, the late (judged per event, a PDU stamped behind the latest event included: `[behind]`, to the late reach and one frame past it), too-early and untimed rules with their counters (and `refused_o`, the PDUs with a late or too-early event `RENDER_STAT` reads, once each), a frame read once a lap, a flush, the slips, the 32-bit timestamp wrap, PDUs of 40, 300 and 504 events and the observability taps, for channel counts of 8, 6, 3, 2, 1 and 12, run on a two-stream, two-interface 8-lane shape and on the shipping one-stream, one-interface shape at 7 lanes (an odd count: the pad lane is a virtual channel) -- and a twenty-six-mutant arm that proves every one of those checks can fail. The datapath-level law rides `milan_dp_render`'s pins and `milan_dp`'s true-ratio leg, each with its own mutant arm |
 | [`tb/verilator/rx_filter`](../../tb/verilator/rx_filter) | — |
 | [`tb/verilator/shaper_core`](../../tb/verilator/shaper_core) | FQTSS/arbitration, incl. the gPTP-not-starved measurement |
@@ -1065,6 +1066,7 @@ Include AAF and CRF; observe every declared stream index.
 Complete 200 unattended cycles.
 100 are idle cold cuts and 50 are cold cuts inside a journal commit.
 The other 50 are soft resets with power held on.
+Each soft reset is the controller's AECP REBOOT of ENTITY 0 (IEEE 1722.1-2021 7.4.43, #787).
 A soft reset never stands in for a cold cut.
 These numbers are project release policy, not Milan-prescribed durations.
 
@@ -1659,10 +1661,22 @@ A bare pending snapshot without that evidence can still fail, but never pass.
 A snapshot passed with an idle cut or a soft reset is ignored.
 
 A soft reset keeps the DUT outlet ON before and after the reset.
-Record its mechanism, the outlet state and the reset command's timestamp.
-Its T0 is that reset command's host monotonic timestamp.
+The controller sends REBOOT of ENTITY 0; the DUT answers SUCCESS and reloads its configuration from flash.
+The [reset design](../design/REBOOT_RESET.md) states what that reload resets and its bound.
+Record the command's timestamp, the outlet state and the wire capture of the exchange.
+Its T0 is that command's host monotonic timestamp.
 Every post-cycle bound in the table below runs from that T0, as for a cut.
 No power-off hold applies to a reset.
+Two checks are the soft reset's alone.
+`check_release_reboot` grades `power.reboot-reset`.
+It needs the SUCCESS response, then ENTITY_DEPARTING, then the DUT's link down within 11 s of T0.
+`check_release_gptp_relock` grades `power.gptp-relock`.
+It needs asCapable again within the boot observation window.
+Both measured link delays must also stay within 40 ns of their pre-reset readings.
+The peer computes its delay from the DUT's Pdelay_Resp transmit timestamp.
+The DUT computes its own from its Pdelay_Req transmit timestamp.
+That is how a wrong TX timestamp after the reset shows (IEEE 802.1AS-2011 11.2.15).
+The 40 ns tolerance is provisional until the bench's pre-reset spread ratifies it.
 Milan v1.2 5.5.1.4 expects automatic recovery from "a power cycle or a simple reset".
 
 | Measurement | Origin and required bound |
@@ -1743,6 +1757,7 @@ Retain [Section 6b](#6b-bench-evidence-retention) artifacts plus these campaign-
 - serialized plan, topology, persistence inventory, and verdict JSONL;
 - timestamped snapshots, controller exchanges, and power-cut phase evidence;
 - the reset command log, with the outlet state, for every soft reset;
+- every soft reset's REBOOT exchange and link drop in the wire capture, and its gPTP readings before and after;
 - the soak's counter reads, with the reads at each planted window's edges, and its planted-event log;
 - each commit cut's pending snapshot, commit window and cut instant;
 - complete UART transcripts, wire captures, and the temperature log;

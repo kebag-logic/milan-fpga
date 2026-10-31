@@ -22,7 +22,7 @@ Dirty submodules invalidate local evidence.
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
 | `gptp-processor` | `135afd043309369a87ddbc8d6550aff8ec52a157` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `f65c8ff7c673aaa8e2ea8da654f081ddb13588d8` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `protocol-processor` | `a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
@@ -422,7 +422,11 @@ That is 0.408 ns under the record.
 
 The record holds +0.440 ns.
 
-The tolerance is 0.25 ns, so the gate refuses.
+The tolerance is 0.25 ns.
+
+Before #818 the gate refused that fall.
+
+Under #818 the fall prints a WARNING and passes.
 
 The slowest path is the SoC's bridge-to-flash path.
 
@@ -431,6 +435,86 @@ Timing recovery is ruled under #814/#818.
 The best directive meets the build floor at every corner.
 
 Both standalone endpoints equal the record in every figure.
+
+Issue #787 adopts processor pin `a9e84b66`.
+
+It is the merge commit of processor PR #209.
+
+That PR carries processor issue #203.
+
+It merged during the lane's second round.
+
+Its tree, `b0f66acb`, is the reviewed head `013ee63f`'s.
+
+The lane pinned `1be824fc`, then `013ee63f`.
+
+Since `013ee63f`, every started frame leaves before the request.
+
+That holds with or without an ENTITY_DEPARTING.
+
+The top's ports and parameters match across all three pins.
+
+FPGA-gPTP stays at `135afd04`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #203, AECP REBOOT | #209, merge commit `a9e84b66` | REBOOT of ENTITY 0 answers SUCCESS (IEEE 1722.1-2021 7.4.43, Figure 7-68) and notifies the other registered controllers (7.5.2). Where advertising, ENTITY_DEPARTING follows (Milan v1.2 5.6.3.3). Once every frame it started has left, the top holds the new output `reboot_req_o` and serves no further command. Another descriptor type answers NOT_SUPPORTED, a non-zero index NO_SUCH_DESCRIPTOR, a cdl below 16 BAD_ARGUMENTS and another controller's lock ENTITY_LOCKED |
+
+The top adds one output, `reboot_req_o`.
+
+No parameter or register changes.
+
+`KL_pp_shadow` passes it to `milan_datapath`.
+
+`KL_reboot_ctrl` resets the end station on it.
+
+The request rises once frames leave the processor.
+
+They may still be inside the MAC then.
+
+So `KL_reboot_ctrl` first waits for the MAC to empty.
+
+Only then does it hold the PHY in reset.
+
+The [reset design](../design/REBOOT_RESET.md) records that decision.
+
+`ucode.hex` changes; the ledger records its row.
+
+`ltn_rom.hex` is unchanged.
+
+The behave SERVED table lists REBOOT at cdl 16.
+
+`a9e84b66` carries `1be824fc`'s two ROM images, byte for byte.
+
+The route below was measured at `1be824fc` with FPGA-gPTP `f97c1803`.
+
+Route-1x1 uses 51,828 LUTs, 184 under the record.
+
+It adds 92 FFs and 13 slices.
+
+57 of 15,850 slices remain.
+
+WNS is +0.107 ns, over its floor.
+
+Before #818 the gate refused its 0.333 ns fall.
+
+The worst path is the SoC's SDRAM port arbitration.
+
+That path lies outside this change.
+
+Both standalone endpoints pass the gate.
+
+`ooc-1x1` moves -53 LUTs and +7 FFs.
+
+`ooc-8x8` moves +104 LUTs and +16 FFs.
+
+The re-pin route carries the #814 cuts.
+
+Its best directive has WNS +0.365 ns.
+
+It uses 52,021 LUTs; 63 slices remain.
+
+The #818 gate passes it.
 
 The ROM ledger records current and earlier pins.
 

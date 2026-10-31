@@ -349,6 +349,41 @@ Feature: The torture campaign's own coverage is auditable at a desk
     And power repeats 100 idle and 50 journal-commit cold cuts and 50 soft resets
     And release assertions require complete measured evidence
 
+  # Issue #787: the 50 soft resets are the controller's AECP REBOOT of ENTITY 0
+  # (IEEE 1722.1-2021 7.4.43), and each is graded on its own exchange and on
+  # the gPTP relock with correct TX timestamps (IEEE 802.1AS-2011 11.2.15).
+  @class:release @clause:REQ-VER-06
+  Scenario: every soft reset is an AECP REBOOT, graded on its exchange and the gPTP relock
+    When the power release area is planned
+    Then the soft resets send an AECP REBOOT of ENTITY 0 and require SUCCESS
+    And the soft resets owe the REBOOT exchange and the gPTP relock, and the cold cuts do not
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the REBOOT oracle refuses a soft reset that did not happen
+    When a soft reset's REBOOT exchange shows <defect>
+    Then the REBOOT oracle grades it <verdict>
+
+    Examples:
+      | defect                        | verdict |
+      | nothing                       | PASS    |
+      | a status other than SUCCESS   | FAIL    |
+      | no ENTITY_DEPARTING           | FAIL    |
+      | a link still up after 11 s    | FAIL    |
+      | an incomplete capture         | NOT RUN |
+
+  @class:release @clause:REQ-VER-06 @negative-control
+  Scenario Outline: the gPTP relock oracle refuses wrong TX timestamps after a soft reset
+    When a soft reset's gPTP readings show <defect>
+    Then the gPTP relock oracle grades it <verdict>
+
+    Examples:
+      | defect                              | verdict |
+      | nothing                             | PASS    |
+      | no asCapable by the deadline        | FAIL    |
+      | the peer's link delay moved 50 ns   | FAIL    |
+      | the DUT's link delay moved 50 ns    | FAIL    |
+      | an unlocked pre-reset reading       | NOT RUN |
+
   @class:release @clause:REQ-VER-06
   Scenario: the power cycle mix adds up to 200
     When the power release area is planned
@@ -389,6 +424,8 @@ Feature: The torture campaign's own coverage is auditable at a desk
       | power.idle           | power.state-restored     | dropped    |
       | power.journal_commit | power.single-boot        | downgraded |
       | power.soft_reset     | power.adp-valid-time     | dropped    |
+      | power.soft_reset     | power.reboot-reset       | dropped    |
+      | power.soft_reset     | power.gptp-relock        | downgraded |
 
   @class:release @clause:REQ-VER-06 @clause:Milan-Table-5.6 @negative-control
   Scenario Outline: the soak counters admit no growth and no unplanted unlock
