@@ -1,0 +1,20 @@
+## blob/mode at head
+100644 blob 07dd9680f76186899a4ccdf8ad89f990ec0eadd0	tests/steps/torture_release_steps.py
+100644 07dd9680f76186899a4ccdf8ad89f990ec0eadd0 0	tests/steps/torture_release_steps.py
+07dd9680f76186899a4ccdf8ad89f990ec0eadd0
+## tail bytes head
+0000020   m   i   t   _   r   e   s   u   l   t  \n                   a
+0000040   s   s   e   r   t       a   c   t   u   a   l       =   =    
+0000060   v   e   r   d   i   c   t   ,       d   e   t   a   i   l  \n
+0000100
+## parent blob tail
+0000000   e   r   d   i   c   t   ,       d   e   t   a   i   l  \n  \n
+0000020
+## parent minus last byte == head?
+identical
+## sizes
+51884
+51883
+## py_compile
+py_compile ok
+rc=0
