@@ -325,6 +325,10 @@ python3 scripts/check_submodule_docs.py
 python3 scripts/check_submodule_docs.py --selftest
 python3 docs/diagrams/timesync_chain.gen.py --check
 python3 docs/diagrams/timesync_chain.gen.py --selftest
+python3 docs/diagrams/endstation_definition.gen.py --check
+python3 docs/diagrams/endstation_definition.gen.py --selftest
+python3 sw/builder/gen_key_reference.py --check
+python3 sw/builder/gen_key_reference.py --selftest
 python3 scripts/check_diagram_pngs.py
 python3 scripts/check_diagram_pngs.py --selftest
 python3 scripts/check_archive.py

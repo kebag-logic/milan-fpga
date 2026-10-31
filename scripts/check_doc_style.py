@@ -23,6 +23,7 @@ DOCUMENTS = (
     ROOT / "docs" / "guides" / "SYSTEM_INTEGRATOR.md",
     ROOT / "docs" / "guides" / "PROJECT_MANAGER.md",
     ROOT / "docs" / "guides" / "BOARD_DEPLOYMENT.md",
+    ROOT / "docs" / "guides" / "DEFINING_THE_END_STATION.md",
     ROOT / "docs" / "guides" / "gptp" / "HDL_DEVELOPER.md",
     ROOT / "docs" / "guides" / "gptp" / "TEST_DEVELOPER.md",
     ROOT / "docs" / "guides" / "gptp" / "SYSTEM_INTEGRATOR.md",
