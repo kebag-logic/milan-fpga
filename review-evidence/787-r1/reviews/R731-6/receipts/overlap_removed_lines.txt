@@ -1,0 +1,21 @@
+Lines REMOVED from live dev e5b8405 by the candidate, per overlap file:
+== CHANGELOG.md: -0 +29
+== docs/design/AREA_BUDGET.md: -1 +5
+-Timing recovery is ruled under [#814](https://github.com/kebag-logic/milan-fpga/issues/814)/[#818](https://github.com/kebag-logic/milan-fpga/issues/818); this change meets the build floor at every corner on its best dir
+== docs/integration/BUILDING.md: -1 +3
+-`IPROG` bit read after a first boot is a different fault, not this one.
+== docs/reference/SUBMODULES.md: -1 +81
+-| `protocol-processor` | `f65c8ff7c673aaa8e2ea8da654f081ddb13588d8` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+== docs/litex/CLOCK_DOMAINS.md: -0 +5
+== docs/testing/TESTING.md: -3 +18
+-| [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) | **the control plane.** `milan_datapath` with the protocol processor elaborated in: presence + the `PP_STAT` `0x5B` tag, RX classify → FIFO → serializer → vali
+-Record its mechanism, the outlet state and the reset command's timestamp.
+-Its T0 is that reset command's host monotonic timestamp.
+== sw/litex/milan_soc.py: -7 +103
+-        # no PHY in the stub: static toggles keep the link guard unarmed/inert
+-    `dp_ports` is the dict of `milan_datapath` Instance ports this MAC drives  -  pass
+-    it as `MilanNIC(..., board_ports=mac.dp_ports)`.
+-                                       with_preamble_crc=True, with_padding=True))
+-                                    payload_depth=512, param_depth=8,
+-                self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
+-                                          phy_model=("mii" if board == "arty" else "gmii"),
