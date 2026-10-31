@@ -1,0 +1,26 @@
+route-1x1 at 0d4a899f, per-corner WNS / WHS ns from author-r4 receipts/route-0d4a899f/route-1x1-<dir>-timing-design-tables.txt; floors WNS >= 0.030, WHS >= 0
+== ASLH
+alinx_ax7101_signoff_Fast_0C_timing.rpt 1.583 0.035
+alinx_ax7101_signoff_Fast_85C_timing.rpt 1.583 0.035
+alinx_ax7101_signoff_Slow_0C_timing.rpt 0.126 0.087
+alinx_ax7101_signoff_Slow_85C_timing.rpt 0.126 0.087
+alinx_ax7101_signoff_all_timing.rpt 0.126 0.035
+       # of nets with routing errors.......... :           0 :
+== EPPO
+alinx_ax7101_signoff_Fast_0C_timing.rpt 1.522 0.031
+alinx_ax7101_signoff_Fast_85C_timing.rpt 1.522 0.031
+alinx_ax7101_signoff_Slow_0C_timing.rpt 0.322 0.058
+alinx_ax7101_signoff_Slow_85C_timing.rpt 0.322 0.058
+alinx_ax7101_signoff_all_timing.rpt 0.322 0.031
+       # of nets with routing errors.......... :           0 :
+== ETO
+alinx_ax7101_signoff_Fast_0C_timing.rpt 1.583 0.036
+alinx_ax7101_signoff_Fast_85C_timing.rpt 1.583 0.036
+alinx_ax7101_signoff_Slow_0C_timing.rpt 0.406 0.099
+alinx_ax7101_signoff_Slow_85C_timing.rpt 0.406 0.099
+alinx_ax7101_signoff_all_timing.rpt 0.406 0.036
+       # of nets with routing errors.......... :           0 :
+== git diff --stat 0d4a899f..4ee2aa96
+ docs/testing/TESTING.md          |  16 +-
+ sw/litex/test_soc_timing_cuts.py | 397 +++++++++++++++++++++++++++++++++++----
+ 2 files changed, 379 insertions(+), 34 deletions(-)

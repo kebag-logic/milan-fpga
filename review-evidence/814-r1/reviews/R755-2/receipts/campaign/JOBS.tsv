@@ -1,0 +1,40 @@
+head_test	PYTHONHASHSEED=0 <litex-env>/venv/bin/python3 test_soc_timing_cuts.py
+r756_axi_ar_unstaged	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/r756_mutate_timing_cuts.py <clone>/sw/litex axi_ar_unstaged
+r756_axi_lossy_ready	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/r756_mutate_timing_cuts.py <clone>/sw/litex axi_lossy_ready
+r756_axi_pipevalid	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/r756_mutate_timing_cuts.py <clone>/sw/litex axi_pipevalid
+r756_spi_cs_comb	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/r756_mutate_timing_cuts.py <clone>/sw/litex spi_cs_comb
+r756_spi_tx_no_pipe_ready	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/r756_mutate_timing_cuts.py <clone>/sw/litex spi_tx_no_pipe_ready
+r756_spi_tx_lossy_ready	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/r756_mutate_timing_cuts.py <clone>/sw/litex spi_tx_lossy_ready
+r756_spi_rx_lossy_ready	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/r756_mutate_timing_cuts.py <clone>/sw/litex spi_rx_lossy_ready
+r756_ref_last_comb	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/r756_mutate_timing_cuts.py <clone>/sw/litex ref_last_comb
+r756_ref_ready_registered	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/r756_mutate_timing_cuts.py <clone>/sw/litex ref_ready_registered
+r756_ref_no_last	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/r756_mutate_timing_cuts.py <clone>/sw/litex ref_no_last
+author4_axi_dropheld	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/mutants_round4.py <clone>/sw/litex axi_dropheld
+author4_spi_tx_dropheld	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/mutants_round4.py <clone>/sw/litex spi_tx_dropheld
+author4_spi_rx_dropheld	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/mutants_round4.py <clone>/sw/litex spi_rx_dropheld
+author4_ref_zqcs_done_delayed	<litex-env>/venv/bin/python3 -I <author-r4-evidence>/scripts/mutants_round4.py <clone>/sw/litex ref_zqcs_done_delayed
+r2_ref-undelayed	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant ref-undelayed
+r2_ref-donedelay	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant ref-donedelay
+r2_ref-hold2	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant ref-hold2
+r2_ref-holdrefresh	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant ref-holdrefresh
+r2_axi-dropheld	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant axi-dropheld
+r2_axi-dropheld-aw	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant axi-dropheld-aw
+r2_axi-dropheld-ar	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant axi-dropheld-ar
+r2_axi-duphold	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant axi-duphold
+r2_axi-validwait	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant axi-validwait
+r2_spi-tx-dropheld	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant spi-tx-dropheld
+r2_spi-rx-dropheld	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant spi-rx-dropheld
+r2_spi-tx-duphold	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant spi-tx-duphold
+r2_spi-rx-duphold	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant spi-rx-duphold
+r2_spi-tx-validwait	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> mutant spi-tx-validwait
+validdep_axi-validwait	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> validdep axi-validwait
+validdep_spi-tx-validwait	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> validdep spi-tx-validwait
+zqcs_6	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> zqcs 6 8000
+zqcs_10	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> zqcs 10 8000
+zqcs_14	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> zqcs 14 8000
+zqcs_26	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> zqcs 26 8000
+zqcs_7	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> zqcs 7 8000
+zqcs_9	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> zqcs 9 8000
+zqcs_12	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> zqcs 12 8000
+zqcs_391	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> zqcs 391 8000
+zqcs_1564	<litex-env>/venv/bin/python3 -I <packet>/scripts/probe_r2.py <clone> zqcs 1564 8000
