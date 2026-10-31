@@ -1,15 +1,18 @@
 # Fabric and bare-metal firmware ownership
 
-Mark II selects each control protocol's placement at build time.
-Its default is bare-metal control through packet mailboxes.
-The all-fabric build remains supported.
-It remains the shipping default at VERSION `0x0002_0060`.
-The default flips only after F2 to F5 pass acceptance.
-That includes their suites, all streams, counters and audio soak.
-Requirement approval precedes the flip.
+Mark II moves every control protocol to bare-metal firmware.
+No retained-fabric option stays in the end state.
+
+The all-fabric build remains the shipping default at VERSION `0x0002_0060`.
+It stays only until the firmware passes the bench qualification.
+
+Qualification covers the suites, all streams, counters and audio soak.
+Requirement approval precedes the switch-over; the processor is then deleted.
 
 The [#664 ownership decision](https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6009576644)
 and [service-budget ruling](https://github.com/kebag-logic/milan-fpga/issues/664#issuecomment-6009675758) govern this contract.
+The [2026-10-31 decisions](#mark-ii-end-state) remove its permanent all-fabric option.
+
 F0 and F1 are implemented foundations, not a shipping split.
 
 <!-- milan-feature-status:start -->
@@ -20,7 +23,7 @@ F0 and F1 are implemented foundations, not a shipping split.
 
 ## Contents
 
-- **[1. Ownership rule](#1-ownership-rule)** -- Assigns one state owner per function and placement.
+- **[1. Ownership rule](#1-ownership-rule)** -- Owners per function, the end state and deletions.
 - **[2. Boot sequence](#2-boot-sequence)** -- Orders image validation, saved-state apply and entity enable.
 - **[3. Fabric publication boundary](#3-fabric-publication-boundary)** -- Keeps gPTP and media observations coherent for either control owner.
 - **[4. Verification-only option OFF](#4-verification-only-option-off)** -- Separates ownerless gPTP test hardware from supported control placements.
@@ -30,25 +33,27 @@ F0 and F1 are implemented foundations, not a shipping split.
 
 ## 1. Ownership rule
 
-Each selected function has exactly one authoritative state owner.
-Selection is per function, at build time, never concurrent ownership.
-Both placements preserve the same wire semantics and normative timing.
-Mixed placements preserve cross-function response, state and notification ordering.
-Configuration selects placement without rewriting protocol code.
+Each function has exactly one authoritative state owner.
+Ownership is fixed at build time, never concurrent.
 
-| Function | All-fabric placement | Mark II default placement | Shared contract |
+In the transition, both placements keep wire semantics and timing.
+Mixed placements keep cross-function response, state and notification ordering.
+
+| Function | Shipping image until the switch-over | Mark II end state | Shared contract |
 |---|---|---|---|
 | ADP | protocol processor | bare-metal core | Advertise/discover/depart; no independent advertiser conceals a stopped core |
 | ACMP | protocol processor | bare-metal core | Binding and probing state; commit applied state before successful responses |
 | AECP/AEM and MVU | protocol processor | bare-metal core | Descriptor serving, commands, locks, unsolicited notifications and counter serving |
-| MAAP | selected fabric allocator | bare-metal core | Allocate, defend, announce and withdraw addresses |
-| SRP (MRP, MSRP, MVRP) | protocol processor | bare-metal core using lwSRP | Registration and admission decisions; coherent licence updates |
-| Boot, identity, diagnostics and saved-state orchestration | bare-metal core | bare-metal core | Generated image identity and transactional persistence |
-| Framing, timestamps and ingress filtering | fabric | fabric | Only relevant control input reaches the core; rate limits bound load |
-| gPTP, PHC, servo, BMCA and peer delay | fabric | fabric | One time owner, atomic public state |
-| AVTP/AAF/CRF, physical audio and media clocks | fabric | fabric | Audio and gPTP deadlines have no firmware service dependency |
+| MAAP | selected fabric allocator | bare-metal core | Allocate, defend, announce and withdraw addresses, per AVB interface (Milan v1.2 8.3.3.1) |
+| SRP (MRP, MSRP, MVRP) | protocol processor | bare-metal core using lwSRP | Registration and admission decisions; coherent licence updates, per AVB interface (Milan v1.2 8.3.5) |
+| Boot, identity, diagnostics and saved-state orchestration | bare-metal core | bare-metal core | Generated image identity and transactional persistence; a save is durable within 0.5 s (NFR-REL-03) |
+| Framing, timestamps and ingress filtering | fabric | fabric, on both ports | Only relevant control input reaches the core; rate limits bound load |
+| gPTP protocol, servo, BMCA and peer delay | fabric gPTP plane | bare-metal core: a flexPTP-based daemon, one instance per AVB interface (#665 F6) | One time owner per AVB interface (Milan v1.2 8.3.4), atomic public state |
+| PHC and event-message timestamps | fabric | fabric, one timestamp unit per port | Timestamps at the measurement plane, corrected for its latency (IEEE 802.1AS-2020 8.4.3) |
+| AVTP/AAF/CRF, physical audio and media clocks | fabric | fabric: the [shared stream engines](design/MARK_II_STREAM_ENGINES.md) beside the media clock | Audio deadlines have no firmware service dependency |
 | Media counters and admission enforcement | fabric | fabric | Coherent observations and applied licences; firmware serves protocol views |
 | Control timer deadlines and elapsed-time source | fabric | fabric, posting events to the core | Firmware handles events within the control-service bound |
+| `milan_csr` | configuration, information and diagnostics | information and diagnostics only | Diagnostics stay in fabric and are read through it (D2); firmware-owned settings reach the fabric through the publication block |
 
 The protocol owner holds state, rather than a second writable replica.
 Fabric observations remain authoritative even when AECP serves their counters.
@@ -63,6 +68,44 @@ One cacheless RV32I control hart remains the release target.
 Media capacity grows through fabric contexts, channels and sample rates.
 Protocol state grows through static pools sized from the entity model.
 Every supported shape must meet the same service bound.
+
+### Mark II end state
+
+The owner fixed the end state on 2026-10-31.
+These decisions are final; this page restates them.
+
+- [The protocol processor is removed](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6545457321).
+  ADP, ACMP, MAAP, SRP, AECP and saved state become firmware.
+- [gPTP moves to firmware](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658), as a flexPTP-based daemon.
+  Its source and licence are confirmed before adoption (#665 F6).
+- Hardware timestamping stays in fabric, on both ports.
+- `milan_csr` stays, for information and diagnostics only.
+- `milan_dp` keeps only the crossbar and the stream endpoints.
+  The media clock, MAC and time plane sit beside it.
+- Frame filtering stays: the TCAM and the mailbox ingress filter.
+- [The shape is 32x32](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545621753) on one TDM8 bus.
+  Each 16x16 logical stream is redundant on both networks.
+- [LiteX is removed in three stages](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545999204).
+  The [area plan](design/MARK_II_AREA_PLAN.md#litex-removal-stages) lists them.
+- Below 20,000 LUTs is a ceiling, not a goal.
+  [NFR-RES-01](reference/FR_NFR.md#35-resource-reliability-and-the-rest) records it; the image goes as low as possible.
+
+The [stream-engine design](design/MARK_II_STREAM_ENGINES.md) covers the 32x32 datapath.
+It also derives the talker latency and save bounds.
+
+### Transition and deletion
+
+The all-fabric processor stays the default only until qualification.
+Qualification means the firmware passes its suites and the bench.
+
+The switch-over deletes the processor and its build switch.
+No all-fabric build remains, so nothing is maintained twice.
+
+The fabric gPTP plane follows the same rule.
+It stays until F6 passes the gPTP bench qualification.
+
+Then `KL_gptp_shadow` is deleted and the timestamp units remain.
+No function keeps a fabric fallback after its own switch-over.
 
 ### Packet mailbox interface
 
@@ -169,13 +212,20 @@ The publication feeds:
 
 Paired CSR reads retain the documented snapshot semantics.
 Path count and tail remain one generation during protocol serving.
-Firmware cannot manufacture live gPTP health by writing a publication.
+
+Until F6, firmware cannot fake gPTP health through a publication.
+After F6, firmware gPTP writes it, per AVB interface.
+
+The same atomic transaction rule then binds that owner.
+The fabric's AVTP `tu` decision still reads that publication.
 
 ## 4. Verification-only option OFF
 
 `GPTP_PLANE_EN_P=0` remains verification-only, with no product image.
 This is independent of control-protocol placement.
-Both supported control placements retain the product fabric gPTP owner.
+
+Until F6, both placements retain the fabric gPTP owner.
+The option leaves with that plane at F6's switch-over.
 
 In the ownerless test form:
 
@@ -201,6 +251,14 @@ Media-clock bench acceptance remains with #74 and #629.
 Timestamp-latency measurements remain #64 and #213.
 The [feature ledger](reference/MILAN_FEATURE_STATUS.md) records current implementation status.
 The Mark II requirements do not upgrade those verdicts.
+
+The 2026-10-31 end state adds design obligations, none implemented here:
+
+- F6 ports the gPTP daemon; its licence is still unconfirmed.
+- The stream engines and second port are design only.
+- The 32x32 saved-state format belongs to #823.
+- The three LiteX stages each need a routed measurement.
+- The 32x32 Block RAM estimate does not fit yet.
 
 ## 6. Verification boundary
 
@@ -249,13 +307,19 @@ This documents-only change leaves VERSION at `0x0002_0060`.
 
 The default-flip PR must land the version chain together:
 
-1. Record approved requirements and F2 to F5 bench evidence.
+1. Record approved requirements and F1 to F5 bench evidence.
 2. Select the split default and bind identity to actual placement.
 3. Update the CSR version and regenerated ENTITY firmware string.
 4. Pin and run all five current VERSION simulation assertions below.
-5. Preserve a `VERSION >> 16` major-only assertion for each placement.
+5. Preserve a `VERSION >> 16` major-only assertion for every placement still built.
 6. Update the CSR documentation, feature ledger and changelog together.
 7. Run the full local and hosted implementation gates on that head.
+
+Under the 2026-10-31 decisions the flip also deletes the processor.
+Its build switch and major-2 assertion leg go too.
+
+The firmware's differential suites keep the reused processor stimuli.
+F6 repeats this sequence for the fabric gPTP plane.
 
 | Current VERSION simulation | Required landing assertion |
 |---|---|
@@ -267,7 +331,9 @@ The default-flip PR must land the version chain together:
 
 The assignment also names a retired major-only simulation.
 That suite is absent from this base under #259's retirement.
+
 The flip must carry its `>> 16` assertion into a live suite.
-It must test major 3 for split and major 2 for all-fabric.
+It tests major 3, and major 2 while all-fabric remains.
+
 Do not restore a retired runtime merely to restore that assertion.
 No simulation, firmware or RTL changes are made here.
