@@ -1,0 +1,37 @@
+# state after probes
+HEAD f7d5fc3cc48ca80195428562fa86a46023df8e0d tree 91bdf8b797065cd63a38650c6f74ff5c19d29690
+status --porcelain --ignored (empty = clean):
+# index vs HEAD tree
+index == HEAD: yes
+# worktree vs index (bytes and modes)
+worktree == index: yes
+# write-tree of index: 91bdf8b797065cd63a38650c6f74ff5c19d29690
+# gitlinks
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
+# checked-out submodule heads
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor (remotes/origin/main-12-g135afd0)
+ a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor (v2.0-856-ga9e84b6)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+gptp-processor dirty=0
+protocol-processor dirty=0
+third_party/lwSRP dirty=0
+third_party/tsn-c-stack dirty=0
+third_party/verilog-axis dirty=0
+# re-check after the last probe process ended
+HEAD f7d5fc3cc48ca80195428562fa86a46023df8e0d write-tree 91bdf8b797065cd63a38650c6f74ff5c19d29690
+status --porcelain --ignored lines: 0
+worktree == index == HEAD
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 135afd043309369a87ddbc8d6550aff8ec52a157 gptp-pro
+ a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_pa
+ 70936b77dc41981e192438388cd0aced69954f18 third_pa
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_pa

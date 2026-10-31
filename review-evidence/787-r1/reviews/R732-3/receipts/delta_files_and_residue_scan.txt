@@ -1,0 +1,68 @@
+# delta files 4aa5666e..f7d5fc3c
+M	CHANGELOG.md
+M	ci/image/command-table.json
+M	ci/image/exec-audit.json
+M	docs/design/AREA_BUDGET.md
+M	docs/design/GM_LOSS_RECOVERY.md
+M	docs/design/GPTP_PLANE.md
+M	docs/design/SAVED_STATE_FASTCONNECT.md
+M	docs/design/SAVED_STATE_MATERIALIZATION.md
+M	docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md
+M	docs/design/TIME_SYNC.md
+M	docs/diagrams/PNG_MANIFEST.json
+M	docs/diagrams/submodule_boundaries.drawio
+M	docs/diagrams/submodule_boundaries.png
+M	docs/diagrams/submodule_boundaries.svg
+M	docs/diagrams/timesync_chain.drawio
+M	docs/diagrams/timesync_chain.png
+M	docs/diagrams/timesync_chain.svg
+M	docs/guides/BOARD_DEPLOYMENT.md
+M	docs/guides/gptp/HDL_DEVELOPER.md
+M	docs/guides/gptp/MANAGER.md
+M	docs/guides/gptp/SYSTEM_INTEGRATOR.md
+M	docs/guides/gptp/TEST_DEVELOPER.md
+M	docs/integration/BAREMETAL_FIRMWARE.md
+M	docs/integration/BUILDING.md
+M	docs/litex/CLOCK_DOMAINS.md
+M	docs/reference/SUBMODULES.md
+M	docs/testing/RUNNING_TESTS.md
+M	docs/testing/TESTING.md
+M	docs/traceability/ieee8021as.md
+M	gptp-processor
+M	hdl/ieee1722/crf/KL_mmcm_drp_servo.sv
+M	hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+M	hdl/milan/milan_datapath.sv
+M	scripts/port_docs.budget
+M	scripts/run_litex_sims.sh
+M	sw/builder/test_clock_constraints.py
+M	sw/builder/test_shipping_clock_constraints.py
+M	sw/firmware/milan_baremetal/milan_baremetal.c
+M	sw/firmware/nvm_hosttest/nvm_host.c
+M	sw/firmware/nvm_hosttest/phy_host.c
+A	sw/firmware/nvm_hosttest/phy_peer.h
+M	sw/firmware/nvm_hosttest/test_boot_walk.py
+M	sw/firmware/nvm_hosttest/test_disabled_writer.py
+M	sw/firmware/nvm_hosttest/test_nvm_firmware.py
+M	sw/firmware/nvm_hosttest/test_phy_firmware.py
+M	sw/litex/clock_constraints.py
+M	sw/litex/clock_constraints.tcl
+M	sw/litex/milan_soc.py
+A	sw/litex/test_soc_timing_cuts.py
+M	syn/yosys/rom_digests.tsv
+M	tb/verilator/fw_service_budget/oracle.json
+M	tb/verilator/fw_service_budget/run.py
+M	tb/verilator/gptp_plane/gptp_plane_wrap.sv
+M	tb/verilator/gptp_shadow/gptp_shadow_wrap.sv
+M	tb/verilator/gptp_txts/gptp_txts_wrap.sv
+M	tb/verilator/milan_dp/Makefile
+M	tb/verilator/milan_dp/README.md
+M	tb/verilator/milan_dp/dynmap_mutants.py
+M	tb/verilator/milan_dp/sim_gptp.cpp
+M	tb/verilator/milan_dp/sim_nxn.cpp
+M	tb/verilator/nvm_capture_cpu/measurements.json
+# lane-label / review-round / comment-ID scan of added lines in the delta (source files)
+3171:+        const std::vector<uint8_t> b1 = notify_set_name(CTL_B, "Volatile-B1", volatile_sq++);
+3191:+        const std::vector<uint8_t> b2 = notify_set_name(CTL_B, "Volatile-B2", volatile_sq++);
+3212:+        const std::vector<uint8_t> b3 = notify_set_name(CTL_B, "Volatile-B3", volatile_sq++);
+3422:+  "remeasurement_assignment": "https://github.com/kebag-logic/milan-fpga/issues/70#issuecomment-6515314113",
+scan_rc=0 (1 = no match)
