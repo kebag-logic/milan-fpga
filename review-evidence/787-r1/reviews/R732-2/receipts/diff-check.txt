@@ -1,0 +1,7 @@
+$ git diff --check 1e80128f 4aa5666e
+rc=0
+$ git diff --check 1e80128f 667b9bbc
+tests/steps/torture_release_steps.py:961: new blank line at EOF.
+rc=2
+$ git merge-base 1e80128f 4aa5666e
+1e80128f0a467b58bf884b7d9bf62e013a2fb141

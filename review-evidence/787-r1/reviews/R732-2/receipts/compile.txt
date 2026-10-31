@@ -1,0 +1,10 @@
+$ tail -c 64 tests/steps/torture_release_steps.py | od -c | tail -3
+0000040   s   s   e   r   t       a   c   t   u   a   l       =   =    
+0000060   v   e   r   d   i   c   t   ,       d   e   t   a   i   l  \n
+0000100
+$ python3 -I -c py_compile (to scratch cfile)
+compiled ok
+rc=0
+$ git show 667b9bbc:tests/steps/torture_release_steps.py | sha256sum ; head -n -1 identity
+0d0a8a5b09a6f7632d91fffbece55366f13f38e8827e9755c961235f6e809727  -
+0d0a8a5b09a6f7632d91fffbece55366f13f38e8827e9755c961235f6e809727  -

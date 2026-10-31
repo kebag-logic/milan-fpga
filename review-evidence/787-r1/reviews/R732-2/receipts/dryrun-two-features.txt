@@ -1,0 +1,26 @@
+== dry-run features/aecp_response_contract.feature
+USING RUNNER: behave.runner:Runner
+Feature: the AECP answer contract - served commands, fallback, and two silent cases
+  Background: 
+
+  Scenario Outline: an unimplemented AEM command is echoed, not dropped -- @1.1 opcodes with no command behind them at all
+
+  Scenario Outline: an unimplemented AEM command is echoed, not dropped -- @1.2 opcodes with no command behind them at all
+
+  Scenario: an ADDRESS_ACCESS command is answered as an ADDRESS_ACCESS response
+
+  Scenario Outline: a Milan MVU command is answered as a VENDOR_UNIQUE response with its protocol_id intact -- @1.1 SHALL, served
+
+== dry-run features/milan_base_formats.feature
+USING RUNNER: behave.runner:Runner
+Feature: Every Stream Input advertises the whole Base format family
+  Background: 
+
+  Scenario Outline: endstation_arty_current completes the 48 kHz Base family on every Stream Input -- @1.1 
+
+  Scenario Outline: endstation_arty_4x4 completes the 48 kHz Base family on every Stream Input -- @1.2 
+
+  Scenario Outline: endstation_arty_8ch completes the 48 kHz Base family on every Stream Input -- @1.3 
+
+  Scenario Outline: endstation_ax7101_8x8 completes the 48 kHz Base family on every Stream Input -- @1.4 
+
