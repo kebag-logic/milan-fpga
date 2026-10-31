@@ -1,0 +1,10 @@
+period 842: plain 32 commands, REFRESH 15 spacing [782], ZQCS 1 at [846]
+  staged   : 32 commands, ZQCS 1 at [847]; equals plain+1: True
+  undelayed: 30 commands, ZQCS 0 at []; equals plain+1: False (first difference at command 2)
+period 1001: plain 30 commands, REFRESH 15 spacing [782], ZQCS 0 at []
+  staged   : 30 commands, ZQCS 0 at []; equals plain+1: True
+  undelayed: 30 commands, ZQCS 0 at []; equals plain+1: True
+period 10: plain 36 commands, REFRESH 15 spacing [782], ZQCS 3 at [3974, 7884, 11794]
+  staged   : 36 commands, ZQCS 3 at [3975, 7885, 11795]; equals plain+1: True
+  undelayed: 30 commands, ZQCS 0 at []; equals plain+1: False (first difference at command 10)
+RESULT: PASS
