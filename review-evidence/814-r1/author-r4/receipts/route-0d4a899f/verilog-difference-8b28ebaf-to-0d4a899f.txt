@@ -1,0 +1,59 @@
+14c14
+< // Date       : 2026-10-30 09:06:18
+---
+> // Date       : 2026-10-30 22:17:40
+209a210
+> │    ├── [BB:PLLE2_ADV]
+212,213c213
+< │    ├── [BB:BUFG]
+< │    └── [BB:PLLE2_ADV]
+---
+> │    └── [BB:BUFG]
+322a323,324
+> │    ├── [BB:ISERDESE2]
+> │    ├── [BB:IOBUF]
+449,450d450
+< │    ├── [BB:ISERDESE2]
+< │    ├── [BB:IOBUF]
+890a891,892
+> ├── [BB:FDCE]
+> ├── [BB:FDCE]
+895d896
+< ├── [BB:IOBUF]
+900,903d900
+< ├── [BB:ODDR]
+< ├── [BB:IDDR]
+< ├── [BB:FDCE]
+< ├── [BB:FDCE]
+911a909
+> ├── [BB:IOBUF]
+916c914,916
+< └── [BB:IBUFDS]
+---
+> ├── [BB:ODDR]
+> ├── [BB:IBUFDS]
+> └── [BB:IDDR]
+6677a6678
+> wire          milansoc_milansoc_sdram_reset;
+6743a6745
+> reg           milansoc_milansoc_sdram_started = 1'd0;
+13238a13241
+> assign milansoc_milansoc_sdram_reset = (~milansoc_milansoc_sdram_started);
+23114a23118
+>     milansoc_milansoc_sdram_started <= 1'd1;
+23180a23185,23187
+>     if (milansoc_milansoc_sdram_reset) begin
+>         milansoc_milansoc_sdram_refresher_zqcs_timer_count1 <= 27'd99999999;
+>     end
+25669a25677
+>         milansoc_milansoc_sdram_started <= 1'd0;
+31787c31795
+< 	.GPTP_UCODE_HEX_P        ("<scratch-r2>/clone-h1/sw/builder/out/endstation_ax7101_1x1_tdm8/gptp_ucode.hex"),
+---
+> 	.GPTP_UCODE_HEX_P        ("<scratch>/clone-h1/sw/builder/out/endstation_ax7101_1x1_tdm8/gptp_ucode.hex"),
+31795,31796c31803,31804
+< 	.PP_TROM_HEX_P           ("<scratch-r2>/clone-h1/configs/generated/ltn_rom.hex"),
+< 	.PP_UCODE_HEX_P          ("<scratch-r2>/clone-h1/configs/generated/ucode.hex"),
+---
+> 	.PP_TROM_HEX_P           ("<scratch>/clone-h1/configs/generated/ltn_rom.hex"),
+> 	.PP_UCODE_HEX_P          ("<scratch>/clone-h1/configs/generated/ucode.hex"),
