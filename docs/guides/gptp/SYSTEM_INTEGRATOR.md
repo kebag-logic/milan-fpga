@@ -43,6 +43,7 @@ Reset stays synchronous and active-low.
 | Launch records | Report every launched frame, in order |
 | Seal | Answer it with the observer's echo |
 | Recovery | Give the plane the guard's episode evidence |
+| Port enable | Drive portEnabled: the MAC is operational and the port administratively enabled (IEEE 802.1AS-2011 10.2.4.11); the product drives its effective link |
 | PHC | Apply rate levels and phase pulses |
 | Publication | Consume only committed generations |
 
@@ -58,7 +59,7 @@ A build without a MAC ties the record face off.
 
 That plane then delivers no timestamp and counts the loss.
 
-Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/INTEGRATION.md).
+Read the [engine interface guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/INTEGRATION.md).
 
 ## Observe
 

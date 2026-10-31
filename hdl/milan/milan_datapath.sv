@@ -8896,6 +8896,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .epi_busy_i      (linkg_epi_busy_w),
         .epi_dis_i       (cfg_linkg_dis),
         .recov_req_o     (gptp_recov_req_w),
+        //! portEnabled: the effective link, the PHY link (synchronised into
+        //! axis_clk by the SoC) gated by LINK_CTRL[0] and the link guard's
+        //! estimate, all axis_clk levels, so the plane needs no synchroniser
+        //! (FPGA-gPTP #94)
+        .port_enabled_i  (eff_link_w),
         .pub_gm_id_o     (gptp_pub_gm_w),
         .pub_parent_id_o (gptp_pub_parent_w),
         .pub_flags_o     (gptp_pub_flags_w),

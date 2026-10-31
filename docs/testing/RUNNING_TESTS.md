@@ -187,11 +187,14 @@ Issue #607's constraint tests run in the complete builder bank.
 They elaborate both shipping AX7101 configurations with either GMII port.
 The real build Tcl must carry the namespace-derived clock hook.
 It must run between synthesis and optimization.
+The same Tcl must carry the servo reset synchronizer hook (#817).
+That hook must name the Milan PLL output.
 The same Tcl must configure the #395 timing grade before placement.
 Its grade reports must follow the last routing pass and precede the bitstream.
 The generated XDC must omit the generic MultiReg false path.
 These elaborations compile no firmware and run no vendor implementation.
 Other controls check exception scope and conditional quasi-static constraints.
+A stub netlist checks the servo cut and each of its refusals.
 Log controls refuse `12-4739`, `20-1307` and `12-5201`.
 Refused bitstreams must become `*.bit.rejected`, outside automatic discovery.
 A live planted wrong clock name can also be checked against a

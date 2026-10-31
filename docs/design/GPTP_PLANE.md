@@ -29,10 +29,10 @@ This page defines parent integration.
 
 | Reader | Parent guide | Engine guide |
 |---|---|---|
-| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/MANAGER.md) |
-| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/INTEGRATION.md) |
-| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/HDL_DEVELOPER.md) |
-| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/TEST_DEVELOPER.md) |
+| Project manager | [Manager](../guides/gptp/MANAGER.md) | [`MANAGER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/MANAGER.md) |
+| System integrator | [Integrator](../guides/gptp/SYSTEM_INTEGRATOR.md) | [`INTEGRATION.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/INTEGRATION.md) |
+| HDL developer | [HDL developer](../guides/gptp/HDL_DEVELOPER.md) | [`HDL_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/HDL_DEVELOPER.md) |
+| Test developer | [Test developer](../guides/gptp/TEST_DEVELOPER.md) | [`TEST_DEVELOPER.md`](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/TEST_DEVELOPER.md) |
 
 Parent guides own integration behavior.
 
@@ -59,6 +59,7 @@ Normative behavior remains in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | TX | Dedicated control-lane input | Hold complete frames through downstream stalls |
 | Launch records | The MAC's own transmit stream | One ordered record per launched frame, plus the echo that re-bases the position |
 | Recovery | The link guard's episode evidence | Resolve a fenced epoch only after a qualified episode completes |
+| Port enable | The effective link, `eff_link` | The engine's portEnabled: disabled, the port sends nothing; each edge ends the Pdelay_Req cease |
 | PHC | `timestamp_counter` controls | Apply engine rate and phase changes |
 | Publication | CSR and protocol consumers | Sample one committed generation |
 
@@ -93,6 +94,32 @@ Reset is synchronous and active-low.
 - `pub_commit_o` exposes one complete state generation.
 - `pub_disc_o` exposes pre-commit health discontinuities.
 - Consumers never combine different publication generations.
+
+### Port enable
+
+- `KL_gptp_shadow` passes `eff_link` to the engine's `port_enabled_i`.
+- It is the PHY link and `LINK_CTRL[0]`.
+- The link guard's estimate is the third term.
+- A disabled guard drops that term.
+- All three are `axis_clk` levels, so no synchroniser sits between them.
+- It is portEnabled, IEEE 802.1AS-2011 10.2.4.11.
+- While it is low the plane starts no gPTP frame.
+- The engine withdraws a frame whose first byte is unaccepted.
+- The gearbox and the ticket take accepted bytes only.
+- So a withdrawn frame leaves nothing behind.
+- A frame already started completes into the frame FIFO.
+- A link loss clears asCapable at once.
+- It does not wait for the fifth lost response.
+- A stalled transmit lane does not delay that clear.
+- No Pdelay exchange completes while the port is low.
+- The first sample after reset is the reference level.
+- Each later edge ends the Pdelay_Req cease.
+- Milan 4.2.6.2.5 lists that toggle.
+- After a warm reset, a rise ends a retained cease.
+- The link's return sends one Pdelay_Req at once.
+- asCapable then takes two exchanges, as after any loss.
+- The 5-minute countdown remains the cease's other exit.
+- `make -C tb/verilator/milan_dp gptp` grades each term and both exits.
 
 ### Peer delay during PHC steps
 
