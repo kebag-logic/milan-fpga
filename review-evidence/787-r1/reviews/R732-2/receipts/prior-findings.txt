@@ -1,0 +1,10 @@
+$ prior-finding artifacts: blob identity 667b9bbc vs 4aa5666e
+hdl/milan/KL_reboot_ctrl.sv d2c74f47d0603b12ed21274d60380563398fcd41 d2c74f47d0603b12ed21274d60380563398fcd41
+tb/verilator/reboot_ctrl/mutants.py 2528a9276001a0b434b724646a9fd7f50802ae4f 2528a9276001a0b434b724646a9fd7f50802ae4f
+tb/tools/torture_campaign.py 43b1fc4046fd04429ee9ce44b93363d17210f5d7 43b1fc4046fd04429ee9ce44b93363d17210f5d7
+hdl/milan/milan_datapath.sv e260916bcae23bdee522330ed4bc1a173c0a4e72 e260916bcae23bdee522330ed4bc1a173c0a4e72
+$ sed -n 113,114p tb/verilator/reboot_ctrl/mutants.py
+    # the [A10] arms of issuecomment-6518083444: today's PHY hold on the
+    # request alone, a drain that ignores the MAC FIFO, a drain with no bound
+$ comment-rule scan of added lines in the delta
+no added lines

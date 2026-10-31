@@ -1,0 +1,36 @@
+== head 4aa5666e: which features fail in dry-run (plain format)
+    And the tv-tnv skip says the block was reset at the bind ... untested in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.1 the two real escapes and their controls
+    Given the counters contract is importable ... untested in 0.000s
+    Given UNSUPPORTED_FORMAT reads 0 then 0 ... untested in 0.000s
+    Then the growth verdict is PASS ... untested in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.2 the two real escapes and their controls
+    Given the counters contract is importable ... untested in 0.000s
+    Given UNSUPPORTED_FORMAT reads 0 then 296294 ... untested in 0.000s
+    Then the growth verdict is FAIL ... untested in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.3 the two real escapes and their controls
+    Given the counters contract is importable ... untested in 0.000s
+    Given UNSUPPORTED_FORMAT reads 0 then 1 ... untested in 0.000s
+    Then the growth verdict is FAIL ... untested in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.4 the two real escapes and their controls
+    Given the counters contract is importable ... untested in 0.000s
+    Given LATE_TIMESTAMP reads 12 then 12 ... untested in 0.000s
+    Then the growth verdict is PASS ... untested in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.5 the two real escapes and their controls
+    Given the counters contract is importable ... untested in 0.000s
+    Given LATE_TIMESTAMP reads 12 then 5100000 ... untested in 0.000s
+    Then the growth verdict is FAIL ... untested in 0.000s
+
+  Scenario Outline: the error counters get a growth VERDICT, not an INFO note -- @1.6 the two real escapes and their controls
+    Given the counters contract is importable ... untested in 0.000s
+    Given SEQ_NUM_MISMATCH reads 3 then 4 ... untested in 0.000s
+== prev head 667b9bbc summary (archived tests/ tree)
+USING RUNNER: behave.runner:Runner
+ModuleNotFoundError: No module named 'avtp_wire_truth'
+== prev catalog commit-cut count
+0

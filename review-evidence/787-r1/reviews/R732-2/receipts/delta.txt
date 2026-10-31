@@ -1,0 +1,30 @@
+$ git diff 667b9bbc 4aa5666e --stat
+ tests/steps/torture_release_steps.py | 1 -
+ 1 file changed, 1 deletion(-)
+$ git diff 667b9bbc 4aa5666e
+diff --git a/tests/steps/torture_release_steps.py b/tests/steps/torture_release_steps.py
+index 5ed3db8435..07dd9680f7 100644
+--- a/tests/steps/torture_release_steps.py
++++ b/tests/steps/torture_release_steps.py
+@@ -958,4 +958,3 @@ def step_tp_release_commit_verdict(context: Context, verdict: str) -> None:
+     """The verdict REQ-VER-06 owes the case."""
+     actual, detail = context.release_commit_result
+     assert actual == verdict, detail
+-
+$ git diff --numstat --summary 667b9bbc 4aa5666e
+0	1	tests/steps/torture_release_steps.py
+$ git diff --raw 667b9bbc 4aa5666e
+:100644 100644 5ed3db8435 07dd9680f7 M	tests/steps/torture_release_steps.py
+$ git rev-list --parents -n1 4aa5666e
+4aa5666e730ae877766ed88c48bc8001e7a7b7b3 667b9bbc02b99a08d71efab750f95e8702cbbe57
+$ git log -1 --format=%B 4aa5666e
+Drop the blank line at the end of the torture release steps
+
+$ git diff 667b9bbc 4aa5666e --submodule=short (gitlinks)
+gitlinks identical
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit f97c18035be6ef5345e5af27db2124c5697c1b40	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack
+160000 commit 48ff7a7e2ef782cf778d47910cf85835c64b1bce	third_party/verilog-axis
