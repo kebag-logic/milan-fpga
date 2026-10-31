@@ -1,0 +1,5 @@
+Written 2026-10-31T16:25:09Z, after the independent pass and before reading R731-3 / R732-3 findings text.
+Provisional verdict: POSITIVE at cbc7c6043ebf84d5bcd74652dc0a7131b7d54271 (no open MINOR/MAJOR/BLOCKER from the independent pass).
+Ledger (provisional): Conformance CLEAN; RTL CLEAN; Robustness CLEAN; Tests CLEAN; Docs CLEAN (four RESIDUE items, one SUGGESTION).
+Residue: PR body "that file is not part of this PR"; PR body "Gates at the head pass" attribution; PR body Contents/Linked-issue/rounds lines omit PR #820 and round 6's merge; AREA_BUDGET.md:150 phrasing and unnamed gPTP pins of the two #787 routes.
+Suggestion: cdc_census.gen.py:123 MultiReg descriptor ("status/IRQ levels (incl. the CSR IRQ to sys)") does not describe the three call sites.

@@ -1,0 +1,19 @@
+== python3 syn/ooc/pp_resource_gate.py --selftest
+placement gate full-split WHS_ns: expected exit 1, WHS_ns: PASS
+placement gate full-split ROUTE INCOMPLETE: expected exit 1, ROUTE INCOMPLETE: PASS
+placement gate full-split tool or recipe change: expected exit 2, tool or recipe change: PASS
+placement gate: unchanged acceptance schema, record and policy PASS
+rc=0
+== python3 syn/ooc/pp_resource_gate_mutants.py
+placement role completeness ignored: rc=1 PASS
+placement row identity ignored: rc=1 PASS
+placement duplicate role accepted: rc=1 PASS
+resource gate mutants: control passes, all 236 mutants fail
+rc=0
+== python3 syn/ooc/pp_resource_gate.py check-baseline
+baseline PASS: 3 endpoints
+rc=0
+== python3 syn/ooc/pp_resource_gate_set_selftest.py
+rc=0
+== python3 syn/ooc/pp_placement_selftest.py
+rc=0
