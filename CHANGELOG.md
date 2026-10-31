@@ -9,6 +9,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 ## Contents
 
 - **[Unreleased - AECP REBOOT resets the end station](#unreleased---aecp-reboot-resets-the-end-station)** -- Reloads from flash.
+- **[Unreleased - gPTP pin 135afd04](#unreleased---gptp-pin-135afd04)** -- A link toggle ends the cease.
 - **[Unreleased - gPTP pin f97c1803](#unreleased---gptp-pin-f97c1803)** -- Sync loss ages the grandmaster.
 - **[Unreleased - processor pin f65c8ff7](#unreleased---processor-pin-f65c8ff7)** -- Moved Stream IDs; settled-only stream fields.
 - **[Unreleased - processor pin ed211803](#unreleased---processor-pin-ed211803)** -- A wrong-type GET_AVB_INFO is NOT_SUPPORTED.
@@ -76,6 +77,35 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - Each soft reset grades its exchange and the gPTP relock.
 - The UART smoke grades a reboot with `--after-reboot`.
 - The behave SERVED table lists REBOOT.
+
+## Unreleased - gPTP pin 135afd04
+
+- Issue #806 adopts gPTP `135afd04`, PR #95 (gPTP #94).
+- The engine takes portEnabled (802.1AS-2011 10.2.4.11).
+- `milan_datapath` drives it from `eff_link_w`.
+- That is the PHY link, `LINK_CTRL[0]` and the guard's estimate.
+- A link loss clears asCapable at once.
+- It no longer waits for the fifth lost response.
+- A disabled port starts no gPTP frame.
+- Each link edge ends the Pdelay_Req cease.
+- Milan 4.2.6.2.5 lists that toggle.
+- A rise sends one Pdelay_Req at once.
+- The 5-minute countdown exit is unchanged.
+- The engine's one port change is `port_enabled_i`.
+- `KL_gptp_shadow` adds the same input.
+- No top-level port, parameter or register changes.
+- The ROM ledger adds the gPTP row; `gptp_ucode.hex` changes.
+- route-1x1 is 175 LUTs under the twelfth record.
+- Against dev's route it adds 36 LUTs and 28 FFs.
+- Slices fall by 11; 27 of 15,850 remain.
+- Every corner meets the build floor.
+- The slow corners' WNS is +0.032 ns.
+- The record holds +0.440 ns, tolerance 0.25.
+- The gate refuses that 0.408 ns fall.
+- Timing recovery is ruled under #814/#818.
+- The best directive meets the build floor at every corner.
+- ooc-1x1 and ooc-8x8 equal the record in every figure.
+- VERSION is unchanged; the release step owns the bump.
 
 ## Unreleased - gPTP pin f97c1803
 

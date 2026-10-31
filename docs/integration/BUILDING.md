@@ -617,6 +617,10 @@ the inter-stage reset bound remains 2 ns. Hold is excluded across Ethernet
 clock pairs because their clock phases are unrelated.
 Quasi-static tagged registers receive setup-4/hold-3 multicycles in the same
 Tcl phase, outside the XDC. An empty tagged class adds no exception.
+The same phase cuts the media-clock servo's reset synchronizer input (#817).
+Its first `ASYNC_REG` stage samples the Milan reset into the PS clock.
+Only that D pin is false-pathed, and only from the Milan clock.
+The hook refuses a missing attribute, a broken chain or a shared clock.
 
 Retain the implementation log and its emitted critical-warning census,
 `*_clock_interaction.rpt`, and `*_exceptions.rpt` with every sweep seed.

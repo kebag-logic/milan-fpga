@@ -947,6 +947,12 @@ void milan_mac_link_status_write(uint32_t value);
 #define PHY_BMSR_EXTENDED 0x100u
 #define PHY_BMCR_AN_ENABLE 0x1000u
 
+/* The fabric passed its identity check and was configured: nvm_boot() sets
+ * this first, so the PHY link is published on every boot path from there,
+ * persistence disabled included (#70). After a CSR identity mismatch
+ * nothing touches the MDIO pins. */
+static int phy_live;
+
 #ifdef CSR_MILAN_MAC_PHY_MDIO_W_ADDR
 static unsigned int phy_address;
 static int phy_found;
@@ -1082,13 +1088,19 @@ static void phy_link_tick(uint64_t now)
 #endif
 
 /* Re-arm T-NVM-WRITER-ALIVE at most every NVM_HEARTBEAT_NS; the first
- * call answers at once, so the restore walk runs behind a live writer. */
+ * call answers at once, so the restore walk runs behind a live writer.
+ * The PHY poll rides on the same opportunities but is not the writer's:
+ * with no writer admitted it still runs on every path that reached
+ * nvm_boot() (#70), and nothing else does. */
 static void nvm_heartbeat_tick(void)
 {
 	uint64_t now;
 
-	if (!nvm_started)
+	if (!nvm_started) {
+		if (phy_live)
+			phy_link_tick(gettime_ns());
 		return;
+	}
 	now = gettime_ns();
 
 	phy_link_tick(now);
@@ -1524,7 +1536,10 @@ static int nvm_restore_ended(void)
 		(MILAN_PP_STAT_RESTORE_DONE | MILAN_PP_STAT_RESTORE_CLOSED)) != 0;
 }
 
-/* Start the boot restore walk and wait for its terminal, heartbeating. */
+/* Start the boot restore walk and wait for its terminal, heartbeating. The
+ * wait is bounded and decides nothing: the fabric holds the entity enable
+ * until the restore releases it, so at the timeout it reports exactly that
+ * (docs/design/SAVED_STATE_MATERIALIZATION.md section 5.3, change 3). */
 static void nvm_restore_walk(void)
 {
 	uint64_t start = gettime_ns();
@@ -1534,7 +1549,7 @@ static void nvm_restore_walk(void)
 	while (!nvm_restore_ended()) {
 		nvm_heartbeat_tick();
 		if (gettime_ns() - start > NVM_RESTORE_TIMEOUT_NS) {
-			printf("Milan NVM: the restore walk did not sequence in time.\n");
+			printf("Milan NVM: the restore walk has not reached its terminal; the fabric holds the entity enable until it does.\n");
 			break;
 		}
 	}
@@ -1653,8 +1668,12 @@ static void nvm_boot(void)
 
 	/* Patch 0006 supplies this symbol; an older BIOS must fail to link. */
 	bios_dispatch_hook_required();
+	phy_live = 1;
 	if (!nvm_shape_consistent()) {
 		printf("Milan NVM: the record set does not match the generated shape; persistence disabled.\n");
+		/* The console still services the PHY link on this path; the
+		 * writer behind the hook is never admitted (nvm_started 0). */
+		set_idle_hook(nvm_service);
 		/* The restore walk still runs, blind, as it does after a refused
 		 * window: the processor holds its ACMP listener and AECP from reset
 		 * until the walk reaches its terminal, so a boot that never starts
@@ -1823,6 +1842,11 @@ static void configure_fabric(void)
  * ADP_CTRL[0] unless the AEM verifier's verdict says the image it checked
  * matched -- and a single choke point is what lets that be measured by
  * data flow instead of by refusing constructs across the whole file.
+ *
+ * The two writes REQUEST the enable; the fabric holds it until the restore
+ * walk releases it at COMPLETE or DEFAULTS, and a CLOSED restore holds it
+ * until reset. So the line reports the request, never an enabled entity
+ * (docs/design/SAVED_STATE_MATERIALIZATION.md section 5.3, change 3).
  */
 static void entity_advertise(int verified)
 {
@@ -1830,7 +1854,7 @@ static void entity_advertise(int verified)
 		return;
 	milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 1u);
 	milan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) | 1u);
-	printf("Milan baremetal: fabric entity enabled; UART diagnostics ready.\n");
+	printf("Milan baremetal: fabric entity enable requested; the fabric holds it until the restore releases it; UART diagnostics ready.\n");
 }
 
 static int load_aem_image(void)

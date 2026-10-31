@@ -64,7 +64,8 @@ from litex.soc.interconnect.csr import CSRStorage, CSRStatus, CSRField
 from litex.gen.genlib.cdc import BusSynchronizer
 from litex.soc.integration.soc_core import SoCCore
 from litex.soc.integration.soc import SoCRegion
-from clock_constraints import add_eth_constraints, add_quasi_static_constraints, check_implementation_log
+from clock_constraints import (add_eth_constraints, add_quasi_static_constraints,
+                               add_servo_reset_constraints, check_implementation_log)
 from litex.soc.integration.builder import Builder, builder_args, builder_argdict
 
 # THIS FILE'S TWO ROOTS, as `Path`s, derived once. Every path below is a
@@ -275,6 +276,9 @@ class _CRG(LiteXModule):
             # must BE the requested one, never merely "within 1 %".
             pll.create_clkout(self.cd_milan, milan_clk_freq, margin=0)
             self.eth_bounded_clocks.append(pll.clkouts[pll.nclkouts - 1].clk)
+            # The PLL output, not its buffered alias, as for Ethernet: the
+            # #817 servo reset hook resolves its clock after synthesis.
+            self.milan_pll_clk = pll.clkouts[pll.nclkouts - 1].clk
             platform.add_false_path_constraints(self.cd_sys.clk, self.cd_milan.clk)
 
             # CLEAN audio clock (07-18): the CS4344 needs a ~ps-jitter MCLK -
@@ -3209,6 +3213,10 @@ class MilanSoC(SoCCore):
                     i_i_mmcm_ps_done   = self.crg.audio_ps_done,
                 )
                 dp_ports = dict(dp_ports or {}, **mmcm_ports)
+                # #817: the servo synchronizes the milan reset into this PS
+                # clock, a related PLL output; a pruned servo has no crossing.
+                if (optional_blocks or {}).get("media_clock_servo", True):
+                    add_servo_reset_constraints(platform, self.crg)
             # ---- item-4 TDM MASTER: the header, and the clock that drives it ----
             # THE WHOLE POINT OF THE MASTER ROLE. A SLAVE build leaves
             # i_tdm_bclk_i/i_tdm_fsync_i at 0 (see add_milan_datapath), so its

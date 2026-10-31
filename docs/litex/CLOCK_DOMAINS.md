@@ -89,7 +89,7 @@ Logical aliases do not introduce another oscillator:
 | `maceth_rx`, `maceth_tx` | `eth_rx`, `eth_tx` respectively | PHY-domain resets extended by `eth_rst` |
 | `clk_audio_i` | `audio` | RTL audio blocks receive `axis_resetn`; see reset caveat |
 | `clk_tdm_i` | `audio` for TDM8; `audio_tdm` for TDM16/32 | TDM master synchronizes its incoming reset locally |
-| `i_ps_clk` | `idelay` here; `sys` without DDR/Ethernet | Servo synchronizes its incoming reset locally |
+| `i_ps_clk` | `idelay` here; `sys` without DDR/Ethernet | Servo synchronizes its incoming reset locally, through two `ASYNC_REG` stages |
 
 Without a selected Milan clock, `milan_cd` becomes `sys`.
 The explicit Milan stream and AXI-Lite crossings then disappear.
@@ -239,6 +239,7 @@ Conditional paths exist only when their features are elaborated.
 | Playback/render samples | Milan → audio or external slave BCLK | `cdc_pair_fifo` in enabled I2S playback / TDM render |
 | Audio events and fill ticks | Audio → Milan | `cdc_pulse`, including `zf_tick_cdc` |
 | MMCM phase-command batches | Milan → `i_ps_clk` | Servo `cdc_handshake`; phase runner waits for `PSDONE` |
+| Servo phase-runner reset | Milan → `i_ps_clk` | Servo `psrst_sync_r`, two `ASYNC_REG` stages; the first is false-pathed from Milan ([#817](https://github.com/kebag-logic/milan-fpga/issues/817)) |
 | MMCM DRP commands/replies | Milan → MMCM DCLK interface | DCLK equals Milan; no separate DRP clock domain |
 
 `_axis_dp_cdc` supplies the named packet/memory stream crossings.
@@ -379,6 +380,9 @@ for exception scope and implementation evidence.
 
 - `_CRG` requests exact main-PLL output ratios with `margin=0`.
 - It false-paths `sys`↔`milan` and selected audio crossings.
+- `milan` and `idelay` stay related clocks.
+- Only the servo's reset synchronizer input is cut ([#817](https://github.com/kebag-logic/milan-fpga/issues/817)).
+- The servo's batch handshake into `idelay` stays timed as synchronous.
 - GMII RXC has an explicit 8 ns input-clock period.
 - GMII↔system/Milan paths receive 8 ns datapath-only maximum delays.
 - Those asynchronous paths also receive hold-only false paths.

@@ -21,7 +21,7 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `f97c18035be6ef5345e5af27db2124c5697c1b40` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `gptp-processor` | `135afd043309369a87ddbc8d6550aff8ec52a157` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
 | `protocol-processor` | `a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
@@ -380,6 +380,58 @@ Sixteen of 15,850 slices remain.
 
 Its shipping route meets timing at +0.303 ns WNS.
 
+Issue #806 adopts gPTP pin `135afd04`.
+
+The processor stays at `f65c8ff7`.
+
+| gPTP issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #94, portEnabled | [95](https://github.com/Mister-M-alt/FPGA-gPTP/pull/95) | The engine takes portEnabled (IEEE 802.1AS-2011 Section 10.2.4.11) as `port_enabled_i`. While it is low the port starts no gPTP frame, withdraws a frame whose first byte is unaccepted and completes no Pdelay exchange. Each edge after the first sample since reset clears asCapable at once and ends the Milan v1.2 Section 4.2.6.2.5 Pdelay_Req cease, one retained across a warm reset included (Figure 11-8 NOT_ENABLED, with Cor1-2013 and Cor2-2015); a rise sends one Pdelay_Req at once. The 5-minute countdown exit is unchanged |
+
+The engine's one port change is `port_enabled_i`.
+
+`KL_gptp_shadow` adds the same input.
+
+`milan_datapath` drives it from `eff_link_w`.
+
+That is the PHY link and `LINK_CTRL[0]`.
+
+The link guard's estimate is its third term.
+
+The three plane test wrappers tie it enabled.
+
+No top-level port, parameter or register changes.
+
+`gptp_ucode.hex` changes; its ledger row matches the donor's tracked image.
+
+The `milan_dp` gptp leg grades each term.
+
+It also grades both cease exits.
+
+Route-1x1 is 175 LUTs under the twelfth resource record.
+
+Against dev's route it adds 36 LUTs and 28 FFs.
+
+Slices fall by 11; 27 of 15,850 remain.
+
+Every corner meets the build floor.
+
+The slow corners meet it at +0.032 ns WNS.
+
+That is 0.408 ns under the record.
+
+The record holds +0.440 ns.
+
+The tolerance is 0.25 ns, so the gate refuses.
+
+The slowest path is the SoC's bridge-to-flash path.
+
+Timing recovery is ruled under #814/#818.
+
+The best directive meets the build floor at every corner.
+
+Both standalone endpoints equal the record in every figure.
+
 Issue #787 adopts processor pin `a9e84b66`.
 
 It is the merge commit of processor PR #209.
@@ -398,7 +450,7 @@ That holds with or without an ENTITY_DEPARTING.
 
 The top's ports and parameters match across all three pins.
 
-FPGA-gPTP stays at `f97c1803`.
+FPGA-gPTP stays at `135afd04`.
 
 | Processor issue | Merged PR | Parent-visible result |
 |---|---|---|
@@ -585,10 +637,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/f97c18035be6ef5345e5af27db2124c5697c1b40/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 

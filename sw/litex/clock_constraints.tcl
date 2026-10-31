@@ -18,6 +18,46 @@ proc kl_net_clock {name} {
     return $clocks
 }
 
+# #817: KL_mmcm_drp_servo samples the milan-domain reset level into its PS
+# clock through a two-flop ASYNC_REG synchronizer, so the reset's arrival at
+# the first flop is a crossing, not a single-cycle path between related PLL
+# outputs. Only that D pin, from the reset's own clock, is cut; the handshake
+# beside it keeps its timing. The chain is found by structure and refused if
+# the attribute, the chain or the clock pair is not as stated.
+proc kl_servo_reset_sync_constraints {milan_net} {
+    set src [kl_net_clock $milan_net]
+    set stages [get_cells -hierarchical -quiet \
+        -filter {NAME =~ "*mmcm_servo/psrst_sync_r_reg*"}]
+    if {[llength $stages] != 2} {
+        error "CONSTRAINTS: expected two servo reset synchronizer flops, got $stages"
+    }
+    set first {}; set second {}; set dst {}
+    foreach cell $stages {
+        if {![string is true -strict [get_property ASYNC_REG $cell]]} {
+            error "CONSTRAINTS: servo reset synchronizer $cell lacks ASYNC_REG"
+        }
+        lappend dst {*}[get_clocks -of_objects [get_pins -of_objects $cell -filter {IS_CLOCK == 1}]]
+        set d [get_nets -of_objects [get_pins -of_objects $cell -filter {REF_PIN_NAME == D}]]
+        set feed [get_cells -quiet -of_objects \
+            [get_pins -quiet -leaf -of_objects $d -filter {DIRECTION == OUT}]]
+        if {[llength $feed] == 1 && [lindex $feed 0] in $stages} {
+            lappend second $cell
+        } else {
+            lappend first $cell
+        }
+    }
+    if {[llength $first] != 1 || [llength $second] != 1} {
+        error "CONSTRAINTS: servo reset synchronizer is not a two-flop chain: $stages"
+    }
+    set dst [lsort -unique $dst]
+    if {[llength $dst] != 1 || [lindex $dst 0] eq [lindex $src 0]} {
+        error "CONSTRAINTS: servo reset synchronizer clock $dst is not one clock distinct from $src"
+    }
+    set pin [get_pins -of_objects $first -filter {REF_PIN_NAME == D}]
+    set_false_path -from $src -to $pin
+    puts "CONSTRAINTS: servo reset synchronizer from=$src to=$dst cut=$pin"
+}
+
 proc milan_eth_constraints {eth_port part_nets other_nets} {
     set eth [get_clocks -of_objects [get_ports $eth_port]]
     if {[llength $eth] != 1} {
