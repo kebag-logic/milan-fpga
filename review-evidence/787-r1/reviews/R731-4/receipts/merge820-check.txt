@@ -1,0 +1,52 @@
+parents: ddbf87e66de1cc6e4a5a71652f08c67236bd2a8c 81f78a81e1271185174f9c5dbbcc8469b5dab5b4 
+merge-base: 02ca829ad821f4233ab66f59978c65d3c3c9de70
+dev 02ca829a ancestor of first parent
+merge-tree rc=0 tree=755d7ec3f67de920cc7534a7ecf6d34516e25a30
+recorded tree=755d7ec3f67de920cc7534a7ecf6d34516e25a30
+-- files changed by #820 side (mb..^2):
+CHANGELOG.md
+docs/design/AREA_BUDGET.md
+docs/design/MARK_II_AREA_PLAN.md
+docs/integration/BUILDING.md
+docs/reference/SUBMODULES.md
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md
+syn/ooc/pp_placement_selftest.py
+syn/ooc/pp_resource_gate.py
+syn/ooc/pp_resource_gate_mutants.py
+syn/ooc/pp_resource_gate_selftest.py
+syn/ooc/pp_resource_gate_set_selftest.py
+-- files changed by 787 side (mb..^1) that #820 also changed:
+CHANGELOG.md
+docs/design/AREA_BUDGET.md
+docs/integration/BUILDING.md
+docs/reference/SUBMODULES.md
+-- merge diff vs first parent:
+CHANGELOG.md
+docs/design/AREA_BUDGET.md
+docs/design/MARK_II_AREA_PLAN.md
+docs/integration/BUILDING.md
+docs/reference/SUBMODULES.md
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md
+syn/ooc/pp_placement_selftest.py
+syn/ooc/pp_resource_gate.py
+syn/ooc/pp_resource_gate_mutants.py
+syn/ooc/pp_resource_gate_selftest.py
+syn/ooc/pp_resource_gate_set_selftest.py
+patch-id #820 side: ce9a6f1809235e5e57aed4c3ba4bb8767bd56c33 0000000000000000000000000000000000000000
+patch-id merge vs p1: 8b1dc57a6a441e5d7f946a585e0ce2e8a74efaca 0000000000000000000000000000000000000000
+-- merge vs second parent (787 side contents should appear):
+ tests/steps/aecp_engine_steps.py               |   6 +
+ tests/steps/torture_reboot_steps.py            | 107 +++
+ 66 files changed, 4522 insertions(+), 78 deletions(-)
+CHANGELOG.md  820side=d4a1b6f65cb6 merge-vs-p1=d4a1b6f65cb6  787side=3ded083d3dc8 merge-vs-p2=3ded083d3dc8 SAME820 SAME787
+docs/design/AREA_BUDGET.md  820side=8a733bec95f8 merge-vs-p1=47f6904ef719  787side=7a2b1a269c4d merge-vs-p2=5f8b54a06d47  
+docs/design/MARK_II_AREA_PLAN.md  820side=2ba1d50f537d merge-vs-p1=2ba1d50f537d  787side=none merge-vs-p2=none SAME820 SAME787
+docs/integration/BUILDING.md  820side=028031e2a5bc merge-vs-p1=028031e2a5bc  787side=e0d17d453393 merge-vs-p2=e0d17d453393 SAME820 SAME787
+docs/reference/SUBMODULES.md  820side=c5537c20034a merge-vs-p1=c5537c20034a  787side=bddef66bcc0e merge-vs-p2=bddef66bcc0e SAME820 SAME787
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md  820side=92aa477884be merge-vs-p1=92aa477884be  787side=none merge-vs-p2=none SAME820 SAME787
+syn/ooc/pp_placement_selftest.py  820side=ee4a9012e7b8 merge-vs-p1=ee4a9012e7b8  787side=none merge-vs-p2=none SAME820 SAME787
+syn/ooc/pp_resource_gate.py  820side=e524d00ee4ab merge-vs-p1=e524d00ee4ab  787side=none merge-vs-p2=none SAME820 SAME787
+syn/ooc/pp_resource_gate_mutants.py  820side=30e3dc97d773 merge-vs-p1=30e3dc97d773  787side=none merge-vs-p2=none SAME820 SAME787
+syn/ooc/pp_resource_gate_selftest.py  820side=92b36d17ee22 merge-vs-p1=92b36d17ee22  787side=none merge-vs-p2=none SAME820 SAME787
+syn/ooc/pp_resource_gate_set_selftest.py  820side=575f07da0436 merge-vs-p1=575f07da0436  787side=none merge-vs-p2=none SAME820 SAME787
+AREA_BUDGET -U0: 820side=1fc78c672e27 merge-vs-p1=1fc78c672e27 787side=23a26f64e18f merge-vs-p2=23a26f64e18f

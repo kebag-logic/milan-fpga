@@ -1,0 +1,13 @@
+test_optional_blocks_default_present:
+  [gate 23a] 3 shipped configs: prune posture == the declared table exactly (arty_current/arty_4x4 ALL PRESENT; ax7101_8x8 spends render_lpf + latency_taps + i2s_playback), argv flags == declared prunes, and every estimate row follows its block's declared posture
+test_optional_block_prune_accounting:
+  [gate 23c] supported prunes, MAAP retained: estimate -4052 LUT / -10816 FF (banked rows -3727 LUT), plan names every block, its parameter, its flag and the re-measurement it forces, labelled ESTIMATE
+test_optional_block_names_reach_the_rtl:
+  [gate 23d] 7 optional blocks: builder key == milan_soc.py map == a real off-by-default --no-* store_true main() READS == consumed by main() (6 through optional_blocks, dedicated ['render_lpf'], each a NAMED MilanSoC.__init__ parameter, none swallowed by **kwargs) == forwarded through MilanNIC and add_milan_datapath == emitted as `p_<PARAM> = 0` under `if not blocks[k]` == a milan_datapath `parameter int X = 1` guarding a generate WITH an else arm == the AREA_BUDGET tier-1 table row (the silent optional-parameter class, closed for the SPELLING of these statements. A statement that rebinds or overrides a carrier without touching them - reassigning optional_blocks, overriding a fold, deleting a dp_params key - is invisible here by construction, because each hop is checked in isolation and _reads() is a name-appearance test. That family and what elaboration hands Instance() are both gate 23f, task #144)
+  [gate 23e] task #65 loopback lane: --loopback-lane store_true == p_LOOPBACK_P == `parameter int LOOPBACK_P = 0` == the strobe gate == the connected lb_tvalid_i == the config declaration that primary_segment reads (same silent-no-op class, opposite polarity)
+test_builder_doc_key_map:
+  [gate 32] 114 loader keys == 114 keys across 65 rows of ENDSTATION_BUILDER.md section 3; planted row and dropped row both refused
+  [gate 32] census: 18 untaken loader arms, where a key read is not recorded: endstation_builder.py:1539 endstation_builder.py:1619 endstation_builder.py:1623 endstation_builder.py:1986 endstation_builder.py:1990 endstation_builder.py:3318 endstation_builder.py:3407 endstation_builder.py:3509 endstation_builder.py:3741 endstation_builder.py:3750 endstation_builder.py:3787 endstation_builder.py:3806 endstation_builder.py:3843 endstation_builder.py:4199 endstation_builder.py:4295 endstation_builder.py:4322 endstation_builder.py:4494 endstation_builder.py:4500
+
+SUBSET: 4 of 105 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS

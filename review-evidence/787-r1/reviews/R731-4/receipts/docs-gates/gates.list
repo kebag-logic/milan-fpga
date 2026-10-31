@@ -1,0 +1,16 @@
+docs_check|python3 scripts/docs_check.py
+em_dash|python3 scripts/check_em_dash.py --base 02ca829ad821f4233ab66f59978c65d3c3c9de70
+doc_style|python3 scripts/check_doc_style.py
+doc_style_selftest|python3 scripts/check_doc_style.py --selftest
+gptp_docs|python3 scripts/check_gptp_docs.py
+doc_map_check|python3 docs/DOC_MAP.gen.py --check
+timesync_check|python3 docs/diagrams/timesync_chain.gen.py --check
+solution_docs|python3 scripts/check_solution_docs.py
+submodule_boundaries_check|python3 docs/diagrams/submodule_boundaries.gen.py --check
+submodule_docs|python3 scripts/check_submodule_docs.py
+submodule_docs_selftest|python3 scripts/check_submodule_docs.py --selftest
+diagram_pngs|python3 scripts/check_diagram_pngs.py
+diagram_pngs_selftest|python3 scripts/check_diagram_pngs.py --selftest
+feature_status|python3 scripts/check_feature_status.py
+traceability|python3 docs/traceability/gen_module_matrix.py --check
+resource_gate_selftest|python3 syn/ooc/pp_resource_gate_selftest.py
