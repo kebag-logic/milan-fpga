@@ -37,6 +37,7 @@ Receipt state machines infer each transition.
 | Sync timeout, GM priority1 below 255 | Age the port, re-run best-master selection | GM may become this station; `tu` asserts |
 | Sync timeout, GM priority1 255 | Clear synchronized state | `tu` asserts; the GM stays |
 | Pdelay failure, fifth lost response | Clear `asCapable` | Capability becomes false |
+| Link loss: portEnabled false (IEEE 802.1AS-2011 10.2.4.11) | Clear `asCapable` at once; send nothing | Capability becomes false |
 | Better Announce | Select new priority vector | GM and parent change |
 | Valid Sync pair | Update servo | Synchronization may recover |
 
@@ -47,6 +48,8 @@ The rule is IEEE 802.1AS-2011 Figure 10-13 with Cor1.
 FPGA-gPTP #89 adopted it.
 
 Four consecutive lost Pdelay responses keep `asCapable` (Figure 11-8, FPGA-gPTP #90).
+
+A link loss clears `asCapable` at once (FPGA-gPTP #94).
 
 A known GM may remain unsynchronized.
 
