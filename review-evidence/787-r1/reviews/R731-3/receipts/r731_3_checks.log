@@ -1,0 +1,47 @@
+== round 4: automatic merge of the parents vs the recorded merge
+CHANGELOG.md
+docs/design/AREA_BUDGET.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/reference/SUBMODULES.md
+
+ CHANGELOG.md                              |   7 +-
+ docs/design/AREA_BUDGET.md                |  10 +--
+ docs/diagrams/PNG_MANIFEST.json           |  10 +--
+ docs/diagrams/submodule_boundaries.drawio |   6 +-
+ docs/diagrams/submodule_boundaries.png    | Bin 438324 -> 438411 bytes
+ docs/reference/SUBMODULES.md              | 115 ++++++++++++++----------------
+ 6 files changed, 61 insertions(+), 87 deletions(-)
+== round 4b: only the port census line changes
+ scripts/port_docs.budget | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+== round 5: patch-id and tree equality
+8fa226cc88f79acff3d9f8c3eecced4f879256f5 0000000000000000000000000000000000000000
+8fa226cc88f79acff3d9f8c3eecced4f879256f5 0000000000000000000000000000000000000000
+merge-tree 91bdf8b797065cd63a38650c6f74ff5c19d29690 recorded 91bdf8b797065cd63a38650c6f74ff5c19d29690
+== git diff --check against dev
+rc=0
+== generators in the clone, restored after
+port contract gate: OK (4079 first-party port(s): hdl 2181, gptp-processor 127, protocol-processor 1771; 347 undocumented: hdl 217 <= 217, gptp-processor 19 <= 19, protocol-processor 111 <= 111; 0 wildcard, 0 positional, 0 hierarchical binding)
+  review inventory: 93 open and 50 literal-bound named connection(s), 58 without a local rationale (all recorded; none may be added); 415 test-only hierarchical observation(s)
+port budget diff rc=0
+rom ledger diff rc=0
+submodule documentation: OK (6 exact gitlinks)
+rc=0
+== boundary diagram and CDC census in scratch clones
+submodule diagram: OK (6 exact gitlinks, decoded PNG)
+check rc=0
+wrote docs/diagrams/submodule_boundaries.svg and docs/diagrams/submodule_boundaries.drawio and docs/diagrams/submodule_boundaries.png
+regen rc=0
+1e80128f cdc_census.svg equal
+1e80128f cdc_census.drawio equal
+02ca829a cdc_census.svg equal
+02ca829a cdc_census.drawio equal
+4aa5666e cdc_census.svg DIFFERS
+4aa5666e cdc_census.drawio DIFFERS
+f7d5fc3c cdc_census.svg DIFFERS
+f7d5fc3c cdc_census.drawio DIFFERS
+4ee2aa96 cdc_census.svg equal
+4ee2aa96 cdc_census.drawio equal
+rc=0
