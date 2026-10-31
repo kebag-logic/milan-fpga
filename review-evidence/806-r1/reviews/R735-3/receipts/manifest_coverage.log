@@ -1,0 +1,148 @@
+FIELD docs/ci-cancel-tail act_job "docs/Cancel late CI failures"
+FIELD docs/ci-cancel-tail by "act"
+FIELD docs/ci-cancel-tail ok true
+FIELD docs/ci-fail-fast act_job "docs/Fail fast across this head"
+FIELD docs/ci-fail-fast by "act"
+FIELD docs/ci-fail-fast ok true
+FIELD docs/ci-manifest act_job "docs/Collect CI manifest"
+FIELD docs/ci-manifest by "act"
+FIELD docs/ci-manifest ok true
+FIELD docs/docs-check act_job "docs/docs-check"
+FIELD docs/docs-check by "act"
+FIELD docs/docs-check ok true
+FIELD docs/docs-check-no-git act_job "docs/docs-check-no-git"
+FIELD docs/docs-check-no-git by "act"
+FIELD docs/docs-check-no-git ok true
+FIELD docs/docs-gates-0 act_job "docs/docs-gates-0"
+FIELD docs/docs-gates-0 by "act"
+FIELD docs/docs-gates-0 ok true
+FIELD docs/docs-gates-1 act_job "docs/docs-gates-1"
+FIELD docs/docs-gates-1 by "act"
+FIELD docs/docs-gates-1 ok true
+FIELD docs/docs-gates-2 act_job "docs/docs-gates-2"
+FIELD docs/docs-gates-2 by "act"
+FIELD docs/docs-gates-2 ok true
+FIELD docs/wire-accountability act_job "docs/wire-accountability"
+FIELD docs/wire-accountability by "act"
+FIELD docs/wire-accountability ok true
+FIELD elaborate/ci-cancel-tail act_job "elaborate/Cancel late CI failures"
+FIELD elaborate/ci-cancel-tail by "act"
+FIELD elaborate/ci-cancel-tail ok true
+FIELD elaborate/ci-fail-fast act_job "elaborate/Fail fast across this head"
+FIELD elaborate/ci-fail-fast by "act"
+FIELD elaborate/ci-fail-fast ok true
+FIELD elaborate/ci-manifest act_job "elaborate/Collect CI manifest"
+FIELD elaborate/ci-manifest by "act"
+FIELD elaborate/ci-manifest ok true
+FIELD elaborate/elaborate act_job "elaborate/elaborate"
+FIELD elaborate/elaborate by "act"
+FIELD elaborate/elaborate ok true
+FIELD elaborate/elaborate-gates-0 act_job "elaborate/elaborate-gates-0"
+FIELD elaborate/elaborate-gates-0 by "act"
+FIELD elaborate/elaborate-gates-0 ok true
+FIELD elaborate/elaborate-gates-1 act_job "elaborate/elaborate-gates-1"
+FIELD elaborate/elaborate-gates-1 by "act"
+FIELD elaborate/elaborate-gates-1 ok true
+FIELD rtl-fast/bdd-conformance act_job "rtl-fast/bdd-conformance"
+FIELD rtl-fast/bdd-conformance by "act"
+FIELD rtl-fast/bdd-conformance ok true
+FIELD rtl-fast/changes act_job "rtl-fast/changes"
+FIELD rtl-fast/changes by "act"
+FIELD rtl-fast/changes ok true
+FIELD rtl-fast/ci-cancel-tail act_job "rtl-fast/Cancel late CI failures"
+FIELD rtl-fast/ci-cancel-tail by "act"
+FIELD rtl-fast/ci-cancel-tail ok true
+FIELD rtl-fast/ci-fail-fast act_job "rtl-fast/Fail fast across this head"
+FIELD rtl-fast/ci-fail-fast by "act"
+FIELD rtl-fast/ci-fail-fast ok true
+FIELD rtl-fast/ci-manifest act_job "rtl-fast/Collect CI manifest"
+FIELD rtl-fast/ci-manifest by "act"
+FIELD rtl-fast/ci-manifest ok true
+FIELD rtl-fast/firmware-aecp-mutants act_job "rtl-fast/firmware-aecp-mutants"
+FIELD rtl-fast/firmware-aecp-mutants by "act"
+FIELD rtl-fast/firmware-aecp-mutants ok true
+FIELD rtl-fast/firmware-boundary act_job "rtl-fast/firmware-boundary"
+FIELD rtl-fast/firmware-boundary by "act"
+FIELD rtl-fast/firmware-boundary ok true
+FIELD rtl-fast/firmware-control-mutants act_job "rtl-fast/firmware-control-mutants"
+FIELD rtl-fast/firmware-control-mutants by "act"
+FIELD rtl-fast/firmware-control-mutants ok true
+FIELD rtl-fast/firmware-srp-mutants act_job "rtl-fast/firmware-srp-mutants"
+FIELD rtl-fast/firmware-srp-mutants by "act"
+FIELD rtl-fast/firmware-srp-mutants ok true
+FIELD rtl-fast/firmware-unit act_job "rtl-fast/firmware-unit"
+FIELD rtl-fast/firmware-unit by "act"
+FIELD rtl-fast/firmware-unit ok true
+FIELD rtl-fast/firmware-verilator act_job "rtl-fast/firmware-verilator"
+FIELD rtl-fast/firmware-verilator by "act"
+FIELD rtl-fast/firmware-verilator ok true
+FIELD rtl-fast/publication-census act_job "rtl-fast/publication-census"
+FIELD rtl-fast/publication-census by "act"
+FIELD rtl-fast/publication-census ok true
+FIELD rtl-fast/rtl-fast act_job "rtl-fast/rtl-fast"
+FIELD rtl-fast/rtl-fast by "act"
+FIELD rtl-fast/rtl-fast ok true
+FIELD rtl-fast/verilator-lint act_job "rtl-fast/verilator-lint"
+FIELD rtl-fast/verilator-lint by "act"
+FIELD rtl-fast/verilator-lint ok true
+FIELD rtl-fast/yosys-elaboration act_job "rtl-fast/yosys-elaboration"
+FIELD rtl-fast/yosys-elaboration by "act"
+FIELD rtl-fast/yosys-elaboration ok true
+FIELD rtl-fast/yosys-tool act_job "rtl-fast/Prepare pinned Yosys"
+FIELD rtl-fast/yosys-tool by "act"
+FIELD rtl-fast/yosys-tool ok true
+FIELD rtl/ci-cancel-tail act_job "rtl-full/Cancel late CI failures"
+FIELD rtl/ci-cancel-tail by "act"
+FIELD rtl/ci-cancel-tail ok true
+FIELD rtl/ci-fail-fast act_job "rtl-full/Fail fast across this head"
+FIELD rtl/ci-fail-fast by "act"
+FIELD rtl/ci-fail-fast ok true
+FIELD rtl/ci-manifest act_job "rtl-full/Collect CI manifest"
+FIELD rtl/ci-manifest by "act"
+FIELD rtl/ci-manifest ok true
+FIELD rtl/full-ci-gate act_job "rtl-full/full-ci-gate"
+FIELD rtl/full-ci-gate by "act"
+FIELD rtl/full-ci-gate ok true
+FIELD rtl/physical-gptp by "not-run"
+FIELD rtl/physical-gptp ok true
+FIELD rtl/physical-gptp reason "runs only on the schedule and workflow_dispatch events (nightly and manual), never on pull_request; act shows it skipped. It is the physical-rate milan_dp_gptp simulation, reported nightly outside the required PR aggregate; it is not hardware evidence"
+FIELD rtl/union-capture_coherence act_job "rtl-full/Union capture_coherence"
+FIELD rtl/union-capture_coherence by "act"
+FIELD rtl/union-capture_coherence ok true
+FIELD rtl/union-maap act_job "rtl-full/Union maap"
+FIELD rtl/union-maap by "act"
+FIELD rtl/union-maap ok true
+FIELD rtl/union-milan_dp act_job "rtl-full/Union milan_dp"
+FIELD rtl/union-milan_dp by "act"
+FIELD rtl/union-milan_dp ok true
+FIELD rtl/union-milan_dp_mclk act_job "rtl-full/Union milan_dp_mclk"
+FIELD rtl/union-milan_dp_mclk by "act"
+FIELD rtl/union-milan_dp_mclk ok true
+FIELD rtl/union-milan_dp_render act_job "rtl-full/Union milan_dp_render"
+FIELD rtl/union-milan_dp_render by "act"
+FIELD rtl/union-milan_dp_render ok true
+FIELD rtl/union-pp_shadow act_job "rtl-full/Union pp_shadow"
+FIELD rtl/union-pp_shadow by "act"
+FIELD rtl/union-pp_shadow ok true
+FIELD rtl/verilator-shards act_jobs ["rtl-full/Verilator shard 0/19-1", "rtl-full/Verilator shard 1/19-2", "rtl-full/Verilator shard 10/19-11", "rtl-full/Verilator shard 11/19-12", "rtl-full/Verilator shard 12/19-13", "rtl-full/Verilator shard 13/19-14", "rtl-full/Verilator shard 14/19-15", "rtl-full/Verilator shard 15/19-16", "rtl-fu
+FIELD rtl/verilator-shards by "act"
+FIELD rtl/verilator-shards ok true
+FIELD rtl/verilator-suites act_job "rtl-full/verilator-suites"
+FIELD rtl/verilator-suites by "act"
+FIELD rtl/verilator-suites ok true
+FIELD rtl/yosys-portability act_job "rtl-full/yosys-portability"
+FIELD rtl/yosys-portability by "act"
+FIELD rtl/yosys-portability ok true
+FIELD rtl/yosys-shards act_jobs ["rtl-full/Yosys shard 0/4-1", "rtl-full/Yosys shard 1/4-2", "rtl-full/Yosys shard 2/4-3", "rtl-full/Yosys shard 3/4-4"]
+FIELD rtl/yosys-shards by "act"
+FIELD rtl/yosys-shards ok true
+FIELD rtl/yosys-tool act_job "rtl-full/Prepare pinned Yosys"
+FIELD rtl/yosys-tool by "act"
+FIELD rtl/yosys-tool ok true
+coverage entries 0 by {} not ok []
+phys act skipped
+banks {"full-native": {"commands": [{"argv_sha256": "7180cc6eb88dc468a1a980bc89086bfa08c50698416c7ae138411becb05948ec", "exit_code": 0}, {"argv_sha256": "879a9603e08d49443e988bb7aa588a1bc74bd292907f3e97118c23c6a5b59dbf", "exit_code": 0}, {"argv_sha256": "a78795cd58ef1761672813de90050b58ce0c9a292de168d935c2ff05fdf71591", "exit_code": 0}, {"argv_sha256": "b0119a16bde486946410c8024bfce2147a2c0151037b6d644b2079f685163ed2", "exit_code": 0}, {"argv_sha256": "cd723c050bea242a758d3384499dbcb884f3a7dca0a917850490b6e25f681e32", "exit_code": 0}], "exit_code": 0}, "manager-builder": {"commands": [{"argv_sha256": "e27b6ffb4697cf17fe0a5062dac3425a802e76d52498553e8d32bcccba3fced0", "exit_code": 0}, {"argv_sha256": "2d10f63670accc5bafbf81aa6557ad0ec60caf3f6b58b8a8b1dd9f959bd0a56b", "exit_code": 0}, {"argv_sha256": "dba955554a6ed98975dd77aca9471d51c2bae1b34396fe34a4b036443622135b", "exit_code": 0}, {"argv_sha256": "9a773e57071a63ee8ebea3584115df7ded45d243fde3247d24305d1c2b2b50c7", "exit_code": 0}, {"argv_sha256": "a16ef5cd7f677adb55f2e86451a5435f09e7ea5241afc8ab73be83bc4673ff71", "exit_code": 0}, {"argv_sha256": "47fa216803de1f0013571011fe0617f0261bd8191d17b1001cb1b66925f9284d", "exit_code": 0}, {"argv_s
+subject {"candidate": "683e59712b93b2ef9fc81d22cc21c7d96e4c3909", "candidate_parent": "71d6ed07a59ec35b703b658edc9157d6b454d131", "candidate_tree": "556e790607ad5e53dd9950f6c2e191dcebf3ef0b", "head": "0c45ebf28e2c11352aa4ad40d46780143b1a77ab", "head_tree": "9aa2966798bf164913cef087f6bdf09bd2e69bcf", "pr": 813, "repository": "kebag-logic/milan-fpga"}
+full-native 5 nonzero 0 bank exit 0 []
+manager-builder 48 nonzero 0 bank exit 0 []
+coverage entries 47 all ok True {'act': 46, 'not-run': 1}
