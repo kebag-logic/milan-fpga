@@ -1,0 +1,18 @@
+make: Entering directory '<scratch>/clone-campaigns-3e67de9c/tb/verilator/pp_shadow'
+python3 reboot_mutant.py
+clean control: [RB] PASS
+request-ignored: KILLED by its named check, 21 failing checks
+  named check: RB advertising: the PHY hold rises
+early-request: KILLED by its named check, 5 failing checks
+  named check: RB advertising: the PHY hold follows the processor's REBOOT request
+hold-on-the-request-alone: KILLED by its named check, 8 failing checks
+  named check: RB advertising: ENTITY_DEPARTING leaves after the notification, before the PHY hold
+egress-ignores-the-mac-fifo: KILLED by its named check, 8 failing checks
+  named check: RB advertising: ENTITY_DEPARTING leaves after the notification, before the PHY hold
+egress-without-a-bound: KILLED by its named check, 3 failing checks
+  named check: RB dead transmit clock: the PHY hold still rises
+txend-unwired: KILLED by its named check, 2 failing checks
+  named check: RB advertising: ...and at most two ticks and eight clocks after it
+== pp_shadow reboot mutants: arms: 6   survived: 0 ==
+PASS: [RB] catches every arm (6 of 6); clean control passes
+make: Leaving directory '<scratch>/clone-campaigns-3e67de9c/tb/verilator/pp_shadow'

@@ -1,0 +1,9 @@
+0 48s pp_shadow_rb: make -C tb/verilator/pp_shadow build-base exec-base SIM_ARGS=--reboot-only BUILD_DIR=<scratch>/obj-camp-rb
+0 306s pp_shadow_reboot_mutant: make -C tb/verilator/pp_shadow reboot-mutant
+0 753s litex_sims: bash scripts/run_litex_sims.sh <scratch>/r/campaigns-3e67de9c/litex-sims
+0 1s mac_tx_model_check_litex: <home>/litex-milan/venv/bin/python3 sw/litex/gen_mac_tx_model.py --check
+0 0s mac_tx_model_check_plain: python3 sw/litex/gen_mac_tx_model.py --check
+143 54s dynmap_mutants: make -C tb/verilator/milan_dp dynmap-mutants DYNMAP_MUTANT_JOBS=4
+0 5s fw_service_budget: timeout 1800 make -C tb/verilator/fw_service_budget
+0 0s fw_service_budget_verdict: python3 scripts/suite_tally.py --verdict <scratch>/r/campaigns-3e67de9c/fw_service_budget.log
+CAMPAIGNS-DONE

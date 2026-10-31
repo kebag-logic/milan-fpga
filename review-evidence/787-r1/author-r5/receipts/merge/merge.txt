@@ -1,0 +1,27 @@
+$ git merge-tree --write-tree --name-only 3e67de9c 4ee2aa96
+91bdf8b797065cd63a38650c6f74ff5c19d29690
+rc=0
+$ git merge-base 3e67de9c 4ee2aa96
+1e80128f0a467b58bf884b7d9bf62e013a2fb141
+$ git rev-parse HEAD HEAD^1 HEAD^2 HEAD^{tree}
+f7d5fc3cc48ca80195428562fa86a46023df8e0d
+3e67de9c1d42557f222edd2b079d23265bf1b726
+4ee2aa9654196a00876dedade4b2e987c9c06e64
+91bdf8b797065cd63a38650c6f74ff5c19d29690
+$ git diff 3e67de9c HEAD | git patch-id --stable
+8fa226cc88f79acff3d9f8c3eecced4f879256f5 0000000000000000000000000000000000000000
+$ git diff 1e80128f 4ee2aa96 | git patch-id --stable
+8fa226cc88f79acff3d9f8c3eecced4f879256f5 0000000000000000000000000000000000000000
+$ git diff --stat 3e67de9c HEAD
+ ci/image/exec-audit.json         |   7 +
+ docs/litex/CLOCK_DOMAINS.md      |   6 +
+ docs/testing/TESTING.md          |  35 ++
+ scripts/run_litex_sims.sh        |   1 +
+ sw/litex/milan_soc.py            | 167 ++++++-
+ sw/litex/test_soc_timing_cuts.py | 993 +++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 1203 insertions(+), 6 deletions(-)
+$ git show --remerge-diff --format=%H HEAD
+f7d5fc3cc48ca80195428562fa86a46023df8e0d
+$ git ls-tree HEAD protocol-processor gptp-processor
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor

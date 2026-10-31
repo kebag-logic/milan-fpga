@@ -1,0 +1,4 @@
+$ git merge-base 02ca829a HEAD
+02ca829ad821f4233ab66f59978c65d3c3c9de70
+$ git diff --check $(git merge-base 02ca829a HEAD) HEAD
+rc=0

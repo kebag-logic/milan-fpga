@@ -1,0 +1,31 @@
+#70's dynmap-mutants at 3e67de9c: 66 arms, every one caught; five clean legs, every one passing
+
+== full run: make -C tb/verilator/milan_dp dynmap-mutants DYNMAP_MUTANT_JOBS=4 (dynmap_run.sh; rc 2)
+[PASS] the unmutated gateware still passes the dynmap leg
+[FAIL] the unmutated gateware does NOT pass the listener leg (caught) - its mutant results are meaningless
+[FAIL] the unmutated gateware does NOT pass the talker leg (did not compile) - its mutant results are meaningless
+[PASS] the unmutated gateware still passes the maprec8 leg
+[PASS] the unmutated gateware still passes the maprec4 leg
+71 checks: 67 PASS, 4 FAIL
+arms caught: 64 of 66
+[FAIL] the unmutated gateware does NOT pass the listener leg (caught) - its mutant results are meaningless
+[FAIL] the unmutated gateware does NOT pass the talker leg (did not compile) - its mutant results are meaningless
+[FAIL] mutant "an empty reset, under the listener's end-to-end check" failed, but not the named check ('T18 POWER-ON: with no map command since the reset, the lane renders injected events')
+[FAIL] mutation "an empty reset, under the talker's end-to-end check" did not compile; a mutant that cannot build proves nothing about the leg
+
+== the two end-to-end arms again (36 listener, 37 talker), their legs' generated inputs made by their own suites first, dynmap_mutants.py run directly with MAKEFLAGS cleared (dynmap_e2e_run.sh; rc 0)
+[PASS] the unmutated gateware still passes the listener leg
+[PASS] the unmutated gateware still passes the talker leg
+[PASS] mutant caught: an empty reset, under the listener's end-to-end check - breaks "T18 POWER-ON: with no map command since the reset, the lane renders injected events" (its tallies report 8 failure(s) across 261 checks)
+[PASS] mutant caught: an empty reset, under the talker's end-to-end check - breaks "[V] every requested column was decoded" (its tallies report 108 failure(s) across 480 checks)
+4 checks: 4 PASS, 0 FAIL
+
+== union: arms 1-35 and 38-66 caught in the full run (64), arms 36 and 37 caught in the second run (2): 66 of 66, the count tb/verilator/milan_dp/README.md records; clean legs dynmap (711 checks), maprec8, maprec4, listener, talker all pass
+
+== why the full run's four lines failed (harness preconditions, not the merge):
+  listener: the campaign builds the clean leg with make -o ltn_rom.hex -o ucode.hex -o tdm8r_aemi.bin; in this clone milan_dp_render had never run, so those inputs did not exist. The clean leg's run failed (the campaign does not log a clean leg's output), and with the inputs made by the suite it passes
+  talker: the leg's build under the outer make (with MAKEFLAGS=-j4 in this driver's environment) spliced make's 'Entering directory' lines into its datapath source list, and Verilator refused it:
+    %Error: Cannot find file containing module: 'Entering'
+    %Error: Cannot find file containing module: 'directory'
+    %Error: Cannot find file containing module: 'Leaving'
+  capture_coherence/Makefile, milan_dp_render/Makefile and these two arms are unchanged by both sides of the merge

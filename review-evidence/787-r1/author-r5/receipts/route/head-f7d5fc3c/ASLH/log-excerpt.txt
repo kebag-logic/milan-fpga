@@ -1,0 +1,32 @@
+CONSTRAINTS: quasi_static cells=112 setup=4 hold=3
+CONSTRAINTS: eth=eth_clocks0_rx bounded=milansoc_crg_clkout0 milansoc_crg_clkout1 async=milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4 budget_ns=8.000
+CONSTRAINTS: MultiReg eth=12 part=199 other=0
+CONSTRAINTS: servo reset synchronizer from=milansoc_crg_clkout1 to=milansoc_crg_clkout4 cut=milan_datapath/g_mmcm_servo.mmcm_servo/psrst_sync_r_reg[0]/D
+opt_design: Time (s): cpu = 00:05:45 ; elapsed = 00:02:41 . Memory (MB): peak = 3999.570 ; gain = 988.289 ; free physical = 11920 ; free virtual = 68466
+place_design: Time (s): cpu = 00:12:21 ; elapsed = 00:07:13 . Memory (MB): peak = 4539.730 ; gain = 540.160 ; free physical = 6957 ; free virtual = 66289
+phys_opt_design: Time (s): cpu = 00:05:13 ; elapsed = 00:02:10 . Memory (MB): peak = 4539.730 ; gain = 0.000 ; free physical = 7741 ; free virtual = 67444
+IOB-PACK INERT eth0_rx_er: IN, the port has no net: nothing drives or reads the pin
+IOB-PACK PASS  eth0_rx_data[0]: IN, milansoc_milanmac_phy_rx_data_reg[0] (FDRE @ ILOGIC_X0Y120)
+IOB-PACK PASS  eth0_rx_data[1]: IN, milansoc_milanmac_phy_rx_data_reg[1] (FDRE @ ILOGIC_X0Y137)
+IOB-PACK PASS  eth0_rx_data[2]: IN, milansoc_milanmac_phy_rx_data_reg[2] (FDRE @ ILOGIC_X0Y138)
+IOB-PACK PASS  eth0_rx_data[3]: IN, milansoc_milanmac_phy_rx_data_reg[3] (FDRE @ ILOGIC_X0Y130)
+IOB-PACK PASS  eth0_rx_data[4]: IN, milansoc_milanmac_phy_rx_data_reg[4] (FDRE @ ILOGIC_X0Y129)
+IOB-PACK PASS  eth0_rx_data[5]: IN, milansoc_milanmac_phy_rx_data_reg[5] (FDRE @ ILOGIC_X0Y114)
+IOB-PACK PASS  eth0_rx_data[6]: IN, milansoc_milanmac_phy_rx_data_reg[6] (FDRE @ ILOGIC_X0Y113)
+IOB-PACK PASS  eth0_rx_data[7]: IN, milansoc_milanmac_phy_rx_data_reg[7] (FDRE @ ILOGIC_X0Y115)
+IOB-PACK PASS  eth0_rx_dv: IN, milansoc_milanmac_phy_rx_dv_reg (FDRE @ ILOGIC_X0Y119); also read by 4 fabric cell(s)
+IOB-PACK PASS  eth0_tx_data[0]: OUT, eth0_tx_data_reg[0] (FDRE @ OLOGIC_X0Y155)
+IOB-PACK PASS  eth0_tx_data[1]: OUT, eth0_tx_data_reg[1] (FDRE @ OLOGIC_X0Y134)
+IOB-PACK PASS  eth0_tx_data[2]: OUT, eth0_tx_data_reg[2] (FDRE @ OLOGIC_X0Y135)
+IOB-PACK PASS  eth0_tx_data[3]: OUT, eth0_tx_data_reg[3] (FDRE @ OLOGIC_X0Y136)
+IOB-PACK PASS  eth0_tx_data[4]: OUT, eth0_tx_data_reg[4] (FDRE @ OLOGIC_X0Y131)
+IOB-PACK PASS  eth0_tx_data[5]: OUT, eth0_tx_data_reg[5] (FDRE @ OLOGIC_X0Y122)
+IOB-PACK PASS  eth0_tx_data[6]: OUT, eth0_tx_data_reg[6] (FDRE @ OLOGIC_X0Y123)
+IOB-PACK PASS  eth0_tx_data[7]: OUT, eth0_tx_data_reg[7] (FDRE @ OLOGIC_X0Y121)
+IOB-PACK PASS  eth0_tx_en: OUT, eth0_tx_en_reg (FDRE @ OLOGIC_X0Y151)
+IOB-PACK PASS  tdm_bclk: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/bclk_r_reg (FDRE @ OLOGIC_X0Y168)
+IOB-PACK PASS  tdm_dout: OUT, milan_datapath/g_tdm_render_live.g_master.chan_tdm_render/tdm_dout_o_reg (FDRE @ OLOGIC_X0Y167)
+IOB-PACK PASS  tdm_fsync: OUT, milan_datapath/g_aif_tdm_master.g_solo.aaf_capture/fsync_r_reg (FDSE @ OLOGIC_X0Y164)
+IOB-PACK OK: 22 port(s) constrained IOB TRUE checked, none unpacked (alinx_ax7101_iob_pack.rpt)
+route_design: Time (s): cpu = 00:19:42 ; elapsed = 00:14:16 . Memory (MB): peak = 4902.973 ; gain = 350.664 ; free physical = 19590 ; free virtual = 64259
+phys_opt_design: Time (s): cpu = 00:01:19 ; elapsed = 00:00:21 . Memory (MB): peak = 4902.973 ; gain = 0.000 ; free physical = 20001 ; free virtual = 63527

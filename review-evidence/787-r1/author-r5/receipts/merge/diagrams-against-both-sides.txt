@@ -1,0 +1,32 @@
+The diagram generators that read sw/litex/milan_soc.py (cdc_census, flash_layout) and audio_stream_path, run at each tree with 'python3 -I docs/diagrams/<g>.gen.py <scratch>/<g>' in a shared clone, output compared with that tree's committed svg and drawio:
+1e80128f cdc_census.svg: == committed
+1e80128f cdc_census.drawio: == committed
+1e80128f flash_layout.svg: == committed
+1e80128f flash_layout.drawio: == committed
+1e80128f audio_stream_path.svg: == committed
+1e80128f audio_stream_path.drawio: == committed
+3e67de9c cdc_census.svg: DIFFERS from committed
+3e67de9c cdc_census.drawio: DIFFERS from committed
+3e67de9c flash_layout.svg: == committed
+3e67de9c flash_layout.drawio: == committed
+3e67de9c audio_stream_path.svg: == committed
+3e67de9c audio_stream_path.drawio: == committed
+4ee2aa96 cdc_census.svg: == committed
+4ee2aa96 cdc_census.drawio: == committed
+4ee2aa96 flash_layout.svg: == committed
+4ee2aa96 flash_layout.drawio: == committed
+4ee2aa96 audio_stream_path.svg: == committed
+4ee2aa96 audio_stream_path.drawio: == committed
+f7d5fc3c cdc_census.svg: DIFFERS from committed
+f7d5fc3c cdc_census.drawio: DIFFERS from committed
+f7d5fc3c flash_layout.svg: == committed
+f7d5fc3c flash_layout.drawio: == committed
+f7d5fc3c audio_stream_path.svg: == committed
+f7d5fc3c audio_stream_path.drawio: == committed
+
+cdc_census.svg: generator output at the merge == at the lane 3e67de9c
+cdc_census.svg: generator output at #826 == at the base 1e80128f
+cdc_census.drawio: generator output at the merge == at the lane 3e67de9c
+cdc_census.drawio: generator output at #826 == at the base 1e80128f
+committed cdc_census.svg says: x2 call sites; generator at the merge writes: x3 call sites (the lane's PHY-hold MultiReg, round 2; round 4 reported it)
+So #826 changes no diagram's generated output, and the merge's output is the lane's. Nothing to regenerate.

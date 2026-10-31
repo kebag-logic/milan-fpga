@@ -1,0 +1,94 @@
+== EPPO
+slack +0.090 ns at Slow_0C, Slow_85C; group milansoc_crg_clkout1
+source      milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C
+destination milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[25]/R
+requirement 20.000ns  (milansoc_crg_clkout1 rise@20.000ns - milansoc_crg_clkout1 rise@0.000ns)
+data path   19.372ns  (logic 6.560ns (33.864%)  route 12.812ns (66.136%))
+levels      36  (CARRY4=11 LUT2=7 LUT3=1 LUT4=6 LUT5=3 LUT6=8)
+cells on the path (the source clock path first), by parent instance, in path order:
+  IBUFDS
+  IBUFDS_n_0_BUFG_inst
+  PLLE2_ADV
+  BUFG_1
+  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]
+  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu
+  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3
+  milan_datapath/pp_shadow/u_pp/u_aecp/u_dyn
+  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[25]
+worst listed path naming the ZQCS timer: none listed in the signoff reports
+the 10 setup paths of milansoc_crg_clkout0 (sys) the Slow_0C report lists (-max_paths 5):
+  +0.452  milansoc_sdram_bankmachine3_row_reg[3]/C -> milansoc_sdram_twtrcon_ready_reg/R
+  +0.484  milansoc_sdram_bankmachine0_row_reg[2]/C -> subfragments_bankmachine7_state_reg[0]/CE
+  +0.484  milansoc_sdram_bankmachine0_row_reg[2]/C -> subfragments_bankmachine7_state_reg[1]/CE
+  +0.484  milansoc_sdram_bankmachine0_row_reg[2]/C -> subfragments_bankmachine7_state_reg[2]/CE
+  +0.484  milansoc_sdram_bankmachine0_row_reg[2]/C -> subfragments_bankmachine7_state_reg[3]/CE
+  +6.254  milansoc_milanmac_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C -> impl_xilinxmultiregimpl140_reg/D
+  +6.786  milansoc_milanmac_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[5]/C -> impl_xilinxmultiregimpl130_reg[5]/D
+  +6.806  milansoc_milanmac_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[2]/C -> impl_xilinxmultiregimpl130_reg[2]/D
+  +6.934  milansoc_milanmac_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[1]/C -> impl_xilinxmultiregimpl130_reg[1]/D
+  +6.952  milansoc_milanmac_liteethmaccore_rx_cdc_cdc_graycounter0_q_reg[2]/C -> impl_xilinxmultiregimpl160_reg[2]/D
+
+== ASLH
+slack +0.365 ns at Slow_0C, Slow_85C; group milansoc_crg_clkout0
+source      VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[2]_replica/C
+destination VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+requirement 10.000ns  (milansoc_crg_clkout0 rise@10.000ns - milansoc_crg_clkout0 rise@0.000ns)
+data path   9.527ns  (logic 2.269ns (23.817%)  route 7.258ns (76.183%))
+levels      18  (LUT2=1 LUT3=4 LUT4=6 LUT5=2 LUT6=5)
+cells on the path (the source clock path first), by parent instance, in path order:
+  IBUFDS
+  IBUFDS_n_0_BUFG_inst
+  PLLE2_ADV
+  BUFG
+  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner
+  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT6
+  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/Axi4WriteOnlyAl_LUT4
+  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_down_arbiter_core/a_arbiter
+  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_down_to_unified_mBus_cc/a_1/io_up_a_tracker_beat[3]_i_3__0
+  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_filter_logic_core/ptr_cmd[2]_i_3__0
+  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/onAw_halted_fork2
+  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]
+  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge
+worst listed path naming the ZQCS timer: none listed in the signoff reports
+the 10 setup paths of milansoc_crg_clkout0 (sys) the Slow_0C report lists (-max_paths 5):
+  +0.365  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/downW_header_reg[2]_replica/C -> VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+  +0.396  milansoc_sdram_bankmachine0_row_reg[3]/C -> milansoc_sdram_twtrcon_ready_reg/R
+  +0.430  milansoc_sdram_bankmachine0_row_reg[3]/C -> subfragments_bankmachine1_state_reg[0]/CE
+  +0.430  milansoc_sdram_bankmachine0_row_reg[3]/C -> subfragments_bankmachine1_state_reg[1]/CE
+  +0.430  milansoc_sdram_bankmachine0_row_reg[3]/C -> subfragments_bankmachine1_state_reg[2]/CE
+  +4.685  milansoc_milanmac_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C -> impl_xilinxmultiregimpl140_reg/D
+  +6.708  milansoc_milanmac_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[2]/C -> impl_xilinxmultiregimpl130_reg[2]/D
+  +6.724  milansoc_milanmac_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[0]/C -> impl_xilinxmultiregimpl130_reg[0]/D
+  +6.752  milansoc_milanmac_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[3]/C -> impl_xilinxmultiregimpl130_reg[3]/D
+  +6.762  milansoc_milanmac_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[5]/C -> impl_xilinxmultiregimpl130_reg[5]/D
+
+== ETO
+slack +0.204 ns at Slow_0C, Slow_85C; group milansoc_crg_clkout1
+source      milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C
+destination milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[0]/R
+requirement 20.000ns  (milansoc_crg_clkout1 rise@20.000ns - milansoc_crg_clkout1 rise@0.000ns)
+data path   19.257ns  (logic 6.698ns (34.781%)  route 12.559ns (65.219%))
+levels      36  (CARRY4=12 LUT2=6 LUT3=1 LUT4=6 LUT5=3 LUT6=8)
+cells on the path (the source clock path first), by parent instance, in path order:
+  IBUFDS
+  IBUFDS_n_0_BUFG_inst
+  PLLE2_ADV
+  BUFG_1
+  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]
+  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu
+  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3
+  milan_datapath/pp_shadow/u_pp/u_aecp/u_dyn
+  milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[0]
+worst listed path naming the ZQCS timer: none listed in the signoff reports
+the 10 setup paths of milansoc_crg_clkout0 (sys) the Slow_0C report lists (-max_paths 5):
+  +0.257  VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/aligner/frontend_allocateSlot_wCmd_s2mPipe_rData_header_reg[0]/C -> VexiiRiscvLitex_f5f08b170311db53220574624f819159/dma_bridge_write_bridge/onPerId_bridge/pendings_valids_reg[0]/D
+  +0.271  milansoc_sdram_bankmachine4_pipe_valid_source_payload_addr_reg[10]/C -> milansoc_sdram_twtrcon_count_reg[0]/R
+  +0.271  milansoc_sdram_bankmachine4_pipe_valid_source_payload_addr_reg[10]/C -> milansoc_sdram_twtrcon_count_reg[1]/R
+  +0.301  milansoc_sdram_bankmachine4_pipe_valid_source_payload_addr_reg[10]/C -> milansoc_sdram_twtrcon_ready_reg/R
+  +0.456  milansoc_sdram_bankmachine4_pipe_valid_source_payload_addr_reg[10]/C -> milansoc_sdram_bankmachine4_trccon_count_reg[1]/R
+  +4.922  milansoc_milanmac_liteethmaccore_pulsesynchronizer0_toggle_i_reg/C -> impl_xilinxmultiregimpl140_reg/D
+  +6.483  milansoc_milanmac_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[2]/C -> impl_xilinxmultiregimpl130_reg[2]/D
+  +6.728  milansoc_milanmac_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[0]/C -> impl_xilinxmultiregimpl130_reg[0]/D
+  +6.752  milansoc_milanmac_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[3]/C -> impl_xilinxmultiregimpl130_reg[3]/D
+  +6.764  milansoc_milanmac_liteethmaccore_tx_cdc_cdc_graycounter1_q_reg[5]/C -> impl_xilinxmultiregimpl130_reg[5]/D
+

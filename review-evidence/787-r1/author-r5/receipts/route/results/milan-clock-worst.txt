@@ -1,0 +1,43 @@
+The listed setup paths of milansoc_crg_clkout1 (the Milan clock) in each run's Slow_0C signoff report (-max_paths 5):
+== EPPO
+  +0.090  36 levels  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C -> milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[25]/R
+  +0.090  36 levels  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C -> milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[26]/R
+  +0.090  36 levels  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C -> milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[27]/R
+  +0.090  36 levels  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C -> milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[28]/R
+  +0.141  36 levels  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C -> milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[29]/R
+  +2.799  0 levels  milan_datapath/g_mmcm_servo.mmcm_servo/ps_fault_ps_r_reg/C -> milan_datapath/g_mmcm_servo.mmcm_servo/psfault_sync_r_reg[0]/D
+  +3.089  0 levels  milan_datapath/g_mmcm_servo.mmcm_servo/ps_busy_ps_r_reg/C -> milan_datapath/g_mmcm_servo.mmcm_servo/psbusy_sync_r_reg[0]/D
+  +3.099  0 levels  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/ack_tog_reg/C -> milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/ack_sync_reg[0]/D
+  +6.444  0 levels  KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[17]/C -> KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[17]/D
+  +6.473  0 levels  KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[26]/C -> KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[26]/D
+  +6.534  0 levels  KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[25]/C -> KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[25]/D
+  +6.538  0 levels  KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[27]/C -> KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[27]/D
+  +6.548  0 levels  KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[36]/C -> KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[36]/D
+== ASLH
+  +0.540  29 levels  milan_datapath/pp_shadow/u_pp/u_notify/ctr_pend_r_reg[2]/C -> milan_datapath/pp_shadow/u_pp/u_event_router/sel_r_reg[0]/CE
+  +0.540  29 levels  milan_datapath/pp_shadow/u_pp/u_notify/ctr_pend_r_reg[2]/C -> milan_datapath/pp_shadow/u_pp/u_event_router/sel_r_reg[1]/CE
+  +0.540  29 levels  milan_datapath/pp_shadow/u_pp/u_notify/ctr_pend_r_reg[2]/C -> milan_datapath/pp_shadow/u_pp/u_event_router/sel_r_reg[2]/CE
+  +0.540  29 levels  milan_datapath/pp_shadow/u_pp/u_notify/ctr_pend_r_reg[2]/C -> milan_datapath/pp_shadow/u_pp/u_event_router/sel_r_reg[3]/CE
+  +0.823  36 levels  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][1]/C -> milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[1]/R
+  +2.796  0 levels  milan_datapath/g_mmcm_servo.mmcm_servo/ps_fault_ps_r_reg/C -> milan_datapath/g_mmcm_servo.mmcm_servo/psfault_sync_r_reg[0]/D
+  +2.852  0 levels  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/ack_tog_reg/C -> milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/ack_sync_reg[0]/D
+  +3.040  0 levels  milan_datapath/g_mmcm_servo.mmcm_servo/ps_busy_ps_r_reg/C -> milan_datapath/g_mmcm_servo.mmcm_servo/psbusy_sync_r_reg[0]/D
+  +6.122  0 levels  milansoc_milanmac_ethact_tgl_reg/C -> milan_datapath/link_guard/act_sync_r_reg[0]/D
+  +6.439  0 levels  milansoc_milanmac_ethtxend_tgl_reg/C -> milan_datapath/reboot_ctrl/txend_sync_r_reg[0]/D
+  +6.509  0 levels  KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[41]/C -> KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[41]/D
+  +6.520  0 levels  KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[30]/C -> KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[30]/D
+  +6.583  0 levels  milansoc_milanmac_ethtx_tgl_reg/C -> milan_datapath/link_guard/tx_sync_r_reg[0]/D
+== ETO
+  +0.204  36 levels  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C -> milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[0]/R
+  +0.219  36 levels  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C -> milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[13]/R
+  +0.219  36 levels  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C -> milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[14]/R
+  +0.219  36 levels  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C -> milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[15]/R
+  +0.219  36 levels  milan_datapath/pp_shadow/u_pp/u_aecp/u_ucpu/uop_e_r_reg[imm][0]/C -> milan_datapath/pp_shadow/u_pp/u_aecp/u_d3/deb_cnt_r_reg[16]/R
+  +2.854  0 levels  milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/ack_tog_reg/C -> milan_datapath/g_mmcm_servo.mmcm_servo/u_batch_hs/ack_sync_reg[0]/D
+  +2.919  0 levels  milan_datapath/g_mmcm_servo.mmcm_servo/ps_fault_ps_r_reg/C -> milan_datapath/g_mmcm_servo.mmcm_servo/psfault_sync_r_reg[0]/D
+  +3.040  0 levels  milan_datapath/g_mmcm_servo.mmcm_servo/ps_busy_ps_r_reg/C -> milan_datapath/g_mmcm_servo.mmcm_servo/psbusy_sync_r_reg[0]/D
+  +6.122  0 levels  milansoc_milanmac_ethact_tgl_reg/C -> milan_datapath/link_guard/act_sync_r_reg[0]/D
+  +6.404  0 levels  KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[41]/C -> KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[41]/D
+  +6.439  0 levels  milansoc_milanmac_ethtxend_tgl_reg/C -> milan_datapath/reboot_ctrl/txend_sync_r_reg[0]/D
+  +6.476  0 levels  KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[45]/C -> KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[45]/D
+  +6.477  0 levels  KL_gptp_gmii_launch/u_rec_cdc/data_hold_reg[44]/C -> KL_gptp_gmii_launch/u_rec_cdc/dest_out_r_reg[44]/D

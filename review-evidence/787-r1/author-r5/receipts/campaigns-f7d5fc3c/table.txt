@@ -1,0 +1,7 @@
+92 1493s litex_sims: bash scripts/run_litex_sims.sh <scratch>/r/campaigns-f7d5fc3c/litex-sims
+0 686s soc_timing_cuts_direct: bash -c cd sw/litex && "$LITEX_PYTHON" test_soc_timing_cuts.py
+0 0s mac_tx_model_check_litex: <home>/litex-milan/venv/bin/python3 sw/litex/gen_mac_tx_model.py --check
+0 0s mac_tx_model_check_plain: python3 sw/litex/gen_mac_tx_model.py --check
+0 2s fw_service_budget: timeout 1800 make -C tb/verilator/fw_service_budget
+0 0s fw_service_budget_verdict: python3 scripts/suite_tally.py --verdict <scratch>/r/campaigns-f7d5fc3c/fw_service_budget.log
+CAMPAIGNS-DONE

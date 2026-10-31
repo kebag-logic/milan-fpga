@@ -1,0 +1,20 @@
+python3 docs/diagrams/cdc_census.gen.py <out> at each tree, compared with that tree's committed docs/diagrams/cdc_census.{svg,drawio}
+== base-1e80128f: wrote <out>.svg and <out>.drawio (27 fabric crossings across 14 modules, 4 SoC-generated)
+  svg: equal to the committed file
+  drawio: equal to the committed file
+== lane-4aa5666e: wrote <out>.svg and <out>.drawio (27 fabric crossings across 14 modules, 4 SoC-generated)
+  svg: DIFFERS from the committed file
+  drawio: DIFFERS from the committed file
+== dev-02ca829a: wrote <out>.svg and <out>.drawio (27 fabric crossings across 14 modules, 4 SoC-generated)
+  svg: equal to the committed file
+  drawio: equal to the committed file
+== merged-5640e4d7: wrote <out>.svg and <out>.drawio (27 fabric crossings across 14 modules, 4 SoC-generated)
+  svg: DIFFERS from the committed file
+  drawio: DIFFERS from the committed file
+== merged output against this lane's output
+  both byte-identical
+== the difference at the merge (SVG, one element per line; committed < > generated)
+113c113
+< <text x="256" y="793" font-size="11.5" font-family="monospace" fill="#37474F">x2 call sites</text>
+---
+> <text x="256" y="793" font-size="11.5" font-family="monospace" fill="#37474F">x3 call sites</text>

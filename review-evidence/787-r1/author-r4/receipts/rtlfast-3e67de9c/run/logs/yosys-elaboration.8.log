@@ -1,0 +1,762 @@
+dp_srcs self-test: 35 arm(s) passed
+OOC .tcl refusal self-test: 58 arm(s) passed
+baseline selftest: complete image and exact block PASS; 9 refusals PASS
+baseline parameter selftest: 5 refusals PASS
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/ooc/baseline_ooc.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/ooc/baseline_ooc.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/ooc/baseline_ooc.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+baseline inventory refusal: missing generated ROM PASS
+baseline inventory refusal: nonempty SRAM PASS
+baseline inventory refusal: unlisted readmemh PASS
+baseline inventory refusal: generated ROM short PASS
+baseline inventory refusal: generated ROM long PASS
+baseline inventory refusal: generated ROM narrow PASS
+baseline inventory refusal: generated ROM wide PASS
+baseline inventory refusal: PP_TROM_HEX_P short PASS
+baseline inventory refusal: PP_TROM_HEX_P narrow PASS
+baseline inventory refusal: PP_TROM_HEX_P wide PASS
+baseline inventory refusal: PP_TROM_HEX_P duplicate PASS
+baseline inventory refusal: PP_TROM_HEX_P missing PASS
+baseline inventory refusal: pp_acmp_pkg.sv duplicate PASS
+baseline inventory refusal: pp_acmp_pkg.sv missing PASS
+baseline inventory refusal: pp_acmp_pkg.sv TROM_DEPTH_C duplicate PASS
+baseline inventory refusal: pp_acmp_pkg.sv TROM_DEPTH_C missing PASS
+baseline inventory refusal: pp_acmp_pkg.sv TROM_W_C duplicate PASS
+baseline inventory refusal: pp_acmp_pkg.sv TROM_W_C missing PASS
+baseline inventory refusal: PP_UCODE_HEX_P short PASS
+baseline inventory refusal: PP_UCODE_HEX_P narrow PASS
+baseline inventory refusal: PP_UCODE_HEX_P wide PASS
+baseline inventory refusal: PP_UCODE_HEX_P duplicate PASS
+baseline inventory refusal: PP_UCODE_HEX_P missing PASS
+baseline inventory refusal: ucpu_pkg.sv duplicate PASS
+baseline inventory refusal: ucpu_pkg.sv missing PASS
+baseline inventory refusal: ucpu_pkg.sv UPC_W_C duplicate PASS
+baseline inventory refusal: ucpu_pkg.sv UPC_W_C missing PASS
+baseline inventory refusal: ucpu_pkg.sv UCODE_W_C duplicate PASS
+baseline inventory refusal: ucpu_pkg.sv UCODE_W_C missing PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P short PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P narrow PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P wide PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P duplicate PASS
+baseline inventory refusal: GPTP_UCODE_HEX_P missing PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv duplicate PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv missing PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv UPC_W_C duplicate PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv UPC_W_C missing PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv UCODE_W_C duplicate PASS
+baseline inventory refusal: gptp_ucpu_pkg.sv UCODE_W_C missing PASS
+baseline inventory selftest: 40 refusals and restored control PASS
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/ooc/baseline_ooc.tcl
+baseline endpoint selftest: valid pathname and 9 refusals PASS
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/ooc/baseline_ooc.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/ooc/baseline_ooc.tcl
+baseline clock selftest: 10 ns default, bound 50 MHz, 2 refusals PASS
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+<scratch><tmp>/pp-baseline-export-0pf1wpcm/gateware/baseline_integrated.tcl
+placement Tcl all-fabric: control and every role reversal at synthesis/route PASS
+placement Tcl f0-f4: control and every role reversal at synthesis/route PASS
+placement Tcl full-split: control and every role reversal at synthesis/route PASS
+placement recipe: legacy parity, split preparation, selection marker, ROM and endpoint refusals PASS
+baseline export selftest: 3 default and worker-capped scripts, attribution constraint, CLI containment refusal PASS
+control: rc=0 PASS
+absolute-file recipe import broken: rc=1 PASS
+split dispatch ignored: rc=1 PASS
+split pre-route census omitted: rc=1 PASS
+split final census omitted: rc=1 PASS
+split timing assumes wrapper: rc=1 PASS
+split ROM error promotion omitted: rc=1 PASS
+split retained AECP ROM skipped: rc=1 PASS
+split selection marker omitted: rc=1 PASS
+present removed-protocol ROM unchecked: rc=1 PASS
+split synthesis command count unchecked: rc=1 PASS
+split synthesis-only endpoint runs implementation: rc=1 PASS
+synthesis worker cap ignored: rc=1 PASS
+synthesis worker cap enabled by default: rc=1 PASS
+ROM error promotion: rc=1 PASS
+readmemh inventory equality: rc=1 PASS
+empty SRAM requirement: rc=1 PASS
+parameter ROM depth: rc=1 PASS
+generated ROM depth: rc=1 PASS
+generated ROM width: rc=1 PASS
+parameter ROM width: rc=1 PASS
+image and geometry ambiguity: rc=1 PASS
+image binding uniqueness: rc=1 PASS
+geometry package uniqueness: rc=1 PASS
+geometry declaration uniqueness: rc=1 PASS
+microcode address depth: rc=1 PASS
+outside repository guard: rc=1 PASS
+image depth: rc=1 PASS
+image width: rc=1 PASS
+hexadecimal image words: rc=1 PASS
+attribution constraint loading: rc=1 PASS
+attribution boundary preservation: rc=1 PASS
+wrapper declaration equality: rc=1 PASS
+empty parameter block: rc=1 PASS
+duplicate parameter: rc=1 PASS
+integrated output directory: rc=1 PASS
+attribution integrated endpoint: rc=1 PASS
+CLI integrated endpoint: rc=1 PASS
+single synthesis command: rc=1 PASS
+image pathname characters: rc=1 PASS
+template marker uniqueness: rc=1 PASS
+unfiltered hierarchy report: rc=1 PASS
+integrated clock ignored: rc=1 PASS
+integrated clock frequency check: rc=1 PASS
+integrated clock period: rc=1 PASS
+CLI integrated clock endpoint: rc=1 PASS
+baseline reports selftest: ancestry, sharing, omission, multiplicity, blackboxes, residual PASS
+resource gate route arm: unchanged control: exit 0 PASS
+resource gate route arm: changed source, unchanged figures: exit 0 PASS
+resource gate route arm: LUT growth at the tolerance: exit 0 PASS
+resource gate route arm: LUT growth over the tolerance: exit 1 PASS
+resource gate route arm: FF growth over the tolerance: exit 1 PASS
+resource gate route arm: register rows disagree: exit 2 PASS
+resource gate route arm: Slice growth over the tolerance: exit 1 PASS
+resource gate route arm: one more RAMB36: exit 1 PASS
+resource gate route arm: one more RAMB18: exit 1 PASS
+resource gate route arm: one more DSP: exit 1 PASS
+resource gate route arm: BRAM tiles over the ceiling: exit 1 PASS
+resource gate route arm: BRAM tiles at the ceiling: exit 0 PASS
+resource gate route arm: WNS below the floor: exit 1 PASS
+resource gate route arm: WNS at the floor: exit 0 PASS
+resource gate route arm: WNS fell more than the tolerance: exit 1 PASS
+resource gate route arm: WNS fell by exactly the tolerance: exit 0 PASS
+resource gate route arm: WNS fell within the tolerance: exit 0 PASS
+resource gate route arm: WHS below the floor: exit 1 PASS
+resource gate route arm: WHS at the floor: exit 0 PASS
+resource gate route arm: WNS not a number: exit 2 PASS
+resource gate route arm: WHS not a number: exit 2 PASS
+resource gate route arm: WNS and WHS infinite: exit 2 PASS
+resource gate route arm: WNS in other digits: exit 2 PASS
+resource gate route arm: WNS too long to be finite: exit 2 PASS
+resource gate route arm: WHS too long to be finite: exit 2 PASS
+resource gate route arm: no timed endpoint: exit 2 PASS
+resource gate route arm: no hold-timed endpoint: exit 2 PASS
+resource gate route arm: timed endpoints in other digits: exit 2 PASS
+resource gate route arm: timed endpoints past the bound: exit 2 PASS
+resource gate route arm: timing summary without its endpoint columns: exit 2 PASS
+resource gate route arm: WNS without a fraction: exit 2 PASS
+resource gate route arm: LUT improvement within the tolerance: exit 0 PASS
+resource gate route arm: LUT improvement beyond the tolerance: exit 0 PASS
+resource gate route arm: WNS rise beyond the tolerance: exit 0 PASS
+resource gate route arm: route status complete: exit 0 PASS
+resource gate route arm: nets with routing errors: exit 1 PASS
+resource gate route arm: unrouted nets: exit 1 PASS
+resource gate route arm: routable nets not fully routed: exit 1 PASS
+resource gate route arm: route status report missing: exit 2 PASS
+resource gate route arm: second route status report: exit 2 PASS
+resource gate route arm: route status without its error row: exit 2 PASS
+resource gate route arm: route status with a second error row: exit 2 PASS
+resource gate route arm: route status count unreadable: exit 2 PASS
+resource gate route arm: route status count a superscript: exit 2 PASS
+resource gate route arm: route status count in other digits: exit 2 PASS
+resource gate route arm: route status count negative: exit 2 PASS
+resource gate route arm: route status count past the bound: exit 2 PASS
+resource gate route arm: route status not UTF-8: exit 2 PASS
+resource gate route arm: route status without its routable row: exit 2 PASS
+resource gate route arm: route status without its fully routed row: exit 2 PASS
+resource gate route arm: route status without both net rows: exit 2 PASS
+resource gate route arm: route status with a second routable row: exit 2 PASS
+resource gate route arm: tool build changed: exit 2 PASS
+resource gate route arm: device changed: exit 2 PASS
+resource gate route arm: design changed: exit 2 PASS
+resource gate route arm: design state changed: exit 2 PASS
+resource gate route arm: project creation changed: exit 2 PASS
+resource gate route arm: thread count changed: exit 2 PASS
+resource gate route arm: synthesis directive changed: exit 2 PASS
+resource gate route arm: optimization directive changed: exit 2 PASS
+resource gate route arm: timing grade changed: exit 2 PASS
+resource gate route arm: placement directive changed: exit 2 PASS
+resource gate route arm: physical optimization directive changed: exit 2 PASS
+resource gate route arm: routing directive changed: exit 2 PASS
+resource gate route arm: identical inputs, different figures: exit 2 PASS
+resource gate route arm: identical inputs, different WNS: exit 2 PASS
+resource gate route arm: export date only: exit 2 PASS
+resource gate route arm: generated logic changed: exit 1 PASS
+resource gate route arm: include header changed: exit 1 PASS
+resource gate route arm: sourced constraint changed: exit 1 PASS
+resource gate route arm: memory image changed: exit 1 PASS
+resource gate route arm: image manifest of the wrong shape: exit 2 PASS
+resource gate route arm: image manifest nested too deep: exit 2 PASS
+resource gate route arm: image manifest with a repeated key: exit 2 PASS
+resource gate route arm: image manifest with a bracketed key: exit 2 PASS
+resource gate route arm: image manifest with another named key: exit 0 PASS
+resource gate route arm: duplicate conflicting row: exit 2 PASS
+resource gate route arm: duplicate conflicting header: exit 2 PASS
+resource gate route arm: malformed count: exit 2 PASS
+resource gate route arm: count in other digits: exit 2 PASS
+resource gate route arm: fractional count: exit 2 PASS
+resource gate route arm: count past the bound: exit 2 PASS
+resource gate route arm: BRAM tiles too long to be finite: exit 2 PASS
+resource gate route arm: missing Slice row: exit 2 PASS
+resource gate route arm: timing columns changed: exit 2 PASS
+resource gate route arm: second timing summary: exit 2 PASS
+resource gate route arm: timing value row missing: exit 2 PASS
+resource gate route arm: missing timing report: exit 2 PASS
+resource gate route arm: second generated top: exit 2 PASS
+resource gate route arm: read source missing: exit 2 PASS
+resource gate route arm: include directory missing: exit 2 PASS
+resource gate route arm: cell census header changed: exit 2 PASS
+resource gate route arm: hierarchy count in other digits: exit 2 PASS
+resource gate route arm: hierarchy count in other digits in a middle cell: exit 2 PASS
+resource gate route arm: hierarchy count in other digits in the last cell: exit 2 PASS
+resource gate route arm: hierarchy count past the bound: exit 2 PASS
+resource gate route arm: hierarchy row without counts: exit 2 PASS
+resource gate route arm: wrapper source read from too near the root: exit 2 PASS
+resource gate route arm: second recipe script: exit 2 PASS
+resource gate ooc arm: standalone control: exit 0 PASS
+resource gate ooc arm: standalone clock changed: exit 2 PASS
+resource gate ooc arm: generic changed: exit 1 PASS
+resource gate ooc arm: image path moved, same image: exit 2 PASS
+resource gate ooc arm: standalone RAMB36: exit 1 PASS
+resource gate ooc arm: standalone RAMB18: exit 1 PASS
+resource gate ooc arm: standalone DSP: exit 1 PASS
+resource gate ooc arm: standalone FF: exit 1 PASS
+resource gate route arm: export built at another root: exit 2 PASS
+resource gate command-line arm: check within tolerance: exit 0 PASS
+resource gate command-line arm: check reads the kind from a standalone directory: exit 0 PASS
+resource gate command-line arm: check of a regression: exit 1 PASS
+resource gate command-line arm: check of an unrouted route: exit 1 PASS
+resource gate command-line arm: check of an unreadable measurement: exit 2 PASS
+resource gate command-line arm: check of a route without its status: exit 2 PASS
+resource gate command-line arm: check of a route status count past the integer text limit: exit 2 PASS
+resource gate command-line arm: check of a WNS too long to be finite: exit 2 PASS
+resource gate command-line arm: check of a wrong-shape image manifest: exit 2 PASS
+resource gate command-line arm: check against a baseline that is not JSON: exit 2 PASS
+resource gate command-line arm: check against a missing baseline: exit 2 PASS
+resource gate command-line arm: check against a baseline without endpoints: exit 2 PASS
+resource gate command-line arm: check against a scope name with a generate index: exit 0 PASS
+resource gate command-line arm: check of a bracketed key in the last image manifest entry: exit 2 PASS
+resource gate command-line arm: check of a 128-character key of every name character in a note and an image manifest entry: exit 0 PASS
+resource gate command-line arm: check of an endpoint the baseline does not hold: exit 2 PASS
+resource gate command-line arm: check of an endpoint without a record: exit 2 PASS
+resource gate command-line arm: check of a gated figure without a tolerance: exit 2 PASS
+resource gate command-line arm: check of a ceiling naming no figure: exit 2 PASS
+resource gate check-baseline arm: a consistent baseline: exit 0 PASS
+resource gate check-baseline arm: a scope name with a generate index: exit 0 PASS
+resource gate check-baseline arm: a missing record: exit 2 PASS
+resource gate check-baseline arm: an incomplete record: exit 2 PASS
+resource gate check-baseline arm: a missing tolerance: exit 2 PASS
+resource gate check-baseline arm: a negative tolerance: exit 2 PASS
+resource gate check-baseline arm: a missing floor: exit 2 PASS
+resource gate check-baseline arm: a record below its floor: exit 2 PASS
+resource gate check-baseline arm: a record over its ceiling: exit 2 PASS
+resource gate check-baseline arm: a missing route ceiling: exit 2 PASS
+resource gate check-baseline arm: a ceiling naming no figure: exit 2 PASS
+resource gate check-baseline arm: a malformed policy: exit 2 PASS
+resource gate check-baseline arm: a tolerance the budget does not hold: exit 2 PASS
+resource gate check-baseline arm: a budget value the baseline does not hold: exit 2 PASS
+resource gate check-baseline arm: a budget floor the baseline does not hold: exit 2 PASS
+resource gate check-baseline arm: a budget ceiling the baseline does not hold: exit 2 PASS
+resource gate check-baseline arm: a baseline policy figure the budget table lacks: exit 2 PASS
+resource gate check-baseline arm: a budget cell in other digits: exit 2 PASS
+resource gate check-baseline arm: a budget cell too long to be finite: exit 2 PASS
+resource gate check-baseline arm: an endpoint the budget lacks: exit 2 PASS
+resource gate check-baseline arm: a budget row the baseline lacks: exit 2 PASS
+resource gate check-baseline arm: no budget table: exit 2 PASS
+resource gate check-baseline arm: two budget tables: exit 2 PASS
+resource gate check-baseline arm: a repeated budget row: exit 2 PASS
+resource gate check-baseline arm: a budget cell that is no value: exit 2 PASS
+resource gate check-baseline arm: a budget page that is not UTF-8: exit 2 PASS
+resource gate check-baseline arm: no budget page: exit 2 PASS
+resource gate malformed-baseline arm: a NaN floor: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an infinite tolerance: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a ceiling too large to be finite: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a timing figure recorded as a long whole number: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a scope count past the bound: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a whole number past the integer text limit: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a file nested too deep to read: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a repeated key: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an endpoint field named by a lone surrogate: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a scope named by a lone surrogate: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a key of 129 characters: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an endpoint name with a generate index: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a policy figure with a generate index: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a note of the file holding a bracketed key: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a note holding a bracketed key under scopes: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a bracketed key in a note list past its first item: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a note shaped as a record's scopes holding a bracketed key: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an unknown field in the file: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an unknown field in an endpoint: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an unknown field in a record: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a record kind that is a list: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an unknown record kind: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an identity that is text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an identity without its device: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an identity with an extra key: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an identity field of another type: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a flow that is not text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a standalone clock that is not text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an input digest that is no digest: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an input digest that is a number: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: an input digest in upper case: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: figures that are a list: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: figures without LUT: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: figures with an extra figure: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a gated figure that is text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a gated figure that is null: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a gated figure that is a bool: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a malformed endpoint after the first: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: scopes that are a list: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a scope without its CARRY4 count: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a scope with an extra count: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a fractional scope count: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a negative scope count: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a scope count that is a bool: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a tolerance that is text: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a ceiling that is a bool: exit 2 through check and check-baseline PASS
+resource gate malformed-baseline arm: a floor table that is a list: exit 2 through check and check-baseline PASS
+resource gate CARRY4 attribution and record --write PASS
+resource gate planted-exception arm: load through check: exit 2 PASS
+resource gate planted-exception arm: census through check: exit 2 PASS
+resource gate planted-exception arm: routing through check: exit 2 PASS
+resource gate planted-exception arm: judge through check: exit 2 PASS
+resource gate planted-exception arm: entry_problems through check: exit 2 PASS
+resource gate planted-exception arm: load through check-baseline: exit 2 PASS
+resource gate planted-exception arm: check_baseline through check-baseline: exit 2 PASS
+resource gate command-line arm: a directory named in another script: exit 0 PASS
+resource gate command-line arm: record --write of an endpoint name the baseline refuses: exit 2 PASS
+resource gate fuzz: alinx_ax7101_route_status.rpt: bytes: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: alinx_ax7101_route_status.rpt: digit: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: alinx_ax7101_route_status.rpt: duplicate line: 1 cases, check exits 0/1/2 = 1/0/0
+resource gate fuzz: alinx_ax7101_route_status.rpt: empty: 3 cases, check exits 0/1/2 = 0/0/3
+resource gate fuzz: alinx_ax7101_route_status.rpt: huge: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: alinx_ax7101_route_status.rpt: junk lines: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: alinx_ax7101_route_status.rpt: missing: 3 cases, check exits 0/1/2 = 0/0/3
+resource gate fuzz: alinx_ax7101_route_status.rpt: number: 2 cases, check exits 0/1/2 = 1/1/0
+resource gate fuzz: alinx_ax7101_route_status.rpt: row removed: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: alinx_ax7101_route_status.rpt: row twice: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: alinx_ax7101_route_status.rpt: truncate: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: alinx_ax7101_route_status.rpt: unicode: 2 cases, check exits 0/1/2 = 2/0/0
+resource gate fuzz: baseline: add: 17 cases, check exits 0/1/2 = 6/0/11
+resource gate fuzz: baseline: bad name: 11 cases, check exits 0/1/2 = 0/0/11
+resource gate fuzz: baseline: bracket name: 12 cases, check exits 0/1/2 = 1/0/11
+resource gate fuzz: baseline: bytes: 20 cases, check exits 0/1/2 = 0/0/20
+resource gate fuzz: baseline: digit: 10 cases, check exits 0/1/2 = 0/0/10
+resource gate fuzz: baseline: duplicate: 13 cases, check exits 0/1/2 = 0/0/13
+resource gate fuzz: baseline: note: 7 cases, check exits 0/1/2 = 0/0/7
+resource gate fuzz: baseline: overflow: 14 cases, check exits 0/1/2 = 0/0/14
+resource gate fuzz: baseline: remove: 16 cases, check exits 0/1/2 = 2/0/14
+resource gate fuzz: baseline: size: deep nesting: 5 cases, check exits 0/1/2 = 0/0/5
+resource gate fuzz: baseline: size: long text: 2 cases, check exits 0/1/2 = 1/0/1
+resource gate fuzz: baseline: size: many scopes: 5 cases, check exits 0/1/2 = 5/0/0
+resource gate fuzz: baseline: truncate: 8 cases, check exits 0/1/2 = 0/0/8
+resource gate fuzz: baseline: type: 11 cases, check exits 0/1/2 = 0/0/11
+resource gate fuzz: baseline: unicode: 16 cases, check exits 0/1/2 = 9/0/7
+resource gate fuzz: baseline: value: 17 cases, check exits 0/1/2 = 17/0/0
+resource gate fuzz: baseline_cells.tsv: bytes: 9 cases, check exits 0/1/2 = 0/0/9
+resource gate fuzz: baseline_cells.tsv: census header: 9 cases, check exits 0/1/2 = 0/0/9
+resource gate fuzz: baseline_cells.tsv: delete line: 1 cases, check exits 0/1/2 = 1/0/0
+resource gate fuzz: baseline_cells.tsv: duplicate line: 6 cases, check exits 0/1/2 = 6/0/0
+resource gate fuzz: baseline_cells.tsv: empty: 4 cases, check exits 0/1/2 = 0/0/4
+resource gate fuzz: baseline_cells.tsv: junk lines: 3 cases, check exits 0/1/2 = 0/0/3
+resource gate fuzz: baseline_cells.tsv: missing: 7 cases, check exits 0/1/2 = 0/0/7
+resource gate fuzz: baseline_cells.tsv: swap lines: 2 cases, check exits 0/1/2 = 1/0/1
+resource gate fuzz: baseline_cells.tsv: truncate: 2 cases, check exits 0/1/2 = 2/0/0
+resource gate fuzz: baseline_cells.tsv: unicode: 11 cases, check exits 0/1/2 = 10/0/1
+resource gate fuzz: baseline_hierarchy.rpt: bytes: 9 cases, check exits 0/1/2 = 0/0/9
+resource gate fuzz: baseline_hierarchy.rpt: delete line: 3 cases, check exits 0/1/2 = 1/0/2
+resource gate fuzz: baseline_hierarchy.rpt: digit: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_hierarchy.rpt: duplicate line: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_hierarchy.rpt: empty: 7 cases, check exits 0/1/2 = 0/0/7
+resource gate fuzz: baseline_hierarchy.rpt: garble: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_hierarchy.rpt: huge: 3 cases, check exits 0/1/2 = 0/0/3
+resource gate fuzz: baseline_hierarchy.rpt: junk lines: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_hierarchy.rpt: missing: 9 cases, check exits 0/1/2 = 0/0/9
+resource gate fuzz: baseline_hierarchy.rpt: number: 7 cases, check exits 0/1/2 = 7/0/0
+resource gate fuzz: baseline_hierarchy.rpt: swap lines: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: baseline_hierarchy.rpt: truncate: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_hierarchy.rpt: unicode: 4 cases, check exits 0/1/2 = 3/0/1
+resource gate fuzz: baseline_images.json: bytes: 4 cases, check exits 0/1/2 = 0/0/4
+resource gate fuzz: baseline_images.json: delete line: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_images.json: empty: 8 cases, check exits 0/1/2 = 0/0/8
+resource gate fuzz: baseline_images.json: entry key: 9 cases, check exits 0/1/2 = 0/0/9
+resource gate fuzz: baseline_images.json: junk lines: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: baseline_images.json: missing: 12 cases, check exits 0/1/2 = 0/0/12
+resource gate fuzz: baseline_images.json: swap lines: 1 cases, check exits 0/1/2 = 1/0/0
+resource gate fuzz: baseline_images.json: truncate: 8 cases, check exits 0/1/2 = 0/0/8
+resource gate fuzz: baseline_images.json: unicode: 8 cases, check exits 0/1/2 = 0/0/8
+resource gate fuzz: baseline_timing.rpt: bytes: 4 cases, check exits 0/1/2 = 0/0/4
+resource gate fuzz: baseline_timing.rpt: delete line: 4 cases, check exits 0/1/2 = 1/0/3
+resource gate fuzz: baseline_timing.rpt: digit: 3 cases, check exits 0/1/2 = 0/0/3
+resource gate fuzz: baseline_timing.rpt: duplicate line: 2 cases, check exits 0/1/2 = 1/0/1
+resource gate fuzz: baseline_timing.rpt: empty: 7 cases, check exits 0/1/2 = 0/0/7
+resource gate fuzz: baseline_timing.rpt: garble: 3 cases, check exits 0/1/2 = 0/0/3
+resource gate fuzz: baseline_timing.rpt: huge: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: baseline_timing.rpt: junk lines: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: baseline_timing.rpt: missing: 3 cases, check exits 0/1/2 = 0/0/3
+resource gate fuzz: baseline_timing.rpt: number: 7 cases, check exits 0/1/2 = 5/2/0
+resource gate fuzz: baseline_timing.rpt: summary twice: 4 cases, check exits 0/1/2 = 0/0/4
+resource gate fuzz: baseline_timing.rpt: truncate: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_timing.rpt: unicode: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_utilization.rpt: bytes: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: baseline_utilization.rpt: digit: 4 cases, check exits 0/1/2 = 0/0/4
+resource gate fuzz: baseline_utilization.rpt: duplicate line: 1 cases, check exits 0/1/2 = 1/0/0
+resource gate fuzz: baseline_utilization.rpt: empty: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: baseline_utilization.rpt: garble: 8 cases, check exits 0/1/2 = 0/0/8
+resource gate fuzz: baseline_utilization.rpt: header removed: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: baseline_utilization.rpt: header twice: 7 cases, check exits 0/1/2 = 0/0/7
+resource gate fuzz: baseline_utilization.rpt: huge: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: baseline_utilization.rpt: junk lines: 3 cases, check exits 0/1/2 = 0/0/3
+resource gate fuzz: baseline_utilization.rpt: missing: 8 cases, check exits 0/1/2 = 0/0/8
+resource gate fuzz: baseline_utilization.rpt: number: 1 cases, check exits 0/1/2 = 0/1/0
+resource gate fuzz: baseline_utilization.rpt: swap lines: 2 cases, check exits 0/1/2 = 0/0/2
+resource gate fuzz: baseline_utilization.rpt: truncate: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: baseline_utilization.rpt: unicode: 5 cases, check exits 0/1/2 = 2/0/3
+resource gate fuzz: clock.xdc: bytes: 6 cases, check exits 0/1/2 = 0/0/6
+resource gate fuzz: clock.xdc: delete line: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: clock.xdc: duplicate line: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: clock.xdc: empty: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: clock.xdc: junk lines: 1 cases, check exits 0/1/2 = 0/0/1
+resource gate fuzz: clock.xdc: missing: 4 cases, check exits 0/1/2 = 0/0/4
+resource gate fuzz: clock.xdc: truncate: 3 cases, check exits 0/1/2 = 2/0/1
+resource gate fuzz: clock.xdc: unicode: 3 cases, check exits 0/1/2 = 3/0/0
+resource gate fuzz: control: 2 cases, check exits 0/1/2 = 2/0/0
+resource gate fuzz: 500 cases at seed 234 on the self-test fixtures: 0 failures; case digest 7fe42288d515b3ef
+resource gate selftest: 260 arms and 500 generated cases PASS
+placement gate all-fabric unmarked control: expected exit 0, RESULT: PASS: PASS
+placement gate wrapper replaced check: expected exit 2, wrapper (KL_pp_shadow): PASS
+placement gate wrapper replaced record: expected exit 2, wrapper (KL_pp_shadow): PASS
+placement gate wrapper replaced printed record: expected exit 0, "kind": "route": PASS
+placement gate wrapper absent check: expected exit 2, wrapper (KL_pp_shadow): PASS
+placement gate wrapper absent record: expected exit 2, wrapper (KL_pp_shadow): PASS
+placement gate wrapper excess check: expected exit 2, wrapper (KL_pp_shadow): PASS
+placement gate wrapper excess record: expected exit 2, wrapper (KL_pp_shadow): PASS
+placement gate wrapper excess printed record: expected exit 0, "kind": "route": PASS
+placement gate adp absent check: expected exit 2, adp (KL_adp_engine): PASS
+placement gate adp absent record: expected exit 2, adp (KL_adp_engine): PASS
+placement gate adp absent printed record: expected exit 0, "kind": "route": PASS
+placement gate adp excess check: expected exit 2, adp (KL_adp_engine): PASS
+placement gate adp excess record: expected exit 2, adp (KL_adp_engine): PASS
+placement gate adp excess printed record: expected exit 0, "kind": "route": PASS
+placement gate acmp-listener absent check: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+placement gate acmp-listener absent record: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+placement gate acmp-listener absent printed record: expected exit 0, "kind": "route": PASS
+placement gate acmp-listener excess check: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+placement gate acmp-listener excess record: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+placement gate acmp-listener excess printed record: expected exit 0, "kind": "route": PASS
+placement gate acmp-talker absent check: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+placement gate acmp-talker absent record: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+placement gate acmp-talker absent printed record: expected exit 0, "kind": "route": PASS
+placement gate acmp-talker excess check: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+placement gate acmp-talker excess record: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+placement gate acmp-talker excess printed record: expected exit 0, "kind": "route": PASS
+placement gate srp absent check: expected exit 2, srp (KL_srp_top): PASS
+placement gate srp absent record: expected exit 2, srp (KL_srp_top): PASS
+placement gate srp absent printed record: expected exit 0, "kind": "route": PASS
+placement gate srp excess check: expected exit 2, srp (KL_srp_top): PASS
+placement gate srp excess record: expected exit 2, srp (KL_srp_top): PASS
+placement gate srp excess printed record: expected exit 0, "kind": "route": PASS
+placement gate maap absent check: expected exit 2, maap (KL_maap): PASS
+placement gate maap absent record: expected exit 2, maap (KL_maap): PASS
+placement gate maap absent printed record: expected exit 0, "kind": "route": PASS
+placement gate maap excess check: expected exit 2, maap (KL_maap): PASS
+placement gate maap excess record: expected exit 2, maap (KL_maap): PASS
+placement gate maap excess printed record: expected exit 0, "kind": "route": PASS
+placement gate processor-maap excess check: expected exit 2, processor-maap (KL_pp_maap): PASS
+placement gate processor-maap excess record: expected exit 2, processor-maap (KL_pp_maap): PASS
+placement gate processor-maap excess printed record: expected exit 0, "kind": "route": PASS
+placement gate aecp absent check: expected exit 2, aecp (KL_aecp_engine): PASS
+placement gate aecp absent record: expected exit 2, aecp (KL_aecp_engine): PASS
+placement gate aecp absent printed record: expected exit 0, "kind": "route": PASS
+placement gate aecp excess check: expected exit 2, aecp (KL_aecp_engine): PASS
+placement gate aecp excess record: expected exit 2, aecp (KL_aecp_engine): PASS
+placement gate aecp excess printed record: expected exit 0, "kind": "route": PASS
+placement gate notify absent check: expected exit 2, notify (KL_aecp_notify): PASS
+placement gate notify absent record: expected exit 2, notify (KL_aecp_notify): PASS
+placement gate notify absent printed record: expected exit 0, "kind": "route": PASS
+placement gate notify excess check: expected exit 2, notify (KL_aecp_notify): PASS
+placement gate notify excess record: expected exit 2, notify (KL_aecp_notify): PASS
+placement gate notify excess printed record: expected exit 0, "kind": "route": PASS
+placement gate mailbox excess check: expected exit 2, mailbox (KL_mbx): PASS
+placement gate mailbox excess record: expected exit 2, mailbox (KL_mbx): PASS
+placement gate mailbox excess printed record: expected exit 0, "kind": "route": PASS
+placement gate gptp absent check: expected exit 2, gptp (KL_gptp_shadow): PASS
+placement gate gptp absent record: expected exit 2, gptp (KL_gptp_shadow): PASS
+placement gate gptp absent printed record: expected exit 0, "kind": "route": PASS
+placement gate gptp excess check: expected exit 2, gptp (KL_gptp_shadow): PASS
+placement gate gptp excess record: expected exit 2, gptp (KL_gptp_shadow): PASS
+placement gate gptp excess printed record: expected exit 0, "kind": "route": PASS
+placement gate wrapper-retaining f0-f4 without marker check: expected exit 2, adp (KL_adp_engine): PASS
+placement gate wrapper-retaining f0-f4 without marker check: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+placement gate wrapper-retaining f0-f4 without marker check: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+placement gate wrapper-retaining f0-f4 without marker check: expected exit 2, srp (KL_srp_top): PASS
+placement gate wrapper-retaining f0-f4 without marker check: expected exit 2, maap (KL_maap): PASS
+placement gate wrapper-retaining f0-f4 without marker record: expected exit 2, adp (KL_adp_engine): PASS
+placement gate wrapper-retaining f0-f4 without marker record: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+placement gate wrapper-retaining f0-f4 without marker record: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+placement gate wrapper-retaining f0-f4 without marker record: expected exit 2, srp (KL_srp_top): PASS
+placement gate wrapper-retaining f0-f4 without marker record: expected exit 2, maap (KL_maap): PASS
+placement gate wrapper-retaining f0-f4 without marker printed record: expected exit 0, "kind": "route": PASS
+placement gate all-fabric with a split census check: expected exit 2, baseline_placement.tsv present: PASS
+placement gate all-fabric with a split census record: expected exit 2, baseline_placement.tsv present: PASS
+placement gate all-fabric identity before population: expected exit 2, tool or recipe change: PASS
+placement gate all-fabric own rows and specialized modules: expected exit 0, RESULT: PASS: PASS
+placement gate all-fabric module prefix is insufficient: expected exit 2, adp (KL_adp_engine): PASS
+placement gate f0-f4: expected exit 0, placement f0-f4: PASS
+placement gate f0-f4 absent selection: expected exit 2, recipe names: PASS
+placement gate f0-f4 duplicate selection: expected exit 2, recipe names: PASS
+placement gate f0-f4 wrong selection: expected exit 2, recipe names: PASS
+placement gate f0-f4 unselected: expected exit 2, wrong placement: PASS
+placement gate f0-f4 re-record: expected exit 2, M9: PASS
+placement gate f0-f4 missing census: expected exit 2, baseline_placement.tsv: PASS
+placement gate f0-f4 wrong header: expected exit 2, header: PASS
+placement gate f0-f4 wrong placement: expected exit 2, wrong placement: PASS
+placement gate f0-f4 missing wrapper row: expected exit 2, missing roles: PASS
+placement gate f0-f4 duplicate row: expected exit 2, duplicate: PASS
+placement gate f0-f4 invalid count: expected exit 2, invalid: PASS
+placement gate f0-f4 wrapper: expected exit 2, wrapper (KL_pp_shadow): PASS
+placement gate f0-f4 adp: expected exit 2, adp (KL_adp_engine): PASS
+placement gate f0-f4 acmp-listener: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+placement gate f0-f4 acmp-talker: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+placement gate f0-f4 srp: expected exit 2, srp (KL_srp_top): PASS
+placement gate f0-f4 maap: expected exit 2, maap (KL_maap): PASS
+placement gate f0-f4 processor-maap: expected exit 2, processor-maap (KL_pp_maap): PASS
+placement gate f0-f4 aecp: expected exit 2, aecp (KL_aecp_engine): PASS
+placement gate f0-f4 notify: expected exit 2, notify (KL_aecp_notify): PASS
+placement gate f0-f4 mailbox: expected exit 2, mailbox (KL_mbx): PASS
+placement gate f0-f4 gptp: expected exit 2, gptp (KL_gptp_shadow): PASS
+placement gate f0-f4 RAMB36: expected exit 1, RAMB36: PASS
+placement gate f0-f4 ceiling: expected exit 1, ceiling: PASS
+placement gate f0-f4 LUT: expected exit 1, LUT: PASS
+placement gate f0-f4 WHS_ns: expected exit 1, WHS_ns: PASS
+placement gate f0-f4 ROUTE INCOMPLETE: expected exit 1, ROUTE INCOMPLETE: PASS
+placement gate f0-f4 tool or recipe change: expected exit 2, tool or recipe change: PASS
+placement gate full-split: expected exit 0, placement full-split: PASS
+placement gate full-split absent selection: expected exit 2, recipe names: PASS
+placement gate full-split duplicate selection: expected exit 2, recipe names: PASS
+placement gate full-split wrong selection: expected exit 2, recipe names: PASS
+placement gate full-split unselected: expected exit 2, wrong placement: PASS
+placement gate full-split re-record: expected exit 2, M9: PASS
+placement gate full-split missing census: expected exit 2, baseline_placement.tsv: PASS
+placement gate full-split wrong header: expected exit 2, header: PASS
+placement gate full-split wrong placement: expected exit 2, wrong placement: PASS
+placement gate full-split missing wrapper row: expected exit 2, missing roles: PASS
+placement gate full-split duplicate row: expected exit 2, duplicate: PASS
+placement gate full-split invalid count: expected exit 2, invalid: PASS
+placement gate full-split wrapper: expected exit 2, wrapper (KL_pp_shadow): PASS
+placement gate full-split adp: expected exit 2, adp (KL_adp_engine): PASS
+placement gate full-split acmp-listener: expected exit 2, acmp-listener (KL_pp_acmp_listener): PASS
+placement gate full-split acmp-talker: expected exit 2, acmp-talker (KL_acmp_talker): PASS
+placement gate full-split srp: expected exit 2, srp (KL_srp_top): PASS
+placement gate full-split maap: expected exit 2, maap (KL_maap): PASS
+placement gate full-split processor-maap: expected exit 2, processor-maap (KL_pp_maap): PASS
+placement gate full-split aecp: expected exit 2, aecp (KL_aecp_engine): PASS
+placement gate full-split notify: expected exit 2, notify (KL_aecp_notify): PASS
+placement gate full-split mailbox: expected exit 2, mailbox (KL_mbx): PASS
+placement gate full-split gptp: expected exit 2, gptp (KL_gptp_shadow): PASS
+placement gate full-split RAMB36: expected exit 1, RAMB36: PASS
+placement gate full-split ceiling: expected exit 1, ceiling: PASS
+placement gate full-split LUT: expected exit 1, LUT: PASS
+placement gate full-split WHS_ns: expected exit 1, WHS_ns: PASS
+placement gate full-split ROUTE INCOMPLETE: expected exit 1, ROUTE INCOMPLETE: PASS
+placement gate full-split tool or recipe change: expected exit 2, tool or recipe change: PASS
+placement gate: unchanged acceptance schema, record and policy PASS
+control: rc=0 PASS
+all-fabric population not read: rc=1 PASS
+all-fabric population judged in a printed record: rc=1 PASS
+all-fabric population ignored by check: rc=1 PASS
+all-fabric population ignored by record --write: rc=1 PASS
+all-fabric population read for split routes: rc=1 PASS
+all-fabric population read for standalone: rc=1 PASS
+missing wrapper root names no role: rc=1 PASS
+split fuzz refusal removed: rc=1 PASS
+identity comparison: rc=1 PASS
+endpoint kind comparison: rc=1 PASS
+identical-input refusal: rc=1 PASS
+identical-input figures: rc=1 PASS
+resource tolerance: rc=1 PASS
+resource tolerance boundary: rc=1 PASS
+timing floor: rc=1 PASS
+timing floor boundary: rc=1 PASS
+timing fall: rc=1 PASS
+timing fall boundary: rc=1 PASS
+ceiling: rc=1 PASS
+ceiling boundary: rc=1 PASS
+verdict status: rc=1 PASS
+standalone RAMB36: rc=1 PASS
+standalone DSP: rc=1 PASS
+improvement report: rc=1 PASS
+improvement threshold: rc=1 PASS
+improvement direction: rc=1 PASS
+Slice row: rc=1 PASS
+row agreement: rc=1 PASS
+count format: rc=1 PASS
+count format decimals: rc=1 PASS
+count format ASCII: rc=1 PASS
+header uniqueness: rc=1 PASS
+one timing summary: rc=1 PASS
+timing value row: rc=1 PASS
+timing columns: rc=1 PASS
+timed endpoints: rc=1 PASS
+timed endpoint columns: rc=1 PASS
+timed endpoint converter: rc=1 PASS
+timed endpoint boundary: rc=1 PASS
+hold-timed endpoints counted: rc=1 PASS
+slack converter: rc=1 PASS
+hold slack converter: rc=1 PASS
+utilization converter: rc=1 PASS
+half-count converter: rc=1 PASS
+finite slack: rc=1 PASS
+finite WHS: rc=1 PASS
+slack fraction: rc=1 PASS
+ASCII slack: rc=1 PASS
+tool build: rc=1 PASS
+design identity: rc=1 PASS
+design state identity: rc=1 PASS
+flow commands: rc=1 PASS
+flow create_project: rc=1 PASS
+flow set_param: rc=1 PASS
+flow synth_design: rc=1 PASS
+flow opt_design: rc=1 PASS
+flow place_design: rc=1 PASS
+flow phys_opt_design: rc=1 PASS
+flow route_design: rc=1 PASS
+flow kl_timing_grade_configure: rc=1 PASS
+standalone clock: rc=1 PASS
+generated-file normalization: rc=1 PASS
+generated-file roots: rc=1 PASS
+one generated top: rc=1 PASS
+wrapper source depth: rc=1 PASS
+read source presence: rc=1 PASS
+include directory presence: rc=1 PASS
+include headers: rc=1 PASS
+generic inputs: rc=1 PASS
+image inputs: rc=1 PASS
+image manifest shape: rc=1 PASS
+recipe script uniqueness: rc=1 PASS
+census header: rc=1 PASS
+route status of a route: rc=1 PASS
+one route status report: rc=1 PASS
+route status converter: rc=1 PASS
+undecodable route status: rc=1 PASS
+routing-error row: rc=1 PASS
+routing-error row single: rc=1 PASS
+routable and routed rows present: rc=1 PASS
+routable and routed rows single: rc=1 PASS
+fully routed row required: rc=1 PASS
+routing errors fail: rc=1 PASS
+unrouted nets fail: rc=1 PASS
+partly routed nets fail: rc=1 PASS
+incomplete route fails: rc=1 PASS
+complete route reported: rc=1 PASS
+check reads the route status: rc=1 PASS
+refusal exit status: rc=1 PASS
+barrier: rc=1 PASS
+printable ASCII output: rc=1 PASS
+ASCII output: rc=1 PASS
+record --write validated: rc=1 PASS
+kind from the directory: rc=1 PASS
+unreadable baseline: rc=1 PASS
+baseline NaN and Infinity: rc=1 PASS
+baseline decimals converted: rc=1 PASS
+baseline integers converted: rc=1 PASS
+finite decimals: rc=1 PASS
+baseline key names: rc=1 PASS
+baseline repeated keys: rc=1 PASS
+baseline keys checked: rc=1 PASS
+scope names hold a generate index: rc=1 PASS
+every key named: rc=1 PASS
+baseline scope names: rc=1 PASS
+scope names at their path only: rc=1 PASS
+scope path matched in full: rc=1 PASS
+scope path matched from its first key: rc=1 PASS
+scope path rooted at the endpoints table: rc=1 PASS
+names inside lists: rc=1 PASS
+names past a list's first item: rc=1 PASS
+names hold upper case: rc=1 PASS
+names hold lower case: rc=1 PASS
+names hold digits: rc=1 PASS
+names hold an underscore: rc=1 PASS
+names hold a dot: rc=1 PASS
+names hold a colon: rc=1 PASS
+names hold a slash: rc=1 PASS
+names hold a hyphen: rc=1 PASS
+names hold 128 characters: rc=1 PASS
+names below the top level: rc=1 PASS
+image manifest strict: rc=1 PASS
+baseline nested too deep: rc=1 PASS
+baseline endpoints table: rc=1 PASS
+baseline file fields: rc=1 PASS
+baseline shape validated: rc=1 PASS
+check names a recorded endpoint: rc=1 PASS
+check validates its endpoint: rc=1 PASS
+check-baseline exit status: rc=1 PASS
+baseline record presence: rc=1 PASS
+baseline record completeness: rc=1 PASS
+baseline record kind: rc=1 PASS
+baseline record fields: rc=1 PASS
+baseline every endpoint validated: rc=1 PASS
+baseline endpoint fields: rc=1 PASS
+baseline identity keys: rc=1 PASS
+baseline identity types: rc=1 PASS
+baseline identity text: rc=1 PASS
+baseline identity exact keys: rc=1 PASS
+baseline standalone clock text: rc=1 PASS
+baseline input digest: rc=1 PASS
+baseline input digest type: rc=1 PASS
+baseline input digest lower case: rc=1 PASS
+baseline figure names: rc=1 PASS
+baseline figures exact: rc=1 PASS
+baseline figure numbers: rc=1 PASS
+numbers are not bools: rc=1 PASS
+baseline scope shape: rc=1 PASS
+baseline scope whole numbers: rc=1 PASS
+baseline scope counts not bools: rc=1 PASS
+baseline scope counts exact: rc=1 PASS
+baseline scope non-negative: rc=1 PASS
+baseline policy tables: rc=1 PASS
+baseline policy numbers: rc=1 PASS
+baseline tolerance: rc=1 PASS
+baseline floor presence: rc=1 PASS
+baseline floor value: rc=1 PASS
+baseline route ceiling: rc=1 PASS
+baseline ceiling figure: rc=1 PASS
+baseline ceiling: rc=1 PASS
+budget table compared: rc=1 PASS
+budget comparison of every policy field: rc=1 PASS
+budget comparison of baseline-only figures: rc=1 PASS
+budget floors read: rc=1 PASS
+budget cell converter: rc=1 PASS
+budget cells ASCII: rc=1 PASS
+budget endpoints compared: rc=1 PASS
+one budget table: rc=1 PASS
+budget row shape: rc=1 PASS
+budget cell values: rc=1 PASS
+unreadable budget page: rc=1 PASS
+undecodable budget page: rc=1 PASS
+image manifest nested too deep: rc=1 PASS
+hierarchy counts: rc=1 PASS
+hierarchy counts from the fourth cell: rc=1 PASS
+hierarchy counts end early: rc=1 PASS
+hierarchy count converter: rc=1 PASS
+whole numbers ASCII: rc=1 PASS
+whole number bound: rc=1 PASS
+whole numbers unsigned: rc=1 PASS
+hierarchy ASCII counts: rc=1 PASS
+hierarchy header only: rc=1 PASS
+all-fabric count limits ignored: rc=1 PASS
+all-fabric split census accepted: rc=1 PASS
+all-fabric own rows counted: rc=1 PASS
+all-fabric module prefix accepted: rc=1 PASS
+placement selection ignored: rc=1 PASS
+placement census ignored: rc=1 PASS
+placement count limits ignored: rc=1 PASS
+placement role completeness ignored: rc=1 PASS
+placement row identity ignored: rc=1 PASS
+placement duplicate role accepted: rc=1 PASS
+resource gate mutants: control passes, all 192 mutants fail
+baseline PASS: 3 endpoints
