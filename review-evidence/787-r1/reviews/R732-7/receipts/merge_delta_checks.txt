@@ -1,0 +1,29 @@
+head=455a3953bf49efda23be4e73447a25b66a5c4bf7 tree=43d185333ff4048986a2080996ed5e482af3f3bc
+cbc7c604 tree=43d185333ff4048986a2080996ed5e482af3f3bc
+86a349d5 tree=43d185333ff4048986a2080996ed5e482af3f3bc
+parents: 86a349d5399d8abc40b819d09806fc8245682609 e5b8405db4c1f7cbdafb5df92b15b580142e0232
+origin/dev=e5b8405db4c1f7cbdafb5df92b15b580142e0232
+merge-base --all HEAD origin/dev:
+e5b8405db4c1f7cbdafb5df92b15b580142e0232
+merge-base --all 86a349d5 origin/dev:
+8adf5c990bad73e80852e9c1df95163792a0deb2
+81f78a81e1271185174f9c5dbbcc8469b5dab5b4
+merge-tree --write-tree 86a349d5 e5b8405d: 43d185333ff4048986a2080996ed5e482af3f3bc
+diff --stat 86a349d5 HEAD lines: 0
+e5b8405d parents: 8adf5c990bad73e80852e9c1df95163792a0deb2 81f78a81e1271185174f9c5dbbcc8469b5dab5b4
+81f78a81 ancestor of 86a349d5: yes
+commit message lines: 1
+subject: Merge dev e5b8405d (PR #820 merged) into 787-reboot-reset, so the branch has one merge base with dev
+gitlinks:
+efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor
+a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor
+08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack
+48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+status-porcelain-lines: 0
+retained residue bytes:
+tb/verilator/reboot_ctrl/mutants.py 2528a9276001a0b434b724646a9fd7f50802ae4f
+tb/tools/torture_campaign.py 43b1fc4046fd04429ee9ce44b93363d17210f5d7
+hdl/milan/KL_reboot_ctrl.sv d2c74f47d0603b12ed21274d60380563398fcd41
+    # the [A10] arms of issuecomment-6518083444: today's PHY hold on the
