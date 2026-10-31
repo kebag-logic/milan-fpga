@@ -143,11 +143,11 @@ The table is the gate's record.
 The slice row is the binding limit: the shipping route at FPGA-gPTP `135afd04` ([#806](https://github.com/kebag-logic/milan-fpga/issues/806)) on processor `f65c8ff7` places 15,823 slices, so placement has 27 of 15,850 left.
 That route meets the build floor at every corner, at +0.032 / +0.034 ns. Its WNS is 0.408 ns under the record's, beyond the 0.25 ns fall tolerance.
 Before [#818](https://github.com/kebag-logic/milan-fpga/issues/818) the gate refused that fall; under #818 it prints a WARNING and passes.
-Timing recovery is ruled under [#814](https://github.com/kebag-logic/milan-fpga/issues/814)/[#818](https://github.com/kebag-logic/milan-fpga/issues/818); this change meets the build floor at every corner on its best directive.
+Timing recovery is ruled under [#814](https://github.com/kebag-logic/milan-fpga/issues/814)/[#818](https://github.com/kebag-logic/milan-fpga/issues/818); #806's route meets the build floor at every corner on its best directive.
 The [#787](https://github.com/kebag-logic/milan-fpga/issues/787) route, processor `1be824fc` with the REBOOT reset, places 15,793 slices, so 57 are left.
-Its re-pin to processor `a9e84b66` is routed again after [#814](https://github.com/kebag-logic/milan-fpga/issues/814) merges.
-The resource gate refuses its WNS, +0.107 ns: 0.333 ns under the record's +0.440 ns against a 0.25 ns tolerance, still above the +0.030 ns floor.
-Its worst path is the SoC's SDRAM port arbitration on the 10 ns clock, 13 logic levels into a LiteX FIFO, outside the change.
+That route's WNS, +0.107 ns, was 0.333 ns under the record's +0.440 ns; its worst path was the SoC's SDRAM port arbitration, outside the change.
+The re-pin to processor `a9e84b66`, routed with the [#814](https://github.com/kebag-logic/milan-fpga/issues/814) cuts on the recipe's three directives, passes the [#818](https://github.com/kebag-logic/milan-fpga/issues/818) gate.
+Its best directive, AltSpreadLogic_high, has WNS +0.365 ns at every slow corner, 52,021 LUTs and 63 of 15,850 slices left.
 The next growth on the shipping image therefore has no slice room and needs its own owner decision ([the extension](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062)).
 The record's route leaves 70 slices; the [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) accepted that image's growth, and Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
 The routed critical setup path has 18 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.

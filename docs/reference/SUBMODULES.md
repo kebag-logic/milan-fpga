@@ -486,7 +486,7 @@ The behave SERVED table lists REBOOT at cdl 16.
 
 `a9e84b66` carries `1be824fc`'s two ROM images, byte for byte.
 
-The route below was measured at `1be824fc`.
+The route below was measured at `1be824fc` with FPGA-gPTP `f97c1803`.
 
 Route-1x1 uses 51,828 LUTs, 184 under the record.
 
@@ -496,7 +496,7 @@ It adds 92 FFs and 13 slices.
 
 WNS is +0.107 ns, over its floor.
 
-The gate refuses its 0.333 ns fall.
+Before #818 the gate refused its 0.333 ns fall.
 
 The worst path is the SoC's SDRAM port arbitration.
 
@@ -508,7 +508,13 @@ Both standalone endpoints pass the gate.
 
 `ooc-8x8` moves +104 LUTs and +16 FFs.
 
-The route is redone at the re-pin after #814 merges.
+The re-pin route carries the #814 cuts.
+
+Its best directive has WNS +0.365 ns.
+
+It uses 52,021 LUTs; 63 slices remain.
+
+The #818 gate passes it.
 
 The ROM ledger records current and earlier pins.
 
