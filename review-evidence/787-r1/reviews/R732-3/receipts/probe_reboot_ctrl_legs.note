@@ -1,0 +1,1 @@
+The first probe (make all, -j8) ran both legs and then the mutant campaign to completion: rc 0 in probe_reboot_ctrl.rc, 221 + 46 checks and 30 of 30 controls killed in probe_reboot_ctrl_legs.log. A second, foreground mutant run overlapped it in its own temporary directories (mutants.py uses tempfile.TemporaryDirectory) and also passed: probe_reboot_ctrl_mutants.log, rc 0.

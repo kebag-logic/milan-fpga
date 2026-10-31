@@ -1,0 +1,20 @@
+# diff --stat merge-tree auto tree 6872bc8d vs committed 5640e4d7^{tree}
+ CHANGELOG.md                              |   7 +-
+ docs/design/AREA_BUDGET.md                |  10 +--
+ docs/diagrams/PNG_MANIFEST.json           |  10 +--
+ docs/diagrams/submodule_boundaries.drawio |   6 +-
+ docs/diagrams/submodule_boundaries.png    | Bin 438324 -> 438411 bytes
+ docs/reference/SUBMODULES.md              | 115 ++++++++++++++----------------
+ 6 files changed, 61 insertions(+), 87 deletions(-)
+
+# 5640e4d7 vs 3e67de9c
+ scripts/port_docs.budget | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+# 3e67de9c vs f7d5fc3c
+ ci/image/exec-audit.json         |   7 +
+ docs/litex/CLOCK_DOMAINS.md      |   6 +
+ docs/testing/TESTING.md          |  35 ++
+ scripts/run_litex_sims.sh        |   1 +
+ sw/litex/milan_soc.py            | 167 ++++++-
+ sw/litex/test_soc_timing_cuts.py | 993 +++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 1203 insertions(+), 6 deletions(-)

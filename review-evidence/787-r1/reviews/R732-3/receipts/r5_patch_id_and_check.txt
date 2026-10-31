@@ -1,0 +1,17 @@
+# patch-id: merge of #826 against branch (3e67de9c..f7d5fc3c)
+8fa226cc88f79acff3d9f8c3eecced4f879256f5 0000000000000000000000000000000000000000
+# patch-id: #826's own change (1e80128f..4ee2aa96)
+8fa226cc88f79acff3d9f8c3eecced4f879256f5 0000000000000000000000000000000000000000
+# merge-base 4ee2aa96 dev 02ca829a: 1e80128f0a467b58bf884b7d9bf62e013a2fb141
+# git diff --check $(git merge-base 02ca829a HEAD) HEAD
+merge-base=02ca829ad821f4233ab66f59978c65d3c3c9de70
+rc=0
+# git diff --check 1e80128f HEAD
+rc=0
+# files changed by #826 vs base
+ci/image/exec-audit.json
+docs/litex/CLOCK_DOMAINS.md
+docs/testing/TESTING.md
+scripts/run_litex_sims.sh
+sw/litex/milan_soc.py
+sw/litex/test_soc_timing_cuts.py

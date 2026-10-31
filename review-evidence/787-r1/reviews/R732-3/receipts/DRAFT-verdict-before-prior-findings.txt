@@ -1,0 +1,8 @@
+Draft written 2026-10-31 before reading any prior review findings on PR #822.
+Verdict: NEGATIVE at f7d5fc3cc48ca80195428562fa86a46023df8e0d.
+F1 MINOR Docs: docs/diagrams/cdc_census.{svg:113,drawio:57} stale against cdc_census.gen.py at the head (x2 vs x3 SoC MultiReg call sites); fresh at 1e80128f, 02ca829a, 4ee2aa96; stale at 4aa5666e and f7d5fc3c (this PR's PHY-hold MultiReg).
+F2 MINOR Docs: docs/reference/SUBMODULES.md:483-507 and docs/design/AREA_BUDGET.md:146-149 still say the #787 re-pin is routed again after #814 merges and give only the 1be824fc route; this head carries #814 and its route-1x1 set passes at +0.365 ns, 63 slices free.
+F3 RESIDUE PR body: "The pushed head stays 4aa5666e until the manager pushes." is stale; the PR head is f7d5fc3c.
+F4 RESIDUE PR body: reviewer placeholders [R<n>].
+S1 SUGGESTION AREA_BUDGET.md:146 "this change" (dev's #806 sentence) is ambiguous in the merged paragraph.
+Ledger: Conformance CLEAN, RTL CLEAN, Robustness CLEAN, Tests CLEAN (pending own [RB] probe), Docs UNCLEAN (F1, F2).

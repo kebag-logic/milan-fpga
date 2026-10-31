@@ -1,0 +1,16 @@
+hdl/milan/KL_reboot_ctrl.sv 4aa5666e=d2c74f47d0 head=d2c74f47d0
+tb/verilator/reboot_ctrl/mutants.py 4aa5666e=2528a92760 head=2528a92760
+tb/tools/torture_campaign.py 4aa5666e=43b1fc4046 head=43b1fc4046
+hdl/milan/milan_datapath.sv 4aa5666e=e260916bca head=443c20852e
+# mutants.py:113-114
+    # the [A10] arms of issuecomment-6518083444: today's PHY hold on the
+    # request alone, a drain that ignores the MAC FIFO, a drain with no bound
+# torture_campaign.py:3135-3139
+# Issue #787: each soft reset is the controller's AECP REBOOT of ENTITY 0
+# (IEEE 1722.1-2021 7.4.43, the #396 owner decision of 2026-10-26). The end
+# station holds its PHY in reset once its saved state drains, within 10,000 ms
+# and one tick of the request (docs/design/REBOOT_RESET.md section 3), so its
+# link is down within this many seconds of T0: that bound, rounded up.
+# milan_datapath.sv beat/flush wirings
+9765:      .mac_tx_beat_i   (tx_mac_beat_w),
+9768:      .mac_flush_i     (linkg_reinit_w & linkg_eth_rst_w),
