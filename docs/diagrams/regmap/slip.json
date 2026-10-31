@@ -1,0 +1,47 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "slip",
+  "heading": "0x8D4  -  media-boundary slip counters  (SLIP, KL_chan_map_capture)",
+  "registers": [
+    {
+      "acronym": "SLIP_LB",
+      "offset": "0x8D4",
+      "svg": "docs/diagrams/regmap/slip/SLIP_LB.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "SLIP_LB",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "SLIP_TDM",
+      "offset": "0x8D8",
+      "svg": "docs/diagrams/regmap/slip/SLIP_TDM.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "SLIP_TDM",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

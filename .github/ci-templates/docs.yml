@@ -454,6 +454,22 @@ jobs:
       - name: Entity shape gate
         run: python3 scripts/check_entity_shape.py --self-test
 
+      # Register reference freshness gate (#797): docs/reference/REGISTER_MAP.md,
+      # one WaveDrom `reg` source per CSR module under docs/diagrams/regmap/ and
+      # each register's SVG are generated from hdl/common/csr/milan_csr.sv, the
+      # builder export recorded in scripts/register_map_soc.json and the prose
+      # in scripts/register_descriptions.json. --check regenerates everything in
+      # memory and fails on any difference, including a description the RTL
+      # cannot back; --selftest plants a renamed RTL field, a changed reset
+      # value, a new address, a hand edit and stale diagrams and requires each
+      # verdict. The memory-map diagram has its own no-drift check. Needs the
+      # wavedrom package installed above; reads first-party files only.
+      - name: Register reference freshness gate
+        run: |
+          python3 scripts/gen_register_reference.py --check
+          python3 scripts/gen_register_reference.py --selftest
+          python3 docs/diagrams/memory_map.gen.py --check
+
       - name: CI scheduling and evidence controls
         run: |
           python3 scripts/ci_gate_workflows.py --check

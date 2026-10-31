@@ -1,0 +1,238 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "ident",
+  "heading": "0x000  -  Identification / IRQ",
+  "registers": [
+    {
+      "acronym": "ID",
+      "offset": "0x000",
+      "svg": "docs/diagrams/regmap/ident/ID.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "ID",
+            "attr": "R-4D494C4Eh"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "VERSION",
+      "offset": "0x004",
+      "svg": "docs/diagrams/regmap/ident/VERSION.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "VERSION",
+            "attr": "R-20060h"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CAP",
+      "offset": "0x008",
+      "svg": "docs/diagrams/regmap/ident/CAP.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 4,
+            "name": "NUM_QUEUES",
+            "attr": "R-5h"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "BIT8",
+            "attr": "R-0"
+          },
+          {
+            "bits": 1,
+            "name": "BIT9",
+            "attr": "R-1h"
+          },
+          {
+            "bits": 1,
+            "name": "BIT10",
+            "attr": "R-1h"
+          },
+          {
+            "bits": 1,
+            "name": "BIT11",
+            "attr": "R-1h"
+          },
+          {
+            "bits": 1,
+            "name": "BIT12",
+            "attr": "R-1h"
+          },
+          {
+            "bits": 1,
+            "name": "BIT13",
+            "attr": "R-1h"
+          },
+          {
+            "bits": 1,
+            "name": "BIT14",
+            "attr": "R-1h"
+          },
+          {
+            "bits": 1,
+            "name": "BIT15",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "BITS23_16",
+            "attr": "R-40h"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "SCRATCH",
+      "offset": "0x00C",
+      "svg": "docs/diagrams/regmap/ident/SCRATCH.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "SCRATCH",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "IRQ_STATUS",
+      "offset": "0x010",
+      "svg": "docs/diagrams/regmap/ident/IRQ_STATUS.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "EVT_LINK_CHANGE",
+            "attr": "R/W1C-0"
+          },
+          {
+            "bits": 1,
+            "name": "EVT_RMON_ROLLOVER",
+            "attr": "R/W1C-0"
+          },
+          {
+            "bits": 29,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "IRQ_MASK",
+      "offset": "0x014",
+      "svg": "docs/diagrams/regmap/ident/IRQ_MASK.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 32,
+            "name": "IRQ_MASK",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "IRQ_RAW",
+      "offset": "0x018",
+      "svg": "docs/diagrams/regmap/ident/IRQ_RAW.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "EVT_LINK_CHANGE",
+            "attr": "R-0"
+          },
+          {
+            "bits": 1,
+            "name": "EVT_RMON_ROLLOVER",
+            "attr": "R-0"
+          },
+          {
+            "bits": 29,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

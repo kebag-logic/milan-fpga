@@ -6,13 +6,14 @@ Every current render needs visual inspection.
 
 ## Contents
 
-- **[Diagram rules](#diagram-rules)** — Keep facts and renders synchronized.
-- **[Audience and architecture](#audience-and-architecture)** — Navigate major system relationships.
-- **[HDL timing](#hdl-timing)** — Read important signal behavior.
-- **[Measured figures](#measured-figures)** — Understand dated performance evidence.
-- **[Historical diagrams](#historical-diagrams)** — Find preserved obsolete visuals.
-- **[Feature status](#feature-status)** — Preserve checked cross-document claims.
-- **[Regeneration](#regeneration)** — Rebuild and inspect outputs.
+- **[Diagram rules](#diagram-rules)** -- Keep facts and renders synchronized.
+- **[Audience and architecture](#audience-and-architecture)** -- Navigate major system relationships.
+- **[HDL timing](#hdl-timing)** -- Read important signal behavior.
+- **[Register bit fields](#register-bit-fields)** -- Find the generated register diagrams.
+- **[Measured figures](#measured-figures)** -- Understand dated performance evidence.
+- **[Historical diagrams](#historical-diagrams)** -- Find preserved obsolete visuals.
+- **[Feature status](#feature-status)** -- Preserve checked cross-document claims.
+- **[Regeneration](#regeneration)** -- Rebuild and inspect outputs.
 
 ## Diagram rules
 
@@ -42,6 +43,7 @@ Every current render needs visual inspection.
 | `egress_queue_map` | Derived queue ownership | [`egress_queue_map.gen.py`](egress_queue_map.gen.py), `egress_queue_map.drawio` | `egress_queue_map.svg`, `egress_queue_map.png` | Developers and integrators |
 | `flash_layout` | Derived QSPI layout | [`flash_layout.gen.py`](flash_layout.gen.py), `flash_layout.drawio` | `flash_layout.svg`, `flash_layout.png` | Integrators |
 | `timesync_chain` | Clock ownership chain | [`timesync_chain.gen.py`](timesync_chain.gen.py), `timesync_chain.drawio` | `timesync_chain.svg`, `timesync_chain.png` | Developers and integrators |
+| `memory_map` | Derived SoC memory map | [`memory_map.gen.py`](memory_map.gen.py), `memory_map.drawio` | `memory_map.svg` | Firmware developers and integrators |
 | `milan_tx_rx_datapath` | Datapath block map | `../milan_tx_rx_datapath.drawio` | Editable master only | Implementation developers |
 
 The [submodule reference](../reference/SUBMODULES.md) embeds its verified map.
@@ -64,6 +66,51 @@ The [submodule reference](../reference/SUBMODULES.md) embeds its verified map.
 Every WaveDrom has SVG and PNG renders.
 
 New WaveDrom renders use white backgrounds.
+
+## Register bit fields
+
+Each CSR module has one generated WaveDrom source.
+
+Every register's SVG is rendered from it.
+
+<!-- register-diagrams:start -->
+| Module source | Module | Registers | Renders |
+|---|---|---|---|
+| [`regmap/ident.json`](regmap/ident.json) | Identification / IRQ | 7 | `regmap/ident/*.svg` |
+| [`regmap/mac.json`](regmap/mac.json) | MAC control / status | 8 | `regmap/mac/*.svg` |
+| [`regmap/stats.json`](regmap/stats.json) | Statistics (RMON) | 3 | `regmap/stats/*.svg` |
+| [`regmap/cls.json`](regmap/cls.json) | 802.1Q classifier | 5 | `regmap/cls/*.svg` |
+| [`regmap/cbs.json`](regmap/cbs.json) | 802.1Qav CBS (per queue) | 4 | `regmap/cbs/*.svg` |
+| [`regmap/ptp.json`](regmap/ptp.json) | PTP hardware clock | 18 | `regmap/ptp/*.svg` |
+| [`regmap/adp.json`](regmap/adp.json) | ADP advertiser | 18 | `regmap/adp/*.svg` |
+| [`regmap/aecp.json`](regmap/aecp.json) | AECP/ACMP status + AAF talker | 12 | `regmap/aecp/*.svg` |
+| [`regmap/lwsrp.json`](regmap/lwsrp.json) | lwSRP engine | 9 | `regmap/lwsrp/*.svg` |
+| [`regmap/acmpl.json`](regmap/acmpl.json) | ACMP listener SM | 21 | `regmap/acmpl/*.svg` |
+| [`regmap/tcam.json`](regmap/tcam.json) | RX destination-MAC TCAM filter | 7 | `regmap/tcam/*.svg` |
+| [`regmap/link.json`](regmap/link.json) | Link guard / MAC recovery (VERSION minor ≥ 0x0006) | 2 | `regmap/link/*.svg` |
+| [`regmap/overlay.json`](regmap/overlay.json) | identity / playback / 802.1AS overlay | 5 | `regmap/overlay/*.svg` |
+| [`regmap/crf.json`](regmap/crf.json) | CRF media-clock sink | 6 | `regmap/crf/*.svg` |
+| [`regmap/crft.json`](regmap/crft.json) | CRF media-clock talker | 6 | `regmap/crft/*.svg` |
+| [`regmap/bdbg.json`](regmap/bdbg.json) | AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO, and the link-guard status | 4 | `regmap/bdbg/*.svg` |
+| [`regmap/clkv.json`](regmap/clkv.json) | Clock validity: the AVTP tu verdict (VERSION minor >= 0x0016), TX arbiter and SRP domain | 5 | `regmap/clkv/*.svg` |
+| [`regmap/rest.json`](regmap/rest.json) | ACMP bind-restore | 6 | `regmap/rest/*.svg` |
+| [`regmap/jnl.json`](regmap/jnl.json) | Persistence-journal ingest | 4 | `regmap/jnl/*.svg` |
+| [`regmap/aemp.json`](regmap/aemp.json) | AEM dynamic-state patch port | 4 | `regmap/aemp/*.svg` |
+| [`regmap/guard.json`](regmap/guard.json) | Ethernet guard | 1 | `regmap/guard/*.svg` |
+| [`regmap/asp.json`](regmap/asp.json) | retired AS_PATH compatibility addresses | 3 | `regmap/asp/*.svg` |
+| [`regmap/gptpd.json`](regmap/gptpd.json) | gPTP plane drop diagnostics | 2 | `regmap/gptpd/*.svg` |
+| [`regmap/gptpl.json`](regmap/gptpl.json) | applied gPTP timestamp latency corrections | 1 | `regmap/gptpl/*.svg` |
+| [`regmap/strm.json`](regmap/strm.json) | Indexed per-stream window | 16 | `regmap/strm/*.svg` |
+| [`regmap/ltap.json`](regmap/ltap.json) | AAF per-stage latency taps | 2 | `regmap/ltap/*.svg` |
+| [`regmap/aprb.json`](regmap/aprb.json) | RX stream-parser probe | 1 | `regmap/aprb/*.svg` |
+| [`regmap/gap.json`](regmap/gap.json) | reserved target-media compatibility words | 1 | `regmap/gap/*.svg` |
+| [`regmap/slip.json`](regmap/slip.json) | media-boundary slip counters | 2 | `regmap/slip/*.svg` |
+| [`regmap/render.json`](regmap/render.json) | render presentation state | 1 | `regmap/render/*.svg` |
+| [`regmap/aafm.json`](regmap/aafm.json) | AAF clock meter | 2 | `regmap/aafm/*.svg` |
+| [`regmap/mcsrv.json`](regmap/mcsrv.json) | MMCM-DRP media-clock servo | 2 | `regmap/mcsrv/*.svg` |
+| [`regmap/chmap.json`](regmap/chmap.json) | channel-map fabric | 6 | `regmap/chmap/*.svg` |
+| [`regmap/pp.json`](regmap/pp.json) | protocol-processor control plane | 8 | `regmap/pp/*.svg` |
+<!-- register-diagrams:end -->
 
 ## Measured figures
 
@@ -109,6 +156,8 @@ Use the [generation guide](../DOC_GENERATION.md).
 Run focused generator checks first.
 
 ```sh
+python3 scripts/gen_register_reference.py --check
+python3 docs/diagrams/memory_map.gen.py --check
 python3 docs/DOC_MAP.gen.py --check
 python3 docs/DOC_MAP.gen.py --selftest
 python3 docs/diagrams/submodule_boundaries.gen.py --check
