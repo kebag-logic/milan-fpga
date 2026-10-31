@@ -105,6 +105,7 @@ Suite inventories change frequently.
 | Need | Current document |
 |---|---|
 | Start without hardware | [Quickstart](../QUICKSTART.md) |
+| Define the entity and its shape | [Defining the end station](guides/DEFINING_THE_END_STATION.md) |
 | Build artifacts | [Building guide](integration/BUILDING.md) |
 | Flash matched images | [QSPI flash boot](integration/QSPI_FLASHBOOT.md) |
 | Diagnose failures | [Troubleshooting](limitations/TROUBLESHOOTING.md) |

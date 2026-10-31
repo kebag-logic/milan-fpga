@@ -425,7 +425,12 @@ jobs:
         run: python3 scripts/check_deploy_shape.py --self-test
         id: gate_48
       - name: Entity shape gate
-        run: python3 scripts/check_entity_shape.py --self-test
+        run: |
+          python3 scripts/check_entity_shape.py --self-test
+          python3 sw/builder/gen_key_reference.py --check
+          python3 sw/builder/gen_key_reference.py --selftest
+          python3 docs/diagrams/endstation_definition.gen.py --check
+          python3 docs/diagrams/endstation_definition.gen.py --selftest
         id: gate_49
       - name: Fetch inventory dependencies
         run: |
