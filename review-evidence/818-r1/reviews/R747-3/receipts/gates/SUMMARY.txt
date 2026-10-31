@@ -1,0 +1,27 @@
+ci_events_check rc=0 | ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_events_selftest rc=0 | selftest: PASS (2199 contract items, 5258 arms)
+doc_map rc=0 | documentation map: OK (4 roles, 24 valid paths, decoded PNG)
+doc_paths rc=0 | doc path gate: OK (1074 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+docs_check rc=0 | docs_check: 0 finding(s) across 210 md files + 1425 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+doc_style rc=0 | documentation style: OK (23 current documents)
+doc_style_selftest rc=0 | documentation style selftest: OK
+em_dash_base683e597 rc=0 | check_em_dash: 0 finding(s) over 64 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [683e5971..HEAD]
+evidence_pins rc=0 | 
+fail_fast rc=0 |   the ratchets can be lowered to 78, 3 and 0
+feature_status rc=0 | feature_status: 0 finding(s)
+gate_check_baseline rc=0 | baseline PASS: 3 endpoints
+gate_mutants rc=0 | resource gate mutants: control passes, all 236 mutants fail
+gate_selftest rc=0 | placement gate: unchanged acceptance schema, record and policy PASS
+gate_workflows rc=0 | 
+gen_toc_anchors rc=0 | anchor check: 544 existing cross-page fragment links reproduced
+gen_toc_check rc=0 | TOC gate: OK (149 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+gen_toc_selftest rc=0 | TOC selftest: PASS (1501/1501 arm(s))
+gptp_docs rc=0 | gPTP documentation: OK (8 current pages)
+hygiene rc=0 | HYGIENE RATCHET: PASS (3 population(s), 1298 file(s))
+naming rc=0 | NAMING RATCHET: PASS (95 candidate(s), all recorded by identity; 95 recorded)
+placement_selftest rc=0 | 
+py_idiom rc=0 |   over-long line: 0 <= 0
+solution_docs rc=0 | solution documentation: OK (product recipe, 3 memory faces, 13 exhaustive port groups)
+submodule_docs rc=0 | submodule documentation: OK (6 exact gitlinks)
+test_evidence rc=0 |   the mutation ratchet can be lowered to 67
+todo_ownership rc=0 | TODO ownership gate: OK (0 owned marker(s), 0 unowned; 52 near-miss occurrence(s) on 45 line(s) correctly not treated as markers; 1364 first-party file(s) read)

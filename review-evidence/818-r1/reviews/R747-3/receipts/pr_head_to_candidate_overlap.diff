@@ -1,0 +1,30 @@
+diff --git a/docs/design/AREA_BUDGET.md b/docs/design/AREA_BUDGET.md
+index 5c11d0ff1..1979e0d07 100644
+--- a/docs/design/AREA_BUDGET.md
++++ b/docs/design/AREA_BUDGET.md
+@@ -140,7 +140,9 @@ The adopted image does not meet it:
+ | WNS / WHS | - | +0.440 / +0.036 ns | - | [build gate](../integration/BUILDING.md#5-gates-before-a-build-is-good): at least +0.03 / 0 ns | met |
+ 
+ The table is the gate's record.
+-The slice row is the binding limit: the shipping route at FPGA-gPTP `f97c1803` ([#803](https://github.com/kebag-logic/milan-fpga/issues/803)) on processor `f65c8ff7` places 15,834 slices, so placement has 16 of 15,850 left.
++The slice row is the binding limit: the shipping route at FPGA-gPTP `135afd04` ([#806](https://github.com/kebag-logic/milan-fpga/issues/806)) on processor `f65c8ff7` places 15,823 slices, so placement has 27 of 15,850 left.
++That route meets the build floor at every corner, at +0.032 / +0.034 ns, but its WNS is 0.408 ns under the record's, beyond the gate's 0.25 ns tolerance, so the gate refuses it.
++Timing recovery is ruled under [#814](https://github.com/kebag-logic/milan-fpga/issues/814)/[#818](https://github.com/kebag-logic/milan-fpga/issues/818); this change meets the build floor at every corner on its best directive.
+ The next growth on the shipping image therefore has no slice room and needs its own owner decision ([the extension](https://github.com/kebag-logic/milan-fpga/pull/770#issuecomment-6357449062)).
+ The record's route leaves 70 slices; the [owner decision of 2026-10-28](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) accepted that image's growth, and Mark II ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) recovers the area.
+ The routed critical setup path has 18 logic levels on the SoC's 10 ns clock, outside the wrapper and the datapath.
+diff --git a/docs/integration/BUILDING.md b/docs/integration/BUILDING.md
+index 7aeb6fb17..c5ee56409 100644
+--- a/docs/integration/BUILDING.md
++++ b/docs/integration/BUILDING.md
+@@ -622,6 +622,10 @@ the inter-stage reset bound remains 2 ns. Hold is excluded across Ethernet
+ clock pairs because their clock phases are unrelated.
+ Quasi-static tagged registers receive setup-4/hold-3 multicycles in the same
+ Tcl phase, outside the XDC. An empty tagged class adds no exception.
++The same phase cuts the media-clock servo's reset synchronizer input (#817).
++Its first `ASYNC_REG` stage samples the Milan reset into the PS clock.
++Only that D pin is false-pathed, and only from the Milan clock.
++The hook refuses a missing attribute, a broken chain or a shared clock.
+ 
+ Retain the implementation log and its emitted critical-warning census,
+ `*_clock_interaction.rpt`, and `*_exceptions.rpt` with every sweep seed.
