@@ -22,7 +22,7 @@ The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md#mark-ii-end-state) sets the 
 - **[Per-port MAC, filter and timestamp units](#per-port-mac-filter-and-timestamp-units)** -- What each port adds.
 - **[Register maps](#register-maps)** -- Engine registers and both context layouts.
 - **[Block RAM ledger at 32x32](#block-ram-ledger-at-32x32)** -- An estimate 23 tiles over.
-- **[The 0.5 s save path](#the-05-s-save-path)** -- Append-only; 353 ms worst.
+- **[The 0.5 s save path](#the-05-s-save-path)** -- Append-only, under 360 ms.
 - **[Verification](#verification)** -- How each claim gets checked.
 - **[Open questions](#open-questions)** -- Decisions the owner still owes.
 
@@ -757,6 +757,12 @@ So background erases use whole 64 KiB sectors.
 5. The save is durable once its last page checks.
 6. The writer resumes the background erase.
 
+A page failing read-back is rewritten to the next page.
+Such a retry is a reported fault outside the bound.
+
+Each save suspends and resumes the erase once.
+Table 17 gives 40 µs typical from resume to suspend.
+
 Each record carries its own sequence and check.
 A torn record fails its check; the older value stands.
 
@@ -780,13 +786,23 @@ t_page                                                     = 5.343 ms, used as 5
 
 per save, at most P_max = 32 pages (8,192 octets)
 
-T_worst = T_svc + T_suspend + (save in flight) + (this save)
-        = 10 ms + 1 ms + 32 x 5.35 ms + 32 x 5.35 ms
-        = 353.4 ms  <=  500 ms, margin 146.6 ms (29 %)
+T_worst = T_svc + (compaction page in flight) + 2 x T_suspend
+          + (save in flight) + (this save)
+        = 10 ms + 5.35 ms + 2 x 1 ms + 32 x 5.35 ms + 32 x 5.35 ms
+        = 359.75 ms  <=  500 ms, margin 140.25 ms (28 %)
 ```
 
 T_svc is the 10 ms service budget of NFR-SCOUT-03.
 The save in flight is one a change just missed.
+
+A save waits for at most one compaction page.
+Compaction yields to saves only between pages.
+
+Both saves suspend the erase, so T_suspend counts twice.
+Each 1 ms allowance also covers the resume-to-suspend spacing.
+
+#823 and #665 F1 restate `T-NVM-COMMIT-TIMEOUT`, 8,000 ms today.
+The [owner's 2026-10-31 direction](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6545894131) requires it.
 
 One save holds about 100 name records or 240 bindings.
 Any single AEM command's change fits in two pages.
@@ -809,17 +825,40 @@ So each slot grows to four sectors, 256 KiB.
 | Background erase of the old slot | 12 s | 4 x tSE |
 | Boot read of one slot | 168 ms | 256 KiB x 8 / 12.5 MHz |
 
-Compaction writes the live state into the pre-erased standby slot.
+Compaction copies the live state into the pre-erased standby slot.
 It serializes from the live tables, with no staging buffer.
 
-Saves keep appending to the active slot meanwhile.
-Each save preempts compaction between two pages.
+Until its commit, saves keep appending to the active slot.
+The ordering below keeps every saved change.
 
-When the copy completes, a header commits the new slot.
-A power cut before it leaves the old slot whole.
+1. Note S0, the active slot's last sequence number.
+2. Copy the live tables into the standby slot.
+3. Replay every active record above S0 into it, in order.
+4. Repeat the replay until no record is dirty or unreplayed.
+5. Write the standby slot's header with a higher generation.
+6. From then on, saves append to the new slot.
+7. Erase the old slot later; it is the next standby.
 
-Then the old slot is erased in the background.
-It becomes the next pre-erased standby.
+Boot applies a slot's records in sequence order.
+A later record of a key replaces an earlier one.
+
+A copied value can be newer than its replayed record.
+Step 4 then replays that newer value too.
+
+So the new slot ends with every durable value.
+No step drops a durable record without a power cut.
+
+Steps 2 to 4 run between saves, page by page.
+
+| Power cut during | Boot uses | Why nothing saved is lost |
+|---|---|---|
+| Copy or replay, steps 2 to 4 | The old slot | The new slot has no valid header; the old slot holds every durable save |
+| The header write, step 5 | The old slot | A torn header fails its check |
+| After the header, before or during the erase | The new slot | Its generation is higher, and steps 3 and 4 gave it every durable value |
+| A save append to either slot | The slot in use | A torn record fails its check; that change was not yet durable |
+
+An unfinished standby is erased again after a cut.
+Compaction then restarts from step 1.
 
 The layout change belongs to #823.
 The generated flash map stays the single source.
@@ -855,6 +894,7 @@ The [open questions](#open-questions) list it.
 | Port time bases | Simulation: each copy's avtp_timestamp against its own port's PHC | Bench capture of both copies on the two networks |
 | Block RAM ledger | Estimate above | Routed image at 32x32 with measured firmware |
 | Save bound | Analysis above at datasheet maxima | Host flash model at maxima; bench power cuts |
+| Compaction keeps saved changes | Ordering above | Host flash model: change a record after its copy, commit, erase, reboot, read the new value; a power cut at every step |
 
 The shaper model is lane evidence, not a gate.
 An implementation lane must turn it into a self-checking test.
@@ -878,8 +918,16 @@ An implementation lane must turn it into a self-checking test.
    The 32x32 ledger exceeds the usable tiles by 23.
    The reductions above need measuring before lanes rely on them.
 4. **Debounce windows.**
-   Today's 500 ms and 1,000 ms windows exceed it.
-   #823 and F1 must restate them inside the bound.
+   - Today's 500 ms window uses the whole bound.
+   - The 1,000 ms window exceeds it.
+   - #823 and F1 must restate them inside the bound.
 5. **gPTP on two ports.**
    The adopted `flexptpd` fork keeps one global core state.
    Redundancy needs one instance per port (#665 F6).
+6. **Commit timeout.**
+   - `T-NVM-COMMIT-TIMEOUT` is 8,000 ms today.
+   - The owner's direction restates it against 359.75 ms.
+   - #823 and #665 F1 own the new value.
+7. **Engine headroom at 192 kHz.**
+   - A legal 192 kHz mix loads each engine 92.67 %.
+   - A faster clock or wider beats would restore margin.
