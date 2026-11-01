@@ -1139,8 +1139,9 @@ An implementation lane must turn it into a self-checking test.
    - The 1,000 ms window exceeds it.
    - #823 and F1 must restate them inside the bound.
 5. **gPTP on two ports.**
-   The adopted `flexptpd` fork keeps one global core state.
-   Redundancy needs one instance per port (#665 F6).
+   - The surveyed `flexptpd` fork keeps one global core state.
+   - Redundancy needs one instance per port (#665 F6).
+   - The owner also confirms the fork's source and licence.
 6. **Commit timeout.**
    - `T-NVM-COMMIT-TIMEOUT` is 8,000 ms today.
    - The owner's direction restates it against 359.75 ms.
