@@ -1,0 +1,6 @@
+mutant [no defines passed] rc=1: AssertionError: gate 1h accepted a milan_datapath.sv with ETH_TICK_NS_P only where the build does not define SYNTHESIS: []
+mutant [binding read as containment] rc=1: AssertionError: gate 1h accepted a milan_datapath.sv with ETH_TICK_NS_P bound twice: []
+mutant [default read as containment] rc=1: AssertionError: gate 1h accepted a milan_datapath.sv with GPTP_ETH_TICK_NS_P shadowed beside the plane: []
+mutant [plane count dropped] rc=1: AssertionError: gate 1h accepted a milan_datapath.sv with a second plane: []
+mutant [instance name not read] rc=1: AssertionError: gate 1h accepted a milan_datapath.sv with the plane renamed: []
+mutant [raw text, no front end] rc=1: AssertionError: ['the one plane instantiated is not u_gptp_shadow']
