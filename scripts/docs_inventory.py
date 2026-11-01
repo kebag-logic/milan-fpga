@@ -21,10 +21,8 @@ What is read from the files, and what this script owns:
     `superseded` for a page carrying a supersession banner (or a judgement recorded in the data file),
     `stale` for a page with a recorded verified contradiction, `current` otherwise.
 
-The status rule (#797): a page with an open finding is never current. A page that would otherwise render
-current renders stale, and `--check` reads the committed page itself and fails when it marks a page current
-that its own Findings table lists, so the rule holds even if a regenerated page was produced by a generator
-that lost it.
+The status rule (#797): a page with an open finding is never current; it renders stale. `--check` also fails
+when the committed page marks current a page its own Findings table lists, so a generator that lost the rule fails.
 
 The verified contradictions live in `scripts/docs_inventory.json`. Each one quotes the statement exactly, so
 the generator finds its line at every head; a quote that is no longer on its page is rendered as needing
@@ -398,11 +396,8 @@ def carried_line(flat: tuple[str, list[int]], statement: str) -> int | None:
 
 
 def copies(findings: list[Finding], texts: dict[str, str]) -> list[Finding]:
-    """One row per finding and other page carrying its statement, never on the audit page that quotes it.
-
-    A page whose row already holds the words, or words holding them, gets no second row.
-    """
-    flats = {path: flatten(text) for path, text in texts.items() if path != OUTPUT}
+    """One row per finding and other page carrying its statement, unless a row there holds or is held by it."""
+    flats = {path: flatten(text) for path, text in texts.items()}
     held: dict[str, list[str]] = {}
     for finding in findings:
         held.setdefault(finding.page, []).append(normal_form(finding.quote))
@@ -477,10 +472,8 @@ def area_of(path: str) -> str:
     return parts[0]
 
 
-Located = list[tuple[Finding, int | None]]
-
-
-def build(tree: Tree, paths: list[str], own_lines: int) -> tuple[list[Page], Located, str, str]:
+def build(tree: Tree, paths: list[str],
+          own_lines: int) -> tuple[list[Page], list[tuple[Finding, int | None]], str, str]:
     """Every row, every located finding, the statements' baseline and the citations' baseline.
 
     The audit page's own row is read from the header this script writes, never
@@ -493,7 +486,7 @@ def build(tree: Tree, paths: list[str], own_lines: int) -> tuple[list[Page], Loc
     for finding in findings + copies(findings, texts):
         by_page.setdefault(finding.page, []).append(finding)
     pages: list[Page] = []
-    located: Located = []
+    located: list[tuple[Finding, int | None]] = []
     for path, text in texts.items():
         page_findings = by_page.get(path, [])
         located += [(f, carried_line(flatten(text), f.quote) if f.origin else locate(text, f.quote))
@@ -759,7 +752,7 @@ Mutation = Callable[[Path], None]
 
 
 def control(name: str, mutate: Mutation, want: int, needle: str | tuple[str, ...] = "", says: str = "",
-            absent: str = "") -> str | None:
+            absent: str | tuple[str, ...] = "") -> str | None:
     """One planted control on a fresh Git fixture; the failure message, or None when it held.
 
     The fixture's page is written with `--write`, the mutation applied, and
@@ -791,8 +784,9 @@ def control(name: str, mutate: Mutation, want: int, needle: str | tuple[str, ...
         for text in (needle,) if isinstance(needle, str) else needle:
             if text not in rendered:
                 return f"{name}: rendered page lacks {text!r}"
-        if absent and absent in rendered:
-            return f"{name}: rendered page carries {absent!r}"
+        for text in (absent,) if isinstance(absent, str) else absent:
+            if text and text in rendered:
+                return f"{name}: rendered page carries {text!r}"
         if EM_DASH in rendered:
             return f"{name}: rendered page carries an em dash"
         return None
@@ -871,33 +865,37 @@ def copy_controls() -> tuple:
     copy_row = "| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |"
     copy_status = "| Requirements | -- | stale | 1 finding(s): D0-002 |"
     first_copy = "- **All five** default\n  to `FIRMWARE`.\n"
-    archive_copy = append("docs/history/v1/OLD.md", "The register resets to 0x1.\n")
+    spelling = ("The Mark II default places them on the core.",)
     return (
         ("the README's statement copied onto the requirements page", plant_copy(), 1,
          (copy_row, copy_status, "| D0-002 | [README.md](../README.md) | 5 |",
           "Copy of the D0-002 statement on `README.md`."), "STALE"),
         ("a spelling found only through `also` gets a row",
-         in_order(plant_copy(("The Mark II default places them on the core.",)),
-                  replace("REQUIREMENTS.md", first_copy, "Open.\n")), 1,
+         in_order(plant_copy(spelling), replace("REQUIREMENTS.md", first_copy, "Open.\n")), 1,
          ("| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 5 |", copy_status), "STALE"),
+        ("two spellings on one page give one row", plant_copy(spelling), 1, copy_row, "STALE",
+         "| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 5 |"),
         ("a copy cannot be marked current by hand",
          in_order(plant_copy(), replace(OUTPUT, copy_status, "| Requirements | -- | current | no recorded |")), 1,
          copy_status, "REQUIREMENTS.md carries an open finding but is marked current"),
         ("a fixed copy loses its row and its page recovers",
          in_order(plant_copy(), replace("REQUIREMENTS.md", first_copy, "Open.\n")), 1,
          "| Requirements | -- | current | no recorded contradiction |", "STALE", "| D0-002 | [REQUIREMENTS.md]"),
-        ("a copy on an archive page gets a row and stays obsolete", archive_copy, 1,
+        ("a copy on an archive page gets a row and stays obsolete",
+         append("docs/history/v1/OLD.md", "The register resets to 0x1.\n"), 1,
          ("| D0-001 | [docs/history/v1/OLD.md (historical)](history/v1/OLD.md) | 8 |",
           "| Old page | -- | obsolete | versioned archive;"), "STALE"),
-        ("a longer number is not a copy", append("docs/guides/B.md", "It resets to 0x10.\n"), 1, "", "STALE",
-         "| D0-001 | [docs/guides/B.md]"),
+        ("a longer word is not a copy", append("docs/guides/B.md", "It presets to 0x1, or resets to 0x10.\n"), 1, "",
+         "STALE", "| D0-001 | [docs/guides/B.md]"),
         ("a statement across a blank line is not a copy", append("docs/guides/B.md", "It resets to\n\n0x1.\n"), 1,
          "", "STALE", "| D0-001 | [docs/guides/B.md]"),
         ("a page already recording the words gets no second row",
-         in_order(append("docs/guides/B.md", "It resets to 0x1 here.\n"), edit_data(lambda d: d["findings"].append(
-             {"id": "D0-003", "page": "docs/guides/B.md", "quote": "It resets to 0x1 here.",
-              "source": "`scripts/tool.py` line 1", "correction": "It resets to 0x0."}))),
-         1, "| D0-003 | [docs/guides/B.md](guides/B.md) | 4 |", "STALE", "| D0-001 | [docs/guides/B.md]"),
+         in_order(append("docs/guides/B.md", "It resets to 0x1 here.\n"),
+                  append("docs/guides/A.md", "It resets to 0x1 here.\n"), edit_data(lambda d: d["findings"].append(
+                      {"id": "D0-003", "page": "docs/guides/B.md", "quote": "It resets to 0x1 here.",
+                       "source": "`scripts/tool.py` line 1", "correction": "It resets to 0x0."}))),
+         1, "| D0-003 | [docs/guides/B.md](guides/B.md) | 4 |", "STALE",
+         ("| D0-001 | [docs/guides/B.md]", "| D0-003 | [docs/guides/A.md]")),
         ("the audit page quoting every statement is not searched", lambda root: None, 0, "", "is fresh",
          "| D0-001 | [docs/DOCUMENTATION_AUDIT.md]"),
         ("`also` that is not a list", edit_data(lambda d: d["findings"][0].update(also="x")), 2, "", "REFUSED"),
