@@ -56,7 +56,7 @@ shape, and each must be a net of the map writer (``amr_``). ACCEPTANCE ITEM
 OF THE PLACEMENT SWITCH: its split elaboration drops this exclusion, and
 the census passes without it.
 
-THE REBOOT EXCLUSION, ALSO OWED TO THE PLACEMENT SWITCH (ruling 6554243203).
+THE REBOOT EXCLUSION, ALSO OWED TO THE PLACEMENT SWITCH (#665, #787).
 The processor's AECP REBOOT request (reboot_req_o, #787) drives
 KL_reboot_ctrl, which stays in the datapath and runs the drain, the egress
 wait, the PHY hold and the configuration reload. In the split the
@@ -299,7 +299,7 @@ PORTS: dict[str, dict[str, Port]] = {
                 "rx_frames_o tx_frames_o rx_drops_o"),
         **_rows("the processor's millisecond timebase, connected to nothing", "dbg_now_ms_o"),
         **_rows("the AECP REBOOT request (#787): the firmware's AECP owner takes REBOOT in the split, which has no "
-                "carrier for it yet; the cone stops at reboot_ctrl.reboot_req_i (ruling 6554243203, the exclusion)",
+                "carrier for it yet; the cone stops at reboot_ctrl.reboot_req_i (#665, the exclusion)",
                 "reboot_req_o"),
     },
 }
