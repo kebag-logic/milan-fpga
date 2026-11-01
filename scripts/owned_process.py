@@ -78,6 +78,30 @@ def _live(pid: int) -> bool:
         return False
 
 
+def _describe(pid: int, first: tuple[int, str] | None, killed_ago: float | None) -> str:
+    """Name what one remaining descendant is doing, for a failed cleanup (#833).
+
+    State D is uninterruptible sleep, Z a zombie awaiting its parent, and R or S
+    after SIGKILL a process not yet scheduled to act on the signal. A parent
+    that differs from the first census means the process was re-parented.
+    """
+    try:
+        name, rest = (PROC / str(pid) / "stat").read_text().rsplit(")", 1)
+        uptime = float((PROC / "uptime").read_text().split()[0])
+    except (FileNotFoundError, ProcessLookupError):
+        return f"pid {pid} exited during this report"
+    fields = rest.split()
+    try:
+        wchan = (PROC / str(pid) / "wchan").read_text().strip()
+    except OSError:
+        wchan = "unreadable"
+    origin = "new since the first census" if first is None else f"first parent {first[0]}"
+    kill = "not sent SIGKILL" if killed_ago is None else f"sent SIGKILL {killed_ago:.2f} s ago"
+    return (f"pid {pid} ({name.split('(', 1)[1]}) state {fields[0]} wchan {wchan} parent {fields[1]} "
+            f"({origin}) age {uptime - int(fields[19]) / os.sysconf('SC_CLK_TCK'):.2f} s "
+            f"start {fields[19]}, {kill}")
+
+
 class OwnedProcesses:
     """One sequential command owner with bounded cleanup and signal latching."""
 
@@ -184,21 +208,34 @@ class OwnedProcesses:
     def _cleanup(self) -> None:
         # Never signal a numeric PID from a stale census. Open an identity
         # handle and recheck its start time before sending any signal.
-        deadline = time.monotonic() + GRACE_SECONDS
+        started = time.monotonic()
+        deadline = started + GRACE_SECONDS
         hard_deadline = deadline + REAP_SECONDS
         notified = set()
         initial = None
         resumed = None
+        killed = {}
+        passes = 0
+        slowest = 0.0
         while True:
+            pass_started = time.monotonic()
             self._reap()
             owned = self._descendants()
+            passes += 1
             if not owned:
                 return
             if initial is None:
                 initial = set(owned.items())
             now = time.monotonic()
+            slowest = max(slowest, now - pass_started)
             if now >= hard_deadline:
-                raise RuntimeError(f"CLEANUP FAILED: owned descendants remain: {owned}")
+                first = dict(initial)
+                remaining = "; ".join(
+                    _describe(pid, first.get(pid), now - killed[pid] if pid in killed else None)
+                    for pid in sorted(owned))
+                raise RuntimeError(
+                    f"CLEANUP FAILED: owned descendants remain after {now - started:.2f} s, "
+                    f"{passes} census passes, slowest {slowest:.2f} s: {remaining}")
             root_pid = self.process.pid if self.process is not None else None
             live = {pid for pid in owned if _live(pid)}
             if self.root_notified and resumed is None and not (live - {root_pid}):
@@ -237,6 +274,8 @@ class OwnedProcesses:
                         self._signal(fd, signum)
                         self._signal(fd, signal.SIGCONT)
                         notified.add(key)
+                        if signum == signal.SIGKILL:
+                            killed.setdefault(pid, time.monotonic())
                 finally:
                     os.close(fd)
             time.sleep(0.02)
