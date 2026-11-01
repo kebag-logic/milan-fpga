@@ -100,7 +100,7 @@ decision record for the one deliberate 2011-vs-2020 wire difference
 
 ### 1.3 AECP AEM command set (Section 5.4.2)
 
-**Thirty AEM opcodes are served with real state** — every command of Milan
+**Thirty-one AEM opcodes are served with real state**: every command of Milan
 Section 5.4.2.1–5.4.2.29 plus the Section 5.4.5.4 `IDENTIFY_NOTIFICATION`
 path — and MVU `GET_MILAN_INFO` beside them; the inventory is machine-gated
 ([`aecp_response_contract.feature`](../../tests/features/aecp_response_contract.feature)

@@ -32,6 +32,12 @@ STATUS_RE = re.compile(
     r"GPTP_LAT=([0-9A-Fa-f]{8})"
 )
 TAI_RE = re.compile(r"TAI_NS=0x([0-9A-Fa-f]{16})")
+#: One LiteX BIOS pass prints this line once (the pinned LiteX's bios/main.c).
+BIOS_BANNER = " BIOS built on "
+#: The console prompt a boot leaves behind, with or without its colour codes.
+PROMPT_RE = re.compile(r"litex(?:\x1b\[0m)?> ")
+#: Seconds between two `milan_status` polls while gPTP locks after a reboot.
+LOCK_POLL_S = 2.0
 BAUDS = {
     9600: termios.B9600,
     19200: termios.B19200,
@@ -70,6 +76,20 @@ def parse_status(text: str) -> dict[str, int | str]:
         "tu": int(match.group(16), 10),
         "gptp_lat": int(match.group(17), 16),
     }
+
+
+def bios_passes(boot_text: str) -> int:
+    """How many BIOS passes a boot transcript shows: one banner line each."""
+    return boot_text.count(BIOS_BANNER)
+
+
+def gptp_locked(status_text: str) -> bool:
+    """Whether one `milan_status` reply shows the gPTP lock `grade` requires."""
+    try:
+        status = parse_status(status_text)
+    except ValueError:
+        return False
+    return bool(status["sync"]) and bool(status["as_capable"]) and not status["tu"]
 
 
 def parse_tai(text: str) -> int:
@@ -185,6 +205,37 @@ class Console:
         text = data.decode("ascii", errors="replace")
         raise TimeoutError(f"timeout waiting for {pattern.pattern!r}; got {text!r}")
 
+    def wait_for(self, pattern: re.Pattern[str], timeout: float) -> str:
+        """Read without sending until `pattern` appears; return everything read.
+
+        Nothing is flushed: after a reboot the whole transcript from the open
+        onwards is the evidence, every BIOS pass included.
+        """
+        deadline = time.monotonic() + timeout
+        data = bytearray()
+        while time.monotonic() < deadline:
+            ready, _, _ = select.select([self.fd], [], [],
+                                        min(0.2, max(0.0, deadline - time.monotonic())))
+            if ready:
+                try:
+                    data.extend(os.read(self.fd, 4096))
+                except BlockingIOError:
+                    continue
+                text = data.decode("ascii", errors="replace")
+                if pattern.search(text):
+                    return text
+        text = data.decode("ascii", errors="replace")
+        raise TimeoutError(f"timeout waiting for {pattern.pattern!r}; got {text[-200:]!r}")
+
+    def await_lock(self, lock_timeout: float, timeout: float) -> str:
+        """Poll `milan_status` until gPTP locks or `lock_timeout` passes; the last reply."""
+        deadline = time.monotonic() + lock_timeout
+        while True:
+            status = self.command("milan_status", STATUS_RE, timeout)
+            if gptp_locked(status) or time.monotonic() >= deadline:
+                return status
+            time.sleep(LOCK_POLL_S)
+
     def __enter__(self):
         return self
 
@@ -264,7 +315,16 @@ def self_test() -> None:
             pass
         else:
             raise AssertionError(f"malformed status was accepted: {candidate!r}")
-    print("BAREMETAL UART SMOKE SELF-TEST: PASS (13 negative arms)")
+    #! issue #787: after a REBOOT exactly one BIOS pass precedes the prompt
+    banner = "\x1b[1m __ \x1b[0m\n BIOS built on Oct 29 2026 12:00:00\n"
+    prompt = "\x1b[92;1mlitex\x1b[0m> "
+    assert bios_passes(banner + prompt) == 1
+    assert bios_passes(banner + banner + prompt) == 2
+    assert bios_passes(prompt) == 0
+    assert PROMPT_RE.search(prompt) and PROMPT_RE.search("litex> ")
+    assert gptp_locked(status) and not gptp_locked(unhealthy)
+    assert not gptp_locked("ID=not-a-status")
+    print("BAREMETAL UART SMOKE SELF-TEST: PASS (13 negative arms, 4 reboot arms)")
 
 
 def main() -> int:
@@ -285,6 +345,11 @@ def main() -> int:
     parser.add_argument("--baud", type=int, default=115200)
     parser.add_argument("--timeout", type=float, default=5.0)
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--after-reboot", type=float, metavar="SECONDS",
+                        help="grade the boot an AECP REBOOT causes (issue #787): wait up "
+                             "to SECONDS for the prompt, require one BIOS pass, then "
+                             "poll until gPTP locks or --lock-timeout passes")
+    parser.add_argument("--lock-timeout", type=float, default=60.0)
     args = parser.parse_args()
     if args.self_test:
         self_test()
@@ -293,12 +358,20 @@ def main() -> int:
         parser.error("--port is required unless --self-test is used")
 
     try:
+        reboot_checks = []
         with Console(args.port, args.baud) as console:
-            status = console.command("milan_status", STATUS_RE, args.timeout)
+            if args.after_reboot is not None:
+                passes = bios_passes(console.wait_for(PROMPT_RE, args.after_reboot))
+                reboot_checks.append(
+                    ("reboot-single-boot", passes == 1,
+                     f"{passes} BIOS pass(es) before the prompt (need exactly 1)"))
+                status = console.await_lock(args.lock_timeout, args.timeout)
+            else:
+                status = console.command("milan_status", STATUS_RE, args.timeout)
             first = console.command("milan_gettime", TAI_RE, args.timeout)
             time.sleep(0.2)
             second = console.command("milan_gettime", TAI_RE, args.timeout)
-        checks = grade(status, first, second)
+        checks = reboot_checks + grade(status, first, second)
     except (OSError, ValueError, TimeoutError) as error:
         print(f"BAREMETAL UART SMOKE: FAIL ({error})", file=sys.stderr)
         return 1

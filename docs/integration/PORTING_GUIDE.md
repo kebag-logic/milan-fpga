@@ -31,6 +31,14 @@ Ethernet PHY, and pin primitives. Replace those through the destination
 toolchain while retaining the same logical clocks, reset release, packet
 convention, and audio timing.
 
+The configuration port is the shell's too. `milan_datapath` drives a
+vendor-neutral ICAPE2-shaped port (`o_icap_csib`, `o_icap_i`) with the 7-series
+IPROG sequence that reloads the configuration on an AECP REBOOT (#787,
+[reset design](../design/REBOOT_RESET.md)); `MilanMAC` instantiates `ICAPE2` on
+it. A destination without that primitive maps the same reload onto its own
+reconfiguration port, or leaves the port open: a REBOOT then only takes the
+entity off the network until the next reset.
+
 ## 3. Clocking and reset requirements - vendor-independent contract
 
 Provide stable system, timestamp, Ethernet, and audio clocks. Assert resets
