@@ -929,7 +929,7 @@ So background erases use whole 64 KiB sectors.
 5. The save is durable once its last page checks.
 6. The writer resumes the background erase.
 
-A page failing read-back is rewritten to the next page.
+A record page failing read-back is rewritten further on.
 Such a retry is a reported fault outside the bound.
 
 Each save suspends and resumes the erase once.
@@ -1019,6 +1019,34 @@ No save can run between them.
 A save arriving during the header page waits for it.
 That wait is the compaction page already in T_worst.
 
+#### A header that fails its read-back
+
+A read-back can fail on an intact header.
+Boot would then prefer it to later saves.
+
+So saves keep waiting, and the writer zeroes that page.
+A program only clears bits (N25Q128 5.1.2).
+
+An all-zero header never passes its check.
+#823's header format must ensure that.
+
+A zeroed page can fail its read-back too.
+The writer then erases the header's sector, saves still held.
+
+That double fault is reported, outside the bound.
+
+Saves resume once the header reads back zeroed or erased.
+They append to the old slot, still active.
+
+Compaction then erases the standby and restarts from step 1.
+
+A failed header read-back is a reported fault.
+A waiting save then waits one more page.
+
+That makes 365.10 ms, within 0.5 s.
+
+#### Boot and the surviving slot
+
 The header carries a higher generation and its own check.
 Boot applies the copy, then records in sequence order.
 
@@ -1035,15 +1063,17 @@ So each key's newest durable value comes last.
 | At the boundary after the last replay page | The active slot: strict priority runs it before step 4's check | The check then fails, and step 3 replays it first |
 | Between step 4's check and the header page | Impossible: the check and the header page are one step | - |
 | During the header page | Nothing until that page ends; then the new slot | The new slot is the one that survives |
-| After a header that fails its read-back | The old slot, still active | Compaction erases the standby and restarts from step 1 |
-| After the header, before or during step 6 | The new slot | Its generation is higher; the save suspends the erase as any save does |
+| After a header that fails its read-back | Nothing until the header reads back zeroed or erased; then the old slot, still active | That header now fails its check, so boot keeps the old slot; compaction erases the standby and restarts from step 1 |
+| After a header that passes its read-back, before or during step 6 | The new slot | Its generation is higher; the save suspends the erase as any save does |
 
 | Power cut during | Boot uses | Why nothing saved is lost |
 |---|---|---|
 | A save append, at any step | The slot in use | A torn record fails its check; that save was not yet durable |
 | The copy or the replay, steps 2 and 3 | The old slot | The new slot has no valid header; every durable save is in the old slot |
-| The header page, step 4 | The old slot | A torn header fails its check; a save waiting on it was not yet durable |
-| After the header, before or during step 6 | The new slot | Its generation is higher, and it holds every durable record |
+| The header page, step 4 | The old slot, or the new slot if its header programmed whole | A torn header fails its check; either slot holds every durable save, and a save waiting on the header was not yet durable |
+| After a failed header read-back, until the header reads back zeroed or erased | Either slot | Saves wait meanwhile, so either slot holds every durable save |
+| After that, during the standby's erase | The old slot | The standby's header fails its check; every save since is in the old slot |
+| After a header that passes its read-back, before or during step 6 | The new slot | Its generation is higher, and it holds every durable record |
 
 An unfinished standby is erased again after a cut.
 Compaction then restarts from step 1.
@@ -1111,7 +1141,7 @@ The [open questions](#open-questions) list it.
 | Port time bases | Simulation: each copy's avtp_timestamp against its own port's PHC | Bench capture of both copies on the two networks |
 | Block RAM ledger | Estimate above | Routed image at 32x32 with measured firmware |
 | Save bound | Analysis above at datasheet maxima | Host flash model at maxima; bench power cuts |
-| Compaction keeps saved changes | Ordering and tables above | Host flash model: one save at every page boundary of a compaction, including the one after the last replay page, one during the header page, and a second save at every boundary; a power cut before, inside and after every page; then commit, erase, reboot and read every saved value. The test fails if a save may run between step 4's check and the header page, or if step 3 is skipped |
+| Compaction keeps saved changes | Ordering and tables above | Host flash model: one save at every page boundary of a compaction, including the one after the last replay page, one during the header page, and a second save at every boundary; a header that programs intact or torn and fails its read-back, with its zeroing passing or failing its own read-back, then a save; a power cut before, inside and after every page and erase step, including before and after the standby's header sector is erased; then commit, erase, reboot and read every saved value. The test fails if a save may run between step 4's check and the header page, if step 3 is skipped, or if a save appends to the old slot before a failed header reads back zeroed or erased |
 
 The shaper model is lane evidence, not a gate.
 An implementation lane must turn it into a self-checking test.
