@@ -1,7 +1,7 @@
-SHAPE DRIFT [tmpmecpb6ss.sh] arty vs configs/endstation_arty_4x4.yaml:
+SHAPE DRIFT [tmphpu66ga5.sh] arty vs configs/endstation_arty_4x4.yaml:
   - --num-streams 5 != config streams 4 (max(listeners, talkers)) - the bitstream would be 5x5, the config says 4x4
 SHAPE DRIFT: arty: generated fragment pins NS=4 but sweep.sh's default is 5 - the fragment is sourced AFTER the defaults, so the fragment would win silently
-SHAPE DRIFT [tmpmecpb6ss.sh] ax7101 vs configs/endstation_ax7101_1x1_tdm8.yaml:
+SHAPE DRIFT [tmphpu66ga5.sh] ax7101 vs configs/endstation_ax7101_1x1_tdm8.yaml:
   - --num-streams 2 != config streams 1 (max(listeners, talkers)) - the bitstream would be 2x2, the config says 1x1
 SHAPE DRIFT: ax7101: generated fragment pins NS=1 but sweep.sh's default is 2 - the fragment is sourced AFTER the defaults, so the fragment would win silently
 SHAPE DRIFT: cfg_ax8x8: design flag --xlen: launch line '64' != config-implied '32' (emit_soc_argv of endstation_ax7101_8x8.yaml)
@@ -93,9 +93,9 @@ SHAPE DRIFT: cfg_arty: build.sh arty --dry-run exited 2: refusing to build: rege
 SHAPE DRIFT: cfg_ax7101: build.sh ax7101 --dry-run exited 2: refusing to build: regenerating $LANES/787-cand-manager-builder/sw/builder/out/endstation_ax7101_1x1_tdm8/soc_params.json from configs/endstation_ax7101_1x1_tdm8.yaml FAILED (endstation_builder.py exited 2, its error is above). Nothing launched; the design argv already on file was NOT used.
 SHAPE DRIFT: cfg_ax8x8: build.sh ax8x8 --dry-run exited 2: refusing to build: regenerating $LANES/787-cand-manager-builder/sw/builder/out/endstation_ax7101_8x8/soc_params.json from configs/endstation_ax7101_8x8.yaml FAILED (endstation_builder.py exited 2, its error is above). Nothing launched; the design argv already on file was NOT used.
 SHAPE DRIFT: build.sh cfg_unbound_selftest has no config binding in BUILD_CFGS; an ungraded recipe could silently build a different shape
-SHAPE DRIFT: tmpq_ofok9u.sh: launches milan_soc.py without `export PYTHONHASHSEED=0`; the CPU netlist name would depend on the process
-SHAPE DRIFT: tmpgp45p7xf.sh: launches milan_soc.py without `export PYTHONHASHSEED=0`; the CPU netlist name would depend on the process
-SHAPE DRIFT: tmp6yc9wori.sh: `export PYTHONHASHSEED=0` on line 523 comes after the milan_soc.py launch on line 498
+SHAPE DRIFT: tmpjslzktms.sh: launches milan_soc.py without `export PYTHONHASHSEED=0`; the CPU netlist name would depend on the process
+SHAPE DRIFT: tmpl89m27wt.sh: launches milan_soc.py without `export PYTHONHASHSEED=0`; the CPU netlist name would depend on the process
+SHAPE DRIFT: tmpvo7i9d47.sh: `export PYTHONHASHSEED=0` on line 523 comes after the milan_soc.py launch on line 498
   [sweep-shape] arty: num-streams 4, l2 0, render-lpf True == endstation_arty_4x4.yaml
   [sweep-shape] ax7101: num-streams 1, l2 0, render-lpf False == endstation_ax7101_1x1_tdm8.yaml
   [sweep-shape] build.sh cfg_arty: 15 design flags on the dry-run launch line agree with endstation_arty_current.yaml flag for flag, --entity-gen-dir names it, and sw/builder/out/endstation_arty_current/soc_params.json is its current emission
