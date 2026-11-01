@@ -98,6 +98,14 @@ constexpr const char *kBiasCheck =
 #endif
 //! Frames the bias oracle needs before its mean means anything.
 constexpr int kBiasFrames = 200;
+//! The PHC history guard's reload, in fabric cycles: on MII the reconstructed
+//! interval, 3770 ns at 20 ns, and fifteen for the synchronisers; on GMII that
+//! sum is under the 64-cycle floor, which stands (issue #829).
+#ifdef GPTP_TXTS_MII
+constexpr uint64_t kGuardReloadCyc = 3770 / 20 + 15;
+#else
+constexpr uint64_t kGuardReloadCyc = 64;
+#endif
 
 //! THE TWO DOMAINS ARE INDEPENDENT OSCILLATORS, and this bench says so.
 //! The transmit domain rides the PHY's recovered clock and the plane rides
@@ -289,6 +297,7 @@ class TxtsHarness {
   void pad_octet(uint8_t data, uint64_t launch_ns);
   void pad_nibble(uint8_t nibble);
   void pad_close();
+  bool pad_at_first_symbol() const;
   void run_ns(uint64_t span);
   void reset_all();
   bool wait_unsealed(uint64_t span);
@@ -308,6 +317,7 @@ class TxtsHarness {
   void prove_pads_are_byte_exact();
   void prove_fragment_aborts();
   void prove_phc_load_inside_the_window();
+  void load_phc_inside_a_frame(bool first_symbol, const std::string &arm);
   void prove_recovery_over_the_production_mac();
   void prove_full_run_laws();
 
@@ -538,6 +548,17 @@ void TxtsHarness::pad_close() {
   pad_cur_.octets = pad_cur_.body.size();
   pads_.push_back(pad_cur_);
   pad_cur_ = PadFrame();
+}
+
+//! Has the oracle just taken frame octet 0's first symbol, the message timestamp
+//! point of IEEE 802.1AS-2020 11.3.9? On MII that is the low nibble, one clock
+//! before the octet is whole.
+bool TxtsHarness::pad_at_first_symbol() const {
+#ifdef GPTP_TXTS_MII
+  return pad_open_ && pad_idx_ == 7 && nib_high_;
+#else
+  return pad_open_ && pad_idx_ == 8;
+#endif
 }
 
 //! The reference clock, interpolated from the samples this harness took at
@@ -941,11 +962,20 @@ void TxtsHarness::prove_fragment_aborts() {
 
 //! A PHC load between a frame's first symbol and its record's capture leaves no
 //! trajectory the reconstruction can describe, so that frame's result is an
-//! explicit loss. The load lands where the pads have carried the frame's header,
-//! fourteen octets past its reference: 112 ns into the GMII interval and 1120 ns
-//! into the MII one, so the guard has to cover the whole of the longer interval
-//! (issue #829).
+//! explicit loss. One load lands on the first symbol, the window's early end, so
+//! the guard has to reach back across the whole interval: 426 ns on GMII and
+//! 3770 ns on MII (issue #829). The other lands fourteen octets later, where the
+//! pads have carried the frame's header.
 void TxtsHarness::prove_phc_load_inside_the_window() {
+  load_phc_inside_a_frame(true, "phc window, first symbol: ");
+  load_phc_inside_a_frame(false, "phc window, octet 14: ");
+}
+
+//! One load inside one frame, and that frame's own outcome. Only plane frames
+//! are on the wire here, so the frame the first symbol belongs to is a gPTP one,
+//! and the pads say so once it has closed.
+void TxtsHarness::load_phc_inside_a_frame(bool first_symbol,
+                                          const std::string &arm) {
   const uint16_t phc_lost0 = dut->dbg_txts_phcl_o;
   const uint16_t seq = peer_seq_++;
   Frame req = ptp_frame(0x2, seq, 0x0000, 20, kPeerCid);
@@ -954,27 +984,38 @@ void TxtsHarness::prove_phc_load_inside_the_window() {
   req.u32(0);
   send_peer(req.b);
   size_t target = 0;
+  size_t pad_slot = 0;
+  uint64_t reload = 0;
   bool loaded = false;
   const uint64_t until = now_ + kExchangeNs;
   while (now_ < until) {
     step();
-    if (!loaded && pad_open_ && pad_cur_.gptp && pad_idx_ == 22) {
+    const bool here = first_symbol ? pad_at_first_symbol()
+                                   : pad_open_ && pad_idx_ == 22;
+    if (!loaded && here) {
       target = gptp_pads();
+      pad_slot = pads_.size();
       dut->phc_tod_wr_i = dut->phc_ns_o;
       dut->phc_load_i = 1;
       run_ns(2 * kDpHalfNs);
+      //! the guard took the load on the edge above and has not yet counted
+      reload = dut->dbg_txts_dirt_cyc_o;
       dut->phc_load_i = 0;
       loaded = true;
     }
   }
-  check.that("phc window: the load landed inside a gPTP frame", loaded);
+  check.that((arm + "the load landed inside a gPTP frame").c_str(),
+             loaded && pad_slot < pads_.size() && pads_[pad_slot].gptp);
+  check.dec((arm + "the guard reloaded to the interval and its margin").c_str(),
+            reload, kGuardReloadCyc);
   const bool have_result = target < results_.size();
-  check.that("phc window: the plane delivered that frame's result", have_result);
+  check.that((arm + "the plane delivered that frame's result").c_str(),
+             have_result);
   if (have_result) {
-    check.dec("phc window: that frame's own result is an explicit loss",
+    check.dec((arm + "that frame's own result is an explicit loss").c_str(),
               results_[target].ok, 0);
   }
-  check.that("phc window: the history guard counted it",
+  check.that((arm + "the history guard counted it").c_str(),
              dut->dbg_txts_phcl_o != phc_lost0);
 }
 

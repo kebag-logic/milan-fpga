@@ -82,7 +82,25 @@ MII_MUTATIONS = [
         PLANE / "KL_gptp_txret.sv",
         "(RECON_NEED_CYC_C > RECON_GUARD_CYC_P) ? RECON_NEED_CYC_C : RECON_GUARD_CYC_P;",
         "RECON_GUARD_CYC_P;  // MUTATION",
-        "phc window: that frame's own result is an explicit loss",
+        "phc window, first symbol: that frame's own result is an explicit loss",
+    ),
+    (
+        #: a guard that stops short of the window, which a load late in the frame
+        #: does not see: only the load on the first symbol reaches back that far
+        "mii_history_guard_short_of_the_window",
+        PLANE / "KL_gptp_txret.sv",
+        "RECON_NEED_CYC_C = TXTS_CORR_NS_P / DP_TICK_NS_P + 15;",
+        "RECON_NEED_CYC_C = 170;  // MUTATION",
+        "phc window, first symbol: that frame's own result is an explicit loss",
+    ),
+    (
+        #: one cycle short of what the document states, 202 where 203 is needed
+        "mii_history_guard_just_below_its_need",
+        PLANE / "KL_gptp_txret.sv",
+        "RECON_NEED_CYC_C = TXTS_CORR_NS_P / DP_TICK_NS_P + 15;",
+        "RECON_NEED_CYC_C = TXTS_CORR_NS_P / DP_TICK_NS_P + 14;  // MUTATION",
+        "phc window, first symbol: the guard reloaded to the interval and its "
+        "margin",
     ),
     (
         "mii_delta_forced_not_measured",
