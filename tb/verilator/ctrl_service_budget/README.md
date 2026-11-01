@@ -840,10 +840,10 @@ Each run's `table.md` reports `backlog-adp` and `backlog-adp-refill` as not run;
 With the code in flash behind 4 KiB, the event ring still holds 5 of its 16 records when those two windows open, 4 without the stage.
 The window's fifteen grandmaster changes arrive 8 bus cycles apart, so 11 records post at once (12 without the stage), and the coalesced source holds the rest as one more record.
 Each window so commits 12 GM events (13 without the stage) against its defined 15, and `grade.check_load` refuses a window whose population is not its row's.
-The firmware, not the stage, makes the ring that full: at `dev-soft-core` `5b5f4336`, before dev's #814 was merged, the same two windows are refused at 13 GM events.
+The firmware, not the stage, causes the refusal: at `dev-soft-core` `5b5f4336`, before dev's #814 was merged, the ring holds 4 records when those windows open and the same two are refused at 13 GM events. The stage adds the fifth record.
 Those two refusals are in each row's probes refused, with three probes staged (`acmp.get_rx_state.if0`, `acmp.probe_tx.if0`, `fixture.set_name.if0`), and those three and `acmp.get_tx_connection.if0` without the stage.
 
-Every window, read from each run's logs with `grade.py`'s own `population`, `composed_passes` and `unreleased`, without its refusal.
+This table gives every window, read from each run's logs with `grade.py`'s own `population`, `composed_passes` and `unreleased`, without its refusal.
 A refused window's passes ran a smaller load than its row defines, so its figures are not its row's, and the graded figures above leave them out:
 
 | Window | Stage | GM events committed, of 15 | Graded | Window, ms | Passes | Longest pass, ms | Records unreleased |
@@ -851,7 +851,7 @@ A refused window's passes ran a smaller load than its row defines, so its figure
 | `backlog` | staged | 15 | yes | 800.00 | 19 | 87.17 | srp 27 |
 | `backlog-owed` | staged | 15 | yes | 860.05 | 18 | 86.89 | srp 29 |
 | `backlog-adp` | staged | 12 | refused | 738.99 | 12 | 81.40 | aecp 4, srp 32 |
-| `backlog-adp-refill` | staged | 12 | refused | 884.92 | 14 | 88.32 | aecp 1, srp 32 |
+| `backlog-adp-refill` | staged | 12 | refused | 884.91 | 14 | 88.32 | aecp 1, srp 32 |
 | `backlog` | none | 15 | yes | 800.00 | 20 | 86.54 | srp 26 |
 | `backlog-owed` | none | 15 | yes | 860.05 | 18 | 86.26 | srp 29 |
 | `backlog-adp` | none | 13 | refused | 733.78 | 12 | 78.11 | aecp 4, srp 32 |
