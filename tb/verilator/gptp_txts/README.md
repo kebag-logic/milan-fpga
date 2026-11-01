@@ -75,10 +75,9 @@ It proves the reconstruction is the launch: every frame inside the published
 digital bound, a mean inside one nanosecond over two hundred phase-varied
 frames (1.754 ns on the MII shape, whose limit adds what the declared wire-clock
 offset leaves over the longer interval), and the same answer whether the frame
-left an empty MAC or queued
-behind other traffic. It measures the retired capture in the same run and
-prints how far ahead of the launch it was, isolated and queued, which is the
-defect as a number.
+left an empty MAC or queued behind other traffic. It measures the retired
+capture in the same run and prints how far ahead of the launch it was, isolated
+and queued, which is the defect as a number.
 
 It proves nothing physical. No measured PHY latency, no pad clock-to-out, no
 cable, no silicon. Its reference plane is the registered GMII launch edge,
