@@ -1,0 +1,11 @@
+### Engine registers: 18 rows of offsets, ends at 0x2000, expected 0x2000 ok
+### Talker context: 15 rows of offsets, ends at 0x40, expected 0x40 ok
+### Listener context: 19 rows of offsets, ends at 0x80, expected 0x80 ok
+listener reserved octets 0x48-0x7C: 56
+WMAP 22 + HEAD_POS 9 + HEAD_VALID 1 = 32 ; HEAD_POS addresses 512 samples, the 192 kHz depth 512
+map span: 2.667 ms / 125 us = 21.33 packets, under 22
+window: 62.5 - 2.744 - 0.55 = 59.206 us margin; neighbour apart 121.706 us
+E_x: 2 + 200e-6 x 2917 + 0.160 = 2.7434 us
+sweep: 32 contexts / 31.25 ms =  32.0 per s; 128 cycles / 32 = 4.0 cycles per context
+save: 10 + 5.35 + 2 + 32 x 5.35 x 2 = 359.75 ms; +5.35 = 365.1 ms
+RESULT PASS 0

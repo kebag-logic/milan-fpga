@@ -1,0 +1,51 @@
+arm | rate | missing misplaced extra | dup/expected | sec/expected | hits r1..r6
+both clean, jitter 2.744 us | 48 | 0 0 0 | 4000/4000 | 1982/1982 | [0, 1, 0, 3999, 0, 4000] | PASS
+both clean, jitter 2.744 us | 96 | 0 0 0 | 4000/4000 | 1982/1982 | [0, 1, 0, 3999, 0, 4000] | PASS
+both clean, jitter 2.744 us | 192 | 0 0 0 | 4000/4000 | 1982/1982 | [0, 1, 0, 3999, 0, 4000] | PASS
+primary faster by 1.5 ms | 48 | 0 0 0 | 4000/4000 | 0/0 | [0, 1, 0, 3999, 0, 4000] | PASS
+primary faster by 1.5 ms | 96 | 0 0 0 | 4000/4000 | 0/0 | [0, 1, 0, 3999, 0, 4000] | PASS
+primary faster by 1.5 ms | 192 | 0 0 0 | 4000/4000 | 0/0 | [0, 1, 0, 3999, 0, 4000] | PASS
+secondary faster by 1.5 ms | 48 | 0 0 0 | 4000/4000 | 4000/4000 | [0, 1, 0, 3999, 0, 4000] | PASS
+secondary faster by 1.5 ms | 96 | 0 0 0 | 4000/4000 | 4000/4000 | [0, 1, 0, 3999, 0, 4000] | PASS
+secondary faster by 1.5 ms | 192 | 0 0 0 | 4000/4000 | 4000/4000 | [0, 1, 0, 3999, 0, 4000] | PASS
+times 1 us past a sample boundary | 48 | 0 0 0 | 4000/4000 | 1982/1982 | [0, 1, 0, 3999, 0, 4000] | PASS
+times 1 us past a sample boundary | 96 | 0 0 0 | 4000/4000 | 1982/1982 | [0, 1, 0, 3999, 0, 4000] | PASS
+times 1 us past a sample boundary | 192 | 0 0 0 | 4000/4000 | 1982/1982 | [0, 1, 0, 3999, 0, 4000] | PASS
+primary cut mid-stream | 48 | 0 0 0 | 2000/2000 | 2992/2992 | [0, 1, 0, 3999, 0, 2000] | PASS
+primary cut mid-stream | 96 | 0 0 0 | 2000/2000 | 2992/2992 | [0, 1, 0, 3999, 0, 2000] | PASS
+primary cut mid-stream | 192 | 0 0 0 | 2000/2000 | 2992/2992 | [0, 1, 0, 3999, 0, 2000] | PASS
+secondary cut mid-stream | 48 | 0 0 0 | 2000/2000 | 992/992 | [0, 1, 0, 3999, 0, 2000] | PASS
+secondary cut mid-stream | 96 | 0 0 0 | 2000/2000 | 992/992 | [0, 1, 0, 3999, 0, 2000] | PASS
+secondary cut mid-stream | 192 | 0 0 0 | 2000/2000 | 992/992 | [0, 1, 0, 3999, 0, 2000] | PASS
+primary cut, secondary 1.5 ms slower | 48 | 0 0 0 | 2000/2000 | 2000/2000 | [0, 1, 0, 3999, 0, 2000] | PASS
+primary cut, secondary 1.5 ms slower | 96 | 0 0 0 | 2000/2000 | 2000/2000 | [0, 1, 0, 3999, 0, 2000] | PASS
+primary cut, secondary 1.5 ms slower | 192 | 0 0 0 | 2000/2000 | 2000/2000 | [0, 1, 0, 3999, 0, 2000] | PASS
+1 % loss on primary, later copy fills | 48 | 0 0 0 | 3961/3961 | 39/39 | [0, 1, 0, 3960, 39, 3961] | PASS
+1 % loss on primary, later copy fills | 96 | 0 0 0 | 3961/3961 | 39/39 | [0, 1, 0, 3960, 39, 3961] | PASS
+1 % loss on primary, later copy fills | 192 | 0 0 0 | 3961/3961 | 39/39 | [0, 1, 0, 3960, 39, 3961] | PASS
+1 % loss on secondary, later copy fills | 48 | 0 0 0 | 3953/3953 | 3953/3953 | [0, 1, 0, 3952, 47, 3953] | PASS
+1 % loss on secondary, later copy fills | 96 | 0 0 0 | 3953/3953 | 3953/3953 | [0, 1, 0, 3952, 47, 3953] | PASS
+1 % loss on secondary, later copy fills | 192 | 0 0 0 | 3953/3953 | 3953/3953 | [0, 1, 0, 3952, 47, 3953] | PASS
+arms failing: 0
+
+The row's two mutations (each must fail at least one arm):
+  exact: caught by 9 of 9 arms
+  own_time: caught by 8 of 9 arms
+
+rule census over the row's arms, r1..r6: [0, 27, 0, 107715, 258, 89742]
+rule 3 reached by the row's named arms: False
+rule 2 reached only by the first packet of each arm (a head lapse is not a named arm): True
+
+Rule 3 reachability, from the page: a copy passing rule 1 has t in [now, now + 2.667 ms];
+a valid head has head in (now, now + 2.667 ms]; so |t - head| < 2.667 ms, 21.33 packets, |k| <= 21.
+A render point stepping back past the span breaks that bound:
+  render point stepped back 5 ms, next clean copy: hits r1..r6 = [0, 1, 1, 1, 0, 0]
+
+Outside the row: clean copies arriving under one packet before their time, surviving network only.
+The head lapses between packets, so rule 2 re-anchors each copy by its own time (SE:625, :642).
+  48 kHz, margin 200 to 300 us, jitter 1 us, 1 us past a boundary: missing 0 misplaced 0 of 24000 samples; hits r1..r6 [0, 1, 0, 3999, 0, 0]
+  48 kHz, margin 20 to 100 us, jitter 1 us, 1 us past a boundary: missing 0 misplaced 0 of 24000 samples; hits r1..r6 [0, 4000, 0, 0, 0, 0]
+  48 kHz, margin 20 to 100 us, jitter 2.744 us, 1 us past a boundary: missing 837 misplaced 7476 of 24000 samples; hits r1..r6 [0, 4000, 0, 0, 0, 0]
+  48 kHz, margin 200 to 300 us, jitter 160 ns, 100 ns past a boundary: missing 0 misplaced 0 of 24000 samples; hits r1..r6 [0, 1, 0, 3999, 0, 0]
+  48 kHz, margin 20 to 100 us, jitter 160 ns, 100 ns past a boundary: missing 617 misplaced 4524 of 24000 samples; hits r1..r6 [0, 4000, 0, 0, 0, 0]
+  192 kHz, margin 20 to 100 us, jitter 160 ns, 100 ns past a boundary: missing 617 misplaced 18096 of 96000 samples; hits r1..r6 [0, 4000, 0, 0, 0, 0]
