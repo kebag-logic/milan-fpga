@@ -182,7 +182,7 @@
    "page": "docs/guides/VERIFICATION_DEVELOPER.md",
    "quote": "C has no general harness framework.",
    "source": "`sw/firmware/gtest/README.md` lines 3-13: the bare-metal control-plane firmware and its saved-state store are unit-tested on the host with GoogleTest and GoogleMock through one shared harness, graded by `sw/firmware/ctrl/test/test_ctrl_firmware.py` and `sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py`",
-   "correction": "Name the shared host harness `sw/firmware/gtest/` for the control-plane firmware's C, and keep the trace round-trip as the check of the shipping trace producer."
+   "correction": "Name the shared host harness `sw/firmware/gtest/` for the control-plane firmware's C (`sw/firmware/gtest/README.md` lines 3-13). Call `sw/trace/test_trace_roundtrip.py` the round-trip of the supplied `sw/trace/` producer, and state separately that the shipping image does not link that producer (`sw/firmware/milan_baremetal/Makefile` line 6; D0-048)."
   },
   {
    "id": "D0-028",
@@ -238,7 +238,7 @@
    "page": "docs/integration/QSPI_FLASHBOOT.md",
    "quote": "The AEM copy goes through the BIOS's `copy_image_from_flash_to_ram`, so the",
    "source": "`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1860-1892: `load_aem_image()` checks the `AEMI` magic, copies `MILAN_AEM_IMAGE_BYTES` with its own loop and then compares the CRC32 with the compiled-in `MILAN_AEM_IMAGE_CRC32`; nothing under `sw/` calls `copy_image_from_flash_to_ram`",
-   "correction": "Name `load_aem_image()` and its three checks (magic, compiled-in length, CRC32 after the copy), and keep the consequence: a failed check leaves the entity disabled."
+   "correction": "Name `load_aem_image()` (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1860-1892) and its two rejection checks: a bad `AEMI` magic before the copy (lines 1869-1873) and a CRC32 mismatch after it (lines 1877-1883). State that `MILAN_AEM_IMAGE_BYTES` only bounds the copy and the CRC (lines 1874-1878), and that no length is compared or rejected. Keep the consequence: a failed check leaves the entity disabled (lines 1913 and 1915, `entity_advertise()` takes the verdict)."
   },
   {
    "id": "D0-036",
@@ -428,6 +428,34 @@
    "quote": "record below is the shipping option-on measurement; an elaboration estimate",
    "source": "The record below measures commit `1e80a106` (2026-08-19, line 2291): 15,849 of 15,850 slices and +0.033 ns WNS. The shipping route has moved since: the #787 re-pin record in `docs/reference/SUBMODULES.md` lines 511-517 and `docs/design/AREA_BUDGET.md` lines 149-150 gives +0.365 ns WNS with 63 of 15,850 slices free at processor `a9e84b66`, and the resource records live in `docs/design/AREA_BUDGET.md`",
    "correction": "Call the table the first option-on record (commit `1e80a106`) and point at the current shipping route record instead of naming this one the shipping measurement."
+  },
+  {
+   "id": "D0-063",
+   "page": "docs/integration/INTEGRATION_GUIDE.md",
+   "quote": "The processor answers four Stream Input fields itself.",
+   "source": "`protocol-processor/hdl/top/protocol_processor_top.sv` lines 3624-3648 (`gsi_answer`, processor pin `a9e84b66`; lines 3573-3585 at `f65c8ff7`): for a Stream Input it writes five fields itself, the page's four and selector 6's `stream_vlan_id` [63:48] from its `bound_vlan_r` (line 3632), and it also masks selectors 0, 2 and 4 while the input is unsettled (lines 3639-3645). `hdl/milan/milan_datapath.sv` lines 6444-6445 say the same of the VLAN",
+   "correction": "Give each Stream Input word and flag its writer. Selector 0: `milan_datapath` writes every flag (`hdl/milan/milan_datapath.sv` lines 6194-6217), and while the input is unsettled the processor clears STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID (`0x52000000`, `protocol-processor/hdl/top/protocol_processor_top.sv` line 3641). Selectors 1 (stream_format) and 3 (msrp_accumulated_latency): `milan_datapath` (lines 6401 and 6421). Selector 2 (stream_id): `milan_datapath` (line 6413), and the processor answers 0 while unsettled (top line 3642). Selector 4: `milan_datapath` writes stream_dest_mac [63:16] (line 6430), and the processor answers 0 there while unsettled (top line 3643); the processor writes msrp_failure_code [15:8] (top line 3628). Selector 5 (msrp_failure_bridge_id) and selector 7 (probing_status, acmp_status): the processor alone, never asked of `milan_datapath` (top lines 3593-3595, 3629, 3633). Selector 6: the processor writes stream_vlan_id [63:48], `bound_vlan_r` when settled and 0 otherwise (top lines 3631-3632); `milan_datapath` writes [47:0] (line 6451). A Stream Output's words pass through from `milan_datapath` unchanged (top line 3626)."
+  },
+  {
+   "id": "D0-064",
+   "page": "docs/integration/INTEGRATION_GUIDE.md",
+   "quote": "`milan_datapath` answers every other word and every validity flag.",
+   "source": "`protocol-processor/hdl/top/protocol_processor_top.sv` lines 3631-3632 replace selector 6's VLAN and lines 3639-3645 clear `0x52000000`, the stream_id and the destination MAC while the input is unsettled, on the answer the wire carries; `hdl/milan/milan_datapath.sv` lines 6048-6053 state that it cannot see probing_status, so the processor applies that rule",
+   "correction": "Say that `milan_datapath` gathers the other words and the flags (`hdl/milan/milan_datapath.sv` lines 6194-6217 and 6392-6456), and that the processor's answer is final for a Stream Input: `protocol-processor/hdl/top/protocol_processor_top.sv` lines 3624-3648 pass the gathered data through, then replace the VLAN and mask the three flags and two identity fields while the input is unsettled, which is probing_status other than PROBING_COMPLETED (line 3621). Keep the gather data as the parent's. D0-063 lists each word."
+  },
+  {
+   "id": "D0-065",
+   "page": "docs/integration/INTEGRATION_GUIDE.md",
+   "quote": "Never add a second source for the processor's four fields.",
+   "source": "Same as D0-063: the processor owns five Stream Input fields, the VLAN included (`protocol-processor/hdl/top/protocol_processor_top.sv` lines 3631-3632; `hdl/milan/milan_datapath.sv` lines 6444-6445)",
+   "correction": "Name all five: probing_status, acmp_status, msrp_failure_code, msrp_failure_bridge_id and stream_vlan_id (`protocol-processor/hdl/top/protocol_processor_top.sv` lines 3628-3633)."
+  },
+  {
+   "id": "D0-066",
+   "page": "docs/guides/VERIFICATION_DEVELOPER.md",
+   "quote": "| C with Python | Shipping trace producer |",
+   "source": "Same as D0-048: `sw/firmware/milan_baremetal/Makefile` line 6 builds `milan_baremetal.o` alone, and nothing outside `sw/trace/` includes `milan_trace.h`, so `sw/trace/test_trace_roundtrip.py` grades the supplied producer and not the shipping image",
+   "correction": "Write \"Supplied trace producer\", not linked by the shipping image (`sw/firmware/milan_baremetal/Makefile` line 6; `sw/trace/test_trace_roundtrip.py` lines 17-18 compile it on the host; D0-048)."
   }
  ]
 }
