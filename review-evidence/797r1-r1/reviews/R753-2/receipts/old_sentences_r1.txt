@@ -1,0 +1,91 @@
+sentences 2770 absent 90
+- There is **no parameter, no fallback and no shadow arm** -- the user's instruction was "remove the old code AECP/ACMP/ADP the lwSRP shall be removed as well.
+- Only use the uCPU code" and "do not leave the option, remove everything out of the code base that is legacy".
+- **Access:** `RO` read-only, `RW` read-write, `W1C` write-1-to-clear, `W1S` write-1-to-set (self-clearing command strobe), `ROc` read latches/clears.
+- Unused bits read 0; writes to `RO` fields are ignored; unmapped offsets read 0 and `SLVERR` is **not** raised (OKAY) to keep firmware access simple.
+- **Every one defaults to PRESENT**, so a shipping build's map is exactly what this page describes.
+- Set by the block that drives this input, not by the register file.
+- Reserved fields read as `R-0`.
+- Group summary Identification / IRQ (global)
+- `A_STRMW_SRP` `0x85C` read `0x0000_037E` at talker idx 0 -- a live hard alias of the legacy flat row, which is exactly why idx-0-only reads looked healthy -- and `0x0000_0000` at idx 1/2/3 on a 4×4 board; and a ProfiShark capture inline on the board link with a licensed stream running showed MSRP de
+- Group summary MAC control / status
+- multicast hash filter, buckets 32-63 Bits [63:32] of the RTL value.
+- A write is dropped while `ETH_GUARD[0]` is 1.
+- A write is dropped while `ETH_GUARD[0]` is 1.
+- Group summary Statistics (RMON)
+- `A_STATS_BASE to A_STATS_END (stat_snap)`.
+- Group summary 802.1Q classifier
+- Group summary 802.1Qav CBS (per-queue, stride `0x20`;
+- `0x400`-`0x49F` at `N`=5)
+- Group summary PTP hardware clock
+- Group summary ADP identity (served by the protocol processor; five ADPDU fields are write-only scratch)
+- Group summary AECP/ACMP status (**AECP counters are structural zeros; lock is live**) + AAF talker (flat stream-0 registers)
+- Group summary SRP status (802.1Q MSRP/MVRP, Milan v1.2 Section 5.6) -- repointed to the protocol processor;
+- Group summary ACMP listener **bind record** (the SM fields are structural zeros) + AVTP RX / MAAP / audio diagnostics
+- Group summary RX destination-MAC TCAM filter
+- match key `[31:0]` (dest MAC, MSB-first: byte0 in `[31:24]`? no - see note)
+- Group summary Link guard / MAC recovery (`LINK_CTRL`, `RST_EPOCH`, `LINKG_STAT` 0x774)
+- Group summary Identity / playback / 802.1AS overlay words
+- Group summary CRF media-clock sink (Milan v1.2 7.3, `KL_crf_rx`)
+- Group summary CRF media-clock talker (`KL_crf_tx`)
+- Bits [31:2] of the RTL value.
+- Group summary AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- **all three words structural zeros**
+- Group summary Clock validity -- the AVTP `tu` verdict (`CLKV_CTRL`/`STAT`/`TUCNT`, minor ≥ `0x0016`)
+- Group summary ACMP bind-restore (E1) -- **dead port: writes accepted, ack never asserts**
+- A write takes effect only when `!rest_pend_r`.
+- A write takes effect only when `!rest_pend_r`.
+- A write takes effect only when `!rest_pend_r`.
+- A write takes effect only when `!rest_pend_r`.
+- Group summary Persistence-journal ingest (E3) -- **writes accepted and discarded; nothing is restored**
+- Group summary AEM dynamic-state patch port (E4) -- **writes accepted and discarded**
+- Group summary inert AS_PATH compatibility addresses; the product serves the engine's bounded PathTrace (0x0056)
+- Group summary gPTP plane drop diagnostics: tap/parser/event drop counts, RO live (#207)
+- Group summary applied gPTP timestamp latency corrections, RO live (#358)
+- Group summary Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868)
+- **Since `0x001F` there is no per-context arming bit.** TCTX `CTRL[0]` used to be ANDed here, and it reset to 0 with no board-software writer, so on a shape-static build (`0x0015`+) *no talker above 0 could ever egress* -- measured on silicon m001g as the bind soak's `t0` leg fully green while `t1/t2
+- WIRE, ProfiShark inline on the board link with a licensed stream running:
+- MSRP declared a Talker Advertise for exactly `{02:00:00:00:00:02, uid 0x0000}` and `{…, uid 0x0004}` -- uid 4 is `N_STREAMS`, i.e. the CRF output -- and **nothing** for uid 1/2/3.
+- While the lane-K engines are not connected, those inputs are tied inert at the SoC (`i_lctx_rd_data=0`, `i_lctx_snap_ok=1`, same for TCTX, `i_acmp_tbl_*=0` -- allowlisted in [`scripts/check_tied_inputs.sh`](../../scripts/check_tied_inputs.sh)), so engine-backed words read 0 and SNAP completes immedi
+- `[8]`/`[3:0]` are ignored while set.
+- Only these bits are stored/read back.
+- A write takes effect only when `win_in_range_w !strm_dir_r`.
+- A write takes effect only when `win_in_range_w not !strm_dir_r not strm_idx_r == 4'd0`.
+- A write takes effect only when `win_in_range_w !strm_dir_r`.
+- A write takes effect only when `win_in_range_w not !strm_dir_r not strm_idx_r == 4'd0`.
+- A write takes effect only when `win_in_range_w not !strm_dir_r strm_idx_r == 4'd0`.
+- A write takes effect only when `win_in_range_w`.
+- A write takes effect only when `win_in_range_w !strm_dir_r`.
+- A write takes effect only when `win_in_range_w`.
+- A write takes effect only when `win_in_range_w !strm_dir_r`.
+- A write takes effect only when `win_in_range_w`.
+- A write takes effect only when `win_in_range_w strm_dir_r not strm_idx_r == 4'd0`.
+- A write takes effect only when `win_in_range_w strm_dir_r strm_idx_r == 4'd0`.
+- A write takes effect only when `win_in_range_w`.
+- A write takes effect only when `win_in_range_w strm_dir_r not strm_idx_r == 4'd0`.
+- A write takes effect only when `win_in_range_w strm_dir_r strm_idx_r == 4'd0`.
+- A write takes effect only when `win_in_range_w && !strm_dir_r`.
+- A write takes effect only when `win_in_range_w && !strm_dir_r`.
+- 🔴 **STRUCTURAL ZERO at every index.** There is no lwSRP attribute-row table in this fabric any more, so the window's SRP port is never granted and this word reads 0 -- including at idx 0, whose live hard alias of `LWSRP_STATUS` (`0x694`) went with the port.
+- Read `LWSRP_STATUS` `0x694` directly instead: it carries the processor's class-D declaration/registration levels for the whole plane.
+- `{valid, dir, declared, registered, ready, failed, decl[1:0], fail_code[7:0]}` from the selected context row, with `0xDEAD` for a row above `N_CTX_P`
+- 🔴 **STRUCTURAL ZERO.** Was `{flags[31:16], tuid[15:0]}` from the ACMP bind context.
+- `0x86C` (window hole) still reads `0xDEADDEAD`
+- Group summary AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`)
+- `A_LTAP_BASE to A_LTAP_END (i_ltap_regs)`.
+- Group summary RX stream-parser probe (the pre-match listener view)
+- `A_APRB_BASE to A_APRB_END (i_aprb_regs)`.
+- Group summary Reserved target-media compatibility words (structural zero)
+- Group summary Media-boundary slip counters (`SLIP_LB` / `SLIP_TDM`, RO live, minor >= `0x0058`)
+- Until #617 round 3 the media NCO could also lose two ticks when an aligner trim update landed on its terminal count, which an engagement dwelling on the crossing makes likely;
+- Group summary `RENDER_STAT`:
+- RO live selected-listener presentation state and the global refused-PDU count; structural zero without the stage.
+- Group summary AAF clock meter (`AAFM_STAT` / `AAFM_RATE`, RO live, #629); structural zero on a shape without an AAF clock source.
+- Group summary MMCM-DRP media-clock servo (Milan v1.2 7.3.4)
+- `[0]` ps_invert: flips the servo fine-PS direction mapping (bench sign knob - 2026-07-23 mf51 silicon stepped opposite the UG472 reading and rails went 25x worse under the servo; settle the polarity on silicon via this bit, then bake the winner as the RTL default);
+- Group summary Channel-map fabric debug window (chmap64) -- write port + bypass arm, and the `0x910`/`0x914` **map-RAM readback**
+- write CHMAP_SEL  0x904 = {side[8], index[5:0]} write CHMAP_SNAP 0x910 = 1                     # arm poll  CHMAP_SNAP 0x910 until [0] busy == 0     # bounded: <= 16 clocks read  CHMAP_LOOP 0x914
+- A write takes effect only when `chmap_ctrl[0] && !i_aecp_locked`.
+- A write takes effect only when `chmap_ctrl[0] && !i_aecp_locked`.
+- Group summary **Protocol-processor control plane** (`PP_CTRL`/`STAT`/`SPADDR`/`SPDATA`/`DIAG`) -- always decoded at VERSION major 2
+- **Write**: posts a side-port WRITE of this value to the address already in `PP_SPADDR` (ignored while `sp_busy`) A write takes effect only when `!pp_busy_r`.
+- Words `0`-`3` and both tables read back what was written; word `4` reads `0` (strobes have no state to read); words `5` and `8`-`15` are read-only fabric state A write sets PP_NVM_CSR_WDATA; a read returns this field.
