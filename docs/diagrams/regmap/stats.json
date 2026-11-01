@@ -20,7 +20,25 @@
             "attr": "W1S-0"
           },
           {
-            "bits": 30,
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -41,7 +59,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "STATS_CAP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "STATS_CAP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "STATS_CAP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "STATS_CAP",
             "attr": "R-X"
           }
@@ -61,7 +94,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "STAT_SNAP",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STAT_SNAP",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STAT_SNAP",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
             "name": "STAT_SNAP",
             "attr": "R-0"
           }

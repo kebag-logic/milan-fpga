@@ -31,7 +31,25 @@
             "attr": "R/W-0"
           },
           {
-            "bits": 26,
+            "bits": 2,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
@@ -52,12 +70,29 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 12,
+            "bits": 8,
             "name": "LWSRP_VID",
             "attr": "R/W-2h"
           },
           {
-            "bits": 20,
+            "bits": 4,
+            "name": "LWSRP_VID",
+            "attr": "R/W-2h"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
@@ -78,7 +113,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "LWSRP_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          },
+          {
+            "bits": 8,
             "name": "LWSRP_DEST_MAC",
             "attr": "R/W-F000FE01h"
           }
@@ -98,12 +148,23 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 16,
+            "bits": 8,
             "name": "LWSRP_DEST_MAC",
             "attr": "R/W-91E0h"
           },
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "LWSRP_DEST_MAC",
+            "attr": "R/W-91E0h"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
@@ -124,12 +185,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 16,
+            "bits": 8,
             "name": "LWSRP_MAX_FRAME",
             "attr": "R/W-E0h"
           },
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "LWSRP_MAX_FRAME",
+            "attr": "R/W-E0h"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_INTERVAL",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 8,
             "name": "LWSRP_INTERVAL",
             "attr": "R/W-1h"
           }
@@ -149,7 +220,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "LWSRP_STATUS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_STATUS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_STATUS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "LWSRP_STATUS",
             "attr": "R-X"
           }
@@ -169,7 +255,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "LWSRP_SLOPE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_SLOPE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_SLOPE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "LWSRP_SLOPE",
             "attr": "R-X"
           }
@@ -189,7 +290,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "LWSRP_CNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_CNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_CNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "LWSRP_CNT",
             "attr": "R-X"
           }
@@ -209,7 +325,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "LWSRP_LATENCY",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_LATENCY",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_LATENCY",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "LWSRP_LATENCY",
             "attr": "R/W-0"
           }

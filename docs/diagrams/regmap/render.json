@@ -10,8 +10,23 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
-            "name": "RENDER_STAT",
+            "bits": 8,
+            "name": "RENDER_STATUS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "RENDER_STATUS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "RENDER_STATUS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "RENDER_STATUS",
             "attr": "R-X"
           }
         ],

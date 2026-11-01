@@ -10,7 +10,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "ID",
+            "attr": "R-4D494C4Eh"
+          },
+          {
+            "bits": 8,
+            "name": "ID",
+            "attr": "R-4D494C4Eh"
+          },
+          {
+            "bits": 8,
+            "name": "ID",
+            "attr": "R-4D494C4Eh"
+          },
+          {
+            "bits": 8,
             "name": "ID",
             "attr": "R-4D494C4Eh"
           }
@@ -30,7 +45,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "VERSION",
+            "attr": "R-20060h"
+          },
+          {
+            "bits": 8,
+            "name": "VERSION",
+            "attr": "R-20060h"
+          },
+          {
+            "bits": 8,
+            "name": "VERSION",
+            "attr": "R-20060h"
+          },
+          {
+            "bits": 8,
             "name": "VERSION",
             "attr": "R-20060h"
           }
@@ -62,47 +92,47 @@
           },
           {
             "bits": 1,
-            "name": "BIT8",
+            "name": "CBS",
             "attr": "R-0"
           },
           {
             "bits": 1,
-            "name": "BIT9",
+            "name": "PTP",
             "attr": "R-1h"
           },
           {
             "bits": 1,
-            "name": "BIT10",
+            "name": "STATS",
             "attr": "R-1h"
           },
           {
             "bits": 1,
-            "name": "BIT11",
+            "name": "RX_FILTER",
             "attr": "R-1h"
           },
           {
             "bits": 1,
-            "name": "BIT12",
+            "name": "ADP",
             "attr": "R-1h"
           },
           {
             "bits": 1,
-            "name": "BIT13",
+            "name": "TCAM",
             "attr": "R-1h"
           },
           {
             "bits": 1,
-            "name": "BIT14",
+            "name": "LWSRP",
             "attr": "R-1h"
           },
           {
             "bits": 1,
-            "name": "BIT15",
+            "name": "CAP_15",
             "attr": "R-0"
           },
           {
             "bits": 8,
-            "name": "BITS23_16",
+            "name": "TS_WIDTH",
             "attr": "R-40h"
           },
           {
@@ -127,7 +157,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "SCRATCH",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "SCRATCH",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "SCRATCH",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "SCRATCH",
             "attr": "R/W-0"
           }
@@ -163,7 +208,25 @@
             "attr": "R/W1C-0"
           },
           {
-            "bits": 29,
+            "bits": 5,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -184,7 +247,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "IRQ_MASK",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "IRQ_MASK",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "IRQ_MASK",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "IRQ_MASK",
             "attr": "R/W-0"
           }
@@ -220,7 +298,25 @@
             "attr": "R-0"
           },
           {
-            "bits": 29,
+            "bits": 5,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1

@@ -20,7 +20,25 @@
             "attr": "R/W-0"
           },
           {
-            "bits": 30,
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
@@ -41,7 +59,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "TCAM_WR_KEY",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "TCAM_WR_KEY",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "TCAM_WR_KEY",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "TCAM_WR_KEY",
             "attr": "R/W-0"
           }
@@ -61,12 +94,23 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 16,
+            "bits": 8,
             "name": "TCAM_WR_KEY",
             "attr": "R/W-0"
           },
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "TCAM_WR_KEY",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
@@ -87,7 +131,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "TCAM_WR_MASK",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "TCAM_WR_MASK",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "TCAM_WR_MASK",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "TCAM_WR_MASK",
             "attr": "R/W-0"
           }
@@ -107,12 +166,23 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 16,
+            "bits": 8,
             "name": "TCAM_WR_MASK",
             "attr": "R/W-0"
           },
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "TCAM_WR_MASK",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
@@ -138,7 +208,19 @@
             "attr": "R/W-0"
           },
           {
-            "bits": 24,
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
@@ -186,7 +268,13 @@
             "attr": "W1S-0"
           },
           {
-            "bits": 15,
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1

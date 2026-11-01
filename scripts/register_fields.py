@@ -5,7 +5,9 @@
 
 Turns the facts `register_rtl.py` reads into registers with fields: what a
 read returns at each bit, what a write does there, which RTL name the bit
-carries and its reset value. Nothing here is hand-kept register data.
+carries and its reset value. Nothing here is hand-kept register data. A write
+or read form outside the grammar is refused, so a field is never published as
+read-only because its write arm could not be read.
 """
 
 from __future__ import annotations
@@ -13,8 +15,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
-from register_rtl import (RTL, WORD_BITS, Expr, Refusal, RtlFacts, is_concat,
-                          matching, split_top, statement_end, strip_parens)
+from register_decode import RANGE_ARRAYS, WINDOW_BOUNDS, ReadModel, ResetScope, SymbolicScope, zero_node
+from register_rtl import RTL, RtlFacts, find_case
+from register_sv import (WORD_BITS, Assign, Case, For, If, Interpreter, Node, Refusal, Statement, Vec, evaluate,
+                         mentions, parse_expression, unparse)
 
 # -------------------------------------------------------------- derivation --
 #: Access codes, in the order the legend lists them.
@@ -31,8 +35,10 @@ ACCESS_LEGEND = (
 )
 #: Reset column codes beyond a hex value.
 RESET_LEGEND = (
-    ("X", "Set by the block that drives this input, not by the register file."),
+    ("X", "This block's reset does not fix the bit: an input or an unreset flop sets it."),
 )
+WDATA = "s_axi_wdata"
+FORM_REFUSAL = "a write form this generator cannot read"
 
 
 @dataclass
@@ -41,7 +47,7 @@ class Bit:
     read: str = "zero"          # zero, stored, signal, const, complex
     read_name: str = ""
     read_value: int | None = 0
-    write: str = "none"         # none, stored, w1c, strobe, magic, complex
+    write: str = "none"         # none, stored, w1c, w1c_any, strobe, magic
     write_name: str = ""
     notes: list[str] = field(default_factory=list)
 
@@ -64,6 +70,15 @@ class Field:
 
 
 @dataclass
+class Effect:
+    """A statement of a write arm beyond storing the written value."""
+    target: str
+    action: str                 # sets, clears, counts, loads
+    conds: tuple = ()           # (condition node, polarity) pairs
+    trigger: int | None = None  # the written bit that fires it, if one does
+
+
+@dataclass
 class Register:
     """One addressable word, or one array of identical words."""
     label: str                  # RTL label without the A_ prefix
@@ -72,10 +87,12 @@ class Register:
     reset: str = ""
     count: int = 1
     stride: int = 4
-    array_resets: list[int] | None = None
-    sources: list[str] = field(default_factory=list)
+    array_resets: list[int | None] | None = None
     side_effects: list[str] = field(default_factory=list)
+    effects: list[Effect] = field(default_factory=list)
+    views: list[tuple[tuple, Node]] = field(default_factory=list)
     rtl_range: str = ""
+    sources: dict[int, str] = field(default_factory=dict)  # word bit -> RTL signal bit it holds
 
     @property
     def rtl_label(self) -> str:
@@ -89,7 +106,25 @@ class Register:
         return self.rtl_range or self.rtl_label
 
 
-SIMPLE_TERM_RE = re.compile(r"^(?P<id>[A-Za-z_]\w*)(?:\[(?P<hi>[^\]:]+)(?::(?P<lo>[^\]]+))?\])?$")
+@dataclass
+class Term:
+    """What one bit of a value is: a constant, one signal bit, or logic."""
+    kind: str                   # const, sig, word, expr
+    name: str = ""              # signal or array name; a constant's field name
+    idx: int = 0
+    hi: int = 0
+    lo: int = 0
+    value: int = 0
+    text: str = ""
+    ors: tuple = ()
+
+    def rtl(self) -> str:
+        """The bit as RTL text."""
+        if self.kind == "const":
+            return f"1'b{self.value}"
+        if self.kind == "sig":
+            return f"{self.name}[{self.idx}]"
+        return self.text
 
 
 def field_name(signal: str) -> str:
@@ -100,61 +135,188 @@ def field_name(signal: str) -> str:
     return name.upper()
 
 
-#: Address labels that bound a range rather than name a register.
-MARKER_RE = re.compile(r"_(END|BASE)$|^A_STRMW_CNT0$")
+def conj(conds: tuple) -> str:
+    """Conditions as one RTL expression, a false polarity spelled with `!`."""
+    parts = []
+    for node, polarity in conds:
+        if polarity:
+            parts.append(unparse(node))
+        elif node[0] == "un" and node[1] == "!":
+            parts.append(unparse(node[2]))
+        elif node[0] == "id" or node[0] == "index":
+            parts.append("!" + unparse(node))
+        else:
+            parts.append(f"!({unparse(node)})")
+    return " && ".join(parts)
+
+
+def _const_terms(v: Vec, label: str = "") -> list[Term]:
+    """The bits of a known or partly known constant, LSB first."""
+    width = v.width if v.sized else WORD_BITS
+    return [Term("const", label, value=v.bit(k) or 0) for k in range(width)]
 
 
 class Deriver:
     """Turns the RTL facts into registers with fields."""
 
-    def __init__(self, facts: RtlFacts):
+    def __init__(self, facts: RtlFacts, literal_words: dict[int, str] | None = None) -> None:
         self.f = facts
         self.sym = facts.sym
+        self.model = ReadModel(facts)
+        self.scope = SymbolicScope(facts, {})
+        self.literal_words = dict(literal_words or {})
         self.consumers = self._consumers()
         self.extra_strobes = self._extra_strobes()
         self.setters = self._setters()
+
+    def is_constant_name(self, name: str) -> bool:
+        """Whether a name is a parameter, a localparam or a constant table."""
+        return self.sym.has(name) or name in self.sym.arrays
+
+    # ---- bit terms ----------------------------------------------------------
+    def bit_terms(self, node: Node) -> list[Term]:
+        """What each bit of a value is, LSB first, with constants folded."""
+        kind = node[0]
+        if kind in ("num", "vec"):
+            return _const_terms(node[1])
+        if kind == "id":
+            return self._id_terms(node[1])
+        if kind in ("index", "range", "ipart"):
+            return self._select_terms(node)
+        if kind == "concat":
+            return [t for part in reversed(node[1]) for t in self.bit_terms(part)]
+        if kind == "cast":
+            width = evaluate(node[1], self.scope).value
+            inner = self.bit_terms(node[2])
+            pad = [Term("const")] * max(0, width - len(inner))
+            return (inner + pad)[:width]
+        if kind == "bin" and node[1] in ("&", "|"):
+            return self._bitwise_terms(node)
+        return self._expr_terms(node)
+
+    def _expr_terms(self, node: Node) -> list[Term]:
+        """A value that is logic over several signals, bit by bit."""
+        value = evaluate(node, self.scope)
+        if value.known:
+            return _const_terms(value)
+        text = unparse(node)
+        width = value.width
+        return [Term("expr", text=f"({text})[{k}]" if width > 1 else text, idx=k) for k in range(width)]
+
+    def _id_terms(self, name: str) -> list[Term]:
+        """A whole name: a constant, a wire built by concatenation, a signal."""
+        if self.is_constant_name(name):
+            return _const_terms(self.sym.resolve(name), field_name(name))
+        definition = self.f.wires.get(name)
+        if definition is not None and definition[0] == "concat":
+            return self.bit_terms(definition)
+        width = self.f.signals.get(name)
+        if width is None:
+            raise Refusal(f"{RTL}: {name} has no declaration this generator can read")
+        return [Term("sig", name, k, width - 1, 0) for k in range(width)]
+
+    def _select_terms(self, node: Node) -> list[Term]:
+        """x[i], x[h:l] or x[s +: w] of a signal, a table or an array element."""
+        base = node[1]
+        if base[0] != "id":
+            return self._expr_terms(node)
+        name = base[1]
+        if self.is_constant_name(name):
+            return _const_terms(evaluate(node, self.scope), field_name(name))
+        if name in self.f.arrays and node[0] == "index":
+            width = self.f.signals.get(name, WORD_BITS)
+            return [Term("word", name, k, width - 1, 0, text=f"{unparse(node)}[{k}]") for k in range(width)]
+        if node[0] == "index":
+            index = evaluate(node[2], self.scope)
+            if index.unknown:
+                return self._expr_terms(node)
+            hi = lo = index.value
+        elif node[0] == "range":
+            a, b = evaluate(node[2], self.scope).value, evaluate(node[3], self.scope).value
+            hi, lo = max(a, b), min(a, b)
+        else:
+            start, width_v = evaluate(node[2], self.scope), evaluate(node[3], self.scope).value
+            if start.unknown:
+                return self._expr_terms(node)
+            lo, hi = start.value, start.value + width_v - 1
+        return [Term("sig", name, k, hi, lo) for k in range(lo, hi + 1)]
+
+    def _bitwise_terms(self, node: Node) -> list[Term]:
+        """x & y or x | y, a constant operand folding each bit it decides."""
+        op = node[1]
+        left, right = self.bit_terms(node[2]), self.bit_terms(node[3])
+        width = max(len(left), len(right))
+        left += [Term("const")] * (width - len(left))
+        right += [Term("const")] * (width - len(right))
+        out = []
+        for a, b in zip(left, right):
+            out.append(self._and_bit(a, b) if op == "&" else self._or_bit(a, b))
+        return out
+
+    @staticmethod
+    def _and_bit(a: Term, b: Term) -> Term:
+        """One bit of an AND."""
+        for x, y in ((a, b), (b, a)):
+            if x.kind == "const":
+                return y if x.value else Term("const")
+        return Term("expr", text=f"{a.rtl()} & {b.rtl()}")
+
+    @staticmethod
+    def _or_bit(a: Term, b: Term) -> Term:
+        """One bit of an OR; two signals keep the later one's name."""
+        for x, y in ((a, b), (b, a)):
+            if x.kind == "const":
+                return Term("const", value=1) if x.value else y
+        if a.kind == "sig" and b.kind == "sig":
+            return Term("sig", b.name, b.idx, b.hi, b.lo, ors=a.ors + (field_name(a.name),))
+        return Term("expr", text=f"{a.rtl()} | {b.rtl()}")
 
     # ---- naming helpers --------------------------------------------------
     def _consumers(self) -> dict[str, list[tuple[int, int, str, str]]]:
         """storage -> [(hi, lo, output field, span note)] from the assigns."""
         out: dict[str, list[tuple[int, int, str, str]]] = {}
-        for port, rhs in self.f.assigns.items():
+        ip = Interpreter(self.scope)
+        for port, value in self.f.assigns.items():
+            if not port.startswith("o_"):
+                continue
             name = field_name(port)
-            rhs = strip_parens(rhs)
-            tern = re.fullmatch(r"(\w+)\[(\d+)\]\s*\?\s*(\w+)\[(\d+)\]\s*:\s*(.+)", rhs)
-            if tern:
-                out.setdefault(tern.group(1), []).append(
-                    (int(tern.group(2)), int(tern.group(2)), name + "_SELECT", ""))
-                out.setdefault(tern.group(3), []).append(
-                    (int(tern.group(4)), int(tern.group(4)), name, ""))
+            rhs = ip.reduce(value)
+            if rhs[0] == "tern":
+                self._consume_choice(rhs, name, out)
                 continue
-            rhs = re.sub(r"\s*&\s*[A-Z]\w*_P$", "", rhs)
-            parts = split_top(rhs[1:-1], ",") if is_concat(rhs) else [rhs]
-            widths = [self.term_width(p) for p in parts]
-            if None in widths:
-                continue
-            top = sum(widths) - 1
-            for part, width in zip(parts, widths):
-                m = SIMPLE_TERM_RE.match(part.strip())
-                lo_out = top - width + 1
+            parts = rhs[1] if rhs[0] == "concat" else [rhs]
+            terms = [self.bit_terms(p) for p in parts]
+            top = sum(len(t) for t in terms) - 1
+            for part_terms in terms:
+                lo_out = top - len(part_terms) + 1
                 span = f"[{top}:{lo_out}]" if len(parts) > 1 else ""
-                top -= width
-                if not m or m.group("id") in self.f.assigns:
-                    continue
-                sig = m.group("id")
-                if sig not in self.f.signals or sig.startswith(("i_", "o_")):
-                    continue
-                hi, lo = self.slice_of(m, sig)
-                out.setdefault(sig, []).append((hi, lo, name, span))
+                top = lo_out - 1
+                self._consume_part(part_terms, name, span, out)
         return out
+
+    def _consume_choice(self, rhs: Node, name: str, out: dict) -> None:
+        """o = s[n] ? t[m] : other: the select and the chosen bit are named."""
+        for node, suffix in ((rhs[1], "_SELECT"), (rhs[2], "")):
+            if node[0] == "index" and node[1][0] == "id":
+                bit = evaluate(node[2], self.scope).value
+                out.setdefault(node[1][1], []).append((bit, bit, name + suffix, ""))
+
+    def _consume_part(self, terms: list[Term], name: str, span: str, out: dict) -> None:
+        """One slice of a signal that drives an output port."""
+        sigs = [t for t in terms if t.kind == "sig"]
+        if not sigs or len(sigs) != len(terms) or len({t.name for t in sigs}) != 1:
+            return
+        sig = sigs[0].name
+        if sig in self.f.assigns or sig not in self.f.signals or sig.startswith(("i_", "o_")):
+            return
+        out.setdefault(sig, []).append((sigs[-1].idx, sigs[0].idx, name, span))
 
     def _extra_strobes(self) -> dict[str, list[tuple[int, str]]]:
         """label -> [(bit, name)] for `wire x = wr_fire && (wr_addr == A_Y)
         && s_axi_wdata[n]` decodes outside the write case."""
         out: dict[str, list[tuple[int, str]]] = {}
-        text = self.f.text
         for m in re.finditer(r"wire\s+(\w+)\s*=\s*wr_fire\s*&&\s*\(wr_addr\s*==\s*(A_\w+)\)\s*&&\s*"
-                             r"s_axi_wdata\[(\d+)\]", text):
+                             r"s_axi_wdata\[(\d+)\]", self.f.text):
             out.setdefault(m.group(2), []).append((int(m.group(3)), field_name(m.group(1))))
         return out
 
@@ -162,60 +324,23 @@ class Deriver:
         """storage -> {bit: name} for `if (i_x) storage[n] <= 1'b1;`, the
         hardware event that latches a status bit."""
         out: dict[str, dict[int, str]] = {}
-        text = self.f.text
-        for m in re.finditer(r"if\s*\((i_\w+)\)\s*(\w+)\[(\d+)\]\s*<=\s*1'b1\s*;", text):
+        for m in re.finditer(r"if\s*\((i_\w+)\)\s*(\w+)\[(\d+)\]\s*<=\s*1'b1\s*;", self.f.text):
             out.setdefault(m.group(2), {})[int(m.group(3))] = field_name(m.group(1))
         return out
 
-    def slice_of(self, m: re.Match, sig: str) -> tuple[int, int]:
-        """(hi, lo) a simple term selects from its signal."""
-        width = self.f.signals.get(sig, WORD_BITS)
-        if m.group("hi") is None:
-            return width - 1, 0
-        hi = Expr(m.group("hi"), self.sym).value()[0]
-        lo = Expr(m.group("lo"), self.sym).value()[0] if m.group("lo") else hi
-        return hi, lo
-
-    def term_width(self, term: str) -> int | None:
-        """Bit width of one concatenation part."""
-        term = strip_parens(term)
-        and_param = re.fullmatch(r"(.+?)\s*&\s*([A-Z]\w*_P)", term)
-        if and_param:
-            term = and_param.group(1).strip()
-        m = SIMPLE_TERM_RE.match(term)
-        if m:
-            sig = m.group("id")
-            if sig in self.f.arrays and m.group("hi") is not None and m.group("lo") is None:
-                return self.f.signals.get(sig, WORD_BITS)
-            if m.group("hi") is not None:
-                hi, lo = self.slice_of(m, sig)
-                return hi - lo + 1
-            if sig in self.f.signals:
-                return self.f.signals[sig]
-            if self.sym.has(sig):
-                return self.sym.width(sig)
-            return None
-        try:
-            return Expr(term, self.sym).value()[1]
-        except Refusal:
-            return None
-
-    def name_term(self, sig: str, hi: int, lo: int, bit: int) -> tuple[str, str]:
-        """(field name, span note) for one bit of a term `sig[hi:lo]`.
-
-        A port or constant names the whole term. A storage register names
-        each bit by the output port that bit drives; a stored bit that
-        drives nothing is RESERVED when other bits of the same register do
-        drive something, and takes the register's own name otherwise."""
+    def name_term(self, term: Term) -> tuple[str, str]:
+        """(field name, span note) for one signal bit of a read value. A port
+        or constant names the whole term. A storage register names each bit
+        by the output port that bit drives; a stored bit that drives nothing
+        is RESERVED when other bits of the same register do drive something,
+        and takes the register's own name otherwise."""
+        sig = term.name
         if sig.startswith(("i_", "o_")) or self.sym.has(sig):
             width = self.f.signals.get(sig) or self.sym.width(sig) or WORD_BITS
+            hi, lo = term.hi, term.lo
             span = "" if (hi, lo) == (width - 1, 0) else (f"[{hi}:{lo}]" if hi != lo else f"[{hi}]")
             return field_name(sig), span
-        return self.storage_name(sig, bit)
-
-    def storage_name(self, sig: str, bit: int) -> tuple[str, str]:
-        """(field name, span note) of bit `bit` of a storage register."""
-        name, span, _ = self.storage_naming(sig, bit)
+        name, span, _ = self.storage_naming(sig, term.idx)
         return name, span
 
     def storage_naming(self, sig: str, bit: int) -> tuple[str, str, str]:
@@ -240,6 +365,14 @@ class Deriver:
             return "RESERVED", "", "reserved"
         return field_name(sig), "", "own"
 
+    def check_reserved(self, sig: str, bit: int) -> None:
+        """A bit the page calls reserved must drive nothing: a reader the
+        generator cannot name is refused, never printed as `drives nothing`."""
+        bits = self.f.logic_usage.get(sig, set())
+        if bits is None or bit in bits:
+            raise Refusal(f"{RTL}: {sig}[{bit}] is read by logic this generator cannot name, "
+                          "so it cannot be called reserved")
+
     def used(self, sig: str, bit: int) -> bool:
         """Whether some expression of the RTL reads bit `bit` of `sig`."""
         if sig not in self.f.usage:
@@ -248,287 +381,264 @@ class Deriver:
         return bits is None or bit in bits
 
     # ---- read side -------------------------------------------------------
-    def read_expr(self, label: str) -> tuple[str, str]:
-        """(kind, expression) of what a read of `label` returns."""
-        if label in self.f.read_arms:
-            target, body = self.f.read_arms[label]
-            return "arm", self.choose(body, target)
-        if label in self.f.window_reads:
-            return "window", self.choose(self.f.window_reads[label], "strm_mux")
-        if label in self.f.plain_rw:
-            return "shadow", ""
-        if label in self.f.defaults:
-            return "const", self.f.defaults[label]
-        return "zero", ""
-
-    def choose(self, body: str, target: str) -> str:
-        """The expression a read arm assigns, parameter-guarded arms resolved."""
-        body = body.strip()
-        if body.startswith("begin"):
-            body = body[len("begin"):body.rindex("end")].strip()
-        m = re.fullmatch(r"if\s*\((\w+)\)\s*" + target + r"\s*=\s*(.+?);\s*else\s*" + target +
-                         r"\s*=\s*(.+?);", body, re.S)
-        if m and self.sym.has(m.group(1)):
-            return m.group(2) if self.sym.value(m.group(1)) else m.group(3)
-        m = re.fullmatch(target + r"\s*=\s*(.+?);", body, re.S)
-        if m:
-            return " ".join(m.group(1).split())
-        return "COMPLEX:" + " ".join(body.split())
-
-    def read_bits(self, label: str, bits: list[Bit], reg: Register) -> None:
-        """Fill the read half of every bit of `label`."""
-        kind, expr = self.read_expr(label)
-        reg.sources.append(f"read: {kind}")
-        if kind == "zero":
+    def read_bits(self, addr: int, bits: list[Bit], reg: Register) -> None:
+        """Fill the read half of every bit of a word from what a read can
+        return. One value names the bits; several live values leave one word."""
+        views = self.model.views(addr)
+        reg.views = views if len(views) > 1 else []
+        live = [leaf for _, leaf in views if not self._is_const(leaf)]
+        if not live:
+            if len(views) == 1:
+                self.attribute(views[0][1], bits)
+            else:
+                for b in bits:
+                    b.read, b.read_name, b.read_value = "complex", "", None
             return
-        if kind == "shadow":
-            for b in bits:
-                b.read = "stored"
-            return
-        if kind == "const":
-            self.attribute(expr, bits, const=True)
-            return
-        if expr.startswith("COMPLEX:") or "?" in expr:
-            for b in bits:
-                b.read, b.read_name, b.read_value = "complex", label, None
-            return
-        self.attribute(expr, bits)
-
-    def attribute(self, expr: str, bits: list[Bit], const: bool = False) -> None:
-        """Bit-by-bit sources of a read expression, MSB first. A wire whose
-        definition is a concatenation is read through its definition."""
-        expr = strip_parens(expr)
-        if expr in self.f.wires and is_concat(self.f.wires[expr]):
-            expr = self.f.wires[expr]
-        ors = split_top(expr, "|")
-        if len(ors) > 1:
-            for part in ors:
-                sub = [Bit() for _ in range(WORD_BITS)]
-                self.attribute(part, sub, const)
-                for b, s in zip(bits, sub):
-                    if s.read != "zero" and not (s.read == "const" and s.read_value == 0):
-                        if b.read in ("zero",) or (b.read == "const" and b.read_value == 0):
-                            b.read, b.read_name, b.read_value = s.read, s.read_name, s.read_value
-                            b.notes = [x for x in b.notes if not x.startswith(("src:", "span:"))] + s.notes
-                        elif b.read == "signal" and s.read == "signal":
-                            b.notes.append(f"or:{b.read_name}")
-                            b.read_name = s.read_name
-                            b.notes = [x for x in b.notes if not x.startswith(("src:", "span:"))] + s.notes
-            return
-        concat = is_concat(expr)
-        parts = split_top(expr[1:-1], ",") if concat else [expr]
-        widths = [self.term_width(p) for p in parts]
-        if not concat and widths[0] is None:
-            widths = [WORD_BITS]
-        if None in widths:
+        if len(live) > 1:
             for b in bits:
                 b.read, b.read_name, b.read_value = "complex", "", None
             return
-        pos = sum(widths) - 1
-        for part, width in zip(parts, widths):
-            part = strip_parens(part)
-            lo_bit = pos - width + 1
-            m = SIMPLE_TERM_RE.match(part)
-            and_param = re.fullmatch(r"(.+?)\s*&\s*([A-Z]\w*_P)", part)
-            if and_param:
-                m = SIMPLE_TERM_RE.match(and_param.group(1).strip())
-                if not self.sym.value(and_param.group(2)):
-                    m = None
-                    part = "0"
-            if m and m.group("id") in self.f.arrays and m.group("hi") is not None \
-                    and m.group("lo") is None:
-                for k in range(width):
-                    if 0 <= lo_bit + k < WORD_BITS:
-                        b = bits[lo_bit + k]
-                        b.read, b.read_name, b.read_value = "signal", "@WORD", None
-                        b.notes.append(f"src:{part}[{k}]")
-            elif m and not self.sym.has(m.group("id")):
-                sig = m.group("id")
-                hi, lo = self.slice_of(m, sig)
-                for k in range(width):
-                    if 0 <= lo_bit + k < WORD_BITS:
-                        b = bits[lo_bit + k]
-                        name, span = self.name_term(sig, hi, lo, lo + k)
-                        b.read = "signal"
-                        b.read_name = name
-                        b.read_value = None
-                        b.notes.append(f"src:{sig}[{lo + k}]")
-                        if span:
-                            b.notes.append(f"span:{span}")
-            else:
-                try:
-                    value, _ = Expr(part, self.sym).value()
-                except Refusal:
-                    value = None
-                cname = ""
-                cast = re.fullmatch(r"\w+'\((\w+)\)", part)
-                if m and self.sym.has(m.group("id")):
-                    cname = field_name(m.group("id"))
-                elif cast and self.sym.has(cast.group(1)):
-                    cname = field_name(cast.group(1))
-                elif not concat:
-                    cname = "@WORD"
-                elif const and not (value == 0 and width >= 4):
-                    cname = f"BIT{lo_bit}" if width == 1 else f"BITS{pos}_{lo_bit}"
-                for k in range(width):
-                    if 0 <= lo_bit + k < WORD_BITS:
-                        b = bits[lo_bit + k]
-                        b.read = "const"
-                        b.read_value = None if value is None else (value >> k) & 1
-                        b.read_name = cname
-            pos -= width
+        if live[0] == ("id", "shadow_q"):
+            if self.model.plain(addr):
+                for b in bits:
+                    b.read = "stored"
+            elif self.model.rom_value(addr).value:
+                self.attribute(self.model.rom_tree(addr), bits, const=True)
+            return
+        self.attribute(live[0], bits)
+
+    def _is_const(self, leaf: Node) -> bool:
+        """Whether a read value is fixed whatever the state."""
+        return evaluate(leaf, SymbolicScope(self.f, {"shadow_q": Vec(WORD_BITS, 0, (1 << WORD_BITS) - 1)})).known
+
+    def attribute(self, node: Node, bits: list[Bit], const: bool = False) -> None:
+        """Bit-by-bit sources of a read value, parts named one at a time."""
+        parts = node[1] if node[0] == "concat" else [node]
+        pos = 0
+        for part in reversed(parts):
+            terms = self.bit_terms(part)
+            label = self._const_label(part, node[0] == "concat", const, (pos + len(terms) - 1, pos))
+            for k, term in enumerate(terms):
+                if pos + k < WORD_BITS:
+                    self._set_read(bits[pos + k], term, label, pos + k)
+            pos += len(terms)
+        if pos > WORD_BITS:
+            raise Refusal(f"{RTL}: a read of {pos} bits does not fit one word: {unparse(node)}")
+
+    def _const_label(self, part: Node, in_concat: bool, const: bool, span: tuple[int, int]) -> str:
+        """The field name of a constant part of a read value."""
+        inner = part[2] if part[0] == "cast" else part
+        if inner[0] == "id" and self.is_constant_name(inner[1]):
+            return field_name(inner[1])
+        if not in_concat:
+            return "@WORD"
+        value = evaluate(part, self.scope)
+        hi, lo = span
+        if const and value.known and not (value.value == 0 and hi - lo + 1 >= 4):
+            return f"BIT{lo}" if hi == lo else f"BITS{hi}_{lo}"
+        return ""
+
+    def _set_read(self, b: Bit, term: Term, label: str, n: int) -> None:
+        """One bit of a read value."""
+        if term.kind == "const":
+            b.read, b.read_value, b.read_name = "const", term.value, term.name or label
+            return
+        b.read, b.read_value = "signal", None
+        if term.kind == "word":
+            b.read_name = "@WORD"
+            b.notes.append(f"src:{term.text}")
+        elif term.kind == "expr":
+            b.read_name = f"BIT{n}"
+            b.notes.append(f"expr:{term.text}")
+        else:
+            name, span = self.name_term(term)
+            b.read_name = name
+            b.notes.append(f"src:{term.name}[{term.idx}]")
+            if span:
+                b.notes.append(f"span:{span}")
+            b.notes += [f"or:{other}" for other in term.ors]
 
     # ---- write side ------------------------------------------------------
     def write_bits(self, label: str, bits: list[Bit], reg: Register) -> None:
         """Fill the write half of every bit of `label` from its write arms."""
         arms = self.f.write_arms.get(label, [])
+        addr = self.f.addresses.get(label, reg.offset)
         for bit, name in self.extra_strobes.get(label, []):
             bits[bit].write, bits[bit].write_name = "strobe", name
-        if label in self.f.plain_rw and not arms:
-            for b in bits:
-                b.write = "stored"
-            return
         for _, body in arms:
-            self.write_body(body, bits, reg, cond="")
-        if label in self.f.plain_rw:
+            self.walk_arm(body, bits, reg, ())
+        if self.model.plain(addr):
             for b in bits:
                 if b.write == "none":
                     b.write = "stored"
 
-    def write_body(self, body: str, bits: list[Bit], reg: Register, cond: str) -> None:
-        """Apply one arm's statements to the bits."""
-        body = body.strip()
-        if body.startswith("begin"):
-            body = body[len("begin"):body.rindex("end")]
-        pos = 0
-        while True:
-            m = re.compile(r"\s*").match(body, pos)
-            pos = m.end()
-            if pos >= len(body):
+    def walk_arm(self, statements: list[Statement], bits: list[Bit], reg: Register, conds: tuple) -> None:
+        """Every statement of one write arm; any other form is refused."""
+        for st in statements:
+            if isinstance(st, If):
+                self.write_if(st, bits, reg, conds)
+            elif isinstance(st, Assign):
+                self.write_assign(st, bits, reg, conds)
+            elif isinstance(st, For):
+                self.write_loop(st, reg, conds)
+            else:
+                raise Refusal(f"{RTL}: a case statement inside the {reg.rtl_label} write arm is {FORM_REFUSAL}")
+
+    def write_loop(self, st: For, reg: Register, conds: tuple) -> None:
+        """A loop in a write arm: a snapshot of several words."""
+        for inner in st.body:
+            if not isinstance(inner, Assign) or mentions(inner.value, WDATA):
+                raise Refusal(f"{RTL}: a loop in the {reg.rtl_label} write arm is {FORM_REFUSAL}")
+            reg.effects.append(Effect(inner.target, "loads", conds))
+
+    def write_if(self, st: If, bits: list[Bit], reg: Register, conds: tuple) -> None:
+        """A condition in a write arm: a written bit triggers, a selected bit
+        range triggers on any set bit, and anything else is a plain condition."""
+        cond = st.cond
+        guard = None
+        trigger = cond
+        if cond[0] == "bin" and cond[1] == "&&" and self._wdata_bit(cond[2]) is not None:
+            trigger, guard = cond[2], cond[3]
+        bit = self._wdata_bit(trigger)
+        if bit is not None:
+            if st.other:
+                raise Refusal(f"{RTL}: an else on a written bit in {reg.rtl_label} is {FORM_REFUSAL}")
+            self.write_trigger((bit, guard), st.then, bits, reg, conds)
+            return
+        if cond[0] == "un" and cond[1] == "|" and cond[2][0] == "range" and cond[2][1] == ("id", WDATA):
+            self.write_any(cond[2], st, bits)
+            return
+        if mentions(cond, WDATA):
+            raise Refusal(f"{RTL}: the condition {unparse(cond)} in {reg.rtl_label} is {FORM_REFUSAL}")
+        self.walk_arm(st.then, bits, reg, conds + ((cond, True),))
+        self.walk_arm(st.other, bits, reg, conds + ((cond, False),))
+
+    @staticmethod
+    def _wdata_bit(node: Node) -> int | None:
+        """n for `s_axi_wdata[n]`, else None."""
+        if node[0] == "index" and node[1] == ("id", WDATA) and node[2][0] == "num":
+            return node[2][1].value
+        return None
+
+    def write_trigger(self, trigger: tuple[int, Node | None], body: list, bits: list[Bit], reg: Register,
+                      conds: tuple) -> None:
+        """`if (s_axi_wdata[n] [&& guard]) ...`: a W1C, a strobe or a commit."""
+        bit, guard = trigger
+        b = bits[bit]
+        single = body[0] if len(body) == 1 and isinstance(body[0], Assign) else None
+        if single is not None and guard is None and single.value[0] == "num" and not mentions(single.value, WDATA):
+            one = single.value[1].value == 1
+            if one and not single.selects:
+                b.write, b.write_name = "strobe", self.strobe_name(single.target)
                 return
-            end = statement_end(body, pos)
-            self.write_stmt(body[pos:end].strip(), bits, reg, cond)
-            pos = end
+            if not one and len(single.selects) == 1:
+                b.write, b.write_name = "w1c", single.target
+                return
+            raise Refusal(f"{RTL}: the {reg.rtl_label} statement on written bit {bit} is {FORM_REFUSAL}")
+        pulses = [s.target for s in body if isinstance(s, Assign) and s.value == ("num", s.value[1], "1'b1")
+                  and s.target.endswith(("_p", "_pend_r"))] if body else []
+        b.write = "strobe"
+        b.write_name = self.strobe_name(pulses[0]) if pulses else "COMMIT"
+        inner = conds + (((guard, True),) if guard is not None else ())
+        before = len(reg.effects)
+        self.walk_arm(body, bits, reg, inner)
+        b.write = "strobe"
+        fired = reg.effects[before:]
+        del reg.effects[before:]
+        for effect in fired:
+            effect.trigger = bit
+            if effect.target not in pulses[:1]:
+                reg.effects.append(effect)
+        if guard is not None:
+            b.notes.append("cond:" + unparse(guard))
+
+    def write_any(self, select: Node, st: If, bits: list[Bit]) -> None:
+        """`if (|s_axi_wdata[h:l]) strobe <= 1'b1;`: any set bit fires it."""
+        hi, lo = evaluate(select[2], self.scope).value, evaluate(select[3], self.scope).value
+        single = st.then[0] if len(st.then) == 1 and isinstance(st.then[0], Assign) else None
+        if single is None or st.other:
+            raise Refusal(f"{RTL}: the statement on {unparse(select)} is {FORM_REFUSAL}")
+        for n in range(lo, hi + 1):
+            bits[n].write = "w1c_any"
+            bits[n].write_name = self.strobe_name(single.target)
+            bits[n].notes.append(f"any:{hi}:{lo} {bits[n].write_name}")
 
     def strobe_name(self, pulse: str) -> str:
         """A one-cycle strobe named by the output port it drives."""
-        for port, rhs in self.f.assigns.items():
-            if rhs == pulse:
+        for port, value in self.f.assigns.items():
+            if value == ("id", pulse) and port.startswith("o_"):
                 return field_name(port)
         return field_name(pulse)
 
-    def write_stmt(self, st: str, bits: list[Bit], reg: Register, cond: str) -> None:
-        """One statement of a write arm."""
-        if st.startswith("begin"):
-            self.write_body(st, bits, reg, cond)
+    def write_assign(self, st: Assign, bits: list[Bit], reg: Register, conds: tuple) -> None:
+        """One non-blocking assignment in a write arm."""
+        value = st.value
+        if not mentions(value, WDATA):
+            reg.effects.append(Effect(st.target, self._action(st), conds))
             return
-        m = re.fullmatch(r"if\s*\((.+?)\)\s*(.+)", st, re.S)
-        if m and st.startswith("if"):
-            paren = st.index("(")
-            close = matching(st, paren, "(", ")")
-            c = " ".join(st[paren + 1:close].split())
-            rest = st[close + 1:].strip()
-            els = None
-            then_end = statement_end(rest, 0)
-            then, tail = rest[:then_end], rest[then_end:].strip()
-            if tail.startswith("else"):
-                els = tail[4:].strip()
-            bm = re.fullmatch(r"s_axi_wdata\[(\d+)\](?:\s*&&\s*(.+))?", c)
-            any_m = re.fullmatch(r"\|\s*s_axi_wdata\[(\d+):(\d+)\]", c)
-            if bm:
-                n = int(bm.group(1))
-                guard = bm.group(2)
-                tm = re.fullmatch(r"(\w+)(?:\[(\d+)\])?\s*<=\s*1'b([01])\s*;", then.strip())
-                if tm and tm.group(3) == "1" and not guard:
-                    bits[n].write, bits[n].write_name = "strobe", self.strobe_name(tm.group(1))
-                    return
-                if tm and tm.group(3) == "0" and not guard:
-                    bits[n].write, bits[n].write_name = "w1c", tm.group(1)
-                    return
-                pulse = re.search(r"(\w+_p|\w+_pend_r)\s*<=\s*1'b1", then)
-                bits[n].write = "strobe"
-                bits[n].write_name = self.strobe_name(pulse.group(1)) if pulse else "COMMIT"
-                if guard:
-                    bits[n].notes.append(f"cond:{guard}")
-                self.write_body("begin " + then + " end", bits, reg,
-                                (cond + " " + (guard or "")).strip())
-                return
-            if any_m:
-                hi, lo = int(any_m.group(1)), int(any_m.group(2))
-                tm = re.fullmatch(r"(\w+)\s*<=\s*1'b1\s*;", then.strip())
-                for n in range(lo, hi + 1):
-                    bits[n].write = "w1c_any"
-                    bits[n].write_name = self.strobe_name(tm.group(1)) if tm else ""
-                return
-            self.write_body("begin " + then + " end", bits, reg, (cond + " " + c).strip())
-            if els:
-                self.write_body("begin " + els + " end", bits, reg, (cond + " not " + c).strip())
-            return
-        m = re.fullmatch(r"(\w+)(\[[^\]]+\])?\s*<=\s*(.+?);", st, re.S)
-        if not m:
-            return
-        target, rhs = m.group(1), " ".join(m.group(3).split())
-        if m.group(2):
-            return
-        if rhs == "s_axi_wdata":
+        if st.selects:
+            raise Refusal(f"{RTL}: the {reg.rtl_label} store to part of {st.target} is {FORM_REFUSAL}")
+        if value == ("id", WDATA):
             for b in bits:
-                self.store(b, target, cond)
+                self.store(b, st.target, conds)
             return
-        sl = re.fullmatch(r"s_axi_wdata\[(\d+)(?::(\d+))?\]", rhs)
-        if sl:
-            hi = int(sl.group(1))
-            lo = int(sl.group(2)) if sl.group(2) else hi
-            for n in range(lo, hi + 1):
-                if target.endswith("_p"):
-                    bits[n].write, bits[n].write_name = "strobe", self.strobe_name(target)
-                else:
-                    self.store(bits[n], target, cond, n - lo)
+        if value[0] in ("index", "range") and value[1] == ("id", WDATA):
+            self._store_slice(st.target, value, bits, reg, conds)
             return
-        mk = re.fullmatch(r"\(s_axi_wdata\s*!=\s*(\S+)\)", rhs)
-        if mk:
-            key = Expr(mk.group(1), self.sym).value()[0]
+        if value[0] == "bin" and value[1] == "!=" and value[2] == ("id", WDATA):
+            key = evaluate(value[3], self.scope).value
             for b in bits:
-                b.write, b.write_name = "magic", target
-            reg.side_effects.append(f"magic:{key:#010x}:{target}")
+                b.write, b.write_name = "magic", st.target
+            reg.side_effects.append(f"magic:{key:#010x}:{st.target}")
             return
-        tern = re.fullmatch(r"(\w+)\s*\?\s*(\{.+\})\s*:\s*s_axi_wdata", rhs)
-        if tern:
-            forced = self.forced_bits(tern.group(2))
+        if value[0] == "tern" and value[3] == ("id", WDATA) and value[2][0] == "concat":
+            forced = self.forced_bits(value[2])
             for n, b in enumerate(bits):
-                self.store(b, target, cond)
+                self.store(b, st.target, conds)
                 if n in forced:
-                    b.notes.append(f"masked:{tern.group(1)}")
+                    b.notes.append(f"masked:{unparse(value[1])}")
             return
-        if is_concat(rhs):
-            forced = self.forced_bits(rhs)
+        if value[0] == "concat":
+            forced = self.forced_bits(value)
             for n, b in enumerate(bits):
                 if n not in forced:
-                    self.store(b, target, cond)
+                    self.store(b, st.target, conds)
             return
-        if target.endswith("_p") and rhs == "1'b1":
-            reg.side_effects.append(f"pulse:{self.strobe_name(target)}{(' ' + cond) if cond else ''}")
-            return
-        merge = re.fullmatch(r"\{" + target + r"\[31:(\d+)\],\s*s_axi_wdata\[(\d+)(?::(\d+))?\]\}", rhs)
-        if merge:
-            hi = int(merge.group(2))
-            lo = int(merge.group(3)) if merge.group(3) else hi
-            for n in range(lo, hi + 1):
-                self.store(bits[n], target, cond)
+        raise Refusal(f"{RTL}: {st.target} <= {unparse(value)} in {reg.rtl_label} is {FORM_REFUSAL}")
 
-    def forced_bits(self, concat: str) -> set[int]:
+    def _store_slice(self, target: str, value: Node, bits: list[Bit], reg: Register, conds: tuple) -> None:
+        """target <= s_axi_wdata[h:l] or [n]."""
+        hi = evaluate(value[2], self.scope).value
+        lo = evaluate(value[3], self.scope).value if value[0] == "range" else hi
+        for n in range(lo, hi + 1):
+            if target.endswith("_p"):
+                bits[n].write, bits[n].write_name = "strobe", self.strobe_name(target)
+            else:
+                self.store(bits[n], target, conds, n - lo)
+
+    @staticmethod
+    def _action(st: Assign) -> str:
+        """What a statement without the written value does to its target."""
+        value = st.value
+        if value[0] == "num" and value[1].known:
+            return "sets" if value[1].value == 1 else "clears" if value[1].value == 0 else "loads"
+        if mentions(value, st.target):
+            return "counts"
+        return "loads"
+
+    def forced_bits(self, concat: Node) -> set[int]:
         """Bits of a `{s_axi_wdata[..], 1'b0, s_axi_wdata[..]}` image that a
-        literal replaces; bits taken from the bus are not in the set."""
-        parts = split_top(concat.strip()[1:-1], ",")
-        widths = [self.term_width(p) for p in parts]
-        out, pos = set(), sum(w or 0 for w in widths) - 1
+        literal or the old value replaces; bits from the bus are not in the set."""
+        parts = concat[1]
+        widths = [evaluate(p, self.scope).width for p in parts]
+        out, pos = set(), sum(widths) - 1
         for part, width in zip(parts, widths):
-            width = width or 0
-            if not part.strip().startswith("s_axi_wdata"):
+            if not mentions(part, WDATA):
                 out.update(range(pos - width + 1, pos + 1))
             pos -= width
         return out
 
-    def store(self, b: Bit, target: str, cond: str, target_bit: int | None = None) -> None:
+    def store(self, b: Bit, target: str, conds: tuple, target_bit: int | None = None) -> None:
         """Record that a write stores this bit into `target` (at
         `target_bit` when the arm stores a slice at an offset)."""
         if b.write in ("strobe", "w1c", "w1c_any", "magic"):
@@ -536,85 +646,94 @@ class Deriver:
         b.write, b.write_name = "stored", target
         if target_bit is not None:
             b.notes.append(f"tbit:{target_bit}")
-        if cond:
-            b.notes.append(f"cond:{cond}")
+        if conds:
+            b.notes.append("cond:" + conj(conds))
 
-    def write_effective(self, b: Bit, n: int, label: str) -> bool:
+    def write_effective(self, b: Bit, n: int, addr: int) -> bool:
         """Whether a stored bit can be observed: kept by the shadow RAM, or
         read by some expression of the RTL."""
-        if label in self.f.plain_rw or b.read == "stored":
+        if self.model.plain(addr) or b.read == "stored":
             return True
         tbit = next((int(x[5:]) for x in b.notes if x.startswith("tbit:")), n)
         return self.used(b.write_name, tbit)
 
     # ---- reset -----------------------------------------------------------
-    def reset_word(self, label: str, bits: list[Bit]) -> list[int | None]:
-        """Per-bit reset values: the defaults ROM for shadow words, the
-        reset block for flops, X for live inputs."""
-        kind, _ = self.read_expr(label)
-        out: list[int | None] = [0] * WORD_BITS
-        dflt = 0
-        if label in self.f.defaults:
-            dflt = Expr(self.f.defaults[label], self.sym).value()[0]
+    def reset_word(self, addr: int, bits: list[Bit]) -> list[int | None]:
+        """Per-bit reset values: what a read returns in the reset state. A
+        write-only bit shows the reset of the flop it stores into."""
+        value = self.model.reset(addr)
+        out: list[int | None] = [value.bit(n) for n in range(WORD_BITS)]
         for n, b in enumerate(bits):
-            if kind == "shadow" or (kind == "const"):
-                out[n] = (dflt >> n) & 1
-            elif b.read == "const":
-                out[n] = b.read_value
-            elif b.read == "zero":
-                out[n] = 0
-            elif b.read == "signal":
-                src = next((x[4:] for x in b.notes if x.startswith("src:")), "")
-                sig, idx = src.rsplit("[", 1)
-                idx = int(idx[:-1])
-                if sig in self.f.resets:
-                    try:
-                        v = Expr(self.f.resets[sig], self.sym).value()[0]
-                        out[n] = (v >> idx) & 1
-                    except Refusal:
-                        out[n] = None
-                else:
-                    out[n] = None
-            else:
-                out[n] = None
+            if b.read == "zero" and b.write == "stored" and b.write_name:
+                flop = self.model.flop_reset(b.write_name)
+                tbit = next((int(x[5:]) for x in b.notes if x.startswith("tbit:")), n)
+                if flop is not None:
+                    out[n] = flop.bit(tbit)
         return out
 
     # ---- assembly --------------------------------------------------------
-    def register(self, label: str) -> Register:
+    def register(self, label: str, addr: int) -> Register:
         """One register with its fields, derived bit by bit."""
-        reg = Register(label[2:], self.f.addresses[label])
+        reg = Register(label[2:], addr)
         bits = [Bit() for _ in range(WORD_BITS)]
-        self.read_bits(label, bits, reg)
-        self.write_bits(label[2:] if False else label, bits, reg)
-        resets = self.reset_word(label, bits)
-        reg.fields = self.group(reg, bits, resets)
+        self.read_bits(addr, bits, reg)
+        self.write_bits(label, bits, reg)
+        resets = self.reset_word(addr, bits)
+        reg.fields = self.group(reg, bits, resets, addr)
         reg.reset = reset_text(resets)
+        reg.sources = self.bit_sources(bits)
         return reg
 
-    def group(self, reg: Register, bits: list[Bit], resets: list[int | None]) -> list[Field]:
+    def bit_sources(self, bits: list[Bit]) -> dict[int, str]:
+        """word bit -> the signal bit it reads or stores, for naming the word
+        in a condition another register's write depends on."""
+        out: dict[int, str] = {}
+        for n, b in enumerate(bits):
+            src = next((x[4:] for x in b.notes if x.startswith("src:")), "")
+            if src:
+                out[n] = src
+            elif b.write == "stored" and b.write_name:
+                tbit = next((int(x[5:]) for x in b.notes if x.startswith("tbit:")), n)
+                out[n] = f"{b.write_name}[{tbit}]"
+        return out
+
+    def group(self, reg: Register, bits: list[Bit], resets: list[int | None], addr: int) -> list[Field]:
         """Consecutive bits with one name and one access become one field."""
         rows = []
         for n in range(WORD_BITS - 1, -1, -1):
             b = bits[n]
-            name, access = self.classify(reg, b, n)
+            name, access = self.classify(reg, b, n, addr)
             if name == "@WORD":
                 name = reg.label
             if (name, access) == ("RESERVED", "R/W"):
                 b.notes = [x for x in b.notes if not x.startswith("span:")]
+                self.check_reserved(b.write_name, next((int(x[5:]) for x in b.notes if x.startswith("tbit:")), n))
             span = next((x[5:] for x in b.notes if x.startswith("span:")), "")
             notes = sorted({x for x in b.notes
-                            if x.startswith(("masked:", "cond:", "or:", "writes:", "reads:", "key"))})
-            rows.append((n, name, access, span, tuple(notes)))
+                            if x.startswith(("masked:", "cond:", "or:", "writes:", "reads:", "key", "expr:",
+                                             "strobe:", "w1c:", "any:"))})
+            rows.append((n, name, access, span, tuple(notes), self.source_index(b)))
         fields: list[Field] = []
-        for n, name, access, span, notes in rows:
-            if fields and fields[-1].name == name and fields[-1].access == access and \
+        previous = None
+        for n, name, access, span, notes, source in rows:
+            contiguous = previous is None or source is None or source == (previous[0], previous[1] - 1)
+            if fields and fields[-1].name == name and fields[-1].access == access and contiguous and \
                     fields[-1].span == span and tuple(fields[-1].notes) == notes and fields[-1].lo == n + 1:
                 fields[-1].lo = n
             else:
                 fields.append(Field(n, n, name, access, "", list(notes), span))
+            previous = source
         for fl in fields:
             fl.reset = reset_text(resets[fl.lo:fl.hi + 1], short=True)
         return self.unique(fields)
+
+    @staticmethod
+    def source_index(b: Bit) -> tuple[str, int] | None:
+        """(signal, bit) a read bit comes from, so a field never joins bits
+        whose sources are not contiguous."""
+        src = next((x[4:] for x in b.notes if x.startswith("src:")), "")
+        m = re.fullmatch(r"(\w+)\[(\d+)\]", src)
+        return (m.group(1), int(m.group(2))) if m else None
 
     def unique(self, fields: list[Field]) -> list[Field]:
         """Two runs with one name get their bit range appended, so every
@@ -627,9 +746,10 @@ class Deriver:
                 fl.name = f"{fl.name}_{fl.hi}" if fl.hi == fl.lo else f"{fl.name}_{fl.hi}_{fl.lo}"
         return fields
 
-    def classify(self, reg: Register, b: Bit, n: int) -> tuple[str, str]:
+    def classify(self, reg: Register, b: Bit, n: int, addr: int) -> tuple[str, str]:
         """(field name, access code) of bit `n`."""
         r, w = b.read, b.write
+        self.note_write_kind(b)
         if r == "complex":
             return reg.label, ("R" if w == "none" else "R/W")
         reads_zero = r == "zero" or (r == "const" and b.read_value == 0 and not b.read_name)
@@ -646,10 +766,8 @@ class Deriver:
                 return b.write_name, "R/W1S"
             return (b.read_name or b.write_name), "R/W1S"
         if w in ("w1c", "w1c_any"):
-            if w == "w1c_any" and b.write_name:
-                return b.write_name, ("R/W1C" if not reads_zero else "W1C")
             return (b.read_name or field_name(b.write_name)), ("R/W1C" if not reads_zero else "W1C")
-        if w == "stored" and not self.write_effective(b, n, reg.rtl_label):
+        if w == "stored" and not self.write_effective(b, n, addr):
             w = "none"
         if w == "stored":
             if r == "signal":
@@ -666,59 +784,147 @@ class Deriver:
             return self.stored_name(reg, b, n), "R"
         return (b.read_name or reg.label), "R"
 
+    @staticmethod
+    def note_write_kind(b: Bit) -> None:
+        """Record the write's action on the bit, for the field's row."""
+        if b.write == "strobe":
+            b.notes.append(f"strobe:{b.write_name}")
+        elif b.write == "w1c":
+            b.notes.append("w1c:")
+
     # ---- arrays ----------------------------------------------------------
-    def array_registers(self) -> list[Register]:
-        """The address ranges the read decode serves by offset rather than
-        by label: the RMON snapshot, the CBS queue window, the latency-tap
-        and parser-probe words, the reserved gap and the window counters.
-        Each is refused when its range term has left the decode."""
-        a, t = self.f.addresses, self.f.text
-        need = {
-            "STAT": r"A_STATS_BASE\s*&&\s*rd_addr_q\s*<\s*A_STATS_END\)\s*live_mux\s*=\s*stat_snap",
-            "LTAP": r"A_LTAP_BASE\s*&&\s*rd_addr_q\s*<\s*A_LTAP_END\)\s*live_mux\s*=\s*i_ltap_regs",
-            "APRB": r"A_APRB_BASE\s*&&\s*rd_addr_q\s*<\s*A_APRB_END\)\s*live_mux\s*=\s*i_aprb_regs",
-            "GAP": r"A_RSVD_GAP_BASE\s*&&\s*rd_addr_q\s*<\s*A_RSVD_GAP_END\)\s*live_mux\s*=\s*32'd0",
-            "CNT": r"A_STRMW_CNT0\s*&&\s*rd_addr_q\s*<\s*A_STRMW_CNT_END\)",
-            "CBS": r"a\s*>=\s*A_CBS_BASE\s*&&\s*a\s*<\s*A_CBS_END\)\s*\n?\s*is_plain_rw",
-            "CBS_EN": r"is_cbs_en_wr\s*\?\s*\{31'h0,\s*s_axi_wdata\[0\]\}\s*:\s*s_axi_wdata",
-        }
-        for name, pattern in need.items():
-            if not re.search(pattern, t):
-                raise Refusal(f"{RTL}: the {name} range decode this generator documents is gone")
+    def range_register(self, base: str, name: str, end: str) -> Register:
+        """An array the read decode serves by range, its fields derived from
+        the first word and its resets from every word."""
+        lo, hi = self.f.addresses[base], self.f.addresses[end]
+        reg = self.array_shell(name, lo, ((hi - lo) // 4, 4), f"{base} to {end}")
+        for fl in reg.fields:
+            if fl.name == reg.label:
+                fl.name = self.array_field_name(lo, reg)
+        return reg
+
+    def array_field_name(self, addr: int, reg: Register) -> str:
+        """An array word's field takes the name of the array it reads."""
+        for _, leaf in self.model.views(addr):
+            if leaf[0] in ("index", "ipart") and leaf[1][0] == "id":
+                return field_name(leaf[1][1])
+        return reg.label
+
+    def array_shell(self, name: str, lo: int, geometry: tuple[int, int], source: str) -> Register:
+        """Derive one word and record the resets of all its elements."""
+        count, stride = geometry
+        reg = self.register("A_" + name, lo)
+        reg.count, reg.stride = count, stride
+        reg.rtl_range = source
+        values = [self.model.reset(lo + k * stride) for k in range(count)]
+        reg.array_resets = [None if v.unknown else v.value for v in values]
+        unique_values = set(reg.array_resets)
+        if unique_values == {None}:
+            reg.reset = "0xXXXXXXXX"
+        elif len(unique_values) == 1:
+            reg.reset = f"0x{reg.array_resets[0]:08X}"
+        else:
+            reg.reset = "see table"
+            for fl in reg.fields:
+                if fl.name != "RESERVED":
+                    fl.reset = "see table"
+        return reg
+
+    def cbs_registers(self) -> list[Register]:
+        """The queue window: which words exist comes from `is_plain_rw`, what
+        each word is from the table `csr_default` serves it from."""
+        lo, hi = self.f.addresses["A_CBS_BASE"], self.f.addresses["A_CBS_END"]
+        words: dict[str, list[int]] = {}
+        for addr in range(lo, hi, 4):
+            tree = self.model.rom_tree(addr)
+            table = self._rom_table(tree)
+            plain = self.model.plain(addr)
+            if plain != (table is not None):
+                raise Refusal(f"{RTL}: word 0x{addr:03X} of the CBS window: is_plain_rw says {plain}, "
+                              f"and csr_default serves it from {table}")
+            if table:
+                words.setdefault(table, []).append(addr)
         out = []
-        ns = self.sym.value("NS")
-        out.append(array_register("STATS", a["A_STATS_BASE"], (ns, 4), [Field(31, 0, "STAT_SNAP", "R", "0")],
-                              [0] * ns, "read: A_STATS_BASE to A_STATS_END (stat_snap)"))
-        nq = self.sym.value("NUM_QUEUES")
-        mask = (1 << WORD_BITS) - 1
-        for off, key, table in ((0x0, "CBS_IDLE", "CBS_IDLE_RST"), (0x4, "CBS_HI", "CBS_HI_RST"),
-                                (0x8, "CBS_LO", "CBS_LO_RST")):
-            resets = [v & mask for v in self.f.cbs[table][:nq]]
-            out.append(array_register(key, a["A_CBS_BASE"] + off, (nq, 0x20), [Field(31, 0, key, "R/W", "see table")],
-                                  resets, f"reset: A_CBS_BASE + 0x{off:X} + 0x20 * q ({table})"))
-        en = Expr(self.f.cbs_en_reset, self.sym).value()[0]
-        out.append(array_register("CBS_EN", a["A_CBS_BASE"] + 0xC, (nq, 0x20),
-                              [Field(31, 1, "RESERVED", "R", "0"), Field(0, 0, "CBS_EN", "R/W", "see table")],
-                              [(en >> q) & 1 for q in range(nq)], "reset: A_CBS_BASE + 0xC + 0x20 * q (CBS_EN_RST)"))
-        n_ltap = (a["A_LTAP_END"] - a["A_LTAP_BASE"]) // 4
-        out.append(array_register("LTAP", a["A_LTAP_BASE"], (n_ltap, 4), [Field(31, 0, "LTAP_REGS", "R", "X")],
-                              None, "read: A_LTAP_BASE to A_LTAP_END (i_ltap_regs)"))
-        n_aprb = (a["A_APRB_END"] - a["A_APRB_BASE"]) // 4
-        out.append(array_register("APRB", a["A_APRB_BASE"], (n_aprb, 4), [Field(31, 0, "APRB_REGS", "R", "X")],
-                              None, "read: A_APRB_BASE to A_APRB_END (i_aprb_regs)"))
-        n_gap = (a["A_RSVD_GAP_END"] - a["A_RSVD_GAP_BASE"]) // 4
-        out.append(array_register("RSVD_GAP", a["A_RSVD_GAP_BASE"], (n_gap, 4), [Field(31, 0, "RESERVED", "R", "0")],
-                              [0] * n_gap, "read: A_RSVD_GAP_BASE to A_RSVD_GAP_END"))
-        n_cnt = (a["A_STRMW_CNT_END"] - a["A_STRMW_CNT0"]) // 4
-        out.append(array_register("STRMW_CNT", a["A_STRMW_CNT0"], (n_cnt, 4), [Field(31, 0, "SNAP_SHADOW", "R", "X")],
-                              None, f"read: A_STRMW_CNT0..{n_cnt - 1} (A_STRMW_CNT0 to A_STRMW_CNT_END)"))
+        for table, addrs in words.items():
+            stride = addrs[1] - addrs[0] if len(addrs) > 1 else 0x20
+            if any(b - a != stride for a, b in zip(addrs, addrs[1:])):
+                raise Refusal(f"{RTL}: the {table} words of the CBS window are not evenly spaced")
+            name = re.sub(r"_RST$", "", table)
+            source = f"A_CBS_BASE + 0x{addrs[0] - lo:X} + 0x{stride:X} * q ({table})"
+            reg = self.array_shell(name, addrs[0], (len(addrs), stride), source)
+            self.fold_shadow_mask(reg, addrs[0], name)
+            out.append(reg)
+        return out
+
+    def fold_shadow_mask(self, reg: Register, addr: int, name: str) -> None:
+        """The shadow write image: `shadow_wval` stores bits for one word."""
+        known = const_vec_addr(addr, self.model.addr_bits)
+        ip = Interpreter(SymbolicScope(self.f, {"wr_addr": known}), {"wr_addr": ("vec", known)})
+        image = ip.reduce(self.f.wires["shadow_wval"])
+        forced = self.forced_bits(image) if image[0] == "concat" else set()
+        kept = [n for n in range(WORD_BITS) if n not in forced]
+        hi, lo = max(kept), min(kept)
+        resets = reg.array_resets or []
+        word = Field(hi, lo, name, "R/W", "see table" if reg.reset == "see table" else reset_text(
+            [(resets[0] or 0) >> k & 1 for k in range(lo, hi + 1)], short=True))
+        reg.fields = ([Field(WORD_BITS - 1, hi + 1, "RESERVED", "R", "0")] if hi < WORD_BITS - 1 else []) + [word] + (
+            [Field(lo - 1, 0, "RESERVED", "R", "0")] if lo else [])
+
+    @staticmethod
+    def _rom_table(tree: Node) -> str | None:
+        """The constant table a defaults value indexes, if any."""
+        node = tree
+        while node[0] in ("range", "index", "concat", "cast"):
+            node = node[1][-1] if node[0] == "concat" else node[2] if node[0] == "cast" else node[1]
+        return node[1] if node[0] == "id" and node[1].endswith("_RST") else None
+
+    def markers(self) -> set[str]:
+        """Labels that bound a range rather than name a register."""
+        out = set(WINDOW_BOUNDS) | set(RANGE_ARRAYS)
+        out.update(hi for _, hi in RANGE_ARRAYS.values())
         return out
 
     def all_registers(self) -> list[Register]:
-        """Every register and array, in offset order; range markers skipped."""
-        regs = [self.register(n) for n in self.f.addresses if not MARKER_RE.search(n)]
-        regs += self.array_registers()
+        """Every register and array, in offset order, after every check that
+        stops a word being lost."""
+        self.model.check_ranges()
+        rom_labels = self.model.rom_labels()
+        self.model.check_shadow_flops(rom_labels)
+        markers = self.markers()
+        read_labels = self.model.read_labels()
+        regs = []
+        for label, addr in self.f.addresses.items():
+            if label in markers:
+                continue
+            decoded = (label in read_labels or label in self.f.write_arms or label in self.extra_strobes
+                       or self.model.plain(addr) or label in rom_labels)
+            if not decoded:
+                raise Refusal(f"{RTL}: {label} is declared and nothing decodes it")
+            regs.append(self.register(label, addr))
+        for base, (name, end) in RANGE_ARRAYS.items():
+            regs.append(self.range_register(base, name, end))
+        regs += self.cbs_registers()
+        regs += self.literal_registers()
+        covered = {r.offset + k * r.stride for r in regs for k in range(r.count)}
+        self.model.census(covered)
         return sorted(regs, key=lambda r: (r.offset, r.label))
+
+    def literal_registers(self) -> list[Register]:
+        """Words a read decode tests by a literal address. Each must be named
+        in the descriptions, and each name must match a literal test."""
+        literals = self.model.literals
+        extra = sorted(set(literals) - set(self.literal_words))
+        if extra:
+            raise Refusal(f"{RTL}: a read decode tests the literal address 0x{extra[0]:03X}, "
+                          "which no register names")
+        out = []
+        for addr, name in self.literal_words.items():
+            if addr not in literals:
+                raise Refusal(f"the descriptions name literal word 0x{addr:03X}, which {RTL} does not test")
+            reg = self.register("A_" + name, addr)
+            reg.rtl_range = f"literal 0x{addr:03X}"
+            out.append(reg)
+        return out
 
     def wide_input(self, b: Bit) -> bool:
         """Whether the bit reads part of a wider input word."""
@@ -741,24 +947,9 @@ class Deriver:
         return reg.label
 
 
-def array_register(label: str, offset: int, geometry: tuple[int, int], fields: list[Field],
-          resets: list[int] | None, source: str) -> Register:
-    """One array of identical words, `geometry` = (count, stride); `source`
-    names the RTL range."""
-    count, stride = geometry
-    reg = Register(label, offset, fields, count=count, stride=stride, array_resets=resets)
-    reg.rtl_range = source.split(": ", 1)[1] if ": " in source else source
-    reg.sources.append(source)
-    if resets is None:
-        reg.reset = "0xXXXXXXXX"
-    elif len(set(resets)) == 1:
-        reg.reset = f"0x{resets[0]:08X}"
-    else:
-        reg.reset = "see table"
-    for fl in fields:
-        if fl.reset == "see table" and resets is not None and len(set(resets)) == 1:
-            fl.reset = reset_text([(resets[0] >> k) & 1 for k in range(fl.lo, fl.hi + 1)], short=True)
-    return reg
+def const_vec_addr(addr: int, bits: int) -> Vec:
+    """An address as a decode compares it."""
+    return Vec(bits, addr & ((1 << bits) - 1))
 
 
 def reset_text(values: list[int | None], short: bool = False) -> str:
@@ -780,5 +971,3 @@ def reset_text(values: list[int | None], short: bool = False) -> str:
     if short:
         return text.lstrip("0") + "h" if text.strip("0") else "0"
     return "0x" + text.rjust(8, "0")
-
-

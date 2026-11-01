@@ -10,7 +10,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "MCSRV_STAT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "MCSRV_STAT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "MCSRV_STAT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "MCSRV_STAT",
             "attr": "R-X"
           }
@@ -40,7 +55,25 @@
             "attr": "R/W-0"
           },
           {
-            "bits": 30,
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1

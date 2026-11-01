@@ -10,7 +10,12 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "AECP_CMD_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "AECP_CMD_COUNT",
             "attr": "R-X"
           },
@@ -20,7 +25,13 @@
             "attr": "R-X"
           },
           {
-            "bits": 15,
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -41,12 +52,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 16,
+            "bits": 8,
             "name": "AECP_CURRENT_CONFIG",
             "attr": "R-X"
           },
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "AECP_CURRENT_CONFIG",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AECP_RESP_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "AECP_RESP_COUNT",
             "attr": "R-X"
           }
@@ -66,12 +87,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 16,
+            "bits": 8,
             "name": "ACMP_CMD_COUNT",
             "attr": "R-X"
           },
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "ACMP_CMD_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_RESP_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "ACMP_RESP_COUNT",
             "attr": "R-X"
           }
@@ -101,13 +132,24 @@
             "attr": "R/W-0"
           },
           {
-            "bits": 14,
+            "bits": 6,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
           },
           {
-            "bits": 12,
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "AAF_VID",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 4,
             "name": "AAF_VID",
             "attr": "R/W-0"
           },
@@ -133,7 +175,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "AAF_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          },
+          {
+            "bits": 8,
             "name": "AAF_DEST_MAC",
             "attr": "R/W-F000FE01h"
           }
@@ -153,12 +210,23 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 16,
+            "bits": 8,
             "name": "AAF_DEST_MAC",
             "attr": "R/W-91E0h"
           },
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "AAF_DEST_MAC",
+            "attr": "R/W-91E0h"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
@@ -179,7 +247,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "AAF_FRAMES",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_FRAMES",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_FRAMES",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "AAF_FRAMES",
             "attr": "R-X"
           }
@@ -199,7 +282,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "AAF_PAIRS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_PAIRS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_PAIRS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "AAF_PAIRS",
             "attr": "R-X"
           }
@@ -234,7 +332,13 @@
             "attr": "R-X"
           },
           {
-            "bits": 14,
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -267,7 +371,7 @@
           {
             "bits": 1,
             "name": "ACMP_LOBS",
-            "attr": "R-X"
+            "attr": "R-0"
           },
           {
             "bits": 1,
@@ -275,7 +379,25 @@
             "attr": "R-X"
           },
           {
-            "bits": 28,
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -301,7 +423,25 @@
             "attr": "R/W-0"
           },
           {
-            "bits": 31,
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1

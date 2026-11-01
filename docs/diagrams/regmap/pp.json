@@ -20,7 +20,25 @@
             "attr": "R/W-0"
           },
           {
-            "bits": 30,
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
@@ -152,12 +170,28 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 20,
+            "bits": 8,
             "name": "PP_SPADDR",
             "attr": "R/W-0"
           },
           {
-            "bits": 12,
+            "bits": 8,
+            "name": "PP_SPADDR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 4,
+            "name": "PP_SPADDR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -178,7 +212,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PP_SPRDATA",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PP_SPRDATA",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PP_SPRDATA",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "PP_SPRDATA",
             "attr": "R/W-0"
           }
@@ -208,7 +257,12 @@
             "attr": "R-X"
           },
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "PP_TX_FRAMES",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "PP_TX_FRAMES",
             "attr": "R-X"
           }
@@ -233,7 +287,25 @@
             "attr": "R/W-0"
           },
           {
-            "bits": 26,
+            "bits": 2,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -254,7 +326,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PP_NVM_CSR_RDATA",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "PP_NVM_CSR_RDATA",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "PP_NVM_CSR_RDATA",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
             "name": "PP_NVM_CSR_RDATA",
             "attr": "R/W-X"
           }
@@ -274,7 +361,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PP_NVM_CSR_RDATA",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "PP_NVM_CSR_RDATA",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "PP_NVM_CSR_RDATA",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
             "name": "PP_NVM_CSR_RDATA",
             "attr": "R/W-X"
           }

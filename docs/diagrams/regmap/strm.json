@@ -31,7 +31,19 @@
             "attr": "W-0"
           },
           {
-            "bits": 22,
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -57,7 +69,25 @@
             "attr": "R/W1S-0"
           },
           {
-            "bits": 31,
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -83,7 +113,22 @@
             "attr": "R/W-X"
           },
           {
-            "bits": 31,
+            "bits": 7,
+            "name": "STRMW_CTRL_31_1",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_CTRL_31_1",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_CTRL_31_1",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
             "name": "STRMW_CTRL_31_1",
             "attr": "R/W-X"
           }
@@ -103,9 +148,24 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
             "name": "STRMW_SID_LO",
-            "attr": "R/W-X"
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SID_LO",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SID_LO",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SID_LO",
+            "attr": "R/W-0"
           }
         ],
         "config": {
@@ -123,9 +183,24 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
             "name": "STRMW_SID_HI",
-            "attr": "R/W-X"
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SID_HI",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SID_HI",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SID_HI",
+            "attr": "R/W-0"
           }
         ],
         "config": {
@@ -143,9 +218,24 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
             "name": "STRMW_DMAC_LO",
-            "attr": "R/W-X"
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_LO",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_LO",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_LO",
+            "attr": "R/W-0"
           }
         ],
         "config": {
@@ -163,9 +253,24 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
             "name": "STRMW_DMAC_HI",
-            "attr": "R/W-X"
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_HI",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_HI",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_DMAC_HI",
+            "attr": "R/W-0"
           }
         ],
         "config": {
@@ -183,7 +288,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "STRMW_FMT_LO",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_FMT_LO",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_FMT_LO",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
             "name": "STRMW_FMT_LO",
             "attr": "R/W-X"
           }
@@ -203,7 +323,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "STRMW_FMT_HI",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_FMT_HI",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_FMT_HI",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
             "name": "STRMW_FMT_HI",
             "attr": "R/W-X"
           }
@@ -223,9 +358,24 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
             "name": "STRMW_STATE",
-            "attr": "R-X"
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_STATE",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_STATE",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_STATE",
+            "attr": "R-0"
           }
         ],
         "config": {
@@ -243,9 +393,24 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
             "name": "SNAP_SHADOW",
-            "attr": "R-X"
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "SNAP_SHADOW",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "SNAP_SHADOW",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "SNAP_SHADOW",
+            "attr": "R-0"
           }
         ],
         "config": {
@@ -263,9 +428,24 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
             "name": "STRMW_PDUS",
-            "attr": "R-X"
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_PDUS",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_PDUS",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_PDUS",
+            "attr": "R-0"
           }
         ],
         "config": {
@@ -283,7 +463,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "STRMW_SRP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SRP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_SRP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "STRMW_SRP",
             "attr": "R-X"
           }
@@ -303,9 +498,24 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
-            "name": "STRMW_CTLR_LO",
-            "attr": "R-X"
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
           }
         ],
         "config": {
@@ -323,9 +533,24 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
-            "name": "STRMW_CTLR_HI",
-            "attr": "R-X"
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CTLR_Q",
+            "attr": "R-0"
           }
         ],
         "config": {
@@ -343,9 +568,59 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
-            "name": "STRMW_BIND",
-            "attr": "R-X"
+            "bits": 8,
+            "name": "ACMP_TUID_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_TUID_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_FLAGS_Q",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_FLAGS_Q",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "STRMW_RSVD_86C",
+      "offset": "0x86C",
+      "svg": "docs/diagrams/regmap/strm/STRMW_RSVD_86C.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "STRMW_RSVD_86C",
+            "attr": "R-DEADDEADh"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_RSVD_86C",
+            "attr": "R-DEADDEADh"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_RSVD_86C",
+            "attr": "R-DEADDEADh"
+          },
+          {
+            "bits": 8,
+            "name": "STRMW_RSVD_86C",
+            "attr": "R-DEADDEADh"
           }
         ],
         "config": {

@@ -100,7 +100,7 @@ Every register's SVG is rendered from it.
 | [`regmap/asp.json`](regmap/asp.json) | retired AS_PATH compatibility addresses | 3 | `regmap/asp/*.svg` |
 | [`regmap/gptpd.json`](regmap/gptpd.json) | gPTP plane drop diagnostics | 2 | `regmap/gptpd/*.svg` |
 | [`regmap/gptpl.json`](regmap/gptpl.json) | applied gPTP timestamp latency corrections | 1 | `regmap/gptpl/*.svg` |
-| [`regmap/strm.json`](regmap/strm.json) | Indexed per-stream window | 16 | `regmap/strm/*.svg` |
+| [`regmap/strm.json`](regmap/strm.json) | Indexed per-stream window | 17 | `regmap/strm/*.svg` |
 | [`regmap/ltap.json`](regmap/ltap.json) | AAF per-stage latency taps | 2 | `regmap/ltap/*.svg` |
 | [`regmap/aprb.json`](regmap/aprb.json) | RX stream-parser probe | 1 | `regmap/aprb/*.svg` |
 | [`regmap/gap.json`](regmap/gap.json) | reserved target-media compatibility words | 1 | `regmap/gap/*.svg` |

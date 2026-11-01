@@ -10,12 +10,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 16,
+            "bits": 8,
             "name": "GPTP_RX_DROP",
             "attr": "R-X"
           },
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "GPTP_RX_DROP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "GPTP_TAP_DROP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "GPTP_TAP_DROP",
             "attr": "R-X"
           }
@@ -35,12 +45,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 16,
+            "bits": 8,
             "name": "GPTP_EV_DROP",
             "attr": "R-X"
           },
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "GPTP_EV_DROP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "GPTP_TXTS_LOST",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "GPTP_TXTS_LOST",
             "attr": "R-X"
           }

@@ -15,7 +15,25 @@
             "attr": "R/W-0"
           },
           {
-            "bits": 31,
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
@@ -52,7 +70,19 @@
             "attr": "R/W-0"
           },
           {
-            "bits": 23,
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
@@ -73,12 +103,23 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 16,
+            "bits": 8,
             "name": "CHMAP_WR_DATA",
             "attr": "R/W-0"
           },
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "CHMAP_WR_DATA",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -99,7 +140,12 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 16,
+            "bits": 8,
+            "name": "CHMAP_COMMITS",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
             "name": "CHMAP_COMMITS",
             "attr": "R-0"
           },
@@ -208,9 +254,55 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
-            "name": "CHMAP_LOOP_RD",
-            "attr": "R-X"
+            "bits": 8,
+            "name": "RAW",
+            "attr": "R-DEADh"
+          },
+          {
+            "bits": 8,
+            "name": "RAW",
+            "attr": "R-DEADh"
+          },
+          {
+            "bits": 2,
+            "name": "LOOP_FLAGS",
+            "attr": "R-1h"
+          },
+          {
+            "bits": 1,
+            "name": "LOOP_SUSPECT",
+            "attr": "R-1h"
+          },
+          {
+            "bits": 1,
+            "name": "SIDE",
+            "attr": "R-1h"
+          },
+          {
+            "bits": 4,
+            "name": "CMRD_ADDR",
+            "attr": "R-2Ah"
+          },
+          {
+            "bits": 2,
+            "name": "CMRD_ADDR",
+            "attr": "R-2Ah"
+          },
+          {
+            "bits": 1,
+            "name": "VALID",
+            "attr": "R-1h"
+          },
+          {
+            "bits": 1,
+            "name": "MASK_VALID",
+            "attr": "R-1h"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-Dh",
+            "type": 1
           }
         ],
         "config": {

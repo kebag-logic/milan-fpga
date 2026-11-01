@@ -17,6 +17,9 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from register_sv import (WORD_BITS, Assign, Case, For, If, Node, Refusal, Scope, Statement, Vec, const_vec, evaluate,
+                         parse_expression, parse_number, parse_statements, unparse)
+
 ROOT = Path(__file__).resolve().parents[1]
 RTL = "hdl/common/csr/milan_csr.sv"
 DATAPATH = "hdl/milan/milan_datapath.sv"
@@ -28,11 +31,6 @@ SOC = "scripts/register_map_soc.json"
 LEDGER = "docs/reference/milan_feature_status.json"
 PAGE = "docs/reference/REGISTER_MAP.md"
 DIAGRAM_DIR = "docs/diagrams/regmap"
-WORD_BITS = 32
-
-
-class Refusal(Exception):
-    """An input the generator cannot honestly turn into a page."""
 
 
 # ---------------------------------------------------------------- source text --
@@ -67,194 +65,32 @@ def strip_comments(text: str) -> str:
     return "".join(out)
 
 
-TOKEN_RE = re.compile(r"""
-    (?P<cast>\d+'\(|[A-Za-z_]\w*'\()
-  | (?P<num>(?:\d[\d_]*)?'[sS]?[hHdDbBoO][0-9a-fA-FxXzZ_]+|\d[\d_]*)
-  | (?P<id>\$?[A-Za-z_]\w*)
-  | (?P<op><<|>>|==|!=|<=|>=|&&|\|\||[-+*/%&|^~!?:(){}\[\],<>=;.])
-  | (?P<ws>\s+)
-""", re.X)
+class ConstScope(Scope):
+    """Constants only: a signal in a constant expression is a refusal."""
 
+    def __init__(self, sym: "Symbols") -> None:
+        self.sym = sym
 
-def tokenize(text: str) -> list[tuple[str, str]]:
-    """(kind, text) tokens of an expression or statement."""
-    out, pos = [], 0
-    while pos < len(text):
-        m = TOKEN_RE.match(text, pos)
-        if not m:
-            raise Refusal(f"cannot tokenize {text[pos:pos + 40]!r}")
-        pos = m.end()
-        kind = m.lastgroup
-        if kind != "ws":
-            out.append((kind, m.group(kind)))
-    return out
-
-
-def parse_number(tok: str) -> tuple[int, int | None]:
-    """(value, width) of a SystemVerilog integer literal."""
-    if "'" not in tok:
-        return int(tok.replace("_", "")), None
-    size, rest = tok.split("'", 1)
-    rest = rest.lstrip("sS")
-    base = {"h": 16, "d": 10, "b": 2, "o": 8}[rest[0].lower()]
-    digits = rest[1:].replace("_", "")
-    value = int(re.sub(r"[xXzZ]", "0", digits), base)
-    return value, (int(size.replace("_", "")) if size else None)
-
-
-# ------------------------------------------------------- constant expressions --
-@dataclass(frozen=True)
-class Term:
-    """One part of a read or assign expression, with its bit span."""
-    kind: str          # "signal", "const", "complex"
-    name: str          # signal name, or the expression text
-    hi: int            # bit span inside the signal (signal), or width-1 (const)
-    lo: int
-    value: int | None = None
+    def lookup(self, name: str) -> Vec | list[Vec]:
+        """A constant's value, or an element list for a constant table."""
+        if name in self.sym.arrays:
+            return self.sym.arrays[name]
+        return self.sym.resolve(name)
 
 
 class Expr:
-    """A recursive-descent reader of the constant and concatenation
-    expressions the CSR block uses; widths come from `widths`."""
+    """A constant expression: `value()` is its (value, declared width)."""
 
-    def __init__(self, text: str, symbols: "Symbols"):
-        self.toks = tokenize(text)
-        self.pos = 0
-        self.sym = symbols
+    def __init__(self, text: str, symbols: "Symbols") -> None:
         self.text = text
+        self.sym = symbols
 
-    def peek(self, k: int = 0) -> str:
-        """The text of the token k ahead, or the empty string at the end."""
-        i = self.pos + k
-        return self.toks[i][1] if i < len(self.toks) else ""
-
-    def take(self, want: str | None = None) -> str:
-        """Consume one token, refusing when it is not the expected one."""
-        if self.pos >= len(self.toks):
-            raise Refusal(f"unexpected end of {self.text!r}")
-        tok = self.toks[self.pos][1]
-        if want is not None and tok != want:
-            raise Refusal(f"expected {want!r} in {self.text!r}, found {tok!r}")
-        self.pos += 1
-        return tok
-
-    def done(self) -> bool:
-        """Whether every token was consumed."""
-        return self.pos >= len(self.toks)
-
-    # value evaluation ----------------------------------------------------
     def value(self) -> tuple[int, int | None]:
-        """Evaluate the whole expression to (value, width)."""
-        v = self.ternary()
-        if not self.done():
-            raise Refusal(f"trailing tokens in {self.text!r}")
-        return v
-
-    def ternary(self) -> tuple[int, int | None]:
-        """cond ? a : b."""
-        c = self.binary(0)
-        if self.peek() == "?":
-            self.take("?")
-            a = self.ternary()
-            self.take(":")
-            b = self.ternary()
-            return a if c[0] else b
-        return c
-
-    PREC = [("||",), ("&&",), ("|",), ("^",), ("&",), ("==", "!="), ("<", ">", "<=", ">="),
-            ("<<", ">>"), ("+", "-"), ("*", "/", "%")]
-
-    def binary(self, level: int) -> tuple[int, int | None]:
-        """Left-associative binary operators by precedence level."""
-        if level == len(self.PREC):
-            return self.unary()
-        left = self.binary(level + 1)
-        while self.peek() in self.PREC[level]:
-            op = self.take()
-            right = self.binary(level + 1)
-            a, b = left[0], right[0]
-            width = max(w for w in (left[1], right[1], 0) if w is not None) or None
-            left = ({"||": int(bool(a or b)), "&&": int(bool(a and b)), "|": a | b, "^": a ^ b,
-                     "&": a & b, "==": int(a == b), "!=": int(a != b), "<": int(a < b),
-                     ">": int(a > b), "<=": int(a <= b), ">=": int(a >= b), "<<": a << b,
-                     ">>": a >> b, "+": a + b, "-": a - b, "*": a * b,
-                     "/": a // b if b else 0, "%": a % b if b else 0}[op], width)
-        return left
-
-    def unary(self) -> tuple[int, int | None]:
-        """-x, ~x, !x, and primaries."""
-        if self.peek() in ("-", "~", "!"):
-            op = self.take()
-            v, w = self.unary()
-            if op == "-":
-                return -v, w
-            if op == "!":
-                return int(not v), 1
-            return (~v) & ((1 << (w or WORD_BITS)) - 1), w
-        return self.primary()
-
-    def primary(self) -> tuple[int, int | None]:
-        """Literals, casts, identifiers, $clog2, parentheses, concatenations."""
-        kind, tok = self.toks[self.pos] if self.pos < len(self.toks) else ("", "")
-        if kind == "num":
-            self.take()
-            return parse_number(tok)
-        if kind == "cast":
-            self.take()
-            width_text = tok[:-2]
-            width = int(width_text) if width_text.isdigit() else self.sym.value(width_text)
-            v, _ = self.ternary()
-            self.take(")")
-            return v & ((1 << width) - 1) if v >= 0 else v, width
-        if tok == "(":
-            self.take("(")
-            v = self.ternary()
-            self.take(")")
-            return v
-        if tok == "{":
-            parts = self.concat_parts()
-            value, width = 0, 0
-            for v, w in parts:
-                if w is None:
-                    raise Refusal(f"unsized part in concatenation {self.text!r}")
-                value = (value << w) | (v & ((1 << w) - 1))
-                width += w
-            return value, width
-        if tok == "$clog2":
-            self.take()
-            self.take("(")
-            v, _ = self.ternary()
-            self.take(")")
-            return max(0, (v - 1).bit_length()), None
-        if kind == "id":
-            self.take()
-            v, w = self.sym.value(tok), self.sym.width(tok)
-            if self.peek() == "[":
-                self.take("[")
-                hi, _ = self.ternary()
-                lo = hi
-                if self.peek() == ":":
-                    self.take(":")
-                    lo, _ = self.ternary()
-                self.take("]")
-                return (v >> lo) & ((1 << (hi - lo + 1)) - 1), hi - lo + 1
-            return v, w
-        raise Refusal(f"unexpected {tok!r} in {self.text!r}")
-
-    def concat_parts(self) -> list[tuple[int, int | None]]:
-        """{a, b, c} or a replication {N{x}}."""
-        self.take("{")
-        parts = [self.ternary()]
-        if self.peek() == "{":
-            count = parts[0][0]
-            inner = self.concat_parts()
-            self.take("}")
-            return inner * count
-        while self.peek() == ",":
-            self.take(",")
-            parts.append(self.ternary())
-        self.take("}")
-        return parts
+        """Evaluate to (value, width); the width is None when unsized."""
+        v = evaluate(parse_expression(self.text), ConstScope(self.sym))
+        if v.unknown:
+            raise Refusal(f"{self.text!r} is not a constant")
+        return v.value, (v.width if v.sized else None)
 
 
 class Symbols:
@@ -263,8 +99,9 @@ class Symbols:
     def __init__(self) -> None:
         self.exprs: dict[str, str] = {}
         self.decl_width: dict[str, int | str] = {}
-        self.cache: dict[str, tuple[int, int | None]] = {}
+        self.cache: dict[str, Vec] = {}
         self.overrides: dict[str, int] = {}
+        self.arrays: dict[str, list[Vec]] = {}
 
     def define(self, name: str, expr: str, width: int | str | None = None) -> None:
         """Record a constant's defining expression (first definition wins)."""
@@ -276,22 +113,23 @@ class Symbols:
         """Whether a constant of that name is known."""
         return name in self.overrides or name in self.exprs
 
-    def resolve(self, name: str) -> tuple[int, int | None]:
-        """(value, width) of a constant."""
+    def resolve(self, name: str) -> Vec:
+        """A constant's value at its declared width."""
         if name in self.overrides:
-            return self.overrides[name], self.width(name)
+            width = self.width(name)
+            return const_vec(self.overrides[name], width or WORD_BITS, width is not None)
         if name not in self.cache:
             if name not in self.exprs:
                 raise Refusal(f"unknown constant {name}")
-            self.cache[name] = (0, None)       # guards a self-reference
-            v, w = Expr(self.exprs[name], self).value()
-            dw = self.width(name)
-            self.cache[name] = (v, dw if dw is not None else w)
+            self.cache[name] = const_vec(0)       # guards a self-reference
+            v = evaluate(parse_expression(self.exprs[name]), ConstScope(self))
+            width = self.width(name)
+            self.cache[name] = v.resized(width) if width is not None else v
         return self.cache[name]
 
     def value(self, name: str) -> int:
         """The constant's value."""
-        return self.resolve(name)[0]
+        return self.resolve(name).value
 
     def width(self, name: str) -> int | None:
         """The declared width of a constant or signal, evaluated."""
@@ -416,47 +254,6 @@ def matching(text: str, pos: int, open_c: str, close_c: str) -> int:
     raise Refusal(f"{RTL}: unbalanced {open_c} at offset {pos}")
 
 
-def case_items(block: str, selector: str) -> list[tuple[list[str], str]]:
-    """(labels, body) of every item of the first `case (selector)` in `block`."""
-    m = re.search(r"\bcase\s*\(\s*" + re.escape(selector) + r"\s*\)", block)
-    if not m:
-        raise Refusal(f"{RTL}: no case ({selector})")
-    whole = balanced(block, block.rfind("case", 0, m.end()))
-    pos = whole.index(")", whole.index("(")) + 1
-    end = whole.rindex("endcase")
-    items = []
-    while True:
-        m = re.compile(r"\s*").match(whole, pos)
-        pos = m.end()
-        if pos >= end:
-            break
-        colon = item_colon(whole, pos)
-        labels = [lab.strip() for lab in whole[pos:colon].split(",")]
-        stop = statement_end(whole, colon + 1)
-        items.append((labels, whole[colon + 1:stop].strip()))
-        pos = stop
-    return items
-
-
-def item_colon(text: str, pos: int) -> int:
-    """The `:` ending a case-item label list (brackets inside labels skipped)."""
-    depth = 0
-    for i in range(pos, len(text)):
-        c = text[i]
-        if c == "[":
-            depth += 1
-        elif c == "]":
-            depth -= 1
-        elif c == ":" and depth == 0:
-            return i
-    raise Refusal(f"{RTL}: case item without a label at offset {pos}")
-
-
-def label_name(label: str) -> str:
-    """`A_MAC_CTRL[10:0]` -> `A_MAC_CTRL`."""
-    return label.split("[", 1)[0].strip()
-
-
 # ------------------------------------------------------------------ the model --
 @dataclass
 class RtlFacts:
@@ -464,21 +261,22 @@ class RtlFacts:
     sym: Symbols
     addresses: dict[str, int]                  # A_* label -> offset
     params: dict[str, int]
-    write_arms: dict[str, list[tuple[str, str]]]   # label -> [(block, body)]
-    read_arms: dict[str, tuple[str, str]]          # label -> (block, body)
-    window_reads: dict[str, str]                   # label -> strm_mux body
-    defaults: dict[str, str]                       # label -> csr_default expr
-    plain_rw: set[str]
-    resets: dict[str, str]                         # storage -> reset expr
-    assigns: dict[str, str]                        # output port -> expr
-    signals: dict[str, int]                        # declared signal widths
-    cbs: dict[str, list[int]]
-    cbs_en_reset: str
+    write_arms: dict[str, list[tuple[str, list[Statement]]]]   # label -> [(block, statements)]
+    read_blocks: dict[str, list[Statement]]    # read_mux, pp_read, strm_read_mux
+    rom: list[Statement]                       # csr_default's body
+    plain_rw: list[Statement]                  # is_plain_rw's body
+    resets: dict[str, Node]                    # storage -> reset value
+    array_resets: dict[str, Node]              # unpacked storage -> element reset value
+    assigns: dict[str, Node]                   # assign target -> value
+    signals: dict[str, int]                    # declared signal widths
     version: int
     arrays: set[str]
-    usage: dict[str, set[int] | None]
+    read_loaded: set[str]                      # flops a read loads from an input before returning them
+    usage: dict[str, set[int] | None]          # every read of a storage bit, a disabled build's excluded
+    logic_usage: dict[str, set[int] | None]    # the same without the read decodes and the write merges
     text: str
-    wires: dict[str, str]
+    body: str
+    wires: dict[str, Node]
 
 
 def read_text(root: Path, rel: str) -> str:
@@ -604,61 +402,177 @@ def bit_usage(text: str, names: set[str], sym: Symbols) -> dict[str, set[int] | 
     return used
 
 
-def labelled_items(block: str, selector: str) -> list[tuple[str, str]]:
-    """(label, body) for every non-default label of a case statement."""
-    return [(label_name(lab), body) for labels, body in case_items(block, selector)
-            for lab in labels if lab != "default"]
+#: Every top-level site of the RTL that reads the CSR bus. An `always` block is
+#: `always:<name>`, a declaration or assign is `wire:<name>`. The two write
+#: blocks and the three read blocks are parsed; each other site is either
+#: consumed below or has no register-visible effect. A site not listed is
+#: refused: it is a decode this generator does not read.
+KNOWN_BUS_SITES = frozenset({
+    "always:register_write", "always:pp_regs", "always:read_mux", "always:pp_read", "always:strm_read_mux",
+    "always:axi_resp_fsm", "always:gptp_live_read_snapshot", "always:shadow_mem", "always:strm_slow_rd_S",
+    "always:strm_srp_master_S",
+    "wire:wr_fire", "wire:rd_fire", "wire:wr_addr", "wire:rd_addr", "wire:rd_win_w", "wire:rd_is_slow_w",
+    "wire:s_axi_awready", "wire:s_axi_wready", "wire:s_axi_arready",
+    "wire:is_cbs_en_wr", "wire:shadow_wval", "wire:win_alias_ctrl_w", "wire:win_alias_dmlo_w",
+    "wire:win_alias_dmhi_w",
+    "wire:shadow_axi_we", "wire:sh_waddr", "wire:sh_wdata", "wire:cmrd_go_w", "wire:snap_go_w", "wire:sel_wr_w",
+    "wire:srp_prov_w", "wire:rd_in_window", "wire:pp_nvm_rd_w", "wire:o_pp_nvm_csr_addr",
+})
+BUS_SIGNAL_RE = re.compile(r"\b(wr_fire|wr_addr|rd_fire|rd_addr|rd_addr_q|s_axi_wdata)\b")
+DECLARATION_RE = re.compile(r"\b(?:wire|assign)\s*(?:\[[^\]]*\])?\s*(\w+)\s*=[^;]*;", re.S)
+ALWAYS_RE = re.compile(r"\balways_(?:ff|comb)\b[^;]*?\bbegin\b(?:\s*:\s*(\w+))?", re.S)
 
 
-def decodes(text: str) -> tuple[dict, dict, dict, dict]:
-    """The reset values, the write arms, the read arms and the stream-window
-    reads of the comment-stripped RTL."""
-    resets: dict[str, str] = {}
-    for m in re.finditer(r"if\s*\(\s*!aresetn\s*\)\s*", text):
-        rest = text[m.end():]
-        for r in re.finditer(r"(\w+)\s*<=\s*([^;]+);", rest[:statement_end(rest, 0)]):
-            resets.setdefault(r.group(1), r.group(2).strip())
-    write_arms: dict[str, list[tuple[str, str]]] = {}
-    for block_name in ("register_write", "pp_regs"):
-        block = find_block(text, r"always_ff\s*@\(posedge aclk\)\s*begin\s*:\s*" + block_name + r"\b")
-        for label, body in labelled_items(block, "wr_addr"):
-            write_arms.setdefault(label, []).append((block_name, body))
-    read_arms: dict[str, tuple[str, str]] = {}
-    for block_name, target in (("read_mux", "live_mux"), ("pp_read", "pp_rd_data_w")):
-        block = find_block(text, r"always_comb\s*begin\s*:\s*" + block_name + r"\b")
-        for label, body in labelled_items(block, "rd_addr_q"):
-            read_arms[label] = (target, body)
-    window_reads: dict[str, str] = {}
-    strm = find_block(text, r"always_comb\s*begin\s*:\s*strm_read_mux\b")
-    for m in re.finditer(r"rd_addr_q\s*==\s*(A_\w+)\)\s*\n?\s*strm_mux\s*=\s*([^;]+);", strm):
-        window_reads[m.group(1)] = "strm_mux = " + m.group(2).strip() + ";"
-    window_reads.update(labelled_items(strm, "rd_addr_q"))
-    return resets, write_arms, read_arms, window_reads
+def bus_sites(body: str) -> dict[str, int]:
+    """site -> first offset, for every place the module body reads the bus."""
+    spans: list[tuple[int, int, str]] = []
+    for m in ALWAYS_RE.finditer(body):
+        begin = body.index("begin", m.start())
+        spans.append((m.start(), begin + len(balanced(body, begin)),
+                      f"always:{m.group(1) or 'anonymous@' + str(body.count(chr(10), 0, m.start()) + 1)}"))
+    for m in DECLARATION_RE.finditer(body):
+        if not any(a <= m.start() < b for a, b, _ in spans):
+            spans.append((m.start(), m.end(), f"wire:{m.group(1)}"))
+    for m in re.finditer(r"\blogic\b[^;=]*;", body):
+        if not any(a <= m.start() < b for a, b, _ in spans):
+            spans.append((m.start(), m.end(), "declaration"))
+    found: dict[str, int] = {}
+    for m in BUS_SIGNAL_RE.finditer(body):
+        site = next((name for a, b, name in spans if a <= m.start() < b), None)
+        if site is None:
+            line = body.count("\n", 0, m.start()) + 1
+            site = f"statement@{line}"
+        found.setdefault(site, m.start())
+    return found
 
 
-def tables(text: str) -> tuple[dict, set, dict, str]:
-    """The defaults ROM, the plain-RW set, the CBS reset tables and the CBS
-    enable reset of the comment-stripped RTL."""
-    fn = text[text.index("function automatic [31:0] csr_default"):]
-    fn = fn[:fn.index("endfunction")]
-    defaults = {}
-    for label, body in labelled_items(fn, "a"):
-        mm = re.match(r"csr_default\s*=\s*(.*);\s*$", body, re.S)
-        if mm:
-            defaults[label] = mm.group(1).strip()
-    fn = text[text.index("function automatic logic is_plain_rw"):]
-    fn = fn[:fn.index("endfunction")]
-    plain = {label for label, _ in labelled_items(fn, "a")}
-    cbs = {}
-    for name in ("CBS_IDLE_RST", "CBS_HI_RST", "CBS_LO_RST"):
-        m = re.search(name + r"\s*\[0:\d+\]\s*=\s*'\{([^}]*)\}", text)
-        if not m:
-            raise Refusal(f"{RTL}: no {name} table")
-        cbs[name] = [int(v.strip().replace("_", "")) for v in m.group(1).split(",")]
-    m = re.search(r"CBS_EN_RST\s*=\s*([^;]+);", text)
+def without_disabled_terms(body: str, params: dict[str, str], sym: Symbols) -> str:
+    """The body with every `x & PARAM` term blanked where the parameter is 0:
+    such a bit reaches nothing in this build."""
+    def blank(m: re.Match) -> str:
+        """Blank one term when its enabling parameter is 0."""
+        return " " * len(m.group(0)) if sym.value(m.group(2)) == 0 else m.group(0)
+    declarations = re.sub(r"\blogic\b[^;=]*;", lambda m: " " * len(m.group(0)), body)
+    return re.sub(r"(\w+(?:\[[^\]]*\])?)\s*&\s*(" + "|".join(params) + r")\b(?!\s*\[)", blank, declarations)
+
+
+def logic_text(body: str) -> str:
+    """The body without the read decodes, the shadow mux and the write-merge
+    images: what remains reads a stored bit because logic consumes it."""
+    out = body
+    for name in ("read_mux", "pp_read", "strm_read_mux"):
+        m = re.search(r"always_comb\s+begin\s*:\s*" + name + r"\b", out)
+        if m:
+            start = out.index("begin", m.start())
+            end = start + len(balanced(out, start))
+            out = out[:m.start()] + " " * (end - m.start()) + out[end:]
+    return re.sub(r"\{\s*\w+\[31:\d+\]\s*,\s*s_axi_wdata\[\d+(?::\d+)?\]\s*\}", " ", out)
+
+
+def block_statements(text: str, keyword: str, name: str) -> list[Statement]:
+    """The parsed statements of the named `always_*` block."""
+    block = find_block(text, r"always_" + keyword + r"\b[^;]*?\bbegin\s*:\s*" + name + r"\b")
+    return parse_statements(block)
+
+
+def function_statements(text: str, name: str) -> list[Statement]:
+    """The parsed body of a function, its header removed."""
+    m = re.search(r"\bfunction\s+automatic\b[^;]*\b" + name + r"\s*\([^;]*;", text)
     if not m:
-        raise Refusal(f"{RTL}: no CBS_EN_RST")
-    return defaults, plain, cbs, m.group(1).strip()
+        raise Refusal(f"{RTL}: no function {name}")
+    return parse_statements(text[m.end():text.index("endfunction", m.end())])
+
+
+def find_case(statements: list[Statement], selector: str) -> Case | None:
+    """The first `case (selector)` in a statement tree, depth first."""
+    for st in statements:
+        if isinstance(st, Case):
+            if st.selector == ("id", selector):
+                return st
+            nested = find_case([s for _, body in st.items for s in body] + st.default, selector)
+        elif isinstance(st, If):
+            nested = find_case(st.then + st.other, selector)
+        else:
+            nested = None
+        if nested:
+            return nested
+    return None
+
+
+def reset_clauses(text: str) -> tuple[dict[str, Node], dict[str, Node]]:
+    """storage -> reset value tree, and the same for unpacked arrays, from
+    every `if (!aresetn)` clause. A reset statement outside this grammar is
+    refused rather than read as no reset."""
+    resets: dict[str, Node] = {}
+    arrays: dict[str, Node] = {}
+    for m in re.finditer(r"if\s*\(\s*!aresetn\s*\)\s*", text):
+        end = statement_end(text, m.end())
+        for st in parse_statements(text[m.end():end]):
+            _reset_statement(st, resets, arrays)
+    return resets, arrays
+
+
+def _reset_statement(st: Statement, resets: dict[str, Node], arrays: dict[str, Node]) -> None:
+    """One statement of a reset clause."""
+    if isinstance(st, Assign) and not st.selects:
+        resets.setdefault(st.target, st.value)
+    elif isinstance(st, For) and len(st.body) == 1 and isinstance(st.body[0], Assign) and st.body[0].selects:
+        arrays.setdefault(st.body[0].target, st.body[0].value)
+    else:
+        raise Refusal(f"{RTL}: a reset clause holds a statement this generator cannot read: {st}")
+
+
+def read_loaded_flops(statements: list[Statement]) -> set[str]:
+    """Flops a block loads directly from an input port. The read that fires
+    the block returns the loaded value, so the reset value never shows."""
+    found: set[str] = set()
+    for st in statements:
+        if isinstance(st, If):
+            found |= read_loaded_flops(st.then) | read_loaded_flops(st.other)
+        elif isinstance(st, Assign) and st.value[0] == "id" and st.value[1].startswith("i_"):
+            found.add(st.target)
+    return found
+
+
+def named_labels(case: Case, block: str) -> list[tuple[str, list[Statement]]]:
+    """(label, body) of every item of a decode. A label that is not an `A_*`
+    name is a decoded word with no register name, and is refused."""
+    out = []
+    for labels, body in case.items:
+        for label in labels:
+            if label[0] != "id" or not label[1].startswith("A_"):
+                raise Refusal(f"{RTL}: {block} decodes {unparse(label)}, which is not an A_* register")
+            out.append((label[1], body))
+    return out
+
+
+def decode_write_arms(text: str) -> dict[str, list[tuple[str, list[Statement]]]]:
+    """label -> [(block, statements)] of both write decodes."""
+    arms: dict[str, list[tuple[str, list[Statement]]]] = {}
+    for block_name in ("register_write", "pp_regs"):
+        case = find_case(block_statements(text, "ff", block_name), "wr_addr")
+        if case is None:
+            raise Refusal(f"{RTL}: {block_name} has no case (wr_addr)")
+        for label, body in named_labels(case, block_name):
+            arms.setdefault(label, []).append((block_name, body))
+    return arms
+
+
+def decode_read_blocks(text: str) -> dict[str, list[Statement]]:
+    """The three read decodes, each case label checked for a register name."""
+    blocks = {name: block_statements(text, "comb", name) for name in ("read_mux", "pp_read", "strm_read_mux")}
+    for name, statements in blocks.items():
+        case = find_case(statements, "rd_addr_q")
+        if case is None:
+            raise Refusal(f"{RTL}: {name} has no case (rd_addr_q)")
+        named_labels(case, name)
+    return blocks
+
+
+def constant_tables(text: str, sym: Symbols) -> None:
+    """The unpacked constant tables (`'{...}`), which the shadow defaults index."""
+    for m in re.finditer(r"localparam\s+int\s+(\w+)\s*\[0:\d+\]\s*=\s*'\{([^}]*)\}", text):
+        sym.arrays[m.group(1)] = [const_vec(int(v.strip().replace("_", ""))) for v in m.group(2).split(",")]
 
 
 def load_rtl(root: Path, shape: str, overrides: dict[str, int]) -> RtlFacts:
@@ -675,7 +589,9 @@ def load_rtl(root: Path, shape: str, overrides: dict[str, int]) -> RtlFacts:
         define_constants(strip_comments(read_text(root, path)), sym)
     params = define_header_parameters(text, "milan_csr", sym)
     body_start = text.index(");", text.index("module milan_csr"))
-    define_constants(text[body_start:], sym)
+    body = text[body_start:]
+    define_constants(body, sym)
+    constant_tables(text, sym)
     for name, value in overrides.items():
         if name not in params:
             raise Refusal(f"the SoC extract overrides {name}, which milan_csr.sv does not declare")
@@ -687,10 +603,6 @@ def load_rtl(root: Path, shape: str, overrides: dict[str, int]) -> RtlFacts:
     for m in re.finditer(r"\b(A_\w+)\s*=\s*([^,;]+)", text):
         if m.group(1) not in addresses:
             addresses[m.group(1)] = Expr(m.group(2).strip(), sym).value()[0]
-    resets, write_arms, read_arms, window_reads = decodes(text)
-    defaults, plain, cbs, cbs_en = tables(text)
-    assigns = {m.group(1): " ".join(m.group(2).split())
-               for m in re.finditer(r"\bassign\s+(o_\w+)\s*=\s*([^;]+);", text)}
     signals = {}
     for name in list(sym.decl_width):
         try:
@@ -699,15 +611,23 @@ def load_rtl(root: Path, shape: str, overrides: dict[str, int]) -> RtlFacts:
             continue
         if w is not None:
             signals[name] = w
-    params_int = {name: sym.value(name) for name in params}
     storage = {n for n in signals if not n.startswith(("i_", "o_"))}
-    usage = bit_usage(text[body_start:], storage, sym)
-    wires = {w.group(1): " ".join(w.group(2).split()) for w in
-             re.finditer(r"\bwire\s*(?:\[[^\]]+\])?\s*(\w+)\s*=\s*([^;]+);", text)}
-    return RtlFacts(sym, addresses, params_int, write_arms, read_arms, window_reads, defaults,
-                    plain, resets, assigns, signals, cbs, cbs_en, sym.value("VERSION"),
-                    arrays, usage, text, wires)
-
+    effective = without_disabled_terms(body, params, sym)
+    wires = {w.group(1): parse_expression(" ".join(w.group(2).split())) for w in
+             re.finditer(r"\bwire\s*(?:\[[^\]]+\])?\s*(\w+)\s*=\s*([^;]+);", body)}
+    assigns = {m.group(1): parse_expression(" ".join(m.group(2).split()))
+               for m in re.finditer(r"\bassign\s+(\w+)\s*=\s*([^;]+);", body)}
+    resets, array_resets = reset_clauses(body)
+    loaded = read_loaded_flops(block_statements(text, "ff", "gptp_live_read_snapshot"))
+    sites = bus_sites(body)
+    unknown = sorted(set(sites) - KNOWN_BUS_SITES - {"declaration"})
+    if unknown:
+        raise Refusal(f"{RTL}: the CSR bus is read at {unknown}, which this generator does not read")
+    return RtlFacts(sym, addresses, {name: sym.value(name) for name in params}, decode_write_arms(text),
+                    decode_read_blocks(text), function_statements(text, "csr_default"),
+                    function_statements(text, "is_plain_rw"), resets, array_resets, assigns, signals,
+                    sym.value("VERSION"), arrays, loaded, bit_usage(effective, storage, sym),
+                    bit_usage(logic_text(effective), storage, sym), text, body, wires)
 
 
 # ------------------------------------------------------------- the SoC side --
@@ -718,7 +638,7 @@ def verilog_value(text: str) -> int | None:
     if text.startswith('"'):
         return None
     try:
-        return parse_number(text)[0]
+        return parse_number(text).value
     except (KeyError, ValueError, IndexError):
         return None
 

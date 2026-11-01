@@ -17,12 +17,15 @@ import re
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
-from register_fields import ACCESS_LEGEND, RESET_LEGEND, Field, Register
-from register_rtl import RTL, WORD_BITS
+from register_decode import SymbolicScope
+from register_fields import ACCESS_LEGEND, RESET_LEGEND, Effect, Field, Register, conj
+from register_rtl import RTL, RtlFacts
+from register_sv import WORD_BITS, Node, Refusal, evaluate, parse_expression, unparse
 
 PAGE = "docs/reference/REGISTER_MAP.md"
 DIAGRAM_DIR = "docs/diagrams/regmap"
 MEMORY_MAP_SVG = "docs/diagrams/memory_map.svg"
+RECORD = "docs/design/CSR_REGISTER_NOTES.md"
 GENERATOR = "scripts/gen_register_reference.py"
 DESCRIPTIONS = "scripts/register_descriptions.json"
 SOC = "scripts/register_map_soc.json"
@@ -38,6 +41,7 @@ class Module:
     purpose: str
     notes: list = field(default_factory=list)
     registers: list[Register] = field(default_factory=list)
+    record: str = ""
 
 
 @dataclass
@@ -52,6 +56,100 @@ class Model:
     features: list[tuple[str, str, str]]
     guards: dict[str, str]
     root: Path = Path(".")
+    wording: "Wording | None" = None
+
+
+# ---------------------------------------------------------------- conditions --
+def signal_names(regs: list[Register], desc: dict) -> dict[str, str]:
+    """`sig[k]` and whole `sig` -> the register field software reads it at."""
+    names: dict[str, str] = {}
+    for reg in regs:
+        if reg.count > 1:
+            continue
+        shown = acronym(reg, desc)
+        by_signal: dict[str, dict[int, int]] = {}
+        for n, src in sorted(reg.sources.items()):
+            names.setdefault(src, f"`{shown}[{n}]`")
+            sig, _, idx = src.partition("[")
+            by_signal.setdefault(sig, {})[int(idx[:-1]) if idx[:-1].isdigit() else n] = n
+        for sig, placed in by_signal.items():
+            bits = sorted(placed.values())
+            if bits == list(range(bits[0], bits[-1] + 1)):
+                span = f"{bits[-1]}:{bits[0]}" if len(bits) > 1 else str(bits[0])
+                names.setdefault(sig, f"`{shown}[{span}]`" if len(bits) < WORD_BITS else f"`{shown}`")
+    return names
+
+
+class Wording:
+    """Conditions from the RTL as plain words: a stored bit by the register
+    field software reads it at, anything else by the descriptions file's
+    wording. A condition with no wording is refused, so RTL fragments and
+    pseudo-code never reach a table cell."""
+
+    def __init__(self, facts: RtlFacts, regs: list[Register], desc: dict) -> None:
+        self.facts = facts
+        self.names = signal_names(regs, desc)
+        self.phrases = desc.get("condition_words", {})
+        self.constants = SymbolicScope(facts, {})
+        for name in self.phrases:
+            if name not in facts.signals and name not in facts.wires:
+                raise Refusal(f"{DESCRIPTIONS} words the condition {name}, which {RTL} lacks")
+
+    def value(self, node: Node) -> str:
+        """A compared value: a named constant or a number."""
+        if node[0] == "id" and self.facts.sym.has(node[1]):
+            return f"`{node[1]}`"
+        if node[0] == "cast":
+            return self.value(node[2])
+        if node[0] in ("num", "vec") and node[1].known:
+            return f"{node[1].value}"
+        raise Refusal(f"{RTL}: the compared value {unparse(node)} has no plain wording")
+
+    def signal(self, node: Node) -> str:
+        """A signal or an expression over it, as its field name or wording."""
+        base = node[1] if node[0] in ("index", "range", "ipart") else node
+        name = base[1] if base[0] == "id" else ""
+        phrase = self.phrases.get(name)
+        if isinstance(phrase, str):
+            return phrase
+        key = unparse(node)
+        if key in self.names:
+            return self.names[key]
+        if node[0] == "cast":
+            return self.signal(node[2])
+        raise Refusal(f"{RTL}: the condition on {key} has no wording; add it to {DESCRIPTIONS} condition_words")
+
+    def boolean(self, node: Node, polarity: bool) -> str:
+        """A one-bit signal: its phrase pair, or its field and value."""
+        base = node[1] if node[0] == "index" else node
+        phrase = self.phrases.get(base[1] if base[0] == "id" else "")
+        if isinstance(phrase, list):
+            return phrase[0 if polarity else 1]
+        return f"{self.signal(node)} is {1 if polarity else 0}"
+
+    def condition(self, node: Node, polarity: bool = True) -> str:
+        """Any condition, with `polarity` False meaning its negation."""
+        if node[0] == "un" and node[1] == "!":
+            return self.condition(node[2], not polarity)
+        if node[0] == "bin" and node[1] in ("&&", "||"):
+            joiner = " and " if (node[1] == "&&") == polarity else " or "
+            return self.condition(node[2], polarity) + joiner + self.condition(node[3], polarity)
+        if node[0] == "bin" and node[1] in ("==", "!="):
+            same = (node[1] == "==") == polarity
+            return f"{self.signal(node[2])} is {'' if same else 'not '}{self.value(node[3])}"
+        if node[0] == "bin" and node[1] in ("<", ">=", ">", "<="):
+            word = {"<": "below", ">=": "at least", ">": "above", "<=": "at most"}[node[1]]
+            lead = "" if polarity else "not "
+            return f"{self.signal(node[2])} is {lead}{word} {self.value(node[3])}"
+        return self.boolean(node, polarity)
+
+    def conditions(self, conds: tuple) -> str:
+        """(node, polarity) pairs joined with `and`."""
+        return " and ".join(self.condition(node, polarity) for node, polarity in conds)
+
+    def rtl(self, text: str) -> str:
+        """A condition spelled as RTL text."""
+        return self.condition(parse_expression(text))
 
 
 # ------------------------------------------------------------------ helpers --
@@ -148,16 +246,58 @@ def field_text(reg: Register, fl: Field, model: Model) -> str:
         parts.append(text)
     elif fl.name == "RESERVED":
         parts.append("Reserved." if fl.access == "R" else "Reserved; stored and read back, drives nothing.")
+    else:
+        parts.append(source_text(reg, fl, model))
     if fl.span:
         parts.append(f"Bits {fl.span} of the RTL value.")
+    parts += store_conditions(fl, model)
     for note in fl.notes:
-        parts.append(note_text(note, model))
+        if not note.startswith("cond:"):
+            parts.append(note_text(note, fl, model))
     parts += side_effect_text(reg, fl, model)
-    return " ".join(p for p in parts if p)
+    return " ".join(sentence(p) for p in parts if p)
+
+
+def sentence(text: str) -> str:
+    """A cell part ends with punctuation, so the next part reads as its own."""
+    return text if text.rstrip("*`)").endswith((".", ":", "?", "!")) or text.endswith((".", ")")) else text + "."
+
+
+def store_conditions(fl: Field, model: Model) -> list[str]:
+    """When a write reaches this field: every path that stores it, in one
+    sentence, so a window word does not repeat itself once per path."""
+    paths = [model.wording.rtl(note.partition(":")[2].strip()) for note in fl.notes if note.startswith("cond:")]
+    if not paths:
+        return []
+    return ["A write takes effect only when " + ", or when ".join(paths) + "."]
+
+
+def source_text(reg: Register, fl: Field, model: Model) -> str:
+    """A field without prose still says what it is, from the RTL: the input it
+    reads, the output it drives, or the storage that holds it."""
+    facts = model.wording.facts
+    signals = facts.signals
+    lower = fl.name.lower()
+    if "W" in fl.access and f"o_{lower}" in signals:
+        return f"Drives `o_{lower}`."
+    src = reg.sources.get(fl.lo, "")
+    sig = src.partition("[")[0]
+    if reg.views and "W" in fl.access:
+        return ""
+    if sig.startswith("i_"):
+        return f"Reads input `{sig}`."
+    if sig.startswith("o_") or f"o_{lower}" in signals:
+        return f"Reads back `o_{lower}`."
+    if sig:
+        return f"Held in `{sig}`."
+    if any(n.startswith("expr:") for n in fl.notes):
+        return ""
+    return "Constant." if fl.access == "R" else ""
 
 
 def side_effect_text(reg: Register, fl: Field, model: Model) -> list[str]:
-    """Generated sentences for a key-compared write and for a guard bit."""
+    """Generated sentences for a key-compared write, for a guard bit and for
+    what else a write does, in the row of the field the write lands on."""
     out = []
     for effect in reg.side_effects:
         kind, _, rest = effect.partition(":")
@@ -170,41 +310,87 @@ def side_effect_text(reg: Register, fl: Field, model: Model) -> list[str]:
             guarded = model.guards.get("guarded:" + storage)
             if guarded:
                 out.append(guarded)
+    groups: dict[tuple, list[Effect]] = {}
+    for effect in reg.effects:
+        if effect_row(reg, effect) is fl:
+            groups.setdefault((conj(effect.conds), effect.trigger), []).append(effect)
+    for (_, trigger), effects in groups.items():
+        out.append(effect_sentence(effects, trigger, model))
     return out
 
 
-def note_text(note: str, model: Model) -> str:
+def effect_row(reg: Register, effect: Effect) -> Field | None:
+    """The field a write's further action is stated in: the written bit that
+    fires it, otherwise the word's first writable field."""
+    if effect.trigger is not None:
+        return next((f for f in reg.fields if f.lo <= effect.trigger <= f.hi), None)
+    writable = next((f for f in reg.fields if "W" in f.access), None)
+    return writable or (reg.fields[0] if reg.fields else None)
+
+
+EFFECT_VERBS = (("sets", "sets"), ("clears", "clears"), ("counts", "counts in"), ("loads", "loads"))
+
+
+def effect_sentence(effects: list[Effect], trigger: int | None, model: Model) -> str:
+    """`When <condition>, a write also sets `a` and clears `b`.`"""
+    actions = []
+    for action, verb in EFFECT_VERBS:
+        targets = sorted({f"`{e.target}`" for e in effects if e.action == action})
+        if targets:
+            actions.append(f"{verb} {', '.join(targets)}")
+    lead = "writing 1 also " if trigger is not None else "a write also "
+    conds = effects[0].conds
+    if conds:
+        return f"When {model.wording.conditions(conds)}, {lead}{' and '.join(actions)}."
+    return f"{lead.capitalize()}{' and '.join(actions)}."
+
+
+def note_text(note: str, fl: Field, model: Model) -> str:
     """One generated side-effect sentence for a field note."""
     kind, _, arg = note.partition(":")
-    if kind == "cond":
-        guard = model.guards.get(arg.strip().lstrip("!"))
-        if arg.strip().startswith("!") and guard:
-            return f"A write is dropped while {guard} is 1."
-        return f"A write takes effect only when `{arg.strip()}`."
+    arg = arg.strip()
     if kind == "masked":
-        guard = model.guards.get(arg.strip())
-        return f"A write stores 0 here while {guard or '`' + arg + '`'} is 1."
+        return f"A write stores 0 here while {model.wording.rtl(arg)}."
     if kind == "reads":
-        return f"A read returns {arg}."
+        return f"A read returns `{arg}`."
     if kind == "writes":
-        return f"A write sets {arg}; a read returns this field."
+        return f"A write sets `{arg}`; a read returns this field."
     if kind == "or":
-        return f"A read returns the OR with {arg}."
+        return f"A read returns the OR with `{arg}`."
     if kind == "key":
         return "A write compares the whole word with the unlock key."
-    return note
+    if kind == "expr":
+        return f"Reads `{arg}`."
+    if kind == "strobe":
+        status = "" if fl.access == "W1S" else " A read returns this bit's status."
+        return f"Writing 1 fires `{arg}` for one cycle.{status}"
+    if kind == "w1c":
+        return "Writing 1 clears this latched bit; writing 0 leaves it."
+    if kind == "any":
+        span, _, name = arg.partition(" ")
+        return f"Writing any set bit in `[{span}]` fires `{name}` once."
+    raise Refusal(f"no wording for the field note {note!r}")
+
+
+DIAGRAM_LANES = 4
 
 
 def diagram(reg: Register) -> dict:
-    """The WaveDrom `reg` source of one register, LSB first."""
+    """The WaveDrom `reg` source of one register, LSB first. A field crossing
+    a lane is split at the lane boundary, so every lane shows its bit numbers
+    and no row of the diagram is left blank."""
+    lane_bits = WORD_BITS // DIAGRAM_LANES
     fields = []
     for fl in sorted(reg.fields, key=lambda f: f.lo):
-        width = fl.hi - fl.lo + 1
-        entry = {"bits": width, "name": fl.name, "attr": f"{fl.access}-{fl.reset}"}
-        if fl.name == "RESERVED":
-            entry["type"] = 1
-        fields.append(entry)
-    return {"reg": fields, "config": {"bits": WORD_BITS, "lanes": 4, "hspace": 1000, "fontsize": 11}}
+        lo = fl.lo
+        while lo <= fl.hi:
+            hi = min(fl.hi, (lo // lane_bits + 1) * lane_bits - 1)
+            entry = {"bits": hi - lo + 1, "name": fl.name, "attr": f"{fl.access}-{fl.reset}"}
+            if fl.name == "RESERVED":
+                entry["type"] = 1
+            fields.append(entry)
+            lo = hi + 1
+    return {"reg": fields, "config": {"bits": WORD_BITS, "lanes": DIAGRAM_LANES, "hspace": 1000, "fontsize": 11}}
 
 
 # ---------------------------------------------------------------- sections --
@@ -257,47 +443,45 @@ def reading(model: Model) -> list[str]:
     for para in page.get("intro", []):
         out += [para, ""]
     out += notes_block(page.get("notes", []), "###")
-    return out
+    return out + record_link(page, "Design record")
+
+
+def record_link(entry: dict, label: str) -> list[str]:
+    """The link to an entry's rationale and history on the design-notes page."""
+    if "record" not in entry:
+        return []
+    return [f"{label}: [design notes]({relative(RECORD)}#{entry['record']}).", ""]
 
 
 def notes_block(notes: list, level: str) -> list[str]:
-    """Notes in their written order. A run of statements becomes one Notes
-    table, a carried table renders as a table, and a headed group gets its
-    own heading one level down. A statement is a string or a [topic, text]
-    pair; a code block is ["Code", text]."""
+    """Notes in their written order, as prose the concise-prose gate reads. A
+    statement is a paragraph, a [topic, text] pair a paragraph led by its
+    topic, a carried table a table, a headed group its own heading one level
+    down, and a code block is ["Code", text]."""
     out: list[str] = []
-    run: list = []
     for item in notes:
         if isinstance(item, dict):
-            out += note_table(run)
-            run = []
             if "heading" in item:
                 out += [f"{level} {page_links(item['heading'])}", ""]
                 for para in item.get("intro", []):
-                    out += [para, ""]
+                    out += [page_links(para), ""]
                 out += notes_block(item.get("rows", []), level + "#" if len(level) < 4 else level)
             elif "table" in item:
                 out += table(item["table"][0], item["table"][1:])
         elif isinstance(item, list) and item and item[0] == "Code":
-            out += note_table(run)
-            run = []
             out += ["```text", item[1], "```", ""]
+        elif isinstance(item, list):
+            out += [f"**{item[0]}:** {page_links(' '.join(item[1:]))}", ""]
         else:
-            run.append(item)
-    return out + note_table(run)
-
-
-def note_table(rows: list) -> list[str]:
-    """A notes table; pairs get a Topic column."""
-    if not rows:
-        return []
-    if all(isinstance(r, list) for r in rows):
-        return table(["Topic", "Note"], rows)
-    return table(["Note"], [[r] if isinstance(r, str) else [" ".join(r)] for r in rows])
+            out += [page_links(item), ""]
+    return out
 
 
 def table(head: list[str], rows: list[list]) -> list[str]:
-    """A Markdown table."""
+    """A Markdown table. A one-column table is a paragraph in disguise that the
+    concise-prose gate cannot read, so it is refused."""
+    if len(head) < 2:
+        raise Refusal(f"the one-column table {head} hides prose from the concise-prose gate")
     out = ["| " + " | ".join(head) + " |", "|" + "---|" * len(head)]
     out += ["| " + " | ".join(cell(c) for c in row) + " |" for row in rows]
     return out + [""]
@@ -360,7 +544,7 @@ def legend() -> list[str]:
     out += table(["Reset code", "Meaning"],
                  [[f"`{c}`", m] for c, m in RESET_LEGEND]
                  + [["`0`, `5h`", "The reset value in hexadecimal; `h` marks hex digits."]])
-    out += ["Reserved fields read as `R-0`.", "",
+    out += ["Reserved read-only fields read as `R-0`.", "",
             "A reserved `R/W` field stores bits that drive nothing.", ""]
     return out
 
@@ -391,6 +575,7 @@ def module_section(model: Model, module: Module, seen: dict[str, int]) -> list[s
     out += table(["Offset", "Acronym", "Register name", "Reset", "Section"], rows)
     out += cbs_table(model, module)
     out += notes_block(module.notes, "###")
+    out += record_link({"record": module.record} if module.record else {}, "Rationale and history")
     for reg, head in zip(module.registers, heads):
         anchor(head, seen)
         out += register_section(model, module, reg, head)
@@ -428,12 +613,40 @@ def register_section(model: Model, module: Module, reg: Register, head: str) -> 
     out += [f"![{acronym(reg, desc)} bit fields]({relative(svg_path(module, reg, desc))})", ""]
     rows = [[fl.bits, f"`{fl.name}`", fl.access, fl.reset, field_text(reg, fl, model)] for fl in reg.fields]
     out += table(["Bit", "Field", "Type", "Reset", "Description"], rows)
+    out += read_value_table(reg, model)
     if reg.count > 1 and reg.array_resets is not None and len(set(reg.array_resets)) > 1:
         out += table(["n", "Offset", "Reset"],
                      [[str(n), f"`0x{reg.offset + n * reg.stride:03X}`", f"`0x{v:08X}`"]
                       for n, v in enumerate(reg.array_resets)])
     out += notes_block(regd.get("notes", []), "####")
+    out += record_link(regd, "Rationale and history")
     return out
+
+
+def read_value_table(reg: Register, model: Model) -> list[str]:
+    """What a read returns, per condition, for a word several values can reach."""
+    if not reg.views:
+        return []
+    rows = []
+    live = [leaf for _, leaf in reg.views if not leaf_constant(leaf, model)]
+    for conds, leaf in reg.views:
+        rows.append([model.wording.conditions(conds), leaf_text(leaf, len(live) == 1, model)])
+    return table(["When", "A read returns"], rows)
+
+
+def leaf_constant(leaf: Node, model: Model) -> bool:
+    """Whether a read value is fixed whatever the state."""
+    try:
+        return evaluate(leaf, model.wording.constants).known
+    except Refusal:
+        return False
+
+
+def leaf_text(leaf: Node, single_live: bool, model: Model) -> str:
+    """One read value: a number, the fields above, or its RTL source."""
+    if leaf_constant(leaf, model):
+        return f"`0x{evaluate(leaf, model.wording.constants).resized(WORD_BITS).value:08X}`"
+    return "the fields above" if single_live else f"`{unparse(leaf)}`"
 
 
 def soc_banks(model: Model) -> list[str]:
@@ -453,6 +666,7 @@ def soc_banks(model: Model) -> list[str]:
     out += ["### Milan registers in the LiteX banks", ""]
     out += table(["Address", "Register", "Words", "Mode", "Description"], rows)
     out += notes_block(desc.get("soc_notes", []), "###")
+    out += record_link({"record": desc["soc_record"]} if "soc_record" in desc else {}, "Rationale and history")
     return out
 
 

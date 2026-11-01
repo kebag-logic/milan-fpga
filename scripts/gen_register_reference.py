@@ -48,6 +48,7 @@ input the generator cannot read, or a description key the RTL lacks).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -56,13 +57,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import check_doc_style  # noqa: E402
 from register_fields import Deriver, Register  # noqa: E402
-from register_page import (DESCRIPTIONS, DIAGRAM_DIR, PAGE, SOC, Model, Module, acronym,  # noqa: E402
+from register_page import (DESCRIPTIONS, DIAGRAM_DIR, PAGE, RECORD, SOC, Model, Module, Wording, acronym,  # noqa: E402
                            anchor, module_sources, render_page, strip_md)
-from register_rtl import (ROOT, RTL, Refusal, RtlFacts, csr_parameters, extract_soc, load_rtl,  # noqa: E402
-                          read_text, soc_text)
+from register_rtl import (CSR_INCLUDE_DIR, DATAPATH, ROOT, RTL, SHAPE_INCLUDE_DIR, Refusal, RtlFacts,  # noqa: E402
+                          csr_parameters, extract_soc, load_rtl, read_text, soc_text, strip_comments)
 
 LEDGER = "docs/reference/milan_feature_status.json"
-REGISTER_KEYS = {"acronym", "name", "purpose", "fields", "notes"}
+REGISTER_KEYS = {"acronym", "name", "purpose", "fields", "notes", "rename", "record"}
 EM_DASH = "\u2014"
 
 
@@ -80,15 +81,31 @@ def build_model(root: Path, soc: dict | None = None) -> tuple[Model, RtlFacts]:
     soc = soc if soc is not None else load_json(root, SOC)
     overrides, table = csr_parameters(root, soc)
     facts = load_rtl(root, soc["shape"], overrides)
-    regs = Deriver(facts).all_registers()
     desc = load_json(root, DESCRIPTIONS)
+    literal_words = {int(addr, 16): name for addr, name in desc.get("literal_words", {}).items()}
+    regs = Deriver(facts, literal_words).all_registers()
+    rename_fields(desc, regs)
     validate(desc, regs, soc)
+    check_record_links(root, desc)
     modules = build_modules(desc, regs)
     ledger = load_json(root, LEDGER)
     features = [(f["id"], f["status"], f.get("value", "-")) for f in ledger["features"] if PAGE in f["documents"]]
     model = Model(regs, modules, soc, table, facts.version, desc, features, guards(regs, desc))
     model.root = root
+    model.wording = Wording(facts, regs, desc)
     return model, facts
+
+
+def rename_fields(desc: dict, regs: list[Register]) -> None:
+    """A positional field name the RTL gives no better word for may take a
+    name from the descriptions; a key naming no derived field is refused."""
+    known = {r.label: r for r in regs}
+    for key, entry in desc.get("registers", {}).items():
+        for old, new in entry.get("rename", {}).items():
+            fields = {f.name: f for f in known[key].fields} if key in known else {}
+            if old not in fields:
+                raise Refusal(f"{DESCRIPTIONS} renames field {key}.{old}, which {RTL} lacks")
+            fields[old].name = new
 
 
 def guards(regs: list[Register], desc: dict) -> dict[str, str]:
@@ -127,6 +144,10 @@ def guards(regs: list[Register], desc: dict) -> dict[str, str]:
 def validate(desc: dict, regs: list[Register], soc: dict) -> None:
     """Refuse a description of anything the RTL or the export lacks."""
     known = {r.label: r for r in regs}
+    for reg in regs:
+        entry = desc.get("registers", {}).get(reg.label, {})
+        if not entry.get("purpose") or not entry.get("name"):
+            raise Refusal(f"{DESCRIPTIONS}: register {reg.label} at 0x{reg.offset:03X} needs a name and a purpose")
     for key, entry in desc.get("registers", {}).items():
         if key not in known:
             raise Refusal(f"{DESCRIPTIONS} describes register {key}, which {RTL} lacks")
@@ -158,13 +179,25 @@ def validate(desc: dict, regs: list[Register], soc: dict) -> None:
             raise Refusal(f"{DESCRIPTIONS} describes region {name}, which the export lacks")
 
 
+def check_record_links(root: Path, desc: dict) -> None:
+    """Every design-notes link points at a heading that exists on that page."""
+    seen: dict[str, int] = {}
+    anchors = {anchor(h, seen) for h in re.findall(r"^#{1,6} (.+)$", read_text(root, RECORD), re.M)}
+    wanted = [desc.get("page", {}).get("record"), desc.get("soc_record")]
+    wanted += [m.get("record") for m in desc.get("modules", [])]
+    wanted += [r.get("record") for r in desc.get("registers", {}).values()]
+    for target in wanted:
+        if target and target not in anchors:
+            raise Refusal(f"{DESCRIPTIONS} links design note #{target}, which {RECORD} lacks")
+
+
 def build_modules(desc: dict, regs: list[Register]) -> list[Module]:
     """The modules of the descriptions file, each holding the registers its
     offset range covers. Every register belongs to exactly one module."""
     modules = []
     for m in desc.get("modules", []):
         modules.append(Module(m["key"], m["heading"], int(m["start"], 16), int(m["end"], 16),
-                              m["purpose"], m.get("notes", [])))
+                              m["purpose"], m.get("notes", []), record=m.get("record", "")))
     modules.sort(key=lambda m: m.start)
     for a, b in zip(modules, modules[1:]):
         if b.start <= a.end:
@@ -212,7 +245,7 @@ def outputs(model: Model) -> dict[str, str]:
                  and a.rsplit("-", 1)[0] in anchors]
     if problems:
         raise Refusal("the rendered page breaks the documentation rules:\n  " + "\n  ".join(problems))
-    out = {PAGE: page, CATALOG: catalog(model)}
+    out = {PAGE: page, CATALOG: catalog(model), FINGERPRINT: fingerprint(model.root, model.soc["shape"])}
     sources = module_sources(model)
     out.update(sources)
     for text in sources.values():
@@ -222,6 +255,7 @@ def outputs(model: Model) -> dict[str, str]:
 
 
 CATALOG = "docs/diagrams/README.md"
+FINGERPRINT = f"{DIAGRAM_DIR}/rtl_fingerprint.txt"
 CATALOG_START = "<!-- register-diagrams:start -->"
 CATALOG_END = "<!-- register-diagrams:end -->"
 
@@ -275,32 +309,46 @@ def write(root: Path, outs: dict[str, str]) -> None:
         (root / rel).write_text(text, encoding="utf-8")
 
 
+def fingerprint(root: Path, shape: str) -> str:
+    """The comment-stripped CSR sources' digests. Any code change fails the
+    gate here even where the page cannot show it, so a change to behaviour the
+    hand-kept prose describes reaches a human; a comment-only edit does not."""
+    rels = [RTL]
+    rels += sorted(p.relative_to(root).as_posix() for d in (CSR_INCLUDE_DIR, SHAPE_INCLUDE_DIR.format(shape=shape))
+                   for p in (root / d / "gen").glob("*.svh"))
+    lines = ["# GENERATED by scripts/gen_register_reference.py: sha256 of each comment-stripped CSR source.",
+             "# A difference means the RTL changed: regenerate, then reread the prose of the registers it touches."]
+    for rel in rels:
+        code = " ".join(strip_comments(read_text(root, rel)).split())
+        lines.append(f"{hashlib.sha256(code.encode()).hexdigest()}  {rel}")
+    text = strip_comments(read_text(root, DATAPATH))
+    m = re.search(r"\bmilan_csr\s*#\s*\(", text)
+    if not m:
+        raise Refusal(f"{DATAPATH} instantiates no milan_csr")
+    instance = " ".join(text[m.start():text.index(");", m.start())].split())
+    lines.append(f"{hashlib.sha256(instance.encode()).hexdigest()}  {DATAPATH} (the milan_csr instance)")
+    return "\n".join(lines) + "\n"
+
+
 def dump(facts: RtlFacts) -> None:
     """Print the facts read, for a reviewer comparing them with the RTL."""
     for name, off in sorted(facts.addresses.items(), key=lambda kv: (kv[1], kv[0])):
-        tags = []
-        if name in facts.plain_rw:
-            tags.append("plainRW")
-        if name in facts.write_arms:
-            tags.append("W:" + "|".join(b for b, _ in facts.write_arms[name]))
-        if name in facts.read_arms:
-            tags.append("R:" + facts.read_arms[name][0])
-        if name in facts.window_reads:
-            tags.append("R:window")
-        if name in facts.defaults:
-            tags.append("dflt=" + facts.defaults[name][:30])
-        print(f"0x{off:03X} {name:20s} {' '.join(tags)}")
+        tags = "W:" + "|".join(b for b, _ in facts.write_arms[name]) if name in facts.write_arms else ""
+        print(f"0x{off:03X} {name:20s} {tags}")
     print("params", facts.params)
 
 
 def dump_fields(facts: RtlFacts) -> None:
     """Print every derived register and its fields."""
-    d = Deriver(facts)
-    for reg in d.all_registers():
-        print(f"0x{reg.offset:03X} {reg.label} x{reg.count} reset={reg.reset} {reg.sources} "
-              f"{reg.side_effects} {reg.array_resets or ''}")
+    desc = load_json(ROOT, DESCRIPTIONS)
+    literal_words = {int(addr, 16): name for addr, name in desc.get("literal_words", {}).items()}
+    for reg in Deriver(facts, literal_words).all_registers():
+        print(f"0x{reg.offset:03X} {reg.label} x{reg.count} reset={reg.reset} {reg.side_effects} "
+              f"{reg.array_resets or ''}")
         for fl in reg.fields:
             print(f"      [{fl.bits:>5}] {fl.name:24s} {fl.access:6s} {fl.reset:10s} {fl.span} {fl.notes}")
+        for effect in reg.effects:
+            print(f"      effect {effect.target} {effect.action} trigger={effect.trigger}")
 
 
 def check_soc(root: Path, build: Path) -> list[str]:

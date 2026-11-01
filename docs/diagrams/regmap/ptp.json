@@ -15,7 +15,25 @@
             "attr": "R/W-1h"
           },
           {
-            "bits": 31,
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R/W-0",
             "type": 1
@@ -36,7 +54,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PTP_INCR",
+            "attr": "R/W-14000000h"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_INCR",
+            "attr": "R/W-14000000h"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_INCR",
+            "attr": "R/W-14000000h"
+          },
+          {
+            "bits": 8,
             "name": "PTP_INCR",
             "attr": "R/W-14000000h"
           }
@@ -56,7 +89,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PTP_ADJ",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ADJ",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ADJ",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "PTP_ADJ",
             "attr": "R/W-0"
           }
@@ -76,7 +124,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "PTP_TOD_WR",
             "attr": "R/W-0"
           }
@@ -96,7 +159,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_WR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "PTP_TOD_WR",
             "attr": "R/W-0"
           }
@@ -116,7 +194,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "PTP_OFFSET",
             "attr": "R/W-0"
           }
@@ -136,7 +229,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_OFFSET",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "PTP_OFFSET",
             "attr": "R/W-0"
           }
@@ -171,7 +279,25 @@
             "attr": "W1S-0"
           },
           {
-            "bits": 29,
+            "bits": 5,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -192,7 +318,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
             "name": "PTP_TOD_RD",
             "attr": "R-0"
           }
@@ -212,7 +353,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_TOD_RD",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
             "name": "PTP_TOD_RD",
             "attr": "R-0"
           }
@@ -232,7 +388,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PTP_ILAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ILAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ILAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "PTP_ILAT",
             "attr": "R/W-0"
           }
@@ -252,7 +423,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PTP_ELAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ELAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PTP_ELAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "PTP_ELAT",
             "attr": "R/W-0"
           }
@@ -273,8 +459,9 @@
         "reg": [
           {
             "bits": 1,
-            "name": "PPS_ENABLE",
-            "attr": "W-0"
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
           },
           {
             "bits": 1,
@@ -282,7 +469,13 @@
             "attr": "W1S-0"
           },
           {
-            "bits": 14,
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -293,7 +486,13 @@
             "attr": "R-0"
           },
           {
-            "bits": 15,
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
             "name": "RESERVED",
             "attr": "R-0",
             "type": 1
@@ -314,7 +513,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "PPS_TARGET_NS",
             "attr": "R/W-0"
           }
@@ -334,7 +548,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_NS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
             "name": "PPS_TARGET_NS",
             "attr": "R/W-0"
           }
@@ -354,7 +583,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "PPS_TARGET_RD_NS",
             "attr": "R-X"
           }
@@ -374,7 +618,22 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_TARGET_RD_NS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
             "name": "PPS_TARGET_RD_NS",
             "attr": "R-X"
           }
@@ -394,9 +653,24 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 32,
+            "bits": 8,
             "name": "PPS_WIDTH",
-            "attr": "R-X"
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_WIDTH",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_WIDTH",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "PPS_WIDTH",
+            "attr": "R-0"
           }
         ],
         "config": {
