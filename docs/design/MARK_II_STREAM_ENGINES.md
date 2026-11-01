@@ -107,6 +107,8 @@ So one engine serves every stream instead.
 A talker context is 16 words of 32 bits.
 A listener context is 32 words, counters included.
 
+The render map holds one entry per TDM slot.
+
 The engine reads a context, works, then writes it back.
 Firmware writes the configuration words through the engine window.
 
@@ -520,13 +522,25 @@ After F6, the fabric runs no gPTP state machine.
 ## Register maps
 
 The maps follow the technical reference manual style.
-Offsets are bytes from the block base; resets are hexadecimal.
+Offsets are bytes from the block base.
 
-Access codes: R is read-only, RW is read-write.
-RC clears on read; FW means firmware writes it.
+Resets are hexadecimal; `PORT` resets to the index parity.
+Every bit and offset is defined or reserved.
+
+Reserved bits read zero; writes to them are ignored.
+Access codes: R read-only, RW read-write.
+
+RC clears on read; WS acts on a written 1.
+FW means firmware writes it and the engine reads it.
 
 Firmware writes configuration through the engine window.
 `milan_csr` exposes the status and counter words read-only.
+
+Every counter is 32 bits and wraps to zero.
+Milan's Tables 5.4 and 5.6 require that.
+
+Each counter's reset event is in its row.
+An engine reset clears every counter and state word.
 
 ### Engine registers
 
@@ -536,22 +550,31 @@ Firmware writes configuration through the engine window.
 | | | 15:0 | MINOR | 0x0000 | R | Engine layout minor version |
 | 0x004 | SE_CAP | 7:0 | N_TALKER | 0x20 | R | Talker contexts, 32 at 32x32 |
 | | | 15:8 | N_LISTENER | 0x20 | R | Listener contexts, 32 at 32x32 |
-| | | 19:16 | N_PHASE | 0x6 | R | Sample phases per class A interval at 48 kHz |
-| | | 20 | TWO_PORT | 0x1 | R | Second AVB interface present |
-| | | 31:21 | RESERVED | 0x0 | R | Reads zero |
+| | | 20:16 | MAX_PHASE | 0x18 | R | Most phases per class A interval: 24, at 192 kHz |
+| | | 21 | TWO_PORT | 0x1 | R | Second AVB interface present |
+| | | 31:22 | RESERVED | 0x000 | R | Reads zero; writes ignored |
 | 0x008 | SE_CTRL | 0 | TALKER_EN | 0x0 | RW | Enables the packetizer |
 | | | 1 | LISTENER_EN | 0x0 | RW | Enables the depacketizer |
-| | | 31:2 | RESERVED | 0x0 | R | Reads zero |
-| 0x010 | SE_IDLESLOPE0 | 31:0 | KBPS | 0x0000_0000 | RW | Port 0 class A idleSlope, kb/s; firmware writes the Table 4.4 sum |
-| 0x014 | SE_IDLESLOPE1 | 31:0 | KBPS | 0x0000_0000 | RW | Port 1 class A idleSlope, kb/s |
-| 0x020 | SE_TLAT_MAX0 | 31:0 | NS | 0x0000_0000 | RC | Port 0 worst capture-to-first-bit interval, ns |
-| 0x024 | SE_TLAT_MAX1 | 31:0 | NS | 0x0000_0000 | RC | Port 1 worst capture-to-first-bit interval, ns |
-| 0x028 | SE_TLAT_OVER | 15:0 | COUNT0 | 0x0000 | RC | Port 0 frames at or above 65 µs |
-| | | 31:16 | COUNT1 | 0x0000 | RC | Port 1 frames at or above 65 µs |
-| 0x030 | SE_MERGE_DUP | 31:0 | COUNT | 0x0000_0000 | R | Redundant copies discarded |
-| 0x034 | SE_MERGE_SEC | 31:0 | COUNT | 0x0000_0000 | R | Packets rendered from a secondary copy |
-| 0x800 | SE_TCTX[0..31] | - | - | - | FW, R | Talker contexts, 64 octets each |
-| 0x1000 | SE_LCTX[0..31] | - | - | - | FW, R | Listener contexts, 128 octets each |
+| | | 31:2 | RESERVED | 0x0000_0000 | R | Reads zero; writes ignored |
+| 0x00C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
+| 0x010 | SE_IDLESLOPE0 | 31:0 | KBPS | 0x0000_0000 | RW | Port 0 class A idleSlope, kb/s: firmware writes the Table 4.4 sum of the port's current reservations (IEEE 802.1Q-2022 34.6.1.1) |
+| 0x014 | SE_IDLESLOPE1 | 31:0 | KBPS | 0x0000_0000 | RW | Port 1 class A idleSlope, kb/s, the same way |
+| 0x018-0x01C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
+| 0x020 | SE_TLAT_MAX0 | 31:0 | NS | 0x0000_0000 | RC | Port 0 worst pin-to-first-bit interval, ns ([instrument](#the-latency-instrument)) |
+| 0x024 | SE_TLAT_MAX1 | 31:0 | NS | 0x0000_0000 | RC | Port 1 worst pin-to-first-bit interval, ns |
+| 0x028 | SE_TLAT_OVER | 15:0 | COUNT0 | 0x0000 | RC | Port 0 frames at or above 65 µs, pin to first bit; saturates at its maximum |
+| | | 31:16 | COUNT1 | 0x0000 | RC | Port 1 frames at or above 65 µs, the same way |
+| 0x02C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
+| 0x030 | SE_MERGE_DUP | 31:0 | COUNT | 0x0000_0000 | RC | Redundant copies discarded by merge rule 4; wraps |
+| 0x034 | SE_MERGE_SEC | 31:0 | COUNT | 0x0000_0000 | RC | Packets rendered from a secondary copy; wraps |
+| 0x038-0x03C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
+| 0x040-0x05C | SE_RMAP[0..7] | 4:0 | LCTX | 0x00 | RW | Render slot k at 64 plus 4k: the listener context feeding it; a redundant pair is named by its even context |
+| | | 7:5 | CH | 0x0 | RW | The stream channel that feeds slot k |
+| | | 8 | VALID | 0x0 | RW | Slot k is mapped; 0 renders silence (Milan v1.2 5.3.10.1: each slot takes at most one stream channel) |
+| | | 31:9 | RESERVED | 0x00_0000 | R | Reads zero; writes ignored |
+| 0x060-0x7FC | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
+| 0x800-0xFFC | SE_TCTX[0..31] | - | - | - | - | Talker contexts, 64 octets each, below |
+| 0x1000-0x1FFC | SE_LCTX[0..31] | - | - | - | - | Listener contexts, 128 octets each, below |
 
 ### Talker context
 
@@ -560,29 +583,37 @@ The engine owns the state and counter words.
 
 | Offset | Name | Bits | Field | Reset | Access | Description |
 |---|---|---|---|---|---|---|
-| 0x00 | TCTX_CTRL | 0 | RUN | 0x0 | FW | Stream started (Milan v1.2 5.3.7.3) |
-| | | 1 | PORT | n & 1 | R | 0 primary, 1 secondary; index parity |
-| | | 4:2 | PHASE | 0x0 | FW | Packet-boundary phase, 0 to 5 |
-| | | 11:8 | NCH | 0x0 | FW | Channels per frame, 1 to 8 (Milan v1.2 6.2) |
-| | | 13:12 | NSR | 0x0 | FW | 0 is 48 kHz, 1 is 96 kHz, 2 is 192 kHz |
-| | | 31:14 | RESERVED | 0x0 | R | Reads zero |
-| 0x04 | TCTX_MAP | 31:0 | SLOT[7:0] | 0x7654_3210 | FW | Four bits per stream channel: its TDM slot (Milan v1.2 5.3.9.1) |
+| 0x00 | TCTX_CTRL | 0 | RUN | 0x0 | FW | Stream started (Milan v1.2 5.3.7.3); the engine builds frames while set |
+| | | 1 | PORT | 0x0 for even n, 0x1 for odd n | R | 0 primary, 1 secondary: index parity; also the copy's time base |
+| | | 6:2 | PHASE | 0x00 | FW | Packet-boundary phase, 0 to 5, 11 or 23 at 48, 96 or 192 kHz |
+| | | 7 | RESERVED | 0x0 | R | Reads zero; writes ignored |
+| | | 11:8 | NCH | 0x0 | FW | Channels per frame: 1, 2, 4, 6 or 8 (Milan v1.2 6.2); any other value sets ERR |
+| | | 13:12 | NSR | 0x0 | FW | 0 is 48 kHz, 1 is 96 kHz, 2 is 192 kHz; 3 sets ERR |
+| | | 14 | ERR | 0x0 | R | NCH, NSR, PHASE or a SLOT field is invalid; the stream does not start; cleared by a valid write |
+| | | 31:15 | RESERVED | 0x0_0000 | R | Reads zero; writes ignored |
+| 0x04 | TCTX_MAP | 31:0 | SLOT[7:0] | 0x7654_3210 | FW | Four bits per stream channel c, at bits 4c+3 to 4c: its TDM capture slot, 0 to 7; 15 means not mapped, sent as zero samples; 8 to 14 set ERR (Milan v1.2 5.3.9.1) |
 | 0x08 | TCTX_SID_LO | 31:0 | STREAM_ID | 0x0000_0000 | FW | stream_id bits 31:0 (IEEE 1722-2016 4.4.4.8) |
 | 0x0C | TCTX_SID_HI | 31:0 | STREAM_ID | 0x0000_0000 | FW | stream_id bits 63:32 |
 | 0x10 | TCTX_DA_LO | 31:0 | DA | 0x0000_0000 | FW | Destination MAC bits 31:0, from MAAP |
 | 0x14 | TCTX_DA_HI | 15:0 | DA | 0x0000 | FW | Destination MAC bits 47:32 |
-| | | 31:16 | TCI | 0x0000 | FW | VLAN PCP, DEI and VID |
+| | | 27:16 | VID | 0x000 | FW | VLAN identifier, 12 bits |
+| | | 28 | DEI | 0x0 | FW | Drop eligible indicator |
+| | | 31:29 | PCP | 0x0 | FW | Priority code point of the SR class |
 | 0x18 | TCTX_PTO | 30:0 | NS | 0x001E_8480 | FW | Presentation time offset, ns; reset is 2 ms (Milan v1.2 5.3.7.6) |
+| | | 31 | RESERVED | 0x0 | R | Reads zero; writes ignored |
 | 0x1C | TCTX_STATE | 7:0 | SEQ | 0x00 | R | Next sequence_num (IEEE 1722-2016 4.4.4.6) |
 | | | 8 | MR | 0x0 | R | Media clock restart toggle (IEEE 1722-2016 4.4.4.3) |
-| | | 31:9 | RESERVED | 0x0 | R | Reads zero |
-| 0x20 | TCTX_STREAM_START | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.7.7 |
-| 0x24 | TCTX_STREAM_STOP | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.7.7 |
-| 0x28 | TCTX_MEDIA_RESET | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.7.7 |
-| 0x2C | TCTX_TIMESTAMP_UNCERTAIN | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.7.7 |
-| 0x30 | TCTX_FRAMES_TX | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.7.7 |
-| 0x34 | TCTX_TLAT_MAX | 31:0 | NS | 0x0 | RC | This stream's worst capture-to-first-bit interval, ns |
-| 0x38-0x3C | RESERVED | 31:0 | - | 0x0 | R | Reads zero |
+| | | 31:9 | RESERVED | 0x00_0000 | R | Reads zero; writes ignored |
+| 0x20 | TCTX_STREAM_START | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.7.7; increments when RUN rises; never cleared by a start |
+| 0x24 | TCTX_STREAM_STOP | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.7.7; increments when RUN falls; never cleared by a start |
+| 0x28 | TCTX_MEDIA_RESET | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.7.7; cleared when RUN rises, each time the talker starts |
+| 0x2C | TCTX_TIMESTAMP_UNCERTAIN | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.7.7; cleared when RUN rises |
+| 0x30 | TCTX_FRAMES_TX | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.7.7; cleared when RUN rises |
+| 0x34 | TCTX_TLAT_MAX | 31:0 | NS | 0x0000_0000 | RC | This stream's worst pin-to-first-bit interval, ns |
+| 0x38-0x3C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
+
+Interval counters use observation intervals of at most 1 s.
+Milan v1.2 5.3.7.7 sets that limit.
 
 ### Listener context
 
@@ -592,34 +623,44 @@ The engine owns the state, merge and counter words.
 | Offset | Name | Bits | Field | Reset | Access | Description |
 |---|---|---|---|---|---|---|
 | 0x00 | LCTX_CTRL | 0 | RUN | 0x0 | FW | Bound and started (Milan v1.2 5.3.8.2, 5.3.8.7) |
-| | | 1 | PORT | n & 1 | R | 0 primary, 1 secondary; index parity |
-| | | 2 | PAIRED | 0x0 | FW | Context n ^ 1 is this stream's redundant partner |
-| | | 11:8 | NCH | 0x0 | FW | Channels per frame, 1 to 8 |
-| | | 13:12 | NSR | 0x0 | FW | 0 is 48 kHz, 1 is 96 kHz, 2 is 192 kHz |
-| | | 31:14 | RESERVED | 0x0 | R | Reads zero |
-| 0x04 | LCTX_MAP | 31:0 | SLOT[7:0] | 0x7654_3210 | FW | Four bits per stream channel: its TDM slot (Milan v1.2 5.3.9.1) |
-| 0x08 | LCTX_MAPEN | 7:0 | EN | 0x00 | FW | Channels written to the render buffer |
-| | | 31:8 | RESERVED | 0x0 | R | Reads zero |
-| 0x0C | LCTX_SID_LO | 31:0 | STREAM_ID | 0x0000_0000 | FW | Bound stream_id bits 31:0 |
-| 0x10 | LCTX_SID_HI | 31:0 | STREAM_ID | 0x0000_0000 | FW | Bound stream_id bits 63:32 |
-| 0x14 | LCTX_DA_LO | 31:0 | DA | 0x0000_0000 | FW | Stream destination MAC bits 31:0 |
-| 0x18 | LCTX_DA_HI | 15:0 | DA | 0x0000 | FW | Stream destination MAC bits 47:32 |
-| | | 31:16 | VID | 0x0000 | FW | Expected VLAN ID |
-| 0x1C | LCTX_STATE | 7:0 | SEQ | 0x00 | R | Last sequence_num seen |
+| | | 1 | PORT | 0x0 for even n, 0x1 for odd n | R | 0 primary, 1 secondary: index parity; also the copy's time base |
+| | | 2 | PAIRED | 0x0 | FW | Context n XOR 1 is this stream's redundant partner |
+| | | 3 | CNT_CLR | 0x0 | WS | Clears every counter of this context; firmware writes it when the stream input goes from not bound to bound (Milan v1.2 5.3.8.10) |
+| | | 7:4 | RESERVED | 0x0 | R | Reads zero; writes ignored |
+| | | 11:8 | NCH | 0x0 | FW | Channels per frame: 1, 2, 4, 6 or 8 (Milan v1.2 6.2); any other value sets ERR |
+| | | 13:12 | NSR | 0x0 | FW | 0 is 48 kHz, 1 is 96 kHz, 2 is 192 kHz; 3 sets ERR |
+| | | 14 | ERR | 0x0 | R | NCH or NSR is invalid; the context matches no frame; cleared by a valid write |
+| | | 31:15 | RESERVED | 0x0_0000 | R | Reads zero; writes ignored |
+| 0x04 | LCTX_SID_LO | 31:0 | STREAM_ID | 0x0000_0000 | FW | Bound stream_id bits 31:0 |
+| 0x08 | LCTX_SID_HI | 31:0 | STREAM_ID | 0x0000_0000 | FW | Bound stream_id bits 63:32 |
+| 0x0C | LCTX_DA_LO | 31:0 | DA | 0x0000_0000 | FW | Stream destination MAC bits 31:0 |
+| 0x10 | LCTX_DA_HI | 15:0 | DA | 0x0000 | FW | Stream destination MAC bits 47:32 |
+| | | 27:16 | VID | 0x000 | FW | Expected VLAN identifier, 12 bits |
+| | | 31:28 | RESERVED | 0x0 | R | Reads zero; writes ignored |
+| 0x14 | LCTX_STATE | 7:0 | SEQ | 0x00 | R | Last sequence_num seen |
 | | | 8 | LOCKED | 0x0 | R | Media locked on this stream |
-| | | 31:9 | RESERVED | 0x0 | R | Reads zero |
-| 0x20 | LCTX_LAST_PT | 31:0 | NS | 0x0000_0000 | R | Last written presentation time, render clock; the pair's merge key, used in the even context |
-| 0x24 | LCTX_MEDIA_LOCKED | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.8.10 |
-| 0x28 | LCTX_MEDIA_UNLOCKED | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.8.10 |
-| 0x2C | LCTX_STREAM_INTERRUPTED | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.8.10 |
-| 0x30 | LCTX_SEQ_NUM_MISMATCH | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.8.10 |
-| 0x34 | LCTX_MEDIA_RESET | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.8.10 |
-| 0x38 | LCTX_TIMESTAMP_UNCERTAIN | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.8.10 |
-| 0x3C | LCTX_UNSUPPORTED_FORMAT | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.8.10 |
-| 0x40 | LCTX_LATE_TIMESTAMP | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.8.10 |
-| 0x44 | LCTX_EARLY_TIMESTAMP | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.8.10 |
-| 0x48 | LCTX_FRAMES_RX | 31:0 | COUNT | 0x0 | R | Milan v1.2 5.3.8.10 |
-| 0x4C-0x7C | RESERVED | 31:0 | - | 0x0 | R | Reads zero |
+| | | 9 | LAST_TU | 0x0 | R | The last written copy carried tu; merge rule 3 reads it, in the even context |
+| | | 31:10 | RESERVED | 0x00_0000 | R | Reads zero; writes ignored |
+| 0x18 | LCTX_LAST_PT | 31:0 | NS | 0x0000_0000 | R | Last written presentation time, render time base; the pair's merge key, in the even context |
+| 0x1C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
+| 0x20 | LCTX_MEDIA_LOCKED | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
+| 0x24 | LCTX_MEDIA_UNLOCKED | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
+| 0x28 | LCTX_STREAM_INTERRUPTED | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
+| 0x2C | LCTX_SEQ_NUM_MISMATCH | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
+| 0x30 | LCTX_MEDIA_RESET | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
+| 0x34 | LCTX_TIMESTAMP_UNCERTAIN | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
+| 0x38 | LCTX_UNSUPPORTED_FORMAT | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
+| 0x3C | LCTX_LATE_TIMESTAMP | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
+| 0x40 | LCTX_EARLY_TIMESTAMP | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
+| 0x44 | LCTX_FRAMES_RX | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
+| 0x48-0x7C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
+
+Unbinding keeps the counters, per 5.3.8.10.
+
+Each render slot takes at most one stream channel.
+Milan v1.2 5.3.10.1 sets that rule.
+
+A redundant pair renders through its even context.
 
 ## Block RAM ledger at 32x32
 
