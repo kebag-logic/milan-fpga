@@ -1,0 +1,28 @@
+How each receipt was produced (paths relative to the packet).
+<clone>    clean clone of the review checkout, detached at 69fd18f1d8f9d428687c07ede0f9c14597cf2d61
+           (tree f7c3f02d8889081b89c7dcb46004d3ffb88623e2), submodules not initialised, base e5b8405d fetched.
+<python>   private venv with tools/markdown/requirements.txt installed with --require-hashes (cmarkgfm
+           2025.10.22, html5lib 1.1), plus pyyaml.
+<evidence> review-evidence/640-m9-r1 at evidence commit 1a5f9f3a0edb851f05ae9a496e99627a03cdf95e, extracted
+           with git archive into a scratch directory (MANIFEST.json and author-r3/ only).
+<models>   byte-identical copies of <evidence>/author-r3/evidence/model/*.py (digests in packet_verify.txt).
+
+packet_verify.txt                 python3 -I scripts/verify_packet.py <evidence> author-r3; tree of the evidence
+                                  commit; sha256 of the four model scripts
+model/<m>.out, .err, .rc          python3 -I <m>.py run in the <models> directory, for m in merge_model,
+                                  compaction_model, load_any, p192 (run concurrently; .err holds wall time and
+                                  peak memory)
+model/rerun_compare.txt           diff of each rerun against the author's published .out (rc line aside)
+model/probe_merge_both_tu.out     python3 -I scripts/probe_merge_both_tu.py <models>/merge_model.py
+model/probe_merge_both_tu_equal_latency.out
+                                  python3 -I scripts/probe_merge_both_tu_equal_latency.py <models>/merge_model.py
+model/probe_merge_tu_seq_jump.out python3 -I scripts/probe_merge_tu_seq_jump.py <models>/merge_model.py
+model/probe_compaction_header_readback.out
+                                  python3 -I scripts/probe_compaction_header_readback.py <models>/compaction_model.py
+gates/*.log, *.rc, gates_summary.txt
+                                  bash scripts/run_docs_gates.sh <clone> <python> receipts/gates e5b8405db4c1f7cbdafb5df92b15b580142e0232
+diff_check.txt                    git -C <clone> diff --check e5b8405d HEAD
+gh/hosted_check_runs.tsv          gh api (read only) check-runs of the exact head; last line is the query time (UTC)
+clone_restore_check.txt, gitlinks_at_head.txt
+                                  HEAD, tree, porcelain count with ignored files, index tree, worktree-vs-HEAD of the
+                                  review checkout after all probes; git ls-tree HEAD of every .gitmodules path

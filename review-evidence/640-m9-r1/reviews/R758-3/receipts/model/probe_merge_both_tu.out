@@ -1,0 +1,16 @@
+FAIL  both tu from packet 100, no skew
+      rules as written : missing=30 samples (5 packets, 625.0 us), bad=0, tu_drop=18
+      without rule 2   : missing=0, bad=0, tu_drop=0
+FAIL  both tu from packet 100, skew +-5 us
+      rules as written : missing=30 samples (5 packets, 625.0 us), bad=0, tu_drop=18
+      without rule 2   : missing=0, bad=0, tu_drop=0
+PASS  primary tu from 100, secondary tu from 108 (1 ms later)
+      rules as written : missing=0 samples (0 packets, 0.0 us), bad=0, tu_drop=23
+      without rule 2   : missing=0, bad=0, tu_drop=0
+PASS  primary tu from 100, secondary tu from 140 (5 ms later)
+      rules as written : missing=0 samples (0 packets, 0.0 us), bad=0, tu_drop=55
+      without rule 2   : missing=0, bad=0, tu_drop=0
+FAIL  both tu 100..600 then clean again, no skew
+      rules as written : missing=30 samples (5 packets, 625.0 us), bad=0, tu_drop=26
+      without rule 2   : missing=0, bad=0, tu_drop=0
+3 of 5 cases lose samples under the rules as written
