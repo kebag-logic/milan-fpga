@@ -1,0 +1,22 @@
+How each receipt was produced (paths relative to the packet). <clone> is a clean detached clone at
+f6b3e841646384177584ce75b657fb8dead7727c (tree 4bb54f5edd8e777b1b7c13c045a318474e7e0d80, submodules not
+initialised); <python> is a private venv with tools/markdown/requirements.txt installed with --require-hashes,
+plus pyyaml. <model> is evidence/mixed_stagger.py from the author round-2 packet (review-evidence/640-m9-r1/
+author-r2 at d1a6596b3743d559ecd5fe8153b9b7676093f6e4), sha256 bfebe546c8d3df2544660b274aa5c5d857a979932c31b3bf56a4785a09bae5b1,
+verified against the packet's SHA256SUMS and MANIFEST.json (107 author-r2 entries, 0 mismatches).
+
+gates/*.log, gates/*.rc, gates_summary.txt   bash scripts/run_docs_gates.sh <clone> <python> receipts/gates e5b8405db4c1f7cbdafb5df92b15b580142e0232
+model/checks.out|uniform.out|e192.out|s48_ahead.out|s96_ahead.out (+ .rc)
+                                   python3 -I <model> checks | uniform | e192 | s48 ahead | s96 ahead
+model/uniform192_crf_first.out     python3 -I evidence/uniform192_crf_first.py (cwd holding a byte-identical model copy)
+model/run_times.txt                wall time and peak memory of each model run
+load_any_count.out, .rc            python3 -I scripts/load_any_count.py
+probe192_placements.out, .rc       python3 -I scripts/probe192_placements.py <dir holding the model copy>
+churn48_seed<k>.out, .rc           python3 -I scripts/churn48.py <k> 170   (k = 1..8, run concurrently)
+scope_search.txt                   grep of REQUIREMENTS.md, FR_NFR.md, overview and split for placement and gPTP-owner text
+gh/*.json, gh/hosted_check_runs.tsv  gh api (read only): issue 640 comments, #234 ruling 5967924270, kebag-logic/flexPTP
+                                   repo and branch gptp, check-runs of the exact head
+gitlinks_at_head.txt, clone_restore_check.txt
+                                   git ls-tree HEAD <submodule paths>; HEAD, tree, ignored/untracked count, index-vs-tree
+                                   digest after all probes (the gates' scripts/__pycache__ was removed first)
+scripts/cbs_model.py               the round-1 event-level 8.6.8.2 simulator, reused unchanged by churn48.py

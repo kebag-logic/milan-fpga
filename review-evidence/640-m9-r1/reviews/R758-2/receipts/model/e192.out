@@ -1,0 +1,9 @@
+192 kHz exact, CRF none: worst wait 50.882 us, final phase 1, window 8 phases, ahead formats (8, 8, 8, 8, 8), crf ahead False; total without packetizer time 68.976 us
+192 kHz exact, CRF last: worst wait 51.430 us, final phase 4, window 8 phases, ahead formats (8, 8, 8, 8, 8), crf ahead True; total without packetizer time 69.523 us
+192 kHz exact, CRF first: worst wait 54.822 us, final phase 7, window 7 phases, ahead formats (8, 8, 8, 8, 8), crf ahead False; total without packetizer time 72.915 us
+   uniform 1 ch x 16 in the first 16 tie phases, packetizer as a queue: total 25.473 us
+   uniform 2 ch x 16 in the first 16 tie phases, packetizer as a queue: total 25.281 us
+   uniform 4 ch x 16 in the first 16 tie phases, packetizer as a queue: total 26.350 us
+   uniform 6 ch x 16 in the first 16 tie phases, packetizer as a queue: total 27.923 us
+   uniform 8 ch x 16 in the first 16 tie phases, packetizer as a queue: above the 75 % cap
+   at most 13 eight-channel streams per port under the cap; packetizer load then 91.072 %

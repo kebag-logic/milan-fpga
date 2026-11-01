@@ -1,0 +1,20 @@
+REQUIREMENTS.md:27:- Until the switch-over, each MUST have build-selectable placement.
+REQUIREMENTS.md:28:  The all-fabric build is the shipping default until then.
+REQUIREMENTS.md:33:- After the switch-over, no all-fabric build remains (#665).
+REQUIREMENTS.md:34:- Until F6, the fabric gPTP plane is the sole owner.
+REQUIREMENTS.md:58:- Until the switch-over, both placements MUST preserve wire behavior.
+REQUIREMENTS.md:110:Until the switch-over, the [split architecture](docs/ARCHITECTURE_HW_SW_SPLIT.md) defines both placements.
+REQUIREMENTS.md:173:  sole owner: the two corrections are per-board elaboration constants declared
+docs/reference/FR_NFR.md:78:The all-fabric build stays the shipping default until then.
+docs/reference/FR_NFR.md:84:No all-fabric option remains after it (NFR-SCOUT-02).
+docs/reference/FR_NFR.md:305:| NFR-LAT-02 | AVDECC command responses MUST meet their applicable normative limit in Section 3.4.1 in either placement until the switch-over, and in firmware after it. Firmware paths MUST also meet NFR-SCOUT-03; a 250 ms transaction timeout MUST NOT replace the 240 ms AECP response bound or the 200 ms Milan ACMP timeout. | M | T |
+docs/reference/FR_NFR.md:456:Until the switch-over, test every supported placement combination.
+docs/reference/FR_NFR.md:498:| **Control** | ADP, AECP/AEM+MVU, ACMP, MAAP, MSRP/MVRP | normative limits plus T_svc in firmware | one owner per function; current shipping fabric until the firmware qualifies, then Mark II firmware only (NFR-SCOUT-02) | static generated control contexts |
+docs/overview/ARCHITECTURE.md:9:Until the switch-over, each has build-selectable placement with one owner.
+docs/overview/ARCHITECTURE.md:13:After the switch-over, no all-fabric build remains.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:6:The all-fabric build remains the shipping default at VERSION `0x0002_0060`.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:14:The [2026-10-31 decisions](#mark-ii-end-state) remove its permanent all-fabric option.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:26:- **[1. Ownership rule](#1-ownership-rule)** -- Owners per function, the end state and deletions.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:39:In the transition, both placements keep wire semantics and timing.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:106:No all-fabric build remains, so nothing is maintained twice.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:231:Until F6, both placements retain the fabric gPTP owner.
