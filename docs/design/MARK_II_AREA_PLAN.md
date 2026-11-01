@@ -250,7 +250,7 @@ Measure its reductions before any lane relies on them.
 | D10, target | [Owner, 2026-10-31 16:39](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624): below 20,000 LUTs at 32x32, whatever it takes | Replaces NFR-RES-01's 60 percent as the Mark II goal |
 | D11, processor | [Owner, 16:33](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6545457321): removed; ADP, ACMP, MAAP, SRP, AECP and saved state are firmware only | No retained-fabric option; deleted at the switch-over; supersedes D9's all-fabric option |
 | D12, shape | [Owner, 16:47](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545621753): 32x32, 16x16 logical streams, each redundant | Shared stream engines and a second port |
-| D13, gPTP | [Owner, 16:51](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545655255) and [17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): a flexPTP-based daemon; timestamps in fabric on both ports | Lever 6 taken; #665 F6; licence confirmed before adoption |
+| D13, gPTP | [Owner, 16:51](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545655255) and [17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): `flexptpd`; timestamps in fabric on both ports. [Source](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172): `kebag-logic/flexPTP`, MIT, a fork of `epagris/flexPTP`, branch `gptp` at `d116d3d` | Lever 6 taken; #665 F6; the fork serves one port per image today, so two ports are an open item |
 | D14, talker latency | [Owner, 17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): as fast as possible, ideally below 65 µs | NFR-LAT-03; shown at the 32x32 load only |
 | D15, LiteX | [Owner, 17:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545999204): removed in three stages; as low as possible | The stages above, each measured |
 | D16, lever order | [Owner, 16:40](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545540394): least risky first, each measured before the next | The lane order below |
@@ -275,7 +275,7 @@ Measurements queue serially; no heavy builds overlap.
 | 6 | Shared engines and second port | 32x32 datapath per the stream-engine design | Lane 4; #823 builder shapes | +2.75k | 65 µs taps on all talker streams; cable pulls |
 | 7 | Lever 4 | One CPU, no second hart | Lanes 1 and 6; service bounds at 32x32 | ~3.55k | Service hooks at four times the 8x8 load |
 | 8 | Lever 5 | MMCM servo in firmware | Lane 7 | ~1.0k | CRF lock and audio soak |
-| 9 | Lever 6, F6 | gPTP daemon on the core; fabric engine deleted | Licence confirmed; lane 7 | ~5.2k | Whole gPTP qualification re-run |
+| 9 | Lever 6, F6 | `flexptpd` on the core, one instance per port; fabric engine deleted | Lane 7; the fork's two-port core state | ~5.2k | Whole gPTP qualification re-run |
 | 10 | Close-out | Route at 32x32, timing, Block RAM, gate re-record | All above | No assumed saving | NFR-RES-01, NFR-LAT-03, NFR-REL-03 on the bench |
 
 Dependencies put lanes 4 and 6 before lever 4.

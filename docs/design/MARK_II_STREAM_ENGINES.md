@@ -700,5 +700,6 @@ An implementation lane must turn it into a self-checking test.
 4. **Debounce windows.**
    Today's 500 ms and 1,000 ms windows exceed it.
    #823 and F1 must restate them inside the bound.
-5. **gPTP daemon licence.**
-   Its source and licence are still unconfirmed (#665 F6).
+5. **gPTP on two ports.**
+   The adopted `flexptpd` fork keeps one global core state.
+   Redundancy needs one instance per port (#665 F6).

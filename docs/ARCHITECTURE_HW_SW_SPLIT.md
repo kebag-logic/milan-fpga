@@ -48,7 +48,7 @@ Mixed placements keep cross-function response, state and notification ordering.
 | SRP (MRP, MSRP, MVRP) | protocol processor | bare-metal core using lwSRP | Registration and admission decisions; coherent licence updates, per AVB interface (Milan v1.2 8.3.5) |
 | Boot, identity, diagnostics and saved-state orchestration | bare-metal core | bare-metal core | Generated image identity and transactional persistence; a save is durable within 0.5 s (NFR-REL-03) |
 | Framing, timestamps and ingress filtering | fabric | fabric, on both ports | Only relevant control input reaches the core; rate limits bound load |
-| gPTP protocol, servo, BMCA and peer delay | fabric gPTP plane | bare-metal core: a flexPTP-based daemon, one instance per AVB interface (#665 F6) | One time owner per AVB interface (Milan v1.2 8.3.4), atomic public state |
+| gPTP protocol, servo, BMCA and peer delay | fabric gPTP plane | bare-metal core: `flexptpd`, one instance per AVB interface (#665 F6); the adopted fork serves one port per image today | One time owner per AVB interface (Milan v1.2 8.3.4), atomic public state |
 | PHC and event-message timestamps | fabric | fabric, one timestamp unit per port | Timestamps at the measurement plane, corrected for its latency (IEEE 802.1AS-2020 8.4.3) |
 | AVTP/AAF/CRF, physical audio and media clocks | fabric | fabric: the [shared stream engines](design/MARK_II_STREAM_ENGINES.md) beside the media clock | Audio deadlines have no firmware service dependency |
 | Media counters and admission enforcement | fabric | fabric | Coherent observations and applied licences; firmware serves protocol views |
@@ -76,8 +76,12 @@ These decisions are final; this page restates them.
 
 - [The protocol processor is removed](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6545457321).
   ADP, ACMP, MAAP, SRP, AECP and saved state become firmware.
-- [gPTP moves to firmware](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658), as a flexPTP-based daemon.
-  Its source and licence are confirmed before adoption (#665 F6).
+- [gPTP moves to firmware](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545655255), as [`flexptpd`](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658).
+  Its [source](https://github.com/kebag-logic/flexPTP) is the public `kebag-logic/flexPTP` repository.
+- That repository is MIT-licensed, a fork of `epagris/flexPTP`.
+  The [adopted revision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) is branch `gptp` at `d116d3d`.
+- The fork keeps one global core state: one port per image.
+  Two ports for redundancy remain an open item (#665 F6).
 - Hardware timestamping stays in fabric, on both ports.
 - `milan_csr` stays, for information and diagnostics only.
 - `milan_dp` keeps only the crossbar and the stream endpoints.
@@ -254,7 +258,7 @@ The Mark II requirements do not upgrade those verdicts.
 
 The 2026-10-31 end state adds design obligations, none implemented here:
 
-- F6 ports the gPTP daemon; its licence is still unconfirmed.
+- F6 ports `flexptpd`; its fork serves one port per image today.
 - The stream engines and second port are design only.
 - The 32x32 saved-state format belongs to #823.
 - The three LiteX stages each need a routed measurement.
