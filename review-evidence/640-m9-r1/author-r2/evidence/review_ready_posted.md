@@ -1,0 +1,18 @@
+[A720b] REVIEW READY
+Commit: f6b3e841646384177584ce75b657fb8dead7727c (branch 640-mark2-charter on dev e5b8405d; round 2 of PR #828; local, not pushed by this lane)
+Changed (docs only, twelve round-2 commits, one per finding group, answering R757-1 and R758-1):
+- Bare-metal scope gate: the retired host-plane term replaced in the area plan.
+- NFR-RES-01: the 60 % is recorded as the target the #234 ruling kept on 2026-10-03 for this redesign to meet, now replaced by the 20,000-LUT ceiling; the resource gate holds the shipping image; no "Mark I bound".
+- REQUIREMENTS.md, FR_NFR.md and the overview: every placement, gPTP-owner and gPTP-deadline statement scoped "until the switch-over" or "until F6"; lever 5 (MMCM servo in firmware) against fabric-owned media published as an open owner decision.
+- gPTP software named flexptpd, from the public MIT fork kebag-logic/flexPTP, branch gptp at d116d3d; its one-port core state is the open redundancy item.
+- Stream engines: talker phase chosen at start by least wire time, never moved; latency re-derived over every legal base-format mix at 16 reservations per port at 48, 96 and 192 kHz with an executable shaper model; interference assumptions stated; a pin-referenced latency instrument; render buffer, engine load and ledger per rate; per-port time bases and merge rules; complete register maps with counter reset events; compaction ordered to lose no saved change, with power-cut cases; save worst case 359.75 ms.
+- Area plan: lever 6 netted of the kept timestamp return (~21.45k central); lever 2 after lever 3 stated as a departure from D16 for owner approval.
+Validation: every step of .github/workflows/docs.yml run as CI runs it, on a clean clone of this head with the jobs' submodules: wire-accountability self-test, docs-check-no-git, all docs-gates-0 steps (docs_check 0 findings over 211 pages; check_em_dash --base e5b8405d 0 over 1,426 added lines; check_baremetal_only --check 0 findings over 1,425 files and --selftest; doc style, diagrams, solution, submodule, PNG, feature-status, traceability, gPTP, NVM, source-list, ratchet, idiom, doc-path, archive, contents, shape and CI-control gates), builder leg 0 and leg 1 (16 NOT RUN by their own skip rules: migen/LiteX not installed by the workflow, one local report), CI events and act-runner contract: every rc 0. check_doc_style analyze() over the changed blocks of all 7 touched pages: 0 findings. Shaper model (lane evidence, not a gate) sha256 bfebe546c8d3df2544660b274aa5c5d857a979932c31b3bf56a4785a09bae5b1.
+Acceptance criteria (charter round): every R757-1 and R758-1 finding and residue closed, each with file:line and a verification in the lane handoff - met. Below 20,000 LUTs, 65 µs on the bench and the 0.5 s save need the implementation lanes - not yet.
+Open risks/questions:
+1. Talker latency: met by the design with one base format per port (63.431 µs worst at 48 kHz, 51.293 at 96, 32.071 at 192). Not met with mixed channel counts at 16 reservations per port: at 48 kHz a reached mix needs 92.530 µs and no 16-stream mix exceeds 95.867 µs; 96 kHz 74.826 reached, at most 93.216; 192 kHz at least 72.915 before packetizer time. Fewer reservations remain worse. Owner reading needed (65 µs was called ideal).
+2. Lever 5 against fabric-owned media (NFR-SCOUT-02/03), and lever 2 after lever 3: owner decisions.
+3. Save: 359.75 ms worst case for change sets up to 32 pages; larger bursts exceed 0.5 s; T-NVM-COMMIT-TIMEOUT and the debounce windows to be restated by #823 and #665 F1.
+4. Block RAM about 144.5 tiles estimated against 121.5 usable; area about 21.45k LUTs centrally.
+5. flexptpd fork serves one port per image; the 192 kHz engines reach 92.67 % load.
+Requirement text needs owner approval before merge.

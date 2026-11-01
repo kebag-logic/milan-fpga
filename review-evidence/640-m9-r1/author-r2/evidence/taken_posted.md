@@ -1,0 +1,6 @@
+[A720b] TAKEN
+Branch: 640-mark2-charter (round 2 on PR #828, from head dfc310fb; local, not pushed by this lane)
+Authoritative references: R757-1 and R758-1 on PR #828; this issue's 2026-10-31 body and comments; #665 and #823 bodies and 2026-10-31 comments; NFR-RES-01 history; REQUIREMENTS.md section 1; docs/overview/ARCHITECTURE.md; the cited IEEE 802.1Q-2022, IEEE 1722-2016 and Milan v1.2 clauses
+Interpreted scope: docs only. Close every finding and residue of both round-1 reviews. Clear the bare-metal scope gate. Present the 60 % NFR-RES-01 text by its public record. Scope every placement, gPTP-owner and gPTP-deadline statement in REQUIREMENTS.md, FR_NFR.md and the overview as until the switch-over or until F6. Make the talker stagger byte-balanced, assigned at connect time by wire time, and re-derive the worst case over every legal base-format mix at 16 reservations per port with an executable model. Specify a compaction order that loses no saved change without a power cut. Name flexptpd and its public source. Fix the citations, render buffer per sample rate, redundancy time domains, register maps and lane order.
+Validation plan: every step of the docs workflow as CI runs it, including the bare-metal scope gate, on the committed head; each rc recorded.
+Blockers: none
