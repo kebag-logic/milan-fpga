@@ -1,0 +1,13 @@
+ordering as specified, header read-back passes: 14831 runs, 0 lose a change; first None
+ordering as specified, header read-back intact: 22943 runs, 0 lose a change; first None
+ordering as specified, header read-back torn: 22943 runs, 0 lose a change; first None
+ordering as specified, header read-back intact_zero_fails: 23957 runs, 0 lose a change; first None
+ordering as specified, all read-back cases: 84674 runs
+reviewers' sequence: 18 cuts after the acknowledged save, 0 boot without it; first [(9, 'before', 0, ('e', 0))]
+reviewers' sequence with no_invalidate: 18 cuts after the acknowledged save, 1 boot without it; first [(8, 'before', 1, ('v0', 12))]
+mutation split: 14831 runs, 733 lose a change; first (None, None, 5, False, 'no cut')
+mutation no_replay: 13721 runs, 2704 lose a change; first (None, None, 1, False, 'no cut')
+mutation no_invalidate: 21929 runs, 1214 lose a change; first ('intact', None, None, True, (8, 'before'))
+mutation ignore_zero_rb: 22943 runs, 1214 lose a change; first ('intact_zero_fails', None, None, True, (9, 'before'))
+ALL PASS
+rc=0

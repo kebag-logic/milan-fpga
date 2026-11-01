@@ -1,0 +1,41 @@
+PASS  both clean, secondary 1.1-1.5 ms slower, conversion error +-2.744 us: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 4000, 'sec': 0, 'tu_drop': 0, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  both clean, secondary faster: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 4000, 'sec': 4000, 'tu_drop': 0, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  both clean, times 1 us past a sample boundary, secondary faster: {'align': -1, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 4000, 'sec': 4000, 'tu_drop': 0, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  1 % loss on both, times 1 us past a sample boundary: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 3908, 'sec': 48, 'tu_drop': 0, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  primary cut at packet 1500: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 1500, 'sec': 2500, 'tu_drop': 0, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  secondary cut at packet 1500: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 1500, 'sec': 0, 'tu_drop': 0, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  1 % frame loss on the faster primary, filled from the late copy: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 3957, 'sec': 43, 'tu_drop': 0, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  1 % frame loss on both networks: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 3908, 'sec': 48, 'tu_drop': 0, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  secondary tu from packet 100, skew +30 us, arrives first: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 100, 'sec': 100, 'tu_drop': 3900, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  secondary tu from packet 100, skew -30 us, arrives first: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 100, 'sec': 100, 'tu_drop': 3900, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  secondary tu from packet 100, skew +200 us, arrives first: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 100, 'sec': 100, 'tu_drop': 3900, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  secondary tu from packet 100, skew -200 us, arrives first: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 100, 'sec': 100, 'tu_drop': 3900, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  secondary tu from packet 100, skew +1 ms, arrives first: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 100, 'sec': 100, 'tu_drop': 0, 'late': 0, 'early': 3900, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  secondary tu from the first packet, skew -200 us, arrives first: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 10, 'dup': 0, 'sec': 10, 'tu_drop': 3990, 'late': 0, 'early': 0, 'rewrites': 50, 'outside': 0, 'jump_dup': 0}
+PASS  primary cut, then grandmaster change on the secondary: tu 0.25 s, skew 500 us: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 1000, 'sec': 3000, 'tu_drop': 0, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both from packet 100, secondary 1.1-1.5 ms slower: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 3991, 'sec': 9, 'tu_drop': 9, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both from packet 100, skews +5 and -5 us: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 3991, 'sec': 9, 'tu_drop': 9, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both from packet 100, skews +200 and -200 us: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 3991, 'sec': 9, 'tu_drop': 9, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  secondary tu from packet 100, skew +200 us, secondary slower: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 4000, 'sec': 0, 'tu_drop': 0, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both from packet 100 to 600: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 3991, 'sec': 9, 'tu_drop': 9, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both, both at the primary's latency, onsets coincide: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 3999, 'sec': 2001, 'tu_drop': 1, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both, both at the primary's latency, onsets 0.5 ms apart: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 3998, 'sec': 1964, 'tu_drop': 2, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both, the slower secondary's onset 0.5 ms first: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 3994, 'sec': 6, 'tu_drop': 6, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both for one packet only, packet 100: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 3999, 'sec': 1, 'tu_drop': 1, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both for packets 100 to 102, secondary faster: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 3997, 'sec': 3997, 'tu_drop': 3, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  secondary tu from 100, its sequence jumps +40 at 1000, primary clean: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 1000, 'sec': 0, 'tu_drop': 3000, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  secondary tu from 100, its sequence jumps -40 at 1000, primary clean: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 1000, 'sec': 0, 'tu_drop': 3000, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both from 100, secondary sequence jumps +40 at 1000: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 991, 'sec': 9, 'tu_drop': 3009, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both from 100, secondary sequence jumps -40 at 1000: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 990, 'sec': 9, 'tu_drop': 3010, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both from 100, faster secondary's sequence jumps +40 at 1000: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 990, 'sec': 990, 'tu_drop': 3010, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  tu on both from 100, faster secondary's sequence jumps -40 at 1000: {'align': 0, 'bad': 0, 'missing': 0, 'extra': 0, 'dup': 990, 'sec': 990, 'tu_drop': 3010, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  unpaired, tu from 100, its sequence jumps +40 at 1000: gap within the span: {'align': 0, 'bad': 0, 'missing': 84, 'extra': 0, 'dup': 0, 'sec': 0, 'tu_drop': 14, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+PASS  unpaired, tu from 100, its sequence jumps -40 at 1000: gap within the span: {'align': 0, 'bad': 0, 'missing': 84, 'extra': 0, 'dup': 0, 'sec': 0, 'tu_drop': 14, 'late': 0, 'early': 0, 'rewrites': 0, 'outside': 0, 'jump_dup': 0}
+mutations (each must FAIL at least one case):
+  exact: caught by 33 case(s), first: ['both clean, secondary 1.1-1.5 ms slower, conversion error +-2.744 us', 'both clean, secondary faster']
+  own_time: caught by 4 case(s), first: ['both clean, times 1 us past a sample boundary, secondary faster', '1 % loss on both, times 1 us past a sample boundary']
+  no_rule2: caught by 5 case(s), first: ['secondary tu from packet 100, skew +30 us, arrives first', 'secondary tu from packet 100, skew -30 us, arrives first']
+  r3_rule2: caught by 13 case(s), first: ['tu on both from packet 100, secondary 1.1-1.5 ms slower', 'tu on both from packet 100, skews +5 and -5 us']
+  no_rule4: caught by 7 case(s), first: ['secondary tu from 100, its sequence jumps -40 at 1000, primary clean', 'tu on both from 100, secondary sequence jumps +40 at 1000']
+ALL PASS
+rc=0
