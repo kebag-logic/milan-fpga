@@ -1,0 +1,79 @@
+arms pass=26 fail=42 xfail=9
+OK  pass  rc=0 found=[] want=None | decimal minutes
+OK  pass  rc=0 found=[] want=None | decimal minute word
+OK  pass  rc=0 found=[] want=None | larger number word
+OK  pass  rc=0 found=[] want=None | word starting min
+OK  pass  rc=0 found=[] want=None | tilde fence
+OK  pass  rc=0 found=[] want=None | unit-word prefix
+OK  pass  rc=0 found=[] want=None | larger number
+OK  pass  rc=0 found=[] want=None | underscores between word characters
+OK  pass  rc=0 found=[] want=None | underscores between word characters in code
+OK  pass  rc=0 found=[] want=None | content of a longer tilde fence
+OK  pass  rc=0 found=[] want=None | content of a longer backtick fence
+OK  pass  rc=0 found=[] want=None | backtick line in a tilde fence
+OK  pass  rc=0 found=[] want=None | tilde line in a backtick fence
+OK  pass  rc=0 found=[] want=None | close marker with text
+OK  pass  rc=0 found=[] want=None | close marker before a form feed
+OK  pass  rc=0 found=[] want=None | close marker indented four
+OK  pass  rc=0 found=[] want=None | tilde info string holding markers
+OK  pass  rc=0 found=[] want=None | fence inside a list item
+OK  pass  rc=0 found=[] want=None | fence on a list marker
+OK  pass  rc=0 found=[] want=None | fence on a nested list marker
+OK  pass  rc=0 found=[] want=None | tab-indented fence in a list item
+OK  pass  rc=0 found=[] want=None | blank line in a list-item fence
+OK  pass  rc=0 found=[] want=None | fence after an empty list item
+OK  pass  rc=0 found=[] want=None | fence after an HTML comment
+OK  pass  rc=0 found=[] want=None | fence after an indented comment marker
+OK  pass  rc=0 found=[] want=None | unindented line in an indented fence
+OK  fail  rc=1 found=['CEASE_MS_C'] want=CEASE_MS_C | unspaced minutes
+OK  fail  rc=1 found=['CEASE_MS_C'] want=CEASE_MS_C | number word and min
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a tilde fence
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a longer tilde fence
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a tilde close with text
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a longer backtick fence
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a backtick close with text
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after an inner info-string tilde
+OK  fail  rc=1 found=['FU_RTO_MS_C'] want=FU_RTO_MS_C | second copy after a longer tilde fence
+OK  fail  rc=1 found=['FU_RTO_MS_C'] want=FU_RTO_MS_C | second copy after an inner tilde info
+OK  fail  rc=1 found=['FU_RTO_MS_C'] want=FU_RTO_MS_C | second copy after a four-tilde block
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a close with trailing blanks
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a close indented three
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a marker indented four
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a marker tab-indented
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a two-character run
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a backtick info with a backtick
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a fence on a list marker
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a list item ended its fence
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a marker in an HTML comment
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a comment on a list marker
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy under a list marker indented four
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | copy after a list-item fence
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | underscore unit copy
+OK  fail  rc=1 found=['CEASE_MS_C'] want=CEASE_MS_C | underscore digit minutes
+OK  fail  rc=1 found=['CEASE_MS_C'] want=CEASE_MS_C | underscore word minutes
+OK  fail  rc=1 found=['FU_RTO_MS_C'] want=FU_RTO_MS_C | underscore second copy
+OK  fail  rc=1 found=['CEASE_MS_C'] want=CEASE_MS_C | underscore digit minutes opening
+OK  fail  rc=1 found=['CEASE_MS_C'] want=CEASE_MS_C | underscore word minutes opening
+OK  fail  rc=1 found=['FU_RTO_MS_C'] want=FU_RTO_MS_C | asterisk second copy
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | strong underscore
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | nested markup
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | code span
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | markup on the value alone
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | underscore on the value alone
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | code span on the value alone
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | markup on the unit alone
+OK  fail  rc=1 found=['CEASE_MS_C'] want=CEASE_MS_C | markup on digit minutes before a hyphen
+OK  fail  rc=1 found=['CEASE_MS_C'] want=CEASE_MS_C | markup on the minute word after a hyphen
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | markup inside the value
+OK  fail  rc=1 found=['CEASE_MS_C'] want=CEASE_MS_C | code span against the value
+OK  fail  rc=1 found=['SYNC_RTO_MS_C'] want=SYNC_RTO_MS_C | two spaces before the unit
+OK  xfail rc=0 found=[] want=None | decimal seconds
+OK  xfail rc=0 found=[] want=None | spelled unit
+OK  xfail rc=0 found=[] want=None | wrapped line
+OK  xfail rc=1 found=[] want=None | link on the value
+OK  xfail rc=0 found=[] want=None | HTML tag on the value
+OK  xfail rc=0 found=[] want=None | HTML entity as the space
+OK  xfail rc=0 found=[] want=None | strikethrough on the value
+OK  xfail rc=0 found=[] want=None | marker in an HTML block
+OK  xfail rc=0 found=[] want=None | fence after a lazy list line
+BAD count 0

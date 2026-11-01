@@ -1,0 +1,7 @@
+PASSES  | S1a marker plus five spaces then indented fence | '-     x\n  ```\n  y\nA 375 ms watch.\n'
+PASSES  | S1b empty item with a trailing tab | '-\t\n   ```\n\nA 375 ms watch.\n'
+PASSES  | S1c empty item with two trailing spaces | '-  \n  ```\n\nA 375 ms watch.\n'
+PASSES  | S1d ordered marker not 1 cannot interrupt a paragraph | 'Text\n2. ```\n\n   A 375 ms watch.\n'
+PASSES  | S1e paragraph under an empty item ended by a blank | '*\n\n  Text\n    ~~~\n\n   A 375 ms watch.\n'
+PASSES  | S1f form feed only line ends a list item | '- ```\n  x\n\x0c\n  A 375 ms watch.\n'
+PASSES  | lazy (recorded arm) | '- Item.\nlazy\n  ```\nA 375 ms watch.\n'

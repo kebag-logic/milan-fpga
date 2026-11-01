@@ -1,0 +1,5 @@
+-        while items and line.strip() and column < items[-1]:
++        while items and line.strip(" ") and column < items[-1]:
+-            base = max(item.end(), item.start(1) + 1)
++            blank = not line[item.end():].strip(" ")
++            base = item.start(1) + 1 if blank or len(item.group(1)) > 4 else item.end()
