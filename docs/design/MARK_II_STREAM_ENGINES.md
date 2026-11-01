@@ -904,7 +904,7 @@ An implementation lane must turn it into a self-checking test.
 1. **Talker latency with mixed formats or fewer reservations.**
    - At 16 mixed reservations, every rate exceeds 65 µs.
    - At 48 kHz a reached mix needs 92.530 µs.
-   - No 48 kHz mix exceeds 95.867 µs.
+   - No 16-stream 48 kHz mix exceeds 95.867 µs.
    - Three co-phased streams alone wait 83.012 µs for credit.
    - The owner called 65 µs ideal; the choices include these:
      - accept the derived bounds for those cases;
