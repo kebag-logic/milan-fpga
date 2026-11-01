@@ -14,9 +14,9 @@ This page changes documentation only.
 - **[Summary](#summary)** -- Target, basis, estimates and the binding Block RAM.
 - **[Target](#target)** -- Mark II ceiling, shape, timing and the shipping image.
 - **[Mark II measured basis](#mark-ii-measured-basis)** -- The 2026-10-31 route and its rows.
-- **[Mark II levers](#mark-ii-levers)** -- Owner order, 32x32 additions, about 21.2k.
+- **[Mark II levers](#mark-ii-levers)** -- Owner order, 32x32 additions, about 21.45k.
 - **[LiteX removal stages](#litex-removal-stages)** -- Three stages, each measured.
-- **[Mark II block RAM ledger](#mark-ii-block-ram-ledger)** -- An estimate over the ceiling.
+- **[Mark II Block RAM ledger](#mark-ii-block-ram-ledger)** -- An estimate over the ceiling.
 - **[Mark II decisions](#mark-ii-decisions)** -- The 2026-10-31 owner rulings.
 - **[Mark II lane sequence](#mark-ii-lane-sequence)** -- Ordered lanes with savings and evidence.
 - **[Open owner decisions](#open-owner-decisions)** -- Questions no lane may assume an answer to.
@@ -42,7 +42,7 @@ This page changes documentation only.
 - **The 32x32 shape adds** a second port and shared engines.
   That adds about 2.75k LUTs (estimate).
 - **LiteX stages 2 and 3** and small trims recover some.
-  The central estimate lands near 21.2k, above the ceiling.
+  The central estimate lands near 21.45k, above the ceiling.
 - **Block RAM binds first.** The 32x32 estimate is 144.5 tiles.
   The usable ceiling is 121.5 tiles.
 - **No fabric fallback.** The processor and fabric gPTP are deleted.
@@ -172,13 +172,14 @@ The 32x32 shape then adds and recovers these estimates:
 | Step | Central | Range | Basis (estimate) |
 |---|---:|---|---|
 | Owner levers 1 to 6 | ~20.7k | 19.1k to 22.4k | The owner's table and ranges |
+| Lever 6 keeps the timestamp return | +0.25k | +0.25k | Measured rows `u_txret` 218 and `u_txticket` 32 stay; lever 6 nets 4,944 of 5,194 |
 | Second port: MAC, filter, timestamp unit | +1.75k | +1.25k to +2.25k | TCAM 494 and timestamp units 442 placed; MAC core not yet measured |
 | Shared engines beyond today's 3,289 | +1.0k | +0.5k to +1.75k | Stagger scheduler, two shapers, merge and context arbitration |
 | LiteX stages 2 and 3 beyond levers 1 and 2 | -1.75k | -1.0k to -2.5k | Rest of the 5,119-LUT LiteX top, less replacement cores |
 | Retained tables, widths and FIFO trims (L3, L4) | -0.5k | -0.2k to -0.8k | Earlier L3 estimate; M2 measured 34 |
-| **32x32 estimate** | **~21.2k** | **17.6k to 25.2k** | Sum |
+| **32x32 estimate** | **~21.45k** | **17.8k to 25.45k** | Sum |
 
-Centrally, the image misses the ceiling by about 1.2k.
+Centrally, the image misses the ceiling by about 1.45k.
 It needs the ranges' top end or new levers.
 
 Candidate further levers, all unmeasured:
@@ -222,7 +223,7 @@ The gPTP timestamps already sit at the GMII level.
 So they carry over to the new MAC unchanged.
 Both ports stay timestamped for redundancy.
 
-## Mark II block RAM ledger
+## Mark II Block RAM ledger
 
 Today's image uses 87.5 tiles, measured above.
 The LiteX top holds 47 RAMB36 of them.
@@ -253,7 +254,7 @@ Measure its reductions before any lane relies on them.
 | D13, gPTP | [Owner, 16:51](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545655255) and [17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): `flexptpd`; timestamps in fabric on both ports. [Source](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172): `kebag-logic/flexPTP`, MIT, a fork of `epagris/flexPTP`, branch `gptp` at `d116d3d` | Lever 6 taken; #665 F6; the fork serves one port per image today, so two ports are an open item |
 | D14, talker latency | [Owner, 17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): as fast as possible, ideally below 65 µs | NFR-LAT-03; met with one base format per port, exceeded by mixed formats and fewer reservations, an open owner question |
 | D15, LiteX | [Owner, 17:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545999204): removed in three stages; as low as possible | The stages above, each measured |
-| D16, lever order | [Owner, 16:40](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545540394): least risky first, each measured before the next | The lane order below |
+| D16, lever order | [Owner, 16:40](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545540394): least risky first, each measured before the next | The lane order below, except lever 2 after lever 3: a reading for the owner to confirm ([open decision 2](#open-owner-decisions)) |
 | D17, save | [Owner, #823, 17:14](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6545924397): at most 0.5 s worst case at 32x32 | NFR-REL-03; append-only save path |
 
 ## Mark II lane sequence
@@ -284,6 +285,9 @@ The second port needs the new MAC.
 Levers 4 to 6 keep the owner's least-risky-first order.
 Each starts only after the previous routed measurement.
 
+Lane 5 takes lever 2 after lever 3's lane 3.
+That departs from D16; open decision 2 gives the reason.
+
 ## Open owner decisions
 
 These Mark II questions wait for the owner.
@@ -294,6 +298,13 @@ No lane may assume an answer.
    - [NFR-SCOUT-02](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) keeps media fabric-owned.
    - NFR-SCOUT-03 keeps audio deadlines on fabric handshakes.
    - The owner decides: amend those rows, or drop lever 5.
+2. **Lever 2 through LiteX stage 3.**
+   - D16 orders the levers 1, 2, 3.
+   - Stage 3 replaces the bus and CSR banks.
+   - Lever 2 would only slim them first.
+   - So this plan credits lever 2 through stage 3.
+   - Lever 2 then lands after lever 3.
+   - That is a proposal, pending the owner's approval.
 
 ## Mark I plan history
 
