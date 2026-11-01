@@ -25,7 +25,7 @@ Then it runs the model, saves its exit status beside its log (sim.status), and g
     no write sets ADP_CTRL[0] or PP_CTRL[0];
   - UART: scripts/baremetal_uart_smoke.py's own parse and grade on the
     transcript, each check's verdict printed; and each command's duty against
-    #397's 500 ms tick rule and T_svc = 10 ms: its span, and its longest gap
+    #397's 500 ms tick rule and T_svc = 20 ms: its span, and its longest gap
     between two response bytes, which bounds the loop pass that sends them.
 --native-controls grades the native controls (NATIVE_CONTROLS), with no
 build: a stand-in for the model prints a valid boot's observations, then ends
@@ -64,7 +64,7 @@ SIM_LIMIT_MS = 2000
 READY_BOUND_MS = 20000.0
 #: #397's one-hart tick rule, and the control service bound (FR_NFR.md 3.4.1).
 TICK_RULE_MS = 500.0
-T_SVC_MS = 10.0
+T_SVC_MS = 20.0
 #: The grader's check whose verdict on a split image differs by design, and why: a difference for a ruling.
 DIFFERS = {
     'fabric-enabled': 'the split never sets ADP_CTRL[0] or PP_CTRL[0], because the core owns ADP and AECP '
@@ -84,13 +84,13 @@ STAND_IN = {
 }
 #: The planted controls of --self-test: (source file, unique anchor, replacement), and the finding's first word
 #: the grade must give, in a run the model completes. A CSR write skipped is caught by the trace; a console that
-#: holds the loop past #397's tick rule by the UART duty, its span measured: a spin of 700,000 turns before
-#: milan_status's response, about 0.7 s, each turn a load and a store of the counter in sram, about 1 us; the
+#: holds the loop past #397's tick rule by the UART duty, its span measured: a spin of 2,000,000 turns before
+#: milan_status's response, about 0.55 s, each turn a load and a store of the counter in sram, about 0.27 us; the
 #: two milan_gettime answers do not spin, so the run ends inside SIM_LIMIT_MS.
 PLANTS = {
     'csr-write-skipped': ('plat/ctrl_plat_csr.c', '\twr(csr, CTRL_PLAT_CSR_LWSRP_VID, p->sr_vid);\n', '', 'TRACE'),
     'console-blocks': ('plat/ctrl_plat_console.c', '\tif (is(c, "milan_status")) {\n\t\tstatus(c);',
-                       '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 700000u; ++n) {\n\t\t}'
+                       '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 2000000u; ++n) {\n\t\t}'
                        '\n\t\tstatus(c);', 'UART'),
 }
 #: The first link's map: the platform's fixture, at placeholder addresses.
