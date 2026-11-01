@@ -1,0 +1,21 @@
+# P1: the R758-10-R4 text as proposed, 12 words, in the guide: the style gate must refuse
+docs/guides/gptp/MANAGER.md:8: sentence has 12 words; maximum is 10: This guide covers the fabric plane, which owns product time until F6.
+documentation style: FAIL (1 findings)
+rc=1
+# P2: the two new sentences appended to the 'Use this page' paragraph: the style gate must refuse
+docs/guides/gptp/MANAGER.md:6: paragraph has too many sentences: Use this page for delivery decisions. This guide covers the fabric plane until F6. The [split contract](../../ARCHITECTURE_HW_SW_SPLIT.
+documentation style: FAIL (1 findings)
+rc=1
+# P3: control, the exported copy unmodified
+documentation style: OK (23 current documents)
+rc=0
+# P4: rendered structure of the ieee8021q clause and the MS and AB sentences
+p: This clause splits cleanly in two now, and the split is the most important thing on the page:
+ul items: 2
+  li: Shaping is FABRIC and UNCHANGED. Tag decode, priority regeneration, th ... 
+  li: Reservation is the protocol processor's. The lwSRP applicant, registra ... has MRP-1
+p: Mark II moves reservation to firmware after the switch-over. Both placements owe the same wire behavior.
+AB sentences after the history marker:
+   The [owner kept that target on 2026-10-03].
+   All else unchanged, that needed a 10,521-LUT wrapper.
+   That meant removing 13,972 LUTs, 57 % of the wrapper.

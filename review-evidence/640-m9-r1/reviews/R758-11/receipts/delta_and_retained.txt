@@ -1,0 +1,31 @@
+# delta d63b378d27..c576fe5408
+4	4	docs/design/AREA_BUDGET.md
+3	2	docs/design/MAILBOX_SPLIT.md
+3	0	docs/guides/gptp/MANAGER.md
+4	3	docs/traceability/ieee8021q.md
+:100644 100644 10b5effb52 2fb947e457 M	docs/design/AREA_BUDGET.md
+:100644 100644 85b266d654 79d2937abc M	docs/design/MAILBOX_SPLIT.md
+:100644 100644 7eeb78aa06 2937cef315 M	docs/guides/gptp/MANAGER.md
+:100644 100644 e54f5a24b5 9cbd980bfe M	docs/traceability/ieee8021q.md
+# commit
+c576fe540838c353a1cfc9455a6b89eff2b77ffc Bound the gPTP plane at F6 on the mailbox split page, and take the last review's exact wording fixes (#640)
+# retained items at this head
+docs/design/MAILBOX_SPLIT.md:13: The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
+docs/design/MAILBOX_SPLIT.md:42: fabric keeps framing and timestamps, the media path, the timers that carry
+docs/design/MAILBOX_SPLIT.md:43: hard deadlines, and an ingress filter. It keeps the gPTP plane until F6, then
+docs/design/MAILBOX_SPLIT.md:44: firmware owns the protocol and servo. The two exchange
+docs/design/AREA_BUDGET.md:129: [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) in the [requirements](../reference/FR_NFR.md) is the accepted headroom target.
+docs/design/AREA_BUDGET.md:130: Mark II must use fewer than 20,000 LUTs of `xc7a100t` at 32x32.
+docs/design/AREA_BUDGET.md:180: That is fewer than 20,000 LUTs at 32x32, with timing met.
+docs/design/AREA_BUDGET.md:182: The next three sentences are history, against the replaced 60 percent.
+docs/guides/gptp/MANAGER.md:8: This guide covers the fabric plane until F6.
+docs/guides/gptp/MANAGER.md:9: The [split contract](../../ARCHITECTURE_HW_SW_SPLIT.md) defines that transition.
+docs/traceability/ieee8021q.md:44: Mark II moves reservation to firmware after the switch-over.
+docs/traceability/ieee8021q.md:45: Both placements owe the same wire behavior.
+docs/design/MAILBOX_SPLIT.md:56:     GM[gPTP plane:<br/>grandmaster change] --> E
+docs/design/MAILBOX_SPLIT.md:134:   grandmaster change published by the gPTP plane, a fabric timer expiry with
+REQUIREMENTS.md:36: - After F6, firmware owns the gPTP protocol and servo (#665).
+REQUIREMENTS.md:37:   The PHC and timestamps stay in fabric, on both ports.
+REQUIREMENTS.md:43: - Until F6, the fabric MUST also retain the gPTP plane.
+docs/reference/FR_NFR.md "that derivation" count: 1
+docs/findings/README.md "a tenth of the NFR-RES-01 gap" count: 1
