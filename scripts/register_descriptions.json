@@ -13,7 +13,7 @@
       "After reset, `*READY` stays low for about 513 clocks. The defaults ROM loads the shadow meanwhile.",
       "64-bit reads are not atomic on the bus. For time of day, use the snapshot latch.",
       "`VERSION` tracks the map: additive changes bump minor, breaking ones major.",
-      "All command strobes read back 0.",
+      "`W1S` command strobes read back 0.",
       "The protocol processor runs the control plane, not this block.",
       "`KL_pp_shadow` wraps it; these registers are its CSR projection.",
       "The AEM descriptor tree has no CSR here. The processor fetches it from main memory.",
@@ -2029,7 +2029,7 @@
       "fields": {
         "ADP_STATE": "**Structural zero.** Was the advertiser state.",
         "ADP_LAST_MSG": "**Structural zero.** Was the last message_type.",
-        "ADP_DISC_SEEN_CNT": "ENTITY_DISCOVERs seen, counting `i_adp_disc_seen_p`.",
+        "ADP_DISC_SEEN_CNT": "**Structural zero.** Was ENTITY_DISCOVERs seen: it counts `i_adp_disc_seen_p`, whose source is deleted.",
         "ADP_DISC_RX_CNT": "**Structural zero.** Was ENTITY_DISCOVERs accepted.",
         "ADP_SENT_CNT": "**Structural zero.** Was ADPDUs egressed."
       },

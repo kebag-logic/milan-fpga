@@ -271,7 +271,9 @@ def store_conditions(fl: Field, model: Model) -> list[str]:
     paths = [model.wording.rtl(note.partition(":")[2].strip()) for note in fl.notes if note.startswith("cond:")]
     if not paths:
         return []
-    return ["A write takes effect only when " + ", or when ".join(paths) + "."]
+    terms = [set(path.split(" and ")) for path in paths]
+    kept = [path for path, own in zip(paths, terms) if not any(other < own for other in terms)]
+    return ["A write takes effect only when " + ", or when ".join(kept) + "."]
 
 
 def source_text(reg: Register, fl: Field, model: Model) -> str:
@@ -364,7 +366,8 @@ def note_text(note: str, fl: Field, model: Model) -> str:
     if kind == "expr":
         return f"Reads `{arg}`."
     if kind == "strobe":
-        status = "" if fl.access == "W1S" else " A read returns this bit's status."
+        reads_other = any(n.startswith("reads:") for n in fl.notes)
+        status = "" if fl.access == "W1S" or reads_other else " A read returns this bit's status."
         return f"Writing 1 fires `{arg}` for one cycle.{status}"
     if kind == "w1c":
         return "Writing 1 clears this latched bit; writing 0 leaves it."
@@ -565,7 +568,8 @@ def legend() -> list[str]:
     out += table(["Code", "Meaning"], [[f"`{c}`", m] for c, m in ACCESS_LEGEND])
     out += table(["Reset code", "Meaning"],
                  [[f"`{c}`", m] for c, m in RESET_LEGEND]
-                 + [["`0`, `5h`", "The reset value in hexadecimal; `h` marks hex digits."]])
+                 + [["`0`, `5h`", "The reset value in hexadecimal; `h` marks hex digits."],
+                    ["`see table`", "The reset differs per element; the table under the fields lists it."]])
     out += ["Reserved read-only fields read as `R-0`.", "",
             "A reserved `R/W` field stores bits that drive nothing.", ""]
     return out

@@ -85,7 +85,7 @@ After reset, `*READY` stays low for about 513 clocks. The defaults ROM loads the
 
 `VERSION` tracks the map: additive changes bump minor, breaking ones major.
 
-All command strobes read back 0.
+`W1S` command strobes read back 0.
 
 The protocol processor runs the control plane, not this block.
 
@@ -228,6 +228,7 @@ A field's code reads as access, then reset value.
 |---|---|
 | `X` | This block's reset does not fix the bit: an input or an unreset flop sets it. |
 | `0`, `5h` | The reset value in hexadecimal; `h` marks hex digits. |
+| `see table` | The reset differs per element; the table under the fields lists it. |
 
 Reserved read-only fields read as `R-0`.
 
@@ -1623,7 +1624,7 @@ RTL name: `A_ADP_DIAG2`.
 |---|---|---|---|---|
 | 31:28 | `ADP_STATE` | R | X | **Structural zero.** Was the advertiser state. |
 | 27:24 | `ADP_LAST_MSG` | R | X | **Structural zero.** Was the last message_type. |
-| 23:16 | `ADP_DISC_SEEN_CNT` | R | 0 | ENTITY_DISCOVERs seen, counting `i_adp_disc_seen_p`. |
+| 23:16 | `ADP_DISC_SEEN_CNT` | R | 0 | **Structural zero.** Was ENTITY_DISCOVERs seen: it counts `i_adp_disc_seen_p`, whose source is deleted. |
 | 15:8 | `ADP_DISC_RX_CNT` | R | X | **Structural zero.** Was ENTITY_DISCOVERs accepted. |
 | 7:0 | `ADP_SENT_CNT` | R | X | **Structural zero.** Was ADPDUs egressed. |
 
@@ -3123,8 +3124,8 @@ RTL name: `A_AEMP_CTRL`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:2 | `AEMP_STAT` | R | X | **Structural zero.** The bit list is kept in the design notes. |
-| 1 | `AEMP_ABORT` | R/W1S | X | Discarded: abort. A read returns `AEMP_STAT`. Writing 1 fires `AEMP_ABORT` for one cycle. A read returns this bit's status. |
-| 0 | `AEMP_COMMIT` | R/W1S | X | Discarded: commit. A read returns `AEMP_STAT`. Writing 1 fires `AEMP_COMMIT` for one cycle. A read returns this bit's status. |
+| 1 | `AEMP_ABORT` | R/W1S | X | Discarded: abort. A read returns `AEMP_STAT`. Writing 1 fires `AEMP_ABORT` for one cycle. |
+| 0 | `AEMP_COMMIT` | R/W1S | X | Discarded: commit. A read returns `AEMP_STAT`. Writing 1 fires `AEMP_COMMIT` for one cycle. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#aemp_ctrl-offset-0x7d4).
 
@@ -3431,7 +3432,7 @@ RTL name: `A_STRMW_SID_LO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_SID_LO` | R/W | 0 | stream_id `[31:0]`. Writes stage the provisioning stream_id; listener writes also forward to the context. A talker's word is the ID it starts with, not its current one after a MAAP conflict. A write takes effect only when the selected stream exists, or when the selected stream exists and `STRM_SEL[8]` selects a listener. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_hi_r`, `stg_dmac_lo_r`, `stg_sid_hi_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. |
+| 31:0 | `STRMW_SID_LO` | R/W | 0 | stream_id `[31:0]`. Writes stage the provisioning stream_id; listener writes also forward to the context. A talker's word is the ID it starts with, not its current one after a MAAP conflict. A write takes effect only when the selected stream exists. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_hi_r`, `stg_dmac_lo_r`, `stg_sid_hi_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. |
 
 | When | A read returns |
 |---|---|
@@ -3454,7 +3455,7 @@ RTL name: `A_STRMW_SID_HI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_SID_HI` | R/W | 0 | stream_id `[63:32]`, as `STRMW_SID_LO`. A write takes effect only when the selected stream exists, or when the selected stream exists and `STRM_SEL[8]` selects a listener. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_hi_r`, `stg_dmac_lo_r`, `stg_sid_lo_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. |
+| 31:0 | `STRMW_SID_HI` | R/W | 0 | stream_id `[63:32]`, as `STRMW_SID_LO`. A write takes effect only when the selected stream exists. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_hi_r`, `stg_dmac_lo_r`, `stg_sid_lo_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. |
 
 | When | A read returns |
 |---|---|
@@ -3477,7 +3478,7 @@ RTL name: `A_STRMW_DMAC_LO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_DMAC_LO` | R/W | 0 | Stream DMAC `[31:0]`. Talker index 0: a hard alias of `AAF_DMLO`. Writes stage the provisioning DMAC. A write takes effect only when the selected stream exists, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_hi_r`, `stg_sid_hi_r`, `stg_sid_lo_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, a write also sets `tctx_wr_p_r` and loads `tctx_wr_addr_r`. |
+| 31:0 | `STRMW_DMAC_LO` | R/W | 0 | Stream DMAC `[31:0]`. Talker index 0: a hard alias of `AAF_DMLO`. Writes stage the provisioning DMAC. A write takes effect only when the selected stream exists. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_hi_r`, `stg_sid_hi_r`, `stg_sid_lo_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, a write also sets `tctx_wr_p_r` and loads `tctx_wr_addr_r`. |
 
 | When | A read returns |
 |---|---|
@@ -3501,7 +3502,7 @@ RTL name: `A_STRMW_DMAC_HI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_DMAC_HI` | R/W | 0 | DMAC `[47:32]` in `[15:0]`. Talker index 0: a hard alias of `AAF_DMHI`. A write takes effect only when the selected stream exists, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_lo_r`, `stg_sid_hi_r`, `stg_sid_lo_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, a write also sets `tctx_wr_p_r` and loads `tctx_wr_addr_r`. |
+| 31:0 | `STRMW_DMAC_HI` | R/W | 0 | DMAC `[47:32]` in `[15:0]`. Talker index 0: a hard alias of `AAF_DMHI`. A write takes effect only when the selected stream exists. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_lo_r`, `stg_sid_hi_r`, `stg_sid_lo_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, a write also sets `tctx_wr_p_r` and loads `tctx_wr_addr_r`. |
 
 | When | A read returns |
 |---|---|
@@ -3757,7 +3758,7 @@ RTL name: `A_LTAP_CTRL`.
 |---|---|---|---|---|
 | 31:2 | `LTAP_STATUS` | R | X | `[8]` tx_active, `[11:9]` tx stage awaited, `[12]` rx_active, `[15:13]` rx stage awaited. |
 | 1 | `LTAP_EN` | R/W | 1h | Measure enable, reset 1. A read returns the OR with `LTAP_STATUS`. |
-| 0 | `LTAP_CLR` | R/W1S | X | Clears all statistics. A read returns `LTAP_STATUS`. Writing 1 fires `LTAP_CLR` for one cycle. A read returns this bit's status. |
+| 0 | `LTAP_CLR` | R/W1S | X | Clears all statistics. A read returns `LTAP_STATUS`. Writing 1 fires `LTAP_CLR` for one cycle. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ltap_ctrl-offset-0x870).
 
