@@ -12,7 +12,7 @@ This page changes documentation only.
 ## Contents
 
 - **[Summary](#summary)** -- Target, basis, estimates and the binding Block RAM.
-- **[Target](#target)** -- Mark II ceiling, shape, timing and Mark I bound.
+- **[Target](#target)** -- Mark II ceiling, shape, timing and the shipping image.
 - **[Mark II measured basis](#mark-ii-measured-basis)** -- The 2026-10-31 route and its rows.
 - **[Mark II levers](#mark-ii-levers)** -- Owner order, 32x32 additions, about 21.2k.
 - **[LiteX removal stages](#litex-removal-stages)** -- Three stages, each measured.
@@ -61,10 +61,13 @@ This page changes documentation only.
 | Function | Every suite, campaign and compliance check passes; gPTP qualification passes on software |
 | Gate | The resource gate's baseline is re-recorded by the change that reaches the target |
 | Start | Right after the current release tasks: the merge train and the qualification pre-run |
-| NFR-RES-01, Mark I bound | At most 38,040 LUTs, 60 percent of 63,400, for the current all-fabric image |
+| Shipping image until Mark II | Held at its recorded figures by the resource gate (#638); no other LUT bound |
 
-The [owner retained the 60 percent target](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) for Mark I.
+The [owner kept the 60 percent target](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) on 2026-10-03.
+This redesign was to meet it; the gate held the image meanwhile.
+
 The [2026-10-31 target](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624) replaces it as the Mark II goal.
+The shipping image measures 52,008 LUTs, 82.03 percent.
 
 The [resource policy](AREA_BUDGET.md#the-resource-gate) remains unchanged.
 
