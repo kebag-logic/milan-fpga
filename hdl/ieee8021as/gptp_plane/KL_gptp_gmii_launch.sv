@@ -148,8 +148,9 @@ module KL_gptp_gmii_launch #(
     // ---- transmit domain (the MAC's eth_tx clock and its reset) ----------
     input  wire eth_clk_i,   //! the MAC transmit clock the pads launch on
     input  wire eth_rst_n,   //! synchronous active-low reset, `eth_clk_i`;
-                             //! the same reset that clears the LiteEth
-                             //! transmit side and the PHY transmit stage
+                             //! the reset that clears the LiteEth transmit
+                             //! side. `eth_rst` also clears the PHY transmit
+                             //! stage on GMII and does not reach it on MII
     //! `phy.sink`, OBSERVED ONLY
     input  wire       gmii_tvalid_i,
     input  wire       gmii_tready_i,

@@ -336,7 +336,8 @@ It may stay fixed for a boot.
 The bound still holds.
 That fixed part no longer averages out.
 
-No other link speed is qualified.
+The digital bound covers these two shapes only.
+100 Mb/s physical calibration stays open under #583.
 
 At 10 Mb/s the same octet takes 800 ns.
 This correction is wrong there.

@@ -11,8 +11,8 @@
 // padding, width conversion and gap insertion, and the PHY transmit
 // register stage. Three clocks run at the product's shape: 125 MHz at the
 // wire, 100 MHz at the MAC system side, 50 MHz at the plane; the MII build
-// (issue #829) runs the 10/100 PHY stages at 25 MHz, at both system clocks
-// that board has carried. This harness
+// (issue #829) runs the 10/100 PHY stages at 25 MHz, with the MAC system side
+// at 80 MHz and at 100 MHz. This harness
 // drives the datapath boundary, the clocks, the recovery controls and the
 // peer, and nothing else: every frame byte, every launch instant, every
 // ready and every reset response is produced by the design.

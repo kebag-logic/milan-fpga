@@ -88,8 +88,9 @@ module KL_gptp_shadow #(
     parameter int unsigned TXTS_GEN_W_P    = 4,
     parameter int unsigned TXTS_DELTA_W_P  = 8,
     //! transmit-clock period in nanoseconds at the observation point: 8 ns
-    //! is the 1 Gb/s GMII shape, 40 ns the 100 Mb/s MII shape (issue #829),
-    //! and no other link speed is qualified
+    //! is the 1 Gb/s GMII shape, 40 ns the 100 Mb/s MII shape (issue #829).
+    //! The digital bound covers these two shapes; the physical calibration at
+    //! 100 Mb/s stays open under issue #583
     parameter int unsigned ETH_TICK_NS_P   = 8,
     //! transmit clocks one octet holds at the observation point: 1 on GMII,
     //! 2 on MII. It scales the observer's expected cycle distance, 45 octets.

@@ -2090,10 +2090,10 @@ class MilanMAC(LiteXModule):
         # ordered position across a clock-domain crossing, and glue is what has
         # tied working blocks off in this file before (`i_mac_events = 0`).
         # It runs in `maceth_tx` - the MAC's own transmit-side domain, whose reset
-        # is `ResetSignal("eth_tx") | eth_rst`, the same reset that clears the
-        # LiteEth transmit side and the PHY stage. That is what makes "the
-        # observer was reset with the frames it was watching" a fact of the
-        # wiring rather than a claim.
+        # is `ResetSignal("eth_tx") | eth_rst`, the reset that clears the LiteEth
+        # transmit side. `eth_rst` also clears the PHY stage on GMII and does not
+        # reach it on MII. That is what makes "the observer was reset with the
+        # frames it was watching" a fact of the wiring rather than a claim.
         self.gptp_txrec_valid = Signal(name="gptp_txrec_valid")
         self.gptp_txrec_kind  = Signal(name="gptp_txrec_kind")
         self.gptp_txrec_oidx  = Signal(12, name="gptp_txrec_oidx")
