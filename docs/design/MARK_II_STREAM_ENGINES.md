@@ -18,7 +18,7 @@ The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md#mark-ii-end-state) sets the 
 - **[Packet-boundary stagger](#packet-boundary-stagger)** -- Phases set by wire time.
 - **[Talker latency budget](#talker-latency-budget)** -- One format per port meets it.
 - **[Listener path and render buffer](#listener-path-and-render-buffer)** -- Sized by offset, per rate.
-- **[Redundancy pairing and listener merge](#redundancy-pairing-and-listener-merge)** -- Index parity; first copy wins.
+- **[Redundancy pairing and listener merge](#redundancy-pairing-and-listener-merge)** -- Index parity, time bases, merge.
 - **[Per-port MAC, filter and timestamp units](#per-port-mac-filter-and-timestamp-units)** -- What each port adds.
 - **[Register maps](#register-maps)** -- Engine registers and both context layouts.
 - **[Block RAM ledger at 32x32](#block-ram-ledger-at-32x32)** -- An estimate 23 tiles over.
@@ -443,29 +443,54 @@ The pairing is a builder convention, not a Milan rule.
 Milan v1.2 8.3.5.1 requires distinct stream_ids.
 Both carry the same samples on separate networks.
 
-The talker builds both frames from one capture read.
-Even contexts use port 0, odd ones port 1.
+### Time domains
 
-Milan v1.2 8.3.4 gives each interface gPTP.
+Milan v1.2 8.3.4: one gPTP per interface.
 So each network has its own time.
 
+IEEE 1722-2016 4.4.4.9 bases avtp_timestamp on gPTP.
+So each copy carries its own port's time.
+
+The talker reads the capture once for both copies.
+It stamps the even copy in port 0's time.
+
+It stamps the odd copy in port 1's time.
+The conversion adds the offset between the two PHCs.
+
+The fabric latches both PHCs on one edge.
+It does so every 125 µs.
+
+The media clock follows one port's time, the reference port.
+The listener converts the other port's timestamps into it.
+
+It applies the same measured offset in reverse.
+Each context's `PORT` bit names its own time base.
+
+### The merge
+
 The listener merges each pair into one render stream.
-It converts a secondary timestamp into the render time.
+The even context keeps the last written time and tu.
 
-The conversion adds the measured offset between the two clocks.
-The fabric latches both clocks on one edge.
+IEEE 1722-2016 4.4.4.7: tu marks uncertain time.
+Milan v1.2 4.4.2.3 asks to free-wheel.
 
-The even context holds the pair's last written presentation time.
-A copy not later than that time is discarded.
+Neither clause tells a listener to drop samples.
 
-Compare in wrapping 32-bit time, like avtp_timestamp.
-IEEE 1722-2016 4.4.4.9 defines that field.
+The merge applies these rules in order:
 
-The first valid copy of each packet wins.
+1. A copy failing the stream checks is not rendered.
+2. A copy later than the last written time is rendered.
+3. A clean copy replaces the last packet's tu copy.
+4. Any other copy is a duplicate and is discarded.
+
+No rule drops the only copy of a packet.
+With both copies tu, the first copy is rendered.
+
+An unpaired stream uses rules 1 and 2 only.
 Losing one network then loses no samples.
 
-A copy from an unsynchronized network is discarded.
-IEEE 1722-2016 4.4.4.7's tu bit marks it.
+Times compare in wrapping 32-bit time, like avtp_timestamp.
+IEEE 1722-2016 4.4.4.9 defines that field.
 
 Milan v1.2 8.3.2.1.4 pairs mappings.
 Both streams of a pair map the same channels.
@@ -785,7 +810,8 @@ The [open questions](#open-questions) list it.
 | Talker latency at 32x32 | Analysis above; the executable model of IEEE 802.1Q-2022 8.6.8.2 at every rate | Mark II taps on all 32 talker streams on the bench, with one format and with mixed formats per port |
 | Phase rule | The model's starts and stops | Firmware test: phase chosen by wire time, never moved while running |
 | Stagger conformance | IEEE 1722-2016 7.5 and 7.6 inspection | Listener interoperability with the reference peer |
-| Listener merge | Simulation with one network cut mid-stream | Bench cable pull on each network, no lost samples |
+| Listener merge | Simulation with one network cut mid-stream, then a grandmaster change on the surviving network; both copies with tu set | Bench cable pull on each network, no lost samples |
+| Port time bases | Simulation: each copy's avtp_timestamp against its own port's PHC | Bench capture of both copies on the two networks |
 | Block RAM ledger | Estimate above | Routed image at 32x32 with measured firmware |
 | Save bound | Analysis above at datasheet maxima | Host flash model at maxima; bench power cuts |
 
