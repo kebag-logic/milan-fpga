@@ -47,7 +47,7 @@ from qspi_owner_transition import aem_image_binding, bitstream_binding
 
 from migen import (ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal,
                    Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue,
-                   NextState, Memory, Module, Record, READ_FIRST)
+                   NextState, Memory, Module, Record, ResetInserter, READ_FIRST)
 from migen.genlib import fifo as migen_fifo
 from migen.genlib.cdc import MultiReg
 from migen.genlib.record import layout_len
@@ -64,7 +64,8 @@ from litex.soc.interconnect.csr import CSRStorage, CSRStatus, CSRField
 from litex.gen.genlib.cdc import BusSynchronizer
 from litex.soc.integration.soc_core import SoCCore
 from litex.soc.integration.soc import SoCRegion
-from clock_constraints import add_eth_constraints, add_quasi_static_constraints, check_implementation_log
+from clock_constraints import (add_eth_constraints, add_quasi_static_constraints,
+                               add_servo_reset_constraints, check_implementation_log)
 from litex.soc.integration.builder import Builder, builder_args, builder_argdict
 
 # THIS FILE'S TWO ROOTS, as `Path`s, derived once. Every path below is a
@@ -275,6 +276,9 @@ class _CRG(LiteXModule):
             # must BE the requested one, never merely "within 1 %".
             pll.create_clkout(self.cd_milan, milan_clk_freq, margin=0)
             self.eth_bounded_clocks.append(pll.clkouts[pll.nclkouts - 1].clk)
+            # The PLL output, not its buffered alias, as for Ethernet: the
+            # #817 servo reset hook resolves its clock after synthesis.
+            self.milan_pll_clk = pll.clkouts[pll.nclkouts - 1].clk
             platform.add_false_path_constraints(self.cd_sys.clk, self.cd_milan.clk)
 
             # CLEAN audio clock (07-18): the CS4344 needs a ~ps-jitter MCLK -
@@ -590,6 +594,9 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee8021q/filtering/tcam.sv", "hdl/ieee8021q/filtering/rx_mac_filter.sv",
     "hdl/common/tx_ifg_gasket.sv", "hdl/ieee1722/aaf/KL_pcm_lpf.sv",
     "hdl/common/KL_link_guard.sv",
+    # the end-station reset on an AECP REBOOT (#787): the datapath drives
+    # the PHY hold and the ICAPE2 port MilanMAC instantiates
+    "hdl/milan/KL_reboot_ctrl.sv",
     # ADP TX arbitration survives the scenario-B substitution: the advertiser
     # itself is the processor's KL_adp_engine now, but the two-source TX merge
     # in front of the MAC is still this module.
@@ -874,8 +881,10 @@ def add_milan_datapath(host: Module, platform: object,
         # BOTH ties with the live KL_mac_rmon_events vector + mask.
         i_i_mac_speed = 0b10, i_i_link_up = 1, i_i_full_duplex = 1, i_i_mac_events = 0,
         i_i_mac_events_cap = 0,
-        # no PHY in the stub: static toggles keep the link guard unarmed/inert
+        # no PHY in the stub: static toggles keep the link guard unarmed/inert,
+        # and a REBOOT's egress wait runs to its bound (#787)
         i_i_ethrx_tgl = 0, i_i_ethtx_tgl = 0, i_i_ethact_tgl = 0,
+        i_i_ethtxend_tgl = 0,
         # No MAC, so no launch observer: the plane receives no record, keeps
         # every ledger entry it allocates, delivers no timestamp and says so
         # through its counters. A tie that MANUFACTURED records would be the
@@ -1403,6 +1412,50 @@ class _AxisDP:
 #: the same number in one place.
 _AXIS_CDC_DEPTH = 16
 
+#: MilanMAC's transmit buffering, named because an AECP REBOOT's egress bound
+#: is derived from the same numbers the FIFOs are built with (#787). The
+#: store-and-forward packet FIFO's payload beats and frame slots:
+_MAC_TX_SF_PAYLOAD_DEPTH = 512
+_MAC_TX_SF_PARAM_DEPTH = 8
+#: LiteEthMACCore's own transmit crossing, in beats of the core width (the
+#: library default, passed so the bound and the build read one number)
+_MAC_CORE_TX_CDC_DEPTH = 32
+#: the registers between that crossing and the PHY that can hold a beat: the
+#: width converter's word and the core's pipeline stages
+_MAC_CORE_TX_STAGE_BEATS = 2
+#: octets of line time a frame takes beyond the bytes the MAC buffers:
+#: padding to minFrameSize less its FCS, the FCS, the preamble and start
+#: delimiter, and interPacketGap (IEEE 802.3-2022 3.2.1, 3.2.2, Table 4-2)
+_ETH_FRAME_OVERHEAD_OCTETS = 60 + 4 + 8 + 12
+#: one maximum frame already on the line: maxEnvelopeFrameSize, 2,000
+#: octets, with its preamble, start delimiter and gap (Table 4-2)
+_ETH_MAX_FRAME_LINE_OCTETS = 2000 + 8 + 12
+#: the width of MilanMAC's datapath-facing stream, in bits
+_MAC_DATA_WIDTH = 64
+#: each board's PHY model, and each model's slowest line rate in Mb/s:
+#: LiteEthPHYMII runs 10 and 100 Mb/s, LiteEthPHYGMII 1 Gb/s only.
+#: sw/builder/endstation_builder.py evaluates these and
+#: _mac_tx_egress_octets out of this file to state the same parameters
+_BOARD_PHY_MODEL = {"ax7101": "gmii", "arty": "mii"}
+_PHY_MODEL_MIN_MBPS = {"gmii": 1000, "mii": 10}
+
+
+def _mac_tx_egress_octets(nb, crossed):
+    """The most octets of line time MilanMAC's transmit side can still owe
+    when an AECP REBOOT's egress wait starts (#787): every beat its buffers
+    can hold, the framing of every frame those beats can belong to, and one
+    maximum frame already being sent. `nb` is the bytes per beat; `crossed`
+    is whether the datapath clock differs from sys, so `mac_tx_cdc` exists.
+    Each `buffered` FIFO keeps one more beat in its output register. Any beat
+    outside the store-and-forward FIFO may end a frame of its own; that FIFO
+    holds its frame slots, one in its output register and one arriving."""
+    cdc_beats = _AXIS_CDC_DEPTH + 1 if crossed else 0
+    sf_beats = _MAC_TX_SF_PAYLOAD_DEPTH + 1
+    core_beats = _MAC_CORE_TX_CDC_DEPTH + _MAC_CORE_TX_STAGE_BEATS
+    frames = cdc_beats + _MAC_TX_SF_PARAM_DEPTH + 2 + core_beats
+    return ((cdc_beats + sf_beats + core_beats) * nb
+            + frames * _ETH_FRAME_OVERHEAD_OCTETS + _ETH_MAX_FRAME_LINE_OCTETS)
+
 #: Bits `stream.AsyncFIFO` stores above a record's payload and params: its
 #: `first` and `last` flags, in that order.
 _FIFO_FRAMING_BITS = 2
@@ -1542,8 +1595,9 @@ class MilanMAC(LiteXModule):
     the Milan datapath owns *all* packet processing (classify/CBS/PTP/filter/ADP) and
     the MAC core just does L1/framing.
 
-    `dp_ports` is the dict of `milan_datapath` Instance ports this MAC drives  -  pass
-    it as `MilanNIC(..., board_ports=mac.dp_ports)`.
+    `dp_ports` is the dict of `milan_datapath` Instance ports this MAC drives, with
+    the two parameters by which it states its transmit side  -  pass it as
+    `MilanNIC(..., board_ports=mac.dp_ports)`.
 
     NOTE (board-gated): the exact `last_be`↔`tkeep` byte-enable mapping and the
     link/speed status (MDIO) are wired to sensible values for elaboration; they are
@@ -1701,6 +1755,15 @@ class MilanMAC(LiteXModule):
         self.sync.eth_tx += self.ethtx_tgl.eq(~self.ethtx_tgl)
         self.sync.eth_rx += If(self.phy.source.valid & self.phy.source.last,
                                self.ethact_tgl.eq(~self.ethact_tgl))
+        # One flip per frame the MAC hands its PHY, on the frame's last octet
+        # at `phy.sink` - the stream the PHY's transmit register stage
+        # consumes, the seam KL_gptp_gmii_launch observes. An AECP REBOOT's
+        # PHY hold waits until every frame the datapath gave this MAC has
+        # come out here (#787). Reset-less like the toggles above: a reset
+        # that flipped it back would count a frame that never left.
+        self.ethtxend_tgl = Signal(reset_less=True)
+        self.sync.eth_tx += If(self.phy.sink.valid & self.phy.sink.ready & self.phy.sink.last,
+                               self.ethtxend_tgl.eq(~self.ethtxend_tgl))
         # Sequenced eth-side CDC reset (gaps 5 RTL fix, 2026-07-22): the guard's
         # `eth_rst` re-initializes the MAC core's ETH-side CDC halves in hardware.
         # The MAC's eth domains are derived copies (maceth_tx/maceth_rx) whose reset
@@ -1732,7 +1795,8 @@ class MilanMAC(LiteXModule):
                                          "eth_tx": "maceth_tx",
                                          "eth_rx": "maceth_rx"})(
                         LiteEthMACCore(phy=self.phy, dw=data_width,
-                                       with_preamble_crc=True, with_padding=True))
+                                       with_preamble_crc=True, with_padding=True,
+                                       tx_cdc_depth=_MAC_CORE_TX_CDC_DEPTH))
         # Store-and-forward TX packet FIFO (HW-root-caused 2026-07-04): the bare MACCore is
         # CUT-THROUGH and GMII has no mid-frame flow control (`tx_en = sink.valid` cycle by
         # cycle), while a fabric source may pause mid-frame -> a single `valid` bubble
@@ -1750,7 +1814,8 @@ class MilanMAC(LiteXModule):
                                     # ADDR[9] pointer cone on the AX critical
                                     # path (AX31/32: storage_32 CLKARDCLK->
                                     # ADDRARDADDR[9] -0.25 ns, 8 seeds missed)
-                                    payload_depth=512, param_depth=8,
+                                    payload_depth=_MAC_TX_SF_PAYLOAD_DEPTH,
+                                    param_depth=_MAC_TX_SF_PARAM_DEPTH,
                                     # buffered => migen SyncFIFOBuffered, whose
                                     # read port is SYNCHRONOUS. The default
                                     # fwft SyncFIFO reads the storage
@@ -2047,6 +2112,33 @@ class MilanMAC(LiteXModule):
             o_dbg_overrun_o = self.gptp_txobs_ovr,
         )
 
+        # THE END-STATION RESET ON AN AECP REBOOT (#787,
+        # docs/design/REBOOT_RESET.md). The datapath's KL_reboot_ctrl owns the
+        # sequence; this is only its attachments: the frame-end toggle above
+        # and this MAC's statement of its transmit side (both in dp_ports),
+        # the PHY hold and the ICAPE2. The PHY hold sets the
+        # LiteEth PHY reset itself (the `milan_mac_phy_crg_reset` CSR storage
+        # that drives the PHY's reset pin), so the PHY is held in reset and the
+        # link drops as after a power cut. It is a level that only rises, and a
+        # CPU write in the same cycle can clear it for that one cycle only. The
+        # ICAPE2 takes the IPROG sequence that reloads the configuration from
+        # flash, clocked by the datapath clock it is generated in (at most
+        # 100 MHz) and always writing.
+        self.reboot_phy_hold = Signal()
+        self.icap_csib       = Signal()
+        self.icap_i          = Signal(32)
+        reboot_phy_hold_sys  = Signal()
+        self.specials += MultiReg(self.reboot_phy_hold, reboot_phy_hold_sys, odomain="sys")
+        self.sync += If(reboot_phy_hold_sys, self.phy.crg._reset.storage.eq(1))
+        self.specials += Instance("ICAPE2",
+            p_ICAP_WIDTH = "X32",
+            i_CLK   = ClockSignal(milan_cd),
+            i_CSIB  = self.icap_csib,
+            i_RDWRB = 0,
+            i_I     = self.icap_i,
+            o_O     = Signal(32),
+        )
+
         self.dp_ports = dict(
             o_o_mac_reinit      = self.reinit,
             o_o_eth_rst         = self.eth_rst,
@@ -2068,6 +2160,14 @@ class MilanMAC(LiteXModule):
             # the LiteEth phy_crg_reset chain (v2); v1 guards the milan-csr
             # levers inside the datapath; the CSR remains the control boundary
             o_o_eth_guard       = self.eth_guard,
+            o_o_reboot_phy_hold = self.reboot_phy_hold,
+            o_o_icap_csib       = self.icap_csib,
+            o_o_icap_i          = self.icap_i,
+            i_i_ethtxend_tgl    = self.ethtxend_tgl,
+            # The two parameters by which this MAC states its transmit side
+            # (#787); Instance reads the p_ prefix.
+            p_REBOOT_MAC_TX_OCTETS_P = _mac_tx_egress_octets(nb, milan_cd != "sys"),
+            p_REBOOT_MAC_MIN_MBPS_P  = _PHY_MODEL_MIN_MBPS[phy_model],
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
             i_m_axis_mac_tx_tready = tx_dp.dp.ready,
@@ -2350,7 +2450,8 @@ def cross_cpu_memory_ports(cpu: object, cd_from: str, cd_to: str) -> None:
     this wraps the CPU's own method, lets it build its `cd_from` port, and
     replaces each entry with a `cd_to` port fed through LiteX's
     `AXIClockDomainCrossing` (one async FIFO per AXI channel, both
-    directions). Port shape - data width, address width, id width, AXI
+    directions) and then `AXIReadyStage` (#814). Port shape - data width,
+    address width, id width, AXI
     version - is preserved, so LiteX's width conversion and `LiteDRAMAXI2Native`
     see what they saw before. A CPU without `cpu_clk` is left alone: when
     `milan_cd == "sys"` there is nothing to cross, and the simulation SoCs
@@ -2378,18 +2479,150 @@ def cross_cpu_memory_ports(cpu: object, cd_from: str, cd_to: str) -> None:
         """The CPU's own method, then the crossing behind each port it made."""
         original(address_width, data_width)
         for index, cpu_port in enumerate(cpu.memory_buses):
-            sys_port = axi.AXIInterface(
+            crossed, sys_port = (axi.AXIInterface(
                 data_width    = cpu_port.data_width,
                 address_width = cpu_port.address_width,
                 id_width      = cpu_port.id_width,
                 version       = cpu_port.version,
-                clock_domain  = cd_to)
+                clock_domain  = cd_to) for _ in range(2))
             setattr(cpu.submodules, f"memory_port_cdc{index}",
-                    axi.AXIClockDomainCrossing(cpu_port, sys_port,
+                    axi.AXIClockDomainCrossing(cpu_port, crossed,
                                                cd_from=cd_from, cd_to=cd_to))
+            setattr(cpu.submodules, f"memory_port_stage{index}", AXIReadyStage(crossed, sys_port))
             cpu.memory_buses[index] = sys_port
 
     cpu.add_memory_buses = add_memory_buses
+
+
+class AXIReadyStage(Module):
+    """Registered READY on an AXI port's request channels (#814).
+
+    It sits between the CPU memory port's crossing and the port LiteDRAM
+    connects. LiteDRAM's AXI-to-native converter arbitrates its read and write
+    commands for one native port, and its ready is the crossing FIFOs' read
+    enable. So LiteDRAM flip-flops (the burst-to-beat counters, the write
+    buffer level, the bank machines' FIFO levels) reached the FIFOs' LUTRAM
+    read addresses through logic alone (13 to 14 levels, about 80 % routing).
+    That path set the route WNS at two of the recipe's three placement
+    directives on dev 1e80128f, always into the aw or ar FIFO. A LiteX
+    `PipeReady` on aw and ar ends it at a flip-flop: the FIFO's read enable
+    becomes the pipe's registered "empty". The payload still passes in the
+    same cycle and a held beat goes out on the next ready, so the stage adds
+    no cycle, and the AXI handshake keeps its order and its valid-until-ready
+    rule. The w channel passes through: its FIFO's read register had more
+    than 4.1 ns of slack in all three routes, and a 293-bit pipe would cost
+    about 290 flip-flops and multiplexers. The response channels b and r pass
+    through.
+    """
+
+    def __init__(self, master: axi.AXIInterface, slave: axi.AXIInterface) -> None:
+        """The stage between `master` (the crossing's output) and `slave` (LiteDRAM's side)."""
+        for name in ("aw", "ar"):
+            pipe = stream.PipeReady(getattr(master, name).description)
+            setattr(self.submodules, f"{name}_pipe", pipe)
+            self.comb += [getattr(master, name).connect(pipe.sink),
+                          pipe.source.connect(getattr(slave, name))]
+        self.comb += master.w.connect(slave.w)
+        for name in ("b", "r"):
+            self.comb += getattr(slave, name).connect(getattr(master, name))
+
+
+class RegisteredRefresher(Module):
+    """LiteDRAM's own `Refresher`, its request to the controller registered (#814).
+
+    LiteDRAM's refresh FSM drives `cmd.valid` and `cmd.last` from logic, and in
+    DO-REFRESH `cmd.valid` reads the ZQCS timer's compare. The controller gives
+    `cmd.valid` to every bank machine as `refresh_req`, so that timer reached
+    each bank machine's command FIFO through the multiplexer's grant (14 to 16
+    levels, 73 % routing). Registering `valid` and `last` ends the path at a
+    flip-flop. The command fields already leave LiteDRAM's executers from
+    flip-flops and `ready` passes back unchanged. So the controller's grant,
+    and each refresh sequence after it, comes one cycle later.
+
+    LiteDRAM starts a ZQCS only when its ZQCS timer's one-cycle pulse lands on
+    the cycle the refresh sequence ends. That timer runs from reset and
+    re-phases when a ZQCS ends; the register does not delay it. Left alone,
+    the pulse would meet the delayed sequence end one cycle early. At the
+    board's 100 MHz on its DDR3, tREFI is 782 cycles and the ZQCS period
+    10^8, with gcd 2, so an idle controller would never issue ZQCS again
+    (LiteDRAM's own refresher issues its first at 76 s). So the ZQCS timer
+    leaves reset one cycle after the rest. Its later re-phases follow the
+    delayed ZQCS end on their own. On an idle controller every DFI command,
+    precharge-all, REFRESH and ZQCS, is LiteDRAM's own exactly one cycle later,
+    with its own tRP, tRFC and tZQCS spacing. Under traffic the grant waits
+    on the bank machines in both, so whether a ZQCS coincides depends on the
+    traffic in both.
+    """
+
+    def __init__(self, settings: object, clk_freq: float, zqcs_freq: float = 1e0, postponing: int = 1) -> None:
+        """LiteDRAM's `Refresher(settings, clk_freq, zqcs_freq, postponing)` behind the registers."""
+        from litedram.core.refresher import Refresher
+        self.submodules.refresher = refresher = Refresher(settings, clk_freq, zqcs_freq=zqcs_freq,
+                                                          postponing=postponing)
+        self.cmd = cmd = stream.Endpoint(refresher.cmd.description)
+        self.sync += [cmd.valid.eq(refresher.cmd.valid), cmd.last.eq(refresher.cmd.last)]
+        self.comb += [refresher.cmd.connect(cmd, omit={"valid", "last", "ready"}),
+                      refresher.cmd.ready.eq(cmd.ready)]
+        if hasattr(refresher, "zqcs_timer"):    # LiteDRAM builds it only when the module has tZQCS
+            started = Signal()
+            self.sync += started.eq(1)
+            self.comb += ResetInserter()(refresher.zqcs_timer).reset.eq(~started)
+
+
+def add_staged_sdram(soc: SoCCore, name: str, **kwargs: object) -> None:
+    """LiteX's `add_sdram(name, **kwargs)` with the #814 `RegisteredRefresher`.
+
+    LiteDRAM's controller builds its refresher from `ControllerSettings.refresh_cls`.
+    Every other controller setting keeps LiteDRAM's default, as before. A
+    function so `test_soc_timing_cuts.py` builds the controller the SoC builds.
+    """
+    from litedram.core.controller import ControllerSettings
+    soc.add_sdram(name, controller_settings=ControllerSettings(refresh_cls=RegisteredRefresher), **kwargs)
+
+
+class SPIPHYStage(Module):
+    """Registered streams and chip select between LiteSPI's core and its PHY (#814).
+
+    The flash read path ran from the AXI-Lite-to-Wishbone bridge state through
+    the decoder, the origin offset, LiteSPI's burst compare and its mmap FSM,
+    then through the chip select and the command stream into the PHY's
+    clock-generator counter (15 to 19 levels). It set the WNS of the #806 route
+    and of earlier records. A registered Wishbone stage in front of the core
+    left 17 of those levels: most of the path is the mmap FSM and the PHY. So
+    the boundary sits between them. The core-to-PHY command stream and the
+    PHY-to-core data stream each pass a LiteX `stream.Buffer` (registered valid,
+    payload and ready), and the chip select passes a flip-flop. The PHY sees the
+    chip select and the command one cycle later, both together, so a transfer
+    keeps its place inside the chip select. Each transfer costs one more bus
+    cycle each way: two a word in a burst, eight a new burst (command,
+    address, dummy and data).
+    """
+
+    def __init__(self, phy: object) -> None:
+        """The stage in front of `phy`; LiteSPI connects to `sink`, `source` and `cs` here."""
+        self.phy_sink, self.phy_source, self.phy_cs = phy.sink, phy.source, phy.cs
+        self.sink = stream.Endpoint(phy.sink.description)
+        self.source = stream.Endpoint(phy.source.description)
+        self.cs = Signal.like(phy.cs)
+        self.submodules.tx = tx = stream.Buffer(phy.sink.description, pipe_valid=True, pipe_ready=True)
+        self.submodules.rx = rx = stream.Buffer(phy.source.description, pipe_valid=True, pipe_ready=True)
+        self.comb += [self.sink.connect(tx.sink), tx.source.connect(phy.sink),
+                      phy.source.connect(rx.sink), rx.source.connect(self.source)]
+        self.sync += phy.cs.eq(self.cs)
+
+
+def stage_spi_phy(phy: object) -> object:
+    """Put an `SPIPHYStage` in front of `phy` and hand LiteSPI the stage's faces.
+
+    LiteSPI reads only `phy.sink`, `phy.source` and `phy.cs` (and `flash`,
+    `dummy_bits`), so those three move to the stage and the PHY keeps its
+    own, behind it. The stage becomes the PHY's submodule `stage`, so the
+    PHY's CSR names are unchanged.
+    """
+    stage = SPIPHYStage(phy)
+    phy.submodules.stage = stage
+    phy.sink, phy.source, phy.cs = stage.sink, stage.source, stage.cs
+    return phy
 
 
 def pp_mem_gate(m: Module, dfi_sel: Signal) -> Signal:
@@ -2681,8 +2914,9 @@ class CtrlMailbox(LiteXModule):
     an empty, quiet mailbox, never a wrong one; the tap that feeds it comes
     with the protocol lanes that need it (#665 F2 to F5). The publication
     block's outputs (contract 2.2, the class-D state the firmware owner writes
-    for the datapath) are left unread here too: only the split placement's
-    datapath reads them (#665, comment 6088423771). So are the face block's
+    for the datapath, and from 2.3 each source's current stream_id, #799) are
+    left unread here too: only the split placement's datapath reads them (#665,
+    comment 6088423771). So are the face block's
     (contract 2.3: the settings, the four request and answer windows and the
     face events; #665): its outputs are named and unread,
     and the datapath's answers, acknowledgements and events are held idle, so
@@ -2707,7 +2941,8 @@ class CtrlMailbox(LiteXModule):
         if_w = max(1, (contract.interfaces - 1).bit_length())
         ch_w = max(1, (len(contract.channels) - 1).bit_length())
         # the publication block's port widths: per interface, each field's
-        # width, a bit per source or sink, and 64 bits per sink's stream_id
+        # width, a bit per source or sink, and 64 bits per source's and per
+        # sink's stream_id
         n_if = contract.interfaces
         pub_w = {(r.name, f.name): f.width for r in contract.pub_registers for f in r.fields}
         req, we, ack, irq = Signal(), Signal(), Signal(), Signal()
@@ -2737,6 +2972,7 @@ class CtrlMailbox(LiteXModule):
             o_pub_dom_prio_o=Signal(n_if * pub_w[("SR_DOMAIN", "PRIORITY")]),
             o_pub_dom_adopted_o=Signal(n_if * pub_w[("SR_DOMAIN", "ADOPTED")]),
             o_pub_talker_decl_o=Signal(n_if * contract.pub_sources),
+            o_pub_src_sid_o=Signal(n_if * contract.pub_sources * 64),
             o_pub_bound_o=Signal(n_if * contract.pub_sinks),
             o_pub_sid_valid_o=Signal(n_if * contract.pub_sinks),
             o_pub_started_o=Signal(n_if * contract.pub_sinks),
@@ -3090,7 +3326,7 @@ class MilanSoC(SoCCore):
                 sys_clk_freq   = sys_clk_freq,
                 iodelay_clk_freq = 200e6)
             dram_module = (MT41K128M16 if board == "arty" else MT41J256M16)
-            self.add_sdram("sdram",
+            add_staged_sdram(self, "sdram",
                 phy    = self.ddrphy,
                 module = dram_module(sys_clk_freq, "1:4"),
                 # The product profile is cacheless end to end.
@@ -3141,10 +3377,10 @@ class MilanSoC(SoCCore):
             milan_cd = "milan" if milan_clk_freq else "sys"
             dp_ports, i2s_pads = _board_audio_ports(platform)
             if with_mac:
-                self.milan_mac = MilanMAC(platform, data_width=64, milan_cd=milan_cd,
+                self.milan_mac = MilanMAC(platform, data_width=_MAC_DATA_WIDTH, milan_cd=milan_cd,
                                           gtx_tx_invert=gtx_tx_invert,
                                           phy_index=eth_phy_index,
-                                          phy_model=("mii" if board == "arty" else "gmii"),
+                                          phy_model=_BOARD_PHY_MODEL[board],
                                           rgmii_tx_delay=rgmii_tx_delay,
                                           rgmii_rx_delay=rgmii_rx_delay)
                 if board == "ax7101":
@@ -3169,6 +3405,10 @@ class MilanSoC(SoCCore):
                     i_i_mmcm_ps_done   = self.crg.audio_ps_done,
                 )
                 dp_ports = dict(dp_ports or {}, **mmcm_ports)
+                # #817: the servo synchronizes the milan reset into this PS
+                # clock, a related PLL output; a pruned servo has no crossing.
+                if (optional_blocks or {}).get("media_clock_servo", True):
+                    add_servo_reset_constraints(platform, self.crg)
             # ---- item-4 TDM MASTER: the header, and the clock that drives it ----
             # THE WHOLE POINT OF THE MASTER ROLE. A SLAVE build leaves
             # i_tdm_bclk_i/i_tdm_fsync_i at 0 (see add_milan_datapath), so its
@@ -3607,6 +3847,28 @@ class MilanSoC(SoCCore):
         # off, so the default build is untouched; see CtrlMailbox).
         if ctrl_mailbox:
             add_ctrl_mailbox(self, platform, sys_clk_freq)
+
+    def add_spi_flash(self, phy: object = None, **kwargs: object) -> None:
+        """LiteX's `add_spi_flash(**kwargs)`, with the #814 `SPIPHYStage` in front of the PHY.
+
+        Without `phy`, it builds the PHY LiteX would build from the same
+        arguments: the same divisor, pads and `LiteSPIPHY`. A caller's own PHY
+        (a simulation's device model) is staged as well, so every SoC built
+        from this class carries the stage.
+        """
+        if phy is None:
+            import math
+            from litespi.phy.generic import LiteSPIPHY
+            named = {"name": "spiflash", "mode": "4x", "clk_freq": 20e6, "module": None, "rate": "1:1",
+                     "number": None, "software_debug": False}
+            arg = {key: kwargs.get(key, default) for key, default in named.items()}
+            divisor = math.ceil(self.sys_clk_freq / arg["clk_freq"])
+            divisor += divisor % 2 if arg["rate"] == "1:1" else 0
+            pads = self.platform.request(arg["name"] if arg["mode"] == "1x" else arg["name"] + arg["mode"],
+                                         number=arg["number"])
+            phy = LiteSPIPHY(pads, arg["module"], device=self.platform.device, default_divisor=divisor,
+                             rate=arg["rate"], **{key: value for key, value in kwargs.items() if key not in named})
+        return SoCCore.add_spi_flash(self, phy=stage_spi_phy(phy), **kwargs)
 
     def _add_flashboot_constants(self, manifest_name):
         """Emit the product flash constants and deployment manifest."""

@@ -89,7 +89,7 @@ Logical aliases do not introduce another oscillator:
 | `maceth_rx`, `maceth_tx` | `eth_rx`, `eth_tx` respectively | PHY-domain resets extended by `eth_rst` |
 | `clk_audio_i` | `audio` | RTL audio blocks receive `axis_resetn`; see reset caveat |
 | `clk_tdm_i` | `audio` for TDM8; `audio_tdm` for TDM16/32 | TDM master synchronizes its incoming reset locally |
-| `i_ps_clk` | `idelay` here; `sys` without DDR/Ethernet | Servo synchronizes its incoming reset locally |
+| `i_ps_clk` | `idelay` here; `sys` without DDR/Ethernet | Servo synchronizes its incoming reset locally, through two `ASYNC_REG` stages |
 
 Without a selected Milan clock, `milan_cd` becomes `sys`.
 The explicit Milan stream and AXI-Lite crossings then disappear.
@@ -163,6 +163,7 @@ Equal-frequency domains can still have independent reset lifetimes.
 | `eth_rx`, `eth_tx` | PHY initialization/software reset, or guard `eth_rst` | PHY wrapper; asynchronous assertion, local synchronous release |
 | `maceth_rx`, `maceth_tx` | Corresponding Ethernet reset OR `eth_rst` | MAC shadow-domain reset synchronizers |
 | `macsys`, `macdp` | Corresponding system/Milan reset OR `reinit` | MAC shadow-domain reset synchronizers |
+| Physical PHY reset on an AECP REBOOT | `o_reboot_phy_hold` from `KL_reboot_ctrl` (#787) | Sets the `milan_mac_phy_crg_reset` storage until the configuration reload |
 
 The audio-domain reset signals are not automatically RTL resets.
 `add_milan_datapath()` passes audio clocks, not `ResetSignal("audio")`.
@@ -206,6 +207,7 @@ Those are the 100 MHz figures; [#374](https://github.com/kebag-logic/milan-fpga/
 - Resetting those observers through the guard creates a deadlock.
 - Guard `eth_rst` does not reset the physical PHY chip.
 - Physical PHY reset remains a separate initialization/software action.
+- An AECP REBOOT also holds the PHY in reset (#787).
 
 See [`KL_link_guard`](../../hdl/common/KL_link_guard.sv) and
 the [reset timing diagram](../diagrams/wd_linkguard_reset.svg).
@@ -229,11 +231,15 @@ Conditional paths exist only when their features are elaborated.
 | CSR IRQ | none | `o_irq_csr` is left unconnected in `add_milan_datapath()`; firmware polls, and no CPU event-manager ABI exists |
 | MAC event pulses | `macsys` → Milan | `KL_mac_rmon_events`, using `cdc_pulse` |
 | Ethernet liveness/activity toggles | `eth_rx`/`eth_tx` → Milan | Reset-less source toggles; synchronization inside `KL_link_guard` |
+| Frame-end toggle for an AECP REBOOT | `eth_tx` → Milan | `ethtxend_tgl`, reset-less, flips on each frame's last octet at `phy.sink`; three-flop synchronization and edge detect inside `KL_reboot_ctrl` (#787) |
+| PHY hold on an AECP REBOOT | Milan → `sys` | Migen `MultiReg` from `o_reboot_phy_hold`, a level that only rises (#787) |
+| ICAPE2 configuration port | none | `KL_reboot_ctrl` drives it in `axis_clk`; `ICAPE2` takes the same clock |
 | PHC commands and snapshots | `axis_clk` ↔ `gtx_clk` | `ptp_csr_sync` retained, but both clock ports alias Milan here |
 | Capture sample pairs | Audio/master TDM or external slave BCLK → Milan | `cdc_pair_fifo` in the selected capture module |
 | Playback/render samples | Milan → audio or external slave BCLK | `cdc_pair_fifo` in enabled I2S playback / TDM render |
 | Audio events and fill ticks | Audio → Milan | `cdc_pulse`, including `zf_tick_cdc` |
 | MMCM phase-command batches | Milan → `i_ps_clk` | Servo `cdc_handshake`; phase runner waits for `PSDONE` |
+| Servo phase-runner reset | Milan → `i_ps_clk` | Servo `psrst_sync_r`, two `ASYNC_REG` stages; the first is false-pathed from Milan ([#817](https://github.com/kebag-logic/milan-fpga/issues/817)) |
 | MMCM DRP commands/replies | Milan → MMCM DCLK interface | DCLK equals Milan; no separate DRP clock domain |
 
 `_axis_dp_cdc` supplies the named packet/memory stream crossings.
@@ -273,6 +279,12 @@ The CPU DDR path is crossed since #359's fix:
 - LiteX labels every interface's `clock_domain` by default.
 - The label proved nothing; the asynchronous FIFO count did.
 - `sw/litex/test_cpu_memory_port_cdc.py` drives the hook on a stand-in CPU.
+- `AXIReadyStage` follows the crossing since #814.
+- It registers READY on `aw` and `ar`.
+- LiteDRAM's arbitration then stops at a flip-flop.
+- Before it, that path reached the FIFO read addresses.
+- The stage adds no cycle.
+- `sw/litex/test_soc_timing_cuts.py` checks that boundary in the netlist.
 
 See the generated [CDC census](../diagrams/cdc_census.svg).
 Its [generator](../diagrams/cdc_census.gen.py) inventories recognized primitive call sites.
@@ -374,6 +386,9 @@ for exception scope and implementation evidence.
 
 - `_CRG` requests exact main-PLL output ratios with `margin=0`.
 - It false-paths `sys`↔`milan` and selected audio crossings.
+- `milan` and `idelay` stay related clocks.
+- Only the servo's reset synchronizer input is cut ([#817](https://github.com/kebag-logic/milan-fpga/issues/817)).
+- The servo's batch handshake into `idelay` stays timed as synchronous.
 - GMII RXC has an explicit 8 ns input-clock period.
 - GMII↔system/Milan paths receive 8 ns datapath-only maximum delays.
 - Those asynchronous paths also receive hold-only false paths.

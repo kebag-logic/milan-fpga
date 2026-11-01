@@ -94,7 +94,7 @@ subtype.
 `--check` regenerates every output in memory and fails on any byte of drift.
 `--crosscheck` reads the three constant carriers back by name and fails on a
 field mismatch between them, whatever produced it. `--selftest` plants a
-mismatch into each output (32 arms) and a defect into the YAML (43 arms), and
+mismatch into each output (35 arms) and a defect into the YAML (49 arms), and
 requires each to be caught, after a clean positive control. It also builds
 the two-interface variant the suite uses, which must cross-check clean, and
 requires a four-interface one, whose blocks would overlap the global
@@ -817,6 +817,8 @@ ruling on [#665 (6088423771)](https://github.com/kebag-logic/milan-fpga/issues/6
 decision 2 (a), puts every class-D value the datapath reads on the wire in a
 block of the mailbox window, contract 2.2
 ([reference](../reference/MAILBOX_CONTRACT.md#interface-publication-registers)).
+Contract 2.3 adds a source entry per talker stream for the stream_id it
+declares (#799, the ruling on its STOP, comment 6460917634).
 Firmware writes each value before the response that promises it
 ([placement contract](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule)). The
 datapath of the split placement reads the block through `KL_mbx`'s `pub_*_o`
@@ -834,6 +836,7 @@ after F5. The all-fabric build carries no mailbox, so it is unchanged; the
 | Talker declared, bit s | `TALKER_DECL.DECLARED` | SRP adapter | the declarations it describes, at participant creation and Domain adoption; cleared before a reset or destroy removes them | `srp_tk_decl_state_o` other than NONE |
 | idle slope | `IDLE_SLOPE.BPS` | SRP adapter | the declarations it admits, at participant creation and Domain adoption | `srp_sum_slope_bps_o` |
 | SR class A Domain | `SR_DOMAIN` VID, PRIORITY, ADOPTED | SRP adapter | the Domain and Talker declarations that carry it | `srp_domain_adopted_o`, `class_a_prio_o`, `class_a_vid_o` |
+| talker stream_id, source s | `SRC_SID_LO`, `SRC_SID_HI` | none yet: the split firmware's talker owner (#665) | its `DA_GATE` bit opens, and the declaration and the PROBE_TX response that carry the ID (Milan v1.2 5.5.4.1); both words while the gate is closed | `src_stream_id_o` (protocol-processor #202) |
 
 ADP owns no value the split datapath consumes: its `available_index` reaches
 only CSR status and the AEM face. F5's AECP owner serves that face: it reads
@@ -988,10 +991,10 @@ or a read's classes of cone end (the wire, CSR read-back, the answer face)
 that is not the same in every shape fails. Which CSR input or which
 instance's input a cone ends at is not compared: from four streams up, the
 AAF stream gate also reaches the CSR read-back input `i_tlk_lobs_v`, which no
-one-stream shape builds. At this head every shape has the same 25 population
-nets and the same 39 reads, and four nets are unread. Of the 39 reads, 10 are
-on the wire and map to the block, 14 are CSR status, and 15 are the answer
-face: the same reads and kinds the text census counted before.
+one-stream shape builds. At this head every shape has the same 26 population
+nets and the same 41 reads, and four nets are unread. Of the 41 reads, 11 are
+on the wire and map to the block, 14 are CSR status, and 16 are the answer
+face.
 
 [`census_rules.py`](../../sw/mailbox/census_rules.py) names every rule above,
 the shapes' and the tools' included, 31 in all, and the port census's 12
@@ -1343,7 +1346,7 @@ them:
 | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
 | the adp channel's bound talkers, in the same suite | each table entry's registers at its own address, an enabled entry's talker passing as ENTITY_AVAILABLE and ENTITY_DEPARTING only, every entry, an entry with `BOUND_EN` clear, a rewritten entry, a field cut short, and the arrival interface's table only (two interfaces in `run-if2`); since round 3, each identity byte at its own position, frames in a row whose match never carries into the next, a word rewritten with `BOUND_EN` still set, and a reset that clears the table again |
 | the bound-talker table's timing, RTL builds only | a frame stalled inside its identity while `BOUND_EN` is cleared and set again, or set again alone, refused, and the next one passing; the host's reads beside a running copy; a word rewritten at each of 32 clocks after `BOUND_EN` is set again (lane F3 round 3; the model's frames arrive whole); since round 4, the arrival interface's table held to the verdict with the next frame, on another index, right behind it, and the owed copy gating each interface's entries (two interfaces in `run-if2`) |
-| the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface and sink; each field on its own `pub_*_o` output, a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
+| the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface, source and sink; each field on its own `pub_*_o` output, each source's stream_id on `pub_src_sid_o` (contract 2.3), a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
 | the face block, in the same suite (contract 2.3) | every register's fields and only those, at its own interface and entry; each field on its own port, of its own interface, entry and window; a commit holding every setting until its acknowledgement, a write that would move a held setting and a second commit refused; each window's request held from its `GO` until the answer carrying its tag, or its bound; a hole, an interface the build lacks and a partial strobe; the counted face events, each coalesced into one record; COUNTERS_CHANGED's pending bit per served descriptor, its `ALL` bit and its holdoff; a reset clearing the block. On the RTL alone: the wait bound to the cycle, an answer taken only on its pulse, and a commit held for as long as its acknowledgement takes. Two interfaces in `run-if2`, and on the model |
 | the same suite on the host model, in `make run-if2` | the 488 of the RTL's 530 two-interface checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
 | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS, ADP's and, since F3, ACMP's (a BIND_RX through its probe, duplicate and retry, the bound talker's ENTITY_AVAILABLE through both filters and the re-probe it allows, the other commands, and the two frames both filters refuse); the binary relinks whenever the firmware changes |
@@ -1588,6 +1591,11 @@ routed. The bench top exports every face port. The switch-on SoC leaves them
 unread, but the registers stay for their read-back, and the placement switch
 connects them. Each `fw_*_o` entry is its own port, which the datapath reads
 in parallel, so the entries stay in flip-flops.
+
+Contract 2.3's sixteen source entries (#799) add 1,024 bits of storage at
+one interface, `SRC_SID_LO` and `SRC_SID_HI` of each source, and their
+read-back. They were not measured with this recipe. No shipping build
+carries the mailbox: it is only in the `--ctrl-mailbox` SoC.
 
 ```tcl
 read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \

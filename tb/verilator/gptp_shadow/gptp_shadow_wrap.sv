@@ -119,6 +119,7 @@ module gptp_shadow_wrap #(
     output wire [31:0] pub_offset_o,
     output wire [63:0] pub_annq_o,
     output wire  [3:0] pub_path_count_o,
+    output wire [63:0] pub_path_head_o,
     output wire [63:0] pub_path_tail0_o,
     output wire [63:0] pub_path_tail1_o,
     output wire [63:0] pub_path_tail6_o,
@@ -219,7 +220,7 @@ module gptp_shadow_wrap #(
   logic               step_we_w;
   logic [63:0]        step_w;
   logic               pub_disc_w;
-  logic [7*64-1:0]    pub_path_w;
+  logic [8*64-1:0]    pub_path_w;
   logic               obs_rst_n_w;
 
   logic        rec_v_w, rec_kind_w, rec_abort_w;
@@ -318,6 +319,9 @@ module gptp_shadow_wrap #(
       .epi_busy_i      (epi_busy_w),
       .epi_dis_i       (linkg_dis_i),
       .recov_req_o     (recov_req_w),
+      //! this wrapper's link stays up: the portEnabled edges (FPGA-gPTP
+      //! #94) are the donor suite's and the milan_dp gptp leg's to drive
+      .port_enabled_i  (1'b1),
       .pub_gm_id_o     (pub_gm_id_o),
       .pub_parent_id_o (pub_parent_id_o),
       .pub_flags_o     (pub_flags_o),
@@ -403,9 +407,11 @@ module gptp_shadow_wrap #(
 
   assign dbg_phc_adj_o = adj_eff_w;
   assign pub_disc_o = pub_disc_w;
-  assign pub_path_tail0_o = pub_path_w[0*64 +: 64];
-  assign pub_path_tail1_o = pub_path_w[1*64 +: 64];
-  assign pub_path_tail6_o = pub_path_w[6*64 +: 64];
+  //! entry 0 is the head; tail k is entry k + 1
+  assign pub_path_head_o  = pub_path_w[0*64 +: 64];
+  assign pub_path_tail0_o = pub_path_w[1*64 +: 64];
+  assign pub_path_tail1_o = pub_path_w[2*64 +: 64];
+  assign pub_path_tail6_o = pub_path_w[7*64 +: 64];
 
   // ======================================================================= //
   //  Bench framer: the plane's 64-bit lane -> a contiguous octet stream     //

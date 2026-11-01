@@ -1859,9 +1859,9 @@ listener's existing 2,174 LUT and 1,530 FF, and 2,268 and 1,557.
 
 | State | Clause, as the repository quotes it | Where it lives | Why nothing here can persist it | Evidence |
 |---|---|---|---|---|
-| Lock state and the locking controller | Milan v1.2 5.3.4.1, volatile (the processor's `07_memory_maps.md` section 5.1) | `KL_aecp_notify` | not on the state bus, no trigger decodes it, and the allocation gives it no record id | DERIVED, structural; an acceptance item of the implementation |
-| The registered-controller list | 5.3.4.2, volatile (same table) | `KL_aecp_notify` | the same | DERIVED, structural; the same acceptance item |
-| The IDENTIFY value | 5.3.12: "0 = not identifying" is the reset default (`KL_aecp_dyn_state`'s banner) | `KL_aecp_dyn_state` selector 7 | the trigger decodes selectors 0 to 5; the store raises no dirty for it; SET_CONTROL carries no commit mark; a roll-back resets it to 0 with the rest of the store | EXECUTED K14; M06 killed |
+| Lock state and the locking controller | Milan v1.2 5.3.4.1, volatile (the processor's `07_memory_maps.md` section 5.1) | `KL_aecp_notify` | not on the state bus, no trigger decodes it, and the allocation gives it no record id | EXECUTED in the parent: `[VOLATILE]` reads no lock and accepts the other controller's SET_NAME after the planted power cycle (#70); mutant "the lock survives the power cycle" killed. The processor's `protocol-processor/tb/pp_top` D3V4 and D3V7 kill `lock_survives_reset` |
+| The registered-controller list | 5.3.4.2, volatile (same table) | `KL_aecp_notify` | the same | EXECUTED in the parent: after the cycle `[VOLATILE]`'s accepted change notifies no controller (#70); mutant "the registered-controller list survives the power cycle" killed. The processor's D3V5, D3V8 and D3V9 kill `registry_survives_reset` |
+| The IDENTIFY value | 5.3.12: "0 = not identifying" is the reset default (`KL_aecp_dyn_state`'s banner) | `KL_aecp_dyn_state` selector 7 | the trigger decodes selectors 0 to 5; the store raises no dirty for it; SET_CONTROL carries no commit mark; a roll-back resets it to 0 with the rest of the store | EXECUTED K14; M06 killed. In the parent, `[VOLATILE]`'s GET_CONTROL reads 0 after the cycle (#70); mutant "the IDENTIFY value survives the power cycle" killed. The processor's D3S7 kills `identify_is_a_change` (IDENTIFY made a persisted change) and D3V3 kills `identify_survives_reset` |
 | Started or stopped | persisted, but in the BINDING record (5.3.8.7) | the listener's binding record | selector 6 is retired | the binding manager's own suites |
 | System unique id, media clock reference | allocated as design-affirmative items | nothing writes them | no trigger and no slot in the writer | they stay erased records |
 
@@ -1869,6 +1869,16 @@ The saved-state page's acceptance already names the check the
 implementation owes: "The volatile set does NOT survive: after restore the
 lock is clear, the controller registry is empty, IDENTIFY is 0"
 ([section 16](SAVED_STATE_FASTCONNECT.md#16-acceptance-for-the-implementation)).
+The parent's desk check is the `[VOLATILE]` section of
+`tb/verilator/milan_dp`'s dynmap leg (#70). It proves each premise before the
+cycle: a registration that a second controller's change reaches, IDENTIFY
+read back at 255, and a lock that refuses the second controller. Then it
+resets the whole datapath with the saved-state window kept, loads the window
+and walks the restore. The window holds a saved entity name, so that restore
+applies a record, and the name comes back while the three do not. Nothing the parent owns can carry the three across, so
+`dynmap_mutants.py`'s three volatile arms delete each one's reset term in a
+copy of the processor, and each fails its own check. A cold cycle on the
+board is still owed (section 10).
 
 ## 10. Stages
 
@@ -2947,13 +2957,13 @@ Every control must finish and fail its intended assertion.
 
 **Physical result.** Follow [REQ-VER-06](../../REQUIREMENTS.md#8-verification-and-release-acceptance).
 Use [TESTING section 6d](../testing/TESTING.md#6d-unattended-campaign-vehicle)'s campaign vehicle.
-Complete seven continuous days with the reference peer.
+Complete its 24 continuous hours with the reference peer.
 Include both directions, CRF and every declared stream index.
-Complete 200 cold cuts: 160 idle and 40 during commits.
+Complete its 200 cycles: 100 idle and 50 commit cold cuts, and 50 soft resets.
 Restore all eight item groups and the complete binding inventory.
 No controller repair may count as automatic recovery.
 
-T0 is the host-timestamped outlet ON command.
+T0 is the host-timestamped outlet ON command, or the reset command for a soft reset.
 First ENTITY_AVAILABLE must precede T0 plus twenty seconds.
 Its `valid_time` is 10; boot consumes that window.
 Automatic AVTP restoration has the existing provisional thirty-second ceiling.

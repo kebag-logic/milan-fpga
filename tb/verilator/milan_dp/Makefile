@@ -190,7 +190,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(C)/cdc_pulse.sv $(C)/cdc_handshake.sv \
        $(CLKV_SRC) \
        $(RTL_DIR)/ieee8021q/filtering/tcam.sv $(RTL_DIR)/ieee8021q/filtering/rx_mac_filter.sv $(C)/tx_ifg_gasket.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_lpf.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
-       $(C)/KL_link_guard.sv \
+       $(C)/KL_link_guard.sv $(RTL_DIR)/milan/KL_reboot_ctrl.sv \
        $(RTL_DIR)/ieee17221/adp/adp_tx_arbiter.sv \
        $(RTL_DIR)/ieee1722/aaf/aaf_talker_i2s.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_capture_i2s.sv \
@@ -235,7 +235,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build sidmove sidmove-build sidmove8 sidmove8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi clean option-off-build
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -328,6 +328,35 @@ $(VERILATOR) crflic_probes.vlt $(SHAPE_8x8) $(CRFLIC_FLAGS) --Mdir $(TSPEC8_MDIR
   -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
   -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DDIAG_TICK_MS_TB=$(CRFLIC_DIAG_MS) -DWIRE_CHANS_TB=$(AX_CHANS) -DSOURCES_TB=$(shell echo $$(($(TSPEC8_STREAMS) + 1))) -DTSPEC_ONLY_TB=1 -Wall -Wextra" \
   $(SRCS) sim_crf_licence.cpp -o Vmilan_dp_tspec8
+endef
+
+# processor #202: after a MAAP conflict the processor moves each declaring
+# source to a new Stream ID at its grant and publishes it on src_stream_id_o.
+# sim_sid_move.cpp lets a peer take the MAAP block while sources stream, and
+# requires the AVTP stream_id on the wire, the PROBE_TX answer, GET_STREAM_INFO
+# selector 2 and the Talker Advertise to name each source's published ID
+# before the move and after it, on the shared compressed millisecond grid.
+# The 1x1 shipping shape streams its AAF talker and CRF Media Clock Output
+# (uid 1); the 8x8 shape streams AAF talkers 0 and 1, talker 1's TCTX uid
+# named.
+SIDMOVE_MDIR ?= obj_sidmove
+define SIDMOVE_BUILD
+$(VERILATOR) sidmove_probes.vlt $(SHAPE_AX1x1) $(CRFLIC_FLAGS) --Mdir $(SIDMOVE_MDIR) \
+  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
+  -GAUDIO_IF_MASTER_P=1 \
+  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DSOURCES_TB=2 -DGRADED_MASK_TB=0x3 -DNAMED_UID_TALKER_TB=-1 -DSHAPE8_TB=0 -Wall -Wextra" \
+  $(SRCS) sim_sid_move.cpp -o Vmilan_dp_sidmove
+endef
+SIDMOVE8_MDIR ?= obj_sidmove8
+define SIDMOVE8_BUILD
+$(VERILATOR) sidmove_probes.vlt $(SHAPE_8x8) $(CRFLIC_FLAGS) --Mdir $(SIDMOVE8_MDIR) \
+  -GN_STREAMS=$(TSPEC8_STREAMS) \
+  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
+  -GAUDIO_IF_MASTER_P=1 \
+  -GLOOPBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+  -CFLAGS "-DMS_CYC_TB=$(CRFLIC_MS_CYC) -DSOURCES_TB=$(shell echo $$(($(TSPEC8_STREAMS) + 1))) -DGRADED_MASK_TB=0x3 -DNAMED_UID_TALKER_TB=1 -DSHAPE8_TB=1 -Wall -Wextra" \
+  $(SRCS) sim_sid_move.cpp -o Vmilan_dp_sidmove8
 endef
 
 # Milan 5.4.5 TIMED (issue #69) and the #508 GET_STREAM_INFO seam: the
@@ -565,6 +594,18 @@ tspec8: tspec8-build
 tspec8-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_8x8_F)
 	$(TSPEC8_BUILD)
 
+sidmove: sidmove-build
+	./$(SIDMOVE_MDIR)/Vmilan_dp_sidmove
+
+sidmove-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_AX1_F)
+	$(SIDMOVE_BUILD)
+
+sidmove8: sidmove8-build
+	./$(SIDMOVE8_MDIR)/Vmilan_dp_sidmove8
+
+sidmove8-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_8x8_F)
+	$(SIDMOVE8_BUILD)
+
 # An EXPLICIT campaign, never a raised deadline (docs/testing/TESTING.md):
 # Six additional elaborations remove ACTIVE or the real grant at each
 # consumer, and two more (#774) give every source talker 0's TSpec, one per
@@ -608,8 +649,9 @@ maprec4-build: ltn_rom.hex ucode.hex $(GEN_CSR) $(SHAPE_4x4_F)
 maprec4: maprec4-build
 	$(abspath $(MAPREC4_MDIR))/Vmilan_dp_maprec4
 
-# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: 63
-# mutated elaborations, 54 of the dynmap leg, 5 of maprec8, 2 of maprec4 and
+# An EXPLICIT campaign like gsi-mutants, outside the sweep's deadline: 66
+# mutated elaborations, 57 of the dynmap leg (three against a processor copy,
+# PP_DIR), 5 of maprec8, 2 of maprec4 and
 # one each of the two end-to-end legs it names (milan_dp_render's and
 # capture_coherence's datapath leg), each leg with its clean control run.
 # DYNMAP_MUTANT_JOBS mutants run at once (at most two of them building).
@@ -640,7 +682,7 @@ ax1x1gptp-extended: ax1x1gptp
 # One inventory owns default execution and CI selection.
 COUNTER_CASES = counters-1 counters-8 counters-1-frames counters-8-frames
 PREFIX_CASES = gptp gptp-lat $(COUNTER_CASES)
-ORDINARY_CASES = base notify crflic tspec8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
+ORDINARY_CASES = base notify crflic tspec8 sidmove sidmove8 dynmap nxn nxndv nxn8 nxn4c nolpf prune ax1x1 aclk maprec8 maprec4
 SUFFIX_CASES = render-mutants
 CASE_COMMAND_render-mutants = python3 -c 'import sys; import render_mutants as r; sys.exit(r.main(r.PhaseLog(stream=sys.stderr)))'
 $(foreach case,$(COUNTER_CASES),$(eval RECEIPT_$(case) = result-stdout))
@@ -649,6 +691,8 @@ RUN_CASES = $(PREFIX_CASES) $(ORDINARY_CASES) $(SUFFIX_CASES)
 CASE_OPTIONS_base = ./obj_dir/Vmilan_dp_sim
 CASE_OPTIONS_notify = --banner "---- Milan 5.4.5 notifications and the \#508 GET_STREAM_INFO seam, TIMED on the compressed processor timebase ----" ./$(NOTIFY_MDIR)/Vmilan_dp_notify
 CASE_OPTIONS_crflic = --banner "---- \#530 CRF talker licence and per-type LeaveAll, TIMED on one compressed grid ----" ./$(CRFLIC_MDIR)/Vmilan_dp_crflic
+CASE_OPTIONS_sidmove = --banner "---- processor \#202: the Stream ID move after a MAAP conflict on the wire, the shipping shape, TIMED on the crflic grid ----" ./$(SIDMOVE_MDIR)/Vmilan_dp_sidmove
+CASE_OPTIONS_sidmove8 = --banner "---- processor \#202: the Stream ID move on the wire, two AAF talkers of the 8x8 shape, a TCTX uid named ----" ./$(SIDMOVE8_MDIR)/Vmilan_dp_sidmove8
 CASE_OPTIONS_tspec8 = --banner "---- \#774 per-source TSpec MaxFrameSize on the AX 8x8 shape, TIMED on the crflic grid ----" ./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
 CASE_OPTIONS_dynmap = --banner "---- \#658 the power-on audio maps, Milan 5.4.2.7 and a restored format ----" ./$(DYNMAP_MDIR)/Vmilan_dp_dynmap
 CASE_OPTIONS_maprec8 = --banner "---- \#637 the map records across the 8x8 shape's eight output ports ----" ./$(MAPREC8_MDIR)/Vmilan_dp_maprec8
@@ -805,6 +849,18 @@ build-tspec8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_
 
 exec-tspec8:
 	./$(TSPEC8_MDIR)/Vmilan_dp_tspec8
+
+build-sidmove: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+	$(SIDMOVE_BUILD)
+
+exec-sidmove:
+	./$(SIDMOVE_MDIR)/Vmilan_dp_sidmove
+
+build-sidmove8: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+	$(SIDMOVE8_BUILD)
+
+exec-sidmove8:
+	./$(SIDMOVE8_MDIR)/Vmilan_dp_sidmove8
 
 build-dynmap: stack-pin ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(DYNMAP_BUILD)

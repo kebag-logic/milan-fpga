@@ -58,8 +58,11 @@ inline std::uint32_t bnd_reg(std::uint32_t i, std::uint32_t e, std::uint32_t reg
     return MBX_BND_BASE + MBX_BND_STRIDE * i + MBX_BND_ENTRY_STRIDE * e + reg;
 }
 
-//! Register `reg` of interface i's publication block, and of its sink k's entry.
+//! Register `reg` of interface i's publication block, of its source s's entry, and of its sink k's entry.
 inline std::uint32_t pub_reg(std::uint32_t i, std::uint32_t reg) { return MBX_PUB_BASE + MBX_PUB_STRIDE * i + reg; }
+inline std::uint32_t pub_src_reg(std::uint32_t i, std::uint32_t s, std::uint32_t reg) {
+    return pub_reg(i, MBX_PUB_SRC_BASE + MBX_PUB_SRC_STRIDE * s + reg);
+}
 inline std::uint32_t pub_sink_reg(std::uint32_t i, std::uint32_t k, std::uint32_t reg) {
     return pub_reg(i, MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k + reg);
 }
@@ -380,12 +383,18 @@ class Suite {
     //! The view of an interface whose every field is 0.
     static PubView pub_zero() {
         PubView v;
+        v.src_sid.assign(MBX_N_PUB_SOURCES, 0);
         v.sid.assign(MBX_N_PUB_SINKS, 0);
         return v;
     }
     static std::uint32_t ones(std::uint32_t lsb, std::uint32_t width) {
         return (width >= 32u ? 0xFFFFFFFFu : ((1u << width) - 1u)) << lsb;
     }
+    //! fill_pub's SRC_SID_LO and SRC_SID_HI of source s for seed t: a value
+    //! of each source, interface and half, so an index or a half read from
+    //! another entry shows.
+    static std::uint32_t pub_src_lo(std::uint32_t t, std::uint32_t s) { return 0x51D00000u + 0x100u * t + s; }
+    static std::uint32_t pub_src_hi(std::uint32_t t, std::uint32_t s) { return 0x0A5C0000u + 0x100u * t + s; }
     //! fill_pub's SR_DOMAIN for seed t: VID[2:0] and PRIORITY always differ,
     //! so a field read from the other's bits shows.
     static std::uint32_t pub_domain(std::uint32_t t) {
@@ -1695,10 +1704,11 @@ void Suite<Bench, Check>::check_bound_verdict_interface() {
 // The firmware owner writes the class-D state the datapath reads in the split
 // placement; the fabric holds it and drives it out on KL_mbx's pub_*_o ports.
 // Every register reads back as written within its fields, each lands in its
-// own interface and sink only, every field reaches its own output, the stream
-// id reaches the datapath only while SID_VALID is set, nothing outside the
-// registers takes a write, a partial strobe is refused, and a reset clears
-// the whole block.
+// own interface, source and sink only, every field reaches its own output, a
+// sink's stream id reaches the datapath only while SID_VALID is set, nothing
+// outside the registers takes a write, a partial strobe is refused, and a
+// reset clears the whole block. The source entries (contract 2.3, #799) carry
+// each source's current stream_id, which the talkers stamp.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_publication() {
     bool zero = true;
@@ -1710,8 +1720,8 @@ void Suite<Bench, Check>::check_publication() {
     for (const PubView& v : pub_views()) {
         idle = idle && same_pub(v, pub_zero());
     }
-    ck_.that("P0 and the datapath sees no gate open, no slope, the Domain 0, no declaration, no sink bound or "
-             "started and no stream_id",
+    ck_.that("P0 and the datapath sees no gate open, no slope, the Domain 0, no declaration, no source stream_id, "
+             "no sink bound or started and no stream_id",
              idle);
     check_pub_masks();
     check_pub_outputs();
@@ -1727,6 +1737,11 @@ std::vector<std::uint32_t> Suite<Bench, Check>::pub_words() {
         for (std::uint32_t r : {MBX_PUB_REG_DA_GATE, MBX_PUB_REG_LICENCE, MBX_PUB_REG_IDLE_SLOPE, MBX_PUB_REG_SR_DOMAIN,
                                 MBX_PUB_REG_TALKER_DECL}) {
             out.push_back(rd(pub_reg(i, r)));
+        }
+        for (std::uint32_t s = 0; s < MBX_N_PUB_SOURCES; ++s) {
+            for (std::uint32_t r : {MBX_PUB_SRC_REG_SRC_SID_LO, MBX_PUB_SRC_REG_SRC_SID_HI}) {
+                out.push_back(rd(pub_src_reg(i, s, r)));
+            }
         }
         for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
             for (std::uint32_t r : {MBX_PUB_SINK_REG_SID_LO, MBX_PUB_SINK_REG_SID_HI, MBX_PUB_SINK_REG_BINDING}) {
@@ -1755,6 +1770,10 @@ void Suite<Bench, Check>::fill_pub(std::uint32_t seed) {
         wr(pub_reg(i, MBX_PUB_REG_IDLE_SLOPE), 0x01000193u * (t + 5u));
         wr(pub_reg(i, MBX_PUB_REG_SR_DOMAIN), pub_domain(t));
         wr(pub_reg(i, MBX_PUB_REG_TALKER_DECL), 0x0303u * (t + 7u));
+        for (std::uint32_t s = 0; s < MBX_N_PUB_SOURCES; ++s) {
+            wr(pub_src_reg(i, s, MBX_PUB_SRC_REG_SRC_SID_LO), pub_src_lo(t, s));
+            wr(pub_src_reg(i, s, MBX_PUB_SRC_REG_SRC_SID_HI), pub_src_hi(t, s));
+        }
         for (std::uint32_t k = 0; k < MBX_N_PUB_SINKS; ++k) {
             wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_LO), 0xC0DE0000u + 0x100u * t + k);
             wr(pub_sink_reg(i, k, MBX_PUB_SINK_REG_SID_HI), 0x5EED0000u + 0x100u * t + k);
@@ -1810,6 +1829,16 @@ void Suite<Bench, Check>::check_pub_masks() {
     }
     ck_.that("P1 each interface's registers and each sink's entry read back what was written to them, and only that",
              own);
+    bool src = true;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        const std::uint32_t t = 0x21u + 0x10u * i;
+        for (std::uint32_t s = 0; s < MBX_N_PUB_SOURCES; ++s) {
+            src = src && rd(pub_src_reg(i, s, MBX_PUB_SRC_REG_SRC_SID_LO)) == pub_src_lo(t, s) &&
+                  rd(pub_src_reg(i, s, MBX_PUB_SRC_REG_SRC_SID_HI)) == pub_src_hi(t, s);
+        }
+    }
+    ck_.that("P1 each source's entry reads back the stream_id written to it, at its own interface, and only that",
+             src);
 }
 
 // P2: each field reaches its own output, of its own interface and sink.
@@ -1840,6 +1869,17 @@ void Suite<Bench, Check>::check_pub_outputs() {
                  v.talker_decl == ((0x0303u * (t + 7u)) & 0xFFFFu) && v.bound == bound && v.started == started && sid;
     }
     ck_.that("P2 every field reaches the datapath on its own output, for its own interface and sink", fields);
+    bool src = true;
+    for (std::uint32_t i = 0; i < MBX_N_IF; ++i) {
+        const std::uint32_t t = 0x21u + 0x10u * i;
+        const PubView v = b_.pub(i);
+        for (std::uint32_t s = 0; s < MBX_N_PUB_SOURCES; ++s) {
+            src = src && v.src_sid.at(s) == ((std::uint64_t{pub_src_hi(t, s)} << 32) | pub_src_lo(t, s));
+        }
+    }
+    ck_.that("P2 each source's SRC_SID_HI:SRC_SID_LO reaches the datapath on pub_src_sid_o, for its own interface "
+             "and source",
+             src);
     // one bit at a time: a gate, a licence, a declaration, a bound or a
     // started level moves its own bit only
     bool single = true;
@@ -1945,6 +1985,8 @@ void Suite<Bench, Check>::check_pub_sid_valid() {
 // P4: outside its registers the block takes no write and reads 0: the holes
 // of an interface block, the fourth word of a sink entry and the blocks of
 // interface indices this build does not have. A partial strobe is refused.
+// The source entries fill the space below the sink entries, so they hold no
+// hole; their words are registers.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_pub_out_of_window() {
     fill_pub(0x47u);
@@ -1955,13 +1997,18 @@ void Suite<Bench, Check>::check_pub_out_of_window() {
     for (std::uint32_t i = 0; i < kPubBlocks; ++i) {
         for (std::uint32_t off = 0; off < MBX_PUB_STRIDE; off += 4u) {
             const bool sink = off >= MBX_PUB_SINK_BASE;
-            const std::uint32_t in = sink ? (off - MBX_PUB_SINK_BASE) % MBX_PUB_SINK_STRIDE : off;
+            const bool src = !sink && off >= MBX_PUB_SRC_BASE;
+            const std::uint32_t in = sink ? (off - MBX_PUB_SINK_BASE) % MBX_PUB_SINK_STRIDE
+                                     : src ? (off - MBX_PUB_SRC_BASE) % MBX_PUB_SRC_STRIDE
+                                           : off;
             const bool named = i < MBX_N_IF &&
                                (sink ? (in == MBX_PUB_SINK_REG_SID_LO || in == MBX_PUB_SINK_REG_SID_HI ||
                                         in == MBX_PUB_SINK_REG_BINDING)
-                                     : (in == MBX_PUB_REG_DA_GATE || in == MBX_PUB_REG_LICENCE ||
-                                        in == MBX_PUB_REG_IDLE_SLOPE || in == MBX_PUB_REG_SR_DOMAIN ||
-                                        in == MBX_PUB_REG_TALKER_DECL));
+                                : src ? ((off - MBX_PUB_SRC_BASE) / MBX_PUB_SRC_STRIDE < MBX_N_PUB_SOURCES &&
+                                         (in == MBX_PUB_SRC_REG_SRC_SID_LO || in == MBX_PUB_SRC_REG_SRC_SID_HI))
+                                      : (in == MBX_PUB_REG_DA_GATE || in == MBX_PUB_REG_LICENCE ||
+                                         in == MBX_PUB_REG_IDLE_SLOPE || in == MBX_PUB_REG_SR_DOMAIN ||
+                                         in == MBX_PUB_REG_TALKER_DECL));
             if (!named) {
                 wr(pub_reg(i, off), 0xFFFFFFFFu);
                 holes_zero = holes_zero && rd(pub_reg(i, off)) == 0u;

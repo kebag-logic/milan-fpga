@@ -123,7 +123,7 @@ filter table. Register offsets and field positions are the generated
 | M0 to M2 | a timer expires at its deadline with its arm's tag; a cancel and a replaced arm post nothing; a past deadline expires at once |
 | K0 to K2 | no TICK while TICK_CTL.EN is clear; one per period; ticks counted while the ring is full post as one record with the count; clearing EN stops them |
 | G0 | GM_HI and DOMAIN read the snapshot GM_LO took |
-| P0 to P5 | the publication block (lane F-INT, #665 comments 6088423771 and 6092086337): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface and sink; each field drives its own output, one source's DA gate, licence or declaration bit or one sink's bound or started bit moving only its own; the stream_id taken (`pub_sid_o` while `pub_sid_valid_o`) only while `SID_VALID` is set, `BOUND` apart, in the firmware's write order never half written, and kept through a write that moves `STARTED` alone; a hole of every interface block, an entry's fourth word and the blocks of interface indices the build lacks read 0 and move nothing, uncounted; a partial strobe refused and counted; a reset clears the block |
+| P0 to P5 | the publication block (lane F-INT, #665 comments 6088423771 and 6092086337; the source entries, contract 2.3, #799): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface, source and sink; each field drives its own output, each source's `SRC_SID_HI:SRC_SID_LO` on `pub_src_sid_o`, one source's DA gate, licence or declaration bit or one sink's bound or started bit moving only its own; the stream_id taken (`pub_sid_o` while `pub_sid_valid_o`) only while `SID_VALID` is set, `BOUND` apart, in the firmware's write order never half written, and kept through a write that moves `STARTED` alone; a hole of every interface block, an entry's fourth word and the blocks of interface indices the build lacks read 0 and move nothing, uncounted; a partial strobe refused and counted; a reset clears the block |
 | F0 to F10 | the face block (contract 2.3, #665 comments 6409739310 and 6410169666): every register, port, request and commit 0 after reset; each setting, request and entry register keeps its own fields only, per interface and entry; each field on its own `fw_*_o` or window port, for its own interface; `F_COMMIT.GO` raises `fw_send_o` and `F_STATUS.BUSY` on its interface only, every setting write and a second commit refused and counted while `BUSY`, the settings held, and only that interface's acknowledgement taking it; each window's `GO` opening its request with the next tag, a request write and a second `GO` refused while it is open, an answer under another tag, another interface's or with none open discarded, the answer under its tag closing it as `DONE`, the wait bound closing it as `TIMEOUT` and a late answer discarded, no window moving another; a hole and an interface the build lacks reading 0; a partial strobe refused; each face event posting its record with `COUNT` and `NOW_MS`, a full ring coalescing each source, the counter change once per descriptor per holdoff epoch, an unknown descriptor as `ALL`; a reset clearing every face register, port, open request, commit and pending event |
 | T0 to T2 | the face block's timing, on the RTL only: each window's unanswered request holds for exactly its `wait_cycles` clocks, then closes as `TIMEOUT`; an answer on the bound's last cycle is taken, one a cycle later discarded; answer data and tag without the pulse close nothing, and the pulse takes the data it carries; a commit holds `fw_send_o` and its settings for as long as the acknowledgement takes, and drops `fw_send_o` on the cycle after it |
 
@@ -326,6 +326,17 @@ are in `ctrl_mutants.py`'s table:
 | `top-pub-started-not-stored` | BINDING drops STARTED on a write | P1, each register's fields only |
 | `top-pub-declarations-from-licence` | `pub_talker_decl_o` takes LICENCE | P2, every field on its own output |
 | `top-pub-declarations-kept-through-reset` | TALKER_DECL not reset | P5, a reset clears the block |
+
+The source entries (contract 2.3, #799) add four more, each through both
+adapters. The host model's twins are `model-pub-src-sid-a-hole` and
+`model-pub-every-source-reads-entry-0` in `ctrl_mutants.py`:
+
+| Arm | Defect | Caught by |
+|---|---|---|
+| `top-pub-src-index-dropped` | every source's SRC_SID_LO lands in source 0's | P1, each source's entry its own |
+| `top-pub-src-base-ignored` | the interface registers decode as source entries | P1, each register's fields only |
+| `top-pub-src-sid-halves-swapped` | `pub_src_sid_o` joins SRC_SID_LO above SRC_SID_HI | P2, each source's stream_id on `pub_src_sid_o` |
+| `top-pub-src-sid-kept-through-reset` | SRC_SID_HI not reset | P5, a reset clears the block |
 
 ## Run
 

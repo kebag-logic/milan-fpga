@@ -162,7 +162,7 @@ CLASS_D_PORTS = frozenset({
     "srp_granted_slope_bps_o", "srp_src_fail_code_o", "srp_src_fail_bridge_o", "srp_sum_slope_bps_o",
     "srp_over_limit_o", "srp_tk_reg_state_o", "srp_lstn_decl_state_o", "srp_acc_latency_o",
     "srp_snk_fail_code_o", "acmp_declaring_o", "acmp_bound_o", "acmp_bound_eid_o", "acmp_bound_sid_o",
-    "acmp_bound_dmac_o", "acmp_bound_vlan_o", "adp_next_avail_index_o",
+    "acmp_bound_dmac_o", "acmp_bound_vlan_o", "adp_next_avail_index_o", "src_stream_id_o",
 })
 #: Each sink's started level, which the ruling of comment 6092086337 adds, and the wire the rows name it by.
 STARTED_PORT = "aecp_strm_started_o"
@@ -205,6 +205,9 @@ CENSUS: dict[tuple[str, str], Row] = {
             "BINDING.SID_VALID"),
     (STARTED, "acmpl_stopped_v_w"):
         Row("field", "BINDING.STARTED", "the listener accept and the CRF sink's stop (Milan v1.2 5.3.8.7)"),
+    ("pp_cd_src_stream_id_w", "tx_sid_w"):
+        Row("field", "SRC_SID_LO.SID", "the AAF and CRF talkers' stamps, each source's current stream_id "
+            "(processor #202; IEEE 1722-2016 4.4.4.8), with SRC_SID_HI"),
     # ---- read back as CSR status only --------------------------------------
     ("pp_cd_srp_sum_slope_bps_w", "lwsrp_idle_slope"):
         Row("status", "IDLE_SLOPE.BPS", "LWSRP_SLOPE; no shaper consumes it, published as ruled"),
@@ -225,6 +228,8 @@ CENSUS: dict[tuple[str, str], Row] = {
     # ---- the wrapper's own GET_STREAM_INFO face -----------------------------
     ("pp_cd_acmp_bound_w", "gsi_bnd_w"): Row("processor", "", "GET_STREAM_INFO"),
     ("pp_cd_acmp_bound_sid_w", "gsi_sid_w"): Row("processor", "", "GET_STREAM_INFO"),
+    ("pp_cd_src_stream_id_w", "gsi_osid_w"):
+        Row("processor", "", "GET_STREAM_INFO, an output's current stream_id (IEEE 1722.1-2021 7.4.16.2)"),
     ("pp_cd_acmp_bound_dmac_w", "gsi_ans_raw_w"): Row("processor", "", "GET_STREAM_INFO"),
     ("pp_cd_acmp_bound_vlan_w", "gsi_ans_raw_w"): Row("processor", "", "GET_STREAM_INFO"),
     ("pp_cd_acmp_declaring_w", "gsi_decl_w"): Row("processor", "", "GET_STREAM_INFO"),
@@ -559,7 +564,8 @@ def overlay(src: Sources) -> dict[Path, str]:
 
 def fields(contract: mailbox_model.Contract) -> set[str]:
     """REGISTER.FIELD of every publication register."""
-    return {f"{r.name}.{f.name}" for r in contract.pub_registers + contract.pub_sink_registers for f in r.fields}
+    return {f"{r.name}.{f.name}" for r in contract.pub_registers + contract.pub_source_registers
+            + contract.pub_sink_registers for f in r.fields}
 
 
 def judge(sv: Survey, table: dict[tuple[str, str], Row], known: set[str]) -> list[str]:

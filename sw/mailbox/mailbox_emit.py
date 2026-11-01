@@ -280,6 +280,11 @@ def emit_doc(contract: Contract) -> str:
         "The firmware owner writes each value before the response that promises it; "
         "the datapath reads interface i's block through `KL_mbx`'s `pub_*_o` ports.")
     lines += _register_section(
+        "Interface publication source registers", contract.pub_source_registers,
+        f"Source s's entry starts at `0x{contract.pub_source_base:X} + 0x{contract.pub_source_stride:X} * s` inside "
+        f"interface i's publication block, for {contract.pub_sources} sources (one per talker stream). "
+        "A source past the last reads 0 and takes no write.")
+    lines += _register_section(
         "Interface publication sink registers", contract.pub_sink_registers,
         f"Sink k's entry starts at `0x{contract.pub_sink_base:X} + 0x{contract.pub_sink_stride:X} * k` inside "
         f"interface i's publication block, for {contract.pub_sinks} sinks (one per listener stream). "

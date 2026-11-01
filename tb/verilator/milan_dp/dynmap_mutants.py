@@ -45,6 +45,15 @@ layout and id, and the magic and length. Each is caught by a window whose
 only record is a framed map record failing that term alone, which must read
 blank.
 
+Three more, the #70 volatile set, make one of the three things Milan v1.2
+5.3.4.1, 5.3.4.2 and 5.3.12 clear by a power cycle survive the [VOLATILE]
+section's planted one: the lock, the registered-controller list and the
+IDENTIFY value. Nothing the parent owns can carry them across (D3 section 9),
+so each arm deletes that item's reset term in a COPY of the processor's hdl/
+tree, the plant the processor's own d3_mutants.py VOLATILE arms make, and the
+leg is rebuilt against the copy (PP_DIR). Each is caught by its own
+[VOLATILE] check.
+
 The empty reset is also planted under the two end-to-end checks the ruling
 asks for, each in its own suite: the listener (tb/verilator/milan_dp_render,
 whose `T18 POWER-ON` decodes stream channel c at TDM8 serial slot c) and the
@@ -77,6 +86,7 @@ Exit 0 = every selected mutant was caught and the clean leg still passes.
 """
 
 import concurrent.futures
+import shutil
 import signal
 import subprocess
 import sys
@@ -88,6 +98,9 @@ HERE = Path(__file__).resolve().parent
 DP_RTL = HERE / "../../../hdl/milan/milan_datapath.sv"
 #: the #637 arbiter's file, planted through the suite's SHADOW_SRC
 SHADOW_RTL = HERE / "../../../hdl/milan/KL_pp_shadow.sv"
+#: the processor's hdl/ tree, copied whole for a "pp:<file>" arm and handed
+#: to the recipe as PP_DIR; the submodule checkout is never edited
+PP_HDL = HERE / "../../../protocol-processor/hdl"
 #: each leg's suite, build target, objdir variable, clean objdir, executable,
 #: the arguments it runs with and the generated inputs its build may not remake
 LEGS = {
@@ -422,16 +435,32 @@ MUTATIONS = [
     ("dynmap", "the validated-record test ignores the magic and the length",
      [(VALID, "          if (amr_hid_r && (amr_hcrc_r == amr_crc_r))\n")],
      "[MAPREC] lone wrong-magic output record: PP_STAT blank 1"),
+    # ---- #70: the volatile set across the planted power cycle, a reset
+    # term each deleted in a processor copy (Milan v1.2 5.3.4.1, 5.3.4.2, 5.3.12)
+    ("dynmap", "the lock survives the power cycle",
+     [("      lk_held_r   <= 1'b0;\n", "")],
+     "[VOLATILE] the lock is clear after the restore: SET_NAME from B is SUCCESS",
+     "pp:aecp/KL_aecp_notify.sv"),
+    ("dynmap", "the registered-controller list survives the power cycle",
+     [("      valid_r     <= '0;\n", "")],
+     "[VOLATILE] the registry is empty after the restore",
+     "pp:aecp/KL_aecp_notify.sv"),
+    ("dynmap", "the IDENTIFY value survives the power cycle",
+     [("      for (int unsigned i = 0; i < N_CONTROL_P;    i++) ident_r[i]  <= 8'd0;\n", "")],
+     "[VOLATILE] IDENTIFY reads 0 after the restore",
+     "pp:aecp/KL_aecp_dyn_state.sv"),
 ]
 
 
 def build(leg: str, dp_path: Path, mdir: Path,
-          shadow_path: Path | None = None, log: list[str] | None = None) -> Path | None:
-    """Build `leg` against `dp_path` (and `shadow_path` for KL_pp_shadow, the
-    suite's own copy when None) through its suite's own recipe; the
-    executable, or None when the recipe failed or left none, its output's
-    tail then appended to `log`. The generated inputs the leg reads are the
-    clean build's: `-o` keeps them unmade."""
+          shadow_path: Path | None = None, log: list[str] | None = None,
+          pp_dir: Path | None = None) -> Path | None:
+    """Build `leg` against `dp_path` (and `shadow_path` for KL_pp_shadow and
+    `pp_dir` for the processor's hdl/ tree, the suite's own when None)
+    through its suite's own recipe; the executable, or None when the recipe
+    failed or left none, its output's tail then appended to `log`. The
+    generated inputs the leg reads are the clean build's: `-o` keeps them
+    unmade."""
     suite, target, mvar, _clean, exe_name, _args, keep = LEGS[leg]
     cmd = ["make", "-s", "-C", str(suite)]
     for name in keep:
@@ -439,6 +468,8 @@ def build(leg: str, dp_path: Path, mdir: Path,
     cmd += [target, f"DP_SRC={dp_path}", f"{mvar}={mdir}"]
     if shadow_path is not None:
         cmd += [f"SHADOW_SRC={shadow_path}"]
+    if pp_dir is not None:
+        cmd += [f"PP_DIR={pp_dir}"]
     with BUILD_SLOTS:
         out = subprocess.run(cmd, capture_output=True, text=True, check=False)
     exe = mdir / exe_name
@@ -498,21 +529,41 @@ def plant(name: str, edits: list[tuple[str, str]], work: Path, tag: str,
     return out
 
 
+def plant_pp(name: str, edits: list[tuple[str, str]], work: Path, tag: str,
+             leaf: str, log: list[str]) -> Path | None:
+    """Copy the processor's hdl/ tree and plant `edits` in its `leaf`; the
+    copy, or None when a pattern no longer matches exactly once."""
+    planted = plant(name, edits, work, tag, PP_HDL / leaf, log)
+    if planted is None:
+        return None
+    pp_dir = work / f"pp_hdl_{tag}"
+    shutil.copytree(PP_HDL, pp_dir)
+    shutil.copyfile(planted, pp_dir / leaf)
+    return pp_dir
+
+
 def run_mutant(mutation: tuple, work: Path) -> tuple[bool, list[str]]:
     """Plant one mutation, build and run its leg; (caught, the lines to
     print). A fifth element "shadow" plants it in KL_pp_shadow instead of
-    the datapath."""
+    the datapath, and "pp:<file>" in that file of a processor copy."""
     leg, name, edits, breaks = mutation[:4]
-    in_shadow = len(mutation) > 4 and mutation[4] == "shadow"
+    where = mutation[4] if len(mutation) > 4 else ""
+    in_shadow = where == "shadow"
     tag = "".join(c if c.isalnum() else "_" for c in name)[:48]
     log: list[str] = []
-    planted = plant(name, edits, work, tag, SHADOW_RTL if in_shadow else DP_RTL, log)
-    if planted is None:
-        return False, log
-    if in_shadow:
-        exe = build(leg, DP_RTL, work / f"obj_{tag}", planted, log)
+    if where.startswith("pp:"):
+        pp_dir = plant_pp(name, edits, work, tag, where[3:], log)
+        if pp_dir is None:
+            return False, log
+        exe = build(leg, DP_RTL, work / f"obj_{tag}", None, log, pp_dir)
     else:
-        exe = build(leg, planted, work / f"obj_{tag}", None, log)
+        planted = plant(name, edits, work, tag, SHADOW_RTL if in_shadow else DP_RTL, log)
+        if planted is None:
+            return False, log
+        if in_shadow:
+            exe = build(leg, DP_RTL, work / f"obj_{tag}", planted, log)
+        else:
+            exe = build(leg, planted, work / f"obj_{tag}", None, log)
     if exe is None:
         log.append(f"[FAIL] mutation {name!r} did not compile; a mutant that cannot build "
                    f"proves nothing about the leg")

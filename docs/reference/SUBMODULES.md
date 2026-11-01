@@ -21,8 +21,8 @@ Dirty submodules invalidate local evidence.
 | Path | Pin | Purpose | Root integration |
 |---|---|---|---|
 | `external` | `efeb541ae5fe1e078332d8462dca2fc2d9cb8db5` | Historical Ethernet MAC RTL | No active product consumer |
-| `gptp-processor` | `55680bff3b287b9a7b0c759f51471fa617c17335` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
-| `protocol-processor` | `ed2118035e4cec76fb1b59cfbf8a053aeacc8af8` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
+| `gptp-processor` | `135afd043309369a87ddbc8d6550aff8ec52a157` | Fabric gPTP engine | `KL_gptp_shadow.sv` |
+| `protocol-processor` | `a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645` | ADP, ACMP, AECP, and SRP | `KL_pp_shadow.sv` |
 | `third_party/lwSRP` | `08ee86e812a0eb5e1dc6cd61b494d8baf3491348` | Bare-metal MRP, MSRP and MVRP | `sw/firmware/ctrl/srp/srp_mbx.c` |
 | `third_party/tsn-c-stack` | `70936b77dc41981e192438388cd0aced69954f18` | Portable ADP, ACMP and MAAP cores | `sw/firmware/ctrl` mailbox adapters |
 | `third_party/verilog-axis` | `48ff7a7e2ef782cf778d47910cf85835c64b1bce` | AXI-Stream primitives | Multiple RTL consumers |
@@ -273,6 +273,249 @@ No port, parameter or register changes.
 
 No parent test, model or document expected status 1 here.
 
+Issue #799 adopts processor pin `f65c8ff7`.
+
+FPGA-gPTP stays at `55680bff`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #202, Stream ID after a MAAP conflict | [204](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/204) | After a MAAP conflict a declared source moves to a new Stream ID with the same upper 48 bits at its next grant, and declares it at once: IEEE 802.1Q-2018 Section 35.2.2.8 asks for two LeaveAllTime periods only before the same StreamID returns with another FirstValue, and Milan v1.2 Table 5.3 lets the PAAD use another Stream ID. The top gains the output `src_stream_id_o`, each source's current ID; `KL_pp_shadow` passes it out, and `milan_datapath` stamps it on the AAF and CRF frames (IEEE 1722-2016 Section 4.4.4.8) and answers an output's GET_STREAM_INFO stream_id with it (IEEE 1722.1-2021 Section 7.4.16.2). A TCTX unique ID no longer reaches the wire. The milan_dp `sidmove` and `sidmove8` legs drive a real conflict |
+| #205, GET_TX_STATE refusal | [207](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/207) | A GET_TX_STATE whose talker_unique_id names no valid source answers TALKER_UNKNOWN_ID with the command's listener_entity_id and listener_unique_id (Milan v1.2 Section 5.5.4.3 step 1, Table 5.46); SUCCESS keeps both 0 (Table 5.47) |
+| #206, GET_STREAM_INFO while not settled | [208](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/pull/208) | An input that is not settled reports stream_id, stream_dest_mac and stream_vlan_id as 0 with STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear (Milan v1.2 Section 5.4.2.10.1, Table 5.9): the processor gates the parent's selectors 0, 2 and 4 on its committed probing status. This closes #790; milan_dp `[GSI]` G11 and the `pp_shadow` `[GSI]` group grade its four cases, and `make gsi-mutants` plants the pass-through |
+
+The top adds one output, `src_stream_id_o`; no parameter or register changes.
+
+The parent's mailbox contract moves to 2.3.
+Each source's current Stream ID gets a publication entry.
+
+`KL_mbx` gains `pub_src_sid_o`, which the split datapath reads.
+The split firmware's writer is #665's work.
+
+The [publication census](../../sw/mailbox/publication_census.py) maps both stamps to `SRC_SID_LO`.
+
+`ucode.hex` and `ltn_rom.hex` are unchanged; both digests match the `ed211803` rows.
+
+STRMW talker SID words (`0x814`, `0x818`) keep a source's first ID.
+
+The torture plan no longer expects a two-LeaveAll wait.
+
+The [resource gate](../design/AREA_BUDGET.md#the-resource-gate) measured this adoption against the eleventh record.
+
+| Endpoint | LUT | FF | Gate |
+|---|---|---|---|
+| `route-1x1` | +753 (+1.47 %) | +499 | refused: LUT tolerance 500 |
+| `ooc-1x1` | +518 | +404 | refused: tolerances 250 and 250 |
+| `ooc-8x8` | +1,689 | +1,562 | refused: tolerances 316 and 339 |
+
+The [owner accepted](https://github.com/kebag-logic/milan-fpga/issues/799#issuecomment-6460917634) this growth on 2026-10-28.
+The twelfth record is measured at `8b76de69`.
+
+The mailbox change moved no figure.
+
+Almost all growth is the processor's #202 logic.
+
+The route keeps +0.440 ns WNS.
+
+Slices fall by 55; block RAM and DSP hold.
+
+Issue #803 adopts gPTP pin `f97c1803`.
+
+The processor stays at `f65c8ff7`.
+
+| gPTP issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #89, Sync receipt timeout | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | A grandmaster whose Sync stops for 375 ms is aged while gmPresent holds (IEEE 802.1AS-2011 Section 10.3.11, Figure 10-13 with Cor1-2013); with no other peer this station becomes grandmaster at that timeout, and the Milan v1.2 Annex B.1.1 holdover arms; a priority1 255 grandmaster stays elected, and its timeout clears sync only |
+| #90, lost responses | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | asCapable clears at the fifth consecutive lost Pdelay response, where it cleared at the fourth (Figure 11-8 RESET) |
+| #91, duplicate responses | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | A second Pdelay_Resp for the outstanding request resets the exchange, and that interval counts as a lost response (Figure 11-8) |
+| #88, Announce qualification | [93](https://github.com/Mister-M-alt/FPGA-gPTP/pull/93) | Only Section 10.3.10.2.1 a) to c) disqualify: a path count other than stepsRemoved+1 and a path head other than the grandmaster are accepted; d) copies the path as received, its head included, and appends thisClock, so an empty path trace TLV gives `{thisClock}` |
+| #87, no path trace TLV | [93](https://github.com/Mister-M-alt/FPGA-gPTP/pull/93) | An Announce without the TLV writes no pathTrace, so the previous one stays: `{thisClock}` after reset or mastership, otherwise the last path copied, across a grandmaster change too |
+
+The engine's one port change is `pub_path_o`.
+
+It carries eight entries from entry 0.
+
+It carried seven, after the grandmaster.
+
+`KL_gptp_shadow` publishes all eight entries.
+
+`milan_datapath` serves GET_AS_PATH entry 0 from that head.
+
+Its clause is IEEE 1722.1-2021 7.4.41.2.
+
+Entry 0 was the grandmaster identity.
+
+It is now the received head or thisClock.
+
+The AS_PATH notification compares entry 0, count and entries.
+
+`milan_csr` keeps its seven-entry AS_PATH face.
+
+Only its port comments change.
+
+No top-level port, parameter or register changes.
+
+`KL_gptp_shadow.pub_path_o` widens with the engine's: eight entries from entry 0.
+
+Its test wrapper `gptp_shadow_wrap` adds `pub_path_head_o`.
+
+`gptp_ucode.hex` changes; its ledger row matches the donor's tracked image.
+
+The physical gPTP leg spans one more Pdelay interval.
+
+It runs 17.992742740 simulated seconds.
+
+Its nightly suite deadline rises to 6900 seconds.
+
+Its job's timeout rises to 145 minutes.
+
+Route-1x1 is 211 LUTs under the twelfth resource record.
+
+Its tolerance is 500 LUTs, so the gate passes.
+
+That record has dev `e78472ff`'s synthesis inputs.
+
+This adoption adds 53 FFs and 54 slices.
+
+Sixteen of 15,850 slices remain.
+
+Its shipping route meets timing at +0.303 ns WNS.
+
+Issue #806 adopts gPTP pin `135afd04`.
+
+The processor stays at `f65c8ff7`.
+
+| gPTP issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #94, portEnabled | [95](https://github.com/Mister-M-alt/FPGA-gPTP/pull/95) | The engine takes portEnabled (IEEE 802.1AS-2011 Section 10.2.4.11) as `port_enabled_i`. While it is low the port starts no gPTP frame, withdraws a frame whose first byte is unaccepted and completes no Pdelay exchange. Each edge after the first sample since reset clears asCapable at once and ends the Milan v1.2 Section 4.2.6.2.5 Pdelay_Req cease, one retained across a warm reset included (Figure 11-8 NOT_ENABLED, with Cor1-2013 and Cor2-2015); a rise sends one Pdelay_Req at once. The 5-minute countdown exit is unchanged |
+
+The engine's one port change is `port_enabled_i`.
+
+`KL_gptp_shadow` adds the same input.
+
+`milan_datapath` drives it from `eff_link_w`.
+
+That is the PHY link and `LINK_CTRL[0]`.
+
+The link guard's estimate is its third term.
+
+The three plane test wrappers tie it enabled.
+
+No top-level port, parameter or register changes.
+
+`gptp_ucode.hex` changes; its ledger row matches the donor's tracked image.
+
+The `milan_dp` gptp leg grades each term.
+
+It also grades both cease exits.
+
+Route-1x1 is 175 LUTs under the twelfth resource record.
+
+Against dev's route it adds 36 LUTs and 28 FFs.
+
+Slices fall by 11; 27 of 15,850 remain.
+
+Every corner meets the build floor.
+
+The slow corners meet it at +0.032 ns WNS.
+
+That is 0.408 ns under the record.
+
+The record holds +0.440 ns.
+
+The tolerance is 0.25 ns.
+
+Before #818 the gate refused that fall.
+
+Under #818 the fall prints a WARNING and passes.
+
+The slowest path is the SoC's bridge-to-flash path.
+
+Timing recovery is ruled under #814/#818.
+
+The best directive meets the build floor at every corner.
+
+Both standalone endpoints equal the record in every figure.
+
+Issue #787 adopts processor pin `a9e84b66`.
+
+It is the merge commit of processor PR #209.
+
+That PR carries processor issue #203.
+
+It merged during the lane's second round.
+
+Its tree, `b0f66acb`, is the reviewed head `013ee63f`'s.
+
+The lane pinned `1be824fc`, then `013ee63f`.
+
+Since `013ee63f`, every started frame leaves before the request.
+
+That holds with or without an ENTITY_DEPARTING.
+
+The top's ports and parameters match across all three pins.
+
+FPGA-gPTP stays at `135afd04`.
+
+| Processor issue | Merged PR | Parent-visible result |
+|---|---|---|
+| #203, AECP REBOOT | #209, merge commit `a9e84b66` | REBOOT of ENTITY 0 answers SUCCESS (IEEE 1722.1-2021 7.4.43, Figure 7-68) and notifies the other registered controllers (7.5.2). Where advertising, ENTITY_DEPARTING follows (Milan v1.2 5.6.3.3). Once every frame it started has left, the top holds the new output `reboot_req_o` and serves no further command. Another descriptor type answers NOT_SUPPORTED, a non-zero index NO_SUCH_DESCRIPTOR, a cdl below 16 BAD_ARGUMENTS and another controller's lock ENTITY_LOCKED |
+
+The top adds one output, `reboot_req_o`.
+
+No parameter or register changes.
+
+`KL_pp_shadow` passes it to `milan_datapath`.
+
+`KL_reboot_ctrl` resets the end station on it.
+
+The request rises once frames leave the processor.
+
+They may still be inside the MAC then.
+
+So `KL_reboot_ctrl` first waits for the MAC to empty.
+
+Only then does it hold the PHY in reset.
+
+The [reset design](../design/REBOOT_RESET.md) records that decision.
+
+`ucode.hex` changes; the ledger records its row.
+
+`ltn_rom.hex` is unchanged.
+
+The behave SERVED table lists REBOOT at cdl 16.
+
+`a9e84b66` carries `1be824fc`'s two ROM images, byte for byte.
+
+The route below was measured at `1be824fc` with FPGA-gPTP `f97c1803`.
+
+Route-1x1 uses 51,828 LUTs, 184 under the record.
+
+It adds 92 FFs and 13 slices.
+
+57 of 15,850 slices remain.
+
+WNS is +0.107 ns, over its floor.
+
+Before #818 the gate refused its 0.333 ns fall.
+
+The worst path is the SoC's SDRAM port arbitration.
+
+That path lies outside this change.
+
+Both standalone endpoints pass the gate.
+
+`ooc-1x1` moves -53 LUTs and +7 FFs.
+
+`ooc-8x8` moves +104 LUTs and +16 FFs.
+
+The re-pin route carries the #814 cuts.
+
+Its best directive has WNS +0.365 ns.
+
+It uses 52,021 LUTs; 63 slices remain.
+
+The #818 gate passes it.
+
 The ROM ledger records current and earlier pins.
 
 The boundary diagram follows the current pin.
@@ -404,10 +647,10 @@ The parent carries it to the CRF servo (#545).
 
 Window overlap preserves lock until measured correction completes.
 
-- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/MANAGER.md)
-- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/INTEGRATION.md)
-- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/HDL_DEVELOPER.md)
-- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/55680bff3b287b9a7b0c759f51471fa617c17335/docs/TEST_DEVELOPER.md)
+- [Manager guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/MANAGER.md)
+- [Integration guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/INTEGRATION.md)
+- [HDL guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/HDL_DEVELOPER.md)
+- [Test guide](https://github.com/Mister-M-alt/FPGA-gPTP/blob/135afd043309369a87ddbc8d6550aff8ec52a157/docs/TEST_DEVELOPER.md)
 
 Processor PR 156 resolves both former RX-interface contradictions.
 

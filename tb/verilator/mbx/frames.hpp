@@ -35,6 +35,7 @@ struct PubView {
     std::uint32_t priority = 0;      //!< SR_DOMAIN.PRIORITY
     std::uint32_t adopted = 0;       //!< SR_DOMAIN.ADOPTED
     std::uint32_t talker_decl = 0;   //!< TALKER_DECL.DECLARED, bit s source s
+    std::vector<std::uint64_t> src_sid;  //!< source s's SRC_SID_HI:SRC_SID_LO, the stream_id it stamps
     std::uint32_t bound = 0;         //!< bit k: sink k's BINDING.BOUND
     std::uint32_t started = 0;       //!< bit k: sink k's BINDING.STARTED
     std::vector<std::uint64_t> sid;  //!< the stream_id the datapath takes for sink k: 0 while its SID_VALID is clear
@@ -43,7 +44,7 @@ struct PubView {
 inline bool same_pub(const PubView& a, const PubView& b) {
     return a.da_gate == b.da_gate && a.licence == b.licence && a.idle_slope_bps == b.idle_slope_bps &&
            a.vid == b.vid && a.priority == b.priority && a.adopted == b.adopted && a.talker_decl == b.talker_decl &&
-           a.bound == b.bound && a.started == b.started && a.sid == b.sid;
+           a.src_sid == b.src_sid && a.bound == b.bound && a.started == b.started && a.sid == b.sid;
 }
 
 //! One field of a face register: the register's offset inside an interface's
