@@ -1,0 +1,23 @@
+P1: 1245183 reachable states; 34 hold 16 AAF streams
+   equal to {ranks 0..16 minus k} with the CRF at k or absent, k = 0..16: True
+   fixed terms at 192 kHz: pin 4.557, cdc 0.200, mac 1.000, interferer 12.336; sum 18.093 us
+P2: one format over 34 occupancies and every N within the cap: worst total 34.861 us, N = 6, CRF rank None, hole [15]; 4 and 8 simulated intervals agree: True
+   N = 1: worst 29.918 us over 34 occupancies
+   N = 2: worst 30.949 us over 34 occupancies
+   N = 4: worst 32.921 us over 34 occupancies
+   N = 6: worst 34.861 us over 34 occupancies
+   N = 8: 16 reservations exceed the cap
+P3: shaper wait superset max 57.905 us (CRF rank None, window 5 phases, ahead (8, 8, 8, 8), crf ahead False)
+   packetizer delay superset max 24.827 us (CRF rank 1, window 17 phases, formats (8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8))
+   mixed upper bound = 57.905 + 24.827 + 18.093 = 100.825 us
+   before packetizer time (round-2 form): 75.999 us
+   CRF rank None: superset 57.905 us; reached total 84.319 us, shaper wait 57.905 us, peak reserved 338.944 Mb/s
+   CRF rank None: superset 57.905 us; reached total 84.319 us, shaper wait 57.905 us, peak reserved 338.944 Mb/s
+   CRF rank None: superset 57.905 us; reached total 84.319 us, shaper wait 57.905 us, peak reserved 338.944 Mb/s
+   CRF rank None: superset 57.905 us; reached total 84.319 us, shaper wait 57.905 us, peak reserved 338.944 Mb/s
+   CRF rank None: superset 57.905 us; reached total 84.319 us, shaper wait 57.905 us, peak reserved 338.944 Mb/s
+   CRF rank None: superset 57.905 us; reached total 84.319 us, shaper wait 57.905 us, peak reserved 338.944 Mb/s
+   CRF rank None: superset 57.905 us; reached total 84.319 us, shaper wait 57.905 us, peak reserved 338.944 Mb/s
+   CRF rank None: superset 57.905 us; reached total 84.319 us, shaper wait 57.905 us, peak reserved 338.944 Mb/s
+P4: mixed reached 84.319 us total (shaper wait 57.905 us), CRF rank None, formats by rank {0: 8, 1: 1, 2: 1, 3: 1, 4: 8, 5: 1, 6: 1, 7: 1, 8: 8, 9: 1, 10: 1, 11: 1, 12: 1, 13: 1, 14: 1, 16: 8}, peak reserved 338.944 Mb/s of 750.000
+rc=0
