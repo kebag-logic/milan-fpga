@@ -1,0 +1,755 @@
+{
+ "job": "docs-gates-0",
+ "head": "fa01979959ebff05af34f5a752408de7b3c41cf1",
+ "status": "success",
+ "steps": [
+  {
+   "n": 1,
+   "name": "Run actions/checkout@v4",
+   "result": "action (no local effect)",
+   "uses": "actions/checkout@v4"
+  },
+  {
+   "n": 2,
+   "name": "Set CPU-derived job budgets",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.0,
+   "kind": "run"
+  },
+  {
+   "n": 3,
+   "name": "Cache exact Python downloads",
+   "result": "action (no local effect)",
+   "uses": "actions/cache@v4"
+  },
+  {
+   "n": 4,
+   "name": "Build the validated HDL reference",
+   "result": "success",
+   "rc": 0,
+   "seconds": 3.3,
+   "kind": "run"
+  },
+  {
+   "n": 5,
+   "name": "Upload the HDL reference HTML",
+   "result": "action (no local effect)",
+   "uses": "actions/upload-artifact@v4"
+  },
+  {
+   "n": 6,
+   "name": "Install the python gate dependencies",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.4,
+   "kind": "run"
+  },
+  {
+   "n": 7,
+   "name": "Cache the pinned Markdown renderer downloads",
+   "result": "action (no local effect)",
+   "uses": "actions/cache@v4"
+  },
+  {
+   "n": 8,
+   "name": "Install the pinned Markdown renderer",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.5,
+   "kind": "run"
+  },
+  {
+   "n": 9,
+   "name": "Resolve exact package downloads 6",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.0,
+   "kind": "PROVISIONED"
+  },
+  {
+   "n": 10,
+   "name": "Cache exact package downloads 6",
+   "result": "action (no local effect)",
+   "uses": "actions/cache@v4"
+  },
+  {
+   "n": 11,
+   "name": "Install diagram gate dependencies",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.5,
+   "kind": "run (apt line replaced by a presence check)"
+  },
+  {
+   "n": 12,
+   "name": "Link health, wording, dead-reference and local-info gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 7.1,
+   "kind": "run"
+  },
+  {
+   "n": 13,
+   "name": "Added-line em-dash gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 4.0,
+   "kind": "run"
+  },
+  {
+   "n": 14,
+   "name": "Concise audience documentation gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.9,
+   "kind": "run"
+  },
+  {
+   "n": 15,
+   "name": "Audience diagram no-drift gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 2.3,
+   "kind": "run"
+  },
+  {
+   "n": 16,
+   "name": "Product solution source-fact gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 3.9,
+   "kind": "run"
+  },
+  {
+   "n": 17,
+   "name": "Verified submodule documentation gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 2.2,
+   "kind": "run"
+  },
+  {
+   "n": 18,
+   "name": "HDL timing diagram no-drift gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 1.3,
+   "kind": "run"
+  },
+  {
+   "n": 19,
+   "name": "Published diagram PNG gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 14.8,
+   "kind": "run"
+  },
+  {
+   "n": 20,
+   "name": "Milan feature-status consistency gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 1.5,
+   "kind": "run"
+  },
+  {
+   "n": 21,
+   "name": "Traceability matrix no-drift gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.9,
+   "kind": "run"
+  },
+  {
+   "n": 22,
+   "name": "Fetch the builder source dependencies",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.0,
+   "kind": "run"
+  },
+  {
+   "n": 23,
+   "name": "Imported gPTP documentation gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 1.1,
+   "kind": "run"
+  },
+  {
+   "n": 24,
+   "name": "Code-quality measurement self-tests",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.2,
+   "kind": "run"
+  },
+  {
+   "n": 25,
+   "name": "Cache verified sv2v archive",
+   "result": "action (no local effect)",
+   "uses": "actions/cache@v4"
+  },
+  {
+   "n": 26,
+   "name": "Install the pinned sv2v release",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.0,
+   "kind": "PROVISIONED"
+  },
+  {
+   "n": 27,
+   "name": "Bare-metal scope gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 68.0,
+   "kind": "run"
+  },
+  {
+   "n": 28,
+   "name": "Cache the pinned RV32 SDK",
+   "result": "action (no local effect)",
+   "uses": "actions/cache@v4"
+  },
+  {
+   "n": 29,
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "success",
+   "rc": 0,
+   "seconds": 2.3,
+   "kind": "run"
+  },
+  {
+   "n": 30,
+   "name": "Compiler-absent firmware controls",
+   "result": "success",
+   "rc": 0,
+   "seconds": 527.0,
+   "kind": "run"
+  },
+  {
+   "n": 31,
+   "name": "NVM record-space gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 47.6,
+   "kind": "run"
+  },
+  {
+   "n": 32,
+   "name": "Capture measurement census and clock gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.8,
+   "kind": "run"
+  },
+  {
+   "n": 33,
+   "name": "Saved-state writer gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 243.1,
+   "kind": "run"
+  },
+  {
+   "n": 34,
+   "name": "SoC source-list gate (Vivado would fail 40 min in without this)",
+   "result": "success",
+   "rc": 0,
+   "seconds": 2.6,
+   "kind": "run"
+  },
+  {
+   "n": 35,
+   "name": "RTL source-list drift gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 5.1,
+   "kind": "run"
+  },
+  {
+   "n": 36,
+   "name": "Boundary-unit naming ratchet",
+   "result": "success",
+   "rc": 0,
+   "seconds": 1.1,
+   "kind": "run"
+  },
+  {
+   "n": 37,
+   "name": "Port contract gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 7.3,
+   "kind": "run"
+  },
+  {
+   "n": 38,
+   "name": "Fail-fast ratchet",
+   "result": "success",
+   "rc": 0,
+   "seconds": 4.0,
+   "kind": "run"
+  },
+  {
+   "n": 39,
+   "name": "TODO ownership gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 4.8,
+   "kind": "run"
+  },
+  {
+   "n": 40,
+   "name": "Test-evidence ratchet",
+   "result": "success",
+   "rc": 0,
+   "seconds": 25.9,
+   "kind": "run"
+  },
+  {
+   "n": 41,
+   "name": "Mechanical hygiene ratchet",
+   "result": "success",
+   "rc": 0,
+   "seconds": 1.0,
+   "kind": "run"
+  },
+  {
+   "n": 42,
+   "name": "SystemVerilog idiom gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.9,
+   "kind": "run"
+  },
+  {
+   "n": 43,
+   "name": "C and C++ idiom gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 3.8,
+   "kind": "run"
+  },
+  {
+   "n": 44,
+   "name": "Python idiom gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 14.4,
+   "kind": "run"
+  },
+  {
+   "n": 45,
+   "name": "Shell idiom gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.4,
+   "kind": "run"
+  },
+  {
+   "n": 46,
+   "name": "Doc cited-path gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.1,
+   "kind": "run"
+  },
+  {
+   "n": 47,
+   "name": "Archive integrity gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.5,
+   "kind": "run"
+  },
+  {
+   "n": 48,
+   "name": "Per-page contents gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 12.3,
+   "kind": "run"
+  },
+  {
+   "n": 49,
+   "name": "AEM store generator self-test",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.1,
+   "kind": "run"
+  },
+  {
+   "n": 50,
+   "name": "Sweep/build shape gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 13.2,
+   "kind": "run"
+  },
+  {
+   "n": 51,
+   "name": "Deploy shape gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.4,
+   "kind": "run"
+  },
+  {
+   "n": 52,
+   "name": "Entity shape gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 61.7,
+   "kind": "run"
+  },
+  {
+   "n": 53,
+   "name": "Fetch inventory dependencies",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.0,
+   "kind": "run"
+  },
+  {
+   "n": 54,
+   "name": "CI scheduling and evidence controls",
+   "result": "success",
+   "rc": 0,
+   "seconds": 31.6,
+   "kind": "run"
+  },
+  {
+   "n": 55,
+   "name": "Record executed gate outcomes",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.3,
+   "kind": "run"
+  },
+  {
+   "n": 56,
+   "name": "Upload executed gate outcomes",
+   "result": "action (no local effect)",
+   "uses": "actions/upload-artifact@v4"
+  },
+  {
+   "n": 57,
+   "name": "Record actual job execution",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.2,
+   "kind": "run"
+  },
+  {
+   "n": 58,
+   "name": "Upload actual job execution",
+   "result": "action (no local effect)",
+   "uses": "actions/upload-artifact@v4"
+  }
+ ],
+ "steps_ctx": {
+  "ci_step_0": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_1": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_2": {
+   "outputs": {
+    "cache-hit": "true"
+   },
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_1": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_2": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_5": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_6": {
+   "outputs": {
+    "cache-hit": "true"
+   },
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_7": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_packages_6": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_9": {
+   "outputs": {
+    "cache-hit": "true"
+   },
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_10": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_7": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_8": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_9": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_10": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_11": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_12": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_13": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_14": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_15": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_16": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_21": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_18": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_19": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_24": {
+   "outputs": {
+    "cache-hit": "true"
+   },
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_25": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_21": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_27": {
+   "outputs": {
+    "cache-hit": "true"
+   },
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_28": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_24": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_26": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_27": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_28": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_29": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_30": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_31": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_32": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_33": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_34": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_35": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_36": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_37": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_38": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_39": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_40": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_43": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_44": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_45": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_46": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_47": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_48": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_49": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_52": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_50": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_54": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_55": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_record": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_upload": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  }
+ }
+}

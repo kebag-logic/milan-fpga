@@ -1,0 +1,14 @@
+REFUSED srp.listener_ready.if1: no end: missing ['pass_end:4']
+REFUSED srp.domain.if1: no end: missing ['tx:4']
+REFUSED acmp.tmr_no_adp.if1: no start: no deadline:3 after the mark
+REFUSED acmp.get_rx_state.if0: no end: missing ['resp:1:4101']
+REFUSED acmp.probe_tx.if0: no end: missing ['resp:1:4103']
+REFUSED acmp.disconnect_tx.if0: no end: missing ['resp:1:4105']
+REFUSED acmp.bind_rx.if1: no end: missing ['resp:1:4107', 'acmp_cmd:1:PROBE_TX', 'arm:3', 'pub:710']
+REFUSED acmp.get_rx_state.if1: no end: missing ['resp:1:4108']
+REFUSED acmp.unbind_rx.if1: no end: missing ['resp:1:4109', 'tmr:3']
+REFUSED acmp.probe_tx.if1: no end: missing ['resp:1:410a']
+REFUSED acmp.get_tx_state.if1: no end: missing ['resp:1:410b']
+REFUSED acmp.disconnect_tx.if1: no end: missing ['resp:1:410c']
+REFUSED acmp.get_tx_connection.if1: no end: missing ['resp:1:410d']
+17 groups graded, 13 refusals, 143 T_svc misses (143 of 169 probe instances, 104 of 116 paths)

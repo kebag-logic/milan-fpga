@@ -1,0 +1,10 @@
+P1-xip-64x1 regrade rc 1 table same; 16 groups graded, 5 refusals, 104 T_svc misses (104 of 116 probe instances, 69 of 76 paths)
+P1-none regrade rc 0 table same; 18 groups graded, 0 refusals, 55 T_svc misses (55 of 141 probe instances, 20 of 81 paths)
+P8-none regrade rc 1 table same; 17 groups graded, 2 refusals, 100 T_svc misses (100 of 180 probe instances, 58 of 127 paths)
+P1-xip-512x1 regrade rc 0 table same; 18 groups graded, 0 refusals, 67 T_svc misses (67 of 141 probe instances, 23 of 81 paths)
+P8-xip-64x1 regrade rc 1 table same; 17 groups graded, 13 refusals, 143 T_svc misses (143 of 169 probe instances, 104 of 116 paths)
+P8-xip-512x1 regrade rc 1 table same; 17 groups graded, 1 refusals, 122 T_svc misses (122 of 181 probe instances, 80 of 128 paths)
+budget self-test rc 0
+boot staged-1x1 regrade rc 0; ctrl_split_boot: PASS (0 finding(s))
+boot staged-8x8 regrade rc 0; ctrl_split_boot: PASS (0 finding(s))
+boot native rc 0

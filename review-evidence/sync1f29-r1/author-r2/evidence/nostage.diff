@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+index 8c5f5d67d5..9a1e9f4d22 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -356,7 +356,7 @@ def add_devices(soc: object, platform: object, addresses: dict[str, int], contra
+     module = N25Q128A13(SpiCodes.READ_1_1_1_FAST)
+     if module.total_size != addresses['flash_size']:
+         raise RuntimeError('fixture flash window size differs from the shipping part')
+-    phy = milan_soc.stage_spi_phy(FlashBoundary(platform.request('flash'), module))
++    phy = FlashBoundary(platform.request('flash'), module)
+     spiflash = LiteSPI(phy, mmap_endianness=soc.cpu.endianness, with_master=False)
+     spiflash.add_module(name='phy', module=phy)
+     master = LiteSPIMaster(tx_fifo_depth=1, rx_fifo_depth=1, cs_width=len(phy.cs))

@@ -1,0 +1,250 @@
+{
+ "job": "docs-gates-1",
+ "head": "fa01979959ebff05af34f5a752408de7b3c41cf1",
+ "status": "success",
+ "steps": [
+  {
+   "n": 1,
+   "name": "Run actions/checkout@v4",
+   "result": "action (no local effect)",
+   "uses": "actions/checkout@v4"
+  },
+  {
+   "n": 2,
+   "name": "Set CPU-derived job budgets",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.0,
+   "kind": "run"
+  },
+  {
+   "n": 3,
+   "name": "Cache exact Python downloads",
+   "result": "action (no local effect)",
+   "uses": "actions/cache@v4"
+  },
+  {
+   "n": 4,
+   "name": "Install the python gate dependencies",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.4,
+   "kind": "run"
+  },
+  {
+   "n": 5,
+   "name": "Cache the pinned Markdown renderer downloads",
+   "result": "action (no local effect)",
+   "uses": "actions/cache@v4"
+  },
+  {
+   "n": 6,
+   "name": "Install the pinned Markdown renderer",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.4,
+   "kind": "run"
+  },
+  {
+   "n": 7,
+   "name": "Resolve exact package downloads 4",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.0,
+   "kind": "PROVISIONED"
+  },
+  {
+   "n": 8,
+   "name": "Cache exact package downloads 4",
+   "result": "action (no local effect)",
+   "uses": "actions/cache@v4"
+  },
+  {
+   "n": 9,
+   "name": "Install diagram gate dependencies",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.4,
+   "kind": "run (apt line replaced by a presence check)"
+  },
+  {
+   "n": 10,
+   "name": "Fetch the builder source dependencies",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.0,
+   "kind": "run"
+  },
+  {
+   "n": 11,
+   "name": "Cache verified sv2v archive",
+   "result": "action (no local effect)",
+   "uses": "actions/cache@v4"
+  },
+  {
+   "n": 12,
+   "name": "Install the pinned sv2v release",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.0,
+   "kind": "PROVISIONED"
+  },
+  {
+   "n": 13,
+   "name": "Cache the pinned RV32 SDK",
+   "result": "action (no local effect)",
+   "uses": "actions/cache@v4"
+  },
+  {
+   "n": 14,
+   "name": "Install and verify the pinned RV32 SDK",
+   "result": "success",
+   "rc": 0,
+   "seconds": 2.9,
+   "kind": "run"
+  },
+  {
+   "n": 15,
+   "name": "End-station builder gates, leg 0 of 2",
+   "result": "success",
+   "rc": 0,
+   "seconds": 1081.4,
+   "kind": "run"
+  },
+  {
+   "n": 16,
+   "name": "Record executed gate outcomes",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.3,
+   "kind": "run"
+  },
+  {
+   "n": 17,
+   "name": "Upload executed gate outcomes",
+   "result": "action (no local effect)",
+   "uses": "actions/upload-artifact@v4"
+  },
+  {
+   "n": 18,
+   "name": "Record actual job execution",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.2,
+   "kind": "run"
+  },
+  {
+   "n": 19,
+   "name": "Upload actual job execution",
+   "result": "action (no local effect)",
+   "uses": "actions/upload-artifact@v4"
+  }
+ ],
+ "steps_ctx": {
+  "ci_step_0": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_1": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_2": {
+   "outputs": {
+    "cache-hit": "true"
+   },
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_3": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_4": {
+   "outputs": {
+    "cache-hit": "true"
+   },
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_5": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_packages_4": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_7": {
+   "outputs": {
+    "cache-hit": "true"
+   },
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_8": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_9": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_10": {
+   "outputs": {
+    "cache-hit": "true"
+   },
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_11": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_12": {
+   "outputs": {
+    "cache-hit": "true"
+   },
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_13": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "gate_25_0": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_15": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_16": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_record": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_upload": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  }
+ }
+}

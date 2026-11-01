@@ -1,0 +1,25 @@
+COMMAND $HOSTPATH -B $SCRATCH/nostage/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $HOSTPATH --compiler-rt $HOSTPATH --litex-software $HOSTPATH --output $SCRATCH/boot/nostage-1x1/runtime
+COMMAND $HOSTPATH -B $SCRATCH/nostage/sw/firmware/ctrl/test/ctrl_plat_image.py --config $SCRATCH/nostage/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --csr-csv $SCRATCH/nostage/sw/firmware/ctrl/test/ctrl_plat_csr.csv --output $SCRATCH/boot/nostage-1x1/image-provisional --libc $SCRATCH/boot/nostage-1x1/runtime/libc.a --compiler-runtime $SCRATCH/boot/nostage-1x1/runtime/libcompiler_rt.a
+COMMAND $HOSTPATH -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5])))) $SCRATCH/nostage/tb/verilator/ctrl_split_boot $SCRATCH/boot/nostage-1x1/soc-provisional endstation_ax7101_1x1_tdm8 $SCRATCH/boot/nostage-1x1/image-provisional/ctrl_app.elf 1
+COMMAND $HOSTPATH -B $SCRATCH/nostage/sw/firmware/ctrl/test/ctrl_plat_image.py --config $SCRATCH/nostage/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --csr-csv $SCRATCH/boot/nostage-1x1/soc-provisional/csr.csv --output $SCRATCH/boot/nostage-1x1/image --libc $SCRATCH/boot/nostage-1x1/runtime/libc.a --compiler-runtime $SCRATCH/boot/nostage-1x1/runtime/libcompiler_rt.a
+COMMAND $HOSTPATH -B -c import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5])))) $SCRATCH/nostage/tb/verilator/ctrl_split_boot $SCRATCH/boot/nostage-1x1/soc endstation_ax7101_1x1_tdm8 $SCRATCH/boot/nostage-1x1/image/ctrl_app.elf 1
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir $SCRATCH/boot/nostage-1x1/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS -O3 -std=c++17 -Wall -Wextra -I$SCRATCH/nostage/tb/common -I$SCRATCH/boot/nostage-1x1 -I$SCRATCH/nostage/tb/verilator/fw_service_budget $SCRATCH/nostage/hdl/milan/mailbox/KL_mbx_pkg.sv $SCRATCH/nostage/hdl/milan/mailbox/KL_mbx_ring.sv $SCRATCH/nostage/hdl/milan/mailbox/KL_mbx_rx.sv $SCRATCH/nostage/hdl/milan/mailbox/KL_mbx_tx.sv $SCRATCH/nostage/hdl/milan/mailbox/KL_mbx_evt.sv $SCRATCH/nostage/hdl/milan/mailbox/KL_mbx.sv $SCRATCH/nostage/hdl/milan/mailbox/KL_mbx_wb.sv $HOSTPATH $HOSTPATH $HOSTPATH $SCRATCH/boot/nostage-1x1/soc/gateware/sim.v $SCRATCH/nostage/tb/verilator/ctrl_split_boot/sim_main.cpp
+COMMAND make -j16 -C $SCRATCH/boot/nostage-1x1/native -f Vsim.mk Vsim
+COMMAND Vsim exited 0
+NATIVE exit status 0; == ctrl_split_boot: checks: 1   failures: 0 ==
+BOOT ready at bus cycle 8438300 (4219150 CPU cycles): 84.383 ms against 20000 ms; banners 1
+TRACE 21 window writes before ready; the first 18 equal configure_fabric()'s 15 and MAAP's one-owner 3
+UART milan_status: 305 bytes; span 21.531 ms; to the first byte 1.962 ms; longest gap between bytes 1.265 ms; against 500 ms and T_svc 10 ms
+UART milan_gettime: 27 bytes; span 2.266 ms; to the first byte 1.238 ms; longest gap between bytes 0.964 ms; against 500 ms and T_svc 10 ms
+UART milan_gettime: 27 bytes; span 2.523 ms; to the first byte 1.193 ms; longest gap between bytes 1.265 ms; against 500 ms and T_svc 10 ms
+GRADER id-miln: PASS (ID=0x4D494C4E VERSION=0x00020060); not evidence: ID is the datapath's reset value, which the testbench answers
+GRADER version-gptp-publication: PASS (VERSION=0x00020060 (need major 2, minor >= 0x0056)); not evidence: VERSION is the datapath's reset value, 0x0002_0060 (decision D2), which the testbench answers
+GRADER aem-image: PASS (AEM=loaded)
+GRADER fabric-enabled: FAIL (PTP=0x5A050001 ADP=0x5A060000 PP=0x5A092000); a difference by design: the split never sets ADP_CTRL[0] or PP_CTRL[0], because the core owns ADP and AECP (ARCHITECTURE_HW_SW_SPLIT.md section 1): a split image fails this check on any board
+GRADER gptp-identities: PASS (GM=0x5A0628015A062401 PARENT=0x5A0734015A073001); not evidence: no gPTP peer and no datapath: GM and parent are the stand-in register file's words
+GRADER gptp-path: PASS (count=1 generation=0); not evidence: no gPTP peer and no datapath: AS_PATH_CMD is the stand-in register file's word
+GRADER gptp-pdelay: FAIL (pdelay=1510401025 ns (need a measured 0 < delay < 800 ns)); not evidence: no gPTP peer and no datapath: PDELAY_NS is the stand-in register file's word
+GRADER clkv-fabric-owner: FAIL (CLKV_STAT=0x5A077C01 SYNC=0 ASCAPABLE=1 TU=1); not evidence: no datapath: CLKV_STAT is the stand-in register file's word
+GRADER gptp-locked: FAIL (SYNC=0 ASCAPABLE=1 TU=1); not evidence: no gPTP peer and no datapath: CLKV_STAT is the stand-in register file's word
+GRADER phc-advances: PASS (0x00000000065FECB7 -> 0x00000000069113D7)
+ctrl_split_boot: PASS (0 finding(s))

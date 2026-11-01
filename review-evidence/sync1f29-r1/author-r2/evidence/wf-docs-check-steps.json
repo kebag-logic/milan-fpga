@@ -1,0 +1,131 @@
+{
+ "job": "docs-check",
+ "head": "fa01979959ebff05af34f5a752408de7b3c41cf1",
+ "status": "success",
+ "steps": [
+  {
+   "n": 1,
+   "name": "Run actions/checkout@v4",
+   "result": "action (no local effect)",
+   "uses": "actions/checkout@v4"
+  },
+  {
+   "n": 2,
+   "name": "Set CPU-derived job budgets",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.0,
+   "kind": "run"
+  },
+  {
+   "n": 3,
+   "name": "Cache exact Python downloads",
+   "result": "action (no local effect)",
+   "uses": "actions/cache@v4"
+  },
+  {
+   "n": 4,
+   "name": "Cache pinned evidence reader downloads",
+   "result": "action (no local effect)",
+   "uses": "actions/cache@v4"
+  },
+  {
+   "n": 5,
+   "name": "Install the pinned evidence reader",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.4,
+   "kind": "run"
+  },
+  {
+   "n": 6,
+   "name": "Download executed gate outcomes",
+   "result": "action (no local effect)",
+   "uses": "actions/download-artifact@v4"
+  },
+  {
+   "n": 7,
+   "name": "Require every gate exactly once",
+   "result": "success",
+   "rc": 0,
+   "seconds": 1.0,
+   "kind": "run"
+  },
+  {
+   "n": 8,
+   "name": "Upload verified gate union",
+   "result": "action (no local effect)",
+   "uses": "actions/upload-artifact@v4"
+  },
+  {
+   "n": 9,
+   "name": "Record actual job execution",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.2,
+   "kind": "run"
+  },
+  {
+   "n": 10,
+   "name": "Upload actual job execution",
+   "result": "action (no local effect)",
+   "uses": "actions/upload-artifact@v4"
+  }
+ ],
+ "steps_ctx": {
+  "ci_step_0": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_1": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_2": {
+   "outputs": {
+    "cache-hit": "true"
+   },
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_3": {
+   "outputs": {
+    "cache-hit": "true"
+   },
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_4": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_5": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_6": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_7": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_record": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_upload": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  }
+ }
+}
