@@ -602,6 +602,16 @@ def cpu_clock_refusals(spec: dict) -> list[str]:
     return out
 
 
+def flash_window_refusals(spec: dict) -> list[str]:
+    """Why a build's flash window is not the one its arm needs: uncached and not executable, as the product's split
+    CPU has it (milan_soc.ctrl_uncached_flash), but in the hybrid-XIP arm, which runs from it. A cached window reads
+    the saved state through the data cache, which the product never does (#665). Empty when it is."""
+    flash = spec['addresses']['flash']
+    modes = [r[2] for r in spec['memory_regions'] if r[0] == flash]
+    want = 'rxc' if spec.get('xip') else 'r'
+    return [] if modes == [want] else [f"its flash window's regions are {modes}, not ['{want}']"]
+
+
 def clock_line(spec: dict) -> str:
     """A build's CPU clock as every table and run line names it (#665): the split CPU on the bus clock."""
     mhz = lambda hz: f'{hz / 1e6:g} MHz'
@@ -626,6 +636,9 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
         raise ClockRefusal(f"the split CPU is not on the bus clock: {'; '.join(refused)}")
     spec['elf'] = str(elf)
     spec['xip'] = core.xip
+    refused = flash_window_refusals(spec)
+    if refused:
+        raise RuntimeError(f"the test SoC is not the split placement's: {'; '.join(refused)}")
     spec['flash_image'] = str(flash_image) if flash_image else None
     sys.path.insert(0, str(ROOT / 'sw/mailbox'))
     from mailbox_model import load

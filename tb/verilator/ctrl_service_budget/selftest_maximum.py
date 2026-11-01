@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
+import build as builder
 import grade
 import run
 import scenario
@@ -79,6 +80,27 @@ def maximum_checks() -> list[tuple[str, bool, str]]:
             wrong.append(f'results.json {saved}; table {lines}')
     out.append(("results.json's composed maximum is the record the table renders, with its lower-bound and "
                 'partial labels', not wrong, '; '.join(wrong)))
+    return out
+
+
+def stimulus_checks(points: list[scenario.Point]) -> list[tuple[str, bool, str]]:
+    """Each AECP group offers one frame a refill period of the channel's token bucket (scenario.paced), and a build's
+    flash window is its arm's (build.flash_window_refusals)."""
+    aecp = scenario.CH['aecp']
+    wait = f'wait cycles {scenario.CONTRACT.channels[aecp].refill_ms * scenario.MS}'
+    fast = []
+    for p in points:
+        group = scenario.paced(scenario.Group('aecp', steps=['frame 0 00', 'wait quiet 3', 'frame 0 01']), aecp)
+        steps = group.steps
+        fast += [f'{p.interfaces}: {steps[n]}' for n in range(len(steps))
+                 if steps[n].startswith('frame ') and (n == 0 or steps[n - 1] != wait)]
+    out = [('each frame of an AECP group waits a refill period of its token bucket', not fast, str(fast))]
+    regions = lambda mode: {'addresses': {'flash': 7}, 'memory_regions': [[0, 1, 'rxc', 'p'], [7, 1, mode, 'p']]}
+    cases = [(False, 'r', True), (False, 'rxc', False), (False, 'rc', False), (True, 'rxc', True), (True, 'r', False)]
+    wrong = [(xip, mode) for xip, mode, fits in cases
+             if (not builder.flash_window_refusals({**regions(mode), 'xip': xip})) != fits]
+    out.append(("a build's flash window is uncached and not executable, but in the hybrid-XIP arm", not wrong,
+                str(wrong)))
     return out
 
 

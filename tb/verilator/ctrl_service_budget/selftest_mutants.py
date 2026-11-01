@@ -432,6 +432,12 @@ MUTANTS: dict[str, Patches] = {
         grade, 'check_load', _load_at_least)],
     "composition: the load is the stimulus's own declaration (earlier rule)": lambda: [patch.object(
         grade, 'check_load', _load_declared)],
+    "pacing: an AECP group's frames meet an empty token bucket": lambda: [patch.object(
+        scenario, 'paced', lambda g, channel: g)],
+    'flash: a cached window is taken': lambda: [patch.object(
+        build, 'flash_window_refusals', lambda spec: [])],
+    'flash: the hybrid-XIP arm is held to the uncached window': lambda: [patch.object(
+        build, 'flash_window_refusals', lambda spec, f=build.flash_window_refusals: f({**spec, 'xip': False}))],
     'opening: a backlog window opens without waiting for the drained event ring': lambda: [patch.object(
         scenario, 'OPEN_WINDOW', ('gap 1', 'mark composed'))],
     'opening: the window opens with records held': lambda: [patch.object(

@@ -471,7 +471,15 @@ def aecp_groups(p: Point, build: dict) -> list[Group]:
         # LOCK_ENTITY (7.4.2.1): flags, locked_id, descriptor_type and descriptor_index (the ENTITY).
         cmd(i, 'lock_entity', 0x0001, f.be(0, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2), controller=CTL2)
         cmd(i, 'unlock_entity', 0x0001, f.be(1, 4) + f.be(0, 8) + f.be(0, 2) + f.be(0, 2), controller=CTL2)
-    return [g]
+    return [paced(g, aecp)]
+
+
+def paced(g: Group, channel: int) -> Group:
+    """One frame a refill period of the channel's token bucket (mailbox.yaml): on the CPU at 100 MHz a response leaves
+    well inside it, and a frame past the bucket's burst is refused, so its path measures nothing (#665)."""
+    wait = f'wait cycles {CONTRACT.channels[channel].refill_ms * MS}'
+    g.steps = [s for step in g.steps for s in ((wait, step) if step.startswith('frame ') else (step,))]
+    return g
 
 
 def registrations() -> int:
@@ -599,7 +607,7 @@ def aecp_fanout_groups(p: Point, build: dict) -> list[Group]:
                           recipients=everyone),
                     f'frame {i} {acmp_cmd(p, "BIND_RX", i, 0x5f00 + i).hex()}',
                     wait=f'tx {aecp} {len(everyone)} within {200 * MS}')
-    return [g]
+    return [paced(g, aecp)]
 
 
 def maap_groups(p: Point) -> list[Group]:
@@ -879,11 +887,8 @@ def backlog_groups(p: Point) -> list[Group]:
 
 
 def control_groups(p: Point) -> list[Group]:
-    """The planted over-budget control's path: RCV_ADP_DISCOVER in WAITING to its TMR_DELAY arm.
-
-    The arm is made by ADP's receive handler after its work, so a slower handler
-    delays it. With the ordinary image the path fits T_svc; with build.py's
-    slow-adp-rx it must miss it, by name (run.py --mutation slow-adp-rx).
+    """The planted over-budget control's path: RCV_ADP_DISCOVER in WAITING to its TMR_DELAY arm, made by ADP's receive
+    handler after its work. The ordinary image fits T_svc; build.py's slow-adp-rx must miss it, by name.
     """
     adp = CH['adp']
     g = Group('control', sim_ms=2800)
@@ -902,14 +907,10 @@ SHUTDOWN_MS = 2500
 def shutdown_groups(p: Point) -> list[Group]:
     """SHUTDOWN -> ENTITY_DEPARTING committed (MAILBOX_SPLIT.md:523), through a test-only entry.
 
-    The linked image never disables ADP, so this path has no input in it.
-    build.py's shutdown-entry variant (a scratch copy of the fixture, never the
-    formal image) adds a poll that calls adp_mbx_set_enable(false) once, at
-    NOW_MS SHUTDOWN_MS. The path starts at that call's entry and ends at each
-    interface's ENTITY_DEPARTING commit (IEEE 1722.1-2021 6.2.5.2.2). The
-    control group's probe is another instance of the same path, adp.shutdown,
-    which slow-adp-shutdown must push over T_svc (run.py --mutation
-    slow-adp-shutdown).
+    The linked image never disables ADP, so build.py's shutdown-entry variant (a scratch copy of the fixture, never
+    the formal image) adds a poll that calls adp_mbx_set_enable(false) once, at NOW_MS SHUTDOWN_MS. The path starts
+    at that call's entry and ends at each interface's ENTITY_DEPARTING commit (IEEE 1722.1-2021 6.2.5.2.2). The control
+    group's probe is another instance of the path, adp.shutdown, which slow-adp-shutdown must push over T_svc.
     """
     adp = CH['adp']
     out = []

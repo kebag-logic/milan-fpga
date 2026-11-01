@@ -490,6 +490,8 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, core: object) -> di
         for path in mailbox_sources(n_if, build_dir / 'mbx-variant'):
             platform.add_source(str(path))
         add_devices(soc, platform, addresses, contract, n_if)
+        if not core.xip:
+            milan_soc.ctrl_uncached_flash(soc)
         builder = Builder(soc, output_dir=str(build_dir), compile_software=False, compile_gateware=False,
                           csr_csv=str(build_dir / 'csr.csv'))
         sim_config = SimConfig()

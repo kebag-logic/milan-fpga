@@ -219,9 +219,8 @@ A mailbox access is timed at the CPU's load/store bus, from command to response.
 Instruction fetches are counted at the CPU's fetch bus, by region.
 Without the cache a fetch is one word; with it, one 64-byte line refill, whose wait runs to its last beat.
 With the split CPU's data cache, loads and stores are counted at its IO bus, which carries every uncached access and so every mailbox access; cached accesses and refills never reach it and are not counted.
-The flash window is this test SoC's own, cacheable and executable for the labelled hybrid-XIP arm, while the product's split CPU has it uncached and not executable (`milan_soc.ctrl_uncached_flash`, #665).
-So on the data-cached CPU the saved-state store reads the flash through the cache here, which the product never does: in the ACMP binding groups at 8x8 one pass took 14.52 ms, against 4.47 ms with the window uncached as in the product.
-Paths outside those groups read no flash in a pass.
+The flash window is uncached and not executable, as the product's split CPU has it (`milan_soc.ctrl_uncached_flash`, #665), but in the labelled hybrid-XIP arm, which runs from it.
+Before that the window was cacheable in every arm, so on the data-cached CPU the saved-state store read the flash through the cache, which the product never does: its 256-byte read and its buffer met at one cache index, and the line went back and forth for each byte, so one pass in each save took 11.8 ms at 8x8 and 3.8 ms at 1x1.
 
 One phase is one sample.
 So each probe also reports a measured bound.
@@ -968,7 +967,8 @@ Its checks:
 - a run without every backlog row names the rows not run, and its composed maximum is partial: arm B's three rows, and one row alone;
 - `results.json`'s composed maximum is the record the table renders, its line checked word for word: a lower bound over every window, a partial figure, and both at once;
 - every backlog window, at one and two interfaces, waits for the event ring to drain and then opens; the event records held are those posted before the mark less those released, through the ring index's wrap; a window short of its grandmaster changes is refused, naming the event records held when it opened;
-  these four are [`selftest_maximum.py`](selftest_maximum.py)'s, which `selftest.py` runs;
+- each frame of an AECP group waits a refill period of its token bucket, and a build's flash window is uncached and not executable, but in the hybrid-XIP arm;
+  these five are [`selftest_maximum.py`](selftest_maximum.py)'s, which `selftest.py` runs;
 - the responses owed ahead are exactly the owed ones, in order; a command that may be dropped and is never answered is reported, unbounded, and one that may not is refused;
 - the defined loads, restated; every composed window of the real scenario, at one and two interfaces, sends and declares exactly its defined load; the owed row has its seven owed and its four behind;
 - the real fan-out group registers the firmware's capacity (read from `aecp.h`) on every interface, every registration is each fan-out's recipient, and no requester is registered;
@@ -1012,6 +1012,9 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | clock ratio: a pass's bus cycles equal its CPU cycles | fixture row fixture.link_up.if0 |
 | pass bound: it starts at the input, not at the running pass | fixture row fixture.malformed.if0 |
 | composition: the window's population is not checked | a composed load missing one channel is refused |
+| pacing: an AECP group's frames meet an empty token bucket | each frame of an AECP group waits a refill period of its token bucket |
+| flash: a cached window is taken | a build's flash window is uncached and not executable, but in the hybrid-XIP arm |
+| flash: the hybrid-XIP arm is held to the uncached window | a build's flash window is uncached and not executable, but in the hybrid-XIP arm |
 | opening: a backlog window opens without waiting for the drained event ring | every backlog window waits for the event ring to drain, then opens |
 | opening: the window opens with records held | every backlog window waits for the event ring to drain, then opens |
 | opening: the records released are not counted | fixture row fixture.link_up.if0 |

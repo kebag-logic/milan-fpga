@@ -51,7 +51,7 @@ import grade  # noqa: E402
 import run  # noqa: E402
 import scenario  # noqa: E402
 import selftest_mutants  # noqa: E402
-from selftest_maximum import maximum_checks, opening_checks  # noqa: E402
+from selftest_maximum import maximum_checks, opening_checks, stimulus_checks  # noqa: E402
 from selftest_share import clock_checks, share_checks  # noqa: E402
 
 FIXTURE_LOG = HERE / 'fixture.log'
@@ -853,7 +853,8 @@ def built(bdir: Path, *flags: str) -> tuple[str, dict]:
     cpu_cd = lambda core: core.cpu_cd or 'sys'
     soc.build = lambda build_dir, shape, elf, n_if, core: dict(
         sources=[], shape=shape, interfaces=n_if, cpu_regions=core.cpu_regions, fetch_l1=core.fetch_l1, sys_hz=SYS_HZ,
-        cpu_cd=cpu_cd(core), cpu_hz=SYS_HZ if cpu_cd(core) == 'sys' else CPU_HZ, milan_hz=CPU_HZ)
+        cpu_cd=cpu_cd(core), cpu_hz=SYS_HZ if cpu_cd(core) == 'sys' else CPU_HZ, milan_hz=CPU_HZ,
+        addresses=soc.fixture_addresses(), memory_regions=[[0x20000000, 1, 'rxc' if core.xip else 'r', 'p']])
     soc.ledgered_plan = lambda name: contextlib.nullcontext()
     stubs = dict(
         firmware=lambda out, *a: write(out / 'image/ctrl_app.elf', b'elf'),
@@ -911,7 +912,8 @@ def checks() -> list[Check]:
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
             *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
             *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
-            *clock_checks(built, main_verdict), *opening_checks(points(json.loads(ORACLE.read_text())))]
+            *clock_checks(built, main_verdict), *opening_checks(points(json.loads(ORACLE.read_text()))),
+            *stimulus_checks(points(json.loads(ORACLE.read_text())))]
 
 
 def write_fixture(log: Path, build_json: Path) -> None:
