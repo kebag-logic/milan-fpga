@@ -175,7 +175,7 @@
    "id": "D0-024",
    "page": "docs/integration/QSPI_FLASHBOOT.md",
    "quote": "was deleted 2026-08-13 with this repository's own AECP/AEM engine, so nothing",
-   "source": "`sw/firmware/milan_baremetal/milan_baremetal.c` lines 329-331 put saved-state slots A and B in `MILAN_FLASH_JOURNAL_OFFSET`, the `journal` range of `sw/litex/milan_soc.py` line 173; `nvm_commit()` (line 1405) erases, programs and verifies the alternate slot, and `nvm_boot()` (line 1656, called at line 1914) judges both slots at every boot",
+   "source": "`sw/firmware/milan_baremetal/milan_baremetal.c` lines 329-331 put saved-state slots A and B in `MILAN_FLASH_JOURNAL_OFFSET`, the `journal` range of `sw/litex/milan_soc.py` line 173; `nvm_commit()` (`sw/firmware/milan_baremetal/milan_baremetal.c` line 1405) erases, programs and verifies the alternate slot, and `nvm_boot()` (line 1656, called at line 1914) judges both slots at every boot",
    "correction": "Say that the `journal` range holds the bare-metal firmware's two 64 KiB saved-state slots, written alternately and judged at every boot, which is why a reflash must not erase it; the `user` range stays reserved and unused.",
    "also": [
     "was deleted 2026-08-13 with this repository's own AECP/AEM engine"
@@ -481,7 +481,7 @@
    "page": "docs/integration/INTEGRATION_GUIDE.md",
    "quote": "`milan_datapath` answers every other word and every validity flag.",
    "source": "`protocol_processor_top.sv` in the `protocol-processor` submodule, lines 3631-3632 replace selector 6's VLAN and lines 3639-3645 clear `0x52000000`, the stream_id and the destination MAC while the input is unsettled, on the answer the wire carries; `hdl/milan/milan_datapath.sv` lines 6048-6053 state that it cannot see probing_status, so the processor applies that rule",
-   "correction": "Say that `milan_datapath` gathers the other words and the flags (`hdl/milan/milan_datapath.sv` lines 6194-6217 and 6392-6456), and that the processor's answer is final for a Stream Input: `protocol_processor_top.sv` in the `protocol-processor` submodule, lines 3624-3648 pass the gathered data through, then replace the VLAN and mask the three flags and two identity fields while the input is unsettled, which is probing_status other than PROBING_COMPLETED (line 3621). Keep the gather data as the parent's. D0-063 lists each word."
+   "correction": "Say that `milan_datapath` gathers the other words and the flags (`hdl/milan/milan_datapath.sv` lines 6194-6217 and 6392-6456), and that the processor's answer is final for a Stream Input: `protocol_processor_top.sv` in the `protocol-processor` submodule, lines 3624-3648 pass the gathered data through, then replace the VLAN and mask the three flags and two identity fields while the input is unsettled, which is probing_status other than PROBING_COMPLETED (lines 3621-3622). Keep the gather data as the parent's. D0-063 lists each word."
   },
   {
    "id": "D0-065",
