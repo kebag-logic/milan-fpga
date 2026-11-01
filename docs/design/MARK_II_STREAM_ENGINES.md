@@ -221,8 +221,17 @@ Phase 1's last frame waits 53.085 µs for credit.
 Start: the packet's last sample at the TDM pin.
 End: its frame's first bit on the wire.
 
-[NFR-LAT-03](../reference/FR_NFR.md#31-performance--real-time) sets 65 µs for every talker stream.
+[NFR-LAT-03](../reference/FR_NFR.md#31-performance--real-time) sets a 65 µs target for every talker stream.
 The [owner](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658) called that target ideal on 2026-10-31.
+
+[Owner decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6558021030), 2026-11-01: 65 µs is a target.
+It does not bind every legal stream setup.
+
+Derived bounds for mixed formats and fewer reservations are accepted.
+They stay published below.
+
+No connection is refused because of them.
+No restriction to one base format applies.
 
 A CRF stream carries no TDM sample.
 So the bound applies to its AAF streams.
@@ -377,7 +386,7 @@ That is the largest over every placement and mix.
 ```
 
 At 16 reservations, one format per port meets 65 µs.
-Mixed formats do not; the [open questions](#open-questions) list it.
+Mixed formats do not; the [owner's decision](#talker-latency-budget) accepts their bounds.
 
 With fewer reservations some cases exceed it, as [shown below](#fewer-reservations-on-a-port).
 
@@ -1214,35 +1223,25 @@ Both are known to fail: [one probe set](https://github.com/kebag-logic/milan-fpg
 
 ## Open questions
 
-1. **Talker latency with mixed formats or fewer reservations.**
-   - At 16 mixed reservations, every rate exceeds 65 µs.
-   - At 48 kHz a reached mix needs 92.530 µs.
-   - No 16-stream 48 kHz mix exceeds 95.867 µs.
-   - Three co-phased streams alone wait 83.012 µs for credit.
-   - The owner called 65 µs ideal; the choices include these:
-     - accept the derived bounds for those cases;
-     - restrict each port to one base format;
-     - re-phase a running stream, accepting an audio gap;
-     - change the stagger or shape decision.
-2. **Save bursts.**
+1. **Save bursts.**
    A burst beyond S1 exceeds 0.5 s at maxima.
    The owner may bound it, accept it or change media.
-3. **Block RAM.**
+2. **Block RAM.**
    The 32x32 ledger exceeds the usable tiles by 23.
    The reductions above need measuring before lanes rely on them.
-4. **Debounce windows.**
+3. **Debounce windows.**
    - Today's 500 ms window uses the whole bound.
    - The 1,000 ms window exceeds it.
    - #823 and F1 must restate them inside the bound.
-5. **gPTP on two ports.**
+4. **gPTP on two ports.**
    - The surveyed `flexptpd` fork keeps one global core state.
    - Redundancy needs gPTP on both ports (#665 F6). One instance per port is one way.
    - The owner also confirms the fork's source and licence.
-6. **Commit timeout.**
+5. **Commit timeout.**
    - `T-NVM-COMMIT-TIMEOUT` is 8,000 ms today.
    - The owner's direction restates it against 359.75 ms.
    - #823 and #665 F1 own the new value.
-7. **Engine headroom at 192 kHz.**
+6. **Engine headroom at 192 kHz.**
    - A legal 192 kHz mix loads each engine 93.18 %.
    - It has 14 eight-channel streams and no CRF.
    - A faster clock or wider beats would restore margin.
