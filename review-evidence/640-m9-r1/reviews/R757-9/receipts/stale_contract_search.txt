@@ -1,0 +1,55 @@
+# at 6c7c0947, pages the PR does not change
+## F1: NFR-RES-01 restated as 60 percent / 38,040
+docs/design/AREA_BUDGET.md:130:The baseline product must fit `xc7a100t` with at most 60 percent of its LUTs used.
+docs/design/AREA_BUDGET.md:135:| Slice LUT | 63,400 | 52,012 | 82.04 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): at most 38,040 (60 %) | not met, 13,972 over |
+docs/design/AREA_BUDGET.md:173:The active [#640](https://github.com/kebag-logic/milan-fpga/issues/640) acceptance bar is the whole-image [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) target.
+docs/design/AREA_BUDGET.md:175:Meeting [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) with the rest of the image unchanged needs the wrapper at most 10,521 LUTs.
+docs/design/AREA_BUDGET.md:176:That requires removing 13,972 LUTs, 57 % of the wrapper.
+docs/design/AREA_BUDGET.md:177:The [owner decided on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) that [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) stays at
+docs/design/AREA_BUDGET.md:225:| M9 closure and re-record | No assumed saving | Measured at closure | <= 38,040 LUT and timing met |
+docs/design/AREA_BUDGET.md:349:| Placement | Case | Estimated image LUT | Headroom to 38,040 | Headroom to 37,659 |
+docs/design/AREA_BUDGET.md:380:The binding bar remains 38,040 with timing met.
+docs/design/AREA_BUDGET.md:497:M9 re-records only after meeting [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) with timing met.
+## F1 authority
+docs/reference/FR_NFR.md:473:| NFR-RES-01 | **Mark II:** the
+docs/reference/FR_NFR.md:This ceiling replaces the earlier target of at most 60 % LUT (38,040), which the owner kept on 2026-10-03 for this redesign to meet ([#234 ruling](https://github.
+docs/reference/FR_NFR.md:carries no other LUT bound
+## F2: Mark II placement statements
+README.md:60:ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.
+README.md:62:Framing, timestamps, ingress filtering, gPTP and media remain in fabric.
+README.md:63:All-fabric stays supported and the shipping default until F2 to F5 acceptance.
+docs/GLOSSARY.md:29:| **AECP/AEM** | Enumeration/control protocol and its descriptor model. The current fabric placement serves the feature-ledger inventory; Mark II selects firmware or fabric, includ
+docs/design/AREA_BUDGET.md:201:All-fabric remains supported and remains the current shipping default.
+docs/design/MAAP_FABRIC.md:4:[Mark II placement](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) is build-selectable per control function.
+docs/design/MAAP_FABRIC.md:5:Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
+docs/design/MAAP_FABRIC.md:6:All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+docs/fpga/DATAPLANE_WALKTHROUGH.md:4:[Mark II placement](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) is build-selectable per control function.
+docs/fpga/DATAPLANE_WALKTHROUGH.md:5:Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
+docs/fpga/DATAPLANE_WALKTHROUGH.md:6:All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+docs/fpga/FPGA_DESIGN.md:4:[Mark II placement](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) is build-selectable per control function.
+docs/fpga/FPGA_DESIGN.md:5:Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
+docs/fpga/FPGA_DESIGN.md:6:All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md:22:ADP, ACMP, AECP, MAAP and SRP are selectable per function.
+docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md:23:Its default is bare-metal control; all-fabric remains supported.
+docs/litex/LITEX_SOC.md:4:[Mark II placement](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) is build-selectable per control function.
+docs/litex/LITEX_SOC.md:5:Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
+docs/litex/LITEX_SOC.md:6:All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+docs/overview/FULL_FPGA_SOLUTION.md:5:Mark II defaults control protocols to the core through packet mailboxes.
+docs/overview/FULL_FPGA_SOLUTION.md:6:ADP, ACMP, AECP, MAAP and SRP remain selectable per function.
+docs/overview/FULL_FPGA_SOLUTION.md:7:Audio, gPTP, framing, timestamps and ingress filtering remain in fabric.
+docs/overview/FULL_FPGA_SOLUTION.md:8:All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+docs/overview/SYSTEM_DOMAIN_MAP.md:4:[Mark II placement](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) is build-selectable per control function.
+docs/overview/SYSTEM_DOMAIN_MAP.md:5:Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
+docs/overview/SYSTEM_DOMAIN_MAP.md:6:All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+docs/traceability/ieee8021q.md:4:[Mark II placement](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) is build-selectable per control function.
+docs/traceability/ieee8021q.md:5:Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
+docs/traceability/ieee8021q.md:6:All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+## F2 authority
+REQUIREMENTS.md:33:- After the switch-over, no all-fabric build remains (#665).
+REQUIREMENTS.md:36:- After F6, firmware owns the gPTP protocol and servo (#665).
+REQUIREMENTS.md:157:After F6, firmware owns the gPTP protocol and servo (#665).
+docs/ARCHITECTURE_HW_SW_SPLIT.md:4:No retained-fabric option stays in the end state.
+docs/overview/ARCHITECTURE.md:13:After the switch-over, no all-fabric build remains.
+docs/reference/FR_NFR.md:84:No all-fabric option remains after it (NFR-SCOUT-02).
+## untouched by the PR
+0

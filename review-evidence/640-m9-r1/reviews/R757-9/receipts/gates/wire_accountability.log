@@ -1,0 +1,23 @@
+Traceback (most recent call last):
+  File "$REVIEWS/r757-9-640-m9/scripts/check_wire_accountability.py", line 548, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/r757-9-640-m9/scripts/check_wire_accountability.py", line 525, in main
+    run([args.config] if args.config else None)
+    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r757-9-640-m9/scripts/check_wire_accountability.py", line 453, in run
+    check_config(builder, p, soc_text)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r757-9-640-m9/scripts/check_wire_accountability.py", line 225, in check_config
+    cfg = builder.load_config(str(path))
+  File "$REVIEWS/r757-9-640-m9/sw/builder/endstation_builder.py", line 4426, in load_config
+    gptp = _load_gptp(cfg)
+  File "$REVIEWS/r757-9-640-m9/sw/builder/endstation_builder.py", line 4159, in _load_gptp
+    pins = gptp_engine_pins()
+  File "$REVIEWS/r757-9-640-m9/sw/builder/endstation_builder.py", line 3654, in gptp_engine_pins
+    source = _engine_generator_text()
+  File "$REVIEWS/r757-9-640-m9/sw/builder/endstation_builder.py", line 3594, in _engine_generator_text
+    raise ConfigError(
+    ...<3 lines>...
+        "update --init gptp-processor` before loading a config")
+endstation_builder.ConfigError: the gptp-processor submodule is not checked out, and its generator is the authority the gPTP descriptor dataset derives from ([R-parallel] on #228): run `git submodule update --init gptp-processor` before loading a config
