@@ -1252,7 +1252,7 @@ Each states the requirement it must meet.
    - #823 and F1 must restate them inside the bound.
 5. **gPTP on two ports.**
    - The surveyed `flexptpd` fork keeps one global core state.
-   - Redundancy needs one instance per port (#665 F6).
+   - Redundancy needs gPTP on both ports (#665 F6). One instance per port is one way.
    - The owner also confirms the fork's source and licence.
 6. **Commit timeout.**
    - `T-NVM-COMMIT-TIMEOUT` is 8,000 ms today.

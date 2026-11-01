@@ -310,7 +310,7 @@ No lane may assume an answer.
    - The [core survey](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) proposes `kebag-logic/flexPTP`.
    - Its surveyed revision is branch `gptp` at `d116d3d`.
    - It keeps one global core state: one port per image.
-   - Redundancy needs one instance per port (#665 F6).
+   - Redundancy needs gPTP on both ports (#665 F6). One instance per port is one way.
    - The owner decides how, and confirms source and licence.
 
 ## Mark I plan history
