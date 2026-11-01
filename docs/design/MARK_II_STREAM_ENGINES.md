@@ -485,7 +485,7 @@ The merge applies these rules in order:
 3. A clean copy replaces the last packet's tu copy.
 4. Any other copy is a duplicate and is discarded.
 
-No rule drops the only copy of a packet.
+No rule drops the only valid copy of a packet.
 With both copies tu, the first copy is rendered.
 
 An unpaired stream uses rules 1 and 2 only.
@@ -536,7 +536,7 @@ FW means firmware writes it and the engine reads it.
 Firmware writes configuration through the engine window.
 `milan_csr` exposes the status and counter words read-only.
 
-Every counter is 32 bits and wraps to zero.
+Every Milan counter is 32 bits and wraps to zero.
 Milan's Tables 5.4 and 5.6 require that.
 
 Each counter's reset event is in its row.
@@ -782,7 +782,7 @@ page program command  (1 + 3 + 256) octets x 8 / 12.5 MHz = 0.166 ms
 write enable and status polls                              = 0.011 ms (allowance)
 tPP maximum                                                = 5.000 ms
 page read-back        (1 + 3 + 256) octets x 8 / 12.5 MHz = 0.166 ms
-t_page                                                     = 5.343 ms, used as 5.35 ms
+t_page                                                     = 5.344 ms, used as 5.35 ms
 
 per save, at most P_max = 32 pages (8,192 octets)
 
