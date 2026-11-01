@@ -1,0 +1,6 @@
+[A725c] TAKEN
+Branch: 829-mii-gptp (local, continues 4cda0aa0; PR #831 round 2)
+Authoritative references: #829 acceptance and its corrections; R761-1 and R762-1 at 4cda0aa0; IEEE 802.1AS-2020 (the timestamp point's clause, to be read and cited); IEEE 802.3 (the MII inter-frame gap, a question only); docs/design/GPTP_PLANE.md; .github/workflows/docs.yml
+Interpreted scope: close every finding and residue of both reviews with the MII logic unchanged. Put the documents and the Makefile through the gates they failed, correct the statement about GMII `ready` everywhere it appears, make the three weak checks able to fail with planted controls, add a committed gate over the datapath's shape wiring, and correct the figures that did not trace. Two questions go to the manager as findings only: the MII inter-frame gap on the pads, and the lifecycle test's failures.
+Validation plan: every run step of docs.yml as its jobs run it on a clean clone of the head; lint_rtl.py --check; cd tests && behave; gptp_txts run and run-mii with all controls; the gPTP and milan_dp suites; both builder legs; git diff --check against the merge base; the full sweep if RTL or a shared testbench changes; a route and netlist comparison only if elaborated AX7101 RTL changes.
+Blockers: none

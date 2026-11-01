@@ -1,0 +1,21 @@
+{
+ "cwd": "$LANES/829-a725c-shard0",
+ "head": "2d534bec9348557a9407d3024c0b199c0ebc8bce",
+ "base": "1f29f189",
+ "commands": [
+  [
+   "env",
+   "PATH=$VALIDATION_TOOLS/pinned-verilator-5.050:$VALIDATION_TOOLS/sv2v-v0.0.12:$VALIDATION_STORAGE/scratch/a662/make43/bin:$WORKSPACE_HOME/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=$VALIDATION_TOOLS/pinned-verilator-5.050/verilator",
+   "TSN_GEN_ROOT=$MANAGEMENT/tools/tsn-gen-deca300c",
+   "TMPDIR=$VALIDATION_STORAGE/829-a725c/tmp-sweep",
+   "MAKEFLAGS=-j4 --no-print-directory",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "$VALIDATION_STORAGE/829-a725c/native/shard-0/logs",
+   "--wait",
+   "--shard",
+   "0/4"
+  ]
+ ]
+}

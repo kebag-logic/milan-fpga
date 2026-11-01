@@ -1,0 +1,22 @@
+python3 ../../../sw/litex/gen_mac_tx_model.py --check
+generated gmii MAC transmit chain: OK (2719 lines, region ecb8a0ef998d, checked by product source, pins and bytes)
+generated mii MAC transmit chain: OK (2854 lines, region ecb8a0ef998d, checked by product source, pins and bytes)
+$VALIDATION_TOOLS/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --top-module gptp_txts_wrap -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE -Wno-PINCONNECTEMPTY -Wno-COMBDLY -Wno-CMPCONST -Wno-UNDRIVEN -Wno-SYNCASYNCNET -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I$VALIDATION_STORAGE/829-a725c/wt-h/tb/verilator/gptp_txts -Wall -Wextra" --Mdir obj_mii -DGPTP_TXTS_MII \
+  -GETH_TICK_NS_P=40 -GETH_CYC_PER_OCTET_P=2 \
+  -CFLAGS "-DGPTP_TXTS_MII -Wall -Wextra" \
+  gptp_txts_wrap.sv ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv generated/mac_tx_chain_mii.v sim_main.cpp -o Vgptp_txts_sim
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$VALIDATION_STORAGE/829-a725c/wt-h/tb/verilator/gptp_txts -Wall -Wextra -DGPTP_TXTS_MII -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vgptp_txts_wrap__ALL.a    -pthread -lpthread -latomic   -o Vgptp_txts_sim
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 1.411 s (elab=0.000, cvt=0.000, bld=1.410); cpu 0.001 s on 16 threads; allocated 16.496 MB
+./obj_mii/Vgptp_txts_sim 25
+  engine cadence reached the lane at 48014 us
+  retired capture precedes the launch by 1084 ns isolated, 362983 ns queued
+  mean reconstruction error 1.350 ns over 200 frames
+  error spread -9..+11 ns over 21 distinct values, 3526 us of run
+  [FAIL] fragment: the observer refused it, by measurement
+== gptp_txts: checks: 95   failures: 1 ==
+RESULT: FAIL
+make: *** [Makefile:89: run-mii] Error 1

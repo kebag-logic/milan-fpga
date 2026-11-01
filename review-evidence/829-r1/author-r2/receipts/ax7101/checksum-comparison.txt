@@ -1,0 +1,150 @@
+AX7101 1x1: the implementation checksums of two routes, line by line
+
+Route A: head 4cda0aa03b11462f4f8750289f0999d5288b3546, the round 1 head of PR #831.
+  log baseline.log sha256 696b24f4b8bf9ba529b090473b7a5052d57ed54a450e5c9ed3d90e029ed7b0b8, 817927 bytes, finished 2026-11-01 16:02.
+Route B: head b474b53418f7eb17b8750a1e0534957a3f535eca, the bench branch, with the writable-correction RTL present and its build key off.
+  log baseline.log sha256 5536072d7f74bb57c3080db92d2405924bea5b255a90e1903902b8477ccf8d50, 816975 bytes, finished 2026-11-01 16:59.
+Each route's head is read from the reflog of the worktree it ran in, one to two seconds before its argv was written:
+  A 4cda0aa03b, checkout 15:05:23, argv 15:05:24. B b474b53418, checkout 16:06:26, argv 16:06:28.
+
+WHAT THE COMPARISON COVERS. Every line holding `Checksum:` in each route's log, in order: Vivado's
+checksum at each step of its one implementation run, optimization through routing.
+Equal checksums at every step say the two routes built one netlist through one placement and routing.
+
+WHAT IT DOES NOT COVER. It compares this PR's round 1 head with the bench branch. It says only that the bench
+branch's writable RTL with its key off moves nothing. It does NOT compare this PR with dev: no route of dev at
+1f29f189 exists, and the head's observer takes a `ready` connection the base has not got, so the routed effect
+of this PR alone on the AX7101 is unknown. The route record `route-1x1` is from an older dev.
+Bitstreams were not compared.
+
+Result: route A 126 lines, route B 126 lines, 126 equal, 0 different.
+
+Compared: the step label and everything after `Checksum:` on the line. Shown: the first field of each.
+
+A checksum | B checksum | same | step
+  de3d653 |   de3d653 | yes | Synth Design complete
+2a05a347d | 2a05a347d | yes | Phase 1.1 Core Generation And Design Setup
+2a05a347d | 2a05a347d | yes | Phase 1.2 Setup Constraints And Sort Netlist
+2a05a347d | 2a05a347d | yes | Phase 1 Initialization
+2a05a347d | 2a05a347d | yes | Phase 2.1 Detect if minReqCache needed
+2a05a347d | 2a05a347d | yes | Phase 2.2 Timer Update
+2a05a347d | 2a05a347d | yes | Phase 2.3 Timing Data Collection
+2a05a347d | 2a05a347d | yes | Phase 2 Timer Update And Timing Data Collection
+206ce73f2 | 206ce73f2 | yes | Phase 3 Retarget
+206ce73f2 | 206ce73f2 | yes | Retarget
+23ed8f8da | 23ed8f8da | yes | Phase 4 Constant propagation
+23ed8f8da | 23ed8f8da | yes | Constant propagation
+2f9c95a37 | 2f9c95a37 | yes | Phase 5 Sweep
+2f9c95a37 | 2f9c95a37 | yes | Sweep
+2bcb2525a | 2bcb2525a | yes | Phase 6 BUFG optimization
+2bcb2525a | 2bcb2525a | yes | BUFG optimization
+2bcb2525a | 2bcb2525a | yes | Phase 7 Shift Register Optimization
+2bcb2525a | 2bcb2525a | yes | Shift Register Optimization
+252051d8d | 252051d8d | yes | Phase 8 Resynthesis
+252051d8d | 252051d8d | yes | Resynthesis
+252051d8d | 252051d8d | yes | Phase 9 Post Processing Netlist
+252051d8d | 252051d8d | yes | Post Processing Netlist
+132d6abdc | 132d6abdc | yes | Phase 10.1 Finalizing Design Cores and Updating Shapes
+132d6abdc | 132d6abdc | yes | Phase 10.2 Verifying Netlist Connectivity
+132d6abdc | 132d6abdc | yes | Phase 10 Finalization
+132d6abdc | 132d6abdc | yes | Ending Logic Optimization Task
+11f27e64b | 11f27e64b | yes | Phase 1.1 Placer Initialization Netlist Sorting
+2463a14aa | 2463a14aa | yes | Phase 1.2 IO Placement/ Clock Placement/ Build Placer Device
+29ce48ac3 | 29ce48ac3 | yes | Phase 1.3 Build Placer Netlist Model
+29ce48ac3 | 29ce48ac3 | yes | Phase 1.4 Constrain Clocks/Macros
+29ce48ac3 | 29ce48ac3 | yes | Phase 1 Placer Initialization
+272789905 | 272789905 | yes | Phase 2.1 Floorplanning
+2d1552b1f | 2d1552b1f | yes | Phase 2.2 Update Timing before SLR Path Opt
+2fe9542f1 | 2fe9542f1 | yes | Phase 2.3 Post-Processing in Floorplanning
+2e3a3fe5e | 2e3a3fe5e | yes | Phase 2.4 Global Place Phase1
+291f3804e | 291f3804e | yes | Phase 2.5.1 UpdateTiming Before Physical Synthesis
+2b5d41d4d | 2b5d41d4d | yes | Phase 2.5.2 Physical Synthesis In Placer
+1fe7e9e4b | 1fe7e9e4b | yes | Phase 2.5 Global Place Phase2
+1fe7e9e4b | 1fe7e9e4b | yes | Phase 2 Global Placement
+18d50db54 | 18d50db54 | yes | Phase 3.1 Commit Multi Column Macros
+221f132a0 | 221f132a0 | yes | Phase 3.2 Commit Most Macros & LUTRAMs
+17e633c94 | 17e633c94 | yes | Phase 3.3 Area Swap Optimization
+193db3de6 | 193db3de6 | yes | Phase 3.4 Pipeline Register Optimization
+211ff91f6 | 211ff91f6 | yes | Phase 3.5 Fast Optimization
+273842405 | 273842405 | yes | Phase 3.6 Small Shape Detail Placement
+1f95bda49 | 1f95bda49 | yes | Phase 3.7 Re-assign LUT pins
+2526e2a75 | 2526e2a75 | yes | Phase 3.8 Pipeline Register Optimization
+1e4383214 | 1e4383214 | yes | Phase 3.9 Fast Optimization
+1e4383214 | 1e4383214 | yes | Phase 3 Detail Placement
+1e4393b06 | 1e4393b06 | yes | Post Placement Optimization Initialization
+126c5dc49 | 126c5dc49 | yes | Phase 1 Physical Synthesis Initialization
+187357db4 | 187357db4 | yes | Ending Physical Synthesis Task
+1e4393b06 | 1e4393b06 | yes | Phase 4.1.1.1 BUFG Insertion
+28f2b85e0 | 28f2b85e0 | yes | Phase 4.1.1.2 Post Placement Timing Optimization
+28f2b85e0 | 28f2b85e0 | yes | Phase 4.1 Post Commit Optimization
+1c0a4892c | 1c0a4892c | yes | Post Placement Optimization Initialization
+ fc32fc06 |  fc32fc06 | yes | Phase 1 Physical Synthesis Initialization
+18e33ac1d | 18e33ac1d | yes | Ending Physical Synthesis Task
+1e4d33747 | 1e4d33747 | yes | Post Placement Optimization Initialization
+1335e3926 | 1335e3926 | yes | Phase 1 Physical Synthesis Initialization
+17b371d18 | 17b371d18 | yes | Ending Physical Synthesis Task
+28853c1cd | 28853c1cd | yes | Phase 4.2 Post Placement Cleanup
+28853c1cd | 28853c1cd | yes | Phase 4.3.1 Print Estimated Congestion
+28853c1cd | 28853c1cd | yes | Phase 4.3 Placer Reporting
+2919405a5 | 2919405a5 | yes | Phase 4 Post Placement Optimization and Clean-Up
+22d402f90 | 22d402f90 | yes | Ending Placer Task
+11cc92b89 | 11cc92b89 | yes | Phase 1 Physical Synthesis Initialization
+11cc92b89 | 11cc92b89 | yes | Phase 2 SLR Crossing Optimization
+185bf45de | 185bf45de | yes | Phase 3 Fanout Optimization
+236f43912 | 236f43912 | yes | Phase 4 Single Cell Placement Optimization
+1d38c329e | 1d38c329e | yes | Phase 5 Multi Cell Placement Optimization
+11718c644 | 11718c644 | yes | Phase 6 Rewire
+11718c644 | 11718c644 | yes | Phase 7 Critical Cell Optimization
+11718c644 | 11718c644 | yes | Phase 8 Fanout Optimization
+11718c644 | 11718c644 | yes | Phase 9 Single Cell Placement Optimization
+11718c644 | 11718c644 | yes | Phase 10 Multi Cell Placement Optimization
+11718c644 | 11718c644 | yes | Phase 11 Rewire
+11718c644 | 11718c644 | yes | Phase 12 Critical Cell Optimization
+11718c644 | 11718c644 | yes | Phase 13 SLR Crossing Optimization
+11718c644 | 11718c644 | yes | Phase 14 Fanout Optimization
+11718c644 | 11718c644 | yes | Phase 15 Single Cell Placement Optimization
+11718c644 | 11718c644 | yes | Phase 16 Multi Cell Placement Optimization
+11718c644 | 11718c644 | yes | Phase 17 Rewire
+11718c644 | 11718c644 | yes | Phase 18 Critical Cell Optimization
+11718c644 | 11718c644 | yes | Phase 19 DSP Register Optimization
+11718c644 | 11718c644 | yes | Phase 20 BRAM Register Optimization
+11718c644 | 11718c644 | yes | Phase 21 URAM Register Optimization
+11718c644 | 11718c644 | yes | Phase 22 Shift Register Optimization
+11718c644 | 11718c644 | yes | Phase 23 DSP Register Optimization
+11718c644 | 11718c644 | yes | Phase 24 BRAM Register Optimization
+11718c644 | 11718c644 | yes | Phase 25 URAM Register Optimization
+11718c644 | 11718c644 | yes | Phase 26 Shift Register Optimization
+11718c644 | 11718c644 | yes | Phase 27 Critical Pin Optimization
+1d069246e | 1d069246e | yes | Phase 28 Very High Fanout Optimization
+1d069246e | 1d069246e | yes | Phase 29 Single Cell Placement Optimization
+1d069246e | 1d069246e | yes | Phase 30 Multi Cell Placement Optimization
+1d069246e | 1d069246e | yes | Phase 31 SLR Crossing Optimization
+1d069246e | 1d069246e | yes | Phase 32 Critical Path Optimization
+1d069246e | 1d069246e | yes | Phase 33 BRAM Enable Optimization
+23d3a13e7 | 23d3a13e7 | yes | Ending Physical Synthesis Task
+ PlaceDB: |  PlaceDB: | yes | (no step label)
+NetGraph: | NetGraph: | yes | Post Restoration
+24a370193 | 24a370193 | yes | Phase 1 Build RT Design
+24a370193 | 24a370193 | yes | Phase 2.1 Fix Topology Constraints
+24a370193 | 24a370193 | yes | Phase 2.2 Pre Route Cleanup
+26d5af06e | 26d5af06e | yes | Phase 2.3 Update Timing
+268715f7d | 268715f7d | yes | Phase 2.4 Soft Constraint Pins - Fast Budgeting
+2624eb4dc | 2624eb4dc | yes | Phase 2 Router Initialization
+2624eb4dc | 2624eb4dc | yes | Phase 3 Global Routing
+25deb18d9 | 25deb18d9 | yes | Phase 4.1 Initial Net Routing Pass
+25deb18d9 | 25deb18d9 | yes | Phase 4 Initial Routing
+24c44e2bc | 24c44e2bc | yes | Phase 5.1 Global Iteration 0
+29fa0f684 | 29fa0f684 | yes | Phase 5.2 Global Iteration 1
+29fa0f684 | 29fa0f684 | yes | Phase 5 Rip-up And Reroute
+29fa0f684 | 29fa0f684 | yes | Phase 6.1 Delay CleanUp
+29fa0f684 | 29fa0f684 | yes | Phase 6.2 Clock Skew Optimization
+29fa0f684 | 29fa0f684 | yes | Phase 6 Delay and Skew Optimization
+2728fca77 | 2728fca77 | yes | Phase 7.1 Hold Fix Iter
+2728fca77 | 2728fca77 | yes | Phase 7 Post Hold Fix
+2728fca77 | 2728fca77 | yes | Phase 8 Route finalize
+2728fca77 | 2728fca77 | yes | Phase 9 Verifying routed nets
+2019e7109 | 2019e7109 | yes | Phase 10 Depositing Routes
+2019e7109 | 2019e7109 | yes | Phase 11 Post Process Routing
+237d3b3f9 | 237d3b3f9 | yes | Phase 12 Post Router Timing
+200e845fc | 200e845fc | yes | Phase 13 Post-Route Event Processing
+200e845fc | 200e845fc | yes | Ending Routing Task

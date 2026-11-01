@@ -1,0 +1,40 @@
+base 4cda0aa03b11462f4f8750289f0999d5288b3546
+head 2d534bec9348557a9407d3024c0b199c0ebc8bce
+
+## Every hdl/ file that differs between the two heads
+ hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv | 18 +++++++++++-------
+ hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv      |  5 +++--
+ 2 files changed, 14 insertions(+), 9 deletions(-)
+
+KL_gptp_gmii_launch.sv verilator -E -P rc 0/0 base 7571535cb812df2c head 7571535cb812df2c IDENTICAL (302 lines)
+KL_gptp_gmii_launch.sv sv2v rc 0/0 base 15e4016f9860cf1d head 15e4016f9860cf1d IDENTICAL
+KL_gptp_shadow.sv verilator -E -P rc 0/0 base 99902c6590eb4135 head 99902c6590eb4135 IDENTICAL (668 lines)
+KL_gptp_shadow.sv with the plane's other modules, sv2v rc 0/0, 132422 and 132422 bytes: base 316a55b9a541fb09 head 316a55b9a541fb09 IDENTICAL
+
+## The changed lines themselves, comment leaders only
+-                `tx_data` on the same edge and holds `sink.ready` at 1, so the
+-                pad and this observer see the same octet on the same clock
+-                edge: the relationship between the two seams is one register
+-                stage, not an assumption.
++                `tx_data` on the same edge, and its `sink.ready` is a flop that
++                is 1 from the first clock after reset, so the pad and this
++                observer see the same octet on the same clock edge: the
++                relationship between the two seams is one register stage, not
++                an assumption.
+-                             //! the same reset that clears the LiteEth
+-                             //! transmit side and the PHY transmit stage
++                             //! the reset that clears the LiteEth transmit
++                             //! side. `eth_rst` also clears the PHY transmit
++                             //! stage on GMII and does not reach it on MII
+-        //! its nibbles (issue #829); on GMII `ready` is always high
++        //! its nibbles (issue #829). On GMII `ready` is a flop that is 1 from the
++        //! first clock after reset, and this module's own reset covers that
++        //! reset, so no octet is held there.
+-    //! is the 1 Gb/s GMII shape, 40 ns the 100 Mb/s MII shape (issue #829),
+-    //! and no other link speed is qualified
++    //! is the 1 Gb/s GMII shape, 40 ns the 100 Mb/s MII shape (issue #829).
++    //! The digital bound covers these two shapes; the physical calibration at
++    //! 100 Mb/s stays open under issue #583
+
+## sw/litex/milan_soc.py: the parsed program with comments gone
+ast base d05fae4d0355415d head d05fae4d0355415d IDENTICAL
