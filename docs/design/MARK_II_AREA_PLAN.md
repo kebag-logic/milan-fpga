@@ -19,7 +19,7 @@ This page changes documentation only.
 - **[Mark II Block RAM ledger](#mark-ii-block-ram-ledger)** -- An estimate over the ceiling.
 - **[Mark II decisions](#mark-ii-decisions)** -- The 2026-10-31 owner rulings.
 - **[Mark II lane sequence](#mark-ii-lane-sequence)** -- Ordered lanes with savings and evidence.
-- **[Open owner decisions](#open-owner-decisions)** -- Questions no lane may assume an answer to.
+- **[Open owner decisions](#open-owner-decisions)** -- Questions that wait for the owner.
 - **[Mark I plan history](#mark-i-plan-history)** -- Why the sections below are history.
 - **[Baseline recorded on dev 5603c353](#baseline-recorded-on-dev-5603c353)** -- The committed endpoint records and their measured source revision.
 - **[Baseline at dev e6172750](#baseline-at-dev-e6172750)** -- Historical measurements and hierarchy from the original plan.
@@ -65,7 +65,7 @@ This page changes documentation only.
 | Shipping image until Mark II | Held at its recorded figures by the resource gate (#638); no other LUT bound |
 
 The [owner kept the 60 percent target](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) on 2026-10-03.
-This redesign was to meet it; the gate held the image meanwhile.
+This redesign was to meet it.
 
 The [2026-10-31 target](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624) replaces it as the Mark II goal.
 The shipping image measures 52,008 LUTs, 82.03 percent.

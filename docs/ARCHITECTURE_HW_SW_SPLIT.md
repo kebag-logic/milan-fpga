@@ -80,7 +80,7 @@ These decisions are final; this page restates them.
   Its [source](https://github.com/kebag-logic/flexPTP) is the public `kebag-logic/flexPTP` repository.
 - That repository is MIT-licensed, a fork of `epagris/flexPTP`.
   The [adopted revision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) is branch `gptp` at `d116d3d`.
-- The fork keeps one global core state: one port per image.
+- Its one global core state allows one port per image.
   Two ports for redundancy remain an open item (#665 F6).
 - Hardware timestamping stays in fabric, on both ports.
 - `milan_csr` stays, for information and diagnostics only.

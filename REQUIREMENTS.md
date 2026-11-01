@@ -43,7 +43,8 @@ kept in Git history rather than the tracked product tree (#259).
 - Until F6, the fabric MUST also retain the gPTP plane.
 - Audio deadlines MUST remain independent of firmware service.
   Until F6, gPTP deadlines MUST also remain independent of it.
-- After F6, each gPTP path states and tests its firmware bound.
+- After F6, each gPTP path states its firmware bound.
+  Its tests check that bound.
 - Reservation protocol control follows its selected placement.
   Media admission enforcement and any shaping remain in fabric.
   The mailbox ingress filter MUST enforce the acceptance rules below.

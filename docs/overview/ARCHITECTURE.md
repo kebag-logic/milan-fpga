@@ -3,7 +3,7 @@
 Milan FPGA is a Milan 1.2 end station.
 The current shipping build places control protocols in fabric.
 
-Mark II runs ADP, ACMP, AECP, MAAP and SRP as firmware.
+Mark II firmware runs ADP, ACMP, AECP, MAAP and SRP.
 AECP includes unsolicited notifications and counter serving.
 
 Until the switch-over, each has build-selectable placement with one owner.
@@ -13,7 +13,7 @@ That acceptance covers all streams, counters and the audio soak.
 After the switch-over, no all-fabric build remains.
 
 Framing, timestamps, ingress filtering and media remain in fabric.
-Until F6, gPTP remains in fabric too; then firmware runs it.
+gPTP stays in fabric until F6, then moves to firmware.
 
 The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines placement and service timing.
 The implementation sections below describe today's all-fabric shipping build.
