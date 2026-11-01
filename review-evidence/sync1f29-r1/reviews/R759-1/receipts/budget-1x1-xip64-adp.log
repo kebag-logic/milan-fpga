@@ -1,0 +1,5 @@
+COMMAND $PACKET/scratch/budget-1x1-xip64/native/Vsim $PACKET/scratch/xip64-adp/backlog-adp.txt $PACKET/scratch/budget-1x1-xip64/flash.bin
+COMMAND $PACKET/scratch/budget-1x1-xip64/native/Vsim $PACKET/scratch/xip64-adp/backlog-adp-refill.txt $PACKET/scratch/budget-1x1-xip64/flash.bin
+REFUSED backlog-adp: the composed window committed {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 12, 'LINK': 0}, its defined load is {'adp': 8, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15, 'LINK': 0}; refused frames []
+REFUSED backlog-adp-refill: the composed window committed {'adp': 11, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 12, 'LINK': 0}, its defined load is {'adp': 11, 'acmp': 12, 'aecp': 16, 'maap': 7, 'srp': 32, 'GM': 15, 'LINK': 0}; refused frames []
+0 groups graded, 2 refusals, 0 T_svc misses (0 of 0 probe instances, 0 of 0 paths)

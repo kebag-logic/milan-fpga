@@ -1,0 +1,16 @@
+publication census: elaborating hdl/milan/milan_datapath.sv with sv2v v0.0.12, Yosys 0.66
+shape recipe: 113559 cells, 1339 named nets; 41 read(s), 4 unread net(s); the module's defaults
+  ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+shape endstation_arty_4x4: 268012 cells, 1370 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_I2S_PAIR_P=1 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=8 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=4 PP_DESC_BASE_P=1336934400 PP_RESP_BASE_P=1337978880 REBOOT_MAC_MIN_MBPS_P=10 REBOOT_MAC_TX_OCTETS_P=11656 TALKER_WIRE_CHANS_P=4
+  ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+shape endstation_arty_8ch: 311708 cells, 1370 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_I2S_PAIR_P=1 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=8 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=4 PP_DESC_BASE_P=1336934400 PP_RESP_BASE_P=1337978880 REBOOT_MAC_MIN_MBPS_P=10 REBOOT_MAC_TX_OCTETS_P=11656 TALKER_WIRE_CHANS_P=8
+  ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+shape endstation_arty_current: 113558 cells, 1339 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_SLOTS_P=0 GPTP_PLANE_EN_P=1 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=1 PP_DESC_BASE_P=1340080128 PP_RESP_BASE_P=1341124608 REBOOT_MAC_MIN_MBPS_P=10 REBOOT_MAC_TX_OCTETS_P=11656
+  ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+shape endstation_ax7101_1x1_tdm8: 117751 cells, 1344 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=24576000 AUDIO_IF_MASTER_P=1 AUDIO_IF_RENDER_SLOTS_P=8 AUDIO_IF_SLOTS_P=8 GPTP_EGRESS_LAT_NS_P=219 GPTP_INGRESS_LAT_NS_P=656 GPTP_PLANE_EN_P=1 I2SPB_P=0 LOOPBACK_P=1 LPF_P=0 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=1 PP_DESC_BASE_P=2138046464 PP_RESP_BASE_P=2139090944 REBOOT_MAC_MIN_MBPS_P=1000 REBOOT_MAC_TX_OCTETS_P=11656 TALKER_WIRE_CHANS_P=8
+  ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+shape endstation_ax7101_8x8: 545571 cells, 1389 named nets; 41 read(s), 4 unread net(s); AUDIO_IF_CLK_HZ_P=98304000 AUDIO_IF_MASTER_P=1 AUDIO_IF_SLOTS_P=32 DPROBES_P=0 GPTP_EGRESS_LAT_NS_P=219 GPTP_INGRESS_LAT_NS_P=656 GPTP_PLANE_EN_P=1 I2SPB_P=0 LPF_P=0 LTAP_P=0 MILAN_CLK_FREQ_HZ=50000000 N_STREAMS=8 PP_DESC_BASE_P=2138046464 PP_RESP_BASE_P=2139090944 REBOOT_MAC_MIN_MBPS_P=1000 REBOOT_MAC_TX_OCTETS_P=11656 TALKER_WIRE_CHANS_P=8
+  ports of pp_shadow: 219: C 26, F 28, R 34, E 6, M 14, G 111; G cones end at csr 7, memory 20, shim 4, reboot 1, wire 0, stopped at 27 net(s) removed with the wrapper
+== publication census: 6 shape(s), checks: 246   failures: 0 ==
+26 class-D net(s) from the wrapper cell's ports, 4 unread; 41 read(s) of 22 class-D net(s) in each shape; RESULT: PASS
+publication census: 6 shape(s) elaborated and classified in 277 s at --jobs 2
