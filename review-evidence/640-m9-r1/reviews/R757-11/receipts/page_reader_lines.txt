@@ -1,0 +1,33 @@
+scripts/area_baseline.py:19:  3. The headline in docs/design/AREA_BUDGET.md goes stale silently. It says
+scripts/check_sweep_shape.py:198:    # (docs/design/AREA_BUDGET.md). Absent = filter PRESENT, which is
+scripts/ci_scope.py:71:    "docs/design/AREA_BUDGET.md",
+scripts/ci_scope.py:72:    "docs/design/MAILBOX_SPLIT.md",
+scripts/ci_scope.py:289:        (["docs/design/AREA_BUDGET.md"], True),
+scripts/ci_scope.py:293:        (["docs/design/MAILBOX_SPLIT.md"], True),
+sw/builder/endstation_builder.py:388:# docs/design/AREA_BUDGET.md tier 1: blocks a deployment may not be able to
+sw/builder/endstation_builder.py:619:    # -- optional-block prunes (docs/design/AREA_BUDGET.md tier 1) ------------
+sw/builder/endstation_builder.py:638:    # measurement. See AREA_BUDGET.md "Which method to trust".
+sw/builder/endstation_builder.py:3351:    """THE GATE (docs/design/AREA_BUDGET.md rule 5): refuse a config that asks
+sw/builder/endstation_builder.py:4444:    # optional-block prunes (docs/design/AREA_BUDGET.md tier 1). Loaded last
+sw/builder/endstation_builder.py:4845:    # docs/design/AREA_BUDGET.md tier-1 block emits its --no-* flag HERE, in
+sw/builder/endstation_builder.py:5548:#: What re-measurement a prune invalidates. Rule 4 of AREA_BUDGET.md: a
+sw/builder/endstation_builder.py:5573:        "filter (docs/design/AREA_BUDGET.md)",
+sw/builder/endstation_builder.py:5586:    ln = ["## Optional blocks (docs/design/AREA_BUDGET.md tier 1)", "",
+sw/builder/test_builder.py:19428:    # docs/design/AREA_BUDGET.md predicted (4x4 ~85%, 8x8 ~89% vs modeled
+sw/builder/test_builder.py:22279:    """Gate 23d step 6: AREA_BUDGET.md's tier-1 table carries the same
+sw/builder/test_builder.py:22284:    doc = (ROOT / "docs/design/AREA_BUDGET.md").read_text()
+sw/builder/test_builder.py:22289:        assert row, (f"AREA_BUDGET.md tier-1 table has no row mapping "
+sw/builder/test_builder.py:22295:            f"AREA_BUDGET.md does not carry the banked {lut} LUT for {k}"
+sw/litex/build.sh:386:    # (#259), the SPENT render-filter area lever (docs/design/AREA_BUDGET.md).
+sw/litex/milan_soc.py:679:#! docs/design/AREA_BUDGET.md tier-1 optional blocks: SoC keyword -> the
+sw/litex/milan_soc.py:1122:    # LPF_P: BANKED AREA LEVER (docs/design/AREA_BUDGET.md). Passed ONLY when
+sw/litex/milan_soc.py:1130:    # docs/design/AREA_BUDGET.md tier-1 prunes. `optional_blocks` is a
+sw/litex/milan_soc.py:1832:                                    # docs/design/AREA_BUDGET.md 2026-08-03.
+sw/litex/milan_soc.py:2857:# block (docs/design/MAILBOX_SPLIT.md, section "Default build"). Package
+sw/litex/milan_soc.py:4029:                    help="AREA LEVER (banked, docs/design/AREA_BUDGET.md): prune "
+sw/litex/milan_soc.py:4038:    # ---- docs/design/AREA_BUDGET.md tier-1 optional-block prunes ----
+sw/mailbox/mailbox_emit.py:241:        "The design page is [MAILBOX_SPLIT.md](../design/MAILBOX_SPLIT.md).",
+syn/yosys/ooc.sh:148:  # docs/design/AREA_BUDGET.md tier-1 optional blocks, each measured ALONE so
+syn/yosys/ooc.sh:580:  # produced: docs/design/AREA_BUDGET.md).
+syn/yosys/param_sweep.py:44:   in `docs/design/AREA_BUDGET.md`) and the product is 1,152 while pairwise
+tb/verilator/milan_dp/sim_prune.cpp:6: * optional block dropped (docs/design/AREA_BUDGET.md):
