@@ -934,7 +934,7 @@ So background erases use whole 64 KiB sectors.
 5. The save is durable once its last page checks.
 6. The writer resumes the background erase.
 
-A record page failing read-back is rewritten further on.
+Any non-header page failing read-back is rewritten further on.
 Such a retry is a reported fault outside the bound.
 
 Each save suspends and resumes the erase once.
@@ -972,7 +972,7 @@ T_worst = T_svc + (compaction page in flight) + 2 x T_suspend
 T_svc is the 10 ms service budget of NFR-SCOUT-03.
 The save in flight is one a change just missed.
 
-A save waits for at most one compaction page.
+Fault-free, a save waits for at most one compaction page.
 Compaction yields to saves only between pages.
 
 Both saves suspend the erase, so T_suspend counts twice.
