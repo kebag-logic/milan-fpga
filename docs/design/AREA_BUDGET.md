@@ -127,12 +127,17 @@ The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) repository inpu
 ### Headroom target
 
 [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) in the [requirements](../reference/FR_NFR.md) is the accepted headroom target.
-The baseline product must fit `xc7a100t` with at most 60 percent of its LUTs used.
-The adopted image does not meet it:
+Mark II must use fewer than 20,000 LUTs of `xc7a100t` at 32x32.
+
+That replaces the earlier 60 percent target, 38,040 LUTs.
+The route below was 13,972 over it.
+
+The shipping image must fit the device.
+The resource gate holds it, with no other LUT bound:
 
 | Resource | Device | Shipping route, #799 on dev `97aab1d0`, processor `f65c8ff7`, FPGA-gPTP `55680bff` | Used | Target | Status |
 |---|---:|---:|---:|---|---|
-| Slice LUT | 63,400 | 52,012 | 82.04 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): at most 38,040 (60 %) | not met, 13,972 over |
+| Slice LUT | 63,400 | 52,012 | 82.04 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): Mark II fewer than 20,000 at 32x32 (about 31.5 %); this image must fit the device | fits; no other LUT bound on this image |
 | Slice register | 126,800 | 53,707 | 42.36 % | none stated | - |
 | Slice | 15,850 | 15,780 | 99.56 % | must stay below the device to place | 70 free |
 | Block RAM tile | 135 | 87.5 | 64.81 % | reserve: 13.5 tiles (10 %), the 121.5-tile ceiling, accepted (manager ruling) | 47.5 free |
@@ -170,12 +175,18 @@ The superseded [#229](https://github.com/kebag-logic/milan-fpga/issues/229) mile
 Read as `milan_datapath`, that stack names 43,518 LUTs in the routed image, 68.6 % of the device.
 The wrapper names 24,493 of them in that rebuilt hierarchy.
 The wrapper alone exceeds that historical allocation.
-The active [#640](https://github.com/kebag-logic/milan-fpga/issues/640) acceptance bar is the whole-image [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) target.
 
-Meeting [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) with the rest of the image unchanged needs the wrapper at most 10,521 LUTs.
-That requires removing 13,972 LUTs, 57 % of the wrapper.
-The [owner decided on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) that [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) stays at 60 %.
-It is met by the [Mark II redesign plan](MARK_II_AREA_PLAN.md) ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)).
+The active [#640](https://github.com/kebag-logic/milan-fpga/issues/640) acceptance bar is the [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) ceiling.
+That is fewer than 20,000 LUTs at 32x32, with timing met.
+
+The next three sentences are history, against the replaced 60 percent.
+The [owner kept that target on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270).
+
+All else unchanged, that needed a 10,521-LUT wrapper.
+That meant removing 13,972 LUTs, 57 % of the wrapper.
+
+The [Mark II redesign plan](MARK_II_AREA_PLAN.md) ([#640](https://github.com/kebag-logic/milan-fpga/issues/640)) answers the new ceiling.
+
 The [2026-10-05 schedule correction](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5988555968)
 places milestone 12 before P3, with delivery planned by 2026-12-15.
 The former Instrument-verification prerequisite no longer applies.
@@ -184,6 +195,12 @@ Until M9, comparisons retain the last recorded baseline and unchanged policy.
 The [#232](https://github.com/kebag-logic/milan-fpga/issues/232), [#230](https://github.com/kebag-logic/milan-fpga/issues/230) and [#639](https://github.com/kebag-logic/milan-fpga/issues/639) storage changes are now adopted and measured; the remaining redesign stays under [#640](https://github.com/kebag-logic/milan-fpga/issues/640).
 
 ### Mark II planning ledger
+
+This section is the Mark I plan, kept as history.
+Its target was 38,040 LUTs.
+
+The [Mark II area plan](MARK_II_AREA_PLAN.md) supersedes its target and order.
+[NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) now sets the ceiling.
 
 Round 1d uses the three records committed on dev `5603c353`.
 Their measurement inputs are `a5ca6e51`, as the endpoint notes state.
@@ -198,10 +215,13 @@ No new implementation run is claimed by this documentation update.
 The [owner's decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5993114362) assigns the bare-metal split to milestone 12.
 Integration precedes P3.
 ADP, ACMP, MAAP, SRP, AECP and saved-state handling move.
-All-fabric remains supported and remains the current shipping default.
+
+All-fabric remains the current shipping default until the flip.
+After the flip, no all-fabric build remains.
+
 The flip requires F2-F5 suites and bench acceptance.
 [#664](https://github.com/kebag-logic/milan-fpga/issues/664) governs that qualification.
-Unqualified functions retain fabric placement.
+
 The hard-core port remains milestone 13.
 Diagnostics stay in the shipping image under D2.
 The optional-block table above grants no Mark II diagnostic-pruning credit.
@@ -222,7 +242,7 @@ These figures are estimates of the complete qualified default image:
 | M8b smaller cacheless RV32I | 1,700 | 31,667 | D5 conditional: capture <= 24.5 ms at 8x8, boot and split load |
 | M3 residual fabric AECP | 0 | 31,667 | 2,600 estimated only where fabric AECP remains |
 | M10 shared gPTP/AECP engine | 0 | 31,667 | 1,200 estimated only with a separate retained AECP engine |
-| M9 closure and re-record | No assumed saving | Measured at closure | <= 38,040 LUT and timing met |
+| M9 closure and re-record | No assumed saving | Measured at closure | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) Mark II ceiling and timing met; formerly <= 38,040 LUT |
 
 M2 has measured its lane: 34 LUTs post-synthesis, 128 routed, no block-RAM growth.
 The [plan ledger](MARK_II_AREA_PLAN.md#m2-intermediate-measurement) gives both routes and why 34 is the reproducible figure.
@@ -346,7 +366,10 @@ For fabric AECP, M3/M10 add 3,800 centrally.
 Their range is 2,400-5,100.
 M3 must preserve a separate removable engine for M10.
 
-| Placement | Case | Estimated image LUT | Headroom to 38,040 | Headroom to 37,659 |
+The two headroom columns are history.
+They measure the replaced 38,040 target and D8 margin.
+
+| Placement | Case | Estimated image LUT | Headroom to replaced 38,040 | Headroom to replaced 37,659 |
 |---|---|---:|---:|---:|
 | Full split | Conservative | 35,867 | +2,173 | +1,792 |
 | Full split | Central | 31,667 | +6,373 | +5,992 |
@@ -376,8 +399,11 @@ A D8 exception alone cannot cure an [NFR-RES-01](../reference/FR_NFR.md#35-resou
 
 [D8](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268)
 requires at least 1 percent planning margin.
-The integer ceiling is 37,659 LUTs.
-The binding bar remains 38,040 with timing met.
+The replaced target's integer ceiling was 37,659 LUTs.
+
+The binding bar was then 38,040 with timing met.
+[NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) has replaced it.
+
 [M0s](MARK_II_AREA_PLAN.md#lane-sequence) is owned by the manager's resource bench.
 Its tooling and both measurements precede week 4.
 They also precede the default flip.
@@ -494,7 +520,10 @@ keeps intermediate lane measurements in the [plan ledger](MARK_II_AREA_PLAN.md#l
 M0s supplies measured placement figures against the last gate record.
 Each later lane publishes its comparison and matching M0s delta.
 Growth remains visible across the default flip.
-M9 re-records only after meeting [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) with timing met.
+
+M9 re-records only after meeting [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest)'s Mark II ceiling.
+Timing must also be met.
+
 An improvement recommendation does not authorize an intermediate re-record.
 No tolerance, floor or ceiling is weakened.
 A primitive increase remains a gate failure requiring explicit disposition.

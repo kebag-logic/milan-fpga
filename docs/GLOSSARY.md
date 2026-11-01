@@ -26,7 +26,7 @@ Current product terminology for the bare-metal Milan v1.2 end station.
 | **AVTP** | IEEE 1722 media transport carrying presentation timestamps and validity fields. |
 | **AVDECC** | IEEE 1722.1 discovery, enumeration, control, and connection management. |
 | **ADP** | Entity discovery and advertise/depart protocol, implemented by the protocol processor. |
-| **AECP/AEM** | Enumeration/control protocol and its descriptor model. The current fabric placement serves the feature-ledger inventory; Mark II selects firmware or fabric, including notifications and counters. |
+| **AECP/AEM** | Enumeration/control protocol and its descriptor model. The current fabric placement serves the feature-ledger inventory; after the switch-over, Mark II firmware serves it, including notifications and counters. |
 | **ACMP** | Stream connection protocol. The selected control owner publishes settled binding state to the fabric; currently the protocol processor. |
 | **SRP/MSRP/MVRP** | Reservation and VLAN registration protocols implemented by the protocol processor. |
 | **MAAP** | Multicast address acquisition for AVTP stream destinations. |
@@ -42,7 +42,7 @@ Current product terminology for the bare-metal Milan v1.2 end station.
 
 | Term | Meaning |
 |---|---|
-| **gPTP** | IEEE 802.1AS generalized precision time protocol. The fabric plane is the sole product owner. |
+| **gPTP** | IEEE 802.1AS generalized precision time protocol. The fabric plane is the sole product owner until F6; firmware then owns the protocol and servo. |
 | **PHC** | The in-fabric PTP Hardware Clock from which event and presentation timestamps are drawn. |
 | **Grandmaster (GM)** | The selected source of domain time. |
 | **Peer delay (pdelay)** | Link-delay measurement between adjacent time-aware ports. |

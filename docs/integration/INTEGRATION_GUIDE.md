@@ -2,8 +2,8 @@
 
 This contract describes the current all-fabric shipping control plane.
 
-The [split target](../ARCHITECTURE_HW_SW_SPLIT.md) selects each control owner.
-It preserves media and gPTP interfaces.
+The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the transition and end state.
+It preserves media interfaces, and gPTP interfaces until F6.
 
 Use this contract when wiring `milan_datapath`.
 

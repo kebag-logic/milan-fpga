@@ -1,10 +1,10 @@
 # Traceability — IEEE 802.1Q-2022 (VLAN / FQTSS-CBS / MRP / MSRP / MVRP)
 
 This page describes the all-fabric shipping placement.
-[Mark II placement](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) is build-selectable per control function.
-Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.
-All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+It stays the shipping default until F2 to F5 acceptance.
+
 That acceptance covers all streams, counters and the audio soak.
+The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule) defines the transition and end state.
 
 Clause numbers are verified against the local standards PDF
 `$STANDARDS_DIR/8021Q-2022.pdf` (Q-2018 numbering is
@@ -34,14 +34,15 @@ on the page:
   deletion did not touch them. Rows Q-1..Q-8, Q-13, Q-14 are unaffected.
 - **Reservation is the protocol processor's.** The lwSRP applicant, registrar,
   TA-registrar, walker, context table, timers and bandwidth gate were deleted.
-  This shipping integration uses the processor alone.
-  Mark II permits firmware placement while retaining one selected owner.
-  Both placements owe the same wire behavior. MRP-1..MRP-8 and SRP-1..SRP-10 are now **🔵 PROCESSOR**: the
+  This shipping integration uses the processor alone. MRP-1..MRP-8 and SRP-1..SRP-10 are now **🔵 PROCESSOR**: the
   submodule owns the wire law, this fabric consumes the result off the class-D face
   (`srp_active_o` AND `srp_sr_admitted_o` as the per-source gate (#551), `srp_sum_slope_bps_o`
   read back as `LWSRP_SLOPE` status with no shaper to program, the adopted
   {priority, VID} pair as every C-TAG this device emits), and [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv)
   is where the two meet.
+
+Mark II moves reservation to firmware after the switch-over.
+Both placements owe the same wire behavior.
 
 Two consequences worth stating rather than discovering:
 
