@@ -1,0 +1,32 @@
+sections with When tables, rows: 71 rows mixing and/or without grouping: 23
+STRMW_CTRL 5
+STRMW_DMAC_LO 5
+STRMW_DMAC_HI 5
+STRMW_FMT_LO 3
+STRMW_FMT_HI 3
+STRMW_SRP 2
+STRMW_CTRL :: the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is not 0 and `STRM_SEL[8]` selects a talker
+STRMW_CTRL :: the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is not 0 and `STRM_SEL[8]` selects a listener
+STRMW_CTRL :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0
+STRMW_CTRL :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is not 0
+STRMW_CTRL :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 and the selected stream does not exist
+STRMW_DMAC_LO :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection
+STRMW_DMAC_LO :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table has not answered since the last selection
+STRMW_DMAC_LO :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0
+STRMW_DMAC_LO :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0
+STRMW_DMAC_LO :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream does not exist
+STRMW_DMAC_HI :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection
+STRMW_DMAC_HI :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table has not answered since the last selection
+STRMW_DMAC_HI :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0
+STRMW_DMAC_HI :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0
+STRMW_DMAC_HI :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream does not exist
+STRMW_FMT_LO :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream exists and `STRM_SEL[8]` selects a talker
+STRMW_FMT_LO :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream exists and `STRM_SEL[8]` selects a listener
+STRMW_FMT_LO :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream does not exist
+STRMW_FMT_HI :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream exists and `STRM_SEL[8]` selects a talker
+STRMW_FMT_HI :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream exists and `STRM_SEL[8]` selects a listener
+STRMW_FMT_HI :: the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream does not exist
+STRMW_SRP :: the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 or `STRM_SEL[9]` selects the listener row at index 0 and the SRP table answered since the last selection
+STRMW_SRP :: the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 or `STRM_SEL[9]` selects the listener row at index 0 and the SRP table has not answered since the last selection
+field-row conditions mixing and/or: 0
+rows lacking a stop before an appended sentence: 5
