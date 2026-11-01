@@ -15,8 +15,8 @@ The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md#mark-ii-end-state) sets the 
 - **[The 32x32 shape and its wire load](#the-32x32-shape-and-its-wire-load)** -- Frames and idleSlope.
 - **[Shared engines](#shared-engines)** -- One packetizer, one depacketizer, contexts in RAM.
 - **[Talker capture buffer](#talker-capture-buffer)** -- Eight slots, sized by the packet.
-- **[Packet-boundary stagger](#packet-boundary-stagger)** -- Six phases per 125 µs, fixed per stream.
-- **[Talker latency budget](#talker-latency-budget)** -- The shaper derivation; 64.25 µs worst.
+- **[Packet-boundary stagger](#packet-boundary-stagger)** -- Phases set by wire time.
+- **[Talker latency budget](#talker-latency-budget)** -- One format per port meets it.
 - **[Listener path and render buffer](#listener-path-and-render-buffer)** -- One RAMB36 sized by offset.
 - **[Redundancy pairing and listener merge](#redundancy-pairing-and-listener-merge)** -- Index parity; first copy wins.
 - **[Per-port MAC, filter and timestamp units](#per-port-mac-filter-and-timestamp-units)** -- What each port adds.
@@ -45,29 +45,47 @@ Nothing here changes RTL, firmware, a generator or a gate.
 
 ## The 32x32 shape and its wire load
 
-Milan v1.2 6.2 fixes the base format.
-It is AAF PCM, 32-bit, one to eight channels.
+Milan v1.2 6.2 fixes the base formats.
+They are AAF PCM, 32-bit, with N channels.
 
-At 48 kHz each PDU carries six samples per channel.
+N is one of 1, 2, 4, 6 and 8.
+The rate is 48, 96 or 192 kHz.
+
+A PDU carries 6, 12 or 24 samples per channel.
 Every PDU carries a timestamp, not sparse mode.
 
 IEEE 1722-2016 7.6 keeps that sample count constant.
-Milan v1.2 Table 4.4 fixes the reservation.
+One TDM8 bus and one media clock fix the rate.
 
-The worst case is eight channels on every stream.
-The table below derives one frame and one port's load.
+Channel counts may differ from stream to stream.
+Milan v1.2 Table 4.4 fixes each reservation.
 
 | Quantity | Value | Derivation |
 |---|---:|---|
-| AAF payload | 192 octets | 8 channels x 6 samples x 4 octets |
-| AVTPDU | 216 octets | 24-octet AAF header plus payload (Milan v1.2 Table 4.4: MaxFrameSize = 24N + 24 + 1) |
-| Frame on the wire | 258 octets | AVTPDU + 22 (Ethernet header with VLAN tag, FCS) + 20 (preamble and IFG) |
-| Wire time | 2.064 µs | 258 x 8 bits at 1 Gb/s |
-| Reserved bandwidth per stream | 16,576 kb/s | Table 4.4: 1536 x 8 + 4288 |
-| Class A frames per port | 128,000 per s | 16 streams x 8,000 PDUs per s |
-| Class A idleSlope per port | 265.216 Mb/s, 26.52 % | 16 x 16,576 kb/s |
-| With one CRF stream per port | 270.848 Mb/s, 27.08 % | Table 4.4 CRF: 5,632 kb/s |
+| AVTPDU, N channels at 48 kHz | 24 + 24N octets | 24-octet AAF header; N x 6 samples x 4 octets |
+| Frame on the wire | 24N + 66 octets | AVTPDU + 22 (Ethernet header with VLAN tag, FCS) + 20 (preamble and IFG); Table 4.4 note: at least 68 before the 20 |
+| Reservation per stream | 1536N + 4288 kb/s | Table 4.4: MaxFrameSize 24N + 25, the same steps, x 8 bits x 8,000 per s |
+| CRF stream, one timestamp per PDU | 88 octets; 5,632 kb/s | Table 4.4: MaxFrameSize 29, padded to 68, plus 20 |
+| Class A AAF frames per port | 128,000 per s | 16 streams x 8,000 PDUs per s |
 | Frames per s, both ports, each way | 256,000 | 2 ports x 128,000 |
+
+| N at 48 kHz | Frame, octets | Wire time, µs | Reservation, kb/s |
+|---:|---:|---:|---:|
+| 1 | 90 | 0.720 | 5,824 |
+| 2 | 114 | 0.912 | 7,360 |
+| 4 | 162 | 1.296 | 10,432 |
+| 6 | 210 | 1.680 | 13,504 |
+| 8 | 258 | 2.064 | 16,576 |
+
+| 16 eight-channel streams and one CRF per port | 48 kHz | 96 kHz | 192 kHz |
+|---|---:|---:|---:|
+| Eight-channel frame on the wire | 258 octets, 2.064 µs | 450 octets, 3.600 µs | 834 octets, 6.672 µs |
+| Reservation per stream | 16,576 kb/s | 28,864 kb/s | 53,440 kb/s |
+| Class A idleSlope per port | 270.848 Mb/s, 27.08 % | 467.456 Mb/s, 46.75 % | 860.672 Mb/s, 86.07 % |
+| Within the 75 % class A default | Yes | Yes | No: at most 13 eight-channel streams with a CRF |
+
+IEEE 802.1Q-2022 34.3.1 sets that 75 % default.
+Sixteen eight-channel streams per port need 48 or 96 kHz.
 
 These are derived figures, not measurements.
 
@@ -140,7 +158,7 @@ Sixteen frames per port would then queue at once.
 The shaper would start the last about 117 µs later.
 
 So each stream closes its packets on its own phase.
-A phase is one of six samples per 125 µs.
+There are 6, 12 or 24 phases per 125 µs.
 
 IEEE 1722-2016 7.5 permits this offset.
 Each PDU's timestamp names its own first sample.
@@ -148,134 +166,205 @@ Each PDU's timestamp names its own first sample.
 IEEE 1722-2016 7.6 needs only a constant sample count.
 It sets no common packet boundary across streams.
 
-The phase is fixed while a stream runs.
-Changing it would break the constant sample count.
+### The phase rule
 
-Firmware assigns the phase when a stream starts.
-It picks the phase with the fewest running streams.
+Firmware picks the phase when the stream starts.
+It takes the phase with the least wire time.
 
-Ties go in the order `0, 1, 3, 4, 2, 5`.
-At 16 streams that gives `3, 3, 2, 3, 3, 2`.
+Wire time sums the running streams' frames in that phase.
+A CRF stream counts like any other.
 
-Stops and restarts can produce any order of those loads.
-The budget below covers every one.
+Ties go in a fixed spread order.
+At 48 kHz it is `0, 3, 1, 4, 2, 5`.
+
+At 96 and 192 kHz the order halves the gaps.
+The phase never changes while the stream runs.
+
+IEEE 1722-2016 7.6's constant count forbids that.
+Within a phase, smaller frames are built first.
+
+A CRF frame goes last in its phase.
+Sixteen equal streams fill the phases `3, 3, 2, 3, 3, 2`.
+
+### What the rule cannot prevent
+
+The rule balances wire time only when a stream starts.
+It cannot rebalance when other streams stop.
+
+Heavy frames can then stay clustered among light ones.
+idleSlope falls with them, as it sums current reservations.
+
+Starts and stops alone reach this 48 kHz mix:
+
+- Phase 0 holds three eight-channel streams.
+- Phase 1 holds five two-channel streams.
+- The other eight streams carry one channel each.
+
+Its class idleSlope is 133.120 Mb/s.
+Phase 1's last frame waits 53.085 µs for credit.
 
 ## Talker latency budget
 
 Start: the packet's last sample at the TDM pin.
 End: its frame's first bit on the wire.
 
-[NFR-LAT-03](../reference/FR_NFR.md#31-performance--real-time) bounds it below 65 µs for every talker stream.
-The owner set that target on 2026-10-31.
+[NFR-LAT-03](../reference/FR_NFR.md#31-performance--real-time) sets 65 µs for every talker stream.
+The [owner](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658) called that target ideal on 2026-10-31.
+
+A CRF stream carries no TDM sample.
+So the bound applies to its AAF streams.
 
 ### The class A shaper
 
 Milan v1.2 4.3.4 requires both shaping levels.
-It cites IEEE 802.1Q-2022 34.6.1 for both.
+It cites 34.6.1 of `[802.1Q]`.
 
-Clause 34.6.1.1 sets the class idleSlope.
-It is the sum of the port's stream idleSlopes.
+Milan v1.2's reference list makes that IEEE 802.1Q-2014.
+IEEE 802.1Q-2022 numbers it 34.6.1.1.
 
-Assumption: idleSlope sums Table 4.4 over reserved streams.
-At 32x32: 16 AAF streams and one CRF stream.
+That clause sums stream idleSlopes into the class idleSlope.
+Assumption: that sum covers the current reservations.
 
-Clause 8.6.8.2 then fixes the pacing.
+At 32x32 that is 16 AAF streams, plus any CRF.
+The per-stream level never holds a frame here.
+
+Frames reach it at their release, 125 µs apart.
+Frame bits over stream idleSlope stay under 125 µs.
+
+The CRF's equals 125 µs, so it never holds either.
+Clause 8.6.8.2 then fixes the class pacing.
+
 After a frame of L bits, credit is negative.
+Credit is back at zero L / idleSlope after the start.
 
-Credit returns to zero after L / idleSlope minus L / portTransmitRate.
-So backlogged frames start L / idleSlope apart.
-
-```
-spacing, 8-channel frame  = 2,064 bits / 270.848 Mb/s = 7.621 µs
-spacing, CRF frame (88 octets) = 704 bits / 270.848 Mb/s = 2.599 µs
-phase period at 48 kHz    = 125 µs / 6 = 20.833 µs
-```
-
-A lower-priority frame can be on the wire first.
-Annex L.3.1.1 caps it at one frame.
-
-IEEE 802.1BA-2011 6.3 sets it at 1522 octets.
-Credit accrued meanwhile lets later frames catch up.
+Without interference, credit is never positive at a start.
+So the start times follow one queue recursion:
 
 ```
-interference = (1522 + 20) octets x 8 bits / 1 Gb/s = 12.336 µs
+start(k) = max(release(k), start(k-1) + L(k-1) / idleSlope)
+wait(X)  = max over phases g up to X's own:
+             (bits queued ahead of X since phase g) / idleSlope
+           - (time from phase g to X's phase)
 ```
 
-### Per-port schedule at 32x32
+An 8.6.8.2 simulation confirmed it.
+It simulated 300 random mixes at each rate.
 
-The schedule assumes a phase's frames are all ready together.
-Within a phase the smaller frame goes first.
+### Interference
 
-| Phase | Ready at, µs | Frames | First bits at, µs | Last frame's shaper wait, µs |
-|---:|---:|---|---|---:|
-| 0 | 0.000 | 3 AAF | 0.000, 7.621, 15.241 | 15.241 |
-| 1 | 20.833 | 3 AAF | 22.862, 30.482, 38.103 | 17.269 |
-| 2 | 41.667 | CRF, 2 AAF | 45.723, 48.322, 55.943 | 14.276 |
-| 3 | 62.500 | 3 AAF | 63.563, 71.184, 78.804 | 16.304 |
-| 4 | 83.333 | 3 AAF | 86.425, 94.045, 101.666 | 18.333 |
-| 5 | 104.167 | 2 AAF | 109.286, 116.907 | 12.740 |
+A lower-priority frame may hold the wire first.
+IEEE 802.1Q-2022 L.3.1.1 a) bounds it.
 
-Phase 5 frees the shaper at 124.527 µs.
-That is before 125 µs, so no backlog carries over.
+It is one maximum frame, or mediumAccessDelay if larger.
+Credit gained while blocked lets later frames catch up.
 
-The worst shaper wait is 18.333 µs, phase 4.
-A byte-resolution shaper model gives 18.336 µs.
+So one such frame bounds every frame's extra wait.
+The model checked that against a saturated best-effort queue.
 
-With a saturated best-effort queue it reached 30.632 µs.
-That stays within 18.333 + 12.336 = 30.669 µs.
+The bound needs two properties of this talker's egress:
 
-The order matters; the same schedule covers all 90 orders.
-The worst, `2, 2, 3, 3, 3, 3`, waits 23.925 µs.
+- A1: no frame on an AVB port exceeds 1522 octets.
+- A2: LPI is never asserted on an AVB port.
 
-### The complete budget
+IEEE 802.1BA-2011 6.3 caps frames at 2000 octets.
+1522 octets is only its basic-header example.
 
-| Term | Bound, µs | Basis |
-|---|---:|---|
-| Pin to capture: earliest slot to frame end | 18.229 | 7 of 8 slots x 2.604 µs at 12.288 MHz bit clock |
-| Capture clock-domain crossing | 0.200 | Four 50 MHz cycles (estimate) |
-| Packetizer, last of 8 frames in a phase | 8.560 | 6 x 1.28 + 2 x 0.44 µs (estimate) |
-| Class A shaper wait, preferred order | 18.333 | Schedule above, `3, 3, 2, 3, 3, 2` |
-| Class A shaper wait, worst order | 23.925 | Worst of 90 orders: 15 placements of the two light phases, 6 of the CRF |
-| One interfering maximum frame | 12.336 | IEEE 802.1Q-2022 L.3.1.1 |
-| MAC launch and PHY | 1.000 | 426 ns register stages, 219 ns PHY egress, rest margin (estimate) |
-| **Total, preferred order, worst slot** | **58.658** | Below 65 µs by 6.342 µs |
-| **Total, worst order, worst slot** | **64.250** | Below 65 µs by 0.750 µs |
-| Total, worst order, slot 7 | 46.021 | Without the first term |
+A2 is option a) of IEEE 802.1BA-2011 6.1.
+Option b) would allow a 30 µs wake time.
 
-The sum counts the packetizer and shaper both in full.
-That double count is deliberate and conservative.
+The implementation enforces and tests both.
 
-The first term assumes release at the TDM frame's end.
-Release after the highest mapped slot removes most of it.
+```
+interference with A1 and A2 = (1522 + 20) octets x 8 / 1 Gb/s = 12.336 µs
+with 2000-octet frames        = (2000 + 20) octets x 8 / 1 Gb/s = 16.160 µs
+```
 
-The worst order leaves only 0.75 µs of margin.
-So the implementation should release per highest mapped slot.
+### The fixed terms
+
+| Term | 48 kHz, µs | 96 kHz, µs | Basis |
+|---|---:|---:|---|
+| Pin to capture | 18.229 | 9.115 | Release at the TDM frame's end; a stream mapped only to slot 0 waits 7 of 8 slots |
+| Capture clock-domain crossing | 0.200 | 0.200 | Four 50 MHz cycles (0.080 µs), rounded up to 0.200 µs (estimate) |
+| Packetizer, largest phase, both ports | 8.560 | 9.840 | 2 x (192 + 22) and 2 x (224 + 22) cycles at 50 MHz: three or two eight-channel frames and a CRF (estimate) |
+| One interfering frame | 12.336 | 12.336 | A1 and A2 above |
+| MAC launch and PHY | 1.000 | 1.000 | 426 ns register stages, 219 ns PHY egress, rest margin (estimate) |
+| **Sum of the fixed terms** | **40.325** | **32.491** | |
+
+The packetizer and shaper terms are both counted in full.
+A later ready time delays starts by no more.
+
+The pin term takes the worst slot.
+Release after each stream's last slot would cut it.
+
+At 192 kHz a frame's packetizer time exceeds a phase.
+So the model treats the packetizer there as a queue.
+
+### Results at 16 reservations per port
+
+The model covers every legal base-format mix at each rate.
+Where full enumeration was too large, it bounds a superset.
+
+| Rate | Formats on the port | Shaper wait, µs | Derived bound, µs | Against 65 µs | Method |
+|---|---|---:|---:|---|---|
+| 48 kHz | One format, any N | 23.106 | 63.431 | Met | Exact: all 17,658 states that starts and stops reach |
+| 48 kHz | Mixed N | 53.085 reached; at most 55.542 | 92.530 reached; at most 95.867 | Not met | Reached under the exact rule; bounded over a superset of it |
+| 96 kHz | One format, any N | 18.802 | 51.293 | Met | Exact: all 351,488 reachable states |
+| 96 kHz | Mixed N | 43.215 reached; at most 60.725 | 74.826 reached; at most 93.216 | Not met | As at 48 kHz |
+| 192 kHz | One format, N up to 6 | - | 32.071 | Met | Exact occupancy; packetizer as a queue |
+| 192 kHz | Mixed N | 54.822 reached | At least 72.915, before packetizer time | Not met | Exact occupancy; CRF placed by the rule |
+
+The superset uses a necessary condition of the rule.
+When a stream joins a phase, no phase is lighter.
+
+With 16 streams at most, that bounds each phase's content.
+The witnesses are reached by the exact rule itself.
+
+One format per port meets 65 µs at each rate.
+Mixed formats do not; the [open questions](#open-questions) list it.
+
+The model is lane evidence, not a gate.
+An implementation lane must turn it into a test.
 
 ### Fewer reservations on a port
 
-The budget above holds at the 32x32 load.
-It does not hold for every smaller load.
+The table above holds at 16 reservations per port.
+Fewer reservations make it worse.
 
-With fewer reservations, idleSlope shrinks with them.
+idleSlope shrinks with the reservations.
 Co-phased streams then wait longer for credit.
 
-| Running AAF streams on the port | idleSlope | Last frame's shaper wait | With interference |
+| Running eight-channel streams at 48 kHz, no CRF | idleSlope | Last frame's shaper wait | With interference |
 |---|---:|---:|---:|
-| Two in phase 0 only | 33.152 Mb/s | 62.264 µs | 74.600 µs |
-| Three in phase 0 only | 49.728 Mb/s | 83.016 µs | 95.352 µs |
-| Two, phases 0 and 1 | 33.152 Mb/s | 41.424 µs | 53.760 µs |
+| Two in phase 0 only | 33.152 Mb/s | 62.259 µs | 74.595 µs |
+| Three in phase 0 only | 49.728 Mb/s | 83.012 µs | 95.348 µs |
+| Two, phases 0 and 1 | 33.152 Mb/s | 41.425 µs | 53.761 µs |
 | Two, phases 0 and 3 | 33.152 Mb/s | 0.000 µs | 12.336 µs |
 
-The same byte-resolution shaper model gives these.
+Starts and stops reach each of these rows.
 Alone, k co-phased streams wait about `(k - 1) x 125 / k` µs.
 
 Re-phasing a running stream would break IEEE 1722-2016 7.6.
 Padding reservations would break Milan v1.2 Table 4.4.
 
-So 65 µs is shown at the 32x32 load only.
-Below it, the owner must choose a reading.
+### The latency instrument
 
-The [open questions](#open-questions) list the options.
+The Mark II taps measure the requirement's own interval.
+They start at the pin, not at the capture register.
+
+Capture stamps each TDM frame end in PHC time.
+It subtracts the synchronizer's fixed delay from that stamp.
+
+It also subtracts the slots after the stream's last slot.
+That is the pin instant of the packet's last sample.
+
+The end is the launch observer's first-bit time.
+The PHY egress constant is added to it.
+
+`SE_TLAT_*` and `TCTX_TLAT_MAX` record that interval.
+`SE_TLAT_OVER` counts frames at or above 65 µs on it.
+
+The bench calibrates the reconstruction once.
+An external capture of pin and wire is the reference.
 
 ## Listener path and render buffer
 
@@ -674,23 +763,28 @@ The [open questions](#open-questions) list it.
 | Claim | Method | Evidence still owed |
 |---|---|---|
 | Engine throughput | Analysis above; RTL simulation at 256,000 frames per s each way | Simulation with both ports at full load |
-| Talker latency at 32x32 | Analysis above; a byte-resolution model of IEEE 802.1Q-2022 8.6.8.2 | AAF latency taps on all 32 talker streams on the bench |
+| Talker latency at 32x32 | Analysis above; the executable model of IEEE 802.1Q-2022 8.6.8.2 at every rate | Mark II taps on all 32 talker streams on the bench, with one format and with mixed formats per port |
+| Phase rule | The model's starts and stops | Firmware test: phase chosen by wire time, never moved while running |
 | Stagger conformance | IEEE 1722-2016 7.5 and 7.6 inspection | Listener interoperability with the reference peer |
 | Listener merge | Simulation with one network cut mid-stream | Bench cable pull on each network, no lost samples |
 | Block RAM ledger | Estimate above | Routed image at 32x32 with measured firmware |
 | Save bound | Analysis above at datasheet maxima | Host flash model at maxima; bench power cuts |
 
-The byte-resolution shaper model is lane evidence, not a gate.
+The shaper model is lane evidence, not a gate.
 An implementation lane must turn it into a self-checking test.
 
 ## Open questions
 
-1. **Talker latency below the 32x32 load.**
-   Co-phased streams alone wait up to 83 µs for credit.
-   The owner's choices include these:
-   - bind 65 µs at the 32x32 load only;
-   - accept the derived bound at smaller loads;
-   - change the stagger or shape decision.
+1. **Talker latency with mixed formats or fewer reservations.**
+   - At 16 mixed reservations, every rate exceeds 65 µs.
+   - At 48 kHz a reached mix needs 92.530 µs.
+   - No 48 kHz mix exceeds 95.867 µs.
+   - Three co-phased streams alone wait 83.012 µs for credit.
+   - The owner called 65 µs ideal; the choices include these:
+     - accept the derived bounds for those cases;
+     - restrict each port to one base format;
+     - re-phase a running stream, accepting an audio gap;
+     - change the stagger or shape decision.
 2. **Save bursts.**
    A burst beyond S1 exceeds 0.5 s at maxima.
    The owner may bound it, accept it or change media.

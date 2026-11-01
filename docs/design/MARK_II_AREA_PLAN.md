@@ -57,7 +57,7 @@ This page changes documentation only.
 | Block RAM | The routed image fits the device's Block RAM with the 13.5-tile reserve intact |
 | Timing | The build's timing gate at every signoff corner |
 | Gate comparison | Since [#818](https://github.com/kebag-logic/milan-fpga/issues/818), the best of the three placement directives meets the +0.030 ns WNS and 0 ns WHS floors at every signoff corner; a fall of more than 0.25 ns from the +0.440 ns record is a warning |
-| Talker latency | Below 65 µs for every talker stream ([NFR-LAT-03](../reference/FR_NFR.md#31-performance--real-time)) |
+| Talker latency | Below 65 µs for every talker stream ([NFR-LAT-03](../reference/FR_NFR.md#31-performance--real-time)); derived as met with one base format per port, not with mixed formats ([open](MARK_II_STREAM_ENGINES.md#open-questions)) |
 | Save | Durable within 0.5 s worst case at 32x32 (NFR-REL-03) |
 | Function | Every suite, campaign and compliance check passes; gPTP qualification passes on software |
 | Gate | The resource gate's baseline is re-recorded by the change that reaches the target |
@@ -251,7 +251,7 @@ Measure its reductions before any lane relies on them.
 | D11, processor | [Owner, 16:33](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6545457321): removed; ADP, ACMP, MAAP, SRP, AECP and saved state are firmware only | No retained-fabric option; deleted at the switch-over; supersedes D9's all-fabric option |
 | D12, shape | [Owner, 16:47](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545621753): 32x32, 16x16 logical streams, each redundant | Shared stream engines and a second port |
 | D13, gPTP | [Owner, 16:51](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545655255) and [17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): `flexptpd`; timestamps in fabric on both ports. [Source](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172): `kebag-logic/flexPTP`, MIT, a fork of `epagris/flexPTP`, branch `gptp` at `d116d3d` | Lever 6 taken; #665 F6; the fork serves one port per image today, so two ports are an open item |
-| D14, talker latency | [Owner, 17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): as fast as possible, ideally below 65 µs | NFR-LAT-03; shown at the 32x32 load only |
+| D14, talker latency | [Owner, 17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): as fast as possible, ideally below 65 µs | NFR-LAT-03; met with one base format per port, exceeded by mixed formats and fewer reservations, an open owner question |
 | D15, LiteX | [Owner, 17:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545999204): removed in three stages; as low as possible | The stages above, each measured |
 | D16, lever order | [Owner, 16:40](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545540394): least risky first, each measured before the next | The lane order below |
 | D17, save | [Owner, #823, 17:14](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6545924397): at most 0.5 s worst case at 32x32 | NFR-REL-03; append-only save path |
