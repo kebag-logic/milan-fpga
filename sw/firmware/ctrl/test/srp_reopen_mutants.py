@@ -13,6 +13,8 @@ T = TypeVar("T")
 
 DEFER = "    i->reopen_polls = 1u;\n    i->reopening = true;\n"
 OWE = "            --i->reopen_polls;\n            owed = true;\n"
+DESTROY = ("    msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);\n"
+           "    i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;\n")
 TEST = "LinkChangeBuildsTheNewParticipantsOnTheNextPass"
 
 
@@ -31,10 +33,8 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "the record that waited is taken on the pass after", suite="srp_app.cpp"),
         kind("reset-build-not-owed", TEST, OWE, "            --i->reopen_polls;\n",
              "a poll that withdraws owes the build", suite="srp_app.cpp"),
-        kind("reset-each-edge-builds", "LinkEdgesOfOnePassBuildOnce",
-             "    msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);\n    i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;\n",
-             "    msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);\n    i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;\n"
-             "    (void)open_interface(i); msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);\n"
+        kind("reset-each-edge-builds", "LinkEdgesOfOnePassBuildOnce", DESTROY,
+             DESTROY + "    (void)open_interface(i); msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);\n"
              "    i->msrp = NULL; i->mvrp = NULL;\n",
              "a pass of link edges builds once", suite="srp_app.cpp"),
     )
