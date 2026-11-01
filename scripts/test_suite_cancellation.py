@@ -573,6 +573,7 @@ def owner_survivor(parent: Path) -> None:
     env = dict(os.environ, STUBBORN=STUBBORN)
     survivor = []
     shell_start = []
+    since = time.monotonic()
     with stages(GRACE_SECONDS=0.2, KILL_ALL_SECONDS=0.2, REAP_SECONDS=0.6):
         with OwnedProcesses() as owner:
             send = owner._send
@@ -580,6 +581,7 @@ def owner_survivor(parent: Path) -> None:
             def undying(pid: int, start: str, signum: int) -> bool:
                 # What no unprivileged control can really build: SIGKILL has no effect.
                 if survivor and pid == survivor[0] and signum == signal.SIGKILL:
+                    assert time.monotonic() - since < 30, "a survivor never failed the run"
                     return True
                 return send(pid, start, signum)
             owner._send = undying
