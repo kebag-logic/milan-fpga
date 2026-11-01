@@ -63,19 +63,32 @@ def _prctl():
     return prctl
 
 
-def _identity(pid: int) -> tuple[int, str] | None:
+def _stat(pid: int) -> list[str] | None:
+    """One process's stat fields after its name, or None once it is gone.
+
+    The census reads this for every process on the host, so it avoids pathlib:
+    the direct calls measured 13 ms a pass against 30 ms for 1300 processes.
+    """
     try:
-        fields = (PROC / str(pid) / "stat").read_text().rsplit(")", 1)[1].split()
-        return int(fields[1]), fields[19]
+        fd = os.open(f"{PROC}/{pid}/stat", os.O_RDONLY)
     except (FileNotFoundError, ProcessLookupError):
         return None
+    try:
+        return os.read(fd, 4096).decode().rsplit(")", 1)[1].split()
+    except ProcessLookupError:
+        return None
+    finally:
+        os.close(fd)
+
+
+def _identity(pid: int) -> tuple[int, str] | None:
+    fields = _stat(pid)
+    return None if fields is None else (int(fields[1]), fields[19])
 
 
 def _live(pid: int) -> bool:
-    try:
-        return (PROC / str(pid) / "stat").read_text().rsplit(")", 1)[1].split()[0] != "Z"
-    except (FileNotFoundError, ProcessLookupError):
-        return False
+    fields = _stat(pid)
+    return fields is not None and fields[0] != "Z"
 
 
 def _describe(pid: int, first: tuple[int, str] | None, killed_ago: float | None) -> str:
@@ -180,12 +193,13 @@ class OwnedProcesses:
 
     def _descendants(self) -> dict[int, tuple[int, str]]:
         population = {}
-        for entry in PROC.iterdir():
-            if entry.name.isdecimal():
-                pid = int(entry.name)
-                identity = _identity(pid)
-                if identity is not None:
-                    population[pid] = identity
+        with os.scandir(PROC) as entries:
+            for entry in entries:
+                if entry.name.isdecimal():
+                    pid = int(entry.name)
+                    identity = _identity(pid)
+                    if identity is not None:
+                        population[pid] = identity
         owned = {os.getpid()}
         while True:
             more = {pid for pid, (parent, _start) in population.items()
