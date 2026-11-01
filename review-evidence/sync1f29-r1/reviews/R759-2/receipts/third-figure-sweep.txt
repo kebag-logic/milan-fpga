@@ -1,0 +1,27 @@
+# old and new boot and maximum figures outside the two harness READMEs, at the head
+docs/diagrams/ts_wrap_walk.svg:38:<polyline points="777.58,391.98 778.05,391.87 778.52,391.76 779.00,391.65 779.47,391.54 779.95,391.43 780.42,391.32 780.89,391.21 781.37,391.10 781.84,390.99 782.31,3
+docs/diagrams/ts_wrap_walk.svg:41:<polyline points="913.50,391.84 913.97,391.58 914.45,391.32 914.92,391.06 915.39,390.80 915.87,390.54 916.34,390.28 916.82,390.02 917.29,389.76 917.76,389.50 918.24,3
+# importers of the harness SoC
+tb/verilator/ctrl_service_budget/build.py:553:    import split_soc
+tb/verilator/ctrl_split_boot/boot_soc.py:7:harness's (tb/verilator/ctrl_service_budget/split_soc.py, imported read only):
+tb/verilator/ctrl_split_boot/boot_soc.py:36:import split_soc  # noqa: E402  the CPU budget harness's SoC, read only
+tb/verilator/ctrl_split_boot/boot_soc.py:86:        split_soc.add_devices(soc, platform, addresses, contract, n_if)
+tb/verilator/ctrl_split_boot/run.py:172:    code = ('import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; '
+# LiteSPI builds
+scripts/nvm_contract.py:115:# `add_spi_flash(mode="1x", clk_freq=12.5e6)` in sw/litex/milan_soc.py, so one
+scripts/nvm_contract.py:120:SPI_HZ = 12_500_000     # milan_soc.py add_spi_flash(clk_freq=12.5e6), 1x mode
+sw/litex/milan_soc.py:3360:            self.add_spi_flash(mode="1x", module=flash_module,
+sw/litex/milan_soc.py:3851:    def add_spi_flash(self, phy: object = None, **kwargs: object) -> None:
+sw/litex/milan_soc.py:3852:        """LiteX's `add_spi_flash(**kwargs)`, with the #814 `SPIPHYStage` in front of the PHY.
+sw/litex/milan_soc.py:3871:        return SoCCore.add_spi_flash(self, phy=stage_spi_phy(phy), **kwargs)
+sw/litex/test_soc_timing_cuts.py:306:        self.add_spi_flash(**kwargs)
+tb/verilator/ctrl_service_budget/split_soc.py:360:    spiflash = LiteSPI(phy, mmap_endianness=soc.cpu.endianness, with_master=False)
+tb/verilator/fw_service_budget/build.py:54:        return capture_soc.milan_soc.MilanSoC.add_spi_flash(soc, **kwargs)
+tb/verilator/nvm_capture_cpu/soc.py:66:    def add_spi_flash(self, **kwargs: object) -> object:
+tb/verilator/nvm_capture_cpu/soc.py:70:        return super().add_spi_flash(**kwargs)
+# references to the two pages with a figure nearby
+docs/ARCHITECTURE_HW_SW_SPLIT.md
+docs/design/SPLIT_CONTROL_MEMORY.md
+sw/firmware/ctrl/plat/README.md
+# flash, refill or SPI millisecond figures in the two READMEs that take the stage directly from MilanSoC
+matches rc 1
