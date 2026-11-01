@@ -447,8 +447,10 @@ At 192 kHz, without the packetizer: 18.093 µs.
 The reviewer's [published probe](https://github.com/kebag-logic/milan-fpga/blob/b61b3b8bc172e5688c3c6799a85790dde144403d/review-evidence/640-m9-r1/reviews/R757-7/scripts/probe_fewer_bound.py) reports these cases.
 [Its output](https://github.com/kebag-logic/milan-fpga/blob/b61b3b8bc172e5688c3c6799a85790dde144403d/review-evidence/640-m9-r1/reviews/R757-7/receipts/model/probe_fewer_bound.out) lists them.
 
-Its 192 kHz search left out eight-channel streams.
-So that row may be low.
+Its 192 kHz search was a random walk.
+It left out eight-channel streams.
+
+Larger cases exist, so that row is low.
 
 Re-phasing a running stream would break IEEE 1722-2016 7.6.
 Padding reservations would break Milan v1.2 Table 4.4.
