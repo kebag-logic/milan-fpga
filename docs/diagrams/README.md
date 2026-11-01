@@ -114,15 +114,15 @@ Every register's SVG is rendered from it.
 | Mechanism | Kind | Section |
 |---|---|---|
 | How a read is served | Mermaid `flowchart` | Reading this page |
-| How a statistics snapshot works | Mermaid `sequenceDiagram` | 0x200  -  Statistics (RMON)  (REQ-MAC-04) |
-| How a TCAM entry is written | Mermaid `sequenceDiagram` | 0x700  -  RX destination-MAC TCAM filter  (REQ-MAC-02) |
-| How the link guard recovers | Mermaid `stateDiagram-v2` | 0x71C  -  Link guard / MAC recovery (VERSION minor ≥ 0x0006) |
-| How the guard arms and disarms | Mermaid `stateDiagram-v2` | 0x7D8  -  Ethernet guard |
-| How a stream snapshot is read | Mermaid `sequenceDiagram` | 0x800  -  Indexed per-stream window |
-| Where the latency taps measure | Mermaid `flowchart` | 0x870  -  AAF per-stage latency taps  (roadmap item-11, KL_aaf_latency_taps) |
-| How the servo moves between states | Mermaid `stateDiagram-v2` | 0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo) |
-| How a map entry is read back | Mermaid `sequenceDiagram` | 0x900  -  channel-map fabric  (Section 6 of docs/CHANNEL_MAP_64.md, KL_chan_map_render / KL_chan_map_capture) |
-| How a side-port read is posted | Mermaid `sequenceDiagram` | 0x920  -  protocol-processor control plane  (KL_pp_shadow, VERSION major 2) |
+| How a statistics snapshot works | Mermaid `sequenceDiagram` | Statistics (RMON) |
+| How a TCAM entry is written | Mermaid `sequenceDiagram` | RX destination-MAC TCAM filter |
+| How the link guard recovers | Mermaid `stateDiagram-v2` | Link guard / MAC recovery (VERSION minor ≥ 0x0006) |
+| How the guard arms and disarms | Mermaid `stateDiagram-v2` | Ethernet guard |
+| How a stream snapshot is read | Mermaid `sequenceDiagram` | Indexed per-stream window |
+| Where the latency taps measure | Mermaid `flowchart` | AAF per-stage latency taps |
+| How the servo moves between states | Mermaid `stateDiagram-v2` | MMCM-DRP media-clock servo |
+| How a map entry is read back | Mermaid `sequenceDiagram` | channel-map fabric |
+| How a side-port read is posted | Mermaid `sequenceDiagram` | protocol-processor control plane |
 <!-- register-diagrams:end -->
 
 ## Measured figures

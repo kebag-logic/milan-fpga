@@ -308,12 +308,11 @@ def catalog(model: Model) -> str:
     if text.count(CATALOG_START) != 1 or text.count(CATALOG_END) != 1:
         raise Refusal(f"{CATALOG} needs exactly one {CATALOG_START} ... {CATALOG_END} block")
     rows = ["| Module source | Module | Registers | Renders |", "|---|---|---|---|"]
+    titles = {m.key: strip_md(m.heading).split("  -  ", 1)[-1].split("  (", 1)[0] for m in model.modules}
     for m in model.modules:
-        name = strip_md(m.heading).split("  -  ", 1)[-1].split("  (", 1)[0]
-        rows.append(f"| [`regmap/{m.key}.json`](regmap/{m.key}.json) | {name} | {len(m.registers)} "
+        rows.append(f"| [`regmap/{m.key}.json`](regmap/{m.key}.json) | {titles[m.key]} | {len(m.registers)} "
                     f"| `regmap/{m.key}/*.svg` |")
     rows += ["", "| Mechanism | Kind | Section |", "|---|---|---|"]
-    titles = {m.key: strip_md(m.heading) for m in model.modules}
     for mech in model.mechanisms:
         rows.append(f"| {mech.title} | Mermaid `{mech.kind}` | {titles.get(mech.module, 'Reading this page')} |")
     head, rest = text.split(CATALOG_START, 1)
