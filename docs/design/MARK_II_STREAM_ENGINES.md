@@ -644,7 +644,7 @@ The first matching rule acts:
 | Rule | When | Action | Counter |
 |---:|---|---|---|
 | 1 | The copy fails a stream check: its format (Milan v1.2 4.4.2.2), or a late or early time (Milan v1.2 5.3.8.10) | Not rendered | That check's Milan v1.2 5.3.8.10 counter |
-| 2 | No valid head (`HEAD_VALID` clear, or `LCTX_LAST_PT` passed) | Rendered at its own time; it anchors the head and clears the map | `SE_MERGE_SEC` if odd |
+| 2 | No valid head (`HEAD_VALID` clear, or `LCTX_LAST_PT` passed) | Rendered at its own time; it anchors the head and restarts the map with only bit 0 set | `SE_MERGE_SEC` if odd |
 | 3 | More than 21 packets from the head | Re-anchors, as rule 2 | `SE_MERGE_SEC` if odd |
 | 4 | k is 1 or more: newer than the head | Rendered k packets after the head; it becomes the head | `SE_MERGE_SEC` if odd |
 | 5 | k is 0 to -21, and map bit -k is clear | Rendered k packets from the head; sets that bit | `SE_MERGE_SEC` if odd |
@@ -1182,7 +1182,7 @@ Each listener context keeps 56 reserved octets for them.
 | TU-1 | A copy whose tu is set is not trusted for placement by its own presentation time. The listener follows Milan v1.2 4.4.2.3: after tu resets, its media clock free-wheels for a time the lane states | IEEE 1722-2016 4.4.4.7; Milan v1.2 4.4.2.3 | Cases A to D. The test fails if a tu copy's skew alone changes which samples render or where they land, apart from an anchor TU-4 states. A servo simulation fails if the media clock adjusts inside the stated free-wheel time |
 | TU-2 | A clean copy on either network is rendered, as the rules above place it. A tu copy never replaces a clean one | Milan v1.2 Annex D.2; IEEE 1722-2016 4.4.4.7 | Case E. For each packet with a clean copy past rule 1, the rendered samples equal the clean stream's. The test fails if a tu copy overwrites clean data, or a tu copy keeps a clean copy from rendering |
 | TU-3 | No copy is written outside the render span. A talker restart during tu places no sample at a wrong packet; the lane picks the restart signal | Milan v1.2 4.4.2.1, 5.3.8.10; IEEE 1722-2016 4.4.4.6 | Cases K and L. Every write is checked against the render point. The test fails if a sample lands outside the span, or at a wrong packet |
-| TU-4 | An unpaired stream that starts with tu still renders. The lane states the behaviour: how it places those copies, and what the first clean copy then does | IEEE 1722-2016 4.4.4.6, 4.4.4.7 | Case G. The test compares the rendered stream with the stated behaviour. It fails if a stream receiving every packet renders only isolated packets |
+| TU-4 | A stream that starts with tu, unpaired or on both networks, still renders. The lane states the behaviour: how it places those copies, and what the first clean copy then does | IEEE 1722-2016 4.4.4.6, 4.4.4.7 | Case G. The test compares the rendered stream with the stated behaviour. It fails if a stream receiving every packet renders only isolated packets |
 | TU-5 | The loss bound is an output of the lane's model and bench run, recorded in the table below. It covers tu on both networks, one network lost, and a large time skew. The skew is at least the 1.5 s step the [recovery page](GM_LOSS_RECOVERY.md#media-re-base-on-a-phc-step) grades | Milan v1.2 Annex D.3, which covers connectivity loss only; IEEE 1722-2016 4.4.4.7 | Every case below, in the model and on the bench. The model reports samples missing and misplaced per case. The lane records the bound before its review |
 
 | Condition | Loss bound |
