@@ -507,6 +507,18 @@ RTL name: `A_MAC_STATUS`.
 | 2:1 | `SPEED` | R | X | speed (0=10,1=100,2=1000) |
 | 0 | `LINK_UP` | R | X | link_up. |
 
+These bits mirror the LiteX `milan_mac_link_status` CSR.
+
+Its reset: link up, full duplex, gigabit on GMII. MII resets to 100 Mb/s.
+
+So this word reads `0x0000000D` on the AX7101 until firmware writes.
+
+Firmware writes it only while the saved-state writer runs.
+
+The word does not follow the link on its own.
+
+For the link, read `LINKG_STAT`, the link counters or BMSR.
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#mac_status-offset-0x110).
 
 ### MC_HASH_LO register (offset 0x114) [reset = 0x00000000]
@@ -563,6 +575,8 @@ A MAC reinit release zeroes the snapshot. All zero means no valid snapshot.
 Read `STATS_CAP` before believing a zero. 0 there means no event source.
 
 A board build with the LiteEth MAC reports `0x1B8`.
+
+Lane sources:
 
 | lane | source | in `STATS_CAP` on a LiteEth build |
 |---|---|---|
@@ -760,14 +774,6 @@ It keeps its geometry, its reset image and its readback.
 
 `CAP[8]` reads 0 for the same reason.
 
-| q | class | idleSlope | % of 1 Gb/s | hiCredit | loCredit | shaped |
-|---|---|---|---|---|---|---|
-| 4 | SR class A (CBS) | 450 Mb/s | 45 % | 684 | −837 | 0 |
-| 3 | SR class B (CBS) | 150 Mb/s | 15 % | 228 | −1293 | 0 |
-| 2 | gPTP | 50 Mb/s | 5 % | 76 | −1445 | 0 |
-| 1 | control (MAAP/MSRP/MVRP, ADP/ACMP/AECP) | 50 Mb/s | 5 % | 76 | −1445 | 0 |
-| 0 | best effort | 25 Mb/s | 2.5 % | 38 | −1483 | 0 |
-
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x400-----8021qav-cbs-per-queue--req-cbs-0103).
 
 ### CBS_IDLE_SLOPEn registers (offset 0x400 to 0x480, stride 0x20) [reset = see table]
@@ -953,7 +959,7 @@ RTL name: `A_PTP_OFLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PTP_OFFSET` | R/W | 0 | Drives `o_ptp_offset`. Bits [31:0] of the RTL value. |
+| 31:0 | `PTP_OFFSET` | R/W | 0 | adjtime signed delta, low half. Bits [31:0] of the RTL value. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_offset_lo-offset-0x518).
 
@@ -967,7 +973,7 @@ RTL name: `A_PTP_OFHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PTP_OFFSET` | R/W | 0 | Drives `o_ptp_offset`. Bits [63:32] of the RTL value. |
+| 31:0 | `PTP_OFFSET` | R/W | 0 | adjtime signed delta, high half. Bits [63:32] of the RTL value. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_offset_hi-offset-0x51c).
 
@@ -1836,6 +1842,8 @@ The bind record carries the bound stream_id, DMAC and VLAN.
 
 The departing-controller monitor lives in the protocol processor.
 
+Words free in this group:
+
 | Offset | Register | Access | Fields |
 |---|---|---|---|
 | `0x6F8` | -- | -- | **reserved**, free. Claim it here before wiring it |
@@ -1944,6 +1952,8 @@ RTL name: `A_AVTPRX_STAT`.
 
 `AVTPRX_STAT` bytes saturate: `0xFF` means at least 255.
 
+Counter clauses: IEEE 1722.1-2021 Table 7-156. Milan v1.2 Table 5.6.
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#avtprx_stat-offset-0x6b8).
 
 ### AVTPRX_FRX register (offset 0x6BC) [reset = 0xXXXXXXXX]
@@ -2033,7 +2043,9 @@ RTL name: `A_MAAP_STAT0`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `MAAP_STAT0` | R | X | Reads input `i_maap_stat0`. |
+| 31:24 | `CONFLICTS` | R | X | Conflicts: re-address events. |
+| 23:16 | `DEFENDS` | R | X | DEFENDs sent. |
+| 15:0 | `OFFSET` | R | X | Claimed offset. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#maap_stat0-offset-0x6d0).
 
@@ -2476,6 +2488,8 @@ The SID pair is the manual lever. A CRF sink bind wins.
 A stopped sink keeps observing and counting, while consumption gates.
 
 A Controller Unbind never counts as interrupted (Table 5.6).
+
+The Stream Input counter block:
 
 | Quadlet (block offset) | Counter | `KL_crf_rx` output |
 |---|---|---|
@@ -3174,6 +3188,10 @@ RTL name: `A_ETH_GUARD`.
 | 31:1 | `RESERVED` | R | 0 | Reserved. A write compares the whole word with the unlock key. |
 | 0 | `ETH_GUARD` | R/W | 1h | 1 = guarded: the reset state, armed at power-on. Software may re-arm it before risky work. The link guard's own automatic recovery is not gated. The SoC exports the level (`o_eth_guard`), but at this head nothing in `sw/litex/milan_soc.py` consumes it, so the LiteX `milan_mac_phy_crg_reset` CSR is NOT gated. Writing exactly `0x554E4C4B` (ASCII `UNLK`) clears it; any other written value sets it. While it is 1, writes to `PHY_RESET` are dropped; `LINK_CTRL[1]` (MAC_REINIT) is stored as 0. |
 
+The readback is the guard flop itself.
+
+A refused write never reads back as accepted.
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#eth_guard-offset-0x7d8).
 
 ## 0x7DC  -  retired AS_PATH compatibility addresses
@@ -3333,6 +3351,8 @@ A word that does not exist for the selection reads `0xDEADDEAD`.
 An index out of range reads 0. Writes are ignored.
 
 Index 0 is a hard alias of the flat registers.
+
+The shipping AX7101 has one AAF stream. The 8x8 config declares eight.
 
 The ACMP context read and SRP row port are dead. Their words read 0.
 
@@ -3807,6 +3827,8 @@ This probe shows what the parser saw before any match.
 
 The `SID` and `INFO` latch only follows stream subtypes.
 
+Reading the failure modes, listener bound and nothing accepted:
+
 | `PARSED` | `MATCHED` | verdict |
 |---|---|---|
 | static | static | frames are not reaching the parser at all -- look upstream (MAC, filter, classify), not at the listener |
@@ -3876,12 +3898,16 @@ They are live and read-only. Read twice and difference for a rate.
 
 `SLIP_LB` reads 0 on a shape without the loopback lane.
 
+What each event counts:
+
 | event | `SLIP_LB` dups | `SLIP_TDM` dups |
 |---|---|---|
 | upstream paused, four fed pairs (the shipping 1x1x8 lane) | 65535 / 192000 per second = 0.34 s | - |
 | upstream paused, 32 fed pairs (an 8x8 elaboration with the lane) | 65535 / 1536000 per second = 43 ms | - |
 | TDM front-end clock stopped | - | 65535 / 48000 per second = 1.4 s |
 | an unaligned packet grid against a disciplined peer (one slip per 1.958 s: INTERNAL before #629) | 8.9 h on four pairs, 1.1 h on 32 | 35.6 h at one dup per slip; sooner when a wider marker dither adds dup/skip pairs |
+
+Reading the pair:
 
 | `SLIP_LB` | `SLIP_TDM` | verdict |
 |---|---|---|
@@ -3936,6 +3962,8 @@ Talker selections and indices out of range read 0.
 
 Refused PDUs and slips do not raise `STREAM_INTERRUPTED`.
 
+`RENDER_STAT` bits:
+
 | Bits | Width | Source | Meaning | Reset |
 |---|---|---|---|---|
 | `[7:0]` | 8 | selected `lead_o` byte | Frames queued past the frame every interface has read: the newest frame the stream wrote, less that one; 0 with none queued; saturates at 255 (the queue is 128 frames deep at 48 kHz) | 0 |
@@ -3975,6 +4003,8 @@ AAF media clock meter.
 The meter measures the selected AAF Stream Input's media clock.
 
 `AAFM_RATE` is signed ns of error per 512 ms. 1 ppm is 512 units.
+
+`AAFM_STAT` bits:
 
 | Bits | Width | Meaning | Reset |
 |---|---|---|---|
@@ -4109,6 +4139,8 @@ Channel-map debug write port and map RAM readback.
 The render side writes by cluster key. It reads by physical key.
 
 A cluster key with no projection changes no render word.
+
+Words free in this group:
 
 | Offset | Name | Acc | Reset | Description |
 |---|---|---|---|---|
@@ -4282,6 +4314,8 @@ Read `PP_STAT[31:24]` first: 0 means the gateware predates this group.
 A device with no record reads `nvm_blank`. Read the verdict bits with it.
 
 `PP_NVM_*` is a control tuple, never a data window.
+
+Read the restore verdict from three bits:
 
 | `nvm_backed` `[6]` | `nvm_blank` `[7]` | `restore_fail` `[3]` | Meaning |
 |---|---|---|---|

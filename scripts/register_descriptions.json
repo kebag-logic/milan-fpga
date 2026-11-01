@@ -188,6 +188,7 @@
         "A MAC reinit release zeroes the snapshot. All zero means no valid snapshot.",
         "Read `STATS_CAP` before believing a zero. 0 there means no event source.",
         "A board build with the LiteEth MAC reports `0x1B8`.",
+        "Lane sources:",
         {
           "table": [
             [
@@ -267,66 +268,7 @@
       "notes": [
         "This window is inert scratch since `0x0056`: no shaper is elaborated.",
         "It keeps its geometry, its reset image and its readback.",
-        "`CAP[8]` reads 0 for the same reason.",
-        {
-          "table": [
-            [
-              "q",
-              "class",
-              "idleSlope",
-              "% of 1 Gb/s",
-              "hiCredit",
-              "loCredit",
-              "shaped"
-            ],
-            [
-              "4",
-              "SR class A (CBS)",
-              "450 Mb/s",
-              "45 %",
-              "684",
-              "−837",
-              "0"
-            ],
-            [
-              "3",
-              "SR class B (CBS)",
-              "150 Mb/s",
-              "15 %",
-              "228",
-              "−1293",
-              "0"
-            ],
-            [
-              "2",
-              "gPTP",
-              "50 Mb/s",
-              "5 %",
-              "76",
-              "−1445",
-              "0"
-            ],
-            [
-              "1",
-              "control (MAAP/MSRP/MVRP, ADP/ACMP/AECP)",
-              "50 Mb/s",
-              "5 %",
-              "76",
-              "−1445",
-              "0"
-            ],
-            [
-              "0",
-              "best effort",
-              "25 Mb/s",
-              "2.5 %",
-              "38",
-              "−1483",
-              "0"
-            ]
-          ],
-          "line": 625
-        }
+        "`CAP[8]` reads 0 for the same reason."
       ],
       "record": "0x400-----8021qav-cbs-per-queue--req-cbs-0103"
     },
@@ -396,6 +338,7 @@
         "The bind record carries the bound stream_id, DMAC and VLAN.",
         "`CTLR_DIAG` is a structural zero: its source was deleted.",
         "The departing-controller monitor lives in the protocol processor.",
+        "Words free in this group:",
         {
           "table": [
             [
@@ -470,6 +413,7 @@
         "The SID pair is the manual lever. A CRF sink bind wins.",
         "A stopped sink keeps observing and counting, while consumption gates.",
         "A Controller Unbind never counts as interrupted (Table 5.6).",
+        "The Stream Input counter block:",
         {
           "table": [
             [
@@ -669,6 +613,7 @@
         "A word that does not exist for the selection reads `0xDEADDEAD`.",
         "An index out of range reads 0. Writes are ignored.",
         "Index 0 is a hard alias of the flat registers.",
+        "The shipping AX7101 has one AAF stream. The 8x8 config declares eight.",
         "The ACMP context read and SRP row port are dead. Their words read 0.",
         "A `SNAP` latches `STATE`, `CNT0..9` and `PDUS` as one coherent set.",
         "`CTRL` and `FMT` reads go live to the context RAM. They take at least four clocks."
@@ -698,6 +643,7 @@
       "notes": [
         "This probe shows what the parser saw before any match.",
         "The `SID` and `INFO` latch only follows stream subtypes.",
+        "Reading the failure modes, listener bound and nothing accepted:",
         {
           "table": [
             [
@@ -747,6 +693,7 @@
         "Two 48 kHz grids meet at the capture crossbar. These words count their slips.",
         "They are live and read-only. Read twice and difference for a rate.",
         "`SLIP_LB` reads 0 on a shape without the loopback lane.",
+        "What each event counts:",
         {
           "table": [
             [
@@ -777,6 +724,7 @@
           ],
           "line": 1935
         },
+        "Reading the pair:",
         {
           "table": [
             [
@@ -820,6 +768,7 @@
         "`STRM_SEL[3:0]` selects the listener, with `STRM_SEL[8]` at 0.",
         "Talker selections and indices out of range read 0.",
         "Refused PDUs and slips do not raise `STREAM_INTERRUPTED`.",
+        "`RENDER_STAT` bits:",
         {
           "table": [
             [
@@ -879,6 +828,7 @@
       "notes": [
         "The meter measures the selected AAF Stream Input's media clock.",
         "`AAFM_RATE` is signed ns of error per 512 ms. 1 ppm is 512 units.",
+        "`AAFM_STAT` bits:",
         {
           "table": [
             [
@@ -958,6 +908,7 @@
         "`CHMAP_WORD` reads back the last committed word, not the map RAM.",
         "The render side writes by cluster key. It reads by physical key.",
         "A cluster key with no projection changes no render word.",
+        "Words free in this group:",
         {
           "table": [
             [
@@ -1023,6 +974,7 @@
         "`restore_done` means the walk ended, not that state came back.",
         "A device with no record reads `nvm_blank`. Read the verdict bits with it.",
         "`PP_NVM_*` is a control tuple, never a data window.",
+        "Read the restore verdict from three bits:",
         {
           "table": [
             [
@@ -1309,7 +1261,14 @@
         "SPEED": "speed (0=10,1=100,2=1000)",
         "FULL_DUPLEX": "full_duplex"
       },
-      "notes": [],
+      "notes": [
+        "These bits mirror the LiteX `milan_mac_link_status` CSR.",
+        "Its reset: link up, full duplex, gigabit on GMII. MII resets to 100 Mb/s.",
+        "So this word reads `0x0000000D` on the AX7101 until firmware writes.",
+        "Firmware writes it only while the saved-state writer runs.",
+        "The word does not follow the link on its own.",
+        "For the link, read `LINKG_STAT`, the link counters or BMSR."
+      ],
       "record": "mac_status-offset-0x110"
     },
     "MC_LO": {
@@ -1595,7 +1554,9 @@
       "acronym": "PTP_OFFSET_LO",
       "name": "PTP adjtime offset, low word",
       "purpose": "Signed adjtime delta, bits 31 to 0.",
-      "fields": {},
+      "fields": {
+        "PTP_OFFSET": "adjtime signed delta, low half."
+      },
       "notes": [],
       "record": "ptp_offset_lo-offset-0x518"
     },
@@ -1603,7 +1564,9 @@
       "acronym": "PTP_OFFSET_HI",
       "name": "PTP adjtime offset, high word",
       "purpose": "Signed adjtime delta, bits 63 to 32.",
-      "fields": {},
+      "fields": {
+        "PTP_OFFSET": "adjtime signed delta, high half."
+      },
       "notes": [],
       "record": "ptp_offset_hi-offset-0x51c"
     },
@@ -2326,7 +2289,8 @@
       "purpose": "Stream Input 0 lock and interruption counters.",
       "fields": {},
       "notes": [
-        "`AVTPRX_STAT` bytes saturate: `0xFF` means at least 255."
+        "`AVTPRX_STAT` bytes saturate: `0xFF` means at least 255.",
+        "Counter clauses: IEEE 1722.1-2021 Table 7-156. Milan v1.2 Table 5.6."
       ],
       "record": "avtprx_stat-offset-0x6b8",
       "split": {
@@ -2443,7 +2407,26 @@
       "purpose": "MAAP conflicts, defends and the claimed offset.",
       "fields": {},
       "notes": [],
-      "record": "maap_stat0-offset-0x6d0"
+      "record": "maap_stat0-offset-0x6d0",
+      "split": {
+        "MAAP_STAT0": [
+          [
+            "31:24",
+            "CONFLICTS",
+            "Conflicts: re-address events."
+          ],
+          [
+            "23:16",
+            "DEFENDS",
+            "DEFENDs sent."
+          ],
+          [
+            "15:0",
+            "OFFSET",
+            "Claimed offset."
+          ]
+        ]
+      }
     },
     "MAAP_STAT1": {
       "name": "MAAP status 1",
@@ -3230,7 +3213,10 @@
       "fields": {
         "ETH_GUARD": "1 = guarded: the reset state, armed at power-on. Software may re-arm it before risky work. The link guard's own automatic recovery is not gated. The SoC exports the level (`o_eth_guard`), but at this head nothing in `sw/litex/milan_soc.py` consumes it, so the LiteX `milan_mac_phy_crg_reset` CSR is NOT gated."
       },
-      "notes": [],
+      "notes": [
+        "The readback is the guard flop itself.",
+        "A refused write never reads back as accepted."
+      ],
       "record": "eth_guard-offset-0x7d8"
     },
     "ASP_LO": {
