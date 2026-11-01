@@ -1,0 +1,29 @@
+CHANGELOG.md:11: sentence has 12 words; maximum is 10: Unreleased - gPTP on the MII port -- The observer counts transfers, not clocks.
+CHANGELOG.md:56: sentence has 15 words; maximum is 10: Issue #829: the gPTP plane timed no frame on the 100 Mb/s MII port.
+CHANGELOG.md:59: sentence has 13 words; maximum is 10: Its delimiter check failed on the held preamble, so no frame was attributed.
+CHANGELOG.md:60: sentence has 14 words; maximum is 10: No launch record came, the engine waited for one, and its event queue filled.
+CHANGELOG.md:62: sentence has 11 words; maximum is 10: On GMII is the constant 1, so that logic folds away.
+CHANGELOG.md:63: sentence has 11 words; maximum is 10: The MII correction is 3770 ns, against 426 ns on GMII.
+docs/design/GPTP_PLANE.md:276: sentence has 18 words; maximum is 10: The MII PHY stage sends each octet as two nibbles, low first (IEEE 802.3 22.2.3).
+docs/design/GPTP_PLANE.md:278: sentence has 14 words; maximum is 10: So holds each octet for two 40 ns clocks, and rises on the second.
+docs/design/GPTP_PLANE.md:282: sentence has 11 words; maximum is 10: On GMII is the constant 1, so that term folds away.
+docs/design/GPTP_PLANE.md:284: sentence has 14 words; maximum is 10: The reference plane is the registered launch edge of frame octet 0's low nibble.
+docs/design/GPTP_PLANE.md:286: sentence has 16 words; maximum is 10: The observer counts that octet one clock later, on the edge that registers its high nibble.
+docs/design/GPTP_PLANE.md:301: sentence has 11 words; maximum is 10: The window is longer, so two terms of the budget grow.
+docs/design/GPTP_PLANE.md:311: sentence has 11 words; maximum is 10: grades this shape against its pad oracle too, inside 11 ns.
+docs/design/GPTP_PLANE.md:313: sentence has 16 words; maximum is 10: Its mean limit adds the 0.754 ns the declared wire-clock offset leaves over the window.
+docs/design/GPTP_PLANE.md:315: sentence has 16 words; maximum is 10: The PHC history guard has to cover the window, so it is 203 fabric cycles here.
+docs/design/GPTP_PLANE.md:317: sentence has 12 words; maximum is 10: The Arty's PHY derives from the 25 MHz reference this FPGA drives.
+docs/design/GPTP_PLANE.md:319: sentence has 17 words; maximum is 10: So on that board the crossing's sampling phase may stay fixed for a boot rather than sweep.
+docs/design/GPTP_PLANE.md:321: sentence has 14 words; maximum is 10: The bound still holds, and that fixed part of it no longer averages out.
+docs/design/GPTP_PLANE.md:323: sentence has 21 words; maximum is 10: No other link speed is qualified: at 10 Mb/s the same octet takes 800 ns and this correction is wrong.
+docs/design/GPTP_PLANE.md:323: paragraph has 21 words; maximum is 20: No other link speed is qualified: at 10 Mb/s the same octet takes 800 ns and this correction is wrong.
+docs/design/GPTP_PLANE.md:325: sentence has 11 words; maximum is 10: The receive side changes too, and no RTL term carries it.
+docs/design/GPTP_PLANE.md:327: sentence has 19 words; maximum is 10: The tap stamps the first accepted beat, and that beat holds eight octets behind the MAC's frame check buffer.
+docs/design/GPTP_PLANE.md:329: sentence has 25 words; maximum is 10: So the beat is late by the frame check buffer and by the time eight octets take to arrive, and both scale with the link.
+docs/design/GPTP_PLANE.md:329: paragraph has 25 words; maximum is 20: So the beat is late by the frame check buffer and by the time eight octets take to arrive, and both scale with the link.
+docs/design/GPTP_PLANE.md:331: sentence has 23 words; maximum is 10: The product's own and were simulated at an 80 MHz MAC system clock and 50 MHz at the plane, over seven clock phases.
+docs/design/GPTP_PLANE.md:331: paragraph has 23 words; maximum is 20: The product's own `LiteEthMACCore` and `mac_rx_cdc` were simulated at an 80 MHz MAC system clock and 50 MHz at the plane, over seven clock phases.
+docs/design/GPTP_PLANE.md:333: sentence has 16 words; maximum is 10: Each figure runs from the edge that samples frame octet 0's first symbol at the pads.
+docs/design/GPTP_PLANE.md:342: sentence has 11 words; maximum is 10: That distance belongs to , below, and the Arty still declares zero.
+documentation style: FAIL (28 findings)

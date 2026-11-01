@@ -1,0 +1,100 @@
+gptp_ucode.hex: 1024 words, 1022 real (99.8%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@979 BECGATE@945 SELF@309 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@249 SRTO@992 SRWATCH@58 FUTO@254 SERVO@0 SLEW@163 SVRATE@962 RESUME@1013 PDREQ@891 TXLOST@106 TXT1OK@1003 NOTEN@695
+generated gmii MAC transmit chain: OK (2719 lines, region ecb8a0ef998d, checked by product source, pins and bytes)
+generated mii MAC transmit chain: OK (2854 lines, region ecb8a0ef998d, checked by product source, pins and bytes)
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_enable_i'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:118:39: ... Location of port declaration
+  118 |   input  wire                         pps_enable_i,  
+      |                                       ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_target_ns_i'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:119:39: ... Location of port declaration
+  119 |   input  wire [COUNTER_WIDTH-1:0]     pps_target_ns_i,  
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_arm_i'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:120:39: ... Location of port declaration
+  120 |   input  wire                         pps_arm_i,     
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_o'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:125:35: ... Location of port declaration
+  125 |   output wire                     pps_o,               
+      |                                   ^~~~~
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_target_ns_o'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:126:35: ... Location of port declaration
+  126 |   output wire [COUNTER_WIDTH-1:0] pps_target_ns_o         
+      |                                   ^~~~~~~~~~~~~~~
+%Warning-BLKSEQ: ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:545:37: Blocking assignment '=' in sequential logic process
+                                                                                 : ... note: In instance 'gptp_txts_wrap.u_launch'
+                                                                                 : ... Suggest using delayed assignment '<='
+  545 |       if (!rv_open) begin rv_frames = rv_frames + 1; rv_cyc = 0; rv_open = 1; end
+      |                                     ^
+                 ... For warning description see https://verilator.org/warn/BLKSEQ?v=5.050
+                 ... Use "/* verilator lint_off BLKSEQ */" and lint_on around source to disable this message.
+%Warning-BLKSEQ: ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:545:61: Blocking assignment '=' in sequential logic process
+                                                                                 : ... note: In instance 'gptp_txts_wrap.u_launch'
+                                                                                 : ... Suggest using delayed assignment '<='
+  545 |       if (!rv_open) begin rv_frames = rv_frames + 1; rv_cyc = 0; rv_open = 1; end
+      |                                                             ^
+%Warning-BLKSEQ: ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:545:74: Blocking assignment '=' in sequential logic process
+                                                                                 : ... note: In instance 'gptp_txts_wrap.u_launch'
+                                                                                 : ... Suggest using delayed assignment '<='
+  545 |       if (!rv_open) begin rv_frames = rv_frames + 1; rv_cyc = 0; rv_open = 1; end
+      |                                                                          ^
+%Warning-BLKSEQ: ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:546:19: Blocking assignment '=' in sequential logic process
+                                                                                 : ... note: In instance 'gptp_txts_wrap.u_launch'
+                                                                                 : ... Suggest using delayed assignment '<='
+  546 |       else rv_cyc = rv_cyc + 1;
+      |                   ^
+%Warning-BLKSEQ: ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:549:35: Blocking assignment '=' in sequential logic process
+                                                                                 : ... note: In instance 'gptp_txts_wrap.u_launch'
+                                                                                 : ... Suggest using delayed assignment '<='
+  549 |     end else if (close_w) rv_open = 0;
+      |                                   ^
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.104 MB sources in 19 modules, into 0.964 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 7.526 s (elab=0.051, cvt=0.184, bld=7.213); cpu 0.325 s on 16 threads; allocated 835.961 MB
+  engine cadence reached the lane at 48014 us
+SEAM cyc=0 v=1 r=1 d=55 nidx=0 inf=0 chk=1 cand_r=0 cand_w=1
+SEAM cyc=1 v=1 r=1 d=55 nidx=1 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=2 v=1 r=1 d=55 nidx=2 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=3 v=1 r=1 d=55 nidx=3 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=4 v=1 r=1 d=55 nidx=4 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=5 v=1 r=1 d=55 nidx=5 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=6 v=1 r=1 d=55 nidx=6 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=7 v=1 r=1 d=d5 nidx=7 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=8 v=1 r=1 d=01 nidx=8 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=9 v=1 r=1 d=80 nidx=9 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=10 v=1 r=1 d=c2 nidx=10 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=11 v=1 r=1 d=00 nidx=11 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=12 v=1 r=1 d=00 nidx=12 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=13 v=1 r=1 d=0e nidx=13 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=14 v=1 r=1 d=02 nidx=14 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=15 v=1 r=1 d=a1 nidx=15 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=16 v=1 r=1 d=b2 nidx=16 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=17 v=1 r=1 d=c3 nidx=17 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=18 v=1 r=1 d=d4 nidx=18 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=19 v=1 r=1 d=e5 nidx=19 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=20 v=1 r=1 d=88 nidx=20 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=21 v=1 r=1 d=f7 nidx=21 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=22 v=1 r=1 d=12 nidx=22 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=23 v=1 r=1 d=02 nidx=23 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=24 v=1 r=1 d=00 nidx=24 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=25 v=1 r=1 d=36 nidx=25 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=26 v=1 r=1 d=00 nidx=26 inf=1 chk=1 cand_r=1 cand_w=1
+SEAM cyc=27 v=1 r=1 d=00 nidx=27 inf=1 chk=1 cand_r=1 cand_w=1
+  retired capture precedes the launch by 322 ns isolated, 36367 ns queued
+  mean reconstruction error 0.405 ns over 200 frames
+  error spread -9..+11 ns over 17 distinct values, 2191 us of run
+== gptp_txts: checks: 89   failures: 0 ==
+RESULT: PASS

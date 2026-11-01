@@ -1,0 +1,5 @@
+46:reg phy_sink_ready1 = 1'd0;
+829:assign phy_sink_ready = phy_sink_ready1;
+1478:assign liteethmaccore_tx_gap_source_ready = phy_sink_ready1;
+2239:	phy_sink_ready1 <= 1'd1;
+2241:		phy_sink_ready1 <= 1'd0;
