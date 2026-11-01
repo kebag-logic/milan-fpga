@@ -398,6 +398,10 @@ def build_verilog(shape: str = "gmii") -> str:
 def generate(shape: str = "gmii") -> tuple[str, dict]:
     """The Verilog and the manifest that says what it came from."""
     verilog = build_verilog(shape)
+    #: migen ends its output with a blank line. The GMII artifact keeps its
+    #: recorded bytes; a new file does not carry that whitespace error.
+    if shape == "mii":
+        verilog = verilog.rstrip("\n") + "\n"
     manifest = {
         "generator": "sw/litex/gen_mac_tx_model.py",
         "top": "mac_tx_chain_mii" if shape == "mii" else "mac_tx_chain",
