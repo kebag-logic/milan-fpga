@@ -1,0 +1,12 @@
+r8 = round 8 budget; head = reviewed budget; mut_figures = head without lines naming 38,040 or 60 percent; mut_policy = head with the route-1x1 LUT tolerance +500 changed to +501
+mut_figures removes 7 lines; mut_policy changes 1 line
+r8 rc=0: baseline PASS: 3 endpoints
+head rc=0: baseline PASS: 3 endpoints
+mut_figures rc=0: baseline PASS: 3 endpoints
+mut_policy rc=2: route-1x1: tolerance LUT is 500 in the baseline and 501.0 in the budget table
+default budget: baseline PASS: 3 endpoints
+baseline json blob at base, round 8, head: 102f3fee124384c260b6419673165a3aba5e9849 102f3fee124384c260b6419673165a3aba5e9849 102f3fee124384c260b6419673165a3aba5e9849 
+policy table digest at 20933ef48a9b174e58a9d17ddd59078a072024af: 87f103aeb3d4f33580c30c3f261a6c06aa5bd102d81705516df225a15099f4c1
+policy table digest at d63b378d27c1c663034744a5b48a99c190271f58: 87f103aeb3d4f33580c30c3f261a6c06aa5bd102d81705516df225a15099f4c1
+measured cells (resource, device, route, used) digest at 20933ef48a9b174e58a9d17ddd59078a072024af: d427deb263bfb8b0f95e458e36cef05e85fa2088a5c1005bad6d1c6d1606d721
+measured cells (resource, device, route, used) digest at d63b378d27c1c663034744a5b48a99c190271f58: d427deb263bfb8b0f95e458e36cef05e85fa2088a5c1005bad6d1c6d1606d721
