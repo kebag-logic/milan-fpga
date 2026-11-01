@@ -66,6 +66,7 @@ Publish conflicts before continuing.
 | Integrate the datapath | [Integration contract](integration/INTEGRATION_GUIDE.md) |
 | Port vendor dependencies | [Porting guide](integration/PORTING_GUIDE.md) |
 | Implement software registers | [Register map](reference/REGISTER_MAP.md) |
+| Understand why a register works as it does | [CSR design notes](design/CSR_REGISTER_NOTES.md) |
 | Integrate the reference SoC | [LiteX SoC](litex/LITEX_SOC.md) |
 | Understand fabric time | [Fabric gPTP plane](design/GPTP_PLANE.md) |
 | Handle grandmaster loss | [Grandmaster recovery](design/GM_LOSS_RECOVERY.md) |
