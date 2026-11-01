@@ -442,9 +442,9 @@ Totals use the page's fixed terms, estimates included.
 Nothing here is a measurement.
 
 At 96 kHz those terms are 32.491 µs.
-At 192 kHz they are 18.093 µs, without the packetizer.
+At 192 kHz, without the packetizer: 18.093 µs.
 
-The reviewer's [published probe](https://github.com/kebag-logic/milan-fpga/blob/b61b3b8bc172e5688c3c6799a85790dde144403d/review-evidence/640-m9-r1/reviews/R757-7/scripts/probe_fewer_bound.py) sampled these cases.
+The reviewer's [published probe](https://github.com/kebag-logic/milan-fpga/blob/b61b3b8bc172e5688c3c6799a85790dde144403d/review-evidence/640-m9-r1/reviews/R757-7/scripts/probe_fewer_bound.py) reports these cases.
 [Its output](https://github.com/kebag-logic/milan-fpga/blob/b61b3b8bc172e5688c3c6799a85790dde144403d/review-evidence/640-m9-r1/reviews/R757-7/receipts/model/probe_fewer_bound.out) lists them.
 
 Its 192 kHz search left out eight-channel streams.
