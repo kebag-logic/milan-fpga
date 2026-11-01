@@ -91,7 +91,7 @@ def _live(pid: int) -> bool:
     return fields is not None and fields[0] != "Z"
 
 
-def _describe(pid: int, first: tuple[int, str] | None, killed_ago: float | None) -> str:
+def _describe(pid: int, first_parent: int | None, killed_ago: float | None) -> str:
     """Name what one remaining descendant is doing, for a failed cleanup (#833).
 
     State D is uninterruptible sleep, Z a zombie awaiting its parent, and R or S
@@ -100,15 +100,15 @@ def _describe(pid: int, first: tuple[int, str] | None, killed_ago: float | None)
     """
     try:
         name, rest = (PROC / str(pid) / "stat").read_text().rsplit(")", 1)
-        uptime = float((PROC / "uptime").read_text().split()[0])
     except (FileNotFoundError, ProcessLookupError):
         return f"pid {pid} exited during this report"
+    uptime = float((PROC / "uptime").read_text().split()[0])
     fields = rest.split()
     try:
         wchan = (PROC / str(pid) / "wchan").read_text().strip()
     except OSError:
         wchan = "unreadable"
-    origin = "new since the first census" if first is None else f"first parent {first[0]}"
+    origin = "new since the first census" if first_parent is None else f"first parent {first_parent}"
     kill = "not sent SIGKILL" if killed_ago is None else f"sent SIGKILL {killed_ago:.2f} s ago"
     return (f"pid {pid} ({name.split('(', 1)[1]}) state {fields[0]} wchan {wchan} parent {fields[1]} "
             f"({origin}) age {uptime - int(fields[19]) / os.sysconf('SC_CLK_TCK'):.2f} s "
@@ -219,14 +219,31 @@ class OwnedProcesses:
             if self.process is not None and pid == self.process.pid:
                 self.process.returncode = os.waitstatus_to_exitcode(status)
 
+    def _send(self, pid: int, start: str, signum: int) -> bool:
+        """Signal one census entry only if its identity still holds."""
+        try:
+            fd = os.pidfd_open(pid)
+        except ProcessLookupError:
+            return False
+        try:
+            identity = _identity(pid)
+            if identity is None or identity[1] != start:
+                return False
+            self._signal(fd, signum)
+            self._signal(fd, signal.SIGCONT)
+            return True
+        finally:
+            os.close(fd)
+
     def _cleanup(self) -> None:
         # Never signal a numeric PID from a stale census. Open an identity
-        # handle and recheck its start time before sending any signal.
+        # handle and recheck its start time before sending any signal. Its
+        # parent is not its identity: re-parenting does not make it new (#833).
         started = time.monotonic()
         deadline = started + GRACE_SECONDS
         hard_deadline = deadline + REAP_SECONDS
         notified = set()
-        initial = None
+        initial = {}
         resumed = None
         killed = {}
         passes = 0
@@ -238,12 +255,12 @@ class OwnedProcesses:
             passes += 1
             if not owned:
                 return
-            if initial is None:
-                initial = set(owned.items())
+            if not initial:
+                initial = {(pid, start): parent for pid, (parent, start) in owned.items()}
             now = time.monotonic()
             slowest = max(slowest, now - pass_started)
             if now >= hard_deadline:
-                first = dict(initial)
+                first = {pid: parent for (pid, _start), parent in initial.items()}
                 remaining = "; ".join(
                     _describe(pid, first.get(pid), now - killed[pid] if pid in killed else None)
                     for pid in sorted(owned))
@@ -259,39 +276,28 @@ class OwnedProcesses:
                 self._signal(self.root_fd, signal.SIGCONT)
                 resumed = now
             signum = signal.SIGKILL if now >= deadline else signal.SIGTERM
-            for pid, identity in owned.items():
+            for pid, (_parent, start) in owned.items():
                 if pid == root_pid and self.root_notified and now < hard_deadline - 0.2:
                     continue
                 if signum != signal.SIGKILL:
                     # Let terminal traps run their cleanup commands during
                     # grace. New descendants still face the hard deadline.
-                    if (pid, identity) not in initial:
+                    if (pid, start) not in initial:
                         continue
                 elif now < hard_deadline - 0.2:
                     # Kill stubborn leaves first, so cooperative intermediate
                     # owners can reap and remove private work before exiting.
-                    if now < deadline + 1.0 and any(parent == pid for _child, (parent, _start) in initial):
+                    if now < deadline + 1.0 and pid in initial.values():
                         continue
                     if any(parent == pid and child in live for child, (parent, _start) in owned.items()):
                         continue
-                    if (pid, identity) not in initial and resumed is not None and now < resumed + 1.0:
+                    if (pid, start) not in initial and resumed is not None and now < resumed + 1.0:
                         continue
-                key = (pid, identity, signum)
-                if key in notified:
-                    continue
-                try:
-                    fd = os.pidfd_open(pid)
-                except ProcessLookupError:
-                    continue
-                try:
-                    if _identity(pid) == identity:
-                        self._signal(fd, signum)
-                        self._signal(fd, signal.SIGCONT)
-                        notified.add(key)
-                        if signum == signal.SIGKILL:
-                            killed.setdefault(pid, time.monotonic())
-                finally:
-                    os.close(fd)
+                key = (pid, start, signum)
+                if key not in notified and self._send(pid, start, signum):
+                    notified.add(key)
+                    if signum == signal.SIGKILL:
+                        killed.setdefault(pid, time.monotonic())
             time.sleep(0.02)
 
     def run(self, argv: list[str], cwd: Path | None = None, capture: bool = True,
