@@ -1,0 +1,15 @@
+== python3 -I -B scripts/check_doc_style.py
+documentation style: OK (23 current documents)
+rc 0
+== python3 -I -B scripts/docs_check.py
+docs_check: 0 finding(s) across 215 md files + 1482 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc 0
+== python3 -I -B scripts/check_em_dash.py --base 97aab1d0f28bd753a3e11df6278d5cac54f964dd
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc 2
+== python3 -I -B scripts/check_doc_paths.py
+doc path gate: OK (1084 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+rc 0
+== check_em_dash, renderer from tools/markdown/requirements.txt in a disposable dir
+check_em_dash: 0 finding(s) over 4736 added line(s) in 64 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [97aab1d0..HEAD]
+rc 0

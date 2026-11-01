@@ -1,0 +1,19 @@
+head b2a1d67745229d167a5e70d7e1c5064975f027fd tree 02313ded7626619109696af06a2e1f1a1371a8e4
+parents fa01979959ebff05af34f5a752408de7b3c41cf1
+author=hackerman-kl committer=hackerman-kl
+subject=Round one window's length once, and say what the stage adds to the ring (#665)
+body=[]
+ tb/verilator/ctrl_service_budget/README.md | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+3	3	tb/verilator/ctrl_service_budget/README.md
+tree-entries-changed:
+:100644 100644 f825a597f73c63962609a1630a9cf5632f92f185 37d757f1541f6785c381f6bf7436a75cb5f9352d M	tb/verilator/ctrl_service_budget/README.md
+--- #826/#814 ancestry
+86a349d539 Merge dev 8adf5c99 (PR #826 merged) into 787-reboot-reset, so the branch has one merge base with dev
+8adf5c990b Merge PR #826: Cut the SoC's SPI-flash, CPU memory-port and refresh paths (#814)
+f7d5fc3cc4 Merge PR #826 (814-soc-timing-cut 4ee2aa96, the #814 SoC timing cuts) into 787-reboot-reset
+c826=
+stage_spi_phy at base: 0
+stage_spi_phy at head: HEAD:sw/litex/milan_soc.py:2
+8adf5c99 (#826/#814) NOT in base 5b5f4336
+8adf5c99 in head
