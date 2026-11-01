@@ -190,7 +190,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(C)/cdc_pulse.sv $(C)/cdc_handshake.sv \
        $(CLKV_SRC) \
        $(RTL_DIR)/ieee8021q/filtering/tcam.sv $(RTL_DIR)/ieee8021q/filtering/rx_mac_filter.sv $(C)/tx_ifg_gasket.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_lpf.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
-       $(C)/KL_link_guard.sv \
+       $(C)/KL_link_guard.sv $(RTL_DIR)/milan/KL_reboot_ctrl.sv \
        $(RTL_DIR)/ieee17221/adp/adp_tx_arbiter.sv \
        $(RTL_DIR)/ieee1722/aaf/aaf_talker_i2s.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_capture_i2s.sv \

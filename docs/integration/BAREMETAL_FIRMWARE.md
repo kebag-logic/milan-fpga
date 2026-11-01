@@ -2263,6 +2263,20 @@ python3 scripts/baremetal_uart_smoke.py \
 It checks the CSR magic, paired AEM image, enable bits and PHC progression.
 It does not set the clock, so a smoke run cannot disturb an established time.
 
+After a controller's AECP REBOOT (#787), the same test grades the boot the
+reload causes. Start it before the REBOOT is sent:
+
+```console
+python3 scripts/baremetal_uart_smoke.py \
+  --port /dev/serial/by-id/<adapter> --after-reboot 120
+```
+
+It reads the console until the prompt, for at most the given seconds, and
+requires exactly one BIOS pass on the way. It then polls `milan_status` until
+gPTP locks, or `--lock-timeout` (60 s) passes, and runs the checks above, so
+the measured peer delay grades the TX timestamps after the reset. The
+[reset design](../design/REBOOT_RESET.md) states what the reload resets.
+
 ## Verification gates
 
 Before a bitstream is accepted, run the builder tests, Verilator suites,

@@ -44,6 +44,7 @@ before any output is written.
 """
 
 import argparse
+import ast
 import hashlib
 import json
 import re
@@ -4947,6 +4948,66 @@ def emit_design_opts(cfg: dict[str, Any]) -> list[str]:
     return argv
 
 
+#: the only syntax reboot_mac_statement evaluates out of the SoC
+_REBOOT_MAC_NODES = (ast.Module, ast.Assign, ast.FunctionDef, ast.arguments,
+                     ast.arg, ast.Return, ast.Expr, ast.Constant, ast.Name,
+                     ast.Load, ast.Store, ast.BinOp, ast.Add, ast.Mult,
+                     ast.FloorDiv, ast.IfExp, ast.Dict)
+#: the MilanMAC definitions an AECP REBOOT's egress bound is derived from
+#: (#787): the depths its transmit FIFOs are built with, the framing octets,
+#: its stream width and each board's PHY model with its slowest line rate
+REBOOT_MAC_NAMES = ("_AXIS_CDC_DEPTH", "_MAC_TX_SF_PAYLOAD_DEPTH",
+                    "_MAC_TX_SF_PARAM_DEPTH", "_MAC_CORE_TX_CDC_DEPTH",
+                    "_MAC_CORE_TX_STAGE_BEATS", "_ETH_FRAME_OVERHEAD_OCTETS",
+                    "_ETH_MAX_FRAME_LINE_OCTETS", "_MAC_DATA_WIDTH",
+                    "_BOARD_PHY_MODEL", "_PHY_MODEL_MIN_MBPS")
+
+
+def reboot_mac_statement(cfg: dict[str, Any],
+                         soc_text: str | None = None) -> dict[str, int]:
+    """The two parameters by which MilanMAC states its transmit side to
+    milan_datapath (#787), EVALUATED out of sw/litex/milan_soc.py.
+
+    The SoC computes them from the depths its FIFOs are built with, through
+    `_mac_tx_egress_octets`, so an AECP REBOOT's egress bound cannot drift
+    from the build. The builder states the same values for gate 23m and the
+    publication census, and a second copy of that arithmetic here would be
+    the drift it exists to prevent. So the definitions are taken out of the
+    SoC's own text: the module-level names in REBOOT_MAC_NAMES and the
+    function, which are plain arithmetic and literals and import nothing.
+    Only a build that elaborates the MAC (`--full`) binds them."""
+    if not cfg["soc"]["full"]:
+        return {}
+    tree = ast.parse(soc_text if soc_text is not None else SOC_PY.read_text())
+    keep = [node for node in tree.body
+            if (isinstance(node, ast.Assign) and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id in REBOOT_MAC_NAMES)
+            or (isinstance(node, ast.FunctionDef)
+                and node.name == "_mac_tx_egress_octets")]
+    module = ast.Module(body=keep, type_ignores=[])
+    #: THE GUARD: the file is first-party, and still only literals, names,
+    #: integer arithmetic and a conditional are evaluated, with no builtins
+    for node in ast.walk(module):
+        if not isinstance(node, _REBOOT_MAC_NODES):
+            raise ConfigError(f"sw/litex/milan_soc.py line {getattr(node, 'lineno', '?')}: "
+                              f"the REBOOT egress statement (#787) holds "
+                              f"{type(node).__name__}, which is not plain arithmetic")
+    found: dict[str, Any] = {"__builtins__": {}}
+    exec(compile(module, str(SOC_PY), "exec"), found)
+    missing = [name for name in (*REBOOT_MAC_NAMES, "_mac_tx_egress_octets")
+               if name not in found]
+    if missing:
+        raise ConfigError("sw/litex/milan_soc.py no longer defines "
+                          + ", ".join(missing) + " at module level: the REBOOT "
+                          "egress statement (#787) cannot be evaluated")
+    phy = found["_BOARD_PHY_MODEL"][cfg["board_target"]]
+    crossed = bool(cfg["constraints"]["milan_clk_hz"])
+    return {"REBOOT_MAC_TX_OCTETS_P": found["_mac_tx_egress_octets"](
+                found["_MAC_DATA_WIDTH"] // 8, crossed),
+            "REBOOT_MAC_MIN_MBPS_P": found["_PHY_MODEL_MIN_MBPS"][phy]}
+
+
 def datapath_params(cfg: dict[str, Any]) -> dict[str, int]:
     """The integer parameters this config's build binds on milan_datapath,
     by the names the module declares them under.
@@ -4992,6 +5053,7 @@ def datapath_params(cfg: dict[str, Any]) -> dict[str, int]:
     for name, (_flag, param, _why) in OPTIONAL_BLOCKS.items():
         if not block_present(cfg, name):
             out[param] = 0
+    out.update(reboot_mac_statement(cfg))
     return out
 
 

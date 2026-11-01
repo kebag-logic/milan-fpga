@@ -3132,6 +3132,16 @@ RELEASE_SOAK_DURATION_S = 24 * 60 * 60
 # Item 2: 200 cycles. 150 cold cuts through the power strip, a third of them
 # (50) inside a journal commit and the rest idle, and 50 soft resets.
 RELEASE_POWER_PHASES = (("idle", 100), ("journal_commit", 50), ("soft_reset", 50))
+# Issue #787: each soft reset is the controller's AECP REBOOT of ENTITY 0
+# (IEEE 1722.1-2021 7.4.43, the #396 owner decision of 2026-10-26). The end
+# station holds its PHY in reset once its saved state drains, within 10,000 ms
+# and one tick of the request (docs/design/REBOOT_RESET.md section 3), so its
+# link is down within this many seconds of T0: that bound, rounded up.
+RELEASE_REBOOT_LINK_DOWN_S = 11
+# Issue #787, provisional: the largest change of either end's measured link
+# delay across a soft reset that still reads as correct TX timestamps, two
+# ticks of the 50 MHz PHC; ratified from the bench's own pre-reset spread.
+RELEASE_GPTP_DELAY_TOLERANCE_NS = 40
 # Item 3: every cycle restores the eight Milan v1.2 saved-state items of
 # issue #70's inventory, and the binding that automatic restoration needs.
 # Milan v1.2 states no non-volatile clause for the current configuration; it
@@ -3329,6 +3339,25 @@ POWER_ASSERTS = (
                "directions and CRF, before and after every cycle; validate "
                "masks, supported formats, lock/start-stop invariants and flow"),
 )
+#: Issue #787: what every soft reset owes beside POWER_ASSERTS.
+SOFT_RESET_ASSERTS = (
+    AssertSpec("power.reboot-reset", RELEASE_CLAUSE +
+               "; issue #787; IEEE 1722.1-2021 7.4.43; Milan v1.2 5.6.3.3: the "
+               "soft reset is the controller's REBOOT of ENTITY 0, answered "
+               "SUCCESS; ENTITY_DEPARTING leaves after the response; the DUT's "
+               "link is down within reset_link_down_s of T0; graded by "
+               "check_release_reboot; another status, no ENTITY_DEPARTING or a "
+               "link that stays up fails; an incomplete capture is NOT RUN"),
+    AssertSpec("power.gptp-relock", RELEASE_CLAUSE +
+               "; issue #787; IEEE 802.1AS-2011 11.2.2, 10.2.4.7, 11.2.15: within "
+               "boot_observation_s of T0 the DUT's port is asCapable again, and "
+               "both measured link delays - the reference peer's, computed with "
+               "the DUT's Pdelay_Resp transmit timestamp, and the DUT's own, "
+               "computed with its Pdelay_Req transmit timestamp - are positive and "
+               "within gptp_delay_tolerance_ns of their pre-reset readings, so the "
+               "DUT's TX timestamps are correct; graded by check_release_gptp_relock; "
+               "a missing or unlocked pre-reset reading is NOT RUN"),
+)
 #: Issue #396 audio signal design of 2026-10-04 and REQ-VER-06: the audio
 #: counter run shares the 24-hour soak window, by the 2026-10-26 owner decisions.
 AUDIO_RELEASE_CLAUSE = RELEASE_CLAUSE + "; issue #396 audio signal design 2026-10-04"
@@ -3512,6 +3541,71 @@ def check_release_boot(boot_passes: int | None, restarts: int | None, *,
 def _release_finite(value: object) -> bool:
     import math
     return type(value) in (int, float) and math.isfinite(value)
+
+
+def check_release_reboot(exchange: dict | None,
+                         link_down_s: float = RELEASE_REBOOT_LINK_DOWN_S) -> tuple[str, dict]:
+    """Issue #787 oracle over one soft reset's captured REBOOT exchange.
+
+    `exchange` carries host times on the T0 clock: `t0_s` (the REBOOT
+    command), `response_s` and its `status`, `departing_s` (None when no
+    ENTITY_DEPARTING was captured) and `link_down_s` (None when the link
+    stayed up), with `capture_complete`. NOT RUN: an incomplete or unordered
+    capture. FAIL: a status other than SUCCESS (0, IEEE 1722.1-2021 Table
+    7-126's), no ENTITY_DEPARTING after the response (Milan v1.2 5.6.3.3), or
+    a link still up `link_down_s` after T0.
+    """
+    detail = {"link_down_bound_s": link_down_s}
+    if not isinstance(exchange, dict) or exchange.get("capture_complete") is not True:
+        return "NOT RUN", dict(detail, why="a complete wire capture of the exchange is required")
+    t0, response, status = (exchange.get(k) for k in ("t0_s", "response_s", "status"))
+    departing, down = exchange.get("departing_s"), exchange.get("link_down_s")
+    if (not _release_finite(t0) or not _release_finite(response) or type(status) is not int
+            or response < t0 or any(v is not None and (not _release_finite(v) or v < t0)
+                                    for v in (departing, down))):
+        return "NOT RUN", dict(detail, why="ordered host times and a response status are required")
+    detail.update(status=status, response_after_s=response - t0)
+    if status != 0:
+        return "FAIL", dict(detail, why="the REBOOT was not answered SUCCESS")
+    if departing is None or departing < response:
+        return "FAIL", dict(detail, why="no ENTITY_DEPARTING after the SUCCESS response")
+    if down is None or down - t0 > link_down_s:
+        return "FAIL", dict(detail, why="the link was still up at the bound")
+    return "PASS", dict(detail, link_down_after_s=down - t0, why="SUCCESS, DEPARTING, link down in time")
+
+
+def check_release_gptp_relock(pre: dict | None, post: dict | None, *, deadline_s: float,
+                              tolerance_ns: float = RELEASE_GPTP_DELAY_TOLERANCE_NS
+                              ) -> tuple[str, dict]:
+    """Issue #787 oracle over the gPTP readings before and after one soft reset.
+
+    Each reading carries `as_capable`, `dut_delay_ns` (the DUT's measured link
+    delay, IEEE 802.1AS-2011 10.2.4.7, computed with its own Pdelay_Req
+    transmit timestamp t1) and `peer_delay_ns` (the reference peer's, computed
+    with the DUT's Pdelay_Resp transmit timestamp t3, 11.2.15); `post` also
+    carries `elapsed_s` from T0. NOT RUN: a missing or non-finite reading, an
+    unlocked pre-reset reading, or a bad bound. FAIL: no asCapable by the
+    deadline (11.2.2), or a delay that is not positive or moved more than the
+    tolerance.
+    """
+    detail = {"deadline_s": deadline_s, "tolerance_ns": tolerance_ns}
+    keys = ("dut_delay_ns", "peer_delay_ns")
+    readings = (pre, post)
+    if (not _release_finite(deadline_s) or not _release_finite(tolerance_ns)
+            or deadline_s <= 0 or tolerance_ns <= 0
+            or not all(isinstance(r, dict) and type(r.get("as_capable")) is bool
+                       and all(_release_finite(r.get(k)) for k in keys) for r in readings)
+            or not _release_finite(post.get("elapsed_s")) or post["elapsed_s"] < 0):
+        return "NOT RUN", dict(detail, why="complete pre- and post-reset readings and bounds required")
+    if not pre["as_capable"] or not all(pre[k] > 0 for k in keys):
+        return "NOT RUN", dict(detail, why="the pre-reset reading is not a locked link")
+    moved = {k: post[k] - pre[k] for k in keys}
+    detail.update(moved_ns=moved, elapsed_s=post["elapsed_s"])
+    if not post["as_capable"] or post["elapsed_s"] > deadline_s:
+        return "FAIL", dict(detail, why="asCapable did not return by the deadline")
+    if not all(post[k] > 0 and abs(moved[k]) <= tolerance_ns for k in keys):
+        return "FAIL", dict(detail, why="a measured link delay is wrong after the reset")
+    return "PASS", dict(detail, why="asCapable again, both delays where they were")
 
 
 #: Issue #396 owner decision 2026-10-26 item 3: these Table 5.6 counters may
@@ -5733,6 +5827,27 @@ def _audio_release_steps(dut: Device, peer: Device, settings: ReleaseSettings) -
                   "and be classified exactly, every arm found.")]
 
 
+def _soft_reset_args() -> dict:
+    """Issue #787: a soft reset is the controller's AECP REBOOT, with its two oracles."""
+    return dict(reset_method="AECP REBOOT of ENTITY 0 from the controller (IEEE "
+                             "1722.1-2021 7.4.43, issue #787) with power held on; "
+                             "record the command timestamp and the outlet state per cycle",
+                reset_command={"message_type": "AEM_COMMAND", "command_type": "REBOOT",
+                               "descriptor_type": "ENTITY", "descriptor_index": 0},
+                reset_response_required="SUCCESS",
+                reset_link_down_s=RELEASE_REBOOT_LINK_DOWN_S,
+                reset_oracle="check_release_reboot",
+                reset_evidence="the REBOOT command, its response and ENTITY_DEPARTING "
+                               "in the wire capture, and the DUT link-down time",
+                gptp_relock_oracle="check_release_gptp_relock",
+                gptp_readings="asCapable and both ends' measured link delay, "
+                              "before the REBOOT and within boot_observation_s of T0",
+                gptp_delay_tolerance_ns=RELEASE_GPTP_DELAY_TOLERANCE_NS,
+                gptp_delay_tolerance_provisional=True,
+                cold_confirmation="power held on; outlet ON before and after the reset",
+                time_origin="T0: reset command, host monotonic clock")
+
+
 def plan_power(dut: Device = ARTY, peer: Device = PEER,
                settings: ReleaseSettings = ReleaseSettings()) -> list[Step]:
     """Serial cycles; each phase repeats the full before/after contract.
@@ -5759,10 +5874,8 @@ def plan_power(dut: Device = ARTY, peer: Device = PEER,
                         cold_confirmation="power removed; discharge verified",
                         time_origin="T0: power-strip ON command, host monotonic clock")
         else:
-            args.update(reset_method="bench-declared reset with power held on; record the "
-                                     "mechanism, its command timestamp and the outlet state per cycle",
-                        cold_confirmation="power held on; outlet ON before and after the reset",
-                        time_origin="T0: reset command, host monotonic clock")
+            args["evidence"].insert(-1, "reboot_exchange")  # before reset_command_log
+            args.update(_soft_reset_args())
         args.update(boot_observation_s=settings.restore_bound_s + settings.boot_margin_s,
                     boot_margin_s=settings.boot_margin_s,
                     restore_bound_s=settings.restore_bound_s,
@@ -5812,20 +5925,23 @@ def plan_power(dut: Device = ARTY, peer: Device = PEER,
         args["topology_explicit"] = settings.topology_explicit
         steps.append(Step(
             "power." + phase, "power", "release_power_cycles", args,
-            asserts=POWER_ASSERTS, clause=RELEASE_CLAUSE, needs_human=True,
+            asserts=POWER_ASSERTS + (() if cold else SOFT_RESET_ASSERTS),
+            clause=RELEASE_CLAUSE, needs_human=True,
             human_action=("Provide the bench power-strip hook and timestamped "
                           "cut-phase evidence; then run unattended cold cuts." if cold else
-                          "Provide the bench reset hook with power held on and "
-                          "timestamped reset evidence; then run unattended soft resets."),
+                          "Provide the controller that sends the AECP REBOOT with power "
+                          "held on and the wire capture of each exchange; then run "
+                          "unattended soft resets."),
             note=("Each cycle: establish pairs and saved state, snapshot, prove "
                   "cut phase, remove power, confirm discharge, restore power, "
                   "observe boot, verify automatic restore, measure reconnect, "
                   "walk all counters. No next cut before verification finishes. "
                   "Missing journal instrumentation leaves qualification open." if cold else
-                  "Each cycle: establish pairs and saved state, snapshot, issue the "
-                  "reset with power held on, observe boot, verify automatic restore, "
-                  "measure reconnect, walk all counters. No next cycle before "
-                  "verification finishes.")))
+                  "Each cycle: establish pairs and saved state, snapshot and read gPTP, "
+                  "send the REBOOT with power held on, capture its SUCCESS, "
+                  "ENTITY_DEPARTING and the link drop, observe boot, verify gPTP and "
+                  "automatic restore, measure reconnect, walk all counters. No next "
+                  "cycle before verification finishes.")))
     return steps + _power_controls(dut, peer, settings)
 
 
@@ -6138,7 +6254,10 @@ def _release_area_defects(area: str, steps: list[Step], dut: Device, peer: Devic
         defects["release"] = "no release repeat in this area"
     for step in repeats:
         found = _release_coverage(step, dut, peer)
-        owed = RELEASE_REQUIRED_ASSERTS[step.op] - {
+        required = RELEASE_REQUIRED_ASSERTS[step.op]
+        if step.args.get("phase") == "soft_reset":
+            required = required | {spec.name for spec in SOFT_RESET_ASSERTS}
+        owed = required - {
             spec.name for spec in step.asserts if spec.severity == "SHALL"}
         if owed:
             found["asserts"] = sorted(owed)
@@ -7151,9 +7270,12 @@ class _ReleasePlanChecks:
                       "power.rebind-bound", "power.automatic-restore-bound",
                       "power.single-boot", "power.counter-walk"},
         }
+        #! issue #787: the soft resets alone owe the REBOOT and gPTP relock checks
+        soft = {"power.reboot-reset", "power.gptp-relock"}
         for step in repeats.values():
             data = json.loads(json.dumps(step.as_dict()))
-            self.assertEqual(set(data["asserts"]), expected[step.area])
+            self.assertEqual(set(data["asserts"]),
+                             expected[step.area] | (soft if step.sid == "power.soft_reset" else set()))
             self.assertEqual(set(data["assert_severity"].values()), {"SHALL"})
             self.assertTrue(data["args"]["release_eligible"])
 
@@ -7645,6 +7767,67 @@ class _ReleasePlanChecks:
                 device = ARTY if target["entity"] == ARTY.entity_id else PEER
                 crf = device.crf_in if target["descriptor"] == "stream_input" else device.crf_out
                 self.assertEqual(target["crf"], target["index"] == crf)
+
+    def test_release_soft_reset_is_reboot(self) -> None:
+        """L3 #787: the soft resets are AECP REBOOTs, with their bound and oracles."""
+        reset = self._release_repeats(build_plan(["power"]))["power.soft_reset"]
+        self.assertEqual(reset.args["reset_command"],
+                         {"message_type": "AEM_COMMAND", "command_type": "REBOOT",
+                          "descriptor_type": "ENTITY", "descriptor_index": 0})
+        self.assertEqual(reset.args["reset_response_required"], "SUCCESS")
+        self.assertEqual(reset.args["reset_link_down_s"], 11)
+        self.assertEqual(reset.args["gptp_delay_tolerance_ns"], 40)
+        self.assertTrue(reset.args["gptp_delay_tolerance_provisional"])
+        self.assertIn("reboot_exchange", reset.args["evidence"])
+        self.assertIn("AECP REBOOT of ENTITY 0", reset.args["reset_method"])
+        dut, peer = ARTY, PEER
+        for sid, name in (("power.soft_reset", "power.reboot-reset"),
+                          ("power.soft_reset", "power.gptp-relock")):
+            with self.subTest(dropped=name):
+                plan = build_plan(["power"])
+                step = next(s for s in plan if s.sid == sid)
+                step.asserts = tuple(a for a in step.asserts if a.name != name)
+                ok, report = area_covers_every_index(plan, "power", dut, peer)
+                self.assertFalse(ok)
+                self.assertIn(name, report["missing"][sid]["asserts"])
+
+    def test_release_reboot_oracle(self) -> None:
+        """L3 #787: SUCCESS, then ENTITY_DEPARTING, then the link down within 11 s."""
+        good = {"t0_s": 100.0, "response_s": 100.01, "status": 0, "departing_s": 100.02,
+                "link_down_s": 100.03, "capture_complete": True}
+        self.assertEqual(check_release_reboot(good)[0], "PASS")
+        self.assertEqual(check_release_reboot(dict(good, link_down_s=111.0))[0], "PASS")
+        for change, verdict in (({"status": 11}, "FAIL"), ({"departing_s": None}, "FAIL"),
+                                ({"departing_s": 100.005}, "FAIL"), ({"link_down_s": None}, "FAIL"),
+                                ({"link_down_s": 111.001}, "FAIL"),
+                                ({"capture_complete": False}, "NOT RUN"),
+                                ({"response_s": 99.0}, "NOT RUN"), ({"status": "0"}, "NOT RUN"),
+                                ({"link_down_s": float("nan")}, "NOT RUN")):
+            with self.subTest(change=change):
+                self.assertEqual(check_release_reboot(dict(good, **change))[0], verdict)
+        self.assertEqual(check_release_reboot(None)[0], "NOT RUN")
+
+    def test_release_gptp_relock_oracle(self) -> None:
+        """L3 #787: asCapable again in time, both link delays where they were."""
+        pre = {"as_capable": True, "dut_delay_ns": 600, "peer_delay_ns": 610}
+        post = {"as_capable": True, "dut_delay_ns": 620, "peer_delay_ns": 590, "elapsed_s": 25.0}
+        self.assertEqual(check_release_gptp_relock(pre, post, deadline_s=35)[0], "PASS")
+        self.assertEqual(check_release_gptp_relock(
+            pre, dict(post, dut_delay_ns=640), deadline_s=35)[0], "PASS")
+        for change, verdict in (({"as_capable": False}, "FAIL"), ({"elapsed_s": 35.5}, "FAIL"),
+                                ({"dut_delay_ns": 641}, "FAIL"), ({"peer_delay_ns": 569}, "FAIL"),
+                                ({"dut_delay_ns": -20}, "FAIL"), ({"peer_delay_ns": None}, "NOT RUN"),
+                                ({"elapsed_s": -1}, "NOT RUN"), ({"as_capable": 1}, "NOT RUN")):
+            with self.subTest(post=change):
+                self.assertEqual(check_release_gptp_relock(pre, dict(post, **change),
+                                                           deadline_s=35)[0], verdict)
+        for change in ({"as_capable": False}, {"dut_delay_ns": 0}):
+            with self.subTest(pre=change):
+                self.assertEqual(check_release_gptp_relock(dict(pre, **change), post,
+                                                           deadline_s=35)[0], "NOT RUN")
+        self.assertEqual(check_release_gptp_relock(pre, post, deadline_s=0)[0], "NOT RUN")
+        self.assertEqual(check_release_gptp_relock(pre, post, deadline_s=35,
+                                                   tolerance_ns=0)[0], "NOT RUN")
 
     def test_release_boot_negative_control(self) -> None:
         """L3 #366: two BIOS passes fail even when the second boot is healthy."""

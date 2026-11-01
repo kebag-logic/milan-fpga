@@ -249,6 +249,12 @@ SERVED = {
                  verdict=ST_SUCCESS, cdl=None),   # 16 + 8 x count
     0x0029: dict(name="GET_COUNTERS", clause="Milan 5.4.2.25",
                  verdict=ST_SUCCESS, cdl=148),
+    #! IEEE 1722.1-2021 7.4.43 (processor #203): the sweep's READ_DESCRIPTOR-
+    #! shaped zeros put ENTITY 0 at @24, which the engine answers SUCCESS at
+    #! Figure 7-68's cdl 16. The reset it then requests (reboot_req_o) is
+    #! milan-fpga #787's; this model keeps no state across it.
+    0x002A: dict(name="REBOOT", clause="IEEE 7.4.43",
+                 verdict=ST_SUCCESS, cdl=16),
     0x002B: dict(name="GET_AUDIO_MAP", clause="Milan 5.4.2.26",
                  verdict=ST_SUCCESS, cdl=None),   # 24 + 8 x mappings
     0x002C: dict(name="ADD_AUDIO_MAPPINGS", clause="Milan 5.4.2.27",
