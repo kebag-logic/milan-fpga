@@ -1,0 +1,139 @@
+COMMAND ['--check'] rc 0 expected 0
+documentation inventory: OK (550 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+COMMAND ['--selftest'] rc 0 expected 0
+documentation inventory selftest: OK (42 controls)
+PLANT finding on previously current docs/README.md
+COMMAND ['--check'] rc 1 expected 1
+docs/DOCUMENTATION_AUDIT.md: STALE (85 lines differ); first difference at line 30:
+  committed: | current | 166 | 69,371 |
+  generated: | current | 165 | 69,222 |
+regenerate with: python3 scripts/docs_inventory.py --write
+COMMAND ['--write'] rc 0 expected 0
+wrote docs/DOCUMENTATION_AUDIT.md
+COMMAND ['--check'] rc 0 expected 0
+documentation inventory: OK (551 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+GENERATED | [docs/README.md](README.md) | 150 | all readers | Documentation index | `sw/firmware/ctrl`, `sw/firmware/ctrl_nvm`, `sw/firmware/gtest` | stale | 1 finding(s): PROBE-001 | D0 | overview and guides |
+PLANT current status against open finding
+COMMAND ['--check'] rc 1 expected 1
+docs/DOCUMENTATION_AUDIT.md: docs/README.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 156:
+  committed: | [docs/README.md](README.md) | 150 | all readers | Documentation index | `sw/firmware/ctrl`, `sw/firmware/ctrl_nvm`, `sw/firmware/gtest` | current | 1 finding(s): PROBE-001 | D0 | overview and guides
+  generated: | [docs/README.md](README.md) | 150 | all readers | Documentation index | `sw/firmware/ctrl`, `sw/firmware/ctrl_nvm`, `sw/firmware/gtest` | stale | 1 finding(s): PROBE-001 | D0 | overview and guides |
+regenerate with: python3 scripts/docs_inventory.py --write
+COMMAND ['--write'] rc 0 expected 0
+wrote docs/DOCUMENTATION_AUDIT.md
+MUTANT gate-always-passes
+COMMAND ['--selftest'] rc 1 expected 1
+selftest: FAIL unchanged tree is fresh through `git ls-files`: --check did not print 'is fresh'
+selftest: FAIL planted stale page: one added line: --check exited 0, expected 1: 
+selftest: FAIL planted edited quote in the data file: --check exited 0, expected 1: 
+selftest: FAIL fixed statement asks for re-verification: --check exited 0, expected 1: 
+selftest: FAIL new tracked page without a row: --check exited 0, expected 1: 
+selftest: FAIL untracked page stays out of the population: --check did not print 'is fresh'
+selftest: FAIL tracked page removed: --check exited 0, expected 1: 
+selftest: FAIL hand-edited audit page: --check exited 0, expected 1: 
+selftest: FAIL hand-edited status hides a finding: --check exited 0, expected 1: 
+selftest: FAIL the walk without Git renders the same page and skips a checked-out submodule: --check did not print 'is fresh'
+selftest: FAIL supersession banner: --check exited 0, expected 1: 
+selftest: FAIL finding on an untracked page: --check exited 0, expected 2: 
+selftest: FAIL duplicate finding id: --check exited 0, expected 2: 
+selftest: FAIL finding without a correction: --check exited 0, expected 2: 
+selftest: FAIL judgement with an unknown status: --check exited 0, expected 2: 
+selftest: FAIL malformed data file: --check exited 0, expected 2: 
+selftest: FAIL the README's statement copied onto the requirements page: --check exited 0, expected 1: 
+selftest: FAIL a spelling found only through `also` gets a row: --check exited 0, expected 1: 
+selftest: FAIL two spellings on one page give one row: --check exited 0, expected 1: 
+selftest: FAIL a copy cannot be marked current by hand: --check exited 0, expected 1: 
+selftest: FAIL a fixed copy loses its row and its page recovers: --check exited 0, expected 1: 
+selftest: FAIL a copy on an archive page gets a row and stays obsolete: --check exited 0, expected 1: 
+selftest: FAIL a longer word is not a copy: --check exited 0, expected 1: 
+selftest: FAIL a statement across a blank line is not a copy: --check exited 0, expected 1: 
+selftest: FAIL a page already recording the words gets no second row: --check exited 0, expected 1: 
+selftest: FAIL the audit page quoting every statement is not searched: --check did not print 'is fresh'
+selftest: FAIL `also` that is not a list: --check exited 0, expected 2: 
+selftest: FAIL `also` with an empty statement: --check exited 0, expected 2: 
+MUTANT include-untracked
+COMMAND ['--selftest'] rc 1 expected 1
+selftest: FAIL untracked page stays out of the population: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: STALE (41 lines differ); first difference at line 30:
+  committed: | current | 8 | 142 |
+  generated: | current | 9 | 144 |
+regenerate with: python3 scripts/docs_inventory.py --write
+MUTANT remove-status-rule
+COMMAND ['--selftest'] rc 1 expected 1
+selftest: FAIL unchanged tree is fresh through `git ls-files`: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL planted stale page: one added line: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL planted edited quote in the data file: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL fixed statement asks for re-verification: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL new tracked page without a row: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL untracked page stays out of the population: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL tracked page removed: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL hand-edited audit page: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL hand-edited status hides a finding: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL finding marks its page stale: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL a recorded current judgement cannot hide a finding: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 91:
+  committed: | [docs/guides/A.md](guides/A.md) | 3 | maintainer | Guide A | -- | current | no recorded contr
+selftest: FAIL lines as wc -l counts them: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL an unterminated last line counts: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL a README without .md is a document: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL the walk without Git renders the same page and skips a checked-out submodule: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL supersession banner: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL archive page is obsolete with its successor: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL archive index stays current: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL audience line overrides the table: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL described code and standards: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL a submodule path stands for its submodule, checked out or not: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL em dash in a title is rewritten: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL module directory without a README: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL the citations' baseline is on the page: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL the README's statement copied onto the requirements page: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: README.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: REQUIREMENTS.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked curr
+selftest: FAIL a spelling found only through `also` gets a row: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: README.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: REQUIREMENTS.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked curr
+selftest: FAIL two spellings on one page give one row: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: README.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: REQUIREMENTS.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked curr
+selftest: FAIL a copy cannot be marked current by hand: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: README.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: REQUIREMENTS.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked curr
+selftest: FAIL a fixed copy loses its row and its page recovers: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: README.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL a copy on an archive page gets a row and stays obsolete: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL a longer word is not a copy: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL a statement across a blank line is not a copy: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL a page already recording the words gets no second row: --write did not heal the tree (0, 1): docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: docs/guides/B.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+selftest: FAIL the audit page quoting every statement is not searched: --check exited 1, expected 0: docs/DOCUMENTATION_AUDIT.md: docs/guides/A.md carries an open finding but is marked current (the status rule)
+regenerate with: python3 scripts/docs_inventory.py --write
+PASS all focused probes; candidate checkout untouched
+r742rc=0

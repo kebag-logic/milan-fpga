@@ -1,0 +1,15 @@
+$ python3 scripts/ci_maap_cases_selftest.py
+[ok] fixture: rc=0
+[ok] fixture: rc=1
+  named rejection: named check
+[ESCAPED] fixture: rc=0
+[FAIL] named check
+
+[ESCAPED] fixture: rc=1
+[FAIL] different check
+
+[ESCAPED] fixture: rc=-9
+
+MAAP observation controls: raw status and checked output preserved
+MAAP dropped-everywhere control: refused against the driver inventory
+MAAP scheduling controls: 66 cases retain their source and checks

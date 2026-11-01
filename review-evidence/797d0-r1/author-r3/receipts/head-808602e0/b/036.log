@@ -1,0 +1,2 @@
+$ d=$(mktemp -d) && git clone -q --no-recurse-submodules "$PWD" "$d/c" && (cd "$d/c" && git checkout -q "$(git -C "$OLDPWD" rev-parse HEAD)" 2>/dev/null; python3 scripts/docs_inventory.py --check); rc=$?; rm -rf "$d"; exit $rc
+documentation inventory: OK (550 lines, docs/DOCUMENTATION_AUDIT.md is fresh)

@@ -1,0 +1,58 @@
+head 808602e08daee5e86ae21026bbaf2f9114db077a
+== p00 unchanged tree
+documentation inventory: OK (550 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+    --check rc=0
+== p01 planted stale page: one added line on docs/guides/README.md
+docs/DOCUMENTATION_AUDIT.md: STALE (3 lines differ); first difference at line 30:
+  committed: | current | 166 | 69,371 |
+  generated: | current | 166 | 69,372 |
+    --check rc=1
+== p02 the README statement copied, wrapped, onto docs/guides/SYSTEM_INTEGRATOR.md
+docs/DOCUMENTATION_AUDIT.md: STALE (81 lines differ); first difference at line 30:
+  committed: | current | 166 | 69,371 |
+  generated: | current | 165 | 69,217 |
+    --check rc=1
+wrote docs/DOCUMENTATION_AUDIT.md
+    --write rc=0
+documentation inventory: OK (551 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+    --check rc=0
+1
+ stale | 1 finding(s): D0-001 
+== p03 the REQUIREMENTS.md copy row deleted by hand
+docs/DOCUMENTATION_AUDIT.md: STALE (80 lines differ); first difference at line 472:
+  committed: | D0-001 | [docs/ARCHITECTURE_HW_SW_SPLIT.md](ARCHITECTURE_HW_SW_SPLIT.md) | 4 | Its default is bare-metal control through packet mailbox
+  generated: | D0-001 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 27 | The Mark II default places them on the bare-metal core. | Copy of the D0-001 stat
+    --check rc=1
+== p04 REQUIREMENTS.md marked current by hand
+docs/DOCUMENTATION_AUDIT.md: REQUIREMENTS.md carries an open finding but is marked current (the status rule)
+docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 128:
+  committed: | [REQUIREMENTS.md](../REQUIREMENTS.md) | 547 | all readers | TSN/Milan FPGA requirements | `sw/firmware/ctrl_nvm`, `tb/verilator/gptp_tx
+    --check rc=1
+== p05 the named mutant: cross-page search disabled
+docs/DOCUMENTATION_AUDIT.md: STALE (100 lines differ); first difference at line 30:
+  committed: | current | 166 | 69,371 |
+  generated: | current | 177 | 73,763 |
+    --check rc=1
+wrote docs/DOCUMENTATION_AUDIT.md
+    --write rc=0
+documentation inventory: OK (528 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+    --check rc=0
+selftest: FAIL the README's statement copied onto the requirements page: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |'
+selftest: FAIL a spelling found only through `also` gets a row: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 5 |'
+selftest: FAIL two spellings on one page give one row: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |'
+    --selftest rc=1
+== p06 the requirements statement reworded: the row leaves and the page recovers
+docs/DOCUMENTATION_AUDIT.md: STALE (86 lines differ); first difference at line 30:
+  committed: | current | 166 | 69,371 |
+  generated: | current | 167 | 69,917 |
+    --check rc=1
+wrote docs/DOCUMENTATION_AUDIT.md
+    --write rc=0
+documentation inventory: OK (549 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+    --check rc=0
+0
+ current | no recorded contradiction 
+== p07 a paraphrase with no recorded spelling is not found (the rule's stated limit)
+wrote docs/DOCUMENTATION_AUDIT.md
+    --write rc=0
+0

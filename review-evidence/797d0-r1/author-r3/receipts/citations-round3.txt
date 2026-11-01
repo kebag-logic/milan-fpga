@@ -1,0 +1,194 @@
+lane head 808602e08daee5e86ae21026bbaf2f9114db077a; protocol-processor pin a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645
+
+## D0-001 correction
+sw/litex/milan_soc.py:2854: # --ctrl-mailbox, whose default is off: the default build carries no mailbox
+sw/litex/milan_soc.py:2855: # source, instance, bus region, CSR bank or interrupt, so every shipped
+sw/litex/milan_soc.py:2856: # config's top .v and source list are byte-identical to a build without this
+sw/litex/milan_soc.py:4097:     ap.add_argument("--ctrl-mailbox", action="store_true",
+sw/litex/milan_soc.py:4098:                     help="#665 lane F0: add the packet mailbox of the control-plane "
+
+## D0-001 copy, REQUIREMENTS.md
+REQUIREMENTS.md:25: - ADP, ACMP, AECP (commands, unsolicited notifications and counter serving),
+REQUIREMENTS.md:26:   MAAP and SRP MUST each have build-selectable placement.
+REQUIREMENTS.md:27:   The Mark II default places them on the bare-metal core.
+REQUIREMENTS.md:28:   The all-fabric build remains a supported option.
+REQUIREMENTS.md:29:   It remains the shipping default until F2 to F5 pass
+REQUIREMENTS.md:30:   their suites and bench acceptance: all streams, counters and audio soak.
+REQUIREMENTS.md:31:   Requirement approval precedes that default flip (#664, #665).
+
+## D0-017 correction
+sw/firmware/milan_baremetal/milan_baremetal.c:1671: 	phy_live = 1;
+sw/firmware/milan_baremetal/milan_baremetal.c:1099: 	if (!nvm_started) {
+sw/firmware/milan_baremetal/milan_baremetal.c:1100: 		if (phy_live)
+sw/firmware/milan_baremetal/milan_baremetal.c:1101: 			phy_link_tick(gettime_ns());
+sw/firmware/milan_baremetal/milan_baremetal.c:1102: 		return;
+sw/firmware/milan_baremetal/milan_baremetal.c:1106: 	phy_link_tick(now);
+sw/firmware/milan_baremetal/milan_baremetal.c:1900: 	if (id != MILAN_ID_MAGIC) {
+sw/firmware/milan_baremetal/milan_baremetal.c:1901: 		printf("Milan baremetal: CSR identity mismatch; fabric remains disabled.\n");
+sw/firmware/milan_baremetal/milan_baremetal.c:1902: 		return;
+sw/firmware/milan_baremetal/milan_baremetal.c:1903: 	}
+sw/firmware/milan_baremetal/milan_baremetal.c:1914: 	nvm_boot();
+
+## D0-027 correction
+sw/firmware/gtest/README.md:3: 
+sw/firmware/gtest/README.md:4: The bare-metal control-plane firmware ([`ctrl`](../ctrl/README.md)) and its
+sw/firmware/gtest/README.md:5: saved-state store ([`ctrl_nvm`](../ctrl_nvm/README.md)) are tested on the host
+sw/firmware/gtest/README.md:6: with GoogleTest and GoogleMock. The firmware stays C11 with no heap; the tests
+sw/firmware/gtest/README.md:7: are C++ and include its C headers through `extern "C"`. This directory holds
+sw/firmware/gtest/README.md:8: what both host gates share: the `main()` and tally listener every test binary
+sw/firmware/gtest/README.md:9: links, the build and grading helpers, the coverage gate and its ratchet.
+sw/firmware/gtest/README.md:10: 
+sw/firmware/gtest/README.md:11: The gates are unchanged in name and exit status:
+sw/firmware/gtest/README.md:12: `sw/firmware/ctrl/test/test_ctrl_firmware.py` and
+sw/firmware/gtest/README.md:13: `sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py`. Both now build GoogleTest
+sw/firmware/milan_baremetal/Makefile:6: OBJECTS = milan_baremetal.o
+
+## D0-035 correction
+sw/firmware/milan_baremetal/milan_baremetal.c:1860: static int load_aem_image(void)
+sw/firmware/milan_baremetal/milan_baremetal.c:1861: {
+sw/firmware/milan_baremetal/milan_baremetal.c:1862: #if defined(SPIFLASH_BASE) && defined(MILAN_AEM_FLASH_OFFSET)
+sw/firmware/milan_baremetal/milan_baremetal.c:1863: 	const volatile uint8_t *src =
+sw/firmware/milan_baremetal/milan_baremetal.c:1864: 		(const volatile uint8_t *)(SPIFLASH_BASE + MILAN_AEM_FLASH_OFFSET);
+sw/firmware/milan_baremetal/milan_baremetal.c:1865: 	volatile uint8_t *dst = (volatile uint8_t *)MILAN_AEM_DESC_BASE;
+sw/firmware/milan_baremetal/milan_baremetal.c:1866: 	unsigned int i;
+sw/firmware/milan_baremetal/milan_baremetal.c:1867: 	uint32_t got;
+sw/firmware/milan_baremetal/milan_baremetal.c:1868: 
+sw/firmware/milan_baremetal/milan_baremetal.c:1869: 	if (src[0] != 'A' || src[1] != 'E' || src[2] != 'M' || src[3] != 'I') {
+sw/firmware/milan_baremetal/milan_baremetal.c:1870: 		printf("Milan baremetal: AEM image missing at QSPI +0x%08x; entity disabled.\n",
+sw/firmware/milan_baremetal/milan_baremetal.c:1871: 		       MILAN_AEM_FLASH_OFFSET);
+sw/firmware/milan_baremetal/milan_baremetal.c:1872: 		return 0;
+sw/firmware/milan_baremetal/milan_baremetal.c:1873: 	}
+sw/firmware/milan_baremetal/milan_baremetal.c:1874: 	for (i = 0; i < MILAN_AEM_IMAGE_BYTES; ++i)
+sw/firmware/milan_baremetal/milan_baremetal.c:1875: 		dst[i] = src[i];
+sw/firmware/milan_baremetal/milan_baremetal.c:1876: 	__asm__ volatile("fence rw, rw" ::: "memory");
+sw/firmware/milan_baremetal/milan_baremetal.c:1877: 	got = crc32((const unsigned char *)MILAN_AEM_DESC_BASE,
+sw/firmware/milan_baremetal/milan_baremetal.c:1878: 	            MILAN_AEM_IMAGE_BYTES);
+sw/firmware/milan_baremetal/milan_baremetal.c:1879: 	if (got != MILAN_AEM_IMAGE_CRC32) {
+sw/firmware/milan_baremetal/milan_baremetal.c:1880: 		printf("Milan baremetal: AEM CRC failed (expected %08lx, got %08lx); entity disabled.\n",
+sw/firmware/milan_baremetal/milan_baremetal.c:1881: 		       (unsigned long)MILAN_AEM_IMAGE_CRC32, (unsigned long)got);
+sw/firmware/milan_baremetal/milan_baremetal.c:1882: 		return 0;
+sw/firmware/milan_baremetal/milan_baremetal.c:1883: 	}
+sw/firmware/milan_baremetal/milan_baremetal.c:1884: 	printf("Milan baremetal: AEM %u B copied QSPI +0x%08x -> 0x%08x, CRC %08lx.\n",
+sw/firmware/milan_baremetal/milan_baremetal.c:1885: 	       MILAN_AEM_IMAGE_BYTES, MILAN_AEM_FLASH_OFFSET,
+sw/firmware/milan_baremetal/milan_baremetal.c:1886: 	       MILAN_AEM_DESC_BASE, (unsigned long)got);
+sw/firmware/milan_baremetal/milan_baremetal.c:1887: 	return 1;
+sw/firmware/milan_baremetal/milan_baremetal.c:1888: #else
+sw/firmware/milan_baremetal/milan_baremetal.c:1889: 	printf("Milan baremetal: no QSPI AEM slot; entity disabled.\n");
+sw/firmware/milan_baremetal/milan_baremetal.c:1890: 	return 0;
+sw/firmware/milan_baremetal/milan_baremetal.c:1891: #endif
+sw/firmware/milan_baremetal/milan_baremetal.c:1892: }
+sw/firmware/milan_baremetal/milan_baremetal.c:1913: 	aem_loaded = load_aem_image();
+sw/firmware/milan_baremetal/milan_baremetal.c:1914: 	nvm_boot();
+sw/firmware/milan_baremetal/milan_baremetal.c:1915: 	entity_advertise(aem_loaded);
+
+## D0-062 source
+docs/reference/SUBMODULES.md:511: The re-pin route carries the #814 cuts.
+docs/reference/SUBMODULES.md:512: 
+docs/reference/SUBMODULES.md:513: Its best directive has WNS +0.365 ns.
+docs/reference/SUBMODULES.md:514: 
+docs/reference/SUBMODULES.md:515: It uses 52,021 LUTs; 63 slices remain.
+docs/reference/SUBMODULES.md:516: 
+docs/reference/SUBMODULES.md:517: The #818 gate passes it.
+docs/design/AREA_BUDGET.md:149: The re-pin to processor `a9e84b66`, routed with the [#814](https://github.com/kebag-logic/milan-fpga/issues/81
+docs/design/AREA_BUDGET.md:150: Its best directive, AltSpreadLogic_high, has WNS +0.365 ns at every slow corner, 52,021 LUTs and 63 of 15,850 
+docs/integration/BAREMETAL_FIRMWARE.md:2291: The measured cell is commit `1e80a106`, configuration
+
+## D0-063 correction, selector 0 flags
+hdl/milan/milan_datapath.sv:6194:       gsi_flags_w = {1'b1,                    // STREAM_FORMAT_VALID
+hdl/milan/milan_datapath.sv:6195:                      gsi_setl_w,              // STREAM_ID_VALID
+hdl/milan/milan_datapath.sv:6196:                      gsi_reging_w,            // MSRP_ACC_LAT_VALID
+hdl/milan/milan_datapath.sv:6197:                      gsi_setl_w,              // STREAM_DEST_MAC_VALID
+hdl/milan/milan_datapath.sv:6198:                      gsi_tkfail_w,            // MSRP_FAILURE_VALID
+hdl/milan/milan_datapath.sv:6199:                      gsi_bnd_w,               // BOUND
+hdl/milan/milan_datapath.sv:6200:                      gsi_setl_w,              // STREAM_VLAN_ID_VALID
+hdl/milan/milan_datapath.sv:6201:                      18'd0,
+hdl/milan/milan_datapath.sv:6202:                      gsi_tkfail_w,            // REGISTERING_FAILED
+hdl/milan/milan_datapath.sv:6203:                      2'b0,
+hdl/milan/milan_datapath.sv:6204:                      //! Milan Table 5.9 bit 28: "0 if the Stream Input is
+hdl/milan/milan_datapath.sv:6205:                      //! bound and started, 1 if the Stream Input is bound and
+hdl/milan/milan_datapath.sv:6206:                      //! stopped, undefined if the Stream Input is not bound."
+hdl/milan/milan_datapath.sv:6207:                      //! This was a hardcoded 0 justified as "bound = started",
+hdl/milan/milan_datapath.sv:6208:                      //! which was true only while stopped was unreachable;
+hdl/milan/milan_datapath.sv:6209:                      //! with §5.4.2.20 served it would report a stopped sink
+hdl/milan/milan_datapath.sv:6210:                      //! as started. It reads the SAME bit the admission gate
+hdl/milan/milan_datapath.sv:6211:                      //! above does, so the answer and the behaviour cannot
+hdl/milan/milan_datapath.sv:6212:                      //! disagree.
+hdl/milan/milan_datapath.sv:6213:                      gsi_bnd_w && !pp_aecp_strm_started_w[gsi_six_w],
+hdl/milan/milan_datapath.sv:6214:                      gsi_bnd_w,               // SAVED_STATE (recommended)
+hdl/milan/milan_datapath.sv:6215:                      gsi_bnd_w,               // FAST_CONNECT (= bound, T5.9)
+hdl/milan/milan_datapath.sv:6216:                      1'b0};                   // CLASS_B
+hdl/milan/milan_datapath.sv:6217:       gsi_flags_ex_w = {31'd0, gsi_reging_w}; // REGISTERING
+protocol-processor/hdl/top/protocol_processor_top.sv:3641:           4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;
+
+## D0-063 correction, selectors 1 and 3
+hdl/milan/milan_datapath.sv:6401:           4'd1: gsi_ans_raw_w =
+hdl/milan/milan_datapath.sv:6421:           4'd3: gsi_ans_raw_w = gsi_in_w
+
+## D0-063 correction, selector 2
+hdl/milan/milan_datapath.sv:6413:           4'd2: gsi_ans_raw_w = gsi_in_w  ? gsi_sid_w
+hdl/milan/milan_datapath.sv:6414:                               : gsi_decl_w ? gsi_osid_w : 64'd0;
+protocol-processor/hdl/top/protocol_processor_top.sv:3642:           4'd2: aecp_gsi_data_w = 64'd0;
+
+## D0-063 correction, selector 4
+hdl/milan/milan_datapath.sv:6430:           4'd4: gsi_ans_raw_w = gsi_setl_w
+hdl/milan/milan_datapath.sv:6431:                               ? {pp_cd_acmp_bound_dmac_w[48*gsi_six_w +: 48],
+hdl/milan/milan_datapath.sv:6432:                                  16'd0}
+protocol-processor/hdl/top/protocol_processor_top.sv:3628:         4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
+protocol-processor/hdl/top/protocol_processor_top.sv:3643:           4'd4: aecp_gsi_data_w[63:16] = 48'd0;
+
+## D0-063 correction, selectors 5 and 7
+protocol-processor/hdl/top/protocol_processor_top.sv:3593:   assign gsi_internal_w = gsi_input_w
+protocol-processor/hdl/top/protocol_processor_top.sv:3594:                            && ((gsi_sel_o == 4'd5) || (gsi_sel_o == 4'd7));
+protocol-processor/hdl/top/protocol_processor_top.sv:3595:   assign gsi_req_o = aecp_gsi_req_w && !gsi_internal_w;
+protocol-processor/hdl/top/protocol_processor_top.sv:3629:         4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;
+protocol-processor/hdl/top/protocol_processor_top.sv:3633:         4'd7: aecp_gsi_data_w = {32'd0, gsi_status_w, 24'd0};
+
+## D0-063 correction, selector 6
+protocol-processor/hdl/top/protocol_processor_top.sv:3631:         4'd6: aecp_gsi_data_w = {gsi_settled_w
+protocol-processor/hdl/top/protocol_processor_top.sv:3632:               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+hdl/milan/milan_datapath.sv:6444:           //! an input's stream_vlan_id [63:48] is unused: the processor
+hdl/milan/milan_datapath.sv:6445:           //! replaces it with all 16 received VLAN bits (#708)
+hdl/milan/milan_datapath.sv:6446:           4'd6: gsi_ans_raw_w = {gsi_setl_w
+hdl/milan/milan_datapath.sv:6447:                                  ? {4'd0, pp_cd_acmp_bound_vlan_w[12*gsi_six_w +: 12]}
+hdl/milan/milan_datapath.sv:6448:                                  : gsi_decl_w
+hdl/milan/milan_datapath.sv:6449:                                  ? {4'd0, pp_cd_srp_class_a_vid_w}
+hdl/milan/milan_datapath.sv:6450:                                  : 16'd0,
+hdl/milan/milan_datapath.sv:6451:                                  16'd0, gsi_flags_ex_w};
+
+## D0-063 correction, Stream Output
+protocol-processor/hdl/top/protocol_processor_top.sv:3624:   always_comb begin : gsi_answer
+protocol-processor/hdl/top/protocol_processor_top.sv:3625:     aecp_gsi_data_w = gsi_data_i;
+protocol-processor/hdl/top/protocol_processor_top.sv:3626:     if (gsi_input_w) begin
+
+## D0-064 correction
+hdl/milan/milan_datapath.sv:6048:   //!    while the sink is settled, probing_status PROBING_COMPLETED (Milan
+hdl/milan/milan_datapath.sv:6049:   //!    v1.2 5.4.2.10.1, Table 5.9; 5.3.8.5, Table 5.5). This face cannot
+hdl/milan/milan_datapath.sv:6050:   //!    see probing_status, so the PROCESSOR applies that rule to the words
+hdl/milan/milan_datapath.sv:6051:   //!    below (processor #206, #790): while its committed status is not
+hdl/milan/milan_datapath.sv:6052:   //!    PROBING_COMPLETED it clears 0x52000000 in selector 0 and answers
+hdl/milan/milan_datapath.sv:6053:   //!    0 for selector 2 and selector 4 [63:16]. This face's own gate,
+protocol-processor/hdl/top/protocol_processor_top.sv:3621:   assign gsi_settled_w = (32'(gsi_desc_index_o) < N_STREAM_IN_P)
+protocol-processor/hdl/top/protocol_processor_top.sv:3622:                          && (gsi_status_w[7:5] == pp_acmp_pkg::PB_COMPLETED_C);
+protocol-processor/hdl/top/protocol_processor_top.sv:3639:       if (!gsi_settled_w) begin
+protocol-processor/hdl/top/protocol_processor_top.sv:3640:         case (gsi_sel_o)
+protocol-processor/hdl/top/protocol_processor_top.sv:3641:           4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;
+protocol-processor/hdl/top/protocol_processor_top.sv:3642:           4'd2: aecp_gsi_data_w = 64'd0;
+protocol-processor/hdl/top/protocol_processor_top.sv:3643:           4'd4: aecp_gsi_data_w[63:16] = 48'd0;
+protocol-processor/hdl/top/protocol_processor_top.sv:3644:           default: begin end
+protocol-processor/hdl/top/protocol_processor_top.sv:3645:         endcase
+protocol-processor/hdl/top/protocol_processor_top.sv:3646:       end
+protocol-processor/hdl/top/protocol_processor_top.sv:3647:     end
+protocol-processor/hdl/top/protocol_processor_top.sv:3648:   end
+
+## D0-065 correction
+protocol-processor/hdl/top/protocol_processor_top.sv:3628:         4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
+protocol-processor/hdl/top/protocol_processor_top.sv:3629:         4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;
+protocol-processor/hdl/top/protocol_processor_top.sv:3630:         // Milan 5.3.8.9 and 5.4.2.10: report the full received VLAN.
+protocol-processor/hdl/top/protocol_processor_top.sv:3631:         4'd6: aecp_gsi_data_w = {gsi_settled_w
+protocol-processor/hdl/top/protocol_processor_top.sv:3632:               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+protocol-processor/hdl/top/protocol_processor_top.sv:3633:         4'd7: aecp_gsi_data_w = {32'd0, gsi_status_w, 24'd0};
+
+## D0-066 correction
+docs/guides/VERIFICATION_DEVELOPER.md:25: | C with Python | Shipping trace producer | `python3 sw/trace/test_trace_roundtrip.py` |
+sw/trace/test_trace_roundtrip.py:17:    4. the producer COMPILES and RUNS with a host C compiler (the same barectf.c
+sw/trace/test_trace_roundtrip.py:18:       + milan_trace.c the bare-metal image links), producing real CTF segments;
