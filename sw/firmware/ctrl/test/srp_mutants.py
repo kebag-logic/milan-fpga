@@ -712,7 +712,7 @@ DEFECTS = (
            'app->acmp.acmp.env == &app->acmp_delivery ||', '',
            'recompose before replacing the attached adapter', path='app/ctrl_app_srp.c', suite='test_acmp_mbx.cpp'),
     Defect('srp-bound-event','EventReceiveAndTransmitPollFitTheirMeasuredBounds',
-           'SRP_MBX_EVENT_MAX (1u + SRP_MBX_PUB_RESET)', 'SRP_MBX_EVENT_MAX (0u + SRP_MBX_PUB_RESET)',
+           'SRP_MBX_EVENT_MAX (1u + SRP_MBX_PUB_WITHDRAW)', 'SRP_MBX_EVENT_MAX (0u + SRP_MBX_PUB_WITHDRAW)',
            'SRP event bound',
            path='srp/srp_bounds.h', suite='srp_app.cpp'),
     Defect('srp-bound-receive','EventReceiveAndTransmitPollFitTheirMeasuredBounds',
