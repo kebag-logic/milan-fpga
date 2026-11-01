@@ -2,10 +2,9 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The stimulus groups of the budget and the probes each measures (#665).
 
-A group is one boot of the test SoC and a script of steps; sim_main.cpp
-runs it. A probe is one measured path: a `mark` line names it, then its
-stimulus, then a bounded wait for its completion. grade.py reads the start
-and the end of each probe off the observation log by the probe's rules:
+A group is one boot of the test SoC and a script of steps; sim_main.cpp runs it. A probe is one measured path:
+a `mark` line names it, then its stimulus, then a bounded wait for its completion. grade.py reads the start and
+the end of each probe off the observation log by the probe's rules:
 
   start  rxc:<ch>         the fabric's receive commit (RX_HEAD) on the channel
          pad:LINK:<if>    the link level changing at the mailbox input
@@ -27,20 +26,15 @@ and the end of each probe off the observation log by the probe's rules:
                           after the release, inside that pass (ctrl_loop.c service_rx)
          pub:<word>       a write of that publication word
 
-A probe's frames carry its name as their tag, so its start is the commit of
-its own frame even when other frames share the ring; a probe may bound its
-search by a later mark (until) when probes overlap on purpose.
+A probe's frames carry its name as their tag, so its start is the commit of its own frame even when other frames
+share the ring; a probe may bound its search by a later mark (until) when probes overlap on purpose.
 
-A group's load is the population its stimulus declares for its composed
-window: the records per receive channel and the GM and LINK events. grade.py
-never trusts it: it refuses a window whose committed population is not the
-row's defined load, which it derives from the contract alone
-(grade.defined_load), and the self-test counts every window's stimulus
-against that definition, so a channel left out of the stimulus and its
-declaration together still fails.
+A group's load is the population its stimulus declares for its composed window: the records per receive channel
+and the GM and LINK events. grade.py never trusts it: it refuses a window whose committed population is not the
+row's defined load, which it derives from the contract alone (grade.defined_load), and the self-test counts every
+window's stimulus against that definition, so a channel left out of the stimulus and its declaration together fails.
 
-The paths, their clauses and their ceilings come from FR_NFR.md 3.4.1 and
-MAILBOX_SPLIT.md; every address comes from the mailbox contract.
+The paths, their clauses and ceilings come from FR_NFR.md 3.4.1 and MAILBOX_SPLIT.md; addresses from the contract.
 """
 from __future__ import annotations
 
@@ -707,6 +701,12 @@ def maap_conflict(interface: int, select: int = f.MAAP_ANNOUNCE) -> str:
             f'6={BRIDGE_MAC:012x} 15={f.MAAP_PROBE:02x}')
 
 
+#: How a composed window that fills the event ring opens. Its grandmaster changes arrive 8 bus cycles apart and a
+#: source coalesces while its record waits (mailbox.yaml, KL_mbx_evt.sv), so with k records held only 16 - k + 1 of
+#: them commit: its defined load needs a ring the core has drained, which no fixed wait gives a slow CPU (#665).
+OPEN_WINDOW = (f'wait events 0 within {400 * MS}', 'gap 1', 'mark composed')
+
+
 def gm_run(g: Group, p: Point, count: int = 15) -> None:
     """Grandmaster changes back to back, alternating the interfaces: GM events of the load."""
     for n in range(count):
@@ -767,8 +767,7 @@ def bound_talker_groups(p: Point) -> list[Group]:
         announced(g)
         g.add(f'frame 0 {acmp_cmd(p, "BIND_RX", 0, 0x7000).hex()}', f'wait tx {acmp} 2 within {20 * MS}',
               'wait quiet 3 within 2000000', f'frame 0 {avail.hex()}', 'wait quiet 3 within 2000000',
-              f'frame 0 {gone.hex()}', f'wait cycles {50 * MS}', 'wait quiet 3 within 2000000', 'gap 1',
-              'mark composed')
+              f'frame 0 {gone.hex()}', f'wait cycles {50 * MS}', 'wait quiet 3 within 2000000', *OPEN_WINDOW)
         gm_run(g, p)
         composed_load(g, p, own='adp')
         for n in range(at_once - 1):
@@ -813,7 +812,7 @@ def owed_group(p: Point) -> Group:
     g.add('txready 0', f'wait cycles {2 * MS}')
     for n in range(tx_room):
         g.add(f'frame 0 {get(0x7300 + n).hex()}')
-    g.add(f'wait tx {acmp} {tx_room} within {300 * MS}', f'wait cycles {50 * MS}', 'gap 1', 'mark composed')
+    g.add(f'wait tx {acmp} {tx_room} within {300 * MS}', f'wait cycles {50 * MS}', *OPEN_WINDOW)
     gm_run(g, p)
     composed_load(g, p, own='acmp')
     for n in range(OWED_AHEAD):
@@ -858,7 +857,7 @@ def backlog_groups(p: Point) -> list[Group]:
     g = Group('backlog', sim_ms=4000)
     ready(g, p)
     announced(g)
-    g.add('gap 1', 'mark composed')
+    g.add(*OPEN_WINDOW)
     gm_run(g, p)
     g.probe(Probe('backlog.event.if0', 'an event behind 15 others', 'adp', 'pad:LINK:0', ['cancel:0'],
                   until='composed_end'), 'link 0 0', wait='cycles 1', settle='')

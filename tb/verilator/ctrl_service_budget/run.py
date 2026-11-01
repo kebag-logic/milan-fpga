@@ -72,7 +72,8 @@ def severity(r: dict) -> tuple[bool, float]:
 def windows(results: list[dict]) -> list[dict]:
     """Each composed window: its longest pass, whether it released its whole load, and what not."""
     return [dict(group=g['group'], **{k: g['passes']['composed'][k] for k in
-                                      ('cycles', 'ms', 'passes', 'window_ms', 'serviced', 'unreleased')})
+                                      ('cycles', 'ms', 'passes', 'window_ms', 'events_held', 'serviced',
+                                       'unreleased')})
             for g in results if g['passes'].get('composed')]
 
 
@@ -173,10 +174,12 @@ def table(results: list[dict], point: str, clock: str = '') -> str:
                      f"{verdict_word(w)} | {w['ahead']} {w['ring']} | {e['instances']} | {e['misses']} |")
     lines += ['', 'Composed windows: a window that left its load unreleased ran its passes without that work, so '
               'its longest pass is a lower bound.', '',
-              '| Group | Window ms | Passes in it | Longest pass, CPU cycles (ms) | Load released | Unreleased |',
-              '|---|---:|---:|---:|---|---|']
+              '| Group | Event records held at its opening | Window ms | Passes in it | '
+              'Longest pass, CPU cycles (ms) | Load released | Unreleased |',
+              '|---|---:|---:|---:|---:|---|---|']
     for w in windows(results):
-        lines.append(f"| {w['group']} | {w['window_ms']:.3f} | {w['passes']} | {w['cycles']:,} ({w['ms']:.3f}) | "
+        lines.append(f"| {w['group']} | {w['events_held']} | {w['window_ms']:.3f} | {w['passes']} | "
+                     f"{w['cycles']:,} ({w['ms']:.3f}) | "
                      f"{'yes' if w['serviced'] else 'no'} | {w['unreleased'] or '-'} |")
     top = composed_maximum(results)
     if top:

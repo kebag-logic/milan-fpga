@@ -56,14 +56,14 @@ def _cut_pass_idle() -> list:
     return [patch.object(grade, 'parse', parse)]
 
 
-def _load_at_least(group: scenario.Group, got: dict, refused: list) -> None:
+def _load_at_least(group: scenario.Group, got: dict, refused: list, held: int = 0) -> None:
     """A window refused only when it committed fewer records than its defined load."""
     want = grade.defined_load(group.name)
     if any(got[k] < want.get(k, 0) for k in got):
         raise grade.Refusal(f'{group.name}: the composed window committed {got}, its defined load is {want}')
 
 
-def _load_declared(group: scenario.Group, got: dict, refused: list) -> None:
+def _load_declared(group: scenario.Group, got: dict, refused: list, held: int = 0) -> None:
     """A window checked against its stimulus's own declaration."""
     want = {name: group.load.get(name, 0) for name in got}
     if got != want:
@@ -432,6 +432,14 @@ MUTANTS: dict[str, Patches] = {
         grade, 'check_load', _load_at_least)],
     "composition: the load is the stimulus's own declaration (earlier rule)": lambda: [patch.object(
         grade, 'check_load', _load_declared)],
+    'opening: a backlog window opens without waiting for the drained event ring': lambda: [patch.object(
+        scenario, 'OPEN_WINDOW', ('gap 1', 'mark composed'))],
+    'opening: the window opens with records held': lambda: [patch.object(
+        scenario, 'OPEN_WINDOW', (f'wait events 2 within {400 * scenario.MS}', 'gap 1', 'mark composed'))],
+    'opening: the records released are not counted': lambda: [patch.object(
+        grade.Grader, 'events_held', lambda self, start: sum(1 for c, _ in self.log.records if c < start))],
+    'opening: the refusal does not name the records held': lambda: [patch.object(
+        grade, 'check_load', lambda group, got, refused, held=0, f=grade.check_load: f(group, got, refused))],
     'composition: the backlog stimulus omits SRP': _offer_without('srp', 'backlog'),
     'composition: the backlog stimulus omits MAAP': _offer_without('maap', 'backlog'),
     'composition: the owed row omits the ACMP commands behind its input (earlier rule)': _offer_without(

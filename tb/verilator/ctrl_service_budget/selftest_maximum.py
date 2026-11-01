@@ -4,18 +4,25 @@
 
 Synthetic backlog windows check run.composed_maximum: the longest pass of every backlog window, its
 lower bound while a window left its load unreleased, the backlog rows a run did not include, and the
-record results.json carries and the table renders. Each check is (name, held, detail), as selftest.py's.
+record results.json carries and the table renders. opening_checks holds each backlog window to a
+drained event ring when it opens, the precondition of its defined load, and the refusal to the
+records held. Each check is (name, held, detail), as selftest.py's.
 """
 from __future__ import annotations
 
+from types import SimpleNamespace
+
+import grade
 import run
+import scenario
 
 
 def maximum_checks() -> list[tuple[str, bool, str]]:
     """The composed maximum over synthetic backlog windows: its lower bound, the backlog rows a run
     did not include, and the record results.json carries and the table renders."""
     window = lambda group, cycles, done: dict(group=group, probes=[], timeouts=[], passes=dict(composed=dict(
-        cycles=cycles, ms=cycles / 50_000, passes=3, window_ms=100.0, serviced=done, unreleased={} if done
+        cycles=cycles, ms=cycles / 50_000, passes=3, window_ms=100.0, events_held=0, serviced=done,
+        unreleased={} if done
         else {'srp': 32})))
     record = lambda top, group, unreleased, best, not_run=(): dict(
         cycles=top, ms=top / 50_000, group=group, windows=4 - len(not_run), rows=4, not_run=list(not_run),
@@ -72,4 +79,38 @@ def maximum_checks() -> list[tuple[str, bool, str]]:
             wrong.append(f'results.json {saved}; table {lines}')
     out.append(("results.json's composed maximum is the record the table renders, with its lower-bound and "
                 'partial labels', not wrong, '; '.join(wrong)))
+    return out
+
+
+def opening_checks(points: list[scenario.Point]) -> list[tuple[str, bool, str]]:
+    """Each backlog window opens on a drained event ring (scenario.OPEN_WINDOW), the event records
+    it holds are counted through the ring index's wrap, and a window short of its load says so."""
+    want = ('wait events 0 within 40000000', 'gap 1', 'mark composed')
+    openings = {}
+    for p in points:
+        for g in scenario.backlog_groups(p):
+            steps = g.script().splitlines()
+            at = steps.index('mark composed')
+            openings[f'{g.name}@{p.interfaces}'] = tuple(steps[at - 2:at + 1])
+    wrong = {k: v for k, v in openings.items() if v != want}
+    out = [('every backlog window waits for the event ring to drain, then opens', bool(openings) and not wrong,
+            str(wrong))]
+    words = scenario.CONTRACT.ev_words
+    tail = scenario.EVT_TAIL_WORD
+    wrap = 0x10000 // words + 3
+    cases = [(5, [], 5), (5, [(1, tail, 2 * words)], 3), (5, [(1, tail, 2 * words), (20, tail, 5 * words)], 3),
+             (wrap + 1, [(1, tail, 0xFFFF & -words), (2, tail, 3 * words)], 1)]
+    counted = [grade.Grader(SimpleNamespace(records=[(10, [])] * n, writes=writes)).events_held(15)
+               for n, writes, _ in cases]
+    out.append(('the event records held are those posted before the mark less the released, through the wrap',
+                counted == [held for *_, held in cases], str(counted)))
+    group = scenario.Group('backlog-adp')
+    got = {**grade.defined_load('backlog-adp'), 'GM': 12, 'LINK': 0}
+    try:
+        grade.check_load(group, got, [], 5)
+        words_said = 'accepted'
+    except grade.Refusal as error:
+        words_said = str(error)
+    out.append(('a window short of its grandmaster changes is refused, naming the event records held when it opened',
+                "'GM': 12" in words_said and '5 event records held when it opened' in words_said, words_said))
     return out

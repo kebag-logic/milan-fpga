@@ -104,6 +104,7 @@ public:
         }
         if (evt_write(dut)) {
             std::printf("EVW %llu %u %08x\n", ull(sys_), evt_addr(dut), evt_data(dut));
+            if (evt_addr(dut) % ev_words == ev_words - 1) ++evt_posted_;
         }
         egress_sample(dut);
         ingress_sample(dut);
@@ -187,6 +188,10 @@ private:
             for (unsigned ch = 0; ch < n_ch; ++ch)
                 if (word == tx_head_word(ch)) { ++tx_commits_[ch]; std::printf("TXC %llu %u %u\n", ull(sys_), ch, host_wdata_); }
             if (word == tmr_cmd_word) ++tmr_writes_.at(host_wdata_ & 0xffu).at(host_wdata_ >> 30);
+            if (word == evt_tail_word) {
+                evt_released_ += std::uint16_t(host_wdata_ - evt_tail_);
+                evt_tail_ = host_wdata_;
+            }
             char buf[64];
             std::snprintf(buf, sizeof buf, " %llu:%x:%x", ull(sys_), word, host_wdata_);
             pass_.writes += buf;
@@ -371,6 +376,8 @@ private:
         }
         if (s.op == "quiet") return frames_.empty() && quiet_run_ >= std::stoul(s.args.at(0));
         if (s.op == "drained") return frames_.empty();
+        // events <n>: the event ring holds at most n records the core has not released.
+        if (s.op == "events") return evt_posted_ - evt_released_ / ev_words <= std::stoull(s.args.at(0));
         throw std::runtime_error("unknown wait " + s.op);
     }
 
@@ -496,6 +503,8 @@ private:
     std::uint32_t host_wdata_ = 0;
     std::array<unsigned, n_ch> tx_commits_{}, tx_mark_{};
     std::array<std::array<unsigned, 4>, 256> tmr_writes_{}, tmr_mark_{};  // per slot and op
+    std::uint64_t evt_posted_ = 0, evt_released_ = 0;  // event records posted, words released
+    std::uint32_t evt_tail_ = 0;
     unsigned wire_frames_ = 0, wire_mark_ = 0;
     std::vector<std::uint8_t> egress_;
     std::array<std::deque<Sent>, n_ch> last_wire_;  // the newest frames each channel sent, with their interface

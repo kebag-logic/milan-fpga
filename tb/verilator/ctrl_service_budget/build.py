@@ -441,6 +441,8 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
     lines += [f"constexpr std::uint32_t pass_pc = 0x{table['ctrl_loop_service']:x}u;",
               f"constexpr unsigned filter_en_word = 0x{spec['filter_en'] // 4:x}u;",
               f"constexpr unsigned tmr_cmd_word = 0x{spec['tmr_cmd'] // 4:x}u;",
+              f"constexpr unsigned evt_tail_word = 0x{spec['evt_tail'] // 4:x}u;",
+              f"constexpr unsigned ev_words = {spec['ev_words']}u;",
               'constexpr unsigned tx_head_word(unsigned ch) {',
               f"    return (0x{spec['ch_base']:x}u + ch * 0x{spec['ch_stride']:x}u + 0x{spec['tx_head']:x}u) / 4u;",
               '}']
@@ -630,6 +632,7 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     contract = load()
     regs = {r.name: r.offset for r in contract.registers}
     spec.update(channels=len(contract.channels), filter_en=regs['FILTER_EN'], tmr_cmd=regs['TMR_CMD'],
+                evt_tail=regs['EVT_TAIL'], ev_words=contract.ev_words,
                 ch_base=contract.ch_base, ch_stride=contract.ch_stride,
                 tx_head={r.name: r.offset for r in contract.ch_registers}['TX_HEAD'])
     verilate(build_dir, spec, table, JOBS)

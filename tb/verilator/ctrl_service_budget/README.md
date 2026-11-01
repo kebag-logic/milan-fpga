@@ -232,7 +232,9 @@ Each probe also reports the records ahead of its input: those on its ring (or in
 A backlog group's composed window, between its `composed` and `composed_end` marks, carries its row's defined load.
 `grade.defined_load` derives that load from the mailbox contract alone, never from the stimulus: each channel's records one instant admits, at the size of the load's frame.
 The grader counts the records each receive channel committed in the window, and the GM and LINK events posted.
-It refuses the group unless that population is exactly the defined load, so a record the filter refused, a channel left out or one record too many fails the run.
+It refuses the group unless that population is exactly the defined load, so a record the filter refused, a channel left out or one record too many fails the run, and the refusal names the event records held when the window opened.
+A backlog window opens only on a drained event ring (`scenario.OPEN_WINDOW`, the native model's `wait events`), and its table gives the records held at its opening.
+Its fifteen grandmaster changes arrive 8 bus cycles apart and the source coalesces while its record waits (`mailbox.yaml`, `KL_mbx_evt.sv`), so with k records held only 16 - k + 1 of them commit: the defined load needs a ring the core has drained, which no fixed wait gives a CPU whose pass is longer than that wait.
 The self-test counts every window's stimulus against the same loads, restated, so a scenario that drops a channel from its stimulus and from its own declaration together still fails.
 
 The window must also service its load.
@@ -965,7 +967,8 @@ Its checks:
 - the composed maximum is the longest pass of every backlog window, the fixture's excluded, and a lower bound while one left its load unreleased, with the released windows' longest beside it; it is still a lower bound when the longest window released its load and a shorter one did not;
 - a run without every backlog row names the rows not run, and its composed maximum is partial: arm B's three rows, and one row alone;
 - `results.json`'s composed maximum is the record the table renders, its line checked word for word: a lower bound over every window, a partial figure, and both at once;
-  these three are [`selftest_maximum.py`](selftest_maximum.py)'s, which `selftest.py` runs;
+- every backlog window, at one and two interfaces, waits for the event ring to drain and then opens; the event records held are those posted before the mark less those released, through the ring index's wrap; a window short of its grandmaster changes is refused, naming the event records held when it opened;
+  these four are [`selftest_maximum.py`](selftest_maximum.py)'s, which `selftest.py` runs;
 - the responses owed ahead are exactly the owed ones, in order; a command that may be dropped and is never answered is reported, unbounded, and one that may not is refused;
 - the defined loads, restated; every composed window of the real scenario, at one and two interfaces, sends and declares exactly its defined load; the owed row has its seven owed and its four behind;
 - the real fan-out group registers the firmware's capacity (read from `aecp.h`) on every interface, every registration is each fan-out's recipient, and no requester is registered;
@@ -1009,6 +1012,10 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | clock ratio: a pass's bus cycles equal its CPU cycles | fixture row fixture.link_up.if0 |
 | pass bound: it starts at the input, not at the running pass | fixture row fixture.malformed.if0 |
 | composition: the window's population is not checked | a composed load missing one channel is refused |
+| opening: a backlog window opens without waiting for the drained event ring | every backlog window waits for the event ring to drain, then opens |
+| opening: the window opens with records held | every backlog window waits for the event ring to drain, then opens |
+| opening: the records released are not counted | fixture row fixture.link_up.if0 |
+| opening: the refusal does not name the records held | a window short of its grandmaster changes is refused, naming the event records held when it opened |
 | composition: the composed maximum is the run's worst pass | fixture passes: worst pass and composed maximum |
 | composition: the composed maximum is the window's first pass | fixture passes: worst pass and composed maximum |
 | worst pass: the run's last pass is dropped | refused: synthetic.service.acmp.last.if0: the release at 2050 belongs to no work pass |

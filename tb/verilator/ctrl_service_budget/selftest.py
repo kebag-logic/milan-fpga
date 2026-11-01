@@ -51,7 +51,7 @@ import grade  # noqa: E402
 import run  # noqa: E402
 import scenario  # noqa: E402
 import selftest_mutants  # noqa: E402
-from selftest_maximum import maximum_checks  # noqa: E402
+from selftest_maximum import maximum_checks, opening_checks  # noqa: E402
 from selftest_share import clock_checks, share_checks  # noqa: E402
 
 FIXTURE_LOG = HERE / 'fixture.log'
@@ -911,7 +911,7 @@ def checks() -> list[Check]:
     return [*fixture_checks(), *marker_checks(), *notify_checks(), *composition_checks(), *maximum_checks(),
             *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
             *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
-            *clock_checks(built, main_verdict)]
+            *clock_checks(built, main_verdict), *opening_checks(points(json.loads(ORACLE.read_text())))]
 
 
 def write_fixture(log: Path, build_json: Path) -> None:

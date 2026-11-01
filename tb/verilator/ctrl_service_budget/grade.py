@@ -412,9 +412,13 @@ class Grader:
                 total += words
                 behind += total > released
             return CHANNEL[ch], behind
+        return 'events', self.events_held(start)
+
+    def events_held(self, start: int) -> int:
+        """The event records posted before start and not yet released by the core."""
         posted = sum(1 for c, _ in self.log.records if c < start)
         tail = [v for c, w, v in self.log.writes if w == scenario.EVT_TAIL_WORD and c < start]
-        return 'events', posted - unwrapped(tail) // scenario.CONTRACT.ev_words
+        return posted - unwrapped(tail) // scenario.CONTRACT.ev_words
 
 
 def unwrapped(values: list[int]) -> int:
@@ -642,8 +646,9 @@ def defined_load(name: str) -> dict[str, int]:
     Every receive channel carries what one instant admits: its token bucket's burst, unless
     its ring holds fewer records of the load's size (KL_mbx_rx.sv). The refill leg's ADP fills
     the ring's room. Grandmaster changes fill the event ring but the row's own event, which in
-    'backlog' is the LINK change. The fixture's short window has one record a channel and two
-    changes.
+    'backlog' is the LINK change; each commits only into a ring the core has drained, so a backlog
+    window opens on one (scenario.OPEN_WINDOW). The fixture's short window has one record a channel
+    and two changes.
     """
     if name not in COMPOSED_ROWS:
         raise Refusal(f'{name}: no defined composed load')
@@ -658,15 +663,16 @@ def defined_load(name: str) -> dict[str, int]:
     return load
 
 
-def check_load(group: scenario.Group, got: dict[str, int], refused: list[tuple[str, int]]) -> None:
+def check_load(group: scenario.Group, got: dict[str, int], refused: list[tuple[str, int]], held: int = 0) -> None:
     """The composed window must commit exactly its row's defined load: a refused or missing
     record, a channel left out of the stimulus, or one record too many, is not the composed
-    maximum."""
+    maximum. The refusal names the event records held when the window opened, which keep its
+    grandmaster changes out of the ring."""
     defined = defined_load(group.name)
     want = {name: defined.get(name, 0) for name in got}
     if got != want:
         raise Refusal(f'{group.name}: the composed window committed {got}, its defined load is {want}; '
-                      f'refused frames {refused[:8]}')
+                      f'refused frames {refused[:8]}; {held} event records held when it opened')
 
 
 def releases(log: Log, ch: int) -> list[tuple[int, int, int | None]]:
@@ -773,7 +779,8 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
         return None
     start, end = marks['composed'], marks['composed_end']
     got = population(grader.log, start, end)
-    check_load(group, got, [(tag, size) for c, _, tag, size in grader.log.refused if start <= c <= end])
+    held = grader.events_held(start)
+    check_load(group, got, [(tag, size) for c, _, tag, size in grader.log.refused if start <= c <= end], held)
     inside = composed_passes(grader.log, start, end)
     if not inside:
         raise Refusal(f'{group.name}: no work pass starts inside the composed window')
@@ -781,7 +788,7 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
     left = unreleased(grader.log, start, end)
     return dict(cycles=top.cycles, ms=round(grader.cpu_ms(top.cycles), 5), instr=top.count('instr'),
                 passes=len(inside), start_sys=top.start_sys, modules=top.modules, population=got,
-                admission=group.admission, serviced=not left, unreleased=left,
+                admission=group.admission, events_held=held, serviced=not left, unreleased=left,
                 window_ms=round(grader.ms(end - start), 5))
 
 
