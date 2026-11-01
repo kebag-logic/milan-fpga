@@ -412,14 +412,22 @@ Padding reservations would break Milan v1.2 Table 4.4.
 The Mark II taps measure the requirement's own interval.
 They start at the pin, not at the capture register.
 
-Capture stamps each TDM frame end in PHC time.
-It subtracts the synchronizer's fixed delay from that stamp.
+Capture stamps each TDM frame end on both PHCs.
+One clock edge latches both stamps.
 
+It subtracts the synchronizer's fixed delay from each stamp.
 It also subtracts the slots after the stream's last slot.
+
 That is the pin instant of the packet's last sample.
 
 The end is the launch observer's first-bit time.
 The PHY egress constant is added to it.
+
+Each port's launch observer stamps in its own PHC.
+So a copy's interval uses its own port's PHC throughout.
+
+Even copies use port 0's PHC; odd copies, port 1's.
+No offset between the two PHCs enters the interval.
 
 `SE_TLAT_*` and `TCTX_TLAT_MAX` record that interval.
 `SE_TLAT_OVER` counts frames at or above 65 µs on it.
@@ -611,10 +619,10 @@ An engine reset clears every counter and state word.
 | 0x010 | SE_IDLESLOPE0 | 31:0 | KBPS | 0x0000_0000 | RW | Port 0 class A idleSlope, kb/s: firmware writes the Table 4.4 sum of the port's current reservations (IEEE 802.1Q-2022 34.6.1.1) |
 | 0x014 | SE_IDLESLOPE1 | 31:0 | KBPS | 0x0000_0000 | RW | Port 1 class A idleSlope, kb/s, the same way |
 | 0x018-0x01C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
-| 0x020 | SE_TLAT_MAX0 | 31:0 | NS | 0x0000_0000 | RC | Port 0 worst pin-to-first-bit interval, ns ([instrument](#the-latency-instrument)) |
-| 0x024 | SE_TLAT_MAX1 | 31:0 | NS | 0x0000_0000 | RC | Port 1 worst pin-to-first-bit interval, ns |
-| 0x028 | SE_TLAT_OVER | 15:0 | COUNT0 | 0x0000 | RC | Port 0 frames at or above 65 µs, pin to first bit; saturates at its maximum |
-| | | 31:16 | COUNT1 | 0x0000 | RC | Port 1 frames at or above 65 µs, the same way |
+| 0x020 | SE_TLAT_MAX0 | 31:0 | NS | 0x0000_0000 | RC | Port 0 worst pin-to-first-bit interval, ns ([instrument](#the-latency-instrument)); both ends in port 0's PHC time |
+| 0x024 | SE_TLAT_MAX1 | 31:0 | NS | 0x0000_0000 | RC | Port 1 worst pin-to-first-bit interval, ns; both ends in port 1's PHC time, no PHC offset applied |
+| 0x028 | SE_TLAT_OVER | 15:0 | COUNT0 | 0x0000 | RC | Port 0 frames at or above 65 µs, pin to first bit in port 0's PHC time; saturates at its maximum |
+| | | 31:16 | COUNT1 | 0x0000 | RC | Port 1 frames at or above 65 µs, pin to first bit in port 1's PHC time; saturates at its maximum |
 | 0x02C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
 | 0x030 | SE_MERGE_DUP | 31:0 | COUNT | 0x0000_0000 | RC | Redundant copies discarded by merge rule 4; wraps |
 | 0x034 | SE_MERGE_SEC | 31:0 | COUNT | 0x0000_0000 | RC | Packets rendered from a secondary copy; wraps |
@@ -660,7 +668,7 @@ The engine owns the state and counter words.
 | 0x28 | TCTX_MEDIA_RESET | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.7.7; cleared when RUN rises, each time the talker starts |
 | 0x2C | TCTX_TIMESTAMP_UNCERTAIN | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.7.7; cleared when RUN rises |
 | 0x30 | TCTX_FRAMES_TX | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.7.7; cleared when RUN rises |
-| 0x34 | TCTX_TLAT_MAX | 31:0 | NS | 0x0000_0000 | RC | This stream's worst pin-to-first-bit interval, ns |
+| 0x34 | TCTX_TLAT_MAX | 31:0 | NS | 0x0000_0000 | RC | This stream's worst pin-to-first-bit interval, ns; both ends in the PHC time of the port `PORT` names |
 | 0x38-0x3C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
 
 Interval counters use observation intervals of at most 1 s.
@@ -939,6 +947,7 @@ The [open questions](#open-questions) list it.
 |---|---|---|
 | Engine throughput | Analysis above; RTL simulation at 256,000 frames per s each way | Simulation with both ports at full load |
 | Talker latency at 32x32 | Analysis above; the executable model of IEEE 802.1Q-2022 8.6.8.2 at every rate | Mark II taps on all 32 talker streams on the bench, with one format and with mixed formats per port |
+| Latency instrument time base | Simulation: an odd context with a non-zero, drifting PHC offset; its recorded interval equals the pin-to-wire time, and so does an even context's | Bench: an external capture of pin and wire on each port, against `TCTX_TLAT_MAX` of an even and an odd context |
 | Phase rule | The model's starts and stops | Firmware test: phase chosen by wire time, never moved while running |
 | Stagger conformance | IEEE 1722-2016 7.5 and 7.6 inspection | Listener interoperability with the reference peer |
 | Listener merge | Simulation with one network cut mid-stream, then a grandmaster change on the surviving network; both copies with tu set | Bench cable pull on each network, no lost samples |
