@@ -152,7 +152,7 @@ Each saving is the middle of its estimate.
 |---|---|---|---|---:|---:|
 | 1 | Drop DDR3, on-chip main memory | Low | Approved (D4). The firmware is already in Block RAM. Also removes the ZQCS timing path | ~1.0k | ~33.2k |
 | 2 | Slimmer LiteX bus and CSR banks | Low to medium | Structural change in the SoC generator, covered by the LiteX simulations. Touches the #814 cuts | ~1.0k | ~32.2k |
-| 3 | `milan_csr` reduced to information and diagnostics | Medium | Many suites, the hostplane and the firmware read it. Needs a consumer census first | ~1.75k | ~30.5k |
+| 3 | `milan_csr` reduced to information and diagnostics | Medium | Many suites, the host tools and the firmware read it. Needs a consumer census first | ~1.75k | ~30.5k |
 | 4 | One CPU (no second hart) | High | S2b round 11 already missed the 8x8 service bounds at 50 MHz. One core adds boot, capture and NVM duties to the protocol load | ~3.55k | ~26.9k |
 | 5 | MMCM servo in firmware | High | Media-clock lock is hard real time. Firmware jitter reaches CRF lock and audio | ~1.0k | ~25.9k |
 | 6 | gPTP to software, hardware timestamps kept | Very high | 802.1AS deadlines, GM recovery and fast reaction. The whole gPTP qualification must be re-run | ~5.2k | ~20.7k |
@@ -265,7 +265,7 @@ Measurements queue serially; no heavy builds overlap.
 | 0 | Charter | This plan, the requirements, the split and the stream-engine design | Owner approval of the requirement text | 0 | Documentation gates |
 | 1 | Switch-over | F0 to F5 integrated; F1 on the append-only format of #823; processor and MAAP deleted | Bench qualification of the firmware | Basis to ~34.2k | Routed image; suites; bench; NFR-REL-03 |
 | 2 | LiteX stage 1, lever 1 | Drop DDR3 and the BIOS ROM; boot loader | Lane 1 | ~1.0k | Routed image; boot and persistence on the bench |
-| 3 | Lever 3 | `milan_csr` consumer census, then reduction | Lane 1 | ~1.75k | CSR, hostplane and firmware suites |
+| 3 | Lever 3 | `milan_csr` consumer census, then reduction | Lane 1 | ~1.75k | CSR, host-tool and firmware suites |
 | 4 | LiteX stage 2 | New MAC and QSPI cores as pinned donors | Survey; two reviews per core | Part of -1.75k | Core testbenches; save bound on the bench |
 | 5 | LiteX stage 3, lever 2 | Plain SystemVerilog top | Lanes 2 and 4 | ~1.0k plus the rest of -1.75k | Rewritten simulation gates; routed image |
 | 6 | Shared engines and second port | 32x32 datapath per the stream-engine design | Lane 4; #823 builder shapes | +2.75k | 65 µs taps on all talker streams; cable pulls |
