@@ -127,6 +127,7 @@ That is a CI change, outside this lane.
   The build refuses a mailbox instance that leaves a port unconnected: Verilator reports it as PINMISSING, which `-Wno-fatal` would let pass.
   At two interfaces the RTL is `gen_mailbox.py`'s variant, written into the build directory.
 - **The flash** keeps LiteSPI's crossbar, memory-mapped reader and command master.
+  Its PHY boundary is staged with `milan_soc.stage_spi_phy`, as `MilanSoC.add_spi_flash` stages every SoC built from it (#814): `SPIPHYStage` costs one more bus cycle each way, two a word in a burst, eight a new burst.
   The serial device is [`fw_service_budget/flash.hpp`](../fw_service_budget/flash.hpp) with that harness's byte timing.
 - **timer0** is LiteX's timer.
 
@@ -140,7 +141,7 @@ The SoC puts each device where the unmodified image addresses it, read from the 
 | timer0 | `0xf000_3800` | `0xf000_3000` |
 | Flash window | `0x2000_0000` (`generated/mem.h`) | `0x0100_0000` |
 
-Each reaches the same kind of device over the same peripheral bus in both maps, so the address does not change an access's cost.
+Each reaches the same kind of device over the same peripheral bus in both maps, and the flash through the product's PHY stage, so the address does not change an access's cost.
 `--ctrl-mailbox` leaves the CSR map unchanged ([split control memory](../../../docs/design/SPLIT_CONTROL_MEMORY.md#4-boot-console-and-diagnostics)).
 
 The CPU generator is handed each region at its power-of-two cover (256 KiB for `rom` and `sram`).
@@ -224,7 +225,7 @@ Every figure in this section and in [The instruction cache](#the-instruction-cac
 PR #792, which brought this harness, and PR #796, which brought the cache, change no firmware source.
 In that firmware the size fixture's own observation callbacks (`a_stream`, `a_avb`, `a_counters` and `a_format` in `ctrl_aecp_image.c`) reported unavailable, and AECP opened with no acknowledgement.
 At this head the image boots, and the groups run with each face commit acknowledged at the contract's bound ([Run and reproduce](#run-and-reproduce)).
-The figures here have not been measured again at this head.
+The figures here have not been measured again at this head, apart from the flash's ([Per access and per instruction](#per-access-and-per-instruction) and [The hybrid-XIP arm](#the-hybrid-xip-arm)), and they have no SPI PHY stage (#814).
 
 These are S2's results, on the cacheless core:
 
@@ -268,6 +269,22 @@ A mailbox access is 9 cycles, 0.18 us; `KL_mbx` itself answers in one bus cycle,
 A fetch waits behind a slow flash read, hence the 303-cycle maximum.
 Instruction fetches are 85 to 89 % of the CPU's bus transactions in every taking pass.
 Their waits sum to 1.59 to 1.64 times each pass's cycles, so more than one fetch is outstanding on average: the cacheless core is fetch-bound.
+
+**With #814's SPI PHY stage.** The table above has no stage between LiteSPI's core and its PHY.
+This SoC now stages it as the product does, so these are the cacheless arms again at this head, with the stage and, as a control, without it:
+
+| Point, stage | CPU cycles per instruction | BRAM fetch, CPU cycles (max) | Flash window load | Paths (instances) missing T_svc | Probes refused |
+|---|---:|---:|---:|---:|---:|
+| 1x1, staged | 9.42 | 9.09 (307) | 266.1 mean (139-307) | 20 of 81 (55 of 141) | 0 |
+| 1x1, no stage | 9.42 | 9.09 (303) | 262.9 mean (138-303) | 20 of 81 (55 of 141) | 0 |
+| 8x8, staged | 9.39 | 9.13 (307) | 265.8 mean (139-307) | 58 of 127 (100 of 180) | 2 |
+| 8x8, no stage | 9.39 | 9.13 (303) | 262.5 mean (138-303) | 58 of 127 (100 of 180) | 2 |
+
+A flash window load costs 3.3 cycles more on average.
+A burst continuation, the low end, costs 1 more, and a new burst, the high end, 4 more: the stage's two and eight bus cycles at the 2:1 clock ratio.
+A fetch behind a flash read waits as much longer, and no path's verdict moves at either point.
+The two probes refused at 8x8 are `srp.domain.if1` (no frame on its channel before its wait ended) and `acmp.tmr_no_adp.if0` (no timer deadline after its mark).
+They are refused with and without the stage, and at `dev-soft-core` `5b5f4336` before dev's #814 was merged, where the 8x8 table is byte-identical to the no-stage arm's apart from paths. So they are this line's firmware, not the stage's.
 
 ### Passes
 
@@ -564,6 +581,7 @@ Every window committed exactly its defined load (the run refuses one that did no
 
 - A fetch from block RAM costs 9.1 CPU cycles.
   A read through the flash window costs 138 to 303, 263 on average: about 15 to 29 times a block RAM fetch, on the 1x SPI the product configures.
+  #814's stage makes that 139 to 307, 266 on average ([Per access and per instruction](#per-access-and-per-instruction)).
   The low end is a burst continuation, the nearest to straight-line fetch from flash.
 - The core is fetch-bound, so code executing from flash would run roughly that much slower: no path inside T_svc can be fetched from flash.
 - The image fetches 11,160 B of code before the mailbox opens (11,396 B at 8x8) and at least 42,080 B after it (43,060 B at 8x8), of 85,912 and 87,596 B of `.text`.
@@ -781,7 +799,7 @@ Arm B, whose callbacks answer, has no retry passes.
 | 8x8, 4 KiB, flash | 35 | 21.75 | 2,161 | 17, 4 | 111 of 125 (151 of 178) | at least 98.76 | none | 112.79 |
 | 8x8, 32 KiB, flash | 35 | 8.92 | 2,094 | 17, 0 | 50 of 129 (83 of 182) | at least 41.78 | 30.99 | 50.75 |
 
-With the code in flash, a 64-byte refill takes 2,100 to 2,160 CPU cycles on the product's single-lane read (the model's 12.5 MHz serial clock), against 42 from block RAM.
+With the code in flash, a 64-byte refill takes 2,100 to 2,160 CPU cycles on the product's single-lane read (the model's 12.5 MHz serial clock), against 42 from block RAM; #814's stage adds 16 to 19 (below).
 A 4 KiB cache does not hide that: the CPU runs at 34 cycles an instruction at 1x1 and 22 at 8x8, waiting on refills for most of them.
 71 of 78 paths miss T_svc at 1x1 and 111 of 125 at 8x8; no composed window releases its load, and three probes' bounded waits (four at 8x8) expire before their outputs.
 A 32 KiB cache, on a CPU of 13 tiles out of context, brings the CPU to 10 cycles an instruction at 1x1 and 9 at 8x8, near the cacheless block-RAM core's 9.5.
@@ -795,6 +813,26 @@ Moving the code out of block RAM would free 20.5 tiles at 1x1 with one interface
 A first run also put F1's flash driver in flash.
 The CPU then stalled in the driver's `ls_window` while the command master held the flash's chip select, and took an illegal-instruction trap (cause 2) in the three ACMP groups that read saved state.
 That is D3's rule that the driver stays in block RAM, and the arm now keeps it there.
+
+**With #814's SPI PHY stage.** The table above has no stage and predates contract 2.3.
+The four flash rows again at this head, with the stage and, as a control, without it:
+
+| Point, instruction cache | Stage | CPU cycles per instruction | Refill, CPU cycles: mean (range) | Groups graded, probes refused | Paths (instances) missing T_svc | Composed maximum, every backlog window, ms | Over the windows that released their whole load only, ms | Worst pass, ms |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| 1x1, 4 KiB | staged | 35.53 | 2,218 (2,122-2,292) | 16, 5 | 69 of 76 (104 of 116) | at least 87.17 | none | 87.17 |
+| 1x1, 4 KiB | none | 35.24 | 2,201 (2,106-2,273) | 16, 6 | 68 of 75 (106 of 115) | at least 86.54 | none | 86.54 |
+| 1x1, 32 KiB | staged | 13.28 | 2,239 (2,122-2,292) | 18, 0 | 23 of 81 (67 of 141) | at least 32.05 | 23.56 | 33.36 |
+| 1x1, 32 KiB | none | 13.21 | 2,221 (2,106-2,273) | 18, 0 | 23 of 81 (67 of 141) | at least 31.91 | 20.30 | 32.96 |
+| 8x8, 4 KiB | staged | 24.98 | 2,227 (2,122-2,292) | 17, 13 | 104 of 116 (143 of 169) | at least 109.21 | none | 154.40 |
+| 8x8, 4 KiB | none | 24.85 | 2,209 (2,106-2,273) | 17, 13 | 106 of 116 (154 of 169) | at least 109.86 | none | 152.07 |
+| 8x8, 32 KiB | staged | 12.50 | 2,226 (2,122-2,292) | 17, 1 | 80 of 128 (122 of 181) | at least 47.21 | 40.76 | 54.25 |
+| 8x8, 32 KiB | none | 12.44 | 2,208 (2,106-2,273) | 17, 0 | 75 of 129 (117 of 182) | at least 49.94 | 40.55 | 54.05 |
+
+The stage adds 16 to 19 CPU cycles to a 64-byte refill, 18 on average, under 1 %: 1 for each of the line's 16 words and up to 3 for a new burst, as the window load's figures give.
+A small delay still moves records between passes, so a row's verdicts move by a few paths, in either direction.
+The 1x1, 32 KiB `backlog` window's longest pass moves from 19.23 to 23.56 ms, and at 8x8, 32 KiB, 5 more paths miss with the stage and one probe, `acmp.tmr_no_tk.if1`, is refused.
+The rows' other differences from the table above are this line's firmware since `e76a755a`, not the stage's: at `dev-soft-core` `5b5f4336`, before dev's #814 was merged, both 4 KiB arms' tables are byte-identical to the no-stage rows' apart from paths.
+None of this changes D3's rule: with the code in flash, paths inside T_svc still miss at both cache sizes.
 
 ### Block RAM and logic
 

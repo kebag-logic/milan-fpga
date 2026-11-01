@@ -30,7 +30,10 @@ The window answers and face events stay idle, so a window request times out
 as the fabric-less split SoC sees it. The flash keeps
 LiteSPI's crossbar, memory-mapped reader and command master, with the master
 in its own CSR bank, and the serial device is the sibling service-budget
-harness's native model (fw_service_budget/flash.hpp).
+harness's native model (fw_service_budget/flash.hpp). Its PHY boundary is
+staged as MilanSoC.add_spi_flash stages every SoC built from it
+(milan_soc.stage_spi_phy, #814), so a flash-window read and a command-master
+transfer pay the product's registered stage.
 """
 from __future__ import annotations
 
@@ -353,7 +356,7 @@ def add_devices(soc: object, platform: object, addresses: dict[str, int], contra
     module = N25Q128A13(SpiCodes.READ_1_1_1_FAST)
     if module.total_size != addresses['flash_size']:
         raise RuntimeError('fixture flash window size differs from the shipping part')
-    phy = FlashBoundary(platform.request('flash'), module)
+    phy = milan_soc.stage_spi_phy(FlashBoundary(platform.request('flash'), module))
     spiflash = LiteSPI(phy, mmap_endianness=soc.cpu.endianness, with_master=False)
     spiflash.add_module(name='phy', module=phy)
     master = LiteSPIMaster(tx_fifo_depth=1, rx_fifo_depth=1, cs_width=len(phy.cs))
