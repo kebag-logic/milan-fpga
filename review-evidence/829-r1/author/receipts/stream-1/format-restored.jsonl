@@ -1,0 +1,10 @@
+{"type":"start","mode":"agent","argv":["agent","<host-iface>","3cc0c60102030000","3c:c0:c6:01:02:03"],"t":1793545105.608691}
+{"type":"agent-ready","t":1793545105.608768}
+{"type":"req","req":{"op":"setfmt","who":"dut","idx":0,"fmt":"0205022000806000"},"t":1793545105.608811}
+{"cmd":"SET_STREAM_FORMAT","seq":28873,"status":"SUCCESS","cdl":24,"rtt_ms":0.126,"payload":"000500000205022000806000","role":"dut","what":"set-format-dut-input-0","t_tx":1793545105.608828,"t_rx":1793545105.608966,"t":1793545105.608969}
+{"type":"done","op":"setfmt","t":1793545105.608989}
+{"type":"req","req":{"op":"fmt","who":"dut","dir":"in","idx":0},"t":1793545105.609004}
+{"cmd":"GET_STREAM_FORMAT","seq":28874,"status":"SUCCESS","cdl":24,"rtt_ms":0.108,"payload":"000500000205022000806000","role":"dut","what":"format-dut-5-0","t_tx":1793545105.609015,"t_rx":1793545105.609153,"t":1793545105.609155}
+{"type":"done","op":"fmt","t":1793545105.609189}
+{"type":"req","req":{"op":"quit"},"t":1793545105.609201}
+{"type":"agent-exit","t":1793545105.609209}

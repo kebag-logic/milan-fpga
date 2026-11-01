@@ -1,0 +1,114 @@
+== START 2026-11-01T16:24:42+01:00 build=$WORKSPACE_HOME/litex-milan/work/build_arty_a725bcal2
+145ae13566564ef03f0be4ced817309f5ef8b61d9ca0c2eaac1735e353ade605  $WORKSPACE_HOME/litex-milan/work/build_arty_a725bcal2/gateware/digilent_arty.bit
+6f212c5d091b5ef19a236a1b4f24be1fd85d6228a3c66e1cd5f0126a8d736677  $WORKSPACE_HOME/litex-milan/work/build_arty_a725bcal2/flashboot_layout.json
+785d2c015fcd3f81b6c852f630ce73a43c209fd3b55c24030c6d44f2f17e552b  $WORKSPACE_HOME/litex-milan/work/build_arty_a725bcal2/aem_desc.bin
+-hupcl
+[gptp-owner] OK: gateware owner=fabric; fabric-owned bare-metal image set
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem           5952 B  -> flash @ 0x400000  (budget 65536 B, from $WORKSPACE_HOME/litex-milan/work/build_arty_a725bcal2/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] image preflight OK: $WORKSPACE_HOME/litex-milan/work/build_arty_a725bcal2/flashboot_layout.json (bound to $WORKSPACE_HOME/litex-milan/work/build_arty_a725bcal2/gateware/digilent_arty.bit and $WORKSPACE_HOME/litex-milan/work/build_arty_a725bcal2/aem_desc.bin, xlen 32)
+== check-images rc=0 2026-11-01T16:24:43+01:00
+[deploy] WARNING: non-atomic recovery image writes requested
+[gptp-owner] OK: gateware owner=fabric; fabric-owned bare-metal image set
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem           5952 B  -> flash @ 0x400000  (budget 65536 B, from $VALIDATION_STORAGE/829-a725b/tmp/tmp.xlgfOHhAWc/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] image preflight OK: $VALIDATION_STORAGE/829-a725b/tmp/tmp.xlgfOHhAWc/target/flashboot_layout.json (bound to $VALIDATION_STORAGE/829-a725b/tmp/tmp.xlgfOHhAWc/target/gateware/target.bit and $VALIDATION_STORAGE/829-a725b/tmp/tmp.xlgfOHhAWc/target/aem_desc.bin, xlen 32)
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem           5952 B  -> flash @ 0x400000  (budget 65536 B, from $VALIDATION_STORAGE/829-a725b/tmp/tmp.xlgfOHhAWc/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] write+verify aem @ 0x400000
+write to flash
+Jtag frequency : requested 6.00MHz    -> real 6.00MHz   
+Open file $VALIDATION_STORAGE/829-a725b/tmp/tmp.xlgfOHhAWc/aem.fbi DONE
+Parse file DONE
+Use: /usr/share/openFPGALoader/spiOverJtag_xc7a100tcsg324.bit.gz
+load program
+Load SRAM: [==================================================] 100.00%
+
+Done
+Shift IR 35
+ir: 1 isc_done 1 isc_ena 0 init 1 done 1
+jtag_chain_len: 1
+SOJ version: 2.000000
+JEDEC ID: 0x012018
+Detected: spansion S25FL128S 256 sectors size: 128Mb
+00400000 00000000 00000000 00
+start addr: 00400000, end_addr: 00410000
+Erasing: [==================================================] 100.00%
+
+Done
+Writing: [==================================================] 100.00%
+
+Done
+Verifying write (May take time)
+Reading: [==================================================] 100.00%
+
+Done
+== flash-images rc=0 2026-11-01T16:24:44+01:00
+[deploy] WARNING: non-atomic recovery bitstream write requested
+[gptp-owner] OK: gateware owner=fabric; fabric-owned bare-metal image set
+[deploy]   bitstream slot @ 0x000000
+[deploy]   aem           5952 B  -> flash @ 0x400000  (budget 65536 B, from $VALIDATION_STORAGE/829-a725b/tmp/tmp.6gmuNx1rdW/target/aem_desc.bin)
+[deploy] complete target image set prepared before programmer writes
+[deploy] image preflight OK: $VALIDATION_STORAGE/829-a725b/tmp/tmp.6gmuNx1rdW/target/flashboot_layout.json (bound to $VALIDATION_STORAGE/829-a725b/tmp/tmp.6gmuNx1rdW/target/gateware/target.bit and $VALIDATION_STORAGE/829-a725b/tmp/tmp.6gmuNx1rdW/target/aem_desc.bin, xlen 32)
+fabric	7a100tcsg324	3198744
+[deploy] write+verify bitstream @ 0x000000: $VALIDATION_STORAGE/829-a725b/tmp/tmp.6gmuNx1rdW/target/gateware/target.bit
+write to flash
+Jtag frequency : requested 6.00MHz    -> real 6.00MHz   
+Open file $VALIDATION_STORAGE/829-a725b/tmp/tmp.6gmuNx1rdW/target/gateware/target.bit DONE
+Parse file Unknown key SW_HDR_SHA256
+DONE
+Use: /usr/share/openFPGALoader/spiOverJtag_xc7a100tcsg324.bit.gz
+load program
+Load SRAM: [==================================================] 100.00%
+
+Done
+Shift IR 35
+ir: 1 isc_done 1 isc_ena 0 init 1 done 1
+jtag_chain_len: 1
+SOJ version: 2.000000
+JEDEC ID: 0x012018
+Detected: spansion S25FL128S 256 sectors size: 128Mb
+00000000 00000000 00000000 00
+start addr: 00000000, end_addr: 00310000
+Erasing: [===========                                       ] 20.41%
+Erasing: [=====================                             ] 40.82%
+Erasing: [================================                  ] 63.27%
+Erasing: [===========================================       ] 85.71%
+Erasing: [==================================================] 100.00%
+
+Done
+Writing: [                                                  ] 0.00%
+Writing: [====                                              ] 6.27%
+Writing: [=======                                           ] 12.51%
+Writing: [==========                                        ] 18.78%
+Writing: [=============                                     ] 25.05%
+Writing: [================                                  ] 31.25%
+Writing: [===================                               ] 37.44%
+Writing: [======================                            ] 43.60%
+Writing: [=========================                         ] 49.78%
+Writing: [============================                      ] 55.96%
+Writing: [================================                  ] 62.16%
+Writing: [===================================               ] 68.43%
+Writing: [======================================            ] 74.71%
+Writing: [=========================================         ] 80.95%
+Writing: [============================================      ] 87.18%
+Writing: [===============================================   ] 93.45%
+Writing: [==================================================] 99.74%
+Writing: [==================================================] 100.00%
+
+Done
+Verifying write (May take time)
+Reading: [========                                          ] 14.85%
+Reading: [===============                                   ] 29.70%
+Reading: [=======================                           ] 44.61%
+Reading: [==============================                    ] 59.41%
+Reading: [=====================================             ] 73.80%
+Reading: [=============================================     ] 88.50%
+Reading: [==================================================] 100.00%
+
+Done
+== flash rc=0 2026-11-01T16:25:12+01:00
+== END-OF-FLASH rcs=0/0/0 2026-11-01T16:26:12+01:00

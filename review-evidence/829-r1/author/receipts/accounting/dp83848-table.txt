@@ -1,0 +1,34 @@
+T2.4.1      TX_CLK High/Low Time                             100 Mb/s Normal mode                                 16      20       24     ns
+T2.4.2      TXD[3:0], TX_EN Data Setup to TX_CLK             100 Mb/s Normal mode                                 10                      ns
+T2.4.3      TXD[3:0], TX_EN Data Hold from TX_CLK            100 Mb/s Normal mode                                  0                      ns
+100 Mb/s MII RECEIVE TIMING (REFER TO Figure 5-5) (3)
+T2.5.1      RX_CLK High/Low Time                             100 Mb/s Normal mode                                 16      20       24     ns
+T2.5.2      RX_CLK to RXD[3:0], RX_DV, RX_ER Delay           100 Mb/s Normal mode                                 10               30     ns
+100BASE-TX TRANSMIT PACKET LATENCY TIMING (REFER TO Figure 5-6) (4)
+T2.6.1      TX_CLK to PMD Output Pair Latency                100 Mb/s Normal mode                                          6              bi
+100BASE-TX TRANSMIT PACKET DEASSERTION TIMING (REFER TO Figure 5-7) (5)
+T2.7.1      TX_CLK to PMD Output Pair Deassertion            100 Mb/s Normal mode                                          6              bi
+100BASE-TX TRANSMIT TIMING (tR/F) AND JITTER) (REFER TO Figure 5-8) (6) (7)
+            100 Mb/s PMD Output Pair tR and tF                                                                     3       4        5     ns
+T2.8.1
+            100 Mb/s tR and tF Mismatch                                                                                           500     ps
+T2.8.2      100 Mb/s PMD Output Pair Transmit Jitter                                                                              1.4     ns
+100BASE-TX RECEIVE PACKET LATENCY TIMING (REFER TO Figure 5-9) (8) (9) (10)
+T2.9.1      Carrier Sense ON Delay                           100 Mb/s Normal mode                                         20              bi
+T2.9.2      Receive Data Latency                             100 Mb/s Normal mode                                         24              bi
+(4) For Normal mode, latency is determined by measuring the time from the first rising edge of TX_CLK occurring after the assertion of
+     TX_EN to the first bit of the “J” code group as output from the PMD Output Pair. 1 bit time = 10 ns in 100 Mb/s mode.
+(5) Deassertion is determined by measuring the time from the first rising edge of TX_CLK occurring after the deassertion of TX_EN to the
+     first bit of the “T” code group as output from the PMD Output Pair. 1 bit time = 10 ns in 100 Mb/s mode.
+(6) Normal Mismatch is the difference between the maximum and minimum of all rise and fall times.
+(7) Rise and fall times taken at 10% and 90% of the +1 or –1 amplitude.
+(8) Carrier Sense On Delay is determined by measuring the time from the first bit of the “J” code group to the assertion of Carrier Sense.
+(9) 1 bit time = 10 ns in 100 Mb/s mode.
+(10) PMD Input Pair voltage amplitude is greater than the Signal Detect Turnon Threshold Value.
+(11) Carrier Sense Off Delay is determined by measuring the time from the first bit of the “T” code group to the deassertion of Carrier Sense.
+(12) An attached Mac should drive the transmit signals using the positive edge of TX_CLK. As shown above, the MII signals are sampled on
+     the falling edge of TX_CLK.
+(13) RX_CLK may be held low for a longer period of time during transition between reference and recovered clocks. Minimum high and low
+     times will not be violated.
+(14) 1 bit time = 100 ns in 10 Mb/s mode.
+942d2ded17c4be603983ef00351776f8f3bd1137c9b6794da487761357c3fb56  dp83848j.pdf

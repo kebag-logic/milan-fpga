@@ -1,0 +1,52 @@
+generated gmii MAC transmit chain: OK (2719 lines, region ecb8a0ef998d, checked by re-converted from the product source)
+generated mii MAC transmit chain: OK (2854 lines, region ecb8a0ef998d, checked by re-converted from the product source)
+%Warning-PINMISSING: gptp_txts_wrap.sv:197:5: Instance has missing pin: 'pps_enable_i'
+  197 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:118:39: ... Location of port declaration
+  118 |   input  wire                         pps_enable_i,  
+      |                                       ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: gptp_txts_wrap.sv:197:5: Instance has missing pin: 'pps_target_ns_i'
+  197 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:119:39: ... Location of port declaration
+  119 |   input  wire [COUNTER_WIDTH-1:0]     pps_target_ns_i,  
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: gptp_txts_wrap.sv:197:5: Instance has missing pin: 'pps_arm_i'
+  197 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:120:39: ... Location of port declaration
+  120 |   input  wire                         pps_arm_i,     
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: gptp_txts_wrap.sv:197:5: Instance has missing pin: 'pps_o'
+  197 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:125:35: ... Location of port declaration
+  125 |   output wire                     pps_o,               
+      |                                   ^~~~~
+%Warning-PINMISSING: gptp_txts_wrap.sv:197:5: Instance has missing pin: 'pps_target_ns_o'
+  197 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:126:35: ... Location of port declaration
+  126 |   output wire [COUNTER_WIDTH-1:0] pps_target_ns_o         
+      |                                   ^~~~~~~~~~~~~~~
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.087 MB sources in 19 modules, into 0.955 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 12.744 s (elab=0.042, cvt=0.176, bld=12.461); cpu 0.296 s on 16 threads; allocated 1220.289 MB
+  engine cadence reached the lane at 48014 us
+  zero pair: ingress gap 0 ns, net 3770 ns, pad error +3 ns
+  pair 777/333: t2 moved 777 ns, t3 moved 333 ns
+  pair 1409/100: t2 moved 1409 ns, t3 moved 100 ns
+  pair 1/65535: t2 moved 1 ns, t3 moved 65535 ns
+  pair 65535/1: t2 moved 65535 ns, t3 moved 1 ns
+  pair 0/0: t2 moved 0 ns, t3 moved 0 ns
+  142 of the writes landed inside the stamps' interval
+== gptp_txts: checks: 921   failures: 0 ==
+RESULT: PASS
+
+real	0m15.183s
+user	0m14.531s
+sys	0m0.565s
