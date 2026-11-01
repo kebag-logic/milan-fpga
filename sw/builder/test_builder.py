@@ -18268,24 +18268,19 @@ def test_reboot_egress_statement_gate_bites() -> None:
 LAUNCH_SHAPE_MUTATIONS = (
     ('"p_ETH_CYC_PER_OCTET_P": 2', '"p_ETH_CYC_PER_OCTET_P": 1'),
     ('"p_TXTS_DELTA_EXP_P": 45 * 2', '"p_TXTS_DELTA_EXP_P": 45'),
-    ('"p_GPTP_ETH_TICK_NS_P": 40', '"p_GPTP_ETH_TICK_NS_P": 8'),
-    ('"p_GPTP_ETH_CYC_PER_OCTET_P": 2', '"p_GPTP_ETH_CYC_PER_OCTET_P": 1'),
-    ('if phy_model != "mii":\n        return {"observer": {}, "datapath": {}}',
-     'if phy_model != "gmii":\n        return {"observer": {}, "datapath": {}}'),
+    ('"GPTP_ETH_TICK_NS_P": 40', '"GPTP_ETH_TICK_NS_P": 8'),
+    ('"GPTP_ETH_CYC_PER_OCTET_P": 2', '"GPTP_ETH_CYC_PER_OCTET_P": 1'),
+    ('_PHY_MODEL_LAUNCH = {"gmii": {},', '_PHY_MODEL_LAUNCH = {"gmii": {"X": 1},'),
+    ('_PHY_MODEL_OBSERVER = {"gmii": {},', '_PHY_MODEL_OBSERVER = {"gmii": {"X": 1},'),
 )
 
 
 def _launch_shape_findings(soc):
     """The findings of gate 1g against one milan_soc.py text."""
-    match = re.search(r"def _phy_launch_shape\(phy_model\):(?P<body>.*?)\n\n\n",
-                      soc, re.DOTALL)
-    if match is None:
-        return ["_phy_launch_shape is gone"]
-    body = match.group("body")
     bad = [f"{old} is not stated" for old, _new in LAUNCH_SHAPE_MUTATIONS
-           if old not in body]
-    for wiring in ('**_phy_launch_shape(phy_model)["observer"],',
-                   '**_phy_launch_shape(phy_model)["datapath"],'):
+           if old not in soc]
+    for wiring in ('**_PHY_MODEL_OBSERVER[phy_model],',
+                   'for name, value in _PHY_MODEL_LAUNCH[phy_model].items()'):
         if wiring not in soc:
             bad.append(f"{wiring} is not wired")
     return bad

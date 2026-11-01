@@ -324,9 +324,13 @@ No other link speed is qualified: at 10 Mb/s the same octet takes 800 ns and thi
 
 The receive side changes too, and no RTL term carries it.
 
-The tap stamps the first accepted beat, which is eight octets: 640 ns at 100 Mb/s against 64 ns at 1 Gb/s.
+The tap stamps the first accepted beat, and that beat holds eight octets behind the MAC's frame check buffer.
 
-That belongs to `INGRESS_LAT_NS_P`, below.
+Driven through the converted chain's source once, that beat reached `core.source` 1164 ns after frame octet 0's first symbol at 100 Mb/s, against 146 ns at 1 Gb/s.
+
+No committed test holds those two figures, and the crossing into the plane comes after them.
+
+That distance belongs to `INGRESS_LAT_NS_P`, below, and the Arty still declares zero.
 
 ### The board's own latency corrections
 

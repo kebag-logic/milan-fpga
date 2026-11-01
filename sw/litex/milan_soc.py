@@ -1438,21 +1438,16 @@ _MAC_DATA_WIDTH = 64
 #: _mac_tx_egress_octets out of this file to state the same parameters
 _BOARD_PHY_MODEL = {"ax7101": "gmii", "arty": "mii"}
 _PHY_MODEL_MIN_MBPS = {"gmii": 1000, "mii": 10}
-
-
-def _phy_launch_shape(phy_model):
-    """The launch observer's and the plane's parameters for a PHY model (#829).
-
-    GMII states nothing, so its elaboration keeps the RTL defaults: one octet
-    per 8 ns clock. MII holds each octet for two 40 ns clocks, which scales the
-    observer's expected distance of 45 octets and the plane's reconstruction.
-    """
-    if phy_model != "mii":
-        return {"observer": {}, "datapath": {}}
-    return {"observer": {"p_ETH_CYC_PER_OCTET_P": 2,
-                         "p_TXTS_DELTA_EXP_P": 45 * 2},
-            "datapath": {"p_GPTP_ETH_TICK_NS_P": 40,
-                         "p_GPTP_ETH_CYC_PER_OCTET_P": 2}}
+#: The launch shape a PHY model states to the plane (#829). GMII states nothing,
+#: so its elaboration keeps the RTL defaults: one octet per 8 ns clock. MII holds
+#: each octet for two 40 ns clocks, which the plane's reconstruction subtracts.
+_PHY_MODEL_LAUNCH = {"gmii": {},
+                     "mii": {"GPTP_ETH_TICK_NS_P": 40,
+                             "GPTP_ETH_CYC_PER_OCTET_P": 2}}
+#: ...and to the observer, whose expected distance is 45 octets in those clocks.
+_PHY_MODEL_OBSERVER = {"gmii": {},
+                       "mii": {"p_ETH_CYC_PER_OCTET_P": 2,
+                               "p_TXTS_DELTA_EXP_P": 45 * 2}}
 
 
 def _mac_tx_egress_octets(nb, crossed):
@@ -2110,7 +2105,7 @@ class MilanMAC(LiteXModule):
         self.gptp_txseal_ack  = Signal(name="gptp_txseal_ack")
         self.gptp_txobs_ovr   = Signal(16, name="gptp_txobs_ovr")
         self.specials += Instance("KL_gptp_gmii_launch",
-            **_phy_launch_shape(phy_model)["observer"],
+            **_PHY_MODEL_OBSERVER[phy_model],
             i_eth_clk_i     = ClockSignal("maceth_tx"),
             i_eth_rst_n     = ~ResetSignal("maceth_tx"),
             i_gmii_tvalid_i = self.phy.sink.valid,
@@ -2188,7 +2183,8 @@ class MilanMAC(LiteXModule):
             # (#787); Instance reads the p_ prefix.
             p_REBOOT_MAC_TX_OCTETS_P = _mac_tx_egress_octets(nb, milan_cd != "sys"),
             p_REBOOT_MAC_MIN_MBPS_P  = _PHY_MODEL_MIN_MBPS[phy_model],
-            **_phy_launch_shape(phy_model)["datapath"],
+            **{f"p_{name}": value
+               for name, value in _PHY_MODEL_LAUNCH[phy_model].items()},
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
             i_m_axis_mac_tx_tready = tx_dp.dp.ready,
