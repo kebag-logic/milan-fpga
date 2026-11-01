@@ -1,0 +1,9 @@
+module ports 115 instance ports 115
+in module not in instance: []
+in instance not in module: []
+  pub_src_sid_o -> milansoc_ctrlmailbox21
+  pub_sid_o -> milansoc_ctrlmailbox25
+  fw_send_o -> milansoc_ctrlmailbox26
+  fw_ack_p_i -> 1'd0
+  gsi_req_o -> milansoc_ctrlmailbox76
+  asp_chg_p_i -> 1'd0

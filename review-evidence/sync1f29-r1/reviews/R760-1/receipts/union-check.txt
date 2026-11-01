@@ -1,0 +1,105 @@
+docs/design/MAILBOX_SPLIT.md	split	added-lines-absent-at-head=23
+    - **[The processor's other faces](#the-processors-other-faces)** -- Contract 2.3: every port of the processor wrapper in one class with the G cones' terminals and the map writer's exclusion, the face block's commit handshake, windows and events, and the AECP owner's writer with the choices the place
+    mismatch into each output (32 arms) and a defect into the YAML (43 arms), and
+    shapes. At this head the cell has 217 ports in every shape:
+    | C | 25 | class-D, already in contract 2.2's [publication block](#the-publication-block) | exactly the class-D census's population |
+    | G | 110 | gone with the wrapper, tied to its reset value | its ruled reason |
+    Every other end is the wire, and a G output that reaches it fails. At this
+    head, in every shape, the G cones end at 7 distinct CSR inputs, all 20 memory
+    outputs and 4 shim inputs, and never on the wire.
+    [`census_plants.py`](../../sw/mailbox/census_plants.py), 18 in all. Eight
+    a per-sink carrier counted once. Three edit the exclusion: emptied, so the
+    map writer's cones reach the wire, and naming a net no G cone reaches or a
+    net outside the map writer. Seven edit the elaborated netlist itself: a G
+    output read by another module's input; the nets of a CSR terminal, a
+    memory-master terminal and a map-record output each also read past it; a
+    MAAP shim output read past `pp_shadow`; a G output on a CSR input outside
+    `G_CSR`; and one driven onto a datapath output outside `G_MEMORY`. The ruling
+    asks for the new arms on existing netlists: each rides
+    on an arm that already elaborates the tracked sources at the recipe's shape,
+    so they add no elaboration, and the rule-removal check judges each of them
+    again with its rule removed.
+    | the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | from the netlist of each of the six shapes the builder builds, and the same in all: the 39 reads of 21 of the 25 class-D nets (4 are unread), and each of the wrapper cell's 217 ports in one class (C 25, F 28,
+    | [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 523 at one interface and 530 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops
+    | the same suite on the host model, in `make run-if2` | the 488 of the RTL's 530 two-interface checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+docs/design/MAILBOX_SPLIT.md	dev	added-lines-absent-at-head=6
+    Contract 2.3 adds a source entry per talker stream for the stream_id it
+    | the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | the 41 reads of the 26 class-D nets, classified from the netlist of each of the six shapes the builder builds and the same in all; its 118 plants, each refused by its own words; each of its 31 rules removed i
+    | [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 404 checks through the Wishbone adapter and the same 404 through the AXI4-Lite adapter (406 each at two interfaces): register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter
+    | the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface, source and sink; each field on its own `pub_*_o` output, each source's stream_id on `pub_src_sid_o` (contract 2.3), a source's
+    | the same suite on the host model | the 391 of the RTL's 404 checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+    Contract 2.3's sixteen source entries (#799) add 1,024 bits of storage at
+docs/design/MARK_II_AREA_PLAN.md	split	added-lines-absent-at-head=0
+docs/design/MARK_II_AREA_PLAN.md	dev	added-lines-absent-at-head=0
+docs/reference/MAILBOX_CONTRACT.md	split	added-lines-absent-at-head=2
+    This page is contract version 2.3.
+    | `MBX_VERSION_MINOR` | `0x3` |
+docs/reference/MAILBOX_CONTRACT.md	dev	added-lines-absent-at-head=2
+    This page is contract version 2.3.
+    | `MBX_VERSION_MINOR` | `0x3` |
+hdl/milan/mailbox/KL_mbx.sv	split	added-lines-absent-at-head=0
+hdl/milan/mailbox/KL_mbx.sv	dev	added-lines-absent-at-head=0
+hdl/milan/mailbox/KL_mbx_pkg.sv	split	added-lines-absent-at-head=1
+      localparam int unsigned MBX_VERSION_MINOR_C = 32'd3;
+hdl/milan/mailbox/KL_mbx_pkg.sv	dev	added-lines-absent-at-head=1
+      localparam int unsigned MBX_VERSION_MINOR_C = 32'd3;
+sw/firmware/ctrl/README.md	split	added-lines-absent-at-head=0
+sw/firmware/ctrl/README.md	dev	added-lines-absent-at-head=0
+sw/firmware/ctrl/host/mbx_model.c	split	added-lines-absent-at-head=0
+sw/firmware/ctrl/host/mbx_model.c	dev	added-lines-absent-at-head=0
+sw/firmware/ctrl/host/mbx_model.h	split	added-lines-absent-at-head=0
+sw/firmware/ctrl/host/mbx_model.h	dev	added-lines-absent-at-head=0
+sw/firmware/ctrl/mbx/mbx_contract.h	split	added-lines-absent-at-head=1
+    #define MBX_VERSION_MINOR 3u
+sw/firmware/ctrl/mbx/mbx_contract.h	dev	added-lines-absent-at-head=1
+    #define MBX_VERSION_MINOR 3u
+sw/firmware/ctrl/test/ctrl_mutants.py	split	added-lines-absent-at-head=0
+sw/firmware/ctrl/test/ctrl_mutants.py	dev	added-lines-absent-at-head=1
+        # #799 (contract 2.3): each source's current stream_id
+sw/firmware/ctrl/test/model_bench.hpp	split	added-lines-absent-at-head=0
+sw/firmware/ctrl/test/model_bench.hpp	dev	added-lines-absent-at-head=0
+sw/litex/milan_soc.py	split	added-lines-absent-at-head=1
+        datapath reads them (#665, comment 6088423771). So are the face block's
+sw/litex/milan_soc.py	dev	added-lines-absent-at-head=2
+        for the datapath, and from 2.3 each source's current stream_id, #799) are
+        comment 6088423771).
+sw/mailbox/gen_mailbox.py	split	added-lines-absent-at-head=4
+    SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|BND_REG|PUB_REG|PUB_SINK_REG|FACE_REG|FACE_SRC_REG|FACE_SNK_REG"
+                            r"|CH_REG)_(\w+)_C\b")
+                 + contract.pub_registers + contract.pub_sink_registers + contract.face_registers
+                 + contract.face_source_registers + contract.face_sink_registers + contract.ch_registers)
+sw/mailbox/gen_mailbox.py	dev	added-lines-absent-at-head=1
+    SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|BND_REG|PUB_REG|PUB_SRC_REG|PUB_SINK_REG|CH_REG)_(\w+)_C\b")
+sw/mailbox/mailbox.yaml	split	added-lines-absent-at-head=1
+      minor: 3
+sw/mailbox/mailbox.yaml	dev	added-lines-absent-at-head=3
+    # Minor 3 (#799; #665 decision 2 (a)): a source entry per talker stream in
+    # below the sink entries, and a firmware built against 2.2 leaves them at 0.
+      minor: 3
+sw/mailbox/mailbox_emit.py	split	added-lines-absent-at-head=0
+sw/mailbox/mailbox_emit.py	dev	added-lines-absent-at-head=0
+sw/mailbox/mailbox_model.py	split	added-lines-absent-at-head=0
+sw/mailbox/mailbox_model.py	dev	added-lines-absent-at-head=0
+sw/mailbox/mailbox_skeleton.py	split	added-lines-absent-at-head=0
+sw/mailbox/mailbox_skeleton.py	dev	added-lines-absent-at-head=0
+sw/mailbox/publication_census.py	split	added-lines-absent-at-head=2
+    cone ending only at its three terminals and the map writer's exclusion. Its findings join this census's.
+                      + "; G cones end at " + ", ".join(f"{k} {e.get(k, 0)}" for k in ("csr", "memory", "shim", "wire"))
+sw/mailbox/publication_census.py	dev	added-lines-absent-at-head=0
+tb/verilator/mbx/README.md	split	added-lines-absent-at-head=0
+tb/verilator/mbx/README.md	dev	added-lines-absent-at-head=2
+    | P0 to P5 | the publication block (lane F-INT, #665 comments 6088423771 and 6092086337; the source entries, contract 2.3, #799): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface, source and sink; each field drives its own output, eac
+    The source entries (contract 2.3, #799) add four more, each through both
+tb/verilator/mbx/bench.hpp	split	added-lines-absent-at-head=0
+tb/verilator/mbx/bench.hpp	dev	added-lines-absent-at-head=0
+tb/verilator/mbx/frames.hpp	split	added-lines-absent-at-head=0
+tb/verilator/mbx/frames.hpp	dev	added-lines-absent-at-head=0
+tb/verilator/mbx/mutants.py	split	added-lines-absent-at-head=0
+tb/verilator/mbx/mutants.py	dev	added-lines-absent-at-head=1
+        # #799 (contract 2.3): each source's current stream_id, stored at its own
+tb/verilator/mbx/suite.hpp	split	added-lines-absent-at-head=0
+tb/verilator/mbx/suite.hpp	dev	added-lines-absent-at-head=1
+    // reset clears the whole block. The source entries (contract 2.3, #799) carry
+tb/verilator/mbx/tb_mbx_top.sv	split	added-lines-absent-at-head=0
+tb/verilator/mbx/tb_mbx_top.sv	dev	added-lines-absent-at-head=0
+files 24 lost lines 56

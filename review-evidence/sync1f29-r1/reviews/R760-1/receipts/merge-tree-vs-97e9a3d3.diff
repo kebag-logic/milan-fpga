@@ -1,0 +1,323 @@
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index b1edc6add8..d211e2d766 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -94,7 +94,7 @@ subtype.
+ `--check` regenerates every output in memory and fails on any byte of drift.
+ `--crosscheck` reads the three constant carriers back by name and fails on a
+ field mismatch between them, whatever produced it. `--selftest` plants a
+-mismatch into each output (32 arms) and a defect into the YAML (43 arms), and
++mismatch into each output (35 arms) and a defect into the YAML (49 arms), and
+ requires each to be caught, after a clean positive control. It also builds
+ the two-interface variant the suite uses, which must cross-check clean, and
+ requires a four-interface one, whose blocks would overlap the global
+@@ -1340,25 +1340,15 @@ them:
+ 
+ | Evidence | What it shows |
+ |---|---|
+-<<<<<<< 5b5f433698d8832b63573b8d106f10e839a4210e
+ | the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | from the netlist of each of the six shapes the builder builds, and the same in all: the 39 reads of 21 of the 25 class-D nets (4 are unread), and each of the wrapper cell's 217 ports in one class (C 25, F 28, R 34, E 6, M 14, G 110), every G output's cone ending only at its terminals; its self-test's 138 arms, each refused by its own words: the class-D census's 118 plants, the [port census's](#every-port-one-class) 18, a positive and a negative control; each of its 43 rules (31 of the class-D census, 12 of the port census) removed in turn, each letting its arms through |
+ | [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | the checks common to both adapters, 523 at one interface and 530 at two (`make run-if2`), each run through the Wishbone adapter and again through the AXI4-Lite adapter: register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels, the publication and the face blocks (below). The AXI4-Lite build adds its own 45 handshake checks: 568 at one interface, 575 at two |
+-=======
+-| the publication census (above), `rtl-fast`'s `publication-census` job and `make census` | the 41 reads of the 26 class-D nets, classified from the netlist of each of the six shapes the builder builds and the same in all; its 118 plants, each refused by its own words; each of its 31 rules removed in turn, each letting its arms through |
+-| [`tb/verilator/mbx`](../../tb/verilator/mbx/README.md), `make` | 404 checks through the Wishbone adapter and the same 404 through the AXI4-Lite adapter (406 each at two interfaces): register masks, partial-strobe refusal, every filter rule, drops that never touch an unread record, the rate limiter, the TX merge, its commit order and its refusals, out-of-range host counters, timers, every event source and its coalescing, the GM snapshot, the interrupt levels; then the AXI4-Lite build's own 45 handshake checks |
+->>>>>>> 1f29f189279f9fc0132f4918e47342b87d22f33a
+ | the full-tuple filter, in the same suite | a positive control per table row; the tag, destination, EtherType, subtype and identity changed one at a time per row, with `FILTER_MISMATCH` counting each tuple failure once and nothing else; untagged AAF and CRF never delivered; the CONTROLLER_AVAILABLE response delivered, one for another controller dropped, every message_type both ways; the own MAC per interface index; the bucket apart from the filter; the MAAP DEFEND to the own MAC delivered, a PROBE, an ANNOUNCE or a reserved type there and a DEFEND to a foreign unicast refused and counted, and a DEFEND cut before its message_type |
+ | `make run-if2` | the same suite on the contract elaborated for two interfaces, written into the build directory by the generator: through both adapters and on the host model, so another interface's own MAC is refused on two real interfaces |
+ | the adp channel's bound talkers, in the same suite | each table entry's registers at its own address, an enabled entry's talker passing as ENTITY_AVAILABLE and ENTITY_DEPARTING only, every entry, an entry with `BOUND_EN` clear, a rewritten entry, a field cut short, and the arrival interface's table only (two interfaces in `run-if2`); since round 3, each identity byte at its own position, frames in a row whose match never carries into the next, a word rewritten with `BOUND_EN` still set, and a reset that clears the table again |
+ | the bound-talker table's timing, RTL builds only | a frame stalled inside its identity while `BOUND_EN` is cleared and set again, or set again alone, refused, and the next one passing; the host's reads beside a running copy; a word rewritten at each of 32 clocks after `BOUND_EN` is set again (lane F3 round 3; the model's frames arrive whole); since round 4, the arrival interface's table held to the verdict with the next frame, on another index, right behind it, and the owed copy gating each interface's entries (two interfaces in `run-if2`) |
+-<<<<<<< 5b5f433698d8832b63573b8d106f10e839a4210e
+-| the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface and sink; each field on its own `pub_*_o` output, a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
++| the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface, source and sink; each field on its own `pub_*_o` output, each source's stream_id on `pub_src_sid_o` (contract 2.3), a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
+ | the face block, in the same suite (contract 2.3) | every register's fields and only those, at its own interface and entry; each field on its own port, of its own interface, entry and window; a commit holding every setting until its acknowledgement, a write that would move a held setting and a second commit refused; each window's request held from its `GO` until the answer carrying its tag, or its bound; a hole, an interface the build lacks and a partial strobe; the counted face events, each coalesced into one record; COUNTERS_CHANGED's pending bit per served descriptor, its `ALL` bit and its holdoff; a reset clearing the block. On the RTL alone: the wait bound to the cycle, an answer taken only on its pulse, and a commit held for as long as its acknowledgement takes. Two interfaces in `run-if2`, and on the model |
+ | the same suite on the host model, in `make run-if2` | the 488 of the RTL's 530 two-interface checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+-=======
+-| the publication block, in the same suite (lane F-INT) | every register 0 after reset and every output with it; each register's fields and only those, at its own interface, source and sink; each field on its own `pub_*_o` output, each source's stream_id on `pub_src_sid_o` (contract 2.3), a source's DA gate, licence and declaration bits and a sink's bound and started bits each moving its own; the stream_id taken only while `SID_VALID` is set, never half written in the firmware's order, and kept through a write that moves `STARTED` alone; a hole, an entry's fourth word and an interface the build lacks reading 0 and taking no write; a partial strobe refused; a reset clearing the block (two interfaces in `run-if2`, and on the model) |
+-| the same suite on the host model | the 391 of the RTL's 404 checks that need no stalled stream or back-to-back frames, run on the model the firmware tests rely on, so the model answers to the RTL's expectations |
+->>>>>>> 1f29f189279f9fc0132f4918e47342b87d22f33a
+ | the co-simulation (`make run-cosim`) | the firmware on the RTL through Wishbone and on the model, one scenario: identical frames at identical NOW_MS, ADP's and, since F3, ACMP's (a BIND_RX through its probe, duplicate and retry, the bound talker's ENTITY_AVAILABLE through both filters and the re-probe it allows, the other commands, and the two frames both filters refuse); the binary relinks whenever the firmware changes |
+ | [`sw/firmware/ctrl/test`](../../sw/firmware/ctrl/README.md) | the port layer, the driver, the loop, the ADP core and adapter, the ACMP core, adapter and binding owner, the latency bounds, the ACMP adapter again on the contract's two-interface variant, the entity fields per shipped config, a freestanding RV32I build with no heap symbol, and (given a checkout) lwSRP's own MRP core on the port layer |
+ | [`sw/firmware/gtest`](../../sw/firmware/gtest/README.md) | the firmware's host suites on GoogleTest and GoogleMock under a tally listener, and the firmware's line and branch coverage held by a ratchet, run in `rtl-fast`'s `firmware-unit` job |
+@@ -1570,7 +1560,6 @@ the registers stay for their read-back. This is the block's own recipe: the
+ whole-image M0s measurement of #640 needs the split image, which the
+ placement switch builds.
+ 
+-<<<<<<< 5b5f433698d8832b63573b8d106f10e839a4210e
+ The face block, windows and events (lane S1, contract 2.3,
+ [above](#the-processors-other-faces)) were measured with the same recipe on
+ 2026-10-26, beside the base `e76a755a`, whose figures repeated the "now"
+@@ -1602,12 +1591,11 @@ routed. The bench top exports every face port. The switch-on SoC leaves them
+ unread, but the registers stay for their read-back, and the placement switch
+ connects them. Each `fw_*_o` entry is its own port, which the datapath reads
+ in parallel, so the entries stay in flip-flops.
+-=======
++
+ Contract 2.3's sixteen source entries (#799) add 1,024 bits of storage at
+ one interface, `SRC_SID_LO` and `SRC_SID_HI` of each source, and their
+ read-back. They were not measured with this recipe. No shipping build
+ carries the mailbox: it is only in the `--ctrl-mailbox` SoC.
+->>>>>>> 1f29f189279f9fc0132f4918e47342b87d22f33a
+ 
+ ```tcl
+ read_verilog -sv [list hdl/milan/mailbox/KL_mbx_pkg.sv hdl/milan/mailbox/KL_mbx_ring.sv \
+diff --git a/docs/reference/MAILBOX_CONTRACT.md b/docs/reference/MAILBOX_CONTRACT.md
+index a788d860a2..19d196ca70 100644
+--- a/docs/reference/MAILBOX_CONTRACT.md
++++ b/docs/reference/MAILBOX_CONTRACT.md
+@@ -5,7 +5,7 @@
+ Regenerate with `python3 sw/mailbox/gen_mailbox.py --write`.
+ 
+ The design page is [MAILBOX_SPLIT.md](../design/MAILBOX_SPLIT.md).
+-This page is contract version 2.3.
++This page is contract version 2.4.
+ 
+ ## Byte order
+ 
+@@ -944,7 +944,7 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
+ | Name | Value |
+ |---|---:|
+ | `MBX_VERSION_MAJOR` | `0x2` |
+-| `MBX_VERSION_MINOR` | `0x3` |
++| `MBX_VERSION_MINOR` | `0x4` |
+ | `MBX_MAGIC` | `0x4d42` |
+ | `MBX_WINDOW_BYTES` | `0x8000` |
+ | `MBX_REGISTER_SPACE_BYTES` | `0x400` |
+diff --git a/hdl/milan/mailbox/KL_mbx_pkg.sv b/hdl/milan/mailbox/KL_mbx_pkg.sv
+index 2c570e88ab..97a664b1c7 100644
+--- a/hdl/milan/mailbox/KL_mbx_pkg.sv
++++ b/hdl/milan/mailbox/KL_mbx_pkg.sv
+@@ -17,7 +17,7 @@ package KL_mbx_pkg;
+   //! contract major version
+   localparam int unsigned MBX_VERSION_MAJOR_C = 32'd2;
+   //! contract minor version
+-  localparam int unsigned MBX_VERSION_MINOR_C = 32'd3;
++  localparam int unsigned MBX_VERSION_MINOR_C = 32'd4;
+   //! ID.MAGIC
+   localparam int unsigned MBX_MAGIC_C = 32'h00004D42;
+   //! host window size
+diff --git a/sw/firmware/ctrl/mbx/mbx_contract.h b/sw/firmware/ctrl/mbx/mbx_contract.h
+index e693a98ba3..0e441a51ad 100644
+--- a/sw/firmware/ctrl/mbx/mbx_contract.h
++++ b/sw/firmware/ctrl/mbx/mbx_contract.h
+@@ -16,7 +16,7 @@
+ /* contract major version */
+ #define MBX_VERSION_MAJOR 2u
+ /* contract minor version */
+-#define MBX_VERSION_MINOR 3u
++#define MBX_VERSION_MINOR 4u
+ /* ID.MAGIC */
+ #define MBX_MAGIC 0x4D42u
+ /* host window size */
+diff --git a/sw/firmware/ctrl/test/ctrl_mutants.py b/sw/firmware/ctrl/test/ctrl_mutants.py
+index 5f09b39c0a..d8efca5f63 100644
+--- a/sw/firmware/ctrl/test/ctrl_mutants.py
++++ b/sw/firmware/ctrl/test/ctrl_mutants.py
+@@ -667,7 +667,6 @@ MUTANTS += (
+     Mutant("model-pub-every-sink-reads-entry-0", "host/mbx_model.c",
+            "(MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k) / 4u", "MBX_PUB_SINK_BASE / 4u",
+            "model", MODEL_GROUP + "Publication", "P2 every field reaches the datapath on its own output"),
+-<<<<<<< 5b5f433698d8832b63573b8d106f10e839a4210e
+     # contract 2.3's face block (#665): the model's twins of the RTL's face rules
+     Mutant("model-face-window-tag-ignored", "host/mbx_model.c", "if (s->busy && s->tag == tag) {",
+            "if (s->busy && (s->tag == tag || s->busy)) {",
+@@ -695,7 +694,6 @@ MUTANTS += (
+            "\t\tmemset(m->ctr_seen, 0, sizeof m->ctr_seen);\n", "",
+            "model", MODEL_GROUP + "Face",
+            "F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced"),
+-=======
+     # #799 (contract 2.3): each source's current stream_id
+     Mutant("model-pub-src-sid-a-hole", "host/mbx_model.c",
+            "\t\tcase MBX_PUB_SRC_REG_SRC_SID_HI:\n"
+@@ -705,7 +703,6 @@ MUTANTS += (
+     Mutant("model-pub-every-source-reads-entry-0", "host/mbx_model.c",
+            "(MBX_PUB_SRC_BASE + MBX_PUB_SRC_STRIDE * s) / 4u", "MBX_PUB_SRC_BASE / 4u",
+            "model", MODEL_GROUP + "Publication", "P2 each source's SRC_SID_HI:SRC_SID_LO reaches the datapath"),
+->>>>>>> 1f29f189279f9fc0132f4918e47342b87d22f33a
+     # ACMP: the binding published after the response that promises it, the
+     # end-of-entry publication skipped, wrong fields, the port unguarded
+     Mutant("pub-acmp-after-the-response", ACMP_C, ACMP_TRANSMIT,
+diff --git a/sw/litex/milan_soc.py b/sw/litex/milan_soc.py
+index 60a12c7db8..2287d3db20 100644
+--- a/sw/litex/milan_soc.py
++++ b/sw/litex/milan_soc.py
+@@ -2914,18 +2914,13 @@ class CtrlMailbox(LiteXModule):
+     an empty, quiet mailbox, never a wrong one; the tap that feeds it comes
+     with the protocol lanes that need it (#665 F2 to F5). The publication
+     block's outputs (contract 2.2, the class-D state the firmware owner writes
+-<<<<<<< 5b5f433698d8832b63573b8d106f10e839a4210e
+-    for the datapath) are left unread here too: only the split placement's
+-    datapath reads them (#665, comment 6088423771). So are the face block's
++    for the datapath, and from 2.3 each source's current stream_id, #799) are
++    left unread here too: only the split placement's datapath reads them (#665,
++    comment 6088423771). So are the face block's
+     (contract 2.3: the settings, the four request and answer windows and the
+     face events; #665): its outputs are named and unread,
+     and the datapath's answers, acknowledgements and events are held idle, so
+     a request times out and a commit waits, as the contract defines.
+-=======
+-    for the datapath, and from 2.3 each source's current stream_id, #799) are
+-    left unread here too: only the split placement's datapath reads them (#665,
+-    comment 6088423771).
+->>>>>>> 1f29f189279f9fc0132f4918e47342b87d22f33a
+     """
+ 
+     def __init__(self, sys_clk_freq: int, contract: object) -> None:
+diff --git a/sw/mailbox/gen_mailbox.py b/sw/mailbox/gen_mailbox.py
+index b198c0ee9e..34a25477ff 100644
+--- a/sw/mailbox/gen_mailbox.py
++++ b/sw/mailbox/gen_mailbox.py
+@@ -83,12 +83,8 @@ C_TABLE = re.compile(r"^#define MBX_(\w+_TBL) \{ (.*) \}$", re.M)
+ SV_CONST = re.compile(r"^\s*localparam int unsigned MBX_(\w+)_C = 32'([hd])([0-9A-F_]+);$", re.M)
+ SV_TABLE = re.compile(r"^\s*localparam int unsigned MBX_(\w+_TBL)_C \[[^\]]+\] = '\{(.*)\};$", re.M)
+ DOC_CONST = re.compile(r"^\| `MBX_(\w+)` \| `(0x[0-9a-f]+)` \|$", re.M)
+-<<<<<<< 5b5f433698d8832b63573b8d106f10e839a4210e
+-SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|BND_REG|PUB_REG|PUB_SINK_REG|FACE_REG|FACE_SRC_REG|FACE_SNK_REG"
+-                        r"|CH_REG)_(\w+)_C\b")
+-=======
+-SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|BND_REG|PUB_REG|PUB_SRC_REG|PUB_SINK_REG|CH_REG)_(\w+)_C\b")
+->>>>>>> 1f29f189279f9fc0132f4918e47342b87d22f33a
++SV_REG_REF = re.compile(r"\bMBX_(?:REG|IF_REG|IFF_REG|BND_REG|PUB_REG|PUB_SRC_REG|PUB_SINK_REG|FACE_REG"
++                        r"|FACE_SRC_REG|FACE_SNK_REG|CH_REG)_(\w+)_C\b")
+ 
+ 
+ def parse_c(text: str) -> tuple[dict[str, int], dict[str, list[str]]]:
+@@ -132,13 +128,9 @@ def crosscheck(contract: Contract, texts: dict[str, str]) -> list[str]:
+     top = texts["hdl/milan/mailbox/KL_mbx.sv"]
+     named = set(SV_REG_REF.findall(top))
+     every = (contract.registers + contract.if_registers + contract.iff_registers + contract.bnd_registers
+-<<<<<<< 5b5f433698d8832b63573b8d106f10e839a4210e
+-             + contract.pub_registers + contract.pub_sink_registers + contract.face_registers
+-             + contract.face_source_registers + contract.face_sink_registers + contract.ch_registers)
+-=======
+              + contract.pub_registers + contract.pub_source_registers + contract.pub_sink_registers
++             + contract.face_registers + contract.face_source_registers + contract.face_sink_registers
+              + contract.ch_registers)
+->>>>>>> 1f29f189279f9fc0132f4918e47342b87d22f33a
+     for reg in every:
+         if reg.name not in named:
+             findings.append(f"skeleton: register {reg.name} is never decoded")
+@@ -282,7 +274,6 @@ def _output_arms(contract: Contract) -> list[tuple[str, dict[str, str], str]]:
+                                                               "MBX_PUB_REG_LICENCE_C"), "TALKER_DECL"),
+         ("skeleton bound enable dropped", _plant_all(base, top, "MBX_BND_REG_BOUND_EN_C", "MBX_BND_REG_BOUND_EID_LO_C"),
+          "BOUND_EN"),
+-<<<<<<< 5b5f433698d8832b63573b8d106f10e839a4210e
+         # contract 2.3 (#665): the face block, its windows and the counter-change families
+         ("C header face setting field moved", _plant(base, hdr, "#define MBX_F_ENTITY_IDENTIFY_LSB 16u",
+                                                      "#define MBX_F_ENTITY_IDENTIFY_LSB 15u"),
+@@ -295,7 +286,6 @@ def _output_arms(contract: Contract) -> list[tuple[str, dict[str, str], str]]:
+                                     "#define MBX_CTRCHG_HOLDOFF_MS 100u"), "MBX_CTRCHG_HOLDOFF_MS"),
+         ("skeleton face request register dropped", _plant_all(base, top, "MBX_FACE_REG_EDIT_VALUE_HI_C",
+                                                               "MBX_FACE_REG_EDIT_VALUE_LO_C"), "EDIT_VALUE_HI"),
+-=======
+         # #799: the sources' current stream_id
+         ("C header source stride", _plant(base, hdr, "#define MBX_PUB_SRC_STRIDE 0x8u",
+                                           "#define MBX_PUB_SRC_STRIDE 0x10u"), "MBX_PUB_SRC_STRIDE"),
+@@ -303,7 +293,6 @@ def _output_arms(contract: Contract) -> list[tuple[str, dict[str, str], str]]:
+                                           "MBX_PUB_SRC_BASE_C = 32'h00000040"), "MBX_PUB_SRC_BASE"),
+         ("skeleton source register dropped", _plant_all(base, top, "MBX_PUB_SRC_REG_SRC_SID_HI_C",
+                                                         "MBX_PUB_SRC_REG_SRC_SID_LO_C"), "SRC_SID_HI"),
+->>>>>>> 1f29f189279f9fc0132f4918e47342b87d22f33a
+     ]
+ 
+ 
+@@ -369,7 +358,6 @@ def _contract_arms() -> list[tuple[str, str, str]]:
+          "{name: DECLARED, lsb: 0, width: 8,"),
+         ("publication sink field the skeleton does not wire", "{name: STARTED, lsb: 2, width: 1,",
+          "{name: RUNNING, lsb: 2, width: 1,"),
+-<<<<<<< 5b5f433698d8832b63573b8d106f10e839a4210e
+         # contract 2.3 (#665): the face block fits, its windows are whole and its handshakes bounded
+         ("face block over the publication block", "interface_face_registers:\n  base: 0x6000",
+          "interface_face_registers:\n  base: 0x0800"),
+@@ -389,7 +377,6 @@ def _contract_arms() -> list[tuple[str, str, str]]:
+         ("counter changes with no holdoff", "  holdoff_ms: 1000", "  holdoff_ms: 0"),
+         ("counter-change family past its bitmap", "{name: STREAM_INPUT, type: 0x0005, count: 16}",
+          "{name: STREAM_INPUT, type: 0x0005, count: 33}"),
+-=======
+         # #799: the source entries sit between the interface registers and the sink entries
+         ("publication register over the source entries", "    - name: SR_DOMAIN\n      offset: 0x0C",
+          "    - name: SR_DOMAIN\n      offset: 0x80"),
+@@ -404,7 +391,6 @@ def _contract_arms() -> list[tuple[str, str, str]]:
+         ("publication source stream_id not a whole word",
+          "{name: SID, lsb: 0, width: 32, doc: \"stream_id[63:32]\"}\n  sink",
+          "{name: SID, lsb: 0, width: 16, doc: \"stream_id[63:32]\"}\n  sink"),
+->>>>>>> 1f29f189279f9fc0132f4918e47342b87d22f33a
+     ]
+ 
+ 
+diff --git a/sw/mailbox/mailbox.yaml b/sw/mailbox/mailbox.yaml
+index 596b43162c..545b4cae96 100644
+--- a/sw/mailbox/mailbox.yaml
++++ b/sw/mailbox/mailbox.yaml
+@@ -60,7 +60,6 @@
+ # promises it. It only adds: a firmware built against 2.1 leaves the block at
+ # its reset value, and nothing in the window moved.
+ #
+-<<<<<<< 5b5f433698d8832b63573b8d106f10e839a4210e
+ # Minor 3 (#665): the processor wrapper's other faces, which the split
+ # placement removes with it. A face block per interface carries the firmware-written settings (class F: the AECP
+ # settings, the control-ready level and the restore and saved-state status),
+@@ -73,18 +72,21 @@
+ # it with cdc_handshake or toggle-plus-sync (CONTRIBUTING.md section 1). It
+ # only adds: a firmware built against 2.2 never writes the block, never posts
+ # a request, and reads no event type it does not know.
+-=======
+-# Minor 3 (#799; #665 decision 2 (a)): a source entry per talker stream in
++#
++# Minor 4 (#799; #665 decision 2 (a)): a source entry per talker stream in
+ # the publication block, carrying the stream_id the source currently declares,
+ # which the AAF and CRF talkers stamp. After a MAAP conflict the protocol owner moves a source to another
+ # Stream ID (protocol-processor #202), so the plane that owns the Stream ID
+ # publishes the ID it declares. It only adds: the entries sit in the hole
+-# below the sink entries, and a firmware built against 2.2 leaves them at 0.
+->>>>>>> 1f29f189279f9fc0132f4918e47342b87d22f33a
++# below the sink entries, and a firmware built against 2.3 leaves them at 0.
++# dev added these entries as its own minor 3 over 2.2, without the face
++# block; they join this contract as minor 4 when dev's work merges here, and
++# dev reaches 2.4 by adding the face block (the ruling on #665, comment
++# 6553999730).
+ 
+ version:
+   major: 2
+-  minor: 3
++  minor: 4
+ magic: 0x4D42          # "MB"
+ window_bytes: 0x8000   # host-visible window
+ interfaces: 1          # AVB interfaces (link, grandmaster and domain per interface)
+diff --git a/sw/mailbox/mailbox_skeleton.py b/sw/mailbox/mailbox_skeleton.py
+index f996f64f4f..f1c4ca0e09 100644
+--- a/sw/mailbox/mailbox_skeleton.py
++++ b/sw/mailbox/mailbox_skeleton.py
+@@ -638,13 +638,10 @@ def _check_wiring(contract: Contract) -> None:
+     sid = [f for r in contract.pub_sink_registers if r.name in ("SID_LO", "SID_HI") for f in r.fields]
+     if any(f.lsb != 0 or f.width != 32 for f in sid):
+         raise ContractError("the skeleton joins SID_HI and SID_LO, each a whole word, into the 64-bit stream_id")
+-<<<<<<< 5b5f433698d8832b63573b8d106f10e839a4210e
+-    face.check(contract)
+-=======
+     if any(f.lsb != 0 or f.width != 32 for r in contract.pub_source_registers for f in r.fields):
+         raise ContractError("the skeleton joins SRC_SID_HI and SRC_SID_LO, each a whole word, into the 64-bit "
+                             "stream_id")
+->>>>>>> 1f29f189279f9fc0132f4918e47342b87d22f33a
++    face.check(contract)
+     bound = {t.offset for ch in contract.channels for t in ch.terms if t.test == "eq_bound"}
+     if len(bound) > 1:
+         raise ContractError(f"eq_bound terms read the fields at {sorted(bound)}: KL_mbx_rx compares one "
+diff --git a/tb/verilator/mbx/README.md b/tb/verilator/mbx/README.md
+index f9b741383a..a1395080bc 100644
+--- a/tb/verilator/mbx/README.md
++++ b/tb/verilator/mbx/README.md
+@@ -123,13 +123,9 @@ filter table. Register offsets and field positions are the generated
+ | M0 to M2 | a timer expires at its deadline with its arm's tag; a cancel and a replaced arm post nothing; a past deadline expires at once |
+ | K0 to K2 | no TICK while TICK_CTL.EN is clear; one per period; ticks counted while the ring is full post as one record with the count; clearing EN stops them |
+ | G0 | GM_HI and DOMAIN read the snapshot GM_LO took |
+-<<<<<<< 5b5f433698d8832b63573b8d106f10e839a4210e
+-| P0 to P5 | the publication block (lane F-INT, #665 comments 6088423771 and 6092086337): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface and sink; each field drives its own output, one source's DA gate, licence or declaration bit or one sink's bound or started bit moving only its own; the stream_id taken (`pub_sid_o` while `pub_sid_valid_o`) only while `SID_VALID` is set, `BOUND` apart, in the firmware's write order never half written, and kept through a write that moves `STARTED` alone; a hole of every interface block, an entry's fourth word and the blocks of interface indices the build lacks read 0 and move nothing, uncounted; a partial strobe refused and counted; a reset clears the block |
++| P0 to P5 | the publication block (lane F-INT, #665 comments 6088423771 and 6092086337; the source entries, contract 2.3, #799): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface, source and sink; each field drives its own output, each source's `SRC_SID_HI:SRC_SID_LO` on `pub_src_sid_o`, one source's DA gate, licence or declaration bit or one sink's bound or started bit moving only its own; the stream_id taken (`pub_sid_o` while `pub_sid_valid_o`) only while `SID_VALID` is set, `BOUND` apart, in the firmware's write order never half written, and kept through a write that moves `STARTED` alone; a hole of every interface block, an entry's fourth word and the blocks of interface indices the build lacks read 0 and move nothing, uncounted; a partial strobe refused and counted; a reset clears the block |
+ | F0 to F10 | the face block (contract 2.3, #665 comments 6409739310 and 6410169666): every register, port, request and commit 0 after reset; each setting, request and entry register keeps its own fields only, per interface and entry; each field on its own `fw_*_o` or window port, for its own interface; `F_COMMIT.GO` raises `fw_send_o` and `F_STATUS.BUSY` on its interface only, every setting write and a second commit refused and counted while `BUSY`, the settings held, and only that interface's acknowledgement taking it; each window's `GO` opening its request with the next tag, a request write and a second `GO` refused while it is open, an answer under another tag, another interface's or with none open discarded, the answer under its tag closing it as `DONE`, the wait bound closing it as `TIMEOUT` and a late answer discarded, no window moving another; a hole and an interface the build lacks reading 0; a partial strobe refused; each face event posting its record with `COUNT` and `NOW_MS`, a full ring coalescing each source, the counter change once per descriptor per holdoff epoch, an unknown descriptor as `ALL`; a reset clearing every face register, port, open request, commit and pending event |
+ | T0 to T2 | the face block's timing, on the RTL only: each window's unanswered request holds for exactly its `wait_cycles` clocks, then closes as `TIMEOUT`; an answer on the bound's last cycle is taken, one a cycle later discarded; answer data and tag without the pulse close nothing, and the pulse takes the data it carries; a commit holds `fw_send_o` and its settings for as long as the acknowledgement takes, and drops `fw_send_o` on the cycle after it |
+-=======
+-| P0 to P5 | the publication block (lane F-INT, #665 comments 6088423771 and 6092086337; the source entries, contract 2.3, #799): every register and every `pub_*_o` output 0 after reset; each register keeps its fields only, at its own interface, source and sink; each field drives its own output, each source's `SRC_SID_HI:SRC_SID_LO` on `pub_src_sid_o`, one source's DA gate, licence or declaration bit or one sink's bound or started bit moving only its own; the stream_id taken (`pub_sid_o` while `pub_sid_valid_o`) only while `SID_VALID` is set, `BOUND` apart, in the firmware's write order never half written, and kept through a write that moves `STARTED` alone; a hole of every interface block, an entry's fourth word and the blocks of interface indices the build lacks read 0 and move nothing, uncounted; a partial strobe refused and counted; a reset clears the block |
+->>>>>>> 1f29f189279f9fc0132f4918e47342b87d22f33a
+ 
+ The AXI4-Lite build then runs the adapter's handshake rules, which a polite
+ master (AW and W together, BREADY and RREADY high) never exercises:

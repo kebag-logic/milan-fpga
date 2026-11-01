@@ -1,0 +1,9 @@
+control rc=0: ['selftest: 0 arm(s) failed']
+crosscheck list loses the source registers: rc=1 CAUGHT: ['selftest: 3 arm(s) failed']
+crosscheck list loses the face registers: rc=1 CAUGHT: ['selftest: 3 arm(s) failed']
+register decode regex loses PUB_SRC_REG: rc=1 CAUGHT: ['selftest: 2 arm(s) failed']
+register decode regex loses FACE_REG: rc=1 CAUGHT: ['selftest: 2 arm(s) failed']
+skeleton check loses the source whole-word rule: rc=1 CAUGHT: ['selftest: 1 arm(s) failed']
+skeleton check loses the face check: rc=0 SURVIVED: ['selftest: 0 arm(s) failed']
+version minor back to 3: rc=0 SURVIVED: ['selftest: 0 arm(s) failed']
+restored control rc=0

@@ -1,0 +1,9 @@
+# version.minor set to 3 in a copy, --check --crosscheck alone
+[FAIL] hdl/milan/mailbox/KL_mbx_pkg.sv: differs from what mailbox.yaml generates; run gen_mailbox.py --write
+[FAIL] sw/firmware/ctrl/mbx/mbx_contract.h: differs from what mailbox.yaml generates; run gen_mailbox.py --write
+[FAIL] docs/reference/MAILBOX_CONTRACT.md: differs from what mailbox.yaml generates; run gen_mailbox.py --write
+[FAIL] C header: MBX_VERSION_MINOR = 0x4, the contract says 0x3
+[FAIL] SV package: MBX_VERSION_MINOR = 0x4, the contract says 0x3
+[FAIL] reference page: MBX_VERSION_MINOR = 0x4, the contract says 0x3
+gen_mailbox: 6 finding(s)
+rc=1

@@ -1,0 +1,38 @@
+P1-none: 81 worst-instance rows, verdicts moved 0, rows only on one side 0
+P8-none: 127 worst-instance rows, verdicts moved 0, rows only on one side 0
+P1-xip-64x1: 76 worst-instance rows, verdicts moved 14, rows only on one side 7
+   acmp.get_tx_state.if0: staged MISS T_svc, no stage fits
+   acmp.tmr_no_adp.if0: staged MISS ceiling, no stage MISS T_svc
+   adp.tmr_delay.if0: staged fits, no stage MISS T_svc
+   aecp.get_avb_info.if0: staged MISS ceiling, no stage MISS T_svc
+   aecp.mvu_get_milan_info.if0: staged MISS ceiling, no stage MISS T_svc
+   aecp.read_descriptor.t0.i0.c0.if0: staged MISS ceiling, no stage MISS T_svc
+   aecp.read_descriptor.t10.i2.c0.if0: staged MISS ceiling, no stage MISS T_svc
+   aecp.read_descriptor.t12.i0.c0.if0: staged MISS T_svc, no stage MISS ceiling
+P8-xip-64x1: 116 worst-instance rows, verdicts moved 24, rows only on one side 16
+   acmp.bind_rx.if0: staged MISS ceiling, no stage MISS T_svc
+   adp.discover.if0: staged fits, no stage MISS T_svc
+   adp.discover.if1: staged fits, no stage MISS T_svc
+   adp.tmr_advertise.if0: staged MISS T_svc, no stage fits
+   adp.tmr_delay.if0: staged fits, no stage MISS T_svc
+   adp.tmr_delay.if1: staged fits, no stage MISS T_svc
+   aecp.entity_available.if0: staged MISS T_svc, no stage MISS ceiling
+   aecp.get_avb_info.if0: staged MISS ceiling, no stage MISS T_svc
+P1-xip-512x1: 81 worst-instance rows, verdicts moved 3, rows only on one side 10
+   aecp.read_descriptor.t20.i24.c0.if0: staged fits, no stage MISS T_svc
+   aecp_fanout.remove_audio_mappings.if0: staged MISS T_svc, no stage fits
+   fixture.entity_departing.if0: staged MISS ceiling, no stage MISS T_svc
+P8-xip-512x1: 128 worst-instance rows, verdicts moved 13, rows only on one side 5
+   acmp.tmr_no_resp1.if0: staged MISS ceiling, no stage MISS T_svc
+   acmp.tmr_no_tk.if0: staged fits, no stage MISS ceiling
+   acmp.tmr_retry.if0: staged MISS T_svc, no stage fits
+   acmp.tmr_retry.if1: staged MISS ceiling, no stage fits
+   aecp.lock_entity.if1: staged MISS T_svc, no stage fits
+   aecp.read_descriptor.t0.i0.c0.if0: staged MISS T_svc, no stage fits
+   aecp.read_descriptor.t0.i0.c0.if1: staged fits, no stage MISS T_svc
+   aecp.read_descriptor.t2.i0.c0.if0: staged MISS T_svc, no stage fits
+fits <-> miss crossings (a path present on both sides):
+  P1-xip-64x1: with the stage 3 newly miss, 1 newly fit; net 2
+  P8-xip-64x1: with the stage 2 newly miss, 4 newly fit; net -2
+  P1-xip-512x1: with the stage 1 newly miss, 1 newly fit; net 0
+  P8-xip-512x1: with the stage 9 newly miss, 3 newly fit; net 6

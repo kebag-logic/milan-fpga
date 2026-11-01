@@ -1,0 +1,42 @@
+reboot_ctrl ports: ['clk_i', 'icap_csib_o', 'icap_i_o', 'mac_flush_i', 'mac_tx_beat_i', 'mac_tx_frame_i', 'mac_txend_tgl_i', 'ms_tick_i', 'nvm_backed_i', 'nvm_dirty_i', 'nvm_pend_i', 'phy_hold_o', 'reboot_req_i', 'rst_n']
+--- control: the tracked netlist
+    expect: no finding; reboot 1
+    ends: {'csr': 7, 'memory': 20, 'shim': 4, 'reboot': 1, 'wire': 0, 'removed': 27}
+    findings: 0
+--- terminal removed
+    expect: g-on-wire at reboot_ctrl.reboot_req_i
+    ends: {'csr': 7, 'memory': 20, 'shim': 4, 'reboot': 0, 'wire': 1, 'removed': 27}
+    findings: 1
+      G port reboot_req_o reaches the wire at reboot_ctrl.reboot_req_i: a value the split placement removes still has a consumer
+--- the arm: a probe on the request net
+    expect: g-on-wire at u_probe_g.a_i
+    ends: {'csr': 7, 'memory': 20, 'shim': 4, 'reboot': 1, 'wire': 1, 'removed': 27}
+    findings: 1
+      G port reboot_req_o reaches the wire at u_probe_g.a_i: a value the split placement removes still has a consumer
+--- the request also on another input of the cell
+    expect: g-on-wire at reboot_ctrl.nvm_backed_i
+    ends: {'csr': 7, 'memory': 20, 'shim': 4, 'reboot': 1, 'wire': 1, 'removed': 27}
+    findings: 1
+      G port reboot_req_o reaches the wire at reboot_ctrl.nvm_backed_i: a value the split placement removes still has a consumer
+--- a different G output driven into reboot_req_i
+    expect: author open risk 1: expected accepted, the terminal is not per output
+    ends: {'csr': 7, 'memory': 20, 'shim': 4, 'reboot': 1, 'wire': 0, 'removed': 27}
+    findings: 0
+--- the same port on a cell of another module
+    expect: g-on-wire: the terminal names the module too
+    ends: {'csr': 7, 'memory': 20, 'shim': 4, 'reboot': 0, 'wire': 1, 'removed': 27}
+    findings: 1
+      G port reboot_req_o reaches the wire at reboot_ctrl.reboot_req_i: a value the split placement removes still has a consumer
+--- the request no longer reaches the terminal
+    expect: the amr exclusion refuses a stale name; expected no refusal here
+    ends: {'csr': 7, 'memory': 20, 'shim': 4, 'reboot': 0, 'wire': 0, 'removed': 27}
+    findings: 0
+--- MUTANT widened terminal: the census arm
+    expect: still g-on-wire at the probe, so the arm does not see this mutant
+    ends: {'csr': 7, 'memory': 20, 'shim': 4, 'reboot': 1, 'wire': 1, 'removed': 27}
+    findings: 1
+      G port reboot_req_o reaches the wire at u_probe_g.a_i: a value the split placement removes still has a consumer
+--- MUTANT widened terminal: the request also on another input
+    expect: accepted: no self-test arm plants this
+    ends: {'csr': 7, 'memory': 20, 'shim': 4, 'reboot': 2, 'wire': 0, 'removed': 27}
+    findings: 0
