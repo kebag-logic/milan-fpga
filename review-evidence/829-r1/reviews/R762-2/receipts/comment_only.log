@@ -1,0 +1,12 @@
+base 4cda0aa03b11462f4f8750289f0999d5288b3546 head 2d534bec9348557a9407d3024c0b199c0ebc8bce
+build inputs the delta touches:
+hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv
+sw/litex/milan_soc.py
+hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv verilator -E -P rc 0/0 lines 302 302 sha 7571535cb812df2c 7571535cb812df2c IDENTICAL
+hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv verilator -E -P rc 0/0 lines 668 668 sha 99902c6590eb4135 99902c6590eb4135 IDENTICAL
+base sv2v rc=0 bytes=146257 raw sha=e6c640feba18d155 with source line:col normalised sha=554e5633005f815d
+head sv2v rc=0 bytes=146257 raw sha=6537f87026c7369e with source line:col normalised sha=554e5633005f815d
+raw sv2v lines that differ: 7; of those, not an elaboration-refusal text naming a source line: 0
+milan_soc.py ast d05fae4d0355415d
+milan_soc.py ast d05fae4d0355415d

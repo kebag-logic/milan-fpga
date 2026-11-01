@@ -1,0 +1,39 @@
+AX7101 1x1 export at the head: the GMII ready flop and the two resets
+--- lines 16170,16170
+assign milansoc_milanmac_phy_eth_reset = (milansoc_milanmac_phy_reset0 | milansoc_milanmac_eth_rst);
+--- lines 21596,21596
+assign impl_xilinxasyncresetsynchronizerimpl9 = (eth_tx_rst | milansoc_milanmac_eth_rst);
+--- lines 21664,21671
+    end
+    eth0_tx_en <= milansoc_milanmac_phy_sink_valid;
+    eth0_tx_data <= milansoc_milanmac_phy_sink_payload_data;
+    milansoc_milanmac_phy_sink_ready <= 1'd1;
+    if (eth_tx_rst) begin
+        milansoc_milanmac_phy_sink_ready <= 1'd0;
+    end
+end
+--- lines 32550,32559
+) FDPE_13 (
+	// Inputs.
+	.C   (eth_tx_clk),
+	.CE  (1'd1),
+	.D   (impl_xilinxasyncresetsynchronizerimpl6_rst_meta),
+	.PRE (milansoc_milanmac_phy_eth_reset),
+
+	// Outputs.
+	.Q   (eth_tx_rst)
+);
+--- lines 32672,32682
+	.INIT (1'd1)
+) FDPE_19 (
+	// Inputs.
+	.C   (maceth_tx_clk),
+	.CE  (1'd1),
+	.D   (impl_xilinxasyncresetsynchronizerimpl9_rst_meta),
+	.PRE (impl_xilinxasyncresetsynchronizerimpl9),
+
+	// Outputs.
+	.Q   (maceth_tx_rst)
+);
+--- the observer's connection
+31442:	.gmii_tready_i (milansoc_milanmac_phy_sink_ready),

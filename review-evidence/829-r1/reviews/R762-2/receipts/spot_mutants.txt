@@ -1,0 +1,23 @@
+== forced_delta_new_check_mii rc=2
+  [FAIL] fragment: the observer refused it, by measurement
+== gptp_txts: checks: 95   failures: 1 ==
+== forced_delta_old_check_mii rc=0
+== gptp_txts: checks: 95   failures: 0 ==
+== gptp_txts: checks: 95   failures: 0 ==
+== gmii_floor63 rc=2
+  [FAIL] phc window, first symbol: the guard reloaded to the interval and its margin got=63 exp=64
+  [FAIL] phc window, octet 14: the guard reloaded to the interval and its margin got=63 exp=64
+== gptp_txts: checks: 95   failures: 2 ==
+== guard188_mii rc=2
+  [FAIL] phc window, first symbol: the guard reloaded to the interval and its margin got=188 exp=203
+  [FAIL] phc window, first symbol: that frame's own result is an explicit loss got=1 exp=0
+  [FAIL] phc window, first symbol: the history guard counted it
+  [FAIL] phc window, octet 14: the guard reloaded to the interval and its margin got=188 exp=203
+== gptp_txts: checks: 95   failures: 4 ==
+== guard189_mii rc=2
+  [FAIL] phc window, first symbol: the guard reloaded to the interval and its margin got=189 exp=203
+  [FAIL] phc window, octet 14: the guard reloaded to the interval and its margin got=189 exp=203
+== gptp_txts: checks: 95   failures: 2 ==
+== shipped_mii rc=0
+== gptp_txts: checks: 95   failures: 0 ==
+== gptp_txts: checks: 95   failures: 0 ==
