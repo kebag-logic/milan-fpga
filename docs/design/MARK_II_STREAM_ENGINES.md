@@ -16,7 +16,7 @@ The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md#mark-ii-end-state) sets the 
 - **[Shared engines](#shared-engines)** -- One packetizer, one depacketizer, contexts in RAM.
 - **[Talker capture buffer](#talker-capture-buffer)** -- Eight slots, sized by the packet.
 - **[Packet-boundary stagger](#packet-boundary-stagger)** -- Phases set by wire time.
-- **[Talker latency budget](#talker-latency-budget)** -- One format per port meets it.
+- **[Talker latency budget](#talker-latency-budget)** -- One format meets it at 16 reservations.
 - **[Listener path and render buffer](#listener-path-and-render-buffer)** -- Sized by offset, per rate.
 - **[Redundancy pairing and listener merge](#redundancy-pairing-and-listener-merge)** -- Index parity, time bases, merge.
 - **[Per-port MAC, filter and timestamp units](#per-port-mac-filter-and-timestamp-units)** -- What each port adds.
@@ -329,8 +329,10 @@ When a stream joins a phase, no phase is lighter.
 With 16 streams at most, that bounds each phase's content.
 The witnesses are reached by the exact rule itself.
 
-One format per port meets 65 µs at each rate.
+At 16 reservations, one format per port meets 65 µs.
 Mixed formats do not; the [open questions](#open-questions) list it.
+
+With fewer reservations some cases exceed it, as [shown below](#fewer-reservations-on-a-port).
 
 The model is lane evidence, not a gate.
 An implementation lane must turn it into a test.
@@ -343,12 +345,14 @@ Fewer reservations make it worse.
 idleSlope shrinks with the reservations.
 Co-phased streams then wait longer for credit.
 
-| Running eight-channel streams at 48 kHz, no CRF | idleSlope | Last frame's shaper wait | With interference |
-|---|---:|---:|---:|
-| Two in phase 0 only | 33.152 Mb/s | 62.259 µs | 74.595 µs |
-| Three in phase 0 only | 49.728 Mb/s | 83.012 µs | 95.348 µs |
-| Two, phases 0 and 1 | 33.152 Mb/s | 41.425 µs | 53.761 µs |
-| Two, phases 0 and 3 | 33.152 Mb/s | 0.000 µs | 12.336 µs |
+| Running eight-channel streams at 48 kHz, no CRF | idleSlope | Last frame's shaper wait | With interference | Total, with every fixed term | Against 65 µs |
+|---|---:|---:|---:|---:|---|
+| Two in phase 0 only | 33.152 Mb/s | 62.259 µs | 74.595 µs | 102.584 µs | Not met |
+| Three in phase 0 only | 49.728 Mb/s | 83.012 µs | 95.348 µs | 123.337 µs | Not met |
+| Two, phases 0 and 1 | 33.152 Mb/s | 41.425 µs | 53.761 µs | 81.750 µs | Not met |
+| Two, phases 0 and 3 | 33.152 Mb/s | 0.000 µs | 12.336 µs | 40.325 µs | Met |
+
+Totals add the 48 kHz fixed terms, 40.325 µs.
 
 Starts and stops reach each of these rows.
 Alone, k co-phased streams wait about `(k - 1) x 125 / k` µs.
