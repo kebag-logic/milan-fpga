@@ -87,7 +87,7 @@ run: gptp_ucode.hex model
 run-mii: gptp_ucode.hex model
 	$(VERILATOR) $(VFLAGS) --Mdir obj_mii -DGPTP_TXTS_MII \
 	  -GETH_TICK_NS_P=$(MII_ETH_TICK_NS) -GETH_CYC_PER_OCTET_P=2 \
-	  -CFLAGS "-DGPTP_TXTS_MII" \
+	  -CFLAGS "-DGPTP_TXTS_MII -Wall -Wextra" \
 	  $(SRCS_MII) $(CPP) -o Vgptp_txts_sim
 	./obj_mii/Vgptp_txts_sim 25
 	./obj_mii/Vgptp_txts_sim 20
