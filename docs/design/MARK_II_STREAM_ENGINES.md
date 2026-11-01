@@ -726,8 +726,11 @@ A network rejoining during tu has none yet.
 Its copies are discarded until a clean one arrives.
 The partner's losses then stay unfilled.
 
-A sequence jump during tu also leaves copies unplaced.
+A sequence jump out of the span leaves copies unplaced.
 Rule 4 discards them, and the partner carries the audio.
+
+Smaller gaps are loss (IEEE 1722-2016 4.4.4.6).
+A restart inside the span is [open design item 2](#open-design-items).
 
 An unpaired stream gaps until its head lapses.
 That gap is at most 22 packets, 2.75 ms.
@@ -1231,6 +1234,7 @@ Each states the requirement it must meet.
 | Item | Requirement | Verification |
 |---|---|---|
 | 1. Render span edges | No sample is written outside the render buffer: not a packet whose samples cross either end of the span, nor a clean copy whose counted position falls a sample behind the render point. The early check and the buffer depth must allow for a whole packet at every rate | Simulation with copies at both span edges at 48, 96 and 192 kHz, the conversion error at its bound; the test fails if any sample lands outside the buffer |
+| 2. Restart during tu | No sample is placed by a count across a talker restart. With tu on every copy of a pair, or on an unpaired stream, a restart can step `sequence_num` by less than the span. The lane picks the restart signal and drops the context's reference on it, so its copies wait as a rejoining network's do | Simulation: tu on both networks with one stream restarting and its sequence stepping by 3, and the same on an unpaired stream; the test fails if any sample lands at a wrong packet |
 
 ## Open questions
 
