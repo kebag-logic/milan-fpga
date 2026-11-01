@@ -12,23 +12,25 @@ of a technical reference manual, and for a gate that fails on any difference.
 What is read, and from where:
 
   * `hdl/common/csr/milan_csr.sv` is the source of truth for the Milan CSR
-    block. The offsets are its `A_*` localparams. The reset values are its
-    `csr_default` table and its reset block. Which words a write changes, and
-    how, is its write decodes. What a read returns is its read decodes. Field
-    names are the RTL names: the output port a stored bit drives, or the
-    signal a read concatenation places at that bit.
+    block. `register_sv.py` reads its subset of SystemVerilog, and anything
+    outside that subset is a refusal. `register_decode.py` runs its own read
+    decodes per address, so a reset value is computed the way simulation
+    computes it, and every decoded word must be on the page. `register_fields.py`
+    turns that and the write decodes into fields, named by the RTL.
   * the parameters the shipping build elaborates come from the builder
     export's top-level Verilog, recorded with the export's `csr.csv` (memory
     map, LiteX CSR banks) and `aem_desc.json` (the processor windows) in
     `scripts/register_map_soc.json`. That file is written by this script from
     the export (`--soc-from`), never by hand.
   * `scripts/register_descriptions.json` carries the prose: a purpose per
-    register, a description per field and notes. It is keyed by RTL register
-    and field name, and the generator refuses a key the RTL lacks.
+    register, a description per field and short notes. It is keyed by RTL
+    register and field name, and the generator refuses a key the RTL lacks.
   * the feature-status rows come from `docs/reference/milan_feature_status.json`.
 
 What is written: `docs/reference/REGISTER_MAP.md`, one WaveDrom `reg` source
-per module under `docs/diagrams/regmap/` and one SVG per register beside it.
+per module under `docs/diagrams/regmap/`, one SVG per register beside it, a
+digest of the comment-stripped CSR sources, and the catalog block. Rationale
+and history live on `docs/design/CSR_REGISTER_NOTES.md`, which is not generated.
 
 Usage:
     python3 scripts/gen_register_reference.py --write
@@ -42,7 +44,8 @@ on any byte that differs from the tree. With `--soc-from` it also re-extracts
 the SoC facts from a builder export and fails if the committed extract differs.
 
 Exit status: 0 fresh or written, 1 stale or a failed control, 2 refused (an
-input the generator cannot read, or a description key the RTL lacks).
+input the generator cannot read, a decoded word with no register, a flop whose
+reset differs from the defaults ROM, or a description key the RTL lacks).
 """
 
 from __future__ import annotations

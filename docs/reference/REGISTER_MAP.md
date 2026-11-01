@@ -14,6 +14,8 @@ The SoC facts come from the `endstation_ax7101_1x1_tdm8` export, recorded in `sc
 
 Production classes are in [REGISTER_MAP_CLASSES.md](REGISTER_MAP_CLASSES.md).
 
+Rationale and version history are in the [design notes](../design/CSR_REGISTER_NOTES.md).
+
 ## Contents
 
 | Section | What it holds |

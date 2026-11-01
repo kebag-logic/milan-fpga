@@ -15,6 +15,7 @@ diagram, an edited SoC extract, and descriptions the RTL cannot back.
 from __future__ import annotations
 
 import contextlib
+import importlib.util
 import io
 import json
 import shutil
@@ -262,6 +263,19 @@ def controls() -> list[tuple[str, Callable[[Path], None], int, str]]:
     return out
 
 
+def memory_map_control() -> bool:
+    """The memory-map label check refuses a label that overprints its address,
+    or carries markup, and passes the labels the tree renders."""
+    spec = importlib.util.spec_from_file_location("memory_map_gen", ROOT / "docs/diagrams/memory_map.gen.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    palette = ("#FFFFFF", "#000000")
+    long_label = [("x" * 80, 0, 1, palette, 0)]
+    marked = [("`code`", 0, 1, palette, 0)]
+    return (bool(module.check_labels(long_label, [])) and bool(module.check_labels([], marked))
+            and not module.check_labels([("short", 0, 1, palette, 0)], []))
+
+
 def run(entry: Entry, root: Path) -> tuple[int, str]:
     """The workflow's `--check` on `root`: exit status and output."""
     buf = io.StringIO()
@@ -288,6 +302,9 @@ def selftest(entry: Entry) -> int:
         failures += not ok
         print(f"  {'ok  ' if ok else 'FAIL'} {name}: rc {rc} (want {want_rc})"
               + ("" if ok else f"\n       output: {' '.join(out.split())[:300]}"))
+    labels_ok = memory_map_control()
+    failures += not labels_ok
+    print(f"  {'ok  ' if labels_ok else 'FAIL'} memory-map label check")
     print(f"register reference selftest: {'OK' if not failures else 'FAIL'} "
-          f"({len(names) - failures}/{len(names)} controls)")
+          f"({len(names) + 1 - failures}/{len(names) + 1} controls)")
     return 1 if failures else 0

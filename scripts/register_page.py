@@ -6,7 +6,8 @@
 Renders the model `scripts/gen_register_reference.py` assembles into the
 register reference page, in the layout of a technical reference manual: the
 memory map, one summary table per module, one section per register with its
-WaveDrom `reg` bit-field diagram and field table, and the access legend.
+WaveDrom `reg` bit-field diagram and field table, and the access legend. Notes
+render as paragraphs the concise-prose gate reads, never as a one-column table.
 Everything rendered comes from the model; this module adds no register fact.
 """
 
@@ -433,6 +434,8 @@ def header(model: Model) -> list[str]:
         f"The SoC facts come from the `{soc['shape']}` export, recorded in `{SOC}`.",
         "",
         "Production classes are in [REGISTER_MAP_CLASSES.md](REGISTER_MAP_CLASSES.md).",
+        "",
+        f"Rationale and version history are in the [design notes]({relative(RECORD)}).",
         "",
     ]
 
