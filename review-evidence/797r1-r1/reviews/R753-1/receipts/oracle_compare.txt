@@ -1,0 +1,77 @@
+registers parsed: 202 fields: 381
+0x55c PTP_PPS_WIDTH:
+    [31:0] PPS_WIDTH page reset X, but no input moves it: reads 0x0 from reset
+0x66c ACMP_TALKER:
+    [2:2] ACMP_LOBS page reset X, but no input moves it: reads 0x0 from reset
+0x720 RST_EPOCH:
+    [7:0] RST_EPOCH page reset X, but no input moves it: reads 0x59 from reset
+0x7b4 REST_CMD:
+    [9:8] REST_STAT page R/W: w1=0x0 w0=0x0
+    [3:0] REST_IDX page R/W: w1=0xf w0=0xf
+0x7d8 ETH_GUARD:
+    [0:0] ETH_GUARD page R/W: w1=0x1 w0=0x1
+0x810 STRMW_CTRL:
+    [31:1] STRMW_CTRL_31_1 page R/W: w1=0x0 w0=0x0
+    [0:0] STRMW_CTRL_0 page R/W: w1=0x0 w0=0x0
+0x814 STRMW_SID_LO:
+    [31:0] STRMW_SID_LO page reset X, but no input moves it: reads 0x0 from reset
+    [31:0] STRMW_SID_LO page R/W: w1=0x0 w0=0x0
+0x818 STRMW_SID_HI:
+    [31:0] STRMW_SID_HI page reset X, but no input moves it: reads 0x0 from reset
+    [31:0] STRMW_SID_HI page R/W: w1=0x0 w0=0x0
+0x81c STRMW_DMAC_LO:
+    [31:0] STRMW_DMAC_LO page reset X, but no input moves it: reads 0x0 from reset
+    [31:0] STRMW_DMAC_LO page R/W: w1=0x0 w0=0x0
+0x820 STRMW_DMAC_HI:
+    [31:0] STRMW_DMAC_HI page reset X, but no input moves it: reads 0x0 from reset
+    [31:0] STRMW_DMAC_HI page R/W: w1=0x0 w0=0x0
+0x824 STRMW_FMT_LO:
+    [31:0] STRMW_FMT_LO page R/W: w1=0x0 w0=0x0
+0x828 STRMW_FMT_HI:
+    [31:0] STRMW_FMT_HI page R/W: w1=0x0 w0=0x0
+0x82c STRMW_STATE:
+    [31:0] STRMW_STATE page reset X, but no input moves it: reads 0x0 from reset
+0x830 STRMW_CNTn:
+    [31:0] SNAP_SHADOW page reset X, but no input moves it: reads 0x0 from reset
+0x834 STRMW_CNTn:
+    [31:0] SNAP_SHADOW page reset X, but no input moves it: reads 0x0 from reset
+0x838 STRMW_CNTn:
+    [31:0] SNAP_SHADOW page reset X, but no input moves it: reads 0x0 from reset
+0x83c STRMW_CNTn:
+    [31:0] SNAP_SHADOW page reset X, but no input moves it: reads 0x0 from reset
+0x840 STRMW_CNTn:
+    [31:0] SNAP_SHADOW page reset X, but no input moves it: reads 0x0 from reset
+0x844 STRMW_CNTn:
+    [31:0] SNAP_SHADOW page reset X, but no input moves it: reads 0x0 from reset
+0x848 STRMW_CNTn:
+    [31:0] SNAP_SHADOW page reset X, but no input moves it: reads 0x0 from reset
+0x84c STRMW_CNTn:
+    [31:0] SNAP_SHADOW page reset X, but no input moves it: reads 0x0 from reset
+0x850 STRMW_CNTn:
+    [31:0] SNAP_SHADOW page reset X, but no input moves it: reads 0x0 from reset
+0x854 STRMW_CNTn:
+    [31:0] SNAP_SHADOW page reset X, but no input moves it: reads 0x0 from reset
+0x858 STRMW_PDUS:
+    [31:0] STRMW_PDUS page reset X, but no input moves it: reads 0x0 from reset
+0x860 STRMW_CTLR_LO:
+    [31:0] STRMW_CTLR_LO page reset X, but no input moves it: reads 0x0 from reset
+0x864 STRMW_CTLR_HI:
+    [31:0] STRMW_CTLR_HI page reset X, but no input moves it: reads 0x0 from reset
+0x868 STRMW_BIND:
+    [31:0] STRMW_BIND page reset X, but no input moves it: reads 0x0 from reset
+0x908 CHMAP_WORD:
+    [15:0] CHMAP_WR_DATA page R/W: w1=0x0 w0=0x0
+0x910 CHMAP_SNAP:
+    [4:4] CMRD_ARMED page R: base=0x0 w1=0x1 w0=0x1
+    [2:2] CMRD_TO page R: base=0x0 w1=0x1 w0=0x1
+0x914 CHMAP_LOOP:
+    [31:0] CHMAP_LOOP_RD page reset X, but no input moves it: reads 0xdeaddead from reset
+0x92c PP_SPDATA:
+    [31:0] PP_SPRDATA page R/W: w1=0x0 w0=0x0
+0x938 PP_NVM_DATA:
+    [31:0] PP_NVM_CSR_RDATA page R/W: w1=0x0 w0=0x0
+0x93c PP_NVM_STAT:
+    [31:0] PP_NVM_CSR_RDATA page R/W: w1=0x0 w0=0x0
+field findings: 40
+undocumented addresses with a nonzero observation: 1
+    0x86c r0=deaddead r1=deaddead base=deaddead w1=deaddead w0=deaddead g1=deaddead

@@ -1,0 +1,11 @@
+register reference: wrote docs/reference/REGISTER_MAP.md and 237 diagram files (202 registers, 34 modules)
+--- masked store on CHMAP_SEL: --write rc=0, page says the RTL write arm stores nothing:
+    | 31:9 | `RESERVED` | R | 0 | Reserved. |
+    | 8 | `CHMAP_WR_SIDE` | R | 0 | side (0 = RMAP/render phys channel 0..9, 1 = CMAP/capture 
+    | 7:6 | `RESERVED` | R | 0 | Reserved. |
+    | 5:0 | `CHMAP_WR_ADDR` | R | 0 | map entry index |
+register reference: wrote docs/reference/REGISTER_MAP.md and 237 diagram files (202 registers, 34 modules)
+--- slice store on MCSRV_CTRL: --write rc=0, page says the RTL write arm stores nothing:
+    | 31:2 | `RESERVED` | R | 0 | Reserved. |
+    | 1 | `MCSRV_AUTO_REPAIR` | R | 0 |  |
+    | 0 | `MCSRV_PS_INVERT` | R | 0 |  |
