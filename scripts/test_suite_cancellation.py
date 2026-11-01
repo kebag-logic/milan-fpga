@@ -10,9 +10,14 @@ import signal
 import subprocess
 import sys
 import tempfile
+import threading
+import time
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
-from owned_process import OwnedProcesses
+import owned_process
+from owned_process import Cancelled, OwnedProcesses
 from process_test_support import (
     FACILITY_MODES, FACILITY_SITE, PROC, Probe, assert_reaped, eventually, identity, install,
     parent as parent_of, running, write,
@@ -362,11 +367,279 @@ def relative_output(parent: Path) -> None:
     probe.save(dict(exit=status, relative_output=True))
 
 
+#: Only SIGKILL ends this one. It publishes its PID once its handlers are installed.
+STUBBORN = r'''
+import os, signal, sys, time
+from pathlib import Path
+signal.signal(signal.SIGINT, signal.SIG_IGN)
+signal.signal(signal.SIGTERM, signal.SIG_IGN)
+Path(sys.argv[1]).write_text(str(os.getpid()))
+while True:
+    time.sleep(0.02)
+'''
+
+#: Records that SIGTERM reached it, then exits, as a cooperative command does.
+COOPERATIVE = r'''
+import os, signal, sys, time
+from pathlib import Path
+def stop(_signum, _frame):
+    Path(sys.argv[2]).write_text("SIGTERM")
+    raise SystemExit(0)
+signal.signal(signal.SIGTERM, stop)
+Path(sys.argv[1]).write_text(str(os.getpid()))
+while True:
+    time.sleep(0.02)
+'''
+
+#: Leaves its one child running under it until something ends this parent.
+PARENT = r'''
+import subprocess, sys, time
+subprocess.Popen([sys.executable, "-c", sys.argv[1], *sys.argv[2:]])
+while True:
+    time.sleep(0.02)
+'''
+
+
+@contextmanager
+def stages(**seconds: float) -> Iterator[None]:
+    """Shorten cleanup stages for a control whose result does not depend on them."""
+    saved = {name: getattr(owned_process, name) for name in seconds}
+    for name, value in seconds.items():
+        setattr(owned_process, name, value)
+    try:
+        yield
+    finally:
+        for name, value in saved.items():
+            setattr(owned_process, name, value)
+
+
+def published(path: Path) -> int:
+    """Wait for a child's handlers; its published PID is the handshake."""
+    eventually(path.exists, 15, f"no handshake at {path}")
+    eventually(lambda: path.read_text() != "", 5, f"empty handshake at {path}")
+    return int(path.read_text())
+
+
+def really_kill(pid: int, start: str) -> None:
+    """End a control's deliberate survivor, which the owner under test could not."""
+    if running(pid, start):
+        os.kill(pid, signal.SIGKILL)
+    eventually(lambda: not running(pid, start), 15, "deliberate survivor outlived SIGKILL")
+
+
+def owner_report(parent: Path) -> None:
+    """The failure message names what each remaining process is doing (#833)."""
+    scratch = parent / "owner-report"
+    scratch.mkdir()
+    ready = scratch / "ready"
+    sleeper = subprocess.Popen([sys.executable, "-c", STUBBORN, str(ready)])
+    published(ready)
+    eventually(lambda: identity(sleeper.pid)[1] == "S", 15, "handshake child never slept")
+    asleep = owned_process._describe(sleeper.pid, os.getpid(), None)
+    for field in (f"pid {sleeper.pid} (python", "state S", "wchan ", f"parent {os.getpid()}",
+                  f"first parent {os.getpid()}", " age ", " start ", "not sent SIGKILL"):
+        assert field in asleep, (field, asleep)
+    assert "wchan  " not in asleep, asleep
+    assert "new since the first census" in owned_process._describe(sleeper.pid, None, None)
+    assert "(first parent 1)" in owned_process._describe(sleeper.pid, 1, None)
+    sleeper.kill()
+    eventually(lambda: identity(sleeper.pid)[1] == "Z", 15, "killed child never became a zombie")
+    zombie = owned_process._describe(sleeper.pid, os.getpid(), 1.5)
+    assert "state Z" in zombie and "sent SIGKILL 1.50 s ago" in zombie, zombie
+    sleeper.wait()
+    assert "exited during this report" in owned_process._describe(sleeper.pid, None, None)
+    print("owner-report: " + zombie, flush=True)
+
+
+def owner_reparented(parent: Path) -> None:
+    """A descendant re-parented by the first SIGTERM still receives its own (#833)."""
+    scratch = parent / "owner-reparented"
+    scratch.mkdir()
+    ready, marker = scratch / "ready", scratch / "marker"
+    middle = subprocess.Popen([sys.executable, "-c", PARENT, COOPERATIVE, str(ready), str(marker)])
+    child = published(ready)
+    with OwnedProcesses() as owner:
+        census = owner._descendants
+        seen = []
+
+        def reparenting() -> dict:
+            # Exactly the recorded race: this census names the old parent, which
+            # is gone before the owner can signal the child it listed under it.
+            listed = census()
+            if not seen:
+                seen.append(True)
+                middle.kill()
+                eventually(lambda: parent_of(child) == os.getpid(), 15, "child was never re-parented")
+            return listed
+        owner._descendants = reparenting
+    assert marker.exists(), "re-parented descendant was treated as new and never got SIGTERM"
+    middle.wait()
+    print("owner-reparented: " + str(dict(sigterm_during_grace=True)), flush=True)
+
+
+def owner_late_exit(parent: Path) -> None:
+    """A child that exits during the last census is collected, not failed (#833)."""
+    scratch = parent / "owner-late-exit"
+    scratch.mkdir()
+    ready = scratch / "ready"
+    child = subprocess.Popen([sys.executable, "-c", STUBBORN, str(ready)])
+    published(ready)
+    with stages(GRACE_SECONDS=0.0, KILL_ALL_SECONDS=0.0, REAP_SECONDS=0.4):
+        with OwnedProcesses() as owner:
+            census = owner._descendants
+
+            def exiting() -> dict:
+                # The real census, then the slow pass measured under load: the
+                # child dies inside it and the deadline passes before it ends.
+                listed = census()
+                if child.pid in listed:
+                    child.kill()
+                    eventually(lambda: identity(child.pid)[1] == "Z", 15, "child never became a zombie")
+                    time.sleep(0.45)
+                return listed
+            owner._descendants = exiting
+    child.wait()
+    print("owner-late-exit: " + str(dict(collected_at_deadline=True)), flush=True)
+
+
+def owner_stall(parent: Path) -> None:
+    """An owner stalled past every deadline still kills, and fails no one, first (#833)."""
+    scratch = parent / "owner-stall"
+    scratch.mkdir()
+    ready = scratch / "ready"
+    child = subprocess.Popen([sys.executable, "-c", STUBBORN, str(ready)])
+    pid = published(ready)
+    stalls = []
+    with stages(GRACE_SECONDS=0.5, KILL_ALL_SECONDS=0.5, REAP_SECONDS=2.0):
+        with OwnedProcesses() as owner:
+            census = owner._descendants
+
+            def stalling() -> dict:
+                listed = census()
+                # Longer than the whole 3 s of deadlines, after SIGTERM and before SIGKILL.
+                if pid in listed and len(stalls) == 1:
+                    time.sleep(3.2)
+                stalls.append(True)
+                return listed
+            owner._descendants = stalling
+    assert identity(pid) is None or identity(pid)[1] == "Z", identity(pid)
+    child.wait()
+    print("owner-stall: " + str(dict(stalled_seconds=3.2, killed_after_stall=True)), flush=True)
+
+
+def owner_shell_window(parent: Path) -> None:
+    """A shell resumed past the kill time runs its trap before any SIGKILL (#833)."""
+    scratch = parent / "owner-shell-window"
+    scratch.mkdir()
+    ready, marker = scratch / "ready", scratch / "trap-ran"
+    script = (f"trap 'echo trapped > \"{marker}\"; exit 143' TERM\n"
+              f"{sys.executable} -c \"$STUBBORN\" \"{ready}\" &\nwait\n")
+    env = dict(os.environ, STUBBORN=STUBBORN)
+    blocked = []
+    with stages(GRACE_SECONDS=0.2, KILL_ALL_SECONDS=0.2):
+        try:
+            with OwnedProcesses() as owner:
+                send = owner._send
+
+                def late(pid: int, start: str, signum: int) -> bool:
+                    # The child dies only after the time SIGKILL reaches everything.
+                    now = time.monotonic()
+                    if not blocked:
+                        blocked.append(now)
+                    if signum == signal.SIGKILL and pid != owner.process.pid and now < blocked[0] + 0.7:
+                        return False
+                    return send(pid, start, signum)
+                owner._send = late
+
+                def cancel() -> None:
+                    published(ready)
+                    os.kill(os.getpid(), signal.SIGTERM)
+                threading.Thread(target=cancel, daemon=True).start()
+                owner.run(["bash", "-c", script], env=env)
+            raise AssertionError("cancellation was not reported")
+        except Cancelled:
+            pass
+    assert marker.exists(), "the shell was killed in the pass that resumed it, before its trap"
+    print("owner-shell-window: " + str(dict(trap_ran_after_kill_time=True)), flush=True)
+
+
+def owner_survivor(parent: Path) -> None:
+    """A descendant that outlives SIGKILL fails, with its state, and leaves nothing else (#833)."""
+    scratch = parent / "owner-survivor"
+    scratch.mkdir()
+    ready = scratch / "ready"
+    # The trap keeps the shell stopped on SIGTERM; with none, the signal would end it.
+    script = f"trap 'exit 143' TERM\n{sys.executable} -c \"$STUBBORN\" \"{ready}\" &\nwait\n"
+    env = dict(os.environ, STUBBORN=STUBBORN)
+    survivor = []
+    shell_start = []
+    with stages(GRACE_SECONDS=0.2, KILL_ALL_SECONDS=0.2, REAP_SECONDS=0.6):
+        with OwnedProcesses() as owner:
+            send = owner._send
+
+            def undying(pid: int, start: str, signum: int) -> bool:
+                # What no unprivileged control can really build: SIGKILL has no effect.
+                if survivor and pid == survivor[0] and signum == signal.SIGKILL:
+                    return True
+                return send(pid, start, signum)
+            owner._send = undying
+
+            def cancel() -> None:
+                survivor.append(published(ready))
+                shell_start.append(identity(owner.process.pid)[0])
+                os.kill(os.getpid(), signal.SIGTERM)
+            threading.Thread(target=cancel, daemon=True).start()
+            try:
+                owner.run(["bash", "-c", script], env=env)
+                raise AssertionError("a descendant survived SIGKILL and the run did not fail")
+            except RuntimeError as exc:
+                failure = str(exc)
+            # The never-resumed shell must not stay behind this failure, stopped.
+            eventually(lambda: not running(owner.process.pid, shell_start[0]), 15, "stopped shell left behind")
+            owner.cancel_signal = 0
+            really_kill(survivor[0], identity(survivor[0])[0])
+            owner._reap()
+    assert "CLEANUP FAILED: owned descendants remain" in failure, failure
+    for field in (f"pid {survivor[0]} (", "state ", "wchan ", "parent ", " age ", "sent SIGKILL "):
+        assert field in failure, (field, failure)
+    print("owner-survivor: " + failure, flush=True)
+
+
+def owner_vanishing() -> None:
+    """A listing that always dies inside the census still reaches a verdict (#833)."""
+    with stages(GRACE_SECONDS=0.1, KILL_ALL_SECONDS=0.1, REAP_SECONDS=0.3):
+        with OwnedProcesses() as owner:
+            real_census, real_reap = owner._descendants, owner._reap
+            gone = 2 ** 22 + 1
+            since = time.monotonic()
+
+            def listed() -> dict:
+                assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+                return {gone: (os.getpid(), "0")}
+            owner._descendants = listed
+            owner._reap = lambda: {gone}
+            try:
+                owner._cleanup()
+                raise AssertionError("an endless listing did not fail the run")
+            except RuntimeError as exc:
+                failure = str(exc)
+            owner._descendants, owner._reap = real_census, real_reap
+    assert "CLEANUP FAILED" in failure and "exited during this report" in failure, failure
+    print("owner-vanishing: " + str(dict(verdict_reached=True)), flush=True)
+
+
 def main() -> int:
     """Exercise production orchestration with no compiler or RTL substitution claim."""
     with tempfile.TemporaryDirectory(prefix="suite-cancellation-") as scratch:
         parent = Path(scratch)
         with OwnedProcesses():
+            owner_report(parent)
+            owner_reparented(parent)
+            owner_late_exit(parent)
+            owner_stall(parent)
+            owner_shell_window(parent)
+            owner_survivor(parent)
+            owner_vanishing()
             for mode in ("pass", "fail", "masked", "timeout"):
                 ordinary(parent, mode)
             ownership_refusal(parent)
@@ -387,7 +660,8 @@ def main() -> int:
     print("suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, "
           "partial logs, attributed cancellation reports, lock wait, next-suite sentinel, "
           "ordinary/masked/timeout, hard KILL/HUP stops, "
-          "facility refusals, unsafe negative controls)")
+          "facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, "
+          "unsafe negative controls)")
     return 0
 
 
