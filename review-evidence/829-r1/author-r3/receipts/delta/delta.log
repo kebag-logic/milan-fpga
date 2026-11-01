@@ -1,0 +1,46 @@
+# delta 2d534bec..cfb799229d3c5c695468cc1a7cad08403e57f265
+ sw/builder/test_builder.py       | 153 +++++++++++++++++++++++++++++++++------
+ sw/litex/milan_soc.py            |   4 +-
+ tb/verilator/gptp_txts/README.md |   7 +-
+ 3 files changed, 134 insertions(+), 30 deletions(-)
+# hdl/ files changed: 0
+# commits
+cfb799229d3c5c695468cc1a7cad08403e57f265 Order the observer reset comment and re-wrap the closed loop guide's paragraph (#829)
+fe87317e6618f682f4d8e6d9a02f28507251adae Read the datapath's shape wiring through the build's front end, so a commented or dead-arm binding fails gate 1h (#829)
+# trailers or second lines in those commits: 0
+# sw/litex/milan_soc.py parsed program identical to 2d534bec: True
+# milan_soc.py and README diff
+diff --git a/sw/litex/milan_soc.py b/sw/litex/milan_soc.py
+index a0382b3497..94e89129ca 100644
+--- a/sw/litex/milan_soc.py
++++ b/sw/litex/milan_soc.py
+@@ -2091,9 +2091,9 @@ class MilanMAC(LiteXModule):
+         # tied working blocks off in this file before (`i_mac_events = 0`).
+         # It runs in `maceth_tx` - the MAC's own transmit-side domain, whose reset
+         # is `ResetSignal("eth_tx") | eth_rst`, the reset that clears the LiteEth
+-        # transmit side. `eth_rst` also clears the PHY stage on GMII and does not
+-        # reach it on MII. That is what makes "the observer was reset with the
++        # transmit side. That is what makes "the observer was reset with the
+         # frames it was watching" a fact of the wiring rather than a claim.
++        # `eth_rst` also clears the PHY stage on GMII and does not reach it on MII.
+         self.gptp_txrec_valid = Signal(name="gptp_txrec_valid")
+         self.gptp_txrec_kind  = Signal(name="gptp_txrec_kind")
+         self.gptp_txrec_oidx  = Signal(12, name="gptp_txrec_oidx")
+diff --git a/tb/verilator/gptp_txts/README.md b/tb/verilator/gptp_txts/README.md
+index 2a575d121b..e8883c3af1 100644
+--- a/tb/verilator/gptp_txts/README.md
++++ b/tb/verilator/gptp_txts/README.md
+@@ -75,10 +75,9 @@ It proves the reconstruction is the launch: every frame inside the published
+ digital bound, a mean inside one nanosecond over two hundred phase-varied
+ frames (1.754 ns on the MII shape, whose limit adds what the declared wire-clock
+ offset leaves over the longer interval), and the same answer whether the frame
+-left an empty MAC or queued
+-behind other traffic. It measures the retired capture in the same run and
+-prints how far ahead of the launch it was, isolated and queued, which is the
+-defect as a number.
++left an empty MAC or queued behind other traffic. It measures the retired
++capture in the same run and prints how far ahead of the launch it was, isolated
++and queued, which is the defect as a number.
+ 
+ It proves nothing physical. No measured PHY latency, no pad clock-to-out, no
+ cable, no silicon. Its reference plane is the registered GMII launch edge,

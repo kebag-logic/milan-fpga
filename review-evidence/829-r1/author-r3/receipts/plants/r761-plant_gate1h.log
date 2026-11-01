@@ -1,0 +1,20 @@
+# head cfb799229d3c5c695468cc1a7cad08403e57f265: R761-2 plant_gate1h.py
+head: gate 1h reader returns no finding
+REFUSED  tick binding deleted: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []']
+REFUSED  octet binding deleted: ['.ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: []']
+REFUSED  tick tied to 8: [".ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: ['8']"]
+REFUSED  octet tied to 1: [".ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: ['1']"]
+REFUSED  bindings crossed: [".ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: ['GPTP_ETH_CYC_PER_OCTET_P']", ".ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: ['GPTP_ETH_TICK_NS_P']"]
+REFUSED  tick scaled: [".ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: ['GPTP_ETH_TICK_NS_P * 2']"]
+REFUSED  octet to another parameter: [".ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: ['GPTP_PHC_TICK_NS_P']"]
+REFUSED  tick default 40: ["GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '40')]"]
+REFUSED  octet default 2: ["GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('parameter', '2')]"]
+REFUSED  tick made a localparam: ["GPTP_ETH_TICK_NS_P does not default to 8: [('localparam', '8')]"]
+REFUSED  second plane: ['2 planes instantiated, not one']
+REFUSED  instance renamed: ['the one plane instantiated is not u_gptp_shadow']
+REFUSED  tick binding commented out: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []']
+REFUSED  octet binding commented out: ['.ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: []']
+REFUSED  tick binding in a block comment: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []']
+REFUSED  tick binding in a dead ifdef: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []']
+REFUSED  real default commented, moved to 40: ["GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '40')]"]
+plants 17 accepted 0
