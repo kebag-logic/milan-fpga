@@ -1,0 +1,6 @@
+build rc 0 gate rc 0 whole output identical: False module count 1 1 module identical: False
+same with sv2v's own path-bearing Trace comment lines removed: whole True module True non-Trace bytes 1621234
+module text carries plane once: 1 whole output: 1
+ok  rc=1 no defines: AssertionError: gate 1h accepted a milan_datapath.sv with ETH_TICK_NS_P only where the build does not define SYNTHESIS: []
+ok  rc=1 no include directories: AssertionError: ['the front end refuses it: $PACKET/scratch/mut1/hdl/common/csr/milan_csr.sv:1386:98: Lexical error: Could not find file "g
+ok  rc=1 the shipped file stays in the list: (no assertion line: act-slots/scratch/reviews/829-r762-4-packet/scratch/mut2/sw/builder/test_builder.py", line 18341     read = subprocess.run( IndentationError: unexpected indent 
