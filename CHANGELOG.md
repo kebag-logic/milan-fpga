@@ -62,8 +62,10 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - No launch record came, and the engine waited for one.
 - Its event queue filled.
 - The observer now counts an octet where `valid` and `ready` coincide.
-- On GMII `ready` is the constant 1.
-- So that logic folds away.
+- On GMII `ready` is a flop.
+- It is 1 from the first clock after reset.
+- The observer's own reset covers that reset.
+- So no octet is held on GMII.
 - The MII correction is 3770 ns.
 - The GMII correction is 426 ns.
 - `make -C tb/verilator/gptp_txts run-mii` runs the closed loop on this shape.

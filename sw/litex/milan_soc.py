@@ -2077,12 +2077,14 @@ class MilanMAC(LiteXModule):
         # with `set_property IOB TRUE` above because an unlocked GMII launch is a
         # per-seed clock-to-out lottery on this board, and a second load on those
         # nets would defeat the packing. `LiteEthPHYGMIITX` registers
-        # `sink.valid`/`sink.data` straight into the pads on the same edge and
-        # holds `sink.ready` at 1, so this seam and the pad are one register stage
-        # apart, which the closed-loop bench MEASURES rather than assumes.
+        # `sink.valid`/`sink.data` straight into the pads on the same edge, so this
+        # seam and the pad are one register stage apart, which the closed-loop
+        # bench MEASURES rather than assumes.
         # `LiteEthPHYMIITX` holds each octet for two clocks and raises `ready` on
         # the second, so the observer takes `ready` too and states that shape
-        # (#829); on GMII `ready` is the constant 1 and folds away.
+        # (#829). On GMII `ready` is a flop that is 1 from the first clock after
+        # reset, and the observer's own reset covers that reset, so no octet is
+        # held there.
         #
         # RTL, not glue: the record has to carry a measured cycle distance and an
         # ordered position across a clock-domain crossing, and glue is what has

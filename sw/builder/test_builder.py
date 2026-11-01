@@ -18263,8 +18263,8 @@ def test_reboot_egress_statement_gate_bites() -> None:
 
 
 #: The launch shape a PHY model states (#829). GMII states nothing, so its
-#: elaboration keeps the RTL defaults and the AX7101 image cannot move; MII has
-#: to state all four, or its reconstruction is wrong by a constant.
+#: elaboration keeps the RTL defaults, one octet per 8 ns clock; MII has to
+#: state all four, or its reconstruction is wrong by a constant.
 LAUNCH_SHAPE_MUTATIONS = (
     ('"p_ETH_CYC_PER_OCTET_P": 2', '"p_ETH_CYC_PER_OCTET_P": 1'),
     ('"p_TXTS_DELTA_EXP_P": 45 * 2', '"p_TXTS_DELTA_EXP_P": 45'),

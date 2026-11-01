@@ -32,10 +32,11 @@
                 clock-to-out lottery on this board, and a fan-out to an
                 observer would defeat that packing. The GMII PHY stage
                 registers `sink.valid` into `tx_en` and `sink.data` into
-                `tx_data` on the same edge and holds `sink.ready` at 1, so the
-                pad and this observer see the same octet on the same clock
-                edge: the relationship between the two seams is one register
-                stage, not an assumption.
+                `tx_data` on the same edge, and its `sink.ready` is a flop that
+                is 1 from the first clock after reset, so the pad and this
+                observer see the same octet on the same clock edge: the
+                relationship between the two seams is one register stage, not
+                an assumption.
 
                 THE MII SHAPE (issue #829). The 10/100 PHY stage splits each
                 octet into two nibbles, low first, so `sink.valid` and
@@ -359,7 +360,9 @@ module KL_gptp_gmii_launch #(
       if (gmii_tvalid_i) begin
         gap_r <= GAP_W_C'(0);
         //! one octet per transfer: on MII `ready` low holds this octet across
-        //! its nibbles (issue #829); on GMII `ready` is always high
+        //! its nibbles (issue #829). On GMII `ready` is a flop that is 1 from the
+        //! first clock after reset, and this module's own reset covers that
+        //! reset, so no octet is held there.
         if (gmii_tready_i) begin
           inf_r <= 1'b1;
           idx_r <= nidx_w;

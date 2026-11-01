@@ -283,8 +283,11 @@ So `phy.sink` holds each octet for two 40 ns clocks.
 
 The observer counts an octet where `valid` and `ready` coincide (#829).
 
-On GMII `ready` is the constant 1.
-So that term folds away.
+On GMII `ready` is a flop.
+It is 1 from the first clock after reset.
+
+The observer's own reset covers that reset.
+So no octet is held on GMII.
 
 The reference plane is a registered launch edge.
 That edge launches frame octet 0's low nibble.
