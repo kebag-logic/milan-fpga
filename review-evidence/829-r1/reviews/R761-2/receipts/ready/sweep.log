@@ -1,0 +1,24 @@
+## sweep of the phrases at head
+sw/litex/milan_soc.py:1159:    # marks the final beat; `rsp_ready` is tied 1 by the processor, it always
+sw/litex/milan_soc.py:1187:        d_rsp.dp.ready.eq(1),   # the processor's rsp_ready is tied 1
+sw/litex/milan_soc.py:1223:    #   * `rsp_ready` is REAL backpressure - it is NOT tied 1 here. The buffer
+sw/litex/milan_soc.py:1234:    #     `valid & ready` on a CDC endpoint whose `ready` is tied 1, so exactly
+sw/litex/milan_soc.py:1273:        # one token in flight by contract, `ready` tied 1 -> `valid` is high
+sw/litex/milan_soc.py:3510:            # ever touches, so an attested capture cannot move under the seal,
+sw/litex/milan_soc.py:4536:        # opt_design already ran): folds equivalent CE/reset drivers so FFs pack
+## delta-relevant test_builder
+sw/builder/test_builder.py:4599:    #: no token, defines nothing and retires nothing, so it cannot move an
+sw/builder/test_builder.py:7407:            "cannot move the write out of view"
+sw/builder/test_builder.py:17470:          "cannot move it out of view; (c) removing the edge "
+sw/builder/test_builder.py:17706:          "GREEN. Two refusals stay retired: a vpath cannot move this "
+sw/builder/test_builder.py:21300:                at def time so the loop cannot move them under the variant."""
+sw/builder/test_builder.py:21659:            the loop cannot move them under the variant."""
+sw/builder/test_builder.py:25460:    cannot move in one place and not the others, which is exactly how a
+## AX7101 export at head
+3707:reg           milansoc_milanmac_phy_sink_ready = 1'd0;
+16742:assign milansoc_milanmac_liteethmaccore_tx_gap_source_ready = milansoc_milanmac_phy_sink_ready;
+21662:    if (((milansoc_milanmac_phy_sink_valid & milansoc_milanmac_phy_sink_ready) & milansoc_milanmac_phy_sink_last))
+21667:    milansoc_milanmac_phy_sink_ready <= 1'd1;
+21669:        milansoc_milanmac_phy_sink_ready <= 1'd0;
+31442:	.gmii_tready_i (milansoc_milanmac_phy_sink_ready),
+31442:	.gmii_tready_i (milansoc_milanmac_phy_sink_ready),

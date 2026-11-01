@@ -1,0 +1,17 @@
+## every mention of the observer's ready outside the reviewed text
+sw/builder/test_builder.py:18371:            ("i_gmii_tready_i", "self.phy.sink.ready"),
+sw/litex/milan_soc.py:2114:            i_gmii_tready_i = self.phy.sink.ready,
+tb/verilator/gptp_shadow/gptp_shadow_wrap.sv:577:      .gmii_tready_i (1'b1),
+tb/verilator/gptp_txts/gptp_txts_wrap.sv:408:      .gmii_tready_i (phy_sink_r_w),
+tb/verilator/gptp_txts/mutants.py:67:        "        if (gmii_tready_i) begin\n",
+## sink.ready / ready statements in docs
+CHANGELOG.md:64:- The observer now counts an octet where `valid` and `ready` coincide.
+CHANGELOG.md:65:- On GMII `ready` is a flop.
+docs/design/GPTP_PLANE.md:284:The observer counts an octet where `valid` and `ready` coincide (#829).
+docs/design/GPTP_PLANE.md:286:On GMII `ready` is a flop.
+## MII PHY construction
+1436:#: LiteEthPHYMII runs 10 and 100 Mb/s, LiteEthPHYGMII 1 Gb/s only.
+1645:            from liteeth.phy.mii import LiteEthPHYMII
+1646:            self.phy = LiteEthPHYMII(clk_pads, pads, with_hw_init_reset=True)
+1683:        # RX capture pad-lock is GMII-ONLY: LiteEthPHYMII's RX inputs feed
+1949:        # speed or duplex output. `LiteEthPHYGMII`/`LiteEthPHYMII` carry the TX/RX
