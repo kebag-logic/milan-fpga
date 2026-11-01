@@ -1,0 +1,115 @@
+diff --git a/docs/design/MARK_II_AREA_PLAN.md b/docs/design/MARK_II_AREA_PLAN.md
+index 93074d0955..3c304c5547 100644
+--- a/docs/design/MARK_II_AREA_PLAN.md
++++ b/docs/design/MARK_II_AREA_PLAN.md
+@@ -57,7 +57,7 @@ This page changes documentation only.
+ | Block RAM | The routed image fits the device's Block RAM with the 13.5-tile reserve intact |
+ | Timing | The build's timing gate at every signoff corner |
+ | Gate comparison | Since [#818](https://github.com/kebag-logic/milan-fpga/issues/818), the best of the three placement directives meets the +0.030 ns WNS and 0 ns WHS floors at every signoff corner; a fall of more than 0.25 ns from the +0.440 ns record is a warning |
+-| Talker latency | Target: below 65 µs for every talker stream, as short as possible ([NFR-LAT-03](../reference/FR_NFR.md#31-performance--real-time)); derived as met with one base format at 16 reservations per port; not met with mixed formats or with [fewer reservations](MARK_II_STREAM_ENGINES.md#fewer-reservations-on-a-port), whose bounds the [owner accepted](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6558021030) |
++| Talker latency | Target: below 65 µs for every talker stream, as short as possible ([NFR-LAT-03](../reference/FR_NFR.md#31-performance--real-time)); derived as met with one base format at 16 reservations per port; not met with mixed formats, whose derived bounds the [owner accepted](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6558021030); not met with [fewer reservations](MARK_II_STREAM_ENGINES.md#fewer-reservations-on-a-port), where no maximum is derived and 143.347 µs is reached, not a limit |
+ | Save | Durable within 0.5 s worst case at 32x32 (NFR-REL-03) |
+ | Function | Every suite, campaign and compliance check passes; gPTP qualification passes on software |
+ | Gate | The resource gate's baseline is re-recorded by the change that reaches the target |
+@@ -252,7 +252,7 @@ Measure its reductions before any lane relies on them.
+ | D11, processor | [Owner, 16:33](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6545457321): removed; ADP, ACMP, MAAP, SRP, AECP and saved state are firmware only | No retained-fabric option; deleted at the switch-over; supersedes D9's all-fabric option |
+ | D12, shape | [Owner, 16:47](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545621753): 32x32, 16x16 logical streams, each redundant | Shared stream engines and a second port |
+ | D13, gPTP | [Owner, 16:51](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545655255) and [17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): `flexptpd`, its source and licence confirmed before adoption; timestamps in fabric on both ports. Not decided: the [core survey](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) proposes `kebag-logic/flexPTP` (MIT, a fork of `epagris/flexPTP`), branch `gptp` at `d116d3d` | Lever 6 taken; #665 F6; the surveyed fork serves one port per image, so one instance per port is [open decision 3](#open-owner-decisions) |
+-| D14, talker latency | [Owner, 17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): as fast as possible, ideally below 65 µs; [owner, 2026-11-01](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6558021030): 65 µs is a target | NFR-LAT-03; met with one base format at 16 reservations per port; exceeded by mixed formats and by [fewer reservations](MARK_II_STREAM_ENGINES.md#fewer-reservations-on-a-port); those bounds are accepted and published, and no connection is refused because of them |
++| D14, talker latency | [Owner, 17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): as fast as possible, ideally below 65 µs; [owner, 2026-11-01](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6558021030): 65 µs is a target | NFR-LAT-03; met with one base format at 16 reservations per port; exceeded by mixed formats, whose derived bounds are accepted and published; exceeded by [fewer reservations](MARK_II_STREAM_ENGINES.md#fewer-reservations-on-a-port), where no maximum is derived and 143.347 µs is reached, not a limit; no connection is refused because of these figures |
+ | D15, LiteX | [Owner, 17:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545999204): removed in three stages; as low as possible | The stages above, each measured |
+ | D16, lever order | [Owner, 16:40](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545540394): least risky first, each measured before the next | The lane order below, except lever 2 after lever 3: a reading for the owner to confirm ([open decision 2](#open-owner-decisions)) |
+ | D17, save | [Owner, #823, 17:14](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6545924397): at most 0.5 s worst case at 32x32 | NFR-REL-03; append-only save path |
+@@ -273,7 +273,7 @@ Measurements queue serially; no heavy builds overlap.
+ | 3 | Lever 3 | `milan_csr` consumer census, then reduction | Lane 1 | ~1.75k | CSR, host-tool and firmware suites |
+ | 4 | LiteX stage 2 | New MAC and QSPI cores as pinned donors | Survey; two reviews per core | Part of -1.75k | Core testbenches; save bound on the bench |
+ | 5 | LiteX stage 3, lever 2 | Plain SystemVerilog top | Lanes 2 and 4 | ~1.0k plus the rest of -1.75k | Rewritten simulation gates; routed image |
+-| 6 | Shared engines and second port | 32x32 datapath per the stream-engine design | Lane 4; #823 builder shapes | +2.75k | 65 µs taps on all talker streams; cable pulls; the [open design items](MARK_II_STREAM_ENGINES.md#open-design-items) |
++| 6 | Shared engines and second port | 32x32 datapath per the stream-engine design | Lane 4; #823 builder shapes | +2.75k | Talker latency taps on all talker streams, measured against the 65 µs target; cable pulls; the [open design items](MARK_II_STREAM_ENGINES.md#open-design-items) |
+ | 7 | Lever 4 | One CPU, no second hart | Lanes 1 and 6; service bounds at 32x32 | ~3.55k | Service hooks at four times the 8x8 load |
+ | 8 | Lever 5 | MMCM servo in firmware | Lane 7 | ~1.0k | CRF lock and audio soak |
+ | 9 | Lever 6, F6 | `flexptpd` on the core, serving both ports; fabric engine deleted | Lane 7; open decision 3; the source and licence confirmed | ~5.2k | Whole gPTP qualification re-run |
+diff --git a/docs/design/MARK_II_STREAM_ENGINES.md b/docs/design/MARK_II_STREAM_ENGINES.md
+index 14956f0eec..fbb0ab65ab 100644
+--- a/docs/design/MARK_II_STREAM_ENGINES.md
++++ b/docs/design/MARK_II_STREAM_ENGINES.md
+@@ -227,10 +227,19 @@ The [owner](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-65
+ [Owner decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6558021030), 2026-11-01: 65 µs is a target.
+ It does not bind every legal stream setup.
+ 
+-Derived bounds for mixed formats and fewer reservations are accepted.
++The derived bounds at 16 reservations are accepted.
+ They stay published below.
+ 
+-No connection is refused because of them.
++With fewer reservations no maximum is derived.
++[Open design item 4](#open-design-items) owes it.
++
++The bench measures every case against the target.
++A case above 65 µs is reported, not failed.
++
++A case is graded only against a derived bound.
++A measurement above one contradicts the analysis: a finding.
++
++No connection is refused because of these figures.
+ No restriction to one base format applies.
+ 
+ A CRF stream carries no TDM sample.
+@@ -411,7 +420,35 @@ Co-phased streams then wait longer for credit.
+ Totals add the 48 kHz fixed terms, 40.325 µs.
+ 
+ Starts and stops reach each of these rows.
+-Alone, k co-phased streams wait about `(k - 1) x 125 / k` µs.
++Alone, k co-phased equal frames wait about `(k - 1) x 125 / k` µs.
++
++That form gives no largest k.
++It does not cover unequal frames.
++
++These cases are also reached under the exact phase rule.
++Each row names starts and stops that reach it.
++
++| Rate | Running streams, no CRF | Reached by | Last frame's shaper wait | Total, with every fixed term | Against 65 µs |
++|---|---|---|---:|---:|---|
++| 48 kHz | Six one-channel in phase 0 | Start one one-channel, five eight-channel, two one-channel, five eight-channel, three one-channel; stop every eight-channel | 103.022 µs | 143.347 µs reached | Not met |
++| 48 kHz | Eight-channel in phase 0, one-channel in phase 1 | Start one eight-channel, then two one-channel; stop the one in phase 3 | 71.310 µs | 111.635 µs reached | Not met |
++| 96 kHz | Four one-channel in phase 0 | Start one one-channel, eleven eight-channel, three one-channel; stop every eight-channel | 92.935 µs | 125.426 µs reached | Not met |
++| 192 kHz | Six-channel in phase 9, one-channel in phase 12 | Start five one-channel, then one six-channel; stop the one-channel streams in phases 0, 3, 6 and 18 | 83.941 µs | At least 102.034 µs reached, before the packetizer term | Not met |
++
++The rows of both tables are examples.
++None is a maximum.
++
++Totals use the page's fixed terms, estimates included.
++Nothing here is a measurement.
++
++At 96 kHz those terms are 32.491 µs.
++At 192 kHz, without the packetizer: 18.093 µs.
++
++The reviewer's [published probe](https://github.com/kebag-logic/milan-fpga/blob/b61b3b8bc172e5688c3c6799a85790dde144403d/review-evidence/640-m9-r1/reviews/R757-7/scripts/probe_fewer_bound.py) reports these cases.
++[Its output](https://github.com/kebag-logic/milan-fpga/blob/b61b3b8bc172e5688c3c6799a85790dde144403d/review-evidence/640-m9-r1/reviews/R757-7/receipts/model/probe_fewer_bound.out) lists them.
++
++Its 192 kHz search left out eight-channel streams.
++So that row may be low.
+ 
+ Re-phasing a running stream would break IEEE 1722-2016 7.6.
+ Padding reservations would break Milan v1.2 Table 4.4.
+@@ -1181,6 +1218,7 @@ Each states the requirement it must meet.
+ | 1. Render span edges | No sample is written outside the render buffer: not a packet whose samples cross either end of the span, nor a clean copy whose counted position falls a sample behind the render point. The early check and the buffer depth must allow for a whole packet at every rate | Simulation with copies at both span edges at 48, 96 and 192 kHz, the conversion error at its bound; the test fails if any sample lands outside the buffer |
+ | 2. Copies with tu set | The listener meets TU-1 to TU-5 below. This page fixes no mechanism, register or loss figure for them | The named cases below, in the lane's model, its simulation and on the bench |
+ | 3. Short margin on both networks | A clean copy's margin is how long before its time it arrives. A margin under about 125 µs on both networks lapses the head before the next packet, so rule 2 places every packet by its own time. The threshold carries the conversion error: within that error of 125 µs, only some packets lapse. When first arrival interleaves between the networks, copies can land one sample apart. The lane states the shift it allows, and the listener stays within it. This page fixes no mechanism or figure for it | Simulation with clean copies on both networks 10 to 50 µs before their time, first arrival interleaved, at 48, 96 and 192 kHz, every grid phase. The test fails on a shift beyond what the lane states. The starting case is the reviewer's [published probe](https://github.com/kebag-logic/milan-fpga/blob/f9cfe08cd3f526acde88e0d2a1c48ed2740583df/review-evidence/640-m9-r1/reviews/R758-5/scripts/probe_margin_r5.py). [Its output](https://github.com/kebag-logic/milan-fpga/blob/f9cfe08cd3f526acde88e0d2a1c48ed2740583df/review-evidence/640-m9-r1/reviews/R758-5/receipts/model/probe_margin_r5.out) reports up to 766 shifts and 383 unwritten samples in 2,000 packets. That is the probe's result, not a design figure |
++| 4. Fewer-reservations maximum | With fewer than 16 reservations on a port, no maximum talker latency is derived. The lane derives it with the model at 48, 96 and 192 kHz, over every placement that starts and stops reach and every base format, with and without a CRF, eight-channel at 192 kHz included. The lane then cites it in NFR-LAT-03 | The model states whether its search is exact or bounds a superset, as the 16-reservation table does. The test fails if any case in the [fewer-reservations tables](#fewer-reservations-on-a-port) exceeds the result, in the queue recursion or the 8.6.8.2 simulation. Bench: the latency taps at the largest placement, against the result |
+ 
+ #### Item 2: copies with tu set
+ 
+diff --git a/docs/reference/FR_NFR.md b/docs/reference/FR_NFR.md
+index 18de60f6e7..88e6555bed 100644
+--- a/docs/reference/FR_NFR.md
++++ b/docs/reference/FR_NFR.md
+@@ -303,7 +303,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
+ | NFR-PERF-02 | The AVTP talker/listener MUST sustain the Class A packet rate (8000 pkt/s per stream) continuously. | M | T |
+ | NFR-LAT-01 | End-to-end (talker capture → listener render) latency MUST meet the Milan Class A presentation-time bound using the product's 2 ms per-output default. | M | T |
+ | NFR-LAT-02 | AVDECC command responses MUST meet their applicable normative limit in Section 3.4.1 in either placement until the switch-over, and in firmware after it. Firmware paths MUST also meet NFR-SCOUT-03; a 250 ms transaction timeout MUST NOT replace the 240 ms AECP response bound or the 200 ms Milan ACMP timeout. | M | T |
+-| NFR-LAT-03 | **Mark II talker latency.** For every talker stream, the interval from the last sample of a packet at the TDM pin to the first bit of its frame on the wire SHOULD be below 65 µs, and as short as possible ([owner decision on #640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658), 2026-10-31; the owner called 65 µs the ideal target; the [owner decision of 2026-11-01](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6558021030) makes 65 µs a target that does not bind every legal stream setup). The interval covers capture, packetizing, the class A shaper (IEEE 802.1Q-2022 8.6.8.2 and 34.6.1.1; Milan v1.2 4.3.4) and the MAC. The [stream-engine design](../design/MARK_II_STREAM_ENGINES.md#talker-latency-budget) derives the bound at 16 reservations per port at 48, 96 and 192 kHz, stating its idleSlope, interference and phase-rule assumptions. It shows the bound below 65 µs when each port carries 16 reservations of one base format (63.431 µs worst, at 48 kHz). It does not show it for mixed channel counts (up to 95.867 µs at 48 kHz) or for [fewer reservations](../design/MARK_II_STREAM_ENGINES.md#fewer-reservations-on-a-port) (123.337 µs with three co-phased eight-channel streams). Those derived bounds are accepted and published, and no connection is refused because of them. Verified by analysis (that derivation and its executable model) and by test: the Mark II latency taps, which measure this pin-to-wire interval itself, on every talker stream, on the bench, at 32x32, with one format and with mixed formats per port. The bench measures against the target and reports each case; a case above 65 µs that stays inside its published bound is not a failure. | S | A,T |
++| NFR-LAT-03 | **Mark II talker latency.** For every talker stream, the interval from the last sample of a packet at the TDM pin to the first bit of its frame on the wire SHOULD be below 65 µs, and as short as possible ([owner decision on #640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658), 2026-10-31; the owner called 65 µs the ideal target; the [owner decision of 2026-11-01](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6558021030) makes 65 µs a target that does not bind every legal stream setup). The interval covers capture, packetizing, the class A shaper (IEEE 802.1Q-2022 8.6.8.2 and 34.6.1.1; Milan v1.2 4.3.4) and the MAC. The [stream-engine design](../design/MARK_II_STREAM_ENGINES.md#talker-latency-budget) derives the bound at 16 reservations per port at 48, 96 and 192 kHz, stating its idleSlope, interference and phase-rule assumptions. It shows the bound below 65 µs when each port carries 16 reservations of one base format (63.431 µs worst, at 48 kHz). It does not show it for mixed channel counts (up to 95.867 µs at 48 kHz). Those 16-reservation bounds are accepted and published. With [fewer reservations](../design/MARK_II_STREAM_ENGINES.md#fewer-reservations-on-a-port) no maximum is derived, and the stream-engine lane [owes that derivation](../design/MARK_II_STREAM_ENGINES.md#open-design-items). The largest figure reached there is 143.347 µs, with six co-phased one-channel streams at 48 kHz; it is quoted as reached, not as a limit. No connection is refused because of any of these figures. Verified by analysis (that derivation and its executable model) and by test: the Mark II latency taps, which measure this pin-to-wire interval itself, on every talker stream, on the bench, at 32x32, with one format and with mixed formats per port. The bench measures every case against the target and reports it; a case above 65 µs is reported, not failed. A case is graded against a bound only where one is derived, which is the 16-reservation table; there, a measurement above its bound contradicts the analysis and is a finding. | S | A,T |
+ | NFR-DET-01 | The media/AVTP path MUST be deterministic: bounded, jitter-controlled processing independent of best-effort/management load. | M | T |
+ 
+ ### 3.2 Time accuracy

@@ -1,0 +1,24 @@
+== tie order vs model: True
+== the second table, starts and stops as the page words them
+row 1: 48 kHz final {0: [1, 1, 1, 1, 1, 1]} peak 16; own event 103.022; model fifo 103.022; model 8.6.8.2 103.022; page wait 103.022; total 143.347; page 143.347; REPRODUCED
+row 2: 48 kHz final {0: [8], 1: [1]} peak 3; own event 71.310; model fifo 71.310; model 8.6.8.2 71.310; page wait 71.310; total 111.635; page 111.635; REPRODUCED
+row 3: 96 kHz final {0: [1, 1, 1, 1]} peak 15; own event 92.935; model fifo 92.935; model 8.6.8.2 92.935; page wait 92.935; total 125.426; page 125.426; REPRODUCED
+row 4: 192 kHz final {9: [6], 12: [1]} peak 6; own event 83.941; model fifo 83.941; model 8.6.8.2 83.941; page wait 83.941; total 102.034; page 102.034; REPRODUCED
+all rows reproduce: True
+== k co-phased equal frames against (k-1)x125/k
+48 kHz N=8 k=2: wait 62.259; form 62.500
+48 kHz N=8 k=3: wait 83.012; form 83.333
+48 kHz N=1 k=6: wait 103.022; form 104.167
+96 kHz N=1 k=4: wait 92.935; form 93.750
+== 192 kHz adjacent-phase pairs, reached by starts and stops
+6-channel then eight 1-channel; stop all but phase 1: final {0: [6], 1: [1]} peak 9; own event 94.357; model fifo 94.357; model 8.6.8.2 94.357; before the packetizer term 112.450; with tandem/packetizer model 118.85071515715467
+8-channel then eight 1-channel; stop all but phase 1: final {0: [8], 1: [1]} peak 9; own event 99.251; model fifo 99.251; model 8.6.8.2 99.251; before the packetizer term 117.344; with tandem/packetizer model 125.66387616900468
+4-channel then eight 1-channel; stop all but phase 1: final {0: [4], 1: [1]} peak 9; own event 86.404; model fifo 86.404; model 8.6.8.2 86.404; before the packetizer term 104.497; with tandem/packetizer model 108.9773361834962
+6-channel then eight 2-channel; stop all but phase 1: final {0: [6], 1: [2]} peak 9; own event 83.761; model fifo 83.761; model 8.6.8.2 83.761; before the packetizer term 101.854; with tandem/packetizer model 108.25391620473023
+8-channel then eight 2-channel; stop all but phase 1: final {0: [8], 1: [2]} peak 9; own event 90.084; model fifo 90.084; model 8.6.8.2 90.084; before the packetizer term 108.177; with tandem/packetizer model 116.49746290371725
+largest of those, before the packetizer term: 117.344; page row 102.034; R758-7 S1 106.927
+adding the page's whole 24.827 us mixed packetizer allowance: 142.171 (page's largest reached 143.347)
+== search for a reached case above the page's figures (random walk, stops pruned, per rate)
+48 kHz: largest wait found 91.705, total 132.030: {3: [1, 8, 8], 4: [1, 1, 1, 1]}
+96 kHz: largest wait found 98.704, total 131.195: {6: [6, 8], 7: [1]}
+192 kHz: largest wait found 99.251, total 117.344 before the packetizer term: {12: [8], 13: [1]}
