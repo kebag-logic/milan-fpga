@@ -1,0 +1,111 @@
+diff --git a/sw/builder/test_builder.py b/sw/builder/test_builder.py
+index b887020053..71aed6cf93 100644
+--- a/sw/builder/test_builder.py
++++ b/sw/builder/test_builder.py
+@@ -18310,35 +18310,51 @@ DATAPATH_SHAPE_WIRING = (
+     ("GPTP_ETH_CYC_PER_OCTET_P", "ETH_CYC_PER_OCTET_P", 1, 2),
+ )
+ 
++#: A macro an earlier source of the build defines, for gate 1h's controls. The
++#: gate's keeps fail if no earlier source defines it any more.
++DATAPATH_EARLIER_MACRO = "ETHERNET_PACKET_PKG_SV"
++
+ 
+ def _datapath_as_built(rtl):
+-    """(the code the build reads in one milan_datapath.sv text, why it cannot).
+-
+-    The answer is the front end's, on the defines and include directories the
+-    build's own record states, so a comment or a dead preprocessor arm is gone
+-    before this gate reads anything, and there is no model of that layer here
+-    to be wrong. No front end is a refusal, not a stand-down: the jobs that run
+-    this file install it. It parses and does not elaborate, so a `defparam` or a
+-    generate arm that never elaborates stays outside this gate.
++    """(the datapath's module the build reads with this text, why it cannot).
++
++    Gate 1h catches accidental cuts of the two bindings and their defaults, read
++    as the build reads them. The answer is the front end's, on the defines,
++    include directories and whole ordered source list the build's own record
++    states, with this text in the datapath's place. So a comment, or an arm dead
++    under a macro from any earlier source, is gone before this gate reads
++    anything, and there is no model of that layer here to be wrong. No front end
++    is a refusal, not a stand-down: the jobs that run this file install it. It
++    parses and does not elaborate, so a `defparam` or a generate arm that never
++    elaborates stays outside this gate.
+     """
+     record, problems, _status = dp_srcs.ask_authority("milan_datapath")
+     assert record, f"gate 1h: the datapath's recipe: {problems}"
+     front_end = shutil.which(dp_srcs.FRONT_END)
+     assert front_end, f"gate 1h: {dp_srcs.FRONT_END} is not on PATH"
++    datapath = (ROOT / "hdl/milan/milan_datapath.sv").resolve()
+     with tempfile.TemporaryDirectory(prefix="gate1h.") as tmp:
+         planted = Path(tmp) / "milan_datapath.sv"
+         planted.write_text(rtl)
++        sources = [str(planted) if Path(src).resolve() == datapath else src
++                   for src in record["src"]]
++        assert sources.count(str(planted)) == 1, \
++            f"gate 1h: the build does not read {datapath.name} once: {record['src']}"
+         read = subprocess.run(
+             [front_end, "--pass-through",
+              *(f"-D{define}" for define in record["define"]),
+              # a source's own directory is searched first, and this copy has moved
+              "-I", str(ROOT / "hdl/milan"),
+              *(arg for incdir in record["incdir"] for arg in ("-I", incdir)),
+-             str(planted)],
++             *sources],
+             capture_output=True, text=True, timeout=300)
+     if read.returncode:
+         return "", f"the front end refuses it: {read.stderr[:300]}"
+-    return read.stdout, ""
++    modules = re.findall(r"^\s*module\s+milan_datapath\b.*?^\s*endmodule\b",
++                         read.stdout, re.MULTILINE | re.DOTALL)
++    if len(modules) != 1:
++        return "", f"the build reads {len(modules)} milan_datapath modules, not one"
++    return modules[0], ""
+ 
+ 
+ def _datapath_shape_findings(rtl):
+@@ -18373,7 +18389,12 @@ def _datapath_shape_cuts(rtl):
+     cuts = [("the plane renamed", rtl.replace(") u_gptp_shadow (", ") u_gptp_other ("),
+              "is not u_gptp_shadow"),
+             ("a second plane", rtl.replace("    KL_gptp_shadow #(\n", other_plane),
+-             "planes instantiated")]
++             "planes instantiated"),
++            ("the datapath's module renamed",
++             rtl.replace("module milan_datapath ", "module milan_datapath_other "),
++             "milan_datapath modules"),
++            ("the datapath's module declared twice",
++             f"{rtl}\nmodule milan_datapath;\nendmodule\n", "milan_datapath modules")]
+     crossed = rtl
+     for param, port, default, mii in DATAPATH_SHAPE_WIRING:
+         line = re.search(rf"[ \t]*\.{port}\s*\(\s*{param}\s*\),", rtl).group()
+@@ -18412,6 +18433,13 @@ def _datapath_shape_cuts(rtl):
+                 "    KL_gptp_shadow #(\n",
+                 f"    localparam {live[:-1].removeprefix('parameter ')};\n"
+                 "    KL_gptp_shadow #(\n"), not_default),
++            (f"{port} dead under a macro from an earlier source",
++             rtl.replace(line, f"`ifndef {DATAPATH_EARLIER_MACRO}\n{binding}\n`endif"),
++             not_bound),
++            (f"{param} default dead under a macro from an earlier source, a live one "
++             "in its else",
++             rtl.replace(declared, f"`ifndef {DATAPATH_EARLIER_MACRO}\n{declared}\n"
++                                   f"`else\n{live}\n`endif"), not_default),
+             (f"{param} default in a comment, a live one below",
+              rtl.replace(declared, f"// {declared}\n  {live}"), not_default),
+             (f"{param} default in a block comment, a live one below",
+@@ -18435,9 +18463,16 @@ def _datapath_shape_keeps(rtl):
+             (f"{port} with a comment beside it", rtl.replace(line, f"{line} // why")),
+             (f"{port} in a live ifdef",
+              rtl.replace(line, f"`ifdef SYNTHESIS\n{line}\n`endif")),
++            (f"{port} live under a macro from an earlier source",
++             rtl.replace(line, f"`ifdef {DATAPATH_EARLIER_MACRO}\n{line}\n`endif")),
+             (f"{param} default with a comment inside it", rtl.replace(
+                 declared, f"parameter int unsigned {param} = /* GMII */ {default},")),
+         ]
++    others = "".join(f"  parameter int unsigned {param} = {mii};\n"
++                     for param, _port, _default, mii in DATAPATH_SHAPE_WIRING)
++    keeps.append(("another module with these parameters and its own plane",
++                  f"{rtl}\nmodule beside_the_datapath;\n{others}"
++                  "  KL_gptp_shadow u_other ();\nendmodule\n"))
+     return keeps
+ 
+ 
