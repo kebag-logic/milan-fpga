@@ -1,0 +1,785 @@
+make: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor'
+python3 tb/check_phc_contract.py
+make -C tb/verilator/ucpu
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
+  -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC \
+  --top-module KL_gptp_engine \
+  hdl/ucpu/gptp_ucpu_pkg.sv hdl/ucpu/KL_gptp_ucpu.sv \
+  hdl/wire/KL_gptp_rx_parser.sv hdl/wire/KL_gptp_tx_slot.sv \
+  hdl/common/KL_gptp_timer.sv hdl/top/KL_gptp_engine.sv
+python3 scripts/generate_diagrams.py --check
+make[1]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/ucpu'
+verilator --cc --exe --build -j 0 --top-module KL_gptp_ucpu -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -CFLAGS "-std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/ucpu -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv sim_main.cpp -o Vucpu_sim
+PHC interface contract: PASS
+diagram check: PASS (9 pinned assets, 3 source-bound PNGs)
+make[2]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/ucpu/obj_dir'
+python3 scripts/generate_diagrams.py --selftest
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/ucpu -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/ucpu -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/ucpu -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_gptp_ucpu.cpp VKL_gptp_ucpu___024root__0.cpp VKL_gptp_ucpu__ConstPool__0__Slow.cpp VKL_gptp_ucpu___024root__Slow.cpp VKL_gptp_ucpu___024root__0__Slow.cpp VKL_gptp_ucpu__Syms__Slow.cpp > VKL_gptp_ucpu__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/ucpu -Wall -Wextra   -c -o VKL_gptp_ucpu__ALL.o VKL_gptp_ucpu__ALL.cpp
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.408 MB sources in 7 modules, into 0.304 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.120 s (elab=0.012, cvt=0.073, bld=0.000); cpu 0.100 s on 1 threads; allocated 23.883 MB
+make -C bench/arty lint
+make[1]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/bench/arty'
+verilator --lint-only -Wall -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-PINCONNECTEMPTY --top-module bench_arty_top ../../hdl/ucpu/gptp_ucpu_pkg.sv ../../hdl/ucpu/KL_gptp_ucpu.sv ../../hdl/wire/KL_gptp_rx_parser.sv ../../hdl/wire/KL_gptp_tx_slot.sv ../../hdl/common/KL_gptp_timer.sv ../../hdl/top/KL_gptp_engine.sv bench_afifo.sv bench_mii_rx.sv bench_mii_tx.sv bench_phc.sv bench_uart_report.sv bench_arty_top.sv
+diagram selftest: PASS (10 arms)
+python3 scripts/check_docs.py
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 1.129 MB sources in 13 modules, into 0.420 MB in 3 C++ files needing 0.000 MB
+- Verilator: Walltime 0.164 s (elab=0.019, cvt=0.078, bld=0.000); cpu 0.125 s on 1 threads; allocated 25.844 MB
+make[1]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/bench/arty'
+docs check: PASS (11 current pages, 17 historical pages)
+python3 scripts/check_docs.py --selftest
+docs selftest: PASS (10 arms)
+python3 scripts/check_source_evidence.py
+EXACT hdl/top/KL_gptp_engine.sv#L64 (Single clock domain): module KL_gptp_engine
+EXACT hdl/top/KL_gptp_engine.sv#L209 (Four instantiated blocks): KL_gptp_rx_parser u_parser (
+EXACT hdl/wire/KL_gptp_rx_parser.sv#L392 (Deferred receive event): if (fin_r) begin
+EXACT hdl/top/KL_gptp_engine.sv#L467 (Four-entry event queue): logic [39:0] evq_r [0:3];
+EXACT hdl/top/KL_gptp_engine.sv#L494 (Parser arbitration priority): always_comb begin : push_arb
+EXACT hdl/top/KL_gptp_engine.sv#L405 (Priority timestamp return): logic        txts_pend_r;
+EXACT hdl/top/KL_gptp_engine.sv#L411 (Accepted-beat result face): assign txts_ready_o  = !txts_pend_r && rst_n;
+EXACT hdl/top/KL_gptp_engine.sv#L291 (Reset-backed pairing validity): logic t1v_valid_r, pdwait_valid_r;
+EXACT hdl/top/KL_gptp_engine.sv#L106 (Transmit admission credit): input  wire         tx_credit_i,
+EXACT hdl/top/KL_gptp_engine.sv#L447 (Eight timer slots): KL_gptp_timer #(
+EXACT hdl/top/KL_gptp_engine.sv#L20 (Six state regions): //                  0  message bank      RO  (parser-written, PING-PONG
+EXACT hdl/wire/KL_gptp_tx_slot.sv#L129 (Stable stalled transmission): assign tx_valid_o = ser_run_r && !ser_drop_w;
+EXACT hdl/top/KL_gptp_engine.sv#L140 (Committed publication): output logic        pub_commit_o,
+EXACT hdl/ucpu/KL_gptp_ucpu.sv#L105 (1,024-word microcode ROM): // ------------------------------------------------------------------ ROM
+EXACT hdl/ucpu/KL_gptp_ucpu.sv#L113 (Sixteen registers): // 16 x 64 distributed RAM, 1W3R (SET_MASKED reads rd as well).
+EXACT hdl/top/KL_gptp_engine.sv#L123 (Registered policy slew level): output logic        phc_slew_active_o,
+EXACT hdl/top/KL_gptp_engine.sv#L1071 (Registered policy slew level): 2'd2: begin
+EXACT hdl/top/KL_gptp_engine.sv#L1076 (Registered policy slew level): 2'd3: begin
+EXACT hdl/ucode/gen_gptp_ucode.py#L1026 (Registered policy slew level): def prog_leg_slew(base: int) -> Prog:
+EXACT hdl/wire/KL_gptp_rx_parser.sv#L472 (Ignored receive flag bits): 11'(OFF_FLAGS0_C + 1): flags_r <= acc_nxt_w[15:0];
+source evidence: 20 exact, 0 findings
+python3 scripts/check_source_evidence.py --selftest
+source evidence selftest: PASS (7 arms)
+g++    sim_main.o verilated.o verilated_threads.o VKL_gptp_ucpu__ALL.a    -pthread -lpthread -latomic   -o Vucpu_sim
+rm VKL_gptp_ucpu__ALL.verilator_deplist.tmp
+make[2]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/ucpu/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.095 MB sources in 3 modules, into 0.223 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 6.772 s (elab=0.003, cvt=0.027, bld=6.730); cpu 0.046 s on 8 threads; allocated 484.422 MB
+./obj_dir/Vucpu_sim
+768 checks: 768 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/ucpu'
+make -C tb/verilator/parser
+make[1]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/parser'
+verilator --cc --exe --build -j 0 --top-module KL_gptp_rx_parser -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/parser -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/wire/KL_gptp_rx_parser.sv sim_main.cpp -o Vparser_sim
+python3 mutants.py
+make[2]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/parser/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/parser -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/parser -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/parser -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_gptp_rx_parser.cpp VKL_gptp_rx_parser___024root__0.cpp VKL_gptp_rx_parser__ConstPool__0__Slow.cpp VKL_gptp_rx_parser___024root__Slow.cpp VKL_gptp_rx_parser___024root__0__Slow.cpp VKL_gptp_rx_parser__Syms__Slow.cpp > VKL_gptp_rx_parser__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/parser -Wall -Wextra   -c -o VKL_gptp_rx_parser__ALL.o VKL_gptp_rx_parser__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_gptp_rx_parser__ALL.a    -pthread -lpthread -latomic   -o Vparser_sim
+rm VKL_gptp_rx_parser__ALL.verilator_deplist.tmp
+make[2]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/parser/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.089 MB sources in 3 modules, into 0.086 MB in 6 C++ files needing 0.000 MB
+- Verilator: Walltime 7.242 s (elab=0.002, cvt=0.010, bld=7.223); cpu 0.022 s on 8 threads; allocated 419.371 MB
+./obj_dir/Vparser_sim
+INFO sync after a refused sync: it left 6 of its 6 words, 0 of them outside the sync words
+INFO sync after a refused pdresp: it left 8 of its 8 words, 2 of them outside the sync words
+INFO fu after a refused fu: it left 7 of its 7 words, 0 of them outside the fu words
+INFO fu after a refused pdresp: it left 8 of its 8 words, 2 of them outside the fu words
+INFO pdreq after a refused pdreq: it left 4 of its 4 words, 0 of them outside the pdreq words
+INFO pdreq after a refused sync: it left 6 of its 6 words, 2 of them outside the pdreq words
+INFO pdresp after a refused pdresp: it left 8 of its 8 words, 0 of them outside the pdresp words
+INFO pdresp after a refused fu: it left 7 of its 7 words, 1 of them outside the pdresp words
+INFO sync rx_err at byte 0 of 58: drops +1, events 0, writes before 0, on 0, after 0
+INFO sync rx_err at byte 29 of 58: drops +1, events 0, writes before 0, on 1, after 0
+INFO sync rx_err at byte 57 of 58: drops +1, events 0, writes before 5, on 1, after 0
+INFO fu rx_err at byte 0 of 90: drops +1, events 0, writes before 0, on 0, after 0
+INFO fu rx_err at byte 29 of 90: drops +1, events 0, writes before 0, on 1, after 0
+INFO fu rx_err at byte 89 of 90: drops +1, events 0, writes before 7, on 0, after 0
+INFO pdreq rx_err at byte 0 of 68: drops +1, events 0, writes before 0, on 0, after 0
+INFO pdreq rx_err at byte 29 of 68: drops +1, events 0, writes before 0, on 1, after 0
+INFO pdreq rx_err at byte 67 of 68: drops +1, events 0, writes before 4, on 0, after 0
+INFO pdresp rx_err at byte 0 of 68: drops +1, events 0, writes before 0, on 0, after 0
+INFO pdresp rx_err at byte 29 of 68: drops +1, events 0, writes before 0, on 1, after 0
+INFO pdresp rx_err at byte 67 of 68: drops +1, events 0, writes before 7, on 1, after 0
+INFO ann rx_err at byte 0 of 78: drops +1, events 0, writes before 0, on 0, after 0
+INFO ann rx_err at byte 29 of 78: drops +1, events 0, writes before 0, on 1, after 0
+INFO ann rx_err at byte 77 of 78: drops +1, events 0, writes before 6, on 1, after 0
+378 checks: 378 PASS, 0 FAIL
+[PASS] the unmutated parser still passes the harness
+[PASS] mutant caught: rx_err read only at eof (the planted control) - fails all 27 named check(s), first "sync rx_err at every byte: one drop"
+[PASS] mutant caught: a first-byte flag lost to the sof clear - fails all 9 named check(s), first "sync rx_err at every byte: one drop"
+[PASS] mutant caught: the eof byte's own flag ignored - fails all 19 named check(s), first "sync rx_err at every byte: one drop"
+[PASS] mutant caught: every flagged byte counts a drop - fails all 4 named check(s), first "sync rx_err held from byte 20 to eof: one drop"
+[PASS] mutant caught: rx_err ignored on every byte - fails all 4 named check(s), first "sync rx_err held from byte 20 to eof: no event"
+[PASS] mutant caught: the refusal outlives its frame - fails all 24 named check(s), first "sync control after the errors: event"
+[PASS] mutant caught: rx_err sampled between bytes - fails all 2 named check(s), first "rx_err in every gap between bytes: sync event"
+[PASS] mutant caught: a refusal skips the next frame's w2 write - fails all 8 named check(s), first "sync after a refused sync: every word is this frame's"
+[PASS] mutant caught: the path-count refusal restored (#88) - fails all 8 named check(s), first "#88 one entry, stepsRemoved 3: event"
+[PASS] mutant caught: the path-head refusal restored (#88) - fails all 6 named check(s), first "#88 head not the grandmaster, two entries: event"
+[PASS] mutant caught: the head is replaced by grandmasterIdentity (#88) - fails all 3 named check(s), first "#88 head not the grandmaster, two entries: identity 0"
+[PASS] mutant caught: the empty-path refusal restored (#88) - fails all 4 named check(s), first "#88 empty path: event"
+[PASS] mutant caught: an empty path is not marked present (#87) - fails all 5 named check(s), first "#88 empty path: present, count zero"
+[PASS] mutant caught: word 12 drops the presence bit (#87) - fails all 4 named check(s), first "ann w12 hops"
+[PASS] mutant caught: word 12 marks a TLV-less Announce present (#87) - fails all 3 named check(s), first "TLV-less ann: absent, zero count and loop"
+
+16 checks: 16 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/parser'
+make -C tb/verilator/engine
+make[1]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/engine'
+verilator --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/engine -Wall -Wextra" ../../../hdl/ucpu/gptp_ucpu_pkg.sv ../../../hdl/ucpu/KL_gptp_ucpu.sv ../../../hdl/wire/KL_gptp_rx_parser.sv ../../../hdl/wire/KL_gptp_tx_slot.sv ../../../hdl/common/KL_gptp_timer.sv ../../../hdl/top/KL_gptp_engine.sv sim_main.cpp -o Vengine_sim
+python3 mutants.py
+make[2]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/engine/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/engine -Wall -Wextra   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/engine -Wall -Wextra   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/engine -Wall -Wextra   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_gptp_engine.cpp VKL_gptp_engine___024root__0.cpp VKL_gptp_engine__ConstPool__0__Slow.cpp VKL_gptp_engine___024root__Slow.cpp VKL_gptp_engine___024root__0__Slow.cpp VKL_gptp_engine__Syms__Slow.cpp > VKL_gptp_engine__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/engine -Wall -Wextra   -c -o VKL_gptp_engine__ALL.o VKL_gptp_engine__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o VKL_gptp_engine__ALL.a    -pthread -lpthread -latomic   -o Vengine_sim
+rm VKL_gptp_engine__ALL.verilator_deplist.tmp
+make[2]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/engine/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.409 MB sources in 7 modules, into 0.409 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 10.074 s (elab=0.009, cvt=0.059, bld=9.981); cpu 0.101 s on 8 threads; allocated 359.805 MB
+./obj_dir/Vengine_sim
+INFO #82 cold release graded for 2400617 cycles to the first beat
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset -1 ns, trim 1174470
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset 1 ns, trim 1174350
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1976 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000661 cycles after asCapable rises
+INFO #82 837 commits graded for the self path
+INFO #84 378268561 master cycles graded, 48 handovers to a peer
+INFO #85 588 peer commits graded for thisClock last
+2048 checks: 2048 PASS, 0 FAIL
+-- again, with the request counter seeded above 16 bits --
+INFO #82 cold release graded for 2400620 cycles to the first beat
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset -1 ns, trim 1174470
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset 1 ns, trim 1174350
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1976 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000661 cycles after asCapable rises
+INFO #82 837 commits graded for the self path
+INFO #84 378268561 master cycles graded, 48 handovers to a peer
+INFO #85 588 peer commits graded for thisClock last
+2048 checks: 2048 PASS, 0 FAIL
+-- again, with the Sync counter seeded above 16 bits --
+INFO #82 cold release graded for 2400620 cycles to the first beat
+SLEW TRACE long slew, master +90 us: active for 6138826 cycles (2 MHz), final offset -1 ns, trim 1174470
+SLEW TRACE long slew, master -90 us: active for 3833378 cycles (2 MHz), final offset 1 ns, trim 1174350
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1976 cycles later with flags 1
+INFO #82 Pdelay loss: mastership commits 2000661 cycles after asCapable rises
+INFO #82 837 commits graded for the self path
+INFO #84 378268561 master cycles graded, 48 handovers to a peer
+INFO #85 588 peer commits graded for thisClock last
+2048 checks: 2048 PASS, 0 FAIL
+-- the self publication again, not grandmaster-capable (priority1 255) --
+INFO #82 cold release graded for 2400617 cycles to the first beat
+INFO #82 Pdelay loss: the fall commits flags 9, thisClock follows 1976 cycles later with flags 0
+INFO #82 Pdelay loss: mastership commits 2000739 cycles after asCapable rises
+INFO #82 108 commits graded for the self path
+INFO #84 15533 master cycles graded, 4 handovers to a peer
+INFO #85 92 peer commits graded for thisClock last
+60 checks: 60 PASS, 0 FAIL
+[PASS] the unmutated engine still passes the harness
+FAIL slew: policy decision starts at +101 ns got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew level tied low - breaks "slew: policy decision starts at +101 ns"
+FAIL slew: first in-band pair cannot clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slew clears at the first in-band pair - breaks "slew: first in-band pair cannot clear"
+FAIL slew: second return pair stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: the tracking band is empty - breaks "slew: second return pair stays inactive"
+FAIL slew: no clear precedes the replacement rate got 0000000000000006 exp 0000000000000000
+[PASS] mutant caught: slew clears before the replacement rate - breaks "slew: no clear precedes the replacement rate"
+FAIL slew: in-band pair after idle timeout stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew idle lapse arms qualification - breaks "slew: in-band pair after idle timeout stays inactive"
+FAIL slew: in-band pair after asCapable recovery stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew idle asCapable loss arms qualification - breaks "slew: in-band pair after asCapable recovery stays inactive"
+FAIL slew: in-band return from GM stays inactive got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: slew mastership keeps qualification - breaks "slew: in-band return from GM stays inactive"
+[PASS] mutant caught: result face always ready - breaks "a result already owed to the micro-code cannot be replaced by a later one"
+[PASS] mutant caught: result value taken without an accepted beat - breaks "the accepted result keeps its own timestamp until its dispatch"
+[PASS] mutant caught: result tag taken without an accepted beat - breaks "the accepted result keeps its own tag and outcome until its dispatch"
+[PASS] mutant caught: recorded t1 survives reset - breaks "a t1 measured before a reset cannot pair with a later Follow_Up"
+[PASS] mutant caught: byte face advances without ready - breaks "a stalled byte, including the final one, waits for an accepted transfer"
+[PASS] mutant caught: lost t1 fabricates a time and a companion - breaks "a lost result writes no time and completes no exchange"
+[PASS] mutant caught: lost Sync cancels the requester exchange - breaks "a lost Sync result retires the Sync claim and nothing else"
+[PASS] mutant caught: lost response cancels the requester exchange - breaks "a lost Pdelay_Resp result retires the response claim and nothing else"
+[PASS] mutant caught: a later response re-arms the frozen pair - breaks "a complete pair keeps its own identity and operands until its t1"
+[PASS] mutant caught: the tail runs before its own t1 - breaks "a delay is computed from this exchange's own t1, never a predecessor's"
+[PASS] mutant caught: a new request leaves the old pair live - breaks "a superseded exchange cannot pair with the new request's t1"
+[PASS] mutant caught: credit gate removed from the Pdelay_Req leg - breaks "a Pdelay_Req beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: credit gate removed from the Sync leg - breaks "a Sync beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: credit gate removed from the Announce leg - breaks "an Announce beat is postponed while the transmit path has no credit"
+[PASS] mutant caught: every pair uses the locked threshold - breaks "a link-up pair steps over 20 us"
+[PASS] mutant caught: every pair uses the link-up threshold - breaks "a locked pair slews up to 100 us"
+[PASS] mutant caught: exactly the threshold steps - breaks "an offset of exactly 20 us, or 100 us once locked, slews"
+[PASS] mutant caught: the step arm is unreachable - breaks "an offset over the threshold steps"
+[PASS] mutant caught: a grandmaster change unlocks the servo - breaks "the servo stays locked across a grandmaster identity change"
+[PASS] mutant caught: a receipt timeout unlocks the servo - breaks "the servo stays locked across a Sync receipt timeout"
+[PASS] mutant caught: becoming grandmaster unlocks the servo - breaks "the servo stays locked across a return from mastership"
+[PASS] mutant caught: the locked threshold is 200 us - breaks "a locked pair steps over 100 us, after a receipt timeout too"
+[PASS] mutant caught: asCapable's rise keeps the lock - breaks "the first pair after asCapable rises, or after a reset, is a link-up"
+[PASS] mutant caught: the whole trim is not clamped - breaks "the written trim never leaves +-200 ppm"
+[PASS] mutant caught: the trim clamp is one unit wider than the envelope - breaks "the written trim never leaves the envelope the consumer derives"
+[PASS] mutant caught: the integrator is not clamped - breaks "the integrator stays within +-200 ppm"
+FAIL #82 cold release: every cycle to the first beat names thisClock got 000000000024a169 exp 0000000000000000
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a169 exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: it names thisClock, not the elected peer got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL pre-init deep Announce: GM stays thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: reset leaves the grandmaster zero - breaks "#82 cold release: every cycle to the first beat names thisClock | #82 cold release: every cycle to the first beat has {thisClock} | #82 cold release: that commit carries thisClock and {thisClock} | #82 warm reset: it names thisClock, not the elected peer | pre-init deep Announce: GM stays thisClock"
+FAIL #82 warm reset: it names thisClock, not the elected peer got 0082a0fffe000001 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: reset keeps the elected grandmaster - breaks "#82 warm reset: it names thisClock, not the elected peer"
+FAIL #82 cold release: every cycle to the first beat names thisClock got 000000000024a169 exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the thisClock words are read swapped - breaks "#82 cold release: every cycle to the first beat names thisClock | #82 cold release: that commit carries thisClock and {thisClock}"
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a169 exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: reset leaves the path empty - breaks "#82 cold release: every cycle to the first beat has {thisClock} | #82 cold release: that commit carries thisClock and {thisClock} | #82 warm reset: its path is {thisClock} with a zero tail"
+FAIL #82 warm reset: its path is {thisClock} with a zero tail got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 0000000000000009 exp 0000000000000000
+[PASS] mutant caught: reset keeps the elected tail - breaks "#82 warm reset: its path is {thisClock} with a zero tail | #82 every commit naming thisClock carries {thisClock}"
+FAIL #82 cold release: one commit before the first beat got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: no engine commit after reset - breaks "#82 cold release: one commit before the first beat | #82 warm reset: one commit in the first 2 ms"
+FAIL #82 cold release: one commit before the first beat got 0000000000000002 exp 0000000000000001
+FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000002 exp 0000000000000001
+[PASS] mutant caught: the boot commit fires twice - breaks "#82 cold release: one commit before the first beat | #82 warm reset: one commit in the first 2 ms"
+FAIL #82 cold release: one commit before the first beat got 00000000000f4240 exp 0000000000000001
+[PASS] mutant caught: the boot commit never retires - breaks "#82 cold release: one commit before the first beat"
+FAIL #82 cold release: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL #82 warm reset: that commit is the first edge after release got 0000000000000100 exp 0000000000000000
+FAIL pre-init deep Announce: no commit got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: the boot commit waits for the timer bootstrap - breaks "#82 cold release: that commit is the first edge after release | #82 warm reset: that commit is the first edge after release | pre-init deep Announce: no commit"
+FAIL #82 warm reset: a worse-than-local peer leaves thisClock got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 0082a0fffe000001 exp 0082b0fffe000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a warm reset keeps the retained best record - breaks "#82 warm reset: a worse-than-local peer leaves thisClock | #82 warm reset: the live worse peer wins, not the absent A | #82 warm reset: the live peer carries its own path"
+FAIL #82 warm reset: a worse-than-local peer leaves thisClock got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 0000000000000000 exp 0082b0fffe000001
+[PASS] mutant caught: an unwritten best record reads as the best vector - breaks "#82 warm reset: a worse-than-local peer leaves thisClock | #82 warm reset: the live worse peer wins, not the absent A"
+FAIL #82 peer wins: its commit names the peer GM got 02a1b2fffec3d4e5 exp 0082a0fffe000001
+FAIL #82 warm reset: the live worse peer wins, not the absent A got 02a1b2fffec3d4e5 exp 0082b0fffe000001
+FAIL #84 the run hands mastership to a peer got 0000000000000000 exp 0000000000000001
+FAIL #85 direct grandmaster: elected got 02a1b2fffec3d4e5 exp 00e5e5fffe000001
+FAIL #85 multi-hop grandmaster: elected got 02a1b2fffec3d4e5 exp 00e6e6fffe000001
+FAIL #85 seven received entries: elected got 02a1b2fffec3d4e5 exp 00e7e7fffe000001
+FAIL #85 eight received entries: elected got 02a1b2fffec3d4e5 exp 00e8e8fffe000001
+FAIL #85 absent path: elected     got 02a1b2fffec3d4e5 exp 00e9e9fffe000001
+[PASS] mutant caught: a winning peer's grandmaster is not published - breaks "#82 peer wins: its commit names the peer GM | #82 warm reset: the live worse peer wins, not the absent A | #84 the run hands mastership to a peer | #85 direct grandmaster: elected | #85 multi-hop grandmaster: elected | #85 seven received entries: elected | #85 eight received entries: elected | #85 absent path: elected"
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a winning peer's path is not staged - breaks "#82 peer wins: its commit carries the peer path | #82 warm reset: the live peer carries its own path"
+FAIL #82 peer leaves: the mastership commit names thisClock got 0082b0fffe000001 exp 02a1b2fffec3d4e5
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #85 direct grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 eight received entries: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #85 absent path: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the self publication keeps the departed grandmaster - breaks "#82 peer leaves: the mastership commit names thisClock | #82 Pdelay loss: thisClock is committed within 2 ms of the fall | #82 Pdelay loss: that mastership names thisClock, {thisClock} | #85 direct grandmaster: the degraded grandmaster yields | #85 multi-hop grandmaster: the degraded grandmaster yields | #85 seven received entries: the degraded grandmaster yields | #85 eight received entries: the degraded grandmaster yields | #85 absent path: the degraded grandmaster yields"
+FAIL #82 peer leaves: the mastership commit path is {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 00000000000000c4 exp 0000000000000000
+[PASS] mutant caught: the self publication keeps the departed path - breaks "#82 peer leaves: the mastership commit path is {thisClock} | #82 Pdelay loss: that commit carries {thisClock} | #82 Pdelay loss: that mastership names thisClock, {thisClock} | #82 every commit naming thisClock carries {thisClock}"
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the self publication keeps the departed record - breaks "#82 Pdelay loss: once capable, a live peer worse than D wins"
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an asCapable fall leaves the receipt watch running - breaks "#82 Pdelay loss: thisClock is committed within 2 ms of the fall"
+FAIL #82 Pdelay loss: thisClock is committed within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that commit carries {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an incapable receipt timeout keeps the elected peer - breaks "#82 Pdelay loss: thisClock is committed within 2 ms of the fall | #82 Pdelay loss: that commit carries {thisClock} | #82 Pdelay loss: Announces from the incapable port elect nothing"
+FAIL #82 Pdelay loss: Announces from the incapable port elect nothing got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an incapable port's Announces still compete - breaks "#82 Pdelay loss: Announces from the incapable port elect nothing"
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000009 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000009 exp 0000000000000000
+[PASS] mutant caught: the asCapable drop keeps the flags word - breaks "#82 Pdelay loss: the drop commit's flags are gmPresent alone | p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone"
+FAIL #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership names thisClock, {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an incapable port's receipt watch is not re-armed - breaks "#82 Pdelay loss: once capable, with no Announce, master in 3 s | #82 Pdelay loss: that mastership names thisClock, {thisClock} | p1 255 #82 Pdelay loss: once capable, with no Announce, master in 3 s"
+FAIL #82 cold release: every cycle to the first beat has gmPresent got 000000000024a169 exp 0000000000000000
+FAIL #82 cold release: that commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 peer leaves: the mastership commit has gmPresent got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the published flags leave gmPresent to the microcode - breaks "#82 cold release: every cycle to the first beat has gmPresent | #82 cold release: that commit's flags are gmPresent alone | #82 warm reset: its flags are gmPresent alone | #82 peer leaves: the mastership commit has gmPresent | #82 Pdelay loss: the drop commit's flags are gmPresent alone | #82 Pdelay loss: that mastership commit has gmPresent"
+FAIL #82 cold release: every cycle to the first beat has gmPresent got 000000000024a169 exp 0000000000000000
+FAIL #82 cold release: that commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: its flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 peer leaves: the mastership commit has gmPresent got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the image does not mark thisClock grandmaster-capable - breaks "#82 cold release: every cycle to the first beat has gmPresent | #82 cold release: that commit's flags are gmPresent alone | #82 warm reset: its flags are gmPresent alone | #82 peer leaves: the mastership commit has gmPresent | #82 Pdelay loss: the drop commit's flags are gmPresent alone | #82 Pdelay loss: that mastership commit has gmPresent"
+FAIL p1 255 #82 cold release: every cycle to the first beat has gmPresent got 000000000024a169 exp 0000000000000000
+FAIL p1 255 #82 cold release: that commit's flags are gmPresent alone got 0000000000000001 exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone got 0000000000000001 exp 0000000000000000
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: the capability mark ignores priority1 - breaks "p1 255 #82 cold release: every cycle to the first beat has gmPresent | p1 255 #82 cold release: that commit's flags are gmPresent alone | p1 255 #82 Pdelay loss: the drop commit's flags are gmPresent alone | p1 255 #82 Pdelay loss: that mastership commit has gmPresent"
+FAIL p1 255 #82 Pdelay loss: that mastership commit has gmPresent got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: mastership sets the microcode's presence bit - breaks "p1 255 #82 Pdelay loss: that mastership commit has gmPresent"
+FAIL #84 first mastership: the master flags carry sync-ok got 0000000000000007 exp 000000000000000f
+FAIL #84 takeover: its commit names thisClock with sync-ok got 0000000000000000 exp 0000000000000001
+FAIL #84 every master cycle publishes sync-ok got 00000000168beb91 exp 0000000000000000
+FAIL p1 255 #84 first mastership: the master flags carry sync-ok got 0000000000000006 exp 000000000000000e
+FAIL p1 255 #84 every master cycle publishes sync-ok got 0000000000003cad exp 0000000000000000
+[PASS] mutant caught: becoming grandmaster clears sync-ok - breaks "#84 first mastership: the master flags carry sync-ok | #84 takeover: its commit names thisClock with sync-ok | #84 every master cycle publishes sync-ok | p1 255 #84 first mastership: the master flags carry sync-ok | p1 255 #84 every master cycle publishes sync-ok"
+FAIL #84 takeover: a queued receipt timeout keeps sync-ok got 0000000000000000 exp 0000000000000001
+FAIL #84 every master cycle publishes sync-ok got 0000000006bc2fc9 exp 0000000000000000
+[PASS] mutant caught: a queued receipt timeout clears a master's sync-ok - breaks "#84 takeover: a queued receipt timeout keeps sync-ok | #84 every master cycle publishes sync-ok"
+FAIL #84 takeover: the queued receipt timeout commits after it got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an expiry takes a master's own vector for a peer's - breaks "#84 takeover: the queued receipt timeout commits after it"
+FAIL #89 Sync stops: the plane takes mastership got 0000000000000000 exp 0000000000000001
+FAIL #89 never usable: the grandmaster is aged got 0000000000000000 exp 0000000000000001
+FAIL #89 no Follow_Up: the plane takes mastership within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up after the next Sync: the plane takes mastership within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up with the next sequenceId: the plane takes mastership within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a sync receipt timeout only clears sync-ok - breaks "#89 Sync stops: the plane takes mastership | #89 never usable: the grandmaster is aged | #89 no Follow_Up: the plane takes mastership within | #89 Follow_Up after the next Sync: the plane takes mastership within | #89 Follow_Up with the next sequenceId: the plane takes mastership within"
+FAIL #89 takeover: the queued receipt timeout leaves the port aged got 0000000000000000 exp 0000000000000001
+FAIL #89 a lone pair heard as master: a later Announce elects nothing got 0000000000000000 exp 0000000000000001
+FAIL #89 Announce lapse: a sync receipt timeout after mastership ages the next Announce got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: only an expiry that ages a slave marks the port - breaks "#89 takeover: the queued receipt timeout leaves the port aged | #89 a lone pair heard as master: a later Announce elects nothing | #89 Announce lapse: a sync receipt timeout after mastership ages the next Announce"
+FAIL p1 255 #89 gmPresent: a priority1 255 grandmaster without Sync stays elected got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: sync receipt ageing ignores gmPresent - breaks "p1 255 #89 gmPresent: a priority1 255 grandmaster without Sync stays elected"
+FAIL p1 255 #89 gmPresent: when its Sync stops, sync-ok clears within syncReceiptTimeout and the peer stays elected got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a sync receipt timeout that ages nothing keeps sync-ok - breaks "p1 255 #89 gmPresent: when its Sync stops, sync-ok clears within syncReceiptTimeout and the peer stays elected"
+FAIL p1 255 #89 gmPresent: a priority1 255 grandmaster's usable Sync raises sync-ok got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a consumed pair leaves sync-ok down - breaks "p1 255 #89 gmPresent: a priority1 255 grandmaster's usable Sync raises sync-ok"
+FAIL #89 never usable: the grandmaster is aged got 0000000000000000 exp 0000000000000001
+FAIL #89 never usable: within syncReceiptTimeout of its adoption got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: adoption leaves the Sync receipt watch off - breaks "#89 never usable: the grandmaster is aged | #89 never usable: within syncReceiptTimeout of its adoption"
+FAIL #89 never usable: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL #89 Sync stops: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL #89 no Follow_Up: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up after the next Sync: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up with the next sequenceId: the aged port stays master while Announces continue got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #89 gmPresent: a priority1 1 Announce on the aged port elects nothing got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an aged port takes Announces - breaks "#89 never usable: the aged port stays master while Announces continue | #89 Sync stops: the aged port stays master | #89 no Follow_Up: the aged port stays master | #89 Follow_Up after the next Sync: the aged port stays master | #89 Follow_Up with the next sequenceId: the aged port stays master | p1 255 #89 gmPresent: a priority1 1 Announce on the aged port elects nothing"
+FAIL p1 255 #89 gmPresent: the aged port elects a priority1 255 grandmaster got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an aged port refuses a priority1 255 grandmaster - breaks "p1 255 #89 gmPresent: the aged port elects a priority1 255 grandmaster"
+FAIL p1 255 #89 gmPresent: a priority1 1 Announce on the aged port makes this plane master got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an aged Announce is dropped rather than aged - breaks "p1 255 #89 gmPresent: a priority1 1 Announce on the aged port makes this plane master"
+FAIL #89 Announce lapse: a sync receipt timeout after mastership ages the next Announce got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: mastership stops the Sync receipt watch - breaks "#89 Announce lapse: a sync receipt timeout after mastership ages the next Announce"
+FAIL #89 parked Sync: a Follow_Up 200 ms after it pairs with nothing got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: mastership stops the Follow_Up watch - breaks "#89 parked Sync: a Follow_Up 200 ms after it pairs with nothing"
+FAIL #89 parked Sync: a Follow_Up 60 ms after it, after the takeover, is heard got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: mastership voids the parked Sync - breaks "#89 parked Sync: a Follow_Up 60 ms after it, after the takeover, is heard"
+FAIL #89 first grandmaster: Sync recovery is heard as master and steers nothing got 0000000000000000 exp 0000000000000001
+FAIL #89 Sync stops: Sync recovery is heard as master and steers nothing got 0000000000000000 exp 0000000000000001
+FAIL #89 no Follow_Up: Sync recovery is heard as master and steers nothing got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a master steers on its aged peer's Sync - breaks "#89 first grandmaster: Sync recovery is heard as master and steers nothing | #89 Sync stops: Sync recovery is heard as master and steers nothing | #89 no Follow_Up: Sync recovery is heard as master and steers nothing"
+FAIL #89 first grandmaster: the next Announce elects the grandmaster got 0000000000000000 exp 0000000000000001
+FAIL #89 Sync stops: the next Announce elects the grandmaster got 0000000000000000 exp 0000000000000001
+FAIL #89 no Follow_Up: the next Announce elects the grandmaster got 0000000000000000 exp 0000000000000001
+FAIL #89 a lone pair heard as master: an Announce inside its watch elects the grandmaster got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a master hears no Sync - breaks "#89 first grandmaster: the next Announce elects the grandmaster | #89 Sync stops: the next Announce elects the grandmaster | #89 no Follow_Up: the next Announce elects the grandmaster | #89 a lone pair heard as master: an Announce inside its watch elects the grandmaster"
+FAIL #89 Sync stops: within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+FAIL #89 first grandmaster: usable Sync keeps it elected got 0000000000000000 exp 0000000000000001
+FAIL #89 Sync every 250 ms keeps the plane deferring got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the Sync receipt watch is 100 ms - breaks "#89 Sync stops: within syncReceiptTimeout and one BMCA pass | #89 first grandmaster: usable Sync keeps it elected | #89 Sync every 250 ms keeps the plane deferring"
+FAIL #89 Sync stops: within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+FAIL #89 no Follow_Up: the plane takes mastership within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+FAIL #89 Follow_Up with the next sequenceId: the plane takes mastership within syncReceiptTimeout and one BMCA pass got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the Sync receipt watch is 500 ms - breaks "#89 Sync stops: within syncReceiptTimeout and one BMCA pass | #89 no Follow_Up: the plane takes mastership within | #89 Follow_Up with the next sequenceId: the plane takes mastership within"
+FAIL #89 Sync stops: the Announce leaves the grandmaster elected got 0000000000000003 exp 0000000000000001
+[PASS] mutant caught: a parent refresh expires the Sync watch - breaks "#89 Sync stops: the Announce leaves the grandmaster elected"
+FAIL #89 never usable: within syncReceiptTimeout of its adoption got 0000000000000000 exp 0000000000000001
+FAIL still slave inside the Sync receipt watch got 0000000000000003 exp 0000000000000001
+[PASS] mutant caught: the adoption watch is 100 ms - breaks "#89 never usable: within syncReceiptTimeout of its adoption | still slave inside the Sync receipt watch"
+FAIL #89 Follow_Up after the next Sync: no unusable pair is consumed got 00000000078181a6 exp 0000000000000000
+FAIL #89 Follow_Up with the next sequenceId: no unusable pair is consumed got 0000000000000309 exp 0000000000000000
+[PASS] mutant caught: a Follow_Up pairs whatever its sequenceId - breaks "#89 Follow_Up after the next Sync: no unusable pair is consumed | #89 Follow_Up with the next sequenceId: no unusable pair is consumed"
+FAIL #89 a Follow_Up 60 ms after its Sync is used got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the Follow_Up watch is 50 ms - breaks "#89 a Follow_Up 60 ms after its Sync is used"
+FAIL #90 no response: one loss keeps asCapable got 0000000000000000 exp 0000000000000004
+FAIL #90 no follow-up: one loss keeps asCapable got 0000000000000000 exp 0000000000000004
+FAIL #91 duplicated response: one loss keeps asCapable got 0000000000000000 exp 0000000000000004
+FAIL #91 three responses: one loss keeps asCapable got 0000000000000000 exp 0000000000000004
+[PASS] mutant caught: lost responses clear asCapable at the first - breaks "#90 no response: one loss keeps asCapable | #90 no follow-up: one loss keeps asCapable | #91 duplicated response: one loss keeps asCapable | #91 three responses: one loss keeps asCapable"
+FAIL #90 no response: request 6 goes out got 0000000000000000 exp 0000000000000001
+FAIL #90 no follow-up: runs from a capable plane got 0000000000000000 exp 0000000000000001
+FAIL #90 no follow-up: runs from a completed exchange got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the fifth loss stops the requests - breaks "#90 no response: request 6 goes out | #90 no follow-up: runs from a capable plane | #90 no follow-up: runs from a completed exchange"
+FAIL #91 duplicates are not a storm: requests keep going out got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: same-identity duplicates are a storm - breaks "#91 duplicates are not a storm: requests keep going out"
+FAIL #90 no response: four losses keep asCapable got 0000000000000000 exp 0000000000000004
+FAIL #90 no follow-up: four losses keep asCapable got 0000000000000000 exp 0000000000000004
+FAIL #91 duplicated response: four losses keep asCapable got 0000000000000000 exp 0000000000000004
+FAIL #91 three responses: four losses keep asCapable got 0000000000000000 exp 0000000000000004
+[PASS] mutant caught: lost responses clear asCapable at the fourth - breaks "#90 no response: four losses keep asCapable | #90 no follow-up: four losses keep asCapable | #91 duplicated response: four losses keep asCapable | #91 three responses: four losses keep asCapable"
+FAIL #90 no response: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+FAIL #90 no follow-up: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+FAIL #91 duplicated response: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+FAIL #91 three responses: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+[PASS] mutant caught: lost responses clear asCapable at the sixth - breaks "#90 no response: the fifth loss clears asCapable | #90 no follow-up: the fifth loss clears asCapable | #91 duplicated response: the fifth loss clears asCapable | #91 three responses: the fifth loss clears asCapable"
+FAIL #91 duplicated response: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+FAIL #91 duplicated response: no exchange completes got 0000000000000295 exp 0000000000000259
+FAIL #91 three responses: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+FAIL #91 three responses: no exchange completes got 00000000000002d1 exp 0000000000000259
+[PASS] mutant caught: a second response re-arms the pairing - breaks "#91 duplicated response: the fifth loss clears asCapable | #91 duplicated response: no exchange completes | #91 three responses: the fifth loss clears asCapable | #91 three responses: no exchange completes"
+FAIL #91 three responses: the fifth loss clears asCapable got 0000000000000004 exp 0000000000000000
+FAIL #91 three responses: no exchange completes got 00000000000002d1 exp 0000000000000259
+[PASS] mutant caught: a third response re-arms the reset exchange - breaks "#91 three responses: the fifth loss clears asCapable | #91 three responses: no exchange completes"
+FAIL #94 toggle: the first request comes within one interval of the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: then one request every interval got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a portEnabled edge keeps the cease - breaks "#94 toggle: the first request comes within one interval of the rise | #94 toggle: the first request goes out at once after the rise | #94 toggle: then one request every interval"
+FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: asCapable falls at the falling edge got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: slot 6 runs no NOT_ENABLED leg - breaks "#94 toggle: the first request goes out at once after the rise | #94 link loss: asCapable falls at the falling edge"
+FAIL #94 link loss: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a portEnabled edge keeps the ladder - breaks "#94 link loss: one exchange after the rise leaves asCapable clear"
+FAIL #94 toggle: lostResponses starts at zero: four losses commit nothing got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a portEnabled edge leaves the interval unanswered - breaks "#94 toggle: lostResponses starts at zero: four losses commit nothing"
+FAIL #94 countdown: the first request after the cease follows the last by the countdown and two beats got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the countdown loads one beat less - breaks "#94 countdown: the first request after the cease follows the last by the countdown and two beats"
+FAIL #94 toggle: the cease sends no request got 00000000000000d2 exp 00000000000000d1
+FAIL #94 countdown: the first request after the cease follows the last by the countdown and two beats got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the cease entry ends the cease at once - breaks "#94 toggle: the cease sends no request | #94 countdown: the first request after the cease follows the last by the countdown and two beats"
+FAIL #94 toggle: three multi-answered requests cease got 0000000000000000 exp 0000000000000001
+FAIL #94 countdown: three multi-answered requests cease got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the cease entry keeps asCapable - breaks "#94 toggle: three multi-answered requests cease | #94 countdown: three multi-answered requests cease"
+FAIL #94 toggle: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: one exchange after the rise leaves asCapable clear got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the ladder raises asCapable at the first exchange - breaks "#94 toggle: one exchange after the rise leaves asCapable clear | #94 link loss: one exchange after the rise leaves asCapable clear"
+FAIL #94 link loss: asCapable falls at the falling edge got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the falling edge raises no event - breaks "#94 link loss: asCapable falls at the falling edge"
+FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a rise sends no request at once - breaks "#94 toggle: the first request goes out at once after the rise | #94 link loss: the first request goes out at once after the rise"
+FAIL #94 link loss: the publication holds while the port is disabled got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: a disabled port keeps its transmit credit - breaks "#94 link loss: the publication holds while the port is disabled"
+FAIL #94 built across the fall: the response is not sent got 0000000000000000 exp 0000000000000001
+FAIL #94 link loss: nothing is transmitted while the port is disabled got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled first byte: the frame is withdrawn got 0000000000000001 exp 0000000000000000
+FAIL #94 stalled first byte: no frame starts while the port is disabled got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: a disabled port starts an unstarted frame - breaks "#94 built across the fall: the response is not sent | #94 link loss: nothing is transmitted while the port is disabled | #94 stalled first byte: the frame is withdrawn | #94 stalled first byte: no frame starts while the port is disabled"
+FAIL #94 toggle: nothing is transmitted while the port is disabled got 0000000000000001 exp 0000000000000000
+FAIL #94 link loss: nothing is transmitted while the port is disabled got 0000000000000007 exp 0000000000000000
+[PASS] mutant caught: a disabled port keeps its credit and starts its frames - breaks "#94 toggle: nothing is transmitted while the port is disabled | #94 link loss: nothing is transmitted while the port is disabled"
+FAIL #94 built across the fall: a request after the rise is answered at once got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: egress claims survive the fall - breaks "#94 built across the fall: a request after the rise is answered at once"
+FAIL #94 t1 after the fall: nothing commits after NOT_ENABLED got 0000000000000001 exp 0000000000000000
+FAIL #94 t1 after the fall: the delay holds got 00000000000002bd exp 0000000000000259
+[PASS] mutant caught: the request claim survives the fall - breaks "#94 t1 after the fall: nothing commits after NOT_ENABLED | #94 t1 after the fall: the delay holds"
+FAIL #82 cold release: one commit before the first beat got 0000000000000002 exp 0000000000000001
+FAIL #82 warm reset: one commit in the first 2 ms got 0000000000000002 exp 0000000000000001
+FAIL p1 255 #82 cold release: one commit before the first beat got 0000000000000002 exp 0000000000000001
+[PASS] mutant caught: the first enable since reset raises events - breaks "#82 cold release: one commit before the first beat | #82 warm reset: one commit in the first 2 ms | p1 255 #82 cold release: one commit before the first beat"
+FAIL #94 link loss: nothing is transmitted while the port is disabled got 0000000000000001 exp 0000000000000000
+[PASS] mutant caught: the withdrawn frame stays offered for a cycle - breaks "#94 link loss: nothing is transmitted while the port is disabled"
+FAIL #94 stalled at byte 1: the started frame keeps its place got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: the started frame keeps its place got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: the started frame keeps its place got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 1: the started frame completes whole got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: the started frame completes whole got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: the started frame completes whole got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a disabled port tears a started frame - breaks "#94 stalled at byte 1: the started frame keeps its place | #94 stalled at byte 34: the started frame keeps its place | #94 stalled at byte 67: the started frame keeps its place | #94 stalled at byte 1: the started frame completes whole | #94 stalled at byte 34: the started frame completes whole | #94 stalled at byte 67: the started frame completes whole"
+FAIL #94 stalled at byte 1: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 34: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+FAIL #94 stalled at byte 67: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: NOT_ENABLED waits for the serializer - breaks "#94 stalled at byte 1: asCapable falls within 2 ms of the fall | #94 stalled at byte 34: asCapable falls within 2 ms of the fall | #94 stalled at byte 67: asCapable falls within 2 ms of the fall"
+FAIL #94 stalled first byte: asCapable falls within 2 ms of the fall got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a stalled frame holds NOT_ENABLED back - breaks "#94 stalled first byte: asCapable falls within 2 ms of the fall"
+FAIL #94 Follow_Up after the fall: nothing commits after NOT_ENABLED got 0000000000000001 exp 0000000000000000
+FAIL #94 Follow_Up after the fall: the delay holds got 00000000000002bd exp 0000000000000259
+FAIL #94 Follow_Up queued before the fall: nothing commits after NOT_ENABLED got 0000000000000001 exp 0000000000000000
+FAIL #94 Follow_Up queued before the fall: the delay holds got 00000000000002bd exp 0000000000000259
+[PASS] mutant caught: NOT_ENABLED keeps the armed response - breaks "#94 Follow_Up after the fall: nothing commits after NOT_ENABLED | #94 Follow_Up after the fall: the delay holds | #94 Follow_Up queued before the fall: nothing commits after NOT_ENABLED | #94 Follow_Up queued before the fall: the delay holds"
+FAIL #94 Follow_Up queued before the fall: the delay holds got 00000000000002bd exp 0000000000000259
+[PASS] mutant caught: NOT_ENABLED queues behind earlier events - breaks "#94 Follow_Up queued before the fall: the delay holds"
+FAIL #94 disabled warm reset: the first request comes within one interval of the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 disabled warm reset: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the first rise after a disabled release raises nothing - breaks "#94 disabled warm reset: the first request comes within one interval of the rise | #94 disabled warm reset: the first request goes out at once after the rise"
+FAIL #84 takeover: nothing commits while dispatch is held got 000000000000012e exp 000000000000012d
+[PASS] mutant caught: dispatch ignores a busy serializer - breaks "#84 takeover: nothing commits while dispatch is held"
+FAIL #84 master cycles were graded got 0000000000000000 exp 0000000000000001
+FAIL p1 255 #84 master cycles were graded got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: mastership never publishes the master bit - breaks "#84 master cycles were graded | p1 255 #84 master cycles were graded"
+FAIL #84 every handover to a peer grandmaster clears sync-ok got 0000000000000030 exp 0000000000000000
+FAIL p1 255 #84 every handover to a peer grandmaster clears sync-ok got 0000000000000004 exp 0000000000000000
+[PASS] mutant caught: a handover to a peer keeps sync-ok - breaks "#84 every handover to a peer grandmaster clears sync-ok | p1 255 #84 every handover to a peer grandmaster clears sync-ok"
+FAIL #85 direct grandmaster: count got 0000000000000001 exp 0000000000000002
+FAIL #85 direct grandmaster: tail 1 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 direct grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 multi-hop grandmaster: count got 0000000000000005 exp 0000000000000006
+FAIL #85 multi-hop grandmaster: tail 5 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 seven received entries: count got 0000000000000007 exp 0000000000000008
+FAIL #85 seven received entries: tail 7 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 seven received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #85 every peer path ends with thisClock got 0000000000000241 exp 0000000000000000
+FAIL p1 255 #85 every peer path ends with thisClock got 000000000000005c exp 0000000000000000
+FAIL #82 peer wins: its commit carries the peer path got 0000000000000000 exp 0000000000000001
+FAIL #82 warm reset: the live peer carries its own path got 0000000000000000 exp 0000000000000001
+FAIL #82 Pdelay loss: once capable, a live peer worse than D wins got 0000000000000000 exp 0000000000000001
+FAIL adopt appends thisClock as path tail 4 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL worse announce retains path A tail 4 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL worse TLV-less announce retains path A tail 4 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL parent refresh appends thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL unknown before path current parent: tail 3 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL post-release C appends thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 empty path: count        got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: count got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the received path is published without thisClock - breaks "#85 direct grandmaster: count | #85 direct grandmaster: tail 1 | #85 direct grandmaster: its commit names the grandmaster and path | #85 multi-hop grandmaster: count | #85 multi-hop grandmaster: tail 5 | #85 multi-hop grandmaster: its commit names the grandmaster and path | #85 seven received entries: count | #85 seven received entries: tail 7 | #85 seven received entries: its commit names the grandmaster and path | #85 every peer path ends with thisClock | p1 255 #85 every peer path ends with thisClock | #82 peer wins: its commit carries the peer path | #82 warm reset: the live peer carries its own path | #82 Pdelay loss: once capable, a live peer worse than D wins | adopt appends thisClock as path tail 4 | worse announce retains path A tail 4 | worse TLV-less announce retains path A tail 4 | parent refresh appends thisClock | unknown before path current parent: tail 3 | post-release C appends thisClock | #88 empty path: count | #88 empty path from the parent: count"
+FAIL #85 eight received entries: count got 0000000000000009 exp 0000000000000008
+FAIL #85 eight received entries: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: eight received entries take a ninth - breaks "#85 eight received entries: count | #85 eight received entries: its commit names the grandmaster and path"
+FAIL #85 seven received entries: count got 0000000000000007 exp 0000000000000008
+FAIL #85 seven received entries: tail 7 got 0000000000000000 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: seven received entries leave thisClock out - breaks "#85 seven received entries: count | #85 seven received entries: tail 7"
+FAIL #88 empty path: count        got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path: head         got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: count got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: head got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #88 empty path from the parent: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: an empty path takes no thisClock - breaks "#88 empty path: count | #88 empty path: head | #88 empty path: its commit names the grandmaster and path | #88 empty path from the parent: count | #88 empty path from the parent: head | #88 empty path from the parent: its commit names the grandmaster and path"
+FAIL #85 direct grandmaster: tail 1 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: tail 5 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #85 every peer path ends with thisClock got 0000000000000240 exp 0000000000000000
+FAIL #88 empty path: head         got 0000000000000000 exp 02a1b2fffec3d4e5
+[PASS] mutant caught: thisClock lands one slot early - breaks "#85 direct grandmaster: tail 1 | #85 multi-hop grandmaster: tail 5 | #85 every peer path ends with thisClock | #88 empty path: head"
+FAIL #85 direct grandmaster: tail 2 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 direct grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 multi-hop grandmaster: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #85 multi-hop grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 2      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 3      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 4      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 5      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 6      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 issue shape: tail 7      got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 4 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 5 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 6 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 three entries, stepsRemoved 0: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 head not the grandmaster: tail 3 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 head not the grandmaster: tail 7 got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 empty path: tail 1       got 02a1b2fffec3d4e5 exp 0000000000000000
+FAIL #88 empty path: tail 7       got 02a1b2fffec3d4e5 exp 0000000000000000
+[PASS] mutant caught: thisClock fills every later slot - breaks "#85 direct grandmaster: tail 2 | #85 direct grandmaster: tail 3 | #85 direct grandmaster: tail 4 | #85 direct grandmaster: tail 5 | #85 direct grandmaster: tail 6 | #85 direct grandmaster: tail 7 | #85 multi-hop grandmaster: tail 6 | #85 multi-hop grandmaster: tail 7 | #88 issue shape: tail 2 | #88 issue shape: tail 3 | #88 issue shape: tail 4 | #88 issue shape: tail 5 | #88 issue shape: tail 6 | #88 issue shape: tail 7 | #88 two entries, stepsRemoved 5: tail 3 | #88 two entries, stepsRemoved 5: tail 4 | #88 two entries, stepsRemoved 5: tail 5 | #88 two entries, stepsRemoved 5: tail 6 | #88 two entries, stepsRemoved 5: tail 7 | #88 three entries, stepsRemoved 0: tail 4 | #88 three entries, stepsRemoved 0: tail 5 | #88 three entries, stepsRemoved 0: tail 6 | #88 three entries, stepsRemoved 0: tail 7 | #88 head not the grandmaster: tail 3 | #88 head not the grandmaster: tail 7 | #88 empty path: tail 1 | #88 empty path: tail 7"
+FAIL #85 direct grandmaster: tail 1 got 00e5e5fffe000001 exp 02a1b2fffec3d4e5
+FAIL #85 multi-hop grandmaster: tail 5 got 00e6e6fffe0000c4 exp 02a1b2fffec3d4e5
+FAIL #85 every peer path ends with thisClock got 0000000000000240 exp 0000000000000000
+[PASS] mutant caught: the appended entry is the announcing source - breaks "#85 direct grandmaster: tail 1 | #85 multi-hop grandmaster: tail 5 | #85 every peer path ends with thisClock"
+FAIL #85 direct grandmaster: head got 0000000000000000 exp 00e5e5fffe000001
+FAIL #85 multi-hop grandmaster: head got 0000000000000000 exp 00e6e6fffe000001
+FAIL #85 multi-hop grandmaster: tail 1 got 0000000000000000 exp 00e6e6fffe0000b1
+FAIL #85 multi-hop grandmaster: tail 2 got 0000000000000000 exp 00e6e6fffe0000b2
+FAIL #85 multi-hop grandmaster: tail 3 got 0000000000000000 exp 00e6e6fffe0000b3
+FAIL #85 multi-hop grandmaster: tail 4 got 0000000000000000 exp 00e6e6fffe0000c4
+FAIL #85 seven received entries: tail 1 got 0000000000000000 exp 00e7e7fffe000002
+FAIL #85 seven received entries: tail 2 got 0000000000000000 exp 00e7e7fffe000003
+FAIL #85 seven received entries: tail 3 got 0000000000000000 exp 00e7e7fffe000004
+FAIL #85 seven received entries: tail 4 got 0000000000000000 exp 00e7e7fffe000005
+FAIL #85 seven received entries: tail 5 got 0000000000000000 exp 00e7e7fffe000006
+FAIL #85 seven received entries: tail 6 got 0000000000000000 exp 00e7e7fffe000007
+FAIL #85 eight received entries: tail 1 got 0000000000000000 exp 00e8e8fffe000002
+FAIL #85 eight received entries: tail 2 got 0000000000000000 exp 00e8e8fffe000003
+FAIL #85 eight received entries: tail 3 got 0000000000000000 exp 00e8e8fffe000004
+FAIL #85 eight received entries: tail 4 got 0000000000000000 exp 00e8e8fffe000005
+FAIL #85 eight received entries: tail 5 got 0000000000000000 exp 00e8e8fffe000006
+FAIL #85 eight received entries: tail 6 got 0000000000000000 exp 00e8e8fffe000007
+FAIL #85 eight received entries: tail 7 got 0000000000000000 exp 00e8e8fffe000008
+[PASS] mutant caught: the received entries are not copied - breaks "#85 direct grandmaster: head | #85 multi-hop grandmaster: head | #85 multi-hop grandmaster: tail 1 | #85 multi-hop grandmaster: tail 2 | #85 multi-hop grandmaster: tail 3 | #85 multi-hop grandmaster: tail 4 | #85 seven received entries: tail 1 | #85 seven received entries: tail 2 | #85 seven received entries: tail 3 | #85 seven received entries: tail 4 | #85 seven received entries: tail 5 | #85 seven received entries: tail 6 | #85 eight received entries: tail 1 | #85 eight received entries: tail 2 | #85 eight received entries: tail 3 | #85 eight received entries: tail 4 | #85 eight received entries: tail 5 | #85 eight received entries: tail 6 | #85 eight received entries: tail 7"
+FAIL #85 direct grandmaster: count got 0000000000000001 exp 0000000000000002
+FAIL #85 multi-hop grandmaster: count got 0000000000000001 exp 0000000000000006
+FAIL #85 eight received entries: count got 0000000000000001 exp 0000000000000008
+FAIL #88 issue shape: count       got 0000000000000001 exp 0000000000000002
+FAIL #87 G1 elected: count        got 0000000000000001 exp 0000000000000004
+[PASS] mutant caught: every received path is published as {thisClock} - breaks "#85 direct grandmaster: count | #85 multi-hop grandmaster: count | #85 eight received entries: count | #88 issue shape: count | #87 G1 elected: count"
+FAIL #88 issue shape: elected     got 02a1b2fffec3d4e5 exp 00f1f1fffe000001
+FAIL #88 issue shape: no longer master got 0000000000000002 exp 0000000000000000
+FAIL #88 issue shape: count       got 0000000000000001 exp 0000000000000002
+FAIL #88 issue shape: no Announce for one interval got 0000000000000001 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: elected got 02a1b2fffec3d4e5 exp 00f2f2fffe000001
+FAIL #88 three entries, stepsRemoved 0: elected got 02a1b2fffec3d4e5 exp 00f3f3fffe000001
+FAIL #88 own source, one entry, stepsRemoved 3: parser-drop policy got 000000000000000a exp 0000000000000009
+FAIL #88 stepsRemoved 255, one entry: parser-drop policy got 000000000000000b exp 000000000000000a
+FAIL #88 short loop, stepsRemoved 5: parser-drop policy got 000000000000000c exp 000000000000000b
+[PASS] mutant caught: the path-count refusal restored - breaks "#88 issue shape: elected | #88 issue shape: no longer master | #88 issue shape: count | #88 issue shape: no Announce for one interval | #88 two entries, stepsRemoved 5: elected | #88 three entries, stepsRemoved 0: elected | #88 own source, one entry, stepsRemoved 3: parser-drop policy | #88 stepsRemoved 255, one entry: parser-drop policy | #88 short loop, stepsRemoved 5: parser-drop policy"
+FAIL #88 head not the grandmaster: elected got 02a1b2fffec3d4e5 exp 00f5f5fffe000001
+FAIL #88 head not the grandmaster: no longer master got 0000000000000002 exp 0000000000000000
+FAIL #88 head not the grandmaster: entry 0 is the received head got 02a1b2fffec3d4e5 exp 00f5f5fffe0000a1
+FAIL #88 head not the grandmaster: no Announce for one interval got 0000000000000001 exp 0000000000000000
+FAIL #88 head not the grandmaster: parser accepts got 0000000000000001 exp 0000000000000000
+FAIL #88 current parent's path headed elsewhere: one commit got 0000000000000032 exp 0000000000000033
+FAIL #88 current parent's path headed elsewhere: entry 0 is the received head got 00aaccfffe010203 exp 00bad0fffe000001
+FAIL #88 current parent's path headed elsewhere: parser accepts got 0000000000000012 exp 0000000000000011
+FAIL #88 parent path headed elsewhere: head got 02a1b2fffec3d4e5 exp 00f7f7fffe0000a1
+FAIL #88 parent path headed elsewhere: parser accepts got 000000000000000a exp 0000000000000009
+[PASS] mutant caught: the path-head refusal restored - breaks "#88 head not the grandmaster: elected | #88 head not the grandmaster: no longer master | #88 head not the grandmaster: entry 0 is the received head | #88 head not the grandmaster: no Announce for one interval | #88 head not the grandmaster: parser accepts | #88 current parent's path headed elsewhere: one commit | #88 current parent's path headed elsewhere: entry 0 is the received head | #88 current parent's path headed elsewhere: parser accepts | #88 parent path headed elsewhere: head | #88 parent path headed elsewhere: parser accepts"
+FAIL #88 empty path: elected      got 02a1b2fffec3d4e5 exp 00eaeafffe000001
+FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: count got 0000000000000004 exp 0000000000000001
+FAIL #88 empty path from the parent: parser accepts got 000000000000000c exp 000000000000000b
+[PASS] mutant caught: the empty-path refusal restored - breaks "#88 empty path: elected | #88 empty path: its commit names the grandmaster and path | #88 empty path from the parent: count | #88 empty path from the parent: parser accepts"
+FAIL #88 head not the grandmaster: entry 0 is the received head got 00f5f5fffe000001 exp 00f5f5fffe0000a1
+FAIL #88 head not the grandmaster: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 current parent's path headed elsewhere: entry 0 is the received head got 00aaccfffe010203 exp 00bad0fffe000001
+FAIL #88 parent path headed elsewhere: head got 00f7f7fffe000001 exp 00f7f7fffe0000a1
+FAIL #87 parent refresh without a TLV: head got 00f7f7fffe000001 exp 00f7f7fffe0000a1
+[PASS] mutant caught: the received head replaced by the grandmaster - breaks "#88 head not the grandmaster: entry 0 is the received head | #88 head not the grandmaster: its commit names the grandmaster and path | #88 current parent's path headed elsewhere: entry 0 is the received head | #88 parent path headed elsewhere: head | #87 parent refresh without a TLV: head"
+FAIL #85 direct grandmaster: head got 0000000000000000 exp 00e5e5fffe000001
+FAIL #88 issue shape: entry 0 is the received head got 0000000000000000 exp 00f1f1fffe000001
+FAIL adopt publishes path head    got 0000000000000000 exp 00aaccfffe010203
+FAIL worse announce retains path A head got 0000000000000000 exp 00aaccfffe010203
+FAIL worse TLV-less announce retains path A head got 0000000000000000 exp 00aaccfffe010203
+FAIL deep path retains its head   got 0000000000000000 exp 00aaccfffe010203
+FAIL parent refresh publishes path C head got 0000000000000000 exp 00aaccfffe010203
+FAIL unknown-only current parent: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL unknown before path current parent: head got 0000000000000000 exp 00aaccfffe010203
+FAIL full path before raw empty: head got 0000000000000000 exp 00aaccfffe010203
+FAIL TLV-less current parent: keeps the previous head got 0000000000000000 exp 00aaccfffe010203
+FAIL frozen queued A head coherent got 0000000000000000 exp 00aaccfffe010203
+FAIL post-release C head coherent got 0000000000000000 exp 00aaccfffe010203
+FAIL boundary-clean announce: raw path head got 0000000000000000 exp 00d1d1fffe000004
+FAIL #87 G1 elected: head         got 0000000000000000 exp 00f6f6fffe000001
+[PASS] mutant caught: the received head is not published - breaks "#85 direct grandmaster: head | #88 issue shape: entry 0 is the received head | adopt publishes path head | worse announce retains path A head | worse TLV-less announce retains path A head | deep path retains its head | parent refresh publishes path C head | unknown-only current parent: keeps the previous head | unknown before path current parent: head | full path before raw empty: head | TLV-less current parent: keeps the previous head | frozen queued A head coherent | post-release C head coherent | boundary-clean announce: raw path head | #87 G1 elected: head"
+FAIL #87 G1 to G2 without a TLV: count got 0000000000000000 exp 0000000000000004
+FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 parent refresh without a TLV: count got 0000000000000000 exp 0000000000000003
+FAIL #85 absent path: count       got 0000000000000000 exp 0000000000000001
+FAIL TLV-less competition control: raw path count got 0000000000000000 exp 0000000000000001
+FAIL #87 post-warm-reset TLV-less count got 0000000000000000 exp 0000000000000001
+FAIL #87 post-warm-reset TLV-less selection commits {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL TLV-less current parent: keeps the previous count got 0000000000000000 exp 0000000000000008
+FAIL unknown-only current parent: keeps the previous count got 0000000000000000 exp 0000000000000004
+FAIL out-of-message fake PathTrace: keeps the previous count got 0000000000000000 exp 0000000000000008
+FAIL #87 raw-empty overload: frozen A keeps C's path got 0000000000000000 exp 0000000000000001
+FAIL #85 every peer path ends with thisClock got 000000000000000b exp 0000000000000000
+[PASS] mutant caught: the empty sequence published without a TLV - breaks "#87 G1 to G2 without a TLV: count | #87 G1 to G2 without a TLV: its commit names the grandmaster and path | #87 parent refresh without a TLV: count | #85 absent path: count | TLV-less competition control: raw path count | #87 post-warm-reset TLV-less count | #87 post-warm-reset TLV-less selection commits {thisClock} | TLV-less current parent: keeps the previous count | unknown-only current parent: keeps the previous count | out-of-message fake PathTrace: keeps the previous count | #87 raw-empty overload: frozen A keeps C's path | #85 every peer path ends with thisClock"
+FAIL #87 G1 to G2 without a TLV: count got 0000000000000001 exp 0000000000000004
+FAIL #87 G1 to G2 without a TLV: head got 02a1b2fffec3d4e5 exp 00f6f6fffe000001
+FAIL #87 parent refresh without a TLV: head got 02a1b2fffec3d4e5 exp 00f7f7fffe0000a1
+FAIL TLV-less current parent: keeps the previous count got 0000000000000001 exp 0000000000000008
+FAIL unknown-only current parent: keeps the previous head got 02a1b2fffec3d4e5 exp 00aaccfffe010203
+FAIL out-of-message fake PathTrace: keeps tail 7 got 0000000000000000 exp 0080e1fffe112233
+FAIL #87 raw-empty overload: frozen A keeps C's path got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a TLV-less Announce publishes {thisClock} - breaks "#87 G1 to G2 without a TLV: count | #87 G1 to G2 without a TLV: head | #87 parent refresh without a TLV: head | TLV-less current parent: keeps the previous count | unknown-only current parent: keeps the previous head | out-of-message fake PathTrace: keeps tail 7 | #87 raw-empty overload: frozen A keeps C's path"
+FAIL #82 cold release: every cycle to the first beat has {thisClock} got 000000000024a169 exp 0000000000000000
+FAIL #82 cold release: that commit carries thisClock and {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL self path entry 0 is thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL own-GM transition publishes thisClock at entry 0 got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 post-warm-reset TLV-less head got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL #87 the degraded G2 yields with {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL #82 every commit naming thisClock carries {thisClock} got 00000000000000f9 exp 0000000000000000
+FAIL p1 255 self path entry 0 is thisClock got 0000000000000000 exp 02a1b2fffec3d4e5
+FAIL p1 255 #82 every commit naming thisClock carries {thisClock} got 0000000000000010 exp 0000000000000000
+[PASS] mutant caught: the self path leaves entry 0 empty - breaks "#82 cold release: every cycle to the first beat has {thisClock} | #82 cold release: that commit carries thisClock and {thisClock} | self path entry 0 is thisClock | own-GM transition publishes thisClock at entry 0 | #87 post-warm-reset TLV-less head | #87 the degraded G2 yields with {thisClock} | #82 every commit naming thisClock carries {thisClock} | p1 255 self path entry 0 is thisClock | p1 255 #82 every commit naming thisClock carries {thisClock}"
+FAIL #88 own source, one entry, stepsRemoved 3: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 own source, one entry, stepsRemoved 3: gm still us got 00f4f4fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 own source, one entry, stepsRemoved 3: flags untouched got 0000000000000005 exp 000000000000000f
+FAIL #88 own source, one entry, stepsRemoved 3: raw vector never published got ffc401f8fe436af8 exp ffc4faf8fe436af8
+[PASS] mutant caught: (a) the own-source refusal removed - breaks "#88 own source, one entry, stepsRemoved 3: still master | #88 own source, one entry, stepsRemoved 3: gm still us | #88 own source, one entry, stepsRemoved 3: flags untouched | #88 own source, one entry, stepsRemoved 3: raw vector never published"
+FAIL #88 stepsRemoved 255, one entry: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 stepsRemoved 255, one entry: gm still us got 00f4f4fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 stepsRemoved 255, one entry: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+FAIL #88 stepsRemoved 255, one entry: flags untouched got 0000000000000005 exp 000000000000000f
+FAIL #88 stepsRemoved 255, one entry: raw vector never published got ffc401f8fe436af8 exp ffc4faf8fe436af8
+[PASS] mutant caught: (b) the stepsRemoved refusal removed - breaks "#88 stepsRemoved 255, one entry: still master | #88 stepsRemoved 255, one entry: gm still us | #88 stepsRemoved 255, one entry: parent still us | #88 stepsRemoved 255, one entry: flags untouched | #88 stepsRemoved 255, one entry: raw vector never published"
+FAIL #88 short loop, stepsRemoved 5: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 short loop, stepsRemoved 5: gm still us got 00f4f4fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 short loop, stepsRemoved 5: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+FAIL #88 short loop, stepsRemoved 5: flags untouched got 0000000000000005 exp 000000000000000f
+FAIL #88 short loop, stepsRemoved 5: raw vector never published got ffc401f8fe436af8 exp ffc4faf8fe436af8
+[PASS] mutant caught: (c) the PathTrace loop refusal removed - breaks "#88 short loop, stepsRemoved 5: still master | #88 short loop, stepsRemoved 5: gm still us | #88 short loop, stepsRemoved 5: parent still us | #88 short loop, stepsRemoved 5: flags untouched | #88 short loop, stepsRemoved 5: raw vector never published"
+FAIL #88 issue shape: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 two entries, stepsRemoved 5: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+FAIL #88 three entries, stepsRemoved 0: the degraded grandmaster yields got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a parent update must beat the best - breaks "#88 issue shape: the degraded grandmaster yields | #88 two entries, stepsRemoved 5: the degraded grandmaster yields | #88 three entries, stepsRemoved 0: the degraded grandmaster yields"
+
+136 checks: 136 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/engine'
+make -C tb/verilator/gaskets
+make[1]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/gaskets'
+verilator --cc --exe --build -j 0 --top-module gasket_tb_top -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/gaskets" ../../../bench/arty/bench_afifo.sv ../../../bench/arty/bench_mii_tx.sv ../../../bench/arty/bench_mii_rx.sv gasket_tb_top.sv sim_main.cpp -o Vgasket_sim
+python3 mutants.py
+%Warning-PINCONNECTEMPTY: gasket_tb_top.sv:127:8: Instance pin connected by name with empty reference: 'full_o'
+  127 |       .full_o   (),
+      |        ^~~~~~
+                          ... For warning description see https://verilator.org/warn/PINCONNECTEMPTY?v=5.050
+                          ... Use "/* verilator lint_off PINCONNECTEMPTY */" and lint_on around source to disable this message.
+make[2]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/gaskets/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/gaskets   -Os  -c -o sim_main.o ../sim_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/gaskets   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/gaskets   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vgasket_tb_top.cpp Vgasket_tb_top___024root__0.cpp Vgasket_tb_top___024root__Slow.cpp Vgasket_tb_top___024root__0__Slow.cpp Vgasket_tb_top__Syms__Slow.cpp > Vgasket_tb_top__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/gaskets   -c -o Vgasket_tb_top__ALL.o Vgasket_tb_top__ALL.cpp
+g++    sim_main.o verilated.o verilated_threads.o Vgasket_tb_top__ALL.a    -pthread -lpthread -latomic   -o Vgasket_sim
+rm Vgasket_tb_top__ALL.verilator_deplist.tmp
+make[2]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/gaskets/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.144 MB sources in 5 modules, into 0.107 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 5.607 s (elab=0.003, cvt=0.015, bld=5.580); cpu 0.030 s on 8 threads; allocated 611.441 MB
+./obj_dir/Vgasket_sim
+81 checks: 81 PASS, 0 FAIL
+[PASS] the unmutated bench RTL still passes the harness
+[PASS] mutant caught: tx fifo level truncated - breaks "a FIFO holding exactly 64 words reports a level the gasket can see, instead of reading 0 and wedging S_IDLE"
+[PASS] mutant caught: tx sfd toggle frozen - breaks "the egress timestamp point is marked once per frame at the SFD"
+[PASS] mutant caught: rx sfd toggle frozen - breaks "the ingress timestamp point is marked once per frame at the SFD"
+[PASS] mutant caught: rx end of frame never raised - breaks "a delivered frame is terminated, so the receiver can count its bytes"
+
+5 checks: 5 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/verilator/gaskets'
+make -C tb/tsngen
+make[1]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/tsngen'
+verilator --cc --exe --build -j 0 --top-module KL_gptp_engine -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 -CFLAGS "-std=c++17 -O2 -Wall -Wextra -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/tsngen" ../../hdl/ucpu/gptp_ucpu_pkg.sv ../../hdl/ucpu/KL_gptp_ucpu.sv ../../hdl/wire/KL_gptp_rx_parser.sv ../../hdl/wire/KL_gptp_tx_slot.sv ../../hdl/common/KL_gptp_timer.sv ../../hdl/top/KL_gptp_engine.sv tsngen_main.cpp -o Vtsngen
+python3 mutants.py
+make[2]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/tsngen/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/tsngen   -Os  -c -o tsngen_main.o ../tsngen_main.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/tsngen   -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/tsngen   -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include VKL_gptp_engine.cpp VKL_gptp_engine___024root__0.cpp VKL_gptp_engine__ConstPool__0__Slow.cpp VKL_gptp_engine___024root__Slow.cpp VKL_gptp_engine___024root__0__Slow.cpp VKL_gptp_engine__Syms__Slow.cpp > VKL_gptp_engine__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -I$LANES/sync1f29-cand-full-native/gptp-processor/tb/tsngen   -c -o VKL_gptp_engine__ALL.o VKL_gptp_engine__ALL.cpp
+g++    tsngen_main.o verilated.o verilated_threads.o VKL_gptp_engine__ALL.a    -pthread -lpthread -latomic   -o Vtsngen
+rm VKL_gptp_engine__ALL.verilator_deplist.tmp
+make[2]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/tsngen/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.406 MB sources in 7 modules, into 0.409 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 6.477 s (elab=0.009, cvt=0.054, bld=6.394); cpu 0.089 s on 8 threads; allocated 615.453 MB
+python3 run_tsngen.py
+288 checks: 288 PASS, 0 FAIL
+[PASS] the unmutated engine RTL still passes the harness
+[PASS] mutant caught: received sequenceId zeroed - breaks "a Follow_Up is paired with its Sync by the sequenceId that arrived, not by a constant"
+[PASS] mutant caught: announce grandmasterIdentity discarded - breaks "the grandmasterIdentity an Announce carries is the identity BMCA compares, so a better master is recognised as one"
+[PASS] mutant caught: transmit end of frame one byte early - breaks "a transmitted frame carries every byte the slot holds"
+
+4 checks: 4 PASS, 0 FAIL
+make[1]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/tb/tsngen'
+make -C bench/arty test
+make[1]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/bench/arty'
+verilator --cc --exe --build -j 0 --top-module bench_mii_tx -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC bench_mii_tx.sv bench_mii_tx_tag_test.cpp \
+  -o Vbench_mii_tx_tag_test
+make[2]: Entering directory '$LANES/sync1f29-cand-full-native/gptp-processor/bench/arty/obj_dir'
+g++  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable      -Os  -c -o bench_mii_tx_tag_test.o ../bench_mii_tx_tag_test.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable      -c -o verilated.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable      -c -o verilated_threads.o $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/verilated_threads.cpp
+python3 $WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vbench_mii_tx.cpp Vbench_mii_tx___024root__0.cpp Vbench_mii_tx___024root__Slow.cpp Vbench_mii_tx___024root__0__Slow.cpp Vbench_mii_tx__Syms__Slow.cpp > Vbench_mii_tx__ALL.cpp
+g++ -Os  -I.  -MMD -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$WORKSPACE_HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable      -c -o Vbench_mii_tx__ALL.o Vbench_mii_tx__ALL.cpp
+g++    bench_mii_tx_tag_test.o verilated.o verilated_threads.o Vbench_mii_tx__ALL.a    -pthread -lpthread -latomic   -o Vbench_mii_tx_tag_test
+rm Vbench_mii_tx__ALL.verilator_deplist.tmp
+make[2]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/bench/arty/obj_dir'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.049 MB sources in 2 modules, into 0.044 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 4.172 s (elab=0.001, cvt=0.006, bld=4.160); cpu 0.013 s on 8 threads; allocated 738.754 MB
+./obj_dir/Vbench_mii_tx_tag_test
+PASS: two MII done toggles carried tags {3,1234}, {a,beef}
+make[1]: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor/bench/arty'
+make: Leaving directory '$LANES/sync1f29-cand-full-native/gptp-processor'
