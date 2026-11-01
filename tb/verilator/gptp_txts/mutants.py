@@ -37,6 +37,84 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent.parent
 PLANE = REPO / "hdl" / "ieee8021as" / "gptp_plane"
 WRAP = HERE / "gptp_txts_wrap.sv"
+#: What each shape's last control leaves built: its defect, after the source is
+#: restored. Removing them makes the next `make` rebuild rather than a direct
+#: run of a stale binary report false failures.
+CONTROL_BINARIES = (HERE / "obj_dir" / "Vgptp_txts_sim",
+                    HERE / "obj_mii" / "Vgptp_txts_sim")
+
+#: The record carries the EXPECTED distance instead of the one the observer
+#: measured, which is how a fragmented frame earns a plausible timestamp instead
+#: of an abort. Both shapes carry this control: a whole frame measures 45 clocks
+#: on GMII and 90 on MII, so a refusal read against the wrong one cannot fail.
+DELTA_FORCED_OLD = (
+    "                        oidx_r, gen_r, type_r, seq_r, delta_r,\n"
+    "                        (delta_r != TXTS_DELTA_W_P'"
+    "(TXTS_DELTA_EXP_P))};")
+DELTA_FORCED_NEW = (
+    "                        oidx_r, gen_r, type_r, seq_r,\n"
+    "                        TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P),\n"
+    "                        1'b0};  // MUTATION: forced, not measured")
+
+#: The 10/100 shape's controls (issue #829), each run on the MII build. The first
+#: is the fault itself: the observer reads one octet per clock, the delimiter
+#: check fails on the held preamble, no record ever comes and the engine waits
+#: for one.
+MII_MUTATIONS = [
+    (
+        "mii_observer_ignores_ready",
+        PLANE / "KL_gptp_gmii_launch.sv",
+        "        if (gmii_tready_i) begin\n",
+        "        if (1'b1) begin  // MUTATION: one octet per clock\n",
+        "launch: an isolated exchange completes",
+    ),
+    (
+        "mii_first_symbol_term_dropped",
+        PLANE / "KL_gptp_txret.sv",
+        "(TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P + ETH_CYC_PER_OCTET_P - 1) * ETH_TICK_NS_P",
+        "(TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P) * ETH_TICK_NS_P  // MUTATION",
+        "bias: the mean error is within 1.754 ns of zero",
+    ),
+    (
+        "mii_transmit_tick_left_at_gmii",
+        WRAP,
+        "      .ETH_TICK_NS_P (ETH_TICK_NS_P),\n",
+        "      .ETH_TICK_NS_P (8),  // MUTATION\n",
+        "launch: every reconstruction is inside the published bound",
+    ),
+    (
+        "mii_history_guard_left_at_the_gmii_floor",
+        PLANE / "KL_gptp_txret.sv",
+        "(RECON_NEED_CYC_C > RECON_GUARD_CYC_P) ? RECON_NEED_CYC_C : RECON_GUARD_CYC_P;",
+        "RECON_GUARD_CYC_P;  // MUTATION",
+        "phc window, first symbol: that frame's own result is an explicit loss",
+    ),
+    (
+        #: a guard that stops short of the window, which a load late in the frame
+        #: does not see: only the load on the first symbol reaches back that far
+        "mii_history_guard_short_of_the_window",
+        PLANE / "KL_gptp_txret.sv",
+        "RECON_NEED_CYC_C = TXTS_CORR_NS_P / DP_TICK_NS_P + 15;",
+        "RECON_NEED_CYC_C = 170;  // MUTATION",
+        "phc window, first symbol: that frame's own result is an explicit loss",
+    ),
+    (
+        #: one cycle short of what the document states, 202 where 203 is needed
+        "mii_history_guard_just_below_its_need",
+        PLANE / "KL_gptp_txret.sv",
+        "RECON_NEED_CYC_C = TXTS_CORR_NS_P / DP_TICK_NS_P + 15;",
+        "RECON_NEED_CYC_C = TXTS_CORR_NS_P / DP_TICK_NS_P + 14;  // MUTATION",
+        "phc window, first symbol: the guard reloaded to the interval and its "
+        "margin",
+    ),
+    (
+        "mii_delta_forced_not_measured",
+        PLANE / "KL_gptp_gmii_launch.sv",
+        DELTA_FORCED_OLD,
+        DELTA_FORCED_NEW,
+        "fragment: the observer refused it, by measurement",
+    ),
+]
 
 #: (name, file, old text, new text, the check this must break)
 MUTATIONS = [
@@ -82,17 +160,10 @@ MUTATIONS = [
         "bias: the mean error is within one nanosecond of zero",
     ),
     (
-        #: the record carries the EXPECTED distance instead of the one the
-        #: observer measured, which is how a fragmented frame earns a
-        #: plausible timestamp instead of an abort
         "delta_forced_not_measured",
         PLANE / "KL_gptp_gmii_launch.sv",
-        "                        oidx_r, gen_r, type_r, seq_r, delta_r,\n"
-        "                        (delta_r != TXTS_DELTA_W_P'"
-        "(TXTS_DELTA_EXP_P))};",
-        "                        oidx_r, gen_r, type_r, seq_r,\n"
-        "                        TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P),\n"
-        "                        1'b0};  // MUTATION: forced, not measured",
+        DELTA_FORCED_OLD,
+        DELTA_FORCED_NEW,
         "fragment: the observer refused it, by measurement",
     ),
 ]
@@ -120,9 +191,9 @@ def restore(path: Path) -> None:
     subprocess.run(["git", "checkout", "--", str(path)], cwd=REPO, check=True)
 
 
-def run_suite() -> str:
-    """Build and run the suite, returning its whole output."""
-    done = subprocess.run(["make", "-s", "run"], cwd=HERE, check=False,
+def run_suite(target: str) -> str:
+    """Build and run the suite's target, returning its whole output."""
+    done = subprocess.run(["make", "-s", target], cwd=HERE, check=False,
                           capture_output=True, text=True)
     return done.stdout + done.stderr
 
@@ -144,12 +215,14 @@ def main() -> int:
                         help="name the controls and change nothing")
     args = parser.parse_args()
 
+    controls = ([("run", *control) for control in MUTATIONS] +
+                [("run-mii", *control) for control in MII_MUTATIONS])
     if args.list:
-        for name, path, _old, _new, expect in MUTATIONS:
+        for _target, name, path, _old, _new, expect in controls:
             print(f"{name:40s} {path.relative_to(REPO)}  -> {expect}")
         return 0
 
-    for _name, path, _old, _new, _expect in MUTATIONS:
+    for _target, _name, path, _old, _new, _expect in controls:
         if not tracked_clean(path):
             print(f"REFUSED: {path.relative_to(REPO)} is untracked or "
                   f"already modified; a control must not mutate work in "
@@ -158,13 +231,13 @@ def main() -> int:
             return 2
 
     failures = 0
-    for name, path, old, new, expect in MUTATIONS:
+    for target, name, path, old, new, expect in controls:
         if not apply_control(path, old, new):
             print(f"[FAIL] {name}: its anchor is no longer in "
                   f"{path.relative_to(REPO)}")
             failures += 1
             continue
-        output = run_suite()
+        output = run_suite(target)
         restore(path)
         if not tracked_clean(path):
             print(f"[FAIL] {name}: {path.relative_to(REPO)} was not restored")
@@ -180,7 +253,10 @@ def main() -> int:
             print(f"[FAIL] {name}: the suite stayed green")
             failures += 1
 
-    print(f"controls: {len(MUTATIONS)}   failures: {failures}")
+    for binary in CONTROL_BINARIES:
+        binary.unlink(missing_ok=True)
+
+    print(f"controls: {len(controls)}   failures: {failures}")
     print(f"RESULT: {'PASS' if failures == 0 else 'FAIL'}")
     return 1 if failures else 0
 

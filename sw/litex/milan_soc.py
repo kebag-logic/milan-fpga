@@ -1438,6 +1438,16 @@ _MAC_DATA_WIDTH = 64
 #: _mac_tx_egress_octets out of this file to state the same parameters
 _BOARD_PHY_MODEL = {"ax7101": "gmii", "arty": "mii"}
 _PHY_MODEL_MIN_MBPS = {"gmii": 1000, "mii": 10}
+#: The launch shape a PHY model states to the plane (#829). GMII states nothing,
+#: so its elaboration keeps the RTL defaults: one octet per 8 ns clock. MII holds
+#: each octet for two 40 ns clocks, which the plane's reconstruction subtracts.
+_PHY_MODEL_LAUNCH = {"gmii": {},
+                     "mii": {"GPTP_ETH_TICK_NS_P": 40,
+                             "GPTP_ETH_CYC_PER_OCTET_P": 2}}
+#: ...and to the observer, whose expected distance is 45 octets in those clocks.
+_PHY_MODEL_OBSERVER = {"gmii": {},
+                       "mii": {"p_ETH_CYC_PER_OCTET_P": 2,
+                               "p_TXTS_DELTA_EXP_P": 45 * 2}}
 
 
 def _mac_tx_egress_octets(nb, crossed):
@@ -2067,18 +2077,23 @@ class MilanMAC(LiteXModule):
         # with `set_property IOB TRUE` above because an unlocked GMII launch is a
         # per-seed clock-to-out lottery on this board, and a second load on those
         # nets would defeat the packing. `LiteEthPHYGMIITX` registers
-        # `sink.valid`/`sink.data` straight into the pads on the same edge and
-        # holds `sink.ready` at 1, so this seam and the pad are one register stage
-        # apart, which the closed-loop bench MEASURES rather than assumes.
+        # `sink.valid`/`sink.data` straight into the pads on the same edge, so this
+        # seam and the pad are one register stage apart, which the closed-loop
+        # bench MEASURES rather than assumes.
+        # `LiteEthPHYMIITX` holds each octet for two clocks and raises `ready` on
+        # the second, so the observer takes `ready` too and states that shape
+        # (#829). On GMII `ready` is a flop that is 1 from the first clock after
+        # reset, and the observer's own reset covers that reset, so no octet is
+        # held there.
         #
         # RTL, not glue: the record has to carry a measured cycle distance and an
         # ordered position across a clock-domain crossing, and glue is what has
         # tied working blocks off in this file before (`i_mac_events = 0`).
         # It runs in `maceth_tx` - the MAC's own transmit-side domain, whose reset
-        # is `ResetSignal("eth_tx") | eth_rst`, the same reset that clears the
-        # LiteEth transmit side and the PHY stage. That is what makes "the
-        # observer was reset with the frames it was watching" a fact of the
-        # wiring rather than a claim.
+        # is `ResetSignal("eth_tx") | eth_rst`, the reset that clears the LiteEth
+        # transmit side. That is what makes "the observer was reset with the
+        # frames it was watching" a fact of the wiring rather than a claim.
+        # `eth_rst` also clears the PHY stage on GMII and does not reach it on MII.
         self.gptp_txrec_valid = Signal(name="gptp_txrec_valid")
         self.gptp_txrec_kind  = Signal(name="gptp_txrec_kind")
         self.gptp_txrec_oidx  = Signal(12, name="gptp_txrec_oidx")
@@ -2092,9 +2107,11 @@ class MilanMAC(LiteXModule):
         self.gptp_txseal_ack  = Signal(name="gptp_txseal_ack")
         self.gptp_txobs_ovr   = Signal(16, name="gptp_txobs_ovr")
         self.specials += Instance("KL_gptp_gmii_launch",
+            **_PHY_MODEL_OBSERVER[phy_model],
             i_eth_clk_i     = ClockSignal("maceth_tx"),
             i_eth_rst_n     = ~ResetSignal("maceth_tx"),
             i_gmii_tvalid_i = self.phy.sink.valid,
+            i_gmii_tready_i = self.phy.sink.ready,
             i_gmii_tdata_i  = self.phy.sink.data,
             i_dp_clk_i      = ClockSignal(milan_cd),
             i_dp_rst_n      = ~ResetSignal(milan_cd),
@@ -2168,6 +2185,8 @@ class MilanMAC(LiteXModule):
             # (#787); Instance reads the p_ prefix.
             p_REBOOT_MAC_TX_OCTETS_P = _mac_tx_egress_octets(nb, milan_cd != "sys"),
             p_REBOOT_MAC_MIN_MBPS_P  = _PHY_MODEL_MIN_MBPS[phy_model],
+            **{f"p_{name}": value
+               for name, value in _PHY_MODEL_LAUNCH[phy_model].items()},
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
             i_m_axis_mac_tx_tready = tx_dp.dp.ready,

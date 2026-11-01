@@ -4960,13 +4960,14 @@ REBOOT_MAC_NAMES = ("_AXIS_CDC_DEPTH", "_MAC_TX_SF_PAYLOAD_DEPTH",
                     "_MAC_TX_SF_PARAM_DEPTH", "_MAC_CORE_TX_CDC_DEPTH",
                     "_MAC_CORE_TX_STAGE_BEATS", "_ETH_FRAME_OVERHEAD_OCTETS",
                     "_ETH_MAX_FRAME_LINE_OCTETS", "_MAC_DATA_WIDTH",
-                    "_BOARD_PHY_MODEL", "_PHY_MODEL_MIN_MBPS")
+                    "_BOARD_PHY_MODEL", "_PHY_MODEL_MIN_MBPS",
+                    "_PHY_MODEL_LAUNCH")
 
 
 def reboot_mac_statement(cfg: dict[str, Any],
                          soc_text: str | None = None) -> dict[str, int]:
-    """The two parameters by which MilanMAC states its transmit side to
-    milan_datapath (#787), EVALUATED out of sw/litex/milan_soc.py.
+    """The parameters by which MilanMAC states its transmit side to
+    milan_datapath (#787, #829), EVALUATED out of sw/litex/milan_soc.py.
 
     The SoC computes them from the depths its FIFOs are built with, through
     `_mac_tx_egress_octets`, so an AECP REBOOT's egress bound cannot drift
@@ -5005,7 +5006,8 @@ def reboot_mac_statement(cfg: dict[str, Any],
     crossed = bool(cfg["constraints"]["milan_clk_hz"])
     return {"REBOOT_MAC_TX_OCTETS_P": found["_mac_tx_egress_octets"](
                 found["_MAC_DATA_WIDTH"] // 8, crossed),
-            "REBOOT_MAC_MIN_MBPS_P": found["_PHY_MODEL_MIN_MBPS"][phy]}
+            "REBOOT_MAC_MIN_MBPS_P": found["_PHY_MODEL_MIN_MBPS"][phy],
+            **found["_PHY_MODEL_LAUNCH"][phy]}
 
 
 def datapath_params(cfg: dict[str, Any]) -> dict[str, int]:

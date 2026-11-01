@@ -331,6 +331,7 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / "avdecc"))
 sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(SOC_DIR))
+sys.path.append(str(ROOT / "syn/ooc"))
 
 import yaml  # noqa: E402
 
@@ -348,6 +349,7 @@ import nvm_shape  # noqa: E402
 #: (gate 10).  Imported rather than re-implemented: a second answer to that
 #: question is how gate 10 came to assume a config in the first place.
 import check_entity_shape as ces  # noqa: E402
+import dp_srcs  # noqa: E402
 
 CONFIGS = {
     "arty_current": ROOT / "configs/endstation_arty_current.yaml",
@@ -18262,6 +18264,237 @@ def test_reboot_egress_statement_gate_bites() -> None:
           f"{len(REBOOT_EGRESS_MUTATIONS)} cuts rejected, each naming its fact")
 
 
+#: The launch shape a PHY model states (#829). GMII states nothing, so its
+#: elaboration keeps the RTL defaults, one octet per 8 ns clock; MII has to
+#: state all four, or its reconstruction is wrong by a constant.
+LAUNCH_SHAPE_MUTATIONS = (
+    ('"p_ETH_CYC_PER_OCTET_P": 2', '"p_ETH_CYC_PER_OCTET_P": 1'),
+    ('"p_TXTS_DELTA_EXP_P": 45 * 2', '"p_TXTS_DELTA_EXP_P": 45'),
+    ('"GPTP_ETH_TICK_NS_P": 40', '"GPTP_ETH_TICK_NS_P": 8'),
+    ('"GPTP_ETH_CYC_PER_OCTET_P": 2', '"GPTP_ETH_CYC_PER_OCTET_P": 1'),
+    ('_PHY_MODEL_LAUNCH = {"gmii": {},', '_PHY_MODEL_LAUNCH = {"gmii": {"X": 1},'),
+    ('_PHY_MODEL_OBSERVER = {"gmii": {},', '_PHY_MODEL_OBSERVER = {"gmii": {"X": 1},'),
+)
+
+
+def _launch_shape_findings(soc):
+    """The findings of gate 1g against one milan_soc.py text."""
+    bad = [f"{old} is not stated" for old, _new in LAUNCH_SHAPE_MUTATIONS
+           if old not in soc]
+    for wiring in ('**_PHY_MODEL_OBSERVER[phy_model],',
+                   'for name, value in _PHY_MODEL_LAUNCH[phy_model].items()'):
+        if wiring not in soc:
+            bad.append(f"{wiring} is not wired")
+    return bad
+
+
+def test_gptp_launch_shape_follows_the_phy() -> None:
+    """Gate 1g: the launch observer and the plane take the PHY's octet shape."""
+    soc = (ROOT / "sw/litex/milan_soc.py").read_text()
+    assert not _launch_shape_findings(soc), _launch_shape_findings(soc)
+    for old, new in LAUNCH_SHAPE_MUTATIONS:
+        assert old in soc, f"gate 1g: {old!r} is not in milan_soc.py"
+        bad = _launch_shape_findings(soc.replace(old, new))
+        assert bad, f"gate 1g accepted a milan_soc.py with {old!r} as {new!r}"
+    print(f"  [gate 1g mutation] {len(LAUNCH_SHAPE_MUTATIONS)}/"
+          f"{len(LAUNCH_SHAPE_MUTATIONS)} cuts rejected")
+
+
+#: What carries that shape from the datapath's parameters into the plane (#829):
+#: (datapath parameter, plane parameter, the GMII default, the MII value). Cut the
+#: octet binding and the plane expects 45 clocks against the observer's 90, and
+#: every frame is lost unmeasured. Cut the tick binding and the correction is
+#: wrong by 2976 ns.
+DATAPATH_SHAPE_WIRING = (
+    ("GPTP_ETH_TICK_NS_P", "ETH_TICK_NS_P", 8, 40),
+    ("GPTP_ETH_CYC_PER_OCTET_P", "ETH_CYC_PER_OCTET_P", 1, 2),
+)
+
+#: A macro an earlier source of the build defines, for gate 1h's controls. The
+#: gate's keeps fail if no earlier source defines it any more.
+DATAPATH_EARLIER_MACRO = "ETHERNET_PACKET_PKG_SV"
+
+
+def _datapath_as_built(rtl):
+    """(the datapath's module the build reads with this text, why it cannot).
+
+    Gate 1h catches accidental cuts of the two bindings and their defaults, read
+    as the build reads them. The answer is the front end's, on the defines,
+    include directories and whole ordered source list the build's own record
+    states, with this text in the datapath's place. So a comment, or an arm dead
+    under a macro from any earlier source, is gone before this gate reads
+    anything, and there is no model of that layer here to be wrong. No front end
+    is a refusal, not a stand-down: the jobs that run this file install it. It
+    parses and does not elaborate, so a `defparam` or a generate arm that never
+    elaborates stays outside this gate.
+    """
+    record, problems, _status = dp_srcs.ask_authority("milan_datapath")
+    assert record, f"gate 1h: the datapath's recipe: {problems}"
+    front_end = shutil.which(dp_srcs.FRONT_END)
+    assert front_end, f"gate 1h: {dp_srcs.FRONT_END} is not on PATH"
+    datapath = (ROOT / "hdl/milan/milan_datapath.sv").resolve()
+    with tempfile.TemporaryDirectory(prefix="gate1h.") as tmp:
+        planted = Path(tmp) / "milan_datapath.sv"
+        planted.write_text(rtl)
+        sources = [str(planted) if Path(src).resolve() == datapath else src
+                   for src in record["src"]]
+        assert sources.count(str(planted)) == 1, \
+            f"gate 1h: the build does not read {datapath.name} once: {record['src']}"
+        read = subprocess.run(
+            [front_end, "--pass-through",
+             *(f"-D{define}" for define in record["define"]),
+             # a source's own directory is searched first, and this copy has moved
+             "-I", str(ROOT / "hdl/milan"),
+             *(arg for incdir in record["incdir"] for arg in ("-I", incdir)),
+             *sources],
+            capture_output=True, text=True, timeout=300)
+    if read.returncode:
+        return "", f"the front end refuses it: {read.stderr[:300]}"
+    modules = re.findall(r"^\s*module\s+milan_datapath\b.*?^\s*endmodule\b",
+                         read.stdout, re.MULTILINE | re.DOTALL)
+    if len(modules) != 1:
+        return "", f"the build reads {len(modules)} milan_datapath modules, not one"
+    return modules[0], ""
+
+
+def _datapath_shape_findings(rtl):
+    """The findings of gate 1h against one milan_datapath.sv text."""
+    code, refused = _datapath_as_built(rtl)
+    if refused:
+        return [refused]
+    planes = re.findall(r"^\s*KL_gptp_shadow\b", code, re.MULTILINE)
+    if len(planes) != 1:
+        return [f"{len(planes)} planes instantiated, not one"]
+    plane = re.search(r"^\s*KL_gptp_shadow\s*#\((.*?)^\s*\)\s*u_gptp_shadow\(",
+                      code, re.MULTILINE | re.DOTALL)
+    if not plane:
+        return ["the one plane instantiated is not u_gptp_shadow"]
+    bad = []
+    for param, port, default, _mii in DATAPATH_SHAPE_WIRING:
+        declared = re.findall(rf"^\s*(\w+)\b[^=\n]*\b{param}\s*=(?!=)\s*(.*);$",
+                              code, re.MULTILINE)
+        if declared != [("parameter", str(default))]:
+            bad.append(f"{param} does not default to {default}: {declared}")
+        bound = re.findall(rf"^\s*\.{port}\((.*)\),?$", plane.group(1),
+                           re.MULTILINE)
+        if bound != [param]:
+            bad.append(f".{port} is not bound to {param}: {bound}")
+    return bad
+
+
+def _datapath_shape_cuts(rtl):
+    """Each defect gate 1h must refuse: (name, the planted text, what it names)."""
+    other_plane = ("    KL_gptp_shadow #(.TDATA_WIDTH_P(8)) u_gptp_shadow "
+                   "(.clk_i(axis_clk));\n    KL_gptp_shadow #(\n")
+    cuts = [("the plane renamed", rtl.replace(") u_gptp_shadow (", ") u_gptp_other ("),
+             "is not u_gptp_shadow"),
+            ("a second plane", rtl.replace("    KL_gptp_shadow #(\n", other_plane),
+             "planes instantiated"),
+            ("the datapath's module renamed",
+             rtl.replace("module milan_datapath ", "module milan_datapath_other "),
+             "milan_datapath modules"),
+            ("the datapath's module declared twice",
+             f"{rtl}\nmodule milan_datapath;\nendmodule\n", "milan_datapath modules")]
+    crossed = rtl
+    for param, port, default, mii in DATAPATH_SHAPE_WIRING:
+        line = re.search(rf"[ \t]*\.{port}\s*\(\s*{param}\s*\),", rtl).group()
+        binding = line.strip()
+        declared = re.search(rf"parameter\s+int\s+unsigned\s+{param}\s*=\s*"
+                             rf"{default}\s*,", rtl).group()
+        live = f"parameter int unsigned {param} = {mii},"
+        other = next(name for name, *_rest in DATAPATH_SHAPE_WIRING if name != param)
+        crossed = crossed.replace(line, f".{port} ({other}),")
+        not_bound = f".{port} is not bound"
+        not_default = f"{param} does not default"
+        cuts += [
+            (f"{port} cut", rtl.replace(line + "\n", ""), not_bound),
+            (f"{port} tied", rtl.replace(line, f".{port} ({default}),"), not_bound),
+            (f"{port} scaled", rtl.replace(line, f".{port} ({param} * 2),"), not_bound),
+            (f"{port} through a no-op", rtl.replace(line, f".{port} ({param} + 0),"),
+             not_bound),
+            (f"{port} on another parameter",
+             rtl.replace(line, f".{port} (GPTP_PHC_TICK_NS_P),"), not_bound),
+            (f"{port} bound twice", rtl.replace(line, f"{line}\n.{port} ({default}),"),
+             not_bound),
+            (f"{port} in a line comment", rtl.replace(line, f"// {binding}"), not_bound),
+            (f"{port} in a block comment", rtl.replace(line, f"/* {binding} */"),
+             not_bound),
+            (f"{port} tied, the binding left in a comment",
+             rtl.replace(line, f".{port} ({default}), // {binding}"), not_bound),
+            (f"{port} in a dead ifdef",
+             rtl.replace(line, f"`ifdef NEVER_DEFINED\n{binding}\n`endif"), not_bound),
+            (f"{port} only where the build does not define SYNTHESIS",
+             rtl.replace(line, f"`ifndef SYNTHESIS\n{binding}\n`endif"), not_bound),
+            (f"{param} default moved", rtl.replace(declared, live), not_default),
+            (f"{param} a localparam",
+             rtl.replace(declared, declared.replace("parameter", "localparam")),
+             not_default),
+            (f"{param} shadowed beside the plane", rtl.replace(
+                "    KL_gptp_shadow #(\n",
+                f"    localparam {live[:-1].removeprefix('parameter ')};\n"
+                "    KL_gptp_shadow #(\n"), not_default),
+            (f"{port} dead under a macro from an earlier source",
+             rtl.replace(line, f"`ifndef {DATAPATH_EARLIER_MACRO}\n{binding}\n`endif"),
+             not_bound),
+            (f"{param} default dead under a macro from an earlier source, a live one "
+             "in its else",
+             rtl.replace(declared, f"`ifndef {DATAPATH_EARLIER_MACRO}\n{declared}\n"
+                                   f"`else\n{live}\n`endif"), not_default),
+            (f"{param} default in a comment, a live one below",
+             rtl.replace(declared, f"// {declared}\n  {live}"), not_default),
+            (f"{param} default in a block comment, a live one below",
+             rtl.replace(declared, f"/* {declared} */\n  {live}"), not_default),
+            (f"{param} default in a dead ifdef, a live one in its else",
+             rtl.replace(declared, f"`ifdef NEVER_DEFINED\n{declared}\n`else\n{live}\n`endif"),
+             not_default),
+        ]
+    cuts.append(("the bindings crossed", crossed, "is not bound"))
+    return cuts
+
+
+def _datapath_shape_keeps(rtl):
+    """Spellings of the same code gate 1h must pass: it reads code, not this text."""
+    keeps = []
+    for param, port, default, _mii in DATAPATH_SHAPE_WIRING:
+        line = re.search(rf"[ \t]*\.{port}\s*\(\s*{param}\s*\),", rtl).group()
+        declared = re.search(rf"parameter\s+int\s+unsigned\s+{param}\s*=\s*"
+                             rf"{default}\s*,", rtl).group()
+        keeps += [
+            (f"{port} with a comment beside it", rtl.replace(line, f"{line} // why")),
+            (f"{port} in a live ifdef",
+             rtl.replace(line, f"`ifdef SYNTHESIS\n{line}\n`endif")),
+            (f"{port} live under a macro from an earlier source",
+             rtl.replace(line, f"`ifdef {DATAPATH_EARLIER_MACRO}\n{line}\n`endif")),
+            (f"{param} default with a comment inside it", rtl.replace(
+                declared, f"parameter int unsigned {param} = /* GMII */ {default},")),
+        ]
+    others = "".join(f"  parameter int unsigned {param} = {mii};\n"
+                     for param, _port, _default, mii in DATAPATH_SHAPE_WIRING)
+    keeps.append(("another module with these parameters and its own plane",
+                  f"{rtl}\nmodule beside_the_datapath;\n{others}"
+                  "  KL_gptp_shadow u_other ();\nendmodule\n"))
+    return keeps
+
+
+def test_gptp_datapath_carries_the_launch_shape() -> None:
+    """Gate 1h: milan_datapath hands the plane the shape the SoC states it."""
+    rtl = (ROOT / "hdl/milan/milan_datapath.sv").read_text()
+    assert not _datapath_shape_findings(rtl), _datapath_shape_findings(rtl)
+    cuts = _datapath_shape_cuts(rtl)
+    for name, planted, names in cuts:
+        assert planted != rtl, f"gate 1h: the control {name!r} planted nothing"
+        bad = _datapath_shape_findings(planted)
+        assert any(names in item for item in bad), \
+            f"gate 1h accepted a milan_datapath.sv with {name}: {bad}"
+    keeps = _datapath_shape_keeps(rtl)
+    for name, planted in keeps:
+        assert planted != rtl, f"gate 1h: the control {name!r} planted nothing"
+        bad = _datapath_shape_findings(planted)
+        assert not bad, f"gate 1h refused a milan_datapath.sv with {name}: {bad}"
+    print(f"  [gate 1h mutation] {len(cuts)}/{len(cuts)} cuts rejected, "
+          f"{len(keeps)}/{len(keeps)} equal spellings accepted")
+
+
 def _gptp_observer_reads_the_mac_stream(soc):
     """The seam and the domain: one observer, on `phy.sink`, in `maceth_tx`."""
     instances = re.findall(
@@ -18275,6 +18508,7 @@ def _gptp_observer_reads_the_mac_stream(soc):
             ("i_eth_clk_i", 'ClockSignal("maceth_tx")'),
             ("i_eth_rst_n", '~ResetSignal("maceth_tx")'),
             ("i_gmii_tvalid_i", "self.phy.sink.valid"),
+            ("i_gmii_tready_i", "self.phy.sink.ready"),
             ("i_gmii_tdata_i", "self.phy.sink.data"),
             ("i_dp_clk_i", "ClockSignal(milan_cd)"),
             ("i_dp_rst_n", "~ResetSignal(milan_cd)")):
@@ -18288,13 +18522,13 @@ def _gptp_observer_reads_the_mac_stream(soc):
         "gate 1d: the launch observer may not drive the stream it observes"
     #: ...and the stream it reads is read, never written, by the MAC around
     #: it: `phy.sink` is connected by `core.source.connect(phy.sink)` inside
-    #: LiteEth and appears here only as this observation and the AECP
-    #: REBOOT's frame-end toggle (#787, gate 1f), which reads its valid,
-    #: ready and last
+    #: LiteEth and appears here only as this observation, whose `ready` is what
+    #: separates MII octets (#829), and the AECP REBOOT's frame-end toggle
+    #: (#787, gate 1f), which reads its valid, ready and last
     seam_uses = re.findall(r"self\.phy\.sink\.\w+", soc)
     assert sorted(seam_uses) == ["self.phy.sink.data", "self.phy.sink.last",
-                                 "self.phy.sink.ready", "self.phy.sink.valid",
-                                 "self.phy.sink.valid"], \
+                                 "self.phy.sink.ready", "self.phy.sink.ready",
+                                 "self.phy.sink.valid", "self.phy.sink.valid"], \
         ("gate 1d: the MAC's `phy.sink` is touched somewhere other than the "
          f"launch observation and the frame-end toggle: {sorted(seam_uses)}")
 
@@ -29298,6 +29532,8 @@ if __name__ == "__main__":
                test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_launch_observer_seam,
+               test_gptp_launch_shape_follows_the_phy,
+               test_gptp_datapath_carries_the_launch_shape,
                test_reboot_egress_statement,
                test_reboot_egress_statement_gate_bites,
                test_qspi_owner_transition_completed_write_prefixes,

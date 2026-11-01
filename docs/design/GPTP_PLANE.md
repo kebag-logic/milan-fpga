@@ -202,7 +202,7 @@ The egress time is reconstructed, not captured:
 
 ```text
 t1 = PHC at the accepted record
-     - (TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P) x ETH_TICK_NS_P
+     - (TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P + ETH_CYC_PER_OCTET_P - 1) x ETH_TICK_NS_P
      - CDC_LAT_D_CYC_P x DP_TICK_NS_P
      - DP_TICK_NS_P / 2
 ```
@@ -270,6 +270,109 @@ That oracle is independent of the design under test.
 A launch that cannot be reconstructed is an explicit loss.
 
 `GPTP_DROPE[31:16]` counts those, and no substitute time is published.
+
+### The 100 Mb/s MII shape
+
+The MII PHY stage sends each octet as two nibbles.
+
+The low nibble goes first.
+IEEE 802.3 22.2.3 fixes that order.
+
+So `phy.sink` holds each octet for two 40 ns clocks.
+`ready` rises on the second.
+
+The observer counts an octet where `valid` and `ready` coincide (#829).
+
+On GMII `ready` is a flop.
+It is 1 from the first clock after reset.
+
+The observer's own reset covers that reset.
+So no octet is held on GMII.
+
+The reference plane is a registered launch edge.
+That edge launches frame octet 0's low nibble.
+
+The observer counts that octet one clock later.
+That edge registers its high nibble.
+
+The correction owes that clock, and only on this shape.
+
+| Term | GMII, 1 Gb/s | MII, 100 Mb/s |
+|---|---|---|
+| `ETH_TICK_NS_P` | 8 ns | 40 ns |
+| `ETH_CYC_PER_OCTET_P` | 1 | 2 |
+| `TXTS_DELTA_EXP_P`, 45 octets in clocks | 45 | 90 |
+| First symbol to the octet's transfer, `ETH_CYC_PER_OCTET_P - 1` | 0 | 1 |
+| `OBS_LAT_E_CYC_P` | 2 | 2 |
+| Transmit term | 47 x 8 = 376 ns | 93 x 40 = 3720 ns |
+| Fabric term, `2 x 20 + 10` | 50 ns | 50 ns |
+| **Digital correction** | **426 ns** | **3770 ns** |
+
+The window is longer, so two budget terms grow.
+
+| Term | Bound on MII | Basis |
+|---|---|---|
+| Clock-domain transfer | +/-10.00 ns | half of `DP_TICK_NS_P`, as above |
+| PHC integer truncation | +/-1.00 ns | as above |
+| Transmit clock against PHC | +/-0.76 ns | 3770 ns x 200 ppm, rounded up |
+| Applied PHC rate correction | +/-0.76 ns | the same product, enforced |
+| **Total** | **+/-12.52 ns, published as +/-12.6 ns** | sum of magnitudes, rounded up |
+
+`tb/verilator/gptp_txts` grades this shape against its pad oracle too.
+The grade is inside 11 ns.
+
+Its mean limit adds 0.754 ns.
+The declared wire-clock offset leaves that over the window.
+
+The PHC history guard has to cover the window.
+So it is 203 fabric cycles here.
+
+The Arty's PHY derives `TX_CLK` from a 25 MHz reference.
+This FPGA drives that reference.
+
+On that board the crossing's sampling phase may not sweep.
+It may stay fixed for a boot.
+
+The bound still holds.
+That fixed part no longer averages out.
+
+The digital bound covers these two shapes only.
+100 Mb/s physical calibration stays open under #583.
+
+At 10 Mb/s the same octet takes 800 ns.
+This correction is wrong there.
+
+The receive side changes too.
+No RTL term carries it.
+
+The tap stamps the first accepted beat.
+That beat holds eight octets.
+
+It sits behind the MAC's frame check buffer.
+
+The frame check buffer makes the beat late.
+So does the time eight octets take to arrive.
+
+Both scale with the link.
+
+The product's own `LiteEthMACCore` and `mac_rx_cdc` were simulated.
+The MAC system clock ran at 80 MHz.
+
+The plane ran at 50 MHz.
+The run covered seven clock phases.
+
+Each figure starts at the pads.
+The edge there samples frame octet 0's first symbol.
+
+| That octet's beat reaches | MII, 100 Mb/s | GMII, 1 Gb/s |
+|---|---|---|
+| `core.source` | 1110 ns | 141 ns |
+| The edge the plane stamps, after `mac_rx_cdc` | 1174 ns, 1167 to 1183 | 215 ns, 207 to 225 |
+
+No committed test holds those figures.
+
+That distance belongs to `INGRESS_LAT_NS_P`, below.
+The Arty still declares zero.
 
 ### The board's own latency corrections
 

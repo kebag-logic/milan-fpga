@@ -189,7 +189,8 @@ Scope note (egress reference plane, #360): the egress timestamp is the
 frame's LAUNCH, observed by `KL_gptp_gmii_launch` at the MAC's own transmit
 stream one register stage before the pads, reported back as one ordered
 record per frame, and reconstructed by `KL_gptp_txret` as the PHC at that
-record minus a sum of register stages (426 ns at the shipping shape). It is
+record minus a sum of register stages (426 ns at the shipping shape, 3770 ns at
+the 100 Mb/s MII shape). It is
 NOT a capture at the MAC boundary and NOT a queue allowance: the
 store-and-forward wait sits between the ledger entry and the launch, outside
 the reconstructed interval. A frame whose launch cannot be reconstructed is

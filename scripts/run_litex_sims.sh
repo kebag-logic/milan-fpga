@@ -30,7 +30,8 @@
 # transmit chain and through the migen objects it was converted from, and
 # requires the two pad traces to agree - the behavioural half of the claim
 # that the gPTP egress closed loop contains the product's own MAC. It builds
-# what it needs (tb/verilator/gptp_txts, target `padtrace`) itself, so it
+# what it needs (tb/verilator/gptp_txts, targets `padtrace` and
+# `padtrace-mii`) itself, so it
 # needs Verilator on PATH as well as the pinned stack.
 #
 # WHAT IS DELIBERATELY OUTSIDE. sw/builder/test_builder.py is the builder
