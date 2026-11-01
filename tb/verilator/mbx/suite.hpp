@@ -1707,7 +1707,7 @@ void Suite<Bench, Check>::check_bound_verdict_interface() {
 // own interface, source and sink only, every field reaches its own output, a
 // sink's stream id reaches the datapath only while SID_VALID is set, nothing
 // outside the registers takes a write, a partial strobe is refused, and a
-// reset clears the whole block. The source entries (contract 2.3, #799) carry
+// reset clears the whole block. The source entries (contract 2.4, #799) carry
 // each source's current stream_id, which the talkers stamp.
 template <class Bench, class Check>
 void Suite<Bench, Check>::check_publication() {

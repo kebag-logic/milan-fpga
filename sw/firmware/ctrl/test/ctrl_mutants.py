@@ -694,7 +694,7 @@ MUTANTS += (
            "\t\tmemset(m->ctr_seen, 0, sizeof m->ctr_seen);\n", "",
            "model", MODEL_GROUP + "Face",
            "F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced"),
-    # #799 (contract 2.3): each source's current stream_id
+    # #799 (contract 2.4): each source's current stream_id
     Mutant("model-pub-src-sid-a-hole", "host/mbx_model.c",
            "\t\tcase MBX_PUB_SRC_REG_SRC_SID_HI:\n"
            "\t\t\treturn ones(MBX_SRC_SID_HI_SID_LSB, MBX_SRC_SID_HI_SID_WIDTH);\n",

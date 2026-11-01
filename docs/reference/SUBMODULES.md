@@ -285,7 +285,7 @@ FPGA-gPTP stays at `55680bff`.
 
 The top adds one output, `src_stream_id_o`; no parameter or register changes.
 
-The parent's mailbox contract moves to 2.3.
+The parent's mailbox contract moves to 2.4.
 Each source's current Stream ID gets a publication entry.
 
 `KL_mbx` gains `pub_src_sid_o`, which the split datapath reads.

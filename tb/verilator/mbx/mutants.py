@@ -475,7 +475,7 @@ ARMS += (
            "P2 every field reaches the datapath on its own output"),
     *_both("top-pub-declarations-kept-through-reset", "KL_mbx.sv", "        pub_talker_decl_r[i] <= '0;\n", "",
            "P5 a reset clears every publication register and every output"),
-    # #799 (contract 2.3): each source's current stream_id, stored at its own
+    # #799 (contract 2.4): each source's current stream_id, stored at its own
     # entry, decoded only inside the source entries, on its own output, reset
     *_both("top-pub-src-index-dropped", "KL_mbx.sv", "pub_src_sid_lo_r[pub_if_w][pub_s_w] <= 32'(",
            "pub_src_sid_lo_r[pub_if_w][0] <= 32'(",

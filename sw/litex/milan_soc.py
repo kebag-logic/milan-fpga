@@ -2914,7 +2914,7 @@ class CtrlMailbox(LiteXModule):
     an empty, quiet mailbox, never a wrong one; the tap that feeds it comes
     with the protocol lanes that need it (#665 F2 to F5). The publication
     block's outputs (contract 2.2, the class-D state the firmware owner writes
-    for the datapath, and from 2.3 each source's current stream_id, #799) are
+    for the datapath, and from 2.4 each source's current stream_id, #799) are
     left unread here too: only the split placement's datapath reads them (#665,
     comment 6088423771). So are the face block's
     (contract 2.3: the settings, the four request and answer windows and the
