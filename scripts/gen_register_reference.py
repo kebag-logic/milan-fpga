@@ -56,15 +56,16 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import check_doc_style  # noqa: E402
-from register_fields import Deriver, Register  # noqa: E402
+from register_fields import Deriver, Field, Register, reset_text  # noqa: E402
 from register_page import (DESCRIPTIONS, DIAGRAM_DIR, PAGE, RECORD, SOC, Model, Module, Wording, acronym,  # noqa: E402
                            anchor, module_sources, render_page, strip_md)
 from register_rtl import (CSR_INCLUDE_DIR, DATAPATH, ROOT, RTL, SHAPE_INCLUDE_DIR, Refusal, RtlFacts,  # noqa: E402
                           csr_parameters, extract_soc, load_rtl, read_text, soc_text, strip_comments)
 
 LEDGER = "docs/reference/milan_feature_status.json"
-REGISTER_KEYS = {"acronym", "name", "purpose", "fields", "notes", "rename", "record"}
+REGISTER_KEYS = {"acronym", "name", "purpose", "fields", "notes", "rename", "record", "split"}
 EM_DASH = "\u2014"
+MAX_CELL_WORDS = 200
 
 
 # ------------------------------------------------------------------- model --
@@ -85,6 +86,7 @@ def build_model(root: Path, soc: dict | None = None) -> tuple[Model, RtlFacts]:
     literal_words = {int(addr, 16): name for addr, name in desc.get("literal_words", {}).items()}
     regs = Deriver(facts, literal_words).all_registers()
     rename_fields(desc, regs)
+    split_fields(desc, regs)
     validate(desc, regs, soc)
     check_record_links(root, desc)
     modules = build_modules(desc, regs)
@@ -106,6 +108,30 @@ def rename_fields(desc: dict, regs: list[Register]) -> None:
             if old not in fields:
                 raise Refusal(f"{DESCRIPTIONS} renames field {key}.{old}, which {RTL} lacks")
             fields[old].name = new
+
+
+def split_fields(desc: dict, regs: list[Register]) -> None:
+    """A word the RTL reads whole from an input has bit meanings only the
+    producer knows. The descriptions may name them, as [bits, name, text] rows
+    that cover the derived field exactly; anything else is refused. Access and
+    reset stay the derived field's."""
+    known = {r.label: r for r in regs}
+    for key, entry in desc.get("registers", {}).items():
+        for name, rows in entry.get("split", {}).items():
+            reg = known.get(key)
+            parent = next((f for f in reg.fields if f.name == name), None) if reg else None
+            if parent is None:
+                raise Refusal(f"{DESCRIPTIONS} splits field {key}.{name}, which {RTL} lacks")
+            spans = [tuple(int(x) for x in (row[0].split(":") * 2)[:2]) for row in rows]
+            covered = sorted(n for hi, lo in spans for n in range(lo, hi + 1))
+            if covered != list(range(parent.lo, parent.hi + 1)):
+                raise Refusal(f"{DESCRIPTIONS}: the split of {key}.{name} does not cover bits {parent.bits} exactly")
+            parts = [Field(hi, lo, row[1], parent.access, reset_text(reg.reset_bits[lo:hi + 1], short=True),
+                           list(parent.notes))
+                     for (hi, lo), row in zip(spans, rows)]
+            index = reg.fields.index(parent)
+            reg.fields[index:index + 1] = parts
+            entry.setdefault("fields", {}).update({row[1]: row[2] for row in rows if row[1] != "RESERVED"})
 
 
 def guards(regs: list[Register], desc: dict) -> dict[str, str]:
@@ -237,6 +263,7 @@ def outputs(model: Model) -> dict[str, str]:
     page = render_page(model)
     problems = [f"{PAGE}:{f.line}: {f.reason}: {' '.join(f.text.split())[:80]}"
                 for f in check_doc_style.analyze(page)]
+    problems += oversized_cells(page)
     if EM_DASH in page:
         problems.append(f"{PAGE}: the page carries an em dash")
     seen: dict[str, int] = {}
@@ -252,6 +279,19 @@ def outputs(model: Model) -> dict[str, str]:
         for reg in json.loads(text)["registers"]:
             out[reg["svg"]] = render_svg(reg["wavedrom"])
     return out
+
+
+def oversized_cells(page: str) -> list[str]:
+    """A table cell over the limit is prose in disguise: the gate reads no
+    table, so the generator holds the cells it writes."""
+    problems = []
+    for number, line in enumerate(page.splitlines(), start=1):
+        if line.startswith("|"):
+            for text in re.split(r"(?<!\\)\|", line.strip().strip("|")):
+                words = len(check_doc_style.WORD.findall(check_doc_style.normalized_prose(text)))
+                if words > MAX_CELL_WORDS:
+                    problems.append(f"{PAGE}:{number}: a table cell has {words} words; maximum is {MAX_CELL_WORDS}")
+    return problems
 
 
 CATALOG = "docs/diagrams/README.md"

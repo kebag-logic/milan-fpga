@@ -10,23 +10,58 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 8,
-            "name": "MCSRV_STAT",
+            "bits": 3,
+            "name": "STATE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "DRP_VERIFIED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "DRP_MISMATCH",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "MMCM_LOCKED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PS_BUSY",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PS_FAULT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "DRP_TIMEOUT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PHASE_SETTLED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 6,
+            "name": "DISCARDED",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "MCSRV_STAT",
+            "name": "TRIM",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "MCSRV_STAT",
-            "attr": "R-X"
-          },
-          {
-            "bits": 8,
-            "name": "MCSRV_STAT",
+            "name": "TRIM",
             "attr": "R-X"
           }
         ],

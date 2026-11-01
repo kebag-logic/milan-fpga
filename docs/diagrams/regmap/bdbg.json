@@ -115,23 +115,65 @@
       "wavedrom": {
         "reg": [
           {
+            "bits": 1,
+            "name": "RX_ALIVE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "TX_ALIVE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ETH_RST",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 2,
+            "name": "STATE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "GUARD_RST",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ACT_RECENT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "DIS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "FREEZE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
             "bits": 8,
-            "name": "LINKG_STAT",
+            "name": "BOUNCE_CNT",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "LINKG_STAT",
-            "attr": "R-X"
-          },
-          {
-            "bits": 8,
-            "name": "LINKG_STAT",
-            "attr": "R-X"
-          },
-          {
-            "bits": 8,
-            "name": "LINKG_STAT",
+            "name": "BOUNCE_CNT",
             "attr": "R-X"
           }
         ],

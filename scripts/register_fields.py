@@ -93,6 +93,7 @@ class Register:
     views: list[tuple[tuple, Node]] = field(default_factory=list)
     rtl_range: str = ""
     sources: dict[int, str] = field(default_factory=dict)  # word bit -> RTL signal bit it holds
+    reset_bits: list[int | None] = field(default_factory=list)  # per-bit reset, LSB first
 
     @property
     def rtl_label(self) -> str:
@@ -681,6 +682,7 @@ class Deriver:
         resets = self.reset_word(addr, bits)
         reg.fields = self.group(reg, bits, resets, addr)
         reg.reset = reset_text(resets)
+        reg.reset_bits = resets
         reg.sources = self.bit_sources(bits)
         return reg
 

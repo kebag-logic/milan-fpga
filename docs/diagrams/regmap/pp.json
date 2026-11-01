@@ -361,23 +361,109 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 8,
-            "name": "PP_NVM_CSR_RDATA",
+            "bits": 2,
+            "name": "RESERVED",
+            "attr": "R/W-X",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "LOAD_ACCEPTED",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "LOAD_PENDING",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "DEV_BUSY",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "IMG_CFG",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "NVM_BACKED",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "IMG_VALID",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "NVM_DIRTY",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "NVM_STALE",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "COMMIT_BUSY",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "RELOAD_REFUSED",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 4,
+            "name": "VERDICT",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "OPEN",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "HOLD",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "VALID",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "ATTESTED",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "ACK_REFUSED",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "ARM_REFUSED",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "NVM_PEND",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "UNRES",
             "attr": "R/W-X"
           },
           {
             "bits": 8,
-            "name": "PP_NVM_CSR_RDATA",
-            "attr": "R/W-X"
-          },
-          {
-            "bits": 8,
-            "name": "PP_NVM_CSR_RDATA",
-            "attr": "R/W-X"
-          },
-          {
-            "bits": 8,
-            "name": "PP_NVM_CSR_RDATA",
+            "name": "TAG",
             "attr": "R/W-X"
           }
         ],

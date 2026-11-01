@@ -220,23 +220,74 @@
       "wavedrom": {
         "reg": [
           {
+            "bits": 2,
+            "name": "LISTENER_STATE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "LISTENER_REGISTERED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "LISTENER_READY",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "TALKER_DECLARED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "DOMAIN_OK",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ACTIVE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "OVER_LIMIT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "GATE_OPEN",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ADMIT_VERDICT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "TALKER_FAILED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ROW_SHORTFALL",
+            "attr": "R-X"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
             "bits": 8,
-            "name": "LWSRP_STATUS",
+            "name": "FAIL_CODE",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "LWSRP_STATUS",
-            "attr": "R-X"
-          },
-          {
-            "bits": 8,
-            "name": "LWSRP_STATUS",
-            "attr": "R-X"
-          },
-          {
-            "bits": 8,
-            "name": "LWSRP_STATUS",
+            "name": "INGRESS_DROPS",
             "attr": "R-X"
           }
         ],

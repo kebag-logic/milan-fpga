@@ -10,23 +10,69 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 8,
-            "name": "ACMPL_STATE",
+            "bits": 3,
+            "name": "SM_STATE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "BOUND",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ACTIVE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "LISTENER_DECLARED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "TALKER_ADVERTISE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "TALKER_FAILED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 5,
+            "name": "ACMP_STATUS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 2,
+            "name": "PROBING",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "TALKER_VISIBLE",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "ACMPL_STATE",
+            "name": "VLAN",
             "attr": "R-X"
           },
           {
-            "bits": 8,
-            "name": "ACMPL_STATE",
+            "bits": 4,
+            "name": "VLAN",
             "attr": "R-X"
           },
           {
-            "bits": 8,
-            "name": "ACMPL_STATE",
+            "bits": 3,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "CRF_BOUND",
             "attr": "R-X"
           }
         ],
@@ -151,23 +197,24 @@
         "reg": [
           {
             "bits": 8,
-            "name": "ACMPL_TUID",
+            "name": "TUID",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "ACMPL_TUID",
+            "name": "TUID",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "ACMPL_TUID",
+            "name": "TALKER_FAILED",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "ACMPL_TUID",
-            "attr": "R-X"
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
           }
         ],
         "config": {
@@ -185,23 +232,29 @@
       "wavedrom": {
         "reg": [
           {
+            "bits": 1,
+            "name": "LOCKED_LEVEL",
+            "attr": "R-X"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
             "bits": 8,
-            "name": "AVTPRX_STAT",
+            "name": "MEDIA_LOCKED",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "AVTPRX_STAT",
+            "name": "MEDIA_UNLOCKED",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "AVTPRX_STAT",
-            "attr": "R-X"
-          },
-          {
-            "bits": 8,
-            "name": "AVTPRX_STAT",
+            "name": "STREAM_INTERRUPTED",
             "attr": "R-X"
           }
         ],
@@ -256,22 +309,22 @@
         "reg": [
           {
             "bits": 8,
-            "name": "AVTPRX_ERR",
+            "name": "TIMESTAMP_UNCERTAIN",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "AVTPRX_ERR",
+            "name": "UNSUPPORTED_FORMAT",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "AVTPRX_ERR",
+            "name": "SEQ_NUM_MISMATCH",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "AVTPRX_ERR",
+            "name": "SEQ_NUM_MISMATCH",
             "attr": "R-X"
           }
         ],
@@ -291,22 +344,22 @@
         "reg": [
           {
             "bits": 8,
-            "name": "PCMRX_CNT",
+            "name": "PDUS",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "PCMRX_CNT",
+            "name": "PDUS",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "PCMRX_CNT",
+            "name": "DROPPED",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "PCMRX_CNT",
+            "name": "DROPPED",
             "attr": "R-X"
           }
         ],
@@ -441,24 +494,38 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 8,
-            "name": "MAAP_STAT1",
+            "bits": 2,
+            "name": "STATE",
             "attr": "R-X"
           },
           {
-            "bits": 8,
-            "name": "MAAP_STAT1",
+            "bits": 1,
+            "name": "ADDR_VALID",
             "attr": "R-X"
           },
           {
-            "bits": 8,
-            "name": "MAAP_STAT1",
-            "attr": "R-X"
+            "bits": 5,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
           },
           {
             "bits": 8,
-            "name": "MAAP_STAT1",
-            "attr": "R-X"
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
           }
         ],
         "config": {
@@ -561,22 +628,22 @@
         "reg": [
           {
             "bits": 8,
-            "name": "I2SPB_TRIM",
+            "name": "FIFO_FILL",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "I2SPB_TRIM",
+            "name": "FIFO_FILL",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "I2SPB_TRIM",
+            "name": "NCO_TRIM",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "I2SPB_TRIM",
+            "name": "NCO_TRIM",
             "attr": "R-X"
           }
         ],

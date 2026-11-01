@@ -20,24 +20,57 @@
             "attr": "R/W-0"
           },
           {
-            "bits": 6,
-            "name": "CRFT_STAT",
+            "bits": 2,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "ROW_VALID",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "TAGGED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "RESERVATION_ACTIVE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "LICENSED",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "CRFT_STAT",
+            "name": "VID",
             "attr": "R-X"
           },
           {
-            "bits": 8,
-            "name": "CRFT_STAT",
+            "bits": 4,
+            "name": "VID",
             "attr": "R-X"
           },
           {
-            "bits": 8,
-            "name": "CRFT_STAT",
+            "bits": 3,
+            "name": "PCP",
             "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
           }
         ],
         "config": {

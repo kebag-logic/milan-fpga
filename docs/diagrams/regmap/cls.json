@@ -10,24 +10,43 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 8,
-            "name": "CLS_CTRL",
-            "attr": "R/W-5h"
+            "bits": 1,
+            "name": "USE_PCP",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 1,
+            "name": "DMAC_CHECK",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "CTRL_CLASS",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 5,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
           },
           {
             "bits": 8,
-            "name": "CLS_CTRL",
-            "attr": "R/W-5h"
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
           },
           {
             "bits": 8,
-            "name": "CLS_CTRL",
-            "attr": "R/W-5h"
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
           },
           {
             "bits": 8,
-            "name": "CLS_CTRL",
-            "attr": "R/W-5h"
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
           }
         ],
         "config": {

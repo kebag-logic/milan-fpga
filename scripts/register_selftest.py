@@ -74,7 +74,7 @@ TEXT_CONTROLS: list[tuple[str, list[Plant], int, str]] = [
      [(RTL, "else if (rd_addr_q == ADDR_WIDTH'('h86C))\n            strm_mux = 32'hDEAD_DEAD;",
        "else if (rd_addr_q == ADDR_WIDTH'('h86C))\n            strm_mux = 32'hDEAD_BEEF;")], 1, STALE_PAGE),
     ("STRMW_SRP's live alias removed",
-     [(RTL, "? i_lwsrp_status", "? 32'd0")], 1, STALE_PAGE),
+     [(RTL, "? i_lwsrp_status", "? 32'd0")], 2, "describes field STRMW_SRP"),
     ("new range window with a live read term",
      [(RTL, GPTP_LAT, GPTP_LAT + "\n  localparam [ADDR_WIDTH-1:0] A_PLANTW_BASE = 'h7F4;\n"
                                  "  localparam [ADDR_WIDTH-1:0] A_PLANTW_END = 'h7F8;"),
@@ -138,7 +138,7 @@ TEXT_CONTROLS: list[tuple[str, list[Plant], int, str]] = [
     ("RTL field rename of a described field",
      [(RTL, "o_eth_guard", "o_eth_lock")], 2, "describes field ETH_GUARD.ETH_GUARD"),
     ("RTL field rename of an undescribed output port",
-     [(RTL, "o_tcam_wr_action", "o_tcam_wr_act")], 1, STALE_PAGE),
+     [(RTL, "o_ptp_offset", "o_ptp_off")], 1, STALE_PAGE),
     ("unlock key change in the ETH_GUARD write decode",
      [(RTL, "(s_axi_wdata != 32'h554E_4C4B)", "(s_axi_wdata != 32'h554E_4C4C)")], 1, STALE_PAGE),
     ("code change no page text shows",
@@ -202,6 +202,10 @@ def _long_note(desc: dict) -> None:
     desc["registers"]["ETH_GUARD"]["notes"] = ["word " * 25 + "end."]
 
 
+def _long_cell(desc: dict) -> None:
+    desc["registers"]["ETH_GUARD"]["fields"]["ETH_GUARD"] = "word " * 205 + "end."
+
+
 def _one_column(desc: dict) -> None:
     desc["registers"]["ETH_GUARD"]["notes"] = [{"table": [["Note"], ["word " * 25 + "end."]]}]
 
@@ -233,6 +237,7 @@ def controls() -> list[tuple[str, Callable[[Path], None], int, str]]:
             ("description of a field the RTL lacks", _unknown_field, 2, "describes field ETH_GUARD.PLANTED_FIELD"),
             ("note breaking the prose rules", _long_note, 2, "breaks the documentation rules"),
             ("prose wrapped in a one-column table", _one_column, 2, "one-column table"),
+            ("prose wrapped in a field's table cell", _long_cell, 2, "a table cell has"),
             ("condition without wording", _unworded_condition, 2, "has no wording"),
             ("literal word the RTL does not test", _bad_literal, 2, "does not test"),
             ("rename of a field the RTL lacks", _unknown_rename, 2, "renames field CAP.BIT99")):

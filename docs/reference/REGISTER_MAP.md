@@ -61,7 +61,39 @@ Production classes are in [REGISTER_MAP_CLASSES.md](REGISTER_MAP_CLASSES.md).
 
 ## Reading this page
 
-Production classification (needed / optional / debug, with rationale): [REGISTER_MAP_CLASSES.md](REGISTER_MAP_CLASSES.md).
+The register offsets below are a stable ABI.
+
+No register was removed. Every word still decodes, and RW words still store.
+
+**Bus:** AXI4-Lite, 32-bit data, little-endian.
+
+The LiteX product maps the 64 KiB window at `0x9000_0000`.
+
+Writes to read-only fields are ignored. Unmapped offsets read 0.
+
+`SLVERR` is never raised: every access answers OKAY.
+
+Reserved read-only bits read 0. Reserved R/W bits store what is written.
+
+Plain-RW words read from a write-through shadow RAM.
+
+After reset, `*READY` stays low for about 513 clocks. The defaults ROM loads the shadow meanwhile.
+
+64-bit reads are not atomic on the bus. For time of day, use the snapshot latch.
+
+`VERSION` tracks the map: additive changes bump minor, breaking ones major.
+
+All command strobes read back 0.
+
+The protocol processor runs the control plane, not this block.
+
+`KL_pp_shadow` wraps it; these registers are its CSR projection.
+
+The AEM descriptor tree has no CSR here. The processor fetches it from main memory.
+
+`PP_CTRL[0]` or `ADP_CTRL[0]` enables the entity.
+
+Queue 4 is the highest priority, queue 0 the lowest.
 
 ### How to read this page now: three verdicts, and why the distinction matters
 
@@ -73,6 +105,10 @@ Production classification (needed / optional / debug, with rationale): [REGISTER
 
 ### A group can be STRUCTURALLY absent (optional-block prunes, 2026-07-27)
 
+A pruned block keeps its window. Its read-only words read a structural zero.
+
+No capability bit says so. Check the build plan, not the register.
+
 | Parameter | Reads 0 structurally | Other effect |
 |---|---|---|
 | `MCSERVO_P = 0` | `0x8F8 MCSRV_STAT` | `0x8FC MCSRV_CTRL` still RW; MMCM DRP/PS pins never move |
@@ -82,9 +118,9 @@ Production classification (needed / optional / debug, with rationale): [REGISTER
 | `RXFILT_P = 0` | -- | the whole `0x700` TCAM group still stores; **nothing reads it** and the port is PROMISCUOUS |
 | `LPF_P = 0` | -- | `0x72C LPF_CTRL` still RW with no filter behind it |
 
-### Notes
+This build sets `I2SPB_P` to 0. The `I2SPB_*` words read a structural zero.
 
-All command strobes (`STATS_CTRL[0]`, `PTP_CMD[*]`) read back 0 (self-clearing).
+This build sets `LPF_P` to 0. `LPF_CTRL` reaches no filter.
 
 Design record: [design notes](../design/CSR_REGISTER_NOTES.md#reading-the-register-map).
 
@@ -208,9 +244,11 @@ Identification, capabilities and the interrupt registers.
 | `0x014` | `IRQ_MASK` | Interrupt mask | `0x00000000` | [section](#irq_mask-register-offset-0x014-reset--0x00000000) |
 | `0x018` | `IRQ_RAW` | Raw interrupt status | `0x00000000` | [section](#irq_raw-register-offset-0x018-reset--0x00000000) |
 
-**Group summary:** Identification / IRQ (global)
+The interrupt line is `|(IRQ_STATUS & IRQ_MASK)`.
 
-The PS IRQ line = `\|(IRQ_STATUS & IRQ_MASK)`.
+The ENTITY descriptor's `firmware_version` is derived from `VERSION`.
+
+`CLS_*`, the CBS window and `PTP_ILAT`/`PTP_ELAT` are inert scratch since `0x0056`.
 
 ### `VERSION` is also what every ATDECC controller is told (2026-07-28)
 
@@ -246,7 +284,8 @@ RTL name: `A_VERSION`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `VERSION` | R | 20060h | Constant. |
+| 31:16 | `MAJOR` | R | 2h | Major: an entire redesign of blocks. |
+| 15:0 | `MINOR` | R | 60h | Minor: compliance fixes, flat across majors. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#version-offset-0x004).
 
@@ -296,9 +335,11 @@ RTL name: `A_IRQ_STATUS`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:3 | `RESERVED` | R | 0 | Reserved. |
-| 2 | `EVT_RMON_ROLLOVER` | R/W1C | 0 | Held in `irq_status`. Writing 1 clears this latched bit; writing 0 leaves it. |
-| 1 | `EVT_LINK_CHANGE` | R/W1C | 0 | Held in `irq_status`. Writing 1 clears this latched bit; writing 0 leaves it. |
+| 2 | `EVT_RMON_ROLLOVER` | R/W1C | 0 | RMON rollover latch; `i_evt_rmon_rollover` sets it. Writing 1 clears this latched bit; writing 0 leaves it. |
+| 1 | `EVT_LINK_CHANGE` | R/W1C | 0 | Link change latch; `i_evt_link_change` sets it. Writing 1 clears this latched bit; writing 0 leaves it. |
 | 0 | `RESERVED` | R | 0 | Reserved. |
+
+`[0]` was `tx_ts_ready`: a structural zero since `0x0056`.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#irq_status-offset-0x010).
 
@@ -325,11 +366,11 @@ RTL name: `A_IRQ_RAW`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:3 | `RESERVED` | R | 0 | Reserved. |
-| 2 | `EVT_RMON_ROLLOVER` | R | 0 | Held in `irq_status`. |
-| 1 | `EVT_LINK_CHANGE` | R | 0 | Held in `irq_status`. |
+| 2 | `EVT_RMON_ROLLOVER` | R | 0 | Same latch as `IRQ_STATUS[2]`. |
+| 1 | `EVT_LINK_CHANGE` | R | 0 | Same latch as `IRQ_STATUS[1]`. |
 | 0 | `RESERVED` | R | 0 | Reserved. |
 
-Latched event bits before masking
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#irq_raw-offset-0x018).
 
 ## 0x100  -  MAC control / status  `(REQ-MAC-01..03)`
 
@@ -346,15 +387,23 @@ MAC control, link status and the inert PHY reset.
 | `0x118` | `MC_HASH_HI` | Multicast hash, high word | `0x00000000` | [section](#mc_hash_hi-register-offset-0x118-reset--0x00000000) |
 | `0x11C` | `PHY_RESET` | PHY reset (inert) | `0x00000001` | [section](#phy_reset-register-offset-0x11c-reset--0x00000001) |
 
-**Group summary:** MAC control / status
+`MAC_CTRL` resets to `0x13`: tx_en, rx_en and is_1g.
 
-`MAC_CTRL` reset `0x13` = tx_en+rx_en+is_1g (preserves today's tied constants).
+`is_1g` follows `MAC_STATUS` speed unless `MAC_CTRL[5]` is set.
 
-a 1-beat runt is always swallowed;
+The address filter applies only once `TCAM_CTRL[1]` is set. Decision order per frame:
 
-a TCAM hit → `ACTION[0]` decides;
+- A one-beat runt is always swallowed.
 
-otherwise `TCAM_CTRL[0]`.
+- `promisc` accepts, outranking a TCAM drop entry.
+
+- A TCAM hit: `ACTION[0]` decides.
+
+- `addr_filter_en`: broadcast accepted, group by `allmulti` or hash, unicast on exact match.
+
+- Otherwise `TCAM_CTRL[0]` decides.
+
+The multicast bucket is a 6-bit XOR of the MAC.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x100-----mac-control--status--req-mac-0103).
 
@@ -369,12 +418,12 @@ RTL name: `A_MAC_CTRL`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:6 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 5 | `MAC_IS_1G_SELECT` | R/W | 0 | Held in `mac_ctrl`. |
-| 4 | `MAC_IS_1G` | R/W | 1h | Drives `o_mac_is_1g`. |
-| 3 | `MAC_ALLMULTI` | R/W | 0 | Drives `o_mac_allmulti`. |
-| 2 | `MAC_PROMISC` | R/W | 0 | Drives `o_mac_promisc`. |
-| 1 | `MAC_RX_EN` | R/W | 1h | Drives `o_mac_rx_en`. |
-| 0 | `MAC_TX_EN` | R/W | 1h | Drives `o_mac_tx_en`. |
+| 5 | `MAC_IS_1G_SELECT` | R/W | 0 | speed_manual: 0 derives the rate from `MAC_STATUS` speed, 1 uses `[4]` (REQ-MAC-03). |
+| 4 | `MAC_IS_1G` | R/W | 1h | Link rate is 1 Gb/s. Consulted only while `[5]` is set. |
+| 3 | `MAC_ALLMULTI` | R/W | 0 | Accept all multicast. |
+| 2 | `MAC_PROMISC` | R/W | 0 | Promiscuous receive. |
+| 1 | `MAC_RX_EN` | R/W | 1h | Receive enable. |
+| 0 | `MAC_TX_EN` | R/W | 1h | Transmit enable. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#mac_ctrl-offset-0x100).
 
@@ -401,7 +450,7 @@ RTL name: `A_MAC_ALO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `MAC_ADDR` | R/W | 0 | Drives `o_mac_addr`. Bits [31:0] of the RTL value. |
+| 31:0 | `MAC_ADDR` | R/W | 0 | Station MAC, LSB-first: wire byte 0 in `[7:0]`, byte 3 in `[31:24]`. Bits [31:0] of the RTL value. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#mac_addr_lo-offset-0x108).
 
@@ -416,9 +465,9 @@ RTL name: `A_MAC_AHI`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:16 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 15:0 | `MAC_ADDR` | R/W | 0 | Drives `o_mac_addr`. Bits [47:32] of the RTL value. |
+| 15:0 | `MAC_ADDR` | R/W | 0 | Station MAC: wire byte 4 in `[7:0]`, byte 5 in `[15:8]`. Bits [47:32] of the RTL value. |
 
-station MAC `[47:32]` in `[15:0]` - wire byte 4 in `[7:0]`, byte 5 in `[15:8]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#mac_addr_hi-offset-0x10c).
 
 ### MAC_STATUS register (offset 0x110) [reset = 0x0000000X]
 
@@ -484,9 +533,13 @@ RMON counter snapshot and its capability mask.
 | `0x204` | `STATS_CAP` | Statistics capability | `0xXXXXXXXX` | [section](#stats_cap-register-offset-0x204-reset--0xxxxxxxxx) |
 | `0x210` | `STATn` | RMON counter snapshot | `0x00000000` | [section](#statn-registers-offset-0x210-to-0x230-stride-0x4-reset--0x00000000) |
 
-**Group summary:** Statistics (RMON)
+Write `STATS_CTRL[0]` to latch a coherent snapshot, then read the `STATn` words.
 
-the lane counted, and nothing went wrong -- good news;
+A MAC reinit release zeroes the snapshot. All zero means no valid snapshot.
+
+Read `STATS_CAP` before believing a zero. 0 there means no event source.
+
+A board build with the LiteEth MAC reports `0x1B8`.
 
 | lane | source | in `STATS_CAP` on a LiteEth build |
 |---|---|---|
@@ -526,7 +579,7 @@ RTL name: `A_STATS_CAP`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STATS_CAP` | R | X | Reads input `i_stats_cap`. |
+| 31:0 | `STATS_CAP` | R | X | Per-lane mask in `[8:0]`: lane n is the `STATn` word at `0x210 + 4n`. 1 is a real counter, 0 structurally silent. Live, not snapshot-latched. `[31:9]` read 0. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#stats_cap-offset-0x204).
 
@@ -540,7 +593,7 @@ RTL name: `A_STATS_BASE to A_STATS_END`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STAT_SNAP` | R | 0 | Held in `stat_snap`. |
+| 31:0 | `STAT_SNAP` | R | 0 | The snapshot of lane n, latched by `STATS_CTRL[0]`. Read `STATS_CAP` before believing a zero. |
 
 | n | Offset | Name | Producer reset | Description |
 |---|---|---|---|---|
@@ -554,6 +607,8 @@ RTL name: `A_STATS_BASE to A_STATS_END`.
 | 7 | `0x22C` | `STAT_RX_FIFO_BAD_FRAME` | `0` | RX frames delivered flagged bad (FCS failure or runt) |
 | 8 | `0x230` | `STAT_RX_FIFO_GOOD_FRAME` | `0` | frames received OK |
 
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#statn-offset-0x210).
+
 ## 0x300  -  802.1Q classifier  `(REQ-CLS-01..04)`
 
 Retained classifier words; no logic reads them.
@@ -566,7 +621,9 @@ Retained classifier words; no logic reads them.
 | `0x30C` | `CLS_PRIO_REGEN` | Priority regeneration (scratch) | `0x00FAC688` | [section](#cls_prio_regen-register-offset-0x30c-reset--0x00fac688) |
 | `0x310` | `CLS_TC_QUEUE_MAP` | Traffic-class to queue map (scratch) | `0x004898C0` | [section](#cls_tc_queue_map-register-offset-0x310-reset--0x004898c0) |
 
-**Group summary:** 802.1Q classifier
+These words are inert scratch since `0x0056`: no classifier is instantiated.
+
+They store and read back, and reach no logic.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x300-----8021q-classifier--req-cls-0104).
 
@@ -580,7 +637,10 @@ RTL name: `A_CLS_CTRL`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `CLS_CTRL` | R/W | 5h |  |
+| 31:3 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
+| 2 | `CTRL_CLASS` | R/W | 1h | Inert scratch: stores and reads back, reaches no logic. Was ctrl_class (REQ-CLS-10). |
+| 1 | `DMAC_CHECK` | R/W | 0 | Inert scratch: stores and reads back, reaches no logic. Was dmac_check (REQ-CLS-07). |
+| 0 | `USE_PCP` | R/W | 1h | Inert scratch: stores and reads back, reaches no logic. Was use_pcp: 1 classifies by the PCP table. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#cls_ctrl-offset-0x300).
 
@@ -594,9 +654,9 @@ RTL name: `A_CLS_DPCP`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `CLS_DPCP` | R/W | 0 |  |
+| 31:0 | `CLS_DPCP` | R/W | 0 | Inert scratch: stores and reads back, reaches no logic. Was the default PCP of untagged frames. |
 
-`[2:0]` default port priority for untagged frames
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#cls_default_pcp-offset-0x304).
 
 ### CLS_PCP_TC_MAP register (offset 0x308) [reset = 0x00FAC688]
 
@@ -655,9 +715,11 @@ Reset image per queue, from `CBS_IDLE_RST`, `CBS_HI_RST`, `CBS_LO_RST` and `CBS_
 | 1 | control (MAAP/MSRP/MVRP, ADP/ACMP/AECP) | 50 Mb/s | 5 % | 76 | -1445 | 0 |
 | 0 | best effort | 25 Mb/s | 2.5 % | 38 | -1483 | 0 |
 
-**Group summary:** 802.1Qav CBS (per-queue, stride `0x20`; `0x400`-`0x49F` at `N`=5)
+This window is inert scratch since `0x0056`: no shaper is elaborated.
 
-Per queue `q ∈ [0,N)` at `0x400 + q*0x20`:
+It keeps its geometry, its reset image and its readback.
+
+`CAP[8]` reads 0 for the same reason.
 
 | q | class | idleSlope | % of 1 Gb/s | hiCredit | loCredit | shaped |
 |---|---|---|---|---|---|---|
@@ -666,14 +728,6 @@ Per queue `q ∈ [0,N)` at `0x400 + q*0x20`:
 | 2 | gPTP | 50 Mb/s | 5 % | 76 | −1445 | 0 |
 | 1 | control (MAAP/MSRP/MVRP, ADP/ACMP/AECP) | 50 Mb/s | 5 % | 76 | −1445 | 0 |
 | 0 | best effort | 25 Mb/s | 2.5 % | 38 | −1483 | 0 |
-
-Write semantics:
-
-**Shaping applies per queue, not globally.** A frame is credit-based-shaped **only when both** hold:
-
-its PCP maps - through `CLS_PRIO_REGEN` → `CLS_PCP_TC_MAP` → `CLS_TC_QUEUE_MAP` - to a queue, **and**
-
-that queue's `CBS_CTRL[0]` shaped-enable is **1**.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x400-----8021qav-cbs-per-queue--req-cbs-0103).
 
@@ -775,7 +829,11 @@ PTP hardware clock control, time access and PPS alarm.
 | `0x558` | `PTP_PPS_RD_HI` | PPS live target, high word | `0xXXXXXXXX` | [section](#ptp_pps_rd_hi-register-offset-0x558-reset--0xxxxxxxxx) |
 | `0x55C` | `PTP_PPS_WIDTH` | PPS pulse width | `0x00000000` | [section](#ptp_pps_width-register-offset-0x55c-reset--0x00000000) |
 
-**Group summary:** PTP hardware clock
+`PTP_PPS_*` is a comparator in the PHC's clock domain. It fires when PHC time reaches the target.
+
+`PTP_CMD` strobes cross into the PTP domain with an apply strobe.
+
+`PTP_ILAT` and `PTP_ELAT` are inert; the gPTP plane publishes its corrections at `GPTP_LAT`.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x500-----ptp-hardware-clock--req-ptp-0104-06).
 
@@ -802,7 +860,7 @@ RTL name: `A_PTP_INCR`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PTP_INCR` | R/W | 14000000h | Drives `o_ptp_incr`. |
+| 31:0 | `PTP_INCR` | R/W | 14000000h | Nominal increment per tick, Q8.24 ns: `[31:24]` integer, `[23:0]` fraction. The reset is the PHC clock period from `MILAN_CLK_FREQ_HZ_P`. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_incr-offset-0x504).
 
@@ -828,9 +886,9 @@ RTL name: `A_PTP_TWLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PTP_TOD_WR` | R/W | 0 | Drives `o_ptp_tod_wr`. Bits [31:0] of the RTL value. |
+| 31:0 | `PTP_TOD_WR` | R/W | 0 | Time to load, low half: `PTP_CMD[0]` applies it. Bits [31:0] of the RTL value. |
 
-settime target `[31:0]` (ns)
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_tod_wr_lo-offset-0x510).
 
 ### PTP_TOD_WR_HI register (offset 0x514) [reset = 0x00000000]
 
@@ -842,9 +900,9 @@ RTL name: `A_PTP_TWHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PTP_TOD_WR` | R/W | 0 | Drives `o_ptp_tod_wr`. Bits [63:32] of the RTL value. |
+| 31:0 | `PTP_TOD_WR` | R/W | 0 | Time to load, high half. Bits [63:32] of the RTL value. |
 
-settime target `[63:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_tod_wr_hi-offset-0x514).
 
 ### PTP_OFFSET_LO register (offset 0x518) [reset = 0x00000000]
 
@@ -858,7 +916,7 @@ RTL name: `A_PTP_OFLO`.
 |---|---|---|---|---|
 | 31:0 | `PTP_OFFSET` | R/W | 0 | Drives `o_ptp_offset`. Bits [31:0] of the RTL value. |
 
-adjtime signed delta `[31:0]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_offset_lo-offset-0x518).
 
 ### PTP_OFFSET_HI register (offset 0x51C) [reset = 0x00000000]
 
@@ -872,7 +930,7 @@ RTL name: `A_PTP_OFHI`.
 |---|---|---|---|---|
 | 31:0 | `PTP_OFFSET` | R/W | 0 | Drives `o_ptp_offset`. Bits [63:32] of the RTL value. |
 
-adjtime signed delta `[63:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_offset_hi-offset-0x51c).
 
 ### PTP_CMD register (offset 0x520) [reset = 0x00000000]
 
@@ -899,9 +957,9 @@ RTL name: `A_PTP_TRLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PTP_TOD_RD` | R | 0 | Held in `ptp_tod_rd`. |
+| 31:0 | `PTP_TOD_RD` | R | 0 | Time latched by `PTP_CMD[2]`, low half. |
 
-latched TOD `[31:0]` (updated when the PHC snapshot returns)
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_tod_rd_lo-offset-0x530).
 
 ### PTP_TOD_RD_HI register (offset 0x534) [reset = 0x00000000]
 
@@ -913,9 +971,9 @@ RTL name: `A_PTP_TRHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PTP_TOD_RD` | R | 0 | Held in `ptp_tod_rd`. |
+| 31:0 | `PTP_TOD_RD` | R | 0 | Time latched by `PTP_CMD[2]`, high half. |
 
-latched TOD `[63:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_tod_rd_hi-offset-0x534).
 
 ### PTP_INGRESS_LAT register (offset 0x540) [reset = 0x00000000]
 
@@ -952,10 +1010,16 @@ RTL name: `A_PPS_CTRL`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:17 | `RESERVED` | R | 0 | Reserved. |
-| 16 | `PPS_P` | R | 0 | Held in `pps_ctrl`. |
+| 16 | `PPS_P` | R | 0 | Built: 1 only when the gateware elaborated the comparator. Read it before believing `[0]`. |
 | 15:2 | `RESERVED` | R | 0 | Reserved. |
-| 1 | `PPS_ARM` | W1S | 0 | Drives `o_pps_arm`. Writing 1 fires `PPS_ARM` for one cycle. |
+| 1 | `PPS_ARM` | W1S | 0 | Arm: loads `PTP_PPS_TGT_{HI,LO}` into the live target. Writing 1 fires `PPS_ARM` for one cycle. |
 | 0 | `RESERVED` | R | 0 | Reserved. |
+
+At `PPS_P` = 0, `[0]` reads 0 and reaches nothing.
+
+At `PPS_P` = 1, `[0]` is the R/W runtime enable.
+
+Setting `[1]` and `[0]` in one word emits no early pulse.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_pps_ctrl-offset-0x548).
 
@@ -969,7 +1033,7 @@ RTL name: `A_PPS_TGLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PPS_TARGET_NS` | R/W | 0 | Drives `o_pps_target_ns`. Bits [31:0] of the RTL value. |
+| 31:0 | `PPS_TARGET_NS` | R/W | 0 | Target to arm, low half, in ns. Write a TAI second boundary: the hardware does no modulo. Bits [31:0] of the RTL value. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_pps_tgt_lo-offset-0x54c).
 
@@ -983,9 +1047,9 @@ RTL name: `A_PPS_TGHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PPS_TARGET_NS` | R/W | 0 | Drives `o_pps_target_ns`. Bits [63:32] of the RTL value. |
+| 31:0 | `PPS_TARGET_NS` | R/W | 0 | Target to arm, high half. Bits [63:32] of the RTL value. |
 
-Target to arm, `[63:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_pps_tgt_hi-offset-0x550).
 
 ### PTP_PPS_RD_LO register (offset 0x554) [reset = 0xXXXXXXXX]
 
@@ -997,7 +1061,7 @@ RTL name: `A_PPS_RDLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PPS_TARGET_RD_NS` | R | X | Reads input `i_pps_target_rd_ns`. Bits [31:0] of the RTL value. |
+| 31:0 | `PPS_TARGET_RD_NS` | R | X | Live target, low half, from the PHC domain. Advances by 1e9 on each pulse. Reads 0 when `PPS_CTRL[16]` is 0. Bits [31:0] of the RTL value. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_pps_rd_lo-offset-0x554).
 
@@ -1011,9 +1075,9 @@ RTL name: `A_PPS_RDHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PPS_TARGET_RD_NS` | R | X | Reads input `i_pps_target_rd_ns`. Bits [63:32] of the RTL value. |
+| 31:0 | `PPS_TARGET_RD_NS` | R | X | Live target, high half. Bits [63:32] of the RTL value. |
 
-**Live** target `[63:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ptp_pps_rd_hi-offset-0x558).
 
 ### PTP_PPS_WIDTH register (offset 0x55C) [reset = 0x00000000]
 
@@ -1052,6 +1116,16 @@ ADP identity words, the advertise strobes and status.
 | `0x640` | `ADP_CMD` | ADP command | `0x00000000` | [section](#adp_cmd-register-offset-0x640-reset--0x00000000) |
 | `0x644` | `ADP_STATUS` | ADP status | `0xXXXXXXXX` | [section](#adp_status-register-offset-0x644-reset--0xxxxxxxxx) |
 
+The protocol processor sends ADP. These words are its CSR face.
+
+`ADP_CTRL[0]` and `PP_CTRL[0]` are ORed: either starts the entity.
+
+`entity_capabilities`, `valid_time`, `association_id` and `controller_capabilities` no longer reach the wire.
+
+`available_index` increments after every ENTITY_AVAILABLE sent.
+
+A frozen `ADP_STATUS` means no ADPDUs are leaving.
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x600-----adp-advertiser--ieee-17221-2021--milan-v12-fr-disc-0104).
 
 ### ADP_CTRL register (offset 0x600) [reset = 0x00000A00]
@@ -1079,9 +1153,9 @@ RTL name: `A_ADP_EIDLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ADP_ENTITY_ID` | R/W | 0 | Drives `o_adp_entity_id`. Bits [31:0] of the RTL value. |
+| 31:0 | `ADP_ENTITY_ID` | R/W | 0 | entity_id, low half. Bits [31:0] of the RTL value. |
 
-entity_id `[31:0]` (EUI-64)
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_entity_id_lo-offset-0x604).
 
 ### ADP_ENTITY_ID_HI register (offset 0x608) [reset = 0x00000000]
 
@@ -1093,9 +1167,9 @@ RTL name: `A_ADP_EIDHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ADP_ENTITY_ID` | R/W | 0 | Drives `o_adp_entity_id`. Bits [63:32] of the RTL value. |
+| 31:0 | `ADP_ENTITY_ID` | R/W | 0 | entity_id, high half. Bits [63:32] of the RTL value. |
 
-entity_id `[63:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_entity_id_hi-offset-0x608).
 
 ### ADP_MODEL_ID_LO register (offset 0x60C) [reset = 0x00000000]
 
@@ -1107,9 +1181,9 @@ RTL name: `A_ADP_MIDLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ADP_ENTITY_MODEL_ID` | R/W | 0 | Drives `o_adp_entity_model_id`. Bits [31:0] of the RTL value. |
+| 31:0 | `ADP_ENTITY_MODEL_ID` | R/W | 0 | entity_model_id, low half. Bits [31:0] of the RTL value. |
 
-entity_model_id `[31:0]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_model_id_lo-offset-0x60c).
 
 ### ADP_MODEL_ID_HI register (offset 0x610) [reset = 0x00000000]
 
@@ -1121,9 +1195,9 @@ RTL name: `A_ADP_MIDHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ADP_ENTITY_MODEL_ID` | R/W | 0 | Drives `o_adp_entity_model_id`. Bits [63:32] of the RTL value. |
+| 31:0 | `ADP_ENTITY_MODEL_ID` | R/W | 0 | entity_model_id, high half. Bits [63:32] of the RTL value. |
 
-entity_model_id `[63:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_model_id_hi-offset-0x610).
 
 ### ADP_ENTITY_CAPS register (offset 0x614) [reset = 0x00000000]
 
@@ -1147,7 +1221,8 @@ RTL name: `A_ADP_TALK`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ADP_TALK` | R | 48010002h | Constant. |
+| 31:16 | `TALKER_CAPS` | R | 4801h | talker_capabilities, generated from the end-station config. Writes are ignored. |
+| 15:0 | `TALKER_SOURCES` | R | 2h | talker_stream_sources: the STREAM_OUTPUT descriptor count. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_talker-offset-0x618).
 
@@ -1161,7 +1236,8 @@ RTL name: `A_ADP_LIST`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ADP_LIST` | R | 48010002h | Constant. |
+| 31:16 | `LISTENER_CAPS` | R | 4801h | listener_capabilities, generated from the end-station config. Writes are ignored. |
+| 15:0 | `LISTENER_SINKS` | R | 2h | listener_stream_sinks: the STREAM_INPUT descriptor count. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_listener-offset-0x61c).
 
@@ -1187,7 +1263,7 @@ RTL name: `A_ADP_GMLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `GPTP_GM_RD_SNAP` | R | X | Held in `gptp_gm_rd_snap_r`. |
+| 31:0 | `GPTP_GM_RD_SNAP` | R | X | gptp_grandmaster_id, low half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. Before a peer is elected it reads thisClock. With the gPTP plane off it reads 0. Writes are inert. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_gptp_gm_lo-offset-0x624).
 
@@ -1201,7 +1277,7 @@ RTL name: `A_ADP_GMHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `GPTP_GM_RD_SNAP` | R | X | Held in `gptp_gm_rd_snap_r`. |
+| 31:0 | `GPTP_GM_RD_SNAP` | R | X | gptp_grandmaster_id, high half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_gptp_gm_hi-offset-0x628).
 
@@ -1215,7 +1291,7 @@ RTL name: `A_ADP_DOMAIN`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ADP_DOMAIN` | R | 0 | Constant. |
+| 31:0 | `ADP_DOMAIN` | R | 0 | gptp_domain_number, ADPDU byte 48: a structural 0 in both builds. Writes are inert. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_gptp_domain-offset-0x62c).
 
@@ -1243,9 +1319,9 @@ RTL name: `A_ADP_IDX1`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:16 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 15:0 | `ADP_INTERFACE_INDEX` | R/W | 0 | Drives `o_adp_interface_index`. |
+| 15:0 | `ADP_INTERFACE_INDEX` | R/W | 0 | interface_index. |
 
-🟡 **WRITE-ONLY SCRATCH** -- `[15:0]` interface_index. Stored and read back; never reaches the wire
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_idx1-offset-0x634).
 
 ### ADP_ASSOC_ID_LO register (offset 0x638) [reset = 0x00000000]
 
@@ -1257,9 +1333,9 @@ RTL name: `A_ADP_ASLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ADP_ASSOCIATION_ID` | R/W | 0 | Drives `o_adp_association_id`. Bits [31:0] of the RTL value. |
+| 31:0 | `ADP_ASSOCIATION_ID` | R/W | 0 | association_id, low half: inert scratch. Bits [31:0] of the RTL value. |
 
-🟡 **WRITE-ONLY SCRATCH** -- association_id `[31:0]`. Stored and read back; never reaches the wire
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_assoc_id_lo-offset-0x638).
 
 ### ADP_ASSOC_ID_HI register (offset 0x63C) [reset = 0x00000000]
 
@@ -1271,9 +1347,9 @@ RTL name: `A_ADP_ASHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ADP_ASSOCIATION_ID` | R/W | 0 | Drives `o_adp_association_id`. Bits [63:32] of the RTL value. |
+| 31:0 | `ADP_ASSOCIATION_ID` | R/W | 0 | association_id, high half: inert scratch. Bits [63:32] of the RTL value. |
 
-🟡 **WRITE-ONLY SCRATCH** -- association_id `[63:32]`. Stored and read back; never reaches the wire
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_assoc_id_hi-offset-0x63c).
 
 ### ADP_CMD register (offset 0x640) [reset = 0x00000000]
 
@@ -1286,8 +1362,8 @@ RTL name: `A_ADP_CMD`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:2 | `RESERVED` | R | 0 | Reserved. |
-| 1 | `ADP_DEPART` | W1S | 0 | Writing 1 fires `ADP_DEPART` for one cycle. |
-| 0 | `ADP_ADVERTISE` | W1S | 0 | Writing 1 fires `ADP_ADVERTISE` for one cycle. |
+| 1 | `ADP_DEPART` | W1S | 0 | Inert scratch: stores and reads back, reaches no logic. Was depart. Writing 1 fires `ADP_DEPART` for one cycle. |
+| 0 | `ADP_ADVERTISE` | W1S | 0 | Inert scratch: stores and reads back, reaches no logic. Was advertise-now. Writing 1 fires `ADP_ADVERTISE` for one cycle. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_cmd-offset-0x640).
 
@@ -1301,7 +1377,7 @@ RTL name: `A_ADP_STATUS`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ADP_AVAILABLE_INDEX` | R | X | Reads input `i_adp_available_index`. |
+| 31:0 | `ADP_AVAILABLE_INDEX` | R | X | available_index, live from the protocol processor; equal to the value on the wire. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_status-offset-0x644).
 
@@ -1324,6 +1400,12 @@ AECP and ACMP status, and the flat AAF talker words.
 | `0x670` | `ACMP_LOBS` | Listener-observed override | `0x00000000` | [section](#acmp_lobs-register-offset-0x670-reset--0x00000000) |
 | `0x674` | `ADP_DIAG2` | ADP liveness diagnostics | `0xXX00XXXX` | [section](#adp_diag2-register-offset-0x674-reset--0xxx00xxxx) |
 
+The AECP and ACMP counter words are structural zeros.
+
+The entity-lock level, the AAF talker words and `ACMP_TALKER[1]` are live.
+
+Talker index 0 of the `0x800` window aliases the AAF words.
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x648-----aecpacmp-status--aaf-talker--ieee-17221--milan-v12).
 
 ### AECP_STAT0 register (offset 0x648) [reset = 0x000XXXXX]
@@ -1337,8 +1419,8 @@ RTL name: `A_AECP_STAT0`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:17 | `RESERVED` | R | 0 | Reserved. |
-| 16 | `AECP_LOCKED` | R | X | Reads input `i_aecp_locked`. |
-| 15:0 | `AECP_CMD_COUNT` | R | X | Reads input `i_aecp_cmd_count`. |
+| 16 | `AECP_LOCKED` | R | X | The processor's live `LOCK_ENTITY` level. |
+| 15:0 | `AECP_CMD_COUNT` | R | X | **Structural zero.** The processor command count is not exported. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#aecp_stat0-offset-0x648).
 
@@ -1352,8 +1434,8 @@ RTL name: `A_AECP_STAT1`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:16 | `AECP_RESP_COUNT` | R | X | Reads input `i_aecp_resp_count`. |
-| 15:0 | `AECP_CURRENT_CONFIG` | R | X | Reads input `i_aecp_current_config`. |
+| 31:16 | `AECP_RESP_COUNT` | R | X | **Structural zero.** Was AECP responses sent. |
+| 15:0 | `AECP_CURRENT_CONFIG` | R | X | **Structural zero.** Was the current configuration index. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#aecp_stat1-offset-0x64c).
 
@@ -1367,8 +1449,8 @@ RTL name: `A_ACMP_STAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:16 | `ACMP_RESP_COUNT` | R | X | Reads input `i_acmp_resp_count`. |
-| 15:0 | `ACMP_CMD_COUNT` | R | X | Reads input `i_acmp_cmd_count`. |
+| 31:16 | `ACMP_RESP_COUNT` | R | X | **Structural zero.** Was responses sent. Read `ACMPL_STATE[3]` and `ACMP_TALKER[1]` instead. |
+| 15:0 | `ACMP_CMD_COUNT` | R | X | **Structural zero.** Was commands accepted. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#acmp_stat-offset-0x650).
 
@@ -1383,10 +1465,10 @@ RTL name: `A_AAF_CTRL`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:28 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 27:16 | `AAF_VID` | R/W | 0 | Drives `o_aaf_vid`. |
+| 27:16 | `AAF_VID` | R/W | 0 | Startup VID 2. Domain adoption selects the tag on the wire. |
 | 15:2 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 1 | `AAF_BYPASS` | R/W | 0 | Drives `o_aaf_bypass`. |
-| 0 | `AAF_ENABLE` | R/W | 0 | Drives `o_aaf_enable`. |
+| 1 | `AAF_BYPASS` | R/W | 0 | Diagnostic bypass. Boot clears it. |
+| 0 | `AAF_ENABLE` | R/W | 0 | Enable. Firmware boots the generated `MILAN_AAF_CTRL_BOOT` word. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#aaf_ctrl-offset-0x654).
 
@@ -1400,7 +1482,7 @@ RTL name: `A_AAF_DMLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `AAF_DEST_MAC` | R/W | F000FE01h | Drives `o_aaf_dest_mac`. Bits [31:0] of the RTL value. |
+| 31:0 | `AAF_DEST_MAC` | R/W | F000FE01h | Destination MAC `[31:0]`; reset is `91:E0:F0:00:FE:01`. A fallback: with `MAAP_CTRL[0]` and `MAAP_STAT1[2]` set, the datapath uses the MAAP-claimed address. Bits [31:0] of the RTL value. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#aaf_dmlo-offset-0x658).
 
@@ -1415,9 +1497,9 @@ RTL name: `A_AAF_DMHI`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:16 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 15:0 | `AAF_DEST_MAC` | R/W | 91E0h | Drives `o_aaf_dest_mac`. Bits [47:32] of the RTL value. |
+| 15:0 | `AAF_DEST_MAC` | R/W | 91E0h | Destination MAC `[47:32]`. Bits [47:32] of the RTL value. |
 
-dest MAC `[47:32]` in `[15:0]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#aaf_dmhi-offset-0x65c).
 
 ### AAF_FRAMES register (offset 0x660) [reset = 0xXXXXXXXX]
 
@@ -1454,9 +1536,9 @@ RTL name: `A_ADP_DIAG`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:18 | `RESERVED` | R | 0 | Reserved. |
-| 17:16 | `ADP_DEPART_SRC` | R | X | Reads input `i_adp_depart_src`. |
-| 15:8 | `ADP_REARM_CNT` | R | X | Reads input `i_adp_rearm_cnt`. |
-| 7:0 | `ADP_DEPART_CNT` | R | X | Reads input `i_adp_depart_cnt`. |
+| 17:16 | `ADP_DEPART_SRC` | R | X | **Structural zero.** Was the last depart cause. |
+| 15:8 | `ADP_REARM_CNT` | R | X | **Structural zero.** Was dormancy re-arms. |
+| 7:0 | `ADP_DEPART_CNT` | R | X | **Structural zero.** Was depart events. Read `ADP_STATUS` across two reads instead. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_diag-offset-0x668).
 
@@ -1471,10 +1553,10 @@ RTL name: `A_ACMP_TALKER`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:4 | `RESERVED` | R | 0 | Reserved. |
-| 3 | `AAF_GATE` | R | X | Reads input `i_aaf_gate`. |
-| 2 | `ACMP_LOBS` | R | 0 | Reads back `o_acmp_lobs`. |
-| 1 | `ACMP_TALKER_ACTIVE` | R | X | Reads input `i_acmp_talker_active`. |
-| 0 | `ACMP_PROBE_ARMED` | R | X | Reads input `i_acmp_probe_armed`. |
+| 3 | `AAF_GATE` | R | X | The composed gate the datapath admits frames on. |
+| 2 | `ACMP_LOBS` | R | 0 | Mirror of the `ACMP_LOBS[0]` manual override. |
+| 1 | `ACMP_TALKER_ACTIVE` | R | X | Live: the processor's `acmp_declaring_o`, set only after MAAP ALLOC_DA success. |
+| 0 | `ACMP_PROBE_ARMED` | R | X | **Structural zero.** The class-D face has no probe-window level. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#acmp_talker-offset-0x66c).
 
@@ -1501,11 +1583,11 @@ RTL name: `A_ADP_DIAG2`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:28 | `ADP_STATE` | R | X | Reads input `i_adp_state`. |
-| 27:24 | `ADP_LAST_MSG` | R | X | Reads input `i_adp_last_msg`. |
-| 23:16 | `ADP_DISC_SEEN_CNT` | R | 0 | Held in `adp_disc_seen_cnt_r`. |
-| 15:8 | `ADP_DISC_RX_CNT` | R | X | Reads input `i_adp_disc_rx_cnt`. |
-| 7:0 | `ADP_SENT_CNT` | R | X | Reads input `i_adp_sent_cnt`. |
+| 31:28 | `ADP_STATE` | R | X | **Structural zero.** Was the advertiser state. |
+| 27:24 | `ADP_LAST_MSG` | R | X | **Structural zero.** Was the last message_type. |
+| 23:16 | `ADP_DISC_SEEN_CNT` | R | 0 | ENTITY_DISCOVERs seen, counting `i_adp_disc_seen_p`. |
+| 15:8 | `ADP_DISC_RX_CNT` | R | X | **Structural zero.** Was ENTITY_DISCOVERs accepted. |
+| 7:0 | `ADP_SENT_CNT` | R | X | **Structural zero.** Was ADPDUs egressed. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_diag2-offset-0x674).
 
@@ -1525,9 +1607,13 @@ SRP control and the processor's SRP status.
 | `0x69C` | `LWSRP_CNT` | SRP PDU counts | `0xXXXXXXXX` | [section](#lwsrp_cnt-register-offset-0x69c-reset--0xxxxxxxxx) |
 | `0x6A0` | `LWSRP_LATENCY` | SRP accumulated latency | `0x00000000` | [section](#lwsrp_latency-register-offset-0x6a0-reset--0x00000000) |
 
-While enabled it also:
+The processor owns SRP; the lwSRP engine is deleted.
 
-sources ACMP `listener_observed` (OR-ed with the manual `A_ACMP_LOBS` override at 0x670), and
+State words are live. PDU counters are structural zeros, and provisioning words are inert.
+
+The licence needs ACTIVE and the real per-source grant (#551).
+
+`LWSRP_STATUS[8]` reads 0 until a Listener Ready or Ready Failed registers.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x680-----lwsrp-engine--8021q-msrpmvrp-milan-v12-section-56-fr-srp-).
 
@@ -1542,10 +1628,12 @@ RTL name: `A_LWSRP_CTRL`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:6 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 5 | `LWSRP_DECL_BYPASS` | R/W | 0 | Drives `o_lwsrp_decl_bypass`. |
+| 5 | `LWSRP_DECL_BYPASS` | R/W | 0 | Inert scratch: stores and reads back, reaches no logic. Was declare-always. |
 | 4:2 | `RESERVED` | R/W | 4h | Reserved; stored and read back, drives nothing. |
-| 1 | `LWSRP_TALKER_EN` | R/W | 0 | Drives `o_lwsrp_talker_en`. |
-| 0 | `LWSRP_ENABLE` | R/W | 0 | Drives `o_lwsrp_enable`. |
+| 1 | `LWSRP_TALKER_EN` | R/W | 0 | Live talker admission arm. Firmware sets it for normal boot. |
+| 0 | `LWSRP_ENABLE` | R/W | 0 | Live admission enable. Firmware sets it for normal boot. It does not enable the SRP engine. |
+
+`[4:2]` is legacy queue-selection scratch, reset 4.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#lwsrp_ctrl-offset-0x680).
 
@@ -1560,7 +1648,7 @@ RTL name: `A_LWSRP_VID`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:12 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 11:0 | `LWSRP_VID` | R/W | 2h | Drives `o_lwsrp_vid`. |
+| 11:0 | `LWSRP_VID` | R/W | 2h | Diagnostic default VID; startup uses `srp.vid` = 2. Writes do not program the processor. The operational pair is at `LWSRP_DOM`. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#lwsrp_vid-offset-0x684).
 
@@ -1574,7 +1662,7 @@ RTL name: `A_LWSRP_DMLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `LWSRP_DEST_MAC` | R/W | F000FE01h | Drives `o_lwsrp_dest_mac`. Bits [31:0] of the RTL value. |
+| 31:0 | `LWSRP_DEST_MAC` | R/W | F000FE01h | Inert scratch: stores and reads back, reaches no logic. The processor takes its address from MAAP. Bits [31:0] of the RTL value. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#lwsrp_dmac_lo-offset-0x688).
 
@@ -1589,9 +1677,9 @@ RTL name: `A_LWSRP_DMHI`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:16 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 15:0 | `LWSRP_DEST_MAC` | R/W | 91E0h | Drives `o_lwsrp_dest_mac`. Bits [47:32] of the RTL value. |
+| 15:0 | `LWSRP_DEST_MAC` | R/W | 91E0h | Inert scratch: stores and reads back, reaches no logic. The processor takes its address from MAAP. Bits [47:32] of the RTL value. |
 
-🟡 **WRITE-ONLY SCRATCH** -- stream dest MAC `[47:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#lwsrp_dmac_hi-offset-0x68c).
 
 ### LWSRP_TSPEC register (offset 0x690) [reset = 0x000100E0]
 
@@ -1603,8 +1691,8 @@ RTL name: `A_LWSRP_TSPEC`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:16 | `LWSRP_INTERVAL` | R/W | 1h | Drives `o_lwsrp_interval`. |
-| 15:0 | `LWSRP_MAX_FRAME` | R/W | E0h | Drives `o_lwsrp_max_frame`. |
+| 31:16 | `LWSRP_INTERVAL` | R/W | 1h | Inert scratch: stores and reads back, reaches no logic. Was MaxIntervalFrames; the processor derives it from the SR class. |
+| 15:0 | `LWSRP_MAX_FRAME` | R/W | E0h | Inert scratch: stores and reads back, reaches no logic. Was MaxFrameSize; the fabric derives it from each framer (Milan v1.2 4.3.3.2 Table 4.4). |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#lwsrp_tspec-offset-0x690).
 
@@ -1618,7 +1706,20 @@ RTL name: `A_LWSRP_STATUS`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `LWSRP_STATUS` | R | X | Reads input `i_lwsrp_status`. |
+| 31:24 | `INGRESS_DROPS` | R | X | **Structural zero.** That ingress path is deleted; see `PP_DIAG[15:8]`. |
+| 23:16 | `FAIL_CODE` | R | X | MSRP failure code. |
+| 15:12 | `RESERVED` | R | X | Reserved. |
+| 11 | `ROW_SHORTFALL` | R | X | **Structural zero.** No attribute-row table exists in this fabric. |
+| 10 | `TALKER_FAILED` | R | X | TalkerFailed seen. |
+| 9 | `ADMIT_VERDICT` | R | X | The OR of the processor's real admission grants. Status only. |
+| 8 | `GATE_OPEN` | R | X | Source 0's ACTIVE and real grant (#551): the Milan v1.2 5.3.7.3 licence. |
+| 7 | `OVER_LIMIT` | R | X | Over the 75 % gate: ceiling refusal. |
+| 6 | `ACTIVE` | R | X | Raw reservation ACTIVE, ORed over sources, CRF output included. |
+| 5 | `DOMAIN_OK` | R | X | Domain ok. |
+| 4 | `TALKER_DECLARED` | R | X | Talker declared. |
+| 3 | `LISTENER_READY` | R | X | `[1:0]` is ready or ready-failed (Milan v1.2 5.3.7.3). |
+| 2 | `LISTENER_REGISTERED` | R | X | `[1:0]` is not 0, asking-failed included. |
+| 1:0 | `LISTENER_STATE` | R | X | The Listener registered on talker source 0, as 802.1Q 35.2.2.7.2 (Table 35-3) FourPackedEvents: 0 none, 1 asking-failed, 2 ready, 3 ready-failed. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#lwsrp_status-offset-0x694).
 
@@ -1644,7 +1745,7 @@ RTL name: `A_LWSRP_CNT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `LWSRP_CNT` | R | X | Reads input `i_lwsrp_cnt`. |
+| 31:0 | `LWSRP_CNT` | R | X | **Structural zero.** Was MRPDU counts. Reservations still form: read `LWSRP_STATUS` and `LWSRP_DOM`. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#lwsrp_cnt-offset-0x69c).
 
@@ -1688,6 +1789,14 @@ Listener bind record, AVTP RX, MAAP and audio diagnostics.
 | `0x6F0` | `I2SPB_DBG` | I2S DAC forensics | `0xXXXXXXXX` | [section](#i2spb_dbg-register-offset-0x6f0-reset--0xxxxxxxxx) |
 | `0x6F4` | `CTLR_DIAG` | Controller diagnostics | `0xXXXXXXXX` | [section](#ctlr_diag-register-offset-0x6f4-reset--0xxxxxxxxx) |
 
+`ACMPL_STATE` no longer tracks PROBING or SETTLED: take `bound` as the truth.
+
+The bind record carries the bound stream_id, DMAC and VLAN.
+
+`CTLR_DIAG` is a structural zero: its source was deleted.
+
+The departing-controller monitor lives in the protocol processor.
+
 | Offset | Register | Access | Fields |
 |---|---|---|---|
 | `0x6F8` | -- | -- | **reserved**, free. Claim it here before wiring it |
@@ -1705,7 +1814,18 @@ RTL name: `A_ACMPL_STATE`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ACMPL_STATE` | R | X | Reads input `i_acmpl_state`. |
+| 31 | `CRF_BOUND` | R | X | CRF sink bound. |
+| 30:28 | `RESERVED` | R | X | Reserved. |
+| 27:16 | `VLAN` | R | X | Stream VLAN from the bind record. |
+| 15 | `TALKER_VISIBLE` | R | X | **Structural zero.** Was bound talker ADP-visible. |
+| 14:13 | `PROBING` | R | X | **Structural zero.** Was probing status. |
+| 12:8 | `ACMP_STATUS` | R | X | **Structural zero.** Was the last ACMP status. |
+| 7 | `TALKER_FAILED` | R | X | Sink 0 carries an MSRP TalkerFailed code; same source as `ACMPL_TUID[23:16]`. |
+| 6 | `TALKER_ADVERTISE` | R | X | Sink 0's registered Talker attribute is ADVERTISE. |
+| 5 | `LISTENER_DECLARED` | R | X | **Structural zero.** Was Listener attribute declared. |
+| 4 | `ACTIVE` | R | X | Stream active; follows bound. |
+| 3 | `BOUND` | R | X | Bound: the truth for this sink. |
+| 2:0 | `SM_STATE` | R | X | **Structural zero.** The probe ladder no longer exists here, so a reader waiting for SETTLED waits forever. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#acmpl_state-offset-0x6a4).
 
@@ -1719,7 +1839,7 @@ RTL name: `A_ACMPL_TKLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ACMPL_TALKER_LO` | R | X | Reads input `i_acmpl_talker_lo`. |
+| 31:0 | `ACMPL_TALKER_LO` | R | X | **Structural zero.** Was the bound talker entity ID, low half. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#acmpl_talker_lo-offset-0x6a8).
 
@@ -1733,9 +1853,9 @@ RTL name: `A_ACMPL_TKHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ACMPL_TALKER_HI` | R | X | Reads input `i_acmpl_talker_hi`. |
+| 31:0 | `ACMPL_TALKER_HI` | R | X | **Structural zero.** Was the bound talker entity ID, high half. |
 
-🔴 **STRUCTURAL ZERO**. Was the bound talker entity id `[63:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#acmpl_talker_hi-offset-0x6ac).
 
 ### ACMPL_CNT register (offset 0x6B0) [reset = 0xXXXXXXXX]
 
@@ -1747,7 +1867,7 @@ RTL name: `A_ACMPL_CNT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ACMPL_CNT` | R | X | Reads input `i_acmpl_cnt`. |
+| 31:0 | `ACMPL_CNT` | R | X | **Structural zero.** Was PROBE_TX commands sent and listener commands accepted. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#acmpl_cnt-offset-0x6b0).
 
@@ -1761,7 +1881,9 @@ RTL name: `A_ACMPL_TUID`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ACMPL_TUID` | R | X | Reads input `i_acmpl_tuid`. |
+| 31:24 | `RESERVED` | R | X | Reserved. |
+| 23:16 | `TALKER_FAILED` | R | X | MSRP TalkerFailed code for the bound stream, live. |
+| 15:0 | `TUID` | R | X | **Structural zero.** Was the bound talker unique ID. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#acmpl_tuid-offset-0x6b4).
 
@@ -1775,7 +1897,11 @@ RTL name: `A_AVTPRX_STAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `AVTPRX_STAT` | R | X | Reads input `i_avtprx_stat`. |
+| 31:24 | `STREAM_INTERRUPTED` | R | X | Saturating view; the full count is at `STRMW_CNTn`. |
+| 23:16 | `MEDIA_UNLOCKED` | R | X | Saturating view; the full count is at `STRMW_CNTn`. |
+| 15:8 | `MEDIA_LOCKED` | R | X | Saturating view; the full count is at `STRMW_CNTn`. |
+| 7:1 | `RESERVED` | R | X | Reserved. |
+| 0 | `LOCKED_LEVEL` | R | X | Media-locked level. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#avtprx_stat-offset-0x6b8).
 
@@ -1801,7 +1927,9 @@ RTL name: `A_AVTPRX_ERR`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `AVTPRX_ERR` | R | X | Reads input `i_avtprx_err`. |
+| 31:16 | `SEQ_NUM_MISMATCH` | R | X | Saturating: all ones means at least this many. The full count is at `0x83C`. |
+| 15:8 | `UNSUPPORTED_FORMAT` | R | X | Saturating view. |
+| 7:0 | `TIMESTAMP_UNCERTAIN` | R | X | Saturating view. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#avtprx_err-offset-0x6c0).
 
@@ -1815,7 +1943,8 @@ RTL name: `A_PCMRX_CNT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PCMRX_CNT` | R | X | Reads input `i_pcmrx_cnt`. |
+| 31:16 | `DROPPED` | R | X | Whole frames dropped: FIFO overflow. |
+| 15:0 | `PDUS` | R | X | PDU payloads emitted to the fabric. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#pcmrx_cnt-offset-0x6c4).
 
@@ -1841,11 +1970,13 @@ RTL name: `A_MAAP_CTRL`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:16 | `MAAP_SEED_OFFSET` | R/W | 0 | Drives `o_maap_seed_offset`. |
-| 15:8 | `MAAP_COUNT` | R/W | 0 | Drives `o_maap_count`. |
+| 31:16 | `MAAP_SEED_OFFSET` | R/W | 0 | Seed offset. |
+| 15:8 | `MAAP_COUNT` | R/W | 0 | Block count. |
 | 7:2 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 1 | `MAAP_SEED_VALID` | R/W | 0 | Drives `o_maap_seed_valid`. |
-| 0 | `MAAP_ENABLE` | R/W | 0 | Drives `o_maap_enable`. |
+| 1 | `MAAP_SEED_VALID` | R/W | 0 | Seed valid. |
+| 0 | `MAAP_ENABLE` | R/W | 0 | Enable. |
+
+Firmware writes the generated `MILAN_MAAP_CTRL_BOOT` word.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#maap_ctrl-offset-0x6cc).
 
@@ -1861,7 +1992,7 @@ RTL name: `A_MAAP_STAT0`.
 |---|---|---|---|---|
 | 31:0 | `MAAP_STAT0` | R | X | Reads input `i_maap_stat0`. |
 
-`[31:24]` conflicts (re-address events), `[23:16]` DEFENDs sent, `[15:0]` claimed offset
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#maap_stat0-offset-0x6d0).
 
 ### MAAP_STAT1 register (offset 0x6D4) [reset = 0xXXXXXXXX]
 
@@ -1873,7 +2004,9 @@ RTL name: `A_MAAP_STAT1`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `MAAP_STAT1` | R | X | Reads input `i_maap_stat1`. |
+| 31:3 | `RESERVED` | R | X | Reserved. |
+| 2 | `ADDR_VALID` | R | X | ANNOUNCE state: the address is valid. |
+| 1:0 | `STATE` | R | X | 0 idle, 1 probe, 2 announce. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#maap_stat1-offset-0x6d4).
 
@@ -1887,8 +2020,8 @@ RTL name: `A_I2SPB_STAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:16 | `UNDERRUN` | R/W1C | X | Underrun count. Any set bit written here restarts this whole half, not only the set bits. Writing any set bit in `[31:16]` fires `I2SPB_CLR_UNDER` once. |
-| 15:0 | `OVERRUN` | R/W1C | X | Overrun count. Any set bit written here restarts this whole half, not only the set bits. Writing any set bit in `[15:0]` fires `I2SPB_CLR_OVER` once. |
+| 31:16 | `UNDERRUN` | R/W1C | X | Underruns: silence frames. Saturates at `0xFFFF`. Any set bit written here restarts this whole half, not only the set bits. A zero write is inert. Writing any set bit in `[31:16]` fires `I2SPB_CLR_UNDER` once. |
+| 15:0 | `OVERRUN` | R/W1C | X | Overruns: pairs dropped. Saturates at `0xFFFF`. Any set bit written here restarts this whole half. Writing any set bit in `[15:0]` fires `I2SPB_CLR_OVER` once. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#i2spb_stat-offset-0x6d8).
 
@@ -1916,7 +2049,8 @@ RTL name: `A_I2SPB_TRIM`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `I2SPB_TRIM` | R | X | Reads input `i_i2spb_trim`. |
+| 31:16 | `NCO_TRIM` | R | X | Signed NCO trim, LSB about 15.3 ppm. |
+| 15:0 | `FIFO_FILL` | R | X | FIFO fill, in pairs. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#i2spb_trim-offset-0x6e0).
 
@@ -1994,7 +2128,11 @@ RX destination-MAC filter programming.
 | `0x714` | `TCAM_ACTION` | TCAM action | `0x00000000` | [section](#tcam_action-register-offset-0x714-reset--0x00000000) |
 | `0x718` | `TCAM_CMD` | TCAM command | `0x00000000` | [section](#tcam_cmd-register-offset-0x718-reset--0x00000000) |
 
-**Group summary:** RX destination-MAC TCAM filter
+A ternary CAM accepts or drops RX frames by DMAC.
+
+Key and mask are `{HI[15:0], LO}`, compared MSB-first against the destination MAC.
+
+Set the key, mask and action words, then commit with `TCAM_CMD[16]`.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x700-----rx-destination-mac-tcam-filter--req-mac-02).
 
@@ -2009,8 +2147,8 @@ RTL name: `A_TCAM_CTRL`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:2 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 1 | `TCAM_ADDR_FILT_EN` | R/W | 0 | Drives `o_tcam_addr_filt_en`. |
-| 0 | `TCAM_DEFAULT_PASS` | R/W | 1h | Drives `o_tcam_default_pass`. |
+| 1 | `TCAM_ADDR_FILT_EN` | R/W | 0 | 1 sends a miss to the 802.3 station address filter instead of `[0]` (REQ-MAC-02). |
+| 0 | `TCAM_DEFAULT_PASS` | R/W | 1h | 1 accepts frames that miss the table. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#tcam_ctrl-offset-0x700).
 
@@ -2024,9 +2162,9 @@ RTL name: `A_TCAM_KLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `TCAM_WR_KEY` | R/W | 0 | Drives `o_tcam_wr_key`. Bits [31:0] of the RTL value. |
+| 31:0 | `TCAM_WR_KEY` | R/W | 0 | Match key `[31:0]` (destination MAC). Bits [31:0] of the RTL value. |
 
-match key `[31:0]` (dest MAC, MSB-first: byte0 in `[31:24]`? no - see note)
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#tcam_key_lo-offset-0x704).
 
 ### TCAM_KEY_HI register (offset 0x708) [reset = 0x00000000]
 
@@ -2039,9 +2177,9 @@ RTL name: `A_TCAM_KHI`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:16 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 15:0 | `TCAM_WR_KEY` | R/W | 0 | Drives `o_tcam_wr_key`. Bits [47:32] of the RTL value. |
+| 15:0 | `TCAM_WR_KEY` | R/W | 0 | Match key `[47:32]`. Bits [47:32] of the RTL value. |
 
-match key `[47:32]` in `[15:0]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#tcam_key_hi-offset-0x708).
 
 ### TCAM_MASK_LO register (offset 0x70C) [reset = 0x00000000]
 
@@ -2053,9 +2191,9 @@ RTL name: `A_TCAM_MLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `TCAM_WR_MASK` | R/W | 0 | Drives `o_tcam_wr_mask`. Bits [31:0] of the RTL value. |
+| 31:0 | `TCAM_WR_MASK` | R/W | 0 | Per-bit mask `[31:0]`. Bits [31:0] of the RTL value. |
 
-care mask `[31:0]` (1 = compare, 0 = wildcard)
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#tcam_mask_lo-offset-0x70c).
 
 ### TCAM_MASK_HI register (offset 0x710) [reset = 0x00000000]
 
@@ -2068,9 +2206,9 @@ RTL name: `A_TCAM_MHI`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:16 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 15:0 | `TCAM_WR_MASK` | R/W | 0 | Drives `o_tcam_wr_mask`. Bits [47:32] of the RTL value. |
+| 15:0 | `TCAM_WR_MASK` | R/W | 0 | Per-bit mask `[47:32]`. Bits [47:32] of the RTL value. |
 
-care mask `[47:32]` in `[15:0]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#tcam_mask_hi-offset-0x710).
 
 ### TCAM_ACTION register (offset 0x714) [reset = 0x00000000]
 
@@ -2083,9 +2221,9 @@ RTL name: `A_TCAM_ACT`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:8 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 7:0 | `TCAM_WR_ACTION` | R/W | 0 | Drives `o_tcam_wr_action`. |
+| 7:0 | `TCAM_WR_ACTION` | R/W | 0 | Entry action. |
 
-`[0]` drop-on-match (else accept), `[7:1]` steer tag
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#tcam_action-offset-0x714).
 
 ### TCAM_CMD register (offset 0x718) [reset = 0x00000000]
 
@@ -2113,7 +2251,9 @@ Link guard controls and the reset canary.
 | `0x71C` | `LINK_CTRL` | Link control | `0x00000001` | [section](#link_ctrl-register-offset-0x71c-reset--0x00000001) |
 | `0x720` | `RST_EPOCH` | Reset epoch | `0x000000XX` | [section](#rst_epoch-register-offset-0x720-reset--0x000000xx) |
 
-**Group summary:** Link guard / MAC recovery (`LINK_CTRL`, `RST_EPOCH`, `LINKG_STAT` 0x774)
+`KL_link_guard` supervises link bounces; firmware has recovery strobes here.
+
+`LINK_CTRL[1]` is stored as 0 while `ETH_GUARD[0]` is 1.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x71c-----link-guard--mac-recovery-version-minor--0x0006).
 
@@ -2144,7 +2284,7 @@ RTL name: `A_RST_EPOCH`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:8 | `RESERVED` | R | 0 | Reserved. |
-| 7:0 | `RST_EPOCH` | R | X | Held in `rst_epoch_r`. |
+| 7:0 | `RST_EPOCH` | R | X | Datapath reset-release count. It has no reset clause, so the count survives reset. A live tick proves a real reset happened. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#rst_epoch-offset-0x720).
 
@@ -2160,7 +2300,9 @@ Entity name overlay, playback filter and gPTP parent.
 | `0x730` | `AS2_LO` | gPTP parent, low word | `0xXXXXXXXX` | [section](#as2_lo-register-offset-0x730-reset--0xxxxxxxxx) |
 | `0x734` | `AS2_HI` | gPTP parent, high word | `0xXXXXXXXX` | [section](#as2_hi-register-offset-0x734-reset--0xxxxxxxxx) |
 
-**Group summary:** Identity / playback / 802.1AS overlay words
+Firmware may write the board-name overlay.
+
+The fabric gPTP plane publishes live parent topology directly.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x724-----identity--playback--8021as-overlay).
 
@@ -2174,10 +2316,12 @@ RTL name: `A_ENT_NAME_LO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:24 | `ENTITY_NAME8_31_24` | R/W | 0 | Held in `ent_name_lo`. Bits [39:32] of the RTL value. |
-| 23:16 | `ENTITY_NAME8_23_16` | R/W | 0 | Held in `ent_name_lo`. Bits [47:40] of the RTL value. |
-| 15:8 | `ENTITY_NAME8_15_8` | R/W | 0 | Held in `ent_name_lo`. Bits [55:48] of the RTL value. |
-| 7:0 | `ENTITY_NAME8_7_0` | R/W | 0 | Held in `ent_name_lo`. Bits [63:56] of the RTL value. |
+| 31:24 | `ENTITY_NAME8_31_24` | R/W | 0 | One character of the board-name overlay. Bits [39:32] of the RTL value. |
+| 23:16 | `ENTITY_NAME8_23_16` | R/W | 0 | One character. Bits [47:40] of the RTL value. |
+| 15:8 | `ENTITY_NAME8_15_8` | R/W | 0 | One character. Bits [55:48] of the RTL value. |
+| 7:0 | `ENTITY_NAME8_7_0` | R/W | 0 | First character of this word. Bits [63:56] of the RTL value. |
+
+All zero keeps the ROM name.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ent_name_lo-offset-0x724).
 
@@ -2191,12 +2335,12 @@ RTL name: `A_ENT_NAME_HI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:24 | `ENTITY_NAME8_31_24` | R/W | 0 | Held in `ent_name_hi`. Bits [7:0] of the RTL value. |
-| 23:16 | `ENTITY_NAME8_23_16` | R/W | 0 | Held in `ent_name_hi`. Bits [15:8] of the RTL value. |
-| 15:8 | `ENTITY_NAME8_15_8` | R/W | 0 | Held in `ent_name_hi`. Bits [23:16] of the RTL value. |
-| 7:0 | `ENTITY_NAME8_7_0` | R/W | 0 | Held in `ent_name_hi`. Bits [31:24] of the RTL value. |
+| 31:24 | `ENTITY_NAME8_31_24` | R/W | 0 | One character of the board-name overlay. Bits [7:0] of the RTL value. |
+| 23:16 | `ENTITY_NAME8_23_16` | R/W | 0 | One character. Bits [15:8] of the RTL value. |
+| 15:8 | `ENTITY_NAME8_15_8` | R/W | 0 | One character. Bits [23:16] of the RTL value. |
+| 7:0 | `ENTITY_NAME8_7_0` | R/W | 0 | One character. Bits [31:24] of the RTL value. |
 
-entity_name chars 4-7
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ent_name_hi-offset-0x728).
 
 ### LPF_CTRL register (offset 0x72C) [reset = 0x00000001]
 
@@ -2221,7 +2365,7 @@ RTL name: `A_AS2_LO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `GPTP_PARENT_RD_SNAP` | R | X | Held in `gptp_parent_rd_snap_r`. |
+| 31:0 | `GPTP_PARENT_RD_SNAP` | R | X | Parent clockIdentity, low half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#as2_lo-offset-0x730).
 
@@ -2235,7 +2379,7 @@ RTL name: `A_AS2_HI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `GPTP_PARENT_RD_SNAP` | R | X | Held in `gptp_parent_rd_snap_r`. |
+| 31:0 | `GPTP_PARENT_RD_SNAP` | R | X | Parent clockIdentity, high half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#as2_hi-offset-0x734).
 
@@ -2252,13 +2396,13 @@ CRF media-clock sink control and measurements.
 | `0x748` | `CRF_RATE` | CRF rate | `0xXXXXXXXX` | [section](#crf_rate-register-offset-0x748-reset--0xxxxxxxxx) |
 | `0x74C` | `CRF_STATUS` | CRF status | `0xXXXXXXXX` | [section](#crf_status-register-offset-0x74c-reset--0xxxxxxxxx) |
 
-**Group summary:** CRF media-clock sink (Milan v1.2 7.3, `KL_crf_rx`)
+`KL_crf_rx` validates each PDU of the followed CRF stream. The profile is Milan v1.2 7.3.2.
 
-a silence on a started input counts once;
+The SID pair is the manual lever. A CRF sink bind wins.
 
-STOP with live traffic counts nothing;
+A stopped sink keeps observing and counting, while consumption gates.
 
-after START, a sequence gap counts again;
+A Controller Unbind never counts as interrupted (Table 5.6).
 
 | Quadlet (block offset) | Counter | `KL_crf_rx` output |
 |---|---|---|
@@ -2299,9 +2443,9 @@ RTL name: `A_CRF_SIDLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `CRF_SID` | R/W | 0 | Drives `o_crf_sid`. Bits [31:0] of the RTL value. |
+| 31:0 | `CRF_SID` | R/W | 0 | Followed stream_id, low half: the manual lever. A bind wins. Bits [31:0] of the RTL value. |
 
-followed CRF stream_id `[31:0]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#crf_sidlo-offset-0x73c).
 
 ### CRF_SIDHI register (offset 0x740) [reset = 0x00000000]
 
@@ -2313,9 +2457,9 @@ RTL name: `A_CRF_SIDHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `CRF_SID` | R/W | 0 | Drives `o_crf_sid`. Bits [63:32] of the RTL value. |
+| 31:0 | `CRF_SID` | R/W | 0 | Followed stream_id, high half. Bits [63:32] of the RTL value. |
 
-stream_id `[63:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#crf_sidhi-offset-0x740).
 
 ### CRF_DELTA register (offset 0x744) [reset = 0xXXXXXXXX]
 
@@ -2351,7 +2495,9 @@ RTL name: `A_CRF_STATUS`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `CRF_STATUS` | R | X | Reads input `i_crf_status`. |
+| 31:16 | `PDUS` | R | X | PDUs accepted. |
+| 15:8 | `FORMAT_ERRORS` | R | X | Format errors: subtype (#765) and the Milan v1.2 7.3.2 check. |
+| 7:0 | `SEQ_ERRORS` | R | X | Sequence errors. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#crf_status-offset-0x74c).
 
@@ -2368,7 +2514,7 @@ CRF media-clock talker control and counters.
 | `0x760` | `CRFT_DMHI` | CRF talker destination MAC, high word | `0x00000000` | [section](#crft_dmhi-register-offset-0x760-reset--0x00000000) |
 | `0x764` | `CRFT_COUNT` | CRF talker PDU count | `0xXXXXXXXX` | [section](#crft_count-register-offset-0x764-reset--0xxxxxxxxx) |
 
-**Group summary:** CRF media-clock talker (`KL_crf_tx`)
+`KL_crf_tx` emits the CRF AUDIO_SAMPLE stream at 500 PDU/s.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x750-----crf-media-clock-talker--milan-v12-731-kl_crf_tx).
 
@@ -2382,9 +2528,16 @@ RTL name: `A_CRFT_CTRL`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:2 | `CRFT_STAT` | R | X | Reads input `i_crft_stat`. Bits [31:2] of the RTL value. |
-| 1 | `CRFT_CLASS_A` | R/W | 0 | Drives `o_crft_class_a`. |
-| 0 | `CRFT_EN` | R/W | 0 | Drives `o_crft_en`. |
+| 31:23 | `RESERVED` | R | X | Reserved. |
+| 22:20 | `PCP` | R | X | PCP on the frames. |
+| 19:8 | `VID` | R | X | VID on the frames. |
+| 7 | `LICENSED` | R | X | Emission licensed now: `[0]` and `[6]` while SRP policing is on. |
+| 6 | `RESERVATION_ACTIVE` | R | X | This output's ACTIVE and real admission grant (#551). |
+| 5 | `TAGGED` | R | X | Frames leaving tagged. |
+| 4 | `ROW_VALID` | R | X | **Structural zero.** There is no fabric row to provision. |
+| 3:2 | `RESERVED` | R | X | Reserved. |
+| 1 | `CRFT_CLASS_A` | R/W | 0 | Class-A declare and tag (Milan v1.2 7.3.3). Clear gives the untagged control-lane shape. |
+| 0 | `CRFT_EN` | R/W | 0 | Talker enable. Firmware boots `MILAN_CRF_TX_CTRL_BOOT` from the config. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#crft_ctrl-offset-0x750).
 
@@ -2398,7 +2551,7 @@ RTL name: `A_CRFT_SIDLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `CRFT_SID` | R/W | 0 | Drives `o_crft_sid`. Bits [31:0] of the RTL value. |
+| 31:0 | `CRFT_SID` | R/W | 0 | stream_id, low half. Zero selects AUTO: `{station MAC, N_STREAMS}`. A non-zero pair wins. Bits [31:0] of the RTL value. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#crft_sidlo-offset-0x754).
 
@@ -2412,9 +2565,9 @@ RTL name: `A_CRFT_SIDHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `CRFT_SID` | R/W | 0 | Drives `o_crft_sid`. Bits [63:32] of the RTL value. |
+| 31:0 | `CRFT_SID` | R/W | 0 | stream_id, high half. Bits [63:32] of the RTL value. |
 
-stream_id `[63:32]`, same AUTO rule (the pair is tested together)
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#crft_sidhi-offset-0x758).
 
 ### CRFT_DMLO register (offset 0x75C) [reset = 0x00000000]
 
@@ -2426,7 +2579,7 @@ RTL name: `A_CRFT_DMLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `CRFT_DEST_MAC` | R/W | 0 | Drives `o_crft_dest_mac`. Bits [31:0] of the RTL value. |
+| 31:0 | `CRFT_DEST_MAC` | R/W | 0 | Destination MAC `[31:0]`. Zero selects AUTO: MAAP block slot `base + N_STREAMS`. A non-zero pair wins. Bits [31:0] of the RTL value. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#crft_dmlo-offset-0x75c).
 
@@ -2441,9 +2594,9 @@ RTL name: `A_CRFT_DMHI`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:16 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 15:0 | `CRFT_DEST_MAC` | R/W | 0 | Drives `o_crft_dest_mac`. Bits [47:32] of the RTL value. |
+| 15:0 | `CRFT_DEST_MAC` | R/W | 0 | Destination MAC `[47:32]`. Bits [47:32] of the RTL value. |
 
-dest MAC `[47:32]` in `[15:0]`, same AUTO rule
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#crft_dmhi-offset-0x760).
 
 ### CRFT_COUNT register (offset 0x764) [reset = 0xXXXXXXXX]
 
@@ -2467,6 +2620,10 @@ Retired scan forensics and the live link-guard status.
 | `0x76C` | `BDBG1` | Scan forensics 1 | `0xXXXXXXXX` | [section](#bdbg1-register-offset-0x76c-reset--0xxxxxxxxx) |
 | `0x770` | `BDBG2` | Scan forensics 2 | `0xXXXXXXXX` | [section](#bdbg2-register-offset-0x770-reset--0xxxxxxxxx) |
 | `0x774` | `LINKG_STAT` | Link guard status | `0xXXXXXXXX` | [section](#linkg_stat-register-offset-0x774-reset--0xxxxxxxxx) |
+
+All three words are structural zeros. They belonged to the deleted AECP builder.
+
+`LINKG_STAT` is live: see its row.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x768-----aecp-get_dynamic_info-scan-forensics-bdbg-----structural-zero-and-the-link-guard-status).
 
@@ -2492,9 +2649,9 @@ RTL name: `A_BDBG1`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `BDBG1` | R | X | Reads input `i_bdbg1`. |
+| 31:0 | `BDBG1` | R | X | **Structural zero.** Was AECP scan forensics. |
 
-🔴 STRUCTURAL ZERO. Was: `[30:16]` record command_type, `[15:0]` record data length, at the verdict
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#bdbg1-offset-0x76c).
 
 ### BDBG2 register (offset 0x770) [reset = 0xXXXXXXXX]
 
@@ -2506,9 +2663,9 @@ RTL name: `A_BDBG2`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `BDBG2` | R | X | Reads input `i_bdbg2`. |
+| 31:0 | `BDBG2` | R | X | **Structural zero.** Was AECP scan forensics. |
 
-🔴 STRUCTURAL ZERO. Was: `[24:16]` scan pointer, `[8:0]` payload end (bytes)
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#bdbg2-offset-0x770).
 
 ### LINKG_STAT register (offset 0x774) [reset = 0xXXXXXXXX]
 
@@ -2520,7 +2677,17 @@ RTL name: `A_LINKG_STAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `LINKG_STAT` | R | X | Reads input `i_linkg_stat`. |
+| 31:16 | `BOUNCE_CNT` | R | X | Link bounce count, saturating. |
+| 15:10 | `RESERVED` | R | X | Reserved. |
+| 9 | `FREEZE` | R | X | Freeze. |
+| 8 | `DIS` | R | X | Disable. |
+| 7 | `ACT_RECENT` | R | X | RX activity within the last 2^27 guard clock cycles. |
+| 6 | `GUARD_RST` | R | X | Reinit held. |
+| 5:4 | `STATE` | R | X | 0 RUN, 1 HOLD, 2 SETTLE. |
+| 3 | `RESERVED` | R | X | Reserved. |
+| 2 | `ETH_RST` | R | X | Sequenced Ethernet-domain reset. |
+| 1 | `TX_ALIVE` | R | X | TX alive. |
+| 0 | `RX_ALIVE` | R | X | RX alive. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#linkg_stat-offset-0x774).
 
@@ -2536,7 +2703,13 @@ Clock validity, TX arbiter supervision and the SRP domain.
 | `0x784` | `TXARB_DIAG` | TX arbiter diagnostics | `0xXXXXXXXX` | [section](#txarb_diag-register-offset-0x784-reset--0xxxxxxxxx) |
 | `0x788` | `LWSRP_DOM` | SRP operational domain | `0xXXXXXXXX` | [section](#lwsrp_dom-register-offset-0x788-reset--0xxxxxxxxx) |
 
-**Group summary:** Clock validity -- the AVTP `tu` verdict (`CLKV_CTRL`/`STAT`/`TUCNT`, minor ≥ `0x0016`)
+`tu` is the AVTP timestamp-uncertain bit on every outgoing stream frame.
+
+`CLKV_STAT[1]` and `[16]` are the live sync and asCapable levels.
+
+With the gPTP plane off, sync and asCapable stay 0. `tu` stays 1.
+
+`CLKV_TUCNT` moving means `tu` = 1 was seen in a one-second interval.
 
 ![Link-guard reset sequence](../diagrams/wd_linkguard_reset.svg)
 
@@ -2564,7 +2737,13 @@ RTL name: `A_CLKV_STAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `CLKV_STAT` | R | X | Reads input `i_clkv_stat`. |
+| 31:17 | `RESERVED` | R | X | Reserved. |
+| 16 | `AS_CAPABLE` | R | X | asCapable: the bit `GET_AVB_INFO` serves (IEEE 1722.1-2021 7.4.40.2 flags bit 0). |
+| 15:4 | `RESERVED` | R | X | Reserved. |
+| 3 | `HOLDOVER` | R | X | Inside a discontinuity holdover. |
+| 2 | `RESERVED` | R | X | Reserved. |
+| 1 | `SYNC_OK` | R | X | Fabric sync_ok. |
+| 0 | `TU` | R | X | `tu` as stamped on every outgoing stream frame. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#clkv_stat-offset-0x77c).
 
@@ -2590,7 +2769,16 @@ RTL name: `A_TXARB_DIAG`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `TXARB_DIAG` | R | X | Reads input `i_txarb_diag`. |
+| 31:24 | `TAG` | R | X | Constant `0xA7`. Zero means the gateware predates this word. |
+| 23:16 | `STALL_STICKY` | R | X | A presented beat was refused for the mux's watchdog window. Clears only on reset. |
+| 15:8 | `ABORT_STICKY` | R | X | A granted source abandoned its frame; the arbiter closed it. Clears only on reset. |
+| 7:0 | `LOCKED_NOW` | R | X | Lane holds the arbiter lock now. |
+
+Lanes, LSB first: 0 `ctl_tx`, 1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx`, 4 `gptp_ctl_mux`.
+
+Lane 1 is a structural zero since `0x0056`.
+
+Lane 4 is live with fabric gPTP only.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#txarb_diag-offset-0x784).
 
@@ -2604,7 +2792,11 @@ RTL name: `A_LWSRP_DOM`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `LWSRP_DOM` | R | X | Reads input `i_lwsrp_dom`. |
+| 31:25 | `RESERVED` | R | X | Reserved. |
+| 24 | `ADOPTED` | R | X | A network Domain declaration was adopted. |
+| 23:16 | `PRIORITY` | R | X | Operational priority. |
+| 15:12 | `RESERVED` | R | X | Reserved. |
+| 11:0 | `VID` | R | X | Operational VID. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#lwsrp_dom-offset-0x788).
 
@@ -2621,6 +2813,12 @@ Retired bind-restore port, kept as an ABI.
 | `0x7B0` | `REST_CTLR_HI` | Bind-restore controller, high word | `0x00000000` | [section](#rest_ctlr_hi-register-offset-0x7b0-reset--0x00000000) |
 | `0x7B4` | `REST_CMD` | Bind-restore command | `0x00000000` | [section](#rest_cmd-register-offset-0x7b4-reset--0x00000000) |
 
+This port is dead. Writes are accepted, the ack never asserts, nothing is restored.
+
+Bindings persist through the processor's restore walk and `KL_nvm_backend`.
+
+See `PP_NVM_*` and `PP_STAT` for the live saved-state path.
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x7a0-----acmp-bind-restore--saved-state-fast-connect-e1-milan-55352).
 
 ### REST_TK_LO register (offset 0x7A0) [reset = 0x00000000]
@@ -2633,9 +2831,9 @@ RTL name: `A_REST_TKLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ACMP_REST_TALKER` | R/W | 0 | Drives `o_acmp_rest_talker`. Bits [31:0] of the RTL value. |
+| 31:0 | `ACMP_REST_TALKER` | R/W | 0 | Dead port: talker ID, low half. Bits [31:0] of the RTL value. |
 
-saved talker_entity_id `[31:0]` (doubles as the feature probe word)
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#rest_tk_lo-offset-0x7a0).
 
 ### REST_TK_HI register (offset 0x7A4) [reset = 0x00000000]
 
@@ -2647,9 +2845,9 @@ RTL name: `A_REST_TKHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ACMP_REST_TALKER` | R/W | 0 | Drives `o_acmp_rest_talker`. Bits [63:32] of the RTL value. |
+| 31:0 | `ACMP_REST_TALKER` | R/W | 0 | Dead port: talker ID, high half. Bits [63:32] of the RTL value. |
 
-saved talker_entity_id `[63:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#rest_tk_hi-offset-0x7a4).
 
 ### REST_META register (offset 0x7A8) [reset = 0x00000000]
 
@@ -2662,7 +2860,7 @@ RTL name: `A_REST_META`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:16 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 15:0 | `ACMP_REST_TUID` | R/W | 0 | Drives `o_acmp_rest_tuid`. |
+| 15:0 | `ACMP_REST_TUID` | R/W | 0 | Dead port: talker_unique_id. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#rest_meta-offset-0x7a8).
 
@@ -2676,9 +2874,9 @@ RTL name: `A_REST_CTLO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ACMP_REST_CTLR` | R/W | 0 | Drives `o_acmp_rest_ctlr`. Bits [31:0] of the RTL value. |
+| 31:0 | `ACMP_REST_CTLR` | R/W | 0 | Dead port: controller ID, low half. Bits [31:0] of the RTL value. |
 
-saved controller_entity_id `[31:0]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#rest_ctlr_lo-offset-0x7ac).
 
 ### REST_CTLR_HI register (offset 0x7B0) [reset = 0x00000000]
 
@@ -2690,9 +2888,9 @@ RTL name: `A_REST_CTHI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ACMP_REST_CTLR` | R/W | 0 | Drives `o_acmp_rest_ctlr`. Bits [63:32] of the RTL value. |
+| 31:0 | `ACMP_REST_CTLR` | R/W | 0 | Dead port: controller ID, high half. Bits [63:32] of the RTL value. |
 
-saved controller_entity_id `[63:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#rest_ctlr_hi-offset-0x7b0).
 
 ### REST_CMD register (offset 0x7B4) [reset = 0x00000000]
 
@@ -2704,13 +2902,13 @@ RTL name: `A_REST_CMD`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31 | `REST_PEND` | R/W1S | 0 | Held in `rest_pend_r`. A write takes effect only when `REST_CMD[31]` is 0. Writing 1 fires `ACMP_REST_REQ` for one cycle. A read returns this bit's status. When `REST_CMD[31]` is 0, writing 1 also clears `rest_done_r`, `rest_stat_r`. |
-| 30 | `REST_DONE` | R | 0 | Held in `rest_done_r`. |
+| 31 | `REST_PEND` | R/W1S | 0 | Dead port. Commit; read back as busy. The ack never asserts, so it stays busy. A write takes effect only when `REST_CMD[31]` is 0. Writing 1 fires `ACMP_REST_REQ` for one cycle. A read returns this bit's status. When `REST_CMD[31]` is 0, writing 1 also clears `rest_done_r`, `rest_stat_r`. |
+| 30 | `REST_DONE` | R | 0 | A commit completed since reset. |
 | 29:24 | `RESERVED` | R | 0 | Reserved. |
-| 23:10 | `REST_FLAGS` | W | 0 | Held in `rest_flags_r`. A write takes effect only when `REST_CMD[31]` is 0. |
-| 9:8 | `REST_STAT` | R/W | 0 | Held in `rest_stat_r`. A write takes effect only when `REST_CMD[31]` is 0. A write sets `REST_FLAGS`; a read returns this field. |
+| 23:10 | `REST_FLAGS` | W | 0 | Binding flags `[23:8]` of the commit word. A write takes effect only when `REST_CMD[31]` is 0. |
+| 9:8 | `REST_STAT` | R/W | 0 | Read: status of the last commit. Write: the low bits of the binding flags. A write takes effect only when `REST_CMD[31]` is 0. A write sets `REST_FLAGS`; a read returns this field. |
 | 7:4 | `RESERVED` | R | 0 | Reserved. |
-| 3:0 | `REST_IDX` | R/W | 0 | Held in `rest_idx_r`. A write takes effect only when `REST_CMD[31]` is 0. |
+| 3:0 | `REST_IDX` | R/W | 0 | Write: target sink index. Read: last committed index. A write takes effect only when `REST_CMD[31]` is 0. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#rest_cmd-offset-0x7b4).
 
@@ -2725,6 +2923,10 @@ Retired journal ingest port, kept as an ABI.
 | `0x7C0` | `JNL_STAT` | Journal ingest status | `0xXXXXXXXX` | [section](#jnl_stat-register-offset-0x7c0-reset--0xxxxxxxxx) |
 | `0x7C4` | `JNL_SEQ` | Journal ingest sequence | `0xXXXXXXXX` | [section](#jnl_seq-register-offset-0x7c4-reset--0xxxxxxxxx) |
 
+Writes here are accepted and discarded.
+
+`JNL_STAT` and `JNL_SEQ` read structural zeros.
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3).
 
 ### JNL_CTRL register (offset 0x7B8) [reset = 0xX0000000]
@@ -2737,11 +2939,11 @@ RTL name: `A_JNL_CTRL`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:30 | `JNL_STAT` | R | X | Reads input `i_jnl_stat`. Bits [31:30] of the RTL value. |
+| 31:30 | `JNL_STAT` | R | X | `[31]` busy, `[30]` done; a structural zero. Bits [31:30] of the RTL value. |
 | 29:3 | `RESERVED` | R | 0 | Reserved. |
-| 2 | `JNL_ABORT` | W1S | 0 | Drives `o_jnl_abort`. Writing 1 fires `JNL_ABORT` for one cycle. |
-| 1 | `JNL_END` | W1S | 0 | Drives `o_jnl_end`. Writing 1 fires `JNL_END` for one cycle. |
-| 0 | `JNL_START` | W1S | 0 | Drives `o_jnl_start`. Writing 1 fires `JNL_START` for one cycle. |
+| 2 | `JNL_ABORT` | W1S | 0 | Discarded: abort. Writing 1 fires `JNL_ABORT` for one cycle. |
+| 1 | `JNL_END` | W1S | 0 | Discarded: image complete. Writing 1 fires `JNL_END` for one cycle. |
+| 0 | `JNL_START` | W1S | 0 | Discarded: start a slot image. Writing 1 fires `JNL_START` for one cycle. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#jnl_ctrl-offset-0x7b8).
 
@@ -2767,7 +2969,7 @@ RTL name: `A_JNL_STAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `JNL_STAT` | R | X | Reads input `i_jnl_stat`. |
+| 31:0 | `JNL_STAT` | R | X | **Structural zero.** The bit list is kept in the design notes. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#jnl_stat-offset-0x7c0).
 
@@ -2794,6 +2996,10 @@ Retired AEM patch port, kept as an ABI.
 | `0x7D0` | `AEMP_DATA` | AEM patch data | `0x00000000` | [section](#aemp_data-register-offset-0x7d0-reset--0x00000000) |
 | `0x7D4` | `AEMP_CTRL` | AEM patch control | `0xXXXXXXXX` | [section](#aemp_ctrl-register-offset-0x7d4-reset--0xxxxxxxxx) |
 
+Writes here are accepted and discarded.
+
+`AEMP_CTRL` reads a structural zero. The layout is kept as ABI.
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x7c8-----aem-dynamic-state-patch-port--saved-state-fast-connect-e4).
 
 ### AEMP_SEL register (offset 0x7C8) [reset = 0x00000000]
@@ -2818,7 +3024,7 @@ RTL name: `A_AEMP_FIELD`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `AEMP_WDATA` | W | 0 | Drives `o_aemp_wdata`. A write also sets `aemp_field_p`. |
+| 31:0 | `AEMP_WDATA` | W | 0 | Discarded. `[2:0]` was the field: 0 stream format, 1 sampling rate, 2 clock source; 3 and 4 refused. A write also sets `aemp_field_p`. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#aemp_field-offset-0x7cc).
 
@@ -2844,9 +3050,9 @@ RTL name: `A_AEMP_CTRL`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:2 | `AEMP_STAT` | R | X | Reads input `i_aemp_stat`. |
-| 1 | `AEMP_ABORT` | R/W1S | X | Reads input `i_aemp_stat`. A read returns `AEMP_STAT`. Writing 1 fires `AEMP_ABORT` for one cycle. A read returns this bit's status. |
-| 0 | `AEMP_COMMIT` | R/W1S | X | Reads input `i_aemp_stat`. A read returns `AEMP_STAT`. Writing 1 fires `AEMP_COMMIT` for one cycle. A read returns this bit's status. |
+| 31:2 | `AEMP_STAT` | R | X | **Structural zero.** The bit list is kept in the design notes. |
+| 1 | `AEMP_ABORT` | R/W1S | X | Discarded: abort. A read returns `AEMP_STAT`. Writing 1 fires `AEMP_ABORT` for one cycle. A read returns this bit's status. |
+| 0 | `AEMP_COMMIT` | R/W1S | X | Discarded: commit. A read returns `AEMP_STAT`. Writing 1 fires `AEMP_COMMIT` for one cycle. A read returns this bit's status. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#aemp_ctrl-offset-0x7d4).
 
@@ -2857,6 +3063,14 @@ The Ethernet guard kill switch.
 | Offset | Acronym | Register name | Reset | Section |
 |---|---|---|---|---|
 | `0x7D8` | `ETH_GUARD` | Ethernet guard | `0x00000001` | [section](#eth_guard-register-offset-0x7d8-reset--0x00000001) |
+
+The guard is armed at power-on. Software disarms it with the unlock word.
+
+It drops `PHY_RESET` writes and stores `LINK_CTRL[1]` as 0.
+
+The link guard's automatic recovery is not gated.
+
+Nothing in the SoC consumes the exported level. So `milan_mac_phy_crg_reset` is not gated.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x7d8-----ethernet-guard).
 
@@ -2884,6 +3098,10 @@ Retired AS_PATH addresses and the live PathTrace status.
 | `0x7DC` | `ASP_LO` | AS_PATH staging, low word (retired) | `0x00000000` | [section](#asp_lo-register-offset-0x7dc-reset--0x00000000) |
 | `0x7E0` | `ASP_HI` | AS_PATH staging, high word (retired) | `0x00000000` | [section](#asp_hi-register-offset-0x7e0-reset--0x00000000) |
 | `0x7E4` | `ASP_CMD` | AS_PATH status | `0x000000XX` | [section](#asp_cmd-register-offset-0x7e4-reset--0x000000xx) |
+
+`GET_AS_PATH` returns the fabric engine's bounded pathTrace, eight identities at most.
+
+These addresses stay allocated so the map does not shift. Writes are discarded.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x7dc-----retired-as_path-compatibility-addresses).
 
@@ -2934,6 +3152,8 @@ gPTP plane drop counters.
 | `0x7E8` | `GPTP_DROPW` | gPTP wire drops | `0xXXXXXXXX` | [section](#gptp_dropw-register-offset-0x7e8-reset--0xxxxxxxxx) |
 | `0x7EC` | `GPTP_DROPE` | gPTP event drops | `0xXXXXXXXX` | [section](#gptp_drope-register-offset-0x7ec-reset--0xxxxxxxxx) |
 
+These tell link silence from traffic the plane refused (#207).
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x7e8-----gptp-plane-drop-diagnostics).
 
 ### GPTP_DROPW register (offset 0x7E8) [reset = 0xXXXXXXXX]
@@ -2970,7 +3190,9 @@ The timestamp corrections the gPTP plane applies.
 |---|---|---|---|---|
 | `0x7F0` | `GPTP_LAT` | gPTP latency corrections | `0xXXXXXXXX` | [section](#gptp_lat-register-offset-0x7f0-reset--0xxxxxxxxx) |
 
-**Group summary:** applied gPTP timestamp latency corrections, RO live (#358)
+This is the only live latency-correction publication (#358).
+
+One word, so a reader never pairs two builds' values.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x7f0-----applied-gptp-timestamp-latency-corrections).
 
@@ -2984,7 +3206,10 @@ RTL name: `A_GPTP_LAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `GPTP_LAT_NS` | R | X | Reads input `i_gptp_lat_ns`. |
+| 31:16 | `INGRESS` | R | X | Ingress correction in ns, subtracted from every arrival timestamp. |
+| 15:0 | `EGRESS` | R | X | Egress correction in ns, added to every reconstructed launch timestamp. |
+
+Elaboration constants: a write changes nothing. Option OFF reads 0.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#gptp_lat-offset-0x7f0).
 
@@ -3012,11 +3237,21 @@ Indexed window onto one stream's context.
 | `0x868` | `STRMW_BIND` | Stream window binding | `0x00000000` | [section](#strmw_bind-register-offset-0x868-reset--0x00000000) |
 | `0x86C` | `STRMW_RSVD_86C` | Stream window hole | `0xDEADDEAD` | [section](#strmw_rsvd_86c-register-offset-0x86c-reset--0xdeaddead) |
 
-**Group summary:** Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868)
+One select word and one word block view any stream.
 
-`SRP` idx 0 is the live `0x694` word, and
+`STRM_SEL[8]` picks the direction and `STRM_SEL[3:0]` the stream.
 
-Reset default: stream 0 = `0b10`, others `0b00`.
+A word that does not exist for the selection reads `0xDEADDEAD`.
+
+An index out of range reads 0. Writes are ignored.
+
+Index 0 is a hard alias of the flat registers.
+
+The ACMP context read and SRP row port are dead. Their words read 0.
+
+A `SNAP` latches `STATE`, `CNT0..9` and `PDUS` as one coherent set.
+
+`CTRL` and `FMT` reads go live to the context RAM. They take at least four clocks.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x800-----indexed-per-stream-window).
 
@@ -3031,10 +3266,16 @@ RTL name: `A_STRM_SEL`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:10 | `RESERVED` | R | 0 | Reserved. |
-| 9 | `STRM_LSN0` | W | 0 | Held in `strm_lsn0_r`. |
-| 8 | `STRM_DIR` | R/W | 0 | Held in `strm_dir_r`. |
+| 9 | `STRM_LSN0` | W | 0 | Listener-0 row select. With `[8]` at 0, 1 makes the window's SRP row sink 0's dedicated row. `[8]` and `[3:0]` still store and still gate the window. A read returns 0. |
+| 8 | `STRM_DIR` | R/W | 0 | Direction: 0 listener, 1 talker. |
 | 7:4 | `RESERVED` | R | 0 | Reserved. |
-| 3:0 | `STRM_IDX` | R/W | 0 | Held in `strm_idx_r`. |
+| 3:0 | `STRM_IDX` | R/W | 0 | Stream index. |
+
+`{dir=0, idx=0}` is the park state.
+
+Writing `SEL` invalidates the ACMP and SRP read snapshots.
+
+Until a re-poll lands, snapshot-served words read 0.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strm_sel-offset-0x800).
 
@@ -3049,7 +3290,7 @@ RTL name: `A_STRM_SNAP`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:1 | `RESERVED` | R | 0 | Reserved. |
-| 0 | `SNAP_BUSY` | R/W1S | 0 | Held in `snap_busy_r`. Writing 1 fires `SNAP_GO` for one cycle. A read returns this bit's status. |
+| 0 | `SNAP_BUSY` | R/W1S | 0 | Writing 1 latches the selected stream's `STATE`, `CNT0..9` and `PDUS` as one coherent block. Read: busy. Poll it to 0 before reading the latched words. Writing 1 fires `SNAP_GO` for one cycle. A read returns this bit's status. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strm_snap-offset-0x804).
 
@@ -3063,8 +3304,8 @@ RTL name: `A_STRMW_CTRL`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:1 | `STRMW_CTRL_31_1` | R/W | X | A write takes effect only when the selected stream exists and `STRM_SEL[8]` selects a listener, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. When the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, a write also sets `tctx_wr_p_r` and loads `tctx_wr_addr_r`. |
-| 0 | `STRMW_CTRL_0` | R/W | X | A write takes effect only when the selected stream exists and `STRM_SEL[8]` selects a listener, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0. |
+| 31:1 | `STRMW_CTRL_31_1` | R/W | X | Listener: `[2]` is the render route, `[1]` reads 0. Talker index above 0: the context word. A write takes effect only when the selected stream exists and `STRM_SEL[8]` selects a listener, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. When the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, a write also sets `tctx_wr_p_r` and loads `tctx_wr_addr_r`. |
+| 0 | `STRMW_CTRL_0` | R/W | X | Enable. Talker index 0: a hard alias of `AAF_CTRL[0]`. A write at index above 0 also commits the staged SRP record. A write takes effect only when the selected stream exists and `STRM_SEL[8]` selects a listener, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0. |
 
 | When | A read returns |
 |---|---|
@@ -3086,7 +3327,7 @@ RTL name: `A_STRMW_SID_LO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_SID_LO` | R/W | 0 | A write takes effect only when the selected stream exists, or when the selected stream exists and `STRM_SEL[8]` selects a listener. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_hi_r`, `stg_dmac_lo_r`, `stg_sid_hi_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. |
+| 31:0 | `STRMW_SID_LO` | R/W | 0 | stream_id `[31:0]`. Writes stage the provisioning stream_id; listener writes also forward to the context. A talker's word is the ID it starts with, not its current one after a MAAP conflict. A write takes effect only when the selected stream exists, or when the selected stream exists and `STRM_SEL[8]` selects a listener. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_hi_r`, `stg_dmac_lo_r`, `stg_sid_hi_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. |
 
 | When | A read returns |
 |---|---|
@@ -3109,7 +3350,7 @@ RTL name: `A_STRMW_SID_HI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_SID_HI` | R/W | 0 | A write takes effect only when the selected stream exists, or when the selected stream exists and `STRM_SEL[8]` selects a listener. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_hi_r`, `stg_dmac_lo_r`, `stg_sid_lo_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. |
+| 31:0 | `STRMW_SID_HI` | R/W | 0 | stream_id `[63:32]`, as `STRMW_SID_LO`. A write takes effect only when the selected stream exists, or when the selected stream exists and `STRM_SEL[8]` selects a listener. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_hi_r`, `stg_dmac_lo_r`, `stg_sid_lo_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. |
 
 | When | A read returns |
 |---|---|
@@ -3120,7 +3361,7 @@ RTL name: `A_STRMW_SID_HI`.
 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table has not answered since the last selection | `0x00000000` |
 | the selected stream does not exist | `0x00000000` |
 
-stream_id `[63:32]`, same rules (LCTX w1)
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_sid_hi-offset-0x818).
 
 ### STRMW_DMAC_LO register (offset 0x81C) [reset = 0x00000000]
 
@@ -3132,7 +3373,7 @@ RTL name: `A_STRMW_DMAC_LO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_DMAC_LO` | R/W | 0 | A write takes effect only when the selected stream exists, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_hi_r`, `stg_sid_hi_r`, `stg_sid_lo_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, a write also sets `tctx_wr_p_r` and loads `tctx_wr_addr_r`. |
+| 31:0 | `STRMW_DMAC_LO` | R/W | 0 | Stream DMAC `[31:0]`. Talker index 0: a hard alias of `AAF_DMLO`. Writes stage the provisioning DMAC. A write takes effect only when the selected stream exists, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_hi_r`, `stg_sid_hi_r`, `stg_sid_lo_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, a write also sets `tctx_wr_p_r` and loads `tctx_wr_addr_r`. |
 
 | When | A read returns |
 |---|---|
@@ -3156,7 +3397,7 @@ RTL name: `A_STRMW_DMAC_HI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_DMAC_HI` | R/W | 0 | A write takes effect only when the selected stream exists, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_lo_r`, `stg_sid_hi_r`, `stg_sid_lo_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, a write also sets `tctx_wr_p_r` and loads `tctx_wr_addr_r`. |
+| 31:0 | `STRMW_DMAC_HI` | R/W | 0 | DMAC `[47:32]` in `[15:0]`. Talker index 0: a hard alias of `AAF_DMHI`. A write takes effect only when the selected stream exists, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, or when the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0. When the selected stream exists and the staged identity belongs to another stream, a write also clears `stg_dmac_lo_r`, `stg_sid_hi_r`, `stg_sid_lo_r`. When the selected stream exists, a write also sets `stg_vld_r` and loads `stg_sel_r`. When the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0, a write also sets `tctx_wr_p_r` and loads `tctx_wr_addr_r`. |
 
 | When | A read returns |
 |---|---|
@@ -3180,7 +3421,7 @@ RTL name: `A_STRMW_FMT_LO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_FMT_LO` | R/W | X | A write takes effect only when the selected stream exists and `STRM_SEL[8]` selects a listener. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. |
+| 31:0 | `STRMW_FMT_LO` | R/W | X | Listener: current stream format `[31:0]` from the context. Talker: writes are ignored. A write takes effect only when the selected stream exists and `STRM_SEL[8]` selects a listener. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. |
 
 | When | A read returns |
 |---|---|
@@ -3202,7 +3443,7 @@ RTL name: `A_STRMW_FMT_HI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_FMT_HI` | R/W | X | A write takes effect only when the selected stream exists and `STRM_SEL[8]` selects a listener. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. |
+| 31:0 | `STRMW_FMT_HI` | R/W | X | Listener: current stream format `[63:32]`. Talker: writes are ignored. A write takes effect only when the selected stream exists and `STRM_SEL[8]` selects a listener. When the selected stream exists and `STRM_SEL[8]` selects a listener, a write also sets `lctx_wr_p_r` and loads `lctx_wr_addr_r`. |
 
 | When | A read returns |
 |---|---|
@@ -3212,7 +3453,7 @@ RTL name: `A_STRMW_FMT_HI`.
 | the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream exists and `STRM_SEL[8]` selects a listener | `0x00000000` |
 | the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream does not exist | `0x00000000` |
 
-format `[63:32]` (LCTX w3; talker side reads `0xDEADDEAD`)
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_fmt_hi-offset-0x828).
 
 ### STRMW_STATE register (offset 0x82C) [reset = 0x00000000]
 
@@ -3224,7 +3465,7 @@ RTL name: `A_STRMW_STATE`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_STATE` | R | 0 | Held in `snap_shadow_r`. |
+| 31:0 | `STRMW_STATE` | R | 0 | The snapshot-latched pack. Listener: `[2:0]` ACMP state, `[4:3]` probing, `[9:5]` status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` the low 9 bits of `STRMW_SRP`. Talker: `[0]` probe_armed, `[1]` talker_active, `[2]` lobs, `[3]` composed admission, `[27:19]` the SRP bits. |
 
 | When | A read returns |
 |---|---|
@@ -3279,7 +3520,7 @@ RTL name: `A_STRMW_SRP`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_SRP` | R | X | 🔴 **STRUCTURAL ZERO at every index.** There is no lwSRP attribute-row table in this fabric any more, so the window's SRP port is never granted and this word reads 0 -- including at idx 0, whose live hard alias of `LWSRP_STATUS` (`0x694`) went with the port. Read `LWSRP_STATUS` `0x694` directly instead: it carries the processor's class-D declaration/registration levels for the whole plane. Was: `{valid, dir, declared, registered, ready, failed, decl[1:0], fail_code[7:0]}` from the selected context row, with `0xDEAD` for a row above `N_CTX_P`. |
+| 31:0 | `STRMW_SRP` | R | X | Index 0, unless `STRM_SEL[9]` selects the listener row: the live `LWSRP_STATUS` word. Other rows are the attribute-row port, which is never granted, so they read 0. |
 
 | When | A read returns |
 |---|---|
@@ -3298,7 +3539,7 @@ RTL name: `A_STRMW_CTLR_LO`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ACMP_CTLR_Q` | R | 0 | Held in `acmp_ctlr_q_r`. |
+| 31:0 | `ACMP_CTLR_Q` | R | 0 | **Structural zero.** Was the binding controller's ID, low half: `i_acmp_tbl_gnt` is tied low, so nothing loads it. |
 
 | When | A read returns |
 |---|---|
@@ -3319,7 +3560,7 @@ RTL name: `A_STRMW_CTLR_HI`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `ACMP_CTLR_Q` | R | 0 | Held in `acmp_ctlr_q_r`. |
+| 31:0 | `ACMP_CTLR_Q` | R | 0 | **Structural zero.** Was the binding controller's ID, high half. |
 
 | When | A read returns |
 |---|---|
@@ -3328,7 +3569,7 @@ RTL name: `A_STRMW_CTLR_HI`.
 | the selected stream exists and `STRM_SEL[8]` selects a talker | `0xDEADDEAD` |
 | the selected stream does not exist | `0x00000000` |
 
-🔴 **STRUCTURAL ZERO.** Was controller_entity_id `[63:32]`
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_ctlr_hi-offset-0x864).
 
 ### STRMW_BIND register (offset 0x868) [reset = 0x00000000]
 
@@ -3360,7 +3601,7 @@ RTL name: `literal 0x86C`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_RSVD_86C` | R | DEADDEADh | Constant. |
+| 31:0 | `STRMW_RSVD_86C` | R | DEADDEADh | No word is defined here. It reads the not-backed poison while the selected stream exists. |
 
 | When | A read returns |
 |---|---|
@@ -3376,7 +3617,13 @@ AAF per-stage latency taps.
 | `0x870` | `LTAP_CTRL` | Latency tap control | `0xXXXXXXXX` | [section](#ltap_ctrl-register-offset-0x870-reset--0xxxxxxxxx) |
 | `0x874` | `LTAP_Wn` | Latency tap readback | `0xXXXXXXXX` | [section](#ltap_wn-registers-offset-0x874-to-0x8b0-stride-0x4-reset--0xxxxxxxxx) |
 
-**Group summary:** AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`)
+Two chains measure per-stage AAF latency, in axis_clk cycles.
+
+TX stages: `CAP`, `PKT_SOF`, `PKT_EOF`, `MAC_TX`. RX stages: `MAC_RX`, `ACCEPT`, `DEPKT`, `FABRIC_RENDER`.
+
+Each chain follows one tagged frame at a time.
+
+A timeout of about 0.5 ms re-arms the token.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps).
 
@@ -3390,9 +3637,9 @@ RTL name: `A_LTAP_CTRL`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:2 | `LTAP_STATUS` | R | X | Reads input `i_ltap_status`. |
-| 1 | `LTAP_EN` | R/W | 1h | Drives `o_ltap_en`. A read returns the OR with `LTAP_STATUS`. |
-| 0 | `LTAP_CLR` | R/W1S | X | Drives `o_ltap_clr`. A read returns `LTAP_STATUS`. Writing 1 fires `LTAP_CLR` for one cycle. A read returns this bit's status. |
+| 31:2 | `LTAP_STATUS` | R | X | `[8]` tx_active, `[11:9]` tx stage awaited, `[12]` rx_active, `[15:13]` rx stage awaited. |
+| 1 | `LTAP_EN` | R/W | 1h | Measure enable, reset 1. A read returns the OR with `LTAP_STATUS`. |
+| 0 | `LTAP_CLR` | R/W1S | X | Clears all statistics. A read returns `LTAP_STATUS`. Writing 1 fires `LTAP_CLR` for one cycle. A read returns this bit's status. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ltap_ctrl-offset-0x870).
 
@@ -3406,7 +3653,7 @@ RTL name: `A_LTAP_BASE to A_LTAP_END`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `LTAP_REGS` | R | X | Reads input `i_ltap_regs`. Bits [31:0] of the RTL value. |
+| 31:0 | `LTAP_REGS` | R | X | Per-stage latency statistics, in axis_clk cycles. Bits [31:0] of the RTL value. |
 
 | n | Offset | Name | Producer reset | Description |
 |---|---|---|---|---|
@@ -3427,6 +3674,8 @@ RTL name: `A_LTAP_BASE to A_LTAP_END`.
 | 14 | `0x8AC` | `LTAP_RX_D2` | `0` | DEPKT→FABRIC_RENDER: `[15:0]` last, `[31:16]` max |
 | 15 | `0x8B0` | `LTAP_RX_D2_MIN` | `0xFFFF` | DEPKT→FABRIC_RENDER: `[15:0]` min |
 
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#ltap_wn-offset-0x874).
+
 ## 0x8B4  -  RX stream-parser probe  `(APRB, avtp_stream_parser + milan_datapath)`
 
 The RX stream parser's pre-match view.
@@ -3435,9 +3684,9 @@ The RX stream parser's pre-match view.
 |---|---|---|---|---|
 | `0x8B4` | `APRB_Wn` | Stream parser probe | `0xXXXXXXXX` | [section](#aprb_wn-registers-offset-0x8b4-to-0x8c4-stride-0x4-reset--0xxxxxxxxx) |
 
-**Group summary:** RX stream-parser probe (the pre-match listener view)
+This probe shows what the parser saw before any match.
 
-**Reading the three failure modes** (listener bound, nothing accepted):
+The `SID` and `INFO` latch only follows stream subtypes.
 
 | `PARSED` | `MATCHED` | verdict |
 |---|---|---|
@@ -3457,7 +3706,7 @@ RTL name: `A_APRB_BASE to A_APRB_END`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `APRB_REGS` | R | X | Reads input `i_aprb_regs`. Bits [31:0] of the RTL value. |
+| 31:0 | `APRB_REGS` | R | X | RX stream-parser probe words. Bits [31:0] of the RTL value. |
 
 | n | Offset | Name | Producer reset | Description |
 |---|---|---|---|---|
@@ -3467,6 +3716,8 @@ RTL name: `A_APRB_BASE to A_APRB_END`.
 | 3 | `0x8C0` | `APRB_SID_HI` | `0` | `stream_id[63:32]` of that frame |
 | 4 | `0x8C4` | `APRB_INFO` | `0` | `[7:0]` that frame's AVTP subtype, `[8]` it matched, `[15:12]` matched entry index, `[23:16]` stream-table entries currently armed |
 
+Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#aprb_wn-offset-0x8b4).
+
 ## 0x8C8  -  reserved target-media compatibility words
 
 Retired telemetry words that read zero.
@@ -3475,7 +3726,7 @@ Retired telemetry words that read zero.
 |---|---|---|---|---|
 | `0x8C8` | `RSVD_GAPn` | Reserved compatibility word | `0x00000000` | [section](#rsvd_gapn-registers-offset-0x8c8-to-0x8d0-stride-0x4-reset--0x00000000) |
 
-**Group summary:** Reserved target-media compatibility words (structural zero)
+These words are retired. They read 0 and ignore writes.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x8c8-----reserved-target-media-compatibility-words).
 
@@ -3500,7 +3751,11 @@ Media-boundary slip counters.
 | `0x8D4` | `SLIP_LB` | Loopback slip counters | `0xXXXXXXXX` | [section](#slip_lb-register-offset-0x8d4-reset--0xxxxxxxxx) |
 | `0x8D8` | `SLIP_TDM` | TDM slip counters | `0xXXXXXXXX` | [section](#slip_tdm-register-offset-0x8d8-reset--0xxxxxxxxx) |
 
-**Group summary:** Media-boundary slip counters (`SLIP_LB` / `SLIP_TDM`, RO live, minor >= `0x0058`)
+Two 48 kHz grids meet at the capture crossbar. These words count their slips.
+
+They are live and read-only. Read twice and difference for a rate.
+
+`SLIP_LB` reads 0 on a shape without the loopback lane.
 
 | event | `SLIP_LB` dups | `SLIP_TDM` dups |
 |---|---|---|
@@ -3528,7 +3783,8 @@ RTL name: `A_SLIP_LB`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `SLIP_LB` | R | X | Reads input `i_slip_lb`. |
+| 31:16 | `SKIPS` | R | X | Loopback-ring skips: queue full at a push, the oldest event dropped. |
+| 15:0 | `DUPS` | R | X | Loopback-ring dups: a media tick found a pair's queue empty, so the hold repeats the last event. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#slip_lb-offset-0x8d4).
 
@@ -3542,7 +3798,8 @@ RTL name: `A_SLIP_TDM`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `SLIP_TDM` | R | X | Reads input `i_slip_tdm`. |
+| 31:16 | `SKIPS` | R | X | TDM-junction skips: a frame close over an unread frame. |
+| 15:0 | `DUPS` | R | X | TDM-junction dups: a walk snapshot with no frame closed since the last one. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#slip_tdm-offset-0x8d8).
 
@@ -3554,6 +3811,12 @@ Presentation state of the selected listener.
 |---|---|---|---|---|
 | `0x8DC` | `RENDER_STAT` | Render presentation state | `0xXXXXXXXX` | [section](#render_stat-register-offset-0x8dc-reset--0xxxxxxxxx) |
 
+`STRM_SEL[3:0]` selects the listener, with `STRM_SEL[8]` at 0.
+
+Talker selections and indices out of range read 0.
+
+Refused PDUs and slips do not raise `STREAM_INTERRUPTED`.
+
 | Bits | Width | Source | Meaning | Reset |
 |---|---|---|---|---|
 | `[7:0]` | 8 | selected `lead_o` byte | Frames queued past the frame every interface has read: the newest frame the stream wrote, less that one; 0 with none queued; saturates at 255 (the queue is 128 frames deep at 48 kHz) | 0 |
@@ -3561,8 +3824,6 @@ Presentation state of the selected listener.
 | `[9]` | 1 | selected `converged_o` bit | The stream has presented a sample on every read for 100 ms running; level, no counter | 0 |
 | `[15:10]` | 6 | constant | Reserved zero | 0 |
 | `[31:16]` | 16 | `refused_o` | Global count of PDUs with a refused event, once per PDU: late (an event at or before the frame every interface has read) or too early (an event beyond the queue). Each event is judged on its own frame, so a counted PDU's other events may still be presented; saturates at `0xFFFF`, never wraps | 0 |
-
-Proof: `make -C tb/verilator/milan_dp aclk` reads the taps. `make -C tb/verilator/milan_dp render-csr-controls` checks absence and mutation.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x8dc-----render-presentation-state).
 
@@ -3592,6 +3853,10 @@ AAF media clock meter.
 | `0x8E0` | `AAFM_STAT` | AAF clock meter status | `0xXXXXXXXX` | [section](#aafm_stat-register-offset-0x8e0-reset--0xxxxxxxxx) |
 | `0x8E4` | `AAFM_RATE` | AAF clock meter rate | `0xXXXXXXXX` | [section](#aafm_rate-register-offset-0x8e4-reset--0xxxxxxxxx) |
 
+The meter measures the selected AAF Stream Input's media clock.
+
+`AAFM_RATE` is signed ns of error per 512 ms. 1 ppm is 512 units.
+
 | Bits | Width | Meaning | Reset |
 |---|---|---|---|
 | `[0]` | 1 | Locked: 8 clean consumed PDUs; 100 ms without one unlocks | 0 |
@@ -3601,8 +3866,6 @@ AAF media clock meter.
 | `[7:4]` | 4 | The followed AAF listener; zero while no AAF source is selected | 0 |
 | `[15:8]` | 8 | Data-caused history restarts: a `tu` edge, a deviation beyond 4,096 ns, a pick spacing outside its bound; wraps | 0 |
 | `[31:16]` | 16 | Largest timestamp deviation in a group, ns; saturates at `0xFFFF` | 0 |
-
-Proof: `make -C tb/verilator/aaf_clock_meter` grades the meter and its fields. The root CSR read is graded in `tb/verilator/milan_dp_mclk`.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x8e0-----aaf-clock-meter--629-kl_aaf_clock_meter).
 
@@ -3639,6 +3902,10 @@ MMCM DRP media-clock servo.
 | `0x8F8` | `MCSRV_STAT` | Media-clock servo status | `0xXXXXXXXX` | [section](#mcsrv_stat-register-offset-0x8f8-reset--0xxxxxxxxx) |
 | `0x8FC` | `MCSRV_CTRL` | Media-clock servo control | `0x00000000` | [section](#mcsrv_ctrl-register-offset-0x8fc-reset--0x00000000) |
 
+The servo engages when the stored source is CRF. An AAF source also engages it.
+
+At INTERNAL it stays idle and moves nothing.
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo).
 
 ### MCSRV_STAT register (offset 0x8F8) [reset = 0xXXXXXXXX]
@@ -3651,7 +3918,18 @@ RTL name: `A_MCSRV_STAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `MCSRV_STAT` | R | X | Reads input `i_mcsrv_stat`. |
+| 31:16 | `TRIM` | R | X | Signed applied frequency trim, in 1/16 ppm. |
+| 15:10 | `DISCARDED` | R | X | Discarded rate windows, saturating at 63. |
+| 9 | `PHASE_SETTLED` | R | X | Phase settled (#632): inside 5 % of a sample period for four full windows (IEEE 1722-2016 10.8). |
+| 8 | `DRP_TIMEOUT` | R | X | DRP relock-timeout fault. |
+| 7 | `PS_FAULT` | R | X | PSDONE-watchdog fault, sticky. |
+| 6 | `PS_BUSY` | R | X | Fine-PS actuator busy. |
+| 5 | `MMCM_LOCKED` | R | X | MMCM LOCKED, synchronised. |
+| 4 | `DRP_MISMATCH` | R | X | DRP config mismatch; repaired only when `MCSRV_CTRL[1]` is set. |
+| 3 | `DRP_VERIFIED` | R | X | DRP config verified. |
+| 2:0 | `STATE` | R | X | 0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT. |
+
+At INTERNAL it reads IDLE with trim 0. The servo then moves nothing.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#mcsrv_stat-offset-0x8f8).
 
@@ -3666,8 +3944,8 @@ RTL name: `A_MCSRV_CTRL`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:2 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 1 | `MCSRV_AUTO_REPAIR` | R/W | 0 | Drives `o_mcsrv_auto_repair`. |
-| 0 | `MCSRV_PS_INVERT` | R/W | 0 | Drives `o_mcsrv_ps_invert`. |
+| 1 | `MCSRV_AUTO_REPAIR` | R/W | 0 | 1 allows the DRP divider repair path. 0, the reset, is verify-only. |
+| 0 | `MCSRV_PS_INVERT` | R/W | 0 | Flips the servo's fine-PS direction: a bench sign knob. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#mcsrv_ctrl-offset-0x8fc).
 
@@ -3684,29 +3962,25 @@ Channel-map debug write port and map RAM readback.
 | `0x910` | `CHMAP_SNAP` | Channel map snapshot | `0xC5000300` | [section](#chmap_snap-register-offset-0x910-reset--0xc5000300) |
 | `0x914` | `CHMAP_LOOP` | Channel map readback | `0xDEADDEAD` | [section](#chmap_loop-register-offset-0x914-reset--0xdeaddead) |
 
+`CHMAP_CTRL[0]` at 0 selects the fixed paths. 1 selects the programmable crossbars.
+
+`CHMAP_WORD` reads back the last committed word, not the map RAM.
+
+The render side writes by cluster key. It reads by physical key.
+
+A cluster key with no projection changes no render word.
+
 | Offset | Name | Acc | Reset | Description |
 |---|---|---|---|---|
 | `0x918`-`0x91C` | - | - | `0` | reserved to this feature (read 0, never shadow-aliased). **`0x920`-`0x93C` are the protocol-processor window**, see the next section |
 
 ### `0x904` - the render side writes by CLUSTER key and reads by PHYSICAL key
 
-Two behaviours that follow, and are preserved rather than changed:
-
 | Cluster key | Render RAM | AECP protocol store |
 |---|---|---|
 | in range, PROJECTED | written at the projected physical key | mirrored |
 | in range, NONPHYSICAL (a declared cluster whose `ADP_DMAP_IN_RPHYS_C` entry is invalid) | UNCHANGED | mirrored, and listed by `GET_AUDIO_MAP` for the port that owns the cluster |
 | OUT OF RANGE (past the model's declared cluster keys) | UNCHANGED | not written; nothing appears in any port's page |
-
-### `0x910`/`0x914` - reading the map RAM, and why the un-armed state is not zero
-
-**Sequence** (the `0x800` window's discipline, deliberately):
-
-**Hardware acceptance (desk-verified only; no bitstream built for this):**
-
-Read `CHMAP_SNAP` at offset `0x910`; expect the `0xC5` tag.
-
-Confirm capability bits `[9:8]` match the generated shape.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x900-----channel-map-fabric--section-6-of-docschannel_map_64md-kl_chan_map_render--kl_chan_map_capture).
 
@@ -3749,7 +4023,7 @@ RTL name: `A_CHMAP_WORD`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:16 | `RESERVED` | R | 0 | Reserved. A write takes effect only when `CHMAP_CTRL[0]` is 1 and `AECP_STAT0[16]` is 0. |
-| 15:0 | `CHMAP_WR_DATA` | R/W | 0 | Drives `o_chmap_wr_data`. A write takes effect only when `CHMAP_CTRL[0]` is 1 and `AECP_STAT0[16]` is 0. When `CHMAP_CTRL[0]` is 1 and `AECP_STAT0[16]` is 0, a write also sets `chmap_wr_p` and counts in `chmap_commits`. When `CHMAP_CTRL[0]` is 0 or `AECP_STAT0[16]` is 1, a write also counts in `chmap_refused`. |
+| 15:0 | `CHMAP_WR_DATA` | R/W | 0 | The map word `{EN[15], SRC[14:12], rsvd[11:9], HALF[8], IDX_HI[7:4], IDX_LO[3:0]}`. A read returns the last committed word, not the map RAM. A write takes effect only when `CHMAP_CTRL[0]` is 1 and `AECP_STAT0[16]` is 0. When `CHMAP_CTRL[0]` is 1 and `AECP_STAT0[16]` is 0, a write also sets `chmap_wr_p` and counts in `chmap_commits`. When `CHMAP_CTRL[0]` is 0 or `AECP_STAT0[16]` is 1, a write also counts in `chmap_refused`. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#chmap_word-offset-0x908).
 
@@ -3777,18 +4051,18 @@ RTL name: `A_CHMAP_SNAP`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:24 | `CHMAP_SNAP_TAG` | R | C5h | Constant. |
+| 31:24 | `CHMAP_SNAP_TAG` | R | C5h | Constant `0xC5`. Zero means the gateware predates this word. |
 | 23 | `RESERVED` | R | 0 | Reserved. |
-| 22 | `CMRD_SIDE` | R | 0 | Held in `cmrd_side_r`. |
-| 21:16 | `CMRD_ADDR` | R | 0 | Held in `cmrd_addr_r`. |
+| 22 | `CMRD_SIDE` | R | 0 | Side latched at the last arm. |
+| 21:16 | `CMRD_ADDR` | R | 0 | Index latched at the last arm. |
 | 15:10 | `RESERVED` | R | 0 | Reserved. |
-| 9:8 | `CHMAP_RDBK` | R | 3h | Constant. |
+| 9:8 | `CHMAP_RDBK` | R | 3h | Capability: `[8]` render port wired, `[9]` capture port wired with the loop mask. |
 | 7:5 | `RESERVED` | R | 0 | Reserved. |
-| 4 | `CMRD_ARMED` | R | 0 | Held in `cmrd_armed_r`. |
-| 3 | `CMRD_UNSUP` | R | 0 | Held in `cmrd_unsup_r`. |
-| 2 | `CMRD_TO` | R | 0 | Held in `cmrd_to_r`. |
-| 1 | `CMRD_VALID` | R | 0 | Held in `cmrd_valid_r`. |
-| 0 | `CMRD_BUSY` | R/W1S | 0 | Held in `cmrd_busy_r`. Writing 1 fires `CMRD_GO` for one cycle. A read returns this bit's status. |
+| 4 | `CMRD_ARMED` | R | 0 | A snapshot has been armed since reset. |
+| 3 | `CMRD_UNSUP` | R | 0 | Unsupported: the last arm was refused because this side has no readback port. |
+| 2 | `CMRD_TO` | R | 0 | Timeout: the last snapshot ended without the fabric answering. |
+| 1 | `CMRD_VALID` | R | 0 | Valid: the last snapshot carries fabric data. |
+| 0 | `CMRD_BUSY` | R/W1S | 0 | Writing 1 arms a readback of the entry `CHMAP_SEL` names; ignored while busy. Read: busy. Writing 1 fires `CMRD_GO` for one cycle. A read returns this bit's status. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#chmap_snap-offset-0x910).
 
@@ -3803,18 +4077,20 @@ RTL name: `A_CHMAP_LOOP`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:28 | `RESERVED` | R | Dh | Reserved. |
-| 27 | `MASK_VALID` | R | 1h | Held in `cmrd_side_r`. |
-| 26 | `VALID` | R | 1h | Constant. |
-| 25:20 | `CMRD_ADDR` | R | 2Ah | Held in `cmrd_addr_r`. |
-| 19 | `SIDE` | R | 1h | Held in `cmrd_side_r`. |
-| 18 | `LOOP_SUSPECT` | R | 1h | Reads `cmrd_data_r[13] & ~cmrd_data_r[14]`. |
-| 17:16 | `LOOP_FLAGS` | R | 1h | Held in `cmrd_data_r`. |
-| 15:0 | `RAW` | R | DEADh | Held in `cmrd_data_r`. |
+| 27 | `MASK_VALID` | R | 1h | `[18:16]` are a measurement: capture side only. |
+| 26 | `VALID` | R | 1h | This word is a measurement. |
+| 25:20 | `CMRD_ADDR` | R | 2Ah | Index of the measured entry. |
+| 19 | `SIDE` | R | 1h | Side of the measured entry. |
+| 18 | `LOOP_SUSPECT` | R | 1h | `mapped` and not `fed`: a slot the map advertises that no audio has reached. Reads `cmrd_data_r[13] & ~cmrd_data_r[14]`. |
+| 17:16 | `LOOP_FLAGS` | R | 1h | `[17]` fed, `[16]` mapped. |
+| 15:0 | `RAW` | R | DEADh | Raw fabric readback word. The entry packing differs from the `CHMAP_WORD` you write. |
 
 | When | A read returns |
 |---|---|
 | a channel-map readback has completed | the fields above |
 | no channel-map readback has completed | `0xDEADDEAD` |
+
+`0xDEADDEAD` means no measurement stands behind this word.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#chmap_loop-offset-0x914).
 
@@ -3832,6 +4108,16 @@ Protocol-processor control plane and the saved-state window.
 | `0x934` | `PP_NVM_SEL` | Saved-state window select | `0x00000000` | [section](#pp_nvm_sel-register-offset-0x934-reset--0x00000000) |
 | `0x938` | `PP_NVM_DATA` | Saved-state window data | `0xXXXXXXXX` | [section](#pp_nvm_data-register-offset-0x938-reset--0xxxxxxxxx) |
 | `0x93C` | `PP_NVM_STAT` | Saved-state status and strobes | `0xXXXXXXXX` | [section](#pp_nvm_stat-register-offset-0x93c-reset--0xxxxxxxxx) |
+
+This window is always decoded. The processor is the control plane.
+
+Read `PP_STAT[31:24]` first: 0 means the gateware predates this group.
+
+`restore_done` means the walk ended, not that state came back.
+
+A device with no record reads `nvm_blank`. Read the verdict bits with it.
+
+`PP_NVM_*` is a control tuple, never a data window.
 
 | `nvm_backed` `[6]` | `nvm_blank` `[7]` | `restore_fail` `[3]` | Meaning |
 |---|---|---|---|
@@ -3866,25 +4152,25 @@ RTL name: `A_PP_STAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:24 | `PP_PRESENT_TAG` | R | 5Bh | Constant. |
+| 31:24 | `PP_PRESENT_TAG` | R | 5Bh | Constant `0x5B`. A read of 0 means the gateware predates this group. |
 | 23 | `RESERVED` | R | 0 | Reserved. |
-| 22:21 | `PP_RESTORE_CAUSE` | R | X | Reads input `i_pp_restore_cause`. |
-| 20:18 | `PP_RS_CAUSE` | R | X | Reads input `i_pp_rs_cause`. |
-| 17 | `PP_RESTORE_RB` | R | X | Reads input `i_pp_restore_rb`. |
-| 16 | `PP_RESTORE_CLOSED` | R | X | Reads input `i_pp_restore_closed`. |
-| 15:12 | `PP_NVM_VERDICT` | R | X | Reads input `i_pp_nvm_verdict`. |
-| 11 | `PP_NVM_PEND` | R | X | Reads input `i_pp_nvm_pend`. |
-| 10 | `PP_NVM_IMG_VALID` | R | X | Reads input `i_pp_nvm_img_valid`. |
-| 9 | `PP_NVM_STALE` | R | X | Reads input `i_pp_nvm_stale`. |
-| 8 | `PP_NVM_DIRTY` | R | X | Reads input `i_pp_nvm_dirty`. |
-| 7 | `PP_NVM_BLANK` | R | X | Reads input `i_pp_nvm_blank`. |
-| 6 | `PP_NVM_BACKED` | R | X | Reads input `i_pp_nvm_backed`. |
-| 5 | `PP_ERR` | R | 0 | Held in `pp_err_r`. |
-| 4 | `PP_NVM_ALARM` | R | X | Reads input `i_pp_nvm_alarm`. |
-| 3 | `PP_RESTORE_FAIL` | R | X | Reads input `i_pp_restore_fail`. |
-| 2 | `PP_RESTORE_DONE` | R | X | Reads input `i_pp_restore_done`. |
-| 1 | `PP_RESTORE_BUSY` | R | X | Reads input `i_pp_restore_busy`. |
-| 0 | `PP_BUSY` | R | 0 | Held in `pp_busy_r`. |
+| 22:21 | `PP_RESTORE_CAUSE` | R | X | The binding walk's cause: 1 torn, 2 device error, 3 deadline. |
+| 20:18 | `PP_RS_CAUSE` | R | X | The D3 walk's first abort cause, valid with `[3]`: 1 torn, 2 device error, 3 deadline, 5 passes disagree, 6 descriptor fault, 7 image not proven. |
+| 17 | `PP_RESTORE_RB` | R | X | A pass-1 abort rolled the stores back to DEFAULTS. |
+| 16 | `PP_RESTORE_CLOSED` | R | X | The D3 walk ended CLOSED: fail, never done, AECP held until reset. |
+| 15:12 | `PP_NVM_VERDICT` | R | X | Verdict code of the last image offered. |
+| 11 | `PP_NVM_PEND` | R | X | Accepted work no verified slot holds and `nvm_dirty` does not report. A durable reading needs it at 0. |
+| 10 | `PP_NVM_IMG_VALID` | R | X | Firmware validated the image in the window. |
+| 9 | `PP_NVM_STALE` | R | X | `nvm_backed` was true since reset and is now false, and the loss is not made good. |
+| 8 | `PP_NVM_DIRTY` | R | X | The image holds committed changes no flash slot yet holds. |
+| 7 | `PP_NVM_BLANK` | R | X | The completed restore validated zero records and none failed. |
+| 6 | `PP_NVM_BACKED` | R | X | Live evidence: a writer answered within `T-NVM-WRITER-ALIVE` and no unrevoked failure is outstanding. |
+| 5 | `PP_ERR` | R | 0 | The last side-port access returned an error. |
+| 4 | `PP_NVM_ALARM` | R | X | A record producer exhausted its three write attempts. Reset-sticky. |
+| 3 | `PP_RESTORE_FAIL` | R | X | A walk failed or ran blind, or the map restore rolled back to its reset set. |
+| 2 | `PP_RESTORE_DONE` | R | X | Both boot walks sequenced to COMPLETE or DEFAULTS and the map restore ended. Not the same as succeeded. |
+| 1 | `PP_RESTORE_BUSY` | R | X | A walk or the map restore is running. |
+| 0 | `PP_BUSY` | R | 0 | A side-port access is outstanding. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#pp_stat-offset-0x924).
 
@@ -3899,7 +4185,7 @@ RTL name: `A_PP_SPADDR`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:20 | `RESERVED` | R | 0 | Reserved. |
-| 19:0 | `PP_SPADDR` | R/W | 0 | Held in `pp_spaddr_r`. When `PP_STAT[0]` is 0, a write also sets `pp_busy_r`, `pp_req_r` and clears `pp_err_r`, `pp_we_r`. |
+| 19:0 | `PP_SPADDR` | R/W | 0 | Side-port word address. A read returns the armed address. When `PP_STAT[0]` is 0, a write also sets `pp_busy_r`, `pp_req_r` and clears `pp_err_r`, `pp_we_r`. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#pp_spaddr-offset-0x928).
 
@@ -3925,9 +4211,9 @@ RTL name: `A_PP_DIAG`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:16 | `PP_TX_FRAMES` | R | X | Reads input `i_pp_tx_frames`. |
-| 15:8 | `PP_RX_DROPS` | R | X | Reads input `i_pp_rx_drops`. |
-| 7:0 | `PP_RX_FRAMES` | R | X | Reads input `i_pp_rx_frames`. Bits [7:0] of the RTL value. |
+| 31:16 | `PP_TX_FRAMES` | R | X | Control frames transmitted. |
+| 15:8 | `PP_RX_DROPS` | R | X | Control frames lost to a full ingress FIFO. |
+| 7:0 | `PP_RX_FRAMES` | R | X | Control frames received. Bits [7:0] of the RTL value. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#pp_diag-offset-0x930).
 
@@ -3942,7 +4228,7 @@ RTL name: `A_PP_NVM_SEL`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:6 | `RESERVED` | R | 0 | Reserved. |
-| 5:0 | `PP_NVM_SEL` | R/W | 0 | Held in `pp_nvm_sel_r`. |
+| 5:0 | `PP_NVM_SEL` | R/W | 0 | The backing store's word index the next `PP_NVM_DATA` access names. 0 image base, 1 image length, 2 image sequence, 3 status and verdict, 4 strobes, 5 capture identity, 8 to 15 record ownership, `0x20` and `0x30` plus port the map tables. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#pp_nvm_sel-offset-0x934).
 
@@ -3968,7 +4254,27 @@ RTL name: `A_PP_NVM_STAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PP_NVM_CSR_RDATA` | R/W | X | Reads input `i_pp_nvm_csr_rdata`. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. A write also sets `pp_nvm_we_r` and loads `pp_nvm_waddr_r`. |
+| 31:24 | `TAG` | R/W | X | Contract tag `0xC3`: read it first. 0 means the gateware predates the contract, and a writer must disable itself. A write here is the strobe word: `[0]` heartbeat, `[1]` commit acknowledged, `[2]` commit started, `[3]` ARM, `[4]` ATTEST, `[5]` RELEASE, `[6]` RELOAD. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. A write also sets `pp_nvm_we_r` and loads `pp_nvm_waddr_r`. |
+| 23 | `UNRES` | R/W | X | At least one record is open. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 22 | `NVM_PEND` | R/W | X | The same wire as `PP_STAT[11]`. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 21 | `ARM_REFUSED` | R/W | X | The last ARM was not accepted. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 20 | `ACK_REFUSED` | R/W | X | Ack refused. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 19 | `ATTESTED` | R/W | X | Attested. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 18 | `VALID` | R/W | X | No mutating grant since the arm. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 17 | `HOLD` | R/W | X | Mutating requests are being deferred. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 16 | `OPEN` | R/W | X | A capture is open. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 15:12 | `VERDICT` | R/W | X | Verdict of the last slot judged, or the writer's transaction verdict. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 11 | `RELOAD_REFUSED` | R/W | X | The last RELOAD strobe was refused. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 10 | `COMMIT_BUSY` | R/W | X | A commit is inside its `T-NVM-COMMIT-TIMEOUT` bracket. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 9 | `NVM_STALE` | R/W | X | See `PP_STAT[9]`. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 8 | `NVM_DIRTY` | R/W | X | Committable image work. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 7 | `IMG_VALID` | R/W | X | See `PP_STAT[10]`. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 6 | `NVM_BACKED` | R/W | X | See `PP_STAT[6]`. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 5 | `IMG_CFG` | R/W | X | An image length is set. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 4 | `DEV_BUSY` | R/W | X | A record operation is in flight on the device face. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 3 | `LOAD_PENDING` | R/W | X | A boot window load may still be accepted. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 2 | `LOAD_ACCEPTED` | R/W | X | A RELOAD has been accepted since reset. While 0 the backend arms no capture. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 1:0 | `RESERVED` | R/W | X | Reserved; stored and read back, drives nothing. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#pp_nvm_stat-offset-0x93c).
 
@@ -4006,9 +4312,11 @@ LiteX assigns these banks; each spans one CSR page.
 | `0xF000F80C` | `ppmem_resp_fault` | 1 | RO | same two fields as `desc_fault`, for the response bridge |
 | `0xF000F810` | `ppmem_stat` | 1 | RO | live state, not counts: `[0]` descriptor bridge **poisoned** (a timed-out access is still owed an answer; the next answer it collects is discarded), `[1]` descriptor bridge is driving `cyc`/`stb` **right now**, `[2]` response bridge poisoned, `[3]` response bridge driving `cyc`/`stb`, `[4]` the **LiteDRAM DFI hand-off has been seen** (see below), `[31:24]` constant presence tag `0x5B` -- the same tag as `PP_STAT`, and the register to read first: `0` here means the gateware predates this bank, which is otherwise indistinguishable from four zeroed counters |
 
-### Protocol-processor memory bridges (LiteX CSR bank, `0xf000f800`)
+The bridge bank sits on the CSR window's last page.
 
-**The verdict table.** Read `desc_req` and `desc_fault` (or the `resp_` pair) and compare:
+Its counters saturate at `0xFFFF`. Read that as at least 65,535.
+
+### Protocol-processor memory bridges (LiteX CSR bank, `0xf000f800`)
 
 | ISSUED | ACKED + ERRORED + TIMED OUT | verdict |
 |---|---|---|

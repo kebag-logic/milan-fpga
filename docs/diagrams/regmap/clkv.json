@@ -45,24 +45,54 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 8,
-            "name": "CLKV_STAT",
+            "bits": 1,
+            "name": "TU",
             "attr": "R-X"
           },
           {
-            "bits": 8,
-            "name": "CLKV_STAT",
+            "bits": 1,
+            "name": "SYNC_OK",
             "attr": "R-X"
           },
           {
-            "bits": 8,
-            "name": "CLKV_STAT",
+            "bits": 1,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "HOLDOVER",
             "attr": "R-X"
           },
           {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
             "bits": 8,
-            "name": "CLKV_STAT",
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "AS_CAPABLE",
             "attr": "R-X"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
           }
         ],
         "config": {
@@ -116,22 +146,22 @@
         "reg": [
           {
             "bits": 8,
-            "name": "TXARB_DIAG",
+            "name": "LOCKED_NOW",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "TXARB_DIAG",
+            "name": "ABORT_STICKY",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "TXARB_DIAG",
+            "name": "STALL_STICKY",
             "attr": "R-X"
           },
           {
             "bits": 8,
-            "name": "TXARB_DIAG",
+            "name": "TAG",
             "attr": "R-X"
           }
         ],
@@ -151,23 +181,35 @@
         "reg": [
           {
             "bits": 8,
-            "name": "LWSRP_DOM",
+            "name": "VID",
             "attr": "R-X"
           },
           {
-            "bits": 8,
-            "name": "LWSRP_DOM",
+            "bits": 4,
+            "name": "VID",
             "attr": "R-X"
           },
           {
-            "bits": 8,
-            "name": "LWSRP_DOM",
-            "attr": "R-X"
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
           },
           {
             "bits": 8,
-            "name": "LWSRP_DOM",
+            "name": "PRIORITY",
             "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ADOPTED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
           }
         ],
         "config": {

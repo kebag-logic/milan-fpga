@@ -442,7 +442,7 @@ def reading(model: Model) -> list[str]:
     out = ["## Reading this page", ""]
     for para in page.get("intro", []):
         out += [para, ""]
-    out += notes_block(page.get("notes", []), "###")
+    out += notes_block(page.get("notes", []), "###", model.soc)
     return out + record_link(page, "Design record")
 
 
@@ -453,19 +453,24 @@ def record_link(entry: dict, label: str) -> list[str]:
     return [f"{label}: [design notes]({relative(RECORD)}#{entry['record']}).", ""]
 
 
-def notes_block(notes: list, level: str) -> list[str]:
+def notes_block(notes: list, level: str, soc: dict | None = None) -> list[str]:
     """Notes in their written order, as prose the concise-prose gate reads. A
     statement is a paragraph, a [topic, text] pair a paragraph led by its
     topic, a carried table a table, a headed group its own heading one level
-    down, and a code block is ["Code", text]."""
+    down, and a code block is ["Code", text]. A {"when", "text"} note states
+    what a build parameter of the export makes true, only while it does."""
     out: list[str] = []
     for item in notes:
         if isinstance(item, dict):
-            if "heading" in item:
+            if "when" in item:
+                params = (soc or {}).get("datapath_parameters", {})
+                if all(params.get(name) == value for name, value in item["when"].items()):
+                    out += [page_links(item["text"]), ""]
+            elif "heading" in item:
                 out += [f"{level} {page_links(item['heading'])}", ""]
                 for para in item.get("intro", []):
                     out += [page_links(para), ""]
-                out += notes_block(item.get("rows", []), level + "#" if len(level) < 4 else level)
+                out += notes_block(item.get("rows", []), level + "#" if len(level) < 4 else level, soc)
             elif "table" in item:
                 out += table(item["table"][0], item["table"][1:])
         elif isinstance(item, list) and item and item[0] == "Code":
@@ -574,7 +579,7 @@ def module_section(model: Model, module: Module, seen: dict[str, int]) -> list[s
                      f"[section](#{link})"])
     out += table(["Offset", "Acronym", "Register name", "Reset", "Section"], rows)
     out += cbs_table(model, module)
-    out += notes_block(module.notes, "###")
+    out += notes_block(module.notes, "###", model.soc)
     out += record_link({"record": module.record} if module.record else {}, "Rationale and history")
     for reg, head in zip(module.registers, heads):
         anchor(head, seen)
@@ -618,7 +623,7 @@ def register_section(model: Model, module: Module, reg: Register, head: str) -> 
         out += table(["n", "Offset", "Reset"],
                      [[str(n), f"`0x{reg.offset + n * reg.stride:03X}`", f"`0x{v:08X}`"]
                       for n, v in enumerate(reg.array_resets)])
-    out += notes_block(regd.get("notes", []), "####")
+    out += notes_block(regd.get("notes", []), "####", model.soc)
     out += record_link(regd, "Rationale and history")
     return out
 
@@ -665,7 +670,7 @@ def soc_banks(model: Model) -> list[str]:
             for r in sorted(soc["csr_registers"], key=lambda r: r["address"]) if r["name"] in owned]
     out += ["### Milan registers in the LiteX banks", ""]
     out += table(["Address", "Register", "Words", "Mode", "Description"], rows)
-    out += notes_block(desc.get("soc_notes", []), "###")
+    out += notes_block(desc.get("soc_notes", []), "###", soc)
     out += record_link({"record": desc["soc_record"]} if "soc_record" in desc else {}, "Rationale and history")
     return out
 
