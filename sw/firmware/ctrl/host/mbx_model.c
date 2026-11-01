@@ -755,6 +755,20 @@ static uint32_t pub_mask(uint32_t rel)
 			return 0;
 		}
 	}
+	if (rel >= MBX_PUB_SRC_BASE) {
+		uint32_t in = (rel - MBX_PUB_SRC_BASE) % MBX_PUB_SRC_STRIDE;
+		if ((rel - MBX_PUB_SRC_BASE) / MBX_PUB_SRC_STRIDE >= MBX_N_PUB_SOURCES) {
+			return 0;
+		}
+		switch (in) {
+		case MBX_PUB_SRC_REG_SRC_SID_LO:
+			return ones(MBX_SRC_SID_LO_SID_LSB, MBX_SRC_SID_LO_SID_WIDTH);
+		case MBX_PUB_SRC_REG_SRC_SID_HI:
+			return ones(MBX_SRC_SID_HI_SID_LSB, MBX_SRC_SID_HI_SID_WIDTH);
+		default:
+			return 0;
+		}
+	}
 	switch (rel) {
 	case MBX_PUB_REG_DA_GATE:
 		return ones(MBX_DA_GATE_OPEN_LSB, MBX_DA_GATE_OPEN_WIDTH);
@@ -789,6 +803,10 @@ void mbx_model_pub_view(const struct mbx_model *m, unsigned interface, struct mb
 	out->adopted = mbx_field(domain, MBX_SR_DOMAIN_ADOPTED_LSB, MBX_SR_DOMAIN_ADOPTED_WIDTH) != 0u;
 	out->talker_decl = mbx_field(w[MBX_PUB_REG_TALKER_DECL / 4u], MBX_TALKER_DECL_DECLARED_LSB,
 				     MBX_TALKER_DECL_DECLARED_WIDTH);
+	for (unsigned s = 0; s < MBX_N_PUB_SOURCES; ++s) {
+		const uint32_t *e = w + (MBX_PUB_SRC_BASE + MBX_PUB_SRC_STRIDE * s) / 4u;
+		out->src_sid[s] = ((uint64_t)e[MBX_PUB_SRC_REG_SRC_SID_HI / 4u] << 32) | e[MBX_PUB_SRC_REG_SRC_SID_LO / 4u];
+	}
 	for (unsigned k = 0; k < MBX_N_PUB_SINKS; ++k) {
 		const uint32_t *e = w + (MBX_PUB_SINK_BASE + MBX_PUB_SINK_STRIDE * k) / 4u;
 		uint32_t binding = e[MBX_PUB_SINK_REG_BINDING / 4u];

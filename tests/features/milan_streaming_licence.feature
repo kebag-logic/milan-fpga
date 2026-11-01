@@ -82,6 +82,10 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
     When I read the t>0 wire identity from KL_aaf_packetizer
     Then the t>0 identity is derived from the same roots the declaration uses
     And software may still name each identity field explicitly
+    # protocol processor #202: in the integration the processor owns every
+    # talker's stream_id and moves it after a MAAP conflict, so the framer
+    # stamps the processor's current ID and no TCTX uid can name another one
+    And the integrated framer stamps the processor's current stream_id over any TCTX uid
 
   @class:structure
   Scenario: the stream gate requires ACTIVE AND the per-source real grant, nothing else

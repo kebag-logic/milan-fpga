@@ -304,6 +304,18 @@ authoritative; the four decisions worth knowing here:
   for as long as it is enabled and Annex B has no partial-release message, so
   the release is a no-op acknowledgement the processor's tracker needs to
   clear its busy flag.
+- **A conflict moves the source's Stream ID, not only its DA.** Since
+  processor pin `f65c8ff7` (processor #202, #799) a conflict on a source
+  whose Stream ID has been declared withdraws its Talker attribute,
+  re-allocates at once and, at the grant, moves the source to a new Stream
+  ID with the same upper 48 bits, declared without a wait: IEEE 802.1Q-2018
+  35.2.2.8 asks for two LeaveAllTime periods only before the same StreamID
+  returns with another FirstValue, and Milan v1.2 Table 5.3 lets the PAAD use
+  another Stream ID. The processor publishes each source's current ID on
+  `src_stream_id_o`; `milan_datapath` stamps it on the AAF and CRF frames and
+  answers an output's GET_STREAM_INFO stream_id with it, so the wire and
+  every answer name one ID. `milan_dp`'s `sidmove` and `sidmove8` legs drive
+  a real conflict through this shim and grade that.
 
 **What depends on it:** `acmp_declaring_o` — the talker gate — is reachable
 ONLY through an ALLOC_DA success. With the face unconnected, or with the

@@ -668,6 +668,11 @@ module KL_pp_shadow #(
     output logic [N_STREAM_OUT_P-1:0]    aecp_fmt_out_v_o,
     output logic                       aecp_dyn_dirty_o,    //! a persisted field moved
     output logic                       aecp_lock_held_o,    //! LOCK_ENTITY ownership is live
+    //! the processor's REBOOT request (#203): a level, 0 from reset, held
+    //! until rst_n, rising once the SUCCESS response, the notifications
+    //! and any ENTITY_DEPARTING have left (IEEE 1722.1-2021 7.4.43).
+    //! milan_datapath resets the end station on it (#787)
+    output logic                       reboot_req_o,
 
     //! ---- class-D SRP status levels (02 §6, F02.10) — THE FABRIC FACE ----
     //! Every one of these is a straight pass-through of the identically named
@@ -710,6 +715,10 @@ module KL_pp_shadow #(
 
     //! ---- class-D ACMP / ADP status levels ----
     output logic [N_STREAM_OUT_P-1:0]    acmp_declaring_o,        //! per-source DA gate open (THE talker egress gate)
+    //! per-source CURRENT stream_id, flat [64*s +: 64]: cfg_stream_id_i
+    //! after reset, moved after a MAAP conflict (processor #202). The framers
+    //! stamp it and GET_STREAM_INFO answers an output's stream_id with it.
+    output logic [N_STREAM_OUT_P*64-1:0] src_stream_id_o,
     output logic [N_STREAM_IN_P-1:0]     acmp_bound_o,            //! per-sink binding installed, DEBOUNCED
     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_eid_o,        //! per-sink bound talker entity_id
     output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_sid_o,        //! per-sink bound stream_id
@@ -1247,6 +1256,7 @@ module KL_pp_shadow #(
       .aecp_nvm_stb_o      (aecp_nvm_stb_w),
       .aecp_nvm_mark_o     (aecp_nvm_mark_w),
       .aecp_lock_held_o    (aecp_lock_held_o),
+      .reboot_req_o        (reboot_req_o),
 
       .entity_id_i         (entity_id_i),
       .entity_model_id_i   (entity_model_id_i),
@@ -1444,6 +1454,7 @@ module KL_pp_shadow #(
       .srp_acc_latency_o       (srp_acc_latency_o),
       .srp_snk_fail_code_o     (srp_snk_fail_code_o),
       .acmp_declaring_o        (acmp_declaring_o),
+      .src_stream_id_o         (src_stream_id_o),
       .acmp_bound_o            (acmp_bound_o),
       .acmp_bound_eid_o        (acmp_bound_eid_o),
       .acmp_bound_sid_o        (acmp_bound_sid_o),

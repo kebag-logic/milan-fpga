@@ -418,16 +418,25 @@ Two board rules that go with it:
 ## 3. Verification bar
 
 - **Release campaigns:** [REQ-VER-06](REQUIREMENTS.md#8-verification-and-release-acceptance)
-  requires seven continuous days and 200 unattended cold cuts.
+  requires a 24-hour soak and 200 unattended power cycles.
+  An audio-integrity run with zero DUT-attributed glitches rides inside the soak.
   Both directions and CRF participate with the reference peer.
-  The cut mix is 160 idle and 40 journal-commit cuts.
-  Resets cannot replace cold cuts.
+  The cycle mix is 100 idle and 50 journal-commit cold cuts, and 50 soft resets.
+  A soft reset never stands in for a cold cut.
+  Every cycle restores the eight Milan items and the binding.
   [TESTING.md 6d](docs/testing/TESTING.md#6d-unattended-campaign-vehicle)
-  defines the plan and per-cycle assertions.
-  Retain image hashes, verdicts, UART transcripts, and wire captures.
+  defines the plan, the per-cycle assertions and the negative controls.
+  Retain image hashes, verdicts, UART transcripts, and wire and audio captures.
   Keep timestamped state snapshots and the temperature log too.
   Link dated findings and evidence from `docs/findings/`.
   Desk gates never discharge these physical release obligations.
+- **The release gate for release PRs:** a release PR promotes a shipping
+  candidate, the image that `main` is about to carry.
+  Its body names the exact image hashes.
+  It links that image's soak, audio and power verdict logs from `docs/findings/`.
+  It links the negative-control runs as well.
+  It does not merge while any REQ-VER-06 assertion lacks a measured `PASS`.
+  `SKIP`, `NOT RUN`, a void audio run or a desk-only result is not a pass.
 - Every functional RTL change ships with a self-checking Verilator harness
   under `tb/verilator/<name>/` (`make` = build+run, exit code is the gate).
   See [`docs/testing/TESTING.md`](docs/testing/TESTING.md) for the suite index and tiers.

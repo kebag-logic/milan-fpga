@@ -1289,7 +1289,9 @@ module KL_mmcm_drp_servo #(
   // ------------------------------------------------------------------ //
   //  Batch handshake into the PS runner                                 //
   // ------------------------------------------------------------------ //
-  logic [1:0] psrst_sync_r;              //! ps_clk-domain reset sync
+  //! ps_clk-domain reset sync. ASYNC_REG keeps both stages together; the
+  //! build cuts rst_n's arrival at stage 0 as asynchronous (#817).
+  (* ASYNC_REG = "TRUE" *) logic [1:0] psrst_sync_r;
   wire        psrst_n_w = psrst_sync_r[1];
   always_ff @(posedge ps_clk_i) begin : ps_rst_sync
     psrst_sync_r <= {psrst_sync_r[0], rst_n};

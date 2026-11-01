@@ -26,6 +26,7 @@ import tempfile
 
 import pp_resource_gate as gate
 from pp_placement_selftest import hierarchy_fixture
+import pp_resource_gate_set_selftest as sets
 
 
 FIGURES = {"LUT": 1000, "FF": 2000, "SLICE": 400, "BRAM_TILE": 4.5, "RAMB36": 4, "RAMB18": 1, "DSP": 2}
@@ -74,11 +75,7 @@ def write_reports(folder: Path, kind: str) -> None:
                    if kind == "route" or name != "SLICE")
     (folder / "baseline_utilization.rpt").write_text(
         report_header(design, "Physopt postRoute" if kind == "route" else "Synthesized") + rows + REPEATED)
-    (folder / "baseline_timing.rpt").write_text(
-        report_header(design, "Synthesized") + "| Design Timing Summary\n| ---\n\n"
-        "    WNS(ns)      TNS(ns)  TNS Failing Endpoints  TNS Total Endpoints      WHS(ns)      THS(ns)\n"
-        "    -------      -------  ---------------------  -------------------      -------      -------\n"
-        "      0.500        0.000                      0                   10        0.100        0.000\n")
+    (folder / "baseline_timing.rpt").write_text(report_header(design, "Synthesized") + sets.summary("0.500", "0.100"))
     prefix = ["alinx_ax7101", "milan_datapath", "pp_shadow"] if kind == "route" else ["KL_pp_shadow"]
     lines = hierarchy_fixture(kind, prefix)
     (folder / "baseline_hierarchy.rpt").write_text("\n".join(lines) + "\n")
@@ -88,6 +85,7 @@ def write_reports(folder: Path, kind: str) -> None:
         + "top_carry\tCARRY4\ntop_lut\tLUT6\n")
     if kind == "route":
         (folder / STATUS).write_text(COMPLETE)
+        sets.corner_reports(folder, report_header(design, "Physopt postRoute"))
 
 
 def fixture(root: Path, kind: str) -> Path:
@@ -107,11 +105,11 @@ def fixture(root: Path, kind: str) -> Path:
               f"read_verilog -v {{{repo}/hdl/milan/KL_pp_shadow.sv}}\nread_verilog {{{gateware}/alinx_ax7101.v}}\n")
     if kind == "route":
         script += ("read_xdc alinx_ax7101.xdc\nsynth_design -directive AreaOptimized_high -top alinx_ax7101 "
-                   f"-part xc7a100t-fgg484-2 -include_dirs {{{repo}/hdl/common}}\n"
+                   f"-part xc7a100t-fgg484-2 -include_dirs {{{repo}/hdl/common}}\n# Add pre-optimize commands\n"
                    f"source {{{repo}/sw/constraints.tcl}}\nopt_design -directive ExploreArea\n"
                    "kl_timing_grade_configure {xc7a100t-fgg484-2} {commercial} {0} {85} {Slow Fast}\n"
                    "place_design -directive ExtraPostPlacementOpt\nphys_opt_design -directive Explore\n"
-                   "route_design -directive AggressiveExplore\n")
+                   "route_design -directive AggressiveExplore\nkl_timing_grade_reports alinx_ax7101_signoff\n")
     else:
         (folder / "clock.xdc").write_text("create_clock -period 20.000 -name clk [get_ports clk_i]\n")
         script += ("read_xdc clock.xdc\nsynth_design -directive AreaOptimized_high -top KL_pp_shadow "
@@ -182,13 +180,6 @@ ROUTE_ARMS = (
     ("one more DSP", (SOURCE, row("DSP", 2, 3)), 1, "DSP"),
     ("BRAM tiles over the ceiling", (SOURCE, row("BRAM_TILE", 4.5, 5.5)), 1, "ceiling"),
     ("BRAM tiles at the ceiling", (SOURCE, row("BRAM_TILE", 4.5, 5)), 0, "RESULT: PASS"),
-    ("WNS below the floor", (SOURCE, (TIMING, "  0.500  ", " -0.010  ")), 1, "below the floor"),
-    ("WNS at the floor", (SOURCE, (TIMING, "  0.500  ", "  0.300  ")), 0, "RESULT: PASS", {"floor": {"WNS_ns": 0.3}}),
-    ("WNS fell more than the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.200  ")), 1, "fell by"),
-    ("WNS fell by exactly the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.250  ")), 0, "RESULT: PASS"),
-    ("WNS fell within the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.300  ")), 0, ("RESULT: PASS", "re-baseline")),
-    ("WHS below the floor", (SOURCE, (TIMING, "0.100", "-0.001")), 1, "WHS_ns"),
-    ("WHS at the floor", (SOURCE, (TIMING, "0.100", "0.000")), 0, "RESULT: PASS"),
     ("WNS not a number", (SOURCE, (TIMING, "  0.500  ", "  nan  ")), 2, "not a finite decimal"),
     ("WHS not a number", (SOURCE, (TIMING, "0.100", "nan")), 2, "not a finite decimal"),
     ("WNS and WHS infinite", (SOURCE, (TIMING, "  0.500  ", "  inf  "), (TIMING, "0.100", "inf")),
@@ -209,8 +200,6 @@ ROUTE_ARMS = (
     ("WNS without a fraction", (SOURCE, (TIMING, "  0.500  ", "  1  ")), 2, "not a finite decimal"),
     ("LUT improvement within the tolerance", (SOURCE, row("LUT", 1000, 990)), 0, ("below the baseline", "re-baseline")),
     ("LUT improvement beyond the tolerance", (SOURCE, row("LUT", 1000, 950)), 0, "re-baseline recommended: LUT"),
-    ("WNS rise beyond the tolerance", (SOURCE, (TIMING, "  0.500  ", "  0.800  ")), 0,
-     "re-baseline recommended: WNS_ns"),
     ("route status complete", (SOURCE,), 0, "route status: complete"),
     ("nets with routing errors", (SOURCE, ERRORS), 1, "ROUTE INCOMPLETE: 3 nets with routing errors"),
     ("unrouted nets", (SOURCE, (STATUS, "       # of nets with routing errors",
@@ -251,14 +240,11 @@ ROUTE_ARMS = (
     ("synthesis directive changed", ((FLOW, "AreaOptimized_high", "Default"),), 2, "change in flow"),
     ("optimization directive changed", ((FLOW, "opt_design -directive ExploreArea", "opt_design -directive Default"),),
      2, "change in flow"),
-    ("timing grade changed", ((FLOW, "{85}", "{100}"),), 2, "change in flow"),
-    ("placement directive changed", ((FLOW, "ExtraPostPlacementOpt", "ExtraTimingOpt"),), 2, "change in flow"),
     ("physical optimization directive changed",
      ((FLOW, "phys_opt_design -directive Explore\n", "phys_opt_design -directive AggressiveFanoutOpt\n"),),
      2, "change in flow"),
     ("routing directive changed", ((FLOW, "AggressiveExplore", "NoTimingRelaxation"),), 2, "change in flow"),
     ("identical inputs, different figures", (row("LUT", 1000, 1001),), 2, "identical inputs"),
-    ("identical inputs, different WNS", ((TIMING, "  0.500  ", "  0.400  "),), 2, "identical inputs"),
     ("export date only", (row("LUT", 1000, 1001), ("alinx_ax7101.v", "morning", "evening")), 2, "identical inputs"),
     ("generated logic changed", (row("LUT", 1000, 1011), ("alinx_ax7101.v", "endmodule", "wire g; endmodule")),
      1, "LUT"),
@@ -488,8 +474,12 @@ MALFORMED = (
     ("a floor table that is a list", edit("route", "floor", value=[0]), "floor is not a table"),
 )
 #: Gate functions an exception is planted in, each reached by the command that follows it.
-PLANTED = (("load", "check"), ("census", "check"), ("routing", "check"), ("judge", "check"),
-           ("entry_problems", "check"), ("load", "check-baseline"), ("check_baseline", "check-baseline"))
+PLANTED = (("load", "check"), ("census", "check"), ("routing", "check"), ("judge", "check"), ("corners", "check"),
+           ("best", "check"), ("entry_problems", "check"), ("load", "check-baseline"),
+           ("check_baseline", "check-baseline"))
+#: The mark a single route needs: it is judged alone as the shipping selection (#818).
+MARKED = "--shipping-selection"
+MARK = {"route": (MARKED,), "ooc": ()}
 
 
 def fresh(root: Path, kind: str) -> Path:
@@ -517,8 +507,8 @@ def plant(folder: Path, name: str, old: str | None, new: str | bytes | None) -> 
 def expect(where: str, status: int, lines: list[str], wanted: int, needle: str | tuple[str, str]) -> None:
     """Require an exit status and a report holding one text and, when given, lacking another."""
     held, absent = (needle, None) if isinstance(needle, str) else needle
-    report = "\n".join(lines)
-    if status != wanted or held not in report or (absent is not None and absent in report):
+    report, helds = "\n".join(lines), (held,) if isinstance(held, str) else held
+    if status != wanted or any(text not in report for text in helds) or (absent is not None and absent in report):
         raise AssertionError(f"{where}: exit {status}, wanted {wanted} naming {held!r}"
                              + (f" and not {absent!r}" if absent else "") + "\n" + ascii(report))
 
@@ -533,8 +523,8 @@ def run_arm(root: Path, kind: str, arm: tuple, entry: dict) -> None:
     for name, old, new in plants:
         plant(folder, name.replace("{repo}", str(root / "arm/repo")), old, new)
     try:
-        candidate = gate.record(folder, gate.kind_of(folder))
-        status, lines = gate.judge(entry, candidate, gate.routing(folder, candidate["kind"]))
+        candidate, slacks = gate.measure(folder, gate.kind_of(folder))
+        status, lines = gate.judge(entry, candidate, gate.routing(folder, candidate["kind"]), None, slacks)
     except gate.Refusal as error:
         status, lines = 2, [str(error)]
     except Exception as error:  # an exception the gate lets escape fails the arm by name
@@ -561,7 +551,8 @@ def relocated_arm(root: Path, entry: dict) -> None:
             path.write_text(path.read_text().replace(str(root / "arm"), str(moved)))
     folder = moved / "gateware"
     plant(folder, *row("LUT", 1000, 1001))
-    status, lines = gate.judge(entry, gate.record(folder, "route"), gate.routing(folder, "route"))
+    candidate, slacks = gate.measure(folder, "route")
+    status, lines = gate.judge(entry, candidate, gate.routing(folder, "route"), None, slacks)
     expect("route arm 'export built at another root'", status, lines, 2, "identical inputs")
     print(f"resource gate route arm: export built at another root: exit {status} PASS")
 
@@ -638,7 +629,7 @@ def barrier_arms(tmp: Path, entries: dict) -> int:
         try:
             path = baseline_file(tmp, entries, None)
             if command == "check":
-                status, lines = cli("check", plant_source(tmp), "--endpoint", "route", "--baseline", path)
+                status, lines = cli("check", plant_source(tmp), "--endpoint", "route", MARKED, "--baseline", path)
             else:
                 status, lines = cli("check-baseline", "--baseline", path, "--budget", budget_file(tmp, None))
         finally:
@@ -648,12 +639,13 @@ def barrier_arms(tmp: Path, entries: dict) -> int:
         print(f"resource gate planted-exception arm: {name} through {command}: exit 2 PASS")
     link = tmp / "mesur\u00e9"
     link.symlink_to(plant_source(tmp))
-    status, lines = cli("check", link, "--endpoint", "route", "--baseline", baseline_file(tmp, entries, None))
+    status, lines = cli("check", link, "--endpoint", "route", MARKED, "--baseline", baseline_file(tmp, entries, None))
     expect("command-line arm 'a directory named in another script'", status, lines, 0, "/mesur\\xe9\n")
     print("resource gate command-line arm: a directory named in another script: exit 0 PASS")
     path = baseline_file(tmp, entries, None)
     before = path.read_bytes()
-    status, lines = cli("record", fresh(tmp / "route", "route"), "--endpoint", "copy[1]", "--baseline", path, "--write")
+    status, lines = cli("record", fresh(tmp / "route", "route"), "--endpoint", "copy[1]", MARKED, "--baseline", path,
+                        "--write")
     expect("command-line arm 'record --write of an endpoint name the baseline refuses'", status, lines, 2,
            "the key 'copy[1]' is not a name of 1 to 128 of A-Z a-z 0-9 _ . : / -, in /endpoints")
     if path.read_bytes() != before:
@@ -671,7 +663,8 @@ def command_line_arms(tmp: Path, entries: dict) -> int:
         folder = fresh(tmp / kind, kind)
         for name, old, new in plants:
             plant(folder, name.replace("{repo}", str(tmp / kind / "arm/repo")), old, new)
-        status, lines = cli("check", folder, "--endpoint", kind, "--baseline", baseline_file(tmp, entries, data))
+        status, lines = cli("check", folder, "--endpoint", kind, *MARK[kind],
+                            "--baseline", baseline_file(tmp, entries, data))
         expect(f"command-line arm {label!r}", status, lines, wanted, needle)
         print(f"resource gate command-line arm: {label}: exit {status} PASS")
     for label, data, page, wanted, needle in AUDIT_ARMS:
@@ -681,13 +674,14 @@ def command_line_arms(tmp: Path, entries: dict) -> int:
         print(f"resource gate check-baseline arm: {label}: exit {status} PASS")
     for label, data, needle in MALFORMED:
         path = baseline_file(tmp, entries, data)
-        status, lines = cli("check", plant_source(tmp), "--endpoint", "route", "--baseline", path)
+        status, lines = cli("check", plant_source(tmp), "--endpoint", "route", MARKED, "--baseline", path)
         expect(f"malformed-baseline arm {label!r} through check", status, lines, 2, needle)
         status, lines = cli("check-baseline", "--baseline", path, "--budget", budget_file(tmp, None))
         expect(f"malformed-baseline arm {label!r} through check-baseline", status, lines, 2, needle)
         print(f"resource gate malformed-baseline arm: {label}: exit 2 through check and check-baseline PASS")
     path = baseline_file(tmp, entries, None)
-    status, _ = cli("record", fresh(tmp / "route", "route"), "--endpoint", "copy", "--baseline", path, "--write")
+    status, _ = cli("record", fresh(tmp / "route", "route"), "--endpoint", "copy", MARKED, "--baseline", path,
+                    "--write")
     if status != 0 or json.loads(path.read_text())["endpoints"]["copy"]["record"] != entries["route"]["record"]:
         raise AssertionError(f"record --write exited {status} or wrote a different record")
     print("resource gate CARRY4 attribution and record --write PASS")
@@ -888,7 +882,7 @@ def tokens(name: str, text: str, kind: str) -> list[tuple[int, int, str]]:
                 found.append((start, start + len(part.strip()), "used" if len(cells) == 1 else "count"))
             position += len(part) + 1
         offset += len(line)
-    if name == "baseline_timing.rpt" and "| Design Timing Summary" in text:
+    if name.endswith("_timing.rpt") and "| Design Timing Summary" in text:
         block = text.index("| Design Timing Summary")
         lines = [match for match in re.finditer(r"[^\n]*\S[^\n]*", text[block:])]
         heads = next((index for index, match in enumerate(lines) if "WNS(ns)" in match[0]), len(lines))
@@ -906,7 +900,8 @@ def tokens(name: str, text: str, kind: str) -> list[tuple[int, int, str]]:
 def mutate_report(rng: random.Random, name: str, text: str, kind: str) -> tuple[str, dict, bool]:
     """One random change to a report: (operator, {file: bytes, or None to delete it}, whether a shape breaks)."""
     lines, found = text.splitlines(keepends=True), tokens(name, text, kind)
-    shaped = STRUCTURAL.get("route status" if name.endswith("_route_status.rpt") else name, ())
+    shaped = STRUCTURAL.get("route status" if name.endswith("_route_status.rpt") else
+                            "baseline_timing.rpt" if name.endswith("_timing.rpt") else name, ())
     operators = ("missing", "empty", "bytes", "truncate", "lines", "unicode") + ("token",) * 3 * bool(found) + shaped
     operator, broken, extra = rng.choice(operators), kind != "clock", {}
     if operator == "token":
@@ -977,7 +972,7 @@ def selftest() -> int:
     """Run every arm and 500 generated cases; return 0 only when each one produced its expected verdict."""
     count, entries = 0, {}
     with tempfile.TemporaryDirectory(prefix="pp-resource-gate-") as tmp:
-        for kind, arms in (("route", ROUTE_ARMS), ("ooc", OOC_ARMS)):
+        for kind, arms in (("route", ROUTE_ARMS + sets.timing_arms()), ("ooc", OOC_ARMS)):
             root = Path(tmp) / kind
             root.mkdir()
             entries[kind] = recorded(root, kind)
@@ -985,7 +980,7 @@ def selftest() -> int:
                 run_arm(root, kind, arm, entries[kind])
             count += len(arms)
         relocated_arm(Path(tmp) / "route", entries["route"])
-        count += 1 + command_line_arms(Path(tmp), entries)
+        count += 1 + command_line_arms(Path(tmp), entries) + sets.set_arms(Path(tmp), entries)
         status, lines = gate.judge(entries["route"], entries["ooc"]["record"], [])
         if status != 2 or "endpoint kind" not in lines[0]:
             raise AssertionError("a standalone record was compared with an integrated baseline")

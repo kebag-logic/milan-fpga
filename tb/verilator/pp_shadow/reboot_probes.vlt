@@ -1,0 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Kebag Logic
+// SPDX-License-Identifier: CERN-OHL-W-2.0
+// Read-only cycle probe for section [RB]: the processor's REBOOT request
+// where milan_datapath receives it (#787).
+`verilator_config
+public_flat_rd -module "milan_datapath" -var "pp_reboot_req_w"

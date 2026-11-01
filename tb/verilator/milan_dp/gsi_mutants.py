@@ -19,6 +19,16 @@ scripts/suite_tally.py), and the named check must be among the failures; a
 crash or an abort is not a catch. The positive control is the clean leg
 (obj_notify, which `make gsi-mutants` builds and runs first), re-run here.
 
+#790 adds three arms in the processor copy alone. Since processor #206 the
+processor clears STREAM_ID_VALID, STREAM_DEST_MAC_VALID and
+STREAM_VLAN_ID_VALID and zeroes stream_id and stream_dest_mac of an input
+that is not settled (Milan v1.2 5.4.2.10.1, Table 5.9), the fields this
+fabric folds from a binding view that keeps a stream's identity until
+unbind. Restoring the pass-through, whole or per selector, leaves the
+fabric's own bound-and-nonzero rule in charge, so the [GSI] G11 case of a
+sink back in PROBING_PASSIVE with its settled stream still in the binding
+view must fail by name.
+
 The submodule checkout is never edited: the processor half of a mutant is
 written into a copy of its hdl/ tree under a temporary directory, and the
 copy is what the recipe's derived source list points at.
@@ -80,6 +90,15 @@ PP_SEL5 = "        4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;"
 PP_SEL7 = "        4'd7: aecp_gsi_data_w = {32'd0, gsi_status_w, 24'd0};"
 PP_INTERNAL = "                           && ((gsi_sel_o == 4'd5) || (gsi_sel_o == 4'd7));"
 PP_SINK = "  assign gsi_sink_w = SINK_IDX_W_C'(gsi_desc_index_o);"
+#: #790 (processor #206): while an input is not settled the processor clears
+#: the three Table 5.9 flags in selector 0 and zeroes selector 2 and selector
+#: 4's stream_dest_mac; these are its gate and two of its arms, verbatim
+PP_SETTLED_GATE = "      if (!gsi_settled_w) begin"
+PP_UNSETTLED_FLAGS = "          4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;"
+PP_UNSETTLED_DMAC = "          4'd4: aecp_gsi_data_w[63:16] = 48'd0;"
+#: the G11 case a sink back in probing with its settled stream still in the
+#: binding view, where the fabric's own bound-and-nonzero rule says settled
+G11_STALE = "[GSI] G11 sink 0 back in PROBING_PASSIVE after TMR_NO_TK, the stale ID"
 #: where the parent's deleted selector-7 arm stood
 DP_SEL15 = ("          //! SET_STREAM_FORMAT's verdict on the proposed format (issue #67)\n"
             "          4'd15: gsi_ans_raw_w = sfv_verdict_w;")
@@ -175,6 +194,15 @@ MUTATIONS = [
      [("dp", DP_GSI_CRF_OUT, DP_GSI_CRF_OUT + DP_ALL_ROWS_ROUNDER),
       ("dp", DP_GSI_WORD, "                              : {32'd0, !gsi_out_w ? 32'd0 : mut_rb_ns_w};\n")],
      "[NOTIFY] SET_STREAM_INFO step 2: GET_STREAM_INFO reads the offset as set"),
+    ("the processor passes selectors 0, 2 and 4 through while unsettled (#790)",
+     [("pp", PP_SETTLED_GATE, "      if (1'b0) begin")],
+     G11_STALE + ": stream_id is zero"),
+    ("the processor passes selector 0's three flags through while unsettled (#790)",
+     [("pp", PP_UNSETTLED_FLAGS, "          4'd0: aecp_gsi_data_w = gsi_data_i;")],
+     G11_STALE + ": STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID clear"),
+    ("the processor passes selector 4's stream_dest_mac through while unsettled (#790)",
+     [("pp", PP_UNSETTLED_DMAC, "          4'd4: begin end")],
+     G11_STALE + ": stream_dest_mac is zero"),
 ]
 
 

@@ -608,9 +608,9 @@ def ptp_announce(**kw) -> bytes:
     `ptp_frame`'s. 802.1AS-2011 10.5.3.3 REQUIRES the path trace TLV;
     `path_trace=None` defaults to the one-hop [gm_identity]. Pass
     `path_trace=[]` for the TLV-less shape the fabric bench uses (the parser
-    accepts it). Unless a caller is deliberately building a parser-refusal
-    probe, a present trace must start with `gm_identity` and contain
-    `steps_removed + 1` identities.
+    accepts it). A present trace conventionally starts with `gm_identity` and
+    contains `steps_removed + 1` identities, but since FPGA-gPTP #88 neither
+    is a qualification rule (802.1AS-2011 10.3.10.2.1).
     """
     own, kw = _split_fields(PTP_ANNOUNCE_FIELDS, kw)
     kw.setdefault("flags", 0x0008)                 # ptpTimescale

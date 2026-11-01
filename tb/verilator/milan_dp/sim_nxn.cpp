@@ -1907,7 +1907,14 @@ class NxnDatapathHarness {
     //        (Milan 5.4.5.2), and its started/stopped change one
     //        GET_STREAM_INFO to each controller, the requester included
     //        (Table 5.22, 5.4.5.1; processor issue #192);
-    //    G10 a reset returns both sinks to DISABLED with nothing carried.
+    //    G10 a reset returns both sinks to DISABLED with nothing carried;
+    //    G11 #790: stream_id, stream_dest_mac, stream_vlan_id and their
+    //        three Table 5.9 flags only while settled (5.4.2.10.1): bound
+    //        and probing before the first answer, settled, back in
+    //        PROBING_PASSIVE after TMR_NO_TK with the settled stream still
+    //        in the binding view, and unbound, on sink 0 after G10. No
+    //        controller is registered after that reset, so G11 grades the
+    //        solicited answers.
     //  Each named change pushes once to both registered controllers; G8 has
     //  two changes and grades both pushes to each controller. Its first push
     //  already reads PASSIVE: the owners are read live, after teardown.
@@ -2506,6 +2513,105 @@ class NxnDatapathHarness {
         }
     }
 
+    // ---- G11: the stream fields only while settled (#790) -----------------
+    //! Milan v1.2 5.4.2.10.1, Table 5.9: an input's stream_id,
+    //! stream_dest_mac and stream_vlan_id, and STREAM_ID_VALID,
+    //! STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID, are valid if, and only
+    //! if, the input is settled: probing_status PROBING_COMPLETED (5.3.8.5,
+    //! Table 5.5). The binding view keeps a stream's identity from settle to
+    //! unbind, so the processor gates the fabric's words on its committed
+    //! status (processor #206).
+    //! the three flags, byte 42 of the big-endian flags dword (0x52000000)
+    static constexpr unsigned kGsiStreamFlags = 0x52u;
+    //! TMR_NO_TK, started at settle (Milan v1.2 5.5.3.5.18 step 4)
+    static constexpr long kGsiNoTkMs = 10000;
+    static uint64_t gsi_sid(const std::vector<uint8_t>& g) {     // @40, frame 54
+        return g.size() > 61 ? gsi_be(g, 54, 8) : ~0ull;
+    }
+    static uint64_t gsi_dmac(const std::vector<uint8_t>& g) {    // @52, frame 66
+        return g.size() > 71 ? gsi_be(g, 66, 6) : ~0ull;
+    }
+    static uint64_t gsi_vlan(const std::vector<uint8_t>& g) {    // @68, frame 82
+        return g.size() > 83 ? gsi_be(g, 82, 2) : ~0ull;
+    }
+    //! the low 64 bits of a public: QData on this leg's one-sink table, a
+    //! VlWide on the wider shapes that compile this file too
+    static uint64_t gsi_low64(uint64_t v) { return v; }
+    template <std::size_t W>
+    static uint64_t gsi_low64(const VlWide<W>& v) {
+        return (static_cast<uint64_t>(v[1]) << 32) | v[0];
+    }
+    //! the binding view's sink 0 stream_id, as the stream table reads it
+    uint64_t gsi_view_sid0() const {
+        return gsi_low64(dut->rootp->milan_datapath__DOT__strtbl_sid_w);
+    }
+
+    //! The three Table 5.9 flags and their fields: the talker's values while
+    //! settled, clear and zero otherwise.
+    void gsi_ck_stream(const char* tag, const std::vector<uint8_t>& g, bool settled, int s) {
+        char w[200];
+        snprintf(w, sizeof w, "%s: STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID %s",
+                 tag, settled ? "set" : "clear");
+        ck(w, g.size() > 42 ? (g[42] & kGsiStreamFlags) : ~0ul, settled ? kGsiStreamFlags : 0u);
+        snprintf(w, sizeof w, "%s: stream_id %s", tag, settled ? "is the talker's" : "is zero");
+        ck(w, gsi_sid(g), settled ? kGsiSink[s].sid : 0u);
+        snprintf(w, sizeof w, "%s: stream_dest_mac %s", tag, settled ? "is the talker's" : "is zero");
+        ck(w, gsi_dmac(g), settled ? kGsiSink[s].dmac : 0u);
+        snprintf(w, sizeof w, "%s: stream_vlan_id %s", tag, settled ? "is the talker's" : "is zero");
+        ck(w, gsi_vlan(g), settled ? 2u : 0u);
+    }
+
+    //! Four cases on sink 0, from the reset G10 leaves: bound and probing
+    //! before the first answer; settled; back in PROBING_PASSIVE after
+    //! TMR_NO_TK with the settled stream still in the binding view (no
+    //! Talker attribute is registered and the talker was never discovered,
+    //! 5.5.3.5.36); unbound. gsi_mutants.py plants the pass-through in the
+    //! processor copy, and the stale case must fail.
+    void gsi_g11_stream_fields_only_while_settled() {
+        constexpr const char* kProbing = "[GSI] G11 sink 0 bound and probing, before the first answer";
+        constexpr const char* kSettled = "[GSI] G11 sink 0 settled";
+        constexpr const char* kStale =
+            "[GSI] G11 sink 0 back in PROBING_PASSIVE after TMR_NO_TK, the stale ID";
+        constexpr const char* kUnbound = "[GSI] G11 sink 0 unbound after it settled";
+        const long probes0 = gsi_probes[0];
+        gsi_bind(0, 0);
+        gsi_ms(kGsiWinMs);
+        gsi_ck_acmp_ok(kProbing, 0x07, 0);
+        ck("[GSI] G11 sink 0 the bind sent its PROBE_TX", gsi_probes[0] - probes0, 1);
+        const std::vector<uint8_t> p = gsi_get(CTL_A, 0);
+        gsi_ck_state(kProbing, p, kPbActive, 0);
+        ck("[GSI] G11 sink 0 bound and probing: BOUND", gsi_flag(p, 42, 0x04), 1);
+        gsi_ck_stream(kProbing, p, false, 0);
+
+        gsi_answer_probe(0, 0);
+        const long t_settle = uns_log_cycle;
+        gsi_ms(kGsiWinMs);
+        const std::vector<uint8_t> c = gsi_get(CTL_A, 0);
+        gsi_ck_state(kSettled, c, kPbCompleted, 0);
+        ck("[GSI] G11 sink 0 settled: the binding view names the talker's stream",
+           gsi_view_sid0(), kGsiSink[0].sid);
+        gsi_ck_stream(kSettled, c, true, 0);
+
+        while (uns_log_cycle - t_settle < (kGsiNoTkMs + kGsiWinMs) * kMsCycTb) gsi_tick();
+        const std::vector<uint8_t> v = gsi_get(CTL_A, 0);
+        gsi_ck_state(kStale, v, kPbPassive, 0);
+        ck("[GSI] G11 sink 0 passive: BOUND", gsi_flag(v, 42, 0x04), 1);
+        ck("[GSI] G11 sink 0 passive: the binding view still names the settled stream",
+           gsi_view_sid0(), kGsiSink[0].sid);
+        ck("[GSI] G11 sink 0 passive: no talker discovered, so no new PROBE_TX",
+           gsi_probes[0] - probes0, 1);
+        gsi_ck_stream(kStale, v, false, 0);
+
+        gsi_unbind(0, 0);
+        gsi_ms(kGsiWinMs);
+        gsi_ck_acmp_ok(kUnbound, 0x09, 0);
+        const std::vector<uint8_t> u = gsi_get(CTL_A, 0);
+        gsi_ck_state(kUnbound, u, kPbDisabled, 0);
+        ck("[GSI] G11 sink 0 unbound: BOUND", gsi_flag(u, 42, 0x04), 0);
+        ck("[GSI] G11 sink 0 unbound: the binding view is cleared", gsi_view_sid0(), 0);
+        gsi_ck_stream(kUnbound, u, false, 0);
+    }
+
     void gsi_seam_section() {
         printf("-- [GSI] #508: probing/ACMP status and failure info from the "
                "processor's own state (one processor ms = %d cycles) --\n", kMsCycTb);
@@ -2530,6 +2636,7 @@ class NxnDatapathHarness {
         printf("  [i]    %ld DUT LeaveAll MRPDU(s) re-declared against in this section\n",
                gsi_leave_alls);
         gsi_g10_reset();
+        gsi_g11_stream_fields_only_while_settled();
         notify_clear();
     }
 
@@ -3236,6 +3343,8 @@ class NxnDatapathHarness {
         stopped_input_law_on_the_shipping_geometry();
         //! #637: the map records across a planted power cycle
         dynmap_map_records_section();
+        //! #70: the volatile set across one, on a fresh boot of its own
+        volatile_set_across_a_power_cycle_section();
         printf("--------------------------------------------------------------\n");
         printf("checks: %ld   failures: %ld\n", checks, fails);
         printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
@@ -5730,6 +5839,141 @@ class NxnDatapathHarness {
            static_cast<unsigned long>(maprec_pages), 59);
         bring_the_datapath_out_of_reset();
     }
+
+    // ==================================================================
+    //  [VOLATILE] #70: WHAT MUST NOT SURVIVE A POWER CYCLE (D3 section 9;
+    //  FASTCONNECT section 16). Milan v1.2 5.3.4.1: "The locked state is
+    //  cleared by a power cycle"; 5.3.4.2: "The list of registered
+    //  controllers is cleared by a power cycle"; 5.3.12: IDENTIFY 0 is the
+    //  default after reset. Controller A registers for unsolicited
+    //  notifications (IEEE 1722.1-2021 7.4.37), sets IDENTIFY to 255
+    //  (SET_CONTROL, 7.4.25) and locks the entity (LOCK_ENTITY, 7.4.2), and
+    //  each is proved to have taken before the cycle, so no reading after it
+    //  can pass on a premise that never held. The window holds a saved
+    //  entity name, so the restore before the cycle and the one after it
+    //  each apply a record, and the cut lands inside the processor's
+    //  debounce: the window still holds the saved set, and B's unsaved name
+    //  is lost (D3 section 7.1). The planted power cycle then resets the
+    //  whole datapath with the saved-state window KEPT, loads it as the
+    //  firmware does and walks the restore to its terminal. After it the
+    //  saved name is back, GET_CONTROL reads IDENTIFY 0, and controller B's
+    //  SET_NAME is accepted (no lock) and notifies nobody (no registry
+    //  entry). Nothing the parent
+    //  owns can carry the three across the cycle (D3 section 9: none is on
+    //  the state bus or has a record id), so dynmap_mutants.py's three
+    //  volatile arms delete each one's reset term in a copy of the processor
+    //  and each must fail its own check below.
+    // ==================================================================
+    static constexpr uint16_t kAemLockEntity = 0x0001;
+    static constexpr uint16_t kAemSetName = 0x0010;
+    static constexpr uint16_t kAemSetControl = 0x0018;
+    static constexpr uint16_t kAemGetControl = 0x0019;
+    static constexpr uint16_t kAemRegisterUnsol = 0x0024;
+    static constexpr long kAecpEntityLocked = 3;     //! IEEE 1722.1-2021 Table 7-126
+    static constexpr uint16_t kAecpStat0 = 0x648;    //! [16]: the live lock level
+    uint16_t volatile_sq = 0x7A00;
+
+    //! the IDENTIFY CONTROL's one LINEAR_UINT8 value, as GET_CONTROL answers
+    //! it to `c` (-1 when the answer is missing or not SUCCESS)
+    long volatile_identify(const Ctlr& c) {
+        const std::vector<uint8_t> key = {0x00, 0x1A, 0x00, 0x00};  // CONTROL 0
+        const std::vector<uint8_t> r = aecp_xact_from(c, kAemGetControl, volatile_sq++, key);
+        return (r.size() >= 43 && aecp_status(r) == 0) ? static_cast<long>(r[42]) : -1L;
+    }
+    //! the entity_name GET_NAME answers `c` ("" when it is not SUCCESS)
+    std::string volatile_entity_name(const Ctlr& c) {
+        const std::vector<uint8_t> key(8, 0);           // ENTITY 0, name 0, cfg 0
+        const std::vector<uint8_t> r = aecp_xact_from(c, 0x0011, volatile_sq++, key);
+        if (r.size() < 110 || aecp_status(r) != 0) return std::string();
+        const char* name = reinterpret_cast<const char*>(r.data() + 46);
+        return std::string(name, strnlen(name, 64));
+    }
+
+    void volatile_set_across_a_power_cycle_section() {
+        printf("-- [VOLATILE] #70: the lock, the registry and IDENTIFY across a "
+               "planted power cycle --\n");
+        static const char kSaved[] = "Volatile-saved";
+        std::string name_hex = "0x80=";
+        for (size_t i = 0; i < 64; i++) {
+            char b[4];
+            snprintf(b, sizeof b, "%02x",
+                     i < sizeof kSaved - 1 ? static_cast<unsigned char>(kSaved[i]) : 0u);
+            name_hex += b;
+        }
+        bring_the_datapath_out_of_reset();
+        axi_write(A_ADP_EIDHI, 0x020000FF);
+        axi_write(A_ADP_EIDLO, 0xFE000001);
+        std::string why;
+        const bool loaded = load_the_saved_state_window(AEMI_CFG_C, {name_hex}, &why);
+        ck("[VOLATILE] a first boot over a window holding a saved entity name",
+           static_cast<unsigned long>(loaded), 1);
+        if (!loaded) {
+            printf("  [i]    %s\n", why.c_str());
+            return;
+        }
+        const std::vector<uint8_t> saved = nmem;
+        start_the_boot_restore_walk();
+        for (int c = 0; c < 2000; c++) step();
+        ck("[VOLATILE] premise: the restore applied the saved entity name",
+           static_cast<unsigned long>(volatile_entity_name(CTL_A) == kSaved), 1);
+        notify_clear();
+        const std::vector<uint8_t> flags(4, 0);
+        ck("[VOLATILE] premise: REGISTER_UNSOLICITED_NOTIFICATION from A is SUCCESS",
+           aecp_status(aecp_xact_from(CTL_A, kAemRegisterUnsol, volatile_sq++, flags)), 0);
+        const std::vector<uint8_t> b1 = notify_set_name(CTL_B, "Volatile-B1", volatile_sq++);
+        ck("[VOLATILE] premise: SET_NAME from B is SUCCESS",
+           b1.size() >= 110 ? aecp_status(b1) : -1, 0);
+        drain_tx(NOTIFY_WIN);
+        ck("[VOLATILE] premise: B's change notifies A, the registered controller",
+           notify_count(kAemSetName, &CTL_A), 1);
+        std::vector<uint8_t> id(8, 0);
+        id[1] = 0x1A;                                    // CONTROL 0, IDENTIFY
+        id[4] = 0xFF;
+        ck("[VOLATILE] premise: SET_CONTROL(IDENTIFY, 255) from A is SUCCESS",
+           aecp_status(aecp_xact_from(CTL_A, kAemSetControl, volatile_sq++, id)), 0);
+        ck("[VOLATILE] premise: GET_CONTROL reads IDENTIFY 255",
+           volatile_identify(CTL_A), 255);
+        const std::vector<uint8_t> lk = aecp_xact_from(CTL_A, kAemLockEntity, volatile_sq++,
+                                                       std::vector<uint8_t>(16, 0));
+        ck("[VOLATILE] premise: LOCK_ENTITY from A is SUCCESS, locked_id A",
+           static_cast<long>(aecp_status(lk) == 0 && lk.size() >= 50
+                             && memcmp(lk.data() + 42, CTL_A.eid, 8) == 0), 1);
+        ck("[VOLATILE] premise: AECP_STAT0 reads the lock held",
+           (axi_read(kAecpStat0) >> 16) & 1u, 1);
+        const std::vector<uint8_t> b2 = notify_set_name(CTL_B, "Volatile-B2", volatile_sq++);
+        ck("[VOLATILE] premise: SET_NAME from B is refused ENTITY_LOCKED",
+           aecp_status(b2), kAecpEntityLocked);
+        //! B's accepted name is pending in the processor's debounce (D3
+        //! DR2a): a window that moved would make the next check's restore
+        //! a different one, so say so rather than grade it
+        ck("[VOLATILE] premise: the cut lands inside the processor's debounce: the "
+           "window still holds the saved set", static_cast<unsigned long>(nmem == saved), 1);
+
+        maprec_power_cycle("[VOLATILE] the power cycle", false);
+        const uint32_t st = axi_read(A_PP_STAT);
+        printf("  [i]    [VOLATILE] after the power cycle: PP_STAT %08x\n", st);
+        ck("[VOLATILE] the restore reached its terminal: PP_STAT done 1, busy 0, fail 0, blank 0",
+           static_cast<unsigned long>((st & (kPpDone | kPpBusy | kPpFail | kPpBlank)) == kPpDone), 1);
+        ck("[VOLATILE] the restore applied the saved entity name again, B's unsaved one lost",
+           static_cast<unsigned long>(volatile_entity_name(CTL_B) == kSaved), 1);
+        notify_clear();
+        ck("[VOLATILE] IDENTIFY reads 0 after the restore (Milan v1.2 5.3.12)",
+           volatile_identify(CTL_B), 0);
+        ck("[VOLATILE] the lock is clear after the restore: AECP_STAT0 reads no lock "
+           "(Milan v1.2 5.3.4.1)", (axi_read(kAecpStat0) >> 16) & 1u, 0);
+        const std::vector<uint8_t> b3 = notify_set_name(CTL_B, "Volatile-B3", volatile_sq++);
+        const long b3_status = b3.size() >= 110 ? aecp_status(b3) : -1;
+        ck("[VOLATILE] the lock is clear after the restore: SET_NAME from B is SUCCESS "
+           "(Milan v1.2 5.3.4.1)", b3_status, 0);
+        drain_tx(NOTIFY_WIN);
+        //! graded only over an ACCEPTED change: a refused SET notifies
+        //! nobody whatever the registry holds, so it fails here, not passes
+        ck("[VOLATILE] the registry is empty after the restore: B's accepted change "
+           "notifies no controller (Milan v1.2 5.3.4.2)",
+           static_cast<long>(b3_status == 0 && notify_count(kAemSetName, nullptr) == 0), 1);
+        //! leave the next section a fresh boot, as [MAPREC] does
+        bring_the_datapath_out_of_reset();
+    }
     #endif
 
     #ifdef MAPREC_MP_TB
@@ -7472,8 +7716,9 @@ class NxnDatapathHarness {
         // packets"). KL_pair_zero_fill now strobes every consumed pair slot at
         // clk_audio/512, silence where nothing feeds it, so an armed talker
         // frames at the media rate. Talkers are told apart by the sid uid16
-        // (bytes 24-25): t0 = 0, t1 = 5 (staged into A_SW_DMAC_HI[31:16] in the
-        // TCTX section above); anything else armed here would be a defect.
+        // (bytes 24-25): t0 = 0, t1 = 1, from the processor. The explicit
+        // TCTX uid 5 cannot override that published identity (processor #202,
+        // IEEE 1722-2016 4.4.4.8); sibling contexts keep their own IDs.
         {
             std::vector<uint8_t> cur;
             int t1f = 0, t1sil = 0, t1chans = -1, t1dlen = -1, foreign = 0,
@@ -7493,7 +7738,7 @@ class NxnDatapathHarness {
                         if (cur.size() >= 86 + off && cur[12+off] == 0x22
                             && cur[13+off] == 0xF0 && cur[14+off] == 0x02) {
                             int uid = (cur[24+off] << 8) | cur[25+off];
-                            if (uid == 5) {
+                            if (uid == 1) {
                                 t1f++;
                                 t1chans = cur[32+off];
                                 t1dlen  = (cur[34+off] << 8) | cur[35+off];

@@ -46,7 +46,7 @@ is an integration obligation, not a target-time result established here.
 | [`acmp/`](acmp) | the ACMP mailbox adapter with the latency bounds and the ADP channel's tap, and the binding owner on lane F1's store |
 | [`aecp/`](aecp) | the AECP core, image and saved-state adapters, mailbox completion tracking, the platform face on contract 2.3's face block (`aecp_face.c`) and opt-in application bridge |
 | [`app/`](app) | the static composition a platform starts: compose, then open, then `ctrl_app_attach_srp` for SRP |
-| [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`), its two accesses as inline functions ([`mbx_mmio.h`](plat/mbx_mmio.h)), the split placement's record mover ([`mbx_dma.h`](plat/mbx_dma.h), `CTRL_MBX_DMA_BASE`), and the core's word-wide `memcpy`, `memmove`, `memset` and `memcmp` ([`ctrl_mem.c`](plat/ctrl_mem.c)) |
+| [`plat/`](plat) | `mbx_hal.h` on a memory-mapped window (`CTRL_MBX_BASE`, from the SoC's generated `mem.h`), its two accesses as inline functions ([`mbx_mmio.h`](plat/mbx_mmio.h)), the split placement's record mover ([`mbx_dma.h`](plat/mbx_dma.h), `CTRL_MBX_DMA_BASE`), the core's word-wide `memcpy`, `memmove`, `memset` and `memcmp` ([`ctrl_mem.c`](plat/ctrl_mem.c)), the split image's link map and reset entry, and [its target platform](plat/README.md): `main`, the boot sequence, the CSR window, the console and the ports (#665 S3) |
 | [`host/`](host) | the mailbox model and `mbx_hal.h` on it |
 | [`test/`](test) | the host tests and their driver |
 
@@ -252,7 +252,7 @@ The datapath counter targets also require it before their recipes.
 The AECP arms, campaign and wire comparison run it too when run alone (`--stack`, the submodule by default).
 In a Makefile builder, every target whose recipe builds against the stack has the pin check as a prerequisite, so no target run alone reaches it unpinned.
 [`ctrl_pin.py`](test/ctrl_pin.py) reads those targets from make's own dry run and refuses one without it.
-167 pin controls follow the boundary controls.
+171 pin controls follow the boundary controls.
 A clean clone passes the check.
 An edited source, test, script, CMake file or the stack's `LICENSE` is refused, and so are an edit hidden by `assume-unchanged`, an added header, a symbolic link standing in for a source, a script made executable and another revision.
 An edited source is refused by its name when the pinned `src/` tree or the pinned commit is replaced by one holding the edit, and beside a graft file.
@@ -490,6 +490,7 @@ port from the hand-rolled checks and the coverage ratchet are described in
 | `lwsrp` | `lwsrp_port.cpp` | the pinned submodule, or `--lwsrp DIR`: lwSRP's own MRP core on the port layer, through the SRP channel, timed by the fabric's ticks; DIR must be lwSRP at the pinned revision with `src/` unmodified |
 | `srpcmp` | [`srp_wire_compare.py`](test/srp_wire_compare.py) | the comparator the placement switch compares the two placements' SRP frames with (#665, the ruling of comment 6088423771): its own self-test, its five named controls and its 18 named planted wire and comparison defects each present and caught; a report missing any of them fails the arm |
 | `hot` | [`ctrl_hot.py`](test/ctrl_hot.py) | the split link script's hot list ([`plat/ctrl_split.ld`](plat/ctrl_split.ld)) is the order [`plat/ctrl_split_hot.txt`](plat/ctrl_split_hot.txt) records with its traces, entry for entry; its self-test passes its control and refuses each of its eight named planted defects by its own rule, among them a stale name, a name absent from the image or only discarded, and a reordered, dropped or unrecorded entry. [`ctrl_srp_image.py`](test/ctrl_srp_image.py) applies both rules to every split image it links, the link map naming each entry's section (#665) |
+| `plat`, `platboot`, `platrv32`, `plattrace` | `test_plat.cpp`, `test_plat_mmio.cpp`, `test_plat_boot.cpp`, [`plat_trace.py`](test/plat_trace.py) | the split platform ([plat](plat/README.md#tests-and-evidence)): its CSR window, console and MMIO on host buses; its boot in step order and each refused stage, at one and two interfaces on the models; the whole platform built for RV32I; and its CSR initialisation against `milan_baremetal.c`'s for every shipped config, with three planted controls |
 
 The [SRP evidence](srp/README.md#evidence) adds declaration, lifecycle, latency,
 debug, shape and processor-wire arms at one and two interfaces.
@@ -654,6 +655,8 @@ verified bare-metal runtime archives and an 8192-byte stack reservation;
 see the [SRP recipe](srp/README.md#evidence).
 Neither fixture is a shipping or booted image, and neither connects the
 integrator's live stream, persistence and media owners completely.
+The split placement's booted image is the [target platform](plat/README.md)'s,
+linked by `ctrl_plat_image.py` with the same link, audits and bank plan.
 `ctrl_srp_image.py --layout split` links the same composition into the split
 placement's block RAM instead, behind its reset entry
 ([`plat/ctrl_split.ld`](plat/ctrl_split.ld),

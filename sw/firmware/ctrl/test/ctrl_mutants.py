@@ -25,6 +25,8 @@ import acmp_mutants
 import ctrl_arms
 import fw_gtest
 import mbx_dma_mutants
+import plat_arms
+import plat_mutants
 from maap_mutants import mutants as maap_mutants
 from ctrl_build import CTRL, STACK, STACK_PARTS, STACK_PREFIX, Outcome, Refusal, Tree, test_source
 from ctrl_mutant import ACMP_C, ADP_C, Mutant
@@ -559,7 +561,8 @@ MUTANTS = (
 #: which `unnamed_tests` proves before any is planted (the rule lane F1's
 #: store suite proves with nvm_mutants.unnamed_checks). The core's tests are
 #: the stack's (#697).
-NAMED_SOURCES = ("tsn-c-stack/tests/test_acmp.cpp", "test_acmp_mbx.cpp", "acmp_walk.cpp", "test_acmp_nvm.cpp")
+NAMED_SOURCES = ("tsn-c-stack/tests/test_acmp.cpp", "test_acmp_mbx.cpp", "acmp_walk.cpp", "test_acmp_nvm.cpp",
+                 *plat_mutants.SOURCES)
 #: The stack's own defect table, which its CI plants against its tests: a test
 #: of the stack's that this table does not name is named by a defect there.
 STACK_TABLE = STACK / "tests/mutations.json"
@@ -587,6 +590,7 @@ def unnamed_tests() -> list[str]:
 
 MUTANTS += maap_mutants(Mutant)
 MUTANTS += mbx_dma_mutants.MUTANTS
+MUTANTS += plat_mutants.mutants(Mutant)
 
 MUTANTS += (
     Mutant("f3b-query-inside-allocation", "maap/maap_mbx.c",
@@ -772,6 +776,15 @@ MUTANTS += (
            "\t\tmemset(m->ctr_seen, 0, sizeof m->ctr_seen);\n", "",
            "model", MODEL_GROUP + "Face",
            "F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced"),
+    # #799 (contract 2.4): each source's current stream_id
+    Mutant("model-pub-src-sid-a-hole", "host/mbx_model.c",
+           "\t\tcase MBX_PUB_SRC_REG_SRC_SID_HI:\n"
+           "\t\t\treturn ones(MBX_SRC_SID_HI_SID_LSB, MBX_SRC_SID_HI_SID_WIDTH);\n",
+           "", "model", MODEL_GROUP + "Publication",
+           "P1 each source's entry reads back the stream_id written to it"),
+    Mutant("model-pub-every-source-reads-entry-0", "host/mbx_model.c",
+           "(MBX_PUB_SRC_BASE + MBX_PUB_SRC_STRIDE * s) / 4u", "MBX_PUB_SRC_BASE / 4u",
+           "model", MODEL_GROUP + "Publication", "P2 each source's SRC_SID_HI:SRC_SID_LO reaches the datapath"),
     # ACMP: the binding published after the response that promises it, the
     # end-of-entry publication skipped, wrong fields, the port unguarded
     Mutant("pub-acmp-after-the-response", ACMP_C, ACMP_TRANSMIT,
@@ -962,7 +975,9 @@ def campaign(root: Path, reuse: Path, jobs: int, part: tuple[int, int] = (1, 1),
             "entity": ctrl_arms.arm_entity,
             "maap": ctrl_arms.arm_maap, "maap_debug": ctrl_arms.arm_maap_debug, "maap_if2": ctrl_arms.arm_maap_if2,
             "rv32": lambda tree: ctrl_arms.arm_rv32(tree, True),
-            "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release}
+            "reentry_debug": ctrl_arms.arm_reentry_debug, "reentry_release": ctrl_arms.arm_reentry_release,
+            "plat": plat_arms.arm_plat, "platboot1": lambda tree: plat_arms.arm_platboot(tree, 1),
+            "platboot2": lambda tree: plat_arms.arm_platboot(tree, 2)}
     build = fw_gtest.Build(jobs=jobs)
     try:
         unnamed = unnamed_tests()

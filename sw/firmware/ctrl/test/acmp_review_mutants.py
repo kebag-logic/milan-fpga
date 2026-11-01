@@ -26,7 +26,7 @@ APP_OPEN = ("\n\nbool ctrl_app_open(struct ctrl_app *app, const struct ctrl_app_
             "\t// the bindings the store restored between compose and open, into the\n"
             "\t// adp channel's bound-talker table, before any protocol starts\n"
             "\tif (cfg->acmp != NULL) {\n\t\tacmp_mbx_open(&app->acmp);\n\t}\n"
-            "\tadp_mbx_set_enable(&app->adp, true);\n"
+            "\tadp_mbx_set_enable(&app->adp, !app->adp_held);\n"
             "\t// MAAP reads each interface's link and begins once the channels are open\n"
             "\t// (maap_mbx.h); compose refused a preferred range it would refuse\n"
             "\tif (cfg->maap_allocation != NULL) {\n")

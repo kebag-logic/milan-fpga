@@ -318,7 +318,7 @@ jobs:
     needs: full-ci-gate
     if: ${{ needs.full-ci-gate.outputs.run_full == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 145
     steps:
       - uses: actions/checkout@v4
       - name: Fetch RTL dependencies

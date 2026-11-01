@@ -270,6 +270,7 @@ class GptpShadowHarness {
   uint64_t last_pub_gm = 0;
   uint64_t last_pub_parent = 0;
   uint64_t last_pub_annq = 0;
+  uint64_t last_pub_path_head = 0;
   uint64_t last_pub_path_tail0 = 0;
   uint64_t last_pub_path_tail1 = 0;
   uint64_t last_pub_path_tail6 = 0;
@@ -375,6 +376,7 @@ class GptpShadowHarness {
                           || dut->pub_offset_o != last_pub_offset
                           || dut->pub_annq_o != last_pub_annq
                           || dut->pub_path_count_o != last_pub_path_count
+                          || dut->pub_path_head_o != last_pub_path_head
                           || dut->pub_path_tail0_o != last_pub_path_tail0
                           || dut->pub_path_tail1_o != last_pub_path_tail1
                           || dut->pub_path_tail6_o != last_pub_path_tail6
@@ -392,6 +394,7 @@ class GptpShadowHarness {
       last_pub_offset = dut->pub_offset_o;
       last_pub_annq = dut->pub_annq_o;
       last_pub_path_count = dut->pub_path_count_o;
+      last_pub_path_head = dut->pub_path_head_o;
       last_pub_path_tail0 = dut->pub_path_tail0_o;
       last_pub_path_tail1 = dut->pub_path_tail1_o;
       last_pub_path_tail6 = dut->pub_path_tail6_o;
@@ -576,7 +579,8 @@ class GptpShadowHarness {
   void announce_without_path(uint16_t seq, uint8_t p1, uint64_t gmid,
                              uint64_t src = PEER_CID) {
     //! An exact fixed Announce has no suffix. The donor publishes its selected
-    //! GM/parent scalars but truthfully reports the absent PathTrace as count 0.
+    //! GM/parent scalars and keeps the previous pathTrace (IEEE 802.1AS-2011
+    //! 10.3.10.2.1 d), FPGA-gPTP #87).
     Frame a = ptp(0xB, seq, 0, 0x0008, 30, src);
     for (int i = 0; i < 10; i++) a.u8(0);
     a.u16(0xFFC4); a.u8(0);
@@ -590,13 +594,22 @@ class GptpShadowHarness {
   void announce_one_path(uint16_t seq, uint8_t p1, uint64_t gmid) {
     //! Explicit one-entry PathTrace from a directly connected GM. This is not
     //! the absent-TLV spelling: its served sequence is exactly `[GM]`.
-    Frame a = ptp(0xB, seq, 0, 0x0008, 42, gmid);
+    announce_path(seq, p1, gmid, gmid, {gmid});
+  }
+
+  void announce_path(uint16_t seq, uint8_t p1, uint64_t gmid, uint64_t src,
+                     const std::vector<uint64_t> &path) {
+    //! A present PathTrace TLV with exactly `path`, an empty one included
+    //! (FPGA-gPTP #88): d) copies it as received, its head whatever it is.
+    Frame a = ptp(0xB, seq, 0, 0x0008,
+                  static_cast<uint16_t>(34 + 8 * path.size()), src);
     for (int i = 0; i < 10; i++) a.u8(0);
     a.u16(0xFFC4); a.u8(0);
     a.u8(p1); a.u32(OUR_CQ); a.u8(248);
     a.u64(gmid);
     a.u16(0); a.u8(0xA0);
-    a.u16(0x0008); a.u16(8); a.u64(gmid);
+    a.u16(0x0008); a.u16(static_cast<uint16_t>(8 * path.size()));
+    for (uint64_t hop : path) a.u64(hop);
     send_wide(a.b);
     run_svc(4000);
   }
@@ -882,6 +895,47 @@ class GptpShadowHarness {
            pd_expect > 0 && dut->pub_pdelay_ns_o > 0, 1);
   }
 
+  //! FPGA-gPTP #88: an empty pathSequence is {thisClock}, and a path
+  //! headed by another identity is served from that head. `gen_one` is the
+  //! generation before; returns the one the last step spends.
+  uint8_t check_the_path_is_served_from_its_head(uint8_t gen_one) {
+    announce_path(16, 90, GMID_EMPTY, GMID_EMPTY, {});
+    const uint8_t gen_self = static_cast<uint8_t>((gen_one + 1u) & 0xFu);
+    expect("empty PathTrace publishes count one", dut->pub_path_count_o, 1);
+    expect("empty PathTrace publishes thisClock at entry 0",
+           dut->pub_path_head_o, OUR_CID);
+    expect("explicit to empty path spends one path generation",
+           dut->pub_path_gen_o, gen_self);
+    announce_path(17, 90, GMID_EMPTY, GMID_EMPTY, {PATH_HOP, GMID_EMPTY});
+    const uint8_t gen_head = static_cast<uint8_t>((gen_self + 1u) & 0xFu);
+    expect("path headed elsewhere publishes count three",
+           dut->pub_path_count_o, 3);
+    expect("path headed elsewhere publishes the received head",
+           dut->pub_path_head_o, PATH_HOP);
+    expect("path headed elsewhere keeps the GM scalar",
+           dut->pub_gm_id_o, GMID_EMPTY);
+    expect("path headed elsewhere ends with thisClock",
+           dut->pub_path_tail1_o, OUR_CID);
+    expect("path headed elsewhere spends one path generation",
+           dut->pub_path_gen_o, gen_head);
+    //! Only entry 0 changes: the count and every tail are equal, so a
+    //! generation comparator that skips entry 0 misses this path change.
+    announce_path(18, 90, GMID_EMPTY, GMID_EMPTY, {PATH_HOP2, GMID_EMPTY});
+    const uint8_t gen_entry0 =
+        static_cast<uint8_t>((gen_head + 1u) & 0xFu);
+    expect("entry-0-only change keeps count three",
+           dut->pub_path_count_o, 3);
+    expect("entry-0-only change publishes the new head",
+           dut->pub_path_head_o, PATH_HOP2);
+    expect("entry-0-only change keeps tail 1", dut->pub_path_tail0_o,
+           GMID_EMPTY);
+    expect("entry-0-only change keeps tail 2", dut->pub_path_tail1_o,
+           OUR_CID);
+    expect("entry-0-only change spends one path generation",
+           dut->pub_path_gen_o, gen_entry0);
+    return gen_entry0;
+  }
+
   // ---- 4: adopt; offsets in range; the counter locks ---------------------
   void check_announce_adoption_and_path_trace() {
     announce(10, 100, GMID);
@@ -889,66 +943,70 @@ class GptpShadowHarness {
     expect("pub gm id", dut->pub_gm_id_o, GMID);
     expect("pub parent id", dut->pub_parent_id_o, PEER_CID);
     expect("published full path count", dut->pub_path_count_o, 4);
+    expect("published path head is the received head", dut->pub_path_head_o,
+           GMID);
     expect("published path middle hop", dut->pub_path_tail0_o, PATH_HOP);
     expect("published path source tail", dut->pub_path_tail1_o, PEER_CID);
     {
-      //! Mutation bars for the parent contract. Reinstating either `raw<=1 ? 1`
-      //! or an unconditional GM term in the path-generation comparator fails
-      //! this arm. Scalar GM selection remains independent of the served path.
+      //! Mutation bars for the parent contract. A GM term in the
+      //! path-generation comparator, or a TLV-less Announce served as empty,
+      //! fails this arm. Scalar GM selection remains independent of the served
+      //! path, and without a TLV that path is the previous one (FPGA-gPTP #87).
       const uint8_t gen_present = dut->pub_path_gen_o;
       announce_without_path(11, 100, GMID);
       expect("TLV-less selected GM remains published", dut->pub_gm_id_o, GMID);
       expect("TLV-less selected parent remains published",
              dut->pub_parent_id_o, PEER_CID);
-      expect("TLV-less selected PathTrace stays raw empty",
-             dut->pub_path_count_o, 0);
-      expect("TLV-less selected path clears active tail 1",
-             dut->pub_path_tail0_o, 0);
-      expect("TLV-less selected path clears active tail 2",
-             dut->pub_path_tail1_o, 0);
-      expect("TLV-less selected path clears final ABI tail",
-             dut->pub_path_tail6_o, 0);
-      const uint8_t gen_empty = static_cast<uint8_t>((gen_present + 1u) & 0xFu);
-      expect("present to absent spends exactly one path generation",
-             dut->pub_path_gen_o, gen_empty);
-
-      announce_without_path(12, 100, GMID);
-      expect("identical absent refresh spends no path generation",
-             dut->pub_path_gen_o, gen_empty);
+      expect("TLV-less selected PathTrace keeps its count",
+             dut->pub_path_count_o, 4);
+      expect("TLV-less selected path keeps its head", dut->pub_path_head_o,
+             GMID);
+      expect("TLV-less selected path keeps tail 1", dut->pub_path_tail0_o,
+             PATH_HOP);
+      expect("TLV-less selected path keeps tail 2", dut->pub_path_tail1_o,
+             PEER_CID);
+      expect("TLV-less selected path spends no path generation",
+             dut->pub_path_gen_o, gen_present);
 
       announce_without_path(13, 90, GMID_EMPTY, GMID_EMPTY);
       expect("better TLV-less Announce changes scalar GM",
              dut->pub_gm_id_o, GMID_EMPTY);
-      expect("better TLV-less Announce still serves empty",
-             dut->pub_path_count_o, 0);
-      expect("absent GM A-to-B is path-generation silent",
-             dut->pub_path_gen_o, gen_empty);
+      expect("better TLV-less Announce keeps the previous count",
+             dut->pub_path_count_o, 4);
+      expect("better TLV-less Announce keeps the previous head",
+             dut->pub_path_head_o, GMID);
+      expect("TLV-less GM A-to-B is path-generation silent",
+             dut->pub_path_gen_o, gen_present);
 
       announce_one_path(14, 90, GMID_EMPTY);
-      const uint8_t gen_one = static_cast<uint8_t>((gen_empty + 1u) & 0xFu);
+      const uint8_t gen_one = static_cast<uint8_t>((gen_present + 1u) & 0xFu);
       expect("explicit one-entry PathTrace publishes count two",
              dut->pub_path_count_o, 2);
+      expect("explicit one-entry PathTrace head is the GM",
+             dut->pub_path_head_o, GMID_EMPTY);
       expect("explicit one-entry PathTrace ends with thisClock",
              dut->pub_path_tail0_o, OUR_CID);
-      expect("absent to explicit GM spends one path generation",
+      expect("kept to explicit GM spends one path generation",
              dut->pub_path_gen_o, gen_one);
 
       announce_without_path(15, 90, GMID_EMPTY, GMID_EMPTY);
-      const uint8_t gen_empty_again = static_cast<uint8_t>((gen_one + 1u) & 0xFu);
-      expect("explicit GM withdrawal restores empty count",
-             dut->pub_path_count_o, 0);
-      expect("explicit GM to absent spends one path generation",
-             dut->pub_path_gen_o, gen_empty_again);
+      expect("TLV-less refresh keeps the explicit path",
+             dut->pub_path_count_o, 2);
+      expect("TLV-less refresh spends no path generation",
+             dut->pub_path_gen_o, gen_one);
 
-      announce(16, 80, GMID);
+      const uint8_t gen_entry0 = check_the_path_is_served_from_its_head(
+          gen_one);
+
+      announce(19, 80, GMID);
       expect("present path restored for servo controls",
              dut->pub_path_count_o, 4);
       expect("restored path returns original scalar GM", dut->pub_gm_id_o, GMID);
-      expect("absent to restored path spends one generation",
-             dut->pub_path_gen_o, (gen_empty_again + 1u) & 0xFu);
+      expect("restored path spends one generation",
+             dut->pub_path_gen_o, (gen_entry0 + 1u) & 0xFu);
 
       const uint8_t gen_restored = dut->pub_path_gen_o;
-      announce_eight_path(17, 75, GMID);
+      announce_eight_path(20, 75, GMID);
       expect("maximum bounded PathTrace publishes count eight",
              dut->pub_path_count_o, 8);
       expect("maximum bounded PathTrace reaches final tail slot",

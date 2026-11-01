@@ -448,8 +448,8 @@ ARMS += (
     # nothing outside the registers takes a write: a hole aliasing a
     # register, and (two interfaces) an index past the build aliasing one
     *_both("top-pub-hole-aliases-a-register", "KL_mbx.sv",
-           "pub_reg_w  = pub_sink_w ? (in_sinks & AW2_C'(MBX_PUB_SINK_STRIDE_C - 1)) : in_if;",
-           "pub_reg_w  = pub_sink_w ? (in_sinks & AW2_C'(MBX_PUB_SINK_STRIDE_C - 1)) : (in_if & AW2_C'(32'hF));",
+           ": pub_src_w ? (in_srcs & AW2_C'(MBX_PUB_SRC_STRIDE_C - 1)) : in_if;",
+           ": pub_src_w ? (in_srcs & AW2_C'(MBX_PUB_SRC_STRIDE_C - 1)) : (in_if & AW2_C'(32'hF));",
            "P4 every hole of every interface block"),
     *_both("top-pub-interface-unchecked", "KL_mbx.sv",
            "                 && (rel >> $clog2(MBX_PUB_STRIDE_C)) < AW2_C'(MBX_N_IF_C)\n", "",
@@ -474,6 +474,19 @@ ARMS += (
            "MBX_N_PUB_SOURCES_C'(mbx_field_f(32'(pub_licence_r[i]), MBX_TALKER_DECL_DECLARED_LSB_C,",
            "P2 every field reaches the datapath on its own output"),
     *_both("top-pub-declarations-kept-through-reset", "KL_mbx.sv", "        pub_talker_decl_r[i] <= '0;\n", "",
+           "P5 a reset clears every publication register and every output"),
+    # #799 (contract 2.4): each source's current stream_id, stored at its own
+    # entry, decoded only inside the source entries, on its own output, reset
+    *_both("top-pub-src-index-dropped", "KL_mbx.sv", "pub_src_sid_lo_r[pub_if_w][pub_s_w] <= 32'(",
+           "pub_src_sid_lo_r[pub_if_w][0] <= 32'(",
+           "P1 each source's entry reads back the stream_id written to it"),
+    *_both("top-pub-src-base-ignored", "KL_mbx.sv",
+           "pub_src_w  = !pub_sink_w && in_if >= AW2_C'(MBX_PUB_SRC_BASE_C);", "pub_src_w  = !pub_sink_w;",
+           "P1 DA_GATE keeps OPEN, LICENCE ACTIVE"),
+    *_both("top-pub-src-sid-halves-swapped", "KL_mbx.sv",
+           "= {pub_src_sid_hi_r[i][s], pub_src_sid_lo_r[i][s]};", "= {pub_src_sid_lo_r[i][s], pub_src_sid_hi_r[i][s]};",
+           "P2 each source's SRC_SID_HI:SRC_SID_LO reaches the datapath on pub_src_sid_o"),
+    *_both("top-pub-src-sid-kept-through-reset", "KL_mbx.sv", "          pub_src_sid_hi_r[i][s] <= '0;\n", "",
            "P5 a reset clears every publication register and every output"),
 )
 
