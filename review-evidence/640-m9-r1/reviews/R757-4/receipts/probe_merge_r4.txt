@@ -1,0 +1,47 @@
+Arm A: tu on both from packet 100, both delivering, unchanged model; 3,900 packets carry tu
+ A1 both networks at the primary's latency (60-180 us), own-time skew on both copies
+  skew +0 us: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=1 dup=3999 jump_dup=0
+  skew +200 us: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=1 dup=3999 jump_dup=0
+  skew +500 us: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=1 dup=3999 jump_dup=0
+  skew +700 us: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=1 dup=3999 jump_dup=0
+  skew +750 us: missing=858 bad=0 outside=0 late=0 early=1542 tu_drop=1 dup=2600 jump_dup=0
+  skew +800 us: missing=8598 bad=0 outside=0 late=0 early=4748 tu_drop=1 dup=684 jump_dup=0
+  skew +850 us: missing=23400 bad=0 outside=0 late=0 early=7800 tu_drop=0 dup=100 jump_dup=0
+  skew +1000 us: missing=23400 bad=0 outside=0 late=0 early=7800 tu_drop=0 dup=100 jump_dup=0
+  skew +2000 us: missing=23400 bad=0 outside=0 late=0 early=7800 tu_drop=0 dup=100 jump_dup=0
+ A2 both at the primary's latency, negative skew on both copies
+  skew -1700 us: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=1 dup=3999 jump_dup=0
+  skew -1800 us: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=1 dup=3999 jump_dup=0
+  skew -1900 us: missing=12119 bad=8551 outside=0 late=5240 early=0 tu_drop=649 dup=116 jump_dup=0
+  skew -2000 us: missing=23400 bad=0 outside=0 late=7800 early=0 tu_drop=0 dup=100 jump_dup=0
+ A3 the fast primary's tu copies early by own time, the slow secondary's fine (LAST_TU stays clear)
+  primary skew +800 us, secondary 0: missing=0 bad=0 outside=0 late=0 early=2368 tu_drop=4 dup=1628 jump_dup=0
+  primary skew +1000 us, secondary 0: missing=30 bad=0 outside=0 late=0 early=3900 tu_drop=5 dup=100 jump_dup=0
+ A4 a tu period that ends, both at the primary's latency, skew +1000 us: tu 100 to 600
+  skew +1000 us: missing=3000 bad=0 outside=0 late=0 early=1000 tu_drop=0 dup=3500 jump_dup=0
+ A5 primary cut at 1000, secondary tu 1200 to 3200: page says the audio gaps up to one presentation offset
+  skew +500 us: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=0 dup=1000 jump_dup=0
+  skew +1500 us: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=0 dup=1000 jump_dup=0
+  skew +2500 us: missing=12000 bad=0 outside=0 late=0 early=2000 tu_drop=0 dup=1000 jump_dup=0
+Arm B: tu from the first packet; unchanged model against the literal sentence
+  unpaired, tu from packet 0 [model]: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=0 dup=0 jump_dup=0
+  unpaired, tu from packet 0 [literal]: missing=22452 bad=0 outside=0 late=0 early=0 tu_drop=3742 dup=0 jump_dup=0
+  tu on both from packet 0 [model]: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=4000 dup=0 jump_dup=0
+  tu on both from packet 0 [literal]: missing=21870 bad=0 outside=0 late=0 early=0 tu_drop=7645 dup=0 jump_dup=0
+  tu on both from packet 0, secondary faster [model]: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=4000 dup=0 jump_dup=0
+  tu on both from packet 0, secondary faster [literal]: missing=21864 bad=0 outside=0 late=0 early=0 tu_drop=7644 dup=0 jump_dup=0
+  secondary tu from packet 0, skew -200 us, arrives first (the model's own startup case) [model]: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=3990 dup=0 jump_dup=0
+  secondary tu from packet 0, skew -200 us, arrives first (the model's own startup case) [literal]: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=3999 dup=0 jump_dup=0
+Arm C: tu on both from 100, both sequences jump at packet 1000; 22 packets is the stated unpaired gap
+  jump +40: missing=30 bad=0 outside=0 late=0 early=0 tu_drop=3014 dup=991 jump_dup=0
+  jump +40, secondary faster: missing=24 bad=0 outside=0 late=0 early=0 tu_drop=3014 dup=990 jump_dup=0
+  jump -40: missing=30 bad=0 outside=0 late=0 early=0 tu_drop=3015 dup=990 jump_dup=0
+  jump -40, secondary faster: missing=24 bad=0 outside=0 late=0 early=0 tu_drop=3014 dup=990 jump_dup=0
+Arm D: control, a referenced tu copy judged by its counted time only
+  tu on both, same latency, skew +1000 us: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=1 dup=3999 jump_dup=0
+  tu on both, same latency, skew +2000 us: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=1 dup=3999 jump_dup=0
+  tu on both, same latency, skew +5000 us: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=1 dup=3999 jump_dup=0
+  primary +1000, secondary 0: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=9 dup=3991 jump_dup=0
+  primary cut 1000, secondary tu 1200-3200 skew +2500: missing=0 bad=0 outside=0 late=0 early=0 tu_drop=0 dup=1000 jump_dup=0
+  model case changes under the control: unpaired, tu from 100, its sequence jumps +40 at 1000: gap within the span
+  the model's own 33 cases under the control: 32 pass, 1 change

@@ -1,0 +1,9 @@
+T_worst 359.75 ms; with a zeroing page 365.1 ms; bound 500 ms
+latch to latch 2917 us; drift 0.5834 us; E_x 2.744 us (unrounded 2.7434 )
+A4 at 2.667 ms span plus 125 us: 2791.667 us; at the 2 ms default the arrival bound is 2125 us, E_x 2.61
+class A transit 2 ms leaves 792 us for the talker's stamp to wire; worst stated talker bound 123.337 us
+drift across 22 packets at 200 ppm 0.55 us; window margin 59.206 us; neighbour separation 121.706 us
+span in packets 21.33 so a lapse takes at most 22 packets = 2.75 ms
+sweep 32 contexts x 31.25 ms = 1000.0 ms
+failed header at the end of a compaction: 2.046 s + standby erase 13.69 s + second compaction 2.046 s = 17.78 s; appended pages under S2 <= 364, against 392 free
+a second failed header in a row: 33.52 s; appended pages <= 658, against 392 free
