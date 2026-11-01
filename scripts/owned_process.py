@@ -27,11 +27,11 @@ from types import FrameType
 from typing import BinaryIO
 
 PROC = Path("/proc")
-# Cleanup stages (#833). The values come from traced cleanups under load: the
-# longest SIGKILL to exit was 0.10 s and the longest resume to shell exit 0.21 s,
-# against one measured 3.04 s stall of an owner whose cause was not named. So
-# each window after a signal outlasts that stall: a process stalled just as it
-# is signalled is still not judged.
+# Cleanup stages (#833). The values come from traced cleanups under load with a
+# cheap census: the longest SIGKILL to exit was 0.10 s and the longest resume to
+# shell exit 0.21 s, against one measured 3.04 s stall of an owner whose cause
+# was not named. So each window after a signal outlasts that stall: a process
+# stalled just as it is signalled is still not judged.
 GRACE_SECONDS = 2.0  # SIGTERM until the first SIGKILL of a stubborn leaf.
 KILL_ALL_SECONDS = 2.0  # After grace, SIGKILL reaches every other descendant.
 TRAP_SECONDS = 4.0  # A resumed shell's window to finish its terminal trap.
@@ -86,7 +86,8 @@ def _stat(pid: int) -> list[str] | None:
     except (FileNotFoundError, ProcessLookupError):
         return None
     try:
-        return os.read(fd, 4096).decode().rsplit(")", 1)[1].split()
+        # The census reads every process on the host, and a name is not always text.
+        return os.read(fd, 4096).rsplit(b")", 1)[1].decode().split()
     except ProcessLookupError:
         return None
     finally:
@@ -111,7 +112,7 @@ def _describe(pid: int, first_parent: int | None, killed_ago: float | None) -> s
     that differs from the first census means the process was re-parented.
     """
     try:
-        name, rest = (PROC / str(pid) / "stat").read_text().rsplit(")", 1)
+        name, rest = (PROC / str(pid) / "stat").read_text(errors="replace").rsplit(")", 1)
     except (FileNotFoundError, ProcessLookupError):
         return f"pid {pid} exited during this report"
     uptime = float((PROC / "uptime").read_text().split()[0])
