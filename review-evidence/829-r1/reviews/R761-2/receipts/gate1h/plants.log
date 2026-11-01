@@ -1,0 +1,20 @@
+head: gate 1h reader returns no finding
+REFUSED  tick binding deleted: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P']
+REFUSED  octet binding deleted: ['.ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P']
+REFUSED  tick tied to 8: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P']
+REFUSED  octet tied to 1: ['.ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P']
+REFUSED  bindings crossed: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P', '.ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P']
+REFUSED  tick scaled: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P']
+REFUSED  octet to another parameter: ['.ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P']
+REFUSED  tick default 40: ['GPTP_ETH_TICK_NS_P does not default to 8']
+REFUSED  octet default 2: ['GPTP_ETH_CYC_PER_OCTET_P does not default to 1']
+REFUSED  tick made a localparam: ['GPTP_ETH_TICK_NS_P does not default to 8']
+REFUSED  second plane: ['2 planes instantiated, not one']
+REFUSED  instance renamed: ['0 planes instantiated, not one']
+ACCEPTED tick binding commented out: []
+ACCEPTED octet binding commented out: []
+ACCEPTED tick binding in a block comment: []
+ACCEPTED tick binding in a dead ifdef: []
+ACCEPTED real default commented, moved to 40: []
+plants 17 accepted 5
+rc=0
