@@ -1,0 +1,44 @@
+population independent==generator: True 212
+recorded 65 rows 87
+
+# wider search: a statement the wider form finds on a page with no row of that finding
+MISS? D0-040 on docs/reference/REGISTER_MAP.md: '**Nothing in this device persists a binding across a power cycle**' (page already holds ['D0-006', 'D0-007', 'D0-008', 'D0-014'])
+MISS? D0-058 on docs/history/v1/reference/MILAN_V12_DEPENDENCY_MATRIX.md: '**Nothing in this device persists a binding across a power cycle.** Th' (page already holds [])
+wider-only hits: 2
+
+# fragment search: the longest 6-word runs of each recorded statement on pages with no row
+FRAG D0-001 on docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md: 'ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.'
+FRAG D0-025 on docs/overview/ARCHITECTURE.md: "the protocol processor's NVM face is answered by a blank-flash respond"
+FRAG D0-040 on docs/reference/REGISTER_MAP.md: '**Nothing in this device persists a binding across a power cycle**'
+FRAG D0-050 on docs/findings/234_PP_SHADOW_AREA_BASELINE.md: '| arty_current | 32 | 5792 | 2 / 1 | 1 / 1 | 16 / 1 | 1 / 2 |'
+FRAG D0-050 on docs/findings/599_394_E1_LINK_CYCLES.md: '| arty_current | 32 | 5792 | 2 / 1 | 1 / 1 | 16 / 1 | 1 / 2 |'
+FRAG D0-050 on docs/findings/75_RECONNECT_RESTART_MEASUREMENT.md: '| arty_current | 32 | 5792 | 2 / 1 | 1 / 1 | 16 / 1 | 1 / 2 |'
+FRAG D0-058 on docs/reference/REGISTER_MAP_CLASSES.md: '**Nothing in this device persists a binding across a power cycle.** Th'
+fragment pages: 7
+
+# planted spellings of a recorded statement, one page each, through the generator's own copies()
+exact                        row line 3
+upper                        row line 3
+wrapped                      row line 3
+quote wrapped                row line 3
+list wrapped                 row line 3
+ordered list                 row line 3
+bold                         row line 3
+code                         row line 3
+underscore emphasis whole    NO ROW
+underscore emphasis word     NO ROW
+link word                    NO ROW
+list inside quote            row line 3
+quote inside list            row line 3
+nbsp                         row line 3
+table cell                   row line 3
+heading                      row line 3
+inside fence                 row line 4
+hard break                   row line 3
+tilde strike                 row line 3
+html bold                    NO ROW
+paren list                   NO ROW
+control blank                NO ROW
+control longer word          NO ROW
+straight                     row
+curly apostrophe             NO ROW

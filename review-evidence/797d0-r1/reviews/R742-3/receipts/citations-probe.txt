@@ -1,0 +1,475 @@
+removed: ['D0-009'] added: ['D0-063', 'D0-064', 'D0-065', 'D0-066']
+corrections added or changed: ['D0-001', 'D0-017', 'D0-027', 'D0-035', 'D0-063', 'D0-064', 'D0-065', 'D0-066']
+source cell changed: ['D0-001', 'D0-002', 'D0-011', 'D0-012', 'D0-017', 'D0-024', 'D0-025', 'D0-026', 'D0-029', 'D0-030', 'D0-032', 'D0-033', 'D0-034', 'D0-035', 'D0-036', 'D0-037', 'D0-038', 'D0-039', 'D0-040', 'D0-041', 'D0-042', 'D0-045', 'D0-047', 'D0-049', 'D0-056', 'D0-057', 'D0-058', 'D0-059', 'D0-061', 'D0-062']
+
+===== D0-001 page=README.md
+CORRECTION: Say that the Mark II split placement moves ADP, ACMP, AECP, MAAP and SRP into bare-metal firmware, and that the default build keeps all of them in fabric (`sw/litex/milan_soc.py` lines 2854-2856: `--ctrl-mailbox` is off by default and the default build carries no mailbox; line 4097: `store_true`). `REQUIREMENTS.md` is the normative page, so its copy goes to a maintainer decision on what "Mark II default" names, and every copy takes that one answer.
+CITED IN CORRECTION CELL: 2
+--- [correction] sw/litex/milan_soc.py 2854-2856
+  2854: # --ctrl-mailbox, whose default is off: the default build carries no mailbox
+  2855: # source, instance, bus region, CSR bank or interrupt, so every shipped
+  2856: # config's top .v and source list are byte-identical to a build without this
+--- [correction] sw/litex/milan_soc.py 4097
+  4097:     ap.add_argument("--ctrl-mailbox", action="store_true",
+--- [source] sw/litex/milan_soc.py 2854-2856
+  2854: # --ctrl-mailbox, whose default is off: the default build carries no mailbox
+  2855: # source, instance, bus region, CSR bank or interrupt, so every shipped
+  2856: # config's top .v and source list are byte-identical to a build without this
+--- [source] sw/litex/milan_soc.py 4097
+  4097:     ap.add_argument("--ctrl-mailbox", action="store_true",
+
+===== D0-017 page=docs/reference/REGISTER_MAP.md
+CORRECTION: State the reset value, and that the bits follow the PHY once firmware publishes them: `nvm_boot()` arms the poll (`sw/firmware/milan_baremetal/milan_baremetal.c` line 1671, polled at lines 1099-1102 and 1106), and a CSR identity mismatch returns before it (lines 1900-1903), which leaves the reset value. Point to LINKG_STAT (0x774) and the AVB_INTERFACE LINK_UP/LINK_DOWN counters.
+CITED IN CORRECTION CELL: 3
+--- [correction] sw/firmware/milan_baremetal/milan_baremetal.c 1671
+  1671: 	phy_live = 1;
+--- [correction] sw/firmware/milan_baremetal/milan_baremetal.c 1099-1102 and 1106
+  1099: 	if (!nvm_started) {
+  1100: 		if (phy_live)
+  1101: 			phy_link_tick(gettime_ns());
+  1102: 		return;
+  1106: 	phy_link_tick(now);
+--- [correction] sw/firmware/milan_baremetal/milan_baremetal.c 1900-1903
+  1900: 	if (id != MILAN_ID_MAGIC) {
+  1901: 		printf("Milan baremetal: CSR identity mismatch; fabric remains disabled.\n");
+  1902: 		return;
+  1903: 	}
+--- [source] sw/litex/milan_soc.py 1958-1972 and 2184-2185
+  1958:         self.link_status = CSRStorage(fields=[
+  1959:             CSRField("link_up", size=1, offset=0, reset=1,
+  1960:                      description="PHY link is up (MAC_STATUS[0]). Software-published "
+  1961:                                  "from the MDIO autoneg result; reset 1 = the "
+  1962:                                  "pre-2026-07-26 hardwired constant."),
+  1963:             CSRField("speed", size=2, offset=1,
+  1964:                      reset=(0b01 if phy_model == "mii" else 0b10),
+  1965:                      description="Negotiated speed (MAC_STATUS[2:1]): 0=10, 1=100, "
+  1966:                                  "2=1000 Mb/s. Feeds milan_csr i_speed, hence "
+  1967:                                  "o_mac_is_1g (REQ-MAC-03) unless MAC_CTRL[5] "
+  1968:                                  "manual-override is set. Reset = the board's PHY "
+  1969:                                  "wiring (mii -> 100, gmii -> 1000)."),
+  1970:             CSRField("full_duplex", size=1, offset=3, reset=1,
+  1971:                      description="Full-duplex indication (MAC_STATUS[3])."),
+  1972:         ], description="PHY/MAC link status published by software (MDIO). See "
+  2184:             i_i_mac_speed = self.link_status.fields.speed,
+  2185:             i_i_link_up = link_up_cd, i_i_full_duplex = full_duplex_cd,
+
+===== D0-027 page=docs/guides/VERIFICATION_DEVELOPER.md
+CORRECTION: Name the shared host harness `sw/firmware/gtest/` for the control-plane firmware's C (`sw/firmware/gtest/README.md` lines 3-13). Call `sw/trace/test_trace_roundtrip.py` the round-trip of the supplied `sw/trace/` producer, and state separately that the shipping image does not link that producer (`sw/firmware/milan_baremetal/Makefile` line 6; D0-048).
+CITED IN CORRECTION CELL: 2
+--- [correction] sw/firmware/gtest/README.md 3-13
+     3: 
+     4: The bare-metal control-plane firmware ([`ctrl`](../ctrl/README.md)) and its
+     5: saved-state store ([`ctrl_nvm`](../ctrl_nvm/README.md)) are tested on the host
+     6: with GoogleTest and GoogleMock. The firmware stays C11 with no heap; the tests
+     7: are C++ and include its C headers through `extern "C"`. This directory holds
+     8: what both host gates share: the `main()` and tally listener every test binary
+     9: links, the build and grading helpers, the coverage gate and its ratchet.
+    10: 
+    11: The gates are unchanged in name and exit status:
+    12: `sw/firmware/ctrl/test/test_ctrl_firmware.py` and
+    13: `sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py`. Both now build GoogleTest
+--- [correction] sw/firmware/milan_baremetal/Makefile 6
+     6: OBJECTS = milan_baremetal.o
+--- [source] sw/firmware/gtest/README.md 3-13
+     3: 
+     4: The bare-metal control-plane firmware ([`ctrl`](../ctrl/README.md)) and its
+     5: saved-state store ([`ctrl_nvm`](../ctrl_nvm/README.md)) are tested on the host
+     6: with GoogleTest and GoogleMock. The firmware stays C11 with no heap; the tests
+     7: are C++ and include its C headers through `extern "C"`. This directory holds
+     8: what both host gates share: the `main()` and tally listener every test binary
+     9: links, the build and grading helpers, the coverage gate and its ratchet.
+    10: 
+    11: The gates are unchanged in name and exit status:
+    12: `sw/firmware/ctrl/test/test_ctrl_firmware.py` and
+    13: `sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py`. Both now build GoogleTest
+
+===== D0-035 page=docs/integration/QSPI_FLASHBOOT.md
+CORRECTION: Name `load_aem_image()` (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1860-1892) and its two rejection checks: a bad `AEMI` magic before the copy (lines 1869-1873) and a CRC32 mismatch after it (lines 1877-1883). State that `MILAN_AEM_IMAGE_BYTES` only bounds the copy and the CRC (lines 1874-1878), and that no length is compared or rejected. Keep the consequence: a failed check leaves the entity disabled (lines 1913 and 1915, `entity_advertise()` takes the verdict).
+CITED IN CORRECTION CELL: 5
+--- [correction] sw/firmware/milan_baremetal/milan_baremetal.c 1860-1892
+  1860: static int load_aem_image(void)
+  1861: {
+  1862: #if defined(SPIFLASH_BASE) && defined(MILAN_AEM_FLASH_OFFSET)
+  1863: 	const volatile uint8_t *src =
+  1864: 		(const volatile uint8_t *)(SPIFLASH_BASE + MILAN_AEM_FLASH_OFFSET);
+  1865: 	volatile uint8_t *dst = (volatile uint8_t *)MILAN_AEM_DESC_BASE;
+  1866: 	unsigned int i;
+  1867: 	uint32_t got;
+  1868: 
+  1869: 	if (src[0] != 'A' || src[1] != 'E' || src[2] != 'M' || src[3] != 'I') {
+  1870: 		printf("Milan baremetal: AEM image missing at QSPI +0x%08x; entity disabled.\n",
+  1871: 		       MILAN_AEM_FLASH_OFFSET);
+  1872: 		return 0;
+  1873: 	}
+  1874: 	for (i = 0; i < MILAN_AEM_IMAGE_BYTES; ++i)
+  1875: 		dst[i] = src[i];
+  1876: 	__asm__ volatile("fence rw, rw" ::: "memory");
+  1877: 	got = crc32((const unsigned char *)MILAN_AEM_DESC_BASE,
+  1878: 	            MILAN_AEM_IMAGE_BYTES);
+  1879: 	if (got != MILAN_AEM_IMAGE_CRC32) {
+  1880: 		printf("Milan baremetal: AEM CRC failed (expected %08lx, got %08lx); entity disabled.\n",
+  1881: 		       (unsigned long)MILAN_AEM_IMAGE_CRC32, (unsigned long)got);
+  1882: 		return 0;
+  1883: 	}
+  1884: 	printf("Milan baremetal: AEM %u B copied QSPI +0x%08x -> 0x%08x, CRC %08lx.\n",
+  1885: 	       MILAN_AEM_IMAGE_BYTES, MILAN_AEM_FLASH_OFFSET,
+  1886: 	       MILAN_AEM_DESC_BASE, (unsigned long)got);
+  1887: 	return 1;
+  1888: #else
+  1889: 	printf("Milan baremetal: no QSPI AEM slot; entity disabled.\n");
+  1890: 	return 0;
+  1891: #endif
+  1892: }
+--- [correction] sw/firmware/milan_baremetal/milan_baremetal.c 1869-1873
+  1869: 	if (src[0] != 'A' || src[1] != 'E' || src[2] != 'M' || src[3] != 'I') {
+  1870: 		printf("Milan baremetal: AEM image missing at QSPI +0x%08x; entity disabled.\n",
+  1871: 		       MILAN_AEM_FLASH_OFFSET);
+  1872: 		return 0;
+  1873: 	}
+--- [correction] sw/firmware/milan_baremetal/milan_baremetal.c 1877-1883
+  1877: 	got = crc32((const unsigned char *)MILAN_AEM_DESC_BASE,
+  1878: 	            MILAN_AEM_IMAGE_BYTES);
+  1879: 	if (got != MILAN_AEM_IMAGE_CRC32) {
+  1880: 		printf("Milan baremetal: AEM CRC failed (expected %08lx, got %08lx); entity disabled.\n",
+  1881: 		       (unsigned long)MILAN_AEM_IMAGE_CRC32, (unsigned long)got);
+  1882: 		return 0;
+  1883: 	}
+--- [correction] sw/firmware/milan_baremetal/milan_baremetal.c 1874-1878
+  1874: 	for (i = 0; i < MILAN_AEM_IMAGE_BYTES; ++i)
+  1875: 		dst[i] = src[i];
+  1876: 	__asm__ volatile("fence rw, rw" ::: "memory");
+  1877: 	got = crc32((const unsigned char *)MILAN_AEM_DESC_BASE,
+  1878: 	            MILAN_AEM_IMAGE_BYTES);
+--- [correction] sw/firmware/milan_baremetal/milan_baremetal.c 1913 and 1915
+  1913: 	aem_loaded = load_aem_image();
+  1915: 	entity_advertise(aem_loaded);
+--- [source] sw/firmware/milan_baremetal/milan_baremetal.c 1860-1892
+  1860: static int load_aem_image(void)
+  1861: {
+  1862: #if defined(SPIFLASH_BASE) && defined(MILAN_AEM_FLASH_OFFSET)
+  1863: 	const volatile uint8_t *src =
+  1864: 		(const volatile uint8_t *)(SPIFLASH_BASE + MILAN_AEM_FLASH_OFFSET);
+  1865: 	volatile uint8_t *dst = (volatile uint8_t *)MILAN_AEM_DESC_BASE;
+  1866: 	unsigned int i;
+  1867: 	uint32_t got;
+  1868: 
+  1869: 	if (src[0] != 'A' || src[1] != 'E' || src[2] != 'M' || src[3] != 'I') {
+  1870: 		printf("Milan baremetal: AEM image missing at QSPI +0x%08x; entity disabled.\n",
+  1871: 		       MILAN_AEM_FLASH_OFFSET);
+  1872: 		return 0;
+  1873: 	}
+  1874: 	for (i = 0; i < MILAN_AEM_IMAGE_BYTES; ++i)
+  1875: 		dst[i] = src[i];
+  1876: 	__asm__ volatile("fence rw, rw" ::: "memory");
+  1877: 	got = crc32((const unsigned char *)MILAN_AEM_DESC_BASE,
+  1878: 	            MILAN_AEM_IMAGE_BYTES);
+  1879: 	if (got != MILAN_AEM_IMAGE_CRC32) {
+  1880: 		printf("Milan baremetal: AEM CRC failed (expected %08lx, got %08lx); entity disabled.\n",
+  1881: 		       (unsigned long)MILAN_AEM_IMAGE_CRC32, (unsigned long)got);
+  1882: 		return 0;
+  1883: 	}
+  1884: 	printf("Milan baremetal: AEM %u B copied QSPI +0x%08x -> 0x%08x, CRC %08lx.\n",
+  1885: 	       MILAN_AEM_IMAGE_BYTES, MILAN_AEM_FLASH_OFFSET,
+  1886: 	       MILAN_AEM_DESC_BASE, (unsigned long)got);
+  1887: 	return 1;
+  1888: #else
+  1889: 	printf("Milan baremetal: no QSPI AEM slot; entity disabled.\n");
+  1890: 	return 0;
+  1891: #endif
+  1892: }
+
+===== D0-063 page=docs/integration/INTEGRATION_GUIDE.md
+CORRECTION: Give each Stream Input word and flag its writer. Selector 0: `milan_datapath` writes every flag (`hdl/milan/milan_datapath.sv` lines 6194-6217), and while the input is unsettled the processor clears STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID (`0x52000000`, `protocol-processor/hdl/top/protocol_processor_top.sv` line 3641). Selectors 1 (stream_format) and 3 (msrp_accumulated_latency): `milan_datapath` (lines 6401 and 6421). Selector 2 (stream_id): `milan_datapath` (line 6413), and the processor answers 0 while unsettled (top line 3642). Selector 4: `milan_datapath` writes stream_dest_mac [63:16] (line 6430), and the processor answers 0 there while unsettled (top line 3643); the processor writes msrp_failure_code [15:8] (top line 3628). Selector 5 (msrp_failure_bridge_id) and selector 7 (probing_status, acmp_status): the processor alone, never asked of `milan_datapath` (top lines 3593-3595, 3629, 3633). Selector 6: the processor writes stream_vlan_id [63:48], `bound_vlan_r` when settled and 0 otherwise (top lines 3631-3632); `milan_datapath` writes [47:0] (line 6451). A Stream Output's words pass through from `milan_datapath` unchanged (top line 3626).
+CITED IN CORRECTION CELL: 12
+--- [correction] hdl/milan/milan_datapath.sv 6194-6217
+  6194:       gsi_flags_w = {1'b1,                    // STREAM_FORMAT_VALID
+  6195:                      gsi_setl_w,              // STREAM_ID_VALID
+  6196:                      gsi_reging_w,            // MSRP_ACC_LAT_VALID
+  6197:                      gsi_setl_w,              // STREAM_DEST_MAC_VALID
+  6198:                      gsi_tkfail_w,            // MSRP_FAILURE_VALID
+  6199:                      gsi_bnd_w,               // BOUND
+  6200:                      gsi_setl_w,              // STREAM_VLAN_ID_VALID
+  6201:                      18'd0,
+  6202:                      gsi_tkfail_w,            // REGISTERING_FAILED
+  6203:                      2'b0,
+  6204:                      //! Milan Table 5.9 bit 28: "0 if the Stream Input is
+  6205:                      //! bound and started, 1 if the Stream Input is bound and
+  6206:                      //! stopped, undefined if the Stream Input is not bound."
+  6207:                      //! This was a hardcoded 0 justified as "bound = started",
+  6208:                      //! which was true only while stopped was unreachable;
+  6209:                      //! with §5.4.2.20 served it would report a stopped sink
+  6210:                      //! as started. It reads the SAME bit the admission gate
+  6211:                      //! above does, so the answer and the behaviour cannot
+  6212:                      //! disagree.
+  6213:                      gsi_bnd_w && !pp_aecp_strm_started_w[gsi_six_w],
+  6214:                      gsi_bnd_w,               // SAVED_STATE (recommended)
+  6215:                      gsi_bnd_w,               // FAST_CONNECT (= bound, T5.9)
+  6216:                      1'b0};                   // CLASS_B
+  6217:       gsi_flags_ex_w = {31'd0, gsi_reging_w}; // REGISTERING
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 3641
+  3641:           4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 6401 and 6421
+  6401: <past EOF>
+  6421: <past EOF>
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 6413
+  6413: <past EOF>
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 3642
+  3642:           4'd2: aecp_gsi_data_w = 64'd0;
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 6430
+  6430: <past EOF>
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 3643
+  3643:           4'd4: aecp_gsi_data_w[63:16] = 48'd0;
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 3628
+  3628:         4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 3593-3595, 3629, 3633
+  3593:   assign gsi_internal_w = gsi_input_w
+  3594:                            && ((gsi_sel_o == 4'd5) || (gsi_sel_o == 4'd7));
+  3595:   assign gsi_req_o = aecp_gsi_req_w && !gsi_internal_w;
+  3629:         4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;
+  3633:         4'd7: aecp_gsi_data_w = {32'd0, gsi_status_w, 24'd0};
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 3631-3632
+  3631:         4'd6: aecp_gsi_data_w = {gsi_settled_w
+  3632:               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 6451
+  6451: <past EOF>
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 3626
+  3626:     if (gsi_input_w) begin
+--- [source] protocol-processor/hdl/top/protocol_processor_top.sv 3624-3648
+  3624:   always_comb begin : gsi_answer
+  3625:     aecp_gsi_data_w = gsi_data_i;
+  3626:     if (gsi_input_w) begin
+  3627:       case (gsi_sel_o)
+  3628:         4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
+  3629:         4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;
+  3630:         // Milan 5.3.8.9 and 5.4.2.10: report the full received VLAN.
+  3631:         4'd6: aecp_gsi_data_w = {gsi_settled_w
+  3632:               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+  3633:         4'd7: aecp_gsi_data_w = {32'd0, gsi_status_w, 24'd0};
+  3634:         default: begin end
+  3635:       endcase
+  3636:       // Table 5.9 while unsettled: clear the three flags (0x52000000) in
+  3637:       // selector 0's flags, and zero selector 2's stream_id and selector
+  3638:       // 4's stream_dest_mac [63:16].
+  3639:       if (!gsi_settled_w) begin
+  3640:         case (gsi_sel_o)
+  3641:           4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;
+  3642:           4'd2: aecp_gsi_data_w = 64'd0;
+  3643:           4'd4: aecp_gsi_data_w[63:16] = 48'd0;
+  3644:           default: begin end
+  3645:         endcase
+  3646:       end
+  3647:     end
+  3648:   end
+--- [source] protocol-processor/hdl/top/protocol_processor_top.sv 3573-3585
+  3573:             (lstn_gsi_status_r[lstn_recwr_sink_w] != lstn_gsi_status_w);
+  3574:       end
+  3575:     end
+  3576:   end
+  3577: 
+  3578:   //! The engine keeps its word table and response layout. Intercept only
+  3579:   //! kind 0 STREAM_INPUT words here, where the state owners meet, and read
+  3580:   //! the owners LIVE at each beat: no sample-and-hold copy (06 F06.13 states
+  3581:   //! the bound). The full descriptor index is checked BEFORE narrowing to
+  3582:   //! the sink width. The SRP bridge arrives ungated, so it is gated ONCE
+  3583:   //! here, after the index mux, on the addressed sink's registered FAILED.
+  3584:   logic        aecp_gsi_req_w, aecp_gsi_wait_w;
+  3585:   logic [63:0] aecp_gsi_data_w;
+--- [source] protocol-processor/hdl/top/protocol_processor_top.sv 3632
+  3632:               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+--- [source] protocol-processor/hdl/top/protocol_processor_top.sv 3639-3645
+  3639:       if (!gsi_settled_w) begin
+  3640:         case (gsi_sel_o)
+  3641:           4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;
+  3642:           4'd2: aecp_gsi_data_w = 64'd0;
+  3643:           4'd4: aecp_gsi_data_w[63:16] = 48'd0;
+  3644:           default: begin end
+  3645:         endcase
+--- [source] hdl/milan/milan_datapath.sv 6444-6445
+  6444:           //! an input's stream_vlan_id [63:48] is unused: the processor
+  6445:           //! replaces it with all 16 received VLAN bits (#708)
+
+===== D0-064 page=docs/integration/INTEGRATION_GUIDE.md
+CORRECTION: Say that `milan_datapath` gathers the other words and the flags (`hdl/milan/milan_datapath.sv` lines 6194-6217 and 6392-6456), and that the processor's answer is final for a Stream Input: `protocol-processor/hdl/top/protocol_processor_top.sv` lines 3624-3648 pass the gathered data through, then replace the VLAN and mask the three flags and two identity fields while the input is unsettled, which is probing_status other than PROBING_COMPLETED (line 3621). Keep the gather data as the parent's. D0-063 lists each word.
+CITED IN CORRECTION CELL: 3
+--- [correction] hdl/milan/milan_datapath.sv 6194-6217 and 6392-6456
+  6194:       gsi_flags_w = {1'b1,                    // STREAM_FORMAT_VALID
+  6195:                      gsi_setl_w,              // STREAM_ID_VALID
+  6196:                      gsi_reging_w,            // MSRP_ACC_LAT_VALID
+  6197:                      gsi_setl_w,              // STREAM_DEST_MAC_VALID
+  6198:                      gsi_tkfail_w,            // MSRP_FAILURE_VALID
+  6199:                      gsi_bnd_w,               // BOUND
+  6200:                      gsi_setl_w,              // STREAM_VLAN_ID_VALID
+  6201:                      18'd0,
+  6202:                      gsi_tkfail_w,            // REGISTERING_FAILED
+  6203:                      2'b0,
+  6204:                      //! Milan Table 5.9 bit 28: "0 if the Stream Input is
+  6205:                      //! bound and started, 1 if the Stream Input is bound and
+  6206:                      //! stopped, undefined if the Stream Input is not bound."
+  6207:                      //! This was a hardcoded 0 justified as "bound = started",
+  6208:                      //! which was true only while stopped was unreachable;
+  6209:                      //! with §5.4.2.20 served it would report a stopped sink
+  6210:                      //! as started. It reads the SAME bit the admission gate
+  6211:                      //! above does, so the answer and the behaviour cannot
+  6212:                      //! disagree.
+  6213:                      gsi_bnd_w && !pp_aecp_strm_started_w[gsi_six_w],
+  6214:                      gsi_bnd_w,               // SAVED_STATE (recommended)
+  6215:                      gsi_bnd_w,               // FAST_CONNECT (= bound, T5.9)
+  6216:                      1'b0};                   // CLASS_B
+  6217:       gsi_flags_ex_w = {31'd0, gsi_reging_w}; // REGISTERING
+  6392:   always_comb begin : gsi_answer
+  6393:     gsi_ans_raw_w = 64'd0;
+  6394:     unique case (gsiq_kind_r)
+  6395:       2'd0: begin                            // ---- GET_STREAM_INFO ----
+  6396:         unique case (gsiq_sel_r)
+  6397:           4'd0: gsi_ans_raw_w = {32'd0, gsi_flags_w};
+  6398:           //! the CURRENT format: a valid settings row IS the current format
+  6399:           //! (SET_STREAM_FORMAT stored it); until then the generated base -
+  6400:           //! and the CRF rows report the CRF format, never the AAF base
+  6401:           4'd1: gsi_ans_raw_w =
+  6402:                     gsi_in_w
+  6403:                       ? (sfv_crf_row_w ? ADP_CRF_FMT_C
+  6404:                          : pp_aecp_fmt_in_v_w[gsi_six_w]
+  6405:                            ? pp_aecp_fmt_in_w[64*gsi_six_w +: 64]
+  6406:                            : sfv_decl_in_w)
+  6407:                   : gsi_out_w
+  6408:                       ? (sfv_crf_row_w ? ADP_CRF_OUT_FMT_C
+  6409:                          : pp_aecp_fmt_out_v_w[gsi_oix_w]
+  6410:                            ? pp_aecp_fmt_out_w[64*gsi_oix_w +: 64]
+  6411:                            : sfv_decl_out_w)
+  6412:                       : 64'd0;
+  6413:           4'd2: gsi_ans_raw_w = gsi_in_w  ? gsi_sid_w
+  6414:                               : gsi_decl_w ? gsi_osid_w : 64'd0;
+  6415:           //! an output's accumulated latency reads the SAME transit entry
+  6416:           //! its framer stamps, so the answer and the wire cannot disagree
+  6417:           //! (Milan v1.2 5.4.2.10.2, "the presentation time offset currently
+  6418:           //! used by the talker"): an AAF talker's row as set, the CRF
+  6419:           //! output's as applied, whole media clock periods by Eq. (14)
+  6420:           //! (#632), 0xFFFFFFFF once that passes 32 bits (pres_round)
+  6421:           4'd3: gsi_ans_raw_w = gsi_in_w
+  6422:                               ? {32'd0, gsi_reging_w
+  6423:                                  ? pp_cd_srp_acc_latency_w[32*gsi_six_w +: 32]
+  6424:                                  : 32'd0}
+  6425:                               : {32'd0, !gsi_out_w ? 32'd0
+  6426:                                         : gsi_crf_out_w ? pres_crf_rb_ns_w
+  6427:                                         : aecp_pres_offset[32*gsi_oix_w +: 32]};
+  6428:           //! an input's failure-code byte [15:8] is left zero: the
+  6429:           //! processor replaces it from its SRP registrar (#508)
+  6430:           4'd4: gsi_ans_raw_w = gsi_setl_w
+  6431:                               ? {pp_cd_acmp_bound_dmac_w[48*gsi_six_w +: 48],
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 3624-3648
+  3624:   always_comb begin : gsi_answer
+  3625:     aecp_gsi_data_w = gsi_data_i;
+  3626:     if (gsi_input_w) begin
+  3627:       case (gsi_sel_o)
+  3628:         4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
+  3629:         4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;
+  3630:         // Milan 5.3.8.9 and 5.4.2.10: report the full received VLAN.
+  3631:         4'd6: aecp_gsi_data_w = {gsi_settled_w
+  3632:               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+  3633:         4'd7: aecp_gsi_data_w = {32'd0, gsi_status_w, 24'd0};
+  3634:         default: begin end
+  3635:       endcase
+  3636:       // Table 5.9 while unsettled: clear the three flags (0x52000000) in
+  3637:       // selector 0's flags, and zero selector 2's stream_id and selector
+  3638:       // 4's stream_dest_mac [63:16].
+  3639:       if (!gsi_settled_w) begin
+  3640:         case (gsi_sel_o)
+  3641:           4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;
+  3642:           4'd2: aecp_gsi_data_w = 64'd0;
+  3643:           4'd4: aecp_gsi_data_w[63:16] = 48'd0;
+  3644:           default: begin end
+  3645:         endcase
+  3646:       end
+  3647:     end
+  3648:   end
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 3621
+  3621:   assign gsi_settled_w = (32'(gsi_desc_index_o) < N_STREAM_IN_P)
+--- [source] protocol-processor/hdl/top/protocol_processor_top.sv 3631-3632
+  3631:         4'd6: aecp_gsi_data_w = {gsi_settled_w
+  3632:               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+--- [source] protocol-processor/hdl/top/protocol_processor_top.sv 3639-3645
+  3639:       if (!gsi_settled_w) begin
+  3640:         case (gsi_sel_o)
+  3641:           4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;
+  3642:           4'd2: aecp_gsi_data_w = 64'd0;
+  3643:           4'd4: aecp_gsi_data_w[63:16] = 48'd0;
+  3644:           default: begin end
+  3645:         endcase
+--- [source] hdl/milan/milan_datapath.sv 6048-6053
+  6048:   //!    while the sink is settled, probing_status PROBING_COMPLETED (Milan
+  6049:   //!    v1.2 5.4.2.10.1, Table 5.9; 5.3.8.5, Table 5.5). This face cannot
+  6050:   //!    see probing_status, so the PROCESSOR applies that rule to the words
+  6051:   //!    below (processor #206, #790): while its committed status is not
+  6052:   //!    PROBING_COMPLETED it clears 0x52000000 in selector 0 and answers
+  6053:   //!    0 for selector 2 and selector 4 [63:16]. This face's own gate,
+
+===== D0-065 page=docs/integration/INTEGRATION_GUIDE.md
+CORRECTION: Name all five: probing_status, acmp_status, msrp_failure_code, msrp_failure_bridge_id and stream_vlan_id (`protocol-processor/hdl/top/protocol_processor_top.sv` lines 3628-3633).
+CITED IN CORRECTION CELL: 1
+--- [correction] protocol-processor/hdl/top/protocol_processor_top.sv 3628-3633
+  3628:         4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
+  3629:         4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;
+  3630:         // Milan 5.3.8.9 and 5.4.2.10: report the full received VLAN.
+  3631:         4'd6: aecp_gsi_data_w = {gsi_settled_w
+  3632:               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+  3633:         4'd7: aecp_gsi_data_w = {32'd0, gsi_status_w, 24'd0};
+--- [source] protocol-processor/hdl/top/protocol_processor_top.sv 3631-3632
+  3631:         4'd6: aecp_gsi_data_w = {gsi_settled_w
+  3632:               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+--- [source] hdl/milan/milan_datapath.sv 6444-6445
+  6444:           //! an input's stream_vlan_id [63:48] is unused: the processor
+  6445:           //! replaces it with all 16 received VLAN bits (#708)
+
+===== D0-066 page=docs/guides/VERIFICATION_DEVELOPER.md
+CORRECTION: Write "Supplied trace producer", not linked by the shipping image (`sw/firmware/milan_baremetal/Makefile` line 6; `sw/trace/test_trace_roundtrip.py` lines 17-18 compile it on the host; D0-048).
+CITED IN CORRECTION CELL: 2
+--- [correction] sw/firmware/milan_baremetal/Makefile 6
+     6: OBJECTS = milan_baremetal.o
+--- [correction] sw/trace/test_trace_roundtrip.py 17-18
+    17:    4. the producer COMPILES and RUNS with a host C compiler (the same barectf.c
+    18:       + milan_trace.c the bare-metal image links), producing real CTF segments;
+--- [source] sw/firmware/milan_baremetal/Makefile 6
+     6: OBJECTS = milan_baremetal.o
+
+
+######## MOVED CITATIONS: old text at old citation vs new text at new citation
+CITATION-SET-CHANGED D0-001 source: [('sw/litex/milan_soc.py', '2621')] -> [('sw/litex/milan_soc.py', '2854-2856'), ('sw/litex/milan_soc.py', '4097')]
+CITATION-SET-CHANGED D0-001 correction: [] -> [('sw/litex/milan_soc.py', '2854-2856'), ('sw/litex/milan_soc.py', '4097')]
+CITATION-SET-CHANGED D0-017 correction: [] -> [('sw/firmware/milan_baremetal/milan_baremetal.c', '1671'), ('sw/firmware/milan_baremetal/milan_baremetal.c', '1099-1102 and 1106'), ('sw/firmware/milan_baremetal/milan_baremetal.c', '1900-1903')]
+MOVED-TEXT-DIFFERS D0-024 source sw/litex/milan_soc.py 1393 -> sw/litex/milan_soc.py 1405
+  old: ['`.dp` is bound to the `milan_datapath` Instance, `.sys` to the SoC-side']
+  new: ['self.dp  = dp']
+MOVED-TEXT-DIFFERS D0-024 source sw/litex/milan_soc.py 1641 -> sw/litex/milan_soc.py 1656
+  old: ['# domain off the same clock (gtx = rxc), so the one constraint']
+  new: ['# may put the tx_data/tx_en launch FFs anywhere: measured on AX silicon,']
+MOVED-TEXT-DIFFERS D0-024 source sw/litex/milan_soc.py 1890 -> sw/litex/milan_soc.py 1914
+  old: ['# the link. Reset values REPRODUCE the old constants exactly, so a build whose']
+  new: ['tx_dp.sys.keep & ~(tx_dp.sys.keep >> 1), 0)),']
+MOVED-TEXT-DIFFERS D0-026 source scripts/run_litex_sims.sh 98-106 -> scripts/run_litex_sims.sh 99-108
+  old: ['#: a red run, and docs/testing/TESTING.md section 2 names the rule.', 'INVENTORY=(', 'test_cpu_memory_port_cdc']
+  new: ['INVENTORY=(', 'test_cpu_memory_port_cdc', 'test_ctrl_memory']
+KEPT-IN-CHANGED-CELL-TEXT-CHANGED D0-026 source scripts/run_litex_sims.sh 150-150
+  old: ['  local out="$1"']
+  new: ['run_aggregate() {']
+CITATION-SET-CHANGED D0-027 correction: [] -> [('sw/firmware/gtest/README.md', '3-13'), ('sw/firmware/milan_baremetal/Makefile', '6')]
+MOVED-TEXT-DIFFERS D0-033 source sw/litex/milan_soc.py 2621 -> sw/litex/milan_soc.py 2854-2856
+  old: ['# --ctrl-mailbox, whose default is off: the default build carries no mailbox']
+  new: ['# --ctrl-mailbox, whose default is off: the default build carries no mailbox', '# source, instance, bus region, CSR bank or interrupt, so every shipped', "# config's top .v and source list are byte-identical to a build without this"]
+MISSING D0-034 stream.ClockDomainCrossing stream.ClockDomainCrossing
+MISSING D0-034 stream.ClockDomainCrossing stream.ClockDomainCrossing
+MOVED-TEXT-DIFFERS D0-035 source sw/firmware/milan_baremetal/milan_baremetal.c 1836-1866 -> sw/firmware/milan_baremetal/milan_baremetal.c 1860-1892
+  old: ['static int load_aem_image(void)', '{', '#if defined(SPIFLASH_BASE) && defined(MILAN_AEM_FLASH_OFFSET)']
+  new: ['static int load_aem_image(void)', '{', '#if defined(SPIFLASH_BASE) && defined(MILAN_AEM_FLASH_OFFSET)']
+CITATION-SET-CHANGED D0-035 correction: [] -> [('sw/firmware/milan_baremetal/milan_baremetal.c', '1860-1892'), ('sw/firmware/milan_baremetal/milan_baremetal.c', '1869-1873'), ('sw/firmware/milan_baremetal/milan_baremetal.c', '1877-1883'), ('sw/firmware/milan_baremetal/milan_baremetal.c', '1874-1878'), ('sw/firmware/milan_baremetal/milan_baremetal.c', '1913 and 1915')]
+MOVED-TEXT-DIFFERS D0-038 source sw/litex/milan_soc.py 3037-3041 -> sw/litex/milan_soc.py 3270-3274
+  old: ['self.add_sdram("sdram",', 'phy    = self.ddrphy,', 'module = dram_module(sys_clk_freq, "1:4"),']
+  new: ['add_staged_sdram(self, "sdram",', 'phy    = self.ddrphy,', 'module = dram_module(sys_clk_freq, "1:4"),']
+MOVED-TEXT-DIFFERS D0-049 source sw/firmware/milan_baremetal/milan_baremetal.c 463-465, 1641-1675 -> sw/firmware/milan_baremetal/milan_baremetal.c 463-465, 1656-1694
+  old: ['static unsigned int nvm_verdict_a;', 'static unsigned int nvm_verdict_b;', 'static unsigned int nvm_last_verdict;']
+  new: ['static unsigned int nvm_verdict_a;', 'static unsigned int nvm_verdict_b;', 'static unsigned int nvm_last_verdict;']
+MOVED-TEXT-DIFFERS D0-056 source sw/litex/milan_soc.py 2621 -> sw/litex/milan_soc.py 2854-2856
+  old: ['# --ctrl-mailbox, whose default is off: the default build carries no mailbox']
+  new: ['# --ctrl-mailbox, whose default is off: the default build carries no mailbox', '# source, instance, bus region, CSR bank or interrupt, so every shipped', "# config's top .v and source list are byte-identical to a build without this"]
+CITATION-SET-CHANGED D0-057 source: [] -> [('docs/reference/REGISTER_MAP.md', '351-356')]
+CITATION-SET-CHANGED D0-062 source: [('docs/reference/SUBMODULES.md', '371-381')] -> [('docs/reference/SUBMODULES.md', '511-517'), ('docs/design/AREA_BUDGET.md', '149-150')]
+moved=39 unmoved_same=43 unmoved_differ=1

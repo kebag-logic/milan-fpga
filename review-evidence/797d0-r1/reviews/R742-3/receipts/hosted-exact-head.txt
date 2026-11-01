@@ -1,0 +1,25 @@
+Exact-head hosted runs, read-only, head 808602e08daee5e86ae21026bbaf2f9114db077a
+41349429098 docs completed cancelled
+41349428928 elaborate completed cancelled
+41349428987 rtl-full completed cancelled
+41349428937 rtl-fast completed cancelled
+
+docs run jobs
+Fail fast across this head cancelled Observe the first failed job
+docs-check-no-git success 
+docs-gates-0 cancelled Compiler-absent firmware controls
+docs-gates-2 cancelled End-station builder gates, leg 1 of 2
+docs-gates-1 cancelled End-station builder gates, leg 0 of 2
+wire-accountability success 
+docs-check failure Require every gate exactly once
+Collect CI manifest success 
+Cancel late CI failures success 
+
+docs-gates steps touching the inventory
+Documentation inventory freshness gate: skipped
+Fetch inventory dependencies: skipped
+
+rtl-fast failing job
+verilator-lint failure Prove protocol-processor source lists are derived
+  - scripts/docs_inventory.json: names submodule source(s) literally that are not permitted prose: protocol-processor/hdl/top/protocol_processor_top.sv. A build input must derive the list with this script. If this really is prose, add the exact literal to PROSE_OK with the reason.
+##[error]Process completed with exit code 1.
