@@ -18298,6 +18298,63 @@ def test_gptp_launch_shape_follows_the_phy() -> None:
           f"{len(LAUNCH_SHAPE_MUTATIONS)} cuts rejected")
 
 
+#: What carries that shape from the datapath's parameters into the plane (#829):
+#: (datapath parameter, plane parameter, the GMII default). Cut a binding and the
+#: datapath states MII while the plane keeps GMII's default, so it expects 45
+#: clocks, the observer measures 90, and every frame is lost unmeasured.
+DATAPATH_SHAPE_WIRING = (
+    ("GPTP_ETH_TICK_NS_P", "ETH_TICK_NS_P", 8),
+    ("GPTP_ETH_CYC_PER_OCTET_P", "ETH_CYC_PER_OCTET_P", 1),
+)
+
+
+def _datapath_shape_findings(rtl):
+    """The findings of gate 1h against one milan_datapath.sv text."""
+    planes = re.findall(r"KL_gptp_shadow\s*#\((.*?)\)\s*u_gptp_shadow\b",
+                        rtl, re.DOTALL)
+    if len(planes) != 1:
+        return [f"{len(planes)} planes instantiated, not one"]
+    bad = []
+    for param, port, default in DATAPATH_SHAPE_WIRING:
+        if not re.search(rf"parameter\s+int\s+unsigned\s+{param}\s*=\s*"
+                         rf"{default}\s*,", rtl):
+            bad.append(f"{param} does not default to {default}")
+        if not re.search(rf"\.{port}\s*\(\s*{param}\s*\)", planes[0]):
+            bad.append(f".{port} is not bound to {param}")
+    return bad
+
+
+def _datapath_shape_cuts(rtl):
+    """Each defect gate 1h must refuse: (name, the planted text, what it names)."""
+    cuts = [("the plane renamed", rtl.replace("u_gptp_shadow", "u_gptp_other"),
+             "planes instantiated")]
+    for param, port, default in DATAPATH_SHAPE_WIRING:
+        binding = rf"\.{port}\s*\(\s*{param}\s*\)"
+        cuts += [
+            (f"{port} cut", re.sub(rf"[ \t]*{binding},?\n", "", rtl),
+             f".{port} is not bound"),
+            (f"{port} tied", re.sub(binding, f".{port} ({default})", rtl),
+             f".{port} is not bound"),
+            (f"{param} default moved",
+             re.sub(rf"({param}\s*=\s*){default}\s*,", r"\g<1>7,", rtl),
+             f"{param} does not default"),
+        ]
+    return cuts
+
+
+def test_gptp_datapath_carries_the_launch_shape() -> None:
+    """Gate 1h: milan_datapath hands the plane the shape the SoC states it."""
+    rtl = (ROOT / "hdl/milan/milan_datapath.sv").read_text()
+    assert not _datapath_shape_findings(rtl), _datapath_shape_findings(rtl)
+    cuts = _datapath_shape_cuts(rtl)
+    for name, planted, names in cuts:
+        assert planted != rtl, f"gate 1h: the control {name!r} planted nothing"
+        bad = _datapath_shape_findings(planted)
+        assert any(names in item for item in bad), \
+            f"gate 1h accepted a milan_datapath.sv with {name}: {bad}"
+    print(f"  [gate 1h mutation] {len(cuts)}/{len(cuts)} cuts rejected")
+
+
 def _gptp_observer_reads_the_mac_stream(soc):
     """The seam and the domain: one observer, on `phy.sink`, in `maceth_tx`."""
     instances = re.findall(
@@ -29336,6 +29393,7 @@ if __name__ == "__main__":
                test_gptp_product_default_and_legacy_option,
                test_gptp_launch_observer_seam,
                test_gptp_launch_shape_follows_the_phy,
+               test_gptp_datapath_carries_the_launch_shape,
                test_reboot_egress_statement,
                test_reboot_egress_statement_gate_bites,
                test_qspi_owner_transition_completed_write_prefixes,
