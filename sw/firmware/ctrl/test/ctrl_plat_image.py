@@ -154,7 +154,6 @@ def main() -> int:
         libraries = [args.libc.resolve(), args.compiler_runtime.resolve()]
         elf, mapfile = image.link(cc, args.ctrl_source.resolve(), out, objects, libraries, "split")
         image.verify_abi(cc, elf, image.layout_isa("split"))
-        image.hot_list(args.ctrl_source.resolve(), mapfile, "split")
         tool = cc.removesuffix("gcc")
         symbols = image.checked([tool + "nm", "-S", str(elf)])
         if image.checked([tool + "nm", "-u", str(elf)]).strip():
