@@ -53,11 +53,11 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Unreleased - gPTP on the MII port
 
-- Issue #829: the gPTP plane fell silent on the 100 Mb/s MII port.
+- Issue #829: the gPTP plane timed no frame on the 100 Mb/s MII port.
 - `phy.sink` holds each MII octet for two clocks.
 - The launch observer read one octet per clock.
 - Its delimiter check failed on the held preamble, so no frame was attributed.
-- No launch record came, and the engine waited for one.
+- No launch record came, the engine waited for one, and its event queue filled.
 - The observer now counts an octet where `valid` and `ready` coincide.
 - On GMII `ready` is the constant 1, so that logic folds away.
 - The MII correction is 3770 ns, against 426 ns on GMII.

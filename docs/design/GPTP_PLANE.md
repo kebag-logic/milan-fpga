@@ -326,9 +326,18 @@ The receive side changes too, and no RTL term carries it.
 
 The tap stamps the first accepted beat, and that beat holds eight octets behind the MAC's frame check buffer.
 
-Driven through the converted chain's source once, that beat reached `core.source` 1164 ns after frame octet 0's first symbol at 100 Mb/s, against 146 ns at 1 Gb/s.
+So the beat is late by the frame check buffer and by the time eight octets take to arrive, and both scale with the link.
 
-No committed test holds those two figures, and the crossing into the plane comes after them.
+The product's own `LiteEthMACCore` and `mac_rx_cdc` were simulated at an 80 MHz MAC system clock and 50 MHz at the plane, over seven clock phases.
+
+Each figure runs from the edge that samples frame octet 0's first symbol at the pads.
+
+| That octet's beat reaches | MII, 100 Mb/s | GMII, 1 Gb/s |
+|---|---|---|
+| `core.source` | 1110 ns | 141 ns |
+| The edge the plane stamps, after `mac_rx_cdc` | 1174 ns, 1167 to 1183 | 215 ns, 207 to 225 |
+
+No committed test holds those figures.
 
 That distance belongs to `INGRESS_LAT_NS_P`, below, and the Arty still declares zero.
 
