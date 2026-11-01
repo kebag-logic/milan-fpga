@@ -127,7 +127,7 @@ The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) repository inpu
 ### Headroom target
 
 [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) in the [requirements](../reference/FR_NFR.md) is the accepted headroom target.
-Mark II must use fewer than 20,000 LUTs of `xc7a100t`.
+Mark II must use fewer than 20,000 LUTs of `xc7a100t` at 32x32.
 
 That replaces the earlier 60 percent target, 38,040 LUTs.
 The route below was 13,972 over it.
@@ -137,7 +137,7 @@ The resource gate holds it, with no other LUT bound:
 
 | Resource | Device | Shipping route, #799 on dev `97aab1d0`, processor `f65c8ff7`, FPGA-gPTP `55680bff` | Used | Target | Status |
 |---|---:|---:|---:|---|---|
-| Slice LUT | 63,400 | 52,012 | 82.04 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): Mark II fewer than 20,000 (about 31.5 %); this image must fit the device | fits; no other LUT bound on this image |
+| Slice LUT | 63,400 | 52,012 | 82.04 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): Mark II fewer than 20,000 at 32x32 (about 31.5 %); this image must fit the device | fits; no other LUT bound on this image |
 | Slice register | 126,800 | 53,707 | 42.36 % | none stated | - |
 | Slice | 15,850 | 15,780 | 99.56 % | must stay below the device to place | 70 free |
 | Block RAM tile | 135 | 87.5 | 64.81 % | reserve: 13.5 tiles (10 %), the 121.5-tile ceiling, accepted (manager ruling) | 47.5 free |
@@ -177,9 +177,9 @@ The wrapper names 24,493 of them in that rebuilt hierarchy.
 The wrapper alone exceeds that historical allocation.
 
 The active [#640](https://github.com/kebag-logic/milan-fpga/issues/640) acceptance bar is the [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) ceiling.
-That is fewer than 20,000 LUTs, with timing met.
+That is fewer than 20,000 LUTs at 32x32, with timing met.
 
-What follows is history, against the replaced 60 percent.
+The next three sentences are history, against the replaced 60 percent.
 The [owner kept that target on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270).
 
 All else unchanged, that needed a 10,521-LUT wrapper.
