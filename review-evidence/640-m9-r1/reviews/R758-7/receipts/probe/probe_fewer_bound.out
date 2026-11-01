@@ -1,0 +1,15 @@
+calibration, 48 kHz eight-channel rows of the page
+  two in phase 0: wait 62.259 page 62.259
+  three in phase 0: wait 83.012 page 83.012
+  two, phases 0 and 1: wait 41.425 page 41.425
+  two, phases 0 and 3: wait 0.000 page 0.0
+
+48 kHz, under 16 running, best wait over 300 walks of 300: 77.806 us at {2: [8], 3: [1, 1]}
+  total 118.131 to 118.131 us; 16-reservation published ceiling 95.867 us
+96 kHz, under 16 running, best wait over 300 walks of 300: 88.965 us at {5: [8], 6: [1]}
+  total 121.456 to 121.456 us; 16-reservation published ceiling 93.216 us
+192 kHz, under 16 running, best wait over 300 walks of 300: 88.834 us at {3: [8], 6: [1]}
+  total 106.927 to 131.754 us; 16-reservation published ceiling 100.825 us
+
+96 kHz directed: 13 eight-channel starts, then stop all outside phase 0: {0: [8, 8]} wait 62.361 us, total 94.852 us
+192 kHz directed: 14 eight-channel starts, then stop all outside phases 0 and 1: {0: [8], 1: [8]} wait 57.217 us, total 75.310 us to 100.137 us

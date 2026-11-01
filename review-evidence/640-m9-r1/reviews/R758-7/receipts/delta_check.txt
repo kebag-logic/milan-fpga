@@ -1,0 +1,35 @@
+head e7310e94fff7188c5800a94c03a3f0e4c7c1c024 tree 0a9f7f6a5b8d385fc43116ba0035d384b125b8c7
+ docs/design/MARK_II_AREA_PLAN.md      |  4 ++--
+ docs/design/MARK_II_STREAM_ENGINES.md | 42 +++++++++++++++++------------------
+ docs/reference/FR_NFR.md              |  2 +-
+ 3 files changed, 24 insertions(+), 24 deletions(-)
+:100644 100644 c6dcb09793 93074d0955 M	docs/design/MARK_II_AREA_PLAN.md
+:100644 100644 423500ad7c 14956f0eec M	docs/design/MARK_II_STREAM_ENGINES.md
+:100644 100644 ada9a662ca 18de60f6e7 M	docs/reference/FR_NFR.md
+bounds tables sha at 3f5fea24 and e7310e94:
+bcef755fb4cf814aa5298898446c57483988b0b50508c6ecac83c1a39c52a356  -
+bcef755fb4cf814aa5298898446c57483988b0b50508c6ecac83c1a39c52a356  -
+open-question list, numbers stripped, removed block only:
+3,12d2
+< **Talker latency with mixed formats or fewer reservations.**
+<    - At 16 mixed reservations, every rate exceeds 65 µs.
+<    - At 48 kHz a reached mix needs 92.530 µs.
+<    - No 16-stream 48 kHz mix exceeds 95.867 µs.
+<    - Three co-phased streams alone wait 83.012 µs for credit.
+<    - The owner called 65 µs ideal; the choices include these:
+<      - accept the derived bounds for those cases;
+<      - restrict each port to one base format;
+<      - re-phase a running stream, accepting an audio gap;
+<      - change the stagger or shape decision.
+diff --check 1f29f189 e7310e94 rc: 0
+live dev: 1f29f189279f9fc0132f4918e47342b87d22f33a
+gitlinks:
+efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor
+a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor
+08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack
+48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis
+index vs head: 0
+status: []
+ignored: []
