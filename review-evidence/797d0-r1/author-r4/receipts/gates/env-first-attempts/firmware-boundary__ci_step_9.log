@@ -1,0 +1,12 @@
+# head 8d8c2e366a2d49506b91a195de0094a440e7bc39 job firmware-boundary step ci_step_9: Hold the TSN stack boundary over the firmware builders' compiles
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+no capture given: running every known builder the run judges under one
+    sw/firmware/gtest/fw_rv32_selftest.py --require-rv32: exit 0 (22 s)
+    sw/firmware/ctrl/test/test_ctrl_firmware.py --require-rv32: exit 0 (505 s)
+    sw/firmware/ctrl_nvm/test/test_ctrl_nvm.py --require-rv32: exit 0 (124 s)
+    sw/firmware/gtest/fw_coverage.py --build-only: exit 0 (433 s)
+    sw/litex/test_ctrl_memory.py --build-only: exit 1 (0 s)
+REFUSED: sw/litex/test_ctrl_memory.py exited 1 under the capture, so it may have compiled less than it does: Traceback (most recent call last):
+  File "<scratch>/gates/rtl/firmware-boundary/wt/sw/litex/test_ctrl_memory.py", line 79, in <module>
+    from migen import ClockDomain, Module, run_simulation
+ModuleNotFoundError: No module named 'migen'
