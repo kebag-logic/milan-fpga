@@ -1,0 +1,6 @@
+[A720e] TAKEN
+Branch: 640-mark2-charter (round 5 on PR #828, from head 22f3cedb; local, not pushed by this lane)
+Authoritative references: R757-4 and R758-4 on PR #828; the manager's round-5 ruling (reduce, do not patch); this issue's 2026-10-31 body and comments; #665 and #823 bodies and 2026-10-31 comments; IEEE 1722-2016 4.4.4.7; Milan v1.2 4.4.2.3 and Annex D.3; docs/design/GM_LOSS_RECOVERY.md
+Interpreted scope: docs only. Remove the stream-engine page's detailed tu merge mechanism, its tu-only registers and bits, and every no-loss or gap claim stated as fact about tu. Keep the clean-copy merge, the 62.5 us window and its error bound, the pairing, the duplicate count of clean copies and the render span. State the tu behaviour as cited requirements with verification rows in one open design item owned by lane 6, with the reviewers' probe cases as its named cases; the loss bounds are that lane's output, not numbers on the page. Restate the matching claims in the verification rows and the PR body, fix the mutation count, apply R758-4-R2. No new mechanism.
+Validation plan: every step of the docs workflow on the committed head, each rc recorded; git diff --check against the merge base.
+Blockers: none
