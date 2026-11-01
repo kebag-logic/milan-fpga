@@ -53,7 +53,7 @@ The [#396](https://github.com/kebag-logic/milan-fpga/issues/396) release campaig
 | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) ([requirements](../reference/FR_NFR.md)) | At most 38,040 LUTs, 60 percent of 63,400 |
 | Planning margin, D8 | At least 1 percent below the limit: <= 37,659 LUTs |
 | Timing | Shipping 50 MHz datapath; every build-gate corner WNS >= +0.030 ns and WHS >= 0 |
-| Gate comparison | At the current +0.440 ns WNS record, the 0.25 ns fall limit binds first, at +0.190 ns, before the unchanged +0.030 ns floor |
+| Gate comparison | Since [#818](https://github.com/kebag-logic/milan-fpga/issues/818), the best of the three placement directives meets the +0.030 ns WNS and 0 ns WHS floors at every signoff corner; a fall of more than 0.25 ns from the +0.440 ns record is a warning |
 | Function | Equivalent PDUs and state transactions; suites and campaigns retain their counts |
 | Delivery | Milestone 12 by 2026-12-15, before P3 |
 
@@ -1337,11 +1337,12 @@ Future runs must also exclude competing heavy builds.
 **Historical mapping at `e6172750`.** The gate then described dev `54643724`.
 The [mapper](../../syn/resmap/resmap_map.py) required a matching recorded endpoint.
 The map was therefore tied to a scratch copy of [`syn/ooc/pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json) into which this route was recorded with `pp_resource_gate.py record --write --baseline <copy>`; the tracked baseline is unchanged.
-A Mark II lane maps its own route the same way:
+A Mark II lane maps its own route the same way.
+The map reads one routed checkpoint, so the record is of that one route, marked `--shipping-selection` rather than judged as a route set (#818):
 
 ```sh
 cp syn/ooc/pp_resource_baseline.json "$WORK/scratch_baseline.json"
-python3 syn/ooc/pp_resource_gate.py record "$WORK/ax7101/gateware" --endpoint route-1x1 \
+python3 syn/ooc/pp_resource_gate.py record "$WORK/ax7101/gateware" --endpoint route-1x1 --shipping-selection \
   --baseline "$WORK/scratch_baseline.json" --write
 mkdir "$WORK/route-map" && (cd "$WORK/route-map" && flock /tmp/milan-vivado.lock vivado -mode batch \
   -source "$REPO/syn/resmap/route_map.tcl" -nojournal -log route_map.log \

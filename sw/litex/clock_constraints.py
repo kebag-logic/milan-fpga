@@ -28,11 +28,24 @@ class BoundedEthVivadoToolchain(XilinxVivadoToolchain):
         commands.remove(generic)
 
 
+def _source_hooks(platform: Any) -> None:
+    """Source the hook Tcl once, before the first command that calls it."""
+    source = "source {{%s}}" % Path(__file__).resolve().with_suffix(".tcl")
+    if source not in platform.toolchain.pre_optimize_commands:
+        platform.toolchain.pre_optimize_commands.append(source)
+
+
 def add_quasi_static_constraints(platform: Any) -> None:
     """Run conditional class constraints as Tcl after synthesis, before optimize."""
-    hook = Path(__file__).resolve().with_suffix(".tcl")
-    platform.toolchain.pre_optimize_commands.append("source {{%s}}" % hook)
+    _source_hooks(platform)
     platform.toolchain.pre_optimize_commands.append("kl_quasi_static_constraints")
+
+
+def add_servo_reset_constraints(platform: Any, crg: Any) -> None:
+    """Cut the servo's milan-reset arrival at its PS-clock synchronizer (#817)."""
+    _source_hooks(platform)
+    platform.toolchain.pre_optimize_commands.add(
+        "kl_servo_reset_sync_constraints {milan}", milan=crg.milan_pll_clk)
 
 
 def add_eth_constraints(platform: Any, crg: Any, eth_rx: Any) -> None:

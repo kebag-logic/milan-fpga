@@ -10,6 +10,7 @@ The suite carries no `-Wno-*` flags, including `-Wno-fatal`.
 
 - **[Run it](#run-it)** -- Default builds, generated fixtures, and independent expectations.
 - **[Pending from live writes](#pending-from-live-writes)** -- Real programs expose the unsaved interval.
+- **[The reset on an AECP REBOOT (#787)](#the-reset-on-an-aecp-reboot-787)** -- Section `[RB]`: a REBOOT on the wire, its frames graded at a MAC model's wire-side output, then the PHY hold and the IPROG words at the datapath ports.
 - **[The premise inverted (2026-08-13)](#the-premise-inverted-2026-08-13)** -- This suite used to prove the processor transmitted NOTHING; with the legacy plane deleted its TX is the wire, so every discipline check was turned around
 - **[What it proves](#what-it-proves)** -- The class-D fabric face, the byte-exact ADPDU rebuilt from the 0x600 CSR group, the ACMP answer, and clean interleaving with MAAP through the shared control arbiter
 - **[The AECP answer, and the memory behind it](#the-aecp-answer-and-the-memory-behind-it)** -- What the µCPU actually answers, why every check decodes the response frame instead of a counter, and how the harness backs the nine descriptor-memory ports with a real AEMI image
@@ -111,6 +112,54 @@ It copies only the parent shadow into temporary storage.
 Restoring the late-mark trigger must fail both K10 and K12.
 A build failure cannot count as a killed mutant.
 No processor source is edited.
+
+## The reset on an AECP REBOOT (#787)
+
+Section `[RB]` runs last on every full leg, because an accepted REBOOT ends the processor's service until reset.
+It grades the frames where they leave a model of the SoC's MAC, not at the datapath's port: on silicon a REBOOT's
+ENTITY_DEPARTING reached the port and never the wire, because the PHY hold rose while the MAC still held it.
+The model is `MilanMAC`'s shape. A frame may leave 8 clocks after its last beat entered, store and forward; frames
+leave in order with their preamble, padding, FCS and gap, at 4 clocks per octet in `[RB]`. The model flips
+`i_ethtxend_tgl` on each frame's last octet, as `MilanMAC`'s toggle does at `phy.sink`, and keeps it across resets.
+Three clocks after `o_reboot_phy_hold` rises the PHY is in reset: a frame on the wire is cut, and every frame still
+queued is lost; a frame offered after that is counted apart, as one offered to a MAC whose PHY was already held.
+
+Three REBOOTs of ENTITY 0, each after a reset and the boot walk; this harness has no flash writer (`nvm_backed` 0):
+
+- **Advertising**, with a second controller registered and KL_maap probing. A REBOOT of ENTITY 1 first is answered
+  NO_SUCH_DESCRIPTOR and must raise no request, hold no PHY and send no word. The REBOOT of ENTITY 0 is answered
+  SUCCESS at cdl 16. At the port, `reboot_req_o` rises after the response's last byte and after ENTITY_DEPARTING.
+  The PHY hold follows that request. On the wire, the response, the notification to the other controller and
+  ENTITY_DEPARTING leave whole and in that order before the PHY hold. The hold cuts no frame and leaves none in the
+  MAC, and rises more than one millisecond and at most two ticks and eight clocks after the last frame, inside the
+  28 ms egress bound of `milan_datapath`'s default MAC statement. KL_maap's probes are counted like any other frame.
+  After more than 3,500 harness milliseconds, and at most one tick more, `o_icap_csib` is low for exactly eight clocks; `o_icap_i` carries the eight IPROG words,
+  bit-reversed per byte; they repeat after another hold, and the hold stays up to the end.
+- **Not advertising** (Milan v1.2 Table 5.51): no ENTITY_DEPARTING at the port or on the wire; the response and the
+  notification leave whole and in order before the hold, and the hold waits for the last frame the port started.
+- **A dead transmit clock**: nothing reaches the wire, and the hold still rises more than 28 ms and at most one tick
+  and four clocks after the request, at the egress bound.
+
+No cycle of the run before the REBOOT holds the PHY or drops CSIB.
+The waits are the shipping ones; the harness millisecond is the datapath tick's, `PP_MS_CYCLES` clocks.
+The drain's other exits and the egress account's corners are [`reboot_ctrl`](../reboot_ctrl/README.md)'s.
+
+```sh
+make -C tb/verilator/pp_shadow build-base exec-base SIM_ARGS=--reboot-only
+make -C tb/verilator/pp_shadow reboot-mutant
+```
+
+`reboot-mutant` builds the base leg and runs `[RB]` alone. The clean control must pass. Each arm then plants one
+defect in a private copy of `milan_datapath.sv` or `KL_reboot_ctrl.sv` and must fail its named check:
+
+| Arm | Plant | Named check |
+|---|---|---|
+| `request-ignored` | KL_reboot_ctrl never sees the request | RB advertising: the PHY hold rises |
+| `early-request` | the request at the processor's acceptance, before the response has left | RB advertising: the PHY hold follows the processor's REBOOT request |
+| `hold-on-the-request-alone` | the PHY hold on the request, the shape silicon ran | RB advertising: ENTITY_DEPARTING leaves after the notification, before the PHY hold |
+| `egress-ignores-the-mac-fifo` | the wait ends once the port is idle | the same |
+| `egress-without-a-bound` | a MAC that never finishes keeps the hold off | RB dead transmit clock: the PHY hold still rises |
+| `txend-unwired` | the frame-end toggle is not connected | RB advertising: ...and at most two ticks and eight clocks after it |
 
 ## The premise inverted (2026-08-13)
 

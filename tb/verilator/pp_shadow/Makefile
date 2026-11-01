@@ -93,7 +93,7 @@ VFLAGS = --cc --exe --build -j $(VERILATOR_JOBS) \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/common/csr +incdir+$(RTL_DIR)/common/eth_event_counter \
          +incdir+$(RTL_DIR)/ieee17221/adp +incdir+$(RTL_DIR)/ieee8021q/ts \
          +incdir+$(RTL_DIR)/ieee8021as/ptp_timestamp +incdir+$(AXIS_DIR) \
-         -Wall waivers.vlt pending_probes.vlt recovery_probes.vlt \
+         -Wall waivers.vlt pending_probes.vlt recovery_probes.vlt reboot_probes.vlt \
          -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 \
          -GGPTP_PLANE_EN_P=0 \
          $(TIM_G) $(MAAP_G) \
@@ -115,7 +115,7 @@ BUILD_DIR ?= obj_dir
 PENDING_BUILD_DIR ?= obj_pending
 SIM_ARGS ?=
 
-.PHONY: all run run-base run-vid73 run-crf run-pending pending-mutant clean
+.PHONY: all run run-base run-vid73 run-crf run-pending pending-mutant reboot-mutant clean
 all: run
 
 # The ACMP listener transition ROM is GENERATED, and protocol_processor_top
@@ -195,6 +195,11 @@ exec-pending:
 
 pending-mutant:
 	python3 pending_mutant.py
+
+# Section [RB] against a datapath whose reset ignores the processor's REBOOT
+# request (#787): reboot_mutant.py requires its named check to fail.
+reboot-mutant:
+	python3 reboot_mutant.py
 
 clean:
 	rm -rf obj_dir obj_vid73 obj_crf obj_pending ltn_rom.hex ucode.hex

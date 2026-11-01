@@ -131,6 +131,7 @@ SUITE_SECONDS = {
     "ptp_sync": 11,
     "ptp_ts": 127,
     "queues": 6,
+    "reboot_ctrl": 300,
     "render_queue": 93,
     "rx_filter": 18,
     "shaper_core": 6,
@@ -144,9 +145,8 @@ SUITE_SECONDS = {
 
 #: Suites whose SUITE_SECONDS figure is provisional: the wall clock the
 #: driver's suite_timeout gives a new suite, until the change's own hosted run
-#: measures it (step 3 of the module docstring's new-suite steps). None is
-#: pending: #781's run measured media_phase (see SUITE_SECONDS).
-PROVISIONAL_SUITES: frozenset[str] = frozenset()
+#: measures it (step 3 of the module docstring's new-suite steps): reboot_ctrl.
+PROVISIONAL_SUITES: frozenset[str] = frozenset({"reboot_ctrl"})
 
 #: Seconds of each worker's job outside its suite windows in the same dev run:
 #: checkout, the Verilator cache, tsn-gen on worker 1, Yosys and sv2v on worker
