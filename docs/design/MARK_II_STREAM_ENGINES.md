@@ -622,6 +622,11 @@ A tu copy's packet is that time plus the count.
 The count is a signed 8-bit difference; reordering is safe.
 During tu the head advances by that count.
 
+A tu copy must also land inside the render span.
+Rule 4 checks its counted time for late and early.
+
+A copy counted outside the span is discarded, never written.
+
 #### Placement
 
 Samples are placed by count from the head.
@@ -630,6 +635,9 @@ Packet k lands k packets of samples from the head.
 So conversion error never shifts a sample.
 A new anchor alone uses its own time.
 
+No sample is written outside the render buffer.
+[Open design item 1](#open-design-items) covers its edges.
+
 #### Rules
 
 The first matching rule acts:
@@ -637,32 +645,37 @@ The first matching rule acts:
 | Rule | When | Action | Counter |
 |---:|---|---|---|
 | 1 | The copy fails a stream check: its format (Milan v1.2 4.4.2.2), or a late or early time (Milan v1.2 5.3.8.10) | Not rendered | That check's Milan v1.2 5.3.8.10 counter |
-| 2 | The copy has tu set, and the partner holds clean data: its `CLEAN_VALID` set and its `LCTX_CLEAN_PT` ahead of the render point | Discarded | `SE_MERGE_TU` |
-| 3 | No valid head (`HEAD_VALID` clear, or `LCTX_LAST_PT` passed), or a tu copy has no valid sequence reference | Rendered at its own time; it anchors the head and clears the map | `SE_MERGE_SEC` if odd |
-| 4 | A clean copy while `ANCHOR_TU` is set, or more than 21 packets from the head | Re-anchors, as rule 3 | `SE_MERGE_SEC` if odd |
-| 5 | k is 1 or more: newer than the head | Rendered k packets after the head; it becomes the head | `SE_MERGE_SEC` if odd |
-| 6 | k is 0 to -21, and map bit -k is clear | Rendered k packets from the head; sets that bit | `SE_MERGE_SEC` if odd |
-| 7 | Any other copy: its packet is already written | Discarded as a duplicate | `SE_MERGE_DUP` |
+| 2 | The copy has tu set, and a clean partner copy of its packet can still come: the partner's newest copy was clean (`LAST_TU` clear), its `CLEAN_VALID` is set with `LCTX_CLEAN_PT` ahead of the render point, and either that time precedes this copy's counted packet by more than 62.5 µs or this copy has no valid reference | Discarded | `SE_MERGE_TU` |
+| 3 | No valid head (`HEAD_VALID` clear, or `LCTX_LAST_PT` passed) | Rendered at its own time; it anchors the head and clears the map | `SE_MERGE_SEC` if odd |
+| 4 | The copy has tu set, and no valid sequence reference, or its counted packet fails the late or early check | Discarded: no count can place it in the render span | `SE_MERGE_TU` |
+| 5 | A clean copy while `ANCHOR_TU` is set, or more than 21 packets from the head | Re-anchors, as rule 3 | `SE_MERGE_SEC` if odd |
+| 6 | k is 1 or more: newer than the head | Rendered k packets after the head; it becomes the head | `SE_MERGE_SEC` if odd |
+| 7 | k is 0 to -21, and map bit -k is clear | Rendered k packets from the head; sets that bit | `SE_MERGE_SEC` if odd |
+| 8 | Any other copy: its packet is already written | Discarded as a duplicate | `SE_MERGE_DUP` |
 
 A clean head takes its copy's own time.
 A tu head advances by the count, in render-clock time.
 
 No rule drops the only valid copy of a packet.
-A tu copy never writes while clean partner data remains.
+Rule 4 drops only tu copies no count can place.
 
+No tu copy writes while its clean partner may come.
 So uncertain time on one network cannot disturb the other.
+
 The window counts each duplicate once, in `SE_MERGE_DUP`.
 
 Annex D.2 of Milan v1.2 models per-network buffers.
 Clean partner data is a non-empty buffer there.
 
 Before any clean copy arrives, a tu copy may anchor.
-The first clean copy then re-anchors by rule 4.
+The first clean copy then re-anchors by rule 5.
 
 #### Reference upkeep
 
-Every copy passing rule 1 updates its reference.
+Every copy passing rule 1 updates its reference and `LAST_TU`.
 A clean copy also sets `CLEAN_VALID` and `LCTX_CLEAN_PT`.
+
+A tu copy with no valid reference cannot make one.
 
 A time the render point passed counts as invalid.
 Each rule checks that when it reads the time.
@@ -683,6 +696,43 @@ The audio then gaps for up to one presentation offset.
 
 Milan v1.2 8.3.2.1.4 pairs mappings.
 Both streams of a pair map the same channels.
+
+#### tu on both networks
+
+A talker may set tu on both networks at once.
+Then no clean copy of those packets will come.
+
+Rule 2 waits only while the partner is still clean.
+Its newest copy is clean and precedes this packet.
+
+Once the partner's newest copy has tu, rule 2 stops.
+Each network's tu copies then fill the other's gaps.
+
+With both networks delivering, tu on both loses no sample.
+Verification covers onsets together and 0.5 ms apart.
+
+Placement by count follows IEEE 1722-2016 4.4.4.7.
+Milan v1.2 4.4.2.3 adds one step.
+
+After tu clears, the media clock free-wheels a while.
+The media clock servo owns that, not the merge.
+
+So the merge resumes placing clean copies by time.
+A time step costs no more than on one network.
+
+Placement by count needs a valid reference on that network.
+A network rejoining during tu has none yet.
+
+Its copies are discarded until a clean one arrives.
+The partner's losses then stay unfilled.
+
+A sequence jump during tu also leaves copies unplaced.
+Rule 4 discards them, and the partner carries the audio.
+
+An unpaired stream gaps until its head lapses.
+That gap is at most 22 packets, 2.75 ms.
+
+Like loss plus tu, these lie beyond Annex D.3.
 
 ## Per-port MAC, filter and timestamp units
 
@@ -752,9 +802,9 @@ An engine reset clears every counter and state word.
 | 0x028 | SE_TLAT_OVER | 15:0 | COUNT0 | 0x0000 | RC | Port 0 frames at or above 65 µs, pin to first bit in port 0's PHC time; saturates at its maximum |
 | | | 31:16 | COUNT1 | 0x0000 | RC | Port 1 frames at or above 65 µs, pin to first bit in port 1's PHC time; saturates at its maximum |
 | 0x02C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
-| 0x030 | SE_MERGE_DUP | 31:0 | COUNT | 0x0000_0000 | RC | Copies discarded by merge rule 7: their packet was already written; wraps |
-| 0x034 | SE_MERGE_SEC | 31:0 | COUNT | 0x0000_0000 | RC | Packets first written from a secondary (odd) copy, merge rules 3 to 6; wraps |
-| 0x038 | SE_MERGE_TU | 31:0 | COUNT | 0x0000_0000 | RC | Copies with tu set discarded by merge rule 2: clean partner data remained; wraps |
+| 0x030 | SE_MERGE_DUP | 31:0 | COUNT | 0x0000_0000 | RC | Copies discarded by merge rule 8: their packet was already written; wraps |
+| 0x034 | SE_MERGE_SEC | 31:0 | COUNT | 0x0000_0000 | RC | Packets first written from a secondary (odd) copy, merge rules 3 and 5 to 7; wraps |
+| 0x038 | SE_MERGE_TU | 31:0 | COUNT | 0x0000_0000 | RC | Copies with tu set discarded by merge rule 2 (a clean partner copy could still come) or rule 4 (no count places it in the render span); wraps |
 | 0x03C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
 | 0x040-0x05C | SE_RMAP[0..7] | 4:0 | LCTX | 0x00 | RW | Render slot k at 64 plus 4k: the listener context feeding it; a redundant pair is named by its even context |
 | | | 7:5 | CH | 0x0 | RW | The stream channel that feeds slot k |
@@ -827,10 +877,11 @@ The engine owns the state, merge and counter words.
 | | | 31:28 | RESERVED | 0x0 | R | Reads zero; writes ignored |
 | 0x14 | LCTX_STATE | 7:0 | SEQ | 0x00 | R | Last sequence_num seen on this context (IEEE 1722-2016 4.4.4.6); with LCTX_SEQ_PT, the reference that places a copy with tu set |
 | | | 8 | LOCKED | 0x0 | R | Media locked on this stream |
-| | | 9 | ANCHOR_TU | 0x0 | R | Even context: the head's position came from a copy with tu set; merge rule 4 reads it |
+| | | 9 | ANCHOR_TU | 0x0 | R | Even context: the head's position came from a copy with tu set; merge rule 5 reads it |
 | | | 10 | SEQ_VALID | 0x0 | R | SEQ and LCTX_SEQ_PT are a valid reference while LCTX_SEQ_PT is ahead of the render point; the sweep clears it after that |
 | | | 11 | CLEAN_VALID | 0x0 | R | This context holds clean data while LCTX_CLEAN_PT is ahead of the render point; the partner's merge rule 2 reads both; the sweep clears it after that |
-| | | 31:12 | RESERVED | 0x0_0000 | R | Reads zero; writes ignored |
+| | | 12 | LAST_TU | 0x0 | R | The newest copy that passed merge rule 1 on this context had tu set; the partner's merge rule 2 reads it |
+| | | 31:13 | RESERVED | 0x0_0000 | R | Reads zero; writes ignored |
 | 0x18 | LCTX_LAST_PT | 31:0 | NS | 0x0000_0000 | R | Even context: the head's presentation time, render time base; a clean head takes its copy's time, a tu head advances by count |
 | 0x1C | LCTX_MERGE | 21:0 | WMAP | 0x00_0000 | R | Even context: bit k set when the packet k intervals before the head is written |
 | | | 30:22 | HEAD_POS | 0x000 | R | Even context: render buffer index of the head packet's first sample |
@@ -1158,7 +1209,7 @@ The [open questions](#open-questions) list it.
 | Latency instrument time base | Simulation: an odd context with a non-zero, drifting PHC offset; its recorded interval equals the pin-to-wire time, and so does an even context's | Bench: an external capture of pin and wire on each port, against `TCTX_TLAT_MAX` of an even and an odd context |
 | Phase rule | The model's starts and stops | Firmware test: phase chosen by wire time, never moved while running |
 | Stagger conformance | IEEE 1722-2016 7.5 and 7.6 inspection | Listener interoperability with the reference peer |
-| Listener merge | Simulation of every rule: both copies clean with a jittered conversion error up to 2.744 µs and up to 1.5 ms between networks, either network faster; times 1 µs past a sample boundary; one network cut mid-stream; 1 % frame loss on either network, filled from the later copy; the secondary with tu set, its time skewed by plus or minus 30 µs, plus or minus 200 µs and plus 1 ms, arriving before the primary; a cut, then a grandmaster change on the surviving network. Rendered samples equal the clean stream's, and `SE_MERGE_DUP` counts each packet's second copy once. The test fails with an exact time compare, with each copy placed by its own time, or without rule 2 | Bench cable pull on each network, no lost samples; a grandmaster change on one network with both up, no disturbed samples |
+| Listener merge | Simulation of every rule: both copies clean with a jittered conversion error up to 2.744 µs and up to 1.5 ms between networks, either network faster; times 1 µs past a sample boundary; one network cut mid-stream; 1 % frame loss on either network, filled from the later copy; the secondary with tu set, its time skewed by plus or minus 30 µs, plus or minus 200 µs and plus 1 ms, arriving before the primary, and skewed by 200 µs arriving after it; a cut, then a grandmaster change on the surviving network; tu on both networks, with onsets together and 0.5 ms apart either way, skews of plus and minus 5 µs and 200 µs, a tu period that ends, and tu on one to three packets only; a tu copy whose sequence jumps by plus or minus 40 while the head is valid, with the partner clean or with tu set, and on an unpaired stream; a time step of plus or minus 100 µs to 1 ms as tu clears on both, losing no more than one network alone. Rendered samples equal the clean stream's, except the unpaired jump's gap of at most 22 packets and the time step's shift; no sample is written outside the render buffer; `SE_MERGE_DUP` counts each packet's second copy once, or `SE_MERGE_TU` when rule 2 or rule 4 discards it, and never counts a copy whose sequence jumped. The test fails with an exact time compare, with each copy placed by its own time, without rule 2, with rule 2 waiting on any clean partner data, or without rule 4 | Bench cable pull on each network, no lost samples; a grandmaster change on one network with both up, no disturbed samples; tu set on both networks by one talker, both up, no lost samples |
 | Conversion error bound | Analysis above (IEEE 802.1AS-2020 B.1.1, B.1.2, B.3; Milan v1.2 5.3.7.6; assumptions A3 and A4); a host model that drifts two PHCs at plus and minus 100 ppm, latches each every 125 µs and converts at the stamp and the arrival | Bench capture of both copies of each packet, stamp to arrival within 2.792 ms; the converted times differ by at most 2.744 µs |
 | Port time bases | Simulation: each copy's avtp_timestamp against its own port's PHC | Bench capture of both copies on the two networks |
 | Block RAM ledger | Estimate above | Routed image at 32x32 with measured firmware |
@@ -1167,6 +1218,15 @@ The [open questions](#open-questions) list it.
 
 The shaper model is lane evidence, not a gate.
 An implementation lane must turn it into a self-checking test.
+
+### Open design items
+
+The stream-engine lane, [lane 6](MARK_II_AREA_PLAN.md#mark-ii-lane-sequence), owns these.
+Each states the requirement it must meet.
+
+| Item | Requirement | Verification |
+|---|---|---|
+| 1. Render span edges | No sample is written outside the render buffer: not a packet whose samples cross either end of the span, nor a clean copy whose counted position falls a sample behind the render point. The early check and the buffer depth must allow for a whole packet at every rate | Simulation with copies at both span edges at 48, 96 and 192 kHz, the conversion error at its bound; the test fails if any sample lands outside the buffer |
 
 ## Open questions
 
