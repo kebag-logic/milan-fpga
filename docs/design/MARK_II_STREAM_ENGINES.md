@@ -227,10 +227,19 @@ The [owner](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-65
 [Owner decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6558021030), 2026-11-01: 65 µs is a target.
 It does not bind every legal stream setup.
 
-Derived bounds for mixed formats and fewer reservations are accepted.
+The derived bounds at 16 reservations are accepted.
 They stay published below.
 
-No connection is refused because of them.
+With fewer reservations no maximum is derived.
+[Open design item 4](#open-design-items) owes it.
+
+The bench measures every case against the target.
+A case above 65 µs is reported, not failed.
+
+A case is graded only against a derived bound.
+A measurement above one contradicts the analysis: a finding.
+
+No connection is refused because of these figures.
 No restriction to one base format applies.
 
 A CRF stream carries no TDM sample.
@@ -411,7 +420,35 @@ Co-phased streams then wait longer for credit.
 Totals add the 48 kHz fixed terms, 40.325 µs.
 
 Starts and stops reach each of these rows.
-Alone, k co-phased streams wait about `(k - 1) x 125 / k` µs.
+Alone, k co-phased equal frames wait about `(k - 1) x 125 / k` µs.
+
+That form gives no largest k.
+It does not cover unequal frames.
+
+These cases are also reached under the exact phase rule.
+Each row names starts and stops that reach it.
+
+| Rate | Running streams, no CRF | Reached by | Last frame's shaper wait | Total, with every fixed term | Against 65 µs |
+|---|---|---|---:|---:|---|
+| 48 kHz | Six one-channel in phase 0 | Start one one-channel, five eight-channel, two one-channel, five eight-channel, three one-channel; stop every eight-channel | 103.022 µs | 143.347 µs reached | Not met |
+| 48 kHz | Eight-channel in phase 0, one-channel in phase 1 | Start one eight-channel, then two one-channel; stop the one in phase 3 | 71.310 µs | 111.635 µs reached | Not met |
+| 96 kHz | Four one-channel in phase 0 | Start one one-channel, eleven eight-channel, three one-channel; stop every eight-channel | 92.935 µs | 125.426 µs reached | Not met |
+| 192 kHz | Six-channel in phase 9, one-channel in phase 12 | Start five one-channel, then one six-channel; stop the one-channel streams in phases 0, 3, 6 and 18 | 83.941 µs | At least 102.034 µs reached, before the packetizer term | Not met |
+
+The rows of both tables are examples.
+None is a maximum.
+
+Totals use the page's fixed terms, estimates included.
+Nothing here is a measurement.
+
+At 96 kHz those terms are 32.491 µs.
+At 192 kHz they are 18.093 µs, without the packetizer.
+
+The reviewer's [published probe](https://github.com/kebag-logic/milan-fpga/blob/b61b3b8bc172e5688c3c6799a85790dde144403d/review-evidence/640-m9-r1/reviews/R757-7/scripts/probe_fewer_bound.py) sampled these cases.
+[Its output](https://github.com/kebag-logic/milan-fpga/blob/b61b3b8bc172e5688c3c6799a85790dde144403d/review-evidence/640-m9-r1/reviews/R757-7/receipts/model/probe_fewer_bound.out) lists them.
+
+Its 192 kHz search left out eight-channel streams.
+So that row may be low.
 
 Re-phasing a running stream would break IEEE 1722-2016 7.6.
 Padding reservations would break Milan v1.2 Table 4.4.
@@ -1181,6 +1218,7 @@ Each states the requirement it must meet.
 | 1. Render span edges | No sample is written outside the render buffer: not a packet whose samples cross either end of the span, nor a clean copy whose counted position falls a sample behind the render point. The early check and the buffer depth must allow for a whole packet at every rate | Simulation with copies at both span edges at 48, 96 and 192 kHz, the conversion error at its bound; the test fails if any sample lands outside the buffer |
 | 2. Copies with tu set | The listener meets TU-1 to TU-5 below. This page fixes no mechanism, register or loss figure for them | The named cases below, in the lane's model, its simulation and on the bench |
 | 3. Short margin on both networks | A clean copy's margin is how long before its time it arrives. A margin under about 125 µs on both networks lapses the head before the next packet, so rule 2 places every packet by its own time. The threshold carries the conversion error: within that error of 125 µs, only some packets lapse. When first arrival interleaves between the networks, copies can land one sample apart. The lane states the shift it allows, and the listener stays within it. This page fixes no mechanism or figure for it | Simulation with clean copies on both networks 10 to 50 µs before their time, first arrival interleaved, at 48, 96 and 192 kHz, every grid phase. The test fails on a shift beyond what the lane states. The starting case is the reviewer's [published probe](https://github.com/kebag-logic/milan-fpga/blob/f9cfe08cd3f526acde88e0d2a1c48ed2740583df/review-evidence/640-m9-r1/reviews/R758-5/scripts/probe_margin_r5.py). [Its output](https://github.com/kebag-logic/milan-fpga/blob/f9cfe08cd3f526acde88e0d2a1c48ed2740583df/review-evidence/640-m9-r1/reviews/R758-5/receipts/model/probe_margin_r5.out) reports up to 766 shifts and 383 unwritten samples in 2,000 packets. That is the probe's result, not a design figure |
+| 4. Fewer-reservations maximum | With fewer than 16 reservations on a port, no maximum talker latency is derived. The lane derives it with the model at 48, 96 and 192 kHz, over every placement that starts and stops reach and every base format, with and without a CRF, eight-channel at 192 kHz included. The lane then cites it in NFR-LAT-03 | The model states whether its search is exact or bounds a superset, as the 16-reservation table does. The test fails if any case in the [fewer-reservations tables](#fewer-reservations-on-a-port) exceeds the result, in the queue recursion or the 8.6.8.2 simulation. Bench: the latency taps at the largest placement, against the result |
 
 #### Item 2: copies with tu set
 
