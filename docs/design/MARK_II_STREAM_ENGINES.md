@@ -993,41 +993,57 @@ So each slot grows to four sectors, 256 KiB.
 | Pages per slot | 1,024 | 256 KiB / 256 octets |
 | Append space per slot | 784 pages | 1,024 - 240 |
 | Compaction trigger | 392 pages free | Half the append space |
-| Compaction work | 240 pages, 1.28 s | 240 x 5.35 ms at full share |
+| Compaction work | 240 pages, 1.28 s at full share; at most 311 pages, within 2.05 s, under S1 and S2 | 240 x 5.35 ms; the [replay bound](#assumptions) below |
 | Background erase of the old slot | 12 s | 4 x tSE |
 | Boot read of one slot | 168 ms | 256 KiB x 8 / 12.5 MHz |
 
 Compaction copies the live state into the pre-erased standby slot.
 It serializes from the live tables, with no staging buffer.
 
-Until its commit, saves keep appending to the active slot.
-The ordering below keeps every saved change.
+Saves have strict priority at every page boundary.
+A pending save always runs before the next compaction page.
 
-1. Note S0, the active slot's last sequence number.
-2. Copy the live tables into the standby slot.
-3. Replay every active record above S0 into it, in order.
-4. Repeat the replay until no record is dirty or unreplayed.
-5. Write the standby slot's header with a higher generation.
-6. From then on, saves append to the new slot.
-7. Erase the old slot later; it is the next standby.
+So each copy page holds durable values only.
+Until the header, saves keep appending to the active slot.
 
-Boot applies a slot's records in sequence order.
+1. Note the active log's end; a replay cursor starts there.
+2. Copy the live tables into the standby, page by page.
+3. Replay every record from the cursor on, page by page.
+4. Once the cursor meets the log end, write the header.
+5. From then on, saves append to the new slot.
+6. Erase the old slot later; it is the next standby.
+
+Step 4's check and its header page are one step.
+No save can run between them.
+
+A save arriving during the header page waits for it.
+That wait is the compaction page already in T_worst.
+
+The header carries a higher generation and its own check.
+Boot applies the copy, then records in sequence order.
+
 A later record of a key replaces an earlier one.
+The cursor replays every record appended since step 1.
 
-A copied value can be newer than its replayed record.
-Step 4 then replays that newer value too.
+So each key's newest durable value comes last.
 
-So the new slot ends with every durable value.
-No step drops a durable record without a power cut.
-
-Steps 2 to 4 run between saves, page by page.
+| A save lands | It appends to | It reaches the slot that survives because |
+|---|---|---|
+| Before step 1 | The active slot | Its value is durable, so step 2 copies it from the live tables |
+| Between copy pages, step 2 | The active slot, after the cursor | Step 3 replays every record from the cursor on |
+| Between replay pages, step 3 | The active slot, after the cursor | Step 4 cannot pass until the cursor has replayed it |
+| At the boundary after the last replay page | The active slot: strict priority runs it before step 4's check | The check then fails, and step 3 replays it first |
+| Between step 4's check and the header page | Impossible: the check and the header page are one step | - |
+| During the header page | Nothing until that page ends; then the new slot | The new slot is the one that survives |
+| After a header that fails its read-back | The old slot, still active | Compaction erases the standby and restarts from step 1 |
+| After the header, before or during step 6 | The new slot | Its generation is higher; the save suspends the erase as any save does |
 
 | Power cut during | Boot uses | Why nothing saved is lost |
 |---|---|---|
-| Copy or replay, steps 2 to 4 | The old slot | The new slot has no valid header; the old slot holds every durable save |
-| The header write, step 5 | The old slot | A torn header fails its check |
-| After the header, before or during the erase | The new slot | Its generation is higher, and steps 3 and 4 gave it every durable value |
-| A save append to either slot | The slot in use | A torn record fails its check; that change was not yet durable |
+| A save append, at any step | The slot in use | A torn record fails its check; that save was not yet durable |
+| The copy or the replay, steps 2 and 3 | The old slot | The new slot has no valid header; every durable save is in the old slot |
+| The header page, step 4 | The old slot | A torn header fails its check; a save waiting on it was not yet durable |
+| After the header, before or during step 6 | The new slot | Its generation is higher, and it holds every durable record |
 
 An unfinished standby is erased again after a cut.
 Compaction then restarts from step 1.
@@ -1045,7 +1061,34 @@ The bound needs two limits on the change rate.
 At datasheet maxima the flash writes 187 pages per second.
 S2 allows about 4.8 KB per second, sustained.
 
-Under S2, compaction and erase finish before the log fills.
+The replay bound reads S2 exactly; S1 is its burst.
+Strict priority leaves compaction all the remaining flash time.
+
+```
+S2 exactly: in any interval t, saves program at most 32 + 0.1 t / p pages
+            p = 5.35 ms; their flash time is at most 32 p + 0.1 t
+compaction pages done by t  >= (0.9 t - 32 p) / p - 1
+compaction needs              240 copy + A replay + 1 header pages
+A, appended since step 1    <= 32 + 0.1 t / p
+not done at t only if         0.9 t / p - 33 < 273 + 0.1 t / p, so t < 382.5 p
+done by                       382.5 x 5.35 ms = 2.046 s
+A                           <= 32 + 0.1 x 382.5 = 70.25, so 70 pages
+work                        <= 240 + 70 + 1 = 311 pages
+```
+
+So step 3 replays at most 70 pages.
+Compaction ends within 2.05 s of step 1.
+
+Meanwhile 70 appends cannot fill 392 free pages.
+
+```
+after compaction the new slot holds <= 311 pages, so >= 713 are free
+next trigger, 392 free, needs >= 321 appended pages: t >= 289 p / 0.1 = 15.46 s
+old slot's erase, 12 s of flash: 0.9 x 15.46 - 0.17 - 0.32 = 13.42 s free by then
+            (0.32 s: at most 321 saves, each suspending the erase for 1 ms)
+```
+
+So the standby is erased before the next compaction starts.
 Under S1, every change meets 0.5 s.
 
 A burst beyond S1 drains at the flash's worst-case rate.
@@ -1068,7 +1111,7 @@ The [open questions](#open-questions) list it.
 | Port time bases | Simulation: each copy's avtp_timestamp against its own port's PHC | Bench capture of both copies on the two networks |
 | Block RAM ledger | Estimate above | Routed image at 32x32 with measured firmware |
 | Save bound | Analysis above at datasheet maxima | Host flash model at maxima; bench power cuts |
-| Compaction keeps saved changes | Ordering above | Host flash model: change a record after its copy, commit, erase, reboot, read the new value; a power cut at every step |
+| Compaction keeps saved changes | Ordering and tables above | Host flash model: one save at every page boundary of a compaction, including the one after the last replay page, one during the header page, and a second save at every boundary; a power cut before, inside and after every page; then commit, erase, reboot and read every saved value. The test fails if a save may run between step 4's check and the header page, or if step 3 is skipped |
 
 The shaper model is lane evidence, not a gate.
 An implementation lane must turn it into a self-checking test.
