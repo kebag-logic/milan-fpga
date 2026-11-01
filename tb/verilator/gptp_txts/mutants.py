@@ -37,6 +37,11 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent.parent.parent
 PLANE = REPO / "hdl" / "ieee8021as" / "gptp_plane"
 WRAP = HERE / "gptp_txts_wrap.sv"
+#: What each shape's last control leaves built: its defect, after the source is
+#: restored. Removing them makes the next `make` rebuild rather than a direct
+#: run of a stale binary report false failures.
+CONTROL_BINARIES = (HERE / "obj_dir" / "Vgptp_txts_sim",
+                    HERE / "obj_mii" / "Vgptp_txts_sim")
 
 #: The record carries the EXPECTED distance instead of the one the observer
 #: measured, which is how a fragmented frame earns a plausible timestamp instead
@@ -247,6 +252,9 @@ def main() -> int:
         else:
             print(f"[FAIL] {name}: the suite stayed green")
             failures += 1
+
+    for binary in CONTROL_BINARIES:
+        binary.unlink(missing_ok=True)
 
     print(f"controls: {len(controls)}   failures: {failures}")
     print(f"RESULT: {'PASS' if failures == 0 else 'FAIL'}")
