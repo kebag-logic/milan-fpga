@@ -73,7 +73,9 @@ fault's report left the system clock's part open. The correction it grades is
 
 It proves the reconstruction is the launch: every frame inside the published
 digital bound, a mean inside one nanosecond over two hundred phase-varied
-frames, and the same answer whether the frame left an empty MAC or queued
+frames (1.754 ns on the MII shape, whose limit adds what the declared wire-clock
+offset leaves over the longer interval), and the same answer whether the frame
+left an empty MAC or queued
 behind other traffic. It measures the retired capture in the same run and
 prints how far ahead of the launch it was, isolated and queued, which is the
 defect as a number.
@@ -89,9 +91,10 @@ and the physical terms belong to the qualification issues that own them.
 The default target runs the suite on both shapes and then `mutants.py`, which
 plants one defect at a time - the observation point, each register-stage term
 of the correction, the measured cycle distance, and on the MII shape the
-one-octet-per-clock reading of #829, the first-symbol term, the transmit tick
-and the history guard - and requires the suite to notice, restoring the exact
-source afterwards.
+one-octet-per-clock reading of #829, the first-symbol term, the transmit tick,
+the measured cycle distance again and the history guard at three values - and
+requires the suite to notice, restoring the exact source afterwards. It then
+removes the two binaries, because each holds its shape's last defect.
 
     MILAN_LITEX_PYTHON=/path/to/litex/python make -C tb/verilator/gptp_txts
 
