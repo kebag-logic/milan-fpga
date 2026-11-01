@@ -256,6 +256,40 @@ def _intro(contract: Contract) -> list[str]:
     ]
 
 
+def _face_sections(contract: Contract) -> list[str]:
+    """The face block's three register sections, its windows and its COUNTERS_CHANGED descriptors (#665)."""
+    lines: list[str] = []
+    lines += _register_section(
+        "Interface face registers", contract.face_registers,
+        f"Interface i's face block starts at `0x{contract.face_base:04X} + 0x{contract.face_stride:X} * i`. "
+        "The firmware writes the `F_*` settings, then `F_COMMIT`: `KL_mbx`'s `fw_send_o` rises and every "
+        "setting holds on its `fw_*_o` port until the datapath's acknowledgement `fw_ack_p_i`, within "
+        f"{contract.face_ack_cycles} cycles. A window's `CMD.GO` opens a request held on its ports with its "
+        "tag until the answer carrying that tag, or the window's timeout. A write that would move a held "
+        "value is refused and counted in `BUS_ERR`.")
+    lines += _register_section(
+        "Interface face source registers", contract.face_source_registers,
+        f"Source s's entry starts at `0x{contract.face_source_base:X} + 0x{contract.face_source_stride:X} * s` "
+        f"inside interface i's face block, for {contract.pub_sources} sources (one per talker stream).")
+    lines += _register_section(
+        "Interface face sink registers", contract.face_sink_registers,
+        f"Sink k's entry starts at `0x{contract.face_sink_base:X} + 0x{contract.face_sink_stride:X} * k` "
+        f"inside interface i's face block, for {contract.pub_sinks} sinks (one per listener stream). "
+        "A hole, an entry past the last and an interface the build does not have read 0 and take no write.")
+    lines += ["### Face windows", "",
+              "| Window | GO | Status | Request | Answer | Answered or timed out within |",
+              "|---|---|---|---|---|---:|"]
+    lines += [f"| `{w.name}` | `{w.go}` | `{w.status}` | {', '.join(f'`{n}`' for n in w.request)} "
+              f"| {', '.join(f'`{n}`' for n in w.data)} | {w.wait_cycles} cycles |" for w in contract.face_windows]
+    lines += ["", "### COUNTERS_CHANGED descriptors", "",
+              f"One pending bit per entry below, per interface; a change naming any other descriptor sets the "
+              f"ALL bit. A descriptor posts at most once in each {contract.ctrchg_holdoff_ms} ms epoch of `NOW_MS`.",
+              "", "| Family | descriptor_type | Entries |", "|---|---|---:|"]
+    lines += [f"| `{s.name}` | `0x{s.type:04X}` | {s.count} |" for s in contract.ctrchg_sources]
+    lines.append("")
+    return lines
+
+
 def emit_doc(contract: Contract) -> str:
     """MAILBOX_CONTRACT.md: the human tables and the machine-checked constant table."""
     lines = _intro(contract)
@@ -289,34 +323,7 @@ def emit_doc(contract: Contract) -> str:
         f"Sink k's entry starts at `0x{contract.pub_sink_base:X} + 0x{contract.pub_sink_stride:X} * k` inside "
         f"interface i's publication block, for {contract.pub_sinks} sinks (one per listener stream). "
         "A hole, a sink past the last and an interface the build does not have read 0 and take no write.")
-    lines += _register_section(
-        "Interface face registers", contract.face_registers,
-        f"Interface i's face block starts at `0x{contract.face_base:04X} + 0x{contract.face_stride:X} * i`. "
-        "The firmware writes the `F_*` settings, then `F_COMMIT`: `KL_mbx`'s `fw_send_o` rises and every "
-        "setting holds on its `fw_*_o` port until the datapath's acknowledgement `fw_ack_p_i`, within "
-        f"{contract.face_ack_cycles} cycles. A window's `CMD.GO` opens a request held on its ports with its "
-        "tag until the answer carrying that tag, or the window's timeout. A write that would move a held "
-        "value is refused and counted in `BUS_ERR`.")
-    lines += _register_section(
-        "Interface face source registers", contract.face_source_registers,
-        f"Source s's entry starts at `0x{contract.face_source_base:X} + 0x{contract.face_source_stride:X} * s` "
-        f"inside interface i's face block, for {contract.pub_sources} sources (one per talker stream).")
-    lines += _register_section(
-        "Interface face sink registers", contract.face_sink_registers,
-        f"Sink k's entry starts at `0x{contract.face_sink_base:X} + 0x{contract.face_sink_stride:X} * k` "
-        f"inside interface i's face block, for {contract.pub_sinks} sinks (one per listener stream). "
-        "A hole, an entry past the last and an interface the build does not have read 0 and take no write.")
-    lines += ["### Face windows", "",
-              "| Window | GO | Status | Request | Answer | Answered or timed out within |",
-              "|---|---|---|---|---|---:|"]
-    lines += [f"| `{w.name}` | `{w.go}` | `{w.status}` | {', '.join(f'`{n}`' for n in w.request)} "
-              f"| {', '.join(f'`{n}`' for n in w.data)} | {w.wait_cycles} cycles |" for w in contract.face_windows]
-    lines += ["", "### COUNTERS_CHANGED descriptors", "",
-              f"One pending bit per entry below, per interface; a change naming any other descriptor sets the "
-              f"ALL bit. A descriptor posts at most once in each {contract.ctrchg_holdoff_ms} ms epoch of `NOW_MS`.",
-              "", "| Family | descriptor_type | Entries |", "|---|---|---:|"]
-    lines += [f"| `{s.name}` | `0x{s.type:04X}` | {s.count} |" for s in contract.ctrchg_sources]
-    lines.append("")
+    lines += _face_sections(contract)
     lines += _register_section(
         "Channel registers", contract.ch_registers,
         f"Channel c's block starts at `0x{contract.ch_base:03X} + 0x{contract.ch_stride:X} * c`.")
