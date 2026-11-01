@@ -846,7 +846,7 @@ def plant_copy(also: tuple[str, ...] = ()) -> Mutation:
             {"id": "D0-002", "page": "README.md", "quote": "All five default to firmware.", "also": list(also),
              "source": "`scripts/tool.py` line 1", "correction": "Say that all five stay in fabric."}))(root)
         append("README.md", "\nAll five default to firmware.\n")(root)
-        add_tracked("REQUIREMENTS.md", ("# Requirements\n\n- **All five** default\n  to `FIRMWARE`.\n"
+        add_tracked("REQUIREMENTS.md", ("# Requirements\n\n> **All five** default\n> to `FIRMWARE`.\n"
                                         "\nThe Mark II default places\n  them on the core.\n"))(root)
     return mutate
 
@@ -866,7 +866,7 @@ def copy_controls() -> tuple:
     """The cross-page rule's arms: a copy gets a row and a stale page, and only a real copy does."""
     copy_row = "| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |"
     copy_status = "| Requirements | -- | stale | 1 finding(s): D0-002 |"
-    first_copy = "- **All five** default\n  to `FIRMWARE`.\n"
+    first_copy = "> **All five** default\n> to `FIRMWARE`.\n"
     spelling = ("The Mark II default places them on the core.",)
     return (
         ("the README's statement copied onto the requirements page", plant_copy(), 1,
