@@ -1,0 +1,20 @@
+# spot-check of published author-r3 receipts at evidence commit 80e3b4ea (first 16 hex of INDEX.md against a fresh download)
+MATCH plants/gate1h-shipped.log c7b97b9d3778bdf9 index=c7b97b9d3778bdf9 content=# head cfb79
+DIFF plants/gate1h-no-front-end.log b823ea623aef205e index=ed3a5be8e4a00103 content=# head cfb79
+MATCH plants/r761-plant_gate1h.log 103a1ad9976869c8 index=103a1ad9976869c8 content=# head cfb79
+MATCH plants/r762-gate_1h_cuts.log fa7701ceda61d8cc index=fa7701ceda61d8cc content=# head cfb79
+MATCH plants/plant_gate1h.py a42855deb6d618c3 index=a42855deb6d618c3 content=#!/usr/bin/e
+MATCH delta/delta.log 9fb7d43242f86771 index=9fb7d43242f86771 content=# delta 2d53
+MATCH gates/docs-yml-table.md c470938167641896 index=c470938167641896 content=| Job | Step
+MATCH gates/verify_docs_yml.rc 9a271f2a916b0b6e index=9a271f2a916b0b6e content=0 
+MATCH gates/gptp_txts-all.rc 9a271f2a916b0b6e index=9a271f2a916b0b6e content=0 
+MATCH gates/diffcheck.rc 9a271f2a916b0b6e index=9a271f2a916b0b6e content=0 
+MATCH gates/docsyml/docs-gates-2__gate_25_1.rc 9a271f2a916b0b6e index=9a271f2a916b0b6e content=0 
+1234 manifest entries; 165 author-r3
+author-r3/HANDOFF.md 508a198b8f40d4e7114026eb40c34e4f5b807e3050aecf1f6e16d0737268aa1e
+author-r3/PR-BODY.md d686fd39b84fe98d1cccf58f629c45bbe49a96a14f1b230fc92d7356a8fc5dba
+author-r3/receipts/INDEX.md 2b0aac9d3f4f89be1a46edea54e8e036f24afe9c4225b219f5a05f2422b5ede5
+508a198b8f40d4e7114026eb40c34e4f5b807e3050aecf1f6e16d0737268aa1e author-r3/HANDOFF.md (download)
+d686fd39b84fe98d1cccf58f629c45bbe49a96a14f1b230fc92d7356a8fc5dba author-r3/PR-BODY.md (download)
+2b0aac9d3f4f89be1a46edea54e8e036f24afe9c4225b219f5a05f2422b5ede5 author-r3/receipts/INDEX.md (download)
+{'file': 'author-r3/receipts/plants/gate1h-no-front-end.log', 'original_sha256': 'ed3a5be8e4a0010370a5cb2d6d39b77b8d94fabf45962f80b159e1e1c69967de', 'published_sha256': 'b823ea623aef205efc22f1eb760db3760f3f701d06ffc94f296198300793f6cb', 'path_redacted': True}

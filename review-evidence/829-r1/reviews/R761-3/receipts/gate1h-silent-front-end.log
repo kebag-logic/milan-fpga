@@ -1,0 +1,9 @@
+test_gptp_datapath_carries_the_launch_shape:
+Traceback (most recent call last):
+  File "$CLEAN_CLONE/sw/builder/test_builder.py", line 29582, in <module>
+    fn()
+    ~~^^
+  File "$CLEAN_CLONE/sw/builder/test_builder.py", line 18447, in test_gptp_datapath_carries_the_launch_shape
+    assert not _datapath_shape_findings(rtl), _datapath_shape_findings(rtl)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ['0 planes instantiated, not one']
