@@ -1,0 +1,54 @@
+OK	q00-unchanged	want=0	rc=0
+    documentation inventory: OK (550 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+OK	q01-plant-finding-on-current-page-no-regen	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (81 lines differ); first difference at line 30:
+      committed: | current | 166 | 69,371 |
+      generated: | current | 165 | 69,217 |
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	q02-plant-finding-then-write	want=0	rc=0
+    documentation inventory: OK (551 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+    + 233:| [docs/guides/SYSTEM_INTEGRATOR.md] and guides |
+    + 2
+OK	q03-hand-edit-stale-row-to-current	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: docs/reference/EGRESS_QUEUE_MAP.md carries an open finding but is marked current (the status rule)
+    docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 305:
+      committed: | [docs/reference/EGRESS_QUEUE_MAP.md](reference/EGRESS_QUEUE_MAP.md) | 143 | integrator | Egress queue map | `tb/verilator/milan_dp`, 802.1Q | current | no recorded contradiction | D0 | reference |
+      generated: | [docs/reference/EGRESS_QUEUE_MAP.md](reference/EGRESS_QUEUE_MAP.md) | 143 | integrator | Egress queue map | `tb/verilator/milan_dp`, 802.1Q | stale | 1 finding(s): D0-028 | D0 | reference |
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	q04-rule-lost-generator-plant-and-write	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: README.md carries an open finding but is marked current (the status rule)
+    docs/DOCUMENTATION_AUDIT.md: REQUIREMENTS.md carries an open finding but is marked current (the status rule)
+    docs/DOCUMENTATION_AUDIT.md: docs/ARCHITECTURE_HW_SW_SPLIT.md carries an open finding but is marked current (the status rule)
+    docs/DOCUMENTATION_AUDIT.md: docs/design/MAAP_FABRIC.md carries an open finding but is marked current (the status rule)
+    docs/DOCUMENTATION_AUDIT.md: docs/fpga/DATAPLANE_WALKTHROUGH.md carries an open finding but is marked current (the status rule)
+OK	q05-rule-lost-generator-unchanged-data-write	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: README.md carries an open finding but is marked current (the status rule)
+    docs/DOCUMENTATION_AUDIT.md: REQUIREMENTS.md carries an open finding but is marked current (the status rule)
+    docs/DOCUMENTATION_AUDIT.md: docs/ARCHITECTURE_HW_SW_SPLIT.md carries an open finding but is marked current (the status rule)
+    docs/DOCUMENTATION_AUDIT.md: docs/design/MAAP_FABRIC.md carries an open finding but is marked current (the status rule)
+    docs/DOCUMENTATION_AUDIT.md: docs/fpga/DATAPLANE_WALKTHROUGH.md carries an open finding but is marked current (the status rule)
+OK	q06-hand-edit-remove-finding-row-and-current	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (40 lines differ); first difference at line 512:
+      committed: | D0-019 | [docs/reference/FR_NFR.md](reference/FR_NFR.md) | 173 | \| **FR-QOS-01..03** \| **MET** \| Classifier + CBS untouched; | `docs/reference/EGRESS_QUEUE_MAP.md` lines 3-8 and `hdl/common/csr/m
+      generated: | D0-028 | [docs/reference/EGRESS_QUEUE_MAP.md](reference/EGRESS_QUEUE_MAP.md) | 38 | \| q3 \| gPTP classification target \| disabled \| | `hdl/common/ethernet_packet_pkg.sv` lines 220-221: `GPTP_CLAS
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	q07-plant-finding-quote-absent	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (81 lines differ); first difference at line 30:
+      committed: | current | 166 | 69,371 |
+      generated: | current | 165 | 69,217 |
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	q08-plant-finding-quote-absent-then-write	want=0	rc=0
+    documentation inventory: OK (551 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+    + 478:| D0-999 | [docs/guides/SYSTEM_INTEGRATOR.md](guides/SYSTEM_INTEGRATOR.md) | re-verify: quote not found | No such se
+    + | stale | 1 finding(s): D0-999 |
+OK	q09-fixed-statement-on-qspi-page	want=1	rc=1
+    docs/DOCUMENTATION_AUDIT.md: STALE (1 lines differ); first difference at line 503:
+      committed: | D0-024 | [docs/integration/QSPI_FLASHBOOT.md](integration/QSPI_FLASHBOOT.md) | 60 | was deleted 2026-08-13 with this repository's own AECP/AEM engine, so nothing | `sw/firmware/milan_baremetal/milan
+      generated: | D0-024 | [docs/integration/QSPI_FLASHBOOT.md](integration/QSPI_FLASHBOOT.md) | re-verify: quote not found | was deleted 2026-08-13 with this repository's own AECP/AEM engine, so nothing | `sw/firmwa
+    regenerate with: python3 scripts/docs_inventory.py --write
+OK	q10-hook-env-selftest	want=0	rc=0
+    documentation inventory: OK (550 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+    + documentation inventory selftest: OK (42 controls)
+    + selftest-under-hook-env rc=0
+    + dummy index entries: 0
+    + ls: cannot access '<scratch>/rp1/dummy-wt': No such file or directory

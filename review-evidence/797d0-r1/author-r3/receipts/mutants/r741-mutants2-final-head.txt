@@ -1,0 +1,18 @@
+head 808602e08daee5e86ae21026bbaf2f9114db077a
+baseline selftest rc=0 check rc=0
+check-always-fresh: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+check-ignores-status-rule: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+check-stale-returns-0: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+status-rule-removed: selftest KILLED (rc=1); check on real tree CAUGHT (rc=1)
+status-rule-parser-empty: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+parser-inventory-section-misnamed: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+parser-findings-wrong-cell: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+parser-cells-ignore-escapes: selftest SURVIVED (rc=0); check on real tree PASSED (rc=0)
+git-listing-includes-untracked: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+git-listing-keeps-gitlinks: selftest SURVIVED (rc=0); check on real tree PASSED (rc=0)
+locate-never-finds: selftest KILLED (rc=1); check on real tree CAUGHT (rc=1)
+lines-off-by-one: selftest KILLED (rc=1); check on real tree CAUGHT (rc=1)
+readme-only-not-a-document: selftest KILLED (rc=1); check on real tree PASSED (rc=0)
+banner-scan-1-line: selftest KILLED (rc=1); check on real tree CAUGHT (rc=1)
+git-env-passthrough: selftest SURVIVED (rc=0); check on real tree PASSED (rc=0)
+restored selftest rc=0 check rc=0

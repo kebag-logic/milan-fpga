@@ -1,0 +1,2 @@
+$ d=$(mktemp -d) && git archive HEAD | tar -x -C "$d" && (cd "$d" && python3 scripts/docs_inventory.py --check); rc=$?; rm -rf "$d"; exit $rc
+documentation inventory: OK (550 lines, docs/DOCUMENTATION_AUDIT.md is fresh)

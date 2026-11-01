@@ -1,0 +1,66 @@
+$ python3 scripts/check_wire_accountability.py --self-test
+
+== endstation_arty_4x4 ==
+  [ok]   endstation_arty_4x4: audio_interface 'tdm8' is backed = 5 pair slot(s) supplied
+  [ok]   endstation_arty_4x4: talker 0 format 0x0205022001006000 declares 4ch, fabric emits 4ch
+  [ok]   endstation_arty_4x4: talker 1 format 0x0205022001006000 declares 4ch, fabric emits 4ch
+  [ok]   endstation_arty_4x4: talker 2 format 0x0205022001006000 declares 4ch, fabric emits 4ch
+  [ok]   endstation_arty_4x4: talker 3 format 0x0205022001006000 declares 4ch, fabric emits 4ch
+  [note] endstation_arty_4x4: source coverage 2 of 4 talkers - the front-end supplies 5 physical pair slot(s), each 4-channel talker consumes 2; talker(s) 2..3 frame SILENCE via KL_pair_zero_fill when bound (Milan v1.2 5.3.7.3). Physical backing for them is roadmap item 5.
+  [ok]   endstation_arty_4x4: generated TALKER_WIRE_CHANS_C matches the framer = 4
+
+== endstation_arty_8ch ==
+  [ok]   endstation_arty_8ch: audio_interface 'tdm8' is backed = 5 pair slot(s) supplied
+  [ok]   endstation_arty_8ch: talker 0 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_arty_8ch: talker 1 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_arty_8ch: talker 2 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_arty_8ch: talker 3 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [note] endstation_arty_8ch: source coverage 1 of 4 talkers - the front-end supplies 5 physical pair slot(s), each 8-channel talker consumes 4; talker(s) 1..3 frame SILENCE via KL_pair_zero_fill when bound (Milan v1.2 5.3.7.3). Physical backing for them is roadmap item 5.
+  [ok]   endstation_arty_8ch: generated TALKER_WIRE_CHANS_C matches the framer = 8
+
+== endstation_arty_current ==
+  [ok]   endstation_arty_current: audio_interface 'i2s_philips' is backed = 1 pair slot(s) supplied
+  [ok]   endstation_arty_current: talker 0 format 0x0205022000806000 declares 2ch, fabric emits 2ch
+  [ok]   endstation_arty_current: all 1 advertised talker(s) have a physical source
+  [ok]   endstation_arty_current: generated TALKER_WIRE_CHANS_C matches the framer = 2
+
+== endstation_ax7101_1x1_tdm8 ==
+  [ok]   endstation_ax7101_1x1_tdm8: audio_interface 'tdm8' is backed = 4 pair slot(s) supplied
+  [ok]   endstation_ax7101_1x1_tdm8: talker 0 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_1x1_tdm8: all 1 advertised talker(s) have a physical source
+  [ok]   endstation_ax7101_1x1_tdm8: generated TALKER_WIRE_CHANS_C matches the framer = 8
+
+== endstation_ax7101_8x8 ==
+  [ok]   endstation_ax7101_8x8: audio_interface 'tdm32' is backed = 16 pair slot(s) supplied
+  [ok]   endstation_ax7101_8x8: talker 0 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 1 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 2 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 3 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 4 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 5 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 6 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [ok]   endstation_ax7101_8x8: talker 7 format 0x0205022002006000 declares 8ch, fabric emits 8ch
+  [note] endstation_ax7101_8x8: source coverage 4 of 8 talkers - the front-end supplies 16 physical pair slot(s), each 8-channel talker consumes 4; talker(s) 4..7 frame SILENCE via KL_pair_zero_fill when bound (Milan v1.2 5.3.7.3). Physical backing for them is roadmap item 5.
+  [ok]   endstation_ax7101_8x8: generated TALKER_WIRE_CHANS_C matches the framer = 8
+
+== the constant reaches the wire ==
+  [ok]   milan_datapath declares TALKER_WIRE_CHANS_P (default 2)
+  [ok]   milan_datapath passes it to KL_aaf_packetizer
+  [ok]   KL_aaf_packetizer resets every talker's chans from the constant
+  [ok]   milan_datapath guards the constant against the front-end supply
+  [ok]   W5: fill covers N_STREAMS x WIRE_CHANS/2 pair slots (ZF_TOTAL_C)
+  [ok]   W5: KL_pair_zero_fill instantiated over that span
+  [ok]   W5: the fill grid is the AUDIO clock /512 (48.000 kHz exactly), CDC'd
+  [ok]   W5: the packetizer bypass leg consumes the FILLED stream
+  [ok]   W5: the 8.3b blend arm exists (KL_pair_blend, I2S = pair slot 0)
+
+== self-test: the gate bites in both directions ==
+  [ok]   arty_current (streams clean to the reference device): clean - as expected
+  [ok]   ax7101_8x8 (W1 closed by the master, W3 closed by the fill): clean - as expected
+  [ok]   ax7101_8x8 with the TDM master removed (the 07-27 fabric): findings - as expected
+  [ok]   datapath with the silence fill deleted: findings - as expected
+  self-test: PASS
+
+----------------------------------------------------------------------
+checks: 77   findings: 0
+RESULT: PASS

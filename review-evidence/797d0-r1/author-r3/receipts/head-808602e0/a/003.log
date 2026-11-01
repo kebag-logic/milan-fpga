@@ -1,0 +1,10 @@
+$ d=$(mktemp -d) && python3 scripts/gen_hdl_reference.py --output "$d/ref"; rc=$?; rm -rf "$d"; exit $rc
+HDL reference schema: hdl-reference-html-v1
+Parser: pyslang 11.0.0
+Source revision: 808602e08daee5e86ae21026bbaf2f9114db077a
+Supported sections: 84 (80 modules, 4 packages)
+Module diagrams: 80
+Known limitations:
+  - hdl/common/axi_stream_if.sv: interface axi_stream_if
+  - hdl/ieee1722/aaf/KL_aaf_latency_taps.sv: module KL_aaf_latency_taps
+Wrote: /tmp/tmp.NSe2sdUQfI/ref/index.html

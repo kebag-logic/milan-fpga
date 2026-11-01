@@ -1,0 +1,14 @@
+sha256 182ccb30ded5737f1b4d49b14fcdbf06746b83ab59e4ba24343d83b70749075d
+bytes 338143
+--- first lines
+$ python3 scripts/ci_events.py --selftest
+  ok   generated gates: docs wire-accountability missing job
+  ok   generated gates: docs wire-accountability conditional job
+  ok   generated gates: docs wire-accountability masked job
+  ok   generated gates: docs wire-accountability host environment
+--- last lines
+  ok   default-branch: schedule with surrounding whitespace still passes
+  ok   default-branch: pull_request on main warns and continues
+  ok   default-branch: push on main warns and continues
+  ok   default-branch: a missing event cannot run
+selftest: PASS (2207 contract items, 5270 arms)
