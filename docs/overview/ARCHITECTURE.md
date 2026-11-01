@@ -2,12 +2,19 @@
 
 Milan FPGA is a Milan 1.2 end station.
 The current shipping build places control protocols in fabric.
-Mark II defaults ADP, ACMP, AECP, MAAP and SRP to firmware.
-Each control function has build-selectable placement with one owner.
+
+Mark II runs ADP, ACMP, AECP, MAAP and SRP as firmware.
 AECP includes unsolicited notifications and counter serving.
-Framing, timestamps, ingress filtering, gPTP and media remain in fabric.
-All-fabric remains supported and the shipping default until F2 to F5 acceptance.
+
+Until the switch-over, each has build-selectable placement with one owner.
+All-fabric stays the shipping default until F2 to F5 acceptance.
+
 That acceptance covers all streams, counters and the audio soak.
+After the switch-over, no all-fabric build remains.
+
+Framing, timestamps, ingress filtering and media remain in fabric.
+Until F6, gPTP remains in fabric too; then firmware runs it.
+
 The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines placement and service timing.
 The implementation sections below describe today's all-fabric shipping build.
 
@@ -71,10 +78,13 @@ entity. `KL_maap` remains the fabric multicast allocator through
 
 ## 4. Time and media clocks
 
-The fabric gPTP plane is the sole release-image PHC discipline owner. Its
-published GM, parent, path, peer-delay, synchronization, AS-capable, and
-time-uncertain state feeds the CSR and protocol surfaces directly. A direct
-option-OFF elaboration is deliberately ownerless and inert.
+Until F6, the fabric gPTP plane owns release-image PHC discipline.
+It publishes GM, parent, path and peer-delay state.
+
+It also publishes synchronization, AS-capable and time-uncertain state.
+These feed the CSR and protocol surfaces directly.
+
+A direct option-OFF elaboration is deliberately ownerless and inert.
 
 AAF capture and render share a configured media grid. CRF receive/transmit
 engines are present, and since #74 the stored clock-source selection is

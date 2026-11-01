@@ -73,11 +73,15 @@ Control state grows through static, entity-sized contexts in the selected owner.
 Each supported shape must meet Section 3.4 service bounds.
 
 The diagram above describes the current all-fabric shipping default.
-Mark II selects ADP, ACMP, AECP, MAAP and SRP per function.
-Its default is bare-metal control over packet mailboxes.
-The all-fabric option remains supported.
-The shipping default changes only after F2 to F5 acceptance.
-That acceptance includes all streams, all counters and the audio soak.
+Until the switch-over, a build selects each control function's placement.
+
+The all-fabric build stays the shipping default until then.
+The switch-over follows F2 to F5 acceptance.
+
+Acceptance covers all streams, all counters and the audio soak.
+Mark II then runs every control protocol as firmware only.
+
+No all-fabric option remains after it (NFR-SCOUT-02).
 See the [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md#1-ownership-rule).
 
 ### 1.3 Actors
@@ -101,7 +105,8 @@ commands ([owner decision on #510](https://github.com/kebag-logic/milan-fpga/iss
 2026-09-23). Those commands still answer `NOT_IMPLEMENTED`, and Section 2.3
 says so.
 
-This ledger describes the all-fabric shipping placement.
+Until the switch-over, this ledger describes the all-fabric shipping placement.
+
 It does not claim Mark II firmware integration or timing acceptance.
 F0 and F1 are merged, default-off foundations for that integration.
 
@@ -297,7 +302,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | NFR-PERF-01 | The datapath MUST sustain line-rate 1 GbE for the shaped streams without frame loss at baseline load. | M | T |
 | NFR-PERF-02 | The AVTP talker/listener MUST sustain the Class A packet rate (8000 pkt/s per stream) continuously. | M | T |
 | NFR-LAT-01 | End-to-end (talker capture → listener render) latency MUST meet the Milan Class A presentation-time bound using the product's 2 ms per-output default. | M | T |
-| NFR-LAT-02 | AVDECC command responses MUST meet their applicable normative limit in Section 3.4.1 in either placement. Firmware paths MUST also meet NFR-SCOUT-03; a 250 ms transaction timeout MUST NOT replace the 240 ms AECP response bound or the 200 ms Milan ACMP timeout. | M | T |
+| NFR-LAT-02 | AVDECC command responses MUST meet their applicable normative limit in Section 3.4.1 in either placement until the switch-over, and in firmware after it. Firmware paths MUST also meet NFR-SCOUT-03; a 250 ms transaction timeout MUST NOT replace the 240 ms AECP response bound or the 200 ms Milan ACMP timeout. | M | T |
 | NFR-LAT-03 | **Mark II talker latency.** For every talker stream, the interval from the last sample of a packet at the TDM pin to the first bit of its frame on the wire MUST be below 65 µs, and as short as possible ([owner decision on #640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658), 2026-10-31). The interval covers capture, packetizing, the class A shaper (IEEE 802.1Q-2022 8.6.8.2 and 34.6.1.1; Milan v1.2 4.3.4) and the MAC. The [stream-engine design](../design/MARK_II_STREAM_ENGINES.md#talker-latency-budget) derives the bound at the 32x32 shape and states its idleSlope assumption; the bound when fewer reservations share a port is an open owner question there. Verified by analysis (that derivation) and by test: the AAF latency taps on every talker stream, on the bench, at 32x32. | M | A,T |
 | NFR-DET-01 | The media/AVTP path MUST be deterministic: bounded, jitter-controlled processing independent of best-effort/management load. | M | T |
 
@@ -312,15 +317,15 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
 | NFR-SCUP-01 | The end-station model, generated artifacts, and fabric datapath MUST be parameterized by `P_CH`, `P_SI`, `P_SO`, `P_SR` so a larger endpoint (for example 8-channel, 48/96/192 kHz) is a configuration change, not a redesign. | M | A,I |
-| NFR-SCUP-02 | Increasing `P_CH`/`P_SR` MUST only linearly increase media bandwidth, buffer and DSP costs. ADP/AECP/ACMP wire semantics MUST remain unchanged; the selected control placement MUST meet NFR-SCOUT-03 at every supported shape. | M | A |
+| NFR-SCUP-02 | Increasing `P_CH`/`P_SR` MUST only linearly increase media bandwidth, buffer and DSP costs. ADP/AECP/ACMP wire semantics MUST remain unchanged; the selected control placement (firmware only after the switch-over) MUST meet NFR-SCOUT-03 at every supported shape. | M | A |
 | NFR-SCUP-03 | FPGA resource use MUST stay within the `xc7a100t` budget at the largest supported single-node profile (document the profile that first exceeds it). | S | A |
 | NFR-SCUP-04 | The builder MUST generate and size the flat AEM image from the selected entity model. Bare-metal boot MUST validate and install it before entity enable: at the descriptor base for fabric AECP, or in the validated image store for firmware AECP. Descriptor growth MUST NOT require an RTL edit. | S | I |
 
 ### 3.4 Fabric scale-out and future ports
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
-| NFR-SCOUT-01 | The release architecture MUST use one cacheless RV32I control hart. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement. Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
-| NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP, SRP and saved-state handling MUST run as bare-metal firmware in Mark II, with no retained-fabric option in the end state ([owner decision on #665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6545457321), 2026-10-31). Until that firmware passes its suites and the bench qualification for all streams, counters and audio soak, a build switch keeps the all-fabric processor as the shipping default; at the switch-over the processor is deleted, with no dual maintenance. Each function MUST have one state owner. Framing, timestamps on both ports, ingress filtering and media MUST remain fabric-owned. gPTP moves to firmware under #665 F6 ([owner decision on #640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658)); the fabric gPTP plane stays its owner until F6 passes the gPTP qualification, and then leaves. The mailbox filter MUST exclude tagged frames, match each channel's exact VLAN-tag/destination-MAC/EtherType/AVTP-subtype tuple, then apply its identity term. Own unicast MUST mean the receiving AVB interface's MAC, never any unicast. AECP MUST accept (command AND target_entity_id = own) OR (response AND controller_entity_id = own). Untagged control frames failing their tuple MUST increment FILTER_MISMATCH. Per-channel token buckets MUST remain; NFR-SCOUT-08 defines the table and checks. | M | A |
+| NFR-SCOUT-01 | The release architecture MUST use one cacheless RV32I control hart. Stream capacity MUST grow through fabric media contexts and static, entity-sized control contexts in the selected placement (firmware only after the switch-over). Every supported shape MUST meet NFR-SCOUT-03 without adding harts or a software media path. | M | A,D |
+| NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP, SRP and saved-state handling MUST run as bare-metal firmware in Mark II, with no retained-fabric option in the end state ([owner decision on #665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6545457321), 2026-10-31). Until that firmware passes its suites and the bench qualification for all streams, counters and audio soak, a build switch keeps the all-fabric processor as the shipping default; at the switch-over the processor is deleted, with no dual maintenance. Each function MUST have one state owner. Framing, timestamps on both ports, ingress filtering and media MUST remain fabric-owned. Lever 5 of the [area plan](../design/MARK_II_AREA_PLAN.md#open-owner-decisions) (the MMCM servo in firmware) would move media-clock control to firmware; that conflicts with this row and with NFR-SCOUT-03's audio rule, and it is an open owner decision. gPTP moves to firmware under #665 F6 ([owner decision on #640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658)); the fabric gPTP plane stays its owner until F6 passes the gPTP qualification, and then leaves. The mailbox filter MUST exclude tagged frames, match each channel's exact VLAN-tag/destination-MAC/EtherType/AVTP-subtype tuple, then apply its identity term. Own unicast MUST mean the receiving AVB interface's MAC, never any unicast. AECP MUST accept (command AND target_entity_id = own) OR (response AND controller_entity_id = own). Untagged control frames failing their tuple MUST increment FILTER_MISMATCH. Per-channel token buckets MUST remain; NFR-SCOUT-08 defines the table and checks. | M | A |
 | NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 10 ms, proposed for owner approval, under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response timeouts MUST also hold with margin; ordering, spacing and timer obligations remain independently normative. Audio deadlines MUST depend only on bounded fabric handshakes, independent of firmware service latency. gPTP deadlines MUST do so while the fabric plane owns gPTP; under #665 F6 each gPTP path MUST state and test its firmware service bound, with the hardware timestamps kept in fabric. | M | A,T |
 | NFR-SCOUT-04 | The PHC, MAC trunk, CSR window, and fabric egress arbiter MUST each have one coherent owner and deterministic arbitration across all elaborated streams. | M | A,T |
 | NFR-SCOUT-05 | A future `P_PORTS ≥ 2` profile MAY replicate complete fabric endpoint instances with distinct AVB interfaces and entity identities; the current release profile remains one port. Such a profile is not Milan v1.2 Section 8 redundancy, which pairs two AVB interfaces under one entity and is out of scope for the current release (#394, FR-MVU-03). Mark II adopts Section 8 redundancy at the 32x32 shape: one entity with a Primary and a Secondary AVB interface, each logical stream a redundant pair ([owner decision on #640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545621753), 2026-10-31). Its design is the [stream-engine page](../design/MARK_II_STREAM_ENGINES.md#redundancy-pairing-and-listener-merge), approved before any RTL lane opens; FR-MVU-03 holds until that implementation lands. | S | A,D |
@@ -447,7 +452,10 @@ These checks follow Milan v1.2 Table 5.54:
 Each hook MUST run at every supported stream/channel/rate shape.
 Exercise simultaneous protocol traffic, maximum legal backlog and NVM write-back.
 Test saturation, reset, timer wrap, CPU stalls and both bus adapters.
-Test every supported placement combination across cross-protocol state changes.
+
+Until the switch-over, test every supported placement combination.
+Cover cross-protocol state changes in each.
+
 Plant late-service and reordered-output defects that the named checks reject.
 Late service remains a failed bound even if recovery succeeds.
 A stopped core must not leave a fabric ADP advertiser running.
@@ -466,7 +474,7 @@ Their integration must establish the proposed budget before changing defaults.
 | NFR-REL-01 | A stream fault (link flap, GM change, talker loss) MUST auto-recover without a reboot; counters MUST record the event. | M | T |
 | NFR-REL-02 | Fabric liveness monitors SHOULD detect a stalled time or media engine. Control liveness SHOULD detect a stalled selected protocol owner, including firmware, and recover or report it without a full-board reboot. Expired control-service bounds MUST NOT be hidden by continued advertising. | S | T |
 | NFR-REL-03 | **Mark II save time.** A saved-state change MUST be durable in flash at most 0.5 s after the change, worst case, at the 32x32 shape ([owner decision on #823](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6545924397), 2026-10-31). No flash erase may sit on the save path: a save appends only the changed records to a pre-erased slot, and compaction runs off the save path without losing state on a power cut. The [save-path derivation](../design/MARK_II_STREAM_ENGINES.md#the-05-s-save-path) uses the flash datasheet maxima and states its burst assumption, which is an open owner question there. The same bound applies to the firmware writer (#665 F1). Verified by analysis (that derivation) and by test: a host flash model at datasheet maxima, then bench power cuts at 32x32. | M | A,T |
-| NFR-OBS-01 | The system MUST expose fabric-gPTP status/publication counters and CSRs, AVDECC counters, MAC/RMON counters, and protocol/media liveness through the CSR contract. | S | D |
+| NFR-OBS-01 | The system MUST expose gPTP status/publication counters and CSRs (from the fabric gPTP plane until F6, then from the firmware gPTP daemon), AVDECC counters, MAC/RMON counters, and protocol/media liveness through the CSR contract. | S | D |
 | NFR-MAINT-01 | The entity model MUST be single-source (JSON) and shared HW/SW/test; divergence MUST be caught in CI. | M | I |
 | NFR-PORT-01 | The firmware MUST build for the shipping RV32I bare-metal profile with no OS dependency, and MUST stay buildable for a wider core should the profile grow. | S | A |
 | NFR-SEC-01 | Milan v1.2 does not mandate AEM authentication; the entity MUST advertise `AEM_AUTHENTICATION` = not-required and behave safely when unauthenticated. | M | I |
@@ -489,7 +497,7 @@ Their integration must establish the proposed budget before changing defaults.
 |-------|-----------|-----------|---------------|-----------|
 | **Control** | ADP, AECP/AEM+MVU, ACMP, MAAP, MSRP/MVRP | normative limits plus T_svc in firmware | one owner per function; current shipping fabric until the firmware qualifies, then Mark II firmware only (NFR-SCOUT-02) | static generated control contexts |
 | **Media** | AVTP talker/listener, sample transport, presentation-time, media-clock | hard (µs) | AAF/CRF and physical-audio fabric | channels and stream contexts |
-| **Time** | gPTP state machines/servo, PHC discipline, CRF generate/observe | hard (µs) | integrated fabric gPTP owner + PHC today; Mark II: firmware gPTP under #665 F6, with the PHC and the timestamps of both ports in fabric | one coherent time domain per AVB interface |
+| **Time** | gPTP state machines/servo, PHC discipline, CRF generate/observe | hard (µs) | integrated fabric gPTP owner + PHC today; Mark II: firmware gPTP under #665 F6, with one PHC and one timestamp unit per port in fabric | one coherent time domain per AVB interface |
 | **Boot/policy** | image verification, CSR initialization, persistence, diagnostics | not per frame | one bare-metal RV32I hart | fixed at one in release profiles |
 
 ### 4.3 One control CPU, fabric capacity
@@ -506,7 +514,7 @@ No additional harts or software media workers supply stream capacity.
           selected ADP / ACMP / AECP / MAAP / SRP
                | packet mailboxes and state-apply transactions
     fabric: ingress filter, framing, timestamps, control timers
-            selected all-fabric control engines
+            selected all-fabric control engines (until the switch-over)
             AAF/CRF, physical audio, gPTP and PHC
                | ordered fabric egress arbitration
             one MAC / physical port

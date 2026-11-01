@@ -19,6 +19,7 @@ This page changes documentation only.
 - **[Mark II block RAM ledger](#mark-ii-block-ram-ledger)** -- An estimate over the ceiling.
 - **[Mark II decisions](#mark-ii-decisions)** -- The 2026-10-31 owner rulings.
 - **[Mark II lane sequence](#mark-ii-lane-sequence)** -- Ordered lanes with savings and evidence.
+- **[Open owner decisions](#open-owner-decisions)** -- Questions no lane may assume an answer to.
 - **[Mark I plan history](#mark-i-plan-history)** -- Why the sections below are history.
 - **[Baseline recorded on dev 5603c353](#baseline-recorded-on-dev-5603c353)** -- The committed endpoint records and their measured source revision.
 - **[Baseline at dev e6172750](#baseline-at-dev-e6172750)** -- Historical measurements and hierarchy from the original plan.
@@ -282,6 +283,17 @@ The second port needs the new MAC.
 
 Levers 4 to 6 keep the owner's least-risky-first order.
 Each starts only after the previous routed measurement.
+
+## Open owner decisions
+
+These Mark II questions wait for the owner.
+No lane may assume an answer.
+
+1. **Lever 5 against media ownership.**
+   - Lever 5 moves the MMCM servo loop into firmware.
+   - [NFR-SCOUT-02](../reference/FR_NFR.md#34-fabric-scale-out-and-future-ports) keeps media fabric-owned.
+   - NFR-SCOUT-03 keeps audio deadlines on fabric handshakes.
+   - The owner decides: amend those rows, or drop lever 5.
 
 ## Mark I plan history
 

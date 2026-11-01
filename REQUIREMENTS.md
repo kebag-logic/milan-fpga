@@ -22,22 +22,29 @@ kept in Git history rather than the tracked product tree (#259).
 
 - Bare-metal firmware owns boot policy, CSR initialization, identity,
   saved-state boot read/apply and write-back, and UART diagnostics.
-- ADP, ACMP, AECP (commands, unsolicited notifications and counter serving),
-  MAAP and SRP MUST each have build-selectable placement.
-  The Mark II default places them on the bare-metal core.
-  The all-fabric build remains a supported option.
-  It remains the shipping default until F2 to F5 pass
-  their suites and bench acceptance: all streams, counters and audio soak.
-  Requirement approval precedes that default flip (#664, #665).
-- The fabric gPTP plane is the sole product PHC, protocol, servo, and public
-  state owner.
+- The control functions are ADP, ACMP, AECP, MAAP and SRP.
+  AECP includes unsolicited notifications and counter serving.
+- Until the switch-over, each MUST have build-selectable placement.
+  The all-fabric build is the shipping default until then.
+- The switch-over needs F2 to F5 suites and bench acceptance.
+  Acceptance covers all streams, counters and audio soak.
+- Requirement approval precedes the switch-over (#664, #665).
+  Mark II then runs these functions as firmware only.
+- After the switch-over, no all-fabric build remains (#665).
+- Until F6, the fabric gPTP plane is the sole owner.
+  It owns the product PHC, protocol, servo and public state.
+- After F6, firmware owns the gPTP protocol and servo (#665).
+  The PHC and timestamps stay in fabric, on both ports.
 - `GPTP_PLANE_EN_P=0` is verification-only hardware. It has no product image
   and zero runtime gPTP owners: GM, parent, PathTrace and peer delay are zero;
   sync/asCapable are zero; `tu` is one; retained writes are inert.
-- The fabric MUST retain framing, timestamps, the ingress filter,
-  the gPTP plane, and the AVTP/AAF/CRF and physical-media paths.
-  Audio and gPTP deadlines MUST remain independent of firmware service.
-  Reservation protocol control follows its selected placement.
+- The fabric MUST retain framing, timestamps and the ingress filter.
+  It MUST retain the AVTP/AAF/CRF and physical-media paths.
+- Until F6, the fabric MUST also retain the gPTP plane.
+- Audio deadlines MUST remain independent of firmware service.
+  Until F6, gPTP deadlines MUST also remain independent of it.
+- After F6, each gPTP path states and tests its firmware bound.
+- Reservation protocol control follows its selected placement.
   Media admission enforcement and any shaping remain in fabric.
   The mailbox ingress filter MUST enforce the acceptance rules below.
   Tagged frames MUST NOT reach any mailbox.
@@ -47,8 +54,9 @@ kept in Git history rather than the tracked product tree (#259).
   Untagged control frames failing their tuple MUST increment `FILTER_MISMATCH`.
   Per-channel token buckets MUST remain in force.
 - Each selected function MUST have exactly one authoritative state owner.
-  Both placements MUST preserve wire behavior, ordering and normative timeouts.
-  Firmware service MUST satisfy NFR-SCOUT-03 and its path-specific hooks
+- Until the switch-over, both placements MUST preserve wire behavior.
+  They MUST also preserve ordering and normative timeouts.
+- Firmware service MUST satisfy NFR-SCOUT-03 and its path-specific hooks
   in the [requirements register](docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing).
 - Required Milan state must survive power loss.
   The shipping backend is partial; #70 remains a release blocker.
@@ -98,7 +106,8 @@ traces this table to the mailbox YAML and acceptance hooks.
 PR #685 (#665 lane FC) implements this table, before F2 to F5.
 The [mailbox design](docs/design/MAILBOX_SPLIT.md#the-ingress-filter) describes the implemented filter.
 
-The [split architecture](docs/ARCHITECTURE_HW_SW_SPLIT.md) defines both placements.
+Until the switch-over, the [split architecture](docs/ARCHITECTURE_HW_SW_SPLIT.md) defines both placements.
+
 Major `0x0003` identifies only images running the split.
 The major changes with the default-flip implementation, not this document change.
 MINOR remains flat and continuous across majors.
@@ -142,6 +151,11 @@ field values. Receivers ignore that deprecated field as required by the later
   plausible zero.
 
 ## 4. Time synchronization and timestamping
+
+Until F6, the fabric plane owns this section's gPTP duties.
+After F6, firmware owns the gPTP protocol and servo (#665).
+
+The PHC and timestamps stay in fabric, on both ports.
 
 - **REQ-PTP-01 (MUST):** The PHC supports enable, nominal increment, and
   signed rate adjustment in Q8.24 nanoseconds per datapath tick.
@@ -315,7 +329,9 @@ verified blocks outside the shipping datapath; the station-address rules
   feature status, traceability, and the repository-wide bare-metal-only gate
   are green with zero policy findings.
 - **REQ-VER-05 (MUST):** A booted shipping board demonstrates firmware startup,
-  UART diagnostics, fabric-owned gPTP, persistent state, and audio operation.
+  UART diagnostics, gPTP, persistent state, and audio operation.
+  Until F6, that gPTP is fabric-owned.
+
   The one AX7101 DUT against the Milan-validated reference peer additionally
   demonstrates asCapable, GM transition/recovery, publication/`tu` correlation,
   conformance, and latency (#117).
