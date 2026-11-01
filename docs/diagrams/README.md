@@ -73,7 +73,7 @@ Each CSR module has one generated WaveDrom source.
 
 Every register's SVG is rendered from it.
 
-Each mechanism on the register page has a generated Mermaid diagram.
+Each register-page mechanism has a generated Mermaid diagram.
 
 Its labels are checked against the RTL as it renders.
 
