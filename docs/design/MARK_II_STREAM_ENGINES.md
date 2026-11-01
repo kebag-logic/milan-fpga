@@ -536,22 +536,44 @@ On each network, talker and listener agree within 1 µs.
 IEEE 802.1AS-2020 B.3 sets it, within seven hops.
 
 Milan v1.2 4.4.2.1 assumes it too.
-So the two offsets differ by at most 2 µs.
+Read together, the offsets differ by at most 2 µs.
 
-Each offset is up to 125 µs old.
 Each grandmaster runs within 100 ppm of nominal.
-
 IEEE 802.1AS-2020 B.1.1 sets that frequency bound.
-So an offset drifts at most 25 ns per latch.
+
+So the PHC offset drifts at most 200 ppm.
+Talker and listener latch it at different instants.
+
+The talker latches at most 125 µs before stamping.
+The listener latches before the copy arrives.
+
+A rendered copy arrives before its presentation time (rule 1).
+That is at most capture plus offset plus 125 µs.
+
+Milan v1.2 5.3.7.6 sets that term.
+The stamp comes after the capture it reads.
+
+Assumption A4: arrival comes within 2.792 ms of stamping.
+Offsets up to the 2.667 ms span meet it.
+
+A larger offset needs queueing and transit within it too.
+Class A transit: 2 ms (IEEE 802.1BA-2011 6.5).
+
+So the latches lie at most 2.917 ms apart.
+The drift term covers that whole interval.
 
 Each PHC read adds one granule, at most 40 ns.
 IEEE 802.1AS-2020 B.1.2 bounds that granule.
 
+The capture stamp and the render point add no term.
+One reading serves both copies or both compared sides.
+
 ```
+latch to latch <= 125 µs + 2.792 ms = 2.917 ms
 E_x = 2 x 1 µs              B.3, one per network
-    + 2 x 125 µs x 200 ppm  two latches, two grandmasters
+    + 200 ppm x 2.917 ms    drift between the latches, 0.5834 µs
     + 4 x 40 ns             four PHC reads, B.1.2
-    = 2.000 + 0.050 + 0.160 = 2.210 µs
+    = 2.000 + 0.584 + 0.160 = 2.744 µs, the drift rounded up
 ```
 
 Assumption A3: both networks meet B.3 in steady state.
@@ -579,7 +601,7 @@ A clean copy's time names its packet.
 Its offset from the head is `k = round((t - head) / 125 µs)`.
 
 Each packet's tolerance window is 62.5 µs either side.
-Clean partner copies differ by at most 2.210 µs.
+Clean partner copies differ by at most 2.744 µs.
 
 Neighbouring packets differ by 125 µs, less drift.
 At 200 ppm, 22 packets drift under 0.6 µs.
@@ -1136,8 +1158,8 @@ The [open questions](#open-questions) list it.
 | Latency instrument time base | Simulation: an odd context with a non-zero, drifting PHC offset; its recorded interval equals the pin-to-wire time, and so does an even context's | Bench: an external capture of pin and wire on each port, against `TCTX_TLAT_MAX` of an even and an odd context |
 | Phase rule | The model's starts and stops | Firmware test: phase chosen by wire time, never moved while running |
 | Stagger conformance | IEEE 1722-2016 7.5 and 7.6 inspection | Listener interoperability with the reference peer |
-| Listener merge | Simulation of every rule: both copies clean with a jittered conversion error up to 2.210 µs and up to 1.5 ms between networks, either network faster; times 1 µs past a sample boundary; one network cut mid-stream; 1 % frame loss on either network, filled from the later copy; the secondary with tu set, its time skewed by plus or minus 30 µs, plus or minus 200 µs and plus 1 ms, arriving before the primary; a cut, then a grandmaster change on the surviving network. Rendered samples equal the clean stream's, and `SE_MERGE_DUP` counts each packet's second copy once. The test fails with an exact time compare, with each copy placed by its own time, or without rule 2 | Bench cable pull on each network, no lost samples; a grandmaster change on one network with both up, no disturbed samples |
-| Conversion error bound | Analysis above (IEEE 802.1AS-2020 B.1.1, B.1.2, B.3) | Bench capture of both copies of each packet; the converted times differ by at most 2.210 µs |
+| Listener merge | Simulation of every rule: both copies clean with a jittered conversion error up to 2.744 µs and up to 1.5 ms between networks, either network faster; times 1 µs past a sample boundary; one network cut mid-stream; 1 % frame loss on either network, filled from the later copy; the secondary with tu set, its time skewed by plus or minus 30 µs, plus or minus 200 µs and plus 1 ms, arriving before the primary; a cut, then a grandmaster change on the surviving network. Rendered samples equal the clean stream's, and `SE_MERGE_DUP` counts each packet's second copy once. The test fails with an exact time compare, with each copy placed by its own time, or without rule 2 | Bench cable pull on each network, no lost samples; a grandmaster change on one network with both up, no disturbed samples |
+| Conversion error bound | Analysis above (IEEE 802.1AS-2020 B.1.1, B.1.2, B.3; Milan v1.2 5.3.7.6; assumptions A3 and A4); a host model that drifts two PHCs at plus and minus 100 ppm, latches each every 125 µs and converts at the stamp and the arrival | Bench capture of both copies of each packet, stamp to arrival within 2.792 ms; the converted times differ by at most 2.744 µs |
 | Port time bases | Simulation: each copy's avtp_timestamp against its own port's PHC | Bench capture of both copies on the two networks |
 | Block RAM ledger | Estimate above | Routed image at 32x32 with measured firmware |
 | Save bound | Analysis above at datasheet maxima | Host flash model at maxima; bench power cuts |
