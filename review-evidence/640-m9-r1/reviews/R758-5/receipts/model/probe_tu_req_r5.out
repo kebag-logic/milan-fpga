@@ -1,0 +1,22 @@
+TU-1 differential, cases A to D: samples missing and wrong, model / with counted check
+  A skew +700: model missing=0 bad=0 (skew 0: 0, 0) test passes; counted missing=0 bad=0 test passes
+  A skew +800: model missing=8598 bad=0 (skew 0: 0, 0) test FAILS; counted missing=0 bad=0 test passes
+  A skew +850: model missing=23400 bad=0 (skew 0: 0, 0) test FAILS; counted missing=0 bad=0 test passes
+  A skew -2000: model missing=23400 bad=0 (skew 0: 0, 0) test FAILS; counted missing=0 bad=0 test passes
+  A skew +1500000: model missing=23400 bad=0 (skew 0: 0, 0) test FAILS; counted missing=0 bad=0 test passes
+  A skew -1500000: model missing=23400 bad=0 (skew 0: 0, 0) test FAILS; counted missing=0 bad=0 test passes
+  B skew +1000: model missing=3000 bad=0 (skew 0: 0, 0) test FAILS; counted missing=0 bad=0 test passes
+  B skew -1900: model missing=1752 bad=0 (skew 0: 0, 0) test FAILS; counted missing=0 bad=0 test passes
+  B skew -2500: model missing=3000 bad=0 (skew 0: 0, 0) test FAILS; counted missing=0 bad=0 test passes
+  C skew +5: model missing=0 bad=0 (skew 0: 0, 0) test passes; counted missing=0 bad=0 test passes
+  C skew -5: model missing=0 bad=0 (skew 0: 0, 0) test passes; counted missing=0 bad=0 test passes
+  C skew +200: model missing=0 bad=0 (skew 0: 0, 0) test passes; counted missing=0 bad=0 test passes
+  C skew -200: model missing=0 bad=0 (skew 0: 0, 0) test passes; counted missing=0 bad=0 test passes
+  C skew +1000: model missing=78 bad=23322 (skew 0: 0, 0) test FAILS; counted missing=0 bad=0 test passes
+  C skew -1000: model missing=78 bad=0 (skew 0: 0, 0) test FAILS; counted missing=0 bad=0 test passes
+  D skew +1000: model missing=30 bad=0 (skew 0: 0, 0) test FAILS; counted missing=0 bad=0 test passes
+  of 16: the model fails TU-1's test in 11; the counted check in 0
+Case E against its mirror, round-4 model
+  skew +30: secondary tu, arrives first: missing=0 bad=0; primary tu, arrives first: missing=0 bad=0
+  skew +200: secondary tu, arrives first: missing=0 bad=0; primary tu, arrives first: missing=0 bad=0
+  skew +1000: secondary tu, arrives first: missing=0 bad=0; primary tu, arrives first: missing=0 bad=0

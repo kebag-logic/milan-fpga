@@ -1,0 +1,31 @@
+Rule hits read: rule1/rule2/rule3/rule4/rule5/rule6
+A. The cases on the clean verification row
+  both clean, secondary 1.1-1.5 ms slower: bad=0 missing=0 sent_missing=0 dup=4000 sec=0 late=0 early=0 outside=0 rules=0/1/0/3999/0/4000
+  both clean, secondary faster: bad=0 missing=0 sent_missing=0 dup=4000 sec=4000 late=0 early=0 outside=0 rules=0/1/0/3999/0/4000
+  both clean, 1 us past a sample boundary: bad=0 missing=0 sent_missing=0 dup=4000 sec=0 late=0 early=0 outside=0 rules=0/1/0/3999/0/4000
+  both clean, 1 us past a boundary, secondary faster: bad=0 missing=0 sent_missing=0 dup=4000 sec=4000 late=0 early=0 outside=0 rules=0/1/0/3999/0/4000
+  both clean, 2.8 us past a boundary, secondary faster: bad=0 missing=0 sent_missing=0 dup=4000 sec=4000 late=0 early=0 outside=0 rules=0/1/0/3999/0/4000
+  primary cut at 1500: bad=0 missing=0 sent_missing=0 dup=1500 sec=2500 late=0 early=0 outside=0 rules=0/1/0/3343/656/1500
+  secondary cut at 1500: bad=0 missing=0 sent_missing=0 dup=1500 sec=0 late=0 early=0 outside=0 rules=0/1/0/3999/0/1500
+  secondary faster, secondary cut at 1500: bad=0 missing=0 sent_missing=0 dup=1500 sec=1500 late=0 early=0 outside=0 rules=0/1/0/3322/677/1500
+  1 % loss on the primary: bad=0 missing=0 sent_missing=0 dup=3957 sec=43 late=0 early=0 outside=0 rules=0/1/0/3956/43/3957
+  1 % loss on the secondary: bad=0 missing=0 sent_missing=0 dup=3965 sec=0 late=0 early=0 outside=0 rules=0/1/0/3999/0/3965
+  1 % loss on both: bad=0 missing=0 sent_missing=0 dup=3908 sec=48 late=0 early=0 outside=0 rules=0/1/0/3951/48/3908
+  1 % loss on both, 1 us past a boundary: bad=0 missing=0 sent_missing=0 dup=3908 sec=48 late=0 early=0 outside=0 rules=0/1/0/3951/48/3908
+B. The row's two mutations: failing row cases out of 12
+  exact: 12 fail; first: ['both clean, secondary 1.1-1.5 ms slower', 'both clean, secondary faster']
+  own_time: 2 fail; first: ['both clean, 1 us past a boundary, secondary faster', '1 % loss on both, 1 us past a boundary']
+C. Stimuli the row does not name
+  unpaired, secondary never sent: bad=0 missing=0 sent_missing=0 dup=0 sec=0 late=0 early=0 outside=0 rules=0/1/0/3999/0/0
+  short margin on both, 10 to 50 us, 1 us past a boundary: bad=19553 missing=541 sent_missing=541 dup=4000 sec=2022 late=0 early=0 outside=0 rules=0/4000/0/0/0/4000
+  short margin on both, 110 to 120 us: bad=0 missing=0 sent_missing=0 dup=4000 sec=2022 late=0 early=0 outside=0 rules=0/4000/0/0/0/4000
+  short margin, secondary only, 10 to 50 us: bad=0 missing=0 sent_missing=0 dup=4000 sec=0 late=0 early=0 outside=0 rules=0/1/0/3999/0/4000
+  both time bases step +1,000 us at 2000: bad=11952 missing=48 sent_missing=48 dup=4000 sec=0 late=0 early=0 outside=0 rules=0/1/0/3999/0/4000
+  both time bases step -1,000 us at 2000: bad=11952 missing=48 sent_missing=48 dup=4008 sec=0 late=0 early=0 outside=0 rules=0/1/0/3991/0/4008
+  both time bases step +3,000 us at 2000: bad=11856 missing=144 sent_missing=144 dup=4000 sec=0 late=0 early=0 outside=0 rules=0/2/0/3998/0/4000
+  both time bases step -3,000 us at 2000: bad=12000 missing=144 sent_missing=144 dup=4000 sec=0 late=0 early=0 outside=0 rules=0/1/1/3998/0/4000
+D. Is rule 3 reachable with a valid head and a steady time base?
+  any head and copy inside (render point, +2666.667 us]: |k| over 21 in 0 of 200000 draws; largest |k| by arithmetic 21
+E. Window sums
+  span 2666.667 us = 21.333 intervals, map bits 22
+  22 packets at 200 ppm: 0.550 us; window margin 59.206 us; neighbour separation 121.706 us
