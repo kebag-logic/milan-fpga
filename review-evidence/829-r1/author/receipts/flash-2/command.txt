@@ -1,0 +1,1 @@
+systemd-run --user --unit=milan-583-flash-a725-12 --collect /bin/sh -c "exec flock -w 300 /tmp/milan-bench.lock $VALIDATION_STORAGE/829-a725b/tools/flash-run.sh $VALIDATION_STORAGE/829-a725/wt-bench $WORKSPACE_HOME/litex-milan/work/build_arty_a725bcal2 $MANAGEMENT/2026-09-23/829-a725b/receipts/flash-2 > $MANAGEMENT/2026-09-23/829-a725b/receipts/flash-2/flash.log 2>&1"
