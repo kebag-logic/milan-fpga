@@ -1,0 +1,11 @@
+lazy_list_line_recorded: escape=['S1E'] loud=[] indented-kept=[] | '- Item.\nlazy\n  ```\nS1E\n'
+item_five_spaces: escape=['S1E'] loud=[] indented-kept=[] | '-      x\n  ```\n  y\nS1E\n'
+item_trailing_spaces: escape=['S1E'] loud=[] indented-kept=[] | '-   \n  ```\n  y\nS1E\n'
+ordered_two_in_paragraph: escape=['S1E'] loud=[] indented-kept=[] | 'text\n2. ```\n   S1E\n'
+thematic_break_spaced: escape=['S1E'] loud=[] indented-kept=[] | '* * *\n  ```\n  x\ny\n```\nS1E\n'
+ordered_two_then_fence: escape=['S1E'] loud=[] indented-kept=[] | 'text\n2. item\n   ```\n   x\ny\n```\nS1E\n'
+fence_in_blockquote: escape=[] loud=['S1E'] indented-kept=[] | '> ```\n> S1E\n> ```\n'
+comment_in_list_item: escape=[] loud=[] indented-kept=[] | '- <!--\n  x\nS1E\n'
+plain_nested_list: escape=[] loud=[] indented-kept=[] | '- a\n  - b\n\n    ```\n    S1E\n    ```\n\nS2E\n'
+ordered_list_step: escape=[] loud=[] indented-kept=[] | '1. Step.\n\n   ```sh\n   S1E\n   ```\n\n2. Next.\n\nS2E\n'
+rc=0
