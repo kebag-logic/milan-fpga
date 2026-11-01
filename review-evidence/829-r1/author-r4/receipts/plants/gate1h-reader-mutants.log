@@ -1,0 +1,8 @@
+# head b9628c8963d436af0dccebb205a5241ece5d9e93 reader mutants, sv2v v0.0.12
+ok  rc=1 the datapath alone, no earlier source: AssertionError: gate 1h accepted a milan_datapath.sv with ETH_TICK_NS_P dead under a macro from an earlier source: []
+ok  rc=1 the datapath first, not in its place: AssertionError: gate 1h accepted a milan_datapath.sv with ETH_TICK_NS_P dead under a macro from an earlier source: []
+ok  rc=1 the whole output, not the datapath's module: AssertionError: gate 1h refused a milan_datapath.sv with another module with these parameters and its own plane: ['2 planes instantiated, not one']
+ok  rc=1 the first of many datapath modules: AssertionError: gate 1h accepted a milan_datapath.sv with the datapath's module declared twice: []
+ok  rc=1 a macro no earlier source defines: AssertionError: gate 1h accepted a milan_datapath.sv with ETH_TICK_NS_P dead under a macro from an earlier source: []
+mutants: 5 not red: 0
+rc=0 tree after: []
