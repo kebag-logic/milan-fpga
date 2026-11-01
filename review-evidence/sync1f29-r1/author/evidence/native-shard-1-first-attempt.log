@@ -1,0 +1,16 @@
+shard: 1/4   selected suites: 17
+PASS     aaf_latency_tap_bank
+PASS     aes3
+PASS     classifier
+PASS     eth_tx_reset
+FAIL     gptp_shadow
+FAIL     gptp_tables
+PASS     link_guard
+PASS     mac_rmon
+FAIL     mbx
+PASS     milan_dp_gm_steps
+PASS     milan_dp_mclk
+Terminated                 timeout "$TMO" make -C "$d" > "$OUT/$suite.log" 2>&1
+CANCELLED: TERM; no completed sweep result
+partial logs: $SCRATCH/native/shard-1/logs
+CANCELLED: signal 15; no completed sweep result

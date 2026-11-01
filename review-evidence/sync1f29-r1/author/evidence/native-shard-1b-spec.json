@@ -1,0 +1,21 @@
+{
+ "cwd": "$SHARD1",
+ "head": "9f81df0054ecf35507f1b920a7f4b5a9c6f0d8b1",
+ "base": "5b5f4336",
+ "commands": [
+  [
+   "env",
+   "PATH=$TOOL:$TOOL:$TOOL:$HOSTPATH:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+   "VERILATOR=$TOOL",
+   "TSN_GEN_ROOT=$HOSTPATH",
+   "TMPDIR=$SCRATCH/tmp-sweep",
+   "MAKEFLAGS=-j4 --no-print-directory",
+   "bash",
+   "scripts/run_all_suites.sh",
+   "$SCRATCH/native/shard-1b/logs",
+   "--wait",
+   "--shard",
+   "1/4"
+  ]
+ ]
+}

@@ -1,0 +1,83 @@
+{
+ "job": "docs-check-no-git",
+ "head": "9f81df0054ecf35507f1b920a7f4b5a9c6f0d8b1",
+ "status": "success",
+ "steps": [
+  {
+   "n": 1,
+   "name": "Run actions/checkout@v4",
+   "result": "action (no local effect)",
+   "uses": "actions/checkout@v4"
+  },
+  {
+   "n": 2,
+   "name": "Retain checkout identity before removing metadata",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.1,
+   "kind": "run"
+  },
+  {
+   "n": 3,
+   "name": "Set CPU-derived job budgets",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.0,
+   "kind": "run"
+  },
+  {
+   "n": 4,
+   "name": "Strip git metadata, then run the docs gate",
+   "result": "success",
+   "rc": 0,
+   "seconds": 10.8,
+   "kind": "run"
+  },
+  {
+   "n": 5,
+   "name": "Record actual job execution",
+   "result": "success",
+   "rc": 0,
+   "seconds": 0.2,
+   "kind": "run"
+  },
+  {
+   "n": 6,
+   "name": "Upload actual job execution",
+   "result": "action (no local effect)",
+   "uses": "actions/upload-artifact@v4"
+  }
+ ],
+ "steps_ctx": {
+  "ci_step_0": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_1": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_2": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_step_3": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_record": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  },
+  "ci_upload": {
+   "outputs": {},
+   "outcome": "success",
+   "conclusion": "success"
+  }
+ }
+}
