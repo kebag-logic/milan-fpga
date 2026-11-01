@@ -27,8 +27,20 @@ from types import FrameType
 from typing import BinaryIO
 
 PROC = Path("/proc")
-GRACE_SECONDS = 2.0
-REAP_SECONDS = 2.0
+# Cleanup stages (#833). The values come from traced cleanups under load: the
+# longest SIGKILL to exit was 0.10 s and the longest resume to shell exit 0.21 s,
+# against one measured 3.04 s stall of an owner whose cause was not named. So
+# each window after a signal outlasts that stall: a process stalled just as it
+# is signalled is still not judged.
+GRACE_SECONDS = 2.0  # SIGTERM until the first SIGKILL of a stubborn leaf.
+KILL_ALL_SECONDS = 2.0  # After grace, SIGKILL reaches every other descendant.
+TRAP_SECONDS = 4.0  # A resumed shell's window to finish its terminal trap.
+REAP_SECONDS = 4.0  # The last SIGKILL until a remaining descendant fails the run.
+# A census scans every process on the host, so a starved owner can spend whole
+# seconds on one pass: 1.75 s at 16 runnable tasks per CPU. A pass advances the
+# deadlines by at most this, so a descendant is only judged after the owner has
+# really looked: the 2 + 2 s to the last SIGKILL alone span at least 8 passes.
+MAX_PASS_SECONDS = 0.5
 # prctl(2) options. None of them needs privilege.
 PR_SET_PDEATHSIG = 1
 PR_GET_PDEATHSIG = 2
@@ -242,9 +254,10 @@ class OwnedProcesses:
         # Never signal a numeric PID from a stale census. Open an identity
         # handle and recheck its start time before sending any signal. Its
         # parent is not its identity: re-parenting does not make it new (#833).
-        started = time.monotonic()
-        deadline = started + GRACE_SECONDS
-        hard_deadline = deadline + REAP_SECONDS
+        started = last = time.monotonic()
+        clock = 0.0
+        deadline = GRACE_SECONDS
+        kill_all = deadline + KILL_ALL_SECONDS
         notified = set()
         initial = {}
         resumed = None
@@ -263,16 +276,23 @@ class OwnedProcesses:
             # so it does not remain, and the next census confirms the rest (#833).
             reaped = self._reap()
             owned = {pid: entry for pid, entry in census.items() if pid not in reaped}
-            if not initial:
-                initial = {(pid, start): parent for pid, (parent, start) in owned.items()}
             now = time.monotonic()
             slowest = max(slowest, now - pass_started)
+            clock += min(now - last, MAX_PASS_SECONDS)
+            last = now
+            if not initial:
+                initial = {(pid, start): parent for pid, (parent, start) in owned.items()}
             # A child that exits inside every census cannot hold cleanup open either.
-            if now >= hard_deadline and (owned or now >= hard_deadline + REAP_SECONDS):
+            limit = kill_all + REAP_SECONDS
+            if clock >= limit and (owned or clock >= limit + REAP_SECONDS):
                 first = {pid: parent for (pid, _start), parent in initial.items()}
                 remaining = "; ".join(
                     _describe(pid, first.get(pid), now - killed[pid] if pid in killed else None)
                     for pid in sorted(owned or census))
+                # Never leave what this message reports as a live process, including
+                # a stopped shell that was never resumed.
+                for pid, (_parent, start) in owned.items():
+                    self._send(pid, start, signal.SIGKILL)
                 raise RuntimeError(
                     f"CLEANUP FAILED: owned descendants remain after {now - started:.2f} s, "
                     f"{passes} census passes, slowest {slowest:.2f} s: {remaining}")
@@ -283,24 +303,28 @@ class OwnedProcesses:
                 # shut down. Resume it only when its pending terminal trap can
                 # finish; it may need to reap zombies before its EXIT cleanup.
                 self._signal(self.root_fd, signal.SIGCONT)
-                resumed = now
-            signum = signal.SIGKILL if now >= deadline else signal.SIGTERM
+                resumed = clock
+                kill_all = max(kill_all, clock + TRAP_SECONDS)
+            signum = signal.SIGKILL if clock >= deadline else signal.SIGTERM
             for pid, (_parent, start) in owned.items():
-                if pid == root_pid and self.root_notified and now < hard_deadline - 0.2:
+                # A notified shell is SIGKILLed only after its own window: never
+                # in the pass that resumes it, whatever the time then (#833).
+                if pid == root_pid and self.root_notified and (resumed is None or clock < kill_all):
                     continue
                 if signum != signal.SIGKILL:
                     # Let terminal traps run their cleanup commands during
                     # grace. New descendants still face the hard deadline.
                     if (pid, start) not in initial:
                         continue
-                elif now < hard_deadline - 0.2:
+                elif clock < kill_all:
                     # Kill stubborn leaves first, so cooperative intermediate
                     # owners can reap and remove private work before exiting.
-                    if now < deadline + 1.0 and pid in initial.values():
+                    if clock < deadline + 1.0 and pid in initial.values():
                         continue
                     if any(parent == pid and child in live for child, (parent, _start) in owned.items()):
                         continue
-                    if (pid, start) not in initial and resumed is not None and now < resumed + 1.0:
+                    # A command the resumed shell's trap started shares its window.
+                    if (pid, start) not in initial and resumed is not None:
                         continue
                 key = (pid, start, signum)
                 if key not in notified and self._send(pid, start, signum):
