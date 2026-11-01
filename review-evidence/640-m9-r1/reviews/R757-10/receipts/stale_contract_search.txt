@@ -1,0 +1,300 @@
+== G1 replaced LUT figures
+ci/image/exec-audit-receipt.json:10631:     "sha256": "5529da5868e34a5ba5b79ef10521fe3eb5890f42b85067696ac738d28f7a1aba"
+ci/image/exec-audit-receipt.json:29200:     "sha256": "5529da5868e34a5ba5b79ef10521fe3eb5890f42b85067696ac738d28f7a1aba"
+ci/image/exec-audit.json:3554:    "5529da5868e34a5ba5b79ef10521fe3eb5890f42b85067696ac738d28f7a1aba": {
+ci/image/image.lock.json:2797:          "source_digest": "94cf261fe9bb7a06a89a955838040a878946a69d4424655f19dd3bd3c1b528a2",
+ci/image/sources.lock.json:2792:      "sha256": "94cf261fe9bb7a06a89a955838040a878946a69d4424655f19dd3bd3c1b528a2"
+ci/image/sources.lock.json:6279:      "filename": "maven/94cf261fe9bb7a06a89a955838040a878946a69d4424655f19dd3bd3c1b528a2-zinc-classpath_2.12-1.10.0.jar",
+ci/image/sources.lock.json:6281:      "sha256": "94cf261fe9bb7a06a89a955838040a878946a69d4424655f19dd3bd3c1b528a2",
+docs/design/AREA_BUDGET.md:132:That replaces the earlier 60 percent target, 38,040 LUTs.
+docs/design/AREA_BUDGET.md:133:The route below was 13,972 over it.
+docs/design/AREA_BUDGET.md:182:What follows is history, against the replaced 60 percent.
+docs/design/AREA_BUDGET.md:185:All else unchanged, that needed a 10,521-LUT wrapper.
+docs/design/AREA_BUDGET.md:186:That meant removing 13,972 LUTs, 57 % of the wrapper.
+docs/design/AREA_BUDGET.md:200:Its target was 38,040 LUTs.
+docs/design/AREA_BUDGET.md:245:| M9 closure and re-record | No assumed saving | Measured at closure | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) Mark II ceiling and timing met; formerly <= 38,040 LUT |
+docs/design/AREA_BUDGET.md:370:They measure the replaced 38,040 target and D8 margin.
+docs/design/AREA_BUDGET.md:372:| Placement | Case | Estimated image LUT | Headroom to replaced 38,040 | Headroom to replaced 37,659 |
+docs/design/AREA_BUDGET.md:402:The replaced target's integer ceiling was 37,659 LUTs.
+docs/design/AREA_BUDGET.md:404:The binding bar was then 38,040 with timing met.
+docs/design/MARK_II_AREA_PLAN.md:67:The [owner kept the 60 percent target](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270) on 2026-10-03.
+docs/design/MARK_II_AREA_PLAN.md:251:| D10, target | [Owner, 2026-10-31 16:39](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624): below 20,000 LUTs at 32x32, whatever it takes | Replaces NFR-RES-01's 60 percent a
+docs/design/MARK_II_AREA_PLAN.md:318:Below is the Mark I plan against 38,040 LUTs.
+docs/design/MARK_II_AREA_PLAN.md:1243:| Notification | 2,125 | 60 percent |
+docs/design/MARK_II_AREA_PLAN.md:1323:Central headroom below 38,040 is 6,373 LUTs.
+docs/design/MARK_II_AREA_PLAN.md:1377:| Placement | Case | Estimated image LUT | Headroom to 38,040 | Headroom to 37,659 |
+docs/design/MARK_II_AREA_PLAN.md:1391:Partial central clears 38,040 but misses 37,659.
+docs/design/MARK_II_AREA_PLAN.md:1444:With the measured savings of M2 (34), M5 (121) and M6 (418) in place of their central figures, the partial-central scenario becomes about 38,784, 744 over 38,040, pending the week-4 re-measure (D8).
+docs/design/MARK_II_AREA_PLAN.md:1469:| 9, weeks 9-10 | M9 | Final pin adoption, integrated route, timing closure and resource-gate re-record; budget/ledger update | M0s coverage accepted; selected F2-F5 functions qualified; actual M-lane d
+docs/design/MARK_II_AREA_PLAN.md:1579:| D8, margin | [Manager ruling](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5990755268): 38,040 LUT with timing is the bar | Aim at least 1 percent below it: <= 37,659 LUT; 5 perce
+docs/design/MEDIA_CLOCK_FOLLOWING.md:2460:  q = 1 - (1 - p)^16: about 60 % at 8 lost PDUs a second, 37 % at 11, and
+docs/reference/FR_NFR.md:473:| NFR-RES-01 | **Mark II:** the routed image at the 32x32 shape (16x16 logical streams, each redundant on both networks, on one TDM8 bus) MUST use fewer than 20,000 LUTs of `xc7a100t` (about 31.5 % of 63,400), a
+docs/reference/REGISTER_MAP.md:634:`REQ-CBS-03` ceiling; the two shaped classes alone are 600 Mb/s = 60 %, which is
+docs/testing/CI_WORKFLOWS.md:156:Before review, four-CPU measurements must predict each job below 60%.
+docs/testing/CI_WORKFLOWS.md:513:Its existing 60%-of-deadline control applies separately to each worker's own
+docs/testing/CI_WORKFLOWS.md:572:| Suite above 60% | Largest window | Previous limit | Usage | Run / job |
+docs/testing/CI_WORKFLOWS.md:657:timed out at 4800 s. Dev's own windows before it were already above 60% of
+docs/testing/CI_WORKFLOWS.md:2709:  29.60% of the cap and a margin of 42.05% over that measured peak.
+docs/testing/CI_WORKFLOWS.md:3073:| Worker | Projected seconds | Own 60% bound | Margin, seconds |
+hdl/common/ethernet_packet_pkg.sv:273://! anyway. The shaped pair alone (q4 + q3 = 600 Mb/s = 60 %) is unchanged and
+scripts/suite_shards.py:749:    # The 60% itself. Every threshold above comes from bound_seconds, so a
+scripts/suite_shards.py:751:    # This one is computed without it: 60% of a minute is 36 s.
+scripts/suite_shards.py:755:                  f"(60%): {dict(sorted(applied.items()))}, expected "
+scripts/suite_shards.py:795:                  and any("1044 s (60% of timeout-minutes 29)" in problem for problem in found))
+tb/verilator/fw_service_budget/oracle.json:4:    "raw_log": "\n\r\u001b[1m        __   _ __      _  __\u001b[0m\n\r\u001b[1m       / /  (_) /____ | |/_/\u001b[0m\n\r\u001b[1m      / /__/ / __/ -_)>  <\u001b[0m\n\r\u001b[1m     /____/_/\\__/
+tb/verilator/milan_dp_gm_steps/Makefile:22:# 60% of that limit. Moving the leg and its controls here takes its whole
+tb/verilator/milan_dp_gm_steps/README.md:58:That is over 60% of the limit already, so removing the #621 phase alone could
+== G2 selectable placement
+README.md:62:Until the switch-over, each has build-selectable placement with one owner.
+REQUIREMENTS.md:27:- Until the switch-over, each MUST have build-selectable placement.
+REQUIREMENTS.md:58:- Until the switch-over, both placements MUST preserve wire behavior.
+REQUIREMENTS.md:110:Until the switch-over, the [split architecture](docs/ARCHITECTURE_HW_SW_SPLIT.md) defines both placements.
+avdecc/aem_descriptors.py:473:    """CLOCK_SOURCE descriptor (7.2.9): one selectable media-clock reference.
+configs/endstation_arty_current.yaml:183:    # cluster-count policy (USER decision, config-selectable):
+docs/ARCHITECTURE_HW_SW_SPLIT.md:39:In the transition, both placements keep wire semantics and timing.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:136:It delivers only frames relevant to the selected control function.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:237:Until F6, both placements retain the fabric gPTP owner.
+docs/ENDSTATION_BUILDER.md:272:| **D2** | cluster policy is config-selectable; a stream channel maps to a mono MBLA AUDIO_CLUSTER | 1722.1 7.2.16/7.2.16.1; Milan 6.4, 5.3.10.1, 5.4.2.27 | **implemented** — both policies gated (gate 7) |
+docs/ENDSTATION_BUILDER.md:751:**Build posture.** The loopback fabric lane is implemented and selectable.
+docs/GLOSSARY.md:30:| **ACMP** | Stream connection protocol. The selected control owner publishes settled binding state to the fabric; currently the protocol processor. |
+docs/MILAN_V12_ROADMAP.md:165:   and both gather-face selects each went from a spelled-out OR to one name.
+docs/design/AREA_BUDGET.md:228:MAAP remains required in either placement.
+docs/design/GPTP_PLANE.md:458:| Is it managed? | No. The product claims no 802.1AS management, so no managed object exists. No CSR or configuration key carries the value either. | IEEE 802.1AS-2011 Table 14-6 (14.6.25; Cor1's replacement ta
+docs/design/MAILBOX_SPLIT.md:1078:  the licence, which needs a declaration in both placements, unless policing
+docs/design/MARK_II_AREA_PLAN.md:813:register-map checks and boot readback in both placements.
+docs/design/MARK_II_AREA_PLAN.md:911:Milan's 16-controller minimum remains in either placement.
+docs/design/MARK_II_AREA_PLAN.md:1585:2. [Build-selectable placement](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991626132) initially proposed a CSR boundary.
+docs/design/MEDIA_CLOCK_FOLLOWING.md:2225:| Requirements | FR-CLK-03: the selectable set is INTERNAL, the CRF source and one INPUT_STREAM source per AAF Stream Input; an unlisted index is refused per IEEE 1722.1-2021 7.2.32 and Table 7-141.
+docs/design/SAVED_STATE_FASTCONNECT.md:1436:deleting that source mark affects both placements.
+docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md:26:Mark II passes selected control frames through filtered packet mailboxes.
+docs/integration/BUILDING.md:560:provide four separately selectable slow/fast-by-temperature models.
+docs/overview/ARCHITECTURE.md:9:Until the switch-over, each has build-selectable placement with one owner.
+docs/overview/FULL_FPGA_SOLUTION.md:9:Until the switch-over, each has build-selectable placement with one owner.
+docs/overview/FULL_FPGA_SOLUTION.md:104:Audio payload stays on deterministic fabric paths in both placements.
+docs/reference/FR_NFR.md:76:Until the switch-over, a build selects each control function's placement.
+docs/reference/FR_NFR.md:257:| FR-CLK-03 | The media clock MUST be selectable (CLOCK_DOMAIN → CLOCK_SOURCE) among INTERNAL, the CRF sink's INPUT_STREAM source and one INPUT_STREAM source per AAF Stream Input, located on that input (Milan v1
+docs/reference/FR_NFR.md:305:| NFR-LAT-02 | AVDECC command responses MUST meet their applicable normative limit in Section 3.4.1 in either placement until the switch-over, and in firmware after it. Firmware paths MUST also meet NFR-SCOUT-03
+docs/reference/FR_NFR.md:320:| NFR-SCUP-02 | Increasing `P_CH`/`P_SR` MUST only linearly increase media bandwidth, buffer and DSP costs. ADP/AECP/ACMP wire semantics MUST remain unchanged; the selected control placement (firmware only after
+docs/reference/FR_NFR.md:505:The single core handles selected control protocols through bounded mailbox service.
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:6:for each selected control owner before the default changes.
+docs/reference/REGISTER_MAP.md:123:1. *(closed by #74)* **The CRF media clock IS selectable at the root.** The
+docs/testing/MILAN_V12_AUDIT_2026-08-16.md:342:grids are not aligned and reports the result as an open finding. The selectable
+docs/traceability/ieee8021q.md:115:Split traceability: MRP-1..8 and SRP-1..10 bind both placements.
+scripts/act_ci.py:7398:        "all selects each workflow once in stable order",
+sw/builder/endstation_builder.py:1750:    Cluster-count policy (USER decision, config-selectable):
+sw/builder/endstation_builder.py:5187:    # domain clock, it is not a selectable source of it, so the CLOCK_SOURCE
+syn/ooc/pp_placement_selftest.py:140:                    recipe.main([str(gateware), "--placement", selected, *options])
+tb/verilator/milan_dp_gm_steps/gmstep_mutants.py:379:    """Run the positive control and the selected controls; 1 if any survived."""
+tb/verilator/milan_dp_gptp/verify_abort.py:81:            ("comparison history matches the selected control",
+tb/verilator/milan_dp_render/sim_tdm8_render.cpp:2734://! frame WHOLE - is what this arm carries, and both placements C2's validation
+== G3 all-fabric retained
+README.md:63:All-fabric stays the shipping default until F2 to F5 acceptance.
+README.md:66:After the switch-over, no all-fabric build remains.
+REQUIREMENTS.md:33:- After the switch-over, no all-fabric build remains (#665).
+docs/AAF_LATENCY_TAPS.md:193:The RX endpoint now measures through the retained fabric-render acceptance
+docs/ARCHITECTURE_HW_SW_SPLIT.md:4:No retained-fabric option stays in the end state.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:6:The all-fabric build remains the shipping default at VERSION `0x0002_0060`.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:108:The all-fabric processor stays the default only until qualification.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:112:No all-fabric build remains, so nothing is maintained twice.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:258:The all-fabric backend remains partially implemented under #70.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:299:All-fabric and mixed placements retain equivalent PDU and state-transaction behavior.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:311:An all-fabric image retains its architecture identity.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:346:It tests major 3, and major 2 while all-fabric remains.
+docs/design/AREA_BUDGET.md:219:All-fabric remains the current shipping default until the flip.
+docs/design/AREA_BUDGET.md:220:After the flip, no all-fabric build remains.
+docs/design/AREA_BUDGET.md:281:All-fabric must retain its response/staging capacity too.
+docs/design/AREA_BUDGET.md:353:The [fallback scenarios](MARK_II_AREA_PLAN.md#no-split-and-partial-flip-estimates) price retained fabric AECP separately.
+docs/design/AREA_BUDGET.md:412:Both select build switches; all-fabric remains the shipping default.
+docs/design/MAILBOX_SPLIT.md:14:All-fabric stays the shipping default until F2 to F5 acceptance.
+docs/design/MAILBOX_SPLIT.md:439:The shipping all-fabric placement remains unchanged.
+docs/design/MARK_II_AREA_PLAN.md:382:| `u_pp` | 22,442 | 22,517 | 28,938 | Control functions move; retained fabric interfaces are reconnected |
+docs/design/MARK_II_AREA_PLAN.md:655:### L1 Shared sequencing in retained fabric control
+docs/design/MARK_II_AREA_PLAN.md:712:Unqualified functions remain all-fabric until their acceptance passes.
+docs/design/MARK_II_AREA_PLAN.md:948:Both all-fabric standalone references remain independent and unchanged.
+docs/design/MARK_II_AREA_PLAN.md:1252:This is a prototype target for retained fabric AECP only.
+docs/design/MARK_II_AREA_PLAN.md:1472:M3/M10's listed order is for any retained fabric-AECP work.
+docs/design/MARK_II_AREA_PLAN.md:1580:| D9, placement | Initially excluded by the [owner](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991591637); subsequently made the [Mark II default](https://github.com/kebag-logic/
+docs/design/MARK_II_AREA_PLAN.md:1594:Unqualified functions retain fabric ownership.
+docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md:24:After the switch-over, no all-fabric build remains.
+docs/overview/ARCHITECTURE.md:10:All-fabric stays the shipping default until F2 to F5 acceptance.
+docs/overview/ARCHITECTURE.md:13:After the switch-over, no all-fabric build remains.
+docs/overview/FULL_FPGA_SOLUTION.md:10:All-fabric stays the shipping default until F2 to F5 acceptance.
+docs/overview/FULL_FPGA_SOLUTION.md:13:After the switch-over, no all-fabric build remains.
+docs/reference/FR_NFR.md:78:The all-fabric build stays the shipping default until then.
+docs/reference/FR_NFR.md:84:No all-fabric option remains after it (NFR-SCOUT-02).
+docs/reference/FR_NFR.md:328:| NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP, SRP and saved-state handling MUST run as bare-metal firmware in Mark II, with no retained-fabric option in the en
+tb/verilator/milan_dp/sim_main.cpp:1151:    // any TX response and counting the retained fabric-render clone.
+== G4 gPTP in fabric, unscoped
+CONTRIBUTING.md:274:   Actual gPTP processor PR62 and published adjacent extension remain unresolved.
+README.md:69:gPTP stays in fabric until F6, then moves to firmware.
+README.md:176:one stays (FPGA-gPTP #87). The engine and wrapper commit the complete
+README.md:484:ends derive from gPTP) plus making the Bresenham remainder a register the
+REQUIREMENTS.md:34:- Until F6, the fabric gPTP plane is the sole owner.
+REQUIREMENTS.md:43:- Until F6, the fabric MUST also retain the gPTP plane.
+REQUIREMENTS.md:45:  Until F6, gPTP deadlines MUST also remain independent of it.
+REQUIREMENTS.md:186:  live gPTP health. Option OFF remains ownerless under adversarial writes.
+REQUIREMENTS.md:222:sets an asymmetry. The gPTP processor's live UART tuner stays a donor-bench
+docs/AAF_LATENCY_TAPS.md:70:* The gPTP plane times its own frames independently of this boundary: since
+docs/ARCHITECTURE_HW_SW_SPLIT.md:115:It stays until F6 passes the gPTP bench qualification.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:205:The gPTP engine and PHC run independently of descriptor enumeration.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:237:Until F6, both placements retain the fabric gPTP owner.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:259:Physical gPTP acceptance remains #117.
+docs/BUILD_FLASH_BOOT.drawio:36:  fabric gPTP owns PHC + publication
+docs/BUILD_FLASH_BOOT.gen.py:44:   ("fabric gPTP owns PHC + publication", 0),
+docs/BUILD_FLASH_BOOT.svg:56:<text x="1046" y="423" font-size="13" fill="#37474F">fabric gPTP owns PHC + publication</text>
+docs/DOCUMENTATION_AUDIT.md:66:| Donor gPTP README retains retired host services | Full solution specifies bare-metal firmware | Treat donor runtime prose as historical |
+docs/ENDSTATION_BUILDER.md:1069:| 33d | `gptp.{ingress_latency_ns,egress_latency_ns}` | The board's own timestamp latency corrections, nanoseconds, and the fabric gPTP plane is their ONLY consumer: it SUBTRACTS the ingress value from every 
+docs/GLOSSARY.md:45:| **gPTP** | IEEE 802.1AS generalized precision time protocol. The fabric plane is the sole product owner until F6; firmware then owns the protocol and servo. |
+docs/design/AREA_BUDGET.md:244:| M10 shared gPTP/AECP engine | 0 | 31,667 | 1,200 estimated only with a separate retained AECP engine |
+docs/design/GPTP_PLANE.md:6:Fabric gPTP owns product time synchronization until F6.
+docs/design/MARK_II_AREA_PLAN.md:838:M10 shares gPTP and AECP execution only in retained-fabric AECP builds.
+docs/design/MARK_II_AREA_PLAN.md:846:Audio and gPTP deadlines remain independent of firmware service.
+docs/design/MARK_II_AREA_PLAN.md:1465:| 5, weeks 3-6 | M7 | gPTP engine state tables and parent shadow wrapper | Adopted pin; gPTP remains fabric; excludes M2 arrays | 500 (300-700) | gPTP suites, CDC/timestamps and turnaround |
+docs/design/MARK_II_AREA_PLAN.md:1468:| 8, weeks 6-9 | M10 | One gPTP/AECP engine across processor integration | D6 planned; requires fabric AECP remaining and M3 preserving a separate removable engine | **0**; fabric-only opportunity 1,200
+docs/diagrams/egress_queue_map.gen.py:367:            "0x88F7 leaves for gPTP and everything else there - MSRP - stays on control."]):
+docs/diagrams/egress_queue_map.svg:103:<text x="56" y="600" font-size="11.8" fill="#0D47A1">0x88F7 leaves for gPTP and everything else there - MSRP - stays on control.</text>
+docs/fpga/DATAPLANE_WALKTHROUGH.md:109:The gPTP egress timestamp is taken independently of all of this: the frame's
+docs/guides/SYSTEM_INTEGRATOR.md:95:- gPTP remains independent from entity enablement.
+docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md:30:gPTP stays in fabric until F6, then moves to firmware.
+docs/integration/BAREMETAL_FIRMWARE.md:111:option-on fabric gPTP plane starts independently of the AVDECC AEM image.
+docs/integration/BAREMETAL_FIRMWARE.md:116:   control plane disabled while the PHC and fabric gPTP plane remain active.
+docs/integration/BAREMETAL_FIRMWARE.md:195:fabric gPTP plane continue independently. The UART status line then reports
+docs/overview/ARCHITECTURE.md:16:gPTP stays in fabric until F6, then moves to firmware.
+docs/overview/FULL_FPGA_SOLUTION.md:16:gPTP stays in fabric until F6, then moves to firmware.
+docs/reference/FR_NFR.md:259:| FR-CLK-05 | Hardware ingress and egress timestamps MUST represent each frame's event at the timestamp reference point required by the selected protocol edition. They MUST be delivered with correct frame identi
+docs/reference/FR_NFR.md:264:> elaboration constants stay the only timestamp corrections, and the gPTP
+docs/reference/FR_NFR.md:328:| NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP, SRP and saved-state handling MUST run as bare-metal firmware in Mark II, with no retained-fabric option in the en
+docs/reference/FR_NFR.md:329:| NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 10 ms, proposed for owner approval, under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response time
+docs/reference/FR_NFR.md:462:Audio and gPTP must retain their deadlines under these loads.
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:241:| 8.3 / 10.2.4.8 / 14.6.9 | delayAsymmetry: optional to model, zero when not modelled. Its managed object is read-write and `Tdot3FD` in Table 14-6, so required only where 802.1AS management is 
+docs/reference/REGISTER_MAP.md:369:| `0x004` | `VERSION` | RO | `0x0002_0060` | `[31:16]` major, `[15:0]` minor. **Versioning policy (2026-08-11): MAJOR = entire redesign of blocks -- 0x0002 opens the scenario-B era (the protocol-processor 
+docs/reference/REGISTER_MAP.md:688:| `0x540` | `PTP_INGRESS_LAT` | RW | `0` | 🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live own
+docs/reference/REGISTER_MAP.md:689:| `0x544` | `PTP_EGRESS_LAT` | RW | `0` | 🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owne
+docs/reference/REGISTER_MAP.md:795:| `0x784` | `TXARB_DIAG` | RO live | `0xA7000000` | (minor ≥ `0x001B`) TX-trunk arbiter lock supervision. `[7:0]` locked-now, `[15:8]` abort-sticky (a granted source abandoned its frame mid-packet; the arb
+docs/reference/REGISTER_MAP.md:1486:the count stays 8 and thisClock is not appended (FPGA-gPTP #86). Up to seven
+docs/reference/REGISTER_MAP_CLASSES.md:102:| `0x7DC–0x7E4` | retired AS_PATH publication addresses | **needed** (ABI) | inert LO/HI; live fabric status / zero option OFF | The fabric engine supplies its bounded pathTrace, eight identities f
+docs/reference/SUBMODULES.md:244:| #85, pathTrace | [86](https://github.com/Mister-M-alt/FPGA-gPTP/pull/86) | The published path is the received pathSequence with thisClock appended (IEEE 802.1AS-2011 Section 10.3.10.2.1 d)): up to seven re
+docs/reference/SUBMODULES.md:262:FPGA-gPTP stays at `55680bff`.
+docs/reference/SUBMODULES.md:278:FPGA-gPTP stays at `55680bff`.
+docs/reference/SUBMODULES.md:327:| #89, Sync receipt timeout | [92](https://github.com/Mister-M-alt/FPGA-gPTP/pull/92) | A grandmaster whose Sync stops for 375 ms is aged while gmPresent holds (IEEE 802.1AS-2011 Section 10.3.11, Figure 10-1
+docs/reference/SUBMODULES.md:331:| #87, no path trace TLV | [93](https://github.com/Mister-M-alt/FPGA-gPTP/pull/93) | An Announce without the TLV writes no pathTrace, so the previous one stays: `{thisClock}` after reset or mastership, other
+docs/reference/SUBMODULES.md:389:| #94, portEnabled | [95](https://github.com/Mister-M-alt/FPGA-gPTP/pull/95) | The engine takes portEnabled (IEEE 802.1AS-2011 Section 10.2.4.11) as `port_enabled_i`. While it is low the port starts no gPTP 
+docs/reference/SUBMODULES.md:457:FPGA-gPTP stays at `135afd04`.
+docs/testing/MILAN_V12_AUDIT_2026-08-16.md:7:> Its gPTP integration statement is now obsolete.
+docs/testing/PP_SHADOW_BASELINE_RECIPE.md:249:Retained AECP microcode and gPTP microcode remain mandatory.
+docs/testing/TESTING.md:640:| [`tb/verilator/gptp_txts`](../../tb/verilator/gptp_txts) | **the gPTP egress timestamp closed loop** (#360): the donor engine, the plane, the ledger, the PHC, the launch observer, the link guard and the SHIPPIN
+egress_queue_map.svg:103:<text x="56" y="600" font-size="11.8" fill="#0D47A1">0x88F7 leaves for gPTP and everything else there - MSRP - stays on control.</text>
+scripts/ci_events.py:814:#: to the imported-gPTP step: its name remained in the pinned carrier list
+sw/builder/endstation_builder.py:3315:    Datapath tier-1 blocks retain their PRESENT default. The fabric gPTP plane
+sw/builder/test_builder.py:11563:            "fabric gPTP must be elaborated solely by GPTP_PLANE_EN_P, " \
+sw/builder/test_builder.py:11567:            "fabric gPTP must be elaborated solely by GPTP_PLANE_EN_P")
+sw/builder/test_builder.py:12128:            "gPTP plane starts independently of the AVDECC AEM image.",
+sw/builder/test_builder.py:12138:            "while the PHC and fabric gPTP plane continue independently.",
+sw/builder/test_builder.py:18685:        # the autonomous fabric commit bit owns gPTP independently of AEM.
+sw/firmware/milan_baremetal/milan_baremetal.c:1904:	/* PHC and fabric gPTP are live from reset, independent of the AEM gate. */
+sw/litex/deploy.sh:32:#          completed write prefix retains exactly one bootable gPTP owner.
+sw/litex/deploy.sh:499:            # bare-metal fabric commit bit owns gPTP independently of AEM, so
+sw/litex/milan_soc.py:4010:    # The fabric gPTP plane is the only consumer; 0x540/0x544 stay inert.
+sw/litex/milan_soc.py:4317:        # NO gPTP owner in this image. The elaboration stays available as the
+sw/mailbox/census_elab.py:31:              processor and gPTP wrappers read, stay at their defaults
+syn/ooc/pp_resource_baseline.json:451:   "measured": "2026-10-28, issue #799 (PR for processor pin f65c8ff7c673aaa8e2ea8da654f081ddb13588d8, processor #202, #205 and #206, and mailbox contract 2.3): RTL inputs at lane head 8b76de6908930bc6f
+syn/ooc/pp_resource_baseline.json:919:   "measured": "2026-10-28, issue #799 (PR for processor pin f65c8ff7c673aaa8e2ea8da654f081ddb13588d8, processor #202, #205 and #206, and mailbox contract 2.3): RTL inputs at lane head 8b76de6908930bc6f
+syn/ooc/pp_resource_baseline.json:1377:   "measured": "2026-10-28, issue #799 (PR for processor pin f65c8ff7c673aaa8e2ea8da654f081ddb13588d8, processor #202, #205 and #206, and mailbox contract 2.3): RTL inputs at lane head 8b76de6908930bc6
+syn/yosys/ooc_arms.py:158:    # The gPTP microcode is independently generated, shaped and keyed to the
+syn/yosys/ooc_arms.py:554:    # The gPTP ROM geometry is independently sourced from its owning package.
+tb/verilator/README.md:24:Ethernet gPTP TX flags have independent root assertions (#422).
+tb/verilator/README.md:55:| [`classifier/`](classifier) | `traffic_classifier.sv` | Full classifier after the `xpm_fifo_axis`→`axis_fifo` (Forencich) swap — proves it now Verilates; lossless in-order byte-exact passthrough, `tdest` correct+
+tb/verilator/README.md:62:| [`milan_dp/`](milan_dp) | `milan_datapath.sv` | Whole-wrapper integration: CSR identity/version, classifier programming, byte-exact memory/MAC paths, NxN routing and protocol-processor publication. The #447 rende
+tb/verilator/cls/sim_main.cpp:451:               "gPTP -> q2 at the SAME shared address, tagged 0x22F0 stays on the SR classes "
+tb/verilator/gptp_plane/gptp_plane_wrap.sv:150:      //! this wrapper's link stays up: the portEnabled edges (FPGA-gPTP
+tb/verilator/gptp_shadow/README.md:32:| 14 | FPGA-gPTP #40: stop the real wide TX lane at a frame start and again in its body while two complete peer Pdelay_Req frames enter through the production tap/FIFO/parser path. Hold response 1's rea
+tb/verilator/gptp_shadow/README.md:34:| 16 | FPGA-gPTP #41: independently warm-reset with a real master Sync boundary tuple outstanding. The reset-armed cadence and announce-receipt timers recover asCapable/mastership and produce a fresh Sy
+tb/verilator/gptp_shadow/gptp_shadow_wrap.sv:322:      //! this wrapper's link stays up: the portEnabled edges (FPGA-gPTP
+tb/verilator/gptp_txts/gptp_txts_wrap.sv:259:      //! this wrapper's link stays up: the portEnabled edges (FPGA-gPTP
+tb/verilator/milan_dp/Makefile:259:# The geometry matches AX7101; gPTP remains OFF for this verification leg.
+tb/verilator/milan_dp/README.md:21:Build recipes, gPTP prerequisites and render mutation phases remain unchanged.
+tb/verilator/milan_dp/README.md:83:| `obj_notify` | `sim_nxn.cpp` (`NOTIFY_TIMED_TB`) | `endstation_ax7101_1x1_tdm8`, direct option OFF, `PP_TIM_DIV_US_P=1` + `PP_TIM_DIV_MS_P=100` | Milan 5.4.5 scheduler timing: the GET_COUNTERS one-second
+tb/verilator/milan_dp/README.md:99:| `obj_ax1x1gptp` | `sim_ax1x1gptp.cpp` | AX7101 1x1 TDM8, gPTP ON, the [contract clock](../../../docs/integration/BAREMETAL_FIRMWARE.md#build-contract) | Physical timer cadence, independent scheduled peer
+tb/verilator/milan_dp/sim_gptp.cpp:918:    expect("stalled gPTP source remains valid",
+tb/verilator/nvm_capture_cpu/README.md:48:The comparison therefore retains the configuration's 50 MHz gPTP ROM.
+tb/verilator/nvm_capture_cpu/measurements.json:1377:  "provenance": "All six arms measure c71364bd, the #70 firmware on dev 1767346a: entity_advertise() reports the enable it requested rather than an enabled entity, the restore wait reports
+tb/verilator/tsn_fuzz/README.md:158:marker remains in the file. The two FPGA-gPTP #6 domainNumber gaps
+tb/verilator/tsn_fuzz/README.md:393:  FPGA-gPTP issue, so the canary stays honest about what it cannot yet
+== G5 Mark II default
+docs/design/MAILBOX_SPLIT.md:13:The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
+docs/design/MARK_II_AREA_PLAN.md:1580:| D9, placement | Initially excluded by the [owner](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5991591637); subsequently made the [Mark II default](https://github.com/kebag-logic/
+docs/reference/FR_NFR.md:328:| NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP, SRP and saved-state handling MUST run as bare-metal firmware in Mark II, with no retained-fabric option in the en
+docs/testing/CI_WORKFLOWS.md:659:to 38067159953. The leg and its five default controls therefore moved to the
+docs/testing/TESTING.md:371:Both model builds, both clean legs and all five default controls passed.
+docs/testing/TESTING.md:430:The `gmstep` leg and its default controls left `run` for wall clock (#621).
+== G6 gPTP owner and fabric lists, other spellings
+README.md:69:gPTP stays in fabric until F6, then moves to firmware.
+REQUIREMENTS.md:34:- Until F6, the fabric gPTP plane is the sole owner.
+REQUIREMENTS.md:156:Until F6, the fabric plane owns this section's gPTP duties.
+REQUIREMENTS.md:173:  sole owner: the two corrections are per-board elaboration constants declared
+docs/ARCHITECTURE_HW_SW_SPLIT.md:28:- **[3. Fabric publication boundary](#3-fabric-publication-boundary)** -- Keeps gPTP and media observations coherent for either control owner.
+docs/GLOSSARY.md:45:| **gPTP** | IEEE 802.1AS generalized precision time protocol. The fabric plane is the sole product owner until F6; firmware then owns the protocol and servo. |
+docs/design/GPTP_PLANE.md:6:Fabric gPTP owns product time synchronization until F6.
+docs/design/GPTP_PLANE.md:22:- **[Ownership](#ownership)** — Identify the only product time owner.
+docs/design/MAILBOX_SPLIT.md:24:- **[What moves, and what the fabric keeps](#what-moves-and-what-the-fabric-keeps)** -- The protocols the bare-metal core runs, what stays in the fabric, and the picture of rings, events and the one interrupt
+docs/design/MAILBOX_SPLIT.md:39:## What moves, and what the fabric keeps
+docs/design/MAILBOX_SPLIT.md:42:fabric keeps framing and timestamps, the gPTP plane, the media path,
+docs/design/MARK_II_AREA_PLAN.md:221:The gPTP timestamps already sit at the GMII level.
+docs/design/MARK_II_AREA_PLAN.md:254:| D13, gPTP | [Owner, 16:51](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545655255) and [17:04](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658): `flex
+docs/design/MARK_II_AREA_PLAN.md:691:Framing, timestamps, ingress filtering, hard-deadline event timers, gPTP,
+docs/design/MARK_II_AREA_PLAN.md:846:Audio and gPTP deadlines remain independent of firmware service.
+docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md:30:gPTP stays in fabric until F6, then moves to firmware.
+docs/integration/BAREMETAL_FIRMWARE.md:1993:9): the fabric keeps the record image in main memory behind the processor's
+docs/overview/ARCHITECTURE.md:16:gPTP stays in fabric until F6, then moves to firmware.
+docs/overview/FULL_FPGA_SOLUTION.md:16:gPTP stays in fabric until F6, then moves to firmware.
+docs/reference/FR_NFR.md:328:| NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP, SRP and saved-state handling MUST run as bare-metal firmware in Mark II, with no retained-fabric option in the en
+docs/reference/FR_NFR.md:329:| NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 10 ms, proposed for owner approval, under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response time
+docs/reference/FR_NFR.md:462:Audio and gPTP must retain their deadlines under these loads.
+docs/reference/FR_NFR.md:500:| **Time** | gPTP state machines/servo, PHC discipline, CRF generate/observe | hard (µs) | integrated fabric gPTP owner + PHC today; Mark II: firmware gPTP under #665 F6, with one PHC and one timestamp unit per 
+docs/reference/REGISTER_MAP.md:293:the sole product owner. With the plane disabled, GM, parent, PathTrace,
+docs/reference/REGISTER_MAP.md:369:| `0x004` | `VERSION` | RO | `0x0002_0060` | `[31:16]` major, `[15:0]` minor. **Versioning policy (2026-08-11): MAJOR = entire redesign of blocks -- 0x0002 opens the scenario-B era (the protocol-processor 
+docs/reference/REGISTER_MAP_CLASSES.md:97:| `0x778–0x780` | CLKV (`tu` validity) | **needed** | live fabric verdict / fail-safe option OFF | The `tu` policy is a conformance mechanism (IEEE 1722 AAF-10), not instrumentation. The fabric engi
+== G7 gPTP and firmware on one line
+README.md:69:gPTP stays in fabric until F6, then moves to firmware.
+REQUIREMENTS.md:36:- After F6, firmware owns the gPTP protocol and servo (#665).
+REQUIREMENTS.md:46:- After F6, each gPTP path states its firmware bound.
+REQUIREMENTS.md:157:After F6, firmware owns the gPTP protocol and servo (#665).
+REQUIREMENTS.md:327:  refuse unsupported product options, and bind generated firmware/AEM/gPTP
+docs/ARCHITECTURE_HW_SW_SPLIT.md:79:- [gPTP moves to firmware](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545655255), as [`flexptpd`](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545820658).
+docs/ARCHITECTURE_HW_SW_SPLIT.md:226:Until F6, firmware cannot fake gPTP health through a publication.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:227:After F6, firmware gPTP writes it, per AVB interface.
+docs/DOCUMENTATION_AUDIT.md:66:| Donor gPTP README retains retired host services | Full solution specifies bare-metal firmware | Treat donor runtime prose as historical |
+docs/GLOSSARY.md:45:| **gPTP** | IEEE 802.1AS generalized precision time protocol. The fabric plane is the sole product owner until F6; firmware then owns the protocol and servo. |
+docs/design/MARK_II_AREA_PLAN.md:62:| Function | Every suite, campaign and compliance check passes; gPTP qualification passes on software |
+docs/design/MARK_II_AREA_PLAN.md:162:| 6 | gPTP to software, hardware timestamps kept | Very high | 802.1AS deadlines, GM recovery and fast reaction. The whole gPTP qualification must be re-run | ~5.2k | ~20.7k |
+docs/design/MARK_II_AREA_PLAN.md:846:Audio and gPTP deadlines remain independent of firmware service.
+docs/design/MARK_II_AREA_PLAN.md:1533:  Firmware owns protocol state, and gPTP after F6.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1644:That merge joined the #671 firmware with dev's capture harness, gPTP-processor pin and RTL.
+docs/design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md:1655:That receipt measured commit `034e2e30f225f3fcd755cac8ad01c60dda5b366a`, tree `a5d1a1b02212c04de89292893fcf022b39620848`, firmware SHA-256 `a73ecc25c77bfb7c4e1c2c711d72f0b560dd7e8d18cde92f4
+docs/guides/gptp/TEST_DEVELOPER.md:26:C firmware never judges gPTP correctness.
+docs/guides/gptp/TEST_DEVELOPER.md:113:| B13 | `TxtsHarness::prove_recovery_over_the_production_mac`, `check_disabled_guard_holds_the_seal`, `check_masked_request_keeps_its_demand`, `check_aborted_episode_is_not_a_completion`, `check_held_f
+docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md:30:gPTP stays in fabric until F6, then moves to firmware.
+docs/overview/ARCHITECTURE.md:16:gPTP stays in fabric until F6, then moves to firmware.
+docs/overview/FULL_FPGA_SOLUTION.md:16:gPTP stays in fabric until F6, then moves to firmware.
+docs/reference/FR_NFR.md:328:| NFR-SCOUT-02 | ADP, ACMP, AECP (including unsolicited notifications and counter serving), MAAP, SRP and saved-state handling MUST run as bare-metal firmware in Mark II, with no retained-fabric option in the en
+docs/reference/FR_NFR.md:329:| NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 10 ms, proposed for owner approval, under Section 3.4.1 and measured by Section 3.4.2. Numeric normative response time
+docs/reference/FR_NFR.md:477:| NFR-OBS-01 | The system MUST expose gPTP status/publication counters and CSRs (from the fabric gPTP plane until F6, then from the firmware gPTP daemon), AVDECC counters, MAC/RMON counters, and protocol/media l
+docs/reference/FR_NFR.md:500:| **Time** | gPTP state machines/servo, PHC discipline, CRF generate/observe | hard (µs) | integrated fabric gPTP owner + PHC today; Mark II: firmware gPTP under #665 F6, with one PHC and one timestamp unit per 
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:55:([`../design/GPTP_PLANE.md`](../design/GPTP_PLANE.md)); **firmware** = the
+docs/reference/REGISTER_MAP.md:369:| `0x004` | `VERSION` | RO | `0x0002_0060` | `[31:16]` major, `[15:0]` minor. **Versioning policy (2026-08-11): MAJOR = entire redesign of blocks -- 0x0002 opens the scenario-B era (the protocol-processor 
+docs/reference/REGISTER_MAP.md:830:Bare-metal firmware may write the board-name overlay. The fabric gPTP owner
+sw/firmware/ctrl/README.md:150:The image builders take each shape through the end-station builder, so the gate needs `gptp-processor` initialised, as `firmware-boundary` has it, and refuses without it.
+sw/firmware/ctrl/README.md:485:| `acmpif2` | `test_acmp_mbx.cpp`, `acmp_if2.cpp` | the adapter's tests again with the firmware and the model compiled against the contract elaborated for two AVB interfaces (written into the build by `gen_mai
+== G8 other spellings of the placement claim
+README.md:152:`GET_AVB_INFO` now consumes the selected owner's coherent GM, propagation-delay,
+docs/ARCHITECTURE_HW_SW_SPLIT.md:28:- **[3. Fabric publication boundary](#3-fabric-publication-boundary)** -- Keeps gPTP and media observations coherent for either control owner.
+docs/README.md:78:| Review Mark II placement and timing | [Split architecture](ARCHITECTURE_HW_SW_SPLIT.md) |
+docs/reference/FR_NFR.md:72:Control state grows through static, entity-sized contexts in the selected owner.
+docs/reference/MILAN_COMPLIANCE_MATRIX.md:5:The [split target](../ARCHITECTURE_HW_SW_SPLIT.md) requires separate timing evidence
+== G9 dated records naming the replaced target, not edited by this PR
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:1382:That is still about 9,100 LUTs above NFR-RES-01's 60 percent; at A it was 46,500 and 8,500.
+docs/findings/234_PP_SHADOW_AREA_BASELINE.md:1390:So #233 is not needed for placement headroom, and it cannot close the NFR-RES-01 gap.
+docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:24:- **The optional blocks are small against the gap.** Pruning the RX address filter, the latency taps, the loopback lane and the probes could save up to about 1,200 routed LUTs, a tenth of
+docs/findings/649_RESOURCE_MAP_AND_SENSITIVITY.md:1073:The gap is NFR-RES-01's: the image is 12,727 LUTs over 60 percent of the device ([area budget](../design/AREA_BUDGET.md#headroom-target)).
+docs/findings/README.md:25:| [234_PP_SHADOW_AREA_BASELINE.md](234_PP_SHADOW_AREA_BASELINE.md) | Protocol-processor measurements A through F, including #682's adoption of `2ad2f845` after merging dev `79b086d4`: route, standalone endpoints, 
+docs/findings/README.md:26:| [649_RESOURCE_MAP_AND_SENSITIVITY.md](649_RESOURCE_MAP_AND_SENSITIVITY.md) | Side project of the #229 area epic and input to #640 (#649): the shipping 1x1 route at dev `241f9184` mapped to every one of its 175 b

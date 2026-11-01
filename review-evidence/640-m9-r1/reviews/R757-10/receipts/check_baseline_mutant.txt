@@ -1,0 +1,6 @@
+baseline PASS: 3 endpoints
+control unmutated rc=0
+route-1x1: tolerance LUT is 500 in the baseline and 7.0 in the budget table
+mutant A, route LUT tolerance in the policy table, rc=2
+budget AREA_BUDGET.md: the budget holds 0 resource-gate policy tables, not one
+mutant B, table header, rc=2
