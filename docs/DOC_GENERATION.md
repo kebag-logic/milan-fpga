@@ -172,6 +172,11 @@ python3 docs/diagrams/submodule_boundaries.gen.py --selftest
 python3 docs/diagrams/timesync_chain.gen.py
 python3 docs/diagrams/timesync_chain.gen.py --check
 python3 docs/diagrams/timesync_chain.gen.py --selftest
+python3 docs/diagrams/memory_map.gen.py
+python3 docs/diagrams/memory_map.gen.py --check
+python3 scripts/gen_register_reference.py --write
+python3 scripts/gen_register_reference.py --check
+python3 scripts/gen_register_reference.py --selftest
 ```
 
 The generators also write source-bound PNG renders.

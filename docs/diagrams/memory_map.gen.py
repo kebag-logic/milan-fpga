@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import html
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -34,6 +35,11 @@ BASE = REPO / "docs" / "diagrams" / "memory_map"
 ROW_H, GAP = 30, 6
 LEFT_X, LEFT_W = 40, 640
 RIGHT_X, RIGHT_W = 720, 640
+#: Width of the address text at its font, and of one label character: a label
+#: must end before the address starts, or the row overprints.
+ADDRESS_WIDTH = 190
+LABEL_CHAR_WIDTH = 6.9
+LABEL_PAD = 20
 TOP = 120
 REGION = ("#E3F2FD", "#1565C0")
 WINDOW = ("#E8F5E9", "#2E7D32")
@@ -46,6 +52,32 @@ def esc(text: object) -> str:
     return html.escape(str(text), quote=True)
 
 
+def module_label(heading: str) -> str:
+    """A module heading as a diagram label: the plain name only, without its
+    address, requirement list, Markdown marks or status glyphs."""
+    name = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", heading)
+    name = re.sub(r"[`*]", "", name).split("  -  ", 1)[-1]
+    name = re.split(r"\s+--\s+|\s+\(|:\s", name, maxsplit=1)[0]
+    return "".join(c for c in name if c.isascii()).strip()
+
+
+def fits(label: str, width: int, indent: int) -> bool:
+    """Whether a label ends before the address text starts."""
+    return LABEL_PAD + len(label) * LABEL_CHAR_WIDTH + ADDRESS_WIDTH <= width - indent
+
+
+def check_labels(left: list[tuple], right: list[tuple]) -> list[str]:
+    """Every label that would overprint its address, or carries markup."""
+    bad = []
+    for blocks, width in ((left, LEFT_W), (right, RIGHT_W)):
+        for label, _, _, _, indent in blocks:
+            if not fits(label, width, indent):
+                bad.append(f"label overprints its address: {label}")
+            if re.search(r"[`*]", label) or not label.isascii():
+                bad.append(f"label carries markup or a glyph: {label}")
+    return bad
+
+
 def rows(soc: dict, desc: dict) -> tuple[list[tuple], list[tuple]]:
     """(left, right): the address-ordered regions and windows, and the Milan
     modules plus the LiteX banks, each as (label, start, end, palette, indent)."""
@@ -56,7 +88,7 @@ def rows(soc: dict, desc: dict) -> tuple[list[tuple], list[tuple]]:
         left.append((label, start, start + size - 1, WINDOW if window else
                      (MILAN if label == "milan_csr" else REGION), 24 if window else 0))
     base = next(r["origin"] for r in soc["memory_regions"] if r["name"] == "milan_csr")
-    right = [(m["heading"].split("  `", 1)[0].split("  -  ", 1)[-1], base + int(m["start"], 16),
+    right = [(module_label(m["heading"]), base + int(m["start"], 16),
               base + int(m["end"], 16), MILAN, 0) for m in desc["modules"]]
     banks = sorted(soc["csr_banks"], key=lambda b: b["origin"])
     step = min(b["origin"] - a["origin"] for a, b in zip(banks, banks[1:]))
@@ -120,6 +152,12 @@ def main(argv: list[str]) -> int:
     soc = json.loads(SOC.read_text(encoding="utf-8"))
     desc = json.loads(DESCRIPTIONS.read_text(encoding="utf-8"))
     left, right = rows(soc, desc)
+    bad = check_labels(left, right)
+    if bad:
+        for problem in bad:
+            print(problem)
+        print("memory map diagram: REFUSED")
+        return 2
     want = {BASE.with_suffix(".svg"): svg(left, right, soc), BASE.with_suffix(".drawio"): drawio(left, right, soc)}
     if argv[1:] == ["--check"]:
         stale = [p for p, text in want.items() if not p.is_file() or p.read_text(encoding="utf-8") != text]
