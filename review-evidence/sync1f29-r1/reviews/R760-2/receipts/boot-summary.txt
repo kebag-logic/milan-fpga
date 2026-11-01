@@ -1,0 +1,32 @@
+staged-1x1: NATIVE exit status 0; == ctrl_split_boot: checks: 1   failures: 0 ==
+staged-1x1: BOOT ready at bus cycle 8439346 (4219673 CPU cycles): 84.393 ms against 20000 ms; banners 1
+staged-1x1: TRACE 21 window writes before ready; the first 18 equal configure_fabric()'s 15 and MAAP's one-owner 3
+staged-1x1: UART milan_status: 305 bytes; span 21.530 ms; to the first byte 1.962 ms; longest gap between bytes 1.265 ms; against 500 ms and T_svc 10 ms
+staged-1x1: UART milan_gettime: 27 bytes; span 2.266 ms; to the first byte 1.238 ms; longest gap between bytes 0.964 ms; against 500 ms and T_svc 10 ms
+staged-1x1: UART milan_gettime: 27 bytes; span 2.524 ms; to the first byte 1.193 ms; longest gap between bytes 1.267 ms; against 500 ms and T_svc 10 ms
+staged-1x1: ctrl_split_boot: PASS (0 finding(s))
+staged-8x8: NATIVE exit status 0; == ctrl_split_boot: checks: 1   failures: 0 ==
+staged-8x8: BOOT ready at bus cycle 18465766 (9232883 CPU cycles): 184.658 ms against 20000 ms; banners 1
+staged-8x8: TRACE 21 window writes before ready; the first 18 equal configure_fabric()'s 15 and MAAP's one-owner 3
+staged-8x8: UART milan_status: 305 bytes; span 40.200 ms; to the first byte 2.855 ms; longest gap between bytes 2.206 ms; against 500 ms and T_svc 10 ms
+staged-8x8: UART milan_gettime: 27 bytes; span 4.051 ms; to the first byte 2.131 ms; longest gap between bytes 1.856 ms; against 500 ms and T_svc 10 ms
+staged-8x8: UART milan_gettime: 27 bytes; span 3.403 ms; to the first byte 1.481 ms; longest gap between bytes 1.857 ms; against 500 ms and T_svc 10 ms
+staged-8x8: ctrl_split_boot: PASS (0 finding(s))
+nostage-1x1: NATIVE exit status 0; == ctrl_split_boot: checks: 1   failures: 0 ==
+nostage-1x1: BOOT ready at bus cycle 8438300 (4219150 CPU cycles): 84.383 ms against 20000 ms; banners 1
+nostage-1x1: TRACE 21 window writes before ready; the first 18 equal configure_fabric()'s 15 and MAAP's one-owner 3
+nostage-1x1: UART milan_status: 305 bytes; span 21.531 ms; to the first byte 1.962 ms; longest gap between bytes 1.265 ms; against 500 ms and T_svc 10 ms
+nostage-1x1: UART milan_gettime: 27 bytes; span 2.266 ms; to the first byte 1.238 ms; longest gap between bytes 0.964 ms; against 500 ms and T_svc 10 ms
+nostage-1x1: UART milan_gettime: 27 bytes; span 2.523 ms; to the first byte 1.193 ms; longest gap between bytes 1.265 ms; against 500 ms and T_svc 10 ms
+nostage-1x1: ctrl_split_boot: PASS (0 finding(s))
+nostage-8x8: NATIVE exit status 0; == ctrl_split_boot: checks: 1   failures: 0 ==
+nostage-8x8: BOOT ready at bus cycle 18464720 (9232360 CPU cycles): 184.647 ms against 20000 ms; banners 1
+nostage-8x8: TRACE 21 window writes before ready; the first 18 equal configure_fabric()'s 15 and MAAP's one-owner 3
+nostage-8x8: UART milan_status: 305 bytes; span 40.197 ms; to the first byte 2.855 ms; longest gap between bytes 2.205 ms; against 500 ms and T_svc 10 ms
+nostage-8x8: UART milan_gettime: 27 bytes; span 4.051 ms; to the first byte 2.131 ms; longest gap between bytes 1.856 ms; against 500 ms and T_svc 10 ms
+nostage-8x8: UART milan_gettime: 27 bytes; span 3.402 ms; to the first byte 1.480 ms; longest gap between bytes 1.857 ms; against 500 ms and T_svc 10 ms
+nostage-8x8: ctrl_split_boot: PASS (0 finding(s))
+staged-1x1 identical to author lines
+staged-8x8 identical to author lines
+nostage-1x1 identical to author lines
+nostage-8x8 identical to author lines
