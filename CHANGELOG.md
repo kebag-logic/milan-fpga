@@ -8,7 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
-- **[Unreleased - gPTP on the MII port](#unreleased---gptp-on-the-mii-port)** -- The observer counts transfers, not clocks.
+- **[Unreleased - gPTP on the MII port](#unreleased---gptp-on-the-mii-port)** -- Counts transfers, not clocks.
 - **[Unreleased - AECP REBOOT resets the end station](#unreleased---aecp-reboot-resets-the-end-station)** -- Reloads from flash.
 - **[Unreleased - gPTP pin 135afd04](#unreleased---gptp-pin-135afd04)** -- A link toggle ends the cease.
 - **[Unreleased - gPTP pin f97c1803](#unreleased---gptp-pin-f97c1803)** -- Sync loss ages the grandmaster.
@@ -53,14 +53,19 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Unreleased - gPTP on the MII port
 
-- Issue #829: the gPTP plane timed no frame on the 100 Mb/s MII port.
+- Issue #829: the gPTP plane timed no MII frame.
+- That port runs at 100 Mb/s.
 - `phy.sink` holds each MII octet for two clocks.
 - The launch observer read one octet per clock.
-- Its delimiter check failed on the held preamble, so no frame was attributed.
-- No launch record came, the engine waited for one, and its event queue filled.
+- Its delimiter check failed on the held preamble.
+- So no frame was attributed.
+- No launch record came, and the engine waited for one.
+- Its event queue filled.
 - The observer now counts an octet where `valid` and `ready` coincide.
-- On GMII `ready` is the constant 1, so that logic folds away.
-- The MII correction is 3770 ns, against 426 ns on GMII.
+- On GMII `ready` is the constant 1.
+- So that logic folds away.
+- The MII correction is 3770 ns.
+- The GMII correction is 426 ns.
 - `make -C tb/verilator/gptp_txts run-mii` runs the closed loop on this shape.
 
 ## Unreleased - AECP REBOOT resets the end station

@@ -273,17 +273,24 @@ A launch that cannot be reconstructed is an explicit loss.
 
 ### The 100 Mb/s MII shape
 
-The MII PHY stage sends each octet as two nibbles, low first (IEEE 802.3 22.2.3).
+The MII PHY stage sends each octet as two nibbles.
 
-So `phy.sink` holds each octet for two 40 ns clocks, and `ready` rises on the second.
+The low nibble goes first.
+IEEE 802.3 22.2.3 fixes that order.
+
+So `phy.sink` holds each octet for two 40 ns clocks.
+`ready` rises on the second.
 
 The observer counts an octet where `valid` and `ready` coincide (#829).
 
-On GMII `ready` is the constant 1, so that term folds away.
+On GMII `ready` is the constant 1.
+So that term folds away.
 
-The reference plane is the registered launch edge of frame octet 0's low nibble.
+The reference plane is a registered launch edge.
+That edge launches frame octet 0's low nibble.
 
-The observer counts that octet one clock later, on the edge that registers its high nibble.
+The observer counts that octet one clock later.
+That edge registers its high nibble.
 
 The correction owes that clock, and only on this shape.
 
@@ -298,7 +305,7 @@ The correction owes that clock, and only on this shape.
 | Fabric term, `2 x 20 + 10` | 50 ns | 50 ns |
 | **Digital correction** | **426 ns** | **3770 ns** |
 
-The window is longer, so two terms of the budget grow.
+The window is longer, so two budget terms grow.
 
 | Term | Bound on MII | Basis |
 |---|---|---|
@@ -308,29 +315,50 @@ The window is longer, so two terms of the budget grow.
 | Applied PHC rate correction | +/-0.76 ns | the same product, enforced |
 | **Total** | **+/-12.52 ns, published as +/-12.6 ns** | sum of magnitudes, rounded up |
 
-`tb/verilator/gptp_txts` grades this shape against its pad oracle too, inside 11 ns.
+`tb/verilator/gptp_txts` grades this shape against its pad oracle too.
+The grade is inside 11 ns.
 
-Its mean limit adds the 0.754 ns the declared wire-clock offset leaves over the window.
+Its mean limit adds 0.754 ns.
+The declared wire-clock offset leaves that over the window.
 
-The PHC history guard has to cover the window, so it is 203 fabric cycles here.
+The PHC history guard has to cover the window.
+So it is 203 fabric cycles here.
 
-The Arty's PHY derives `TX_CLK` from the 25 MHz reference this FPGA drives.
+The Arty's PHY derives `TX_CLK` from a 25 MHz reference.
+This FPGA drives that reference.
 
-So on that board the crossing's sampling phase may stay fixed for a boot rather than sweep.
+On that board the crossing's sampling phase may not sweep.
+It may stay fixed for a boot.
 
-The bound still holds, and that fixed part of it no longer averages out.
+The bound still holds.
+That fixed part no longer averages out.
 
-No other link speed is qualified: at 10 Mb/s the same octet takes 800 ns and this correction is wrong.
+No other link speed is qualified.
 
-The receive side changes too, and no RTL term carries it.
+At 10 Mb/s the same octet takes 800 ns.
+This correction is wrong there.
 
-The tap stamps the first accepted beat, and that beat holds eight octets behind the MAC's frame check buffer.
+The receive side changes too.
+No RTL term carries it.
 
-So the beat is late by the frame check buffer and by the time eight octets take to arrive, and both scale with the link.
+The tap stamps the first accepted beat.
+That beat holds eight octets.
 
-The product's own `LiteEthMACCore` and `mac_rx_cdc` were simulated at an 80 MHz MAC system clock and 50 MHz at the plane, over seven clock phases.
+It sits behind the MAC's frame check buffer.
 
-Each figure runs from the edge that samples frame octet 0's first symbol at the pads.
+The frame check buffer makes the beat late.
+So does the time eight octets take to arrive.
+
+Both scale with the link.
+
+The product's own `LiteEthMACCore` and `mac_rx_cdc` were simulated.
+The MAC system clock ran at 80 MHz.
+
+The plane ran at 50 MHz.
+The run covered seven clock phases.
+
+Each figure starts at the pads.
+The edge there samples frame octet 0's first symbol.
 
 | That octet's beat reaches | MII, 100 Mb/s | GMII, 1 Gb/s |
 |---|---|---|
@@ -339,7 +367,8 @@ Each figure runs from the edge that samples frame octet 0's first symbol at the 
 
 No committed test holds those figures.
 
-That distance belongs to `INGRESS_LAT_NS_P`, below, and the Arty still declares zero.
+That distance belongs to `INGRESS_LAT_NS_P`, below.
+The Arty still declares zero.
 
 ### The board's own latency corrections
 
