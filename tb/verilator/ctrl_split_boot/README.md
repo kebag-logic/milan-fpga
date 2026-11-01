@@ -42,7 +42,7 @@ Exit 0 is a pass, 1 a finding and 2 a refusal.
 - the shipping VexiiRiscv with the split placement's instruction cache, the CPU at 50 MHz and its bus at 100 MHz;
 - `milan_soc.add_ctrl_memory` built from the linked image;
 - `KL_mbx` behind `KL_mbx_wb`, its datapath on pads, each face commit acknowledged at the contract's bound;
-- LiteSPI and `timer0` where F1's port addresses them.
+- LiteSPI, its PHY staged as MilanSoC stages it (`milan_soc.stage_spi_phy`, #814), and `timer0` where F1's port addresses them.
 
 The CPU generator is given each region's power-of-two cover, as that harness gives it (the decode of #791).
 This SoC adds the two devices the platform reaches beyond the mailbox:
@@ -70,14 +70,21 @@ After the ready line the testbench types `milan_status`, then `milan_gettime`, w
 
 ## Results
 
-The platform image of the firmware of `b8628704`, at the shipping shape and the largest that fits 56 tiles.
+The platform image at this head, at the shipping shape and the largest that fits 56 tiles.
+The rows marked staged are the two `run.py` commands above: `split_soc.add_devices` stages this SoC's LiteSPI PHY, as `MilanSoC.add_spi_flash` stages the product's (#814).
+The rows marked none are the same tree with that one call removed, a control.
+They equal, cell for cell, the figures this page recorded at firmware `b8628704`, before the SoC carried the stage.
 Every figure is simulated time, the split CPU at 50 MHz and its bus at 100 MHz; the native model completed each run (NATIVE exit status 0, its tally `checks: 1   failures: 0`):
 
-| Shape | Boot to ready | CPU cycles at 50 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
-|---|---:|---:|---|---|---|
-| 1x1, one interface | 84.383 ms | 4,219,150 | 18 of 18 equal | 21.531 / 1.962 / 1.265 ms | 2.523 / 1.238 / 1.265 ms |
-| 8x8, one interface | 184.647 ms | 9,232,360 | 18 of 18 equal | 40.197 / 2.855 / 2.205 ms | 4.051 / 2.131 / 1.857 ms |
+| Shape | PHY stage | Boot to ready | CPU cycles at 50 MHz | Trace | `milan_status` span / first byte / longest gap | `milan_gettime` (worst) |
+|---|---|---:|---:|---|---|---|
+| 1x1, one interface | staged | 84.393 ms | 4,219,673 | 18 of 18 equal | 21.530 / 1.962 / 1.265 ms | 2.524 / 1.238 / 1.267 ms |
+| 1x1, one interface | none | 84.383 ms | 4,219,150 | 18 of 18 equal | 21.531 / 1.962 / 1.265 ms | 2.523 / 1.238 / 1.265 ms |
+| 8x8, one interface | staged | 184.658 ms | 9,232,883 | 18 of 18 equal | 40.200 / 2.855 / 2.206 ms | 4.051 / 2.131 / 1.857 ms |
+| 8x8, one interface | none | 184.647 ms | 9,232,360 | 18 of 18 equal | 40.197 / 2.855 / 2.205 ms | 4.051 / 2.131 / 1.857 ms |
 
+The stage costs the boot 523 CPU cycles at each shape, about 0.01 ms.
+It moves no UART figure by more than 0.003 ms, in either direction, and no verdict.
 Both boots are within the 20 s ADP valid time.
 Every UART duty is within 500 ms, and no response byte waits past T_svc on the one before it.
 A response is sent at 16 bytes a pass, so a command's span is about 20 passes of the loop.
