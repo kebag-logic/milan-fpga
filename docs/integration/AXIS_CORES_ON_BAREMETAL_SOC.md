@@ -18,20 +18,29 @@ packet; and backpressure is honored at every registered merge. The MAC adapter
 may cross clock domains only with a complete-packet asynchronous FIFO.
 
 The current shipping placement keeps control traffic in fabric.
-Mark II passes selected control frames through filtered packet mailboxes.
-ADP, ACMP, AECP, MAAP and SRP are selectable per function.
-Its default is bare-metal control; all-fabric remains supported.
-All-fabric stays the shipping default until F2 to F5 acceptance.
+It stays the shipping default until F2 to F5 acceptance.
+
 That acceptance covers all streams, counters and the audio soak.
+After the switch-over, no all-fabric build remains.
+
+Mark II passes selected control frames through filtered packet mailboxes.
 The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md#packet-mailbox-interface) defines the mailbox boundary.
-Framing, timestamps, gPTP and media remain fabric responsibilities.
+
+Framing, timestamps and media remain fabric responsibilities.
+gPTP stays in fabric until F6, then moves to firmware.
+
 The generic classifier/queue/CBS input remains inactive in today's shipping boundary.
 
 ## CSR model
 
-Bare-metal firmware accesses the AXI-Lite Milan window for initialization,
-policy, state snapshots, and diagnostics. Interrupt status remains available
-in the CSR block. Media and gPTP progress remain firmware-independent.
+Bare-metal firmware accesses the AXI-Lite Milan window.
+It covers initialization, policy, state snapshots and diagnostics.
+
+Interrupt status remains available in the CSR block.
+Media progress remains firmware-independent.
+
+gPTP progress does too, until F6.
+
 Selected firmware control protocols require bounded mailbox service.
 [NFR-SCOUT-03](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing) defines that obligation.
 

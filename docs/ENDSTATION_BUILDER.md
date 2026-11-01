@@ -1,9 +1,10 @@
 # Software-defined End-Station builder — spec basis (roadmap item 4)
 
 This page describes the current all-fabric shipping build.
-The [split target](ARCHITECTURE_HW_SW_SPLIT.md) adds selectable control placement.
-Its static control contexts use the same generated entity shape.
 The default changes only after F2 to F5 acceptance.
+
+The [split contract](ARCHITECTURE_HW_SW_SPLIT.md) defines the transition and end state.
+Split static control contexts use the same generated entity shape.
 
 **Purpose.** One declarative config (`configs/endstation_*.yaml`, schema
 `kebag-logic/milan-endstation-config`) drives gateware elaboration, the AEM

@@ -215,10 +215,13 @@ No new implementation run is claimed by this documentation update.
 The [owner's decision](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-5993114362) assigns the bare-metal split to milestone 12.
 Integration precedes P3.
 ADP, ACMP, MAAP, SRP, AECP and saved-state handling move.
-All-fabric remains supported and remains the current shipping default.
+
+All-fabric remains the current shipping default until the flip.
+After the flip, no all-fabric build remains.
+
 The flip requires F2-F5 suites and bench acceptance.
 [#664](https://github.com/kebag-logic/milan-fpga/issues/664) governs that qualification.
-Unqualified functions retain fabric placement.
+
 The hard-core port remains milestone 13.
 Diagnostics stay in the shipping image under D2.
 The optional-block table above grants no Mark II diagnostic-pruning credit.
