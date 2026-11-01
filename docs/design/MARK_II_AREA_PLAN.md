@@ -273,7 +273,7 @@ Measurements queue serially; no heavy builds overlap.
 | 3 | Lever 3 | `milan_csr` consumer census, then reduction | Lane 1 | ~1.75k | CSR, host-tool and firmware suites |
 | 4 | LiteX stage 2 | New MAC and QSPI cores as pinned donors | Survey; two reviews per core | Part of -1.75k | Core testbenches; save bound on the bench |
 | 5 | LiteX stage 3, lever 2 | Plain SystemVerilog top | Lanes 2 and 4 | ~1.0k plus the rest of -1.75k | Rewritten simulation gates; routed image |
-| 6 | Shared engines and second port | 32x32 datapath per the stream-engine design | Lane 4; #823 builder shapes | +2.75k | 65 µs taps on all talker streams; cable pulls |
+| 6 | Shared engines and second port | 32x32 datapath per the stream-engine design | Lane 4; #823 builder shapes | +2.75k | 65 µs taps on all talker streams; cable pulls; the [open design items](MARK_II_STREAM_ENGINES.md#open-design-items) |
 | 7 | Lever 4 | One CPU, no second hart | Lanes 1 and 6; service bounds at 32x32 | ~3.55k | Service hooks at four times the 8x8 load |
 | 8 | Lever 5 | MMCM servo in firmware | Lane 7 | ~1.0k | CRF lock and audio soak |
 | 9 | Lever 6, F6 | `flexptpd` on the core, serving both ports; fabric engine deleted | Lane 7; open decision 3; the source and licence confirmed | ~5.2k | Whole gPTP qualification re-run |
