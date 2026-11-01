@@ -1,0 +1,56 @@
+registers parsed: 203 fields: 498
+0x720 RST_EPOCH:
+    [7:0] RST_EPOCH page reset X, but no input moves it: reads 0x59 from reset
+0x7b4 REST_CMD:
+    [9:8] REST_STAT page R/W: w1=0x0 w0=0x0
+    [3:0] REST_IDX page R/W: w1=0xf w0=0xf
+0x7d8 ETH_GUARD:
+    [0:0] ETH_GUARD page R/W: w1=0x1 w0=0x1
+0x810 STRMW_CTRL:
+    [31:1] STRMW_CTRL_31_1 page R/W: w1=0x0 w0=0x0
+    [0:0] STRMW_CTRL_0 page R/W: w1=0x0 w0=0x0
+0x814 STRMW_SID_LO:
+    [31:0] STRMW_SID_LO page R/W: w1=0x0 w0=0x0
+0x818 STRMW_SID_HI:
+    [31:0] STRMW_SID_HI page R/W: w1=0x0 w0=0x0
+0x81c STRMW_DMAC_LO:
+    [31:0] STRMW_DMAC_LO page R/W: w1=0x0 w0=0x0
+0x820 STRMW_DMAC_HI:
+    [31:0] STRMW_DMAC_HI page R/W: w1=0x0 w0=0x0
+0x824 STRMW_FMT_LO:
+    [31:0] STRMW_FMT_LO page R/W: w1=0x0 w0=0x0
+0x828 STRMW_FMT_HI:
+    [31:0] STRMW_FMT_HI page R/W: w1=0x0 w0=0x0
+0x908 CHMAP_WORD:
+    [15:0] CHMAP_WR_DATA page R/W: w1=0x0 w0=0x0
+0x910 CHMAP_SNAP:
+    [4:4] CMRD_ARMED page R: base=0x0 w1=0x1 w0=0x1
+    [2:2] CMRD_TO page R: base=0x0 w1=0x1 w0=0x1
+0x92c PP_SPDATA:
+    [31:0] PP_SPRDATA page R/W: w1=0x0 w0=0x0
+0x938 PP_NVM_DATA:
+    [31:0] PP_NVM_CSR_RDATA page R/W: w1=0x0 w0=0x0
+0x93c PP_NVM_STAT:
+    [31:24] TAG page R/W: w1=0x0 w0=0x0
+    [23:23] UNRES page R/W: w1=0x0 w0=0x0
+    [22:22] NVM_PEND page R/W: w1=0x0 w0=0x0
+    [21:21] ARM_REFUSED page R/W: w1=0x0 w0=0x0
+    [20:20] ACK_REFUSED page R/W: w1=0x0 w0=0x0
+    [19:19] ATTESTED page R/W: w1=0x0 w0=0x0
+    [18:18] VALID page R/W: w1=0x0 w0=0x0
+    [17:17] HOLD page R/W: w1=0x0 w0=0x0
+    [16:16] OPEN page R/W: w1=0x0 w0=0x0
+    [15:12] VERDICT page R/W: w1=0x0 w0=0x0
+    [11:11] RELOAD_REFUSED page R/W: w1=0x0 w0=0x0
+    [10:10] COMMIT_BUSY page R/W: w1=0x0 w0=0x0
+    [9:9] NVM_STALE page R/W: w1=0x0 w0=0x0
+    [8:8] NVM_DIRTY page R/W: w1=0x0 w0=0x0
+    [7:7] IMG_VALID page R/W: w1=0x0 w0=0x0
+    [6:6] NVM_BACKED page R/W: w1=0x0 w0=0x0
+    [5:5] IMG_CFG page R/W: w1=0x0 w0=0x0
+    [4:4] DEV_BUSY page R/W: w1=0x0 w0=0x0
+    [3:3] LOAD_PENDING page R/W: w1=0x0 w0=0x0
+    [2:2] LOAD_ACCEPTED page R/W: w1=0x0 w0=0x0
+    [1:0] RESERVED page R/W: w1=0x0 w0=0x0
+field findings: 38
+undocumented addresses with a nonzero observation: 0
