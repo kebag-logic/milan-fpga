@@ -356,7 +356,23 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! unlike the read-only descriptor image, an overlap here is silent
   //! corruption of whatever it lands on. The SoC derives BOTH bases from its
   //! own main_ram map and states why they cannot collide.
-  parameter logic [31:0] PP_RESP_BASE_P  = 32'h2010_0000
+  parameter logic [31:0] PP_RESP_BASE_P  = 32'h2010_0000,
+  //! ---- the end-station reset on an AECP REBOOT (#787) -------------------
+  //! KL_reboot_ctrl's two waits, in the datapath's milliseconds (the tick
+  //! AMR_MS_CYC_P clocks long): the saved-state drain bound and the PHY
+  //! hold before each IPROG. Product builds keep these values; the bound
+  //! and the reasons are in docs/design/REBOOT_RESET.md
+  parameter int REBOOT_DRAIN_MS_P = 10_000,
+  parameter int REBOOT_HOLD_MS_P  = 3_500,
+  //! the MAC's statement of its transmit side, from which KL_reboot_ctrl
+  //! derives how long the PHY hold may wait for the frames already in it.
+  //! The SoC states it from the FIFOs it builds; the defaults are the
+  //! assumption for a MAC that states nothing. First the most octets of
+  //! line time the MAC can owe: every buffer, each buffered frame's framing,
+  //! one maximum frame being sent
+  parameter int REBOOT_MAC_TX_OCTETS_P = 32_768,
+  //! ...and the slowest line rate it runs at, in Mbps
+  parameter int REBOOT_MAC_MIN_MBPS_P  = 10
 )(
   //! ---- AECP descriptor-image READ master (to the SoC's main memory) -----
   //! The protocol processor's entity model lives in DDR3. This is its fetch
@@ -566,6 +582,20 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                                        //! (SoC syncs it into eth_tx/eth_rx as the MAC's
                                        //! eth-domain reset; released BEFORE o_mac_reinit)
   input  wire        i_full_duplex,
+  //! THE END-STATION RESET ON AN AECP REBOOT (#787, docs/design/REBOOT_RESET.md).
+  //! o_reboot_phy_hold is the reset-control bit: 1 = hold the PHY in reset
+  //! (the SoC sets the LiteEth PHY reset from it), rising once the saved
+  //! state has drained and every frame given to the MAC has reached its
+  //! PHY, and held until the reconfiguration. The ICAPE2 port carries the
+  //! IPROG sequence that reloads the configuration from flash: the SoC
+  //! instantiates the primitive on it, RDWRB tied to write.
+  output wire        o_reboot_phy_hold,
+  output wire        o_icap_csib,      //! ICAPE2 CSIB, active low
+  output wire [31:0] o_icap_i,         //! ICAPE2 I, bits of each byte reversed
+  //! async: the MAC flips it on the last octet of every frame it hands its
+  //! PHY (a reset-less toggle in the MAC's transmit domain). Tie 0 on a
+  //! build without a MAC: the REBOOT's egress wait then runs to its bound
+  input  wire        i_ethtxend_tgl,
   //! async divide-by-2 toggles from the SoC's eth clock domains (link guard
   //! liveness sensing; tie high on TBs/tops without a PHY - a static level
   //! reads as a dead clock only until the guard is disabled via LINK_CTRL[2])
@@ -2492,6 +2522,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! the pending bit of SAVED_STATE_SNAPSHOT_OWNERSHIP.md section 6.1,
   //! published to a controller at PP_STAT[11]
   logic        pp_nvm_pend_w;
+  logic        pp_reboot_req_w;  //! the processor's REBOOT request (#203)
   logic [3:0]  pp_nvm_verdict_w;
   logic [15:0] pp_rx_frames_w, pp_tx_frames_w;
   logic [7:0]  pp_rx_drops_w;
@@ -8896,6 +8927,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .epi_busy_i      (linkg_epi_busy_w),
         .epi_dis_i       (cfg_linkg_dis),
         .recov_req_o     (gptp_recov_req_w),
+        //! portEnabled: the effective link, the PHY link (synchronised into
+        //! axis_clk by the SoC) gated by LINK_CTRL[0] and the link guard's
+        //! estimate, all axis_clk levels, so the plane needs no synchroniser
+        //! (FPGA-gPTP #94)
+        .port_enabled_i  (eff_link_w),
         .pub_gm_id_o     (gptp_pub_gm_w),
         .pub_parent_id_o (gptp_pub_parent_w),
         .pub_flags_o     (gptp_pub_flags_w),
@@ -9037,8 +9073,10 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! silicon" root cause). The remaining MAC-internal lanes pass through from
   //! i_mac_events; its good-frame bits are ignored to make double-counting
   //! structurally impossible.
-  wire tx_mac_good_w = m_axis_mac_tx_tvalid & m_axis_mac_tx_tready
-                     & m_axis_mac_tx_tlast;
+  //! an accepted beat, and an accepted `tlast` beat; KL_reboot_ctrl's egress
+  //! account counts frames in on the same two terms (#787)
+  wire tx_mac_beat_w = m_axis_mac_tx_tvalid & m_axis_mac_tx_tready;
+  wire tx_mac_good_w = tx_mac_beat_w & m_axis_mac_tx_tlast;
   wire rx_mac_good_w = s_axis_mac_rx_tvalid & s_axis_mac_rx_tready
                      & s_axis_mac_rx_tlast;
   logic [_ETH_EVENT_COUNTER-1:0] mac_events_w;
@@ -9430,6 +9468,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       //! Same live lock level as the processor AECP engine. Milan 5.4.2.27
       //! and 5.4.2.28 prohibit local map changes while it is asserted.
       .aecp_lock_held_o    (aecp_locked),
+      .reboot_req_o        (pp_reboot_req_w),
       //! GET_COUNTERS: the processor asks, this file answers (see the
       //! Table 7-157 mux above)
       .ctr_req_o         (pp_ctr_req_w),
@@ -9701,6 +9740,35 @@ module milan_datapath import ethernet_packet_pkg::*; #(
       .maap_conflicts_o        (pp_maap_int_confl_nc_w),
       .maap_defends_o          (pp_maap_int_dfnd_nc_w),
       .dbg_now_ms_o      ()
+    );
+
+  //! ---- the end-station reset on an AECP REBOOT (#787) -------------------
+  //! The processor's held request becomes a configuration reload from flash
+  //! once the saved state has drained and the MAC has sent every frame it
+  //! was given (KL_reboot_ctrl's banner). The waits count the datapath's
+  //! millisecond tick, the map writer's amr_tick_r. The account sees the
+  //! MAC port itself, and the flush is the link guard's episode with both
+  //! the MAC's sys side and its eth side held in reset.
+  KL_reboot_ctrl #(
+      .T_DRAIN_MS_P    (REBOOT_DRAIN_MS_P),
+      .T_HOLD_MS_P     (REBOOT_HOLD_MS_P),
+      .MAC_TX_OCTETS_P (REBOOT_MAC_TX_OCTETS_P),
+      .MAC_MIN_MBPS_P  (REBOOT_MAC_MIN_MBPS_P)
+    ) reboot_ctrl (
+      .clk_i           (axis_clk),
+      .rst_n           (axis_resetn),
+      .ms_tick_i       (amr_tick_r),
+      .reboot_req_i    (pp_reboot_req_w),
+      .nvm_backed_i    (pp_nvm_backed_w),
+      .nvm_dirty_i     (pp_nvm_dirty_w),
+      .nvm_pend_i      (pp_nvm_pend_w),
+      .mac_tx_beat_i   (tx_mac_beat_w),
+      .mac_tx_frame_i  (tx_mac_good_w),
+      .mac_txend_tgl_i (i_ethtxend_tgl),
+      .mac_flush_i     (linkg_reinit_w & linkg_eth_rst_w),
+      .phy_hold_o      (o_reboot_phy_hold),
+      .icap_csib_o     (o_icap_csib),
+      .icap_i_o        (o_icap_i)
     );
 
   //! ------------------------------------------------------------------

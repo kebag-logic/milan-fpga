@@ -18147,6 +18147,121 @@ def test_gptp_launch_observer_seam() -> None:
           "faces tied off where there is no observer")
 
 
+def _reboot_egress_findings(soc: str) -> list[str]:
+    """Gate 1f's findings over one spelling of sw/litex/milan_soc.py."""
+    bad = []
+    tree = ast.parse(soc)
+    mac = next((n for n in ast.walk(tree)
+                if isinstance(n, ast.ClassDef) and n.name == "MilanMAC"), None)
+    if mac is None:
+        return ["MilanMAC is not defined"]
+
+    def _calls(name: str) -> list[ast.Call]:
+        """Every call in MilanMAC whose callee ends in `name`."""
+        return [n for n in ast.walk(mac) if isinstance(n, ast.Call)
+                and ast.unparse(n.func).split(".")[-1] == name]
+
+    def _kw(call: ast.Call, name: str) -> str | None:
+        """The source of keyword `name` in `call`, or None."""
+        value = next((k.value for k in call.keywords if k.arg == name), None)
+        return ast.unparse(value) if value is not None else None
+
+    #: the build reads the names the statement reads
+    fifos, cores = _calls("PacketFIFO"), _calls("LiteEthMACCore")
+    if len(fifos) != 1 or _kw(fifos[0], "payload_depth") != "_MAC_TX_SF_PAYLOAD_DEPTH" \
+            or _kw(fifos[0], "param_depth") != "_MAC_TX_SF_PARAM_DEPTH":
+        bad.append("tx_sf is not built from _MAC_TX_SF_PAYLOAD_DEPTH and "
+                   "_MAC_TX_SF_PARAM_DEPTH")
+    if len(cores) != 1 or _kw(cores[0], "tx_cdc_depth") != "_MAC_CORE_TX_CDC_DEPTH":
+        bad.append("LiteEthMACCore's transmit crossing is not _MAC_CORE_TX_CDC_DEPTH")
+    #: the statement is derived, and the toggle is wired
+    ports = [c for c in _calls("dict") if _kw(c, "o_o_reboot_phy_hold") is not None]
+    if len(ports) != 1:
+        return bad + [f"{len(ports)} dp_ports dicts carry the REBOOT attachments"]
+    if _kw(ports[0], "p_REBOOT_MAC_TX_OCTETS_P") != '_mac_tx_egress_octets(nb, milan_cd != \'sys\')':
+        bad.append("p_REBOOT_MAC_TX_OCTETS_P is not _mac_tx_egress_octets(nb, "
+                   f"crossed): {_kw(ports[0], 'p_REBOOT_MAC_TX_OCTETS_P')}")
+    if _kw(ports[0], "p_REBOOT_MAC_MIN_MBPS_P") != "_PHY_MODEL_MIN_MBPS[phy_model]":
+        bad.append("p_REBOOT_MAC_MIN_MBPS_P is not _PHY_MODEL_MIN_MBPS[phy_model]")
+    if _kw(ports[0], "i_i_ethtxend_tgl") != "self.ethtxend_tgl":
+        bad.append("i_i_ethtxend_tgl is not driven by self.ethtxend_tgl")
+    declared = [n for n in ast.walk(mac) if isinstance(n, ast.Assign)
+                and [ast.unparse(t) for t in n.targets] == ["self.ethtxend_tgl"]]
+    if len(declared) != 1 or ast.unparse(declared[0].value) != "Signal(reset_less=True)":
+        bad.append("ethtxend_tgl is not one reset-less Signal")
+    flips = [ast.unparse(n.value) for n in ast.walk(mac)
+             if isinstance(n, ast.AugAssign) and ast.unparse(n.target) == "self.sync.eth_tx"
+             and "ethtxend_tgl" in ast.unparse(n.value)]
+    if flips != ["If(self.phy.sink.valid & self.phy.sink.ready & self.phy.sink.last, "
+                 "self.ethtxend_tgl.eq(~self.ethtxend_tgl))"]:
+        bad.append(f"ethtxend_tgl does not flip in eth_tx on phy.sink's last octet: {flips}")
+    #: the no-MAC stub ties the toggle off, so a REBOOT waits to its bound
+    if not re.search(r"i_i_ethtxend_tgl\s*=\s*0\s*,", soc):
+        bad.append("the no-MAC stub does not tie i_i_ethtxend_tgl to zero")
+    return bad
+
+
+def test_reboot_egress_statement() -> None:
+    """Gate 1f: MilanMAC's statement of its transmit side is the side it
+    builds, and its frame-end toggle is on `phy.sink` (issue #787).
+
+    WHY. An AECP REBOOT holds the PHY in reset only once every frame the
+    datapath gave the MAC has reached its PHY: before that, ENTITY_DEPARTING
+    was dropped inside the MAC on silicon. KL_reboot_ctrl counts frames out
+    on `ethtxend_tgl`, which MilanMAC flips on each frame's last octet at
+    `phy.sink`, and bounds the wait from `p_REBOOT_MAC_TX_OCTETS_P` and
+    `p_REBOOT_MAC_MIN_MBPS_P`. The octets are computed by
+    `_mac_tx_egress_octets` from the named depths the FIFOs are built with,
+    so this gate holds the FIFOs to those names, the statement to the
+    function, the toggle to its seam, its domain and its reset-less flop,
+    and the no-MAC stub to a zero toggle. The numeric value is gate 23m's:
+    eb.reboot_mac_statement evaluates the same definitions, and the SoC's
+    Instance must bind exactly what it states. The toggle's behaviour in
+    hardware is the bench's; the account that reads it is
+    tb/verilator/reboot_ctrl's and tb/verilator/pp_shadow section [RB]'s."""
+    bad = _reboot_egress_findings((ROOT / "sw/litex/milan_soc.py").read_text())
+    assert not bad, "gate 1f:\n  " + "\n  ".join(bad)
+    cfg = eb.load_config(str(ROOT / "configs" / "endstation_ax7101_1x1_tdm8.yaml"))
+    stated = eb.reboot_mac_statement(cfg)
+    #: 564 beats of buffering at 8 octets, 61 frames at 84 octets of
+    #: framing, one envelope frame on the line (docs/design/REBOOT_RESET.md)
+    assert stated == {"REBOOT_MAC_TX_OCTETS_P": 564 * 8 + 61 * 84 + 2020,
+                      "REBOOT_MAC_MIN_MBPS_P": 1000}, f"gate 1f: {stated}"
+    print("  [gate 1f] MilanMAC states its transmit side from the depths its "
+          "FIFOs are built with (11,656 octets at 1,000 Mb/s on the AX7101), "
+          "and flips its reset-less frame-end toggle in eth_tx on phy.sink's "
+          "last octet; the no-MAC stub ties the toggle off")
+
+
+#: Each cut moves one fact gate 1f holds; the gate must name it.
+REBOOT_EGRESS_MUTATIONS = (
+    ("payload_depth=_MAC_TX_SF_PAYLOAD_DEPTH,", "payload_depth=512,", "tx_sf is not built"),
+    ("param_depth=_MAC_TX_SF_PARAM_DEPTH,", "param_depth=8,", "tx_sf is not built"),
+    ("tx_cdc_depth=_MAC_CORE_TX_CDC_DEPTH)", ")", "transmit crossing"),
+    ('p_REBOOT_MAC_TX_OCTETS_P = _mac_tx_egress_octets(nb, milan_cd != "sys"),',
+     "p_REBOOT_MAC_TX_OCTETS_P = 11656,", "p_REBOOT_MAC_TX_OCTETS_P"),
+    ("p_REBOOT_MAC_MIN_MBPS_P  = _PHY_MODEL_MIN_MBPS[phy_model],",
+     "p_REBOOT_MAC_MIN_MBPS_P  = 1000,", "p_REBOOT_MAC_MIN_MBPS_P"),
+    ("i_i_ethtxend_tgl    = self.ethtxend_tgl,", "i_i_ethtxend_tgl    = 0,", "is not driven"),
+    ("self.ethtxend_tgl = Signal(reset_less=True)", "self.ethtxend_tgl = Signal()", "reset-less"),
+    ("If(self.phy.sink.valid & self.phy.sink.ready & self.phy.sink.last,",
+     "If(self.phy.source.valid & self.phy.source.last,", "does not flip"),
+    ("        i_i_ethtxend_tgl = 0,\n", "", "no-MAC stub"),
+)
+
+
+def test_reboot_egress_statement_gate_bites() -> None:
+    """Gate 1f negative controls: every cut turns it red and names its fact."""
+    soc = (ROOT / "sw/litex/milan_soc.py").read_text()
+    for old, new, words in REBOOT_EGRESS_MUTATIONS:
+        assert soc.count(old) == 1, f"gate 1f mutation: anchor {old!r} moved"
+        bad = _reboot_egress_findings(soc.replace(old, new))
+        assert any(words in line for line in bad), \
+            f"gate 1f accepted a milan_soc.py with {old!r} as {new!r}: {bad}"
+    print(f"  [gate 1f mutation] {len(REBOOT_EGRESS_MUTATIONS)}/"
+          f"{len(REBOOT_EGRESS_MUTATIONS)} cuts rejected, each naming its fact")
+
+
 def _gptp_observer_reads_the_mac_stream(soc):
     """The seam and the domain: one observer, on `phy.sink`, in `maceth_tx`."""
     instances = re.findall(
@@ -18173,11 +18288,15 @@ def _gptp_observer_reads_the_mac_stream(soc):
         "gate 1d: the launch observer may not drive the stream it observes"
     #: ...and the stream it reads is read, never written, by the MAC around
     #: it: `phy.sink` is connected by `core.source.connect(phy.sink)` inside
-    #: LiteEth and appears here only as this observation
+    #: LiteEth and appears here only as this observation and the AECP
+    #: REBOOT's frame-end toggle (#787, gate 1f), which reads its valid,
+    #: ready and last
     seam_uses = re.findall(r"self\.phy\.sink\.\w+", soc)
-    assert sorted(seam_uses) == ["self.phy.sink.data", "self.phy.sink.valid"], \
+    assert sorted(seam_uses) == ["self.phy.sink.data", "self.phy.sink.last",
+                                 "self.phy.sink.ready", "self.phy.sink.valid",
+                                 "self.phy.sink.valid"], \
         ("gate 1d: the MAC's `phy.sink` is touched somewhere other than the "
-         f"launch observation: {sorted(seam_uses)}")
+         f"launch observation and the frame-end toggle: {sorted(seam_uses)}")
 
 
 def _gptp_one_emitter_one_buffer_one_clock(soc):
@@ -29179,6 +29298,8 @@ if __name__ == "__main__":
                test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_launch_observer_seam,
+               test_reboot_egress_statement,
+               test_reboot_egress_statement_gate_bites,
                test_qspi_owner_transition_completed_write_prefixes,
                test_gptp_plane_reaches_the_instance,
                test_gptp_plane_instance_gate_bites,

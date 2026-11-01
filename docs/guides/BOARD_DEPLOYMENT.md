@@ -215,7 +215,7 @@ Within ten seconds the console shows three lines:
 ```console
 Milan baremetal: CSR ID=4d494c4e VERSION=...
 Milan baremetal: AEM ... B copied QSPI ... CRC ...
-Milan baremetal: fabric entity enabled; UART diagnostics ready.
+Milan baremetal: fabric entity enable requested; the fabric holds it until the restore releases it; UART diagnostics ready.
 ```
 
 The third line prints only after the model check passes.
@@ -223,6 +223,10 @@ The third line prints only after the model check passes.
 Without it the controller cannot see the board.
 
 Flash both images again in that case.
+
+The third line reports that the firmware requested the enable.
+
+The saved-state restore releases the enable at its terminal.
 
 Within fifteen seconds the controller lists the entity.
 
