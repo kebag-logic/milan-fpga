@@ -1,0 +1,54 @@
+A. Both networks, first arrival interleaved: is the head lapsed every packet under 125 us, and only there?
+both 10 to 50 us | 48 kHz | anchors min/max 2000/2000 | phases with a shift 17/64 | worst shifts 807 | largest step error 1 | worst unwritten 403
+both 10 to 50 us | 96 kHz | anchors min/max 2000/2000 | phases with a shift 33/64 | worst shifts 807 | largest step error 1 | worst unwritten 403
+both 10 to 50 us | 192 kHz | anchors min/max 2000/2000 | phases with a shift 64/64 | worst shifts 807 | largest step error 2 | worst unwritten 403
+both 50 to 100 us | 48 kHz | anchors min/max 2000/2000 | phases with a shift 17/64 | worst shifts 801 | largest step error 1 | worst unwritten 400
+both 50 to 100 us | 96 kHz | anchors min/max 2000/2000 | phases with a shift 33/64 | worst shifts 801 | largest step error 1 | worst unwritten 400
+both 50 to 100 us | 192 kHz | anchors min/max 2000/2000 | phases with a shift 64/64 | worst shifts 801 | largest step error 2 | worst unwritten 400
+both 110 to 120 us | 48 kHz | anchors min/max 2000/2000 | phases with a shift 17/64 | worst shifts 887 | largest step error 1 | worst unwritten 443
+both 110 to 120 us | 96 kHz | anchors min/max 2000/2000 | phases with a shift 33/64 | worst shifts 887 | largest step error 1 | worst unwritten 443
+both 110 to 120 us | 192 kHz | anchors min/max 2000/2000 | phases with a shift 64/64 | worst shifts 887 | largest step error 1 | worst unwritten 443
+both 124.0 to 124.9 us | 48 kHz | anchors min/max 1400/1479 | phases with a shift 11/64 | worst shifts 542 | largest step error 1 | worst unwritten 271
+both 124.0 to 124.9 us | 96 kHz | anchors min/max 1400/1479 | phases with a shift 21/64 | worst shifts 542 | largest step error 1 | worst unwritten 271
+both 124.0 to 124.9 us | 192 kHz | anchors min/max 1400/1479 | phases with a shift 43/64 | worst shifts 542 | largest step error 1 | worst unwritten 271
+both 125.2 to 126.0 us | 48 kHz | anchors min/max 510/564 | phases with a shift 8/64 | worst shifts 212 | largest step error 1 | worst unwritten 106
+both 125.2 to 126.0 us | 96 kHz | anchors min/max 510/564 | phases with a shift 18/64 | worst shifts 224 | largest step error 1 | worst unwritten 112
+both 125.2 to 126.0 us | 192 kHz | anchors min/max 510/564 | phases with a shift 37/64 | worst shifts 228 | largest step error 1 | worst unwritten 114
+both 130 to 140 us | 48 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 130 to 140 us | 96 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 130 to 140 us | 192 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 150 to 200 us | 48 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 150 to 200 us | 96 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 150 to 200 us | 192 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+B. Margins straddling 125 us on both networks
+both 100 to 150 us | 48 kHz | anchors min/max 454/558 | phases with a shift 17/64 | worst shifts 196 | largest step error 1 | worst unwritten 98
+both 100 to 150 us | 96 kHz | anchors min/max 454/558 | phases with a shift 33/64 | worst shifts 196 | largest step error 1 | worst unwritten 98
+both 100 to 150 us | 192 kHz | anchors min/max 454/558 | phases with a shift 64/64 | worst shifts 196 | largest step error 2 | worst unwritten 98
+C. A short margin on one network only: does it lapse the head?
+primary 150 to 200, secondary 10 to 50 | 48 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+primary 150 to 200, secondary 10 to 50 | 96 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+primary 150 to 200, secondary 10 to 50 | 192 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+primary 10 to 50, secondary 150 to 200 | 48 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+primary 10 to 50, secondary 150 to 200 | 96 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+primary 10 to 50, secondary 150 to 200 | 192 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+D. SE:624 and SE:660: valid head, conversion error at its bound, interleaved, with and without loss
+both 150 to 200, 2.744 us error | 48 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 150 to 200, 2.744 us error | 96 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 150 to 200, 2.744 us error | 192 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 150 to 200, 2.744 us error, 1 % loss each | 48 kHz | anchors min/max 1/3 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 150 to 200, 2.744 us error, 1 % loss each | 96 kHz | anchors min/max 1/3 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 150 to 200, 2.744 us error, 1 % loss each | 192 kHz | anchors min/max 1/3 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 1,800 to 1,950, 2.744 us error | 48 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 1,800 to 1,950, 2.744 us error | 96 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+both 1,800 to 1,950, 2.744 us error | 192 kHz | anchors min/max 1/1 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+E. Short margin without interleaving
+primary 110 to 120 first, secondary 10 to 50 | 48 kHz | anchors min/max 2000/2000 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+primary 110 to 120 first, secondary 10 to 50 | 96 kHz | anchors min/max 2000/2000 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+primary 110 to 120 first, secondary 10 to 50 | 192 kHz | anchors min/max 2000/2000 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+one network, 10 to 50, no jitter | 48 kHz | anchors min/max 2000/2000 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+one network, 10 to 50, no jitter | 96 kHz | anchors min/max 2000/2000 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+one network, 10 to 50, no jitter | 192 kHz | anchors min/max 2000/2000 | phases with a shift 0/64 | worst shifts 0 | largest step error 0 | worst unwritten 0
+F. Short margin, partners differing by a fixed 2.744 us (no packet-to-packet jitter)
+fixed 2.744 us | 48 kHz | phases with a shift 8/64 | largest step error 1
+fixed 2.744 us | 96 kHz | phases with a shift 16/64 | largest step error 1
+fixed 2.744 us | 192 kHz | phases with a shift 33/64 | largest step error 1
