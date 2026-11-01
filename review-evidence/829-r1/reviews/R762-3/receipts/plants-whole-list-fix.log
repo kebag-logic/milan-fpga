@@ -1,0 +1,93 @@
+front end: <packet>/scratch/pin012/sv2v sv2v v0.0.12
+ok  accept accepted shipped text: 
+ok  refuse refused  ETH_TICK_NS_P removed: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []
+ok  refuse refused  ETH_TICK_NS_P line comment: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []
+ok  refuse refused  ETH_TICK_NS_P block comment: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []
+ok  refuse refused  ETH_TICK_NS_P multi-line block comment: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []
+ok  refuse refused  ETH_TICK_NS_P tied, binding in a trailing comment: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: ['8']
+ok  refuse refused  ETH_TICK_NS_P dead ifdef: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []
+ok  refuse refused  ETH_TICK_NS_P ifndef SYNTHESIS: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []
+ok  refuse refused  ETH_TICK_NS_P tied under SYNTHESIS, bound in the else: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: ['8']
+ok  refuse refused  ETH_TICK_NS_P bound under `if 0 of a macro guard: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []
+ok  refuse refused  ETH_TICK_NS_P tied through a macro: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: ['8']
+ok  refuse refused  ETH_TICK_NS_P swallowed by a macro that discards its argument: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []
+ok  refuse refused  ETH_TICK_NS_P on the wrong parameter: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: ['GPTP_PHC_TICK_NS_P']
+ok  refuse refused  ETH_TICK_NS_P no-op expression: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: ['GPTP_ETH_TICK_NS_P * 1']
+ok  refuse refused  ETH_TICK_NS_P parenthesised expression of a literal: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: ['8']
+ok  refuse refused  ETH_TICK_NS_P bound twice: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: ['GPTP_ETH_TICK_NS_P', '8']
+ok  refuse refused  ETH_TICK_NS_P live only where an earlier source's macro is absent: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: []
+ok  accept accepted ETH_TICK_NS_P comment beside it: 
+ok  accept accepted ETH_TICK_NS_P odd whitespace: 
+ok  accept accepted ETH_TICK_NS_P live ifdef: 
+ok  accept accepted ETH_TICK_NS_P through a macro naming the parameter: 
+ok  refuse refused  ETH_CYC_PER_OCTET_P removed: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: []
+ok  refuse refused  ETH_CYC_PER_OCTET_P line comment: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: []
+ok  refuse refused  ETH_CYC_PER_OCTET_P block comment: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: []
+ok  refuse refused  ETH_CYC_PER_OCTET_P multi-line block comment: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: []
+ok  refuse refused  ETH_CYC_PER_OCTET_P tied, binding in a trailing comment: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: ['1']
+ok  refuse refused  ETH_CYC_PER_OCTET_P dead ifdef: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: []
+ok  refuse refused  ETH_CYC_PER_OCTET_P ifndef SYNTHESIS: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: []
+ok  refuse refused  ETH_CYC_PER_OCTET_P tied under SYNTHESIS, bound in the else: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: ['1']
+ok  refuse refused  ETH_CYC_PER_OCTET_P bound under `if 0 of a macro guard: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: []
+ok  refuse refused  ETH_CYC_PER_OCTET_P tied through a macro: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: ['1']
+ok  refuse refused  ETH_CYC_PER_OCTET_P swallowed by a macro that discards its argument: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: []
+ok  refuse refused  ETH_CYC_PER_OCTET_P on the wrong parameter: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: ['GPTP_PHC_TICK_NS_P']
+ok  refuse refused  ETH_CYC_PER_OCTET_P no-op expression: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: ['GPTP_ETH_CYC_PER_OCTET_P * 1']
+ok  refuse refused  ETH_CYC_PER_OCTET_P parenthesised expression of a literal: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: ['1']
+ok  refuse refused  ETH_CYC_PER_OCTET_P bound twice: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: ['GPTP_ETH_CYC_PER_OCTET_P', '1']
+ok  refuse refused  ETH_CYC_PER_OCTET_P live only where an earlier source's macro is absent: .ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P: []
+ok  accept accepted ETH_CYC_PER_OCTET_P comment beside it: 
+ok  accept accepted ETH_CYC_PER_OCTET_P odd whitespace: 
+ok  accept accepted ETH_CYC_PER_OCTET_P live ifdef: 
+ok  accept accepted ETH_CYC_PER_OCTET_P through a macro naming the parameter: 
+ok  refuse refused  GPTP_ETH_TICK_NS_P default moved: GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '40')]
+ok  refuse refused  GPTP_ETH_TICK_NS_P localparam: GPTP_ETH_TICK_NS_P does not default to 8: [('localparam', '8')]
+ok  refuse refused  GPTP_ETH_TICK_NS_P commented, live below: GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '40')]
+ok  refuse refused  GPTP_ETH_TICK_NS_P block comment, live below: GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '40')]
+ok  refuse refused  GPTP_ETH_TICK_NS_P dead ifdef, live else: GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '40')]
+ok  refuse refused  GPTP_ETH_TICK_NS_P moved under an earlier source's macro, live else: GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '40')]
+ok  refuse refused  GPTP_ETH_TICK_NS_P moved under ifndef SYNTHESIS, live else: GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '40')]
+ok  refuse refused  GPTP_ETH_TICK_NS_P shadowed in the same scope: GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '8'), ('localparam', '40')]
+ok  refuse refused  GPTP_ETH_TICK_NS_P shadowed in a comma list: GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '8'), ('localparam', '40')]
+ok  refuse refused  GPTP_ETH_TICK_NS_P shadowed in a block around the plane: GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '8'), ('localparam', '40')]
+ok  refuse refused  GPTP_ETH_TICK_NS_P shadowed by a net in a block around the plane: GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '8'), ('wire', "32'd40")]
+ok  refuse refused  GPTP_ETH_TICK_NS_P default a macro of the moved value: GPTP_ETH_TICK_NS_P does not default to 8: [('parameter', '40')]
+ok  accept accepted GPTP_ETH_TICK_NS_P comment inside the default: 
+ok  accept accepted GPTP_ETH_TICK_NS_P default respelled across lines: 
+ok  probe  accepted GPTP_ETH_TICK_NS_P shadowed by a genvar loop around the plane: 
+ok  probe  accepted GPTP_ETH_TICK_NS_P shadowed in a block, with == in its packed dims: 
+ok  refuse refused  GPTP_ETH_CYC_PER_OCTET_P default moved: GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('parameter', '2')]
+ok  refuse refused  GPTP_ETH_CYC_PER_OCTET_P localparam: GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('localparam', '1')]
+ok  refuse refused  GPTP_ETH_CYC_PER_OCTET_P commented, live below: GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('parameter', '2')]
+ok  refuse refused  GPTP_ETH_CYC_PER_OCTET_P block comment, live below: GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('parameter', '2')]
+ok  refuse refused  GPTP_ETH_CYC_PER_OCTET_P dead ifdef, live else: GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('parameter', '2')]
+ok  refuse refused  GPTP_ETH_CYC_PER_OCTET_P moved under an earlier source's macro, live else: GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('parameter', '2')]
+ok  refuse refused  GPTP_ETH_CYC_PER_OCTET_P moved under ifndef SYNTHESIS, live else: GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('parameter', '2')]
+ok  refuse refused  GPTP_ETH_CYC_PER_OCTET_P shadowed in the same scope: GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('parameter', '1'), ('localparam', '2')]
+ok  refuse refused  GPTP_ETH_CYC_PER_OCTET_P shadowed in a comma list: GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('parameter', '1'), ('localparam', '2')]
+ok  refuse refused  GPTP_ETH_CYC_PER_OCTET_P shadowed in a block around the plane: GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('parameter', '1'), ('localparam', '2')]
+ok  refuse refused  GPTP_ETH_CYC_PER_OCTET_P shadowed by a net in a block around the plane: GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('parameter', '1'), ('wire', "32'd2")]
+ok  refuse refused  GPTP_ETH_CYC_PER_OCTET_P default a macro of the moved value: GPTP_ETH_CYC_PER_OCTET_P does not default to 1: [('parameter', '2')]
+ok  accept accepted GPTP_ETH_CYC_PER_OCTET_P comment inside the default: 
+ok  accept accepted GPTP_ETH_CYC_PER_OCTET_P default respelled across lines: 
+ok  probe  accepted GPTP_ETH_CYC_PER_OCTET_P shadowed by a genvar loop around the plane: 
+ok  probe  accepted GPTP_ETH_CYC_PER_OCTET_P shadowed in a block, with == in its packed dims: 
+ok  refuse refused  plane renamed: the one plane instantiated is not u_gptp_shadow
+ok  refuse refused  second plane beside the first: 2 planes instantiated, not one
+ok  refuse refused  second instance in the plane's own statement: 2 planes instantiated, not one
+ok  refuse refused  second plane in a live generate arm: 2 planes instantiated, not one
+ok  refuse refused  plane in a comment, decoy-free: 0 planes instantiated, not one
+ok  refuse refused  plane in a dead ifdef: 0 planes instantiated, not one
+ok  refuse refused  bindings crossed: .ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P: ['GPTP_ETH_CYC_PER_OCTET_P']
+ok  refuse refused  include of a file that does not exist: the front end refuses it: /tmp/gate1h.X/milan_datapath.sv:8880:60: Lexical error: Could not find file "
+ok  refuse refused  unterminated block comment at the plane: the front end refuses it: /tmp/gate1h.X/milan_datapath.sv:9815:1: Parse error: missing expected `end` 
+ok  refuse refused  syntax error at the plane: the front end refuses it: sv2v: /tmp/gate1h.X/milan_datapath.sv:8880:10: Parse error: expected identifi
+ok  accept accepted parameters reordered, same bindings: 
+ok  accept accepted the octet binding last with no comma: 
+ok  limit  accepted defparam moving the tick after the plane: 
+ok  limit  accepted defparam moving the octet after the plane: 
+ok  limit  accepted plane only in an if (0) arm: 
+ok  limit  accepted plane only where the octet parameter is 1: 
+ok  limit  accepted plane in a never-instantiated module: 
+plants: {'refuse': 66, 'accept': 15, 'limit': 5, 'probe': 4}; not as wanted: 0
+rc=0
