@@ -1,0 +1,40 @@
+## parents
+3ae30dc3fcd3d7b65e8e121d3e0596cc31abfe07 43d185333ff4048986a2080996ed5e482af3f3bc
+e5b8405db4c1f7cbdafb5df92b15b580142e0232 455a3953bf49efda23be4e73447a25b66a5c4bf7
+## trees: candidate, PR head 455a3953, branch 86a349d5
+43d185333ff4048986a2080996ed5e482af3f3bc
+43d185333ff4048986a2080996ed5e482af3f3bc
+43d185333ff4048986a2080996ed5e482af3f3bc
+## merge-base --all live-dev PR-head
+e5b8405db4c1f7cbdafb5df92b15b580142e0232
+## merge-tree live-dev PR-head
+43d185333ff4048986a2080996ed5e482af3f3bc
+## live dev / PR head on remote (read-only ls-remote)
+e5b8405db4c1f7cbdafb5df92b15b580142e0232	refs/heads/dev
+455a3953bf49efda23be4e73447a25b66a5c4bf7	refs/pull/822/head
+## predecessor merges on dev since PR base 1e80128f
+e5b8405db Merge PR #820: Judge route WNS on the best of the three directives (#818)
+8adf5c990 Merge PR #826: Cut the SoC's SPI-flash, CPU memory-port and refresh paths (#814)
+02ca829ad Merge PR #813: Adopt the gPTP fix for the Pdelay_Req cease across a link toggle and drive the engine's portEna
+71d6ed07a Merge PR #821: Cut the servo reset synchroniser crossing (#817)
+56df08940 Merge PR #816: Report the entity enable as a request the restore releases, publish the PHY link on every boot 
+## files changed by PR (vs dev) AND by predecessors (1e80128f..dev): 17
+CHANGELOG.md
+docs/design/AREA_BUDGET.md
+docs/diagrams/PNG_MANIFEST.json
+docs/diagrams/submodule_boundaries.drawio
+docs/diagrams/submodule_boundaries.png
+docs/diagrams/submodule_boundaries.svg
+docs/integration/BAREMETAL_FIRMWARE.md
+docs/integration/BUILDING.md
+docs/litex/CLOCK_DOMAINS.md
+docs/reference/SUBMODULES.md
+docs/testing/TESTING.md
+hdl/milan/milan_datapath.sv
+scripts/port_docs.budget
+sw/litex/milan_soc.py
+syn/yosys/rom_digests.tsv
+tb/verilator/milan_dp/Makefile
+tb/verilator/milan_dp/README.md
+## git diff --check dev..candidate
+rc=0
