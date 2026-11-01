@@ -1,0 +1,14 @@
+Written before the R760-2 report was opened. The delta and the R759-2 findings were judged at this point.
+
+Verdict: POSITIVE at b2a1d67745229d167a5e70d7e1c5064975f027fd.
+
+Lens        | Result | Examined artifacts                                                                      | Covering round | Exact head
+Conformance | CLEAN  | README:840-858 against window-recheck.txt, R759-2 window-exact.txt, windows-reader.txt   | R759-3         | b2a1d677
+RTL         | CLEAN  | git diff --raw fa019799 b2a1d677: no RTL path, gitlinks unchanged; R759-2 verdict carries | R759-3         | b2a1d677
+Robustness  | CLEAN  | same delta list: no behaviour changed; R759-2 refused-window receipts carry              | R759-3         | b2a1d677
+Tests       | CLEAN  | same delta list: no test or harness path; R759-2 verdict carries                         | R759-3         | b2a1d677
+Docs        | CLEAN  | README delta, doc-gates.txt, live PR body; two wording residue items below               | R759-3         | b2a1d677
+
+Own residue before reading R760-2:
+- PR body Status: "as the table below states `fa019799`" is garbled, and "the head" is not the head.
+- PR body never names b2a1d677; "How to get into the same state" and the git diff --check command pin fa019799.

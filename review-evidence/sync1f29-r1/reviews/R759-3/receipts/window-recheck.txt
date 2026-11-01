@@ -1,0 +1,10 @@
+head backlog-adp: 73898514 bus cycles, window 738.99 ms, ring at open 5, GM committed 12; README row: GM 12, window 738.99 -> match
+head backlog-adp-refill: 88491464 bus cycles, window 884.91 ms, ring at open 5, GM committed 12; README row: GM 12, window 884.91 -> match
+nostage backlog-adp: 73378048 bus cycles, window 733.78 ms, ring at open 4, GM committed 13; README row: GM 13, window 733.78 -> match
+nostage backlog-adp-refill: 87861990 bus cycles, window 878.62 ms, ring at open 4, GM committed 13; README row: GM 13, window 878.62 -> match
+base backlog-adp: 73378048 bus cycles, window 733.78 ms, ring at open 4, GM committed 13
+base backlog-adp-refill: 87861990 bus cycles, window 878.62 ms, ring at open 4, GM committed 13
+README line 843: The firmware, not the stage, causes the refusal: at `dev-soft-core` `5b5f4336`, before dev's #814 was merged, the ring holds 4 records when those windows open and the same two are refused at 13 GM events. The stage adds the fifth record.
+README line 846: This table gives every window, read from each run's logs with `grade.py`'s own `population`, `composed_passes` and `unreleased`, without its refusal.
+README line 854: | `backlog-adp-refill` | staged | 12 | refused | 884.91 | 14 | 88.32 | aecp 1, srp 32 |
+rc=0
