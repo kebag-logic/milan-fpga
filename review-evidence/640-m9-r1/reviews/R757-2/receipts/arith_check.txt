@@ -1,0 +1,19 @@
+t_page 5.344 ms (page 0.166 + 0.011 + 5.000 + read-back 0.166)
+T_worst 359.75 ms; margin 140.25 ms (28.05 %)
+48000 Hz: 2.25 ms = 108.0 samples, depth 128 = 2.667 ms, 32768 bits = 1.0 RAMB36
+96000 Hz: 2.25 ms = 216.0 samples, depth 256 = 2.667 ms, 65536 bits = 2.0 RAMB36
+192000 Hz: 2.25 ms = 432.0 samples, depth 512 = 2.667 ms, 131072 bits = 4.0 RAMB36
+192k: 16x8ch+CRF 860672 kb/s; 13x8ch+CRF 700352; 14x8ch+CRF 753792 (cap 750000)
+192k mix 13x8+1x4+2x1 744448 kb/s, +CRF 750080
+NS 6: engine load 33.47 %
+NS 12: engine load 58.05 %
+NS 24: engine load 92.67 %
+fixed 48k 40.325; 96k 32.491
+48k one format 63.431; mixed bound 95.867; reached 92.53
+96k one format 51.293; mixed bound 93.216; reached 74.826
+witness idleSlope 133120 kb/s; phase-1 last frame wait 53.085 us
+three co-phased 8ch alone: wait 83.012 us; with all fixed terms 123.337 us
+phase cap 48k: 2 x 2064 + 2064 = 6192 bits -> 3 x 64 = 192 cycles, packetizer term 2 x (192 + 22) x 20 ns = 8.560 us
+area central 21.45k low 17.8k high 25.45k
+BRAM fabric 27.0; total 144.5; over 23.0
+shipping 52008 / 63400 = 82.03 %
