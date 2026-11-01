@@ -621,8 +621,13 @@ This page fixes no merge mechanism for those copies.
 Samples are placed by count from the head.
 Packet k lands k packets of samples from the head.
 
-So conversion error never shifts a sample.
+Under a valid head, conversion error never shifts a sample.
 A new anchor alone uses its own time.
+
+A margin under 125 µs lapses the head every packet.
+Interleaved copies can then land one sample apart.
+
+[Open design item 3](#open-design-items) owns that case.
 
 No sample is written outside the render buffer.
 [Open design item 1](#open-design-items) covers its edges.
@@ -652,7 +657,7 @@ Past rule 1, a packet's only clean copy always renders.
 The window counts each duplicate once, in `SE_MERGE_DUP`.
 
 Annex D.2 of Milan v1.2 models per-network buffers.
-The merge keeps that external behaviour for clean copies.
+Under a valid head, clean copies keep that external behaviour.
 
 An unpaired stream applies the same rules.
 
@@ -1165,6 +1170,7 @@ Each states the requirement it must meet.
 |---|---|---|
 | 1. Render span edges | No sample is written outside the render buffer: not a packet whose samples cross either end of the span, nor a clean copy whose counted position falls a sample behind the render point. The early check and the buffer depth must allow for a whole packet at every rate | Simulation with copies at both span edges at 48, 96 and 192 kHz, the conversion error at its bound; the test fails if any sample lands outside the buffer |
 | 2. Copies with tu set | The listener meets TU-1 to TU-5 below. This page fixes no mechanism, register or loss figure for them | The named cases below, in the lane's model, its simulation and on the bench |
+| 3. Short margin on both networks | A clean copy's margin is how long before its time it arrives. A margin under 125 µs lapses the head before the next packet, so rule 2 places every packet by its own time. When first arrival interleaves between the networks, copies can land one sample apart. The lane states the shift it allows, and the listener stays within it. This page fixes no mechanism or figure for it | Simulation with clean copies on both networks 10 to 50 µs before their time, first arrival interleaved, at 48, 96 and 192 kHz, every grid phase. The test fails on a shift beyond what the lane states. The starting case is the reviewer's [published probe](https://github.com/kebag-logic/milan-fpga/blob/f9cfe08cd3f526acde88e0d2a1c48ed2740583df/review-evidence/640-m9-r1/reviews/R758-5/scripts/probe_margin_r5.py). [Its output](https://github.com/kebag-logic/milan-fpga/blob/f9cfe08cd3f526acde88e0d2a1c48ed2740583df/review-evidence/640-m9-r1/reviews/R758-5/receipts/model/probe_margin_r5.out) reports up to 766 shifts and 383 unwritten samples in 2,000 packets. That is the probe's result, not a design figure |
 
 #### Item 2: copies with tu set
 
