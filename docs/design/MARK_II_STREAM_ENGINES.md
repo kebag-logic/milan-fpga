@@ -615,8 +615,8 @@ The first matching rule acts:
 | Rule | When | Action | Counter |
 |---:|---|---|---|
 | 1 | The copy fails a stream check: its format (Milan v1.2 4.4.2.2), or a late or early time (Milan v1.2 5.3.8.10) | Not rendered | That check's Milan v1.2 5.3.8.10 counter |
-| 2 | The copy has tu set, and the partner context's `CLEAN_VALID` is set | Discarded | `SE_MERGE_TU` |
-| 3 | `HEAD_VALID` is clear, or a tu copy has no valid sequence reference | Rendered at its own time; it anchors the head and clears the map | `SE_MERGE_SEC` if odd |
+| 2 | The copy has tu set, and the partner holds clean data: its `CLEAN_VALID` set and its `LCTX_CLEAN_PT` ahead of the render point | Discarded | `SE_MERGE_TU` |
+| 3 | No valid head (`HEAD_VALID` clear, or `LCTX_LAST_PT` passed), or a tu copy has no valid sequence reference | Rendered at its own time; it anchors the head and clears the map | `SE_MERGE_SEC` if odd |
 | 4 | A clean copy while `ANCHOR_TU` is set, or more than 21 packets from the head | Re-anchors, as rule 3 | `SE_MERGE_SEC` if odd |
 | 5 | k is 1 or more: newer than the head | Rendered k packets after the head; it becomes the head | `SE_MERGE_SEC` if odd |
 | 6 | k is 0 to -21, and map bit -k is clear | Rendered k packets from the head; sets that bit | `SE_MERGE_SEC` if odd |
@@ -642,14 +642,14 @@ The first clean copy then re-anchors by rule 4.
 Every copy passing rule 1 updates its reference.
 A clean copy also sets `CLEAN_VALID` and `LCTX_CLEAN_PT`.
 
-Every 125 µs a sweep reads every context.
-It clears valid bits whose time the render point passed.
+A time the render point passed counts as invalid.
+Each rule checks that when it reads the time.
 
-Every valid time then stays within 2.667 ms.
+Stale bits are swept, one context per 31.25 ms.
+No valid time trails the render point by 1 s.
+
 Wrapping compares stay exact (IEEE 1722-2016 4.4.4.9).
-
-The sweep uses the context RAM's second port.
-So the engines lose no cycles to it.
+The sweep costs 128 cycles per second.
 
 An unpaired stream applies every rule but rule 2.
 For a pair, losing one network loses no samples.
@@ -806,13 +806,13 @@ The engine owns the state, merge and counter words.
 | 0x14 | LCTX_STATE | 7:0 | SEQ | 0x00 | R | Last sequence_num seen on this context (IEEE 1722-2016 4.4.4.6); with LCTX_SEQ_PT, the reference that places a copy with tu set |
 | | | 8 | LOCKED | 0x0 | R | Media locked on this stream |
 | | | 9 | ANCHOR_TU | 0x0 | R | Even context: the head's position came from a copy with tu set; merge rule 4 reads it |
-| | | 10 | SEQ_VALID | 0x0 | R | SEQ and LCTX_SEQ_PT are a valid reference; cleared by the sweep when the render point passes LCTX_SEQ_PT |
-| | | 11 | CLEAN_VALID | 0x0 | R | This context holds clean data ahead of the render point; the partner's merge rule 2 reads it; cleared by the sweep when the render point passes LCTX_CLEAN_PT |
+| | | 10 | SEQ_VALID | 0x0 | R | SEQ and LCTX_SEQ_PT are a valid reference while LCTX_SEQ_PT is ahead of the render point; the sweep clears it after that |
+| | | 11 | CLEAN_VALID | 0x0 | R | This context holds clean data while LCTX_CLEAN_PT is ahead of the render point; the partner's merge rule 2 reads both; the sweep clears it after that |
 | | | 31:12 | RESERVED | 0x0_0000 | R | Reads zero; writes ignored |
 | 0x18 | LCTX_LAST_PT | 31:0 | NS | 0x0000_0000 | R | Even context: the head's presentation time, render time base; a clean head takes its copy's time, a tu head advances by count |
 | 0x1C | LCTX_MERGE | 21:0 | WMAP | 0x00_0000 | R | Even context: bit k set when the packet k intervals before the head is written |
 | | | 30:22 | HEAD_POS | 0x000 | R | Even context: render buffer index of the head packet's first sample |
-| | | 31 | HEAD_VALID | 0x0 | R | Even context: the head is valid; cleared by the sweep when the render point passes LCTX_LAST_PT |
+| | | 31 | HEAD_VALID | 0x0 | R | Even context: the head is valid while LCTX_LAST_PT is ahead of the render point; the sweep clears it after that |
 | 0x20 | LCTX_MEDIA_LOCKED | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
 | 0x24 | LCTX_MEDIA_UNLOCKED | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
 | 0x28 | LCTX_STREAM_INTERRUPTED | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
