@@ -38,6 +38,19 @@ REPO = HERE.parent.parent.parent
 PLANE = REPO / "hdl" / "ieee8021as" / "gptp_plane"
 WRAP = HERE / "gptp_txts_wrap.sv"
 
+#: The record carries the EXPECTED distance instead of the one the observer
+#: measured, which is how a fragmented frame earns a plausible timestamp instead
+#: of an abort. Both shapes carry this control: a whole frame measures 45 clocks
+#: on GMII and 90 on MII, so a refusal read against the wrong one cannot fail.
+DELTA_FORCED_OLD = (
+    "                        oidx_r, gen_r, type_r, seq_r, delta_r,\n"
+    "                        (delta_r != TXTS_DELTA_W_P'"
+    "(TXTS_DELTA_EXP_P))};")
+DELTA_FORCED_NEW = (
+    "                        oidx_r, gen_r, type_r, seq_r,\n"
+    "                        TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P),\n"
+    "                        1'b0};  // MUTATION: forced, not measured")
+
 #: The 10/100 shape's controls (issue #829), each run on the MII build. The first
 #: is the fault itself: the observer reads one octet per clock, the delimiter
 #: check fails on the held preamble, no record ever comes and the engine waits
@@ -70,6 +83,13 @@ MII_MUTATIONS = [
         "(RECON_NEED_CYC_C > RECON_GUARD_CYC_P) ? RECON_NEED_CYC_C : RECON_GUARD_CYC_P;",
         "RECON_GUARD_CYC_P;  // MUTATION",
         "phc window: that frame's own result is an explicit loss",
+    ),
+    (
+        "mii_delta_forced_not_measured",
+        PLANE / "KL_gptp_gmii_launch.sv",
+        DELTA_FORCED_OLD,
+        DELTA_FORCED_NEW,
+        "fragment: the observer refused it, by measurement",
     ),
 ]
 
@@ -117,17 +137,10 @@ MUTATIONS = [
         "bias: the mean error is within one nanosecond of zero",
     ),
     (
-        #: the record carries the EXPECTED distance instead of the one the
-        #: observer measured, which is how a fragmented frame earns a
-        #: plausible timestamp instead of an abort
         "delta_forced_not_measured",
         PLANE / "KL_gptp_gmii_launch.sv",
-        "                        oidx_r, gen_r, type_r, seq_r, delta_r,\n"
-        "                        (delta_r != TXTS_DELTA_W_P'"
-        "(TXTS_DELTA_EXP_P))};",
-        "                        oidx_r, gen_r, type_r, seq_r,\n"
-        "                        TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P),\n"
-        "                        1'b0};  // MUTATION: forced, not measured",
+        DELTA_FORCED_OLD,
+        DELTA_FORCED_NEW,
         "fragment: the observer refused it, by measurement",
     ),
 ]

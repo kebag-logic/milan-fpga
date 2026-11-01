@@ -921,9 +921,10 @@ void TxtsHarness::prove_fragment_aborts() {
   check.that("fragment: the observer produced a record for it", have_record);
   if (have_record) {
     //! the measured cycle distance is the refusal: it is not the expected
-    //! one, and the record says so
+    //! one, 45 octets in this shape's clocks, and the record says so
     check.that("fragment: the observer refused it, by measurement",
-               records_[target].abort != 0 || records_[target].delta != 45);
+               records_[target].abort != 0 ||
+                   records_[target].delta != 45 * kEthCycPerOctet);
   }
   const bool have_result = target < results_.size();
   check.that("fragment: the plane delivered its result", have_result);
