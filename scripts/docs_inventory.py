@@ -377,18 +377,20 @@ def normal_form(text: str) -> str:
 
 
 def flatten(text: str) -> tuple[str, list[int]]:
-    """A page in normal form on one line, and each line's offset; a blank line stays a break."""
+    """A page in normal form on one line, and each line's offset; a blank line leaves two spaces, a break."""
     flat = ""
     starts: list[int] = []
     for line in text.split("\n"):
         starts.append(len(flat))
-        flat += (normal_form(line) or "\n") + " "
+        flat += normal_form(line) + " "
     return flat, starts
 
 
 def carried_line(flat: tuple[str, list[int]], statement: str) -> int | None:
     """The line of a flattened page that starts the statement, whole words only, or None."""
     needle = normal_form(statement)
+    if needle not in flat[0]:
+        return None
     left = r"(?<!\w)" if needle[:1].isalnum() else ""
     right = r"(?!\w)" if needle[-1:].isalnum() else ""
     match = re.search(left + re.escape(needle) + right, flat[0])
@@ -874,7 +876,7 @@ def copy_controls() -> tuple:
          in_order(plant_copy(spelling), replace("REQUIREMENTS.md", first_copy, "Open.\n")), 1,
          ("| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 5 |", copy_status), "STALE"),
         ("two spellings on one page give one row", plant_copy(spelling), 1, copy_row, "STALE",
-         "| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 5 |"),
+         "| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 6 |"),
         ("a copy cannot be marked current by hand",
          in_order(plant_copy(), replace(OUTPUT, copy_status, "| Requirements | -- | current | no recorded |")), 1,
          copy_status, "REQUIREMENTS.md carries an open finding but is marked current"),
