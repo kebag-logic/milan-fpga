@@ -1,0 +1,251 @@
+ady;
+      |                                                 ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1808:46: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1808 |    liteethmaccrc32checker_source_source_last <= liteethmaccrc32checker_syncfifo_source_last;
+      |                                              ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1809:55: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1809 |    liteethmaccrc32checker_source_source_payload_error <= (liteethmaccrc32checker_syncfifo_source_payload_error | {1{liteethmaccrc32checker_crc_error1}});
+      |                                                       ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1810:57: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1810 |    liteethmaccrc32checker_source_source_payload_last_be <= liteethmaccrc32checker_last_be;
+      |                                                         ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1812:46: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1812 |     rxdatapath_bufferizeendpoints_next_state <= 1'd0;
+      |                                              ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1816:37: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1816 |    liteethmaccrc32checker_crc_reset <= 1'd1;
+      |                                     ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1817:38: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1817 |    liteethmaccrc32checker_fifo_reset <= 1'd1;
+      |                                      ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1818:45: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1818 |    rxdatapath_bufferizeendpoints_next_state <= 1'd1;
+      |                                             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1822:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1822 |  dummy_d_19 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1846:24: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1846 |  rx_padding_length_inc <= 4'd0;
+      |                        ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1847:2: Non-blocking assignment '<=' in combinational logic process
+                                                     : ... This will be executed as a blocking assignment '='!
+ 1847 |  case (rx_padding_sink_payload_last_be)
+      |  ^~~~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1874:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1874 |  dummy_d_20 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1888:34: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1888 |  rx_padding_source_payload_error <= 1'd0;
+      |                                  ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1890:35: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1890 |   rx_padding_source_payload_error <= {1{1'd1}};
+      |                                   ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1895:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1895 |  dummy_d_21 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1909:36: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1909 |  rx_last_be_source_payload_last_be <= 1'd0;
+      |                                    ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1910:36: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1910 |  rx_last_be_source_payload_last_be <= rx_last_be_sink_payload_last_be;
+      |                                    ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1912:37: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1912 |   rx_last_be_source_payload_last_be <= rx_last_be_sink_last;
+      |                                     ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1915:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1915 |  dummy_d_22 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1932:35: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1932 |  rx_converter_source_payload_data <= 64'd0;
+      |                                   ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1933:40: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1933 |  rx_converter_source_payload_data[7:0] <= rx_converter_source_source_payload_data[7:0];
+      |                                        ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1936:42: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1936 |  rx_converter_source_payload_data[31:24] <= rx_converter_source_source_payload_data[37:30];
+      |                                          ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1939:42: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1939 |  rx_converter_source_payload_data[55:48] <= rx_converter_source_source_payload_data[67:60];
+      |                                          ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1942:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1942 |  dummy_d_23 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1950:38: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1950 |  rx_converter_source_payload_last_be <= 8'd0;
+      |                                      ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1951:41: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1951 |  rx_converter_source_payload_last_be[0] <= rx_converter_source_source_payload_data[8];
+      |                                         ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1954:41: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1954 |  rx_converter_source_payload_last_be[3] <= rx_converter_source_source_payload_data[38];
+      |                                         ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1957:41: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1957 |  rx_converter_source_payload_last_be[6] <= rx_converter_source_source_payload_data[68];
+      |                                         ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1960:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1960 |  dummy_d_24 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1968:36: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1968 |  rx_converter_source_payload_error <= 8'd0;
+      |                                    ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1969:39: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1969 |  rx_converter_source_payload_error[0] <= rx_converter_source_source_payload_data[9];
+      |                                       ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1972:39: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1972 |  rx_converter_source_payload_error[3] <= rx_converter_source_source_payload_data[39];
+      |                                       ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1975:39: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1975 |  rx_converter_source_payload_error[6] <= rx_converter_source_source_payload_data[69];
+      |                                       ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:1978:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 1978 |  dummy_d_25 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2033:40: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2033 |  rx_cdc_cdc_graycounter0_q_next_binary <= 6'd0;
+      |                                        ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2035:41: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2035 |   rx_cdc_cdc_graycounter0_q_next_binary <= (rx_cdc_cdc_graycounter0_q_binary + 1'd1);
+      |                                         ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2040:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2040 |  dummy_d_26 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2049:40: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2049 |  rx_cdc_cdc_graycounter1_q_next_binary <= 6'd0;
+      |                                        ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2051:41: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2051 |   rx_cdc_cdc_graycounter1_q_next_binary <= (rx_cdc_cdc_graycounter1_q_binary + 1'd1);
+      |                                         ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2056:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2056 |  dummy_d_27 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2123:33: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2123 |  packetfifo_source_source_first <= 1'd0;
+      |                                 ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2124:33: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2124 |  packetfifo_source_source_first <= packetfifo_param_fifo_source_first;
+      |                                 ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2125:33: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2125 |  packetfifo_source_source_first <= packetfifo_payload_fifo_source_first;
+      |                                 ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2127:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2127 |  dummy_d_28 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2159:37: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2159 |  packetfifo_payload_fifo_wrport_adr <= 9'd0;
+      |                                     ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2161:38: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2161 |   packetfifo_payload_fifo_wrport_adr <= (packetfifo_payload_fifo_produce - 1'd1);
+      |                                      ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2166:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2166 |  dummy_d_29 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2196:35: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2196 |  packetfifo_param_fifo_wrport_adr <= 4'd0;
+      |                                   ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2198:36: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2198 |   packetfifo_param_fifo_wrport_adr <= (packetfifo_param_fifo_produce - 1'd1);
+      |                                    ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2203:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2203 |  dummy_d_30 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2264:39: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2264 |  tx_dp_cdc_graycounter0_q_next_binary <= 5'd0;
+      |                                       ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2266:40: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2266 |   tx_dp_cdc_graycounter0_q_next_binary <= (tx_dp_cdc_graycounter0_q_binary + 1'd1);
+      |                                        ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2271:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2271 |  dummy_d_31 <= dummy_s;
+      |             ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2280:39: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2280 |  tx_dp_cdc_graycounter1_q_next_binary <= 5'd0;
+      |                                       ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2282:40: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2282 |   tx_dp_cdc_graycounter1_q_next_binary <= (tx_dp_cdc_graycounter1_q_binary + 1'd1);
+      |                                        ^~
+%Warning-COMBDLY: generated/mac_tx_chain_mii.v:2287:13: Non-blocking assignment '<=' in combinational logic process
+                                                      : ... This will be executed as a blocking assignment '='!
+ 2287 |  dummy_d_32 <= dummy_s;
+      |             ^~
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.186 MB sources in 2 modules, into 0.220 MB in 5 C++ files needing 0.000 MB
+- Verilator: Walltime 9.499 s (elab=0.013, cvt=0.052, bld=9.411); cpu 0.094 s on 16 threads; allocated 952.801 MB
+converted chain: 3994 wire cycles, 5 frames pushed
+mii: migen source (run_simulation, the objects it was converted from):
+  converted: 5 frame(s), 3794 samples in 3994 wire cycles
+  migen:     5 frame(s), 3794 samples in 6000 wire cycles
+  [ ok ] mii: the converted trace ends between frames
+  [ ok ] mii: the migen trace ends between frames
+  [ ok ] both runs put the same number of frames on the pads
+  [ ok ] the converted run drove the whole stimulus
+  [ ok ] frame 0: the same octets left the pads
+  [ ok ] frame 0: it is the stimulus frame, framed
+  [ ok ] frame 1: the same octets left the pads
+  [ ok ] frame 1: it is the stimulus frame, framed
+  [ ok ] frame 1: the same inter-frame gap
+  [ ok ] frame 2: the same octets left the pads
+  [ ok ] frame 2: it is the stimulus frame, framed
+  [ ok ] frame 2: the same inter-frame gap
+  [ ok ] frame 3: the same octets left the pads
+  [ ok ] frame 3: it is the stimulus frame, framed
+  [ ok ] frame 3: the same inter-frame gap
+  [ ok ] frame 4: the same octets left the pads
+  [ ok ] frame 4: it is the stimulus frame, framed
+  [ ok ] frame 4: the same inter-frame gap
+
+test_gptp_tx_timestamp: 36 checks: 36 PASS, 0 FAIL
+RESULT: PASS

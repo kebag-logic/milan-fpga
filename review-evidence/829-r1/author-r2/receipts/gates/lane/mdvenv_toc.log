@@ -1,0 +1,4 @@
+# head 2d534bec9348557a9407d3024c0b199c0ebc8bce gate mdvenv_toc: $VALIDATION_STORAGE/818-mdvenv/bin/python3 scripts/gen_toc.py --selftest && $VALIDATION_STORAGE/818-mdvenv/bin/python3 scripts/gen_toc.py --verify-anchors && $VALIDATION_STORAGE/818-mdvenv/bin/python3 scripts/gen_toc.py --check
+TOC selftest: PASS (1501/1501 arm(s))
+anchor check: 553 existing cross-page fragment links reproduced
+TOC gate: OK (151 page(s) carry an annotated contents list, 18 below the 3-section threshold)
