@@ -1,0 +1,18 @@
+A. Both networks 10 to 50 us before their time; 64 phases of the sample grid; 2,000 packets (0.25 s) each
+  48 kHz: sample period 20.833 us; phases with a shift 17/64; worst shifts in 0.25 s 766; worst samples left unwritten 383; anchors per run 2000; lost packets 0
+  96 kHz: sample period 10.417 us; phases with a shift 33/64; worst shifts in 0.25 s 766; worst samples left unwritten 383; anchors per run 2000; lost packets 0
+  192 kHz: sample period 5.208 us; phases with a shift 64/64; worst shifts in 0.25 s 766; worst samples left unwritten 383; anchors per run 2000; lost packets 0
+B. Controls at 48 and 192 kHz, same phases
+  margin 150 to 200 us on both, 48 kHz: phases with a shift 0/64; worst shifts 0; anchors 1
+  margin 150 to 200 us on both, 192 kHz: phases with a shift 0/64; worst shifts 0; anchors 1
+  primary 60 to 180 us latency, secondary 10 to 50 us margin, 48 kHz: phases with a shift 0/64; worst shifts 0; anchors 1
+  primary 60 to 180 us latency, secondary 10 to 50 us margin, 192 kHz: phases with a shift 0/64; worst shifts 0; anchors 1
+  primary margin 110 to 120 us, secondary margin 10 to 50 us: primary always first, 48 kHz: phases with a shift 0/64; worst shifts 0; anchors 2000
+  primary margin 110 to 120 us, secondary margin 10 to 50 us: primary always first, 192 kHz: phases with a shift 0/64; worst shifts 0; anchors 2000
+  one network only, margin 10 to 50 us, 48 kHz: phases with a shift 0/64; worst shifts 0; anchors 2000
+  one network only, margin 10 to 50 us, 192 kHz: phases with a shift 0/64; worst shifts 0; anchors 2000
+  both margin 10 to 50 us, head kept for count 1.5 intervals past the render point, 48 kHz: phases with a shift 0/64; worst shifts 0; anchors 1
+  both margin 10 to 50 us, head kept for count 1.5 intervals past the render point, 192 kHz: phases with a shift 0/64; worst shifts 0; anchors 1
+C. The round-4 model, clean copies only, unchanged, same setup at 48 kHz
+  both 10 to 50 us, 1 us past a boundary: align=-1 bad=19553 missing=541 rewrites=540
+  both 150 to 200 us, 1 us past a boundary: align=-1 bad=0 missing=0 rewrites=0

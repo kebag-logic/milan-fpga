@@ -1,0 +1,43 @@
+A. Both networks, margin bands around 125 us, jitter as the published probe
+  margin 10 to 50 us, 48 kHz: anchors 2000..2000 of 2000; phases with a shift 17/64; step offsets in samples {-1: 3520, 1: 3518}; partner copies at most 1 samples apart
+  margin 10 to 50 us, 96 kHz: anchors 2000..2000 of 2000; phases with a shift 33/64; step offsets in samples {-1: 7120, 1: 7119}; partner copies at most 1 samples apart
+  margin 10 to 50 us, 192 kHz: anchors 2000..2000 of 2000; phases with a shift 64/64; step offsets in samples {-2: 1, -1: 14143, 1: 14142}; partner copies at most 1 samples apart
+  margin 100 to 120 us, 48 kHz: anchors 1999..2000 of 2000; phases with a shift 17/64; step offsets in samples {-1: 3546, 1: 3544}; partner copies at most 1 samples apart
+  margin 100 to 120 us, 96 kHz: anchors 1999..2000 of 2000; phases with a shift 33/64; step offsets in samples {-1: 7133, 1: 7132}; partner copies at most 1 samples apart
+  margin 100 to 120 us, 192 kHz: anchors 1999..2000 of 2000; phases with a shift 64/64; step offsets in samples {-2: 1, -1: 14109, 1: 14108}; partner copies at most 1 samples apart
+  margin 120 to 122 us, 48 kHz: anchors 1996..2000 of 2000; phases with a shift 13/64; step offsets in samples {-1: 3127, 1: 3125}; partner copies at most 1 samples apart
+  margin 120 to 122 us, 96 kHz: anchors 1996..2000 of 2000; phases with a shift 26/64; step offsets in samples {-1: 6063, 1: 6060}; partner copies at most 1 samples apart
+  margin 120 to 122 us, 192 kHz: anchors 1996..2000 of 2000; phases with a shift 55/64; step offsets in samples {-1: 11985, 1: 11979}; partner copies at most 1 samples apart
+  margin 122.3 to 124.9 us, 48 kHz: anchors 1595..1660 of 2000; phases with a shift 16/64; step offsets in samples {-1: 1697, 1: 1696}; partner copies at most 1 samples apart
+  margin 122.3 to 124.9 us, 96 kHz: anchors 1595..1660 of 2000; phases with a shift 30/64; step offsets in samples {-1: 3336, 1: 3335}; partner copies at most 1 samples apart
+  margin 122.3 to 124.9 us, 192 kHz: anchors 1595..1660 of 2000; phases with a shift 61/64; step offsets in samples {-1: 6648, 1: 6646}; partner copies at most 1 samples apart
+  margin 125.1 to 127.6 us, 48 kHz: anchors 260..335 of 2000; phases with a shift 12/64; step offsets in samples {-1: 180, 1: 181}; partner copies at most 1 samples apart
+  margin 125.1 to 127.6 us, 96 kHz: anchors 260..335 of 2000; phases with a shift 25/64; step offsets in samples {-1: 358, 1: 361}; partner copies at most 1 samples apart
+  margin 125.1 to 127.6 us, 192 kHz: anchors 260..335 of 2000; phases with a shift 51/64; step offsets in samples {-1: 735, 1: 737}; partner copies at most 1 samples apart
+  margin 127.8 to 130 us, 48 kHz: anchors 1..1 of 2000; phases with a shift 0/64; step offsets in samples {}; partner copies at most 1 samples apart
+  margin 127.8 to 130 us, 96 kHz: anchors 1..1 of 2000; phases with a shift 0/64; step offsets in samples {}; partner copies at most 1 samples apart
+  margin 127.8 to 130 us, 192 kHz: anchors 1..1 of 2000; phases with a shift 0/64; step offsets in samples {}; partner copies at most 1 samples apart
+  margin 150 to 200 us, 48 kHz: anchors 1..1 of 2000; phases with a shift 0/64; step offsets in samples {}; partner copies at most 1 samples apart
+  margin 150 to 200 us, 96 kHz: anchors 1..1 of 2000; phases with a shift 0/64; step offsets in samples {}; partner copies at most 1 samples apart
+  margin 150 to 200 us, 192 kHz: anchors 1..1 of 2000; phases with a shift 0/64; step offsets in samples {}; partner copies at most 1 samples apart
+B. Short margin on one network only, the other at 150 to 200 us
+  primary 150 to 200, secondary 10 to 50, 48 kHz: anchors 1..1 of 2000; phases with a shift 0/64; step offsets in samples {}; partner copies at most 1 samples apart
+  primary 150 to 200, secondary 10 to 50, 96 kHz: anchors 1..1 of 2000; phases with a shift 0/64; step offsets in samples {}; partner copies at most 1 samples apart
+  primary 150 to 200, secondary 10 to 50, 192 kHz: anchors 1..1 of 2000; phases with a shift 0/64; step offsets in samples {}; partner copies at most 1 samples apart
+  primary 10 to 50, secondary 150 to 200, 48 kHz: anchors 1..1 of 2000; phases with a shift 0/64; step offsets in samples {}; partner copies at most 1 samples apart
+  primary 10 to 50, secondary 150 to 200, 96 kHz: anchors 1..1 of 2000; phases with a shift 0/64; step offsets in samples {}; partner copies at most 1 samples apart
+  primary 10 to 50, secondary 150 to 200, 192 kHz: anchors 1..1 of 2000; phases with a shift 0/64; step offsets in samples {}; partner copies at most 1 samples apart
+C. Both 10 to 50 us, secondary error slow (sine, 2.744 us peak over 0.5 s)
+  slow error, 48 kHz: anchors 2000..2000 of 2000; phases with a shift 8/64; step offsets in samples {-1: 2442, 1: 2442}; partner copies at most 1 samples apart
+  slow error, 96 kHz: anchors 2000..2000 of 2000; phases with a shift 16/64; step offsets in samples {-1: 5027, 1: 5027}; partner copies at most 1 samples apart
+  slow error, 192 kHz: anchors 2000..2000 of 2000; phases with a shift 33/64; step offsets in samples {-1: 10262, 1: 10262}; partner copies at most 1 samples apart
+D. Rule table: counted placements whose k disagrees with the packet; duplicates; packets written twice
+  both 10 to 50, restart map with only bit 0: wrong k 0; duplicates worst 2000; packets written twice worst 0
+  both 10 to 50, clear the map entirely: wrong k 0; duplicates worst 0; packets written twice worst 2000
+  both 150 to 200, restart map with only bit 0: wrong k 0; duplicates worst 2000; packets written twice worst 0
+  both 150 to 200, clear the map entirely: wrong k 0; duplicates worst 1999; packets written twice worst 1
+E. Margins small enough that a partner can arrive after the head's time passed
+  both 0.1 to 2.0 us: duplicates fewest 718 of 2000; packets written twice worst 1282
+  both 2.0 to 5.0 us: duplicates fewest 1914 of 2000; packets written twice worst 86
+  both 5.0 to 10.0 us: duplicates fewest 2000 of 2000; packets written twice worst 0
+  both 10.0 to 50.0 us: duplicates fewest 2000 of 2000; packets written twice worst 0
