@@ -740,5 +740,3 @@ def csr_parameters(root: Path, soc: dict) -> tuple[dict[str, int], list[tuple[st
         overrides[p.group(1)] = value
         table.append((p.group(1), expr, value))
     return overrides, table
-
-
