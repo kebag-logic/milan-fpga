@@ -1,0 +1,64 @@
+41349428928	124976195592	Fail fast across this head	completed	cancelled	2026-11-01T20:56:56Z	2026-11-01T20:59:46Z		Observe the first failed job
+41349428928	124976195659	elaborate-gates-0	completed	cancelled	2026-11-01T20:56:56Z	2026-11-01T20:59:22Z		Elaboration gates, leg 0 of 2
+41349428928	124976195796	elaborate-gates-1	completed	cancelled	2026-11-01T20:56:56Z	2026-11-01T20:59:21Z		Elaboration gates, leg 1 of 2
+41349428928	124976812539	elaborate	completed	failure	2026-11-01T20:59:24Z	2026-11-01T21:00:11Z	Require every gate exactly once	
+41349428928	124977012153	Collect CI manifest	completed	success	2026-11-01T21:00:13Z	2026-11-01T21:00:46Z		
+41349428928	124977172651	Cancel late CI failures	completed	success	2026-11-01T21:00:48Z	2026-11-01T21:00:58Z		
+41349428937	124976195487	changes	completed	success	2026-11-01T20:56:56Z	2026-11-01T20:57:32Z		
+41349428937	124976195765	bdd-conformance	completed	success	2026-11-01T20:56:56Z	2026-11-01T20:57:13Z		
+41349428937	124976195790	Fail fast across this head	completed	cancelled	2026-11-01T20:56:56Z	2026-11-01T20:59:10Z	Observe the first failed job	
+41349428937	124976356986	verilator-lint	completed	failure	2026-11-01T20:57:34Z	2026-11-01T20:58:12Z	Prove protocol-processor source lists are derived	
+41349428937	124976357005	publication-census	completed	cancelled	2026-11-01T20:57:34Z	2026-11-01T21:00:22Z		Run the publication census in every shape the builder builds
+41349428937	124976357047	firmware-unit	completed	cancelled	2026-11-01T20:57:34Z	2026-11-01T20:59:22Z		Run the control-plane firmware suites and RV32 builds
+41349428937	124976357052	firmware-srp-mutants	completed	cancelled	2026-11-01T20:57:34Z	2026-11-01T20:59:22Z		Run both SRP mutation campaigns and pin controls
+41349428937	124976357061	firmware-boundary	completed	cancelled	2026-11-01T20:57:35Z	2026-11-01T21:00:23Z		Hold the TSN stack boundary over the firmware builders' compiles
+41349428937	124976357070	Prepare pinned Yosys	completed	success	2026-11-01T20:57:34Z	2026-11-01T20:57:41Z		
+41349428937	124976357094	firmware-control-mutants	completed	cancelled	2026-11-01T20:57:55Z	2026-11-01T20:59:23Z		Run the control mutation campaign
+41349428937	124976357112	firmware-verilator	completed	cancelled	2026-11-01T20:57:43Z	2026-11-01T21:00:31Z		Hold the TSN stack boundary over the Verilator builders' compiles
+41349428937	124976357535	firmware-aecp-mutants	completed	cancelled	2026-11-01T20:58:14Z	2026-11-01T20:59:22Z		Run the AECP mutation campaign
+41349428937	124976395099	yosys-elaboration	completed	cancelled	2026-11-01T20:57:42Z	2026-11-01T20:59:05Z		
+41349428937	124977105555	Collect CI manifest	in_progress		2026-11-01T21:00:33Z			
+41349428937	124977106964	rtl-fast	completed	cancelled	2026-11-01T21:00:32Z	2026-11-01T21:00:31Z		
+41349428987	124976195829	full-ci-gate	completed	success	2026-11-01T20:56:56Z	2026-11-01T20:57:53Z		
+41349428987	124976196098	Fail fast across this head	completed	cancelled	2026-11-01T20:56:56Z	2026-11-01T20:59:20Z		Observe the first failed job
+41349428987	124976444636	Prepare pinned Yosys	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444846	Verilator shard 17/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444858	Verilator shard 7/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444862	Verilator shard 15/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444872	Verilator shard 11/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444905	Verilator shard 2/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444913	Verilator shard 12/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444915	Verilator shard 6/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444916	Verilator shard 10/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444919	Verilator shard 9/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444920	Verilator shard 8/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444921	Verilator shard 4/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444927	Verilator shard 3/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444930	Verilator shard 14/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444932	Verilator shard 18/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444937	Verilator shard 13/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444941	Verilator shard 16/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444942	Verilator shard 1/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444945	Verilator shard 0/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976444962	Verilator shard 5/19	completed	cancelled	2026-11-01T20:57:53Z	2026-11-01T20:59:04Z		
+41349428987	124976445770	Physical gPTP (nightly and manual)	completed	skipped	2026-11-01T20:57:53Z	2026-11-01T20:57:53Z		
+41349428987	124976740516	Union maap	completed	failure	2026-11-01T20:59:12Z	2026-11-01T20:59:24Z	Require successful owners and every case exactly once	
+41349428987	124976740540	Union pp_shadow	completed	failure	2026-11-01T20:59:22Z	2026-11-01T20:59:34Z	Require successful owners and every case exactly once	
+41349428987	124976740556	Union capture_coherence	completed	failure	2026-11-01T20:59:22Z	2026-11-01T20:59:33Z	Require successful owners and every case exactly once	
+41349428987	124976740603	Union milan_dp_render	completed	failure	2026-11-01T20:59:23Z	2026-11-01T20:59:39Z	Require successful owners and every case exactly once	
+41349428987	124976740619	Union milan_dp_mclk	completed	failure	2026-11-01T20:59:22Z	2026-11-01T20:59:33Z	Require successful owners and every case exactly once	
+41349428987	124976740647	Union milan_dp	completed	failure	2026-11-01T20:59:23Z	2026-11-01T20:59:35Z	Require successful owners and every case exactly once	
+41349428987	124976741048	Yosys shard ${{ matrix.shard }}/${{ matrix.total }}	completed	cancelled	2026-11-01T20:59:04Z	2026-11-01T20:59:04Z		
+41349428987	124976883431	verilator-suites	completed	failure	2026-11-01T20:59:42Z	2026-11-01T20:59:59Z	Require every shard to have validated this run's SHA;Prove exhaustive ownership and tally every log;Require every Verilator worker to pass;Require every case union to succeed	
+41349428987	124976960821	yosys-portability	completed	failure	2026-11-01T21:00:01Z	2026-11-01T21:00:13Z	Require every shard to have validated this run's SHA;Reconcile the live inventory and structural gates;Require every Yosys worker to pass	
+41349428987	124977025005	Collect CI manifest	completed	failure	2026-11-01T21:00:16Z	2026-11-01T21:00:57Z	Collect actual runtime evidence;Upload canonical CI manifest	
+41349428987	124977224672	Cancel late CI failures	in_progress		2026-11-01T21:01:00Z			
+41349429098	124976195843	Fail fast across this head	completed	cancelled	2026-11-01T20:56:56Z	2026-11-01T20:59:20Z		Observe the first failed job
+41349429098	124976195957	docs-check-no-git	completed	success	2026-11-01T20:56:56Z	2026-11-01T20:57:15Z		
+41349429098	124976196117	docs-gates-0	completed	cancelled	2026-11-01T20:56:56Z	2026-11-01T20:59:22Z		Compiler-absent firmware controls
+41349429098	124976196169	docs-gates-2	completed	cancelled	2026-11-01T20:56:56Z	2026-11-01T20:59:25Z		End-station builder gates, leg 1 of 2
+41349429098	124976196220	docs-gates-1	completed	cancelled	2026-11-01T20:56:56Z	2026-11-01T20:59:44Z		End-station builder gates, leg 0 of 2
+41349429098	124976196230	wire-accountability	completed	success	2026-11-01T20:56:56Z	2026-11-01T20:57:05Z		
+41349429098	124976902924	docs-check	completed	failure	2026-11-01T20:59:46Z	2026-11-01T21:00:15Z	Require every gate exactly once	
+41349429098	124977034023	Collect CI manifest	completed	success	2026-11-01T21:00:17Z	2026-11-01T21:00:47Z		
+41349429098	124977177749	Cancel late CI failures	completed	success	2026-11-01T21:00:50Z	2026-11-01T21:00:58Z		

@@ -1,0 +1,6 @@
+rc=0	scripts/gen_toc.py --selftest	TOC selftest: PASS (1501/1501 arm(s))
+rc=0	scripts/gen_toc.py --verify-anchors	anchor check: 552 existing cross-page fragment links reproduced
+rc=0	scripts/gen_toc.py --check	TOC gate: OK (150 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+rc=0	scripts/check_em_dash.py --base 1f29f189279f9fc0132f4918e47342b87d22f33a	check_em_dash: 0 finding(s) over 544 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [1f29f189..HEAD]
+rc=0	scripts/docs_check.py	docs_check: 0 finding(s) across 212 md files + 1437 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0	scripts/check_doc_paths.py	doc path gate: OK (1638 cited paths all resolve, 1 allowlisted; 10 line anchor(s) within their file)

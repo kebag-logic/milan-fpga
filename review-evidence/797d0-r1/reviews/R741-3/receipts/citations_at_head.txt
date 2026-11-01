@@ -1,0 +1,324 @@
+D0-001 source sw/litex/milan_soc.py:2854-2856
+    2854: # --ctrl-mailbox, whose default is off: the default build carries no mailbox
+    2855: # source, instance, bus region, CSR bank or interrupt, so every shipped
+    2856: # config's top .v and source list are byte-identical to a build without this
+D0-001 correction sw/litex/milan_soc.py:2854-2856
+    2854: # --ctrl-mailbox, whose default is off: the default build carries no mailbox
+    2855: # source, instance, bus region, CSR bank or interrupt, so every shipped
+    2856: # config's top .v and source list are byte-identical to a build without this
+D0-002 source hdl/milan/milan_datapath.sv:734-750
+    734:   //! THE MEDIA CLOCK SOURCE - LIVE, AND RESOLVED EXACTLY ONCE (#74, #629).
+    735:   //! The protocol processor accepts and stores IEEE 1722.1 SET_CLOCK_SOURCE
+    736:   //! and KL_pp_shadow exports the stored selection into this root as
+    737:   //! pp_aecp_clk_src_index_w. The decode against THIS SHAPE'S CLOCK_SOURCE
+D0-011 source sw/litex/boot_policy.py:58
+    58:         "MILAN_MAC_CTRL_SET": 1 << 3,
+D0-011 source sw/firmware/milan_baremetal/milan_baremetal.c:1827
+    1827: 	milan_write(MILAN_MAC_CTRL, milan_read(MILAN_MAC_CTRL) | MILAN_MAC_CTRL_SET);
+D0-012 source sw/firmware/milan_baremetal/milan_baremetal.c:1833
+    1833: 	milan_write(MILAN_LWSRP_CTRL, MILAN_LWSRP_CTRL_RESET | 3u);
+D0-013 source sw/litex/boot_policy.py:56
+    56:         "MILAN_MAAP_CTRL_BOOT": (len(overlay["stream_outputs"]) << 8) | 1,
+D0-014 source hdl/common/csr/milan_csr.sv:885-897
+    885:   localparam [ADDR_WIDTH-1:0] A_AEMP_CTRL  = 'h7D4;  //! W1S: [0] commit, [1] abort; R live: engine status/verdict
+    886:   //! ETHERNET GUARD (USER 2026-08-06: "a kill switch that should let the
+    887:   //! ethernet up on running until the software un-guards it"). Reset =
+    888:   //! GUARDED: while [0]=1 the CPU's eth-disruption levers are refused -
+D0-015 source hdl/common/csr/milan_csr.sv:2692
+    2692:   assign o_phy_reset_n  = phy_rst[0];
+D0-016 source hdl/common/csr/milan_csr.sv:1726-1730
+    1726:           //! guarded: [1] (mac_reinit) is masked; [0] (sw_link mirror) stays
+    1727:           //! writable - it is telemetry into counters/ADP, not a reset lever
+    1728:           A_LINK_CTRL:  link_ctrl  <= eth_guard
+    1729:                             ? {s_axi_wdata[31:2], 1'b0, s_axi_wdata[0]}
+D0-017 source sw/litex/milan_soc.py:1958-1972
+    1958:         self.link_status = CSRStorage(fields=[
+    1959:             CSRField("link_up", size=1, offset=0, reset=1,
+    1960:                      description="PHY link is up (MAC_STATUS[0]). Software-published "
+    1961:                                  "from the MDIO autoneg result; reset 1 = the "
+D0-017 source sw/litex/milan_soc.py:2184-2185
+    2184:             i_i_mac_speed = self.link_status.fields.speed,
+    2185:             i_i_link_up = link_up_cd, i_i_full_duplex = full_duplex_cd,
+D0-017 correction sw/firmware/milan_baremetal/milan_baremetal.c:1671
+    1671: 	phy_live = 1;
+D0-018 source hdl/common/csr/milan_csr.sv:897
+    897:   localparam [ADDR_WIDTH-1:0] A_ETH_GUARD  = 'h7D8;  //! [0] guarded (RW via magic)
+D0-019 source docs/reference/EGRESS_QUEUE_MAP.md:3-8
+    3: The classifier, queue bank, and 802.1Qav credit logic remain implemented and
+    4: independently verified, but the bare-metal product boundary supplies no packet
+    5: source to them, and since VERSION `0x0056` `milan_datapath` **does not
+    6: instantiate them at all**: the retired transmit path that was their only source left
+D0-019 source hdl/common/csr/milan_csr.sv:1996-2000
+    1996:       //! CAP[8] CBS = 0: no shaper is elaborated (REQ-CSR-05 - unsupported
+    1997:       //! is explicit). [3:0] num_queues stays the 0x400 window's geometry.
+    1998:       A_CAP[10:0]:        csr_default = { 8'h00, 8'd64,
+    1999:                                           1'b0, 1'b1, 1'b1, 1'b1,
+D0-021 source docs/reference/EGRESS_QUEUE_MAP.md:3-8
+    3: The classifier, queue bank, and 802.1Qav credit logic remain implemented and
+    4: independently verified, but the bare-metal product boundary supplies no packet
+    5: source to them, and since VERSION `0x0056` `milan_datapath` **does not
+    6: instantiate them at all**: the retired transmit path that was their only source left
+D0-024 source sw/firmware/milan_baremetal/milan_baremetal.c:329-331
+    329: #define NVM_SLOT_BYTES (MILAN_FLASH_JOURNAL_SIZE / 2u)
+    330: #define NVM_SLOT_A     MILAN_FLASH_JOURNAL_OFFSET
+    331: #define NVM_SLOT_B     (MILAN_FLASH_JOURNAL_OFFSET + NVM_SLOT_BYTES)
+D0-024 source sw/litex/milan_soc.py:173
+    173:     "journal": {"offset": 0xEE_0000, "size": 0x02_0000},   # 128 KiB, raw A/B
+D0-025 source hdl/milan/KL_pp_shadow.sv:1128
+    1128:   KL_nvm_backend #(
+D0-025 source docs/design/SAVED_STATE_MATERIALIZATION.md:163
+    163: The binding survives a cold power cycle on silicon since 2026-09-21
+D0-025 correction docs/design/SAVED_STATE_MATERIALIZATION.md:15-16
+    15: > The parent's lane 3 (section 18.3) has not adopted them: name pending is not
+    16: > transferred, and no parent test grades a name across a power cycle.
+D0-025 correction docs/design/SAVED_STATE_MATERIALIZATION.md:23
+    23: > `KL_pp_shadow.sv` adds beside the processor's port. The record format is
+D0-026 source scripts/run_litex_sims.sh:99-108
+    99: INVENTORY=(
+    100:   test_cpu_memory_port_cdc
+    101:   test_ctrl_memory
+    102:   test_gmii_rx_capture
+D0-027 source sw/firmware/gtest/README.md:3-13
+    3: 
+    4: The bare-metal control-plane firmware ([`ctrl`](../ctrl/README.md)) and its
+    5: saved-state store ([`ctrl_nvm`](../ctrl_nvm/README.md)) are tested on the host
+    6: with GoogleTest and GoogleMock. The firmware stays C11 with no heap; the tests
+D0-027 correction sw/firmware/gtest/README.md:3-13
+    3: 
+    4: The bare-metal control-plane firmware ([`ctrl`](../ctrl/README.md)) and its
+    5: saved-state store ([`ctrl_nvm`](../ctrl_nvm/README.md)) are tested on the host
+    6: with GoogleTest and GoogleMock. The firmware stays C11 with no heap; the tests
+D0-028 source hdl/common/ethernet_packet_pkg.sv:220-221
+    220:   GPTP_CLASS     = 3'd2, //!< q2: gPTP (Generalized Precision Time Protocol)
+    221:   SRB_CLASS      = 3'd3, //!< q3: Stream Reservation Class B (CBS shaped)
+D0-028 source hdl/common/csr/milan_csr.sv:2008
+    2008:       A_CLS_TCQ[10:0]:    csr_default = 32'h004898C0;
+D0-029 source hdl/milan/milan_datapath.sv:684-694
+    684:   //! NO GENERAL-DATA TX CHAIN. The 802.1Q classifier / per-queue FIFOs /
+    685:   //! 802.1Qav CBS shaper (traffic_controller_802_1q) and the ptp_ts_top TX/RX
+    686:   //! record stampers left this wrapper with the retired target (#259): removing
+    687:   //! the retired transmit path left the shaper's ONLY input structurally idle, and
+D0-029 source hdl/ieee1722/aaf/KL_aaf_packetizer.sv:514
+    514:     fb[12]=8'h81; fb[13]=8'h00;
+D0-029 source hdl/ieee1722/crf/KL_crf_tx.sv:514
+    514:       fb[12]=8'h81; fb[13]=8'h00;
+D0-029 source hdl/ieee1722/avtp/avtp_stream_parser.sv:159
+    159:   wire        vlan     = (hbyte(12) == ETH_TYPE_VLAN[15:8]) &&
+D0-030 source hdl/milan/milan_datapath.sv:684-694
+    684:   //! NO GENERAL-DATA TX CHAIN. The 802.1Q classifier / per-queue FIFOs /
+    685:   //! 802.1Qav CBS shaper (traffic_controller_802_1q) and the ptp_ts_top TX/RX
+    686:   //! record stampers left this wrapper with the retired target (#259): removing
+    687:   //! the retired transmit path left the shaper's ONLY input structurally idle, and
+D0-031 source docs/reference/EGRESS_QUEUE_MAP.md:3-8
+    3: The classifier, queue bank, and 802.1Qav credit logic remain implemented and
+    4: independently verified, but the bare-metal product boundary supplies no packet
+    5: source to them, and since VERSION `0x0056` `milan_datapath` **does not
+    6: instantiate them at all**: the retired transmit path that was their only source left
+D0-032 source hdl/milan/milan_datapath.sv:8583-8589
+    8583:   //! NO SHAPER READS THE SLOPE OR THE VERDICT HERE. The 802.1Qav chain is
+    8584:   //! not in this wrapper (NO GENERAL-DATA TX CHAIN at the top of the file,
+    8585:   //! HONEST BOUND at the CRF merge): no AAF or CRF frame is credit-shaped.
+    8586:   //! The grant OR and slope sum reach one diagnostic word each:
+D0-033 source sw/litex/milan_soc.py:2854-2856
+    2854: # --ctrl-mailbox, whose default is off: the default build carries no mailbox
+    2855: # source, instance, bus region, CSR bank or interrupt, so every shipped
+    2856: # config's top .v and source list are byte-identical to a build without this
+D0-034 source sw/litex/milan_soc.py:1553-1583
+    1553: 
+    1554: 
+    1555: def _axis_dp_cdc(host, name, layout, milan_cd, to_datapath, rename=None):
+    1556:     """Cross one AXIS lane between the sys domain (memory bridge / MAC core) and the
+D0-034 source sw/litex/milan_soc.py:1871-1873
+    1871:         tx_dp = _axis_dp_cdc(self, "mac_tx_cdc", L, milan_cd, to_datapath=False,
+    1872:                              rename=mac_cdc_rename)  # dp -> MAC
+    1873:         rx_dp = _axis_dp_cdc(self, "mac_rx_cdc", L, milan_cd, to_datapath=True,
+D0-034 source configs/endstation_ax7101_1x1_tdm8.yaml:43-44
+    43:     sys_clk_hz: 100000000
+    44:     milan_clk_hz: 50000000   # 64-bit plane still carries 3.2 Gb/s; the
+D0-035 source sw/firmware/milan_baremetal/milan_baremetal.c:1860-1892
+    1860: static int load_aem_image(void)
+    1861: {
+    1862: #if defined(SPIFLASH_BASE) && defined(MILAN_AEM_FLASH_OFFSET)
+    1863: 	const volatile uint8_t *src =
+D0-035 correction sw/firmware/milan_baremetal/milan_baremetal.c:1860-1892
+    1860: static int load_aem_image(void)
+    1861: {
+    1862: #if defined(SPIFLASH_BASE) && defined(MILAN_AEM_FLASH_OFFSET)
+    1863: 	const volatile uint8_t *src =
+D0-036 source sw/litex/milan_soc.py:3287-3302
+    3287:             flash_module = (S25FL128S(SpiCodes.READ_1_1_1) if board == "arty"
+    3288:                             else N25Q128A13(SpiCodes.READ_1_1_1_FAST))
+    3289:             # Quad read (0x6B, 3-byte addr → whole 16 MB); mode="4x" drives all four DQ so
+    3290:             # WP#/HOLD# are never floating. Micron 0x6B needs no quad-enable bit.
+D0-037 source sw/litex/build.sh:382-399
+    382: cfg_ax8x8() {    # 8-stream (64ch) bare-metal shape (endstation_ax7101_8x8): flow flags
+    383:     # The deployed 0x00010022 gateware came from the x32f1_eto sweep; this
+    384:     # recipe has never produced a bitstream. Its design facts are the
+    385:     # config's: RV32 single hart (#157), the cacheless bare-metal product
+D0-037 source sw/litex/milan_soc.py:3282-3288
+    3282:             # Arty A7-100: S25FL128S (16 MB, same geometry class as the N25Q128).
+    3283:             # Both boards use the same timing-robust single-lane recipe.
+    3284:             # The litespi S25FL128S table only
+    3285:             # lists plain READ_1_1_1 (0x03) on one lane - valid to 50 MHz on
+D0-038 source sw/litex/milan_soc.py:3270-3274
+    3270:             add_staged_sdram(self, "sdram",
+    3271:                 phy    = self.ddrphy,
+    3272:                 module = dram_module(sys_clk_freq, "1:4"),
+    3273:                 # The product profile is cacheless end to end.
+D0-039 source sw/litex/milan_soc.py:3963-3966
+    3963:     ap.add_argument("--software-profile", default="baremetal",
+    3964:                     choices=("baremetal",),
+    3965:                     help="firmware shape; the product uses the cacheless RV32I "
+    3966:                          "M-mode Vexii core and Milan UART/CSR firmware")
+D0-040 source docs/design/SAVED_STATE_MATERIALIZATION.md:163
+    163: The binding survives a cold power cycle on silicon since 2026-09-21
+D0-040 source hdl/milan/KL_pp_shadow.sv:1128
+    1128:   KL_nvm_backend #(
+D0-040 source sw/firmware/milan_baremetal/milan_baremetal.c:1405
+    1405: static int nvm_commit(const char *why)
+D0-040 source sw/firmware/milan_baremetal/milan_baremetal.c:1656
+    1656: static void nvm_boot(void)
+D0-040 source hdl/milan/milan_datapath.sv:6709
+    6709:   assign jnl_stat_w = 32'd0;
+D0-041 source scripts/check_baremetal_only.py:1625
+    1625:             ("sw/init.d/S50milan", "target-service"),
+D0-041 source tb/verilator/milan_dp/sim_main.cpp:464
+    464:             axi_write(A_ADP_TALK, 0x48010008);   // the retired S50milan poke
+D0-041 source sw/firmware/milan_baremetal/milan_baremetal.c:1818-1821
+    1818: 	milan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) & ~1u);
+    1819: 	milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) & ~1u);
+    1820: 	milan_write(MILAN_ADP_EID_LO, MILAN_ENTITY_ID_LO);
+    1821: 	milan_write(MILAN_ADP_EID_HI, MILAN_ENTITY_ID_HI);
+D0-042 source docs/reference/EGRESS_QUEUE_MAP.md:3-12
+    3: The classifier, queue bank, and 802.1Qav credit logic remain implemented and
+    4: independently verified, but the bare-metal product boundary supplies no packet
+    5: source to them, and since VERSION `0x0056` `milan_datapath` **does not
+    6: instantiate them at all**: the retired transmit path that was their only source left
+D0-042 source hdl/milan/milan_datapath.sv:684-694
+    684:   //! NO GENERAL-DATA TX CHAIN. The 802.1Q classifier / per-queue FIFOs /
+    685:   //! 802.1Qav CBS shaper (traffic_controller_802_1q) and the ptp_ts_top TX/RX
+    686:   //! record stampers left this wrapper with the retired target (#259): removing
+    687:   //! the retired transmit path left the shaper's ONLY input structurally idle, and
+D0-042 source hdl/common/csr/milan_csr.sv:1996-2000
+    1996:       //! CAP[8] CBS = 0: no shaper is elaborated (REQ-CSR-05 - unsupported
+    1997:       //! is explicit). [3:0] num_queues stays the 0x400 window's geometry.
+    1998:       A_CAP[10:0]:        csr_default = { 8'h00, 8'd64,
+    1999:                                           1'b0, 1'b1, 1'b1, 1'b1,
+D0-043 source docs/design/SAVED_STATE_MATERIALIZATION.md:19-23
+    19: > processor's roll-back resets its two stores only (section 15 item 2, amended).
+    20: > #637 implements stage 3 in the parent (section 18.4): `milan_datapath.sv`
+    21: > writes records `0x60` and `0x70` from its own phase-5 change and restores
+    22: > them after the D3 walk's COMPLETE terminal, through a device-face arbiter
+D0-043 source docs/design/SAVED_STATE_MATERIALIZATION.md:203
+    203: | `0x60` to `0x7F` | channel maps in and out (written and restored by the parent since #637, section 18.4) | the PARENT: `hdl/milan/milan_datapath.sv`
+D0-045 source hdl/milan/milan_datapath.sv:684-687
+    684:   //! NO GENERAL-DATA TX CHAIN. The 802.1Q classifier / per-queue FIFOs /
+    685:   //! 802.1Qav CBS shaper (traffic_controller_802_1q) and the ptp_ts_top TX/RX
+    686:   //! record stampers left this wrapper with the retired target (#259): removing
+    687:   //! the retired transmit path left the shaper's ONLY input structurally idle, and
+D0-045 source hdl/milan/milan_datapath.sv:8843-8849
+    8843:   //! 2^17). The egress stamper observes the TRUE MAC boundary; ingress
+    8844:   //! rides the same rx_axis_fabric tap every plane uses (input only,
+    8845:   //! tvalid && tready qualified). The publication bank directly owns the GM,
+    8846:   //! parent, pdelay, tu/asCapable, CSR, and protocol-answer faces. The direct
+D0-048 source docs/design/TRACE_LOGGING.md:246-250
+    246: This repository supplies the ABI, generated producer, freestanding ring,
+    247: segment-copy contract, workstation bundle tools, reader, and executable tests.
+    248: The physical acquisition link and its scheduling are board-integration choices;
+    249: they must preserve packet boundaries and satisfy the three-call ownership
+D0-048 correction sw/trace/gen_trace_events.py:117
+    117:         "Every event type the bare-metal end-station can write into its DRAM",
+D0-049 source hdl/milan/milan_datapath.sv:6709-6710
+    6709:   assign jnl_stat_w = 32'd0;
+    6710:   assign jnl_seq_w = 32'd0;
+D0-049 source sw/firmware/milan_baremetal/milan_baremetal.c:463-465
+    463: static unsigned int nvm_verdict_a;
+    464: static unsigned int nvm_verdict_b;
+    465: static unsigned int nvm_last_verdict;
+D0-049 source sw/firmware/milan_baremetal/milan_baremetal.c:1656-1694
+    1656: static void nvm_boot(void)
+    1657: {
+    1658: 	struct nvm_read rd_a;
+    1659: 	struct nvm_read rd_b;
+D0-056 source sw/litex/milan_soc.py:2854-2856
+    2854: # --ctrl-mailbox, whose default is off: the default build carries no mailbox
+    2855: # source, instance, bus region, CSR bank or interrupt, so every shipped
+    2856: # config's top .v and source list are byte-identical to a build without this
+D0-057 source docs/reference/REGISTER_MAP.md:351-356
+    351: **0x0053: the stream setters land and the fabric consumes them.**
+    352: SET_STREAM_FORMAT (both directions, the per-row format verdict with mapping
+    353: survival) and SET_STREAM_INFO (the Milan 5.4.2.9 sub-command at the 2021
+    354: shape) are served; the stored offset feeds the framers' transit entries and
+D0-058 source hdl/milan/KL_pp_shadow.sv:1128
+    1128:   KL_nvm_backend #(
+D0-058 source docs/design/SAVED_STATE_MATERIALIZATION.md:163
+    163: The binding survives a cold power cycle on silicon since 2026-09-21
+D0-059 source hdl/milan/milan_datapath.sv:6709-6710
+    6709:   assign jnl_stat_w = 32'd0;
+    6710:   assign jnl_seq_w = 32'd0;
+D0-060 source sw/litex/build.sh:378
+    378: cfg_ax7101() {   # shipping bare-metal shape (endstation_ax7101_1x1_tdm8): flow flags
+D0-061 source sw/firmware/milan_baremetal/milan_baremetal.c:1828
+    1828: 	milan_write(MILAN_TCAM_CTRL, MILAN_TCAM_CTRL_BOOT);
+D0-061 source sw/litex/boot_policy.py:59
+    59:         "MILAN_TCAM_CTRL_BOOT": 1,
+D0-062 source docs/reference/SUBMODULES.md:511-517
+    511: The re-pin route carries the #814 cuts.
+    512: 
+    513: Its best directive has WNS +0.365 ns.
+    514: 
+D0-062 source docs/design/AREA_BUDGET.md:149-150
+    149: The re-pin to processor `a9e84b66`, routed with the [#814](https://github.com/kebag-logic/milan-fpga/issues/814) cuts on the recipe's three directives
+    150: Its best directive, AltSpreadLogic_high, has WNS +0.365 ns at every slow corner, 52,021 LUTs and 63 of 15,850 slices left.
+D0-063 source protocol-processor/hdl/top/protocol_processor_top.sv:3624-3648
+    3624:   always_comb begin : gsi_answer
+    3625:     aecp_gsi_data_w = gsi_data_i;
+    3626:     if (gsi_input_w) begin
+    3627:       case (gsi_sel_o)
+D0-063 source hdl/milan/milan_datapath.sv:6444-6445
+    6444:           //! an input's stream_vlan_id [63:48] is unused: the processor
+    6445:           //! replaces it with all 16 received VLAN bits (#708)
+D0-063 correction hdl/milan/milan_datapath.sv:6194-6217
+    6194:       gsi_flags_w = {1'b1,                    // STREAM_FORMAT_VALID
+    6195:                      gsi_setl_w,              // STREAM_ID_VALID
+    6196:                      gsi_reging_w,            // MSRP_ACC_LAT_VALID
+    6197:                      gsi_setl_w,              // STREAM_DEST_MAC_VALID
+D0-063 correction protocol-processor/hdl/top/protocol_processor_top.sv:3641
+    3641:           4'd0: aecp_gsi_data_w = gsi_data_i & ~64'h0000_0000_5200_0000;
+D0-064 source protocol-processor/hdl/top/protocol_processor_top.sv:3631-3632
+    3631:         4'd6: aecp_gsi_data_w = {gsi_settled_w
+    3632:               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+D0-064 source hdl/milan/milan_datapath.sv:6048-6053
+    6048:   //!    while the sink is settled, probing_status PROBING_COMPLETED (Milan
+    6049:   //!    v1.2 5.4.2.10.1, Table 5.9; 5.3.8.5, Table 5.5). This face cannot
+    6050:   //!    see probing_status, so the PROCESSOR applies that rule to the words
+    6051:   //!    below (processor #206, #790): while its committed status is not
+D0-064 correction hdl/milan/milan_datapath.sv:6194-6217
+    6194:       gsi_flags_w = {1'b1,                    // STREAM_FORMAT_VALID
+    6195:                      gsi_setl_w,              // STREAM_ID_VALID
+    6196:                      gsi_reging_w,            // MSRP_ACC_LAT_VALID
+    6197:                      gsi_setl_w,              // STREAM_DEST_MAC_VALID
+D0-064 correction hdl/milan/milan_datapath.sv:6392-6456
+    6392:   always_comb begin : gsi_answer
+    6393:     gsi_ans_raw_w = 64'd0;
+    6394:     unique case (gsiq_kind_r)
+    6395:       2'd0: begin                            // ---- GET_STREAM_INFO ----
+D0-064 correction protocol-processor/hdl/top/protocol_processor_top.sv:3624-3648
+    3624:   always_comb begin : gsi_answer
+    3625:     aecp_gsi_data_w = gsi_data_i;
+    3626:     if (gsi_input_w) begin
+    3627:       case (gsi_sel_o)
+D0-065 source protocol-processor/hdl/top/protocol_processor_top.sv:3631-3632
+    3631:         4'd6: aecp_gsi_data_w = {gsi_settled_w
+    3632:               ? bound_vlan_r[gsi_sink_w] : 16'd0, gsi_data_i[47:0]};
+D0-065 source hdl/milan/milan_datapath.sv:6444-6445
+    6444:           //! an input's stream_vlan_id [63:48] is unused: the processor
+    6445:           //! replaces it with all 16 received VLAN bits (#708)
+D0-065 correction protocol-processor/hdl/top/protocol_processor_top.sv:3628-3633
+    3628:         4'd4: aecp_gsi_data_w = {gsi_data_i[63:16], gsi_fail_code_w, 8'd0};
+    3629:         4'd5: aecp_gsi_data_w = gsi_fail_bridge_w;
+    3630:         // Milan 5.3.8.9 and 5.4.2.10: report the full received VLAN.
+    3631:         4'd6: aecp_gsi_data_w = {gsi_settled_w
+D0-066 correction sw/trace/test_trace_roundtrip.py:17-18
+    17:    4. the producer COMPILES and RUNS with a host C compiler (the same barectf.c
+    18:       + milan_trace.c the bare-metal image links), producing real CTF segments;

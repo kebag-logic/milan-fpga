@@ -1,0 +1,160 @@
+top keys ['cited_at', 'findings', 'judged', 'verified_at'] verified_at 1e80128f 1e80128f cited_at None 1f29f189
+counts 62 65
+removed ['D0-009']
+added ['D0-063', 'D0-064', 'D0-065', 'D0-066']
+
+== CHANGED D0-001 ['source', 'correction', 'also'] page README.md
+  -source: `sw/litex/milan_soc.py` line 2621: `--ctrl-mailbox` defaults off and the default build carries no mailbox; the same section says all-fabric is the shipping default
+  +source: `sw/litex/milan_soc.py` lines 2854-2856 and line 4097: `--ctrl-mailbox` defaults off and the default build carries no mailbox; the same section says all-fabric is the shipping default
+  -correction: Say that the Mark II split placement moves ADP, ACMP, AECP, MAAP and SRP into bare-metal firmware, and that the default build keeps all of them in fabric.
+  +correction: Say that the Mark II split placement moves ADP, ACMP, AECP, MAAP and SRP into bare-metal firmware, and that the default build keeps all of them in fabric (`sw/litex/milan_soc.py` lines 2854-2856: `--ctrl-mailbox` is off by default and the default build carries no mailbox; line 4097: `store_true`). `REQUIREMENTS.md` is the normative page, so its copy goes to a maintainer decision on what "Mark II default" names, and every copy takes that one answer.
+  -also: None
+  +also: ['The Mark II default places them on the bare-metal core.', 'Its default is bare-metal control through packet mailboxes.', 'Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.', 'Mark II defaults ADP, ACMP, AECP, MAAP and SRP to firmware.', 'Mark II defaults control protocols to the core through packet mailboxes.', 'Mark II defaults to firmware']
+
+== CHANGED D0-002 ['source'] page README.md
+  -source: `hdl/milan/milan_datapath.sv` lines 704-720: the stored CLOCK_SOURCE is resolved in `media_clk_resolve` and consumed by the INTERNAL, CRF and AAF followers (#74, #629)
+  +source: `hdl/milan/milan_datapath.sv` lines 734-750: the stored CLOCK_SOURCE is resolved in `media_clk_resolve` and consumed by the INTERNAL, CRF and AAF followers (#74, #629)
+
+== CHANGED D0-011 ['source'] page docs/integration/BAREMETAL_FIRMWARE.md
+  -source: #403 closed as completed on 2026-09-26; `sw/litex/boot_policy.py` line 58 generates `MILAN_MAC_CTRL_SET` (bit 3), written at `sw/firmware/milan_baremetal/milan_baremetal.c` line 1808
+  +source: #403 closed as completed on 2026-09-26; `sw/litex/boot_policy.py` line 58 generates `MILAN_MAC_CTRL_SET` (bit 3), written at `sw/firmware/milan_baremetal/milan_baremetal.c` line 1827
+
+== CHANGED D0-012 ['source'] page docs/integration/BAREMETAL_FIRMWARE.md
+  -source: #400 closed as completed on 2026-09-26; the firmware writes `MILAN_LWSRP_CTRL_RESET | 3u` at `sw/firmware/milan_baremetal/milan_baremetal.c` line 1814
+  +source: #400 closed as completed on 2026-09-26; the firmware writes `MILAN_LWSRP_CTRL_RESET | 3u` at `sw/firmware/milan_baremetal/milan_baremetal.c` line 1833
+
+== CHANGED D0-017 ['source', 'correction'] page docs/reference/REGISTER_MAP.md
+  -source: `sw/litex/milan_soc.py` lines 1893-1907 and 2084-2085: MAC_STATUS is the LiteX `milan_mac_link_status` CSR, reset link up, 1000 Mb/s on GMII (100 on MII), full duplex
+  +source: `sw/litex/milan_soc.py` lines 1958-1972 and 2184-2185: MAC_STATUS is the LiteX `milan_mac_link_status` CSR, reset link up, 1000 Mb/s on GMII (100 on MII), full duplex
+  -correction: State the reset value and that the bits follow the PHY only while firmware publishes them (D0-009); point to LINKG_STAT (0x774) and the AVB_INTERFACE LINK_UP/LINK_DOWN counters.
+  +correction: State the reset value, and that the bits follow the PHY once firmware publishes them: `nvm_boot()` arms the poll (`sw/firmware/milan_baremetal/milan_baremetal.c` line 1671, polled at lines 1099-1102 and 1106), and a CSR identity mismatch returns before it (lines 1900-1903), which leaves the reset value. Point to LINKG_STAT (0x774) and the AVB_INTERFACE LINK_UP/LINK_DOWN counters.
+
+== CHANGED D0-024 ['source'] page docs/integration/QSPI_FLASHBOOT.md
+  -source: `sw/firmware/milan_baremetal/milan_baremetal.c` lines 329-331 put saved-state slots A and B in `MILAN_FLASH_JOURNAL_OFFSET`, the `journal` range of `sw/litex/milan_soc.py` line 172; `nvm_commit()` (line 1393) erases, programs and verifies the alternate slot, and `nvm_boot()` (line 1641, called at line 1890) judges both slots at every boot
+  +source: `sw/firmware/milan_baremetal/milan_baremetal.c` lines 329-331 put saved-state slots A and B in `MILAN_FLASH_JOURNAL_OFFSET`, the `journal` range of `sw/litex/milan_soc.py` line 173; `nvm_commit()` (line 1405) erases, programs and verifies the alternate slot, and `nvm_boot()` (line 1656, called at line 1914) judges both slots at every boot
+
+== CHANGED D0-025 ['source'] page docs/integration/QSPI_FLASHBOOT.md
+  -source: `hdl/milan/KL_pp_shadow.sv` line 1123 instantiates `KL_nvm_backend` behind the processor's NVM face; `docs/design/SAVED_STATE_MATERIALIZATION.md` line 163 records the binding surviving a cold power cycle on silicon since 2026-09-21 (#70)
+  +source: `hdl/milan/KL_pp_shadow.sv` line 1128 instantiates `KL_nvm_backend` behind the processor's NVM face; `docs/design/SAVED_STATE_MATERIALIZATION.md` line 163 records the binding surviving a cold power cycle on silicon since 2026-09-21 (#70)
+
+== CHANGED D0-026 ['source'] page docs/guides/VERIFICATION_DEVELOPER.md
+  -source: `scripts/run_litex_sims.sh` lines 98-106 (`INVENTORY`) and line 150 (`run_aggregate`) run every standalone Migen simulation as one aggregate and refuse a missing or unlisted member; the page itself names the runner at line 23
+  +source: `scripts/run_litex_sims.sh` lines 99-108 (`INVENTORY`) and line 150 (`run_aggregate`) run every standalone Migen simulation as one aggregate and refuse a missing or unlisted member; the page itself names the runner at line 23
+
+== CHANGED D0-027 ['correction'] page docs/guides/VERIFICATION_DEVELOPER.md
+  -correction: Name the shared host harness `sw/firmware/gtest/` for the control-plane firmware's C, and keep the trace round-trip as the check of the shipping trace producer.
+  +correction: Name the shared host harness `sw/firmware/gtest/` for the control-plane firmware's C (`sw/firmware/gtest/README.md` lines 3-13). Call `sw/trace/test_trace_roundtrip.py` the round-trip of the supplied `sw/trace/` producer, and state separately that the shipping image does not link that producer (`sw/firmware/milan_baremetal/Makefile` line 6; D0-048).
+
+== CHANGED D0-029 ['source'] page docs/reference/MILAN_COMPLIANCE_MATRIX.md
+  -source: `hdl/milan/milan_datapath.sv` lines 654-664: the classifier the row cites as evidence is not instantiated since VERSION 0x0056; the shipping C-TAG is written by `KL_aaf_packetizer` (`hdl/ieee1722/aaf/KL_aaf_packetizer.sv` line 514) and `KL_crf_tx` (`hdl/ieee1722/crf/KL_crf_tx.sv` line 514) and read by `avtp_stream_parser` (`hdl/ieee1722/avtp/avtp_stream_parser.sv` line 159), all instantiated in `milan_datapath`
+  +source: `hdl/milan/milan_datapath.sv` lines 684-694: the classifier the row cites as evidence is not instantiated since VERSION 0x0056; the shipping C-TAG is written by `KL_aaf_packetizer` (`hdl/ieee1722/aaf/KL_aaf_packetizer.sv` line 514) and `KL_crf_tx` (`hdl/ieee1722/crf/KL_crf_tx.sv` line 514) and read by `avtp_stream_parser` (`hdl/ieee1722/avtp/avtp_stream_parser.sv` line 159), all instantiated in `milan_datapath`
+
+== CHANGED D0-030 ['source'] page docs/reference/MILAN_COMPLIANCE_MATRIX.md
+  -source: `hdl/milan/milan_datapath.sv` lines 654-664: receive priority regeneration is the classifier's (`CLS_PRIO_REGEN`), which `milan_datapath` does not instantiate since VERSION 0x0056; `git grep` finds no instance of `traffic_classifier` outside its own sources
+  +source: `hdl/milan/milan_datapath.sv` lines 684-694: receive priority regeneration is the classifier's (`CLS_PRIO_REGEN`), which `milan_datapath` does not instantiate since VERSION 0x0056; `git grep` finds no instance of `traffic_classifier` outside its own sources
+
+== CHANGED D0-032 ['source'] page docs/reference/MILAN_COMPLIANCE_MATRIX.md
+  -source: `hdl/milan/milan_datapath.sv` lines 8552-8558: no shaper reads the slope or the verdict; the granted slope reaches only the `LWSRP_STATUS[9]` and `LWSRP_SLOPE` (0x698) diagnostics
+  +source: `hdl/milan/milan_datapath.sv` lines 8583-8589: no shaper reads the slope or the verdict; the granted slope reaches only the `LWSRP_STATUS[9]` and `LWSRP_SLOPE` (0x698) diagnostics
+
+== CHANGED D0-033 ['source'] page docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md
+  -source: Same as D0-001: `sw/litex/milan_soc.py` line 2621, `--ctrl-mailbox` defaults off and the default build carries no mailbox; the page's next line says all-fabric is the shipping default
+  +source: Same as D0-001: `sw/litex/milan_soc.py` lines 2854-2856, `--ctrl-mailbox` defaults off and the default build carries no mailbox; the page's next line says all-fabric is the shipping default
+
+== CHANGED D0-034 ['source'] page docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md
+  -source: `sw/litex/milan_soc.py` lines 1500-1530 and 1806-1808: the shipping MAC adapter crosses each direction with a 16-beat buffered `stream.ClockDomainCrossing` (`_AXIS_CDC_DEPTH`, line 1404), not a complete-packet FIFO; the store-and-forward `PacketFIFO` (`tx_sf`, line 1746) is a separate transmit stage in the sys domain, and `configs/endstation_ax7101_1x1_tdm8.yaml` lines 43-44 put the datapath at 50 MHz against a 100 MHz sys clock, so the crossing is live
+  +source: `sw/litex/milan_soc.py` lines 1553-1583 and 1871-1873: the shipping MAC adapter crosses each direction with a 16-beat buffered `stream.ClockDomainCrossing` (`_AXIS_CDC_DEPTH`, line 1413), not a complete-packet FIFO; the store-and-forward `PacketFIFO` (`tx_sf`, line 1810) is a separate transmit stage in the sys domain, and `configs/endstation_ax7101_1x1_tdm8.yaml` lines 43-44 put the datapath at 50 MHz against a 100 MHz sys clock, so the crossing is live
+
+== CHANGED D0-035 ['source', 'correction'] page docs/integration/QSPI_FLASHBOOT.md
+  -source: `sw/firmware/milan_baremetal/milan_baremetal.c` lines 1836-1866: `load_aem_image()` checks the `AEMI` magic, copies `MILAN_AEM_IMAGE_BYTES` with its own loop and then compares the CRC32 with the compiled-in `MILAN_AEM_IMAGE_CRC32`; nothing under `sw/` calls `copy_image_from_flash_to_ram`
+  +source: `sw/firmware/milan_baremetal/milan_baremetal.c` lines 1860-1892: `load_aem_image()` checks the `AEMI` magic, copies `MILAN_AEM_IMAGE_BYTES` with its own loop and then compares the CRC32 with the compiled-in `MILAN_AEM_IMAGE_CRC32`; nothing under `sw/` calls `copy_image_from_flash_to_ram`
+  -correction: Name `load_aem_image()` and its three checks (magic, compiled-in length, CRC32 after the copy), and keep the consequence: a failed check leaves the entity disabled.
+  +correction: Name `load_aem_image()` (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1860-1892) and its two rejection checks: a bad `AEMI` magic before the copy (lines 1869-1873) and a CRC32 mismatch after it (lines 1877-1883). State that `MILAN_AEM_IMAGE_BYTES` only bounds the copy and the CRC (lines 1874-1878), and that no length is compared or rejected. Keep the consequence: a failed check leaves the entity disabled (lines 1913 and 1915, `entity_advertise()` takes the verdict).
+
+== CHANGED D0-036 ['source'] page docs/integration/QSPI_FLASHBOOT.md
+  -source: `sw/litex/milan_soc.py` lines 3054-3069: the AX7101 uses `N25Q128A13(SpiCodes.READ_1_1_1_FAST)` with `add_spi_flash(mode="1x", clk_freq=int(12.5e6))`, because the quad read CRC-failed non-deterministically on silicon (2026-07-08); line 3076 skips the BIOS frequency calibration
+  +source: `sw/litex/milan_soc.py` lines 3287-3302: the AX7101 uses `N25Q128A13(SpiCodes.READ_1_1_1_FAST)` with `add_spi_flash(mode="1x", clk_freq=int(12.5e6))`, because the quad read CRC-failed non-deterministically on silicon (2026-07-08); line 3309 skips the BIOS frequency calibration
+
+== CHANGED D0-037 ['source'] page docs/integration/QSPI_FLASHBOOT.md
+  -source: `sw/litex/build.sh` lines 382-399: `ax8x8` has never produced a bitstream, and `arty` is a retired DUT on another board (datapath 50 MHz, sys 83.333 MHz); `sw/litex/milan_soc.py` lines 3049-3055 give the Arty an S25FL128S on `READ_1_1_1`
+  +source: `sw/litex/build.sh` lines 382-399: `ax8x8` has never produced a bitstream, and `arty` is a retired DUT on another board (datapath 50 MHz, sys 83.333 MHz); `sw/litex/milan_soc.py` lines 3282-3288 give the Arty an S25FL128S on `READ_1_1_1`
+
+== CHANGED D0-038 ['source'] page docs/integration/BOARD_PORTING_AX7101.md
+  -source: `sw/litex/milan_soc.py` lines 3037-3041: `add_sdram(..., l2_cache_size = 0)` with the comment "The product profile is cacheless end to end"; line 4042 refuses any `--l2-bytes` in the bare-metal profile
+  +source: `sw/litex/milan_soc.py` lines 3270-3274: `add_staged_sdram(..., l2_cache_size = 0)` with the comment "The product profile is cacheless end to end"; line 4301 refuses any `--l2-bytes` in the bare-metal profile
+
+== CHANGED D0-039 ['source'] page docs/integration/BOARD_PORTING_AX7101.md
+  -source: `sw/litex/milan_soc.py` lines 3704-3707 make `baremetal` the only `--software-profile`, and lines 4039-4041 refuse it unless `--xlen 32`, so the command exits with an argument error instead of elaborating
+  +source: `sw/litex/milan_soc.py` lines 3963-3966 make `baremetal` the only `--software-profile`, and lines 4298-4300 refuse it unless `--xlen 32`, so the command exits with an argument error instead of elaborating
+
+== CHANGED D0-040 ['source'] page docs/reference/REGISTER_MAP_CLASSES.md
+  -source: `docs/design/SAVED_STATE_MATERIALIZATION.md` line 163: the binding survives a cold power cycle on silicon since 2026-09-21 (#70), through `KL_nvm_backend` (`hdl/milan/KL_pp_shadow.sv` line 1123) and the firmware journal writer (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1393 and 1641); only this retired journal-ingest CSR face is a structural zero (`hdl/milan/milan_datapath.sv` line 6678)
+  +source: `docs/design/SAVED_STATE_MATERIALIZATION.md` line 163: the binding survives a cold power cycle on silicon since 2026-09-21 (#70), through `KL_nvm_backend` (`hdl/milan/KL_pp_shadow.sv` line 1128) and the firmware journal writer (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1405 and 1656); only this retired journal-ingest CSR face is a structural zero (`hdl/milan/milan_datapath.sv` line 6709)
+
+== CHANGED D0-041 ['source'] page docs/reference/REGISTER_MAP_CLASSES.md
+  -source: `S50milan` was an init script of the retired operating-system image (#259): `scripts/check_baremetal_only.py` line 1625 forbids its init.d path as a target service, and the test benches call its write "the retired S50milan poke" (`tb/verilator/milan_dp/sim_main.cpp` line 464); the bare-metal `configure_fabric()`, called by `milan_init()`, writes the identity and enables (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1799-1802)
+  +source: `S50milan` was an init script of the retired operating-system image (#259): `scripts/check_baremetal_only.py` line 1625 forbids its init.d path as a target service, and the test benches call its write "the retired S50milan poke" (`tb/verilator/milan_dp/sim_main.cpp` line 464); the bare-metal `configure_fabric()`, called by `milan_init()`, writes the identity and enables (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1818-1821)
+
+== CHANGED D0-042 ['source'] page docs/reference/REGISTER_MAP_CLASSES.md
+  -source: `docs/reference/EGRESS_QUEUE_MAP.md` lines 3-12 and `hdl/milan/milan_datapath.sv` lines 654-664: no classifier, queue or shaper is instantiated since VERSION 0x0056, so the 0x4xx words are write-only scratch and `CAP.CBS` reads 0 (`hdl/common/csr/milan_csr.sv` lines 1996-2000)
+  +source: `docs/reference/EGRESS_QUEUE_MAP.md` lines 3-12 and `hdl/milan/milan_datapath.sv` lines 684-694: no classifier, queue or shaper is instantiated since VERSION 0x0056, so the 0x4xx words are write-only scratch and `CAP.CBS` reads 0 (`hdl/common/csr/milan_csr.sv` lines 1996-2000)
+
+== CHANGED D0-045 ['source'] page docs/reference/MILAN_COMPLIANCE_MATRIX.md
+  -source: `hdl/milan/milan_datapath.sv` lines 654-657: the `ptp_ts_top` TX/RX record stampers left the datapath with the retired target (#259); the shipping event timestamps are the gPTP plane's RX-tap stamp and its reconstructed launch (`hdl/milan/milan_datapath.sv` lines 8812-8818, #360; `hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv`)
+  +source: `hdl/milan/milan_datapath.sv` lines 684-687: the `ptp_ts_top` TX/RX record stampers left the datapath with the retired target (#259); the shipping event timestamps are the gPTP plane's RX-tap stamp and its reconstructed launch (`hdl/milan/milan_datapath.sv` lines 8843-8849, #360; `hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv`)
+
+== CHANGED D0-047 ['source'] page README.md
+  -source: `docs/reference/milan_feature_status.json` `missing_mandatory_aem_operations` is empty and the README's own gated block (lines 135-138) says every mandated operation is served since 0x0002_0054, the setters included (`docs/reference/MILAN_COMPLIANCE_MATRIX.md` rows 5.4.2.5 to 5.4.2.16)
+  +source: `docs/reference/milan_feature_status.json` `missing_mandatory_aem_operations` is empty and the README's own gated block (lines 136-139) says every mandated operation is served since 0x0002_0054, the setters included (`docs/reference/MILAN_COMPLIANCE_MATRIX.md` rows 5.4.2.5 to 5.4.2.16)
+
+== CHANGED D0-049 ['source'] page docs/reference/TRACE_EVENTS.md
+  -source: `hdl/milan/milan_datapath.sv` lines 6678-6679 tie `jnl_stat_w` and `jnl_seq_w` (0x7C0, 0x7C4) to zero: the journal-ingest CSR face is a structural zero, and the saved-state verdicts now live in the firmware's slot judgement (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 463-465, 1641-1675)
+  +source: `hdl/milan/milan_datapath.sv` lines 6709-6710 tie `jnl_stat_w` and `jnl_seq_w` (0x7C0, 0x7C4) to zero: the journal-ingest CSR face is a structural zero, and the saved-state verdicts now live in the firmware's slot judgement (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 463-465, 1656-1694)
+
+== CHANGED D0-056 ['source'] page docs/reference/FR_NFR.md
+  -source: Same as D0-001 and D0-033: `sw/litex/milan_soc.py` line 2621, `--ctrl-mailbox` defaults off and the default build carries no mailbox; the paragraph's first and fifth lines say all-fabric is the shipping default
+  +source: Same as D0-001 and D0-033: `sw/litex/milan_soc.py` lines 2854-2856, `--ctrl-mailbox` defaults off and the default build carries no mailbox; the paragraph's first and fifth lines say all-fabric is the shipping default
+
+== CHANGED D0-057 ['source'] page docs/reference/REGISTER_MAP.md
+  -source: The page's own 0x0053 note (lines 351-356): SET_STREAM_INFO is served and "the stored offset feeds the framers' transit entries"; `docs/reference/MILAN_COMPLIANCE_MATRIX.md` row 5.3.7.6 / 4.4.2.1: the 2 ms default is settable via SET_STREAM_INFO and the stamp adds the offset as set
+  +source: `docs/reference/REGISTER_MAP.md`'s own 0x0053 note (lines 351-356): SET_STREAM_INFO is served and "the stored offset feeds the framers' transit entries"; `docs/reference/MILAN_COMPLIANCE_MATRIX.md` row 5.3.7.6 / 4.4.2.1: the 2 ms default is settable via SET_STREAM_INFO and the stamp adds the offset as set
+
+== CHANGED D0-058 ['source'] page docs/reference/REGISTER_MAP.md
+  -source: `hdl/milan/KL_pp_shadow.sv` line 1123 instantiates `KL_nvm_backend` behind the processor's NVM face (the blank-flash responder is gone; the page's own `PP_STAT` notes at lines 2390-2406 describe `nvm_backed` and the firmware journal writer); `docs/design/SAVED_STATE_MATERIALIZATION.md` line 163: the binding survives a cold power cycle on silicon since 2026-09-21 (#70)
+  +source: `hdl/milan/KL_pp_shadow.sv` line 1128 instantiates `KL_nvm_backend` behind the processor's NVM face (the blank-flash responder is gone; the page's own `PP_STAT` notes at lines 2390-2406 describe `nvm_backed` and the firmware journal writer); `docs/design/SAVED_STATE_MATERIALIZATION.md` line 163: the binding survives a cold power cycle on silicon since 2026-09-21 (#70)
+
+== CHANGED D0-059 ['source'] page docs/reference/REGISTER_MAP.md
+  -source: Same as D0-058: the bound state is saved and restored by the processor's walk over `KL_nvm_backend` and the firmware's A/B journal, and survives a cold cycle on silicon (#70); only this retired 0x7B8 ingest face is dead (`hdl/milan/milan_datapath.sv` lines 6678-6679)
+  +source: Same as D0-058: the bound state is saved and restored by the processor's walk over `KL_nvm_backend` and the firmware's A/B journal, and survives a cold cycle on silicon (#70); only this retired 0x7B8 ingest face is dead (`hdl/milan/milan_datapath.sv` lines 6709-6710)
+
+== CHANGED D0-061 ['source'] page docs/integration/BAREMETAL_FIRMWARE.md
+  -source: `sw/firmware/milan_baremetal/milan_baremetal.c` line 1809: `configure_fabric()` also writes `MILAN_TCAM_CTRL` (0x700) with `MILAN_TCAM_CTRL_BOOT` = 1 (`sw/litex/boot_policy.py` line 59), right after `MAC_CTRL`; the table has no `TCAM_CTRL` row
+  +source: `sw/firmware/milan_baremetal/milan_baremetal.c` line 1828: `configure_fabric()` also writes `MILAN_TCAM_CTRL` (0x700) with `MILAN_TCAM_CTRL_BOOT` = 1 (`sw/litex/boot_policy.py` line 59), right after `MAC_CTRL`; the table has no `TCAM_CTRL` row
+
+== CHANGED D0-062 ['source'] page docs/integration/BAREMETAL_FIRMWARE.md
+  -source: The record below measures commit `1e80a106` (2026-08-19, line 2264): 15,849 of 15,850 slices and +0.033 ns WNS. The shipping route has moved since: the #803 adoption record in `docs/reference/SUBMODULES.md` lines 371-381 gives +0.303 ns WNS with 16 of 15,850 slices free at processor `f65c8ff7` and gPTP `f97c1803`, and the resource records live in `docs/design/AREA_BUDGET.md`
+  +source: The record below measures commit `1e80a106` (2026-08-19, line 2291): 15,849 of 15,850 slices and +0.033 ns WNS. The shipping route has moved since: the #787 re-pin record in `docs/reference/SUBMODULES.md` lines 511-517 and `docs/design/AREA_BUDGET.md` lines 149-150 gives +0.365 ns WNS with 63 of 15,850 slices free at processor `a9e84b66`, and the resource records live in `docs/design/AREA_BUDGET.md`
+
+== ADDED D0-063
+  page: docs/integration/INTEGRATION_GUIDE.md
+  quote: The processor answers four Stream Input fields itself.
+  source: `protocol-processor/hdl/top/protocol_processor_top.sv` lines 3624-3648 (`gsi_answer`, processor pin `a9e84b66`; lines 3573-3585 at `f65c8ff7`): for a Stream Input it writes five fields itself, the page's four and selector 6's `stream_vlan_id` [63:48] from its `bound_vlan_r` (line 3632), and it also masks selectors 0, 2 and 4 while the input is unsettled (lines 3639-3645). `hdl/milan/milan_datapath.sv` lines 6444-6445 say the same of the VLAN
+  correction: Give each Stream Input word and flag its writer. Selector 0: `milan_datapath` writes every flag (`hdl/milan/milan_datapath.sv` lines 6194-6217), and while the input is unsettled the processor clears STREAM_ID_VALID, STREAM_DEST_MAC_VALID and STREAM_VLAN_ID_VALID (`0x52000000`, `protocol-processor/hdl/top/protocol_processor_top.sv` line 3641). Selectors 1 (stream_format) and 3 (msrp_accumulated_latency): `milan_datapath` (lines 6401 and 6421). Selector 2 (stream_id): `milan_datapath` (line 6413), and the processor answers 0 while unsettled (top line 3642). Selector 4: `milan_datapath` writes stream_dest_mac [63:16] (line 6430), and the processor answers 0 there while unsettled (top line 3643); the processor writes msrp_failure_code [15:8] (top line 3628). Selector 5 (msrp_failure_bridge_id) and selector 7 (probing_status, acmp_status): the processor alone, never asked of `milan_datapath` (top lines 3593-3595, 3629, 3633). Selector 6: the processor writes stream_vlan_id [63:48], `bound_vlan_r` when settled and 0 otherwise (top lines 3631-3632); `milan_datapath` writes [47:0] (line 6451). A Stream Output's words pass through from `milan_datapath` unchanged (top line 3626).
+
+== ADDED D0-064
+  page: docs/integration/INTEGRATION_GUIDE.md
+  quote: `milan_datapath` answers every other word and every validity flag.
+  source: `protocol-processor/hdl/top/protocol_processor_top.sv` lines 3631-3632 replace selector 6's VLAN and lines 3639-3645 clear `0x52000000`, the stream_id and the destination MAC while the input is unsettled, on the answer the wire carries; `hdl/milan/milan_datapath.sv` lines 6048-6053 state that it cannot see probing_status, so the processor applies that rule
+  correction: Say that `milan_datapath` gathers the other words and the flags (`hdl/milan/milan_datapath.sv` lines 6194-6217 and 6392-6456), and that the processor's answer is final for a Stream Input: `protocol-processor/hdl/top/protocol_processor_top.sv` lines 3624-3648 pass the gathered data through, then replace the VLAN and mask the three flags and two identity fields while the input is unsettled, which is probing_status other than PROBING_COMPLETED (line 3621). Keep the gather data as the parent's. D0-063 lists each word.
+
+== ADDED D0-065
+  page: docs/integration/INTEGRATION_GUIDE.md
+  quote: Never add a second source for the processor's four fields.
+  source: Same as D0-063: the processor owns five Stream Input fields, the VLAN included (`protocol-processor/hdl/top/protocol_processor_top.sv` lines 3631-3632; `hdl/milan/milan_datapath.sv` lines 6444-6445)
+  correction: Name all five: probing_status, acmp_status, msrp_failure_code, msrp_failure_bridge_id and stream_vlan_id (`protocol-processor/hdl/top/protocol_processor_top.sv` lines 3628-3633).
+
+== ADDED D0-066
+  page: docs/guides/VERIFICATION_DEVELOPER.md
+  quote: | C with Python | Shipping trace producer |
+  source: Same as D0-048: `sw/firmware/milan_baremetal/Makefile` line 6 builds `milan_baremetal.o` alone, and nothing outside `sw/trace/` includes `milan_trace.h`, so `sw/trace/test_trace_roundtrip.py` grades the supplied producer and not the shipping image
+  correction: Write "Supplied trace producer", not linked by the shipping image (`sw/firmware/milan_baremetal/Makefile` line 6; `sw/trace/test_trace_roundtrip.py` lines 17-18 compile it on the host; D0-048).
