@@ -3,53 +3,47 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Documentation inventory: generate docs/DOCUMENTATION_AUDIT.md and gate its freshness (#797).
 
-Why this exists. #797 asks for an audit that lists every Markdown document and
-README with its purpose, audience, the code or specification it describes and
-a status, regenerated from the files rather than written by hand. The page it
-replaced was a hand-written summary dated 2026-08-31 that no gate tied to the
-tree, so it described 54 suites and 14 features long after both had moved.
+Why this exists. #797 asks for an audit that lists every Markdown document and README with its purpose,
+audience, the code or specification it describes and a status, regenerated from the files rather than
+written by hand. The hand-written page it replaced described 54 suites and 14 features long after both moved.
 
 What is read from the files, and what this script owns:
 
-  * the population is every tracked `*.md` file and every tracked README
-    (`git ls-files`; a filesystem walk when the tree has no Git metadata);
+  * the population is every tracked `*.md` file and every tracked README (`git ls-files`; a filesystem walk
+    when the tree has no Git metadata);
   * the area is the page's directory, the line count is the page's own;
   * the purpose is the page's first `#` heading;
-  * what a page describes is counted from the repository paths and the
-    standards it cites, so it moves when the page does;
-  * the audience comes from an `Audience:` line in the page's first lines,
-    or else from `AUDIENCES`, a mapping table this script owns;
-  * the status is decided by `status()`, each with its evidence: `obsolete`
-    for the versioned archive, `superseded` for a page carrying a
-    supersession banner (or a judgement recorded in the data file), `stale`
-    for a page with a recorded verified contradiction, `current` otherwise.
+  * what a page describes is counted from the repository paths and the standards it cites, so it moves when
+    the page does;
+  * the audience comes from an `Audience:` line in the page's first lines, or else from `AUDIENCES`, a
+    mapping table this script owns;
+  * the status is decided by `status()`, each with its evidence: `obsolete` for the versioned archive,
+    `superseded` for a page carrying a supersession banner (or a judgement recorded in the data file),
+    `stale` for a page with a recorded verified contradiction, `current` otherwise.
 
-The status rule (#797): a page with an open finding is never current. A
-page that would otherwise render current renders stale, and `--check` reads
-the committed page itself and fails when it marks a page current that its
-own Findings table lists, so the rule holds even if a regenerated page was
-produced by a generator that lost it.
+The status rule (#797): a page with an open finding is never current. A page that would otherwise render
+current renders stale, and `--check` reads the committed page itself and fails when it marks a page current
+that its own Findings table lists, so the rule holds even if a regenerated page was produced by a generator
+that lost it.
 
-The verified contradictions live in `scripts/docs_inventory.json`. Each one
-quotes the statement exactly, so the generator finds its line at every head;
-a quote that is no longer on its page is rendered as needing re-verification
-rather than silently dropped, and an area lane that fixes a statement removes
-its entry in the same change.
+The verified contradictions live in `scripts/docs_inventory.json`. Each one quotes the statement exactly, so
+the generator finds its line at every head; a quote that is no longer on its page is rendered as needing
+re-verification rather than silently dropped, and an area lane that fixes a statement removes its entry in the
+same change, once no copy row of it remains.
 
-What `--check` sees: the committed page against a fresh render. A document
-added or removed, or edited in its line count, title, audience line, cited
-paths or standards, or in a quoted finding statement, makes the page stale.
-An edit that changes none of those renders the same page and passes; the
-gate ties the inventory to the files, not every sentence to its source.
+The cross-page rule (#797): every recorded statement, and each spelling its entry lists under `also`, is
+searched across every inventoried page, normalised for case, line wrapping, list and quote markers, emphasis
+and code spans. Each other page carrying it gets its own Findings row, so the status rule applies there too.
+A paraphrase is found only once `also` records its spelling.
 
-Usage:
-    python3 scripts/docs_inventory.py --write      # regenerate the page
-    python3 scripts/docs_inventory.py --check      # gate: exit 1 when the page is stale
-    python3 scripts/docs_inventory.py --selftest   # planted stale-page controls
-    python3 scripts/docs_inventory.py --findings-dir DIR   # one findings file per lane
+What `--check` sees: the committed page against a fresh render. A document added or removed, or edited in
+its line count, title, audience line, cited paths or standards, or in a quoted finding statement, makes the
+page stale. An edit that changes none of those renders the same page and passes; the gate ties the inventory
+to the files, not every sentence to its source.
 
-Exit status: 0 fresh or written, 1 stale or a failed control, 2 refused
-(bad data file, bad arguments, an unreadable population).
+Usage: python3 scripts/docs_inventory.py --write | --check | --selftest | --findings-dir DIR
+
+Exit status: 0 fresh or written, 1 stale or a failed control, 2 refused (bad data, arguments or population).
 """
 
 from __future__ import annotations
@@ -59,10 +53,13 @@ import contextlib
 import io
 import json
 import os
+import posixpath
 import re
 import shutil
 import subprocess
 import tempfile
+import unicodedata
+from bisect import bisect_right
 from collections import Counter
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -138,6 +135,9 @@ SUCCESSOR_RE = re.compile(r"^> Current successor: \[[^\]]+]\(([^)]+)\)$", re.MUL
 HEADING_RE = re.compile(r"^#\s+(.+?)\s*#*\s*$")
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
 BANNER_SCAN_LINES = 15
+#: What a copy of a statement may differ by at the start of a line, and inside it.
+LINE_MARKER_RE = re.compile(r"^\s*(?:>\s*)*(?:[-*+]\s+|\d+\.\s+)?")
+INLINE_MARKUP_RE = re.compile(r"[`*]")
 #: The variables that point Git at another repository than the `-C` directory. A Git hook sets
 #: them, and the self-test's fixture must never write to, or list, the repository running it.
 GIT_LOCATION = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR", "GIT_OBJECT_DIRECTORY",
@@ -159,6 +159,9 @@ class Finding:
     quote: str
     source: str
     correction: str
+    also: tuple[str, ...] = ()
+    #: The page the statement is recorded on, when this row is a copy found on another page.
+    origin: str = ""
 
 
 @dataclass(frozen=True)
@@ -276,12 +279,7 @@ def audience_of(text: str, path: str) -> str:
 
 def relative(target: PurePosixPath, start: PurePosixPath) -> str:
     """`target` as a link written from directory `start`, both repo-relative."""
-    target_parts, start_parts = target.parts, start.parts
-    common = 0
-    while (common < min(len(target_parts), len(start_parts))
-           and target_parts[common] == start_parts[common]):
-        common += 1
-    return "/".join([".."] * (len(start_parts) - common) + list(target_parts[common:])) or "."
+    return posixpath.relpath(str(target), str(start))
 
 
 def normalise(base: PurePosixPath, ref: str) -> str | None:
@@ -333,11 +331,11 @@ def describes_of(tree: Tree, text: str, path: str) -> str:
     return ", ".join(names) if names else "--"
 
 
-def load_data(root: Path, paths: list[str]) -> tuple[str, dict[str, tuple[str, str]], list[Finding]]:
-    """The verification baseline, the recorded judgements and findings; refuses a malformed file."""
+def load_data(root: Path, paths: list[str]) -> tuple[str, str, dict[str, tuple[str, str]], list[Finding]]:
+    """The two baselines, the recorded judgements and findings; refuses a malformed file."""
     source = root / DATA
     if not source.is_file():
-        return "--", {}, []
+        return "--", "--", {}, []
     try:
         data = json.loads(source.read_text(encoding="utf-8"))
     except (ValueError, UnicodeDecodeError) as error:
@@ -355,12 +353,15 @@ def load_data(root: Path, paths: list[str]) -> tuple[str, dict[str, tuple[str, s
             raise Refusal(f"{DATA}: finding {entry.get('id')!r} needs id, page, quote, source and correction")
         if fields[1] not in known:
             raise Refusal(f"{DATA}: finding {fields[0]} names an untracked page {fields[1]}")
-        findings.append(Finding(*fields))
+        also = entry.get("also", [])
+        if not isinstance(also, list) or not all(isinstance(value, str) and value.strip() for value in also):
+            raise Refusal(f"{DATA}: finding {fields[0]} needs `also` to be a list of statements")
+        findings.append(Finding(*fields, tuple(also)))
     idents = Counter(f.ident for f in findings)
     duplicated = sorted(ident for ident, count in idents.items() if count > 1)
     if duplicated:
         raise Refusal(f"{DATA}: duplicate finding ids: {', '.join(duplicated)}")
-    return str(data.get("verified_at", "--")), judged, findings
+    return str(data.get("verified_at", "--")), str(data.get("cited_at", "--")), judged, findings
 
 
 def locate(text: str, quote: str) -> int | None:
@@ -369,6 +370,57 @@ def locate(text: str, quote: str) -> int | None:
         if quote in line:
             return number
     return None
+
+
+def normal_form(text: str) -> str:
+    """One line or statement without what a copy may differ by."""
+    plain = INLINE_MARKUP_RE.sub("", LINE_MARKER_RE.sub("", unicodedata.normalize("NFKC", text)))
+    return " ".join(plain.split()).casefold()
+
+
+def flatten(text: str) -> tuple[str, list[int]]:
+    """A page in normal form on one line, and each line's offset; a blank line stays a break."""
+    flat = ""
+    starts: list[int] = []
+    for line in text.split("\n"):
+        starts.append(len(flat))
+        flat += (normal_form(line) or "\n") + " "
+    return flat, starts
+
+
+def carried_line(flat: tuple[str, list[int]], statement: str) -> int | None:
+    """The line of a flattened page that starts the statement, whole words only, or None."""
+    needle = normal_form(statement)
+    left = r"(?<!\w)" if needle[:1].isalnum() else ""
+    right = r"(?!\w)" if needle[-1:].isalnum() else ""
+    match = re.search(left + re.escape(needle) + right, flat[0])
+    return bisect_right(flat[1], match.start()) if match else None
+
+
+def copies(findings: list[Finding], texts: dict[str, str]) -> list[Finding]:
+    """One row per finding and other page carrying its statement, never on the audit page that quotes it.
+
+    A page whose row already holds the words, or words holding them, gets no second row.
+    """
+    flats = {path: flatten(text) for path, text in texts.items() if path != OUTPUT}
+    held: dict[str, list[str]] = {}
+    for finding in findings:
+        held.setdefault(finding.page, []).append(normal_form(finding.quote))
+    rows = {(finding.ident, finding.page) for finding in findings}
+    found: list[Finding] = []
+    for finding in findings:
+        for statement in (finding.quote, *finding.also):
+            needle = normal_form(statement)
+            for path, flat in flats.items():
+                if (finding.ident, path) in rows or carried_line(flat, statement) is None:
+                    continue
+                if any(needle in words or words in needle for words in held.get(path, [])):
+                    continue
+                rows.add((finding.ident, path))
+                held.setdefault(path, []).append(needle)
+                found.append(Finding(finding.ident, path, statement, finding.source, finding.correction,
+                                     origin=finding.page))
+    return found
 
 
 def archive_evidence(text: str, path: str) -> str:
@@ -428,23 +480,24 @@ def area_of(path: str) -> str:
 Located = list[tuple[Finding, int | None]]
 
 
-def build(tree: Tree, paths: list[str], own_lines: int) -> tuple[list[Page], Located, str]:
-    """Every row, every located finding and the verification baseline.
+def build(tree: Tree, paths: list[str], own_lines: int) -> tuple[list[Page], Located, str, str]:
+    """Every row, every located finding, the statements' baseline and the citations' baseline.
 
     The audit page's own row is read from the header this script writes, never
     from the file on disk, so the row cannot depend on the page it is part of.
     """
-    verified_at, judged, findings = load_data(tree.root, paths)
+    verified_at, cited_at, judged, findings = load_data(tree.root, paths)
+    texts = {path: "\n".join(OWN_HEAD) if path == OUTPUT
+             else (tree.root / path).read_text(encoding="utf-8", errors="replace") for path in paths}
     by_page: dict[str, list[Finding]] = {}
-    for finding in findings:
+    for finding in findings + copies(findings, texts):
         by_page.setdefault(finding.page, []).append(finding)
     pages: list[Page] = []
     located: Located = []
-    for path in paths:
-        text = "\n".join(OWN_HEAD) if path == OUTPUT else (tree.root / path).read_text(encoding="utf-8",
-                                                                                          errors="replace")
+    for path, text in texts.items():
         page_findings = by_page.get(path, [])
-        located += [(f, locate(text, f.quote)) for f in page_findings]
+        located += [(f, carried_line(flatten(text), f.quote) if f.origin else locate(text, f.quote))
+                    for f in page_findings]
         state, evidence = status_rule(*status(text, path, judged), page_findings)
         if path.startswith(ARCHIVE_PREFIX):
             verified = "archive"
@@ -455,7 +508,7 @@ def build(tree: Tree, paths: list[str], own_lines: int) -> tuple[list[Page], Loc
         pages.append(Page(path, area_of(path), own_lines if path == OUTPUT else line_count(text),
                           audience_of(text, path), purpose_of(text, path), describes_of(tree, text, path),
                           state, evidence, verified, first_match(LANES, path)))
-    return pages, located, verified_at
+    return pages, located, verified_at, cited_at
 
 
 def page_link(path: str) -> str:
@@ -508,15 +561,23 @@ RULES = (
     "| The archive banner's current successor. |",
     "| superseded | A banner in the first 15 lines names a replacement, "
     "or the data file records the judgement. | The banner line or the recorded judgement. |",
-    "| stale | The data file records a verified contradiction on the page. A page with an open finding "
-    "is never current, and the gate fails a committed page that says otherwise. | The finding identifiers. |",
+    "| stale | The data file records a verified contradiction on the page, or the page carries a statement "
+    "recorded on another page. A page with an open finding is never current, and the gate fails a committed "
+    "page that says otherwise. | The finding identifiers. |",
     "| current | None of the above holds. | The page's generator, or no recorded contradiction. |",
 )
 
 
+def source_of(finding: Finding) -> str:
+    """What contradicts the statement; a copy row says where the statement is recorded."""
+    if finding.origin:
+        return f"Copy of the {finding.ident} statement on `{finding.origin}`. {finding.source}"
+    return finding.source
+
+
 def render(tree: Tree, paths: list[str], own_lines: int = 0) -> str:
     """The whole audit page for one population."""
-    pages, located, verified_at = build(tree, paths, own_lines)
+    pages, located, verified_at, cited_at = build(tree, paths, own_lines)
     areas = sorted({p.area for p in pages}, key=lambda a: (a != "root", a))
     out = list(OWN_HEAD) + ["",
            "Regenerate after any document change, then run the gate.", "",
@@ -530,7 +591,8 @@ def render(tree: Tree, paths: list[str], own_lines: int = 0) -> str:
            "- **[Findings](#findings)** -- Verified contradictions, with their corrections.", "",
            "## Summary", "",
            f"Statements on D0 pages were checked at dev `{verified_at}`.",
-           "Other pages wait for their area lane.", ""]
+           "Other pages wait for their area lane.", "",
+           f"Findings cite source lines at dev `{cited_at}` and its submodule pins.", ""]
     out += summary_rows(pages)
     out += ["", "## Status rules", ""] + list(RULES)
     out += ["", "## Module directories", "",
@@ -546,13 +608,17 @@ def render(tree: Tree, paths: list[str], own_lines: int = 0) -> str:
                 f"| {p.status} | {cell(p.evidence)} | {p.verified} | {p.lane} |" for p in pages if p.area == area]
     out += ["", "## Findings", "",
             "Each statement is quoted exactly from its page.",
-            "Its area lane fixes it and removes the entry.", "",
+            "Its area lane fixes it.", "",
+            "A copy row shows the recorded spelling.",
+            "It names the recording page.", "",
+            "Remove an entry once no copy row remains.",
+            "An archive copy stays as written.", "",
             "| ID | Page | Line | Statement | Contradicted by | Correction |",
             "|---|---|---:|---|---|---|"]
     for finding, line in located:
         where = str(line) if line else "re-verify: quote not found"
         out.append(f"| {finding.ident} | {page_link(finding.page)} | {where} | {cell(finding.quote)} "
-                   f"| {cell(finding.source)} | {cell(finding.correction)} |")
+                   f"| {cell(source_of(finding))} | {cell(finding.correction)} |")
     if not located:
         out.append("| -- | -- | -- | No recorded finding. | -- | -- |")
     return "\n".join(out) + "\n"
@@ -572,7 +638,7 @@ def generate(root: Path) -> str:
 def write_findings(root: Path, directory: Path) -> int:
     """One Markdown file per lane: page, line, statement, source, correction."""
     tree = listing(root)
-    pages, located, verified_at = build(tree, population(tree), 0)
+    pages, located, verified_at, cited_at = build(tree, population(tree), 0)
     lanes = {p.path: p.lane for p in pages}
     directory.mkdir(parents=True, exist_ok=True)
     grouped: dict[str, list[tuple[Finding, int | None]]] = {}
@@ -580,10 +646,11 @@ def write_findings(root: Path, directory: Path) -> int:
         grouped.setdefault(lanes[finding.page], []).append((finding, line))
     for lane, entries in sorted(grouped.items()):
         slug = re.sub(r"[^a-z0-9]+", "-", lane.lower()).strip("-")
-        body = [f"# D0 findings: {lane}", "", f"Verified against dev `{verified_at}`.", ""]
+        body = [f"# D0 findings: {lane}", "", f"Verified against dev `{verified_at}`.",
+                f"Source lines cite dev `{cited_at}`.", ""]
         for finding, line in entries:
             body += [f"## {finding.ident}: {finding.page}:{line or '?'}", "",
-                     f"- Statement: {finding.quote}", f"- Contradicted by: {finding.source}",
+                     f"- Statement: {finding.quote}", f"- Contradicted by: {source_of(finding)}",
                      f"- Correction: {finding.correction}", ""]
         (directory / f"{slug}.md").write_text("\n".join(body), encoding="utf-8")
         print(f"{directory / (slug + '.md')}: {len(entries)} finding(s)")
@@ -652,11 +719,7 @@ def track(root: Path) -> str | None:
 
 
 def fixture(root: Path) -> str | None:
-    """A small Git-initialised tree carrying one page of each status and one recorded finding.
-
-    Every file is staged, so the gate lists the population through `git
-    ls-files` as it does on a real checkout. The failure, or None.
-    """
+    """A Git-initialised tree with one page of each status and one finding, all staged; the failure, or None."""
     pages = {
         "README.md": "# Fixture " + EM_DASH + " landing page\n\nSee `hdl/milan/top.sv` and IEEE 1722.1.\n",
         "docs/README.md": "# Documentation index\n\nAudience: integrator\n",
@@ -675,7 +738,7 @@ def fixture(root: Path) -> str | None:
     for path, text in pages.items():
         (root / path).parent.mkdir(parents=True, exist_ok=True)
         (root / path).write_text(text, encoding="utf-8")
-    data = {"verified_at": "0000000",
+    data = {"verified_at": "0000000", "cited_at": "1111111",
             "findings": [{"id": "D0-001", "page": "docs/guides/A.md", "quote": "resets to 0x1",
                           "source": "`hdl/milan/top.sv` line 1", "correction": "It resets to 0x0."}]}
     (root / DATA).write_text(json.dumps(data), encoding="utf-8")
@@ -695,14 +758,14 @@ def gate(root: Path, *argv: str) -> tuple[int, str]:
 Mutation = Callable[[Path], None]
 
 
-def control(name: str, mutate: Mutation, want: int, needle: str = "", says: str = "",
+def control(name: str, mutate: Mutation, want: int, needle: str | tuple[str, ...] = "", says: str = "",
             absent: str = "") -> str | None:
     """One planted control on a fresh Git fixture; the failure message, or None when it held.
 
     The fixture's page is written with `--write`, the mutation applied, and
     `--check`, the workflow's own command, must exit `want` and print `says`.
     Unless it refused (2), `--write` must then heal the tree, and the page it
-    regenerates must carry `needle`, lack `absent` and carry no em dash.
+    regenerates must carry every `needle`, lack `absent` and carry no em dash.
     """
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
@@ -725,8 +788,9 @@ def control(name: str, mutate: Mutation, want: int, needle: str = "", says: str 
         if written != 0 or healed != 0:
             return f"{name}: --write did not heal the tree ({written}, {healed}): {printed.strip()[:300]}"
         rendered = (root / OUTPUT).read_text(encoding="utf-8")
-        if needle and needle not in rendered:
-            return f"{name}: rendered page lacks {needle!r}"
+        for text in (needle,) if isinstance(needle, str) else needle:
+            if text not in rendered:
+                return f"{name}: rendered page lacks {text!r}"
         if absent and absent in rendered:
             return f"{name}: rendered page carries {absent!r}"
         if EM_DASH in rendered:
@@ -764,9 +828,9 @@ def edit_data(change: Callable[[dict], object]) -> Mutation:
 
 
 def add_tracked(path: str, text: str) -> Mutation:
-    """A mutation adding one page and staging it."""
+    """A mutation adding one page and staging it; a failed stage leaves it untracked and the control fails."""
     def mutate(root: Path) -> None:
-        """Write the page and stage it; a failed stage leaves it untracked and the control fails."""
+        """Write the page and stage it."""
         append(path, text)(root)
         track(root)
     return mutate
@@ -776,6 +840,69 @@ def without_git(root: Path) -> None:
     """A tree with no Git metadata whose submodule is checked out: an archive of a recursive clone."""
     shutil.rmtree(root / ".git")
     append("protocol-processor/README.md", "# Submodule page\n")(root)
+
+
+def plant_copy(also: tuple[str, ...] = ()) -> Mutation:
+    """A statement recorded on the README, with a wrapped and marked-up copy on the requirements page."""
+    def mutate(root: Path) -> None:
+        """Record the statement, write it on the README and add the requirements page."""
+        edit_data(lambda d: d["findings"].append(
+            {"id": "D0-002", "page": "README.md", "quote": "All five default to firmware.", "also": list(also),
+             "source": "`scripts/tool.py` line 1", "correction": "Say that all five stay in fabric."}))(root)
+        append("README.md", "\nAll five default to firmware.\n")(root)
+        add_tracked("REQUIREMENTS.md", ("# Requirements\n\n- **All five** default\n  to `FIRMWARE`.\n"
+                                        "\nThe Mark II default places\n  them on the core.\n"))(root)
+    return mutate
+
+
+def in_order(*mutations: Mutation) -> Mutation:
+    """The mutations in order, with the page regenerated after every one but the last."""
+    def mutate(root: Path) -> None:
+        """Apply each mutation in turn."""
+        for mutation in mutations[:-1]:
+            mutation(root)
+            gate(root, "--write")
+        mutations[-1](root)
+    return mutate
+
+
+def copy_controls() -> tuple:
+    """The cross-page rule's arms: a copy gets a row and a stale page, and only a real copy does."""
+    copy_row = "| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |"
+    copy_status = "| Requirements | -- | stale | 1 finding(s): D0-002 |"
+    first_copy = "- **All five** default\n  to `FIRMWARE`.\n"
+    archive_copy = append("docs/history/v1/OLD.md", "The register resets to 0x1.\n")
+    return (
+        ("the README's statement copied onto the requirements page", plant_copy(), 1,
+         (copy_row, copy_status, "| D0-002 | [README.md](../README.md) | 5 |",
+          "Copy of the D0-002 statement on `README.md`."), "STALE"),
+        ("a spelling found only through `also` gets a row",
+         in_order(plant_copy(("The Mark II default places them on the core.",)),
+                  replace("REQUIREMENTS.md", first_copy, "Open.\n")), 1,
+         ("| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 5 |", copy_status), "STALE"),
+        ("a copy cannot be marked current by hand",
+         in_order(plant_copy(), replace(OUTPUT, copy_status, "| Requirements | -- | current | no recorded |")), 1,
+         copy_status, "REQUIREMENTS.md carries an open finding but is marked current"),
+        ("a fixed copy loses its row and its page recovers",
+         in_order(plant_copy(), replace("REQUIREMENTS.md", first_copy, "Open.\n")), 1,
+         "| Requirements | -- | current | no recorded contradiction |", "STALE", "| D0-002 | [REQUIREMENTS.md]"),
+        ("a copy on an archive page gets a row and stays obsolete", archive_copy, 1,
+         ("| D0-001 | [docs/history/v1/OLD.md (historical)](history/v1/OLD.md) | 8 |",
+          "| Old page | -- | obsolete | versioned archive;"), "STALE"),
+        ("a longer number is not a copy", append("docs/guides/B.md", "It resets to 0x10.\n"), 1, "", "STALE",
+         "| D0-001 | [docs/guides/B.md]"),
+        ("a statement across a blank line is not a copy", append("docs/guides/B.md", "It resets to\n\n0x1.\n"), 1,
+         "", "STALE", "| D0-001 | [docs/guides/B.md]"),
+        ("a page already recording the words gets no second row",
+         in_order(append("docs/guides/B.md", "It resets to 0x1 here.\n"), edit_data(lambda d: d["findings"].append(
+             {"id": "D0-003", "page": "docs/guides/B.md", "quote": "It resets to 0x1 here.",
+              "source": "`scripts/tool.py` line 1", "correction": "It resets to 0x0."}))),
+         1, "| D0-003 | [docs/guides/B.md](guides/B.md) | 4 |", "STALE", "| D0-001 | [docs/guides/B.md]"),
+        ("the audit page quoting every statement is not searched", lambda root: None, 0, "", "is fresh",
+         "| D0-001 | [docs/DOCUMENTATION_AUDIT.md]"),
+        ("`also` that is not a list", edit_data(lambda d: d["findings"][0].update(also="x")), 2, "", "REFUSED"),
+        ("`also` with an empty statement", edit_data(lambda d: d["findings"][0].update(also=[" "])), 2, "", "REFUSED"),
+    )
 
 
 def selftest() -> int:
@@ -827,8 +954,9 @@ def selftest() -> int:
          2, "", "REFUSED"),
         ("judgement with an unknown status", edit_data(lambda d: d.update(
             judged={"docs/guides/B.md": {"status": "retired", "evidence": "x"}})), 2, "", "REFUSED"),
+        ("the citations' baseline is on the page", lambda root: None, 0, "at dev `1111111`"),
         ("malformed data file", lambda root: (root / DATA).write_text("{", encoding="utf-8"), 2, "", "REFUSED"),
-    )
+    ) + copy_controls()
     failures = [message for message in (control(*arm) for arm in controls) if message]
     with tempfile.TemporaryDirectory() as scratch:
         root = Path(scratch)
