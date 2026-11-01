@@ -18262,6 +18262,47 @@ def test_reboot_egress_statement_gate_bites() -> None:
           f"{len(REBOOT_EGRESS_MUTATIONS)} cuts rejected, each naming its fact")
 
 
+#: The launch shape a PHY model states (#829). GMII states nothing, so its
+#: elaboration keeps the RTL defaults and the AX7101 image cannot move; MII has
+#: to state all four, or its reconstruction is wrong by a constant.
+LAUNCH_SHAPE_MUTATIONS = (
+    ('"p_ETH_CYC_PER_OCTET_P": 2', '"p_ETH_CYC_PER_OCTET_P": 1'),
+    ('"p_TXTS_DELTA_EXP_P": 45 * 2', '"p_TXTS_DELTA_EXP_P": 45'),
+    ('"p_GPTP_ETH_TICK_NS_P": 40', '"p_GPTP_ETH_TICK_NS_P": 8'),
+    ('"p_GPTP_ETH_CYC_PER_OCTET_P": 2', '"p_GPTP_ETH_CYC_PER_OCTET_P": 1'),
+    ('if phy_model != "mii":\n        return {"observer": {}, "datapath": {}}',
+     'if phy_model != "gmii":\n        return {"observer": {}, "datapath": {}}'),
+)
+
+
+def _launch_shape_findings(soc):
+    """The findings of gate 1g against one milan_soc.py text."""
+    match = re.search(r"def _phy_launch_shape\(phy_model\):(?P<body>.*?)\n\n\n",
+                      soc, re.DOTALL)
+    if match is None:
+        return ["_phy_launch_shape is gone"]
+    body = match.group("body")
+    bad = [f"{old} is not stated" for old, _new in LAUNCH_SHAPE_MUTATIONS
+           if old not in body]
+    for wiring in ('**_phy_launch_shape(phy_model)["observer"],',
+                   '**_phy_launch_shape(phy_model)["datapath"],'):
+        if wiring not in soc:
+            bad.append(f"{wiring} is not wired")
+    return bad
+
+
+def test_gptp_launch_shape_follows_the_phy() -> None:
+    """Gate 1g: the launch observer and the plane take the PHY's octet shape."""
+    soc = (ROOT / "sw/litex/milan_soc.py").read_text()
+    assert not _launch_shape_findings(soc), _launch_shape_findings(soc)
+    for old, new in LAUNCH_SHAPE_MUTATIONS:
+        assert old in soc, f"gate 1g: {old!r} is not in milan_soc.py"
+        bad = _launch_shape_findings(soc.replace(old, new))
+        assert bad, f"gate 1g accepted a milan_soc.py with {old!r} as {new!r}"
+    print(f"  [gate 1g mutation] {len(LAUNCH_SHAPE_MUTATIONS)}/"
+          f"{len(LAUNCH_SHAPE_MUTATIONS)} cuts rejected")
+
+
 def _gptp_observer_reads_the_mac_stream(soc):
     """The seam and the domain: one observer, on `phy.sink`, in `maceth_tx`."""
     instances = re.findall(
@@ -18275,6 +18316,7 @@ def _gptp_observer_reads_the_mac_stream(soc):
             ("i_eth_clk_i", 'ClockSignal("maceth_tx")'),
             ("i_eth_rst_n", '~ResetSignal("maceth_tx")'),
             ("i_gmii_tvalid_i", "self.phy.sink.valid"),
+            ("i_gmii_tready_i", "self.phy.sink.ready"),
             ("i_gmii_tdata_i", "self.phy.sink.data"),
             ("i_dp_clk_i", "ClockSignal(milan_cd)"),
             ("i_dp_rst_n", "~ResetSignal(milan_cd)")):
@@ -18288,13 +18330,13 @@ def _gptp_observer_reads_the_mac_stream(soc):
         "gate 1d: the launch observer may not drive the stream it observes"
     #: ...and the stream it reads is read, never written, by the MAC around
     #: it: `phy.sink` is connected by `core.source.connect(phy.sink)` inside
-    #: LiteEth and appears here only as this observation and the AECP
-    #: REBOOT's frame-end toggle (#787, gate 1f), which reads its valid,
-    #: ready and last
+    #: LiteEth and appears here only as this observation, whose `ready` is what
+    #: separates MII octets (#829), and the AECP REBOOT's frame-end toggle
+    #: (#787, gate 1f), which reads its valid, ready and last
     seam_uses = re.findall(r"self\.phy\.sink\.\w+", soc)
     assert sorted(seam_uses) == ["self.phy.sink.data", "self.phy.sink.last",
-                                 "self.phy.sink.ready", "self.phy.sink.valid",
-                                 "self.phy.sink.valid"], \
+                                 "self.phy.sink.ready", "self.phy.sink.ready",
+                                 "self.phy.sink.valid", "self.phy.sink.valid"], \
         ("gate 1d: the MAC's `phy.sink` is touched somewhere other than the "
          f"launch observation and the frame-end toggle: {sorted(seam_uses)}")
 
@@ -29298,6 +29340,7 @@ if __name__ == "__main__":
                test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_launch_observer_seam,
+               test_gptp_launch_shape_follows_the_phy,
                test_reboot_egress_statement,
                test_reboot_egress_statement_gate_bites,
                test_qspi_owner_transition_completed_write_prefixes,

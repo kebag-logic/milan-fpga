@@ -88,8 +88,12 @@ module KL_gptp_shadow #(
     parameter int unsigned TXTS_GEN_W_P    = 4,
     parameter int unsigned TXTS_DELTA_W_P  = 8,
     //! transmit-clock period in nanoseconds at the observation point: 8 ns
-    //! is the 1 Gb/s GMII shape and no other link speed is qualified
+    //! is the 1 Gb/s GMII shape, 40 ns the 100 Mb/s MII shape (issue #829),
+    //! and no other link speed is qualified
     parameter int unsigned ETH_TICK_NS_P   = 8,
+    //! transmit clocks one octet holds at the observation point: 1 on GMII,
+    //! 2 on MII. It scales the observer's expected cycle distance, 45 octets.
+    parameter int unsigned ETH_CYC_PER_OCTET_P = 1,
     //! nanoseconds the PHC advances per clock of this plane. 0 DERIVES it
     //! from CLK_HZ_P, which is what a product build wants. A bench whose
     //! counter runs a different shape from its own clock states the shape
@@ -1027,6 +1031,8 @@ module KL_gptp_shadow #(
       .TXTS_GEN_W_P   (TXTS_GEN_W_P),
       .TXTS_DELTA_W_P (TXTS_DELTA_W_P),
       .ETH_TICK_NS_P  (ETH_TICK_NS_P),
+      .ETH_CYC_PER_OCTET_P(ETH_CYC_PER_OCTET_P),
+      .TXTS_DELTA_EXP_P(45 * ETH_CYC_PER_OCTET_P),
       .DP_TICK_NS_P   (DP_TICK_NS_C),
       .PHC_CLK_HZ_P   (CLK_HZ_P),
       .EGRESS_LAT_NS_P(EGRESS_LAT_NS_P)

@@ -61,6 +61,14 @@ report it as the mean. The engine's own timers are generated for a faster
 second so a protocol run fits in a simulation; no timestamp arithmetic
 changes with that.
 
+`make run-mii` builds the same harness over the MII stages of the same chain
+(#829): 25 MHz at the wire, one octet per two clocks, and an oracle that reads
+the nibbles on four-bit pads and takes its alignment from the delimiter. It
+runs twice, with the MAC system side at 80 MHz and at 100 MHz, because that
+fault's report left the system clock's part open. The correction it grades is
+3770 ns, derived in
+[GPTP_PLANE.md](../../../docs/design/GPTP_PLANE.md#the-100-mbs-mii-shape).
+
 ## What it proves, and what it does not
 
 It proves the reconstruction is the launch: every frame inside the published
@@ -78,10 +86,12 @@ and the physical terms belong to the qualification issues that own them.
 
     make -C tb/verilator/gptp_txts
 
-The default target runs the suite and then `mutants.py`, which plants one
-defect at a time - the observation point, each register-stage term of the
-correction, the measured cycle distance - and requires the suite to notice,
-restoring the exact source afterwards.
+The default target runs the suite on both shapes and then `mutants.py`, which
+plants one defect at a time - the observation point, each register-stage term
+of the correction, the measured cycle distance, and on the MII shape the
+one-octet-per-clock reading of #829, the first-symbol term, the transmit tick
+and the history guard - and requires the suite to notice, restoring the exact
+source afterwards.
 
     MILAN_LITEX_PYTHON=/path/to/litex/python make -C tb/verilator/gptp_txts
 

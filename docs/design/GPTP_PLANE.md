@@ -202,7 +202,7 @@ The egress time is reconstructed, not captured:
 
 ```text
 t1 = PHC at the accepted record
-     - (TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P) x ETH_TICK_NS_P
+     - (TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P + ETH_CYC_PER_OCTET_P - 1) x ETH_TICK_NS_P
      - CDC_LAT_D_CYC_P x DP_TICK_NS_P
      - DP_TICK_NS_P / 2
 ```
@@ -270,6 +270,63 @@ That oracle is independent of the design under test.
 A launch that cannot be reconstructed is an explicit loss.
 
 `GPTP_DROPE[31:16]` counts those, and no substitute time is published.
+
+### The 100 Mb/s MII shape
+
+The MII PHY stage sends each octet as two nibbles, low first (IEEE 802.3 22.2.3).
+
+So `phy.sink` holds each octet for two 40 ns clocks, and `ready` rises on the second.
+
+The observer counts an octet where `valid` and `ready` coincide (#829).
+
+On GMII `ready` is the constant 1, so that term folds away.
+
+The reference plane is the registered launch edge of frame octet 0's low nibble.
+
+The observer counts that octet one clock later, on the edge that registers its high nibble.
+
+The correction owes that clock, and only on this shape.
+
+| Term | GMII, 1 Gb/s | MII, 100 Mb/s |
+|---|---|---|
+| `ETH_TICK_NS_P` | 8 ns | 40 ns |
+| `ETH_CYC_PER_OCTET_P` | 1 | 2 |
+| `TXTS_DELTA_EXP_P`, 45 octets in clocks | 45 | 90 |
+| First symbol to the octet's transfer, `ETH_CYC_PER_OCTET_P - 1` | 0 | 1 |
+| `OBS_LAT_E_CYC_P` | 2 | 2 |
+| Transmit term | 47 x 8 = 376 ns | 93 x 40 = 3720 ns |
+| Fabric term, `2 x 20 + 10` | 50 ns | 50 ns |
+| **Digital correction** | **426 ns** | **3770 ns** |
+
+The window is longer, so two terms of the budget grow.
+
+| Term | Bound on MII | Basis |
+|---|---|---|
+| Clock-domain transfer | +/-10.00 ns | half of `DP_TICK_NS_P`, as above |
+| PHC integer truncation | +/-1.00 ns | as above |
+| Transmit clock against PHC | +/-0.76 ns | 3770 ns x 200 ppm, rounded up |
+| Applied PHC rate correction | +/-0.76 ns | the same product, enforced |
+| **Total** | **+/-12.52 ns, published as +/-12.6 ns** | sum of magnitudes, rounded up |
+
+`tb/verilator/gptp_txts` grades this shape against its pad oracle too, inside 11 ns.
+
+Its mean limit adds the 0.754 ns the declared wire-clock offset leaves over the window.
+
+The PHC history guard has to cover the window, so it is 203 fabric cycles here.
+
+The Arty's PHY derives `TX_CLK` from the 25 MHz reference this FPGA drives.
+
+So on that board the crossing's sampling phase may stay fixed for a boot rather than sweep.
+
+The bound still holds, and that fixed part of it no longer averages out.
+
+No other link speed is qualified: at 10 Mb/s the same octet takes 800 ns and this correction is wrong.
+
+The receive side changes too, and no RTL term carries it.
+
+The tap stamps the first accepted beat, which is eight octets: 640 ns at 100 Mb/s against 64 ns at 1 Gb/s.
+
+That belongs to `INGRESS_LAT_NS_P`, below.
 
 ### The board's own latency corrections
 

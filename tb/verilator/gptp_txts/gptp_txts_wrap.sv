@@ -40,7 +40,10 @@
 //                side. The PHC runs the product's 20 ns tick and the
 //                observation domain the product's 8 ns one, so the egress
 //                correction this bench grades is the product's own 426 ns
-//                and not a bench number. The engine's own timers are
+//                and not a bench number. Built with GPTP_TXTS_MII it is the
+//                10/100 shape instead (issue #829): the MII stages of the same
+//                converted chain, one octet per two 40 ns clocks, and 3770 ns.
+//                The engine's own timers are
 //                generated for a faster second so a protocol run fits in a
 //                simulation; that changes no timestamp arithmetic.
 //---------------------------------------------------------------------------//
@@ -53,6 +56,8 @@ module gptp_txts_wrap #(
     //! bench's engine clock is deliberately faster than the product's
     parameter int unsigned PHC_TICK_NS_P = 20,
     parameter int unsigned ETH_TICK_NS_P = 8,
+    //! transmit clocks one octet holds at the observer's seam
+    parameter int unsigned ETH_CYC_PER_OCTET_P = 1,
     //! the guard's settle, scaled so a bench can afford a whole episode.
     //! Everything else about the guard is the product's.
     parameter int unsigned SETTLE_CYC_C = 1024
@@ -214,7 +219,8 @@ module gptp_txts_wrap #(
       .CLK_HZ_P      (CLK_HZ_P),
       .UCODE_HEX_P   (UCODE_HEX_P),
       .PHC_TICK_NS_P (PHC_TICK_NS_P),
-      .ETH_TICK_NS_P (ETH_TICK_NS_P)
+      .ETH_TICK_NS_P (ETH_TICK_NS_P),
+      .ETH_CYC_PER_OCTET_P (ETH_CYC_PER_OCTET_P)
   ) u_shadow (
       .clk_i            (dp_clk_i),
       .rst_n            (dp_rst_n),
@@ -348,8 +354,13 @@ module gptp_txts_wrap #(
   //  The converted shipping MAC transmit chain                              //
   // ======================================================================= //
   logic maceth_tx_rst_w;
+  logic phy_sink_r_w;
 
+`ifdef GPTP_TXTS_MII
+  mac_tx_chain_mii u_mac (
+`else
   mac_tx_chain u_mac (
+`endif
       .sys_clk        (sys_clk_i),
       .sys_rst        (~sys_rst_n),
       .dp_clk         (dp_clk_i),
@@ -369,7 +380,7 @@ module gptp_txts_wrap #(
       .gmii_tx_data   (gmii_tx_data_o),
       .gmii_tx_er     (),
       .phy_sink_valid (phy_sink_v_o),
-      .phy_sink_ready (),
+      .phy_sink_ready (phy_sink_r_w),
       .phy_sink_data  (phy_sink_d_o),
       .phy_sink_last  (),
       .maceth_tx_rst  (maceth_tx_rst_w)
@@ -388,11 +399,13 @@ module gptp_txts_wrap #(
       .TYPE_OCTET_P     (22),
       .TAG_OCTET_HI_P   (52),
       .TAG_OCTET_LO_P   (53),
-      .TXTS_DELTA_EXP_P (45)
+      .ETH_CYC_PER_OCTET_P (ETH_CYC_PER_OCTET_P),
+      .TXTS_DELTA_EXP_P (45 * ETH_CYC_PER_OCTET_P)
   ) u_launch (
       .eth_clk_i     (eth_clk_i),
       .eth_rst_n     (~maceth_tx_rst_w & ~obs_rst_i),
       .gmii_tvalid_i (obs_valid_w),
+      .gmii_tready_i (phy_sink_r_w),
       .gmii_tdata_i  (phy_sink_d_o),
       .dp_clk_i      (dp_clk_i),
       .dp_rst_n      (dp_rst_n),

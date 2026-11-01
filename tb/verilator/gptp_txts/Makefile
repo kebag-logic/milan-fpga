@@ -46,8 +46,13 @@ VFLAGS = --cc --exe --build -j 0 \
          -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=$(ENGINE_CLK_HZ) \
          -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra"
 
-SRCS = gptp_txts_wrap.sv \
-       $(GEN_DIR)/mac_tx_chain.v \
+#: The 10/100 shape (issue #829): the MII stages of the same converted chain at
+#: their 25 MHz wire clock. One build runs twice: the run's argument is the MAC
+#: system clock's half-period in quarter nanoseconds, 25 for 80 MHz and 20 for
+#: 100 MHz, because the fault report left open whether that clock plays a part.
+MII_ETH_TICK_NS = 40
+
+SRCS_COMMON = gptp_txts_wrap.sv \
        $(RTL_DIR)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txticket.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txret.sv \
@@ -64,6 +69,8 @@ SRCS = gptp_txts_wrap.sv \
        $(GPTP_DIR)/hdl/wire/KL_gptp_tx_slot.sv \
        $(GPTP_DIR)/hdl/common/KL_gptp_timer.sv \
        $(GPTP_DIR)/hdl/top/KL_gptp_engine.sv
+SRCS = $(SRCS_COMMON) $(GEN_DIR)/mac_tx_chain.v
+SRCS_MII = $(SRCS_COMMON) $(GEN_DIR)/mac_tx_chain_mii.v
 CPP  = sim_main.cpp
 
 .PHONY: all run model clean
@@ -74,6 +81,17 @@ run: gptp_ucode.hex model
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vgptp_txts_sim
 	./obj_dir/Vgptp_txts_sim
 
+#: The same harness over the MII stages, in its own object directory so the
+#: two shapes never share a build.
+.PHONY: run-mii
+run-mii: gptp_ucode.hex model
+	$(VERILATOR) $(VFLAGS) --Mdir obj_mii -DGPTP_TXTS_MII \
+	  -GETH_TICK_NS_P=$(MII_ETH_TICK_NS) -GETH_CYC_PER_OCTET_P=2 \
+	  -CFLAGS "-DGPTP_TXTS_MII" \
+	  $(SRCS_MII) $(CPP) -o Vgptp_txts_sim
+	./obj_mii/Vgptp_txts_sim 25
+	./obj_mii/Vgptp_txts_sim 20
+
 #: A green suite and a suite that cannot go red look the same from outside.
 #: `mutants.py` plants one defect at a time - the observation point, each
 #: register-stage term of the correction, the measured cycle distance - and
@@ -81,7 +99,7 @@ run: gptp_ucode.hex model
 #: It is part of the default target, so the evidence is produced by the
 #: same command the sweep runs.
 .PHONY: mutants
-mutants: run
+mutants: run run-mii
 	python3 mutants.py
 
 #: A STALE CONVERTED CHAIN IS A RED. The loop is only causal while this
@@ -104,8 +122,17 @@ obj_pad/Vmac_tx_chain_pads: $(GEN_DIR)/mac_tx_chain.v pad_trace_main.cpp
 	  -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra" \
 	  $(GEN_DIR)/mac_tx_chain.v pad_trace_main.cpp -o Vmac_tx_chain_pads
 
+.PHONY: padtrace-mii
+padtrace-mii: obj_pad_mii/Vmac_tx_chain_pads
+
+obj_pad_mii/Vmac_tx_chain_pads: $(GEN_DIR)/mac_tx_chain_mii.v pad_trace_main.cpp
+	$(VERILATOR) --cc --exe --build -j 0 --top-module mac_tx_chain_mii \
+	  --Mdir obj_pad_mii -Wno-fatal \
+	  -CFLAGS "-std=c++17 -O2 -I$(CURDIR) -Wall -Wextra -DGPTP_TXTS_MII" \
+	  $(GEN_DIR)/mac_tx_chain_mii.v pad_trace_main.cpp -o Vmac_tx_chain_pads
+
 gptp_ucode.hex: $(GPTP_DIR)/hdl/ucode/gen_gptp_ucode.py
 	python3 $< --clk-hz $(ENGINE_CLK_HZ) --cease-ms 3000 -o $@
 
 clean:
-	rm -rf obj_dir obj_pad gptp_ucode.hex
+	rm -rf obj_dir obj_mii obj_pad obj_pad_mii gptp_ucode.hex

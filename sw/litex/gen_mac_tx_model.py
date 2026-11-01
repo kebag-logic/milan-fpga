@@ -73,6 +73,11 @@ PINS = REPO / "sw" / "litex" / "litex_pins.txt"
 OUT_DIR = REPO / "tb" / "verilator" / "gptp_txts" / "generated"
 OUT_V = OUT_DIR / "mac_tx_chain.v"
 OUT_MANIFEST = OUT_DIR / "manifest.json"
+#: The same chain on the board's 10/100 PHY stages (issue #829): 4-bit pads, one
+#: octet per two transmit clocks at `phy.sink`, and no `eth_rst` in the PHY
+#: stage's own domain, which is what `LiteEthPHYMIICRG` builds.
+OUT_V_MII = OUT_DIR / "mac_tx_chain_mii.v"
+OUT_MANIFEST_MII = OUT_DIR / "manifest_mii.json"
 
 #: The `MilanMAC` region this generator mirrors, delimited by two lines that
 #: are already in the product source. Both are structural comments of the
@@ -101,6 +106,7 @@ try:
     from liteeth.common import eth_phy_description
     from liteeth.mac.core import LiteEthMACCore
     from liteeth.phy.gmii import LiteEthPHYGMIITX, LiteEthPHYGMIIRX
+    from liteeth.phy.mii import LiteEthPHYMIITX, LiteEthPHYMIIRX
     import milan_soc
     HAVE_LITEX = True
 except ImportError:
@@ -157,6 +163,19 @@ if HAVE_LITEX:
                 LiteEthPHYGMIIRX(pads))
             self.sink, self.source = self.tx.sink, self.rx.source
 
+    class _PhyStagesMii(Module):
+        """The same two register stages of `LiteEthPHYMII`, and only those."""
+        dw = 8
+        tx_clk_freq = 25e6
+        rx_clk_freq = 25e6
+
+        def __init__(self, pads):
+            self.submodules.tx = ClockDomainsRenamer("eth_tx")(
+                LiteEthPHYMIITX(pads))
+            self.submodules.rx = ClockDomainsRenamer("eth_rx")(
+                LiteEthPHYMIIRX(pads))
+            self.sink, self.source = self.tx.sink, self.rx.source
+
     class MacTxChain(LiteXModule):
         """The shipping MAC transmit chain, with its clocks and its two
         recovery levels brought to the boundary.
@@ -173,7 +192,8 @@ if HAVE_LITEX:
         twice: what the last step needs, the one before it returns.
         """
 
-        def __init__(self):
+        def __init__(self, shape="gmii"):
+            self.shape = shape
             self._declare_boundary()
             self._declare_domains()
             pads, phy = self._build_datapath()
@@ -230,9 +250,14 @@ if HAVE_LITEX:
             self.clock_domains.cd_macdp = ClockDomain()
             self.clock_domains.cd_maceth_tx = ClockDomain()
             self.clock_domains.cd_maceth_rx = ClockDomain()
+            #: `LiteEthPHYMIICRG` takes no external reset: on this shape the
+            #: guard's `eth_rst` reaches the two maceth domains and not the PHY
+            #: stage (the MilanMAC note on `ext_reset`)
+            phy_rst = (self.eth_phy_rst if self.shape == "mii"
+                       else self.eth_phy_rst | self.eth_rst)
             resets = [
-                (self.cd_eth_tx, self.eth_phy_rst | self.eth_rst),
-                (self.cd_eth_rx, self.eth_phy_rst | self.eth_rst),
+                (self.cd_eth_tx, phy_rst),
+                (self.cd_eth_rx, phy_rst),
                 (self.cd_macsys, self.sys_rst | self.reinit),
                 (self.cd_macdp, self.dp_rst | self.reinit),
                 (self.cd_maceth_tx, self.cd_eth_tx.rst | self.eth_rst),
@@ -252,9 +277,15 @@ if HAVE_LITEX:
         def _build_datapath(self):
             """The chain itself, returning the two objects the seams read."""
             # ---- the PHY register stages and the MAC core ------------------
-            pads = Record([("tx_en", 1), ("tx_data", 8), ("tx_er", 1),
-                           ("rx_dv", 1), ("rx_data", 8), ("rx_er", 1)])
-            self.submodules.phy = phy = _PhyStages(pads)
+            if self.shape == "mii":
+                #: the board's pad set: no transmit error pin
+                pads = Record([("tx_en", 1), ("tx_data", 4),
+                               ("rx_dv", 1), ("rx_data", 4), ("rx_er", 1)])
+                self.submodules.phy = phy = _PhyStagesMii(pads)
+            else:
+                pads = Record([("tx_en", 1), ("tx_data", 8), ("tx_er", 1),
+                               ("rx_dv", 1), ("rx_data", 8), ("rx_er", 1)])
+                self.submodules.phy = phy = _PhyStages(pads)
             self.submodules.core = ClockDomainsRenamer(
                 {"sys": "macsys", "eth_tx": "maceth_tx",
                  "eth_rx": "maceth_rx"})(
@@ -318,12 +349,12 @@ if HAVE_LITEX:
                 self.phy_sink_last.eq(phy.sink.last),
                 self.gmii_tx_en.eq(pads.tx_en),
                 self.gmii_tx_data.eq(pads.tx_data),
-                self.gmii_tx_er.eq(pads.tx_er),
+                self.gmii_tx_er.eq(0 if self.shape == "mii" else pads.tx_er),
                 self.maceth_tx_rst.eq(self.cd_maceth_tx.rst),
             ]
 
 
-def build_chain() -> "MacTxChain":
+def build_chain(shape: str = "gmii") -> "MacTxChain":
     """The product transmit chain as a migen object.
 
     ONE object: it is what `build_verilog()` converts and what
@@ -340,15 +371,15 @@ def build_chain() -> "MacTxChain":
             "this interpreter cannot import the pinned LiteX stack, so it "
             "cannot build the product's transmit chain; run it through "
             "$MILAN_LITEX_PYTHON")
-    return MacTxChain()
+    return MacTxChain(shape)
 
 
-def build_verilog() -> str:
+def build_verilog(shape: str = "gmii") -> str:
     """Convert the product transmit chain to Verilog."""
     from migen.fhdl.verilog import convert
     from litex.build.sim.common import sim_special_overrides
 
-    chain = build_chain()
+    chain = build_chain(shape)
     ios = {
         chain.sys_clk, chain.sys_rst, chain.dp_clk, chain.dp_rst,
         chain.eth_tx_clk, chain.eth_rx_clk, chain.eth_phy_rst,
@@ -359,16 +390,17 @@ def build_verilog() -> str:
         chain.phy_sink_valid, chain.phy_sink_ready, chain.phy_sink_data,
         chain.phy_sink_last, chain.maceth_tx_rst,
     }
-    return str(convert(chain, ios=ios, name="mac_tx_chain",
+    top = "mac_tx_chain_mii" if shape == "mii" else "mac_tx_chain"
+    return str(convert(chain, ios=ios, name=top,
                        special_overrides=sim_special_overrides))
 
 
-def generate() -> tuple[str, dict]:
+def generate(shape: str = "gmii") -> tuple[str, dict]:
     """The Verilog and the manifest that says what it came from."""
-    verilog = build_verilog()
+    verilog = build_verilog(shape)
     manifest = {
         "generator": "sw/litex/gen_mac_tx_model.py",
-        "top": "mac_tx_chain",
+        "top": "mac_tx_chain_mii" if shape == "mii" else "mac_tx_chain",
         "data_width": DATA_WIDTH,
         "tx_sf_payload_depth": TX_SF_PAYLOAD_DEPTH,
         "tx_sf_param_depth": TX_SF_PARAM_DEPTH,
@@ -380,7 +412,7 @@ def generate() -> tuple[str, dict]:
     return verilog, manifest
 
 
-def check() -> int:
+def check(shape: str = "gmii") -> int:
     """Refuse a stale artifact, at the strongest level this interpreter can.
 
     TWO LEVELS, and the report says which one ran. Both are real:
@@ -397,13 +429,15 @@ def check() -> int:
     A missing artifact is a failure at either level: the closed loop cannot
     be causal without it, and it is not regenerated silently by a check.
     """
-    if not OUT_V.is_file() or not OUT_MANIFEST.is_file():
+    out_v, out_manifest = (OUT_V_MII, OUT_MANIFEST_MII) if shape == "mii" \
+        else (OUT_V, OUT_MANIFEST)
+    if not out_v.is_file() or not out_manifest.is_file():
         print("STALE: the generated MAC transmit chain is not on disk; run "
               "sw/litex/gen_mac_tx_model.py with the pinned LiteX stack",
               file=sys.stderr)
         return 1
-    recorded = json.loads(OUT_MANIFEST.read_text(encoding="utf-8"))
-    verilog = OUT_V.read_text(encoding="utf-8")
+    recorded = json.loads(out_manifest.read_text(encoding="utf-8"))
+    verilog = out_v.read_text(encoding="utf-8")
     problems = []
     region = hashlib.sha256(product_region().encode("utf-8")).hexdigest()
     if recorded.get("milan_mac_region_sha256") != region:
@@ -420,7 +454,7 @@ def check() -> int:
 
     level = "product source, pins and bytes"
     if HAVE_LITEX:
-        fresh_v, fresh_m = generate()
+        fresh_v, fresh_m = generate(shape)
         if fresh_v != verilog or fresh_m != recorded:
             problems.append("re-converting the product chain does not "
                             "reproduce the artifact byte for byte")
@@ -434,7 +468,8 @@ def check() -> int:
         for problem in problems:
             print(f"  {problem}", file=sys.stderr)
         return 1
-    print(f"generated MAC transmit chain: OK ({len(verilog.splitlines())} "
+    print(f"generated {shape} MAC transmit chain: OK "
+          f"({len(verilog.splitlines())} "
           f"lines, region {region[:12]}, checked by {level})")
     return 0
 
@@ -447,7 +482,7 @@ def main() -> int:
     args = parser.parse_args()
 
     if args.check:
-        return check()
+        return check("gmii") or check("mii")
 
     if not HAVE_LITEX:
         print("REFUSED: this interpreter cannot import the pinned LiteX "
@@ -458,13 +493,15 @@ def main() -> int:
               "through $MILAN_LITEX_PYTHON.", file=sys.stderr)
         return 2
 
-    verilog, manifest = generate()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    OUT_V.write_text(verilog, encoding="utf-8")
-    OUT_MANIFEST.write_text(json.dumps(manifest, indent=2, sort_keys=True)
-                            + "\n", encoding="utf-8")
-    print(f"wrote {OUT_V.relative_to(REPO)} "
-          f"({len(verilog.splitlines())} lines) and its manifest")
+    for shape, out_v, out_manifest in (("gmii", OUT_V, OUT_MANIFEST),
+                                       ("mii", OUT_V_MII, OUT_MANIFEST_MII)):
+        verilog, manifest = generate(shape)
+        out_v.write_text(verilog, encoding="utf-8")
+        out_manifest.write_text(json.dumps(manifest, indent=2, sort_keys=True)
+                                + "\n", encoding="utf-8")
+        print(f"wrote {out_v.relative_to(REPO)} "
+              f"({len(verilog.splitlines())} lines) and its manifest")
     return 0
 
 

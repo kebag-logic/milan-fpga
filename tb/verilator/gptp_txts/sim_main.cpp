@@ -10,7 +10,9 @@
 // `mac_tx_cdc` halves, `tx_sf`, the LiteEth core with preamble, FCS,
 // padding, width conversion and gap insertion, and the PHY transmit
 // register stage. Three clocks run at the product's shape: 125 MHz at the
-// wire, 100 MHz at the MAC system side, 50 MHz at the plane. This harness
+// wire, 100 MHz at the MAC system side, 50 MHz at the plane; the MII build
+// (issue #829) runs the 10/100 PHY stages at 25 MHz, at both system clocks
+// that board has carried. This harness
 // drives the datapath boundary, the clocks, the recovery controls and the
 // peer, and nothing else: every frame byte, every launch instant, every
 // ready and every reset response is produced by the design.
@@ -48,8 +50,21 @@ namespace {
 //! the product's: 125 MHz at the wire, 100 MHz at the MAC system side and
 //! 50 MHz at the plane, which is what makes the egress correction this
 //! bench grades the product's own 426 ns.
+//!
+//! THE MII SHAPE (issue #829) is the Arty's: 25 MHz at the wire, one octet per
+//! two transmit clocks, low nibble first on four-bit pads. The MAC system
+//! clock is the run's argument because that board's is not a whole number of
+//! half nanoseconds: it is carried in quarter nanoseconds, with the remainder
+//! kept between half-periods, so 25 is exactly 80 MHz over a run and the
+//! default 20 is the 100 MHz above.
+#ifdef GPTP_TXTS_MII
+constexpr uint64_t kEthHalfNs = 20;
+constexpr uint64_t kEthCycPerOctet = 2;
+#else
 constexpr uint64_t kEthHalfNs = 4;
-constexpr uint64_t kSysHalfNs = 5;
+constexpr uint64_t kEthCycPerOctet = 1;
+#endif
+constexpr uint64_t kSysHalfQuarterNsDefault = 20;
 constexpr uint64_t kDpHalfNs = 10;
 
 //! The PHC's nominal Q8.24 step at the plane's 20 ns tick.
@@ -67,6 +82,16 @@ constexpr uint32_t kPhcIncrNominal = 20u << 24;
 //! - a bench that graded to a wider bound than the document would be
 //! evidence for a claim nobody made.
 constexpr int64_t kBoundNs = 11;
+//! The mean's limit, in thousandths of a nanosecond: one nanosecond of phase and
+//! truncation, plus what the declared wire-clock offset leaves over the
+//! reconstructed interval, 3770 ns x 200 ppm on the MII shape. A bench clock
+//! slower by that offset moves the mean by that term and no other, and every
+//! dropped term of the correction is at least ten nanoseconds.
+#ifdef GPTP_TXTS_MII
+constexpr int64_t kBiasLimitMilliNs = 1000 + 754;
+#else
+constexpr int64_t kBiasLimitMilliNs = 1000;
+#endif
 //! Frames the bias oracle needs before its mean means anything.
 constexpr int kBiasFrames = 200;
 
@@ -190,6 +215,8 @@ struct Record {
 //! The closed loop, its clocks, its peer and its oracles.
 class TxtsHarness {
  public:
+  explicit TxtsHarness(uint64_t sys_half_quarter_ns)
+      : sys_half_quarter_ns_(sys_half_quarter_ns) {}
   int run();
 
  private:
@@ -207,6 +234,9 @@ class TxtsHarness {
   //! carried between half-periods so the offset is exact over a run rather
   //! than rounded away at every edge
   uint64_t eth_acc_ = 0;
+  //! the system clock's half-period and its remainder, in quarter nanoseconds
+  const uint64_t sys_half_quarter_ns_;
+  uint64_t sys_acc_ = 0;
 
   // ---- what the harness drives ------------------------------------------
   std::vector<uint8_t> rx_bytes_;
@@ -227,6 +257,12 @@ class TxtsHarness {
   std::vector<uint64_t> boundary_ns_;   //! the RETIRED capture, per plane frame
   PadFrame pad_cur_;
   bool pad_open_ = false;
+  //! the MII oracle's own nibble alignment, taken from the delimiter on the
+  //! pads, as a receiving MAC takes it
+  bool nib_aligned_ = false;
+  bool nib_high_ = false;
+  uint8_t nib_lo_ = 0;
+  uint64_t nib_ns_ = 0;
   size_t pad_idx_ = 0;
   uint64_t pad_gap_ = 0;
   bool lane_sof_ = true;
@@ -246,7 +282,8 @@ class TxtsHarness {
   void on_dp_edge();
   void drive_sources();
   void on_eth_edge();
-  void pad_octet(uint8_t data);
+  void pad_octet(uint8_t data, uint64_t launch_ns);
+  void pad_nibble(uint8_t nibble);
   void pad_close();
   void run_ns(uint64_t span);
   void reset_all();
@@ -266,6 +303,7 @@ class TxtsHarness {
   void prove_bias_over_many_frames();
   void prove_pads_are_byte_exact();
   void prove_fragment_aborts();
+  void prove_phc_load_inside_the_window();
   void prove_recovery_over_the_production_mac();
   void prove_full_run_laws();
 
@@ -301,7 +339,9 @@ void TxtsHarness::step() {
   }
   if (sys_next_ == now_) {
     dut->sys_clk_i = dut->sys_clk_i ? 0 : 1;
-    sys_next_ += kSysHalfNs;
+    sys_acc_ += sys_half_quarter_ns_;
+    sys_next_ += sys_acc_ / 4;
+    sys_acc_ %= 4;
   }
   if (dp_next_ == now_) {
     dut->dp_clk_i = dut->dp_clk_i ? 0 : 1;
@@ -418,8 +458,12 @@ void TxtsHarness::drive_sources() {
 void TxtsHarness::on_eth_edge() {
   if (dut->gmii_tx_en_o) {
     pad_gap_ = 0;
-    pad_octet(static_cast<uint8_t>(dut->gmii_tx_data_o));
-  } else if (pad_open_) {
+#ifdef GPTP_TXTS_MII
+    pad_nibble(static_cast<uint8_t>(dut->gmii_tx_data_o & 0xFu));
+#else
+    pad_octet(static_cast<uint8_t>(dut->gmii_tx_data_o), now_);
+#endif
+  } else if (pad_open_ || nib_aligned_) {
     pad_gap_++;
     //! a frame ends at the inter-frame gap; a shorter low run inside one is
     //! a fragment and is recorded as such
@@ -429,7 +473,31 @@ void TxtsHarness::on_eth_edge() {
   //! it is done there, in on_dp_edge's caller
 }
 
-void TxtsHarness::pad_octet(uint8_t data) {
+//! One MII nibble from the pads. An octet's low nibble goes first, and its
+//! launch instant is that nibble's edge. The preamble and the delimiter are
+//! found here on the nibbles themselves, so this reads what a peer would read
+//! and owes nothing to the transmit side's octet phase.
+void TxtsHarness::pad_nibble(uint8_t nibble) {
+  if (!nib_aligned_) {
+    if (nibble == 0xD) {
+      for (int i = 0; i < 7; i++) pad_octet(0x55, now_);
+      pad_octet(0xD5, now_);
+      nib_aligned_ = true;
+      nib_high_ = false;
+    }
+    return;
+  }
+  if (!nib_high_) {
+    nib_lo_ = nibble;
+    nib_ns_ = now_;
+    nib_high_ = true;
+  } else {
+    pad_octet(static_cast<uint8_t>((nibble << 4) | nib_lo_), nib_ns_);
+    nib_high_ = false;
+  }
+}
+
+void TxtsHarness::pad_octet(uint8_t data, uint64_t launch_ns) {
   if (!pad_open_) {
     pad_open_ = true;
     pad_idx_ = 0;
@@ -442,7 +510,7 @@ void TxtsHarness::pad_octet(uint8_t data) {
   if (pad_idx_ == 8) {
     //! THE REFERENCE PLANE: the registered GMII launch edge of frame octet
     //! 0, the first symbol after the start-of-frame delimiter.
-    pad_cur_.ref_ns = now_;
+    pad_cur_.ref_ns = launch_ns;
   }
   if (pad_idx_ >= 8) pad_cur_.body.push_back(data);
   if (pad_idx_ == 21) {
@@ -460,6 +528,8 @@ void TxtsHarness::pad_octet(uint8_t data) {
 }
 
 void TxtsHarness::pad_close() {
+  nib_aligned_ = false;
+  nib_high_ = false;
   pad_open_ = false;
   pad_cur_.octets = pad_cur_.body.size();
   pads_.push_back(pad_cur_);
@@ -787,7 +857,7 @@ void TxtsHarness::prove_bias_over_many_frames() {
               static_cast<unsigned long long>((now_ - bias_t0_) / 1000));
   check.that("bias: the crossing phase really was swept", distinct >= 8);
   check.that("bias: the mean error is within one nanosecond of zero",
-             std::abs(mean_milli) <= 1000);
+             std::abs(mean_milli) <= kBiasLimitMilliNs);
 }
 
 //! A2: the wire carries whole frames. Every gPTP frame the pads showed has
@@ -838,7 +908,7 @@ void TxtsHarness::prove_fragment_aborts() {
       //! the frame now on the wire is the one this arm fragments
       target = gptp_pads();
       dut->obs_bubble_i = 1;
-      run_ns(2 * kEthHalfNs);
+      run_ns(2 * kEthCycPerOctet * kEthHalfNs);
       dut->obs_bubble_i = 0;
       injected = true;
     }
@@ -863,6 +933,45 @@ void TxtsHarness::prove_fragment_aborts() {
   }
   check.that("fragment: the loss was counted",
              dut->dbg_txts_lost_o != lost0);
+}
+
+//! A PHC load between a frame's first symbol and its record's capture leaves no
+//! trajectory the reconstruction can describe, so that frame's result is an
+//! explicit loss. The load lands where the pads have carried the frame's header,
+//! fourteen octets past its reference: 112 ns into the GMII interval and 1120 ns
+//! into the MII one, so the guard has to cover the whole of the longer interval
+//! (issue #829).
+void TxtsHarness::prove_phc_load_inside_the_window() {
+  const uint16_t phc_lost0 = dut->dbg_txts_phcl_o;
+  const uint16_t seq = peer_seq_++;
+  Frame req = ptp_frame(0x2, seq, 0x0000, 20, kPeerCid);
+  req.u64v(0);
+  req.u64v(0);
+  req.u32(0);
+  send_peer(req.b);
+  size_t target = 0;
+  bool loaded = false;
+  const uint64_t until = now_ + kExchangeNs;
+  while (now_ < until) {
+    step();
+    if (!loaded && pad_open_ && pad_cur_.gptp && pad_idx_ == 22) {
+      target = gptp_pads();
+      dut->phc_tod_wr_i = dut->phc_ns_o;
+      dut->phc_load_i = 1;
+      run_ns(2 * kDpHalfNs);
+      dut->phc_load_i = 0;
+      loaded = true;
+    }
+  }
+  check.that("phc window: the load landed inside a gPTP frame", loaded);
+  const bool have_result = target < results_.size();
+  check.that("phc window: the plane delivered that frame's result", have_result);
+  if (have_result) {
+    check.dec("phc window: that frame's own result is an explicit loss",
+              results_[target].ok, 0);
+  }
+  check.that("phc window: the history guard counted it",
+             dut->dbg_txts_phcl_o != phc_lost0);
 }
 
 //! B7 and B13 over the PRODUCTION MAC: a recovery episode really destroys
@@ -930,6 +1039,7 @@ int TxtsHarness::run() {
   prove_bias_over_many_frames();
   prove_pads_are_byte_exact();
   prove_fragment_aborts();
+  prove_phc_load_inside_the_window();
   prove_recovery_over_the_production_mac();
   prove_full_run_laws();
   return check.report();
@@ -937,6 +1047,7 @@ int TxtsHarness::run() {
 
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
-  TxtsHarness harness;
+  TxtsHarness harness(argc > 1 ? std::strtoull(argv[1], nullptr, 10)
+                               : kSysHalfQuarterNsDefault);
   return harness.run();
 }
