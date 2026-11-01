@@ -364,7 +364,7 @@ def stand_in(out: Path, shape: str, n_if: int, control: Control) -> tuple[Path, 
     prints a valid boot's observations as sim_main.cpp prints them (configure_fabric()'s writes and MAAP's
     one-owner report, the ready line, and the three commands answered as the grader passes them), then ends its log
     and exits as the control says."""
-    spec = {'sys_hz': 100_000_000, 'cpu_hz': 50_000_000, 'shape': shape, 'interfaces': n_if}
+    spec = {'sys_hz': 100_000_000, 'cpu_hz': 100_000_000, 'shape': shape, 'interfaces': n_if}
     rows = [f'CSRW {k + 1} {o:03x} {v:08x}' for k, (o, v) in enumerate(expected_writes(shape, out / 'oracle'))]
     rows.append('READY 10000')
     for k, (command, answer) in enumerate(ANSWERS):

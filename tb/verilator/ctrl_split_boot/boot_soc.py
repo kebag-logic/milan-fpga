@@ -5,8 +5,8 @@ and UART on pads.
 
 The CPU, its firmware memory, the mailbox and the flash are the CPU budget
 harness's (tb/verilator/ctrl_service_budget/split_soc.py, imported read only):
-the shipping VexiiRiscv with the split placement's instruction cache at the
-Milan clock, milan_soc.add_ctrl_memory built from the linked image, KL_mbx
+the shipping VexiiRiscv with the split placement's instruction cache on the
+bus clock, sys, milan_soc.add_ctrl_memory built from the linked image, KL_mbx
 behind KL_mbx_wb with its datapath on the testbench's pads and the face
 commit acknowledged at the contract's bound, LiteSPI and timer0 where F1's
 port addresses them. That harness's SoC has neither of the two devices the
@@ -72,14 +72,18 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int) -> dict:
     cpu = split_soc.CpuPatches('cover')
     geometry = split_soc.fetch_l1_geometry('split')
     scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
-    sys_hz, cpu_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
+    sys_hz, milan_hz = clocks['sys_clk_hz'], clocks['milan_clk_hz']
     with cpu.applied():
         soc = milan_soc.MilanSoC(
             platform, sys_hz, xlen=params['xlen'], cpu_count=params['cpu_count'], cpu=params['cpu'],
             board='ax7101', with_milan=False, with_mac=False, with_dram=False, with_spiflash=False,
-            flashboot=clocks['flashboot'], milan_clk_freq=cpu_hz, l2_bytes=clocks['l2_bytes'],
-            extra_scala_args=scala_args, uart_name='sim', uart_baudrate=clocks['uart_baudrate'],
+            flashboot=clocks['flashboot'], milan_clk_freq=milan_hz, ctrl_cpu_cd=milan_soc.CTRL_CPU_CD,
+            l2_bytes=clocks['l2_bytes'], extra_scala_args=scala_args, uart_name='sim',
+            uart_baudrate=clocks['uart_baudrate'],
             integrated_rom_size=0, integrated_sram_size=0, integrated_main_ram_size=0, with_timer=False)
+        if hasattr(soc.cpu, 'cpu_clk'):
+            raise RuntimeError(f'the split CPU has a clock of its own beside {soc.cpu_cd}: it runs on the bus clock')
+        cpu_hz = soc.cpu_clk_freq
         milan_soc.add_ctrl_memory(soc, elf)
         for path in split_soc.mailbox_sources(n_if, build_dir / 'mbx-variant'):
             platform.add_source(str(path))
@@ -91,7 +95,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int) -> dict:
                           csr_csv=str(build_dir / 'csr.csv'))
         sim_config = SimConfig()
         sim_config.add_clocker('sys_clk', freq_hz=sys_hz)
-        sim_config.add_clocker('milan_clk', freq_hz=cpu_hz)
+        sim_config.add_clocker('milan_clk', freq_hz=milan_hz)
         builder.build(run=False, sim_config=sim_config)
     spec = {
         'sources': [str(Path(s[0]).resolve()) for s in soc.platform.sources],
