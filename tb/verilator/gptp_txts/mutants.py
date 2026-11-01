@@ -68,7 +68,7 @@ MII_MUTATIONS = [
         PLANE / "KL_gptp_txret.sv",
         "(TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P + ETH_CYC_PER_OCTET_P - 1) * ETH_TICK_NS_P",
         "(TXTS_DELTA_EXP_P + OBS_LAT_E_CYC_P) * ETH_TICK_NS_P  // MUTATION",
-        "bias: the mean error is within one nanosecond of zero",
+        "bias: the mean error is within 1.754 ns of zero",
     ),
     (
         "mii_transmit_tick_left_at_gmii",

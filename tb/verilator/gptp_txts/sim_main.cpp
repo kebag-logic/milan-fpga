@@ -89,8 +89,12 @@ constexpr int64_t kBoundNs = 11;
 //! dropped term of the correction is at least ten nanoseconds.
 #ifdef GPTP_TXTS_MII
 constexpr int64_t kBiasLimitMilliNs = 1000 + 754;
+constexpr const char *kBiasCheck =
+    "bias: the mean error is within 1.754 ns of zero";
 #else
 constexpr int64_t kBiasLimitMilliNs = 1000;
+constexpr const char *kBiasCheck =
+    "bias: the mean error is within one nanosecond of zero";
 #endif
 //! Frames the bias oracle needs before its mean means anything.
 constexpr int kBiasFrames = 200;
@@ -856,8 +860,7 @@ void TxtsHarness::prove_bias_over_many_frames() {
               static_cast<long long>(hi), distinct,
               static_cast<unsigned long long>((now_ - bias_t0_) / 1000));
   check.that("bias: the crossing phase really was swept", distinct >= 8);
-  check.that("bias: the mean error is within one nanosecond of zero",
-             std::abs(mean_milli) <= kBiasLimitMilliNs);
+  check.that(kBiasCheck, std::abs(mean_milli) <= kBiasLimitMilliNs);
 }
 
 //! A2: the wire carries whole frames. Every gPTP frame the pads showed has
