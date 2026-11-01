@@ -55,7 +55,7 @@ Production classification (needed / optional / debug, with rationale): [REGISTER
 
 ### READ THIS FIRST -- the control plane was replaced (VERSION major 2, 2026-08-13)
 
-This repository's own IEEE 1722.1 / SRP control-plane RTL is **deleted**: the ADP advertiser and parser, the whole AECP/AEM engine, the ACMP talker and listener, and the lwSRP applicant. There is **no parameter, no fallback and no shadow arm** -- the user's instruction was "remove the old code AECP/ACMP/ADP the lwSRP shall be removed as well. Only use the uCPU code" and "do not leave the option, remove everything out of the code base that is legacy". The git history keeps all of it.
+This repository's own IEEE 1722.1 / SRP control-plane RTL is **deleted**: the ADP advertiser and parser, the whole AECP/AEM engine, the ACMP talker and listener, and the lwSRP applicant. There is **no parameter, no fallback and no shadow arm**. The git history keeps all of it.
 
 What serves the control plane now is [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv), the consumer-side wrapper around the pinned `protocol-processor` submodule, which [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) instantiates **unconditionally**. It owns ADP, ACMP (talker and listener) and SRP, publishes a class-D wire face the fabric consumes every clock, and its packed TX rides the control lane. MAAP stays in this fabric (`KL_maap`), bridged by [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv). Those two file banners are the authoritative statement; this page is their CSR projection.
 
@@ -97,9 +97,7 @@ Memory-mapped control/status registers for the Milan TSN NIC. This is the **stab
 
 **Bus:** AXI4-Lite, 32-bit data, little-endian. The LiteX product maps the 64 KiB window at **`0x9000_0000`**; the register offsets below are fixed.
 
-**Access:** `RO` read-only, `RW` read-write, `W1C` write-1-to-clear, `W1S` write-1-to-set (self-clearing command strobe), `ROc` read latches/clears.
-
-Unused bits read 0; writes to `RO` fields are ignored; unmapped offsets read 0 and `SLVERR` is **not** raised (OKAY) to keep firmware access simple.
+Reserved read-only bits read 0, and reserved R/W bits store what is written; writes to read-only fields are ignored; unmapped offsets read 0 and `SLVERR` is **not** raised (OKAY) to keep firmware access simple.
 
 **Timing (2026-07-16 config-in-RAM read path):** plain-RW readback is served from a write-through shadow BRAM -- reads complete one clock later than the original mux (AXI4-Lite handshake absorbs it; no firmware change). After reset the block holds `*READY` low for ~513 clocks while the defaults ROM is swept into the shadow, so soft-reset readback values are identical to before.
 
@@ -107,7 +105,7 @@ Unused bits read 0; writes to `RO` fields are ignored; unmapped offsets read 0 a
 
 ### A group can be STRUCTURALLY absent (optional-block prunes, 2026-07-27)
 
-Six `milan_datapath` blocks are now behind **elaboration-time prune parameters** ([docs/design/AREA_BUDGET.md](AREA_BUDGET.md) tier 1). **Every one defaults to PRESENT**, so a shipping build's map is exactly what this page describes. A build that pulls a lever keeps the *register window* -- the address still decodes, RW words still store and read back -- but the block behind it is gone and its RO words read a **structural zero**, which is not a measurement:
+Six `milan_datapath` blocks are now behind **elaboration-time prune parameters** ([docs/design/AREA_BUDGET.md](AREA_BUDGET.md) tier 1). **Every one defaults to PRESENT**, but a build may set them: the shipping AX7101 export sets `I2SPB_P` and `LPF_P` to 0. A build that pulls a lever keeps the *register window* -- the address still decodes, RW words still store and read back -- but the block behind it is gone and its RO words read a **structural zero**, which is not a measurement:
 
 The table is on the [register reference](../reference/REGISTER_MAP.md).
 
@@ -973,7 +971,7 @@ Row map: listener idx k → ctx row k, talker idx t → ctx row `N_LISTENERS_P-1
 
 ### STRM_SEL (offset 0x800)
 
-`[3:0]` stream index, `[8]` dir (0 = listener, 1 = talker), `[9]` **listener-0 row select (since VERSION `0x0023`)**: 1 = the window serves sink 0's dedicated lwSRP row (`SRP_LSN0_ROW_C = L+T-1`); `[8]`/`[3:0]` are ignored while set. `{dir=0, idx=0}` is the PARK state. Only these bits are stored/read back. Writing SEL invalidates the ACMP/SRP read snapshots. Until a re-poll lands, snapshot-served words read zero, meaning "not fresh yet", not "no bind". Firmware must read until a value repeats if another firmware task may move SEL; see [TROUBLESHOOTING Section 21](../limitations/TROUBLESHOOTING.md).
+`[3:0]` stream index, `[8]` dir (0 = listener, 1 = talker), `[9]` **listener-0 row select (since VERSION `0x0023`)**: 1 = the window serves sink 0's dedicated lwSRP row (`SRP_LSN0_ROW_C = L+T-1`); it acts only while `[8]` is 0, and `[3:0]` still gates the window. `{dir=0, idx=0}` is the PARK state. These bits are stored; a read returns `[8]` and `[3:0]` only. Writing SEL invalidates the ACMP/SRP read snapshots. Until a re-poll lands, snapshot-served words read zero, meaning "not fresh yet", not "no bind". Firmware must read until a value repeats if another firmware task may move SEL; see [TROUBLESHOOTING Section 21](../limitations/TROUBLESHOOTING.md).
 
 ### STRM_SNAP (offset 0x804)
 
