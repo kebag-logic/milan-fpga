@@ -1,0 +1,14 @@
+# ci_scope on the PR's changed files
+at 20933ef4: false
+at d63b378d: true
+# resource gate
+baseline PASS: 3 endpoints
+check-baseline rc=0
+# endpoint policy table digest, 20933ef4 and head
+0dc7db6f4bdabcfb6902b77cc74c4f18141af8cc5b8b1c73100bdd8e18720a51  -
+0dc7db6f4bdabcfb6902b77cc74c4f18141af8cc5b8b1c73100bdd8e18720a51  -
+# non-Markdown files naming the F1 figures
+none
+# measured figures in the headroom table
+-| Slice LUT | 63,400 | 52,012 | 82.04 % | [NFR-RES-01](../r
++| Slice LUT | 63,400 | 52,012 | 82.04 % | [NFR-RES-01](../r
