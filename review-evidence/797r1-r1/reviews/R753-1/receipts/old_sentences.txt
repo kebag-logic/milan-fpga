@@ -1,0 +1,40 @@
+sentences 1655 absent 39
+- **`A_TXARB_DIAG` `0x784` lane numbering changed.** Major 2 collapsed the old eight-mux cascade to four; <!-- milan-feature-value:gateware_version:historic --> VERSION `0x0002_0055` adds lane 4 for `gptp_ctl_mux`, making five in fabric-gPTP builds.
+- **Every Stream Output's presentation-time offset is pinned at the Milan 2 ms default** (`SET_MAX_TRANSIT_TIME` is gone).
+- `[3:0]` num_queues (the retained `0x400` window geometry, 5), `[8]` CBS - 🔴 **STRUCTURAL ZERO** since `0x0056`: no shaper is elaborated, `[9]` PTP, `[10]` STATS, `[11]` RX-filter, `[12]` ADP, `[13]` TCAM, `[14]` LWSRP, `[23:16]` ts_width
+- `[7:0]` inter-frame gap (bytes), default 12
+- `[0]` link_up, `[2:1]` speed (0=10,1=100,2=1000), `[3]` full_duplex
+- `[0]` phy_reset_n (0 = hold PHY in reset)
+- Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`.
+- Physical switch-cycle acceptance remains on [#599](https://github.com/kebag-logic/milan-fpga/issues/599).
+- `[0]` snapshot (W1S, self-clear), `[1]` reset-counters
+- `0xFAC688` (identity)
+- `[0]` shaped-enable (0 = strict priority, credit forced eligible)
+- `[0]` counter enable
+- `[0]` load (apply settime), `[1]` adjust (apply adjtime), `[2]` snapshot (latch TOD for gettime)  -  self-clearing pulses
+- `[4:0]` entry index, `[8]` valid (1 = add/update, 0 = remove), `[16]` commit (self-clearing)  -  latches KEY/MASK/ACTION shadows into the entry
+- `[0]` firmware link qualification (assumed up at reset), `[1]` manual mac_reinit (hold MAC sys-side in reset), `[2]` linkg_dis (1 = guard disabled), `[3]` linkg_freeze (test hook: fake eth clock death drills the full FSM with no cable)
+- `[0]` playback biquad LPF enable (`KL_pcm_lpf`), on by default
+- `[0]` CRF sink enable (RW);
+- `[31]` locked (RO live).
+- `[0]` advertise-enable — **LIVE, and ORed with `PP_CTRL[0]` (`0x920`): either bit enables the entity**.
+- `[12:8]` valid_time (units of 2 s; reset 10 per Milan 5.6.2 ⇒ 20 s validity) is 🟡 **WRITE-ONLY SCRATCH** — the processor holds valid_time as an internal constant and the ADPDU carries that, not this
+- `[15:0]` current_configuration_index the ADPDU carries until a SET_CONFIGURATION or D3 restore writes the processor's configuration row, and again after a D3 roll-back (from processor pin `631eeb34`), `[31:16]` identify_control_index
+- `[0]` manual listener_observed override — OR-ed with the lwSRP-sourced listener_observed (the lwSRP socket, see the 0x680 group)
+- `[1:0]` is that attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value (0 none/ignore, 1 asking-failed, 2 ready, 3 ready-failed);
+- AVTP RX monitor (STREAM_INPUT[0], Milan Table 7-156):
+- `[0]` pilot tone enable: 1 kHz exact-period 48×24-bit sine replaces the I2S ADC on both talker channels (digital THD+N −148.1 dB;
+- `[3:1]` **attenuation**, −6 dB steps applied as `TONE_TAB_C[idx] >>> att` (0 = 0 dBFS full scale, 7 = −42 dB); reset is `0`, so the power-on tone is 0 dBFS and any smaller amplitude was dialled in at the bench.
+- **Nothing in this device persists a binding across a power cycle.** The processor has its own NVM restore walk, but the device face behind it is a BLANK-FLASH responder inside `KL_pp_shadow` — reads return `0xFF`, writes are accepted and discarded, erase completes — which is the processor's document
+- Milan v1.2 5.3.8.2 — "The current bound state shall be saved in a non-volatile memory and restored after a power cycle" — is **not met by this build**.
+- `[7:4]` fabric publication generation, `[3:0]` path count; option OFF reads zero and all writes are discarded.
+- `[31:16]` tap-FIFO drop count, `[15:0]` parser refusal count; both 16-bit wrapping; option OFF reads zero.
+- `[31:16]` `GPTP_TXTS_LOST` (issue #360): egress launch records that closed with NO timestamp - an admitted frame whose entry a barrier cancelled, a record the launch observer aborted, or a reconstruction refused because the PHC trajectory across the interval was outside the model.
+- `[15:0]` events the dispatch queue refused - a full queue, or an announce arriving without its frozen capture context.
+- **They both default to 1 in the RTL, and the shipping AX7101 shape is 8** — `milan_datapath` drives both from its own `N_STREAMS`, which the builder sets to `max(listeners, talkers)` from the config, and [`configs/endstation_ax7101_8x8.yaml`](../../configs/endstation_ax7101_8x8.yaml) declares 8 of e
+- These five words are the view **upstream** of the match, and they were the missing instrument in the fabric-listener accept blocker ([`../limitations/TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md) Section 21).
+- `[5:0]` map entry index, `[8]` side (0 = RMAP/render phys channel 0..9, 1 = CMAP/capture **stream-channel key** `port*8 + sc`, 0..`2*N_SLOTS_P-1` — per-channel since 0x0027).
+- `[15:0]` map commits (currently CSR only, wraps), `[23:16]` CSR writes refused while disarmed or entity-locked (saturates)
+- write CHMAP_SEL  0x904 = {side[8], index[5:0]} write CHMAP_SNAP 0x910 = 1                     # arm poll  CHMAP_SNAP 0x910 until [0] busy == 0     # bounded: <= 16 clocks read  CHMAP_LOOP 0x914
+- `[0]` **entity enable**, ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane.
+- `[1]` `restore_go`: start the NVM boot-restore walk against the saved-state backing store (`KL_nvm_backend` behind the processor's NVM device face, [design page](../design/SAVED_STATE_FASTCONNECT.md) sections 4, 8 and 9).
