@@ -1,0 +1,40 @@
+docs-gates-0	Concise audience documentation gate	2026-11-01T17:22:55.2797419Z docs/design/GPTP_PLANE.md:323: sentence has 21 words; maximum is 10: No other link speed is qualified: at 10 Mb/s the same octet takes 800 ns and this correction is wrong.
+docs-gates-0	Concise audience documentation gate	2026-11-01T17:22:55.2799799Z docs/design/GPTP_PLANE.md:323: paragraph has 21 words; maximum is 20: No other link speed is qualified: at 10 Mb/s the same octet takes 800 ns and this correction is wrong.
+docs-gates-0	Concise audience documentation gate	2026-11-01T17:22:55.2801707Z docs/design/GPTP_PLANE.md:325: sentence has 11 words; maximum is 10: The receive side changes too, and no RTL term carries it.
+docs-gates-0	Concise audience documentation gate	2026-11-01T17:22:55.2803584Z docs/design/GPTP_PLANE.md:327: sentence has 19 words; maximum is 10: The tap stamps the first accepted beat, and that beat holds eight octets behind the MAC's frame check buffer.
+docs-gates-0	Concise audience documentation gate	2026-11-01T17:22:55.2805508Z docs/design/GPTP_PLANE.md:329: sentence has 25 words; maximum is 10: So the beat is late by the frame check buffer and by the time eight octets take to arrive, and both scale with the link.
+docs-gates-0	Concise audience documentation gate	2026-11-01T17:22:55.2807677Z docs/design/GPTP_PLANE.md:329: paragraph has 25 words; maximum is 20: So the beat is late by the frame check buffer and by the time eight octets take to arrive, and both scale with the link.
+docs-gates-0	Concise audience documentation gate	2026-11-01T17:22:55.2809385Z docs/design/GPTP_PLANE.md:331: sentence has 23 words; maximum is 10: The product's own and were simulated at an 80 MHz MAC system clock and 50 MHz at the plane, over seven clock phases.
+docs-gates-0	Concise audience documentation gate	2026-11-01T17:22:55.2811294Z docs/design/GPTP_PLANE.md:331: paragraph has 23 words; maximum is 20: The product's own `LiteEthMACCore` and `mac_rx_cdc` were simulated at an 80 MHz MAC system clock and 50 MHz at the plane, over seven clock phases.
+docs-gates-0	Concise audience documentation gate	2026-11-01T17:22:55.2813112Z docs/design/GPTP_PLANE.md:333: sentence has 16 words; maximum is 10: Each figure runs from the edge that samples frame octet 0's first symbol at the pads.
+docs-gates-0	Concise audience documentation gate	2026-11-01T17:22:55.2814841Z docs/design/GPTP_PLANE.md:342: sentence has 11 words; maximum is 10: That distance belongs to , below, and the Arty still declares zero.
+docs-gates-0	Concise audience documentation gate	2026-11-01T17:22:55.2815331Z documentation style: FAIL (28 findings)
+docs-gates-0	Concise audience documentation gate	2026-11-01T17:22:55.2878515Z ##[error]Process completed with exit code 1.
+docs-check	Require every gate exactly once	﻿2026-11-01T17:25:28.6793512Z ##[group]Run python3 scripts/ci_gate_receipts.py verify --workflow docs --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.6794425Z ^[[36;1mpython3 scripts/ci_gate_receipts.py verify --workflow docs --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"^[[0m
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.6812399Z shell: /usr/bin/bash -e {0}
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.6812647Z env:
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.6812958Z   PIP_CONSTRAINT: $RUNNER_CHECKOUT/ci/constraints-ci.txt
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.6813321Z   CI_BUILD_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.6813526Z   CI_TOOL_BUILD_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.6813734Z   CI_CAMPAIGN_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.6813931Z   VERILATOR_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.6814129Z   SIM_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.6814339Z   MAKEFLAGS: -j1 --no-print-directory
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.6814949Z   CI_GATE_NEEDS: {
+docs-check	Require every gate exactly once	  "docs-gates-0": {
+docs-check	Require every gate exactly once	    "result": "failure",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  },
+docs-check	Require every gate exactly once	  "docs-gates-1": {
+docs-check	Require every gate exactly once	    "result": "cancelled",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  },
+docs-check	Require every gate exactly once	  "docs-gates-2": {
+docs-check	Require every gate exactly once	    "result": "cancelled",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  }
+docs-check	Require every gate exactly once	}
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.6815574Z ##[endgroup]
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.8492172Z gate evidence refused: docs-gates-0: dependent job failed, cancelled or skipped
+docs-check	Require every gate exactly once	2026-11-01T17:25:28.8598276Z ##[error]Process completed with exit code 1.

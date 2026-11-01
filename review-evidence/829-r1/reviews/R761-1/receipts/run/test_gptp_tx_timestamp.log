@@ -1,0 +1,49 @@
+converted chain: 2683 wire cycles, 5 frames pushed
+gmii: converted chain (Verilator, the artifact the closed loop uses):
+gmii: migen source (run_simulation, the objects it was converted from):
+  converted: 5 frame(s), 1897 samples in 2683 wire cycles
+  migen:     5 frame(s), 1897 samples in 3000 wire cycles
+  [ ok ] gmii: the converted trace ends between frames
+  [ ok ] gmii: the migen trace ends between frames
+  [ ok ] both runs put the same number of frames on the pads
+  [ ok ] the converted run drove the whole stimulus
+  [ ok ] frame 0: the same octets left the pads
+  [ ok ] frame 0: it is the stimulus frame, framed
+  [ ok ] frame 1: the same octets left the pads
+  [ ok ] frame 1: it is the stimulus frame, framed
+  [ ok ] frame 1: the same inter-frame gap
+  [ ok ] frame 2: the same octets left the pads
+  [ ok ] frame 2: it is the stimulus frame, framed
+  [ ok ] frame 2: the same inter-frame gap
+  [ ok ] frame 3: the same octets left the pads
+  [ ok ] frame 3: it is the stimulus frame, framed
+  [ ok ] frame 3: the same inter-frame gap
+  [ ok ] frame 4: the same octets left the pads
+  [ ok ] frame 4: it is the stimulus frame, framed
+  [ ok ] frame 4: the same inter-frame gap
+mii: converted chain (Verilator, the artifact the closed loop uses):
+converted chain: 3994 wire cycles, 5 frames pushed
+mii: migen source (run_simulation, the objects it was converted from):
+  converted: 5 frame(s), 3794 samples in 3994 wire cycles
+  migen:     5 frame(s), 3794 samples in 6000 wire cycles
+  [ ok ] mii: the converted trace ends between frames
+  [ ok ] mii: the migen trace ends between frames
+  [ ok ] both runs put the same number of frames on the pads
+  [ ok ] the converted run drove the whole stimulus
+  [ ok ] frame 0: the same octets left the pads
+  [ ok ] frame 0: it is the stimulus frame, framed
+  [ ok ] frame 1: the same octets left the pads
+  [ ok ] frame 1: it is the stimulus frame, framed
+  [ ok ] frame 1: the same inter-frame gap
+  [ ok ] frame 2: the same octets left the pads
+  [ ok ] frame 2: it is the stimulus frame, framed
+  [ ok ] frame 2: the same inter-frame gap
+  [ ok ] frame 3: the same octets left the pads
+  [ ok ] frame 3: it is the stimulus frame, framed
+  [ ok ] frame 3: the same inter-frame gap
+  [ ok ] frame 4: the same octets left the pads
+  [ ok ] frame 4: it is the stimulus frame, framed
+  [ ok ] frame 4: the same inter-frame gap
+
+test_gptp_tx_timestamp: 36 checks: 36 PASS, 0 FAIL
+RESULT: PASS

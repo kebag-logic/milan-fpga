@@ -1,0 +1,13 @@
+read_verilog base.txret.syn.v
+hierarchy -top KL_gptp_txret; proc; memory; flatten; opt_clean; rename KL_gptp_txret gold; design -stash g
+read_verilog head.txret.syn.v
+hierarchy -top KL_gptp_txret; proc; memory; flatten; opt_clean; rename KL_gptp_txret gate; design -stash h
+design -copy-from g -as gold gold
+design -copy-from h -as gate gate
+equiv_make gold gate equiv
+hierarchy -top equiv
+opt_clean
+equiv_simple -seq 2 -undef
+equiv_induct -seq 3 -undef
+tee -o equiv_txret2.status equiv_status
+equiv_status -assert
