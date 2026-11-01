@@ -115,7 +115,7 @@ That is a CI change, outside this lane.
 - **The mailbox** is this harness's own instance of `KL_mbx` behind `KL_mbx_wb`, with CtrlMailbox's hookup.
   Its receive and transmit streams, link levels and grandmaster are on pads that [`sim_main.cpp`](sim_main.cpp) drives.
   Every other port is connected as `milan_soc.CtrlMailbox` connects it.
-  The publication block's outputs (contract 2.2) are named and unread.
+  The publication block's outputs (contract 2.2, and from 2.4 each source's stream_id, `pub_src_sid_o`) are named and unread.
   The face block's ports (contract 2.3) come from `milan_soc.ctrl_mailbox_face_ports`, at the build's interface count: its outputs are named and unread, and its inputs are held idle by name (`split_soc.FACE_IDLE_INPUTS`, refused unless they are exactly the inputs CtrlMailbox holds idle).
   So no window request is answered and each times out, as the split SoC with no datapath fabric sees it.
   The one exception is the commit acknowledgement, `fw_ack_p_i`, which models the slowest datapath the contract allows (`StimulusMailbox.slowest_ack`).
