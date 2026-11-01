@@ -20,7 +20,7 @@ mailbox is this harness's own instance of KL_mbx behind KL_mbx_wb, the
 CtrlMailbox hookup with the receive and transmit streams, the link levels
 and the grandmaster on pads the testbench drives. Every other KL_mbx port is
 connected as CtrlMailbox connects it: the publication block's outputs (contract
-2.2) named and unread, and the face block's (contract 2.3) by
+2.2, and 2.4's source entries) named and unread, and the face block's (contract 2.3) by
 milan_soc.ctrl_mailbox_face_ports, at the build's interface count, its outputs
 named and unread and its inputs held idle by name, with one difference: the
 commit acknowledgement (fw_ack_p_i) pulses at the contract's bound,
@@ -30,7 +30,10 @@ The window answers and face events stay idle, so a window request times out
 as the fabric-less split SoC sees it. The flash keeps
 LiteSPI's crossbar, memory-mapped reader and command master, with the master
 in its own CSR bank, and the serial device is the sibling service-budget
-harness's native model (fw_service_budget/flash.hpp).
+harness's native model (fw_service_budget/flash.hpp). Its PHY boundary is
+staged as MilanSoC.add_spi_flash stages every SoC built from it
+(milan_soc.stage_spi_phy, #814), so a flash-window read and a command-master
+transfer pay the product's registered stage.
 """
 from __future__ import annotations
 
@@ -221,7 +224,8 @@ class StimulusMailbox(LiteXModule):
 
 
 def unread_publication(contract: object, n_if: int) -> dict[str, object]:
-    """The publication block's outputs (contract 2.2), named and left unread as CtrlMailbox leaves them."""
+    """The publication block's outputs (contract 2.2, and from 2.4 each source's stream_id, #799),
+    named and left unread as CtrlMailbox leaves them."""
     pub_w = {(r.name, f.name): f.width for r in contract.pub_registers for f in r.fields}
     return dict(o_pub_da_gate_o=Signal(n_if * contract.pub_sources),
                 o_pub_licence_o=Signal(n_if * contract.pub_sources),
@@ -230,6 +234,7 @@ def unread_publication(contract: object, n_if: int) -> dict[str, object]:
                 o_pub_dom_prio_o=Signal(n_if * pub_w[('SR_DOMAIN', 'PRIORITY')]),
                 o_pub_dom_adopted_o=Signal(n_if * pub_w[('SR_DOMAIN', 'ADOPTED')]),
                 o_pub_talker_decl_o=Signal(n_if * contract.pub_sources),
+                o_pub_src_sid_o=Signal(n_if * contract.pub_sources * 64),
                 o_pub_bound_o=Signal(n_if * contract.pub_sinks),
                 o_pub_sid_valid_o=Signal(n_if * contract.pub_sinks),
                 o_pub_started_o=Signal(n_if * contract.pub_sinks),
@@ -351,7 +356,7 @@ def add_devices(soc: object, platform: object, addresses: dict[str, int], contra
     module = N25Q128A13(SpiCodes.READ_1_1_1_FAST)
     if module.total_size != addresses['flash_size']:
         raise RuntimeError('fixture flash window size differs from the shipping part')
-    phy = FlashBoundary(platform.request('flash'), module)
+    phy = milan_soc.stage_spi_phy(FlashBoundary(platform.request('flash'), module))
     spiflash = LiteSPI(phy, mmap_endianness=soc.cpu.endianness, with_master=False)
     spiflash.add_module(name='phy', module=phy)
     master = LiteSPIMaster(tx_fifo_depth=1, rx_fifo_depth=1, cs_width=len(phy.cs))

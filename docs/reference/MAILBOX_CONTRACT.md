@@ -5,7 +5,7 @@
 Regenerate with `python3 sw/mailbox/gen_mailbox.py --write`.
 
 The design page is [MAILBOX_SPLIT.md](../design/MAILBOX_SPLIT.md).
-This page is contract version 2.3.
+This page is contract version 2.4.
 
 ## Byte order
 
@@ -289,6 +289,27 @@ Interface i's publication block starts at `0x800 + 0x200 * i`. Bit s of a source
 | Bits | Field | Meaning |
 |---|---|---|
 | `[15:0]` | `DECLARED` | bit s: source s has a Talker declaration |
+
+### Interface publication source registers
+
+Source s's entry starts at `0x80 + 0x8 * s` inside interface i's publication block, for 16 sources (one per talker stream). A source past the last reads 0 and takes no write.
+
+| Offset | Register | Access | Meaning |
+|---|---|---|---|
+| `0x000` | `SRC_SID_LO` | rw | Source s's current stream_id, low word: the ID its Talker attribute declares and its stream data AVTPDUs carry (IEEE 1722-2016 4.4.4.8; Milan v1.2 5.3.7.5 Table 5.3; the processor's src_stream_id_o). The datapath stamps SRC_SID_HI:SRC_SID_LO on source s's frames. The owner writes both words while source s's DA_GATE bit is clear, before it opens the gate and before the declaration or the PROBE_TX response that carries the ID, so no frame carries a half-written stream_id; after a MAAP conflict the gate is closed until the new allocation (Milan v1.2 5.5.4.1; protocol-processor #202). |
+| `0x004` | `SRC_SID_HI` | rw | Source s's current stream_id, high word, written with SRC_SID_LO. |
+
+`SRC_SID_LO` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `SID` | stream_id[31:0] |
+
+`SRC_SID_HI` fields:
+
+| Bits | Field | Meaning |
+|---|---|---|
+| `[31:0]` | `SID` | stream_id[63:32] |
 
 ### Interface publication sink registers
 
@@ -923,7 +944,7 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | Name | Value |
 |---|---:|
 | `MBX_VERSION_MAJOR` | `0x2` |
-| `MBX_VERSION_MINOR` | `0x3` |
+| `MBX_VERSION_MINOR` | `0x4` |
 | `MBX_MAGIC` | `0x4d42` |
 | `MBX_WINDOW_BYTES` | `0x8000` |
 | `MBX_REGISTER_SPACE_BYTES` | `0x400` |
@@ -1084,6 +1105,14 @@ Every constant below is `MBX_<name>` in C and `MBX_<name>_C` in SystemVerilog.
 | `MBX_PUB_REG_TALKER_DECL` | `0x10` |
 | `MBX_TALKER_DECL_DECLARED_LSB` | `0x0` |
 | `MBX_TALKER_DECL_DECLARED_WIDTH` | `0x10` |
+| `MBX_PUB_SRC_BASE` | `0x80` |
+| `MBX_PUB_SRC_STRIDE` | `0x8` |
+| `MBX_PUB_SRC_REG_SRC_SID_LO` | `0x0` |
+| `MBX_SRC_SID_LO_SID_LSB` | `0x0` |
+| `MBX_SRC_SID_LO_SID_WIDTH` | `0x20` |
+| `MBX_PUB_SRC_REG_SRC_SID_HI` | `0x4` |
+| `MBX_SRC_SID_HI_SID_LSB` | `0x0` |
+| `MBX_SRC_SID_HI_SID_WIDTH` | `0x20` |
 | `MBX_PUB_SINK_BASE` | `0x100` |
 | `MBX_PUB_SINK_STRIDE` | `0x10` |
 | `MBX_PUB_SINK_REG_SID_LO` | `0x0` |

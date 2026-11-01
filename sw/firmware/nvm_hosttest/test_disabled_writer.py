@@ -37,10 +37,10 @@ def grade(cfg: Path, work: Path, source: str) -> list[str]:
 
 def self_test(cfg: Path, work: Path, source: str) -> list[str]:
     """Removing startup admission must fail both independent disabled states."""
-    anchor = "\tif (!nvm_started)\n\t\treturn;\n"
+    anchor = "\tif (!nvm_started) {\n"
     if source.count(anchor) != 1:
         raise RuntimeError("writer admission mutation anchor changed")
-    got = grade(cfg, work, source.replace(anchor, ""))
+    got = grade(cfg, work, source.replace(anchor, "\tif (0) {\n"))
     for state in PRECONDITIONS:
         if not any("disabled writer " + state in item for item in got):
             return ["unguarded service escaped disabled-writer " + state]

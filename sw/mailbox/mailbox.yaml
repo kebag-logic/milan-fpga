@@ -72,10 +72,20 @@
 # it with cdc_handshake or toggle-plus-sync (CONTRIBUTING.md section 1). It
 # only adds: a firmware built against 2.2 never writes the block, never posts
 # a request, and reads no event type it does not know.
+#
+# Minor 4 (#799; #665 decision 2 (a)): a source entry per talker stream in
+# the publication block, carrying the stream_id the source currently declares,
+# which the AAF and CRF talkers stamp. After a MAAP conflict the protocol owner moves a source to another
+# Stream ID (protocol-processor #202), so the plane that owns the Stream ID
+# publishes the ID it declares. It only adds: the entries sit in the hole
+# below the sink entries, and a firmware built against 2.3 leaves them at 0.
+# dev added these entries as its own minor 3 over 2.2, without the face
+# block; they join this contract as minor 4 when dev's work merges here, and
+# dev reaches 2.4 by adding the face block (the ruling on #665).
 
 version:
   major: 2
-  minor: 3
+  minor: 4
 magic: 0x4D42          # "MB"
 window_bytes: 0x8000   # host-visible window
 interfaces: 1          # AVB interfaces (link, grandmaster and domain per interface)
@@ -329,7 +339,9 @@ interface_bound_registers:
 # and an interface the build does not have read 0 and take no write.
 interface_publication_registers:
   base: 0x0800
-  stride: 0x200          # bytes per interface: the interface registers, then the sink entries
+  stride: 0x200          # bytes per interface: the interface registers, the source entries, then the sink entries
+  source_base: 0x080     # the first source entry, inside an interface's block
+  source_stride: 0x08    # bytes per source entry
   sink_base: 0x100       # the first sink entry, inside an interface's block
   sink_stride: 0x10      # bytes per sink entry
   registers:
@@ -392,6 +404,26 @@ interface_publication_registers:
         declaration is destroyed.
       fields:
         - {name: DECLARED, lsb: 0, width: 16, doc: "bit s: source s has a Talker declaration"}
+  source_registers:
+    - name: SRC_SID_LO
+      offset: 0x0
+      access: rw
+      doc: >-
+        Source s's current stream_id, low word: the ID its Talker attribute declares and its
+        stream data AVTPDUs carry (IEEE 1722-2016 4.4.4.8; Milan v1.2 5.3.7.5 Table 5.3; the
+        processor's src_stream_id_o). The datapath stamps SRC_SID_HI:SRC_SID_LO on source s's
+        frames. The owner writes both words while source s's DA_GATE bit is clear, before it
+        opens the gate and before the declaration or the PROBE_TX response that carries the
+        ID, so no frame carries a half-written stream_id; after a MAAP conflict the gate is
+        closed until the new allocation (Milan v1.2 5.5.4.1; protocol-processor #202).
+      fields:
+        - {name: SID, lsb: 0, width: 32, doc: "stream_id[31:0]"}
+    - name: SRC_SID_HI
+      offset: 0x4
+      access: rw
+      doc: Source s's current stream_id, high word, written with SRC_SID_LO.
+      fields:
+        - {name: SID, lsb: 0, width: 32, doc: "stream_id[63:32]"}
   sink_registers:
     - name: SID_LO
       offset: 0x0

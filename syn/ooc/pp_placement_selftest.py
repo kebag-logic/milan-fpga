@@ -218,7 +218,7 @@ def all_fabric_selftest(root: Path, baseline: Path) -> None:
     """Refuse unmarked wrong populations in both comparisons and acceptance writes, naming each role."""
     from pp_resource_gate_selftest import cli, fixture
     folder = fixture(root / "all-fabric", "route")
-    arguments = (folder, "--endpoint", "route-1x1", "--baseline", baseline)
+    arguments = (folder, "--endpoint", "route-1x1", "--shipping-selection", "--baseline", baseline)
     report = folder / "baseline_hierarchy.rpt"
     original = report.read_text()
     baseline_bytes = baseline.read_bytes()
@@ -286,6 +286,7 @@ def gate_selftest() -> None:
     """Compare split routes against unchanged policy and refuse mislabelled populations."""
     import pp_resource_gate as gate
     from pp_resource_gate_selftest import POLICY, cli, fixture, row
+    from pp_resource_gate_set_selftest import slack
     with tempfile.TemporaryDirectory(prefix="pp-placement-gate-") as tmp:
         root = Path(tmp)
         original = fixture(root / "base", "route")
@@ -296,7 +297,7 @@ def gate_selftest() -> None:
         all_fabric_selftest(root, baseline)
         for selected in ("f0-f4", "full-split"):
             folder = selected_fixture(root / selected, selected)
-            arguments = (folder, "--endpoint", "route-1x1", "--baseline", baseline,
+            arguments = (folder, "--endpoint", "route-1x1", "--shipping-selection", "--baseline", baseline,
                          "--placement", selected)
             expect_case(selected, cli("check", *arguments), 0, f"placement {selected}")
             recipe = folder / "baseline_integrated.tcl"
@@ -321,7 +322,8 @@ def gate_selftest() -> None:
                                                                                           candidate["scopes"])):
                 raise AssertionError("changed attribution roots reported as engine-removal savings")
             expect_case(selected + " unselected", cli("check", folder, "--endpoint", "route-1x1",
-                                                       "--baseline", baseline), 2, "wrong placement")
+                                                       "--shipping-selection", "--baseline", baseline),
+                        2, "wrong placement")
             expect_case(selected + " re-record", cli("record", *arguments, "--write"), 2, "M9")
             gate_refusals(folder, selected, arguments)
             for figure, before, after, reason in (("RAMB36", 4, 5, "RAMB36"),
@@ -333,17 +335,18 @@ def gate_selftest() -> None:
                 report.write_text(pristine.replace(old, new))
                 expect_case(selected + " " + reason, cli("check", *arguments), 1, reason)
                 report.write_text(pristine)
-            for filename, old, new, reason in (
-                    ("baseline_timing.rpt", "0.100", "-0.001", "WHS_ns"),
-                    ("alinx_ax7101_route_status.rpt", "fully routed nets............. :         100",
-                     "fully routed nets............. :          99", "ROUTE INCOMPLETE"),
-                    ("baseline_utilization.rpt", "Build 6511674", "Build 6511675", "tool or recipe change")):
-                report = folder / filename
-                pristine = report.read_text()
-                report.write_text(pristine.replace(old, new))
+            for plants, reason in (
+                    (slack("WHS", "0.100", "-0.001"), "WHS_ns"),
+                    ((("alinx_ax7101_route_status.rpt", "fully routed nets............. :         100",
+                       "fully routed nets............. :          99"),), "ROUTE INCOMPLETE"),
+                    ((("baseline_utilization.rpt", "Build 6511674", "Build 6511675"),), "tool or recipe change")):
+                pristine = {name: (folder / name).read_text() for name, _, _ in plants}
+                for name, old, new in plants:
+                    (folder / name).write_text(pristine[name].replace(old, new))
                 expect_case(selected + " " + reason, cli("check", *arguments),
                             2 if "recipe" in reason else 1, reason)
-                report.write_text(pristine)
+                for name, text in pristine.items():
+                    (folder / name).write_text(text)
         stderr = io.StringIO()
         with contextlib.redirect_stderr(stderr):
             status, _ = cli("--fuzz", "1", "--placement", "f0-f4")

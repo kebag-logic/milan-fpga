@@ -21,7 +21,8 @@
                 TCTX record (spec §2.2, address {t[2:0], word[3:0]}):
                   w0 CTRL   {en[0], chans[4:1], vlan_vid[16:5]}
                   w1 DMAC_LO[31:0]
-                  w2 {UID[31:16], DMAC_HI[15:0]}   (stream_id = {mac, uid})
+                  w2 {UID[31:16], DMAC_HI[15:0]}   (stream_id = {mac, uid}
+                                                    with SID_PP_P = 0)
                   w3 SEQ_TS  {sequence_num[7:0]}
                   w4 TS      latched presentation time (ptp_ns + transit
                              + the LEAD_P lead, at first-sample capture)
@@ -118,7 +119,17 @@ module KL_aaf_packetizer #(
   //! the integration's term, ns: the end of the PDU's sample span at the
   //! media interface to its last pair here, worst (negative when that pair
   //! closes inside the span, as an inner TDM32 pair does)
-  parameter int          IN_LATE_NS_P  = 0
+  parameter int          IN_LATE_NS_P  = 0,
+  //! THE STREAM_ID SOURCE (protocol processor #202). 1: stream_id_i is the
+  //! protocol processor's current Stream ID per talker, its src_stream_id_o,
+  //! and is stamped as is on every talker, t0 included. The processor owns
+  //! the ID: it declares it, answers PROBE_TX and GET_STREAM_INFO with it
+  //! and moves it after a MAAP conflict, so no TCTX uid may name another
+  //! one, or a listener bound through PROBE_TX would register for an ID no
+  //! frame carries. 0, the default: the historical {station_mac, uid}
+  //! derivation below, with a non-zero TCTX uid naming the uid for t>0 (the
+  //! standalone framer benches, which have no processor).
+  parameter bit          SID_PP_P      = 1'b0
 )(
   input  wire         clk_i,             //! datapath clock
   input  wire         rst_n,             //! active-low synchronous reset
@@ -151,6 +162,10 @@ module KL_aaf_packetizer #(
   //! else would ride a VLAN its reservation does not cover. Tie 0 for the
   //! historical per-talker law.
   input  wire         dom_ovr_i,
+  //! per-talker stream_id to stamp, flat [64*t +: 64], read only with
+  //! SID_PP_P = 1: the protocol processor's src_stream_id_o, which moves
+  //! after a MAAP conflict (processor #202)
+  input  wire [N_TALKERS_P*64-1:0] stream_id_i = '0,
   //! per-talker presentation offsets: entry t = the max transit time talker
   //! t adds to ptp_ns at first-sample capture (AECP's per-STREAM_OUTPUT
   //! file, SET/GET_MAX_TRANSIT_TIME / SET_STREAM_INFO ACC_LAT). Replicate
@@ -485,7 +500,10 @@ module KL_aaf_packetizer #(
                          : (|evid_r  ? evid_r  : vlan_vid_i);
   wire [15:0] eff_uid_w  = (et_r == '0) ? 16'd0
                          : (|euid_r  ? euid_r  : 16'(et_r));
-  wire [63:0] stream_id_w = {station_mac_i, eff_uid_w};
+  //! the processor's ID outranks every TCTX field when it owns the ID
+  //! (SID_PP_P): a TCTX uid is read only by the standalone derivation
+  wire [63:0] stream_id_w = SID_PP_P ? stream_id_i[64*32'(et_r) +: 64]
+                                     : {station_mac_i, eff_uid_w};
 
   logic [7:0] fb [0:NUM_BEATS_C*8-1];
   always_comb begin : frame_bytes

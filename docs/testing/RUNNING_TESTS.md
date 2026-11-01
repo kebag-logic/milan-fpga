@@ -85,13 +85,13 @@ The default selection contains 64 suites.
 Per-suite deadlines follow the [workflow policy table](CI_WORKFLOWS.md#exhaustive-validation).
 [The #673 ruling](https://github.com/kebag-logic/milan-fpga/issues/673#issuecomment-6015726285) records the current increases.
 The separate `milan_dp_gptp` selection uses
-5400 seconds, including compilation, and preserves physical clock and timer
-rates. CI runs the default selection on seventeen `--ci-pieces` workers; the
+6900 seconds, including compilation, and preserves physical clock and timer
+rates. CI runs the default selection on nineteen `--ci-pieces` workers; the
 physical job runs nightly and on manual dispatch. Inspect a hosted worker's
 selection and the physical selection without compiling with:
 
 ```sh
-scripts/run_all_suites.sh --ci-pieces --shard 0/17 --list
+scripts/run_all_suites.sh --ci-pieces --shard 0/19 --list
 scripts/run_all_suites.sh --physical-gptp --list
 ```
 
@@ -187,11 +187,14 @@ Issue #607's constraint tests run in the complete builder bank.
 They elaborate both shipping AX7101 configurations with either GMII port.
 The real build Tcl must carry the namespace-derived clock hook.
 It must run between synthesis and optimization.
+The same Tcl must carry the servo reset synchronizer hook (#817).
+That hook must name the Milan PLL output.
 The same Tcl must configure the #395 timing grade before placement.
 Its grade reports must follow the last routing pass and precede the bitstream.
 The generated XDC must omit the generic MultiReg false path.
 These elaborations compile no firmware and run no vendor implementation.
 Other controls check exception scope and conditional quasi-static constraints.
+A stub netlist checks the servo cut and each of its refusals.
 Log controls refuse `12-4739`, `20-1307` and `12-5201`.
 Refused bitstreams must become `*.bit.rejected`, outside automatic discovery.
 A live planted wrong clock name can also be checked against a

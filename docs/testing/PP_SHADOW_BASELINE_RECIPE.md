@@ -217,7 +217,7 @@ python3 syn/ooc/pp_baseline.py "$WORK/f0-f4/gateware" \
     -source baseline_integrated.tcl -nojournal -log baseline.log
 )
 python3 syn/ooc/pp_resource_gate.py check "$WORK/f0-f4/gateware" \
-  --endpoint route-1x1 --placement f0-f4
+  --endpoint route-1x1 --placement f0-f4 --shipping-selection
 ```
 
 Use `full-split` for the later complete integration.
@@ -562,21 +562,36 @@ git diff --check
 
 ## Resource gate
 
-[`syn/ooc/pp_resource_gate.py`](../../syn/ooc/pp_resource_gate.py) judges one measurement directory.
-It compares the directory with an endpoint of [`pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json).
+[`syn/ooc/pp_resource_gate.py`](../../syn/ooc/pp_resource_gate.py) judges one measurement directory, or a route set.
+It compares the measurement with an endpoint of [`pp_resource_baseline.json`](../../syn/ooc/pp_resource_baseline.json).
 The [area budget](../design/AREA_BUDGET.md#protocol-processor-budget-and-resource-gate) states the policy.
-Run the shipping route and both standalone syntheses as above.
+Run the shipping route, its two comparison directives and both standalone syntheses as above.
 Pass `--single-thread-synthesis` when preparing every endpoint compared against F.
 Use `--integrated-clock` for every standalone endpoint the gate judges.
 
 ```sh
-python3 syn/ooc/pp_resource_gate.py check "$WORK/ax7101/gateware" --endpoint route-1x1
+python3 syn/ooc/pp_resource_gate.py check "$WORK/ax7101/gateware" --endpoint route-1x1 \
+  --comparison "$WORK/ax7101-AltSpreadLogic_high" --comparison "$WORK/ax7101-ExtraTimingOpt"
 python3 syn/ooc/pp_resource_gate.py check "$WORK/ax7101-ooc" --endpoint ooc-1x1
 python3 syn/ooc/pp_resource_gate.py check "$WORK/ax8x8-ooc" --endpoint ooc-8x8
 ```
 
+The route endpoint is judged on its route set ([#818](https://github.com/kebag-logic/milan-fpga/issues/818)).
+The set is the shipping route and one `--comparison` for each of the other two placement directives.
+Each comparison must hold the script the snippet above writes from the shipping route's script.
+That script opens the shipping route's synthesis checkpoint, so the comparison takes the shipping route's inputs.
+The gate selects the route with the best worst-corner WNS; a tie goes to the shipping directive, then `AltSpreadLogic_high`.
+It prints each route's worst-corner WNS and WHS and names the selected directive.
+It judges that route's WNS and WHS at every signoff corner, against the floors.
+The timing grade the flow configures declares the corners; each corner's `*_signoff_*_timing.rpt` is read.
+Every other figure of that route is judged against its tolerance or ceiling.
+A timing figure that fell from the record by more than the timing fall prints a WARNING, also beside a floor failure; the fall alone never fails.
+Every route of the set is judged on its route status and its control population.
+A route already chosen as the one the shipping image is built from may be judged alone instead, marked `--shipping-selection`.
+A route named with neither, or with both, gives 2; so does a standalone endpoint named with either.
+
 Exit 0 is within tolerance and 1 is a material regression, nothing else.
-A route whose status report names an unrouted net or a routing error is a material regression too.
+A route of the set whose status report names an unrouted net or a routing error is a material regression too.
 The route endpoint reads the run's one `*_route_status.rpt` beside its other reports.
 That report carries no header, so the gate cannot tell it from a stale one an earlier build left in the same directory.
 Run each measurement in a fresh directory: the bank deletes nothing, and a stale report would be read as this run's.
@@ -585,9 +600,14 @@ The output names the reason after `NOT COMPARABLE:`, in printable ASCII with any
 Exit 2 holds by construction: one barrier turns every exception after the arguments are read into exit 2.
 So no input reaches a traceback, and exit 1 comes only from the comparison.
 A different tool build, device, design, design state, flow command or standalone clock gives 2.
+A placement directive is the one flow difference allowed: any of the recipe's three is compared as the same flow.
+A comparison whose script is not the one the snippet writes from the shipping route gives 2.
+So does a set that does not hold each of the three directives once.
+A signoff corner report that is missing or unreadable gives 2.
+So does a set of corner reports whose worst WNS or WHS is not the timing summary's: they are not one run's reports.
 So do unreadable reports: a count that is not 1 to 15 ASCII digits, a slack that is not a decimal with a finite float, and a timing summary with no timed endpoint or no endpoint columns.
 A route status report that is missing, or lacks exactly one routable-nets, fully-routed-nets and routing-errors row, gives 2.
-Identical inputs with different figures give 2 as well.
+Identical inputs with different figures, placed at the same directive, give 2 as well.
 `check` and `check-baseline` validate the whole baseline file before using any field.
 A missing file or one that is not strict JSON gives 2: NaN, Infinity, a repeated key, or a key outside the name class.
 The name class is 1 to 128 of `A-Z a-z 0-9 _ . : / -` for every key, the keys inside notes included; only a sub-block scope name may also hold `[` and `]`.
@@ -603,11 +623,13 @@ A gated figure that improved by more than its tolerance passes and prints "re-ba
 An accepted change records its measurement as the new baseline:
 
 ```sh
-python3 syn/ooc/pp_resource_gate.py record "$WORK/ax7101/gateware" --endpoint route-1x1 --write
+python3 syn/ooc/pp_resource_gate.py record "$WORK/ax7101/gateware" --endpoint route-1x1 \
+  --comparison "$WORK/ax7101-AltSpreadLogic_high" --comparison "$WORK/ax7101-ExtraTimingOpt" --write
 python3 syn/ooc/pp_resource_gate.py check-baseline
 ```
 
 `--write` replaces only the record; tolerances, floors and ceilings stay.
+For a route set it records the selected route; the record's flow names its placement directive.
 Review the diff of the JSON file like any other budget change.
 `check-baseline` holds every endpoint's policy to the area budget's policy table, cell by cell.
 So a policy change edits the table and the JSON file together, in one review.

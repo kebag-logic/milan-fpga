@@ -8,6 +8,10 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - AECP REBOOT resets the end station](#unreleased---aecp-reboot-resets-the-end-station)** -- Reloads from flash.
+- **[Unreleased - gPTP pin 135afd04](#unreleased---gptp-pin-135afd04)** -- A link toggle ends the cease.
+- **[Unreleased - gPTP pin f97c1803](#unreleased---gptp-pin-f97c1803)** -- Sync loss ages the grandmaster.
+- **[Unreleased - processor pin f65c8ff7](#unreleased---processor-pin-f65c8ff7)** -- Moved Stream IDs; settled-only stream fields.
 - **[Unreleased - processor pin ed211803](#unreleased---processor-pin-ed211803)** -- A wrong-type GET_AVB_INFO is NOT_SUPPORTED.
 - **[Unreleased - per-source TSpec](#unreleased---per-source-tspec)** -- The CRF output declares 29.
 - **[Unreleased - talker capture-to-wire latency](#unreleased---talker-capture-to-wire-latency)** -- Stamps cover the wire path.
@@ -45,6 +49,133 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - AECP REBOOT resets the end station
+
+- Issue #787 adopts processor `a9e84b66` for its #203.
+- It is processor PR #209's merge commit.
+- REBOOT of ENTITY 0 answers SUCCESS (IEEE 7.4.43).
+- The processor then sends ENTITY_DEPARTING and raises `reboot_req_o`.
+- The top adds that one output.
+- `KL_reboot_ctrl` resets the end station on it.
+- It waits up to 10 s for saved state.
+- It then waits for the MAC to send every frame.
+- `MilanMAC` flips a frame-end toggle at `phy.sink` for that.
+- The MAC states its buffering.
+- The wait's bound derives from it.
+- The bound is 2 ms on the AX7101.
+- It is 11 ms on the Arty.
+- So ENTITY_DEPARTING reaches the wire before the PHY reset.
+- It then holds the PHY reset for 3.5 s.
+- Then it sends IPROG on an ICAPE2 port.
+- The configuration reloads from flash as at power-on.
+- `MilanMAC` instantiates the primitive and the PHY hold.
+- IPROG follows the request by at most 13,505 ms.
+- That bound is the AX7101's.
+- No CSR or register field is added.
+- The #396 power area's soft resets are AECP REBOOTs.
+- Each soft reset grades its exchange and the gPTP relock.
+- The UART smoke grades a reboot with `--after-reboot`.
+- The behave SERVED table lists REBOOT.
+
+## Unreleased - gPTP pin 135afd04
+
+- Issue #806 adopts gPTP `135afd04`, PR #95 (gPTP #94).
+- The engine takes portEnabled (802.1AS-2011 10.2.4.11).
+- `milan_datapath` drives it from `eff_link_w`.
+- That is the PHY link, `LINK_CTRL[0]` and the guard's estimate.
+- A link loss clears asCapable at once.
+- It no longer waits for the fifth lost response.
+- A disabled port starts no gPTP frame.
+- Each link edge ends the Pdelay_Req cease.
+- Milan 4.2.6.2.5 lists that toggle.
+- A rise sends one Pdelay_Req at once.
+- The 5-minute countdown exit is unchanged.
+- The engine's one port change is `port_enabled_i`.
+- `KL_gptp_shadow` adds the same input.
+- No top-level port, parameter or register changes.
+- The ROM ledger adds the gPTP row; `gptp_ucode.hex` changes.
+- route-1x1 is 175 LUTs under the twelfth record.
+- Against dev's route it adds 36 LUTs and 28 FFs.
+- Slices fall by 11; 27 of 15,850 remain.
+- Every corner meets the build floor.
+- The slow corners' WNS is +0.032 ns.
+- The record holds +0.440 ns, tolerance 0.25.
+- Before #818 the gate refused that 0.408 ns fall.
+- Under #818 that fall is a WARNING.
+- Timing recovery is ruled under #814/#818.
+- The best directive meets the build floor at every corner.
+- ooc-1x1 and ooc-8x8 equal the record in every figure.
+- VERSION is unchanged; the release step owns the bump.
+
+## Unreleased - gPTP pin f97c1803
+
+- Issue #803 adopts gPTP `f97c1803`, PRs #92 and #93.
+- A 375 ms Sync timeout ages the grandmaster (gPTP #89).
+- That applies while gmPresent holds (Figure 10-13, Cor1).
+- With no other peer, this station becomes grandmaster then.
+- A priority1 255 grandmaster stays; its timeout clears sync only.
+- asCapable clears at the fifth lost Pdelay response (gPTP #90).
+- A duplicate Pdelay_Resp resets the exchange (gPTP #91).
+- Announce qualification keeps only a) to c) (gPTP #88).
+- The clause is 10.3.10.2.1.
+- A path count other than stepsRemoved+1 is accepted.
+- So is a path head other than the grandmaster.
+- The path is copied as received, head included, plus thisClock.
+- An empty path trace TLV gives `{thisClock}`.
+- Without a TLV, the previous pathTrace stays (gPTP #87).
+- GET_AS_PATH serves entry 0 from the engine's head.
+- Entry 0 was the grandmaster identity.
+- Its clause is IEEE 1722.1-2021 7.4.41.2.
+- The AS_PATH notification compares entry 0, not the grandmaster.
+- The engine path output gains entry 0.
+- That is the engine's one port change.
+- No top-level port, parameter or register changes.
+- `KL_gptp_shadow.pub_path_o` widens with the engine's.
+- It carries eight entries from entry 0.
+- Its test wrapper `gptp_shadow_wrap` adds `pub_path_head_o`.
+- Two parent companions adapt the wrapper, datapath and benches.
+- The ROM ledger adds the gPTP row; `gptp_ucode.hex` changes.
+- The physical gPTP leg spans one more Pdelay interval.
+- Its nightly suite deadline rises to 6900 s.
+- Its job's timeout rises to 145 minutes.
+- route-1x1 is 211 LUTs under the twelfth record; tolerance 500.
+- That record has dev `e78472ff`'s synthesis inputs.
+- This adoption adds 53 FFs and 54 slices.
+- Sixteen slices remain free; WNS is +0.303 ns.
+- VERSION is unchanged; the release step owns the bump.
+
+## Unreleased - processor pin f65c8ff7
+
+- Issue #799 adopts processor `f65c8ff7` (PRs #204, #207, #208).
+- FPGA-gPTP stays at `55680bff`.
+- Processor #202: a MAAP conflict moves a declared Stream ID.
+- The new ID keeps the upper 48 bits.
+- It is declared at once, without a LeaveAll wait.
+- The 802.1Q wait guards only a returning StreamID.
+- Milan Table 5.3 allows another Stream ID.
+- `src_stream_id_o` publishes each source's current ID.
+- `KL_pp_shadow` passes it out; the AAF and CRF frames carry it.
+- An output's GET_STREAM_INFO stream_id is that ID.
+- A TCTX unique ID no longer reaches the wire.
+- STRMW talker SID words keep a source's first ID.
+- milan_dp's `sidmove` and `sidmove8` legs drive a real conflict.
+- The torture plan no longer expects a two-LeaveAll wait.
+- Processor #205: unknown-source GET_TX_STATE echoes the listener fields.
+- Milan Table 5.46 gives them.
+- Processor #206: an unsettled input reports no stream fields.
+- Its three Table 5.9 flags stay clear.
+- This closes #790; `[GSI]` G11 and `pp_shadow` `[GSI]` grade four cases.
+- `make gsi-mutants` plants the pass-through in the processor copy.
+- Both processor ROM digests match the `ed211803` rows.
+- The top adds one output; no parameter or register changes.
+- Mailbox contract 2.4 publishes each source's current Stream ID.
+- `KL_mbx` adds `pub_src_sid_o`; #665's firmware writes it later.
+- The publication census maps both stamps to `SRC_SID_LO`.
+- Issue #800 tracks the 8x8 MAAP source index width.
+- The resource gate re-baselines under an owner decision.
+- The route grows 753 LUTs and 499 FFs.
+- 70 slices stay free; Mark II (#640) recovers the area.
 
 ## Unreleased - processor pin ed211803
 

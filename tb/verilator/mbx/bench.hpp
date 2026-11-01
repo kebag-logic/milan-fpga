@@ -329,6 +329,9 @@ class Bench {
             slice(dut_->pub_dom_adopted_o, MBX_SR_DOMAIN_ADOPTED_WIDTH * iface, MBX_SR_DOMAIN_ADOPTED_WIDTH));
         v.talker_decl = static_cast<std::uint32_t>(
             slice(dut_->pub_talker_decl_o, MBX_N_PUB_SOURCES * iface, MBX_N_PUB_SOURCES));
+        for (unsigned s = 0; s < MBX_N_PUB_SOURCES; ++s) {
+            v.src_sid.push_back(slice(dut_->pub_src_sid_o, 64u * (MBX_N_PUB_SOURCES * iface + s), 64u));
+        }
         v.bound = static_cast<std::uint32_t>(slice(dut_->pub_bound_o, MBX_N_PUB_SINKS * iface, MBX_N_PUB_SINKS));
         v.started = static_cast<std::uint32_t>(slice(dut_->pub_started_o, MBX_N_PUB_SINKS * iface, MBX_N_PUB_SINKS));
         // the stream_id the datapath takes: pub_sid_o while pub_sid_valid_o is set

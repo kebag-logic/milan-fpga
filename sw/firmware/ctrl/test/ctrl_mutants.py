@@ -694,6 +694,15 @@ MUTANTS += (
            "\t\tmemset(m->ctr_seen, 0, sizeof m->ctr_seen);\n", "",
            "model", MODEL_GROUP + "Face",
            "F9 the next epoch posts the descriptor that changed meanwhile, once, its changes coalesced"),
+    # #799 (contract 2.4): each source's current stream_id
+    Mutant("model-pub-src-sid-a-hole", "host/mbx_model.c",
+           "\t\tcase MBX_PUB_SRC_REG_SRC_SID_HI:\n"
+           "\t\t\treturn ones(MBX_SRC_SID_HI_SID_LSB, MBX_SRC_SID_HI_SID_WIDTH);\n",
+           "", "model", MODEL_GROUP + "Publication",
+           "P1 each source's entry reads back the stream_id written to it"),
+    Mutant("model-pub-every-source-reads-entry-0", "host/mbx_model.c",
+           "(MBX_PUB_SRC_BASE + MBX_PUB_SRC_STRIDE * s) / 4u", "MBX_PUB_SRC_BASE / 4u",
+           "model", MODEL_GROUP + "Publication", "P2 each source's SRC_SID_HI:SRC_SID_LO reaches the datapath"),
     # ACMP: the binding published after the response that promises it, the
     # end-of-entry publication skipped, wrong fields, the port unguarded
     Mutant("pub-acmp-after-the-response", ACMP_C, ACMP_TRANSMIT,
