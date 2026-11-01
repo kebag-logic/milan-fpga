@@ -1,0 +1,16 @@
+ok  rc=0 want=accept shipped, no cut: ALL GATES PASS
+ok  rc=1 want=refuse tick binding deleted: AssertionError: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P']
+ok  rc=1 want=refuse cycle binding deleted: AssertionError: ['.ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P']
+ok  rc=1 want=refuse tick tied to 8: AssertionError: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P']
+ok  rc=1 want=refuse cycle tied to 1: AssertionError: ['.ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P']
+ok  rc=1 want=refuse the two bindings swapped: AssertionError: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P', '.ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P']
+ok  rc=1 want=refuse tick default moved to 40: AssertionError: ['GPTP_ETH_TICK_NS_P does not default to 8']
+ok  rc=1 want=refuse cycle default moved to 2: AssertionError: ['GPTP_ETH_CYC_PER_OCTET_P does not default to 1']
+ok  rc=1 want=refuse plane instance renamed: AssertionError: ['0 planes instantiated, not one']
+ok  rc=1 want=refuse tick binding line-commented: AssertionError: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P']
+ok  rc=1 want=refuse cycle binding line-commented: AssertionError: ['.ETH_CYC_PER_OCTET_P is not bound to GPTP_ETH_CYC_PER_OCTET_P']
+ok  rc=1 want=refuse tick binding block-commented: AssertionError: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P']
+ok  rc=1 want=refuse tick tied, old text kept in a comment: AssertionError: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P']
+ok  rc=1 want=refuse tick default commented, real default 40 on the next line: AssertionError: ['GPTP_ETH_TICK_NS_P does not default to 8']
+ok  rc=1 want=either tick bound through an arithmetic no-op: AssertionError: ['.ETH_TICK_NS_P is not bound to GPTP_ETH_TICK_NS_P']
+cuts: 15 not as wanted: 0
