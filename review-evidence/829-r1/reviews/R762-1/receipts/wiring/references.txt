@@ -1,0 +1,10 @@
+hdl/milan/milan_datapath.sv:92:  parameter int unsigned GPTP_ETH_TICK_NS_P = 8,
+hdl/milan/milan_datapath.sv:93:  parameter int unsigned GPTP_ETH_CYC_PER_OCTET_P = 1,
+hdl/milan/milan_datapath.sv:8885:        .ETH_TICK_NS_P (GPTP_ETH_TICK_NS_P),
+hdl/milan/milan_datapath.sv:8886:        .ETH_CYC_PER_OCTET_P(GPTP_ETH_CYC_PER_OCTET_P),
+sw/builder/test_builder.py:18269:    ('"p_ETH_CYC_PER_OCTET_P": 2', '"p_ETH_CYC_PER_OCTET_P": 1'),
+sw/builder/test_builder.py:18271:    ('"GPTP_ETH_TICK_NS_P": 40', '"GPTP_ETH_TICK_NS_P": 8'),
+sw/builder/test_builder.py:18272:    ('"GPTP_ETH_CYC_PER_OCTET_P": 2', '"GPTP_ETH_CYC_PER_OCTET_P": 1'),
+sw/litex/milan_soc.py:1445:                     "mii": {"GPTP_ETH_TICK_NS_P": 40,
+sw/litex/milan_soc.py:1446:                             "GPTP_ETH_CYC_PER_OCTET_P": 2}}
+sw/litex/milan_soc.py:1449:                       "mii": {"p_ETH_CYC_PER_OCTET_P": 2,

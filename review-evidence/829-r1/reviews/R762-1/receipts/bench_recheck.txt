@@ -1,0 +1,38 @@
+bench-left                       n=  29 arty   406.3 zero   891.8 diff  -485.5 sum  1504.5 lat 05810245 pd 664.2 (653..669) asc ['1'] sync ['1'] in_table=True
+bench-left-final                 n=  23 arty   404.2 zero   889.3 diff  -485.1 sum  1504.9 lat 05810245 pd 654 (649..663) asc ['1'] sync ['1'] in_table=False
+f-00-after-flash-reset-pair      n=  49 arty   879.2 zero   888.3 diff    -9.1 sum  1499.9 lat 05810064 pd 897 (879..919) asc ['0'] sync ['0'] in_table=True
+f-01-pair-0-0                    n= 128 arty  2394.1 zero   889.5 diff  1504.6 sum  1504.6 lat 00000000 pd 1645.3 (1626..1664) asc ['0'] sync ['0'] in_table=True
+f-02-pair-400-0                  n=  69 arty  1993.8 zero   886.7 diff  1107.1 sum  1507.1 lat 01900000 pd 1446.8 (1436..1464) asc ['0'] sync ['0'] in_table=True
+f-03-pair-0-400                  n=  69 arty  1996.6 zero   893.3 diff  1103.3 sum  1503.3 lat 00000190 pd 1451.7 (1426..1462) asc ['0'] sync ['0'] in_table=True
+f-04-pair-800-400                n=  69 arty  1192.0 zero   890.3 diff   301.7 sum  1501.7 lat 03200190 pd 1048.2 (1034..1064) asc ['0'] sync ['0'] in_table=True
+f-05-pair-from-math              n=  68 arty   884.5 zero   890.3 diff    -5.8 sum  1499.2 lat 057d0064 pd 896.7 (888..906) asc ['0'] sync ['0'] in_table=True
+f-06-true-pair-reset-value       n=  88 arty   894.8 zero   890.6 diff     4.2 sum  1513.2 lat 05810064 pd 888.2 (874..904) asc ['0'] sync ['0'] in_table=True
+f-07-tap-comp                    n=  68 arty   402.7 zero   892.8 diff  -490.1 sum  1499.9 lat 05810245 pd 650.2 (631..665) asc ['1'] sync ['1'] in_table=True
+f-10-tap-comp-sync-a             n= 316 arty   407.5 zero   890.7 diff  -483.2 sum  1506.8 lat 05810245 pd 654.0 (631..675) asc ['1'] sync ['1'] in_table=True
+f-11-tap-comp-sync-b             n= 316 arty   403.9 zero   890.9 diff  -487.0 sum  1503.0 lat 05810245 pd 653.2 (639..667) asc ['1'] sync ['1'] in_table=True
+mismatches 0
+f-10-tap-comp-sync-a zero-pdelay -236.7 | n=316 raw t3-GM mean 246.1 ns sd 29.4 min 176 max 324; extra egress 481 -> PHC offset from GM mean -234.9 ns
+   polls with status lines 32 ascapable=1 32 sync=1 32
+f-11-tap-comp-sync-b zero-pdelay -237.7 | n=316 raw t3-GM mean 249.5 ns sd 29.6 min 161 max 326; extra egress 481 -> PHC offset from GM mean -231.5 ns
+   polls with status lines 32 ascapable=1 32 sync=1 32
+stream-1 ('3c:c0:c6:01:02:03', '91:e0:f0:00:72:c6', '0x22f0', 24578) frames 460361 span 57.55 s rate 7999.8/s seq breaks 0
+('3c:c0:c6:fe:02:11', '01:80:c2:00:00:0e', '0x88f7', None) frames 1379 span 68.87 s rate 20.0/s 
+('02:00:00:00:00:02', '01:80:c2:00:00:0e', '0x88f7', None) frames 205 span 68.01 s rate 3.0/s 
+('02:00:00:00:00:02', '01:80:c2:00:00:0e', '0x22ea', None) frames 137 span 68.00 s rate 2.0/s 
+('3c:c0:c6:fe:02:11', '01:80:c2:00:00:21', '0x88f5', None) frames 77 span 68.00 s rate 1.1/s 
+('02:00:00:00:00:02', '01:80:c2:00:00:21', '0x88f5', None) frames 65 span 57.60 s rate 1.1/s 
+('3c:c0:c6:fe:02:11', '01:80:c2:00:00:00', '0x27', None) frames 34 span 66.00 s rate 0.5/s 
+('02:00:00:00:00:02', '91:e0:f0:01:00:00', '0x22f0', None) frames 20 span 65.00 s rate 0.3/s 
+('<controller-host-id>', '02:00:00:00:00:02', '0x22f0', None) frames 15 span 60.81 s rate 0.2/s 
+('02:00:00:00:00:02', '<cont
+stream-2 ('3c:c0:c6:01:02:03', '91:e0:f0:00:72:c6', '0x22f0', 24578) frames 460354 span 57.55 s rate 7999.8/s seq breaks 0
+('3c:c0:c6:fe:02:11', '01:80:c2:00:00:0e', '0x88f7', None) frames 1380 span 68.94 s rate 20.0/s 
+('02:00:00:00:00:02', '01:80:c2:00:00:0e', '0x88f7', None) frames 207 span 68.62 s rate 3.0/s 
+('02:00:00:00:00:02', '01:80:c2:00:00:0e', '0x22ea', None) frames 136 span 68.00 s rate 2.0/s 
+('3c:c0:c6:fe:02:11', '01:80:c2:00:00:21', '0x88f5', None) frames 78 span 68.00 s rate 1.1/s 
+('02:00:00:00:00:02', '01:80:c2:00:00:21', '0x88f5', None) frames 66 span 57.60 s rate 1.1/s 
+('3c:c0:c6:fe:02:11', '01:80:c2:00:00:00', '0x27', None) frames 35 span 68.00 s rate 0.5/s 
+('6c:01:7e:83:ff:02', '00:00:9a:61:ed:65', '0x0', None) frames 22 span 864691128.40 s rate 0.0/s 
+('02:00:00:00:00:02', '91:e0:f0:01:00:00', '0x22f0', None) frames 21 span 60.48 s rate 0.3/s 
+('3c:c0:c6:01:02:03', '91:e
+bench-left-final {"dir": "bench-left-final", "n_arty": 23, "n_zero": 23, "arty": 404.2, "arty_sd": 29.0, "zero": 889.3, "zero_sd": 24.3, "residual": -485.1, "ingress": 1409, "egress": 581, "gptp_lat": "05810245", "sum": 1504.9, "pdelay_mean": 654, "pdelay_min": 649, "pdelay_max": 663, "pdelay_n": 4, "predicted_pdela

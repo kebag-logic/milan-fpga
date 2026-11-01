@@ -1,0 +1,20 @@
+== mii eth=40 ns sys=12.5 ns dp=20 ns, 7 phases; time from the sampling edge of frame octet 0 first symbol (ns)
+  0:_PhyStagesMii                            min  -556.75 mean  -552.93 max  -548.00
+  1:LiteEthMACPreambleChecker                min    80.75 mean    84.57 max    89.50
+  2:LiteEthMACCRC32Checker                   min   443.25 mean   447.07 max   452.00
+  3:LiteEthMACPaddingChecker                 min   443.25 mean   447.07 max   452.00
+  4:LiteEthMACRXLastBE                       min   443.25 mean   447.07 max   452.00
+  5:StrideConverter                          min  1043.25 mean  1047.07 max  1052.00
+  6:ClockDomainCrossing                      min  1105.75 mean  1109.57 max  1114.50
+  7:Endpoint                                 min  1105.75 mean  1109.57 max  1114.50
+  dp                                         min  1166.50 mean  1173.96 max  1182.75
+== gmii eth=8 ns sys=12.5 ns dp=20 ns, 7 phases; time from the sampling edge of frame octet 0 first symbol (ns)
+  0:_PhyStages                               min   -62.75 mean   -58.93 max   -54.00
+  1:LiteEthMACPreambleChecker                min     0.25 mean     7.14 max    12.50
+  2:LiteEthMACCRC32Checker                   min    41.50 mean    46.43 max    50.25
+  3:LiteEthMACPaddingChecker                 min    41.50 mean    46.43 max    50.25
+  4:LiteEthMACRXLastBE                       min    41.50 mean    46.43 max    50.25
+  5:StrideConverter                          min   104.25 mean   164.29 max   304.00
+  6:ClockDomainCrossing                      min   137.25 mean   141.07 max   146.00
+  7:Endpoint                                 min   137.25 mean   141.07 max   146.00
+  dp                                         min   206.75 mean   215.11 max   225.00

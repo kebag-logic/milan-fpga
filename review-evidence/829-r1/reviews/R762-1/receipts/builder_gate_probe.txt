@@ -1,0 +1,7 @@
+  [gate 1g mutation] 6/6 cuts rejected
+gate 1d on the head source: held
+  [gate 1f] MilanMAC states its transmit side from the depths its FIFOs are built with (11,656 octets at 1,000 Mb/s on the AX7101), and flips its reset-less frame-end toggle in eth_tx on phy.sink's last octet; the no-MAC stub ties the toggle off
+  [gate 1f mutation] 9/9 cuts rejected, each naming its fact
+reboot statement gates: held
+gate 1d refused a tied ready: gate 1d: the launch observer's i_gmii_tready_i must be self.phy.sink.ready
+configs/endstation_arty_current.yaml {'GPTP_PLANE_EN_P': 1, 'REBOOT_MAC_TX_OCTETS_P': 11656, 'REBOOT_MAC_MIN_MBPS_P': 10, 'GPTP_ETH_TICK_NS_P': 40, 'GPTP_ETH_CYC_PER_OCTET_P': 2}
