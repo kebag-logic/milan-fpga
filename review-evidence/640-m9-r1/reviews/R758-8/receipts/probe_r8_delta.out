@@ -1,0 +1,48 @@
+== A. each second-table row, replayed from its own words under the page's rule
+48 kHz six one-channel: placed [0, 3, 1, 4, 2, 5, 0, 0, 3, 1, 4, 2, 5, 0, 0, 0]; peak 16; final {0: [1, 1, 1, 1, 1, 1]}; mine 103.022; model recursion 103.022; 8.6.8.2 sim 103.022; total 143.347; page 103.022 / 143.347; AGREES
+48 kHz eight then one: placed [0, 3, 1]; peak 3; final {0: [8], 1: [1]}; mine 71.310; model recursion 71.310; 8.6.8.2 sim 71.310; total 111.635; page 71.310 / 111.635; AGREES
+96 kHz four one-channel: placed [0, 6, 3, 9, 1, 4, 7, 10, 2, 5, 8, 11, 0, 0, 0]; peak 15; final {0: [1, 1, 1, 1]}; mine 92.935; model recursion 92.935; 8.6.8.2 sim 92.935; total 125.426; page 92.935 / 125.426; AGREES
+192 kHz six then one: placed [0, 12, 6, 18, 3, 9]; peak 6; final {9: [6], 12: [1]}; mine 83.941; model recursion 83.941; 8.6.8.2 sim 83.941; total 102.034; page 83.941 / 102.034; AGREES
+result: ALL AGREE
+
+== B. reach test: rebuild eight-channel helpers before each join, then replay
+48 kHz: 121010 window contents above 60 us scanned, best first
+  reached: {0: [1, 1, 1, 1, 1, 1]} wait 103.022 total 143.347; peak helpers 10
+  reached: {0: [1, 1, 1, 2, 2, 2]} wait 100.728 total 141.053; peak helpers 10
+  reached: {0: [1, 1, 1, 1, 2, 2]} wait 99.747 total 140.072; peak helpers 10
+  reached: {0: [2, 2, 2, 2, 2]} wait 99.130 total 139.455; peak helpers 10
+  reached: {0: [1, 1, 1, 1, 1]} wait 98.901 total 139.226; peak helpers 10
+  reached: {0: [1, 1, 1, 1, 1, 2]} wait 98.684 total 139.009; peak helpers 10
+96 kHz: 256041 window contents above 60 us scanned, best first
+  reached: {0: [8, 8], 1: [1, 1, 1, 1]} wait 103.570 total 136.061; peak helpers 11
+  reached: {0: [6, 8, 'c'], 1: [1, 1, 1, 1]} wait 103.505 total 135.996; peak helpers 11
+  reached: {0: [6, 8], 1: [1, 1, 1, 1]} wait 102.735 total 135.226; peak helpers 11
+  reached: {0: [6, 6, 'c'], 1: [1, 1, 1, 1]} wait 102.660 total 135.151; peak helpers 11
+  reached: {0: [4, 8, 'c'], 1: [1, 1, 1, 1]} wait 102.660 total 135.151; peak helpers 11
+  reached: {0: [8, 8], 1: [1, 1, 1]} wait 102.655 total 135.146; peak helpers 11
+
+== C. 192 kHz: every start finds an empty phase, so one stream per phase within the first 17 tie phases
+first 17 tie phases: [0, 12, 6, 18, 3, 9, 15, 21, 1, 4, 7, 10, 13, 16, 19, 22, 2]
+  [(0, [8]), (1, [8]), (2, [1])]: wait 103.331; before packetizer 121.424; published tandem, same placement both ports 129.745; with the other port at 14 eight-channel 129.744
+  [(1, [8]), (2, [8]), (3, [1])]: wait 103.331; before packetizer 121.424; published tandem, same placement both ports 129.745; with the other port at 14 eight-channel 129.744
+  [(2, [8]), (3, [8]), (4, [1])]: wait 103.331; before packetizer 121.424; published tandem, same placement both ports 129.745; with the other port at 14 eight-channel 125.584
+  [(0, [6]), (1, [8]), (2, [1])]: wait 102.015; before packetizer 120.108; published tandem, same placement both ports 126.508; with the other port at 14 eight-channel 127.468
+  [(0, [8]), (1, [6]), (2, [1])]: wait 102.015; before packetizer 120.108; published tandem, same placement both ports 128.428; with the other port at 14 eight-channel 128.428
+  [(1, [6]), (2, [8]), (3, [1])]: wait 102.015; before packetizer 120.108; published tandem, same placement both ports 126.508; with the other port at 14 eight-channel 127.468
+  [(1, [8]), (2, [6]), (3, [1])]: wait 102.015; before packetizer 120.108; published tandem, same placement both ports 128.428; with the other port at 14 eight-channel 128.428
+  [(2, [6]), (3, [8]), (4, [1])]: wait 102.015; before packetizer 120.108; published tandem, same placement both ports 126.508; with the other port at 14 eight-channel 123.308
+largest 192 kHz total above, packetizer queue included: 129.745
+six-channel in phase 0, one-channel in phase 1, no eight-channel stream: wait 94.357 before packetizer 112.450
+  model recursion 94.357 8.6.8.2 sim 94.357
+  witness: start one six-channel, eight one-channel; placed [12, 6, 18, 3, 9, 15, 21, 1] ; stop all but phase 1's
+
+== D. figure the requirement quotes
+{48: '143.347', 96: '136.061'} 192 kHz with packetizer queue: 129.745
+143.347 survives as the largest found: True
+
+== E. largest cases found, replayed operation by operation, then asked of the published model
+192 kHz: start eight-channel, seven one-channel, eight-channel, six one-channel, a CRF, one one-channel; placed [0, 12, 6, 18, 3, 9, 15, 21, 1, 4, 7, 10, 13, 16, 19, 22, 2]
+  stop all but phases 0, 1, 2: mine 103.331 model recursion 103.331 8.6.8.2 sim 103.331 before packetizer 121.424 published tandem 129.745
+96 kHz {0: [8, 8], 1: [1, 1, 1, 1]}: mine 103.570 model recursion 103.570 8.6.8.2 sim 103.570 total 136.061
+a window of d extra phases loses d phase intervals, so it stays under 125 - d x interval:
+  48 kHz, 3 or more phases: under 83.333 ; 96 kHz, 3 or more phases: under 104.167 ; a 96 kHz case above 143.347 needs a wait above 110.856

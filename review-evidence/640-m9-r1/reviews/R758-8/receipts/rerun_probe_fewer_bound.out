@@ -1,0 +1,22 @@
+== calibration against the page's rows at 48 kHz
+two in phase 0: wait 62.259 (page 62.259); total 102.584 (page 102.584)
+three in phase 0: wait 83.012 (page 83.012); total 123.337 (page 123.337)
+two, phases 0 and 1: wait 41.425 (page 41.425); total 81.750 (page 81.750)
+two, phases 0 and 3: wait 0.000 (page 0.000); total 40.325 (page 40.325)
+16-reservation mix of 'What the rule cannot prevent': wait 53.085 (page 53.085)
+
+== witness: only starts and stops under the exact phase rule, 48 kHz
+start N=1 -> phase 0; start N=8 -> phase 3; start N=8 -> phase 1; start N=8 -> phase 4; start N=8 -> phase 2; start N=8 -> phase 5; start N=1 -> phase 0; start N=1 -> phase 0; start N=8 -> phase 3; start N=8 -> phase 1; start N=8 -> phase 4; start N=8 -> phase 2; start N=8 -> phase 5; start N=1 -> phase 0; start N=1 -> phase 0; start N=1 -> phase 0
+at 16 streams: [[1, 1, 1, 1, 1, 1], [8, 8], [8, 8], [8, 8], [8, 8], [8, 8]] count 16
+after stopping every eight-channel stream: [[1, 1, 1, 1, 1, 1], [], [], [], [], []]
+idleSlope 34.944 Mb/s; last frame's wait 103.022 us; total with every fixed term 143.347 us; page's largest fewer-reservations row 123.337 us
+
+== constructive search: k co-phased N-channel streams alone, helpers stopped
+48 kHz: largest reached N=1 k=6: wait 103.022, total 143.347
+96 kHz: largest reached N=1 k=4: wait 92.935, total 125.426
+192 kHz: largest reached N=1 k=1: wait 0.000, total 18.093 (excludes the packetizer term)
+
+== random start/stop walks under the exact rule, fewest-stream cases included
+48 kHz: largest wait 71.310, total 111.635, with 2 streams: [[8], [1], [], [], [], []]
+96 kHz: largest wait 83.732, total 116.223, with 2 streams: [[6], [1], [], [], [], [], [], [], [], [], [], []]
+192 kHz: largest wait 83.941, total 102.034, with 2 streams: [[], [], [], [], [], [], [], [], [], [6], [], [], [1], [], [], [], [], [], [], [], [], [], [], []]
