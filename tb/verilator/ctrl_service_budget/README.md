@@ -819,8 +819,8 @@ The four flash rows again at this head, with the stage and, as a control, withou
 
 | Point, instruction cache | Stage | CPU cycles per instruction | Refill, CPU cycles: mean (range) | Groups graded, probes refused | Paths (instances) missing T_svc | Composed maximum, every backlog window, ms | Over the windows that released their whole load only, ms | Worst pass, ms |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| 1x1, 4 KiB | staged | 35.53 | 2,218 (2,122-2,292) | 16, 5 | 69 of 76 (104 of 116) | at least 87.17 | none | 87.17 |
-| 1x1, 4 KiB | none | 35.24 | 2,201 (2,106-2,273) | 16, 6 | 68 of 75 (106 of 115) | at least 86.54 | none | 86.54 |
+| 1x1, 4 KiB | staged | 35.53 | 2,218 (2,122-2,292) | 16, 5 | 69 of 76 (104 of 116) | partial, 2 of 4 windows (`backlog-adp`, `backlog-adp-refill` refused): at least 87.17 | none | 87.17 |
+| 1x1, 4 KiB | none | 35.24 | 2,201 (2,106-2,273) | 16, 6 | 68 of 75 (106 of 115) | partial, 2 of 4 windows (`backlog-adp`, `backlog-adp-refill` refused): at least 86.54 | none | 86.54 |
 | 1x1, 32 KiB | staged | 13.28 | 2,239 (2,122-2,292) | 18, 0 | 23 of 81 (67 of 141) | at least 32.05 | 23.56 | 33.36 |
 | 1x1, 32 KiB | none | 13.21 | 2,221 (2,106-2,273) | 18, 0 | 23 of 81 (67 of 141) | at least 31.91 | 20.30 | 32.96 |
 | 8x8, 4 KiB | staged | 24.98 | 2,227 (2,122-2,292) | 17, 13 | 104 of 116 (143 of 169) | at least 109.21 | none | 154.40 |
@@ -833,6 +833,31 @@ A small delay still moves records between passes, so a row's verdicts move by a 
 The 1x1, 32 KiB `backlog` window's longest pass moves from 19.23 to 23.56 ms, and at 8x8, 32 KiB, 5 more paths miss with the stage and one probe, `acmp.tmr_no_tk.if1`, is refused.
 The rows' other differences from the table above are this line's firmware since `e76a755a`, not the stage's: at `dev-soft-core` `5b5f4336`, before dev's #814 was merged, both 4 KiB arms' tables are byte-identical to the no-stage rows' apart from paths.
 None of this changes D3's rule: with the code in flash, paths inside T_svc still miss at both cache sizes.
+
+**The 1x1, 4 KiB rows cover two of the four backlog windows.**
+Their composed maxima are partial figures, so neither is comparable with the 94.91 ms above, which covers all four ([Findings](#findings)).
+Each run's `table.md` reports `backlog-adp` and `backlog-adp-refill` as not run; they ran, and the grader refused them.
+With the code in flash behind 4 KiB, the event ring still holds 5 of its 16 records when those two windows open, 4 without the stage.
+The window's fifteen grandmaster changes arrive 8 bus cycles apart, so 11 records post at once (12 without the stage), and the coalesced source holds the rest as one more record.
+Each window so commits 12 GM events (13 without the stage) against its defined 15, and `grade.check_load` refuses a window whose population is not its row's.
+The firmware, not the stage, makes the ring that full: at `dev-soft-core` `5b5f4336`, before dev's #814 was merged, the same two windows are refused at 13 GM events.
+Those two refusals are in each row's probes refused, with three probes staged (`acmp.get_rx_state.if0`, `acmp.probe_tx.if0`, `fixture.set_name.if0`), and those three and `acmp.get_tx_connection.if0` without the stage.
+
+Every window, read from each run's logs with `grade.py`'s own `population`, `composed_passes` and `unreleased`, without its refusal.
+A refused window's passes ran a smaller load than its row defines, so its figures are not its row's, and the graded figures above leave them out:
+
+| Window | Stage | GM events committed, of 15 | Graded | Window, ms | Passes | Longest pass, ms | Records unreleased |
+|---|---|---:|---|---:|---:|---:|---|
+| `backlog` | staged | 15 | yes | 800.00 | 19 | 87.17 | srp 27 |
+| `backlog-owed` | staged | 15 | yes | 860.05 | 18 | 86.89 | srp 29 |
+| `backlog-adp` | staged | 12 | refused | 738.99 | 12 | 81.40 | aecp 4, srp 32 |
+| `backlog-adp-refill` | staged | 12 | refused | 884.92 | 14 | 88.32 | aecp 1, srp 32 |
+| `backlog` | none | 15 | yes | 800.00 | 20 | 86.54 | srp 26 |
+| `backlog-owed` | none | 15 | yes | 860.05 | 18 | 86.26 | srp 29 |
+| `backlog-adp` | none | 13 | refused | 733.78 | 12 | 78.11 | aecp 4, srp 32 |
+| `backlog-adp-refill` | none | 13 | refused | 878.62 | 14 | 84.98 | aecp 1, srp 32 |
+
+So the longest pass in any of the four is at least 88.32 ms with the stage, in a window the grader refuses, and at least 86.54 ms without it.
 
 ### Block RAM and logic
 
