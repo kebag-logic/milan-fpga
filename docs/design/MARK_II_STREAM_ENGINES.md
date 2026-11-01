@@ -1089,6 +1089,9 @@ Until the header, saves keep appending to the active slot.
 Step 4's check and its header page are one step.
 No save can run between them.
 
+The check is a cursor compare, with no flash access.
+So no save is taken between it and the header.
+
 A save arriving during the header page waits for it.
 That wait is the compaction page already in T_worst.
 
@@ -1131,6 +1134,7 @@ So each key's newest durable value comes last.
 | A save lands | It appends to | It reaches the slot that survives because |
 |---|---|---|
 | Before step 1 | The active slot | Its value is durable, so step 2 copies it from the live tables |
+| While another save is in flight, at any step | The same slot, after that save | Saves run one at a time, strictly before the next compaction page; each then lands as its own row says |
 | Between copy pages, step 2 | The active slot, after the cursor | Step 3 replays every record from the cursor on |
 | Between replay pages, step 3 | The active slot, after the cursor | Step 4 cannot pass until the cursor has replayed it |
 | At the boundary after the last replay page | The active slot: strict priority runs it before step 4's check | The check then fails, and step 3 replays it first |
