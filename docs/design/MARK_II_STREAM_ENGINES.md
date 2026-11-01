@@ -527,31 +527,137 @@ The listener converts the other port's timestamps into it.
 It applies the same measured offset in reverse.
 Each context's `PORT` bit names its own time base.
 
+### Conversion error bound
+
+The listener compares the two copies of one packet.
+After conversion, their times differ by a bounded error.
+
+On each network, talker and listener agree within 1 µs.
+IEEE 802.1AS-2020 B.3 sets it, within seven hops.
+
+Milan v1.2 4.4.2.1 assumes it too.
+So the two offsets differ by at most 2 µs.
+
+Each offset is up to 125 µs old.
+Each grandmaster runs within 100 ppm of nominal.
+
+IEEE 802.1AS-2020 B.1.1 sets that frequency bound.
+So an offset drifts at most 25 ns per latch.
+
+Each PHC read adds one granule, at most 40 ns.
+IEEE 802.1AS-2020 B.1.2 bounds that granule.
+
+```
+E_x = 2 x 1 µs              B.3, one per network
+    + 2 x 125 µs x 200 ppm  two latches, two grandmasters
+    + 4 x 40 ns             four PHC reads, B.1.2
+    = 2.000 + 0.050 + 0.160 = 2.210 µs
+```
+
+Assumption A3: both networks meet B.3 in steady state.
+A copy with tu set has no such bound.
+
 ### The merge
 
 The listener merges each pair into one render stream.
-The even context keeps the last written time and tu.
+The even context holds the pair's merge state.
 
-IEEE 1722-2016 4.4.4.7: tu marks uncertain time.
-Milan v1.2 4.4.2.3 asks to free-wheel.
+That state is a head and a written map.
+The head is the newest written packet's time and position.
 
-Neither clause tells a listener to drop samples.
+The map holds one bit per recent packet.
+Bit k marks the packet k intervals before the head.
 
-The merge applies these rules in order:
+The render buffer spans 2.667 ms, under 22 packets.
+So a 22-bit map covers every packet still renderable.
 
-1. A copy failing the stream checks is not rendered.
-2. A copy later than the last written time is rendered.
-3. A clean copy replaces the last packet's tu copy.
-4. Any other copy is a duplicate and is discarded.
+The render point is the time now at the pins.
+
+#### Clean copies
+
+A clean copy's time names its packet.
+Its offset from the head is `k = round((t - head) / 125 µs)`.
+
+Each packet's tolerance window is 62.5 µs either side.
+Clean partner copies differ by at most 2.210 µs.
+
+Neighbouring packets differ by 125 µs, less drift.
+At 200 ppm, 22 packets drift under 0.6 µs.
+
+So a partner always matches; a neighbour never does.
+
+#### Copies with tu set
+
+IEEE 1722-2016 4.4.4.7 covers the tu bit.
+A listener may then stop trusting presentation times.
+
+So a tu copy's time names no packet.
+Its `sequence_num` places it (IEEE 1722-2016 4.4.4.6).
+
+Each context keeps its last `sequence_num` and that packet's time.
+A tu copy's packet is that time plus the count.
+
+The count is a signed 8-bit difference; reordering is safe.
+During tu the head advances by that count.
+
+#### Placement
+
+Samples are placed by count from the head.
+Packet k lands k packets of samples from the head.
+
+So conversion error never shifts a sample.
+A new anchor alone uses its own time.
+
+#### Rules
+
+The first matching rule acts:
+
+| Rule | When | Action | Counter |
+|---:|---|---|---|
+| 1 | The copy fails a stream check: its format (Milan v1.2 4.4.2.2), or a late or early time (Milan v1.2 5.3.8.10) | Not rendered | That check's Milan v1.2 5.3.8.10 counter |
+| 2 | The copy has tu set, and the partner context's `CLEAN_VALID` is set | Discarded | `SE_MERGE_TU` |
+| 3 | `HEAD_VALID` is clear, or a tu copy has no valid sequence reference | Rendered at its own time; it anchors the head and clears the map | `SE_MERGE_SEC` if odd |
+| 4 | A clean copy while `ANCHOR_TU` is set, or more than 21 packets from the head | Re-anchors, as rule 3 | `SE_MERGE_SEC` if odd |
+| 5 | k is 1 or more: newer than the head | Rendered k packets after the head; it becomes the head | `SE_MERGE_SEC` if odd |
+| 6 | k is 0 to -21, and map bit -k is clear | Rendered k packets from the head; sets that bit | `SE_MERGE_SEC` if odd |
+| 7 | Any other copy: its packet is already written | Discarded as a duplicate | `SE_MERGE_DUP` |
+
+A clean head takes its copy's own time.
+A tu head advances by the count, in render-clock time.
 
 No rule drops the only valid copy of a packet.
-With both copies tu, the first copy is rendered.
+A tu copy never writes while clean partner data remains.
 
-An unpaired stream uses rules 1 and 2 only.
-Losing one network then loses no samples.
+So uncertain time on one network cannot disturb the other.
+The window counts each duplicate once, in `SE_MERGE_DUP`.
 
-Times compare in wrapping 32-bit time, like avtp_timestamp.
-IEEE 1722-2016 4.4.4.9 defines that field.
+Annex D.2 of Milan v1.2 models per-network buffers.
+Clean partner data is a non-empty buffer there.
+
+Before any clean copy arrives, a tu copy may anchor.
+The first clean copy then re-anchors by rule 4.
+
+#### Reference upkeep
+
+Every copy passing rule 1 updates its reference.
+A clean copy also sets `CLEAN_VALID` and `LCTX_CLEAN_PT`.
+
+Every 125 µs a sweep reads every context.
+It clears valid bits whose time the render point passed.
+
+Every valid time then stays within 2.667 ms.
+Wrapping compares stay exact (IEEE 1722-2016 4.4.4.9).
+
+The sweep uses the context RAM's second port.
+So the engines lose no cycles to it.
+
+An unpaired stream applies every rule but rule 2.
+For a pair, losing one network loses no samples.
+
+Milan v1.2 Annex D.3 covers losing one network.
+Loss plus tu on the other network goes beyond it.
+
+The audio then gaps for up to one presentation offset.
 
 Milan v1.2 8.3.2.1.4 pairs mappings.
 Both streams of a pair map the same channels.
@@ -624,9 +730,10 @@ An engine reset clears every counter and state word.
 | 0x028 | SE_TLAT_OVER | 15:0 | COUNT0 | 0x0000 | RC | Port 0 frames at or above 65 µs, pin to first bit in port 0's PHC time; saturates at its maximum |
 | | | 31:16 | COUNT1 | 0x0000 | RC | Port 1 frames at or above 65 µs, pin to first bit in port 1's PHC time; saturates at its maximum |
 | 0x02C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
-| 0x030 | SE_MERGE_DUP | 31:0 | COUNT | 0x0000_0000 | RC | Redundant copies discarded by merge rule 4; wraps |
-| 0x034 | SE_MERGE_SEC | 31:0 | COUNT | 0x0000_0000 | RC | Packets rendered from a secondary copy; wraps |
-| 0x038-0x03C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
+| 0x030 | SE_MERGE_DUP | 31:0 | COUNT | 0x0000_0000 | RC | Copies discarded by merge rule 7: their packet was already written; wraps |
+| 0x034 | SE_MERGE_SEC | 31:0 | COUNT | 0x0000_0000 | RC | Packets first written from a secondary (odd) copy, merge rules 3 to 6; wraps |
+| 0x038 | SE_MERGE_TU | 31:0 | COUNT | 0x0000_0000 | RC | Copies with tu set discarded by merge rule 2: clean partner data remained; wraps |
+| 0x03C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
 | 0x040-0x05C | SE_RMAP[0..7] | 4:0 | LCTX | 0x00 | RW | Render slot k at 64 plus 4k: the listener context feeding it; a redundant pair is named by its even context |
 | | | 7:5 | CH | 0x0 | RW | The stream channel that feeds slot k |
 | | | 8 | VALID | 0x0 | RW | Slot k is mapped; 0 renders silence (Milan v1.2 5.3.10.1: each slot takes at most one stream channel) |
@@ -696,12 +803,16 @@ The engine owns the state, merge and counter words.
 | 0x10 | LCTX_DA_HI | 15:0 | DA | 0x0000 | FW | Stream destination MAC bits 47:32 |
 | | | 27:16 | VID | 0x000 | FW | Expected VLAN identifier, 12 bits |
 | | | 31:28 | RESERVED | 0x0 | R | Reads zero; writes ignored |
-| 0x14 | LCTX_STATE | 7:0 | SEQ | 0x00 | R | Last sequence_num seen |
+| 0x14 | LCTX_STATE | 7:0 | SEQ | 0x00 | R | Last sequence_num seen on this context (IEEE 1722-2016 4.4.4.6); with LCTX_SEQ_PT, the reference that places a copy with tu set |
 | | | 8 | LOCKED | 0x0 | R | Media locked on this stream |
-| | | 9 | LAST_TU | 0x0 | R | The last written copy carried tu; merge rule 3 reads it, in the even context |
-| | | 31:10 | RESERVED | 0x00_0000 | R | Reads zero; writes ignored |
-| 0x18 | LCTX_LAST_PT | 31:0 | NS | 0x0000_0000 | R | Last written presentation time, render time base; the pair's merge key, in the even context |
-| 0x1C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
+| | | 9 | ANCHOR_TU | 0x0 | R | Even context: the head's position came from a copy with tu set; merge rule 4 reads it |
+| | | 10 | SEQ_VALID | 0x0 | R | SEQ and LCTX_SEQ_PT are a valid reference; cleared by the sweep when the render point passes LCTX_SEQ_PT |
+| | | 11 | CLEAN_VALID | 0x0 | R | This context holds clean data ahead of the render point; the partner's merge rule 2 reads it; cleared by the sweep when the render point passes LCTX_CLEAN_PT |
+| | | 31:12 | RESERVED | 0x0_0000 | R | Reads zero; writes ignored |
+| 0x18 | LCTX_LAST_PT | 31:0 | NS | 0x0000_0000 | R | Even context: the head's presentation time, render time base; a clean head takes its copy's time, a tu head advances by count |
+| 0x1C | LCTX_MERGE | 21:0 | WMAP | 0x00_0000 | R | Even context: bit k set when the packet k intervals before the head is written |
+| | | 30:22 | HEAD_POS | 0x000 | R | Even context: render buffer index of the head packet's first sample |
+| | | 31 | HEAD_VALID | 0x0 | R | Even context: the head is valid; cleared by the sweep when the render point passes LCTX_LAST_PT |
 | 0x20 | LCTX_MEDIA_LOCKED | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
 | 0x24 | LCTX_MEDIA_UNLOCKED | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
 | 0x28 | LCTX_STREAM_INTERRUPTED | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
@@ -712,7 +823,9 @@ The engine owns the state, merge and counter words.
 | 0x3C | LCTX_LATE_TIMESTAMP | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
 | 0x40 | LCTX_EARLY_TIMESTAMP | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
 | 0x44 | LCTX_FRAMES_RX | 31:0 | COUNT | 0x0000_0000 | R | Milan v1.2 5.3.8.10; cleared by CNT_CLR |
-| 0x48-0x7C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
+| 0x48 | LCTX_SEQ_PT | 31:0 | NS | 0x0000_0000 | R | Packet time of the copy with SEQ, render time base; counted for a copy with tu set |
+| 0x4C | LCTX_CLEAN_PT | 31:0 | NS | 0x0000_0000 | R | Time of this context's newest clean copy, render time base |
+| 0x50-0x7C | RESERVED | 31:0 | - | 0x0000_0000 | R | Reads zero; writes ignored |
 
 Unbinding keeps the counters, per 5.3.8.10.
 
@@ -950,7 +1063,8 @@ The [open questions](#open-questions) list it.
 | Latency instrument time base | Simulation: an odd context with a non-zero, drifting PHC offset; its recorded interval equals the pin-to-wire time, and so does an even context's | Bench: an external capture of pin and wire on each port, against `TCTX_TLAT_MAX` of an even and an odd context |
 | Phase rule | The model's starts and stops | Firmware test: phase chosen by wire time, never moved while running |
 | Stagger conformance | IEEE 1722-2016 7.5 and 7.6 inspection | Listener interoperability with the reference peer |
-| Listener merge | Simulation with one network cut mid-stream, then a grandmaster change on the surviving network; both copies with tu set | Bench cable pull on each network, no lost samples |
+| Listener merge | Simulation of every rule: both copies clean with a jittered conversion error up to 2.210 µs and up to 1.5 ms between networks, either network faster; times 1 µs past a sample boundary; one network cut mid-stream; 1 % frame loss on either network, filled from the later copy; the secondary with tu set, its time skewed by plus or minus 30 µs, plus or minus 200 µs and plus 1 ms, arriving before the primary; a cut, then a grandmaster change on the surviving network. Rendered samples equal the clean stream's, and `SE_MERGE_DUP` counts each packet's second copy once. The test fails with an exact time compare, with each copy placed by its own time, or without rule 2 | Bench cable pull on each network, no lost samples; a grandmaster change on one network with both up, no disturbed samples |
+| Conversion error bound | Analysis above (IEEE 802.1AS-2020 B.1.1, B.1.2, B.3) | Bench capture of both copies of each packet; the converted times differ by at most 2.210 µs |
 | Port time bases | Simulation: each copy's avtp_timestamp against its own port's PHC | Bench capture of both copies on the two networks |
 | Block RAM ledger | Estimate above | Routed image at 32x32 with measured firmware |
 | Save bound | Analysis above at datasheet maxima | Host flash model at maxima; bench power cuts |
