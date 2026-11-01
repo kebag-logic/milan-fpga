@@ -1,0 +1,14 @@
+generated gmii MAC transmit chain: OK (2719 lines, region ecb8a0ef998d, checked by re-converted from the product source)
+generated mii MAC transmit chain: OK (2854 lines, region ecb8a0ef998d, checked by re-converted from the product source)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 1.299 s (elab=0.000, cvt=0.000, bld=1.298); cpu 0.001 s on 16 threads; allocated 16.496 MB
+  engine cadence reached the lane at 48014 us
+  retired capture precedes the launch by 1084 ns isolated, 362983 ns queued
+  mean reconstruction error 1.350 ns over 200 frames
+  error spread -9..+11 ns over 21 distinct values, 3526 us of run
+  [FAIL] phc window: that frame's own result is an explicit loss got=1 exp=0
+  [FAIL] phc window: the history guard counted it
+== gptp_txts: checks: 89   failures: 2 ==
+RESULT: FAIL
+make: *** [Makefile:89: run-mii] Error 1

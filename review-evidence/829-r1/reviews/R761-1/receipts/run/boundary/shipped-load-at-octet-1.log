@@ -1,0 +1,49 @@
+generated gmii MAC transmit chain: OK (2719 lines, region ecb8a0ef998d, checked by re-converted from the product source)
+generated mii MAC transmit chain: OK (2854 lines, region ecb8a0ef998d, checked by re-converted from the product source)
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.066 MB sources in 19 modules, into 0.952 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.572 s (elab=0.034, cvt=0.136, bld=5.344); cpu 0.239 s on 16 threads; allocated 900.117 MB
+  engine cadence reached the lane at 48014 us
+  retired capture precedes the launch by 1084 ns isolated, 362983 ns queued
+  mean reconstruction error 1.350 ns over 200 frames
+  error spread -9..+11 ns over 21 distinct values, 3526 us of run
+== gptp_txts: checks: 89   failures: 0 ==
+RESULT: PASS
+  engine cadence reached the lane at 48014 us
+  retired capture precedes the launch by 1079 ns isolated, 362984 ns queued
+  mean reconstruction error 1.335 ns over 200 frames
+  error spread -9..+11 ns over 21 distinct values, 3524 us of run
+== gptp_txts: checks: 89   failures: 0 ==
+RESULT: PASS
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_enable_i'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:118:39: ... Location of port declaration
+  118 |   input  wire                         pps_enable_i,  
+      |                                       ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_target_ns_i'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:119:39: ... Location of port declaration
+  119 |   input  wire [COUNTER_WIDTH-1:0]     pps_target_ns_i,  
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_arm_i'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:120:39: ... Location of port declaration
+  120 |   input  wire                         pps_arm_i,     
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_o'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:125:35: ... Location of port declaration
+  125 |   output wire                     pps_o,               
+      |                                   ^~~~~
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_target_ns_o'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:126:35: ... Location of port declaration
+  126 |   output wire [COUNTER_WIDTH-1:0] pps_target_ns_o         
+      |                                   ^~~~~~~~~~~~~~~

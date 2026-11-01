@@ -1,0 +1,6 @@
+3707:reg           milansoc_milanmac_phy_sink_ready = 1'd0;
+16742:assign milansoc_milanmac_liteethmaccore_tx_gap_source_ready = milansoc_milanmac_phy_sink_ready;
+21662:    if (((milansoc_milanmac_phy_sink_valid & milansoc_milanmac_phy_sink_ready) & milansoc_milanmac_phy_sink_last))
+21667:    milansoc_milanmac_phy_sink_ready <= 1'd1;
+21669:        milansoc_milanmac_phy_sink_ready <= 1'd0;
+31442:	.gmii_tready_i (milansoc_milanmac_phy_sink_ready),

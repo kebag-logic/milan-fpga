@@ -1,0 +1,16 @@
+  [gate 1d] the launch observer reads the MAC's own transmit stream in the MAC's own domain; one gPTP emitter, one store-and-forward writer, one fabric clock, and both record faces tied off where there is no observer
+PASS test_gptp_launch_observer_seam
+  [gate 1g mutation] 6/6 cuts rejected
+PASS test_gptp_launch_shape_follows_the_phy
+  [gate 1f] MilanMAC states its transmit side from the depths its FIFOs are built with (11,656 octets at 1,000 Mb/s on the AX7101), and flips its reset-less frame-end toggle in eth_tx on phy.sink's last octet; the no-MAC stub ties the toggle off
+PASS test_reboot_egress_statement
+  [gate 1f mutation] 9/9 cuts rejected, each naming its fact
+PASS test_reboot_egress_statement_gate_bites
+  [gate 23m] 5 real milan_soc.py elaborations in 7 s: for every config the integer parameters Instance("milan_datapath") receives are exactly eb.datapath_params(), the shapes the publication census elaborates; every other keyword is a ROM image path
+PASS test_datapath_params_match_the_instance
+endstation_arty_4x4.yaml arty {'REBOOT_MAC_MIN_MBPS_P': 10, 'GPTP_ETH_TICK_NS_P': 40, 'GPTP_ETH_CYC_PER_OCTET_P': 2} False
+endstation_arty_8ch.yaml arty {'REBOOT_MAC_MIN_MBPS_P': 10, 'GPTP_ETH_TICK_NS_P': 40, 'GPTP_ETH_CYC_PER_OCTET_P': 2} False
+endstation_arty_current.yaml arty {'REBOOT_MAC_MIN_MBPS_P': 10, 'GPTP_ETH_TICK_NS_P': 40, 'GPTP_ETH_CYC_PER_OCTET_P': 2} False
+endstation_ax7101_1x1_tdm8.yaml ax7101 {'REBOOT_MAC_MIN_MBPS_P': 1000} False
+endstation_ax7101_8x8.yaml ax7101 {'REBOOT_MAC_MIN_MBPS_P': 1000} False
+RESULT PASS

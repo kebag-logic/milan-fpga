@@ -1,0 +1,83 @@
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 3.073 MB sources in 19 modules, into 0.955 MB in 6 C++ files needing 0.001 MB
+- Verilator: Walltime 5.797 s (elab=0.040, cvt=0.161, bld=5.535); cpu 0.274 s on 16 threads; allocated 1220.145 MB
+  engine cadence reached the lane at 48014 us
+  retired capture precedes the launch by 1041 ns isolated, 362849 ns queued
+  mean reconstruction error 1.315 ns over 200 frames
+  error spread -9..+11 ns over 21 distinct values, 3517 us of run
+== gptp_txts: checks: 89   failures: 0 ==
+RESULT: PASS
+PHASE-TOTALS frame_starts=300 started_on_ready=299 records_ok=253 records_bad=1
+  engine cadence reached the lane at 48014 us
+  retired capture precedes the launch by 1038 ns isolated, 362867 ns queued
+  mean reconstruction error 1.080 ns over 200 frames
+  error spread -9..+11 ns over 21 distinct values, 3516 us of run
+  [FAIL] fragment: that frame's own result is an explicit loss got=1 exp=0
+  [FAIL] fragment: the loss was counted
+== gptp_txts: checks: 89   failures: 2 ==
+RESULT: FAIL
+PHASE-TOTALS frame_starts=300 started_on_ready=300 records_ok=254 records_bad=0
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_enable_i'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:118:39: ... Location of port declaration
+  118 |   input  wire                         pps_enable_i,  
+      |                                       ^~~~~~~~~~~~
+                     ... For warning description see https://verilator.org/warn/PINMISSING?v=5.050
+                     ... Use "/* verilator lint_off PINMISSING */" and lint_on around source to disable this message.
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_target_ns_i'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:119:39: ... Location of port declaration
+  119 |   input  wire [COUNTER_WIDTH-1:0]     pps_target_ns_i,  
+      |                                       ^~~~~~~~~~~~~~~
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_arm_i'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:120:39: ... Location of port declaration
+  120 |   input  wire                         pps_arm_i,     
+      |                                       ^~~~~~~~~
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_o'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:125:35: ... Location of port declaration
+  125 |   output wire                     pps_o,               
+      |                                   ^~~~~
+%Warning-PINMISSING: gptp_txts_wrap.sv:191:5: Instance has missing pin: 'pps_target_ns_o'
+  191 |   ) u_phc (
+      |     ^~~~~
+                     ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv:126:35: ... Location of port declaration
+  126 |   output wire [COUNTER_WIDTH-1:0] pps_target_ns_o         
+      |                                   ^~~~~~~~~~~~~~~
+%Warning-BLKSEQ: ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:546:51: Blocking assignment '=' in sequential logic process
+                                                                                 : ... note: In instance 'gptp_txts_wrap.u_launch'
+                                                                                 : ... Suggest using delayed assignment '<='
+  546 |     if (gmii_tvalid_i && !rv_prev) begin rv_starts++; if (gmii_tready_i) rv_stuck++; end
+      |                                                   ^~
+                 ... For warning description see https://verilator.org/warn/BLKSEQ?v=5.050
+                 ... Use "/* verilator lint_off BLKSEQ */" and lint_on around source to disable this message.
+%Warning-BLKSEQ: ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:546:82: Blocking assignment '=' in sequential logic process
+                                                                                 : ... note: In instance 'gptp_txts_wrap.u_launch'
+                                                                                 : ... Suggest using delayed assignment '<='
+  546 |     if (gmii_tvalid_i && !rv_prev) begin rv_starts++; if (gmii_tready_i) rv_stuck++; end
+      |                                                                                  ^~
+%Warning-BLKSEQ: ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:547:84: Blocking assignment '=' in sequential logic process
+                                                                                 : ... note: In instance 'gptp_txts_wrap.u_launch'
+                                                                                 : ... Suggest using delayed assignment '<='
+  547 |     if (frame_push_w) begin if (delta_r == TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P)) rv_ok++; else rv_bad++; end
+      |                                                                                    ^~
+%Warning-BLKSEQ: ../../../hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv:547:99: Blocking assignment '=' in sequential logic process
+                                                                                 : ... note: In instance 'gptp_txts_wrap.u_launch'
+                                                                                 : ... Suggest using delayed assignment '<='
+  547 |     if (frame_push_w) begin if (delta_r == TXTS_DELTA_W_P'(TXTS_DELTA_EXP_P)) rv_ok++; else rv_bad++; end
+      |                                                                                                   ^~
+%Warning-MULTIDRIVEN: generated/mac_tx_chain_mii.v:62:5: Signal has multiple driving blocks with different clocking: 'gptp_txts_wrap.u_mac.liteethphymiitx_converter_mux'
+                      generated/mac_tx_chain_mii.v:882:66: ... Location of first driving block
+  882 | always @(posedge eth_tx_clk) if (!eth_tx_rst && !phy_sink_valid) liteethphymiitx_converter_mux <= 1'd1;
+      |                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                      generated/mac_tx_chain_mii.v:2372:4: ... Location of other driving block
+ 2372 |    liteethphymiitx_converter_mux <= 1'd0;
+      |    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/MULTIDRIVEN?v=5.050
+                      ... Use "/* verilator lint_off MULTIDRIVEN */" and lint_on around source to disable this message.
+make: *** [Makefile:90: run-mii] Error 1
