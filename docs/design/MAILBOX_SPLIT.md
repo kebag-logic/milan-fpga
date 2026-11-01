@@ -743,8 +743,8 @@ At F0's assumed 1 us per access, the event bound (5.35 ms), the owed-frame
 bound (16.05 ms) and the bound behind a full acmp ring (19.61 ms) still fit
 the 20 ms bound; the one behind a full adp ring exceeds it (39.23 ms).
 
-With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,140
-accesses at one interface and 3,280 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
+With F4's SRP attached before the loop starts, `CTRL_APP_PASS_MAX` is 3,116
+accesses at one interface and 3,256 at two, including the F3b freshness queries. `ACMP_MBX_PASS_MAX` already
 includes ADP. Add the MAAP and SRP pass bounds and remove two duplicate
 sets of event-record reads: the eight shared records are each read once.
 Add `CTRL_APP_SRP_FEEDBACK_MAX`: seven accesses per sink, at most 16 sinks.
@@ -752,7 +752,7 @@ Registration followed by withdrawal can stop or re-arm two timers.
 Withdrawal can also read the clock and initial random seed, and publishes
 the sink's binding without its stream.
 Kind updates preserve state and require no additional mailbox access.
-`srp_bounds.h` derives SRP's 1,293 / 1,337 accesses from the maximum frame,
+`srp_bounds.h` derives SRP's 1,269 / 1,313 accesses from the maximum frame,
 one transmitted frame a poll (#665), bounded reception, link reconciliation,
 retry clocks and the publication term (a reset's five writes, an adoption's
 three, two licence changes for each of 16 sources: 40 per interface). lwSRP sends at most one frame per call. Its centisecond callbacks
@@ -772,12 +772,12 @@ Target calibration must include both costs; this table bounds mailbox accesses o
 
 | Input | Taken by pass | Four-module bound, IF=1 / IF=2 | Access time for the 20 ms bound, IF=1 / IF=2 |
 |---|---:|---:|---:|
-| an event behind 15 others | 2 | 9,420 / 9,840 | 2.12 / 2.03 us |
-| an ACMP command behind a full acmp ring | 10 | 34,540 / 36,080 | 0.57 / 0.55 us |
-| an ENTITY_AVAILABLE behind a full adp ring | 21 | 69,080 / 72,160 | 0.28 / 0.27 us |
-| a response with 7 frames owed ahead of it | 8, after room returns | 28,260 / 29,520 | 0.70 / 0.67 us |
+| an event behind 15 others | 2 | 9,348 / 9,768 | 2.13 / 2.04 us |
+| an ACMP command behind a full acmp ring | 10 | 34,276 / 35,816 | 0.58 / 0.55 us |
+| an ENTITY_AVAILABLE behind a full adp ring | 21 | 68,552 / 71,632 | 0.29 / 0.27 us |
+| a response with 7 frames owed ahead of it | 8, after room returns | 28,044 / 29,304 | 0.71 / 0.68 us |
 
-At 1 us per access, event envelopes are 9.420 / 9.840 ms.
+At 1 us per access, event envelopes are 9.348 / 9.768 ms.
 Both fit the 20 ms bound, T_svc and the ACMP ceiling alike; none of the
 other rows does.
 The firmware gate compiles these header bounds at both interface counts.
@@ -1111,8 +1111,8 @@ the approved 20 ms bound.
 MAAP: an allocation report writes `DA_GATE` once. Its action costs up to
 65 accesses, including the dispatch path's freshness queries. SRP: a reset writes
 `LICENCE` and `TALKER_DECL` before
-it destroys the participants, then `SR_DOMAIN`, `IDLE_SLOPE` and
-`TALKER_DECL` as it declares again (five; an event is 6), an adoption writes
+it destroys the participants, then, in the next pass's poll, `SR_DOMAIN`, `IDLE_SLOPE` and
+`TALKER_DECL` as it declares again (five; an event is 3), an adoption writes
 `SR_DOMAIN`, `IDLE_SLOPE` and `TALKER_DECL`, and each licence change
 `LICENCE` (`SRP_MBX_PUB_POLL_MAX`, 40 per interface). Each figure is measured
 on the host model.

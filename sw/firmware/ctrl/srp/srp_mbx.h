@@ -65,6 +65,10 @@ struct srp_interface {
     // A participant may hold an attribute mrp_reclaim frees: poll reclaims
     // only then (#665).
     bool reclaim;
+    // Polls left until a reset's new participants are built, the first of them
+    // the reset's own pass; receive waits until then (#665, srp_bounds.h).
+    uint8_t reopen_polls;
+    bool reopening;
 };
 typedef void (*srp_licence_fn)(void *ctx, unsigned interface, unsigned source, bool active);
 struct srp_mbx_config {

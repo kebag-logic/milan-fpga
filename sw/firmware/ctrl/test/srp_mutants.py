@@ -7,6 +7,7 @@ from ctrl_build import CTRL, Tree, Refusal, Outcome
 import fw_gtest
 from srp_arms import arm_srp
 import srp_pub_mutants
+import srp_reopen_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
     """Match the named FT failure and its complete GoogleTest diagnostic.
 
@@ -922,6 +923,7 @@ DEFECTS = (
            'a reclaim lwSRP refused for the held frame is owed after it'),
 )
 DEFECTS += srp_pub_mutants.defects(Defect)
+DEFECTS += srp_reopen_mutants.defects(Defect)
 
 def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> bool:
     """Run every mutation in a reusable isolated checkout; true means a failure."""

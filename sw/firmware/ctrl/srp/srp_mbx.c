@@ -476,6 +476,11 @@ static bool rx_order_ready(struct srp_mbx *m)
 static bool rx_ready(void *ctx)
 {
     struct srp_mbx *m = ctx;
+    for (unsigned n = 0; n < MBX_N_IF; ++n) {
+        if (m->ifs[n].reopening) {
+            return false;
+        }
+    }
     return m->pending_rx.len == 0 && rx_order_ready(m);
 }
 
@@ -800,9 +805,10 @@ static void reset_interface(struct srp_interface *i)
         capture(&i->sinks[k],previous);
         i->sinks[k].vlan_requested = false; i->sinks[k].vlan_sent = false;
     }
-    if (!open_interface(i)) {
-        ++m->refused;
-    }
+    // The next pass's poll builds the new participants: both halves in one
+    // pass are over the per-pass share at 8x8 (#665, srp_bounds.h).
+    i->reopen_polls = 1u;
+    i->reopening = true;
 }
 
 static void on_event(void *ctx, const struct mbx_event *event)
@@ -842,6 +848,12 @@ static bool poll(void *ctx)
         if (i->discard_prefix && !mbx_rx_before(MBX_CH_SRP,i->rx_mark)) {
             i->discard_prefix = false;
         }
+        if (i->reopen_polls) {
+            --i->reopen_polls;
+            owed = true;
+            continue;
+        }
+        i->reopening = false;
         if (!i->msrp) {
             // A failed recreate is counted and retried without dereferencing it.
             msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);

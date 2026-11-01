@@ -174,7 +174,7 @@ TEST_F(SrpRetry, FailedParticipantRecreationRetainsFreshReceive) {
     settle(); advance(400);
     calloc_before_failure=0;
     mbx_model_set_link(&model,0,false); mbx_model_set_link(&model,0,true);
-    ctrl_loop_service(&loop);
+    ctrl_loop_service(&loop); ctrl_loop_service(&loop);
     ASSERT_EQ(adapter.ifs[0].msrp,nullptr);
     auto f=frame(3,identity(),0,2);
     ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
@@ -354,7 +354,7 @@ TEST_F(SrpRetry, FailedRecreationCannotRetainInputBeyondItsDeadline) {
     const unsigned i=MBX_N_IF-1;
     calloc_before_failure=0;
     mbx_model_set_link(&model,i,false); mbx_model_set_link(&model,i,true);
-    ctrl_loop_service(&loop);
+    ctrl_loop_service(&loop); ctrl_loop_service(&loop);
     ASSERT_EQ(adapter.ifs[i].msrp,nullptr);
     auto f=frame(3,identity(i),0,2);
     ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),i));

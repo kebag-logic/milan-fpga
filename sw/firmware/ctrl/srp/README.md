@@ -144,6 +144,11 @@ validates destination, EtherType, length and interface, and preserves interface
 identity on transmission. The library validates a whole PDU before applying events.
 Malformed PDUs increment `malformed`; local allocation refusals increment `refused`.
 A refusal retains the complete record in one static buffer.
+A link change withdraws the interface's declarations and destroys its participants
+in the pass that takes it; the next pass's poll builds new ones, and any number of
+resets in a pass builds once. SRP's receive waits until then, so no record meets an
+interface with no participants: both halves in one pass cost 110,000 of the 200,000
+cycles a pass may take at 8x8/2if (#665, `srp_bounds.h`, the share in `ctrl_loop.h`).
 Its interface, arrival timestamp and payload remain unchanged.
 Later SRP records and binding changes wait behind it.
 Each poll retries after pending events, ticks and owed output.
@@ -283,16 +288,17 @@ The fixed poll envelope separately measures idle link reads, reset increments
 and retained-receive increments: four per interface. Reset and retained receive
 are alternative paths, so their conservative sum is not a simultaneous trace.
 The publication term (lane F-INT) is measured apart, through the same callbacks:
-a reset writes five registers, a Domain adoption three and each licence change
-one, funded as one reset, one adoption and two changes for each of 16 sources
-(`SRP_MBX_PUB_POLL_MAX`, 40 per interface); a LINK event now costs six.
+a reset writes five registers, two as it withdraws and three in the poll of the
+next pass that builds, a Domain adoption three and each licence change one,
+funded as one reset, one adoption and two changes for each of 16 sources
+(`SRP_MBX_PUB_POLL_MAX`, 40 per interface); a LINK event now costs three.
 The transmit observer wraps the real `send_pdu` callback and pads library output
 to the channel maximum. It measures 383 accesses for the one frame a poll sends,
 poll after poll until every participant on every interface has sent once,
 preserving the firmware callback and the mailbox driver (#665).
 A pass drains eight real event records and another drains two maximum RX records.
 Subtracting unrelated published terms checks their funding independently.
-The SRP envelope is 1,293 / 1,337 accesses at IF=1/2.
+The SRP envelope is 1,269 / 1,313 accesses at IF=1/2.
 Adding one read in either poll or send fails a named test.
 Poll-allocation tests exhaust storage after successful reception.
 Separate receive tests exhaust it before accepting a mailbox record.

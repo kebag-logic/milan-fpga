@@ -168,10 +168,12 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     uint64_t reset_extra=0;
     uint64_t retry_extra=0;
     uint64_t reset_pub=0;
+    uint64_t reopen_pub=0;
     // Reset and retained reception are mutually exclusive on one interface.
     // Measure both branches separately, then add their increments to the one
     // common link read. This reaches the conservative four-read envelope;
-    // the reset's publication writes are the publication term's, counted apart.
+    // the reset's publication writes are the publication term's, counted apart,
+    // the withdrawal's in its poll and the new participants' in the next.
     for (unsigned i=0;i<MBX_N_IF;++i) {
         mbx_model_set_link(&model,i,false);
         pub_block_writes=0; mbx_host_trace(count_pub_writes,nullptr);
@@ -179,6 +181,11 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
         mbx_host_trace(nullptr,nullptr);
         reset_pub+=pub_block_writes;
         reset_extra-=pub_block_writes;
+        pub_block_writes=0; mbx_host_trace(count_pub_writes,nullptr);
+        const auto build=poll()-idle;
+        mbx_host_trace(nullptr,nullptr);
+        reopen_pub+=pub_block_writes;
+        EXPECT_EQ(build,pub_block_writes) << "the poll that builds reads nothing a quiet poll does not";
         settle();
         mbx_model_set_link(&model,i,true); settle();
         const auto f=frame(4,{6,3,0,7},0);
@@ -193,7 +200,9 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     }
     const uint64_t fixed=idle+reset_extra+retry_extra;
     EXPECT_EQ(fixed,MBX_N_IF*4u) << "fixed poll branch envelope";
-    EXPECT_EQ(reset_pub,MBX_N_IF*SRP_MBX_PUB_RESET) << "a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each";
+    EXPECT_EQ(reset_pub,MBX_N_IF*SRP_MBX_PUB_WITHDRAW) << "a reset publishes LICENCE and TALKER_DECL, once each";
+    EXPECT_EQ(reopen_pub,MBX_N_IF*SRP_MBX_PUB_REOPEN)
+        << "the poll after it publishes SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each";
     const int64_t pub_term=static_cast<int64_t>(MBX_N_IF*SRP_MBX_PUB_POLL_MAX);
     EXPECT_LE(static_cast<int64_t>(fixed),
               static_cast<int64_t>(SRP_MBX_POLL_MAX)-pub_term-SRP_MBX_POLL_FRAMES*SRP_MBX_TX_MAX)
@@ -229,9 +238,10 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
 }
 
 // Each publication a poll may make, measured through the real callbacks: a
-// reset's five writes, a Domain adoption's three, one before each licence
-// change. SRP_MBX_PUB_POLL_MAX funds a reset, an adoption and two licence
-// changes for every source the publication block holds.
+// reset's five writes, two in its own poll and three in the next that builds,
+// a Domain adoption's three, one before each licence change.
+// SRP_MBX_PUB_POLL_MAX funds a reset, an adoption and two licence changes for
+// every source the publication block holds.
 TEST_F(Srp, PollPublicationTermIsMeasuredThroughRealCallbacks) {
     settle();
     auto pub=[&](auto action) {
@@ -242,8 +252,11 @@ TEST_F(Srp, PollPublicationTermIsMeasuredThroughRealCallbacks) {
     };
     auto poll=[&] { loop.polls[0].fn(loop.polls[0].ctx); };
     mbx_model_set_link(&model,0,false);
-    const auto reset=pub(poll);
-    EXPECT_EQ(reset,SRP_MBX_PUB_RESET) << "a reset publishes LICENCE and TALKER_DECL, then SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each";
+    const auto withdraw=pub(poll);
+    EXPECT_EQ(withdraw,SRP_MBX_PUB_WITHDRAW) << "a reset publishes LICENCE and TALKER_DECL, once each";
+    const auto reopen=pub(poll);
+    EXPECT_EQ(reopen,SRP_MBX_PUB_REOPEN) << "the poll after it publishes SR_DOMAIN, IDLE_SLOPE and TALKER_DECL, once each";
+    const auto reset=withdraw+reopen;
     mbx_model_set_link(&model,0,true); settle();
     receive_before_poll(frame(4,{6,4,0,3},0));
     const auto adoption=pub(poll);
@@ -271,10 +284,12 @@ TEST_F(Srp, PassFundsEveryEventRecordAndBothMaximumReceives) {
     const auto events0=loop.stats.events;
     const auto events=srp_cost(model,[&]{ctrl_loop_service(&loop);});
     ASSERT_EQ(loop.stats.events-events0,CTRL_LOOP_EVENTS_PER_PASS);
-    EXPECT_EQ(events,CTRL_LOOP_EVENTS_PER_PASS*(MBX_EV_WORDS+2u+1u+SRP_MBX_PUB_RESET));
+    EXPECT_EQ(events,CTRL_LOOP_EVENTS_PER_PASS*(MBX_EV_WORDS+2u+1u+SRP_MBX_PUB_WITHDRAW));
     EXPECT_LE(static_cast<int64_t>(events),static_cast<int64_t>(SRP_MBX_PASS_MAX)-
               CTRL_LOOP_RX_PER_PASS*(SRP_MBX_RX_RECORD_MAX+SRP_MBX_RX_MAX)-SRP_MBX_POLL_MAX)
         << "pass event records are funded independently";
+    // Those resets' polls: receive waits until the new participants are built.
+    for (unsigned n=0;n<2u;++n) loop.polls[0].fn(loop.polls[0].ctx);
     // Drain two maximum-length MVRP records in one pass. Empty MVRP plus
     // Ethernet padding needs no allocation; the real readiness check runs.
     loop.rx[MBX_CH_SRP]=receive;
@@ -302,5 +317,55 @@ TEST_F(Srp, PassFundsEveryEventRecordAndBothMaximumReceives) {
                 unsigned(events),unsigned(receive_envelope),unsigned(poll_envelope),
                 unsigned(pass_envelope),SRP_MBX_PASS_MAX);
     loop.n_polls=1;
+}
+
+// A link change withdraws in the pass that takes it, the next pass's poll builds the new
+// participants and SRP's receive waits for it: destroying and building in one pass is over the
+// per-pass share at 8x8 (#665, srp_bounds.h, the share in ctrl_loop.h).
+uint64_t domain_writes;
+uint32_t domain_reg;
+void count_domain_writes(void*, bool write, uint32_t off, uint32_t) {
+    if (write && off==domain_reg) ++domain_writes;
+}
+
+TEST_F(Srp, LinkChangeBuildsTheNewParticipantsOnTheNextPass) {
+    settle();
+    const unsigned last=MBX_N_IF-1u;
+    domain_reg=MBX_PUB_BASE+MBX_PUB_STRIDE*last+MBX_PUB_REG_SR_DOMAIN; domain_writes=0;
+    mbx_host_trace(count_domain_writes,nullptr);
+    mbx_model_set_link(&model,last,false); mbx_model_set_link(&model,last,true);
+    ctrl_loop_service(&loop);
+    EXPECT_EQ(adapter.ifs[last].msrp,nullptr) << "the pass that takes the link change withdraws";
+    EXPECT_EQ(adapter.ifs[last].mvrp,nullptr) << "the pass that takes the link change withdraws";
+    EXPECT_EQ(domain_writes,0u) << "the pass that takes the link change builds nothing";
+    const auto f=frame(4,{6,3,0,7},0);
+    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),last));
+    const auto taken=loop.stats.rx_records; const auto received=adapter.received; const auto refused=adapter.refused;
+    ctrl_loop_service(&loop);
+    EXPECT_NE(adapter.ifs[last].msrp,nullptr) << "the next pass's poll builds the new participants";
+    EXPECT_NE(adapter.ifs[last].mvrp,nullptr) << "the next pass's poll builds the new participants";
+    EXPECT_EQ(domain_writes,1u) << "the next pass's poll builds the new participants";
+    EXPECT_EQ(loop.stats.rx_records,taken) << "receive waits until the new participants are built";
+    EXPECT_EQ(adapter.refused,refused) << "a record that waits is not a refusal";
+    ctrl_loop_service(&loop);
+    mbx_host_trace(nullptr,nullptr);
+    EXPECT_EQ(loop.stats.rx_records,taken+1u) << "the record that waited is taken on the pass after";
+    EXPECT_EQ(adapter.received,received+1u) << "the record that waited is taken on the pass after";
+    settle();
+    mbx_model_set_link(&model,last,false);
+    EXPECT_TRUE(loop.polls[0].fn(loop.polls[0].ctx)) << "a poll that withdraws owes the build, so the loop runs on";
+}
+
+TEST_F(Srp, LinkEdgesOfOnePassBuildOnce) {
+    settle();
+    domain_reg=MBX_PUB_BASE+MBX_PUB_REG_SR_DOMAIN; domain_writes=0;
+    mbx_host_trace(count_domain_writes,nullptr);
+    for (unsigned n=0;n<CTRL_LOOP_EVENTS_PER_PASS;++n) mbx_model_set_link(&model,0,(n%2u)!=0u);
+    const auto events0=loop.stats.events;
+    ctrl_loop_service(&loop); ctrl_loop_service(&loop);
+    mbx_host_trace(nullptr,nullptr);
+    ASSERT_EQ(loop.stats.events-events0,CTRL_LOOP_EVENTS_PER_PASS);
+    EXPECT_NE(adapter.ifs[0].msrp,nullptr) << "a pass of link edges builds once";
+    EXPECT_EQ(domain_writes,1u) << "a pass of link edges builds once";
 }
 } // namespace

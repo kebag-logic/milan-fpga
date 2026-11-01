@@ -73,7 +73,8 @@
 //   * SRP: its records, and one MRPDU built and sent a pass over every
 //     participant of every interface (SRP_MBX_POLL_FRAMES, srp_bounds.h;
 //     #665: lwSRP's periodic transmission had built all four at two
-//     interfaces in one pass).
+//     interfaces in one pass); a link change withdraws in the pass that takes
+//     it and builds in the next (srp_bounds.h).
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
@@ -105,8 +106,8 @@ extern "C" {
 // count is charged for records no ring can hold until those bounds are
 // restated in ring words. Events: eight, half the ring. The whole ring would
 // take an event behind a full ring by the first pass, but every pass's bound
-// would carry sixteen events: CTRL_APP_PASS_MAX 4,036 accesses instead of
-// 3,140 at one interface, and ACMP's owed-frame bound 12,222 instead of 9,270,
+// would carry sixteen events: CTRL_APP_PASS_MAX 3,988 accesses instead of
+// 3,116 at one interface, and ACMP's owed-frame bound 12,222 instead of 9,270,
 // over the 10 ms T_svc first proposed at 1 us an access (docs/design/MAILBOX_SPLIT.md).
 #define CTRL_LOOP_EVENTS_PER_PASS 8u    // event records one pass takes at most
 #define CTRL_LOOP_RX_PER_PASS 2u        // RX records one pass takes per channel at most

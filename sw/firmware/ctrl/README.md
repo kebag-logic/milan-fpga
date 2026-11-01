@@ -439,7 +439,7 @@ Registration and withdrawal can each stop or re-arm a timer.
 Withdrawal can also read the clock and initial random seed, and publishes
 the sink's binding without its stream.
 The static maximum of 16 sinks contributes 112 accesses.
-The result is 3,140 accesses at one interface and 3,280 at two. The SRP bound counts one maximum-size frame per
+The result is 3,116 accesses at one interface and 3,256 at two. The SRP bound counts one maximum-size frame per
 library transmit call, at most one sending call a poll over every interface
 (#665: `SRP_MBX_POLL_FRAMES`, the next participant's on the next poll), receive
 readiness and retry clocks, plus link/reset work. Binding delivery itself adds no mailbox access.

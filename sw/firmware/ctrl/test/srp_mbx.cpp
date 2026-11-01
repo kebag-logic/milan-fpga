@@ -245,9 +245,9 @@ TEST_F(Srp, PubTalkerDeclIsNotPublishedByACreationThatFails) {
     settle();
     const unsigned last=MBX_N_IF-1u;
     const uint32_t reg=MBX_PUB_BASE+MBX_PUB_STRIDE*last+MBX_PUB_REG_TALKER_DECL;
-    // the allocations a re-creation makes: what a successful one consumes
+    // the allocations a re-creation makes: what a successful one consumes, on the pass after the reset's
     calloc_before_failure=1000000;
-    mbx_model_set_link(&model,last,false); ctrl_loop_service(&loop);
+    mbx_model_set_link(&model,last,false); ctrl_loop_service(&loop); ctrl_loop_service(&loop);
     const int made=1000000-calloc_before_failure;
     calloc_before_failure=-1;
     ASSERT_NE(adapter.ifs[last].msrp,nullptr);
@@ -258,7 +258,7 @@ TEST_F(Srp, PubTalkerDeclIsNotPublishedByACreationThatFails) {
         const unsigned refused=adapter.refused;
         pub_trace.clear(); mbx_host_trace(pub_writes,nullptr);
         calloc_before_failure=failure;
-        mbx_model_set_link(&model,last,false); ctrl_loop_service(&loop);
+        mbx_model_set_link(&model,last,false); ctrl_loop_service(&loop); ctrl_loop_service(&loop);
         calloc_before_failure=-1;
         mbx_host_trace(nullptr,nullptr);
         ASSERT_GT(adapter.refused,refused) << "PUB the re-creation refused at allocation " << failure << " fails";
@@ -891,7 +891,7 @@ TEST_F(Srp, RecreateAllocationFailureIsCountedAndRetried) {
         calloc_before_failure=failure;
         const unsigned refused=adapter.refused;
         mbx_model_set_link(&model,0,false);
-        ctrl_loop_service(&loop);
+        ctrl_loop_service(&loop); ctrl_loop_service(&loop);
         EXPECT_GT(adapter.refused,refused); EXPECT_EQ(adapter.ifs[0].msrp,nullptr);
         EXPECT_EQ(adapter.ifs[0].mvrp,nullptr);
         EXPECT_GT(ctrl_loop_service(&loop),0u);
