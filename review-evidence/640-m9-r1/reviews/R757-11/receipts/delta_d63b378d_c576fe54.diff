@@ -1,0 +1,88 @@
+diff --git a/docs/design/AREA_BUDGET.md b/docs/design/AREA_BUDGET.md
+index 10b5effb52..2fb947e457 100644
+--- a/docs/design/AREA_BUDGET.md
++++ b/docs/design/AREA_BUDGET.md
+@@ -127,7 +127,7 @@ The [#686](https://github.com/kebag-logic/milan-fpga/issues/686) repository inpu
+ ### Headroom target
+ 
+ [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) in the [requirements](../reference/FR_NFR.md) is the accepted headroom target.
+-Mark II must use fewer than 20,000 LUTs of `xc7a100t`.
++Mark II must use fewer than 20,000 LUTs of `xc7a100t` at 32x32.
+ 
+ That replaces the earlier 60 percent target, 38,040 LUTs.
+ The route below was 13,972 over it.
+@@ -137,7 +137,7 @@ The resource gate holds it, with no other LUT bound:
+ 
+ | Resource | Device | Shipping route, #799 on dev `97aab1d0`, processor `f65c8ff7`, FPGA-gPTP `55680bff` | Used | Target | Status |
+ |---|---:|---:|---:|---|---|
+-| Slice LUT | 63,400 | 52,012 | 82.04 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): Mark II fewer than 20,000 (about 31.5 %); this image must fit the device | fits; no other LUT bound on this image |
++| Slice LUT | 63,400 | 52,012 | 82.04 % | [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest): Mark II fewer than 20,000 at 32x32 (about 31.5 %); this image must fit the device | fits; no other LUT bound on this image |
+ | Slice register | 126,800 | 53,707 | 42.36 % | none stated | - |
+ | Slice | 15,850 | 15,780 | 99.56 % | must stay below the device to place | 70 free |
+ | Block RAM tile | 135 | 87.5 | 64.81 % | reserve: 13.5 tiles (10 %), the 121.5-tile ceiling, accepted (manager ruling) | 47.5 free |
+@@ -177,9 +177,9 @@ The wrapper names 24,493 of them in that rebuilt hierarchy.
+ The wrapper alone exceeds that historical allocation.
+ 
+ The active [#640](https://github.com/kebag-logic/milan-fpga/issues/640) acceptance bar is the [NFR-RES-01](../reference/FR_NFR.md#35-resource-reliability-and-the-rest) ceiling.
+-That is fewer than 20,000 LUTs, with timing met.
++That is fewer than 20,000 LUTs at 32x32, with timing met.
+ 
+-What follows is history, against the replaced 60 percent.
++The next three sentences are history, against the replaced 60 percent.
+ The [owner kept that target on 2026-10-03](https://github.com/kebag-logic/milan-fpga/issues/234#issuecomment-5967924270).
+ 
+ All else unchanged, that needed a 10,521-LUT wrapper.
+diff --git a/docs/design/MAILBOX_SPLIT.md b/docs/design/MAILBOX_SPLIT.md
+index 85b266d654..79d2937abc 100644
+--- a/docs/design/MAILBOX_SPLIT.md
++++ b/docs/design/MAILBOX_SPLIT.md
+@@ -39,8 +39,9 @@ define the interface. The numbers live in one place, the generated
+ ## What moves, and what the fabric keeps
+ 
+ The bare-metal core runs ADP, ACMP, MAAP, SRP (through lwSRP) and AECP. The
+-fabric keeps framing and timestamps, the gPTP plane, the media path,
+-the timers that carry hard deadlines, and an ingress filter. The two exchange
++fabric keeps framing and timestamps, the media path, the timers that carry
++hard deadlines, and an ingress filter. It keeps the gPTP plane until F6, then
++firmware owns the protocol and servo. The two exchange
+ frames through packet mailboxes: block-RAM rings, a doorbell per ring, one
+ interrupt, 32-bit accesses only and no DMA.
+ 
+diff --git a/docs/guides/gptp/MANAGER.md b/docs/guides/gptp/MANAGER.md
+index 7eeb78aa06..2937cef315 100644
+--- a/docs/guides/gptp/MANAGER.md
++++ b/docs/guides/gptp/MANAGER.md
+@@ -5,6 +5,9 @@
+ 
+ Use this page for delivery decisions.
+ 
++This guide covers the fabric plane until F6.
++The [split contract](../../ARCHITECTURE_HW_SW_SPLIT.md) defines that transition.
++
+ ## Contents
+ 
+ - **[Value](#value)** — Understand product ownership and benefits.
+diff --git a/docs/traceability/ieee8021q.md b/docs/traceability/ieee8021q.md
+index e54f5a24b5..9cbd980bfe 100644
+--- a/docs/traceability/ieee8021q.md
++++ b/docs/traceability/ieee8021q.md
+@@ -34,15 +34,16 @@ on the page:
+   deletion did not touch them. Rows Q-1..Q-8, Q-13, Q-14 are unaffected.
+ - **Reservation is the protocol processor's.** The lwSRP applicant, registrar,
+   TA-registrar, walker, context table, timers and bandwidth gate were deleted.
+-  This shipping integration uses the processor alone.
+-- Mark II moves reservation to firmware after the switch-over.
+-  Both placements owe the same wire behavior. MRP-1..MRP-8 and SRP-1..SRP-10 are now **🔵 PROCESSOR**: the
++  This shipping integration uses the processor alone. MRP-1..MRP-8 and SRP-1..SRP-10 are now **🔵 PROCESSOR**: the
+   submodule owns the wire law, this fabric consumes the result off the class-D face
+   (`srp_active_o` AND `srp_sr_admitted_o` as the per-source gate (#551), `srp_sum_slope_bps_o`
+   read back as `LWSRP_SLOPE` status with no shaper to program, the adopted
+   {priority, VID} pair as every C-TAG this device emits), and [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv)
+   is where the two meet.
+ 
++Mark II moves reservation to firmware after the switch-over.
++Both placements owe the same wire behavior.
++
+ Two consequences worth stating rather than discovering:
+ 
+ - **The evidence went with the RTL.** The `lwsrp`, `lwsrp_ctx`, `lwsrp_rx`,
