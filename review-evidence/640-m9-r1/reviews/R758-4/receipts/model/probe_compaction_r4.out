@@ -1,0 +1,6 @@
+saves between the standby's erase steps, one or two failed headers: (11496, 0, None)
+mutation an all-zero header passes its check: 22943 runs, 1214 lose a change; first ('intact', None, None, True, (9, 'before'))
+t_page 5.344 ms; T_worst 359.75 ms; with one zeroing page 365.10 ms
+failed header then restart, S1 and S2: 2.046 s + erase 13.88 s + 2.046 s = 17.97 s; appended <= 367.9 pages against 392 free at the trigger
+double fault adds a held 3 s erase: 21.30 s; appended <= 430.2 pages
+E_x 2.7434 us; A4 2.792 ms; drift over 22 packets 0.550 us; partner margin 59.21 us; neighbour distance 121.71 us

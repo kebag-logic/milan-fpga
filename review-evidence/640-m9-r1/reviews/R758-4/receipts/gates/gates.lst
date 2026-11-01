@@ -1,0 +1,33 @@
+docs_check|scripts/docs_check.py
+feature_status|scripts/check_feature_status.py
+feature_status_selftest|scripts/check_feature_status.py --self-test
+em_dash|scripts/check_em_dash.py --base 1f29f189279f9fc0132f4918e47342b87d22f33a
+em_dash_selftest|scripts/check_em_dash.py --selftest
+doc_style|scripts/check_doc_style.py
+doc_style_selftest|scripts/check_doc_style.py --selftest
+doc_paths|scripts/check_doc_paths.py
+gptp_docs|scripts/check_gptp_docs.py
+gptp_docs_selftest|scripts/check_gptp_docs.py --selftest
+gptp_docs_submodule|scripts/check_gptp_docs.py --with-submodule
+solution_docs|scripts/check_solution_docs.py
+solution_docs_selftest|scripts/check_solution_docs.py --selftest
+submodule_docs|scripts/check_submodule_docs.py
+submodule_docs_selftest|scripts/check_submodule_docs.py --selftest
+archive|scripts/check_archive.py
+archive_selftest|scripts/check_archive.py --selftest
+hygiene|scripts/check_hygiene.py --check
+todo_ownership|scripts/check_todo_ownership.py
+gen_toc_selftest|scripts/gen_toc.py --selftest
+gen_toc_anchors|scripts/gen_toc.py --verify-anchors
+gen_toc_check|scripts/gen_toc.py --check
+doc_map_check|docs/DOC_MAP.gen.py --check
+doc_map_selftest|docs/DOC_MAP.gen.py --selftest
+timesync_check|docs/diagrams/timesync_chain.gen.py --check
+submodule_diagram_check|docs/diagrams/submodule_boundaries.gen.py --check
+baremetal_only|scripts/check_baremetal_only.py --check
+baremetal_only_selftest|scripts/check_baremetal_only.py --selftest
+diagram_pngs|scripts/check_diagram_pngs.py
+traceability_check|docs/traceability/gen_module_matrix.py --check
+ci_events|scripts/ci_events.py --check
+ci_gate_workflows|scripts/ci_gate_workflows.py --check
+wire_accountability|scripts/check_wire_accountability.py --self-test

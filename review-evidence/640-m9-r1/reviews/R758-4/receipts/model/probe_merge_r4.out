@@ -1,0 +1,58 @@
+A. tu on both, the copies' own time skewed; rule 1 still reads that time
+  both networks at the primary's latency, tu 100 to 600, skew +200 us: bad=0 missing=0 extra=0 dup=3999 tu_drop=1 late=0 early=0 outside=0 jump_dup=0
+  both networks at the primary's latency, tu 100 to 600, skew +500 us: bad=0 missing=0 extra=0 dup=3999 tu_drop=1 late=0 early=0 outside=0 jump_dup=0
+  both networks at the primary's latency, tu 100 to 600, skew +700 us: bad=0 missing=0 extra=0 dup=3999 tu_drop=1 late=0 early=0 outside=0 jump_dup=0
+  both networks at the primary's latency, tu 100 to 600, skew +1000 us: bad=0 missing=3000 extra=0 dup=3500 tu_drop=0 late=0 early=1000 outside=0 jump_dup=0
+  both networks at the primary's latency, tu 100 to 600, skew +2000 us: bad=0 missing=3000 extra=0 dup=3500 tu_drop=0 late=0 early=1000 outside=0 jump_dup=0
+  both networks at the primary's latency, tu 100 to 600, skew -1000 us: bad=0 missing=0 extra=0 dup=3999 tu_drop=1 late=0 early=0 outside=0 jump_dup=0
+  both networks at the primary's latency, tu 100 to 600, skew -1900 us: bad=0 missing=1752 extra=0 dup=3516 tu_drop=118 late=658 early=0 outside=0 jump_dup=0
+  both networks at the primary's latency, tu 100 to 600, skew -2500 us: bad=0 missing=3000 extra=0 dup=3500 tu_drop=0 late=1000 early=0 outside=0 jump_dup=0
+  both networks at the primary's latency, tu 100 to 600, skew +5000 us: bad=0 missing=3000 extra=0 dup=3500 tu_drop=0 late=0 early=1000 outside=0 jump_dup=0
+  model's latencies (secondary 1.1-1.5 ms), tu 100 to 600, skew +700 us: bad=0 missing=0 extra=0 dup=3991 tu_drop=9 late=0 early=0 outside=0 jump_dup=0
+  model's latencies (secondary 1.1-1.5 ms), tu 100 to 600, skew +1000 us: bad=2922 missing=78 extra=0 dup=3508 tu_drop=5 late=0 early=500 outside=0 jump_dup=0
+  model's latencies (secondary 1.1-1.5 ms), tu 100 to 600, skew +2000 us: bad=1290 missing=1710 extra=0 dup=3500 tu_drop=6 late=0 early=776 outside=542 jump_dup=0
+  model's latencies (secondary 1.1-1.5 ms), tu 100 to 600, skew -1000 us: bad=0 missing=78 extra=0 dup=3500 tu_drop=13 late=500 early=0 outside=0 jump_dup=0
+  model's latencies (secondary 1.1-1.5 ms), tu 100 to 600, skew -2500 us: bad=0 missing=3000 extra=0 dup=3500 tu_drop=0 late=1000 early=0 outside=0 jump_dup=0
+A control: same skews on the primary only, secondary clean and slower
+  primary tu 100 to 600, skew +1000 us: bad=0 missing=0 extra=0 dup=3500 tu_drop=0 late=0 early=500 outside=0 jump_dup=0
+  primary tu 100 to 600, skew -2500 us: bad=0 missing=0 extra=0 dup=3500 tu_drop=0 late=500 early=0 outside=0 jump_dup=0
+A control: unpaired stream with the same tu and skew
+  unpaired, tu 100 to 600, skew +200 us: bad=0 missing=0 extra=0 dup=0 tu_drop=0 late=0 early=0 outside=0 jump_dup=0
+  unpaired, tu 100 to 600, skew +1000 us: bad=0 missing=3000 extra=0 dup=0 tu_drop=0 late=0 early=500 outside=0 jump_dup=0
+  unpaired, tu 100 to 600, skew -2500 us: bad=0 missing=3000 extra=0 dup=0 tu_drop=0 late=500 early=0 outside=0 jump_dup=0
+B. does a tu anchor make a reference? model anchors make one; the page says none
+  unpaired, tu from the first packet: model missing=0 bad=0; literal text missing=22452 bad=0
+  unpaired, tu from 100, jump -40 at 1000: model missing=84 bad=0; literal text missing=16842 bad=0
+  unpaired, tu from 100, jump +40 at 1000: model missing=84 bad=0; literal text missing=84 bad=0
+C. time step as tu clears, networks clearing apart: packets never written, outside, rewrites
+  step -1000 one network (8, 0, 0) | clear 600/600 (8, 0, 0) | clear 600/604 (8, 0, 0) | clear 604/600 (8, 0, 0) | clear 600/640 (8, 0, 0) | clear 640/600 (8, 0, 0)
+  step  -300 one network (2, 0, 0) | clear 600/600 (2, 0, 0) | clear 600/604 (2, 0, 0) | clear 604/600 (2, 0, 0) | clear 600/640 (2, 0, 0) | clear 640/600 (4, 0, 0)
+  step  +100 one network (0, 0, 0) | clear 600/600 (0, 0, 0) | clear 600/604 (0, 0, 0) | clear 604/600 (0, 0, 0) | clear 600/640 (0, 0, 0) | clear 640/600 (0, 0, 0)
+  step  +300 one network (0, 0, 0) | clear 600/600 (0, 0, 0) | clear 600/604 (0, 0, 0) | clear 604/600 (0, 0, 0) | clear 600/640 (0, 0, 0) | clear 640/600 (0, 0, 0)
+  step +1000 one network (3400, 0, 0) | clear 600/600 (0, 0, 0) | clear 600/604 (0, 0, 0) | clear 604/600 (0, 0, 0) | clear 600/640 (0, 0, 0) | clear 640/600 (0, 0, 0)
+C2. same, both networks at the primary's latency
+  step -1000 one network (8, 0, 0) | clear 600/600 (8, 0, 0) | clear 600/604 (8, 0, 0) | clear 604/600 (8, 0, 0)
+  step  -300 one network (2, 0, 0) | clear 600/600 (2, 0, 0) | clear 600/604 (2, 0, 0) | clear 604/600 (2, 0, 0)
+  step  +100 one network (0, 0, 0) | clear 600/600 (0, 0, 0) | clear 600/604 (0, 0, 0) | clear 604/600 (0, 0, 0)
+  step  +300 one network (0, 0, 0) | clear 600/600 (0, 0, 0) | clear 600/604 (0, 0, 0) | clear 604/600 (0, 0, 0)
+  step +1000 one network (3400, 0, 0) | clear 600/600 (3400, 0, 0) | clear 600/604 (3396, 0, 0) | clear 604/600 (3396, 0, 0)
+D. arrival margin near the render point: reference lapses between packets
+  tu on both, secondary arrives 150-200 us before its time: bad=0 missing=0 extra=0 dup=3986 tu_drop=14 late=0 early=0 outside=0 jump_dup=0
+  tu on both, both arrive 150-200 us before their time: bad=0 missing=0 extra=0 dup=3999 tu_drop=1 late=0 early=0 outside=0 jump_dup=0
+  unpaired tu, arrives 150-200 us before its time: bad=0 missing=0 extra=0 dup=0 tu_drop=0 late=0 early=0 outside=0 jump_dup=0
+  tu on both, secondary arrives 110-120 us before its time: bad=0 missing=72 extra=0 dup=3500 tu_drop=512 late=0 early=0 outside=0 jump_dup=0
+  tu on both, both arrive 110-120 us before their time: bad=0 missing=0 extra=0 dup=3500 tu_drop=500 late=0 early=0 outside=0 jump_dup=0
+  unpaired tu, arrives 110-120 us before its time: bad=0 missing=0 extra=0 dup=0 tu_drop=0 late=0 early=0 outside=0 jump_dup=0
+  tu on both, secondary arrives 50-100 us before its time: bad=0 missing=36 extra=0 dup=3500 tu_drop=506 late=0 early=0 outside=0 jump_dup=0
+  tu on both, both arrive 50-100 us before their time: bad=0 missing=0 extra=0 dup=3500 tu_drop=500 late=0 early=0 outside=0 jump_dup=0
+  unpaired tu, arrives 50-100 us before its time: bad=0 missing=0 extra=0 dup=0 tu_drop=0 late=0 early=0 outside=0 jump_dup=0
+  tu on both, secondary arrives 10-50 us before its time: bad=0 missing=24 extra=0 dup=3500 tu_drop=504 late=0 early=0 outside=0 jump_dup=0
+  tu on both, both arrive 10-50 us before their time: bad=0 missing=0 extra=0 dup=3500 tu_drop=500 late=0 early=0 outside=0 jump_dup=0
+  unpaired tu, arrives 10-50 us before its time: bad=0 missing=0 extra=0 dup=0 tu_drop=0 late=0 early=0 outside=0 jump_dup=0
+E. burst loss on one network during tu on both (reference lapses: stated as rejoining)
+  tu on both, 1 % loss on both: bad=0 missing=0 extra=0 dup=3913 tu_drop=10 late=0 early=0 outside=0 jump_dup=0
+  secondary fast with tu, primary 1 % loss: bad=0 missing=318 extra=0 dup=100 tu_drop=3900 late=0 early=0 outside=0 jump_dup=0
+F. sequence step inside the span (open design item 2)
+  tu on both, secondary steps +3 at 1000: bad=0 missing=0 extra=18 dup=3988 tu_drop=9 late=0 early=0 outside=0 jump_dup=2997
+  unpaired, tu, steps +3 at 1000: bad=17982 missing=18 extra=18 dup=0 tu_drop=0 late=0 early=0 outside=0 jump_dup=0
+  secondary tu, primary clean with 1 % loss, secondary steps +3 at 1000: bad=228 missing=0 extra=0 dup=3944 tu_drop=3 late=0 early=0 outside=0 jump_dup=2959
