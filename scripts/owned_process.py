@@ -208,14 +208,17 @@ class OwnedProcesses:
                 return {pid: population[pid] for pid in owned if pid != os.getpid()}
             owned.update(more)
 
-    def _reap(self) -> None:
+    def _reap(self) -> set[int]:
+        """Collect every exited child; return the PIDs collected."""
+        reaped = set()
         while True:
             try:
                 pid, status = os.waitpid(-1, os.WNOHANG)
             except ChildProcessError:
-                return
+                return reaped
             if not pid:
-                return
+                return reaped
+            reaped.add(pid)
             if self.process is not None and pid == self.process.pid:
                 self.process.returncode = os.waitstatus_to_exitcode(status)
 
@@ -249,21 +252,27 @@ class OwnedProcesses:
         passes = 0
         slowest = 0.0
         while True:
-            pass_started = time.monotonic()
             self._reap()
-            owned = self._descendants()
+            pass_started = time.monotonic()
+            census = self._descendants()
             passes += 1
-            if not owned:
+            # Only a census taken after the reap proves nothing remains.
+            if not census:
                 return
+            # A child that exited during this census is dead and collected here,
+            # so it does not remain, and the next census confirms the rest (#833).
+            reaped = self._reap()
+            owned = {pid: entry for pid, entry in census.items() if pid not in reaped}
             if not initial:
                 initial = {(pid, start): parent for pid, (parent, start) in owned.items()}
             now = time.monotonic()
             slowest = max(slowest, now - pass_started)
-            if now >= hard_deadline:
+            # A child that exits inside every census cannot hold cleanup open either.
+            if now >= hard_deadline and (owned or now >= hard_deadline + REAP_SECONDS):
                 first = {pid: parent for (pid, _start), parent in initial.items()}
                 remaining = "; ".join(
                     _describe(pid, first.get(pid), now - killed[pid] if pid in killed else None)
-                    for pid in sorted(owned))
+                    for pid in sorted(owned or census))
                 raise RuntimeError(
                     f"CLEANUP FAILED: owned descendants remain after {now - started:.2f} s, "
                     f"{passes} census passes, slowest {slowest:.2f} s: {remaining}")
