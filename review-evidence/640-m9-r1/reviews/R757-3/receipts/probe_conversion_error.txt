@@ -1,0 +1,8 @@
+page's bound: 2.000 + 0.050 + 0.160 = 2.210 us
+talker latency 0.1 ms + transit 2 ms (class A): offsets 2225 us apart, drift 0.445 us; bound 2.000 + 0.445 + 0.160 = 2.605 us
+the 2.667 ms render span as the separation: offsets 2792 us apart, drift 0.558 us; bound 2.000 + 0.558 + 0.160 = 2.718 us
+merge model with injected error +-2.210 us: 15 of 15 cases pass
+merge model with injected error +-2.715 us: 15 of 15 cases pass
+merge model with injected error +-10.000 us: 15 of 15 cases pass
+MERGE VERDICTS UNCHANGED
+rc=0
