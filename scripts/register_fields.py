@@ -799,7 +799,9 @@ class Deriver:
         """An array the read decode serves by range, its fields derived from
         the first word and its resets from every word."""
         lo, hi = self.f.addresses[base], self.f.addresses[end]
-        reg = self.array_shell(name, lo, ((hi - lo) // 4, 4), f"{base} to {end}")
+        count = (hi - lo) // 4
+        source = f"{base[:-1]}0..{count - 1} ({base} to {end})" if base.endswith("0") else f"{base} to {end}"
+        reg = self.array_shell(name, lo, (count, 4), source)
         for fl in reg.fields:
             if fl.name == reg.label:
                 fl.name = self.array_field_name(lo, reg)

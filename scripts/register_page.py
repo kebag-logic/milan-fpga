@@ -57,6 +57,7 @@ class Model:
     guards: dict[str, str]
     root: Path = Path(".")
     wording: "Wording | None" = None
+    mechanisms: list = field(default_factory=list)
 
 
 # ---------------------------------------------------------------- conditions --
@@ -442,8 +443,21 @@ def reading(model: Model) -> list[str]:
     out = ["## Reading this page", ""]
     for para in page.get("intro", []):
         out += [para, ""]
+    out += mechanism_blocks(model, "reading")
     out += notes_block(page.get("notes", []), "###", model.soc)
     return out + record_link(page, "Design record")
+
+
+def mechanism_blocks(model: Model, module: str) -> list[str]:
+    """The diagrams of the mechanisms a section explains, each after its text."""
+    out: list[str] = []
+    for mech in model.mechanisms:
+        if mech.module == module:
+            out += [f"### {mech.title}", ""]
+            for para in mech.text:
+                out += [para, ""]
+            out += ["```mermaid"] + mech.lines + ["```", ""]
+    return out
 
 
 def record_link(entry: dict, label: str) -> list[str]:
@@ -569,6 +583,9 @@ def module_section(model: Model, module: Module, seen: dict[str, int]) -> list[s
     desc = model.descriptions
     out = [f"## {page_links(module.heading)}", "", module.purpose, ""]
     anchor(module.heading, seen)
+    for mech in model.mechanisms:
+        if mech.module == module.key:
+            anchor(mech.title, seen)
     heads = [heading(r, desc) for r in module.registers]
     local = dict(seen)
     links = [anchor(h, local) for h in heads]
@@ -580,6 +597,7 @@ def module_section(model: Model, module: Module, seen: dict[str, int]) -> list[s
     out += table(["Offset", "Acronym", "Register name", "Reset", "Section"], rows)
     out += cbs_table(model, module)
     out += notes_block(module.notes, "###", model.soc)
+    out += mechanism_blocks(model, module.key)
     out += record_link({"record": module.record} if module.record else {}, "Rationale and history")
     for reg, head in zip(module.registers, heads):
         anchor(head, seen)
@@ -691,6 +709,9 @@ def render_page(model: Model) -> str:
     seen: dict[str, int] = {}
     for title in ("Reading this page", "Memory map", "Access types", "Build parameters"):
         anchor(title, seen)
+    for mech in model.mechanisms:
+        if mech.module == "reading":
+            anchor(mech.title, seen)
     for module in model.modules:
         out += module_section(model, module, seen)
     out += soc_banks(model) + feature_block(model)

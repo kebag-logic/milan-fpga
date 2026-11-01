@@ -2325,7 +2325,9 @@
       "name": "AVTP RX status (saturating views)",
       "purpose": "Stream Input 0 lock and interruption counters.",
       "fields": {},
-      "notes": [],
+      "notes": [
+        "`AVTPRX_STAT` bytes saturate: `0xFF` means at least 255."
+      ],
       "record": "avtprx_stat-offset-0x6b8",
       "split": {
         "AVTPRX_STAT": [
@@ -2369,7 +2371,9 @@
       "name": "AVTP RX errors (saturating views)",
       "purpose": "Stream Input 0 sequence, format and timestamp counters.",
       "fields": {},
-      "notes": [],
+      "notes": [
+        "`AVTPRX_ERR` fields saturate: all ones means at least that many."
+      ],
       "record": "avtprx_err-offset-0x6c0",
       "split": {
         "AVTPRX_ERR": [

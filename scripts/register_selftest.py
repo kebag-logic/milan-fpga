@@ -22,6 +22,7 @@ import tempfile
 from collections.abc import Callable
 from pathlib import Path
 
+from register_diagrams import LINK_GUARD, SERVO
 from register_page import DESCRIPTIONS, DIAGRAM_DIR, PAGE, RECORD, SOC
 from register_rtl import CSR_INCLUDE_DIR, DATAPATH, ETH_PKG, ROOT, RTL, SHAPE_INCLUDE_DIR
 
@@ -58,7 +59,9 @@ TEXT_CONTROLS: list[tuple[str, list[Plant], int, str]] = [
      [(LATENCY_HEADER, "LWSRP_LATENCY_RST_C   = 32'h0000_0000", "LWSRP_LATENCY_RST_C   = 32'h0000_0009")], 2,
      REFUSED_ROM),
     ("reset change on a live-read flop",
-     [(RTL, "eth_guard <= 1'b1;", "eth_guard <= 1'b0;")], 1, STALE_PAGE),
+     [(RTL, "ltap_en_r  <= 1'b1;", "ltap_en_r  <= 1'b0;")], 1, STALE_PAGE),
+    ("reset change the ETH_GUARD diagram draws",
+     [(RTL, "eth_guard <= 1'b1;", "eth_guard <= 1'b0;")], 2, "the ETH_GUARD diagram"),
     ("reset change behind a window read: the snapshot store",
      [(RTL, "for (int w = 0; w < 12; w++) snap_shadow_r[w] <= 32'h0;",
        "for (int w = 0; w < 12; w++) snap_shadow_r[w] <= 32'h5;")], 1, STALE_PAGE),
@@ -145,6 +148,11 @@ TEXT_CONTROLS: list[tuple[str, list[Plant], int, str]] = [
      [(RTL, "sweep_cnt", "sweep_count")], 1, f"STALE {FINGERPRINT}"),
     ("comment-only RTL edit stays fresh",
      [(RTL, "  //! CHMAP_LOOP 0x914 read view.", "  //! CHMAP_LOOP 0x914 read view, edited.")], 0, "fresh"),
+    ("mechanism diagram's state gone from its source",
+     [(SERVO, "HOLDOVER_S", "HOLD_OVER_S")], 2, "a mechanism diagram names HOLDOVER_S"),
+    ("mechanism diagram's bit no longer a strobe",
+     [(RTL, "wire snap_go_w  = wr_fire && (wr_addr == A_STRM_SNAP) && s_axi_wdata[0] &&",
+       "wire snap_go_w  = wr_fire && (wr_addr == A_STRM_SNAP) && s_axi_wdata[1] &&")], 2, "a mechanism diagram uses"),
     ("hand edit of the page",
      [(PAGE, "[reset = 0x00000001]", "[reset = 0x00000000]")], 1, STALE_PAGE),
     ("edited WaveDrom source",
@@ -160,7 +168,8 @@ TEXT_CONTROLS: list[tuple[str, list[Plant], int, str]] = [
 def copy_inputs(dst: Path) -> None:
     """The files the generator reads and writes, copied under `dst`."""
     shape = json.loads((ROOT / SOC).read_text(encoding="utf-8"))["shape"]
-    files = [RTL, DATAPATH, ETH_PKG, DESCRIPTIONS, SOC, LEDGER, PAGE, RECORD, "docs/diagrams/README.md"]
+    files = [RTL, DATAPATH, ETH_PKG, DESCRIPTIONS, SOC, LEDGER, PAGE, RECORD, LINK_GUARD, SERVO,
+             "docs/diagrams/README.md"]
     for include_dir in (CSR_INCLUDE_DIR, SHAPE_INCLUDE_DIR.format(shape=shape)):
         files += [p.relative_to(ROOT).as_posix() for p in (ROOT / include_dir / "gen").glob("*.svh")]
     files += [p.relative_to(ROOT).as_posix() for p in (ROOT / DIAGRAM_DIR).rglob("*") if p.is_file()]

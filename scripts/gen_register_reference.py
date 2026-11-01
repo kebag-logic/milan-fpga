@@ -56,6 +56,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import check_doc_style  # noqa: E402
+from register_diagrams import mechanisms  # noqa: E402
 from register_fields import Deriver, Field, Register, reset_text  # noqa: E402
 from register_page import (DESCRIPTIONS, DIAGRAM_DIR, PAGE, RECORD, SOC, Model, Module, Wording, acronym,  # noqa: E402
                            anchor, module_sources, render_page, strip_md)
@@ -95,6 +96,7 @@ def build_model(root: Path, soc: dict | None = None) -> tuple[Model, RtlFacts]:
     model = Model(regs, modules, soc, table, facts.version, desc, features, guards(regs, desc))
     model.root = root
     model.wording = Wording(facts, regs, desc)
+    model.mechanisms = mechanisms(model)
     return model, facts
 
 
@@ -310,6 +312,10 @@ def catalog(model: Model) -> str:
         name = strip_md(m.heading).split("  -  ", 1)[-1].split("  (", 1)[0]
         rows.append(f"| [`regmap/{m.key}.json`](regmap/{m.key}.json) | {name} | {len(m.registers)} "
                     f"| `regmap/{m.key}/*.svg` |")
+    rows += ["", "| Mechanism | Kind | Section |", "|---|---|---|"]
+    titles = {m.key: strip_md(m.heading) for m in model.modules}
+    for mech in model.mechanisms:
+        rows.append(f"| {mech.title} | Mermaid `{mech.kind}` | {titles.get(mech.module, 'Reading this page')} |")
     head, rest = text.split(CATALOG_START, 1)
     _, tail = rest.split(CATALOG_END, 1)
     return head + CATALOG_START + "\n" + "\n".join(rows) + "\n" + CATALOG_END + tail

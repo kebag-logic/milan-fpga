@@ -95,6 +95,26 @@ The AEM descriptor tree has no CSR here. The processor fetches it from main memo
 
 Queue 4 is the highest priority, queue 0 the lowest.
 
+### How a read is served
+
+A read takes one of three paths. The address decides which.
+
+The shadow path serves plain-RW words from RAM. The defaults ROM loads it at reset.
+
+The live path reads status words from their source.
+
+```mermaid
+flowchart LR
+    A[AXI read] --> D{Address decode}
+    D -->|plain-RW or ROM word| S[Shadow RAM]
+    D -->|live arm or window word| L[Live read mux]
+    D -->|slow window word| C[Stream context RAM]
+    S --> R[Read data]
+    L --> R
+    C --> R
+    O[Defaults ROM] -->|sweep after reset| S
+```
+
 ### How to read this page now: three verdicts, and why the distinction matters
 
 | Verdict | What it means | How software must treat it |
@@ -552,6 +572,22 @@ A board build with the LiteEth MAC reports `0x1B8`.
 | `TX_FIFO_OVERFLOW` | none -- MAC-internal, not exposed | ❌ |
 | `TX_FIFO_BAD_FRAME` | none -- MAC-internal, not exposed | ❌ |
 | `RX_FIFO_OVERFLOW` | none -- MAC-internal, not exposed | ❌ |
+
+### How a statistics snapshot works
+
+A snapshot makes the counters one coherent set.
+
+```mermaid
+sequenceDiagram
+    participant SW as Software
+    participant CSR as CSR block
+    participant MAC as MAC counters
+    SW->>CSR: write 1 to STATS_CTRL[0]
+    CSR->>MAC: pulse o_stats_snapshot
+    MAC-->>CSR: i_stats loaded into the snapshot
+    SW->>CSR: read STATS_CAP (0x204)
+    SW->>CSR: read STATn words from 0x210
+```
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x200-----statistics-rmon--req-mac-04).
 
@@ -1903,6 +1939,8 @@ RTL name: `A_AVTPRX_STAT`.
 | 7:1 | `RESERVED` | R | X | Reserved. |
 | 0 | `LOCKED_LEVEL` | R | X | Media-locked level. |
 
+`AVTPRX_STAT` bytes saturate: `0xFF` means at least 255.
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#avtprx_stat-offset-0x6b8).
 
 ### AVTPRX_FRX register (offset 0x6BC) [reset = 0xXXXXXXXX]
@@ -1930,6 +1968,8 @@ RTL name: `A_AVTPRX_ERR`.
 | 31:16 | `SEQ_NUM_MISMATCH` | R | X | Saturating: all ones means at least this many. The full count is at `0x83C`. |
 | 15:8 | `UNSUPPORTED_FORMAT` | R | X | Saturating view. |
 | 7:0 | `TIMESTAMP_UNCERTAIN` | R | X | Saturating view. |
+
+`AVTPRX_ERR` fields saturate: all ones means at least that many.
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#avtprx_err-offset-0x6c0).
 
@@ -2134,6 +2174,22 @@ Key and mask are `{HI[15:0], LO}`, compared MSB-first against the destination MA
 
 Set the key, mask and action words, then commit with `TCAM_CMD[16]`.
 
+### How a TCAM entry is written
+
+The key, mask and action words are shadows. The commit moves them into one entry.
+
+```mermaid
+sequenceDiagram
+    participant SW as Software
+    participant CSR as CSR block
+    participant TCAM as RX filter
+    SW->>CSR: write TCAM_KEY_LO (0x704), TCAM_KEY_HI (0x708)
+    SW->>CSR: write TCAM_MASK_LO (0x70C), TCAM_MASK_HI (0x710)
+    SW->>CSR: write TCAM_ACTION (0x714)
+    SW->>CSR: write TCAM_CMD (0x718): index, valid and TCAM_CMD[16]
+    CSR->>TCAM: pulse o_tcam_wr_en with the key, mask and action
+```
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x700-----rx-destination-mac-tcam-filter--req-mac-02).
 
 ### TCAM_CTRL register (offset 0x700) [reset = 0x00000001]
@@ -2254,6 +2310,20 @@ Link guard controls and the reset canary.
 `KL_link_guard` supervises link bounces; firmware has recovery strobes here.
 
 `LINK_CTRL[1]` is stored as 0 while `ETH_GUARD[0]` is 1.
+
+### How the link guard recovers
+
+`LINKG_STAT[5:4]` reports this state.
+
+The MAC side is held in reset through `HOLD` and `SETTLE`.
+
+```mermaid
+stateDiagram-v2
+    [*] --> RUN
+    RUN --> HOLD: a clock dies
+    HOLD --> SETTLE: clocks back
+    SETTLE --> RUN: clean for SETTLE_CYC_C cycles
+```
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x71c-----link-guard--mac-recovery-version-minor--0x0006).
 
@@ -3072,6 +3142,20 @@ The link guard's automatic recovery is not gated.
 
 Nothing in the SoC consumes the exported level. So `milan_mac_phy_crg_reset` is not gated.
 
+### How the guard arms and disarms
+
+`ETH_GUARD[0]` is 1 while armed.
+
+While armed, `PHY_RESET` writes drop and `LINK_CTRL[1]` stores 0.
+
+```mermaid
+stateDiagram-v2
+    [*] --> Armed: reset (ETH_GUARD = 1)
+    Armed --> Disarmed: write 0x554E4C4B
+    Disarmed --> Armed: write any other word
+    Armed --> Armed: write any other word
+```
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x7d8-----ethernet-guard).
 
 ### ETH_GUARD register (offset 0x7D8) [reset = 0x00000001]
@@ -3252,6 +3336,24 @@ The ACMP context read and SRP row port are dead. Their words read 0.
 A `SNAP` latches `STATE`, `CNT0..9` and `PDUS` as one coherent set.
 
 `CTRL` and `FMT` reads go live to the context RAM. They take at least four clocks.
+
+### How a stream snapshot is read
+
+Select the stream and arm the snapshot. Poll busy, then read the block.
+
+```mermaid
+sequenceDiagram
+    participant SW as Software
+    participant CSR as CSR block
+    participant CTX as Stream context
+    SW->>CSR: write STRM_SEL (0x800)
+    SW->>CSR: write 1 to STRM_SNAP[0]
+    CSR->>CTX: latch STRMW_STATE, STRMW_CNTn and STRMW_PDUS
+    loop until the bit reads 0
+        SW->>CSR: read STRM_SNAP[0]
+    end
+    SW->>CSR: read STRMW_STATE (0x82C) and the block
+```
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x800-----indexed-per-stream-window).
 
@@ -3478,7 +3580,7 @@ Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_stat
 
 One of the ten snapshot-latched Stream Input counters.
 
-RTL name: `A_STRMW_CNT0 to A_STRMW_CNT_END`.
+RTL name: `A_STRMW_CNT0..9 (A_STRMW_CNT0 to A_STRMW_CNT_END)`.
 
 ![STRMW_CNTn bit fields](../diagrams/regmap/strm/STRMW_CNTn.svg)
 
@@ -3624,6 +3726,20 @@ TX stages: `CAP`, `PKT_SOF`, `PKT_EOF`, `MAC_TX`. RX stages: `MAC_RX`, `ACCEPT`,
 Each chain follows one tagged frame at a time.
 
 A timeout of about 0.5 ms re-arms the token.
+
+### Where the latency taps measure
+
+Each chain records the delta between neighbouring stages.
+
+```mermaid
+flowchart LR
+    subgraph TX
+    T0[CAP] --> T1[PKT_SOF] --> T2[PKT_EOF] --> T3[MAC_TX]
+    end
+    subgraph RX
+    R0[MAC_RX] --> R1[ACCEPT] --> R2[DEPKT] --> R3[FABRIC_RENDER]
+    end
+```
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps).
 
@@ -3906,6 +4022,27 @@ The servo engages when the stored source is CRF. An AAF source also engages it.
 
 At INTERNAL it stays idle and moves nothing.
 
+### How the servo moves between states
+
+`MCSRV_STAT[2:0]` reports this state.
+
+Deselecting the source returns any state to `IDLE`.
+
+```mermaid
+stateDiagram-v2
+    [*] --> IDLE
+    IDLE --> VERIFY: source selected and reference locked
+    VERIFY --> REPAIR: mismatch and auto-repair set
+    VERIFY --> ACQUIRE: verified
+    REPAIR --> ACQUIRE: reprogrammed
+    REPAIR --> FAULT: relock timeout
+    ACQUIRE --> LOCKED: inside the lock threshold
+    LOCKED --> ACQUIRE: lock count falls to 0
+    ACQUIRE --> HOLDOVER: reference unlocked
+    LOCKED --> HOLDOVER: reference unlocked
+    HOLDOVER --> ACQUIRE: reference back
+```
+
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo).
 
 ### MCSRV_STAT register (offset 0x8F8) [reset = 0xXXXXXXXX]
@@ -3981,6 +4118,30 @@ A cluster key with no projection changes no render word.
 | in range, PROJECTED | written at the projected physical key | mirrored |
 | in range, NONPHYSICAL (a declared cluster whose `ADP_DMAP_IN_RPHYS_C` entry is invalid) | UNCHANGED | mirrored, and listed by `GET_AUDIO_MAP` for the port that owns the cluster |
 | OUT OF RANGE (past the model's declared cluster keys) | UNCHANGED | not written; nothing appears in any port's page |
+
+### How a map entry is read back
+
+`CHMAP_LOOP` reads the poison until a snapshot completes.
+
+The watchdog gives up after 0xF clocks.
+
+```mermaid
+sequenceDiagram
+    participant SW as Software
+    participant CSR as CSR block
+    participant MAP as Map RAM
+    SW->>CSR: write CHMAP_SEL (0x904)
+    SW->>CSR: write 1 to CHMAP_SNAP[0]
+    CSR->>MAP: o_chmap_rd_en with side and index
+    alt the fabric answers
+        MAP-->>CSR: i_chmap_rd_valid and the data
+        SW->>CSR: read CHMAP_LOOP (0x914)
+        CSR-->>SW: the measurement, VALID = 1
+    else the watchdog expires
+        SW->>CSR: read CHMAP_LOOP (0x914)
+        CSR-->>SW: 0xDEADDEAD
+    end
+```
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x900-----channel-map-fabric--section-6-of-docschannel_map_64md-kl_chan_map_render--kl_chan_map_capture).
 
@@ -4125,6 +4286,26 @@ A device with no record reads `nvm_blank`. Read the verdict bits with it.
 | `1` | `1` | `0` | **Blank media behind a validated image**: the store is real but held nothing this walk could use. Not a failure: Milan permits an entity that has never been bound |
 | `0`/`1` | `0`/`1` | `1` | **Torn read-back, or a BLIND walk**: the walk aborted and the whole image was discarded, or at some cycle of the walk no validated image stood behind the device face, so what it read was the blank answer. The blind verdict is latched per walk in `KL_pp_shadow.sv`: validating the image after the walk does not restore anything, so it cannot clear it |
 | `0` | `1` | `1` | **No writer has answered and the walk ran blind**: what a build whose firmware has not configured the backing store reports, `0x5B00_008C` |
+
+### How a side-port read is posted
+
+The side port is posted. One access is outstanding at a time.
+
+A write to `PP_SPDATA` posts a write the same way.
+
+```mermaid
+sequenceDiagram
+    participant SW as Software
+    participant CSR as CSR block
+    participant PP as Protocol processor
+    SW->>CSR: write PP_SPADDR (0x928)
+    CSR->>PP: o_pp_req with the address
+    loop until the bit reads 0
+        SW->>CSR: read PP_STAT[0]
+    end
+    PP-->>CSR: i_pp_ack and i_pp_rdata
+    SW->>CSR: read PP_SPDATA (0x92C)
+```
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x920-----protocol-processor-control-plane--kl_pp_shadow-version-major-2).
 
