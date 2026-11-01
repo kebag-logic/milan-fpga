@@ -679,6 +679,8 @@ def port_arms(ports: dict, excluded: tuple[str, ...], row: Any) -> list[PortArm]
                 plant=ReadByProbe("o_desc_mem_req_valid")),
         PortArm("a map-record output read past the exclusion", f"G port mrec_gnt_o {reach} {PROBE_CELL}.a_i",
                 "g-on-wire", plant=ReadByProbe("mrec_gnt_w")),
+        PortArm("the REBOOT request read past its terminal", f"G port reboot_req_o {reach} {PROBE_CELL}.a_i",
+                "g-on-wire", plant=ReadByProbe("pp_reboot_req_w")),
         PortArm("a MAAP shim output read past pp_shadow", f"G port maap_req_valid_o {reach} pp_maap_shim.req_valid_i",
                 "g-shim-terminal", plant=ReadByProbe("pp_maap_rsp_ok_w")),
         PortArm("a G output on a CSR input outside the processor-status face",

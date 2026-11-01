@@ -34,7 +34,7 @@ define the interface. The numbers live in one place, the generated
 - **[The ADP slice](#the-adp-slice)** -- Milan v1.2 5.6.3 over the mailbox, the available_index a DEPARTING carries, owed frames and their order, fields from the entity model, the tag rule for raced expiries, and the service-latency bound with its assumptions.
 - **[The ACMP module](#the-acmp-module)** -- Milan v1.2 5.5 and 5.6.4 on the core: the core, its adapter and the ADP channel's tap, the binding owner on the saved-state store, the adp filter's bound-talker term, every path's service cost and the backlog bounds against T_svc, and the four former differences from the processor, each now a check that fails if the old answer returns.
 - **[The publication block](#the-publication-block)** -- The class-D state the firmware owner publishes for the split placement's datapath: the layout, the stream_id behind SID_VALID, each writer and the response it precedes, the two semantic choices, and the service cost.
-- **[The processor's other faces](#the-processors-other-faces)** -- Contract 2.3: every port of the processor wrapper in one class with the G cones' terminals and the map writer's exclusion, the face block's commit handshake, windows and events, and the AECP owner's writer with the choices the placement switch compares.
+- **[The processor's other faces](#the-processors-other-faces)** -- Contract 2.3: every port of the processor wrapper in one class with the G cones' terminals and the map writer's and REBOOT request's exclusions, the face block's commit handshake, windows and events, and the AECP owner's writer with the choices the placement switch compares.
 - **[Verification](#verification)** -- The suite through both adapters, the same checks on the host model, the co-simulation, the host tests, the reused processor walks, the binding owner on the store and the planted defects.
 - **[Default build](#default-build)** -- What the switch adds when on, the CPU netlist it regenerates, and the gateware-export comparison that shows every shipped config unchanged when off.
 - **[Measured area](#measured-area)** -- The switch-on skeleton placed and routed out of context, per block, against the #640 estimate, with the levers, what the full-tuple filter, the bound-talker term, the publication block and the face block added, the term in distributed RAM against its target, and the recipe.
@@ -1117,16 +1117,16 @@ contract 2.3, an additive minor: no register, field or ring of 2.2 moves.
 [`census_ports.py`](../../sw/mailbox/census_ports.py) names each port of the
 `pp_shadow` cell, inputs and outputs, under exactly one class, and the
 publication census judges the table on the netlist of each of the six
-shapes. At this head the cell has 217 ports in every shape:
+shapes. At this head the cell has 219 ports in every shape:
 
 | Class | Ports | What it means | Its carrier, which must exist |
 |---|---:|---|---|
-| C | 25 | class-D, already in contract 2.2's [publication block](#the-publication-block) | exactly the class-D census's population |
+| C | 26 | class-D, already in contract 2.2's [publication block](#the-publication-block) or 2.4's source entries | exactly the class-D census's population |
 | F | 28 | a setting or status level the firmware writes | a `REGISTER.FIELD` of the face block |
 | R | 34 | a request and answer window that keeps the datapath's answer logic unchanged | the window's `REGISTER.FIELD` |
 | E | 6 | an event record | its event type, or `EVENT.Wn.FIELD` |
 | M | 14 | a frame or event path the placement switch connects | the `KL_mbx` port it reaches |
-| G | 110 | gone with the wrapper, tied to its reset value | its ruled reason |
+| G | 111 | gone with the wrapper, tied to its reset value | its ruled reason |
 
 An F, R or E carrier must be as wide as its port, per source or per sink
 where the row says so, for no more streams than the contract carries. A G
@@ -1142,9 +1142,10 @@ terminals end it, each named by cell and port:
 - an input of `pp_maap_shim`, accepted only while each of that cell's own
   outputs reaches inputs of `pp_shadow` alone.
 
-Every other end is the wire, and a G output that reaches it fails. At this
-head, in every shape, the G cones end at 7 distinct CSR inputs, all 20 memory
-outputs and 4 shim inputs, and never on the wire.
+Every other end is the wire, and a G output that reaches it fails, except at
+the two exclusions below. At this head, in every shape, the G cones end at 7
+distinct CSR inputs, all 20 memory outputs, 4 shim inputs and the REBOOT
+terminal, and never on the wire.
 
 The ruling's item 1 settles the #637 map record face. `mrec_*`,
 `amap_unflushed_i` and `amap_alarm_i` are G: in the split the firmware's AECP
@@ -1156,23 +1157,35 @@ G cone of the shape, and each must be a net of the map writer. **Acceptance
 item of the placement switch:** its split elaboration drops the exclusion,
 and the census passes without it.
 
+The ruling
+[6554243203](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6554243203)
+settles the AECP REBOOT request, `reboot_req_o` (#787). It drives
+`KL_reboot_ctrl`, which stays in the datapath and runs the drain, the egress
+wait, the PHY hold and the configuration reload. In the split the firmware's
+AECP owner takes REBOOT, and the split has no carrier for the request yet. So
+`reboot_req_o` is G, and its cone stops at the one cell input
+`REBOOT_TERMINAL` names, `reboot_ctrl.reboot_req_i`, and at no other input of
+that cell. A second consumer of the same net is still the wire. **Acceptance
+item of the placement switch:** it gives REBOOT its carrier, drops this
+exclusion, and the census passes without it.
+
 The census's 12 new rules (`port-*`, `g-*` in
 [`census_rules.py`](../../sw/mailbox/census_rules.py)) each carry plants in
-[`census_plants.py`](../../sw/mailbox/census_plants.py), 18 in all. Eight
+[`census_plants.py`](../../sw/mailbox/census_plants.py), 19 in all. Eight
 edit the table: a port no class names, a port two classes name, a row for a
 port the wrapper lacks, a class-C row the class-D census does not hold, an F
 and an M carrier that does not exist, an F carrier narrower than its port and
-a per-sink carrier counted once. Three edit the exclusion: emptied, so the
-map writer's cones reach the wire, and naming a net no G cone reaches or a
-net outside the map writer. Seven edit the elaborated netlist itself: a G
-output read by another module's input; the nets of a CSR terminal, a
-memory-master terminal and a map-record output each also read past it; a
-MAAP shim output read past `pp_shadow`; a G output on a CSR input outside
-`G_CSR`; and one driven onto a datapath output outside `G_MEMORY`. The ruling
-asks for the new arms on existing netlists: each rides
-on an arm that already elaborates the tracked sources at the recipe's shape,
-so they add no elaboration, and the rule-removal check judges each of them
-again with its rule removed.
+a per-sink carrier counted once. Three edit the map writer's exclusion:
+emptied, so the map writer's cones reach the wire, and naming a net no G cone
+reaches or a net outside the map writer. Eight edit the elaborated netlist
+itself: a G output read by another module's input; the nets of a CSR
+terminal, a memory-master terminal, a map-record output and the REBOOT
+request each also read past it; a MAAP shim output read past `pp_shadow`; a
+G output on a CSR input outside `G_CSR`; and one driven onto a datapath
+output outside `G_MEMORY`. The ruling asks for the new arms on existing
+netlists: each rides on an arm that already elaborates the tracked sources
+at the recipe's shape, so they add no elaboration, and the rule-removal
+check judges each of them again with its rule removed.
 
 ### The face block
 
@@ -1639,6 +1652,12 @@ report_timing_summary -delay_type max
   switch connects each `fw_*_o`, window and event port to the split
   datapath, with its clock crossing, and its split elaboration must pass the
   port census without the map writer's exclusion
+  ([Every port, one class](#every-port-one-class)).
+- **The AECP REBOOT request** (#787) has no carrier in the split: the
+  firmware's AECP owner takes REBOOT, and the placement switch gives the
+  request its carrier, a face-block level being the expected end state (the
+  ruling of comment 6554243203). Its split elaboration must then pass the
+  port census without the REBOOT exclusion
   ([Every port, one class](#every-port-one-class)).
 - **The audio maps on the datapath.** The AECP owner holds the maps and does
   not drive the `EDIT` window; a map change only marks `DYN_DIRTY`. Applying

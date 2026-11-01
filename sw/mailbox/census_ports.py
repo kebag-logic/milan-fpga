@@ -9,11 +9,12 @@ may go, is decided port by port here, from the netlist census_elab.py builds,
 in every shape the builder builds (#665).
 
 THE POPULATION is every port of the KL_pp_shadow module, as the elaborated
-datapath's pp_shadow cell declares it: inputs and outputs alike, 217 at the
+datapath's pp_shadow cell declares it: inputs and outputs alike, 219 at the
 head this was written at. ``PORTS`` names each under one class (#665):
 
-  C  class-D, already carried by contract 2.2's publication block: exactly
-     publication_census.CLASS_D_PORTS and the started level
+  C  class-D, already carried by contract 2.2's publication block and 2.4's
+     source entries: exactly publication_census.CLASS_D_PORTS and the
+     started level
   F  firmware-written: a setting or a status level the firmware writes into
      the face block (its carrier, a REGISTER.FIELD of contract 2.3)
   R  a request and answer window that keeps the datapath's answer logic
@@ -39,9 +40,9 @@ only at three terminals, each named by cell and port (the ruling, item 2):
   shim      an input of the cell ``pp_maap_shim``, accepted only while each
             of its outputs reaches inputs of ``pp_shadow`` alone
 
-and at the exclusion below. Every other end, an input of any other cell or
-port, a datapath output and a cell with no output, is the wire, and a G
-output that reaches it fails.
+and at the two exclusions below. Every other end, an input of any other
+cell or port, a datapath output and a cell with no output, is the wire, and
+a G output that reaches it fails.
 
 THE EXCLUSION OWED TO THE PLACEMENT SWITCH (the ruling, item 1). The #637 map
 record face (mrec_*) feeds the datapath's map writer and restore, block
@@ -54,6 +55,17 @@ persistence keeps one owner. A G cone therefore stops at the nets
 shape, and each must be a net of the map writer (``amr_``). ACCEPTANCE ITEM
 OF THE PLACEMENT SWITCH: its split elaboration drops this exclusion, and
 the census passes without it.
+
+THE REBOOT EXCLUSION, ALSO OWED TO THE PLACEMENT SWITCH (ruling 6554243203).
+The processor's AECP REBOOT request (reboot_req_o, #787) drives
+KL_reboot_ctrl, which stays in the datapath and runs the drain, the egress
+wait, the PHY hold and the configuration reload. In the split the
+firmware's AECP owner takes REBOOT, and the split has no carrier for its
+request yet (#665). A G cone therefore ends at the one cell input
+``REBOOT_TERMINAL`` names, reboot_req_i of the cell reboot_ctrl, and at no
+other input of that cell; a second consumer of the same net is still the
+wire. ACCEPTANCE ITEM OF THE PLACEMENT SWITCH: it gives REBOOT its carrier,
+drops this exclusion, and the census passes without it.
 
 THE RULES are census_rules.py's ``port-*`` and ``g-*`` entries, each
 enforced only where ``live()`` names it, each with a plant in
@@ -113,6 +125,10 @@ REMOVED_WITH_WRAPPER = (
 REMOVED_SCOPE = "amr_fsm."
 #: What a map-writer net's name begins with.
 REMOVED_PREFIX = "amr_"
+#: The one cell input a G cone stops at for the REBOOT request (cell, module,
+#: port): the split has no REBOOT carrier yet (#787, #665); owed to the
+#: placement switch.
+REBOOT_TERMINAL = ("reboot_ctrl", "KL_reboot_ctrl", "reboot_req_i")
 
 
 @dataclass(frozen=True)
@@ -134,12 +150,16 @@ _GSI = "GET_STREAM_INFO, GET_AVB_INFO and GET_AS_PATH"
 
 #: class -> port -> its row. A port named under two classes, or under none, fails.
 PORTS: dict[str, dict[str, Port]] = {
-    "C": _rows("class-D: contract 2.2's publication block, publication_census.py",
-               "srp_class_a_prio_o srp_class_a_vid_o srp_domain_adopted_o srp_domain_change_o srp_tk_decl_state_o "
-               "srp_lstn_reg_state_o srp_active_o srp_sr_admitted_o srp_granted_slope_bps_o srp_src_fail_code_o "
-               "srp_src_fail_bridge_o srp_sum_slope_bps_o srp_over_limit_o srp_tk_reg_state_o srp_lstn_decl_state_o "
-               "srp_acc_latency_o srp_snk_fail_code_o acmp_declaring_o acmp_bound_o acmp_bound_eid_o "
-               "acmp_bound_sid_o acmp_bound_dmac_o acmp_bound_vlan_o adp_next_avail_index_o aecp_strm_started_o"),
+    "C": {
+        **_rows("class-D: contract 2.2's publication block, publication_census.py",
+                "srp_class_a_prio_o srp_class_a_vid_o srp_domain_adopted_o srp_domain_change_o srp_tk_decl_state_o "
+                "srp_lstn_reg_state_o srp_active_o srp_sr_admitted_o srp_granted_slope_bps_o srp_src_fail_code_o "
+                "srp_src_fail_bridge_o srp_sum_slope_bps_o srp_over_limit_o srp_tk_reg_state_o srp_lstn_decl_state_o "
+                "srp_acc_latency_o srp_snk_fail_code_o acmp_declaring_o acmp_bound_o acmp_bound_eid_o "
+                "acmp_bound_sid_o acmp_bound_dmac_o acmp_bound_vlan_o adp_next_avail_index_o aecp_strm_started_o"),
+        **_rows("class-D: contract 2.4's source entries (SRC_SID_LO/HI, #799), publication_census.py",
+                "src_stream_id_o"),
+    },
     "F": {
         "aecp_cur_config_o": Port(("F_ENTITY.CUR_CONFIG",), "", _FW),
         "aecp_identify_o": Port(("F_ENTITY.IDENTIFY",), "", _FW),
@@ -278,6 +298,9 @@ PORTS: dict[str, dict[str, Port]] = {
         **_rows("the processor's frame counters, superseded by the mailbox's (decision D1): read back at csr",
                 "rx_frames_o tx_frames_o rx_drops_o"),
         **_rows("the processor's millisecond timebase, connected to nothing", "dbg_now_ms_o"),
+        **_rows("the AECP REBOOT request (#787): the firmware's AECP owner takes REBOOT in the split, which has no "
+                "carrier for it yet; the cone stops at reboot_ctrl.reboot_req_i (ruling 6554243203, the exclusion)",
+                "reboot_req_o"),
     },
 }
 
@@ -355,7 +378,7 @@ def _shim_ok(fl, pc) -> tuple[bool, list[str]]:
 
 
 def _g_end(net, e: tuple[str, ...], shim_ok: bool) -> tuple[str, str]:
-    """(terminal, where) of one end of a G cone: csr, memory or shim, else the wire."""
+    """(terminal, where) of one end of a G cone: csr, memory, shim or reboot, else the wire."""
     if e[0] == "out":
         if e[1] in G_MEMORY or not live("g-memory-terminal"):
             return "memory", e[1]
@@ -366,6 +389,8 @@ def _g_end(net, e: tuple[str, ...], shim_ok: bool) -> tuple[str, str]:
         return "csr", port
     if kind == SHIM and cell == SHIM_CELL and shim_ok:
         return "shim", port
+    if (cell, kind, port) == REBOOT_TERMINAL:
+        return "reboot", port
     if kind.startswith("$"):
         return "wire", f"{cell}.{port} ({kind}, which has no output)"
     return "wire", f"{cell}.{port}"
@@ -451,7 +476,7 @@ def survey_ports(fl: Any, pc: ModuleType, table: dict[str, dict[str, Port]] | No
             for n in excluded if not n.startswith(REMOVED_PREFIX) and live("g-exclusion-amr")]
     counts = {cls: sum(1 for p in table.get(cls, {}) if p in dirs) for cls in CLASSES}
     counts["ports"] = len(dirs)
-    tally = {k: sum(1 for kind, _ in ends if kind == k) for k in ("csr", "memory", "shim", "wire")}
+    tally = {k: sum(1 for kind, _ in ends if kind == k) for k in ("csr", "memory", "shim", "reboot", "wire")}
     tally["removed"] = len(reached)
     return PortSurvey(counts, tally, out)
 

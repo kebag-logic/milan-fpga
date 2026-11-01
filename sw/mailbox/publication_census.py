@@ -110,7 +110,8 @@ tools' included, and each is enforced only where ``live()`` names it.
 EVERY PORT. census_ports.py classifies every port of the same pp_shadow cell,
 inputs and outputs, in each shape on the same netlist (#665): class-D,
 firmware-written, a window, an event, a frame path, or gone with a G output's
-cone ending only at its three terminals and the map writer's exclusion. Its findings join this census's.
+cone ending only at its three terminals, the map writer's exclusion and the
+REBOOT request's. Its findings join this census's.
 
 ``--selftest`` (census_selftest.py) elaborates a planted copy of the datapath,
 the wrapper or an included file for each defect of ``census_plants.PLANTS``,
@@ -706,7 +707,8 @@ def report(svs: list[Survey], out: list[str], listing: bool, checking: bool) -> 
         if sv.ports:
             c, e = sv.ports.counts, sv.ports.ends
             print(f"  ports of {WRAPPER_CELL}: {c['ports']}: " + ", ".join(f"{k} {c[k]}" for k in census_ports.CLASSES)
-                  + "; G cones end at " + ", ".join(f"{k} {e.get(k, 0)}" for k in ("csr", "memory", "shim", "wire"))
+                  + "; G cones end at " + ", ".join(f"{k} {e.get(k, 0)}"
+                                                    for k in ("csr", "memory", "shim", "reboot", "wire"))
                   + f", stopped at {e.get('removed', 0)} net(s) removed with the wrapper")
     if checking:
         for f in out:
