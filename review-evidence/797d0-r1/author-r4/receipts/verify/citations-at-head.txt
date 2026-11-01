@@ -1,0 +1,32 @@
+# head 8d8c2e366a2d49506b91a195de0094a440e7bc39 tree 24d3429b66ec52b7fb48782fbb78d289abab668b
+# origin/dev 1f29f189279f9fc0132f4918e47342b87d22f33a; merge base 1f29f189279f9fc0132f4918e47342b87d22f33a
+## F1: literal processor path in the data file (want 0)
+0
+## F1: the file name is unique in the processor submodule (want one path)
+protocol-processor
+protocol-processor-control-plane-avb-milan.git
+hdl/top/protocol_processor_top.sv
+## F1: each citation at the head
+476 477 483 484 490 491 
+## R741-3 R2: the predicate lines
+  assign gsi_settled_w = (32'(gsi_desc_index_o) < N_STREAM_IN_P)
+                         && (gsi_status_w[7:5] == pp_acmp_pkg::PB_COMPLETED_C);
+484
+0
+## R742-3 R1: nvm_commit in the named file
+static int nvm_commit(const char *why)
+178
+## R741-3 R3 and F2: the docstring's claim
+The cross-page rule (#797): every recorded statement, and each spelling its entry lists under `also`, is
+searched across every inventoried page, normalised for case, line wrapping, list and quote markers, asterisk
+and underscore emphasis, code spans, link syntax and the punctuation ending it. Each other page carrying it
+gets its own Findings row, so the status rule applies there too. A quote cut from a line can run past its
+sentence, so its entry lists that sentence under `also`. A paraphrase is found only once `also` records its
+spelling; inline HTML and a backslash line break are not normalised.
+
+## table digest
+2756e5b50e509958e5b873e82d7a8306a430024c77cf98c8b15d0c2d2887459b  scripts/docs_inventory.py
+13700-      "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+13701-      "sha256": "2756e5b50e509958e5b873e82d7a8306a430024c77cf98c8b15d0c2d2887459b"
+## module length (limit 1000)
+999 scripts/docs_inventory.py

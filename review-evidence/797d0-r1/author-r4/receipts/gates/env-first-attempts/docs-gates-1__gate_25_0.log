@@ -1,0 +1,14 @@
+# head 8d8c2e366a2d49506b91a195de0094a440e7bc39 job docs-gates-1 step gate_25_0: End-station builder gates, leg 0 of 2
+
+[notice] A new release of pip is available: 26.2.1 -> 26.2.2
+[notice] To update, run: pip install --upgrade pip
+test_baremetal_profile_contract:
+  [gate 1b] 5 product configs and 11 refusal arms pass
+Traceback (most recent call last):
+  File "<scratch>/gates/docs/docs-gates-1/wt/sw/builder/test_builder.py", line 29381, in <module>
+    fn()
+    ~~^^
+  File "<scratch>/gates/docs/docs-gates-1/wt/sw/builder/test_builder.py", line 5124, in test_baremetal_profile_contract
+    assert census_used["compiler"] == census_compilers[0], \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: --require-rv32: the provisioned absolute SDK selector must be adopted
