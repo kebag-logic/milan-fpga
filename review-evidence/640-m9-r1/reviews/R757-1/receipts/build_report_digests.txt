@@ -1,0 +1,53 @@
+Build reports of build_ax7101_asl_e240b77bbd (read-only, outside the repository; location not published)
+d9561a05dee55ef0c0f8f9350bfe27ea63b215639afdf708f2f4f00aba70356e  alinx_ax7101_utilization_place.rpt
+ec345a49f14e03038c428bb23029872639085de825038b8a99539e0fee08f42d  alinx_ax7101_utilization_hierarchical_place.rpt
+22ed0c58b84876ae9ac2253b8291a1d760aa95f3f9d1d78112679dc5e8e42378  alinx_ax7101_route_status.rpt
+3632d97a686d8ace0a874bfa49af79a71089538eccfa3bef51e3e8afe4a37cef  alinx_ax7101_signoff_all_timing.rpt
+--- utilization (place)
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674
+| Design State : Physopt postPlace
+| Slice LUTs                 | 52008 |     0 |          0 |     63400 | 82.03 |
+|   LUT as Logic             | 48172 |     0 |          0 |     63400 | 75.98 |
+|   LUT as Memory            |  3836 |     0 |          0 |     19000 | 20.19 |
+| Slice Registers            | 54104 |     0 |          0 |    126800 | 42.67 |
+| Slice                                      | 15800 |     0 |          0 |     15850 | 99.68 |
+| Slice Registers                            | 54104 |     0 |          0 |    126800 | 42.67 |
+| Block RAM Tile    | 87.5 |     0 |          0 |       135 | 64.81 |
+|   RAMB18          |   27 |     0 |          0 |       270 | 10.00 |
+| DSPs           |   13 |     0 |          0 |       240 |  5.42 |
+--- route status
+       # of routable nets..................... :      103262 :
+           # of fully routed nets............. :      103262 :
+       # of nets with routing errors.......... :           0 :
+--- signoff summary (WNS TNS ... WHS ...)
+      0.129        0.000                      0               181727        0.036        0.000                      0               181645        0.264        0.000                       0                 61366  
+--- hierarchical rows used by MARK_II_AREA_PLAN.md
+ alinx_ax7101 | 52008 | 54104 | 74 | 27 | 13 
+ (alinx_ax7101) | 5119 | 6283 | 47 | 10 | 0 
+ KL_gptp_gmii_launch | 192 | 317 | 0 | 0 | 0 
+ KL_mac_rmon_events | 51 | 78 | 0 | 0 | 0 
+ VexiiRiscvLitex_f5f08b170311db53220574624f819159 | 3249 | 4737 | 2 | 5 | 0 
+ milan_datapath | 43425 | 42689 | 25 | 12 | 13 
+ (milan_datapath) | 1066 | 3208 | 0 | 0 | 0 
+ aaf_latency_tap_bank | 671 | 622 | 0 | 0 | 0 
+ aaf_packetizer | 627 | 1332 | 1 | 1 | 0 
+ aaf_rx_depkt | 265 | 164 | 1 | 1 | 0 
+ avtp_rx_monitor | 721 | 743 | 0 | 1 | 0 
+ avtp_rx_parser | 475 | 706 | 0 | 0 | 0 
+ chan_map_capture | 835 | 1247 | 1 | 0 | 0 
+ chan_map_render | 143 | 676 | 0 | 0 | 0 
+ csr | 3014 | 2105 | 0 | 2 | 0 
+ g_aaf_meter.aaf_clock_meter | 527 | 630 | 0 | 0 | 0 
+ g_aif_tdm_master.g_solo.aaf_capture | 77 | 243 | 0 | 0 | 0 
+ g_gptp_plane.u_gptp_shadow | 5194 | 4874 | 3 | 1 | 4 
+ u_txret | 218 | 279 | 0 | 0 | 0 
+ u_txticket | 32 | 54 | 0 | 0 | 0 
+ g_maap.maap_engine | 481 | 339 | 0 | 0 | 0 
+ g_mmcm_servo.mmcm_servo | 1281 | 1014 | 0 | 0 | 0 
+ g_rx_filter.rx_filter | 506 | 1570 | 0 | 0 | 0 
+ mac_cam | 494 | 1568 | 0 | 0 | 0 
+ g_tdm_render_live.g_master.chan_tdm_render | 499 | 623 | 3 | 0 | 0 
+ pp_shadow | 24354 | 19439 | 16 | 3 | 8 
+ render_queue | 368 | 170 | 0 | 2 | 0 
+ talker_diag | 285 | 357 | 0 | 0 | 0 
+u_txret and u_txticket are children of g_gptp_plane.u_gptp_shadow in the hierarchical report (indented one level below it)

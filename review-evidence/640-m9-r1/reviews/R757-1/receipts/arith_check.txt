@@ -1,0 +1,19 @@
+t_page 5.3438 ms (page shows 5.343, used 5.35)
+T_worst as written 353.4 ms, margin 146.6 ms (29.3 %)
+with a compaction page in flight and a second erase suspend: 359.75 ms
+pages/s at maxima 186.9; 10 % of that 4785 B/s
+compaction 240 pages 1.284 s; erase 4 x tSE 12 s; boot read 256 KiB 167.8 ms
+907 names, ~100 names per 32-page save: 1.553 s
+firmware 64 streams: rom 159126 sram 302114 total 461240 B = 112.6 RAMB36
+stage 47275 B = 11.54 RAMB36
+fabric subtotal 24.0, total 141.5 vs usable 121.5
+names from flash: 14.17 tiles
+split estimate 34223
+owner levers range 19123 to 22423
+32x32 central 21.20k, range 17.57k to 25.22k
+lever 6 net of the retained timestamp return: 4944 LUT (page credits ~5.2k)
+datapath difference row 2036
+crossbar rows 3289, diagnostics 2204
+render buffer at 48 kHz: 2.25 ms needs 108 samples; 128-sample depth covers 2.667 ms
+render buffer at 96 kHz: 2.25 ms needs 216 samples; 128-sample depth covers 1.333 ms
+render buffer at 192 kHz: 2.25 ms needs 432 samples; 128-sample depth covers 0.667 ms

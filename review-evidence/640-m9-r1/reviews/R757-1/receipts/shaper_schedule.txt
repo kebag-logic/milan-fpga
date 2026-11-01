@@ -1,0 +1,29 @@
+preferred 3,3,2,3,3,2 CRF@2: worst shaper wait 18.333 us
+  phase 0 ready 0.000 start 0.000
+  phase 0 ready 0.000 start 7.621
+  phase 0 ready 0.000 start 15.241
+  phase 1 ready 20.833 start 22.862
+  phase 1 ready 20.833 start 30.482
+  phase 1 ready 20.833 start 38.103
+  phase 2 ready 41.667 start 45.723
+  phase 2 ready 41.667 start 48.322
+  phase 2 ready 41.667 start 55.943
+  phase 3 ready 62.500 start 63.563
+  phase 3 ready 62.500 start 71.184
+  phase 3 ready 62.500 start 78.804
+  phase 4 ready 83.333 start 86.425
+  phase 4 ready 83.333 start 94.045
+  phase 4 ready 83.333 start 101.666
+  phase 5 ready 104.167 start 109.286
+  phase 5 ready 104.167 start 116.907
+orders evaluated: 90
+  wait 23.925 us loads [3, 3, 3, 3, 2, 2] CRF@3
+  wait 23.925 us loads [3, 3, 3, 3, 2, 2] CRF@2
+  wait 23.925 us loads [3, 3, 3, 3, 2, 2] CRF@1
+  wait 23.925 us loads [3, 3, 3, 3, 2, 2] CRF@0
+  wait 23.925 us loads [3, 3, 3, 2, 2, 3] CRF@5
+preferred with one interfering max frame just before a phase: 18.333 us
+worst order with one interfering max frame: 33.169 us (bound 36.261)
+k=1 co-phased alone: wait 0.000 us (with a CRF reservation and frame: 31.700 us)
+k=2 co-phased alone: wait 62.259 us (with a CRF reservation and frame: 71.370 us)
+k=3 co-phased alone: wait 83.012 us (with a CRF reservation and frame: 87.283 us)

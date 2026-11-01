@@ -1,0 +1,6 @@
+hosted run 41256380559, job docs-gates-0 (124700311433), exact head dfc310fb3dec28f3d06333973e61cde44a4e786d, step 28 Bare-metal scope gate: failure
+2026-11-01T00:23:01.7544454Z ##[group]Run python3 scripts/check_baremetal_only.py --check
+2026-11-01T00:23:25.9971064Z   - docs/design/MARK_II_AREA_PLAN.md:155: [H] retired target host-plane surface 'hostplane': '| 3 | `milan_csr` reduced to information and diagnostics | Medium | Many suites, the hostplane and t' (#259: no dormant target driver/memory-ring contract)
+2026-11-01T00:23:25.9974520Z   - docs/design/MARK_II_AREA_PLAN.md:268: [H] retired target host-plane surface 'hostplane': '| 3 | Lever 3 | `milan_csr` consumer census, then reduction | Lane 1 | ~1.75k | CSR, hostplane and f' (#259: no dormant target driver/memory-ring contract)
+2026-11-01T00:23:25.9975837Z baremetal-only: FAIL (2 finding(s) across 1425 scanned file(s))
+2026-11-01T00:23:26.0073354Z ##[error]Process completed with exit code 1.
