@@ -17,11 +17,11 @@ The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md#mark-ii-end-state) sets the 
 - **[Talker capture buffer](#talker-capture-buffer)** -- Eight slots, sized by the packet.
 - **[Packet-boundary stagger](#packet-boundary-stagger)** -- Phases set by wire time.
 - **[Talker latency budget](#talker-latency-budget)** -- One format per port meets it.
-- **[Listener path and render buffer](#listener-path-and-render-buffer)** -- One RAMB36 sized by offset.
+- **[Listener path and render buffer](#listener-path-and-render-buffer)** -- Sized by offset, per rate.
 - **[Redundancy pairing and listener merge](#redundancy-pairing-and-listener-merge)** -- Index parity; first copy wins.
 - **[Per-port MAC, filter and timestamp units](#per-port-mac-filter-and-timestamp-units)** -- What each port adds.
 - **[Register maps](#register-maps)** -- Engine registers and both context layouts.
-- **[Block RAM ledger at 32x32](#block-ram-ledger-at-32x32)** -- An estimate 20 tiles over.
+- **[Block RAM ledger at 32x32](#block-ram-ledger-at-32x32)** -- An estimate 23 tiles over.
 - **[The 0.5 s save path](#the-05-s-save-path)** -- Append-only; 353 ms worst.
 - **[Verification](#verification)** -- How each claim gets checked.
 - **[Open questions](#open-questions)** -- Decisions the owner still owes.
@@ -116,20 +116,28 @@ Counters update by read-modify-write inside the engine.
 ### Engine throughput
 
 The datapath runs at 50 MHz with 32-bit beats.
-Each engine moves 1,600 Mb/s; streams need 528.
+Each engine moves 1,600 Mb/s of beats.
 
 | Step | Cycles at 50 MHz | Basis (estimate) |
 |---|---:|---|
 | Context read and write | 4 | Two-port Block RAM, pipelined |
 | Ethernet and VLAN header | 5 | 18 octets |
 | AAF header | 6 | 24 octets |
-| Payload | 48 | 192 octets |
+| Payload | 6N, 12N or 24N | 24N, 48N or 96N octets at 48, 96 or 192 kHz |
 | Turnaround | 1 | Frame boundary |
-| One 8-channel frame | 64, that is 1.28 µs | Sum |
-| Load, 256,000 frames per s | 32.8 % | 256,000 x 1.28 µs |
+| CRF frame, whole | 22 | Headers, one timestamp and padding |
+
+| Rate | Eight-channel frame | Worst legal load per engine | Mix that reaches it, per port |
+|---|---:|---:|---|
+| 48 kHz | 64 cycles, 1.28 µs | 33.47 % | 16 eight-channel streams and a CRF |
+| 96 kHz | 112 cycles, 2.24 µs | 58.05 % | 16 eight-channel streams and a CRF |
+| 192 kHz | 208 cycles, 4.16 µs | 92.67 % | 13 eight-, one four- and two one-channel streams, no CRF |
+
+Each row is the largest load over every legal mix.
+The 75 % class A default limits the 192 kHz row.
 
 The depacketizer has the same per-frame cost.
-Both engines keep at least 67 % idle time.
+At 192 kHz both engines run close to full.
 
 ## Talker capture buffer
 
@@ -380,20 +388,31 @@ Only eight slots reach the TDM pins.
 The buffer is indexed by presentation time.
 IEEE 1722-2016 7.5 dates each PDU's first sample.
 
-Milan v1.2's default presentation offset is 2 ms.
-Section 5.3.7.6 adds at most 125 µs.
+Milan v1.2 4.4.2.1 sets its size.
+It must hold up to 2.126 ms of samples.
 
-IEEE 802.1Q-2022 34.6.1.2 sizes listener buffers.
+Its parts: a 2 ms offset, 125 µs, 1 µs.
+IEEE 802.1Q-2022 34.6.1.2 states it generally.
+
+This design keeps 2.25 ms, above that minimum.
+It covers the 2 ms default offset and one packet.
+
+A talker adds up to 125 µs more.
+Milan v1.2 5.3.7.6 allows that.
+
 So the depth follows the offset, not the stream count.
 
-```
-needed   = 2.000 ms + 0.125 ms + one 0.125 ms packet = 2.250 ms = 108 samples at 48 kHz
-depth    = 128 samples (2.667 ms)
-buffer   = 8 slots x 128 samples x 32 bits = 32,768 bits = one RAMB36 (estimate)
-```
+| Rate | Samples for 2.25 ms | Depth, samples | Buffer, 8 slots x depth x 32 bits | Block RAM (estimate) |
+|---|---:|---:|---:|---|
+| 48 kHz | 108 | 128, 2.667 ms | 32,768 bits | One RAMB36 |
+| 96 kHz | 216 | 256, 2.667 ms | 65,536 bits | Two RAMB36 |
+| 192 kHz | 432 | 512, 2.667 ms | 131,072 bits | Four RAMB36 |
 
-One RAMB36 is one 8-channel stream's worth of offset.
-It serves all 32 listener streams through the map.
+NFR-SCUP-01 includes 192 kHz in the rate set.
+So the ledger books the 192 kHz size, four RAMB36.
+
+An image without 192 kHz would need one or two.
+The buffer serves all 32 listener streams through the map.
 
 The buffer's two ports run on two clocks.
 So it also crosses into the audio clock domain.
@@ -401,7 +420,7 @@ So it also crosses into the audio clock domain.
 Today's render path spends three RAMB36 on that crossing.
 The shared buffer replaces them.
 
-Offsets above 2.667 ms overflow it at 48 kHz.
+Offsets above 2.667 ms overflow it at every rate.
 They count as `EARLY_TIMESTAMP` (Milan v1.2 5.3.8.10).
 
 ## Redundancy pairing and listener merge
@@ -589,7 +608,7 @@ Every row below is an estimate unless it says measured.
 | Talker contexts, 32 x 64 octets | 0.5 | One RAMB18 |
 | Listener contexts, 32 x 128 octets | 1.0 | One RAMB36 |
 | Talker capture buffer | 0.5 | One RAMB18, above |
-| Listener render buffer | 1.0 | One RAMB36, above; replaces three |
+| Listener render buffer | 4.0 | Four RAMB36 for 192 kHz, above; replaces three |
 | Egress frame queues, two ports | 2.0 | One RAMB36 per port |
 | Receive stream FIFOs, two ports | 2.0 | One RAMB36 per port |
 | MAC clock-crossing FIFOs, two ports | 4.0 | Two RAMB36 per port, LiteX stage 2 |
@@ -598,11 +617,11 @@ Every row below is an estimate unless it says measured.
 | Media clock and CRF | 0.5 | Today's CRF listener row |
 | `milan_csr` | 1.0 | Measured placed, 2026-10-31: two RAMB18 |
 | CPU | 4.5 | Measured placed, 2026-10-31: two RAMB36, five RAMB18 |
-| **Fabric subtotal** | **24.0** | |
+| **Fabric subtotal** | **27.0** | |
 | Firmware memory, linear extrapolation to 64 streams | 113.0 | From the two measured two-interface points below |
 | No whole-image save staging | -11.5 | Append-only save path; extrapolated stage size |
 | gPTP daemon allowance | 16.0 | Not measured; F6 measures it |
-| **Total** | **141.5** | 20 tiles over the usable 121.5 |
+| **Total** | **144.5** | 23 tiles over the usable 121.5 |
 
 ```
 measured, split control memory, two interfaces (SPLIT_CONTROL_MEMORY.md section 5):
@@ -789,7 +808,7 @@ An implementation lane must turn it into a self-checking test.
    A burst beyond S1 exceeds 0.5 s at maxima.
    The owner may bound it, accept it or change media.
 3. **Block RAM.**
-   The 32x32 ledger exceeds the usable tiles by 20.
+   The 32x32 ledger exceeds the usable tiles by 23.
    The reductions above need measuring before lanes rely on them.
 4. **Debounce windows.**
    Today's 500 ms and 1,000 ms windows exceed it.

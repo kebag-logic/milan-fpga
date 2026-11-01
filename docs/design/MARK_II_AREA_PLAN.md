@@ -43,7 +43,7 @@ This page changes documentation only.
   That adds about 2.75k LUTs (estimate).
 - **LiteX stages 2 and 3** and small trims recover some.
   The central estimate lands near 21.2k, above the ceiling.
-- **Block RAM binds first.** The 32x32 estimate is 141.5 tiles.
+- **Block RAM binds first.** The 32x32 estimate is 144.5 tiles.
   The usable ceiling is 121.5 tiles.
 - **No fabric fallback.** The processor and fabric gPTP are deleted.
   Each goes at its own switch-over ([split](../ARCHITECTURE_HW_SW_SPLIT.md#transition-and-deletion)).
@@ -234,11 +234,11 @@ The [stream-engine ledger](MARK_II_STREAM_ENGINES.md#block-ram-ledger-at-32x32) 
 
 | Part | Tiles (estimate) | Basis |
 |---|---:|---|
-| Fabric at 32x32 | 24.0 | Stream engines, two ports, mailboxes, CSR and CPU |
+| Fabric at 32x32 | 27.0 | Stream engines, two ports, mailboxes, CSR and CPU; the render buffer sized for 192 kHz |
 | Firmware memory at 64 streams | 113.0 | Linear from the measured M8a-1 two-interface points |
 | No whole-image save staging | -11.5 | Append-only save path |
 | gPTP daemon allowance | 16.0 | Not measured |
-| **Total** | **141.5** | 20 tiles over the usable 121.5 |
+| **Total** | **144.5** | 23 tiles over the usable 121.5 |
 
 Firmware memory, not LUTs, binds first at 32x32.
 Measure its reductions before any lane relies on them.
