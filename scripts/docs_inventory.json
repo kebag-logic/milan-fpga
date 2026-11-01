@@ -23,7 +23,10 @@
    "page": "README.md",
    "quote": "clock-source selection now reaches the media plane's wrapper but nothing there",
    "source": "`hdl/milan/milan_datapath.sv` lines 734-750: the stored CLOCK_SOURCE is resolved in `media_clk_resolve` and consumed by the INTERNAL, CRF and AAF followers (#74, #629)",
-   "correction": "State that SET_CLOCK_SOURCE selects the followed media clock (INTERNAL, CRF or one AAF input), and link the media-clock following design."
+   "correction": "State that SET_CLOCK_SOURCE selects the followed media clock (INTERNAL, CRF or one AAF input), and link the media-clock following design.",
+   "also": [
+    "clock-source selection now reaches the media plane's wrapper"
+   ]
   },
   {
    "id": "D0-003",
@@ -44,7 +47,10 @@
    "page": "README.md",
    "quote": "is **steerability**. `media_tick_p` is a compile-time constant with no",
    "source": "`hdl/ieee1722/crf/KL_media_nco.sv` (steerable media grid, 2026-08-10) and `hdl/ieee1722/crf/KL_media_grid_align.sv` (#74) replaced the constant divider",
-   "correction": "Rewrite P1.7 as the current media-clock status (#629, #74) with a link to the media-clock following design, or retire it."
+   "correction": "Rewrite P1.7 as the current media-clock status (#629, #74) with a link to the media-clock following design, or retire it.",
+   "also": [
+    "`media_tick_p` is a compile-time constant"
+   ]
   },
   {
    "id": "D0-006",
@@ -170,14 +176,20 @@
    "page": "docs/integration/QSPI_FLASHBOOT.md",
    "quote": "was deleted 2026-08-13 with this repository's own AECP/AEM engine, so nothing",
    "source": "`sw/firmware/milan_baremetal/milan_baremetal.c` lines 329-331 put saved-state slots A and B in `MILAN_FLASH_JOURNAL_OFFSET`, the `journal` range of `sw/litex/milan_soc.py` line 173; `nvm_commit()` (line 1405) erases, programs and verifies the alternate slot, and `nvm_boot()` (line 1656, called at line 1914) judges both slots at every boot",
-   "correction": "Say that the `journal` range holds the bare-metal firmware's two 64 KiB saved-state slots, written alternately and judged at every boot, which is why a reflash must not erase it; the `user` range stays reserved and unused."
+   "correction": "Say that the `journal` range holds the bare-metal firmware's two 64 KiB saved-state slots, written alternately and judged at every boot, which is why a reflash must not erase it; the `user` range stays reserved and unused.",
+   "also": [
+    "was deleted 2026-08-13 with this repository's own AECP/AEM engine"
+   ]
   },
   {
    "id": "D0-025",
    "page": "docs/integration/QSPI_FLASHBOOT.md",
    "quote": "the protocol processor's NVM face is answered by a blank-flash responder, so a",
    "source": "`hdl/milan/KL_pp_shadow.sv` line 1128 instantiates `KL_nvm_backend` behind the processor's NVM face; `docs/design/SAVED_STATE_MATERIALIZATION.md` line 163 records the binding surviving a cold power cycle on silicon since 2026-09-21 (#70)",
-   "correction": "State that the restore walk reads the saved records back from the journal and that the binding survives a power cycle on silicon (#70); keep separate what is still owed physically: no board cold cycle grades the names or the channel maps yet (`docs/design/SAVED_STATE_MATERIALIZATION.md` lines 15-16 and 23)."
+   "correction": "State that the restore walk reads the saved records back from the journal and that the binding survives a power cycle on silicon (#70); keep separate what is still owed physically: no board cold cycle grades the names or the channel maps yet (`docs/design/SAVED_STATE_MATERIALIZATION.md` lines 15-16 and 23).",
+   "also": [
+    "the protocol processor's NVM face is answered by a blank-flash responder"
+   ]
   },
   {
    "id": "D0-026",
@@ -247,14 +259,21 @@
    "page": "docs/integration/QSPI_FLASHBOOT.md",
    "quote": "The AEM copy goes through the BIOS's `copy_image_from_flash_to_ram`, so the",
    "source": "`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1860-1892: `load_aem_image()` checks the `AEMI` magic, copies `MILAN_AEM_IMAGE_BYTES` with its own loop and then compares the CRC32 with the compiled-in `MILAN_AEM_IMAGE_CRC32`; nothing under `sw/` calls `copy_image_from_flash_to_ram`",
-   "correction": "Name `load_aem_image()` (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1860-1892) and its two rejection checks: a bad `AEMI` magic before the copy (lines 1869-1873) and a CRC32 mismatch after it (lines 1877-1883). State that `MILAN_AEM_IMAGE_BYTES` only bounds the copy and the CRC (lines 1874-1878), and that no length is compared or rejected. Keep the consequence: a failed check leaves the entity disabled (lines 1913 and 1915, `entity_advertise()` takes the verdict)."
+   "correction": "Name `load_aem_image()` (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 1860-1892) and its two rejection checks: a bad `AEMI` magic before the copy (lines 1869-1873) and a CRC32 mismatch after it (lines 1877-1883). State that `MILAN_AEM_IMAGE_BYTES` only bounds the copy and the CRC (lines 1874-1878), and that no length is compared or rejected. Keep the consequence: a failed check leaves the entity disabled (lines 1913 and 1915, `entity_advertise()` takes the verdict).",
+   "also": [
+    "The AEM copy goes through the BIOS's `copy_image_from_flash_to_ram`"
+   ]
   },
   {
    "id": "D0-036",
    "page": "docs/integration/QSPI_FLASHBOOT.md",
    "quote": "reachable with the standard quad read (`READ_1_1_4`, 0x6B). `mode=\"4x\"` drives all four DQ,",
    "source": "`sw/litex/milan_soc.py` lines 3287-3302: the AX7101 uses `N25Q128A13(SpiCodes.READ_1_1_1_FAST)` with `add_spi_flash(mode=\"1x\", clk_freq=int(12.5e6))`, because the quad read CRC-failed non-deterministically on silicon (2026-07-08); line 3309 skips the BIOS frequency calibration",
-   "correction": "State the single-lane fast read (0x0B, 1-1-1) at the 12.5 MHz request with `SPIFLASH_SKIP_FREQ_INIT`, and why the quad read was dropped."
+   "correction": "State the single-lane fast read (0x0B, 1-1-1) at the 12.5 MHz request with `SPIFLASH_SKIP_FREQ_INIT`, and why the quad read was dropped.",
+   "also": [
+    "reachable with the standard quad read (`READ_1_1_4`, 0x6B)",
+    "`mode=\"4x\"` drives all four DQ"
+   ]
   },
   {
    "id": "D0-037",
@@ -331,7 +350,10 @@
    "page": "README.md",
    "quote": "open is the write side. See the mandatory gaps in",
    "source": "`docs/reference/milan_feature_status.json` `missing_mandatory_aem_operations` is empty and the README's own gated block (lines 136-139) says every mandated operation is served since 0x0002_0054, the setters included (`docs/reference/MILAN_COMPLIANCE_MATRIX.md` rows 5.4.2.5 to 5.4.2.16)",
-   "correction": "Name what is still open instead (the saved-state cold cycles, Auto Connect, the media plane's adoption of the sampling rate) and link the feature ledger."
+   "correction": "Name what is still open instead (the saved-state cold cycles, Auto Connect, the media plane's adoption of the sampling rate) and link the feature ledger.",
+   "also": [
+    "open is the write side"
+   ]
   },
   {
    "id": "D0-048",
@@ -408,14 +430,20 @@
    "page": "docs/reference/REGISTER_MAP.md",
    "quote": "**Nothing in this device persists a binding across a power cycle.** The",
    "source": "`hdl/milan/KL_pp_shadow.sv` line 1128 instantiates `KL_nvm_backend` behind the processor's NVM face (the blank-flash responder is gone; the page's own `PP_STAT` notes at lines 2390-2406 describe `nvm_backed` and the firmware journal writer); `docs/design/SAVED_STATE_MATERIALIZATION.md` line 163: the binding survives a cold power cycle on silicon since 2026-09-21 (#70)",
-   "correction": "Keep the 0x7A0 port a dead CSR face, and say that bindings persist through the processor's restore walk and `KL_nvm_backend`, pointing at the `PP_NVM_*` and `PP_STAT` rows."
+   "correction": "Keep the 0x7A0 port a dead CSR face, and say that bindings persist through the processor's restore walk and `KL_nvm_backend`, pointing at the `PP_NVM_*` and `PP_STAT` rows.",
+   "also": [
+    "**Nothing in this device persists a binding across a power cycle.**"
+   ]
   },
   {
    "id": "D0-059",
    "page": "docs/reference/REGISTER_MAP.md",
    "quote": "is **not met by this build**. The",
    "source": "Same as D0-058: the bound state is saved and restored by the processor's walk over `KL_nvm_backend` and the firmware's A/B journal, and survives a cold cycle on silicon (#70); only this retired 0x7B8 ingest face is dead (`hdl/milan/milan_datapath.sv` lines 6709-6710)",
-   "correction": "Say that this CSR face is retired and that Milan v1.2 5.3.8.2 is served by the saved-state store, with the open physical items (#70)."
+   "correction": "Say that this CSR face is retired and that Milan v1.2 5.3.8.2 is served by the saved-state store, with the open physical items (#70).",
+   "also": [
+    "is **not met by this build**"
+   ]
   },
   {
    "id": "D0-060",
@@ -436,7 +464,10 @@
    "page": "docs/integration/BAREMETAL_FIRMWARE.md",
    "quote": "record below is the shipping option-on measurement; an elaboration estimate",
    "source": "The record below measures commit `1e80a106` (2026-08-19, line 2291): 15,849 of 15,850 slices and +0.033 ns WNS. The shipping route has moved since: the #787 re-pin record in `docs/reference/SUBMODULES.md` lines 511-517 and `docs/design/AREA_BUDGET.md` lines 149-150 gives +0.365 ns WNS with 63 of 15,850 slices free at processor `a9e84b66`, and the resource records live in `docs/design/AREA_BUDGET.md`",
-   "correction": "Call the table the first option-on record (commit `1e80a106`) and point at the current shipping route record instead of naming this one the shipping measurement."
+   "correction": "Call the table the first option-on record (commit `1e80a106`) and point at the current shipping route record instead of naming this one the shipping measurement.",
+   "also": [
+    "record below is the shipping option-on measurement"
+   ]
   },
   {
    "id": "D0-063",
