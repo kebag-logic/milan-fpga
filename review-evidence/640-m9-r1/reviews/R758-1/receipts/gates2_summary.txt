@@ -1,0 +1,17 @@
+archive_selftest           rc=0  archive selftest: OK (24 controls)
+ci_events                  rc=0  ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_gate_workflows          rc=0  
+cpp_idiom                  rc=2  REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-135afd043
+diagram_pngs               rc=0  diagram PNGs: OK (6 decoded, source-bound, review-pinned rasters)
+doc_map_selftest           rc=0  documentation map selftest: OK (valid wrong-raster control)
+nvm_capture                rc=1  subprocess.CalledProcessError: Command '['<packet>/scratch/venv/bin
+nvm_record_space           rc=1  <clone>/protocol-processor/hdl not found. The protocol-processor submodul
+port_contracts             rc=2  REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-135afd043
+py_idiom                   rc=2  REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-135afd043
+rtl_source_lists           rc=2  CANNOT BUILD THE CLOSURE: source root(s) protocol-processor/hdl, gptp-processor/hdl, third_party/verilog-axis/
+sh_idiom                   rc=2  REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-135afd043
+soc_sources                rc=1  STALE SOURCE: milan_soc.py registers 'third_party/verilog-axis/rtl/priority_encoder.v' which does not exist
+solution_docs_selftest     rc=0  solution documentation selftest: OK (43 mutation controls)
+submodule_docs_selftest    rc=0  submodule documentation selftest: OK (table and diagram controls)
+sv_idiom                   rc=2  REFUSED: project submodules must be initialized at their pinned commits before a code-quality scan (-135afd043
+test_evidence              rc=2  REFUSED: suite entry protocol-processor/scripts/run_suites.sh is missing, so which targets the protocol-proces

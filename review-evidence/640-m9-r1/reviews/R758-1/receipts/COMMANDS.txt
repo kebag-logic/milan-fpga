@@ -1,0 +1,19 @@
+How each receipt was produced (paths relative to the packet; <clone> is a clean detached clone at
+dfc310fb3dec28f3d06333973e61cde44a4e786d; <python> is a private venv with tools/markdown/requirements.txt
+installed with --require-hashes).
+
+issue640.json, issue665.json, issue823.json, *_comments.json, pr828*.json   gh issue view / gh api (read only)
+cbs_model.out, cbs_model.rc        python3 -I scripts/cbs_model.py
+cbs_mixed.out, cbs_mixed.rc        python3 -I scripts/cbs_mixed.py
+gates/*.log, gates/*.rc, gates_summary.txt
+                                   bash scripts/run_docs_gates.sh <clone> <python> receipts/gates e5b8405db4c1f7cbdafb5df92b15b580142e0232
+gates/baremetal_only*.log, .rc     <python> scripts/check_baremetal_only.py --check | --selftest  (in <clone>)
+gates2/*.log, gates2/*.rc, gates2_summary.txt
+                                   remaining docs-workflow gates, each <python> <gate> in <clone>
+style_probe.out                    python3 -I scripts/style_probe.py <clone> e5b8405d dfc310fb
+new_anchor_check.out               python3 -I scripts/new_anchor_check.py <clone> e5b8405d dfc310fb
+report_digests.sha256              sha256sum of the four cited build reports, read only
+evidence_tree.tsv                  gh api git/trees/8d2ac568...?recursive=1, review-evidence/640-m9-r1 entries
+hosted_check_runs.tsv, hosted_failures.tsv, hosted_run_failed.log
+                                   gh api commits/<head>/check-runs; gh run view 41256380559 --log-failed
+gitlinks_at_head.txt               git ls-tree HEAD <submodule paths> after all probes

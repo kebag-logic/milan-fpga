@@ -1,0 +1,18 @@
+preferred 3,3,2,3,3,2 CRF in phase 2: worst wait 18.333 us; per phase 15.241, 17.269, 14.276, 16.304, 18.333, 12.740
+preferred with saturated BE: worst wait 28.635 us; per phase 26.880, 26.999, 25.829, 28.444, 28.635, 24.265
+orders evaluated: 90
+  worst-order candidates: loads (3, 3, 3, 3, 2, 2) CRF phase 3: 23.925 us
+  worst-order candidates: loads (3, 3, 3, 3, 2, 2) CRF phase 2: 23.925 us
+  worst-order candidates: loads (3, 3, 3, 3, 2, 2) CRF phase 1: 23.925 us
+  worst-order candidates: loads (3, 3, 3, 3, 2, 2) CRF phase 0: 23.925 us
+  worst-order candidates: loads (3, 3, 3, 2, 2, 3) CRF phase 5: 23.925 us
+worst order with saturated BE: 33.004 us
+no CRF reservation, 16 AAF: preferred order 18.078 us; worst order (3, 3, 3, 3, 2, 2) 23.106 us
+loads 3,3,3,3,3,1 (any order, CRF anywhere): worst 25.953 us (3, 3, 3, 3, 3, 1) CRF 4
+fewer reservations, two in phase 0: idleSlope 33.152 Mb/s wait 62.259 us
+fewer reservations, three in phase 0: idleSlope 49.728 Mb/s wait 83.012 us
+fewer reservations, phases 0 and 1: idleSlope 33.152 Mb/s wait 41.425 us
+fewer reservations, phases 0 and 3: idleSlope 33.152 Mb/s wait 0.000 us
+budget terms us: pin=18.229, cdc=0.080, pkt=8.560, intf=12.336, mac=1.000
+total with page's 18.333 = 58.538; with page's 23.925 = 64.130
+total with model preferred = 58.538; with model worst = 64.130

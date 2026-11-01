@@ -1,0 +1,45 @@
+docs-gates-0	Bare-metal scope gate	﻿2026-11-01T00:23:01.7544454Z ##[group]Run python3 scripts/check_baremetal_only.py --check
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:01.7545139Z ^[[36;1mpython3 scripts/check_baremetal_only.py --check^[[0m
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:01.7545804Z ^[[36;1mpython3 scripts/check_baremetal_only.py --selftest^[[0m
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:01.7564555Z shell: /usr/bin/bash -e {0}
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:01.7564981Z env:
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:01.7565531Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:01.7566168Z   CI_BUILD_JOBS: 4
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:01.7566508Z   CI_TOOL_BUILD_JOBS: 4
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:01.7566867Z   CI_CAMPAIGN_JOBS: 4
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:01.7567207Z   VERILATOR_JOBS: 4
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:01.7567958Z   SIM_JOBS: 4
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:01.7568312Z   MAKEFLAGS: -j1 --no-print-directory
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:01.7568734Z ##[endgroup]
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:25.9971064Z   - docs/design/MARK_II_AREA_PLAN.md:155: [H] retired target host-plane surface 'hostplane': '| 3 | `milan_csr` reduced to information and diagnostics | Medium | Many suites, the hostplane and t' (#259: no dormant target driver/memory-ring contract)
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:25.9974520Z   - docs/design/MARK_II_AREA_PLAN.md:268: [H] retired target host-plane surface 'hostplane': '| 3 | Lever 3 | `milan_csr` consumer census, then reduction | Lane 1 | ~1.75k | CSR, hostplane and f' (#259: no dormant target driver/memory-ring contract)
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:25.9975837Z baremetal-only: FAIL (2 finding(s) across 1425 scanned file(s))
+docs-gates-0	Bare-metal scope gate	2026-11-01T00:23:26.0073354Z ##[error]Process completed with exit code 1.
+docs-check	Require every gate exactly once	﻿2026-11-01T00:26:09.3082016Z ##[group]Run python3 scripts/ci_gate_receipts.py verify --workflow docs --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.3082666Z ^[[36;1mpython3 scripts/ci_gate_receipts.py verify --workflow docs --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"^[[0m
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.3099260Z shell: /usr/bin/bash -e {0}
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.3099423Z env:
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.3099639Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.3099886Z   CI_BUILD_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.3100029Z   CI_TOOL_BUILD_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.3100174Z   CI_CAMPAIGN_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.3100319Z   VERILATOR_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.3100458Z   SIM_JOBS: 4
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.3100619Z   MAKEFLAGS: -j1 --no-print-directory
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.3101050Z   CI_GATE_NEEDS: {
+docs-check	Require every gate exactly once	  "docs-gates-0": {
+docs-check	Require every gate exactly once	    "result": "failure",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  },
+docs-check	Require every gate exactly once	  "docs-gates-1": {
+docs-check	Require every gate exactly once	    "result": "cancelled",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  },
+docs-check	Require every gate exactly once	  "docs-gates-2": {
+docs-check	Require every gate exactly once	    "result": "cancelled",
+docs-check	Require every gate exactly once	    "outputs": {}
+docs-check	Require every gate exactly once	  }
+docs-check	Require every gate exactly once	}
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.3101490Z ##[endgroup]
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.4436872Z gate evidence refused: docs-gates-1: dependent job failed, cancelled or skipped
+docs-check	Require every gate exactly once	2026-11-01T00:26:09.4545119Z ##[error]Process completed with exit code 1.
