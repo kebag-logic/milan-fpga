@@ -133,10 +133,13 @@ Each engine moves 1,600 Mb/s of beats.
 |---|---:|---:|---|
 | 48 kHz | 64 cycles, 1.28 µs | 33.47 % | 16 eight-channel streams and a CRF |
 | 96 kHz | 112 cycles, 2.24 µs | 58.05 % | 16 eight-channel streams and a CRF |
-| 192 kHz | 208 cycles, 4.16 µs | 92.67 % | 13 eight-, one four- and two one-channel streams, no CRF |
+| 192 kHz | 208 cycles, 4.16 µs | 93.18 % | 14 eight-channel streams, no CRF: 748.160 Mb/s reserved |
 
 Each row is the largest load over every legal mix.
+Mixes of 1 to 16 streams per port were enumerated.
+
 The 75 % class A default limits the 192 kHz row.
+At 16 reservations its maximum is 92.67 %.
 
 The depacketizer has the same per-frame cost.
 At 192 kHz both engines run close to full.
@@ -165,7 +168,7 @@ All talker streams share one media clock.
 If every packet closed on one sample, frames would collide.
 
 Sixteen frames per port would then queue at once.
-The shaper would start the last about 117 µs later.
+The shaper would start the last about 114 µs later.
 
 So each stream closes its packets on its own phase.
 There are 6, 12 or 24 phases per 125 µs.
@@ -303,6 +306,33 @@ with 2000-octet frames        = (2000 + 20) octets x 8 / 1 Gb/s = 16.160 µs
 The packetizer and shaper terms are both counted in full.
 A later ready time delays starts by no more.
 
+The packetizer term holds for mixed formats too.
+Let j be the stream that joined phase p last.
+
+When j joined, no phase was lighter than p.
+Each port runs at most 17 streams, the CRF included.
+
+At 48 kHz, say p held over 4,128 bits.
+That is two eight-channel frames, so three or more streams.
+
+The five others held three each: 19 streams, over 17.
+With j, p never holds over 6,192 bits.
+
+Eight-channel frames cost the most cycles per bit.
+So a phase's AAF frames need at most 192 cycles.
+
+A CRF adds 22 cycles per port.
+With both ports, that is 8.560 µs.
+
+At 96 kHz, p held at most one eight-channel frame.
+More needs two streams in each of 12 phases.
+
+So a phase needs at most 224 cycles.
+With a CRF and both ports: 9.840 µs.
+
+Each fits its phase, 20.833 or 10.417 µs.
+So no frame waits on an earlier phase's build.
+
 The pin term takes the worst slot.
 Release after each stream's last slot would cut it.
 
@@ -320,14 +350,31 @@ Where full enumeration was too large, it bounds a superset.
 | 48 kHz | Mixed N | 53.085 reached; at most 55.542 | 92.530 reached; at most 95.867 | Not met | Reached under the exact rule; bounded over a superset of it |
 | 96 kHz | One format, any N | 18.802 | 51.293 | Met | Exact: all 351,488 reachable states |
 | 96 kHz | Mixed N | 43.215 reached; at most 60.725 | 74.826 reached; at most 93.216 | Not met | As at 48 kHz |
-| 192 kHz | One format, N up to 6 | - | 32.071 | Met | Exact occupancy; packetizer as a queue |
-| 192 kHz | Mixed N | 54.822 reached | At least 72.915, before packetizer time | Not met | Exact occupancy; CRF placed by the rule |
+| 192 kHz | One format, N up to 6 | - | 34.861 | Met | Exact: all 34 reachable placements; packetizer as a queue |
+| 192 kHz | Mixed N | 57.905 reached; at most 57.905 | 84.319 reached; at most 100.825 | Not met | All 34 placements; formats over a superset; packetizer bounded |
 
 The superset uses a necessary condition of the rule.
 When a stream joins a phase, no phase is lighter.
 
 With 16 streams at most, that bounds each phase's content.
 The witnesses are reached by the exact rule itself.
+
+At 192 kHz every start finds an empty phase.
+It takes the first empty phase in the tie order.
+
+Sixteen streams then fill 16 of its first 17 phases.
+A CRF holds the 17th, or it stays empty.
+
+So 34 placements exist, and the model searched each.
+A search of every start and stop confirms the set.
+
+Its mixed bound adds 24.827 µs of packetizer delay.
+That is the largest over every placement and mix.
+
+```
+192 kHz, mixed: 57.905 + 24.827 + 18.093 = 100.825 µs at most
+18.093 = pin 4.557 + CDC 0.200 + MAC 1.000 + interference 12.336
+```
 
 At 16 reservations, one format per port meets 65 µs.
 Mixed formats do not; the [open questions](#open-questions) list it.
@@ -933,5 +980,6 @@ An implementation lane must turn it into a self-checking test.
    - The owner's direction restates it against 359.75 ms.
    - #823 and #665 F1 own the new value.
 7. **Engine headroom at 192 kHz.**
-   - A legal 192 kHz mix loads each engine 92.67 %.
+   - A legal 192 kHz mix loads each engine 93.18 %.
+   - It has 14 eight-channel streams and no CRF.
    - A faster clock or wider beats would restore margin.
