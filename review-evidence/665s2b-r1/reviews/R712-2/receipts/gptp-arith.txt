@@ -1,0 +1,8 @@
+load 2.48 % (range 1.24 to 6.20)
+frames in 87 ms at the average rate: 4.00 -> doc's row add 1.60 ms
+frames and servo runs in that window: 5.39 -> 2.16 ms
+one Sync and Follow_Up on each port plus their two servo runs: 6 units -> 2.40 ms
+8x8/2if last SRP record 15.96 ms + 1.6 = 17.56; + 2.4 = 18.36 against 18
+pass: doc 0.8 ms (two records); with one servo run 1.2 ms
+S: pass 4.52 (doc) / 4.92; Pdelay two passes 9.04 / 9.84 vs 15
+U: pass 8.67 (doc) / 9.07; Pdelay two passes 17.33 / 18.13 vs 15
