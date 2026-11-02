@@ -109,7 +109,7 @@ These hierarchical rows are read from them:
 | Instance (placed) | LUT | FF | RAMB36 | RAMB18 | DSP | Mark II disposition |
 |---|---:|---:|---:|---:|---:|---|
 | `alinx_ax7101` (whole image) | 52,008 | 54,104 | 74 | 27 | 13 | - |
-| `(alinx_ax7101)`, the LiteX top's own logic | 5,119 | 6,283 | 47 | 10 | 0 | LiteX stages 1 to 3; its 47 RAMB36 are 29 generated FIFOs and 18 BIOS ROM and SRAM ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) |
+| `(alinx_ax7101)`, the LiteX top's own logic | 5,119 | 6,283 | 47 | 10 | 0 | The switch-over and LiteX stages 1 to 3; its 47 RAMB36 are 29 generated FIFOs and 18 BIOS ROM and SRAM ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) |
 | `VexiiRiscvLitex_*`, the SoC CPU | 3,249 | 4,737 | 2 | 5 | 0 | Replaced by the split CPU, the one hart ([lever 4](#lever-4-accounting)) |
 | `KL_gptp_gmii_launch` | 192 | 317 | 0 | 0 | 0 | Kept, one per port |
 | `KL_mac_rmon_events` | 51 | 78 | 0 | 0 | 0 | Kept |
@@ -232,6 +232,9 @@ A routed-image measurement follows each stage.
 | 2 | Replace LiteEth and LiteSPI with proven open-source cores on AXI-Stream and AXI4-Lite | LiteEth MAC and LiteSPI, inside the 5,119-LUT LiteX top | Part of the -1.75k above; the second port needs the new MAC |
 | 3 | A plain SystemVerilog top replaces the SoC generator | Wishbone and CSR-bank glue; the generated FIFOs | Lever 2, ~1.0k, and the rest of the -1.75k |
 
+Lane 1's split build already drops the BIOS memory.
+The [census](#litex-block-census) places it at the switch-over.
+
 Stage 2 candidates follow the owner's criteria:
 
 - the 1G GMII MAC from verilog-ethernet, MIT-licensed;
@@ -289,32 +292,42 @@ Any later master also attaches to the SoC bus.
 [D19](#mark-ii-decisions) removes every LiteX block, beyond DDR3 and the BIOS.
 Each block below names its stage and its fate.
 
-The list is the basis build's module tree, from `milan_soc.py`.
+Rows follow the basis build's module tree and CSR map.
 LUT figures are the basis's placed rows.
+
+The switch-over's split build adds the last two rows.
+Every tree node and CSR register maps to one row.
 
 The LiteX top is one flat row, 5,119 LUTs.
 Its blocks have no placed row of their own.
+
+No fate below is a LiteX block.
 
 | Block today | Placed row, LUT | Stage | Fate |
 |---|---|---|---|
 | CPU wrapper `VexiiRiscvLitex_*`: the VexiiRiscv core and its LiteX-side bridges | `VexiiRiscvLitex_*` 3,249, of which `vexiis_0_logic_core` 1,150 | 3 | Replaced: the VexiiRiscv core stays, generated without LiteX, in the first-party top ([D15](#mark-ii-decisions)) |
 | Interrupt controller: LiteX's IRQ handler, the UART and timer event managers, the core's PLIC and CLINT | `peripheral_plic_intc_thread_logic` 34; `peripheral_clint_thread_core` 55 and `peripheral_clint_time_cc_driver` 3 | 3 | Removed, nothing in its place: the firmware enables no interrupt and polls |
 | Clock and reset generation `_CRG`: system PLL, audio PLL and MMCM, clock buffers, reset synchronizers | LiteX top | 3 | Replaced by the first-party top's clocking and reset ([D15](#mark-ii-decisions)) |
+| `_CRG`'s 200 MHz `idelay` clock and the `IDELAYCTRL`, built while DDR3 or Ethernet is; that clock is also the audio MMCM's `PSCLK` and the media-clock servo's `ps_clk_i` | LiteX top | 3 | Replaced by the first-party top's clocking ([D15](#mark-ii-decisions)), which keeps today's 200 MHz `PSCLK` for the audio MMCM and the servo. Stage 1 removes neither: Ethernet still builds both. All 32 `IDELAYE2` in the basis are DDR3's, and GMII uses none, so the top builds an `IDELAYCTRL` only if the stage 2 MAC uses an `IDELAYE2` |
 | `ctrl` (`SoCController`): reset, scratch, bus errors | LiteX top | 3 | Removed, nothing in its place: no firmware reads it; reboot is `KL_reboot_ctrl`'s configuration reload |
 | Identifier `identifier_mem` | LiteX top | 3 | Removed, nothing in its place: `milan_csr`'s VERSION identifies the image |
 | `timer0` (`Timer`) | LiteX top | 3 | Replaced by a first-party free-running counter on the system clock; its one reader is the flash driver's elapsed time |
 | UART (`RS232PHY`, 16-byte FIFOs) | LiteX top | 3 | Replaced by a small first-party UART, transmit and receive only, no RTS/CTS, with a 32-byte polled receive buffer ([D20](#mark-ii-decisions), [console UART](#console-uart)) |
 | SPI flash (`LiteSPI`: crossbar, memory map, master, PHY with `STARTUPE2`) | LiteX top | 2 | Replaced by a pinned donor QSPI core chosen by survey ([D15](#mark-ii-decisions)); the [core survey](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) found no AXI core with both 7-series use and an active maintainer |
-| Ethernet MAC and PHY interface (`LiteEthMACCore`, `LiteEthPHYGMII`, the TX FIFO and the MAC crossings) | LiteX top | 2 | Replaced by a pinned donor GMII MAC ([D15](#mark-ii-decisions)); the survey proposes verilog-ethernet's `eth_mac_1g` and `gmii_phy_if`, with verilog-axis FIFOs |
+| Ethernet MAC and PHY interface (`LiteEthMACCore`, `LiteEthPHYGMII` with its clocking and PHY reset, the TX FIFO `tx_sf`, the crossings `mac_tx_cdc` and `mac_rx_cdc`, and their CSRs) | LiteX top | 2 | Replaced by a pinned donor GMII MAC ([D15](#mark-ii-decisions)); the survey proposes verilog-ethernet's `eth_mac_1g` and `gmii_phy_if`, with verilog-axis FIFOs. The PHY reset pin gets a first-party driver that keeps both its uses: the power-on pulse, and `KL_reboot_ctrl`'s hold before a reload ([reboot](REBOOT_RESET.md#1-the-decision)), crossed with the approved CDC primitives |
 | MDIO (`LiteEthPHYMDIO`), a bit-bang register pair | LiteX top | 2 | Replaced by a first-party MDIO pin register; the firmware keeps the protocol |
 | `MilanMAC`'s first-party parts: `KL_gptp_gmii_launch`, `KL_mac_rmon_events`, the `ICAPE2` reload port | 192 and 51; the port in the LiteX top | 3 | Kept, first-party; they move into the top |
-| SoC bus and CSR interconnect: Wishbone interconnect, AXI-Lite and Wishbone adapters, `csr_bridge`, `csr_bankarray`, `csr_interconnect`; the CPU's peripheral bridge | `peripheral_toAxiLite4_logic_bridge` 227; the rest in the LiteX top | 3 | Replaced by the first-party top's fixed AXI4-Lite interconnect ([D15](#mark-ii-decisions)) |
+| `MilanMAC`'s `link_status` CSR: the link, speed and duplex the firmware publishes from MDIO, which `milan_csr`'s MAC_STATUS reads (REQ-MAC-03); the 2-flop crossing of link and duplex | LiteX top | 3 | Replaced by a first-party register the firmware writes, feeding the same three datapath inputs; its crossing uses the approved CDC primitives |
+| `MilanMAC`'s `loopback` CSR and its TX-to-RX mux | LiteX top | 3 | Removed, nothing in its place: nothing in the repository writes it, and at its reset value 0 the datapath reaches the MAC |
+| SoC bus and CSR interconnect: Wishbone interconnect, AXI-Lite and Wishbone adapters, `csr_bridge`, `csr_bankarray`, `csr_interconnect`; the CPU's peripheral bridge and its crossing | `peripheral_toAxiLite4_logic_bridge` 227 and `ioBus_to_peripheral_bus_cc` 166; the rest in the LiteX top | 3 | Replaced by the first-party top's fixed AXI4-Lite interconnect ([D15](#mark-ii-decisions)) |
 | `milan_axil_cdc`, the CPU-to-`milan_csr` crossing | LiteX top | 3 | Replaced by a first-party AXI4-Lite crossing built from the approved CDC primitives |
-| The processor's memory paths: the CPU DMA port, `dma_bus`, three adapters, FSMs and crossings, and the `ppmem` observer | `dma_bridge_read_bridge` 105 and `dma_bridge_write_bridge` 176; the rest in the LiteX top | Switch-over, lane 1 | Removed, nothing in its place: the masters leave with the processor |
-| DDR3: `ddrphy`, `sdram`, `litedramaxi2native_0` and the staged refresher; the CPU's memory port and its width adapter; the `IDELAYCTRL` | `mem_toAxi4_logic_bridge` 225 and `unified_mBus_to_mem_toAxi4_up_widthAdapter` 136; the rest in the LiteX top | 1 | Removed, nothing in its place: main memory is on chip (D4) |
-| BIOS ROM `rom`, 128 KiB, and the BIOS it holds | With `sram`, 18 RAMB36 ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) | 1 | Replaced by the first-party boot loader ([D18](#mark-ii-decisions)) |
-| BIOS SRAM `sram`, 8 KiB | In those 18 RAMB36 | 1 | Replaced by the firmware's own block RAM banks (`ctrl_memory`) |
-| LEDs or GPIO | None built | - | No LiteX LED or GPIO block exists; `user_led0` is the datapath's identify output, a pin the top keeps |
+| The processor's memory paths: the CPU DMA port, `dma_bus`, three adapters, FSMs and crossings, and the `ppmem` observer | `dma_bridge_read_bridge` 105, `dma_bridge_write_bridge` 176 and `dma_filter_down_to_unified_mBus_cc` 104; the rest in the LiteX top | Switch-over, lane 1 | Removed, nothing in its place: the masters leave with the processor |
+| DDR3: `ddrphy`, `sdram`, `litedramaxi2native_0` and the staged refresher; the CPU's memory port, its clock crossing, ready stage and width adapter; `_CRG`'s two 400 MHz `sys4x` clocks | `mem_toAxi4_logic_bridge` 225 and `unified_mBus_to_mem_toAxi4_up_widthAdapter` 136; the rest in the LiteX top | 1 | Removed, nothing in its place: main memory is on chip (D4) |
+| BIOS ROM `rom`, 128 KiB, and the BIOS it holds | With `sram`, 18 RAMB36 ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) | Switch-over, lane 1 | Removed, nothing in its place: the split build runs no BIOS ([split memory](SPLIT_CONTROL_MEMORY.md)). From stage 1 the first-party boot loader fills the firmware's memory ([D18](#mark-ii-decisions)) |
+| BIOS SRAM `sram`, 8 KiB | In those 18 RAMB36 | Switch-over, lane 1 | Removed, nothing in its place: the split build builds none |
+| LEDs or GPIO; the `user_led0` pin | None built | - | No LiteX LED or GPIO block exists; `user_led0` is the datapath's identify output, a pin the top keeps |
+| Split build: the firmware's memory `ctrl_memory`, LiteX `wishbone.SRAM` banks for `rom` and `sram`, their `wishbone.Decoder` and the error answer past the last bank | Not in the basis; 35.0 tiles mapped at 1x1 ([fit](SPLIT_CONTROL_MEMORY.md#5-fit)) | 3 | Replaced by first-party Block RAM in the top: main memory on chip (D4), which the boot loader fills ([D18](#mark-ii-decisions)). Stage 1 already fills `rom` from the flash copy, not the configuration image |
+| Split build: `ctrl_mbx`'s LiteX parts, its `EventManager`, the CSR bank holding it and its millisecond tick | Not in the basis | 3 | The event manager and CSR bank are removed, nothing in their place: the firmware polls `KL_mbx`'s own status and reads no `ctrl_mbx` CSR. A first-party counter in the top replaces the tick |
 
 The 29 generated FIFO RAMB36 belong to rows above.
 Each leaves with the block that owns it.
@@ -351,7 +364,7 @@ Today's image uses 87.5 tiles, measured above.
 The LiteX top holds 47 RAMB36 of them.
 
 Of those, 29 are generated FIFOs, 18 BIOS memory.
-All 47 leave with the three LiteX stages.
+All 47 are gone once LiteX stage 3 ends.
 
 The [stream-engine ledger](MARK_II_STREAM_ENGINES.md#block-ram-ledger-at-32x32) estimates the 32x32 image.
 
