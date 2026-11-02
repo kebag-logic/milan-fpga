@@ -270,7 +270,7 @@ A cleanup deadline advances by at most half a second for each census pass.
 A stalled or starved owner therefore never fails the run before its windows after SIGKILL have elapsed on its own clock.
 A child that exits during a census is collected, not reported as remaining.
 A descendant re-parented during cleanup keeps its identity and still receives its `SIGTERM`.
-A shell resumed late keeps its whole window to run its terminal trap.
+A shell resumed late keeps its whole window to run its terminal trap and the commands it starts.
 A descendant that outlives `SIGKILL` still fails the run, and takes the stopped shell with it.
 That message prints each remaining process's scheduler state, wait channel, parent and age.
 The [shadow lifecycle controls](../../tb/verilator/gptp_shadow/README.md#mutation-isolation-and-cancellation)

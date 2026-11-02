@@ -528,11 +528,13 @@ def owner_stall(parent: Path) -> None:
 
 
 def owner_shell_window(parent: Path) -> None:
-    """A shell resumed past the kill time runs its trap before any SIGKILL (#833)."""
+    """A shell resumed past the kill time runs its trap, and what it starts, before any SIGKILL (#833)."""
     scratch = parent / "owner-shell-window"
     scratch.mkdir()
-    ready, marker = scratch / "ready", scratch / "trap-ran"
-    script = (f"trap 'echo trapped > \"{marker}\"; exit 143' TERM\n"
+    ready, marker, command = scratch / "ready", scratch / "trap-ran", scratch / "trap-command-ran"
+    # The trap's external command outlasts the 1 s such a command had before #833,
+    # as the sweep's EXIT trap runs rm, so only the shell's whole window lets it finish.
+    script = (f"trap 'echo trapped > \"{marker}\"; sleep 1.5 && echo ran > \"{command}\"; exit 143' TERM\n"
               f"{sys.executable} -c \"$STUBBORN\" \"{ready}\" &\nwait\n")
     env = dict(os.environ, STUBBORN=STUBBORN)
     blocked = []
@@ -561,7 +563,8 @@ def owner_shell_window(parent: Path) -> None:
         except Cancelled:
             pass
     assert marker.exists(), "the shell was killed in the pass that resumed it, before its trap"
-    print("owner-shell-window: " + str(dict(trap_ran_after_kill_time=True)), flush=True)
+    assert command.exists(), "the resumed shell's trap command was killed inside the shell's window"
+    print("owner-shell-window: " + str(dict(trap_ran_after_kill_time=True, trap_command_ran=True)), flush=True)
 
 
 def owner_survivor(parent: Path) -> None:
