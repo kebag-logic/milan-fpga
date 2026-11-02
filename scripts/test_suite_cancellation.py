@@ -829,10 +829,10 @@ def owner_stated_seconds() -> None:
                                               vanishing_verdict_pass=49)), flush=True)
 
 
-#: Blocks SIGTERM, so one sent to it stays pending, as its status shows; then says it is ready.
+#: Blocks SIGTERM and SIGCONT, so either sent to it stays pending, as its status shows; then says it is ready.
 BLOCKING = r'''
 import signal, time
-signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM})
+signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM, signal.SIGCONT})
 print("ready", flush=True)
 while True:
     time.sleep(0.02)
@@ -846,43 +846,51 @@ def pending(pid: int) -> int:
 
 
 def owner_reused_identity() -> None:
-    """A census entry whose number now names another process is never signalled, even after its recheck (#833)."""
-    own = subprocess.Popen(["sleep", "60"])
+    """A census entry whose number now names another process is never signalled, even after its recheck (#833).
+
+    This holds for every signal `_send` sends: `SIGTERM` or `SIGKILL`, and the `SIGCONT` after either.
+    """
     other = subprocess.Popen([sys.executable, "-c", BLOCKING], stdout=subprocess.PIPE, text=True)
+    owns, handed = [], []
+    real_open, real_identity = os.pidfd_open, owned_process._identity
+
+    def opened(pid: int, *flags: int) -> int:
+        """Open what the number names now."""
+        return real_open(owns[-1].pid if pid == other.pid and not handed else pid, *flags)
+
+    def rechecked(pid: int) -> tuple[int, str] | None:
+        """Read what the number names now; then it changes hands."""
+        found = real_identity(owns[-1].pid if pid == other.pid and not handed else pid)
+        handed.append(True)
+        return found
     try:
         assert other.stdout.readline() == "ready\n", "the process that takes the number never started"
-        start = identity(own.pid)[0]
-        sent = OwnedProcesses()._send(own.pid, str(int(start) - 1), signal.SIGKILL)
-        assert not sent and running(own.pid, start), "a census entry whose process was replaced was signalled"
-        # This entry's number names `own` until its recheck, and `other` from then on,
-        # so only the handle opened before the recheck still names the entry's process.
-        handed = []
-        real_open, real_identity = os.pidfd_open, owned_process._identity
-
-        def opened(pid: int, *flags: int) -> int:
-            """Open what the number names now."""
-            return real_open(own.pid if pid == other.pid and not handed else pid, *flags)
-
-        def rechecked(pid: int) -> tuple[int, str] | None:
-            """Read what the number names now; then it changes hands."""
-            found = real_identity(own.pid if pid == other.pid and not handed else pid)
-            handed.append(True)
-            return found
-        os.pidfd_open, owned_process._identity = opened, rechecked
-        try:
-            sent = OwnedProcesses()._send(other.pid, start, signal.SIGTERM)
-        finally:
-            os.pidfd_open, owned_process._identity = real_open, real_identity
-        # A signal is pending once it is sent, and `other` blocks this one, so no timing is involved.
-        assert not pending(other.pid) & (1 << (signal.SIGTERM - 1)), \
-            "a census entry was signalled by its number, after it changed hands"
-        assert sent and own.wait(timeout=15) == -signal.SIGTERM, "a census entry's own process missed its signal"
+        for signum in (signal.SIGTERM, signal.SIGKILL):
+            owns.append(subprocess.Popen(["sleep", "60"]))
+            start = identity(owns[-1].pid)[0]
+            sent = OwnedProcesses()._send(owns[-1].pid, str(int(start) - 1), signum)
+            assert not sent and running(owns[-1].pid, start), "a census entry whose process was replaced was signalled"
+            # This entry's number names its own process until its recheck, and `other` from
+            # then on, so only the handle opened before the recheck still names that process.
+            handed.clear()
+            os.pidfd_open, owned_process._identity = opened, rechecked
+            try:
+                sent = OwnedProcesses()._send(other.pid, start, signum)
+            finally:
+                os.pidfd_open, owned_process._identity = real_open, real_identity
+            # A signal is pending once it is sent: `other` blocks SIGTERM and SIGCONT, and a
+            # SIGKILL stays pending until `other` is collected. So no timing is involved.
+            caught = [each.name for each in (signal.SIGTERM, signal.SIGKILL, signal.SIGCONT)
+                      if pending(other.pid) & 1 << each - 1]
+            assert not caught, f"a census entry was signalled by its number, after it changed hands: {caught}"
+            assert sent and owns[-1].wait(timeout=15) == -signum, "a census entry's own process missed its signal"
     finally:
-        for process in (own, other):
+        for process in (*owns, other):
             process.kill()
             process.wait()
         other.stdout.close()
-    print("owner-reused-identity: " + str(dict(signalled=False, through_handle=True)), flush=True)
+    print("owner-reused-identity: " + str(dict(signalled=False, through_handle=["SIGTERM", "SIGKILL", "SIGCONT"])),
+          flush=True)
 
 
 #: Every owner control, in the order main() runs them; each mutant run calls one.

@@ -506,6 +506,14 @@ MUTANTS: dict[str, tuple] = {
          "                        self._send(pid, start, signal.SIGKILL)\n")),
     "report-parent-is-first-parent": ("owner_report", "the report's current parent is not its own field",
         ("parent {fields[1]} ", "parent {first_parent} ")),
+    "rv6-sigkill-by-number": ("owner_reused_identity", "a census entry was signalled by its number",
+        ("            self._signal(fd, signum)\n            self._signal(fd, signal.SIGCONT)\n",
+         "            if signum == signal.SIGKILL:\n                os.kill(pid, signum)\n"
+         "            else:\n                self._signal(fd, signum)\n"
+         "            self._signal(fd, signal.SIGCONT)\n")),
+    "rv6-sigcont-by-number": ("owner_reused_identity", "a census entry was signalled by its number",
+        ("            self._signal(fd, signum)\n            self._signal(fd, signal.SIGCONT)\n",
+         "            self._signal(fd, signum)\n            os.kill(pid, signal.SIGCONT)\n")),
 }
 
 
