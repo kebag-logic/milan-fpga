@@ -1,0 +1,7 @@
+3f8ed303e01285f1bad0641f4ebc05764f162467 Record the manager's decision that the copied firmware image gets its own erase-aligned flash slot, and drop open decision 4 and the unchanged-layout statements (#640)
+a0080e09b9c23219752d072468d40bda07ff0343 Link the owner's 2026-11-02 decisions D18 to D20 to the comment on #640 that records them (#640)
+7aa996e3816a2e68e5d1672d2379a3f97cc304af Take the exact residue of PR #828 listed on #495: the target wording, the Block RAM bar, the placement pointer, the stale gap and the gPTP plane until #665 lane F6 (#640)
+1dfc097cca05a46e042ad564beab7ba44b67cba4 State that LiteX stage 1 copies the firmware from QSPI flash into Block RAM with the flash layout unchanged, and that masters use the SoC bus because the DMA-port route hung on silicon (#640)
+b03df2ccf0b9da36f697484677fd12a870e845b6 Size the first-party console UART's polled receive buffer from the measured console loss and the per-pass share, and accept console loss beyond that bound (#640)
+bc789366e801e64077606cbc499ba20bfaeb1c77 List every LiteX block the shipping SoC builds with the stage that removes it and its fate, under the owner's 2026-11-02 decisions (#640)
+4c128f1a5a79fe2110d4e8f975121ae30b26bae0 Count the SoC CPU once in the Mark II start estimate, so lever 4 is an accounting correction that leaves the estimate after it unchanged (#640)

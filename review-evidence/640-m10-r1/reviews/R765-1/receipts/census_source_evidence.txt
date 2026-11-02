@@ -1,0 +1,61 @@
+# head 3f8ed303e01285f1bad0641f4ebc05764f162467
+## F1: BIOS ROM/SRAM under --ctrl-mailbox
+  3170	        # requested, otherwise integrated SRAM. Do not add integrated
+  3171	        # main RAM when DRAM provides it.
+  3172	        if ctrl_mailbox:
+  3173	            if ctrl_firmware is None:
+  3174	                raise ValueError("--ctrl-mailbox needs --ctrl-firmware: the split placement "
+  3175	                                 "runs no BIOS, so its block RAM is sized from the firmware")
+  3176	            kwargs.update(integrated_rom_size=0, integrated_sram_size=0)
+  3177	        kwargs.setdefault("integrated_rom_size", 0x20000)   # BIOS lives here; reset vector
+In the split placement the control firmware owns the CPU's reset entry and runs from block RAM.
+No BIOS ROM or BIOS SRAM is built there.
+It also selects M8a-1's [firmware block RAM](design/SPLIT_CONTROL_MEMORY.md), with no BIOS.
+| M8a-1: BIOS ROM and SRAM not built in the split, measured at `e8454e27` | -18 | 0 | -18 | 69 |
+| BIOS ROM `rom`, 128 KiB, and the BIOS it holds | With `sram`, 18 RAMB36 ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) | 1 | Replaced by the first-party boot loader ([D18](#mark-ii-decisions)) |
+| BIOS SRAM `sram`, 8 KiB | In those 18 RAMB36 | 1 | Replaced by the firmware's own block RAM banks (`ctrl_memory`) |
+## F1: split-only LiteX parts
+  2896	        from litex.soc.interconnect import wishbone
+  2897	        from litex.soc.interconnect.csr_eventmanager import EventManager, EventSourceLevel
+  2898	        self.bus = wishbone.Interface(data_width=32, adr_width=30)
+  2899	        self.ev = EventManager()
+  2900	        self.ev.mbx = EventSourceLevel()
+  2901	        self.ev.finalize()
+  2959	    soc.csr.add("ctrl_mbx", n=soc.csr.n_locs - 2)
+  2960	    soc.ctrl_mbx = CtrlMailbox(sys_clk_freq, contract)
+  2961	    soc.bus.add_slave("ctrl_mbx", soc.ctrl_mbx.bus,
+  2962	                      region=SoCRegion(origin=CTRL_MBX_BASE, size=contract.window_bytes, cached=False))
+  2963	    if soc.irq.enabled:
+  2964	        soc.irq.add("ctrl_mbx", use_loc_if_exists=True)
+  2990	            depth = size // 4
+  2991	            bank = wishbone.SRAM(size, read_only=words is not None, name=f"{region.name}_bank{n}",
+  2992	                                 init=None if words is None else words[first:first + depth])
+  2993	            setattr(self, f"bank{n}", bank)
+  2994	            shift = depth.bit_length() - 1
+  2995	            slaves.append((lambda a, s=shift, f=first: a[s:low] == f >> s, bank.bus))
+  2996	            first += depth
+  2997	        hole = wishbone.Interface(data_width=32, address_width=32, addressing="word")
+  2998	        self.sync += hole.err.eq(hole.cyc & hole.stb & ~hole.err)
+  2999	        slaves.append((lambda a: a[:low] >= first, hole))
+  3000	        self.decoder = wishbone.Decoder(self.bus, slaves)
+       
+## F2: IDELAYCTRL and idelay clock
+   466	        if with_dram or with_eth:
+   467	            # 200 MHz IDELAY reference + controller (DDR3 PHY + RGMII PHY IODELAYs).
+   468	            from litex.soc.cores.clock import S7IDELAYCTRL
+   469	            self.cd_idelay = ClockDomain()
+   470	            pll.create_clkout(self.cd_idelay, 200e6, margin=0)
+   471	            self.eth_async_clocks.append(pll.clkouts[pll.nclkouts - 1].clk)
+   472	            self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
+            self.audio_ps_clk     = ClockSignal("idelay") if (with_dram or with_eth) else ClockSignal("sys")
+                i_PSCLK=self.audio_ps_clk, i_PSEN=self.audio_ps_en,
+3247:        self.crg = _CRG(platform, sys_clk_freq, with_dram=with_dram, with_eth=with_mac,
+| DDR3: `ddrphy`, `sdram`, `litedramaxi2native_0` and the staged refresher; the CPU's memory port and its width adapter; the `IDELAYCTRL` | `mem_toAxi4_logic_bridge` 225 and `unified_mBus_to_mem_toAxi4_up_widthAdapter` 136; the rest in the LiteX top | 1 | Removed, nothing in its place: main memory is on chip (D4) |
+## F3: MilanMAC CSRs
+1896:        self.loopback = CSRStorage(1, description="1 = internal MAC-TX->MAC-RX AXIS loopback")
+1958:        self.link_status = CSRStorage(fields=[
+937:void milan_mac_link_status_write(uint32_t value);
+1064:			milan_mac_link_status_write(0);
+1073:		milan_mac_link_status_write(0);
+1080:	milan_mac_link_status_write(status);
+1
