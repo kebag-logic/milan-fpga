@@ -1,0 +1,40 @@
+finding ids identical: True 65
+D0-024 source differs in more than the path spelling
+   old: milan_soc.py` line 173; `nvm_commit()` (line 1405) erases, programs and verifies the alternate slot,
+   new: milan_soc.py` line 173; `nvm_commit()` (`sw/firmware/milan_baremetal/milan_baremetal.c` line 1405) e
+D0-063 source differs; only the path spelling
+D0-063 correction differs; only the path spelling
+D0-064 source differs; only the path spelling
+D0-064 correction differs in more than the path spelling
+   old: tatus other than PROBING_COMPLETED (line 3621). Keep the gather data as the parent's. D0-063 lists e
+   new: tatus other than PROBING_COMPLETED (lines 3621-3622). Keep the gather data as the parent's. D0-063 l
+D0-065 source differs; only the path spelling
+D0-065 correction differs; only the path spelling
+also entries:
+  D0-001 on_page=False in_quote=False 'The Mark II default places them on the bare-metal core.'  <- quote 'ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.'
+  D0-001 on_page=False in_quote=False 'Its default is bare-metal control through packet mailboxes.'  <- quote 'ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.'
+  D0-001 on_page=False in_quote=False 'Its default is bare-metal ADP, ACMP, AECP, MAAP and SRP.'  <- quote 'ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.'
+  D0-001 on_page=False in_quote=False 'Mark II defaults ADP, ACMP, AECP, MAAP and SRP to firmware.'  <- quote 'ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.'
+  D0-001 on_page=False in_quote=False 'Mark II defaults control protocols to the core through packet mailboxes.'  <- quote 'ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.'
+  D0-001 on_page=False in_quote=False 'Mark II defaults to firmware'  <- quote 'ADP, ACMP, AECP, MAAP and SRP default to bare-metal firmware.'
+  D0-002 on_page=True in_quote=True "clock-source selection now reaches the media plane's wrapper"  <- quote "clock-source selection now reaches the media plane's wrapper but nothing there"
+  D0-005 on_page=True in_quote=True '`media_tick_p` is a compile-time constant'  <- quote 'is **steerability**. `media_tick_p` is a compile-time constant with no'
+  D0-024 on_page=True in_quote=True "was deleted 2026-08-13 with this repository's own AECP/AEM engine"  <- quote "was deleted 2026-08-13 with this repository's own AECP/AEM engine, so nothing"
+  D0-025 on_page=True in_quote=True "the protocol processor's NVM face is answered by a blank-flash responder"  <- quote "the protocol processor's NVM face is answered by a blank-flash responder, so a"
+  D0-035 on_page=True in_quote=True "The AEM copy goes through the BIOS's `copy_image_from_flash_to_ram`"  <- quote "The AEM copy goes through the BIOS's `copy_image_from_flash_to_ram`, so the"
+  D0-036 on_page=True in_quote=True 'reachable with the standard quad read (`READ_1_1_4`, 0x6B)'  <- quote 'reachable with the standard quad read (`READ_1_1_4`, 0x6B). `mode="4x"` drives all four DQ,'
+  D0-036 on_page=True in_quote=True '`mode="4x"` drives all four DQ'  <- quote 'reachable with the standard quad read (`READ_1_1_4`, 0x6B). `mode="4x"` drives all four DQ,'
+  D0-047 on_page=True in_quote=True 'open is the write side'  <- quote 'open is the write side. See the mandatory gaps in'
+  D0-058 on_page=True in_quote=True '**Nothing in this device persists a binding across a power cycle.**'  <- quote '**Nothing in this device persists a binding across a power cycle.** The'
+  D0-059 on_page=True in_quote=True 'is **not met by this build**'  <- quote 'is **not met by this build**. The'
+  D0-062 on_page=True in_quote=True 'record below is the shipping option-on measurement'  <- quote 'record below is the shipping option-on measurement; an elaboration estimate'
+quotes with words after inner punctuation and no also:
+  D0-003 'Stream restart latency after an ACMP rebind (2026-08, OPEN)'
+  D0-007 '(STREAM_INPUT[0], Milan Table 7-156)'
+  D0-012 '`srp.talker_declare_at_reset`, pending #400'
+  D0-022 '| 8.6.8.2 | credit-based shaper: idleSlope/sendSlope, transmitAllowed'
+  D0-033 'Its default is bare-metal control; all-fabric remains supported.'
+  D0-038 '`s7ddrphy.A7DDRPHY` + `add_sdram(module=MT41J256M16, l2_cache_size=8192)` behind a new'
+  D0-051 'All singleton counts are one; CLOCK_SOURCE count is two.'
+  D0-054 'On arty_4x4, image byte 6741 changes; the ID remains unchanged.'
+  D0-055 'Each accepted; no semantic refusal'

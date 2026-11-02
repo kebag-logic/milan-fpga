@@ -1,0 +1,290 @@
+﻿2026-11-02T01:05:36.1556867Z Current runner version: '2.338.2'
+2026-11-02T01:05:36.1593207Z ##[group]Runner Image Provisioner
+2026-11-02T01:05:36.1595142Z Hosted Compute Agent
+2026-11-02T01:05:36.1596279Z Version: 20261021.618
+2026-11-02T01:05:36.1597324Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-11-02T01:05:36.1598723Z Build Date: 2026-10-21T00:45:21Z
+2026-11-02T01:05:36.1599878Z Worker ID: {2cf6ac43-b407-41b2-8773-8e94aa84c118}
+2026-11-02T01:05:36.1601137Z Region: eastus
+2026-11-02T01:05:36.1602252Z Cloud: Azure
+2026-11-02T01:05:36.1603236Z ##[endgroup]
+2026-11-02T01:05:36.1606698Z ##[group]Operating System
+2026-11-02T01:05:36.1607751Z Ubuntu
+2026-11-02T01:05:36.1608790Z 24.04.5
+2026-11-02T01:05:36.1609707Z LTS
+2026-11-02T01:05:36.1610535Z ##[endgroup]
+2026-11-02T01:05:36.1611542Z ##[group]Runner Image
+2026-11-02T01:05:36.1612582Z Image: ubuntu-24.04
+2026-11-02T01:05:36.1613494Z Version: 20261025.353.1
+2026-11-02T01:05:36.1616168Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-02T01:05:36.1619000Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-11-02T01:05:36.1620721Z ##[endgroup]
+2026-11-02T01:05:36.1622943Z ##[group]GITHUB_TOKEN Permissions
+2026-11-02T01:05:36.1626067Z Contents: read
+2026-11-02T01:05:36.1627188Z Metadata: read
+2026-11-02T01:05:36.1628117Z Packages: read
+2026-11-02T01:05:36.1629178Z ##[endgroup]
+2026-11-02T01:05:36.1632504Z Secret source: Actions
+2026-11-02T01:05:36.1634330Z Cache mode: write
+2026-11-02T01:05:36.1635732Z Prepare workflow directory
+2026-11-02T01:05:36.2242097Z Prepare all required actions
+2026-11-02T01:05:36.2318599Z Getting action download info
+2026-11-02T01:05:36.4387279Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-02T01:05:36.5656488Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-02T01:05:36.7780013Z Complete job name: rtl-fast
+2026-11-02T01:05:36.8778571Z ##[group]Run actions/checkout@v4
+2026-11-02T01:05:36.8779503Z with:
+2026-11-02T01:05:36.8779999Z   repository: kebag-logic/milan-fpga
+2026-11-02T01:05:36.8784022Z   token: ***
+2026-11-02T01:05:36.8784516Z   ssh-strict: true
+2026-11-02T01:05:36.8784996Z   ssh-user: git
+2026-11-02T01:05:36.8785484Z   persist-credentials: true
+2026-11-02T01:05:36.8786017Z   clean: true
+2026-11-02T01:05:36.8786498Z   sparse-checkout-cone-mode: true
+2026-11-02T01:05:36.8787055Z   fetch-depth: 1
+2026-11-02T01:05:36.8787514Z   fetch-tags: false
+2026-11-02T01:05:36.8788008Z   show-progress: true
+2026-11-02T01:05:36.8788492Z   lfs: false
+2026-11-02T01:05:36.8788939Z   submodules: false
+2026-11-02T01:05:36.8789422Z   set-safe-directory: true
+2026-11-02T01:05:36.8789975Z   allow-unsafe-pr-checkout: false
+2026-11-02T01:05:36.8790789Z env:
+2026-11-02T01:05:36.8791244Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:05:36.8791771Z   YOSYS_VERSION: v0.66
+2026-11-02T01:05:36.8792250Z ##[endgroup]
+2026-11-02T01:05:37.2217551Z Syncing repository: kebag-logic/milan-fpga
+2026-11-02T01:05:37.2220203Z ##[group]Getting Git version info
+2026-11-02T01:05:37.2221599Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+2026-11-02T01:05:37.2223585Z [command]/usr/bin/git version
+2026-11-02T01:05:37.2363388Z git version 2.56.0
+2026-11-02T01:05:37.2391312Z ##[endgroup]
+2026-11-02T01:05:37.2409553Z Temporarily overriding HOME='<home-path>/work/_temp/d9f4afd1-b991-4ab8-bbae-0f77550cdb4e' before making global git config changes
+2026-11-02T01:05:37.2411263Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T01:05:37.2416463Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-11-02T01:05:37.2515097Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+2026-11-02T01:05:37.2519724Z ##[group]Initializing the repository
+2026-11-02T01:05:37.2525517Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+2026-11-02T01:05:37.2670324Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-02T01:05:37.2672312Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-02T01:05:37.2674591Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-02T01:05:37.2675941Z hint: call:
+2026-11-02T01:05:37.2676433Z hint:
+2026-11-02T01:05:37.2677045Z hint: 	git config --global init.defaultBranch <name>
+2026-11-02T01:05:37.2677768Z hint:
+2026-11-02T01:05:37.2678785Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-02T01:05:37.2679892Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-02T01:05:37.2680933Z hint:
+2026-11-02T01:05:37.2681797Z hint: 	git branch -m <name>
+2026-11-02T01:05:37.2682777Z hint:
+2026-11-02T01:05:37.2684248Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-02T01:05:37.2686327Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+2026-11-02T01:05:37.2712653Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-11-02T01:05:37.2759810Z ##[endgroup]
+2026-11-02T01:05:37.2761282Z ##[group]Disabling automatic garbage collection
+2026-11-02T01:05:37.2764559Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-02T01:05:37.2802659Z ##[endgroup]
+2026-11-02T01:05:37.2803499Z ##[group]Setting up auth
+2026-11-02T01:05:37.2813942Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T01:05:37.2860925Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T01:05:37.3309695Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T01:05:37.3359402Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T01:05:37.3621428Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T01:05:37.3670681Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T01:05:37.3928249Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-02T01:05:37.3982550Z ##[endgroup]
+2026-11-02T01:05:37.3983516Z ##[group]Fetching the repository
+2026-11-02T01:05:37.3998196Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +514d0f07f5ff78126741d4cf594627f5f4cc610d:refs/remotes/pull/815/merge
+2026-11-02T01:05:38.9662741Z From https://github.com/kebag-logic/milan-fpga
+2026-11-02T01:05:38.9664564Z  * [new ref]         514d0f07f5ff78126741d4cf594627f5f4cc610d -> pull/815/merge
+2026-11-02T01:05:38.9666900Z ##[endgroup]
+2026-11-02T01:05:38.9667996Z ##[group]Determining the checkout info
+2026-11-02T01:05:38.9668918Z ##[endgroup]
+2026-11-02T01:05:38.9671244Z [command]/usr/bin/git sparse-checkout disable
+2026-11-02T01:05:38.9738589Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-02T01:05:38.9779214Z ##[group]Checking out the ref
+2026-11-02T01:05:38.9783648Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/815/merge
+2026-11-02T01:05:39.1984830Z Note: switching to 'refs/remotes/pull/815/merge'.
+2026-11-02T01:05:39.1985514Z 
+2026-11-02T01:05:39.1985995Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-02T01:05:39.1986985Z changes and commit them, and you can discard any commits you make in this
+2026-11-02T01:05:39.1987640Z state without impacting any branches by switching back to a branch.
+2026-11-02T01:05:39.1988039Z 
+2026-11-02T01:05:39.1988349Z If you want to create a new branch to retain commits you create, you may
+2026-11-02T01:05:39.1989228Z do so (now or later) by using -c with the switch command. Example:
+2026-11-02T01:05:39.1989518Z 
+2026-11-02T01:05:39.1989656Z   git switch -c <new-branch-name>
+2026-11-02T01:05:39.1989856Z 
+2026-11-02T01:05:39.1989994Z Or undo this operation with:
+2026-11-02T01:05:39.1990179Z 
+2026-11-02T01:05:39.1990307Z   git switch -
+2026-11-02T01:05:39.1990465Z 
+2026-11-02T01:05:39.1992249Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-02T01:05:39.1992675Z 
+2026-11-02T01:05:39.1993056Z HEAD is now at 514d0f0 Merge 8d8c2e366a2d49506b91a195de0094a440e7bc39 into 1f29f189279f9fc0132f4918e47342b87d22f33a
+2026-11-02T01:05:39.2001449Z ##[endgroup]
+2026-11-02T01:05:39.2061290Z [command]/usr/bin/git log -1 --format=%H
+2026-11-02T01:05:39.2098383Z 514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:05:39.2370565Z ##[group]Run set -euo pipefail
+2026-11-02T01:05:39.2371038Z set -euo pipefail
+2026-11-02T01:05:39.2371351Z cpus="$(nproc)"
+2026-11-02T01:05:39.2371683Z test "$cpus" -gt 0
+2026-11-02T01:05:39.2371999Z campaign=$(( cpus < 4 ? cpus : 4 ))
+2026-11-02T01:05:39.2372378Z simulations=$(( cpus < 4 ? cpus : 4 ))
+2026-11-02T01:05:39.2372740Z tool_build=$(( cpus < 8 ? cpus : 8 ))
+2026-11-02T01:05:39.2373114Z {
+2026-11-02T01:05:39.2373458Z   printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+2026-11-02T01:05:39.2374297Z   printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
+2026-11-02T01:05:39.2374849Z   printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+2026-11-02T01:05:39.2458424Z   printf 'VERILATOR_JOBS=%s\n' "$cpus"
+2026-11-02T01:05:39.2458903Z   printf 'SIM_JOBS=%s\n' "$simulations"
+2026-11-02T01:05:39.2459380Z   printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+2026-11-02T01:05:39.2459873Z } >> "$GITHUB_ENV"
+2026-11-02T01:05:39.2501190Z shell: /usr/bin/bash -e {0}
+2026-11-02T01:05:39.2501733Z env:
+2026-11-02T01:05:39.2502150Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:05:39.2502679Z   YOSYS_VERSION: v0.66
+2026-11-02T01:05:39.2503128Z ##[endgroup]
+2026-11-02T01:05:39.2788493Z ##[group]Run set -euo pipefail
+2026-11-02T01:05:39.2788904Z set -euo pipefail
+2026-11-02T01:05:39.2789191Z bad=0
+2026-11-02T01:05:39.2789446Z for pair in \
+2026-11-02T01:05:39.2789739Z   "changes:$CHANGES_RESULT" \
+2026-11-02T01:05:39.2790103Z   "verilator-lint:$VERILATOR_LINT_RESULT" \
+2026-11-02T01:05:39.2790510Z   "bdd-conformance:$BDD_CONFORMANCE_RESULT" \
+2026-11-02T01:05:39.2790890Z   "yosys-tool:$YOSYS_TOOL_RESULT" \
+2026-11-02T01:05:39.2791288Z   "yosys-elaboration:$YOSYS_ELABORATION_RESULT" \
+2026-11-02T01:05:39.2791738Z   "publication-census:$PUBLICATION_CENSUS_RESULT" \
+2026-11-02T01:05:39.2792157Z   "firmware-unit:$FIRMWARE_UNIT_RESULT" \
+2026-11-02T01:05:39.2792615Z   "firmware-control-mutants:$FIRMWARE_CONTROL_MUTANTS_RESULT" \
+2026-11-02T01:05:39.2793155Z   "firmware-aecp-mutants:$FIRMWARE_AECP_MUTANTS_RESULT" \
+2026-11-02T01:05:39.2793967Z   "firmware-srp-mutants:$FIRMWARE_SRP_MUTANTS_RESULT" \
+2026-11-02T01:05:39.2794570Z   "firmware-boundary:$FIRMWARE_BOUNDARY_RESULT" \
+2026-11-02T01:05:39.2795022Z   "firmware-verilator:$FIRMWARE_VERILATOR_RESULT"; do
+2026-11-02T01:05:39.2795414Z   name="${pair%%:*}"
+2026-11-02T01:05:39.2795708Z   result="${pair#*:}"
+2026-11-02T01:05:39.2796026Z   printf '%-24s %s\n' "$name" "$result"
+2026-11-02T01:05:39.2796372Z   case "$result" in
+2026-11-02T01:05:39.2796668Z     success|skipped) ;;
+2026-11-02T01:05:39.2796966Z     *) bad=1 ;;
+2026-11-02T01:05:39.2797232Z   esac
+2026-11-02T01:05:39.2797473Z done
+2026-11-02T01:05:39.2797719Z [ "$bad" -eq 0 ]
+2026-11-02T01:05:39.2818773Z shell: /usr/bin/bash -e {0}
+2026-11-02T01:05:39.2819085Z env:
+2026-11-02T01:05:39.2819333Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:05:39.2819985Z   YOSYS_VERSION: v0.66
+2026-11-02T01:05:39.2820269Z   CI_BUILD_JOBS: 4
+2026-11-02T01:05:39.2820520Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:05:39.2820812Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:05:39.2821143Z   VERILATOR_JOBS: 4
+2026-11-02T01:05:39.2821393Z   SIM_JOBS: 4
+2026-11-02T01:05:39.2821703Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:05:39.2822044Z   CHANGES_RESULT: success
+2026-11-02T01:05:39.2822341Z   VERILATOR_LINT_RESULT: success
+2026-11-02T01:05:39.2822642Z   BDD_CONFORMANCE_RESULT: success
+2026-11-02T01:05:39.2822945Z   YOSYS_TOOL_RESULT: success
+2026-11-02T01:05:39.2823239Z   YOSYS_ELABORATION_RESULT: success
+2026-11-02T01:05:39.2823565Z   PUBLICATION_CENSUS_RESULT: success
+2026-11-02T01:05:39.2824059Z   FIRMWARE_UNIT_RESULT: success
+2026-11-02T01:05:39.2824372Z   FIRMWARE_CONTROL_MUTANTS_RESULT: success
+2026-11-02T01:05:39.2824713Z   FIRMWARE_AECP_MUTANTS_RESULT: success
+2026-11-02T01:05:39.2825041Z   FIRMWARE_SRP_MUTANTS_RESULT: success
+2026-11-02T01:05:39.2825372Z   FIRMWARE_BOUNDARY_RESULT: success
+2026-11-02T01:05:39.2825709Z   FIRMWARE_VERILATOR_RESULT: success
+2026-11-02T01:05:39.2826016Z ##[endgroup]
+2026-11-02T01:05:39.2872431Z changes                  success
+2026-11-02T01:05:39.2873117Z verilator-lint           success
+2026-11-02T01:05:39.2873951Z bdd-conformance          success
+2026-11-02T01:05:39.2874533Z yosys-tool               success
+2026-11-02T01:05:39.2875132Z yosys-elaboration        success
+2026-11-02T01:05:39.2875723Z publication-census       success
+2026-11-02T01:05:39.2876311Z firmware-unit            success
+2026-11-02T01:05:39.2876840Z firmware-control-mutants success
+2026-11-02T01:05:39.2877384Z firmware-aecp-mutants    success
+2026-11-02T01:05:39.2877915Z firmware-srp-mutants     success
+2026-11-02T01:05:39.2878435Z firmware-boundary        success
+2026-11-02T01:05:39.2879229Z firmware-verilator       success
+2026-11-02T01:05:39.2952601Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job rtl-fast --output "$RUNNER_TEMP/job-evidence.json"
+2026-11-02T01:05:39.2954089Z python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl-fast.yml --job rtl-fast --output "$RUNNER_TEMP/job-evidence.json"
+2026-11-02T01:05:39.2974795Z shell: /usr/bin/bash -e {0}
+2026-11-02T01:05:39.2975098Z env:
+2026-11-02T01:05:39.2975344Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:05:39.2975631Z   YOSYS_VERSION: v0.66
+2026-11-02T01:05:39.2975895Z   CI_BUILD_JOBS: 4
+2026-11-02T01:05:39.2976157Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:05:39.2976429Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:05:39.2976688Z   VERILATOR_JOBS: 4
+2026-11-02T01:05:39.2976931Z   SIM_JOBS: 4
+2026-11-02T01:05:39.2977193Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:05:39.2978514Z   CI_STEP_RESULTS: {
+  "ci_step_0": {
+    "outputs": {
+      "commit": "514d0f07f5ff78126741d4cf594627f5f4cc610d",
+      "ref": "refs/pull/815/merge"
+    },
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_1": {
+    "outputs": {},
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_2": {
+    "outputs": {},
+    "outcome": "success",
+    "conclusion": "success"
+  }
+}
+2026-11-02T01:05:39.2979809Z   CI_JOB_RESULT: success
+2026-11-02T01:05:39.2980075Z   CI_MATRIX: null
+2026-11-02T01:05:39.2980320Z ##[endgroup]
+2026-11-02T01:05:40.5222662Z ##[group]Run actions/upload-artifact@v4
+2026-11-02T01:05:40.5222985Z with:
+2026-11-02T01:05:40.5223354Z   name: job-evidence-rtl-fast-rtl-fast-0-514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:05:40.5224183Z   path: <home-path>/work/_temp/job-evidence.json
+2026-11-02T01:05:40.5224508Z   if-no-files-found: error
+2026-11-02T01:05:40.5224742Z   retention-days: 3
+2026-11-02T01:05:40.5224951Z   compression-level: 6
+2026-11-02T01:05:40.5225164Z   overwrite: false
+2026-11-02T01:05:40.5225376Z   include-hidden-files: false
+2026-11-02T01:05:40.5225612Z env:
+2026-11-02T01:05:40.5225792Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:05:40.5226018Z   YOSYS_VERSION: v0.66
+2026-11-02T01:05:40.5226426Z   CI_BUILD_JOBS: 4
+2026-11-02T01:05:40.5226620Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:05:40.5226833Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:05:40.5227044Z   VERILATOR_JOBS: 4
+2026-11-02T01:05:40.5227237Z   SIM_JOBS: 4
+2026-11-02T01:05:40.5227470Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:05:40.5227774Z ##[endgroup]
+2026-11-02T01:05:40.6966579Z (node:2338) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-02T01:05:40.6967622Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-02T01:05:40.7046681Z With the provided path, there will be 1 file uploaded
+2026-11-02T01:05:40.7047609Z Artifact name is valid!
+2026-11-02T01:05:40.7047861Z Root directory input is valid!
+2026-11-02T01:05:40.9382782Z Beginning upload of artifact content to blob storage
+2026-11-02T01:05:40.9603433Z (node:2338) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-02T01:05:41.0076856Z Uploaded bytes 674
+2026-11-02T01:05:41.1092744Z Finished uploading artifact content to blob storage!
+2026-11-02T01:05:41.1094037Z SHA256 digest of uploaded artifact zip is 593319881af66418b7722c0d2e075281d8da5a1105d7a340c0b0200f6e83b9cc
+2026-11-02T01:05:41.1096045Z Finalizing artifact upload
+2026-11-02T01:05:41.5095888Z Artifact job-evidence-rtl-fast-rtl-fast-0-514d0f07f5ff78126741d4cf594627f5f4cc610d.zip successfully finalized. Artifact ID 13109325424
+2026-11-02T01:05:41.5097838Z Artifact job-evidence-rtl-fast-rtl-fast-0-514d0f07f5ff78126741d4cf594627f5f4cc610d has been successfully uploaded! Final size is 674 bytes. Artifact ID is 13109325424
+2026-11-02T01:05:41.5103548Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/41358971669/artifacts/13109325424
+2026-11-02T01:05:41.5334217Z Post job cleanup.
+2026-11-02T01:05:41.6251282Z [command]/usr/bin/git version
+2026-11-02T01:05:41.6301548Z git version 2.56.0
+2026-11-02T01:05:41.6348656Z Temporarily overriding HOME='<home-path>/work/_temp/ee4c71de-edaf-4283-a67f-309f86f6f352' before making global git config changes
+2026-11-02T01:05:41.6350083Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T01:05:41.6355585Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-11-02T01:05:41.6401736Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T01:05:41.6444552Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T01:05:41.6727681Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T01:05:41.6762301Z http.https://github.com/.extraheader
+2026-11-02T01:05:41.6777205Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-02T01:05:41.6822363Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T01:05:41.7145718Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T01:05:41.7196852Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T01:05:41.7627677Z Cleaning up orphan processes
+2026-11-02T01:05:41.8066893Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

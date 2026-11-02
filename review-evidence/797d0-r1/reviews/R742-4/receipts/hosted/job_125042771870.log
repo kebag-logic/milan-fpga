@@ -1,0 +1,597 @@
+﻿2026-11-02T01:15:24.7194465Z Current runner version: '2.338.2'
+2026-11-02T01:15:24.7232024Z ##[group]Runner Image Provisioner
+2026-11-02T01:15:24.7233371Z Hosted Compute Agent
+2026-11-02T01:15:24.7234367Z Version: 20261021.618
+2026-11-02T01:15:24.7235350Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-11-02T01:15:24.7236913Z Build Date: 2026-10-21T00:45:21Z
+2026-11-02T01:15:24.7238031Z Worker ID: {5b1e29e6-7a20-4c22-88f2-f3b80dd71979}
+2026-11-02T01:15:24.7239187Z Region: westcentralus
+2026-11-02T01:15:24.7240256Z Cloud: Azure
+2026-11-02T01:15:24.7241178Z ##[endgroup]
+2026-11-02T01:15:24.7243779Z ##[group]Operating System
+2026-11-02T01:15:24.7244802Z Ubuntu
+2026-11-02T01:15:24.7245751Z 24.04.5
+2026-11-02T01:15:24.7246926Z LTS
+2026-11-02T01:15:24.7247742Z ##[endgroup]
+2026-11-02T01:15:24.7248709Z ##[group]Runner Image
+2026-11-02T01:15:24.7249668Z Image: ubuntu-24.04
+2026-11-02T01:15:24.7250537Z Version: 20261025.353.1
+2026-11-02T01:15:24.7252748Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-02T01:15:24.7255526Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-11-02T01:15:24.7257407Z ##[endgroup]
+2026-11-02T01:15:24.7259483Z ##[group]GITHUB_TOKEN Permissions
+2026-11-02T01:15:24.7262307Z Contents: read
+2026-11-02T01:15:24.7263330Z Metadata: read
+2026-11-02T01:15:24.7264208Z Packages: read
+2026-11-02T01:15:24.7265040Z ##[endgroup]
+2026-11-02T01:15:24.7268241Z Secret source: Actions
+2026-11-02T01:15:24.7269588Z Cache mode: write
+2026-11-02T01:15:24.7271167Z Prepare workflow directory
+2026-11-02T01:15:24.7681200Z Prepare all required actions
+2026-11-02T01:15:24.7740053Z Getting action download info
+2026-11-02T01:15:25.1266991Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-02T01:15:25.2215553Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-11-02T01:15:25.7678198Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-02T01:15:26.0035720Z Complete job name: verilator-suites
+2026-11-02T01:15:26.1202082Z ##[group]Run actions/checkout@v4
+2026-11-02T01:15:26.1203516Z with:
+2026-11-02T01:15:26.1204435Z   repository: kebag-logic/milan-fpga
+2026-11-02T01:15:26.1214563Z   token: ***
+2026-11-02T01:15:26.1215491Z   ssh-strict: true
+2026-11-02T01:15:26.1216420Z   ssh-user: git
+2026-11-02T01:15:26.1217466Z   persist-credentials: true
+2026-11-02T01:15:26.1218502Z   clean: true
+2026-11-02T01:15:26.1219445Z   sparse-checkout-cone-mode: true
+2026-11-02T01:15:26.1220577Z   fetch-depth: 1
+2026-11-02T01:15:26.1221513Z   fetch-tags: false
+2026-11-02T01:15:26.1222477Z   show-progress: true
+2026-11-02T01:15:26.1223430Z   lfs: false
+2026-11-02T01:15:26.1224303Z   submodules: false
+2026-11-02T01:15:26.1225254Z   set-safe-directory: true
+2026-11-02T01:15:26.1226306Z   allow-unsafe-pr-checkout: false
+2026-11-02T01:15:26.1227756Z env:
+2026-11-02T01:15:26.1228608Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:15:26.1229679Z   YOSYS_VERSION: v0.66
+2026-11-02T01:15:26.1230867Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-02T01:15:26.1232159Z ##[endgroup]
+2026-11-02T01:15:26.3856125Z Syncing repository: kebag-logic/milan-fpga
+2026-11-02T01:15:26.3859871Z ##[group]Getting Git version info
+2026-11-02T01:15:26.3861552Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+2026-11-02T01:15:26.3863712Z [command]/usr/bin/git version
+2026-11-02T01:15:26.3929006Z git version 2.56.0
+2026-11-02T01:15:26.3950968Z ##[endgroup]
+2026-11-02T01:15:26.3969585Z Temporarily overriding HOME='<home-path>/work/_temp/29db2542-63d1-42a7-a269-54d725fac7cd' before making global git config changes
+2026-11-02T01:15:26.3973853Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T01:15:26.3979777Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-11-02T01:15:26.4147705Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+2026-11-02T01:15:26.4156877Z ##[group]Initializing the repository
+2026-11-02T01:15:26.4158450Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+2026-11-02T01:15:26.4195761Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-02T01:15:26.4198493Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-02T01:15:26.4200561Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-02T01:15:26.4202122Z hint: call:
+2026-11-02T01:15:26.4203009Z hint:
+2026-11-02T01:15:26.4204070Z hint: 	git config --global init.defaultBranch <name>
+2026-11-02T01:15:26.4205345Z hint:
+2026-11-02T01:15:26.4206542Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-02T01:15:26.4219557Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-02T01:15:26.4221926Z hint:
+2026-11-02T01:15:26.4223107Z hint: 	git branch -m <name>
+2026-11-02T01:15:26.4224181Z hint:
+2026-11-02T01:15:26.4225530Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-02T01:15:26.4228841Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+2026-11-02T01:15:26.4233915Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-11-02T01:15:26.4279404Z ##[endgroup]
+2026-11-02T01:15:26.4281827Z ##[group]Disabling automatic garbage collection
+2026-11-02T01:15:26.4285495Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-02T01:15:26.4326922Z ##[endgroup]
+2026-11-02T01:15:26.4329053Z ##[group]Setting up auth
+2026-11-02T01:15:26.4334271Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T01:15:26.4381748Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T01:15:26.4811627Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T01:15:26.4865769Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T01:15:26.5139947Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T01:15:26.5190507Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T01:15:26.5460293Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-02T01:15:26.5513740Z ##[endgroup]
+2026-11-02T01:15:26.5515600Z ##[group]Fetching the repository
+2026-11-02T01:15:26.5527634Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +514d0f07f5ff78126741d4cf594627f5f4cc610d:refs/remotes/pull/815/merge
+2026-11-02T01:15:27.6115957Z From https://github.com/kebag-logic/milan-fpga
+2026-11-02T01:15:27.6119234Z  * [new ref]         514d0f07f5ff78126741d4cf594627f5f4cc610d -> pull/815/merge
+2026-11-02T01:15:27.6123772Z ##[endgroup]
+2026-11-02T01:15:27.6125485Z ##[group]Determining the checkout info
+2026-11-02T01:15:27.6127633Z ##[endgroup]
+2026-11-02T01:15:27.6130933Z [command]/usr/bin/git sparse-checkout disable
+2026-11-02T01:15:27.6195274Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-02T01:15:27.6242323Z ##[group]Checking out the ref
+2026-11-02T01:15:27.6243872Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/815/merge
+2026-11-02T01:15:27.8569362Z Note: switching to 'refs/remotes/pull/815/merge'.
+2026-11-02T01:15:27.8578187Z 
+2026-11-02T01:15:27.8578789Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-02T01:15:27.8579957Z changes and commit them, and you can discard any commits you make in this
+2026-11-02T01:15:27.8581570Z state without impacting any branches by switching back to a branch.
+2026-11-02T01:15:27.8581979Z 
+2026-11-02T01:15:27.8582306Z If you want to create a new branch to retain commits you create, you may
+2026-11-02T01:15:27.8582947Z do so (now or later) by using -c with the switch command. Example:
+2026-11-02T01:15:27.8583308Z 
+2026-11-02T01:15:27.8583481Z   git switch -c <new-branch-name>
+2026-11-02T01:15:27.8583726Z 
+2026-11-02T01:15:27.8583896Z Or undo this operation with:
+2026-11-02T01:15:27.8584132Z 
+2026-11-02T01:15:27.8584284Z   git switch -
+2026-11-02T01:15:27.8584485Z 
+2026-11-02T01:15:27.8584788Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-02T01:15:27.8585214Z 
+2026-11-02T01:15:27.8585665Z HEAD is now at 514d0f0 Merge 8d8c2e366a2d49506b91a195de0094a440e7bc39 into 1f29f189279f9fc0132f4918e47342b87d22f33a
+2026-11-02T01:15:27.8592909Z ##[endgroup]
+2026-11-02T01:15:27.8653415Z [command]/usr/bin/git log -1 --format=%H
+2026-11-02T01:15:27.8690410Z 514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:27.8952837Z ##[group]Run set -euo pipefail
+2026-11-02T01:15:27.8953336Z set -euo pipefail
+2026-11-02T01:15:27.8953702Z cpus="$(nproc)"
+2026-11-02T01:15:27.8954043Z test "$cpus" -gt 0
+2026-11-02T01:15:27.8954420Z campaign=$(( cpus < 4 ? cpus : 4 ))
+2026-11-02T01:15:27.8954866Z simulations=$(( cpus < 4 ? cpus : 4 ))
+2026-11-02T01:15:27.8955292Z tool_build=$(( cpus < 8 ? cpus : 8 ))
+2026-11-02T01:15:27.8955676Z {
+2026-11-02T01:15:27.8956002Z   printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+2026-11-02T01:15:27.8956478Z   printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
+2026-11-02T01:15:27.8957272Z   printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+2026-11-02T01:15:27.8957726Z   printf 'VERILATOR_JOBS=%s\n' "$cpus"
+2026-11-02T01:15:27.8958154Z   printf 'SIM_JOBS=%s\n' "$simulations"
+2026-11-02T01:15:27.8958619Z   printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+2026-11-02T01:15:27.8959109Z } >> "$GITHUB_ENV"
+2026-11-02T01:15:27.8985262Z shell: /usr/bin/bash -e {0}
+2026-11-02T01:15:27.8985642Z env:
+2026-11-02T01:15:27.8985942Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:15:27.8986287Z   YOSYS_VERSION: v0.66
+2026-11-02T01:15:27.8986992Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-02T01:15:27.8987426Z ##[endgroup]
+2026-11-02T01:15:27.9125843Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+2026-11-02T01:15:27.9127240Z git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+2026-11-02T01:15:27.9149028Z shell: /usr/bin/bash -e {0}
+2026-11-02T01:15:27.9149384Z env:
+2026-11-02T01:15:27.9149685Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:15:27.9150040Z   YOSYS_VERSION: v0.66
+2026-11-02T01:15:27.9150410Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-02T01:15:27.9150840Z   CI_BUILD_JOBS: 4
+2026-11-02T01:15:27.9151144Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:15:27.9151454Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:15:27.9151761Z   VERILATOR_JOBS: 4
+2026-11-02T01:15:27.9152056Z   SIM_JOBS: 4
+2026-11-02T01:15:27.9152395Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:15:27.9152767Z ##[endgroup]
+2026-11-02T01:15:27.9445814Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+2026-11-02T01:15:27.9449377Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+2026-11-02T01:15:27.9455322Z Submodule 'third_party/tsn-c-stack' (https://github.com/kebag-logic/tsn-c-stack.git) registered for path 'third_party/tsn-c-stack'
+2026-11-02T01:15:27.9461610Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+2026-11-02T01:15:27.9491373Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+2026-11-02T01:15:28.8234487Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+2026-11-02T01:15:30.5324102Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/tsn-c-stack'...
+2026-11-02T01:15:31.7637690Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+2026-11-02T01:15:32.4284890Z Submodule path 'gptp-processor': checked out '135afd043309369a87ddbc8d6550aff8ec52a157'
+2026-11-02T01:15:32.5189052Z Submodule path 'protocol-processor': checked out 'a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645'
+2026-11-02T01:15:32.5371169Z Submodule path 'third_party/tsn-c-stack': checked out '70936b77dc41981e192438388cd0aced69954f18'
+2026-11-02T01:15:32.5574933Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+2026-11-02T01:15:32.5682560Z ##[group]Run actions/download-artifact@v4
+2026-11-02T01:15:32.5682901Z with:
+2026-11-02T01:15:32.5683267Z   pattern: suite-logs-*
+2026-11-02T01:15:32.5683672Z   path: <home-path>/work/_temp/all-suite-logs
+2026-11-02T01:15:32.5684193Z   merge-multiple: false
+2026-11-02T01:15:32.5684605Z   repository: kebag-logic/milan-fpga
+2026-11-02T01:15:32.5685062Z   run-id: 41358971729
+2026-11-02T01:15:32.5685446Z env:
+2026-11-02T01:15:32.5685758Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:15:32.5686094Z   YOSYS_VERSION: v0.66
+2026-11-02T01:15:32.5686487Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-02T01:15:32.5687142Z   CI_BUILD_JOBS: 4
+2026-11-02T01:15:32.5687517Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:15:32.5687887Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:15:32.5688221Z   VERILATOR_JOBS: 4
+2026-11-02T01:15:32.5688545Z   SIM_JOBS: 4
+2026-11-02T01:15:32.5688901Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:15:32.5689277Z ##[endgroup]
+2026-11-02T01:15:32.7524674Z (node:2473) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-02T01:15:32.7525944Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-02T01:15:32.9740776Z Found 54 artifact(s)
+2026-11-02T01:15:32.9741708Z Filtering artifacts by pattern 'suite-logs-*'
+2026-11-02T01:15:32.9763910Z Preparing to download the following artifacts:
+2026-11-02T01:15:32.9765065Z - suite-logs-7 (ID: 13109705508, Size: 42419, Expected Digest: sha256:dd9d5742cd555ff29357d9a31f1e7e9b62900bc2cb6d559966294af8b1a152cf)
+2026-11-02T01:15:32.9766533Z - suite-logs-9 (ID: 13109645553, Size: 75249, Expected Digest: sha256:3109ecd84437c065e82ef74d1547bf365e6d4d87d9503da491ce47be7785e947)
+2026-11-02T01:15:32.9768098Z - suite-logs-5 (ID: 13109471073, Size: 21167, Expected Digest: sha256:0f86f1fd6059aa655e6deb8e2e210735786ab547f5e79165077ff4227e888f64)
+2026-11-02T01:15:32.9769601Z - suite-logs-1 (ID: 13109218505, Size: 153788, Expected Digest: sha256:4273a20f5161d1cfd2b5bd6f667db93a1edbeb5f8c9daefa9f63504c382ed984)
+2026-11-02T01:15:32.9771076Z - suite-logs-15 (ID: 13109126625, Size: 59327, Expected Digest: sha256:d1c4d2a9db8480bf6eb9fbf0b65119be1b5f0d386f9480fdd6356f3f6b01de0c)
+2026-11-02T01:15:32.9772515Z - suite-logs-12 (ID: 13109114118, Size: 72738, Expected Digest: sha256:a28175cc1b26e6585ffa4d4149238361ea2e54ac567dd38c68d5938948ea8703)
+2026-11-02T01:15:32.9773944Z - suite-logs-11 (ID: 13109064376, Size: 87616, Expected Digest: sha256:be2cb111417746062ad8ae07152278f1d2f4e61de9e65a53c018cfdaaae51ec5)
+2026-11-02T01:15:32.9775430Z - suite-logs-8 (ID: 13109004266, Size: 125060, Expected Digest: sha256:1c1c8455affa8834caca3b7e343f3a9060186af083837527f43f6cf14548a5aa)
+2026-11-02T01:15:32.9776878Z - suite-logs-10 (ID: 13108998901, Size: 122945, Expected Digest: sha256:10e81d46160719d104ed9c7c18a39f45b5accc549a1be1ffc0635dd84536dd46)
+2026-11-02T01:15:32.9778139Z - suite-logs-16 (ID: 13108968862, Size: 79599, Expected Digest: sha256:f9cec4a1f6136971a998bddc300e311f9e18c7f8de0e4b660bfab4ed5822892e)
+2026-11-02T01:15:32.9779305Z - suite-logs-3 (ID: 13108697628, Size: 104869, Expected Digest: sha256:fb7f1e1f3868f230af86afb2a8309ba885aa11dc90e34dc7a15a4336562b8ca7)
+2026-11-02T01:15:32.9780805Z - suite-logs-2 (ID: 13108433528, Size: 94192, Expected Digest: sha256:a25d51556a5b5af8a403982f4c9b26cf47133f37fff882ae60f28361c421b96f)
+2026-11-02T01:15:32.9782462Z - suite-logs-17 (ID: 13108314688, Size: 51152, Expected Digest: sha256:049ea6376521fba540101bb38d8a1ef6a41a626b4c09fa9d7399105bb34c7b45)
+2026-11-02T01:15:32.9783857Z - suite-logs-6 (ID: 13108214873, Size: 40426, Expected Digest: sha256:65739e7ad458297a922f2287dc561b1f112c5a7fe9dbe7716d27d00371d1ace9)
+2026-11-02T01:15:32.9784752Z - suite-logs-18 (ID: 13108024238, Size: 33160, Expected Digest: sha256:932eeeabfe0005f45bba2b876a7fb4ac64bc1c9f63159270adb968a7375f6c0e)
+2026-11-02T01:15:32.9785616Z - suite-logs-4 (ID: 13107410733, Size: 115508, Expected Digest: sha256:f73683c6410cad8c23bd1fd747a285b4a6a93d17fc5f799f7db31187c59d1344)
+2026-11-02T01:15:32.9786929Z - suite-logs-14 (ID: 13107408748, Size: 35671, Expected Digest: sha256:3f17bf9f51cbab23dda8f6caa2d66cb896f2b297f4bb142a17373df70749a177)
+2026-11-02T01:15:32.9788467Z - suite-logs-0 (ID: 13107029458, Size: 21873, Expected Digest: sha256:11eb01a0a5f88938e430aa7e9e4db9dcfe431f9a14ae028ac5d7bab1564a0b9b)
+2026-11-02T01:15:32.9789932Z - suite-logs-13 (ID: 13106989031, Size: 44945, Expected Digest: sha256:ca3c7bf8983a9c1accb6600f2096fecce5ffa296fae02a8a95037c481f15bde5)
+2026-11-02T01:15:33.1774371Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-4bbdb15f-073c-516e-8810-eb46918011d2/artifacts/ba2e7988261d7e45c2ab1798e2b6a2ad86e58c1dfb3981a96e3fd24d64a736b8.zip
+2026-11-02T01:15:33.1777076Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-9
+2026-11-02T01:15:33.2794596Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-261e73df-9085-56c0-9817-a843ecc71005/artifacts/e76e606efc8a0e19d9993dd8c01945aab554007046b3d2e24b0a9ff263421122.zip
+2026-11-02T01:15:33.2797082Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-1
+2026-11-02T01:15:33.2851389Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-d81d6b5e-3850-5a16-a7c2-f03e99f32fe6/artifacts/1ae5b0cb2c71f7d0565f344ac56b7a93b657c4733795f5cdd9da80aa6d8ca1ac.zip
+2026-11-02T01:15:33.2852740Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-18
+2026-11-02T01:15:33.2879636Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-ce68183b-9294-5a23-a33d-a53e120c0f43/artifacts/c80e43f924036950b2fbd1b1297e9add429e06e413287cd2fff3af3053c3e962.zip
+2026-11-02T01:15:33.2882117Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-6
+2026-11-02T01:15:33.2888700Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-04d6abb2-4c07-5f19-87c0-91fe5becd65a/artifacts/d5594c51e101cf0f16a0c43ffdd5e953a5b42f24435e91040013ea333b7c399c.zip
+2026-11-02T01:15:33.2890251Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-15
+2026-11-02T01:15:33.2990166Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-1f40aa98-df64-5d8e-9fee-237c4249a5f1/artifacts/6727b9382cbf443f05718ff0c6f73cb5a5cb3df34b650db8c7695d69e69a76c6.zip
+2026-11-02T01:15:33.2992372Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-16
+2026-11-02T01:15:33.3018100Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-f6f294c0-5593-5ac0-a493-eecb0c8f76cf/artifacts/f4acd8c8bd416b74042cb47afd907612740a260c52ce994a77bb9e07081e4d69.zip
+2026-11-02T01:15:33.3020798Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-12
+2026-11-02T01:15:33.3059941Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-d88fc7af-13a1-5156-afee-6bc5d6a2f00f/artifacts/f2116aa2f94a9400a425b2130b426a9b9abb07be761c5043ed4fb94070ee083e.zip
+2026-11-02T01:15:33.3063247Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-3
+2026-11-02T01:15:33.3071526Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-4aa5bb17-df8d-581b-b629-613988b12bfc/artifacts/e756eca9792aaa47d8d08e1ef1d9e5f549112c359e408212b10b04ea315b3973.zip
+2026-11-02T01:15:33.3074831Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-14
+2026-11-02T01:15:33.3079538Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-42c4eed0-bcf1-5ea5-b727-17851377d63a/artifacts/b14067820b53cdb5974a33c0bf92a254a57ed7a0b4e3d079678955824e7b9853.zip
+2026-11-02T01:15:33.3081099Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-4
+2026-11-02T01:15:33.3112635Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-78c58553-8186-5299-8f67-f09a2b813425/artifacts/28b6edf8cd167c6e1f79c9c9711a3d26b6b80fc9b08d3055fb350ea348546a6d.zip
+2026-11-02T01:15:33.3114244Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-8
+2026-11-02T01:15:33.3118584Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-509af226-c8e1-56dd-9f82-01a8f43667e4/artifacts/9e7d18a52530991b2f55f22bc467c9bf2fb8912de3b9c3f0589f8fbbb6177d83.zip
+2026-11-02T01:15:33.3120931Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-2
+2026-11-02T01:15:33.3129693Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-19739e7c-d6a9-5525-bceb-a39a6b399eae/artifacts/d5d456249b0f094a5f13b139df32def8557412cf73358b6c497c8c96860b4199.zip
+2026-11-02T01:15:33.3131483Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-5
+2026-11-02T01:15:33.3141686Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-5e97f2d4-74b1-5ef8-a032-603160e4878d/artifacts/d9db277387ccf3d9262a342f59a0ca8a354046efe3a18417fcc1104332436e52.zip
+2026-11-02T01:15:33.3143454Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-11
+2026-11-02T01:15:33.3157865Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-2dd1b152-a532-59ac-a59c-711cda7452f9/artifacts/7601eab3b3daac5e68ebe7b37864b905e78f3db50c57228a1860d7264ad2ec8a.zip
+2026-11-02T01:15:33.3159746Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-17
+2026-11-02T01:15:33.3180452Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-f636ad9b-10d3-5d46-ab96-4bb209a310df/artifacts/ee18d39e48ea1e9e9da86fdc0d42677f2847510a41cb1eeeab46a35e7dfa0777.zip
+2026-11-02T01:15:33.3183595Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-7
+2026-11-02T01:15:33.3189054Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-2c24d4cf-efab-583e-a2bf-be609747174d/artifacts/80a3897bcef618f932fdf99b8fbb37d47006003a3cfc3e148b3b36a0fa5d7779.zip
+2026-11-02T01:15:33.3194508Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-13
+2026-11-02T01:15:33.3367709Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-e1937a90-5c4e-54a7-8bfb-fcd44ae57bc0/artifacts/d367247197c1c9f39a1b8b79247ede82a5a807f1561618214c9507648806af78.zip
+2026-11-02T01:15:33.3369197Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-0
+2026-11-02T01:15:33.3610021Z Redirecting to blob download url: https://productionresultssa17.blob.core.windows.net/actions-results/49ce8577-00a3-82ac-8e3a-5395dadf1179/workflow-job-run-b7844797-3e83-5482-9e0c-41b2b2287dfd/artifacts/b8f6da81831be42f93e114c3115af43aabb977f811771eaa892971c9f573eb2f.zip
+2026-11-02T01:15:33.3611599Z Starting download of artifact to: <home-path>/work/_temp/all-suite-logs/suite-logs-10
+2026-11-02T01:15:33.3809611Z (node:2473) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-02T01:15:33.4831241Z SHA256 digest of downloaded artifact is 3109ecd84437c065e82ef74d1547bf365e6d4d87d9503da491ce47be7785e947
+2026-11-02T01:15:33.4832006Z Artifact download completed successfully.
+2026-11-02T01:15:33.6134393Z SHA256 digest of downloaded artifact is 0f86f1fd6059aa655e6deb8e2e210735786ab547f5e79165077ff4227e888f64
+2026-11-02T01:15:33.6135368Z Artifact download completed successfully.
+2026-11-02T01:15:33.6440649Z SHA256 digest of downloaded artifact is 932eeeabfe0005f45bba2b876a7fb4ac64bc1c9f63159270adb968a7375f6c0e
+2026-11-02T01:15:33.6441466Z Artifact download completed successfully.
+2026-11-02T01:15:33.6445480Z SHA256 digest of downloaded artifact is 3f17bf9f51cbab23dda8f6caa2d66cb896f2b297f4bb142a17373df70749a177
+2026-11-02T01:15:33.6446569Z Artifact download completed successfully.
+2026-11-02T01:15:33.6532219Z SHA256 digest of downloaded artifact is d1c4d2a9db8480bf6eb9fbf0b65119be1b5f0d386f9480fdd6356f3f6b01de0c
+2026-11-02T01:15:33.6533121Z Artifact download completed successfully.
+2026-11-02T01:15:33.6533836Z SHA256 digest of downloaded artifact is 11eb01a0a5f88938e430aa7e9e4db9dcfe431f9a14ae028ac5d7bab1564a0b9b
+2026-11-02T01:15:33.6534542Z Artifact download completed successfully.
+2026-11-02T01:15:33.6593442Z SHA256 digest of downloaded artifact is 049ea6376521fba540101bb38d8a1ef6a41a626b4c09fa9d7399105bb34c7b45
+2026-11-02T01:15:33.6594648Z Artifact download completed successfully.
+2026-11-02T01:15:33.6648550Z SHA256 digest of downloaded artifact is dd9d5742cd555ff29357d9a31f1e7e9b62900bc2cb6d559966294af8b1a152cf
+2026-11-02T01:15:33.6655756Z Artifact download completed successfully.
+2026-11-02T01:15:33.6665938Z SHA256 digest of downloaded artifact is ca3c7bf8983a9c1accb6600f2096fecce5ffa296fae02a8a95037c481f15bde5
+2026-11-02T01:15:33.6677818Z Artifact download completed successfully.
+2026-11-02T01:15:33.6724427Z SHA256 digest of downloaded artifact is 1c1c8455affa8834caca3b7e343f3a9060186af083837527f43f6cf14548a5aa
+2026-11-02T01:15:33.6725558Z Artifact download completed successfully.
+2026-11-02T01:15:33.6728429Z SHA256 digest of downloaded artifact is 65739e7ad458297a922f2287dc561b1f112c5a7fe9dbe7716d27d00371d1ace9
+2026-11-02T01:15:33.6729520Z Artifact download completed successfully.
+2026-11-02T01:15:33.6740652Z SHA256 digest of downloaded artifact is fb7f1e1f3868f230af86afb2a8309ba885aa11dc90e34dc7a15a4336562b8ca7
+2026-11-02T01:15:33.6741585Z Artifact download completed successfully.
+2026-11-02T01:15:33.6743848Z SHA256 digest of downloaded artifact is a28175cc1b26e6585ffa4d4149238361ea2e54ac567dd38c68d5938948ea8703
+2026-11-02T01:15:33.6744957Z Artifact download completed successfully.
+2026-11-02T01:15:33.6750950Z SHA256 digest of downloaded artifact is be2cb111417746062ad8ae07152278f1d2f4e61de9e65a53c018cfdaaae51ec5
+2026-11-02T01:15:33.6751962Z Artifact download completed successfully.
+2026-11-02T01:15:33.6783623Z SHA256 digest of downloaded artifact is f9cec4a1f6136971a998bddc300e311f9e18c7f8de0e4b660bfab4ed5822892e
+2026-11-02T01:15:33.6784647Z Artifact download completed successfully.
+2026-11-02T01:15:33.6788185Z SHA256 digest of downloaded artifact is a25d51556a5b5af8a403982f4c9b26cf47133f37fff882ae60f28361c421b96f
+2026-11-02T01:15:33.6789205Z Artifact download completed successfully.
+2026-11-02T01:15:33.6808554Z SHA256 digest of downloaded artifact is 4273a20f5161d1cfd2b5bd6f667db93a1edbeb5f8c9daefa9f63504c382ed984
+2026-11-02T01:15:33.6809782Z Artifact download completed successfully.
+2026-11-02T01:15:33.6817132Z SHA256 digest of downloaded artifact is f73683c6410cad8c23bd1fd747a285b4a6a93d17fc5f799f7db31187c59d1344
+2026-11-02T01:15:33.6818614Z Artifact download completed successfully.
+2026-11-02T01:15:33.7273835Z SHA256 digest of downloaded artifact is 10e81d46160719d104ed9c7c18a39f45b5accc549a1be1ffc0635dd84536dd46
+2026-11-02T01:15:33.7274643Z Artifact download completed successfully.
+2026-11-02T01:15:33.7275132Z Total of 19 artifact(s) downloaded
+2026-11-02T01:15:33.7280462Z Download artifact has finished successfully
+2026-11-02T01:15:33.7548735Z ##[group]Run actions/download-artifact@v4
+2026-11-02T01:15:33.7549212Z with:
+2026-11-02T01:15:33.7549567Z   pattern: suite-union-*
+2026-11-02T01:15:33.7550006Z   path: <home-path>/work/_temp/suite-unions
+2026-11-02T01:15:33.7550471Z   merge-multiple: false
+2026-11-02T01:15:33.7550875Z   repository: kebag-logic/milan-fpga
+2026-11-02T01:15:33.7551303Z   run-id: 41358971729
+2026-11-02T01:15:33.7551664Z env:
+2026-11-02T01:15:33.7552007Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:15:33.7552406Z   YOSYS_VERSION: v0.66
+2026-11-02T01:15:33.7552833Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-02T01:15:33.7553310Z   CI_BUILD_JOBS: 4
+2026-11-02T01:15:33.7553675Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:15:33.7554051Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:15:33.7554448Z   VERILATOR_JOBS: 4
+2026-11-02T01:15:33.7554803Z   SIM_JOBS: 4
+2026-11-02T01:15:33.7555189Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:15:33.7555637Z ##[endgroup]
+2026-11-02T01:15:33.9315298Z (node:2485) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-02T01:15:33.9316401Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-02T01:15:34.1466386Z Found 54 artifact(s)
+2026-11-02T01:15:34.1467755Z Filtering artifacts by pattern 'suite-union-*'
+2026-11-02T01:15:34.1490081Z Total of 0 artifact(s) downloaded
+2026-11-02T01:15:34.1499386Z Download artifact has finished successfully
+2026-11-02T01:15:34.1699465Z ##[group]Run shopt -s nullglob
+2026-11-02T01:15:34.1699953Z shopt -s nullglob
+2026-11-02T01:15:34.1700435Z roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
+2026-11-02T01:15:34.1701086Z python3 scripts/ci_events.py --require-target-sha --expect 19 \
+2026-11-02T01:15:34.1701720Z   --sha gate="$GATE_SHA" --sha run="$GITHUB_SHA" \
+2026-11-02T01:15:34.1702293Z   --sha checkout="$(git rev-parse HEAD)" -- "${roots[@]}"
+2026-11-02T01:15:34.1724227Z shell: /usr/bin/bash -e {0}
+2026-11-02T01:15:34.1724643Z env:
+2026-11-02T01:15:34.1724998Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:15:34.1725397Z   YOSYS_VERSION: v0.66
+2026-11-02T01:15:34.1725838Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-02T01:15:34.1726315Z   CI_BUILD_JOBS: 4
+2026-11-02T01:15:34.1726898Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:15:34.1727274Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:15:34.1727652Z   VERILATOR_JOBS: 4
+2026-11-02T01:15:34.1728041Z   SIM_JOBS: 4
+2026-11-02T01:15:34.1728407Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:15:34.1728893Z   GATE_SHA: 514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.1729353Z ##[endgroup]
+2026-11-02T01:15:34.3150353Z   ok   suite-logs-0  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3151453Z   ok   suite-logs-1  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3152042Z   ok   suite-logs-10  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3152577Z   ok   suite-logs-11  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3153125Z   ok   suite-logs-12  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3153665Z   ok   suite-logs-13  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3154177Z   ok   suite-logs-14  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3154726Z   ok   suite-logs-15  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3155233Z   ok   suite-logs-16  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3155771Z   ok   suite-logs-17  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3156290Z   ok   suite-logs-18  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3157120Z   ok   suite-logs-2  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3157651Z   ok   suite-logs-3  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3158177Z   ok   suite-logs-4  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3158714Z   ok   suite-logs-5  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3159224Z   ok   suite-logs-6  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3159728Z   ok   suite-logs-7  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3160226Z   ok   suite-logs-8  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3160737Z   ok   suite-logs-9  514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3161319Z target-sha: OK, 19 record(s) all 514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.3312541Z ##[group]Run python3 scripts/ci_suite_collect.py   --workers "$RUNNER_TEMP/all-suite-logs" --unions "$RUNNER_TEMP/suite-unions"   --output "$RUNNER_TEMP/complete-suite-logs" --head "$GITHUB_SHA"
+2026-11-02T01:15:34.3314052Z python3 scripts/ci_suite_collect.py   --workers "$RUNNER_TEMP/all-suite-logs" --unions "$RUNNER_TEMP/suite-unions"   --output "$RUNNER_TEMP/complete-suite-logs" --head "$GITHUB_SHA"
+2026-11-02T01:15:34.3315248Z python3 scripts/suite_tally.py "$RUNNER_TEMP/complete-suite-logs" --quiet   --expect-suite-root tb/verilator
+2026-11-02T01:15:34.3337268Z shell: /usr/bin/bash -e {0}
+2026-11-02T01:15:34.3337688Z env:
+2026-11-02T01:15:34.3338041Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:15:34.3338454Z   YOSYS_VERSION: v0.66
+2026-11-02T01:15:34.3338891Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-02T01:15:34.3339365Z   CI_BUILD_JOBS: 4
+2026-11-02T01:15:34.3339723Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:15:34.3340144Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:15:34.3340511Z   VERILATOR_JOBS: 4
+2026-11-02T01:15:34.3340862Z   SIM_JOBS: 4
+2026-11-02T01:15:34.3341232Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:15:34.3341664Z ##[endgroup]
+2026-11-02T01:15:34.3951062Z suite collection refused: worker 1: executed suite ownership differs
+2026-11-02T01:15:34.4045383Z ##[error]Process completed with exit code 1.
+2026-11-02T01:15:34.4105261Z ##[group]Run if [ "$SHARD_RESULT" != success ]; then
+2026-11-02T01:15:34.4105909Z if [ "$SHARD_RESULT" != success ]; then
+2026-11-02T01:15:34.4106591Z   echo "one or more Verilator workers ended: $SHARD_RESULT" >&2
+2026-11-02T01:15:34.4107480Z   exit 1
+2026-11-02T01:15:34.4107900Z fi
+2026-11-02T01:15:34.4108442Z echo "verilator-suites: every worker succeeded at $GITHUB_SHA"
+2026-11-02T01:15:34.4130303Z shell: /usr/bin/bash -e {0}
+2026-11-02T01:15:34.4130775Z env:
+2026-11-02T01:15:34.4131179Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:15:34.4131641Z   YOSYS_VERSION: v0.66
+2026-11-02T01:15:34.4132153Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-02T01:15:34.4132674Z   CI_BUILD_JOBS: 4
+2026-11-02T01:15:34.4133100Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:15:34.4133537Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:15:34.4133963Z   VERILATOR_JOBS: 4
+2026-11-02T01:15:34.4134569Z   SIM_JOBS: 4
+2026-11-02T01:15:34.4135054Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:15:34.4135561Z   SHARD_RESULT: cancelled
+2026-11-02T01:15:34.4135994Z ##[endgroup]
+2026-11-02T01:15:34.4182082Z one or more Verilator workers ended: cancelled
+2026-11-02T01:15:34.4186262Z ##[error]Process completed with exit code 1.
+2026-11-02T01:15:34.4249059Z ##[group]Run python3 - <<'PY'
+2026-11-02T01:15:34.4249542Z python3 - <<'PY'
+2026-11-02T01:15:34.4249946Z import json, os
+2026-11-02T01:15:34.4250403Z needs = json.loads(os.environ['UNION_NEEDS'])
+2026-11-02T01:15:34.4251016Z assert all(row['result'] == 'success' for row in needs.values()), needs
+2026-11-02T01:15:34.4251563Z PY
+2026-11-02T01:15:34.4272241Z shell: /usr/bin/bash -e {0}
+2026-11-02T01:15:34.4272761Z env:
+2026-11-02T01:15:34.4273159Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:15:34.4273561Z   YOSYS_VERSION: v0.66
+2026-11-02T01:15:34.4274004Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-02T01:15:34.4274504Z   CI_BUILD_JOBS: 4
+2026-11-02T01:15:34.4274871Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:15:34.4275240Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:15:34.4275613Z   VERILATOR_JOBS: 4
+2026-11-02T01:15:34.4275971Z   SIM_JOBS: 4
+2026-11-02T01:15:34.4276351Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:15:34.4278677Z   UNION_NEEDS: {
+  "full-ci-gate": {
+    "result": "success",
+    "outputs": {
+      "run_full": "true",
+      "rtl": "true",
+      "target_sha": "514d0f07f5ff78126741d4cf594627f5f4cc610d"
+    }
+  },
+  "verilator-shards": {
+    "result": "cancelled",
+    "outputs": {}
+  },
+  "union-milan_dp": {
+    "result": "failure",
+    "outputs": {}
+  },
+  "union-milan_dp_mclk": {
+    "result": "failure",
+    "outputs": {}
+  },
+  "union-capture_coherence": {
+    "result": "failure",
+    "outputs": {}
+  },
+  "union-maap": {
+    "result": "failure",
+    "outputs": {}
+  },
+  "union-milan_dp_render": {
+    "result": "failure",
+    "outputs": {}
+  },
+  "union-pp_shadow": {
+    "result": "failure",
+    "outputs": {}
+  }
+}
+2026-11-02T01:15:34.4280838Z ##[endgroup]
+2026-11-02T01:15:34.5339598Z Traceback (most recent call last):
+2026-11-02T01:15:34.5340134Z   File "<stdin>", line 3, in <module>
+2026-11-02T01:15:34.5342181Z AssertionError: {'full-ci-gate': {'result': 'success', 'outputs': {'run_full': 'true', 'rtl': 'true', 'target_sha': '514d0f07f5ff78126741d4cf594627f5f4cc610d'}}, 'verilator-shards': {'result': 'cancelled', 'outputs': {}}, 'union-milan_dp': {'result': 'failure', 'outputs': {}}, 'union-milan_dp_mclk': {'result': 'failure', 'outputs': {}}, 'union-capture_coherence': {'result': 'failure', 'outputs': {}}, 'union-maap': {'result': 'failure', 'outputs': {}}, 'union-milan_dp_render': {'result': 'failure', 'outputs': {}}, 'union-pp_shadow': {'result': 'failure', 'outputs': {}}}
+2026-11-02T01:15:34.5507659Z ##[error]Process completed with exit code 1.
+2026-11-02T01:15:34.5559703Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job verilator-suites --output "$RUNNER_TEMP/job-evidence.json"
+2026-11-02T01:15:34.5560978Z python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/rtl.yml --job verilator-suites --output "$RUNNER_TEMP/job-evidence.json"
+2026-11-02T01:15:34.5582870Z shell: /usr/bin/bash -e {0}
+2026-11-02T01:15:34.5583288Z env:
+2026-11-02T01:15:34.5583638Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:15:34.5584052Z   YOSYS_VERSION: v0.66
+2026-11-02T01:15:34.5584488Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-02T01:15:34.5584957Z   CI_BUILD_JOBS: 4
+2026-11-02T01:15:34.5585323Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:15:34.5585687Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:15:34.5586052Z   VERILATOR_JOBS: 4
+2026-11-02T01:15:34.5586403Z   SIM_JOBS: 4
+2026-11-02T01:15:34.5587072Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:15:34.5590302Z   CI_STEP_RESULTS: {
+  "ci_step_0": {
+    "outputs": {
+      "commit": "514d0f07f5ff78126741d4cf594627f5f4cc610d",
+      "ref": "refs/pull/815/merge"
+    },
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_1": {
+    "outputs": {},
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_2": {
+    "outputs": {},
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "download-logs": {
+    "outputs": {
+      "download-path": "<home-path>/work/_temp/all-suite-logs"
+    },
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_4": {
+    "outputs": {
+      "download-path": "<home-path>/work/_temp/suite-unions"
+    },
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_5": {
+    "outputs": {},
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_6": {
+    "outputs": {},
+    "outcome": "failure",
+    "conclusion": "failure"
+  },
+  "ci_step_7": {
+    "outputs": {},
+    "outcome": "failure",
+    "conclusion": "failure"
+  },
+  "ci_step_8": {
+    "outputs": {},
+    "outcome": "failure",
+    "conclusion": "failure"
+  }
+}
+2026-11-02T01:15:34.5593935Z   CI_JOB_RESULT: failure
+2026-11-02T01:15:34.5594321Z   CI_MATRIX: null
+2026-11-02T01:15:34.5594675Z ##[endgroup]
+2026-11-02T01:15:34.9611357Z ##[group]Run actions/upload-artifact@v4
+2026-11-02T01:15:34.9611824Z with:
+2026-11-02T01:15:34.9612376Z   name: job-evidence-rtl-verilator-suites-0-514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:15:34.9613046Z   path: <home-path>/work/_temp/job-evidence.json
+2026-11-02T01:15:34.9613532Z   if-no-files-found: error
+2026-11-02T01:15:34.9613938Z   retention-days: 3
+2026-11-02T01:15:34.9614320Z   compression-level: 6
+2026-11-02T01:15:34.9614715Z   overwrite: false
+2026-11-02T01:15:34.9615111Z   include-hidden-files: false
+2026-11-02T01:15:34.9615532Z env:
+2026-11-02T01:15:34.9615879Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:15:34.9616285Z   YOSYS_VERSION: v0.66
+2026-11-02T01:15:34.9616945Z   TSN_GEN_REV: deca300c9eb4863fa13383b45ba6cb6fd0828671
+2026-11-02T01:15:34.9617436Z   CI_BUILD_JOBS: 4
+2026-11-02T01:15:34.9617800Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:15:34.9618193Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:15:34.9618601Z   VERILATOR_JOBS: 4
+2026-11-02T01:15:34.9619005Z   SIM_JOBS: 4
+2026-11-02T01:15:34.9619397Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:15:34.9619849Z ##[endgroup]
+2026-11-02T01:15:35.1391038Z (node:2513) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-02T01:15:35.1392082Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-02T01:15:35.1439429Z With the provided path, there will be 1 file uploaded
+2026-11-02T01:15:35.1447840Z Artifact name is valid!
+2026-11-02T01:15:35.1457066Z Root directory input is valid!
+2026-11-02T01:15:35.4807790Z Beginning upload of artifact content to blob storage
+2026-11-02T01:15:35.4992277Z (node:2513) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-02T01:15:35.7036946Z Uploaded bytes 768
+2026-11-02T01:15:35.7624565Z Finished uploading artifact content to blob storage!
+2026-11-02T01:15:35.7626139Z SHA256 digest of uploaded artifact zip is 54629f4dc65180e109155af7231c5aac25cf3e6d6fb28ffff28cf9c9ce2f4f39
+2026-11-02T01:15:35.7627865Z Finalizing artifact upload
+2026-11-02T01:15:36.2591176Z Artifact job-evidence-rtl-verilator-suites-0-514d0f07f5ff78126741d4cf594627f5f4cc610d.zip successfully finalized. Artifact ID 13108449417
+2026-11-02T01:15:36.2593409Z Artifact job-evidence-rtl-verilator-suites-0-514d0f07f5ff78126741d4cf594627f5f4cc610d has been successfully uploaded! Final size is 768 bytes. Artifact ID is 13108449417
+2026-11-02T01:15:36.2597093Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/41358971729/artifacts/13108449417
+2026-11-02T01:15:36.2841340Z Post job cleanup.
+2026-11-02T01:15:36.3757767Z [command]/usr/bin/git version
+2026-11-02T01:15:36.3836428Z git version 2.56.0
+2026-11-02T01:15:36.3877495Z Temporarily overriding HOME='<home-path>/work/_temp/ba52cd8a-f6ee-4365-9df3-e09aa8647c9b' before making global git config changes
+2026-11-02T01:15:36.3879433Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T01:15:36.3883556Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-11-02T01:15:36.3931083Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T01:15:36.3971215Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T01:15:36.4262954Z Entering 'gptp-processor'
+2026-11-02T01:15:36.4324366Z Entering 'protocol-processor'
+2026-11-02T01:15:36.4385354Z Entering 'third_party/tsn-c-stack'
+2026-11-02T01:15:36.4437119Z Entering 'third_party/verilog-axis'
+2026-11-02T01:15:36.4509393Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T01:15:36.4551834Z http.https://github.com/.extraheader
+2026-11-02T01:15:36.4564060Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-02T01:15:36.4624935Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T01:15:36.4893416Z Entering 'gptp-processor'
+2026-11-02T01:15:36.4946834Z Entering 'protocol-processor'
+2026-11-02T01:15:36.5001606Z Entering 'third_party/tsn-c-stack'
+2026-11-02T01:15:36.5053004Z Entering 'third_party/verilog-axis'
+2026-11-02T01:15:36.5129419Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T01:15:36.5189593Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T01:15:36.5476958Z Entering 'gptp-processor'
+2026-11-02T01:15:36.5502072Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+2026-11-02T01:15:36.5524746Z Entering 'protocol-processor'
+2026-11-02T01:15:36.5547576Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+2026-11-02T01:15:36.5569723Z Entering 'third_party/tsn-c-stack'
+2026-11-02T01:15:36.5595397Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config	remote.origin.url
+2026-11-02T01:15:36.5618408Z Entering 'third_party/verilog-axis'
+2026-11-02T01:15:36.5642530Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+2026-11-02T01:15:36.5688660Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T01:15:36.5745683Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T01:15:36.5796595Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T01:15:36.5849803Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T01:15:36.6067164Z Cleaning up orphan processes
+2026-11-02T01:15:36.6459254Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

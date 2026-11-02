@@ -1,0 +1,24 @@
+PASS	underscore emphasis, whole	rows=1	line=5	status=stale	write_rc=0
+PASS	underscore emphasis, double, partial	rows=1	line=5	status=stale	write_rc=0
+PASS	mixed underscore and asterisk	rows=1	line=5	status=stale	write_rc=0
+PASS	inline link	rows=1	line=5	status=stale	write_rc=0
+PASS	reference link	rows=1	line=5	status=stale	write_rc=0
+PASS	collapsed reference link	rows=1	line=5	status=stale	write_rc=0
+PASS	wrapped link	rows=1	line=5	status=stale	write_rc=0
+PASS	link in a wrapped quote	rows=1	line=5	status=stale	write_rc=0
+PASS	image alt link form	rows=1	line=5	status=stale	write_rc=0
+PASS	closing comma	rows=1	line=5	status=stale	write_rc=0
+PASS	closing semicolon	rows=1	line=5	status=stale	write_rc=0
+PASS	closing colon	rows=1	line=5	status=stale	write_rc=0
+PASS	no closing punctuation	rows=1	line=5	status=stale	write_rc=0
+PASS	closing dash clause	rows=1	line=5	status=stale	write_rc=0
+PASS	line further down, wrapped	rows=1	line=9	status=stale	write_rc=0
+PASS	link above the copy keeps the line	rows=1	line=8	status=stale	write_rc=0
+PASS	`also` sentence, a tail-carrying quote	rows=1	line=5	status=stale	write_rc=0
+PASS	`also` sentence with underscore emphasis	rows=1	line=5	status=stale	write_rc=0
+PASS	longer word stays no copy	rows=0	line=None	status=current	write_rc=0
+PASS	inner underscore stays no copy	rows=0	line=None	status=current	write_rc=0
+PASS	snake identifier stays no copy	rows=0	line=None	status=current	write_rc=0
+PASS	break between paragraphs	rows=0	line=None	status=current	write_rc=0
+PASS	a different number	rows=0	line=None	status=current	write_rc=0
+probe_search: 23/23 as expected

@@ -1,0 +1,14 @@
+underscore-not-stripped	rc=1	KILLED	selftest: FAIL underscore emphasis is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENT
+every-underscore-stripped	rc=1	KILLED	selftest: FAIL an inner _ is not emphasis: rendered page carries '| D0-002 | [REQUIREMENTS.md]'
+closing-underscore-kept	rc=1	KILLED	selftest: FAIL underscore emphasis is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENT
+opening-underscore-kept	rc=1	KILLED	selftest: FAIL underscore emphasis is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENT
+reference-link-dropped	rc=1	KILLED	selftest: FAIL a wrapped link is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md)
+inline-link-dropped	rc=1	KILLED	selftest: FAIL a wrapped link is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md)
+page-link-not-flattened	rc=1	KILLED	selftest: FAIL a wrapped link is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md)
+statement-link-kept	rc=1	KILLED	selftest: FAIL a quote with a link finds the plain copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../
+closing-punctuation-kept	rc=1	KILLED	selftest: FAIL another clause end is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS
+comma-not-stripped	rc=0	SURVIVED	
+held-keeps-punctuation	rc=0	SURVIVED	
+also-empty-accepted	rc=1	KILLED	selftest: FAIL `also` normalised to nothing: --check exited 1, expected 2: docs/DOCUMENTATION_AUDIT.md: STALE 
+also-not-searched	rc=1	KILLED	selftest: FAIL a spelling found only through `also` gets a row: rendered page lacks '| D0-002 | [REQUIREMENTS.
+mutants 13, killed 11, survived 2
