@@ -301,10 +301,12 @@ class OwnedProcesses:
                     f"{passes} census passes, slowest {slowest:.2f} s: {remaining}")
             root_pid = self.process.pid if self.process is not None else None
             live = {pid for pid in owned if _live(pid)}
-            if self.root_notified and resumed is None and not (live - {root_pid}):
+            if self.root_notified and resumed is None and root_pid in owned and not (live - {root_pid}):
                 # The stopped shell cannot advance the sweep while descendants
                 # shut down. Resume it only when its pending terminal trap can
                 # finish; it may need to reap zombies before its EXIT cleanup.
+                # A shell already collected has no trap left, so a cancel during
+                # cleanup gives the rest no window of its own (#833).
                 self._signal(self.root_fd, signal.SIGCONT)
                 resumed = clock
                 kill_all = max(kill_all, clock + TRAP_SECONDS)
