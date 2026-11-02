@@ -13,7 +13,9 @@
 //       event type decoded, timers, the coherent grandmaster read, the own
 //       MAC the filter matches and the FILTER_MISMATCH it counts (lane FC);
 //   L   the event loop: the order ctrl_loop_open brings the mailbox up in,
-//       the per-pass bounds, the TICK fan-out to centisecond consumers.
+//       the per-pass bounds, the TICK fan-out to centisecond consumers, and
+//       THE STEP: its client last in every pass, given the deadline read as
+//       the pass starts.
 //
 // One test per labelled step; each assertion carries the check's name from
 // the hand-rolled suite it replaces (README.md, "The port").
@@ -518,6 +520,13 @@ struct LoopProbe {
     std::uint32_t order;  // the tick consumers' call order, two bits per call
     unsigned calls;
     bool owing;  // what the probe's poll reports
+    std::uint32_t now;       // the step's clock, in microseconds
+    unsigned clock_reads;
+    std::uint32_t poll_us;   // the time each poll takes on that clock
+    unsigned steps;
+    unsigned polls_at_step;  // the polls run when the step was last called
+    std::uint32_t deadline;  // the deadline the step was last given
+    bool step_owing;         // what the probe's step reports
 };
 
 LoopProbe probe;
@@ -531,7 +540,20 @@ void probe_event(void*, const mbx_event*) {
 
 bool probe_poll(void*) {
     probe.polls++;
+    probe.now += probe.poll_us;
     return probe.owing;
+}
+
+std::uint32_t probe_clock(void*) {
+    probe.clock_reads++;
+    return probe.now;
+}
+
+bool probe_step(void*, std::uint32_t deadline) {
+    probe.steps++;
+    probe.polls_at_step = probe.polls;
+    probe.deadline = deadline;
+    return probe.step_owing;
 }
 
 void tick_a() {
@@ -666,6 +688,22 @@ TEST_F(LoopBring, L9TablesRefuseNullAndOverflow) {
         << "L9 and the tables keep what they had";
 }
 
+// THE STEP's binding: a client or a clock missing is refused, and a second
+// client is refused, keeping the first (#665).
+TEST_F(LoopBring, L10StepBindingRefusals) {
+    static ctrl_loop loop;
+    ctrl_loop_init(&loop);
+    EXPECT_FALSE(ctrl_loop_set_step(&loop, nullptr, nullptr, probe_clock, nullptr))
+        << "L10 a step with no function is refused";
+    EXPECT_FALSE(ctrl_loop_set_step(&loop, probe_step, nullptr, nullptr, nullptr))
+        << "L10 a step with no clock is refused";
+    EXPECT_TRUE(ctrl_loop_set_step(&loop, probe_step, nullptr, probe_clock, nullptr)) << "L10 a step binds";
+    EXPECT_FALSE(ctrl_loop_set_step(&loop, probe_step, &loop, probe_clock, nullptr))
+        << "L10 a second step is refused";
+    EXPECT_TRUE(loop.step == probe_step && loop.step_ctx == nullptr && loop.clock == probe_clock)
+        << "L10 and the first stays bound";
+}
+
 TEST_F(Loop, L2PerPassRxBound) {
     std::uint8_t f[82];
     build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
@@ -762,6 +800,31 @@ TEST_F(Loop, L8TickRecordWhileCarried) {
     EXPECT_EQ(probe.ticks_a, 41u)
         << "L8 a TICK record taken while centiseconds are carried adds to them: all 41 reach the consumer";
     EXPECT_EQ(loop_.ticks_owed, 0u) << "L8 and none is left owed";
+}
+
+// THE STEP (#665): the client is called once a pass, after every poll, with
+// the clock's value at which the pass has spent CTRL_LOOP_SHARE_US, read once
+// as the pass starts; a step still owed keeps the loop passing.
+TEST_F(Loop, L11StepLastWithTheDeadlineReadAtTheStart) {
+    drain(&loop_);
+    ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
+    probe.now = 1000u;
+    probe.poll_us = 1500u;
+    probe.clock_reads = 0;
+    const unsigned polls = probe.polls;
+    EXPECT_EQ(ctrl_loop_service(&loop_), 0u) << "L11 a step that owes nothing lets the loop sleep";
+    EXPECT_EQ(probe.steps, 1u) << "L11 the step is called once a pass";
+    EXPECT_EQ(probe.polls_at_step, polls + 1u) << "L11 after every poll";
+    EXPECT_EQ(probe.clock_reads, 1u) << "L11 the clock is read once a pass";
+    EXPECT_EQ(probe.deadline, 1000u + CTRL_LOOP_SHARE_US)
+        << "L11 the deadline is the share past the clock read as the pass starts";
+    probe.step_owing = true;
+    EXPECT_NE(ctrl_loop_service(&loop_), 0u) << "L11 a step still owed asks for the next pass at once";
+    EXPECT_EQ(probe.deadline, 2500u + CTRL_LOOP_SHARE_US) << "L11 each pass reads its own deadline";
+    probe.now = 0xfffffc00u;
+    probe.step_owing = false;
+    EXPECT_EQ(ctrl_loop_service(&loop_), 0u);
+    EXPECT_EQ(probe.deadline, 0xfffffc00u + CTRL_LOOP_SHARE_US) << "L11 the deadline wraps with the clock";
 }
 
 }  // namespace

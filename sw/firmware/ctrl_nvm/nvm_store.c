@@ -44,8 +44,10 @@
  * Every step is bounded and returns: the media's waits are polled, never
  * spun on, so the event loop serves every other protocol through a 3 s
  * erase. No step touches more than NVM_STEP_BOUND bytes: one 256-byte
- * stretch (a read-back's is 128), or one latched record's copy and crc16. Time is the flash port's
- * local counter, sampled once per step.
+ * stretch (a read-back's is 128), or one latched record's copy and crc16.
+ * Time is the flash port's local counter, sampled once per step. The loop
+ * owes a step every centisecond and takes it only in a pass with
+ * NVM_STEP_US of its share left (THE STEP, ctrl_loop.h).
  */
 #include "nvm_store.h"
 
@@ -75,6 +77,7 @@ struct nvm_store {
 	int force;                      /* a console commit: write even if unchanged */
 	int stage_changed;              /* the capture changed a staged byte */
 	int stage_durable;              /* the stage equals the authoritative slot */
+	int owed;                       /* a centisecond owes a step (THE STEP) */
 };
 
 static const struct nvm_store nvm_reset_value;
@@ -781,6 +784,34 @@ void nvm_store_service(void)
 	if (nvm.step_bytes > nvm.st.step_bytes_max)
 		nvm.st.step_bytes_max = nvm.step_bytes;
 	nvm_publish();
+}
+
+void nvm_store_tick(void)
+{
+	nvm.owed = 1;
+}
+
+/* THE STEP (#665): a flash step beside the heaviest pass's other work would
+ * take that pass past the share, so the step waits for a pass whose deadline
+ * is still NVM_STEP_US away. The int32 difference is wrap-safe on the 32-bit
+ * clock. */
+bool nvm_store_step(void *ctx, uint32_t deadline)
+{
+	if (!nvm.owed)
+		return false;
+	if ((int32_t)(deadline - nvm_store_clock(ctx)) < (int32_t)NVM_STEP_US) {
+		nvm.st.deferred++;
+		return true;
+	}
+	nvm.owed = 0;
+	nvm_store_service();
+	return false;
+}
+
+uint32_t nvm_store_clock(void *ctx)
+{
+	(void)ctx;
+	return (uint32_t)nvm_now();
 }
 
 void nvm_store_changed(unsigned int group, unsigned int index)

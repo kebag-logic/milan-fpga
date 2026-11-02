@@ -130,7 +130,8 @@ int main(void)
     }
 #endif
     if (!ctrl_app_open_aecp(&image_aecp_bridge) ||
-        !ctrl_loop_add_tick(&image_app.loop,nvm_store_service)) return 6;
+        !ctrl_loop_add_tick(&image_app.loop,nvm_store_tick) ||
+        !ctrl_loop_set_step(&image_app.loop,nvm_store_step,NULL,nvm_store_clock,NULL)) return 6;
     ctrl_loop_run(&image_app.loop);
     return 0;
 }

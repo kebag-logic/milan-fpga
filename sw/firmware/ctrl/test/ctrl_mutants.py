@@ -74,6 +74,11 @@ LOOP_OPEN = ("\tmbx_irq_enable(mbx_place(open, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_EN
              "\t\t       mbx_place(1u, MBX_IRQ_ENABLE_EVT_LSB, MBX_IRQ_ENABLE_EVT_WIDTH));\n"
              "\tmbx_tick_enable(l->n_ticks > 0u);\n\tmbx_filter_open(open);\n")
 
+#: ctrl_loop_service's polls and THE STEP after them.
+STEP_POLLS = ("\tfor (unsigned i = 0; i < l->n_polls; ++i) {\n"
+              "\t\towed = l->polls[i].fn(l->polls[i].ctx) || owed;\n\t}\n")
+STEP_CALL = "\tif (l->step != NULL) {\n\t\towed = l->step(l->step_ctx, deadline) || owed;\n\t}\n"
+
 #: The model arm's test of one suite group.
 MODEL_GROUP = "Suite/MbxModelGroup.PassesOnTheModel/"
 #: The same with the pool bound only once the mailbox is open.
@@ -315,6 +320,24 @@ MUTANTS = (
     Mutant("rx-binds-no-function", "loop/ctrl_loop.c", "if (ch >= MBX_N_CH || fn == NULL) {",
            "if (ch >= MBX_N_CH) {", "port", "LoopBring.L9TablesRefuseNullAndOverflow",
            "L9 a channel bound to no function is refused"),
+    # THE STEP (#665): bound once, last in the pass, with the deadline read as the pass starts
+    Mutant("step-binds-twice", "loop/ctrl_loop.c", "if (l->step != NULL || fn == NULL", "if (fn == NULL",
+           "port", "LoopBring.L10StepBindingRefusals", "L10 a second step is refused"),
+    Mutant("step-binds-no-function", "loop/ctrl_loop.c", "|| fn == NULL || clock == NULL) {", "|| clock == NULL) {",
+           "port", "LoopBring.L10StepBindingRefusals", "L10 a step with no function is refused"),
+    Mutant("step-binds-no-clock", "loop/ctrl_loop.c", "|| fn == NULL || clock == NULL) {", "|| fn == NULL) {",
+           "port", "LoopBring.L10StepBindingRefusals", "L10 a step with no clock is refused"),
+    Mutant("step-before-the-polls", "loop/ctrl_loop.c", STEP_POLLS + STEP_CALL, STEP_CALL + STEP_POLLS,
+           "port", "Loop.L11StepLastWithTheDeadlineReadAtTheStart", "L11 after every poll"),
+    Mutant("step-deadline-read-at-the-end", "loop/ctrl_loop.c", "l->step(l->step_ctx, deadline)",
+           "l->step(l->step_ctx, l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US)", "port",
+           "Loop.L11StepLastWithTheDeadlineReadAtTheStart", "L11 the deadline is the share past the clock read as"),
+    Mutant("step-deadline-without-the-share", "loop/ctrl_loop.c", "l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u",
+           "l->clock(l->clock_ctx) : 0u", "port", "Loop.L11StepLastWithTheDeadlineReadAtTheStart",
+           "L11 the deadline is the share past the clock read as"),
+    Mutant("step-owed-lets-it-sleep", "loop/ctrl_loop.c", "owed = l->step(l->step_ctx, deadline) || owed;",
+           "(void)l->step(l->step_ctx, deadline);", "port", "Loop.L11StepLastWithTheDeadlineReadAtTheStart",
+           "L11 a step still owed asks for the next pass at once"),
     Mutant("seed-left-at-zero", ADP_C, "0x9E3779B9u;\n\tif (a->rng == 0u) {\n\t\ta->rng = 1u;\n\t}\n",
            "0x9E3779B9u;\n", "adp", "AdpCore.A22GeneratorNeverStuckAtZero",
            "A22 an entity id whose words cancel the seed constant"),

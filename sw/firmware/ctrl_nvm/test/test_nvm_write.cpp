@@ -661,6 +661,28 @@ TEST_P(NvmBoth, service_bound) {
         << "the loop did not keep running: " << r.text();
 }
 
+// THE STEP (#665, ctrl_loop.h): the loop owes the store a step every
+// centisecond and takes it only in a pass with NVM_STEP_US of its share left.
+// A pass with less takes none and the step stays owed; the passes it waits
+// through owe it once, not once each; and with the room the commit runs a
+// step a pass, as the direct service runs it.
+TEST_P(NvmBoth, step_room) {
+    Files f = fx().files({{"g.bin", "golden@5"}});
+    const std::vector<std::string> change = {"--slot-b", "g.bin", "--boot", "--set-pattern", "1"};
+    const std::string short_left = num(NVM_STEP_US - 1);
+    const std::string room = num(NVM_STEP_US + 100);
+    Result r = go(port(), f, concat(change, {"--step-left", short_left, "--run-ms", "3000"}));
+    EXPECT_TRUE(r.at("steps") == 0 && r.at("erases") == 0 && r.at("deferred") == r.at("calls") &&
+                r.at("step_owing") == r.at("calls") && r.at("calls") > 0)
+        << "a pass with less than NVM_STEP_US left takes no step, and the step stays owed: " << r.text();
+    r = go(port(), f, concat(change, {"--step-left", short_left, "--service", "5", "--step-left", room, "--pass", "3"}));
+    EXPECT_TRUE(r.at("steps") == 1 && r.at("deferred") == 5 && r.at("step_owing") == 5)
+        << "the passes a step waited through owe it once: " << r.text();
+    r = go(port(), f, concat(change, {"--step-left", room, "--until-idle"}));
+    EXPECT_TRUE(r.at("ok") == 1 && r.at("deferred") == 0 && r.at("steps") == r.at("calls"))
+        << "a pass with NVM_STEP_US left takes the owed step: " << r.text();
+}
+
 // A power cut inside every media effect of a commit (the erase and every page
 // program, at 0, 1/256, 1/2 and 255/256 of it) and during the read-back: the
 // board boots the old values or the new ones exactly, never a mix, never

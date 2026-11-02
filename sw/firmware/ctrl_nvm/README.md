@@ -89,10 +89,11 @@ microsecond. Two obligations follow for the image that links it:
   `nvm_store_boot()`, and nothing else reprograms `timer0`;
 - the counter wraps every 2^32 clocks, so it must be read at least that
   often: every 42.9 s at 100 MHz and every 51.5 s at 83.333 MHz. The store
-  reads it on every `nvm_store_service()` call. An event loop that calls the
-  service at least once per wrap of its shape's clock therefore keeps every
-  elapsed time exact. A longer stall loses whole wraps and delays a
-  deadline; it never brings one forward.
+  reads it on every `nvm_store_service()` call, and the event loop on every
+  pass through `nvm_store_clock()` (THE STEP, `ctrl_loop.h`). An event loop
+  that calls either at least once per wrap of its shape's clock therefore
+  keeps every elapsed time exact. A longer stall loses whole wraps and delays
+  a deadline; it never brings one forward.
 
 **Every wait on the command master is bounded, and so is every call.**
 `ls_open` drains the receive side, and `ls_xfer` waits for TX and then RX
@@ -124,8 +125,11 @@ that slot first.
 **The seam with F0.** F0's merged HAL (`sw/firmware/ctrl/mbx/mbx_hal.h`) carries the mailbox's bus port; this port carries the media.
 The two meet in time, which both need. Whichever time call the split image
 settles on must keep this port's contract: a local counter that only counts
-up, never the PHC. The event loop F0 owns calls `nvm_store_service()` once
-per pass and `nvm_store_changed()` from the protocol adapters.
+up, never the PHC. The event loop F0 owns owes the store one step for each
+centisecond it dispatches (`nvm_store_tick()`, at most one owed at a time)
+and takes it with `nvm_store_step()` at the end of a pass that has room for
+it (THE STEP, `sw/firmware/ctrl/loop/ctrl_loop.h`); the protocol adapters
+call `nvm_store_changed()`.
 
 ## Boot
 

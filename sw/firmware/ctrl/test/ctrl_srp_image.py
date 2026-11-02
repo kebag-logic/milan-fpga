@@ -220,7 +220,7 @@ def main() -> int:
             required |= {"ctrl_app_compose","ctrl_app_open","ctrl_app_compose_aecp","ctrl_app_open_aecp",
                          "aecp_rx","aecp_poll","aecp_map_restore","aecp_restore_defaults","aecp_restore_settle",
                          "aecp_value_restore","aecp_value_latch","aecp_nvm_poll","acmp_nvm_init",
-                         "nvm_store_boot","nvm_store_service","image_aecp","image_descriptors",
+                         "nvm_store_boot","nvm_store_tick","nvm_store_step","image_aecp","image_descriptors",
                          "image_values","image_events","image_maps","image_map_pools","image_map_scratch"}
         if required-names:
             raise Refusal(f"composition discarded required code/storage: {sorted(required-names)}")

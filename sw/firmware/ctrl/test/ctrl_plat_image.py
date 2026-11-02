@@ -42,7 +42,7 @@ REQUIRED = {"main", "ctrl_plat", "ctrl_plat_boot", "ctrl_plat_step", "ctrl_plat_
             "ctrl_plat_csr_policy", "ctrl_plat_console_poll", "maap_csr_allocation", "ctrl_app_compose",
             "ctrl_app_open", "ctrl_app_open_held", "ctrl_app_release_adp", "ctrl_app_compose_aecp",
             "ctrl_app_open_aecp", "ctrl_app_attach_srp", "srp_mbx_init", "aecp_image_load", "nvm_store_boot",
-            "nvm_store_service", "ctrl_loop_step"}
+            "nvm_store_tick", "nvm_store_step", "ctrl_loop_step"}
 #: The fixture's placeholder for the mailbox (ctrl_build.SPLIT_RV32_FLAGS); the map's replaces it. The record
 #: mover's bank stays there: the SoC pins it at that address (milan_soc.add_ctrl_mailbox).
 PLACEHOLDER = re.compile(r"-DCTRL_MBX_BASE=.*")

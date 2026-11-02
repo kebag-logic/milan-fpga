@@ -35,7 +35,9 @@ EID = ("\twr(csr, CTRL_PLAT_CSR_ADP_EID_LO, p->entity_id_lo);\n",
        "\twr(csr, CTRL_PLAT_CSR_ADP_EID_HI, p->entity_id_hi);\n")
 #: Steps 6-7 and the open, as ctrl_plat.c holds them: the saved state's boot, its service's binding, the mailbox.
 SAVED = "\tnvm_store_boot(env->flash, &p->binding.port);\n"
-SERVICE = "\t(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_service);\n"
+TICK = "\t(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_tick);\n"
+STEP = "\t(void)ctrl_loop_set_step(&p->app.loop, nvm_store_step, NULL, nvm_store_clock, NULL);\n"
+SERVICE = TICK + STEP
 OPEN = ("\tif (!ctrl_app_open_held(&p->app, &p->config)) {\n"
         "\t\treturn reach(p, CTRL_PLAT_MAILBOX, \"Milan split: mailbox contract mismatch; entity disabled\\r\\n\");\n"
         "\t}\n")
@@ -164,7 +166,10 @@ def boot_mutants(mutant: type) -> tuple:
         m("plat-saved-state-after-mailbox-open", PLAT, SAVED + SERVICE + OPEN, SERVICE + OPEN + SAVED,
           "platboot1", "Boot.B1ReachesReadyInStepOrder",
           "B1 the saved state is read before the mailbox's first access"),
-        m("plat-store-service-unbound", PLAT, SERVICE, "",
+        m("plat-store-tick-unbound", PLAT, TICK, "",
+          "platboot1", "Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop",
+          "B10 the bind is written back by the store's service on the loop's tick"),
+        m("plat-store-step-unbound", PLAT, STEP, "",
           "platboot1", "Boot.B10ABindAfterReadyIsWrittenBackThroughTheLoop",
           "B10 the bind is written back by the store's service on the loop's tick"),
         m("plat-loop-before-ready", PLAT, "\tif (ctrl_plat.stage == CTRL_PLAT_READY) {",

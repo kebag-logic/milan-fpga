@@ -63,6 +63,18 @@ bool ctrl_loop_add_poll(struct ctrl_loop *l, ctrl_poll_fn fn, void *ctx)
 	return true;
 }
 
+bool ctrl_loop_set_step(struct ctrl_loop *l, ctrl_step_fn fn, void *ctx, ctrl_clock_fn clock, void *clock_ctx)
+{
+	if (l->step != NULL || fn == NULL || clock == NULL) {
+		return false;
+	}
+	l->step = fn;
+	l->step_ctx = ctx;
+	l->clock = clock;
+	l->clock_ctx = clock_ctx;
+	return true;
+}
+
 bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id, const uint64_t own_mac[MBX_N_IF])
 {
 	if (!mbx_open()) {
@@ -142,6 +154,8 @@ static unsigned service_rx(struct ctrl_loop *l, unsigned ch)
 
 unsigned ctrl_loop_service(struct ctrl_loop *l)
 {
+	// THE STEP's deadline, read as the pass starts
+	uint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u;
 	unsigned work = service_events(l);
 	for (unsigned ch = 0; ch < MBX_N_CH; ++ch) {
 		if (l->rx[ch].fn != NULL) {
@@ -151,6 +165,9 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 	bool owed = l->ticks_owed != 0u;
 	for (unsigned i = 0; i < l->n_polls; ++i) {
 		owed = l->polls[i].fn(l->polls[i].ctx) || owed;
+	}
+	if (l->step != NULL) {
+		owed = l->step(l->step_ctx, deadline) || owed;
 	}
 	l->stats.passes++;
 	if (owed) {

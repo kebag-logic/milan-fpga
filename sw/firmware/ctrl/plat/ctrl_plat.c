@@ -250,12 +250,14 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	// a composition that leaves the console no slot stops at SRP, by name
 	(void)ctrl_loop_add_poll(&p->app.loop, ctrl_plat_console_poll, &p->console);
 	// Steps 6-7: the saved state, bindings first, before anything opens. The
-	// store's service is the loop's first centisecond consumer, bound before
-	// the open (acmp_nvm.h), so its table of CTRL_LOOP_MAX_TICKS has room
+	// store's tick is the loop's first centisecond consumer, bound before the
+	// open (acmp_nvm.h), so its table of CTRL_LOOP_MAX_TICKS has room; the
+	// step it owes is THE STEP, taken in a pass with room (ctrl_loop.h)
 	aecp_nvm_init(&p->state, &p->aecp.core, names, AECP_ENTITY_NAMES, map_scratch, AECP_ENTITY_MAP_MAX);
 	acmp_nvm_init(&p->binding, &p->app.acmp.acmp, NVM_G_BIND, &p->state.port);
 	nvm_store_boot(env->flash, &p->binding.port);
-	(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_service);
+	(void)ctrl_loop_add_tick(&p->app.loop, nvm_store_tick);
+	(void)ctrl_loop_set_step(&p->app.loop, nvm_store_step, NULL, nvm_store_clock, NULL);
 	if (!ctrl_app_open_held(&p->app, &p->config)) {
 		return reach(p, CTRL_PLAT_MAILBOX, "Milan split: mailbox contract mismatch; entity disabled\r\n");
 	}

@@ -359,7 +359,9 @@ after that send returns, never from one read before it.
 
 A platform that restores bindings boots in this order: `ctrl_app_compose()`,
 `acmp_nvm_init()` on the app's ACMP core, `nvm_store_boot()` with its port,
-`nvm_store_service()` added as a centisecond consumer, then `ctrl_app_open()`;
+`nvm_store_tick()` added as a centisecond consumer and `nvm_store_step()` as
+the loop's step (`ctrl_loop_set_step`, THE STEP in `loop/ctrl_loop.h`), then
+`ctrl_app_open()`;
 the ACMP env's `persist` port calls `nvm_store_changed(NVM_G_BIND, sink)`.
 
 ## The composition

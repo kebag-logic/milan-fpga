@@ -62,7 +62,8 @@
 // cycles of the split CPU's own clock, the 100 MHz bus clock it runs on
 // (#665, owner decision 2026-10-30). Every slice serves that share, and each
 // module's work in one pass is bounded, the rest resumed on the next pass:
-//   * the loop: the events, records and centiseconds per pass above;
+//   * the loop: the events, records and centiseconds per pass above, and one
+//     clock read a pass when a step is bound (THE STEP);
 //   * ADP and ACMP: the records the loop hands them, and one owed frame per
 //     interface (adp_mbx.h, acmp_mbx.h);
 //   * MAAP: its records, and at most two queued frames per interface
@@ -74,7 +75,20 @@
 //     participant of every interface (SRP_MBX_POLL_FRAMES, srp_bounds.h;
 //     #665: lwSRP's periodic transmission had built all four at two
 //     interfaces in one pass); a link change withdraws in the pass that takes
-//     it and builds in the next (srp_bounds.h).
+//     it and builds in the next, and a pass builds one interface at most
+//     (srp_bounds.h);
+//   * the saved-state store: one service step, taken only in a pass with
+//     room for it (THE STEP, nvm_store.h).
+//
+// THE STEP (#665). One client takes a deferrable step at the end of a pass,
+// after the polls: the saved-state store's write path. Its flash steps (a
+// page program's issue up to 0.93 ms, a 128-byte read-back 0.70 ms) do not
+// fit beside the heaviest pass the other slices make (1.97 ms at 8x8/2if),
+// so its centisecond consumer only owes a step, and the loop hands the step
+// the clock's value at which the pass has spent CTRL_LOOP_SHARE_US, read
+// once as the pass starts. The client takes its step only when its stated
+// cost still fits before that deadline; otherwise the step stays owed, the
+// loop passes again at once, and the first pass with room takes it.
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
@@ -112,6 +126,8 @@ extern "C" {
 #define CTRL_LOOP_EVENTS_PER_PASS 8u    // event records one pass takes at most
 #define CTRL_LOOP_RX_PER_PASS 2u        // RX records one pass takes per channel at most
 #define CTRL_LOOP_TICKS_PER_PASS 16u    // centiseconds one pass dispatches at most
+// THE SHARE in microseconds: SRP's 18 ms over nine passes.
+#define CTRL_LOOP_SHARE_US 2000u
 
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)
@@ -129,6 +145,10 @@ typedef void (*ctrl_rx_fn)(void *ctx, const struct mbx_frame *f);
 typedef void (*ctrl_event_fn)(void *ctx, const struct mbx_event *ev);
 typedef void (*ctrl_tick_fn)(void);
 typedef bool (*ctrl_poll_fn)(void *ctx);   // true while the module still owes output
+// THE STEP: deadline is the clock's value at which the pass has spent its
+// share; true while the client still owes a step it had no room for.
+typedef bool (*ctrl_step_fn)(void *ctx, uint32_t deadline);
+typedef uint32_t (*ctrl_clock_fn)(void *ctx);   // microseconds, counting up; differences wrap
 
 struct ctrl_loop_rx {
 	bool (*ready)(void *ctx);
@@ -163,6 +183,10 @@ struct ctrl_loop {
 	unsigned n_ticks;
 	struct ctrl_loop_poll polls[CTRL_LOOP_MAX_POLLS];
 	unsigned n_polls;
+	ctrl_step_fn step;              // THE STEP's client, or NULL
+	void *step_ctx;
+	ctrl_clock_fn clock;
+	void *clock_ctx;
 	struct mbx_frame frame;         // the one RX buffer every handler borrows
 	uint32_t ticks_owed;            // centiseconds taken from TICK records, not yet dispatched
 	struct ctrl_loop_stats stats;
@@ -176,6 +200,9 @@ void ctrl_loop_set_rx_ready(struct ctrl_loop *l, unsigned ch, bool (*ready)(void
 bool ctrl_loop_add_sink(struct ctrl_loop *l, ctrl_event_fn fn, void *ctx);
 bool ctrl_loop_add_tick(struct ctrl_loop *l, ctrl_tick_fn fn);
 bool ctrl_loop_add_poll(struct ctrl_loop *l, ctrl_poll_fn fn, void *ctx);
+// Bind THE STEP's client and the clock its deadline is read from. False when
+// either function is missing or a step is already bound.
+bool ctrl_loop_set_step(struct ctrl_loop *l, ctrl_step_fn fn, void *ctx, ctrl_clock_fn clock, void *clock_ctx);
 
 // Bring the mailbox up in the contract's order: check the contract, write the
 // filter's entity_id and each interface's own unicast MAC (own_mac[i], 48

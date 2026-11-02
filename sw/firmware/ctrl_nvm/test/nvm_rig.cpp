@@ -51,6 +51,8 @@ struct Rig {
     unsigned service_calls = 0;
     unsigned commit_tries = 0;
     unsigned commit_refused = 0;
+    long long step_left = -1;  // a pass's time left before its deadline, or -1: the step called directly
+    unsigned step_owing = 0;   // passes after which the step was still owed
     unsigned bad = 0;
     Result run;
     Bytes snapshot;
@@ -108,13 +110,27 @@ void boot() {
     nvm_store_boot(rig->port, &nvm_smodel_port);
 }
 
+// THE STEP at the end of a pass whose deadline is step_left away.
+void pass() {
+    const auto deadline = nvm_store_clock(nullptr) + static_cast<std::uint32_t>(rig->step_left);
+    if (nvm_store_step(nullptr, deadline)) {
+        rig->step_owing++;
+    }
+}
+
 void service() {
     const std::uint64_t before = nvm_fmodel_now_us();
     const unsigned polls = nvm_fmodel_count()->busy_polls;
     const unsigned failed = nvm_store_status()->commits_failed;
     const unsigned ok = nvm_store_status()->commits_ok;
     nvm_fmodel_read_max_clear();
-    nvm_store_service();
+    if (rig->step_left < 0) {
+        nvm_store_service();
+    } else {
+        // the loop's centisecond, then THE STEP of a pass step_left from its deadline (ctrl_loop.h)
+        nvm_store_tick();
+        pass();
+    }
     rig->max_read = std::max(rig->max_read, nvm_fmodel_count()->read_max);
     if (nvm_store_status()->commits_failed != failed) {
         note(rig->run.fail_at);
@@ -533,6 +549,13 @@ bool word_arg(const std::string& a, const std::string& v, Files& files) {
         set_pattern(static_cast<unsigned>(number(v.c_str(), nullptr)), true);
     } else if (a == "--touch") {
         touch_arg(v);
+    } else if (a == "--step-left") {
+        rig->step_left = std::strtoll(v.c_str(), nullptr, 0);
+    } else if (a == "--pass") {
+        // passes that carry no centisecond: the step alone
+        for (unsigned long k = number(v.c_str(), nullptr); k > 0u; --k) {
+            pass();
+        }
     } else if (a == "--change") {
         change_arg(v);
     } else if (a == "--service") {
@@ -588,6 +611,7 @@ void summarise() {
         {"ls_hung", lc->hung}, {"max_call_us", static_cast<long long>(rig->max_call_us)},
         {"max_read", rig->max_read},
         {"max_polls_call", rig->max_polls_call}, {"calls", rig->service_calls},
+        {"deferred", s->deferred}, {"step_owing", rig->step_owing},
         {"now_ms", static_cast<long long>(nvm_fmodel_now_us() / 1000u)}, {"commit_tries", rig->commit_tries},
         {"commit_refused", rig->commit_refused}, {"img_len", NVM_IMG_LEN}, {"n_rec", NVM_N_REC},
         {"clock_hz", CONFIG_CLOCK_FREQUENCY}, {"ls_call_ticks", nvm_flash_litespi_call_ticks}, {"bad", rig->bad},
