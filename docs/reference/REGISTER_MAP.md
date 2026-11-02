@@ -3631,12 +3631,12 @@ RTL name: `A_STRMW_SRP`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `STRMW_SRP` | R | X | Index 0, unless `STRM_SEL[9]` selects the listener row: the live `LWSRP_STATUS` word. Other rows are the attribute-row port, which is never granted, so they read 0. |
+| 31:0 | `STRMW_SRP` | R | X | Index 0 with `STRM_SEL[9]` at 0: the live `LWSRP_STATUS` word. Other rows are the attribute-row port, which is never granted, so they read 0. |
 
 | When | A read returns |
 |---|---|
-| the selected stream exists and the stream index `STRM_SEL[3:0]` is 0 and `STRM_SEL[9]` does not select the listener row at index 0 | `i_lwsrp_status` |
-| the selected stream exists and `STRM_SEL[9]` selects the listener row at index 0 and the SRP table answered since the last selection | `{16'd0, i_srp_ctx_rd_stat}` |
+| the selected stream exists and the stream index `STRM_SEL[3:0]` is 0 and `STRM_SEL[9]` is 0 | `i_lwsrp_status` |
+| the selected stream exists and `STRM_SEL[9]` is 1 and the SRP table answered since the last selection | `{16'd0, i_srp_ctx_rd_stat}` |
 | the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered since the last selection | `{16'd0, i_srp_ctx_rd_stat}` |
 | any other case | `0x00000000` |
 

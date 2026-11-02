@@ -3403,7 +3403,7 @@
       "name": "Stream window SRP status",
       "purpose": "SRP status of the selected stream.",
       "fields": {
-        "STRMW_SRP": "Index 0, unless `STRM_SEL[9]` selects the listener row: the live `LWSRP_STATUS` word. Other rows are the attribute-row port, which is never granted, so they read 0."
+        "STRMW_SRP": "Index 0 with `STRM_SEL[9]` at 0: the live `LWSRP_STATUS` word. Other rows are the attribute-row port, which is never granted, so they read 0."
       },
       "notes": []
     },
@@ -4091,8 +4091,8 @@
       "the staged identity belongs to another stream"
     ],
     "srp_idx0_ls_w": [
-      "`STRM_SEL[9]` selects the listener row at index 0",
-      "`STRM_SEL[9]` does not select the listener row at index 0"
+      "`STRM_SEL[9]` is 1",
+      "`STRM_SEL[9]` is 0"
     ],
     "snap_kind_r": "the kind the last snapshot recorded for this counter",
     "snap_busy_r": [

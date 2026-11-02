@@ -87,10 +87,8 @@ CLAUSE: dict[str, Callable[[State], bool]] = {
     "the ACMP table has not answered since the last selection": lambda s: s["acmp"] == 0,
     "the SRP table answered since the last selection": lambda s: s["srp"] == 1,
     "the SRP table has not answered since the last selection": lambda s: s["srp"] == 0,
-    # STRM_SEL[9]'s field row: with [8] at 0, 1 selects sink 0's dedicated
-    # row; with [8] at 1 it moves to the talker row.
-    "`STRM_SEL[9]` selects the listener row at index 0": lambda s: s["sel9"] == 1 and s["dir"] == 0,
-    "`STRM_SEL[9]` does not select the listener row at index 0": lambda s: not (s["sel9"] == 1 and s["dir"] == 0),
+    "`STRM_SEL[9]` is 1": lambda s: s["sel9"] == 1,
+    "`STRM_SEL[9]` is 0": lambda s: s["sel9"] == 0,
     "the kind the last snapshot recorded for this counter is `SK_RAW_C`": lambda s: s["kind"] == s["SK_RAW_C"],
     "the kind the last snapshot recorded for this counter is `SK_POISON_C`": lambda s: s["kind"] == s["SK_POISON_C"],
     "the kind the last snapshot recorded for this counter is `SK_ZERO_C`": lambda s: s["kind"] == s["SK_ZERO_C"],
