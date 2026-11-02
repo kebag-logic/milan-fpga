@@ -77,7 +77,8 @@ LOOP_OPEN = ("\tmbx_irq_enable(mbx_place(open, MBX_IRQ_ENABLE_RX_LSB, MBX_IRQ_EN
 #: ctrl_loop_service's polls and THE STEP after them.
 STEP_POLLS = ("\tfor (unsigned i = 0; i < l->n_polls; ++i) {\n"
               "\t\towed = l->polls[i].fn(l->polls[i].ctx) || owed;\n\t}\n")
-STEP_CALL = "\tif (l->step != NULL) {\n\t\towed = l->step(l->step_ctx, deadline) || owed;\n\t}\n"
+STEP_CALL = ("\t// THE STEP, only in a pass that took no input: no input's service waits on it\n"
+             "\tif (l->step != NULL && work == 0u) {\n\t\towed = l->step(l->step_ctx, deadline) || owed;\n\t}\n")
 
 #: The model arm's test of one suite group.
 MODEL_GROUP = "Suite/MbxModelGroup.PassesOnTheModel/"
@@ -335,6 +336,8 @@ MUTANTS = (
     Mutant("step-deadline-without-the-share", "loop/ctrl_loop.c", "l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u",
            "l->clock(l->clock_ctx) : 0u", "port", "Loop.L11StepLastWithTheDeadlineReadAtTheStart",
            "L11 the deadline is the share past the clock read as"),
+    Mutant("step-beside-input", "loop/ctrl_loop.c", "if (l->step != NULL && work == 0u) {", "if (l->step != NULL) {",
+           "port", "Loop.L12StepOnlyInAPassThatTakesNoInput", "L12 a pass that takes a record does not take the step"),
     Mutant("step-owed-lets-it-sleep", "loop/ctrl_loop.c", "owed = l->step(l->step_ctx, deadline) || owed;",
            "(void)l->step(l->step_ctx, deadline);", "port", "Loop.L11StepLastWithTheDeadlineReadAtTheStart",
            "L11 a step still owed asks for the next pass at once"),

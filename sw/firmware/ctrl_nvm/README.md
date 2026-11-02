@@ -127,8 +127,9 @@ The two meet in time, which both need. Whichever time call the split image
 settles on must keep this port's contract: a local counter that only counts
 up, never the PHC. The event loop F0 owns owes the store one step for each
 centisecond it dispatches (`nvm_store_tick()`, at most one owed at a time)
-and takes it with `nvm_store_step()` at the end of a pass that has room for
-it (THE STEP, `sw/firmware/ctrl/loop/ctrl_loop.h`); the protocol adapters
+and takes it with `nvm_store_step()` at the end of a pass that took no input
+and has room for it (THE STEP, `sw/firmware/ctrl/loop/ctrl_loop.h`); the
+protocol adapters
 call `nvm_store_changed()`.
 
 ## Boot

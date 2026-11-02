@@ -252,7 +252,8 @@ enum ctrl_plat_stage ctrl_plat_boot(const struct ctrl_plat_env *env)
 	// Steps 6-7: the saved state, bindings first, before anything opens. The
 	// store's tick is the loop's first centisecond consumer, bound before the
 	// open (acmp_nvm.h), so its table of CTRL_LOOP_MAX_TICKS has room; the
-	// step it owes is THE STEP, taken in a pass with room (ctrl_loop.h)
+	// step it owes is THE STEP, taken in a pass that took no input and has
+	// room (ctrl_loop.h)
 	aecp_nvm_init(&p->state, &p->aecp.core, names, AECP_ENTITY_NAMES, map_scratch, AECP_ENTITY_MAP_MAX);
 	acmp_nvm_init(&p->binding, &p->app.acmp.acmp, NVM_G_BIND, &p->state.port);
 	nvm_store_boot(env->flash, &p->binding.port);

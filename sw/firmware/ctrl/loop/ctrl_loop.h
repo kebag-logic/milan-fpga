@@ -77,18 +77,23 @@
 //     interfaces in one pass); a link change withdraws in the pass that takes
 //     it and builds in the next, and a pass builds one interface at most
 //     (srp_bounds.h);
-//   * the saved-state store: one service step, taken only in a pass with
-//     room for it (THE STEP, nvm_store.h).
+//   * the saved-state store: one service step, taken only in a pass that
+//     took no input and has room for it (THE STEP, nvm_store.h).
 //
-// THE STEP (#665). One client takes a deferrable step at the end of a pass,
-// after the polls: the saved-state store's write path. Its flash steps (a
-// page program's issue up to 0.93 ms, a 128-byte read-back 0.70 ms) do not
-// fit beside the heaviest pass the other slices make (1.97 ms at 8x8/2if),
-// so its centisecond consumer only owes a step, and the loop hands the step
-// the clock's value at which the pass has spent CTRL_LOOP_SHARE_US, read
-// once as the pass starts. The client takes its step only when its stated
-// cost still fits before that deadline; otherwise the step stays owed, the
-// loop passes again at once, and the first pass with room takes it.
+// THE STEP (#665). One client takes a deferrable step at the end of a pass
+// that took no input, no event and no record, after the polls: the
+// saved-state store's write path. Its flash steps (a page program's issue up
+// to 0.93 ms, a 128-byte read-back 0.70 ms) do not fit beside the heaviest
+// pass the other slices make (1.97 ms at 8x8/2if), and in a pass that takes
+// records they lengthen every record still waiting (the last SRP record of a
+// full ring waits sixteen passes), so its centisecond consumer only owes a
+// step, and the loop calls the step only once a pass takes nothing. It hands
+// the step the clock's value at which the pass has spent
+// CTRL_LOOP_SHARE_US, read once as the pass starts; the client takes its
+// step only when its stated cost still fits before that deadline. Otherwise
+// the step stays owed, the loop passes again at once, and the first pass
+// that takes nothing and has room takes it. An input that arrives during
+// such a pass waits for it, as for any pass running when it arrives.
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer

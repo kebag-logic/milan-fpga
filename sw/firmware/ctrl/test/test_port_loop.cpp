@@ -14,8 +14,8 @@
 //       MAC the filter matches and the FILTER_MISMATCH it counts (lane FC);
 //   L   the event loop: the order ctrl_loop_open brings the mailbox up in,
 //       the per-pass bounds, the TICK fan-out to centisecond consumers, and
-//       THE STEP: its client last in every pass, given the deadline read as
-//       the pass starts.
+//       THE STEP: its client last in every pass that takes no input, given
+//       the deadline read as the pass starts.
 //
 // One test per labelled step; each assertion carries the check's name from
 // the hand-rolled suite it replaces (README.md, "The port").
@@ -825,6 +825,24 @@ TEST_F(Loop, L11StepLastWithTheDeadlineReadAtTheStart) {
     probe.step_owing = false;
     EXPECT_EQ(ctrl_loop_service(&loop_), 0u);
     EXPECT_EQ(probe.deadline, 0xfffffc00u + CTRL_LOOP_SHARE_US) << "L11 the deadline wraps with the clock";
+}
+
+// THE STEP waits out a pass that takes an input, a record or an event, and
+// the next pass that takes nothing takes it (#665).
+TEST_F(Loop, L12StepOnlyInAPassThatTakesNoInput) {
+    drain(&loop_);
+    ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
+    std::uint8_t f[82];
+    build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.steps, 0u) << "L12 a pass that takes a record does not take the step";
+    mbx_timer_arm(0, 0x500u, mbx_now_ms());
+    mbx_model_advance_ms(&model, 0);
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.steps, 0u) << "L12 nor one that takes an event";
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.steps, 1u) << "L12 the next pass that takes nothing takes it";
 }
 
 }  // namespace

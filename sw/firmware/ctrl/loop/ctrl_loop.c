@@ -166,7 +166,8 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 	for (unsigned i = 0; i < l->n_polls; ++i) {
 		owed = l->polls[i].fn(l->polls[i].ctx) || owed;
 	}
-	if (l->step != NULL) {
+	// THE STEP, only in a pass that took no input: no input's service waits on it
+	if (l->step != NULL && work == 0u) {
 		owed = l->step(l->step_ctx, deadline) || owed;
 	}
 	l->stats.passes++;

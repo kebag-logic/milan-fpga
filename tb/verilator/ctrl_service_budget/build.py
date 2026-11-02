@@ -42,6 +42,14 @@ def run(argv: list[str], log: Path, cwd: Path | None = None) -> None:
         raise RuntimeError(f'{argv[0]} exited {result.returncode}; see {log.name}')
 
 
+#: ctrl_loop_service from THE STEP's deadline to its call (ctrl_loop.c).
+STEP_SPAN = ('\tuint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u;\n'
+             '\tunsigned work = service_events(l);\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n'
+             '\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n'
+             '\tbool owed = l->ticks_owed != 0u;\n\tfor (unsigned i = 0; i < l->n_polls; ++i) {\n'
+             '\t\towed = l->polls[i].fn(l->polls[i].ctx) || owed;\n\t}\n'
+             "\t// THE STEP, only in a pass that took no input: no input's service waits on it\n"
+             '\tif (l->step != NULL && work == 0u) {\n')
 #: Planted firmware defects for the controls: each is (source file, unique anchor, replacement),
 #: the control group its control paths are in, and the variant it needs.
 MUTATIONS = {
@@ -57,11 +65,12 @@ MUTATIONS = {
                           '\tfor (volatile uint32_t n = 0; !enable && n < 32000u; ++n) {\n\t}\n'
                           '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tadp_set_enable(',
                           'control-shutdown', 'shutdown-entry'),
-    # #665's planted store step: the loop hands THE STEP a deadline no pass reaches, so the saved-state
-    # store takes its flash step in whatever pass owes it, as before ctrl_loop.h's THE STEP. A pass of a
-    # save's windows must then exceed the share while every row fits (save_window.py).
-    'store-step-unbounded': ('loop/ctrl_loop.c', 'l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u',
-                             'l->clock(l->clock_ctx) + 0x40000000u : 0u',
+    # #665's planted store step: the loop takes THE STEP in every pass and hands it a deadline no pass
+    # reaches, so the saved-state store takes its flash step in whatever pass owes it, as before
+    # ctrl_loop.h's THE STEP. A pass of a save's windows must then exceed the share while every row fits
+    # (save_window.py).
+    'store-step-unbounded': ('loop/ctrl_loop.c', STEP_SPAN, STEP_SPAN.replace(
+        'CTRL_LOOP_SHARE_US : 0u', '0x40000000u : 0u').replace('l->step != NULL && work == 0u', 'l->step != NULL'),
                              ','.join(save_window.row_names()), 'none'),
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.

@@ -8,8 +8,9 @@
  * One store per image, held in static storage sized by nvm_shape.h; there is
  * no heap and no OS service. Each nvm_store_service() call does one bounded
  * step and returns. The event loop owes the store a step every centisecond
- * (nvm_store_tick) and takes it at the end of a pass that has room for it
- * (nvm_store_step; THE STEP in sw/firmware/ctrl/loop/ctrl_loop.h).
+ * (nvm_store_tick) and takes it at the end of a pass that took no input and
+ * has room for it (nvm_store_step; THE STEP in
+ * sw/firmware/ctrl/loop/ctrl_loop.h).
  */
 #ifndef NVM_STORE_H
 #define NVM_STORE_H
