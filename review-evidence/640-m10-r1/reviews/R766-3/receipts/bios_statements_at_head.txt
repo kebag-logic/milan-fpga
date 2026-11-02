@@ -1,0 +1,36 @@
+docs/design/MARK_II_AREA_PLAN.md:112:| `(alinx_ax7101)`, the LiteX top's own logic | 5,119 | 6,283 | 47 | 10 | 0 | The switch-over and LiteX stages 1 to 3; its 47 RAMB36 are 29 generated FIFOs and 18 BIOS ROM and SRAM ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) |
+docs/design/MARK_II_AREA_PLAN.md:231:| 1 | Drop DDR3 and the BIOS ROM; main memory on chip (D4); our boot loader copies the firmware image from QSPI flash into Block RAM ([D18](#mark-ii-decisions)); the image has its own flash slot ([D21](#mark-ii-decisions)); masters attach to the SoC bus ([stage 1](#stage-1-boot-and-bus)) | LiteDRAM controller and PHY; BIOS ROM and SRAM, 18 RAMB36 measured | Lever 1, ~1.0k LUTs |
+docs/design/MARK_II_AREA_PLAN.md:236:The [census](#litex-block-census) places the BIOS at the switch-over.
+docs/design/MARK_II_AREA_PLAN.md:238:The switch-over removes the BIOS and its ROM and SRAM.
+docs/design/MARK_II_AREA_PLAN.md:299:[D19](#mark-ii-decisions) removes every LiteX block, beyond DDR3 and the BIOS.
+docs/design/MARK_II_AREA_PLAN.md:333:| BIOS ROM `rom`, 128 KiB, and the BIOS it holds | With `sram`, 18 RAMB36 ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) | Switch-over, lane 1 | Removed at the switch-over: the split build runs no BIOS and builds no integrated ROM ([split memory](SPLIT_CONTROL_MEMORY.md)). `ctrl_memory`'s `rom` banks hold the region and the reset entry until stage 3, then first-party Block RAM (the `ctrl_memory` row). From stage 1 the b
+docs/design/MARK_II_AREA_PLAN.md:334:| BIOS SRAM `sram`, 8 KiB | In those 18 RAMB36 | Switch-over, lane 1 | Removed at the switch-over: the split build builds no integrated SRAM. `ctrl_memory`'s `sram` banks hold the region until stage 3, then first-party Block RAM (the `ctrl_memory` row) |
+docs/design/MARK_II_AREA_PLAN.md:354:| Console loss, LiteX UART with a 16-byte receive FIFO, polled, interrupts off, no BIOS | A 22-character line lost characters on 17 of 300 sends; a 14-character line lost none of 300 | Measured | [Stage 1 silicon probe](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6556743957) |
+docs/design/MARK_II_AREA_PLAN.md:387:Of those, 29 are generated FIFOs, 18 BIOS memory.
+docs/design/MARK_II_AREA_PLAN.md:416:| D19, LiteX blocks | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): every LiteX peripheral is removed, not only DDR3 and the BIOS | The [block census](#litex-block-census): no LiteX block remains |
+docs/design/MARK_II_AREA_PLAN.md:432:| 2 | LiteX stage 1, lever 1 | Drop DDR3 (lane 1 already drops the BIOS memory); a boot loader filling `rom` from the firmware's QSPI flash copy (D18); the firmware's own flash slot (D21); masters on the SoC bus | Lane 1 | ~1.0k | Routed image; boot and persistence on the bench |
+docs/design/MARK_II_AREA_PLAN.md:802:| `@own` (the LiteX top) | 4,833 | 6,072 | DDR3 controller and PHY, the SoC bus and CSR banks, the management MAC, UART, SPI flash, the BIOS ROM and SRAM, generated FIFOs | one flat generated module | nothing in Milan | DDR3 main memory (L11a), the FIFO storage (L3) |
+docs/design/MARK_II_AREA_PLAN.md:1302:| M8a-1: BIOS ROM and SRAM not built in the split, measured at `e8454e27` | -18 | 0 | -18 | 69 |
+docs/design/MARK_II_AREA_PLAN.md:1309:The [earlier SoC census](../findings/649_RESOURCE_MAP_AND_SENSITIVITY.md#the-soc-tops-own-logic) reported BIOS ROM/SRAM at 18 RAMB36 and one RAMB18.
+docs/design/MARK_II_AREA_PLAN.md:1312:The split builds neither BIOS memory, so no boot memory is retained outside the allocation.
+docs/design/MARK_II_AREA_PLAN.md:1335:Keeping the BIOS ROM and SRAM would add 18: 143 and 132.
+docs/design/AREA_BUDGET.md:301:| M8a-1: BIOS ROM and SRAM not built in the split, measured at `e8454e27` | -18 | 0 | -18 | 69 |
+docs/design/AREA_BUDGET.md:306:M8a-1 measured the BIOS ROM and SRAM at `e8454e27`: 16 + 2 RAMB36, no RAMB18.
+docs/design/AREA_BUDGET.md:308:The split builds neither BIOS memory, so no boot storage is retained outside the allocation.
+docs/design/AREA_BUDGET.md:310:Keeping the BIOS memories would add 18: 143 and 132 tiles.
+docs/design/MAILBOX_SPLIT.md:1152:memory: it requires `--ctrl-firmware <elf>`, builds no BIOS ROM or BIOS SRAM,
+docs/design/SPLIT_CONTROL_MEMORY.md:5:The all-fabric shipping default is unchanged and keeps its BIOS.
+docs/design/SPLIT_CONTROL_MEMORY.md:8:No BIOS ROM or BIOS SRAM is built there.
+docs/design/SPLIT_CONTROL_MEMORY.md:17:- **[4. Boot console and diagnostics](#4-boot-console-and-diagnostics)** -- What the split image loses and keeps without a BIOS, and DDR3 until the wrapper is removed.
+docs/design/SPLIT_CONTROL_MEMORY.md:56:The Builder then builds no BIOS: `add_ctrl_memory` sets LiteX's own `integrated_rom_initialized`.
+docs/design/SPLIT_CONTROL_MEMORY.md:57:`main()` does not add the shipping firmware library, which has no BIOS to link into.
+docs/design/SPLIT_CONTROL_MEMORY.md:109:The passing split export holds the image's banks and no BIOS ROM or SRAM, and its `rom` banks hold the image.
+docs/design/SPLIT_CONTROL_MEMORY.md:121:- the LiteX BIOS and its console: banner, memory, flash, SDRAM and boot commands;
+docs/design/SPLIT_CONTROL_MEMORY.md:122:- the BIOS DDR3 initialisation (`sdram_init`);
+docs/design/SPLIT_CONTROL_MEMORY.md:134:With no BIOS, the DFI never makes the 1 to 0 to 1 hand-back that `pp_mem_gate` waits for.
+docs/design/SPLIT_CONTROL_MEMORY.md:176:Before: the base image's BIOS ROM took 16 RAMB36 and its SRAM 2, measured at `e8454e27`.
+docs/ARCHITECTURE_HW_SW_SPLIT.md:252:It also selects M8a-1's [firmware block RAM](design/SPLIT_CONTROL_MEMORY.md), with no BIOS.
+sw/litex/milan_soc.py:3176:            kwargs.update(integrated_rom_size=0, integrated_sram_size=0)
+sw/litex/milan_soc.py:3177:        kwargs.setdefault("integrated_rom_size", 0x20000)   # BIOS lives here; reset vector
+sw/litex/ctrl_memory.py:128:ROM = Region("rom", 0x0000_0000, BUDGET_BYTES)
+sw/litex/ctrl_memory.py:129:RAM = Region("sram", 0x1000_0000, BUDGET_BYTES)

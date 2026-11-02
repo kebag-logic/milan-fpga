@@ -1,0 +1,40 @@
+diff --git a/docs/design/MARK_II_AREA_PLAN.md b/docs/design/MARK_II_AREA_PLAN.md
+index 63b154e4a6..c29ba125a3 100644
+--- a/docs/design/MARK_II_AREA_PLAN.md
++++ b/docs/design/MARK_II_AREA_PLAN.md
+@@ -232,8 +232,13 @@ A routed-image measurement follows each stage.
+ | 2 | Replace LiteEth and LiteSPI with proven open-source cores on AXI-Stream and AXI4-Lite | LiteEth MAC and LiteSPI, inside the 5,119-LUT LiteX top | Part of the -1.75k above; the second port needs the new MAC |
+ | 3 | A plain SystemVerilog top replaces the SoC generator | Wishbone and CSR-bank glue; the generated FIFOs | Lever 2, ~1.0k, and the rest of the -1.75k |
+ 
+-Lane 1's split build already drops the BIOS memory.
+-The [census](#litex-block-census) places it at the switch-over.
++Stage 1's row keeps the owner's words.
++The [census](#litex-block-census) places the BIOS at the switch-over.
++
++The switch-over removes the BIOS and its ROM and SRAM.
++`ctrl_memory`'s `rom` and `sram` banks hold them until stage 3.
++
++Stage 1 drops DDR3 and fills `rom` from flash ([D18](#mark-ii-decisions)).
+ 
+ Stage 2 candidates follow the owner's criteria:
+ 
+@@ -325,8 +330,8 @@ No fate below is a LiteX block.
+ | `milan_axil_cdc`, the CPU-to-`milan_csr` crossing | LiteX top | 3 | Replaced by a first-party AXI4-Lite crossing built from the approved CDC primitives |
+ | The processor's memory paths: the CPU DMA port, `dma_bus`, three adapters, FSMs and crossings, and the `ppmem` observer | `dma_bridge_read_bridge` 105, `dma_bridge_write_bridge` 176 and `dma_filter_down_to_unified_mBus_cc` 104; the rest in the LiteX top | Switch-over, lane 1 | Removed, nothing in its place: the masters leave with the processor |
+ | DDR3: `ddrphy`, `sdram`, `litedramaxi2native_0` and the staged refresher; the CPU's memory port, its clock crossing, ready stage and width adapter; `_CRG`'s two 400 MHz `sys4x` clocks | `mem_toAxi4_logic_bridge` 225 and `unified_mBus_to_mem_toAxi4_up_widthAdapter` 136; the rest in the LiteX top | 1 | Removed, nothing in its place: main memory is on chip (D4) |
+-| BIOS ROM `rom`, 128 KiB, and the BIOS it holds | With `sram`, 18 RAMB36 ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) | Switch-over, lane 1 | Removed, nothing in its place: the split build runs no BIOS ([split memory](SPLIT_CONTROL_MEMORY.md)). From stage 1 the first-party boot loader fills the firmware's memory ([D18](#mark-ii-decisions)) |
+-| BIOS SRAM `sram`, 8 KiB | In those 18 RAMB36 | Switch-over, lane 1 | Removed, nothing in its place: the split build builds none |
++| BIOS ROM `rom`, 128 KiB, and the BIOS it holds | With `sram`, 18 RAMB36 ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) | Switch-over, lane 1 | Removed at the switch-over: the split build runs no BIOS and builds no integrated ROM ([split memory](SPLIT_CONTROL_MEMORY.md)). `ctrl_memory`'s `rom` banks hold the region and the reset entry until stage 3, then first-party Block RAM (the `ctrl_memory` row). From stage 1 the boot loader fills `rom` from the flash copy ([D18](#mark-ii-decisions)) |
++| BIOS SRAM `sram`, 8 KiB | In those 18 RAMB36 | Switch-over, lane 1 | Removed at the switch-over: the split build builds no integrated SRAM. `ctrl_memory`'s `sram` banks hold the region until stage 3, then first-party Block RAM (the `ctrl_memory` row) |
+ | LEDs or GPIO; the `user_led0` pin | None built | - | No LiteX LED or GPIO block exists; `user_led0` is the datapath's identify output, a pin the top keeps |
+ | Split build: the firmware's memory `ctrl_memory`, LiteX `wishbone.SRAM` banks for `rom` and `sram`, their `wishbone.Decoder` and the error answer past the last bank | Not in the basis; 35.0 tiles mapped at 1x1 ([fit](SPLIT_CONTROL_MEMORY.md#5-fit)) | 3 | Replaced by first-party Block RAM in the top: main memory on chip (D4), which the boot loader fills ([D18](#mark-ii-decisions)). Stage 1 already fills `rom` from the flash copy, not the configuration image |
+ | Split build: `ctrl_mbx`'s LiteX parts, its `EventManager`, the CSR bank holding it and its millisecond tick | Not in the basis | 3 | The event manager and CSR bank are removed, nothing in their place: the firmware polls `KL_mbx`'s own status and reads no `ctrl_mbx` CSR. A first-party counter in the top replaces the tick |
+@@ -424,7 +429,7 @@ Measurements queue serially; no heavy builds overlap.
+ |---:|---|---|---|---:|---|
+ | 0 | Charter | This plan, the requirements, the split and the stream-engine design | Owner approval of the requirement text | 0 | Documentation gates |
+ | 1 | Switch-over | F0 to F5 integrated; F1 on the append-only format of #823; processor and MAAP deleted | Bench qualification of the firmware | Basis to ~31.0k | Routed image; suites; bench; NFR-REL-03 |
+-| 2 | LiteX stage 1, lever 1 | Drop DDR3 and the BIOS ROM; a boot loader copying the firmware from QSPI flash; the firmware's own flash slot (D21); masters on the SoC bus | Lane 1 | ~1.0k | Routed image; boot and persistence on the bench |
++| 2 | LiteX stage 1, lever 1 | Drop DDR3 (lane 1 already drops the BIOS memory); a boot loader filling `rom` from the firmware's QSPI flash copy (D18); the firmware's own flash slot (D21); masters on the SoC bus | Lane 1 | ~1.0k | Routed image; boot and persistence on the bench |
+ | 3 | Lever 3 | `milan_csr` consumer census, then reduction | Lane 1 | ~1.75k | CSR, host-tool and firmware suites |
+ | 4 | LiteX stage 2 | New MAC and QSPI cores as pinned donors | Survey; two reviews per core | Part of -1.75k | Core testbenches; save bound on the bench |
+ | 5 | LiteX stage 3, lever 2 | Plain SystemVerilog top | Lanes 2 and 4 | ~1.0k plus the rest of -1.75k | Rewritten simulation gates; routed image |

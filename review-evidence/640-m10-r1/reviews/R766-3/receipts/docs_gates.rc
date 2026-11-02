@@ -1,0 +1,9 @@
+scripts/docs_check.py rc=0
+scripts/check_em_dash.py --base 503bc97c rc=0
+scripts/check_doc_style.py rc=0
+scripts/check_doc_style.py --selftest rc=0
+scripts/gen_toc.py --selftest rc=0
+scripts/gen_toc.py --verify-anchors rc=0
+scripts/gen_toc.py --check rc=0
+scripts/check_doc_paths.py rc=0
+git diff --check 503bc97c HEAD rc=0

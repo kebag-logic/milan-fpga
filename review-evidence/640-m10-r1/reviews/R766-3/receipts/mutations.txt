@@ -1,0 +1,10 @@
+# mutation 1: break the D18 anchor on the new stage-1 note line
+ docs/design/MARK_II_AREA_PLAN.md | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+scripts/docs_check.py rc=0
+scripts/gen_toc.py --verify-anchors rc=0
+scripts/check_doc_style.py rc=0
+# mutation 2: an 11-word sentence in the new note
+scripts/check_doc_style.py rc=0
+documentation style: OK (23 current documents)
+restored-clean
