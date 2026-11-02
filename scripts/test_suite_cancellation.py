@@ -580,10 +580,16 @@ def owner_survivor(parent: Path) -> None:
             def undying(pid: int, start: str, signum: int) -> bool:
                 """What no unprivileged control can really build: SIGKILL has no effect."""
                 if survivor and pid == survivor[0] and signum == signal.SIGKILL:
-                    assert time.monotonic() - since < 30, "a survivor never failed the run"
                     return True
                 return send(pid, start, signum)
             owner._send = undying
+            census = owner._descendants
+
+            def bounded() -> dict:
+                """Cleanup calls this every pass, so a run that never fails ends here, not in a hang."""
+                assert time.monotonic() - since < 30, "a survivor never failed the run"
+                return census()
+            owner._descendants = bounded
 
             def cancel() -> None:
                 """Cancel the owner once the survivor and its stopped-to-be shell are known."""
