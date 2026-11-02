@@ -1,0 +1,11 @@
+Independent pass (written before reading any prior review finding), head d52e966bb7.
+Delta 30eb4834..d52e966b: docs/design/MARK_II_AREA_PLAN.md only, +10/-5.
+F1 candidate (MINOR, Conformance+Docs): stage table row 1 (MARK_II_AREA_PLAN.md:231) "Removes" column still
+credits "BIOS ROM and SRAM, 18 RAMB36 measured" to stage 1 / lever 1, while :236-239, census :333-334, lane row :432,
+and the Block RAM ledger :1302 (-18 at M8a-1 split) place that removal at the switch-over. "Stage 1's row keeps
+the owner's words" covers the Change column (owner said "Drop DDR3 and the BIOS ROM"), not the Removes column,
+which is the plan's own measured attribution. Figure attributed to two stages -> not pure wording.
+F2 candidate (RESIDUE): :238-239 "hold them" - antecedent includes "the BIOS"; banks hold the regions.
+F3 candidate (SUGGESTION): rom is read-only and configuration-initialised (SPLIT_CONTROL_MEMORY.md:55) and holds
+the reset entry; "boot loader fills rom" (stage 1) leaves where the loader runs to the stage 1 lane; pre-existing at :336 since 7f5ea1c8.
+Draft verdict: NEGATIVE (F1). Ledger draft: Conformance UNCLEAN, Docs UNCLEAN, RTL/Robustness/Tests CLEAN (no code delta).
