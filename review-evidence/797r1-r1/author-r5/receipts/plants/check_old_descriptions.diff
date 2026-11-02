@@ -1,0 +1,15 @@
+diff --git a/scripts/register_descriptions.json b/scripts/register_descriptions.json
+index 86734b0170..6bc196bbd7 100644
+--- a/scripts/register_descriptions.json
++++ b/scripts/register_descriptions.json
+@@ -4083,8 +4083,8 @@
+       "the ACMP table has not answered since the last selection"
+     ],
+     "srp_fresh_r": [
+-      "the SRP table's latest answer to the window was a poll, after the last `STRM_SEL`/`STRMW_CTRL` write, with no other master using the table since",
+-      "the SRP table's latest answer to the window was not a poll after the last `STRM_SEL`/`STRMW_CTRL` write, or another master has used the table since"
++      "the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write",
++      "the SRP table has not answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write"
+     ],
+     "stg_hit_w": [
+       "the staged identity belongs to the selected stream",
