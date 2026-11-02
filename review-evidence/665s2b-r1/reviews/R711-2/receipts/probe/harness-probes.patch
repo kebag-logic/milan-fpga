@@ -1,0 +1,164 @@
+diff --git a/tb/verilator/ctrl_service_budget/grade.py b/tb/verilator/ctrl_service_budget/grade.py
+index ee6eb2618e..f78527b07a 100644
+--- a/tb/verilator/ctrl_service_budget/grade.py
++++ b/tb/verilator/ctrl_service_budget/grade.py
+@@ -57,7 +57,7 @@ LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'sr
+ BACKLOG_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed')
+ #: The groups whose composed window carries a defined load: the backlog rows and the
+ #: self-test's short window.
+-COMPOSED_ROWS = (*BACKLOG_ROWS, 'fixture')
++COMPOSED_ROWS = (*BACKLOG_ROWS, 'fixture', 'x-links-same', 'x-links-1ms', 'x-links-2ms', *(f'x-save-{k}' for k in range(6)), 'y-links', *(f'y-save-{k}' for k in range(8)))
+ 
+ 
+ class Refusal(RuntimeError):
+@@ -656,10 +656,16 @@ def defined_load(name: str) -> dict[str, int]:
+         return {**{ch.name: 1 for ch in CONTRACT.channels}, 'GM': 2}
+     load = {ch.name: min(ch.burst, room(ch.name)) for ch in CONTRACT.channels}
+     load['GM'] = CONTRACT.evt_words // CONTRACT.ev_words - 1
+-    if name == 'backlog':
++    if name == 'backlog' or name.startswith('x-save'):
+         load['LINK'] = 1
++    if name.startswith('x-links'):
++        load['LINK'] = 2
++        load['GM'] -= 1
+     if name == 'backlog-adp-refill':
+         load['adp'] = room('adp')
++    if name == 'y-links':
++        load['LINK'] = 2
++        load['GM'] -= 2
+     return load
+ 
+ 
+diff --git a/tb/verilator/ctrl_service_budget/scenario.py b/tb/verilator/ctrl_service_budget/scenario.py
+index 7bee8a3e12..238323a5e9 100644
+--- a/tb/verilator/ctrl_service_budget/scenario.py
++++ b/tb/verilator/ctrl_service_budget/scenario.py
+@@ -996,5 +996,127 @@ def all_groups(p: Point, build: dict) -> list[Group]:
+     if build.get('variant') == 'shutdown-entry':
+         return shutdown_groups(p)
+     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
+-              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p)]
++              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *probe_groups(p, build), *probe_groups2(p), probe_save(p)]
+     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])
++
++
++PROBE_OFFSETS = (1, 5000, 10000, 20000, 30000, 50000, 80000, 120000)
++
++
++def _links_quiet(p: Point) -> Group:
++    """Two interfaces' links change together, then a growing distance apart, with no other load."""
++    g = Group('x-links-quiet', sim_ms=3200)
++    ready(g, p)
++    g.add(f'wait cycles {100 * MS}', *OPEN_WINDOW)
++    g.probe(Probe('x.links.if0', 'first joint link change', 'adp', 'pad:LINK:0', ['cancel:0'], until='x_end'),
++            'link 0 0', wait='cycles 1', settle='')
++    first = True
++    for d in PROBE_OFFSETS:
++        if not first:
++            g.add('link 0 0')
++        first = False
++        g.add(f'wait cycles {d}', 'link 1 0', f'wait cycles {30 * MS}', 'link 0 1', f'wait cycles {d}', 'link 1 1',
++              f'wait cycles {120 * MS}', 'wait quiet 3 within 2000000')
++    g.add('mark x_end')
++    return g
++
++
++def _composed(name: str, p: Point, apart: int, before: list[str], count: int = 14, links: int = 2) -> Group:
++    """backlog's window with both links changing (apart cycles apart), and optional steps before it."""
++    acmp = CH['acmp']
++    get = lambda seq: acmp_cmd(p, 'GET_RX_STATE', 0, seq)
++    g = Group(name, sim_ms=4500)
++    ready(g, p)
++    g.add(*before)
++    announced(g)
++    g.add(*OPEN_WINDOW)
++    gm_run(g, p, count)
++    g.probe(Probe(f'{name}.event.if0', 'an event behind 15 others', 'adp', 'pad:LINK:0', ['cancel:0'],
++                  until='composed_end'), 'link 0 0', wait='cycles 1', settle='')
++    g.load['LINK'] = 1
++    composed_load(g, p, own='acmp')
++    if links == 2:
++        if apart:
++            g.add(f'wait cycles {apart}')
++        g.add('link 1 0')
++        g.load['LINK'] = 2
++    number = admission('acmp', get(0))['at_once']
++    for n in range(number - 1):
++        g.offer('acmp', f'frame 0 {get(0x7200 + n).hex()}', get(0))
++    g.probe(Probe(f'{name}.acmp_command.if0', 'an ACMP command behind a full acmp ring', 'acmp', f'rxc:{acmp}',
++                  [f'resp:{acmp}:72ff'], until='composed_end'), f'frame 0 {get(0x72ff).hex()}',
++            wait=f'tx {acmp} {number} within {300 * MS}', settle='quiet 3 within 50000000')
++    g.load['acmp'] += 1
++    g.add('mark composed_end')
++    return g
++
++
++def probe_groups(p: Point, build: dict) -> list[Group]:
++    """The reviewer's probe groups."""
++    out = [_links_quiet(p), _composed('x-links-same', p, 0, []), _composed('x-links-1ms', p, 100000, []),
++           _composed('x-links-2ms', p, 200000, [])]
++    name = b'probe'.ljust(64, b'\0')
++    for k in range(6):
++        frame = f.aem_command(f.Aem(p.entity_id, CTL2, CTL_MAC, p.mac, 0x6f00), 0x0010,
++                              f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + name)
++        before = [f'frame 0 {frame.hex()}', f'wait cycles {k * 166700}']
++        out.append(_composed(f'x-save-{k}', p, 0, before, 15, 1))
++    return out
++
++
++def _adp_window(p: Point, name: str, before: list[str], links: bool) -> Group:
++    """backlog-adp's window (bound_talker_groups), with steps before it, and optionally both links changing."""
++    acmp, adp = CH['acmp'], CH['adp']
++    disc = f.adp(f.ADP_DISCOVER, 0, CTL_MAC, f.Adp(valid_time=0))
++    gone = f.adp(f.ADP_DEPARTING, TALKER_A, TALKER_A_MAC, f.Adp(valid_time=0, talker_sources=1, talker_caps=0x4001))
++    avail = f.adp(f.ADP_AVAILABLE, TALKER_A, TALKER_A_MAC, f.Adp(valid_time=10, talker_sources=1, talker_caps=0x4001))
++    count = 13 if links else 15
++    last_gm = max(n for n in range(count) if n % p.interfaces == 0)
++    current = f.adp(f.ADP_AVAILABLE, TALKER_A, TALKER_A_MAC,
++                    f.Adp(valid_time=10, talker_sources=1, talker_caps=0x4001, gm_id=0x0A0B0C0DFFFE0000 + last_gm))
++    at_once = admission('adp', disc)['at_once']
++    g = Group(name, sim_ms=4500)
++    ready(g, p)
++    g.add(*before)
++    announced(g)
++    g.add(f'frame 0 {acmp_cmd(p, "BIND_RX", 0, 0x7000).hex()}', f'wait tx {acmp} 2 within {20 * MS}',
++          'wait quiet 3 within 2000000', f'frame 0 {avail.hex()}', 'wait quiet 3 within 2000000',
++          f'frame 0 {gone.hex()}', f'wait cycles {50 * MS}', 'wait quiet 3 within 2000000', *OPEN_WINDOW)
++    gm_run(g, p, count)
++    if links:
++        g.add('link 0 0', 'link 1 0')
++        g.load['LINK'] = 2
++    composed_load(g, p, own='adp')
++    for n in range(at_once - 1):
++        g.offer('adp', f'frame {n % p.interfaces} {disc.hex()}', disc)
++    g.probe(Probe(f'{name}.adp_available.if0', 'an ENTITY_AVAILABLE behind a full adp ring', 'disc',
++                  f'rxc:{adp}', [f'arm:{p.interfaces}'], until='composed_end'), f'frame 0 {current.hex()}',
++            wait=f'tmr {p.interfaces} 1 within {400 * MS}', settle='quiet 3 within 50000000')
++    g.load['adp'] += 1
++    g.add('mark composed_end')
++    return g
++
++
++def probe_groups2(p: Point) -> list[Group]:
++    """The second batch."""
++    name = b'probe'.ljust(64, b'\0')
++    frame = f.aem_command(f.Aem(p.entity_id, CTL2, CTL_MAC, p.mac, 0x6f00), 0x0010,
++                          f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + name)
++    out = [_adp_window(p, 'y-links', [], True)]
++    for k in range(8):
++        out.append(_adp_window(p, f'y-save-{k}', [f'frame 0 {frame.hex()}', f'wait cycles {k * 125000}'], False))
++    return out
++
++
++def probe_save(p: Point) -> Group:
++    """A SET_NAME, then every step of the save it starts, with no other load."""
++    aecp = CH['aecp']
++    name = b'probe'.ljust(64, b'\0')
++    frame = f.aem_command(f.Aem(p.entity_id, CTL2, CTL_MAC, p.mac, 0x6f00), 0x0010,
++                          f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + f.be(0, 2) + name)
++    g = Group('z-save', sim_ms=5500)
++    ready(g, p)
++    g.probe(Probe('z.set_name.if0', 'set_name', 'aecp', f'rxc:{aecp}', [f'resp:{aecp}:6f00'], expect='aecp_response'),
++            f'frame 0 {frame.hex()}', wait=f'tx {aecp} 1 within {50 * MS}')
++    g.add(f'wait cycles {4500 * MS}')
++    return g

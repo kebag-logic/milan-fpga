@@ -1,0 +1,12 @@
+diff --git a/tb/verilator/ctrl_split_boot/boot_soc.py b/tb/verilator/ctrl_split_boot/boot_soc.py
+index 588f30f006..95efc23ee6 100644
+--- a/tb/verilator/ctrl_split_boot/boot_soc.py
++++ b/tb/verilator/ctrl_split_boot/boot_soc.py
+@@ -88,6 +88,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int) -> dict:
+         for path in split_soc.mailbox_sources(n_if, build_dir / 'mbx-variant'):
+             platform.add_source(str(path))
+         split_soc.add_devices(soc, platform, addresses, contract, n_if)
++        split_soc.milan_soc.ctrl_uncached_flash(soc)
+         soc.milan_csr = CsrWindow(platform.request('milan_csr'))
+         soc.bus.add_slave('milan_csr', soc.milan_csr.bus, region=SoCRegion(
+             origin=milan_soc.MILAN_CSR_BASE, size=milan_soc.MILAN_CSR_SIZE, cached=False))

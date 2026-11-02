@@ -1,0 +1,59 @@
+{
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ },
+ "refusals": [],
+ "misses": [],
+ "share_misses": [],
+ "groups": [
+  {
+   "group": "z-save",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 543,
+    "over": 0,
+    "over_passes": []
+   },
+   "worst": {
+    "cycles": 153986,
+    "ms": 1.53986,
+    "instr": 39396,
+    "start_sys": 406110239,
+    "modules": {
+     "aecp_mbx": 280,
+     "ctrl_app_aecp": 1887,
+     "mbx": 2141,
+     "srp_mbx": 7547,
+     "ctrl_loop": 2318,
+     "adp_mbx": 69,
+     "adp": 423,
+     "acmp_mbx": 24,
+     "acmp": 2763,
+     "maap_mbx": 1532,
+     "ctrl_mem": 5926,
+     "ctrl_app_srp": 2291,
+     "ctrl_aecp_image": 80,
+     "maap": 736,
+     "aecp": 1302,
+     "aecp_nvm": 222,
+     "mrp_mad": 37341,
+     "timer": 2390,
+     "nvm_store": 1072,
+     "nvm_flash_litespi": 79587,
+     "rt_lshrdi3": 215,
+     "mvrp": 496,
+     "mrp_pdu": 2998,
+     "aecp_face": 346
+    }
+   },
+   "composed": {},
+   "rows": {
+    "z.set_name.if0": 0.53601
+   }
+  }
+ ]
+}
