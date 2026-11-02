@@ -694,12 +694,12 @@ def owner_vanishing() -> None:
 
 
 def owner_late_cancel() -> None:
-    """A cancel during cleanup, after the shell was collected, opens no trap window, even in that pass (#833)."""
+    """A cancel during cleanup, after the shell was collected, opens no trap window, in that pass or later (#833)."""
     # A re-armed window would hold the verdict past the 15 s bound below: TRAP_SECONDS is 30 s.
     with stages(GRACE_SECONDS=0.1, KILL_ALL_SECONDS=0.1, TRAP_SECONDS=30.0, REAP_SECONDS=0.3):
         with OwnedProcesses() as owner:
             gone = 2 ** 22 + 1
-            since, resumed = [], []
+            since, resumed, collected = [], [], []
             signal_fd = owner._signal
 
             def signalling(fd: int, signum: int) -> None:
@@ -716,10 +716,17 @@ def owner_late_cancel() -> None:
                     os.kill(os.getpid(), signal.SIGTERM)
                 assert not resumed, "a cancel after the shell was collected resumed it, re-arming its trap window"
                 assert time.monotonic() - since[0] < 15, "cleanup never reached a verdict after a late cancel"
-                # The shell is listed too, as by a census read just before its pass collected it.
-                return {gone: (os.getpid(), "0"), owner.process.pid: (os.getpid(), "1")}
-            owner._descendants = listed
-            owner._reap = lambda: {gone, owner.process.pid}
+                # The first census lists the shell too, as one read just before its pass collected it;
+                # no later census does.
+                return {gone: (os.getpid(), "0"), **({} if collected else {owner.process.pid: (os.getpid(), "1")})}
+
+            def reaping() -> set:
+                """Collect the listing in every pass, and the shell in the pass whose census listed it."""
+                if since and not collected:
+                    collected.append(True)
+                    return {gone, owner.process.pid}
+                return {gone}
+            owner._descendants, owner._reap = listed, reaping
             try:
                 owner.run(["true"])
                 raise AssertionError("an endless listing did not fail the run")
@@ -809,14 +816,14 @@ def owner_stated_seconds() -> None:
         vanishing = starved_cleanup(owner, lambda _n: {gone: (owner_pid, "6")}, names, lambda: {gone})
     expected = [(1, "SIGTERM", "survivor"), (5, "SIGKILL", "survivor"), (29, "SIGKILL", "survivor"), (29, "verdict")]
     assert alone == expected, f"a survivor's stated seconds were not kept on the owner's clock: {alone}"
-    expected = [(1, "SIGTERM", "child"), (5, "SIGKILL", "child"), (12, "SIGCONT", "shell"),
-                (32, "SIGKILL", "shell"), (32, "SIGKILL", "trap command"),
-                (52, "SIGKILL", "shell"), (52, "SIGKILL", "trap command"), (52, "verdict")]
-    assert resumed == expected, f"a late resume's stated seconds were not kept on the owner's clock: {resumed}"
     expected = [(1, "SIGTERM", "parent"), (1, "SIGTERM", "child"), (5, "SIGKILL", "child"), (9, "SIGKILL", "parent"),
                 (29, "SIGKILL", "parent"), (29, "SIGKILL", "child"), (29, "verdict")]
     assert stubborn == expected, f"a stubborn parent's stated seconds were not kept on the owner's clock: {stubborn}"
     assert vanishing == [(49, "verdict")], f"a vanishing listing's stated seconds were not kept: {vanishing}"
+    expected = [(1, "SIGTERM", "child"), (5, "SIGKILL", "child"), (12, "SIGCONT", "shell"),
+                (32, "SIGKILL", "shell"), (32, "SIGKILL", "trap command"),
+                (52, "SIGKILL", "shell"), (52, "SIGKILL", "trap command"), (52, "verdict")]
+    assert resumed == expected, f"a late resume's stated seconds were not kept on the owner's clock: {resumed}"
     print("owner-stated-seconds: " + str(dict(grace_pass=5, survivor_verdict_pass=29, resume_pass=12,
                                               window_end_pass=32, resumed_verdict_pass=52, parent_kill_pass=9,
                                               vanishing_verdict_pass=49)), flush=True)
