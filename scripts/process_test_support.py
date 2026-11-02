@@ -558,10 +558,20 @@ def mutation_campaign(controls: tuple[str, ...], names: list[str], matrix: bool,
             runs += [(name, target) for target in controls]
         elif control:
             runs.append((name, control))
-    with tempfile.TemporaryDirectory(prefix="owned-process-mutants-") as scratch:
-        trees = {name: mutant_tree(Path(scratch), name) for name in names}
-        with concurrent.futures.ThreadPoolExecutor(jobs) as pool:
-            results = dict(zip(runs, pool.map(lambda run: run_mutant(trees[run[0]], run[1]), runs)))
+    # A launcher that ignores SIGHUP hands that on to every run, and the whole test's HUP
+    # stops need it at its default. A handler is reset at exec, so with one the runs get
+    # the default, while this process still outlives a hangup as its launcher meant.
+    hangup_ignored = signal.getsignal(signal.SIGHUP) == signal.SIG_IGN
+    if hangup_ignored:
+        signal.signal(signal.SIGHUP, lambda _signum, _frame: None)
+    try:
+        with tempfile.TemporaryDirectory(prefix="owned-process-mutants-") as scratch:
+            trees = {name: mutant_tree(Path(scratch), name) for name in names}
+            with concurrent.futures.ThreadPoolExecutor(jobs) as pool:
+                results = dict(zip(runs, pool.map(lambda run: run_mutant(trees[run[0]], run[1]), runs)))
+    finally:
+        if hangup_ignored:
+            signal.signal(signal.SIGHUP, signal.SIG_IGN)
     for (name, target), (status, seconds, output) in results.items():
         lines = [line for line in output.splitlines() if line.strip()]
         verdict = "cut" if status is None else "red" if status else "green"

@@ -796,7 +796,7 @@ def owner_stated_seconds() -> None:
     survivor, shell, command, owner_pid = 2 ** 22 + 1, 2 ** 22 + 2, 2 ** 22 + 3, 2 ** 22 + 4
     parent, gone = 2 ** 22 + 5, 2 ** 22 + 6
     # A live process the census lists as the shell's child, and never as a parent,
-    # so it is a stubborn leaf. It is never signalled.
+    # so it is a stubborn leaf. It is never really signalled: this control's send only records the signal.
     child = os.getpid()
     names = {survivor: "survivor", shell: "shell", command: "trap command", child: "child", parent: "parent"}
 
