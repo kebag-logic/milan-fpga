@@ -1,0 +1,86 @@
+== git diff --stat 8d8c2e36 e8ec8d20 (round-5 delta)
+ CHANGELOG.md                                       |   20 +
+ README.md                                          |   14 +-
+ REQUIREMENTS.md                                    |   54 +-
+ docs/ARCHITECTURE_HW_SW_SPLIT.md                   |  126 +-
+ docs/DOCUMENTATION_AUDIT.md                        |   96 +-
+ docs/ENDSTATION_BUILDER.md                         |    5 +-
+ docs/GLOSSARY.md                                   |    4 +-
+ docs/README.md                                     |    1 +
+ docs/design/AREA_BUDGET.md                         |   59 +-
+ docs/design/GPTP_PLANE.md                          |  108 +-
+ docs/design/MAAP_FABRIC.md                         |    6 +-
+ docs/design/MAILBOX_SPLIT.md                       |    5 +-
+ docs/design/MARK_II_AREA_PLAN.md                   |  360 ++-
+ docs/design/MARK_II_STREAM_ENGINES.md              | 1288 +++++++++
+ docs/fpga/DATAPLANE_WALKTHROUGH.md                 |    6 +-
+ docs/fpga/FPGA_DESIGN.md                           |    6 +-
+ docs/guides/gptp/MANAGER.md                        |    3 +
+ docs/integration/AXIS_CORES_ON_BAREMETAL_SOC.md    |   25 +-
+ docs/integration/INTEGRATION_GUIDE.md              |    4 +-
+ docs/litex/CLOCK_DOMAINS.md                        |    2 +
+ docs/litex/LITEX_SOC.md                            |    7 +-
+ docs/overview/ARCHITECTURE.md                      |   26 +-
+ docs/overview/FULL_FPGA_SOLUTION.md                |   16 +-
+ docs/overview/SYSTEM_DOMAIN_MAP.md                 |    6 +-
+ docs/reference/FR_NFR.md                           |   54 +-
+ docs/testing/TESTING.md                            |    2 +-
+ docs/traceability/ieee8021q.md                     |   13 +-
+ hdl/ieee8021as/gptp_plane/KL_gptp_gmii_launch.sv   |  110 +-
+ hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv        |    9 +-
+ hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv         |   38 +-
+ hdl/milan/milan_datapath.sv                        |    8 +
+ scripts/run_litex_sims.sh                          |    3 +-
+ sw/builder/endstation_builder.py                   |   10 +-
+ sw/builder/test_builder.py                         |  246 +-
+ sw/litex/gen_mac_tx_model.py                       |   97 +-
+ sw/litex/milan_soc.py                              |   33 +-
+ sw/litex/test_gptp_tx_timestamp.py                 |  115 +-
+ tb/verilator/gptp_shadow/gptp_shadow_wrap.sv       |    1 +
+ tb/verilator/gptp_txts/.gitignore                  |    2 +
+ tb/verilator/gptp_txts/Makefile                    |   35 +-
+ tb/verilator/gptp_txts/README.md                   |   28 +-
+ .../gptp_txts/generated/mac_tx_chain_mii.v         | 2854 ++++++++++++++++++++
+ tb/verilator/gptp_txts/generated/manifest_mii.json |   18 +
+ tb/verilator/gptp_txts/gptp_txts_wrap.sv           |   21 +-
+ tb/verilator/gptp_txts/mutants.py                  |  110 +-
+ tb/verilator/gptp_txts/pad_trace_main.cpp          |   16 +-
+ tb/verilator/gptp_txts/sim_main.cpp                |  184 +-
+ 47 files changed, 5827 insertions(+), 427 deletions(-)
+== git diff --stat e61a4afa e8ec8d20 (PR against dev)
+ .github/ci-templates/docs.yml         |  18 +
+ .github/workflows/docs.yml            |  21 +-
+ ci/image/command-table.json           |  19 +
+ docs/DOCUMENTATION_AUDIT.md           | 739 ++++++++++++++++++-------
+ docs/README.md                        |   2 +-
+ docs/guides/VERIFICATION_DEVELOPER.md |   2 +-
+ docs/reference/REGISTER_MAP.md        |   2 +-
+ scripts/ci_events.py                  |  19 +-
+ scripts/docs_inventory.json           | 501 +++++++++++++++++
+ scripts/docs_inventory.py             | 999 ++++++++++++++++++++++++++++++++++
+ 10 files changed, 2096 insertions(+), 226 deletions(-)
+== files changed on both merge sides since base 1f29f189
+docs/README.md
+== git merge-tree --write-tree 8d8c2e36 e61a4afa
+f10e50b9db5f8206d6f4e642f2576cde36884356
+== b48b2fd5 tree
+f10e50b9db5f8206d6f4e642f2576cde36884356
+== e8ec8d20 changes
+e8ec8d209a3d9055cc034a23d94925a0bf7b9a63 b48b2fd5aa55c441fb3164f6b86d7ea07cc91ece
+
+ docs/DOCUMENTATION_AUDIT.md | 96 ++++++++++++++++++++-------------------------
+== docs/README.md: dev e61a4afa -> merge b48b2fd5
+diff --git a/docs/README.md b/docs/README.md
+index baa6f5b1b5..954cc2ea0d 100644
+--- a/docs/README.md
++++ b/docs/README.md
+@@ -70,7 +70,7 @@ Publish conflicts before continuing.
+ | Understand fabric time | [Fabric gPTP plane](design/GPTP_PLANE.md) |
+ | Handle grandmaster loss | [Grandmaster recovery](design/GM_LOSS_RECOVERY.md) |
+ | Reset on an AECP REBOOT | [End-station reset](design/REBOOT_RESET.md) |
+-| Follow a stream's media clock | [Media-clock following, proposed](design/MEDIA_CLOCK_FOLLOWING.md) |
++| Follow a stream's media clock | [Media-clock following, implemented](design/MEDIA_CLOCK_FOLLOWING.md) |
+ | Review the firmware saved-state store | [Saved-state store, F1](../sw/firmware/ctrl_nvm/README.md) |
+ | Review the firmware AECP owner and its evidence | [AECP core and adapters, F5](../sw/firmware/ctrl/aecp/README.md) |
+ | Review saved-state snapshot ownership | [Snapshot ownership, implemented](design/SAVED_STATE_SNAPSHOT_OWNERSHIP.md) |
+== inventory inputs 8d8c2e36 -> e8ec8d20 (expect empty)
