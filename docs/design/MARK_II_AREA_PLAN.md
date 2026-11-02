@@ -164,7 +164,7 @@ The owner's chain counted both CPUs ([#665](https://github.com/kebag-logic/milan
 | Figure | LUT | Kind | Source |
 |---|---:|---|---|
 | SoC CPU in the basis | 3,249 | Measured | Basis hierarchical placement report, row `VexiiRiscvLitex_f5f08b170311db53220574624f819159` |
-| Split CPU, 16 KiB instruction cache, behind the clock crossing | 3,948 | Measured | Out-of-context netlist `VexiiRiscvLitex_7ee512a1cb1c336731b7f28188c9814f`, [#665 S2b round 12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6569635407); 3,543 on `sys` without the crossing |
+| Split CPU, 16 KiB instruction cache, behind the clock crossing | 3,948 | Measured | Out-of-context netlist, [#665 S2b round 12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6569635407); 3,543 on `sys` without the crossing |
 | The one CPU's net change | +699 | Derived | 3,948 - 3,249 |
 | Start, CPU counted once | 30,974 | Derived | 34,223 - 3,249 |
 | After levers 1 to 3, central | 27,224 | Derived | 30,974 - 1,000 - 1,000 - 1,750 |
