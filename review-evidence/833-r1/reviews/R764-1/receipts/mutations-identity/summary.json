@@ -1,0 +1,20 @@
+[
+ {
+  "name": "M01b-send-recheck-includes-parent",
+  "test": "suite",
+  "expect": "probe",
+  "rc": 0,
+  "got": "green",
+  "seconds": 55.5,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "M01c-identity-includes-parent-both",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 2.2,
+  "last": "AssertionError: re-parented descendant was treated as new and never got SIGTERM"
+ }
+]

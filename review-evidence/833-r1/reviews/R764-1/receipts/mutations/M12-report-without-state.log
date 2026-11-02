@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r764-1-packet/scratch/mut/M12-report-without-state/scripts/test_suite_cancellation.py", line 680, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/833-r764-1-packet/scratch/mut/M12-report-without-state/scripts/test_suite_cancellation.py", line 647, in main
+    owner_report(parent)
+    ~~~~~~~~~~~~^^^^^^^^
+  File "$REVIEWS/833-r764-1-packet/scratch/mut/M12-report-without-state/scripts/test_suite_cancellation.py", line 443, in owner_report
+    assert field in asleep, (field, asleep)
+           ^^^^^^^^^^^^^^^
+AssertionError: ('state S', 'pid 2 (python3) parent 1 (first parent 1) age 0.02 s start 74130520, not sent SIGKILL')

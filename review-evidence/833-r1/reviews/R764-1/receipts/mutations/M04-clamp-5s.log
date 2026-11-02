@@ -1,0 +1,21 @@
+owner-report: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.04 s start 74130051, sent SIGKILL 1.50 s ago
+owner-reparented: {'sigterm_during_grace': True}
+owner-late-exit: {'collected_at_deadline': True}
+Traceback (most recent call last):
+  File "$REVIEWS/833-r764-1-packet/scratch/mut/M04-clamp-5s/scripts/test_suite_cancellation.py", line 680, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/833-r764-1-packet/scratch/mut/M04-clamp-5s/scripts/test_suite_cancellation.py", line 650, in main
+    owner_stall(parent)
+    ~~~~~~~~~~~^^^^^^^^
+  File "$REVIEWS/833-r764-1-packet/scratch/mut/M04-clamp-5s/scripts/test_suite_cancellation.py", line 514, in owner_stall
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r764-1-packet/scratch/mut/M04-clamp-5s/scripts/owned_process.py", line 170, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r764-1-packet/scratch/mut/M04-clamp-5s/scripts/owned_process.py", line 299, in _cleanup
+    raise RuntimeError(
+        f"CLEANUP FAILED: owned descendants remain after {now - started:.2f} s, "
+        f"{passes} census passes, slowest {slowest:.2f} s: {remaining}")
+RuntimeError: CLEANUP FAILED: owned descendants remain after 3.22 s, 2 census passes, slowest 3.20 s: pid 6 (python3) state S wchan hrtimer_nanosleep parent 1 (first parent 1) age 3.24 s start 74130115, not sent SIGKILL

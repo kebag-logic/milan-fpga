@@ -1,0 +1,15 @@
+owner-report: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.04 s start 74130041, sent SIGKILL 1.50 s ago
+owner-reparented: {'sigterm_during_grace': True}
+owner-late-exit: {'collected_at_deadline': True}
+owner-stall: {'stalled_seconds': 3.2, 'killed_after_stall': True}
+Traceback (most recent call last):
+  File "$REVIEWS/833-r764-1-packet/scratch/mut/M06-root-killed-unresumed/scripts/test_suite_cancellation.py", line 680, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/833-r764-1-packet/scratch/mut/M06-root-killed-unresumed/scripts/test_suite_cancellation.py", line 651, in main
+    owner_shell_window(parent)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "$REVIEWS/833-r764-1-packet/scratch/mut/M06-root-killed-unresumed/scripts/test_suite_cancellation.py", line 563, in owner_shell_window
+    assert marker.exists(), "the shell was killed in the pass that resumed it, before its trap"
+           ~~~~~~~~~~~~~^^
+AssertionError: the shell was killed in the pass that resumed it, before its trap

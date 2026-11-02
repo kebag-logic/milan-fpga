@@ -1,0 +1,173 @@
+[
+ {
+  "name": "control-A",
+  "test": "suite",
+  "expect": "green",
+  "rc": 0,
+  "got": "green",
+  "seconds": 54.6,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "control-B",
+  "test": "suite",
+  "expect": "green",
+  "rc": 0,
+  "got": "green",
+  "seconds": 54.7,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "control-lifecycle",
+  "test": "lifecycle",
+  "expect": "green",
+  "rc": 0,
+  "got": "green",
+  "seconds": 32.6,
+  "last": "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)"
+ },
+ {
+  "name": "M01-identity-includes-parent",
+  "test": "suite",
+  "expect": "red",
+  "rc": 0,
+  "got": "green",
+  "seconds": 54.7,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "M02-no-reap-after-census",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 0.7,
+  "last": "RuntimeError: CLEANUP FAILED: owned descendants remain after 0.47 s, 1 census passes, slowest 0.47 s: pid 5 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.50 s start 74130061, not sent SIGKILL"
+ },
+ {
+  "name": "M03-wall-clock",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 4.0,
+  "last": "RuntimeError: CLEANUP FAILED: owned descendants remain after 3.22 s, 2 census passes, slowest 3.20 s: pid 6 (python3) state S wchan hrtimer_nanosleep parent 1 (first parent 1) age 3.24 s start 74130107, not sent SIGKILL"
+ },
+ {
+  "name": "M04-clamp-5s",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 4.0,
+  "last": "RuntimeError: CLEANUP FAILED: owned descendants remain after 3.22 s, 2 census passes, slowest 3.20 s: pid 6 (python3) state S wchan hrtimer_nanosleep parent 1 (first parent 1) age 3.24 s start 74130115, not sent SIGKILL"
+ },
+ {
+  "name": "M05-no-trap-window",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 4.8,
+  "last": "AssertionError: the shell was killed in the pass that resumed it, before its trap"
+ },
+ {
+  "name": "M06-root-killed-unresumed",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 4.8,
+  "last": "AssertionError: the shell was killed in the pass that resumed it, before its trap"
+ },
+ {
+  "name": "M07-trap-child-no-window",
+  "test": "suite",
+  "expect": "probe",
+  "rc": 0,
+  "got": "green",
+  "seconds": 54.7,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "M08-no-kill-before-fail",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 22.9,
+  "last": "AssertionError: stopped shell left behind"
+ },
+ {
+  "name": "M09-kill-before-fail-spares-shell",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 22.9,
+  "last": "AssertionError: stopped shell left behind"
+ },
+ {
+  "name": "M10-endless-unbounded",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 20.9,
+  "last": "AssertionError: cleanup never reached a verdict"
+ },
+ {
+  "name": "M11-trust-sigkill",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 36.8,
+  "last": "AssertionError: a survivor never failed the run"
+ },
+ {
+  "name": "M12-report-without-state",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 2.1,
+  "last": "AssertionError: ('state S', 'pid 2 (python3) parent 1 (first parent 1) age 0.02 s start 74130520, not sent SIGKILL')"
+ },
+ {
+  "name": "M13-cleanup-does-nothing-suite",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 0.2,
+  "last": "AssertionError: re-parented descendant was treated as new and never got SIGTERM"
+ },
+ {
+  "name": "M13-cleanup-does-nothing-lifecycle",
+  "test": "lifecycle",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 14.7,
+  "last": "AssertionError: ('1307', ('74132011', 'S'), ('74132011', 'S'))"
+ },
+ {
+  "name": "M14-no-start-recheck",
+  "test": "suite",
+  "expect": "probe",
+  "rc": 0,
+  "got": "green",
+  "seconds": 54.6,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "M15-windows-2s",
+  "test": "suite",
+  "expect": "probe",
+  "rc": 0,
+  "got": "green",
+  "seconds": 54.6,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ }
+]
