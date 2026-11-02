@@ -1,0 +1,1144 @@
+{
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ },
+ "refusals": [],
+ "misses": [],
+ "share_misses": [
+  "y-links: 1 of 323 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 208,096 (2.081 ms)",
+  "y-save-0: 1 of 324 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 271,599 (2.716 ms)",
+  "y-save-1: 1 of 324 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 270,978 (2.710 ms)",
+  "y-save-2: 1 of 320 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 201,246 (2.012 ms)",
+  "y-save-4: 1 of 323 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 209,189 (2.092 ms)",
+  "y-save-5: 1 of 324 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 203,162 (2.032 ms)",
+  "y-save-6: 1 of 324 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 203,162 (2.032 ms)",
+  "y-save-7: 1 of 321 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 235,792 (2.358 ms)"
+ ],
+ "groups": [
+  {
+   "group": "y-links",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 323,
+    "over": 1,
+    "over_passes": [
+     {
+      "start_sys": 277094719,
+      "cycles": 208096
+     }
+    ]
+   },
+   "worst": {
+    "cycles": 208096,
+    "ms": 2.08096,
+    "instr": 54015,
+    "start_sys": 277094719,
+    "modules": {
+     "aecp_mbx": 1348,
+     "ctrl_app_aecp": 3396,
+     "mbx": 9175,
+     "srp_mbx": 18014,
+     "ctrl_loop": 2843,
+     "adp_mbx": 507,
+     "adp": 1123,
+     "acmp_mbx": 789,
+     "acmp": 34886,
+     "maap_mbx": 2399,
+     "ctrl_mem": 61697,
+     "ctrl_app_srp": 3231,
+     "ctrl_aecp_image": 206,
+     "maap": 1956,
+     "aecp": 6884,
+     "aecp_nvm": 298,
+     "mrp_mad": 32969,
+     "mbx_plat_mmio": 100,
+     "timer": 891,
+     "nvm_store": 13,
+     "rt_lshrdi3": 8684,
+     "aecp_commands": 957,
+     "msrp": 2828,
+     "shlan_port": 1597,
+     "ctrl_pool": 10329,
+     "mvrp": 442,
+     "aecp_face": 534
+    }
+   },
+   "composed": {
+    "cycles": 208096,
+    "ms": 2.08096,
+    "instr": 54015,
+    "passes": 19,
+    "start_sys": 277094719,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 13,
+     "LINK": 2
+    },
+    "admission": {
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     },
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 11.75001
+   },
+   "rows": {
+    "y-links.adp_available.if0": 4.83058,
+    "y-links.service.adp.first.if0": 1.37104,
+    "y-links.service.adp.last.if0": 5.87705,
+    "y-links.service.acmp.first.if0": 1.38016,
+    "y-links.service.acmp.last.if0": 7.5006,
+    "y-links.service.aecp.first.if0": 1.41601,
+    "y-links.service.aecp.last.if1": 10.74401,
+    "y-links.service.maap.first.if0": 1.40561,
+    "y-links.service.maap.last.if0": 5.91381,
+    "y-links.service.srp.first.if0": 5.91316,
+    "y-links.service.srp.last.if1": 11.24642
+   }
+  },
+  {
+   "group": "y-save-0",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 324,
+    "over": 1,
+    "over_passes": [
+     {
+      "start_sys": 277172621,
+      "cycles": 271599
+     }
+    ]
+   },
+   "worst": {
+    "cycles": 271599,
+    "ms": 2.71599,
+    "instr": 44648,
+    "start_sys": 277172621,
+    "modules": {
+     "aecp_mbx": 1558,
+     "ctrl_app_aecp": 3901,
+     "mbx": 11712,
+     "srp_mbx": 17472,
+     "ctrl_loop": 3595,
+     "adp_mbx": 450,
+     "adp": 821,
+     "acmp_mbx": 690,
+     "acmp": 47099,
+     "maap_mbx": 2739,
+     "ctrl_mem": 39695,
+     "ctrl_app_srp": 2478,
+     "ctrl_aecp_image": 149,
+     "maap": 3918,
+     "aecp": 8864,
+     "aecp_nvm": 298,
+     "mrp_mad": 27311,
+     "mbx_plat_mmio": 64,
+     "timer": 3251,
+     "nvm_store": 1583,
+     "nvm_flash_litespi": 70617,
+     "rt_lshrdi3": 6661,
+     "aecp_commands": 1210,
+     "msrp": 3424,
+     "shlan_port": 214,
+     "ctrl_pool": 3351,
+     "mrp_pdu": 4967,
+     "aecp_face": 643,
+     "nvm_klj2": 2864
+    }
+   },
+   "composed": {
+    "cycles": 271599,
+    "ms": 2.71599,
+    "instr": 44648,
+    "passes": 21,
+    "start_sys": 277172621,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 0
+    },
+    "admission": {
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     },
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 18.59783
+   },
+   "rows": {
+    "y-save-0.adp_available.if0": 4.26946,
+    "y-save-0.service.adp.first.if0": 1.09674,
+    "y-save-0.service.adp.last.if0": 6.07117,
+    "y-save-0.service.acmp.first.if0": 1.10586,
+    "y-save-0.service.acmp.last.if0": 8.45137,
+    "y-save-0.service.aecp.first.if0": 1.14171,
+    "y-save-0.service.aecp.last.if1": 15.79479,
+    "y-save-0.service.maap.first.if0": 1.13131,
+    "y-save-0.service.maap.last.if0": 6.10793,
+    "y-save-0.service.srp.first.if0": 6.10728,
+    "y-save-0.service.srp.last.if1": 17.55055
+   }
+  },
+  {
+   "group": "y-save-1",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 324,
+    "over": 1,
+    "over_passes": [
+     {
+      "start_sys": 277179966,
+      "cycles": 270978
+     }
+    ]
+   },
+   "worst": {
+    "cycles": 270978,
+    "ms": 2.70978,
+    "instr": 43256,
+    "start_sys": 277179966,
+    "modules": {
+     "aecp_mbx": 2401,
+     "ctrl_app_aecp": 4192,
+     "mbx": 14299,
+     "srp_mbx": 17453,
+     "ctrl_loop": 4046,
+     "adp_mbx": 738,
+     "adp": 1163,
+     "acmp_mbx": 516,
+     "acmp": 36640,
+     "maap_mbx": 3248,
+     "ctrl_mem": 37870,
+     "ctrl_app_srp": 2669,
+     "ctrl_aecp_image": 223,
+     "maap": 5778,
+     "aecp": 10970,
+     "aecp_nvm": 298,
+     "mrp_mad": 27378,
+     "mbx_plat_mmio": 120,
+     "timer": 3251,
+     "nvm_store": 1583,
+     "nvm_flash_litespi": 70617,
+     "rt_lshrdi3": 7272,
+     "aecp_commands": 2324,
+     "msrp": 3398,
+     "shlan_port": 214,
+     "ctrl_pool": 3351,
+     "mrp_pdu": 4940,
+     "aecp_face": 1162,
+     "nvm_klj2": 2864
+    }
+   },
+   "composed": {
+    "cycles": 270978,
+    "ms": 2.70978,
+    "instr": 43256,
+    "passes": 18,
+    "start_sys": 277179966,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 0
+    },
+    "admission": {
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     },
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 17.79222
+   },
+   "rows": {
+    "y-save-1.adp_available.if0": 5.01907,
+    "y-save-1.service.adp.first.if0": 1.09789,
+    "y-save-1.service.adp.last.if0": 6.45049,
+    "y-save-1.service.acmp.first.if0": 1.10701,
+    "y-save-1.service.acmp.last.if0": 8.81676,
+    "y-save-1.service.aecp.first.if0": 1.14286,
+    "y-save-1.service.aecp.last.if1": 16.27661,
+    "y-save-1.service.maap.first.if0": 1.13246,
+    "y-save-1.service.maap.last.if0": 6.48725,
+    "y-save-1.service.srp.first.if0": 4.95825,
+    "y-save-1.service.srp.last.if1": 17.21446
+   }
+  },
+  {
+   "group": "y-save-2",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 320,
+    "over": 1,
+    "over_passes": [
+     {
+      "start_sys": 277172021,
+      "cycles": 201246
+     }
+    ]
+   },
+   "worst": {
+    "cycles": 201246,
+    "ms": 2.01246,
+    "instr": 33323,
+    "start_sys": 277172021,
+    "modules": {
+     "aecp_mbx": 1535,
+     "ctrl_app_aecp": 4337,
+     "mbx": 13665,
+     "srp_mbx": 8474,
+     "ctrl_loop": 5125,
+     "adp_mbx": 807,
+     "adp": 1372,
+     "acmp_mbx": 535,
+     "acmp": 36013,
+     "maap_mbx": 2772,
+     "ctrl_mem": 18844,
+     "ctrl_app_srp": 2528,
+     "ctrl_aecp_image": 206,
+     "maap": 5182,
+     "aecp": 9101,
+     "aecp_nvm": 298,
+     "mrp_mad": 2063,
+     "mbx_plat_mmio": 100,
+     "timer": 2911,
+     "nvm_store": 1583,
+     "nvm_flash_litespi": 70682,
+     "rt_lshrdi3": 7198,
+     "aecp_commands": 1856,
+     "aecp_face": 1195,
+     "nvm_klj2": 2864
+    }
+   },
+   "composed": {
+    "cycles": 201246,
+    "ms": 2.01246,
+    "instr": 33323,
+    "passes": 19,
+    "start_sys": 277172021,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 0
+    },
+    "admission": {
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     },
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 18.05209
+   },
+   "rows": {
+    "y-save-2.adp_available.if0": 5.01011,
+    "y-save-2.service.adp.first.if0": 1.0967,
+    "y-save-2.service.adp.last.if0": 6.44304,
+    "y-save-2.service.acmp.first.if0": 1.10582,
+    "y-save-2.service.acmp.last.if0": 8.81357,
+    "y-save-2.service.aecp.first.if0": 1.14167,
+    "y-save-2.service.aecp.last.if1": 16.1907,
+    "y-save-2.service.maap.first.if0": 1.13127,
+    "y-save-2.service.maap.last.if0": 6.4798,
+    "y-save-2.service.srp.first.if0": 4.94948,
+    "y-save-2.service.srp.last.if1": 17.47512
+   }
+  },
+  {
+   "group": "y-save-3",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 321,
+    "over": 0,
+    "over_passes": []
+   },
+   "worst": {
+    "cycles": 187974,
+    "ms": 1.87974,
+    "instr": 41560,
+    "start_sys": 277458008,
+    "modules": {
+     "aecp_mbx": 2075,
+     "ctrl_app_aecp": 4107,
+     "mbx": 14845,
+     "srp_mbx": 16383,
+     "ctrl_loop": 4447,
+     "adp_mbx": 994,
+     "adp": 1813,
+     "acmp_mbx": 833,
+     "acmp": 35610,
+     "maap_mbx": 3515,
+     "ctrl_mem": 37830,
+     "ctrl_app_srp": 2669,
+     "ctrl_aecp_image": 223,
+     "maap": 5900,
+     "aecp": 7887,
+     "aecp_nvm": 298,
+     "mrp_mad": 27522,
+     "mbx_plat_mmio": 120,
+     "timer": 340,
+     "nvm_store": 13,
+     "rt_lshrdi3": 7070,
+     "aecp_commands": 1119,
+     "msrp": 3213,
+     "shlan_port": 214,
+     "ctrl_pool": 3351,
+     "mrp_pdu": 4940,
+     "aecp_face": 643
+    }
+   },
+   "composed": {
+    "cycles": 187974,
+    "ms": 1.87974,
+    "instr": 41560,
+    "passes": 19,
+    "start_sys": 277458008,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 0
+    },
+    "admission": {
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     },
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 17.46227
+   },
+   "rows": {
+    "y-save-3.adp_available.if0": 4.55633,
+    "y-save-3.service.adp.first.if0": 1.16751,
+    "y-save-3.service.adp.last.if0": 5.97579,
+    "y-save-3.service.acmp.first.if0": 1.17663,
+    "y-save-3.service.acmp.last.if0": 8.02052,
+    "y-save-3.service.aecp.first.if0": 1.21248,
+    "y-save-3.service.aecp.last.if1": 15.47769,
+    "y-save-3.service.maap.first.if0": 1.20208,
+    "y-save-3.service.maap.last.if0": 6.01255,
+    "y-save-3.service.srp.first.if0": 3.07727,
+    "y-save-3.service.srp.last.if1": 16.41431
+   }
+  },
+  {
+   "group": "y-save-4",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 323,
+    "over": 1,
+    "over_passes": [
+     {
+      "start_sys": 278123964,
+      "cycles": 209189
+     }
+    ]
+   },
+   "worst": {
+    "cycles": 209189,
+    "ms": 2.09189,
+    "instr": 30809,
+    "start_sys": 278123964,
+    "modules": {
+     "aecp_mbx": 1579,
+     "ctrl_app_aecp": 3492,
+     "mbx": 8201,
+     "srp_mbx": 14117,
+     "ctrl_loop": 3609,
+     "adp_mbx": 326,
+     "adp": 541,
+     "acmp_mbx": 297,
+     "acmp": 34237,
+     "maap_mbx": 1978,
+     "ctrl_mem": 18819,
+     "ctrl_app_srp": 2201,
+     "ctrl_aecp_image": 80,
+     "maap": 876,
+     "aecp": 9794,
+     "aecp_nvm": 298,
+     "mrp_mad": 15996,
+     "mbx_plat_mmio": 64,
+     "timer": 3180,
+     "nvm_store": 1673,
+     "nvm_flash_litespi": 70617,
+     "rt_lshrdi3": 5321,
+     "aecp_commands": 2307,
+     "msrp": 1599,
+     "mrp_pdu": 3924,
+     "aecp_face": 1199,
+     "nvm_klj2": 2864
+    }
+   },
+   "composed": {
+    "cycles": 209189,
+    "ms": 2.09189,
+    "instr": 30809,
+    "passes": 20,
+    "start_sys": 278123964,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 0
+    },
+    "admission": {
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     },
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 18.42427
+   },
+   "rows": {
+    "y-save-4.adp_available.if0": 4.55547,
+    "y-save-4.service.adp.first.if0": 1.16713,
+    "y-save-4.service.adp.last.if0": 5.97493,
+    "y-save-4.service.acmp.first.if0": 1.17625,
+    "y-save-4.service.acmp.last.if0": 8.93115,
+    "y-save-4.service.aecp.first.if0": 1.2121,
+    "y-save-4.service.aecp.last.if1": 15.45337,
+    "y-save-4.service.maap.first.if0": 1.2017,
+    "y-save-4.service.maap.last.if0": 6.01169,
+    "y-save-4.service.srp.first.if0": 3.07585,
+    "y-save-4.service.srp.last.if1": 16.38922
+   }
+  },
+  {
+   "group": "y-save-5",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 324,
+    "over": 1,
+    "over_passes": [
+     {
+      "start_sys": 278142781,
+      "cycles": 203162
+     }
+    ]
+   },
+   "worst": {
+    "cycles": 203162,
+    "ms": 2.03162,
+    "instr": 29895,
+    "start_sys": 278142781,
+    "modules": {
+     "aecp_mbx": 1738,
+     "ctrl_app_aecp": 3227,
+     "mbx": 7485,
+     "srp_mbx": 13197,
+     "ctrl_loop": 3559,
+     "adp_mbx": 326,
+     "adp": 495,
+     "acmp_mbx": 297,
+     "acmp": 35119,
+     "maap_mbx": 1913,
+     "ctrl_mem": 17728,
+     "ctrl_app_srp": 2201,
+     "ctrl_aecp_image": 80,
+     "maap": 876,
+     "aecp": 7579,
+     "aecp_nvm": 298,
+     "mrp_mad": 16022,
+     "mbx_plat_mmio": 120,
+     "timer": 3070,
+     "nvm_store": 1673,
+     "nvm_flash_litespi": 70617,
+     "rt_lshrdi3": 5300,
+     "aecp_commands": 1212,
+     "msrp": 1599,
+     "mrp_pdu": 3924,
+     "aecp_face": 643,
+     "nvm_klj2": 2864
+    }
+   },
+   "composed": {
+    "cycles": 203162,
+    "ms": 2.03162,
+    "instr": 29895,
+    "passes": 19,
+    "start_sys": 278142781,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 0
+    },
+    "admission": {
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     },
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 18.08801
+   },
+   "rows": {
+    "y-save-5.adp_available.if0": 4.56512,
+    "y-save-5.service.adp.first.if0": 1.09877,
+    "y-save-5.service.adp.last.if0": 5.8515,
+    "y-save-5.service.acmp.first.if0": 1.10789,
+    "y-save-5.service.acmp.last.if0": 9.06798,
+    "y-save-5.service.aecp.first.if0": 1.14374,
+    "y-save-5.service.aecp.last.if1": 15.39528,
+    "y-save-5.service.maap.first.if0": 1.13334,
+    "y-save-5.service.maap.last.if0": 5.88826,
+    "y-save-5.service.srp.first.if0": 3.05446,
+    "y-save-5.service.srp.last.if1": 17.51025
+   }
+  },
+  {
+   "group": "y-save-6",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 324,
+    "over": 1,
+    "over_passes": [
+     {
+      "start_sys": 278142781,
+      "cycles": 203162
+     }
+    ]
+   },
+   "worst": {
+    "cycles": 203162,
+    "ms": 2.03162,
+    "instr": 29895,
+    "start_sys": 278142781,
+    "modules": {
+     "aecp_mbx": 1738,
+     "ctrl_app_aecp": 3227,
+     "mbx": 7485,
+     "srp_mbx": 13197,
+     "ctrl_loop": 3559,
+     "adp_mbx": 326,
+     "adp": 495,
+     "acmp_mbx": 297,
+     "acmp": 35119,
+     "maap_mbx": 1913,
+     "ctrl_mem": 17728,
+     "ctrl_app_srp": 2201,
+     "ctrl_aecp_image": 80,
+     "maap": 876,
+     "aecp": 7579,
+     "aecp_nvm": 298,
+     "mrp_mad": 16022,
+     "mbx_plat_mmio": 120,
+     "timer": 3070,
+     "nvm_store": 1673,
+     "nvm_flash_litespi": 70617,
+     "rt_lshrdi3": 5300,
+     "aecp_commands": 1212,
+     "msrp": 1599,
+     "mrp_pdu": 3924,
+     "aecp_face": 643,
+     "nvm_klj2": 2864
+    }
+   },
+   "composed": {
+    "cycles": 203162,
+    "ms": 2.03162,
+    "instr": 29895,
+    "passes": 19,
+    "start_sys": 278142781,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 0
+    },
+    "admission": {
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     },
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 18.08801
+   },
+   "rows": {
+    "y-save-6.adp_available.if0": 4.56512,
+    "y-save-6.service.adp.first.if0": 1.09877,
+    "y-save-6.service.adp.last.if0": 5.8515,
+    "y-save-6.service.acmp.first.if0": 1.10789,
+    "y-save-6.service.acmp.last.if0": 9.06798,
+    "y-save-6.service.aecp.first.if0": 1.14374,
+    "y-save-6.service.aecp.last.if1": 15.39528,
+    "y-save-6.service.maap.first.if0": 1.13334,
+    "y-save-6.service.maap.last.if0": 5.88826,
+    "y-save-6.service.srp.first.if0": 3.05446,
+    "y-save-6.service.srp.last.if1": 17.51025
+   }
+  },
+  {
+   "group": "y-save-7",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 321,
+    "over": 1,
+    "over_passes": [
+     {
+      "start_sys": 278142952,
+      "cycles": 235792
+     }
+    ]
+   },
+   "worst": {
+    "cycles": 235792,
+    "ms": 2.35792,
+    "instr": 38424,
+    "start_sys": 278142952,
+    "modules": {
+     "aecp_mbx": 1826,
+     "ctrl_app_aecp": 3961,
+     "mbx": 11768,
+     "srp_mbx": 13786,
+     "ctrl_loop": 3551,
+     "adp_mbx": 362,
+     "adp": 871,
+     "acmp_mbx": 940,
+     "acmp": 48325,
+     "maap_mbx": 2384,
+     "ctrl_mem": 24118,
+     "ctrl_app_srp": 2478,
+     "ctrl_aecp_image": 166,
+     "maap": 3750,
+     "aecp": 8679,
+     "aecp_nvm": 298,
+     "mrp_mad": 16191,
+     "mbx_plat_mmio": 120,
+     "timer": 2085,
+     "nvm_store": 1647,
+     "nvm_flash_litespi": 70617,
+     "rt_lshrdi3": 6710,
+     "aecp_commands": 1465,
+     "msrp": 1852,
+     "mrp_pdu": 4335,
+     "aecp_face": 643,
+     "nvm_klj2": 2864
+    }
+   },
+   "composed": {
+    "cycles": 235792,
+    "ms": 2.35792,
+    "instr": 38424,
+    "passes": 20,
+    "start_sys": 278142952,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 0
+    },
+    "admission": {
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     },
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 18.54942
+   },
+   "rows": {
+    "y-save-7.adp_available.if0": 5.01102,
+    "y-save-7.service.adp.first.if0": 1.09766,
+    "y-save-7.service.adp.last.if0": 6.44769,
+    "y-save-7.service.acmp.first.if0": 1.10678,
+    "y-save-7.service.acmp.last.if0": 8.82251,
+    "y-save-7.service.aecp.first.if0": 1.14263,
+    "y-save-7.service.aecp.last.if1": 16.21872,
+    "y-save-7.service.maap.first.if0": 1.13223,
+    "y-save-7.service.maap.last.if0": 6.48445,
+    "y-save-7.service.srp.first.if0": 4.12588,
+    "y-save-7.service.srp.last.if1": 17.50314
+   }
+  }
+ ]
+}

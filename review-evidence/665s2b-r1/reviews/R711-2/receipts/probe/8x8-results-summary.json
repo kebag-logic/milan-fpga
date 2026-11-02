@@ -1,0 +1,1180 @@
+{
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ },
+ "refusals": [],
+ "misses": [],
+ "share_misses": [
+  "x-links-same: 1 of 303 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 200,378 (2.004 ms)",
+  "x-save-1: 1 of 305 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 201,045 (2.010 ms)",
+  "x-save-2: 1 of 303 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 210,688 (2.107 ms)",
+  "x-save-3: 1 of 303 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 238,763 (2.388 ms)"
+ ],
+ "groups": [
+  {
+   "group": "x-links-same",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 303,
+    "over": 1,
+    "over_passes": [
+     {
+      "start_sys": 271763667,
+      "cycles": 200378
+     }
+    ]
+   },
+   "worst": {
+    "cycles": 200378,
+    "ms": 2.00378,
+    "instr": 52800,
+    "start_sys": 271763667,
+    "modules": {
+     "aecp_mbx": 1078,
+     "ctrl_app_aecp": 2865,
+     "mbx": 8677,
+     "srp_mbx": 17695,
+     "ctrl_loop": 2320,
+     "adp_mbx": 143,
+     "adp": 1011,
+     "acmp_mbx": 449,
+     "acmp": 33588,
+     "maap_mbx": 1954,
+     "ctrl_mem": 61312,
+     "ctrl_app_srp": 3152,
+     "ctrl_aecp_image": 206,
+     "maap": 1641,
+     "aecp": 5964,
+     "aecp_nvm": 318,
+     "mrp_mad": 32931,
+     "mbx_plat_mmio": 64,
+     "timer": 891,
+     "nvm_store": 13,
+     "rt_lshrdi3": 7624,
+     "aecp_commands": 752,
+     "msrp": 2828,
+     "shlan_port": 1597,
+     "ctrl_pool": 10329,
+     "mvrp": 442,
+     "aecp_face": 534
+    }
+   },
+   "composed": {
+    "cycles": 200378,
+    "ms": 2.00378,
+    "instr": 52800,
+    "passes": 20,
+    "start_sys": 271763667,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 14,
+     "LINK": 2
+    },
+    "admission": {
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     },
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 11.25158
+   },
+   "rows": {
+    "x-links-same.event.if0": 1.50607,
+    "x-links-same.acmp_command.if0": 6.60195,
+    "x-links-same.service.adp.first.if0": 1.41861,
+    "x-links-same.service.adp.last.if1": 5.46682,
+    "x-links-same.service.acmp.first.if0": 1.37602,
+    "x-links-same.service.acmp.last.if0": 7.06908,
+    "x-links-same.service.aecp.first.if0": 1.41187,
+    "x-links-same.service.aecp.last.if1": 10.10651,
+    "x-links-same.service.maap.first.if0": 1.40147,
+    "x-links-same.service.maap.last.if0": 5.45187,
+    "x-links-same.service.srp.first.if0": 5.45122,
+    "x-links-same.service.srp.last.if1": 10.75912
+   }
+  },
+  {
+   "group": "x-links-1ms",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 303,
+    "over": 0,
+    "over_passes": []
+   },
+   "worst": {
+    "cycles": 157325,
+    "ms": 1.57325,
+    "instr": 39859,
+    "start_sys": 271717781,
+    "modules": {
+     "aecp_mbx": 1292,
+     "ctrl_app_aecp": 3338,
+     "mbx": 9322,
+     "srp_mbx": 12105,
+     "ctrl_loop": 3160,
+     "adp_mbx": 552,
+     "adp": 1549,
+     "acmp_mbx": 487,
+     "acmp": 36107,
+     "maap_mbx": 3261,
+     "ctrl_mem": 40477,
+     "ctrl_app_srp": 3530,
+     "ctrl_aecp_image": 441,
+     "maap": 2312,
+     "aecp": 7213,
+     "aecp_nvm": 318,
+     "mrp_mad": 16985,
+     "mbx_plat_mmio": 64,
+     "timer": 560,
+     "nvm_store": 13,
+     "rt_lshrdi3": 5932,
+     "aecp_commands": 956,
+     "msrp": 1209,
+     "shlan_port": 309,
+     "ctrl_pool": 5024,
+     "mvrp": 275,
+     "aecp_face": 534
+    }
+   },
+   "composed": {
+    "cycles": 157325,
+    "ms": 1.57325,
+    "instr": 39859,
+    "passes": 20,
+    "start_sys": 271717781,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 14,
+     "LINK": 2
+    },
+    "admission": {
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     },
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 11.51275
+   },
+   "rows": {
+    "x-links-1ms.event.if0": 0.91696,
+    "x-links-1ms.acmp_command.if0": 6.18513,
+    "x-links-1ms.service.adp.first.if0": 0.83168,
+    "x-links-1ms.service.adp.last.if1": 5.14346,
+    "x-links-1ms.service.acmp.first.if0": 1.08088,
+    "x-links-1ms.service.acmp.last.if0": 6.63787,
+    "x-links-1ms.service.aecp.first.if0": 0.82494,
+    "x-links-1ms.service.aecp.last.if1": 10.36682,
+    "x-links-1ms.service.maap.first.if0": 0.81454,
+    "x-links-1ms.service.maap.last.if0": 5.12851,
+    "x-links-1ms.service.srp.first.if0": 5.95469,
+    "x-links-1ms.service.srp.last.if1": 11.02029
+   }
+  },
+  {
+   "group": "x-links-2ms",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 305,
+    "over": 0,
+    "over_passes": []
+   },
+   "worst": {
+    "cycles": 131388,
+    "ms": 1.31388,
+    "instr": 35161,
+    "start_sys": 271882188,
+    "modules": {
+     "aecp_mbx": 1012,
+     "ctrl_app_aecp": 2245,
+     "mbx": 5735,
+     "srp_mbx": 9144,
+     "ctrl_loop": 2098,
+     "adp_mbx": 37,
+     "adp": 436,
+     "acmp_mbx": 129,
+     "acmp": 30999,
+     "maap_mbx": 1160,
+     "ctrl_mem": 37671,
+     "ctrl_app_srp": 2396,
+     "ctrl_aecp_image": 80,
+     "maap": 689,
+     "aecp": 6332,
+     "aecp_nvm": 305,
+     "mrp_mad": 15094,
+     "mbx_plat_mmio": 64,
+     "timer": 560,
+     "nvm_store": 13,
+     "rt_lshrdi3": 5909,
+     "aecp_commands": 914,
+     "msrp": 1204,
+     "shlan_port": 452,
+     "ctrl_pool": 5942,
+     "mvrp": 234,
+     "aecp_face": 534
+    }
+   },
+   "composed": {
+    "cycles": 131388,
+    "ms": 1.31388,
+    "instr": 35161,
+    "passes": 22,
+    "start_sys": 271882188,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 14,
+     "LINK": 2
+    },
+    "admission": {
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     },
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 11.86365
+   },
+   "rows": {
+    "x-links-2ms.event.if0": 0.91696,
+    "x-links-2ms.acmp_command.if0": 5.84045,
+    "x-links-2ms.service.adp.first.if0": 0.83168,
+    "x-links-2ms.service.adp.last.if1": 3.71874,
+    "x-links-2ms.service.acmp.first.if0": 1.72495,
+    "x-links-2ms.service.acmp.last.if0": 6.28978,
+    "x-links-2ms.service.aecp.first.if0": 0.82494,
+    "x-links-2ms.service.aecp.last.if1": 10.38366,
+    "x-links-2ms.service.maap.first.if0": 0.81454,
+    "x-links-2ms.service.maap.last.if0": 3.70379,
+    "x-links-2ms.service.srp.first.if0": 5.85913,
+    "x-links-2ms.service.srp.last.if1": 11.37119
+   }
+  },
+  {
+   "group": "x-save-0",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 304,
+    "over": 0,
+    "over_passes": []
+   },
+   "worst": {
+    "cycles": 183886,
+    "ms": 1.83886,
+    "instr": 26292,
+    "start_sys": 272125959,
+    "modules": {
+     "aecp_mbx": 1490,
+     "ctrl_app_aecp": 2932,
+     "mbx": 7412,
+     "srp_mbx": 9846,
+     "ctrl_loop": 3212,
+     "adp_mbx": 326,
+     "adp": 541,
+     "acmp_mbx": 297,
+     "acmp": 32478,
+     "maap_mbx": 1777,
+     "ctrl_mem": 16043,
+     "ctrl_app_srp": 2122,
+     "ctrl_aecp_image": 80,
+     "maap": 818,
+     "aecp": 7048,
+     "aecp_nvm": 318,
+     "mrp_mad": 9190,
+     "mbx_plat_mmio": 100,
+     "timer": 3222,
+     "nvm_store": 1744,
+     "nvm_flash_litespi": 70617,
+     "rt_lshrdi3": 4138,
+     "aecp_commands": 914,
+     "msrp": 1116,
+     "mrp_pdu": 2598,
+     "aecp_face": 643,
+     "nvm_klj2": 2864
+    }
+   },
+   "composed": {
+    "cycles": 183886,
+    "ms": 1.83886,
+    "instr": 26292,
+    "passes": 20,
+    "start_sys": 272125959,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 1
+    },
+    "admission": {
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     },
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 14.65479
+   },
+   "rows": {
+    "x-save-0.event.if0": 1.43477,
+    "x-save-0.acmp_command.if0": 7.23363,
+    "x-save-0.service.adp.first.if0": 1.3407,
+    "x-save-0.service.adp.last.if1": 5.28174,
+    "x-save-0.service.acmp.first.if0": 1.29811,
+    "x-save-0.service.acmp.last.if0": 7.89852,
+    "x-save-0.service.aecp.first.if0": 1.33396,
+    "x-save-0.service.aecp.last.if1": 12.84223,
+    "x-save-0.service.maap.first.if0": 1.32356,
+    "x-save-0.service.maap.last.if0": 5.26679,
+    "x-save-0.service.srp.first.if0": 5.26614,
+    "x-save-0.service.srp.last.if1": 14.12201
+   }
+  },
+  {
+   "group": "x-save-1",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 305,
+    "over": 1,
+    "over_passes": [
+     {
+      "start_sys": 272162727,
+      "cycles": 201045
+     }
+    ]
+   },
+   "worst": {
+    "cycles": 201045,
+    "ms": 2.01045,
+    "instr": 29405,
+    "start_sys": 272162727,
+    "modules": {
+     "aecp_mbx": 1490,
+     "ctrl_app_aecp": 3224,
+     "mbx": 7571,
+     "srp_mbx": 11530,
+     "ctrl_loop": 3296,
+     "adp_mbx": 370,
+     "adp": 476,
+     "acmp_mbx": 297,
+     "acmp": 32728,
+     "maap_mbx": 1760,
+     "ctrl_mem": 22911,
+     "ctrl_app_srp": 2122,
+     "ctrl_aecp_image": 80,
+     "maap": 1020,
+     "aecp": 7249,
+     "aecp_nvm": 298,
+     "mrp_mad": 13587,
+     "mbx_plat_mmio": 100,
+     "timer": 3081,
+     "nvm_store": 1744,
+     "nvm_flash_litespi": 70617,
+     "rt_lshrdi3": 4217,
+     "aecp_commands": 914,
+     "msrp": 2035,
+     "shlan_port": 185,
+     "ctrl_pool": 1801,
+     "mrp_pdu": 2835,
+     "aecp_face": 643,
+     "nvm_klj2": 2864
+    }
+   },
+   "composed": {
+    "cycles": 201045,
+    "ms": 2.01045,
+    "instr": 29405,
+    "passes": 21,
+    "start_sys": 272162727,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 1
+    },
+    "admission": {
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     },
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 15.80451
+   },
+   "rows": {
+    "x-save-1.event.if0": 1.43477,
+    "x-save-1.acmp_command.if0": 7.23927,
+    "x-save-1.service.adp.first.if0": 1.3407,
+    "x-save-1.service.adp.last.if1": 4.91644,
+    "x-save-1.service.acmp.first.if0": 1.29811,
+    "x-save-1.service.acmp.last.if0": 7.89658,
+    "x-save-1.service.aecp.first.if0": 1.33396,
+    "x-save-1.service.aecp.last.if1": 12.83624,
+    "x-save-1.service.maap.first.if0": 1.32356,
+    "x-save-1.service.maap.last.if0": 4.90149,
+    "x-save-1.service.srp.first.if0": 6.91129,
+    "x-save-1.service.srp.last.if1": 14.11269
+   }
+  },
+  {
+   "group": "x-save-2",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 303,
+    "over": 1,
+    "over_passes": [
+     {
+      "start_sys": 272245715,
+      "cycles": 210688
+     }
+    ]
+   },
+   "worst": {
+    "cycles": 210688,
+    "ms": 2.10688,
+    "instr": 31152,
+    "start_sys": 272245715,
+    "modules": {
+     "aecp_mbx": 1586,
+     "ctrl_app_aecp": 3545,
+     "mbx": 10191,
+     "srp_mbx": 12003,
+     "ctrl_loop": 3357,
+     "adp_mbx": 476,
+     "adp": 1163,
+     "acmp_mbx": 659,
+     "acmp": 34923,
+     "maap_mbx": 2440,
+     "ctrl_mem": 23870,
+     "ctrl_app_srp": 2356,
+     "ctrl_aecp_image": 160,
+     "maap": 1972,
+     "aecp": 7480,
+     "aecp_nvm": 298,
+     "mrp_mad": 13046,
+     "mbx_plat_mmio": 100,
+     "timer": 2923,
+     "nvm_store": 1680,
+     "nvm_flash_litespi": 70617,
+     "rt_lshrdi3": 4161,
+     "aecp_commands": 1189,
+     "msrp": 2244,
+     "shlan_port": 185,
+     "ctrl_pool": 1801,
+     "mrp_pdu": 2756,
+     "aecp_face": 643,
+     "nvm_klj2": 2864
+    }
+   },
+   "composed": {
+    "cycles": 210688,
+    "ms": 2.10688,
+    "instr": 31152,
+    "passes": 19,
+    "start_sys": 272245715,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 1
+    },
+    "admission": {
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     },
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 15.39086
+   },
+   "rows": {
+    "x-save-2.event.if0": 1.43477,
+    "x-save-2.acmp_command.if0": 7.45431,
+    "x-save-2.service.adp.first.if0": 1.3407,
+    "x-save-2.service.adp.last.if1": 6.1247,
+    "x-save-2.service.acmp.first.if0": 1.29811,
+    "x-save-2.service.acmp.last.if0": 8.10035,
+    "x-save-2.service.aecp.first.if0": 1.33396,
+    "x-save-2.service.aecp.last.if1": 13.90163,
+    "x-save-2.service.maap.first.if0": 1.32356,
+    "x-save-2.service.maap.last.if0": 6.10975,
+    "x-save-2.service.srp.first.if0": 6.1091,
+    "x-save-2.service.srp.last.if1": 14.85872
+   }
+  },
+  {
+   "group": "x-save-3",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 303,
+    "over": 1,
+    "over_passes": [
+     {
+      "start_sys": 272262711,
+      "cycles": 238763
+     }
+    ]
+   },
+   "worst": {
+    "cycles": 238763,
+    "ms": 2.38763,
+    "instr": 42187,
+    "start_sys": 272262711,
+    "modules": {
+     "aecp_mbx": 1298,
+     "ctrl_app_aecp": 3164,
+     "mbx": 10159,
+     "srp_mbx": 14829,
+     "ctrl_loop": 3543,
+     "adp_mbx": 402,
+     "adp": 1058,
+     "acmp_mbx": 487,
+     "acmp": 34847,
+     "maap_mbx": 2300,
+     "ctrl_mem": 39388,
+     "ctrl_app_srp": 2449,
+     "ctrl_aecp_image": 206,
+     "maap": 3849,
+     "aecp": 6855,
+     "aecp_nvm": 298,
+     "mrp_mad": 20665,
+     "mbx_plat_mmio": 64,
+     "timer": 2387,
+     "nvm_store": 1745,
+     "nvm_flash_litespi": 70617,
+     "rt_lshrdi3": 6874,
+     "aecp_commands": 831,
+     "msrp": 1808,
+     "shlan_port": 309,
+     "ctrl_pool": 4615,
+     "mvrp": 270,
+     "aecp_face": 582,
+     "nvm_klj2": 2864
+    }
+   },
+   "composed": {
+    "cycles": 238763,
+    "ms": 2.38763,
+    "instr": 42187,
+    "passes": 19,
+    "start_sys": 272262711,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 1
+    },
+    "admission": {
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     },
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 15.37942
+   },
+   "rows": {
+    "x-save-3.event.if0": 1.43477,
+    "x-save-3.acmp_command.if0": 7.43852,
+    "x-save-3.service.adp.first.if0": 1.3407,
+    "x-save-3.service.adp.last.if1": 6.11188,
+    "x-save-3.service.acmp.first.if0": 1.29811,
+    "x-save-3.service.acmp.last.if0": 8.08349,
+    "x-save-3.service.aecp.first.if0": 1.33396,
+    "x-save-3.service.aecp.last.if1": 13.89231,
+    "x-save-3.service.maap.first.if0": 1.32356,
+    "x-save-3.service.maap.last.if0": 6.09693,
+    "x-save-3.service.srp.first.if0": 6.09628,
+    "x-save-3.service.srp.last.if1": 14.84728
+   }
+  },
+  {
+   "group": "x-save-4",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 304,
+    "over": 0,
+    "over_passes": []
+   },
+   "worst": {
+    "cycles": 155896,
+    "ms": 1.55896,
+    "instr": 39712,
+    "start_sys": 272498942,
+    "modules": {
+     "aecp_mbx": 1089,
+     "ctrl_app_aecp": 2865,
+     "mbx": 9919,
+     "srp_mbx": 13456,
+     "ctrl_loop": 2319,
+     "adp_mbx": 153,
+     "adp": 1058,
+     "acmp_mbx": 288,
+     "acmp": 34047,
+     "maap_mbx": 2090,
+     "ctrl_mem": 39102,
+     "ctrl_app_srp": 2296,
+     "ctrl_aecp_image": 206,
+     "maap": 3657,
+     "aecp": 6559,
+     "aecp_nvm": 318,
+     "mrp_mad": 20600,
+     "mbx_plat_mmio": 64,
+     "timer": 560,
+     "nvm_store": 13,
+     "rt_lshrdi3": 6870,
+     "aecp_commands": 831,
+     "msrp": 1808,
+     "shlan_port": 309,
+     "ctrl_pool": 4615,
+     "mvrp": 270,
+     "aecp_face": 534
+    }
+   },
+   "composed": {
+    "cycles": 155896,
+    "ms": 1.55896,
+    "instr": 39712,
+    "passes": 19,
+    "start_sys": 272498942,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 1
+    },
+    "admission": {
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     },
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 14.55423
+   },
+   "rows": {
+    "x-save-4.event.if0": 1.43402,
+    "x-save-4.acmp_command.if0": 6.61122,
+    "x-save-4.service.adp.first.if0": 1.3407,
+    "x-save-4.service.adp.last.if1": 5.28224,
+    "x-save-4.service.acmp.first.if0": 1.29811,
+    "x-save-4.service.acmp.last.if0": 7.25619,
+    "x-save-4.service.aecp.first.if0": 1.33396,
+    "x-save-4.service.aecp.last.if1": 13.06758,
+    "x-save-4.service.maap.first.if0": 1.32356,
+    "x-save-4.service.maap.last.if0": 5.26729,
+    "x-save-4.service.srp.first.if0": 5.26664,
+    "x-save-4.service.srp.last.if1": 14.02209
+   }
+  },
+  {
+   "group": "x-save-5",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 304,
+    "over": 0,
+    "over_passes": []
+   },
+   "worst": {
+    "cycles": 155896,
+    "ms": 1.55896,
+    "instr": 39712,
+    "start_sys": 272585298,
+    "modules": {
+     "aecp_mbx": 1089,
+     "ctrl_app_aecp": 2865,
+     "mbx": 9919,
+     "srp_mbx": 13456,
+     "ctrl_loop": 2319,
+     "adp_mbx": 153,
+     "adp": 1058,
+     "acmp_mbx": 288,
+     "acmp": 34047,
+     "maap_mbx": 2090,
+     "ctrl_mem": 39102,
+     "ctrl_app_srp": 2296,
+     "ctrl_aecp_image": 206,
+     "maap": 3657,
+     "aecp": 6559,
+     "aecp_nvm": 318,
+     "mrp_mad": 20600,
+     "mbx_plat_mmio": 64,
+     "timer": 560,
+     "nvm_store": 13,
+     "rt_lshrdi3": 6870,
+     "aecp_commands": 831,
+     "msrp": 1808,
+     "shlan_port": 309,
+     "ctrl_pool": 4615,
+     "mvrp": 270,
+     "aecp_face": 534
+    }
+   },
+   "composed": {
+    "cycles": 155896,
+    "ms": 1.55896,
+    "instr": 39712,
+    "passes": 19,
+    "start_sys": 272585298,
+    "population": {
+     "adp": 8,
+     "acmp": 12,
+     "aecp": 16,
+     "maap": 7,
+     "srp": 32,
+     "GM": 15,
+     "LINK": 1
+    },
+    "admission": {
+     "adp": {
+      "burst": 8,
+      "refill_ms": 10,
+      "record_words": 23,
+      "room": 11,
+      "at_once": 8,
+      "bounded": false
+     },
+     "aecp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 17,
+      "room": 30,
+      "at_once": 16,
+      "bounded": false
+     },
+     "maap": {
+      "burst": 8,
+      "refill_ms": 20,
+      "record_words": 17,
+      "room": 7,
+      "at_once": 7,
+      "bounded": true
+     },
+     "srp": {
+      "burst": 32,
+      "refill_ms": 2,
+      "record_words": 17,
+      "room": 60,
+      "at_once": 32,
+      "bounded": false
+     },
+     "acmp": {
+      "burst": 16,
+      "refill_ms": 5,
+      "record_words": 20,
+      "room": 12,
+      "at_once": 12,
+      "bounded": true
+     }
+    },
+    "events_held": 0,
+    "serviced": true,
+    "unreleased": {},
+    "window_ms": 14.55615
+   },
+   "rows": {
+    "x-save-5.event.if0": 1.43402,
+    "x-save-5.acmp_command.if0": 6.61053,
+    "x-save-5.service.adp.first.if0": 1.3407,
+    "x-save-5.service.adp.last.if1": 5.28155,
+    "x-save-5.service.acmp.first.if0": 1.29811,
+    "x-save-5.service.acmp.last.if0": 7.2555,
+    "x-save-5.service.aecp.first.if0": 1.33396,
+    "x-save-5.service.aecp.last.if1": 13.0695,
+    "x-save-5.service.maap.first.if0": 1.32356,
+    "x-save-5.service.maap.last.if0": 5.2666,
+    "x-save-5.service.srp.first.if0": 5.26595,
+    "x-save-5.service.srp.last.if1": 14.02401
+   }
+  },
+  {
+   "group": "x-links-quiet",
+   "share": {
+    "ms": 2.0,
+    "cycles": 200000,
+    "passes": 269,
+    "over": 0,
+    "over_passes": []
+   },
+   "worst": {
+    "cycles": 168179,
+    "ms": 1.68179,
+    "instr": 49037,
+    "start_sys": 159920545,
+    "modules": {
+     "aecp_mbx": 385,
+     "ctrl_app_aecp": 1916,
+     "mbx": 4891,
+     "srp_mbx": 10948,
+     "ctrl_loop": 2212,
+     "adp_mbx": 189,
+     "adp": 607,
+     "acmp_mbx": 177,
+     "acmp": 3708,
+     "maap_mbx": 2697,
+     "ctrl_mem": 43288,
+     "ctrl_app_srp": 2889,
+     "ctrl_aecp_image": 193,
+     "maap": 3069,
+     "aecp": 1223,
+     "aecp_nvm": 222,
+     "mrp_mad": 70910,
+     "timer": 3006,
+     "nvm_store": 13,
+     "rt_lshrdi3": 2845,
+     "msrp": 4238,
+     "shlan_port": 561,
+     "ctrl_pool": 7534,
+     "mvrp": 275,
+     "aecp_face": 183
+    }
+   },
+   "composed": {},
+   "rows": {
+    "x.links.if0": 0.04153
+   }
+  }
+ ]
+}
