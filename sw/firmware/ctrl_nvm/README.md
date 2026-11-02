@@ -244,7 +244,7 @@ spent its 2.0 ms share. The step is taken only while `NVM_STEP_US`, 1.0 ms, is
 left; otherwise it stays owed, and the passes it waits through owe it once.
 On the split CPU, through the product's uncached flash window and its command
 master, a step costs at most (CPU cycles at 100 MHz, the flash port's and the
-store's; `SPLIT_CONTROL_MEMORY.md` section 13):
+store's; [split control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#a-save-in-a-composed-window-and-both-links-at-once)):
 
 | Step | 1x1/1if | 8x8/2if |
 |---|---:|---:|
