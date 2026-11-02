@@ -9,8 +9,21 @@
  * no heap and no OS service. Each nvm_store_service() call does one bounded
  * step and returns. The event loop owes the store a step every centisecond
  * (nvm_store_tick) and takes it at the end of a pass that took no input and
- * has room for it (nvm_store_step; THE STEP in
+ * has room for it, or as the whole of a pass once it has waited past the
+ * loop's age limit (nvm_store_step; THE STEP in
  * sw/firmware/ctrl/loop/ctrl_loop.h).
+ *
+ * A SAVE'S WORST CASE. Under input that leaves no pass empty the loop takes
+ * the owed step once every CTRL_LOOP_STEP_AGE + 1 centiseconds, so a save is
+ * durable at most MILAN_NVM_DEBOUNCE_MS after its first change plus that many
+ * centiseconds for each step after the window: the step that starts the
+ * capture, one for each changed record and one more, the seal's
+ * NVM_STEP_BYTES stretches, the erase and its wait, NVM_IMG_LEN /
+ * NVM_READ_BYTES read-backs for the blank check and as many for the verify,
+ * and each page's issue and its wait. At 8x8/2if, one changed record and no
+ * flash busy time, that is 369 steps and 12.08 s (#665; the budget harness's
+ * save_window.bound_ms, to which its save-starved group holds a save); a
+ * flash part's busy time adds its polls, one a step.
  */
 #ifndef NVM_STORE_H
 #define NVM_STORE_H
@@ -62,8 +75,10 @@ enum nvm_phase {
 /* Bytes one service step may touch, besides one latched record. */
 #define NVM_STEP_BYTES NVM_FLASH_PAGE
 /* Bytes one blank-check or verify step reads back. The flash window is uncached
- * on the split CPU, about 5.5 us a byte, so half a page takes 0.70 ms of the
- * 2.0 ms a pass may take (#665, the share in ctrl_loop.h). */
+ * on the split CPU, about 5.5 us a byte, so half a page takes about 0.70 ms to
+ * read, and a read-back step 0.73 to 0.77 ms at 8x8/2if with the store's own
+ * work (NVM_STEP_US below), of the 2.0 ms a pass may take (#665, the share in
+ * ctrl_loop.h). */
 #define NVM_READ_BYTES (NVM_FLASH_PAGE / 2u)
 /* The CPU time one service step may take on the split CPU's flash port, from
  * the clock read that admits it to the end of its pass: a page program's

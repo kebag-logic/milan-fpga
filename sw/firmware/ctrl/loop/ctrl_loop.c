@@ -108,6 +108,7 @@ static uint32_t dispatch_ticks(struct ctrl_loop *l, uint32_t budget)
 	}
 	l->ticks_owed -= count;
 	l->stats.ticks += count;
+	l->step_age += count;
 	return count;
 }
 
@@ -156,6 +157,15 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 {
 	// THE STEP's deadline, read as the pass starts
 	uint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u;
+	// THE STEP's age limit: a step not run for more than CTRL_LOOP_STEP_AGE centiseconds is this
+	// whole pass, before any input, so an input waits one step at most
+	if (l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE) {
+		l->step_age = 0u;
+		(void)l->step(l->step_ctx, deadline);
+		l->stats.passes++;
+		l->stats.aged_passes++;
+		return 1u;
+	}
 	unsigned work = service_events(l);
 	for (unsigned ch = 0; ch < MBX_N_CH; ++ch) {
 		if (l->rx[ch].fn != NULL) {
@@ -168,7 +178,9 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 	}
 	// THE STEP, only in a pass that took no input: no input's service waits on it
 	if (l->step != NULL && work == 0u) {
-		owed = l->step(l->step_ctx, deadline) || owed;
+		bool waits = l->step(l->step_ctx, deadline);
+		l->step_age = waits ? l->step_age : 0u;
+		owed = waits || owed;
 	}
 	l->stats.passes++;
 	if (owed) {

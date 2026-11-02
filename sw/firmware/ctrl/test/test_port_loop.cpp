@@ -845,4 +845,67 @@ TEST_F(Loop, L12StepOnlyInAPassThatTakesNoInput) {
     EXPECT_EQ(probe.steps, 1u) << "L12 the next pass that takes nothing takes it";
 }
 
+// THE STEP's age limit (#665): input that leaves no pass empty holds the step
+// off until more than CTRL_LOOP_STEP_AGE centiseconds have been dispatched
+// since it last ran or owed nothing; the next pass is then the step's alone,
+// before any input, and the input it held off is taken by the pass after it.
+TEST_F(Loop, L13AnAgedStepIsAPassOfItsOwn) {
+    drain(&loop_);
+    ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
+    std::uint8_t f[82];
+    build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
+    // a centisecond and a record before every pass: no pass takes nothing
+    const auto busy_pass = [&]() {
+        mbx_model_advance_ms(&model, MBX_TICK_MS);
+        EXPECT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+        static_cast<void>(ctrl_loop_service(&loop_));
+    };
+    for (unsigned k = 0; k < CTRL_LOOP_STEP_AGE; ++k) {
+        busy_pass();
+    }
+    EXPECT_EQ(probe.steps, 0u) << "L13 a step held off for CTRL_LOOP_STEP_AGE centiseconds still waits";
+    busy_pass();
+    EXPECT_EQ(probe.steps, 0u) << "L13 the pass that dispatches one more takes its input, not the step";
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    mbx_timer_arm(0, 0x600u, mbx_now_ms());
+    mbx_model_advance_ms(&model, 0);
+    const unsigned rx = probe.rx;
+    const unsigned events = probe.events;
+    const unsigned polls = probe.polls;
+    probe.now = 7000u;
+    EXPECT_NE(ctrl_loop_service(&loop_), 0u) << "L13 the step's pass asks for the next pass at once";
+    EXPECT_EQ(probe.steps, 1u) << "L13 the next pass takes the step though input waits";
+    EXPECT_TRUE(probe.rx == rx && probe.events == events && probe.polls == polls)
+        << "L13 and takes nothing else: no event, no record, no poll";
+    EXPECT_EQ(probe.deadline, 7000u + CTRL_LOOP_SHARE_US) << "L13 with the deadline read as it starts";
+    EXPECT_EQ(loop_.stats.aged_passes, 1u) << "L13 the pass is counted as an aged step's";
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_TRUE(probe.rx == rx + 1u && probe.events == events + 1u)
+        << "L13 the next pass takes the input it held off";
+    EXPECT_EQ(probe.steps, 1u) << "L13 and the step's age starts again";
+    drain(&loop_);
+    EXPECT_EQ(probe.steps, 2u) << "L13 (a pass that takes nothing runs the step)";
+    for (unsigned k = 0; k < CTRL_LOOP_STEP_AGE; ++k) {
+        busy_pass();
+    }
+    drain(&loop_);
+    EXPECT_EQ(probe.steps, 3u) << "L13 (and again, after CTRL_LOOP_STEP_AGE more centiseconds)";
+    for (unsigned k = 0; k < CTRL_LOOP_STEP_AGE; ++k) {
+        busy_pass();
+    }
+    EXPECT_EQ(probe.steps, 3u) << "L13 a step run in a pass that takes nothing starts its age again";
+    probe.step_owing = true;
+    probe.poll_us = CTRL_LOOP_SHARE_US;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.steps, 4u) << "L13 (a pass that takes nothing offers the step, which has no room)";
+    probe.step_owing = false;
+    probe.poll_us = 0u;
+    busy_pass();
+    EXPECT_EQ(probe.steps, 4u) << "L13 (its input taken)";
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.steps, 5u) << "L13 a step it had no room for keeps its age";
+    EXPECT_EQ(loop_.stats.aged_passes, 2u) << "L13 and is the next pass's alone";
+}
+
 }  // namespace

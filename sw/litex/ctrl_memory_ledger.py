@@ -23,7 +23,7 @@ STAGE_1X1, STAGE_8X8 = 3344, 13264
 FIXTURE, PLATFORM = "8x8-two-interfaces", "platform-8x8-two-interfaces"
 #: sizeof(struct ctrl_plat) in the platform's image at each point (plat/ctrl_plat.h), as ctrl_plat_image.py links
 #: it: 1x1 with one and two interfaces, 8x8 with one and two.
-PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_160, 18_664, 17_808, 19_960
+PLAT_1X1_1, PLAT_1X1_2, PLAT_8X8_1, PLAT_8X8_2 = 17_168, 18_672, 17_816, 19_968
 
 
 class Case(NamedTuple):

@@ -46,8 +46,9 @@
  * erase. No step touches more than NVM_STEP_BOUND bytes: one 256-byte
  * stretch (a read-back's is 128), or one latched record's copy and crc16.
  * Time is the flash port's local counter, sampled once per step. The loop
- * owes a step every centisecond and takes it only in a pass that took no
- * input and has NVM_STEP_US of its share left (THE STEP, ctrl_loop.h).
+ * owes a step every centisecond and takes it in a pass that took no input and
+ * has NVM_STEP_US of its share left, or as the whole of a pass once it has
+ * waited past the loop's age limit (THE STEP, ctrl_loop.h).
  */
 #include "nvm_store.h"
 

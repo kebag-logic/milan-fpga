@@ -29,7 +29,8 @@
 // CTRL_LOOP_RX_PASSES(rx_words) (a record of a channel), counted from the
 // first pass that starts after the fabric posted it, and the module's
 // response is committed in the pass that takes it (A3 says when it is
-// not). A pass costs at most the
+// not). A pass given whole to an aged step (THE STEP) takes no input and is
+// not counted: it costs the input one step's time. A pass costs at most the
 // budgets below times the modules' stated costs. That holds under four
 // assumptions:
 //   A1 backlog: at most a full event ring (CTRL_LOOP_EVT_BACKLOG records,
@@ -78,7 +79,8 @@
 //     it and builds in the next, and a pass builds one interface at most
 //     (srp_bounds.h);
 //   * the saved-state store: one service step, taken only in a pass that
-//     took no input and has room for it (THE STEP, nvm_store.h).
+//     took no input and has room for it, or as the whole of a pass once it
+//     has waited past its age limit (THE STEP, nvm_store.h).
 //
 // THE STEP (#665). One client takes a deferrable step at the end of a pass
 // that took no input, no event and no record, after the polls: the
@@ -94,6 +96,14 @@
 // the step stays owed, the loop passes again at once, and the first pass
 // that takes nothing and has room takes it. An input that arrives during
 // such a pass waits for it, as for any pass running when it arrives.
+// Input that never leaves a pass empty would hold the step off for good, so
+// it has an age limit: once more than CTRL_LOOP_STEP_AGE centiseconds have
+// been dispatched since the step last ran or owed nothing, the next pass is
+// the step's alone. It calls the step before it takes any input, with the
+// deadline read as it starts, and returns one, so the input it held off is
+// taken by the next pass: an input waits one step at most. Under such input
+// the client steps once every CTRL_LOOP_STEP_AGE + 1 centiseconds, and
+// nvm_store.h states the worst case that makes of a save.
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
@@ -133,6 +143,12 @@ extern "C" {
 #define CTRL_LOOP_TICKS_PER_PASS 16u    // centiseconds one pass dispatches at most
 // THE SHARE in microseconds: SRP's 18 ms over nine passes.
 #define CTRL_LOOP_SHARE_US 2000u
+// THE STEP's age limit in centiseconds. Two: the heaviest window the budget
+// stages holds the step off for at most 16.95 ms at 8x8/2if, in which no
+// more than two centiseconds are dispatched, so no aged step lands among a
+// window's records, the least of whose margins (0.71 ms) is below a step
+// (0.95 ms) (#665).
+#define CTRL_LOOP_STEP_AGE 2u
 
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)
@@ -178,6 +194,7 @@ struct ctrl_loop_stats {
 	uint32_t rx_bad;        // RX records the driver refused (ring resynchronised)
 	uint32_t ticks;         // centiseconds dispatched
 	uint32_t owed_passes;   // passes after which output or centiseconds were still owed
+	uint32_t aged_passes;   // passes given whole to an aged step (THE STEP)
 };
 
 struct ctrl_loop {
@@ -194,6 +211,7 @@ struct ctrl_loop {
 	void *clock_ctx;
 	struct mbx_frame frame;         // the one RX buffer every handler borrows
 	uint32_t ticks_owed;            // centiseconds taken from TICK records, not yet dispatched
+	uint32_t step_age;              // centiseconds dispatched since the step last ran or owed nothing
 	struct ctrl_loop_stats stats;
 };
 
@@ -217,7 +235,8 @@ bool ctrl_loop_set_step(struct ctrl_loop *l, ctrl_step_fn fn, void *ctx, ctrl_cl
 bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id, const uint64_t own_mac[MBX_N_IF]);
 
 // One service pass; returns the events and records it handled, plus one when
-// output or centiseconds are still owed. 0 means the loop may sleep.
+// output or centiseconds are still owed, or one when it was an aged step's
+// alone (THE STEP). 0 means the loop may sleep.
 unsigned ctrl_loop_service(struct ctrl_loop *l);
 
 // One turn of ctrl_loop_run: a pass, then mbx_hal_wait() if it returned 0.
