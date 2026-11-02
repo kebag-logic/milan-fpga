@@ -1,23 +1,34 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Packet mailbox split: the contract, the HAL and the ADP slice (#665 lane F0)
 
-Status: **F0 implemented behind a default-off build switch.** The all-fabric
-build is unchanged and remains the shipping image. This page is the design
-of the contract between the fabric and the bare-metal control-plane firmware.
-The split integrates before P3; milestone 13 retains the hard-core port.
-Lane F3 adds the [ACMP module](#the-acmp-module) to the firmware the host
-tests and the co-simulation build; no image links that firmware yet.
-Lane F-INT adds the [publication block](#the-publication-block) (contract
-2.2), where the firmware owner writes the class-D state the split placement's
-datapath reads; nothing reads it until the placement switch lands.
-The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the Mark II default.
+Status: **F0 implemented behind a default-off build switch.**
+The all-fabric build is unchanged and remains the shipping image.
+
+This page designs the fabric's contract with the control-plane firmware.
+The split integrates before P3.
+
+Milestone 13 retains the hard-core port.
+Lane F3 adds the [ACMP module](#the-acmp-module) to the firmware.
+
+The host tests and the co-simulation build compile it.
+No image links that firmware yet.
+
+Lane F-INT adds the [publication block](#the-publication-block), contract 2.2.
+There the firmware owner writes the class-D state.
+
+The split placement's datapath reads that state.
+Nothing reads it until the placement switch lands.
+
+The [placement contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines the transition and end state.
 All-fabric stays the shipping default until F2 to F5 acceptance.
+
 That acceptance covers all streams, counters and the audio soak.
-The owner decisions of
-2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640)
-and the directive on [#665](https://github.com/kebag-logic/milan-fpga/issues/665)
-define the interface. The numbers live in one place, the generated
-[reference page](../reference/MAILBOX_CONTRACT.md); this page explains them.
+
+The owner decisions of 2026-10-05 on [#640](https://github.com/kebag-logic/milan-fpga/issues/640) define the interface.
+So does the directive on [#665](https://github.com/kebag-logic/milan-fpga/issues/665).
+
+The numbers live in one place, the generated [reference page](../reference/MAILBOX_CONTRACT.md).
+This page explains them.
 
 ## Contents
 
@@ -38,12 +49,19 @@ define the interface. The numbers live in one place, the generated
 
 ## What moves, and what the fabric keeps
 
-The bare-metal core runs ADP, ACMP, MAAP, SRP (through lwSRP) and AECP. The
-fabric keeps framing and timestamps, the media path, the timers that carry
-hard deadlines, and an ingress filter. It keeps the gPTP plane until F6, then
-firmware owns the protocol and servo. The two exchange
-frames through packet mailboxes: block-RAM rings, a doorbell per ring, one
-interrupt, 32-bit accesses only and no DMA.
+The bare-metal core runs ADP, ACMP, MAAP, SRP and AECP.
+SRP runs through lwSRP.
+
+The fabric keeps framing, timestamps and the media path.
+It also keeps hard-deadline timers and an ingress filter.
+
+It keeps the gPTP plane until #665 lane F6.
+Then firmware owns the protocol and servo.
+
+The two exchange frames through packet mailboxes.
+Those are block-RAM rings with a doorbell per ring.
+
+There is one interrupt, 32-bit accesses only and no DMA.
 
 ```mermaid
 flowchart LR
@@ -130,9 +148,7 @@ in words, and storage the producer writes only past the consumer's tail.
   flushes a ring to TX_HEAD on a malformed one, because a length that cannot
   be trusted leaves no next record to find. TX_TAIL moves only after the last
   byte has left.
-- **Event record:** four words. The sources are a link level change, a
-  grandmaster change published by the gPTP plane, a fabric timer expiry with
-  the tag of the arm it belongs to, and the centisecond tick.
+- **Event record:** four words. Its sources are link level changes and grandmaster changes. The gPTP plane publishes the latter until #665 lane F6. They also include fabric timer expiries, tagged with their arm. The centisecond tick is the fourth source.
 
 Records leave in **commit order across channels** (the ruling on PR #668,
 comment 5994730420). Before each record the merge reads SEQ from the oldest
