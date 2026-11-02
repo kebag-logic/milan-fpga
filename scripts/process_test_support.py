@@ -15,6 +15,9 @@ import tempfile
 import time
 from collections.abc import Callable
 from pathlib import Path
+from types import SimpleNamespace
+
+import owned_process
 
 PROC = Path("/proc")
 ROOT = Path(__file__).resolve().parent.parent
@@ -256,6 +259,58 @@ def assert_reaped(data: dict) -> None:
     for pid, previous in data["identities"].items():
         current = identity(int(pid))
         assert current is None or current[0] != previous[0], (pid, previous, current)
+
+
+#: A tick of the starved owner's clock: about a microsecond, and exact in binary, as every time on that clock is.
+TICK = 2.0 ** -20
+
+
+def starved_cleanup(owner: owned_process.OwnedProcesses, listing: Callable[[float], dict], names: dict,
+                    stated: list[tuple], reaped: Callable[[float], set] = lambda _clock: set()) -> list[tuple]:
+    """Run one cleanup over a listing on a starved owner's clock; return each signal and the verdict by that clock.
+
+    A pass longer than the cap, half a second, counts as the cap, whether it took a tick more or an hour. One
+    shorter counts its own length: the clock lands a tick short of each time in `stated`, then on it, so the
+    pass before each stated time is a tick early. Only what `reaped` returns is ever collected. A verdict
+    that does not report a real process's wall time since its first SIGKILL adds that time to the events.
+    """
+    now, clock, events, killed = [0.0], [0.0], [], {}
+
+    def pause(_seconds: float) -> None:
+        """One pass's pause, whatever it asks for."""
+        due = min((event[0] for event in stated if event[0] > clock[0]), default=clock[0] + 1.0)
+        slow = 3600.0 if int(clock[0] * 2) % 2 else 0.5 + TICK
+        step = max(due - TICK - clock[0], TICK) if due - clock[0] <= 0.5 else slow
+        now[0] += step
+        clock[0] += min(step, 0.5)
+
+    def census() -> dict:
+        """List what the listing lists at this time."""
+        assert clock[0] < 100, "cleanup never reached a verdict on the owner's clock"
+        return listing(clock[0])
+
+    def send(pid: int, _start: str, signum: int) -> bool:
+        """Note the signal and its time; no process receives it."""
+        events.append((clock[0], signal.Signals(signum).name, names[pid]))
+        if signum == signal.SIGKILL:
+            killed.setdefault(pid, now[0])
+        return True
+    real = owned_process.time
+    owned_process.time = SimpleNamespace(monotonic=lambda: now[0], sleep=pause)
+    owner._descendants, owner._reap, owner._send = census, lambda: reaped(clock[0]), send
+    owner._signal = lambda _fd, signum: events.append((clock[0], signal.Signals(signum).name, "shell"))
+    try:
+        owner._cleanup()
+        events.append((clock[0], "no verdict"))
+    except RuntimeError as exc:
+        events.append((clock[0], "verdict"))
+        ages = [f"sent SIGKILL {now[0] - at:.2f} s ago" for pid, at in killed.items()
+                if pid == os.getpid() and pid in listing(clock[0])]
+        events += [("not in the report", age) for age in ages if age not in str(exc)]
+    finally:
+        owned_process.time = real
+        del owner._descendants, owner._reap, owner._send, owner._signal
+    return events
 
 
 #: Every published mutant of scripts/owned_process.py for #833, so that the next

@@ -22,8 +22,8 @@ from types import SimpleNamespace
 import owned_process
 from owned_process import Cancelled, OwnedProcesses
 from process_test_support import (
-    FACILITY_MODES, FACILITY_SITE, PROC, Probe, assert_reaped, eventually, identity, install,
-    mutation_campaign, parent as parent_of, running, write,
+    FACILITY_MODES, FACILITY_SITE, PROC, TICK, Probe, assert_reaped, eventually, identity, install,
+    mutation_campaign, parent as parent_of, running, starved_cleanup, write,
 )
 
 DRIVER = "scripts/run_all_suites.sh"
@@ -738,67 +738,19 @@ def owner_late_cancel() -> None:
     print("owner-late-cancel: " + str(dict(verdict_without_trap_window=True)), flush=True)
 
 
-#: A tick of the starved owner's clock: about a microsecond, and exact in binary, as every time on that clock is.
-TICK = 2.0 ** -20
-
-
-def starved_cleanup(owner: OwnedProcesses, listing: Callable[[float], dict], names: dict, stated: list[tuple],
-                    reaped: Callable[[float], set] = lambda _clock: set()) -> list[tuple]:
-    """Run one cleanup over a listing on a starved owner's clock; return each signal and the verdict by that clock.
-
-    A pass longer than the cap, half a second, counts as the cap, whether it took a tick more or an hour. One
-    shorter counts its own length: the clock lands a tick short of each time in `stated`, then on it, so the
-    pass before each stated time is a tick early. Only what `reaped` returns is ever collected. A verdict
-    that does not report a real process's wall time since its first SIGKILL adds that time to the events.
-    """
-    now, clock, events, killed = [0.0], [0.0], [], {}
-
-    def pause(_seconds: float) -> None:
-        """One pass's pause, whatever it asks for."""
-        due = min((event[0] for event in stated if event[0] > clock[0]), default=clock[0] + 1.0)
-        slow = 3600.0 if int(clock[0] * 2) % 2 else 0.5 + TICK
-        step = max(due - TICK - clock[0], TICK) if due - clock[0] <= 0.5 else slow
-        now[0] += step
-        clock[0] += min(step, 0.5)
-
-    def census() -> dict:
-        """List what the listing lists at this time."""
-        assert clock[0] < 100, "cleanup never reached a verdict on the owner's clock"
-        return listing(clock[0])
-
-    def send(pid: int, _start: str, signum: int) -> bool:
-        """Note the signal and its time; no process receives it."""
-        events.append((clock[0], signal.Signals(signum).name, names[pid]))
-        if signum == signal.SIGKILL:
-            killed.setdefault(pid, now[0])
-        return True
-    real = owned_process.time
-    owned_process.time = SimpleNamespace(monotonic=lambda: now[0], sleep=pause)
-    owner._descendants, owner._reap, owner._send = census, lambda: reaped(clock[0]), send
-    owner._signal = lambda _fd, signum: events.append((clock[0], signal.Signals(signum).name, "shell"))
-    try:
-        owner._cleanup()
-        events.append((clock[0], "no verdict"))
-    except RuntimeError as exc:
-        events.append((clock[0], "verdict"))
-        ages = [f"sent SIGKILL {now[0] - at:.2f} s ago" for pid, at in killed.items()
-                if pid == os.getpid() and pid in listing(clock[0])]
-        events += [("not in the report", age) for age in ages if age not in str(exc)]
-    finally:
-        owned_process.time = real
-        del owner._descendants, owner._reap, owner._send, owner._signal
-    return events
-
-
 def owner_stated_seconds() -> None:
     """The product's own seconds hold on a starved owner's clock, each to a tick (#833).
 
     Grace ends at 2 s and a survivor fails the run at 14 s. A parent whose child outlives its own SIGKILL is
     killed at 4 s, and a listing that dies inside every census fails the run at 24 s. A cancelled shell is
-    resumed in the first pass in which nothing else lives: in the first pass, inside grace, between grace
-    and 4 s, late, or in the last pass before 14 s. Its window, which its trap's command shares, ends 10 s
-    after the resume, and the run fails 10 s later; a listing that then dies inside every census, 10 s after
-    that. No descendant new since the first census gets SIGTERM, the trap's command included.
+    resumed in the first pass in which nothing else lives. Its window, which its trap's command shares, ends
+    10 s after the resume, and the run fails 10 s later; a listing that then dies inside every census, 10 s
+    after that. No descendant new since the first census gets SIGTERM: not the trap's command, and not one
+    listed while a cancelled shell is still stopped. The resume-timing matrix resumes the shell in the first
+    pass; in a later pass inside grace, the second or the last before 2 s; in the first pass past grace, at
+    2 s; and in a later one, the next or the last before 14 s. In each the shell is then alone, or its trap
+    starts a command. Other listings resume it at 1 s, 3 s and 5.5 s, with that command listed from the
+    resume, and never.
     """
     # Above the largest PID a process can have, so none of these is ever a real process.
     survivor, shell, command, owner_pid, parent, gone, cleanup = range(2 ** 22 + 1, 2 ** 22 + 8)
@@ -814,11 +766,16 @@ def owner_stated_seconds() -> None:
         return lambda clock: {shell: (owner_pid, "2"), **({child: (shell, "4")} if clock < resume
                                                           else {command: (shell, "3")} if clock else {})}
 
-    def window(resume: float) -> list[tuple]:
-        """What a shell resumed then is sent, as stated, and when the run fails."""
+    def cell(resume: float, *started: int) -> Callable[[float], dict]:
+        """A matrix cell: the child lives until the resume; what the trap starts is listed from the pass after."""
+        return lambda clock: {shell: (owner_pid, "2"), **({child: (shell, "4")} if clock < resume else
+                                                          {pid: (shell, "3") for pid in started if clock > resume})}
+
+    def window(resume: float, windowed: tuple[str, ...] = ("shell", "trap command")) -> list[tuple]:
+        """What a shell resumed then is sent, as stated, with what shares its window, and when the run fails."""
         return [*[(0, "SIGTERM", "child")][:resume > 0], *[(2, "SIGKILL", "child")][:resume > 2],
-                (resume, "SIGCONT", "shell"), *[(resume + 10, "SIGKILL", name) for name in ("shell", "trap command")],
-                *[(resume + 20, "SIGKILL", name) for name in ("shell", "trap command")], (resume + 20, "verdict")]
+                (resume, "SIGCONT", "shell"), *[(resume + 10, "SIGKILL", name) for name in windowed],
+                *[(resume + 20, "SIGKILL", name) for name in windowed], (resume + 20, "verdict")]
 
     def kept(words: str, listing: Callable[[float], dict], stated: list[tuple], shell_pid: int | None = None,
              reaped: Callable[[float], set] = lambda _clock: set()) -> None:
@@ -852,9 +809,23 @@ def owner_stated_seconds() -> None:
         # After the last-pass resume everything listed dies inside every census.
         kept("a resumed vanishing listing", resumed_at(last), [*window(last)[:3], (last + 30, "verdict")], shell,
              lambda clock: {shell, command} if clock > last else set())
+        kept("an in-grace resume", resumed_at(1), window(1), shell)
+        # A descendant new since the first census, its child's trap command, while the cancelled shell is stopped.
+        kept("a new descendant beside a stopped shell", lambda clock: {shell: (owner_pid, "2"), child: (shell, "4"),
+                                                                       **({cleanup: (child, "7")} if clock else {})},
+             [(0, "SIGTERM", "child"), *[(2, "SIGKILL", name) for name in ("child", "cleanup command")],
+              *[(14, "SIGKILL", name) for name in ("shell", "child", "cleanup command")], (14, "verdict")], shell)
+        # The resume-timing matrix: each class of pass at its earliest and its latest, the shell then alone or with
+        # a command its trap starts after the resume. That command after a first-pass resume is the listing above.
+        for when, resume in (("first-pass", 0), ("second-pass", TICK), ("last in-grace", 2 - TICK),
+                             ("first past-grace", 2), ("second past-grace", 2 + TICK), ("last-pass", last)):
+            kept(f"a lone {when} resume", cell(resume), window(resume, ("shell",)), shell)
+            if resume:
+                kept(f"a {when} resume and its trap command", cell(resume, command), window(resume), shell)
     print("owner-stated-seconds: " + str(dict(grace=2, verdict=14, parent_kill=4, vanishing=24,
-                                              resumes=[0, 3, 5.5, last], window=10, after_resume=20,
-                                              vanishing_after_resume=30)), flush=True)
+                                              resumes=[0, 1, 3, 5.5, last], window=10, after_resume=20,
+                                              vanishing_after_resume=30, matrix=[0, TICK, 2 - TICK, 2, 2 + TICK, last],
+                                              alone_or_with_trap_command=True)), flush=True)
 
 
 #: Blocks SIGTERM and SIGCONT, so either sent to it stays pending, as its status shows; then says it is ready.
