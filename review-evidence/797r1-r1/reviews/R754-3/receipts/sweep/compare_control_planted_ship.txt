@@ -1,0 +1,56 @@
+reads=24064 disagreements=1680 reads_matching_two_rows_same_value=832 listeners=1
+DISAGREE CHMAP_LOOP: 1024; first: sel=0x000 snap=0 acmp=0 srp=0 kind=9 cmrd=0 read=0xDEADDEAD rows=[]
+DISAGREE STRMW_CNTn: 640; first: sel=0x000 snap=0 acmp=0 srp=0 kind=1 cmrd=0 read=0xC0000001 rows=[('the selected stream exists and the kind the last snapshot recorded for this counter is `SK_RAW_C`', 'the fields above'), ('the selected stream exists and the kind the last snapshot recorded for this counter is `SK_RAW_C`', '0xDEADDEAD')]
+DISAGREE STRMW_FMT_LO: 16; first: sel=0x100 snap=0 acmp=0 srp=0 kind=9 cmrd=0 read=0xDEADDEAD rows=[('the selected stream exists and `STRM_SEL[8]` selects a talker', '0x00000000')]
+STRMW_CTRL 0x810 hits=     0 | the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 | i_tctx_rd_data
+STRMW_CTRL 0x810 hits=     8 | the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener | i_lctx_rd_data
+STRMW_CTRL 0x810 hits=    16 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | {31'd0, aaf_ctrl[0]}
+STRMW_CTRL 0x810 hits=   488 | any other case | 0x00000000
+STRMW_SID_LO 0x814 hits=     8 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | acmp_sid_q_r[31:0]
+STRMW_SID_LO 0x814 hits=    16 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | {mac_wire_w[15:0], 16'd0}
+STRMW_SID_LO 0x814 hits=     0 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered since the last selection | i_srp_ctx_rd_sid[31:0]
+STRMW_SID_LO 0x814 hits=   488 | any other case | 0x00000000
+STRMW_SID_HI 0x818 hits=     8 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | acmp_sid_q_r[63:32]
+STRMW_SID_HI 0x818 hits=    16 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | mac_wire_w[47:16]
+STRMW_SID_HI 0x818 hits=     0 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered since the last selection | i_srp_ctx_rd_sid[63:32]
+STRMW_SID_HI 0x818 hits=   488 | any other case | 0x00000000
+STRMW_DMAC_LO 0x81C hits=     0 | the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 | i_tctx_rd_data
+STRMW_DMAC_LO 0x81C hits=     8 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | acmp_dmac_q_r[31:0]
+STRMW_DMAC_LO 0x81C hits=    16 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | aaf_dmlo
+STRMW_DMAC_LO 0x81C hits=   488 | any other case | 0x00000000
+STRMW_DMAC_HI 0x820 hits=     0 | the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 | i_tctx_rd_data
+STRMW_DMAC_HI 0x820 hits=     8 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | {16'd0, acmp_dmac_q_r[47:32]}
+STRMW_DMAC_HI 0x820 hits=    16 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | {16'd0, aaf_dmhi[15:0]}
+STRMW_DMAC_HI 0x820 hits=   488 | any other case | 0x00000000
+STRMW_FMT_LO 0x824 hits=     8 | the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener | i_lctx_rd_data
+STRMW_FMT_LO 0x824 hits=    16 | the selected stream exists and `STRM_SEL[8]` selects a talker | 0x00000000
+STRMW_FMT_LO 0x824 hits=   488 | any other case | 0x00000000
+STRMW_FMT_HI 0x828 hits=     8 | the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener | i_lctx_rd_data
+STRMW_FMT_HI 0x828 hits=    16 | the selected stream exists and `STRM_SEL[8]` selects a talker | 0xDEADDEAD
+STRMW_FMT_HI 0x828 hits=   488 | any other case | 0x00000000
+STRMW_STATE 0x82C hits=    32 | the selected stream exists | the fields above
+STRMW_STATE 0x82C hits=   480 | the selected stream does not exist | 0x00000000
+STRMW_CNTn 0x830 hits=   640 | the selected stream exists and the kind the last snapshot recorded for this counter is `SK_RAW_C` | the fields above
+STRMW_CNTn 0x830 hits=   640 | the selected stream exists and the kind the last snapshot recorded for this counter is `SK_RAW_C` | 0xDEADDEAD
+STRMW_CNTn 0x830 hits= 15040 | any other case | 0x00000000
+STRMW_PDUS 0x858 hits=    32 | the selected stream exists | the fields above
+STRMW_PDUS 0x858 hits=   480 | the selected stream does not exist | 0x00000000
+STRMW_SRP 0x85C hits=    16 | the selected stream exists and the stream index `STRM_SEL[3:0]` is 0 and `STRM_SEL[9]` does not select the listener row at index 0 | i_lwsrp_status
+STRMW_SRP 0x85C hits=     8 | the selected stream exists and `STRM_SEL[9]` selects the listener row at index 0 and the SRP table answered since the last selection | {16'd0, i_srp_ctx_rd_stat}
+STRMW_SRP 0x85C hits=     0 | the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered since the last selection | {16'd0, i_srp_ctx_rd_stat}
+STRMW_SRP 0x85C hits=   488 | any other case | 0x00000000
+STRMW_CTLR_LO 0x860 hits=     8 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | the fields above
+STRMW_CTLR_LO 0x860 hits=    16 | the selected stream exists and `STRM_SEL[8]` selects a talker | 0xDEADDEAD
+STRMW_CTLR_LO 0x860 hits=   488 | any other case | 0x00000000
+STRMW_CTLR_HI 0x864 hits=     8 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | the fields above
+STRMW_CTLR_HI 0x864 hits=    16 | the selected stream exists and `STRM_SEL[8]` selects a talker | 0xDEADDEAD
+STRMW_CTLR_HI 0x864 hits=   488 | any other case | 0x00000000
+STRMW_BIND 0x868 hits=     8 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | the fields above
+STRMW_BIND 0x868 hits=    16 | the selected stream exists and `STRM_SEL[8]` selects a talker | 0xDEADDEAD
+STRMW_BIND 0x868 hits=   488 | any other case | 0x00000000
+STRMW_RSVD_86C 0x86C hits=    32 | the selected stream exists | 0xDEADDEAD
+STRMW_RSVD_86C 0x86C hits=   480 | the selected stream does not exist | 0x00000000
+RENDER_STAT 0x8DC hits=    16 | `STRM_SEL[8]` selects a listener and the stream index `STRM_SEL[3:0]` is 0 | the fields above
+RENDER_STAT 0x8DC hits=   496 | any other case | 0x00000000
+CHMAP_LOOP 0x914 hits=  1024 | a channel-map readback has completed | the fields above
+CHMAP_LOOP 0x914 hits=  1024 | a channel-map readback has completed | 0xDEADDEAD
