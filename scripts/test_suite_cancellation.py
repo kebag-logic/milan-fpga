@@ -564,23 +564,28 @@ def owner_shell_window(parent: Path) -> None:
               f"read -t 0.3 <> \"{idle}\"; echo done > \"{last}\"; exit 143' TERM\n"
               f"{sys.executable} -c \"$STUBBORN\" \"{ready}\" &\nwait\n")
     env = dict(os.environ, STUBBORN=STUBBORN)
-    blocked = []
+    passes = []
     with stages(GRACE_SECONDS=0.2, KILL_ALL_SECONDS=0.2):
         try:
             with OwnedProcesses() as owner:
-                send = owner._send
+                census, send = owner._descendants, owner._send
+
+                def counted() -> dict:
+                    """Count the owner's census passes."""
+                    passes.append(True)
+                    return census()
 
                 def late(pid: int, start: str, signum: int) -> bool:
-                    """The child dies only after the time SIGKILL reaches everything."""
-                    now = time.monotonic()
-                    if not blocked:
-                        blocked.append(now)
+                    """The child dies only once the owner's clock is past grace + 1 s."""
                     # Past grace + 1 s a parent is no longer spared for its stubborn leaf,
                     # so only the shell's own window keeps it in the pass that resumes it.
-                    if signum == signal.SIGKILL and pid != owner.process.pid and now < blocked[0] + 1.5:
+                    # Each pass sleeps 0.02 s before the next, under the cap, so pass n is
+                    # at least 0.02 (n - 1) s on the owner's clock, however it stalls. From
+                    # pass 61 the child dies, and the resume after it is at 1.2 s or later.
+                    if signum == signal.SIGKILL and pid != owner.process.pid and len(passes) < 61:
                         return False
                     return send(pid, start, signum)
-                owner._send = late
+                owner._descendants, owner._send = counted, late
 
                 def cancel() -> None:
                     """Cancel the owner once the child has its handlers."""
