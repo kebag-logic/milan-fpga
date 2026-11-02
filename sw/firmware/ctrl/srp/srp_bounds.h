@@ -17,6 +17,8 @@
 // both in one pass of 2.08 ms. The other is built on the next pass, first,
 // and the interface whose build waited goes first after that, so an
 // interface whose build keeps failing delays the other's by one pass at most.
+// The poll reads whether the interface with the turn builds before it visits
+// any interface, so the rule holds whichever index has the turn.
 #define SRP_MBX_PUB_WITHDRAW 2u
 #define SRP_MBX_PUB_REOPEN 3u
 #define SRP_MBX_PUB_RESET (SRP_MBX_PUB_WITHDRAW + SRP_MBX_PUB_REOPEN)

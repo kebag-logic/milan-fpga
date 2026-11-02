@@ -832,12 +832,16 @@ static void on_event(void *ctx, const struct mbx_event *event)
     m->busy = false;
 }
 
-// Whether interface n may build before the interface whose turn it is: when
-// it is that interface, or that one is not due to build this pass.
-static bool builds_first(const struct srp_mbx *m, unsigned n)
+// Whether the interface whose turn it is builds in this poll, read from its
+// state as the poll starts, before any interface is visited: it has no
+// participants, is not withdrawing and its link level held. Read during the
+// visits, a turn interface visited first would already have spent its
+// withdrawal, and the rule would hold in one orientation only (#665).
+static bool turn_builds(const struct srp_mbx *m, const bool link[MBX_N_IF])
 {
-    const struct srp_interface *turn = &m->ifs[m->build_turn % MBX_N_IF];
-    return n == m->build_turn || turn->msrp || turn->reopen_polls;
+    unsigned t = m->build_turn % MBX_N_IF;
+    const struct srp_interface *turn = &m->ifs[t];
+    return !turn->msrp && !turn->reopen_polls && turn->link == link[t];
 }
 
 static bool poll(void *ctx)
@@ -846,11 +850,18 @@ static bool poll(void *ctx)
     if (!enter(m)) {
         return false;
     }
+    bool links[MBX_N_IF];
+    for (unsigned n = 0; n < MBX_N_IF; ++n) {
+        links[n] = mbx_link_up(n);
+    }
+    // Interface n builds before the one whose turn it is only when that one does not build in this poll.
+    const unsigned turn = m->build_turn % MBX_N_IF;
+    const bool turn_due = turn_builds(m, links);
     bool owed = false;
     bool built = false;
     for (unsigned n = 0; n < MBX_N_IF; ++n) {
         struct srp_interface *i = &m->ifs[n];
-        bool link = mbx_link_up(n);
+        bool link = links[n];
         if (i->link != link) {
             reset_interface(i);
             i->link = link;
@@ -864,7 +875,7 @@ static bool poll(void *ctx)
             owed = true;
             continue;
         }
-        if (!i->msrp && (built || !builds_first(m,n))) {
+        if (!i->msrp && (built || (n != turn && turn_due))) {
             // One interface is built a pass: both at 8x8/2if took a pass to
             // 2.08 ms of the 2.0 ms share (#665, srp_bounds.h). This one is
             // built first on the next pass, and its receive waits until then.

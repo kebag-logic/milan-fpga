@@ -18,6 +18,8 @@ DESTROY = ("    msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);\n"
            "    i->msrp = NULL; i->mvrp = NULL; i->domain_owed = false;\n")
 TEST = "LinkChangeBuildsTheNewParticipantsOnTheNextPass"
 JOINT = "JointLinkChangeBuildsOneInterfaceAPass"
+MIRROR = "JointLinkChangeBuildsInterfaceOneBesideAWithdrawal"
+TURN_RULE = "        if (!i->msrp && (built || (n != turn && turn_due))) {\n"
 
 
 def defects(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -35,18 +37,23 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "the record that waited is taken on the pass after", suite="srp_app.cpp"),
         kind("reset-build-not-owed", TEST, OWE, "            --i->reopen_polls;\n",
              "a poll that withdraws owes the build", suite="srp_app.cpp"),
-        kind("joint-reset-builds-both", JOINT, "        if (!i->msrp && (built || !builds_first(m,n))) {\n",
-             "        if (!i->msrp && ((built && false) || !builds_first(m,n))) {\n",
-             "a pass builds one interface at most", suite="srp_app.cpp"),
-        kind("build-turn-ignored", JOINT, "    return n == m->build_turn || turn->msrp || turn->reopen_polls;\n",
-             "    (void)n;\n    (void)turn;\n    return true;\n", "the interface whose turn it is is built first",
-             suite="srp_app.cpp"),
+        # no deferral: every interface due builds in the poll (with the turn read as the poll starts, `built` alone
+        # never defers at two interfaces: the turn rule defers the other one)
+        kind("joint-reset-builds-both", JOINT, TURN_RULE, TURN_RULE.replace(" {\n", " && false) {\n").replace(
+             "(!i->msrp && ", "((!i->msrp && "), "a pass builds one interface at most", suite="srp_app.cpp"),
+        kind("build-turn-ignored", JOINT, TURN_RULE, TURN_RULE.replace("turn_due))", "turn_due && false))"),
+             "the interface whose turn it is is built first", suite="srp_app.cpp"),
         kind("build-turn-not-moved", JOINT, "            m->build_turn = (n + 1u) % MBX_N_IF;\n", "",
              "the interface whose turn it is is built first", suite="srp_app.cpp"),
         kind("build-waits-beside-a-withdrawal", JOINT,
-             "    return n == m->build_turn || turn->msrp || turn->reopen_polls;\n",
-             "    return n == m->build_turn || turn->msrp;\n",
+             "    return !turn->msrp && !turn->reopen_polls && turn->link == link[t];\n",
+             "    return !turn->msrp && turn->link == link[t];\n",
              "an interface due beside one still withdrawing is built at once", suite="srp_app.cpp"),
+        # the turn interface's state read during the visits: visited first, it has spent its withdrawal
+        kind("build-turn-read-after-its-visit", MIRROR, TURN_RULE,
+             TURN_RULE.replace("turn_due))", "(turn_due || turn_builds(m, links))))"),
+             "interface 1, due beside interface 0 still withdrawing with the turn, is built at once",
+             suite="srp_app.cpp"),
         kind("reset-keeps-listener-present", "InterfaceResetClearsListenerPresent",
              "        i->listener_present[k] = false;\n    }\n    publish_licence(i);\n",
              "    }\n    publish_licence(i);\n", "the interface reset clears listener_present"),

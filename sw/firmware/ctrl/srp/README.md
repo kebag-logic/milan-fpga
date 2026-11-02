@@ -152,7 +152,8 @@ cycles a pass may take at 8x8/2if (#665, `srp_bounds.h`, the share in `ctrl_loop
 A poll builds one interface at most: both links changing together built both in one
 pass of 2.08 ms. The other is built on the next pass, and the interface whose build
 waited goes first after that, so neither waits more than one pass for the other, and
-SRP's receive waits until both are built. The reset also clears `listener_present`,
+SRP's receive waits until both are built. The poll reads whether the interface with the
+turn builds before it visits any interface, so this holds whichever index has the turn. The reset also clears `listener_present`,
 which the registrar it destroys supplied, so delivery reads no Listener the new
 participants have not registered.
 Its interface, arrival timestamp and payload remain unchanged.

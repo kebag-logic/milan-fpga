@@ -408,5 +408,24 @@ TEST_F(Srp, JointLinkChangeBuildsOneInterfaceAPass) {
     ctrl_loop_service(&loop);
     EXPECT_TRUE(built(0) && built(1)) << "the other is built on the next pass";
 }
+
+// The same rule with the turn at interface 0, which the poll visits first:
+// interface 0 withdraws in the pass interface 1 is due (#665, srp_bounds.h).
+TEST_F(Srp, JointLinkChangeBuildsInterfaceOneBesideAWithdrawal) {
+    settle();
+    auto built=[this](unsigned n) { return adapter.ifs[n].msrp!=nullptr && adapter.ifs[n].mvrp!=nullptr; };
+    // interface 1 rebuilt alone last, so interface 0 has the turn
+    mbx_model_set_link(&model,1,false); ctrl_loop_service(&loop); ctrl_loop_service(&loop);
+    ASSERT_TRUE(built(0) && built(1)) << "(interface 1 rebuilt alone)";
+    ASSERT_EQ(adapter.build_turn,0u) << "(interface 0 has the turn)";
+    settle();
+    mbx_model_set_link(&model,1,true); ctrl_loop_service(&loop);
+    ASSERT_TRUE(built(0) && !built(1)) << "(interface 1 withdrew and is due)";
+    mbx_model_set_link(&model,0,false); ctrl_loop_service(&loop);
+    EXPECT_TRUE(built(1) && !built(0))
+        << "interface 1, due beside interface 0 still withdrawing with the turn, is built at once";
+    ctrl_loop_service(&loop);
+    EXPECT_TRUE(built(0) && built(1)) << "interface 0 is built on the next pass";
+}
 #endif
 } // namespace
