@@ -275,7 +275,7 @@ Its blocks have no placed row of their own.
 | `ctrl` (`SoCController`): reset, scratch, bus errors | LiteX top | 3 | Removed, nothing in its place: no firmware reads it; reboot is `KL_reboot_ctrl`'s configuration reload |
 | Identifier `identifier_mem` | LiteX top | 3 | Removed, nothing in its place: `milan_csr`'s VERSION identifies the image |
 | `timer0` (`Timer`) | LiteX top | 3 | Replaced by a first-party free-running counter on the system clock; its one reader is the flash driver's elapsed time |
-| UART (`RS232PHY`, 16-byte FIFOs) | LiteX top | 3 | Replaced by a small first-party UART, transmit and receive only, no RTS/CTS ([D20](#mark-ii-decisions)) |
+| UART (`RS232PHY`, 16-byte FIFOs) | LiteX top | 3 | Replaced by a small first-party UART, transmit and receive only, no RTS/CTS, with a 32-byte polled receive buffer ([D20](#mark-ii-decisions), [console UART](#console-uart)) |
 | SPI flash (`LiteSPI`: crossbar, memory map, master, PHY with `STARTUPE2`) | LiteX top | 2 | Replaced by a pinned donor QSPI core chosen by survey ([D15](#mark-ii-decisions)); the [core survey](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) found no AXI core with both 7-series use and an active maintainer |
 | Ethernet MAC and PHY interface (`LiteEthMACCore`, `LiteEthPHYGMII`, the TX FIFO and the MAC crossings) | LiteX top | 2 | Replaced by a pinned donor GMII MAC ([D15](#mark-ii-decisions)); the survey proposes verilog-ethernet's `eth_mac_1g` and `gmii_phy_if`, with verilog-axis FIFOs |
 | MDIO (`LiteEthPHYMDIO`), a bit-bang register pair | LiteX top | 2 | Replaced by a first-party MDIO pin register; the firmware keeps the protocol |
@@ -290,6 +290,32 @@ Its blocks have no placed row of their own.
 
 The 29 generated FIFO RAMB36 belong to rows above.
 Each leaves with the block that owns it.
+
+### Console UART
+
+[D20](#mark-ii-decisions) replaces the UART with a first-party one.
+It has transmit and receive only, and no RTS/CTS.
+
+Receive is polled, since no interrupt controller remains.
+The firmware drains the whole receive buffer once per pass.
+
+| Item | Value | Kind | Source |
+|---|---|---|---|
+| Line | 115,200 baud, 8 data bits, no parity, 1 stop bit: 10 bits a character | Basis build | `--uart-baudrate 115200` |
+| Character time | 86.806 µs | Derived | 10 / 115,200 s |
+| Console loss, LiteX UART with a 16-byte receive FIFO, polled, interrupts off, no BIOS | A 22-character line lost characters on 17 of 300 sends; a 14-character line lost none of 300 | Measured | [Stage 1 silicon probe](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6556743957) |
+| What that loss shows | 16 characters fill that FIFO in 1.389 ms. A 14-character line never fills it, so the losses need the polled loop away for longer | Derived | 16 x 86.806 µs |
+| Worst-case gap between two console polls | 2.0 ms: one pass, and every work pass fits the per-pass share | Bound | The share, 18 ms / 9 passes ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)), under T_svc = 20 ms ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) |
+| Characters that complete within that gap | 24 | Derived | 23 character times are 1.997 ms; 24 are 2.083 ms |
+| Receive buffer | 32 bytes, the next power of two | Chosen | At least 24 |
+| What 32 bytes hold | No gap shorter than 2.778 ms loses a character; a line of up to 32 characters fits whole at any gap | Derived | 32 x 86.806 µs |
+| Beyond that bound | A pass over the share already breaks a service bound; console characters lost then are accepted | Rule | D20; console input ranks below the protocol work |
+
+Console input ranks below the protocol work.
+Its handling never stretches a service bound.
+
+Losing console characters beyond the stated bound is accepted.
+Until stage 3, LiteX's 16-byte buffer stays: the measured case.
 
 ## Mark II Block RAM ledger
 
@@ -326,7 +352,7 @@ Measure its reductions before any lane relies on them.
 | D17, save | [Owner, #823, 17:14](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6545924397): at most 0.5 s worst case at 32x32 | NFR-REL-03; append-only save path |
 | D18, stage 1 boot | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640): the boot loader copies the firmware from QSPI flash into Block RAM, as planned | LiteX stage 1's boot loader |
 | D19, LiteX blocks | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640): every LiteX peripheral is removed, not only DDR3 and the BIOS | The [block census](#litex-block-census): no LiteX block remains |
-| D20, console UART | [Owner, 2026-11-02 07:22](https://github.com/kebag-logic/milan-fpga/issues/640): the UART is a simple protocol and needs no RTS/CTS; a small first-party UART, transmit and receive only, replaces it | The census's UART row |
+| D20, console UART | [Owner, 2026-11-02 07:22](https://github.com/kebag-logic/milan-fpga/issues/640): the UART is a simple protocol and needs no RTS/CTS; a small first-party UART, transmit and receive only, replaces it | The [console UART](#console-uart): a 32-byte polled receive buffer |
 
 ## Mark II lane sequence
 
