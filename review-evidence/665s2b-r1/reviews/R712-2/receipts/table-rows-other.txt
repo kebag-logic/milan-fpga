@@ -1,0 +1,174 @@
+== P81-A8 8x8-1if cpu_cd=sys cpu_hz=100000000 sys_hz=100000000
+   ACMP record released under the composed load, first                              1.153 bound  20.0 ok backlog
+   ACMP record released under the composed load, first [owed]                       1.083 bound  20.0 ok backlog-owed
+   ACMP record released under the composed load, last                               7.226 bound  20.0 ok backlog-adp-refill
+   ACMP record released under the composed load, last [owed]                        6.711 bound  20.0 ok backlog-owed
+   ADP record released under the composed load, first                               1.196 bound  20.0 ok backlog
+   ADP record released under the composed load, first [owed]                        1.126 bound  20.0 ok backlog-owed
+   ADP record released under the composed load, last                                4.883 bound  20.0 ok backlog-adp
+   ADP record released under the composed load, last [owed]                         4.923 bound  20.0 ok backlog-owed
+   AECP record released under the composed load, first                              1.189 bound  20.0 ok backlog
+   AECP record released under the composed load, first [owed]                       1.119 bound  20.0 ok backlog-owed
+   AECP record released under the composed load, last                              13.120 bound  20.0 ok backlog-adp-refill
+   AECP record released under the composed load, last [owed]                       64.602 bound  20.0 OVER backlog-owed
+   MAAP record released under the composed load, first                              1.179 bound  20.0 ok backlog
+   MAAP record released under the composed load, first [owed]                       1.108 bound  20.0 ok backlog-owed
+   MAAP record released under the composed load, last                               4.993 bound  20.0 ok backlog-adp-refill
+   MAAP record released under the composed load, last [owed]                        4.908 bound  20.0 ok backlog-owed
+   SRP record released under the composed load, first                               4.573 bound  18.0 ok backlog
+   SRP record released under the composed load, first [owed]                        3.694 bound  18.0 ok backlog-owed
+   SRP record released under the composed load, last                               14.421 bound  18.0 ok backlog-adp
+   SRP record released under the composed load, last [owed]                        11.885 bound  18.0 ok backlog-owed
+   a response with 7 frames owed ahead of it [owed-group]                          63.413 bound  20.0 OVER backlog-owed
+   an ACMP command behind a full acmp ring                                          5.639 bound  20.0 ok backlog
+   an ACMP command behind the owed input [owed-group]                             360.331 bound  20.0 OVER backlog-owed
+   an ENTITY_AVAILABLE behind a full adp ring                                       3.841 bound  20.0 ok backlog-adp
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)         0.194 bound  20.0 ok backlog-adp-refill
+   an event behind 15 others                                                        1.286 bound  20.0 ok backlog
+   SHARE backlog: 0 of 1273, longest 1.5792 ms | all 4 groups: 0 of 1273, longest 1.5792 ms
+   refusals=[] share_misses=[]
+== none-A1 1x1 cpu_cd=sys cpu_hz=100000000 sys_hz=100000000
+   ACMP record released under the composed load, first                              1.557 bound  20.0 ok backlog
+   ACMP record released under the composed load, first [owed]                       1.458 bound  20.0 ok backlog-owed
+   ACMP record released under the composed load, last                               9.975 bound  20.0 ok backlog-adp
+   ACMP record released under the composed load, last [owed]                        8.471 bound  20.0 ok backlog-owed
+   ADP record released under the composed load, first                               1.599 bound  20.0 ok backlog
+   ADP record released under the composed load, first [owed]                        1.500 bound  20.0 ok backlog-owed
+   ADP record released under the composed load, last                                7.140 bound  20.0 ok backlog-adp
+   ADP record released under the composed load, last [owed]                         6.609 bound  20.0 ok backlog-owed
+   AECP record released under the composed load, first                              1.592 bound  20.0 ok backlog
+   AECP record released under the composed load, first [owed]                       1.494 bound  20.0 ok backlog-owed
+   AECP record released under the composed load, last                              17.344 bound  20.0 ok backlog-adp
+   AECP record released under the composed load, last [owed]                       64.661 bound  20.0 OVER backlog-owed
+   MAAP record released under the composed load, first                              1.582 bound  20.0 ok backlog
+   MAAP record released under the composed load, first [owed]                       1.483 bound  20.0 ok backlog-owed
+   MAAP record released under the composed load, last                               7.177 bound  20.0 ok backlog-adp
+   MAAP record released under the composed load, last [owed]                        6.594 bound  20.0 ok backlog-owed
+   SRP record released under the composed load, first                               5.438 bound  18.0 ok backlog
+   SRP record released under the composed load, first [owed]                        3.487 bound  18.0 ok backlog-owed
+   SRP record released under the composed load, last                               17.981 bound  18.0 ok backlog-adp-refill
+   SRP record released under the composed load, last [owed]                        14.741 bound  18.0 ok backlog-owed
+   a response with 7 frames owed ahead of it [owed-group]                          63.304 bound  20.0 OVER backlog-owed
+   an ACMP command behind a full acmp ring                                          6.868 bound  20.0 ok backlog
+   an ACMP command behind the owed input [owed-group]                             360.400 bound  20.0 OVER backlog-owed
+   an ENTITY_AVAILABLE behind a full adp ring                                       5.501 bound  20.0 ok backlog-adp
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)         0.125 bound  20.0 ok backlog-adp-refill
+   an event behind 15 others                                                        1.819 bound  20.0 ok backlog
+   SHARE backlog: 3 of 1267, longest 2.1424 ms | all 4 groups: 3 of 1267, longest 2.1424 ms
+   refusals=[] share_misses=['backlog-adp: 1 of 309 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 214,236 (2.142 ms)', 'backlog-adp-refill: 1 of 317 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 214,236 (2.142 ms)', 'backlog-owed: 1 of 348 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 200,832 (2.008 ms)']
+== none-A8 8x8 cpu_cd=sys cpu_hz=100000000 sys_hz=100000000
+   ACMP record released under the composed load, first                              2.896 bound  20.0 ok backlog
+   ACMP record released under the composed load, first [owed]                       2.798 bound  20.0 ok backlog-owed
+   ACMP record released under the composed load, last                              16.080 bound  20.0 ok backlog-adp
+   ACMP record released under the composed load, last [owed]                       15.038 bound  20.0 ok backlog-owed
+   ADP record released under the composed load, first                               2.939 bound  20.0 ok backlog
+   ADP record released under the composed load, first [owed]                        2.841 bound  20.0 ok backlog-owed
+   ADP record released under the composed load, last                               11.671 bound  20.0 ok backlog-adp
+   ADP record released under the composed load, last [owed]                        11.695 bound  20.0 ok backlog-owed
+   AECP record released under the composed load, first                              2.932 bound  20.0 ok backlog
+   AECP record released under the composed load, first [owed]                       2.834 bound  20.0 ok backlog-owed
+   AECP record released under the composed load, last                              26.832 bound  20.0 OVER backlog-adp
+   AECP record released under the composed load, last [owed]                       70.066 bound  20.0 OVER backlog-owed
+   MAAP record released under the composed load, first                              2.921 bound  20.0 ok backlog
+   MAAP record released under the composed load, first [owed]                       2.823 bound  20.0 ok backlog-owed
+   MAAP record released under the composed load, last                              11.707 bound  20.0 ok backlog-adp
+   MAAP record released under the composed load, last [owed]                       11.680 bound  20.0 ok backlog-owed
+   SRP record released under the composed load, first                              11.368 bound  18.0 ok backlog
+   SRP record released under the composed load, first [owed]                        6.432 bound  18.0 ok backlog-owed
+   SRP record released under the composed load, last                               30.257 bound  18.0 OVER backlog-adp
+   SRP record released under the composed load, last [owed]                        25.832 bound  18.0 OVER backlog-owed
+   a response with 7 frames owed ahead of it [owed-group]                          67.419 bound  20.0 OVER backlog-owed
+   an ACMP command behind a full acmp ring                                         14.286 bound  20.0 ok backlog
+   an ACMP command behind the owed input [owed-group]                             361.199 bound  20.0 OVER backlog-owed
+   an ENTITY_AVAILABLE behind a full adp ring                                       8.748 bound  20.0 ok backlog-adp
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)         0.224 bound  20.0 ok backlog-adp-refill
+   an event behind 15 others                                                        3.162 bound  20.0 ok backlog
+   SHARE backlog: 62 of 1314, longest 3.6127 ms | all 4 groups: 62 of 1314, longest 3.6127 ms
+   refusals=[] share_misses=['backlog: 16 of 303 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 350,615 (3.506 ms)', 'backlog-adp: 15 of 324 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 339,711 (3.397 ms)', 'backlog-adp-refill: 15 of 328 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 339,711 (3.397 ms)', 'backlog-owed: 16 of 359 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 361,269 (3.613 ms)']
+== soci-A1 1x1 cpu_cd=sys cpu_hz=100000000 sys_hz=100000000
+   ACMP record released under the composed load, first                              1.576 bound  20.0 ok backlog
+   ACMP record released under the composed load, first [owed]                       1.553 bound  20.0 ok backlog-owed
+   ACMP record released under the composed load, last                              10.449 bound  20.0 ok backlog-adp
+   ACMP record released under the composed load, last [owed]                        9.584 bound  20.0 ok backlog-owed
+   ADP record released under the composed load, first                               1.619 bound  20.0 ok backlog
+   ADP record released under the composed load, first [owed]                        1.596 bound  20.0 ok backlog-owed
+   ADP record released under the composed load, last                                7.776 bound  20.0 ok backlog-adp
+   ADP record released under the composed load, last [owed]                         7.325 bound  20.0 ok backlog-owed
+   AECP record released under the composed load, first                              1.612 bound  20.0 ok backlog
+   AECP record released under the composed load, first [owed]                       1.589 bound  20.0 ok backlog-owed
+   AECP record released under the composed load, last                              19.760 bound  20.0 ok backlog-adp-refill
+   AECP record released under the composed load, last [owed]                       64.813 bound  20.0 OVER backlog-owed
+   MAAP record released under the composed load, first                              1.601 bound  20.0 ok backlog
+   MAAP record released under the composed load, first [owed]                       1.578 bound  20.0 ok backlog-owed
+   MAAP record released under the composed load, last                               7.812 bound  20.0 ok backlog-adp
+   MAAP record released under the composed load, last [owed]                        7.311 bound  20.0 ok backlog-owed
+   SRP record released under the composed load, first                               5.629 bound  18.0 ok backlog
+   SRP record released under the composed load, first [owed]                        3.807 bound  18.0 ok backlog-owed
+   SRP record released under the composed load, last                               21.627 bound  18.0 OVER backlog-adp
+   SRP record released under the composed load, last [owed]                        18.064 bound  18.0 OVER backlog-owed
+   a response with 7 frames owed ahead of it [owed-group]                          63.446 bound  20.0 OVER backlog-owed
+   an ACMP command behind a full acmp ring                                          7.059 bound  20.0 ok backlog
+   an ACMP command behind the owed input [owed-group]                             360.512 bound  20.0 OVER backlog-owed
+   an ENTITY_AVAILABLE behind a full adp ring                                       5.938 bound  20.0 ok backlog-adp
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)         0.150 bound  20.0 ok backlog-adp-refill
+   an event behind 15 others                                                        1.839 bound  20.0 ok backlog
+   SHARE backlog: 3 of 1270, longest 2.3458 ms | all 4 groups: 3 of 1270, longest 2.3458 ms
+   refusals=[] share_misses=['backlog-adp: 1 of 312 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 234,580 (2.346 ms)', 'backlog-adp-refill: 1 of 316 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 234,580 (2.346 ms)', 'backlog-owed: 1 of 348 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 223,345 (2.233 ms)']
+== soci-A8 8x8 cpu_cd=sys cpu_hz=100000000 sys_hz=100000000
+   ACMP record released under the composed load, first                              2.934 bound  20.0 ok backlog
+   ACMP record released under the composed load, first [owed]                       2.890 bound  20.0 ok backlog-owed
+   ACMP record released under the composed load, last                              16.094 bound  20.0 ok backlog-adp
+   ACMP record released under the composed load, last [owed]                       15.996 bound  20.0 ok backlog-owed
+   ADP record released under the composed load, first                               2.976 bound  20.0 ok backlog
+   ADP record released under the composed load, first [owed]                        2.932 bound  20.0 ok backlog-owed
+   ADP record released under the composed load, last                               11.737 bound  20.0 ok backlog
+   ADP record released under the composed load, last [owed]                        11.767 bound  20.0 ok backlog-owed
+   AECP record released under the composed load, first                              2.970 bound  20.0 ok backlog
+   AECP record released under the composed load, first [owed]                       2.925 bound  20.0 ok backlog-owed
+   AECP record released under the composed load, last                              28.512 bound  20.0 OVER backlog-adp
+   AECP record released under the composed load, last [owed]                       69.837 bound  20.0 OVER backlog-owed
+   MAAP record released under the composed load, first                              2.959 bound  20.0 ok backlog
+   MAAP record released under the composed load, first [owed]                       2.915 bound  20.0 ok backlog-owed
+   MAAP record released under the composed load, last                              11.722 bound  20.0 ok backlog
+   MAAP record released under the composed load, last [owed]                       11.752 bound  20.0 ok backlog-owed
+   SRP record released under the composed load, first                              11.721 bound  18.0 ok backlog
+   SRP record released under the composed load, first [owed]                        6.757 bound  18.0 ok backlog-owed
+   SRP record released under the composed load, last                               34.516 bound  18.0 OVER backlog-adp
+   SRP record released under the composed load, last [owed]                        29.255 bound  18.0 OVER backlog-owed
+   a response with 7 frames owed ahead of it [owed-group]                          67.775 bound  20.0 OVER backlog-owed
+   an ACMP command behind a full acmp ring                                         14.419 bound  20.0 ok backlog
+   an ACMP command behind the owed input [owed-group]                             360.885 bound  20.0 OVER backlog-owed
+   an ENTITY_AVAILABLE behind a full adp ring                                       7.780 bound  20.0 ok backlog-adp
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)         0.213 bound  20.0 ok backlog-adp-refill
+   an event behind 15 others                                                        3.202 bound  20.0 ok backlog
+   SHARE backlog: 64 of 1315, longest 3.8485 ms | all 4 groups: 64 of 1315, longest 3.8485 ms
+   refusals=[] share_misses=['backlog: 15 of 305 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 370,941 (3.709 ms)', 'backlog-adp: 16 of 325 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 384,851 (3.849 ms)', 'backlog-adp-refill: 15 of 326 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 355,737 (3.557 ms)', 'backlog-owed: 18 of 359 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 384,601 (3.846 ms)']
+== xip-1x1-4k 1x1 cpu_cd=sys cpu_hz=100000000 sys_hz=100000000
+   ACMP record released under the composed load, first                             34.445 bound  20.0 OVER backlog-adp
+   ACMP record released under the composed load, first [owed]                      26.593 bound  20.0 OVER backlog-owed
+   ACMP record released under the composed load, last                             208.674 bound  20.0 OVER backlog-adp-refill
+   ACMP record released under the composed load, last [owed]                      157.818 bound  20.0 OVER backlog-owed
+   ADP record released under the composed load, first                              34.436 bound  20.0 OVER backlog-adp
+   ADP record released under the composed load, first [owed]                       26.635 bound  20.0 OVER backlog-owed
+   ADP record released under the composed load, last                              168.718 bound  20.0 OVER backlog-adp-refill
+   ADP record released under the composed load, last [owed]                       111.366 bound  20.0 OVER backlog-owed
+   AECP record released under the composed load, first                             34.481 bound  20.0 OVER backlog-adp
+   AECP record released under the composed load, first [owed]                      26.628 bound  20.0 OVER backlog-owed
+   AECP record released under the composed load, last                             462.474 bound  20.0 OVER backlog-adp
+   AECP record released under the composed load, last [owed]                      364.098 bound  20.0 OVER backlog-owed
+   MAAP record released under the composed load, first                             34.470 bound  20.0 OVER backlog-adp
+   MAAP record released under the composed load, first [owed]                      26.618 bound  20.0 OVER backlog-owed
+   MAAP record released under the composed load, last                             143.816 bound  20.0 OVER backlog-adp
+   MAAP record released under the composed load, last [owed]                      111.351 bound  20.0 OVER backlog-owed
+   SRP record released under the composed load, first                             490.362 bound  18.0 OVER backlog-adp
+   SRP record released under the composed load, first [owed]                      199.923 bound  18.0 OVER backlog-owed
+   SRP record released under the composed load, last                              685.095 bound  18.0 OVER backlog-adp-refill
+   SRP record released under the composed load, last [owed]                       643.006 bound  18.0 OVER backlog-owed
+   a response with 7 frames owed ahead of it [owed-group]                         230.709 bound  20.0 OVER backlog-owed
+   an ACMP command behind a full acmp ring                                        144.199 bound  20.0 OVER backlog
+   an ACMP command behind the owed input [owed-group]                             860.000 bound  20.0 OVER backlog-owed
+   an ENTITY_AVAILABLE behind a full adp ring                                     117.482 bound  20.0 OVER backlog-adp
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)       145.130 bound  20.0 OVER backlog-adp-refill
+   an event behind 15 others                                                       32.337 bound  20.0 OVER backlog
+   SHARE backlog: 1248 of 1248, longest 40.2547 ms | all 4 groups: 1248 of 1248, longest 40.2547 ms
+   refusals=[] share_misses=['backlog: 323 of 323 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 3,480,780 (34.808 ms)', 'backlog-adp: 296 of 296 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 4,025,468 (40.255 ms)', 'backlog-adp-refill: 299 of 299 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 3,854,869 (38.549 ms)', 'backlog-owed: 330 of 330 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 3,166,066 (31.661 ms)']

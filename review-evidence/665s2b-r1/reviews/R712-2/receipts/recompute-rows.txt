@@ -1,0 +1,348 @@
+== N-A1 point=1x1 clock={"cpu_hz": 100000000, "cpu_cd": "sys", "sys_hz": 100000000, "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"}
+   groups=['acmp-notk', 'adp-advertise', 'acmp-noresp', 'srp', 'backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed', 'acmp-disc', 'maap', 'adp-link', 'adp-gm', 'adp-discover', 'control', 'aecp-fanout', 'acmp-cmd', 'aecp', 'fixture'] cpu!=sys probes=0
+   ACMP record released under the composed load, first                       0.748 /  20.0 ok (backlog:backlog.service.acmp.first.if0)
+   ACMP record released under the composed load, last                        5.163 /  20.0 ok (backlog-adp:backlog-adp.service.acmp.last.if0)
+   ADP record released under the composed load, first                        0.791 /  20.0 ok (backlog:backlog.service.adp.first.if0)
+   ADP record released under the composed load, last                         3.648 /  20.0 ok (backlog-adp:backlog-adp.service.adp.last.if0)
+   AECP record released under the composed load, first                       0.784 /  20.0 ok (backlog:backlog.service.aecp.first.if0)
+   AECP record released under the composed load, last                       62.656 /  20.0 OVER (backlog-owed:backlog-owed.service.aecp.last.if0)
+   ANNOUNCE (TMR expiry)                                                     0.121 /  20.0 ok (maap:maap.announce.if0)
+   BIND_RX                                                                   0.210 /  20.0 ok (fixture:fixture.bind_rx.if0)
+   DISCONNECT_TX                                                             0.092 /  20.0 ok (acmp-cmd:acmp.disconnect_tx.if0)
+   Domain RX -> declarations (JoinTime wait)                                 0.617 / 218.0 ok (srp:srp.domain.if0)
+   ENTITY_AVAILABLE from its RX_HEAD (H-DISC)                                0.056 /  20.0 ok (acmp-disc:acmp.entity_available.if0)
+   ENTITY_DEPARTING from its RX_HEAD (H-DISC)                                0.059 /  20.0 ok (fixture:fixture.entity_departing.if0)
+   GET_RX_STATE                                                              0.108 /  20.0 ok (acmp-cmd:acmp.get_rx_state.if0)
+   GET_TX_CONNECTION                                                         0.092 /  20.0 ok (acmp-cmd:acmp.get_tx_connection.if0)
+   GET_TX_STATE                                                              0.107 /  20.0 ok (acmp-cmd:acmp.get_tx_state.if0)
+   GM_CHANGE                                                                 0.012 /  20.0 ok (adp-gm:adp.gm_change.if0)
+   LINK_DOWN                                                                 0.015 /  20.0 ok (fixture:fixture.link_down.if0)
+   LINK_UP                                                                   0.016 /  20.0 ok (adp-advertise:adp.link_up.if0)
+   Listener Ready RX (registrar)                                             0.331 /  18.0 ok (srp:srp.listener_ready.if0)
+   MAAP record released under the composed load, first                       0.774 /  20.0 ok (backlog:backlog.service.maap.first.if0)
+   MAAP record released under the composed load, last                        3.684 /  20.0 ok (backlog-adp:backlog-adp.service.maap.last.if0)
+   MVU GET_MILAN_INFO                                                        0.137 /  20.0 ok (aecp:aecp.mvu_get_milan_info.if0)
+   PROBE retransmission (TMR expiry)                                         0.132 /  20.0 ok (maap:maap.probe2.if0)
+   PROBE_TX                                                                  0.100 /  20.0 ok (acmp-cmd:acmp.probe_tx.if0)
+   PROBE_TX_RESPONSE                                                         0.067 /  20.0 ok (acmp-cmd:acmp.probe_tx_response.if0)
+   RCV_ADP_DISCOVER                                                          0.026 /  20.0 ok (adp-discover:adp.discover.if0)
+   RCV_ADP_DISCOVER (control)                                                0.026 /  20.0 ok (control:control.discover.if0)
+   READ_DESCRIPTOR (102 B)                                                   0.164 /  20.0 ok (aecp:aecp.read_descriptor.t9.i0.c0.if0)
+   READ_DESCRIPTOR (106 B)                                                   0.177 /  20.0 ok (aecp:aecp.read_descriptor.t1.i0.c0.if0)
+   READ_DESCRIPTOR (113 B)                                                   0.176 /  20.0 ok (aecp:aecp.read_descriptor.t26.i0.c0.if0)
+   READ_DESCRIPTOR (146 B)                                                   0.181 /  20.0 ok (aecp:aecp.read_descriptor.t5.i1.c0.if0)
+   READ_DESCRIPTOR (148 B)                                                   0.145 /  20.0 ok (aecp:aecp.read_descriptor.t2.i0.c0.if0)
+   READ_DESCRIPTOR (20 B)                                                    0.162 /  20.0 ok (aecp:aecp.read_descriptor.t15.i0.c0.if0)
+   READ_DESCRIPTOR (312 B)                                                   0.189 /  20.0 ok (aecp:aecp.read_descriptor.t0.i0.c0.if0)
+   READ_DESCRIPTOR (452 B)                                                   0.194 /  20.0 ok (aecp:aecp.read_descriptor.t13.i0.c0.if0)
+   READ_DESCRIPTOR (72 B)                                                    0.137 /  20.0 ok (aecp:aecp.read_descriptor.t12.i0.c0.if0)
+   READ_DESCRIPTOR (82 B)                                                    0.144 /  20.0 ok (aecp:aecp.read_descriptor.t36.i0.c0.if0)
+   READ_DESCRIPTOR (86 B)                                                    0.147 /  20.0 ok (aecp:aecp.read_descriptor.t10.i2.c0.if0)
+   READ_DESCRIPTOR (90 B)                                                    0.144 /  20.0 ok (aecp:aecp.read_descriptor.t20.i24.c0.if0)
+   SET_NAME fan-out to one registered controller                             0.307 /  20.0 ok (fixture:fixture.set_name.if0)
+   SRP record released under the composed load, first                        2.787 /  18.0 ok (backlog:backlog.service.srp.first.if0)
+   SRP record released under the composed load, last                         9.946 /  18.0 ok (backlog-adp:backlog-adp.service.srp.last.if0)
+   TMR_ADVERTISE expiry                                                      0.073 /  20.0 ok (adp-advertise:adp.tmr_advertise.if0)
+   TMR_DELAY                                                                 0.168 /  20.0 ok (acmp-noresp:acmp.tmr_delay.if0)
+   TMR_DELAY expiry                                                          0.104 /  20.0 ok (adp-advertise:adp.tmr_delay.if0)
+   TMR_DELAY, or the first TMR_NO_RESP                                       0.175 /  20.0 ok (acmp-noresp:acmp.tmr_no_resp1.if0)
+   TMR_NO_ADP (H-DISC)                                                       0.179 /  20.0 ok (acmp-disc:acmp.tmr_no_adp.if0)
+   TMR_NO_TK                                                                 0.081 /  20.0 ok (acmp-notk:acmp.tmr_no_tk.if0)
+   TMR_RETRY                                                                 0.116 /  20.0 ok (acmp-noresp:acmp.tmr_retry.if0)
+   UNBIND_RX                                                                 0.126 /  20.0 ok (acmp-cmd:acmp.unbind_rx.if0)
+   a response with 7 frames owed ahead of it                                62.074 /  20.0 OVER (backlog-owed:backlog.owed.if0)
+   add_audio_mappings                                                        0.423 /  20.0 ok (aecp-fanout:aecp_fanout.add_audio_mappings.if0)
+   an ACMP command behind a full acmp ring                                   3.448 /  20.0 ok (backlog:backlog.acmp_command.if0)
+   an ACMP command behind the owed input                                   360.145 /  20.0 OVER (backlog-owed:backlog.owed_behind0.if0)
+   an ENTITY_AVAILABLE behind a full adp ring                                2.734 /  20.0 ok (backlog-adp:backlog.adp_available.if0)
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)    0.117 /  20.0 ok (backlog-adp-refill:backlog.adp_available_refill.if0)
+   an event behind 15 others                                                 0.880 /  20.0 ok (backlog:backlog.event.if0)
+   conflicting PROBE -> DEFEND                                               0.079 /  20.0 ok (maap:maap.defend.if0)
+   entity_available                                                          0.131 /  20.0 ok (aecp:aecp.entity_available.if0)
+   first PROBE (LINK_UP)                                                     0.102 /  20.0 ok (maap:maap.probe1.if0)
+   get_avb_info                                                              0.141 /  20.0 ok (aecp:aecp.get_avb_info.if0)
+   get_configuration                                                         0.149 /  20.0 ok (aecp:aecp.get_configuration.if0)
+   get_counters                                                              0.166 /  20.0 ok (aecp:aecp.get_counters.if0)
+   get_name                                                                  0.175 /  20.0 ok (aecp:aecp.get_name.if0)
+   last PROBE retransmission (TMR expiry)                                    0.102 /  20.0 ok (maap:maap.probe4.if0)
+   lock_entity                                                               0.424 /  20.0 ok (aecp-fanout:aecp_fanout.lock_entity.if0)
+   malformed MRPDU discard                                                   0.126 /  18.0 ok (fixture:fixture.malformed.if0)
+   register_unsolicited                                                      0.146 /  20.0 ok (aecp:aecp.register_unsolicited.if0)
+   remove_audio_mappings                                                     0.462 /  20.0 ok (aecp-fanout:aecp_fanout.remove_audio_mappings.if0)
+   set_clock_source                                                          0.488 /  20.0 ok (aecp-fanout:aecp_fanout.set_clock_source.if0)
+   set_control_identify_off                                                  0.437 /  20.0 ok (aecp-fanout:aecp_fanout.set_control_identify_off.if0)
+   set_control_identify_on                                                   0.390 /  20.0 ok (aecp-fanout:aecp_fanout.set_control_identify_on.if0)
+   set_name                                                                  0.603 /  20.0 ok (aecp-fanout:aecp_fanout.set_name.if0)
+   set_sampling_rate                                                         0.415 /  20.0 ok (aecp-fanout:aecp_fanout.set_sampling_rate.if0)
+   startup declarations (LINK_UP)                                            0.785 /  18.0 ok (srp:srp.startup.if0)
+   the second TMR_NO_RESP                                                    0.095 /  20.0 ok (acmp-noresp:acmp.tmr_no_resp2.if0)
+   unknown_command                                                           0.152 /  20.0 ok (aecp:aecp.unknown_command.if0)
+   unlock_entity                                                             0.382 /  20.0 ok (aecp-fanout:aecp_fanout.unlock_entity.if0)
+   share acmp-notk                work= 2468 over=0 longest=1.2108 ms share=2.0 cycles=200000
+   share adp-advertise            work=  591 over=0 longest=0.5254 ms share=2.0 cycles=200000
+   share acmp-noresp              work= 1533 over=0 longest=1.2016 ms share=2.0 cycles=200000
+   share srp                      work=  284 over=0 longest=0.7105 ms share=2.0 cycles=200000
+   share backlog                  work=  293 over=0 longest=0.7985 ms share=2.0 cycles=200000
+   share backlog-adp              work=  310 over=0 longest=1.0698 ms share=2.0 cycles=200000
+   share backlog-adp-refill       work=  324 over=0 longest=1.0698 ms share=2.0 cycles=200000
+   share backlog-owed             work=  350 over=0 longest=1.0410 ms share=2.0 cycles=200000
+   share acmp-disc                work=  730 over=0 longest=1.2056 ms share=2.0 cycles=200000
+   share maap                     work=  175 over=0 longest=0.5254 ms share=2.0 cycles=200000
+   share adp-link                 work=   87 over=0 longest=0.5254 ms share=2.0 cycles=200000
+   share adp-gm                   work=   86 over=0 longest=0.5254 ms share=2.0 cycles=200000
+   share adp-discover             work=   86 over=0 longest=0.5254 ms share=2.0 cycles=200000
+   share control                  work=   86 over=0 longest=0.5254 ms share=2.0 cycles=200000
+   share aecp-fanout              work=  109 over=0 longest=0.6967 ms share=2.0 cycles=200000
+   share acmp-cmd                 work=   81 over=0 longest=0.5254 ms share=2.0 cycles=200000
+   share aecp                     work=  108 over=0 longest=0.5254 ms share=2.0 cycles=200000
+   share fixture                  work=  136 over=0 longest=0.7238 ms share=2.0 cycles=200000
+   SHARE total work=7837 (backlog groups 1277) over=0 longest=(1.21085, 'acmp-notk')
+   composed_maximum={"cycles": 106981, "ms": 1.06981, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": false, "unreleased": [], "released": {"cycles": 106981, "ms": 1.06981, "group": "backlog-adp"}}
+   refusals=[] misses=6 share_misses=[]
+== N-B1 point=1x1 clock={"cpu_hz": 100000000, "cpu_cd": "sys", "sys_hz": 100000000, "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"}
+   groups=['backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed'] cpu!=sys probes=0
+   ACMP record released under the composed load, first                       0.754 /  20.0 ok (backlog:backlog.service.acmp.first.if0)
+   ACMP record released under the composed load, last                        5.058 /  20.0 ok (backlog-adp:backlog-adp.service.acmp.last.if0)
+   ADP record released under the composed load, first                        0.797 /  20.0 ok (backlog:backlog.service.adp.first.if0)
+   ADP record released under the composed load, last                         3.594 /  20.0 ok (backlog-adp:backlog-adp.service.adp.last.if0)
+   AECP record released under the composed load, first                       0.790 /  20.0 ok (backlog:backlog.service.aecp.first.if0)
+   AECP record released under the composed load, last                       62.735 /  20.0 OVER (backlog-owed:backlog-owed.service.aecp.last.if0)
+   MAAP record released under the composed load, first                       0.779 /  20.0 ok (backlog:backlog.service.maap.first.if0)
+   MAAP record released under the composed load, last                        3.631 /  20.0 ok (backlog-adp:backlog-adp.service.maap.last.if0)
+   SRP record released under the composed load, first                        2.800 /  18.0 ok (backlog:backlog.service.srp.first.if0)
+   SRP record released under the composed load, last                         9.996 /  18.0 ok (backlog-adp:backlog-adp.service.srp.last.if0)
+   a response with 7 frames owed ahead of it                                61.934 /  20.0 OVER (backlog-owed:backlog.owed.if0)
+   an ACMP command behind a full acmp ring                                   3.467 /  20.0 ok (backlog:backlog.acmp_command.if0)
+   an ACMP command behind the owed input                                   360.182 /  20.0 OVER (backlog-owed:backlog.owed_behind0.if0)
+   an ENTITY_AVAILABLE behind a full adp ring                                2.737 /  20.0 ok (backlog-adp:backlog.adp_available.if0)
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)    0.122 /  20.0 ok (backlog-adp-refill:backlog.adp_available_refill.if0)
+   an event behind 15 others                                                 0.887 /  20.0 ok (backlog:backlog.event.if0)
+   share backlog                  work=  293 over=0 longest=0.8048 ms share=2.0 cycles=200000
+   share backlog-adp              work=  300 over=0 longest=1.0740 ms share=2.0 cycles=200000
+   share backlog-adp-refill       work=  308 over=0 longest=1.0740 ms share=2.0 cycles=200000
+   share backlog-owed             work=  349 over=0 longest=1.0460 ms share=2.0 cycles=200000
+   SHARE total work=1250 (backlog groups 1250) over=0 longest=(1.07398, 'backlog-adp')
+   composed_maximum={"cycles": 107398, "ms": 1.07398, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": false, "unreleased": [], "released": {"cycles": 107398, "ms": 1.07398, "group": "backlog-adp"}}
+   refusals=[] misses=6 share_misses=[]
+== N-A8 point=8x8 clock={"cpu_hz": 100000000, "cpu_cd": "sys", "sys_hz": 100000000, "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"}
+   groups=['acmp-notk', 'adp-advertise', 'maap', 'acmp-noresp', 'srp', 'backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed', 'acmp-disc', 'adp-link', 'adp-gm', 'adp-discover', 'control', 'aecp-fanout', 'acmp-cmd', 'aecp'] cpu!=sys probes=0
+   ACMP record released under the composed load, first                       1.301 /  20.0 ok (backlog:backlog.service.acmp.first.if0)
+   ACMP record released under the composed load, last                        7.762 /  20.0 ok (backlog-owed:backlog-owed.service.acmp.last.if0)
+   ADP record released under the composed load, first                        1.343 /  20.0 ok (backlog:backlog.service.adp.first.if0)
+   ADP record released under the composed load, last                         5.813 /  20.0 ok (backlog-owed:backlog-owed.service.adp.last.if1)
+   AECP record released under the composed load, first                       1.336 /  20.0 ok (backlog:backlog.service.aecp.first.if0)
+   AECP record released under the composed load, last                       64.990 /  20.0 OVER (backlog-owed:backlog-owed.service.aecp.last.if1)
+   ANNOUNCE (TMR expiry)                                                     0.199 /  20.0 ok (maap:maap.announce.if1)
+   BIND_RX                                                                   0.243 /  20.0 ok (acmp-cmd:acmp.bind_rx.if0)
+   DISCONNECT_TX                                                             0.110 /  20.0 ok (acmp-cmd:acmp.disconnect_tx.if0)
+   Domain RX -> declarations (JoinTime wait)                                 1.744 / 218.0 ok (srp:srp.domain.if0)
+   ENTITY_AVAILABLE from its RX_HEAD (H-DISC)                                0.269 /  20.0 ok (acmp-disc:acmp.entity_available.if1)
+   ENTITY_DEPARTING from its RX_HEAD (H-DISC)                                0.245 /  20.0 ok (acmp-disc:acmp.entity_departing.if1)
+   GET_RX_STATE                                                              0.117 /  20.0 ok (acmp-cmd:acmp.get_rx_state.if1)
+   GET_TX_CONNECTION                                                         0.100 /  20.0 ok (acmp-cmd:acmp.get_tx_connection.if0)
+   GET_TX_STATE                                                              0.116 /  20.0 ok (acmp-cmd:acmp.get_tx_state.if1)
+   GM_CHANGE                                                                 0.025 /  20.0 ok (adp-gm:adp.gm_change.if1)
+   LINK_DOWN                                                                 0.286 /  20.0 ok (adp-link:adp.link_down.if1)
+   LINK_UP                                                                   0.148 /  20.0 ok (adp-advertise:adp.link_up.if1)
+   Listener Ready RX (registrar)                                             0.592 /  18.0 ok (srp:srp.listener_ready.if0)
+   MAAP record released under the composed load, first                       1.326 /  20.0 ok (backlog:backlog.service.maap.first.if0)
+   MAAP record released under the composed load, last                        5.798 /  20.0 ok (backlog-owed:backlog-owed.service.maap.last.if0)
+   MVU GET_MILAN_INFO                                                        0.289 /  20.0 ok (aecp:aecp.mvu_get_milan_info.if1)
+   PROBE retransmission (TMR expiry)                                         0.262 /  20.0 ok (maap:maap.probe3.if1)
+   PROBE_TX                                                                  0.206 /  20.0 ok (acmp-cmd:acmp.probe_tx.if1)
+   PROBE_TX_RESPONSE                                                         0.077 /  20.0 ok (acmp-cmd:acmp.probe_tx_response.if1)
+   RCV_ADP_DISCOVER                                                          0.039 /  20.0 ok (adp-discover:adp.discover.if1)
+   RCV_ADP_DISCOVER (control)                                                0.026 /  20.0 ok (control:control.discover.if0)
+   READ_DESCRIPTOR (102 B)                                                   0.200 /  20.0 ok (aecp:aecp.read_descriptor.t9.i0.c0.if0)
+   READ_DESCRIPTOR (106 B)                                                   0.227 /  20.0 ok (aecp:aecp.read_descriptor.t1.i0.c0.if1)
+   READ_DESCRIPTOR (113 B)                                                   0.304 /  20.0 ok (aecp:aecp.read_descriptor.t26.i0.c0.if0)
+   READ_DESCRIPTOR (146 B)                                                   0.300 /  20.0 ok (aecp:aecp.read_descriptor.t6.i8.c0.if0)
+   READ_DESCRIPTOR (148 B)                                                   0.308 /  20.0 ok (aecp:aecp.read_descriptor.t2.i0.c0.if1)
+   READ_DESCRIPTOR (20 B)                                                    0.285 /  20.0 ok (aecp:aecp.read_descriptor.t14.i7.c0.if0)
+   READ_DESCRIPTOR (312 B)                                                   0.262 /  20.0 ok (aecp:aecp.read_descriptor.t0.i0.c0.if1)
+   READ_DESCRIPTOR (452 B)                                                   0.256 /  20.0 ok (aecp:aecp.read_descriptor.t13.i0.c0.if0)
+   READ_DESCRIPTOR (72 B)                                                    0.295 /  20.0 ok (aecp:aecp.read_descriptor.t12.i0.c0.if0)
+   READ_DESCRIPTOR (86 B)                                                    0.285 /  20.0 ok (aecp:aecp.read_descriptor.t10.i9.c0.if0)
+   READ_DESCRIPTOR (90 B)                                                    0.285 /  20.0 ok (aecp:aecp.read_descriptor.t20.i71.c0.if0)
+   READ_DESCRIPTOR (96 B)                                                    0.210 /  20.0 ok (aecp:aecp.read_descriptor.t36.i0.c0.if0)
+   SRP record released under the composed load, first                        5.354 /  18.0 ok (backlog-adp:backlog-adp.service.srp.first.if0)
+   SRP record released under the composed load, last                        15.879 /  18.0 ok (backlog-adp-refill:backlog-adp-refill.service.srp.last.if1)
+   TMR_ADVERTISE expiry                                                      0.129 /  20.0 ok (adp-advertise:adp.tmr_advertise.if0)
+   TMR_DELAY                                                                 0.189 /  20.0 ok (acmp-noresp:acmp.tmr_delay.if0)
+   TMR_DELAY expiry                                                          0.211 /  20.0 ok (adp-advertise:adp.tmr_delay.if0)
+   TMR_DELAY, or the first TMR_NO_RESP                                       0.362 /  20.0 ok (acmp-noresp:acmp.tmr_no_resp1.if0)
+   TMR_NO_ADP (H-DISC)                                                       0.219 /  20.0 ok (acmp-disc:acmp.tmr_no_adp.if0)
+   TMR_NO_TK                                                                 0.150 /  20.0 ok (acmp-notk:acmp.tmr_no_tk.if0)
+   TMR_RETRY                                                                 0.222 /  20.0 ok (acmp-noresp:acmp.tmr_retry.if1)
+   UNBIND_RX                                                                 0.154 /  20.0 ok (acmp-cmd:acmp.unbind_rx.if1)
+   a response with 7 frames owed ahead of it                                63.676 /  20.0 OVER (backlog-owed:backlog.owed.if0)
+   an ACMP command behind a full acmp ring                                   6.505 /  20.0 ok (backlog:backlog.acmp_command.if0)
+   an ACMP command behind the owed input                                   360.357 /  20.0 OVER (backlog-owed:backlog.owed_behind0.if0)
+   an ENTITY_AVAILABLE behind a full adp ring                                3.529 /  20.0 ok (backlog-adp:backlog.adp_available.if0)
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)    0.248 /  20.0 ok (backlog-adp-refill:backlog.adp_available_refill.if0)
+   an event behind 15 others                                                 1.438 /  20.0 ok (backlog:backlog.event.if0)
+   conflicting PROBE -> DEFEND                                               0.103 /  20.0 ok (maap:maap.defend.if0)
+   entity_available                                                          0.288 /  20.0 ok (aecp:aecp.entity_available.if1)
+   first PROBE (LINK_UP)                                                     0.128 /  20.0 ok (maap:maap.probe1.if0)
+   get_avb_info                                                              0.305 /  20.0 ok (aecp:aecp.get_avb_info.if1)
+   get_configuration                                                         0.266 /  20.0 ok (aecp:aecp.get_configuration.if0)
+   get_counters                                                              0.320 /  20.0 ok (aecp:aecp.get_counters.if1)
+   get_name                                                                  0.295 /  20.0 ok (aecp:aecp.get_name.if0)
+   last PROBE retransmission (TMR expiry)                                    0.181 /  20.0 ok (maap:maap.probe4.if1)
+   lock_entity                                                               0.860 /  20.0 ok (aecp-fanout:aecp_fanout.lock_entity.if1)
+   malformed MRPDU discard                                                   0.239 /  18.0 ok (srp:srp.malformed.if0)
+   register_unsolicited                                                      0.280 /  20.0 ok (aecp:aecp.register_unsolicited.if0)
+   set_clock_source                                                          0.900 /  20.0 ok (aecp-fanout:aecp_fanout.set_clock_source.if1)
+   set_control_identify_off                                                  0.844 /  20.0 ok (aecp-fanout:aecp_fanout.set_control_identify_off.if1)
+   set_control_identify_on                                                   0.743 /  20.0 ok (aecp-fanout:aecp_fanout.set_control_identify_on.if0)
+   set_name                                                                  1.140 /  20.0 ok (aecp-fanout:aecp_fanout.set_name.if1)
+   set_sampling_rate                                                         0.854 /  20.0 ok (aecp-fanout:aecp_fanout.set_sampling_rate.if0)
+   startup declarations (LINK_UP)                                            1.531 /  18.0 ok (srp:srp.startup.if0)
+   the second TMR_NO_RESP                                                    0.309 /  20.0 ok (acmp-noresp:acmp.tmr_no_resp2.if0)
+   unknown_command                                                           0.272 /  20.0 ok (aecp:aecp.unknown_command.if0)
+   unlock_entity                                                             0.740 /  20.0 ok (aecp-fanout:aecp_fanout.unlock_entity.if1)
+   share acmp-notk                work= 2824 over=0 longest=1.5756 ms share=2.0 cycles=200000
+   share adp-advertise            work=  605 over=0 longest=1.3013 ms share=2.0 cycles=200000
+   share maap                     work=  349 over=0 longest=1.3380 ms share=2.0 cycles=200000
+   share acmp-noresp              work= 1503 over=0 longest=1.5656 ms share=2.0 cycles=200000
+   share srp                      work=  307 over=0 longest=1.8917 ms share=2.0 cycles=200000
+   share backlog                  work=  303 over=0 longest=1.5533 ms share=2.0 cycles=200000
+   share backlog-adp              work=  323 over=0 longest=1.9664 ms share=2.0 cycles=200000
+   share backlog-adp-refill       work=  334 over=0 longest=1.7626 ms share=2.0 cycles=200000
+   share backlog-owed             work=  359 over=0 longest=1.9045 ms share=2.0 cycles=200000
+   share acmp-disc                work=  823 over=0 longest=1.5072 ms share=2.0 cycles=200000
+   share adp-link                 work=   91 over=0 longest=1.3013 ms share=2.0 cycles=200000
+   share adp-gm                   work=   90 over=0 longest=1.3013 ms share=2.0 cycles=200000
+   share adp-discover             work=   90 over=0 longest=1.3013 ms share=2.0 cycles=200000
+   share control                  work=   90 over=0 longest=1.3013 ms share=2.0 cycles=200000
+   share aecp-fanout              work=  147 over=0 longest=1.4302 ms share=2.0 cycles=200000
+   share acmp-cmd                 work=  102 over=0 longest=1.3013 ms share=2.0 cycles=200000
+   share aecp                     work=  137 over=0 longest=1.3013 ms share=2.0 cycles=200000
+   SHARE total work=8477 (backlog groups 1319) over=0 longest=(1.96639, 'backlog-adp')
+   composed_maximum={"cycles": 196639, "ms": 1.96639, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": false, "unreleased": [], "released": {"cycles": 196639, "ms": 1.96639, "group": "backlog-adp"}}
+   refusals=[] misses=6 share_misses=[]
+== N-B8 point=8x8 clock={"cpu_hz": 100000000, "cpu_cd": "sys", "sys_hz": 100000000, "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"}
+   groups=['backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed'] cpu!=sys probes=0
+   ACMP record released under the composed load, first                       1.309 /  20.0 ok (backlog:backlog.service.acmp.first.if0)
+   ACMP record released under the composed load, last                        7.985 /  20.0 ok (backlog-adp:backlog-adp.service.acmp.last.if0)
+   ADP record released under the composed load, first                        1.351 /  20.0 ok (backlog:backlog.service.adp.first.if0)
+   ADP record released under the composed load, last                         5.851 /  20.0 ok (backlog-owed:backlog-owed.service.adp.last.if1)
+   AECP record released under the composed load, first                       1.344 /  20.0 ok (backlog:backlog.service.aecp.first.if0)
+   AECP record released under the composed load, last                       64.948 /  20.0 OVER (backlog-owed:backlog-owed.service.aecp.last.if1)
+   MAAP record released under the composed load, first                       1.334 /  20.0 ok (backlog:backlog.service.maap.first.if0)
+   MAAP record released under the composed load, last                        5.836 /  20.0 ok (backlog-owed:backlog-owed.service.maap.last.if0)
+   SRP record released under the composed load, first                        5.289 /  18.0 ok (backlog:backlog.service.srp.first.if0)
+   SRP record released under the composed load, last                        15.959 /  18.0 ok (backlog-adp:backlog-adp.service.srp.last.if1)
+   a response with 7 frames owed ahead of it                                63.929 /  20.0 OVER (backlog-owed:backlog.owed.if0)
+   an ACMP command behind a full acmp ring                                   6.734 /  20.0 ok (backlog:backlog.acmp_command.if0)
+   an ACMP command behind the owed input                                   360.413 /  20.0 OVER (backlog-owed:backlog.owed_behind0.if0)
+   an ENTITY_AVAILABLE behind a full adp ring                                4.192 /  20.0 ok (backlog-adp:backlog.adp_available.if0)
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)    0.230 /  20.0 ok (backlog-adp-refill:backlog.adp_available_refill.if0)
+   an event behind 15 others                                                 1.447 /  20.0 ok (backlog:backlog.event.if0)
+   share backlog                  work=  302 over=0 longest=1.5605 ms share=2.0 cycles=200000
+   share backlog-adp              work=  311 over=0 longest=1.8431 ms share=2.0 cycles=200000
+   share backlog-adp-refill       work=  315 over=0 longest=1.8431 ms share=2.0 cycles=200000
+   share backlog-owed             work=  358 over=0 longest=1.9153 ms share=2.0 cycles=200000
+   SHARE total work=1286 (backlog groups 1286) over=0 longest=(1.91528, 'backlog-owed')
+   composed_maximum={"cycles": 191528, "ms": 1.91528, "group": "backlog-owed", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": false, "unreleased": [], "released": {"cycles": 191528, "ms": 1.91528, "group": "backlog-owed"}}
+   refusals=[] misses=6 share_misses=[]
+== D-A1 point=1x1 clock={"cpu_hz": 100000000, "cpu_cd": "sys", "sys_hz": 100000000, "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"}
+   groups=['backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed'] cpu!=sys probes=0
+   ACMP record released under the composed load, first                       0.655 /  20.0 ok (backlog:backlog.service.acmp.first.if0)
+   ACMP record released under the composed load, last                        4.342 /  20.0 ok (backlog-adp:backlog-adp.service.acmp.last.if0)
+   ADP record released under the composed load, first                        0.697 /  20.0 ok (backlog:backlog.service.adp.first.if0)
+   ADP record released under the composed load, last                         3.179 /  20.0 ok (backlog-adp:backlog-adp.service.adp.last.if0)
+   AECP record released under the composed load, first                       0.691 /  20.0 ok (backlog:backlog.service.aecp.first.if0)
+   AECP record released under the composed load, last                       62.748 /  20.0 OVER (backlog-owed:backlog-owed.service.aecp.last.if0)
+   MAAP record released under the composed load, first                       0.680 /  20.0 ok (backlog:backlog.service.maap.first.if0)
+   MAAP record released under the composed load, last                        3.215 /  20.0 ok (backlog-adp:backlog-adp.service.maap.last.if0)
+   SRP record released under the composed load, first                        2.499 /  18.0 ok (backlog:backlog.service.srp.first.if0)
+   SRP record released under the composed load, last                         9.490 /  18.0 ok (backlog-adp:backlog-adp.service.srp.last.if0)
+   a response with 7 frames owed ahead of it                                61.936 /  20.0 OVER (backlog-owed:backlog.owed.if0)
+   an ACMP command behind a full acmp ring                                   3.030 /  20.0 ok (backlog:backlog.acmp_command.if0)
+   an ACMP command behind the owed input                                   360.201 /  20.0 OVER (backlog-owed:backlog.owed_behind0.if0)
+   an ENTITY_AVAILABLE behind a full adp ring                                2.415 /  20.0 ok (backlog-adp:backlog.adp_available.if0)
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)    0.107 /  20.0 ok (backlog-adp-refill:backlog.adp_available_refill.if0)
+   an event behind 15 others                                                 0.784 /  20.0 ok (backlog:backlog.event.if0)
+   share backlog                  work=  293 over=0 longest=0.7414 ms share=2.0 cycles=200000
+   share backlog-adp              work=  313 over=0 longest=0.9752 ms share=2.0 cycles=200000
+   share backlog-adp-refill       work=  323 over=0 longest=0.9752 ms share=2.0 cycles=200000
+   share backlog-owed             work=  350 over=0 longest=0.9667 ms share=2.0 cycles=200000
+   SHARE total work=1279 (backlog groups 1279) over=0 longest=(0.97517, 'backlog-adp')
+   composed_maximum={"cycles": 97517, "ms": 0.97517, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": false, "unreleased": [], "released": {"cycles": 97517, "ms": 0.97517, "group": "backlog-adp"}}
+   refusals=[] misses=6 share_misses=[]
+== D-B1 point=1x1 clock={"cpu_hz": 100000000, "cpu_cd": "sys", "sys_hz": 100000000, "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"}
+   groups=['backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed'] cpu!=sys probes=0
+   ACMP record released under the composed load, first                       0.668 /  20.0 ok (backlog:backlog.service.acmp.first.if0)
+   ACMP record released under the composed load, last                        4.520 /  20.0 ok (backlog-adp:backlog-adp.service.acmp.last.if0)
+   ADP record released under the composed load, first                        0.711 /  20.0 ok (backlog:backlog.service.adp.first.if0)
+   ADP record released under the composed load, last                         3.221 /  20.0 ok (backlog-adp:backlog-adp.service.adp.last.if0)
+   AECP record released under the composed load, first                       0.704 /  20.0 ok (backlog:backlog.service.aecp.first.if0)
+   AECP record released under the composed load, last                       62.765 /  20.0 OVER (backlog-owed:backlog-owed.service.aecp.last.if0)
+   MAAP record released under the composed load, first                       0.694 /  20.0 ok (backlog:backlog.service.maap.first.if0)
+   MAAP record released under the composed load, last                        3.258 /  20.0 ok (backlog-adp:backlog-adp.service.maap.last.if0)
+   SRP record released under the composed load, first                        2.561 /  18.0 ok (backlog:backlog.service.srp.first.if0)
+   SRP record released under the composed load, last                         9.683 /  18.0 ok (backlog-adp:backlog-adp.service.srp.last.if0)
+   a response with 7 frames owed ahead of it                                61.953 /  20.0 OVER (backlog-owed:backlog.owed.if0)
+   an ACMP command behind a full acmp ring                                   3.109 /  20.0 ok (backlog:backlog.acmp_command.if0)
+   an ACMP command behind the owed input                                   360.189 /  20.0 OVER (backlog-owed:backlog.owed_behind0.if0)
+   an ENTITY_AVAILABLE behind a full adp ring                                2.452 /  20.0 ok (backlog-adp:backlog.adp_available.if0)
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)    0.097 /  20.0 ok (backlog-adp-refill:backlog.adp_available_refill.if0)
+   an event behind 15 others                                                 0.798 /  20.0 ok (backlog:backlog.event.if0)
+   share backlog                  work=  293 over=0 longest=0.7579 ms share=2.0 cycles=200000
+   share backlog-adp              work=  301 over=0 longest=0.9783 ms share=2.0 cycles=200000
+   share backlog-adp-refill       work=  307 over=0 longest=0.9783 ms share=2.0 cycles=200000
+   share backlog-owed             work=  349 over=0 longest=0.9708 ms share=2.0 cycles=200000
+   SHARE total work=1250 (backlog groups 1250) over=0 longest=(0.97832, 'backlog-adp')
+   composed_maximum={"cycles": 97832, "ms": 0.97832, "group": "backlog-adp", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": false, "unreleased": [], "released": {"cycles": 97832, "ms": 0.97832, "group": "backlog-adp"}}
+   refusals=[] misses=6 share_misses=[]
+== D-A8 point=8x8 clock={"cpu_hz": 100000000, "cpu_cd": "sys", "sys_hz": 100000000, "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"}
+   groups=['backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed'] cpu!=sys probes=0
+   ACMP record released under the composed load, first                       1.212 /  20.0 ok (backlog:backlog.service.acmp.first.if0)
+   ACMP record released under the composed load, last                        7.420 /  20.0 ok (backlog-adp:backlog-adp.service.acmp.last.if0)
+   ADP record released under the composed load, first                        1.255 /  20.0 ok (backlog:backlog.service.adp.first.if0)
+   ADP record released under the composed load, last                         5.261 /  20.0 ok (backlog-adp:backlog-adp.service.adp.last.if0)
+   AECP record released under the composed load, first                       1.248 /  20.0 ok (backlog:backlog.service.aecp.first.if0)
+   AECP record released under the composed load, last                       64.938 /  20.0 OVER (backlog-owed:backlog-owed.service.aecp.last.if1)
+   MAAP record released under the composed load, first                       1.238 /  20.0 ok (backlog:backlog.service.maap.first.if0)
+   MAAP record released under the composed load, last                        5.298 /  20.0 ok (backlog-adp:backlog-adp.service.maap.last.if0)
+   SRP record released under the composed load, first                        4.986 /  18.0 ok (backlog:backlog.service.srp.first.if0)
+   SRP record released under the composed load, last                        14.841 /  18.0 ok (backlog-adp-refill:backlog-adp-refill.service.srp.last.if1)
+   a response with 7 frames owed ahead of it                                63.912 /  20.0 OVER (backlog-owed:backlog.owed.if0)
+   an ACMP command behind a full acmp ring                                   6.193 /  20.0 ok (backlog:backlog.acmp_command.if0)
+   an ACMP command behind the owed input                                   360.512 /  20.0 OVER (backlog-owed:backlog.owed_behind0.if0)
+   an ENTITY_AVAILABLE behind a full adp ring                                3.951 /  20.0 ok (backlog-adp:backlog.adp_available.if0)
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)    0.234 /  20.0 ok (backlog-adp-refill:backlog.adp_available_refill.if0)
+   an event behind 15 others                                                 1.350 /  20.0 ok (backlog:backlog.event.if0)
+   share backlog                  work=  303 over=0 longest=1.4796 ms share=2.0 cycles=200000
+   share backlog-adp              work=  319 over=0 longest=1.7066 ms share=2.0 cycles=200000
+   share backlog-adp-refill       work=  327 over=0 longest=1.7066 ms share=2.0 cycles=200000
+   share backlog-owed             work=  361 over=0 longest=1.7684 ms share=2.0 cycles=200000
+   SHARE total work=1310 (backlog groups 1310) over=0 longest=(1.76842, 'backlog-owed')
+   composed_maximum={"cycles": 176842, "ms": 1.76842, "group": "backlog-owed", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": false, "unreleased": [], "released": {"cycles": 176842, "ms": 1.76842, "group": "backlog-owed"}}
+   refusals=[] misses=6 share_misses=[]
+== D-B8 point=8x8 clock={"cpu_hz": 100000000, "cpu_cd": "sys", "sys_hz": 100000000, "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"}
+   groups=['backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed'] cpu!=sys probes=0
+   ACMP record released under the composed load, first                       1.217 /  20.0 ok (backlog:backlog.service.acmp.first.if0)
+   ACMP record released under the composed load, last                        7.301 /  20.0 ok (backlog-adp:backlog-adp.service.acmp.last.if0)
+   ADP record released under the composed load, first                        1.259 /  20.0 ok (backlog:backlog.service.adp.first.if0)
+   ADP record released under the composed load, last                         5.080 /  20.0 ok (backlog-adp:backlog-adp.service.adp.last.if0)
+   AECP record released under the composed load, first                       1.253 /  20.0 ok (backlog:backlog.service.aecp.first.if0)
+   AECP record released under the composed load, last                       65.007 /  20.0 OVER (backlog-owed:backlog-owed.service.aecp.last.if1)
+   MAAP record released under the composed load, first                       1.242 /  20.0 ok (backlog:backlog.service.maap.first.if0)
+   MAAP record released under the composed load, last                        5.117 /  20.0 ok (backlog-adp:backlog-adp.service.maap.last.if0)
+   SRP record released under the composed load, first                        5.001 /  18.0 ok (backlog:backlog.service.srp.first.if0)
+   SRP record released under the composed load, last                        14.809 /  18.0 ok (backlog-adp:backlog-adp.service.srp.last.if1)
+   a response with 7 frames owed ahead of it                                63.680 /  20.0 OVER (backlog-owed:backlog.owed.if0)
+   an ACMP command behind a full acmp ring                                   6.207 /  20.0 ok (backlog:backlog.acmp_command.if0)
+   an ACMP command behind the owed input                                   360.377 /  20.0 OVER (backlog-owed:backlog.owed_behind0.if0)
+   an ENTITY_AVAILABLE behind a full adp ring                                4.105 /  20.0 ok (backlog-adp:backlog.adp_available.if0)
+   an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)    0.087 /  20.0 ok (backlog-adp-refill:backlog.adp_available_refill.if0)
+   an event behind 15 others                                                 1.354 /  20.0 ok (backlog:backlog.event.if0)
+   share backlog                  work=  306 over=0 longest=1.4874 ms share=2.0 cycles=200000
+   share backlog-adp              work=  314 over=0 longest=1.7489 ms share=2.0 cycles=200000
+   share backlog-adp-refill       work=  319 over=0 longest=1.7489 ms share=2.0 cycles=200000
+   share backlog-owed             work=  363 over=0 longest=1.7721 ms share=2.0 cycles=200000
+   SHARE total work=1302 (backlog groups 1302) over=0 longest=(1.77215, 'backlog-owed')
+   composed_maximum={"cycles": 177215, "ms": 1.77215, "group": "backlog-owed", "windows": 4, "rows": 4, "not_run": [], "partial": false, "lower_bound": false, "unreleased": [], "released": {"cycles": 177215, "ms": 1.77215, "group": "backlog-owed"}}
+   refusals=[] misses=6 share_misses=[]
