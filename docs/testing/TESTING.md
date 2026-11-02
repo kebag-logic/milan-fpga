@@ -261,7 +261,7 @@ A child that exits during a census is collected, not reported as remaining.
 A descendant re-parented during cleanup keeps its identity and still receives its `SIGTERM`.
 A shell resumed late keeps its whole window to run its terminal trap.
 A descendant that outlives `SIGKILL` still fails the run, and takes the stopped shell with it.
-That message prints each remaining process's `/proc/<pid>/stat` state, wait channel, parent and age.
+That message prints each remaining process's scheduler state, wait channel, parent and age.
 The [shadow lifecycle controls](../../tb/verilator/gptp_shadow/README.md#mutation-isolation-and-cancellation)
 also exercise cancellation with both production drivers nested.
 
