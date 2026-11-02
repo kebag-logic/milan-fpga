@@ -11,7 +11,10 @@ issue on every other tick of the program phase. Each group opens backlog-adp's w
 period, so some pass of the window meets the step if any can: eight phases 1.25 ms apart across the
 10 ms tick for the blank check and the verify, and eight 2.5 ms apart across the program phase's 20 ms.
 A phase starts at a flash event of the save itself, which sim_main.cpp's `wait flash` observes: the
-erase, the first page program, and the first 30 ms with no program after the last one.
+erase, the first page program, and the first 30 ms with no program after the last one. The SET_NAME that
+starts the save comes SET_MS into the 2 s the window waits for MAAP (scenario.announced), so the save's
+first-dirty window and seal run beside it and its erase still follows the window's set-up at both points;
+grade.save_phase refuses a window that did not open inside its phase.
 
 A group is named backlog-adp@<phase>-<k>: grade.defined_load holds its window to backlog-adp's defined
 load, its probe is an instance of backlog-adp's path and its records of the composed rows' paths, and
@@ -28,6 +31,8 @@ import scenario
 #: the phase and the heavy step's period, in ms. The verify starts once IDLE_MS pass with no page program.
 PHASES = {'blank': ('erase 1', 30, 10), 'program': ('program 1', 30, 20), 'verify': ('idle', 10, 10)}
 IDLE_MS = 30
+#: The SET_NAME's time after ready, inside the wait for MAAP.
+SET_MS = 1100
 #: The tick phases staged in each flash phase.
 TICK_PHASES = 8
 
@@ -54,12 +59,13 @@ def window(p: scenario.Point, phase: str, k: int) -> scenario.Group:
     event = f'idle {IDLE_MS * ms}' if event == 'idle' else event
     g = scenario.Group(row_names()[list(PHASES).index(phase) * TICK_PHASES + k], sim_ms=8000)
     scenario.ready(g, p)
-    scenario.announced(g)
-    # backlog-adp's bound talker; its bind is persisted too, and the SET_NAME joins the same save
-    g.add(f'frame 0 {scenario.acmp_cmd(p, "BIND_RX", 0, 0x7000).hex()}', f'wait tx {acmp} 2 within {20 * ms}',
+    # scenario.announced's wait for MAAP, with the SET_NAME inside it; backlog-adp's bound talker's bind is
+    # persisted too, and joins the same save
+    g.add(f'wait cycles {SET_MS * ms}', f'frame 0 {set_name(p).hex()}', f'wait tx {aecp} 1 within {50 * ms}',
+          f'wait cycles {(2000 - SET_MS) * ms}', 'wait quiet 3 within 2000000',
+          f'frame 0 {scenario.acmp_cmd(p, "BIND_RX", 0, 0x7000).hex()}', f'wait tx {acmp} 2 within {20 * ms}',
           'wait quiet 3 within 2000000', f'frame 0 {avail.hex()}', 'wait quiet 3 within 2000000',
           f'frame 0 {gone.hex()}', f'wait cycles {50 * ms}', 'wait quiet 3 within 2000000',
-          f'frame 0 {set_name(p).hex()}', f'wait tx {aecp} 1 within {50 * ms}',
           f'wait flash {event} within {6000 * ms}', f'wait cycles {(delay + k * period / TICK_PHASES) * ms:.0f}',
           *scenario.OPEN_WINDOW)
     scenario.gm_run(g, p)

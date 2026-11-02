@@ -103,6 +103,7 @@ class Log:
     wire: list[tuple[int, int, int, bytes]] = field(default_factory=list)  # cycle, channel, interface, frame
     passes: list[Pass] = field(default_factory=list)
     idle: list[tuple[int, int, int]] = field(default_factory=list)
+    flash: list[tuple[int, int]] = field(default_factory=list)  # cycle, the operation the flash device took
     steps: list[tuple[int, str]] = field(default_factory=list)
     summary: dict[str, str] = field(default_factory=dict)
     modules: dict[str, int] = field(default_factory=dict)
@@ -197,7 +198,9 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.code = dict(kv.split('=', 1) for kv in rest)
         elif kind in ('TRAP', 'BUSERR'):
             log.traps.append(line)
-        elif kind in ('FLASH', 'FLASHOP', 'REPLY', 'TXREADY', 'PC', 'FETCH'):
+        elif kind == 'FLASHOP':
+            log.flash.append((int(rest[0]), int(rest[1])))
+        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH'):
             continue
         elif kind == 'FAIL:':
             log.errors.append(line)
@@ -783,6 +786,7 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
     got = population(grader.log, start, end)
     held = grader.events_held(start)
     check_load(group, got, [(tag, size) for c, _, tag, size in grader.log.refused if start <= c <= end], held)
+    save_phase(grader.log, group.name, start)
     inside = composed_passes(grader.log, start, end)
     if not inside:
         raise Refusal(f'{group.name}: no work pass starts inside the composed window')
@@ -792,6 +796,29 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
                 passes=len(inside), start_sys=top.start_sys, modules=top.modules, population=got,
                 admission=group.admission, events_held=held, serviced=not left, unreleased=left,
                 window_ms=round(grader.ms(end - start), 5))
+
+
+#: The operations sim_main.cpp's FLASHOP line names: a sector erase and a page program.
+FLASH_ERASE, FLASH_PROGRAM = 0xD8, 0x02
+
+
+def save_phase(log: Log, name: str, start: int) -> None:
+    """A save's window (save_window.py) must open inside the flash phase its name gives, of the first save
+    the log shows: after its erase and before its first page program (the blank check), between its first
+    and last page program (the program phase), or after its last with its read-back still under way (the
+    verify). Refused otherwise, so that its passes are that phase's."""
+    phase = name.partition('@')[2].rpartition('-')[0]
+    if not phase:
+        return
+    erases = [c for c, op in log.flash if op == FLASH_ERASE] + [1 << 62]
+    pages = [c for c, op in log.flash if op == FLASH_PROGRAM and erases[0] < c < erases[1]]
+    reading = any(start < p.start_sys < erases[1] and p.count('load_flash') for p in log.passes)
+    inside = {'blank': erases[0] < start and (not pages or start < pages[0]),
+              'program': len(pages) > 1 and pages[0] < start < pages[-1],
+              'verify': bool(pages) and pages[-1] < start and reading}
+    if not inside.get(phase, False):
+        raise Refusal(f"{name}: the window opened at {start}, outside its save's {phase} phase (erase at "
+                      f"{erases[0]}, pages programmed {pages[:1]}..{pages[-1:]})")
 
 
 def pass_share(log: Log) -> dict:

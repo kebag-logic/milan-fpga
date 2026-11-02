@@ -27,6 +27,12 @@ import share
 Patches = Callable[[], list]
 
 
+def _from_last_erase(flash: list) -> list:
+    """A log's flash operations from its last erase on: the last save's."""
+    last = max((n for n, (_, op) in enumerate(flash) if op == grade.FLASH_ERASE), default=0)
+    return flash[last:]
+
+
 def _first_pass_only() -> list:
     """The composed window's passes cut to its first: the composed maximum is that pass."""
     original = grade.composed_passes
@@ -554,6 +560,10 @@ MUTANTS: dict[str, Patches] = {
     'share: a pass with no mailbox write is not held to it': lambda: [patch.object(
         grade, 'pass_share', lambda log, f=grade.pass_share: f(dataclasses.replace(log, idle=[])))],
     "save: a save's window carries no defined load": lambda: [patch.object(save_window, 'row', lambda name: name)],
+    'save: a window outside its flash phase is graded': lambda: [patch.object(grade, 'save_phase', lambda *a: None)],
+    'save: the phase read off the last save, not the first': lambda: [patch.object(
+        grade, 'save_phase', lambda log, name, start, f=grade.save_phase: f(dataclasses.replace(
+            log, flash=_from_last_erase(log.flash)), name, start))],
     'save: four tick phases a flash phase': lambda: [patch.object(save_window, 'TICK_PHASES', 4)],
     "save: the program phase spread across one tick, not its step's two": lambda: [patch.dict(
         save_window.PHASES, program=('program 1', 30, 10))],
