@@ -565,7 +565,10 @@ def owner_shell_window(parent: Path) -> None:
               f"{sys.executable} -c \"$STUBBORN\" \"{ready}\" &\nwait\n")
     env = dict(os.environ, STUBBORN=STUBBORN)
     passes = []
-    with stages(GRACE_SECONDS=0.2, KILL_ALL_SECONDS=0.2):
+    # late() holds the child for 61 census passes: at the 0.5 s cap, at most 30.5 s of
+    # the owner's clock, however slow each pass is. This reap stage puts the verdict
+    # at 40.9 s, so the child still has the product's 10 s after its SIGKILL.
+    with stages(GRACE_SECONDS=0.2, KILL_ALL_SECONDS=0.2, REAP_SECONDS=40.5):
         try:
             with OwnedProcesses() as owner:
                 census, send = owner._descendants, owner._send
