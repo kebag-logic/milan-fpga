@@ -660,15 +660,23 @@ def owner_late_cancel() -> None:
     with stages(GRACE_SECONDS=0.1, KILL_ALL_SECONDS=0.1, TRAP_SECONDS=30.0, REAP_SECONDS=0.3):
         with OwnedProcesses() as owner:
             gone = 2 ** 22 + 1
-            since = []
+            since, resumed = [], []
+            signal_fd = owner._signal
+
+            def signalling(fd: int, signum: int) -> None:
+                """Note a resume sent to the collected shell."""
+                if fd == owner.root_fd and signum == signal.SIGCONT:
+                    resumed.append(True)
+                signal_fd(fd, signum)
+            owner._signal = signalling
 
             def listed() -> dict:
                 """Cancel once the command is collected; list one process that dies inside every census."""
                 if not since:
                     since.append(time.monotonic())
                     os.kill(os.getpid(), signal.SIGTERM)
-                elapsed = time.monotonic() - since[0]
-                assert elapsed < 15, "a cancel after the shell was collected re-armed its trap window"
+                assert not resumed, "a cancel after the shell was collected resumed it, re-arming its trap window"
+                assert time.monotonic() - since[0] < 15, "cleanup never reached a verdict after a late cancel"
                 return {gone: (os.getpid(), "0")}
             owner._descendants = listed
             owner._reap = lambda: {gone}
