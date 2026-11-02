@@ -1,0 +1,6 @@
+[A720o] TAKEN
+Branch: 640-charter-followup (PR #835, at 545ac9cb on dev 503bc97c; round 5; nothing pushed by this pass)
+Authoritative references: R765-4 (PR #835 issuecomment-6584004136) and R766-4 (issuecomment-6582620684), both NEGATIVE on one MINOR, R765-4-F1 / R766-4-F1 (docs/design/MARK_II_AREA_PLAN.md:233 against census rows :322, :330 and note :339-340); retained residues R766-3-RESIDUE-2 / R765-3-R1 (:239), R765-2-RESIDUE-1 (:368), R765-2-RESIDUE-2 (:336); R765-4-S1 (optional).
+Interpreted scope: docs only, docs/design/MARK_II_AREA_PLAN.md. Stage 3's "Removes" cell takes R766-4-F1's exact fix: it names the FIFOs of stage 3 blocks as removed there, and limits "leave earlier" to the 29 generated FIFO RAMB36. Neither the stage table nor the census then says stage 3 removes no generated FIFO. The three residues take their published exact wording, one commit each. R765-4-S1 at the author's judgement, reasoned in the handoff. Nothing else changes.
+Validation plan: every run step of .github/workflows/docs.yml on a clean clone of the committed head, each rc recorded; check_doc_style on every touched page; check_em_dash --base 503bc97c; git diff --check against 503bc97c; the reviewers' census_coverage.py and anchor_probe.py on :233.
+Blockers: none
