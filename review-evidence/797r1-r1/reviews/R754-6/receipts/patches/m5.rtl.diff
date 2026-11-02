@@ -1,0 +1,10 @@
+--- head/hdl/common/csr/milan_csr.sv	2026-11-02 11:58:31.000000000 +0100
++++ m5/hdl/common/csr/milan_csr.sv	2026-11-02 12:31:22.680070611 +0100
+@@ -3116,7 +3116,6 @@
+         end else
+           srp_fresh_r   <= 1'b1;
+       end
+-      if (sel_wr_w) srp_fresh_r <= 1'b0;
+       if (srp_prov_w) begin
+         srp_wr_pend_r  <= 1'b1;
+         srp_wr_valid_r <= s_axi_wdata[0];

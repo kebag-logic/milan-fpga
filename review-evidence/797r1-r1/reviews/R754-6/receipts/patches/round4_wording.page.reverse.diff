@@ -1,0 +1,33 @@
+diff --git a/docs/reference/REGISTER_MAP.md b/docs/reference/REGISTER_MAP.md
+index 4b8dda90b1..eac1bb7400 100644
+--- a/docs/reference/REGISTER_MAP.md
++++ b/docs/reference/REGISTER_MAP.md
+@@ -3459,7 +3459,7 @@ RTL name: `A_STRMW_SID_LO`.
+ |---|---|
+ | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | `acmp_sid_q_r[31:0]` |
+ | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | `{mac_wire_w[15:0], 16'd0}` |
+-| the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write | `i_srp_ctx_rd_sid[31:0]` |
++| the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table's latest answer to the window was a poll, after the last `STRM_SEL`/`STRMW_CTRL` write, with no other master using the table since | `i_srp_ctx_rd_sid[31:0]` |
+ | any other case | `0x00000000` |
+ 
+ Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_sid_lo-offset-0x814).
+@@ -3480,7 +3480,7 @@ RTL name: `A_STRMW_SID_HI`.
+ |---|---|
+ | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | `acmp_sid_q_r[63:32]` |
+ | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | `mac_wire_w[47:16]` |
+-| the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write | `i_srp_ctx_rd_sid[63:32]` |
++| the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table's latest answer to the window was a poll, after the last `STRM_SEL`/`STRMW_CTRL` write, with no other master using the table since | `i_srp_ctx_rd_sid[63:32]` |
+ | any other case | `0x00000000` |
+ 
+ Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_sid_hi-offset-0x818).
+@@ -3636,8 +3636,8 @@ RTL name: `A_STRMW_SRP`.
+ | When | A read returns |
+ |---|---|
+ | the selected stream exists and the stream index `STRM_SEL[3:0]` is 0 and `STRM_SEL[9]` is 0 | `i_lwsrp_status` |
+-| the selected stream exists and `STRM_SEL[9]` is 1 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write | `{16'd0, i_srp_ctx_rd_stat}` |
+-| the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write | `{16'd0, i_srp_ctx_rd_stat}` |
++| the selected stream exists and `STRM_SEL[9]` is 1 and the SRP table's latest answer to the window was a poll, after the last `STRM_SEL`/`STRMW_CTRL` write, with no other master using the table since | `{16'd0, i_srp_ctx_rd_stat}` |
++| the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table's latest answer to the window was a poll, after the last `STRM_SEL`/`STRMW_CTRL` write, with no other master using the table since | `{16'd0, i_srp_ctx_rd_stat}` |
+ | any other case | `0x00000000` |
+ 
+ ### STRMW_CTLR_LO register (offset 0x860) [reset = 0x00000000]
