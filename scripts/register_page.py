@@ -577,6 +577,18 @@ def record_link(entry: dict, label: str) -> list[str]:
     return [f"{label}: [design notes]({relative(RECORD)}#{entry['record']}).", ""]
 
 
+#: The delimiter row of a Markdown table.
+TABLE_DELIMITER_RE = re.compile(r"^\s*\|?\s*:?-+:?\s*\|", re.MULTILINE)
+
+
+def note_prose(text: str) -> str:
+    """A note's text for the page. A Markdown table in it hides prose from the
+    concise-prose gate as a one-column table would, so it is refused."""
+    if TABLE_DELIMITER_RE.search(text):
+        raise Refusal(f"a note holds a Markdown table, which hides prose from the concise-prose gate: {text[:60]}")
+    return page_links(text)
+
+
 def notes_block(notes: list, level: str, soc: dict | None = None) -> list[str]:
     """Notes in their written order, as prose the concise-prose gate reads. A
     statement is a paragraph, a [topic, text] pair a paragraph led by its
@@ -589,20 +601,20 @@ def notes_block(notes: list, level: str, soc: dict | None = None) -> list[str]:
             if "when" in item:
                 params = (soc or {}).get("datapath_parameters", {})
                 if all(params.get(name) == value for name, value in item["when"].items()):
-                    out += [page_links(item["text"]), ""]
+                    out += [note_prose(item["text"]), ""]
             elif "heading" in item:
                 out += [f"{level} {page_links(item['heading'])}", ""]
                 for para in item.get("intro", []):
-                    out += [page_links(para), ""]
+                    out += [note_prose(para), ""]
                 out += notes_block(item.get("rows", []), level + "#" if len(level) < 4 else level, soc)
             elif "table" in item:
                 out += table(item["table"][0], item["table"][1:])
         elif isinstance(item, list) and item and item[0] == "Code":
             out += ["```text", item[1], "```", ""]
         elif isinstance(item, list):
-            out += [f"**{item[0]}:** {page_links(' '.join(item[1:]))}", ""]
+            out += [f"**{item[0]}:** {note_prose(' '.join(item[1:]))}", ""]
         else:
-            out += [page_links(item), ""]
+            out += [note_prose(item), ""]
     return out
 
 

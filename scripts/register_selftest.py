@@ -222,6 +222,10 @@ def _one_column(desc: dict) -> None:
     desc["registers"]["ETH_GUARD"]["notes"] = [{"table": [["Note"], ["word " * 25 + "end."]]}]
 
 
+def _table_in_note(desc: dict) -> None:
+    desc["registers"]["ETH_GUARD"]["notes"] = ["| Note |\n|---|\n| " + "word " * 25 + "end. |"]
+
+
 def _unworded_condition(desc: dict) -> None:
     del desc["condition_words"]["win_in_range_w"]
 
@@ -254,6 +258,7 @@ def controls() -> list[tuple[str, Callable[[Path], None], int, str]]:
             ("description of a field the RTL lacks", _unknown_field, 2, "describes field ETH_GUARD.PLANTED_FIELD"),
             ("note breaking the prose rules", _long_note, 2, "breaks the documentation rules"),
             ("prose wrapped in a one-column table", _one_column, 2, "one-column table"),
+            ("prose wrapped in a Markdown table inside a note", _table_in_note, 2, "holds a Markdown table"),
             ("prose wrapped in a field's table cell", _long_cell, 2, "a table cell has"),
             ("condition without wording", _unworded_condition, 2, "has no wording"),
             ("literal word the RTL does not test", _bad_literal, 2, "does not test"),
