@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726b/tools/run_control.py", line 19, in <module>
+    fn() if name == "owner_vanishing" else fn(Path(scratch))
+                                           ~~^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726b/matrix-work/R763-report-without-state/scripts/test_suite_cancellation.py", line 629, in owner_survivor
+    assert field in failure, (field, failure)
+           ^^^^^^^^^^^^^^^^
+AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 3 (bash) wchan do_signal_stop parent 1 (first parent 1) age 1.05 s start 74410046, not sent SIGKILL; pid 4 (python3) wchan hrtimer_nanosleep parent 3 (first parent 3) age 1.05 s start 74410046, sent SIGKILL 0.81 s ago')
+owner_survivor FAIL 1.1s AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 3 (bash) wchan do_signal_stop parent 1 (first parent 1) age 1.05 s start 74410046, not sent SIGKILL; pid 4 (python3) wchan hrtimer_nanosleep parent 3 (first parent 3) age 1.05 s start 74410046, sent SIGKILL 0.81 s ago')

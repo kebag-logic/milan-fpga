@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726b/tools/run_control.py", line 19, in <module>
+    fn() if name == "owner_vanishing" else fn(Path(scratch))
+                                           ~~^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726b/matrix-work/R763-deadline-wall-clock/scripts/test_suite_cancellation.py", line 536, in owner_stall
+    assert killed_in and killed_in[0] > 2, f"the stall was charged in full: SIGKILL in pass {killed_in}"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the stall was charged in full: SIGKILL in pass [2]
+owner_stall FAIL 2.1s AssertionError: the stall was charged in full: SIGKILL in pass [2]

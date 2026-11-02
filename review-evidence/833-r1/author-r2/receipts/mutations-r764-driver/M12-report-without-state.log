@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M12-report-without-state/scripts/test_suite_cancellation.py", line 695, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M12-report-without-state/scripts/test_suite_cancellation.py", line 662, in main
+    owner_report(parent)
+    ~~~~~~~~~~~~^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M12-report-without-state/scripts/test_suite_cancellation.py", line 443, in owner_report
+    assert field in asleep, (field, asleep)
+           ^^^^^^^^^^^^^^^
+AssertionError: ('state S', 'pid 2 (python3) parent 1 (first parent 1) age 0.04 s start 74470409, not sent SIGKILL')

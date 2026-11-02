@@ -1,0 +1,34 @@
+owner-report: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.06 s start 74470364, sent SIGKILL 1.50 s ago
+owner-reparented: {'sigterm_during_grace': True}
+owner-late-exit: {'collected_at_deadline': True}
+owner-stall: {'stalled_seconds': 2.0, 'killed_in_pass': 52}
+owner-shell-window: {'trap_ran_after_kill_time': True, 'trap_command_ran': True}
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M11-trust-sigkill/scripts/owned_process.py", line 364, in run
+    self.checkpoint()
+    ~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M11-trust-sigkill/scripts/owned_process.py", line 200, in checkpoint
+    raise Cancelled(self.cancel_signal)
+owned_process.Cancelled: signal 15
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M11-trust-sigkill/scripts/test_suite_cancellation.py", line 695, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M11-trust-sigkill/scripts/test_suite_cancellation.py", line 667, in main
+    owner_survivor(parent)
+    ~~~~~~~~~~~~~~^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M11-trust-sigkill/scripts/test_suite_cancellation.py", line 618, in owner_survivor
+    owner.run(["bash", "-c", script], env=env)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M11-trust-sigkill/scripts/owned_process.py", line 368, in run
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M11-trust-sigkill/scripts/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M11-trust-sigkill/scripts/test_suite_cancellation.py", line 607, in bounded
+    assert time.monotonic() - since < 30, "a survivor never failed the run"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: a survivor never failed the run

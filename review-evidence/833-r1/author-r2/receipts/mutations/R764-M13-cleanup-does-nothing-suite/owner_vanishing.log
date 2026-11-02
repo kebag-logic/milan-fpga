@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726b/tools/run_control.py", line 19, in <module>
+    fn() if name == "owner_vanishing" else fn(Path(scratch))
+    ~~^^
+  File "$VALIDATION_STORAGE/833-a726b/matrix-work/R764-M13-cleanup-does-nothing-suite/scripts/test_suite_cancellation.py", line 649, in owner_vanishing
+    raise AssertionError("an endless listing did not fail the run")
+AssertionError: an endless listing did not fail the run
+owner_vanishing FAIL 0.0s AssertionError: an endless listing did not fail the run

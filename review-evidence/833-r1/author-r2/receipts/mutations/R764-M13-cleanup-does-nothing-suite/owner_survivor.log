@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726b/tools/run_control.py", line 19, in <module>
+    fn() if name == "owner_vanishing" else fn(Path(scratch))
+                                           ~~^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726b/matrix-work/R764-M13-cleanup-does-nothing-suite/scripts/test_suite_cancellation.py", line 618, in owner_survivor
+    owner.run(["bash", "-c", script], env=env)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726b/matrix-work/R764-M13-cleanup-does-nothing-suite/scripts/owned_process.py", line 365, in run
+    self.checkpoint()
+    ~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726b/matrix-work/R764-M13-cleanup-does-nothing-suite/scripts/owned_process.py", line 200, in checkpoint
+    raise Cancelled(self.cancel_signal)
+owned_process.Cancelled: signal 15
+owner_survivor FAIL 0.0s Cancelled: signal 15

@@ -1,0 +1,20 @@
+owner-report: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.06 s start 74444377, sent SIGKILL 1.50 s ago
+owner-reparented: {'sigterm_during_grace': True}
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M02-no-reap-after-census/scripts/test_suite_cancellation.py", line 695, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M02-no-reap-after-census/scripts/test_suite_cancellation.py", line 664, in main
+    owner_late_exit(parent)
+    ~~~~~~~~~~~~~~~^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M02-no-reap-after-census/scripts/test_suite_cancellation.py", line 489, in owner_late_exit
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M02-no-reap-after-census/scripts/owned_process.py", line 170, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726b/m764-work/M02-no-reap-after-census/scripts/owned_process.py", line 299, in _cleanup
+    raise RuntimeError(
+        f"CLEANUP FAILED: owned descendants remain after {now - started:.2f} s, "
+        f"{passes} census passes, slowest {slowest:.2f} s: {remaining}")
+RuntimeError: CLEANUP FAILED: owned descendants remain after 0.47 s, 1 census passes, slowest 0.47 s: pid 5 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.52 s start 74444393, not sent SIGKILL

@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726b/tools/run_control.py", line 19, in <module>
+    fn() if name == "owner_vanishing" else fn(Path(scratch))
+                                           ~~^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726b/matrix-work/R764-M02-no-reap-after-census/scripts/test_suite_cancellation.py", line 489, in owner_late_exit
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726b/matrix-work/R764-M02-no-reap-after-census/scripts/owned_process.py", line 170, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726b/matrix-work/R764-M02-no-reap-after-census/scripts/owned_process.py", line 299, in _cleanup
+    raise RuntimeError(
+        f"CLEANUP FAILED: owned descendants remain after {now - started:.2f} s, "
+        f"{passes} census passes, slowest {slowest:.2f} s: {remaining}")
+RuntimeError: CLEANUP FAILED: owned descendants remain after 0.47 s, 1 census passes, slowest 0.47 s: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.51 s start 74411132, not sent SIGKILL
+owner_late_exit FAIL 0.5s RuntimeError: CLEANUP FAILED: owned descendants remain after 0.47 s, 1 census passes, slowest 0.47 s: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.51 s start 74411132, not sent SIGKILL

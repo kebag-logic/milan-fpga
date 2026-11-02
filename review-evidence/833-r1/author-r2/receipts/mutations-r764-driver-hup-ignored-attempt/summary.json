@@ -1,0 +1,191 @@
+[
+ {
+  "name": "control-A",
+  "test": "suite",
+  "expect": "green",
+  "rc": 1,
+  "got": "red",
+  "seconds": 111.3,
+  "last": "subprocess.TimeoutExpired: Command '['bash', '$VALIDATION_STORAGE/833-a726b/m764-work/tmp/suite-cancellation-l2_aj1hy/hard-HUP input [523]/scripts/run_all_suites.sh', '$VALIDATION_STORAGE/833-a726b/m764-work/tmp/suite-cancellation-l2_aj1hy/hard-HUP"
+ },
+ {
+  "name": "control-B",
+  "test": "suite",
+  "expect": "green",
+  "rc": 1,
+  "got": "red",
+  "seconds": 111.3,
+  "last": "subprocess.TimeoutExpired: Command '['bash', '$VALIDATION_STORAGE/833-a726b/m764-work/tmp/suite-cancellation-if9xb8kg/hard-HUP input [523]/scripts/run_all_suites.sh', '$VALIDATION_STORAGE/833-a726b/m764-work/tmp/suite-cancellation-if9xb8kg/hard-HUP"
+ },
+ {
+  "name": "control-lifecycle",
+  "test": "lifecycle",
+  "expect": "green",
+  "rc": 0,
+  "got": "green",
+  "seconds": 34.9,
+  "last": "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility refusals, INT/TERM/KILL, unsafe negative controls)"
+ },
+ {
+  "name": "M01-identity-includes-parent",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 111.2,
+  "last": "subprocess.TimeoutExpired: Command '['bash', '$VALIDATION_STORAGE/833-a726b/m764-work/tmp/suite-cancellation-beihycgq/hard-HUP input [523]/scripts/run_all_suites.sh', '$VALIDATION_STORAGE/833-a726b/m764-work/tmp/suite-cancellation-beihycgq/hard-HUP"
+ },
+ {
+  "name": "M01b-send-recheck-includes-parent",
+  "test": "suite",
+  "expect": "probe",
+  "rc": 1,
+  "got": "red",
+  "seconds": 111.0,
+  "last": "subprocess.TimeoutExpired: Command '['bash', '$VALIDATION_STORAGE/833-a726b/m764-work/tmp/suite-cancellation-sn9oq1t8/hard-HUP input [523]/scripts/run_all_suites.sh', '$VALIDATION_STORAGE/833-a726b/m764-work/tmp/suite-cancellation-sn9oq1t8/hard-HUP"
+ },
+ {
+  "name": "M01c-identity-includes-parent-both",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 2.2,
+  "last": "AssertionError: re-parented descendant was treated as new and never got SIGTERM"
+ },
+ {
+  "name": "M02-no-reap-after-census",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 0.8,
+  "last": "RuntimeError: CLEANUP FAILED: owned descendants remain after 0.47 s, 1 census passes, slowest 0.47 s: pid 5 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.52 s start 74444393, not sent SIGKILL"
+ },
+ {
+  "name": "M03-wall-clock",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 2.9,
+  "last": "AssertionError: the stall was charged in full: SIGKILL in pass [2]"
+ },
+ {
+  "name": "M04-clamp-5s",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 2.8,
+  "last": "AssertionError: the stall was charged in full: SIGKILL in pass [2]"
+ },
+ {
+  "name": "M05-no-trap-window",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 4.7,
+  "last": "AssertionError: the shell was killed in the pass that resumed it, before its trap"
+ },
+ {
+  "name": "M06-root-killed-unresumed",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 4.6,
+  "last": "AssertionError: the shell was killed in the pass that resumed it, before its trap"
+ },
+ {
+  "name": "M07-trap-child-no-window",
+  "test": "suite",
+  "expect": "probe",
+  "rc": 1,
+  "got": "red",
+  "seconds": 4.7,
+  "last": "AssertionError: the resumed shell's trap command was killed inside the shell's window"
+ },
+ {
+  "name": "M08-no-kill-before-fail",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 24.3,
+  "last": "AssertionError: stopped shell left behind"
+ },
+ {
+  "name": "M09-kill-before-fail-spares-shell",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 24.3,
+  "last": "AssertionError: stopped shell left behind"
+ },
+ {
+  "name": "M10-endless-unbounded",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 22.3,
+  "last": "AssertionError: cleanup never reached a verdict"
+ },
+ {
+  "name": "M11-trust-sigkill",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 38.2,
+  "last": "AssertionError: a survivor never failed the run"
+ },
+ {
+  "name": "M12-report-without-state",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 2.1,
+  "last": "AssertionError: ('state S', 'pid 2 (python3) parent 1 (first parent 1) age 0.05 s start 74447767, not sent SIGKILL')"
+ },
+ {
+  "name": "M13-cleanup-does-nothing-suite",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 0.2,
+  "last": "AssertionError: re-parented descendant was treated as new and never got SIGTERM"
+ },
+ {
+  "name": "M13-cleanup-does-nothing-lifecycle",
+  "test": "lifecycle",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 17.8,
+  "last": "AssertionError: ('1307', ('74449624', 'S'), ('74449624', 'S'))"
+ },
+ {
+  "name": "M14-no-start-recheck",
+  "test": "suite",
+  "expect": "probe",
+  "rc": 1,
+  "got": "red",
+  "seconds": 111.3,
+  "last": "subprocess.TimeoutExpired: Command '['bash', '$VALIDATION_STORAGE/833-a726b/m764-work/tmp/suite-cancellation-oj6xdpoh/hard-HUP input [523]/scripts/run_all_suites.sh', '$VALIDATION_STORAGE/833-a726b/m764-work/tmp/suite-cancellation-oj6xdpoh/hard-HUP"
+ },
+ {
+  "name": "M15-windows-2s",
+  "test": "suite",
+  "expect": "probe",
+  "rc": 1,
+  "got": "red",
+  "seconds": 111.6,
+  "last": "subprocess.TimeoutExpired: Command '['bash', '$VALIDATION_STORAGE/833-a726b/m764-work/tmp/suite-cancellation-fgwp8hm5/hard-HUP input [523]/scripts/run_all_suites.sh', '$VALIDATION_STORAGE/833-a726b/m764-work/tmp/suite-cancellation-fgwp8hm5/hard-HUP"
+ }
+]

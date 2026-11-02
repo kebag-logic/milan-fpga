@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726b/tools/run_control.py", line 19, in <module>
+    fn() if name == "owner_vanishing" else fn(Path(scratch))
+                                           ~~^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726b/matrix-work/R763-identity-includes-parent/scripts/test_suite_cancellation.py", line 476, in owner_reparented
+    assert marker.exists(), "re-parented descendant was treated as new and never got SIGTERM"
+           ~~~~~~~~~~~~~^^
+AssertionError: re-parented descendant was treated as new and never got SIGTERM
+owner_reparented FAIL 2.1s AssertionError: re-parented descendant was treated as new and never got SIGTERM
