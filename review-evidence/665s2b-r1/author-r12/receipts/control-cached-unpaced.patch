@@ -1,0 +1,39 @@
+diff --git a/tb/verilator/ctrl_service_budget/build.py b/tb/verilator/ctrl_service_budget/build.py
+index 699faec4b5..8ce2f5c293 100644
+--- a/tb/verilator/ctrl_service_budget/build.py
++++ b/tb/verilator/ctrl_service_budget/build.py
+@@ -636,9 +636,6 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
+         raise ClockRefusal(f"the split CPU is not on the bus clock: {'; '.join(refused)}")
+     spec['elf'] = str(elf)
+     spec['xip'] = core.xip
+-    refused = flash_window_refusals(spec)
+-    if refused:
+-        raise RuntimeError(f"the test SoC is not the split placement's: {'; '.join(refused)}")
+     spec['flash_image'] = str(flash_image) if flash_image else None
+     sys.path.insert(0, str(ROOT / 'sw/mailbox'))
+     from mailbox_model import load
+diff --git a/tb/verilator/ctrl_service_budget/scenario.py b/tb/verilator/ctrl_service_budget/scenario.py
+index 7bee8a3e12..d51c8793ab 100644
+--- a/tb/verilator/ctrl_service_budget/scenario.py
++++ b/tb/verilator/ctrl_service_budget/scenario.py
+@@ -478,7 +478,6 @@ def paced(g: Group, channel: int) -> Group:
+     """One frame a refill period of the channel's token bucket (mailbox.yaml): on the CPU at 100 MHz a response leaves
+     well inside it, and a frame past the bucket's burst is refused, so its path measures nothing (#665)."""
+     wait = f'wait cycles {CONTRACT.channels[channel].refill_ms * MS}'
+-    g.steps = [s for step in g.steps for s in ((wait, step) if step.startswith('frame ') else (step,))]
+     return g
+ 
+ 
+diff --git a/tb/verilator/ctrl_service_budget/split_soc.py b/tb/verilator/ctrl_service_budget/split_soc.py
+index 18724e6539..c66854f8a1 100644
+--- a/tb/verilator/ctrl_service_budget/split_soc.py
++++ b/tb/verilator/ctrl_service_budget/split_soc.py
+@@ -490,8 +490,6 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int, core: object) -> di
+         for path in mailbox_sources(n_if, build_dir / 'mbx-variant'):
+             platform.add_source(str(path))
+         add_devices(soc, platform, addresses, contract, n_if)
+-        if not core.xip:
+-            milan_soc.ctrl_uncached_flash(soc)
+         builder = Builder(soc, output_dir=str(build_dir), compile_software=False, compile_gateware=False,
+                           csr_csv=str(build_dir / 'csr.csv'))
+         sim_config = SimConfig()

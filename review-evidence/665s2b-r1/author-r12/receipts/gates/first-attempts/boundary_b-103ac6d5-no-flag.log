@@ -1,0 +1,17 @@
+# head 103ac6d595d45c3e9955c670166cbb0a02dcda86 gate boundary_b: python3 sw/firmware/ctrl/test/ctrl_boundary.py --require-rv32 --selftest --only verilator
+tsn-c-stack at 70936b77dc41981e192438388cd0aced69954f18
+no capture given: running every known builder the run judges under one
+    make -C tb/verilator/mbx: exit 2 (53 s)
+REFUSED: tb/verilator/mbx/Makefile exited 2 under the capture, so it may have compiled less than it does: ack/include -I<scratch>/lane-wt/sw/firmware/ctrl_nvm \
+  model_main.cpp obj_if2/mbx_model.o -o obj_if2/Vmbx_model
+======================================================================
+./obj_if2/obj_wb/Vmbx_wb 0
+== mbx (Wishbone host, 2 interfaces): checks: 532   failures: 0 ==
+RESULT: PASS
+./obj_if2/obj_axil/Vmbx_axil 1
+== mbx (AXI4-Lite host, 2 interfaces): checks: 577   failures: 0 ==
+RESULT: PASS
+./obj_if2/Vmbx_model
+== mbx (host model, 2 interfaces): checks: 490   failures: 0 ==
+RESULT: PASS
+make: Leaving directory '<scratch>/lane-wt/tb/verilator/mbx'
