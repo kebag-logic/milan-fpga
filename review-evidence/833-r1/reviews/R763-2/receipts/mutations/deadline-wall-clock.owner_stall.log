@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<packet>/scripts/control_driver.py", line 21, in <module>
+    control(Path(scratch))
+    ~~~~~~~^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut/deadline-wall-clock/test_suite_cancellation.py", line 536, in owner_stall
+    assert killed_in and killed_in[0] > 2, f"the stall was charged in full: SIGKILL in pass {killed_in}"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the stall was charged in full: SIGKILL in pass [2]

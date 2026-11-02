@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<packet>/scripts/control_driver.py", line 21, in <module>
+    control(Path(scratch))
+    ~~~~~~~^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut/no-shell-window/test_suite_cancellation.py", line 577, in owner_shell_window
+    assert marker.exists(), "the shell was killed in the pass that resumed it, before its trap"
+           ~~~~~~~~~~~~~^^
+AssertionError: the shell was killed in the pass that resumed it, before its trap

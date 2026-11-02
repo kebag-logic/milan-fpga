@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<packet>/scripts/control_driver.py", line 21, in <module>
+    control(Path(scratch))
+    ~~~~~~~^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut/report-without-state/test_suite_cancellation.py", line 629, in owner_survivor
+    assert field in failure, (field, failure)
+           ^^^^^^^^^^^^^^^^
+AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 26 census passes, slowest 0.03 s: pid 3485193 (bash) parent 3485175 (first parent 3485175) age 1.05 s start 74785660, not sent SIGKILL; pid 3485198 (python3) parent 3485193 (first parent 3485193) age 1.04 s start 74785661, sent SIGKILL 0.78 s ago')

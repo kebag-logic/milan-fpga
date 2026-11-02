@@ -1,0 +1,26 @@
+Traceback (most recent call last):
+  File "<packet>/scratch/mut/survivor-never-fails/owned_process.py", line 364, in run
+    self.checkpoint()
+    ~~~~~~~~~~~~~~~^^
+  File "<packet>/scratch/mut/survivor-never-fails/owned_process.py", line 200, in checkpoint
+    raise Cancelled(self.cancel_signal)
+owned_process.Cancelled: signal 15
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<packet>/scripts/control_driver.py", line 21, in <module>
+    control(Path(scratch))
+    ~~~~~~~^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut/survivor-never-fails/test_suite_cancellation.py", line 618, in owner_survivor
+    owner.run(["bash", "-c", script], env=env)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut/survivor-never-fails/owned_process.py", line 368, in run
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "<packet>/scratch/mut/survivor-never-fails/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "<packet>/scratch/mut/survivor-never-fails/test_suite_cancellation.py", line 607, in bounded
+    assert time.monotonic() - since < 30, "a survivor never failed the run"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: a survivor never failed the run

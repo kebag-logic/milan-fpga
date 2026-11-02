@@ -1,0 +1,31 @@
+| mutant | report | reparented | late_exit | stall | shell_window | survivor | vanishing | red |
+|---|---|---|---|---|---|---|---|---:|
+| none | ok | ok | ok | ok | ok | ok | ok | 0 |
+| deadline-wall-clock | ok | ok | ok | RED(1) | ok | ok | ok | 1 |
+| endless-unbounded | ok | ok | ok | ok | ok | ok | RED(1) | 1 |
+| identity-includes-parent | ok | RED(1) | ok | ok | ok | ok | ok | 1 |
+| no-kill-before-raise | ok | ok | ok | ok | ok | RED(1) | ok | 1 |
+| no-reap-after-census | ok | ok | RED(1) | ok | ok | ok | ok | 1 |
+| no-shell-window | ok | ok | ok | ok | RED(1) | ok | ok | 1 |
+| pass-cap-1.5s | ok | ok | ok | RED(1) | ok | ok | ok | 1 |
+| pass-cap-5s | ok | ok | ok | RED(1) | ok | ok | ok | 1 |
+| reap-window-2s | ok | ok | ok | ok | ok | ok | ok | 0 |
+| report-without-state | RED(1) | ok | ok | ok | ok | RED(1) | ok | 2 |
+| survivor-never-fails | ok | ok | ok | ok | ok | RED(1) | RED(1) | 2 |
+| trap-commands-1s | ok | ok | ok | ok | RED(1) | ok | ok | 1 |
+| trap-commands-no-window | ok | ok | ok | ok | RED(1) | ok | ok | 1 |
+
+deadline-wall-clock / owner_stall: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+endless-unbounded / owner_vanishing: AssertionError: cleanup never reached a verdict
+identity-includes-parent / owner_reparented: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+no-kill-before-raise / owner_survivor: AssertionError: stopped shell left behind
+no-reap-after-census / owner_late_exit: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.49 s, 1 census passes, slowest 0.49 s: pid 3482650 (python3) state Z wchan 0 parent 3482628 (first parent 3
+no-shell-window / owner_shell_window: AssertionError: the shell was killed in the pass that resumed it, before its trap
+pass-cap-1.5s / owner_stall: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+pass-cap-5s / owner_stall: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+report-without-state / owner_report: AssertionError: ('state S', 'pid 3484857 (python3) parent 3484834 (first parent 3484834) age 0.02 s start 74785577, not sent SIGKILL')
+report-without-state / owner_survivor: AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 26 census passes, slowest 0.03 s: pid 3485193 (bash) parent 3485175 (first parent 34851
+survivor-never-fails / owner_survivor: AssertionError: a survivor never failed the run
+survivor-never-fails / owner_vanishing: AssertionError: cleanup never reached a verdict
+trap-commands-1s / owner_shell_window: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-no-window / owner_shell_window: AssertionError: the resumed shell's trap command was killed inside the shell's window

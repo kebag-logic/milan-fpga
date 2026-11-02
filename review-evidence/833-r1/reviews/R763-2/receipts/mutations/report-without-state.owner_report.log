@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "<packet>/scripts/control_driver.py", line 21, in <module>
+    control(Path(scratch))
+    ~~~~~~~^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut/report-without-state/test_suite_cancellation.py", line 443, in owner_report
+    assert field in asleep, (field, asleep)
+           ^^^^^^^^^^^^^^^
+AssertionError: ('state S', 'pid 3484857 (python3) parent 3484834 (first parent 3484834) age 0.02 s start 74785577, not sent SIGKILL')

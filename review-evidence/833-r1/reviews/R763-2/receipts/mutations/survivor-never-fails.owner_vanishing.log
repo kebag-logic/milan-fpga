@@ -1,0 +1,29 @@
+Traceback (most recent call last):
+  File "<packet>/scratch/mut/survivor-never-fails/test_suite_cancellation.py", line 648, in owner_vanishing
+    owner._cleanup()
+    ~~~~~~~~~~~~~~^^
+  File "<packet>/scratch/mut/survivor-never-fails/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "<packet>/scratch/mut/survivor-never-fails/test_suite_cancellation.py", line 643, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "<packet>/scripts/control_driver.py", line 19, in <module>
+    control()
+    ~~~~~~~^^
+  File "<packet>/scratch/mut/survivor-never-fails/test_suite_cancellation.py", line 636, in owner_vanishing
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "<packet>/scratch/mut/survivor-never-fails/owned_process.py", line 170, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "<packet>/scratch/mut/survivor-never-fails/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "<packet>/scratch/mut/survivor-never-fails/test_suite_cancellation.py", line 643, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict

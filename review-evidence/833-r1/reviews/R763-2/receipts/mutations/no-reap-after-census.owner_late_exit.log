@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "<packet>/scripts/control_driver.py", line 21, in <module>
+    control(Path(scratch))
+    ~~~~~~~^^^^^^^^^^^^^^^
+  File "<packet>/scratch/mut/no-reap-after-census/test_suite_cancellation.py", line 489, in owner_late_exit
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "<packet>/scratch/mut/no-reap-after-census/owned_process.py", line 170, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "<packet>/scratch/mut/no-reap-after-census/owned_process.py", line 299, in _cleanup
+    raise RuntimeError(
+        f"CLEANUP FAILED: owned descendants remain after {now - started:.2f} s, "
+        f"{passes} census passes, slowest {slowest:.2f} s: {remaining}")
+RuntimeError: CLEANUP FAILED: owned descendants remain after 0.49 s, 1 census passes, slowest 0.49 s: pid 3482650 (python3) state Z wchan 0 parent 3482628 (first parent 3482628) age 0.53 s start 74785087, not sent SIGKILL
