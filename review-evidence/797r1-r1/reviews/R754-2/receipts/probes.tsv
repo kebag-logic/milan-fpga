@@ -1,0 +1,7 @@
+masked write arm --write	rc=2	page_same=True	register reference: REFUSED: hdl/common/csr/milan_csr.sv: chmap_ctrl <= s_axi_wdata & 32'h1FF in A_CHMAP_CTRL is a write form this generator cannot read
+blank purpose and name --write	rc=2	page_same=True	register reference: REFUSED: scripts/register_descriptions.json: register ETH_GUARD at 0x7D8 needs a name and a purpose
+340-word note --write	rc=2	page_same=True	  docs/reference/REGISTER_MAP.md:3195: paragraph has 340 words; maximum is 20: word word word word word word word word word word word word word word word word
+340-word field cell --write	rc=2	page_same=True	  docs/reference/REGISTER_MAP.md:3189: a table cell has 364 words; maximum is 200
+one-column note table --write	rc=0	page_same=False	register reference: wrote docs/reference/REGISTER_MAP.md and 239 diagram files (203 registers, 34 modules)
+doorbell added to a write arm --check	rc=1	page_same=True	register reference: STALE (2 files); run python3 scripts/gen_register_reference.py --write
+unknown description key --check	rc=2	page_same=True	register reference: REFUSED: scripts/register_descriptions.json describes field ETH_GUARD.NOT_A_FIELD, which hdl/common/csr/milan_csr.sv lacks (its fields: ETH_GUARD, RESERVED)
