@@ -3290,7 +3290,7 @@
       "name": "Stream window select",
       "purpose": "Selects the stream the 0x810 to 0x868 words view.",
       "fields": {
-        "STRM_LSN0": "Listener-0 row select. With `[8]` at 0, 1 makes the window's SRP row sink 0's dedicated row. `[8]` and `[3:0]` still store and still gate the window. A read returns 0.",
+        "STRM_LSN0": "Listener-0 row select. With `[8]` at 0, 1 makes the window's SRP row sink 0's dedicated row. With `[8]` at 1 and `[3:0]` at 0, 1 moves `STRMW_SRP` off the `LWSRP_STATUS` alias to the talker row. `[8]` and `[3:0]` still store and still gate the window. A read returns 0.",
         "STRM_DIR": "Direction: 0 listener, 1 talker.",
         "STRM_IDX": "Stream index."
       },

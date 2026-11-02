@@ -971,7 +971,7 @@ Row map: listener idx k → ctx row k, talker idx t → ctx row `N_LISTENERS_P-1
 
 ### STRM_SEL (offset 0x800)
 
-`[3:0]` stream index, `[8]` dir (0 = listener, 1 = talker), `[9]` **listener-0 row select (since VERSION `0x0023`)**: 1 = the window serves sink 0's dedicated lwSRP row (`SRP_LSN0_ROW_C = L+T-1`); it acts only while `[8]` is 0, and `[3:0]` still gates the window. `{dir=0, idx=0}` is the PARK state. These bits are stored; a read returns `[8]` and `[3:0]` only. Writing SEL invalidates the ACMP/SRP read snapshots. Until a re-poll lands, snapshot-served words read zero, meaning "not fresh yet", not "no bind". Firmware must read until a value repeats if another firmware task may move SEL; see [TROUBLESHOOTING Section 21](../limitations/TROUBLESHOOTING.md).
+`[3:0]` stream index, `[8]` dir (0 = listener, 1 = talker), `[9]` **listener-0 row select (since VERSION `0x0023`)**: 1 = the window serves sink 0's dedicated lwSRP row (`SRP_LSN0_ROW_C = L+T-1`). With `[8]` at 0 it selects sink 0's dedicated row. With `[8]` at 1 and `[3:0]` at 0 it still moves `STRMW_SRP` off the `LWSRP_STATUS` alias to the talker row. `[3:0]` still gates the window. `{dir=0, idx=0}` is the PARK state. These bits are stored; a read returns `[8]` and `[3:0]` only. Writing SEL invalidates the ACMP/SRP read snapshots. Until a re-poll lands, snapshot-served words read zero, meaning "not fresh yet", not "no bind". Firmware must read until a value repeats if another firmware task may move SEL; see [TROUBLESHOOTING Section 21](../limitations/TROUBLESHOOTING.md).
 
 ### STRM_SNAP (offset 0x804)
 

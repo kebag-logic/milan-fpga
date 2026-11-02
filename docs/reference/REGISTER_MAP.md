@@ -3393,7 +3393,7 @@ RTL name: `A_STRM_SEL`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:10 | `RESERVED` | R | 0 | Reserved. |
-| 9 | `STRM_LSN0` | W | 0 | Listener-0 row select. With `[8]` at 0, 1 makes the window's SRP row sink 0's dedicated row. `[8]` and `[3:0]` still store and still gate the window. A read returns 0. |
+| 9 | `STRM_LSN0` | W | 0 | Listener-0 row select. With `[8]` at 0, 1 makes the window's SRP row sink 0's dedicated row. With `[8]` at 1 and `[3:0]` at 0, 1 moves `STRMW_SRP` off the `LWSRP_STATUS` alias to the talker row. `[8]` and `[3:0]` still store and still gate the window. A read returns 0. |
 | 8 | `STRM_DIR` | R/W | 0 | Direction: 0 listener, 1 talker. |
 | 7:4 | `RESERVED` | R | 0 | Reserved. |
 | 3:0 | `STRM_IDX` | R/W | 0 | Stream index. |
