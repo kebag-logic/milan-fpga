@@ -1,0 +1,24 @@
+# Stage-3 generated-FIFO ownership cross-check at 545ac9cb4a4b6981094e4cf6ad1dfffd6a9169f2
+## author evidence (published blob, commit 9b06a2ff, review-evidence/640-m10-r1/author-r4/evidence/fifo_owners.txt), RAMB18-bearing milannic rows:
+storage_34_reg | 4x34(NO_CHANGE) | 1 | 0 | milansoc_milannic_array_write_memory2
+storage_32_reg | 4x36(NO_CHANGE) | 1 | 0 | milansoc_milannic_array_write_memory0
+#      Stage 3 rows:              none                                                                                       0
+#    Total 29. RAMB36: 16 + 5 + 8 + 18 = 47; RAMB18 here (without ctl_fifo): 9 + the 49-byte identifier = 10.
+## generator source at head: the CSR crossing built inside MilanNIC (host of milan_axil_cdc), W and R payloads in block RAM
+477:class MilanNIC(LiteXModule):
+789:def _cross_csr_bus(host, axil, milan_cd):
+792:    `AXILiteClockDomainCrossing`, one 4-deep async FIFO per channel.
+795:    (`_payload_in_block_ram`): one RAMB18 each holds the array and its read
+802:    host.submodules.milan_axil_cdc = axi.AXILiteClockDomainCrossing(
+812:    _payload_in_block_ram(by_name["w"])
+813:    _payload_in_block_ram(by_name["r"])
+854:    csr_axil = _cross_csr_bus(host, axil, milan_cd)
+1878:            # both RAMB18s for the CSR crossing's W and R FIFOs
+3505:            self.milan = MilanNIC(platform, axil, board_ports=dp_ports or None,
+## plan at head: census rows that place these FIFOs at stage 3, and the stage 3 cell
+233:| 3 | A plain SystemVerilog top replaces the SoC generator | Wishbone and CSR-bank glue. The generated FIFOs leave earlier, each with its block ([census](#litex-block-census)) | Lever 2, ~1.0k, and the rest of the -1.75k |
+322:| UART (`RS232PHY`, 16-byte FIFOs) | LiteX top | 3 | Replaced by a small first-party UART, transmit and receive only, no RTS/CTS, with a polled receive buffer, 32 bytes under the S2b share ([D20](#mark-ii-decisions), [console UART](#console-uart)) |
+330:| `milan_axil_cdc`, the CPU-to-`milan_csr` crossing | LiteX top | 3 | Replaced by a first-party AXI4-Lite crossing built from the approved CDC primitives |
+339:The 29 generated FIFO RAMB36 belong to rows above.
+340:Each leaves with the block that owns it.
+894:| `milan_axil_cdc` AW/W/B/AR/R FIFOs | CPU-to-datapath CSR crossing at distinct clocks | Inspect shallow storage and control; preserve AXI-Lite ordering and coherent snapshots |

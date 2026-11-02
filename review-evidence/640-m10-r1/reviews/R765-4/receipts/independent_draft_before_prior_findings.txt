@@ -1,0 +1,7 @@
+R765-4 independent draft, written before reading any prior review report or finding text.
+Head 545ac9cb4a4b6981094e4cf6ad1dfffd6a9169f2; delta d52e966b..545ac9cb = docs/design/MARK_II_AREA_PLAN.md:231,233,235 only.
+- Stage 1 Removes (AP:231): no longer credits stage 1 with the BIOS ROM/SRAM 18 RAMB36; books them at the switch-over via M8a-1 link (#firmware-and-block-ram-ledger resolves to AP:1260, Mark I history ledger, whose row AP:1302 is the M8a-1 -18). Agrees with census AP:333-334, AP:238, AREA_BUDGET.md:301. OK.
+- Note AP:235 names "Stage 1's Change cell" as keeping the owner's words. OK.
+- Stage 3 Removes (AP:233): "The generated FIFOs leave earlier, each with its block". True for the 29 generated-FIFO RAMB36 (author fifo_owners.txt: 16 DDR3 stage 1, 5 Ethernet stage 2, 8 processor memory paths switch-over). Literally false for generated FIFOs the census itself puts at stage 3: milan_axil_cdc's five channel FIFOs (AP:330; W and R payloads in two RAMB18, sw/litex/milan_soc.py:792-813, fifo_owners.txt storage_32/storage_34 milannic array_write_memory0/2) and the UART's 16-byte FIFOs (AP:322). Candidate MINOR (Conformance, Docs).
+- LUT credits: lever 1 -> stage 1, lever 2 -> stage 3, -1.75k split stages 2/3 (AP:211); no double booking found.
+- Gates rerun at head: docs_check, doc_style(+selftest), em_dash, gen_toc check/anchors/selftest, doc_paths, diff --check: all rc 0.
