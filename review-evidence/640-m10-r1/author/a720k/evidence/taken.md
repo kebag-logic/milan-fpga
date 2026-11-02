@@ -1,0 +1,6 @@
+[A720k] TAKEN
+Branch: 640-charter-followup (local, at 7aa996e3 on dev 503bc97c; a second pass before push; nothing pushed)
+Authoritative references: issuecomment-6575277828 (the owner's 2026-11-02 decisions D18 to D20 as recorded here, and the manager's decision on where the copied firmware sits in flash); docs/design/MARK_II_AREA_PLAN.md at 7aa996e3; docs/integration/QSPI_FLASHBOOT.md (the shipping layout, unchanged and not edited).
+Interpreted scope: docs only, two commits, one page. (1) D18, D19 and D20 link to issuecomment-6575277828. (2) Open decision 4 moves to the decisions table as a manager decision with that link: the firmware image gets its own erase-aligned slot in a free range that is neither reserved nor used; the bitstream and AEM slots keep their offsets and budgets; no image in the bitstream slot's tail. Every statement that the layout stays as is, or has no firmware slot for stage 1, is removed from the stage 1 text, the census and the open list. The offset and budget are not chosen here: the stage 1 lane states them in FLASHBOOT_LAYOUT.
+Validation plan: every run step of .github/workflows/docs.yml on a clean clone of the committed head, each rc recorded; check_doc_style on every touched page; git diff --check against 503bc97c.
+Blockers: none
