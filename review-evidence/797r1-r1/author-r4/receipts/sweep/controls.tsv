@@ -1,0 +1,9 @@
+control	rc	want	last line
+baseline: the head's page	0	0	register_read_sweep: 0 disagreement(s)
+RENDER_STAT row as at e90284bd	1	1	register_read_sweep: 96 disagreement(s)
+STRMW_SRP index-0 row without STRM_SEL[9]	1	1	register_read_sweep: 192 disagreement(s)
+CHMAP_LOOP values swapped	1	1	register_read_sweep: 4 disagreement(s)
+STRMW_CNTn RAW row reads the poison	1	1	register_read_sweep: 1920 disagreement(s)
+STRMW_SID_LO SRP row without the poll clause	1	1	register_read_sweep: 48 disagreement(s)
+a clause the sweep cannot read	2	2	register_read_sweep: REFUSED: docs/reference/REGISTER_MAP.md: the clause 'no channel-map readback has completed' has no reading in CLAUSE
+a new read table is swept without a sweep edit	1	1	register_read_sweep: 1920 disagreement(s)

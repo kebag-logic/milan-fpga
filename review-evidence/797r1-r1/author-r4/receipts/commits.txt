@@ -1,0 +1,5 @@
+79fdea05ef54e2c99a0aa6efeadaa0f509076e92 State the CHMAP_LOOP read conditions by the value of CHMAP_SNAP[1], since a re-armed or timed-out readback reads the poison (#797)
+f7f6ea7d3939839848380c4ed5389c049d028bfd State that an SRP-served word needs a poll answer since the last STRM_SEL or STRMW_CTRL write, since a provisioning write's answer leaves it 0 (#797)
+dbe2b143f51c757a7ff047501c033efe4787a70d Read the RENDER_STAT listener loop as one selection, so its read table holds at any N_LISTENERS_P (#797)
+7c508db483b3096f2e5783ee5f58af50c1dee746 State the STRMW_SRP index-0 conditions by the value of STRM_SEL[9] (#797)
+fd12faf95195eb80e5129130fc2f458082f78a45 Sweep all 17 read tables on the shipping and a 2x2 build, reading each clause as the page prints it (#797)
