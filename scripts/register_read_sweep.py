@@ -94,10 +94,9 @@ CLAUSE: dict[str, Callable[[State], bool]] = {
     "the kind the last snapshot recorded for this counter is `SK_RAW_C`": lambda s: s["kind"] == s["SK_RAW_C"],
     "the kind the last snapshot recorded for this counter is `SK_POISON_C`": lambda s: s["kind"] == s["SK_POISON_C"],
     "the kind the last snapshot recorded for this counter is `SK_ZERO_C`": lambda s: s["kind"] == s["SK_ZERO_C"],
-    # Read in the reader's favour: some readback since reset has delivered
-    # the fabric's word.
-    "a channel-map readback has completed": lambda s: s["cmdone"] == 1,
-    "no channel-map readback has completed": lambda s: s["cmdone"] == 0,
+    # CHMAP_SNAP[1] as the harness read it just before CHMAP_LOOP.
+    "`CHMAP_SNAP[1]` is 1": lambda s: s["cmvalid"] == 1,
+    "`CHMAP_SNAP[1]` is 0": lambda s: s["cmvalid"] == 0,
 }
 
 

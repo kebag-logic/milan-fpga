@@ -4266,8 +4266,8 @@ RTL name: `A_CHMAP_LOOP`.
 
 | When | A read returns |
 |---|---|
-| a channel-map readback has completed | the fields above |
-| no channel-map readback has completed | `0xDEADDEAD` |
+| `CHMAP_SNAP[1]` is 1 | the fields above |
+| `CHMAP_SNAP[1]` is 0 | `0xDEADDEAD` |
 
 `0xDEADDEAD` means no measurement stands behind this word.
 
