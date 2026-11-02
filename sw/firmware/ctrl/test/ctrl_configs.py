@@ -209,6 +209,8 @@ OUTSIDE = {
                                                        "compiles (#723): the bare-metal runtime from picolibc's and "
                                                        "compiler-rt's sources outside the checkout, no firmware or "
                                                        "stack source",
+    "tb/verilator/ctrl_service_budget/save_window.py": "writes the stimulus of a save's windows and names the "
+                                                       "store's source whose phases it stages; it compiles nothing",
     "tb/verilator/ctrl_service_budget/scenario.py": "writes the harness's stimulus and reads AECP_REGISTRATIONS from "
                                                     "aecp.h; it compiles nothing",
     "tb/verilator/ctrl_service_budget/selftest.py": "the harness's grader self-test; it reads AECP_REGISTRATIONS from "
