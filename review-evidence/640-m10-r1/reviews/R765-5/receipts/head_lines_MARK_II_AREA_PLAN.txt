@@ -1,0 +1,26 @@
+112: | `(alinx_ax7101)`, the LiteX top's own logic | 5,119 | 6,283 | 47 | 10 | 0 | The switch-over and LiteX stages 1 to 3; its 47 RAMB36 are 29 generated FIFOs and 18 BIOS ROM and SRAM ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) |
+231: | 1 | Drop DDR3 and the BIOS ROM; main memory on chip (D4); our boot loader copies the firmware image from QSPI flash into Block RAM ([D18](#mark-ii-decisions)); the image has its own flash slot ([D21](#mark-ii-decisions)); masters attach to the SoC bus ([stage 1](#stage-1-boot-and-bus)) | LiteDRAM controller and PHY. The BIOS ROM and SRAM, 18 RAMB36 measured, already left at the switch-over (M8a-1, [Mark I ledger](#firmware-and-block-ram-ledger)) | Lever 1, ~1.0k LUTs |
+233: | 3 | A plain SystemVerilog top replaces the SoC generator | Wishbone and CSR-bank glue; the FIFOs of stage 3 blocks. The 29 generated FIFO RAMB36 leave earlier, each with its block ([census](#litex-block-census)) | Lever 2, ~1.0k, and the rest of the -1.75k |
+235: Stage 1's Change cell keeps the owner's words.
+236: The [census](#litex-block-census) places the BIOS at the switch-over.
+238: The switch-over removes the BIOS and its ROM and SRAM.
+239: Until stage 3, `ctrl_memory`'s banks hold both regions.
+322: | UART (`RS232PHY`, 16-byte FIFOs) | LiteX top | 3 | Replaced by a small first-party UART, transmit and receive only, no RTS/CTS, with a polled receive buffer, 32 bytes under the S2b share ([D20](#mark-ii-decisions), [console UART](#console-uart)) |
+330: | `milan_axil_cdc`, the CPU-to-`milan_csr` crossing | LiteX top | 3 | Replaced by a first-party AXI4-Lite crossing built from the approved CDC primitives |
+331: | The processor's memory paths: the CPU DMA port, `dma_bus`, three adapters, FSMs and crossings, and the `ppmem` observer | `dma_bridge_read_bridge` 105, `dma_bridge_write_bridge` 176 and `dma_filter_down_to_unified_mBus_cc` 104; the rest in the LiteX top | Switch-over, lane 1 | Removed, nothing in its place: the masters leave with the processor |
+332: | DDR3: `ddrphy`, `sdram`, `litedramaxi2native_0` and the staged refresher; the CPU's memory port, its clock crossing, ready stage and width adapter; `_CRG`'s two 400 MHz `sys4x` clocks | `mem_toAxi4_logic_bridge` 225 and `unified_mBus_to_mem_toAxi4_up_widthAdapter` 136; the rest in the LiteX top | 1 | Removed, nothing in its place: main memory is on chip (D4) |
+333: | BIOS ROM `rom`, 128 KiB, and the BIOS it holds | With `sram`, 18 RAMB36 ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) | Switch-over, lane 1 | Removed at the switch-over: the split build runs no BIOS and builds no integrated ROM ([split memory](SPLIT_CONTROL_MEMORY.md)). `ctrl_memory`'s `rom` banks hold the region and the reset entry until stage 3, then first-party Block RAM (the `ctrl_memory` row). From stage 1 the boot loader fills `rom` from the flash copy ([D18](#mark-ii-decisions)) |
+334: | BIOS SRAM `sram`, 8 KiB | In those 18 RAMB36 | Switch-over, lane 1 | Removed at the switch-over: the split build builds no integrated SRAM. `ctrl_memory`'s `sram` banks hold the region until stage 3, then first-party Block RAM (the `ctrl_memory` row) |
+336: | Split build: the firmware's memory `ctrl_memory`, LiteX `wishbone.SRAM` banks for `rom` and `sram`, their `wishbone.Decoder` and the error answer past the last bank | Not in the basis; 35.0 tiles mapped at 1x1 ([fit](SPLIT_CONTROL_MEMORY.md#5-fit)) | 3 | Replaced by first-party Block RAM in the top: main memory on chip (D4), which the boot loader fills ([D18](#mark-ii-decisions)). From stage 1, `rom` is filled from the flash copy, not the configuration image |
+339: The 29 generated FIFO RAMB36 belong to rows above.
+340: Each leaves with the block that owns it.
+360: | Under dev's T_svc = 10 ms | Dev states no per-pass share. Taking 10 ms as the gap, 116 characters complete, so the buffer would be 128 bytes, holding 11.111 ms | Derived | [FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing); 115 character times are 9.983 ms, 116 are 10.069 ms |
+367: Dev's [FR_NFR.md](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing) still proposes T_svc = 10 ms.
+368: Taking 10 ms as the gap gives 128 bytes.
+387: Of those, 29 are generated FIFOs, 18 BIOS memory.
+388: All 47 are gone once LiteX stage 3 ends.
+476: ## Mark I plan history
+478: Below is the Mark I plan against 38,040 LUTs.
+1075: ## Ledger
+1260: ### Firmware and block RAM ledger
+1302: | M8a-1: BIOS ROM and SRAM not built in the split, measured at `e8454e27` | -18 | 0 | -18 | 69 |
