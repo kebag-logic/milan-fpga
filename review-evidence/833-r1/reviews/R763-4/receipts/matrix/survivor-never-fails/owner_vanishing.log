@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/survivor-never-fails/test_suite_cancellation.py", line 650, in owner_vanishing
+    owner._cleanup()
+    ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/survivor-never-fails/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/survivor-never-fails/test_suite_cancellation.py", line 645, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-4-packet/scripts/r763-3/run_control.py", line 14, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+    ~~^^
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/survivor-never-fails/test_suite_cancellation.py", line 638, in owner_vanishing
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/survivor-never-fails/owned_process.py", line 170, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/survivor-never-fails/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/survivor-never-fails/test_suite_cancellation.py", line 645, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict
+owner_vanishing FAIL 15.0s AssertionError: cleanup never reached a verdict

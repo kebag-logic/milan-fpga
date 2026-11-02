@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-4-packet/scripts/r763-3/run_control.py", line 14, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+    ~~^^
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/listing-unbounded/test_suite_cancellation.py", line 686, in owner_late_cancel
+    owner.run(["true"])
+    ~~~~~~~~~^^^^^^^^^^
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/listing-unbounded/owned_process.py", line 370, in run
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/listing-unbounded/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/listing-unbounded/test_suite_cancellation.py", line 681, in listed
+    assert time.monotonic() - since[0] < 15, "cleanup never reached a verdict after a late cancel"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict after a late cancel
+owner_late_cancel FAIL 15.0s AssertionError: cleanup never reached a verdict after a late cancel

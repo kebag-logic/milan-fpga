@@ -1,0 +1,9 @@
+Independent pass over git diff 3740565f..c1b29617 (written before reading prior review findings)
+- test_suite_cancellation.py:563-565 owner_shell_window: SIGKILL to non-shell held until blocked[0]+1.5 s wall (was +0.7).
+  Staged GRACE=0.2, KILL_ALL=0.2 => deadline 0.2, kill_all 0.4; stubborn-leaf parent spare at owned_process.py:325 holds while clock < deadline+1.0 = 1.2.
+  Resume (owned_process.py:303-311) needs no live non-root descendant => clock ~>= 1.5 > 1.2, so the parent spare no longer covers the shell;
+  only :317 (resumed is None or clock < kill_all) spares it in the resume pass. Margin ~0.3 s of owner clock vs wall time (pass cap 0.5 s, :285).
+- New comment :563-564 states behaviour; no lane/round/reviewer/comment IDs.
+- TESTING.md:224 "except a cancelled shell, which keeps its own window": :317 spares a notified shell while unresumed or inside its window.
+- TESTING.md:230 / process_test_support.py:22-24 "After a resume, every remaining descendant's deadline is 20 s after the resume": limit = kill_all + REAP (:289) and kill_all = max(kill_all, resume + TRAP) (:311); resume only before limit 14 s => resume+20 >= limit for all owned. True.
+To check by probe: mutation of :317 red on owner_shell_window; unmutated green; old 0.7 green under mutation (F1 reproduced); margin robustness.

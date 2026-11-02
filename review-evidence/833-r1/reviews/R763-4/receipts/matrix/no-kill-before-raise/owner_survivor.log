@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-4-packet/scripts/r763-3/run_control.py", line 14, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+                                                      ~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/no-kill-before-raise/test_suite_cancellation.py", line 625, in owner_survivor
+    eventually(lambda: not running(owner.process.pid, shell_start[0]), 15, "stopped shell left behind")
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-4-packet/scratch/mutants/no-kill-before-raise/process_test_support.py", line 152, in eventually
+    assert time.monotonic() < deadline, what
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: stopped shell left behind
+owner_survivor FAIL 16.1s AssertionError: stopped shell left behind
