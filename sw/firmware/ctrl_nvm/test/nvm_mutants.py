@@ -26,6 +26,7 @@ from nvm_bench import TREE, Refusal
 import fw_gtest
 
 STORE = "nvm_store.c"
+HEADER = "nvm_store.h"
 CODEC = "nvm_klj2.c"
 LITESPI = "plat/nvm_flash_litespi.c"
 
@@ -107,7 +108,7 @@ CALL_TICKS = ("const uint32_t nvm_flash_litespi_call_ticks = "
               "(uint32_t)(LS_CALL_US * LS_HZ / 1000000u);")
 RESTAGE_SEQ = ("\treturn nvm_klj2_check(nvm_stage, NVM_IMG_LEN) == NVM_VD_OK &&\n"
                "\t       nvm_klj2_seq(nvm_stage) == seq;")
-FAILED_READ_PASSES = "\t\tn = nvm_min(NVM_STEP_BYTES, NVM_IMG_LEN - nvm.pos);\n"
+FAILED_READ_PASSES = "\t\tn = nvm_min(NVM_READ_BYTES, NVM_IMG_LEN - nvm.pos);\n"
 STANDS = "\t\tif (seen[n].vd == NVM_VD_OK || nvm_agrees(seen, n))"
 SAME_BYTES = ("seen[j].vd == seen[n].vd && seen[j].digest == seen[n].digest &&\n"
               "\t\t    seen[j].bytes == seen[n].bytes")
@@ -365,6 +366,8 @@ MUTANTS = (
        "\tnvm.pos += n;\n\tif (nvm.pos >= NVM_IMG_LEN) {\n\t\tnvm.pos = 0;",
        "\tnvm.pos = NVM_IMG_LEN;\n\tif (nvm.pos >= NVM_IMG_LEN) {\n\t\tnvm.pos = 0;",
        "blankcheck_tail"),
+    _m("read_back_a_whole_page", HEADER, "#define NVM_READ_BYTES (NVM_FLASH_PAGE / 2u)",
+       "#define NVM_READ_BYTES NVM_FLASH_PAGE", "service_bound"),
     _m("blankcheck_read_fail_ignored", STORE, "\tif (!n || !nvm_all_erased(nvm_chunk, n)) {",
        "\tif (!n)\n" + FAILED_READ_PASSES + "\telse if (!nvm_all_erased(nvm_chunk, n)) {",
        "media_verdicts"),
@@ -372,7 +375,7 @@ MUTANTS = (
        "media_failures", "failed_commit_not_skipped"),
     _m("verify_skips_last_stretch", STORE,
        "\tnvm.pos += n;\n\tif (nvm.pos >= NVM_IMG_LEN)\n\t\tnvm_commit_done();",
-       "\tnvm.pos += n;\n\tif (nvm.pos + NVM_STEP_BYTES >= NVM_IMG_LEN)\n\t\tnvm_commit_done();",
+       "\tnvm.pos += n;\n\tif (nvm.pos + NVM_READ_BYTES >= NVM_IMG_LEN)\n\t\tnvm_commit_done();",
        "verify_tail"),
     _m("verify_read_fail_ignored", STORE,
        "\tif (!n) {\n\t\tnvm_fail(NVM_VD_VERIFY);\n\t\treturn;\n\t}\n\tfor (i = 0; i < n; ++i) {",

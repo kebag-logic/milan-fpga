@@ -121,6 +121,11 @@ uint64_t nvm_fmodel_now_ns(void)
 	return fm.now_ns;
 }
 
+void nvm_fmodel_read_max_clear(void)
+{
+	fm.n.read_max = 0;
+}
+
 const struct nvm_fmodel_count *nvm_fmodel_count(void)
 {
 	return &fm.n;
@@ -189,6 +194,8 @@ int nvm_fmodel_read(void *ctx, uint32_t addr, uint8_t *dst, uint32_t len)
 	if (fm.dead || addr >= NVM_FMODEL_BYTES || len > NVM_FMODEL_BYTES - addr)
 		return -1;
 	fm.n.reads++;
+	if (len > fm.n.read_max)
+		fm.n.read_max = len;
 	fm.now_ns += (uint64_t)(4u + len) * FM_SPI_BYTE_NS;
 	if (fm_take(NVM_F_READ_FAIL))
 		return -1;

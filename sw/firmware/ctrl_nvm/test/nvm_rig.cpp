@@ -13,6 +13,7 @@
 
 #include "nvm_rig.hpp"
 
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -45,6 +46,7 @@ struct Rig {
     const nvm_flash* port = &nvm_fmodel_port;
     Knobs knobs;
     std::uint64_t max_call_us = 0;
+    unsigned max_read = 0;
     unsigned max_polls_call = 0;
     unsigned service_calls = 0;
     unsigned commit_tries = 0;
@@ -111,7 +113,9 @@ void service() {
     const unsigned polls = nvm_fmodel_count()->busy_polls;
     const unsigned failed = nvm_store_status()->commits_failed;
     const unsigned ok = nvm_store_status()->commits_ok;
+    nvm_fmodel_read_max_clear();
     nvm_store_service();
+    rig->max_read = std::max(rig->max_read, nvm_fmodel_count()->read_max);
     if (nvm_store_status()->commits_failed != failed) {
         note(rig->run.fail_at);
     }
@@ -582,6 +586,7 @@ void summarise() {
         {"ls_se", lc->se}, {"ls_no_wel", lc->no_wel}, {"ls_short", lc->short_cmd}, {"ls_refused", lc->refused},
         {"ls_unknown", lc->unknown}, {"ls_stalled", lc->stalled}, {"ls_max_withheld", lc->max_withheld},
         {"ls_hung", lc->hung}, {"max_call_us", static_cast<long long>(rig->max_call_us)},
+        {"max_read", rig->max_read},
         {"max_polls_call", rig->max_polls_call}, {"calls", rig->service_calls},
         {"now_ms", static_cast<long long>(nvm_fmodel_now_us() / 1000u)}, {"commit_tries", rig->commit_tries},
         {"commit_refused", rig->commit_refused}, {"img_len", NVM_IMG_LEN}, {"n_rec", NVM_N_REC},

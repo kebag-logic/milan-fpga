@@ -44,7 +44,7 @@
  * Every step is bounded and returns: the media's waits are polled, never
  * spun on, so the event loop serves every other protocol through a 3 s
  * erase. No step touches more than NVM_STEP_BOUND bytes: one 256-byte
- * stretch, or one latched record's copy and crc16. Time is the flash port's
+ * stretch (a read-back's is 128), or one latched record's copy and crc16. Time is the flash port's
  * local counter, sampled once per step.
  */
 #include "nvm_store.h"
@@ -650,7 +650,7 @@ static int nvm_wait(uint64_t timeout_us, enum nvm_verdict vd)
 static uint32_t nvm_read_step(void)
 {
 	const struct nvm_flash *f = nvm.flash;
-	uint32_t n = nvm_min(NVM_STEP_BYTES, NVM_IMG_LEN - nvm.pos);
+	uint32_t n = nvm_min(NVM_READ_BYTES, NVM_IMG_LEN - nvm.pos);
 
 	if (f->read(f->ctx, nvm_slot_addr(nvm.target) + nvm.pos, nvm_chunk, n))
 		return 0;

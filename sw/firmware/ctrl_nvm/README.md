@@ -226,9 +226,9 @@ An accepted command that changes a persisted value calls
 | capture | latch ONE dirty record from its owner, compare it, frame it into the stage |
 | seal | decide (DR2b, DR2c below); then the header at the next sequence, then 256 bytes of CRC-32 per step |
 | erase | start the erase of the slot that is NOT authoritative |
-| erase wait, blank check | poll once; then read back 256 bytes per step, all `0xFF` |
+| erase wait, blank check | poll once; then read back 128 bytes per step, all `0xFF` |
 | program, program wait | one page, in ascending order: the header page first, the trailer last |
-| verify | read back 256 bytes per step and compare with the stage |
+| verify | read back 128 bytes per step and compare with the stage |
 | held | nothing, until reset: a slot is UNREAD (Boot, item 9) |
 
 The atomicity rules, from section 7 and the D3 register:

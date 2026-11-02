@@ -342,7 +342,8 @@ TEST_P(NvmBoth, blankcheck_tail) {
 // passed over; a program or erase the port refuses is VD_PROGRAM or VD_ERASE.
 // Each attempt is retried and the retry commits.
 TEST_F(NvmModel, media_verdicts) {
-    const long long n = pages();
+    // the reads of one read-back: the blank check's, then the verify's, as many
+    const long long n = (fx().num("img_len") + NVM_READ_BYTES - 1) / NVM_READ_BYTES;
     const std::pair<std::string, long long> faults[] = {{"read-fail:1:" + num(n / 2), NVM_VD_ERASE},
                                                          {"read-fail:1:" + num(n + n / 2), NVM_VD_VERIFY},
                                                          {"program-refuse:1:2", NVM_VD_PROGRAM},
@@ -653,6 +654,9 @@ TEST_P(NvmBoth, service_bound) {
     const long long want = std::max<long long>(NVM_STEP_BYTES, 2 * fx().num("max_plen") + 6);
     EXPECT_TRUE(r.at("ok") == 1 && r.at("step_max") == want && want == r.at("step_bound"))
         << "step bytes " << r.at("step_max") << ", want " << want << " (bound " << r.at("step_bound") << ")";
+    if (port() == Port::Model) {
+        EXPECT_EQ(r.at("max_read"), 128) << "a read-back step reads half a page, 0.7 ms of a pass's 2.0 ms share (#665)";
+    }
     EXPECT_TRUE(r.at("max_call_us") <= kNominalCallUs && r.at("calls") >= 3000000 / 100 && r.at("max_polls_call") <= 3)
         << "the loop did not keep running: " << r.text();
 }

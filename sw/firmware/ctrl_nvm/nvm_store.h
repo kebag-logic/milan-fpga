@@ -57,6 +57,11 @@ enum nvm_phase {
 
 /* Bytes one service step may touch, besides one latched record. */
 #define NVM_STEP_BYTES NVM_FLASH_PAGE
+/* Bytes one blank-check or verify step reads back. The flash window is uncached
+ * on the split CPU, about 5.5 us a byte, so half a page takes 0.7 ms of the 2.0 ms
+ * a pass may take, beside the periodic MRP work that can share its tick (#665, the
+ * share in ctrl_loop.h). A whole page put that pass at 2.26 ms at 8x8/2if. */
+#define NVM_READ_BYTES (NVM_FLASH_PAGE / 2u)
 /* The most bytes any service step touches: one 256-byte stretch, or one
  * latched record's copy and its crc16 over the header and the payload. */
 #define NVM_STEP_BOUND NVM_MAX(NVM_STEP_BYTES, 2u * NVM_PAYLOAD_MAX + 6u)
