@@ -171,20 +171,21 @@ def phase_checks() -> list[Check]:
     erase, page = grade.FLASH_ERASE, grade.FLASH_PROGRAM
     first = [(100, erase), (300, page), (500, page), (700, page)]
 
-    def opens(phase: str, start: int, flash: list, reads: int = 900) -> bool:
+    def opens(phase: str, start: int, flash: list, reads: tuple = (750, 900)) -> bool:
         log = grade.Log(100_000_000, 100_000_000, flash=flash)
-        log.passes = [grade.Pass(1, reads, 0, 100, {'load_flash': '128'}, [], {})]
+        log.passes = [grade.Pass(n, at, 0, 100, {'load_flash': '128'}, [], {}) for n, at in enumerate(reads)]
         try:
             grade.save_phase(log, f'backlog-adp@{phase}-0', start)
         except grade.Refusal:
             return False
         return True
     cases = [('blank', 200, first, True), ('blank', 50, first, False), ('blank', 400, first, False),
-             ('program', 400, first, True), ('program', 200, first, False), ('program', 800, first, False),
-             ('verify', 800, first, True), ('verify', 600, first, False),
+             ('program', 400, first, True), ('program', 720, first, True), ('program', 200, first, False),
+             ('program', 800, first, False), ('verify', 800, first, True), ('verify', 600, first, False),
              ('verify', 800, first + [(1000, erase), (1200, page)], True)]
-    got = [opens(*case[:3]) for case in cases] + [opens('verify', 800, first, reads=0)]
+    got = [opens(*case[:3]) for case in cases] + [opens('verify', 800, first, reads=(750,))]
     want = [case[3] for case in cases] + [False]
     return [("a save's window is refused unless it opens inside its flash phase of the first save: the blank check "
-             "between the erase and the first page, the program phase between the first and last page, the verify "
-             "after the last page with the read-back under way", got == want, str(got))]
+             "between the erase and the first page, the program phase after the first page with no read-back "
+             "begun, the verify after a read-back that follows the last page, the read-back still under way",
+             got == want, str(got))]

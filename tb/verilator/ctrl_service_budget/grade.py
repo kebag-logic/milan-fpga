@@ -804,21 +804,24 @@ FLASH_ERASE, FLASH_PROGRAM = 0xD8, 0x02
 
 def save_phase(log: Log, name: str, start: int) -> None:
     """A save's window (save_window.py) must open inside the flash phase its name gives, of the first save
-    the log shows: after its erase and before its first page program (the blank check), between its first
-    and last page program (the program phase), or after its last with its read-back still under way (the
-    verify). Refused otherwise, so that its passes are that phase's."""
+    the log shows: after its erase and before its first page program (the blank check); after its first page
+    with no read-back begun since its last page before the window (the program phase); or after a read-back
+    that follows its last page before the window, with its read-back still under way (the verify). A log
+    can end before a later page or read, so the phase is read off what came before the window. Refused
+    otherwise, so that its passes are that phase's."""
     phase = name.partition('@')[2].rpartition('-')[0]
     if not phase:
         return
     erases = [c for c, op in log.flash if op == FLASH_ERASE] + [1 << 62]
-    pages = [c for c, op in log.flash if op == FLASH_PROGRAM and erases[0] < c < erases[1]]
-    reading = any(start < p.start_sys < erases[1] and p.count('load_flash') for p in log.passes)
-    inside = {'blank': erases[0] < start and (not pages or start < pages[0]),
-              'program': len(pages) > 1 and pages[0] < start < pages[-1],
-              'verify': bool(pages) and pages[-1] < start and reading}
+    pages = [c for c, op in log.flash if op == FLASH_PROGRAM and erases[0] < c < start and c < erases[1]]
+    reads = [p.start_sys for p in log.passes if erases[0] < p.start_sys < erases[1] and p.count('load_flash')]
+    begun = bool(pages) and any(pages[-1] < c < start for c in reads)
+    inside = {'blank': erases[0] < start and not pages,
+              'program': bool(pages) and not begun,
+              'verify': begun and any(c > start for c in reads)}
     if not inside.get(phase, False):
         raise Refusal(f"{name}: the window opened at {start}, outside its save's {phase} phase (erase at "
-                      f"{erases[0]}, pages programmed {pages[:1]}..{pages[-1:]})")
+                      f"{erases[0]}, pages programmed before it {pages[:1]}..{pages[-1:]})")
 
 
 def pass_share(log: Log) -> dict:
