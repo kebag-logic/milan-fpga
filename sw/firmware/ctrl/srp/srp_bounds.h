@@ -13,6 +13,10 @@
 // of link changes would have built once per record (#665, the share in
 // ctrl_loop.h): any number of resets of a pass builds once, and SRP's receive
 // waits until it has, so no record meets an interface with no participants.
+// A poll builds one interface at most: both links changing together built
+// both in one pass of 2.08 ms. The other is built on the next pass, first,
+// and the interface whose build waited goes first after that, so an
+// interface whose build keeps failing delays the other's by one pass at most.
 #define SRP_MBX_PUB_WITHDRAW 2u
 #define SRP_MBX_PUB_REOPEN 3u
 #define SRP_MBX_PUB_RESET (SRP_MBX_PUB_WITHDRAW + SRP_MBX_PUB_REOPEN)

@@ -346,6 +346,17 @@ TEST_F(Srp, RegisteredListenerSubtypeChangeRevokesPermission) {
     offer(frame(3,identity(),5,1));
     EXPECT_FALSE(adapter.ifs[0].listener_present[0]) << "last Listener leave removes declaration demand";
 }
+// The interface reset clears listener_present with the registrar it destroys
+// (#665): delivery reads no Listener the new participants have not walked.
+TEST_F(Srp, InterfaceResetClearsListenerPresent) {
+    settle();
+    EXPECT_CALL(licence,Change(0,0,true)); offer(frame(3,identity(),1,2));
+    ASSERT_TRUE(adapter.ifs[0].listener_present[0]) << "(Listener Ready supplies declaration demand)";
+    EXPECT_CALL(licence,Change(0,0,false));
+    mbx_model_set_link(&model,0,false);
+    ctrl_loop_service(&loop);
+    EXPECT_FALSE(adapter.ifs[0].listener_present[0]) << "the interface reset clears listener_present";
+}
 TEST_F(Srp, InterfaceStateDoesNotCross) {
     settle();
     for(unsigned i=0;i<MBX_N_IF;++i) {

@@ -90,6 +90,9 @@ struct srp_mbx {
     unsigned owed_if;
     uint16_t owed_ethertype;
     unsigned cursor;
+    // The interface whose build goes first when more than one is due: a poll
+    // builds one interface at most (#665, srp_bounds.h).
+    unsigned build_turn;
     bool busy;
     bool initialized;
     uint32_t reentries;

@@ -787,6 +787,8 @@ static void reset_interface(struct srp_interface *i)
         revoked[k] = i->active[k];
         i->active[k] = false;
         i->stop_owed[k] = false;
+        // the registrar it was walked from is destroyed below (#665)
+        i->listener_present[k] = false;
     }
     publish_licence(i);
     for (unsigned k = 0; k < CTRL_SRP_SOURCES; ++k) {
@@ -830,6 +832,14 @@ static void on_event(void *ctx, const struct mbx_event *event)
     m->busy = false;
 }
 
+// Whether interface n may build before the interface whose turn it is: when
+// it is that interface, or that one is not due to build this pass.
+static bool builds_first(const struct srp_mbx *m, unsigned n)
+{
+    const struct srp_interface *turn = &m->ifs[m->build_turn % MBX_N_IF];
+    return n == m->build_turn || turn->msrp || turn->reopen_polls;
+}
+
 static bool poll(void *ctx)
 {
     struct srp_mbx *m = ctx;
@@ -837,6 +847,7 @@ static bool poll(void *ctx)
         return false;
     }
     bool owed = false;
+    bool built = false;
     for (unsigned n = 0; n < MBX_N_IF; ++n) {
         struct srp_interface *i = &m->ifs[n];
         bool link = mbx_link_up(n);
@@ -853,8 +864,17 @@ static bool poll(void *ctx)
             owed = true;
             continue;
         }
+        if (!i->msrp && (built || !builds_first(m,n))) {
+            // One interface is built a pass: both at 8x8/2if took a pass to
+            // 2.08 ms of the 2.0 ms share (#665, srp_bounds.h). This one is
+            // built first on the next pass, and its receive waits until then.
+            owed = true;
+            continue;
+        }
         i->reopening = false;
         if (!i->msrp) {
+            built = true;
+            m->build_turn = (n + 1u) % MBX_N_IF;
             // A failed recreate is counted and retried without dereferencing it.
             msrp_app_destroy(i->msrp); mvrp_app_destroy(i->mvrp);
             i->msrp = NULL; i->mvrp = NULL;

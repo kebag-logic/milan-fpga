@@ -368,4 +368,45 @@ TEST_F(Srp, LinkEdgesOfOnePassBuildOnce) {
     EXPECT_NE(adapter.ifs[0].msrp,nullptr) << "a pass of link edges builds once";
     EXPECT_EQ(domain_writes,1u) << "a pass of link edges builds once";
 }
+
+#if MBX_N_IF > 1
+// Both links changing together (#665, srp_bounds.h): a pass builds one
+// interface at most, the other on the next pass, and SRP's receive waits
+// until both are built. The interface whose build waited goes first, and an
+// interface due beside one still withdrawing builds at once.
+TEST_F(Srp, JointLinkChangeBuildsOneInterfaceAPass) {
+    settle();
+    auto built=[this](unsigned n) { return adapter.ifs[n].msrp!=nullptr && adapter.ifs[n].mvrp!=nullptr; };
+    mbx_model_set_link(&model,0,false); mbx_model_set_link(&model,1,false);
+    ctrl_loop_service(&loop);
+    ASSERT_TRUE(!built(0) && !built(1)) << "(both interfaces withdraw in the pass that takes the changes)";
+    const auto f=frame(4,{6,3,0,7},0);
+    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
+    const auto taken=loop.stats.rx_records;
+    ctrl_loop_service(&loop);
+    EXPECT_TRUE(built(0) && !built(1)) << "a pass builds one interface at most";
+    ctrl_loop_service(&loop);
+    EXPECT_TRUE(built(0) && built(1)) << "the other is built on the next pass";
+    EXPECT_EQ(loop.stats.rx_records,taken) << "receive waits until both are built";
+    ctrl_loop_service(&loop);
+    EXPECT_EQ(loop.stats.rx_records,taken+1u) << "the record that waited is taken on the pass after";
+    settle();
+    // interface 1 built last, so interface 0 has the turn; interface 0 rebuilt alone gives it to interface 1
+    mbx_model_set_link(&model,0,true); ctrl_loop_service(&loop); ctrl_loop_service(&loop);
+    ASSERT_TRUE(built(0) && built(1)) << "(interface 0 rebuilt alone)";
+    settle();
+    mbx_model_set_link(&model,0,false); mbx_model_set_link(&model,1,true);
+    ctrl_loop_service(&loop); ctrl_loop_service(&loop);
+    EXPECT_TRUE(built(1) && !built(0)) << "the interface whose turn it is is built first";
+    ctrl_loop_service(&loop);
+    EXPECT_TRUE(built(0) && built(1)) << "the other is built on the next pass";
+    settle();
+    // interface 1 has the turn and withdraws in the pass interface 0 is due
+    mbx_model_set_link(&model,0,true); ctrl_loop_service(&loop);
+    mbx_model_set_link(&model,1,false); ctrl_loop_service(&loop);
+    EXPECT_TRUE(built(0) && !built(1)) << "an interface due beside one still withdrawing is built at once";
+    ctrl_loop_service(&loop);
+    EXPECT_TRUE(built(0) && built(1)) << "the other is built on the next pass";
+}
+#endif
 } // namespace
