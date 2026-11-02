@@ -3,7 +3,8 @@
 
 # Fabric gPTP plane
 
-Fabric gPTP owns product time synchronization.
+Fabric gPTP owns product time synchronization until F6.
+The [split contract](../ARCHITECTURE_HW_SW_SPLIT.md) defines that transition.
 
 This page defines parent integration.
 
