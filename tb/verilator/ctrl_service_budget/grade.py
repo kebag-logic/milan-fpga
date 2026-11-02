@@ -804,24 +804,24 @@ FLASH_ERASE, FLASH_PROGRAM = 0xD8, 0x02
 
 def save_phase(log: Log, name: str, start: int) -> None:
     """A save's window (save_window.py) must open inside the flash phase its name gives, of the first save
-    the log shows: after its erase and before its first page program (the blank check); after its first page
-    with no read-back begun since its last page before the window (the program phase); or after a read-back
-    that follows its last page before the window, with its read-back still under way (the verify). A log
-    can end before a later page or read, so the phase is read off what came before the window. Refused
-    otherwise, so that its passes are that phase's."""
+    the log shows, read off its flash operations (FLASHOP): after its erase and before its first page program
+    (the blank check); within save_window.IDLE_MS of a page, which the program phase issues every other tick
+    (the program phase); or that long or more after its last page, with no later page (the verify). The
+    store's read-backs run in passes that take no input, which the log gives only as their run's longest, so
+    the phases are told apart by the pages alone. Refused otherwise, so that its passes are that phase's."""
     phase = name.partition('@')[2].rpartition('-')[0]
     if not phase:
         return
     erases = [c for c, op in log.flash if op == FLASH_ERASE] + [1 << 62]
-    pages = [c for c, op in log.flash if op == FLASH_PROGRAM and erases[0] < c < start and c < erases[1]]
-    reads = [p.start_sys for p in log.passes if erases[0] < p.start_sys < erases[1] and p.count('load_flash')]
-    begun = bool(pages) and any(pages[-1] < c < start for c in reads)
-    inside = {'blank': erases[0] < start and not pages,
-              'program': bool(pages) and not begun,
-              'verify': begun and any(c > start for c in reads)}
+    pages = [c for c, op in log.flash if op == FLASH_PROGRAM and erases[0] < c < erases[1]]
+    before = [c for c in pages if c < start]
+    idle = save_window.IDLE_MS * log.sys_hz // 1000
+    inside = {'blank': erases[0] < start and not before,
+              'program': bool(before) and start - before[-1] < idle,
+              'verify': bool(before) and start - before[-1] >= idle and before == pages}
     if not inside.get(phase, False):
         raise Refusal(f"{name}: the window opened at {start}, outside its save's {phase} phase (erase at "
-                      f"{erases[0]}, pages programmed before it {pages[:1]}..{pages[-1:]})")
+                      f"{erases[0]}, pages programmed before it {before[:1]}..{before[-1:]} of {len(pages)})")
 
 
 def pass_share(log: Log) -> dict:

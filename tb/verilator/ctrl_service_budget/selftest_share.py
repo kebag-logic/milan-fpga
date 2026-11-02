@@ -168,25 +168,24 @@ def save_checks() -> list[Check]:
 
 def phase_checks() -> list[Check]:
     """A save's window opens inside its flash phase of the first save, or is refused (grade.save_phase)."""
-    erase, page = grade.FLASH_ERASE, grade.FLASH_PROGRAM
-    first = [(100, erase), (300, page), (500, page), (700, page)]
+    erase, page, ms = grade.FLASH_ERASE, grade.FLASH_PROGRAM, scenario.MS
+    first = [(10 * ms, erase), (30 * ms, page), (50 * ms, page), (70 * ms, page)]
 
-    def opens(phase: str, start: int, flash: list, reads: tuple = (750, 900)) -> bool:
-        """Whether a window opening at start is graded inside phase, the flash read at reads."""
-        log = grade.Log(100_000_000, 100_000_000, flash=flash)
-        log.passes = [grade.Pass(n, at, 0, 100, {'load_flash': '128'}, [], {}) for n, at in enumerate(reads)]
+    def opens(phase: str, start_ms: float, flash: list) -> bool:
+        """Whether a window opening at start_ms is graded inside phase."""
         try:
-            grade.save_phase(log, f'backlog-adp@{phase}-0', start)
+            grade.save_phase(grade.Log(100_000_000, 100_000_000, flash=flash), f'backlog-adp@{phase}-0',
+                             int(start_ms * ms))
         except grade.Refusal:
             return False
         return True
-    cases = [('blank', 200, first, True), ('blank', 50, first, False), ('blank', 400, first, False),
-             ('program', 400, first, True), ('program', 720, first, True), ('program', 200, first, False),
-             ('program', 800, first, False), ('verify', 800, first, True), ('verify', 600, first, False),
-             ('verify', 800, first + [(1000, erase), (1200, page)], True)]
-    got = [opens(*case[:3]) for case in cases] + [opens('verify', 800, first, reads=(750,))]
-    want = [case[3] for case in cases] + [False]
+    later = first + [(200 * ms, erase), (220 * ms, page)]
+    cases = [('blank', 20, first, True), ('blank', 5, first, False), ('blank', 40, first, False),
+             ('program', 40, first, True), ('program', 80, first, True), ('program', 20, first, False),
+             ('program', 105, first, False), ('verify', 105, first, True), ('verify', 60, first, False),
+             ('verify', 105, first + [(110 * ms, page)], False), ('verify', 105, later, True)]
+    got = [opens(*case[:3]) for case in cases]
+    want = [case[3] for case in cases]
     return [("a save's window is refused unless it opens inside its flash phase of the first save: the blank check "
-             "between the erase and the first page, the program phase after the first page with no read-back "
-             "begun, the verify after a read-back that follows the last page, the read-back still under way",
-             got == want, str(got))]
+             "between the erase and the first page, the program phase within 30 ms of a page, the verify 30 ms or "
+             "more after its last page with no later page", got == want, str(got))]
