@@ -148,7 +148,7 @@ in words, and storage the producer writes only past the consumer's tail.
   flushes a ring to TX_HEAD on a malformed one, because a length that cannot
   be trusted leaves no next record to find. TX_TAIL moves only after the last
   byte has left.
-- **Event record:** four words. Its sources are link level changes and grandmaster changes. The gPTP plane publishes the latter until #665 lane F6. They also include fabric timer expiries, tagged with their arm. The centisecond tick is the fourth source.
+- **Event record:** four words. Its sources are link level changes and grandmaster changes. The gPTP plane publishes the latter until #665 lane F6. Its sources also include fabric timer expiries, tagged by arm. The centisecond tick is the fourth source.
 
 Records leave in **commit order across channels** (the ruling on PR #668,
 comment 5994730420). Before each record the merge reads SEQ from the oldest
