@@ -148,7 +148,7 @@ def save_checks() -> list[Check]:
     want = {'blank': ('flash erase 1', 10), 'program': ('flash program 1', 20),
             'verify': (f'flash idle {30 * scenario.MS}', 10)}
     seen: dict[str, list] = {}
-    windows = [g for g in save_window.groups(p) if '@' in g.name]
+    windows = save_window.windows(p)
     for g in windows:
         n = next(k for k, step in enumerate(g.steps) if step.startswith('wait flash '))
         opens = g.steps[n + 2:n + 5] == list(scenario.OPEN_WINDOW)
@@ -165,29 +165,172 @@ def save_checks() -> list[Check]:
     return [("each flash phase of a save is staged at eight tick phases spread evenly across its heavy step's "
              "period, the window opening after the save's own flash event", got == expect, str(got)),
             ("a save's window carries backlog-adp's defined load", all(loads) and len(loads) == 24, str(loads)),
-            *phase_checks()]
+            *phase_checks(), *bound_checks(), *held_checks()]
+
+
+#: The journal slot a synthetic save writes, the flash device's journal (sim_main.cpp, flash.hpp).
+SLOT = 0xEE0000
+
+
+def synthetic_save(ms: int, pages: list[int], reads: list[int], page_bytes: int = 256,
+                   erase: int = 10) -> tuple[list, list, list]:
+    """A synthetic first save: its erase, pages of page_bytes programmed at the given ms, each read-back of 128
+    bytes at the given ms, lasting 0.7 ms; the FLASHOP and FLASHRD records grade.parse makes of them."""
+    ops = [(erase * ms, grade.FLASH_ERASE, SLOT, 0)]
+    ops += [(t * ms, grade.FLASH_PROGRAM, SLOT + n * page_bytes, page_bytes) for n, t in enumerate(pages)]
+    runs = [(t * ms, t * ms + 7 * ms // 10, SLOT + (n * 128) % (len(pages) * page_bytes), 128)
+            for n, t in enumerate(reads)]
+    return ops, runs, [(c, op) for c, op, _, _ in ops]
 
 
 def phase_checks() -> list[Check]:
     """A save's window opens inside its flash phase of the first save, or is refused (grade.save_phase)."""
-    erase, page, ms = grade.FLASH_ERASE, grade.FLASH_PROGRAM, scenario.MS
-    first = [(10 * ms, erase), (30 * ms, page), (50 * ms, page), (70 * ms, page)]
+    ms = scenario.MS
 
-    def opens(phase: str, start_ms: float, flash: list) -> bool:
+    def opens(phase: str, start_ms: float, save: tuple) -> bool:
         """Whether a window opening at start_ms is graded inside phase."""
+        ops, runs, flash = save
         try:
-            grade.save_phase(grade.Log(100_000_000, 100_000_000, flash=flash), f'backlog-adp@{phase}-0',
-                             int(start_ms * ms))
+            grade.save_phase(grade.Log(100_000_000, 100_000_000, flash=flash, flash_ops=ops, reads=runs),
+                             f'backlog-adp@{phase}-0', int(start_ms * ms))
         except grade.Refusal:
             return False
         return True
-    later = first + [(200 * ms, erase), (220 * ms, page)]
+    verify = [100, 110, 120, 130, 140, 150]
+    first = synthetic_save(ms, [30, 50, 70], verify)
+    another = synthetic_save(ms, [30, 50, 70, 110], verify)
+    later = synthetic_save(ms, [30, 50, 70], verify)
+    later = (later[0] + [(200 * ms, grade.FLASH_ERASE, SLOT + 0x10000, 0),
+                         (220 * ms, grade.FLASH_PROGRAM, SLOT + 0x10000, 256)], later[1], later[2])
     cases = [('blank', 20, first, True), ('blank', 5, first, False), ('blank', 40, first, False),
              ('program', 40, first, True), ('program', 80, first, True), ('program', 20, first, False),
              ('program', 105, first, False), ('verify', 105, first, True), ('verify', 60, first, False),
-             ('verify', 105, first + [(110 * ms, page)], False), ('verify', 105, later, True)]
+             ('verify', 105, another, False), ('verify', 105, later, True), ('verify', 145, first, True),
+             ('verify', 155, first, False)]
     got = [opens(*case[:3]) for case in cases]
     want = [case[3] for case in cases]
     return [("a save's window is refused unless it opens inside its flash phase of the first save: the blank check "
              "between the erase and the first page, the program phase within 30 ms of a page, the verify 30 ms or "
-             "more after its last page with no later page", got == want, str(got))]
+             "more after its last page with no later page and before its read-backs have read back every "
+             "programmed byte", got == want, str(got))]
+
+
+def bound_checks() -> list[Check]:
+    """A save's stated worst case, restated here on purpose (#665): a changed age limit or step count must fail."""
+    got = (save_window.step_age(), save_window.CHANGED, save_window.steps(13_256, 2), save_window.bound_ms(13_256, 2),
+           save_window.steps(3_336, 2), save_window.bound_ms(3_336, 2))
+    return [("a save's stated worst case is its 1,000 ms first-dirty window, then each of its steps at most three "
+             "ticks after the one before (THE STEP's age limit, two centiseconds, plus one), and 10 ms: for a SET_NAME "
+             "of the entity, which marks its two names, 12,110 ms at 8x8/2if (370 steps of a 13,256-byte container) "
+             "and 4,070 ms at 1x1 (102 of 3,336 bytes)", got == (2, 2, 370, 12_110, 102, 4_070), str(got))]
+
+
+def save_time_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
+    """A save timed from its change to durable against its stated worst case (save_grade.save_time), and the run's
+    verdict on a save over it; the age limit's plant caught by a starved save not durable within it."""
+    ms = sys_hz // 1000
+    group = scenario.Group('s', save=dict(image=768, records=2))
+    bound = save_window.bound_ms(768, 2)
+
+    def timed(last_read_ms: int | None, end_ms: int) -> dict:
+        """The save's grade, its verify's last read-back at last_read_ms (None: never), the run ending at end_ms."""
+        verify = [bound - 100 + 10 * k for k in range(5)] if last_read_ms is None else \
+            [last_read_ms - 10 * k for k in range(5, -1, -1)]
+        reads = [1000, 1010, 1020, 1030, 1040, 1050, *verify]
+        ops, runs, _ = synthetic_save(ms, [1100, 1300, 1500], reads, erase=900)
+        lines = ['MARK 0 save.change', 'FLOOD 5 gm 1 0',
+                 *(f'FLASHOP {c} {op} {a:06x} {n}' for c, op, a, n in ops),
+                 *(f'FLASHRD {a} {b} {c:06x} {n}' for a, b, c, n in runs), f'FLASHPOLL {950 * ms}',
+                 f'SUMMARY passes=1 sys={end_ms * ms}', 'RESULT: PASS']
+        return grade.grade('\n'.join(lines) + '\n', group, sys_hz, cpu_hz)['save']
+    within, over, never = timed(1700, 1800), timed(bound + 50, bound + 100), timed(None, bound + 100)
+    got = [(s['within'], s['ms'] is not None) for s in (within, over, never)]
+    out = [("a save is timed from its change to the last read-back that completes its verify: durable within its "
+            "stated worst case, over it, or never in the run, each named", got == [(True, True), (False, True),
+                                                                               (False, False)]
+            and within['ms'] == 1700.7 and within['bound_ms'] == bound and within['flooded'], str((within, over,
+                                                                                                   never)))]
+    late = run.save_misses([dict(group='s', save=over), dict(group='t', save=within), dict(group='u', save=never)])
+    args = argparse.Namespace(cpu_regions='cover', mutation='none', record_budget_findings=True,
+                              record_share_findings=True)
+    g = scenario.Group('g')
+    verdicts = [run.verdict(args, [g], [], [], [], late), run.verdict(args, [g], [], [], [], [])]
+    out.append(('a save not durable within its stated worst case fails the run, whatever the options record',
+                verdicts == [1, 0] and [m.partition(':')[0] for m in late] == ['s', 'u'], str((verdicts, late))))
+    control = argparse.Namespace(cpu_regions='cover', mutation='store-step-ageless', record_budget_findings=False,
+                                 record_share_findings=False)
+    cases = ((['save-starved: x'], []), ([], []), (['save-held: x'], []), (['save-starved: x'], ['refused']))
+    got = [run.verdict(control, [g], refusals, [], [], late) for late, refusals in cases]
+    out.append(("the age limit's plant is caught by save-starved's save not durable within its stated worst case, and "
+                "escapes with every save within it, only save-held's late, or a refusal", got == [0, 1, 1, 1],
+                str(got)))
+    return out
+
+
+def held_checks() -> list[Check]:
+    """The two loaded saves: every receive channel at its contract refill rate with its bursts through the stated
+    worst case, and the starved one with a grandmaster change as every pass starts."""
+    p = scenario.Point('8x8', 'endstation_ax7101_8x8', 2, 1, 2, 8, 8)
+    run_ms = save_window.bound_ms(13_256, 2) + 500
+    seen: dict[str, list[float]] = {}
+    for when, channel, _ in save_window.arrivals(p, run_ms):
+        seen.setdefault(channel, []).append(when)
+    wrong = []
+    for name, n in scenario.CH.items():
+        ch = scenario.CONTRACT.channels[n]
+        times = seen.get(name, [])
+        instants = sorted(set(times))
+        at_once = {times.count(t) for t in instants}
+        periods = {round(b - a, 6) for a, b in zip(instants, instants[1:])}
+        size = next(iter(at_once)) if len(at_once) == 1 else 0
+        rate = len(times) * ch.refill_ms / run_ms
+        if not (size and periods == {size * ch.refill_ms} and instants[0] == save_window.OFFSET_MS * n
+                and instants[-1] + size * ch.refill_ms >= run_ms and 0.98 < rate < 1.02 + size * ch.refill_ms / run_ms):
+            wrong.append(f'{name}: {sorted(at_once)} at once, periods {sorted(periods)}, first {instants[:1]}, '
+                         f'rate {rate:.3f} of the refill')
+    held, starved = (save_window.loaded(p, name, flood, 13_256) for name, flood in (('save-held', False),
+                                                                                  ('save-starved', True)))
+    change = lambda g: g.steps.index('mark save.change')
+    flood = (starved.steps[change(starved) + 2] == 'flood gm 1' and 'flood gm 0' in starved.steps
+             and not any(step.startswith('flood') for step in held.steps))
+    offered = {name: sum(1 for _, channel, _ in save_window.arrivals(p, run_ms) if channel == name) + (name == 'aecp')
+               for name in scenario.CH}
+    declared = all(g.save == dict(image=13_256, records=2, loaded=True, offered=offered) for g in (held, starved))
+    return [("every receive channel is held at its contract refill rate with its bursts through a save's stated worst "
+             "case: admission's records at once, again every as many refill periods, each channel's bursts apart",
+             not wrong, '; '.join(wrong)),
+            ("save-starved adds a grandmaster change as every pass starts from its change, save-held does not, and "
+             "both time their save against the point's container", flood and declared,
+             str((starved.steps[change(starved):change(starved) + 3], held.save, starved.save)))]
+
+
+def held_load_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
+    """A held group commits every record its load offered from its change on, or is refused (save_grade.held_load)."""
+    lines = ['MARK 0 save.change', 'RXS 10 0 82 -', 'RXE 92', 'RXC 96 0', 'RXS 200 0 82 -', 'RXE 282',
+             'SUMMARY passes=1 sys=1000', 'RESULT: PASS']
+
+    def graded(adp: int) -> bool:
+        """Whether the log grades for a group that offered adp ADP records."""
+        offered = {name: adp if name == 'adp' else 0 for name in scenario.CH}
+        group = scenario.Group('h', save=dict(image=768, records=2, loaded=True, offered=offered))
+        try:
+            grade.grade('\n'.join(lines) + '\n', group, sys_hz, cpu_hz)
+        except grade.Refusal:
+            return False
+        return True
+    got = (graded(1), graded(2))
+    return [("a held group is refused unless its receive channels commit every record its load offered from its "
+             "change: one committed, one refused by the filter, of two offered", got == (True, False), str(got))]
+
+
+def step_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
+    """The passes that carry the store's step, those that write nothing to the mailbox (STEPPASS) and the work
+    passes with step=1, counted, with the longest and the longest step (save_grade.step_figures)."""
+    lines = ['PASS 1 1000 500 5000 instr=10 store_mbx=1 step=1 store=3000 W 1100:1:0',
+             'STEPPASS 2 9000 4500 120000 store=95000', 'STEPPASS 3 20000 10000 8000 store=7000', 'IDLE 2 8000 120000',
+             'PASS 4 40000 20000 9000 instr=10 store_mbx=1 W 40100:1:0', 'SUMMARY passes=4 sys=50000', 'RESULT: PASS']
+    s = grade.grade('\n'.join(lines) + '\n', scenario.Group('g'), sys_hz, cpu_hz)['passes']['steps']
+    got = (s['passes'], s['cycles'], s['store_cycles'], s['start_sys'])
+    return [("every pass that carries the store's step is counted, a pass that writes nothing to the mailbox and a "
+             "work pass alike, with the longest of them and the longest step's own CPU time",
+             got == (3, 120_000, 95_000, 9000), str(s))]

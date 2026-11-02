@@ -134,8 +134,8 @@ class Group:
     #: The composed window's required population: records per receive channel, and
     #: 'GM' and 'LINK' events (grade.py counts each between composed and composed_end).
     load: dict[str, int] = field(default_factory=dict)
-    #: Each loaded channel's admission for the records it was offered (admission()).
-    admission: dict[str, dict] = field(default_factory=dict)
+    admission: dict[str, dict] = field(default_factory=dict)  # each loaded channel's admission (admission())
+    save: dict = field(default_factory=dict)  # a save it times (save_window.loaded): image, records, loaded
 
     def offer(self, channel: str, step: str, frame: bytes) -> None:
         """One record of the composed load: a frame (or a reply) step the channel must commit."""
@@ -996,5 +996,5 @@ def all_groups(p: Point, build: dict) -> list[Group]:
     if build.get('variant') == 'shutdown-entry':
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
-              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p)]
+              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p, build)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

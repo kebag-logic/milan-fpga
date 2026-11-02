@@ -103,6 +103,11 @@ public:
             && address_ == 0x400000;
     }
 
+    // The command in progress, its address and the next byte a read returns: an observer reads them
+    // before deselect() closes the command.
+    unsigned command() const { return command_; }
+    std::uint32_t address() const { return address_; }
+    std::uint32_t cursor() const { return cursor_; }
     std::uint64_t busy_until() const { return busy_until_; }
     std::uint8_t byte(std::uint32_t address) const { return bytes_.at(address); }
     unsigned erases = 0;

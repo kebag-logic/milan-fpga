@@ -20,6 +20,7 @@ from unittest.mock import patch
 import build
 import grade
 import run
+import save_grade
 import save_window
 import scenario
 import share
@@ -29,8 +30,25 @@ Patches = Callable[[], list]
 
 def _from_last_erase(flash: list) -> list:
     """A log's flash operations from its last erase on: the last save's."""
-    last = max((n for n, (_, op) in enumerate(flash) if op == grade.FLASH_ERASE), default=0)
+    last = max((n for n, (_, op, *_) in enumerate(flash) if op == grade.FLASH_ERASE), default=0)
     return flash[last:]
+
+
+def _first_save(edit: Callable[[save_grade.Save], dict]) -> list:
+    """save_grade.first_save with some of its findings replaced."""
+    original = save_grade.first_save
+
+    def first_save(log: grade.Log) -> save_grade.Save | None:
+        """The mutant first save."""
+        save = original(log)
+        return dataclasses.replace(save, **edit(save)) if save is not None else None
+    return [patch.object(save_grade, 'first_save', first_save)]
+
+
+def _save_time(edit: Callable[[dict], dict]) -> list:
+    """save_grade.save_time with its finding edited."""
+    original = save_grade.save_time
+    return [patch.object(save_grade, 'save_time', lambda log, group: (lambda r: r and edit(r))(original(log, group)))]
 
 
 def _first_pass_only() -> list:
@@ -563,7 +581,37 @@ MUTANTS: dict[str, Patches] = {
     'save: a window outside its flash phase is graded': lambda: [patch.object(grade, 'save_phase', lambda *a: None)],
     'save: the phase read off the last save, not the first': lambda: [patch.object(
         grade, 'save_phase', lambda log, name, start, f=grade.save_phase: f(dataclasses.replace(
-            log, flash=_from_last_erase(log.flash)), name, start))],
+            log, flash_ops=_from_last_erase(log.flash_ops)), name, start))],
+    "save: a verify window is graded after its read-backs read back the container": lambda: _first_save(
+        lambda save: dict(verified=[])),
+    "save: the bound counts one tick a step, not the age limit's": lambda: [patch.object(
+        save_window, 'step_age', lambda: 0)],
+    "save: the bound leaves out the verify's read-backs": lambda: [patch.object(
+        save_window, 'steps', lambda image, records, f=save_window.steps: f(image, records)
+        - -(-image // save_window.READ))],
+    "save: durable at the verify's first read-back, not the one that completes it": lambda: _first_save(
+        lambda save: dict(durable=save.verified[0][0] if save.verified else None)),
+    'save: a save never durable in the run is within its bound': lambda: _save_time(
+        lambda r: dict(r, within=r['within'] or r['ms'] is None)),
+    'save: a save over its stated worst case is no finding': lambda: [patch.object(
+        run, 'save_misses', lambda results: [])],
+    "save: the age limit's plant is judged as a budget control": lambda: [patch.object(build, 'SAVE_CONTROLS', ())],
+    'save: a held group that commits fewer records than it offered is graded': lambda: [patch.object(
+        save_grade, 'held_load', lambda log, group: None)],
+    'save: a channel left out of the held load': lambda: [patch.object(
+        save_window, 'arrivals', lambda p, run_ms, f=save_window.arrivals: [
+            a for a in f(p, run_ms) if a[1] != 'srp'])],
+    'save: the held load a burst once, then nothing': lambda: [patch.object(
+        save_window, 'arrivals', lambda p, run_ms, f=save_window.arrivals: [
+            a for a in f(p, run_ms) if a[0] < 1])],
+    'steps: a pass that carries a step and writes nothing to the mailbox is left out': lambda: [patch.object(
+        save_grade, 'step_figures', lambda grader, f=save_grade.step_figures: f(grade.Grader(dataclasses.replace(
+            grader.log, step_passes=[]))))],
+    'steps: a work pass that carries a step is left out': lambda: [patch.object(
+        save_grade, 'step_figures', lambda grader, f=save_grade.step_figures: f(grade.Grader(dataclasses.replace(
+            grader.log, passes=[]))))],
+    'save: the starved save without its grandmaster flood': lambda: [patch.object(
+        save_window, 'loaded', lambda p, name, flood, image, f=save_window.loaded: f(p, name, False, image))],
     'save: four tick phases a flash phase': lambda: [patch.object(save_window, 'TICK_PHASES', 4)],
     "save: the program phase spread across one tick, not its step's two": lambda: [patch.dict(
         save_window.PHASES, program=('program 1', 30, 10))],

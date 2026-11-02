@@ -52,7 +52,8 @@ import run  # noqa: E402
 import scenario  # noqa: E402
 import selftest_mutants  # noqa: E402
 from selftest_maximum import maximum_checks, opening_checks, stimulus_checks  # noqa: E402
-from selftest_share import clock_checks, save_checks, share_checks  # noqa: E402
+from selftest_share import (clock_checks, held_load_checks, save_checks, save_time_checks,  # noqa: E402
+                            share_checks, step_checks)
 
 FIXTURE_LOG = HERE / 'fixture.log'
 ORACLE = HERE / 'oracle.json'
@@ -861,7 +862,7 @@ def built(bdir: Path, *flags: str) -> tuple[str, dict]:
         xip_image=lambda out, elf, window: (write(out / 'xip/ctrl_app.elf', b'xip'),
                                             write(out / 'xip/ctrl_app_rom.elf', b'rom'),
                                             write(out / 'flash.bin', b'code')),
-        symbols=lambda elf: dict.fromkeys(('ctrl_loop_service', 'main', *build.ENTRY_SYMBOLS), 0),
+        symbols=lambda elf: dict.fromkeys(('ctrl_loop_service', 'main', build.STEP_SYMBOL, *build.ENTRY_SYMBOLS), 0),
         verilate=lambda out, *a: (write(out / 'native/Vsim', b'model'), write(out / 'budget_config.hpp', b'h')))
     with contextlib.ExitStack() as stack:
         stack.enter_context(patch.dict(sys.modules, split_soc=soc))
@@ -913,7 +914,8 @@ def checks() -> list[Check]:
             *window_checks(), *load_checks(), *path_checks(), *fanout_checks(), *run_checks(), *reuse_checks(),
             *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
             *clock_checks(built, main_verdict), *opening_checks(points(json.loads(ORACLE.read_text()))),
-            *stimulus_checks(points(json.loads(ORACLE.read_text()))), *save_checks()]
+            *stimulus_checks(points(json.loads(ORACLE.read_text()))), *save_checks(),
+            *save_time_checks(SYS_HZ, CPU_HZ), *step_checks(SYS_HZ, CPU_HZ), *held_load_checks(SYS_HZ, CPU_HZ)]
 
 
 def write_fixture(log: Path, build_json: Path) -> None:

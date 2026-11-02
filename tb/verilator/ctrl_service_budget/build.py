@@ -42,8 +42,13 @@ def run(argv: list[str], log: Path, cwd: Path | None = None) -> None:
         raise RuntimeError(f'{argv[0]} exited {result.returncode}; see {log.name}')
 
 
-#: ctrl_loop_service from THE STEP's deadline to its call (ctrl_loop.c).
+#: ctrl_loop_service from THE STEP's deadline to its call (ctrl_loop.c), its age limit's pass among them.
 STEP_SPAN = ('\tuint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u;\n'
+             "\t// THE STEP's age limit: a step not run for more than CTRL_LOOP_STEP_AGE centiseconds is this\n"
+             '\t// whole pass, before any input, so an input waits one step at most\n'
+             '\tif (l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE) {\n\t\tl->step_age = 0u;\n'
+             '\t\t(void)l->step(l->step_ctx, deadline);\n\t\tl->stats.passes++;\n\t\tl->stats.aged_passes++;\n'
+             '\t\treturn 1u;\n\t}\n'
              '\tunsigned work = service_events(l);\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n'
              '\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n'
              '\tbool owed = l->ticks_owed != 0u;\n\tfor (unsigned i = 0; i < l->n_polls; ++i) {\n'
@@ -72,9 +77,16 @@ MUTATIONS = {
     'store-step-unbounded': ('loop/ctrl_loop.c', STEP_SPAN, STEP_SPAN.replace(
         'CTRL_LOOP_SHARE_US : 0u', '0x40000000u : 0u').replace('l->step != NULL && work == 0u', 'l->step != NULL'),
                              ','.join(save_window.row_names()), 'none'),
+    # #665's planted age limit removed: the step is taken only in a pass that took no input, as before
+    # ctrl_loop.h's age limit, so under input that leaves no pass empty (save-starved) the save never advances
+    # and is not durable within its stated worst case (save_window.bound_ms).
+    'store-step-ageless': ('loop/ctrl_loop.c', 'l->step_age > CTRL_LOOP_STEP_AGE',
+                           'l->step_age > CTRL_LOOP_STEP_AGE + l->step_age', 'save-starved', 'none'),
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
+#: The controls whose finding is a save not durable within its stated worst case, by its group's name.
+SAVE_CONTROLS = ('store-step-ageless',)
 
 
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never
@@ -422,6 +434,10 @@ def lsu_bus(rows: list[tuple[str, str, str, str]], netlist: str) -> list[tuple[s
 
 #: Functions whose entry the testbench reports (ENTRY lines): a probe's entry:<symbol> start.
 ENTRY_SYMBOLS = ('adp_mbx_set_enable',)
+#: The saved-state store's step (nvm_store.c): a pass that enters it carries a step (THE STEP, ctrl_loop.h), and
+#: the step's own CPU time is its modules' cycles in that pass, the store's and its flash port's.
+STEP_SYMBOL = 'nvm_store_service'
+STORE_MODULES = ('nvm_store', 'nvm_flash_litespi', 'nvm_klj2')
 
 
 def cpu_region(spec: dict, origin: int) -> list:
@@ -458,6 +474,7 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
               'inline const char* const entry_name[n_entries] = {'
               + ', '.join(f'"{name}"' for name in ENTRY_SYMBOLS) + '};']
     lines += [f"constexpr std::uint32_t pass_pc = 0x{table['ctrl_loop_service']:x}u;",
+              f"constexpr std::uint32_t step_pc = 0x{table[STEP_SYMBOL]:x}u;",
               f"constexpr unsigned filter_en_word = 0x{spec['filter_en'] // 4:x}u;",
               f"constexpr unsigned tmr_cmd_word = 0x{spec['tmr_cmd'] // 4:x}u;",
               f"constexpr unsigned evt_tail_word = 0x{spec['evt_tail'] // 4:x}u;",
@@ -488,6 +505,8 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
     lines += ['}', 'struct CodeSpan { std::uint32_t start, end; unsigned module; };',
               f'constexpr unsigned n_modules = {len(names)};',
               'inline const char* const module_name[n_modules] = {' + ', '.join(f'"{n}"' for n in names) + '};',
+              'inline constexpr bool store_module[n_modules] = {'
+              + ', '.join('true' if n in STORE_MODULES else 'false' for n in names) + '};',
               'inline constexpr CodeSpan code_spans[] = {',
               *[f'    {{0x{a:x}u, 0x{e:x}u, {m}u}},' for a, e, m in spans], '};']
     (build_dir / 'budget_config.hpp').write_text('\n'.join(lines) + '\n')
@@ -671,7 +690,7 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     spec['inputs'] = digest(run_inputs(build_dir, spec), build_dir)
     spec['inputs']['tree:firmware'] = tree_digest([ROOT / t for t in FIRMWARE_TREES])
     spec['inputs']['tree:config'] = tree_digest([ROOT / 'configs' / (shape + '.yaml')])
-    spec['symbols'] = {name: table[name] for name in ('ctrl_loop_service', 'main', *ENTRY_SYMBOLS)}
+    spec['symbols'] = {name: table[name] for name in ('ctrl_loop_service', 'main', STEP_SYMBOL, *ENTRY_SYMBOLS)}
     spec['mutation'] = mutation
     spec['variant'] = variant
     spec['executable_sha256'] = hashlib.sha256((build_dir / 'native/Vsim').read_bytes()).hexdigest()

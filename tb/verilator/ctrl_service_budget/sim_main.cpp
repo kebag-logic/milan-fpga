@@ -66,6 +66,7 @@ struct Pass {
     std::uint64_t start_cpu = 0, start_sys = 0, instr = 0;
     std::array<std::uint64_t, N_REGIONS> fetch{}, fetch_wait{}, load{}, store{}, lsu_wait{};
     unsigned mbx_writes = 0;
+    bool step = false;   // the saved-state store's step was entered (step_pc)
     std::string writes;  // the mailbox writes, "cycle:word:value" each
     std::array<std::uint64_t, n_modules + 1> module_cycles{};
 };
@@ -143,6 +144,7 @@ public:
 
     void report() const {
         flush_idle();
+        flush_reads();
         std::string text = "SUMMARY";
         text += " sys=" + std::to_string(sys_) + " cpu=" + std::to_string(cpu_) + " passes=" + std::to_string(passes_);
         text += " instr=" + std::to_string(instr_) + " bus_errors=" + std::to_string(bus_errors_) + " traps=" + std::to_string(traps_);
@@ -229,11 +231,41 @@ private:
         ingress_at_ = sys_ + gap_;
     }
 
+    // The saved-state store's flash steps, each closed command as its chip select falls: an erase or a page
+    // program (FLASHOP, with its address and bytes), a busy poll (FLASHPOLL), and the journal's reads, one
+    // FLASHRD line for each run of reads, each starting inside the span the run has read and within read_gap
+    // cycles of its last (the uncached window reads a word for each byte load): a read-back step's 128 bytes,
+    // a boot judgement's slot. A save's read-backs are so seen though their passes write nothing to the
+    // mailbox (save_window.py).
+    void flash_closed() {
+        const auto command = flash_.command();
+        const auto address = flash_.address();
+        if (command == 0x05) std::printf("FLASHPOLL %llu\n", ull(sys_));
+        if ((command != 0x03 && command != 0x0b) || address < journal_base || address >= journal_end) return;
+        if (address < read_start_ || address > read_next_ || sys_ - read_last_ > read_gap) {
+            flush_reads();
+            read_first_ = sys_;
+            read_start_ = read_next_ = address;
+        }
+        read_next_ = std::max(read_next_, flash_.cursor());
+        read_last_ = sys_;
+    }
+
+    void flush_reads() const {
+        if (read_next_ == read_start_) return;
+        std::printf("FLASHRD %llu %llu %06x %u\n", ull(read_first_), ull(read_last_), read_start_,
+                    read_next_ - read_start_);
+        read_start_ = read_next_;
+    }
+
     void flash_sample(Vsim& dut) {
         if (flash_cs_ && !dut.flash_cs) {
+            flash_closed();
+            const auto address = flash_.address();
+            const auto programmed = flash_.programmed_bytes;
             const auto op = flash_.deselect(sys_);
             if (op) {
-                std::printf("FLASHOP %llu %u\n", ull(sys_), op);
+                std::printf("FLASHOP %llu %u %06x %u\n", ull(sys_), op, address, flash_.programmed_bytes - programmed);
                 flash_write_at_ = sys_;
             }
         }
@@ -262,6 +294,7 @@ private:
                 std::printf("PC %llu %08x\n", ull(cpu_), last_pc_);
             }
             if (last_pc_ == pass_pc) pass_boundary();
+            if (last_pc_ == step_pc) pass_.step = true;
             // A function entry a probe starts at (a test-only entry's call), by its symbol.
             for (unsigned e = 0; e < n_entries; ++e)
                 if (last_pc_ == entry_pc[e]) std::printf("ENTRY %llu %s\n", ull(sys_), entry_name[e]);
@@ -330,6 +363,25 @@ private:
         pass_.start_sys = sys_;
         pass_.instr = 1;
         pass_open_ = true;
+        if (flood_gm_) flood_gm();
+    }
+
+    // flood gm 1: a grandmaster change as every pass starts, the interfaces in turn, each a new identity, so no
+    // pass is without input: the event sources' contract coalesces them but sets no rate (mailbox.yaml).
+    void flood_gm() {
+        const unsigned i = flood_count_ % n_if;
+        gm_id_.at(i) = 0x0a0b0c0dfffd0000ULL + (flood_count_ & 0xffffu);
+        gm_pulse_ |= 1u << i;
+        gm_dirty_ = true;
+        ++flood_count_;
+    }
+
+    // The store's own cycles in the pass: its modules' (store_module).
+    std::uint64_t store_cycles() const {
+        std::uint64_t n = 0;
+        for (unsigned m = 0; m < n_modules; ++m)
+            if (store_module[m]) n += pass_.module_cycles[m];
+        return n;
     }
 
     void finish_pass() {
@@ -339,6 +391,10 @@ private:
             idle_max_ = std::max(idle_max_, cycles);
             idle_min_ = std::min(idle_min_, cycles);
             ++quiet_run_;
+            // A pass that carries the store's step though it writes nothing to the mailbox (THE STEP, ctrl_loop.h).
+            if (pass_.step)
+                std::printf("STEPPASS %llu %llu %llu %llu store=%llu\n", ull(passes_), ull(pass_.start_sys),
+                            ull(pass_.start_cpu), ull(cycles), ull(store_cycles()));
             return;
         }
         quiet_run_ = 0;
@@ -351,6 +407,7 @@ private:
             if (pass_.store[r]) text += " store_" + std::string(region_name[r]) + "=" + std::to_string(pass_.store[r]);
             if (pass_.lsu_wait[r]) text += " wait_" + std::string(region_name[r]) + "=" + std::to_string(pass_.lsu_wait[r]);
         }
+        if (pass_.step) text += " step=1 store=" + std::to_string(store_cycles());
         text += " code_words=" + std::to_string(code_words_) + " mods=";
         for (unsigned m = 0; m <= n_modules; ++m)
             if (pass_.module_cycles[m])
@@ -394,6 +451,42 @@ private:
         throw std::runtime_error("unknown wait " + s.op);
     }
 
+    // reply <if> <ch> <offset>:<hex> [on=<n>] <offset>=<hex> ...: the newest frame the channel sent (on interface
+    // n, if given) whose bytes at offset match, patched, queued as a received frame.
+    void queue_reply(const Step& s) {
+        const unsigned ch = std::stoul(s.args.at(1));
+        const auto& sel = s.args.at(2);
+        const auto colon = sel.find(':');
+        const std::size_t sel_at = std::stoul(sel.substr(0, colon));
+        const auto sel_hex = sel.substr(colon + 1);
+        int on = -1;
+        for (std::size_t a = 3; a < s.args.size(); ++a)
+            if (s.args[a].rfind("on=", 0) == 0) on = std::stoi(s.args[a].substr(3));
+        const std::vector<std::uint8_t>* chosen = nullptr;
+        for (auto it = last_wire_.at(ch).rbegin(); it != last_wire_.at(ch).rend() && !chosen; ++it) {
+            const auto& bytes = it->bytes;
+            bool match = (on < 0 || int(it->interface) == on) && bytes.size() >= sel_at + sel_hex.size() / 2;
+            for (std::size_t i = 0; match && i + 1 < sel_hex.size(); i += 2)
+                match = bytes[sel_at + i / 2] == std::stoul(sel_hex.substr(i, 2), nullptr, 16);
+            if (match) chosen = &bytes;
+        }
+        if (!chosen) throw std::runtime_error("reply: no frame the channel sent matches " + sel);
+        Frame f{unsigned(std::stoul(s.args.at(0))), *chosen};
+        for (std::size_t a = 3; a < s.args.size(); ++a) {
+            if (s.args[a].rfind("tag=", 0) == 0) { f.tag = s.args[a].substr(4); continue; }
+            if (s.args[a].rfind("on=", 0) == 0) continue;
+            const auto eq = s.args[a].find('=');
+            std::size_t at = std::stoul(s.args[a].substr(0, eq));
+            const auto hex = s.args[a].substr(eq + 1);
+            for (std::size_t i = 0; i + 1 < hex.size(); i += 2) f.bytes.at(at++) = std::stoul(hex.substr(i, 2), nullptr, 16);
+        }
+        std::string text;
+        char b[3];
+        for (auto byte : f.bytes) { std::snprintf(b, sizeof b, "%02x", byte); text += b; }
+        std::printf("REPLY %llu %u %s\n", ull(sys_), f.interface, text.c_str());
+        frames_.push_back(f);
+    }
+
     void run_script() {
         while (step_ < steps_.size()) {
             const Step& s = steps_[step_];
@@ -425,39 +518,7 @@ private:
                 if (s.args.size() > 2) f.tag = s.args[2];
                 frames_.push_back(f);
             } else if (s.op == "reply") {
-                // reply <if> <ch> <offset>:<hex> [on=<n>] <offset>=<hex> ...: the newest frame the
-                // channel sent (on interface n, if given) whose bytes at offset match, patched
-                const unsigned ch = std::stoul(s.args.at(1));
-                const auto& sel = s.args.at(2);
-                const auto colon = sel.find(':');
-                const std::size_t sel_at = std::stoul(sel.substr(0, colon));
-                const auto sel_hex = sel.substr(colon + 1);
-                int on = -1;
-                for (std::size_t a = 3; a < s.args.size(); ++a)
-                    if (s.args[a].rfind("on=", 0) == 0) on = std::stoi(s.args[a].substr(3));
-                const std::vector<std::uint8_t>* chosen = nullptr;
-                for (auto it = last_wire_.at(ch).rbegin(); it != last_wire_.at(ch).rend() && !chosen; ++it) {
-                    const auto& bytes = it->bytes;
-                    bool match = (on < 0 || int(it->interface) == on) && bytes.size() >= sel_at + sel_hex.size() / 2;
-                    for (std::size_t i = 0; match && i + 1 < sel_hex.size(); i += 2)
-                        match = bytes[sel_at + i / 2] == std::stoul(sel_hex.substr(i, 2), nullptr, 16);
-                    if (match) chosen = &bytes;
-                }
-                if (!chosen) throw std::runtime_error("reply: no frame the channel sent matches " + sel);
-                Frame f{unsigned(std::stoul(s.args.at(0))), *chosen};
-                for (std::size_t a = 3; a < s.args.size(); ++a) {
-                    if (s.args[a].rfind("tag=", 0) == 0) { f.tag = s.args[a].substr(4); continue; }
-                    if (s.args[a].rfind("on=", 0) == 0) continue;
-                    const auto eq = s.args[a].find('=');
-                    std::size_t at = std::stoul(s.args[a].substr(0, eq));
-                    const auto hex = s.args[a].substr(eq + 1);
-                    for (std::size_t i = 0; i + 1 < hex.size(); i += 2) f.bytes.at(at++) = std::stoul(hex.substr(i, 2), nullptr, 16);
-                }
-                std::string text;
-                char b[3];
-                for (auto byte : f.bytes) { std::snprintf(b, sizeof b, "%02x", byte); text += b; }
-                std::printf("REPLY %llu %u %s\n", ull(sys_), f.interface, text.c_str());
-                frames_.push_back(f);
+                queue_reply(s);
             } else if (s.op == "gap") {
                 gap_ = std::stoull(s.args.at(0));
             } else if (s.op == "link") {
@@ -471,6 +532,11 @@ private:
                 gm_pulse_ |= 1u << i;
                 gm_dirty_ = true;
                 std::printf("GM %llu %u\n", ull(sys_), i);
+            } else if (s.op == "flood") {
+                // flood gm <0|1>: a grandmaster change as every pass starts while on (flood_gm)
+                if (s.args.at(0) != "gm") throw std::runtime_error("unknown flood " + s.args.at(0));
+                flood_gm_ = std::stoul(s.args.at(1)) != 0;
+                std::printf("FLOOD %llu gm %u %llu\n", ull(sys_), unsigned(flood_gm_), ull(flood_count_));
             } else if (s.op == "txready") {
                 tx_ready_ = std::stoul(s.args.at(0)) != 0;
                 std::printf("TXREADY %llu %u\n", ull(sys_), unsigned(tx_ready_));
@@ -502,6 +568,14 @@ private:
     bool filter_open_ = false;
     bool pass_open_ = false;
     std::uint64_t flash_write_at_ = 0;  // the last program or erase the device took
+    // The journal's run of reads in progress (flash_closed): its first and last read, its first byte and the
+    // byte after its last.
+    static constexpr std::uint32_t journal_base = 0xee0000, journal_end = 0xf00000;
+    static constexpr std::uint64_t read_gap = sys_hz / 1000;
+    mutable std::uint64_t read_first_ = 0, read_last_ = 0;
+    mutable std::uint32_t read_start_ = 0, read_next_ = 0;
+    bool flood_gm_ = false;
+    std::uint64_t flood_count_ = 0;
     std::uint64_t sys_ = 0, cpu_ = 0, instr_ = 0, passes_ = 0, wait_from_ = 0;
     unsigned now_ms_ = 0;
     std::uint32_t last_pc_ = 0;

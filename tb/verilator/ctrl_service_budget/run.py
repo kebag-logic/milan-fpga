@@ -139,6 +139,58 @@ def share_misses(results: list[dict]) -> list[str]:
     return out
 
 
+def saves(results: list[dict]) -> list[dict]:
+    """Every group's timed save (save_grade.save_time), with its group."""
+    return [dict(g['save'], group=g['group']) for g in results if g.get('save')]
+
+
+def save_misses(results: list[dict]) -> list[str]:
+    """Each save not durable within its stated worst case (save_window.bound_ms), named by its group."""
+    out = []
+    for s in saves(results):
+        if not s['within']:
+            when = (f"durable {s['ms']:.3f} ms after its change" if s['ms'] is not None else
+                    f"not durable {s['waited_ms']:.3f} ms after its change, when the run ended")
+            out.append(f"{s['group']}: {when}, over its stated worst case {s['bound_ms']:,} ms")
+    return out
+
+
+def save_table(results: list[dict]) -> list[str]:
+    """The saves' section of the table: each timed save against its stated worst case."""
+    rows = saves(results)
+    if not rows:
+        return []
+    lines = ['', "Saves, from the change to durable (save_window.bound_ms: the first-dirty window, then each step at "
+             "most CTRL_LOOP_STEP_AGE + 1 ticks after the one before):", '',
+             '| Group | Durable ms | Stated worst case ms | Steps | Longest gap between flash steps, ms | '
+             'Grandmaster flood | Verdict |', '|---|---:|---:|---:|---:|---|---|']
+    for s in rows:
+        durable = f"{s['ms']:.3f}" if s['ms'] is not None else f"not by {s['waited_ms']:.3f}"
+        gap = f"{s['longest_gap_ms']:.3f}" if s['longest_gap_ms'] is not None else '-'
+        lines.append(f"| {s['group']} | {durable} | {s['bound_ms']:,} | {s['steps']} | {gap} | "
+                     f"{'yes' if s['flooded'] else 'no'} | {'within' if s['within'] else 'OVER'} |")
+    return lines
+
+
+def step_table(results: list[dict]) -> list[str]:
+    """The store's steps' section of the table: each group's passes that carry a step (save_grade.step_figures)."""
+    rows = [(g['group'], g['passes']['steps']) for g in results if g['passes'].get('steps', {}).get('passes')]
+    if not rows:
+        return []
+    lines = ['', "Passes that carry the store's step (THE STEP), and the longest step's own CPU time, the store's and "
+             "its flash port's:", '', '| Group | Passes | Longest, CPU cycles (ms) | Longest step, CPU cycles (ms) |',
+             '|---|---:|---:|---:|']
+    for group, s in rows:
+        lines.append(f"| {group} | {s['passes']} | {s['cycles']:,} ({s['ms']:.3f}) | "
+                     f"{s['store_cycles']:,} ({s['store_ms']:.3f}) |")
+    top = max((s for _, s in rows), key=lambda s: s['cycles'])
+    store = max((s for _, s in rows), key=lambda s: s['store_cycles'])
+    lines += ['', f"Longest pass that carries a step: {top['cycles']:,} CPU cycles ({top['ms']:.3f} ms), "
+              f"{next(g for g, s in rows if s is top)}; longest step: {store['store_cycles']:,} "
+              f"({store['store_ms']:.3f} ms), {next(g for g, s in rows if s is store)}."]
+    return lines
+
+
 def share_table(results: list[dict]) -> list[str]:
     """The per-pass share's section of the table: each group's work passes against it."""
     import share
@@ -197,6 +249,8 @@ def table(results: list[dict], point: str, clock: str = '') -> str:
                   'Over the windows that released their whole load only: '
                   + (f"{done['cycles']:,} ({done['ms']:.3f} ms), {done['group']}." if done else 'none.')]
     lines += share_table(results)
+    lines += save_table(results)
+    lines += step_table(results)
     lines += ['', '| Path | Probe | CPU cycles | ms | Budget (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
               '| Mailbox accesses (model) | Fetch share |',
               '|---|---|---:|---:|---:|---:|---|---:|---:|---:|']
@@ -223,7 +277,8 @@ def summary(point: str, build: str, results: list[dict], refusals: list[str], mi
     per-pass share (main adds the clock)."""
     return dict(point=point, build=build, results=results, paths=paths(results), counts=counts(results),
                 windows=windows(results), composed_maximum=composed_maximum(results),
-                refusals=refusals, misses=misses, share_misses=list(shares))
+                refusals=refusals, misses=misses, share_misses=list(shares), saves=saves(results),
+                save_misses=save_misses(results))
 
 
 def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
@@ -331,9 +386,11 @@ def as_built_faults(refusals: list) -> list:
     return [r for r in refusals if 'trapped' in r and re.search(rf'TRAP \d+ 0 ({causes}) ', r)]
 
 
-def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list, shares: list = ()) -> int:
-    """The run's exit status: a control must be caught by name; a measurement must be complete, and
-    its rows and its passes are each a failure unless their own option records them."""
+def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list, shares: list = (),
+            late: list = ()) -> int:
+    """The run's exit status: a control must be caught by name; a measurement must be complete, its saves
+    durable within their stated worst case, and its rows and its passes are each a failure unless their own
+    option records them."""
     if args.cpu_regions == 'as-built':
         caught = as_built_faults(refusals)
         print(f'CONTROL as-built {"caught" if caught else "ESCAPED"}: an instruction or load access fault '
@@ -352,6 +409,14 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
               f'budget as well, {len(missed - set(over))} with a row over and no pass over, {len(refusals)} '
               f'refusal(s)')
         return 0 if caught else 1
+    if args.mutation in builder.SAVE_CONTROLS:
+        # caught where a save under input that leaves no pass empty is not durable within its stated worst case
+        named = [m.partition(':')[0] for m in late]
+        want = builder.MUTATIONS[args.mutation][3].split(',')
+        caught = set(want) <= set(named) and not refusals
+        print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} save(s) not durable within '
+              f'their stated worst case ({", ".join(named) or "none"}), {len(refusals)} refusal(s)')
+        return 0 if caught else 1
     if args.mutation != 'none':
         paths_ = [p.name for g in groups for p in g.probes if p.name.startswith('control.')]
         caught = [m for m in misses if m.split(':')[0] in paths_]
@@ -360,7 +425,7 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
             return 1
         print(f'CONTROL {args.mutation} caught: every control path missed its budget')
         return 0
-    if refusals or not groups:
+    if refusals or not groups or late:
         return 1
     if shares and not args.record_share_findings:
         return 1
@@ -434,6 +499,19 @@ def main() -> int:
         print('BUDGET', line)
     for line in shares:
         print('SHARE', line)
+    late = save_misses(results)
+    stepped = [(g['group'], g['passes']['steps']) for g in results if g['passes'].get('steps', {}).get('passes')]
+    if stepped:
+        group, top = max(stepped, key=lambda r: r[1]['cycles'])
+        where, store = max(stepped, key=lambda r: r[1]['store_cycles'])
+        print(f"STEPS {sum(s['passes'] for _, s in stepped)} passes carry the store's step; the longest "
+              f"{top['cycles']:,} CPU cycles ({top['ms']:.3f} ms), {group}; the longest step {store['store_cycles']:,} "
+              f"({store['store_ms']:.3f} ms), {where}")
+    for s in saves(results):
+        print('SAVE', f"{s['group']}:", f"durable {s['ms']:.3f} ms after its change" if s['ms'] is not None else
+              f"not durable {s['waited_ms']:.3f} ms after its change", f"(stated worst case {s['bound_ms']:,} ms,",
+              f"{s['steps']} steps, longest gap between flash steps {s['longest_gap_ms']} ms)",
+              'within' if s['within'] else 'OVER')
     tally = counts(results)
     passes = sum(g['passes']['share']['passes'] for g in results)
     idle = sum(g['passes']['share'].get('idle_over', 0) for g in results)
@@ -444,7 +522,7 @@ def main() -> int:
           f"share {share.share_ms():.3f} ms ({share.share_cycles(spec['cpu_hz']):,} CPU cycles)"
           + (f", and {idle} run(s) of passes with no mailbox write" if idle else ''))
     print('CLOCK', clock)
-    return verdict(args, groups, refusals, misses, shares)
+    return verdict(args, groups, refusals, misses, shares, late)
 
 
 if __name__ == '__main__':

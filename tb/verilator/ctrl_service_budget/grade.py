@@ -34,6 +34,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+import save_grade
 import save_window
 import scenario
 import share
@@ -104,6 +105,15 @@ class Log:
     passes: list[Pass] = field(default_factory=list)
     idle: list[tuple[int, int, int]] = field(default_factory=list)
     flash: list[tuple[int, int]] = field(default_factory=list)  # cycle, the operation the flash device took
+    #: cycle, operation, address and bytes of each erase and page program (FLASHOP)
+    flash_ops: list[tuple[int, int, int, int]] = field(default_factory=list)
+    #: each run of journal reads (FLASHRD): its first and last read's cycles, its address and bytes
+    reads: list[tuple[int, int, int, int]] = field(default_factory=list)
+    polls: list[int] = field(default_factory=list)  # each busy poll's cycle (FLASHPOLL)
+    floods: list[tuple[int, int]] = field(default_factory=list)  # cycle, the grandmaster flood on or off (FLOOD)
+    #: start, CPU cycles and the store's own cycles of each pass that carries the store's step and writes nothing
+    #: to the mailbox (STEPPASS); a work pass that carries one has step=1 and store= among its fields
+    step_passes: list[tuple[int, int, int]] = field(default_factory=list)
     steps: list[tuple[int, str]] = field(default_factory=list)
     summary: dict[str, str] = field(default_factory=dict)
     modules: dict[str, int] = field(default_factory=dict)
@@ -114,6 +124,10 @@ class Log:
     #: The last run of idle passes ends in the pass the script's end cut short (sim_main.cpp
     #: closes the pass in progress, then flushes that run), so it holds no whole idle pass.
     cut_idle: bool = False
+
+    def ms_of(self, sys_cycles: int) -> float:
+        """Milliseconds of bus cycles."""
+        return sys_cycles * 1000 / self.sys_hz
 
 
 def owner(pending: list[tuple[int, str, int, int]], cycle: int, refused: list) -> tuple[int, str, int]:
@@ -200,6 +214,16 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.traps.append(line)
         elif kind == 'FLASHOP':
             log.flash.append((int(rest[0]), int(rest[1])))
+            if len(rest) > 3:
+                log.flash_ops.append((int(rest[0]), int(rest[1]), int(rest[2], 16), int(rest[3])))
+        elif kind == 'FLASHRD':
+            log.reads.append((int(rest[0]), int(rest[1]), int(rest[2], 16), int(rest[3])))
+        elif kind == 'FLASHPOLL':
+            log.polls.append(int(rest[0]))
+        elif kind == 'FLOOD':
+            log.floods.append((int(rest[0]), int(rest[2])))
+        elif kind == 'STEPPASS':
+            log.step_passes.append((int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2])))
         elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH'):
             continue
         elif kind == 'FAIL:':
@@ -208,6 +232,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             raise Refusal(f'unknown observation line: {line[:80]}')
     log.refused.extend((end, interface, tag, size) for interface, tag, size, end in pending_rx)
     log.writes.sort()
+    log.reads.sort()
     log.tx = tx_records(log.writes, commits)
     return log
 
@@ -804,24 +829,27 @@ FLASH_ERASE, FLASH_PROGRAM = 0xD8, 0x02
 
 def save_phase(log: Log, name: str, start: int) -> None:
     """A save's window (save_window.py) must open inside the flash phase its name gives, of the first save
-    the log shows, read off its flash operations (FLASHOP): after its erase and before its first page program
-    (the blank check); within save_window.IDLE_MS of a page, which the program phase issues every other tick
-    (the program phase); or that long or more after its last page, with no later page (the verify). The
-    store's read-backs run in passes that take no input, which the log gives only as their run's longest, so
-    the phases are told apart by the pages alone. Refused otherwise, so that its passes are that phase's."""
+    the log shows (save_grade.first_save): after its erase and before its first page program (the blank check);
+    within save_window.IDLE_MS of a page, which the program phase issues every other tick (the program phase); or
+    that long or more after its last page, with no later page, while its read-backs have not yet read back every
+    programmed byte (the verify). Refused otherwise, so that its passes are that phase's."""
     phase = name.partition('@')[2].rpartition('-')[0]
     if not phase:
         return
-    erases = [c for c, op in log.flash if op == FLASH_ERASE] + [1 << 62]
-    pages = [c for c, op in log.flash if op == FLASH_PROGRAM and erases[0] < c < erases[1]]
-    before = [c for c in pages if c < start]
+    save = save_grade.first_save(log)
+    if save is None:
+        raise Refusal(f'{name}: the log shows no save, so no window of its {phase} phase')
+    before = [c for c, _, _ in save.pages if c < start]
     idle = save_window.IDLE_MS * log.sys_hz // 1000
-    inside = {'blank': erases[0] < start and not before,
+    checked = sum(n for end, n in save.verified if end < start)
+    inside = {'blank': save.erase < start and not before,
               'program': bool(before) and start - before[-1] < idle,
-              'verify': bool(before) and start - before[-1] >= idle and before == pages}
+              'verify': bool(before) and start - before[-1] >= idle and len(before) == len(save.pages)
+              and checked < save.image}
     if not inside.get(phase, False):
         raise Refusal(f"{name}: the window opened at {start}, outside its save's {phase} phase (erase at "
-                      f"{erases[0]}, pages programmed before it {before[:1]}..{before[-1:]} of {len(pages)})")
+                      f"{save.erase}, pages programmed before it {before[:1]}..{before[-1:]} of {len(save.pages)}, "
+                      f"{checked} of its {save.image} bytes read back before it)")
 
 
 def pass_share(log: Log) -> dict:
@@ -862,6 +890,7 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
     window = composed(grader, group, marks)
     if window is not None:
         rows += service(grader, group, marks['composed'], marks['composed_end'])
+    rows += save_grade.held(grader, group)
     # The script's end closes the pass in progress: the run it flushes holds that cut pass, so
     # neither its minimum nor its maximum is a whole idle pass's.
     whole = log.idle[:-1] if log.cut_idle else log.idle
@@ -874,5 +903,6 @@ def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:
                             worst=dict(cycles=worst.cycles, ms=round(grader.cpu_ms(worst.cycles), 5),
                                        instr=worst.count('instr'), start_sys=worst.start_sys,
                                        modules=worst.modules) if worst else None,
-                            composed=window, share=pass_share(log)),
+                            composed=window, share=pass_share(log), steps=save_grade.step_figures(grader)),
+                save=save_grade.save_time(log, group),
                 summary=log.summary, modules=log.modules, code=log.code)
