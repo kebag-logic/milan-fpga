@@ -17,6 +17,7 @@ from __future__ import annotations
 import contextlib
 import importlib.util
 import io
+import itertools
 import json
 import shutil
 import tempfile
@@ -24,8 +25,9 @@ from collections.abc import Callable
 from pathlib import Path
 
 from register_diagrams import LINK_GUARD, SERVO
-from register_page import DESCRIPTIONS, DIAGRAM_DIR, PAGE, RECORD, SOC
+from register_page import DESCRIPTIONS, DIAGRAM_DIR, PAGE, RECORD, SOC, read_rows
 from register_rtl import CSR_INCLUDE_DIR, DATAPATH, ETH_PKG, ROOT, RTL, SHAPE_INCLUDE_DIR
+from register_sv import flatten, parse_expression, unparse
 
 LEDGER = "docs/reference/milan_feature_status.json"
 FINGERPRINT = f"{DIAGRAM_DIR}/rtl_fingerprint.txt"
@@ -276,6 +278,52 @@ def memory_map_control() -> bool:
             and not module.check_labels([("short", 0, 1, palette, 0)], []))
 
 
+#: A read decode and the rows it must print: value -> each row's terms. The first
+#: is the shape of STRMW_CTRL, the second one signal compared with two values.
+READ_SHAPES: list[tuple[str, dict[str, list[set[str]]]]] = [
+    ("(a && !s && (!d || i != 4'd0)) ? (d ? t : l) : (a ? ((d && i == 4'd0) ? k : 32'd0) : 32'd0)",
+     {"t": [{"a", "!s", "d", "!i == 4'd0"}], "l": [{"a", "!s", "!d"}], "k": [{"a", "d", "i == 4'd0"}],
+      "32'd0": [{"!a"}, {"s", "!d"}, {"s", "!i == 4'd0"}]}),
+    ("k == 2'd1 ? x : (k == 2'd2 ? y : 32'd0)",
+     {"x": [{"k == 2'd1"}], "y": [{"k == 2'd2"}], "32'd0": [{"!k == 2'd1", "!k == 2'd2"}]}),
+]
+
+
+def read_table_control(entry: Entry) -> bool:
+    """Read-table rows carry no grouping, so each must be one conjunction true
+    as printed (#797): the shapes above give exactly their rows, and every When
+    cell a regenerated page prints has no `or`, repeated term or contradiction."""
+    for expression, want in READ_SHAPES:
+        rows = read_rows(flatten(parse_expression(expression)), unparse)
+        got = {value: [{("" if polarity else "!") + unparse(node) for node, polarity in term} for term in terms]
+               for value, terms in rows.items()}
+        if {v: sorted(map(sorted, t)) for v, t in got.items()} != {v: sorted(map(sorted, t)) for v, t in want.items()}:
+            return False
+    with tempfile.TemporaryDirectory(prefix="regref-selftest-") as tmp:
+        root = Path(tmp)
+        copy_inputs(root)
+        with contextlib.redirect_stdout(io.StringIO()):
+            if entry(["--write"], root=root) != 0:
+                return False
+        lines = (root / PAGE).read_text(encoding="utf-8").splitlines()
+    words = json.loads((ROOT / DESCRIPTIONS).read_text(encoding="utf-8"))["condition_words"]
+    opposites = [pair for pair in words.values() if isinstance(pair, list)]
+    cells = []
+    for at, line in enumerate(lines):
+        if line == "| When | A read returns |":
+            rows = itertools.takewhile(lambda text: text.startswith("|"), lines[at + 2:])
+            cells += [row.split(" | ")[0].removeprefix("| ") for row in rows]
+    for when in cells:
+        terms = when.split(" and ")
+        if " or " in when or len(set(terms)) < len(terms):
+            return False
+        if any(term.replace(" is not ", " is ") in terms for term in terms if " is not " in term):
+            return False
+        if any(yes in terms and no in terms for yes, no in opposites):
+            return False
+    return bool(cells)
+
+
 def run(entry: Entry, root: Path) -> tuple[int, str]:
     """The workflow's `--check` on `root`: exit status and output."""
     buf = io.StringIO()
@@ -305,6 +353,9 @@ def selftest(entry: Entry) -> int:
     labels_ok = memory_map_control()
     failures += not labels_ok
     print(f"  {'ok  ' if labels_ok else 'FAIL'} memory-map label check")
+    rows_ok = read_table_control(entry)
+    failures += not rows_ok
+    print(f"  {'ok  ' if rows_ok else 'FAIL'} read-table rows are single conjunctions")
     print(f"register reference selftest: {'OK' if not failures else 'FAIL'} "
-          f"({len(names) + 1 - failures}/{len(names) + 1} controls)")
+          f"({len(names) + 2 - failures}/{len(names) + 2} controls)")
     return 1 if failures else 0

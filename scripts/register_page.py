@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 
@@ -152,6 +153,107 @@ class Wording:
     def rtl(self, text: str) -> str:
         """A condition spelled as RTL text."""
         return self.condition(parse_expression(text))
+
+
+# --------------------------------------------------------------- read tables --
+#: The comparison a negated spelling stands for: `x != 0` and `x == 0` are one variable.
+NEGATED = {"!=": "==", ">=": "<", "<=": ">"}
+#: A read table walks every assignment of its leaf conditions.
+MAX_READ_LEAVES = 12
+#: One row of a read table: leaf conditions that all hold, as (node, polarity).
+Term = list[tuple[Node, bool]]
+
+
+def literal(node: Node) -> tuple[Node, bool]:
+    """A leaf condition in its one spelling, and whether it keeps its sense."""
+    if node[0] == "bin" and node[1] in NEGATED:
+        return ("bin", NEGATED[node[1]], node[2], node[3]), False
+    return node, True
+
+
+def leaves(node: Node, found: dict[str, Node]) -> None:
+    """Every leaf condition of `node`, keyed by spelling, in reading order."""
+    if node[0] == "un" and node[1] == "!":
+        leaves(node[2], found)
+    elif node[0] == "bin" and node[1] in ("&&", "||"):
+        leaves(node[2], found)
+        leaves(node[3], found)
+    else:
+        spelled = literal(node)[0]
+        found.setdefault(unparse(spelled), spelled)
+
+
+def holds(node: Node, polarity: bool, state: dict[str, bool]) -> bool:
+    """Whether a condition holds with its leaf conditions set by `state`."""
+    if node[0] == "un" and node[1] == "!":
+        return holds(node[2], not polarity, state)
+    if node[0] == "bin" and node[1] in ("&&", "||"):
+        first, second = holds(node[2], True, state), holds(node[3], True, state)
+        return ((first and second) if node[1] == "&&" else (first or second)) == polarity
+    spelled, same = literal(node)
+    return state[unparse(spelled)] == (same == polarity)
+
+
+def impossible(state: dict[str, bool], found: dict[str, Node]) -> bool:
+    """Whether `state` has one signal equal to two different values at once."""
+    equal = {}
+    for name, node in found.items():
+        if state[name] and node[0] == "bin" and node[1] == "==":
+            signal = unparse(node[2])
+            if equal.setdefault(signal, unparse(node[3])) != unparse(node[3]):
+                return True
+    return False
+
+
+def shortest_terms(wanted: set[int], spare: set[int], width: int) -> list[tuple[int, int]]:
+    """(value, care mask) terms covering `wanted`, each as short as `spare`,
+    the assignments that cannot occur, lets it be (Quine-McCluskey)."""
+    current = {(state, (1 << width) - 1) for state in wanted | spare}
+    primes: set[tuple[int, int]] = set()
+    while current:
+        merged, used = set(), set()
+        for value, care in current:
+            for bit in (1 << n for n in range(width)):
+                if care & bit and not value & bit and (value | bit, care) in current:
+                    merged.add((value, care & ~bit))
+                    used |= {(value, care), (value | bit, care)}
+        primes |= current - used
+        current = merged
+    chosen, left = [], set(wanted)
+    while left:
+        best = min(primes, key=lambda t: (-sum(s & t[1] == t[0] for s in left), t[1].bit_count(), t))
+        chosen.append(best)
+        left -= {s for s in left if s & best[1] == best[0]}
+    return sorted(chosen, reverse=True)
+
+
+def read_rows(views: list[tuple[tuple, Node]], value_text: Callable[[Node], str]) -> dict[str, list[Term]]:
+    """Per read value, in the tree's order, the conjunctions under which a read
+    returns it. A read table cannot print brackets, so each row is one
+    conjunction with no term repeated, and a value no assignment reaches has
+    no row (#797)."""
+    found: dict[str, Node] = {}
+    for conds, _ in views:
+        for node, _ in conds:
+            leaves(node, found)
+    names = list(found)
+    if len(names) > MAX_READ_LEAVES:
+        raise Refusal(f"{RTL}: a read table with {len(names)} conditions is too large to word")
+    reached: dict[str, set[int]] = {value_text(leaf): set() for _, leaf in views}
+    spare = set()
+    for index in range(1 << len(names)):
+        state = {name: bool(index >> n & 1) for n, name in enumerate(names)}
+        if impossible(state, found):
+            spare.add(index)
+            continue
+        leaf = next(leaf for conds, leaf in views if all(holds(n, p, state) for n, p in conds))
+        reached[value_text(leaf)].add(index)
+    rows: dict[str, list[Term]] = {}
+    for value, states in reached.items():
+        if states:
+            rows[value] = [[(found[name], bool(term >> n & 1)) for n, name in enumerate(names) if care >> n & 1]
+                           for term, care in shortest_terms(states, spare, len(names))]
+    return rows
 
 
 # ------------------------------------------------------------------ helpers --
@@ -657,10 +759,15 @@ def read_value_table(reg: Register, model: Model) -> list[str]:
     """What a read returns, per condition, for a word several values can reach."""
     if not reg.views:
         return []
-    rows = []
     live = [leaf for _, leaf in reg.views if not leaf_constant(leaf, model)]
-    for conds, leaf in reg.views:
-        rows.append([model.wording.conditions(conds), leaf_text(leaf, len(live) == 1, model)])
+    values = read_rows(reg.views, lambda leaf: leaf_text(leaf, len(live) == 1, model))
+    # The constant that takes the most rows is what every other case reads.
+    spread = [v for v, terms in values.items() if v.startswith("`0x") and len(terms) > 1]
+    other = max(spread, key=lambda v: len(values[v]), default=None)
+    rows = [[model.wording.conditions(term) or "every case", value]
+            for value, terms in values.items() if value != other for term in terms]
+    if other is not None:
+        rows.append(["any other case", other])
     return table(["When", "A read returns"], rows)
 
 

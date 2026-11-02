@@ -3434,11 +3434,10 @@ RTL name: `A_STRMW_CTRL`.
 
 | When | A read returns |
 |---|---|
-| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is not 0 and `STRM_SEL[8]` selects a talker | `i_tctx_rd_data` |
-| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is not 0 and `STRM_SEL[8]` selects a listener | `i_lctx_rd_data` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | `{31'd0, aaf_ctrl[0]}` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is not 0 | `0x00000000` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 and the selected stream does not exist | `0x00000000` |
+| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 | `i_tctx_rd_data` |
+| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener | `i_lctx_rd_data` |
+| the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | `{31'd0, aaf_ctrl[0]}` |
+| any other case | `0x00000000` |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_ctrl-offset-0x810).
 
@@ -3457,11 +3456,9 @@ RTL name: `A_STRMW_SID_LO`.
 | When | A read returns |
 |---|---|
 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | `acmp_sid_q_r[31:0]` |
-| the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table has not answered since the last selection | `0x00000000` |
 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | `{mac_wire_w[15:0], 16'd0}` |
 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered since the last selection | `i_srp_ctx_rd_sid[31:0]` |
-| the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table has not answered since the last selection | `0x00000000` |
-| the selected stream does not exist | `0x00000000` |
+| any other case | `0x00000000` |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_sid_lo-offset-0x814).
 
@@ -3480,11 +3477,9 @@ RTL name: `A_STRMW_SID_HI`.
 | When | A read returns |
 |---|---|
 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | `acmp_sid_q_r[63:32]` |
-| the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table has not answered since the last selection | `0x00000000` |
 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | `mac_wire_w[47:16]` |
 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered since the last selection | `i_srp_ctx_rd_sid[63:32]` |
-| the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table has not answered since the last selection | `0x00000000` |
-| the selected stream does not exist | `0x00000000` |
+| any other case | `0x00000000` |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_sid_hi-offset-0x818).
 
@@ -3502,13 +3497,10 @@ RTL name: `A_STRMW_DMAC_LO`.
 
 | When | A read returns |
 |---|---|
-| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and `STRM_SEL[8]` selects a talker | `i_tctx_rd_data` |
-| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and `STRM_SEL[8]` selects a listener | `i_lctx_rd_data` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | `acmp_dmac_q_r[31:0]` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table has not answered since the last selection | `0x00000000` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | `aaf_dmlo` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 | `0x00000000` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream does not exist | `0x00000000` |
+| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 | `i_tctx_rd_data` |
+| the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | `acmp_dmac_q_r[31:0]` |
+| the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | `aaf_dmlo` |
+| any other case | `0x00000000` |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_dmac_lo-offset-0x81c).
 
@@ -3526,13 +3518,10 @@ RTL name: `A_STRMW_DMAC_HI`.
 
 | When | A read returns |
 |---|---|
-| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and `STRM_SEL[8]` selects a talker | `i_tctx_rd_data` |
-| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and `STRM_SEL[8]` selects a listener | `i_lctx_rd_data` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | `{16'd0, acmp_dmac_q_r[47:32]}` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table has not answered since the last selection | `0x00000000` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | `{16'd0, aaf_dmhi[15:0]}` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 | `0x00000000` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a listener or the stream index `STRM_SEL[3:0]` is 0 and the selected stream does not exist | `0x00000000` |
+| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 | `i_tctx_rd_data` |
+| the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | `{16'd0, acmp_dmac_q_r[47:32]}` |
+| the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | `{16'd0, aaf_dmhi[15:0]}` |
+| any other case | `0x00000000` |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_dmac_hi-offset-0x820).
 
@@ -3550,11 +3539,9 @@ RTL name: `A_STRMW_FMT_LO`.
 
 | When | A read returns |
 |---|---|
-| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener and `STRM_SEL[8]` selects a talker | `i_tctx_rd_data` |
-| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener and `STRM_SEL[8]` selects a listener | `i_lctx_rd_data` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream exists and `STRM_SEL[8]` selects a talker | `0xDEADDEAD` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream exists and `STRM_SEL[8]` selects a listener | `0x00000000` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream does not exist | `0x00000000` |
+| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener | `i_lctx_rd_data` |
+| the selected stream exists and `STRM_SEL[8]` selects a talker | `0xDEADDEAD` |
+| any other case | `0x00000000` |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_fmt_lo-offset-0x824).
 
@@ -3572,11 +3559,9 @@ RTL name: `A_STRMW_FMT_HI`.
 
 | When | A read returns |
 |---|---|
-| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener and `STRM_SEL[8]` selects a talker | `i_tctx_rd_data` |
-| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener and `STRM_SEL[8]` selects a listener | `i_lctx_rd_data` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream exists and `STRM_SEL[8]` selects a talker | `0xDEADDEAD` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream exists and `STRM_SEL[8]` selects a listener | `0x00000000` |
-| the selected stream does not exist or a snapshot is running or `STRM_SEL[8]` selects a talker and the selected stream does not exist | `0x00000000` |
+| the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener | `i_lctx_rd_data` |
+| the selected stream exists and `STRM_SEL[8]` selects a talker | `0xDEADDEAD` |
+| any other case | `0x00000000` |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_fmt_hi-offset-0x828).
 
@@ -3614,9 +3599,8 @@ RTL name: `A_STRMW_CNT0..9 (A_STRMW_CNT0 to A_STRMW_CNT_END)`.
 | When | A read returns |
 |---|---|
 | the selected stream exists and the kind the last snapshot recorded for this counter is `SK_RAW_C` | the fields above |
-| the selected stream exists and the kind the last snapshot recorded for this counter is not `SK_RAW_C` and the kind the last snapshot recorded for this counter is `SK_POISON_C` | `0xDEADDEAD` |
-| the selected stream exists and the kind the last snapshot recorded for this counter is not `SK_RAW_C` and the kind the last snapshot recorded for this counter is not `SK_POISON_C` | `0x00000000` |
-| the selected stream does not exist | `0x00000000` |
+| the selected stream exists and the kind the last snapshot recorded for this counter is `SK_POISON_C` | `0xDEADDEAD` |
+| any other case | `0x00000000` |
 
 ### STRMW_PDUS register (offset 0x858) [reset = 0x00000000]
 
@@ -3650,9 +3634,9 @@ RTL name: `A_STRMW_SRP`.
 | When | A read returns |
 |---|---|
 | the selected stream exists and the stream index `STRM_SEL[3:0]` is 0 and `STRM_SEL[9]` does not select the listener row at index 0 | `i_lwsrp_status` |
-| the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 or `STRM_SEL[9]` selects the listener row at index 0 and the SRP table answered since the last selection | `{16'd0, i_srp_ctx_rd_stat}` |
-| the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 or `STRM_SEL[9]` selects the listener row at index 0 and the SRP table has not answered since the last selection | `0x00000000` |
-| the selected stream does not exist | `0x00000000` |
+| the selected stream exists and `STRM_SEL[9]` selects the listener row at index 0 and the SRP table answered since the last selection | `{16'd0, i_srp_ctx_rd_stat}` |
+| the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered since the last selection | `{16'd0, i_srp_ctx_rd_stat}` |
+| any other case | `0x00000000` |
 
 ### STRMW_CTLR_LO register (offset 0x860) [reset = 0x00000000]
 
@@ -3669,9 +3653,8 @@ RTL name: `A_STRMW_CTLR_LO`.
 | When | A read returns |
 |---|---|
 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | the fields above |
-| the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table has not answered since the last selection | `0x00000000` |
 | the selected stream exists and `STRM_SEL[8]` selects a talker | `0xDEADDEAD` |
-| the selected stream does not exist | `0x00000000` |
+| any other case | `0x00000000` |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_ctlr_lo-offset-0x860).
 
@@ -3690,9 +3673,8 @@ RTL name: `A_STRMW_CTLR_HI`.
 | When | A read returns |
 |---|---|
 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | the fields above |
-| the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table has not answered since the last selection | `0x00000000` |
 | the selected stream exists and `STRM_SEL[8]` selects a talker | `0xDEADDEAD` |
-| the selected stream does not exist | `0x00000000` |
+| any other case | `0x00000000` |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#strmw_ctlr_hi-offset-0x864).
 
@@ -3712,9 +3694,8 @@ RTL name: `A_STRMW_BIND`.
 | When | A read returns |
 |---|---|
 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | the fields above |
-| the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table has not answered since the last selection | `0x00000000` |
 | the selected stream exists and `STRM_SEL[8]` selects a talker | `0xDEADDEAD` |
-| the selected stream does not exist | `0x00000000` |
+| any other case | `0x00000000` |
 
 ### STRMW_RSVD_86C register (offset 0x86C) [reset = 0xDEADDEAD]
 
@@ -3989,7 +3970,7 @@ RTL name: `A_RENDER_STAT`.
 | When | A read returns |
 |---|---|
 | `STRM_SEL[8]` selects a listener and the stream index `STRM_SEL[3:0]` is 0 | the fields above |
-| `STRM_SEL[8]` selects a talker or the stream index `STRM_SEL[3:0]` is not 0 | `0x00000000` |
+| any other case | `0x00000000` |
 
 ## 0x8E0  -  AAF clock meter  `(#629, KL_aaf_clock_meter)`
 
