@@ -172,6 +172,7 @@ def phase_checks() -> list[Check]:
     first = [(100, erase), (300, page), (500, page), (700, page)]
 
     def opens(phase: str, start: int, flash: list, reads: tuple = (750, 900)) -> bool:
+        """Whether a window opening at start is graded inside phase, the flash read at reads."""
         log = grade.Log(100_000_000, 100_000_000, flash=flash)
         log.passes = [grade.Pass(n, at, 0, 100, {'load_flash': '128'}, [], {}) for n, at in enumerate(reads)]
         try:
