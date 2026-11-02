@@ -323,12 +323,17 @@ flowchart TB
 - **The event loop** runs passes in a fixed order (the events-first ruling
   on PR #668, comment 5994730420): first at most 8 event records, in ring
   order, each to every sink; then each bound channel's receive ring, at most
-  2 records each; then one poll per module. A TICK record's count is fanned
+  2 records each; then one poll per module; then THE STEP, the saved-state
+  store's one deferrable step, taken only in a pass that took no event and
+  no record, while 1.0 ms of its 2.0 ms share is left (`ctrl_loop.h`; #665).
+  A TICK record's count is fanned
   out to every registered centisecond consumer, lwSRP's `shlan_timer_tick()`
   among them, at most 16 centiseconds per pass with the rest carried (a
   later record's count adds to what is carried), so lwSRP's leave, LeaveAll
   and periodic timers run on fabric time, lose no tick when the core is
-  late, and catch up a bounded slice at a time.
+  late, and catch up a bounded slice at a time. The store's consumer only owes
+  its step, once however many centiseconds pass before a pass has room for it;
+  the step makes no mailbox access.
   The owner's D4(b) decision (#665, 2026-10-27: the admitted backlog first)
   kept these counts; `ctrl_loop.h` states why. Every pass bound below charges
   a record at its channel's maximum length, and SRP's ring holds two of those.

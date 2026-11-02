@@ -236,6 +236,31 @@ An accepted command that changes a persisted value calls
 | verify | read back 128 bytes per step and compare with the stage |
 | held | nothing, until reset: a slot is UNREAD (Boot, item 9) |
 
+**One step a centisecond, in a pass that has room for it (THE STEP).** The
+event loop owes the store a step for each centisecond it dispatches
+(`nvm_store_tick()`), and calls `nvm_store_step()` at the end of a pass that
+took no event and no record, with the clock's value at which the pass has
+spent its 2.0 ms share. The step is taken only while `NVM_STEP_US`, 1.0 ms, is
+left; otherwise it stays owed, and the passes it waits through owe it once.
+On the split CPU, through the product's uncached flash window and its command
+master, a step costs at most (CPU cycles at 100 MHz, the flash port's and the
+store's; `SPLIT_CONTROL_MEMORY.md` section 13):
+
+| Step | 1x1/1if | 8x8/2if |
+|---|---:|---:|
+| Erase issue | 5,051 | 5,112 |
+| Busy poll | 3,994 | 4,710 |
+| Blank-check read-back, 128 bytes | 73,491 | 72,841 |
+| Page program issue | 95,373 | 95,386 |
+| Verify read-back, 128 bytes | 76,234 | 76,737 |
+
+A save at 8x8 takes 4,697 ms from the change to durable on a flash with
+no busy time, 2,018 ms at 1x1: the 1,000 ms first-dirty window, the
+seal, then 128-byte read-backs a tick for the blank check and the verify and a
+page every other tick. A real part's erase and program waits add to it. No
+deadline of this store is that figure: the owner's 0.5 s (#823) belongs to
+the append-only design.
+
 The atomicity rules, from section 7 and the D3 register:
 
 - **The authoritative slot is never erased or programmed.** At every instant
