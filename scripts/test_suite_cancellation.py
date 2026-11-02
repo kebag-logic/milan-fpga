@@ -654,6 +654,35 @@ def owner_vanishing() -> None:
     print("owner-vanishing: " + str(dict(verdict_reached=True)), flush=True)
 
 
+def owner_late_cancel() -> None:
+    """A cancel during cleanup, after the shell was collected, opens no trap window (#833)."""
+    # A re-armed window would hold the verdict past this bound: TRAP_SECONDS is longer.
+    with stages(GRACE_SECONDS=0.1, KILL_ALL_SECONDS=0.1, TRAP_SECONDS=30.0, REAP_SECONDS=0.3):
+        with OwnedProcesses() as owner:
+            gone = 2 ** 22 + 1
+            since = []
+
+            def listed() -> dict:
+                """Cancel once the command is collected; list one process that dies inside every census."""
+                if not since:
+                    since.append(time.monotonic())
+                    os.kill(os.getpid(), signal.SIGTERM)
+                elapsed = time.monotonic() - since[0]
+                assert elapsed < 15, "a cancel after the shell was collected re-armed its trap window"
+                return {gone: (os.getpid(), "0")}
+            owner._descendants = listed
+            owner._reap = lambda: {gone}
+            try:
+                owner.run(["true"])
+                raise AssertionError("an endless listing did not fail the run")
+            except RuntimeError as exc:
+                failure = str(exc)
+            assert owner.root_notified, "the cancel never reached cleanup"
+            owner.cancel_signal = 0
+    assert "CLEANUP FAILED" in failure and "exited during this report" in failure, failure
+    print("owner-late-cancel: " + str(dict(verdict_without_trap_window=True)), flush=True)
+
+
 def main() -> int:
     """Exercise production orchestration with no compiler or RTL substitution claim."""
     with tempfile.TemporaryDirectory(prefix="suite-cancellation-") as scratch:
@@ -666,6 +695,7 @@ def main() -> int:
             owner_shell_window(parent)
             owner_survivor(parent)
             owner_vanishing()
+            owner_late_cancel()
             for mode in ("pass", "fail", "masked", "timeout"):
                 ordinary(parent, mode)
             ownership_refusal(parent)
@@ -686,7 +716,7 @@ def main() -> int:
     print("suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, "
           "partial logs, attributed cancellation reports, lock wait, next-suite sentinel, "
           "ordinary/masked/timeout, hard KILL/HUP stops, "
-          "facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, "
+          "facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, late cancel, "
           "unsafe negative controls)")
     return 0
 
