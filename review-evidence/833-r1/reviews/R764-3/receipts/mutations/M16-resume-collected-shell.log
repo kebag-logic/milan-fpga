@@ -1,0 +1,26 @@
+owner-report: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.06 s start 75409901, sent SIGKILL 1.50 s ago
+owner-reparented: {'sigterm_during_grace': True}
+owner-late-exit: {'collected_at_deadline': True}
+owner-stall: {'stalled_seconds': 2.0, 'killed_in_pass': 52}
+owner-shell-window: {'trap_ran_after_kill_time': True, 'trap_command_ran': True}
+owner-survivor: CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 12 (bash) state T wchan do_signal_stop parent 1 (first parent 1) age 1.06 s start 75410509, not sent SIGKILL; pid 13 (python3) state S wchan hrtimer_nanosleep parent 12 (first parent 12) age 1.06 s start 75410509, sent SIGKILL 0.81 s ago
+owner-vanishing: {'verdict_reached': True}
+Traceback (most recent call last):
+  File "$REVIEWS/833-r764-3-packet/scratch/mut/M16-resume-collected-shell/scripts/test_suite_cancellation.py", line 733, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/833-r764-3-packet/scratch/mut/M16-resume-collected-shell/scripts/test_suite_cancellation.py", line 706, in main
+    owner_late_cancel()
+    ~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r764-3-packet/scratch/mut/M16-resume-collected-shell/scripts/test_suite_cancellation.py", line 684, in owner_late_cancel
+    owner.run(["true"])
+    ~~~~~~~~~^^^^^^^^^^
+  File "$REVIEWS/833-r764-3-packet/scratch/mut/M16-resume-collected-shell/scripts/owned_process.py", line 370, in run
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r764-3-packet/scratch/mut/M16-resume-collected-shell/scripts/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$REVIEWS/833-r764-3-packet/scratch/mut/M16-resume-collected-shell/scripts/test_suite_cancellation.py", line 678, in listed
+    assert not resumed, "a cancel after the shell was collected resumed it, re-arming its trap window"
+           ^^^^^^^^^^^
+AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window

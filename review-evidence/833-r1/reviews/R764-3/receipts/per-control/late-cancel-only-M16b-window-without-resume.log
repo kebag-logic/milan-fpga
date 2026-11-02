@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+    b=time.monotonic(); t.owner_late_cancel(); print(f'owner_late_cancel {time.monotonic()-b:.2f} s')
+                        ~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r764-3-packet/scratch/mut/M16b-window-without-resume/scripts/test_suite_cancellation.py", line 684, in owner_late_cancel
+    owner.run(["true"])
+    ~~~~~~~~~^^^^^^^^^^
+  File "$REVIEWS/833-r764-3-packet/scratch/mut/M16b-window-without-resume/scripts/owned_process.py", line 371, in run
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r764-3-packet/scratch/mut/M16b-window-without-resume/scripts/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$REVIEWS/833-r764-3-packet/scratch/mut/M16b-window-without-resume/scripts/test_suite_cancellation.py", line 679, in listed
+    assert time.monotonic() - since[0] < 15, "cleanup never reached a verdict after a late cancel"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict after a late cancel
