@@ -1,0 +1,37 @@
+# Basis build (AX7101 1x1, the plan's 52,008-LUT basis): synthesis 'Block RAM: Final Mapping Report' rows of the LiteX top (alinx_ax7101, alinx_ax7101__GCB0), with each memory's writer signal from the generated Verilog.
+# sha256 of the synthesis log and generated Verilog:
+adbdc62428cf154cd21ffba9a2a5b2192cf2748b20f30273817cc02cb278e33b vivado.log
+8cea6c03bcdbd2082d08baabd8f14fae36c335c9e3ce4d72483b9606a2e12646 alinx_ax7101.v
+# object | depth x width | RAMB18 | RAMB36 | writer signal (owner)
+ctl_fifo/mem_reg | 512x73(READ_FIRST) | 1 | 1 | -
+storage_34_reg | 4x34(NO_CHANGE) | 1 | 0 | milansoc_milannic_array_write_memory2
+sram_reg | 2Kx32(WRITE_FIRST) | 0 | 2 | -
+storage_25_reg | 16x72(NO_CHANGE) | 0 | 1 | milansoc_milanmac_array_write_memory0
+storage_20_reg | 32x73(NO_CHANGE) | 1 | 1 | milansoc_milanmac_liteethmaccore_tx_cdc_cdc_wrport
+storage_23_reg | 512x82(READ_FIRST) | 1 | 1 | milansoc_milanmac_packetfifo_payload_fifo_wrport
+storage_40_reg | 16x106(NO_CHANGE) | 1 | 1 | milansoc_milannic_r_wr_cdc_wrport
+storage_38_reg | 16x43(NO_CHANGE) | 0 | 1 | milansoc_milannic_r_req_cdc_wrport
+storage_44_reg | 16x106(NO_CHANGE) | 1 | 1 | milansoc_milannic_n_wr_cdc_wrport
+storage_42_reg | 16x43(NO_CHANGE) | 0 | 1 | milansoc_milannic_n_req_cdc_wrport
+storage_36_reg | 16x43(NO_CHANGE) | 0 | 1 | milansoc_milannic_d_req_cdc_wrport
+storage_11_reg | 4x293(NO_CHANGE) | 1 | 4 | milansoc_w_cdc_cdc_wrport
+storage_15_reg | 16x300(READ_FIRST) | 1 | 4 | milansoc_write_w_buffer_wrport
+storage_18_reg | 16x259(READ_FIRST) | 0 | 4 | milansoc_read_r_buffer_wrport
+storage_14_reg | 4x267(NO_CHANGE) | 0 | 4 | milansoc_r_cdc_cdc_wrport
+storage_39_reg | 16x68(NO_CHANGE) | 0 | 1 | milansoc_milannic_r_rsp_cdc_wrport
+storage_43_reg | 16x68(NO_CHANGE) | 0 | 1 | milansoc_milannic_n_rsp_cdc_wrport
+storage_32_reg | 4x36(NO_CHANGE) | 1 | 0 | milansoc_milannic_array_write_memory0
+storage_22_reg | 32x81(NO_CHANGE) | 1 | 1 | milansoc_milanmac_liteethmaccore_rx_cdc_cdc_wrport
+storage_27_reg | 16x72(NO_CHANGE) | 0 | 1 | milansoc_milanmac_array_write_memory2
+storage_37_reg | 16x66(NO_CHANGE) | 0 | 1 | milansoc_milannic_d_rsp_cdc_wrport
+
+# Reconciliation with the LiteX top's placed row (5,119 LUT, 47 RAMB36, 10 RAMB18):
+#  - ctl_fifo is verilog-axis axis_fifo instantiated in hdl/milan/KL_pp_shadow.sv:884 (first-party, not the LiteX top);
+#    synthesis groups it under the top module name only. Excluded.
+#  - BIOS: sram_reg 2 RAMB36 (above) + the BIOS ROM `rom` (reg [31:0] rom[0:13746], 16 RAMB36, M8a-1's "16 + 2") = 18.
+#  - Generated FIFOs, by census row (census_coverage.py's rules):
+#      DDR3 row, stage 1:         w_cdc, r_cdc (CPU memory-port crossing), write_w_buffer, read_r_buffer (litedramaxi2native_0)  4+4+4+4 = 16
+#      Ethernet row, stage 2:     milanmac liteethmaccore tx_cdc, rx_cdc, packetfifo payload, array memory0, memory2              1+1+1+1+1 = 5
+#      Processor memory paths, switch-over: milannic d_req, d_rsp, r_req, r_rsp, r_wr, n_req, n_rsp, n_wr crossings      8 x 1 = 8
+#      Stage 3 rows:              none                                                                                       0
+#    Total 29. RAMB36: 16 + 5 + 8 + 18 = 47; RAMB18 here (without ctl_fifo): 9 + the 49-byte identifier = 10.
