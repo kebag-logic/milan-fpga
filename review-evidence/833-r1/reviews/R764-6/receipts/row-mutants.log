@@ -1,0 +1,111 @@
+rv6-sigkill-by-number / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-sigkill-by-number / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-sigkill-by-number / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-sigkill-by-number / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-sigkill-by-number / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+rv6-sigkill-by-number / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-sigkill-by-number / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-sigkill-by-number / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-sigkill-by-number / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv6-sigkill-by-number / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+== rv6-sigkill-by-number: SURVIVES (green on all 10)
+rv6-sigcont-by-number / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-sigcont-by-number / owner_reparented: green rc 0 0.4 s: owner_reparented: PASS
+rv6-sigcont-by-number / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-sigcont-by-number / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-sigcont-by-number / owner_shell_window: green rc 0 4.6 s: owner_shell_window: PASS
+rv6-sigcont-by-number / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-sigcont-by-number / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-sigcont-by-number / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-sigcont-by-number / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv6-sigcont-by-number / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+== rv6-sigcont-by-number: SURVIVES (green on all 10)
+rv6-sigterm-by-number / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-sigterm-by-number / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-sigterm-by-number / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-sigterm-by-number / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-sigterm-by-number / owner_shell_window: green rc 0 4.6 s: owner_shell_window: PASS
+rv6-sigterm-by-number / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-sigterm-by-number / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-sigterm-by-number / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-sigterm-by-number / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv6-sigterm-by-number / owner_reused_identity: red rc 1 0.2 s: AssertionError: a census entry was signalled by its number, after it changed hands
+== rv6-sigterm-by-number: red on owner_reused_identity
+rv6-shell-sigtermed / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-shell-sigtermed / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-shell-sigtermed / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-shell-sigtermed / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-shell-sigtermed / owner_shell_window: green rc 0 2.9 s: owner_shell_window: PASS
+rv6-shell-sigtermed / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+rv6-shell-sigtermed / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-shell-sigtermed / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-shell-sigtermed / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'shell'), (1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'child'), (12, 'SIGCONT', 'shell'), (32, 'SIGKILL', 'shell'), (32, 'SIGKILL', 'trap command
+rv6-shell-sigtermed / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+== rv6-shell-sigtermed: red on owner_stated_seconds
+rv6-sigterm-leaves-only / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-sigterm-leaves-only / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-sigterm-leaves-only / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-sigterm-leaves-only / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-sigterm-leaves-only / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+rv6-sigterm-leaves-only / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-sigterm-leaves-only / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-sigterm-leaves-only / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-sigterm-leaves-only / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a stubborn parent's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'child'), (9, 'SIGKILL', 'parent'), (29, 'SIGKILL', 'parent'), (29, 'SIGKILL', 'child'), (29, 'verdict')]
+rv6-sigterm-leaves-only / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+== rv6-sigterm-leaves-only: red on owner_stated_seconds
+rv6-kill-all-1.5s / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-kill-all-1.5s / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-kill-all-1.5s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-kill-all-1.5s / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-kill-all-1.5s / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+rv6-kill-all-1.5s / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-kill-all-1.5s / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-kill-all-1.5s / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-kill-all-1.5s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (5, 'SIGKILL', 'survivor'), (28, 'SIGKILL', 'survivor'), (28, 'verdict')]
+rv6-kill-all-1.5s / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+== rv6-kill-all-1.5s: red on owner_stated_seconds
+rv6-resume-not-before-grace / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-resume-not-before-grace / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-resume-not-before-grace / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-resume-not-before-grace / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-resume-not-before-grace / owner_shell_window: green rc 0 4.8 s: owner_shell_window: PASS
+rv6-resume-not-before-grace / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-resume-not-before-grace / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-resume-not-before-grace / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-resume-not-before-grace / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv6-resume-not-before-grace / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+== rv6-resume-not-before-grace: SURVIVES (green on all 10)
+rv6-resume-not-first-pass / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-resume-not-first-pass / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-resume-not-first-pass / owner_late_exit: green rc 0 0.8 s: owner_late_exit: PASS
+rv6-resume-not-first-pass / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-resume-not-first-pass / owner_shell_window: green rc 0 4.8 s: owner_shell_window: PASS
+rv6-resume-not-first-pass / owner_survivor: green rc 0 1.6 s: owner_survivor: PASS
+rv6-resume-not-first-pass / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-resume-not-first-pass / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-resume-not-first-pass / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv6-resume-not-first-pass / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+== rv6-resume-not-first-pass: SURVIVES (green on all 10)
+rv6-trap-9s / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-trap-9s / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-trap-9s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-trap-9s / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-trap-9s / owner_shell_window: green rc 0 4.6 s: owner_shell_window: PASS
+rv6-trap-9s / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-trap-9s / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-trap-9s / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-trap-9s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'child'), (12, 'SIGCONT', 'shell'), (30, 'SIGKILL', 'shell'), (30, 'SIGKILL', 'trap command'), (50, 'SIGKILL', 'shel
+rv6-trap-9s / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+== rv6-trap-9s: red on owner_stated_seconds
+rv6-vanishing-5s / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-vanishing-5s / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-vanishing-5s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-vanishing-5s / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-vanishing-5s / owner_shell_window: green rc 0 4.7 s: owner_shell_window: PASS
+rv6-vanishing-5s / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-vanishing-5s / owner_vanishing: green rc 0 0.8 s: owner_vanishing: PASS
+rv6-vanishing-5s / owner_late_cancel: green rc 0 0.8 s: owner_late_cancel: PASS
+rv6-vanishing-5s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a vanishing listing's stated seconds were not kept: [(39, 'verdict')]
+rv6-vanishing-5s / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+== rv6-vanishing-5s: red on owner_stated_seconds
+row mutants: 10 run, survivors ['rv6-sigkill-by-number', 'rv6-sigcont-by-number', 'rv6-resume-not-before-grace', 'rv6-resume-not-first-pass']

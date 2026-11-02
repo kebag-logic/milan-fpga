@@ -1,0 +1,71 @@
+owner-report: pid 2742070 (python3) state Z wchan 0 parent 2741860 (first parent 2741860) age 0.22 s start 77532775, sent SIGKILL 1.50 s ago
+owner-reparented: {'sigterm_during_grace': True}
+owner-late-exit: {'collected_at_deadline': True}
+owner-stall: {'stalled_seconds': 2.0, 'killed_in_pass': 27}
+owner-shell-window: {'trap_ran_after_kill_time': True, 'trap_command_ran': True, 'trap_finished': True}
+owner-survivor: CLEANUP FAILED: owned descendants remain after 1.01 s, 26 census passes, slowest 0.02 s: pid 2757844 (bash) state T wchan do_signal_stop parent 2741860 (first parent 2741860) age 1.05 s start 77533635, not sent SIGKILL; pid 2757852 (python3) state S wchan hrtimer_nanosleep parent 2757844 (first parent 2757844) age 1.05 s start 77533635, sent SIGKILL 0.79 s ago
+owner-vanishing: {'verdict_reached': True}
+owner-late-cancel: {'verdict_without_trap_window': True}
+owner-stated-seconds: {'grace_pass': 5, 'survivor_verdict_pass': 29, 'resume_pass': 12, 'window_end_pass': 32, 'resumed_verdict_pass': 52, 'parent_kill_pass': 9, 'vanishing_verdict_pass': 49}
+owner-reused-identity: {'signalled': False, 'through_handle': True}
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 2799890, "cwd": "/tmp/suite-cancellation-02uwgfps/normal-orphan input [523]", "identities": {"2799876": ["77535216", "S"], "2799890": ["77535219", "S"]}, "pid": 2799876}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2809246, "cwd": "/tmp/suite-cancellation-02uwgfps/cancel-selection-SIGINT input [523]", "identities": {"2809164": ["77535525", "S"], "2809246": ["77535528", "S"]}, "pid": 2809164}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2815975, "cwd": "/tmp/suite-cancellation-02uwgfps/cancel-selection-SIGTERM input [523]", "identities": {"2815865": ["77535754", "S"], "2815975": ["77535757", "S"]}, "pid": 2815865}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2822676, "cwd": "/tmp/suite-cancellation-02uwgfps/cancel-preflight-SIGINT input [523]", "identities": {"2822574": ["77535999", "S"], "2822676": ["77536003", "S"]}, "pid": 2822574}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2827500, "cwd": "/tmp/suite-cancellation-02uwgfps/cancel-preflight-SIGTERM input [523]", "identities": {"2827426": ["77536800", "S"], "2827500": ["77536803", "S"]}, "pid": 2827426}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2832880, "cwd": "/tmp/suite-cancellation-02uwgfps/cancel-command-SIGINT input [523]", "identities": {"2832815": ["77537317", "S"], "2832880": ["77537320", "S"]}, "pid": 2832815}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2839463, "cwd": "/tmp/suite-cancellation-02uwgfps/cancel-command-SIGTERM input [523]", "identities": {"2839385": ["77537586", "S"], "2839463": ["77537589", "S"]}, "pid": 2839385}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 2842139, "cwd": "/tmp/suite-cancellation-02uwgfps/cancel-transition-SIGINT input [523]", "identities": {"2842126": ["77537847", "S"], "2842139": ["77537850", "S"]}, "pid": 2842126}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 2843818, "cwd": "/tmp/suite-cancellation-02uwgfps/cancel-transition-SIGTERM input [523]", "identities": {"2843779": ["77538113", "S"], "2843818": ["77538116", "S"]}, "pid": 2843779}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-lock-wait-SIGINT: {"exit": 130, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+cancel-lock-wait-SIGTERM: {"exit": 143, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+unsafe-command-SIGTERM: {"exit": 1, "foreign_untouched": true, "handshake": {"child": 2845331, "cwd": "/tmp/suite-cancellation-02uwgfps/unsafe-command-SIGTERM input [523]", "identities": {"2845329": ["77538452", "S"], "2845331": ["77538456", "S"]}, "pid": 2845329}, "next_suite": true, "phase": "command", "unsafe_control_detected": true}
+hard-KILL: {"exit": -9, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "KILL", "sweep_shell_exited": true, "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "$REVIEWS/r764-6-833/scripts/test_suite_cancellation.py", line 958, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/r764-6-833/scripts/test_suite_cancellation.py", line 931, in main
+    hard_stop(parent, how)
+    ~~~~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/r764-6-833/scripts/test_suite_cancellation.py", line 325, in hard_stop
+    status, at_death = probe.finish()
+                       ~~~~~~~~~~~~^^
+  File "$REVIEWS/r764-6-833/scripts/process_test_support.py", line 229, in finish
+    status = self.process.wait(timeout=FINISH_SECONDS)
+  File "/usr/lib/python3.14/subprocess.py", line 1279, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2076, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['bash', '/tmp/suite-cancellation-02uwgfps/hard-HUP input [523]/scripts/run_all_suites.sh', '/tmp/suite-cancellation-02uwgfps/hard-HUP input [523]/logs']' timed out after 60 seconds
+Command exited with non-zero status 1
+	Command being timed: "python3 scripts/test_suite_cancellation.py"
+	User time (seconds): 16.11
+	System time (seconds): 22.74
+	Percent of CPU this job got: 31%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 2:04.47
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 28480
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 6
+	Minor (reclaiming a frame) page faults: 536792
+	Voluntary context switches: 18423
+	Involuntary context switches: 150
+	Swaps: 0
+	File system inputs: 64
+	File system outputs: 200
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 1

@@ -1,0 +1,20 @@
+row 1: 3 mutants, controls ['owner_reused_identity']
+row 2: 2 mutants, controls ['owner_stated_seconds']
+row 3: 4 mutants, controls ['owner_shell_window', 'owner_stated_seconds']
+row 4: 7 mutants, controls ['owner_stated_seconds', 'owner_survivor']
+row 5: 2 mutants, controls ['owner_stated_seconds']
+row 6: 2 mutants, controls ['owner_stated_seconds']
+row 7: 8 mutants, controls ['owner_shell_window']
+row 8: 4 mutants, controls ['owner_shell_window']
+row 9: 5 mutants, controls ['owner_stall', 'owner_stated_seconds']
+row 10: control owner_shell_window is listed as pinning but no listed mutant targets it
+row 10: 2 mutants, controls ['owner_shell_window', 'owner_stated_seconds']
+row 11: 4 mutants, controls ['owner_late_exit', 'owner_stated_seconds', 'owner_vanishing']
+row 12: 4 mutants, controls ['owner_late_exit']
+row 13: 8 mutants, controls ['owner_reparented']
+row 14: 5 mutants, controls ['owner_late_cancel']
+row 15: 4 mutants, controls ['owner_survivor']
+row 16: 7 mutants, controls ['owner_report', 'owner_survivor']
+mutant windows-2s in rows [4, 6]
+rows=16 mutants=75 with-control=70 no-control=['none', 'sigterm-checks-parent', 'no-sigcont-after-send', 'sigterm-to-new', 'no-leaf-first'] bad=0
+rc=0
