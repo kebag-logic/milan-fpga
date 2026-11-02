@@ -1,0 +1,10 @@
+--- head/hdl/common/csr/milan_csr.sv	2026-11-02 11:58:31.000000000 +0100
++++ m1/hdl/common/csr/milan_csr.sv	2026-11-02 12:25:26.582094826 +0100
+@@ -3129,7 +3129,6 @@
+       end
+       //! LAST, so it beats the grant above: a beat we did not win cannot
+       //! leave a snapshot behind that looks like ours
+-      if (i_srp_ctx_stolen) srp_fresh_r <= 1'b0;
+     end
+   end : strm_srp_master_S
+ 

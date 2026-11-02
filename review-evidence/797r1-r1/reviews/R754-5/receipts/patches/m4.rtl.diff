@@ -1,0 +1,10 @@
+--- head/hdl/common/csr/milan_csr.sv	2026-11-02 11:58:31.000000000 +0100
++++ m4/hdl/common/csr/milan_csr.sv	2026-11-02 12:31:22.016070656 +0100
+@@ -3125,7 +3125,6 @@
+         srp_wr_sid_r   <= stg_hit_w ? {stg_sid_hi_r, stg_sid_lo_r} : 64'h0;
+         srp_wr_dmac_r  <= stg_hit_w ? {stg_dmac_hi_r[15:0], stg_dmac_lo_r}
+                                     : 48'h0;
+-        srp_fresh_r    <= 1'b0;
+       end
+       //! LAST, so it beats the grant above: a beat we did not win cannot
+       //! leave a snapshot behind that looks like ours
