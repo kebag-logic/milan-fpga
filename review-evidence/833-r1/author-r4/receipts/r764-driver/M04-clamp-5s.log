@@ -1,0 +1,14 @@
+owner-report: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.06 s start 75548924, sent SIGKILL 1.50 s ago
+owner-reparented: {'sigterm_during_grace': True}
+owner-late-exit: {'collected_at_deadline': True}
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726d/r764-driver/work/M04-clamp-5s/scripts/test_suite_cancellation.py", line 735, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$VALIDATION_STORAGE/833-a726d/r764-driver/work/M04-clamp-5s/scripts/test_suite_cancellation.py", line 704, in main
+    owner_stall(parent)
+    ~~~~~~~~~~~^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726d/r764-driver/work/M04-clamp-5s/scripts/test_suite_cancellation.py", line 536, in owner_stall
+    assert killed_in and killed_in[0] > 2, f"the stall was charged in full: SIGKILL in pass {killed_in}"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: the stall was charged in full: SIGKILL in pass [2]

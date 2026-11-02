@@ -1,0 +1,8 @@
+26c26,30
+<                                        ("self._signal(self.root_fd, signal.SIGCONT)\n", "pass\n")]}
+---
+>                                        ("self._signal(self.root_fd, signal.SIGCONT)\n", "pass\n")],
+>        # R763-3's two new mutants (its mutants.py), added in round 4.
+>        "R763-3-shell-killed-when-resumed": [("(resumed is None or clock < kill_all):", "resumed is None:")],
+>        "R763-3-new-fix-census-not-owned": [("resumed is None and root_pid in owned and not (live - {root_pid}):",
+>                                             "resumed is None and root_pid in census and not (live - {root_pid}):")]}

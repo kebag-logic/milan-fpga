@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726d/rev3/review-evidence/833-r1/reviews/R763-3/scripts/run_control.py", line 14, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+    ~~^^
+  File "$VALIDATION_STORAGE/833-a726d/r763-matrix/mutants/new-fix-reverted/test_suite_cancellation.py", line 686, in owner_late_cancel
+    owner.run(["true"])
+    ~~~~~~~~~^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726d/r763-matrix/mutants/new-fix-reverted/owned_process.py", line 370, in run
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726d/r763-matrix/mutants/new-fix-reverted/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$VALIDATION_STORAGE/833-a726d/r763-matrix/mutants/new-fix-reverted/test_suite_cancellation.py", line 680, in listed
+    assert not resumed, "a cancel after the shell was collected resumed it, re-arming its trap window"
+           ^^^^^^^^^^^
+AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+owner_late_cancel FAIL 0.0s AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window

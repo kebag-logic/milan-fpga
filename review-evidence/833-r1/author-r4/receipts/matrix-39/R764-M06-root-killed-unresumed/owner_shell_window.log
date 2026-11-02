@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726d/tools/run_control3.py", line 21, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+                                                      ~~^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726d/matrix37/work/R764-M06-root-killed-unresumed/scripts/test_suite_cancellation.py", line 579, in owner_shell_window
+    assert marker.exists(), "the shell was killed in the pass that resumed it, before its trap"
+           ~~~~~~~~~~~~~^^
+AssertionError: the shell was killed in the pass that resumed it, before its trap
+owner_shell_window FAIL 1.6s AssertionError: the shell was killed in the pass that resumed it, before its trap

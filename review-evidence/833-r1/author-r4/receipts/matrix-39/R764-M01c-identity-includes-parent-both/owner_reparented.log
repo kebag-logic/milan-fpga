@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726d/tools/run_control3.py", line 21, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+                                                      ~~^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726d/matrix37/work/R764-M01c-identity-includes-parent-both/scripts/test_suite_cancellation.py", line 476, in owner_reparented
+    assert marker.exists(), "re-parented descendant was treated as new and never got SIGTERM"
+           ~~~~~~~~~~~~~^^
+AssertionError: re-parented descendant was treated as new and never got SIGTERM
+owner_reparented FAIL 2.1s AssertionError: re-parented descendant was treated as new and never got SIGTERM

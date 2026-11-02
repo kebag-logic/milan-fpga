@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726d/tools/run_control3.py", line 21, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+                                                      ~~^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726d/matrix37/work/R764-M12-report-without-state/scripts/test_suite_cancellation.py", line 631, in owner_survivor
+    assert field in failure, (field, failure)
+           ^^^^^^^^^^^^^^^^
+AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 3 (bash) parent 1 (first parent 1) age 1.05 s start 75519000, not sent SIGKILL; pid 4 (python3) parent 3 (first parent 3) age 1.06 s start 75519000, sent SIGKILL 0.81 s ago')
+owner_survivor FAIL 1.1s AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 3 (bash) parent 1 (first parent 1) age 1.05 s start 75519000, not sent SIGKILL; pid 4 (python3) parent 3 (first parent 3) age 1.06 s start 75519000, sent SIGKILL 0.81 s ago')

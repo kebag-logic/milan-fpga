@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726d/r763-matrix/mutants/survivor-never-fails/test_suite_cancellation.py", line 650, in owner_vanishing
+    owner._cleanup()
+    ~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726d/r763-matrix/mutants/survivor-never-fails/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$VALIDATION_STORAGE/833-a726d/r763-matrix/mutants/survivor-never-fails/test_suite_cancellation.py", line 645, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726d/rev3/review-evidence/833-r1/reviews/R763-3/scripts/run_control.py", line 14, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+    ~~^^
+  File "$VALIDATION_STORAGE/833-a726d/r763-matrix/mutants/survivor-never-fails/test_suite_cancellation.py", line 638, in owner_vanishing
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726d/r763-matrix/mutants/survivor-never-fails/owned_process.py", line 170, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726d/r763-matrix/mutants/survivor-never-fails/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$VALIDATION_STORAGE/833-a726d/r763-matrix/mutants/survivor-never-fails/test_suite_cancellation.py", line 645, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict
+owner_vanishing FAIL 15.0s AssertionError: cleanup never reached a verdict

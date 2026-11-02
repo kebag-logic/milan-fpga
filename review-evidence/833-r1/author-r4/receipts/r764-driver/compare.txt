@@ -1,0 +1,27 @@
+control-A                                     suite     expect=green got=green rc=  0   58.1 old=green | suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed ca
+control-B                                     suite     expect=green got=green rc=  0   58.2 old=green | suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed ca
+control-lifecycle                             lifecycle expect=green got=green rc=  0   35.1 old=green | mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting accept
+M01-identity-includes-parent                  suite     expect=red   got=green rc=  0   58.2 old=green | suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed ca
+M01b-send-recheck-includes-parent             suite     expect=probe got=green rc=  0   58.1 old=green | suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed ca
+M01c-identity-includes-parent-both            suite     expect=red   got=red   rc=  1    2.2 old=red | AssertionError: re-parented descendant was treated as new and never got SIGTERM
+M02-no-reap-after-census                      suite     expect=red   got=red   rc=  1    0.8 old=red | RuntimeError: CLEANUP FAILED: owned descendants remain after 0.47 s, 1 census passes, slowest 0.47 s: pid 5 (p
+M03-wall-clock                                suite     expect=red   got=red   rc=  1    2.9 old=red | AssertionError: the stall was charged in full: SIGKILL in pass [2]
+M04-clamp-5s                                  suite     expect=red   got=red   rc=  1    2.9 old=red | AssertionError: the stall was charged in full: SIGKILL in pass [2]
+M05-no-trap-window                            suite     expect=red   got=red   rc=  1    5.5 old=red | AssertionError: the shell was killed in the pass that resumed it, before its trap
+M06-root-killed-unresumed                     suite     expect=red   got=red   rc=  1    5.5 old=red | AssertionError: the shell was killed in the pass that resumed it, before its trap
+M07-trap-child-no-window                      suite     expect=red   got=red   rc=  1    5.5 old=red | AssertionError: the resumed shell's trap command was killed inside the shell's window
+M04c-clamp-1.5s                               suite     expect=red   got=red   rc=  1    2.9 old=red | AssertionError: the stall was charged in full: SIGKILL in pass [2]
+M04d-clamp-1.0s                               suite     expect=probe got=green rc=  0   57.5 old=green | suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed ca
+M07b-trap-child-1s-window                     suite     expect=red   got=red   rc=  1    6.5 old=red | AssertionError: the resumed shell's trap command was killed inside the shell's window
+M08-no-kill-before-fail                       suite     expect=red   got=red   rc=  1   25.1 old=red | AssertionError: stopped shell left behind
+M09-kill-before-fail-spares-shell             suite     expect=red   got=red   rc=  1   25.1 old=red | AssertionError: stopped shell left behind
+M10-endless-unbounded                         suite     expect=red   got=red   rc=  1   23.1 old=red | AssertionError: cleanup never reached a verdict
+M11-trust-sigkill                             suite     expect=red   got=red   rc=  1   39.0 old=red | AssertionError: a survivor never failed the run
+M12-report-without-state                      suite     expect=red   got=red   rc=  1    2.1 old=red | AssertionError: ('state S', 'pid 2 (python3) parent 1 (first parent 1) age 0.04 s start 75553233, not sent SIG
+M13-cleanup-does-nothing-suite                suite     expect=red   got=red   rc=  1    0.2 old=red | AssertionError: re-parented descendant was treated as new and never got SIGTERM
+M13-cleanup-does-nothing-lifecycle            lifecycle expect=red   got=red   rc=  1   16.5 old=red | AssertionError: ('1307', ('75555224', 'S'), ('75555224', 'S'))
+M14-no-start-recheck                          suite     expect=probe got=green rc=  0   58.0 old=green | suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed ca
+M16-resume-collected-shell                    suite     expect=red   got=red   rc=  1    8.9 old=red | AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+R763-3-shell-killed-when-resumed              suite     expect=red   got=red   rc=  1    5.5 old=- | AssertionError: the shell was killed in the pass that resumed it, before its trap
+R763-3-shell-killed-when-resumed-lifecycle    lifecycle expect=probe got=green rc=  0   34.8 old=- | mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting accept
+M15-windows-2s                                suite     expect=probe got=green rc=  0   58.0 old=green | suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed ca

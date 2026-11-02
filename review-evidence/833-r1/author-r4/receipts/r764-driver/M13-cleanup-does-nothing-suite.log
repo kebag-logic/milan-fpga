@@ -1,0 +1,12 @@
+owner-report: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.07 s start 75553527, sent SIGKILL 1.50 s ago
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726d/r764-driver/work/M13-cleanup-does-nothing-suite/scripts/test_suite_cancellation.py", line 735, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$VALIDATION_STORAGE/833-a726d/r764-driver/work/M13-cleanup-does-nothing-suite/scripts/test_suite_cancellation.py", line 702, in main
+    owner_reparented(parent)
+    ~~~~~~~~~~~~~~~~^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726d/r764-driver/work/M13-cleanup-does-nothing-suite/scripts/test_suite_cancellation.py", line 476, in owner_reparented
+    assert marker.exists(), "re-parented descendant was treated as new and never got SIGTERM"
+           ~~~~~~~~~~~~~^^
+AssertionError: re-parented descendant was treated as new and never got SIGTERM

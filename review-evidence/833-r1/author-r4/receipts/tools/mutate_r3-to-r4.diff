@@ -1,0 +1,8 @@
+2c2
+< """usage: mutate_r3.py (R764-2's mutate_r2.py plus round 3 mutant M16)
+---
+> """usage: mutate_r4.py (R764-2's mutate_r2.py plus round 3 mutant M16 and R763-3's shell-killed-when-resumed)
+75a76,78
+>  # Round 4 (#833): R763-3's mutant, the in-window guard on a resumed shell removed.
+>  "R763-3-shell-killed-when-resumed": ([("(resumed is None or clock < kill_all):", "resumed is None:")], "suite", "red"),
+>  "R763-3-shell-killed-when-resumed-lifecycle": ([("(resumed is None or clock < kill_all):", "resumed is None:")], "lifecycle", "probe"),

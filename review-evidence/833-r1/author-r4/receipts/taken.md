@@ -1,0 +1,6 @@
+[A726d] TAKEN
+Branch: 833-owned-process (PR #834), round 4 on top of round 3 head 3740565f4315cccc4e6dfb8d0b37ec9b55b65ec2
+Authoritative references: #833 acceptance; PR #834 round 3 reviews R763-3 (issuecomment-6577933512, NEGATIVE, one MINOR under Tests) and R764-3 (POSITIVE); AGENTS.md sections 5 to 8; docs/testing/TESTING.md
+Interpreted scope: R763-3-F1. A control in scripts/test_suite_cancellation.py resumes a cancelled shell at or past deadline + 1.0, so the in-window guard at scripts/owned_process.py:315-318 is the only thing that spares it: the control goes red when the clock < kill_all term is removed from :317, M05/M06, no-trap-window and trap-commands-* stay red, and it stays green unmutated. No product code change; if the control shows the guard is wrong, STOP. Then the retained RESIDUE with the reviews' exact fixes (R763-2-X1, R763-2-X2 = R764-2-R2, R764-2-R1); R763-3-S1 at judgement, with the reason. One commit for the control, one for the residue.
+Validation plan: the reviewer's matrix (its mutants plus the earlier mutation table) re-run at the new head, with shell-killed-when-resumed red on at least one owner control and no other row changed; every run: step of .github/workflows/docs.yml; python3 scripts/test_suite_cancellation.py; make -C tb/verilator/gptp_shadow lifecycle; cd tests && behave; git diff --check 1f29f189 HEAD.
+Blockers: none

@@ -1,0 +1,2186 @@
+[
+ {
+  "mutant": "R763-deadline-wall-clock",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-deadline-wall-clock",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-deadline-wall-clock",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-deadline-wall-clock",
+  "control": "owner_stall",
+  "rc": 1,
+  "seconds": 2.2,
+  "last": "owner_stall FAIL 2.1s AssertionError: the stall was charged in full: SIGKILL in pass [2]"
+ },
+ {
+  "mutant": "R763-deadline-wall-clock",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R763-deadline-wall-clock",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-deadline-wall-clock",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-deadline-wall-clock",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R763-endless-unbounded",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-endless-unbounded",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-endless-unbounded",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-endless-unbounded",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-endless-unbounded",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R763-endless-unbounded",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-endless-unbounded",
+  "control": "owner_vanishing",
+  "rc": 1,
+  "seconds": 15.1,
+  "last": "owner_vanishing FAIL 15.0s AssertionError: cleanup never reached a verdict"
+ },
+ {
+  "mutant": "R763-endless-unbounded",
+  "control": "owner_late_cancel",
+  "rc": 1,
+  "seconds": 15.1,
+  "last": "owner_late_cancel FAIL 15.0s AssertionError: cleanup never reached a verdict after a late cancel"
+ },
+ {
+  "mutant": "R763-identity-includes-parent",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-identity-includes-parent",
+  "control": "owner_reparented",
+  "rc": 1,
+  "seconds": 2.2,
+  "last": "owner_reparented FAIL 2.1s AssertionError: re-parented descendant was treated as new and never got SIGTERM"
+ },
+ {
+  "mutant": "R763-identity-includes-parent",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-identity-includes-parent",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-identity-includes-parent",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R763-identity-includes-parent",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-identity-includes-parent",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-identity-includes-parent",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R763-no-kill-before-raise",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-no-kill-before-raise",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-no-kill-before-raise",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-no-kill-before-raise",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-no-kill-before-raise",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R763-no-kill-before-raise",
+  "control": "owner_survivor",
+  "rc": 1,
+  "seconds": 18.2,
+  "last": "owner_survivor FAIL 18.1s AssertionError: stopped shell left behind"
+ },
+ {
+  "mutant": "R763-no-kill-before-raise",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-no-kill-before-raise",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R763-no-reap-after-census",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-no-reap-after-census",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-no-reap-after-census",
+  "control": "owner_late_exit",
+  "rc": 1,
+  "seconds": 0.6,
+  "last": "owner_late_exit FAIL 0.5s RuntimeError: CLEANUP FAILED: owned descendants remain after 0.47 s, 1 census passes, slowest 0.47 s: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.51 s start 75515935, not sent SIGKILL"
+ },
+ {
+  "mutant": "R763-no-reap-after-census",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-no-reap-after-census",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R763-no-reap-after-census",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-no-reap-after-census",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_vanishing PASS 0.5s"
+ },
+ {
+  "mutant": "R763-no-reap-after-census",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_cancel PASS 0.5s"
+ },
+ {
+  "mutant": "R763-no-shell-window",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-no-shell-window",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-no-shell-window",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-no-shell-window",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-no-shell-window",
+  "control": "owner_shell_window",
+  "rc": 1,
+  "seconds": 1.7,
+  "last": "owner_shell_window FAIL 1.6s AssertionError: the shell was killed in the pass that resumed it, before its trap"
+ },
+ {
+  "mutant": "R763-no-shell-window",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-no-shell-window",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-no-shell-window",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R763-none",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-none",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-none",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-none",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-none",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R763-none",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-none",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-none",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R763-pass-cap-1.5s",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-pass-cap-1.5s",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-pass-cap-1.5s",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-pass-cap-1.5s",
+  "control": "owner_stall",
+  "rc": 1,
+  "seconds": 2.2,
+  "last": "owner_stall FAIL 2.1s AssertionError: the stall was charged in full: SIGKILL in pass [2]"
+ },
+ {
+  "mutant": "R763-pass-cap-1.5s",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R763-pass-cap-1.5s",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-pass-cap-1.5s",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-pass-cap-1.5s",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R763-pass-cap-5s",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-pass-cap-5s",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-pass-cap-5s",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-pass-cap-5s",
+  "control": "owner_stall",
+  "rc": 1,
+  "seconds": 2.2,
+  "last": "owner_stall FAIL 2.1s AssertionError: the stall was charged in full: SIGKILL in pass [2]"
+ },
+ {
+  "mutant": "R763-pass-cap-5s",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R763-pass-cap-5s",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-pass-cap-5s",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-pass-cap-5s",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R763-reap-window-2s",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-reap-window-2s",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-reap-window-2s",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-reap-window-2s",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-reap-window-2s",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R763-reap-window-2s",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-reap-window-2s",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-reap-window-2s",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R763-report-without-state",
+  "control": "owner_report",
+  "rc": 1,
+  "seconds": 2.1,
+  "last": "owner_report FAIL 2.1s AssertionError: ('state S', 'pid 2 (python3) parent 1 (first parent 1) age 0.05 s start 75516552, not sent SIGKILL')"
+ },
+ {
+  "mutant": "R763-report-without-state",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-report-without-state",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-report-without-state",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-report-without-state",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R763-report-without-state",
+  "control": "owner_survivor",
+  "rc": 1,
+  "seconds": 1.2,
+  "last": "owner_survivor FAIL 1.1s AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 3 (bash) parent 1 (first parent 1) age 1.05 s start 75516597, not sent SIGKILL; pid 4 (python3) parent 3 (first parent 3) age 1.05 s start 75516597, sent SIGKILL 0.81 s ago')"
+ },
+ {
+  "mutant": "R763-report-without-state",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-report-without-state",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R763-survivor-never-fails",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-survivor-never-fails",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-survivor-never-fails",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-survivor-never-fails",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-survivor-never-fails",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R763-survivor-never-fails",
+  "control": "owner_survivor",
+  "rc": 1,
+  "seconds": 32.1,
+  "last": "owner_survivor FAIL 32.1s AssertionError: a survivor never failed the run"
+ },
+ {
+  "mutant": "R763-survivor-never-fails",
+  "control": "owner_vanishing",
+  "rc": 1,
+  "seconds": 15.1,
+  "last": "owner_vanishing FAIL 15.0s AssertionError: cleanup never reached a verdict"
+ },
+ {
+  "mutant": "R763-survivor-never-fails",
+  "control": "owner_late_cancel",
+  "rc": 1,
+  "seconds": 15.1,
+  "last": "owner_late_cancel FAIL 15.0s AssertionError: cleanup never reached a verdict after a late cancel"
+ },
+ {
+  "mutant": "R763-trap-commands-1s",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-trap-commands-1s",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-trap-commands-1s",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-trap-commands-1s",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-trap-commands-1s",
+  "control": "owner_shell_window",
+  "rc": 1,
+  "seconds": 2.7,
+  "last": "owner_shell_window FAIL 2.6s AssertionError: the resumed shell's trap command was killed inside the shell's window"
+ },
+ {
+  "mutant": "R763-trap-commands-1s",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-trap-commands-1s",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-trap-commands-1s",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R763-trap-commands-no-window",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-trap-commands-no-window",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-trap-commands-no-window",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-trap-commands-no-window",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-trap-commands-no-window",
+  "control": "owner_shell_window",
+  "rc": 1,
+  "seconds": 1.7,
+  "last": "owner_shell_window FAIL 1.6s AssertionError: the resumed shell's trap command was killed inside the shell's window"
+ },
+ {
+  "mutant": "R763-trap-commands-no-window",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-trap-commands-no-window",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-trap-commands-no-window",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M01-identity-includes-parent",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M01-identity-includes-parent",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M01-identity-includes-parent",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M01-identity-includes-parent",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M01-identity-includes-parent",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M01-identity-includes-parent",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M01-identity-includes-parent",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M01-identity-includes-parent",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M01b-send-recheck-includes-parent",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M01b-send-recheck-includes-parent",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M01b-send-recheck-includes-parent",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M01b-send-recheck-includes-parent",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M01b-send-recheck-includes-parent",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M01b-send-recheck-includes-parent",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M01b-send-recheck-includes-parent",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M01b-send-recheck-includes-parent",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M01c-identity-includes-parent-both",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M01c-identity-includes-parent-both",
+  "control": "owner_reparented",
+  "rc": 1,
+  "seconds": 2.2,
+  "last": "owner_reparented FAIL 2.1s AssertionError: re-parented descendant was treated as new and never got SIGTERM"
+ },
+ {
+  "mutant": "R764-M01c-identity-includes-parent-both",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M01c-identity-includes-parent-both",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M01c-identity-includes-parent-both",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M01c-identity-includes-parent-both",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M01c-identity-includes-parent-both",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M01c-identity-includes-parent-both",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M02-no-reap-after-census",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M02-no-reap-after-census",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M02-no-reap-after-census",
+  "control": "owner_late_exit",
+  "rc": 1,
+  "seconds": 0.6,
+  "last": "owner_late_exit FAIL 0.5s RuntimeError: CLEANUP FAILED: owned descendants remain after 0.47 s, 1 census passes, slowest 0.47 s: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.51 s start 75517572, not sent SIGKILL"
+ },
+ {
+  "mutant": "R764-M02-no-reap-after-census",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M02-no-reap-after-census",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M02-no-reap-after-census",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M02-no-reap-after-census",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_vanishing PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M02-no-reap-after-census",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_cancel PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M03-wall-clock",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M03-wall-clock",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M03-wall-clock",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M03-wall-clock",
+  "control": "owner_stall",
+  "rc": 1,
+  "seconds": 2.2,
+  "last": "owner_stall FAIL 2.1s AssertionError: the stall was charged in full: SIGKILL in pass [2]"
+ },
+ {
+  "mutant": "R764-M03-wall-clock",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M03-wall-clock",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M03-wall-clock",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M03-wall-clock",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M04-clamp-5s",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M04-clamp-5s",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M04-clamp-5s",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M04-clamp-5s",
+  "control": "owner_stall",
+  "rc": 1,
+  "seconds": 2.2,
+  "last": "owner_stall FAIL 2.1s AssertionError: the stall was charged in full: SIGKILL in pass [2]"
+ },
+ {
+  "mutant": "R764-M04-clamp-5s",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M04-clamp-5s",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M04-clamp-5s",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M04-clamp-5s",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M05-no-trap-window",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M05-no-trap-window",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M05-no-trap-window",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M05-no-trap-window",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M05-no-trap-window",
+  "control": "owner_shell_window",
+  "rc": 1,
+  "seconds": 1.7,
+  "last": "owner_shell_window FAIL 1.6s AssertionError: the shell was killed in the pass that resumed it, before its trap"
+ },
+ {
+  "mutant": "R764-M05-no-trap-window",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M05-no-trap-window",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M05-no-trap-window",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M06-root-killed-unresumed",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M06-root-killed-unresumed",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M06-root-killed-unresumed",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M06-root-killed-unresumed",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M06-root-killed-unresumed",
+  "control": "owner_shell_window",
+  "rc": 1,
+  "seconds": 1.7,
+  "last": "owner_shell_window FAIL 1.6s AssertionError: the shell was killed in the pass that resumed it, before its trap"
+ },
+ {
+  "mutant": "R764-M06-root-killed-unresumed",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M06-root-killed-unresumed",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M06-root-killed-unresumed",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M07-trap-child-no-window",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M07-trap-child-no-window",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M07-trap-child-no-window",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M07-trap-child-no-window",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M07-trap-child-no-window",
+  "control": "owner_shell_window",
+  "rc": 1,
+  "seconds": 1.7,
+  "last": "owner_shell_window FAIL 1.6s AssertionError: the resumed shell's trap command was killed inside the shell's window"
+ },
+ {
+  "mutant": "R764-M07-trap-child-no-window",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M07-trap-child-no-window",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M07-trap-child-no-window",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M04c-clamp-1.5s",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M04c-clamp-1.5s",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M04c-clamp-1.5s",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M04c-clamp-1.5s",
+  "control": "owner_stall",
+  "rc": 1,
+  "seconds": 2.1,
+  "last": "owner_stall FAIL 2.1s AssertionError: the stall was charged in full: SIGKILL in pass [2]"
+ },
+ {
+  "mutant": "R764-M04c-clamp-1.5s",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M04c-clamp-1.5s",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M04c-clamp-1.5s",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M04c-clamp-1.5s",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M04d-clamp-1.0s",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M04d-clamp-1.0s",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M04d-clamp-1.0s",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M04d-clamp-1.0s",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 2.7,
+  "last": "owner_stall PASS 2.6s"
+ },
+ {
+  "mutant": "R764-M04d-clamp-1.0s",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M04d-clamp-1.0s",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M04d-clamp-1.0s",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M04d-clamp-1.0s",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M07b-trap-child-1s-window",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M07b-trap-child-1s-window",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M07b-trap-child-1s-window",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M07b-trap-child-1s-window",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M07b-trap-child-1s-window",
+  "control": "owner_shell_window",
+  "rc": 1,
+  "seconds": 2.7,
+  "last": "owner_shell_window FAIL 2.6s AssertionError: the resumed shell's trap command was killed inside the shell's window"
+ },
+ {
+  "mutant": "R764-M07b-trap-child-1s-window",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M07b-trap-child-1s-window",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M07b-trap-child-1s-window",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M08-no-kill-before-fail",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M08-no-kill-before-fail",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M08-no-kill-before-fail",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M08-no-kill-before-fail",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M08-no-kill-before-fail",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M08-no-kill-before-fail",
+  "control": "owner_survivor",
+  "rc": 1,
+  "seconds": 18.2,
+  "last": "owner_survivor FAIL 18.1s AssertionError: stopped shell left behind"
+ },
+ {
+  "mutant": "R764-M08-no-kill-before-fail",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M08-no-kill-before-fail",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M09-kill-before-fail-spares-shell",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M09-kill-before-fail-spares-shell",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M09-kill-before-fail-spares-shell",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M09-kill-before-fail-spares-shell",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M09-kill-before-fail-spares-shell",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M09-kill-before-fail-spares-shell",
+  "control": "owner_survivor",
+  "rc": 1,
+  "seconds": 18.2,
+  "last": "owner_survivor FAIL 18.1s AssertionError: stopped shell left behind"
+ },
+ {
+  "mutant": "R764-M09-kill-before-fail-spares-shell",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M09-kill-before-fail-spares-shell",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M10-endless-unbounded",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M10-endless-unbounded",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M10-endless-unbounded",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M10-endless-unbounded",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M10-endless-unbounded",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M10-endless-unbounded",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M10-endless-unbounded",
+  "control": "owner_vanishing",
+  "rc": 1,
+  "seconds": 15.1,
+  "last": "owner_vanishing FAIL 15.0s AssertionError: cleanup never reached a verdict"
+ },
+ {
+  "mutant": "R764-M10-endless-unbounded",
+  "control": "owner_late_cancel",
+  "rc": 1,
+  "seconds": 15.1,
+  "last": "owner_late_cancel FAIL 15.0s AssertionError: cleanup never reached a verdict after a late cancel"
+ },
+ {
+  "mutant": "R764-M11-trust-sigkill",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M11-trust-sigkill",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M11-trust-sigkill",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M11-trust-sigkill",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M11-trust-sigkill",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M11-trust-sigkill",
+  "control": "owner_survivor",
+  "rc": 1,
+  "seconds": 32.1,
+  "last": "owner_survivor FAIL 32.1s AssertionError: a survivor never failed the run"
+ },
+ {
+  "mutant": "R764-M11-trust-sigkill",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M11-trust-sigkill",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M12-report-without-state",
+  "control": "owner_report",
+  "rc": 1,
+  "seconds": 2.2,
+  "last": "owner_report FAIL 2.1s AssertionError: ('state S', 'pid 2 (python3) parent 1 (first parent 1) age 0.04 s start 75518921, not sent SIGKILL')"
+ },
+ {
+  "mutant": "R764-M12-report-without-state",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M12-report-without-state",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M12-report-without-state",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M12-report-without-state",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M12-report-without-state",
+  "control": "owner_survivor",
+  "rc": 1,
+  "seconds": 1.2,
+  "last": "owner_survivor FAIL 1.1s AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 3 (bash) parent 1 (first parent 1) age 1.05 s start 75519000, not sent SIGKILL; pid 4 (python3) parent 3 (first parent 3) age 1.06 s start 75519000, sent SIGKILL 0.81 s ago')"
+ },
+ {
+  "mutant": "R764-M12-report-without-state",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M12-report-without-state",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M13-cleanup-does-nothing-suite",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M13-cleanup-does-nothing-suite",
+  "control": "owner_reparented",
+  "rc": 1,
+  "seconds": 0.1,
+  "last": "owner_reparented FAIL 0.1s AssertionError: re-parented descendant was treated as new and never got SIGTERM"
+ },
+ {
+  "mutant": "R764-M13-cleanup-does-nothing-suite",
+  "control": "owner_late_exit",
+  "rc": -9,
+  "seconds": 155.0,
+  "last": ""
+ },
+ {
+  "mutant": "R764-M13-cleanup-does-nothing-suite",
+  "control": "owner_stall",
+  "rc": 1,
+  "seconds": 0.1,
+  "last": "owner_stall FAIL 0.0s AssertionError: the stall was charged in full: SIGKILL in pass []"
+ },
+ {
+  "mutant": "R764-M13-cleanup-does-nothing-suite",
+  "control": "owner_shell_window",
+  "rc": 1,
+  "seconds": 0.1,
+  "last": "owner_shell_window FAIL 0.0s AssertionError: the shell was killed in the pass that resumed it, before its trap"
+ },
+ {
+  "mutant": "R764-M13-cleanup-does-nothing-suite",
+  "control": "owner_survivor",
+  "rc": 1,
+  "seconds": 0.1,
+  "last": "owner_survivor FAIL 0.0s Cancelled: signal 15"
+ },
+ {
+  "mutant": "R764-M13-cleanup-does-nothing-suite",
+  "control": "owner_vanishing",
+  "rc": 1,
+  "seconds": 0.1,
+  "last": "owner_vanishing FAIL 0.0s AssertionError: an endless listing did not fail the run"
+ },
+ {
+  "mutant": "R764-M13-cleanup-does-nothing-suite",
+  "control": "owner_late_cancel",
+  "rc": 1,
+  "seconds": 0.1,
+  "last": "owner_late_cancel FAIL 0.0s AssertionError: an endless listing did not fail the run"
+ },
+ {
+  "mutant": "R764-M14-no-start-recheck",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M14-no-start-recheck",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M14-no-start-recheck",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M14-no-start-recheck",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M14-no-start-recheck",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M14-no-start-recheck",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M14-no-start-recheck",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M14-no-start-recheck",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M16-resume-collected-shell",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M16-resume-collected-shell",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M16-resume-collected-shell",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M16-resume-collected-shell",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M16-resume-collected-shell",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M16-resume-collected-shell",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M16-resume-collected-shell",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M16-resume-collected-shell",
+  "control": "owner_late_cancel",
+  "rc": 1,
+  "seconds": 0.1,
+  "last": "owner_late_cancel FAIL 0.0s AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window"
+ },
+ {
+  "mutant": "R764-M15-windows-2s",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M15-windows-2s",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R764-M15-windows-2s",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R764-M15-windows-2s",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M15-windows-2s",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R764-M15-windows-2s",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R764-M15-windows-2s",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R764-M15-windows-2s",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "A726c-resume-collected-shell",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "A726c-resume-collected-shell",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "A726c-resume-collected-shell",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "A726c-resume-collected-shell",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "A726c-resume-collected-shell",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "A726c-resume-collected-shell",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "A726c-resume-collected-shell",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "A726c-resume-collected-shell",
+  "control": "owner_late_cancel",
+  "rc": 1,
+  "seconds": 0.1,
+  "last": "owner_late_cancel FAIL 0.0s AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window"
+ },
+ {
+  "mutant": "A726c-rearm-without-sigcont",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "A726c-rearm-without-sigcont",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "A726c-rearm-without-sigcont",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "A726c-rearm-without-sigcont",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "A726c-rearm-without-sigcont",
+  "control": "owner_shell_window",
+  "rc": 1,
+  "seconds": 11.7,
+  "last": "owner_shell_window FAIL 11.6s AssertionError: the shell was killed in the pass that resumed it, before its trap"
+ },
+ {
+  "mutant": "A726c-rearm-without-sigcont",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "A726c-rearm-without-sigcont",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "A726c-rearm-without-sigcont",
+  "control": "owner_late_cancel",
+  "rc": 1,
+  "seconds": 15.1,
+  "last": "owner_late_cancel FAIL 15.0s AssertionError: cleanup never reached a verdict after a late cancel"
+ },
+ {
+  "mutant": "R763-3-shell-killed-when-resumed",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-3-shell-killed-when-resumed",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-3-shell-killed-when-resumed",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-3-shell-killed-when-resumed",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-3-shell-killed-when-resumed",
+  "control": "owner_shell_window",
+  "rc": 1,
+  "seconds": 1.7,
+  "last": "owner_shell_window FAIL 1.6s AssertionError: the shell was killed in the pass that resumed it, before its trap"
+ },
+ {
+  "mutant": "R763-3-shell-killed-when-resumed",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-3-shell-killed-when-resumed",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-3-shell-killed-when-resumed",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ },
+ {
+  "mutant": "R763-3-new-fix-census-not-owned",
+  "control": "owner_report",
+  "rc": 0,
+  "seconds": 0.1,
+  "last": "owner_report PASS 0.1s"
+ },
+ {
+  "mutant": "R763-3-new-fix-census-not-owned",
+  "control": "owner_reparented",
+  "rc": 0,
+  "seconds": 0.2,
+  "last": "owner_reparented PASS 0.1s"
+ },
+ {
+  "mutant": "R763-3-new-fix-census-not-owned",
+  "control": "owner_late_exit",
+  "rc": 0,
+  "seconds": 0.6,
+  "last": "owner_late_exit PASS 0.5s"
+ },
+ {
+  "mutant": "R763-3-new-fix-census-not-owned",
+  "control": "owner_stall",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_stall PASS 3.1s"
+ },
+ {
+  "mutant": "R763-3-new-fix-census-not-owned",
+  "control": "owner_shell_window",
+  "rc": 0,
+  "seconds": 3.2,
+  "last": "owner_shell_window PASS 3.1s"
+ },
+ {
+  "mutant": "R763-3-new-fix-census-not-owned",
+  "control": "owner_survivor",
+  "rc": 0,
+  "seconds": 1.2,
+  "last": "owner_survivor PASS 1.1s"
+ },
+ {
+  "mutant": "R763-3-new-fix-census-not-owned",
+  "control": "owner_vanishing",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_vanishing PASS 0.8s"
+ },
+ {
+  "mutant": "R763-3-new-fix-census-not-owned",
+  "control": "owner_late_cancel",
+  "rc": 0,
+  "seconds": 0.9,
+  "last": "owner_late_cancel PASS 0.8s"
+ }
+]

@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726d/matrix37/work/r763/survivor-never-fails/owned_process.py", line 366, in run
+    self.checkpoint()
+    ~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726d/matrix37/work/r763/survivor-never-fails/owned_process.py", line 200, in checkpoint
+    raise Cancelled(self.cancel_signal)
+owned_process.Cancelled: signal 15
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726d/tools/run_control3.py", line 21, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+                                                      ~~^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726d/matrix37/work/r763/survivor-never-fails/test_suite_cancellation.py", line 620, in owner_survivor
+    owner.run(["bash", "-c", script], env=env)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726d/matrix37/work/r763/survivor-never-fails/owned_process.py", line 370, in run
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726d/matrix37/work/r763/survivor-never-fails/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$VALIDATION_STORAGE/833-a726d/matrix37/work/r763/survivor-never-fails/test_suite_cancellation.py", line 609, in bounded
+    assert time.monotonic() - since < 30, "a survivor never failed the run"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: a survivor never failed the run
+owner_survivor FAIL 32.1s AssertionError: a survivor never failed the run
