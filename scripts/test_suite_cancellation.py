@@ -404,7 +404,7 @@ while True:
 
 @contextmanager
 def stages(**seconds: float) -> Iterator[None]:
-    """Shorten cleanup stages for a control whose result does not depend on them."""
+    """Shorten cleanup stages for one control, restoring the product's afterwards."""
     saved = {name: getattr(owned_process, name) for name in seconds}
     for name, value in seconds.items():
         setattr(owned_process, name, value)
@@ -503,28 +503,40 @@ def owner_late_exit(parent: Path) -> None:
 
 
 def owner_stall(parent: Path) -> None:
-    """An owner stalled past every deadline still kills, and fails no one, first (#833)."""
+    """A stalled owner's deadlines do not jump: it still kills, and fails no one, first (#833)."""
     scratch = parent / "owner-stall"
     scratch.mkdir()
     ready = scratch / "ready"
     child = subprocess.Popen([sys.executable, "-c", STUBBORN, str(ready)])
     pid = published(ready)
-    stalls = []
-    with stages(GRACE_SECONDS=0.5, KILL_ALL_SECONDS=0.5, REAP_SECONDS=2.0):
+    passes = []
+    killed_in = []
+    # The cap lets the first pass and the stalled one advance the clock by 1 s at
+    # most, short of this grace, so a SIGKILL in the stalled pass means the stall was
+    # charged in full. The child's death after SIGKILL keeps the product's whole
+    # REAP_SECONDS, the window derived from the longest stall measured (#833).
+    with stages(GRACE_SECONDS=1.5, KILL_ALL_SECONDS=0.5):
         with OwnedProcesses() as owner:
-            census = owner._descendants
+            census, send = owner._descendants, owner._send
 
             def stalling() -> dict:
-                """Stall once for longer than the whole 3 s of deadlines, after SIGTERM and before SIGKILL."""
+                """Stall once for longer than grace, after SIGTERM and before SIGKILL."""
                 listed = census()
-                if pid in listed and len(stalls) == 1:
-                    time.sleep(3.2)
-                stalls.append(True)
+                if pid in listed and len(passes) == 1:
+                    time.sleep(2.0)
+                passes.append(True)
                 return listed
-            owner._descendants = stalling
+
+            def sending(target: int, start: str, signum: int) -> bool:
+                """Note the census pass in which the child is sent SIGKILL."""
+                if target == pid and signum == signal.SIGKILL:
+                    killed_in.append(len(passes))
+                return send(target, start, signum)
+            owner._descendants, owner._send = stalling, sending
+    assert killed_in and killed_in[0] > 2, f"the stall was charged in full: SIGKILL in pass {killed_in}"
     assert identity(pid) is None or identity(pid)[1] == "Z", identity(pid)
     child.wait()
-    print("owner-stall: " + str(dict(stalled_seconds=3.2, killed_after_stall=True)), flush=True)
+    print("owner-stall: " + str(dict(stalled_seconds=2.0, killed_in_pass=killed_in[0])), flush=True)
 
 
 def owner_shell_window(parent: Path) -> None:
