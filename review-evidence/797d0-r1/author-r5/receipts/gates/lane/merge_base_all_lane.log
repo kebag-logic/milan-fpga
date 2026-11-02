@@ -1,0 +1,2 @@
+# head e8ec8d209a3d9055cc034a23d94925a0bf7b9a63 gate merge_base_all_lane: git -C <lane> merge-base --all origin/dev e8ec8d209a3d9055cc034a23d94925a0bf7b9a63 && test $(git -C <lane> merge-base --all origin/dev e8ec8d209a3d9055cc034a23d94925a0bf7b9a63 | wc -l) -eq 1
+e61a4afaa54a598ceec08b7b5879285256cc60b6
