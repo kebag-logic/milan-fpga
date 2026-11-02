@@ -1,0 +1,10 @@
+probe: plant 'Mark II defaults to firmware' on docs/overview/SYSTEM_DOMAIN_MAP.md
+docs/DOCUMENTATION_AUDIT.md: STALE (45 lines differ); first difference at line 30:
+  committed: | current | 176 | 73,277 |
+  generated: | current | 175 | 73,237 |
+regenerate with: python3 scripts/docs_inventory.py --write
+check_rc=1
+findings_dir_rc=0
+## D0-001: docs/overview/SYSTEM_DOMAIN_MAP.md:43
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+restored_check_rc=0
