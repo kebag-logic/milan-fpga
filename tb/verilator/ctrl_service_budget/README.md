@@ -84,7 +84,7 @@ The table's per-pass share section gives each group's work passes, those over th
 [`save_window.py`](save_window.py)'s groups, named `backlog-adp@<phase>-<k>`, open `backlog-adp`'s window, the heaviest the harness stages, while a save of the saved-state store is in each of its flash phases (#665).
 A SET_NAME 1.1 s into the window's 2 s wait for MAAP starts the save, and the bind the window needs is persisted and joins it, so the save's first-dirty window and seal run beside that wait.
 Each phase starts at a flash event of that save, which the stimulus waits for (`wait flash`): the erase for the blank check, the first page program for the program phase, and 30 ms with no program after the last one for the verify.
-`grade.save_phase` refuses a window that did not open inside its phase of the first save, read off the log's `FLASHOP` lines and the passes that read the flash.
+`grade.save_phase` refuses a window that did not open inside its phase of the first save, read off the save's page programs in the log's `FLASHOP` lines alone, since its read-backs run in passes the log gives only as their run's longest: after the erase and before the first page, within 30 ms of a page, or 30 ms or more after the last one.
 The blank check and the verify read back 128 bytes on every 10 ms tick, so their windows open at eight phases 1.25 ms apart; the program phase issues a page on every other tick, so its windows open at eight phases 2.5 ms apart.
 Each window must commit `backlog-adp`'s defined load, its probe is an instance of `backlog-adp`'s path and its records of the composed rows', and every pass of the group is held to the share.
 The composed maximum stays the four backlog rows' (`grade.BACKLOG_ROWS`).
