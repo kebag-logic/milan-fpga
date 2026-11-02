@@ -281,8 +281,10 @@ The [stage 1 silicon probe](https://github.com/kebag-logic/milan-fpga/issues/640
 Through that port, 3 reads were issued and none answered.
 Its cause is not established.
 
-On the SoC bus, 311 of 311 reads were answered.
-That is a measurement, not a diagnosis.
+With the masters on the SoC bus, the entity advertised.
+All 33 descriptors read back byte-identical.
+
+Both are measurements, not a diagnosis.
 
 The processor's three masters leave at the switch-over.
 Any later master also attaches to the SoC bus.
