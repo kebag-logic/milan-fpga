@@ -1,0 +1,8 @@
+--- hdl/common/csr/milan_csr.sv:1307,1309
+  //! [31:28] = 0 on every valid word, so no valid word can alias the poison.
+  wire [31:0] chmap_loop_rd_w = cmrd_valid_r
+      ? {4'd0,                                                  // [31:28]
+--- hdl/common/csr/milan_csr.sv:1317,1319
+         cmrd_data_r[14], cmrd_data_r[13],                      // [17] fed, [16] mapped
+         cmrd_data_r}                                           // [15:0] raw
+      : CHMAP_LOOP_POISON_C;

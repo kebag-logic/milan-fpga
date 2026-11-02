@@ -1,0 +1,11 @@
+[A711c] REVIEW READY
+Commit: `e90284bd0896067eba6f10b3e5b0e534c9b0e017`, tree `ba8551a2254c49763c632a5f695d87922a2b0706`. Local branch `797-r1-regref`; the manager pushes.
+Changed: `scripts/register_page.py` prints each read-table row as one conjunction true as printed, and refuses reserved bits on a word whose write leaves the block and a note holding a Markdown table. `scripts/register_selftest.py` adds an arm for read tables and two controls. `scripts/register_descriptions.json` and `docs/design/CSR_REGISTER_NOTES.md` correct the statements R753-2 and R754-2 named. `docs/reference/REGISTER_MAP.md` and `docs/diagrams/regmap/pp*` are regenerated. No RTL changed. No text moved to other pages, and no new gate or diagram.
+Validation, on a clean clone of the head, each log and rc in the receipts:
+- every `run:` step of `.github/workflows/docs.yml` that can run outside GitHub: 58 steps, 0 not rc 0, 38 not run (setup installs, GitHub run records, and jobs that verify uploaded CI receipts or cancel runs);
+- `python3 scripts/gen_register_reference.py --selftest`: rc 0, 61/61 controls;
+- `python3 scripts/gen_register_reference.py --check`: rc 0;
+- `git diff --check 1f29f189 HEAD`: rc 0; `git merge-base --all origin/dev HEAD`: one base, `1f29f189`.
+Read tables: a sweep of selection and state over `milan_csr`, each row read as printed, gives 1,152 reads and 0 disagreements on both the shipping and a 2x2 build. The same compare on the page at `96bfa851` exits 1 with 360. Six generator mutants all fail `--selftest`. Five tables with no `or` in them were outside the sweep. Both reviewers' simulations and plants, rerun: 45 plants 0 misses, 39 rows with only the comment-only control rc 0.
+Acceptance criteria: every finding and residue of R753-2 and R754-2 is fixed, each with file:line and a verification line in the handoff. The suggestions were not taken. The statements about firmware, the SoC and the processor were read against the cited lines, not simulated.
+Open risks/questions: the ETH_GUARD gating and RTL comments stay open and out of this PR. Lane conflict with PR #815 stands. Mermaid is parsed, not rendered. The external merge-candidate banks and hosted evidence at this head are the manager's. Not run: Verilator sweep, Yosys, full behave suite, hardware, Vivado.

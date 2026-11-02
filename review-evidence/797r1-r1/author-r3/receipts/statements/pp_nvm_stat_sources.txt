@@ -1,0 +1,30 @@
+--- hdl/common/csr/milan_csr.sv:2200,2204
+            A_PP_NVM_STAT: begin
+              pp_nvm_we_r    <= 1'b1;
+              pp_nvm_waddr_r <= PP_NVM_W_ACK_C;
+              pp_nvm_wdata_r <= s_axi_wdata;
+            end
+--- hdl/common/csr/milan_csr.sv:2282,2282
+        A_PP_NVM_STAT: pp_rd_data_w = i_pp_nvm_csr_rdata;
+--- hdl/milan/KL_nvm_backend.sv:455,461
+  assign hb_kick_w      = reg_we_w & (csr_addr_i[4:0] == R_ACK_C) & csr_wdata_i[0];
+  assign commit_ack_w   = reg_we_w & (csr_addr_i[4:0] == R_ACK_C) & csr_wdata_i[1];
+  assign commit_start_w = reg_we_w & (csr_addr_i[4:0] == R_ACK_C) & csr_wdata_i[2];
+  assign arm_w          = reg_we_w & (csr_addr_i[4:0] == R_ACK_C) & csr_wdata_i[3];
+  assign attest_w       = reg_we_w & (csr_addr_i[4:0] == R_ACK_C) & csr_wdata_i[4];
+  assign release_w      = reg_we_w & (csr_addr_i[4:0] == R_ACK_C) & csr_wdata_i[5];
+  assign reload_w       = reg_we_w & (csr_addr_i[4:0] == R_ACK_C) & csr_wdata_i[6];
+--- hdl/milan/KL_nvm_backend.sv:462,462
+  assign ack_id_w       = csr_wdata_i[16 +: CAP_ID_W_P];
+--- hdl/milan/KL_nvm_backend.sv:593,599
+        R_STAT_C:     csr_rdata_o = {CAP_TAG_C, unres_w, pend_w, arm_ref_r,
+                                     ack_ref_r, cap_att_r, cap_valid_r,
+                                     cap_hold_r, cap_open_r,
+                                     verdict_r, rl_ref_r, commit_busy_r,
+                                     nvm_stale_o, dirty_img_w, img_valid_r,
+                                     backed_r, img_cfg_w, dev_busy_w,
+                                     ld_pend_r, ld_acc_r, 2'd0};
+--- sw/firmware/milan_baremetal/milan_baremetal.c:1112,1112
+		milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_HB);
+--- sw/firmware/milan_baremetal/milan_baremetal.c:1457,1457
+	milan_write(MILAN_PP_NVM_STAT, NVM_STROBE_ACK | (cap.id << 16));

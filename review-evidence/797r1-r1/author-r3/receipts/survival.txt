@@ -1,0 +1,65 @@
+fragments: 1610; present on the new page: 1546; missing: 64
+MISSING: Milan TSN CSR - register map (ABI)
+MISSING: There is **no parameter, no fallback and no shadow arm** -- the user's instruction was "remove the old code AECP/ACMP/ADP the lwSRP shall be removed as well.
+MISSING: Only use the uCPU code" and "do not leave the option, remove everything out of the code base that is legacy".
+MISSING: VERSION `0x0002_0055` adds lane 4 for `gptp_ctl_mux`, making five in fabric-gPTP builds.
+MISSING: The entity enable is now two bits ORed.** `PP_CTRL[0]` at `0x920` **or** the historic `ADP_CTRL[0]` at `0x600` enables the entity -- either one, because `ADP_CTRL.en` is the bit every existing board script writes and there is only one contr
+MISSING: Every Stream Output's presentation-time offset is pinned at the Milan 2 ms default** (`SET_MAX_TRANSIT_TIME` is gone).
+MISSING: Access:** `RO` read-only, `RW` read-write, `W1C` write-1-to-clear, `W1S` write-1-to-set (self-clearing command strobe), `ROc` read latches/clears.
+MISSING: writes to `RO` fields are ignored
+MISSING: Identification / IRQ (global)
+MISSING: 802.1Qav CBS (per-queue, stride `0x20`; `0x400`-`0x49F` at `N`=5)
+MISSING: ADP identity (served by the protocol processor; five ADPDU fields are write-only scratch)
+MISSING: AECP/ACMP status (**AECP counters are structural zeros; lock is live**) + AAF talker (flat stream-0 registers)
+MISSING: SRP status (802.1Q MSRP/MVRP, Milan v1.2 Section 5.6) -- repointed to the protocol processor; PDU counters are structural zeros
+MISSING: ACMP listener **bind record** (the SM fields are structural zeros) + AVTP RX / MAAP / audio diagnostics
+MISSING: Link guard / MAC recovery (`LINK_CTRL`, `RST_EPOCH`, `LINKG_STAT` 0x774)
+MISSING: Identity / playback / 802.1AS overlay words
+MISSING: Clock validity -- the AVTP `tu` verdict (`CLKV_CTRL`/`STAT`/`TUCNT`, minor ≥ `0x0016`)
+MISSING: CRF media-clock sink (Milan v1.2 7.3, `KL_crf_rx`)
+MISSING: CRF media-clock talker (`KL_crf_tx`)
+MISSING: AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- **all three words structural zeros
+MISSING: ACMP bind-restore (E1) -- **dead port: writes accepted, ack never asserts
+MISSING: Persistence-journal ingest (E3) -- **writes accepted and discarded; nothing is restored
+MISSING: AEM dynamic-state patch port (E4) -- **writes accepted and discarded
+MISSING: inert AS_PATH compatibility addresses; the product serves the engine's bounded PathTrace (0x0056)
+MISSING: gPTP plane drop diagnostics: tap/parser/event drop counts, RO live (#207)
+MISSING: applied gPTP timestamp latency corrections, RO live (#358)
+MISSING: Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868)
+MISSING: AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`)
+MISSING: RX stream-parser probe (the pre-match listener view)
+MISSING: Reserved target-media compatibility words (structural zero)
+MISSING: Media-boundary slip counters (`SLIP_LB` / `SLIP_TDM`, RO live, minor >= `0x0058`)
+MISSING: `RENDER_STAT`: RO live selected-listener presentation state and the global refused-PDU count; structural zero without the stage. VERSION minor remains `0x0060`; the release step owns the bump
+MISSING: AAF clock meter (`AAFM_STAT` / `AAFM_RATE`, RO live, #629); structural zero on a shape without an AAF clock source. VERSION minor remains `0x0060`; the release step owns the bump
+MISSING: MMCM-DRP media-clock servo (Milan v1.2 7.3.4)
+MISSING: Channel-map fabric debug window (chmap64) -- write port + bypass arm, and the `0x910`/`0x914` **map-RAM readback
+MISSING: Protocol-processor control plane** (`PP_CTRL`/`STAT`/`SPADDR`/`SPDATA`/`DIAG`) -- always decoded at VERSION major 2
+MISSING: Every one defaults to PRESENT**, so a shipping build's map is exactly what this page describes.
+MISSING: -- the listener-0 row select (`{dir=0, idx=0}` is the park state and cannot carry the meaning) -- and `A_STRMW_SRP`'s idx-0 hard alias of `0x694` yields to it. Same pass, wire-facing on wide shapes: `KL_lwsrp_ctx_tx`'s batch walker kept a 4
+MISSING: speed (0=10,1=100,2=1000)
+MISSING: phy_reset_n (0 = hold PHY in reset)
+MISSING: Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`.
+MISSING: Physical switch-cycle acceptance remains on [#599].
+MISSING: (dest MAC, MSB-first: byte0 in
+MISSING: `ADP_CTRL[0]` still enables the entity, and it is now ORed with `PP_CTRL[0]` at `0x920`.** Either bit starts the plane.
+MISSING: advertise-enable -- **LIVE, and ORed with `PP_CTRL[0]` (`0x920`): either bit enables the entity**.
+MISSING: is that attribute's 802.1Q 35.2.2.7.4 FourPackedEvents value (0 none/ignore, 1 asking-failed, 2 ready, 3 ready-failed)
+MISSING: AVTP RX monitor (STREAM_INPUT[0], Milan Table 7-156):
+MISSING: Nothing in this device persists a binding across a power cycle.** The processor has its own NVM restore walk, but the device face behind it is a BLANK-FLASH responder inside `KL_pp_shadow` -- reads return `0xFF`, writes are accepted and dis
+MISSING: Milan v1.2 5.3.8.2 -- "The current bound state shall be saved in a non-volatile memory and restored after a power cycle" -- is **not met by this build**.
+MISSING: They both default to 1 in the RTL, and the shipping AX7101 shape is 8** -- `milan_datapath` drives both from its own `N_STREAMS`, which the builder sets to `max(listeners, talkers)` from the config, and [`configs/endstation_ax7101_8x8.yaml`
+MISSING: are ignored while set. `{dir=0, idx=0}` is the PARK state. Only these bits are stored/read back. Writing SEL invalidates the ACMP/SRP read snapshots. Until a re-poll lands, snapshot-served words read zero, meaning "not fresh yet", not "no b
+MISSING: 🔴 **STRUCTURAL ZERO at every index.** There is no lwSRP attribute-row table in this fabric any more, so the window's SRP port is never granted and this word reads 0 -- including at idx 0, whose live hard alias of `LWSRP_STATUS` (`0x694`) we
+MISSING: 🔴 **STRUCTURAL ZERO.** Was `{flags[31:16], tuid[15:0]}` from the ACMP bind context. `0x86C` (window hole) still reads `0xDEADDEAD`
+MISSING: Since `0x001F` there is no per-context arming bit.** TCTX `CTRL[0]` used to be ANDed here, and it reset to 0 with no board-software writer, so on a shape-static build (`0x0015`+) *no talker above 0 could ever egress* -- measured on silicon 
+MISSING: WIRE, ProfiShark inline on the board link with a licensed stream running:
+MISSING: MSRP declared a Talker Advertise for exactly `{02:00:00:00:00:02, uid 0x0000}` and `{…, uid 0x0004}` -- uid 4 is `N_STREAMS`, i.e.
+MISSING: While the lane-K engines are not connected, those inputs are tied inert at the SoC (`i_lctx_rd_data=0`, `i_lctx_snap_ok=1`, same for TCTX, `i_acmp_tbl_*=0` -- allowlisted in [`scripts/check_tied_inputs.sh`]), so engine-backed words read 0 a
+MISSING: These five words are the view **upstream** of the match, and they were the missing instrument in the fabric-listener accept blocker ([`../limitations/TROUBLESHOOTING.md`] Section 21).
+MISSING: Until #617 round 3 the media NCO could also lose two ticks when an aligner trim update landed on its terminal count, which an engagement dwelling on the crossing makes likely
+MISSING: ps_invert: flips the servo fine-PS direction mapping (bench sign knob - 2026-07-23 mf51 silicon stepped opposite the UG472 reading and rails went 25x worse under the servo; settle the polarity on silicon via this bit, then bake the winner a
+MISSING: The entity enable is two bits, ORed.** `PP_CTRL[0]` is this plane's own enable
+MISSING: Either one enables the entity.** Demanding both would strand every existing script
+MISSING: There is exactly one control plane now, so there is exactly one thing for either bit to start.
+MISSING: entity enable**, ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane.

@@ -1,0 +1,11 @@
+register reference: REFUSED: hdl/common/csr/milan_csr.sv: chmap_sel <= s_axi_wdata & 32'h1FF in A_CHMAP_SEL is a write form this generator cannot read
+--- masked store on CHMAP_SEL: --write rc=2, page says the RTL write arm stores nothing:
+    | 31:9 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
+    | 8 | `CHMAP_WR_SIDE` | R/W | 0 | side (0 = RMAP/render phys channel 0..9, 1 = CMAP/captur
+    | 7:6 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
+    | 5:0 | `CHMAP_WR_ADDR` | R/W | 0 | map entry index. |
+register reference: REFUSED: hdl/common/csr/milan_csr.sv: the A_MCSRV_CTRL store to part of mcsrv_ctrl is a write form this generator cannot read
+--- slice store on MCSRV_CTRL: --write rc=2, page says the RTL write arm stores nothing:
+    | 31:2 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
+    | 1 | `MCSRV_AUTO_REPAIR` | R/W | 0 | 1 allows the DRP divider repair path. 0, the reset, 
+    | 0 | `MCSRV_PS_INVERT` | R/W | 0 | Flips the servo's fine-PS direction: a bench sign knob
