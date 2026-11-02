@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Disposable handshake fixtures for the two production verification drivers."""
 
+import concurrent.futures
 import hashlib
 import json
 import os
@@ -10,6 +11,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import tempfile
 import time
 from collections.abc import Callable
 from pathlib import Path
@@ -254,3 +256,232 @@ def assert_reaped(data: dict) -> None:
     for pid, previous in data["identities"].items():
         current = identity(int(pid))
         assert current is None or current[0] != previous[0], (pid, previous, current)
+
+
+#: Every published mutant of scripts/owned_process.py for #833, so that the next
+#: one has a home. Each breaks the behaviour its name gives and names the owner
+#: control that must fail under it, with words of that failure; or names none,
+#: with why no behaviour that docs/testing/TESTING.md or a control states changes.
+#: Its edits follow, and each must match the product exactly once.
+MUTANTS: dict[str, tuple] = {
+    "none": (None, "the product as it stands; every control passes"),
+    "cleanup-does-nothing": ("owner_reparented", "re-parented descendant was treated as new and never got SIGTERM",
+        ("        started = last = time.monotonic()\n",
+         "        return\n        started = last = time.monotonic()\n")),
+    "identity-start-holds-parent": ("owner_reparented", "re-parented descendant was treated as new and never"
+                                                        " got SIGTERM",
+        ("return None if fields is None else (int(fields[1]), fields[19])",
+         "return None if fields is None else (int(fields[1]), fields[1] + ':' + fields[19])")),
+    "identity-keys-hold-parent": ("owner_reparented", "re-parented descendant was treated as new and never"
+                                                      " got SIGTERM",
+        ("initial = {(pid, start): parent for pid, (parent, start) in owned.items()}",
+         "initial = {(pid, start, parent): parent for pid, (parent, start) in owned.items()}"),
+        ("first = {pid: parent for (pid, _start), parent in initial.items()}",
+         "first = {pid: parent for (pid, _start, _p), parent in initial.items()}"),
+        ("if (pid, start) not in initial:\n                        continue",
+         "if (pid, start, _parent) not in initial:\n                        continue"),
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start, _parent) not in initial and resumed is not None:"),
+        ("if key not in notified and self._send(pid, start, signum):",
+         "if key not in notified and _identity(pid) == (_parent, start) and self._send(pid, start, signum):")),
+    "identity-first-census-holds-parent": ("owner_reparented", "re-parented descendant was treated as new"
+                                                               " and never got SIGTERM",
+        ("initial = {(pid, start): parent for pid, (parent, start) in owned.items()}",
+         "initial = {(pid, start, parent): parent for pid, (parent, start) in owned.items()}")),
+    "identity-includes-parent": ("owner_reparented", "re-parented descendant was treated as new and never"
+                                                     " got SIGTERM",
+        ("                    if (pid, start) not in initial:\n                        continue",
+         "                    if initial.get((pid, start)) != _parent:\n                        continue"),
+        ("                key = (pid, start, signum)\n",
+         "                if _identity(pid) != (_parent, start):\n                    continue\n"
+         "                key = (pid, start, signum)\n")),
+    "identity-checks-parent-before-send": ("owner_reparented", "re-parented descendant was treated as new"
+                                                               " and never got SIGTERM",
+        ("            for pid, (_parent, start) in owned.items():\n                # A notified shell",
+         "            for pid, (_parent, start) in owned.items():\n"
+         "                if _identity(pid) != (_parent, start):\n                    continue\n"
+         "                if signum != signal.SIGKILL and initial.get((pid, start)) != _parent:\n"
+         "                    continue\n                # A notified shell")),
+    "sigterm-checks-parent": (None, "equivalent: the first pass sends SIGTERM to every descendant of the"
+                                    " first census under the parent that census read, so this refuses only a"
+                                    " SIGTERM already sent",
+        ("                    if (pid, start) not in initial:\n                        continue",
+         "                    if initial.get((pid, start)) != _parent:\n                        continue")),
+    "send-checks-parent": ("owner_reparented", "SIGTERM waited for a later census",
+        ("                key = (pid, start, signum)\n",
+         "                if _identity(pid) != (_parent, start):\n                    continue\n"
+         "                key = (pid, start, signum)\n")),
+    "no-start-recheck": ("owner_reused_identity", "a census entry whose process was replaced was signalled",
+        ("            if identity is None or identity[1] != start:\n", "            if identity is None:\n")),
+    "no-reap-after-census": ("owner_late_exit", "CLEANUP FAILED: owned descendants remain",
+        ("reaped = self._reap()", "reaped = set()")),
+    "owned-is-census": ("owner_late_exit", "CLEANUP FAILED: owned descendants remain",
+        ("owned = {pid: entry for pid, entry in census.items() if pid not in reaped}", "owned = dict(census)")),
+    "deadline-wall-clock": ("owner_stall", "the stall was charged in full",
+        ("clock += min(now - last, MAX_PASS_SECONDS)", "clock += now - last")),
+    "pass-cap-1s": ("owner_stated_seconds", "a survivor's stated seconds were not kept",
+        ("MAX_PASS_SECONDS = 0.5\n", "MAX_PASS_SECONDS = 1.0\n")),
+    "pass-cap-1.5s": ("owner_stall", "the stall was charged in full",
+        ("MAX_PASS_SECONDS = 0.5", "MAX_PASS_SECONDS = 1.5")),
+    "pass-cap-5s": ("owner_stall", "the stall was charged in full",
+        ("MAX_PASS_SECONDS = 0.5", "MAX_PASS_SECONDS = 5.0")),
+    "windows-2s": ("owner_stated_seconds", "a survivor's stated seconds were not kept",
+        ("TRAP_SECONDS = 10.0", "TRAP_SECONDS = 2.0"),
+        ("REAP_SECONDS = 10.0", "REAP_SECONDS = 2.0")),
+    "reap-window-2s": ("owner_stated_seconds", "a survivor's stated seconds were not kept",
+        ("REAP_SECONDS = 10.0", "REAP_SECONDS = 2.0")),
+    "no-shell-window": ("owner_shell_window", "the shell was killed in the pass that resumed it, before its trap",
+        ("                kill_all = max(kill_all, clock + TRAP_SECONDS)\n", "")),
+    "no-shell-window-kept": ("owner_shell_window", "the shell was killed in the pass that resumed it, before"
+                                                   " its trap",
+        ("kill_all = max(kill_all, clock + TRAP_SECONDS)", "kill_all = kill_all")),
+    "no-shell-window-pass": ("owner_shell_window", "the shell was killed in the pass that resumed it, before"
+                                                   " its trap",
+        ("kill_all = max(kill_all, clock + TRAP_SECONDS)", "pass")),
+    "no-trap-window": ("owner_shell_window", "the shell was killed in the pass that resumed it, before its trap",
+        ("kill_all = max(kill_all, clock + TRAP_SECONDS)", "kill_all = max(kill_all, clock)")),
+    "root-killed-unresumed": ("owner_shell_window", "the shell was killed in the pass that resumed it,"
+                                                    " before its trap",
+        ("(resumed is None or clock < kill_all)", "clock < kill_all")),
+    "shell-killed-when-resumed": ("owner_shell_window", "the shell was killed in the pass that resumed it,"
+                                                        " before its trap",
+        ("(resumed is None or clock < kill_all):", "resumed is None:")),
+    "shell-window-one-pass": ("owner_shell_window", "the resumed shell was killed inside its own window,"
+                                                    " with no child to spare it",
+        ("(resumed is None or clock < kill_all):", "(resumed is None or clock <= resumed):")),
+    "shell-window-1s": ("owner_shell_window", "the resumed shell was killed inside its own window, with no"
+                                              " child to spare it",
+        ("(resumed is None or clock < kill_all):", "(resumed is None or clock < resumed + 1.0):")),
+    "trap-commands-no-window": ("owner_shell_window", "the resumed shell's trap command was killed inside"
+                                                      " the shell's window",
+        ("                    if (pid, start) not in initial and resumed is not None:\n"
+         "                        continue\n",
+         "")),
+    "trap-commands-never-spared": ("owner_shell_window", "the resumed shell's trap command was killed inside"
+                                                         " the shell's window",
+        ("if (pid, start) not in initial and resumed is not None:", "if False:")),
+    "trap-commands-1s": ("owner_shell_window", "the resumed shell's trap command was killed inside the"
+                                               " shell's window",
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and clock < resumed + 1.0:")),
+    "resume-collected-shell": ("owner_late_cancel", "a cancel after the shell was collected resumed it",
+        ("resumed is None and root_pid in owned and not (live - {root_pid}):",
+         "resumed is None and not (live - {root_pid}):")),
+    "window-without-resume": ("owner_late_cancel", "cleanup never reached a verdict after a late cancel",
+        ("resumed is None and root_pid in owned and not (live - {root_pid}):",
+         "resumed is None and not (live - {root_pid}):"),
+        ("                self._signal(self.root_fd, signal.SIGCONT)\n",
+         "                if root_pid in owned:\n                    self._signal(self.root_fd, signal.SIGCONT)\n")),
+    "rearm-without-sigcont": ("owner_late_cancel", "cleanup never reached a verdict after a late cancel",
+        ("resumed is None and root_pid in owned and not (live - {root_pid}):",
+         "resumed is None and not (live - {root_pid}):"),
+        ("self._signal(self.root_fd, signal.SIGCONT)\n", "pass\n")),
+    "resume-while-listed": ("owner_late_cancel", "a cancel after the shell was collected resumed it",
+        ("resumed is None and root_pid in owned and not (live - {root_pid}):",
+         "resumed is None and root_pid in census and not (live - {root_pid}):")),
+    "no-kill-before-raise": ("owner_survivor", "stopped shell left behind",
+        ("                for pid, (_parent, start) in owned.items():\n"
+         "                    self._send(pid, start, signal.SIGKILL)\n",
+         "")),
+    "no-kill-before-raise-empty": ("owner_survivor", "stopped shell left behind",
+        ("for pid, (_parent, start) in owned.items():\n                    self._send(pid, start, signal.SIGKILL)",
+         "for pid, (_parent, start) in ():\n                    self._send(pid, start, signal.SIGKILL)")),
+    "kill-before-fail-spares-shell": ("owner_survivor", "stopped shell left behind",
+        ("                for pid, (_parent, start) in owned.items():\n"
+         "                    self._send(pid, start, signal.SIGKILL)\n",
+         "                for pid, (_parent, start) in owned.items():\n"
+         "                    if self.process is None or pid != self.process.pid:\n"
+         "                        self._send(pid, start, signal.SIGKILL)\n")),
+    "endless-unbounded": ("owner_vanishing", "cleanup never reached a verdict",
+        ("(owned or clock >= limit + REAP_SECONDS)", "owned")),
+    "survivor-never-fails": ("owner_survivor", "a survivor never failed the run",
+        ("if clock >= limit and (owned or clock >= limit + REAP_SECONDS):", "if False:")),
+    "survivor-never-fails-guarded": ("owner_survivor", "a survivor never failed the run",
+        ("if clock >= limit and (owned", "if False and (owned")),
+    "trust-sigkill": ("owner_survivor", "a survivor never failed the run",
+        ("if clock >= limit and (owned or clock >= limit + REAP_SECONDS):",
+         "if clock >= limit and (any(p not in killed and (self.process is None or p != self.process.pid) for"
+         " p in owned) or not owned and clock >= limit + REAP_SECONDS):")),
+    "killed-counts-as-gone": ("owner_stated_seconds", "a survivor's stated seconds were not kept",
+        ("owned = {pid: entry for pid, entry in census.items() if pid not in reaped}",
+         "owned = {pid: entry for pid, entry in census.items() if pid not in reaped and pid not in killed}")),
+    "report-without-state": ("owner_report", "('state S'",
+        ("state {fields[0]} wchan", "wchan")),
+    "report-without-wchan": ("owner_report", "('wchan '",
+        ("wchan {wchan} parent", "parent")),
+    "report-without-state-or-wchan": ("owner_report", "('state S'",
+        ("state {fields[0]} wchan {wchan} ", "")),
+}
+
+
+def mutant_tree(scratch: Path, name: str) -> Path:
+    """Copy scripts/ under scratch with one mutant applied to owned_process.py."""
+    root = scratch / name
+    shutil.copytree(ROOT / "scripts", root / "scripts", ignore=shutil.ignore_patterns("__pycache__"))
+    product = root / "scripts/owned_process.py"
+    text = product.read_text()
+    for old, new in MUTANTS[name][2:]:
+        assert text.count(old) == 1, f"mutant {name} no longer applies: {old!r}"
+        text = text.replace(old, new)
+    product.write_text(text)
+    return root
+
+
+def run_mutant(root: Path, control: str | None) -> tuple[int | None, float, str]:
+    """Run one owner control, or the whole test, from a mutant tree; None is a run cut at its bound."""
+    argv = [sys.executable, "-B", str(root / "scripts/test_suite_cancellation.py")]
+    argv += ["--control", control] if control else []
+    env = {key: value for key, value in os.environ.items() if not key.startswith("PYTHON")}
+    began = time.monotonic()
+    # A file, not a pipe: what a mutant leaks must not hold the run open.
+    with tempfile.TemporaryFile() as output:
+        try:
+            status = subprocess.run(argv, cwd=root, env=env, stdin=subprocess.DEVNULL, stdout=output,
+                                    stderr=subprocess.STDOUT, timeout=150 if control else 400,
+                                    start_new_session=True).returncode
+        except subprocess.TimeoutExpired:
+            status = None
+        output.seek(0)
+        return status, time.monotonic() - began, output.read().decode(errors="replace")
+
+
+def mutation_campaign(controls: tuple[str, ...], names: list[str], matrix: bool, jobs: int) -> int:
+    """Each mutant must fail its control with its words, and `none` must pass.
+
+    The caller owns every process a mutant leaves behind. With `matrix`, every
+    mutant also runs against every control and the whole test, for the table.
+    """
+    unknown = sorted(set(names) - set(MUTANTS))
+    assert not unknown, f"no such mutant: {unknown}"
+    names = ["none", *(name for name in names or MUTANTS if name != "none")]
+    runs = []
+    for name in names:
+        control = MUTANTS[name][0]
+        if matrix:
+            runs += [(name, target) for target in (*controls, None)]
+        elif name == "none":
+            runs += [(name, target) for target in controls]
+        elif control:
+            runs.append((name, control))
+    with tempfile.TemporaryDirectory(prefix="owned-process-mutants-") as scratch:
+        trees = {name: mutant_tree(Path(scratch), name) for name in names}
+        with concurrent.futures.ThreadPoolExecutor(jobs) as pool:
+            results = dict(zip(runs, pool.map(lambda run: run_mutant(trees[run[0]], run[1]), runs)))
+    for (name, target), (status, seconds, output) in results.items():
+        lines = [line for line in output.splitlines() if line.strip()]
+        verdict = "cut" if status is None else "red" if status else "green"
+        print(f"{name} / {target or 'whole'}: {verdict} rc {status} {seconds:.1f} s: "
+              f"{lines[-1][:300] if lines else ''}", flush=True)
+    wrong = [f"none / {target or 'whole'}" for (name, target), (status, _s, _o) in results.items()
+             if name == "none" and status != 0]
+    for name in names[1:]:
+        control, words = MUTANTS[name][:2]
+        if control:
+            status, _seconds, output = results[(name, control)]
+            if not status or words not in output:
+                wrong.append(f"{name} / {control}: expected to fail with {words!r}")
+    print(f"owned-process mutants: {'FAIL' if wrong else 'PASS'} ({len(names) - 1} mutants, "
+          f"{sum(bool(MUTANTS[name][0]) for name in names[1:])} with a control that must fail)", flush=True)
+    for line in wrong:
+        print("  " + line, flush=True)
+    return 1 if wrong else 0

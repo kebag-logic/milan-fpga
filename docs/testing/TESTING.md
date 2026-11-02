@@ -278,6 +278,11 @@ That message prints each remaining process's scheduler state, wait channel, pare
 On an owner whose every census pass stalls, the stated seconds each hold to the pass:
 grace, a survivor's 14 s, and a late resume's window and its 20 s.
 A census entry whose number now names another process is never signalled.
+A stated cleanup behaviour is one some control pins.
+So each published mutant of `scripts/owned_process.py` names the control it must fail, with words of that failure.
+A mutant that changes nothing stated names none, and says why.
+The list is `MUTANTS` in `scripts/process_test_support.py`, and the next reviewer's mutant joins it.
+Beside the preflight, its explicit campaign below runs each against its control, and `--matrix` against all.
 The [shadow lifecycle controls](../../tb/verilator/gptp_shadow/README.md#mutation-isolation-and-cancellation)
 also exercise cancellation with both production drivers nested.
 
@@ -301,6 +306,7 @@ Neither the campaign nor any suite check is trimmed to fit a shard.
 | #387/#602 GM step re-base and #545 slew coverage: sixteen gmstep controls and five option-off controls, each gmstep control on the whole leg, the #621 phase included | `make -C tb/verilator/milan_dp_gm_steps gmstep-mutants` | the change's own validation, and every reviewer of a change that touches the media re-base in `milan_datapath.sv` (`mcr_restart_p_w`, the presentation stage's flush, the talker gate), its slew wiring (`.phc_slew_active_i`, `slew_rate_alignment`), its PHC addend path (`phc_adj_ts_w`, `ts_counter`), `ptp_csr_sync.sv`, `timestamp_counter.sv`, `KL_gptp_shadow.sv` (`phc_adj_o` and the slew pass-through), the `gptp-processor` pin, `KL_ptp_clock_validity.sv`, `KL_render_queue.sv`, `hdl/ieee1722/avtp/KL_media_clock_restart.sv`, `sim_gmstep.cpp` or the option-off leg's event-relative PHC-only restart exclusions in `sim_main.cpp`. The default sweep runs five controls: restored PHC cause, missing source change, missing CRF propagation, and the render stage emptied on the grandmaster's identity or on the step, each losing PDUs uncounted (#632 retired the counted re-base those two once planted) |
 | #632/#764 media phase: one planted defect per loop term, per hold condition, per detector behaviour, per interface constant, for the window cap, the CRF offset's rounding, its carry past 32 bits and its wiring, the AAF offsets stamped and read back rounded instead of as set, the blend's frame assembly, and the listener's presentation (an interface's out-lead dropped, the queue read untimed, a frame off, the late and the early rule removed), forty, each required to fail its named check, after the clean cases pass | `make -C tb/verilator/media_phase mutants MUTANT_JOBS=4` | the change's own validation, and every reviewer of a change that touches the phase path of `KL_mmcm_drp_servo.sv`, `KL_media_domain_event.sv`, `KL_media_if_latency_pkg.sv`, `KL_crf_tx.sv`'s event grid, `KL_mtt_round.sv`, `KL_aaf_capture_i2s.sv`'s pair output, `KL_render_queue.sv`, or this harness |
 | #545 servo slew: eight defects and two positive controls | `make -C tb/verilator/mmcm_servo slew-mutants` | the change's validation and reviewers whenever `KL_mmcm_drp_servo.sv`, `sim_main.cpp`, `sim_phc_step.cpp`, `slew_mutants.py` or the suite Makefile changes |
+| #833 owned-process cleanup: every published mutant of `scripts/owned_process.py`, each against the control it must fail | `python3 scripts/test_suite_cancellation.py --mutants` | the change's own validation, and every reviewer of a change that touches `scripts/owned_process.py`, its owner controls in `scripts/test_suite_cancellation.py` or `MUTANTS` in `scripts/process_test_support.py` |
 
 The default sweep still runs both render legs and the leg-side defect arms,
 which need no elaboration.

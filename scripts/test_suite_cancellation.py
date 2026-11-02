@@ -3,7 +3,9 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Production sweep cancellation, using disposable known-boundary commands."""
 
+import argparse
 import fcntl
+import inspect
 import os
 import re
 import signal
@@ -21,7 +23,7 @@ import owned_process
 from owned_process import Cancelled, OwnedProcesses
 from process_test_support import (
     FACILITY_MODES, FACILITY_SITE, PROC, Probe, assert_reaped, eventually, identity, install,
-    parent as parent_of, running, write,
+    mutation_campaign, parent as parent_of, running, write,
 )
 
 DRIVER = "scripts/run_all_suites.sh"
@@ -802,6 +804,21 @@ def owner_reused_identity() -> None:
     print("owner-reused-identity: " + str(dict(signalled=False)), flush=True)
 
 
+#: Every owner control, in the order main() runs them; each mutant run calls one.
+OWNER_CONTROLS = ("owner_report", "owner_reparented", "owner_late_exit", "owner_stall", "owner_shell_window",
+                  "owner_survivor", "owner_vanishing", "owner_late_cancel", "owner_stated_seconds",
+                  "owner_reused_identity")
+
+
+def run_control(name: str) -> int:
+    """Run one owner control alone, under its own owner, as main() runs it."""
+    control = globals()[name]
+    with tempfile.TemporaryDirectory(prefix="suite-cancellation-") as scratch, OwnedProcesses():
+        control(*([Path(scratch)] if inspect.signature(control).parameters else []))
+    print(f"{name}: PASS", flush=True)
+    return 0
+
+
 def main() -> int:
     """Exercise production orchestration with no compiler or RTL substitution claim."""
     with tempfile.TemporaryDirectory(prefix="suite-cancellation-") as scratch:
@@ -844,4 +861,17 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    arguments = argparse.ArgumentParser(description=__doc__)
+    arguments.add_argument("--control", choices=OWNER_CONTROLS, help="run one owner control alone")
+    arguments.add_argument("--mutants", nargs="*", metavar="NAME",
+                           help="each listed mutant of owned_process.py, or all, must fail its control")
+    arguments.add_argument("--matrix", action="store_true", help="also run every mutant on every control")
+    arguments.add_argument("--jobs", type=int, default=4, help="mutant runs at once")
+    options = arguments.parse_args()
+    assert set(OWNER_CONTROLS) == {name for name in globals() if name.startswith("owner_")}, OWNER_CONTROLS
+    if options.control:
+        sys.exit(run_control(options.control))
+    if options.mutants is not None:
+        with OwnedProcesses():
+            sys.exit(mutation_campaign(OWNER_CONTROLS, options.mutants, options.matrix, options.jobs))
     sys.exit(main())
