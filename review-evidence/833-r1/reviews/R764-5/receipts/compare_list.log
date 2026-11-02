@@ -1,0 +1,48 @@
+a1742055f9b8 ['none'] 10 sources: R763-1/none R763-2/none R763-3/none R764-1/control-A R764-1/control-B R764-2/control-A R764-2/control-B R764-3/control-A R764-3/control-B R764-4/none
+b72f30d20506 ['identity-start-holds-parent'] 1 sources: R763-1/identity-includes-parent
+7849b5680e00 ['no-reap-after-census'] 6 sources: R763-1/no-reap-after-census R763-2/no-reap-after-census R763-3/no-reap-after-census R764-1/M02-no-reap-after-census R764-2/M02-no-reap-after-census R764-3/M02-no-reap-after-census
+db1c706445bb ['deadline-wall-clock'] 7 sources: R763-1/deadline-wall-clock R763-2/deadline-wall-clock R763-3/pass-unclamped R764-1/M03-wall-clock R764-2/M03-wall-clock R764-3/M03-wall-clock A726/deadline-is-wall-clock
+3b5a72d54144 ['pass-cap-5s'] 5 sources: R763-1/pass-cap-5s R763-2/pass-cap-5s R764-1/M04-clamp-5s R764-2/M04-clamp-5s R764-3/M04-clamp-5s
+bf2b43d6a2de ['no-shell-window-kept'] 1 sources: R763-1/no-shell-window
+ec4b1774d935 ['trap-commands-1s'] 6 sources: R763-1/trap-commands-1s R763-2/trap-commands-1s R763-4/trap-commands-1s R764-2/M07b-trap-child-1s-window R764-3/M07b-trap-child-1s-window R764-4/trap-commands-1s
+f01502205ec4 ['no-kill-before-raise'] 6 sources: R763-1/no-kill-before-raise R763-3/no-kill-before-raise R764-1/M08-no-kill-before-fail R764-2/M08-no-kill-before-fail R764-3/M08-no-kill-before-fail A726/no-kill-before-fail
+51686ff94c17 ['endless-unbounded'] 7 sources: R763-1/endless-unbounded R763-2/endless-unbounded R763-3/listing-unbounded R764-1/M10-endless-unbounded R764-2/M10-endless-unbounded R764-3/M10-endless-unbounded A726/endless-listing-unbounded
+3d87c628c3e1 ['survivor-never-fails'] 3 sources: R763-1/survivor-never-fails R763-3/survivor-never-fails A726/survivor-does-not-fail
+e25ae361be22 ['killed-counts-as-gone'] 1 sources: R763-1/killed-counts-as-gone
+43a0ea54ff49 ['report-without-state'] 1 sources: R763-1/report-without-state
+206b4ec08460 ['report-without-wchan'] 1 sources: R763-1/report-without-wchan
+97b02be73f51 ['cleanup-does-nothing'] 5 sources: R763-1/cleanup-does-nothing R764-1/M13-cleanup-does-nothing-suite R764-2/M13-cleanup-does-nothing-suite R764-3/M13-cleanup-does-nothing-suite A726/cleanup-does-nothing
+5adcf59b5de7 ['identity-keys-hold-parent'] 1 sources: R763-2/identity-includes-parent
+973210a916c3 ['pass-cap-1.5s'] 3 sources: R763-2/pass-cap-1.5s R764-2/M04c-clamp-1.5s R764-3/M04c-clamp-1.5s
+fa137ae3ee35 ['no-shell-window-pass'] 1 sources: R763-2/no-shell-window
+529145590b35 ['trap-commands-never-spared'] 1 sources: R763-2/trap-commands-no-window
+81d694770d14 ['no-kill-before-raise-empty'] 1 sources: R763-2/no-kill-before-raise
+8cd94747cddc ['survivor-never-fails-guarded'] 1 sources: R763-2/survivor-never-fails
+6ea5d6a4c70d ['report-without-state-or-wchan'] 6 sources: R763-2/report-without-state R763-3/report-without-state R764-1/M12-report-without-state R764-2/M12-report-without-state R764-3/M12-report-without-state A726/report-without-state
+c1f143832a9a ['reap-window-2s'] 1 sources: R763-2/reap-window-2s
+d5a478bc0473 ['resume-collected-shell'] 3 sources: R763-3/new-fix-reverted R764-3/M16-resume-collected-shell A726c/A726c-resume-collected-shell
+9c5474fd196a ['resume-while-listed'] 3 sources: R763-3/new-fix-census-not-owned R764-3/M16c-resume-while-listed A726c/R763-3-new-fix-census-not-owned
+3713d3266159 ['no-trap-window'] 2 sources: R763-3/no-trap-window R764-4/no-trap-window
+ee6dd2ca3a23 ['identity-first-census-holds-parent'] 1 sources: R763-3/identity-has-parent
+7a711e315665 ['shell-killed-when-resumed'] 3 sources: R763-3/shell-killed-when-resumed R764-4/shell-killed-when-resumed A726c/R763-3-shell-killed-when-resumed
+5b7ac0c1493f ['trap-commands-no-window'] 5 sources: R763-3/trap-commands-no-window R764-1/M07-trap-child-no-window R764-2/M07-trap-child-no-window R764-3/M07-trap-child-no-window R764-4/trap-commands-no-window
+33d4998f8a35 ['root-killed-unresumed'] 5 sources: R763-4/root-killed-unresumed R764-1/M06-root-killed-unresumed R764-2/M06-root-killed-unresumed R764-3/M06-root-killed-unresumed R764-4/M06-root-killed-unresumed
+1de6abd23fca ['sigterm-checks-parent'] 3 sources: R764-1/M01-identity-includes-parent R764-2/M01-identity-includes-parent R764-3/M01-identity-includes-parent
+cf181f81d3d8 ['send-checks-parent'] 3 sources: R764-1/M01b-send-recheck-includes-parent R764-2/M01b-send-recheck-includes-parent R764-3/M01b-send-recheck-includes-parent
+2ef24c2a1b77 ['identity-includes-parent'] 3 sources: R764-1/M01c-identity-includes-parent-both R764-2/M01c-identity-includes-parent-both R764-3/M01c-identity-includes-parent-both
+5d223d6d9152 ['no-shell-window'] 5 sources: R764-1/M05-no-trap-window R764-2/M05-no-trap-window R764-3/M05-no-trap-window R764-4/M05-no-trap-window A726/no-shell-window
+cc2e560ddc60 ['kill-before-fail-spares-shell'] 3 sources: R764-1/M09-kill-before-fail-spares-shell R764-2/M09-kill-before-fail-spares-shell R764-3/M09-kill-before-fail-spares-shell
+4b3c35addac1 ['trust-sigkill'] 3 sources: R764-1/M11-trust-sigkill R764-2/M11-trust-sigkill R764-3/M11-trust-sigkill
+2ecd39d4e2f6 ['no-start-recheck'] 3 sources: R764-1/M14-no-start-recheck R764-2/M14-no-start-recheck R764-3/M14-no-start-recheck
+26ab61c24e84 ['windows-2s'] 3 sources: R764-1/M15-windows-2s R764-2/M15-windows-2s R764-3/M15-windows-2s
+60d99ad31506 ['pass-cap-1s'] 2 sources: R764-2/M04d-clamp-1.0s R764-3/M04d-clamp-1.0s
+75eab24f73a8 ['window-without-resume'] 1 sources: R764-3/M16b-window-without-resume
+f6f3050e7143 ['shell-window-one-pass'] 1 sources: R764-4/shell-window-one-pass
+224696ba370c ['shell-window-1s'] 1 sources: R764-4/shell-window-1s
+7730b604af4e ['rearm-without-sigcont'] 1 sources: A726c/A726c-rearm-without-sigcont
+54268473e382 ['identity-checks-parent-before-send'] 1 sources: A726/identity-includes-parent
+ea7cd65d0495 ['owned-is-census'] 1 sources: A726/no-reap-after-census
+committed entries 44, distinct committed texts 44, published distinct texts 44
+published texts without a committed entry: []
+committed texts not among the published: []
+committed names sharing one text: []

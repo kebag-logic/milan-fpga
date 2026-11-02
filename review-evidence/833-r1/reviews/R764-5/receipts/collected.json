@@ -1,0 +1,644 @@
+[
+ {
+  "text_sha": "a1742055f9b8",
+  "sources": [
+   "R763-1/none",
+   "R763-2/none",
+   "R763-3/none",
+   "R764-1/control-A",
+   "R764-1/control-B",
+   "R764-2/control-A",
+   "R764-2/control-B",
+   "R764-3/control-A",
+   "R764-3/control-B",
+   "R764-4/none"
+  ],
+  "edits": []
+ },
+ {
+  "text_sha": "b72f30d20506",
+  "sources": [
+   "R763-1/identity-includes-parent"
+  ],
+  "edits": [
+   [
+    "return None if fields is None else (int(fields[1]), fields[19])",
+    "return None if fields is None else (int(fields[1]), fields[1] + ':' + fields[19])"
+   ]
+  ]
+ },
+ {
+  "text_sha": "7849b5680e00",
+  "sources": [
+   "R763-1/no-reap-after-census",
+   "R763-2/no-reap-after-census",
+   "R763-3/no-reap-after-census",
+   "R764-1/M02-no-reap-after-census",
+   "R764-2/M02-no-reap-after-census",
+   "R764-3/M02-no-reap-after-census"
+  ],
+  "edits": [
+   [
+    "reaped = self._reap()",
+    "reaped = set()"
+   ]
+  ]
+ },
+ {
+  "text_sha": "db1c706445bb",
+  "sources": [
+   "R763-1/deadline-wall-clock",
+   "R763-2/deadline-wall-clock",
+   "R763-3/pass-unclamped",
+   "R764-1/M03-wall-clock",
+   "R764-2/M03-wall-clock",
+   "R764-3/M03-wall-clock",
+   "A726/deadline-is-wall-clock"
+  ],
+  "edits": [
+   [
+    "clock += min(now - last, MAX_PASS_SECONDS)",
+    "clock += now - last"
+   ]
+  ]
+ },
+ {
+  "text_sha": "3b5a72d54144",
+  "sources": [
+   "R763-1/pass-cap-5s",
+   "R763-2/pass-cap-5s",
+   "R764-1/M04-clamp-5s",
+   "R764-2/M04-clamp-5s",
+   "R764-3/M04-clamp-5s"
+  ],
+  "edits": [
+   [
+    "MAX_PASS_SECONDS = 0.5",
+    "MAX_PASS_SECONDS = 5.0"
+   ]
+  ]
+ },
+ {
+  "text_sha": "bf2b43d6a2de",
+  "sources": [
+   "R763-1/no-shell-window"
+  ],
+  "edits": [
+   [
+    "kill_all = max(kill_all, clock + TRAP_SECONDS)",
+    "kill_all = kill_all"
+   ]
+  ]
+ },
+ {
+  "text_sha": "ec4b1774d935",
+  "sources": [
+   "R763-1/trap-commands-1s",
+   "R763-2/trap-commands-1s",
+   "R763-4/trap-commands-1s",
+   "R764-2/M07b-trap-child-1s-window",
+   "R764-3/M07b-trap-child-1s-window",
+   "R764-4/trap-commands-1s"
+  ],
+  "edits": [
+   [
+    "if (pid, start) not in initial and resumed is not None:",
+    "if (pid, start) not in initial and resumed is not None and clock < resumed + 1.0:"
+   ]
+  ]
+ },
+ {
+  "text_sha": "f01502205ec4",
+  "sources": [
+   "R763-1/no-kill-before-raise",
+   "R763-3/no-kill-before-raise",
+   "R764-1/M08-no-kill-before-fail",
+   "R764-2/M08-no-kill-before-fail",
+   "R764-3/M08-no-kill-before-fail",
+   "A726/no-kill-before-fail"
+  ],
+  "edits": [
+   [
+    "                for pid, (_parent, start) in owned.items():\n                    self._send(pid, start, signal.SIGKILL)\n",
+    ""
+   ]
+  ]
+ },
+ {
+  "text_sha": "51686ff94c17",
+  "sources": [
+   "R763-1/endless-unbounded",
+   "R763-2/endless-unbounded",
+   "R763-3/listing-unbounded",
+   "R764-1/M10-endless-unbounded",
+   "R764-2/M10-endless-unbounded",
+   "R764-3/M10-endless-unbounded",
+   "A726/endless-listing-unbounded"
+  ],
+  "edits": [
+   [
+    "(owned or clock >= limit + REAP_SECONDS)",
+    "owned"
+   ]
+  ]
+ },
+ {
+  "text_sha": "3d87c628c3e1",
+  "sources": [
+   "R763-1/survivor-never-fails",
+   "R763-3/survivor-never-fails",
+   "A726/survivor-does-not-fail"
+  ],
+  "edits": [
+   [
+    "if clock >= limit and (owned or clock >= limit + REAP_SECONDS):",
+    "if False:"
+   ]
+  ]
+ },
+ {
+  "text_sha": "e25ae361be22",
+  "sources": [
+   "R763-1/killed-counts-as-gone"
+  ],
+  "edits": [
+   [
+    "owned = {pid: entry for pid, entry in census.items() if pid not in reaped}",
+    "owned = {pid: entry for pid, entry in census.items() if pid not in reaped and pid not in killed}"
+   ]
+  ]
+ },
+ {
+  "text_sha": "43a0ea54ff49",
+  "sources": [
+   "R763-1/report-without-state"
+  ],
+  "edits": [
+   [
+    "state {fields[0]} wchan",
+    "wchan"
+   ]
+  ]
+ },
+ {
+  "text_sha": "206b4ec08460",
+  "sources": [
+   "R763-1/report-without-wchan"
+  ],
+  "edits": [
+   [
+    "wchan {wchan} parent",
+    "parent"
+   ]
+  ]
+ },
+ {
+  "text_sha": "97b02be73f51",
+  "sources": [
+   "R763-1/cleanup-does-nothing",
+   "R764-1/M13-cleanup-does-nothing-suite",
+   "R764-2/M13-cleanup-does-nothing-suite",
+   "R764-3/M13-cleanup-does-nothing-suite",
+   "A726/cleanup-does-nothing"
+  ],
+  "edits": [
+   [
+    "        started = last = time.monotonic()\n",
+    "        return\n        started = last = time.monotonic()\n"
+   ]
+  ]
+ },
+ {
+  "text_sha": "5adcf59b5de7",
+  "sources": [
+   "R763-2/identity-includes-parent"
+  ],
+  "edits": [
+   [
+    "initial = {(pid, start): parent for pid, (parent, start) in owned.items()}",
+    "initial = {(pid, start, parent): parent for pid, (parent, start) in owned.items()}"
+   ],
+   [
+    "first = {pid: parent for (pid, _start), parent in initial.items()}",
+    "first = {pid: parent for (pid, _start, _p), parent in initial.items()}"
+   ],
+   [
+    "if (pid, start) not in initial:\n                        continue",
+    "if (pid, start, _parent) not in initial:\n                        continue"
+   ],
+   [
+    "if (pid, start) not in initial and resumed is not None:",
+    "if (pid, start, _parent) not in initial and resumed is not None:"
+   ],
+   [
+    "if key not in notified and self._send(pid, start, signum):",
+    "if key not in notified and _identity(pid) == (_parent, start) and self._send(pid, start, signum):"
+   ]
+  ]
+ },
+ {
+  "text_sha": "973210a916c3",
+  "sources": [
+   "R763-2/pass-cap-1.5s",
+   "R764-2/M04c-clamp-1.5s",
+   "R764-3/M04c-clamp-1.5s"
+  ],
+  "edits": [
+   [
+    "MAX_PASS_SECONDS = 0.5",
+    "MAX_PASS_SECONDS = 1.5"
+   ]
+  ]
+ },
+ {
+  "text_sha": "fa137ae3ee35",
+  "sources": [
+   "R763-2/no-shell-window"
+  ],
+  "edits": [
+   [
+    "kill_all = max(kill_all, clock + TRAP_SECONDS)",
+    "pass"
+   ]
+  ]
+ },
+ {
+  "text_sha": "529145590b35",
+  "sources": [
+   "R763-2/trap-commands-no-window"
+  ],
+  "edits": [
+   [
+    "if (pid, start) not in initial and resumed is not None:",
+    "if False:"
+   ]
+  ]
+ },
+ {
+  "text_sha": "81d694770d14",
+  "sources": [
+   "R763-2/no-kill-before-raise"
+  ],
+  "edits": [
+   [
+    "for pid, (_parent, start) in owned.items():\n                    self._send(pid, start, signal.SIGKILL)",
+    "for pid, (_parent, start) in ():\n                    self._send(pid, start, signal.SIGKILL)"
+   ]
+  ]
+ },
+ {
+  "text_sha": "8cd94747cddc",
+  "sources": [
+   "R763-2/survivor-never-fails"
+  ],
+  "edits": [
+   [
+    "if clock >= limit and (owned",
+    "if False and (owned"
+   ]
+  ]
+ },
+ {
+  "text_sha": "6ea5d6a4c70d",
+  "sources": [
+   "R763-2/report-without-state",
+   "R763-3/report-without-state",
+   "R764-1/M12-report-without-state",
+   "R764-2/M12-report-without-state",
+   "R764-3/M12-report-without-state",
+   "A726/report-without-state"
+  ],
+  "edits": [
+   [
+    "state {fields[0]} wchan {wchan} ",
+    ""
+   ]
+  ]
+ },
+ {
+  "text_sha": "c1f143832a9a",
+  "sources": [
+   "R763-2/reap-window-2s"
+  ],
+  "edits": [
+   [
+    "REAP_SECONDS = 10.0",
+    "REAP_SECONDS = 2.0"
+   ]
+  ]
+ },
+ {
+  "text_sha": "d5a478bc0473",
+  "sources": [
+   "R763-3/new-fix-reverted",
+   "R764-3/M16-resume-collected-shell",
+   "A726c/A726c-resume-collected-shell"
+  ],
+  "edits": [
+   [
+    "resumed is None and root_pid in owned and not (live - {root_pid}):",
+    "resumed is None and not (live - {root_pid}):"
+   ]
+  ]
+ },
+ {
+  "text_sha": "9c5474fd196a",
+  "sources": [
+   "R763-3/new-fix-census-not-owned",
+   "R764-3/M16c-resume-while-listed",
+   "A726c/R763-3-new-fix-census-not-owned"
+  ],
+  "edits": [
+   [
+    "resumed is None and root_pid in owned and not (live - {root_pid}):",
+    "resumed is None and root_pid in census and not (live - {root_pid}):"
+   ]
+  ]
+ },
+ {
+  "text_sha": "3713d3266159",
+  "sources": [
+   "R763-3/no-trap-window",
+   "R764-4/no-trap-window"
+  ],
+  "edits": [
+   [
+    "kill_all = max(kill_all, clock + TRAP_SECONDS)",
+    "kill_all = max(kill_all, clock)"
+   ]
+  ]
+ },
+ {
+  "text_sha": "ee6dd2ca3a23",
+  "sources": [
+   "R763-3/identity-has-parent"
+  ],
+  "edits": [
+   [
+    "initial = {(pid, start): parent for pid, (parent, start) in owned.items()}",
+    "initial = {(pid, start, parent): parent for pid, (parent, start) in owned.items()}"
+   ]
+  ]
+ },
+ {
+  "text_sha": "7a711e315665",
+  "sources": [
+   "R763-3/shell-killed-when-resumed",
+   "R764-4/shell-killed-when-resumed",
+   "A726c/R763-3-shell-killed-when-resumed"
+  ],
+  "edits": [
+   [
+    "(resumed is None or clock < kill_all):",
+    "resumed is None:"
+   ]
+  ]
+ },
+ {
+  "text_sha": "5b7ac0c1493f",
+  "sources": [
+   "R763-3/trap-commands-no-window",
+   "R764-1/M07-trap-child-no-window",
+   "R764-2/M07-trap-child-no-window",
+   "R764-3/M07-trap-child-no-window",
+   "R764-4/trap-commands-no-window"
+  ],
+  "edits": [
+   [
+    "                    if (pid, start) not in initial and resumed is not None:\n                        continue\n",
+    ""
+   ]
+  ]
+ },
+ {
+  "text_sha": "33d4998f8a35",
+  "sources": [
+   "R763-4/root-killed-unresumed",
+   "R764-1/M06-root-killed-unresumed",
+   "R764-2/M06-root-killed-unresumed",
+   "R764-3/M06-root-killed-unresumed",
+   "R764-4/M06-root-killed-unresumed"
+  ],
+  "edits": [
+   [
+    "(resumed is None or clock < kill_all)",
+    "clock < kill_all"
+   ]
+  ]
+ },
+ {
+  "text_sha": "1de6abd23fca",
+  "sources": [
+   "R764-1/M01-identity-includes-parent",
+   "R764-2/M01-identity-includes-parent",
+   "R764-3/M01-identity-includes-parent"
+  ],
+  "edits": [
+   [
+    "                    if (pid, start) not in initial:\n                        continue",
+    "                    if initial.get((pid, start)) != _parent:\n                        continue"
+   ]
+  ]
+ },
+ {
+  "text_sha": "cf181f81d3d8",
+  "sources": [
+   "R764-1/M01b-send-recheck-includes-parent",
+   "R764-2/M01b-send-recheck-includes-parent",
+   "R764-3/M01b-send-recheck-includes-parent"
+  ],
+  "edits": [
+   [
+    "                key = (pid, start, signum)\n",
+    "                if _identity(pid) != (_parent, start):\n                    continue\n                key = (pid, start, signum)\n"
+   ]
+  ]
+ },
+ {
+  "text_sha": "2ef24c2a1b77",
+  "sources": [
+   "R764-1/M01c-identity-includes-parent-both",
+   "R764-2/M01c-identity-includes-parent-both",
+   "R764-3/M01c-identity-includes-parent-both"
+  ],
+  "edits": [
+   [
+    "                    if (pid, start) not in initial:\n                        continue",
+    "                    if initial.get((pid, start)) != _parent:\n                        continue"
+   ],
+   [
+    "                key = (pid, start, signum)\n",
+    "                if _identity(pid) != (_parent, start):\n                    continue\n                key = (pid, start, signum)\n"
+   ]
+  ]
+ },
+ {
+  "text_sha": "5d223d6d9152",
+  "sources": [
+   "R764-1/M05-no-trap-window",
+   "R764-2/M05-no-trap-window",
+   "R764-3/M05-no-trap-window",
+   "R764-4/M05-no-trap-window",
+   "A726/no-shell-window"
+  ],
+  "edits": [
+   [
+    "                kill_all = max(kill_all, clock + TRAP_SECONDS)\n",
+    ""
+   ]
+  ]
+ },
+ {
+  "text_sha": "cc2e560ddc60",
+  "sources": [
+   "R764-1/M09-kill-before-fail-spares-shell",
+   "R764-2/M09-kill-before-fail-spares-shell",
+   "R764-3/M09-kill-before-fail-spares-shell"
+  ],
+  "edits": [
+   [
+    "                for pid, (_parent, start) in owned.items():\n                    self._send(pid, start, signal.SIGKILL)\n",
+    "                for pid, (_parent, start) in owned.items():\n                    if self.process is None or pid != self.process.pid:\n                        self._send(pid, start, signal.SIGKILL)\n"
+   ]
+  ]
+ },
+ {
+  "text_sha": "4b3c35addac1",
+  "sources": [
+   "R764-1/M11-trust-sigkill",
+   "R764-2/M11-trust-sigkill",
+   "R764-3/M11-trust-sigkill"
+  ],
+  "edits": [
+   [
+    "if clock >= limit and (owned or clock >= limit + REAP_SECONDS):",
+    "if clock >= limit and (any(p not in killed and (self.process is None or p != self.process.pid) for p in owned) or not owned and clock >= limit + REAP_SECONDS):"
+   ]
+  ]
+ },
+ {
+  "text_sha": "2ecd39d4e2f6",
+  "sources": [
+   "R764-1/M14-no-start-recheck",
+   "R764-2/M14-no-start-recheck",
+   "R764-3/M14-no-start-recheck"
+  ],
+  "edits": [
+   [
+    "            if identity is None or identity[1] != start:\n",
+    "            if identity is None:\n"
+   ]
+  ]
+ },
+ {
+  "text_sha": "26ab61c24e84",
+  "sources": [
+   "R764-1/M15-windows-2s",
+   "R764-2/M15-windows-2s",
+   "R764-3/M15-windows-2s"
+  ],
+  "edits": [
+   [
+    "TRAP_SECONDS = 10.0",
+    "TRAP_SECONDS = 2.0"
+   ],
+   [
+    "REAP_SECONDS = 10.0",
+    "REAP_SECONDS = 2.0"
+   ]
+  ]
+ },
+ {
+  "text_sha": "60d99ad31506",
+  "sources": [
+   "R764-2/M04d-clamp-1.0s",
+   "R764-3/M04d-clamp-1.0s"
+  ],
+  "edits": [
+   [
+    "MAX_PASS_SECONDS = 0.5\n",
+    "MAX_PASS_SECONDS = 1.0\n"
+   ]
+  ]
+ },
+ {
+  "text_sha": "75eab24f73a8",
+  "sources": [
+   "R764-3/M16b-window-without-resume"
+  ],
+  "edits": [
+   [
+    "resumed is None and root_pid in owned and not (live - {root_pid}):",
+    "resumed is None and not (live - {root_pid}):"
+   ],
+   [
+    "                self._signal(self.root_fd, signal.SIGCONT)\n",
+    "                if root_pid in owned:\n                    self._signal(self.root_fd, signal.SIGCONT)\n"
+   ]
+  ]
+ },
+ {
+  "text_sha": "f6f3050e7143",
+  "sources": [
+   "R764-4/shell-window-one-pass"
+  ],
+  "edits": [
+   [
+    "(resumed is None or clock < kill_all):",
+    "(resumed is None or clock <= resumed):"
+   ]
+  ]
+ },
+ {
+  "text_sha": "224696ba370c",
+  "sources": [
+   "R764-4/shell-window-1s"
+  ],
+  "edits": [
+   [
+    "(resumed is None or clock < kill_all):",
+    "(resumed is None or clock < resumed + 1.0):"
+   ]
+  ]
+ },
+ {
+  "text_sha": "7730b604af4e",
+  "sources": [
+   "A726c/A726c-rearm-without-sigcont"
+  ],
+  "edits": [
+   [
+    "resumed is None and root_pid in owned and not (live - {root_pid}):",
+    "resumed is None and not (live - {root_pid}):"
+   ],
+   [
+    "self._signal(self.root_fd, signal.SIGCONT)\n",
+    "pass\n"
+   ]
+  ]
+ },
+ {
+  "text_sha": "54268473e382",
+  "sources": [
+   "A726/identity-includes-parent"
+  ],
+  "edits": [
+   [
+    "            for pid, (_parent, start) in owned.items():\n                # A notified shell",
+    "            for pid, (_parent, start) in owned.items():\n                if _identity(pid) != (_parent, start):\n                    continue\n                if signum != signal.SIGKILL and initial.get((pid, start)) != _parent:\n                    continue\n                # A notified shell"
+   ]
+  ]
+ },
+ {
+  "text_sha": "ea7cd65d0495",
+  "sources": [
+   "A726/no-reap-after-census"
+  ],
+  "edits": [
+   [
+    "owned = {pid: entry for pid, entry in census.items() if pid not in reaped}",
+    "owned = dict(census)"
+   ]
+  ]
+ }
+]

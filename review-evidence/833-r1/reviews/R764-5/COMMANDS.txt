@@ -1,0 +1,16 @@
+Commands, from the clone at a67eaf66 (C) with packet P; one log and rc each under P/receipts.
+python3 scripts/test_suite_cancellation.py --mutants --jobs 8                     -> committed_mutants.{log,rc}
+python3 -I P/probe_mutants.py C 8                                                 -> own_mutants_matrix.{log,rc}
+python3 -I <evidence>/author-r5/receipts/tools/collect.py C/scripts/owned_process.py <evidence>/reviews \
+   <evidence>/author/receipts/load-tools/mutate.py <evidence>/author-r4/receipts/tools/matrix3.py collected.json
+                                                                                  -> collect.out, collected.json (equal to the published collected.json)
+python3 -I P/compare_list.py C P/receipts/collected.json                          -> compare_list.{log,rc}
+python3 -I P/run_effect.py C P                                                    -> probe_effect.{log,rc}
+python3 -I P/repeat_shell_window.py C P                                           -> repeat_shell_window.{log,rc}
+python3 -I P/preflight_cost.py C P                                                -> preflight_cost.{log,rc}
+python3 -B scripts/test_suite_cancellation.py --control <name>, 3 rounds          -> control_cost.txt
+python3 scripts/test_suite_cancellation.py --mutants send-checks-parent resume-while-listed pass-cap-1s --matrix --jobs 16
+                                                                                  -> matrix_spotcheck.{log,rc}
+hosted check-runs / actions runs / status for the exact head                      -> hosted_checks.txt (empty), hosted_runs.txt (empty)
+git status/diff-index/hash-object/ls-files gitlinks after the probes              -> restore_check.txt
+<evidence> = sparse checkout of 833-review-evidence at ca3539bad7abb08a163587b64902788b6c5d358c, review-evidence/833-r1

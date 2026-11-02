@@ -1,0 +1,111 @@
+none / owner_report: green rc 0 0.2 s: owner_report: PASS
+none / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+none / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+none / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+none / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+none / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+none / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+none / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+none / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+none / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+none / whole: green rc 0 76.9 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+rv-vanishing-waits-no-more / owner_report: green rc 0 0.2 s: owner_report: PASS
+rv-vanishing-waits-no-more / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv-vanishing-waits-no-more / owner_late_exit: red rc 1 0.7 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.49 s, 1 census passes, slowest 0.49 s: pid 1704208 exited during this report
+rv-vanishing-waits-no-more / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv-vanishing-waits-no-more / owner_shell_window: green rc 0 13.0 s: owner_shell_window: PASS
+rv-vanishing-waits-no-more / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv-vanishing-waits-no-more / owner_vanishing: green rc 0 0.7 s: owner_vanishing: PASS
+rv-vanishing-waits-no-more / owner_late_cancel: green rc 0 0.7 s: owner_late_cancel: PASS
+rv-vanishing-waits-no-more / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv-vanishing-waits-no-more / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rv-vanishing-waits-no-more / whole: red rc 1 0.9 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.49 s, 1 census passes, slowest 0.49 s: pid 1704861 exited during this report
+rv-vanishing-waits-30s-more / owner_report: green rc 0 0.2 s: owner_report: PASS
+rv-vanishing-waits-30s-more / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv-vanishing-waits-30s-more / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv-vanishing-waits-30s-more / owner_stall: green rc 0 11.7 s: owner_stall: PASS
+rv-vanishing-waits-30s-more / owner_shell_window: green rc 0 13.4 s: owner_shell_window: PASS
+rv-vanishing-waits-30s-more / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv-vanishing-waits-30s-more / owner_vanishing: green rc 0 10.4 s: owner_vanishing: PASS
+rv-vanishing-waits-30s-more / owner_late_cancel: green rc 0 9.5 s: owner_late_cancel: PASS
+rv-vanishing-waits-30s-more / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv-vanishing-waits-30s-more / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rv-vanishing-waits-30s-more / whole: green rc 0 75.2 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+rv-signal-by-number / owner_report: green rc 0 9.1 s: owner_report: PASS
+rv-signal-by-number / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv-signal-by-number / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv-signal-by-number / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv-signal-by-number / owner_shell_window: green rc 0 4.6 s: owner_shell_window: PASS
+rv-signal-by-number / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+rv-signal-by-number / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv-signal-by-number / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv-signal-by-number / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv-signal-by-number / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+rv-signal-by-number / whole: green rc 0 65.3 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+rv-parent-spared-past-kill-all / owner_report: green rc 0 0.2 s: owner_report: PASS
+rv-parent-spared-past-kill-all / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv-parent-spared-past-kill-all / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv-parent-spared-past-kill-all / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv-parent-spared-past-kill-all / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+rv-parent-spared-past-kill-all / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv-parent-spared-past-kill-all / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv-parent-spared-past-kill-all / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv-parent-spared-past-kill-all / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv-parent-spared-past-kill-all / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+rv-parent-spared-past-kill-all / whole: green rc 0 71.4 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+rv-clock-always-cap / owner_report: green rc 0 0.2 s: owner_report: PASS
+rv-clock-always-cap / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv-clock-always-cap / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv-clock-always-cap / owner_stall: green rc 0 2.3 s: owner_stall: PASS
+rv-clock-always-cap / owner_shell_window: red rc 1 1.1 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.79 s, 21 census passes, slowest 0.02 s: pid 1707985 (bash) state T wchan do_signal_stop parent 1707961 (first parent 1707961) age 0.84 s start 76642084, not sent SIGKILL; pid 1707986 (python3) state S wchan hrtimer_nanosleep parent 17079
+rv-clock-always-cap / owner_survivor: green rc 0 0.3 s: owner_survivor: PASS
+rv-clock-always-cap / owner_vanishing: green rc 0 0.2 s: owner_vanishing: PASS
+rv-clock-always-cap / owner_late_cancel: green rc 0 0.2 s: owner_late_cancel: PASS
+rv-clock-always-cap / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (4, 'SIGKILL', 'survivor'), (28, 'SIGKILL', 'survivor'), (28, 'verdict')]
+rv-clock-always-cap / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+rv-clock-always-cap / whole: red rc 1 5.0 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 1.66 s, 21 census passes, slowest 0.84 s: pid 1709840 (bash) state T wchan do_signal_stop parent 1708492 (first parent 1708492) age 1.70 s start 76642503, not sent SIGKILL; pid 1709842 (python3) state S wchan hrtimer_nanosleep parent 17098
+rv-no-sigcont-after-send / owner_report: green rc 0 0.2 s: owner_report: PASS
+rv-no-sigcont-after-send / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv-no-sigcont-after-send / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv-no-sigcont-after-send / owner_stall: green rc 0 3.8 s: owner_stall: PASS
+rv-no-sigcont-after-send / owner_shell_window: green rc 0 5.4 s: owner_shell_window: PASS
+rv-no-sigcont-after-send / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv-no-sigcont-after-send / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv-no-sigcont-after-send / owner_late_cancel: green rc 0 1.8 s: owner_late_cancel: PASS
+rv-no-sigcont-after-send / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv-no-sigcont-after-send / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rv-no-sigcont-after-send / whole: green rc 0 73.2 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+rv-sigterm-to-new / owner_report: green rc 0 0.2 s: owner_report: PASS
+rv-sigterm-to-new / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv-sigterm-to-new / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv-sigterm-to-new / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv-sigterm-to-new / owner_shell_window: green rc 0 4.6 s: owner_shell_window: PASS
+rv-sigterm-to-new / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+rv-sigterm-to-new / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv-sigterm-to-new / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv-sigterm-to-new / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv-sigterm-to-new / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rv-sigterm-to-new / whole: green rc 0 74.3 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+rv-no-leaf-first / owner_report: green rc 0 0.2 s: owner_report: PASS
+rv-no-leaf-first / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv-no-leaf-first / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv-no-leaf-first / owner_stall: green rc 0 7.2 s: owner_stall: PASS
+rv-no-leaf-first / owner_shell_window: green rc 0 7.4 s: owner_shell_window: PASS
+rv-no-leaf-first / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+rv-no-leaf-first / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv-no-leaf-first / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv-no-leaf-first / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv-no-leaf-first / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rv-no-leaf-first / whole: green rc 0 69.2 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+rv-killed-not-recorded / owner_report: green rc 0 0.2 s: owner_report: PASS
+rv-killed-not-recorded / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv-killed-not-recorded / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv-killed-not-recorded / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv-killed-not-recorded / owner_shell_window: green rc 0 4.6 s: owner_shell_window: PASS
+rv-killed-not-recorded / owner_survivor: red rc 1 1.3 s: AssertionError: ('sent SIGKILL ', 'CLEANUP FAILED: owned descendants remain after 1.02 s, 26 census passes, slowest 0.02 s: pid 1720276 (bash) state T wchan do_signal_stop parent 1720208 (first parent 1720208) age 1.07 s start 76645123, not sent SIGKILL; pid 1720278 (python3) state S wchan hrtimer_n
+rv-killed-not-recorded / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv-killed-not-recorded / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv-killed-not-recorded / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv-killed-not-recorded / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rv-killed-not-recorded / whole: red rc 1 9.6 s: AssertionError: ('sent SIGKILL ', 'CLEANUP FAILED: owned descendants remain after 1.03 s, 25 census passes, slowest 0.03 s: pid 1725585 (bash) state T wchan do_signal_stop parent 1721967 (first parent 1721967) age 1.08 s start 76646317, not sent SIGKILL; pid 1725586 (python3) state S wchan hrtimer_n
+owned-process mutants: PASS (9 mutants, 0 with a control that must fail)

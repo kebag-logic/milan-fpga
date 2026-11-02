@@ -1,0 +1,20 @@
+== none rc 0
+vanishing: verdict in pass 49 at 24.0 s on the owner's clock
+parent: [(1, 'SIGTERM', 'parent'), (9, 'SIGKILL', 'parent'), (29, 'SIGKILL', 'parent'), (29, 'verdict')]
+by-number: _send returned True through the handle
+
+== rv-vanishing-waits-30s-more rc 0
+vanishing: verdict in pass 89 at 44.0 s on the owner's clock
+parent: [(1, 'SIGTERM', 'parent'), (9, 'SIGKILL', 'parent'), (29, 'SIGKILL', 'parent'), (29, 'verdict')]
+by-number: _send returned True through the handle
+
+== rv-parent-spared-past-kill-all rc 0
+vanishing: verdict in pass 49 at 24.0 s on the owner's clock
+parent: [(1, 'SIGTERM', 'parent'), (29, 'SIGKILL', 'parent'), (29, 'verdict')]
+by-number: _send returned True through the handle
+
+== rv-signal-by-number rc 0
+vanishing: verdict in pass 49 at 24.0 s on the owner's clock
+parent: [(1, 'SIGTERM', 'parent'), (9, 'SIGKILL', 'parent'), (29, 'SIGKILL', 'parent'), (29, 'verdict')]
+by-number: _send signalled the number after its process was gone: ProcessLookupError(3, 'No such process')
+

@@ -1,0 +1,46 @@
+none / owner_report: green rc 0 0.3 s: owner_report: PASS
+none / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+none / owner_late_exit: green rc 0 0.8 s: owner_late_exit: PASS
+none / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+none / owner_shell_window: green rc 0 4.4 s: owner_shell_window: PASS
+none / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+none / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+none / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+none / owner_stated_seconds: green rc 0 0.3 s: owner_stated_seconds: PASS
+none / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+none / whole: green rc 0 60.8 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+send-checks-parent / owner_report: green rc 0 0.2 s: owner_report: PASS
+send-checks-parent / owner_reparented: red rc 1 0.4 s: AssertionError: the re-parented descendant's SIGTERM waited for a later census: [2]
+send-checks-parent / owner_late_exit: green rc 0 0.8 s: owner_late_exit: PASS
+send-checks-parent / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+send-checks-parent / owner_shell_window: green rc 0 4.4 s: owner_shell_window: PASS
+send-checks-parent / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+send-checks-parent / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+send-checks-parent / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+send-checks-parent / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(29, 'SIGKILL', 'survivor'), (29, 'verdict')]
+send-checks-parent / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+send-checks-parent / whole: red rc 1 0.4 s: AssertionError: the re-parented descendant's SIGTERM waited for a later census: [2]
+resume-while-listed / owner_report: green rc 0 0.2 s: owner_report: PASS
+resume-while-listed / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+resume-while-listed / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+resume-while-listed / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+resume-while-listed / owner_shell_window: green rc 0 4.3 s: owner_shell_window: PASS
+resume-while-listed / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+resume-while-listed / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+resume-while-listed / owner_late_cancel: red rc 1 0.2 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+resume-while-listed / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+resume-while-listed / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+resume-while-listed / whole: red rc 1 10.2 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+pass-cap-1s / owner_report: green rc 0 0.2 s: owner_report: PASS
+pass-cap-1s / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+pass-cap-1s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+pass-cap-1s / owner_stall: green rc 0 2.8 s: owner_stall: PASS
+pass-cap-1s / owner_shell_window: green rc 0 4.3 s: owner_shell_window: PASS
+pass-cap-1s / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+pass-cap-1s / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+pass-cap-1s / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+pass-cap-1s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (3, 'SIGKILL', 'survivor'), (15, 'SIGKILL', 'survivor'), (15, 'verdict')]
+pass-cap-1s / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+pass-cap-1s / whole: red rc 1 10.7 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (3, 'SIGKILL', 'survivor'), (15, 'SIGKILL', 'survivor'), (15, 'verdict')]
+owned-process mutants: PASS (3 mutants, 3 with a control that must fail)
+elapsed 61 s
