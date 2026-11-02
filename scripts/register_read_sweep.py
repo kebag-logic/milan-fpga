@@ -14,11 +14,16 @@ What it does:
   * elaborates `hdl/common/csr/milan_csr.sv` alone with Verilator, at the
     parameters the page's "Build parameters" table prints, and at the same
     parameters with two listeners and two talkers;
-  * drives the selection, the ACMP and SRP table answers (to a poll and to a
-    provisioning write, in either order around the write, and a beat another
-    master used), a running snapshot, the counter kinds and the channel-map
-    readback through the block's own ports and registers, and reads every word
-    that has a read table;
+  * drives the selection, the ACMP and SRP table answers, a running snapshot,
+    the counter kinds and the channel-map readback through the block's own
+    ports and registers, and reads every word that has a read table. The SRP
+    orders are: no answer; a poll answered; a provisioning write answered,
+    alone or then a poll answered; a write posted, then a poll answered, then
+    the write answered or left unanswered; a poll answered, then a write
+    posted and left unanswered; a poll answered, then a beat another master
+    used, alone or then a poll answered. Each pass after the first opens with
+    no answer just after that last poll answer and a `STRM_SEL` write, the one
+    state that reads a poll answered before the selection;
   * evaluates each row's clauses through CLAUSE, which maps the printed words
     to what the harness did or read back through a register, never to the
     flop the generator worded. A read must equal the value of every row that
@@ -334,7 +339,7 @@ int main(int argc, char** argv) {
   // Stream window: selection, table answers, snapshot, counter kinds.
   for (int sel9 = 0; sel9 < 2; sel9++) for (int dir = 0; dir < 2; dir++)
   for (int ii = 0; ii < @N_INDICES@; ii++) for (int acmp = 0; acmp < 2; acmp++)
-  for (int srpmode = 0; srpmode < 8; srpmode++) for (int snap = 0; snap < 2; snap++)
+  for (int srpmode = 0; srpmode < 9; srpmode++) for (int snap = 0; snap < 2; snap++)
   for (int ks = 0; ks < 3; ks++) {
     static const int IDX[] = {@INDICES@};
     int idx = IDX[ii];
@@ -345,13 +350,18 @@ int main(int argc, char** argv) {
     // The SRP table: 0 no answer; 1 a poll answered; 2 a STRMW_CTRL write and
     // its write answered; 3 as 2, then a poll answered; 4 a STRMW_CTRL write,
     // a poll answered after it, then its write answered; 5 as 4 with its write
-    // not yet answered; 6 a poll answered, then a beat another master used;
-    // 7 as 6, then a poll answered. srp: the table answered since the
-    // selection; srpw: a provisioning write was posted.
+    // not yet answered; 6 a poll answered, then a STRMW_CTRL write with its
+    // write not yet answered, so no answer or beat follows the poll; 7 a poll
+    // answered, then a beat another master used; 8 as 7, then a poll answered.
+    // 8 runs last, so each pass after the first opens with 0 read after a
+    // STRM_SEL write that follows 8's poll answer: no other state reads that.
+    // srp: the table answered since the selection; srpw: a provisioning write
+    // was posted.
     int srp_ans = 0, srpw = 0;
     if (srpmode == 1 || srpmode >= 6) srp_ans = answer_srp();
-    if (srpmode >= 6) { t->i_srp_ctx_stolen = 1; tick(); t->i_srp_ctx_stolen = 0; ticks(2); }
-    if (srpmode == 7) answer_srp();
+    if (srpmode == 6) { wr(0x810, @aaf_ctrl@u); srpw = t->o_srp_ctx_we; }
+    if (srpmode >= 7) { t->i_srp_ctx_stolen = 1; tick(); t->i_srp_ctx_stolen = 0; ticks(2); }
+    if (srpmode == 8) answer_srp();
     if (srpmode == 2 || srpmode == 3) {
       wr(0x810, @aaf_ctrl@u); srpw = t->o_srp_ctx_we;
       if (srpw) srp_ans = answer_srp();
