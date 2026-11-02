@@ -92,7 +92,7 @@ python3 sw/firmware/ctrl/test/ctrl_plat_image.py --config configs/endstation_ax7
   --csr-csv "$SOC/csr.csv" --output "$OUT" --libc "$RUNTIME/libc.a" --compiler-runtime "$RUNTIME/libcompiler_rt.a"
 ```
 
-At 8x8 with two interfaces the image plans 59.0 RAMB36.
+At 8x8 with two interfaces the image plans 58.0 RAMB36.
 The owner's ruling (#665, 6505997821) ledgers that one point, owed to lane S14, so its command adds `--interfaces 2 --ledgered-point platform-8x8-two-interfaces`.
 Every other point is within 56 ([split control memory](../../../../docs/design/SPLIT_CONTROL_MEMORY.md#5-fit)).
 
@@ -102,7 +102,7 @@ Every other point is within 56 ([split control memory](../../../../docs/design/S
 
 - `plat`: the CSR window, the console and the MMIO platform on host buses (`test_plat.cpp`, `test_plat_mmio.cpp`); the CSR window and the console run under AddressSanitizer, whose report fails the test that sent the line;
 - `platboot`: the boot and composition at one and two interfaces on the mailbox model, F1's flash model and the host bus (`test_plat_boot.cpp`), every bus access in one order, the flash's among them; and a controller's bind after ready, written back to the flash by the store's service on the loop's tick;
-- `platrv32`: the whole platform cross-compiled freestanding for RV32I;
+- `platrv32`: the whole platform cross-compiled freestanding for RV32I, a portability arm; the linked image is the split hart's RV32IM with the record mover (`ctrl_plat_image.py`);
 - `plattrace`: the CSR policy's writes against `milan_baremetal.c`'s own `configure_fabric()`, compiled as builder gate 35 compiles it, for every shipped config, with three planted controls ([`plat_trace.py`](../test/plat_trace.py)).
 
 The control campaign plants [`plat_mutants.py`](../test/plat_mutants.py)'s 40 defects, each caught by a named test on its own words.
@@ -114,7 +114,7 @@ The [split boot simulation](../../../../tb/verilator/ctrl_split_boot/README.md) 
 
 - **SRP's live stream configuration.** `srp_mbx.c` copies its sources at init, and nothing re-declares a source whose destination MAAP has since allocated. The sources stay unallocated, and declare Talker Failed, until an SRP adapter entry takes the allocation. By the owner's ruling (#665, 6505997821) that entry, in `srp/`, comes in a later S3 round, once S2b's `srp_mbx.c` changes are on `dev-soft-core`.
 - **The graders on a split image.** The smoke grader's `fabric-enabled` check and the #396 campaign's one BIOS pass per cold cut cannot hold on a split image, which never sets `ADP_CTRL[0]` or `PP_CTRL[0]` and has no BIOS. The same ruling accepts both as listed differences; the graders' split mode is owed to the bench lane (S12).
-- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 59.0 RAMB36, ledgered and owed to lane S14 (decision D3), above.
+- **The largest point's block RAM.** At 8x8 with two interfaces the image plans 58.0 RAMB36, within the 59.0 ledgered and owed to lane S14 (decision D3), above.
 - **ACMP's asking-failed source flag** reads false: the SRP adapter exposes no per-source Listener Asking Failed registration.
 - **GET_AS_PATH** answers unavailable.
 - **F1's flash port** keeps its fixture addresses; lane S4 generates them from the SoC's `csr.csv`.

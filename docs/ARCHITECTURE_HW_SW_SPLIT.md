@@ -63,6 +63,8 @@ Milan v1.2 5.4.5.2 and IEEE 1722.1-2021 7.5.2 remain normative.
 [NFR-SCOUT-01..03](reference/FR_NFR.md#34-fabric-scale-out-and-future-ports)
 constrain capacity, placement and service timing.
 The release architecture uses one control hart: in the split placement it is RV32IM, with a 16 KiB two-way set-associative instruction cache (64-byte lines, LRU replacement, one refill at a time) and the coherent 8 KiB direct-mapped data cache (64-byte lines), coherent with the DMA port, with the mailbox, CSR and flash windows uncached; in the all-fabric placement it is RV32I and stays cacheless.
+In the split placement the hart runs on `sys`, the 100 MHz bus clock the mailbox and its record mover run on, with no CPU clock of its own and no crossing, and a split CPU in any other domain is refused ([owner decision of 2026-10-30](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239), `milan_soc.CTRL_CPU_CD`).
+The all-fabric hart keeps the bare-metal build contract's clock, the Milan clock; the Milan datapath clock does not change.
 Media capacity grows through fabric contexts, channels and sample rates.
 Protocol state grows through static pools sized from the entity model.
 Every supported shape must meet the same service bound.

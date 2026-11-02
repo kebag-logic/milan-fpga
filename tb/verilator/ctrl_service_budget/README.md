@@ -866,7 +866,7 @@ The 1x1, 32 KiB `backlog` window's longest pass moves from 19.23 to 23.56 ms, an
 The rows' other differences from the table above are this line's firmware since `e76a755a`, not the stage's: at `dev-soft-core` `5b5f4336`, before dev's #814 was merged, both 4 KiB arms' tables are byte-identical to the no-stage rows' apart from paths.
 None of this changes D3's rule: with the code in flash, paths inside T_svc still miss at both cache sizes.
 
-**The 1x1, 4 KiB rows cover two of the four backlog windows.**
+**The 1x1, 4 KiB rows cover two of the four backlog windows, at the CPU's old 50 MHz.**
 Their composed maxima are partial figures, so neither is comparable with the 94.91 ms above, which covers all four ([Findings](#findings)).
 Each run's `table.md` reports `backlog-adp` and `backlog-adp-refill` as not run; they ran, and the grader refused them.
 With the code in flash behind 4 KiB, the event ring still holds 5 of its 16 records when those two windows open, 4 without the stage.
@@ -890,6 +890,20 @@ A refused window's passes ran a smaller load than its row defines, so its figure
 | `backlog-adp-refill` | none | 13 | refused | 878.62 | 14 | 84.98 | aecp 1, srp 32 |
 
 So the longest pass in any of the four is at least 88.32 ms with the stage, in a window the grader refuses, and at least 86.54 ms without it.
+
+That was the window's definition, not the firmware's defect: it named a population only a drained ring can take, and waited a fixed time for one.
+A backlog window now opens on a drained ring, so the same arm, 1x1, 4 KiB, with the CPU on `sys` at 100 MHz, takes all four:
+
+| Window | Event records held at its opening | GM events committed, of 15 | Window, ms | Passes | Longest pass, ms | Records unreleased |
+|---|---:|---:|---:|---:|---:|---|
+| `backlog` | 0 | 15 | 644.25 | 56 | 34.81 | none |
+| `backlog-adp` | 0 | 15 | 617.53 | 22 | 40.25 | srp 26 |
+| `backlog-adp-refill` | 0 | 15 | 685.13 | 25 | 38.55 | srp 23 |
+| `backlog-owed` | 0 | 15 | 860.05 | 52 | 31.66 | none |
+
+Its composed maximum covers the four, so it is no longer partial: at least 40.25 ms, a lower bound while the two bound-talker windows close with SRP records unreleased, and 34.81 ms over the windows that released their whole load.
+With the code in flash every one of the arm's 16 paths still misses T_svc there, and all its work passes miss the per-pass share, so D3's rule stands.
+The other flash rows above stay as measured at 50 MHz.
 
 ### Block RAM and logic
 

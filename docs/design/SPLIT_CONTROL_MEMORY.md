@@ -23,7 +23,8 @@ No BIOS ROM or BIOS SRAM is built there.
 - **[10. The CPU clock the composed rows need](#10-the-cpu-clock-the-composed-rows-need)** -- The composed rows measured against the CPU clock alone and with its bus, the rows no clock moves, timing out of context, and what is left at the highest clock that closes.
 - **[11. The firmware's work on the record paths](#11-the-firmwares-work-on-the-record-paths)** -- What the AECP and SRP record paths executed, the indexed AECP scans, the SRP copies kept until they change, the hot code placed first, and the composed rows after them at a 100 MHz test clock and at 150 MHz.
 - **[12. The remaining firmware levers at the present clock](#12-the-remaining-firmware-levers-at-the-present-clock)** -- The indexed descriptor lookup, the hot list's gate, ACMP's wire packing as a TSN stack change, the record copies and lwSRP's receive checked, the composed rows after them at a 100 MHz test clock, and what a larger fetch L1 would save by the model.
-- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, and every row and pass at the product's 50 MHz and at the 100 MHz option.
+- **[13. The larger fetch L1 and the record mover](#13-the-larger-fetch-l1-and-the-record-mover)** -- The 16 KiB two-way fetch L1 and its area and timing out of context, the bulk copies and fills, the mailbox's record mover, lwSRP's receive path as a change to lwSRP, the composed rows after them at a 100 MHz test clock, the rows again at the approved T_svc = 20 ms and with contract 2.3's face writer, the refills per window, what holds the 8x8 rows, every row and pass at the Milan clock of 2026-10-29, and every row and pass with the CPU on `sys` at 100 MHz.
+- **[14. The 32x32 estimate](#14-the-32x32-estimate)** -- The service load per row at four times the 8x8 streams, an estimate against T_svc; one CPU, measured on the cacheless core at 100 MHz; gPTP's share, a labelled assumption; and what it leaves to the owner.
 
 ## 1. Memory map
 
@@ -101,7 +102,7 @@ Both are 8x8 with two interfaces, and [section 5](#5-fit) ledgers both as owed t
 | Name in `ctrl_memory.LEDGERED` | Image | Its symbols | RAMB36 |
 |---|---|---|---:|
 | `8x8-two-interfaces` | the size fixture's | `nvm_stage` of 13,264 B, `image_allocation` of 16 B | 57.5 |
-| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 21,240 B | 59.0 |
+| `platform-8x8-two-interfaces` | the target platform's | `nvm_stage` of 13,264 B, `ctrl_plat` of 19,944 B | 59.0 |
 
 Each override recognises its image by the image's own symbols.
 `nvm_stage` is the 8x8 shape's staging buffer.
@@ -250,6 +251,19 @@ The owner's ruling of 2026-10-29 (#665, 6505997821) ledgers that point at 59.0, 
 It amends ruling 6425357821's 57.5 for this one image, and `ctrl_memory.LEDGERED` names it `platform-8x8-two-interfaces` ([section 3](#3-named-refusals)).
 Every other point stays within 56 RAMB36.
 The flip (S13) needs 56 RAMB36 or fewer at every point, with S14 merged.
+
+At this branch's head the two images are built alike, RV32IM with the record mover and the word-wide primitives (`ctrl_plat_image.py` takes `ctrl_srp_image.py`'s split flags and audits), and the branch's compactions are in both:
+
+| Point | Platform `rom` / `sram` need, B | Platform RAMB36 | Fixture `rom` / `sram` need, B | Fixture RAMB36 | Against the budget |
+|---|---:|---:|---:|---:|---|
+| 1x1, one interface (shipping) | 108,664 / 45,888 | 38.5 | 103,560 / 44,976 | 36.5 | within |
+| 1x1, two interfaces | 110,184 / 57,312 | 41.0 | 105,024 / 56,368 | 40.0 | within |
+| 8x8, one interface | 122,296 / 86,464 | 51.5 | 117,160 / 85,552 | 50.0 | within |
+| 8x8, two interfaces (largest) | 123,848 / 112,640 | 58.0 | 118,624 / 111,712 | 56.5 | **over by 2.0 tiles**, within the 59.0 and the 57.5 ledgered, owed to lane S14 |
+
+These are planned, not mapped.
+`ctrl_plat` is 19,944 B at the largest point, 21,240 B when the ledger above named it, so the ledger names the new size, as it requires when that struct changes.
+The figures by part below are `b8628704`'s.
 
 By part, from the two link maps, with one section per function and object, the platform's bytes minus the fixture's at each point (`rom` / `sram`, B):
 
@@ -653,7 +667,7 @@ Setting the product clock is the owner's decision.
 
 Before the product clock is chosen, the owner asked for the firmware work every clock needs on the AECP and SRP record paths ([assignment of 2026-10-29](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6486770462)).
 This section is what those paths executed, the three changes, and the composed rows after them, at a 100 MHz CPU clock and with the CPU and its bus at 150 MHz.
-Neither is the product's: the product clocks the split CPU at 50 MHz and its bus at 100 MHz, and those clocks are unchanged ([section 13](#at-the-products-clock-and-the-per-pass-share)).
+Neither was the product's that day, when the product clocked the split CPU at 50 MHz and its bus at 100 MHz ([section 13](#at-the-milan-clock-and-the-per-pass-share)); the owner moved the CPU to `sys` at 100 MHz on 2026-10-30 ([section 13](#the-split-cpu-on-sys-at-100-mhz)).
 No clock, cache geometry, admission, `ACMP_OWED_MAX` or scenario hold changed.
 
 ### What a window executed
@@ -779,13 +793,13 @@ With (a) and (b) alone, the 1x1 `backlog` windows refilled more lines than befor
   - lwSRP's receive (`rx_on_attr`, `parse_pass`).
   Instruction refills are still 4.9 to 11.3 ms of each window at 100 MHz.
 
-The owner kept the product's clocks on 2026-10-29, the CPU at 50 MHz and its bus at 100 MHz; section 12 takes the firmware levers left at them.
+The owner kept the product's clocks on 2026-10-29, the CPU at 50 MHz and its bus at 100 MHz; section 12 takes the firmware levers left at them, and the decision of 2026-10-30 moved the CPU to `sys` ([section 13](#the-split-cpu-on-sys-at-100-mhz)).
 
 ## 12. The remaining firmware levers at the present clock
 
 The owner kept the split CPU and its bus at their clocks on 2026-10-29 ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6488028169)), the CPU at 50 MHz and its bus at 100 MHz, and the [assignment of the same day](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6489248781) took the firmware levers left on the record paths.
-Every figure here is at a 100 MHz CPU clock, a test clock and not the product's 50 MHz, measured with section 11's profiling variant.
-[Section 13](#at-the-products-clock-and-the-per-pass-share) measures the rows at the product's clock.
+Every figure here is at a 100 MHz CPU clock, then a test clock behind the crossing and not the product's 50 MHz of that day, measured with section 11's profiling variant.
+[Section 13](#the-split-cpu-on-sys-at-100-mhz) measures the rows at the product's clock, `sys` at 100 MHz.
 No clock, cache geometry, admission, `ACMP_OWED_MAX`, scenario hold or RTL changed.
 
 ### The changes
@@ -918,10 +932,9 @@ The owner took three of section 12's open items on 2026-10-29 ([decision and ass
 - a firmware and bus-path round for the 8x8 rows: bulk copies and fills, a DMA for the mailbox driver's record transfers, and a change to lwSRP's receive path;
 - the TSN stack's wire-halves change from section 12, measured staged as there.
 
-Every figure in this section up to [At the product's clock](#at-the-products-clock-and-the-per-pass-share) is at a 100 MHz CPU clock with the bus at 100 MHz: section 11's profiling variant ran the split CPU at that clock (`CSB_CPU_HZ`), and is now the harness's labelled `--cpu-hz` option.
-It is a test clock, not the product's.
-The product clocks the split CPU from the Milan clock, 50 MHz, with its bus at 100 MHz (`milan_soc.py`, `cpu_clk` from `ClockSignal("milan")`; `milan_clk_hz` in both ax7101 configurations).
-That subsection has every row and every pass at both clocks.
+Every figure in this section up to [At the Milan clock](#at-the-milan-clock-and-the-per-pass-share) is at a 100 MHz CPU clock with the bus at 100 MHz: section 11's profiling variant ran the split CPU at that clock (`CSB_CPU_HZ`), behind the generator's crossing, as a test clock.
+That subsection has every row and every pass at the two clocks of its day, when the product clocked the split CPU from the Milan clock, 50 MHz, with its bus at 100 MHz.
+The owner's decision of 2026-10-30 then put the CPU on `sys`, the bus clock, at 100 MHz, with no crossing, and [The split CPU on `sys`](#the-split-cpu-on-sys-at-100-mhz) has every row and pass there.
 
 ### The fetch L1
 
@@ -1130,19 +1143,18 @@ By module family it is spread: lwSRP 2.4 to 3.5 ms, ACMP's core 2.3 to 2.6, the 
 No single function holds 1.3 ms.
 The levers this page has named are taken; what is left is the work itself at the composed 8x8 load.
 
-### At the product's clock, and the per-pass share
+### At the Milan clock, and the per-pass share
 
-The product clocks the split CPU from the Milan clock, 50 MHz, with its bus at 100 MHz (`milan_soc.py`: `cpu_clk` from `ClockSignal("milan")`; `milan_clk_hz` in both ax7101 configurations, which the builder holds to the bare-metal build contract's clock).
-The figures above in this section, and in sections 11 and 12, are at a 100 MHz CPU clock, or 150 MHz where section 11 says so: test clocks, not the product's ([#665 correction](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6508196970)).
-The owner's decisions of 2026-10-29, no clock increase and T_svc = 20 ms, were taken on those figures, and the clock question is with the owner again.
+This subsection is the record of 2026-10-29, before the [owner's decision of 2026-10-30](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239): the product clocked the split CPU from the Milan clock, 50 MHz, with its bus at 100 MHz (`cpu_clk` from `ClockSignal("milan")`; `milan_clk_hz` in both ax7101 configurations, which the builder holds to the bare-metal build contract's clock).
+The figures above in this section, and in sections 11 and 12, are at a 100 MHz CPU clock, or 150 MHz where section 11 says so: test clocks, not that day's product ([#665 correction](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6508196970)).
+The owner's decisions of 2026-10-29, no clock increase and T_svc = 20 ms, were taken on those figures, and that decision of 2026-10-30 answered the clock question again.
 
-The CPU budget harness now runs the split CPU at the product's clock by default, and any other CPU clock only as its labelled `--cpu-hz` option.
-`build.json` records which, and every table and run line names the clock ([its README](../../tb/verilator/ctrl_service_budget/README.md#run-and-reproduce)).
+The CPU budget harness then ran the split CPU at the Milan clock by default, and any other CPU clock only as a labelled option.
 Every composed row was measured at both clocks, at both points, in both arms, with the two drafts staged and without them, graded as above.
 The images are byte-identical to the merge's legs above, the CPU's netlist is the same, and at 100 MHz every probe's CPU cycles at 1x1 arm A equal those legs'.
 The mover's word count now takes the length field's 4093 to 4095 without a wrap; no record has such a length, and the rows do not move.
 
-With the CPU at the product's split CPU clock, 50 MHz, and the bus at 100 MHz (ms, arm A / arm B, bold over the row's own bound):
+With the CPU at that day's product clock, the Milan clock, 50 MHz, and the bus at 100 MHz (ms, arm A / arm B, bold over the row's own bound):
 
 | Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
 |---|---:|---:|---:|---:|---:|
@@ -1158,7 +1170,7 @@ With the CPU at the product's split CPU clock, 50 MHz, and the bus at 100 MHz (m
 | A response with 7 frames owed ahead of it | 20 | **63.41** / **63.33** | **63.35** / **63.33** | **66.26** / **66.20** | **66.41** / **66.45** |
 | An ACMP command behind the owed input | 20 | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
 
-With the CPU at the labelled 100 MHz option and the bus at 100 MHz, the same legs as the merge's above, now through the committed option:
+With the CPU at that day's labelled 100 MHz option, behind the crossing, and the bus at 100 MHz, the same legs as the merge's above:
 
 | Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
 |---|---:|---:|---:|---:|---:|
@@ -1174,7 +1186,7 @@ With the CPU at the labelled 100 MHz option and the bus at 100 MHz, the same leg
 | A response with 7 frames owed ahead of it | 20 | **61.99** / **62.06** | **62.01** / **62.00** | **63.70** / **63.64** | **63.69** / **63.74** |
 | An ACMP command behind the owed input | 20 | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
 
-At the product's 50 MHz:
+At that day's 50 MHz:
 - **At 1x1/1if every row the CPU decides fits**, in both arms, with the drafts staged or not.
   The tightest is the last SRP record, 17.81 ms against 18; the last AECP record takes at most 17.05 ms.
 - **At 8x8/2if the last AECP record misses its bound**: 25.02 to 25.61 ms against 20, and 24.02 to 24.11 with both drafts.
@@ -1193,7 +1205,7 @@ Each group's work passes against the share, over the four groups' runs (arm A / 
 
 | CPU clock | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
 |---|---:|---:|---:|---:|
-| 50 MHz (product) | 0 of 1273, 1.89 / 0 of 1245, 1.89 | 0 of 1264, 1.71 / 0 of 1246, 1.72 | **32 of 1310, 3.46** / **30 of 1286, 3.47** | **24 of 1307, 3.28** / **23 of 1285, 3.30** |
+| 50 MHz (that day's product) | 0 of 1273, 1.89 / 0 of 1245, 1.89 | 0 of 1264, 1.71 / 0 of 1246, 1.72 | **32 of 1310, 3.46** / **30 of 1286, 3.47** | **24 of 1307, 3.28** / **23 of 1285, 3.30** |
 | 100 MHz (option) | 0 of 1272, 1.14 / 0 of 1248, 1.14 | 0 of 1273, 1.04 / 0 of 1249, 1.06 | **1 of 1311, 2.29** / **2 of 1284, 2.30** | **1 of 1332, 2.20** / **1 of 1298, 2.20** |
 
 - **At 1x1/1if every pass fits the share at both clocks**: the longest is 1.89 ms at 50 MHz.
@@ -1205,7 +1217,7 @@ Each group's work passes against the share, over the four groups' runs (arm A / 
 **A split by the loop's own constant does not bring them within it.**
 In a labelled experiment, not on this branch, `CTRL_LOOP_RX_PER_PASS` took one record of a channel a pass instead of two (owner decision D4(b) set two), at 8x8/2if, arm A, without the drafts:
 
-| 8x8/2if, arm A, without the drafts | Bound, ms | CPU 50 MHz (product): two records a pass (the branch) | one (the experiment) | CPU 100 MHz (option): two | one |
+| 8x8/2if, arm A, without the drafts | Bound, ms | CPU 50 MHz (that day's product): two records a pass (the branch) | one (the experiment) | CPU 100 MHz (option): two | one |
 |---|---:|---:|---:|---:|---:|
 | ACMP record, last | 20 | 14.37 | 19.25 | 8.79 | 11.79 |
 | ADP record, last | 20 | 11.20 | 13.99 | 6.67 | 8.32 |
@@ -1221,16 +1233,191 @@ At 50 MHz it shortens the composed windows' longest pass but leaves the passes b
 At 100 MHz every pass then fits the share, and the last SRP record misses its 18 ms bound.
 No figure of records a pass serves both the share and the rows at 8x8, so the branch keeps two.
 The passes before any load are lwSRP's MRP work, which a record count does not reach.
-So at the product's clock the 8x8 last AECP and SRP records and the 8x8 passes miss, and the split CPU's clock is the owner's decision.
+So at that day's clock the 8x8 last AECP and SRP records and the 8x8 passes missed, and the owner decided the split CPU's clock on 2026-10-30 ([below](#the-split-cpu-on-sys-at-100-mhz)).
+
+### The split CPU on `sys` at 100 MHz
+
+The [owner's decision of 2026-10-30](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239) moved the split CPU from the Milan clock to `sys`, the 100 MHz bus clock the mailbox, its record mover and the firmware memory run on.
+`milan_soc.CTRL_CPU_CD` names that domain, and `MilanSoC` refuses any other for the split placement, the Milan clock among them.
+The all-fabric CPU, the Milan datapath clock, the PHC, the media grids and every `MILAN_CLK_FREQ_HZ` derivation do not change.
+
+The memory crossing is removed, not kept degenerate.
+With the CPU on the bus's own clock the generator's `with_cpu_clk` is off and `cross_cpu_memory_ports` leaves the CPU alone, so no `StreamFifoCC` or `cpu_clk` port is built: a crossing between one clock's edges would cost its cycles and its area for nothing.
+Every CPU-clock constant comes from the CPU's own clock: the mailbox's millisecond tick from `sys`, the loop's share as 200,000 CPU cycles, and the harness's `cpu_hz` from `MilanSoC.cpu_clk_freq`.
+The CPU budget harness and the split boot simulation both build through `ctrl_cpu_cd` and refuse a CPU with a clock of its own; a CPU budget build that records its CPU anywhere else is refused, built or reused.
+
+Out of context, the product split CPU netlist on `sys` (`VexiiRiscvLitex_7ee512a1cb1c336731b7f28188c9814f`) with `rom` and `sram` built from the 1x1 image, its LiteDRAM port brought out to pins, routed at 10 ns with the method of section 9:
+
+| Split CPU | WNS / WHS, ns | LUT | FF | The CPU's RAMB36 / RAMB18 | The CPU's tiles | Route |
+|---|---:|---:|---:|---:|---:|---|
+| 16 KiB two-way fetch L1, behind the crossing at 100 MHz ([above](#the-fetch-l1)) | CPU +0.659 / +0.031, bus +2.660 / +0.072 | 3,948 | 6,879 | 9 / 11 | 14.5 | no routing error |
+| 16 KiB two-way fetch L1, on `sys` at 100 MHz | +1.605 / +0.070 | 3,543 | 5,643 | 6 / 7 | 9.5 | no routing error |
+
+Without the crossing the CPU is 405 LUTs, 1,236 FFs and 5 tiles smaller.
+Its worst path runs from the generator's peripheral bridge into the interrupt controller's gateways, 8.015 ns, 76 % route.
+Out of context, with nothing else on the device, this is an upper bound; the routed split image is lane S9's.
+
+Every composed row was measured on the merged head, with the CPU on `sys` at 100 MHz and the bus on the same clock, at both points, in both arms, with the two drafts staged and without them, graded against min(T_svc, its family's ceiling) with T_svc = 20 ms (ms, arm A / arm B, bold over the row's own bound):
+
+| Row | Bound, ms | 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---|---:|---:|---:|---:|---:|
+| ACMP record, last | 20 | 5.16 / 5.06 | 4.34 / 4.52 | 7.76 / 7.98 | 7.42 / 7.30 |
+| ADP record, last | 20 | 3.65 / 3.59 | 3.18 / 3.22 | 5.81 / 5.85 | 5.26 / 5.08 |
+| MAAP record, last | 20 | 3.68 / 3.63 | 3.22 / 3.26 | 5.80 / 5.84 | 5.30 / 5.12 |
+| AECP record, last | 20 | 9.67 / 10.02 | 8.72 / 9.48 | 14.41 / 15.16 | 13.79 / 14.05 |
+| SRP record, last | 18 | 9.95 / 10.00 | 9.49 / 9.68 | 15.88 / 15.96 | 14.84 / 14.81 |
+| An ACMP command behind a full ACMP ring | 20 | 3.45 / 3.47 | 3.03 / 3.11 | 6.51 / 6.73 | 6.19 / 6.21 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 20 | 2.73 / 2.74 | 2.42 / 2.45 | 3.53 / 4.19 | 3.95 / 4.11 |
+| An event behind 15 others | 20 | 0.88 / 0.89 | 0.78 / 0.80 | 1.44 / 1.45 | 1.35 / 1.35 |
+| AECP record, last, in the owed window | 20 | **62.66** / **62.73** | **62.75** / **62.77** | **64.99** / **64.95** | **64.94** / **65.01** |
+| A response with 7 frames owed ahead of it | 20 | **62.07** / **61.93** | **61.94** / **61.95** | **63.68** / **63.93** | **63.91** / **63.68** |
+| An ACMP command behind the owed input | 20 | **never** / **never** | **never** / **never** | **never** / **never** | **never** / **never** |
+
+Every row the CPU decides fits, at both points, in both arms, with the drafts staged or not.
+The tightest is the 8x8 last SRP record, 15.96 ms against 18, 14.84 with both drafts; the 8x8 last AECP record takes at most 15.16 ms against 20.
+At 1x1 they take 10.00 and 10.02 ms.
+The three egress-held rows miss as before: they hold the egress for 60 ms, and stay with [tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26).
+
+The per-pass share, 2.0 ms, 200,000 CPU cycles: the passes over it of the work passes run over the four backlog groups, and the longest in ms (arm A / arm B):
+
+| 1x1/1if | 1x1/1if, with both drafts | 8x8/2if | 8x8/2if, with both drafts |
+|---:|---:|---:|---:|
+| 0 of 1277, 1.07 / 0 of 1250, 1.07 | 0 of 1279, 0.98 / 0 of 1250, 0.98 | 0 of 1319, 1.97 / 0 of 1286, 1.92 | 0 of 1310, 1.77 / 0 of 1302, 1.77 |
+
+No pass is over the share in any leg, nor in any of the harness's other groups, which arm A also ran at both points.
+Over every group the longest at 8x8 is 1.97 ms, at 1x1 1.21 ms.
+
+**The pass that was over it.**
+On the merged head before this change one 8x8 pass was over the share in each arm, 2.21 and 2.22 ms, in the `backlog` window, and in no other window.
+It was the pass that took the row's own LINK event: SRP's `reset_interface` destroyed the interface's participants and built new ones in the event, about 110,000 CPU cycles at 8x8 of the 200,000.
+The count of events a pass takes is not what sets it: at six events a pass that pass was 2.207 ms, and at four 2.108 ms, the LINK event arriving in a later pass with the same work (labelled experiments, not on this branch).
+So a link change now takes two passes (`srp_bounds.h`): the pass that takes it withdraws and destroys, the next pass's poll builds, and SRP's receive waits until then, so no record meets an interface with no participants and neither pass also runs an SRP record.
+Any number of link edges in a pass builds once, which a pass of eight used to do eight times.
+
+**The other groups.**
+Three things the composed rows do not reach showed only when every group ran at 100 MHz.
+The flash window was cacheable in the test SoC, for the hybrid-XIP arm, so the saved-state store read flash through the data cache, which the product never does: its read and its buffer met at one cache index, and one pass in each save took 12.4 ms at 8x8 and 4.1 ms at 1x1 (a labelled control restores it).
+The window is now the product's in every arm but hybrid-XIP's, and a build with another is refused.
+An AECP group sent its next frame when the last settled, so at 100 MHz it outran the channel's refill of one frame every 5 ms, and the filter refused the frames past its burst; each frame now waits that period.
+And through the product's uncached window a read of the store's whole page takes 1.40 ms, which with lwSRP's periodic work in the same tick put an 8x8 pass at 2.26 ms.
+The store's blank check and verify now read back 128 bytes a step (`NVM_READ_BYTES`), so a save's read-back takes twice as many ticks.
+
+**The hybrid-XIP arm's two windows.**
+At the CPU's old 50 MHz, the 1x1, 4 KiB arm's `backlog-adp` and `backlog-adp-refill` were refused: the fifteen grandmaster changes arrive 8 bus cycles apart and the source coalesces while its record waits, so with k records held only 16 - k + 1 commit, and those windows opened with 4 or 5 records held.
+That was the window's definition, not the firmware's defect: it named a population only a drained ring can take, and waited a fixed time for one.
+Every backlog window now opens on a drained ring (`scenario.OPEN_WINDOW`), its table gives the records held at its opening, and a refusal names them.
+At 100 MHz all four windows take their fifteen, with no record held, so that arm's composed maximum covers all four ([the harness](../../tb/verilator/ctrl_service_budget/README.md#the-instruction-cache)).
 
 ### What is left
 
-- The owner kept 8x8 in the Mark II split's scope and approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)), on figures at the 100 MHz test clock.
-- **At the product's 50 MHz** ([above](#at-the-products-clock-and-the-per-pass-share)), 1x1 fits every row the CPU decides and every pass; its least margin is the last SRP record's, 0.19 ms.
-  At 8x8 the last AECP record misses by 4.0 to 5.6 ms and the last SRP record by 7.5 to 10.3 ms, with the drafts staged or not, and 23 to 32 passes of each run are over the 2.0 ms share, by up to 1.47 ms.
-- **At the 100 MHz option** every row the CPU decides fits at both points, with the least margin the 8x8 last SRP record's, 1.05 ms; one or two 8x8 passes are over the share, by up to 0.30 ms.
-- No split by the loop's records per pass fits both the share and the rows at 8x8; the passes before any load are lwSRP's MRP work.
-  The split CPU's clock, and whether the share or the rows give at 8x8, are the owner's to decide.
+- The owner kept 8x8 in the Mark II split's scope, approved T_svc = 20 ms ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) and put the split CPU on `sys` at 100 MHz ([decision](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)).
+- **With the CPU on `sys` at 100 MHz** every row the CPU decides and every pass fits at both points, with the least margin the 8x8 last SRP record's, 2.04 ms.
 - The TSN stack's and lwSRP's changes reach this branch only through those repositories' reviews, then a pin move: the TSN stack's with the hot list's runtime entry removed, lwSRP's with `ctrl_arms.LWSRP_REV`.
 - The three rows no CPU lever moves are unchanged: the 60 ms egress hold, `ACMP_OWED_MAX`, and the command behind the owed input. They stay with [tsn-c-stack #26](https://github.com/kebag-logic/tsn-c-stack/issues/26).
 - The block-RAM ledger, 124 against 121.5 ([the area plan](MARK_II_AREA_PLAN.md)), is commissioned separately.
+- **A pass no group stages:** a save's read-back step, 0.70 ms, can fall in the same pass as a composed window's heaviest, 1.97 ms, which would be about 2.67 ms against the share. It is derived, not measured. The rows fit it: the least margin, 2.04 ms, is more than a few such steps.
+- The platform image's four hot-list entries that name the size fixture's callbacks place nothing there, and its own callbacks are not on the list.
+- The routed split image is lane S9's. [Section 14](#14-the-32x32-estimate) carries these figures to Mark II's shape.
+
+## 14. The 32x32 estimate
+
+Mark II's shape is 32x32: 16x16 logical streams, each redundant on both networks, on one TDM8 bus ([owner, 2026-10-31](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545621753)).
+No such shape exists yet, so nothing here measures it.
+The first table is a derivation from this branch's measurements, marked as an estimate, against T_svc = 20 ms and each family's ceiling; the one-CPU table is measured; the gPTP share is an assumption, labelled as one.
+
+### The estimate
+
+Each row's 8x8/2if measurement, with the CPU on `sys` at 100 MHz, is carried to 64 streams three ways, and the rings and buckets stay the contract's, so a window holds the same records:
+
+- **U** is the assigned derivation: four times the 8x8/2if figure, every cycle taken to grow with the streams.
+- **L** is the measured growth: the line through 1x1/1if (2 streams) and 8x8/2if (16), to 64.
+- **S** is the streams' own growth: the 8x8/2if figure plus the slope from 1x1/1if to 8x8/1if, which holds the interfaces at one. The 8x8/1if point is a labelled scratch arm, not on this branch.
+
+Worst of the arms measured, ms, over the bound in bold with the excess (estimates in the last three columns):
+
+| Row | Bound, ms | 1x1/1if | 8x8/1if | 8x8/2if | U: 4 x 8x8/2if | L: the line, 1x1/1if to 8x8/2if | S: the streams alone |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| ACMP record, first | 20 | 0.75 | 1.15 | 1.31 | 5.2 | 3.2 | 2.7 |
+| ADP record, first | 20 | 0.80 | 1.20 | 1.35 | 5.4 | 3.3 | 2.7 |
+| MAAP record, first | 20 | 0.78 | 1.18 | 1.33 | 5.3 | 3.2 | 2.7 |
+| AECP record, first | 20 | 0.79 | 1.19 | 1.34 | 5.4 | 3.2 | 2.7 |
+| SRP record, first | 18 | 2.80 | 4.57 | 5.35 | **21.4** (+3.4) | 14.1 | 11.4 |
+| ACMP record, last | 20 | 5.16 | 7.23 | 7.98 | **31.9** (+11.9) | 17.7 | 15.1 |
+| ADP record, last | 20 | 3.65 | 4.92 | 5.85 | **23.4** (+3.4) | 13.4 | 10.2 |
+| MAAP record, last | 20 | 3.68 | 4.99 | 5.84 | **23.3** (+3.3) | 13.2 | 10.3 |
+| AECP record, last | 20 | 10.02 | 13.12 | 15.16 | **60.6** (+40.6) | **32.8** (+12.8) | **25.8** (+5.8) |
+| SRP record, last | 18 | 10.00 | 14.42 | 15.96 | **63.8** (+45.8) | **36.4** (+18.4) | **31.1** (+13.1) |
+| An ACMP command behind a full ACMP ring | 20 | 3.47 | 5.64 | 6.73 | **26.9** (+6.9) | 17.9 | 14.2 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 20 | 2.74 | 3.84 | 4.19 | 16.8 | 9.2 | 8.0 |
+| An event behind 15 others | 20 | 0.89 | 1.29 | 1.45 | 5.8 | 3.4 | 2.8 |
+| The longest work pass | 2 | 1.07 | 1.58 | 1.97 | **7.9** (+5.9) | **5.0** (+3.0) | **3.7** (+1.7) |
+
+The rows that would not fit, and by how much:
+
+- **AECP record, last, under S, L and U:** over by 5.8, 12.8 and 40.6 ms.
+- **SRP record, last, under S, L and U:** over by 13.1, 18.4 and 45.8 ms.
+- **The longest work pass, under S, L and U:** 3.7, 5.0 and 7.9 ms, over the 2.0 ms share by 1.7, 3.0 and 5.9 ms.
+- **Under U alone:** SRP record, first by 3.4 ms, ACMP record, last by 11.9 ms, ADP record, last by 3.4 ms, MAAP record, last by 3.3 ms, an ACMP command behind a full ACMP ring by 6.9 ms.
+
+So the last AECP and SRP records and the per-pass share miss whichever way the growth is read, and the rest of U's misses depend on how much of each row grows with the streams.
+The last SRP record waits for its channel's 32 records at two a pass, so its row is about sixteen passes, and every pass carries the polls' per-stream cost: an idle pass takes 6,410 CPU cycles at 1x1/1if and 14,832 at 8x8/2if.
+The derivation has limits a measurement would not: 8x8/2if already holds its streams per interface, so a 32x32 interface holds twice its streams where the entity holds four times, which makes U an upper reading for the per-interface work (SRP); nothing here knows the cost of 64-stream tables that were never linked, and the Block RAM they need binds first ([the area plan](MARK_II_AREA_PLAN.md)).
+
+### One CPU, measured
+
+The owner's lever order names one CPU, no second hart, as lever 4 ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545540394)).
+As built, the split placement has one hart already: `MilanSoC` gives its only CPU, `cpu_count` 1, the split options under `--ctrl-mailbox`, and the harness measures that one hart with the protocol firmware, its boot path and the saved-state store on it.
+So the estimate's 3,948 LUTs of split CPU are added to an image that still counts the all-fabric CPU's 3,249, and lever 4's saving removes a second hart the code does not build.
+What the lever can still ask is whether the firmware fits the SoC core as it ships: cacheless, without the split CPU's caches or RV32M.
+Measured on `sys` at 100 MHz, the four backlog groups, arm A, the image rebuilt for each CPU (bold over the bound; the cacheless RV32I arm is a labelled scratch arm, not on this branch):
+
+| Row | Bound, ms | Split CPU, 1x1 | Cacheless RV32IM, 1x1 | Cacheless RV32I, 1x1 | Split CPU, 8x8 | Cacheless RV32IM, 8x8 | Cacheless RV32I, 8x8 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| ACMP record, first | 20 | 0.75 | 1.56 | 1.58 | 1.30 | 2.90 | 2.93 |
+| ADP record, first | 20 | 0.79 | 1.60 | 1.62 | 1.34 | 2.94 | 2.98 |
+| MAAP record, first | 20 | 0.77 | 1.58 | 1.60 | 1.33 | 2.92 | 2.96 |
+| AECP record, first | 20 | 0.78 | 1.59 | 1.61 | 1.34 | 2.93 | 2.97 |
+| SRP record, first | 18 | 2.79 | 5.44 | 5.63 | 5.35 | 11.37 | 11.72 |
+| ACMP record, last | 20 | 5.16 | 9.98 | 10.45 | 7.76 | 16.08 | 16.09 |
+| ADP record, last | 20 | 3.65 | 7.14 | 7.78 | 5.81 | 11.70 | 11.77 |
+| MAAP record, last | 20 | 3.68 | 7.18 | 7.81 | 5.80 | 11.71 | 11.75 |
+| AECP record, last | 20 | 9.67 | 17.34 | 19.76 | 14.41 | **26.83** | **28.51** |
+| SRP record, last | 18 | 9.95 | 17.98 | **21.63** | 15.88 | **30.26** | **34.52** |
+| An ACMP command behind a full ACMP ring | 20 | 3.45 | 6.87 | 7.06 | 6.51 | 14.29 | 14.42 |
+| An ENTITY_AVAILABLE behind a full ADP ring | 20 | 2.73 | 5.50 | 5.94 | 3.53 | 8.75 | 7.78 |
+| An event behind 15 others | 20 | 0.88 | 1.82 | 1.84 | 1.44 | 3.16 | 3.20 |
+| Passes over the 2.0 ms share, longest ms | 2 | 0 of 1277, 1.07 | **3 of 1267, 2.14** | **3 of 1270, 2.35** | 0 of 1319, 1.97 | **62 of 1314, 3.61** | **64 of 1315, 3.85** |
+
+The cacheless core does not fit 8x8: the last AECP and SRP records miss, and about 60 passes a run are over the share.
+At 1x1 the RV32IM arm fits every row, the last SRP record by 0.02 ms, with three passes over the share; RV32I misses the last SRP record too.
+Against those, the split CPU on `sys` costs 5 tiles of Block RAM (9.5 against 4.5) and about 300 LUTs (3,543 against 3,249) more than the shipping core, and its image plans 56.5 tiles where RV32I's plans 57.0.
+The quiet work load, work-pass cycles over elapsed cycles from `settled` to `composed`, is 1.14 % at 1x1/1if and 2.80 % at 8x8/2if on the split CPU, 6.22 % and 6.55 % on the two cacheless arms at 8x8/2if: load is not what binds, the burst is.
+The estimate carries that quiet load to 5.9 to 11.2 % at 32x32.
+
+### gPTP's share, an assumption
+
+The protocol processor goes at the switch-over and gPTP moves to firmware at lane F6 ([owner, 2026-10-31](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6545457321)); the fabric keeps the timestamps on both ports.
+None of this is measured, because no gPTP firmware is linked here.
+The assumption, from Milan v1.2's intervals (Sync 125 ms, Announce and Pdelay 1 s) and IEEE 802.1AS-2011's message set:
+
+| Quantity | Assumed | Basis |
+|---|---:|---|
+| Frames a second | 46 | 23 a port, two ports: Sync and Follow_Up 16, Announce 1, Pdelay 6 (requester and responder) |
+| Servo runs a second | 16 | One per Sync, each port |
+| CPU cycles a frame or servo run | 40,000 (20,000 to 100,000) | About twice a measured ACMP record; the surveyed stack [uses soft double math](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) |
+| Sustained load | 2.5 % (1.2 to 6.2) | 62 x 40,000 cycles at 100 MHz |
+| Added to any row | 1.6 ms | Four frames in a window of up to 87 ms |
+| Added to a pass | 0.8 ms | Two records a channel a pass |
+
+So the sustained share is small, and the bursts are what it touches: the longest 32x32 pass becomes 4.5 ms under S and 8.7 ms under U.
+A Pdelay response waits for the pass running when its request arrives, then its own, and Milan v1.2 4.2.6.2.6 allows 15 ms of turnaround: 9.0 ms under S fits, 17.3 ms under U does not.
+
+**What would measure it:** F6's stack linked into this harness's image behind the HAL, the mailbox channel it takes in the contract, and a stimulus of these frames on both ports at their intervals, graded here for each frame's cost, the servo's, the pass and the Pdelay turnaround, at 8x8/2if first and at 32x32 when that shape exists.
+
+### What the estimate leaves to the owner
+
+These are not decided here.
+
+- **The last AECP and SRP records and the per-pass share at 32x32.** The levers are the rings and buckets the contract admits, the two records a pass of the owner's D4(b), the 2.0 ms share itself, and the firmware's per-stream polls; which of them is the owner's.
+- **Which CPU lever 4 means.** The split placement already has one hart. The cacheless core would save about 300 LUTs and 5 tiles, and does not fit 8x8.
+- **The CPU clock past 100 MHz, or a second hart,** if the firmware's levers do not close 32x32. Each runs against the area target.
