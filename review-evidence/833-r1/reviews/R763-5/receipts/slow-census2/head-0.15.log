@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "$REVIEWS/r763-5-833/scripts/owned_process.py", line 366, in run
+    self.checkpoint()
+    ~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/r763-5-833/scripts/owned_process.py", line 200, in checkpoint
+    raise Cancelled(self.cancel_signal)
+owned_process.Cancelled: signal 15
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-5-packet/slow_census_probe.py", line 34, in <module>
+    t.owner_shell_window(Path(scratch))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/r763-5-833/scripts/test_suite_cancellation.py", line 595, in owner_shell_window
+    owner.run(["bash", "-c", script], env=env)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/r763-5-833/scripts/owned_process.py", line 370, in run
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+RuntimeError: CLEANUP FAILED: owned descendants remain after 10.55 s, 56 census passes, slowest 0.17 s: pid 1782754 (bash) state T wchan do_signal_stop parent 1782727 (first parent 1782727) age 10.59 s start 76686050, not sent SIGKILL; pid 1782759 (python3) state S wchan hrtimer_nanosleep parent 1782754 (first parent 1782754) age 10.59 s start 76686050, not sent SIGKILL
+delay 0.15: owner_shell_window FAIL in 12.9 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 10.55 s, 56 census passes, slowest 0.17 s: pid 1782754 (bash) state T wchan do_signal_stop parent 1782727 (first parent 1782727) age 10.59 s start 76686050, not sent SIGKILL; pid 1782759 (python3) state S wchan hrtimer_nanosleep parent 1782754 (first parent 1782754) age 10.59 s start 76686050, not sent SIGKILL

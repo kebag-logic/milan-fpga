@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-5-packet/scratch/rep/shell-window-1s/scripts/test_suite_cancellation.py", line 878, in <module>
+    sys.exit(run_control(options.control))
+             ~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-5-packet/scratch/rep/shell-window-1s/scripts/test_suite_cancellation.py", line 822, in run_control
+    control(*([Path(scratch)] if inspect.signature(control).parameters else []))
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-5-packet/scratch/rep/shell-window-1s/scripts/test_suite_cancellation.py", line 601, in owner_shell_window
+    assert last.exists(), "the resumed shell was killed inside its own window, with no child to spare it"
+           ~~~~~~~~~~~^^
+AssertionError: the resumed shell was killed inside its own window, with no child to spare it

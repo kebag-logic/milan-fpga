@@ -1,0 +1,5 @@
+scripts/docs_check.py rc 0
+scripts/check_doc_style.py rc 0
+scripts/check_baremetal_only.py --check rc 0
+scripts/check_py_idiom.py rc 0
+git diff --check 1f29f189 HEAD rc 0
