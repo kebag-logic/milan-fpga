@@ -23,6 +23,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import save_window
+
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[2]
 SIBLING = ROOT / 'tb/verilator/fw_service_budget'
@@ -55,7 +57,15 @@ MUTATIONS = {
                           '\tfor (volatile uint32_t n = 0; !enable && n < 32000u; ++n) {\n\t}\n'
                           '\tfor (unsigned k = 0; k < MBX_N_IF; ++k) {\n\t\tadp_set_enable(',
                           'control-shutdown', 'shutdown-entry'),
+    # #665's planted store step: the loop hands THE STEP a deadline no pass reaches, so the saved-state
+    # store takes its flash step in whatever pass owes it, as before ctrl_loop.h's THE STEP. A pass of a
+    # save's windows must then exceed the share while every row fits (save_window.py).
+    'store-step-unbounded': ('loop/ctrl_loop.c', 'l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u',
+                             'l->clock(l->clock_ctx) + 0x40000000u : 0u',
+                             ','.join(save_window.row_names()), 'none'),
 }
+#: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
+SHARE_CONTROLS = ('store-step-unbounded',)
 
 
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never

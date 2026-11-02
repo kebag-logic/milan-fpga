@@ -34,6 +34,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 
+import save_window
 import scenario
 import share
 
@@ -56,7 +57,7 @@ LOAD_FRAME_BYTES = {'adp': 14 + 68, 'acmp': 14 + 56, 'aecp': 60, 'maap': 60, 'sr
 #: composed load, so the composed maximum is taken over them (run.composed_maximum).
 BACKLOG_ROWS = ('backlog', 'backlog-adp', 'backlog-adp-refill', 'backlog-owed')
 #: The groups whose composed window carries a defined load: the backlog rows and the
-#: self-test's short window.
+#: self-test's short window. A save's windows (save_window.py) carry their backlog row's.
 COMPOSED_ROWS = (*BACKLOG_ROWS, 'fixture')
 
 
@@ -648,8 +649,9 @@ def defined_load(name: str) -> dict[str, int]:
     the ring's room. Grandmaster changes fill the event ring but the row's own event, which in
     'backlog' is the LINK change; each commits only into a ring the core has drained, so a backlog
     window opens on one (scenario.OPEN_WINDOW). The fixture's short window has one record a channel
-    and two changes.
+    and two changes. A save's window is its backlog row's (save_window.row).
     """
+    name = save_window.row(name)
     if name not in COMPOSED_ROWS:
         raise Refusal(f'{name}: no defined composed load')
     if name == 'fixture':
@@ -793,12 +795,17 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
 
 
 def pass_share(log: Log) -> dict:
-    """Every work pass against the per-pass share (share.py), apart from the row verdicts: the share
-    in ms and in CPU cycles at the log's CPU clock, the work passes, and each one over it."""
+    """Every pass against the per-pass share (share.py), apart from the row verdicts: the share
+    in ms and in CPU cycles at the log's CPU clock, the work passes, and each pass over it. A pass
+    that writes nothing to the mailbox is printed only as its run's longest (sim_main.cpp's IDLE),
+    and the store's step can be all such a pass does (ctrl_loop.h, THE STEP): a run whose longest
+    is over the share is one pass over it, idle_over counts them."""
     limit = share.share_cycles(log.cpu_hz)
-    over = [p for p in log.passes if p.cycles > limit]
-    return dict(ms=share.share_ms(), cycles=limit, passes=len(log.passes), over=len(over),
-                over_passes=[dict(start_sys=p.start_sys, cycles=p.cycles) for p in over])
+    over = [dict(start_sys=p.start_sys, cycles=p.cycles) for p in log.passes if p.cycles > limit]
+    idle = [dict(idle_run=n, cycles=longest) for n, (_, _, longest) in enumerate(log.idle) if longest > limit]
+    return dict(ms=share.share_ms(), cycles=limit, passes=len(log.passes), over=len(over) + len(idle),
+                over_passes=over + idle, idle_over=len(idle),
+                idle_longest=max((longest for _, _, longest in log.idle), default=0))
 
 
 def grade(text: str, group: scenario.Group, sys_hz: int, cpu_hz: int) -> dict:

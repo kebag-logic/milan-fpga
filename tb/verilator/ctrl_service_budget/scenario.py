@@ -43,6 +43,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import frames as f
+import save_window
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / 'sw/mailbox'))
@@ -888,8 +889,7 @@ def backlog_groups(p: Point) -> list[Group]:
 
 def control_groups(p: Point) -> list[Group]:
     """The planted over-budget control's path: RCV_ADP_DISCOVER in WAITING to its TMR_DELAY arm, made by ADP's receive
-    handler after its work. The ordinary image fits T_svc; build.py's slow-adp-rx must miss it, by name.
-    """
+    handler after its work. The ordinary image fits T_svc; build.py's slow-adp-rx must miss it, by name."""
     adp = CH['adp']
     g = Group('control', sim_ms=2800)
     ready(g, p, link=False)
@@ -996,5 +996,5 @@ def all_groups(p: Point, build: dict) -> list[Group]:
     if build.get('variant') == 'shutdown-entry':
         return shutdown_groups(p)
     groups = [*acmp_groups(p), *adp_groups(p), *aecp_groups(p, build), *aecp_fanout_groups(p, build),
-              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p)]
+              *maap_groups(p), *srp_groups(p), *backlog_groups(p), *control_groups(p), *save_window.groups(p)]
     return sorted(groups, key=lambda g: -g.sim_ms) + (fixture_groups(p) if p.interfaces == 1 else [])

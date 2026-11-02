@@ -131,9 +131,11 @@ def share_misses(results: list[dict]) -> list[str]:
     for g in results:
         s, worst = g['passes'].get('share'), g['passes'].get('worst')
         if s and s['over']:
-            out.append(f"{g['group']}: {s['over']} of {s['passes']} work passes over the per-pass share "
+            idle = s.get('idle_over', 0)
+            out.append(f"{g['group']}: {s['over'] - idle} of {s['passes']} work passes over the per-pass share "
                        f"{s['ms']:.3f} ms ({s['cycles']:,} CPU cycles); the longest {worst['cycles']:,} "
-                       f"({worst['ms']:.3f} ms)")
+                       f"({worst['ms']:.3f} ms)" + (f"; and {idle} run(s) of passes with no mailbox write, the "
+                                                   f"longest {s['idle_longest']:,}" if idle else ''))
     return out
 
 
@@ -152,6 +154,8 @@ def share_table(results: list[dict]) -> list[str]:
     for g, s in zip(graded, shares):
         worst = g['passes']['worst']
         longest = f"{worst['cycles']:,} ({worst['ms']:.3f})" if worst else '-'
+        if s.get('idle_over'):
+            longest += f"; with no mailbox write {s['idle_longest']:,}"
         lines.append(f"| {g['group']} | {s['passes']} | {s['over']} | {longest} | "
                      f"{'OVER the share' if s['over'] else 'fits'} |")
     return lines
@@ -335,6 +339,12 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
         print(f'CONTROL as-built {"caught" if caught else "ESCAPED"}: an instruction or load access fault '
               f'(cause {" or ".join(map(str, AS_BUILT_CAUSES))})')
         return 0 if caught else 1
+    import build as builder
+    if args.mutation in builder.SHARE_CONTROLS:
+        caught = bool(shares) and not misses and not refusals
+        print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(shares)} group(s) with a pass over '
+              f'the per-pass share, {len(misses)} row(s) over their budget, {len(refusals)} refusal(s)')
+        return 0 if caught else 1
     if args.mutation != 'none':
         paths_ = [p.name for g in groups for p in g.probes if p.name.startswith('control.')]
         caught = [m for m in misses if m.split(':')[0] in paths_]
@@ -419,11 +429,13 @@ def main() -> int:
         print('SHARE', line)
     tally = counts(results)
     passes = sum(g['passes']['share']['passes'] for g in results)
-    over = sum(g['passes']['share']['over'] for g in results)
+    idle = sum(g['passes']['share'].get('idle_over', 0) for g in results)
+    over = sum(g['passes']['share']['over'] for g in results) - idle
     print(f'{len(results)} groups graded, {len(refusals)} refusals, {len(misses)} budget misses '
           f"({tally['instance_misses']} of {tally['instances']} probe instances, "
           f"{tally['path_misses']} of {tally['paths']} paths), {over} of {passes} work passes over the per-pass "
-          f"share {share.share_ms():.3f} ms ({share.share_cycles(spec['cpu_hz']):,} CPU cycles)")
+          f"share {share.share_ms():.3f} ms ({share.share_cycles(spec['cpu_hz']):,} CPU cycles)"
+          + (f", and {idle} run(s) of passes with no mailbox write" if idle else ''))
     print('CLOCK', clock)
     return verdict(args, groups, refusals, misses, shares)
 

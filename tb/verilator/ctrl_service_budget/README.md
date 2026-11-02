@@ -76,8 +76,18 @@ Apart from the rows, every work pass of every group is held to the per-pass shar
 An input waits for the pass running when it arrives and is answered in a later pass.
 The deepest wait the loop admits is seven owed frames, answered in pass 8 after the room returns, so nine passes must fit the smallest bound every input shares (`ctrl_loop.h`, THE SHARE).
 That bound is SRP's 18 ms, min(T_svc, its ceiling), so the share is 18 / 9 = 2.0 ms: 200,000 CPU cycles at the product's 100 MHz.
+A pass that writes nothing to the mailbox is not printed, only the longest of each run of them (`sim_main.cpp`'s `IDLE` line), and the saved-state store's step can be all such a pass does (`ctrl_loop.h`, THE STEP): a run whose longest is over the share is one pass over it, and the `SHARE` line names it.
 Without `--record-share-findings` a pass over the share fails the run even when every row fits; `--record-budget-findings` records the rows only.
 The table's per-pass share section gives each group's work passes, those over the share and the longest, and the run prints a `SHARE` line for each group with a pass over it.
+
+**A save in a composed window.**
+[`save_window.py`](save_window.py)'s groups, named `backlog-adp@<phase>-<k>`, open `backlog-adp`'s window, the heaviest the harness stages, while a save of the saved-state store is in each of its flash phases (#665).
+The bind the window needs is persisted, and a SET_NAME joins the same save.
+Each phase starts at a flash event of that save, which the stimulus waits for (`wait flash`): the erase for the blank check, the first page program for the program phase, and 30 ms with no program after the last one for the verify.
+The blank check and the verify read back 128 bytes on every 10 ms tick, so their windows open at eight phases 1.25 ms apart; the program phase issues a page on every other tick, so its windows open at eight phases 2.5 ms apart.
+Each window must commit `backlog-adp`'s defined load, its probe is an instance of `backlog-adp`'s path and its records of the composed rows', and every pass of the group is held to the share.
+The composed maximum stays the four backlog rows' (`grade.BACKLOG_ROWS`).
+They are among every group a point runs, 24 at each point.
 `--groups` selects groups and `--jobs` sets how many run at once.
 `--fetch-l1` selects the CPU's instruction cache: `split`, the split placement's own (the default); `none`, the cacheless core; or `SETSxWAYS`, a test-only sweep point of 64-byte lines.
 So the two commands above give the split cache's arms in [The instruction cache](#the-instruction-cache).
@@ -105,7 +115,7 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
 - `answering-ports` (arm B) makes the four observation ports answer zeroed values.
   Three are contract 2.3's face block, `stream`, `avb` and `counters` (`aecp_face.c`): the arm replaces them in the face's ports before the core takes them, so it reads no window.
   The fourth is the fixture's own `path` port, which answers an empty sequence.
-  It runs three of the four backlog rows, `backlog`, `backlog-adp` and `backlog-owed`, without `backlog-adp-refill`, so its composed maximum is partial.
+  Run with `--groups` naming three backlog rows, as S2's runs did, its composed maximum is partial; the 100 MHz runs of section 13 take all four.
 - `shutdown-entry` adds the SHUTDOWN path's only input: a poll that calls `adp_mbx_set_enable(false)` once, at NOW_MS 2,500.
   It runs the `adp-shutdown` and `control-shutdown` groups only.
 
@@ -1114,6 +1124,15 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
 python3 -B tb/verilator/ctrl_service_budget/selftest.py --write-fixture \
   /tmp/budget-fixture/results/fixture.log /tmp/budget-fixture/build.json
 ```
+
+The planted store step runs a save's windows with the loop handing THE STEP a deadline no pass reaches, so the store takes its flash step in whatever pass owes it, as it did before THE STEP:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-store-step --mutation store-step-unbounded
+```
+
+It must give a pass over the share in a run whose every row fits its budget, with no refusal, and then prints `CONTROL store-step-unbounded caught`; a row over its budget, a refusal or no pass over the share is `ESCAPED`.
 
 Three controls run the full harness, here on the cacheless core S2 measured them on:
 

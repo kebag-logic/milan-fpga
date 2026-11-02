@@ -20,6 +20,7 @@ from unittest.mock import patch
 import build
 import grade
 import run
+import save_window
 import scenario
 import share
 
@@ -549,6 +550,17 @@ MUTANTS: dict[str, Patches] = {
     'share: the passes are not held to it': lambda: [patch.object(
         grade, 'pass_share', lambda log, f=grade.pass_share: dict(f(log), over=0, over_passes=[]))],
     'share: a pass over it is no finding': lambda: [patch.object(run, 'share_misses', lambda results: [])],
+    'share: the planted store step is judged as a budget control': lambda: [patch.object(build, 'SHARE_CONTROLS', ())],
+    'share: a pass with no mailbox write is not held to it': lambda: [patch.object(
+        grade, 'pass_share', lambda log, f=grade.pass_share: f(dataclasses.replace(log, idle=[])))],
+    "save: a save's window carries no defined load": lambda: [patch.object(save_window, 'row', lambda name: name)],
+    'save: four tick phases a flash phase': lambda: [patch.object(save_window, 'TICK_PHASES', 4)],
+    "save: the program phase spread across one tick, not its step's two": lambda: [patch.dict(
+        save_window.PHASES, program=('program 1', 30, 10))],
+    'save: the blank check staged after the first page program': lambda: [patch.dict(
+        save_window.PHASES, blank=('program 1', 30, 10))],
+    'save: the verify staged while the pages are programmed': lambda: [patch.dict(
+        save_window.PHASES, verify=('program 1', 10, 10))],
     'share: the rows option records the passes too': _shares_seen(lambda args, misses: not args.record_budget_findings),
     'share: a pass over it fails the run only beside a row miss': _shares_seen(lambda args, misses: bool(misses)),
     'clock: the CPU is built on the Milan clock': _build_with(

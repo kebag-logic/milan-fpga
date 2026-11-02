@@ -232,7 +232,10 @@ private:
     void flash_sample(Vsim& dut) {
         if (flash_cs_ && !dut.flash_cs) {
             const auto op = flash_.deselect(sys_);
-            if (op) std::printf("FLASHOP %llu %u\n", ull(sys_), op);
+            if (op) {
+                std::printf("FLASHOP %llu %u\n", ull(sys_), op);
+                flash_write_at_ = sys_;
+            }
         }
         flash_cs_ = dut.flash_cs;
         if (dut.flash_rx_valid && dut.flash_rx_ready) flash_pending_ = false;
@@ -378,6 +381,16 @@ private:
         if (s.op == "drained") return frames_.empty();
         // events <n>: the event ring holds at most n records the core has not released.
         if (s.op == "events") return evt_posted_ - evt_released_ / ev_words <= std::stoull(s.args.at(0));
+        // flash erase|program <n>: the device has taken n of them since power on; flash idle <cycles>: a page
+        // was programmed and nothing written since for that long. A save's phases start at these (save_window.py).
+        if (s.op == "flash") {
+            const auto& kind = s.args.at(0);
+            const auto n = std::stoull(s.args.at(1));
+            if (kind == "erase") return flash_.erases >= n;
+            if (kind == "program") return flash_.programs >= n;
+            if (kind == "idle") return flash_.programs > 0 && sys_ - flash_write_at_ >= n;
+            throw std::runtime_error("unknown flash wait " + kind);
+        }
         throw std::runtime_error("unknown wait " + s.op);
     }
 
@@ -488,6 +501,7 @@ private:
     bool finished_ = false;
     bool filter_open_ = false;
     bool pass_open_ = false;
+    std::uint64_t flash_write_at_ = 0;  // the last program or erase the device took
     std::uint64_t sys_ = 0, cpu_ = 0, instr_ = 0, passes_ = 0, wait_from_ = 0;
     unsigned now_ms_ = 0;
     std::uint32_t last_pc_ = 0;
