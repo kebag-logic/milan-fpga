@@ -1,0 +1,71 @@
+# Plan rows at 545ac9cb (stage 3 cell, UART and CSR-crossing census rows, census note)
+233: | 3 | A plain SystemVerilog top replaces the SoC generator | Wishbone and CSR-bank glue. The generated FIFOs leave earlier, each with its block ([census](#litex-block-census)) | Lever 2, ~1.0k, and the rest of the -1.75k |
+322: | UART (`RS232PHY`, 16-byte FIFOs) | LiteX top | 3 | Replaced by a small first-party UART, transmit and receive only, no RTS/CTS, with a polled receive buffer, 32 bytes under the S2b share ([D20](#mark-ii-decisions), [console UART](#console-uart)) |
+330: | `milan_axil_cdc`, the CPU-to-`milan_csr` crossing | LiteX top | 3 | Replaced by a first-party AXI4-Lite crossing built from the approved CDC primitives |
+339: The 29 generated FIFO RAMB36 belong to rows above.
+340: Each leaves with the block that owns it.
+
+# sw/litex/milan_soc.py:789-813 at 545ac9cb (CSR crossing, W and R payload in block RAM)
+def _cross_csr_bus(host, axil, milan_cd):
+    """The CPU's AXI-Lite CSR bus (`axil`, sys) as the datapath reads it in
+    `milan_cd`: `axil` itself when that is sys, else the far side of LiteX's
+    `AXILiteClockDomainCrossing`, one 4-deep async FIFO per channel.
+
+    The two 32-bit data channels, W and R, keep their payload in block RAM
+    (`_payload_in_block_ram`): one RAMB18 each holds the array and its read
+    register, which were LUTRAM and flip-flops, whether or not anything reads
+    their framing flags. They take the two RAMB18s the MAC crossings free, so
+    the image's block RAM count is unchanged. AW and AR stay in LUTRAM."""
+    if milan_cd == "sys":
+        return axil
+    csr_axil = axi.AXILiteInterface(data_width=32, address_width=32)
+    host.submodules.milan_axil_cdc = axi.AXILiteClockDomainCrossing(
+        axil, csr_axil, cd_from="sys", cd_to=milan_cd)
+    channels = [module for _, module in host.milan_axil_cdc._submodules]
+    if len(channels) != len(_CSR_CDC_CHANNELS) or any(
+            channel.sink.description.payload_layout
+            != getattr(axil, name).description.payload_layout
+            for channel, name in zip(channels, _CSR_CDC_CHANNELS)):
+        raise ValueError("the AXI-Lite crossing is not one FIFO per channel "
+                         "in %s order" % "/".join(_CSR_CDC_CHANNELS))
+    by_name = dict(zip(_CSR_CDC_CHANNELS, channels))
+    _payload_in_block_ram(by_name["w"])
+    _payload_in_block_ram(by_name["r"])
+
+# git log -S for the W/R block-RAM placement
+4177835cb2984a3c28e2b097dc321bcd9f30deae 2026-10-10 Store the MAC crossings' framing flags in LUTRAM and the CSR W/R FIFOs in block RAM
+
+# basis SoC hierarchy (published author-r2/evidence/census/basis_soc_hierarchy.txt), uart and milan_axil_cdc subtrees
+├── uart (UART)
+│    ├── ev (EventManager)
+│    │    ├── eventsourcelevel_0 (EventSourceLevel) [Gen]
+│    │    └── eventsourcelevel_1 (EventSourceLevel) [Gen]
+│    ├── phy (RS232PHY)
+│    │    ├── tx (RS232PHYTX)
+│    │    │    ├── clk_phase_accum (RS232ClkPhaseAccum)
+│    │    │    └── fsm (FSM)
+│    │    └── rx (RS232PHYRX)
+├── milan (MilanNIC)
+│    ├── milan_axil_cdc (AXILiteClockDomainCrossing)
+│    │    ├── clockdomaincrossing_0 (ClockDomainCrossing) [Gen]
+│    │    │    └── asyncfifo_0 (AsyncFIFO) [Gen]
+│    │    │         └── fifo (AsyncFIFO)
+│    │    │              ├── graycounter_0 (GrayCounter) [Gen]
+
+# published author-r4/evidence/fifo_owners.txt, 4-deep milannic rows (RAMB18, no RAMB36)
+storage_34_reg | 4x34(NO_CHANGE) | 1 | 0 | milansoc_milannic_array_write_memory2
+storage_32_reg | 4x36(NO_CHANGE) | 1 | 0 | milansoc_milannic_array_write_memory0
+#      Stage 3 rows:              none                                                                                       0
+#    Total 29. RAMB36: 16 + 5 + 8 + 18 = 47; RAMB18 here (without ctl_fifo): 9 + the 49-byte identifier = 10.
+
+# basis SoC hierarchy, uart FIFOs (same published file, lines 107-112)
+│    ├── tx_fifo (SyncFIFO)
+│    │    └── fifo (SyncFIFOBuffered)
+│    │         └── fifo (SyncFIFO)
+│    └── rx_fifo (SyncFIFO)
+│         └── fifo (SyncFIFOBuffered)
+│              └── fifo (SyncFIFO)
+
+# sha256 of the published sources quoted above
+ffcecb3f4d7cee310f0f4f1cd78daa860288d88b087af7211efce6b9924b5cc2  author-r2/evidence/census/basis_soc_hierarchy.txt
+b95e017272bd766e472b097f0567b71c21b254186aafdbef4165d36dd1c4d1f1  author-r4/evidence/fifo_owners.txt
