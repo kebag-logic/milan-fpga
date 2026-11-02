@@ -513,7 +513,9 @@ Its reset: link up, full duplex, gigabit on GMII. MII resets to 100 Mb/s.
 
 So this word reads `0x0000000D` on the AX7101 until firmware writes.
 
-Firmware writes it only while the saved-state writer runs.
+Firmware publishes it on each boot path reaching `nvm_boot()`.
+
+After a CSR identity mismatch, nothing writes it.
 
 The word does not follow the link on its own.
 

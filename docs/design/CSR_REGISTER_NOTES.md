@@ -161,7 +161,7 @@ Latched event bits before masking
 
 `MAC_CTRL` reset `0x13` = tx_en+rx_en+is_1g (preserves today's tied constants).
 
-Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status`, but only while the saved-state writer runs (`phy_link_tick()` runs inside `nvm_heartbeat_tick()`); otherwise MAC_STATUS keeps its reset value: link up, 1000 Mb/s, full duplex. It reads Clause-22 link, speed and duplex over bit-bang MDIO. The existing CDC carries this publication to MAC_STATUS. Fabric LINK_UP and LINK_DOWN counters consume the resulting link edges. The PHY polling budget is documented in the [firmware contract](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer). Physical switch-cycle acceptance is recorded in the [#599 link-cycle finding](../findings/599_394_E1_LINK_CYCLES.md).
+Bare-metal firmware publishes PHY state into LiteX `milan_mac.link_status` from MDIO on every boot path that reached `nvm_boot()`, persistence disabled included (`phy_link_tick()` runs inside `nvm_heartbeat_tick()`, with or without an admitted writer, #70). After a CSR identity mismatch nothing writes it, and MAC_STATUS keeps its reset value: link up, 1000 Mb/s, full duplex. It reads Clause-22 link, speed and duplex over bit-bang MDIO. The existing CDC carries this publication to MAC_STATUS. Fabric LINK_UP and LINK_DOWN counters consume the resulting link edges. The PHY polling budget is documented in the [firmware contract](../integration/BAREMETAL_FIRMWARE.md#saved-state-the-flash-writer). Physical switch-cycle acceptance is recorded in the [#599 link-cycle finding](../findings/599_394_E1_LINK_CYCLES.md).
 
 **Link rate (REQ-MAC-03).** The effective `is_1g` follows the MAC's reported speed (`MAC_STATUS[2:1] == 2`) unless `MAC_CTRL[5]` is set. `MAC_CTRL[4]`'s reset value is 1, so before 2026-07-26 a 100 Mb/s port reported gigabit to every `is_1g` consumer until software wrote the register - and `is_1g` sets the lwSRP bandwidth-gate admission limit (750 vs 75 Mb/s) and the CBS sendSlope denominator, so a 100 Mb/s port admitted reservations against a 10x-too-large budget. `MAC_CTRL[5]` exists to pin the rate by hand when the MAC's speed report cannot be trusted.
 
@@ -195,7 +195,7 @@ station MAC `[47:32]` in `[15:0]` - wire byte 4 in `[7:0]`, byte 5 in `[15:8]`
 
 The three bits mirror the LiteX `milan_mac_link_status` CSR, synchronised into the datapath clock (`sw/litex/milan_soc.py`, the `link_status` CSRStorage). Its reset value is link up, 1000 Mb/s on GMII (100 on MII) and full duplex, so this word reads `0x0000000D` on the AX7101 until firmware writes the CSR.
 
-Firmware writes that CSR from MDIO only while the saved-state writer runs; otherwise the reset value stays. The word does not follow the link on its own. For the link, read `LINKG_STAT` (0x774), the AVB_INTERFACE LINK_UP and LINK_DOWN counters, or the PHY's BMSR over MDIO.
+Firmware writes that CSR from MDIO on every boot path that reached `nvm_boot()`. After a CSR identity mismatch nothing writes it, and the reset value stays. The word does not follow the link on its own. For the link, read `LINKG_STAT` (0x774), the AVB_INTERFACE LINK_UP and LINK_DOWN counters, or the PHY's BMSR over MDIO.
 
 ## 0x200  -  Statistics (RMON)  (REQ-MAC-04)
 
