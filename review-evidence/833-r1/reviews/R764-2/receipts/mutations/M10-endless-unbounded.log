@@ -1,0 +1,38 @@
+owner-report: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.06 s start 74775522, sent SIGKILL 1.50 s ago
+owner-reparented: {'sigterm_during_grace': True}
+owner-late-exit: {'collected_at_deadline': True}
+owner-stall: {'stalled_seconds': 2.0, 'killed_in_pass': 52}
+owner-shell-window: {'trap_ran_after_kill_time': True, 'trap_command_ran': True}
+owner-survivor: CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 12 (bash) state T wchan do_signal_stop parent 1 (first parent 1) age 1.14 s start 74776132, not sent SIGKILL; pid 13 (python3) state S wchan hrtimer_nanosleep parent 12 (first parent 12) age 1.14 s start 74776133, sent SIGKILL 0.81 s ago
+Traceback (most recent call last):
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M10-endless-unbounded/scripts/test_suite_cancellation.py", line 648, in owner_vanishing
+    owner._cleanup()
+    ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M10-endless-unbounded/scripts/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M10-endless-unbounded/scripts/test_suite_cancellation.py", line 643, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M10-endless-unbounded/scripts/test_suite_cancellation.py", line 695, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M10-endless-unbounded/scripts/test_suite_cancellation.py", line 668, in main
+    owner_vanishing()
+    ~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M10-endless-unbounded/scripts/test_suite_cancellation.py", line 636, in owner_vanishing
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M10-endless-unbounded/scripts/owned_process.py", line 170, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M10-endless-unbounded/scripts/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M10-endless-unbounded/scripts/test_suite_cancellation.py", line 643, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict

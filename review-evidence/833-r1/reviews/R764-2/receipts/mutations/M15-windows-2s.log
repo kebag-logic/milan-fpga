@@ -1,0 +1,44 @@
+owner-report: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.04 s start 74777817, sent SIGKILL 1.50 s ago
+owner-reparented: {'sigterm_during_grace': True}
+owner-late-exit: {'collected_at_deadline': True}
+owner-stall: {'stalled_seconds': 2.0, 'killed_in_pass': 50}
+owner-shell-window: {'trap_ran_after_kill_time': True, 'trap_command_ran': True}
+owner-survivor: CLEANUP FAILED: owned descendants remain after 1.01 s, 48 census passes, slowest 0.01 s: pid 12 (bash) state T wchan do_signal_stop parent 1 (first parent 1) age 1.05 s start 74778418, not sent SIGKILL; pid 13 (python3) state S wchan hrtimer_nanosleep parent 12 (first parent 12) age 1.04 s start 74778419, sent SIGKILL 0.79 s ago
+owner-vanishing: {'verdict_reached': True}
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 278, "cwd": "$REVIEWS/833-r764-2-packet/scratch/mut/tmp/suite-cancellation-0kwhcrdf/normal-orphan input [523]", "identities": {"277": ["74779993", "S"], "278": ["74779996", "S"]}, "pid": 277}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 349, "cwd": "$REVIEWS/833-r764-2-packet/scratch/mut/tmp/suite-cancellation-0kwhcrdf/cancel-selection-SIGINT input [523]", "identities": {"348": ["74780287", "S"], "349": ["74780289", "S"]}, "pid": 348}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 360, "cwd": "$REVIEWS/833-r764-2-packet/scratch/mut/tmp/suite-cancellation-0kwhcrdf/cancel-selection-SIGTERM input [523]", "identities": {"359": ["74780507", "S"], "360": ["74780510", "S"]}, "pid": 359}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 383, "cwd": "$REVIEWS/833-r764-2-packet/scratch/mut/tmp/suite-cancellation-0kwhcrdf/cancel-preflight-SIGINT input [523]", "identities": {"382": ["74780782", "S"], "383": ["74780790", "S"]}, "pid": 382}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 407, "cwd": "$REVIEWS/833-r764-2-packet/scratch/mut/tmp/suite-cancellation-0kwhcrdf/cancel-preflight-SIGTERM input [523]", "identities": {"406": ["74781059", "S"], "407": ["74781063", "S"]}, "pid": 406}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 453, "cwd": "$REVIEWS/833-r764-2-packet/scratch/mut/tmp/suite-cancellation-0kwhcrdf/cancel-command-SIGINT input [523]", "identities": {"452": ["74781343", "S"], "453": ["74781346", "S"]}, "pid": 452}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 499, "cwd": "$REVIEWS/833-r764-2-packet/scratch/mut/tmp/suite-cancellation-0kwhcrdf/cancel-command-SIGTERM input [523]", "identities": {"498": ["74781588", "S"], "499": ["74781591", "S"]}, "pid": 498}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 547, "cwd": "$REVIEWS/833-r764-2-packet/scratch/mut/tmp/suite-cancellation-0kwhcrdf/cancel-transition-SIGINT input [523]", "identities": {"546": ["74781836", "S"], "547": ["74781839", "S"]}, "pid": 546}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 595, "cwd": "$REVIEWS/833-r764-2-packet/scratch/mut/tmp/suite-cancellation-0kwhcrdf/cancel-transition-SIGTERM input [523]", "identities": {"594": ["74782088", "S"], "595": ["74782090", "S"]}, "pid": 594}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-lock-wait-SIGINT: {"exit": 130, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+cancel-lock-wait-SIGTERM: {"exit": 143, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+unsafe-command-SIGTERM: {"exit": 1, "foreign_untouched": true, "handshake": {"child": 658, "cwd": "$REVIEWS/833-r764-2-packet/scratch/mut/tmp/suite-cancellation-0kwhcrdf/unsafe-command-SIGTERM input [523]", "identities": {"657": ["74782375", "S"], "658": ["74782378", "S"]}, "pid": 657}, "next_suite": true, "phase": "command", "unsafe_control_detected": true}
+hard-KILL: {"exit": -9, "lock_owner_left": true, "next_suite": false, "output_after_death": "", "stop": "KILL", "sweep_shell_exited": true, "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M15-windows-2s/scripts/test_suite_cancellation.py", line 695, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M15-windows-2s/scripts/test_suite_cancellation.py", line 682, in main
+    hard_stop(parent, how)
+    ~~~~~~~~~^^^^^^^^^^^^^
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M15-windows-2s/scripts/test_suite_cancellation.py", line 322, in hard_stop
+    status, at_death = probe.finish()
+                       ~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r764-2-packet/scratch/mut/M15-windows-2s/scripts/process_test_support.py", line 227, in finish
+    status = self.process.wait(timeout=FINISH_SECONDS)
+  File "/usr/lib/python3.14/subprocess.py", line 1279, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2076, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['bash', '$REVIEWS/833-r764-2-packet/scratch/mut/tmp/suite-cancellation-0kwhcrdf/hard-HUP input [523]/scripts/run_all_suites.sh', '$REVIEWS/833-r764-2-packet/scratch/mut/tmp/suite-cancellation-0kwhcrdf/hard-HUP input [523]/logs']' timed out after 60 seconds

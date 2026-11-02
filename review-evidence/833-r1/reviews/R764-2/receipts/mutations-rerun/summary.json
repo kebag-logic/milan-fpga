@@ -1,0 +1,83 @@
+[
+ {
+  "name": "control-A",
+  "test": "suite",
+  "expect": "green",
+  "rc": 0,
+  "got": "green",
+  "seconds": 55.9,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "control-B",
+  "test": "suite",
+  "expect": "green",
+  "rc": 0,
+  "got": "green",
+  "seconds": 56.1,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "M01-identity-includes-parent",
+  "test": "suite",
+  "expect": "red",
+  "rc": 0,
+  "got": "green",
+  "seconds": 56.0,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "M01b-send-recheck-includes-parent",
+  "test": "suite",
+  "expect": "probe",
+  "rc": 0,
+  "got": "green",
+  "seconds": 56.1,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "M04d-clamp-1.0s",
+  "test": "suite",
+  "expect": "probe",
+  "rc": 0,
+  "got": "green",
+  "seconds": 55.3,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "M14-no-start-recheck",
+  "test": "suite",
+  "expect": "probe",
+  "rc": 0,
+  "got": "green",
+  "seconds": 56.0,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "M15-windows-2s",
+  "test": "suite",
+  "expect": "probe",
+  "rc": 0,
+  "got": "green",
+  "seconds": 56.1,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report,"
+ },
+ {
+  "name": "M11-trust-sigkill",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 38.1,
+  "last": "AssertionError: a survivor never failed the run"
+ },
+ {
+  "name": "M10-endless-unbounded",
+  "test": "suite",
+  "expect": "red",
+  "rc": 1,
+  "got": "red",
+  "seconds": 22.2,
+  "last": "AssertionError: cleanup never reached a verdict"
+ }
+]
