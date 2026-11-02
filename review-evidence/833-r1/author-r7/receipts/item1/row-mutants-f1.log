@@ -1,0 +1,34 @@
+rv6-sigkill-by-number / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-sigkill-by-number / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-sigkill-by-number / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-sigkill-by-number / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-sigkill-by-number / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+rv6-sigkill-by-number / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+rv6-sigkill-by-number / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-sigkill-by-number / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-sigkill-by-number / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv6-sigkill-by-number / owner_reused_identity: red rc 1 0.2 s: AssertionError: a census entry was signalled by its number, after it changed hands: ['SIGKILL']
+== rv6-sigkill-by-number: red on owner_reused_identity
+rv6-sigcont-by-number / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-sigcont-by-number / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-sigcont-by-number / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-sigcont-by-number / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-sigcont-by-number / owner_shell_window: green rc 0 4.4 s: owner_shell_window: PASS
+rv6-sigcont-by-number / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-sigcont-by-number / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-sigcont-by-number / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-sigcont-by-number / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv6-sigcont-by-number / owner_reused_identity: red rc 1 0.2 s: AssertionError: a census entry was signalled by its number, after it changed hands: ['SIGCONT']
+== rv6-sigcont-by-number: red on owner_reused_identity
+rv6-sigterm-by-number / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-sigterm-by-number / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-sigterm-by-number / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-sigterm-by-number / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-sigterm-by-number / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+rv6-sigterm-by-number / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-sigterm-by-number / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-sigterm-by-number / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-sigterm-by-number / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv6-sigterm-by-number / owner_reused_identity: red rc 1 0.2 s: AssertionError: a census entry was signalled by its number, after it changed hands: ['SIGTERM']
+== rv6-sigterm-by-number: red on owner_reused_identity
+row mutants: 3 run, survivors []

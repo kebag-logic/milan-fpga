@@ -1,0 +1,48 @@
+  sigcont-by-number-after-kill / owner_reused_identity: red 0.3 s: AssertionError: a census entry was signalled by its number, after it changed hands: ['SIGCONT']
+== edge of row 1: sigcont-by-number-after-kill: red on owner_reused_identity
+  recheck-spares-sigkill / owner_reused_identity: red 0.2 s: AssertionError: a census entry whose process was replaced was signalled
+== edge of row 1: recheck-spares-sigkill: red on owner_reused_identity
+  grace-a-tick-short / owner_stated_seconds: red 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (1.9999990463256836, 'SIGKILL', 'survivor'), (13.999999046325684, 'SIGKILL', 'survivor'),
+== edge of row 2: grace-a-tick-short: red on owner_stated_seconds
+  kill-all-a-tick-early / owner_stated_seconds: red 0.2 s: AssertionError: a stubborn parent's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'parent'), (0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (3.9999990463256836, 'SIGKILL'
+== edge of row 3: kill-all-a-tick-early: red on owner_stated_seconds
+  verdict-a-tick-early / owner_stated_seconds: red 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (2.0, 'SIGKILL', 'survivor'), (13.999999046325684, 'SIGKILL', 'survivor'), (13.9999990463
+== edge of row 4: verdict-a-tick-early: red on owner_stated_seconds
+  verdict-waits-for-resume / owner_survivor: red 32.2 s: AssertionError: a survivor never failed the run
+  verdict-waits-for-resume / owner_late_cancel: red 15.2 s: AssertionError: cleanup never reached a verdict after a late cancel
+  verdict-waits-for-resume / owner_stated_seconds: red 0.2 s: AssertionError: cleanup never reached a verdict on the owner's clock
+== edge of row 4: verdict-waits-for-resume: red on owner_survivor, owner_late_cancel, owner_stated_seconds
+  no-resume-before-verdict / owner_stated_seconds: red 0.2 s: AssertionError: a last-pass resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (13.999999046325684, 'SIGKILL', 'trap command'), (14.4999
+== edge of row 5: no-resume-before-verdict: red on owner_stated_seconds
+  trap-window-a-tick-short / owner_stated_seconds: red 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (15.499999046325684, 'SIGKILL', 'sh
+== edge of row 6: trap-window-a-tick-short: red on owner_stated_seconds
+  no-window-inside-grace / owner_stated_seconds: red 0.2 s: AssertionError: a first-pass resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGCONT', 'shell'), (4.0, 'SIGKILL', 'shell'), (4.0, 'SIGKILL', 'trap command'), (14.0, 'SIGKILL', 'she
+== edge of row 7: no-window-inside-grace: red on owner_stated_seconds
+  trap-commands-spared-only-past-grace / owner_stated_seconds: red 0.2 s: AssertionError: a first-pass resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGCONT', 'shell'), (2.0, 'SIGKILL', 'trap command'), (10.0, 'SIGKILL', 'shell'), (20.0, 'SIGKILL', 'sh
+== edge of row 8: trap-commands-spared-only-past-grace: red on owner_stated_seconds
+  cap-lifted-past-a-minute / owner_stated_seconds: red 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (1.0, 'SIGKILL', 'survivor'), (1.0, 'verdict')]
+== edge of row 9: cap-lifted-past-a-minute: red on owner_stated_seconds
+  tick-passes-count-nothing / owner_stated_seconds: red 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (2.5, 'SIGKILL', 'survivor'), (14.5, 'SIGKILL', 'survivor'), (14.5, 'verdict')]
+== edge of row 10: tick-passes-count-nothing: red on owner_stated_seconds
+  vanishing-verdict-ignores-resume / owner_stated_seconds: red 0.2 s: AssertionError: a resumed vanishing listing's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (13.999999046325684, 'SIGCONT', 'shell'), (33.99
+== edge of row 11: vanishing-verdict-ignores-resume: red on owner_stated_seconds
+  no-reap-after-first-census / owner_late_exit: red 0.7 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.49 s, 1 census passes, slowest 0.49 s: pid 3854757 (python3) state Z wchan 0 parent 3854725 (first parent 3854725) age 0.53 s start 77825
+  no-reap-after-first-census / owner_late_cancel: red 0.2 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+  no-reap-after-first-census / owner_stated_seconds: red 0.2 s: KeyError: 4194310
+== edge of row 12: no-reap-after-first-census: red on owner_late_exit, owner_late_cancel, owner_stated_seconds
+  sigterm-rechecks-parent / owner_reparented: red 0.3 s: AssertionError: the re-parented descendant's SIGTERM waited for a later census: [2]
+  sigterm-rechecks-parent / owner_stated_seconds: red 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(2.0, 'SIGKILL', 'survivor'), (14.0, 'SIGKILL', 'survivor'), (14.0, 'verdict')]
+== edge of row 13: sigterm-rechecks-parent: red on owner_reparented, owner_stated_seconds
+  resume-collected-shell-past-grace / owner_late_cancel: red 0.3 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+== edge of row 14: resume-collected-shell-past-grace: red on owner_late_cancel
+  verdict-sends-sigterm / owner_stated_seconds: red 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (2.0, 'SIGKILL', 'survivor'), (14.0, 'SIGTERM', 'survivor'), (14.0, 'verdict')]
+== edge of row 15: verdict-sends-sigterm: red on owner_stated_seconds
+== edge of row 16: killed-ago-from-start: SURVIVES
+  rv6-return-before-confirm / owner_vanishing: red 0.2 s: AssertionError: an endless listing did not fail the run
+  rv6-return-before-confirm / owner_late_cancel: red 0.2 s: owned_process.Cancelled: signal 15
+  rv6-return-before-confirm / owner_stated_seconds: red 0.2 s: AssertionError: a vanishing listing's stated seconds were not kept on the owner's clock: [(0.0, 'no verdict')]
+== edge of row 16: rv6-return-before-confirm: red on owner_vanishing, owner_late_cancel, owner_stated_seconds
+  pass-floor-cap / owner_stall: red 2.3 s: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+  pass-floor-cap / owner_shell_window: red 3.7 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+  pass-floor-cap / owner_stated_seconds: red 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (1.0, 'SIGKILL', 'survivor'), (1.0, 'verdict')]
+== edge of row 17: pass-floor-cap: red on owner_stall, owner_shell_window, owner_stated_seconds
