@@ -1,0 +1,30 @@
+COMMAND <scratch>/builds/D-A8/native/Vsim <scratch>/builds/D-A8/results/backlog-adp@verify-1.txt -
+COMMAND <scratch>/builds/D-A8/native/Vsim <scratch>/builds/D-A8/results/backlog-adp@verify-2.txt -
+COMMAND <scratch>/builds/D-A8/native/Vsim <scratch>/builds/D-A8/results/backlog-adp@verify-3.txt -
+COMMAND <scratch>/builds/D-A8/native/Vsim <scratch>/builds/D-A8/results/backlog-adp@verify-4.txt -
+COMMAND <scratch>/builds/D-A8/native/Vsim <scratch>/builds/D-A8/results/backlog-adp@verify-5.txt -
+COMMAND <scratch>/builds/D-A8/native/Vsim <scratch>/builds/D-A8/results/backlog-adp@verify-6.txt -
+COMMAND <scratch>/builds/D-A8/native/Vsim <scratch>/builds/D-A8/results/backlog-adp@verify-7.txt -
+COMMAND <scratch>/builds/D-A8/native/Vsim <scratch>/builds/D-A8/results/save.txt -
+COMMAND <scratch>/builds/D-A8/native/Vsim <scratch>/builds/D-A8/results/backlog.txt -
+COMMAND <scratch>/builds/D-A8/native/Vsim <scratch>/builds/D-A8/results/backlog-adp.txt -
+COMMAND <scratch>/builds/D-A8/native/Vsim <scratch>/builds/D-A8/results/backlog-adp-refill.txt -
+COMMAND <scratch>/builds/D-A8/native/Vsim <scratch>/builds/D-A8/results/backlog-owed.txt -
+REFUSED backlog-adp@verify-0: the window opened at 551223443, outside its save's verify phase (erase at 339157904, pages programmed before it [445235720]..[547223443])
+REFUSED backlog-adp@verify-1: the window opened at 551348443, outside its save's verify phase (erase at 339157904, pages programmed before it [445235720]..[547223443])
+REFUSED backlog-adp@verify-2: the window opened at 551473443, outside its save's verify phase (erase at 339157904, pages programmed before it [445235720]..[547223443])
+REFUSED backlog-adp@verify-3: the window opened at 551598443, outside its save's verify phase (erase at 339157904, pages programmed before it [445235720]..[547223443])
+REFUSED backlog-adp@verify-4: the window opened at 551723443, outside its save's verify phase (erase at 339157904, pages programmed before it [445235720]..[547223443])
+REFUSED backlog-adp@verify-5: the window opened at 551848443, outside its save's verify phase (erase at 339157904, pages programmed before it [445235720]..[547223443])
+REFUSED backlog-adp@verify-6: the window opened at 551973443, outside its save's verify phase (erase at 339157904, pages programmed before it [445235720]..[547223443])
+REFUSED backlog-adp@verify-7: the window opened at 552098443, outside its save's verify phase (erase at 339157904, pages programmed before it [445235720]..[547223443])
+BUDGET backlog.owed.if0: 63.748 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 360.553 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 360.552 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 360.551 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 360.550 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if1: 65.119 ms over its budget 20 ms
+21 groups graded, 8 refusals, 6 budget misses (6 of 225 probe instances, 3 of 17 paths), 0 of 11856 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=3701s
+rc=1

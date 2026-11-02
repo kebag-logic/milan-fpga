@@ -1,0 +1,81 @@
+HEAD 4625be27e1940ac0d5e40723adae71bc7c42962d DIRTY 0
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_5 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/builds/CTL-A8/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I<scratch>/C1/tb/common -I<scratch>/builds/CTL-A8 -I<scratch>/C1/tb/verilator/fw_service_budget' <scratch>/C1/tb/verilator/ctrl_service_budget/observe.vlt <scratch>/builds/CTL-A8/mbx-variant/KL_mbx_pkg.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx_ring.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx_rx.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx_tx.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx_evt.sv <scratch>/builds/CTL-A8/mbx-variant/KL_mbx.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx_wb.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx_dma.sv $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_912c0e1e492bbd6ccf6b2e7699a8f311.v <scratch>/builds/CTL-A8/gateware/sim.v <scratch>/C1/tb/verilator/ctrl_service_budget/sim_main.cpp
+COMMAND make -j16 -C <scratch>/builds/CTL-A8/native -f Vsim.mk Vsim
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND COMMAND COMMAND<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@blank-0.txt - 
+<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@blank-2.txt -COMMAND<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@blank-1.txt - 
+
+COMMAND<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@blank-3.txt -COMMANDCOMMAND COMMANDCOMMAND COMMAND<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@blank-6.txt -COMMAND   COMMAND
+ COMMAND<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@program-4.txt -<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@program-0.txt -COMMANDCOMMAND
+  <scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@blank-4.txt -   
+COMMAND<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@program-1.txt -
+<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@blank-7.txt -
+<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@program-5.txt -
+<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@program-6.txt -
+ <scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@program-2.txt -<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@program-3.txt -<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@blank-5.txt -
+
+
+
+
+<scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@program-7.txt -
+COMMAND <scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@verify-0.txt -
+COMMAND <scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@verify-1.txt -
+COMMAND <scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@verify-2.txt -
+COMMAND <scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@verify-3.txt -
+COMMAND <scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@verify-4.txt -
+COMMAND <scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@verify-5.txt -
+COMMAND <scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@verify-6.txt -
+COMMAND <scratch>/builds/CTL-A8/native/Vsim <scratch>/builds/CTL-A8/results/backlog-adp@verify-7.txt -
+BUDGET backlog-adp@blank-3.service.srp.last.if1: 18.004 ms over its budget 18 ms
+BUDGET backlog-adp@blank-5.service.srp.last.if1: 18.288 ms over its budget 18 ms
+BUDGET backlog-adp@blank-6.service.srp.last.if1: 18.280 ms over its budget 18 ms
+BUDGET backlog-adp@blank-7.service.srp.last.if1: 18.352 ms over its budget 18 ms
+BUDGET backlog-adp@verify-1.service.srp.last.if1: 19.002 ms over its budget 18 ms
+BUDGET backlog-adp@verify-2.service.srp.last.if1: 18.585 ms over its budget 18 ms
+BUDGET backlog-adp@verify-3.service.srp.last.if1: 18.156 ms over its budget 18 ms
+BUDGET backlog-adp@verify-4.service.srp.last.if1: 18.232 ms over its budget 18 ms
+BUDGET backlog-adp@verify-5.service.srp.last.if1: 18.335 ms over its budget 18 ms
+BUDGET backlog-adp@verify-6.service.srp.last.if1: 18.585 ms over its budget 18 ms
+BUDGET backlog-adp@verify-7.service.srp.last.if1: 18.208 ms over its budget 18 ms
+SHARE backlog-adp@blank-2: 1 of 487 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 203,943 (2.039 ms)
+SHARE backlog-adp@blank-3: 1 of 487 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 203,966 (2.040 ms)
+SHARE backlog-adp@blank-4: 1 of 486 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 237,279 (2.373 ms)
+SHARE backlog-adp@blank-5: 1 of 489 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 236,347 (2.363 ms)
+SHARE backlog-adp@blank-6: 1 of 489 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 262,881 (2.629 ms)
+SHARE backlog-adp@blank-7: 1 of 489 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 270,522 (2.705 ms)
+SHARE backlog-adp@program-1: 1 of 767 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 210,860 (2.109 ms)
+SHARE backlog-adp@program-2: 1 of 767 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 244,655 (2.447 ms)
+SHARE backlog-adp@program-3: 1 of 767 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 210,011 (2.100 ms)
+SHARE backlog-adp@verify-2: 1 of 1025 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 203,428 (2.034 ms)
+SHARE backlog-adp@verify-3: 1 of 1026 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 203,952 (2.040 ms)
+SHARE backlog-adp@verify-4: 1 of 1026 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 237,227 (2.372 ms)
+SHARE backlog-adp@verify-5: 1 of 1026 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 229,620 (2.296 ms)
+SHARE backlog-adp@verify-6: 1 of 1028 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 240,801 (2.408 ms)
+SHARE backlog-adp@verify-7: 1 of 1027 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 204,670 (2.047 ms)
+24 groups graded, 0 refusals, 11 budget misses (11 of 264 probe instances, 1 of 11 paths), 15 of 18256 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+CONTROL store-step-unbounded ESCAPED: 15 group(s) with a pass over the per-pass share, 11 row(s) over their budget, 0 refusal(s)
+elapsed=3110s
+rc=1

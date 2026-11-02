@@ -1,0 +1,81 @@
+HEAD 5688b627f197cf00c2e8a5d72e4bce192dfb83d7 DIRTY 2
+│                   └── pipeline (Pipeline)
+├── spiflash_master (LiteSPIMaster)
+│    ├── tx_fifo (SyncFIFO)
+│    │    └── buffer_0 (Buffer) [Gen]
+│    │         ├── pipe_valid (PipeValid)
+│    │         └── pipeline (Pipeline)
+│    └── rx_fifo (SyncFIFO)
+│         └── buffer_0 (Buffer) [Gen]
+│              ├── pipe_valid (PipeValid)
+│              └── pipeline (Pipeline)
+├── timer0 (Timer)
+│    └── ev (EventManager)
+│         └── eventsourceprocess_0 (EventSourceProcess) [Gen]
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    ├── csrbank_0 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── csrbank_1 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── sram_0 (SRAM) [Gen]
+│    ├── csrbank_2 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    └── csrstorage_1 (CSRStorage) [Gen]
+│    ├── csrbank_3 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    └── csrstorage_2 (CSRStorage) [Gen]
+│    ├── csrbank_4 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_5 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/builds/X-A8/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I<scratch>/CX/tb/common -I<scratch>/builds/X-A8 -I<scratch>/CX/tb/verilator/fw_service_budget' <scratch>/CX/tb/verilator/ctrl_service_budget/observe.vlt <scratch>/builds/X-A8/mbx-variant/KL_mbx_pkg.sv <scratch>/CX/hdl/milan/mailbox/KL_mbx_ring.sv <scratch>/CX/hdl/milan/mailbox/KL_mbx_rx.sv <scratch>/CX/hdl/milan/mailbox/KL_mbx_tx.sv <scratch>/CX/hdl/milan/mailbox/KL_mbx_evt.sv <scratch>/builds/X-A8/mbx-variant/KL_mbx.sv <scratch>/CX/hdl/milan/mailbox/KL_mbx_wb.sv <scratch>/CX/hdl/milan/mailbox/KL_mbx_dma.sv $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_912c0e1e492bbd6ccf6b2e7699a8f311.v <scratch>/builds/X-A8/gateware/sim.v <scratch>/CX/tb/verilator/ctrl_service_budget/sim_main.cpp
+COMMAND make -j16 -C <scratch>/builds/X-A8/native -f Vsim.mk Vsim
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/x-links-same.txt -
+COMMANDCOMMAND <scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/x-save-0.txt - 
+<scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/x-save-1.txt -COMMAND
+ COMMANDCOMMAND <scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/x-save-2.txt -<scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/x-save-3.txt -
+COMMANDCOMMAND   COMMAND
+COMMANDCOMMAND<scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/y-links.txt -<scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/x-save-4.txt - COMMANDCOMMAND COMMANDCOMMANDCOMMAND<scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/x-save-5.txt - <scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/y-save-2.txt -  <scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/y-save-0.txt - 
+<scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/y-save-5.txt -<scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/y-save-1.txt -
+ 
+
+ 
+<scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/y-save-4.txt -<scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/y-save-6.txt -<scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/y-save-3.txt -
+<scratch>/builds/X-A8/native/Vsim <scratch>/builds/X-A8/results/y-save-7.txt -
+
+
+
+
+16 groups graded, 0 refusals, 0 budget misses (0 of 183 probe instances, 0 of 34 paths), 0 of 5061 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=1173s
+rc=0
