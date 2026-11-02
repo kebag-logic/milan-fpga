@@ -1,0 +1,10 @@
+== rv7-sigterm-trap-command-later-grace-resume
+run 1: FAIL: trap command did not finish inside the shell's window; resume -0.0 s after cleanup's first signal; signals [(0.0, 830374, 'SIGTERM'), (0.08, 830381, 'SIGTERM')]
+run 2: FAIL: trap command did not finish inside the shell's window; resume -0.0 s after cleanup's first signal; signals [(0.0, 830385, 'SIGTERM'), (0.08, 830395, 'SIGTERM')]
+grace-resume: FAIL (0 of 2 finished)
+rc=1
+== rv7-no-window-later-in-grace
+run 1: PASS: trap command finished; resume -0.0 s after cleanup's first signal; signals [(0.0, 830416, 'SIGTERM')]
+run 2: PASS: trap command finished; resume -0.0 s after cleanup's first signal; signals [(0.0, 830436, 'SIGTERM')]
+grace-resume: PASS (2 of 2 finished)
+rc=0
