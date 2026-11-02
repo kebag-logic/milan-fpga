@@ -228,11 +228,11 @@ A routed-image measurement follows each stage.
 
 | Stage | Change | Removes | Credited as |
 |---|---|---|---|
-| 1 | Drop DDR3 and the BIOS ROM; main memory on chip (D4); our boot loader copies the firmware image from QSPI flash into Block RAM ([D18](#mark-ii-decisions)); the image has its own flash slot ([D21](#mark-ii-decisions)); masters attach to the SoC bus ([stage 1](#stage-1-boot-and-bus)) | LiteDRAM controller and PHY; BIOS ROM and SRAM, 18 RAMB36 measured | Lever 1, ~1.0k LUTs |
+| 1 | Drop DDR3 and the BIOS ROM; main memory on chip (D4); our boot loader copies the firmware image from QSPI flash into Block RAM ([D18](#mark-ii-decisions)); the image has its own flash slot ([D21](#mark-ii-decisions)); masters attach to the SoC bus ([stage 1](#stage-1-boot-and-bus)) | LiteDRAM controller and PHY. The BIOS ROM and SRAM, 18 RAMB36 measured, already left at the switch-over ([M8a-1](#firmware-and-block-ram-ledger)) | Lever 1, ~1.0k LUTs |
 | 2 | Replace LiteEth and LiteSPI with proven open-source cores on AXI-Stream and AXI4-Lite | LiteEth MAC and LiteSPI, inside the 5,119-LUT LiteX top | Part of the -1.75k above; the second port needs the new MAC |
-| 3 | A plain SystemVerilog top replaces the SoC generator | Wishbone and CSR-bank glue; the generated FIFOs | Lever 2, ~1.0k, and the rest of the -1.75k |
+| 3 | A plain SystemVerilog top replaces the SoC generator | Wishbone and CSR-bank glue. The generated FIFOs leave earlier, each with its block ([census](#litex-block-census)) | Lever 2, ~1.0k, and the rest of the -1.75k |
 
-Stage 1's row keeps the owner's words.
+Stage 1's Change cell keeps the owner's words.
 The [census](#litex-block-census) places the BIOS at the switch-over.
 
 The switch-over removes the BIOS and its ROM and SRAM.
