@@ -1409,8 +1409,8 @@ RTL name: `A_ADP_CMD`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:2 | `RESERVED` | R | 0 | Reserved. |
-| 1 | `ADP_DEPART` | W1S | 0 | Inert scratch: stores and reads back, reaches no logic. Was depart. Writing 1 fires `ADP_DEPART` for one cycle. |
-| 0 | `ADP_ADVERTISE` | W1S | 0 | Inert scratch: stores and reads back, reaches no logic. Was advertise-now. Writing 1 fires `ADP_ADVERTISE` for one cycle. |
+| 1 | `ADP_DEPART` | W1S | 0 | Inert strobe: self-clears and reads 0, and reaches no logic. Was depart. Writing 1 fires `ADP_DEPART` for one cycle. |
+| 0 | `ADP_ADVERTISE` | W1S | 0 | Inert strobe: self-clears and reads 0, and reaches no logic. Was advertise-now. Writing 1 fires `ADP_ADVERTISE` for one cycle. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#adp_cmd-offset-0x640).
 

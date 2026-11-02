@@ -1866,8 +1866,8 @@
       "name": "ADP command",
       "purpose": "Advertise-now and depart strobes.",
       "fields": {
-        "ADP_ADVERTISE": "Inert scratch: stores and reads back, reaches no logic. Was advertise-now.",
-        "ADP_DEPART": "Inert scratch: stores and reads back, reaches no logic. Was depart."
+        "ADP_ADVERTISE": "Inert strobe: self-clears and reads 0, and reaches no logic. Was advertise-now.",
+        "ADP_DEPART": "Inert strobe: self-clears and reads 0, and reaches no logic. Was depart."
       },
       "notes": [],
       "record": "adp_cmd-offset-0x640"
