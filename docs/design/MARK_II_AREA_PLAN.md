@@ -236,7 +236,7 @@ Stage 1's Change cell keeps the owner's words.
 The [census](#litex-block-census) places the BIOS at the switch-over.
 
 The switch-over removes the BIOS and its ROM and SRAM.
-`ctrl_memory`'s `rom` and `sram` banks hold them until stage 3.
+Until stage 3, `ctrl_memory`'s banks hold both regions.
 
 Stage 1 drops DDR3 and fills `rom` from flash ([D18](#mark-ii-decisions)).
 
