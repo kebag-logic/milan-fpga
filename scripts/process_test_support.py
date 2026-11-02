@@ -426,8 +426,7 @@ MUTANTS: dict[str, tuple] = {
         ("                        killed.setdefault(pid, time.monotonic())\n", "                        pass\n")),
     "no-sigcont-after-send": (None, "breaks no row: SIGCONT after each signal is on the table's not-pinned list",
         ("            self._signal(fd, signal.SIGCONT)\n            return True\n", "            return True\n")),
-    "sigterm-to-new": (None, "breaks no row: no SIGTERM during grace to a descendant new since the first census"
-                             " is on the table's not-pinned list",
+    "sigterm-to-new": ("owner_stated_seconds", "a first-pass resume's stated seconds were not kept",
         ("                    if (pid, start) not in initial:\n                        continue\n                elif",
          "                    pass\n                elif")),
     "no-leaf-first": (None, "breaks no row: a first-census parent's extra second after grace is on the table's"
@@ -514,6 +513,20 @@ MUTANTS: dict[str, tuple] = {
     "rv6-sigcont-by-number": ("owner_reused_identity", "a census entry was signalled by its number",
         ("            self._signal(fd, signum)\n            self._signal(fd, signal.SIGCONT)\n",
          "            self._signal(fd, signum)\n            os.kill(pid, signal.SIGCONT)\n")),
+    "rv6-resume-not-before-grace": ("owner_stated_seconds", "a first-pass resume's stated seconds were not kept",
+        ("and root_pid in owned and not (live - {root_pid}):",
+         "and root_pid in owned and not (live - {root_pid}) and clock >= deadline:")),
+    "rv6-resume-not-first-pass": ("owner_stated_seconds", "a first-pass resume's stated seconds were not kept",
+        ("and root_pid in owned and not (live - {root_pid}):",
+         "and root_pid in owned and not (live - {root_pid}) and passes > 1:")),
+    "rv6-sigterm-trap-commands": ("owner_stated_seconds", "a first-pass resume's stated seconds were not kept",
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and resumed is None:\n                        continue\n"
+         "                elif")),
+    "sigterm-to-new-before-resume": ("owner_stated_seconds", "a new descendant's stated seconds were not kept",
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and resumed is not None:\n"
+         "                        continue\n                elif")),
 }
 
 

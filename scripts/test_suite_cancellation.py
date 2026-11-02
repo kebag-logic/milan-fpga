@@ -788,32 +788,45 @@ def owner_stated_seconds() -> None:
     owner's clock: pass n is at (n - 1) / 2 s. Grace ends in pass 5 (2 s) and a
     survivor fails the run in pass 29 (14 s). A shell resumed in pass 12 (5.5 s)
     keeps its window, and so does what its trap starts, until pass 32 (15.5 s);
-    the run fails 10 s later, in pass 52. A parent whose child outlives its own
-    SIGKILL is killed in pass 9 (4 s), and a listing that dies inside every
-    census fails the run in pass 49 (24 s).
+    the run fails 10 s later, in pass 52. A shell resumed in pass 1, inside grace,
+    keeps it until pass 21 (10 s), and its trap's command gets no SIGTERM. A parent
+    whose child outlives its own SIGKILL is killed in pass 9 (4 s), and a listing
+    that dies inside every census fails the run in pass 49 (24 s). A descendant
+    new since the first census gets no SIGTERM, and is killed at grace.
     """
     # Above the largest PID a process can have, so none of these is ever a real process.
     survivor, shell, command, owner_pid = 2 ** 22 + 1, 2 ** 22 + 2, 2 ** 22 + 3, 2 ** 22 + 4
-    parent, gone = 2 ** 22 + 5, 2 ** 22 + 6
+    parent, gone, cleanup = 2 ** 22 + 5, 2 ** 22 + 6, 2 ** 22 + 7
     # A live process the census lists as the shell's child, and never as a parent,
     # so it is a stubborn leaf. It is never really signalled: this control's send only records the signal.
     child = os.getpid()
-    names = {survivor: "survivor", shell: "shell", command: "trap command", child: "child", parent: "parent"}
+    names = {survivor: "survivor", shell: "shell", command: "trap command", child: "child", parent: "parent",
+             cleanup: "cleanup command"}
 
     def late(n: int) -> dict:
         """The child outlives its SIGKILL until pass 12; then the trap's command is listed."""
         if n < 12:
             return {shell: (owner_pid, "2"), child: (shell, "4")}
         return {shell: (owner_pid, "2"), command: (shell, "3")}
+
+    def early(n: int) -> dict:
+        """Nothing else is ever live, so the shell is resumed in pass 1; its trap's command is listed from pass 2."""
+        return {shell: (owner_pid, "2"), **({command: (shell, "3")} if n > 1 else {})}
+
+    def trapped(n: int) -> dict:
+        """The survivor's terminal trap starts a cleanup command, listed from pass 2, and no shell is resumed."""
+        return {survivor: (os.getpid(), "1"), **({cleanup: (survivor, "7")} if n > 1 else {})}
     with OwnedProcesses() as owner, starved_clock():
         alone = starved_cleanup(owner, lambda _n: {survivor: (os.getpid(), "1")}, names)
         owner.process, owner.root_notified = SimpleNamespace(pid=shell), True
         try:
             resumed = starved_cleanup(owner, late, names)
+            first = starved_cleanup(owner, early, names)
         finally:
             owner.process, owner.root_notified = None, False
         stubborn = starved_cleanup(owner, lambda _n: {parent: (owner_pid, "5"), child: (parent, "4")}, names)
         vanishing = starved_cleanup(owner, lambda _n: {gone: (owner_pid, "6")}, names, lambda: {gone})
+        cleaning = starved_cleanup(owner, trapped, names)
     expected = [(1, "SIGTERM", "survivor"), (5, "SIGKILL", "survivor"), (29, "SIGKILL", "survivor"), (29, "verdict")]
     assert alone == expected, f"a survivor's stated seconds were not kept on the owner's clock: {alone}"
     expected = [(1, "SIGTERM", "parent"), (1, "SIGTERM", "child"), (5, "SIGKILL", "child"), (9, "SIGKILL", "parent"),
@@ -824,9 +837,16 @@ def owner_stated_seconds() -> None:
                 (32, "SIGKILL", "shell"), (32, "SIGKILL", "trap command"),
                 (52, "SIGKILL", "shell"), (52, "SIGKILL", "trap command"), (52, "verdict")]
     assert resumed == expected, f"a late resume's stated seconds were not kept on the owner's clock: {resumed}"
+    expected = [(1, "SIGCONT", "shell"), (21, "SIGKILL", "shell"), (21, "SIGKILL", "trap command"),
+                (41, "SIGKILL", "shell"), (41, "SIGKILL", "trap command"), (41, "verdict")]
+    assert first == expected, f"a first-pass resume's stated seconds were not kept on the owner's clock: {first}"
+    expected = [(1, "SIGTERM", "survivor"), (5, "SIGKILL", "survivor"), (5, "SIGKILL", "cleanup command"),
+                (29, "SIGKILL", "survivor"), (29, "SIGKILL", "cleanup command"), (29, "verdict")]
+    assert cleaning == expected, f"a new descendant's stated seconds were not kept on the owner's clock: {cleaning}"
     print("owner-stated-seconds: " + str(dict(grace_pass=5, survivor_verdict_pass=29, resume_pass=12,
                                               window_end_pass=32, resumed_verdict_pass=52, parent_kill_pass=9,
-                                              vanishing_verdict_pass=49)), flush=True)
+                                              vanishing_verdict_pass=49, first_resume_pass=1,
+                                              first_window_end_pass=21, new_descendant_kill_pass=5)), flush=True)
 
 
 #: Blocks SIGTERM and SIGCONT, so either sent to it stays pending, as its status shows; then says it is ready.
