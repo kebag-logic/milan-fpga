@@ -17,7 +17,7 @@ This page changes documentation only.
 - **[Mark II levers](#mark-ii-levers)** -- Owner order, 32x32 additions, about 21.75k.
 - **[LiteX removal stages](#litex-removal-stages)** -- Three stages and every LiteX block's fate.
 - **[Mark II Block RAM ledger](#mark-ii-block-ram-ledger)** -- An estimate over the ceiling.
-- **[Mark II decisions](#mark-ii-decisions)** -- The owner rulings of 2026-10-31 and 2026-11-02.
+- **[Mark II decisions](#mark-ii-decisions)** -- Owner and manager rulings, 2026-10-31 and 2026-11-02.
 - **[Mark II lane sequence](#mark-ii-lane-sequence)** -- Ordered lanes with savings and evidence.
 - **[Open owner decisions](#open-owner-decisions)** -- Questions that wait for the owner.
 - **[Mark I plan history](#mark-i-plan-history)** -- Why the sections below are history.
@@ -228,7 +228,7 @@ A routed-image measurement follows each stage.
 
 | Stage | Change | Removes | Credited as |
 |---|---|---|---|
-| 1 | Drop DDR3 and the BIOS ROM; main memory on chip (D4); our boot loader copies the firmware image from QSPI flash into Block RAM ([D18](#mark-ii-decisions)); the flash layout is unchanged; masters attach to the SoC bus ([stage 1](#stage-1-boot-and-bus)) | LiteDRAM controller and PHY; BIOS ROM and SRAM, 18 RAMB36 measured | Lever 1, ~1.0k LUTs |
+| 1 | Drop DDR3 and the BIOS ROM; main memory on chip (D4); our boot loader copies the firmware image from QSPI flash into Block RAM ([D18](#mark-ii-decisions)); the image has its own flash slot ([D21](#mark-ii-decisions)); masters attach to the SoC bus ([stage 1](#stage-1-boot-and-bus)) | LiteDRAM controller and PHY; BIOS ROM and SRAM, 18 RAMB36 measured | Lever 1, ~1.0k LUTs |
 | 2 | Replace LiteEth and LiteSPI with proven open-source cores on AXI-Stream and AXI4-Lite | LiteEth MAC and LiteSPI, inside the 5,119-LUT LiteX top | Part of the -1.75k above; the second port needs the new MAC |
 | 3 | A plain SystemVerilog top replaces the SoC generator | Wishbone and CSR-bank glue; the generated FIFOs | Lever 2, ~1.0k, and the rest of the -1.75k |
 
@@ -261,8 +261,16 @@ Both ports stay timestamped for redundancy.
 Stage 1's loader copies the firmware image from QSPI flash.
 It copies it into Block RAM, then starts it ([D18](#mark-ii-decisions)).
 
-The layout in [QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md#layout-baremetal---shipping-ax7101) stays unchanged.
-That layout has no firmware slot ([open decision 4](#open-owner-decisions)).
+The image gets its own flash slot ([D21](#mark-ii-decisions)).
+Its range is free, erase-aligned, never reserved or used.
+
+The bitstream and AEM slots keep their offsets and budgets.
+No image goes in the bitstream slot's tail.
+
+The stage 1 lane states the slot's offset and budget.
+They go in `FLASHBOOT_LAYOUT` and the generated layout page.
+
+Until then, [QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md#layout-baremetal---shipping-ax7101) describes the shipping layout.
 
 Masters use the SoC bus, never the CPU's DMA port.
 The [stage 1 silicon probe](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6556743957) measured the DMA route hanging.
@@ -370,9 +378,10 @@ Measure its reductions before any lane relies on them.
 | D15, LiteX | [Owner, 17:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545999204): removed in three stages; as low as possible | The stages above, each measured |
 | D16, lever order | [Owner, 16:40](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545540394): least risky first, each measured before the next | The lane order below, except lever 2 after lever 3: a reading for the owner to confirm ([open decision 2](#open-owner-decisions)) |
 | D17, save | [Owner, #823, 17:14](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6545924397): at most 0.5 s worst case at 32x32 | NFR-REL-03; append-only save path |
-| D18, stage 1 boot | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the boot loader copies the firmware from QSPI flash into Block RAM, as planned | LiteX stage 1's boot loader; where the image sits in flash is [open decision 4](#open-owner-decisions) |
+| D18, stage 1 boot | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the boot loader copies the firmware from QSPI flash into Block RAM, as planned | LiteX stage 1's boot loader; the image sits in its own flash slot (D21) |
 | D19, LiteX blocks | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): every LiteX peripheral is removed, not only DDR3 and the BIOS | The [block census](#litex-block-census): no LiteX block remains |
 | D20, console UART | [Owner, 2026-11-02 07:22](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the UART is a simple protocol and needs no RTS/CTS; a small first-party UART, transmit and receive only, replaces it | The [console UART](#console-uart): a 32-byte polled receive buffer |
+| D21, firmware flash slot | [Manager, 2026-11-02](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the firmware image gets its own flash slot, sized for the image, in a free erase-aligned range that is neither reserved (`journal`, `user`) nor used; the bitstream and AEM slots keep their offsets and budgets; the image does not go in the bitstream slot's tail, since that would tie its offset to the bitstream's size, which changes from build to build | The [stage 1](#stage-1-boot-and-bus) lane adds the slot to `FLASHBOOT_LAYOUT` and the generated layout page, and states its offset and budget there |
 
 ## Mark II lane sequence
 
@@ -386,7 +395,7 @@ Measurements queue serially; no heavy builds overlap.
 |---:|---|---|---|---:|---|
 | 0 | Charter | This plan, the requirements, the split and the stream-engine design | Owner approval of the requirement text | 0 | Documentation gates |
 | 1 | Switch-over | F0 to F5 integrated; F1 on the append-only format of #823; processor and MAAP deleted | Bench qualification of the firmware | Basis to ~31.0k | Routed image; suites; bench; NFR-REL-03 |
-| 2 | LiteX stage 1, lever 1 | Drop DDR3 and the BIOS ROM; a boot loader copying the firmware from QSPI flash; masters on the SoC bus | Lane 1; open decision 4 | ~1.0k | Routed image; boot and persistence on the bench |
+| 2 | LiteX stage 1, lever 1 | Drop DDR3 and the BIOS ROM; a boot loader copying the firmware from QSPI flash; the firmware's own flash slot (D21); masters on the SoC bus | Lane 1 | ~1.0k | Routed image; boot and persistence on the bench |
 | 3 | Lever 3 | `milan_csr` consumer census, then reduction | Lane 1 | ~1.75k | CSR, host-tool and firmware suites |
 | 4 | LiteX stage 2 | New MAC and QSPI cores as pinned donors | Survey; two reviews per core | Part of -1.75k | Core testbenches; save bound on the bench |
 | 5 | LiteX stage 3, lever 2 | Plain SystemVerilog top | Lanes 2 and 4 | ~1.0k plus the rest of -1.75k | Rewritten simulation gates; routed image |
@@ -429,16 +438,6 @@ No lane may assume an answer.
    - It keeps one global core state: one port per image.
    - Redundancy needs gPTP on both ports (#665 F6). One instance per port is one way.
    - The owner decides how, and confirms source and licence.
-4. **Where the copied firmware image sits in flash.**
-   - Stage 1 copies the image from QSPI flash ([D18](#mark-ii-decisions)).
-   - The layout must stay as is, with no firmware slot.
-   - The 64 KiB AEM slot is smaller than the image.
-   - The 1x1 firmware's [rom](SPLIT_CONTROL_MEMORY.md#5-fit) alone needs 96,624 bytes.
-   - The basis build's bitstream file has 3,825,992 bytes.
-   - Its 4 MiB slot leaves 368,312 bytes after it.
-   - An image there keeps every slot, offset and budget.
-   - Its own slot keeps the copy but changes the layout.
-   - The owner decides which before stage 1 starts.
 
 ## Mark I plan history
 
