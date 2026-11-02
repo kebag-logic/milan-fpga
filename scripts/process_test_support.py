@@ -433,6 +433,25 @@ MUTANTS: dict[str, tuple] = {
     "no-leaf-first": (None, "breaks no row: a first-census parent's extra second after grace is on the table's"
                             " not-pinned list",
         ("if clock < deadline + 1.0 and pid in initial.values():", "if False:")),
+    "signal-by-number": ("owner_reused_identity", "a census entry was signalled by its number",
+        ("            self._signal(fd, signum)\n            self._signal(fd, signal.SIGCONT)\n",
+         "            os.kill(pid, signum)\n            os.kill(pid, signal.SIGCONT)\n")),
+    "parent-spared-past-kill-all": ("owner_stated_seconds", "a stubborn parent's stated seconds were not kept",
+        ("                elif clock < kill_all:\n",
+         "                elif clock < kill_all or any(parent == pid and child in live"
+         " for child, (parent, _start) in owned.items()):\n")),
+    "parents-killed-at-grace": ("owner_stated_seconds", "a stubborn parent's stated seconds were not kept",
+        ("                    if clock < deadline + 1.0 and pid in initial.values():\n"
+         "                        continue\n"
+         "                    if any(parent == pid and child in live for child, (parent, _start) in owned.items()):\n"
+         "                        continue\n",
+         "")),
+    "vanishing-waits-30s-more": ("owner_stated_seconds", "a vanishing listing's stated seconds were not kept",
+        ("(owned or clock >= limit + REAP_SECONDS)", "(owned or clock >= limit + 3 * REAP_SECONDS)")),
+    "report-without-current-parent": ("owner_report", "the report's current parent is not its own field",
+        ("parent {fields[1]} ", "")),
+    "report-age-in-ticks": ("owner_report", "the report's age is not the process's own",
+        ("int(fields[19]) / os.sysconf('SC_CLK_TCK')", "int(fields[19])")),
 }
 
 

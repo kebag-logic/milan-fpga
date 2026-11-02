@@ -433,20 +433,31 @@ def really_kill(pid: int, start: str) -> None:
 
 
 def owner_report(parent: Path) -> None:
-    """The failure message names what each remaining process is doing (#833)."""
+    """The failure message names what each remaining process is doing, its parents and its age (#833)."""
     scratch = parent / "owner-report"
     scratch.mkdir()
     ready = scratch / "ready"
+    began = time.monotonic()
     sleeper = subprocess.Popen([sys.executable, "-c", STUBBORN, str(ready)])
     published(ready)
     eventually(lambda: identity(sleeper.pid)[1] == "S", 15, "handshake child never slept")
+    # The child is older than this pause and younger than the whole control, as its age must be.
+    slept = time.monotonic()
+    time.sleep(0.1)
+    youngest = time.monotonic() - slept
     asleep = owned_process._describe(sleeper.pid, os.getpid(), None)
+    oldest = time.monotonic() - began
     for field in (f"pid {sleeper.pid} (python", "state S", "wchan ", f"parent {os.getpid()}",
                   f"first parent {os.getpid()}", " age ", " start ", "not sent SIGKILL"):
         assert field in asleep, (field, asleep)
     assert "wchan  " not in asleep, asleep
+    moved = owned_process._describe(sleeper.pid, 1, None)
+    assert f" parent {os.getpid()} (first parent 1) " in moved, \
+        f"the report's current parent is not its own field: {moved}"
+    age = re.search(r" age (-?[0-9.]+) s ", asleep)
+    assert age and youngest - 0.05 <= float(age.group(1)) <= oldest + 0.05, \
+        f"the report's age is not the process's own, {youngest:.2f} to {oldest:.2f} s: {asleep}"
     assert "new since the first census" in owned_process._describe(sleeper.pid, None, None)
-    assert "(first parent 1)" in owned_process._describe(sleeper.pid, 1, None)
     sleeper.kill()
     eventually(lambda: identity(sleeper.pid)[1] == "Z", 15, "killed child never became a zombie")
     zombie = owned_process._describe(sleeper.pid, os.getpid(), 1.5)
@@ -736,12 +747,13 @@ def starved_clock() -> Iterator[None]:
         owned_process.time = real
 
 
-def starved_cleanup(owner: OwnedProcesses, listing: Callable[[int], dict], names: dict) -> list[tuple]:
+def starved_cleanup(owner: OwnedProcesses, listing: Callable[[int], dict], names: dict,
+                    reaped: Callable[[], set] = set) -> list[tuple]:
     """Run one cleanup over a listing by pass number; return each signal and the verdict by pass."""
     events, passes = [], []
 
     def census() -> dict:
-        """List what this pass lists; nothing here is ever collected."""
+        """List what this pass lists; only what `reaped` returns is ever collected."""
         passes.append(True)
         assert len(passes) < 200, "cleanup never reached a verdict on the owner's clock"
         return listing(len(passes))
@@ -750,7 +762,7 @@ def starved_cleanup(owner: OwnedProcesses, listing: Callable[[int], dict], names
         """Note the signal and its pass; no process receives it."""
         events.append((len(passes), signal.Signals(signum).name, names[pid]))
         return True
-    owner._descendants, owner._reap, owner._send = census, set, send
+    owner._descendants, owner._reap, owner._send = census, reaped, send
     owner._signal = lambda _fd, signum: events.append((len(passes), signal.Signals(signum).name, "shell"))
     try:
         owner._cleanup()
@@ -769,14 +781,17 @@ def owner_stated_seconds() -> None:
     owner's clock: pass n is at (n - 1) / 2 s. Grace ends in pass 5 (2 s) and a
     survivor fails the run in pass 29 (14 s). A shell resumed in pass 12 (5.5 s)
     keeps its window, and so does what its trap starts, until pass 32 (15.5 s);
-    the run fails 10 s later, in pass 52.
+    the run fails 10 s later, in pass 52. A parent whose child outlives its own
+    SIGKILL is killed in pass 9 (4 s), and a listing that dies inside every
+    census fails the run in pass 49 (24 s).
     """
     # Above the largest PID a process can have, so none of these is ever a real process.
     survivor, shell, command, owner_pid = 2 ** 22 + 1, 2 ** 22 + 2, 2 ** 22 + 3, 2 ** 22 + 4
+    parent, gone = 2 ** 22 + 5, 2 ** 22 + 6
     # A live process the census lists as the shell's child, and never as a parent,
     # so it is a stubborn leaf. It is never signalled.
     child = os.getpid()
-    names = {survivor: "survivor", shell: "shell", command: "trap command", child: "child"}
+    names = {survivor: "survivor", shell: "shell", command: "trap command", child: "child", parent: "parent"}
 
     def late(n: int) -> dict:
         """The child outlives its SIGKILL until pass 12; then the trap's command is listed."""
@@ -790,27 +805,77 @@ def owner_stated_seconds() -> None:
             resumed = starved_cleanup(owner, late, names)
         finally:
             owner.process, owner.root_notified = None, False
+        stubborn = starved_cleanup(owner, lambda _n: {parent: (owner_pid, "5"), child: (parent, "4")}, names)
+        vanishing = starved_cleanup(owner, lambda _n: {gone: (owner_pid, "6")}, names, lambda: {gone})
     expected = [(1, "SIGTERM", "survivor"), (5, "SIGKILL", "survivor"), (29, "SIGKILL", "survivor"), (29, "verdict")]
     assert alone == expected, f"a survivor's stated seconds were not kept on the owner's clock: {alone}"
     expected = [(1, "SIGTERM", "child"), (5, "SIGKILL", "child"), (12, "SIGCONT", "shell"),
                 (32, "SIGKILL", "shell"), (32, "SIGKILL", "trap command"),
                 (52, "SIGKILL", "shell"), (52, "SIGKILL", "trap command"), (52, "verdict")]
     assert resumed == expected, f"a late resume's stated seconds were not kept on the owner's clock: {resumed}"
+    expected = [(1, "SIGTERM", "parent"), (1, "SIGTERM", "child"), (5, "SIGKILL", "child"), (9, "SIGKILL", "parent"),
+                (29, "SIGKILL", "parent"), (29, "SIGKILL", "child"), (29, "verdict")]
+    assert stubborn == expected, f"a stubborn parent's stated seconds were not kept on the owner's clock: {stubborn}"
+    assert vanishing == [(49, "verdict")], f"a vanishing listing's stated seconds were not kept: {vanishing}"
     print("owner-stated-seconds: " + str(dict(grace_pass=5, survivor_verdict_pass=29, resume_pass=12,
-                                              window_end_pass=32, resumed_verdict_pass=52)), flush=True)
+                                              window_end_pass=32, resumed_verdict_pass=52, parent_kill_pass=9,
+                                              vanishing_verdict_pass=49)), flush=True)
+
+
+#: Blocks SIGTERM, so one sent to it stays pending, as its status shows; then says it is ready.
+BLOCKING = r'''
+import signal, time
+signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM})
+print("ready", flush=True)
+while True:
+    time.sleep(0.02)
+'''
+
+
+def pending(pid: int) -> int:
+    """The signals pending for a process, from its status: bit n - 1 is signal n."""
+    status = dict(line.split(":", 1) for line in (PROC / str(pid) / "status").read_text().splitlines())
+    return int(status["SigPnd"], 16) | int(status["ShdPnd"], 16)
 
 
 def owner_reused_identity() -> None:
-    """A census entry whose number now names another process is never signalled (#833)."""
-    sleeper = subprocess.Popen(["sleep", "60"])
+    """A census entry whose number now names another process is never signalled, even after its recheck (#833)."""
+    own = subprocess.Popen(["sleep", "60"])
+    other = subprocess.Popen([sys.executable, "-c", BLOCKING], stdout=subprocess.PIPE, text=True)
     try:
-        start = identity(sleeper.pid)[0]
-        sent = OwnedProcesses()._send(sleeper.pid, str(int(start) - 1), signal.SIGKILL)
-        assert not sent and running(sleeper.pid, start), "a census entry whose process was replaced was signalled"
+        assert other.stdout.readline() == "ready\n", "the process that takes the number never started"
+        start = identity(own.pid)[0]
+        sent = OwnedProcesses()._send(own.pid, str(int(start) - 1), signal.SIGKILL)
+        assert not sent and running(own.pid, start), "a census entry whose process was replaced was signalled"
+        # This entry's number names `own` until its recheck, and `other` from then on,
+        # so only the handle opened before the recheck still names the entry's process.
+        handed = []
+        real_open, real_identity = os.pidfd_open, owned_process._identity
+
+        def opened(pid: int, *flags: int) -> int:
+            """Open what the number names now."""
+            return real_open(own.pid if pid == other.pid and not handed else pid, *flags)
+
+        def rechecked(pid: int) -> tuple[int, str] | None:
+            """Read what the number names now; then it changes hands."""
+            found = real_identity(own.pid if pid == other.pid and not handed else pid)
+            handed.append(True)
+            return found
+        os.pidfd_open, owned_process._identity = opened, rechecked
+        try:
+            sent = OwnedProcesses()._send(other.pid, start, signal.SIGTERM)
+        finally:
+            os.pidfd_open, owned_process._identity = real_open, real_identity
+        # A signal is pending once it is sent, and `other` blocks this one, so no timing is involved.
+        assert not pending(other.pid) & (1 << (signal.SIGTERM - 1)), \
+            "a census entry was signalled by its number, after it changed hands"
+        assert sent and own.wait(timeout=15) == -signal.SIGTERM, "a census entry's own process missed its signal"
     finally:
-        sleeper.kill()
-        sleeper.wait()
-    print("owner-reused-identity: " + str(dict(signalled=False)), flush=True)
+        for process in (own, other):
+            process.kill()
+            process.wait()
+        other.stdout.close()
+    print("owner-reused-identity: " + str(dict(signalled=False, through_handle=True)), flush=True)
 
 
 #: Every owner control, in the order main() runs them; each mutant run calls one.

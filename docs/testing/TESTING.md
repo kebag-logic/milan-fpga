@@ -259,9 +259,9 @@ Times are cleanup's, on the owner's clock.
 
 | Stated cleanup behaviour | Pinned by | Mutants that prove it |
 |---|---|---|
-| A signal goes to a census entry only after its start time is rechecked, so a census entry whose number now names another process is never signalled. | `owner_reused_identity` | `no-start-recheck` |
+| Every signal goes through a handle opened on the census entry, after its start time is rechecked. So a census entry whose number now names another process is never signalled, even when the number changes hands right after that recheck. | `owner_reused_identity` | `no-start-recheck`, `signal-by-number` |
 | In its first pass cleanup sends `SIGTERM` to every descendant its census lists, except a cancelled shell, which its cancellation signalled. Two seconds of `SIGTERM` come before the first `SIGKILL`, to a stubborn leaf. | `owner_stated_seconds` | `grace-1s` |
-| Two seconds later `SIGKILL` has reached every other descendant except a cancelled shell and any command its trap started, which keep the shell's own window. | `owner_stated_seconds`, `owner_shell_window` | `root-killed-unresumed` |
+| Two seconds later `SIGKILL` has reached every other descendant, a parent whose child outlives its own `SIGKILL` included, except a cancelled shell and any command its trap started, which keep the shell's own window. Until then a parent is spared while its child lives, so its stubborn leaves are killed first. | `owner_stated_seconds`, `owner_shell_window` | `parent-spared-past-kill-all`, `parents-killed-at-grace`, `root-killed-unresumed` |
 | A descendant still listed ten seconds after that, one that outlives `SIGKILL` included, fails the run 14 s into cleanup, in the first census pass at or past that deadline. So it does while a cancelled shell still waits, stopped, for its resume. | `owner_stated_seconds`, `owner_survivor` | `reap-window-2s`, `windows-2s`, `killed-counts-as-gone`, `survivor-never-fails`, `survivor-never-fails-guarded`, `trust-sigkill` |
 | A cancelled shell stays stopped while any other descendant lives, and is resumed in the first pass in which none does. | `owner_stated_seconds` | `resume-with-one-live` |
 | From the resume the shell has ten seconds of its own to finish its terminal trap, and so does any command that trap starts. Every remaining descendant's deadline is then 20 s after the resume, which comes before 14 s: under 34 s. | `owner_stated_seconds` | `windows-2s` |
@@ -269,19 +269,15 @@ Times are cleanup's, on the owner's clock.
 | Nor does a command its trap starts. | `owner_shell_window` | `trap-commands-no-window`, `trap-commands-never-spared`, `trap-commands-1s` |
 | One census pass advances the owner's clock by at most half a second. So a stalled or starved owner neither sends a `SIGKILL` nor fails the run before its windows have elapsed on its own clock. | `owner_stall`, `owner_stated_seconds` | `deadline-wall-clock`, `pass-cap-1.5s`, `pass-cap-5s`, `pass-cap-1s` |
 | A pass shorter than that advances the clock by its own length: wall time runs ahead of the owner's clock only while a pass takes longer. | `owner_stated_seconds`, `owner_shell_window` | `clock-always-cap` |
-| A listing that dies inside every census still fails the run, 10 s after that deadline: 24 s into cleanup, under 44 s after a resume. | `owner_vanishing`, `owner_late_exit` | `endless-unbounded`, `vanishing-waits-no-more` |
+| A listing that dies inside every census still fails the run, 10 s after that deadline and no later: 24 s into cleanup, under 44 s after a resume. | `owner_vanishing`, `owner_late_exit`, `owner_stated_seconds` | `endless-unbounded`, `vanishing-waits-no-more`, `vanishing-waits-30s-more` |
 | Cleanup collects every exited child, one that exits during a census included, and never reports a collected one as remaining. It returns only once a census taken after a collection lists nothing, so it leaves no owned child unreaped. | `owner_late_exit` | `no-reap-after-census`, `owned-is-census`, `return-with-zombies` |
 | A descendant re-parented during cleanup keeps its identity and still receives its `SIGTERM` in that pass. | `owner_reparented` | `cleanup-does-nothing`, `identity-start-holds-parent`, `identity-keys-hold-parent`, `identity-first-census-holds-parent`, `identity-includes-parent`, `identity-checks-parent-before-send`, `send-checks-parent` |
 | A cancellation that arrives after the shell was collected opens no window, even in that pass. | `owner_late_cancel` | `resume-collected-shell`, `window-without-resume`, `rearm-without-sigcont`, `resume-while-listed` |
 | A run that fails first sends `SIGKILL` to every descendant it reports, so it takes the stopped shell with it. | `owner_survivor` | `no-kill-before-raise`, `no-kill-before-raise-empty`, `kill-before-fail-spares-shell` |
-| The failure message prints each remaining process's scheduler state, wait channel, and how long ago it was sent `SIGKILL`. | `owner_report`, `owner_survivor` | `report-without-state`, `report-without-wchan`, `report-without-state-or-wchan`, `killed-not-recorded` |
+| The failure message prints each remaining process's scheduler state, wait channel, current parent apart from its first one, age, and how long ago it was sent `SIGKILL`. | `owner_report`, `owner_survivor` | `report-without-state`, `report-without-wchan`, `report-without-state-or-wchan`, `report-without-current-parent`, `report-age-in-ticks`, `killed-not-recorded` |
 
 Not pinned by a control, and so not stated above:
 
-- That the signal goes through the handle opened before that recheck, never by number: no control has a number change hands after the recheck.
-- That a parent whose child outlives its own `SIGKILL` is among those two seconds later, and that until then a parent is spared while its child lives: no control lists such a parent.
-- That a vanishing listing waits no more than those 10 s: the vanishing control bounds it by 15 s of wall time on a 0.3 s window.
-- The message's current parent and age: the controls check only that both words appear.
 - `SIGCONT` after each signal, so a stopped descendant acts on its `SIGTERM` during grace: `SIGKILL` ends it at grace without one.
 - No `SIGTERM` during grace to a descendant new since the first census, so a terminal trap's cleanup command can run: it is killed at grace either way.
 - A first-census parent's extra second after grace, to reap a leaf killed then: the row above still bounds its `SIGKILL` by 4 s.
