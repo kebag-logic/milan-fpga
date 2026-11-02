@@ -1,0 +1,22 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726f/head-a67/scripts/owned_process.py", line 366, in run
+    self.checkpoint()
+    ~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726f/head-a67/scripts/owned_process.py", line 200, in checkpoint
+    raise Cancelled(self.cancel_signal)
+owned_process.Cancelled: signal 15
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726f/rev/review-evidence/833-r1/reviews/R763-5/slow_census_probe.py", line 34, in <module>
+    t.owner_shell_window(Path(scratch))
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726f/head-a67/scripts/test_suite_cancellation.py", line 595, in owner_shell_window
+    owner.run(["bash", "-c", script], env=env)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726f/head-a67/scripts/owned_process.py", line 370, in run
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+RuntimeError: CLEANUP FAILED: owned descendants remain after 10.40 s, 55 census passes, slowest 0.20 s: pid 1807034 (bash) state T wchan do_signal_stop parent 1807032 (first parent 1807032) age 10.46 s start 76753829, not sent SIGKILL; pid 1807035 (python3) state S wchan hrtimer_nanosleep parent 1807034 (first parent 1807034) age 10.46 s start 76753829, not sent SIGKILL
+delay 0.15: owner_shell_window FAIL in 12.7 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 10.40 s, 55 census passes, slowest 0.20 s: pid 1807034 (bash) state T wchan do_signal_stop parent 1807032 (first parent 1807032) age 10.46 s start 76753829, not sent SIGKILL; pid 1807035 (python3) state S wchan hrtimer_nanosleep parent 1807034 (first parent 1807034) age 10.46 s start 76753829, not sent SIGKILL

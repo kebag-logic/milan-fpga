@@ -1,0 +1,20 @@
+none / owner_report: green rc 0 0.3 s: owner_report: PASS
+none / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+none / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+none / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+none / owner_shell_window: green rc 0 4.2 s: owner_shell_window: PASS
+none / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+none / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+none / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+none / owner_stated_seconds: green rc 0 0.1 s: owner_stated_seconds: PASS
+none / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+signal-by-number / owner_reused_identity: red rc 1 0.1 s: AssertionError: a census entry was signalled by its number, after it changed hands
+parent-spared-past-kill-all / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a stubborn parent's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'parent'), (1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'child'), (29, 'SIGKILL', 'parent'), (29, 'SIGKILL', 'child'), (29, 'verdict')]
+parents-killed-at-grace / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a stubborn parent's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'parent'), (1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'parent'), (5, 'SIGKILL', 'child'), (29, 'SIGKILL', 'parent'), (29, 'SIGKILL', 'child'), (29, 'verdict')]
+vanishing-waits-30s-more / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a vanishing listing's stated seconds were not kept: [(89, 'verdict')]
+report-without-current-parent / owner_report: red rc 1 2.3 s: AssertionError: the report's current parent is not its own field: pid 1867325 (python3) state S wchan hrtimer_nanosleep (first parent 1) age 0.12 s start 76928405, not sent SIGKILL
+report-age-in-ticks / owner_report: red rc 1 2.3 s: AssertionError: the report's age is not the process's own, 0.10 to 0.14 s: pid 1867327 (python3) state S wchan hrtimer_nanosleep parent 1867324 (first parent 1867324) age -76159125.76 s start 76928410, not sent SIGKILL
+vanishing-waits-no-more / owner_late_exit: red rc 1 0.6 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.48 s, 1 census passes, slowest 0.48 s: pid 1867329 exited during this report
+endless-unbounded / owner_vanishing: red rc 1 15.2 s: AssertionError: cleanup never reached a verdict
+no-start-recheck / owner_reused_identity: red rc 1 0.1 s: AssertionError: a census entry whose process was replaced was signalled
+owned-process mutants: PASS (9 mutants, 9 with a control that must fail)

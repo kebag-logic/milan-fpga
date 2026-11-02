@@ -1,0 +1,33 @@
+row 1: ['owner_reused_identity'] <- ['no-start-recheck', 'signal-by-number']
+    Every signal goes through a handle opened on the census entry, after its start time is rechecked. So a census 
+row 2: ['owner_stated_seconds'] <- ['grace-1s']
+    In its first pass cleanup sends `SIGTERM` to every descendant its census lists, except a cancelled shell, whic
+row 3: ['owner_stated_seconds', 'owner_shell_window'] <- ['parent-spared-past-kill-all', 'parents-killed-at-grace', 'root-killed-unresumed']
+    Two seconds later `SIGKILL` has reached every other descendant, a parent whose child outlives its own `SIGKILL
+row 4: ['owner_stated_seconds', 'owner_survivor'] <- ['reap-window-2s', 'windows-2s', 'killed-counts-as-gone', 'survivor-never-fails', 'survivor-never-fails-guarded', 'trust-sigkill']
+    A descendant still listed ten seconds after that, one that outlives `SIGKILL` included, fails the run 14 s int
+row 5: ['owner_stated_seconds'] <- ['resume-with-one-live']
+    A cancelled shell stays stopped while any other descendant lives, and is resumed in the first pass in which no
+row 6: ['owner_stated_seconds'] <- ['windows-2s']
+    From the resume the shell has ten seconds of its own to finish its terminal trap, and so does any command that
+row 7: ['owner_shell_window'] <- ['no-shell-window', 'no-shell-window-kept', 'no-shell-window-pass', 'no-trap-window', 'shell-killed-when-resumed', 'shell-window-one-pass', 'shell-window-1s']
+    The resumed shell gets no `SIGKILL` inside that window: not in the pass that resumes it, whatever the time the
+row 8: ['owner_shell_window'] <- ['trap-commands-no-window', 'trap-commands-never-spared', 'trap-commands-1s']
+    Nor does a command its trap starts.
+row 9: ['owner_stall', 'owner_stated_seconds'] <- ['deadline-wall-clock', 'pass-cap-1.5s', 'pass-cap-5s', 'pass-cap-1s']
+    One census pass advances the owner's clock by at most half a second. So a stalled or starved owner neither sen
+row 10: ['owner_stated_seconds', 'owner_shell_window'] <- ['clock-always-cap']
+    A pass shorter than that advances the clock by its own length: wall time runs ahead of the owner's clock only 
+row 11: ['owner_vanishing', 'owner_late_exit', 'owner_stated_seconds'] <- ['endless-unbounded', 'vanishing-waits-no-more', 'vanishing-waits-30s-more']
+    A listing that dies inside every census still fails the run, 10 s after that deadline and no later: 24 s into 
+row 12: ['owner_late_exit'] <- ['no-reap-after-census', 'owned-is-census', 'return-with-zombies']
+    Cleanup collects every exited child, one that exits during a census included, and never reports a collected on
+row 13: ['owner_reparented'] <- ['cleanup-does-nothing', 'identity-start-holds-parent', 'identity-keys-hold-parent', 'identity-first-census-holds-parent', 'identity-includes-parent', 'identity-checks-parent-before-send', 'send-checks-parent']
+    A descendant re-parented during cleanup keeps its identity and still receives its `SIGTERM` in that pass.
+row 14: ['owner_late_cancel'] <- ['resume-collected-shell', 'window-without-resume', 'rearm-without-sigcont', 'resume-while-listed']
+    A cancellation that arrives after the shell was collected opens no window, even in that pass.
+row 15: ['owner_survivor'] <- ['no-kill-before-raise', 'no-kill-before-raise-empty', 'kill-before-fail-spares-shell']
+    A run that fails first sends `SIGKILL` to every descendant it reports, so it takes the stopped shell with it.
+row 16: ['owner_report', 'owner_survivor'] <- ['report-without-state', 'report-without-wchan', 'report-without-state-or-wchan', 'report-without-current-parent', 'report-age-in-ticks', 'killed-not-recorded']
+    The failure message prints each remaining process's scheduler state, wait channel, current parent apart from i
+16 rows, 54 mutants named in rows, 58 in MUTANTS

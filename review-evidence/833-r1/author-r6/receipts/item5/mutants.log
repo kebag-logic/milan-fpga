@@ -1,0 +1,81 @@
+none / owner_report: green rc 0 0.3 s: owner_report: PASS
+none / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+none / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+none / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+none / owner_shell_window: green rc 0 4.2 s: owner_shell_window: PASS
+none / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+none / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+none / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+none / owner_stated_seconds: green rc 0 0.1 s: owner_stated_seconds: PASS
+none / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+cleanup-does-nothing / owner_reparented: red rc 1 0.2 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-start-holds-parent / owner_reparented: red rc 1 2.2 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-keys-hold-parent / owner_reparented: red rc 1 2.3 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-first-census-holds-parent / owner_reparented: red rc 1 2.2 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-includes-parent / owner_reparented: red rc 1 2.3 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-checks-parent-before-send / owner_reparented: red rc 1 2.2 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+send-checks-parent / owner_reparented: red rc 1 0.3 s: AssertionError: the re-parented descendant's SIGTERM waited for a later census: [2]
+no-start-recheck / owner_reused_identity: red rc 1 0.1 s: AssertionError: a census entry whose process was replaced was signalled
+no-reap-after-census / owner_late_exit: red rc 1 0.6 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.48 s, 1 census passes, slowest 0.48 s: pid 1890585 (python3) state Z wchan 0 parent 1890584 (first parent 1890584) age 0.51 s start 77081670, not sent SIGKILL
+owned-is-census / owner_late_exit: red rc 1 0.6 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.48 s, 1 census passes, slowest 0.48 s: pid 1890589 exited during this report
+deadline-wall-clock / owner_stall: red rc 1 2.2 s: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+pass-cap-1s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (3, 'SIGKILL', 'survivor'), (15, 'SIGKILL', 'survivor'), (15, 'verdict')]
+pass-cap-1.5s / owner_stall: red rc 1 2.3 s: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+pass-cap-5s / owner_stall: red rc 1 2.3 s: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+windows-2s / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (5, 'SIGKILL', 'survivor'), (13, 'SIGKILL', 'survivor'), (13, 'verdict')]
+reap-window-2s / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (5, 'SIGKILL', 'survivor'), (13, 'SIGKILL', 'survivor'), (13, 'verdict')]
+no-shell-window / owner_shell_window: red rc 1 2.4 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+no-shell-window-kept / owner_shell_window: red rc 1 2.4 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+no-shell-window-pass / owner_shell_window: red rc 1 2.4 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+no-trap-window / owner_shell_window: red rc 1 2.4 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+root-killed-unresumed / owner_shell_window: red rc 1 2.4 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+shell-killed-when-resumed / owner_shell_window: red rc 1 2.3 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+shell-window-one-pass / owner_shell_window: red rc 1 3.9 s: AssertionError: the resumed shell was killed inside its own window, with no child to spare it
+shell-window-1s / owner_shell_window: red rc 1 3.8 s: AssertionError: the resumed shell was killed inside its own window, with no child to spare it
+trap-commands-no-window / owner_shell_window: red rc 1 2.7 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-never-spared / owner_shell_window: red rc 1 2.7 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-1s / owner_shell_window: red rc 1 3.6 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+resume-collected-shell / owner_late_cancel: red rc 1 0.2 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+window-without-resume / owner_late_cancel: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict after a late cancel
+rearm-without-sigcont / owner_late_cancel: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict after a late cancel
+resume-while-listed / owner_late_cancel: red rc 1 0.2 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+no-kill-before-raise / owner_survivor: red rc 1 18.2 s: AssertionError: stopped shell left behind
+no-kill-before-raise-empty / owner_survivor: red rc 1 18.2 s: AssertionError: stopped shell left behind
+kill-before-fail-spares-shell / owner_survivor: red rc 1 18.2 s: AssertionError: stopped shell left behind
+endless-unbounded / owner_vanishing: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict
+survivor-never-fails / owner_survivor: red rc 1 32.2 s: AssertionError: a survivor never failed the run
+survivor-never-fails-guarded / owner_survivor: red rc 1 32.2 s: AssertionError: a survivor never failed the run
+trust-sigkill / owner_survivor: red rc 1 32.2 s: AssertionError: a survivor never failed the run
+killed-counts-as-gone / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (5, 'SIGKILL', 'survivor'), (49, 'verdict')]
+report-without-state / owner_report: red rc 1 2.3 s: AssertionError: ('state S', 'pid 1890737 (python3) wchan hrtimer_nanosleep parent 1890736 (first parent 1890736) age 0.12 s start 77083685, not sent SIGKILL')
+report-without-wchan / owner_report: red rc 1 2.3 s: AssertionError: ('wchan ', 'pid 1890739 (python3) state S parent 1890738 (first parent 1890738) age 0.12 s start 77083912, not sent SIGKILL')
+report-without-state-or-wchan / owner_report: red rc 1 2.3 s: AssertionError: ('state S', 'pid 1890741 (python3) parent 1890740 (first parent 1890740) age 0.14 s start 77083921, not sent SIGKILL')
+grace-1s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (3, 'SIGKILL', 'survivor'), (27, 'SIGKILL', 'survivor'), (27, 'verdict')]
+return-with-zombies / owner_late_exit: red rc 1 0.6 s: AssertionError: cleanup returned with an owned child unreaped
+vanishing-waits-no-more / owner_late_exit: red rc 1 0.6 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.48 s, 1 census passes, slowest 0.48 s: pid 1890747 exited during this report
+resume-with-one-live / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(1, 'SIGCONT', 'shell'), (1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'child'), (21, 'SIGKILL', 'shell'), (21, 'SIGKILL', 'trap command'), (41, 'SIGKILL', 'shell'), (41, 'SIGKILL', 'trap command'), (41, 'verdict')]
+clock-always-cap / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (4, 'SIGKILL', 'survivor'), (28, 'SIGKILL', 'survivor'), (28, 'verdict')]
+killed-not-recorded / owner_survivor: red rc 1 1.2 s: AssertionError: ('sent SIGKILL ', 'CLEANUP FAILED: owned descendants remain after 1.00 s, 29 census passes, slowest 0.02 s: pid 1890753 (bash) state T wchan do_signal_stop parent 1890749 (first parent 1890749) age 1.04 s start 77084155, not sent SIGKILL; pid 1890754 (python3) state S wchan hrtimer_n
+signal-by-number / owner_reused_identity: red rc 1 0.1 s: AssertionError: a census entry was signalled by its number, after it changed hands
+parent-spared-past-kill-all / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a stubborn parent's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'parent'), (1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'child'), (29, 'SIGKILL', 'parent'), (29, 'SIGKILL', 'child'), (29, 'verdict')]
+parents-killed-at-grace / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a stubborn parent's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'parent'), (1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'parent'), (5, 'SIGKILL', 'child'), (29, 'SIGKILL', 'parent'), (29, 'SIGKILL', 'child'), (29, 'verdict')]
+vanishing-waits-30s-more / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a vanishing listing's stated seconds were not kept: [(89, 'verdict')]
+report-without-current-parent / owner_report: red rc 1 2.3 s: AssertionError: the report's current parent is not its own field: pid 1890760 (python3) state S wchan hrtimer_nanosleep (first parent 1) age 0.12 s start 77084171, not sent SIGKILL
+report-age-in-ticks / owner_report: red rc 1 2.3 s: AssertionError: the report's age is not the process's own, 0.10 to 0.14 s: pid 1890763 (python3) state S wchan hrtimer_nanosleep parent 1890761 (first parent 1890761) age -76313338.06 s start 77084180, not sent SIGKILL
+check-before-open / owner_reused_identity: red rc 1 0.1 s: AssertionError: a census entry was signalled by its number, after it changed hands
+no-sigterm / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(5, 'SIGKILL', 'survivor'), (29, 'SIGKILL', 'survivor'), (29, 'verdict')]
+kill-all-a-pass-late / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a stubborn parent's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'parent'), (1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'child'), (10, 'SIGKILL', 'parent'), (29, 'SIGKILL', 'parent'), (29, 'SIGKILL', 'child'), (29, 'verdict')]
+verdict-past-deadline / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (5, 'SIGKILL', 'survivor'), (30, 'SIGKILL', 'survivor'), (30, 'verdict')]
+resume-only-when-alone / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'child'), (12, 'SIGKILL', 'trap command'), (29, 'SIGKILL', 'shell'), (29, 'SIGKILL', 'trap command'), (29, 'verdict')]
+trap-window-from-grace / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'child'), (12, 'SIGCONT', 'shell'), (25, 'SIGKILL', 'shell'), (25, 'SIGKILL', 'trap command'), (45, 'SIGKILL', 'shell'), (45, 'SIGKILL', 'trap command'), (45, 'verdict')]
+shell-spared-only-while-stopped / owner_shell_window: red rc 1 2.4 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+trap-commands-until-grace / owner_shell_window: red rc 1 2.7 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+cap-on-total / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (4, 'SIGKILL', 'survivor'), (28, 'SIGKILL', 'survivor'), (28, 'verdict')]
+first-pass-full-cap / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (4, 'SIGKILL', 'survivor'), (28, 'SIGKILL', 'survivor'), (28, 'verdict')]
+vanishing-waits-from-grace / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a vanishing listing's stated seconds were not kept: [(45, 'verdict')]
+verdict-counts-census / owner_late_exit: red rc 1 0.6 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.49 s, 1 census passes, slowest 0.49 s: pid 1890783 exited during this report
+sigterm-needs-live-parent / owner_reparented: red rc 1 0.3 s: AssertionError: the re-parented descendant's SIGTERM waited for a later census: [2]
+resume-unless-reaped-now / owner_late_cancel: red rc 1 0.2 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+verdict-kills-only-the-killed / owner_survivor: red rc 1 18.2 s: AssertionError: stopped shell left behind
+report-parent-is-first-parent / owner_report: red rc 1 2.3 s: AssertionError: the report's current parent is not its own field: pid 1890794 (python3) state S wchan hrtimer_nanosleep parent 1 (first parent 1) age 0.12 s start 77084412, not sent SIGKILL
+owned-process mutants: PASS (74 mutants, 70 with a control that must fail)
