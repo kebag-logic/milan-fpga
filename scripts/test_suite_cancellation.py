@@ -767,7 +767,7 @@ def owner_stated_seconds() -> None:
     keeps its window, and so does what its trap starts, until pass 32 (15.5 s);
     the run fails 10 s later, in pass 52.
     """
-    # Above the largest PID Linux assigns, so none of these is ever a real process.
+    # Above the largest PID a process can have, so none of these is ever a real process.
     survivor, shell, command, owner_pid = 2 ** 22 + 1, 2 ** 22 + 2, 2 ** 22 + 3, 2 ** 22 + 4
     # A live process the census lists as the shell's child, and never as a parent,
     # so it is a stubborn leaf. It is never signalled.
