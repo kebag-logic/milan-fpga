@@ -221,13 +221,13 @@ Workstation process ownership requires pidfds and child adoption.
 Unsupported process facilities are refused before commands start.
 That refusal prints `REFUSED:` and exits 2, never a traceback.
 Cleanup allows two seconds of `SIGTERM` before escalating stubborn descendants.
-Two seconds later `SIGKILL` has reached every other descendant.
+Two seconds later `SIGKILL` has reached every other descendant except a cancelled shell, which keeps its own window.
 A descendant still listed ten seconds after that fails the run.
 A shell resumed late has ten seconds of its own to finish its terminal trap.
 These deadlines run on the owner's clock.
 One census pass advances that clock by at most half a second.
 A true survivor's deadline is 14 s into cleanup on the owner's clock.
-One started by a resumed shell's trap has its deadline 20 s after the resume.
+After a resume, every remaining descendant's deadline is 20 s after the resume, including one the trap started.
 That resume comes before 14 s, so this deadline comes under 34 s.
 A listing that dies inside every census waits 10 s more: under 44 s.
 The run fails in the first census pass at or past the deadline.
