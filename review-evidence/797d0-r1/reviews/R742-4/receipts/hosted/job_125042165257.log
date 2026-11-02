@@ -1,0 +1,190 @@
+﻿2026-11-02T01:14:18.5488500Z Current runner version: '2.338.2'
+2026-11-02T01:14:18.5506755Z ##[group]Runner Image Provisioner
+2026-11-02T01:14:18.5507392Z Hosted Compute Agent
+2026-11-02T01:14:18.5507758Z Version: 20261021.618
+2026-11-02T01:14:18.5508239Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-11-02T01:14:18.5508696Z Build Date: 2026-10-21T00:45:21Z
+2026-11-02T01:14:18.5509132Z Worker ID: {8d21dd7f-c2cd-44ff-b6a1-580ae4487828}
+2026-11-02T01:14:18.5509581Z Region: centralus
+2026-11-02T01:14:18.5509928Z Cloud: Azure
+2026-11-02T01:14:18.5510332Z ##[endgroup]
+2026-11-02T01:14:18.5511162Z ##[group]Operating System
+2026-11-02T01:14:18.5511594Z Ubuntu
+2026-11-02T01:14:18.5512132Z 24.04.5
+2026-11-02T01:14:18.5512456Z LTS
+2026-11-02T01:14:18.5512844Z ##[endgroup]
+2026-11-02T01:14:18.5513191Z ##[group]Runner Image
+2026-11-02T01:14:18.5513570Z Image: ubuntu-24.04
+2026-11-02T01:14:18.5513971Z Version: 20261025.353.1
+2026-11-02T01:14:18.5514741Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-02T01:14:18.5515718Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-11-02T01:14:18.5516276Z ##[endgroup]
+2026-11-02T01:14:18.5517065Z ##[group]GITHUB_TOKEN Permissions
+2026-11-02T01:14:18.5518273Z Actions: write
+2026-11-02T01:14:18.5518724Z Contents: read
+2026-11-02T01:14:18.5519073Z Metadata: read
+2026-11-02T01:14:18.5519489Z ##[endgroup]
+2026-11-02T01:14:18.5521185Z Secret source: Actions
+2026-11-02T01:14:18.5522020Z Cache mode: write
+2026-11-02T01:14:18.5522500Z Prepare workflow directory
+2026-11-02T01:14:18.5778827Z Prepare all required actions
+2026-11-02T01:14:18.5812153Z Getting action download info
+2026-11-02T01:14:18.8080237Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-02T01:14:18.9809527Z Complete job name: Cancel late CI failures
+2026-11-02T01:14:19.0469731Z ##[group]Run actions/checkout@v4
+2026-11-02T01:14:19.0470406Z with:
+2026-11-02T01:14:19.0470825Z   repository: kebag-logic/milan-fpga
+2026-11-02T01:14:19.0474514Z   token: ***
+2026-11-02T01:14:19.0474925Z   ssh-strict: true
+2026-11-02T01:14:19.0475294Z   ssh-user: git
+2026-11-02T01:14:19.0475686Z   persist-credentials: true
+2026-11-02T01:14:19.0476583Z   clean: true
+2026-11-02T01:14:19.0476982Z   sparse-checkout-cone-mode: true
+2026-11-02T01:14:19.0477437Z   fetch-depth: 1
+2026-11-02T01:14:19.0477797Z   fetch-tags: false
+2026-11-02T01:14:19.0478185Z   show-progress: true
+2026-11-02T01:14:19.0478578Z   lfs: false
+2026-11-02T01:14:19.0478972Z   submodules: false
+2026-11-02T01:14:19.0479351Z   set-safe-directory: true
+2026-11-02T01:14:19.0479797Z   allow-unsafe-pr-checkout: false
+2026-11-02T01:14:19.0480505Z env:
+2026-11-02T01:14:19.0480871Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:14:19.0481297Z   YOSYS_VERSION: v0.66
+2026-11-02T01:14:19.0481866Z ##[endgroup]
+2026-11-02T01:14:19.2772445Z Syncing repository: kebag-logic/milan-fpga
+2026-11-02T01:14:19.2774161Z ##[group]Getting Git version info
+2026-11-02T01:14:19.2774849Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+2026-11-02T01:14:19.2775754Z [command]/usr/bin/git version
+2026-11-02T01:14:19.2848693Z git version 2.56.0
+2026-11-02T01:14:19.2864609Z ##[endgroup]
+2026-11-02T01:14:19.2875476Z Temporarily overriding HOME='<home-path>/work/_temp/4fccf1c6-94e5-43cb-af65-ce8dd9ca6d43' before making global git config changes
+2026-11-02T01:14:19.2876795Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T01:14:19.2879919Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-11-02T01:14:19.2944056Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+2026-11-02T01:14:19.2945815Z ##[group]Initializing the repository
+2026-11-02T01:14:19.2946487Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+2026-11-02T01:14:19.3061579Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-02T01:14:19.3063122Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-02T01:14:19.3064087Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-02T01:14:19.3064883Z hint: call:
+2026-11-02T01:14:19.3065333Z hint:
+2026-11-02T01:14:19.3065769Z hint: 	git config --global init.defaultBranch <name>
+2026-11-02T01:14:19.3066296Z hint:
+2026-11-02T01:14:19.3066779Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-02T01:14:19.3067566Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-02T01:14:19.3068200Z hint:
+2026-11-02T01:14:19.3068557Z hint: 	git branch -m <name>
+2026-11-02T01:14:19.3068834Z hint:
+2026-11-02T01:14:19.3069270Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-02T01:14:19.3070176Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+2026-11-02T01:14:19.3082472Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-11-02T01:14:19.3279281Z ##[endgroup]
+2026-11-02T01:14:19.3279985Z ##[group]Disabling automatic garbage collection
+2026-11-02T01:14:19.3283296Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-02T01:14:19.3327569Z ##[endgroup]
+2026-11-02T01:14:19.3328173Z ##[group]Setting up auth
+2026-11-02T01:14:19.3334312Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T01:14:19.3389609Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T01:14:19.3725468Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T01:14:19.3763925Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T01:14:19.3959118Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T01:14:19.3998700Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T01:14:19.4202944Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-02T01:14:19.4262003Z ##[endgroup]
+2026-11-02T01:14:19.4262750Z ##[group]Fetching the repository
+2026-11-02T01:14:19.4272397Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +514d0f07f5ff78126741d4cf594627f5f4cc610d:refs/remotes/pull/815/merge
+2026-11-02T01:14:21.1285913Z From https://github.com/kebag-logic/milan-fpga
+2026-11-02T01:14:21.1287479Z  * [new ref]         514d0f07f5ff78126741d4cf594627f5f4cc610d -> pull/815/merge
+2026-11-02T01:14:21.1291004Z ##[endgroup]
+2026-11-02T01:14:21.1292337Z ##[group]Determining the checkout info
+2026-11-02T01:14:21.1293610Z ##[endgroup]
+2026-11-02T01:14:21.1294507Z [command]/usr/bin/git sparse-checkout disable
+2026-11-02T01:14:21.1350041Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-02T01:14:21.1386578Z ##[group]Checking out the ref
+2026-11-02T01:14:21.1388387Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/815/merge
+2026-11-02T01:14:21.3111268Z Note: switching to 'refs/remotes/pull/815/merge'.
+2026-11-02T01:14:21.3112309Z 
+2026-11-02T01:14:21.3112898Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-02T01:14:21.3114141Z changes and commit them, and you can discard any commits you make in this
+2026-11-02T01:14:21.3115363Z state without impacting any branches by switching back to a branch.
+2026-11-02T01:14:21.3116090Z 
+2026-11-02T01:14:21.3116620Z If you want to create a new branch to retain commits you create, you may
+2026-11-02T01:14:21.3117722Z do so (now or later) by using -c with the switch command. Example:
+2026-11-02T01:14:21.3118545Z 
+2026-11-02T01:14:21.3118815Z   git switch -c <new-branch-name>
+2026-11-02T01:14:21.3119351Z 
+2026-11-02T01:14:21.3119746Z Or undo this operation with:
+2026-11-02T01:14:21.3120248Z 
+2026-11-02T01:14:21.3120579Z   git switch -
+2026-11-02T01:14:21.3121126Z 
+2026-11-02T01:14:21.3122068Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-02T01:14:21.3123242Z 
+2026-11-02T01:14:21.3124529Z HEAD is now at 514d0f0 Merge 8d8c2e366a2d49506b91a195de0094a440e7bc39 into 1f29f189279f9fc0132f4918e47342b87d22f33a
+2026-11-02T01:14:21.3128985Z ##[endgroup]
+2026-11-02T01:14:21.3177329Z [command]/usr/bin/git log -1 --format=%H
+2026-11-02T01:14:21.3207938Z 514d0f07f5ff78126741d4cf594627f5f4cc610d
+2026-11-02T01:14:21.3425692Z ##[group]Run set -euo pipefail
+2026-11-02T01:14:21.3426621Z set -euo pipefail
+2026-11-02T01:14:21.3427356Z cpus="$(nproc)"
+2026-11-02T01:14:21.3428070Z test "$cpus" -gt 0
+2026-11-02T01:14:21.3428848Z campaign=$(( cpus < 4 ? cpus : 4 ))
+2026-11-02T01:14:21.3429788Z simulations=$(( cpus < 4 ? cpus : 4 ))
+2026-11-02T01:14:21.3430707Z tool_build=$(( cpus < 8 ? cpus : 8 ))
+2026-11-02T01:14:21.3431573Z {
+2026-11-02T01:14:21.3432451Z   printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+2026-11-02T01:14:21.3433420Z   printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
+2026-11-02T01:14:21.3434435Z   printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+2026-11-02T01:14:21.3435393Z   printf 'VERILATOR_JOBS=%s\n' "$cpus"
+2026-11-02T01:14:21.3436320Z   printf 'SIM_JOBS=%s\n' "$simulations"
+2026-11-02T01:14:21.3437295Z   printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+2026-11-02T01:14:21.3438247Z } >> "$GITHUB_ENV"
+2026-11-02T01:14:21.3459749Z shell: /usr/bin/bash -e {0}
+2026-11-02T01:14:21.3460462Z env:
+2026-11-02T01:14:21.3461049Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:14:21.3461852Z   YOSYS_VERSION: v0.66
+2026-11-02T01:14:21.3462464Z ##[endgroup]
+2026-11-02T01:14:21.3621091Z ##[group]Run python3 scripts/ci_fail_fast.py tail
+2026-11-02T01:14:21.3622186Z python3 scripts/ci_fail_fast.py tail
+2026-11-02T01:14:21.3640056Z shell: /usr/bin/bash -e {0}
+2026-11-02T01:14:21.3640687Z env:
+2026-11-02T01:14:21.3641213Z   VERILATOR_VERSION: v5.050
+2026-11-02T01:14:21.3642053Z   YOSYS_VERSION: v0.66
+2026-11-02T01:14:21.3642641Z   CI_BUILD_JOBS: 4
+2026-11-02T01:14:21.3643198Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T01:14:21.3643819Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T01:14:21.3644403Z   VERILATOR_JOBS: 4
+2026-11-02T01:14:21.3644954Z   SIM_JOBS: 4
+2026-11-02T01:14:21.3645575Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T01:14:21.3651519Z   GH_TOKEN: ***
+2026-11-02T01:14:21.3653563Z   CI_TAIL_NEEDS: {
+  "ci-fail-fast": {
+    "result": "cancelled",
+    "outputs": {
+      "observer_only_error": "false"
+    }
+  },
+  "ci-manifest": {
+    "result": "success",
+    "outputs": {
+      "observer_only_error": "false"
+    }
+  }
+}
+2026-11-02T01:14:21.3655628Z ##[endgroup]
+2026-11-02T01:14:22.7356547Z Cancelled runs: [41358971729, 41358971669]
+2026-11-02T01:14:22.7529052Z Post job cleanup.
+2026-11-02T01:14:22.8124752Z [command]/usr/bin/git version
+2026-11-02T01:14:22.8160961Z git version 2.56.0
+2026-11-02T01:14:22.8190367Z Temporarily overriding HOME='<home-path>/work/_temp/c9cff4e3-df28-47d5-8f60-7c6b73fec311' before making global git config changes
+2026-11-02T01:14:22.8191174Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T01:14:22.8192946Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-11-02T01:14:22.8233967Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T01:14:22.8269724Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T01:14:22.8502813Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T01:14:22.8545138Z http.https://github.com/.extraheader
+2026-11-02T01:14:22.8554998Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-02T01:14:22.8601289Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T01:14:22.8822844Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T01:14:22.8880972Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T01:14:22.9202373Z Cleaning up orphan processes
+2026-11-02T01:14:22.9496179Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
