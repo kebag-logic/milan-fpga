@@ -269,11 +269,15 @@ Removed process facilities must produce the refusal, not a traceback.
 A cleanup deadline advances by at most half a second for each census pass.
 A stalled or starved owner therefore never fails the run before its windows after SIGKILL have elapsed on its own clock.
 A child that exits during a census is collected, not reported as remaining.
-A descendant re-parented during cleanup keeps its identity and still receives its `SIGTERM`.
+A descendant re-parented during cleanup keeps its identity and still receives its `SIGTERM` in that pass.
 A shell resumed late keeps its whole window to run its terminal trap and the commands it starts.
-A cancellation that arrives after the shell was collected opens no such window.
+That holds through builtins after its last command, with no child left to spare it.
+A cancellation that arrives after the shell was collected opens no such window, even in that pass.
 A descendant that outlives `SIGKILL` still fails the run, and takes the stopped shell with it.
 That message prints each remaining process's scheduler state, wait channel, parent and age.
+On an owner whose every census pass stalls, the stated seconds each hold to the pass:
+grace, a survivor's 14 s, and a late resume's window and its 20 s.
+A census entry whose number now names another process is never signalled.
 The [shadow lifecycle controls](../../tb/verilator/gptp_shadow/README.md#mutation-isolation-and-cancellation)
 also exercise cancellation with both production drivers nested.
 

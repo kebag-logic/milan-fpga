@@ -12,9 +12,10 @@ import sys
 import tempfile
 import threading
 import time
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
+from types import SimpleNamespace
 
 import owned_process
 from owned_process import Cancelled, OwnedProcesses
@@ -454,26 +455,33 @@ def owner_report(parent: Path) -> None:
 
 
 def owner_reparented(parent: Path) -> None:
-    """A descendant re-parented by the first SIGTERM still receives its own (#833)."""
+    """A descendant re-parented by the first SIGTERM still receives its own, in that pass (#833)."""
     scratch = parent / "owner-reparented"
     scratch.mkdir()
     ready, marker = scratch / "ready", scratch / "marker"
     middle = subprocess.Popen([sys.executable, "-c", PARENT, COOPERATIVE, str(ready), str(marker)])
     child = published(ready)
     with OwnedProcesses() as owner:
-        census = owner._descendants
-        seen = []
+        census, send = owner._descendants, owner._send
+        seen, terminated_in = [], []
 
         def reparenting() -> dict:
             """Exactly the recorded race: this census names a parent gone before any signal."""
             listed = census()
-            if not seen:
-                seen.append(True)
+            seen.append(True)
+            if len(seen) == 1:
                 middle.kill()
                 eventually(lambda: parent_of(child) == os.getpid(), 15, "child was never re-parented")
             return listed
-        owner._descendants = reparenting
+
+        def sending(target: int, start: str, signum: int) -> bool:
+            """Note the census pass in which the child is sent SIGTERM."""
+            if target == child and signum == signal.SIGTERM:
+                terminated_in.append(len(seen))
+            return send(target, start, signum)
+        owner._descendants, owner._send = reparenting, sending
     assert marker.exists(), "re-parented descendant was treated as new and never got SIGTERM"
+    assert terminated_in[:1] == [1], f"the re-parented descendant's SIGTERM waited for a later census: {terminated_in}"
     middle.wait()
     print("owner-reparented: " + str(dict(sigterm_during_grace=True)), flush=True)
 
@@ -540,13 +548,18 @@ def owner_stall(parent: Path) -> None:
 
 
 def owner_shell_window(parent: Path) -> None:
-    """A shell resumed past the kill time runs its trap, and what it starts, before any SIGKILL (#833)."""
+    """A shell resumed past the kill time runs its whole trap, and what it starts, before any SIGKILL (#833)."""
     scratch = parent / "owner-shell-window"
     scratch.mkdir()
     ready, marker, command = scratch / "ready", scratch / "trap-ran", scratch / "trap-command-ran"
+    idle, last = scratch / "idle", scratch / "trap-finished"
+    os.mkfifo(idle)
     # The trap's external command outlasts the 1 s such a command had before #833,
     # as the sweep's EXIT trap runs rm, so only the shell's whole window lets it finish.
-    script = (f"trap 'echo trapped > \"{marker}\"; sleep 1.5 && echo ran > \"{command}\"; exit 143' TERM\n"
+    # Then 0.3 s of builtins with no child, as the sweep's trap echoes before its rm:
+    # no live child spares the shell for those census passes, only its own window.
+    script = (f"trap 'echo trapped > \"{marker}\"; sleep 1.5 && echo ran > \"{command}\"; "
+              f"read -t 0.3 <> \"{idle}\"; echo done > \"{last}\"; exit 143' TERM\n"
               f"{sys.executable} -c \"$STUBBORN\" \"{ready}\" &\nwait\n")
     env = dict(os.environ, STUBBORN=STUBBORN)
     blocked = []
@@ -578,7 +591,9 @@ def owner_shell_window(parent: Path) -> None:
             pass
     assert marker.exists(), "the shell was killed in the pass that resumed it, before its trap"
     assert command.exists(), "the resumed shell's trap command was killed inside the shell's window"
-    print("owner-shell-window: " + str(dict(trap_ran_after_kill_time=True, trap_command_ran=True)), flush=True)
+    assert last.exists(), "the resumed shell was killed inside its own window, with no child to spare it"
+    print("owner-shell-window: " + str(dict(trap_ran_after_kill_time=True, trap_command_ran=True,
+                                            trap_finished=True)), flush=True)
 
 
 def owner_survivor(parent: Path) -> None:
@@ -657,7 +672,7 @@ def owner_vanishing() -> None:
 
 
 def owner_late_cancel() -> None:
-    """A cancel during cleanup, after the shell was collected, opens no trap window (#833)."""
+    """A cancel during cleanup, after the shell was collected, opens no trap window, even in that pass (#833)."""
     # A re-armed window would hold the verdict past this bound: TRAP_SECONDS is longer.
     with stages(GRACE_SECONDS=0.1, KILL_ALL_SECONDS=0.1, TRAP_SECONDS=30.0, REAP_SECONDS=0.3):
         with OwnedProcesses() as owner:
@@ -679,9 +694,10 @@ def owner_late_cancel() -> None:
                     os.kill(os.getpid(), signal.SIGTERM)
                 assert not resumed, "a cancel after the shell was collected resumed it, re-arming its trap window"
                 assert time.monotonic() - since[0] < 15, "cleanup never reached a verdict after a late cancel"
-                return {gone: (os.getpid(), "0")}
+                # The shell is listed too, as by a census read just before its pass collected it.
+                return {gone: (os.getpid(), "0"), owner.process.pid: (os.getpid(), "1")}
             owner._descendants = listed
-            owner._reap = lambda: {gone}
+            owner._reap = lambda: {gone, owner.process.pid}
             try:
                 owner.run(["true"])
                 raise AssertionError("an endless listing did not fail the run")
@@ -691,6 +707,99 @@ def owner_late_cancel() -> None:
             owner.cancel_signal = 0
     assert "CLEANUP FAILED" in failure and "exited during this report" in failure, failure
     print("owner-late-cancel: " + str(dict(verdict_without_trap_window=True)), flush=True)
+
+
+@contextmanager
+def starved_clock() -> Iterator[None]:
+    """Each pause of the owner lasts one second of its own clock, twice the pass cap, and no real time."""
+    now = [0.0]
+
+    def pause(_seconds: float) -> None:
+        """One pass's pause, whatever it asks for."""
+        now[0] += 1.0
+    real = owned_process.time
+    owned_process.time = SimpleNamespace(monotonic=lambda: now[0], sleep=pause)
+    try:
+        yield
+    finally:
+        owned_process.time = real
+
+
+def starved_cleanup(owner: OwnedProcesses, listing: Callable[[int], dict], names: dict) -> list[tuple]:
+    """Run one cleanup over a listing by pass number; return each signal and the verdict by pass."""
+    events, passes = [], []
+
+    def census() -> dict:
+        """List what this pass lists; nothing here is ever collected."""
+        passes.append(True)
+        assert len(passes) < 200, "cleanup never reached a verdict on the owner's clock"
+        return listing(len(passes))
+
+    def send(pid: int, _start: str, signum: int) -> bool:
+        """Note the signal and its pass; no process receives it."""
+        events.append((len(passes), signal.Signals(signum).name, names[pid]))
+        return True
+    owner._descendants, owner._reap, owner._send = census, set, send
+    owner._signal = lambda _fd, signum: events.append((len(passes), signal.Signals(signum).name, "shell"))
+    try:
+        owner._cleanup()
+        events.append((len(passes), "no verdict"))
+    except RuntimeError:
+        events.append((len(passes), "verdict"))
+    finally:
+        del owner._descendants, owner._reap, owner._send, owner._signal
+    return events
+
+
+def owner_stated_seconds() -> None:
+    """The product's own seconds hold, pass by pass, on a starved owner's clock (#833).
+
+    Every pass takes a second here, so each adds the cap, half a second, to the
+    owner's clock: pass n is at (n - 1) / 2 s. Grace ends in pass 5 (2 s) and a
+    survivor fails the run in pass 29 (14 s). A shell resumed in pass 12 (5.5 s)
+    keeps its window, and so does what its trap starts, until pass 32 (15.5 s);
+    the run fails 10 s later, in pass 52.
+    """
+    # Above the largest PID Linux assigns, so none of these is ever a real process.
+    survivor, shell, command, owner_pid = 2 ** 22 + 1, 2 ** 22 + 2, 2 ** 22 + 3, 2 ** 22 + 4
+    # A live process the census lists as the shell's child, and never as a parent,
+    # so it is a stubborn leaf. It is never signalled.
+    child = os.getpid()
+    names = {survivor: "survivor", shell: "shell", command: "trap command", child: "child"}
+
+    def late(n: int) -> dict:
+        """The child outlives its SIGKILL until pass 12; then the trap's command is listed."""
+        if n < 12:
+            return {shell: (owner_pid, "2"), child: (shell, "4")}
+        return {shell: (owner_pid, "2"), command: (shell, "3")}
+    with OwnedProcesses() as owner, starved_clock():
+        alone = starved_cleanup(owner, lambda _n: {survivor: (os.getpid(), "1")}, names)
+        owner.process, owner.root_notified = SimpleNamespace(pid=shell), True
+        try:
+            resumed = starved_cleanup(owner, late, names)
+        finally:
+            owner.process, owner.root_notified = None, False
+    expected = [(1, "SIGTERM", "survivor"), (5, "SIGKILL", "survivor"), (29, "SIGKILL", "survivor"), (29, "verdict")]
+    assert alone == expected, f"a survivor's stated seconds were not kept on the owner's clock: {alone}"
+    expected = [(1, "SIGTERM", "child"), (5, "SIGKILL", "child"), (12, "SIGCONT", "shell"),
+                (32, "SIGKILL", "shell"), (32, "SIGKILL", "trap command"),
+                (52, "SIGKILL", "shell"), (52, "SIGKILL", "trap command"), (52, "verdict")]
+    assert resumed == expected, f"a late resume's stated seconds were not kept on the owner's clock: {resumed}"
+    print("owner-stated-seconds: " + str(dict(grace_pass=5, survivor_verdict_pass=29, resume_pass=12,
+                                              window_end_pass=32, resumed_verdict_pass=52)), flush=True)
+
+
+def owner_reused_identity() -> None:
+    """A census entry whose number now names another process is never signalled (#833)."""
+    sleeper = subprocess.Popen(["sleep", "60"])
+    try:
+        start = identity(sleeper.pid)[0]
+        sent = OwnedProcesses()._send(sleeper.pid, str(int(start) - 1), signal.SIGKILL)
+        assert not sent and running(sleeper.pid, start), "a census entry whose process was replaced was signalled"
+    finally:
+        sleeper.kill()
+        sleeper.wait()
+    print("owner-reused-identity: " + str(dict(signalled=False)), flush=True)
 
 
 def main() -> int:
@@ -706,6 +815,8 @@ def main() -> int:
             owner_survivor(parent)
             owner_vanishing()
             owner_late_cancel()
+            owner_stated_seconds()
+            owner_reused_identity()
             for mode in ("pass", "fail", "masked", "timeout"):
                 ordinary(parent, mode)
             ownership_refusal(parent)
@@ -727,6 +838,7 @@ def main() -> int:
           "partial logs, attributed cancellation reports, lock wait, next-suite sentinel, "
           "ordinary/masked/timeout, hard KILL/HUP stops, "
           "facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, late cancel, "
+          "stated seconds, reused identity, "
           "unsafe negative controls)")
     return 0
 
