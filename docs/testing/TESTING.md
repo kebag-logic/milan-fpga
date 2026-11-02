@@ -259,7 +259,8 @@ Together they cover all that the row states.
 Times are cleanup's, on the owner's clock, and each deadline fails the run in the first census pass at or past it.
 `owner_stated_seconds` checks its rows on a starved owner, whose clock lands a tick, about a microsecond, short of each stated time and then on it.
 Its resume-timing matrix resumes a cancelled shell in each class of census pass, at the earliest and the latest pass of the class.
-The first pass of cleanup is always inside grace, since its clock is its own length, so the first pass past grace is the first at or past 2 s.
+A cell's domain is its listed resume, not the whole of its class.
+The first pass of cleanup is always inside grace, since its clock is its own length, at most half a second, so the first pass past grace is the first at or past 2 s.
 In each cell the shell is alone after the resume, or its trap starts a command, listed from the pass after the resume, live or not.
 A live descendant new since the first census is a real process, which the product sees as live; any other is a number no process has, which, like a zombie, it sees as not live.
 Each cell's listing has the words below, which its failure prints.

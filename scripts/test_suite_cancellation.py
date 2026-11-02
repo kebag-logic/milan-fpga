@@ -749,8 +749,9 @@ def owner_stated_seconds() -> None:
     listed while a cancelled shell is still stopped. The resume-timing matrix resumes the shell in the first
     pass; in a later pass inside grace, the second or the last before 2 s; in the first pass past grace, at
     2 s; and in a later one, the next or the last before 14 s. In each the shell is then alone, or its trap
-    starts a command, live or not: `stated_liveness` lists the live ones. Other listings resume it at 1 s, 3 s
-    and 5.5 s, with that command listed from the resume, and never. Alone, it is also resumed at 1 s and 10 s.
+    starts a command, live or not: `stated_liveness` lists the live ones. Other listings resume it at 1 s, 3 s,
+    5.5 s and a tick before 14 s, with that command listed from the resume, and never. Alone, it is also resumed
+    at 1 s and 10 s.
     """
     # Above the largest PID a process can have, so none of these is ever a real process.
     survivor, shell, command, owner_pid, parent, gone, cleanup, zombie = range(2 ** 22 + 1, 2 ** 22 + 9)
@@ -810,7 +811,8 @@ def owner_stated_seconds() -> None:
              [(0, "SIGTERM", "child"), *[(2, "SIGKILL", name) for name in ("child", "cleanup command")],
               *[(14, "SIGKILL", name) for name in ("shell", "child", "cleanup command")], (14, "verdict")], shell)
         # The resume-timing matrix: each class of pass at its earliest and its latest, the shell then alone or with
-        # a command its trap starts after the resume. That command after a first-pass resume is the listing above.
+        # a command its trap starts after the resume. That command after a first-pass resume is the listing
+        # "a first-pass resume" above.
         for when, resume in RESUME_MATRIX:
             kept(f"a lone {when} resume", cell(resume), window(resume, ("shell",)), shell)
             if resume:
