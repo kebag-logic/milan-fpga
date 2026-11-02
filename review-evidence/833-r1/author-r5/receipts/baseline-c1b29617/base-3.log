@@ -1,0 +1,19 @@
+none / owner_report: green rc 0 0.3 s: owner_report: PASS
+none / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+none / owner_late_exit: green rc 0 0.8 s: owner_late_exit: PASS
+none / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+none / owner_shell_window: green rc 0 3.3 s: owner_shell_window: PASS
+none / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+none / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+none / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+none / whole: green rc 0 57.9 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+cleanup-does-nothing / owner_report: green rc 0 0.2 s: owner_report: PASS
+cleanup-does-nothing / owner_reparented: red rc 1 0.2 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+cleanup-does-nothing / owner_late_exit: cut rc None 150.0 s: 
+cleanup-does-nothing / owner_stall: red rc 1 0.2 s: AssertionError: the stall was charged in full: SIGKILL in pass []
+cleanup-does-nothing / owner_shell_window: red rc 1 0.2 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+cleanup-does-nothing / owner_survivor: red rc 1 0.2 s: owned_process.Cancelled: signal 15
+cleanup-does-nothing / owner_vanishing: red rc 1 0.1 s: AssertionError: an endless listing did not fail the run
+cleanup-does-nothing / owner_late_cancel: red rc 1 0.2 s: AssertionError: an endless listing did not fail the run
+cleanup-does-nothing / whole: red rc 1 0.3 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+owned-process mutants: PASS (1 mutants, 0 with a control that must fail)

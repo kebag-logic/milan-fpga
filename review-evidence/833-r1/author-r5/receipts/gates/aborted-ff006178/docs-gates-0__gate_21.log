@@ -1,0 +1,4 @@
+# head ff006178e91126737fb32cb187f968d6f1d57461 job docs-gates-0 step gate_21: Bare-metal scope gate
+# clone $VALIDATION_STORAGE/833-a726e/gates/run1/docs-gates-0/wt
+  - scripts/test_suite_cancellation.py:770: [T] retired-stack term 'Linux': '# Above the largest PID Linux assigns, so none of these is ever a real process.' (#259: the checkout is bare-metal only; history lives in git)
+baremetal-only: FAIL (1 finding(s) across 1433 scanned file(s))

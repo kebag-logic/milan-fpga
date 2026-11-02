@@ -1,0 +1,155 @@
+none / owner_report: green rc 0 0.2 s: owner_report: PASS
+none / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+none / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+none / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+none / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+none / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+none / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+none / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+none / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+none / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+none / whole: green rc 0 58.1 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+rearm-without-sigcont / owner_report: green rc 0 0.2 s: owner_report: PASS
+rearm-without-sigcont / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+rearm-without-sigcont / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+rearm-without-sigcont / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+rearm-without-sigcont / owner_shell_window: red rc 1 11.4 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+rearm-without-sigcont / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+rearm-without-sigcont / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+rearm-without-sigcont / owner_late_cancel: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict after a late cancel
+rearm-without-sigcont / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'child'), (32, 'SIGKILL', 'shell'), (32, 'SIGKILL', 'trap command'), (52, 'SIGKILL', 'shell'), (52, 'SIGKILL', 'trap command'), (52, 'verdict')]
+rearm-without-sigcont / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+rearm-without-sigcont / whole: red rc 1 15.2 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+resume-while-listed / owner_report: green rc 0 0.2 s: owner_report: PASS
+resume-while-listed / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+resume-while-listed / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+resume-while-listed / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+resume-while-listed / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+resume-while-listed / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+resume-while-listed / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+resume-while-listed / owner_late_cancel: red rc 1 0.2 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+resume-while-listed / owner_stated_seconds: green rc 0 0.1 s: owner_stated_seconds: PASS
+resume-while-listed / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+resume-while-listed / whole: red rc 1 8.9 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+no-kill-before-raise / owner_report: green rc 0 0.2 s: owner_report: PASS
+no-kill-before-raise / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+no-kill-before-raise / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+no-kill-before-raise / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+no-kill-before-raise / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+no-kill-before-raise / owner_survivor: red rc 1 18.2 s: AssertionError: stopped shell left behind
+no-kill-before-raise / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+no-kill-before-raise / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+no-kill-before-raise / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (5, 'SIGKILL', 'survivor'), (29, 'verdict')]
+no-kill-before-raise / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+no-kill-before-raise / whole: red rc 1 25.1 s: AssertionError: stopped shell left behind
+no-kill-before-raise-empty / owner_report: green rc 0 0.2 s: owner_report: PASS
+no-kill-before-raise-empty / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+no-kill-before-raise-empty / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+no-kill-before-raise-empty / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+no-kill-before-raise-empty / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+no-kill-before-raise-empty / owner_survivor: red rc 1 18.2 s: AssertionError: stopped shell left behind
+no-kill-before-raise-empty / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+no-kill-before-raise-empty / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+no-kill-before-raise-empty / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (5, 'SIGKILL', 'survivor'), (29, 'verdict')]
+no-kill-before-raise-empty / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+no-kill-before-raise-empty / whole: red rc 1 25.2 s: AssertionError: stopped shell left behind
+kill-before-fail-spares-shell / owner_report: green rc 0 0.2 s: owner_report: PASS
+kill-before-fail-spares-shell / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+kill-before-fail-spares-shell / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+kill-before-fail-spares-shell / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+kill-before-fail-spares-shell / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+kill-before-fail-spares-shell / owner_survivor: red rc 1 18.2 s: AssertionError: stopped shell left behind
+kill-before-fail-spares-shell / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+kill-before-fail-spares-shell / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+kill-before-fail-spares-shell / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'child'), (5, 'SIGKILL', 'child'), (12, 'SIGCONT', 'shell'), (32, 'SIGKILL', 'shell'), (32, 'SIGKILL', 'trap command'), (52, 'SIGKILL', 'trap command'), (52, 'verdict')]
+kill-before-fail-spares-shell / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+kill-before-fail-spares-shell / whole: red rc 1 25.1 s: AssertionError: stopped shell left behind
+endless-unbounded / owner_report: green rc 0 0.2 s: owner_report: PASS
+endless-unbounded / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+endless-unbounded / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+endless-unbounded / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+endless-unbounded / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+endless-unbounded / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+endless-unbounded / owner_vanishing: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict
+endless-unbounded / owner_late_cancel: red rc 1 15.2 s: AssertionError: cleanup never reached a verdict after a late cancel
+endless-unbounded / owner_stated_seconds: green rc 0 0.1 s: owner_stated_seconds: PASS
+endless-unbounded / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+endless-unbounded / whole: red rc 1 23.2 s: AssertionError: cleanup never reached a verdict
+survivor-never-fails / owner_report: green rc 0 0.2 s: owner_report: PASS
+survivor-never-fails / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+survivor-never-fails / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+survivor-never-fails / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+survivor-never-fails / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+survivor-never-fails / owner_survivor: red rc 1 32.2 s: AssertionError: a survivor never failed the run
+survivor-never-fails / owner_vanishing: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict
+survivor-never-fails / owner_late_cancel: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict after a late cancel
+survivor-never-fails / owner_stated_seconds: red rc 1 0.1 s: AssertionError: cleanup never reached a verdict on the owner's clock
+survivor-never-fails / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+survivor-never-fails / whole: red rc 1 39.1 s: AssertionError: a survivor never failed the run
+survivor-never-fails-guarded / owner_report: green rc 0 0.2 s: owner_report: PASS
+survivor-never-fails-guarded / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+survivor-never-fails-guarded / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+survivor-never-fails-guarded / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+survivor-never-fails-guarded / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+survivor-never-fails-guarded / owner_survivor: red rc 1 32.2 s: AssertionError: a survivor never failed the run
+survivor-never-fails-guarded / owner_vanishing: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict
+survivor-never-fails-guarded / owner_late_cancel: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict after a late cancel
+survivor-never-fails-guarded / owner_stated_seconds: red rc 1 0.1 s: AssertionError: cleanup never reached a verdict on the owner's clock
+survivor-never-fails-guarded / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+survivor-never-fails-guarded / whole: red rc 1 39.0 s: AssertionError: a survivor never failed the run
+trust-sigkill / owner_report: green rc 0 0.2 s: owner_report: PASS
+trust-sigkill / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+trust-sigkill / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+trust-sigkill / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+trust-sigkill / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+trust-sigkill / owner_survivor: red rc 1 32.2 s: AssertionError: a survivor never failed the run
+trust-sigkill / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+trust-sigkill / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+trust-sigkill / owner_stated_seconds: red rc 1 0.1 s: AssertionError: cleanup never reached a verdict on the owner's clock
+trust-sigkill / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+trust-sigkill / whole: red rc 1 39.0 s: AssertionError: a survivor never failed the run
+killed-counts-as-gone / owner_report: green rc 0 0.2 s: owner_report: PASS
+killed-counts-as-gone / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+killed-counts-as-gone / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+killed-counts-as-gone / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+killed-counts-as-gone / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+killed-counts-as-gone / owner_survivor: green rc 0 11.6 s: owner_survivor: PASS
+killed-counts-as-gone / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+killed-counts-as-gone / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+killed-counts-as-gone / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (5, 'SIGKILL', 'survivor'), (49, 'verdict')]
+killed-counts-as-gone / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+killed-counts-as-gone / whole: red rc 1 20.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(1, 'SIGTERM', 'survivor'), (5, 'SIGKILL', 'survivor'), (49, 'verdict')]
+report-without-state / owner_report: red rc 1 2.2 s: AssertionError: ('state S', 'pid 1105 (python3) wchan hrtimer_nanosleep parent 1104 (first parent 1104) age 0.02 s start 76262816, not sent SIGKILL')
+report-without-state / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+report-without-state / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+report-without-state / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+report-without-state / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+report-without-state / owner_survivor: red rc 1 1.2 s: AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 50 census passes, slowest 0.00 s: pid 1215 (bash) wchan do_signal_stop parent 1213 (first parent 1213) age 1.05 s start 76263264, not sent SIGKILL; pid 1216 (python3) wchan hrtimer_nanosleep parent 1215 (first parent 
+report-without-state / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+report-without-state / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+report-without-state / owner_stated_seconds: green rc 0 0.1 s: owner_stated_seconds: PASS
+report-without-state / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+report-without-state / whole: red rc 1 2.2 s: AssertionError: ('state S', 'pid 1226 (python3) wchan hrtimer_nanosleep parent 1224 (first parent 1224) age 0.02 s start 76263394, not sent SIGKILL')
+report-without-wchan / owner_report: red rc 1 2.2 s: AssertionError: ('wchan ', 'pid 1227 (python3) state S parent 1225 (first parent 1225) age 0.04 s start 76263397, not sent SIGKILL')
+report-without-wchan / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+report-without-wchan / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+report-without-wchan / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+report-without-wchan / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+report-without-wchan / owner_survivor: red rc 1 1.2 s: AssertionError: ('wchan ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 50 census passes, slowest 0.00 s: pid 1297 (bash) state T parent 1292 (first parent 1292) age 1.04 s start 76263614, not sent SIGKILL; pid 1298 (python3) state S parent 1297 (first parent 1297) age 1.04 s start 762636
+report-without-wchan / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+report-without-wchan / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+report-without-wchan / owner_stated_seconds: green rc 0 0.1 s: owner_stated_seconds: PASS
+report-without-wchan / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+report-without-wchan / whole: red rc 1 2.2 s: AssertionError: ('wchan ', 'pid 1319 (python3) state S parent 1318 (first parent 1318) age 0.02 s start 76263758, not sent SIGKILL')
+report-without-state-or-wchan / owner_report: red rc 1 2.2 s: AssertionError: ('state S', 'pid 1321 (python3) parent 1320 (first parent 1320) age 0.02 s start 76263788, not sent SIGKILL')
+report-without-state-or-wchan / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+report-without-state-or-wchan / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+report-without-state-or-wchan / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+report-without-state-or-wchan / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+report-without-state-or-wchan / owner_survivor: red rc 1 1.2 s: AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 50 census passes, slowest 0.00 s: pid 1335 (bash) parent 1333 (first parent 1333) age 1.04 s start 76263933, not sent SIGKILL; pid 1336 (python3) parent 1335 (first parent 1335) age 1.04 s start 76263933, sent SIGKILL
+report-without-state-or-wchan / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+report-without-state-or-wchan / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+report-without-state-or-wchan / owner_stated_seconds: green rc 0 0.1 s: owner_stated_seconds: PASS
+report-without-state-or-wchan / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+report-without-state-or-wchan / whole: red rc 1 2.2 s: AssertionError: ('state S', 'pid 1345 (python3) parent 1343 (first parent 1343) age 0.04 s start 76264066, not sent SIGKILL')
+owned-process mutants: PASS (13 mutants, 13 with a control that must fail)

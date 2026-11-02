@@ -1,0 +1,5 @@
+none: red 0/16, seconds min 3.2 max 3.2, words []
+shell-killed-when-resumed: red 16/16, seconds min 1.4 max 1.5, words ['owner_shell_window FAIL 1.3s AssertionError: the shell was killed in the pass that resumed it, before its trap']
+shell-window-one-pass: red 16/16, seconds min 2.9 max 3.0, words ['owner_shell_window FAIL 2.8s AssertionError: the resumed shell was killed inside its own window, with no child to spare it']
+shell-window-1s: red 16/16, seconds min 2.9 max 3.0, words ['owner_shell_window FAIL 2.8s AssertionError: the resumed shell was killed inside its own window, with no child to spare it']
+rc=0

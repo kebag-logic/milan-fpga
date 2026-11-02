@@ -1,0 +1,199 @@
+none / owner_report: green rc 0 0.2 s: owner_report: PASS
+none / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+none / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+none / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+none / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+none / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+none / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+none / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+none / whole: green rc 0 58.7 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+shell-killed-when-resumed / owner_report: green rc 0 0.2 s: owner_report: PASS
+shell-killed-when-resumed / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+shell-killed-when-resumed / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+shell-killed-when-resumed / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+shell-killed-when-resumed / owner_shell_window: red rc 1 1.7 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+shell-killed-when-resumed / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+shell-killed-when-resumed / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+shell-killed-when-resumed / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+shell-killed-when-resumed / whole: red rc 1 5.5 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+shell-window-one-pass / owner_report: green rc 0 0.2 s: owner_report: PASS
+shell-window-one-pass / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+shell-window-one-pass / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+shell-window-one-pass / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+shell-window-one-pass / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+shell-window-one-pass / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+shell-window-one-pass / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+shell-window-one-pass / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+shell-window-one-pass / whole: green rc 0 58.8 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+shell-window-1s / owner_report: green rc 0 0.1 s: owner_report: PASS
+shell-window-1s / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+shell-window-1s / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+shell-window-1s / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+shell-window-1s / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+shell-window-1s / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+shell-window-1s / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+shell-window-1s / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+shell-window-1s / whole: green rc 0 58.8 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+trap-commands-no-window / owner_report: green rc 0 0.1 s: owner_report: PASS
+trap-commands-no-window / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+trap-commands-no-window / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+trap-commands-no-window / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+trap-commands-no-window / owner_shell_window: red rc 1 1.7 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-no-window / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+trap-commands-no-window / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+trap-commands-no-window / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+trap-commands-no-window / whole: red rc 1 5.5 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-never-spared / owner_report: green rc 0 0.1 s: owner_report: PASS
+trap-commands-never-spared / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+trap-commands-never-spared / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+trap-commands-never-spared / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+trap-commands-never-spared / owner_shell_window: red rc 1 1.7 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-never-spared / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+trap-commands-never-spared / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+trap-commands-never-spared / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+trap-commands-never-spared / whole: red rc 1 5.5 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-1s / owner_report: green rc 0 0.2 s: owner_report: PASS
+trap-commands-1s / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+trap-commands-1s / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+trap-commands-1s / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+trap-commands-1s / owner_shell_window: red rc 1 2.7 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-1s / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+trap-commands-1s / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+trap-commands-1s / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+trap-commands-1s / whole: red rc 1 6.5 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+resume-collected-shell / owner_report: green rc 0 0.2 s: owner_report: PASS
+resume-collected-shell / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+resume-collected-shell / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+resume-collected-shell / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+resume-collected-shell / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+resume-collected-shell / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+resume-collected-shell / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+resume-collected-shell / owner_late_cancel: red rc 1 0.1 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+resume-collected-shell / whole: red rc 1 8.9 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+window-without-resume / owner_report: green rc 0 0.1 s: owner_report: PASS
+window-without-resume / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+window-without-resume / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+window-without-resume / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+window-without-resume / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+window-without-resume / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+window-without-resume / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+window-without-resume / owner_late_cancel: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict after a late cancel
+window-without-resume / whole: red rc 1 23.9 s: AssertionError: cleanup never reached a verdict after a late cancel
+rearm-without-sigcont / owner_report: green rc 0 0.2 s: owner_report: PASS
+rearm-without-sigcont / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+rearm-without-sigcont / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+rearm-without-sigcont / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+rearm-without-sigcont / owner_shell_window: red rc 1 11.7 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+rearm-without-sigcont / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+rearm-without-sigcont / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+rearm-without-sigcont / owner_late_cancel: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict after a late cancel
+rearm-without-sigcont / whole: red rc 1 15.5 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+resume-while-listed / owner_report: green rc 0 0.2 s: owner_report: PASS
+resume-while-listed / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+resume-while-listed / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+resume-while-listed / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+resume-while-listed / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+resume-while-listed / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+resume-while-listed / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+resume-while-listed / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+resume-while-listed / whole: green rc 0 58.6 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+no-kill-before-raise / owner_report: green rc 0 0.1 s: owner_report: PASS
+no-kill-before-raise / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+no-kill-before-raise / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+no-kill-before-raise / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+no-kill-before-raise / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+no-kill-before-raise / owner_survivor: red rc 1 18.2 s: AssertionError: stopped shell left behind
+no-kill-before-raise / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+no-kill-before-raise / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+no-kill-before-raise / whole: red rc 1 25.1 s: AssertionError: stopped shell left behind
+no-kill-before-raise-empty / owner_report: green rc 0 0.2 s: owner_report: PASS
+no-kill-before-raise-empty / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+no-kill-before-raise-empty / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+no-kill-before-raise-empty / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+no-kill-before-raise-empty / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+no-kill-before-raise-empty / owner_survivor: red rc 1 18.2 s: AssertionError: stopped shell left behind
+no-kill-before-raise-empty / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+no-kill-before-raise-empty / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+no-kill-before-raise-empty / whole: red rc 1 25.1 s: AssertionError: stopped shell left behind
+kill-before-fail-spares-shell / owner_report: green rc 0 0.2 s: owner_report: PASS
+kill-before-fail-spares-shell / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+kill-before-fail-spares-shell / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+kill-before-fail-spares-shell / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+kill-before-fail-spares-shell / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+kill-before-fail-spares-shell / owner_survivor: red rc 1 18.2 s: AssertionError: stopped shell left behind
+kill-before-fail-spares-shell / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+kill-before-fail-spares-shell / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+kill-before-fail-spares-shell / whole: red rc 1 25.1 s: AssertionError: stopped shell left behind
+endless-unbounded / owner_report: green rc 0 0.2 s: owner_report: PASS
+endless-unbounded / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+endless-unbounded / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+endless-unbounded / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+endless-unbounded / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+endless-unbounded / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+endless-unbounded / owner_vanishing: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict
+endless-unbounded / owner_late_cancel: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict after a late cancel
+endless-unbounded / whole: red rc 1 23.1 s: AssertionError: cleanup never reached a verdict
+survivor-never-fails / owner_report: green rc 0 0.2 s: owner_report: PASS
+survivor-never-fails / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+survivor-never-fails / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+survivor-never-fails / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+survivor-never-fails / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+survivor-never-fails / owner_survivor: red rc 1 32.1 s: AssertionError: a survivor never failed the run
+survivor-never-fails / owner_vanishing: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict
+survivor-never-fails / owner_late_cancel: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict after a late cancel
+survivor-never-fails / whole: red rc 1 39.0 s: AssertionError: a survivor never failed the run
+survivor-never-fails-guarded / owner_report: green rc 0 0.1 s: owner_report: PASS
+survivor-never-fails-guarded / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+survivor-never-fails-guarded / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+survivor-never-fails-guarded / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+survivor-never-fails-guarded / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+survivor-never-fails-guarded / owner_survivor: red rc 1 32.2 s: AssertionError: a survivor never failed the run
+survivor-never-fails-guarded / owner_vanishing: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict
+survivor-never-fails-guarded / owner_late_cancel: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict after a late cancel
+survivor-never-fails-guarded / whole: red rc 1 39.0 s: AssertionError: a survivor never failed the run
+trust-sigkill / owner_report: green rc 0 0.2 s: owner_report: PASS
+trust-sigkill / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+trust-sigkill / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+trust-sigkill / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+trust-sigkill / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+trust-sigkill / owner_survivor: red rc 1 32.1 s: AssertionError: a survivor never failed the run
+trust-sigkill / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+trust-sigkill / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+trust-sigkill / whole: red rc 1 39.0 s: AssertionError: a survivor never failed the run
+killed-counts-as-gone / owner_report: green rc 0 0.2 s: owner_report: PASS
+killed-counts-as-gone / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+killed-counts-as-gone / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+killed-counts-as-gone / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+killed-counts-as-gone / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+killed-counts-as-gone / owner_survivor: green rc 0 11.6 s: owner_survivor: PASS
+killed-counts-as-gone / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+killed-counts-as-gone / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+killed-counts-as-gone / whole: green rc 0 68.4 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+report-without-state / owner_report: red rc 1 2.2 s: AssertionError: ('state S', 'pid 4025 (python3) wchan hrtimer_nanosleep parent 4023 (first parent 4023) age 0.04 s start 76120525, not sent SIGKILL')
+report-without-state / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+report-without-state / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+report-without-state / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+report-without-state / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+report-without-state / owner_survivor: red rc 1 1.2 s: AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 50 census passes, slowest 0.00 s: pid 4054 (bash) wchan do_signal_stop parent 4052 (first parent 4052) age 1.05 s start 76120742, not sent SIGKILL; pid 4055 (python3) wchan hrtimer_nanosleep parent 4054 (first parent 
+report-without-state / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+report-without-state / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+report-without-state / whole: red rc 1 2.2 s: AssertionError: ('state S', 'pid 4064 (python3) wchan hrtimer_nanosleep parent 4063 (first parent 4063) age 0.04 s start 76120949, not sent SIGKILL')
+report-without-wchan / owner_report: red rc 1 2.2 s: AssertionError: ('wchan ', 'pid 4068 (python3) state S parent 4065 (first parent 4065) age 0.04 s start 76121012, not sent SIGKILL')
+report-without-wchan / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+report-without-wchan / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+report-without-wchan / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+report-without-wchan / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+report-without-wchan / owner_survivor: red rc 1 1.2 s: AssertionError: ('wchan ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 50 census passes, slowest 0.00 s: pid 4084 (bash) state T parent 4082 (first parent 4082) age 1.05 s start 76121229, not sent SIGKILL; pid 4085 (python3) state S parent 4084 (first parent 4084) age 1.05 s start 761212
+report-without-wchan / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+report-without-wchan / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+report-without-wchan / whole: red rc 1 2.1 s: AssertionError: ('wchan ', 'pid 4091 (python3) state S parent 4090 (first parent 4090) age 0.02 s start 76121436, not sent SIGKILL')
+report-without-state-or-wchan / owner_report: red rc 1 2.1 s: AssertionError: ('state S', 'pid 4093 (python3) parent 4092 (first parent 4092) age 0.02 s start 76121468, not sent SIGKILL')
+report-without-state-or-wchan / owner_reparented: green rc 0 0.2 s: owner_reparented: PASS
+report-without-state-or-wchan / owner_late_exit: green rc 0 0.6 s: owner_late_exit: PASS
+report-without-state-or-wchan / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+report-without-state-or-wchan / owner_shell_window: green rc 0 3.2 s: owner_shell_window: PASS
+report-without-state-or-wchan / owner_survivor: red rc 1 1.2 s: AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 50 census passes, slowest 0.00 s: pid 4107 (bash) parent 4105 (first parent 4105) age 1.05 s start 76121557, not sent SIGKILL; pid 4108 (python3) parent 4107 (first parent 4107) age 1.04 s start 76121558, sent SIGKILL
+report-without-state-or-wchan / owner_vanishing: green rc 0 0.9 s: owner_vanishing: PASS
+report-without-state-or-wchan / owner_late_cancel: green rc 0 0.9 s: owner_late_cancel: PASS
+report-without-state-or-wchan / whole: red rc 1 2.2 s: AssertionError: ('state S', 'pid 4114 (python3) parent 4112 (first parent 4112) age 0.04 s start 76121683, not sent SIGKILL')
+owned-process mutants: PASS (21 mutants, 0 with a control that must fail)

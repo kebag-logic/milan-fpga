@@ -1,0 +1,178 @@
+{
+ "none": [
+  null,
+  "the product as it stands; every control passes"
+ ],
+ "cleanup-does-nothing": [
+  "owner_reparented",
+  "re-parented descendant was treated as new and never got SIGTERM"
+ ],
+ "identity-start-holds-parent": [
+  "owner_reparented",
+  "re-parented descendant was treated as new and never got SIGTERM"
+ ],
+ "identity-keys-hold-parent": [
+  "owner_reparented",
+  "re-parented descendant was treated as new and never got SIGTERM"
+ ],
+ "identity-first-census-holds-parent": [
+  "owner_reparented",
+  "re-parented descendant was treated as new and never got SIGTERM"
+ ],
+ "identity-includes-parent": [
+  "owner_reparented",
+  "re-parented descendant was treated as new and never got SIGTERM"
+ ],
+ "identity-checks-parent-before-send": [
+  "owner_reparented",
+  "re-parented descendant was treated as new and never got SIGTERM"
+ ],
+ "sigterm-checks-parent": [
+  null,
+  "equivalent: the first pass sends SIGTERM to every descendant of the first census under the parent that census read, so this refuses only a SIGTERM already sent"
+ ],
+ "send-checks-parent": [
+  "owner_reparented",
+  "SIGTERM waited for a later census"
+ ],
+ "no-start-recheck": [
+  "owner_reused_identity",
+  "a census entry whose process was replaced was signalled"
+ ],
+ "no-reap-after-census": [
+  "owner_late_exit",
+  "CLEANUP FAILED: owned descendants remain"
+ ],
+ "owned-is-census": [
+  "owner_late_exit",
+  "CLEANUP FAILED: owned descendants remain"
+ ],
+ "deadline-wall-clock": [
+  "owner_stall",
+  "the stall was charged in full"
+ ],
+ "pass-cap-1s": [
+  "owner_stated_seconds",
+  "a survivor's stated seconds were not kept"
+ ],
+ "pass-cap-1.5s": [
+  "owner_stall",
+  "the stall was charged in full"
+ ],
+ "pass-cap-5s": [
+  "owner_stall",
+  "the stall was charged in full"
+ ],
+ "windows-2s": [
+  "owner_stated_seconds",
+  "a survivor's stated seconds were not kept"
+ ],
+ "reap-window-2s": [
+  "owner_stated_seconds",
+  "a survivor's stated seconds were not kept"
+ ],
+ "no-shell-window": [
+  "owner_shell_window",
+  "the shell was killed in the pass that resumed it, before its trap"
+ ],
+ "no-shell-window-kept": [
+  "owner_shell_window",
+  "the shell was killed in the pass that resumed it, before its trap"
+ ],
+ "no-shell-window-pass": [
+  "owner_shell_window",
+  "the shell was killed in the pass that resumed it, before its trap"
+ ],
+ "no-trap-window": [
+  "owner_shell_window",
+  "the shell was killed in the pass that resumed it, before its trap"
+ ],
+ "root-killed-unresumed": [
+  "owner_shell_window",
+  "the shell was killed in the pass that resumed it, before its trap"
+ ],
+ "shell-killed-when-resumed": [
+  "owner_shell_window",
+  "the shell was killed in the pass that resumed it, before its trap"
+ ],
+ "shell-window-one-pass": [
+  "owner_shell_window",
+  "the resumed shell was killed inside its own window, with no child to spare it"
+ ],
+ "shell-window-1s": [
+  "owner_shell_window",
+  "the resumed shell was killed inside its own window, with no child to spare it"
+ ],
+ "trap-commands-no-window": [
+  "owner_shell_window",
+  "the resumed shell's trap command was killed inside the shell's window"
+ ],
+ "trap-commands-never-spared": [
+  "owner_shell_window",
+  "the resumed shell's trap command was killed inside the shell's window"
+ ],
+ "trap-commands-1s": [
+  "owner_shell_window",
+  "the resumed shell's trap command was killed inside the shell's window"
+ ],
+ "resume-collected-shell": [
+  "owner_late_cancel",
+  "a cancel after the shell was collected resumed it"
+ ],
+ "window-without-resume": [
+  "owner_late_cancel",
+  "cleanup never reached a verdict after a late cancel"
+ ],
+ "rearm-without-sigcont": [
+  "owner_late_cancel",
+  "cleanup never reached a verdict after a late cancel"
+ ],
+ "resume-while-listed": [
+  "owner_late_cancel",
+  "a cancel after the shell was collected resumed it"
+ ],
+ "no-kill-before-raise": [
+  "owner_survivor",
+  "stopped shell left behind"
+ ],
+ "no-kill-before-raise-empty": [
+  "owner_survivor",
+  "stopped shell left behind"
+ ],
+ "kill-before-fail-spares-shell": [
+  "owner_survivor",
+  "stopped shell left behind"
+ ],
+ "endless-unbounded": [
+  "owner_vanishing",
+  "cleanup never reached a verdict"
+ ],
+ "survivor-never-fails": [
+  "owner_survivor",
+  "a survivor never failed the run"
+ ],
+ "survivor-never-fails-guarded": [
+  "owner_survivor",
+  "a survivor never failed the run"
+ ],
+ "trust-sigkill": [
+  "owner_survivor",
+  "a survivor never failed the run"
+ ],
+ "killed-counts-as-gone": [
+  "owner_stated_seconds",
+  "a survivor's stated seconds were not kept"
+ ],
+ "report-without-state": [
+  "owner_report",
+  "('state S'"
+ ],
+ "report-without-wchan": [
+  "owner_report",
+  "('wchan '"
+ ],
+ "report-without-state-or-wchan": [
+  "owner_report",
+  "('state S'"
+ ]
+}
