@@ -558,7 +558,7 @@ RTL name: `A_PHY_RST`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:1 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. A write takes effect only when `ETH_GUARD[0]` is 0. |
-| 0 | `PHY_RESET_N` | R/W | 1h | Drives `o_phy_reset_n` (0 = reset asserted). The shipping SoC leaves that datapath output unconnected, so this bit resets nothing. The PHY reset that reaches the pin is the LiteX `milan_mac_phy_crg_reset` CSR (the PHY clock/reset block's `_reset` storage, `sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch`), for the port the image is built for (`--eth-port`). A write takes effect only when `ETH_GUARD[0]` is 0. |
+| 0 | `PHY_RESET_N` | R/W | 1h | Drives `o_phy_reset_n` (0 = reset asserted). The shipping SoC leaves that datapath output unconnected, so this bit resets nothing. The PHY reset that reaches the pin is the LiteX `milan_mac_phy_crg_reset` CSR (the PHY clock/reset block's `_reset` storage, `sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch`), for the port the image is built for (`--eth-port`). An AECP REBOOT also sets that storage. A write takes effect only when `ETH_GUARD[0]` is 0. |
 
 ## 0x200  -  Statistics (RMON)  `(REQ-MAC-04)`
 
@@ -4499,7 +4499,7 @@ LiteX assigns these banks; each spans one CSR page.
 
 | Address | Register | Words | Mode | Description |
 |---|---|---|---|---|
-| `0xF0001800` | `milan_mac_phy_crg_reset` | 1 | RW | PHY reset of the port the image is built for (`--eth-port`): the PHY clock/reset block's `_reset` storage, which drives the PHY reset pin. This is the PHY reset; `PHY_RESET` (0x11C) is inert. `ETH_GUARD` does not gate it at this head. |
+| `0xF0001800` | `milan_mac_phy_crg_reset` | 1 | RW | PHY reset of the port the image is built for (`--eth-port`): the PHY clock/reset block's `_reset` storage, which drives the PHY reset pin. This is the PHY reset; `PHY_RESET` (0x11C) is inert. `ETH_GUARD` does not gate it at this head. An AECP REBOOT sets this storage and holds it: the hold only rises, and a CPU write in the same cycle clears it for that cycle only. See the [reboot reset design](../design/REBOOT_RESET.md). |
 | `0xF0001804` | `milan_mac_phy_mdio_w` | 1 | RW | Software bit-bang MDIO write register (clock, output enable, data). |
 | `0xF0001808` | `milan_mac_phy_mdio_r` | 1 | RO | Software bit-bang MDIO read register. |
 | `0xF000180C` | `milan_mac_core_preamble_crc` | 1 | RO | LiteEth status, reset 1: the MAC core inserts and checks preamble and CRC. |
