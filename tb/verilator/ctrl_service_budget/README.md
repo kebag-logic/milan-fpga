@@ -1126,14 +1126,14 @@ python3 -B tb/verilator/ctrl_service_budget/selftest.py --write-fixture \
   /tmp/budget-fixture/results/fixture.log /tmp/budget-fixture/build.json
 ```
 
-The planted store step runs a save's windows with the loop handing THE STEP a deadline no pass reaches, so the store takes its flash step in whatever pass owes it, as it did before THE STEP:
+The planted store step runs a save's windows with the loop taking THE STEP in every pass and handing it a deadline no pass reaches, so the store takes its flash step in whatever pass owes it, as it did before THE STEP:
 
 ```sh
 python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
   --build-dir /tmp/budget-store-step --mutation store-step-unbounded
 ```
 
-It must give a pass over the share in a run whose every row fits its budget, with no refusal, and then prints `CONTROL store-step-unbounded caught`; a row over its budget, a refusal or no pass over the share is `ESCAPED`.
+It must give, in some window, a pass over the share while every row of that window fits its budget, with no refusal: the share sees what the rows do not. It then prints `CONTROL store-step-unbounded caught`, with how many windows the share alone catches and how many a row catches as well; no such window, or a refusal, is `ESCAPED`.
 
 Three controls run the full harness, here on the cacheless core S2 measured them on:
 

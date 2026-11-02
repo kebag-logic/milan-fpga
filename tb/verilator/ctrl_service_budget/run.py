@@ -341,9 +341,16 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
         return 0 if caught else 1
     import build as builder
     if args.mutation in builder.SHARE_CONTROLS:
-        caught = bool(shares) and not misses and not refusals
-        print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(shares)} group(s) with a pass over '
-              f'the per-pass share, {len(misses)} row(s) over their budget, {len(refusals)} refusal(s)')
+        # caught where the share sees what the rows do not: a group with a pass over it and every row of its own
+        # within its budget (a probe's name starts with its group's)
+        over = [s.partition(':')[0] for s in shares]
+        missed = {m.partition(':')[0].partition('.')[0] for m in misses}
+        alone = [g for g in over if g not in missed]
+        caught = bool(alone) and not refusals
+        print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(alone)} group(s) with a pass over '
+              f'the per-pass share and every row within its budget, {len(over) - len(alone)} with a row over its '
+              f'budget as well, {len(missed - set(over))} with a row over and no pass over, {len(refusals)} '
+              f'refusal(s)')
         return 0 if caught else 1
     if args.mutation != 'none':
         paths_ = [p.name for g in groups for p in g.probes if p.name.startswith('control.')]

@@ -84,9 +84,11 @@ def share_checks(synthetic: Callable[[list[str]], str], sys_hz: int, cpu_hz: int
     control = argparse.Namespace(cpu_regions='cover', mutation='store-step-unbounded', record_budget_findings=False,
                                  record_share_findings=False)
     got = [run.verdict(control, [g], *case) for case in (([], [], shares), ([], ['g.x.if0: 20.1 ms'], shares),
-                                                          (['refused'], [], shares), ([], [], []))]
-    out.append(('the planted store step is caught by a pass over the share with every row within its budget, and '
-                'escapes with a row over it, a refusal, or no pass over the share', got == [0, 1, 1, 1], str(got)))
+                                                          ([], ['h.x.if0: 20.1 ms'], shares), (['refused'], [], shares),
+                                                          ([], [], []))]
+    out.append(('the planted store step is caught by a group with a pass over the share and every row of its own '
+                'within its budget, and escapes with only a row over it there too, a refusal, or no pass over the '
+                'share', got == [0, 1, 0, 1, 1], str(got)))
     table = run.table([graded], '1x1', 'CPU 50 MHz')
     saved = run.summary('1x1', '0' * 64, [graded], [], [], shares)['share_misses']
     rendered = (f'| g | 3 | 1 | {limit + 1:,} ({(limit + 1) / (cpu_hz / 1000):.3f}) | OVER the share |' in table
