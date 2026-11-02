@@ -1,0 +1,9 @@
+--- protocol-processor/hdl/top/protocol_processor_top.sv:2027,2027
+  assign adp_enable_w = entity_enable_i && restore_done_o && !rbt_adp_off_w;
+--- hdl/milan/milan_datapath.sv:9586,9586
+      .enable_i          ((pp_enable_w | cfg_adp_enable) && !amr_rs_hold_r),
+--- sw/firmware/milan_baremetal/milan_baremetal.c:1846,1849
+ * The two writes REQUEST the enable; the fabric holds it until the restore
+ * walk releases it at COMPLETE or DEFAULTS, and a CLOSED restore holds it
+ * until reset. So the line reports the request, never an enabled entity
+ * (docs/design/SAVED_STATE_MATERIALIZATION.md section 5.3, change 3).

@@ -1,0 +1,9 @@
+--- hdl/common/csr/milan_csr.sv:1799,1802
+          A_ADP_CMD: begin // W1S self-clearing strobes
+            if (s_axi_wdata[0]) adp_adv_p <= 1'b1; // advertise now + bump available_index
+            if (s_axi_wdata[1]) adp_dep_p <= 1'b1; // send ENTITY_DEPARTING
+          end
+--- hdl/milan/milan_datapath.sv:2780,2781
+    .o_adp_advertise_p    (),
+    .o_adp_depart_p       (),
+oracle line 401:640 r0=00000000 r1=00000000 base=00000000 w1=00000000 w0=00000000 gbase=00000000 g1=00000000

@@ -1,0 +1,18 @@
+--- sw/firmware/milan_baremetal/milan_baremetal.c:950,953
+/* The fabric passed its identity check and was configured: nvm_boot() sets
+ * this first, so the PHY link is published on every boot path from there,
+ * persistence disabled included (#70). After a CSR identity mismatch
+ * nothing touches the MDIO pins. */
+--- sw/firmware/milan_baremetal/milan_baremetal.c:1092,1094
+ * The PHY poll rides on the same opportunities but is not the writer's:
+ * with no writer admitted it still runs on every path that reached
+ * nvm_boot() (#70), and nothing else does. */
+--- sw/firmware/milan_baremetal/milan_baremetal.c:1099,1102
+	if (!nvm_started) {
+		if (phy_live)
+			phy_link_tick(gettime_ns());
+		return;
+--- sw/firmware/milan_baremetal/milan_baremetal.c:1671,1671
+	phy_live = 1;
+--- sw/firmware/milan_baremetal/milan_baremetal.c:1676,1676
+		set_idle_hook(nvm_service);

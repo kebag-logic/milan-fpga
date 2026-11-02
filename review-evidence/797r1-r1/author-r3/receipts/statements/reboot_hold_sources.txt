@@ -1,0 +1,15 @@
+--- sw/litex/milan_soc.py:2115,2123
+        # THE END-STATION RESET ON AN AECP REBOOT (#787,
+        # docs/design/REBOOT_RESET.md). The datapath's KL_reboot_ctrl owns the
+        # sequence; this is only its attachments: the frame-end toggle above
+        # and this MAC's statement of its transmit side (both in dp_ports),
+        # the PHY hold and the ICAPE2. The PHY hold sets the
+        # LiteEth PHY reset itself (the `milan_mac_phy_crg_reset` CSR storage
+        # that drives the PHY's reset pin), so the PHY is held in reset and the
+        # link drops as after a power cut. It is a level that only rises, and a
+        # CPU write in the same cycle can clear it for that one cycle only. The
+--- sw/litex/milan_soc.py:2132,2132
+        self.sync += If(reboot_phy_hold_sys, self.phy.crg._reset.storage.eq(1))
+--- docs/design/REBOOT_RESET.md:163,164
+The PHY hold crosses into `sys` through a `MultiReg` and sets the PHY reset's CSR storage.
+A CPU write to that CSR in the same cycle can clear it for that one cycle, and the hold sets it again on the next.

@@ -1,0 +1,14 @@
+--- hdl/common/csr/milan_csr.sv:2528,2528
+  wire       srp_idx0_ls_w = strm_lsn0_r && (SRP_LSN0_ROW_P != 0);
+--- hdl/common/csr/milan_csr.sv:2574,2576
+          strm_mux = ((strm_idx_r == 4'd0) && !srp_idx0_ls_w)
+                     ? i_lwsrp_status                        // = 0x694
+                     : (srp_fresh_r ? {16'd0, i_srp_ctx_rd_stat} : 32'd0);
+--- hdl/common/csr/milan_csr.sv:3086,3090
+  wire       srp_poll_w    = win_in_range_w &&
+                             ((strm_idx_r != 4'd0) || srp_idx0_ls_w);
+  wire [4:0] srp_sel_row_w = strm_dir_r
+      ? 5'((N_LISTENERS_P - 1) + 32'(strm_idx_r))
+      : (srp_idx0_ls_w ? 5'(SRP_LSN0_ROW_P) : {1'b0, strm_idx_r});
+directed sim line 34:SRP dir1 idx0                                rd 0x85C = 0xFFFFFFFF
+directed sim line 39:SRP lsn0+dir1 row                            rd 0x85C = 0x00000000
