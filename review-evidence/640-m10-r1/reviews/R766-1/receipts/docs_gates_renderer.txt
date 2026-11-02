@@ -1,0 +1,18 @@
+=== scripts/check_em_dash.py --base 503bc97c
+check_em_dash: 0 finding(s) over 194 added line(s) in 4 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [503bc97c..HEAD]
+rc=0
+=== scripts/gen_toc.py --selftest
+TOC selftest: PASS (1501/1501 arm(s))
+rc=0
+=== scripts/gen_toc.py --verify-anchors
+anchor check: 582 existing cross-page fragment links reproduced
+rc=0
+=== scripts/gen_toc.py --check
+TOC gate: OK (152 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+rc=0
+=== scripts/docs_check.py
+docs_check: 0 finding(s) across 213 md files + 1436 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+=== scripts/check_doc_style.py
+documentation style: OK (23 current documents)
+rc=0

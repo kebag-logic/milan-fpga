@@ -1,0 +1,10 @@
+== ctrl_service_bounds arm (scripts/service_bounds_arm.py)
+accesses at one interface and 4,429 at two, including the F3b freshness queries.
+At 1 us per access, event envelopes are 10.569 / 13.287 ms.
+Neither fits T_svc = 10 ms; neither do the other rows. The 20 ms ACMP
+ceiling still covers both event envelopes, but none of the other rows.
+service bounds: 38/38 planted controls caught
+== ctrl service bounds: checks: 47   failures: 0 ==
+RESULT: PASS
+rc 0
+rc=0

@@ -1,0 +1,33 @@
+# Source checks at exact head 3f8ed303e01285f1bad0641f4ebc05764f162467 (public GitHub comments fetched read-only 2026-11-02)
+6556743957 640 2026-11-01T10:29:40Z body-sha256 aaf636fc8b7c84f0077bd79f9274a45c2b38c0728ea55a07f46d162c9fcdc67e | contains "311": False | contains "16-byte": False | contains "7ee512a1": False
+6555550136 640 2026-11-01T09:29:33Z body-sha256 fcc216351c372d304075808bc3270d9abd70b3463c3c90be47243a6db3e4bbb4 | contains "311": False | contains "16-byte": False | contains "7ee512a1": False
+6575277828 640 2026-11-02T10:50:17Z body-sha256 6d84c12665f8269f8d54621c9f613d3da235b6293fcc3a591053afc88cf621ee | contains "311": False | contains "16-byte": False | contains "7ee512a1": False
+6569635407 665 2026-11-02T05:14:26Z body-sha256 05928a4685d6536d4685e88c470a0a63588a2f277af41223bd52c0e1adea3664 | contains "311": False | contains "16-byte": False | contains "7ee512a1": False
+6514866239 665 2026-10-30T04:18:51Z body-sha256 704fe3bc3b9628bd8a6681f62f29c4e084c9e6eea27a7130babbeab8d4cd99a2 | contains "311": False | contains "16-byte": False | contains "7ee512a1": False
+6495692075 665 2026-10-29T11:41:33Z body-sha256 305d2b485602943af301372a106384937df3572410d4723d0ef897a73c5764aa | contains "311": False | contains "16-byte": False | contains "7ee512a1": False
+6573412222 495 2026-11-02T09:16:05Z body-sha256 38e05586361e12607a91e78c04c777b59a02b943825066b62bccee3380b3b156 | contains "311": False | contains "16-byte": False | contains "7ee512a1": False
+6545523624 640 2026-10-31T15:39:50Z body-sha256 6780e0f944cecea733cd287da176b21440d287051a01f18f870051252dd02fd0 | contains "311": False | contains "16-byte": False | contains "7ee512a1": False
+6545540394 640 2026-10-31T15:41:21Z body-sha256 9cefc3fd17ad5cf9562e92236f782ae3c98a9630dfae2f5097a14ffcca9b9416 | contains "311": False | contains "16-byte": False | contains "7ee512a1": False
+
+# all 130 comments on #640: any containing '311 of 311' or '311/311'
+0
+
+# FR_NFR.md at head: T_svc
+329:| NFR-SCOUT-03 | Each moved control path MUST meet the single project service budget T_svc = 10 ms, proposed for owner approval, under Section 3.4.1 and measured by Section 3.4.2. Numeric normativ
+339:**Proposed project budget: `T_svc = 10 ms`.**
+
+# 'per-pass share' anywhere in current docs (excluding history)
+docs/design/MARK_II_AREA_PLAN.md:336:| Worst-case gap between two console polls | 2.0 ms: one pass, and every work pass 
+
+# MilanMAC LiteX CSRs and their firmware writer
+1896:        self.loopback = CSRStorage(1, description="1 = internal MAC-TX->MAC-RX AXIS loopback")
+1958:        self.link_status = CSRStorage(fields=[
+2184:            i_i_mac_speed = self.link_status.fields.speed,
+1080:	milan_mac_link_status_write(status);
+
+# ctrl_memory is built from LiteX wishbone.SRAM and wishbone.Decoder
+2991:            bank = wishbone.SRAM(size, read_only=words is not None, name=f"{region.name}_bank{n}",
+3000:        self.decoder = wishbone.Decoder(self.bus, slaves)
+
+# one hart: baremetal profile refuses cpu_count != 1
+4298:    if args.cpu != "vexiiriscv" or args.xlen != 32 or args.cpu_count != 1:

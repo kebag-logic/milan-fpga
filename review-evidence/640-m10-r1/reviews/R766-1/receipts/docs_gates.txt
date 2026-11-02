@@ -1,0 +1,26 @@
+=== python3 scripts/docs_check.py
+docs_check: 0 finding(s) across 213 md files + 1436 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+rc=0
+=== python3 scripts/check_em_dash.py --base 503bc97c
+check_em_dash: cannot judge: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/check_doc_style.py
+documentation style: OK (23 current documents)
+rc=0
+=== python3 scripts/check_doc_style.py --selftest
+documentation style selftest: OK
+rc=0
+=== python3 scripts/gen_toc.py --selftest
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/gen_toc.py --verify-anchors
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/gen_toc.py --check
+gen_toc: cannot read Markdown: the pinned Markdown renderer is not installed (html5lib); run: python3 -m pip install --require-hashes -r tools/markdown/requirements.txt
+rc=2
+=== python3 scripts/check_doc_paths.py
+doc path gate: OK (1084 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+rc=0
+=== git diff --check 503bc97c HEAD
+rc=0
