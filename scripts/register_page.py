@@ -778,11 +778,33 @@ def read_value_table(reg: Register, model: Model) -> list[str]:
     # The constant that takes the most rows is what every other case reads.
     spread = [v for v, terms in values.items() if v.startswith("`0x") and len(terms) > 1]
     other = max(spread, key=lambda v: len(values[v]), default=None)
-    rows = [[model.wording.conditions(term) or "every case", value]
+    rows = [[model.wording.conditions(named(term, model.wording)) or "every case", value]
             for value, terms in values.items() if value != other for term in terms]
     if other is not None:
         rows.append(["any other case", other])
     return table(["When", "A read returns"], rows)
+
+
+def named(term: Term, wording: Wording) -> Term:
+    """A row's condition pair that is one arm of a worded wire, printed as that
+    wire: with `c` 0, `w = c ? a : b` is `b`. The wire takes the choice's
+    place, and the choice stays (#797)."""
+    for wire, phrase in wording.phrases.items():
+        definition = wording.facts.wires.get(wire)
+        if not isinstance(phrase, list) or definition is None or definition[0] != "tern":
+            continue
+        spelled = {unparse(node): (at, polarity) for at, (node, polarity) in enumerate(term)}
+        choice = spelled.get(unparse(definition[1]))
+        if choice is None:
+            continue
+        arm, same = literal(definition[2] if choice[1] else definition[3])
+        found = spelled.get(unparse(arm))
+        if found is None:
+            continue
+        rest = [lit for at, lit in enumerate(term) if at != found[0]]
+        at = rest.index(term[choice[0]])
+        return rest[:at] + [(("id", wire), found[1] == same)] + rest[at:]
+    return term
 
 
 def leaf_constant(leaf: Node, model: Model) -> bool:

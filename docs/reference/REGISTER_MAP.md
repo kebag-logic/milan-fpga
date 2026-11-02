@@ -3971,7 +3971,7 @@ RTL name: `A_RENDER_STAT`.
 
 | When | A read returns |
 |---|---|
-| `STRM_SEL[8]` selects a listener and the stream index `STRM_SEL[3:0]` is 0 | the fields above |
+| the selected stream exists and `STRM_SEL[8]` selects a listener | the fields above |
 | any other case | `0x00000000` |
 
 ## 0x8E0  -  AAF clock meter  `(#629, KL_aaf_clock_meter)`

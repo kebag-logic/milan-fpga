@@ -237,6 +237,10 @@ class Deriver:
             hi, lo = max(a, b), min(a, b)
         else:
             start, width_v = evaluate(node[2], self.scope), evaluate(node[3], self.scope).value
+            if start.unknown and node[2][0] == "bin" and node[2][1] == "*" and \
+                    evaluate(node[2][3], self.scope).value == width_v:
+                # x[i*w +: w]: word i of x, named as x's word (#797)
+                return [Term("sig", name, k, width_v - 1, 0) for k in range(width_v)]
             if start.unknown:
                 return self._expr_terms(node)
             lo, hi = start.value, start.value + width_v - 1

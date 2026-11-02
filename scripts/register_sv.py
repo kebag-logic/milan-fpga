@@ -828,7 +828,12 @@ class Interpreter:
         self.run(chain)
 
     def loop(self, st: For) -> None:
-        """A for loop with constant bounds, unrolled."""
+        """A for loop with constant bounds, unrolled; a selection loop bounded
+        by a named constant is read as the one selection it makes."""
+        chosen = selection(st)
+        if chosen is not None:
+            self.run([chosen])
+            return
         self.state[st.var] = self.reduce(st.start)
         count = 0
         while self.truth(self.reduce(st.cond)):
@@ -839,6 +844,52 @@ class Interpreter:
             if count > MAX_LOOP:
                 raise Refusal(f"a loop over {st.var} does not end")
         del self.state[st.var]
+
+
+def substitute(node: Node, name: str, value: Node) -> Node:
+    """`node` with every use of the identifier `name` replaced by `value`."""
+    if node[0] == "id":
+        return value if node[1] == name else node
+    if node[0] in ("num", "vec"):
+        return node
+    return (node[0], *[substitute(p, name, value) if isinstance(p, tuple)
+                       else [substitute(q, name, value) for q in p] if isinstance(p, list) else p
+                       for p in node[1:]])
+
+
+def conjuncts(node: Node) -> list[Node]:
+    """The terms of an `&&` chain."""
+    if node[0] == "bin" and node[1] == "&&":
+        return conjuncts(node[2]) + conjuncts(node[3])
+    return [node]
+
+
+def selection(st: For) -> If | None:
+    """`for (v = 0; v < N; v++) if (c && x == v) t = f(v);` as the one if it
+    stands for: `if (c && x < N) t = f(x)`. At most one pass can assign, the
+    one where v equals x. Unrolling it at the shipping N would print a row true
+    only at that N; with N a named constant the row holds at any value a build
+    gives it (#797)."""
+    if not (len(st.body) == 1 and isinstance(st.body[0], If) and not st.body[0].other):
+        return None
+    test, then = st.body[0].cond, st.body[0].then
+    if not (len(then) == 1 and isinstance(then[0], Assign) and not then[0].selects):
+        return None
+    if not (st.start[0] in ("num", "vec") and st.start[1].known and st.start[1].value == 0):
+        return None
+    if not (st.cond[0] == "bin" and st.cond[1] == "<" and st.cond[2] == ("id", st.var) and st.cond[3][0] == "id"):
+        return None
+    terms = conjuncts(test)
+    picks = [t for t in terms if t[0] == "bin" and t[1] == "==" and t[3] == ("id", st.var)]
+    if len(picks) != 1 or substitute(picks[0][2], st.var, ("num", None)) != picks[0][2]:
+        return None
+    chosen = picks[0][2]
+    rest = [substitute(t, st.var, chosen) for t in terms if t is not picks[0]]
+    cond: Node = ("bin", "<", chosen, st.cond[3])
+    for term in reversed(rest):
+        cond = ("bin", "&&", term, cond)
+    value = substitute(then[0].value, st.var, chosen)
+    return If(cond, [Assign(then[0].target, [], value, then[0].blocking)], [])
 
 
 def flatten(node: Node, conds: tuple = ()) -> list[tuple[tuple, Node]]:
