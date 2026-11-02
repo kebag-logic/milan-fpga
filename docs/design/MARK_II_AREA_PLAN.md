@@ -370,9 +370,9 @@ Measure its reductions before any lane relies on them.
 | D15, LiteX | [Owner, 17:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545999204): removed in three stages; as low as possible | The stages above, each measured |
 | D16, lever order | [Owner, 16:40](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545540394): least risky first, each measured before the next | The lane order below, except lever 2 after lever 3: a reading for the owner to confirm ([open decision 2](#open-owner-decisions)) |
 | D17, save | [Owner, #823, 17:14](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6545924397): at most 0.5 s worst case at 32x32 | NFR-REL-03; append-only save path |
-| D18, stage 1 boot | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640): the boot loader copies the firmware from QSPI flash into Block RAM, as planned | LiteX stage 1's boot loader; where the image sits in flash is [open decision 4](#open-owner-decisions) |
-| D19, LiteX blocks | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640): every LiteX peripheral is removed, not only DDR3 and the BIOS | The [block census](#litex-block-census): no LiteX block remains |
-| D20, console UART | [Owner, 2026-11-02 07:22](https://github.com/kebag-logic/milan-fpga/issues/640): the UART is a simple protocol and needs no RTS/CTS; a small first-party UART, transmit and receive only, replaces it | The [console UART](#console-uart): a 32-byte polled receive buffer |
+| D18, stage 1 boot | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the boot loader copies the firmware from QSPI flash into Block RAM, as planned | LiteX stage 1's boot loader; where the image sits in flash is [open decision 4](#open-owner-decisions) |
+| D19, LiteX blocks | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): every LiteX peripheral is removed, not only DDR3 and the BIOS | The [block census](#litex-block-census): no LiteX block remains |
+| D20, console UART | [Owner, 2026-11-02 07:22](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the UART is a simple protocol and needs no RTS/CTS; a small first-party UART, transmit and receive only, replaces it | The [console UART](#console-uart): a 32-byte polled receive buffer |
 
 ## Mark II lane sequence
 
