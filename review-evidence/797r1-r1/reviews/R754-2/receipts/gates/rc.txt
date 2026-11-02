@@ -1,0 +1,4 @@
+Each gate ran at the exact head, output to its own file in this directory, never piped.
+style rc=0; style_self rc=0; docs_check rc=0; em (--base 1f29f189) rc=0; paths rc=0; toc_a (--verify-anchors) rc=0; toc (--check) rc=0;
+ci_ev rc=0; ci_gw rc=0; memmap rc=0; regcheck rc=0; archive rc=0; baremetal rc=0; feature (--self-test) rc=0; diffcheck (1f29f189..HEAD) rc=0; mb rc=0.
+gen_register_reference.py --selftest rc=0, 58/58 controls; --check rc=0, fresh (203 registers, 34 modules, 240 files).
