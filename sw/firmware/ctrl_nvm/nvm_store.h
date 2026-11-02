@@ -20,10 +20,11 @@
  * capture, one for each changed record and one more, the seal's
  * NVM_STEP_BYTES stretches, the erase and its wait, NVM_IMG_LEN /
  * NVM_READ_BYTES read-backs for the blank check and as many for the verify,
- * and each page's issue and its wait. At 8x8/2if, one changed record and no
- * flash busy time, that is 369 steps and 12.08 s (#665; the budget harness's
- * save_window.bound_ms, to which its save-starved group holds a save); a
- * flash part's busy time adds its polls, one a step.
+ * and each page's issue and its wait. At 8x8/2if with no flash busy time, a
+ * SET_NAME of the entity, which marks both its names, is 370 steps and
+ * 12.11 s (#665; the budget harness's save_window.bound_ms, to which its
+ * save-starved group holds a save); each further record is one more step,
+ * and a flash part's busy time adds its polls, one a step.
  */
 #ifndef NVM_STORE_H
 #define NVM_STORE_H
