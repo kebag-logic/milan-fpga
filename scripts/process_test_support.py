@@ -760,6 +760,64 @@ MUTANTS: dict[str, tuple] = {
          "resumed, edge = clock, set(owned) if clock + MAX_PASS_SECONDS >= kill_all + REAP_SECONDS else None\n"),
         ("if (pid, start) not in initial and resumed is not None:",
          "if (pid, start) not in initial and resumed is not None and (edge is None or pid in edge):")),
+    "resume-beside-new-live": ("owner_stated_seconds", "a live new descendant beside a stopped shell's stated seconds"
+                                                       " were not kept",
+        ("and root_pid in owned and not (live - {root_pid}):",
+         "and root_pid in owned and not ({p for p in live if (p, owned[p][1]) in initial} - {root_pid}):")),
+    "sigterm-trap-command-after-resume-from-1.5s": ("owner_stated_seconds", "a next-to-last in-grace resume and its"
+                                                                            " trap command's stated seconds were not"
+                                                                            " kept",
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and not (resumed is not None and resumed >= 1.5):\n"
+         "                        continue\n                elif")),
+    "sigterm-to-live-new": ("owner_stated_seconds", "a first-pass resume and its live trap command's stated seconds"
+                                                    " were not kept",
+        ("                    if (pid, start) not in initial:\n                        continue\n",
+         "                    if (pid, start) not in initial and pid not in live:\n"
+         "                        continue\n")),
+    "live-trap-command-unspared-after-in-grace-resume": ("owner_stated_seconds", "a first-pass resume and its live"
+                                                                                 " trap command's stated seconds were"
+                                                                                 " not kept",
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and (pid not in live or resumed >= deadline):")),
+    "live-trap-command-unspared": ("owner_stated_seconds", "a first-pass resume and its live trap command's stated"
+                                                           " seconds were not kept",
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and pid not in live:")),
+    "interior-past-grace-no-window": ("owner_stated_seconds", "a lone ten-second resume's stated seconds were not"
+                                                              " kept",
+        ("kill_all = max(kill_all, clock + TRAP_SECONDS)",
+         "kill_all = max(kill_all, clock + TRAP_SECONDS) if not (7.0 <= clock < 13.0) else kill_all")),
+    "interior-in-grace-lone-shell-killed": ("owner_stated_seconds", "a lone one-second resume's stated seconds were"
+                                                                    " not kept",
+        ("(resumed is None or clock < kill_all):",
+         "(resumed is None or clock < kill_all and not (0.5 <= resumed < 1.5 and clock > resumed"
+         " and not any(parent == pid for _c, (parent, _s) in owned.items()))):")),
+    "grace-strictly-past": ("owner_stated_seconds", "a survivor's stated seconds were not kept",
+        ("signum = signal.SIGKILL if clock >= deadline else signal.SIGTERM",
+         "signum = signal.SIGKILL if clock > deadline else signal.SIGTERM")),
+    "no-window-at-grace-edge": ("owner_stated_seconds", "a lone first past-grace resume's stated seconds were not"
+                                                        " kept",
+        ("kill_all = max(kill_all, clock + TRAP_SECONDS)",
+         "kill_all = max(kill_all, clock + TRAP_SECONDS) if clock != deadline else kill_all")),
+    "trap-command-spared-only-in-resume-pass-past-grace": ("owner_stated_seconds", "a late resume's stated seconds"
+                                                                                   " were not kept",
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and (resumed < deadline or clock == resumed):")),
+    "sigterm-new-beside-stopped-shell-late": ("owner_stated_seconds", "a new descendant's stated seconds were not"
+                                                                      " kept",
+        ("                    if (pid, start) not in initial:\n                        continue\n",
+         "                    if (pid, start) not in initial and (resumed is not None or clock < 0.75):\n"
+         "                        continue\n")),
+    "resume-held-at-grace-edge": ("owner_stated_seconds", "a lone first past-grace resume's stated seconds were not"
+                                                          " kept",
+        ("and root_pid in owned and not (live - {root_pid}):",
+         "and root_pid in owned and not (live - {root_pid}) and clock != deadline:")),
+    "verdict-from-grace-after-in-grace-resume": ("owner_stated_seconds", "a first-pass resume's stated seconds were"
+                                                                         " not kept",
+        ("limit = kill_all + REAP_SECONDS",
+         "limit = (max(kill_all, deadline + TRAP_SECONDS) if resumed is not None and resumed < deadline"
+         " else kill_all) + REAP_SECONDS")),
 }
 
 
