@@ -1,0 +1,21 @@
+row                                               U  U doc      L  L doc  S(col)  S(armA)  S doc
+ACMP record, first                             5.56    5.5   3.45    3.4    2.69     2.73    2.7
+ADP record, first                              5.72    5.7   3.49    3.5    2.73     2.77    2.8  <- S differs from the printed 1x1 column
+MAAP record, first                             5.64    5.6   3.47    3.5    2.75     2.75    2.8  <- S differs from the printed 1x1 column
+AECP record, first                             5.68    5.7   3.48    3.5    2.76     2.76    2.8
+SRP record, first                             22.44   22.5  14.83   14.9   11.64    11.78   11.8  <- S differs from the printed 1x1 column
+ACMP record, last                             33.24   33.3  19.04   19.1   15.41    15.82   15.8  <- S differs from the printed 1x1 column
+ADP record, last                              24.28   24.3  14.26   14.3   10.63    11.18   11.2  <- S differs from the printed 1x1 column
+MAAP record, last                             24.24   24.2  14.08   14.1   10.45    11.07   11.0  <- S differs from the printed 1x1 column
+AECP record, last                             63.84   63.9  35.81   35.8   26.38    28.06   28.1  <- S differs from the printed 1x1 column
+SRP record, last                              66.24   66.2  37.06   37.1   31.41    31.41   31.4
+An ACMP command behind a full ACMP ring       28.04   28.0  18.60   18.6   14.45    14.59   14.6  <- S differs from the printed 1x1 column
+An ENTITY_AVAILABLE behind a full ADP ring    17.68   17.7   9.94    9.9    8.16     8.16    8.2
+An event behind 15 others                      6.16    6.1   3.63    3.6    2.88     2.91    2.9
+The longest work pass                          7.84    7.9   4.91    4.9    3.54      nan    3.5
+
+row mean: 1.116 units = 0.446 ms (0.223 to 1.116)
+  mean: 17.29 + 0.446 = 17.736 ms against 18 -> +0.264
+  mean, top of range: 17.29 + 1.116 = 18.406 ms against 18 -> -0.406
+  bound 20 units: 17.29 + 8.000 = 25.290 ms against 18 -> -7.290
+pass bound 4 units: 1.60 ms; 1.98 + that = 3.58 ms
