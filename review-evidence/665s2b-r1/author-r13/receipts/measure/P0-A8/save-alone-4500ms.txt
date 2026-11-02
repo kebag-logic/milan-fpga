@@ -1,0 +1,7 @@
+z-save.log: 450 store steps from +6.5 ms to +4496.4 ms; erase at +1566.6 ms; 52 pages, the first at +2627.3 ms, the last at +3647.2 ms
+  debounce, capture, seal: 156 steps, +6.5 to +1556.4 ms; flash port per step 300 to 347 cycles, store 676 to 9556; the longest pass carrying one 94278 cycles
+  erase, its wait, blank check: 107 steps, +1566.5 to +2626.4 ms; flash port per step 1765 to 79514 cycles, store 789 to 1518; the longest pass carrying one 147167 cycles
+  program, program wait: 103 steps, +2636.5 to +3656.5 ms; flash port per step 1760 to 93320 cycles, store 766 to 1666; the longest pass carrying one 153986 cycles
+  verify: 84 steps, +3666.5 to +4496.4 ms; flash port per step 70500 to 70609 cycles, store 4739 to 5549; the longest pass carrying one 148942 cycles
+  not durable within the log: 84 of the 104 verify reads of 13256 bytes
+  FLASH erases=1 programs=52 bytes=13256

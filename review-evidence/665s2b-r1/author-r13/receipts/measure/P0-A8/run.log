@@ -1,0 +1,81 @@
+HEAD c954b8a91e720f87d2dfa9294c8501058dc55df3 DIRTY 2
+├── csr_bridge (Wishbone2CSR)
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    ├── csrbank_0 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── csrbank_1 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── sram_0 (SRAM) [Gen]
+│    ├── csrbank_2 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    └── csrstorage_1 (CSRStorage) [Gen]
+│    ├── csrbank_3 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    └── csrstorage_2 (CSRStorage) [Gen]
+│    ├── csrbank_4 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_5 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/builds/P0-A8/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I<scratch>/P0/tb/common -I<scratch>/builds/P0-A8 -I<scratch>/P0/tb/verilator/fw_service_budget' <scratch>/P0/tb/verilator/ctrl_service_budget/observe.vlt <scratch>/builds/P0-A8/mbx-variant/KL_mbx_pkg.sv <scratch>/P0/hdl/milan/mailbox/KL_mbx_ring.sv <scratch>/P0/hdl/milan/mailbox/KL_mbx_rx.sv <scratch>/P0/hdl/milan/mailbox/KL_mbx_tx.sv <scratch>/P0/hdl/milan/mailbox/KL_mbx_evt.sv <scratch>/builds/P0-A8/mbx-variant/KL_mbx.sv <scratch>/P0/hdl/milan/mailbox/KL_mbx_wb.sv <scratch>/P0/hdl/milan/mailbox/KL_mbx_dma.sv $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_912c0e1e492bbd6ccf6b2e7699a8f311.v <scratch>/builds/P0-A8/gateware/sim.v <scratch>/P0/tb/verilator/ctrl_service_budget/sim_main.cpp
+COMMAND make -j16 -C <scratch>/builds/P0-A8/native -f Vsim.mk Vsim
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/z-save.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/x-links-same.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/x-save-0.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/x-save-1.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/x-save-2.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/x-save-3.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/x-save-4.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/x-save-5.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/y-links.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/y-save-0.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/y-save-1.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/y-save-2.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/y-save-3.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/y-save-4.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/y-save-5.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/y-save-6.txt -
+COMMAND <scratch>/builds/P0-A8/native/Vsim <scratch>/builds/P0-A8/results/y-save-7.txt -
+SHARE x-links-same: 1 of 303 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 200,378 (2.004 ms)
+SHARE x-save-1: 1 of 305 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 201,045 (2.010 ms)
+SHARE x-save-2: 1 of 303 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 210,688 (2.107 ms)
+SHARE x-save-3: 1 of 303 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 238,763 (2.388 ms)
+SHARE y-links: 1 of 323 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 208,096 (2.081 ms)
+SHARE y-save-0: 1 of 324 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 271,599 (2.716 ms)
+SHARE y-save-1: 1 of 324 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 270,978 (2.710 ms)
+SHARE y-save-2: 1 of 320 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 201,246 (2.012 ms)
+SHARE y-save-4: 1 of 323 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 209,189 (2.092 ms)
+SHARE y-save-5: 1 of 324 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 203,162 (2.032 ms)
+SHARE y-save-6: 1 of 324 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 203,162 (2.032 ms)
+SHARE y-save-7: 1 of 321 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 235,792 (2.358 ms)
+17 groups graded, 0 refusals, 0 budget misses (0 of 184 probe instances, 0 of 35 paths), 12 of 5573 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=1982s
+rc=0

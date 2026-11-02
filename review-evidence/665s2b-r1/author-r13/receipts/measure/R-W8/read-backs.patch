@@ -1,0 +1,64 @@
+diff --git a/tb/verilator/ctrl_service_budget/grade.py b/tb/verilator/ctrl_service_budget/grade.py
+index a036f0a1cf..998136000f 100644
+--- a/tb/verilator/ctrl_service_budget/grade.py
++++ b/tb/verilator/ctrl_service_budget/grade.py
+@@ -200,7 +200,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
+             log.traps.append(line)
+         elif kind == 'FLASHOP':
+             log.flash.append((int(rest[0]), int(rest[1])))
+-        elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH'):
++        elif kind in ('FLASH', 'FLASHRD', 'REPLY', 'TXREADY', 'PC', 'FETCH'):
+             continue
+         elif kind == 'FAIL:':
+             log.errors.append(line)
+diff --git a/tb/verilator/ctrl_service_budget/sim_main.cpp b/tb/verilator/ctrl_service_budget/sim_main.cpp
+index c30c11ee08..332c3df6f9 100644
+--- a/tb/verilator/ctrl_service_budget/sim_main.cpp
++++ b/tb/verilator/ctrl_service_budget/sim_main.cpp
+@@ -231,6 +231,8 @@ private:
+ 
+     void flash_sample(Vsim& dut) {
+         if (flash_cs_ && !dut.flash_cs) {
++            if (flash_.journal_read())
++                std::printf("FLASHRD %llu %u %u\n", ull(sys_), flash_.read_from(), flash_.read_to());
+             const auto op = flash_.deselect(sys_);
+             if (op) {
+                 std::printf("FLASHOP %llu %u\n", ull(sys_), op);
+@@ -334,14 +336,18 @@ private:
+ 
+     void finish_pass() {
+         const auto cycles = cpu_ - pass_.start_cpu;
+-        if (pass_.mbx_writes == 0) {
++        // Measurement only: a pass that wrote nothing but ran the store's flash port prints as a PASS line.
++        bool stepped = false;
++        for (unsigned m = 0; m < n_modules; ++m)
++            if (pass_.module_cycles[m] && std::string(module_name[m]) == "nvm_flash_litespi") stepped = true;
++        if (pass_.mbx_writes == 0 && !stepped) {
+             ++idle_count_;
+             idle_max_ = std::max(idle_max_, cycles);
+             idle_min_ = std::min(idle_min_, cycles);
+             ++quiet_run_;
+             return;
+         }
+-        quiet_run_ = 0;
++        quiet_run_ = pass_.mbx_writes == 0 ? quiet_run_ + 1 : 0;
+         flush_idle();
+         std::string text = "PASS " + std::to_string(passes_) + " " + std::to_string(pass_.start_sys) + " " +
+             std::to_string(pass_.start_cpu) + " " + std::to_string(cycles) + " instr=" + std::to_string(pass_.instr);
+diff --git a/tb/verilator/fw_service_budget/flash.hpp b/tb/verilator/fw_service_budget/flash.hpp
+index 7d42410e89..bd21499d9a 100644
+--- a/tb/verilator/fw_service_budget/flash.hpp
++++ b/tb/verilator/fw_service_budget/flash.hpp
+@@ -104,6 +104,12 @@ public:
+     }
+ 
+     std::uint64_t busy_until() const { return busy_until_; }
++    // Measurement only: a read of the journal, its first byte and the byte after its last.
++    bool journal_read() const {
++        return (command_ == 0x03 || command_ == 0x0b) && address_bytes_ == 3 && address_ >= 0xee0000 && address_ < 0xf00000;
++    }
++    std::uint32_t read_from() const { return address_; }
++    std::uint32_t read_to() const { return cursor_; }
+     std::uint8_t byte(std::uint32_t address) const { return bytes_.at(address); }
+     unsigned erases = 0;
+     unsigned programs = 0;

@@ -1,0 +1,11 @@
+save.log: erase at +1566.8 ms, 52 pages from +2627.7 to +3647.6 ms, 30807 passes printed
+  erase, its wait, blank check, erase issue: 1 steps, the flash port and the store at most 5112 cycles a step, its pass at most 22794
+  erase, its wait, blank check, busy poll: 1 steps, the flash port and the store at most 4435 cycles a step, its pass at most 22117
+  erase, its wait, blank check, read-back: 104 steps, the flash port and the store at most 72841 cycles a step, its pass at most 120731, 53024 bytes read, at most 512 a step
+  program, its waits, program issue: 52 steps, the flash port and the store at most 95386 cycles a step, its pass at most 126436
+  program, its waits, busy poll: 51 steps, the flash port and the store at most 4710 cycles a step, its pass at most 22392
+  verify, busy poll: 1 steps, the flash port and the store at most 4001 cycles a step, its pass at most 21683
+  verify, read-back: 104 steps, the flash port and the store at most 76737 cycles a step, its pass at most 121756, 53024 bytes read, at most 512 a step
+  durable at +4697.4 ms after the change: the last of 104 verify read-backs, 53024 bytes, ends with the pass at +4696.7 ms
+  20092 journal reads after the change, the last at +4697.3 ms
+  FLASH line: FLASH erases=1 programs=52 bytes=13256

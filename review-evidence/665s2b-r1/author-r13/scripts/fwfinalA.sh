@@ -1,0 +1,2 @@
+#!/bin/bash
+$MANAGEMENT/2026-09-23/665s2b-a683p/scripts/fwshard.sh 4f58214f457e963243a1fe6b86c6af161e97f26f 0; $MANAGEMENT/2026-09-23/665s2b-a683p/scripts/fwshard.sh 4f58214f457e963243a1fe6b86c6af161e97f26f 1; $MANAGEMENT/2026-09-23/665s2b-a683p/scripts/nvmself.sh 4f58214f457e963243a1fe6b86c6af161e97f26f

@@ -1,0 +1,6 @@
+save.log: erase at +1567.0 ms; 52 pages, the first at +2627.9 ms, the last at +3647.9 ms; 13256 bytes programmed
+  debounce, capture, seal: 165 steps in work passes, flash port 200 to 641 cycles a step, the longest pass 106903;
+  erase, its wait, blank check: 109 steps in work passes, flash port 200 to 70752 cycles a step, the longest pass 118760; 103 runs with a step in a pass that wrote nothing to the mailbox, the longest 94263 cycles;
+  program, program wait: 106 steps in work passes, flash port 200 to 79770 cycles a step, the longest pass 124541; 51 runs with a step in a pass that wrote nothing to the mailbox, the longest 113701 cycles;
+  verify: 158 steps in work passes, flash port 200 to 70752 cycles a step, the longest pass 119787; 103 runs with a step in a pass that wrote nothing to the mailbox, the longest 95443 cycles;
+  durable by +4697.6 ms after the change: the 104th verify read-back, before the work pass that starts then; 104 read-backs seen after the last page

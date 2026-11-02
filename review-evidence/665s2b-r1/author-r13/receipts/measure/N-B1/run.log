@@ -1,0 +1,81 @@
+HEAD b49a001d0b420c2030c0b061468c5b8b88349068 DIRTY 0
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── csrbank_1 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── sram_0 (SRAM) [Gen]
+│    ├── csrbank_2 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    └── csrstorage_1 (CSRStorage) [Gen]
+│    ├── csrbank_3 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    └── csrstorage_2 (CSRStorage) [Gen]
+│    ├── csrbank_4 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_5 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/builds/N-B1/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I<scratch>/C1/tb/common -I<scratch>/builds/N-B1 -I<scratch>/C1/tb/verilator/fw_service_budget' <scratch>/C1/tb/verilator/ctrl_service_budget/observe.vlt <scratch>/C1/hdl/milan/mailbox/KL_mbx_pkg.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx_ring.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx_rx.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx_tx.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx_evt.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx_wb.sv <scratch>/C1/hdl/milan/mailbox/KL_mbx_dma.sv $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_912c0e1e492bbd6ccf6b2e7699a8f311.v <scratch>/builds/N-B1/gateware/sim.v <scratch>/C1/tb/verilator/ctrl_service_budget/sim_main.cpp
+COMMAND make -j16 -C <scratch>/builds/N-B1/native -f Vsim.mk Vsim
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@blank-0.txt -
+COMMANDCOMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@blank-1.txt - 
+<scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@blank-2.txt -COMMAND
+COMMANDCOMMANDCOMMAND    <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@blank-4.txt -<scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@blank-5.txt -COMMAND
+<scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@blank-6.txt -
+<scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@blank-3.txt - <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@blank-7.txt -
+
+
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@program-0.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@program-1.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@program-2.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@program-3.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@program-4.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@program-5.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@program-6.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@program-7.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@verify-0.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@verify-1.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@verify-2.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@verify-3.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@verify-4.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@verify-5.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@verify-6.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp@verify-7.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/save.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-adp-refill.txt -
+COMMAND <scratch>/builds/N-B1/native/Vsim <scratch>/builds/N-B1/results/backlog-owed.txt -
+BUDGET backlog.owed.if0: 62.140 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 360.221 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 360.220 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 360.219 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 360.218 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 63.005 ms over its budget 20 ms
+29 groups graded, 0 refusals, 6 budget misses (6 of 313 probe instances, 3 of 16 paths), 0 of 10496 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=4602s
+rc=0
