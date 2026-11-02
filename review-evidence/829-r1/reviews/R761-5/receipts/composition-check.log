@@ -1,0 +1,12 @@
+merge-base 1f29f189279f9fc0132f4918e47342b87d22f33a
+candidate tree      2b2118dfc57f2625850838e13ca25c63d7196fd7
+recomputed merge    2b2118dfc57f2625850838e13ca25c63d7196fd7
+predecessors on dev since the PR base:
+503bc97cd Merge PR #828: Charter Mark II below 20,000 LUTs at 32x32 with the protocol stack in firmware (#640)
+files changed by both:
+docs/design/GPTP_PLANE.md
+REQUIREMENTS.md
+256 SHA256:dRI12tvJkhueTEGqsRutn2L+dT/5qqOCsCVzBU5CI7k no comment (ED25519)
+Good "milan-local-ci" signature for milan-local-ci with ED25519 key SHA256:dRI12tvJkhueTEGqsRutn2L+dT/5qqOCsCVzBU5CI7k
+not-run: rtl/physical-gptp - runs only on the schedule and workflow_dispatch events (nightly and manual), never on pull_request; act shows it skipped. It is the physical-rate milan_dp_gptp simulation, reported nightly outside the required PR aggregate; it is not hardware evidence
+coverage 47 entries ok; act jobs 68; banks ['full-native', 'manager-builder']
