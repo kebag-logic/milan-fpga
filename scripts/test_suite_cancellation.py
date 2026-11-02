@@ -440,11 +440,11 @@ def owner_report(parent: Path) -> None:
     began = time.monotonic()
     sleeper = subprocess.Popen([sys.executable, "-c", STUBBORN, str(ready)])
     published(ready)
-    eventually(lambda: identity(sleeper.pid)[1] == "S", 15, "handshake child never slept")
     # The child is older than this pause and younger than the whole control, as its age must be.
-    slept = time.monotonic()
+    paused = time.monotonic()
     time.sleep(0.1)
-    youngest = time.monotonic() - slept
+    eventually(lambda: identity(sleeper.pid)[1] == "S", 15, "handshake child never slept")
+    youngest = time.monotonic() - paused
     asleep = owned_process._describe(sleeper.pid, os.getpid(), None)
     oldest = time.monotonic() - began
     for field in (f"pid {sleeper.pid} (python", "state S", "wchan ", f"parent {os.getpid()}",
