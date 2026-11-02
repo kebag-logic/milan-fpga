@@ -681,6 +681,13 @@ TEST_P(NvmBoth, step_room) {
     r = go(port(), f, concat(change, {"--step-left", room, "--until-idle"}));
     EXPECT_TRUE(r.at("ok") == 1 && r.at("deferred") == 0 && r.at("steps") == r.at("calls"))
         << "a pass with NVM_STEP_US left takes the owed step: " << r.text();
+    // The model's clock holds between the rig's read and the store's; the LiteSPI port's timer moves with each
+    // read, so a deadline exactly NVM_STEP_US away is a few clocks short of it there.
+    if (port() == Port::Model) {
+        r = go(port(), f, concat(change, {"--step-left", num(NVM_STEP_US), "--until-idle"}));
+        EXPECT_TRUE(r.at("ok") == 1 && r.at("deferred") == 0 && r.at("steps") == r.at("calls"))
+            << "a pass with exactly NVM_STEP_US left takes the owed step: " << r.text();
+    }
 }
 
 // A power cut inside every media effect of a commit (the erase and every page

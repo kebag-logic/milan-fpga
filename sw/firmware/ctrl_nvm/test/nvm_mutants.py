@@ -373,6 +373,8 @@ MUTANTS = (
        "\tif (0) {", "step_room"),
     _m("step_needs_more_room", STORE, "(int32_t)(deadline - nvm_store_clock(ctx)) < (int32_t)NVM_STEP_US)",
        "(int32_t)(deadline - nvm_store_clock(ctx)) < (int32_t)NVM_STEP_US + 200)", "step_room"),
+    _m("step_needs_room_past_its_cost", STORE, "(int32_t)(deadline - nvm_store_clock(ctx)) < (int32_t)NVM_STEP_US)",
+       "(int32_t)(deadline - nvm_store_clock(ctx)) <= (int32_t)NVM_STEP_US)", "step_room"),
     Mutant("step_owed_once_each",
            ((STORE, "\tnvm.owed = 1;\n", "\tnvm.owed++;\n"),
             (STORE, "\tnvm.owed = 0;\n\tnvm_store_service();", "\tnvm.owed--;\n\tnvm_store_service();")),
