@@ -93,6 +93,9 @@ PLANTS = {
                        '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 2000000u; ++n) {\n\t\t}'
                        '\n\t\tstatus(c);', 'UART'),
 }
+#: The SoC's planted control of --self-test: boot_soc.py without the product's flash window, whose export must be
+#: refused (#665): a cached window reads the saved state through the data cache, which the product never does.
+SOC_PLANT = ('flash-window-cached', '        milan_soc.ctrl_uncached_flash(soc)\n', "flash window's regions")
 #: The first link's map: the platform's fixture, at placeholder addresses.
 PROVISIONAL = FIRMWARE_TEST / 'ctrl_plat_csr.csv'
 #: The file a run saves the native model's exit status in, beside its log, so that a regrade grades it too.
@@ -167,11 +170,12 @@ def image(out: Path, name: str, point: tuple[str, int], csr_csv: Path, archives:
     return out / name / 'ctrl_app.elf'
 
 
-def export(out: Path, name: str, shape: str, elf: Path, n_if: int) -> dict:
-    """The boot SoC's export for one image, in a child process (the CPU generator patches its class)."""
+def export(out: Path, name: str, shape: str, elf: Path, n_if: int, soc: Path = HERE) -> dict:
+    """The boot SoC's export for one image, in a child process (the CPU generator patches its class), from soc's
+    boot_soc.py: this directory's, or the SoC plant's copy."""
     code = ('import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; '
             'print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5]))))')
-    run([sys.executable, '-B', '-c', code, str(HERE), str(out / name), shape, str(elf), str(n_if)],
+    run([sys.executable, '-B', '-c', code, str(soc), str(out / name), shape, str(elf), str(n_if)],
         out / f'{name}.log', cwd=ROOT)
     return json.loads((out / name / 'soc.json').read_text())
 
@@ -406,11 +410,34 @@ def native_controls(out: Path, shape: str, n_if: int) -> int:
     return wrong
 
 
+def soc_plant(out: Path, shape: str, n_if: int) -> bool:
+    """The SoC plant: boot_soc.py's copy without the product's flash window; True when its export is refused, by
+    name."""
+    name, anchor, words = SOC_PLANT
+    text = (HERE / 'boot_soc.py').read_text()
+    if text.count(anchor) != 1:
+        raise RuntimeError(f'plant {name}: its anchor occurs {text.count(anchor)} times in boot_soc.py')
+    copy = out / 'soc-source'
+    copy.mkdir(parents=True, exist_ok=True)
+    (copy / 'boot_soc.py').write_text(text.replace(anchor, ''))
+    elf = image(out, 'image', (shape, n_if), PROVISIONAL, runtime(out))
+    try:
+        export(out, 'soc', shape, elf, n_if, copy)
+    except RuntimeError:
+        refused = words in (out / 'soc.log').read_text()
+    else:
+        refused = False
+    print(f'PLANT {name}: {"caught" if refused else "ESCAPED"} (the export {"is" if refused else "is not"} refused: '
+          f"its flash window's regions)")
+    return refused
+
+
 def self_test(out: Path, shape: str, n_if: int) -> int:
     """Every native control graded as it requires, then every plant graded a finding of its own kind in a run the
-    model completed (no NATIVE finding), so its observations are a whole run's; 0 when each is."""
+    model completed (no NATIVE finding), so its observations are a whole run's, and the SoC plant refused; 0 when
+    each is."""
     wrong = native_controls(out / 'native', shape, n_if)
-    escaped = 0
+    escaped = 0 if soc_plant(out / f'plant-{SOC_PLANT[0]}', shape, n_if) else 1
     for plant, (_, _, _, kind) in PLANTS.items():
         findings, _ = point(out / f'plant-{plant}', shape, n_if, False, plant)
         completed = not any(f.startswith('NATIVE:') for f in findings)
@@ -419,7 +446,7 @@ def self_test(out: Path, shape: str, n_if: int) -> int:
         print(f'PLANT {plant}: {"caught" if caught else "ESCAPED"} ({kind}; '
               f'{"the run completed" if completed else "the model did not complete its run"}); findings: {findings}')
     print(f'ctrl_split_boot self-test: {len(NATIVE_CONTROLS) - wrong} of {len(NATIVE_CONTROLS)} native controls as '
-          f'required; {len(PLANTS) - escaped} of {len(PLANTS)} plants caught')
+          f'required; {len(PLANTS) + 1 - escaped} of {len(PLANTS) + 1} plants caught')
     return 1 if escaped or wrong else 0
 
 

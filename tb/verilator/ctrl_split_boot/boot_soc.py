@@ -5,12 +5,14 @@ and UART on pads.
 
 The CPU, its firmware memory, the mailbox and the flash are the CPU budget
 harness's (tb/verilator/ctrl_service_budget/split_soc.py, imported read only):
-the shipping VexiiRiscv with the split placement's instruction cache on the
-bus clock, sys, milan_soc.add_ctrl_memory built from the linked image, KL_mbx
-behind KL_mbx_wb with its datapath on the testbench's pads and the face
+the shipping VexiiRiscv with the split placement's instruction and data caches
+on the bus clock, sys, milan_soc.add_ctrl_memory built from the linked image,
+KL_mbx behind KL_mbx_wb with its datapath on the testbench's pads and the face
 commit acknowledged at the contract's bound, LiteSPI and timer0 where F1's
-port addresses them. That harness's SoC has neither of the two devices the
-platform adds, so this one adds them:
+port addresses them, and the flash window uncached and not executable, as the
+product's split CPU has it (milan_soc.ctrl_uncached_flash; #665): a build
+whose window is another is refused. That harness's SoC has neither of the two
+devices the platform adds, so this one adds them:
 
   - the Milan CSR window, a Wishbone slave at milan_soc.MILAN_CSR_BASE named
     milan_csr as the product SoC names it, its bus on pads: the testbench
@@ -88,6 +90,7 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int) -> dict:
         for path in split_soc.mailbox_sources(n_if, build_dir / 'mbx-variant'):
             platform.add_source(str(path))
         split_soc.add_devices(soc, platform, addresses, contract, n_if)
+        milan_soc.ctrl_uncached_flash(soc)
         soc.milan_csr = CsrWindow(platform.request('milan_csr'))
         soc.bus.add_slave('milan_csr', soc.milan_csr.bus, region=SoCRegion(
             origin=milan_soc.MILAN_CSR_BASE, size=milan_soc.MILAN_CSR_SIZE, cached=False))
@@ -106,5 +109,9 @@ def build(build_dir: Path, shape: str, elf: Path, n_if: int) -> dict:
         'cpu_memory_regions': [list(r) for r in VexiiRiscv.memory_regions],
         'ctrl_plan': soc.ctrl_plan.summary(),
     }
+    modes = [r[2] for r in spec['memory_regions'] if r[0] == addresses['flash']]
+    if modes != ['r']:
+        raise RuntimeError(f"the boot SoC is not the split placement's: its flash window's regions are {modes}, "
+                           "not ['r'] (milan_soc.ctrl_uncached_flash)")
     (build_dir / 'soc.json').write_text(json.dumps(spec, indent=2) + '\n')
     return spec
