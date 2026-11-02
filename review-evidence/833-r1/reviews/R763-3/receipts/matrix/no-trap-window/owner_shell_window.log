@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-3-packet/scripts/run_control.py", line 14, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+                                                      ~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/no-trap-window/test_suite_cancellation.py", line 577, in owner_shell_window
+    assert marker.exists(), "the shell was killed in the pass that resumed it, before its trap"
+           ~~~~~~~~~~~~~^^
+AssertionError: the shell was killed in the pass that resumed it, before its trap
+owner_shell_window FAIL 0.8s AssertionError: the shell was killed in the pass that resumed it, before its trap

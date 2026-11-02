@@ -1,0 +1,27 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/survivor-never-fails/owned_process.py", line 366, in run
+    self.checkpoint()
+    ~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/survivor-never-fails/owned_process.py", line 200, in checkpoint
+    raise Cancelled(self.cancel_signal)
+owned_process.Cancelled: signal 15
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-3-packet/scripts/run_control.py", line 14, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+                                                      ~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/survivor-never-fails/test_suite_cancellation.py", line 618, in owner_survivor
+    owner.run(["bash", "-c", script], env=env)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/survivor-never-fails/owned_process.py", line 370, in run
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/survivor-never-fails/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/survivor-never-fails/test_suite_cancellation.py", line 607, in bounded
+    assert time.monotonic() - since < 30, "a survivor never failed the run"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: a survivor never failed the run
+owner_survivor FAIL 30.0s AssertionError: a survivor never failed the run

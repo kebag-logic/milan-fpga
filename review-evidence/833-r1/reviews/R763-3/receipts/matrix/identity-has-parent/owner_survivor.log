@@ -1,0 +1,25 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/identity-has-parent/owned_process.py", line 366, in run
+    self.checkpoint()
+    ~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/identity-has-parent/owned_process.py", line 200, in checkpoint
+    raise Cancelled(self.cancel_signal)
+owned_process.Cancelled: signal 15
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-3-packet/scripts/run_control.py", line 14, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+                                                      ~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/identity-has-parent/test_suite_cancellation.py", line 618, in owner_survivor
+    owner.run(["bash", "-c", script], env=env)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/identity-has-parent/owned_process.py", line 370, in run
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/identity-has-parent/owned_process.py", line 291, in _cleanup
+    first = {pid: parent for (pid, _start), parent in initial.items()}
+                             ^^^^^^^^^^^^^
+ValueError: too many values to unpack (expected 2, got 3)
+owner_survivor FAIL 1.1s ValueError: too many values to unpack (expected 2, got 3)

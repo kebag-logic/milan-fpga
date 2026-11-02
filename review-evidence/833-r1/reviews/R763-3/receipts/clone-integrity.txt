@@ -1,0 +1,26 @@
+HEAD 3740565f4315cccc4e6dfb8d0b37ec9b55b65ec2 tree b20b2b7136079a25226b806a897ab3f18e4a8e90
+status-porcelain(ignored incl.):
+!! scripts/__pycache__/
+!! tb/verilator/gptp_shadow/__pycache__/
+index-vs-HEAD: identical
+worktree-vs-index: identical
+ls-files -s sha256: 08f645ae03f07ddea06e9d9c6a08dbd81a8da244841863aee37b6b2911d50e7a
+ls-tree -r HEAD sha256: 04d1bf25bc278f4de4be6c80dc94baa788f1138bd3eb42c804f434c132594359
+index entries == tree entries: yes
+hash-object of tracked regular files vs index:
+(end mismatches)
+mode check:
+gitlinks:
+160000 efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 0	external
+160000 135afd043309369a87ddbc8d6550aff8ec52a157 0	gptp-processor
+160000 a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 0	protocol-processor
+160000 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 0	third_party/lwSRP
+160000 70936b77dc41981e192438388cd0aced69954f18 0	third_party/tsn-c-stack
+160000 48ff7a7e2ef782cf778d47910cf85835c64b1bce 0	third_party/verilog-axis
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor (135afd0)
+ a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor (v2.0-856-ga9e84b6)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+post-cleanup: status --ignored lines = 0 (my run-created __pycache__ removed)

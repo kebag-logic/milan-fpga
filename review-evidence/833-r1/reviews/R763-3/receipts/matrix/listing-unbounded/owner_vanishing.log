@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/listing-unbounded/test_suite_cancellation.py", line 648, in owner_vanishing
+    owner._cleanup()
+    ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/listing-unbounded/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/listing-unbounded/test_suite_cancellation.py", line 643, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-3-packet/scripts/run_control.py", line 14, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+    ~~^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/listing-unbounded/test_suite_cancellation.py", line 636, in owner_vanishing
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/listing-unbounded/owned_process.py", line 170, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/listing-unbounded/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$REVIEWS/833-r763-3-packet/scratch/mut/listing-unbounded/test_suite_cancellation.py", line 643, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict
+owner_vanishing FAIL 15.0s AssertionError: cleanup never reached a verdict
