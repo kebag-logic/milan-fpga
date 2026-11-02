@@ -639,6 +639,42 @@ MUTANTS: dict[str, tuple] = {
         ("            owned = {pid: entry for pid, entry in census.items() if pid not in reaped}\n",
          "            owned = {pid: entry for pid, entry in census.items() if pid not in reaped}\n"
          "            if not owned:\n                return\n")),
+    "check-before-open-for-sigkill": ("owner_reused_identity", "a census entry was signalled by its number",
+        ("        try:\n            fd = os.pidfd_open(pid)\n"
+         "        except ProcessLookupError:\n            return False\n"
+         "        try:\n            identity = _identity(pid)\n",
+         "        early = _identity(pid) if signum == signal.SIGKILL else None\n"
+         "        try:\n            fd = os.pidfd_open(pid)\n"
+         "        except ProcessLookupError:\n            return False\n"
+         "        try:\n            identity = early or _identity(pid)\n")),
+    "no-resume-later-in-grace": ("owner_stated_seconds", "an in-grace resume's stated seconds were not kept",
+        ("and root_pid in owned and not (live - {root_pid}):",
+         "and root_pid in owned and not (live - {root_pid}) and not (passes > 1 and clock < deadline):")),
+    "sigterm-trap-command-unless-first-pass-resume": ("owner_stated_seconds", "an in-grace resume's stated seconds"
+                                                                              " were not kept",
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and (resumed is None or resumed == 0.0):\n"
+         "                        continue\n                elif")),
+    "sigterm-trap-command-after-later-grace-resume": ("owner_stated_seconds", "an in-grace resume's stated seconds"
+                                                                              " were not kept",
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and not (resumed is not None and resumed > 0):\n"
+         "                        continue\n                elif")),
+    "trap-window-not-later-in-grace": ("owner_stated_seconds", "an in-grace resume's stated seconds were not kept",
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and (resumed == 0.0 or resumed >= deadline):")),
+    "sigterm-to-new-while-shell-stopped": ("owner_stated_seconds", "a new descendant beside a stopped shell's stated"
+                                                                   " seconds were not kept",
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and (resumed is not None or not self.root_notified):\n"
+         "                        continue\n                elif")),
+    "sigterm-to-new-after-1s": ("owner_stated_seconds", "a first-pass resume's stated seconds were not kept",
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and clock < 1.0:\n"
+         "                        continue\n                elif")),
+    "no-window-later-in-grace": ("owner_stated_seconds", "an in-grace resume's stated seconds were not kept",
+        ("kill_all = max(kill_all, clock + TRAP_SECONDS)",
+         "kill_all = max(kill_all, clock + TRAP_SECONDS) if clock >= deadline or passes == 1 else kill_all")),
 }
 
 
