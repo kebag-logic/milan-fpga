@@ -1,0 +1,25 @@
+owner-stated-seconds: {'grace': 2, 'verdict': 14, 'parent_kill': 4, 'vanishing': 24, 'resumes': [0, 1, 3, 5.5, 13.999999046325684], 'window': 10, 'after_resume': 20, 'vanishing_after_resume': 30, 'matrix': [0, 9.5367431640625e-07, 1.9999990463256836, 2, 2.0000009536743164, 13.999999046325684], 'alone_or_with_trap_command': True}
+GREEN a survivor
+GREEN a stubborn parent
+GREEN a vanishing listing
+GREEN a late resume | resume clock 5.5 pass 14 past-grace-pass-ordinal 9 next-pass 6.0 | first new-descendant census at 5.5 (past grace)
+GREEN a first-pass resume | resume clock 0.0 pass 1 past-grace-pass-ordinal 0 next-pass 0.5 | first new-descendant census at 0.5 (inside grace)
+GREEN a new descendant | first new-descendant census at 0.5 (inside grace)
+GREEN a second-stage resume | resume clock 3.0 pass 9 past-grace-pass-ordinal 4 next-pass 3.5 | first new-descendant census at 3.0 (past grace)
+GREEN a last-pass resume | resume clock 13.999999046325684 pass 31 past-grace-pass-ordinal 26 next-pass 14.499999046325684 | first new-descendant census at 13.999999046325684 (past grace)
+GREEN a stopped shell
+GREEN a resumed vanishing listing | resume clock 13.999999046325684 pass 31 past-grace-pass-ordinal 26 next-pass 14.499999046325684 | first new-descendant census at 13.999999046325684 (past grace)
+GREEN an in-grace resume | resume clock 1.0 pass 4 past-grace-pass-ordinal 0 next-pass 1.5 | first new-descendant census at 1.0 (inside grace)
+GREEN a new descendant beside a stopped shell | first new-descendant census at 0.5 (inside grace)
+GREEN a lone first-pass resume | resume clock 0.0 pass 1 past-grace-pass-ordinal 0 next-pass 0.5
+GREEN a lone second-pass resume | resume clock 9.5367431640625e-07 pass 2 past-grace-pass-ordinal 0 next-pass 0.5000009536743164
+GREEN a second-pass resume and its trap command | resume clock 9.5367431640625e-07 pass 2 past-grace-pass-ordinal 0 next-pass 0.5000009536743164 | first new-descendant census at 0.5000009536743164 (inside grace)
+GREEN a lone last in-grace resume | resume clock 1.9999990463256836 pass 6 past-grace-pass-ordinal 0 next-pass 2.4999990463256836
+GREEN a last in-grace resume and its trap command | resume clock 1.9999990463256836 pass 6 past-grace-pass-ordinal 0 next-pass 2.4999990463256836 | first new-descendant census at 2.4999990463256836 (past grace)
+GREEN a lone first past-grace resume | resume clock 2.0 pass 6 past-grace-pass-ordinal 1 next-pass 2.5
+GREEN a first past-grace resume and its trap command | resume clock 2.0 pass 6 past-grace-pass-ordinal 1 next-pass 2.5 | first new-descendant census at 2.5 (past grace)
+GREEN a lone second past-grace resume | resume clock 2.0000009536743164 pass 7 past-grace-pass-ordinal 2 next-pass 2.5000009536743164
+GREEN a second past-grace resume and its trap command | resume clock 2.0000009536743164 pass 7 past-grace-pass-ordinal 2 next-pass 2.5000009536743164 | first new-descendant census at 2.5000009536743164 (past grace)
+GREEN a lone last-pass resume | resume clock 13.999999046325684 pass 31 past-grace-pass-ordinal 26 next-pass 14.499999046325684
+GREEN a last-pass resume and its trap command | resume clock 13.999999046325684 pass 31 past-grace-pass-ordinal 26 next-pass 14.499999046325684 | first new-descendant census at 14.499999046325684 (past grace)
+listings 23 red 0

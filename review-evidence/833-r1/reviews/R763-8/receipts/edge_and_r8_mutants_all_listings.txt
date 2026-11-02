@@ -1,0 +1,121 @@
+=== lone-first-pass-shell-needs-a-child
+RED   a lone first-pass resume
+listings 23 red 1
+=== first-pass-trap-command-sigtermed
+RED   a first-pass resume
+listings 23 red 1
+=== lone-second-pass-shell-needs-a-child
+RED   a lone second-pass resume
+listings 23 red 1
+=== second-pass-trap-command-sigtermed
+RED   a second-pass resume and its trap command
+listings 23 red 1
+=== lone-last-in-grace-shell-needs-a-child
+RED   a lone last in-grace resume
+listings 23 red 1
+=== last-in-grace-trap-command-unspared
+RED   a last in-grace resume and its trap command
+listings 23 red 1
+=== lone-first-past-grace-shell-needs-a-child
+RED   a lone first past-grace resume
+listings 23 red 1
+=== first-past-grace-trap-command-unspared
+RED   a first past-grace resume and its trap command
+listings 23 red 1
+=== lone-second-past-grace-shell-needs-a-child
+RED   a lone second past-grace resume
+listings 23 red 1
+=== second-past-grace-trap-command-unspared
+RED   a second past-grace resume and its trap command
+listings 23 red 1
+=== lone-last-pass-shell-needs-a-child
+RED   a lone last-pass resume
+listings 23 red 1
+=== last-pass-trap-command-spared-only-if-listed-at-resume
+RED   a last-pass resume and its trap command
+listings 23 red 1
+=== no-resume-later-in-grace
+RED   an in-grace resume
+RED   a lone second-pass resume
+RED   a second-pass resume and its trap command
+RED   a lone last in-grace resume
+RED   a last in-grace resume and its trap command
+listings 23 red 5
+=== sigterm-trap-command-unless-first-pass-resume
+RED   an in-grace resume
+RED   a second-pass resume and its trap command
+listings 23 red 2
+=== sigterm-trap-command-after-later-grace-resume
+RED   an in-grace resume
+RED   a second-pass resume and its trap command
+listings 23 red 2
+=== trap-window-not-later-in-grace
+RED   an in-grace resume
+RED   a second-pass resume and its trap command
+RED   a last in-grace resume and its trap command
+listings 23 red 3
+=== sigterm-to-new-while-shell-stopped
+RED   a new descendant beside a stopped shell
+listings 23 red 1
+=== sigterm-to-new-after-1s
+RED   a first-pass resume
+RED   a new descendant
+RED   an in-grace resume
+RED   a new descendant beside a stopped shell
+RED   a second-pass resume and its trap command
+listings 23 red 5
+=== no-window-later-in-grace
+RED   an in-grace resume
+RED   a lone second-pass resume
+RED   a second-pass resume and its trap command
+RED   a lone last in-grace resume
+RED   a last in-grace resume and its trap command
+listings 23 red 5
+=== shell-window-one-pass
+RED   a late resume
+RED   a first-pass resume
+RED   a second-stage resume
+RED   a last-pass resume
+RED   an in-grace resume
+RED   a lone first-pass resume
+RED   a lone second-pass resume
+RED   a second-pass resume and its trap command
+RED   a lone last in-grace resume
+RED   a last in-grace resume and its trap command
+RED   a lone first past-grace resume
+RED   a first past-grace resume and its trap command
+RED   a lone second past-grace resume
+RED   a second past-grace resume and its trap command
+RED   a lone last-pass resume
+RED   a last-pass resume and its trap command
+listings 23 red 16
+=== trap-commands-1s
+RED   a late resume
+RED   a first-pass resume
+RED   a second-stage resume
+RED   a last-pass resume
+RED   an in-grace resume
+RED   a second-pass resume and its trap command
+RED   a last in-grace resume and its trap command
+RED   a first past-grace resume and its trap command
+RED   a second past-grace resume and its trap command
+RED   a last-pass resume and its trap command
+listings 23 red 10
+=== resume-not-before-grace
+RED   a first-pass resume
+RED   an in-grace resume
+RED   a lone first-pass resume
+RED   a lone second-pass resume
+RED   a second-pass resume and its trap command
+RED   a lone last in-grace resume
+RED   a last in-grace resume and its trap command
+listings 23 red 7
+=== resume-not-first-pass
+RED   a first-pass resume
+RED   a lone first-pass resume
+listings 23 red 2
+=== sigterm-trap-commands
+RED   a first-pass resume
+RED   an in-grace resume
+RED   a second-pass resume and its trap command
+listings 23 red 3
