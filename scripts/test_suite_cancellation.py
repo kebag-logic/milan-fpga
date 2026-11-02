@@ -680,7 +680,7 @@ def owner_vanishing() -> None:
 
 def owner_late_cancel() -> None:
     """A cancel during cleanup, after the shell was collected, opens no trap window, even in that pass (#833)."""
-    # A re-armed window would hold the verdict past this bound: TRAP_SECONDS is longer.
+    # A re-armed window would hold the verdict past the 15 s bound below: TRAP_SECONDS is 30 s.
     with stages(GRACE_SECONDS=0.1, KILL_ALL_SECONDS=0.1, TRAP_SECONDS=30.0, REAP_SECONDS=0.3):
         with OwnedProcesses() as owner:
             gone = 2 ** 22 + 1
