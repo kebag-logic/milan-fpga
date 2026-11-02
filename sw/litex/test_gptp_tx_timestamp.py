@@ -77,7 +77,6 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent.parent
 SUITE = REPO / "tb" / "verilator" / "gptp_txts"
-PAD_SIM = SUITE / "obj_pad" / "Vmac_tx_chain_pads"
 #: The suite Makefile's own `VERILATOR ?= verilator`, read the same way, so a
 #: host that points the suite at another build is asked about THAT build.
 VERILATOR = os.environ.get("VERILATOR", "verilator")
@@ -106,15 +105,22 @@ FRAME_LENGTHS = (1518, 46, 64, 67, 128)
 #: the product's clock periods, in nanoseconds
 DP_PERIOD_NS = 20
 SYS_PERIOD_NS = 10
-ETH_PERIOD_NS = 8
 #: reset, then quiet, before the first octet is offered - the same two spans
 #: the Verilator harness uses, in datapath cycles
 RESET_DP_CYCLES = 400 // DP_PERIOD_NS
 SETTLE_DP_CYCLES = 400 // DP_PERIOD_NS
-#: Wire cycles the migen run records. The stimulus needs about 2 100 of
-#: them; an unterminated last frame is reported rather than compared, so a
-#: window that turned out to be too short cannot pass as agreement.
-TRACE_CYCLES = 3000
+#: One chain per PHY stage the product builds (issue #829): the make target
+#: and object directory of its converted half, its wire clock, the wire cycles
+#: one octet takes, and the wire cycles the migen run records. The stimulus
+#: needs about 2 100 octet times; an unterminated last frame is reported rather
+#: than compared, so a window that turned out to be too short cannot pass as
+#: agreement.
+SHAPES = {
+    "gmii": {"target": "padtrace", "obj": "obj_pad", "eth_ns": 8,
+             "cyc_per_octet": 1, "trace_cycles": 3000},
+    "mii": {"target": "padtrace-mii", "obj": "obj_pad_mii", "eth_ns": 40,
+            "cyc_per_octet": 2, "trace_cycles": 6000},
+}
 
 TALLY = {"checks": 0, "fails": 0}
 
@@ -171,28 +177,31 @@ def read_trace(path: Path) -> list[tuple[int, int]]:
     return samples
 
 
-def converted_trace(path: Path) -> list[tuple[int, int]]:
+def converted_trace(path: Path, shape: str) -> list[tuple[int, int]]:
     """Build and run the converted chain, and read back what its pads did."""
-    build = subprocess.run(["make", "-s", "padtrace"], cwd=SUITE, check=False)
-    if build.returncode != 0 or not PAD_SIM.is_file():
+    target = SHAPES[shape]["target"]
+    pad_sim = SUITE / SHAPES[shape]["obj"] / "Vmac_tx_chain_pads"
+    build = subprocess.run(["make", "-s", target], cwd=SUITE, check=False)
+    if build.returncode != 0 or not pad_sim.is_file():
         print(f"the converted chain could not be built: "
-              f"`make -C {SUITE.relative_to(REPO)} padtrace` returned "
+              f"`make -C {SUITE.relative_to(REPO)} {target}` returned "
               f"{build.returncode}. That build needs Verilator and the "
               f"generated artifact; without it there is nothing to compare "
               f"the migen source against.", file=sys.stderr)
         return []
-    subprocess.run([str(PAD_SIM), str(path)], cwd=SUITE, check=True)
+    subprocess.run([str(pad_sim), str(path)], cwd=SUITE, check=True)
     return read_trace(path)
 
 
-def migen_trace() -> list[tuple[int, int]]:
+def migen_trace(shape: str) -> list[tuple[int, int]]:
     """The same stimulus through the migen objects the chain was converted
     from - the same `build_chain()`, with no simulation variant of it."""
     sys.path.insert(0, str(REPO / "sw" / "litex"))
     from migen import run_simulation
     import gen_mac_tx_model as model
 
-    dut = model.build_chain()
+    dut = model.build_chain(shape)
+    eth_ns = SHAPES[shape]["eth_ns"]
     trace: list[tuple[int, int]] = []
 
     def _drive():
@@ -231,31 +240,32 @@ def migen_trace() -> list[tuple[int, int]]:
         held AFTER the edge - the same instant the Verilator harness records
         and the same one a receiver would see.
         """
-        for _ in range(TRACE_CYCLES):
+        for _ in range(SHAPES[shape]["trace_cycles"]):
             yield
             trace.append(((yield dut.gmii_tx_en), (yield dut.gmii_tx_data)))
 
     run_simulation(dut, {"macdp": _drive(), "eth_tx": _sample()},
                    clocks={"macdp": DP_PERIOD_NS, "macsys": SYS_PERIOD_NS,
-                           "maceth_tx": ETH_PERIOD_NS,
-                           "maceth_rx": ETH_PERIOD_NS,
-                           "eth_tx": ETH_PERIOD_NS,
-                           "eth_rx": ETH_PERIOD_NS})
+                           "maceth_tx": eth_ns,
+                           "maceth_rx": eth_ns,
+                           "eth_tx": eth_ns,
+                           "eth_rx": eth_ns})
     return trace
 
 
-def expected_wire_length(payload: int) -> int:
-    """What the chain owes the wire for a payload of `payload` octets.
+def expected_wire_length(payload: int, shape: str) -> int:
+    """What the chain owes the wire for a payload of `payload` octets, in the
+    samples its pads carry: octets, or the MII chain's two nibbles per octet.
 
     Seven preamble octets and the start-of-frame delimiter, the payload
     padded up to the minimum frame length, and four octets of frame check
     sequence. This is the stimulus reconciliation, not a model of the chain:
     it only has to catch the two runs having driven different frames.
     """
-    return 8 + max(payload, 60) + 4
+    return (8 + max(payload, 60) + 4) * SHAPES[shape]["cyc_per_octet"]
 
 
-def compare(converted: list, source: list) -> None:
+def compare(converted: list, source: list, shape: str) -> None:
     """Grade the two traces against each other, frame by frame."""
     check("both runs put the same number of frames on the pads",
           len(converted) == len(source),
@@ -274,7 +284,7 @@ def compare(converted: list, source: list) -> None:
               f"{len(bytes_left)} octets against {len(bytes_right)}, first "
               f"difference at octet {first}")
         if index < len(FRAME_LENGTHS):
-            want = expected_wire_length(FRAME_LENGTHS[index])
+            want = expected_wire_length(FRAME_LENGTHS[index], shape)
             check(f"frame {index}: it is the stimulus frame, framed",
                   len(bytes_left) == want,
                   f"{len(bytes_left)} octets on the wire, {want} expected for "
@@ -305,32 +315,39 @@ def main() -> int:
     out = args.keep if args.keep else Path(scratch.name)
     out.mkdir(parents=True, exist_ok=True)
 
-    print("converted chain (Verilator, the artifact the closed loop uses):")
-    converted_samples = converted_trace(out / "pads_converted.txt")
-    if not converted_samples:
-        print("\ntest_gptp_tx_timestamp: 0 checks: 0 PASS, 1 FAIL")
-        print("RESULT: FAIL")
-        return 1
+    for shape in SHAPES:
+        print(f"{shape}: converted chain (Verilator, the artifact the closed "
+              f"loop uses):")
+        converted_samples = converted_trace(out / f"pads_converted_{shape}.txt",
+                                            shape)
+        if not converted_samples:
+            print("\ntest_gptp_tx_timestamp: 0 checks: 0 PASS, 1 FAIL")
+            print("RESULT: FAIL")
+            return 1
 
-    print("migen source (run_simulation, the objects it was converted from):")
-    source_samples = migen_trace()
-    (out / "pads_migen.txt").write_text(
-        "".join(f"{e} {d:02x}\n" for e, d in source_samples), encoding="utf-8")
+        print(f"{shape}: migen source (run_simulation, the objects it was "
+              f"converted from):")
+        source_samples = migen_trace(shape)
+        (out / f"pads_migen_{shape}.txt").write_text(
+            "".join(f"{e} {d:02x}\n" for e, d in source_samples),
+            encoding="utf-8")
 
-    converted, converted_open = frames_of(converted_samples)
-    source, source_open = frames_of(source_samples)
-    print(f"  converted: {len(converted)} frame(s), "
-          f"{sum(len(f) for _g, f in converted)} octets in "
-          f"{len(converted_samples)} wire cycles")
-    print(f"  migen:     {len(source)} frame(s), "
-          f"{sum(len(f) for _g, f in source)} octets in "
-          f"{len(source_samples)} wire cycles")
-    check("the converted trace ends between frames", not converted_open,
-          "it stops with the transmit enable still high")
-    check("the migen trace ends between frames", not source_open,
-          f"it stops with the transmit enable still high - {TRACE_CYCLES} "
-          f"wire cycles did not cover the stimulus")
-    compare(converted, source)
+        converted, converted_open = frames_of(converted_samples)
+        source, source_open = frames_of(source_samples)
+        print(f"  converted: {len(converted)} frame(s), "
+              f"{sum(len(f) for _g, f in converted)} samples in "
+              f"{len(converted_samples)} wire cycles")
+        print(f"  migen:     {len(source)} frame(s), "
+              f"{sum(len(f) for _g, f in source)} samples in "
+              f"{len(source_samples)} wire cycles")
+        check(f"{shape}: the converted trace ends between frames",
+              not converted_open,
+              "it stops with the transmit enable still high")
+        check(f"{shape}: the migen trace ends between frames", not source_open,
+              f"it stops with the transmit enable still high - "
+              f"{SHAPES[shape]['trace_cycles']} wire cycles did not cover the "
+              f"stimulus")
+        compare(converted, source, shape)
 
     checks, fails = TALLY["checks"], TALLY["fails"]
     print(f"\ntest_gptp_tx_timestamp: {checks} checks: "

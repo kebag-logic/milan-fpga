@@ -8,6 +8,7 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 
 ## Contents
 
+- **[Unreleased - gPTP on the MII port](#unreleased---gptp-on-the-mii-port)** -- Counts transfers, not clocks.
 - **[Unreleased - AECP REBOOT resets the end station](#unreleased---aecp-reboot-resets-the-end-station)** -- Reloads from flash.
 - **[Unreleased - gPTP pin 135afd04](#unreleased---gptp-pin-135afd04)** -- A link toggle ends the cease.
 - **[Unreleased - gPTP pin f97c1803](#unreleased---gptp-pin-f97c1803)** -- Sync loss ages the grandmaster.
@@ -49,6 +50,25 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - **[Release 0x0002_0055 — fabric gPTP product ownership](#release-0x0002_0055--fabric-gptp-product-ownership)** -- Shipping time owner.
 - **[Release 0x0002_0054 — generated names](#release-0x0002_0054--generated-names)** -- Serves generated names and writable overlays.
 - **[Release 0x0002_0053 — stream setters](#release-0x0002_0053--stream-setters)** -- Adds supported stream setters.
+
+## Unreleased - gPTP on the MII port
+
+- Issue #829: the gPTP plane timed no MII frame.
+- That port runs at 100 Mb/s.
+- `phy.sink` holds each MII octet for two clocks.
+- The launch observer read one octet per clock.
+- Its delimiter check failed on the held preamble.
+- So no frame was attributed.
+- No launch record came, and the engine waited for one.
+- Its event queue filled.
+- The observer now counts an octet where `valid` and `ready` coincide.
+- On GMII `ready` is a flop.
+- It is 1 from the first clock after reset.
+- The observer's own reset covers that reset.
+- So no octet is held on GMII.
+- The MII correction is 3770 ns.
+- The GMII correction is 426 ns.
+- `make -C tb/verilator/gptp_txts run-mii` runs the closed loop on this shape.
 
 ## Unreleased - AECP REBOOT resets the end station
 
