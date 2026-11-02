@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-1-packet/scripts/run_control.py", line 19, in <module>
+    fn() if name == "owner_vanishing" else fn(Path(scratch))
+                                           ~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-1-packet/scratch/mutants/cleanup-does-nothing/scripts/test_suite_cancellation.py", line 603, in owner_survivor
+    owner.run(["bash", "-c", script], env=env)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-1-packet/scratch/mutants/cleanup-does-nothing/scripts/owned_process.py", line 365, in run
+    self.checkpoint()
+    ~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r763-1-packet/scratch/mutants/cleanup-does-nothing/scripts/owned_process.py", line 200, in checkpoint
+    raise Cancelled(self.cancel_signal)
+owned_process.Cancelled: signal 15
+owner_survivor FAIL 0.0s Cancelled: signal 15

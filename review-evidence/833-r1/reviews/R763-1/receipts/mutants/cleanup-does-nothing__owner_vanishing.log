@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-1-packet/scripts/run_control.py", line 19, in <module>
+    fn() if name == "owner_vanishing" else fn(Path(scratch))
+    ~~^^
+  File "$REVIEWS/833-r763-1-packet/scratch/mutants/cleanup-does-nothing/scripts/test_suite_cancellation.py", line 634, in owner_vanishing
+    raise AssertionError("an endless listing did not fail the run")
+AssertionError: an endless listing did not fail the run
+owner_vanishing FAIL 0.0s AssertionError: an endless listing did not fail the run

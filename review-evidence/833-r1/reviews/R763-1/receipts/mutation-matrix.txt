@@ -1,0 +1,35 @@
+mutant                     report    reparente late_exit stall     shell_win survivor  vanishing  red
+none                       ok        ok        ok        ok        ok        ok        ok         0
+cleanup-does-nothing       ok        RED(1)    RED(137)  RED(1)    RED(1)    RED(1)    RED(1)     6
+deadline-wall-clock        ok        ok        ok        RED(1)    ok        ok        ok         1
+endless-unbounded          ok        ok        ok        ok        ok        ok        RED(1)     1
+identity-includes-parent   ok        RED(1)    ok        ok        ok        ok        ok         1
+killed-counts-as-gone      ok        ok        ok        ok        ok        ok        ok         0
+no-kill-before-raise       ok        ok        ok        ok        ok        RED(1)    ok         1
+no-reap-after-census       ok        ok        RED(1)    ok        ok        ok        ok         1
+no-shell-window            ok        ok        ok        ok        RED(1)    ok        ok         1
+pass-cap-5s                ok        ok        ok        RED(1)    ok        ok        ok         1
+report-without-state       RED(1)    ok        ok        ok        ok        RED(1)    ok         2
+report-without-wchan       RED(1)    ok        ok        ok        ok        RED(1)    ok         2
+survivor-never-fails       ok        ok        ok        ok        ok        RED(1)    RED(1)     2
+trap-commands-1s           ok        ok        ok        ok        ok        ok        ok         0
+
+cleanup-does-nothing / owner_reparented: owner_reparented FAIL 0.1s AssertionError: re-parented descendant was treated as new and never got SIGTERM
+cleanup-does-nothing / owner_late_exit: (no FAIL line: killed by the 150 s bound)
+cleanup-does-nothing / owner_stall: owner_stall FAIL 0.0s AssertionError: ('74110182', 'S')
+cleanup-does-nothing / owner_shell_window: owner_shell_window FAIL 0.0s AssertionError: the shell was killed in the pass that resumed it, before its trap
+cleanup-does-nothing / owner_survivor: owner_survivor FAIL 0.0s Cancelled: signal 15
+cleanup-does-nothing / owner_vanishing: owner_vanishing FAIL 0.0s AssertionError: an endless listing did not fail the run
+deadline-wall-clock / owner_stall: owner_stall FAIL 3.3s RuntimeError: CLEANUP FAILED: owned descendants remain after 3.22 s, 2 census passes, slowest 3.20 s: pid 3 (python3) state S wchan hrtimer_nanosleep parent 2 (first parent 2) age 3.26 s start 74110182, not sent SIGKILL
+endless-unbounded / owner_vanishing: owner_vanishing FAIL 15.0s AssertionError: cleanup never reached a verdict
+identity-includes-parent / owner_reparented: owner_reparented FAIL 2.1s AssertionError: re-parented descendant was treated as new and never got SIGTERM
+no-kill-before-raise / owner_survivor: owner_survivor FAIL 18.1s AssertionError: stopped shell left behind
+no-reap-after-census / owner_late_exit: owner_late_exit FAIL 0.5s RuntimeError: CLEANUP FAILED: owned descendants remain after 0.47 s, 1 census passes, slowest 0.47 s: pid 3 (python3) state Z wchan 0 parent 2 (first parent 2) age 0.49 s start 74110488, not sent SIGKILL
+no-shell-window / owner_shell_window: owner_shell_window FAIL 0.8s AssertionError: the shell was killed in the pass that resumed it, before its trap
+pass-cap-5s / owner_stall: owner_stall FAIL 3.3s RuntimeError: CLEANUP FAILED: owned descendants remain after 3.22 s, 2 census passes, slowest 3.20 s: pid 3 (python3) state S wchan hrtimer_nanosleep parent 2 (first parent 2) age 3.24 s start 74110627, not sent SIGKILL
+report-without-state / owner_report: owner_report FAIL 2.1s AssertionError: ('state S', 'pid 3 (python3) wchan hrtimer_nanosleep parent 2 (first parent 2) age 0.02 s start 74110683, not sent SIGKILL')
+report-without-state / owner_survivor: owner_survivor FAIL 1.1s AssertionError: ('state ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 4 (bash) wchan do_signal_stop parent 2 (first parent 2) age 1.05 s start 74110745, not sent SIGKILL; pid 5 (python3) wchan hrtimer_nanosleep parent 4 (fir
+report-without-wchan / owner_report: owner_report FAIL 2.1s AssertionError: ('wchan ', 'pid 3 (python3) state S parent 2 (first parent 2) age 0.02 s start 74110761, not sent SIGKILL')
+report-without-wchan / owner_survivor: owner_survivor FAIL 1.1s AssertionError: ('wchan ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 4 (bash) state T parent 2 (first parent 2) age 1.05 s start 74110837, not sent SIGKILL; pid 5 (python3) state S parent 4 (first parent 4) age 1.05 s start
+survivor-never-fails / owner_survivor: owner_survivor FAIL 32.1s AssertionError: a survivor never failed the run
+survivor-never-fails / owner_vanishing: owner_vanishing FAIL 15.0s AssertionError: cleanup never reached a verdict

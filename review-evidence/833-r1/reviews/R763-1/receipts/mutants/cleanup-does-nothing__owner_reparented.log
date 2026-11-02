@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-1-packet/scripts/run_control.py", line 19, in <module>
+    fn() if name == "owner_vanishing" else fn(Path(scratch))
+                                           ~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-1-packet/scratch/mutants/cleanup-does-nothing/scripts/test_suite_cancellation.py", line 476, in owner_reparented
+    assert marker.exists(), "re-parented descendant was treated as new and never got SIGTERM"
+           ~~~~~~~~~~~~~^^
+AssertionError: re-parented descendant was treated as new and never got SIGTERM
+owner_reparented FAIL 0.1s AssertionError: re-parented descendant was treated as new and never got SIGTERM

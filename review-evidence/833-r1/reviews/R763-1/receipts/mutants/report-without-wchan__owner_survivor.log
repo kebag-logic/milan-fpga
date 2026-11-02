@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-1-packet/scripts/run_control.py", line 19, in <module>
+    fn() if name == "owner_vanishing" else fn(Path(scratch))
+                                           ~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-1-packet/scratch/mutants/report-without-wchan/scripts/test_suite_cancellation.py", line 614, in owner_survivor
+    assert field in failure, (field, failure)
+           ^^^^^^^^^^^^^^^^
+AssertionError: ('wchan ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 4 (bash) state T parent 2 (first parent 2) age 1.05 s start 74110837, not sent SIGKILL; pid 5 (python3) state S parent 4 (first parent 4) age 1.05 s start 74110837, sent SIGKILL 0.81 s ago')
+owner_survivor FAIL 1.1s AssertionError: ('wchan ', 'CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 4 (bash) state T parent 2 (first parent 2) age 1.05 s start 74110837, not sent SIGKILL; pid 5 (python3) state S parent 4 (first parent 4) age 1.05 s start 74110837, sent SIGKILL 0.81 s ago')

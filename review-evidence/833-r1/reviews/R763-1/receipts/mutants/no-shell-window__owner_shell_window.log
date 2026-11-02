@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "$REVIEWS/833-r763-1-packet/scripts/run_control.py", line 19, in <module>
+    fn() if name == "owner_vanishing" else fn(Path(scratch))
+                                           ~~^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r763-1-packet/scratch/mutants/no-shell-window/scripts/test_suite_cancellation.py", line 563, in owner_shell_window
+    assert marker.exists(), "the shell was killed in the pass that resumed it, before its trap"
+           ~~~~~~~~~~~~~^^
+AssertionError: the shell was killed in the pass that resumed it, before its trap
+owner_shell_window FAIL 0.8s AssertionError: the shell was killed in the pass that resumed it, before its trap

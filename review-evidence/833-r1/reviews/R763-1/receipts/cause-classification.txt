@@ -1,0 +1,13 @@
+Z, parent is the owner               f-s256.jsonl                                             4.70s  bash Z 0 parent=owner not sent SIGKILL
+Z, parent is the owner               f-s256.jsonl                                             4.56s  bash Z 0 parent=owner not sent SIGKILL
+Z, parent is the owner               f-s256.jsonl                                             4.22s  bash Z 0 parent=owner not sent SIGKILL
+Z, parent is the owner               f-s256.jsonl                                             4.27s  python3 Z 0 parent=owner sent SIGKILL 1.28 s ago
+T shell holding Z child              before.jsonl                                             4.17s  bash T do_signal_stop parent=owner not sent SIGKILL | bash Z 0 parent=155923 not sent SIGKILL
+Z, parent is the owner               before.jsonl                                             4.48s  bash Z 0 parent=owner not sent SIGKILL
+Z, parent is the owner               before.jsonl                                             5.15s  bash Z 0 parent=owner sent SIGKILL 1.23 s ago
+Z, parent is the owner               before.jsonl                                             4.70s  bash Z 0 parent=owner not sent SIGKILL
+D (uninterruptible after SIGKILL)    round0-at-f6b776e7/fullsuite-round0-1/before/001.log     4.07s  python3 Z 0 parent=owner sent SIGKILL 0.14 s ago | git D __mmap_region parent=owner sent SIGKILL 2.07 s ago
+D (uninterruptible after SIGKILL)    round0-at-f6b776e7/fullsuite-round0-1/before/002.log     4.09s  python3 D unlink_file_vma_batch_process parent=owner sent SIGKILL 1.36 s ago
+D (uninterruptible after SIGKILL)    round0-at-f6b776e7/fullsuite-round0-1/before/004.log     4.00s  python3 D dup_mmap parent=owner sent SIGKILL 1.91 s ago
+Z, parent is the owner               final-suite-L48-M6/before/001.log                        4.12s  bash Z 0 parent=owner not sent SIGKILL
+Counter({'Z, parent is the owner': 8, 'D (uninterruptible after SIGKILL)': 3, 'T shell holding Z child': 1}) total 12
