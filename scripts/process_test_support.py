@@ -17,8 +17,16 @@ from pathlib import Path
 PROC = Path("/proc")
 ROOT = Path(__file__).resolve().parent.parent
 #: Bounds a hang, never a property under test (#833). One real mutation driver took
-#: up to 15.1 s under load, beside host stalls of up to 7.96 s, and a true survivor
-#: takes up to 24 s of owner cleanup to report. This is four times that driver.
+#: up to 15.1 s under load, beside host stalls of up to 7.96 s. This is four times
+#: that driver. On the owner's clock in scripts/owned_process.py, a true survivor's
+#: deadline is 14 s into cleanup (GRACE + KILL_ALL + REAP). One started by a resumed
+#: shell's trap has its deadline 20 s after the resume (TRAP + REAP), which comes
+#: before 14 s: under 34 s. A listing that dies inside every census waits REAP more:
+#: under 44 s. The run fails in the first census pass at or past the deadline, at
+#: most 0.5 s of owner clock later. Wall time runs ahead of the owner's clock only
+#: while a pass takes longer than 0.5 s. With the driver's 15.1 s on top that is
+#: 49.6 s, or 59.6 s for the listing: both inside this bound while passes stay
+#: within 0.5 s.
 FINISH_SECONDS = 60
 
 # A command publishes readiness only after its detached, stubborn child has

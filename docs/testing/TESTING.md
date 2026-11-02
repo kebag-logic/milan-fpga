@@ -226,6 +226,13 @@ A descendant still listed ten seconds after that fails the run.
 A shell resumed late has ten seconds of its own to finish its terminal trap.
 These deadlines run on the owner's clock.
 One census pass advances that clock by at most half a second.
+A true survivor's deadline is 14 s into cleanup on the owner's clock.
+One started by a resumed shell's trap has its deadline 20 s after the resume.
+That resume comes before 14 s, so this deadline comes under 34 s.
+A listing that dies inside every census waits 10 s more: under 44 s.
+The run fails in the first census pass at or past the deadline.
+That pass adds at most 0.5 s of owner clock.
+Wall time runs ahead of the owner's clock only while a pass takes longer than 0.5 s.
 These cleanup intervals do not change suite deadlines.
 Ordinary red suites still continue through the selected population.
 Masked verdicts still fail; deadline results remain unknown.
