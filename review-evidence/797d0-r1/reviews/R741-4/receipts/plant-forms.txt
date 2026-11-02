@@ -1,0 +1,32 @@
+documentation inventory: OK (550 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+--check after planting rc= 1 (1 expected)
+--check after --write rc= 0 (0 expected)
+OK  underscore-whole         want_row=True  rows=[('D0-063', '7')] stale=True
+OK  underscore-double-part   want_row=True  rows=[('D0-065', '7')] stale=True
+OK  underscore-around-code   want_row=True  rows=[('D0-064', '7')] stale=True
+OK  underscore-star-mixed    want_row=True  rows=[('D0-063', '7')] stale=True
+OK  link-inline-title        want_row=True  rows=[('D0-063', '7')] stale=True
+OK  link-reference           want_row=True  rows=[('D0-065', '7')] stale=True
+OK  link-wrapped             want_row=True  rows=[('D0-065', '7')] stale=True
+OK  link-image               want_row=True  rows=[('D0-063', '7')] stale=True
+OK  end-comma                want_row=True  rows=[('D0-063', '7')] stale=True
+OK  end-semicolon            want_row=True  rows=[('D0-063', '7')] stale=True
+OK  end-colon                want_row=True  rows=[('D0-063', '7')] stale=True
+OK  end-none                 want_row=True  rows=[('D0-063', '7')] stale=True
+OK  quote-ends-comma         want_row=True  rows=[('D0-036', '7')] stale=True
+OK  also-D0-002              want_row=True  rows=[('D0-002', '7')] stale=True
+OK  also-D0-005              want_row=True  rows=[('D0-005', '7')] stale=True
+OK  also-D0-024              want_row=True  rows=[('D0-024', '7')] stale=True
+OK  also-D0-025              want_row=True  rows=[('D0-025', '7')] stale=True
+OK  also-D0-035              want_row=True  rows=[('D0-035', '7')] stale=True
+OK  also-D0-036a             want_row=True  rows=[('D0-036', '7')] stale=True
+OK  also-D0-036b             want_row=True  rows=[('D0-036', '7')] stale=True
+OK  also-D0-047              want_row=True  rows=[('D0-047', '7')] stale=True
+OK  also-D0-058              want_row=True  rows=[('D0-040', '7')] stale=True
+OK  also-D0-059              want_row=True  rows=[('D0-059', '7')] stale=True
+OK  also-D0-062              want_row=True  rows=[('D0-062', '7')] stale=True
+OK  no-inner-underscore      want_row=False rows=[] stale=False
+OK  no-longer-word           want_row=False rows=[] stale=False
+OK  no-unrelated-link        want_row=False rows=[] stale=False
+OK  no-blank-line-split      want_row=False rows=[] stale=False
+wrong: 0 of 28

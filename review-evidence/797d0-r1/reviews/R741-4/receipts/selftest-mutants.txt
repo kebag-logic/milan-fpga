@@ -1,0 +1,14 @@
+no-underscore-strip	rc=1	KILLED	selftest: FAIL underscore emphasis is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |'
+all-underscores-stripped	rc=1	KILLED	selftest: FAIL an inner _ is not emphasis: rendered page carries '| D0-002 | [REQUIREMENTS.md]'
+no-left-underscore	rc=1	KILLED	selftest: FAIL underscore emphasis is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |'
+no-right-underscore	rc=1	KILLED	selftest: FAIL underscore emphasis is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |'
+no-reference-link	rc=1	KILLED	selftest: FAIL a wrapped link is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |'
+no-inline-link	rc=1	KILLED	selftest: FAIL a wrapped link is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |'
+flatten-without-link	rc=1	KILLED	selftest: FAIL a wrapped link is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |'
+normal-form-without-link	rc=1	KILLED	selftest: FAIL a quote with a link finds the plain copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |'
+needle-keeps-punctuation	rc=1	KILLED	selftest: FAIL another clause end is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |'
+needle-strips-dot-only	rc=0	SURVIVED	documentation inventory selftest: OK (50 controls)
+also-accepts-markup-only	rc=1	KILLED	selftest: FAIL `also` normalised to nothing: --check exited 1, expected 2: docs/DOCUMENTATION_AUDIT.md: STALE (26 lines differ); first difference at line 30:
+also-searched-not	rc=1	KILLED	selftest: FAIL a spelling found only through `also` gets a row: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 5 |'
+carried-needle-is-normal-form	rc=1	KILLED	selftest: FAIL another clause end is a copy: rendered page lacks '| D0-002 | [REQUIREMENTS.md](../REQUIREMENTS.md) | 3 |'
+held-is-normal-form	rc=0	SURVIVED	documentation inventory selftest: OK (50 controls)
