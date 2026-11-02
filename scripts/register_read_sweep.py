@@ -15,9 +15,10 @@ What it does:
     parameters the page's "Build parameters" table prints, and at the same
     parameters with two listeners and two talkers;
   * drives the selection, the ACMP and SRP table answers (to a poll and to a
-    provisioning write), a running snapshot, the counter kinds and the
-    channel-map readback through the block's own ports and registers, and
-    reads every word that has a read table;
+    provisioning write, in either order around the write, and a beat another
+    master used), a running snapshot, the counter kinds and the channel-map
+    readback through the block's own ports and registers, and reads every word
+    that has a read table;
   * evaluates each row's clauses through CLAUSE, which maps the printed words
     to what the harness did or read back through a register, never to the
     flop the generator worded. A read must equal the value of every row that
@@ -68,8 +69,8 @@ DRIVEN = {"i_lctx_rd_data": 0x11111111, "i_tctx_rd_data": 0x22222222, "i_lwsrp_s
 
 State = dict[str, int]
 #: The state columns of a harness log line, as numbers.
-LOGGED = ("sel9", "dir", "idx", "acmp", "srp", "srpw", "srppoll", "snap", "word", "cmdone", "cmvalid",
-          "cmside", "cmaddr", "cmdata")
+LOGGED = ("sel9", "dir", "idx", "acmp", "srp", "srpw", "srppoll", "srpsteal", "srpsince", "snap", "word", "cmdone",
+          "cmvalid", "cmside", "cmaddr", "cmdata")
 
 #: Each printed clause, read as the page states it, over what the harness did
 #: or read back. `sel9` is the last bit 9 written: STRM_SEL[9] is a write-only
@@ -85,10 +86,20 @@ CLAUSE: dict[str, Callable[[State], bool]] = {
     "the stream index `STRM_SEL[3:0]` is not 0": lambda s: s["idx"] != 0,
     "the ACMP table answered since the last selection": lambda s: s["acmp"] == 1,
     "the ACMP table has not answered since the last selection": lambda s: s["acmp"] == 0,
+    # `srppoll`, `srpsteal` and `srpsince` are the harness's record of the
+    # table's answers, writes and other masters' beats, in the page's words.
+    "the SRP table's latest answer to the window was a poll, after the last `STRM_SEL`/`STRMW_CTRL` write, "
+    "with no other master using the table since":
+        lambda s: s["srppoll"] == 1 and s["srpsteal"] == 0,
+    "the SRP table's latest answer to the window was not a poll after the last `STRM_SEL`/`STRMW_CTRL` write, "
+    "or another master has used the table since":
+        lambda s: s["srppoll"] == 0 or s["srpsteal"] == 1,
+    # The weaker wording this pair replaced, read as printed, so a page that
+    # prints it again fails on the states that separate the two (#797).
     "the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write":
-        lambda s: s["srppoll"] == 1,
+        lambda s: s["srpsince"] == 1,
     "the SRP table has not answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write":
-        lambda s: s["srppoll"] == 0,
+        lambda s: s["srpsince"] == 0,
     "`STRM_SEL[9]` is 1": lambda s: s["sel9"] == 1,
     "`STRM_SEL[9]` is 0": lambda s: s["sel9"] == 0,
     "the kind the last snapshot recorded for this counter is `SK_RAW_C`": lambda s: s["kind"] == s["SK_RAW_C"],
@@ -224,7 +235,22 @@ static void put32(SData& v, int, uint32_t x) { v = x; }
 static void put32(IData& v, int, uint32_t x) { v = x; }
 static void put32(QData& v, int s, uint32_t x) { v &= ~(0xFFFFFFFFULL << (32 * s)); v |= (uint64_t)x << (32 * s); }
 template <std::size_t N> static void put32(VlWide<N>& v, int s, uint32_t x) { v[s] = x; }
-static void tick() { t->aclk = 0; t->eval(); t->aclk = 1; t->eval(); t->aclk = 0; t->eval(); }
+// What happened at the SRP table, by clock edge, as the page words it: the
+// last STRM_SEL/STRMW_CTRL write (the bus handshake), the latest answer to the
+// window and the latest poll answer (a grant answers the command the window
+// presented the cycle before, a write when o_srp_ctx_we was 1), and the latest
+// beat another master used.
+static long cyc = 0, at_selwr = -1, at_ans = -1, at_poll = -1, at_steal = -1;
+static int ans_poll = 0, cmd_req = 0, cmd_we = 0;
+static void tick() {
+  t->aclk = 0; t->eval();
+  if (t->s_axi_awvalid && t->s_axi_wvalid && t->s_axi_awready &&
+      (t->s_axi_awaddr == 0x800 || t->s_axi_awaddr == 0x810)) at_selwr = cyc;
+  if (t->i_srp_ctx_gnt) { at_ans = cyc; ans_poll = !cmd_we; if (!cmd_we) at_poll = cyc; }
+  if (t->i_srp_ctx_stolen) at_steal = cyc;
+  cmd_req = t->o_srp_ctx_req; cmd_we = t->o_srp_ctx_we;
+  t->aclk = 1; t->eval(); t->aclk = 0; t->eval(); cyc++;
+}
 static void ticks(int n) { for (int i = 0; i < n; i++) tick(); }
 static uint32_t rd(uint32_t a) {
   t->s_axi_araddr = a; t->s_axi_arvalid = 1; t->s_axi_rready = 0; int g = 0; t->eval();
@@ -246,8 +272,26 @@ static int answer_acmp() {
   t->i_acmp_tbl_gnt = 1; tick(); t->i_acmp_tbl_gnt = 0; ticks(2); return 1;
 }
 static int answer_srp() {
-  ticks(2); if (!t->o_srp_ctx_req) return 0;
+  ticks(2); if (!cmd_req) return 0;
   t->i_srp_ctx_gnt = 1; tick(); t->i_srp_ctx_gnt = 0; ticks(2); return 1;
+}
+// A STRMW_CTRL write with the engine answering each cycle's request from the
+// handshake on: the command presented in the handshake cycle is answered
+// first, then the next, until it has answered `answers` of them.
+// Returns whether the write was posted to the table (o_srp_ctx_we).
+static int wr_ctrl_answered(uint32_t d, int answers) {
+  t->s_axi_awaddr = 0x810; t->s_axi_wdata = d; t->s_axi_wstrb = 0xF; t->s_axi_awvalid = 1; t->s_axi_wvalid = 1;
+  t->s_axi_bready = 1; int hs = 0, posted = 0, g = 0;
+  while (answers > 0 && g++ < 64) {
+    t->i_srp_ctx_gnt = hs && cmd_req; t->eval();
+    if (t->i_srp_ctx_gnt) answers--;
+    posted |= hs && t->o_srp_ctx_we;
+    int done = t->s_axi_awready; tick();
+    if (done) { hs = 1; t->s_axi_awvalid = 0; t->s_axi_wvalid = 0; }
+    if (!hs && g > 32) { printf("FAIL aw 810\n"); exit(2); }
+  }
+  t->i_srp_ctx_gnt = 0; t->eval(); ticks(4);
+  return posted;
 }
 static const uint32_t WORDS[] = {@WORDS@};
 static const int KINDS[3] = {@SK_ZERO_C@, @SK_RAW_C@, @SK_POISON_C@};
@@ -263,12 +307,13 @@ int main(int argc, char** argv) {
   t->i_chmap_rd_data = @i_chmap_rd_data@u;
   t->aresetn = 0; ticks(8); t->aresetn = 1; ticks(530);
   wr(0x654, @aaf_ctrl@u); wr(0x658, @aaf_dmlo@u); wr(0x65C, @aaf_dmhi@u);
-  printf("addr value sel9 dir idx acmp srp srpw srppoll snap kinds word mac cmdone cmvalid cmside cmaddr cmdata\n");
+  printf("addr value sel9 dir idx acmp srp srpw srppoll srpsteal srpsince snap kinds word mac "
+         "cmdone cmvalid cmside cmaddr cmdata\n");
   // Channel-map readback: never, answered, re-armed in flight, timed out, answered.
   int cmdone = 0, cmside = 0, cmaddr = 0;
   auto loop_read = [&]() {
     uint32_t st = rd(0x910), v = rd(0x914);
-    printf("914 %08x 0 0 0 0 0 0 0 0 0000000000 0 %012llx %d %u %d %d %d\n", v,
+    printf("914 %08x 0 0 0 0 0 0 0 0 0 0 0000000000 0 %012llx %d %u %d %d %d\n", v,
            (unsigned long long)r->milan_csr__DOT__mac_wire_w, cmdone, st >> 1 & 1, cmside, cmaddr,
            @i_chmap_rd_data@);
   };
@@ -289,7 +334,7 @@ int main(int argc, char** argv) {
   // Stream window: selection, table answers, snapshot, counter kinds.
   for (int sel9 = 0; sel9 < 2; sel9++) for (int dir = 0; dir < 2; dir++)
   for (int ii = 0; ii < @N_INDICES@; ii++) for (int acmp = 0; acmp < 2; acmp++)
-  for (int srpmode = 0; srpmode < 4; srpmode++) for (int snap = 0; snap < 2; snap++)
+  for (int srpmode = 0; srpmode < 8; srpmode++) for (int snap = 0; snap < 2; snap++)
   for (int ks = 0; ks < 3; ks++) {
     static const int IDX[] = {@INDICES@};
     int idx = IDX[ii];
@@ -297,16 +342,30 @@ int main(int argc, char** argv) {
     uint32_t sel = (sel9 << 9) | (dir << 8) | idx;
     wr(0x800, sel); ticks(4);
     int acmp_ans = acmp ? answer_acmp() : 0;
-    // srp: the table answered since the selection; srpw: it answered a
-    // provisioning write; srppoll: a poll answer is the latest answer, after
-    // the selection and after any STRMW_CTRL write.
-    int srp_ans = 0, srpw = 0, srppoll = 0;
-    if (srpmode == 1) srppoll = srp_ans = answer_srp();
-    if (srpmode >= 2) {
+    // The SRP table: 0 no answer; 1 a poll answered; 2 a STRMW_CTRL write and
+    // its write answered; 3 as 2, then a poll answered; 4 a STRMW_CTRL write,
+    // a poll answered after it, then its write answered; 5 as 4 with its write
+    // not yet answered; 6 a poll answered, then a beat another master used;
+    // 7 as 6, then a poll answered. srp: the table answered since the
+    // selection; srpw: a provisioning write was posted.
+    int srp_ans = 0, srpw = 0;
+    if (srpmode == 1 || srpmode >= 6) srp_ans = answer_srp();
+    if (srpmode >= 6) { t->i_srp_ctx_stolen = 1; tick(); t->i_srp_ctx_stolen = 0; ticks(2); }
+    if (srpmode == 7) answer_srp();
+    if (srpmode == 2 || srpmode == 3) {
       wr(0x810, @aaf_ctrl@u); srpw = t->o_srp_ctx_we;
       if (srpw) srp_ans = answer_srp();
-      if (srpmode == 3) { srppoll = answer_srp(); srp_ans |= srppoll; }
+      if (srpmode == 3) srp_ans |= answer_srp();
     }
+    if (srpmode == 4 || srpmode == 5) {
+      srpw = wr_ctrl_answered(@aaf_ctrl@u, srpmode == 4 ? 2 : 1); srp_ans = at_ans > at_selwr;
+    }
+    // The clauses as the page prints them, from the record above. srppoll:
+    // the table's latest answer to the window was a poll, after the last
+    // STRM_SEL/STRMW_CTRL write; srpsteal: another master used the table
+    // since that answer; srpsince: the table answered a poll since the last
+    // STRM_SEL/STRMW_CTRL write.
+    int srppoll = ans_poll && at_ans > at_selwr, srpsteal = at_steal > at_ans, srpsince = at_poll > at_selwr;
     if (snap) { t->i_lctx_snap_ok = 0; t->i_tctx_snap_ok = 0; wr(0x804, 1); ticks(8); }
     char kinds[11];
     for (int n = 0; n < 10; n++) {
@@ -320,14 +379,16 @@ int main(int argc, char** argv) {
     for (uint32_t a : WORDS) {
       uint32_t v = rd(a);
       int word = a == 0x82C ? 0 : a == 0x858 ? 11 : (a >= 0x830 && a < 0x858) ? 1 + (int)((a - 0x830) / 4) : 0;
-      printf("%x %08x %d %d %d %d %d %d %d %u %s %d %012llx 0 0 0 0 0\n", a, v, sel9, dir, idx, acmp_ans,
-             srp_ans, srpw, srppoll, busy, kinds, word, (unsigned long long)r->milan_csr__DOT__mac_wire_w);
+      printf("%x %08x %d %d %d %d %d %d %d %d %d %u %s %d %012llx 0 0 0 0 0\n", a, v, sel9, dir, idx, acmp_ans,
+             srp_ans, srpw, srppoll, srpsteal, srpsince, busy, kinds, word,
+             (unsigned long long)r->milan_csr__DOT__mac_wire_w);
     }
     uint32_t after = rd(0x804) & 1, back = rd(0x800);
     if (after != busy) { printf("FAIL snapshot state moved during the reads at sel %03x\n", sel); return 2; }
     if (back != (sel & 0x10F)) { printf("FAIL STRM_SEL reads %08x after writing %03x\n", back, sel); return 2; }
     t->i_lctx_snap_ok = 1; t->i_tctx_snap_ok = 1; int g = 0;
     while ((rd(0x804) & 1) && ++g < 400) ticks(8);
+    for (g = 0; t->o_srp_ctx_we && g < 4; g++) answer_srp();  // no write left pending
     ticks(4);
   }
   delete t; return 0;
