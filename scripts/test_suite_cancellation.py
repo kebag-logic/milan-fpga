@@ -748,9 +748,10 @@ def starved_cleanup(owner: OwnedProcesses, listing: Callable[[float], dict], nam
 
     A pass longer than the cap, half a second, counts as the cap, whether it took a tick more or an hour. One
     shorter counts its own length: the clock lands a tick short of each time in `stated`, then on it, so the
-    pass before each stated time is a tick early. Only what `reaped` returns is ever collected.
+    pass before each stated time is a tick early. Only what `reaped` returns is ever collected. A verdict
+    that does not report a real process's wall time since its first SIGKILL adds that time to the events.
     """
-    now, clock, events = [0.0], [0.0], []
+    now, clock, events, killed = [0.0], [0.0], [], {}
 
     def pause(_seconds: float) -> None:
         """One pass's pause, whatever it asks for."""
@@ -768,6 +769,8 @@ def starved_cleanup(owner: OwnedProcesses, listing: Callable[[float], dict], nam
     def send(pid: int, _start: str, signum: int) -> bool:
         """Note the signal and its time; no process receives it."""
         events.append((clock[0], signal.Signals(signum).name, names[pid]))
+        if signum == signal.SIGKILL:
+            killed.setdefault(pid, now[0])
         return True
     real = owned_process.time
     owned_process.time = SimpleNamespace(monotonic=lambda: now[0], sleep=pause)
@@ -776,8 +779,11 @@ def starved_cleanup(owner: OwnedProcesses, listing: Callable[[float], dict], nam
     try:
         owner._cleanup()
         events.append((clock[0], "no verdict"))
-    except RuntimeError:
+    except RuntimeError as exc:
         events.append((clock[0], "verdict"))
+        ages = [f"sent SIGKILL {now[0] - at:.2f} s ago" for pid, at in killed.items()
+                if pid == os.getpid() and pid in listing(clock[0])]
+        events += [("not in the report", age) for age in ages if age not in str(exc)]
     finally:
         owned_process.time = real
         del owner._descendants, owner._reap, owner._send, owner._signal
