@@ -675,6 +675,83 @@ MUTANTS: dict[str, tuple] = {
     "no-window-later-in-grace": ("owner_stated_seconds", "an in-grace resume's stated seconds were not kept",
         ("kill_all = max(kill_all, clock + TRAP_SECONDS)",
          "kill_all = max(kill_all, clock + TRAP_SECONDS) if clock >= deadline or passes == 1 else kill_all")),
+    "lone-first-pass-shell-needs-a-child": ("owner_stated_seconds", "a lone first-pass resume's stated seconds were"
+                                                                    " not kept",
+        ("resumed = clock\n", "resumed, edge = clock, passes == 1\n"),
+        ("(resumed is None or clock < kill_all):",
+         "(resumed is None or clock < kill_all and (clock == resumed or not edge"
+         " or any(parent == pid for _child, (parent, _start) in owned.items()))):")),
+    "first-pass-trap-command-sigtermed": ("owner_stated_seconds", "a first-pass resume's stated seconds were not kept",
+        ("resumed = clock\n", "resumed, edge = clock, passes == 1\n"),
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and not (resumed is not None and edge):\n"
+         "                        continue\n                elif")),
+    "lone-second-pass-shell-needs-a-child": ("owner_stated_seconds", "a lone second-pass resume's stated seconds"
+                                                                     " were not kept",
+        ("resumed = clock\n", "resumed, edge = clock, passes == 2\n"),
+        ("(resumed is None or clock < kill_all):",
+         "(resumed is None or clock < kill_all and (clock == resumed or not edge"
+         " or any(parent == pid for _child, (parent, _start) in owned.items()))):")),
+    "second-pass-trap-command-sigtermed": ("owner_stated_seconds", "a second-pass resume and its trap command's"
+                                                                   " stated seconds were not kept",
+        ("resumed = clock\n", "resumed, edge = clock, passes == 2\n"),
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and not (resumed is not None and edge):\n"
+         "                        continue\n                elif")),
+    "lone-last-in-grace-shell-needs-a-child": ("owner_stated_seconds", "a lone last in-grace resume's stated"
+                                                                       " seconds were not kept",
+        ("resumed = clock\n", "resumed, edge = clock, deadline - MAX_PASS_SECONDS <= clock < deadline\n"),
+        ("(resumed is None or clock < kill_all):",
+         "(resumed is None or clock < kill_all and (clock == resumed or not edge"
+         " or any(parent == pid for _child, (parent, _start) in owned.items()))):")),
+    "last-in-grace-trap-command-unspared": ("owner_stated_seconds", "a last in-grace resume and its trap command's"
+                                                                    " stated seconds were not kept",
+        ("resumed = clock\n", "resumed, edge = clock, deadline - MAX_PASS_SECONDS <= clock < deadline\n"),
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and not edge:")),
+    "lone-first-past-grace-shell-needs-a-child": ("owner_stated_seconds", "a lone first past-grace resume's stated"
+                                                                          " seconds were not kept",
+        ("passes = 0\n", "passes = late = 0\n"),
+        ("            last = now\n", "            last = now\n            late += clock >= deadline\n"),
+        ("resumed = clock\n", "resumed, edge = clock, late == 1\n"),
+        ("(resumed is None or clock < kill_all):",
+         "(resumed is None or clock < kill_all and (clock == resumed or not edge"
+         " or any(parent == pid for _child, (parent, _start) in owned.items()))):")),
+    "first-past-grace-trap-command-unspared": ("owner_stated_seconds", "a first past-grace resume and its trap"
+                                                                       " command's stated seconds were not kept",
+        ("passes = 0\n", "passes = late = 0\n"),
+        ("            last = now\n", "            last = now\n            late += clock >= deadline\n"),
+        ("resumed = clock\n", "resumed, edge = clock, late == 1\n"),
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and not edge:")),
+    "lone-second-past-grace-shell-needs-a-child": ("owner_stated_seconds", "a lone second past-grace resume's"
+                                                                           " stated seconds were not kept",
+        ("passes = 0\n", "passes = late = 0\n"),
+        ("            last = now\n", "            last = now\n            late += clock >= deadline\n"),
+        ("resumed = clock\n", "resumed, edge = clock, late == 2\n"),
+        ("(resumed is None or clock < kill_all):",
+         "(resumed is None or clock < kill_all and (clock == resumed or not edge"
+         " or any(parent == pid for _child, (parent, _start) in owned.items()))):")),
+    "second-past-grace-trap-command-unspared": ("owner_stated_seconds", "a second past-grace resume and its trap"
+                                                                        " command's stated seconds were not kept",
+        ("passes = 0\n", "passes = late = 0\n"),
+        ("            last = now\n", "            last = now\n            late += clock >= deadline\n"),
+        ("resumed = clock\n", "resumed, edge = clock, late == 2\n"),
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and not edge:")),
+    "lone-last-pass-shell-needs-a-child": ("owner_stated_seconds", "a lone last-pass resume's stated seconds were"
+                                                                   " not kept",
+        ("resumed = clock\n", "resumed, edge = clock, clock + MAX_PASS_SECONDS >= kill_all + REAP_SECONDS\n"),
+        ("(resumed is None or clock < kill_all):",
+         "(resumed is None or clock < kill_all and (clock == resumed or not edge"
+         " or any(parent == pid for _child, (parent, _start) in owned.items()))):")),
+    "last-pass-trap-command-spared-only-if-listed-at-resume": ("owner_stated_seconds", "a last-pass resume and its"
+                                                                                       " trap command's stated"
+                                                                                       " seconds were not kept",
+        ("resumed = clock\n",
+         "resumed, edge = clock, set(owned) if clock + MAX_PASS_SECONDS >= kill_all + REAP_SECONDS else None\n"),
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and (edge is None or pid in edge):")),
 }
 
 
