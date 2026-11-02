@@ -14,7 +14,7 @@ This page changes documentation only.
 - **[Summary](#summary)** -- Target, basis, estimates and the binding Block RAM.
 - **[Target](#target)** -- Mark II ceiling, shape, timing and the shipping image.
 - **[Mark II measured basis](#mark-ii-measured-basis)** -- The 2026-10-31 route and its rows.
-- **[Mark II levers](#mark-ii-levers)** -- Owner order, 32x32 additions, about 21.45k.
+- **[Mark II levers](#mark-ii-levers)** -- Owner order, 32x32 additions, about 21.75k.
 - **[LiteX removal stages](#litex-removal-stages)** -- Three stages, each measured.
 - **[Mark II Block RAM ledger](#mark-ii-block-ram-ledger)** -- An estimate over the ceiling.
 - **[Mark II decisions](#mark-ii-decisions)** -- The 2026-10-31 owner rulings.
@@ -37,12 +37,14 @@ This page changes documentation only.
   Below 20,000 is a ceiling, not the goal ([D10](#mark-ii-decisions)).
 - **Measured basis:** 52,008 LUTs, 87.5 tiles, 13 DSP.
   Placed and routed at the 1x1 shipping shape, 2026-10-31.
-- **Owner estimate:** about 34.2k LUTs once the processor leaves.
-  The six owner levers then reach about 20.7k centrally.
+- **Start estimate:** about 31.0k LUTs once the processor leaves.
+  The owner's 34.2k counted the CPU twice ([lever 4](#lever-4-accounting)).
+- **The six owner levers** then reach about 21.0k centrally.
+  Lever 4 saves nothing: it was that double count.
 - **The 32x32 shape adds** a second port and shared engines.
   That adds about 2.75k LUTs (estimate).
 - **LiteX stages 2 and 3** and small trims recover some.
-  The central estimate lands near 21.45k, above the ceiling.
+  The central estimate lands near 21.75k, above the ceiling.
 - **Block RAM binds first.** The 32x32 estimate is 144.5 tiles.
   The usable ceiling is 121.5 tiles.
 - **No fabric fallback.** The processor and fabric gPTP are deleted.
@@ -108,7 +110,7 @@ These hierarchical rows are read from them:
 |---|---:|---:|---:|---:|---:|---|
 | `alinx_ax7101` (whole image) | 52,008 | 54,104 | 74 | 27 | 13 | - |
 | `(alinx_ax7101)`, the LiteX top's own logic | 5,119 | 6,283 | 47 | 10 | 0 | LiteX stages 1 to 3; its 47 RAMB36 are 29 generated FIFOs and 18 BIOS ROM and SRAM ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) |
-| `VexiiRiscvLitex_*`, the SoC CPU | 3,249 | 4,737 | 2 | 5 | 0 | Kept; lever 4 removes the second split CPU instead |
+| `VexiiRiscvLitex_*`, the SoC CPU | 3,249 | 4,737 | 2 | 5 | 0 | Replaced by the split CPU, the one hart ([lever 4](#lever-4-accounting)) |
 | `KL_gptp_gmii_launch` | 192 | 317 | 0 | 0 | 0 | Kept, one per port |
 | `KL_mac_rmon_events` | 51 | 78 | 0 | 0 | 0 | Kept |
 | `milan_datapath` | 43,425 | 42,689 | 25 | 12 | 13 | Rows below |
@@ -146,40 +148,71 @@ It is estimated from measured parts, not one routed image.
 -   481 MAAP (measured row)
 + 3,948 split CPU with 16 KiB instruction cache (measured, #640)
 + 3,102 packet mailboxes (measured, MAILBOX_SPLIT.md)
-=34,223 about 34.2k LUTs (estimate)
+=34,223 the owner's 34.2k (estimate)
+- 3,249 SoC CPU, already in the 52,008 (measured row)
+=30,974 about 31.0k LUTs, CPU counted once (derived)
 ```
+
+### Lever 4 accounting
+
+The basis already holds the SoC CPU, 3,249 LUTs.
+`MilanSoC` under `--ctrl-mailbox` has always built one hart.
+
+The split CPU replaces it; no second hart exists.
+The owner's chain counted both CPUs ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6569635407)).
+
+| Figure | LUT | Kind | Source |
+|---|---:|---|---|
+| SoC CPU in the basis | 3,249 | Measured | Basis hierarchical placement report, row `VexiiRiscvLitex_f5f08b170311db53220574624f819159` |
+| Split CPU, 16 KiB instruction cache, behind the clock crossing | 3,948 | Measured | Out-of-context netlist `VexiiRiscvLitex_7ee512a1cb1c336731b7f28188c9814f`, [#665 S2b round 12](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6569635407); 3,543 on `sys` without the crossing |
+| The one CPU's net change | +699 | Derived | 3,948 - 3,249 |
+| Start, CPU counted once | 30,974 | Derived | 34,223 - 3,249 |
+| After levers 1 to 3, central | 27,224 | Derived | 30,974 - 1,000 - 1,000 - 1,750 |
+| After lever 4 | 27,224 | Derived | Lever 4 saves 0 |
+| The owner's chain after lever 4, crediting the 3,249 | 27,224 | Derived | 34,223 - 3,750 - 3,249 |
+
+After lever 4 both chains reach 27,224 LUTs.
+Lever 4 only removed the double count.
+
+Its middle figure, 3.55k, overstated that by 0.3k.
+So totals from lever 4 on rise about 0.3k.
+
+### Lever order
 
 The [owner's lever order](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545540394), least risky first.
 Each saving is the middle of its estimate.
 
+Running totals start from 30,974, CPU counted once.
+They are derived, not the owner's figures.
+
 | # | Lever | Risk | Why | Saving | Running total |
 |---|---|---|---|---:|---:|
-| 1 | Drop DDR3, on-chip main memory | Low | Approved (D4). The firmware is already in Block RAM. Also removes the ZQCS timing path | ~1.0k | ~33.2k |
-| 2 | Slimmer LiteX bus and CSR banks | Low to medium | Structural change in the SoC generator, covered by the LiteX simulations. Touches the #814 cuts | ~1.0k | ~32.2k |
-| 3 | `milan_csr` reduced to information and diagnostics | Medium | Many suites, the host tools and the firmware read it. Needs a consumer census first | ~1.75k | ~30.5k |
-| 4 | One CPU (no second hart) | High | S2b round 11 already missed the 8x8 service bounds at 50 MHz. One core adds boot, capture and NVM duties to the protocol load | ~3.55k | ~26.9k |
-| 5 | MMCM servo in firmware | High | Media-clock lock is hard real time. Firmware jitter reaches CRF lock and audio | ~1.0k | ~25.9k |
-| 6 | gPTP to software, hardware timestamps kept | Very high | 802.1AS deadlines, GM recovery and fast reaction. The whole gPTP qualification must be re-run | ~5.2k | ~20.7k |
+| 1 | Drop DDR3, on-chip main memory | Low | Approved (D4). The firmware is already in Block RAM. Also removes the ZQCS timing path | ~1.0k | ~30.0k |
+| 2 | Slimmer LiteX bus and CSR banks | Low to medium | Structural change in the SoC generator, covered by the LiteX simulations. Touches the #814 cuts | ~1.0k | ~29.0k |
+| 3 | `milan_csr` reduced to information and diagnostics | Medium | Many suites, the host tools and the firmware read it. Needs a consumer census first | ~1.75k | ~27.2k |
+| 4 | One CPU (no second hart) | High | S2b round 11 already missed the 8x8 service bounds at 50 MHz. One core adds boot, capture and NVM duties to the protocol load | 0, an [accounting correction](#lever-4-accounting); the owner's table had ~3.55k | ~27.2k |
+| 5 | MMCM servo in firmware | High | Media-clock lock is hard real time. Firmware jitter reaches CRF lock and audio | ~1.0k | ~26.2k |
+| 6 | gPTP to software, hardware timestamps kept | Very high | 802.1AS deadlines, GM recovery and fast reaction. The whole gPTP qualification must be re-run | ~5.2k | ~21.0k |
 
 Lever 6 is decided ([D13](#mark-ii-decisions)).
 A routed image measures each lever before the next.
 
-The owner's ranges put all six at 19k to 22k.
+The ranges then give 19.8k to 22.4k.
 That estimate is for the 1x1 shape.
 
 The 32x32 shape then adds and recovers these estimates:
 
 | Step | Central | Range | Basis (estimate) |
 |---|---:|---|---|
-| Owner levers 1 to 6 | ~20.7k | 19.1k to 22.4k | The owner's table and ranges |
+| Owner levers 1 to 6 | ~21.0k | 19.8k to 22.4k | The owner's ranges from 30,974; lever 4 saves 0 |
 | Lever 6 keeps the timestamp return | +0.25k | +0.25k | Measured rows `u_txret` 218 and `u_txticket` 32 stay; lever 6 nets 4,944 of 5,194 |
 | Second port: MAC, filter, timestamp unit | +1.75k | +1.25k to +2.25k | TCAM 494 and timestamp units 442 placed; MAC core not yet measured |
 | Shared engines beyond today's 3,289 | +1.0k | +0.5k to +1.75k | Stagger scheduler, two shapers, merge and context arbitration |
 | LiteX stages 2 and 3 beyond levers 1 and 2 | -1.75k | -1.0k to -2.5k | Rest of the 5,119-LUT LiteX top, less replacement cores |
 | Retained tables, widths and FIFO trims (L3, L4) | -0.5k | -0.2k to -0.8k | Earlier L3 estimate; M2 measured 34 |
-| **32x32 estimate** | **~21.45k** | **17.8k to 25.45k** | Sum |
+| **32x32 estimate** | **~21.75k** | **18.5k to 25.45k** | Sum |
 
-Centrally, the image misses the ceiling by about 1.45k.
+Centrally, the image misses the ceiling by about 1.75k.
 It needs the ranges' top end or new levers.
 
 Candidate further levers, all unmeasured:
@@ -268,13 +301,13 @@ Measurements queue serially; no heavy builds overlap.
 | Order | Lane | Scope | Depends on | Saving, central (estimate) | Evidence |
 |---:|---|---|---|---:|---|
 | 0 | Charter | This plan, the requirements, the split and the stream-engine design | Owner approval of the requirement text | 0 | Documentation gates |
-| 1 | Switch-over | F0 to F5 integrated; F1 on the append-only format of #823; processor and MAAP deleted | Bench qualification of the firmware | Basis to ~34.2k | Routed image; suites; bench; NFR-REL-03 |
+| 1 | Switch-over | F0 to F5 integrated; F1 on the append-only format of #823; processor and MAAP deleted | Bench qualification of the firmware | Basis to ~31.0k | Routed image; suites; bench; NFR-REL-03 |
 | 2 | LiteX stage 1, lever 1 | Drop DDR3 and the BIOS ROM; boot loader | Lane 1 | ~1.0k | Routed image; boot and persistence on the bench |
 | 3 | Lever 3 | `milan_csr` consumer census, then reduction | Lane 1 | ~1.75k | CSR, host-tool and firmware suites |
 | 4 | LiteX stage 2 | New MAC and QSPI cores as pinned donors | Survey; two reviews per core | Part of -1.75k | Core testbenches; save bound on the bench |
 | 5 | LiteX stage 3, lever 2 | Plain SystemVerilog top | Lanes 2 and 4 | ~1.0k plus the rest of -1.75k | Rewritten simulation gates; routed image |
 | 6 | Shared engines and second port | 32x32 datapath per the stream-engine design | Lane 4; #823 builder shapes | +2.75k | Talker latency taps on all talker streams, measured against the 65 µs target; cable pulls; the [open design items](MARK_II_STREAM_ENGINES.md#open-design-items) |
-| 7 | Lever 4 | One CPU, no second hart | Lanes 1 and 6; service bounds at 32x32 | ~3.55k | Service hooks at four times the 8x8 load |
+| 7 | Lever 4 | One CPU, no second hart; the split already builds one | Lanes 1 and 6; service bounds at 32x32 | 0 ([accounting](#lever-4-accounting)) | Service hooks at four times the 8x8 load |
 | 8 | Lever 5 | MMCM servo in firmware | Lane 7 | ~1.0k | CRF lock and audio soak |
 | 9 | Lever 6, F6 | `flexptpd` on the core, serving both ports; fabric engine deleted | Lane 7; open decision 3; the source and licence confirmed | ~5.2k | Whole gPTP qualification re-run |
 | 10 | Close-out | Route at 32x32, timing, Block RAM, gate re-record | All above | No assumed saving | NFR-RES-01, NFR-LAT-03, NFR-REL-03 on the bench |
