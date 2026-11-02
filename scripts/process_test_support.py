@@ -401,8 +401,7 @@ MUTANTS: dict[str, tuple] = {
     "shell-killed-when-resumed": ("owner_shell_window", "the shell was killed in the pass that resumed it,"
                                                         " before its trap",
         ("(resumed is None or clock < kill_all):", "resumed is None:")),
-    "shell-window-one-pass": ("owner_shell_window", "the resumed shell was killed inside its own window,"
-                                                    " with no child to spare it",
+    "shell-window-one-pass": ("owner_stated_seconds", "a late resume's stated seconds were not kept",
         ("(resumed is None or clock < kill_all):", "(resumed is None or clock <= resumed):")),
     "shell-window-1s": ("owner_shell_window", "the resumed shell was killed inside its own window, with no"
                                               " child to spare it",
@@ -415,8 +414,7 @@ MUTANTS: dict[str, tuple] = {
     "trap-commands-never-spared": ("owner_shell_window", "the resumed shell's trap command was killed inside"
                                                          " the shell's window",
         ("if (pid, start) not in initial and resumed is not None:", "if False:")),
-    "trap-commands-1s": ("owner_shell_window", "the resumed shell's trap command was killed inside the"
-                                               " shell's window",
+    "trap-commands-1s": ("owner_stated_seconds", "a late resume's stated seconds were not kept",
         ("if (pid, start) not in initial and resumed is not None:",
          "if (pid, start) not in initial and resumed is not None and clock < resumed + 1.0:")),
     "resume-collected-shell": ("owner_late_cancel", "a cancel after the shell was collected resumed it",
@@ -560,21 +558,21 @@ MUTANTS: dict[str, tuple] = {
          "                        self._send(pid, start, signal.SIGKILL)\n")),
     "report-parent-is-first-parent": ("owner_report", "the report's current parent is not its own field",
         ("parent {fields[1]} ", "parent {first_parent} ")),
-    "rv6-sigkill-by-number": ("owner_reused_identity", "a census entry was signalled by its number",
+    "sigkill-by-number": ("owner_reused_identity", "a census entry was signalled by its number",
         ("            self._signal(fd, signum)\n            self._signal(fd, signal.SIGCONT)\n",
          "            if signum == signal.SIGKILL:\n                os.kill(pid, signum)\n"
          "            else:\n                self._signal(fd, signum)\n"
          "            self._signal(fd, signal.SIGCONT)\n")),
-    "rv6-sigcont-by-number": ("owner_reused_identity", "a census entry was signalled by its number",
+    "sigcont-by-number": ("owner_reused_identity", "a census entry was signalled by its number",
         ("            self._signal(fd, signum)\n            self._signal(fd, signal.SIGCONT)\n",
          "            self._signal(fd, signum)\n            os.kill(pid, signal.SIGCONT)\n")),
-    "rv6-resume-not-before-grace": ("owner_stated_seconds", "a first-pass resume's stated seconds were not kept",
+    "resume-not-before-grace": ("owner_stated_seconds", "a first-pass resume's stated seconds were not kept",
         ("and root_pid in owned and not (live - {root_pid}):",
          "and root_pid in owned and not (live - {root_pid}) and clock >= deadline:")),
-    "rv6-resume-not-first-pass": ("owner_stated_seconds", "a first-pass resume's stated seconds were not kept",
+    "resume-not-first-pass": ("owner_stated_seconds", "a first-pass resume's stated seconds were not kept",
         ("and root_pid in owned and not (live - {root_pid}):",
          "and root_pid in owned and not (live - {root_pid}) and passes > 1:")),
-    "rv6-sigterm-trap-commands": ("owner_stated_seconds", "a first-pass resume's stated seconds were not kept",
+    "sigterm-trap-commands": ("owner_stated_seconds", "a first-pass resume's stated seconds were not kept",
         ("                    if (pid, start) not in initial:\n                        continue\n                elif",
          "                    if (pid, start) not in initial and resumed is None:\n                        continue\n"
          "                elif")),
@@ -635,7 +633,7 @@ MUTANTS: dict[str, tuple] = {
         ("self._send(pid, start, signal.SIGKILL)", "self._send(pid, start, signal.SIGTERM)")),
     "killed-ago-from-start": ("owner_stated_seconds", "not in the report",
         ("now - killed[pid] if pid in killed else None", "now - started if pid in killed else None")),
-    "rv6-return-before-confirm": ("owner_vanishing", "an endless listing did not fail the run",
+    "return-before-confirm": ("owner_vanishing", "an endless listing did not fail the run",
         ("            owned = {pid: entry for pid, entry in census.items() if pid not in reaped}\n",
          "            owned = {pid: entry for pid, entry in census.items() if pid not in reaped}\n"
          "            if not owned:\n                return\n")),
