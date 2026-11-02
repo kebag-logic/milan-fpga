@@ -330,7 +330,7 @@ MUTANTS = (
     Mutant("step-before-the-polls", "loop/ctrl_loop.c", STEP_POLLS + STEP_CALL, STEP_CALL + STEP_POLLS,
            "port", "Loop.L11StepLastWithTheDeadlineReadAtTheStart", "L11 after every poll"),
     Mutant("step-deadline-read-at-the-end", "loop/ctrl_loop.c", "l->step(l->step_ctx, deadline)",
-           "l->step(l->step_ctx, l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US)", "port",
+           "l->step(l->step_ctx, deadline - deadline + l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US)", "port",
            "Loop.L11StepLastWithTheDeadlineReadAtTheStart", "L11 the deadline is the share past the clock read as"),
     Mutant("step-deadline-without-the-share", "loop/ctrl_loop.c", "l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u",
            "l->clock(l->clock_ctx) : 0u", "port", "Loop.L11StepLastWithTheDeadlineReadAtTheStart",
