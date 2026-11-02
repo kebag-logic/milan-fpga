@@ -489,7 +489,7 @@ def owner_reparented(parent: Path) -> None:
 
 
 def owner_late_exit(parent: Path) -> None:
-    """A child that exits during the last census is collected, not failed (#833)."""
+    """A child that exits during the last census is collected, not failed, before cleanup returns (#833)."""
     scratch = parent / "owner-late-exit"
     scratch.mkdir()
     ready = scratch / "ready"
@@ -508,6 +508,7 @@ def owner_late_exit(parent: Path) -> None:
                     time.sleep(0.45)
                 return listed
             owner._descendants = exiting
+    assert identity(child.pid) is None, "cleanup returned with an owned child unreaped"
     child.wait()
     print("owner-late-exit: " + str(dict(collected_at_deadline=True)), flush=True)
 

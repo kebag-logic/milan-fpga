@@ -214,26 +214,11 @@ Expired runs remain TIMEOUT/UNKNOWN and return exit 92.
 INT/TERM cancellation instead returns 130/143 without a completed summary.
 The first signal stops later suite launches permanently.
 Selection, lock waits, preflight and suite transitions are covered.
-The driver stops and reaps its owned command subtree.
-Detached or stubborn descendants receive bounded escalation.
-Stable process handles prevent signalling reused numeric identities.
+The driver then stops and reaps its owned command subtree, as the cleanup table below states.
 Workstation process ownership requires pidfds and child adoption.
 Unsupported process facilities are refused before commands start.
 That refusal prints `REFUSED:` and exits 2, never a traceback.
-Cleanup allows two seconds of `SIGTERM` before escalating stubborn descendants.
-Two seconds later `SIGKILL` has reached every other descendant except a cancelled shell, which keeps its own window.
-A descendant still listed ten seconds after that fails the run.
-A shell resumed late has ten seconds of its own to finish its terminal trap.
-These deadlines run on the owner's clock.
-One census pass advances that clock by at most half a second.
-A true survivor's deadline is 14 s into cleanup on the owner's clock.
-After a resume, every remaining descendant's deadline is 20 s after the resume, including one the trap started.
-That resume comes before 14 s, so this deadline comes under 34 s.
-A listing that dies inside every census waits 10 s more: under 44 s.
-The run fails in the first census pass at or past the deadline.
-That pass adds at most 0.5 s of owner clock.
-Wall time runs ahead of the owner's clock only while a pass takes longer than 0.5 s.
-These cleanup intervals do not change suite deadlines.
+Cleanup's intervals do not change suite deadlines.
 Ordinary red suites still continue through the selected population.
 Masked verdicts still fail; deadline results remain unknown.
 
@@ -266,22 +251,45 @@ Restoring the original continuation behavior must execute the forbidden sentinel
 Hard KILL and HUP stops must leave no output after the caller sees them.
 Letting owned commands outlive their owner must run the forbidden sentinel.
 Removed process facilities must produce the refusal, not a traceback.
-A cleanup deadline advances by at most half a second for each census pass.
-A stalled or starved owner therefore never fails the run before its windows after SIGKILL have elapsed on its own clock.
-A child that exits during a census is collected, not reported as remaining.
-A descendant re-parented during cleanup keeps its identity and still receives its `SIGTERM` in that pass.
-A shell resumed late keeps its whole window to run its terminal trap and the commands it starts.
-That holds through builtins after its last command, with no child left to spare it.
-A cancellation that arrives after the shell was collected opens no such window, even in that pass.
-A descendant that outlives `SIGKILL` still fails the run, and takes the stopped shell with it.
-That message prints each remaining process's scheduler state, wait channel, parent and age.
-On an owner whose every census pass stalls, the stated seconds each hold to the pass:
-grace, a survivor's 14 s, and a late resume's window and its 20 s.
-A census entry whose number now names another process is never signalled.
-A stated cleanup behaviour is one some control pins.
-So each published mutant of `scripts/owned_process.py` names the control it must fail, with words of that failure.
-A mutant that changes nothing stated names none, and says why.
-The list is `MUTANTS` in `scripts/process_test_support.py`, and the next reviewer's mutant joins it.
+
+This page states the owner's cleanup as exactly the behaviours in this table, each with the owner control that pins it.
+Its mutants, in `MUTANTS` in `scripts/process_test_support.py`, prove it: each fails that control, with words of that failure.
+Times are cleanup's, on the owner's clock.
+`owner_stated_seconds` checks its rows pass by pass, on an owner whose every census pass stalls.
+
+| Stated cleanup behaviour | Pinned by | Mutants that prove it |
+|---|---|---|
+| A signal goes to a census entry only after its start time is rechecked, so a census entry whose number now names another process is never signalled. | `owner_reused_identity` | `no-start-recheck` |
+| In its first pass cleanup sends `SIGTERM` to every descendant its census lists, except a cancelled shell, which its cancellation signalled. Two seconds of `SIGTERM` come before the first `SIGKILL`, to a stubborn leaf. | `owner_stated_seconds` | `grace-1s` |
+| Two seconds later `SIGKILL` has reached every other descendant except a cancelled shell and any command its trap started, which keep the shell's own window. | `owner_stated_seconds`, `owner_shell_window` | `root-killed-unresumed` |
+| A descendant still listed ten seconds after that, one that outlives `SIGKILL` included, fails the run 14 s into cleanup, in the first census pass at or past that deadline. So it does while a cancelled shell still waits, stopped, for its resume. | `owner_stated_seconds`, `owner_survivor` | `reap-window-2s`, `windows-2s`, `killed-counts-as-gone`, `survivor-never-fails`, `survivor-never-fails-guarded`, `trust-sigkill` |
+| A cancelled shell stays stopped while any other descendant lives, and is resumed in the first pass in which none does. | `owner_stated_seconds` | `resume-with-one-live` |
+| From the resume the shell has ten seconds of its own to finish its terminal trap, and so does any command that trap starts. Every remaining descendant's deadline is then 20 s after the resume, which comes before 14 s: under 34 s. | `owner_stated_seconds` | `windows-2s` |
+| The resumed shell gets no `SIGKILL` inside that window: not in the pass that resumes it, whatever the time then, and not through builtins after its last command, with no child left to spare it. | `owner_shell_window` | `no-shell-window`, `no-shell-window-kept`, `no-shell-window-pass`, `no-trap-window`, `shell-killed-when-resumed`, `shell-window-one-pass`, `shell-window-1s` |
+| Nor does a command its trap starts. | `owner_shell_window` | `trap-commands-no-window`, `trap-commands-never-spared`, `trap-commands-1s` |
+| One census pass advances the owner's clock by at most half a second. So a stalled or starved owner neither sends a `SIGKILL` nor fails the run before its windows have elapsed on its own clock. | `owner_stall`, `owner_stated_seconds` | `deadline-wall-clock`, `pass-cap-1.5s`, `pass-cap-5s`, `pass-cap-1s` |
+| A pass shorter than that advances the clock by its own length: wall time runs ahead of the owner's clock only while a pass takes longer. | `owner_stated_seconds`, `owner_shell_window` | `clock-always-cap` |
+| A listing that dies inside every census still fails the run, 10 s after that deadline: 24 s into cleanup, under 44 s after a resume. | `owner_vanishing`, `owner_late_exit` | `endless-unbounded`, `vanishing-waits-no-more` |
+| Cleanup collects every exited child, one that exits during a census included, and never reports a collected one as remaining. It returns only once a census taken after a collection lists nothing, so it leaves no owned child unreaped. | `owner_late_exit` | `no-reap-after-census`, `owned-is-census`, `return-with-zombies` |
+| A descendant re-parented during cleanup keeps its identity and still receives its `SIGTERM` in that pass. | `owner_reparented` | `cleanup-does-nothing`, `identity-start-holds-parent`, `identity-keys-hold-parent`, `identity-first-census-holds-parent`, `identity-includes-parent`, `identity-checks-parent-before-send`, `send-checks-parent` |
+| A cancellation that arrives after the shell was collected opens no window, even in that pass. | `owner_late_cancel` | `resume-collected-shell`, `window-without-resume`, `rearm-without-sigcont`, `resume-while-listed` |
+| A run that fails first sends `SIGKILL` to every descendant it reports, so it takes the stopped shell with it. | `owner_survivor` | `no-kill-before-raise`, `no-kill-before-raise-empty`, `kill-before-fail-spares-shell` |
+| The failure message prints each remaining process's scheduler state, wait channel, and how long ago it was sent `SIGKILL`. | `owner_report`, `owner_survivor` | `report-without-state`, `report-without-wchan`, `report-without-state-or-wchan`, `killed-not-recorded` |
+
+Not pinned by a control, and so not stated above:
+
+- That the signal goes through the handle opened before that recheck, never by number: no control has a number change hands after the recheck.
+- That a parent whose child outlives its own `SIGKILL` is among those two seconds later, and that until then a parent is spared while its child lives: no control lists such a parent.
+- That a vanishing listing waits no more than those 10 s: the vanishing control bounds it by 15 s of wall time on a 0.3 s window.
+- The message's current parent and age: the controls check only that both words appear.
+- `SIGCONT` after each signal, so a stopped descendant acts on its `SIGTERM` during grace: `SIGKILL` ends it at grace without one.
+- No `SIGTERM` during grace to a descendant new since the first census, so a terminal trap's cleanup command can run: it is killed at grace either way.
+- A first-census parent's extra second after grace, to reap a leaf killed then: the row above still bounds its `SIGKILL` by 4 s.
+
+A stated cleanup behaviour is a row of this table; one that no control pins is on the list above, with the reason.
+Every published mutant of `scripts/owned_process.py` is in `MUTANTS`, and the next reviewer's mutant joins it.
+It names the control it must fail, with words of that failure, and the table names it in the row it breaks.
+A mutant that breaks no row names no control, and says why.
 Beside the preflight, its explicit campaign below runs each against its control, and `--matrix` against all.
 The [shadow lifecycle controls](../../tb/verilator/gptp_shadow/README.md#mutation-isolation-and-cancellation)
 also exercise cancellation with both production drivers nested.

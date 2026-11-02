@@ -259,9 +259,9 @@ def assert_reaped(data: dict) -> None:
 
 
 #: Every published mutant of scripts/owned_process.py for #833, so that the next
-#: one has a home. Each breaks the behaviour its name gives and names the owner
-#: control that must fail under it, with words of that failure; or names none,
-#: with why no behaviour that docs/testing/TESTING.md or a control states changes.
+#: one has a home. Each breaks a row of the cleanup table in docs/testing/TESTING.md,
+#: which names it in that row, and names the owner control that must fail under it,
+#: with words of that failure; or names none, with why it breaks no row.
 #: Its edits follow, and each must match the product exactly once.
 MUTANTS: dict[str, tuple] = {
     "none": (None, "the product as it stands; every control passes"),
@@ -411,6 +411,28 @@ MUTANTS: dict[str, tuple] = {
         ("wchan {wchan} parent", "parent")),
     "report-without-state-or-wchan": ("owner_report", "('state S'",
         ("state {fields[0]} wchan {wchan} ", "")),
+    "grace-1s": ("owner_stated_seconds", "a survivor's stated seconds were not kept",
+        ("GRACE_SECONDS = 2.0", "GRACE_SECONDS = 1.0")),
+    "return-with-zombies": ("owner_late_exit", "cleanup returned with an owned child unreaped",
+        ("            if not census:\n                return\n",
+         "            if not [pid for pid in census if _live(pid)]:\n                return\n")),
+    "vanishing-waits-no-more": ("owner_late_exit", "CLEANUP FAILED: owned descendants remain",
+        ("(owned or clock >= limit + REAP_SECONDS)", "(owned or clock >= limit)")),
+    "resume-with-one-live": ("owner_stated_seconds", "a late resume's stated seconds were not kept",
+        ("and not (live - {root_pid}):", "and len(live - {root_pid}) <= 1:")),
+    "clock-always-cap": ("owner_stated_seconds", "a survivor's stated seconds were not kept",
+        ("clock += min(now - last, MAX_PASS_SECONDS)", "clock += MAX_PASS_SECONDS")),
+    "killed-not-recorded": ("owner_survivor", "('sent SIGKILL '",
+        ("                        killed.setdefault(pid, time.monotonic())\n", "                        pass\n")),
+    "no-sigcont-after-send": (None, "breaks no row: SIGCONT after each signal is on the table's not-pinned list",
+        ("            self._signal(fd, signal.SIGCONT)\n            return True\n", "            return True\n")),
+    "sigterm-to-new": (None, "breaks no row: no SIGTERM during grace to a descendant new since the first census"
+                             " is on the table's not-pinned list",
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    pass\n                elif")),
+    "no-leaf-first": (None, "breaks no row: a first-census parent's extra second after grace is on the table's"
+                            " not-pinned list",
+        ("if clock < deadline + 1.0 and pid in initial.values():", "if False:")),
 }
 
 
