@@ -93,9 +93,11 @@ PLANTS = {
                        '\tif (is(c, "milan_status")) {\n\t\tfor (volatile uint32_t n = 0; n < 2000000u; ++n) {\n\t\t}'
                        '\n\t\tstatus(c);', 'UART'),
 }
-#: The SoC's planted control of --self-test: boot_soc.py without the product's flash window, whose export must be
-#: refused (#665): a cached window reads the saved state through the data cache, which the product never does.
-SOC_PLANT = ('flash-window-cached', '        milan_soc.ctrl_uncached_flash(soc)\n', "flash window's regions")
+#: The SoC's planted control of --self-test: the export with the product's flash window's call made a no-op, as
+#: boot_soc.py without it, which must be refused (#665): a cached window reads the saved state through the data
+#: cache, which the product never does. (name, the statement run before the export, the refusal's words)
+SOC_PLANT = ('flash-window-cached', 'boot_soc.milan_soc.ctrl_uncached_flash = lambda soc: None; ',
+             "flash window's regions")
 #: The first link's map: the platform's fixture, at placeholder addresses.
 PROVISIONAL = FIRMWARE_TEST / 'ctrl_plat_csr.csv'
 #: The file a run saves the native model's exit status in, beside its log, so that a regrade grades it too.
@@ -170,12 +172,12 @@ def image(out: Path, name: str, point: tuple[str, int], csr_csv: Path, archives:
     return out / name / 'ctrl_app.elf'
 
 
-def export(out: Path, name: str, shape: str, elf: Path, n_if: int, soc: Path = HERE) -> dict:
-    """The boot SoC's export for one image, in a child process (the CPU generator patches its class), from soc's
-    boot_soc.py: this directory's, or the SoC plant's copy."""
-    code = ('import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; '
+def export(out: Path, name: str, shape: str, elf: Path, n_if: int, plant: str = '') -> dict:
+    """The boot SoC's export for one image, in a child process (the CPU generator patches its class), with the SoC
+    plant's statement first when one is given."""
+    code = ('import json, sys; from pathlib import Path; sys.path.insert(0, sys.argv[1]); import boot_soc; ' + plant +
             'print(json.dumps(boot_soc.build(Path(sys.argv[2]), sys.argv[3], Path(sys.argv[4]), int(sys.argv[5]))))')
-    run([sys.executable, '-B', '-c', code, str(soc), str(out / name), shape, str(elf), str(n_if)],
+    run([sys.executable, '-B', '-c', code, str(HERE), str(out / name), shape, str(elf), str(n_if)],
         out / f'{name}.log', cwd=ROOT)
     return json.loads((out / name / 'soc.json').read_text())
 
@@ -411,18 +413,14 @@ def native_controls(out: Path, shape: str, n_if: int) -> int:
 
 
 def soc_plant(out: Path, shape: str, n_if: int) -> bool:
-    """The SoC plant: boot_soc.py's copy without the product's flash window; True when its export is refused, by
-    name."""
-    name, anchor, words = SOC_PLANT
-    text = (HERE / 'boot_soc.py').read_text()
-    if text.count(anchor) != 1:
-        raise RuntimeError(f'plant {name}: its anchor occurs {text.count(anchor)} times in boot_soc.py')
-    copy = out / 'soc-source'
-    copy.mkdir(parents=True, exist_ok=True)
-    (copy / 'boot_soc.py').write_text(text.replace(anchor, ''))
+    """The SoC plant: the export without the product's flash window; True when it is refused, by name."""
+    name, statement, words = SOC_PLANT
+    if (HERE / 'boot_soc.py').read_text().count('milan_soc.ctrl_uncached_flash(soc)\n') != 1:
+        raise RuntimeError(f"plant {name}: boot_soc.py does not call milan_soc.ctrl_uncached_flash once")
+    out.mkdir(parents=True, exist_ok=True)
     elf = image(out, 'image', (shape, n_if), PROVISIONAL, runtime(out))
     try:
-        export(out, 'soc', shape, elf, n_if, copy)
+        export(out, 'soc', shape, elf, n_if, statement)
     except RuntimeError:
         refused = words in (out / 'soc.log').read_text()
     else:
