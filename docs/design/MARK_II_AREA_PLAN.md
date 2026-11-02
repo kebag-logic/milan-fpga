@@ -312,7 +312,7 @@ No fate below is a LiteX block.
 | `ctrl` (`SoCController`): reset, scratch, bus errors | LiteX top | 3 | Removed, nothing in its place: no firmware reads it; reboot is `KL_reboot_ctrl`'s configuration reload |
 | Identifier `identifier_mem` | LiteX top | 3 | Removed, nothing in its place: `milan_csr`'s VERSION identifies the image |
 | `timer0` (`Timer`) | LiteX top | 3 | Replaced by a first-party free-running counter on the system clock; its one reader is the flash driver's elapsed time |
-| UART (`RS232PHY`, 16-byte FIFOs) | LiteX top | 3 | Replaced by a small first-party UART, transmit and receive only, no RTS/CTS, with a 32-byte polled receive buffer ([D20](#mark-ii-decisions), [console UART](#console-uart)) |
+| UART (`RS232PHY`, 16-byte FIFOs) | LiteX top | 3 | Replaced by a small first-party UART, transmit and receive only, no RTS/CTS, with a polled receive buffer, 32 bytes under the S2b share ([D20](#mark-ii-decisions), [console UART](#console-uart)) |
 | SPI flash (`LiteSPI`: crossbar, memory map, master, PHY with `STARTUPE2`) | LiteX top | 2 | Replaced by a pinned donor QSPI core chosen by survey ([D15](#mark-ii-decisions)); the [core survey](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) found no AXI core with both 7-series use and an active maintainer |
 | Ethernet MAC and PHY interface (`LiteEthMACCore`, `LiteEthPHYGMII` with its clocking and PHY reset, the TX FIFO `tx_sf`, the crossings `mac_tx_cdc` and `mac_rx_cdc`, and their CSRs) | LiteX top | 2 | Replaced by a pinned donor GMII MAC ([D15](#mark-ii-decisions)); the survey proposes verilog-ethernet's `eth_mac_1g` and `gmii_phy_if`, with verilog-axis FIFOs. The PHY reset pin gets a first-party driver that keeps both its uses: the power-on pulse, and `KL_reboot_ctrl`'s hold before a reload ([reboot](REBOOT_RESET.md#1-the-decision)), crossed with the approved CDC primitives |
 | MDIO (`LiteEthPHYMDIO`), a bit-bang register pair | LiteX top | 2 | Replaced by a first-party MDIO pin register; the firmware keeps the protocol |
@@ -346,11 +346,25 @@ The firmware drains the whole receive buffer once per pass.
 | Character time | 86.806 µs | Derived | 10 / 115,200 s |
 | Console loss, LiteX UART with a 16-byte receive FIFO, polled, interrupts off, no BIOS | A 22-character line lost characters on 17 of 300 sends; a 14-character line lost none of 300 | Measured | [Stage 1 silicon probe](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6556743957) |
 | What that loss shows | 16 characters fill that FIFO in 1.389 ms. A 14-character line never fills it, so the losses need the polled loop away for longer | Derived | 16 x 86.806 µs |
-| Worst-case gap between two console polls | 2.0 ms: one pass, and every work pass fits the per-pass share | Bound | The share, 18 ms / 9 passes ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)), under T_svc = 20 ms ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)) |
+| Worst-case gap between two console polls | 2.0 ms: one pass, and every work pass fits the per-pass share | Bound, if the share holds | The share, 18 ms / 9 passes ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6514866239)), under T_svc = 20 ms ([#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6495692075)); both are #665's S2b work, [PR #810](https://github.com/kebag-logic/milan-fpga/pull/810), not merged |
 | Characters that complete within that gap | 24 | Derived | 23 character times are 1.997 ms; 24 are 2.083 ms |
-| Receive buffer | 32 bytes, the next power of two | Chosen | At least 24 |
+| Receive buffer | 32 bytes, the next power of two | Chosen, under the share | At least 24 |
 | What 32 bytes hold | No gap shorter than 2.778 ms loses a character; a line of up to 32 characters fits whole at any gap | Derived | 32 x 86.806 µs |
+| Under dev's T_svc = 10 ms | Dev states no per-pass share. Taking 10 ms as the gap, 116 characters complete, so the buffer would be 128 bytes, holding 11.111 ms | Derived | [FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing); 115 character times are 9.983 ms, 116 are 10.069 ms |
+| At 32x32 | The longest pass is estimated 1.7 to 5.9 ms over the share, so the 32-byte bound does not hold there | Estimate | [#665](https://github.com/kebag-logic/milan-fpga/issues/665#issuecomment-6569635407) |
 | Beyond that bound | A pass over the share already breaks a service bound; console characters lost then are accepted | Rule | D20; console input ranks below the protocol work |
+
+The share and the 20 ms budget come from S2b.
+That #665 work, [PR #810](https://github.com/kebag-logic/milan-fpga/pull/810), is not merged.
+
+Dev's [FR_NFR.md](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing) still proposes T_svc = 10 ms.
+Under 10 ms, the buffer would be 128 bytes.
+
+So 32 bytes holds only while passes fit the share.
+If the share changes, derive the buffer again.
+
+At 32x32, #665 estimates passes over the share.
+There the loss rule applies, not the 32-byte bound.
 
 Console input ranks below the protocol work.
 Its handling never stretches a service bound.
@@ -393,7 +407,7 @@ Measure its reductions before any lane relies on them.
 | D17, save | [Owner, #823, 17:14](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6545924397): at most 0.5 s worst case at 32x32 | NFR-REL-03; append-only save path |
 | D18, stage 1 boot | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the boot loader copies the firmware from QSPI flash into Block RAM, as planned | LiteX stage 1's boot loader; the image sits in its own flash slot (D21) |
 | D19, LiteX blocks | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): every LiteX peripheral is removed, not only DDR3 and the BIOS | The [block census](#litex-block-census): no LiteX block remains |
-| D20, console UART | [Owner, 2026-11-02 07:22](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the UART is a simple protocol and needs no RTS/CTS; a small first-party UART, transmit and receive only, replaces it | The [console UART](#console-uart): a 32-byte polled receive buffer |
+| D20, console UART | [Owner, 2026-11-02 07:22](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the UART is a simple protocol and needs no RTS/CTS; a small first-party UART, transmit and receive only, replaces it | The [console UART](#console-uart): a polled receive buffer, 32 bytes under the S2b share |
 | D21, firmware flash slot | [Manager, 2026-11-02](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6575277828): the firmware image gets its own flash slot, sized for the image, in a free erase-aligned range that is neither reserved (`journal`, `user`) nor used; the bitstream and AEM slots keep their offsets and budgets; the image does not go in the bitstream slot's tail, since that would tie its offset to the bitstream's size, which changes from build to build | The [stage 1](#stage-1-boot-and-bus) lane adds the slot to `FLASHBOOT_LAYOUT` and the generated layout page, and states its offset and budget there |
 
 ## Mark II lane sequence
