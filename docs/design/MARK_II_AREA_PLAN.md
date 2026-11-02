@@ -365,7 +365,7 @@ The share and the 20 ms budget come from S2b.
 That #665 work, [PR #810](https://github.com/kebag-logic/milan-fpga/pull/810), is not merged.
 
 Dev's [FR_NFR.md](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing) still proposes T_svc = 10 ms.
-Under 10 ms, the buffer would be 128 bytes.
+Taking 10 ms as the gap gives 128 bytes.
 
 So 32 bytes holds only while passes fit the share.
 If the share changes, derive the buffer again.
