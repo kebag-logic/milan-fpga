@@ -580,6 +580,10 @@ MUTANTS: dict[str, tuple] = {
         ("self._send(pid, start, signal.SIGKILL)", "self._send(pid, start, signal.SIGTERM)")),
     "killed-ago-from-start": ("owner_stated_seconds", "not in the report",
         ("now - killed[pid] if pid in killed else None", "now - started if pid in killed else None")),
+    "rv6-return-before-confirm": ("owner_vanishing", "an endless listing did not fail the run",
+        ("            owned = {pid: entry for pid, entry in census.items() if pid not in reaped}\n",
+         "            owned = {pid: entry for pid, entry in census.items() if pid not in reaped}\n"
+         "            if not owned:\n                return\n")),
 }
 
 
