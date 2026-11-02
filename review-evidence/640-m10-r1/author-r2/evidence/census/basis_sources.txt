@@ -1,0 +1,8 @@
+# The basis build (2026-10-31, build_ax7101_asl_e240b77bbd, the plan's measured basis). Reports stay outside the repository.
+# sha256 and size of each source the census was re-derived from:
+b7f0898b1c9da1aef2ce16d9c6773aed25cbc6d55d6ad59e9ccff76573432000  1083268  litex.log (SoC hierarchy at its lines 173-989)
+be648fb507fbe1f091eb7a0d6dd6d653c39854cf2ccb333c5f1156f1c7355f4c  9035     csr.csv (copied here as basis_csr.csv)
+ec345a49f14e03038c428bb23029872639085de825038b8a99539e0fee08f42d  30075    gateware/alinx_ax7101_utilization_hierarchical_place.rpt (the digest the plan records; excerpt here)
+8cea6c03bcdbd2082d08baabd8f14fae36c335c9e3ce4d72483b9606a2e12646  1852947  gateware/alinx_ax7101.v (not copied; used to count IDELAYE2 (32, all with IDATAIN from the DDR3 PHY's dq), IDELAYCTRL (1, REFCLK idelay_clk), PSCLK (idelay_clk) and the PHY reset pin's logic)
+# Published excerpts in this directory:
+ffcecb3f4d7cee310f0f4f1cd78daa860288d88b087af7211efce6b9924b5cc2  basis_soc_hierarchy.txt (litex.log's SoC hierarchy, from "MilanSoC" to the legend)

@@ -1,0 +1,20 @@
+object | build | milan_soc.py line | census names it | census gives it a stage and fate
+CPU wrapper | basis | 3126 | yes | as a block
+_CRG | basis | 218 | yes | as a block
+S7IDELAYCTRL | basis | 472 | yes | as a block
+ddrphy A7DDRPHY | basis | 3264 | yes | as a block
+sdram refresher | basis | 2530 | yes | as a block
+LiteSPI add_spi_flash | basis | 3301 | yes | as a block
+LiteEthPHYGMII | basis | 1644 | yes | as a block
+LiteEthMACCore | basis | 1797 | yes | as a block
+MAC TX PacketFIFO tx_sf | basis | 1810 | yes | as a block
+MDIO bit-bang | basis | 1941 | yes | as a block
+ICAPE2 reload port | basis | 2133 | yes | as a block
+milan_mac.loopback CSRStorage | basis | 1896 | yes | as a block
+milan_mac.link_status CSRStorage (MAC_STATUS, REQ-MAC-03) | basis | 1958 | yes | as a block
+milan_axil_cdc | basis | 802 | yes | as a block
+processor masters on dma_bus | basis | 3582 | yes | as a block
+ppmem observer | basis | 3776 | yes | as a block
+user_led identify | basis | 3783 | yes | as a block
+ctrl_memory (LiteX wishbone.SRAM banks, wishbone.Decoder) | split | 2991 | yes | as a block
+ctrl_mbx LiteX EventManager and CSR bank | split | 2959 | yes | as a block
