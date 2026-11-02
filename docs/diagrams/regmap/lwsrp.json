@@ -1,0 +1,408 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "lwsrp",
+  "heading": "0x680  -  lwSRP engine  (802.1Q MSRP/MVRP, Milan v1.2 Section 5.6, FR-SRP-*)",
+  "registers": [
+    {
+      "acronym": "LWSRP_CTRL",
+      "offset": "0x680",
+      "svg": "docs/diagrams/regmap/lwsrp/LWSRP_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "LWSRP_ENABLE",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "LWSRP_TALKER_EN",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 3,
+            "name": "RESERVED",
+            "attr": "R/W-4h",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "LWSRP_DECL_BYPASS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 2,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "LWSRP_VID",
+      "offset": "0x684",
+      "svg": "docs/diagrams/regmap/lwsrp/LWSRP_VID.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "LWSRP_VID",
+            "attr": "R/W-2h"
+          },
+          {
+            "bits": 4,
+            "name": "LWSRP_VID",
+            "attr": "R/W-2h"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "LWSRP_DMAC_LO",
+      "offset": "0x688",
+      "svg": "docs/diagrams/regmap/lwsrp/LWSRP_DMAC_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "LWSRP_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "LWSRP_DMAC_HI",
+      "offset": "0x68C",
+      "svg": "docs/diagrams/regmap/lwsrp/LWSRP_DMAC_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "LWSRP_DEST_MAC",
+            "attr": "R/W-91E0h"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_DEST_MAC",
+            "attr": "R/W-91E0h"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "LWSRP_TSPEC",
+      "offset": "0x690",
+      "svg": "docs/diagrams/regmap/lwsrp/LWSRP_TSPEC.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "LWSRP_MAX_FRAME",
+            "attr": "R/W-E0h"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_MAX_FRAME",
+            "attr": "R/W-E0h"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_INTERVAL",
+            "attr": "R/W-1h"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_INTERVAL",
+            "attr": "R/W-1h"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "LWSRP_STATUS",
+      "offset": "0x694",
+      "svg": "docs/diagrams/regmap/lwsrp/LWSRP_STATUS.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 2,
+            "name": "LISTENER_STATE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "LISTENER_REGISTERED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "LISTENER_READY",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "TALKER_DECLARED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "DOMAIN_OK",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ACTIVE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "OVER_LIMIT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "GATE_OPEN",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ADMIT_VERDICT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "TALKER_FAILED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ROW_SHORTFALL",
+            "attr": "R-X"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "FAIL_CODE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "INGRESS_DROPS",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "LWSRP_SLOPE",
+      "offset": "0x698",
+      "svg": "docs/diagrams/regmap/lwsrp/LWSRP_SLOPE.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "LWSRP_SLOPE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_SLOPE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_SLOPE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_SLOPE",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "LWSRP_CNT",
+      "offset": "0x69C",
+      "svg": "docs/diagrams/regmap/lwsrp/LWSRP_CNT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "LWSRP_CNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_CNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_CNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_CNT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "LWSRP_LATENCY",
+      "offset": "0x6A0",
+      "svg": "docs/diagrams/regmap/lwsrp/LWSRP_LATENCY.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "LWSRP_LATENCY",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_LATENCY",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_LATENCY",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "LWSRP_LATENCY",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

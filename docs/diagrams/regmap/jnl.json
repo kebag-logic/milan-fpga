@@ -1,0 +1,171 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "jnl",
+  "heading": "0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)",
+  "registers": [
+    {
+      "acronym": "JNL_CTRL",
+      "offset": "0x7B8",
+      "svg": "docs/diagrams/regmap/jnl/JNL_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "JNL_START",
+            "attr": "W1S-0"
+          },
+          {
+            "bits": 1,
+            "name": "JNL_END",
+            "attr": "W1S-0"
+          },
+          {
+            "bits": 1,
+            "name": "JNL_ABORT",
+            "attr": "W1S-0"
+          },
+          {
+            "bits": 5,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 2,
+            "name": "JNL_STAT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "JNL_DATA",
+      "offset": "0x7BC",
+      "svg": "docs/diagrams/regmap/jnl/JNL_DATA.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "JNL_DATA",
+            "attr": "W-0"
+          },
+          {
+            "bits": 8,
+            "name": "JNL_DATA",
+            "attr": "W-0"
+          },
+          {
+            "bits": 8,
+            "name": "JNL_DATA",
+            "attr": "W-0"
+          },
+          {
+            "bits": 8,
+            "name": "JNL_DATA",
+            "attr": "W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "JNL_STAT",
+      "offset": "0x7C0",
+      "svg": "docs/diagrams/regmap/jnl/JNL_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "JNL_STAT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "JNL_STAT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "JNL_STAT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "JNL_STAT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "JNL_SEQ",
+      "offset": "0x7C4",
+      "svg": "docs/diagrams/regmap/jnl/JNL_SEQ.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "JNL_SEQ",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "JNL_SEQ",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "JNL_SEQ",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "JNL_SEQ",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

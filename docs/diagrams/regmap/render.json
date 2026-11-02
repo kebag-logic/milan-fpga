@@ -1,0 +1,42 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "render",
+  "heading": "0x8DC  -  render presentation state",
+  "registers": [
+    {
+      "acronym": "RENDER_STAT",
+      "offset": "0x8DC",
+      "svg": "docs/diagrams/regmap/render/RENDER_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "RENDER_STATUS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "RENDER_STATUS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "RENDER_STATUS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "RENDER_STATUS",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

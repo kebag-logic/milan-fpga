@@ -1,0 +1,189 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "bdbg",
+  "heading": "0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- \ud83d\udd34 STRUCTURAL ZERO, and the link-guard status",
+  "registers": [
+    {
+      "acronym": "BDBG0",
+      "offset": "0x768",
+      "svg": "docs/diagrams/regmap/bdbg/BDBG0.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "BDBG0",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "BDBG0",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "BDBG0",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "BDBG0",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "BDBG1",
+      "offset": "0x76C",
+      "svg": "docs/diagrams/regmap/bdbg/BDBG1.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "BDBG1",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "BDBG1",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "BDBG1",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "BDBG1",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "BDBG2",
+      "offset": "0x770",
+      "svg": "docs/diagrams/regmap/bdbg/BDBG2.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "BDBG2",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "BDBG2",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "BDBG2",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "BDBG2",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "LINKG_STAT",
+      "offset": "0x774",
+      "svg": "docs/diagrams/regmap/bdbg/LINKG_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "RX_ALIVE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "TX_ALIVE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ETH_RST",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 2,
+            "name": "STATE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "GUARD_RST",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ACT_RECENT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "DIS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "FREEZE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "BOUNCE_CNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "BOUNCE_CNT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

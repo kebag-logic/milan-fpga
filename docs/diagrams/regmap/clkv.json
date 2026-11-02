@@ -1,0 +1,224 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "clkv",
+  "heading": "0x778  -  Clock validity: the AVTP tu verdict (VERSION minor >= 0x0016), TX arbiter and SRP domain",
+  "registers": [
+    {
+      "acronym": "CLKV_CTRL",
+      "offset": "0x778",
+      "svg": "docs/diagrams/regmap/clkv/CLKV_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "CLKV_CTRL",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "CLKV_CTRL",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "CLKV_CTRL",
+            "attr": "R-0"
+          },
+          {
+            "bits": 8,
+            "name": "CLKV_CTRL",
+            "attr": "R-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CLKV_STAT",
+      "offset": "0x77C",
+      "svg": "docs/diagrams/regmap/clkv/CLKV_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "TU",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "SYNC_OK",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "HOLDOVER",
+            "attr": "R-X"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "AS_CAPABLE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CLKV_TUCNT",
+      "offset": "0x780",
+      "svg": "docs/diagrams/regmap/clkv/CLKV_TUCNT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "CLKV_TUCNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "CLKV_TUCNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "CLKV_TUCNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "CLKV_TUCNT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "TXARB_DIAG",
+      "offset": "0x784",
+      "svg": "docs/diagrams/regmap/clkv/TXARB_DIAG.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "LOCKED_NOW",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "ABORT_STICKY",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "STALL_STICKY",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "TAG",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "LWSRP_DOM",
+      "offset": "0x788",
+      "svg": "docs/diagrams/regmap/clkv/LWSRP_DOM.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "VID",
+            "attr": "R-X"
+          },
+          {
+            "bits": 4,
+            "name": "VID",
+            "attr": "R-X"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "PRIORITY",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ADOPTED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,483 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "pp",
+  "heading": "0x920  -  protocol-processor control plane  (KL_pp_shadow, VERSION major 2)",
+  "registers": [
+    {
+      "acronym": "PP_CTRL",
+      "offset": "0x920",
+      "svg": "docs/diagrams/regmap/pp/PP_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "PP_ENABLE",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "PP_RESTORE_GO",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PP_STAT",
+      "offset": "0x924",
+      "svg": "docs/diagrams/regmap/pp/PP_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "PP_BUSY",
+            "attr": "R-0"
+          },
+          {
+            "bits": 1,
+            "name": "PP_RESTORE_BUSY",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PP_RESTORE_DONE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PP_RESTORE_FAIL",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PP_NVM_ALARM",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PP_ERR",
+            "attr": "R-0"
+          },
+          {
+            "bits": 1,
+            "name": "PP_NVM_BACKED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PP_NVM_BLANK",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PP_NVM_DIRTY",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PP_NVM_STALE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PP_NVM_IMG_VALID",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PP_NVM_PEND",
+            "attr": "R-X"
+          },
+          {
+            "bits": 4,
+            "name": "PP_NVM_VERDICT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PP_RESTORE_CLOSED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "PP_RESTORE_RB",
+            "attr": "R-X"
+          },
+          {
+            "bits": 3,
+            "name": "PP_RS_CAUSE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 2,
+            "name": "PP_RESTORE_CAUSE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "PP_PRESENT_TAG",
+            "attr": "R-5Bh"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PP_SPADDR",
+      "offset": "0x928",
+      "svg": "docs/diagrams/regmap/pp/PP_SPADDR.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PP_SPADDR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PP_SPADDR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 4,
+            "name": "PP_SPADDR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PP_SPDATA",
+      "offset": "0x92C",
+      "svg": "docs/diagrams/regmap/pp/PP_SPDATA.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PP_SPRDATA",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PP_SPRDATA",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PP_SPRDATA",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "PP_SPRDATA",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PP_DIAG",
+      "offset": "0x930",
+      "svg": "docs/diagrams/regmap/pp/PP_DIAG.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PP_RX_FRAMES",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PP_RX_DROPS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PP_TX_FRAMES",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "PP_TX_FRAMES",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PP_NVM_SEL",
+      "offset": "0x934",
+      "svg": "docs/diagrams/regmap/pp/PP_NVM_SEL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 6,
+            "name": "PP_NVM_SEL",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 2,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PP_NVM_DATA",
+      "offset": "0x938",
+      "svg": "docs/diagrams/regmap/pp/PP_NVM_DATA.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "PP_NVM_CSR_RDATA",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "PP_NVM_CSR_RDATA",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "PP_NVM_CSR_RDATA",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "PP_NVM_CSR_RDATA",
+            "attr": "R/W-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "PP_NVM_STAT",
+      "offset": "0x93C",
+      "svg": "docs/diagrams/regmap/pp/PP_NVM_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "HEARTBEAT",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "COMMIT_ACK",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "LOAD_ACCEPTED",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "LOAD_PENDING",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "DEV_BUSY",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "IMG_CFG",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "NVM_BACKED",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "IMG_VALID",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "NVM_DIRTY",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "NVM_STALE",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "COMMIT_BUSY",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "RELOAD_REFUSED",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 4,
+            "name": "VERDICT",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "OPEN",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "HOLD",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "VALID",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "ATTESTED",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "ACK_REFUSED",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "ARM_REFUSED",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "NVM_PEND",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "UNRES",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 8,
+            "name": "TAG",
+            "attr": "R/W-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,4112 @@
+{
+  "_comment": "Prose for the generated register reference (#797), keyed by RTL register and field name. The generator refuses a key the RTL lacks. Regenerate the page after any edit. Rationale and history live in docs/design/CSR_REGISTER_NOTES.md; `record` keys are its anchors.",
+  "page": {
+    "intro": [
+      "The register offsets below are a stable ABI.",
+      "No register was removed. Every word still decodes.",
+      "**Bus:** AXI4-Lite, 32-bit data, little-endian.",
+      "The LiteX product maps the 64 KiB window at `0x9000_0000`.",
+      "Writes to read-only fields are ignored. Unmapped offsets read 0.",
+      "`SLVERR` is never raised: every access answers OKAY.",
+      "Reserved read-only bits read 0. Reserved R/W bits store what is written.",
+      "Plain-RW words read from a write-through shadow RAM.",
+      "After reset, `*READY` stays low for about 513 clocks. The defaults ROM loads the shadow meanwhile.",
+      "64-bit reads are not atomic on the bus. For time of day, use the snapshot latch.",
+      "`VERSION` tracks the map: additive changes bump minor, breaking ones major.",
+      "`W1S` command strobes read back 0.",
+      "The protocol processor runs the control plane, not this block.",
+      "`KL_pp_shadow` wraps it; these registers are its CSR projection.",
+      "The AEM descriptor tree has no CSR here. The processor fetches it from main memory.",
+      "`PP_CTRL[0]` or `ADP_CTRL[0]` requests the entity enable. The fabric holds it until the restore releases it.",
+      "Queue 4 is the highest priority, queue 0 the lowest."
+    ],
+    "notes": [
+      {
+        "heading": "How to read this page now: three verdicts, and why the distinction matters",
+        "intro": [],
+        "rows": [
+          {
+            "table": [
+              [
+                "Verdict",
+                "What it means",
+                "How software must treat it"
+              ],
+              [
+                "**STRUCTURAL ZERO**",
+                "The source of this word is deleted and has no replacement. It reads `0` because there is nothing behind it, **not** because nothing happened",
+                "Never read it as a measurement. A word that read a plausible value instead would be a defect -- \"engine idle\" and \"no engine\" must not be confusable"
+              ],
+              [
+                "**Readable, inert scratch** (legacy label: **WRITE-ONLY SCRATCH**)",
+                "The register still reads back exactly what software wrote, but the value **no longer reaches the wire**",
+                "Writing it changes nothing observable. Do not infer from a successful readback that the setting took effect"
+              ],
+              [
+                "**LIVE, REPOINTED**",
+                "Still real, now sourced from the protocol processor's class-D face instead of a deleted engine",
+                "Read it normally; the meaning is unchanged"
+              ]
+            ],
+            "line": 100
+          }
+        ]
+      },
+      {
+        "heading": "A group can be STRUCTURALLY absent (optional-block prunes, 2026-07-27)",
+        "intro": [
+          "A pruned block keeps its window. Its read-only words read a structural zero.",
+          "No capability bit says so. Check the build plan, not the register."
+        ],
+        "rows": [
+          {
+            "table": [
+              [
+                "Parameter",
+                "Reads 0 structurally",
+                "Other effect"
+              ],
+              [
+                "`MCSERVO_P = 0`",
+                "`0x8F8 MCSRV_STAT`",
+                "`0x8FC MCSRV_CTRL` still RW; MMCM DRP/PS pins never move"
+              ],
+              [
+                "`LTAP_P = 0`",
+                "`0x874`-`0x8B0`; `0x870 LTAP_CTRL` reads `0x2` (enable bit only, no status)",
+                "--"
+              ],
+              [
+                "`MAAP_P = 0`",
+                "`0x6D0 MAAP_STAT0`, `0x6D4 MAAP_STAT1`",
+                "`MAAP_CTRL.en` becomes effectively **reserved**: setting it pins AAF admission shut"
+              ],
+              [
+                "`I2SPB_P = 0`",
+                "`0x6D8 I2SPB_STAT`, `0x6E0 I2SPB_TRIM`, `0x6F0 I2SPB_DBG`",
+                "the four `i2s_dac_*` pins park at 0"
+              ],
+              [
+                "`RXFILT_P = 0`",
+                "--",
+                "the whole `0x700` TCAM group still stores; **nothing reads it** and the port is PROMISCUOUS"
+              ],
+              [
+                "`LPF_P = 0`",
+                "--",
+                "`0x72C LPF_CTRL` still RW with no filter behind it"
+              ]
+            ],
+            "line": 267
+          },
+          {
+            "when": {
+              "I2SPB_P": 0
+            },
+            "text": "This build sets `I2SPB_P` to 0. The `I2SPB_*` words read a structural zero."
+          },
+          {
+            "when": {
+              "LPF_P": 0
+            },
+            "text": "This build sets `LPF_P` to 0. `LPF_CTRL` reaches no filter."
+          }
+        ]
+      }
+    ],
+    "reading_purpose": "Verdicts, history notes and how to read the tables.",
+    "record": "reading-the-register-map"
+  },
+  "modules": [
+    {
+      "key": "ident",
+      "heading": "0x000  -  Identification / IRQ",
+      "start": "0x000",
+      "end": "0x0FF",
+      "purpose": "Identification, capabilities and the interrupt registers.",
+      "notes": [
+        "The interrupt line is `|(IRQ_STATUS & IRQ_MASK)`.",
+        "The ENTITY descriptor's `firmware_version` is derived from `VERSION`.",
+        "`CLS_*`, the CBS window and `PTP_ILAT`/`PTP_ELAT` are inert scratch since `0x0056`.",
+        {
+          "heading": "`VERSION` is also what every ATDECC controller is told (2026-07-28)",
+          "intro": [],
+          "rows": [
+            {
+              "table": [
+                [
+                  "ATDECC `firmware_version`",
+                  "source"
+                ],
+                [
+                  "**major**",
+                  "`VERSION[31:16]`"
+                ],
+                [
+                  "**minor**",
+                  "`VERSION[15:0]` -- one flat ABI ordinal, which is how this row's changelog and every `VERSION minor >=` feature gate already read it"
+                ],
+                [
+                  "**rev**",
+                  "`entity.firmware_rev` in `configs/endstation_*.yaml`, optional, default `0` -- a firmware respin that changes no CSR ABI"
+                ]
+              ],
+              "line": 390
+            }
+          ]
+        }
+      ],
+      "record": "0x000-----identification--irq"
+    },
+    {
+      "key": "mac",
+      "heading": "0x100  -  MAC control / status  `(REQ-MAC-01..03)`",
+      "start": "0x100",
+      "end": "0x1FF",
+      "purpose": "MAC control, link status and the inert PHY reset.",
+      "notes": [
+        "`MAC_CTRL` resets to `0x13`: tx_en, rx_en and is_1g.",
+        "`is_1g` follows `MAC_STATUS` speed unless `MAC_CTRL[5]` is set.",
+        "The address filter applies only once `TCAM_CTRL[1]` is set. Decision order per frame:",
+        "- A one-beat runt is always swallowed.",
+        "- `promisc` accepts, outranking a TCAM drop entry.",
+        "- A TCAM hit: `ACTION[0]` decides.",
+        "- `addr_filter_en`: broadcast accepted, group by `allmulti` or hash, unicast on exact match.",
+        "- Otherwise `TCAM_CTRL[0]` decides.",
+        "The multicast bucket is a 6-bit XOR of the MAC."
+      ],
+      "record": "0x100-----mac-control--status--req-mac-0103"
+    },
+    {
+      "key": "stats",
+      "heading": "0x200  -  Statistics (RMON)  `(REQ-MAC-04)`",
+      "start": "0x200",
+      "end": "0x2FF",
+      "purpose": "RMON counter snapshot and its capability mask.",
+      "notes": [
+        "Write `STATS_CTRL[0]` to latch a coherent snapshot, then read the `STATn` words.",
+        "A MAC reinit release zeroes the snapshot. All zero means no valid snapshot.",
+        "Read `STATS_CAP` before believing a zero. 0 there means no event source.",
+        "A board build with the LiteEth MAC reports `0x1B8`.",
+        "Lane sources:",
+        {
+          "table": [
+            [
+              "lane",
+              "source",
+              "in `STATS_CAP` on a LiteEth build"
+            ],
+            [
+              "`TX_FIFO_GOOD_FRAME`",
+              "datapath MAC-TX AXIS accepted `tlast`",
+              "✅"
+            ],
+            [
+              "`RX_FIFO_GOOD_FRAME`",
+              "datapath MAC-RX AXIS accepted `tlast`",
+              "✅"
+            ],
+            [
+              "`RX_ERROR_BAD_FCS`",
+              "LiteEth `crc_errors` (CRC32 checker)",
+              "✅"
+            ],
+            [
+              "`RX_ERROR_BAD_FRAME`",
+              "LiteEth `preamble_errors` (preamble/alignment)",
+              "✅"
+            ],
+            [
+              "`RX_FIFO_BAD_FRAME`",
+              "frames delivered with LiteEth's `error` flag set -- FCS failure **or** undersize runt",
+              "✅"
+            ],
+            [
+              "`TX_ERROR_UNDERFLOW`",
+              "none -- MAC-internal, not exposed",
+              "❌"
+            ],
+            [
+              "`TX_FIFO_OVERFLOW`",
+              "none -- MAC-internal, not exposed",
+              "❌"
+            ],
+            [
+              "`TX_FIFO_BAD_FRAME`",
+              "none -- MAC-internal, not exposed",
+              "❌"
+            ],
+            [
+              "`RX_FIFO_OVERFLOW`",
+              "none -- MAC-internal, not exposed",
+              "❌"
+            ]
+          ],
+          "line": 503
+        }
+      ],
+      "record": "0x200-----statistics-rmon--req-mac-04"
+    },
+    {
+      "key": "cls",
+      "heading": "0x300  -  802.1Q classifier  `(REQ-CLS-01..04)`",
+      "start": "0x300",
+      "end": "0x3FF",
+      "purpose": "Retained classifier words; no logic reads them.",
+      "notes": [
+        "These words are inert scratch since `0x0056`: no classifier is instantiated.",
+        "They store and read back, and reach no logic."
+      ],
+      "record": "0x300-----8021q-classifier--req-cls-0104"
+    },
+    {
+      "key": "cbs",
+      "heading": "0x400  -  802.1Qav CBS (per queue)  `(REQ-CBS-01..03)`",
+      "start": "0x400",
+      "end": "0x4FF",
+      "purpose": "Retained per-queue CBS words; nothing reads them.",
+      "notes": [
+        "This window is inert scratch since `0x0056`: no shaper is elaborated.",
+        "It keeps its geometry, its reset image and its readback.",
+        "`CAP[8]` reads 0 for the same reason."
+      ],
+      "record": "0x400-----8021qav-cbs-per-queue--req-cbs-0103"
+    },
+    {
+      "key": "ptp",
+      "heading": "0x500  -  PTP hardware clock  `(REQ-PTP-01..04, 06)`",
+      "start": "0x500",
+      "end": "0x5FF",
+      "purpose": "PTP hardware clock control, time access and PPS alarm.",
+      "notes": [
+        "`PTP_PPS_*` is a comparator in the PHC's clock domain. It fires when PHC time reaches the target.",
+        "`PTP_CMD` strobes cross into the PTP domain with an apply strobe.",
+        "`PTP_ILAT` and `PTP_ELAT` are inert; the gPTP plane publishes its corrections at `GPTP_LAT`."
+      ],
+      "record": "0x500-----ptp-hardware-clock--req-ptp-0104-06"
+    },
+    {
+      "key": "adp",
+      "heading": "0x600  -  ADP advertiser  `(IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)`",
+      "start": "0x600",
+      "end": "0x647",
+      "purpose": "ADP identity words, the advertise strobes and status.",
+      "notes": [
+        "The protocol processor sends ADP. These words are its CSR face.",
+        "`ADP_CTRL[0]` and `PP_CTRL[0]` are ORed: either requests the entity enable. The fabric holds the enable until the restore releases it.",
+        "`entity_capabilities`, `valid_time`, `association_id` and `controller_capabilities` no longer reach the wire.",
+        "`available_index` increments after every ENTITY_AVAILABLE sent.",
+        "A frozen `ADP_STATUS` means no ADPDUs are leaving."
+      ],
+      "record": "0x600-----adp-advertiser--ieee-17221-2021--milan-v12-fr-disc-0104"
+    },
+    {
+      "key": "aecp",
+      "heading": "0x648  -  AECP/ACMP status + AAF talker  `(IEEE 1722.1 / Milan v1.2)`",
+      "start": "0x648",
+      "end": "0x67F",
+      "purpose": "AECP and ACMP status, and the flat AAF talker words.",
+      "notes": [
+        "The AECP and ACMP counter words are structural zeros.",
+        "The entity-lock level, the AAF talker words and `ACMP_TALKER[1]` are live.",
+        "Talker index 0 of the `0x800` window aliases the AAF words."
+      ],
+      "record": "0x648-----aecpacmp-status--aaf-talker--ieee-17221--milan-v12"
+    },
+    {
+      "key": "lwsrp",
+      "heading": "0x680  -  lwSRP engine  `(802.1Q MSRP/MVRP, Milan v1.2 Section 5.6, FR-SRP-*)`",
+      "start": "0x680",
+      "end": "0x6A3",
+      "purpose": "SRP control and the processor's SRP status.",
+      "notes": [
+        "The processor owns SRP; the lwSRP engine is deleted.",
+        "State words are live. PDU counters are structural zeros, and provisioning words are inert.",
+        "The licence needs ACTIVE and the real per-source grant (#551).",
+        "`LWSRP_STATUS[8]` reads 0 until a Listener Ready or Ready Failed registers."
+      ],
+      "record": "0x680-----lwsrp-engine--8021q-msrpmvrp-milan-v12-section-56-fr-srp-"
+    },
+    {
+      "key": "acmpl",
+      "heading": "0x6A4  -  ACMP listener SM  `(Milan v1.2 Section 5.5 listener, FR-CONN-01)`",
+      "start": "0x6A4",
+      "end": "0x6FF",
+      "purpose": "Listener bind record, AVTP RX, MAAP and audio diagnostics.",
+      "notes": [
+        "`ACMPL_STATE` no longer tracks PROBING or SETTLED: take `bound` as the truth.",
+        "The bind record carries the bound stream_id, DMAC and VLAN.",
+        "`CTLR_DIAG` is a structural zero: its source was deleted.",
+        "The departing-controller monitor lives in the protocol processor.",
+        "Words free in this group:",
+        {
+          "table": [
+            [
+              "Offset",
+              "Register",
+              "Access",
+              "Fields"
+            ],
+            [
+              "`0x6F8`",
+              "--",
+              "--",
+              "**reserved**, free. Claim it here before wiring it"
+            ],
+            [
+              "`0x6FC`",
+              "--",
+              "--",
+              "**reserved**, free -- the last word of this group. The next group starts at `0x700` (`TCAM_CTRL`)"
+            ]
+          ],
+          "line": 1279
+        }
+      ],
+      "record": "0x6a4-----acmp-listener-sm--milan-v12-section-55-listener-fr-conn-01"
+    },
+    {
+      "key": "tcam",
+      "heading": "0x700  -  RX destination-MAC TCAM filter  `(REQ-MAC-02)`",
+      "start": "0x700",
+      "end": "0x71B",
+      "purpose": "RX destination-MAC filter programming.",
+      "notes": [
+        "A ternary CAM accepts or drops RX frames by DMAC.",
+        "Key and mask are `{HI[15:0], LO}`, compared MSB-first against the destination MAC.",
+        "Set the key, mask and action words, then commit with `TCAM_CMD[16]`."
+      ],
+      "record": "0x700-----rx-destination-mac-tcam-filter--req-mac-02"
+    },
+    {
+      "key": "link",
+      "heading": "0x71C  -  Link guard / MAC recovery (VERSION minor ≥ 0x0006)",
+      "start": "0x71C",
+      "end": "0x723",
+      "purpose": "Link guard controls and the reset canary.",
+      "notes": [
+        "`KL_link_guard` supervises link bounces; firmware has recovery strobes here.",
+        "`LINK_CTRL[1]` is stored as 0 while `ETH_GUARD[0]` is 1."
+      ],
+      "record": "0x71c-----link-guard--mac-recovery-version-minor--0x0006"
+    },
+    {
+      "key": "overlay",
+      "heading": "0x724  -  identity / playback / 802.1AS overlay",
+      "start": "0x724",
+      "end": "0x737",
+      "purpose": "Entity name overlay, playback filter and gPTP parent.",
+      "notes": [
+        "Firmware may write the board-name overlay.",
+        "The fabric gPTP plane publishes live parent topology directly."
+      ],
+      "record": "0x724-----identity--playback--8021as-overlay"
+    },
+    {
+      "key": "crf",
+      "heading": "0x738  -  CRF media-clock sink  `(Milan v1.2 7.3, KL_crf_rx)`",
+      "start": "0x738",
+      "end": "0x74F",
+      "purpose": "CRF media-clock sink control and measurements.",
+      "notes": [
+        "`KL_crf_rx` validates each PDU of the followed CRF stream. The profile is Milan v1.2 7.3.2.",
+        "The SID pair is the manual lever. A CRF sink bind wins.",
+        "A stopped sink keeps observing and counting, while consumption gates.",
+        "A Controller Unbind never counts as interrupted (Table 5.6).",
+        "The Stream Input counter block:",
+        {
+          "table": [
+            [
+              "Quadlet (block offset)",
+              "Counter",
+              "`KL_crf_rx` output"
+            ],
+            [
+              "0 (`@0`)",
+              "MEDIA_LOCKED",
+              "`cnt_locked_o`"
+            ],
+            [
+              "1 (`@4`)",
+              "MEDIA_UNLOCKED",
+              "`cnt_unlocked_o`"
+            ],
+            [
+              "2 (`@8`)",
+              "STREAM_INTERRUPTED",
+              "`cnt_intr_o`"
+            ],
+            [
+              "3 (`@12`)",
+              "SEQ_NUM_MISMATCH",
+              "`seq_err_o`"
+            ],
+            [
+              "4 (`@16`)",
+              "MEDIA_RESET",
+              "`mr_cnt_o`"
+            ],
+            [
+              "5 (`@20`)",
+              "TIMESTAMP_UNCERTAIN",
+              "`tu_cnt_o`"
+            ],
+            [
+              "8 (`@32`)",
+              "UNSUPPORTED_FORMAT",
+              "`fmt_err_o`"
+            ],
+            [
+              "9 (`@36`)",
+              "LATE_TIMESTAMP",
+              "`late_cnt_o`"
+            ],
+            [
+              "10 (`@40`)",
+              "EARLY_TIMESTAMP",
+              "`early_cnt_o`"
+            ],
+            [
+              "11 (`@44`)",
+              "FRAMES_RX",
+              "`pdu_count_o`"
+            ]
+          ],
+          "line": 899
+        }
+      ],
+      "record": "0x738-----crf-media-clock-sink--milan-v12-73-kl_crf_rx"
+    },
+    {
+      "key": "crft",
+      "heading": "0x750  -  CRF media-clock talker  `(Milan v1.2 7.3.1, KL_crf_tx)`",
+      "start": "0x750",
+      "end": "0x767",
+      "purpose": "CRF media-clock talker control and counters.",
+      "notes": [
+        "`KL_crf_tx` emits the CRF AUDIO_SAMPLE stream at 500 PDU/s."
+      ],
+      "record": "0x750-----crf-media-clock-talker--milan-v12-731-kl_crf_tx"
+    },
+    {
+      "key": "bdbg",
+      "heading": "0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO, and the link-guard status",
+      "start": "0x768",
+      "end": "0x777",
+      "purpose": "Retired scan forensics and the live link-guard status.",
+      "notes": [
+        "All three words are structural zeros. They belonged to the deleted AECP builder.",
+        "`LINKG_STAT` is live: see its row."
+      ],
+      "record": "0x768-----aecp-get_dynamic_info-scan-forensics-bdbg-----structural-zero-and-the-link-guard-status"
+    },
+    {
+      "key": "clkv",
+      "heading": "0x778  -  Clock validity: the AVTP `tu` verdict `(VERSION minor >= 0x0016)`, TX arbiter and SRP domain",
+      "start": "0x778",
+      "end": "0x79F",
+      "purpose": "Clock validity, TX arbiter supervision and the SRP domain.",
+      "notes": [
+        "`tu` is the AVTP timestamp-uncertain bit on every outgoing stream frame.",
+        "`CLKV_STAT[1]` and `[16]` are the live sync and asCapable levels.",
+        "With the gPTP plane off, sync and asCapable stay 0. `tu` stays 1.",
+        "`CLKV_TUCNT` moving means `tu` = 1 was seen in a one-second interval.",
+        "![Link-guard reset sequence](docs/diagrams/wd_linkguard_reset.svg)"
+      ],
+      "record": "0x778-----clock-validity-the-avtp-tu-verdict-version-minor--0x0016-tx-arbiter-and-srp-domain"
+    },
+    {
+      "key": "rest",
+      "heading": "0x7A0  -  ACMP bind-restore  `(saved-state fast-connect E1, Milan 5.5.3.5.2)`",
+      "start": "0x7A0",
+      "end": "0x7B7",
+      "purpose": "Retired bind-restore port, kept as an ABI.",
+      "notes": [
+        "This port is dead. Writes are accepted, the ack never asserts, nothing is restored.",
+        "Bindings persist through the processor's restore walk and `KL_nvm_backend`.",
+        "See `PP_NVM_*` and `PP_STAT` for the live saved-state path."
+      ],
+      "record": "0x7a0-----acmp-bind-restore--saved-state-fast-connect-e1-milan-55352"
+    },
+    {
+      "key": "jnl",
+      "heading": "0x7B8  -  Persistence-journal ingest  `(saved-state fast-connect E3)`",
+      "start": "0x7B8",
+      "end": "0x7C7",
+      "purpose": "Retired journal ingest port, kept as an ABI.",
+      "notes": [
+        "Writes here are accepted and discarded.",
+        "`JNL_STAT` and `JNL_SEQ` read structural zeros."
+      ],
+      "record": "0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3"
+    },
+    {
+      "key": "aemp",
+      "heading": "0x7C8  -  AEM dynamic-state patch port  `(saved-state fast-connect E4)`",
+      "start": "0x7C8",
+      "end": "0x7D7",
+      "purpose": "Retired AEM patch port, kept as an ABI.",
+      "notes": [
+        "Writes here are accepted and discarded.",
+        "`AEMP_CTRL` reads a structural zero. The layout is kept as ABI."
+      ],
+      "record": "0x7c8-----aem-dynamic-state-patch-port--saved-state-fast-connect-e4"
+    },
+    {
+      "key": "guard",
+      "heading": "0x7D8  -  Ethernet guard",
+      "start": "0x7D8",
+      "end": "0x7DB",
+      "purpose": "The Ethernet guard kill switch.",
+      "notes": [
+        "The guard is armed at power-on. Software disarms it with the unlock word.",
+        "It drops `PHY_RESET` writes and stores `LINK_CTRL[1]` as 0.",
+        "The link guard's automatic recovery is not gated.",
+        "Nothing in the SoC consumes the exported level. So `milan_mac_phy_crg_reset` is not gated."
+      ],
+      "record": "0x7d8-----ethernet-guard"
+    },
+    {
+      "key": "asp",
+      "heading": "0x7DC  -  retired AS_PATH compatibility addresses",
+      "start": "0x7DC",
+      "end": "0x7E7",
+      "purpose": "Retired AS_PATH addresses and the live PathTrace status.",
+      "notes": [
+        "`GET_AS_PATH` returns the fabric engine's bounded pathTrace, eight identities at most.",
+        "These addresses stay allocated so the map does not shift. Writes are discarded."
+      ],
+      "record": "0x7dc-----retired-as_path-compatibility-addresses"
+    },
+    {
+      "key": "gptpd",
+      "heading": "0x7E8  -  gPTP plane drop diagnostics",
+      "start": "0x7E8",
+      "end": "0x7EF",
+      "purpose": "gPTP plane drop counters.",
+      "notes": [
+        "These tell link silence from traffic the plane refused (#207)."
+      ],
+      "record": "0x7e8-----gptp-plane-drop-diagnostics"
+    },
+    {
+      "key": "gptpl",
+      "heading": "0x7F0  -  applied gPTP timestamp latency corrections",
+      "start": "0x7F0",
+      "end": "0x7FF",
+      "purpose": "The timestamp corrections the gPTP plane applies.",
+      "notes": [
+        "This is the only live latency-correction publication (#358).",
+        "One word, so a reader never pairs two builds' values."
+      ],
+      "record": "0x7f0-----applied-gptp-timestamp-latency-corrections"
+    },
+    {
+      "key": "strm",
+      "heading": "0x800  -  Indexed per-stream window",
+      "start": "0x800",
+      "end": "0x86F",
+      "purpose": "Indexed window onto one stream's context.",
+      "notes": [
+        "One select word and one word block view any stream.",
+        "`STRM_SEL[8]` picks the direction and `STRM_SEL[3:0]` the stream.",
+        "A word that does not exist for the selection reads `0xDEADDEAD`.",
+        "An index out of range reads 0. Writes are ignored.",
+        "Index 0 is a hard alias of the flat registers.",
+        "The shipping AX7101 has one AAF stream. The 8x8 config declares eight.",
+        "The ACMP context read and SRP row port are dead. Their words read 0.",
+        "A `SNAP` latches `STATE`, `CNT0..9` and `PDUS` as one coherent set.",
+        "`CTRL` and `FMT` reads go live to the context RAM. They take at least four clocks."
+      ],
+      "record": "0x800-----indexed-per-stream-window"
+    },
+    {
+      "key": "ltap",
+      "heading": "0x870  -  AAF per-stage latency taps  `(roadmap item-11, KL_aaf_latency_taps)`",
+      "start": "0x870",
+      "end": "0x8B3",
+      "purpose": "AAF per-stage latency taps.",
+      "notes": [
+        "Two chains measure per-stage AAF latency, in axis_clk cycles.",
+        "TX stages: `CAP`, `PKT_SOF`, `PKT_EOF`, `MAC_TX`. RX stages: `MAC_RX`, `ACCEPT`, `DEPKT`, `FABRIC_RENDER`.",
+        "Each chain follows one tagged frame at a time.",
+        "A timeout of about 0.5 ms re-arms the token."
+      ],
+      "record": "0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps"
+    },
+    {
+      "key": "aprb",
+      "heading": "0x8B4  -  RX stream-parser probe  `(APRB, avtp_stream_parser + milan_datapath)`",
+      "start": "0x8B4",
+      "end": "0x8C7",
+      "purpose": "The RX stream parser's pre-match view.",
+      "notes": [
+        "This probe shows what the parser saw before any match.",
+        "The `SID` and `INFO` latch only follows stream subtypes.",
+        "Reading the failure modes, listener bound and nothing accepted:",
+        {
+          "table": [
+            [
+              "`PARSED`",
+              "`MATCHED`",
+              "verdict"
+            ],
+            [
+              "static",
+              "static",
+              "frames are not reaching the parser at all -- look upstream (MAC, filter, classify), not at the listener"
+            ],
+            [
+              "climbing",
+              "static",
+              "the parser sees them and the compare misses -- diff `APRB_SID_*` against the bind record (`0x814`/`0x818`) and check `INFO[23:16]` is non-zero (a table with **no armed entry** matches nothing)"
+            ],
+            [
+              "climbing",
+              "climbing",
+              "the match is fine; the loss is downstream -- `AVTPRX_ERR` (format), then depacketizer and fabric render"
+            ]
+          ],
+          "line": 1876
+        }
+      ],
+      "record": "0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath"
+    },
+    {
+      "key": "gap",
+      "heading": "0x8C8  -  reserved target-media compatibility words",
+      "start": "0x8C8",
+      "end": "0x8D3",
+      "purpose": "Retired telemetry words that read zero.",
+      "notes": [
+        "These words are retired. They read 0 and ignore writes."
+      ],
+      "record": "0x8c8-----reserved-target-media-compatibility-words"
+    },
+    {
+      "key": "slip",
+      "heading": "0x8D4  -  media-boundary slip counters  `(SLIP, KL_chan_map_capture)`",
+      "start": "0x8D4",
+      "end": "0x8DB",
+      "purpose": "Media-boundary slip counters.",
+      "notes": [
+        "Two 48 kHz grids meet at the capture crossbar. These words count their slips.",
+        "They are live and read-only. Read twice and difference for a rate.",
+        "`SLIP_LB` reads 0 on a shape without the loopback lane.",
+        "What each event counts:",
+        {
+          "table": [
+            [
+              "event",
+              "`SLIP_LB` dups",
+              "`SLIP_TDM` dups"
+            ],
+            [
+              "upstream paused, four fed pairs (the shipping 1x1x8 lane)",
+              "65535 / 192000 per second = 0.34 s",
+              "-"
+            ],
+            [
+              "upstream paused, 32 fed pairs (an 8x8 elaboration with the lane)",
+              "65535 / 1536000 per second = 43 ms",
+              "-"
+            ],
+            [
+              "TDM front-end clock stopped",
+              "-",
+              "65535 / 48000 per second = 1.4 s"
+            ],
+            [
+              "an unaligned packet grid against a disciplined peer (one slip per 1.958 s: INTERNAL before #629)",
+              "8.9 h on four pairs, 1.1 h on 32",
+              "35.6 h at one dup per slip; sooner when a wider marker dither adds dup/skip pairs"
+            ]
+          ],
+          "line": 1935
+        },
+        "Reading the pair:",
+        {
+          "table": [
+            [
+              "`SLIP_LB`",
+              "`SLIP_TDM`",
+              "verdict"
+            ],
+            [
+              "static",
+              "static",
+              "one grid: the packet grid follows the selected source and the upstream talker rides the same media clock. Under CRF a static `SLIP_TDM` is a talker that repeats and skips no TDM frame: the aligner holds the frame close 256 cycles off the walk's crossing at every settled lock phase (the guarded crossing above); an engagement's acquisition may add one dup and one skip, once"
+            ],
+            [
+              "dups climbing 0.51/s per fed pair (about 2/s on the shipping four-pair lane, 16/s on 32 pairs)",
+              "dups minus skips climbing 0.51/s (dups alone at 0.51/s while the marker dithers over two adjacent cycles; a wider dither adds skips and as many extra dups)",
+              "the packet grid is not aligned to the front end: the -10.64 ppm plan. At INTERNAL this was the rule before #629; since #629 (A2-a) the aligner runs at every source, so on a current image look for a dead TDM feed (the aligner's watchdog disengages it)"
+            ],
+            [
+              "climbing",
+              "static",
+              "our own front end is aligned but the upstream talker's clock is not this media clock: look at the peer's clock source"
+            ],
+            [
+              "`0xFFFF` in either half",
+              "any",
+              "the half is spent: an upstream pause, cable pull or talker stop-without-unbind (a stopped front-end clock for `SLIP_TDM`) pegged it in under two seconds, and it says nothing about the present rate; a saturated word is not evidence of one grid. Reset to re-arm, then read again; a bind wipe un-primes the pair but does not clear the word"
+            ]
+          ],
+          "line": 2050
+        }
+      ],
+      "record": "0x8d4-----media-boundary-slip-counters--slip-kl_chan_map_capture"
+    },
+    {
+      "key": "render",
+      "heading": "0x8DC  -  render presentation state",
+      "start": "0x8DC",
+      "end": "0x8DF",
+      "purpose": "Presentation state of the selected listener.",
+      "notes": [
+        "`STRM_SEL[3:0]` selects the listener, with `STRM_SEL[8]` at 0.",
+        "Talker selections and indices out of range read 0.",
+        "Refused PDUs and slips do not raise `STREAM_INTERRUPTED`.",
+        "`RENDER_STAT` bits:",
+        {
+          "table": [
+            [
+              "Bits",
+              "Width",
+              "Source",
+              "Meaning",
+              "Reset"
+            ],
+            [
+              "`[7:0]`",
+              "8",
+              "selected `lead_o` byte",
+              "Frames queued past the frame every interface has read: the newest frame the stream wrote, less that one; 0 with none queued; saturates at 255 (the queue is 128 frames deep at 48 kHz)",
+              "0"
+            ],
+            [
+              "`[8]`",
+              "1",
+              "selected `idle_o` bit",
+              "Interface 0's last read of the stream found no sample: before the stream's first presentation time, after it ends, or in a gap; level, no counter",
+              "1"
+            ],
+            [
+              "`[9]`",
+              "1",
+              "selected `converged_o` bit",
+              "The stream has presented a sample on every read for 100 ms running; level, no counter",
+              "0"
+            ],
+            [
+              "`[15:10]`",
+              "6",
+              "constant",
+              "Reserved zero",
+              "0"
+            ],
+            [
+              "`[31:16]`",
+              "16",
+              "`refused_o`",
+              "Global count of PDUs with a refused event, once per PDU: late (an event at or before the frame every interface has read) or too early (an event beyond the queue). Each event is judged on its own frame, so a counted PDU's other events may still be presented; saturates at `0xFFFF`, never wraps",
+              "0"
+            ]
+          ],
+          "line": 2082
+        }
+      ],
+      "record": "0x8dc-----render-presentation-state"
+    },
+    {
+      "key": "aafm",
+      "heading": "0x8E0  -  AAF clock meter  `(#629, KL_aaf_clock_meter)`",
+      "start": "0x8E0",
+      "end": "0x8F7",
+      "purpose": "AAF media clock meter.",
+      "notes": [
+        "The meter measures the selected AAF Stream Input's media clock.",
+        "`AAFM_RATE` is signed ns of error per 512 ms. 1 ppm is 512 units.",
+        "`AAFM_STAT` bits:",
+        {
+          "table": [
+            [
+              "Bits",
+              "Width",
+              "Meaning",
+              "Reset"
+            ],
+            [
+              "`[0]`",
+              "1",
+              "Locked: 8 clean consumed PDUs; 100 ms without one unlocks",
+              "0"
+            ],
+            [
+              "`[1]`",
+              "1",
+              "Rate valid: 2,048 group intervals (4.096 s) since the history last restarted",
+              "0"
+            ],
+            [
+              "`[2]`",
+              "1",
+              "Enabled: an AAF clock source is selected",
+              "0"
+            ],
+            [
+              "`[3]`",
+              "1",
+              "Reserved zero",
+              "0"
+            ],
+            [
+              "`[7:4]`",
+              "4",
+              "The followed AAF listener; zero while no AAF source is selected",
+              "0"
+            ],
+            [
+              "`[15:8]`",
+              "8",
+              "Data-caused history restarts: a `tu` edge, a deviation beyond 4,096 ns, a pick spacing outside its bound; wraps",
+              "0"
+            ],
+            [
+              "`[31:16]`",
+              "16",
+              "Largest timestamp deviation in a group, ns; saturates at `0xFFFF`",
+              "0"
+            ]
+          ],
+          "line": 2132
+        }
+      ],
+      "record": "0x8e0-----aaf-clock-meter--629-kl_aaf_clock_meter"
+    },
+    {
+      "key": "mcsrv",
+      "heading": "0x8F8  -  MMCM-DRP media-clock servo  `(Milan v1.2 7.3.4, KL_mmcm_drp_servo)`",
+      "start": "0x8F8",
+      "end": "0x8FF",
+      "purpose": "MMCM DRP media-clock servo.",
+      "notes": [
+        "The servo engages when the stored source is CRF. An AAF source also engages it.",
+        "At INTERNAL it stays idle and moves nothing."
+      ],
+      "record": "0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo"
+    },
+    {
+      "key": "chmap",
+      "heading": "0x900  -  channel-map fabric  `([Section 6 of docs/CHANNEL_MAP_64.md](docs/CHANNEL_MAP_64.md#6-csr-window-0x900-0x97f-debug-and-override), KL_chan_map_render / KL_chan_map_capture)`",
+      "start": "0x900",
+      "end": "0x91F",
+      "purpose": "Channel-map debug write port and map RAM readback.",
+      "notes": [
+        "`CHMAP_CTRL[0]` at 0 selects the fixed paths. 1 selects the programmable crossbars.",
+        "`CHMAP_WORD` reads back the last committed word, not the map RAM.",
+        "The render side writes by cluster key. It reads by physical key.",
+        "A cluster key with no projection changes no render word.",
+        "Words free in this group:",
+        {
+          "table": [
+            [
+              "Offset",
+              "Name",
+              "Acc",
+              "Reset",
+              "Description"
+            ],
+            [
+              "`0x918`-`0x91C`",
+              "-",
+              "-",
+              "`0`",
+              "reserved to this feature (read 0, never shadow-aliased). **`0x920`-`0x93C` are the protocol-processor window**, see the next section"
+            ]
+          ],
+          "line": 2227
+        },
+        {
+          "heading": "`0x904` - the render side writes by CLUSTER key and reads by PHYSICAL key",
+          "intro": [],
+          "rows": [
+            {
+              "table": [
+                [
+                  "Cluster key",
+                  "Render RAM",
+                  "AECP protocol store"
+                ],
+                [
+                  "in range, PROJECTED",
+                  "written at the projected physical key",
+                  "mirrored"
+                ],
+                [
+                  "in range, NONPHYSICAL (a declared cluster whose `ADP_DMAP_IN_RPHYS_C` entry is invalid)",
+                  "UNCHANGED",
+                  "mirrored, and listed by `GET_AUDIO_MAP` for the port that owns the cluster"
+                ],
+                [
+                  "OUT OF RANGE (past the model's declared cluster keys)",
+                  "UNCHANGED",
+                  "not written; nothing appears in any port's page"
+                ]
+              ],
+              "line": 2262
+            }
+          ]
+        }
+      ],
+      "record": "0x900-----channel-map-fabric--section-6-of-docschannel_map_64md-kl_chan_map_render--kl_chan_map_capture"
+    },
+    {
+      "key": "pp",
+      "heading": "0x920  -  protocol-processor control plane  `(KL_pp_shadow, VERSION major 2)`",
+      "start": "0x920",
+      "end": "0x93F",
+      "purpose": "Protocol-processor control plane and the saved-state window.",
+      "notes": [
+        "This window is always decoded. The processor is the control plane.",
+        "Read `PP_STAT[31:24]` first: 0 means the gateware predates this group.",
+        "`restore_done` means the walk ended, not that state came back.",
+        "A device with no record reads `nvm_blank`. Read the verdict bits with it.",
+        "`PP_NVM_*` is a control tuple, never a data window.",
+        "Read the restore verdict from three bits:",
+        {
+          "table": [
+            [
+              "`nvm_backed` `[6]`",
+              "`nvm_blank` `[7]`",
+              "`restore_fail` `[3]`",
+              "Meaning"
+            ],
+            [
+              "`1`",
+              "`0`",
+              "`0`",
+              "**A restore genuinely completed**: the writer is live and the walk read records out of a validated image"
+            ],
+            [
+              "`1`",
+              "`1`",
+              "`0`",
+              "**Blank media behind a validated image**: the store is real but held nothing this walk could use. Not a failure: Milan permits an entity that has never been bound"
+            ],
+            [
+              "`0`/`1`",
+              "`0`/`1`",
+              "`1`",
+              "**Torn read-back, or a BLIND walk**: the walk aborted and the whole image was discarded, or at some cycle of the walk no validated image stood behind the device face, so what it read was the blank answer. The blind verdict is latched per walk in `KL_pp_shadow.sv`: validating the image after the walk does not restore anything, so it cannot clear it"
+            ],
+            [
+              "`0`",
+              "`1`",
+              "`1`",
+              "**No writer has answered and the walk ran blind**: what a build whose firmware has not configured the backing store reports, `0x5B00_008C`"
+            ]
+          ],
+          "line": 2383
+        }
+      ],
+      "record": "0x920-----protocol-processor-control-plane--kl_pp_shadow-version-major-2"
+    }
+  ],
+  "cbs_classes": [
+    "best effort",
+    "control (MAAP/MSRP/MVRP, ADP/ACMP/AECP)",
+    "gPTP",
+    "SR class B (CBS)",
+    "SR class A (CBS)"
+  ],
+  "regions": {
+    "rom": "Boot ROM holding the bare-metal firmware image.",
+    "sram": "On-chip SRAM: the firmware's stack and data.",
+    "main_ram": "DDR3 main memory.",
+    "spiflash": "Memory-mapped QSPI flash (read path).",
+    "milan_csr": "The Milan CSR block this page documents.",
+    "csr": "LiteX CSR banks.",
+    "clint": "RISC-V core-local interruptor.",
+    "plic": "RISC-V platform-level interrupt controller.",
+    "milan_flashboot_aem": "Flash slot of the AEM entity image.",
+    "milan_flash_journal": "Flash slots of the saved-state journal (A and B); a reflash must not erase it.",
+    "milan_flash_user": "Reserved user flash range.",
+    "pp_window": "The protocol processor's reserved main-memory window.",
+    "pp_desc": "AEM descriptor image, read by the processor.",
+    "pp_stage": "Saved-state private stage, written by the firmware only.",
+    "pp_live": "Saved-state live window the backend reads and writes.",
+    "pp_resp": "AECP response buffer, written by the processor."
+  },
+  "csr_banks": {
+    "ctrl": "SoC control: reset, scratch, bus errors.",
+    "ddrphy": "DDR3 PHY.",
+    "identifier_mem": "SoC identifier string.",
+    "milan_mac": "Milan MAC wrapper: PHY reset, MDIO, MAC counters, loopback, link status.",
+    "sdram": "DDR3 controller software interface.",
+    "spiflash": "QSPI flash controller.",
+    "timer0": "Timer 0.",
+    "uart": "UART.",
+    "ppmem": "Protocol-processor memory-bridge observers, pinned to the last CSR page."
+  },
+  "soc_registers": {
+    "ppmem_desc_req": "descriptor-image read bridge: `[31:16]` accesses **ISSUED** (one per bus access, counted at its start, not per held cycle), `[15:0]` accesses the bus **ACKED** without `err`",
+    "ppmem_desc_fault": "`[31:16]` accesses answered with **err**, `[15:0]` accesses the watchdog **abandoned** with no answer at all",
+    "ppmem_resp_req": "AECP response-buffer read+write bridge, same two fields. This face writes as well as reads: a write that faults voids the response rather than putting a half-written one on the wire",
+    "ppmem_resp_fault": "same two fields as `desc_fault`, for the response bridge",
+    "ppmem_stat": "live state, not counts: `[0]` descriptor bridge **poisoned** (a timed-out access is still owed an answer; the next answer it collects is discarded), `[1]` descriptor bridge is driving `cyc`/`stb` **right now**, `[2]` response bridge poisoned, `[3]` response bridge driving `cyc`/`stb`, `[4]` the **LiteDRAM DFI hand-off has been seen** (see below), `[31:24]` constant presence tag `0x5B` -- the same tag as `PP_STAT`, and the register to read first: `0` here means the gateware predates this bank, which is otherwise indistinguishable from four zeroed counters",
+    "milan_mac_phy_crg_reset": "PHY reset of the port the image is built for (`--eth-port`): the PHY clock/reset block's `_reset` storage, which drives the PHY reset pin. This is the PHY reset; `PHY_RESET` (0x11C) is inert. `ETH_GUARD` does not gate it at this head. An AECP REBOOT sets this storage and holds it: the hold only rises, and a CPU write in the same cycle clears it for that cycle only. See the [reboot reset design](docs/design/REBOOT_RESET.md).",
+    "milan_mac_phy_mdio_w": "Software bit-bang MDIO write register (clock, output enable, data).",
+    "milan_mac_phy_mdio_r": "Software bit-bang MDIO read register.",
+    "milan_mac_core_preamble_crc": "LiteEth status, reset 1: the MAC core inserts and checks preamble and CRC.",
+    "milan_mac_core_rx_datapath_preamble_errors": "LiteEth RX preamble error count.",
+    "milan_mac_core_rx_datapath_crc_errors": "LiteEth RX CRC error count.",
+    "milan_mac_loopback": "1 = internal MAC TX to MAC RX loopback.",
+    "milan_mac_link_status": "Link, speed and duplex published by firmware; mirrored into `MAC_STATUS` (0x110). Reset: link up, 1000 Mb/s on GMII (100 on MII), full duplex."
+  },
+  "soc_notes": [
+    "The bridge bank sits on the CSR window's last page.",
+    "Its counters saturate at `0xFFFF`. Read that as at least 65,535.",
+    {
+      "heading": "Protocol-processor memory bridges (LiteX CSR bank, `0xf000f800`)",
+      "intro": [],
+      "rows": [
+        {
+          "table": [
+            [
+              "ISSUED",
+              "ACKED + ERRORED + TIMED OUT",
+              "verdict"
+            ],
+            [
+              "`0`",
+              "`0`, `stat[4]` = `0`",
+              "the bridges are **held off the bus**: the BIOS has not handed the DFI back to the LiteDRAM controller yet, so both answer `err` without touching the bus. Expected between FPGA configuration and the end of `sdram_init`, and a standing `0` here means the BIOS never got that far"
+            ],
+            [
+              "`0`",
+              "`0`, `stat[4]` = `1`",
+              "the bridge **never asked the bus**. The bus is not the fault: look at the processor's request face (`PP_DIAG` `0x930`, the side-port snapshot)"
+            ],
+            [
+              "`> 0`",
+              "equal to ISSUED",
+              "every access completed. If the image is still invalid the fault is upstream of the bus: the descriptor image itself, or its base"
+            ],
+            [
+              "`> 0`",
+              "one short of ISSUED",
+              "an access is **outstanding right now**. `stat[1]`/`stat[3]` say which face is still holding `cyc`/`stb`; it will become a `timed_out` when the watchdog expires"
+            ],
+            [
+              "`> 0`",
+              "ERRORED > 0",
+              "the interconnect answered `err` (LiteX raises `err` **with** `ack`, so a failed access is an answer, not a silence). A descriptor fetched this way is refused, never served"
+            ],
+            [
+              "`> 0`",
+              "TIMED OUT > 0",
+              "the access was **never answered** and the watchdog abandoned it. `stat[0]`/`stat[2]` show the master poisoned until the memory pays the answer it still owes"
+            ]
+          ],
+          "line": 2526
+        }
+      ]
+    }
+  ],
+  "registers": {
+    "ID": {
+      "name": "Identification",
+      "purpose": "Constant magic word that identifies the Milan CSR block.",
+      "fields": {
+        "ID": "Magic `\"MILN\"`; firmware/integration probe"
+      },
+      "notes": []
+    },
+    "VERSION": {
+      "name": "Gateware version",
+      "purpose": "Major and minor version of this CSR block's ABI.",
+      "fields": {},
+      "notes": [],
+      "record": "version-offset-0x004",
+      "split": {
+        "VERSION": [
+          [
+            "31:16",
+            "MAJOR",
+            "Major: an entire redesign of blocks."
+          ],
+          [
+            "15:0",
+            "MINOR",
+            "Minor: compliance fixes, flat across majors."
+          ]
+        ]
+      }
+    },
+    "CAP": {
+      "name": "Capabilities",
+      "purpose": "Constant capability flags and the queue-window geometry.",
+      "fields": {
+        "NUM_QUEUES": "num_queues (the retained `0x400` window geometry, 5)",
+        "CBS": "CBS - 🔴 **STRUCTURAL ZERO** since `0x0056`: no shaper is elaborated",
+        "PTP": "PTP clock present.",
+        "STATS": "Statistics block present.",
+        "RX_FILTER": "Receive filter present.",
+        "ADP": "ADP present.",
+        "TCAM": "Address filter TCAM present.",
+        "LWSRP": "lwSRP control registers present.",
+        "CAP_15": "Reads 0.",
+        "TS_WIDTH": "Timestamp width in bits."
+      },
+      "notes": [],
+      "rename": {
+        "BIT8": "CBS",
+        "BIT9": "PTP",
+        "BIT10": "STATS",
+        "BIT11": "RX_FILTER",
+        "BIT12": "ADP",
+        "BIT13": "TCAM",
+        "BIT14": "LWSRP",
+        "BIT15": "CAP_15",
+        "BITS23_16": "TS_WIDTH"
+      }
+    },
+    "SCRATCH": {
+      "name": "Scratch",
+      "purpose": "Read/write word for bus liveness tests.",
+      "fields": {
+        "SCRATCH": "R/W scratch (bus liveness test)"
+      },
+      "notes": []
+    },
+    "IRQ_STATUS": {
+      "name": "Interrupt status",
+      "purpose": "Latched interrupt events, cleared by writing 1.",
+      "fields": {
+        "EVT_RMON_ROLLOVER": "RMON rollover latch; `i_evt_rmon_rollover` sets it.",
+        "EVT_LINK_CHANGE": "Link change latch; `i_evt_link_change` sets it."
+      },
+      "notes": [
+        "`[0]` was `tx_ts_ready`: a structural zero since `0x0056`."
+      ],
+      "record": "irq_status-offset-0x010"
+    },
+    "IRQ_MASK": {
+      "name": "Interrupt mask",
+      "purpose": "Enables each interrupt source onto the IRQ line.",
+      "fields": {
+        "IRQ_MASK": "1 = interrupt enabled; masked bits still visible in `IRQ_RAW`"
+      },
+      "notes": []
+    },
+    "IRQ_RAW": {
+      "name": "Raw interrupt status",
+      "purpose": "Latched interrupt events before masking.",
+      "fields": {
+        "EVT_RMON_ROLLOVER": "Same latch as `IRQ_STATUS[2]`.",
+        "EVT_LINK_CHANGE": "Same latch as `IRQ_STATUS[1]`."
+      },
+      "notes": [],
+      "record": "irq_raw-offset-0x018"
+    },
+    "MAC_CTRL": {
+      "name": "MAC control",
+      "purpose": "MAC enables, receive filtering modes and the link-rate override.",
+      "fields": {
+        "MAC_TX_EN": "Transmit enable.",
+        "MAC_RX_EN": "Receive enable.",
+        "MAC_PROMISC": "Promiscuous receive.",
+        "MAC_ALLMULTI": "Accept all multicast.",
+        "MAC_IS_1G": "Link rate is 1 Gb/s. Consulted only while `[5]` is set.",
+        "MAC_IS_1G_SELECT": "speed_manual: 0 derives the rate from `MAC_STATUS` speed, 1 uses `[4]` (REQ-MAC-03)."
+      },
+      "notes": [],
+      "record": "mac_ctrl-offset-0x100"
+    },
+    "MAC_IFG": {
+      "name": "MAC inter-frame gap",
+      "purpose": "Inter-frame gap in bytes.",
+      "fields": {
+        "MAC_IFG": "inter-frame gap (bytes), default 12"
+      },
+      "notes": []
+    },
+    "MAC_ALO": {
+      "acronym": "MAC_ADDR_LO",
+      "name": "Station MAC address, low word",
+      "purpose": "Station MAC address bits 31 to 0.",
+      "fields": {
+        "MAC_ADDR": "Station MAC, LSB-first: wire byte 0 in `[7:0]`, byte 3 in `[31:24]`."
+      },
+      "notes": [],
+      "record": "mac_addr_lo-offset-0x108"
+    },
+    "MAC_AHI": {
+      "acronym": "MAC_ADDR_HI",
+      "name": "Station MAC address, high word",
+      "purpose": "Station MAC address bits 47 to 32.",
+      "fields": {
+        "MAC_ADDR": "Station MAC: wire byte 4 in `[7:0]`, byte 5 in `[15:8]`."
+      },
+      "notes": [],
+      "record": "mac_addr_hi-offset-0x10c"
+    },
+    "MAC_STATUS": {
+      "name": "MAC link status",
+      "purpose": "Link, speed and duplex as the SoC publishes them.",
+      "fields": {
+        "LINK_UP": "Link up.",
+        "SPEED": "Speed: 0 = 10, 1 = 100, 2 = 1000 Mb/s.",
+        "FULL_DUPLEX": "Full duplex."
+      },
+      "notes": [
+        "These bits mirror the LiteX `milan_mac_link_status` CSR.",
+        "Its reset: link up, full duplex, gigabit on GMII. MII resets to 100 Mb/s.",
+        "So this word reads `0x0000000D` on the AX7101 until firmware writes.",
+        "Firmware publishes it on each boot path reaching `nvm_boot()`.",
+        "After a CSR identity mismatch, nothing writes it.",
+        "The word does not follow the link on its own.",
+        "For the link, read `LINKG_STAT`, the link counters or BMSR."
+      ],
+      "record": "mac_status-offset-0x110"
+    },
+    "MC_LO": {
+      "acronym": "MC_HASH_LO",
+      "name": "Multicast hash, low word",
+      "purpose": "Multicast hash filter buckets 0 to 31.",
+      "fields": {
+        "MC_HASH": "multicast hash filter, buckets 0-31 (bit `n` = bucket `n`)"
+      },
+      "notes": []
+    },
+    "MC_HI": {
+      "acronym": "MC_HASH_HI",
+      "name": "Multicast hash, high word",
+      "purpose": "Multicast hash filter buckets 32 to 63.",
+      "fields": {
+        "MC_HASH": "multicast hash filter, buckets 32-63"
+      },
+      "notes": []
+    },
+    "PHY_RST": {
+      "acronym": "PHY_RESET",
+      "name": "PHY reset (inert)",
+      "purpose": "Stored PHY reset bit that the shipping SoC leaves unconnected.",
+      "fields": {
+        "PHY_RESET_N": "Drives `o_phy_reset_n` (0 = reset asserted). The shipping SoC leaves that datapath output unconnected, so this bit resets nothing. The PHY reset that reaches the pin is the LiteX `milan_mac_phy_crg_reset` CSR (the PHY clock/reset block's `_reset` storage, `sw/litex/patches/0002-liteeth-gmii-tx-clk-invert.patch`), for the port the image is built for (`--eth-port`). An AECP REBOOT also sets that storage."
+      },
+      "notes": []
+    },
+    "STATS_CTRL": {
+      "name": "Statistics control",
+      "purpose": "Snapshot and reset strobes for the RMON counters.",
+      "fields": {
+        "STATS_SNAPSHOT": "snapshot (W1S, self-clear).",
+        "STATS_RESET": "reset-counters"
+      },
+      "notes": []
+    },
+    "STATS_CAP": {
+      "name": "Statistics capability",
+      "purpose": "Marks which RMON counter lanes have a real source.",
+      "fields": {
+        "STATS_CAP": "Per-lane mask in `[8:0]`: lane n is the `STATn` word at `0x210 + 4n`. 1 is a real counter, 0 structurally silent. Live, not snapshot-latched. `[31:9]` read 0."
+      },
+      "notes": [],
+      "record": "stats_cap-offset-0x204"
+    },
+    "STATS": {
+      "acronym": "STAT",
+      "name": "RMON counter snapshot",
+      "purpose": "Snapshot of one RMON counter, latched by STATS_CTRL.",
+      "fields": {
+        "STAT_SNAP": "The snapshot of lane n, latched by `STATS_CTRL[0]`. Read `STATS_CAP` before believing a zero."
+      },
+      "notes": [
+        {
+          "table": [
+            [
+              "n",
+              "Offset",
+              "Name",
+              "Producer reset",
+              "Description"
+            ],
+            [
+              "0",
+              "`0x210`",
+              "`STAT_TX_ERROR_UNDERFLOW`",
+              "`0`",
+              "TX underflow -- no source, see `STATS_CAP`"
+            ],
+            [
+              "1",
+              "`0x214`",
+              "`STAT_TX_FIFO_OVERFLOW`",
+              "`0`",
+              "TX FIFO overflow -- no source, see `STATS_CAP`"
+            ],
+            [
+              "2",
+              "`0x218`",
+              "`STAT_TX_FIFO_BAD_FRAME`",
+              "`0`",
+              "TX FIFO bad frame -- no source, see `STATS_CAP`"
+            ],
+            [
+              "3",
+              "`0x21C`",
+              "`STAT_TX_FIFO_GOOD_FRAME`",
+              "`0`",
+              "frames transmitted OK"
+            ],
+            [
+              "4",
+              "`0x220`",
+              "`STAT_RX_ERROR_BAD_FRAME`",
+              "`0`",
+              "RX preamble/alignment errors"
+            ],
+            [
+              "5",
+              "`0x224`",
+              "`STAT_RX_ERROR_BAD_FCS`",
+              "`0`",
+              "RX FCS errors"
+            ],
+            [
+              "6",
+              "`0x228`",
+              "`STAT_RX_FIFO_OVERFLOW`",
+              "`0`",
+              "RX FIFO overflow -- no source, see `STATS_CAP`"
+            ],
+            [
+              "7",
+              "`0x22C`",
+              "`STAT_RX_FIFO_BAD_FRAME`",
+              "`0`",
+              "RX frames delivered flagged bad (FCS failure or runt)"
+            ],
+            [
+              "8",
+              "`0x230`",
+              "`STAT_RX_FIFO_GOOD_FRAME`",
+              "`0`",
+              "frames received OK"
+            ]
+          ]
+        }
+      ],
+      "record": "statn-offset-0x210"
+    },
+    "CLS_CTRL": {
+      "name": "Classifier control (scratch)",
+      "purpose": "Retained classifier control word; no logic reads it.",
+      "fields": {},
+      "notes": [],
+      "record": "cls_ctrl-offset-0x300",
+      "split": {
+        "CLS_CTRL": [
+          [
+            "31:3",
+            "RESERVED",
+            ""
+          ],
+          [
+            "2",
+            "CTRL_CLASS",
+            "Inert scratch: stores and reads back, reaches no logic. Was ctrl_class (REQ-CLS-10)."
+          ],
+          [
+            "1",
+            "DMAC_CHECK",
+            "Inert scratch: stores and reads back, reaches no logic. Was dmac_check (REQ-CLS-07)."
+          ],
+          [
+            "0",
+            "USE_PCP",
+            "Inert scratch: stores and reads back, reaches no logic. Was use_pcp: 1 classifies by the PCP table."
+          ]
+        ]
+      }
+    },
+    "CLS_DPCP": {
+      "acronym": "CLS_DEFAULT_PCP",
+      "name": "Classifier default PCP (scratch)",
+      "purpose": "Retained default-priority word; no logic reads it.",
+      "fields": {
+        "CLS_DPCP": "Inert scratch: stores and reads back, reaches no logic. Was the default PCP of untagged frames."
+      },
+      "notes": [],
+      "record": "cls_default_pcp-offset-0x304"
+    },
+    "CLS_MAP": {
+      "acronym": "CLS_PCP_TC_MAP",
+      "name": "PCP to traffic-class map (scratch)",
+      "purpose": "Retained PCP to traffic-class map; no logic reads it.",
+      "fields": {
+        "CLS_MAP": "PCP→traffic-class, 8×3 bits: TC of PCP `p` = `[3p+2:3p]`"
+      },
+      "notes": []
+    },
+    "CLS_REGEN": {
+      "acronym": "CLS_PRIO_REGEN",
+      "name": "Priority regeneration (scratch)",
+      "purpose": "Retained priority regeneration map; no logic reads it.",
+      "fields": {
+        "CLS_REGEN": "priority regeneration, 8×3 bits (ingress PCP→internal prio). Reset was `0x688FAC` until 2026-07-05 - a half-swap (0..3↔4..7) that misrouted every tagged SR frame; fixed to identity."
+      },
+      "notes": []
+    },
+    "CLS_TCQ": {
+      "acronym": "CLS_TC_QUEUE_MAP",
+      "name": "Traffic-class to queue map (scratch)",
+      "purpose": "Retained traffic-class to queue map; no logic reads it.",
+      "fields": {
+        "CLS_TCQ": "TC→queue, 8×`ceil(log2 N)` bits. At `N`=5 that is still 3 bits/entry and the reset is the 5-queue map: TC0/1→q0, TC2→**q3** (SR class B), TC3→**q4** (SR class A), TC4/5→q1 (control), TC6/7→q2 (gPTP). Every queue is mapped -- there is no spare. An entry naming a queue ≥ `N` is **clamped to q0** by `traffic_class_map` (without the clamp `axis_demux` would silently drop the frame -- `select >= M_COUNT`); 5 is not a power of two either, so the clamp is still load-bearing."
+      },
+      "notes": []
+    },
+    "CBS_IDLE": {
+      "acronym": "CBS_IDLE_SLOPE",
+      "name": "CBS idleSlope (scratch)",
+      "purpose": "Retained idleSlope word for one queue; nothing reads it.",
+      "fields": {
+        "CBS_IDLE": "idleSlope, bits/s (sendSlope = idleSlope − portRate, derived in HW)"
+      },
+      "notes": []
+    },
+    "CBS_HI": {
+      "acronym": "CBS_HI_CREDIT",
+      "name": "CBS hiCredit (scratch)",
+      "purpose": "Retained hiCredit word for one queue; nothing reads it.",
+      "fields": {
+        "CBS_HI": "hiCredit, signed bytes"
+      },
+      "notes": []
+    },
+    "CBS_LO": {
+      "acronym": "CBS_LO_CREDIT",
+      "name": "CBS loCredit (scratch)",
+      "purpose": "Retained loCredit word for one queue; nothing reads it.",
+      "fields": {
+        "CBS_LO": "loCredit, signed bytes"
+      },
+      "notes": []
+    },
+    "CBS_EN": {
+      "acronym": "CBS_CTRL",
+      "name": "CBS control (scratch)",
+      "purpose": "Retained shaping enable for one queue; nothing reads it.",
+      "fields": {
+        "CBS_EN": "shaped-enable (0 = strict priority, credit forced eligible)"
+      },
+      "notes": []
+    },
+    "PTP_CTRL": {
+      "name": "PTP clock control",
+      "purpose": "Enables the PTP hardware clock counter.",
+      "fields": {
+        "PTP_ENABLE": "counter enable"
+      },
+      "notes": []
+    },
+    "PTP_INCR": {
+      "name": "PTP increment",
+      "purpose": "Nominal clock increment per tick, Q8.24 nanoseconds.",
+      "fields": {
+        "PTP_INCR": "Nominal increment per tick, Q8.24 ns: `[31:24]` integer, `[23:0]` fraction. The reset is the PHC clock period from `MILAN_CLK_FREQ_HZ_P`."
+      },
+      "notes": [],
+      "record": "ptp_incr-offset-0x504"
+    },
+    "PTP_ADJ": {
+      "name": "PTP fine adjustment",
+      "purpose": "Signed addend applied on every tick.",
+      "fields": {
+        "PTP_ADJ": "signed Q8.24-ns adjfine addend added to `PTP_INCR` each tick (rate discipline)"
+      },
+      "notes": []
+    },
+    "PTP_TWLO": {
+      "acronym": "PTP_TOD_WR_LO",
+      "name": "PTP settime target, low word",
+      "purpose": "Time-of-day target for settime, bits 31 to 0.",
+      "fields": {
+        "PTP_TOD_WR": "Time to load, low half: `PTP_CMD[0]` applies it."
+      },
+      "notes": [],
+      "record": "ptp_tod_wr_lo-offset-0x510"
+    },
+    "PTP_TWHI": {
+      "acronym": "PTP_TOD_WR_HI",
+      "name": "PTP settime target, high word",
+      "purpose": "Time-of-day target for settime, bits 63 to 32.",
+      "fields": {
+        "PTP_TOD_WR": "Time to load, high half."
+      },
+      "notes": [],
+      "record": "ptp_tod_wr_hi-offset-0x514"
+    },
+    "PTP_OFLO": {
+      "acronym": "PTP_OFFSET_LO",
+      "name": "PTP adjtime offset, low word",
+      "purpose": "Signed adjtime delta, bits 31 to 0.",
+      "fields": {
+        "PTP_OFFSET": "adjtime signed delta, low half."
+      },
+      "notes": [],
+      "record": "ptp_offset_lo-offset-0x518"
+    },
+    "PTP_OFHI": {
+      "acronym": "PTP_OFFSET_HI",
+      "name": "PTP adjtime offset, high word",
+      "purpose": "Signed adjtime delta, bits 63 to 32.",
+      "fields": {
+        "PTP_OFFSET": "adjtime signed delta, high half."
+      },
+      "notes": [],
+      "record": "ptp_offset_hi-offset-0x51c"
+    },
+    "PTP_CMD": {
+      "name": "PTP command",
+      "purpose": "Strobes that apply settime, adjtime or a time snapshot.",
+      "fields": {
+        "PTP_CMD_LOAD": "load (apply settime).",
+        "PTP_CMD_ADJUST": "adjust (apply adjtime).",
+        "PTP_CMD_SNAPSHOT": "snapshot (latch TOD for gettime) - self-clearing pulses"
+      },
+      "notes": []
+    },
+    "PTP_TRLO": {
+      "acronym": "PTP_TOD_RD_LO",
+      "name": "PTP time snapshot, low word",
+      "purpose": "Time of day latched by the last snapshot, low word.",
+      "fields": {
+        "PTP_TOD_RD": "Time latched by `PTP_CMD[2]`, low half."
+      },
+      "notes": [],
+      "record": "ptp_tod_rd_lo-offset-0x530"
+    },
+    "PTP_TRHI": {
+      "acronym": "PTP_TOD_RD_HI",
+      "name": "PTP time snapshot, high word",
+      "purpose": "Time of day latched by the last snapshot, high word.",
+      "fields": {
+        "PTP_TOD_RD": "Time latched by `PTP_CMD[2]`, high half."
+      },
+      "notes": [],
+      "record": "ptp_tod_rd_hi-offset-0x534"
+    },
+    "PTP_ILAT": {
+      "acronym": "PTP_INGRESS_LAT",
+      "name": "Ingress latency (scratch)",
+      "purpose": "Readable inert scratch; corrections are published at GPTP_LAT.",
+      "fields": {
+        "PTP_ILAT": "🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owner since `0x005E` is the fabric gPTP plane, which applies its board's correction as an elaboration constant and publishes the applied pair at `GPTP_LAT` (`0x7F0`); this word stays scratch so the same correction cannot be applied by two owners (#358). Ingress latency correction, ns, that the `ptp_ts_core` RX tap **SUBTRACTED** from its captures; that tap is no longer instantiated"
+      },
+      "notes": []
+    },
+    "PTP_ELAT": {
+      "acronym": "PTP_EGRESS_LAT",
+      "name": "Egress latency (scratch)",
+      "purpose": "Readable inert scratch; corrections are published at GPTP_LAT.",
+      "fields": {
+        "PTP_ELAT": "🟡 **Readable, inert scratch since `0x0056`.** A read returns the last written value; no timestamp-correction consumer reads the word at this VERSION. The live owner since `0x005E` is the fabric gPTP plane, which applies its board's correction as an elaboration constant and publishes the applied pair at `GPTP_LAT` (`0x7F0`); this word stays scratch so the same correction cannot be applied by two owners (#358). Egress latency correction, ns, that the TX tap **ADDED**; that tap is no longer instantiated"
+      },
+      "notes": []
+    },
+    "PPS_CTRL": {
+      "acronym": "PTP_PPS_CTRL",
+      "name": "PPS alarm control",
+      "purpose": "PPS enable, arm strobe and the built capability bit.",
+      "fields": {
+        "PPS_P": "Built: 1 only when the gateware elaborated the comparator. Read it before believing `[0]`.",
+        "PPS_ARM": "Arm: loads `PTP_PPS_TGT_{HI,LO}` into the live target."
+      },
+      "notes": [
+        "At `PPS_P` = 0, `[0]` reads 0 and reaches nothing.",
+        "At `PPS_P` = 1, `[0]` is the R/W runtime enable.",
+        "Setting `[1]` and `[0]` in one word emits no early pulse."
+      ],
+      "record": "ptp_pps_ctrl-offset-0x548"
+    },
+    "PPS_TGLO": {
+      "acronym": "PTP_PPS_TGT_LO",
+      "name": "PPS target, low word",
+      "purpose": "Absolute PPS target to arm, bits 31 to 0.",
+      "fields": {
+        "PPS_TARGET_NS": "Target to arm, low half, in ns. Write a TAI second boundary: the hardware does no modulo."
+      },
+      "notes": [],
+      "record": "ptp_pps_tgt_lo-offset-0x54c"
+    },
+    "PPS_TGHI": {
+      "acronym": "PTP_PPS_TGT_HI",
+      "name": "PPS target, high word",
+      "purpose": "Absolute PPS target to arm, bits 63 to 32.",
+      "fields": {
+        "PPS_TARGET_NS": "Target to arm, high half."
+      },
+      "notes": [],
+      "record": "ptp_pps_tgt_hi-offset-0x550"
+    },
+    "PPS_RDLO": {
+      "acronym": "PTP_PPS_RD_LO",
+      "name": "PPS live target, low word",
+      "purpose": "Target the PHC publishes back, bits 31 to 0.",
+      "fields": {
+        "PPS_TARGET_RD_NS": "Live target, low half, from the PHC domain. Advances by 1e9 on each pulse. Reads 0 when `PPS_CTRL[16]` is 0."
+      },
+      "notes": [],
+      "record": "ptp_pps_rd_lo-offset-0x554"
+    },
+    "PPS_RDHI": {
+      "acronym": "PTP_PPS_RD_HI",
+      "name": "PPS live target, high word",
+      "purpose": "Target the PHC publishes back, bits 63 to 32.",
+      "fields": {
+        "PPS_TARGET_RD_NS": "Live target, high half."
+      },
+      "notes": [],
+      "record": "ptp_pps_rd_hi-offset-0x558"
+    },
+    "PPS_WIDTH": {
+      "acronym": "PTP_PPS_WIDTH",
+      "name": "PPS pulse width",
+      "purpose": "PPS pulse width in PHC clock cycles.",
+      "fields": {
+        "PPS_WIDTH": "Pulse width in PHC clock **cycles**, not seconds: `width_s = PTP_PPS_WIDTH / f_PHC`, and `f_PHC` is the period `PTP_INCR` already reports. Elaborated as one millisecond of the datapath clock (`100 000` in the 100 MHz shape, `125 000` at the recommended 125 MHz). 0 when the comparator was not built"
+      },
+      "notes": []
+    },
+    "ADP_CTRL": {
+      "name": "ADP control",
+      "purpose": "Entity enable request and the advertised valid time.",
+      "fields": {
+        "ADP_ENABLE": "advertise-enable -- **LIVE, and ORed with `PP_CTRL[0]` (`0x920`): either bit requests the entity enable**. The fabric holds it until the restore releases it at COMPLETE or DEFAULTS. A CLOSED restore holds it until reset.",
+        "ADP_VALID_TIME": "valid_time (units of 2 s; reset 10 per Milan 5.6.2 ⇒ 20 s validity) is 🟡 **WRITE-ONLY SCRATCH** -- the processor holds valid_time as an internal constant and the ADPDU carries that, not this"
+      },
+      "notes": []
+    },
+    "ADP_EIDLO": {
+      "acronym": "ADP_ENTITY_ID_LO",
+      "name": "Entity ID, low word",
+      "purpose": "entity_id bits 31 to 0.",
+      "fields": {
+        "ADP_ENTITY_ID": "entity_id, low half."
+      },
+      "notes": [],
+      "record": "adp_entity_id_lo-offset-0x604"
+    },
+    "ADP_EIDHI": {
+      "acronym": "ADP_ENTITY_ID_HI",
+      "name": "Entity ID, high word",
+      "purpose": "entity_id bits 63 to 32.",
+      "fields": {
+        "ADP_ENTITY_ID": "entity_id, high half."
+      },
+      "notes": [],
+      "record": "adp_entity_id_hi-offset-0x608"
+    },
+    "ADP_MIDLO": {
+      "acronym": "ADP_MODEL_ID_LO",
+      "name": "Entity model ID, low word",
+      "purpose": "entity_model_id bits 31 to 0.",
+      "fields": {
+        "ADP_ENTITY_MODEL_ID": "entity_model_id, low half."
+      },
+      "notes": [],
+      "record": "adp_model_id_lo-offset-0x60c"
+    },
+    "ADP_MIDHI": {
+      "acronym": "ADP_MODEL_ID_HI",
+      "name": "Entity model ID, high word",
+      "purpose": "entity_model_id bits 63 to 32.",
+      "fields": {
+        "ADP_ENTITY_MODEL_ID": "entity_model_id, high half."
+      },
+      "notes": [],
+      "record": "adp_model_id_hi-offset-0x610"
+    },
+    "ADP_ECAPS": {
+      "acronym": "ADP_ENTITY_CAPS",
+      "name": "Entity capabilities (scratch)",
+      "purpose": "Stored and read back; the processor supplies the ADPDU field.",
+      "fields": {
+        "ADP_ENTITY_CAPS": "🟡 **WRITE-ONLY SCRATCH**: entity_capabilities (e.g. `0xC588` for a Milan PAAD). Stored and read back; the ADPDU carries the processor's internal constant (`ADP_ENTITY_CAPS_C` in `pp_adp_pkg.sv`). Writing it changes nothing observable. **Nothing writes it**: the bare-metal firmware no longer writes its stale `0x8588` copy (#398), so the word reads back its reset `0`"
+      },
+      "notes": []
+    },
+    "ADP_TALK": {
+      "acronym": "ADP_TALKER",
+      "name": "ADP talker shape",
+      "purpose": "Constant talker sources and capabilities from the build config.",
+      "fields": {},
+      "notes": [],
+      "record": "adp_talker-offset-0x618",
+      "split": {
+        "ADP_TALK": [
+          [
+            "31:16",
+            "TALKER_CAPS",
+            "talker_capabilities, generated from the end-station config. Writes are ignored."
+          ],
+          [
+            "15:0",
+            "TALKER_SOURCES",
+            "talker_stream_sources: the STREAM_OUTPUT descriptor count."
+          ]
+        ]
+      }
+    },
+    "ADP_LIST": {
+      "acronym": "ADP_LISTENER",
+      "name": "ADP listener shape",
+      "purpose": "Constant listener sinks and capabilities from the build config.",
+      "fields": {},
+      "notes": [],
+      "record": "adp_listener-offset-0x61c",
+      "split": {
+        "ADP_LIST": [
+          [
+            "31:16",
+            "LISTENER_CAPS",
+            "listener_capabilities, generated from the end-station config. Writes are ignored."
+          ],
+          [
+            "15:0",
+            "LISTENER_SINKS",
+            "listener_stream_sinks: the STREAM_INPUT descriptor count."
+          ]
+        ]
+      }
+    },
+    "ADP_CCAPS": {
+      "acronym": "ADP_CONTROLLER_CAPS",
+      "name": "Controller capabilities (scratch)",
+      "purpose": "Stored and read back; the processor supplies the ADPDU field.",
+      "fields": {
+        "ADP_CONTROLLER_CAPS": "🟡 **WRITE-ONLY SCRATCH** -- controller_capabilities. Stored and read back; never reaches the wire"
+      },
+      "notes": []
+    },
+    "ADP_GMLO": {
+      "acronym": "ADP_GPTP_GM_LO",
+      "name": "gPTP grandmaster, low word",
+      "purpose": "Grandmaster identity bits 31 to 0, coherent with GMHI.",
+      "fields": {
+        "GPTP_GM_RD_SNAP": "gptp_grandmaster_id, low half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. Before a peer is elected it reads thisClock. With the gPTP plane off it reads 0. Writes are inert."
+      },
+      "notes": [],
+      "record": "adp_gptp_gm_lo-offset-0x624"
+    },
+    "ADP_GMHI": {
+      "acronym": "ADP_GPTP_GM_HI",
+      "name": "gPTP grandmaster, high word",
+      "purpose": "Grandmaster identity bits 63 to 32, coherent with GMLO.",
+      "fields": {
+        "GPTP_GM_RD_SNAP": "gptp_grandmaster_id, high half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0."
+      },
+      "notes": [],
+      "record": "adp_gptp_gm_hi-offset-0x628"
+    },
+    "ADP_DOMAIN": {
+      "acronym": "ADP_GPTP_DOMAIN",
+      "name": "gPTP domain",
+      "purpose": "The gPTP domain number, a structural zero.",
+      "fields": {
+        "ADP_DOMAIN": "gptp_domain_number, ADPDU byte 48: a structural 0 in both builds. Writes are inert."
+      },
+      "notes": [],
+      "record": "adp_gptp_domain-offset-0x62c"
+    },
+    "ADP_IDX0": {
+      "name": "ADP indices 0",
+      "purpose": "Current configuration and identify-control indices.",
+      "fields": {
+        "ADP_CURRENT_CONFIG": "current_configuration_index the ADPDU carries until a SET_CONFIGURATION or D3 restore writes the processor's configuration row, and again after a D3 roll-back (from processor pin `631eeb34`)",
+        "ADP_IDENTIFY_INDEX": "identify_control_index"
+      },
+      "notes": []
+    },
+    "ADP_IDX1": {
+      "name": "ADP indices 1 (scratch)",
+      "purpose": "Stored interface index; never reaches the wire.",
+      "fields": {
+        "ADP_INTERFACE_INDEX": "interface_index."
+      },
+      "notes": [],
+      "record": "adp_idx1-offset-0x634"
+    },
+    "ADP_ASLO": {
+      "acronym": "ADP_ASSOC_ID_LO",
+      "name": "Association ID, low word (scratch)",
+      "purpose": "Stored association_id bits 31 to 0; never reaches the wire.",
+      "fields": {
+        "ADP_ASSOCIATION_ID": "association_id, low half: inert scratch."
+      },
+      "notes": [],
+      "record": "adp_assoc_id_lo-offset-0x638"
+    },
+    "ADP_ASHI": {
+      "acronym": "ADP_ASSOC_ID_HI",
+      "name": "Association ID, high word (scratch)",
+      "purpose": "Stored association_id bits 63 to 32; never reaches the wire.",
+      "fields": {
+        "ADP_ASSOCIATION_ID": "association_id, high half: inert scratch."
+      },
+      "notes": [],
+      "record": "adp_assoc_id_hi-offset-0x63c"
+    },
+    "ADP_CMD": {
+      "name": "ADP command",
+      "purpose": "Advertise-now and depart strobes.",
+      "fields": {
+        "ADP_ADVERTISE": "Inert strobe: self-clears and reads 0, and reaches no logic. Was advertise-now.",
+        "ADP_DEPART": "Inert strobe: self-clears and reads 0, and reaches no logic. Was depart."
+      },
+      "notes": [],
+      "record": "adp_cmd-offset-0x640"
+    },
+    "ADP_STATUS": {
+      "name": "ADP status",
+      "purpose": "The available_index the processor advertises.",
+      "fields": {
+        "ADP_AVAILABLE_INDEX": "available_index, live from the protocol processor; equal to the value on the wire."
+      },
+      "notes": [],
+      "record": "adp_status-offset-0x644"
+    },
+    "AECP_STAT0": {
+      "name": "AECP status 0",
+      "purpose": "Entity lock level and a retired command count.",
+      "fields": {
+        "AECP_LOCKED": "The processor's live `LOCK_ENTITY` level.",
+        "AECP_CMD_COUNT": "**Structural zero.** The processor command count is not exported."
+      },
+      "notes": [],
+      "record": "aecp_stat0-offset-0x648"
+    },
+    "AECP_STAT1": {
+      "name": "AECP status 1",
+      "purpose": "Retired AECP response count and configuration index.",
+      "fields": {
+        "AECP_RESP_COUNT": "**Structural zero.** Was AECP responses sent.",
+        "AECP_CURRENT_CONFIG": "**Structural zero.** Was the current configuration index."
+      },
+      "notes": [],
+      "record": "aecp_stat1-offset-0x64c"
+    },
+    "ACMP_STAT": {
+      "name": "ACMP status",
+      "purpose": "Retired ACMP command and response counts.",
+      "fields": {
+        "ACMP_RESP_COUNT": "**Structural zero.** Was responses sent. Read `ACMPL_STATE[3]` and `ACMP_TALKER[1]` instead.",
+        "ACMP_CMD_COUNT": "**Structural zero.** Was commands accepted."
+      },
+      "notes": [],
+      "record": "acmp_stat-offset-0x650"
+    },
+    "AAF_CTRL": {
+      "name": "AAF talker control",
+      "purpose": "AAF talker enable, gate bypass and stream VID.",
+      "fields": {
+        "AAF_ENABLE": "Enable. Firmware boots the generated `MILAN_AAF_CTRL_BOOT` word.",
+        "AAF_BYPASS": "Diagnostic bypass. Boot clears it.",
+        "AAF_VID": "Startup VID 2. Domain adoption selects the tag on the wire."
+      },
+      "notes": [],
+      "record": "aaf_ctrl-offset-0x654"
+    },
+    "AAF_DMLO": {
+      "name": "AAF destination MAC, low word",
+      "purpose": "AAF stream destination MAC bits 31 to 0.",
+      "fields": {
+        "AAF_DEST_MAC": "Destination MAC `[31:0]`; reset is `91:E0:F0:00:FE:01`. A fallback: with `MAAP_CTRL[0]` and `MAAP_STAT1[2]` set, the datapath uses the MAAP-claimed address."
+      },
+      "notes": [],
+      "record": "aaf_dmlo-offset-0x658"
+    },
+    "AAF_DMHI": {
+      "name": "AAF destination MAC, high word",
+      "purpose": "AAF stream destination MAC bits 47 to 32.",
+      "fields": {
+        "AAF_DEST_MAC": "Destination MAC `[47:32]`."
+      },
+      "notes": [],
+      "record": "aaf_dmhi-offset-0x65c"
+    },
+    "AAF_FRAMES": {
+      "name": "AAF frames sent",
+      "purpose": "AAF frames the talker has sent.",
+      "fields": {
+        "AAF_FRAMES": "AAF frames sent (the window `PDUS` word latches this at talker idx 0)"
+      },
+      "notes": []
+    },
+    "AAF_PAIRS": {
+      "name": "AAF pairs captured",
+      "purpose": "Audio sample pairs the talker front end captured.",
+      "fields": {
+        "AAF_PAIRS": "I2S sample pairs captured by the talker front-end"
+      },
+      "notes": []
+    },
+    "ADP_DIAG": {
+      "name": "ADP diagnostics",
+      "purpose": "Retired ADP depart and re-arm counters.",
+      "fields": {
+        "ADP_DEPART_SRC": "**Structural zero.** Was the last depart cause.",
+        "ADP_REARM_CNT": "**Structural zero.** Was dormancy re-arms.",
+        "ADP_DEPART_CNT": "**Structural zero.** Was depart events. Read `ADP_STATUS` across two reads instead."
+      },
+      "notes": [],
+      "record": "adp_diag-offset-0x668"
+    },
+    "ACMP_TALKER": {
+      "name": "ACMP talker state",
+      "purpose": "Talker probe, active, observed and gate bits.",
+      "fields": {
+        "ACMP_PROBE_ARMED": "**Structural zero.** The class-D face has no probe-window level.",
+        "ACMP_TALKER_ACTIVE": "Live: the processor's `acmp_declaring_o`, set only after MAAP ALLOC_DA success.",
+        "ACMP_LOBS": "Mirror of the `ACMP_LOBS[0]` manual override.",
+        "AAF_GATE": "The composed gate the datapath admits frames on."
+      },
+      "notes": [],
+      "record": "acmp_talker-offset-0x66c"
+    },
+    "ACMP_LOBS": {
+      "name": "Listener-observed override",
+      "purpose": "Manual listener_observed override for the AAF gate.",
+      "fields": {
+        "ACMP_LOBS": "manual listener_observed override -- OR-ed with the lwSRP-sourced listener_observed (the lwSRP socket, see the 0x680 group)"
+      },
+      "notes": []
+    },
+    "ADP_DIAG2": {
+      "name": "ADP liveness diagnostics",
+      "purpose": "Retired ADP liveness and discover counters.",
+      "fields": {
+        "ADP_STATE": "**Structural zero.** Was the advertiser state.",
+        "ADP_LAST_MSG": "**Structural zero.** Was the last message_type.",
+        "ADP_DISC_SEEN_CNT": "**Structural zero.** Was ENTITY_DISCOVERs seen: it counts `i_adp_disc_seen_p`, whose source is deleted.",
+        "ADP_DISC_RX_CNT": "**Structural zero.** Was ENTITY_DISCOVERs accepted.",
+        "ADP_SENT_CNT": "**Structural zero.** Was ADPDUs egressed."
+      },
+      "notes": [],
+      "record": "adp_diag2-offset-0x674"
+    },
+    "LWSRP_CTRL": {
+      "name": "SRP control",
+      "purpose": "SRP admission enable and talker admission arm.",
+      "fields": {
+        "LWSRP_ENABLE": "Live admission enable. Firmware sets it for normal boot. It does not enable the SRP engine.",
+        "LWSRP_TALKER_EN": "Live talker admission arm. Firmware sets it for normal boot.",
+        "LWSRP_DECL_BYPASS": "Inert scratch: stores and reads back, reaches no logic. Was declare-always."
+      },
+      "notes": [
+        "`[4:2]` is legacy queue-selection scratch, reset 4."
+      ],
+      "record": "lwsrp_ctrl-offset-0x680"
+    },
+    "LWSRP_VID": {
+      "name": "SRP VID",
+      "purpose": "Software-owned default SR VID.",
+      "fields": {
+        "LWSRP_VID": "Diagnostic default VID; startup uses `srp.vid` = 2. Writes do not program the processor. The operational pair is at `LWSRP_DOM`."
+      },
+      "notes": [],
+      "record": "lwsrp_vid-offset-0x684"
+    },
+    "LWSRP_DMLO": {
+      "acronym": "LWSRP_DMAC_LO",
+      "name": "SRP destination MAC, low word (scratch)",
+      "purpose": "Retained stream destination MAC bits 31 to 0.",
+      "fields": {
+        "LWSRP_DEST_MAC": "Inert scratch: stores and reads back, reaches no logic. The processor takes its address from MAAP."
+      },
+      "notes": [],
+      "record": "lwsrp_dmac_lo-offset-0x688"
+    },
+    "LWSRP_DMHI": {
+      "acronym": "LWSRP_DMAC_HI",
+      "name": "SRP destination MAC, high word (scratch)",
+      "purpose": "Retained stream destination MAC bits 47 to 32.",
+      "fields": {
+        "LWSRP_DEST_MAC": "Inert scratch: stores and reads back, reaches no logic. The processor takes its address from MAAP."
+      },
+      "notes": [],
+      "record": "lwsrp_dmac_hi-offset-0x68c"
+    },
+    "LWSRP_TSPEC": {
+      "name": "SRP TSpec (scratch)",
+      "purpose": "Retained MaxFrameSize and MaxIntervalFrames words.",
+      "fields": {
+        "LWSRP_INTERVAL": "Inert scratch: stores and reads back, reaches no logic. Was MaxIntervalFrames; the processor derives it from the SR class.",
+        "LWSRP_MAX_FRAME": "Inert scratch: stores and reads back, reaches no logic. Was MaxFrameSize; the fabric derives it from each framer (Milan v1.2 4.3.3.2 Table 4.4)."
+      },
+      "notes": [],
+      "record": "lwsrp_tspec-offset-0x690"
+    },
+    "LWSRP_STATUS": {
+      "name": "SRP status",
+      "purpose": "SRP registrar and declaration status from the processor.",
+      "fields": {},
+      "notes": [],
+      "record": "lwsrp_status-offset-0x694",
+      "split": {
+        "LWSRP_STATUS": [
+          [
+            "31:24",
+            "INGRESS_DROPS",
+            "**Structural zero.** That ingress path is deleted; see `PP_DIAG[15:8]`."
+          ],
+          [
+            "23:16",
+            "FAIL_CODE",
+            "MSRP failure code."
+          ],
+          [
+            "15:12",
+            "RESERVED",
+            ""
+          ],
+          [
+            "11",
+            "ROW_SHORTFALL",
+            "**Structural zero.** No attribute-row table exists in this fabric."
+          ],
+          [
+            "10",
+            "TALKER_FAILED",
+            "TalkerFailed seen."
+          ],
+          [
+            "9",
+            "ADMIT_VERDICT",
+            "The OR of the processor's real admission grants. Status only."
+          ],
+          [
+            "8",
+            "GATE_OPEN",
+            "Source 0's ACTIVE and real grant (#551): the Milan v1.2 5.3.7.3 licence."
+          ],
+          [
+            "7",
+            "OVER_LIMIT",
+            "Over the 75 % gate: ceiling refusal."
+          ],
+          [
+            "6",
+            "ACTIVE",
+            "Raw reservation ACTIVE, ORed over sources, CRF output included."
+          ],
+          [
+            "5",
+            "DOMAIN_OK",
+            "Domain ok."
+          ],
+          [
+            "4",
+            "TALKER_DECLARED",
+            "Talker declared."
+          ],
+          [
+            "3",
+            "LISTENER_READY",
+            "`[1:0]` is ready or ready-failed (Milan v1.2 5.3.7.3)."
+          ],
+          [
+            "2",
+            "LISTENER_REGISTERED",
+            "`[1:0]` is not 0, asking-failed included."
+          ],
+          [
+            "1:0",
+            "LISTENER_STATE",
+            "The Listener registered on talker source 0, as 802.1Q 35.2.2.7.2 (Table 35-3) FourPackedEvents: 0 none, 1 asking-failed, 2 ready, 3 ready-failed."
+          ]
+        ]
+      }
+    },
+    "LWSRP_SLOPE": {
+      "name": "SRP granted slope",
+      "purpose": "Granted idleSlope summed across admitted sources.",
+      "fields": {
+        "LWSRP_SLOPE": "🟢 **LIVE, REPOINTED**: the granted idleSlope in bits/s, now the processor's **sum across admitted sources** (which is what a single shaped queue's idleSlope must be), not a single stream's `MaxIntervalFrames × (MaxFrameSize+42) × 8 × 8000`. Status only: no shaper is instantiated to consume it, licences require ACTIVE AND the real grant (#551)"
+      },
+      "notes": []
+    },
+    "LWSRP_CNT": {
+      "name": "SRP PDU counts",
+      "purpose": "Retired MRPDU counters, a structural zero.",
+      "fields": {
+        "LWSRP_CNT": "**Structural zero.** Was MRPDU counts. Reservations still form: read `LWSRP_STATUS` and `LWSRP_DOM`."
+      },
+      "notes": [],
+      "record": "lwsrp_cnt-offset-0x69c"
+    },
+    "LWSRP_LAT": {
+      "acronym": "LWSRP_LATENCY",
+      "name": "SRP accumulated latency",
+      "purpose": "TalkerAdvertise AccumulatedLatency in nanoseconds.",
+      "fields": {
+        "LWSRP_LATENCY": "TalkerAdvertise AccumulatedLatency, ns -- still LIVE: `milan_datapath` passes it to the processor as `cfg_acc_lat_ns_i`"
+      },
+      "notes": []
+    },
+    "ACMPL_STATE": {
+      "name": "ACMP listener state",
+      "purpose": "Bound state of listener sink 0 and its SRP bits.",
+      "fields": {},
+      "notes": [],
+      "record": "acmpl_state-offset-0x6a4",
+      "split": {
+        "ACMPL_STATE": [
+          [
+            "31",
+            "CRF_BOUND",
+            "CRF sink bound."
+          ],
+          [
+            "30:28",
+            "RESERVED",
+            ""
+          ],
+          [
+            "27:16",
+            "VLAN",
+            "Stream VLAN from the bind record."
+          ],
+          [
+            "15",
+            "TALKER_VISIBLE",
+            "**Structural zero.** Was bound talker ADP-visible."
+          ],
+          [
+            "14:13",
+            "PROBING",
+            "**Structural zero.** Was probing status."
+          ],
+          [
+            "12:8",
+            "ACMP_STATUS",
+            "**Structural zero.** Was the last ACMP status."
+          ],
+          [
+            "7",
+            "TALKER_FAILED",
+            "Sink 0 carries an MSRP TalkerFailed code; same source as `ACMPL_TUID[23:16]`."
+          ],
+          [
+            "6",
+            "TALKER_ADVERTISE",
+            "Sink 0's registered Talker attribute is ADVERTISE."
+          ],
+          [
+            "5",
+            "LISTENER_DECLARED",
+            "**Structural zero.** Was Listener attribute declared."
+          ],
+          [
+            "4",
+            "ACTIVE",
+            "Stream active; follows bound."
+          ],
+          [
+            "3",
+            "BOUND",
+            "Bound: the truth for this sink."
+          ],
+          [
+            "2:0",
+            "SM_STATE",
+            "**Structural zero.** The probe ladder no longer exists here, so a reader waiting for SETTLED waits forever."
+          ]
+        ]
+      }
+    },
+    "ACMPL_TKLO": {
+      "acronym": "ACMPL_TALKER_LO",
+      "name": "Bound talker, low word",
+      "purpose": "Retired bound talker entity ID, a structural zero.",
+      "fields": {
+        "ACMPL_TALKER_LO": "**Structural zero.** Was the bound talker entity ID, low half."
+      },
+      "notes": [],
+      "record": "acmpl_talker_lo-offset-0x6a8"
+    },
+    "ACMPL_TKHI": {
+      "acronym": "ACMPL_TALKER_HI",
+      "name": "Bound talker, high word",
+      "purpose": "Retired bound talker entity ID, a structural zero.",
+      "fields": {
+        "ACMPL_TALKER_HI": "**Structural zero.** Was the bound talker entity ID, high half."
+      },
+      "notes": [],
+      "record": "acmpl_talker_hi-offset-0x6ac"
+    },
+    "ACMPL_CNT": {
+      "name": "ACMP listener counts",
+      "purpose": "Retired listener command counts, a structural zero.",
+      "fields": {
+        "ACMPL_CNT": "**Structural zero.** Was PROBE_TX commands sent and listener commands accepted."
+      },
+      "notes": [],
+      "record": "acmpl_cnt-offset-0x6b0"
+    },
+    "ACMPL_TUID": {
+      "name": "ACMP listener talker ID",
+      "purpose": "Retired talker unique ID and the live failure code.",
+      "fields": {},
+      "notes": [],
+      "record": "acmpl_tuid-offset-0x6b4",
+      "split": {
+        "ACMPL_TUID": [
+          [
+            "31:24",
+            "RESERVED",
+            ""
+          ],
+          [
+            "23:16",
+            "TALKER_FAILED",
+            "MSRP TalkerFailed code for the bound stream, live."
+          ],
+          [
+            "15:0",
+            "TUID",
+            "**Structural zero.** Was the bound talker unique ID."
+          ]
+        ]
+      }
+    },
+    "AVTPRX_STAT": {
+      "name": "AVTP RX status (saturating views)",
+      "purpose": "Stream Input 0 lock and interruption counters.",
+      "fields": {},
+      "notes": [
+        "`AVTPRX_STAT` bytes saturate: `0xFF` means at least 255.",
+        "Counter clauses: IEEE 1722.1-2021 Table 7-156. Milan v1.2 Table 5.6."
+      ],
+      "record": "avtprx_stat-offset-0x6b8",
+      "split": {
+        "AVTPRX_STAT": [
+          [
+            "31:24",
+            "STREAM_INTERRUPTED",
+            "Saturating view; the full count is at `STRMW_CNTn`."
+          ],
+          [
+            "23:16",
+            "MEDIA_UNLOCKED",
+            "Saturating view; the full count is at `STRMW_CNTn`."
+          ],
+          [
+            "15:8",
+            "MEDIA_LOCKED",
+            "Saturating view; the full count is at `STRMW_CNTn`."
+          ],
+          [
+            "7:1",
+            "RESERVED",
+            ""
+          ],
+          [
+            "0",
+            "LOCKED_LEVEL",
+            "Media-locked level."
+          ]
+        ]
+      }
+    },
+    "AVTPRX_FRX": {
+      "name": "AVTP RX frames received",
+      "purpose": "Stream Input 0 FRAMES_RX, a full 32-bit counter.",
+      "fields": {
+        "AVTPRX_FRX": "STREAM_INPUT[0] FRAMES_RX (full 32-bit counter)"
+      },
+      "notes": []
+    },
+    "AVTPRX_ERR": {
+      "name": "AVTP RX errors (saturating views)",
+      "purpose": "Stream Input 0 sequence, format and timestamp counters.",
+      "fields": {},
+      "notes": [
+        "`AVTPRX_ERR` fields saturate: all ones means at least that many."
+      ],
+      "record": "avtprx_err-offset-0x6c0",
+      "split": {
+        "AVTPRX_ERR": [
+          [
+            "31:16",
+            "SEQ_NUM_MISMATCH",
+            "Saturating: all ones means at least this many. The full count is at `0x83C`."
+          ],
+          [
+            "15:8",
+            "UNSUPPORTED_FORMAT",
+            "Saturating view."
+          ],
+          [
+            "7:0",
+            "TIMESTAMP_UNCERTAIN",
+            "Saturating view."
+          ]
+        ]
+      }
+    },
+    "PCMRX_CNT": {
+      "name": "AAF RX depacketizer counts",
+      "purpose": "Frames dropped and payloads emitted by the depacketizer.",
+      "fields": {},
+      "notes": [],
+      "record": "pcmrx_cnt-offset-0x6c4",
+      "split": {
+        "PCMRX_CNT": [
+          [
+            "31:16",
+            "DROPPED",
+            "Whole frames dropped: FIFO overflow."
+          ],
+          [
+            "15:0",
+            "PDUS",
+            "PDU payloads emitted to the fabric."
+          ]
+        ]
+      }
+    },
+    "PCMRX_TS": {
+      "name": "AAF RX last timestamp",
+      "purpose": "avtp_timestamp of the last depacketized PDU.",
+      "fields": {
+        "PCMRX_TS": "`avtp_timestamp` of the last depacketized PDU (media-clock recovery hook)"
+      },
+      "notes": []
+    },
+    "MAAP_CTRL": {
+      "name": "MAAP control",
+      "purpose": "MAAP enable, seed and block count.",
+      "fields": {
+        "MAAP_ENABLE": "Enable.",
+        "MAAP_SEED_VALID": "Seed valid.",
+        "MAAP_COUNT": "Block count.",
+        "MAAP_SEED_OFFSET": "Seed offset."
+      },
+      "notes": [
+        "Firmware writes the generated `MILAN_MAAP_CTRL_BOOT` word."
+      ],
+      "record": "maap_ctrl-offset-0x6cc"
+    },
+    "MAAP_STAT0": {
+      "name": "MAAP status 0",
+      "purpose": "MAAP conflicts, defends and the claimed offset.",
+      "fields": {},
+      "notes": [],
+      "record": "maap_stat0-offset-0x6d0",
+      "split": {
+        "MAAP_STAT0": [
+          [
+            "31:24",
+            "CONFLICTS",
+            "Conflicts: re-address events."
+          ],
+          [
+            "23:16",
+            "DEFENDS",
+            "DEFENDs sent."
+          ],
+          [
+            "15:0",
+            "OFFSET",
+            "Claimed offset."
+          ]
+        ]
+      }
+    },
+    "MAAP_STAT1": {
+      "name": "MAAP status 1",
+      "purpose": "MAAP state and address-valid flag.",
+      "fields": {},
+      "notes": [],
+      "record": "maap_stat1-offset-0x6d4",
+      "split": {
+        "MAAP_STAT1": [
+          [
+            "31:3",
+            "RESERVED",
+            ""
+          ],
+          [
+            "2",
+            "ADDR_VALID",
+            "ANNOUNCE state: the address is valid."
+          ],
+          [
+            "1:0",
+            "STATE",
+            "0 idle, 1 probe, 2 announce."
+          ]
+        ]
+      }
+    },
+    "I2SPB_STAT": {
+      "name": "I2S playback drift rails",
+      "purpose": "Underrun and overrun counts, each half cleared on write.",
+      "fields": {
+        "UNDERRUN": "Underruns: silence frames. Saturates at `0xFFFF`. Any set bit written here restarts this whole half, not only the set bits. A zero write is inert.",
+        "OVERRUN": "Overruns: pairs dropped. Saturates at `0xFFFF`. Any set bit written here restarts this whole half."
+      },
+      "notes": [],
+      "record": "i2spb_stat-offset-0x6d8",
+      "rename": {
+        "I2SPB_STAT_31_16": "UNDERRUN",
+        "I2SPB_STAT_15_0": "OVERRUN"
+      }
+    },
+    "TONE_CTRL": {
+      "name": "Pilot tone control",
+      "purpose": "Pilot tone enable and attenuation.",
+      "fields": {
+        "TONE_ENABLE": "pilot tone enable: 1 kHz exact-period 48×24-bit sine replaces the I2S ADC on both talker channels (digital THD+N −148.1 dB; E2E acceptance ≤ −120 dBFS at the physical Listener output).",
+        "TONE_ATT": "**attenuation**, −6 dB steps applied as `TONE_TAB_C[idx] >>> att` (0 = 0 dBFS full scale, 7 = −42 dB); reset is `0`, so the power-on tone is 0 dBFS and any smaller amplitude was dialled in at the bench. A capture at amplitude 0.25 means `att = 2`, not a quarter-scale table: `8388607 >>> 2 = 2097151`, and `2097151 / 2^23 = 0.24999988`. Reduce before measuring through a sample-rate conversion or an analog stage, because a 0 dBFS sampled sine overshoots between samples (measured +0.91 dB through a 48 kHz to 44.1 kHz conversion) and would clip; at 48 kHz end to end the maxima land on table entries and 0 dBFS is safe. See the [obsolete historical media-clock finding](docs/history/v1/findings/MEDIA_CLOCK_LOCK_0810.md)"
+      },
+      "notes": []
+    },
+    "I2SPB_TRIM": {
+      "name": "I2S playback trim",
+      "purpose": "Media-clock recovery trim and FIFO fill.",
+      "fields": {},
+      "notes": [],
+      "record": "i2spb_trim-offset-0x6e0",
+      "split": {
+        "I2SPB_TRIM": [
+          [
+            "31:16",
+            "NCO_TRIM",
+            "Signed NCO trim, LSB about 15.3 ppm."
+          ],
+          [
+            "15:0",
+            "FIFO_FILL",
+            "FIFO fill, in pairs."
+          ]
+        ]
+      }
+    },
+    "GPTP_PDELAY": {
+      "name": "gPTP neighbor delay",
+      "purpose": "Measured gPTP neighbor propagation delay in nanoseconds.",
+      "fields": {
+        "GPTP_PDELAY_NS": "reset `0`: fabric-owned measured gPTP neighbor propagation delay in ns. Option OFF reads zero; writes are inert. GET_AVB_INFO consumes this value."
+      },
+      "notes": []
+    },
+    "ACMPL_DBG": {
+      "name": "Listener walker forensics",
+      "purpose": "Retired listener walker counters, a structural zero.",
+      "fields": {
+        "ACMPL_DBG": "🔴 **STRUCTURAL ZERO**. Was the listener walker forensics -- CLASSIFY entries, ACMP-subtype classifies, the flag bundle at the last ACMP classify, ACMP-base + listener-command hits. The walker is deleted. The protocol processor's own RX accounting (control frames in, FIFO drops, frames out) is at `PP_DIAG` `0x930`"
+      },
+      "notes": []
+    },
+    "AVTPRX_TSD": {
+      "name": "AVTP RX timestamp delta",
+      "purpose": "Signed timestamp delta at the last accepted PDU.",
+      "fields": {
+        "AVTPRX_TSD": "signed ts_delta = `avtp_timestamp - ptp_now` (ns) at the last accepted STREAM_INPUT[0] PDU -- the stream-sync error signal (LATE counts when delta < 0, EARLY beyond offset + margin; [presentation validity](docs/design/TIME_SYNC.md#presentation-validity))"
+      },
+      "notes": []
+    },
+    "I2SPB_DBG": {
+      "name": "I2S DAC forensics",
+      "purpose": "Serial bits of the last left half-frame at the DAC.",
+      "fields": {
+        "I2SPB_DBG": "DAC-serial forensics: the exact 32 serial bits of the last LEFT half-frame as sent at the DAC pin (CDC-latched)"
+      },
+      "notes": []
+    },
+    "CTLR_DIAG": {
+      "name": "Controller diagnostics",
+      "purpose": "Retired controller counter, a structural zero.",
+      "fields": {
+        "CTLR_DIAG": "🔴 **STRUCTURAL ZERO**. Reads `0`; never read it as a measurement. The deleted local monitor's probe, reply and eviction counters have no replacement source for this word. The departing-controller monitor lives in the protocol processor"
+      },
+      "notes": []
+    },
+    "TCAM_CTRL": {
+      "name": "TCAM control",
+      "purpose": "Default pass and address-filter enable for the RX filter.",
+      "fields": {
+        "TCAM_DEFAULT_PASS": "1 accepts frames that miss the table.",
+        "TCAM_ADDR_FILT_EN": "1 sends a miss to the 802.3 station address filter instead of `[0]` (REQ-MAC-02)."
+      },
+      "notes": [],
+      "record": "tcam_ctrl-offset-0x700"
+    },
+    "TCAM_KLO": {
+      "acronym": "TCAM_KEY_LO",
+      "name": "TCAM key, low word",
+      "purpose": "Match key bits 31 to 0 for the next commit.",
+      "fields": {
+        "TCAM_WR_KEY": "Match key `[31:0]` (destination MAC)."
+      },
+      "notes": [],
+      "record": "tcam_key_lo-offset-0x704"
+    },
+    "TCAM_KHI": {
+      "acronym": "TCAM_KEY_HI",
+      "name": "TCAM key, high word",
+      "purpose": "Match key bits 47 to 32 for the next commit.",
+      "fields": {
+        "TCAM_WR_KEY": "Match key `[47:32]`."
+      },
+      "notes": [],
+      "record": "tcam_key_hi-offset-0x708"
+    },
+    "TCAM_MLO": {
+      "acronym": "TCAM_MASK_LO",
+      "name": "TCAM mask, low word",
+      "purpose": "Care mask bits 31 to 0 for the next commit.",
+      "fields": {
+        "TCAM_WR_MASK": "Per-bit mask `[31:0]`."
+      },
+      "notes": [],
+      "record": "tcam_mask_lo-offset-0x70c"
+    },
+    "TCAM_MHI": {
+      "acronym": "TCAM_MASK_HI",
+      "name": "TCAM mask, high word",
+      "purpose": "Care mask bits 47 to 32 for the next commit.",
+      "fields": {
+        "TCAM_WR_MASK": "Per-bit mask `[47:32]`."
+      },
+      "notes": [],
+      "record": "tcam_mask_hi-offset-0x710"
+    },
+    "TCAM_ACT": {
+      "acronym": "TCAM_ACTION",
+      "name": "TCAM action",
+      "purpose": "Action byte for the next commit.",
+      "fields": {
+        "TCAM_WR_ACTION": "Entry action."
+      },
+      "notes": [],
+      "record": "tcam_action-offset-0x714"
+    },
+    "TCAM_CMD": {
+      "name": "TCAM command",
+      "purpose": "Commits one TCAM entry: index, add or remove.",
+      "fields": {
+        "TCAM_WR_INDEX": "entry index",
+        "TCAM_WR_VALID": "valid (1 = add/update, 0 = remove)",
+        "TCAM_WR_EN": "commit (self-clearing) - latches KEY/MASK/ACTION shadows into the entry"
+      },
+      "notes": []
+    },
+    "LINK_CTRL": {
+      "name": "Link control",
+      "purpose": "Firmware link qualification and link-guard controls.",
+      "fields": {
+        "SW_LINK": "firmware link qualification (assumed up at reset)",
+        "MAC_REINIT": "manual mac_reinit (hold MAC sys-side in reset).",
+        "LINKG_DIS": "linkg_dis (1 = guard disabled)",
+        "LINKG_FREEZE": "linkg_freeze (test hook: fake eth clock death drills the full FSM with no cable)"
+      },
+      "notes": []
+    },
+    "RST_EPOCH": {
+      "name": "Reset epoch",
+      "purpose": "Count of datapath reset releases, the reset canary.",
+      "fields": {
+        "RST_EPOCH": "Datapath reset-release count. It has no reset clause, so the count survives reset. A live tick proves a real reset happened."
+      },
+      "notes": [],
+      "record": "rst_epoch-offset-0x720"
+    },
+    "ENT_NAME_LO": {
+      "name": "Entity name overlay, characters 0 to 3",
+      "purpose": "Board-name overlay characters 0 to 3.",
+      "fields": {
+        "ENTITY_NAME8_31_24": "One character of the board-name overlay.",
+        "ENTITY_NAME8_23_16": "One character.",
+        "ENTITY_NAME8_15_8": "One character.",
+        "ENTITY_NAME8_7_0": "First character of this word."
+      },
+      "notes": [
+        "All zero keeps the ROM name."
+      ],
+      "record": "ent_name_lo-offset-0x724"
+    },
+    "ENT_NAME_HI": {
+      "name": "Entity name overlay, characters 4 to 7",
+      "purpose": "Board-name overlay characters 4 to 7.",
+      "fields": {
+        "ENTITY_NAME8_31_24": "One character of the board-name overlay.",
+        "ENTITY_NAME8_23_16": "One character.",
+        "ENTITY_NAME8_15_8": "One character.",
+        "ENTITY_NAME8_7_0": "One character."
+      },
+      "notes": [],
+      "record": "ent_name_hi-offset-0x728"
+    },
+    "LPF_CTRL": {
+      "name": "Playback filter control",
+      "purpose": "Enables the playback low-pass filter.",
+      "fields": {
+        "LPF_ENABLE": "playback biquad LPF enable (`KL_pcm_lpf`), on by default"
+      },
+      "notes": []
+    },
+    "AS2_LO": {
+      "name": "gPTP parent, low word",
+      "purpose": "Parent clockIdentity bits 31 to 0, coherent with AS2_HI.",
+      "fields": {
+        "GPTP_PARENT_RD_SNAP": "Parent clockIdentity, low half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0."
+      },
+      "notes": [],
+      "record": "as2_lo-offset-0x730"
+    },
+    "AS2_HI": {
+      "name": "gPTP parent, high word",
+      "purpose": "Parent clockIdentity bits 63 to 32, coherent with AS2_LO.",
+      "fields": {
+        "GPTP_PARENT_RD_SNAP": "Parent clockIdentity, high half. The first half read snapshots the live 64-bit identity; the other half reads that snapshot, in either order. With the gPTP plane off it reads 0."
+      },
+      "notes": [],
+      "record": "as2_hi-offset-0x734"
+    },
+    "CRF_CTRL": {
+      "name": "CRF sink control",
+      "purpose": "CRF sink enable and the locked flag.",
+      "fields": {
+        "CRF_EN": "CRF sink enable (RW)",
+        "CRF_LOCKED": "locked (RO live). Eight clean consecutive PDUs establish lock. No consumed accepted PDU for 100 ms clears lock. So does an unbind (enable and ACMP bind both low). Each counts one MEDIA_UNLOCKED (#653). A profile validation error retains lock and breaks settling. It does not refresh the timeout. Each observation interval containing errors increments `UNSUPPORTED_FORMAT` (`fmt_err_o`) once. `CRF_STATUS[15:8]` (`0x74C`) exposes its low eight bits. GET_COUNTERS exposes all 32 bits."
+      },
+      "notes": []
+    },
+    "CRF_SIDLO": {
+      "name": "CRF sink stream ID, low word",
+      "purpose": "Followed CRF stream_id bits 31 to 0.",
+      "fields": {
+        "CRF_SID": "Followed stream_id, low half: the manual lever. A bind wins."
+      },
+      "notes": [],
+      "record": "crf_sidlo-offset-0x73c"
+    },
+    "CRF_SIDHI": {
+      "name": "CRF sink stream ID, high word",
+      "purpose": "Followed CRF stream_id bits 63 to 32.",
+      "fields": {
+        "CRF_SID": "Followed stream_id, high half."
+      },
+      "notes": [],
+      "record": "crf_sidhi-offset-0x740"
+    },
+    "CRF_DELTA": {
+      "name": "CRF timestamp delta",
+      "purpose": "Signed crf_ts minus ptp_now at the last PDU.",
+      "fields": {
+        "CRF_DELTA": "signed `crf_ts - ptp_now` (ns) at each accepted PDU -- phase, same signed-delta contract as `AVTPRX_TSD` (0x6EC); carries the talker+transit constant, deliberately NOT a servo input"
+      },
+      "notes": []
+    },
+    "CRF_RATE": {
+      "name": "CRF rate",
+      "purpose": "Talker media clock rate measured against gPTP.",
+      "fields": {
+        "CRF_RATE": "The talker's media clock measured against gPTP, the servo frequency input. Signed ns error per 512 ms window (256-PDU ring); 1 ppm = 512 units. Holds the last clean value during discontinuity refill. Internal validity gates servo sampling; this CSR does not expose validity"
+      },
+      "notes": []
+    },
+    "CRF_STATUS": {
+      "name": "CRF status",
+      "purpose": "CRF PDUs accepted, format errors and sequence errors.",
+      "fields": {},
+      "notes": [],
+      "record": "crf_status-offset-0x74c",
+      "split": {
+        "CRF_STATUS": [
+          [
+            "31:16",
+            "PDUS",
+            "PDUs accepted."
+          ],
+          [
+            "15:8",
+            "FORMAT_ERRORS",
+            "Format errors: subtype (#765) and the Milan v1.2 7.3.2 check."
+          ],
+          [
+            "7:0",
+            "SEQ_ERRORS",
+            "Sequence errors."
+          ]
+        ]
+      }
+    },
+    "CRFT_CTRL": {
+      "name": "CRF talker control",
+      "purpose": "CRF talker enable, class-A declare and live status.",
+      "fields": {
+        "CRFT_EN": "Talker enable. Firmware boots `MILAN_CRF_TX_CTRL_BOOT` from the config.",
+        "CRFT_CLASS_A": "Class-A declare and tag (Milan v1.2 7.3.3). Clear gives the untagged control-lane shape."
+      },
+      "notes": [],
+      "record": "crft_ctrl-offset-0x750",
+      "split": {
+        "CRFT_STAT": [
+          [
+            "31:23",
+            "RESERVED",
+            ""
+          ],
+          [
+            "22:20",
+            "PCP",
+            "PCP on the frames."
+          ],
+          [
+            "19:8",
+            "VID",
+            "VID on the frames."
+          ],
+          [
+            "7",
+            "LICENSED",
+            "Emission licensed now: `[0]` and `[6]` while SRP policing is on."
+          ],
+          [
+            "6",
+            "RESERVATION_ACTIVE",
+            "This output's ACTIVE and real admission grant (#551)."
+          ],
+          [
+            "5",
+            "TAGGED",
+            "Frames leaving tagged."
+          ],
+          [
+            "4",
+            "ROW_VALID",
+            "**Structural zero.** There is no fabric row to provision."
+          ],
+          [
+            "3:2",
+            "RESERVED",
+            ""
+          ]
+        ]
+      }
+    },
+    "CRFT_SIDLO": {
+      "name": "CRF talker stream ID, low word",
+      "purpose": "CRF talker stream_id bits 31 to 0.",
+      "fields": {
+        "CRFT_SID": "stream_id, low half. Zero selects AUTO: `{station MAC, N_STREAMS}`. A non-zero pair wins."
+      },
+      "notes": [],
+      "record": "crft_sidlo-offset-0x754"
+    },
+    "CRFT_SIDHI": {
+      "name": "CRF talker stream ID, high word",
+      "purpose": "CRF talker stream_id bits 63 to 32.",
+      "fields": {
+        "CRFT_SID": "stream_id, high half."
+      },
+      "notes": [],
+      "record": "crft_sidhi-offset-0x758"
+    },
+    "CRFT_DMLO": {
+      "name": "CRF talker destination MAC, low word",
+      "purpose": "CRF talker destination MAC bits 31 to 0.",
+      "fields": {
+        "CRFT_DEST_MAC": "Destination MAC `[31:0]`. Zero selects AUTO: MAAP block slot `base + N_STREAMS`. A non-zero pair wins."
+      },
+      "notes": [],
+      "record": "crft_dmlo-offset-0x75c"
+    },
+    "CRFT_DMHI": {
+      "name": "CRF talker destination MAC, high word",
+      "purpose": "CRF talker destination MAC bits 47 to 32.",
+      "fields": {
+        "CRFT_DEST_MAC": "Destination MAC `[47:32]`."
+      },
+      "notes": [],
+      "record": "crft_dmhi-offset-0x760"
+    },
+    "CRFT_COUNT": {
+      "name": "CRF talker PDU count",
+      "purpose": "CRF PDUs emitted since reset.",
+      "fields": {
+        "CRFT_COUNT": "Raw CRF PDUs emitted since reset. GET_COUNTERS FRAMES_TX counts the same transmitted AVTPDUs but resets at every talker start; both wrap at 32 bits. IEEE 1722.1-2021 7.4.42.2.5 Table 7.159 and the [2026-10-12 ruling](https://github.com/kebag-logic/milan-fpga/issues/726#issuecomment-6125741685) replace the former occupied-interval interpretation. MEDIA_RESET and TIMESTAMP_UNCERTAIN retain their interval law."
+      },
+      "notes": []
+    },
+    "BDBG0": {
+      "name": "Scan forensics 0",
+      "purpose": "Retired AECP scan forensics, a structural zero.",
+      "fields": {
+        "BDBG0": "🔴 STRUCTURAL ZERO. Was: the four record-header bytes as scanned `{dlen_hi, dlen_lo, cmd_hi, cmd_lo}`"
+      },
+      "notes": []
+    },
+    "BDBG1": {
+      "name": "Scan forensics 1",
+      "purpose": "Retired AECP scan forensics, a structural zero.",
+      "fields": {
+        "BDBG1": "**Structural zero.** Was AECP scan forensics."
+      },
+      "notes": [],
+      "record": "bdbg1-offset-0x76c"
+    },
+    "BDBG2": {
+      "name": "Scan forensics 2",
+      "purpose": "Retired AECP scan forensics, a structural zero.",
+      "fields": {
+        "BDBG2": "**Structural zero.** Was AECP scan forensics."
+      },
+      "notes": [],
+      "record": "bdbg2-offset-0x770"
+    },
+    "LINKG_STAT": {
+      "name": "Link guard status",
+      "purpose": "Live link-guard state, flags and bounce count.",
+      "fields": {},
+      "notes": [],
+      "record": "linkg_stat-offset-0x774",
+      "split": {
+        "LINKG_STAT": [
+          [
+            "31:16",
+            "BOUNCE_CNT",
+            "Link bounce count, saturating."
+          ],
+          [
+            "15:10",
+            "RESERVED",
+            ""
+          ],
+          [
+            "9",
+            "FREEZE",
+            "Freeze."
+          ],
+          [
+            "8",
+            "DIS",
+            "Disable."
+          ],
+          [
+            "7",
+            "ACT_RECENT",
+            "RX activity within the last 2^27 guard clock cycles."
+          ],
+          [
+            "6",
+            "GUARD_RST",
+            "Reinit held."
+          ],
+          [
+            "5:4",
+            "STATE",
+            "0 RUN, 1 HOLD, 2 SETTLE."
+          ],
+          [
+            "3",
+            "RESERVED",
+            ""
+          ],
+          [
+            "2",
+            "ETH_RST",
+            "Sequenced Ethernet-domain reset."
+          ],
+          [
+            "1",
+            "TX_ALIVE",
+            "TX alive."
+          ],
+          [
+            "0",
+            "RX_ALIVE",
+            "RX alive."
+          ]
+        ]
+      }
+    },
+    "CLKV_CTRL": {
+      "name": "Clock validity control (inert)",
+      "purpose": "Retained address; reads zero and writes change nothing.",
+      "fields": {
+        "CLKV_CTRL": "Retained address-map slot. Writes are acknowledged and discarded in both elaborations; reads return zero. Clock validity comes only from the fabric publication bank."
+      },
+      "notes": []
+    },
+    "CLKV_STAT": {
+      "name": "Clock validity status",
+      "purpose": "The tu verdict and the fabric sync and asCapable state.",
+      "fields": {},
+      "notes": [],
+      "record": "clkv_stat-offset-0x77c",
+      "split": {
+        "CLKV_STAT": [
+          [
+            "31:17",
+            "RESERVED",
+            ""
+          ],
+          [
+            "16",
+            "AS_CAPABLE",
+            "asCapable: the bit `GET_AVB_INFO` serves (IEEE 1722.1-2021 7.4.40.2 flags bit 0)."
+          ],
+          [
+            "15:4",
+            "RESERVED",
+            ""
+          ],
+          [
+            "3",
+            "HOLDOVER",
+            "Inside a discontinuity holdover."
+          ],
+          [
+            "2",
+            "RESERVED",
+            ""
+          ],
+          [
+            "1",
+            "SYNC_OK",
+            "Fabric sync_ok."
+          ],
+          [
+            "0",
+            "TU",
+            "`tu` as stamped on every outgoing stream frame."
+          ]
+        ]
+      }
+    },
+    "CLKV_TUCNT": {
+      "name": "Timestamp-uncertain count",
+      "purpose": "Seconds in which the talkers stamped tu.",
+      "fields": {
+        "CLKV_TUCNT": "Milan v1.2 Table 5.4 / Table 5.6 `TIMESTAMP_UNCERTAIN` for the talker side: one increment per **1 s observation interval** in which `tu` was set at least once -- **not** one per frame and **not** one per `tu` edge (that is the IEEE 1722.1-2021 Table 7-159 reading, which Milan overrides for a PAAD). Engine-wide: one PHC, so the value serves every STREAM_OUTPUT"
+      },
+      "notes": []
+    },
+    "TXARB_DIAG": {
+      "name": "TX arbiter diagnostics",
+      "purpose": "TX trunk arbiter lock supervision per lane.",
+      "fields": {},
+      "notes": [
+        "Lanes, LSB first: 0 `ctl_tx`, 1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx`, 4 `gptp_ctl_mux`.",
+        "Lane 1 is a structural zero since `0x0056`.",
+        "Lane 4 is live with fabric gPTP only."
+      ],
+      "record": "txarb_diag-offset-0x784",
+      "split": {
+        "TXARB_DIAG": [
+          [
+            "31:24",
+            "TAG",
+            "Constant `0xA7`. Zero means the gateware predates this word."
+          ],
+          [
+            "23:16",
+            "STALL_STICKY",
+            "A presented beat was refused for the mux's watchdog window. Clears only on reset."
+          ],
+          [
+            "15:8",
+            "ABORT_STICKY",
+            "A granted source abandoned its frame; the arbiter closed it. Clears only on reset."
+          ],
+          [
+            "7:0",
+            "LOCKED_NOW",
+            "Lane holds the arbiter lock now."
+          ]
+        ]
+      }
+    },
+    "LWSRP_DOM": {
+      "name": "SRP operational domain",
+      "purpose": "Operational SR class-A VID and priority.",
+      "fields": {},
+      "notes": [],
+      "record": "lwsrp_dom-offset-0x788",
+      "split": {
+        "LWSRP_DOM": [
+          [
+            "31:25",
+            "RESERVED",
+            ""
+          ],
+          [
+            "24",
+            "ADOPTED",
+            "A network Domain declaration was adopted."
+          ],
+          [
+            "23:16",
+            "PRIORITY",
+            "Operational priority."
+          ],
+          [
+            "15:12",
+            "RESERVED",
+            ""
+          ],
+          [
+            "11:0",
+            "VID",
+            "Operational VID."
+          ]
+        ]
+      }
+    },
+    "REST_TKLO": {
+      "acronym": "REST_TK_LO",
+      "name": "Bind-restore talker, low word",
+      "purpose": "Saved talker_entity_id bits 31 to 0.",
+      "fields": {
+        "ACMP_REST_TALKER": "Dead port: talker ID, low half."
+      },
+      "notes": [],
+      "record": "rest_tk_lo-offset-0x7a0"
+    },
+    "REST_TKHI": {
+      "acronym": "REST_TK_HI",
+      "name": "Bind-restore talker, high word",
+      "purpose": "Saved talker_entity_id bits 63 to 32.",
+      "fields": {
+        "ACMP_REST_TALKER": "Dead port: talker ID, high half."
+      },
+      "notes": [],
+      "record": "rest_tk_hi-offset-0x7a4"
+    },
+    "REST_META": {
+      "name": "Bind-restore metadata",
+      "purpose": "Saved talker_unique_id and VLAN.",
+      "fields": {
+        "ACMP_REST_TUID": "Dead port: talker_unique_id."
+      },
+      "notes": [],
+      "record": "rest_meta-offset-0x7a8"
+    },
+    "REST_CTLO": {
+      "acronym": "REST_CTLR_LO",
+      "name": "Bind-restore controller, low word",
+      "purpose": "Saved controller_entity_id bits 31 to 0.",
+      "fields": {
+        "ACMP_REST_CTLR": "Dead port: controller ID, low half."
+      },
+      "notes": [],
+      "record": "rest_ctlr_lo-offset-0x7ac"
+    },
+    "REST_CTHI": {
+      "acronym": "REST_CTLR_HI",
+      "name": "Bind-restore controller, high word",
+      "purpose": "Saved controller_entity_id bits 63 to 32.",
+      "fields": {
+        "ACMP_REST_CTLR": "Dead port: controller ID, high half."
+      },
+      "notes": [],
+      "record": "rest_ctlr_hi-offset-0x7b0"
+    },
+    "REST_CMD": {
+      "name": "Bind-restore command",
+      "purpose": "Commit and status of the retired bind-restore port.",
+      "fields": {
+        "REST_PEND": "Dead port. Commit; read back as busy. The ack never asserts, so it stays busy.",
+        "REST_DONE": "A commit completed since reset.",
+        "REST_FLAGS": "Binding flags `[23:8]` of the commit word.",
+        "REST_STAT": "Read: status of the last commit. Write: the low bits of the binding flags.",
+        "REST_IDX": "Write: target sink index. Read: last committed index."
+      },
+      "notes": [],
+      "record": "rest_cmd-offset-0x7b4"
+    },
+    "JNL_CTRL": {
+      "name": "Journal ingest control",
+      "purpose": "Start, end and abort strobes of the retired journal ingest.",
+      "fields": {
+        "JNL_START": "Discarded: start a slot image.",
+        "JNL_END": "Discarded: image complete.",
+        "JNL_ABORT": "Discarded: abort.",
+        "JNL_STAT": "`[31]` busy, `[30]` done; a structural zero."
+      },
+      "notes": [],
+      "record": "jnl_ctrl-offset-0x7b8"
+    },
+    "JNL_DATA": {
+      "name": "Journal ingest data",
+      "purpose": "Next journal word for the retired journal ingest.",
+      "fields": {
+        "JNL_DATA": "next 32-bit journal word, little-endian exactly as read from flash. Reads `0`"
+      },
+      "notes": []
+    },
+    "JNL_STAT": {
+      "name": "Journal ingest status",
+      "purpose": "Retired journal engine status, a structural zero.",
+      "fields": {
+        "JNL_STAT": "**Structural zero.** The bit list is kept in the design notes."
+      },
+      "notes": [],
+      "record": "jnl_stat-offset-0x7c0"
+    },
+    "JNL_SEQ": {
+      "name": "Journal ingest sequence",
+      "purpose": "Retired accepted-image sequence, a structural zero.",
+      "fields": {
+        "JNL_SEQ": "`SEQ` of the last **accepted** image; 0 = none accepted this boot. A rejected image never advances it, which is what makes the A/B fall-back to an older intact slot admissible"
+      },
+      "notes": []
+    },
+    "AEMP_SEL": {
+      "name": "AEM patch select",
+      "purpose": "Descriptor selection for the retired AEM patch port.",
+      "fields": {
+        "AEMP_WDATA": "`{descriptor_type[31:16], descriptor_index[15:0]}` -- WHAT to patch. Reads `0`: the selection is engine state, not a shadow register, and a read-back would invite software to believe a selection survived a refusal it did not survive"
+      },
+      "notes": []
+    },
+    "AEMP_FIELD": {
+      "name": "AEM patch field",
+      "purpose": "Field selection for the retired AEM patch port.",
+      "fields": {
+        "AEMP_WDATA": "Discarded. `[2:0]` was the field: 0 stream format, 1 sampling rate, 2 clock source; 3 and 4 refused."
+      },
+      "notes": [],
+      "record": "aemp_field-offset-0x7cc"
+    },
+    "AEMP_DATA": {
+      "name": "AEM patch data",
+      "purpose": "Payload word for the retired AEM patch port.",
+      "fields": {
+        "AEMP_WDATA": "next payload word, **MSW first**, as a left-aligned big-endian byte stream in descriptor order. Push `ceil(len/4)` words: 2 for a format, 1 for a sampling rate or a clock source. Reads `0`"
+      },
+      "notes": []
+    },
+    "AEMP_CTRL": {
+      "name": "AEM patch control",
+      "purpose": "Commit and abort strobes of the retired AEM patch port.",
+      "fields": {
+        "AEMP_COMMIT": "Discarded: commit.",
+        "AEMP_ABORT": "Discarded: abort.",
+        "AEMP_STAT": "**Structural zero.** The bit list is kept in the design notes."
+      },
+      "notes": [],
+      "record": "aemp_ctrl-offset-0x7d4"
+    },
+    "ETH_GUARD": {
+      "name": "Ethernet guard",
+      "purpose": "Kill switch that refuses the CPU's Ethernet disruption levers.",
+      "fields": {
+        "ETH_GUARD": "1 = guarded: the reset state, armed at power-on. Software may re-arm it before risky work. The link guard's own automatic recovery is not gated. The SoC exports the level (`o_eth_guard`), but at this head nothing in `sw/litex/milan_soc.py` consumes it, so the LiteX `milan_mac_phy_crg_reset` CSR is NOT gated."
+      },
+      "notes": [
+        "The readback is the guard flop itself.",
+        "A refused write never reads back as accepted."
+      ],
+      "record": "eth_guard-offset-0x7d8"
+    },
+    "ASP_LO": {
+      "name": "AS_PATH staging, low word (retired)",
+      "purpose": "Retired AS_PATH address; reads zero.",
+      "fields": {
+        "ASP_LO": "Retired slot; reads zero and writes are discarded."
+      },
+      "notes": []
+    },
+    "ASP_HI": {
+      "name": "AS_PATH staging, high word (retired)",
+      "purpose": "Retired AS_PATH address; reads zero.",
+      "fields": {
+        "ASP_HI": "Retired slot; reads zero and writes are discarded."
+      },
+      "notes": []
+    },
+    "ASP_CMD": {
+      "name": "AS_PATH status",
+      "purpose": "Generation and length of the fabric's selected PathTrace.",
+      "fields": {
+        "ASP_GEN": "fabric publication generation",
+        "ASP_COUNT": "path count; option OFF reads zero and all writes are discarded."
+      },
+      "notes": []
+    },
+    "GPTP_DROPW": {
+      "name": "gPTP wire drops",
+      "purpose": "gPTP frames lost at the tap or the parser.",
+      "fields": {
+        "GPTP_TAP_DROP": "tap-FIFO drop count",
+        "GPTP_RX_DROP": "parser refusal count; both 16-bit wrapping; option OFF reads zero."
+      },
+      "notes": []
+    },
+    "GPTP_DROPE": {
+      "name": "gPTP event drops",
+      "purpose": "Lost launch records and refused gPTP events.",
+      "fields": {
+        "GPTP_TXTS_LOST": "`GPTP_TXTS_LOST` (issue #360): egress launch records that closed with NO timestamp - an admitted frame whose entry a barrier cancelled, a record the launch observer aborted, or a reconstruction refused because the PHC trajectory across the interval was outside the model. Nonzero here is the plane saying which frames it could not time, rather than publishing a plausible one.",
+        "GPTP_EV_DROP": "events the dispatch queue refused - a full queue, or an announce arriving without its frozen capture context. Both 16-bit wrapping; option OFF reads zero."
+      },
+      "notes": []
+    },
+    "GPTP_LAT": {
+      "name": "gPTP latency corrections",
+      "purpose": "Ingress and egress timestamp corrections the plane applies.",
+      "fields": {},
+      "notes": [
+        "Elaboration constants: a write changes nothing. Option OFF reads 0."
+      ],
+      "record": "gptp_lat-offset-0x7f0",
+      "split": {
+        "GPTP_LAT_NS": [
+          [
+            "31:16",
+            "INGRESS",
+            "Ingress correction in ns, subtracted from every arrival timestamp."
+          ],
+          [
+            "15:0",
+            "EGRESS",
+            "Egress correction in ns, added to every reconstructed launch timestamp."
+          ]
+        ]
+      }
+    },
+    "STRM_SEL": {
+      "name": "Stream window select",
+      "purpose": "Selects the stream the 0x810 to 0x868 words view.",
+      "fields": {
+        "STRM_LSN0": "Listener-0 row select. With `[8]` at 0, 1 makes the window's SRP row sink 0's dedicated row. With `[8]` at 1 and `[3:0]` at 0, 1 moves `STRMW_SRP` off the `LWSRP_STATUS` alias to the talker row. `[8]` and `[3:0]` still store and still gate the window. A read returns 0.",
+        "STRM_DIR": "Direction: 0 listener, 1 talker.",
+        "STRM_IDX": "Stream index."
+      },
+      "notes": [
+        "`{dir=0, idx=0}` is the park state.",
+        "Writing `SEL` invalidates the ACMP and SRP read snapshots.",
+        "Until a re-poll lands, snapshot-served words read 0."
+      ],
+      "record": "strm_sel-offset-0x800"
+    },
+    "STRM_SNAP": {
+      "name": "Stream window snapshot",
+      "purpose": "Latches the selected stream's state and counters.",
+      "fields": {
+        "SNAP_BUSY": "Writing 1 latches the selected stream's `STATE`, `CNT0..9` and `PDUS` as one coherent block. Read: busy. Poll it to 0 before reading the latched words."
+      },
+      "notes": [],
+      "record": "strm_snap-offset-0x804"
+    },
+    "STRMW_CTRL": {
+      "name": "Stream window control",
+      "purpose": "Enable and route flags of the selected stream.",
+      "fields": {
+        "STRMW_CTRL_31_1": "Listener: `[2]` is the render route, `[1]` reads 0. Talker index above 0: the context word.",
+        "STRMW_CTRL_0": "Enable. Talker index 0: a hard alias of `AAF_CTRL[0]`. A write at index above 0 also commits the staged SRP record."
+      },
+      "notes": [],
+      "record": "strmw_ctrl-offset-0x810"
+    },
+    "STRMW_SID_LO": {
+      "name": "Stream window stream ID, low word",
+      "purpose": "stream_id bits 31 to 0 of the selected stream.",
+      "fields": {
+        "STRMW_SID_LO": "stream_id `[31:0]`. Writes stage the provisioning stream_id; listener writes also forward to the context. A talker's word is the ID it starts with, not its current one after a MAAP conflict."
+      },
+      "notes": [],
+      "record": "strmw_sid_lo-offset-0x814"
+    },
+    "STRMW_SID_HI": {
+      "name": "Stream window stream ID, high word",
+      "purpose": "stream_id bits 63 to 32 of the selected stream.",
+      "fields": {
+        "STRMW_SID_HI": "stream_id `[63:32]`, as `STRMW_SID_LO`."
+      },
+      "notes": [],
+      "record": "strmw_sid_hi-offset-0x818"
+    },
+    "STRMW_DMAC_LO": {
+      "name": "Stream window destination MAC, low word",
+      "purpose": "Destination MAC bits 31 to 0 of the selected stream.",
+      "fields": {
+        "STRMW_DMAC_LO": "Stream DMAC `[31:0]`. Talker index 0: a hard alias of `AAF_DMLO`. Writes stage the provisioning DMAC."
+      },
+      "notes": [],
+      "record": "strmw_dmac_lo-offset-0x81c"
+    },
+    "STRMW_DMAC_HI": {
+      "name": "Stream window destination MAC, high word",
+      "purpose": "Destination MAC bits 47 to 32 of the selected stream.",
+      "fields": {
+        "STRMW_DMAC_HI": "DMAC `[47:32]` in `[15:0]`. Talker index 0: a hard alias of `AAF_DMHI`."
+      },
+      "notes": [],
+      "record": "strmw_dmac_hi-offset-0x820"
+    },
+    "STRMW_FMT_LO": {
+      "name": "Stream window format, low word",
+      "purpose": "Current stream format bits 31 to 0.",
+      "fields": {
+        "STRMW_FMT_LO": "Listener: current stream format `[31:0]` from the context. Talker: writes are ignored."
+      },
+      "notes": [],
+      "record": "strmw_fmt_lo-offset-0x824"
+    },
+    "STRMW_FMT_HI": {
+      "name": "Stream window format, high word",
+      "purpose": "Current stream format bits 63 to 32.",
+      "fields": {
+        "STRMW_FMT_HI": "Listener: current stream format `[63:32]`. Talker: writes are ignored."
+      },
+      "notes": [],
+      "record": "strmw_fmt_hi-offset-0x828"
+    },
+    "STRMW_STATE": {
+      "name": "Stream window state",
+      "purpose": "Snapshot-latched state word of the selected stream.",
+      "fields": {
+        "STRMW_STATE": "The snapshot-latched pack. Listener: `[2:0]` ACMP state, `[4:3]` probing, `[9:5]` status, `[10]` media_locked, `[18:11]` wire_chans, `[27:19]` the low 9 bits of `STRMW_SRP`. Talker: `[0]` probe_armed, `[1]` talker_active, `[2]` lobs, `[3]` composed admission, `[27:19]` the SRP bits."
+      },
+      "notes": [],
+      "record": "strmw_state-offset-0x82c"
+    },
+    "STRMW_CNT": {
+      "name": "Stream window counter",
+      "purpose": "One of the ten snapshot-latched Stream Input counters.",
+      "fields": {
+        "SNAP_SHADOW": "The 10 Milan Table 5.6 / 1722.1-2021 Table 7-157 STREAM_INPUT counters at the Table 7-157 word offsets 0..36: MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED, SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN, UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP, FRAMES_RX. **Full 32-bit** -- this is the authoritative width; the flat `AVTPRX_STAT`/`AVTPRX_ERR` words are saturating 8/16-bit summaries of these. Until VERSION `0x0013` the index-0 words were re-derived from those packed views and inherited their truncation (and MEDIA_RESET / LATE / EARLY_TIMESTAMP read a hard 0 while the monitor was counting them), so there was **no** full-width path anywhere. Talker contexts read `0xDEADDEAD` (the not-backed rule below). **The two Milan 1.3 5.3.8.10 additions -- TIMESTAMP_VALID / TIMESTAMP_NOT_VALID (per-frame tv-bit tallies, LCTX words 26/27, `TV + TNV == FRAMES_RX`) -- are NOT window-exposed** (the `0x858+` words were already claimed); they are served by AECP GET_COUNTERS at the 1722.1-2021 block offsets 24/28 under valid mask `0xFFF` (was `0xF3F`), and a bench read can fetch LCTX w26/w27 through the raw `lctx` read port if ever needed"
+      },
+      "notes": []
+    },
+    "STRMW_PDUS": {
+      "name": "Stream window PDU count",
+      "purpose": "Snapshot-latched PDU and drop counts of the selected stream.",
+      "fields": {
+        "STRMW_PDUS": "listener: `{drops[31:16], pdus[15:0]}` (= `PCMRX_CNT` at idx 0); talker: per-stream frames_sent (idx 0 = `AAF_FRAMES`; idx>0 = the packetizer ctx FRAMES word, snap-fetched through the TCTX port)"
+      },
+      "notes": []
+    },
+    "STRMW_SRP": {
+      "name": "Stream window SRP status",
+      "purpose": "SRP status of the selected stream.",
+      "fields": {
+        "STRMW_SRP": "Index 0, unless `STRM_SEL[9]` selects the listener row: the live `LWSRP_STATUS` word. Other rows are the attribute-row port, which is never granted, so they read 0."
+      },
+      "notes": []
+    },
+    "STRMW_CTLR_LO": {
+      "name": "Stream window controller, low word",
+      "purpose": "Retired binding controller ID, a structural zero.",
+      "fields": {
+        "ACMP_CTLR_Q": "**Structural zero.** Was the binding controller's ID, low half: `i_acmp_tbl_gnt` is tied low, so nothing loads it."
+      },
+      "notes": [],
+      "record": "strmw_ctlr_lo-offset-0x860"
+    },
+    "STRMW_CTLR_HI": {
+      "name": "Stream window controller, high word",
+      "purpose": "Retired binding controller ID, a structural zero.",
+      "fields": {
+        "ACMP_CTLR_Q": "**Structural zero.** Was the binding controller's ID, high half."
+      },
+      "notes": [],
+      "record": "strmw_ctlr_hi-offset-0x864"
+    },
+    "STRMW_BIND": {
+      "name": "Stream window binding",
+      "purpose": "Retired binding flags and talker ID, a structural zero.",
+      "fields": {
+        "ACMP_FLAGS_Q": "**Structural zero.** Was the flags half of the ACMP bind context.",
+        "ACMP_TUID_Q": "**Structural zero.** Was the talker unique ID half of the ACMP bind context."
+      },
+      "notes": []
+    },
+    "LTAP_CTRL": {
+      "name": "Latency tap control",
+      "purpose": "Latency tap enable, clear strobe and live status.",
+      "fields": {
+        "LTAP_EN": "Measure enable, reset 1.",
+        "LTAP_CLR": "Clears all statistics.",
+        "LTAP_STATUS": "`[8]` tx_active, `[11:9]` tx stage awaited, `[12]` rx_active, `[15:13]` rx stage awaited."
+      },
+      "notes": [],
+      "record": "ltap_ctrl-offset-0x870"
+    },
+    "LTAP": {
+      "acronym": "LTAP_W",
+      "name": "Latency tap readback",
+      "purpose": "One packed readback word of the AAF latency taps.",
+      "fields": {
+        "LTAP_REGS": "Per-stage latency statistics, in axis_clk cycles."
+      },
+      "notes": [
+        {
+          "table": [
+            [
+              "n",
+              "Offset",
+              "Name",
+              "Producer reset",
+              "Description"
+            ],
+            [
+              "0",
+              "`0x874`",
+              "`LTAP_TX_EPOCH`",
+              "`0`",
+              "gPTP ns (`ptp_now[31:0]`) latched at the last completed TX frame's CAP stage"
+            ],
+            [
+              "1",
+              "`0x878`",
+              "`LTAP_TX_INFO`",
+              "`0`",
+              "`[15:0]` samples (completed TX frames, saturating), `[31:16]` timeouts (aborted tokens)"
+            ],
+            [
+              "2",
+              "`0x87C`",
+              "`LTAP_TX_D0`",
+              "`0`",
+              "CAP→SOF: `[15:0]` last, `[31:16]` max (cycles)"
+            ],
+            [
+              "3",
+              "`0x880`",
+              "`LTAP_TX_D0_MIN`",
+              "`0xFFFF`",
+              "CAP→SOF: `[15:0]` min (cycles)"
+            ],
+            [
+              "4",
+              "`0x884`",
+              "`LTAP_TX_D1`",
+              "`0`",
+              "SOF→EOF: `[15:0]` last, `[31:16]` max"
+            ],
+            [
+              "5",
+              "`0x888`",
+              "`LTAP_TX_D1_MIN`",
+              "`0xFFFF`",
+              "SOF→EOF: `[15:0]` min"
+            ],
+            [
+              "6",
+              "`0x88C`",
+              "`LTAP_TX_D2`",
+              "`0`",
+              "EOF→MAC_TX: `[15:0]` last, `[31:16]` max"
+            ],
+            [
+              "7",
+              "`0x890`",
+              "`LTAP_TX_D2_MIN`",
+              "`0xFFFF`",
+              "EOF→MAC_TX: `[15:0]` min"
+            ],
+            [
+              "8",
+              "`0x894`",
+              "`LTAP_RX_EPOCH`",
+              "`0`",
+              "gPTP ns latched at the last completed RX frame's MAC_RX stage"
+            ],
+            [
+              "9",
+              "`0x898`",
+              "`LTAP_RX_INFO`",
+              "`0`",
+              "`[15:0]` samples, `[31:16]` timeouts"
+            ],
+            [
+              "10",
+              "`0x89C`",
+              "`LTAP_RX_D0`",
+              "`0`",
+              "MAC_RX→ACCEPT: `[15:0]` last, `[31:16]` max"
+            ],
+            [
+              "11",
+              "`0x8A0`",
+              "`LTAP_RX_D0_MIN`",
+              "`0xFFFF`",
+              "MAC_RX→ACCEPT: `[15:0]` min"
+            ],
+            [
+              "12",
+              "`0x8A4`",
+              "`LTAP_RX_D1`",
+              "`0`",
+              "ACCEPT→DEPKT: `[15:0]` last, `[31:16]` max"
+            ],
+            [
+              "13",
+              "`0x8A8`",
+              "`LTAP_RX_D1_MIN`",
+              "`0xFFFF`",
+              "ACCEPT→DEPKT: `[15:0]` min"
+            ],
+            [
+              "14",
+              "`0x8AC`",
+              "`LTAP_RX_D2`",
+              "`0`",
+              "DEPKT→FABRIC_RENDER: `[15:0]` last, `[31:16]` max"
+            ],
+            [
+              "15",
+              "`0x8B0`",
+              "`LTAP_RX_D2_MIN`",
+              "`0xFFFF`",
+              "DEPKT→FABRIC_RENDER: `[15:0]` min"
+            ]
+          ]
+        }
+      ],
+      "record": "ltap_wn-offset-0x874"
+    },
+    "APRB": {
+      "acronym": "APRB_W",
+      "name": "Stream parser probe",
+      "purpose": "One readback word of the RX stream-parser probe.",
+      "fields": {
+        "APRB_REGS": "RX stream-parser probe words."
+      },
+      "notes": [
+        {
+          "table": [
+            [
+              "n",
+              "Offset",
+              "Name",
+              "Producer reset",
+              "Description"
+            ],
+            [
+              "0",
+              "`0x8B4`",
+              "`APRB_PARSED`",
+              "`0`",
+              "AVTP frames the RX parser fully parsed (32-bit free-running, all subtypes)"
+            ],
+            [
+              "1",
+              "`0x8B8`",
+              "`APRB_MATCHED`",
+              "`0`",
+              "of those, frames whose `stream_id` matched an ARMED stream-table entry"
+            ],
+            [
+              "2",
+              "`0x8BC`",
+              "`APRB_SID_LO`",
+              "`0`",
+              "`stream_id[31:0]` **as lifted off the wire** for the last stream-subtype frame"
+            ],
+            [
+              "3",
+              "`0x8C0`",
+              "`APRB_SID_HI`",
+              "`0`",
+              "`stream_id[63:32]` of that frame"
+            ],
+            [
+              "4",
+              "`0x8C4`",
+              "`APRB_INFO`",
+              "`0`",
+              "`[7:0]` that frame's AVTP subtype, `[8]` it matched, `[15:12]` matched entry index, `[23:16]` stream-table entries currently armed"
+            ]
+          ]
+        }
+      ],
+      "record": "aprb_wn-offset-0x8b4"
+    },
+    "RSVD_GAP": {
+      "name": "Reserved compatibility word",
+      "purpose": "Retired telemetry word; reads zero and ignores writes.",
+      "fields": {},
+      "notes": []
+    },
+    "SLIP_LB": {
+      "name": "Loopback slip counters",
+      "purpose": "Loopback-ring duplicate and skip counts.",
+      "fields": {},
+      "notes": [],
+      "record": "slip_lb-offset-0x8d4",
+      "split": {
+        "SLIP_LB": [
+          [
+            "31:16",
+            "SKIPS",
+            "Loopback-ring skips: queue full at a push, the oldest event dropped."
+          ],
+          [
+            "15:0",
+            "DUPS",
+            "Loopback-ring dups: a media tick found a pair's queue empty, so the hold repeats the last event."
+          ]
+        ]
+      }
+    },
+    "SLIP_TDM": {
+      "name": "TDM slip counters",
+      "purpose": "TDM-junction duplicate and skip counts.",
+      "fields": {},
+      "notes": [],
+      "record": "slip_tdm-offset-0x8d8",
+      "split": {
+        "SLIP_TDM": [
+          [
+            "31:16",
+            "SKIPS",
+            "TDM-junction skips: a frame close over an unread frame."
+          ],
+          [
+            "15:0",
+            "DUPS",
+            "TDM-junction dups: a walk snapshot with no frame closed since the last one."
+          ]
+        ]
+      }
+    },
+    "RENDER_STAT": {
+      "name": "Render presentation state",
+      "purpose": "Presentation state of the selected listener.",
+      "fields": {
+        "RENDER_STATUS": "Selected listener's presentation state and the global refused-PDU count"
+      },
+      "notes": []
+    },
+    "AAFM_STAT": {
+      "name": "AAF clock meter status",
+      "purpose": "AAF clock meter status and diagnostics.",
+      "fields": {
+        "AAFM_STAT": "Meter status and diagnostics"
+      },
+      "notes": []
+    },
+    "AAFM_RATE": {
+      "name": "AAF clock meter rate",
+      "purpose": "Signed AAF media rate in CRF_RATE units.",
+      "fields": {
+        "AAFM_RATE": "Signed rate in `CRF_RATE`'s units"
+      },
+      "notes": []
+    },
+    "MCSRV_STAT": {
+      "name": "Media-clock servo status",
+      "purpose": "MMCM DRP servo state, trim and flags.",
+      "fields": {},
+      "notes": [
+        "At INTERNAL it reads IDLE with trim 0. The servo then moves nothing."
+      ],
+      "record": "mcsrv_stat-offset-0x8f8",
+      "split": {
+        "MCSRV_STAT": [
+          [
+            "31:16",
+            "TRIM",
+            "Signed applied frequency trim, in 1/16 ppm."
+          ],
+          [
+            "15:10",
+            "DISCARDED",
+            "Discarded rate windows, saturating at 63."
+          ],
+          [
+            "9",
+            "PHASE_SETTLED",
+            "Phase settled (#632): inside 5 % of a sample period for four full windows (IEEE 1722-2016 10.8)."
+          ],
+          [
+            "8",
+            "DRP_TIMEOUT",
+            "DRP relock-timeout fault."
+          ],
+          [
+            "7",
+            "PS_FAULT",
+            "PSDONE-watchdog fault, sticky."
+          ],
+          [
+            "6",
+            "PS_BUSY",
+            "Fine-PS actuator busy."
+          ],
+          [
+            "5",
+            "MMCM_LOCKED",
+            "MMCM LOCKED, synchronised."
+          ],
+          [
+            "4",
+            "DRP_MISMATCH",
+            "DRP config mismatch; repaired only when `MCSRV_CTRL[1]` is set."
+          ],
+          [
+            "3",
+            "DRP_VERIFIED",
+            "DRP config verified."
+          ],
+          [
+            "2:0",
+            "STATE",
+            "0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT."
+          ]
+        ]
+      }
+    },
+    "MCSRV_CTRL": {
+      "name": "Media-clock servo control",
+      "purpose": "Servo direction knob and repair enable.",
+      "fields": {
+        "MCSRV_PS_INVERT": "Flips the servo's fine-PS direction: a bench sign knob.",
+        "MCSRV_AUTO_REPAIR": "1 allows the DRP divider repair path. 0, the reset, is verify-only."
+      },
+      "notes": [],
+      "record": "mcsrv_ctrl-offset-0x8fc"
+    },
+    "CHMAP_CTRL": {
+      "name": "Channel map control",
+      "purpose": "Arms the channel-map debug write window.",
+      "fields": {
+        "CHMAP_ENABLE": "map arm. While 0 the default capture/render paths drive bit-identically; set 1 to select the CSR-programmed crossbars. It also gates the `CHMAP_WORD` write window (refusals counted in `CHMAP_STAT[23:16]`)"
+      },
+      "notes": []
+    },
+    "CHMAP_SEL": {
+      "name": "Channel map select",
+      "purpose": "Map side and entry index for writes and readback.",
+      "fields": {
+        "CHMAP_WR_ADDR": "map entry index",
+        "CHMAP_WR_SIDE": "side (0 = RMAP/render phys channel 0..9, 1 = CMAP/capture **stream-channel key** `port*8 + sc`, 0..`2*N_SLOTS_P-1` -- per-channel since 0x0027). Selects the target of the next `CHMAP_WORD` write"
+      },
+      "notes": []
+    },
+    "CHMAP_WORD": {
+      "name": "Channel map word",
+      "purpose": "Map word committed through the shared write port.",
+      "fields": {
+        "CHMAP_WR_DATA": "The map word `{EN[15], SRC[14:12], rsvd[11:9], HALF[8], IDX_HI[7:4], IDX_LO[3:0]}`. A read returns the last committed word, not the map RAM."
+      },
+      "notes": [],
+      "record": "chmap_word-offset-0x908"
+    },
+    "CHMAP_STAT": {
+      "name": "Channel map status",
+      "purpose": "Committed and refused map-word writes.",
+      "fields": {
+        "CHMAP_COMMITS": "map commits (currently CSR only, wraps)",
+        "CHMAP_REFUSED": "CSR writes refused while disarmed or entity-locked (saturates)"
+      },
+      "notes": []
+    },
+    "CHMAP_SNAP": {
+      "name": "Channel map snapshot",
+      "purpose": "Arms a map RAM readback and reports its status.",
+      "fields": {
+        "CHMAP_SNAP_TAG": "Constant `0xC5`. Zero means the gateware predates this word.",
+        "CMRD_SIDE": "Side latched at the last arm.",
+        "CMRD_ADDR": "Index latched at the last arm.",
+        "CHMAP_RDBK": "Capability: `[8]` render port wired, `[9]` capture port wired with the loop mask.",
+        "CMRD_ARMED": "A snapshot has been armed since reset.",
+        "CMRD_UNSUP": "Unsupported: the last arm was refused because this side has no readback port.",
+        "CMRD_TO": "Timeout: the last snapshot ended without the fabric answering.",
+        "CMRD_VALID": "Valid: the last snapshot carries fabric data.",
+        "CMRD_BUSY": "Writing 1 arms a readback of the entry `CHMAP_SEL` names; ignored while busy. Read: busy."
+      },
+      "notes": [],
+      "record": "chmap_snap-offset-0x910"
+    },
+    "CHMAP_LOOP": {
+      "name": "Channel map readback",
+      "purpose": "The map word the RAM holds, or 0xDEADDEAD.",
+      "fields": {
+        "RESERVED": "Reserved: 0 on a measurement, `Dh` in the poison.",
+        "MASK_VALID": "`[18:16]` are a measurement: capture side only.",
+        "VALID": "1 on a word from the fabric. The poison also has this bit set, so compare the whole word with `0xDEADDEAD` first.",
+        "CMRD_ADDR": "Index of the measured entry.",
+        "SIDE": "Side of the measured entry.",
+        "LOOP_SUSPECT": "`mapped` and not `fed`: a slot the map advertises that no audio has reached.",
+        "LOOP_FLAGS": "`[17]` fed, `[16]` mapped.",
+        "RAW": "Raw fabric readback word. The entry packing differs from the `CHMAP_WORD` you write."
+      },
+      "notes": [
+        "`0xDEADDEAD` means no measurement stands behind this word."
+      ],
+      "record": "chmap_loop-offset-0x914",
+      "rename": {
+        "CMRD_SIDE_27": "MASK_VALID",
+        "CHMAP_LOOP": "VALID",
+        "BIT18": "LOOP_SUSPECT",
+        "CMRD_DATA_17_16": "LOOP_FLAGS",
+        "CMRD_DATA_15_0": "RAW",
+        "CMRD_SIDE_19": "SIDE"
+      }
+    },
+    "PP_CTRL": {
+      "name": "Processor control",
+      "purpose": "Entity enable request and the restore-walk start.",
+      "fields": {
+        "PP_ENABLE": "**entity enable request**, ORed with `ADP_CTRL[0]` (`0x600`); either bit requests the enable. The fabric holds it until the restore releases it at COMPLETE or DEFAULTS. A CLOSED restore holds it until reset.",
+        "PP_RESTORE_GO": "`restore_go`: start the NVM boot-restore walk against the saved-state backing store (`KL_nvm_backend` behind the processor's NVM device face, [design page](docs/design/SAVED_STATE_FASTCONNECT.md) sections 4, 8 and 9). Until firmware has configured AND validated a record image through `PP_NVM_SEL`/`PP_NVM_DATA` the face answers blank flash (reads `0xFF`, writes accepted and discarded, erase completes), so the walk completes with **zero records** and `restore_fail` set. **Validate the image first, then set this bit**: the verdict is latched per walk, and validating afterwards restores nothing. **Set it on every boot** (processor pin `a8f8ce81`, its issue 92): the processor holds its ACMP listener from reset until the walk ends, so a boot that never sets it never answers an ACMP listener command. Since processor pin `d352bbaa` it also holds AECP until the D3 walk's terminal, and that walk proves the AEM image first: **load and CRC-check the AEM image before this bit**, or the restore ends CLOSED (`PP_STAT[16]`) and AECP stays held until reset. Every restore wait is bounded by `NVM_RS_TMO_CYC_P` (20 ms) and the whole restore by `NVM_RS_AGG_CYC_P` (1,000 ms from this bit), both derived from the clock, so a device face that never answers ends the walks with `restore_fail` set; wait for `restore_done` OR `PP_STAT[16]`, since CLOSED never raises done"
+      },
+      "notes": []
+    },
+    "PP_STAT": {
+      "name": "Processor status",
+      "purpose": "Presence tag, saved-state verdict and side-port status.",
+      "fields": {
+        "PP_PRESENT_TAG": "Constant `0x5B`. A read of 0 means the gateware predates this group.",
+        "PP_RESTORE_CAUSE": "The binding walk's cause: 1 torn, 2 device error, 3 deadline.",
+        "PP_RS_CAUSE": "The D3 walk's first abort cause, valid with `[3]`: 1 torn, 2 device error, 3 deadline, 5 passes disagree, 6 descriptor fault, 7 image not proven.",
+        "PP_RESTORE_RB": "A pass-1 abort rolled the stores back to DEFAULTS.",
+        "PP_RESTORE_CLOSED": "The D3 walk ended CLOSED: fail, never done, AECP held until reset.",
+        "PP_NVM_VERDICT": "Verdict code of the last image offered.",
+        "PP_NVM_PEND": "Accepted work no verified slot holds and `nvm_dirty` does not report. A durable reading needs it at 0.",
+        "PP_NVM_IMG_VALID": "Firmware validated the image in the window.",
+        "PP_NVM_STALE": "`nvm_backed` was true since reset and is now false, and the loss is not made good.",
+        "PP_NVM_DIRTY": "The image holds committed changes no flash slot yet holds.",
+        "PP_NVM_BLANK": "The completed restore validated zero records and none failed.",
+        "PP_NVM_BACKED": "Live evidence: a writer answered within `T-NVM-WRITER-ALIVE` and no unrevoked failure is outstanding.",
+        "PP_ERR": "The last side-port access returned an error.",
+        "PP_NVM_ALARM": "A record producer exhausted its three write attempts. Reset-sticky.",
+        "PP_RESTORE_FAIL": "A walk failed or ran blind, or the map restore rolled back to its reset set.",
+        "PP_RESTORE_DONE": "Both boot walks sequenced to COMPLETE or DEFAULTS and the map restore ended. Not the same as succeeded.",
+        "PP_RESTORE_BUSY": "A walk or the map restore is running.",
+        "PP_BUSY": "A side-port access is outstanding."
+      },
+      "notes": [],
+      "record": "pp_stat-offset-0x924"
+    },
+    "PP_SPADDR": {
+      "name": "Processor side-port address",
+      "purpose": "Side-port word address; a write posts a read.",
+      "fields": {
+        "PP_SPADDR": "Side-port word address. A read returns the armed address."
+      },
+      "notes": [],
+      "record": "pp_spaddr-offset-0x928"
+    },
+    "PP_SPDATA": {
+      "name": "Processor side-port data",
+      "purpose": "Posted read data; a write posts a side-port write.",
+      "fields": {
+        "PP_SPRDATA": "**Read**: the data of the last posted read. **Write**: posts a side-port WRITE of this value to the address already in `PP_SPADDR` (ignored while `sp_busy`)."
+      },
+      "notes": []
+    },
+    "PP_DIAG": {
+      "name": "Processor frame diagnostics",
+      "purpose": "Control frames sent, received and dropped.",
+      "fields": {
+        "PP_TX_FRAMES": "Control frames transmitted.",
+        "PP_RX_DROPS": "Control frames lost to a full ingress FIFO.",
+        "PP_RX_FRAMES": "Control frames received."
+      },
+      "notes": [],
+      "record": "pp_diag-offset-0x930"
+    },
+    "PP_NVM_SEL": {
+      "name": "Saved-state window select",
+      "purpose": "Index of the backend word PP_NVM_DATA reads or writes.",
+      "fields": {
+        "PP_NVM_SEL": "The backing store's word index the next `PP_NVM_DATA` access names. 0 image base, 1 image length, 2 image sequence, 3 status and verdict, 4 strobes, 5 capture identity, 8 to 15 record ownership, `0x20` and `0x30` plus port the map tables."
+      },
+      "notes": [],
+      "record": "pp_nvm_sel-offset-0x934"
+    },
+    "PP_NVM_DATA": {
+      "name": "Saved-state window data",
+      "purpose": "The backend word PP_NVM_SEL names.",
+      "fields": {
+        "PP_NVM_CSR_RDATA": "the word `PP_NVM_SEL` names. Words `0`-`3` and both tables read back what was written; word `4` reads `0` (strobes have no state to read); words `5` and `8`-`15` are read-only fabric state"
+      },
+      "notes": []
+    },
+    "PP_NVM_STAT": {
+      "name": "Saved-state status and strobes",
+      "purpose": "Backend status word on read, strobe word on write.",
+      "fields": {},
+      "notes": [],
+      "record": "pp_nvm_stat-offset-0x93c",
+      "split": {
+        "PP_NVM_CSR_RDATA": [
+          [
+            "31:24",
+            "TAG",
+            "Contract tag `0xC3`: read it first. 0 means the gateware predates the contract, and a writer must disable itself. A write to this word fires the strobes named in `[6:0]`."
+          ],
+          [
+            "23",
+            "UNRES",
+            "At least one record is open."
+          ],
+          [
+            "22",
+            "NVM_PEND",
+            "The same wire as `PP_STAT[11]`."
+          ],
+          [
+            "21",
+            "ARM_REFUSED",
+            "The last ARM was not accepted."
+          ],
+          [
+            "20",
+            "ACK_REFUSED",
+            "Ack refused."
+          ],
+          [
+            "19",
+            "ATTESTED",
+            "Attested."
+          ],
+          [
+            "18",
+            "VALID",
+            "No mutating grant since the arm."
+          ],
+          [
+            "17",
+            "HOLD",
+            "Mutating requests are being deferred."
+          ],
+          [
+            "16",
+            "OPEN",
+            "A capture is open."
+          ],
+          [
+            "15:12",
+            "VERDICT",
+            "Verdict of the last slot judged, or the writer's transaction verdict."
+          ],
+          [
+            "11",
+            "RELOAD_REFUSED",
+            "The last RELOAD strobe was refused."
+          ],
+          [
+            "10",
+            "COMMIT_BUSY",
+            "A commit is inside its `T-NVM-COMMIT-TIMEOUT` bracket."
+          ],
+          [
+            "9",
+            "NVM_STALE",
+            "See `PP_STAT[9]`."
+          ],
+          [
+            "8",
+            "NVM_DIRTY",
+            "Committable image work."
+          ],
+          [
+            "7",
+            "IMG_VALID",
+            "See `PP_STAT[10]`."
+          ],
+          [
+            "6",
+            "NVM_BACKED",
+            "See `PP_STAT[6]`. Writing 1 is the RELOAD strobe."
+          ],
+          [
+            "5",
+            "IMG_CFG",
+            "An image length is set. Writing 1 is the RELEASE strobe."
+          ],
+          [
+            "4",
+            "DEV_BUSY",
+            "A record operation is in flight on the device face. Writing 1 is the ATTEST strobe."
+          ],
+          [
+            "3",
+            "LOAD_PENDING",
+            "A boot window load may still be accepted. Writing 1 is the ARM strobe."
+          ],
+          [
+            "2",
+            "LOAD_ACCEPTED",
+            "A RELOAD has been accepted since reset. While 0 the backend arms no capture. Writing 1 is the commit-started strobe."
+          ],
+          [
+            "1",
+            "COMMIT_ACK",
+            "Reads 0. Writing 1 is the commit-acknowledged strobe, with the capture identity in `[31:16]`."
+          ],
+          [
+            "0",
+            "HEARTBEAT",
+            "Reads 0. Writing 1 is the writer's heartbeat: it re-arms `T-NVM-WRITER-ALIVE`."
+          ]
+        ]
+      }
+    },
+    "STRMW_RSVD_86C": {
+      "name": "Stream window hole",
+      "purpose": "An undefined word of the stream window.",
+      "fields": {
+        "STRMW_RSVD_86C": "No word is defined here. It reads the not-backed poison while the selected stream exists."
+      },
+      "notes": []
+    }
+  },
+  "soc_record": "soc-csr-banks",
+  "literal_words": {
+    "0x86C": "STRMW_RSVD_86C"
+  },
+  "condition_words": {
+    "win_in_range_w": [
+      "the selected stream exists",
+      "the selected stream does not exist"
+    ],
+    "acmp_fresh_r": [
+      "the ACMP table answered since the last selection",
+      "the ACMP table has not answered since the last selection"
+    ],
+    "srp_fresh_r": [
+      "the SRP table answered since the last selection",
+      "the SRP table has not answered since the last selection"
+    ],
+    "stg_hit_w": [
+      "the staged identity belongs to the selected stream",
+      "the staged identity belongs to another stream"
+    ],
+    "srp_idx0_ls_w": [
+      "`STRM_SEL[9]` selects the listener row at index 0",
+      "`STRM_SEL[9]` does not select the listener row at index 0"
+    ],
+    "snap_kind_r": "the kind the last snapshot recorded for this counter",
+    "snap_busy_r": [
+      "a snapshot is running",
+      "no snapshot is running"
+    ],
+    "strm_idx_r": "the stream index `STRM_SEL[3:0]`",
+    "strm_dir_r": [
+      "`STRM_SEL[8]` selects a talker",
+      "`STRM_SEL[8]` selects a listener"
+    ],
+    "cmrd_valid_r": [
+      "a channel-map readback has completed",
+      "no channel-map readback has completed"
+    ]
+  }
+}

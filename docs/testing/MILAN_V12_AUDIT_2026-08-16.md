@@ -244,7 +244,7 @@ their Table 7-157 offsets under mask `0xF3F`, and the round-robin delivers the
 engine's dirty pulse as {STREAM_INPUT, `N_STREAMS`}. The closure criteria and
 their evidence (`tb/verilator/milan_dp` `[CTRS-CRF]` and the timed leg's
 `[NOTIFY-CRF]`) are recorded in the
-[`0x738` group of the register map](../reference/REGISTER_MAP.md#closure-criteria-for-the-crf-stream-input-counter-gap).
+[`0x738` group of the register design notes](../design/CSR_REGISTER_NOTES.md#closure-criteria-for-the-crf-stream-input-counter-gap).
 Confirmation by a Milan controller on silicon follows the merge (#117).
 
 ### B5. Registered-controller liveness monitoring (closed at 0x0002_0055)

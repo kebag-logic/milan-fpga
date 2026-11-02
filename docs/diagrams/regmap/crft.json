@@ -1,0 +1,262 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "crft",
+  "heading": "0x750  -  CRF media-clock talker  (Milan v1.2 7.3.1, KL_crf_tx)",
+  "registers": [
+    {
+      "acronym": "CRFT_CTRL",
+      "offset": "0x750",
+      "svg": "docs/diagrams/regmap/crft/CRFT_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "CRFT_EN",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "CRFT_CLASS_A",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 2,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "ROW_VALID",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "TAGGED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "RESERVATION_ACTIVE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "LICENSED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "VID",
+            "attr": "R-X"
+          },
+          {
+            "bits": 4,
+            "name": "VID",
+            "attr": "R-X"
+          },
+          {
+            "bits": 3,
+            "name": "PCP",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-X",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CRFT_SIDLO",
+      "offset": "0x754",
+      "svg": "docs/diagrams/regmap/crft/CRFT_SIDLO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "CRFT_SID",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_SID",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_SID",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_SID",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CRFT_SIDHI",
+      "offset": "0x758",
+      "svg": "docs/diagrams/regmap/crft/CRFT_SIDHI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "CRFT_SID",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_SID",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_SID",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_SID",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CRFT_DMLO",
+      "offset": "0x75C",
+      "svg": "docs/diagrams/regmap/crft/CRFT_DMLO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "CRFT_DEST_MAC",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_DEST_MAC",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_DEST_MAC",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_DEST_MAC",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CRFT_DMHI",
+      "offset": "0x760",
+      "svg": "docs/diagrams/regmap/crft/CRFT_DMHI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "CRFT_DEST_MAC",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_DEST_MAC",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "CRFT_COUNT",
+      "offset": "0x764",
+      "svg": "docs/diagrams/regmap/crft/CRFT_COUNT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "CRFT_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "CRFT_COUNT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

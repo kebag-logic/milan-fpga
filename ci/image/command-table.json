@@ -5383,6 +5383,10 @@
           "--selftest"
         ],
         [
+          "docs/diagrams/memory_map.gen.py",
+          "--check"
+        ],
+        [
           "docs/diagrams/submodule_boundaries.gen.py",
           "--check"
         ],
@@ -5791,6 +5795,14 @@
         ],
         [
           "scripts/gen_hdl_reference.py",
+          "--selftest"
+        ],
+        [
+          "scripts/gen_register_reference.py",
+          "--check"
+        ],
+        [
+          "scripts/gen_register_reference.py",
           "--selftest"
         ],
         [
@@ -13435,6 +13447,11 @@
   ],
   "schema": 1,
   "scripts": {
+    "docs/diagrams/memory_map.gen.py": {
+      "class": "reviewed non-installing",
+      "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+      "sha256": "a3c6d61d811157bb56f130bc5b319fcd101fa0dd22092c1c0cfce23379704544"
+    },
     "docs/diagrams/submodule_boundaries.gen.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
@@ -13695,6 +13712,11 @@
       "class": "reviewed non-installing",
       "reason": "Reflection on its own or an in-tree module namespace (sys.modules, getattr, setattr) for test patching; executes and installs nothing.",
       "sha256": "6f808a510e05ac943125d9dfc19ccb0abbe4565df67af3d713332eed72720a6a"
+    },
+    "scripts/gen_register_reference.py": {
+      "class": "reviewed non-installing",
+      "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
+      "sha256": "8909be14bdb40fa1f7cf0c89c231463d8def5871fc87a863c87cdcbfbb6037ac"
     },
     "scripts/gen_toc.py": {
       "class": "reviewed non-installing",
