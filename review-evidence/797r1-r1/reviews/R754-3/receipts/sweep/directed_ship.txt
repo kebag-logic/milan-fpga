@@ -1,0 +1,8 @@
+ADP_CMD write 0x640=0x00000003: advertise_cycles=1 depart_cycles=1 nvm_we_cycles=0 nvm_addr=0 nvm_wdata=0x00000000
+ADP_CMD read 0x640 after write 3: 0x00000000
+ADP_CMD write 0x640=0x00000000: advertise_cycles=0 depart_cycles=0 nvm_we_cycles=0 nvm_addr=0 nvm_wdata=0x00000000
+ADP_CMD read 0x640 after write 0: 0x00000000
+PP_NVM_STAT write 0x93c=0xabcd0043: advertise_cycles=0 depart_cycles=0 nvm_we_cycles=1 nvm_addr=4 nvm_wdata=0xabcd0043
+PP_NVM_STAT read 0x93C with backend word 0xC3000014: 0xc3000014
+STRM_SEL write 0x301 read: 0x00000101
+STRM_SEL write 0x200 read: 0x00000000

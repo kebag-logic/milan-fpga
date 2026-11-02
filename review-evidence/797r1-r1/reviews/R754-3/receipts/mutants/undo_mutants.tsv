@@ -1,0 +1,18 @@
+baseline	write_rc=0	selftest_rc=0	expected_control_failed=	register reference selftest: OK (61/61 controls)	
+reserved_refusal_removed	write_rc=0	selftest_rc=1	expected_control_failed=yes	register reference selftest: FAIL (60/61 controls)	reserved bits on a word whose write leaves the block: rc 1 (want 2)
+reserved_refusal_access_off	write_rc=0	selftest_rc=1	expected_control_failed=yes	register reference selftest: FAIL (60/61 controls)	reserved bits on a word whose write leaves the block: rc 1 (want 2)
+reserved_refusal_note_off	write_rc=0	selftest_rc=1	expected_control_failed=yes	register reference selftest: FAIL (60/61 controls)	reserved bits on a word whose write leaves the block: rc 1 (want 2)
+table_refusal_removed	write_rc=0	selftest_rc=1	expected_control_failed=yes	register reference selftest: FAIL (60/61 controls)	prose wrapped in a Markdown table inside a note: rc 1 (want 2)
+table_regex_dead	write_rc=0	selftest_rc=1	expected_control_failed=yes	register reference selftest: FAIL (60/61 controls)	prose wrapped in a Markdown table inside a note: rc 1 (want 2)
+table_site_plain_undone	write_rc=0	selftest_rc=1	expected_control_failed=yes	register reference selftest: FAIL (60/61 controls)	prose wrapped in a Markdown table inside a note: rc 1 (want 2)
+table_site_text_undone	write_rc=0	selftest_rc=0	expected_control_failed=no	register reference selftest: OK (61/61 controls)	
+table_site_intro_undone	write_rc=0	selftest_rc=0	expected_control_failed=no	register reference selftest: OK (61/61 controls)	
+table_site_pair_undone	write_rc=0	selftest_rc=0	expected_control_failed=no	register reference selftest: OK (61/61 controls)	
+read_rows_old_flat_table	write_rc=0	selftest_rc=1	expected_control_failed=yes	register reference selftest: FAIL (60/61 controls)	read-table rows are single conjunctions
+read_impossible_off	write_rc=0	selftest_rc=1	expected_control_failed=yes	register reference selftest: FAIL (60/61 controls)	read-table rows are single conjunctions
+read_no_merge	write_rc=1	selftest_rc=1	expected_control_failed=no		
+read_polarity_flipped	write_rc=0	selftest_rc=1	expected_control_failed=yes	register reference selftest: FAIL (60/61 controls)	read-table rows are single conjunctions
+read_last_match_not_first	write_rc=0	selftest_rc=0	expected_control_failed=no	register reference selftest: OK (61/61 controls)	
+read_any_other_wrong_value	write_rc=0	selftest_rc=0	expected_control_failed=no	register reference selftest: OK (61/61 controls)	
+read_any_other_row_dropped	write_rc=0	selftest_rc=0	expected_control_failed=no	register reference selftest: OK (61/61 controls)	
+read_arm_or_check_off	write_rc=0	selftest_rc=0	expected_control_failed=no	register reference selftest: OK (61/61 controls)	

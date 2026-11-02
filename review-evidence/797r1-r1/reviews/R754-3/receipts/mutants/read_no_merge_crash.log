@@ -1,0 +1,57 @@
+Traceback (most recent call last):
+  File "<work>/scripts/gen_register_reference.py", line 463, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<work>/scripts/gen_register_reference.py", line 436, in main
+    outs = outputs(model)
+  File "<work>/scripts/gen_register_reference.py", line 268, in outputs
+    page = render_page(model)
+  File "<work>/scripts/register_page.py", line 844, in render_page
+    out += module_section(model, module, seen)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "<work>/scripts/register_page.py", line 727, in module_section
+    out += register_section(model, module, reg, head)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<work>/scripts/register_page.py", line 762, in register_section
+    out += read_value_table(reg, model)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "<work>/scripts/register_page.py", line 777, in read_value_table
+    values = read_rows(reg.views, lambda leaf: leaf_text(leaf, len(live) == 1, model))
+  File "<work>/scripts/register_page.py", line 255, in read_rows
+    for term, care in shortest_terms(states, spare, len(names))]
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<work>/scripts/register_page.py", line 224, in shortest_terms
+    best = min(primes, key=lambda t: (-sum(s & t[1] == t[0] for s in left), t[1].bit_count(), t))
+ValueError: min() iterable argument is empty
+Traceback (most recent call last):
+  File "<work>/scripts/gen_register_reference.py", line 463, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "<work>/scripts/gen_register_reference.py", line 422, in main
+    return selftest(main)
+  File "<work>/scripts/register_selftest.py", line 359, in selftest
+    rc, out = run(entry, root)
+              ~~~^^^^^^^^^^^^^
+  File "<work>/scripts/register_selftest.py", line 342, in run
+    rc = entry(["--check"], root=root)
+  File "<work>/scripts/gen_register_reference.py", line 436, in main
+    outs = outputs(model)
+  File "<work>/scripts/gen_register_reference.py", line 268, in outputs
+    page = render_page(model)
+  File "<work>/scripts/register_page.py", line 844, in render_page
+    out += module_section(model, module, seen)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "<work>/scripts/register_page.py", line 727, in module_section
+    out += register_section(model, module, reg, head)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<work>/scripts/register_page.py", line 762, in register_section
+    out += read_value_table(reg, model)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "<work>/scripts/register_page.py", line 777, in read_value_table
+    values = read_rows(reg.views, lambda leaf: leaf_text(leaf, len(live) == 1, model))
+  File "<work>/scripts/register_page.py", line 255, in read_rows
+    for term, care in shortest_terms(states, spare, len(names))]
+                      ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<work>/scripts/register_page.py", line 224, in shortest_terms
+    best = min(primes, key=lambda t: (-sum(s & t[1] == t[0] for s in left), t[1].bit_count(), t))
+ValueError: min() iterable argument is empty
