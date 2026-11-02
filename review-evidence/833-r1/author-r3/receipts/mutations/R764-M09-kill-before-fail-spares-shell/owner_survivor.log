@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726c/tools/run_control3.py", line 21, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+                                                      ~~^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726c/matrix-work/R764-M09-kill-before-fail-spares-shell/scripts/test_suite_cancellation.py", line 623, in owner_survivor
+    eventually(lambda: not running(owner.process.pid, shell_start[0]), 15, "stopped shell left behind")
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726c/matrix-work/R764-M09-kill-before-fail-spares-shell/scripts/process_test_support.py", line 152, in eventually
+    assert time.monotonic() < deadline, what
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: stopped shell left behind
+owner_survivor FAIL 18.1s AssertionError: stopped shell left behind

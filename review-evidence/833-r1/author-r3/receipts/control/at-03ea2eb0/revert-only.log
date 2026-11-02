@@ -1,0 +1,15 @@
+took 15.07
+Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+  File "$VALIDATION_STORAGE/833-a726c/revert/scripts/test_suite_cancellation.py", line 676, in owner_late_cancel
+    owner.run(["true"])
+    ~~~~~~~~~^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726c/revert/scripts/owned_process.py", line 370, in run
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726c/revert/scripts/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$VALIDATION_STORAGE/833-a726c/revert/scripts/test_suite_cancellation.py", line 671, in listed
+    assert elapsed < 15, "a cancel after the shell was collected re-armed its trap window"
+           ^^^^^^^^^^^^
+AssertionError: a cancel after the shell was collected re-armed its trap window

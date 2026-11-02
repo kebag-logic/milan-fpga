@@ -1,0 +1,30 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726c/matrix-work/R764-M10-endless-unbounded/scripts/test_suite_cancellation.py", line 648, in owner_vanishing
+    owner._cleanup()
+    ~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726c/matrix-work/R764-M10-endless-unbounded/scripts/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$VALIDATION_STORAGE/833-a726c/matrix-work/R764-M10-endless-unbounded/scripts/test_suite_cancellation.py", line 643, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726c/tools/run_control3.py", line 21, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+    ~~^^
+  File "$VALIDATION_STORAGE/833-a726c/matrix-work/R764-M10-endless-unbounded/scripts/test_suite_cancellation.py", line 636, in owner_vanishing
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726c/matrix-work/R764-M10-endless-unbounded/scripts/owned_process.py", line 170, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726c/matrix-work/R764-M10-endless-unbounded/scripts/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$VALIDATION_STORAGE/833-a726c/matrix-work/R764-M10-endless-unbounded/scripts/test_suite_cancellation.py", line 643, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict
+owner_vanishing FAIL 15.0s AssertionError: cleanup never reached a verdict

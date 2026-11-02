@@ -1,0 +1,7 @@
+2c2
+< """usage: mutate_r2.py (round 1 driver plus round 2 mutants M04c, M04d, M07b; M07 now expected red)
+---
+> """usage: mutate_r3.py (R764-2's mutate_r2.py plus round 3 mutant M16)
+73a74,75
+>  # Round 3 (#833): a resume again re-arms the trap window after the shell was collected.
+>  "M16-resume-collected-shell": ([("resumed is None and root_pid in owned and not (live - {root_pid}):", "resumed is None and not (live - {root_pid}):")], "suite", "red"),

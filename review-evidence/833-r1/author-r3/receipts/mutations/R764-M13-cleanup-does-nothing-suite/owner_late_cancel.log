@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726c/tools/run_control3.py", line 21, in <module>
+    fn() if not inspect.signature(fn).parameters else fn(Path(scratch))
+    ~~^^
+  File "$VALIDATION_STORAGE/833-a726c/matrix-work/R764-M13-cleanup-does-nothing-suite/scripts/test_suite_cancellation.py", line 685, in owner_late_cancel
+    raise AssertionError("an endless listing did not fail the run")
+AssertionError: an endless listing did not fail the run
+owner_late_cancel FAIL 0.0s AssertionError: an endless listing did not fail the run
