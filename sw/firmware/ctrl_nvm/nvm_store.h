@@ -68,7 +68,7 @@ enum nvm_phase {
 /* The CPU time one service step may take on the split CPU's flash port, from
  * the clock read that admits it to the end of its pass: a page program's
  * issue, 261 bytes through the command master one at a time, measured at up
- * to 0.93 ms at 8x8/2if, is the longest; a read-back step is 0.70 ms
+ * to 0.95 ms at 8x8/2if, is the longest; a read-back step is 0.77 ms
  * (#665). nvm_store_step takes a step only while this much of the pass's
  * share is left, so no pass that carries one exceeds the share. */
 #define NVM_STEP_US 1000u

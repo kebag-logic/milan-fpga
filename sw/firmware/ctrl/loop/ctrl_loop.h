@@ -83,8 +83,8 @@
 // THE STEP (#665). One client takes a deferrable step at the end of a pass
 // that took no input, no event and no record, after the polls: the
 // saved-state store's write path. Its flash steps (a page program's issue up
-// to 0.93 ms, a 128-byte read-back 0.70 ms) do not fit beside the heaviest
-// pass the other slices make (1.97 ms at 8x8/2if), and in a pass that takes
+// to 0.95 ms, a 128-byte read-back 0.77 ms) do not fit beside the heaviest
+// pass the other slices make (1.98 ms at 8x8/2if), and in a pass that takes
 // records they lengthen every record still waiting (the last SRP record of a
 // full ring waits sixteen passes), so its centisecond consumer only owes a
 // step, and the loop calls the step only once a pass takes nothing. It hands
