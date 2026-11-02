@@ -220,8 +220,12 @@ Stable process handles prevent signalling reused numeric identities.
 Workstation process ownership requires pidfds and child adoption.
 Unsupported process facilities are refused before commands start.
 That refusal prints `REFUSED:` and exits 2, never a traceback.
-Cleanup allows two seconds before escalating stubborn descendants.
-Another two seconds bound reaping and terminal trap cleanup.
+Cleanup allows two seconds of `SIGTERM` before escalating stubborn descendants.
+Two seconds later `SIGKILL` has reached every other descendant.
+A descendant still listed ten seconds after that fails the run.
+A shell resumed late has ten seconds of its own to finish its terminal trap.
+These deadlines run on the owner's clock.
+One census pass advances that clock by at most half a second.
 These cleanup intervals do not change suite deadlines.
 Ordinary red suites still continue through the selected population.
 Masked verdicts still fail; deadline results remain unknown.
