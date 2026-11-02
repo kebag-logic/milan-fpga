@@ -15,9 +15,9 @@ This page changes documentation only.
 - **[Target](#target)** -- Mark II ceiling, shape, timing and the shipping image.
 - **[Mark II measured basis](#mark-ii-measured-basis)** -- The 2026-10-31 route and its rows.
 - **[Mark II levers](#mark-ii-levers)** -- Owner order, 32x32 additions, about 21.75k.
-- **[LiteX removal stages](#litex-removal-stages)** -- Three stages, each measured.
+- **[LiteX removal stages](#litex-removal-stages)** -- Three stages and every LiteX block's fate.
 - **[Mark II Block RAM ledger](#mark-ii-block-ram-ledger)** -- An estimate over the ceiling.
-- **[Mark II decisions](#mark-ii-decisions)** -- The 2026-10-31 owner rulings.
+- **[Mark II decisions](#mark-ii-decisions)** -- The owner rulings of 2026-10-31 and 2026-11-02.
 - **[Mark II lane sequence](#mark-ii-lane-sequence)** -- Ordered lanes with savings and evidence.
 - **[Open owner decisions](#open-owner-decisions)** -- Questions that wait for the owner.
 - **[Mark I plan history](#mark-i-plan-history)** -- Why the sections below are history.
@@ -256,6 +256,41 @@ The gPTP timestamps already sit at the GMII level.
 So they carry over to the new MAC unchanged.
 Both ports stay timestamped for redundancy.
 
+### LiteX block census
+
+[D19](#mark-ii-decisions) removes every LiteX block, beyond DDR3 and the BIOS.
+Each block below names its stage and its fate.
+
+The list is the basis build's module tree, from `milan_soc.py`.
+LUT figures are the basis's placed rows.
+
+The LiteX top is one flat row, 5,119 LUTs.
+Its blocks have no placed row of their own.
+
+| Block today | Placed row, LUT | Stage | Fate |
+|---|---|---|---|
+| CPU wrapper `VexiiRiscvLitex_*`: the VexiiRiscv core and its LiteX-side bridges | `VexiiRiscvLitex_*` 3,249, of which `vexiis_0_logic_core` 1,150 | 3 | Replaced: the VexiiRiscv core stays, generated without LiteX, in the first-party top ([D15](#mark-ii-decisions)) |
+| Interrupt controller: LiteX's IRQ handler, the UART and timer event managers, the core's PLIC and CLINT | `peripheral_plic_intc_thread_logic` 34; `peripheral_clint_thread_core` 55 and `peripheral_clint_time_cc_driver` 3 | 3 | Removed, nothing in its place: the firmware enables no interrupt and polls |
+| Clock and reset generation `_CRG`: system PLL, audio PLL and MMCM, clock buffers, reset synchronizers | LiteX top | 3 | Replaced by the first-party top's clocking and reset ([D15](#mark-ii-decisions)) |
+| `ctrl` (`SoCController`): reset, scratch, bus errors | LiteX top | 3 | Removed, nothing in its place: no firmware reads it; reboot is `KL_reboot_ctrl`'s configuration reload |
+| Identifier `identifier_mem` | LiteX top | 3 | Removed, nothing in its place: `milan_csr`'s VERSION identifies the image |
+| `timer0` (`Timer`) | LiteX top | 3 | Replaced by a first-party free-running counter on the system clock; its one reader is the flash driver's elapsed time |
+| UART (`RS232PHY`, 16-byte FIFOs) | LiteX top | 3 | Replaced by a small first-party UART, transmit and receive only, no RTS/CTS ([D20](#mark-ii-decisions)) |
+| SPI flash (`LiteSPI`: crossbar, memory map, master, PHY with `STARTUPE2`) | LiteX top | 2 | Replaced by a pinned donor QSPI core chosen by survey ([D15](#mark-ii-decisions)); the [core survey](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6551164172) found no AXI core with both 7-series use and an active maintainer |
+| Ethernet MAC and PHY interface (`LiteEthMACCore`, `LiteEthPHYGMII`, the TX FIFO and the MAC crossings) | LiteX top | 2 | Replaced by a pinned donor GMII MAC ([D15](#mark-ii-decisions)); the survey proposes verilog-ethernet's `eth_mac_1g` and `gmii_phy_if`, with verilog-axis FIFOs |
+| MDIO (`LiteEthPHYMDIO`), a bit-bang register pair | LiteX top | 2 | Replaced by a first-party MDIO pin register; the firmware keeps the protocol |
+| `MilanMAC`'s first-party parts: `KL_gptp_gmii_launch`, `KL_mac_rmon_events`, the `ICAPE2` reload port | 192 and 51; the port in the LiteX top | 3 | Kept, first-party; they move into the top |
+| SoC bus and CSR interconnect: Wishbone interconnect, AXI-Lite and Wishbone adapters, `csr_bridge`, `csr_bankarray`, `csr_interconnect`; the CPU's peripheral bridge | `peripheral_toAxiLite4_logic_bridge` 227; the rest in the LiteX top | 3 | Replaced by the first-party top's fixed AXI4-Lite interconnect ([D15](#mark-ii-decisions)) |
+| `milan_axil_cdc`, the CPU-to-`milan_csr` crossing | LiteX top | 3 | Replaced by a first-party AXI4-Lite crossing built from the approved CDC primitives |
+| The processor's memory paths: the CPU DMA port, `dma_bus`, three adapters, FSMs and crossings, and the `ppmem` observer | `dma_bridge_read_bridge` 105 and `dma_bridge_write_bridge` 176; the rest in the LiteX top | Switch-over, lane 1 | Removed, nothing in its place: the masters leave with the processor |
+| DDR3: `ddrphy`, `sdram`, `litedramaxi2native_0` and the staged refresher; the CPU's memory port and its width adapter; the `IDELAYCTRL` | `mem_toAxi4_logic_bridge` 225 and `unified_mBus_to_mem_toAxi4_up_widthAdapter` 136; the rest in the LiteX top | 1 | Removed, nothing in its place: main memory is on chip (D4) |
+| BIOS ROM `rom`, 128 KiB, and the BIOS it holds | With `sram`, 18 RAMB36 ([#640](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545523624)) | 1 | Replaced by the first-party boot loader ([D18](#mark-ii-decisions)) |
+| BIOS SRAM `sram`, 8 KiB | In those 18 RAMB36 | 1 | Replaced by the firmware's own block RAM banks (`ctrl_memory`) |
+| LEDs or GPIO | None built | - | No LiteX LED or GPIO block exists; `user_led0` is the datapath's identify output, a pin the top keeps |
+
+The 29 generated FIFO RAMB36 belong to rows above.
+Each leaves with the block that owns it.
+
 ## Mark II Block RAM ledger
 
 Today's image uses 87.5 tiles, measured above.
@@ -289,6 +324,9 @@ Measure its reductions before any lane relies on them.
 | D15, LiteX | [Owner, 17:21](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545999204): removed in three stages; as low as possible | The stages above, each measured |
 | D16, lever order | [Owner, 16:40](https://github.com/kebag-logic/milan-fpga/issues/640#issuecomment-6545540394): least risky first, each measured before the next | The lane order below, except lever 2 after lever 3: a reading for the owner to confirm ([open decision 2](#open-owner-decisions)) |
 | D17, save | [Owner, #823, 17:14](https://github.com/kebag-logic/milan-fpga/issues/823#issuecomment-6545924397): at most 0.5 s worst case at 32x32 | NFR-REL-03; append-only save path |
+| D18, stage 1 boot | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640): the boot loader copies the firmware from QSPI flash into Block RAM, as planned | LiteX stage 1's boot loader |
+| D19, LiteX blocks | [Owner, 2026-11-02 07:21](https://github.com/kebag-logic/milan-fpga/issues/640): every LiteX peripheral is removed, not only DDR3 and the BIOS | The [block census](#litex-block-census): no LiteX block remains |
+| D20, console UART | [Owner, 2026-11-02 07:22](https://github.com/kebag-logic/milan-fpga/issues/640): the UART is a simple protocol and needs no RTS/CTS; a small first-party UART, transmit and receive only, replaces it | The census's UART row |
 
 ## Mark II lane sequence
 
