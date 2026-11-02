@@ -1,0 +1,40 @@
+│    ├── csrbank_2 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    └── csrstorage_1 (CSRStorage) [Gen]
+│    ├── csrbank_3 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    └── csrstorage_2 (CSRStorage) [Gen]
+│    ├── csrbank_4 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_5 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/ctl/asbuilt-c/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I<scratch>/H3/tb/common -I<scratch>/ctl/asbuilt-c -I<scratch>/H3/tb/verilator/fw_service_budget' <scratch>/H3/tb/verilator/ctrl_service_budget/observe.vlt <scratch>/H3/hdl/milan/mailbox/KL_mbx_pkg.sv <scratch>/H3/hdl/milan/mailbox/KL_mbx_ring.sv <scratch>/H3/hdl/milan/mailbox/KL_mbx_rx.sv <scratch>/H3/hdl/milan/mailbox/KL_mbx_tx.sv <scratch>/H3/hdl/milan/mailbox/KL_mbx_evt.sv <scratch>/H3/hdl/milan/mailbox/KL_mbx.sv <scratch>/H3/hdl/milan/mailbox/KL_mbx_wb.sv <scratch>/H3/hdl/milan/mailbox/KL_mbx_dma.sv $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_ce229ac6a9499506e366240c12e70fab.v <scratch>/ctl/asbuilt-c/gateware/sim.v <scratch>/H3/tb/verilator/ctrl_service_budget/sim_main.cpp
+COMMAND make -j16 -C <scratch>/ctl/asbuilt-c/native -f Vsim.mk Vsim
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/ctl/asbuilt-c/native/Vsim <scratch>/ctl/asbuilt-c/results/boot-fault.txt -
+REFUSED boot-fault: the CPU trapped or saw a bus error: ['TRAP 393 0 5 00000020', 'TRAP 438 0 5 00000020', 'TRAP 483 0 5 00000020']
+0 groups graded, 1 refusals, 0 budget misses (0 of 0 probe instances, 0 of 0 paths), 0 of 0 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+CONTROL as-built caught: an instruction or load access fault (cause 1 or 5)
+rc=0

@@ -1,0 +1,30 @@
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_5 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/builds/CP-A8/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I<scratch>/CP/tb/common -I<scratch>/builds/CP-A8 -I<scratch>/CP/tb/verilator/fw_service_budget' <scratch>/CP/tb/verilator/ctrl_service_budget/observe.vlt <scratch>/builds/CP-A8/mbx-variant/KL_mbx_pkg.sv <scratch>/CP/hdl/milan/mailbox/KL_mbx_ring.sv <scratch>/CP/hdl/milan/mailbox/KL_mbx_rx.sv <scratch>/CP/hdl/milan/mailbox/KL_mbx_tx.sv <scratch>/CP/hdl/milan/mailbox/KL_mbx_evt.sv <scratch>/builds/CP-A8/mbx-variant/KL_mbx.sv <scratch>/CP/hdl/milan/mailbox/KL_mbx_wb.sv <scratch>/CP/hdl/milan/mailbox/KL_mbx_dma.sv $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_912c0e1e492bbd6ccf6b2e7699a8f311.v <scratch>/builds/CP-A8/gateware/sim.v <scratch>/CP/tb/verilator/ctrl_service_budget/sim_main.cpp
+COMMAND make -j16 -C <scratch>/builds/CP-A8/native -f Vsim.mk Vsim
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/builds/CP-A8/native/Vsim <scratch>/builds/CP-A8/results/acmp-noresp.txt -
+SHARE acmp-noresp: 1 of 1492 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 225,563 (2.256 ms)
+1 groups graded, 0 refusals, 0 budget misses (0 of 8 probe instances, 0 of 8 paths), 1 of 1492 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=1418s
+rc=0

@@ -1,0 +1,60 @@
+COMMAND <scratch>/builds/xip-1x1-4k/native/Vsim <scratch>/builds/xip-1x1-4k/results/backlog-adp.txt <scratch>/builds/xip-1x1-4k/flash.bin
+COMMANDCOMMAND  <scratch>/builds/xip-1x1-4k/native/Vsim <scratch>/builds/xip-1x1-4k/results/backlog-adp-refill.txt <scratch>/builds/xip-1x1-4k/flash.bin
+<scratch>/builds/xip-1x1-4k/native/Vsim <scratch>/builds/xip-1x1-4k/results/backlog-owed.txt <scratch>/builds/xip-1x1-4k/flash.bin
+BUDGET backlog.event.if0: 32.337 ms over its budget 20 ms
+BUDGET backlog.acmp_command.if0: 144.199 ms over its budget 20 ms
+BUDGET backlog.service.adp.first.if0: 28.805 ms over its budget 20 ms
+BUDGET backlog.service.adp.last.if0: 112.371 ms over its budget 20 ms
+BUDGET backlog.service.acmp.first.if0: 28.763 ms over its budget 20 ms
+BUDGET backlog.service.acmp.last.if0: 156.203 ms over its budget 20 ms
+BUDGET backlog.service.aecp.first.if0: 28.799 ms over its budget 20 ms
+BUDGET backlog.service.aecp.last.if0: 288.933 ms over its budget 20 ms
+BUDGET backlog.service.maap.first.if0: 28.788 ms over its budget 20 ms
+BUDGET backlog.service.maap.last.if0: 112.356 ms over its budget 20 ms
+BUDGET backlog.service.srp.first.if0: 196.915 ms over its budget 18 ms
+BUDGET backlog.service.srp.last.if0: 384.961 ms over its budget 18 ms
+BUDGET backlog.adp_available.if0: 117.482 ms over its budget 20 ms
+BUDGET backlog-adp.service.adp.first.if0: 34.436 ms over its budget 20 ms
+BUDGET backlog-adp.service.adp.last.if0: 143.780 ms over its budget 20 ms
+BUDGET backlog-adp.service.acmp.first.if0: 34.445 ms over its budget 20 ms
+BUDGET backlog-adp.service.acmp.last.if0: 207.737 ms over its budget 20 ms
+BUDGET backlog-adp.service.aecp.first.if0: 34.481 ms over its budget 20 ms
+BUDGET backlog-adp.service.aecp.last.if0: 462.474 ms over its budget 20 ms
+BUDGET backlog-adp.service.maap.first.if0: 34.470 ms over its budget 20 ms
+BUDGET backlog-adp.service.maap.last.if0: 143.816 ms over its budget 20 ms
+BUDGET backlog-adp.service.srp.first.if0: 490.362 ms over its budget 18 ms
+BUDGET backlog-adp.service.srp.last.if0: never released, at least 617.498 ms over its budget 18 ms
+BUDGET backlog.adp_available_refill.if0: 145.130 ms over its budget 20 ms
+BUDGET backlog-adp-refill.service.adp.first.if0: 34.436 ms over its budget 20 ms
+BUDGET backlog-adp-refill.service.adp.last.if0: 168.718 ms over its budget 20 ms
+BUDGET backlog-adp-refill.service.acmp.first.if0: 34.445 ms over its budget 20 ms
+BUDGET backlog-adp-refill.service.acmp.last.if0: 208.674 ms over its budget 20 ms
+BUDGET backlog-adp-refill.service.aecp.first.if0: 34.481 ms over its budget 20 ms
+BUDGET backlog-adp-refill.service.aecp.last.if0: 458.745 ms over its budget 20 ms
+BUDGET backlog-adp-refill.service.maap.first.if0: 34.470 ms over its budget 20 ms
+BUDGET backlog-adp-refill.service.maap.last.if0: 140.192 ms over its budget 20 ms
+BUDGET backlog-adp-refill.service.srp.first.if0: 487.410 ms over its budget 18 ms
+BUDGET backlog-adp-refill.service.srp.last.if0: never released, at least 685.095 ms over its budget 18 ms
+BUDGET backlog.owed.if0: 230.709 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: 249.404 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: 278.903 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: 308.802 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 860.000 ms over its budget 20 ms
+BUDGET backlog-owed.service.adp.first.if0: 26.635 ms over its budget 20 ms
+BUDGET backlog-owed.service.adp.last.if0: 111.366 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.first.if0: 26.593 ms over its budget 20 ms
+BUDGET backlog-owed.service.acmp.last.if0: 157.818 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.first.if0: 26.628 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 364.098 ms over its budget 20 ms
+BUDGET backlog-owed.service.maap.first.if0: 26.618 ms over its budget 20 ms
+BUDGET backlog-owed.service.maap.last.if0: 111.351 ms over its budget 20 ms
+BUDGET backlog-owed.service.srp.first.if0: 199.923 ms over its budget 18 ms
+BUDGET backlog-owed.service.srp.last.if0: 643.006 ms over its budget 18 ms
+SHARE backlog: 323 of 323 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 3,480,780 (34.808 ms)
+SHARE backlog-adp: 296 of 296 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 4,025,468 (40.255 ms)
+SHARE backlog-adp-refill: 299 of 299 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 3,854,869 (38.549 ms)
+SHARE backlog-owed: 330 of 330 work passes over the per-pass share 2.000 ms (200,000 CPU cycles); the longest 3,166,066 (31.661 ms)
+4 groups graded, 0 refusals, 49 budget misses (49 of 49 probe instances, 16 of 16 paths), 1248 of 1248 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=1630s
+rc=0

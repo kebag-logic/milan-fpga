@@ -1,0 +1,60 @@
+│    └── fsm (FSM)
+├── csr_bankarray (CSRBankArray)
+│    ├── csrbank_0 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── csrbank_1 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    └── csrstatus_0 (CSRStatus) [Gen]
+│    ├── sram_0 (SRAM) [Gen]
+│    ├── csrbank_2 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    └── csrstorage_1 (CSRStorage) [Gen]
+│    ├── csrbank_3 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    └── csrstorage_2 (CSRStorage) [Gen]
+│    ├── csrbank_4 (CSRBank) [Gen]
+│    │    ├── csrstorage_0 (CSRStorage) [Gen]
+│    │    ├── csrstorage_1 (CSRStorage) [Gen]
+│    │    ├── csrstorage_2 (CSRStorage) [Gen]
+│    │    ├── csrstorage_3 (CSRStorage) [Gen]
+│    │    ├── csrstatus_0 (CSRStatus) [Gen]
+│    │    ├── csrstatus_1 (CSRStatus) [Gen]
+│    │    ├── csrstatus_2 (CSRStatus) [Gen]
+│    │    └── csrstorage_4 (CSRStorage) [Gen]
+│    └── csrbank_5 (CSRBank) [Gen]
+│         ├── csrstatus_0 (CSRStatus) [Gen]
+│         ├── csrstatus_1 (CSRStatus) [Gen]
+│         ├── csrstatus_2 (CSRStatus) [Gen]
+│         ├── csrstatus_3 (CSRStatus) [Gen]
+│         ├── csrstorage_0 (CSRStorage) [Gen]
+│         ├── csrstatus_4 (CSRStatus) [Gen]
+│         └── csrstatus_5 (CSRStatus) [Gen]
+└── csr_interconnect (InterconnectShared)
+Legend:
+  [Gen]: Auto-generated instance name.
+  [BB:NAME]: Blackbox instance (verilog Instance).
+
+INFO:SoC:--------------------------------------------------------------------------------
+COMMAND verilator --cc --exe -Wno-fatal -Werror-USERERROR -Wno-BLKANDNBLK -Wno-WIDTH -Wno-COMBDLY -Wno-CASEINCOMPLETE --top-module sim --Mdir <scratch>/builds/D-B1/native -O3 --output-split 5000 --output-split-cfuncs 500 -CFLAGS '-O3 -std=c++17 -Wall -Wextra -I<scratch>/D1/tb/common -I<scratch>/builds/D-B1 -I<scratch>/D1/tb/verilator/fw_service_budget' <scratch>/D1/tb/verilator/ctrl_service_budget/observe.vlt <scratch>/D1/hdl/milan/mailbox/KL_mbx_pkg.sv <scratch>/D1/hdl/milan/mailbox/KL_mbx_ring.sv <scratch>/D1/hdl/milan/mailbox/KL_mbx_rx.sv <scratch>/D1/hdl/milan/mailbox/KL_mbx_tx.sv <scratch>/D1/hdl/milan/mailbox/KL_mbx_evt.sv <scratch>/D1/hdl/milan/mailbox/KL_mbx.sv <scratch>/D1/hdl/milan/mailbox/KL_mbx_wb.sv <scratch>/D1/hdl/milan/mailbox/KL_mbx_dma.sv $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1rs_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/Ram_1w_1ra_Generic.v $HOME/litex-milan/pythondata-cpu-vexiiriscv/pythondata_cpu_vexiiriscv/verilog/VexiiRiscvLitex_912c0e1e492bbd6ccf6b2e7699a8f311.v <scratch>/builds/D-B1/gateware/sim.v <scratch>/D1/tb/verilator/ctrl_service_budget/sim_main.cpp
+COMMAND make -j16 -C <scratch>/builds/D-B1/native -f Vsim.mk Vsim
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+COMMAND <scratch>/builds/D-B1/native/Vsim <scratch>/builds/D-B1/results/backlog.txt -
+COMMAND <scratch>/builds/D-B1/native/Vsim <scratch>/builds/D-B1/results/backlog-adp.txt -
+COMMAND <scratch>/builds/D-B1/native/Vsim <scratch>/builds/D-B1/results/backlog-owed.txt -
+COMMAND <scratch>/builds/D-B1/native/Vsim <scratch>/builds/D-B1/results/backlog-adp-refill.txt -
+BUDGET backlog.owed.if0: 61.953 ms over its budget 20 ms
+BUDGET backlog.owed_behind0.if0: never answered, at least 360.189 ms over its budget 20 ms
+BUDGET backlog.owed_behind1.if0: never answered, at least 360.188 ms over its budget 20 ms
+BUDGET backlog.owed_behind2.if0: never answered, at least 360.188 ms over its budget 20 ms
+BUDGET backlog.owed_behind3.if0: never answered, at least 360.187 ms over its budget 20 ms
+BUDGET backlog-owed.service.aecp.last.if0: 62.765 ms over its budget 20 ms
+4 groups graded, 0 refusals, 6 budget misses (6 of 49 probe instances, 3 of 16 paths), 0 of 1250 work passes over the per-pass share 2.000 ms (200,000 CPU cycles)
+CLOCK CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz
+elapsed=1357s
+rc=0

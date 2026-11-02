@@ -1,0 +1,69 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Sun Nov  1 23:00:04 2026
+| Host         : archlinux running 64-bit unknown
+| Command      : report_utilization -hierarchical -hierarchical_depth 4 -hierarchical_min_primitive_count 0 -file route_hier.rpt
+| Design       : sim
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Routed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++-----------------------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+|                             Instance                            |                      Module                      | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++-----------------------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+| sim                                                             |                                            (top) |       3615 |       3474 |     138 |    3 | 5887 |     41 |      9 |          4 |
+|   (sim)                                                         |                                            (top) |         73 |         61 |      12 |    0 |  244 |     35 |      2 |          0 |
+|   VexiiRiscvLitex_7ee512a1cb1c336731b7f28188c9814f              | VexiiRiscvLitex_7ee512a1cb1c336731b7f28188c9814f |       3543 |       3414 |     126 |    3 | 5643 |      6 |      7 |          4 |
+|     (VexiiRiscvLitex_7ee512a1cb1c336731b7f28188c9814f)          | VexiiRiscvLitex_7ee512a1cb1c336731b7f28188c9814f |        514 |        514 |       0 |    0 | 2263 |      0 |      0 |          0 |
+|     cpuResetCtrl_fiber_aggregator_asyncBuffers_0                |                                         BufferCC |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     cpuResetCtrl_fiber_buffer                                   |                                       BufferCC_1 |          0 |          0 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     mem_toAxi4_logic_bridge                                     |                                       Axi4Bridge |        200 |        196 |       4 |    0 |  316 |      0 |      0 |          0 |
+|       (mem_toAxi4_logic_bridge)                                 |                                       Axi4Bridge |        182 |        182 |       0 |    0 |  311 |      0 |      0 |          0 |
+|       a_ctx                                                     |                         ContextAsyncBufferFull_0 |          8 |          4 |       4 |    0 |    0 |      0 |      0 |          0 |
+|         contexts                                                |                     Ram_1w_1ra__parameterized0_1 |          8 |          4 |       4 |    0 |    0 |      0 |      0 |          0 |
+|       a_halted_fork2                                            |                                     StreamFork_2 |          5 |          5 |       0 |    0 |    2 |      0 |      0 |          0 |
+|       d_arbiter                                                 |                                  StreamArbiter_8 |          6 |          6 |       0 |    0 |    3 |      0 |      0 |          0 |
+|     peripheral_bus_arbiter_core                                 |                                        Arbiter_2 |         83 |         83 |       0 |    0 |    7 |      0 |      0 |          0 |
+|       a_arbiter                                                 |                                  StreamArbiter_3 |         83 |         83 |       0 |    0 |    7 |      0 |      0 |          0 |
+|     peripheral_bus_decoder_core                                 |                                        Decoder_1 |         53 |         53 |       0 |    0 |    8 |      0 |      0 |          0 |
+|       d_arbiter                                                 |                                 StreamArbiter_12 |         53 |         53 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     peripheral_clint_thread_core                                |                                    TilelinkClint |         82 |         82 |       0 |    0 |  206 |      0 |      0 |          0 |
+|     peripheral_plic_intc_thread_logic                           |                                     TilelinkPlic |         97 |         97 |       0 |    0 |  140 |      0 |      0 |          0 |
+|     peripheral_toAxiLite4_logic_bridge                          |                                   AxiLite4Bridge |         42 |         42 |       0 |    0 |  102 |      0 |      0 |          0 |
+|       (peripheral_toAxiLite4_logic_bridge)                      |                                   AxiLite4Bridge |         28 |         28 |       0 |    0 |  100 |      0 |      0 |          0 |
+|       a_buffered_fork2                                          |                                     StreamFork_3 |         14 |         14 |       0 |    0 |    2 |      0 |      0 |          0 |
+|     splited_mBus_decoder_core                                   |                                          Decoder |         13 |         13 |       0 |    0 |    7 |      0 |      0 |          0 |
+|       d_arbiter                                                 |                                 StreamArbiter_11 |         13 |         13 |       0 |    0 |    7 |      0 |      0 |          0 |
+|     splited_mBus_to_mem_toAxi4_up_widthAdapter                  |                                     WidthAdapter |        119 |        115 |       4 |    0 |  320 |      0 |      0 |          0 |
+|       (splited_mBus_to_mem_toAxi4_up_widthAdapter)              |                                     WidthAdapter |         16 |         16 |       0 |    0 |  320 |      0 |      0 |          0 |
+|       upsize_d_ctx                                              |                           ContextAsyncBufferFull |        103 |         99 |       4 |    0 |    0 |      0 |      0 |          0 |
+|         contexts                                                |                       Ram_1w_1ra__parameterized0 |        103 |         99 |       4 |    0 |    0 |      0 |      0 |          0 |
+|     splited_wc_cBus_arbiter_core                                |                                        Arbiter_1 |         52 |         52 |       0 |    0 |    8 |      0 |      0 |          0 |
+|       a_arbiter                                                 |                                  StreamArbiter_4 |         52 |         52 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     splited_wc_hub_hub_logic_hub                                |                                              Hub |        319 |        259 |      60 |    0 |  417 |      0 |      0 |          0 |
+|       (splited_wc_hub_hub_logic_hub)                            |                                              Hub |        266 |        206 |      60 |    0 |  409 |      0 |      0 |          0 |
+|       streamArbiter_14                                          |                                 StreamArbiter_10 |         53 |         53 |       0 |    0 |    8 |      0 |      0 |          0 |
+|     vexiis_0_logic_core                                         |                                       VexiiRiscv |       1977 |       1916 |      58 |    3 | 1845 |      6 |      7 |          4 |
+|       (vexiis_0_logic_core)                                     |                                       VexiiRiscv |       1237 |       1200 |      34 |    3 | 1699 |      4 |      5 |          4 |
+|       LsuL1Plugin_logic_banks_0_mem                             |                                       Ram_1w_1rs |         78 |         78 |       0 |    0 |    0 |      2 |      0 |          0 |
+|       LsuL1Plugin_logic_bus_toTilelink_coherent_onC_arbiter     |                                  StreamArbiter_2 |         87 |         87 |       0 |    0 |    7 |      0 |      0 |          0 |
+|       LsuL1Plugin_logic_bus_toTilelink_coherent_onC_rspFifo     |                                       StreamFifo |         39 |         15 |      24 |    0 |    4 |      0 |      0 |          0 |
+|         (LsuL1Plugin_logic_bus_toTilelink_coherent_onC_rspFifo) |                                       StreamFifo |          3 |          3 |       0 |    0 |    4 |      0 |      0 |          0 |
+|         logic_ram                                               |                                       Ram_1w_1ra |         36 |         12 |      24 |    0 |    0 |      0 |      0 |          0 |
+|       early0_DivPlugin_logic_processing_div                     |                                         DivRadix |        320 |        320 |       0 |    0 |  135 |      0 |      0 |          0 |
+|       integer_RegFilePlugin_logic_regfile_fpga                  |                                       RegFileMem |        223 |        223 |       0 |    0 |    0 |      0 |      2 |          0 |
++-----------------------------------------------------------------+--------------------------------------------------+------------+------------+---------+------+------+--------+--------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+
