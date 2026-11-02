@@ -1,0 +1,4 @@
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <scratch>/imgclone/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $HOME/litex-milan/litex/litex/soc/software --output <scratch>/img-N-A8/runtime
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <scratch>/imgclone/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/imgclone/configs/endstation_ax7101_8x8.yaml --interfaces 2 --with-aecp --layout split --output <scratch>/img-N-A8/image --ledgered-point 8x8-two-interfaces --libc <scratch>/img-N-A8/runtime/libc.a --compiler-runtime <scratch>/img-N-A8/runtime/libcompiler_rt.a
+2c6779345a95e820dc6a064f9da5cd5c9cef4c62f1e90979cb3a18170a06637d endstation_ax7101_8x8 2 none none
+rc=0

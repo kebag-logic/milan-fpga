@@ -1,0 +1,23 @@
+head X-A8: x-save max 1.628 ms over 6 groups; y-save max 1.978 ms over 8; y-links 1.761 ms; x-links-same 1.543 ms
+  source measure/X-A8/save-windows.txt sha256:2e08f0d11a9c5e80
+c954b8a9 P0-A8: x-save max 2.388 ms, y-save max 2.716 ms, y-links 2.081 ms
+  source measure/P0-A8/run.log sha256:9f3855a9114bfbcd
+R-W8 (8x8, arm A, 24 windows): longest pass carrying a step 101796 cycles = 1.018 ms; longest wait 16.95 ms
+  source measure/R-W8/step-waits.txt sha256:a388708495c3b505
+R-A8 lone save: longest pass carrying a flash-port step 126436 cycles = 1.264 ms; durable at +4697.4 ms
+  source measure/R-A8/save-alone.txt sha256:3e2df25a31e82eb6
+R-A1 lone save: longest pass carrying a flash-port step 120515 cycles = 1.205 ms; durable at +2018.4 ms
+  source measure/R-A1/save-alone.txt sha256:3ea8444eb61fccdd
+sweep shard 0: suites 15 passed 15 failed 0; checks 360921 failures 0; head 4f58214f457e963243a1fe6b86c6af161e97f26f
+  source gates/sweep/shard-0/01.log sha256:a630f722c4d1b8e5
+sweep shard 1: suites 17 passed 17 failed 0; checks 1946931 failures 0; head 4f58214f457e963243a1fe6b86c6af161e97f26f
+  source gates/sweep/shard-1/01.log sha256:4d7bfa508afebba9
+sweep shard 2: suites 17 passed 17 failed 0; checks 284228 failures 0; head 4f58214f457e963243a1fe6b86c6af161e97f26f
+  source gates/sweep/shard-2/01.log sha256:1255de302cdd5834
+sweep shard 3: suites 16 passed 16 failed 0; checks 21575 failures 0; head 4f58214f457e963243a1fe6b86c6af161e97f26f
+  source gates/sweep/shard-3/01.log sha256:b54cc2b9550e31f6
+sweep total: 65 suites passed, 2,613,655 checks
+boot 1x1: BOOT ready at bus cycle 2551517 (2551517 CPU cycles): 25.515 ms against 20000 ms; banners 1
+  source gates/lane/boot_1x1.log sha256:9b31dd5d15013a6e
+boot 8x8: BOOT ready at bus cycle 6488549 (6488549 CPU cycles): 64.885 ms against 20000 ms; banners 1
+  source gates/lane/boot_8x8.log sha256:d30bebe9ba6080df
