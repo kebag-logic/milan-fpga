@@ -1,0 +1,4708 @@
+{
+ "point": "1x1",
+ "build": "abbfeaf8d78f6c258e4febaf31a92997a9162e2d295adca03deebe6d2c78ad08",
+ "results": [
+  {
+   "group": "backlog",
+   "probes": [
+    {
+     "probe": "backlog.event.if0",
+     "row": "an event behind 15 others",
+     "family": "adp",
+     "interface": 0,
+     "path": [
+      "backlog.event",
+      0
+     ],
+     "start_sys": 267414432,
+     "end_sys": 267492841,
+     "sys_cycles": 78409,
+     "cpu_cycles": 78409,
+     "ms": 0.78409,
+     "wait_ms": 0.0,
+     "passes": 2,
+     "ring": "events",
+     "ahead": 15,
+     "budget_ms": 20.0,
+     "ceiling_ms": 200.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "bound_cpu_cycles": 128749,
+     "bound_ms": 1.28749,
+     "bound_within_budget": true,
+     "pass_cycles": 58800,
+     "pass_instr": 13431,
+     "pass_mbx_accesses": 104,
+     "pass_fetch_share": 0.5,
+     "pass_fetch_wait_share": 0.3009,
+     "pass_regions": {
+      "rom": [
+       218,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       72,
+       32
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 13809,
+      "mbx": 10743,
+      "ctrl_mem": 8308,
+      "aecp": 6607,
+      "ctrl_loop": 3625,
+      "ctrl_app_aecp": 2594
+     },
+     "status": "measured"
+    },
+    {
+     "probe": "backlog.acmp_command.if0",
+     "row": "an ACMP command behind a full acmp ring",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "backlog.acmp_command",
+      0
+     ],
+     "start_sys": 267419604,
+     "end_sys": 267722575,
+     "sys_cycles": 302971,
+     "cpu_cycles": 302971,
+     "ms": 3.02971,
+     "wait_ms": 0.0,
+     "passes": 6,
+     "ring": "acmp",
+     "ahead": 11,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "bound_cpu_cycles": 334287,
+     "bound_ms": 3.34287,
+     "bound_within_budget": true,
+     "pass_cycles": 40742,
+     "pass_instr": 9468,
+     "pass_mbx_accesses": 44,
+     "pass_fetch_share": 0.4926,
+     "pass_fetch_wait_share": 0.2662,
+     "pass_regions": {
+      "rom": [
+       134,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       30,
+       14
+      ],
+      "csr": [
+       0,
+       70,
+       24
+      ]
+     },
+     "pass_modules": {
+      "acmp": 11915,
+      "mbx": 6885,
+      "ctrl_mem": 6290,
+      "aecp": 5562,
+      "srp_mbx": 2297,
+      "ctrl_loop": 1579
+     },
+     "status": "measured"
+    },
+    {
+     "probe": "backlog.service.adp.first.if0",
+     "row": "ADP record released under the composed load, first",
+     "family": "adp",
+     "interface": 0,
+     "path": [
+      "service.adp.first",
+      0
+     ],
+     "start_sys": 267414520,
+     "wait_ms": 0.0,
+     "ring": "adp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 69949,
+     "pass_instr": 16214,
+     "pass_mbx_accesses": 138,
+     "pass_fetch_share": 0.5107,
+     "pass_fetch_wait_share": 0.3026,
+     "pass_regions": {
+      "rom": [
+       263,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       74,
+       64
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14434,
+      "mbx": 13588,
+      "ctrl_mem": 10464,
+      "aecp": 6749,
+      "maap": 4149,
+      "ctrl_loop": 3196
+     },
+     "end_sys": 267484261,
+     "sys_cycles": 69741,
+     "cpu_cycles": 69741,
+     "ms": 0.69741,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 200.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog.service.adp.last.if0",
+     "row": "ADP record released under the composed load, last",
+     "family": "adp",
+     "interface": 0,
+     "path": [
+      "service.adp.last",
+      0
+     ],
+     "start_sys": 267415129,
+     "wait_ms": 0.0,
+     "ring": "adp",
+     "ahead": 7,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 49375,
+     "pass_instr": 10411,
+     "pass_mbx_accesses": 55,
+     "pass_fetch_share": 0.5528,
+     "pass_fetch_wait_share": 0.3603,
+     "pass_regions": {
+      "rom": [
+       220,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       38,
+       17
+      ],
+      "csr": [
+       0,
+       90,
+       33
+      ]
+     },
+     "pass_modules": {
+      "acmp": 13640,
+      "mbx": 9454,
+      "aecp": 6719,
+      "ctrl_mem": 6595,
+      "srp_mbx": 2459,
+      "ctrl_loop": 1686
+     },
+     "end_sys": 267666572,
+     "sys_cycles": 251443,
+     "cpu_cycles": 251443,
+     "ms": 2.51443,
+     "passes": 5,
+     "budget_ms": 20.0,
+     "ceiling_ms": 200.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog.service.acmp.first.if0",
+     "row": "ACMP record released under the composed load, first",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "service.acmp.first",
+      0
+     ],
+     "start_sys": 267418779,
+     "wait_ms": 0.0,
+     "ring": "acmp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 69949,
+     "pass_instr": 16214,
+     "pass_mbx_accesses": 138,
+     "pass_fetch_share": 0.5107,
+     "pass_fetch_wait_share": 0.3026,
+     "pass_regions": {
+      "rom": [
+       263,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       74,
+       64
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14434,
+      "mbx": 13588,
+      "ctrl_mem": 10464,
+      "aecp": 6749,
+      "maap": 4149,
+      "ctrl_loop": 3196
+     },
+     "end_sys": 267484261,
+     "sys_cycles": 65482,
+     "cpu_cycles": 65482,
+     "ms": 0.65482,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog.service.acmp.last.if0",
+     "row": "ACMP record released under the composed load, last",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "service.acmp.last",
+      0
+     ],
+     "start_sys": 267419604,
+     "wait_ms": 0.0,
+     "ring": "acmp",
+     "ahead": 11,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 40742,
+     "pass_instr": 9468,
+     "pass_mbx_accesses": 44,
+     "pass_fetch_share": 0.4926,
+     "pass_fetch_wait_share": 0.2662,
+     "pass_regions": {
+      "rom": [
+       134,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       30,
+       14
+      ],
+      "csr": [
+       0,
+       70,
+       24
+      ]
+     },
+     "pass_modules": {
+      "acmp": 11915,
+      "mbx": 6885,
+      "ctrl_mem": 6290,
+      "aecp": 5562,
+      "srp_mbx": 2297,
+      "ctrl_loop": 1579
+     },
+     "end_sys": 267748599,
+     "sys_cycles": 328995,
+     "cpu_cycles": 328995,
+     "ms": 3.28995,
+     "passes": 7,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog.service.aecp.first.if0",
+     "row": "AECP record released under the composed load, first",
+     "family": "aecp",
+     "interface": 0,
+     "path": [
+      "service.aecp.first",
+      0
+     ],
+     "start_sys": 267415194,
+     "wait_ms": 0.0,
+     "ring": "aecp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 69949,
+     "pass_instr": 16214,
+     "pass_mbx_accesses": 138,
+     "pass_fetch_share": 0.5107,
+     "pass_fetch_wait_share": 0.3026,
+     "pass_regions": {
+      "rom": [
+       263,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       74,
+       64
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14434,
+      "mbx": 13588,
+      "ctrl_mem": 10464,
+      "aecp": 6749,
+      "maap": 4149,
+      "ctrl_loop": 3196
+     },
+     "end_sys": 267484261,
+     "sys_cycles": 69067,
+     "cpu_cycles": 69067,
+     "ms": 0.69067,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 24.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog.service.aecp.last.if0",
+     "row": "AECP record released under the composed load, last",
+     "family": "aecp",
+     "interface": 0,
+     "path": [
+      "service.aecp.last",
+      0
+     ],
+     "start_sys": 267416169,
+     "wait_ms": 0.0,
+     "ring": "aecp",
+     "ahead": 15,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 21544,
+     "pass_instr": 4170,
+     "pass_mbx_accesses": 29,
+     "pass_fetch_share": 0.5,
+     "pass_fetch_wait_share": 0.3067,
+     "pass_regions": {
+      "rom": [
+       81,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       23,
+       6
+      ],
+      "csr": [
+       0,
+       40,
+       12
+      ]
+     },
+     "pass_modules": {
+      "aecp": 4497,
+      "mbx": 4133,
+      "ctrl_mem": 3494,
+      "srp_mbx": 2118,
+      "ctrl_app_aecp": 1352,
+      "ctrl_loop": 1307
+     },
+     "end_sys": 267964899,
+     "sys_cycles": 548730,
+     "cpu_cycles": 548730,
+     "ms": 5.4873,
+     "passes": 17,
+     "budget_ms": 20.0,
+     "ceiling_ms": 24.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog.service.maap.first.if0",
+     "row": "MAAP record released under the composed load, first",
+     "family": "maap",
+     "interface": 0,
+     "path": [
+      "service.maap.first",
+      0
+     ],
+     "start_sys": 267416234,
+     "wait_ms": 0.0,
+     "ring": "maap",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 69949,
+     "pass_instr": 16214,
+     "pass_mbx_accesses": 138,
+     "pass_fetch_share": 0.5107,
+     "pass_fetch_wait_share": 0.3026,
+     "pass_regions": {
+      "rom": [
+       263,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       74,
+       64
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14434,
+      "mbx": 13588,
+      "ctrl_mem": 10464,
+      "aecp": 6749,
+      "maap": 4149,
+      "ctrl_loop": 3196
+     },
+     "end_sys": 267484261,
+     "sys_cycles": 68027,
+     "cpu_cycles": 68027,
+     "ms": 0.68027,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 50.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog.service.maap.last.if0",
+     "row": "MAAP record released under the composed load, last",
+     "family": "maap",
+     "interface": 0,
+     "path": [
+      "service.maap.last",
+      0
+     ],
+     "start_sys": 267416624,
+     "wait_ms": 0.0,
+     "ring": "maap",
+     "ahead": 6,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 49375,
+     "pass_instr": 10411,
+     "pass_mbx_accesses": 55,
+     "pass_fetch_share": 0.5528,
+     "pass_fetch_wait_share": 0.3603,
+     "pass_regions": {
+      "rom": [
+       220,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       38,
+       17
+      ],
+      "csr": [
+       0,
+       90,
+       33
+      ]
+     },
+     "pass_modules": {
+      "acmp": 13640,
+      "mbx": 9454,
+      "aecp": 6719,
+      "ctrl_mem": 6595,
+      "srp_mbx": 2459,
+      "ctrl_loop": 1686
+     },
+     "end_sys": 267666572,
+     "sys_cycles": 249948,
+     "cpu_cycles": 249948,
+     "ms": 2.49948,
+     "passes": 5,
+     "budget_ms": 20.0,
+     "ceiling_ms": 50.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog.service.srp.first.if0",
+     "row": "SRP record released under the composed load, first",
+     "family": "srp",
+     "interface": 0,
+     "path": [
+      "service.srp.first",
+      0
+     ],
+     "start_sys": 267416689,
+     "wait_ms": 0.0,
+     "ring": "srp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 49375,
+     "pass_instr": 10411,
+     "pass_mbx_accesses": 55,
+     "pass_fetch_share": 0.5528,
+     "pass_fetch_wait_share": 0.3603,
+     "pass_regions": {
+      "rom": [
+       220,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       38,
+       17
+      ],
+      "csr": [
+       0,
+       90,
+       33
+      ]
+     },
+     "pass_modules": {
+      "acmp": 13640,
+      "mbx": 9454,
+      "aecp": 6719,
+      "ctrl_mem": 6595,
+      "srp_mbx": 2459,
+      "ctrl_loop": 1686
+     },
+     "end_sys": 267666572,
+     "sys_cycles": 249883,
+     "cpu_cycles": 249883,
+     "ms": 2.49883,
+     "passes": 5,
+     "budget_ms": 18.0,
+     "ceiling_ms": 18.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog.service.srp.last.if0",
+     "row": "SRP record released under the composed load, last",
+     "family": "srp",
+     "interface": 0,
+     "path": [
+      "service.srp.last",
+      0
+     ],
+     "start_sys": 267418704,
+     "wait_ms": 0.0,
+     "ring": "srp",
+     "ahead": 31,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 8716,
+     "pass_instr": 2083,
+     "pass_mbx_accesses": 17,
+     "pass_fetch_share": 0.3966,
+     "pass_fetch_wait_share": 0.2257,
+     "pass_regions": {
+      "rom": [
+       23,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       15,
+       2
+      ],
+      "csr": [
+       0,
+       12,
+       6
+      ]
+     },
+     "pass_modules": {
+      "mbx": 1921,
+      "ctrl_loop": 1200,
+      "srp_mbx": 1095,
+      "ctrl_app_aecp": 914,
+      "ctrl_app_srp": 771,
+      "aecp": 656
+     },
+     "end_sys": 267992250,
+     "sys_cycles": 573546,
+     "cpu_cycles": 573546,
+     "ms": 5.73546,
+     "passes": 19,
+     "budget_ms": 18.0,
+     "ceiling_ms": 18.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    }
+   ],
+   "timeouts": [],
+   "passes": {
+    "count": 35881,
+    "work": 293,
+    "idle_min": 6729,
+    "idle_max": 15647,
+    "worst": {
+     "cycles": 74136,
+     "ms": 0.74136,
+     "instr": 16144,
+     "start_sys": 267543061,
+     "modules": {
+      "aecp_mbx": 928,
+      "ctrl_app_aecp": 1680,
+      "mbx": 8408,
+      "srp_mbx": 4487,
+      "ctrl_loop": 1844,
+      "adp_mbx": 46,
+      "adp": 611,
+      "acmp_mbx": 142,
+      "acmp": 12928,
+      "maap_mbx": 762,
+      "ctrl_mem": 16353,
+      "ctrl_app_srp": 1348,
+      "ctrl_aecp_image": 43,
+      "maap": 1548,
+      "aecp": 5167,
+      "aecp_nvm": 145,
+      "mrp_mad": 11864,
+      "mbx_plat_mmio": 118,
+      "timer": 500,
+      "nvm_store": 13,
+      "aecp_commands": 830,
+      "msrp": 507,
+      "shlan_port": 189,
+      "ctrl_pool": 2879,
+      "mvrp": 253,
+      "aecp_face": 543
+     }
+    },
+    "composed": {
+     "cycles": 74136,
+     "ms": 0.74136,
+     "instr": 16144,
+     "passes": 19,
+     "start_sys": 267543061,
+     "modules": {
+      "aecp_mbx": 928,
+      "ctrl_app_aecp": 1680,
+      "mbx": 8408,
+      "srp_mbx": 4487,
+      "ctrl_loop": 1844,
+      "adp_mbx": 46,
+      "adp": 611,
+      "acmp_mbx": 142,
+      "acmp": 12928,
+      "maap_mbx": 762,
+      "ctrl_mem": 16353,
+      "ctrl_app_srp": 1348,
+      "ctrl_aecp_image": 43,
+      "maap": 1548,
+      "aecp": 5167,
+      "aecp_nvm": 145,
+      "mrp_mad": 11864,
+      "mbx_plat_mmio": 118,
+      "timer": 500,
+      "nvm_store": 13,
+      "aecp_commands": 830,
+      "msrp": 507,
+      "shlan_port": 189,
+      "ctrl_pool": 2879,
+      "mvrp": 253,
+      "aecp_face": 543
+     },
+     "population": {
+      "adp": 8,
+      "acmp": 12,
+      "aecp": 16,
+      "maap": 7,
+      "srp": 32,
+      "GM": 15,
+      "LINK": 1
+     },
+     "admission": {
+      "adp": {
+       "burst": 8,
+       "refill_ms": 10,
+       "record_words": 23,
+       "room": 11,
+       "at_once": 8,
+       "bounded": false
+      },
+      "aecp": {
+       "burst": 16,
+       "refill_ms": 5,
+       "record_words": 17,
+       "room": 30,
+       "at_once": 16,
+       "bounded": false
+      },
+      "maap": {
+       "burst": 8,
+       "refill_ms": 20,
+       "record_words": 17,
+       "room": 7,
+       "at_once": 7,
+       "bounded": true
+      },
+      "srp": {
+       "burst": 32,
+       "refill_ms": 2,
+       "record_words": 17,
+       "room": 60,
+       "at_once": 32,
+       "bounded": false
+      },
+      "acmp": {
+       "burst": 16,
+       "refill_ms": 5,
+       "record_words": 20,
+       "room": 12,
+       "at_once": 12,
+       "bounded": true
+      }
+     },
+     "events_held": 0,
+     "serviced": true,
+     "unreleased": {},
+     "window_ms": 5.99013
+    },
+    "share": {
+     "ms": 2.0,
+     "cycles": 200000,
+     "passes": 293,
+     "over": 0,
+     "over_passes": []
+    }
+   },
+   "summary": {
+    "sys": "268013325",
+    "cpu": "268013261",
+    "passes": "35881",
+    "instr": "70812726",
+    "bus_errors": "0",
+    "traps": "0",
+    "mbx_read": "324661/2275790/7/69",
+    "mbx_write": "681/6482/7/71",
+    "host_cycles": "328380/328380/1/1",
+    "fetch_rom": "802265/68709963/80/207",
+    "load_rom": "0/0/0/0",
+    "store_rom": "0/0/0/0",
+    "fetch_sram": "0/0/0/0",
+    "load_sram": "0/0/0/0",
+    "store_sram": "0/0/0/0",
+    "fetch_mbx": "0/0/0/0",
+    "load_mbx": "324661/2275790/7/69",
+    "store_mbx": "681/6482/7/71",
+    "fetch_flash": "0/0/0/0",
+    "load_flash": "160/84260/267/602",
+    "store_flash": "0/0/0/0",
+    "fetch_csr": "0/0/0/0",
+    "load_csr": "1269/28883/7/71",
+    "store_csr": "608/4908/7/71",
+    "fetch_other": "0/0/0/0",
+    "load_other": "0/0/0/0",
+    "store_other": "0/0/0/0"
+   },
+   "modules": {
+    "ctrl_split_start": 148430,
+    "aecp_mbx": 3750169,
+    "ctrl_app_aecp": 32764422,
+    "mbx": 19773327,
+    "srp_mbx": 31742455,
+    "ctrl_loop": 38526017,
+    "adp_mbx": 227112,
+    "adp": 2664548,
+    "acmp_mbx": 222426,
+    "acmp": 22225380,
+    "maap_mbx": 8714445,
+    "ctrl_mem": 9884375,
+    "ctrl_app_srp": 27674856,
+    "ctrl_aecp_image": 507156,
+    "maap": 10854840,
+    "aecp": 23656197,
+    "aecp_nvm": 5131525,
+    "mrp_mad": 13591825,
+    "mbx_plat_mmio": 1354092,
+    "timer": 193783,
+    "nvm_store": 657934,
+    "nvm_flash_litespi": 123423,
+    "aecp_commands": 19000,
+    "msrp": 7616,
+    "shlan_port": 914,
+    "ctrl_pool": 11191,
+    "mvrp": 2454,
+    "mrp_pdu": 11046,
+    "ctrl_debug": 18,
+    "acmp_nvm": 145,
+    "ctrl_app": 2065,
+    "aecp_image": 1570832,
+    "aecp_face": 11649068,
+    "nvm_klj2": 349825,
+    "unmapped": 350
+   },
+   "code": {
+    "boot_bytes": "15104",
+    "service_bytes": "41728",
+    "service_only_bytes": "38912",
+    "aecp_mbx": "780",
+    "ctrl_app_aecp": "1360",
+    "mbx": "2296",
+    "srp_mbx": "4800",
+    "ctrl_loop": "712",
+    "adp_mbx": "492",
+    "adp": "2384",
+    "acmp_mbx": "224",
+    "acmp": "4784",
+    "maap_mbx": "1288",
+    "ctrl_mem": "1016",
+    "ctrl_app_srp": "924",
+    "ctrl_aecp_image": "312",
+    "maap": "2896",
+    "aecp": "4200",
+    "aecp_nvm": "164",
+    "mrp_mad": "6020",
+    "mbx_plat_mmio": "20",
+    "timer": "180",
+    "nvm_store": "516",
+    "nvm_flash_litespi": "212",
+    "aecp_commands": "1000",
+    "msrp": "880",
+    "shlan_port": "80",
+    "ctrl_pool": "688",
+    "mvrp": "508",
+    "mrp_pdu": "1216",
+    "ctrl_app": "104",
+    "aecp_face": "1628",
+    "nvm_klj2": "44"
+   }
+  },
+  {
+   "group": "backlog-adp",
+   "probes": [
+    {
+     "probe": "backlog.adp_available.if0",
+     "row": "an ENTITY_AVAILABLE behind a full adp ring",
+     "family": "disc",
+     "interface": 0,
+     "path": [
+      "backlog.adp_available",
+      0
+     ],
+     "start_sys": 272574808,
+     "end_sys": 272816311,
+     "sys_cycles": 241503,
+     "cpu_cycles": 241503,
+     "ms": 2.41503,
+     "wait_ms": 0.0,
+     "passes": 4,
+     "ring": "adp",
+     "ahead": 7,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "bound_cpu_cycles": 323155,
+     "bound_ms": 3.23155,
+     "bound_within_budget": true,
+     "pass_cycles": 82893,
+     "pass_instr": 17629,
+     "pass_mbx_accesses": 81,
+     "pass_fetch_share": 0.6667,
+     "pass_fetch_wait_share": 0.396,
+     "pass_regions": {
+      "rom": [
+       408,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       44,
+       37
+      ],
+      "csr": [
+       0,
+       90,
+       33
+      ]
+     },
+     "pass_modules": {
+      "acmp": 19230,
+      "ctrl_mem": 12878,
+      "mbx": 10967,
+      "mrp_mad": 8399,
+      "aecp": 8306,
+      "srp_mbx": 5146
+     },
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp.service.adp.first.if0",
+     "row": "ADP record released under the composed load, first",
+     "family": "adp",
+     "interface": 0,
+     "path": [
+      "service.adp.first",
+      0
+     ],
+     "start_sys": 272574199,
+     "wait_ms": 0.0,
+     "ring": "adp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 63780,
+     "pass_instr": 15393,
+     "pass_mbx_accesses": 135,
+     "pass_fetch_share": 0.4823,
+     "pass_fetch_wait_share": 0.293,
+     "pass_regions": {
+      "rom": [
+       232,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       73,
+       62
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14037,
+      "mbx": 13029,
+      "ctrl_mem": 8805,
+      "aecp": 6971,
+      "maap": 4149,
+      "ctrl_loop": 3039
+     },
+     "end_sys": 272633297,
+     "sys_cycles": 59098,
+     "cpu_cycles": 59098,
+     "ms": 0.59098,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 200.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp.service.adp.last.if0",
+     "row": "ADP record released under the composed load, last",
+     "family": "adp",
+     "interface": 0,
+     "path": [
+      "service.adp.last",
+      0
+     ],
+     "start_sys": 272574808,
+     "wait_ms": 0.0,
+     "ring": "adp",
+     "ahead": 7,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 82893,
+     "pass_instr": 17629,
+     "pass_mbx_accesses": 81,
+     "pass_fetch_share": 0.6667,
+     "pass_fetch_wait_share": 0.396,
+     "pass_regions": {
+      "rom": [
+       408,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       44,
+       37
+      ],
+      "csr": [
+       0,
+       90,
+       33
+      ]
+     },
+     "pass_modules": {
+      "acmp": 19230,
+      "ctrl_mem": 12878,
+      "mbx": 10967,
+      "mrp_mad": 8399,
+      "aecp": 8306,
+      "srp_mbx": 5146
+     },
+     "end_sys": 272892672,
+     "sys_cycles": 317864,
+     "cpu_cycles": 317864,
+     "ms": 3.17864,
+     "passes": 5,
+     "budget_ms": 20.0,
+     "ceiling_ms": 200.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp.service.acmp.first.if0",
+     "row": "ACMP record released under the composed load, first",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "service.acmp.first",
+      0
+     ],
+     "start_sys": 272573287,
+     "wait_ms": 0.0,
+     "ring": "acmp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 63780,
+     "pass_instr": 15393,
+     "pass_mbx_accesses": 135,
+     "pass_fetch_share": 0.4823,
+     "pass_fetch_wait_share": 0.293,
+     "pass_regions": {
+      "rom": [
+       232,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       73,
+       62
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14037,
+      "mbx": 13029,
+      "ctrl_mem": 8805,
+      "aecp": 6971,
+      "maap": 4149,
+      "ctrl_loop": 3039
+     },
+     "end_sys": 272633297,
+     "sys_cycles": 60010,
+     "cpu_cycles": 60010,
+     "ms": 0.6001,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp.service.acmp.last.if0",
+     "row": "ACMP record released under the composed load, last",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "service.acmp.last",
+      0
+     ],
+     "start_sys": 272574112,
+     "wait_ms": 0.0,
+     "ring": "acmp",
+     "ahead": 11,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 66711,
+     "pass_instr": 14303,
+     "pass_mbx_accesses": 50,
+     "pass_fetch_share": 0.6821,
+     "pass_fetch_wait_share": 0.3725,
+     "pass_regions": {
+      "rom": [
+       309,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       35,
+       15
+      ],
+      "csr": [
+       0,
+       70,
+       24
+      ]
+     },
+     "pass_modules": {
+      "acmp": 13401,
+      "ctrl_mem": 11079,
+      "mrp_mad": 8385,
+      "mbx": 7417,
+      "aecp": 6734,
+      "srp_mbx": 5023
+     },
+     "end_sys": 273008289,
+     "sys_cycles": 434177,
+     "cpu_cycles": 434177,
+     "ms": 4.34177,
+     "passes": 7,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp.service.aecp.first.if0",
+     "row": "AECP record released under the composed load, first",
+     "family": "aecp",
+     "interface": 0,
+     "path": [
+      "service.aecp.first",
+      0
+     ],
+     "start_sys": 272569702,
+     "wait_ms": 0.0,
+     "ring": "aecp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 63780,
+     "pass_instr": 15393,
+     "pass_mbx_accesses": 135,
+     "pass_fetch_share": 0.4823,
+     "pass_fetch_wait_share": 0.293,
+     "pass_regions": {
+      "rom": [
+       232,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       73,
+       62
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14037,
+      "mbx": 13029,
+      "ctrl_mem": 8805,
+      "aecp": 6971,
+      "maap": 4149,
+      "ctrl_loop": 3039
+     },
+     "end_sys": 272633297,
+     "sys_cycles": 63595,
+     "cpu_cycles": 63595,
+     "ms": 0.63595,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 24.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp.service.aecp.last.if0",
+     "row": "AECP record released under the composed load, last",
+     "family": "aecp",
+     "interface": 0,
+     "path": [
+      "service.aecp.last",
+      0
+     ],
+     "start_sys": 272570677,
+     "wait_ms": 0.0,
+     "ring": "aecp",
+     "ahead": 15,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 43442,
+     "pass_instr": 8348,
+     "pass_mbx_accesses": 29,
+     "pass_fetch_share": 0.7327,
+     "pass_fetch_wait_share": 0.4117,
+     "pass_regions": {
+      "rom": [
+       222,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       23,
+       6
+      ],
+      "csr": [
+       0,
+       40,
+       12
+      ]
+     },
+     "pass_modules": {
+      "mrp_mad": 7727,
+      "ctrl_mem": 7724,
+      "aecp": 5606,
+      "mbx": 4278,
+      "srp_mbx": 4209,
+      "mrp_pdu": 3953
+     },
+     "end_sys": 273442352,
+     "sys_cycles": 871675,
+     "cpu_cycles": 871675,
+     "ms": 8.71675,
+     "passes": 17,
+     "budget_ms": 20.0,
+     "ceiling_ms": 24.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp.service.maap.first.if0",
+     "row": "MAAP record released under the composed load, first",
+     "family": "maap",
+     "interface": 0,
+     "path": [
+      "service.maap.first",
+      0
+     ],
+     "start_sys": 272570742,
+     "wait_ms": 0.0,
+     "ring": "maap",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 63780,
+     "pass_instr": 15393,
+     "pass_mbx_accesses": 135,
+     "pass_fetch_share": 0.4823,
+     "pass_fetch_wait_share": 0.293,
+     "pass_regions": {
+      "rom": [
+       232,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       73,
+       62
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14037,
+      "mbx": 13029,
+      "ctrl_mem": 8805,
+      "aecp": 6971,
+      "maap": 4149,
+      "ctrl_loop": 3039
+     },
+     "end_sys": 272633297,
+     "sys_cycles": 62555,
+     "cpu_cycles": 62555,
+     "ms": 0.62555,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 50.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp.service.maap.last.if0",
+     "row": "MAAP record released under the composed load, last",
+     "family": "maap",
+     "interface": 0,
+     "path": [
+      "service.maap.last",
+      0
+     ],
+     "start_sys": 272571132,
+     "wait_ms": 0.0,
+     "ring": "maap",
+     "ahead": 6,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 82893,
+     "pass_instr": 17629,
+     "pass_mbx_accesses": 81,
+     "pass_fetch_share": 0.6667,
+     "pass_fetch_wait_share": 0.396,
+     "pass_regions": {
+      "rom": [
+       408,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       44,
+       37
+      ],
+      "csr": [
+       0,
+       90,
+       33
+      ]
+     },
+     "pass_modules": {
+      "acmp": 19230,
+      "ctrl_mem": 12878,
+      "mbx": 10967,
+      "mrp_mad": 8399,
+      "aecp": 8306,
+      "srp_mbx": 5146
+     },
+     "end_sys": 272892672,
+     "sys_cycles": 321540,
+     "cpu_cycles": 321540,
+     "ms": 3.2154,
+     "passes": 5,
+     "budget_ms": 20.0,
+     "ceiling_ms": 50.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp.service.srp.first.if0",
+     "row": "SRP record released under the composed load, first",
+     "family": "srp",
+     "interface": 0,
+     "path": [
+      "service.srp.first",
+      0
+     ],
+     "start_sys": 272571197,
+     "wait_ms": 0.0,
+     "ring": "srp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 97517,
+     "pass_instr": 20748,
+     "pass_mbx_accesses": 138,
+     "pass_fetch_share": 0.6218,
+     "pass_fetch_wait_share": 0.3687,
+     "pass_regions": {
+      "rom": [
+       444,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       77,
+       61
+      ],
+      "csr": [
+       0,
+       96,
+       36
+      ]
+     },
+     "pass_modules": {
+      "ctrl_mem": 15720,
+      "mbx": 14130,
+      "acmp": 13945,
+      "mrp_mad": 12998,
+      "aecp": 7203,
+      "srp_mbx": 6929
+     },
+     "end_sys": 272730814,
+     "sys_cycles": 159617,
+     "cpu_cycles": 159617,
+     "ms": 1.59617,
+     "passes": 3,
+     "budget_ms": 18.0,
+     "ceiling_ms": 18.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp.service.srp.last.if0",
+     "row": "SRP record released under the composed load, last",
+     "family": "srp",
+     "interface": 0,
+     "path": [
+      "service.srp.last",
+      0
+     ],
+     "start_sys": 272573212,
+     "wait_ms": 0.0,
+     "ring": "srp",
+     "ahead": 31,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 20629,
+     "pass_instr": 4201,
+     "pass_mbx_accesses": 14,
+     "pass_fetch_share": 0.8231,
+     "pass_fetch_wait_share": 0.4211,
+     "pass_regions": {
+      "rom": [
+       107,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       13,
+       1
+      ],
+      "csr": [
+       0,
+       6,
+       3
+      ]
+     },
+     "pass_modules": {
+      "mrp_mad": 4817,
+      "ctrl_mem": 2813,
+      "srp_mbx": 2073,
+      "mrp_pdu": 1813,
+      "ctrl_loop": 1437,
+      "mbx": 1414
+     },
+     "end_sys": 273522208,
+     "sys_cycles": 948996,
+     "cpu_cycles": 948996,
+     "ms": 9.48996,
+     "passes": 19,
+     "budget_ms": 18.0,
+     "ceiling_ms": 18.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    }
+   ],
+   "timeouts": [],
+   "passes": {
+    "count": 36512,
+    "work": 313,
+    "idle_min": 6729,
+    "idle_max": 15647,
+    "worst": {
+     "cycles": 97517,
+     "ms": 0.97517,
+     "instr": 20748,
+     "start_sys": 272633297,
+     "modules": {
+      "aecp_mbx": 1319,
+      "ctrl_app_aecp": 2190,
+      "mbx": 14130,
+      "srp_mbx": 6929,
+      "ctrl_loop": 3564,
+      "adp_mbx": 637,
+      "adp": 1331,
+      "acmp_mbx": 300,
+      "acmp": 13945,
+      "maap_mbx": 1297,
+      "ctrl_mem": 15720,
+      "ctrl_app_srp": 1260,
+      "ctrl_aecp_image": 44,
+      "maap": 4504,
+      "aecp": 7203,
+      "aecp_nvm": 156,
+      "mrp_mad": 12998,
+      "mbx_plat_mmio": 118,
+      "timer": 19,
+      "nvm_store": 13,
+      "aecp_commands": 977,
+      "msrp": 2080,
+      "shlan_port": 99,
+      "ctrl_pool": 1353,
+      "mrp_pdu": 4788,
+      "aecp_face": 543
+     }
+    },
+    "composed": {
+     "cycles": 97517,
+     "ms": 0.97517,
+     "instr": 20748,
+     "passes": 19,
+     "start_sys": 272633297,
+     "modules": {
+      "aecp_mbx": 1319,
+      "ctrl_app_aecp": 2190,
+      "mbx": 14130,
+      "srp_mbx": 6929,
+      "ctrl_loop": 3564,
+      "adp_mbx": 637,
+      "adp": 1331,
+      "acmp_mbx": 300,
+      "acmp": 13945,
+      "maap_mbx": 1297,
+      "ctrl_mem": 15720,
+      "ctrl_app_srp": 1260,
+      "ctrl_aecp_image": 44,
+      "maap": 4504,
+      "aecp": 7203,
+      "aecp_nvm": 156,
+      "mrp_mad": 12998,
+      "mbx_plat_mmio": 118,
+      "timer": 19,
+      "nvm_store": 13,
+      "aecp_commands": 977,
+      "msrp": 2080,
+      "shlan_port": 99,
+      "ctrl_pool": 1353,
+      "mrp_pdu": 4788,
+      "aecp_face": 543
+     },
+     "population": {
+      "adp": 8,
+      "acmp": 12,
+      "aecp": 16,
+      "maap": 7,
+      "srp": 32,
+      "GM": 15,
+      "LINK": 0
+     },
+     "admission": {
+      "aecp": {
+       "burst": 16,
+       "refill_ms": 5,
+       "record_words": 17,
+       "room": 30,
+       "at_once": 16,
+       "bounded": false
+      },
+      "maap": {
+       "burst": 8,
+       "refill_ms": 20,
+       "record_words": 17,
+       "room": 7,
+       "at_once": 7,
+       "bounded": true
+      },
+      "srp": {
+       "burst": 32,
+       "refill_ms": 2,
+       "record_words": 17,
+       "room": 60,
+       "at_once": 32,
+       "bounded": false
+      },
+      "acmp": {
+       "burst": 16,
+       "refill_ms": 5,
+       "record_words": 20,
+       "room": 12,
+       "at_once": 12,
+       "bounded": true
+      },
+      "adp": {
+       "burst": 8,
+       "refill_ms": 10,
+       "record_words": 23,
+       "room": 11,
+       "at_once": 8,
+       "bounded": false
+      }
+     },
+     "events_held": 0,
+     "serviced": true,
+     "unreleased": {},
+     "window_ms": 9.77532
+    },
+    "share": {
+     "ms": 2.0,
+     "cycles": 200000,
+     "passes": 313,
+     "over": 0,
+     "over_passes": []
+    }
+   },
+   "summary": {
+    "sys": "273547049",
+    "cpu": "273546985",
+    "passes": "36512",
+    "instr": "72200916",
+    "bus_errors": "0",
+    "traps": "0",
+    "mbx_read": "330467/2319682/7/71",
+    "mbx_write": "868/8364/7/71",
+    "host_cycles": "334469/334469/1/1",
+    "fetch_rom": "820043/70212442/80/207",
+    "load_rom": "0/0/0/0",
+    "store_rom": "0/0/0/0",
+    "fetch_sram": "0/0/0/0",
+    "load_sram": "0/0/0/0",
+    "store_sram": "0/0/0/0",
+    "fetch_mbx": "0/0/0/0",
+    "load_mbx": "330467/2319682/7/71",
+    "store_mbx": "868/8364/7/71",
+    "fetch_flash": "0/0/0/0",
+    "load_flash": "160/84260/267/602",
+    "store_flash": "0/0/0/0",
+    "fetch_csr": "0/0/0/0",
+    "load_csr": "1312/29892/7/71",
+    "store_csr": "630/5307/7/71",
+    "fetch_other": "0/0/0/0",
+    "load_other": "0/0/0/0",
+    "store_other": "0/0/0/0"
+   },
+   "modules": {
+    "ctrl_split_start": 148430,
+    "aecp_mbx": 3824998,
+    "ctrl_app_aecp": 33342912,
+    "mbx": 20142061,
+    "srp_mbx": 32341045,
+    "ctrl_loop": 39215101,
+    "adp_mbx": 231275,
+    "adp": 2710848,
+    "acmp_mbx": 228056,
+    "acmp": 22652076,
+    "maap_mbx": 8882713,
+    "ctrl_mem": 10134317,
+    "ctrl_app_srp": 28164824,
+    "ctrl_aecp_image": 515840,
+    "maap": 11126629,
+    "aecp": 24383624,
+    "aecp_nvm": 5221778,
+    "mrp_mad": 13961747,
+    "mbx_plat_mmio": 1377547,
+    "timer": 197054,
+    "nvm_store": 672511,
+    "nvm_flash_litespi": 124705,
+    "aecp_commands": 36226,
+    "msrp": 25585,
+    "shlan_port": 664,
+    "ctrl_pool": 7647,
+    "mvrp": 2191,
+    "mrp_pdu": 74701,
+    "ctrl_debug": 18,
+    "acmp_nvm": 145,
+    "ctrl_app": 2065,
+    "aecp_image": 1570832,
+    "aecp_face": 11874717,
+    "nvm_klj2": 351753,
+    "unmapped": 350
+   },
+   "code": {
+    "boot_bytes": "15104",
+    "service_bytes": "50304",
+    "service_only_bytes": "46720",
+    "aecp_mbx": "804",
+    "ctrl_app_aecp": "1644",
+    "mbx": "2740",
+    "srp_mbx": "5592",
+    "ctrl_loop": "744",
+    "adp_mbx": "492",
+    "adp": "2320",
+    "acmp_mbx": "424",
+    "acmp": "7012",
+    "maap_mbx": "1288",
+    "ctrl_mem": "1016",
+    "ctrl_app_srp": "1052",
+    "ctrl_aecp_image": "316",
+    "maap": "2896",
+    "aecp": "5176",
+    "aecp_nvm": "164",
+    "mrp_mad": "7140",
+    "mbx_plat_mmio": "20",
+    "timer": "180",
+    "nvm_store": "708",
+    "nvm_flash_litespi": "236",
+    "aecp_commands": "1504",
+    "msrp": "1736",
+    "shlan_port": "80",
+    "ctrl_pool": "688",
+    "mvrp": "508",
+    "mrp_pdu": "1216",
+    "ctrl_app": "104",
+    "aecp_face": "1948",
+    "nvm_klj2": "556"
+   }
+  },
+  {
+   "group": "backlog-adp-refill",
+   "probes": [
+    {
+     "probe": "backlog.adp_available_refill.if0",
+     "row": "an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)",
+     "family": "disc",
+     "interface": 0,
+     "path": [
+      "backlog.adp_available_refill",
+      0
+     ],
+     "start_sys": 276569724,
+     "end_sys": 276580433,
+     "sys_cycles": 10709,
+     "cpu_cycles": 10709,
+     "ms": 0.10709,
+     "wait_ms": 0.0,
+     "passes": 1,
+     "ring": "adp",
+     "ahead": 0,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "bound_cpu_cycles": 33485,
+     "bound_ms": 0.33485,
+     "bound_within_budget": true,
+     "pass_cycles": 20334,
+     "pass_instr": 4077,
+     "pass_mbx_accesses": 20,
+     "pass_fetch_share": 0.7761,
+     "pass_fetch_wait_share": 0.4184,
+     "pass_regions": {
+      "rom": [
+       104,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       17,
+       3
+      ],
+      "csr": [
+       0,
+       7,
+       3
+      ]
+     },
+     "pass_modules": {
+      "acmp": 7641,
+      "aecp": 2419,
+      "ctrl_mem": 1754,
+      "mbx": 1599,
+      "ctrl_loop": 1233,
+      "ctrl_app_aecp": 1190
+     },
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp-refill.service.adp.first.if0",
+     "row": "ADP record released under the composed load, first",
+     "family": "adp",
+     "interface": 0,
+     "path": [
+      "service.adp.first",
+      0
+     ],
+     "start_sys": 272574199,
+     "wait_ms": 0.0,
+     "ring": "adp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 63780,
+     "pass_instr": 15393,
+     "pass_mbx_accesses": 135,
+     "pass_fetch_share": 0.4823,
+     "pass_fetch_wait_share": 0.293,
+     "pass_regions": {
+      "rom": [
+       232,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       73,
+       62
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14037,
+      "mbx": 13029,
+      "ctrl_mem": 8805,
+      "aecp": 6971,
+      "maap": 4149,
+      "ctrl_loop": 3039
+     },
+     "end_sys": 272633297,
+     "sys_cycles": 59098,
+     "cpu_cycles": 59098,
+     "ms": 0.59098,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 200.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp-refill.service.adp.last.if0",
+     "row": "ADP record released under the composed load, last",
+     "family": "adp",
+     "interface": 0,
+     "path": [
+      "service.adp.last",
+      0
+     ],
+     "start_sys": 276569724,
+     "wait_ms": 0.0,
+     "ring": "adp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 20334,
+     "pass_instr": 4077,
+     "pass_mbx_accesses": 20,
+     "pass_fetch_share": 0.7761,
+     "pass_fetch_wait_share": 0.4184,
+     "pass_regions": {
+      "rom": [
+       104,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       17,
+       3
+      ],
+      "csr": [
+       0,
+       7,
+       3
+      ]
+     },
+     "pass_modules": {
+      "acmp": 7641,
+      "aecp": 2419,
+      "ctrl_mem": 1754,
+      "mbx": 1599,
+      "ctrl_loop": 1233,
+      "ctrl_app_aecp": 1190
+     },
+     "end_sys": 276595244,
+     "sys_cycles": 25520,
+     "cpu_cycles": 25520,
+     "ms": 0.2552,
+     "passes": 1,
+     "budget_ms": 20.0,
+     "ceiling_ms": 200.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp-refill.service.acmp.first.if0",
+     "row": "ACMP record released under the composed load, first",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "service.acmp.first",
+      0
+     ],
+     "start_sys": 272573287,
+     "wait_ms": 0.0,
+     "ring": "acmp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 63780,
+     "pass_instr": 15393,
+     "pass_mbx_accesses": 135,
+     "pass_fetch_share": 0.4823,
+     "pass_fetch_wait_share": 0.293,
+     "pass_regions": {
+      "rom": [
+       232,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       73,
+       62
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14037,
+      "mbx": 13029,
+      "ctrl_mem": 8805,
+      "aecp": 6971,
+      "maap": 4149,
+      "ctrl_loop": 3039
+     },
+     "end_sys": 272633297,
+     "sys_cycles": 60010,
+     "cpu_cycles": 60010,
+     "ms": 0.6001,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp-refill.service.acmp.last.if0",
+     "row": "ACMP record released under the composed load, last",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "service.acmp.last",
+      0
+     ],
+     "start_sys": 272574112,
+     "wait_ms": 0.0,
+     "ring": "acmp",
+     "ahead": 11,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 66652,
+     "pass_instr": 14277,
+     "pass_mbx_accesses": 50,
+     "pass_fetch_share": 0.6821,
+     "pass_fetch_wait_share": 0.3728,
+     "pass_regions": {
+      "rom": [
+       309,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       35,
+       15
+      ],
+      "csr": [
+       0,
+       70,
+       24
+      ]
+     },
+     "pass_modules": {
+      "acmp": 13439,
+      "ctrl_mem": 11079,
+      "mrp_mad": 8385,
+      "mbx": 7417,
+      "aecp": 6797,
+      "srp_mbx": 5064
+     },
+     "end_sys": 272998785,
+     "sys_cycles": 424673,
+     "cpu_cycles": 424673,
+     "ms": 4.24673,
+     "passes": 7,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp-refill.service.aecp.first.if0",
+     "row": "AECP record released under the composed load, first",
+     "family": "aecp",
+     "interface": 0,
+     "path": [
+      "service.aecp.first",
+      0
+     ],
+     "start_sys": 272569702,
+     "wait_ms": 0.0,
+     "ring": "aecp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 63780,
+     "pass_instr": 15393,
+     "pass_mbx_accesses": 135,
+     "pass_fetch_share": 0.4823,
+     "pass_fetch_wait_share": 0.293,
+     "pass_regions": {
+      "rom": [
+       232,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       73,
+       62
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14037,
+      "mbx": 13029,
+      "ctrl_mem": 8805,
+      "aecp": 6971,
+      "maap": 4149,
+      "ctrl_loop": 3039
+     },
+     "end_sys": 272633297,
+     "sys_cycles": 63595,
+     "cpu_cycles": 63595,
+     "ms": 0.63595,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 24.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp-refill.service.aecp.last.if0",
+     "row": "AECP record released under the composed load, last",
+     "family": "aecp",
+     "interface": 0,
+     "path": [
+      "service.aecp.last",
+      0
+     ],
+     "start_sys": 272570677,
+     "wait_ms": 0.0,
+     "ring": "aecp",
+     "ahead": 15,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 43449,
+     "pass_instr": 8348,
+     "pass_mbx_accesses": 29,
+     "pass_fetch_share": 0.7327,
+     "pass_fetch_wait_share": 0.4117,
+     "pass_regions": {
+      "rom": [
+       222,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       23,
+       6
+      ],
+      "csr": [
+       0,
+       40,
+       12
+      ]
+     },
+     "pass_modules": {
+      "mrp_mad": 7727,
+      "ctrl_mem": 7724,
+      "aecp": 5606,
+      "mbx": 4278,
+      "srp_mbx": 4209,
+      "mrp_pdu": 3953
+     },
+     "end_sys": 273441326,
+     "sys_cycles": 870649,
+     "cpu_cycles": 870649,
+     "ms": 8.70649,
+     "passes": 17,
+     "budget_ms": 20.0,
+     "ceiling_ms": 24.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp-refill.service.maap.first.if0",
+     "row": "MAAP record released under the composed load, first",
+     "family": "maap",
+     "interface": 0,
+     "path": [
+      "service.maap.first",
+      0
+     ],
+     "start_sys": 272570742,
+     "wait_ms": 0.0,
+     "ring": "maap",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 63780,
+     "pass_instr": 15393,
+     "pass_mbx_accesses": 135,
+     "pass_fetch_share": 0.4823,
+     "pass_fetch_wait_share": 0.293,
+     "pass_regions": {
+      "rom": [
+       232,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       73,
+       62
+      ],
+      "csr": [
+       0,
+       84,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14037,
+      "mbx": 13029,
+      "ctrl_mem": 8805,
+      "aecp": 6971,
+      "maap": 4149,
+      "ctrl_loop": 3039
+     },
+     "end_sys": 272633297,
+     "sys_cycles": 62555,
+     "cpu_cycles": 62555,
+     "ms": 0.62555,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 50.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp-refill.service.maap.last.if0",
+     "row": "MAAP record released under the composed load, last",
+     "family": "maap",
+     "interface": 0,
+     "path": [
+      "service.maap.last",
+      0
+     ],
+     "start_sys": 272571132,
+     "wait_ms": 0.0,
+     "ring": "maap",
+     "ahead": 6,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 73474,
+     "pass_instr": 15605,
+     "pass_mbx_accesses": 71,
+     "pass_fetch_share": 0.6593,
+     "pass_fetch_wait_share": 0.3893,
+     "pass_regions": {
+      "rom": [
+       356,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       37,
+       34
+      ],
+      "csr": [
+       0,
+       83,
+       30
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14448,
+      "ctrl_mem": 11461,
+      "mbx": 9626,
+      "mrp_mad": 8310,
+      "aecp": 7344,
+      "srp_mbx": 5146
+     },
+     "end_sys": 272883253,
+     "sys_cycles": 312121,
+     "cpu_cycles": 312121,
+     "ms": 3.12121,
+     "passes": 5,
+     "budget_ms": 20.0,
+     "ceiling_ms": 50.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp-refill.service.srp.first.if0",
+     "row": "SRP record released under the composed load, first",
+     "family": "srp",
+     "interface": 0,
+     "path": [
+      "service.srp.first",
+      0
+     ],
+     "start_sys": 272571197,
+     "wait_ms": 0.0,
+     "ring": "srp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 97517,
+     "pass_instr": 20748,
+     "pass_mbx_accesses": 138,
+     "pass_fetch_share": 0.6218,
+     "pass_fetch_wait_share": 0.3687,
+     "pass_regions": {
+      "rom": [
+       444,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       77,
+       61
+      ],
+      "csr": [
+       0,
+       96,
+       36
+      ]
+     },
+     "pass_modules": {
+      "ctrl_mem": 15720,
+      "mbx": 14130,
+      "acmp": 13945,
+      "mrp_mad": 12998,
+      "aecp": 7203,
+      "srp_mbx": 6929
+     },
+     "end_sys": 272730814,
+     "sys_cycles": 159617,
+     "cpu_cycles": 159617,
+     "ms": 1.59617,
+     "passes": 3,
+     "budget_ms": 18.0,
+     "ceiling_ms": 18.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-adp-refill.service.srp.last.if0",
+     "row": "SRP record released under the composed load, last",
+     "family": "srp",
+     "interface": 0,
+     "path": [
+      "service.srp.last",
+      0
+     ],
+     "start_sys": 272573212,
+     "wait_ms": 0.0,
+     "ring": "srp",
+     "ahead": 31,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 28891,
+     "pass_instr": 6237,
+     "pass_mbx_accesses": 17,
+     "pass_fetch_share": 0.7892,
+     "pass_fetch_wait_share": 0.3671,
+     "pass_regions": {
+      "rom": [
+       131,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       15,
+       2
+      ],
+      "csr": [
+       0,
+       12,
+       6
+      ]
+     },
+     "pass_modules": {
+      "mrp_mad": 7256,
+      "ctrl_mem": 4828,
+      "mrp_pdu": 3564,
+      "srp_mbx": 2941,
+      "mbx": 2025,
+      "ctrl_loop": 1564
+     },
+     "end_sys": 273500567,
+     "sys_cycles": 927355,
+     "cpu_cycles": 927355,
+     "ms": 9.27355,
+     "passes": 18,
+     "budget_ms": 18.0,
+     "ceiling_ms": 18.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    }
+   ],
+   "timeouts": [],
+   "passes": {
+    "count": 36892,
+    "work": 323,
+    "idle_min": 6729,
+    "idle_max": 15647,
+    "worst": {
+     "cycles": 97517,
+     "ms": 0.97517,
+     "instr": 20748,
+     "start_sys": 272633297,
+     "modules": {
+      "aecp_mbx": 1319,
+      "ctrl_app_aecp": 2190,
+      "mbx": 14130,
+      "srp_mbx": 6929,
+      "ctrl_loop": 3564,
+      "adp_mbx": 637,
+      "adp": 1331,
+      "acmp_mbx": 300,
+      "acmp": 13945,
+      "maap_mbx": 1297,
+      "ctrl_mem": 15720,
+      "ctrl_app_srp": 1260,
+      "ctrl_aecp_image": 44,
+      "maap": 4504,
+      "aecp": 7203,
+      "aecp_nvm": 156,
+      "mrp_mad": 12998,
+      "mbx_plat_mmio": 118,
+      "timer": 19,
+      "nvm_store": 13,
+      "aecp_commands": 977,
+      "msrp": 2080,
+      "shlan_port": 99,
+      "ctrl_pool": 1353,
+      "mrp_pdu": 4788,
+      "aecp_face": 543
+     }
+    },
+    "composed": {
+     "cycles": 97517,
+     "ms": 0.97517,
+     "instr": 20748,
+     "passes": 29,
+     "start_sys": 272633297,
+     "modules": {
+      "aecp_mbx": 1319,
+      "ctrl_app_aecp": 2190,
+      "mbx": 14130,
+      "srp_mbx": 6929,
+      "ctrl_loop": 3564,
+      "adp_mbx": 637,
+      "adp": 1331,
+      "acmp_mbx": 300,
+      "acmp": 13945,
+      "maap_mbx": 1297,
+      "ctrl_mem": 15720,
+      "ctrl_app_srp": 1260,
+      "ctrl_aecp_image": 44,
+      "maap": 4504,
+      "aecp": 7203,
+      "aecp_nvm": 156,
+      "mrp_mad": 12998,
+      "mbx_plat_mmio": 118,
+      "timer": 19,
+      "nvm_store": 13,
+      "aecp_commands": 977,
+      "msrp": 2080,
+      "shlan_port": 99,
+      "ctrl_pool": 1353,
+      "mrp_pdu": 4788,
+      "aecp_face": 543
+     },
+     "population": {
+      "adp": 11,
+      "acmp": 12,
+      "aecp": 16,
+      "maap": 7,
+      "srp": 32,
+      "GM": 15,
+      "LINK": 0
+     },
+     "admission": {
+      "aecp": {
+       "burst": 16,
+       "refill_ms": 5,
+       "record_words": 17,
+       "room": 30,
+       "at_once": 16,
+       "bounded": false
+      },
+      "maap": {
+       "burst": 8,
+       "refill_ms": 20,
+       "record_words": 17,
+       "room": 7,
+       "at_once": 7,
+       "bounded": true
+      },
+      "srp": {
+       "burst": 32,
+       "refill_ms": 2,
+       "record_words": 17,
+       "room": 60,
+       "at_once": 32,
+       "bounded": false
+      },
+      "acmp": {
+       "burst": 16,
+       "refill_ms": 5,
+       "record_words": 20,
+       "room": 12,
+       "at_once": 12,
+       "bounded": true
+      },
+      "adp": {
+       "burst": 8,
+       "refill_ms": 10,
+       "record_words": 23,
+       "room": 11,
+       "at_once": 8,
+       "bounded": false
+      }
+     },
+     "events_held": 0,
+     "serviced": true,
+     "unreleased": {},
+     "window_ms": 40.4989
+    },
+    "share": {
+     "ms": 2.0,
+     "cycles": 200000,
+     "passes": 323,
+     "over": 0,
+     "over_passes": []
+    }
+   },
+   "summary": {
+    "sys": "276619407",
+    "cpu": "276619343",
+    "passes": "36892",
+    "instr": "72987629",
+    "bus_errors": "0",
+    "traps": "0",
+    "mbx_read": "333943/2344436/7/71",
+    "mbx_write": "906/8660/7/71",
+    "host_cycles": "338046/338046/1/1",
+    "fetch_rom": "829002/70977099/80/207",
+    "load_rom": "0/0/0/0",
+    "store_rom": "0/0/0/0",
+    "fetch_sram": "0/0/0/0",
+    "load_sram": "0/0/0/0",
+    "store_sram": "0/0/0/0",
+    "fetch_mbx": "0/0/0/0",
+    "load_mbx": "333943/2344436/7/71",
+    "store_mbx": "906/8660/7/71",
+    "fetch_flash": "0/0/0/0",
+    "load_flash": "160/84260/267/602",
+    "store_flash": "0/0/0/0",
+    "fetch_csr": "0/0/0/0",
+    "load_csr": "1336/30465/7/71",
+    "store_csr": "642/5366/7/71",
+    "fetch_other": "0/0/0/0",
+    "load_other": "0/0/0/0",
+    "store_other": "0/0/0/0"
+   },
+   "modules": {
+    "ctrl_split_start": 148430,
+    "aecp_mbx": 3867669,
+    "ctrl_app_aecp": 33688541,
+    "mbx": 20355746,
+    "srp_mbx": 32679383,
+    "ctrl_loop": 39625596,
+    "adp_mbx": 233935,
+    "adp": 2740102,
+    "acmp_mbx": 230753,
+    "acmp": 22888634,
+    "maap_mbx": 8983686,
+    "ctrl_mem": 10240266,
+    "ctrl_app_srp": 28458559,
+    "ctrl_aecp_image": 521167,
+    "maap": 11285713,
+    "aecp": 24805878,
+    "aecp_nvm": 5276118,
+    "mrp_mad": 14106716,
+    "mbx_plat_mmio": 1391607,
+    "timer": 199802,
+    "nvm_store": 679870,
+    "nvm_flash_litespi": 125217,
+    "aecp_commands": 40655,
+    "msrp": 25491,
+    "shlan_port": 664,
+    "ctrl_pool": 7647,
+    "mvrp": 2191,
+    "mrp_pdu": 74639,
+    "ctrl_debug": 18,
+    "acmp_nvm": 145,
+    "ctrl_app": 2065,
+    "aecp_image": 1570832,
+    "aecp_face": 12009505,
+    "nvm_klj2": 351753,
+    "unmapped": 350
+   },
+   "code": {
+    "boot_bytes": "15104",
+    "service_bytes": "50304",
+    "service_only_bytes": "46720",
+    "aecp_mbx": "804",
+    "ctrl_app_aecp": "1644",
+    "mbx": "2740",
+    "srp_mbx": "5592",
+    "ctrl_loop": "744",
+    "adp_mbx": "492",
+    "adp": "2320",
+    "acmp_mbx": "424",
+    "acmp": "7012",
+    "maap_mbx": "1288",
+    "ctrl_mem": "1016",
+    "ctrl_app_srp": "1052",
+    "ctrl_aecp_image": "316",
+    "maap": "2896",
+    "aecp": "5176",
+    "aecp_nvm": "164",
+    "mrp_mad": "7140",
+    "mbx_plat_mmio": "20",
+    "timer": "180",
+    "nvm_store": "708",
+    "nvm_flash_litespi": "236",
+    "aecp_commands": "1504",
+    "msrp": "1736",
+    "shlan_port": "80",
+    "ctrl_pool": "688",
+    "mvrp": "508",
+    "mrp_pdu": "1216",
+    "ctrl_app": "104",
+    "aecp_face": "1948",
+    "nvm_klj2": "556"
+   }
+  },
+  {
+   "group": "backlog-owed",
+   "probes": [
+    {
+     "probe": "backlog.owed.if0",
+     "row": "a response with 7 frames owed ahead of it",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "backlog.owed",
+      0
+     ],
+     "start_sys": 272766232,
+     "end_sys": 278959794,
+     "sys_cycles": 6193562,
+     "cpu_cycles": 6193562,
+     "ms": 61.93562,
+     "wait_ms": 0.0,
+     "passes": 31,
+     "ring": "acmp",
+     "ahead": 7,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": false,
+     "within_ceiling": false,
+     "owed_ahead": [
+      "7380",
+      "7381",
+      "7382",
+      "7383",
+      "7384",
+      "7385",
+      "7386"
+     ],
+     "bound_cpu_cycles": 6216315,
+     "bound_ms": 62.16315,
+     "bound_within_budget": false,
+     "pass_cycles": 26384,
+     "pass_instr": 5299,
+     "pass_mbx_accesses": 25,
+     "pass_fetch_share": 0.6,
+     "pass_fetch_wait_share": 0.3141,
+     "pass_regions": {
+      "rom": [
+       102,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       18,
+       7
+      ],
+      "csr": [
+       0,
+       34,
+       9
+      ]
+     },
+     "pass_modules": {
+      "ctrl_mem": 4694,
+      "aecp": 4682,
+      "acmp": 4081,
+      "mbx": 3384,
+      "srp_mbx": 1661,
+      "ctrl_app_aecp": 1351
+     },
+     "also_from": "room",
+     "from_origin_cpu_cycles": 193266,
+     "from_origin_ms": 1.93266,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog.owed_behind0.if0",
+     "row": "an ACMP command behind the owed input",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "backlog.owed_behind",
+      0
+     ],
+     "status": "measured",
+     "unanswered": true,
+     "start_sys": 272766307,
+     "end_sys": 308786369,
+     "sys_cycles": 36020062,
+     "cpu_cycles": 36020062,
+     "ms": 360.20062,
+     "wait_ms": 0.0,
+     "ring": "acmp",
+     "ahead": 8,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": false,
+     "within_ceiling": false
+    },
+    {
+     "probe": "backlog.owed_behind1.if0",
+     "row": "an ACMP command behind the owed input",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "backlog.owed_behind",
+      0
+     ],
+     "status": "measured",
+     "unanswered": true,
+     "start_sys": 272766382,
+     "end_sys": 308786369,
+     "sys_cycles": 36019987,
+     "cpu_cycles": 36019987,
+     "ms": 360.19987,
+     "wait_ms": 0.0,
+     "ring": "acmp",
+     "ahead": 9,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": false,
+     "within_ceiling": false
+    },
+    {
+     "probe": "backlog.owed_behind2.if0",
+     "row": "an ACMP command behind the owed input",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "backlog.owed_behind",
+      0
+     ],
+     "status": "measured",
+     "unanswered": true,
+     "start_sys": 272766457,
+     "end_sys": 308786369,
+     "sys_cycles": 36019912,
+     "cpu_cycles": 36019912,
+     "ms": 360.19912,
+     "wait_ms": 0.0,
+     "ring": "acmp",
+     "ahead": 10,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": false,
+     "within_ceiling": false
+    },
+    {
+     "probe": "backlog.owed_behind3.if0",
+     "row": "an ACMP command behind the owed input",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "backlog.owed_behind",
+      0
+     ],
+     "status": "measured",
+     "unanswered": true,
+     "start_sys": 272766532,
+     "end_sys": 308786369,
+     "sys_cycles": 36019837,
+     "cpu_cycles": 36019837,
+     "ms": 360.19837,
+     "wait_ms": 0.0,
+     "ring": "acmp",
+     "ahead": 11,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": false,
+     "within_ceiling": false
+    },
+    {
+     "probe": "backlog-owed.service.adp.first.if0",
+     "row": "ADP record released under the composed load, first",
+     "family": "adp",
+     "interface": 0,
+     "path": [
+      "service.adp.first",
+      0
+     ],
+     "start_sys": 272761448,
+     "wait_ms": 0.0,
+     "ring": "adp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 61611,
+     "pass_instr": 15052,
+     "pass_mbx_accesses": 129,
+     "pass_fetch_share": 0.4848,
+     "pass_fetch_wait_share": 0.2721,
+     "pass_regions": {
+      "rom": [
+       208,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       73,
+       56
+      ],
+      "csr": [
+       0,
+       68,
+       24
+      ]
+     },
+     "pass_modules": {
+      "acmp": 12629,
+      "mbx": 11942,
+      "ctrl_mem": 9509,
+      "aecp": 6615,
+      "maap": 4149,
+      "srp_mbx": 3046
+     },
+     "end_sys": 272829116,
+     "sys_cycles": 67668,
+     "cpu_cycles": 67668,
+     "ms": 0.67668,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 200.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-owed.service.adp.last.if0",
+     "row": "ADP record released under the composed load, last",
+     "family": "adp",
+     "interface": 0,
+     "path": [
+      "service.adp.last",
+      0
+     ],
+     "start_sys": 272762057,
+     "wait_ms": 0.0,
+     "ring": "adp",
+     "ahead": 7,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 72558,
+     "pass_instr": 15321,
+     "pass_mbx_accesses": 67,
+     "pass_fetch_share": 0.6763,
+     "pass_fetch_wait_share": 0.3888,
+     "pass_regions": {
+      "rom": [
+       351,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       38,
+       29
+      ],
+      "csr": [
+       0,
+       74,
+       27
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14100,
+      "ctrl_mem": 11991,
+      "mbx": 9117,
+      "mrp_mad": 8256,
+      "aecp": 6549,
+      "srp_mbx": 5021
+     },
+     "end_sys": 273075424,
+     "sys_cycles": 313367,
+     "cpu_cycles": 313367,
+     "ms": 3.13367,
+     "passes": 5,
+     "budget_ms": 20.0,
+     "ceiling_ms": 200.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-owed.service.acmp.first.if0",
+     "row": "ACMP record released under the composed load, first",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "service.acmp.first",
+      0
+     ],
+     "start_sys": 272765707,
+     "wait_ms": 0.0,
+     "ring": "acmp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 61611,
+     "pass_instr": 15052,
+     "pass_mbx_accesses": 129,
+     "pass_fetch_share": 0.4848,
+     "pass_fetch_wait_share": 0.2721,
+     "pass_regions": {
+      "rom": [
+       208,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       73,
+       56
+      ],
+      "csr": [
+       0,
+       68,
+       24
+      ]
+     },
+     "pass_modules": {
+      "acmp": 12629,
+      "mbx": 11942,
+      "ctrl_mem": 9509,
+      "aecp": 6615,
+      "maap": 4149,
+      "srp_mbx": 3046
+     },
+     "end_sys": 272829116,
+     "sys_cycles": 63409,
+     "cpu_cycles": 63409,
+     "ms": 0.63409,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-owed.service.acmp.last.if0",
+     "row": "ACMP record released under the composed load, last",
+     "family": "acmp",
+     "interface": 0,
+     "path": [
+      "service.acmp.last",
+      0
+     ],
+     "start_sys": 272766532,
+     "wait_ms": 0.0,
+     "ring": "acmp",
+     "ahead": 11,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 54551,
+     "pass_instr": 11012,
+     "pass_mbx_accesses": 33,
+     "pass_fetch_share": 0.7734,
+     "pass_fetch_wait_share": 0.4027,
+     "pass_regions": {
+      "rom": [
+       273,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       28,
+       5
+      ],
+      "csr": [
+       0,
+       32,
+       15
+      ]
+     },
+     "pass_modules": {
+      "ctrl_mem": 9748,
+      "acmp": 8931,
+      "mrp_mad": 8093,
+      "aecp": 5228,
+      "mbx": 4677,
+      "srp_mbx": 4517
+     },
+     "end_sys": 273187605,
+     "sys_cycles": 421073,
+     "cpu_cycles": 421073,
+     "ms": 4.21073,
+     "passes": 7,
+     "budget_ms": 20.0,
+     "ceiling_ms": 20.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-owed.service.aecp.first.if0",
+     "row": "AECP record released under the composed load, first",
+     "family": "aecp",
+     "interface": 0,
+     "path": [
+      "service.aecp.first",
+      0
+     ],
+     "start_sys": 272762122,
+     "wait_ms": 0.0,
+     "ring": "aecp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 61611,
+     "pass_instr": 15052,
+     "pass_mbx_accesses": 129,
+     "pass_fetch_share": 0.4848,
+     "pass_fetch_wait_share": 0.2721,
+     "pass_regions": {
+      "rom": [
+       208,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       73,
+       56
+      ],
+      "csr": [
+       0,
+       68,
+       24
+      ]
+     },
+     "pass_modules": {
+      "acmp": 12629,
+      "mbx": 11942,
+      "ctrl_mem": 9509,
+      "aecp": 6615,
+      "maap": 4149,
+      "srp_mbx": 3046
+     },
+     "end_sys": 272829116,
+     "sys_cycles": 66994,
+     "cpu_cycles": 66994,
+     "ms": 0.66994,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 24.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-owed.service.aecp.last.if0",
+     "row": "AECP record released under the composed load, last",
+     "family": "aecp",
+     "interface": 0,
+     "path": [
+      "service.aecp.last",
+      0
+     ],
+     "start_sys": 272763097,
+     "wait_ms": 0.0,
+     "ring": "aecp",
+     "ahead": 15,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 20825,
+     "pass_instr": 4045,
+     "pass_mbx_accesses": 21,
+     "pass_fetch_share": 0.6284,
+     "pass_fetch_wait_share": 0.3634,
+     "pass_regions": {
+      "rom": [
+       93,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       17,
+       4
+      ],
+      "csr": [
+       0,
+       28,
+       6
+      ]
+     },
+     "pass_modules": {
+      "aecp": 4451,
+      "ctrl_mem": 3671,
+      "mbx": 2840,
+      "srp_mbx": 1581,
+      "ctrl_app_aecp": 1286,
+      "ctrl_loop": 1242
+     },
+     "end_sys": 279037914,
+     "sys_cycles": 6274817,
+     "cpu_cycles": 6274817,
+     "ms": 62.74817,
+     "passes": 34,
+     "budget_ms": 20.0,
+     "ceiling_ms": 24.0,
+     "within_budget": false,
+     "within_ceiling": false,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-owed.service.maap.first.if0",
+     "row": "MAAP record released under the composed load, first",
+     "family": "maap",
+     "interface": 0,
+     "path": [
+      "service.maap.first",
+      0
+     ],
+     "start_sys": 272763162,
+     "wait_ms": 0.0,
+     "ring": "maap",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 61611,
+     "pass_instr": 15052,
+     "pass_mbx_accesses": 129,
+     "pass_fetch_share": 0.4848,
+     "pass_fetch_wait_share": 0.2721,
+     "pass_regions": {
+      "rom": [
+       208,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       73,
+       56
+      ],
+      "csr": [
+       0,
+       68,
+       24
+      ]
+     },
+     "pass_modules": {
+      "acmp": 12629,
+      "mbx": 11942,
+      "ctrl_mem": 9509,
+      "aecp": 6615,
+      "maap": 4149,
+      "srp_mbx": 3046
+     },
+     "end_sys": 272829116,
+     "sys_cycles": 65954,
+     "cpu_cycles": 65954,
+     "ms": 0.65954,
+     "passes": 2,
+     "budget_ms": 20.0,
+     "ceiling_ms": 50.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-owed.service.maap.last.if0",
+     "row": "MAAP record released under the composed load, last",
+     "family": "maap",
+     "interface": 0,
+     "path": [
+      "service.maap.last",
+      0
+     ],
+     "start_sys": 272763552,
+     "wait_ms": 0.0,
+     "ring": "maap",
+     "ahead": 6,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 72558,
+     "pass_instr": 15321,
+     "pass_mbx_accesses": 67,
+     "pass_fetch_share": 0.6763,
+     "pass_fetch_wait_share": 0.3888,
+     "pass_regions": {
+      "rom": [
+       351,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       38,
+       29
+      ],
+      "csr": [
+       0,
+       74,
+       27
+      ]
+     },
+     "pass_modules": {
+      "acmp": 14100,
+      "ctrl_mem": 11991,
+      "mbx": 9117,
+      "mrp_mad": 8256,
+      "aecp": 6549,
+      "srp_mbx": 5021
+     },
+     "end_sys": 273075424,
+     "sys_cycles": 311872,
+     "cpu_cycles": 311872,
+     "ms": 3.11872,
+     "passes": 5,
+     "budget_ms": 20.0,
+     "ceiling_ms": 50.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-owed.service.srp.first.if0",
+     "row": "SRP record released under the composed load, first",
+     "family": "srp",
+     "interface": 0,
+     "path": [
+      "service.srp.first",
+      0
+     ],
+     "start_sys": 272763617,
+     "wait_ms": 0.0,
+     "ring": "srp",
+     "ahead": 0,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 96670,
+     "pass_instr": 20272,
+     "pass_mbx_accesses": 131,
+     "pass_fetch_share": 0.6482,
+     "pass_fetch_wait_share": 0.372,
+     "pass_regions": {
+      "rom": [
+       444,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       76,
+       55
+      ],
+      "csr": [
+       0,
+       80,
+       30
+      ]
+     },
+     "pass_modules": {
+      "ctrl_mem": 16414,
+      "acmp": 14000,
+      "mrp_mad": 13049,
+      "mbx": 12977,
+      "srp_mbx": 6978,
+      "aecp": 6575
+     },
+     "end_sys": 272925786,
+     "sys_cycles": 162169,
+     "cpu_cycles": 162169,
+     "ms": 1.62169,
+     "passes": 3,
+     "budget_ms": 18.0,
+     "ceiling_ms": 18.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    },
+    {
+     "probe": "backlog-owed.service.srp.last.if0",
+     "row": "SRP record released under the composed load, last",
+     "family": "srp",
+     "interface": 0,
+     "path": [
+      "service.srp.last",
+      0
+     ],
+     "start_sys": 272765632,
+     "wait_ms": 0.0,
+     "ring": "srp",
+     "ahead": 31,
+     "in_window": true,
+     "starved": false,
+     "pass_cycles": 21277,
+     "pass_instr": 4208,
+     "pass_mbx_accesses": 17,
+     "pass_fetch_share": 0.8243,
+     "pass_fetch_wait_share": 0.4647,
+     "pass_regions": {
+      "rom": [
+       122,
+       0,
+       0
+      ],
+      "mbx": [
+       0,
+       16,
+       1
+      ],
+      "csr": [
+       0,
+       6,
+       3
+      ]
+     },
+     "pass_modules": {
+      "mrp_mad": 5093,
+      "ctrl_mem": 2813,
+      "srp_mbx": 2293,
+      "mbx": 1838,
+      "mrp_pdu": 1813,
+      "ctrl_loop": 1464
+     },
+     "end_sys": 273531123,
+     "sys_cycles": 765491,
+     "cpu_cycles": 765491,
+     "ms": 7.65491,
+     "passes": 18,
+     "budget_ms": 18.0,
+     "ceiling_ms": 18.0,
+     "within_budget": true,
+     "within_ceiling": true,
+     "status": "measured"
+    }
+   ],
+   "timeouts": [
+    "wait tx TIMEOUT"
+   ],
+   "passes": {
+    "count": 41232,
+    "work": 350,
+    "idle_min": 6729,
+    "idle_max": 15647,
+    "worst": {
+     "cycles": 96670,
+     "ms": 0.9667,
+     "instr": 20272,
+     "start_sys": 272829116,
+     "modules": {
+      "aecp_mbx": 1119,
+      "ctrl_app_aecp": 2165,
+      "mbx": 12977,
+      "srp_mbx": 6978,
+      "ctrl_loop": 3647,
+      "adp_mbx": 637,
+      "adp": 1331,
+      "acmp_mbx": 287,
+      "acmp": 14000,
+      "maap_mbx": 1276,
+      "ctrl_mem": 16414,
+      "ctrl_app_srp": 1260,
+      "ctrl_aecp_image": 44,
+      "maap": 4454,
+      "aecp": 6575,
+      "aecp_nvm": 156,
+      "mrp_mad": 13049,
+      "mbx_plat_mmio": 118,
+      "timer": 19,
+      "nvm_store": 13,
+      "aecp_commands": 1118,
+      "msrp": 2080,
+      "shlan_port": 99,
+      "ctrl_pool": 1523,
+      "mrp_pdu": 4788,
+      "aecp_face": 543
+     }
+    },
+    "composed": {
+     "cycles": 96670,
+     "ms": 0.9667,
+     "instr": 20272,
+     "passes": 65,
+     "start_sys": 272829116,
+     "modules": {
+      "aecp_mbx": 1119,
+      "ctrl_app_aecp": 2165,
+      "mbx": 12977,
+      "srp_mbx": 6978,
+      "ctrl_loop": 3647,
+      "adp_mbx": 637,
+      "adp": 1331,
+      "acmp_mbx": 287,
+      "acmp": 14000,
+      "maap_mbx": 1276,
+      "ctrl_mem": 16414,
+      "ctrl_app_srp": 1260,
+      "ctrl_aecp_image": 44,
+      "maap": 4454,
+      "aecp": 6575,
+      "aecp_nvm": 156,
+      "mrp_mad": 13049,
+      "mbx_plat_mmio": 118,
+      "timer": 19,
+      "nvm_store": 13,
+      "aecp_commands": 1118,
+      "msrp": 2080,
+      "shlan_port": 99,
+      "ctrl_pool": 1523,
+      "mrp_pdu": 4788,
+      "aecp_face": 543
+     },
+     "population": {
+      "adp": 8,
+      "acmp": 12,
+      "aecp": 16,
+      "maap": 7,
+      "srp": 32,
+      "GM": 15,
+      "LINK": 0
+     },
+     "admission": {
+      "adp": {
+       "burst": 8,
+       "refill_ms": 10,
+       "record_words": 23,
+       "room": 11,
+       "at_once": 8,
+       "bounded": false
+      },
+      "aecp": {
+       "burst": 16,
+       "refill_ms": 5,
+       "record_words": 17,
+       "room": 30,
+       "at_once": 16,
+       "bounded": false
+      },
+      "maap": {
+       "burst": 8,
+       "refill_ms": 20,
+       "record_words": 17,
+       "room": 7,
+       "at_once": 7,
+       "bounded": true
+      },
+      "srp": {
+       "burst": 32,
+       "refill_ms": 2,
+       "record_words": 17,
+       "room": 60,
+       "at_once": 32,
+       "bounded": false
+      },
+      "acmp": {
+       "burst": 16,
+       "refill_ms": 5,
+       "record_words": 20,
+       "room": 12,
+       "at_once": 12,
+       "bounded": true
+      }
+     },
+     "events_held": 0,
+     "serviced": true,
+     "unreleased": {},
+     "window_ms": 360.25128
+    },
+    "share": {
+     "ms": 2.0,
+     "cycles": 200000,
+     "passes": 350,
+     "over": 0,
+     "over_passes": []
+    }
+   },
+   "summary": {
+    "sys": "308786369",
+    "cpu": "308786305",
+    "passes": "41232",
+    "instr": "81499677",
+    "bus_errors": "0",
+    "traps": "0",
+    "mbx_read": "375131/2632107/7/70",
+    "mbx_write": "840/7694/7/71",
+    "host_cycles": "379404/379404/1/1",
+    "fetch_rom": "929229/79542009/80/207",
+    "load_rom": "0/0/0/0",
+    "store_rom": "0/0/0/0",
+    "fetch_sram": "0/0/0/0",
+    "load_sram": "0/0/0/0",
+    "store_sram": "0/0/0/0",
+    "fetch_mbx": "0/0/0/0",
+    "load_mbx": "375131/2632107/7/70",
+    "store_mbx": "840/7694/7/71",
+    "fetch_flash": "0/0/0/0",
+    "load_flash": "160/84260/267/602",
+    "store_flash": "0/0/0/0",
+    "fetch_csr": "0/0/0/0",
+    "load_csr": "1461/32949/7/72",
+    "store_csr": "715/5838/7/71",
+    "fetch_other": "0/0/0/0",
+    "load_other": "0/0/0/0",
+    "store_other": "0/0/0/0"
+   },
+   "modules": {
+    "ctrl_split_start": 148430,
+    "aecp_mbx": 4403160,
+    "ctrl_app_aecp": 37701631,
+    "mbx": 22858449,
+    "srp_mbx": 36516499,
+    "ctrl_loop": 44252227,
+    "adp_mbx": 260643,
+    "adp": 3060504,
+    "acmp_mbx": 272238,
+    "acmp": 25687645,
+    "maap_mbx": 10134175,
+    "ctrl_mem": 11424334,
+    "ctrl_app_srp": 31867231,
+    "ctrl_aecp_image": 581894,
+    "maap": 12671958,
+    "aecp": 27012418,
+    "aecp_nvm": 5896712,
+    "mrp_mad": 15805713,
+    "mbx_plat_mmio": 1546569,
+    "timer": 222912,
+    "nvm_store": 757414,
+    "nvm_flash_litespi": 129125,
+    "aecp_commands": 22715,
+    "msrp": 26551,
+    "shlan_port": 664,
+    "ctrl_pool": 7817,
+    "mvrp": 2663,
+    "mrp_pdu": 74258,
+    "ctrl_debug": 18,
+    "acmp_nvm": 145,
+    "ctrl_app": 2065,
+    "aecp_image": 1570832,
+    "aecp_face": 13516521,
+    "nvm_klj2": 349825,
+    "unmapped": 350
+   },
+   "code": {
+    "boot_bytes": "15104",
+    "service_bytes": "44608",
+    "service_only_bytes": "41792",
+    "aecp_mbx": "780",
+    "ctrl_app_aecp": "1368",
+    "mbx": "2248",
+    "srp_mbx": "5592",
+    "ctrl_loop": "712",
+    "adp_mbx": "492",
+    "adp": "2320",
+    "acmp_mbx": "224",
+    "acmp": "5000",
+    "maap_mbx": "1288",
+    "ctrl_mem": "1016",
+    "ctrl_app_srp": "924",
+    "ctrl_aecp_image": "312",
+    "maap": "2896",
+    "aecp": "4200",
+    "aecp_nvm": "164",
+    "mrp_mad": "7140",
+    "mbx_plat_mmio": "20",
+    "timer": "180",
+    "nvm_store": "516",
+    "nvm_flash_litespi": "212",
+    "aecp_commands": "1000",
+    "msrp": "1736",
+    "shlan_port": "80",
+    "ctrl_pool": "688",
+    "mvrp": "508",
+    "mrp_pdu": "1216",
+    "ctrl_app": "104",
+    "aecp_face": "1628",
+    "nvm_klj2": "44"
+   }
+  }
+ ],
+ "paths": [
+  {
+   "path": "backlog.acmp_command",
+   "interface": 0,
+   "row": "an ACMP command behind a full acmp ring",
+   "instances": 1,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog.acmp_command.if0",
+    "row": "an ACMP command behind a full acmp ring",
+    "family": "acmp",
+    "interface": 0,
+    "path": [
+     "backlog.acmp_command",
+     0
+    ],
+    "start_sys": 267419604,
+    "end_sys": 267722575,
+    "sys_cycles": 302971,
+    "cpu_cycles": 302971,
+    "ms": 3.02971,
+    "wait_ms": 0.0,
+    "passes": 6,
+    "ring": "acmp",
+    "ahead": 11,
+    "budget_ms": 20.0,
+    "ceiling_ms": 20.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "bound_cpu_cycles": 334287,
+    "bound_ms": 3.34287,
+    "bound_within_budget": true,
+    "pass_cycles": 40742,
+    "pass_instr": 9468,
+    "pass_mbx_accesses": 44,
+    "pass_fetch_share": 0.4926,
+    "pass_fetch_wait_share": 0.2662,
+    "pass_regions": {
+     "rom": [
+      134,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      30,
+      14
+     ],
+     "csr": [
+      0,
+      70,
+      24
+     ]
+    },
+    "pass_modules": {
+     "acmp": 11915,
+     "mbx": 6885,
+     "ctrl_mem": 6290,
+     "aecp": 5562,
+     "srp_mbx": 2297,
+     "ctrl_loop": 1579
+    },
+    "status": "measured",
+    "group": "backlog"
+   }
+  },
+  {
+   "path": "backlog.adp_available",
+   "interface": 0,
+   "row": "an ENTITY_AVAILABLE behind a full adp ring",
+   "instances": 1,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog.adp_available.if0",
+    "row": "an ENTITY_AVAILABLE behind a full adp ring",
+    "family": "disc",
+    "interface": 0,
+    "path": [
+     "backlog.adp_available",
+     0
+    ],
+    "start_sys": 272574808,
+    "end_sys": 272816311,
+    "sys_cycles": 241503,
+    "cpu_cycles": 241503,
+    "ms": 2.41503,
+    "wait_ms": 0.0,
+    "passes": 4,
+    "ring": "adp",
+    "ahead": 7,
+    "budget_ms": 20.0,
+    "ceiling_ms": 20.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "bound_cpu_cycles": 323155,
+    "bound_ms": 3.23155,
+    "bound_within_budget": true,
+    "pass_cycles": 82893,
+    "pass_instr": 17629,
+    "pass_mbx_accesses": 81,
+    "pass_fetch_share": 0.6667,
+    "pass_fetch_wait_share": 0.396,
+    "pass_regions": {
+     "rom": [
+      408,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      44,
+      37
+     ],
+     "csr": [
+      0,
+      90,
+      33
+     ]
+    },
+    "pass_modules": {
+     "acmp": 19230,
+     "ctrl_mem": 12878,
+     "mbx": 10967,
+     "mrp_mad": 8399,
+     "aecp": 8306,
+     "srp_mbx": 5146
+    },
+    "status": "measured",
+    "group": "backlog-adp"
+   }
+  },
+  {
+   "path": "backlog.adp_available_refill",
+   "interface": 0,
+   "row": "an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)",
+   "instances": 1,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog.adp_available_refill.if0",
+    "row": "an ENTITY_AVAILABLE behind the adp ring, its bucket refilling (observed)",
+    "family": "disc",
+    "interface": 0,
+    "path": [
+     "backlog.adp_available_refill",
+     0
+    ],
+    "start_sys": 276569724,
+    "end_sys": 276580433,
+    "sys_cycles": 10709,
+    "cpu_cycles": 10709,
+    "ms": 0.10709,
+    "wait_ms": 0.0,
+    "passes": 1,
+    "ring": "adp",
+    "ahead": 0,
+    "budget_ms": 20.0,
+    "ceiling_ms": 20.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "bound_cpu_cycles": 33485,
+    "bound_ms": 0.33485,
+    "bound_within_budget": true,
+    "pass_cycles": 20334,
+    "pass_instr": 4077,
+    "pass_mbx_accesses": 20,
+    "pass_fetch_share": 0.7761,
+    "pass_fetch_wait_share": 0.4184,
+    "pass_regions": {
+     "rom": [
+      104,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      17,
+      3
+     ],
+     "csr": [
+      0,
+      7,
+      3
+     ]
+    },
+    "pass_modules": {
+     "acmp": 7641,
+     "aecp": 2419,
+     "ctrl_mem": 1754,
+     "mbx": 1599,
+     "ctrl_loop": 1233,
+     "ctrl_app_aecp": 1190
+    },
+    "status": "measured",
+    "group": "backlog-adp-refill"
+   }
+  },
+  {
+   "path": "backlog.event",
+   "interface": 0,
+   "row": "an event behind 15 others",
+   "instances": 1,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog.event.if0",
+    "row": "an event behind 15 others",
+    "family": "adp",
+    "interface": 0,
+    "path": [
+     "backlog.event",
+     0
+    ],
+    "start_sys": 267414432,
+    "end_sys": 267492841,
+    "sys_cycles": 78409,
+    "cpu_cycles": 78409,
+    "ms": 0.78409,
+    "wait_ms": 0.0,
+    "passes": 2,
+    "ring": "events",
+    "ahead": 15,
+    "budget_ms": 20.0,
+    "ceiling_ms": 200.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "bound_cpu_cycles": 128749,
+    "bound_ms": 1.28749,
+    "bound_within_budget": true,
+    "pass_cycles": 58800,
+    "pass_instr": 13431,
+    "pass_mbx_accesses": 104,
+    "pass_fetch_share": 0.5,
+    "pass_fetch_wait_share": 0.3009,
+    "pass_regions": {
+     "rom": [
+      218,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      72,
+      32
+     ],
+     "csr": [
+      0,
+      84,
+      30
+     ]
+    },
+    "pass_modules": {
+     "acmp": 13809,
+     "mbx": 10743,
+     "ctrl_mem": 8308,
+     "aecp": 6607,
+     "ctrl_loop": 3625,
+     "ctrl_app_aecp": 2594
+    },
+    "status": "measured",
+    "group": "backlog"
+   }
+  },
+  {
+   "path": "backlog.owed",
+   "interface": 0,
+   "row": "a response with 7 frames owed ahead of it",
+   "instances": 1,
+   "misses": 1,
+   "worst": {
+    "probe": "backlog.owed.if0",
+    "row": "a response with 7 frames owed ahead of it",
+    "family": "acmp",
+    "interface": 0,
+    "path": [
+     "backlog.owed",
+     0
+    ],
+    "start_sys": 272766232,
+    "end_sys": 278959794,
+    "sys_cycles": 6193562,
+    "cpu_cycles": 6193562,
+    "ms": 61.93562,
+    "wait_ms": 0.0,
+    "passes": 31,
+    "ring": "acmp",
+    "ahead": 7,
+    "budget_ms": 20.0,
+    "ceiling_ms": 20.0,
+    "within_budget": false,
+    "within_ceiling": false,
+    "owed_ahead": [
+     "7380",
+     "7381",
+     "7382",
+     "7383",
+     "7384",
+     "7385",
+     "7386"
+    ],
+    "bound_cpu_cycles": 6216315,
+    "bound_ms": 62.16315,
+    "bound_within_budget": false,
+    "pass_cycles": 26384,
+    "pass_instr": 5299,
+    "pass_mbx_accesses": 25,
+    "pass_fetch_share": 0.6,
+    "pass_fetch_wait_share": 0.3141,
+    "pass_regions": {
+     "rom": [
+      102,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      18,
+      7
+     ],
+     "csr": [
+      0,
+      34,
+      9
+     ]
+    },
+    "pass_modules": {
+     "ctrl_mem": 4694,
+     "aecp": 4682,
+     "acmp": 4081,
+     "mbx": 3384,
+     "srp_mbx": 1661,
+     "ctrl_app_aecp": 1351
+    },
+    "also_from": "room",
+    "from_origin_cpu_cycles": 193266,
+    "from_origin_ms": 1.93266,
+    "status": "measured",
+    "group": "backlog-owed"
+   }
+  },
+  {
+   "path": "backlog.owed_behind",
+   "interface": 0,
+   "row": "an ACMP command behind the owed input",
+   "instances": 4,
+   "misses": 4,
+   "worst": {
+    "probe": "backlog.owed_behind0.if0",
+    "row": "an ACMP command behind the owed input",
+    "family": "acmp",
+    "interface": 0,
+    "path": [
+     "backlog.owed_behind",
+     0
+    ],
+    "status": "measured",
+    "unanswered": true,
+    "start_sys": 272766307,
+    "end_sys": 308786369,
+    "sys_cycles": 36020062,
+    "cpu_cycles": 36020062,
+    "ms": 360.20062,
+    "wait_ms": 0.0,
+    "ring": "acmp",
+    "ahead": 8,
+    "budget_ms": 20.0,
+    "ceiling_ms": 20.0,
+    "within_budget": false,
+    "within_ceiling": false,
+    "group": "backlog-owed"
+   }
+  },
+  {
+   "path": "service.acmp.first",
+   "interface": 0,
+   "row": "ACMP record released under the composed load, first",
+   "instances": 4,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog.service.acmp.first.if0",
+    "row": "ACMP record released under the composed load, first",
+    "family": "acmp",
+    "interface": 0,
+    "path": [
+     "service.acmp.first",
+     0
+    ],
+    "start_sys": 267418779,
+    "wait_ms": 0.0,
+    "ring": "acmp",
+    "ahead": 0,
+    "in_window": true,
+    "starved": false,
+    "pass_cycles": 69949,
+    "pass_instr": 16214,
+    "pass_mbx_accesses": 138,
+    "pass_fetch_share": 0.5107,
+    "pass_fetch_wait_share": 0.3026,
+    "pass_regions": {
+     "rom": [
+      263,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      74,
+      64
+     ],
+     "csr": [
+      0,
+      84,
+      30
+     ]
+    },
+    "pass_modules": {
+     "acmp": 14434,
+     "mbx": 13588,
+     "ctrl_mem": 10464,
+     "aecp": 6749,
+     "maap": 4149,
+     "ctrl_loop": 3196
+    },
+    "end_sys": 267484261,
+    "sys_cycles": 65482,
+    "cpu_cycles": 65482,
+    "ms": 0.65482,
+    "passes": 2,
+    "budget_ms": 20.0,
+    "ceiling_ms": 20.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "status": "measured",
+    "group": "backlog"
+   }
+  },
+  {
+   "path": "service.acmp.last",
+   "interface": 0,
+   "row": "ACMP record released under the composed load, last",
+   "instances": 4,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog-adp.service.acmp.last.if0",
+    "row": "ACMP record released under the composed load, last",
+    "family": "acmp",
+    "interface": 0,
+    "path": [
+     "service.acmp.last",
+     0
+    ],
+    "start_sys": 272574112,
+    "wait_ms": 0.0,
+    "ring": "acmp",
+    "ahead": 11,
+    "in_window": true,
+    "starved": false,
+    "pass_cycles": 66711,
+    "pass_instr": 14303,
+    "pass_mbx_accesses": 50,
+    "pass_fetch_share": 0.6821,
+    "pass_fetch_wait_share": 0.3725,
+    "pass_regions": {
+     "rom": [
+      309,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      35,
+      15
+     ],
+     "csr": [
+      0,
+      70,
+      24
+     ]
+    },
+    "pass_modules": {
+     "acmp": 13401,
+     "ctrl_mem": 11079,
+     "mrp_mad": 8385,
+     "mbx": 7417,
+     "aecp": 6734,
+     "srp_mbx": 5023
+    },
+    "end_sys": 273008289,
+    "sys_cycles": 434177,
+    "cpu_cycles": 434177,
+    "ms": 4.34177,
+    "passes": 7,
+    "budget_ms": 20.0,
+    "ceiling_ms": 20.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "status": "measured",
+    "group": "backlog-adp"
+   }
+  },
+  {
+   "path": "service.adp.first",
+   "interface": 0,
+   "row": "ADP record released under the composed load, first",
+   "instances": 4,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog.service.adp.first.if0",
+    "row": "ADP record released under the composed load, first",
+    "family": "adp",
+    "interface": 0,
+    "path": [
+     "service.adp.first",
+     0
+    ],
+    "start_sys": 267414520,
+    "wait_ms": 0.0,
+    "ring": "adp",
+    "ahead": 0,
+    "in_window": true,
+    "starved": false,
+    "pass_cycles": 69949,
+    "pass_instr": 16214,
+    "pass_mbx_accesses": 138,
+    "pass_fetch_share": 0.5107,
+    "pass_fetch_wait_share": 0.3026,
+    "pass_regions": {
+     "rom": [
+      263,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      74,
+      64
+     ],
+     "csr": [
+      0,
+      84,
+      30
+     ]
+    },
+    "pass_modules": {
+     "acmp": 14434,
+     "mbx": 13588,
+     "ctrl_mem": 10464,
+     "aecp": 6749,
+     "maap": 4149,
+     "ctrl_loop": 3196
+    },
+    "end_sys": 267484261,
+    "sys_cycles": 69741,
+    "cpu_cycles": 69741,
+    "ms": 0.69741,
+    "passes": 2,
+    "budget_ms": 20.0,
+    "ceiling_ms": 200.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "status": "measured",
+    "group": "backlog"
+   }
+  },
+  {
+   "path": "service.adp.last",
+   "interface": 0,
+   "row": "ADP record released under the composed load, last",
+   "instances": 4,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog-adp.service.adp.last.if0",
+    "row": "ADP record released under the composed load, last",
+    "family": "adp",
+    "interface": 0,
+    "path": [
+     "service.adp.last",
+     0
+    ],
+    "start_sys": 272574808,
+    "wait_ms": 0.0,
+    "ring": "adp",
+    "ahead": 7,
+    "in_window": true,
+    "starved": false,
+    "pass_cycles": 82893,
+    "pass_instr": 17629,
+    "pass_mbx_accesses": 81,
+    "pass_fetch_share": 0.6667,
+    "pass_fetch_wait_share": 0.396,
+    "pass_regions": {
+     "rom": [
+      408,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      44,
+      37
+     ],
+     "csr": [
+      0,
+      90,
+      33
+     ]
+    },
+    "pass_modules": {
+     "acmp": 19230,
+     "ctrl_mem": 12878,
+     "mbx": 10967,
+     "mrp_mad": 8399,
+     "aecp": 8306,
+     "srp_mbx": 5146
+    },
+    "end_sys": 272892672,
+    "sys_cycles": 317864,
+    "cpu_cycles": 317864,
+    "ms": 3.17864,
+    "passes": 5,
+    "budget_ms": 20.0,
+    "ceiling_ms": 200.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "status": "measured",
+    "group": "backlog-adp"
+   }
+  },
+  {
+   "path": "service.aecp.first",
+   "interface": 0,
+   "row": "AECP record released under the composed load, first",
+   "instances": 4,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog.service.aecp.first.if0",
+    "row": "AECP record released under the composed load, first",
+    "family": "aecp",
+    "interface": 0,
+    "path": [
+     "service.aecp.first",
+     0
+    ],
+    "start_sys": 267415194,
+    "wait_ms": 0.0,
+    "ring": "aecp",
+    "ahead": 0,
+    "in_window": true,
+    "starved": false,
+    "pass_cycles": 69949,
+    "pass_instr": 16214,
+    "pass_mbx_accesses": 138,
+    "pass_fetch_share": 0.5107,
+    "pass_fetch_wait_share": 0.3026,
+    "pass_regions": {
+     "rom": [
+      263,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      74,
+      64
+     ],
+     "csr": [
+      0,
+      84,
+      30
+     ]
+    },
+    "pass_modules": {
+     "acmp": 14434,
+     "mbx": 13588,
+     "ctrl_mem": 10464,
+     "aecp": 6749,
+     "maap": 4149,
+     "ctrl_loop": 3196
+    },
+    "end_sys": 267484261,
+    "sys_cycles": 69067,
+    "cpu_cycles": 69067,
+    "ms": 0.69067,
+    "passes": 2,
+    "budget_ms": 20.0,
+    "ceiling_ms": 24.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "status": "measured",
+    "group": "backlog"
+   }
+  },
+  {
+   "path": "service.aecp.last",
+   "interface": 0,
+   "row": "AECP record released under the composed load, last",
+   "instances": 4,
+   "misses": 1,
+   "worst": {
+    "probe": "backlog-owed.service.aecp.last.if0",
+    "row": "AECP record released under the composed load, last",
+    "family": "aecp",
+    "interface": 0,
+    "path": [
+     "service.aecp.last",
+     0
+    ],
+    "start_sys": 272763097,
+    "wait_ms": 0.0,
+    "ring": "aecp",
+    "ahead": 15,
+    "in_window": true,
+    "starved": false,
+    "pass_cycles": 20825,
+    "pass_instr": 4045,
+    "pass_mbx_accesses": 21,
+    "pass_fetch_share": 0.6284,
+    "pass_fetch_wait_share": 0.3634,
+    "pass_regions": {
+     "rom": [
+      93,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      17,
+      4
+     ],
+     "csr": [
+      0,
+      28,
+      6
+     ]
+    },
+    "pass_modules": {
+     "aecp": 4451,
+     "ctrl_mem": 3671,
+     "mbx": 2840,
+     "srp_mbx": 1581,
+     "ctrl_app_aecp": 1286,
+     "ctrl_loop": 1242
+    },
+    "end_sys": 279037914,
+    "sys_cycles": 6274817,
+    "cpu_cycles": 6274817,
+    "ms": 62.74817,
+    "passes": 34,
+    "budget_ms": 20.0,
+    "ceiling_ms": 24.0,
+    "within_budget": false,
+    "within_ceiling": false,
+    "status": "measured",
+    "group": "backlog-owed"
+   }
+  },
+  {
+   "path": "service.maap.first",
+   "interface": 0,
+   "row": "MAAP record released under the composed load, first",
+   "instances": 4,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog.service.maap.first.if0",
+    "row": "MAAP record released under the composed load, first",
+    "family": "maap",
+    "interface": 0,
+    "path": [
+     "service.maap.first",
+     0
+    ],
+    "start_sys": 267416234,
+    "wait_ms": 0.0,
+    "ring": "maap",
+    "ahead": 0,
+    "in_window": true,
+    "starved": false,
+    "pass_cycles": 69949,
+    "pass_instr": 16214,
+    "pass_mbx_accesses": 138,
+    "pass_fetch_share": 0.5107,
+    "pass_fetch_wait_share": 0.3026,
+    "pass_regions": {
+     "rom": [
+      263,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      74,
+      64
+     ],
+     "csr": [
+      0,
+      84,
+      30
+     ]
+    },
+    "pass_modules": {
+     "acmp": 14434,
+     "mbx": 13588,
+     "ctrl_mem": 10464,
+     "aecp": 6749,
+     "maap": 4149,
+     "ctrl_loop": 3196
+    },
+    "end_sys": 267484261,
+    "sys_cycles": 68027,
+    "cpu_cycles": 68027,
+    "ms": 0.68027,
+    "passes": 2,
+    "budget_ms": 20.0,
+    "ceiling_ms": 50.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "status": "measured",
+    "group": "backlog"
+   }
+  },
+  {
+   "path": "service.maap.last",
+   "interface": 0,
+   "row": "MAAP record released under the composed load, last",
+   "instances": 4,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog-adp.service.maap.last.if0",
+    "row": "MAAP record released under the composed load, last",
+    "family": "maap",
+    "interface": 0,
+    "path": [
+     "service.maap.last",
+     0
+    ],
+    "start_sys": 272571132,
+    "wait_ms": 0.0,
+    "ring": "maap",
+    "ahead": 6,
+    "in_window": true,
+    "starved": false,
+    "pass_cycles": 82893,
+    "pass_instr": 17629,
+    "pass_mbx_accesses": 81,
+    "pass_fetch_share": 0.6667,
+    "pass_fetch_wait_share": 0.396,
+    "pass_regions": {
+     "rom": [
+      408,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      44,
+      37
+     ],
+     "csr": [
+      0,
+      90,
+      33
+     ]
+    },
+    "pass_modules": {
+     "acmp": 19230,
+     "ctrl_mem": 12878,
+     "mbx": 10967,
+     "mrp_mad": 8399,
+     "aecp": 8306,
+     "srp_mbx": 5146
+    },
+    "end_sys": 272892672,
+    "sys_cycles": 321540,
+    "cpu_cycles": 321540,
+    "ms": 3.2154,
+    "passes": 5,
+    "budget_ms": 20.0,
+    "ceiling_ms": 50.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "status": "measured",
+    "group": "backlog-adp"
+   }
+  },
+  {
+   "path": "service.srp.first",
+   "interface": 0,
+   "row": "SRP record released under the composed load, first",
+   "instances": 4,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog.service.srp.first.if0",
+    "row": "SRP record released under the composed load, first",
+    "family": "srp",
+    "interface": 0,
+    "path": [
+     "service.srp.first",
+     0
+    ],
+    "start_sys": 267416689,
+    "wait_ms": 0.0,
+    "ring": "srp",
+    "ahead": 0,
+    "in_window": true,
+    "starved": false,
+    "pass_cycles": 49375,
+    "pass_instr": 10411,
+    "pass_mbx_accesses": 55,
+    "pass_fetch_share": 0.5528,
+    "pass_fetch_wait_share": 0.3603,
+    "pass_regions": {
+     "rom": [
+      220,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      38,
+      17
+     ],
+     "csr": [
+      0,
+      90,
+      33
+     ]
+    },
+    "pass_modules": {
+     "acmp": 13640,
+     "mbx": 9454,
+     "aecp": 6719,
+     "ctrl_mem": 6595,
+     "srp_mbx": 2459,
+     "ctrl_loop": 1686
+    },
+    "end_sys": 267666572,
+    "sys_cycles": 249883,
+    "cpu_cycles": 249883,
+    "ms": 2.49883,
+    "passes": 5,
+    "budget_ms": 18.0,
+    "ceiling_ms": 18.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "status": "measured",
+    "group": "backlog"
+   }
+  },
+  {
+   "path": "service.srp.last",
+   "interface": 0,
+   "row": "SRP record released under the composed load, last",
+   "instances": 4,
+   "misses": 0,
+   "worst": {
+    "probe": "backlog-adp.service.srp.last.if0",
+    "row": "SRP record released under the composed load, last",
+    "family": "srp",
+    "interface": 0,
+    "path": [
+     "service.srp.last",
+     0
+    ],
+    "start_sys": 272573212,
+    "wait_ms": 0.0,
+    "ring": "srp",
+    "ahead": 31,
+    "in_window": true,
+    "starved": false,
+    "pass_cycles": 20629,
+    "pass_instr": 4201,
+    "pass_mbx_accesses": 14,
+    "pass_fetch_share": 0.8231,
+    "pass_fetch_wait_share": 0.4211,
+    "pass_regions": {
+     "rom": [
+      107,
+      0,
+      0
+     ],
+     "mbx": [
+      0,
+      13,
+      1
+     ],
+     "csr": [
+      0,
+      6,
+      3
+     ]
+    },
+    "pass_modules": {
+     "mrp_mad": 4817,
+     "ctrl_mem": 2813,
+     "srp_mbx": 2073,
+     "mrp_pdu": 1813,
+     "ctrl_loop": 1437,
+     "mbx": 1414
+    },
+    "end_sys": 273522208,
+    "sys_cycles": 948996,
+    "cpu_cycles": 948996,
+    "ms": 9.48996,
+    "passes": 19,
+    "budget_ms": 18.0,
+    "ceiling_ms": 18.0,
+    "within_budget": true,
+    "within_ceiling": true,
+    "status": "measured",
+    "group": "backlog-adp"
+   }
+  }
+ ],
+ "counts": {
+  "paths": 16,
+  "path_misses": 3,
+  "instances": 49,
+  "instance_misses": 6
+ },
+ "windows": [
+  {
+   "group": "backlog",
+   "cycles": 74136,
+   "ms": 0.74136,
+   "passes": 19,
+   "window_ms": 5.99013,
+   "events_held": 0,
+   "serviced": true,
+   "unreleased": {}
+  },
+  {
+   "group": "backlog-adp",
+   "cycles": 97517,
+   "ms": 0.97517,
+   "passes": 19,
+   "window_ms": 9.77532,
+   "events_held": 0,
+   "serviced": true,
+   "unreleased": {}
+  },
+  {
+   "group": "backlog-adp-refill",
+   "cycles": 97517,
+   "ms": 0.97517,
+   "passes": 29,
+   "window_ms": 40.4989,
+   "events_held": 0,
+   "serviced": true,
+   "unreleased": {}
+  },
+  {
+   "group": "backlog-owed",
+   "cycles": 96670,
+   "ms": 0.9667,
+   "passes": 65,
+   "window_ms": 360.25128,
+   "events_held": 0,
+   "serviced": true,
+   "unreleased": {}
+  }
+ ],
+ "composed_maximum": {
+  "cycles": 97517,
+  "ms": 0.97517,
+  "group": "backlog-adp",
+  "windows": 4,
+  "rows": 4,
+  "not_run": [],
+  "partial": false,
+  "lower_bound": false,
+  "unreleased": [],
+  "released": {
+   "cycles": 97517,
+   "ms": 0.97517,
+   "group": "backlog-adp"
+  }
+ },
+ "refusals": [],
+ "misses": [
+  "backlog.owed.if0: 61.936 ms over its budget 20 ms",
+  "backlog.owed_behind0.if0: never answered, at least 360.201 ms over its budget 20 ms",
+  "backlog.owed_behind1.if0: never answered, at least 360.200 ms over its budget 20 ms",
+  "backlog.owed_behind2.if0: never answered, at least 360.199 ms over its budget 20 ms",
+  "backlog.owed_behind3.if0: never answered, at least 360.198 ms over its budget 20 ms",
+  "backlog-owed.service.aecp.last.if0: 62.748 ms over its budget 20 ms"
+ ],
+ "share_misses": [],
+ "clock": {
+  "cpu_hz": 100000000,
+  "cpu_cd": "sys",
+  "sys_hz": 100000000,
+  "label": "CPU 100 MHz on sys, the product's split CPU clock, bus 100 MHz"
+ }
+}
