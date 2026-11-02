@@ -1,0 +1,4 @@
+3462c3462
+< | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write | `i_srp_ctx_rd_sid[31:0]` |
+---
+> | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered since the last selection | `i_srp_ctx_rd_sid[31:0]` |

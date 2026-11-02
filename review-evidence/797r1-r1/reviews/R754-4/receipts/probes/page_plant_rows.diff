@@ -1,0 +1,14 @@
+3639c3639
+< | the selected stream exists and `STRM_SEL[9]` is 1 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write | `{16'd0, i_srp_ctx_rd_stat}` |
+---
+> | the selected stream exists and `STRM_SEL[9]` is 1 | `{16'd0, i_srp_ctx_rd_stat}` |
+3974c3974
+< | the selected stream exists and `STRM_SEL[8]` selects a listener | the fields above |
+---
+> | `STRM_SEL[8]` selects a listener and the stream index `STRM_SEL[3:0]` is 0 | the fields above |
+4269,4270c4269,4270
+< | `CHMAP_SNAP[1]` is 1 | the fields above |
+< | `CHMAP_SNAP[1]` is 0 | `0xDEADDEAD` |
+---
+> | `CHMAP_SNAP[1]` is 1 | `0xDEADDEAD` |
+> | `CHMAP_SNAP[1]` is 0 | the fields above |
