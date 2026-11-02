@@ -65,7 +65,7 @@ Rationale and version history are in the [design notes](../design/CSR_REGISTER_N
 
 The register offsets below are a stable ABI.
 
-No register was removed. Every word still decodes, and RW words still store.
+No register was removed. Every word still decodes.
 
 **Bus:** AXI4-Lite, 32-bit data, little-endian.
 
@@ -503,9 +503,9 @@ RTL name: `A_MAC_STATUS`.
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
 | 31:4 | `RESERVED` | R | 0 | Reserved. |
-| 3 | `FULL_DUPLEX` | R | X | full_duplex. |
-| 2:1 | `SPEED` | R | X | speed (0=10,1=100,2=1000) |
-| 0 | `LINK_UP` | R | X | link_up. |
+| 3 | `FULL_DUPLEX` | R | X | Full duplex. |
+| 2:1 | `SPEED` | R | X | Speed: 0 = 10, 1 = 100, 2 = 1000 Mb/s. |
+| 0 | `LINK_UP` | R | X | Link up. |
 
 These bits mirror the LiteX `milan_mac_link_status` CSR.
 
@@ -622,7 +622,7 @@ RTL name: `A_STATS_CTRL`.
 |---|---|---|---|---|
 | 31:2 | `RESERVED` | R | 0 | Reserved. |
 | 1 | `STATS_RESET` | W1S | 0 | reset-counters. Writing 1 fires `STATS_RESET` for one cycle. |
-| 0 | `STATS_SNAPSHOT` | W1S | 0 | snapshot (W1S, self-clear) Writing 1 fires `STATS_SNAPSHOT` for one cycle. Writing 1 also loads `stat_snap`. |
+| 0 | `STATS_SNAPSHOT` | W1S | 0 | snapshot (W1S, self-clear). Writing 1 fires `STATS_SNAPSHOT` for one cycle. Writing 1 also loads `stat_snap`. |
 
 ### STATS_CAP register (offset 0x204) [reset = 0xXXXXXXXX]
 
@@ -991,8 +991,8 @@ RTL name: `A_PTP_CMD`.
 |---|---|---|---|---|
 | 31:3 | `RESERVED` | R | 0 | Reserved. |
 | 2 | `PTP_CMD_SNAPSHOT` | W1S | 0 | snapshot (latch TOD for gettime) - self-clearing pulses. Writing 1 fires `PTP_CMD_SNAPSHOT` for one cycle. |
-| 1 | `PTP_CMD_ADJUST` | W1S | 0 | adjust (apply adjtime) Writing 1 fires `PTP_CMD_ADJUST` for one cycle. |
-| 0 | `PTP_CMD_LOAD` | W1S | 0 | load (apply settime) Writing 1 fires `PTP_CMD_LOAD` for one cycle. |
+| 1 | `PTP_CMD_ADJUST` | W1S | 0 | adjust (apply adjtime). Writing 1 fires `PTP_CMD_ADJUST` for one cycle. |
+| 0 | `PTP_CMD_LOAD` | W1S | 0 | load (apply settime). Writing 1 fires `PTP_CMD_LOAD` for one cycle. |
 
 ### PTP_TOD_RD_LO register (offset 0x530) [reset = 0x00000000]
 
@@ -2357,7 +2357,7 @@ RTL name: `A_LINK_CTRL`.
 | 31:4 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
 | 3 | `LINKG_FREEZE` | R/W | 0 | linkg_freeze (test hook: fake eth clock death drills the full FSM with no cable) |
 | 2 | `LINKG_DIS` | R/W | 0 | linkg_dis (1 = guard disabled) |
-| 1 | `MAC_REINIT` | R/W | 0 | manual mac_reinit (hold MAC sys-side in reset) A write stores 0 here while `ETH_GUARD[0]` is 1. |
+| 1 | `MAC_REINIT` | R/W | 0 | manual mac_reinit (hold MAC sys-side in reset). A write stores 0 here while `ETH_GUARD[0]` is 1. |
 | 0 | `SW_LINK` | R/W | 1h | firmware link qualification (assumed up at reset) |
 
 ### RST_EPOCH register (offset 0x720) [reset = 0x000000XX]
@@ -4255,9 +4255,9 @@ RTL name: `A_CHMAP_LOOP`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:28 | `RESERVED` | R | Dh | Reserved. |
+| 31:28 | `RESERVED` | R | Dh | Reserved: 0 on a measurement, `Dh` in the poison. |
 | 27 | `MASK_VALID` | R | 1h | `[18:16]` are a measurement: capture side only. |
-| 26 | `VALID` | R | 1h | This word is a measurement. |
+| 26 | `VALID` | R | 1h | 1 on a word from the fabric. The poison also has this bit set, so compare the whole word with `0xDEADDEAD` first. |
 | 25:20 | `CMRD_ADDR` | R | 2Ah | Index of the measured entry. |
 | 19 | `SIDE` | R | 1h | Side of the measured entry. |
 | 18 | `LOOP_SUSPECT` | R | 1h | `mapped` and not `fed`: a slot the map advertises that no audio has reached. Reads `cmrd_data_r[13] & ~cmrd_data_r[14]`. |
@@ -4400,7 +4400,7 @@ RTL name: `A_PP_SPDATA`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:0 | `PP_SPRDATA` | R/W | 0 | **Read**: the data of the last posted read. **Write**: posts a side-port WRITE of this value to the address already in `PP_SPADDR` (ignored while `sp_busy`) A write takes effect only when `PP_STAT[0]` is 0. A write sets `PP_WDATA`; a read returns this field. When `PP_STAT[0]` is 0, a write also sets `pp_busy_r`, `pp_req_r`, `pp_we_r` and clears `pp_err_r`. |
+| 31:0 | `PP_SPRDATA` | R/W | 0 | **Read**: the data of the last posted read. **Write**: posts a side-port WRITE of this value to the address already in `PP_SPADDR` (ignored while `sp_busy`). A write takes effect only when `PP_STAT[0]` is 0. A write sets `PP_WDATA`; a read returns this field. When `PP_STAT[0]` is 0, a write also sets `pp_busy_r`, `pp_req_r`, `pp_we_r` and clears `pp_err_r`. |
 
 ### PP_DIAG register (offset 0x930) [reset = 0xXXXXXXXX]
 

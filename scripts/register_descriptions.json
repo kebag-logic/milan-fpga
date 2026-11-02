@@ -3,7 +3,7 @@
   "page": {
     "intro": [
       "The register offsets below are a stable ABI.",
-      "No register was removed. Every word still decodes, and RW words still store.",
+      "No register was removed. Every word still decodes.",
       "**Bus:** AXI4-Lite, 32-bit data, little-endian.",
       "The LiteX product maps the 64 KiB window at `0x9000_0000`.",
       "Writes to read-only fields are ignored. Unmapped offsets read 0.",
@@ -1257,9 +1257,9 @@
       "name": "MAC link status",
       "purpose": "Link, speed and duplex as the SoC publishes them.",
       "fields": {
-        "LINK_UP": "link_up",
-        "SPEED": "speed (0=10,1=100,2=1000)",
-        "FULL_DUPLEX": "full_duplex"
+        "LINK_UP": "Link up.",
+        "SPEED": "Speed: 0 = 10, 1 = 100, 2 = 1000 Mb/s.",
+        "FULL_DUPLEX": "Full duplex."
       },
       "notes": [
         "These bits mirror the LiteX `milan_mac_link_status` CSR.",
@@ -1303,7 +1303,7 @@
       "name": "Statistics control",
       "purpose": "Snapshot and reset strobes for the RMON counters.",
       "fields": {
-        "STATS_SNAPSHOT": "snapshot (W1S, self-clear)",
+        "STATS_SNAPSHOT": "snapshot (W1S, self-clear).",
         "STATS_RESET": "reset-counters"
       },
       "notes": []
@@ -1575,8 +1575,8 @@
       "name": "PTP command",
       "purpose": "Strobes that apply settime, adjtime or a time snapshot.",
       "fields": {
-        "PTP_CMD_LOAD": "load (apply settime)",
-        "PTP_CMD_ADJUST": "adjust (apply adjtime)",
+        "PTP_CMD_LOAD": "load (apply settime).",
+        "PTP_CMD_ADJUST": "adjust (apply adjtime).",
         "PTP_CMD_SNAPSHOT": "snapshot (latch TOD for gettime) - self-clearing pulses"
       },
       "notes": []
@@ -2614,7 +2614,7 @@
       "purpose": "Firmware link qualification and link-guard controls.",
       "fields": {
         "SW_LINK": "firmware link qualification (assumed up at reset)",
-        "MAC_REINIT": "manual mac_reinit (hold MAC sys-side in reset)",
+        "MAC_REINIT": "manual mac_reinit (hold MAC sys-side in reset).",
         "LINKG_DIS": "linkg_dis (1 = guard disabled)",
         "LINKG_FREEZE": "linkg_freeze (test hook: fake eth clock death drills the full FSM with no cable)"
       },
@@ -3837,8 +3837,9 @@
       "name": "Channel map readback",
       "purpose": "The map word the RAM holds, or 0xDEADDEAD.",
       "fields": {
+        "RESERVED": "Reserved: 0 on a measurement, `Dh` in the poison.",
         "MASK_VALID": "`[18:16]` are a measurement: capture side only.",
-        "VALID": "This word is a measurement.",
+        "VALID": "1 on a word from the fabric. The poison also has this bit set, so compare the whole word with `0xDEADDEAD` first.",
         "CMRD_ADDR": "Index of the measured entry.",
         "SIDE": "Side of the measured entry.",
         "LOOP_SUSPECT": "`mapped` and not `fed`: a slot the map advertises that no audio has reached.",
@@ -3906,7 +3907,7 @@
       "name": "Processor side-port data",
       "purpose": "Posted read data; a write posts a side-port write.",
       "fields": {
-        "PP_SPRDATA": "**Read**: the data of the last posted read. **Write**: posts a side-port WRITE of this value to the address already in `PP_SPADDR` (ignored while `sp_busy`)"
+        "PP_SPRDATA": "**Read**: the data of the last posted read. **Write**: posts a side-port WRITE of this value to the address already in `PP_SPADDR` (ignored while `sp_busy`)."
       },
       "notes": []
     },
