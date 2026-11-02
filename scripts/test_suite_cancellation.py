@@ -463,8 +463,7 @@ def owner_reparented(parent: Path) -> None:
         seen = []
 
         def reparenting() -> dict:
-            # Exactly the recorded race: this census names the old parent, which
-            # is gone before the owner can signal the child it listed under it.
+            """Exactly the recorded race: this census names a parent gone before any signal."""
             listed = census()
             if not seen:
                 seen.append(True)
@@ -489,8 +488,7 @@ def owner_late_exit(parent: Path) -> None:
             census = owner._descendants
 
             def exiting() -> dict:
-                # The real census, then the slow pass measured under load: the
-                # child dies inside it and the deadline passes before it ends.
+                """The slow pass measured under load: the child dies in it and the deadline passes."""
                 listed = census()
                 if child.pid in listed:
                     child.kill()
@@ -515,8 +513,8 @@ def owner_stall(parent: Path) -> None:
             census = owner._descendants
 
             def stalling() -> dict:
+                """Stall once for longer than the whole 3 s of deadlines, after SIGTERM and before SIGKILL."""
                 listed = census()
-                # Longer than the whole 3 s of deadlines, after SIGTERM and before SIGKILL.
                 if pid in listed and len(stalls) == 1:
                     time.sleep(3.2)
                 stalls.append(True)
@@ -542,7 +540,7 @@ def owner_shell_window(parent: Path) -> None:
                 send = owner._send
 
                 def late(pid: int, start: str, signum: int) -> bool:
-                    # The child dies only after the time SIGKILL reaches everything.
+                    """The child dies only after the time SIGKILL reaches everything."""
                     now = time.monotonic()
                     if not blocked:
                         blocked.append(now)
@@ -552,6 +550,7 @@ def owner_shell_window(parent: Path) -> None:
                 owner._send = late
 
                 def cancel() -> None:
+                    """Cancel the owner once the child has its handlers."""
                     published(ready)
                     os.kill(os.getpid(), signal.SIGTERM)
                 threading.Thread(target=cancel, daemon=True).start()
@@ -579,7 +578,7 @@ def owner_survivor(parent: Path) -> None:
             send = owner._send
 
             def undying(pid: int, start: str, signum: int) -> bool:
-                # What no unprivileged control can really build: SIGKILL has no effect.
+                """What no unprivileged control can really build: SIGKILL has no effect."""
                 if survivor and pid == survivor[0] and signum == signal.SIGKILL:
                     assert time.monotonic() - since < 30, "a survivor never failed the run"
                     return True
@@ -587,6 +586,7 @@ def owner_survivor(parent: Path) -> None:
             owner._send = undying
 
             def cancel() -> None:
+                """Cancel the owner once the survivor and its stopped-to-be shell are known."""
                 survivor.append(published(ready))
                 shell_start.append(identity(owner.process.pid)[0])
                 os.kill(os.getpid(), signal.SIGTERM)
@@ -616,6 +616,7 @@ def owner_vanishing() -> None:
             since = time.monotonic()
 
             def listed() -> dict:
+                """List one process that cannot exist, as if it died inside every census."""
                 assert time.monotonic() - since < 15, "cleanup never reached a verdict"
                 return {gone: (os.getpid(), "0")}
             owner._descendants = listed
