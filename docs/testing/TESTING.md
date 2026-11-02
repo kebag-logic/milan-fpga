@@ -267,7 +267,7 @@ Hard KILL and HUP stops must leave no output after the caller sees them.
 Letting owned commands outlive their owner must run the forbidden sentinel.
 Removed process facilities must produce the refusal, not a traceback.
 A cleanup deadline advances by at most half a second for each census pass.
-A stalled or starved owner therefore never fails a descendant it has not yet killed.
+A stalled or starved owner therefore never fails the run before its windows after SIGKILL have elapsed on its own clock.
 A child that exits during a census is collected, not reported as remaining.
 A descendant re-parented during cleanup keeps its identity and still receives its `SIGTERM`.
 A shell resumed late keeps its whole window to run its terminal trap.
