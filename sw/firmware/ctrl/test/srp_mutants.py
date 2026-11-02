@@ -205,8 +205,8 @@ DEFECTS = (
     Defect(
         name='reset-skips-recreate',
         test='RecreateAllocationFailureIsCountedAndRetried',
-        old='if (!i->msrp) {\n            // A failed recreate',
-        new='if (!i->msrp) {\n            continue; // A failed recreate',
+        old='            // A failed recreate',
+        new='            continue; // A failed recreate',
         needle='adapter.ifs[0].msrp',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
