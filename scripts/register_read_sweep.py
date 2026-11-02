@@ -85,8 +85,10 @@ CLAUSE: dict[str, Callable[[State], bool]] = {
     "the stream index `STRM_SEL[3:0]` is not 0": lambda s: s["idx"] != 0,
     "the ACMP table answered since the last selection": lambda s: s["acmp"] == 1,
     "the ACMP table has not answered since the last selection": lambda s: s["acmp"] == 0,
-    "the SRP table answered since the last selection": lambda s: s["srp"] == 1,
-    "the SRP table has not answered since the last selection": lambda s: s["srp"] == 0,
+    "the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write":
+        lambda s: s["srppoll"] == 1,
+    "the SRP table has not answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write":
+        lambda s: s["srppoll"] == 0,
     "`STRM_SEL[9]` is 1": lambda s: s["sel9"] == 1,
     "`STRM_SEL[9]` is 0": lambda s: s["sel9"] == 0,
     "the kind the last snapshot recorded for this counter is `SK_RAW_C`": lambda s: s["kind"] == s["SK_RAW_C"],
