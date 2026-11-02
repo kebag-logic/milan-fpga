@@ -1,0 +1,25 @@
+wrote <scratch>/probe-srp-work/out/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/probe-srp-work/out/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/probe-srp-work/out/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+== filter *JointLinkChange* rc=1
+[       OK ] Srp.JointLinkChangeBuildsOneInterfaceAPass (0 ms)
+<scratch>/probe-srp/sw/firmware/ctrl/test/srp_app.cpp:425: Failure
+PROBE an interface due beside one still withdrawing is built at once
+  [FAIL] Srp.ProbeMirrorJointLinkChange: PROBE an interface due beside one still withdrawing is built at once
+PROBE interface 1 built after 3 pass(es) from interface 0's withdrawal; interface 0 built 1
+[  FAILED  ] Srp.ProbeMirrorJointLinkChange (0 ms)
+[  PASSED  ] 1 test.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ProbeMirrorJointLinkChange
+wrote <scratch>/probe-srp-work/out/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/probe-srp-work/out/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/probe-srp-work/out/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+== filter *ProbeMirror* rc=1
+<scratch>/probe-srp/sw/firmware/ctrl/test/srp_app.cpp:425: Failure
+PROBE an interface due beside one still withdrawing is built at once
+  [FAIL] Srp.ProbeMirrorJointLinkChange: PROBE an interface due beside one still withdrawing is built at once
+PROBE interface 1 built after 3 pass(es) from interface 0's withdrawal; interface 0 built 1
+[  FAILED  ] Srp.ProbeMirrorJointLinkChange (0 ms)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 1 test, listed below:
+[  FAILED  ] Srp.ProbeMirrorJointLinkChange

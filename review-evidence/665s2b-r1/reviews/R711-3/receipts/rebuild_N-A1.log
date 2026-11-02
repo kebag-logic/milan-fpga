@@ -1,0 +1,4 @@
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <scratch>/imgclone/tb/verilator/ctrl_service_budget/runtime_ssp.py --picolibc $HOME/litex-milan/pythondata-software-picolibc/pythondata_software_picolibc/data --compiler-rt $HOME/litex-milan/pythondata-software-compiler_rt/pythondata_software_compiler_rt/data --litex-software $HOME/litex-milan/litex/litex/soc/software --output <scratch>/img-N-A1/runtime
+COMMAND $HOME/litex-milan/venv/bin/python3 -B <scratch>/imgclone/sw/firmware/ctrl/test/ctrl_srp_image.py --config <scratch>/imgclone/configs/endstation_ax7101_1x1_tdm8.yaml --interfaces 1 --with-aecp --layout split --output <scratch>/img-N-A1/image --libc <scratch>/img-N-A1/runtime/libc.a --compiler-runtime <scratch>/img-N-A1/runtime/libcompiler_rt.a
+0e8e15278be905474c95e8a34dcd812cabed08ee6d845d41e8fece6716cfa7cb endstation_ax7101_1x1_tdm8 1 none none
+rc=0
