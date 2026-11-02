@@ -1,0 +1,21 @@
+--- head/scripts/register_read_sweep.py	2026-11-02 11:58:31.000000000 +0100
++++ m6/scripts/register_read_sweep.py	2026-11-02 12:32:35.276065674 +0100
+@@ -334,7 +334,7 @@
+   // Stream window: selection, table answers, snapshot, counter kinds.
+   for (int sel9 = 0; sel9 < 2; sel9++) for (int dir = 0; dir < 2; dir++)
+   for (int ii = 0; ii < @N_INDICES@; ii++) for (int acmp = 0; acmp < 2; acmp++)
+-  for (int srpmode = 0; srpmode < 8; srpmode++) for (int snap = 0; snap < 2; snap++)
++  for (int srpmode = 0; srpmode < 9; srpmode++) for (int snap = 0; snap < 2; snap++)
+   for (int ks = 0; ks < 3; ks++) {
+     static const int IDX[] = {@INDICES@};
+     int idx = IDX[ii];
+@@ -350,7 +350,8 @@
+     // selection; srpw: a provisioning write was posted.
+     int srp_ans = 0, srpw = 0;
+     if (srpmode == 1 || srpmode >= 6) srp_ans = answer_srp();
+-    if (srpmode >= 6) { t->i_srp_ctx_stolen = 1; tick(); t->i_srp_ctx_stolen = 0; ticks(2); }
++    if (srpmode == 8) { wr(0x810, @aaf_ctrl@u); srpw = t->o_srp_ctx_we; }
++    if (srpmode == 6 || srpmode == 7) { t->i_srp_ctx_stolen = 1; tick(); t->i_srp_ctx_stolen = 0; ticks(2); }
+     if (srpmode == 7) answer_srp();
+     if (srpmode == 2 || srpmode == 3) {
+       wr(0x810, @aaf_ctrl@u); srpw = t->o_srp_ctx_we;
