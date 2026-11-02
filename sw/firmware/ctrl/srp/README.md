@@ -149,6 +149,12 @@ in the pass that takes it; the next pass's poll builds new ones, and any number 
 resets in a pass builds once. SRP's receive waits until then, so no record meets an
 interface with no participants: both halves in one pass cost 110,000 of the 200,000
 cycles a pass may take at 8x8/2if (#665, `srp_bounds.h`, the share in `ctrl_loop.h`).
+A poll builds one interface at most: both links changing together built both in one
+pass of 2.08 ms. The other is built on the next pass, and the interface whose build
+waited goes first after that, so neither waits more than one pass for the other, and
+SRP's receive waits until both are built. The reset also clears `listener_present`,
+which the registrar it destroys supplied, so delivery reads no Listener the new
+participants have not registered.
 Its interface, arrival timestamp and payload remain unchanged.
 Later SRP records and binding changes wait behind it.
 Each poll retries after pending events, ticks and owed output.
@@ -212,7 +218,7 @@ lwSRP builds each MRPDU in the owed frame itself, after its Ethernet header, so 
 A poll builds and sends at most one MRPDU (`SRP_MBX_POLL_FRAMES`, `srp_bounds.h`).
 The participant that sent ends the poll's transmissions, and the next poll resumes at the next participant.
 Its owed result runs that poll at once, so every participant is reached in turn (#665).
-lwSRP's periodic transmission had built all four MRPDUs at two interfaces in one pass of 8.7 ms on the split core, against the share of 1.1 ms (`ctrl_loop.h`).
+lwSRP's periodic transmission had built all four MRPDUs at two interfaces in one pass of 8.7 ms on the split core, against the share of 2.0 ms (`ctrl_loop.h`).
 SRP RX waits behind that owed record; Registrar clocks continue to run.
 Each LINK event preserves the lifecycle, including down/up between service passes.
 Observed level changes apply the same reset and receive fence.

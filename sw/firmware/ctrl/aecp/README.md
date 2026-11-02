@@ -307,7 +307,7 @@ The service tests count mailbox accesses from one original arrival/due time,
 including fanout, stalls and deferred failure, then add fixed CPU/observation
 allowances. The measured endpoint is response acceptance by the transmit ring.
 They compare against IEEE 9.3.2.6 and Milan 5.4.3.4's 240 ms response timeout
-and the 10 ms local service target. The HDCP refusal path also checks the
+and the 20 ms local service bound. The HDCP refusal path also checks the
 15 ms response deadline from IEEE 9.7.2.7. START/STOP failure is due at 8 ms to leave
 service and clock-quantization allowance. These are desk bounds using explicit
 100 ns access/observation and 1 ms CPU allowances. Target calibration, complete
