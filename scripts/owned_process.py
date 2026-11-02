@@ -27,15 +27,17 @@ from types import FrameType
 from typing import BinaryIO
 
 PROC = Path("/proc")
-# Cleanup stages (#833). The values come from traced cleanups under load with a
-# cheap census: the longest SIGKILL to exit was 0.10 s and the longest resume to
-# shell exit 0.21 s, against one measured 3.04 s stall of an owner whose cause
-# was not named. So each window after a signal outlasts that stall: a process
-# stalled just as it is signalled is still not judged.
+# Cleanup stages (#833). A SIGKILLed process can sit in uninterruptible sleep on
+# the locks of a mapping it shares with the host: seen for 1.91 s in dup_mmap at
+# load 250. In 121660 direct kills at load up to 111 the longest took 0.23 s, so
+# such stalls come in episodes: one held an owner for 3.04 s and four process
+# starts for 7.96 s at one moment, neither with a named cause. Each window after
+# a signal outlasts them, so a stalled process is not judged. A true survivor is
+# only reported later, and still fails the run.
 GRACE_SECONDS = 2.0  # SIGTERM until the first SIGKILL of a stubborn leaf.
 KILL_ALL_SECONDS = 2.0  # After grace, SIGKILL reaches every other descendant.
-TRAP_SECONDS = 4.0  # A resumed shell's window to finish its terminal trap.
-REAP_SECONDS = 4.0  # The last SIGKILL until a remaining descendant fails the run.
+TRAP_SECONDS = 10.0  # A resumed shell's window to finish its terminal trap.
+REAP_SECONDS = 10.0  # The last SIGKILL until a remaining descendant fails the run.
 # A census scans every process on the host, so a starved owner can spend whole
 # seconds on one pass: 1.75 s at 16 runnable tasks per CPU. A pass advances the
 # deadlines by at most this, so a descendant is only judged after the owner has
