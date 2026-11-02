@@ -1,0 +1,18 @@
+# Gates run on candidate 4871df3f6 (tree 2b2118df), cwd = clean clone at that head
+# Markdown renderer: scratch venv from tools/markdown/requirements.txt (--require-hashes), html5lib 1.1
+docs_check               rc=0  docs_check: 0 finding(s) across 213 md files + 1438 scrubbed text files, scrub self-test 23/23, routing arms 4/4 [git ls-files]
+gen_toc_check            rc=0  TOC gate: OK (152 page(s) carry an annotated contents list, 18 below the 3-section threshold)
+gen_toc_anchors          rc=0  anchor check: 582 existing cross-page fragment links reproduced
+em_dash_vs_dev           rc=0  check_em_dash: 0 finding(s) over 149 added line(s) in 6 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [503bc97c..HEAD]
+em_dash_vs_mergebase     rc=0  check_em_dash: 0 finding(s) over 2064 added line(s) in 27 changed Markdown page(s), 0 mirrored label(s) exempt, arms 339/339 [1f29f189..HEAD]
+em_dash_selftest         rc=0  check_em_dash selftest: PASS (339 arm(s))
+check_gptp_docs          rc=0  gPTP documentation: OK (8 current pages)
+check_doc_style          rc=0  documentation style: OK (23 current documents)
+check_doc_paths          rc=0  doc path gate: OK (1085 cited paths all resolve, 2 allowlisted; 10 line anchor(s) within their file)
+check_hygiene            rc=0    tab in SystemVerilog                     0                   0                   0
+ci_events_check          rc=0  ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
+ci_events_selftest       rc=0  selftest: PASS (2199 contract items, 5258 arms)
+check_solution_docs      rc=0  solution documentation: OK (product recipe, 3 memory faces, 14 exhaustive port groups)
+check_feature_status     rc=0  feature_status: 0 finding(s)
+check_rtl_source_lists   rc=0  RTL source-list gate: OK (112 files in the milan_datapath closure, 4 of 4 consumer list(s) carry all of them; protocol-processor 42/42 tops, 0 recorded)
+check_soc_sources        rc=0  SoC source gate: OK (46 instantiated modules all registered, 81 sources all present)
