@@ -1,0 +1,18 @@
+killlat-builds10.jsonl idle: n 50139 p50 0.0007 p99 0.0025 p99.9 0.0467 max 0.111  over 1 s: 0  over 2 s: 0  over 4 s: 0
+killlat-builds10.jsonl forker: n 50138 p50 0.0006 p99 0.0028 p99.9 0.0447 max 0.1464  over 1 s: 0  over 2 s: 0  over 4 s: 0
+   slowest 0.1464 forker spawn 0.014 load 87.01 {'D dup_mmap': 14}
+   slowest 0.1375 forker spawn 0.014 load 87.01 {'D dup_mmap': 13}
+   slowest 0.111 idle spawn 0.014 load 56.85 {'D unlink_file_vma_batch_process': 10}
+   slowest 0.1094 idle spawn 0.015 load 98.56 {'D unlink_file_vma_batch_process': 10}
+   slowest 0.1074 idle spawn 0.012 load 103.16 {'D unlink_file_vma_batch_process': 10}
+   D samples by wait channel: [('D unlink_file_vma_batch_process', 772), ('D dup_mmap', 353), ('D 0', 2)]
+   spawn: p50 0.013 max 0.082  load max 111.5
+killlat-heavy.jsonl idle: n 10692 p50 0.0036 p99 0.0188 p99.9 0.0675 max 0.1477  over 1 s: 0  over 2 s: 0  over 4 s: 0
+killlat-heavy.jsonl forker: n 10691 p50 0.0006 p99 0.0145 p99.9 0.0754 max 0.2269  over 1 s: 0  over 2 s: 0  over 4 s: 0
+   slowest 0.2269 forker spawn 0.341 load 77.7 {'R 0': 12}
+   slowest 0.2219 forker spawn 0.298 load 82.0 {'R 0': 18}
+   slowest 0.2122 forker spawn 0.207 load 80.95 {'R 0': 1}
+   slowest 0.1683 forker spawn 0.092 load 77.7 {'R 0': 12}
+   slowest 0.1575 forker spawn 0.124 load 79.64 {'R 0': 5, 'Z 0': 1}
+   D samples by wait channel: [('D unlink_file_vma_batch_process', 57), ('D dup_mmap', 4), ('D unlink_anon_vmas', 2), ('D 0', 2)]
+   spawn: p50 0.068 max 7.958  load max 82.45

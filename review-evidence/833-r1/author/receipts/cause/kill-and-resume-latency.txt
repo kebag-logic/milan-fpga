@@ -1,0 +1,20 @@
+t-s256.jsonl cleanups 52 failed 4 elapsed max 4.99
+  SIGKILL->not live s: n 26 p50 0.0 p99 0.0 max 0.0
+  RESUME->clean s:     n 9 p50 1.037 p99 1.127 max 1.127
+  never-TERMed race: 2  resumed>=2.9s: 12  states {'S': 59, 'T': 39, 'Z': 34, 'R': 8}  D wchans {}
+t-ns256.jsonl cleanups 73 failed 0 elapsed max 2.19
+  SIGKILL->not live s: n 20 p50 0.0 p99 0.001 max 0.001
+  RESUME->clean s:     n 16 p50 0.089 p99 0.115 max 0.115
+  never-TERMed race: 0  resumed>=2.9s: 0  states {'R': 129, 'S': 1173, 'Z': 962, 'T': 967}  D wchans {}
+t-ns4cc.jsonl cleanups 217 failed 0 elapsed max 3.165
+  SIGKILL->not live s: n 64 p50 0.0 p99 0.102 max 0.102
+  RESUME->clean s:     n 48 p50 0.04 p99 0.207 max 0.207
+  never-TERMed race: 10  resumed>=2.9s: 2  states {'T': 3968, 'S': 5071, 'Z': 4000, 'R': 195, 'D': 12}  D wchans {'unlink_file_vma_batch_process': 5, 'dup_mmap': 6, '0': 1}
+t-mem.jsonl cleanups 289 failed 0 elapsed max 3.602
+  SIGKILL->not live s: n 81 p50 0.0 p99 0.0 max 0.0
+  RESUME->clean s:     n 64 p50 0.024 p99 0.028 max 0.028
+  never-TERMed race: 0  resumed>=2.9s: 1  states {'T': 6032, 'S': 7701, 'Z': 5968, 'R': 18}  D wchans {}
+t-mem2.jsonl cleanups 703 failed 0 elapsed max 2.07
+  SIGKILL->not live s: n 195 p50 0.0 p99 0.0 max 0.0
+  RESUME->clean s:     n 156 p50 0.024 p99 0.028 max 0.028
+  never-TERMed race: 0  resumed>=2.9s: 0  states {'T': 14897, 'S': 18978, 'Z': 14741, 'R': 45}  D wchans {}

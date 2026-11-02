@@ -1,0 +1,23 @@
+--- owner 2809891 root 2809959 notified True load 152.20 elapsed 4.75 resumed 3.504
+    sent: [[1.156, 2810323, 15], [1.156, 2810571, 15], [1.156, 2810221, 15], [2.374, 2810571, 9], [3.51, 2809959, 'RESUME']]
+    pass@ 0.001 took 1.155: 2810323 python3 S ppid 2810222 hrtimer_nanosleep; 2809959 bash T ppid 2809891 do_signal_stop; 2810571 python3 S ppid 2810323 hrtimer_nanosleep; 2810221 bash S ppid 2809959 do_wait; 2810222 python3 S ppid 2810221 do_wait
+    pass@ 1.224 took 1.105: 2809959 bash T ppid 2809891 do_signal_stop; 2810571 python3 R ppid 2809891 0; 2810221 bash Z ppid 2809959 0; 2810222 python3 Z ppid 2809891 0
+    pass@ 2.397 took 1.106: 2810221 bash Z ppid 2809959 0; 2809959 bash T ppid 2809891 do_signal_stop
+    pass@ 3.550 took 1.152: 2809959 bash Z ppid 2809891 0
+--- owner 2812488 root 2812571 notified True load 214.55 elapsed 4.654 resumed 3.471
+    sent: [[1.178, 2813827, 15], [1.178, 2813816, 15], [1.178, 2813817, 15], [2.334, 2813846, 9], [3.471, 2812571, 'RESUME'], [3.471, 2813816, 9]]
+    pass@ 0.001 took 1.155: 2813827 python3 S ppid 2813817 hrtimer_nanosleep; 2813816 bash S ppid 2812571 do_wait; 2813846 python3 S ppid 2813827 hrtimer_nanosleep; 2813817 python3 S ppid 2813816 do_wait; 2812571 bash T ppid 2812488 do_signal_stop
+    pass@ 1.229 took 1.105: 2812571 bash T ppid 2812488 do_signal_stop; 2813816 bash Z ppid 2812571 0; 2813846 python3 S ppid 2812488 hrtimer_nanosleep
+    pass@ 2.370 took 1.101: 2812571 bash T ppid 2812488 do_signal_stop; 2813816 bash Z ppid 2812571 0
+    pass@ 3.493 took 1.064: 2812571 bash Z ppid 2812488 0
+--- owner 2823017 root 2823036 notified True load 290.69 elapsed 4.268 resumed 3.16
+    sent: [[1.047, 2823170, 15], [1.047, 2823192, 15], [1.047, 2823162, 15], [1.047, 2823163, 15], [2.125, 2823192, 9], [3.203, 2823036, 'RESUME'], [3.203, 2823162, 9]]
+    pass@ 0.000 took 1.003: 2823170 python3 S ppid 2823163 hrtimer_nanosleep; 2823192 python3 S ppid 2823170 hrtimer_nanosleep; 2823162 timeout S ppid 2823036 sigsuspend.isra.0; 2823163 python3 S ppid 2823162 do_wait; 2823036 bash T ppid 2823017 do_signal_stop
+    pass@ 1.084 took 0.997: 2823192 python3 S ppid 2823017 hrtimer_nanosleep; 2823162 timeout Z ppid 2823036 0; 2823036 bash T ppid 2823017 do_signal_stop
+    pass@ 2.160 took 1.000: 2823162 timeout Z ppid 2823036 0; 2823036 bash T ppid 2823017 do_signal_stop
+    pass@ 3.228 took 0.994: 2823036 bash Z ppid 2823017 0
+--- owner 2808970 root None notified False load 293.54 elapsed 4.268 resumed None
+    sent: [[1.499, 2824475, 15], [2.985, 2824475, 9]]
+    pass@ 0.000 took 1.499: 2824475 python3 R ppid 2808970 0
+    pass@ 1.533 took 1.452: 2824475 python3 R ppid 2808970 0
+    pass@ 3.023 took 1.245: 2824475 python3 Z ppid 2808970 0

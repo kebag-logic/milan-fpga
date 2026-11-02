@@ -1,0 +1,38 @@
+owner-report: pid 2 (python3) state Z wchan 0 parent 1 (first parent 1) age 0.06 s start 72677369, sent SIGKILL 1.50 s ago
+owner-reparented: {'sigterm_during_grace': True}
+owner-late-exit: {'collected_at_deadline': True}
+owner-stall: {'stalled_seconds': 3.2, 'killed_after_stall': True}
+owner-shell-window: {'trap_ran_after_kill_time': True}
+owner-survivor: CLEANUP FAILED: owned descendants remain after 1.01 s, 51 census passes, slowest 0.00 s: pid 11 (bash) state T wchan do_signal_stop parent 1 (first parent 1) age 1.06 s start 72677846, not sent SIGKILL; pid 12 (python3) state S wchan hrtimer_nanosleep parent 11 (first parent 11) age 1.06 s start 72677846, sent SIGKILL 0.81 s ago
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726/wt-mut/scripts/test_suite_cancellation.py", line 633, in owner_vanishing
+    owner._cleanup()
+    ~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726/wt-mut/scripts/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$VALIDATION_STORAGE/833-a726/wt-mut/scripts/test_suite_cancellation.py", line 628, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726/wt-mut/scripts/test_suite_cancellation.py", line 680, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$VALIDATION_STORAGE/833-a726/wt-mut/scripts/test_suite_cancellation.py", line 653, in main
+    owner_vanishing()
+    ~~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726/wt-mut/scripts/test_suite_cancellation.py", line 621, in owner_vanishing
+    with OwnedProcesses() as owner:
+         ~~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726/wt-mut/scripts/owned_process.py", line 170, in __exit__
+    self._cleanup()
+    ~~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726/wt-mut/scripts/owned_process.py", line 273, in _cleanup
+    census = self._descendants()
+  File "$VALIDATION_STORAGE/833-a726/wt-mut/scripts/test_suite_cancellation.py", line 628, in listed
+    assert time.monotonic() - since < 15, "cleanup never reached a verdict"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: cleanup never reached a verdict

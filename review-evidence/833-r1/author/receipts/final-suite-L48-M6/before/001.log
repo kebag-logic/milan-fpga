@@ -1,0 +1,31 @@
+# tree before head 63044c829629633a3a10357503fdec3ff47dda5f spinners 48 concurrent 12 loadavg-before 314.14 223.43 150.42 115/2023 186678
+# python3 scripts/test_suite_cancellation.py
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 192878, "cwd": "$VALIDATION_STORAGE/833-a726/tmp/suite-cancellation-o6dw6xaj/normal-orphan input [523]", "identities": {"192810": ["72418637", "S"], "192878": ["72418661", "S"]}, "pid": 192810}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 195022, "cwd": "$VALIDATION_STORAGE/833-a726/tmp/suite-cancellation-o6dw6xaj/cancel-selection-SIGINT input [523]", "identities": {"194994": ["72419614", "S"], "195022": ["72419633", "S"]}, "pid": 194994}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 195815, "cwd": "$VALIDATION_STORAGE/833-a726/tmp/suite-cancellation-o6dw6xaj/cancel-selection-SIGTERM input [523]", "identities": {"195749": ["72420053", "S"], "195815": ["72420072", "S"]}, "pid": 195749}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 196963, "cwd": "$VALIDATION_STORAGE/833-a726/tmp/suite-cancellation-o6dw6xaj/cancel-preflight-SIGINT input [523]", "identities": {"196912": ["72420550", "S"], "196963": ["72420572", "S"]}, "pid": 196912}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 198175, "cwd": "$VALIDATION_STORAGE/833-a726/tmp/suite-cancellation-o6dw6xaj/cancel-preflight-SIGTERM input [523]", "identities": {"198140": ["72421068", "S"], "198175": ["72421091", "S"]}, "pid": 198140}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 199621, "cwd": "$VALIDATION_STORAGE/833-a726/tmp/suite-cancellation-o6dw6xaj/cancel-command-SIGINT input [523]", "identities": {"199500": ["72421698", "S"], "199621": ["72421724", "S"]}, "pid": 199500}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 201101, "cwd": "$VALIDATION_STORAGE/833-a726/tmp/suite-cancellation-o6dw6xaj/cancel-command-SIGTERM input [523]", "identities": {"201060": ["72422334", "S"], "201101": ["72422361", "S"]}, "pid": 201060}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 202667, "cwd": "$VALIDATION_STORAGE/833-a726/tmp/suite-cancellation-o6dw6xaj/cancel-transition-SIGINT input [523]", "identities": {"202646": ["72423019", "S"], "202667": ["72423045", "S"]}, "pid": 202646}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726/wt-before/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$VALIDATION_STORAGE/833-a726/wt-before/scripts/test_suite_cancellation.py", line 377, in main
+    cancellation(parent, phase, signum)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726/wt-before/scripts/test_suite_cancellation.py", line 188, in cancellation
+    assert status == 128 + signum, output
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: shard: 0/1   selected suites: 2
+CANCELLED: TERM; no completed sweep result
+partial logs: $VALIDATION_STORAGE/833-a726/tmp/suite-cancellation-o6dw6xaj/cancel-transition-SIGTERM input [523]/logs
+REFUSED: process ownership: CLEANUP FAILED: owned descendants remain after 4.12 s, 10 census passes, slowest 0.42 s: pid 203554 (bash) state Z wchan 0 parent 203494 (first parent 203494) age 7.51 s start 72423416, not sent SIGKILL
+

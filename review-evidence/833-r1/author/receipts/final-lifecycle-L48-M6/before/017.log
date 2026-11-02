@@ -1,0 +1,22 @@
+# tree before head 63044c829629633a3a10357503fdec3ff47dda5f spinners 48 concurrent 12 loadavg-before 161.53 112.33 98.75 193/2226 115831
+# make --no-print-directory -C tb/verilator/gptp_shadow lifecycle
+python3 test_mutant_lifecycle.py
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726/wt-before/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 434, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$VALIDATION_STORAGE/833-a726/wt-before/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 406, in main
+    normal(parent, "detect", repeat=True)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$VALIDATION_STORAGE/833-a726/wt-before/tb/verilator/gptp_shadow/test_mutant_lifecycle.py", line 148, in normal
+    status, output = probe.finish()
+                     ~~~~~~~~~~~~^^
+  File "$VALIDATION_STORAGE/833-a726/wt-before/scripts/process_test_support.py", line 215, in finish
+    status = self.process.wait(timeout=12)
+  File "/usr/lib/python3.14/subprocess.py", line 1279, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2076, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['/usr/bin/python3', '$VALIDATION_STORAGE/833-a726/tmp/mutant-lifecycle-bjmzbyrs/detect input [523]/tb/verilator/gptp_shadow/mutants.py']' timed out after 12 seconds
+make: *** [Makefile:53: lifecycle] Error 1

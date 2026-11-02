@@ -1,0 +1,20 @@
+# spinners 256 affinity 16-31 loadavg-before 229.33 113.72 85.40 370/2226 2401230
+# python3 scripts/test_suite_cancellation.py in $LANES/833-owned-process head 1f29f189279f9fc0132f4918e47342b87d22f33a
+Traceback (most recent call last):
+  File "$LANES/833-owned-process/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$LANES/833-owned-process/scripts/test_suite_cancellation.py", line 371, in main
+    ordinary(parent, mode)
+    ~~~~~~~~^^^^^^^^^^^^^^
+  File "$LANES/833-owned-process/scripts/test_suite_cancellation.py", line 137, in ordinary
+    status, output = probe.finish()
+                     ~~~~~~~~~~~~^^
+  File "$LANES/833-owned-process/scripts/process_test_support.py", line 215, in finish
+    status = self.process.wait(timeout=12)
+  File "/usr/lib/python3.14/subprocess.py", line 1279, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2076, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['bash', '$VALIDATION_STORAGE/833-a726/tmp/suite-cancellation-7r0aidl3/pass input [523]/scripts/run_all_suites.sh', '$VALIDATION_STORAGE/833-a726/tmp/suite-cancellation-7r0aidl3/pass input [523]/logs']' timed out after 12 seconds

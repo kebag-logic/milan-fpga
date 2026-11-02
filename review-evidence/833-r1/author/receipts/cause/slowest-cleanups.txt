@@ -1,0 +1,55 @@
+=== 4 CPUs, PID namespace, 16 real compile loops: 217 cleanups
+--- elapsed 3.165 root 1230 notified True resumed 3.042 passes 125
+    sent [[0.003, 1233, 15], [0.003, 1234, 15], [0.006, 1236, 15], [2.008, 1236, 9], [3.018, 1233, 9], [3.018, 1235, 9], [3.046, 1230, 'RESUME']]
+    pass@0.000 took 0.001: 1233 bash S ppid 1230 do_wait; 1234 python3 S ppid 1233 do_wait; 1235 python3 S ppid 1234 hrtimer_nanosleep; 1236 python3 S ppid 1235 hrtimer_nanosleep; 1230 bash T ppid 1227 do_signal_stop
+    pass@0.029 took 0.001: 1233 bash Z ppid 1230 0; 1235 python3 S ppid 1227 hrtimer_nanosleep; 1236 python3 S ppid 1235 hrtimer_nanosleep; 1230 bash T ppid 1227 do_signal_stop
+    pass@0.201 took 0.001: 1233 bash Z ppid 1230 0; 1235 python3 R ppid 1227 0; 1236 python3 S ppid 1235 hrtimer_nanosleep; 1230 bash T ppid 1227 do_signal_stop
+    pass@0.222 took 0.001: 1233 bash Z ppid 1230 0; 1235 python3 S ppid 1227 hrtimer_nanosleep; 1236 python3 S ppid 1235 hrtimer_nanosleep; 1230 bash T ppid 1227 do_signal_stop
+    pass@1.417 took 0.001: 1233 bash Z ppid 1230 0; 1235 python3 S ppid 1227 0; 1236 python3 S ppid 1235 hrtimer_nanosleep; 1230 bash T ppid 1227 do_signal_stop
+    pass@1.444 took 0.001: 1233 bash Z ppid 1230 0; 1235 python3 S ppid 1227 hrtimer_nanosleep; 1236 python3 S ppid 1235 hrtimer_nanosleep; 1230 bash T ppid 1227 do_signal_stop
+    pass@1.668 took 0.001: 1233 bash Z ppid 1230 0; 1235 python3 S ppid 1227 hrtimer_nanosleep; 1236 python3 R ppid 1235 0; 1230 bash T ppid 1227 do_signal_stop
+    pass@1.716 took 0.001: 1233 bash Z ppid 1230 0; 1235 python3 R ppid 1227 0; 1236 python3 S ppid 1235 hrtimer_nanosleep; 1230 bash T ppid 1227 do_signal_stop
+    pass@1.740 took 0.001: 1233 bash Z ppid 1230 0; 1235 python3 S ppid 1227 hrtimer_nanosleep; 1236 python3 S ppid 1235 hrtimer_nanosleep; 1230 bash T ppid 1227 do_signal_stop
+    pass@1.788 took 0.001: 1233 bash Z ppid 1230 0; 1235 python3 R ppid 1227 0; 1236 python3 S ppid 1235 hrtimer_nanosleep; 1230 bash T ppid 1227 do_signal_stop
+    pass@1.813 took 0.001: 1233 bash Z ppid 1230 0; 1235 python3 R ppid 1227 0; 1236 python3 S ppid 1235 0; 1230 bash T ppid 1227 do_signal_stop
+    pass@1.837 took 0.001: 1233 bash Z ppid 1230 0; 1235 python3 S ppid 1227 hrtimer_nanosleep; 1236 python3 S ppid 1235 hrtimer_nanosleep; 1230 bash T ppid 1227 do_signal_stop
+    pass@2.031 took 0.001: 1233 bash Z ppid 1230 0; 1235 python3 S ppid 1227 hrtimer_nanosleep; 1236 python3 Z ppid 1235 0; 1230 bash T ppid 1227 do_signal_stop
+    pass@3.041 took 0.001: 1233 bash Z ppid 1230 0; 1230 bash T ppid 1227 do_signal_stop
+    pass@3.068 took 0.001: 1230 bash D ppid 1227 unlink_file_vma_batch_process
+    pass@3.122 took 0.001: 1230 bash R ppid 1227 0
+    pass@3.149 took 0.001: 
+--- elapsed 3.066 root 17 notified True resumed 3.03 passes 119
+    sent [[0.003, 20, 15], [0.004, 21, 15], [0.004, 23, 15], [2.019, 23, 9], [3.004, 20, 9], [3.006, 22, 9], [3.03, 17, 'RESUME']]
+    pass@0.000 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash S ppid 17 do_wait; 21 python3 S ppid 20 do_wait; 22 python3 S ppid 21 hrtimer_nanosleep; 23 python3 S ppid 22 hrtimer_nanosleep
+    pass@0.024 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 S ppid 14 hrtimer_nanosleep; 23 python3 S ppid 22 hrtimer_nanosleep
+    pass@0.050 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 S ppid 14 hrtimer_nanosleep; 23 python3 R ppid 22 0
+    pass@0.077 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 S ppid 14 hrtimer_nanosleep; 23 python3 S ppid 22 hrtimer_nanosleep
+    pass@0.390 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 R ppid 14 0; 23 python3 S ppid 22 hrtimer_nanosleep
+    pass@0.418 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 S ppid 14 hrtimer_nanosleep; 23 python3 S ppid 22 hrtimer_nanosleep
+    pass@0.776 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 S ppid 14 hrtimer_nanosleep; 23 python3 R ppid 22 0
+    pass@0.803 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 S ppid 14 hrtimer_nanosleep; 23 python3 S ppid 22 hrtimer_nanosleep
+    pass@1.013 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 R ppid 14 0; 23 python3 S ppid 22 hrtimer_nanosleep
+    pass@1.041 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 S ppid 14 hrtimer_nanosleep; 23 python3 S ppid 22 hrtimer_nanosleep
+    pass@1.837 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 R ppid 14 0; 23 python3 S ppid 22 hrtimer_nanosleep
+    pass@1.865 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 S ppid 14 hrtimer_nanosleep; 23 python3 S ppid 22 hrtimer_nanosleep
+    pass@2.045 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 S ppid 14 hrtimer_nanosleep; 23 python3 Z ppid 22 0
+    pass@2.147 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 R ppid 14 0; 23 python3 Z ppid 22 0
+    pass@2.172 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 S ppid 14 hrtimer_nanosleep; 23 python3 Z ppid 22 0
+    pass@2.975 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 R ppid 14 0; 23 python3 Z ppid 22 0
+    pass@3.002 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0; 22 python3 S ppid 14 hrtimer_nanosleep; 23 python3 Z ppid 22 0
+    pass@3.029 took 0.001: 17 bash T ppid 14 do_signal_stop; 20 bash Z ppid 17 0
+    pass@3.053 took 0.001: 
+=== 16 CPUs, PID namespace, 1.5 GB cgroup, 8 compile loops: 289 cleanups
+--- elapsed 3.602 root 868 notified True resumed 3.577 passes 24
+    sent [[0.002, 905, 15], [0.002, 906, 15], [0.002, 907, 15], [0.002, 908, 15], [3.556, 905, 9], [3.556, 908, 9], [3.577, 868, 'RESUME']]
+    pass@0.000 took 0.001: 868 bash T ppid 865 do_signal_stop; 905 timeout S ppid 868 sigsuspend.isra.0; 906 python3 S ppid 905 do_wait; 907 python3 S ppid 906 hrtimer_nanosleep; 908 python3 S ppid 907 hrtimer_nanosleep
+    pass@0.022 took 0.001: 905 timeout Z ppid 868 0; 868 bash T ppid 865 do_signal_stop; 908 python3 S ppid 865 hrtimer_nanosleep
+    pass@0.513 took 3.042: 905 timeout Z ppid 868 0; 868 bash T ppid 865 do_signal_stop; 908 python3 S ppid 865 hrtimer_nanosleep
+    pass@3.576 took 0.001: 905 timeout Z ppid 868 0; 868 bash T ppid 865 do_signal_stop
+    pass@3.597 took 0.001: 
+--- elapsed 2.07 root 1388 notified True resumed 2.042 passes 97
+    sent [[0.003, 1403, 15], [0.003, 1404, 15], [0.003, 1405, 15], [0.003, 1406, 15], [2.02, 1406, 9], [2.042, 1388, 'RESUME']]
+    pass@0.000 took 0.001: 1388 bash T ppid 1385 do_signal_stop; 1403 bash S ppid 1388 do_wait; 1404 python3 S ppid 1403 do_wait; 1405 python3 S ppid 1404 hrtimer_nanosleep; 1406 python3 S ppid 1405 hrtimer_nanosleep
+    pass@0.023 took 0.001: 1403 bash Z ppid 1388 0; 1388 bash T ppid 1385 do_signal_stop; 1406 python3 S ppid 1385 hrtimer_nanosleep
+    pass@2.040 took 0.001: 1403 bash Z ppid 1388 0; 1388 bash T ppid 1385 do_signal_stop
+    pass@2.062 took 0.001: 

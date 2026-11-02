@@ -1,0 +1,80 @@
+[
+ {
+  "mutant": "control-unmutated-suite",
+  "rc": 0,
+  "seconds": 57.7,
+  "last": "suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suit"
+ },
+ {
+  "mutant": "identity-includes-parent-suite",
+  "rc": 1,
+  "seconds": 2.2,
+  "last": "AssertionError: re-parented descendant was treated as new and never got SIGTERM"
+ },
+ {
+  "mutant": "no-reap-after-census-suite",
+  "rc": 1,
+  "seconds": 0.7,
+  "last": "RuntimeError: CLEANUP FAILED: owned descendants remain after 0.47 s, 1 census passes, slowest 0.47 s: pid 5 exited during this report"
+ },
+ {
+  "mutant": "deadline-is-wall-clock-suite",
+  "rc": 1,
+  "seconds": 4.0,
+  "last": "RuntimeError: CLEANUP FAILED: owned descendants remain after 3.22 s, 2 census passes, slowest 3.20 s: pid 6 (python3) state S wchan hrtimer_nanosleep "
+ },
+ {
+  "mutant": "no-shell-window-suite",
+  "rc": 1,
+  "seconds": 4.8,
+  "last": "AssertionError: the shell was killed in the pass that resumed it, before its trap"
+ },
+ {
+  "mutant": "no-kill-before-fail-suite",
+  "rc": 1,
+  "seconds": 22.9,
+  "last": "AssertionError: stopped shell left behind"
+ },
+ {
+  "mutant": "endless-listing-unbounded-suite",
+  "rc": 1,
+  "seconds": 21.0,
+  "last": "AssertionError: cleanup never reached a verdict"
+ },
+ {
+  "mutant": "survivor-does-not-fail-suite",
+  "rc": 1,
+  "seconds": 36.9,
+  "last": "AssertionError: a survivor never failed the run"
+ },
+ {
+  "mutant": "report-without-state-suite",
+  "rc": 1,
+  "seconds": 2.2,
+  "last": "AssertionError: ('state S', 'pid 2 (python3) parent 1 (first parent 1) age 0.04 s start 72683156, not sent SIGKILL')"
+ },
+ {
+  "mutant": "cleanup-does-nothing-suite",
+  "rc": 1,
+  "seconds": 0.2,
+  "last": "AssertionError: re-parented descendant was treated as new and never got SIGTERM"
+ },
+ {
+  "mutant": "cleanup-does-nothing-lifecycle",
+  "rc": 1,
+  "seconds": 16.5,
+  "last": "AssertionError: ('1307', ('72684996', 'S'), ('72684996', 'S'))"
+ },
+ {
+  "mutant": "survivor-does-not-fail-lifecycle",
+  "rc": 0,
+  "seconds": 35.0,
+  "last": "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility"
+ },
+ {
+  "mutant": "control-unmutated-lifecycle",
+  "rc": 0,
+  "seconds": 37.2,
+  "last": "mutant lifecycle: PASS (normal/repeat, nine named defects, survivor, build, unread-file and Git-setting acceptance, input/Git-redirect/record/facility"
+ }
+]
