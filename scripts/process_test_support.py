@@ -263,6 +263,16 @@ def assert_reaped(data: dict) -> None:
 
 #: A tick of the starved owner's clock: about a microsecond, and exact in binary, as every time on that clock is.
 TICK = 2.0 ** -20
+#: The resume-timing matrix's classes of census pass, each at its earliest and its latest pass.
+RESUME_MATRIX = (("first-pass", 0), ("second-pass", TICK), ("last in-grace", 2 - TICK), ("first past-grace", 2),
+                 ("second past-grace", 2 + TICK), ("last-pass", 14 - TICK))
+
+
+def window(resume: float, windowed: tuple[str, ...] = ("shell", "trap command")) -> list[tuple]:
+    """What a shell resumed then is sent, as stated, with what shares its window, and when the run fails."""
+    return [*[(0, "SIGTERM", "child")][:resume > 0], *[(2, "SIGKILL", "child")][:resume > 2],
+            (resume, "SIGCONT", "shell"), *[(resume + 10, "SIGKILL", name) for name in windowed],
+            *[(resume + 20, "SIGKILL", name) for name in windowed], (resume + 20, "verdict")]
 
 
 def starved_cleanup(owner: owned_process.OwnedProcesses, listing: Callable[[float], dict], names: dict,

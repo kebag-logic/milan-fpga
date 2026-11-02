@@ -22,8 +22,8 @@ from types import SimpleNamespace
 import owned_process
 from owned_process import Cancelled, OwnedProcesses
 from process_test_support import (
-    FACILITY_MODES, FACILITY_SITE, PROC, TICK, Probe, assert_reaped, eventually, identity, install,
-    mutation_campaign, parent as parent_of, running, starved_cleanup, write,
+    FACILITY_MODES, FACILITY_SITE, PROC, RESUME_MATRIX, TICK, Probe, assert_reaped, eventually, identity, install,
+    mutation_campaign, parent as parent_of, running, starved_cleanup, window, write,
 )
 
 DRIVER = "scripts/run_all_suites.sh"
@@ -749,16 +749,16 @@ def owner_stated_seconds() -> None:
     listed while a cancelled shell is still stopped. The resume-timing matrix resumes the shell in the first
     pass; in a later pass inside grace, the second or the last before 2 s; in the first pass past grace, at
     2 s; and in a later one, the next or the last before 14 s. In each the shell is then alone, or its trap
-    starts a command. Other listings resume it at 1 s, 3 s and 5.5 s, with that command listed from the
-    resume, and never.
+    starts a command, live or not: `stated_liveness` lists the live ones. Other listings resume it at 1 s, 3 s
+    and 5.5 s, with that command listed from the resume, and never.
     """
     # Above the largest PID a process can have, so none of these is ever a real process.
-    survivor, shell, command, owner_pid, parent, gone, cleanup = range(2 ** 22 + 1, 2 ** 22 + 8)
+    survivor, shell, command, owner_pid, parent, gone, cleanup, zombie = range(2 ** 22 + 1, 2 ** 22 + 9)
     # A live process the census lists as the shell's child, and never as a parent,
     # so it is a stubborn leaf. It is never really signalled: this control's send only records the signal.
     child = os.getpid()
     names = {survivor: "survivor", shell: "shell", command: "trap command", child: "child", parent: "parent",
-             cleanup: "cleanup command"}
+             cleanup: "cleanup command", zombie: "zombie"}
     last = 14 - TICK  # The last pass before a survivor's verdict.
 
     def resumed_at(resume: float) -> Callable[[float], dict]:
@@ -770,12 +770,6 @@ def owner_stated_seconds() -> None:
         """A matrix cell: the child lives until the resume; what the trap starts is listed from the pass after."""
         return lambda clock: {shell: (owner_pid, "2"), **({child: (shell, "4")} if clock < resume else
                                                           {pid: (shell, "3") for pid in started if clock > resume})}
-
-    def window(resume: float, windowed: tuple[str, ...] = ("shell", "trap command")) -> list[tuple]:
-        """What a shell resumed then is sent, as stated, with what shares its window, and when the run fails."""
-        return [*[(0, "SIGTERM", "child")][:resume > 0], *[(2, "SIGKILL", "child")][:resume > 2],
-                (resume, "SIGCONT", "shell"), *[(resume + 10, "SIGKILL", name) for name in windowed],
-                *[(resume + 20, "SIGKILL", name) for name in windowed], (resume + 20, "verdict")]
 
     def kept(words: str, listing: Callable[[float], dict], stated: list[tuple], shell_pid: int | None = None,
              reaped: Callable[[float], set] = lambda _clock: set()) -> None:
@@ -817,15 +811,48 @@ def owner_stated_seconds() -> None:
               *[(14, "SIGKILL", name) for name in ("shell", "child", "cleanup command")], (14, "verdict")], shell)
         # The resume-timing matrix: each class of pass at its earliest and its latest, the shell then alone or with
         # a command its trap starts after the resume. That command after a first-pass resume is the listing above.
-        for when, resume in (("first-pass", 0), ("second-pass", TICK), ("last in-grace", 2 - TICK),
-                             ("first past-grace", 2), ("second past-grace", 2 + TICK), ("last-pass", last)):
+        for when, resume in RESUME_MATRIX:
             kept(f"a lone {when} resume", cell(resume), window(resume, ("shell",)), shell)
             if resume:
                 kept(f"a {when} resume and its trap command", cell(resume, command), window(resume), shell)
+        stated_liveness(kept, cell, names, (survivor, shell, command, owner_pid, zombie))
     print("owner-stated-seconds: " + str(dict(grace=2, verdict=14, parent_kill=4, vanishing=24,
                                               resumes=[0, 1, 3, 5.5, last], window=10, after_resume=20,
                                               vanishing_after_resume=30, matrix=[0, TICK, 2 - TICK, 2, 2 + TICK, last],
                                               alone_or_with_trap_command=True)), flush=True)
+
+
+def stated_liveness(kept: Callable, cell: Callable, names: dict, fakes: tuple) -> None:
+    """The liveness axis of `owner_stated_seconds`: where it lists a descendant new since the first census (#833).
+
+    A real process, live until its input closes, stands for one that is live; any other is a number no process
+    has. As the trap's command it is listed from the pass after the resume: a census before the resume cannot list
+    it, and a live one listed then would hold the resume.
+    """
+    survivor, shell, command, owner_pid, zombie = fakes
+    child, next_to_last = os.getpid(), 2 - 2 * TICK  # The control's own child; a pass before the last in grace.
+    with subprocess.Popen(["cat"], stdin=subprocess.PIPE) as reader:
+        live = reader.pid
+        names[live] = "trap command"
+        for when, resume in RESUME_MATRIX:
+            kept(f"a {when} resume and its live trap command", cell(resume, live), window(resume), shell)
+        # The child's trap starts it and the child exits, so it alone keeps the shell stopped, until 3 s.
+        kept("a live new descendant beside a stopped shell",
+             lambda clock: {shell: (owner_pid, "2"), **({child: (shell, "4")} if not clock else {}),
+                            **({live: (shell, "8")} if 0 < clock < 3 else {})},
+             [(0, "SIGTERM", "child"), (2, "SIGKILL", "trap command"), *window(3, ("shell",))[2:]], shell)
+        # The survivor's trap starts it, and no shell is cancelled. While it lives the survivor is spared, to 4 s.
+        kept("a live new descendant",
+             lambda clock: {survivor: (child, "1"), **({live: (survivor, "9")} if clock else {})},
+             [(0, "SIGTERM", "survivor"), (2, "SIGKILL", "trap command"), (4, "SIGKILL", "survivor"),
+              *[(14, "SIGKILL", name) for name in ("survivor", "trap command")], (14, "verdict")])
+        # A zombie the stopped shell has not collected holds nothing, and its SIGKILL at 2 s puts the last pass
+        # inside grace a tick before it. The trap's command, live or not, is first listed there, after the resume.
+        child_term, resume, *rest = window(next_to_last)
+        for words, started in (("trap command", command), ("live trap command", live)):
+            kept(f"a next-to-last in-grace resume and its {words}", lambda clock, listing=cell(next_to_last, started):
+                 {**listing(clock), **({zombie: (shell, "5")} if clock <= 2 else {})},
+                 [child_term, (0, "SIGTERM", "zombie"), resume, (2, "SIGKILL", "zombie"), *rest], shell)
 
 
 #: Blocks SIGTERM and SIGCONT, so either sent to it stays pending, as its status shows; then says it is ready.
