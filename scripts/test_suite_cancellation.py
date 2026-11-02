@@ -560,7 +560,9 @@ def owner_shell_window(parent: Path) -> None:
                     now = time.monotonic()
                     if not blocked:
                         blocked.append(now)
-                    if signum == signal.SIGKILL and pid != owner.process.pid and now < blocked[0] + 0.7:
+                    # Past grace + 1 s a parent is no longer spared for its stubborn leaf,
+                    # so only the shell's own window keeps it in the pass that resumes it.
+                    if signum == signal.SIGKILL and pid != owner.process.pid and now < blocked[0] + 1.5:
                         return False
                     return send(pid, start, signum)
                 owner._send = late
