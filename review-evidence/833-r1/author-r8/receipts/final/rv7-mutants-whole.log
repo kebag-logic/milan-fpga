@@ -1,0 +1,6 @@
+rv7-sigterm-trap-command-later-grace-resume / whole: red rc 1 11.1 s: AssertionError: an in-grace resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (1.0, 'SIGCONT', 'shell'), (1.0, 'SIGTERM', 'trap command'), (11.0, 'SIGKILL', 'shell'), (11.0, 'SIGKILL', 'trap command'), 
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726h/rev/833-r764-7/scripts/rv7_mutants.py", line 60, in <module>
+    print(f"== {name}: {'SURVIVES (green on all ' + str(len(targets)) + ')' if not red else 'red on ' + ', '.join(red)}",
+                                                                                                        ~~~~~~~~~^^^^^
+TypeError: sequence item 0: expected str instance, NoneType found
