@@ -1,0 +1,14 @@
+3462c3462
+< | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table's latest answer to the window was a poll, after the last `STRM_SEL`/`STRMW_CTRL` write, with no other master using the table since | `i_srp_ctx_rd_sid[31:0]` |
+---
+> | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write | `i_srp_ctx_rd_sid[31:0]` |
+3483c3483
+< | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table's latest answer to the window was a poll, after the last `STRM_SEL`/`STRMW_CTRL` write, with no other master using the table since | `i_srp_ctx_rd_sid[63:32]` |
+---
+> | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write | `i_srp_ctx_rd_sid[63:32]` |
+3639,3640c3639,3640
+< | the selected stream exists and `STRM_SEL[9]` is 1 and the SRP table's latest answer to the window was a poll, after the last `STRM_SEL`/`STRMW_CTRL` write, with no other master using the table since | `{16'd0, i_srp_ctx_rd_stat}` |
+< | the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table's latest answer to the window was a poll, after the last `STRM_SEL`/`STRMW_CTRL` write, with no other master using the table since | `{16'd0, i_srp_ctx_rd_stat}` |
+---
+> | the selected stream exists and `STRM_SEL[9]` is 1 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write | `{16'd0, i_srp_ctx_rd_stat}` |
+> | the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write | `{16'd0, i_srp_ctx_rd_stat}` |

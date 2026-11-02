@@ -1,0 +1,18 @@
+ship: 17 tables, 48007 reads, 48 disagreements
+2x2: 17 tables, 48007 reads, 240 disagreements
+register_read_sweep: 288 disagreement(s)
+by build and table:
+     48 2x2 STRMW_SID_HI
+     48 2x2 STRMW_SID_LO
+    144 2x2 STRMW_SRP
+     48 ship STRMW_SRP
+by state:
+    144 srppoll=0 srpsteal=0 srpsince=1
+    144 srppoll=1 srpsteal=1 srpsince=1
+failing words (distinct rows):
+     96 the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write
+    144 the selected stream exists and `STRM_SEL[9]` is 1 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write
+     48 the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write
+first lines of each state kind:
+DISAGREE ship STRMW_SRP 0x85C sel9=1 dir=0 idx=0 acmp=0 srp=1 srpw=1 srppoll=0 srpsteal=0 srpsince=1 snap=0 word=0 cmdone=0 cmvalid=0 read 0x00000000: row 'the selected stream exists and `STRM_SEL[9]` is 1 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write' says 0x00004444
+DISAGREE ship STRMW_SRP 0x85C sel9=1 dir=0 idx=0 acmp=0 srp=1 srpw=0 srppoll=1 srpsteal=1 srpsince=1 snap=0 word=0 cmdone=0 cmvalid=0 read 0x00000000: row 'the selected stream exists and `STRM_SEL[9]` is 1 and the SRP table answered a poll since the last `STRM_SEL`/`STRMW_CTRL` write' says 0x00004444
