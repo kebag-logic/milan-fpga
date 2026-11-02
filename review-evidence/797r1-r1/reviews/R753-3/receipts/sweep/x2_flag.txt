@@ -1,0 +1,69 @@
+DISAGREE RENDER_STAT sel=0x001 exists=1 snap=0 acmp=0 srp=0 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x001 exists=1 snap=0 acmp=0 srp=1 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x001 exists=1 snap=0 acmp=1 srp=0 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x001 exists=1 snap=0 acmp=1 srp=1 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x001 exists=1 snap=1 acmp=0 srp=0 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x001 exists=1 snap=1 acmp=0 srp=1 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x001 exists=1 snap=1 acmp=1 srp=0 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x001 exists=1 snap=1 acmp=1 srp=1 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x201 exists=1 snap=0 acmp=0 srp=0 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x201 exists=1 snap=0 acmp=0 srp=1 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x201 exists=1 snap=0 acmp=1 srp=0 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x201 exists=1 snap=0 acmp=1 srp=1 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x201 exists=1 snap=1 acmp=0 srp=0 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x201 exists=1 snap=1 acmp=0 srp=1 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x201 exists=1 snap=1 acmp=1 srp=0 x6 read 0x77000001: row `any other case` says 0x00000000
+DISAGREE RENDER_STAT sel=0x201 exists=1 snap=1 acmp=1 srp=1 x6 read 0x77000001: row `any other case` says 0x00000000
+STRMW_CTRL hits=    48 | the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 | i_tctx_rd_data
+STRMW_CTRL hits=    96 | the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener | i_lctx_rd_data
+STRMW_CTRL hits=    96 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | {31'd0, aaf_ctrl[0]}
+STRMW_CTRL hits=   720 | any other case | 0x00000000
+STRMW_SID_LO hits=    96 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | acmp_sid_q_r[31:0]
+STRMW_SID_LO hits=    96 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | {mac_wire_w[15:0], 16'd0}
+STRMW_SID_LO hits=    48 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered since the last selection | i_srp_ctx_rd_sid[31:0]
+STRMW_SID_LO hits=   720 | any other case | 0x00000000
+STRMW_SID_HI hits=    96 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | acmp_sid_q_r[63:32]
+STRMW_SID_HI hits=    96 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | mac_wire_w[47:16]
+STRMW_SID_HI hits=    48 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered since the last selection | i_srp_ctx_rd_sid[63:32]
+STRMW_SID_HI hits=   720 | any other case | 0x00000000
+STRMW_DMAC_LO hits=    48 | the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 | i_tctx_rd_data
+STRMW_DMAC_LO hits=    96 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | acmp_dmac_q_r[31:0]
+STRMW_DMAC_LO hits=    96 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | aaf_dmlo
+STRMW_DMAC_LO hits=   720 | any other case | 0x00000000
+STRMW_DMAC_HI hits=    48 | the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is not 0 | i_tctx_rd_data
+STRMW_DMAC_HI hits=    96 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | {16'd0, acmp_dmac_q_r[47:32]}
+STRMW_DMAC_HI hits=    96 | the selected stream exists and `STRM_SEL[8]` selects a talker and the stream index `STRM_SEL[3:0]` is 0 | {16'd0, aaf_dmhi[15:0]}
+STRMW_DMAC_HI hits=   720 | any other case | 0x00000000
+STRMW_FMT_LO hits=    96 | the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener | i_lctx_rd_data
+STRMW_FMT_LO hits=   192 | the selected stream exists and `STRM_SEL[8]` selects a talker | 0xDEADDEAD
+STRMW_FMT_LO hits=   672 | any other case | 0x00000000
+STRMW_FMT_HI hits=    96 | the selected stream exists and no snapshot is running and `STRM_SEL[8]` selects a listener | i_lctx_rd_data
+STRMW_FMT_HI hits=   192 | the selected stream exists and `STRM_SEL[8]` selects a talker | 0xDEADDEAD
+STRMW_FMT_HI hits=   672 | any other case | 0x00000000
+STRMW_STATE hits=   384 | the selected stream exists | the fields above
+STRMW_STATE hits=   576 | the selected stream does not exist | 0x00000000
+STRMW_CNTn hits=  1280 | the selected stream exists and the kind the last snapshot recorded for this counter is `SK_RAW_C` | the fields above
+STRMW_CNTn hits=  1280 | the selected stream exists and the kind the last snapshot recorded for this counter is `SK_POISON_C` | 0xDEADDEAD
+STRMW_CNTn hits=  7040 | any other case | 0x00000000
+STRMW_PDUS hits=   384 | the selected stream exists | the fields above
+STRMW_PDUS hits=   576 | the selected stream does not exist | 0x00000000
+STRMW_SRP hits=    96 | the selected stream exists and the stream index `STRM_SEL[3:0]` is 0 and `STRM_SEL[9]` does not select the listener row at index 0 | i_lwsrp_status
+STRMW_SRP hits=    96 | the selected stream exists and `STRM_SEL[9]` selects the listener row at index 0 and the SRP table answered since the last selection | {16'd0, i_srp_ctx_rd_stat}
+STRMW_SRP hits=    96 | the selected stream exists and the stream index `STRM_SEL[3:0]` is not 0 and the SRP table answered since the last selection | {16'd0, i_srp_ctx_rd_stat}
+STRMW_SRP hits=   720 | any other case | 0x00000000
+STRMW_CTLR_LO hits=    96 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | the fields above
+STRMW_CTLR_LO hits=   192 | the selected stream exists and `STRM_SEL[8]` selects a talker | 0xDEADDEAD
+STRMW_CTLR_LO hits=   672 | any other case | 0x00000000
+STRMW_CTLR_HI hits=    96 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | the fields above
+STRMW_CTLR_HI hits=   192 | the selected stream exists and `STRM_SEL[8]` selects a talker | 0xDEADDEAD
+STRMW_CTLR_HI hits=   672 | any other case | 0x00000000
+STRMW_BIND hits=    96 | the selected stream exists and `STRM_SEL[8]` selects a listener and the ACMP table answered since the last selection | the fields above
+STRMW_BIND hits=   192 | the selected stream exists and `STRM_SEL[8]` selects a talker | 0xDEADDEAD
+STRMW_BIND hits=   672 | any other case | 0x00000000
+STRMW_RSVD_86C hits=   384 | the selected stream exists | 0xDEADDEAD
+STRMW_RSVD_86C hits=   576 | the selected stream does not exist | 0x00000000
+RENDER_STAT hits=    96 | `STRM_SEL[8]` selects a listener and the stream index `STRM_SEL[3:0]` is 0 | the fields above
+RENDER_STAT hits=   864 | any other case | 0x00000000
+CHMAP_LOOP hits=   480 | a channel-map readback has completed | the fields above
+CHMAP_LOOP hits=   480 | no channel-map readback has completed | 0xDEADDEAD
+tables 17, reads checked 24960, reads dropped because state moved 0, disagreements 96
