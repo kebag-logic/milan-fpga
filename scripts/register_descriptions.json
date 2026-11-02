@@ -3949,7 +3949,7 @@
           [
             "31:24",
             "TAG",
-            "Contract tag `0xC3`: read it first. 0 means the gateware predates the contract, and a writer must disable itself. A write here is the strobe word: `[0]` heartbeat, `[1]` commit acknowledged, `[2]` commit started, `[3]` ARM, `[4]` ATTEST, `[5]` RELEASE, `[6]` RELOAD."
+            "Contract tag `0xC3`: read it first. 0 means the gateware predates the contract, and a writer must disable itself. A write to this word fires the strobes named in `[6:0]`."
           ],
           [
             "23",
@@ -4024,32 +4024,37 @@
           [
             "6",
             "NVM_BACKED",
-            "See `PP_STAT[6]`."
+            "See `PP_STAT[6]`. Writing 1 is the RELOAD strobe."
           ],
           [
             "5",
             "IMG_CFG",
-            "An image length is set."
+            "An image length is set. Writing 1 is the RELEASE strobe."
           ],
           [
             "4",
             "DEV_BUSY",
-            "A record operation is in flight on the device face."
+            "A record operation is in flight on the device face. Writing 1 is the ATTEST strobe."
           ],
           [
             "3",
             "LOAD_PENDING",
-            "A boot window load may still be accepted."
+            "A boot window load may still be accepted. Writing 1 is the ARM strobe."
           ],
           [
             "2",
             "LOAD_ACCEPTED",
-            "A RELOAD has been accepted since reset. While 0 the backend arms no capture."
+            "A RELOAD has been accepted since reset. While 0 the backend arms no capture. Writing 1 is the commit-started strobe."
           ],
           [
-            "1:0",
-            "RESERVED",
-            ""
+            "1",
+            "COMMIT_ACK",
+            "Reads 0. Writing 1 is the commit-acknowledged strobe, with the capture identity in `[31:16]`."
+          ],
+          [
+            "0",
+            "HEARTBEAT",
+            "Reads 0. Writing 1 is the writer's heartbeat: it re-arms `T-NVM-WRITER-ALIVE`."
           ]
         ]
       }

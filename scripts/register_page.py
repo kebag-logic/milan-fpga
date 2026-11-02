@@ -344,6 +344,8 @@ def field_text(reg: Register, fl: Field, model: Model) -> str:
     """The description cell: the descriptions file's text, then what the
     RTL says about the field's side effects, generated."""
     regd = model.descriptions.get("registers", {}).get(reg.label, {})
+    if fl.name == "RESERVED" and "W" in fl.access and any(note.startswith("writes:") for note in fl.notes):
+        raise Refusal(f"{RTL}: a write to {reg.label}[{fl.bits}] leaves the block, so those bits cannot be reserved")
     parts = []
     text = regd.get("fields", {}).get(fl.name, "")
     if text:

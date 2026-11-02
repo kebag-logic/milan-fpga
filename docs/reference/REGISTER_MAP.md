@@ -4455,7 +4455,7 @@ RTL name: `A_PP_NVM_STAT`.
 
 | Bit | Field | Type | Reset | Description |
 |---|---|---|---|---|
-| 31:24 | `TAG` | R/W | X | Contract tag `0xC3`: read it first. 0 means the gateware predates the contract, and a writer must disable itself. A write here is the strobe word: `[0]` heartbeat, `[1]` commit acknowledged, `[2]` commit started, `[3]` ARM, `[4]` ATTEST, `[5]` RELEASE, `[6]` RELOAD. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. A write also sets `pp_nvm_we_r` and loads `pp_nvm_waddr_r`. |
+| 31:24 | `TAG` | R/W | X | Contract tag `0xC3`: read it first. 0 means the gateware predates the contract, and a writer must disable itself. A write to this word fires the strobes named in `[6:0]`. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. A write also sets `pp_nvm_we_r` and loads `pp_nvm_waddr_r`. |
 | 23 | `UNRES` | R/W | X | At least one record is open. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
 | 22 | `NVM_PEND` | R/W | X | The same wire as `PP_STAT[11]`. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
 | 21 | `ARM_REFUSED` | R/W | X | The last ARM was not accepted. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
@@ -4470,12 +4470,13 @@ RTL name: `A_PP_NVM_STAT`.
 | 9 | `NVM_STALE` | R/W | X | See `PP_STAT[9]`. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
 | 8 | `NVM_DIRTY` | R/W | X | Committable image work. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
 | 7 | `IMG_VALID` | R/W | X | See `PP_STAT[10]`. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
-| 6 | `NVM_BACKED` | R/W | X | See `PP_STAT[6]`. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
-| 5 | `IMG_CFG` | R/W | X | An image length is set. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
-| 4 | `DEV_BUSY` | R/W | X | A record operation is in flight on the device face. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
-| 3 | `LOAD_PENDING` | R/W | X | A boot window load may still be accepted. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
-| 2 | `LOAD_ACCEPTED` | R/W | X | A RELOAD has been accepted since reset. While 0 the backend arms no capture. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
-| 1:0 | `RESERVED` | R/W | X | Reserved; stored and read back, drives nothing. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 6 | `NVM_BACKED` | R/W | X | See `PP_STAT[6]`. Writing 1 is the RELOAD strobe. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 5 | `IMG_CFG` | R/W | X | An image length is set. Writing 1 is the RELEASE strobe. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 4 | `DEV_BUSY` | R/W | X | A record operation is in flight on the device face. Writing 1 is the ATTEST strobe. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 3 | `LOAD_PENDING` | R/W | X | A boot window load may still be accepted. Writing 1 is the ARM strobe. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 2 | `LOAD_ACCEPTED` | R/W | X | A RELOAD has been accepted since reset. While 0 the backend arms no capture. Writing 1 is the commit-started strobe. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 1 | `COMMIT_ACK` | R/W | X | Reads 0. Writing 1 is the commit-acknowledged strobe, with the capture identity in `[31:16]`. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
+| 0 | `HEARTBEAT` | R/W | X | Reads 0. Writing 1 is the writer's heartbeat: it re-arms `T-NVM-WRITER-ALIVE`. A write sets `PP_NVM_CSR_WDATA`; a read returns this field. |
 
 Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#pp_nvm_stat-offset-0x93c).
 

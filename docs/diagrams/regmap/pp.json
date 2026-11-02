@@ -361,10 +361,14 @@
       "wavedrom": {
         "reg": [
           {
-            "bits": 2,
-            "name": "RESERVED",
-            "attr": "R/W-X",
-            "type": 1
+            "bits": 1,
+            "name": "HEARTBEAT",
+            "attr": "R/W-X"
+          },
+          {
+            "bits": 1,
+            "name": "COMMIT_ACK",
+            "attr": "R/W-X"
           },
           {
             "bits": 1,

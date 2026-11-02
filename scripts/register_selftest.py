@@ -230,6 +230,11 @@ def _bad_literal(desc: dict) -> None:
     desc["literal_words"]["0x808"] = "STRMW_PLANT"
 
 
+def _reserved_strobes(desc: dict) -> None:
+    rows = desc["registers"]["PP_NVM_STAT"]["split"]["PP_NVM_CSR_RDATA"]
+    rows[-2:] = [["1:0", "RESERVED", ""]]
+
+
 def _unknown_rename(desc: dict) -> None:
     desc["registers"]["CAP"]["rename"]["BIT99"] = "NOTHING"
 
@@ -252,7 +257,8 @@ def controls() -> list[tuple[str, Callable[[Path], None], int, str]]:
             ("prose wrapped in a field's table cell", _long_cell, 2, "a table cell has"),
             ("condition without wording", _unworded_condition, 2, "has no wording"),
             ("literal word the RTL does not test", _bad_literal, 2, "does not test"),
-            ("rename of a field the RTL lacks", _unknown_rename, 2, "renames field CAP.BIT99")):
+            ("rename of a field the RTL lacks", _unknown_rename, 2, "renames field CAP.BIT99"),
+            ("reserved bits on a word whose write leaves the block", _reserved_strobes, 2, "leaves the block")):
         def plant(root: Path, chosen: Callable[[dict], None] = change) -> None:
             """Apply this control's change to the descriptions file."""
             edit_descriptions(root, chosen)
