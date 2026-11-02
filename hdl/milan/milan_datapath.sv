@@ -85,6 +85,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! KL_gptp_txret refuses the mismatch at elaboration rather than
   //! reconstructing from it.
   parameter int unsigned GPTP_PHC_TICK_NS_P = 0,
+  //! THE MAC'S TRANSMIT SHAPE at the launch observer (issue #829): the clock
+  //! period in nanoseconds and the clocks one octet holds there. The defaults
+  //! are the 1 Gb/s GMII shape; the MII shape states 40 and 2. The plane's
+  //! egress reconstruction subtracts whole periods of this clock.
+  parameter int unsigned GPTP_ETH_TICK_NS_P = 8,
+  parameter int unsigned GPTP_ETH_CYC_PER_OCTET_P = 1,
   //! THIS BOARD'S TIMESTAMP LATENCY CORRECTIONS, nanoseconds (issue #358).
   //! Per-board physical facts - PHY receive and transmit latency, plus the
   //! receive path ahead of the plane's tap - declared in the board
@@ -8876,6 +8882,8 @@ module milan_datapath import ethernet_packet_pkg::*; #(
         .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
         .UCODE_HEX_P   (GPTP_UCODE_HEX_P),
         .PHC_TICK_NS_P (GPTP_PHC_TICK_NS_P),
+        .ETH_TICK_NS_P (GPTP_ETH_TICK_NS_P),
+        .ETH_CYC_PER_OCTET_P(GPTP_ETH_CYC_PER_OCTET_P),
         .INGRESS_LAT_NS_P(GPTP_INGRESS_LAT_NS_P),
         .EGRESS_LAT_NS_P (GPTP_EGRESS_LAT_NS_P)
     ) u_gptp_shadow (
