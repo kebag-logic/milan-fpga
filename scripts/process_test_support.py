@@ -818,6 +818,72 @@ MUTANTS: dict[str, tuple] = {
         ("limit = kill_all + REAP_SECONDS",
          "limit = (max(kill_all, deadline + TRAP_SECONDS) if resumed is not None and resumed < deadline"
          " else kill_all) + REAP_SECONDS")),
+    "first-pass-live-trap-command-sigtermed": ("owner_stated_seconds", "a first-pass resume and its live trap"
+                                                                       " command's stated seconds were not kept",
+        ("resumed = clock\n", "resumed, edge = clock, passes == 1\n"),
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and not (resumed is not None and edge and pid in live):\n"
+         "                        continue\n                elif")),
+    "second-pass-live-trap-command-sigtermed": ("owner_stated_seconds", "a second-pass resume and its live trap"
+                                                                        " command's stated seconds were not kept",
+        ("resumed = clock\n", "resumed, edge = clock, passes == 2\n"),
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and not (resumed is not None and edge and pid in live):\n"
+         "                        continue\n                elif")),
+    "last-in-grace-live-trap-command-unspared": ("owner_stated_seconds", "a last in-grace resume and its live trap"
+                                                                         " command's stated seconds were not kept",
+        ("passes = 0\n", "passes = 0\n        early = set()\n"),
+        ("            signum = signal.SIGKILL if clock >= deadline else signal.SIGTERM\n",
+         "            signum = signal.SIGKILL if clock >= deadline else signal.SIGTERM\n"
+         "            early |= set(owned) if clock < deadline else set()\n"),
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and not (pid in live and resumed < deadline"
+         " and pid not in early):")),
+    "first-past-grace-live-trap-command-unspared": ("owner_stated_seconds", "a first past-grace resume and its live"
+                                                                            " trap command's stated seconds were not"
+                                                                            " kept",
+        ("passes = 0\n", "passes = late = 0\n"),
+        ("            last = now\n", "            last = now\n            late += clock >= deadline\n"),
+        ("resumed = clock\n", "resumed, edge = clock, late == 1\n"),
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and not (edge and pid in live):")),
+    "second-past-grace-live-trap-command-unspared": ("owner_stated_seconds", "a second past-grace resume and its"
+                                                                             " live trap command's stated seconds"
+                                                                             " were not kept",
+        ("passes = 0\n", "passes = late = 0\n"),
+        ("            last = now\n", "            last = now\n            late += clock >= deadline\n"),
+        ("resumed = clock\n", "resumed, edge = clock, late == 2\n"),
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and not (edge and pid in live):")),
+    "last-pass-live-trap-command-unspared": ("owner_stated_seconds", "a last-pass resume and its live trap command's"
+                                                                     " stated seconds were not kept",
+        ("resumed = clock\n", "resumed, edge = clock, clock + MAX_PASS_SECONDS >= kill_all + REAP_SECONDS\n"),
+        ("if (pid, start) not in initial and resumed is not None:",
+         "if (pid, start) not in initial and resumed is not None and not (edge and pid in live):")),
+    "resume-beside-live-new-past-grace": ("owner_stated_seconds", "a live new descendant beside a stopped shell's"
+                                                                  " stated seconds were not kept",
+        ("and root_pid in owned and not (live - {root_pid}):",
+         "and root_pid in owned and not ({p for p in live if (p, owned[p][1]) in initial or clock < deadline}"
+         " - {root_pid}):")),
+    "live-new-sigtermed-with-no-shell": ("owner_stated_seconds", "a live new descendant's stated seconds were not"
+                                                                 " kept",
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and not (pid in live and not self.root_notified):\n"
+         "                        continue\n                elif")),
+    "next-to-last-in-grace-live-trap-command-sigtermed": ("owner_stated_seconds", "a next-to-last in-grace resume"
+                                                                                  " and its live trap command's"
+                                                                                  " stated seconds were not kept",
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and not (pid in live and resumed is not None"
+         " and resumed >= deadline - MAX_PASS_SECONDS):\n"
+         "                        continue\n                elif")),
+    "next-to-last-in-grace-trap-command-sigtermed": ("owner_stated_seconds", "a next-to-last in-grace resume and"
+                                                                             " its trap command's stated seconds were"
+                                                                             " not kept",
+        ("                    if (pid, start) not in initial:\n                        continue\n                elif",
+         "                    if (pid, start) not in initial and not (pid not in live and resumed is not None"
+         " and resumed >= deadline - MAX_PASS_SECONDS):\n"
+         "                        continue\n                elif")),
 }
 
 
