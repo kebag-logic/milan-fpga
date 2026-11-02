@@ -16,6 +16,10 @@ from pathlib import Path
 
 PROC = Path("/proc")
 ROOT = Path(__file__).resolve().parent.parent
+#: Bounds a hang, never a property under test (#833). One real mutation driver took
+#: up to 15.1 s under load, beside host stalls of up to 7.96 s, and a true survivor
+#: takes up to 24 s of owner cleanup to report. This is four times that driver.
+FINISH_SECONDS = 60
 
 # A command publishes readiness only after its detached, stubborn child has
 # installed both handlers. The release file, never a delay, controls progress.
@@ -212,7 +216,7 @@ class Probe:
 
     def finish(self) -> tuple[int, str]:
         """Read the exact exit and transcript after bounded driver completion."""
-        status = self.process.wait(timeout=12)
+        status = self.process.wait(timeout=FINISH_SECONDS)
         self._retain(dict(raw_exit=status))
         return status, self.log()
 

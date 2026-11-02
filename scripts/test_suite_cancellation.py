@@ -137,7 +137,9 @@ def ordinary(parent: Path, mode: str) -> None:
     root, probe = fixture(parent, mode)
     probe.env["PROBE_MODE"] = mode
     if mode == "timeout":
-        probe.env["SUITE_TIMEOUT"] = "0.5"
+        # This deadline covers both suites, and the later one must still finish
+        # within it, through a measured 7.96 s host stall (#833).
+        probe.env["SUITE_TIMEOUT"] = "10"
     start(probe)
     status, output = probe.finish()
     expected = {"pass": 0, "fail": 1, "masked": 1, "timeout": 92}[mode]
@@ -324,7 +326,7 @@ def hard_stop(parent: Path, how: str, unsafe: bool = False) -> None:
             write(probe.control / "release", "command may complete\n")
             eventually(lambda: not running(shell, shell_start), 20, "detached sweep never finished")
         else:
-            eventually(lambda: not running(shell, shell_start), 5, "sweep shell outlived its owner")
+            eventually(lambda: not running(shell, shell_start), 15, "sweep shell outlived its owner")
             write(probe.control / "release", "command may complete\n")
             eventually(lambda: not running(data["pid"], data["identities"][str(data["pid"])][0]), 10,
                        "in-flight command did not finish")
