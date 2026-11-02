@@ -1,0 +1,15 @@
+clean: --check rc=0
+clean: --write then --check rc=0
+clean row: D0-001 | [README.md](../README.md) | re-verify: quote not found 
+clean status: | [README.md](../README.md) stale 8 finding(s): D0-001, D0-002, D0-003, D0-004, D0-005, D0-023, D0-046, D0-047
+clean status: | [docs/fpga/DATAPLANE_WALKTHROUGH.md](fpga/DATAPLANE_WALKTHROUGH.md) current no recorded contradiction
+readme_back: --check rc=1
+readme_back: --write then --check rc=0
+readme_back row: D0-001 | [README.md](../README.md) | 490 
+readme_back status: | [README.md](../README.md) stale 8 finding(s): D0-001, D0-002, D0-003, D0-004, D0-005, D0-023, D0-046, D0-047
+readme_back status: | [docs/fpga/DATAPLANE_WALKTHROUGH.md](fpga/DATAPLANE_WALKTHROUGH.md) current no recorded contradiction
+d033_copy: --check rc=1
+d033_copy: --write then --check rc=0
+d033_copy row: D0-001 | [README.md](../README.md) | re-verify: quote not found 
+d033_copy status: | [README.md](../README.md) stale 8 finding(s): D0-001, D0-002, D0-003, D0-004, D0-005, D0-023, D0-046, D0-047
+d033_copy status: | [docs/fpga/DATAPLANE_WALKTHROUGH.md](fpga/DATAPLANE_WALKTHROUGH.md) stale 1 finding(s): D0-033
