@@ -1,0 +1,11 @@
+--- head/hdl/common/csr/milan_csr.sv	2026-11-02 11:58:31.000000000 +0100
++++ m2/hdl/common/csr/milan_csr.sv	2026-11-02 12:25:27.603094757 +0100
+@@ -3112,7 +3112,7 @@
+       if (i_srp_ctx_gnt) begin
+         if (srp_cmd_was_wr_r) begin
+           srp_wr_pend_r <= 1'b0;
+-          srp_fresh_r   <= 1'b0;          //! snapshot predates the write: re-poll
++          srp_fresh_r   <= 1'b1;          //! snapshot predates the write: re-poll
+         end else
+           srp_fresh_r   <= 1'b1;
+       end

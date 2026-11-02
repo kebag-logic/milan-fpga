@@ -1,0 +1,36 @@
+# sweep results at 2c500d0a (Verilator: Verilator 5.050 2026-07-01 rev v5.050)
+sweep_head rc=0 register_read_sweep: 0 disagreement(s)
+  ship: 17 tables, 54007 reads, 0 disagreements
+  2x2: 17 tables, 54007 reads, 0 disagreements
+sweep_m1 rc=1 register_read_sweep: 144 disagreement(s)
+  ship: 17 tables, 54007 reads, 24 disagreements
+  2x2: 17 tables, 54007 reads, 120 disagreements
+sweep_m2 rc=1 register_read_sweep: 288 disagreement(s)
+  ship: 17 tables, 54007 reads, 48 disagreements
+  2x2: 17 tables, 54007 reads, 240 disagreements
+sweep_m4 rc=1 register_read_sweep: 144 disagreement(s)
+  ship: 17 tables, 54007 reads, 24 disagreements
+  2x2: 17 tables, 54007 reads, 120 disagreements
+sweep_m5 rc=1 register_read_sweep: 96 disagreement(s)
+  ship: 17 tables, 54007 reads, 12 disagreements
+  2x2: 17 tables, 54007 reads, 84 disagreements
+sweep_round4 rc=1 register_read_sweep: 288 disagreement(s)
+  ship: 17 tables, 54007 reads, 48 disagreements
+  2x2: 17 tables, 54007 reads, 240 disagreements
+sweep_m4parent rc=0 register_read_sweep: 0 disagreement(s)
+  ship: 17 tables, 48007 reads, 0 disagreements
+  2x2: 17 tables, 48007 reads, 0 disagreements
+
+# reviewer log sha256 vs published author-r6 receipts (MANIFEST.json published_sha256 at f4a3fb86)
+sweep_head.log f90480ffcb3e6701574b339a6e51eb19e59fa501b5f5ae8e5570760a46001fa1 f90480ffcb3e6701574b339a6e51eb19e59fa501b5f5ae8e5570760a46001fa1
+sweep_m1.log de8d53d8946c489c168dd959aec8f8ae7ad95f67d9756dc65da7e28016d24c87 de8d53d8946c489c168dd959aec8f8ae7ad95f67d9756dc65da7e28016d24c87
+sweep_m2.log 8367c3d338a627976968c82434941e9ad3ec236a4ae6c323d5f36fe079817fdc 8367c3d338a627976968c82434941e9ad3ec236a4ae6c323d5f36fe079817fdc
+sweep_m4.log 3b8657b1fb058fc305e3f2b82cf3ca457f35924af178a236d0d9b8ee84c2cf0f 3b8657b1fb058fc305e3f2b82cf3ca457f35924af178a236d0d9b8ee84c2cf0f
+sweep_m5.log b4e12798dc90dd9dbc8569776a0b819453d0c02cf805c58aae479eefcde54737 b4e12798dc90dd9dbc8569776a0b819453d0c02cf805c58aae479eefcde54737
+sweep_round4.log 96e1c121816bd25618ed66d042038da97128d326312b730137d0b11f5ff71508 96e1c121816bd25618ed66d042038da97128d326312b730137d0b11f5ff71508
+
+# delta receipt: reviewer git diff vs author lane/delta_ef7dc985_2c500d0a.diff
+e3beaf4fad071abb7f0af25053d4604eb1bf3de41129cd84d04e5f9307ac9d7a  receipts/delta_ef7dc985_2c500d0a.diff
+e3beaf4fad071abb7f0af25053d4604eb1bf3de41129cd84d04e5f9307ac9d7a  scratch/ev/receipts/lane/delta_ef7dc985_2c500d0a.diff
+
+# evidence commit f4a3fb86 GitHub verification: unsigned (verified=false)
