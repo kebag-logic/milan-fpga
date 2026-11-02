@@ -83,7 +83,7 @@ Two structural changes that break existing decoders and are called out at their 
 
 **`A_TXARB_DIAG` `0x784` lane numbering changed.** Major 2 collapsed the old eight-mux cascade to four; minor `0x0055` adds lane 4 for `gptp_ctl_mux`, making five in fabric-gPTP builds. Anything decoding that word by the old lane numbers now reads the **wrong mux**.
 
-**The entity enable is now two bits ORed.** `PP_CTRL[0]` at `0x920` **or** the historic `ADP_CTRL[0]` at `0x600` enables the entity -- either one, because `ADP_CTRL.en` is the bit every existing board script writes and there is only one control plane left to enable.
+**The entity enable request is now two bits ORed.** `PP_CTRL[0]` at `0x920` **or** the historic `ADP_CTRL[0]` at `0x600` requests the entity enable -- either one, because `ADP_CTRL.en` is the bit every existing board script writes and there is only one control plane left to enable. The fabric holds it until the restore releases it at COMPLETE or DEFAULTS. A CLOSED restore holds it until reset.
 
 Three functional losses have no register of their own and are recorded here so they are not discovered by surprise:
 
@@ -345,7 +345,7 @@ Identity and control for the ADP transmit engine -- which is now the protocol pr
 
 **Three things changed in this group and none of them is cosmetic.**
 
-**`ADP_CTRL[0]` still enables the entity, and it is now ORed with `PP_CTRL[0]` at `0x920`.** Either bit starts the plane. `ADP_CTRL.en` is the bit every board script and bring-up recipe in this repository writes, and it used to start the ADP advertiser, the AECP listener and both ACMP halves at once; demanding the new bit as well would have stranded every existing script, and honouring only the new bit would have silently ignored the old one.
+**`ADP_CTRL[0]` still requests the entity enable, and it is now ORed with `PP_CTRL[0]` at `0x920`.** Either bit requests it. The fabric holds it until the restore releases it at COMPLETE or DEFAULTS. A CLOSED restore holds it until reset. `ADP_CTRL.en` is the bit every board script and bring-up recipe in this repository writes, and it used to start the ADP advertiser, the AECP listener and both ACMP halves at once; demanding the new bit as well would have stranded every existing script, and honouring only the new bit would have silently ignored the old one.
 
 **Five ADPDU fields are now beyond software's reach** -- a real loss, not a tidy-up. `entity_capabilities`, `valid_time`, `association_id`, `controller_capabilities` and `interface_index` are **constants inside the processor's `KL_adp_engine`**, which exposes no port for them. Their registers below are **WRITE-ONLY SCRATCH**: the write is accepted, the readback is faithful, and the ADPDU on the wire carries the processor's value regardless. Closing that needs a new port on the submodule, which is pinned.
 
@@ -1226,7 +1226,7 @@ The map word **the RAM actually holds**. `[15:0]` raw fabric readback word -- ca
 
 `PP_STAT[31:24]` still carries the constant presence tag `0x5B`, and it is still **the register software must read first**: a read of `0` at `0x924` means the gateware predates this group entirely, and can never be confused with "the plane is present and idle". Same rule as `STATS_CAP` `0x204`.
 
-**The entity enable is two bits, ORed.** `PP_CTRL[0]` is this plane's own enable; `ADP_CTRL[0]` at `0x600` is the historic one that every board script and bring-up recipe in this repository writes. **Either one enables the entity.** Demanding both would strand every existing script; honouring only the new bit would silently ignore the old one. There is exactly one control plane now, so there is exactly one thing for either bit to start.
+**The entity enable request is two bits, ORed.** `PP_CTRL[0]` is this plane's own request; `ADP_CTRL[0]` at `0x600` is the historic one that every board script and bring-up recipe in this repository writes. **Either one requests the entity enable.** The fabric holds it until the restore releases it at COMPLETE or DEFAULTS. A CLOSED restore holds it until reset. Demanding both would strand every existing script; honouring only the new bit would silently ignore the old one. There is exactly one control plane now, so there is exactly one thing for either bit to request.
 
 **THE RESTORE VERDICT IS FOUR BITS, AND UNTIL `0x0045` IT WAS A LIE.** `restore_done` means the boot walk reached its end. It does *not* mean state came back. Every per-record arm of the processor's restore, including the one that fires when a region is blank or unframed, ends the walk with `restore_done` set and `restore_fail` clear, so a device with **no non-volatile media at all** published the identical status word to one that had genuinely restored every sink: `0x5B00_0004`. A Milan 5.3.8.2 / 5.3.8.3 checklist reading that register passed on a restore that never happened, and the failure surfaced only on a bench that cycled the power. Read the four bits together:
 

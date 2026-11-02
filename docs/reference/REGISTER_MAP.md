@@ -93,7 +93,7 @@ The protocol processor runs the control plane, not this block.
 
 The AEM descriptor tree has no CSR here. The processor fetches it from main memory.
 
-`PP_CTRL[0]` or `ADP_CTRL[0]` enables the entity.
+`PP_CTRL[0]` or `ADP_CTRL[0]` requests the entity enable. The fabric holds it until the restore releases it.
 
 Queue 4 is the highest priority, queue 0 the lowest.
 
@@ -1165,7 +1165,7 @@ ADP identity words, the advertise strobes and status.
 
 The protocol processor sends ADP. These words are its CSR face.
 
-`ADP_CTRL[0]` and `PP_CTRL[0]` are ORed: either starts the entity.
+`ADP_CTRL[0]` and `PP_CTRL[0]` are ORed: either requests the entity enable. The fabric holds the enable until the restore releases it.
 
 `entity_capabilities`, `valid_time`, `association_id` and `controller_capabilities` no longer reach the wire.
 
@@ -1177,7 +1177,7 @@ Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x600-----
 
 ### ADP_CTRL register (offset 0x600) [reset = 0x00000A00]
 
-Entity enable and the advertised valid time.
+Entity enable request and the advertised valid time.
 
 RTL name: `A_ADP_CTRL`.
 
@@ -1188,7 +1188,7 @@ RTL name: `A_ADP_CTRL`.
 | 31:13 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
 | 12:8 | `ADP_VALID_TIME` | R/W | Ah | valid_time (units of 2 s; reset 10 per Milan 5.6.2 ⇒ 20 s validity) is 🟡 **WRITE-ONLY SCRATCH** -- the processor holds valid_time as an internal constant and the ADPDU carries that, not this. |
 | 7:1 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
-| 0 | `ADP_ENABLE` | R/W | 0 | advertise-enable -- **LIVE, and ORed with `PP_CTRL[0]` (`0x920`): either bit enables the entity**. |
+| 0 | `ADP_ENABLE` | R/W | 0 | advertise-enable -- **LIVE, and ORed with `PP_CTRL[0]` (`0x920`): either bit requests the entity enable**. The fabric holds it until the restore releases it at COMPLETE or DEFAULTS. A CLOSED restore holds it until reset. |
 
 ### ADP_ENTITY_ID_LO register (offset 0x604) [reset = 0x00000000]
 
@@ -4331,7 +4331,7 @@ Rationale and history: [design notes](../design/CSR_REGISTER_NOTES.md#0x920-----
 
 ### PP_CTRL register (offset 0x920) [reset = 0x00000000]
 
-Entity enable and the restore-walk start.
+Entity enable request and the restore-walk start.
 
 RTL name: `A_PP_CTRL`.
 
@@ -4341,7 +4341,7 @@ RTL name: `A_PP_CTRL`.
 |---|---|---|---|---|
 | 31:2 | `RESERVED` | R/W | 0 | Reserved; stored and read back, drives nothing. |
 | 1 | `PP_RESTORE_GO` | R/W | 0 | `restore_go`: start the NVM boot-restore walk against the saved-state backing store (`KL_nvm_backend` behind the processor's NVM device face, [design page](../design/SAVED_STATE_FASTCONNECT.md) sections 4, 8 and 9). Until firmware has configured AND validated a record image through `PP_NVM_SEL`/`PP_NVM_DATA` the face answers blank flash (reads `0xFF`, writes accepted and discarded, erase completes), so the walk completes with **zero records** and `restore_fail` set. **Validate the image first, then set this bit**: the verdict is latched per walk, and validating afterwards restores nothing. **Set it on every boot** (processor pin `a8f8ce81`, its issue 92): the processor holds its ACMP listener from reset until the walk ends, so a boot that never sets it never answers an ACMP listener command. Since processor pin `d352bbaa` it also holds AECP until the D3 walk's terminal, and that walk proves the AEM image first: **load and CRC-check the AEM image before this bit**, or the restore ends CLOSED (`PP_STAT[16]`) and AECP stays held until reset. Every restore wait is bounded by `NVM_RS_TMO_CYC_P` (20 ms) and the whole restore by `NVM_RS_AGG_CYC_P` (1,000 ms from this bit), both derived from the clock, so a device face that never answers ends the walks with `restore_fail` set; wait for `restore_done` OR `PP_STAT[16]`, since CLOSED never raises done. |
-| 0 | `PP_ENABLE` | R/W | 0 | **entity enable**, ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane. |
+| 0 | `PP_ENABLE` | R/W | 0 | **entity enable request**, ORed with `ADP_CTRL[0]` (`0x600`); either bit requests the enable. The fabric holds it until the restore releases it at COMPLETE or DEFAULTS. A CLOSED restore holds it until reset. |
 
 ### PP_STAT register (offset 0x924) [reset = 0x5BXXXXXX]
 
