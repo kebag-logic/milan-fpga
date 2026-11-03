@@ -1,0 +1,695 @@
+﻿2026-11-02T17:09:57.4104884Z Current runner version: '2.338.2'
+2026-11-02T17:09:57.4126496Z ##[group]Runner Image Provisioner
+2026-11-02T17:09:57.4127304Z Hosted Compute Agent
+2026-11-02T17:09:57.4127834Z Version: 20261021.618
+2026-11-02T17:09:57.4128563Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-11-02T17:09:57.4129253Z Build Date: 2026-10-21T00:45:21Z
+2026-11-02T17:09:57.4129839Z Worker ID: {878f926e-55cb-4cbb-acde-d1857f693167}
+2026-11-02T17:09:57.4130425Z Region: westus3
+2026-11-02T17:09:57.4130960Z Cloud: Azure
+2026-11-02T17:09:57.4131500Z ##[endgroup]
+2026-11-02T17:09:57.4132671Z ##[group]Operating System
+2026-11-02T17:09:57.4133201Z Ubuntu
+2026-11-02T17:09:57.4133641Z 24.04.5
+2026-11-02T17:09:57.4134143Z LTS
+2026-11-02T17:09:57.4134595Z ##[endgroup]
+2026-11-02T17:09:57.4135116Z ##[group]Runner Image
+2026-11-02T17:09:57.4135656Z Image: ubuntu-24.04
+2026-11-02T17:09:57.4136181Z Version: 20261025.353.1
+2026-11-02T17:09:57.4137321Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-02T17:09:57.4138773Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-11-02T17:09:57.4139625Z ##[endgroup]
+2026-11-02T17:09:57.4140680Z ##[group]GITHUB_TOKEN Permissions
+2026-11-02T17:09:57.4142248Z Contents: read
+2026-11-02T17:09:57.4142824Z Metadata: read
+2026-11-02T17:09:57.4143400Z Packages: read
+2026-11-02T17:09:57.4143883Z ##[endgroup]
+2026-11-02T17:09:57.4145666Z Secret source: Actions
+2026-11-02T17:09:57.4146501Z Cache mode: write
+2026-11-02T17:09:57.4147186Z Prepare workflow directory
+2026-11-02T17:09:57.4663406Z Prepare all required actions
+2026-11-02T17:09:57.4711019Z Getting action download info
+2026-11-02T17:09:57.7954549Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-02T17:09:57.8958325Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-02T17:09:58.0577610Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+2026-11-02T17:09:58.7164578Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-02T17:09:58.9784324Z Complete job name: elaborate
+2026-11-02T17:09:59.0643152Z ##[group]Run actions/checkout@v4
+2026-11-02T17:09:59.0644335Z with:
+2026-11-02T17:09:59.0644979Z   fetch-depth: 0
+2026-11-02T17:09:59.0645704Z   repository: kebag-logic/milan-fpga
+2026-11-02T17:09:59.0653856Z   token: ***
+2026-11-02T17:09:59.0654539Z   ssh-strict: true
+2026-11-02T17:09:59.0655230Z   ssh-user: git
+2026-11-02T17:09:59.0655929Z   persist-credentials: true
+2026-11-02T17:09:59.0733538Z   clean: true
+2026-11-02T17:09:59.0734521Z   sparse-checkout-cone-mode: true
+2026-11-02T17:09:59.0735474Z   fetch-tags: false
+2026-11-02T17:09:59.0736213Z   show-progress: true
+2026-11-02T17:09:59.0736969Z   lfs: false
+2026-11-02T17:09:59.0737643Z   submodules: false
+2026-11-02T17:09:59.0738465Z   set-safe-directory: true
+2026-11-02T17:09:59.0739318Z   allow-unsafe-pr-checkout: false
+2026-11-02T17:09:59.0741038Z env:
+2026-11-02T17:09:59.0741712Z   VERILATOR_VERSION: v5.050
+2026-11-02T17:09:59.0742893Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+2026-11-02T17:09:59.0744197Z ##[endgroup]
+2026-11-02T17:09:59.2711426Z Syncing repository: kebag-logic/milan-fpga
+2026-11-02T17:09:59.2714353Z ##[group]Getting Git version info
+2026-11-02T17:09:59.2715647Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+2026-11-02T17:09:59.2717867Z [command]/usr/bin/git version
+2026-11-02T17:09:59.2777068Z git version 2.56.0
+2026-11-02T17:09:59.2794022Z ##[endgroup]
+2026-11-02T17:09:59.2806466Z Temporarily overriding HOME='<home-path>/work/_temp/4ef587ef-a470-4e7d-a3bb-214d6c2361b5' before making global git config changes
+2026-11-02T17:09:59.2810030Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T17:09:59.2821071Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-11-02T17:09:59.2870648Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+2026-11-02T17:09:59.2873422Z ##[group]Initializing the repository
+2026-11-02T17:09:59.2885874Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+2026-11-02T17:09:59.2959721Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-02T17:09:59.2962094Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-02T17:09:59.2964249Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-02T17:09:59.2965943Z hint: call:
+2026-11-02T17:09:59.2966811Z hint:
+2026-11-02T17:09:59.2968062Z hint: 	git config --global init.defaultBranch <name>
+2026-11-02T17:09:59.2969480Z hint:
+2026-11-02T17:09:59.2970809Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-02T17:09:59.2972962Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-02T17:09:59.2974726Z hint:
+2026-11-02T17:09:59.2975610Z hint: 	git branch -m <name>
+2026-11-02T17:09:59.2976630Z hint:
+2026-11-02T17:09:59.2978160Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-02T17:09:59.3030999Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+2026-11-02T17:09:59.3054582Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+2026-11-02T17:09:59.3091864Z ##[endgroup]
+2026-11-02T17:09:59.3093258Z ##[group]Disabling automatic garbage collection
+2026-11-02T17:09:59.3094953Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-02T17:09:59.3126541Z ##[endgroup]
+2026-11-02T17:09:59.3127667Z ##[group]Setting up auth
+2026-11-02T17:09:59.3133758Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T17:09:59.3178744Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T17:09:59.3502749Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T17:09:59.3542690Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T17:09:59.3752202Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T17:09:59.3790985Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T17:09:59.4014500Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-02T17:09:59.4059906Z ##[endgroup]
+2026-11-02T17:09:59.4070418Z ##[group]Fetching the repository
+2026-11-02T17:09:59.4073090Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +5a9913c630123385fce3030d5e8a5cef9d62b6ba:refs/remotes/pull/815/merge
+2026-11-02T17:10:22.4290367Z From https://github.com/kebag-logic/milan-fpga
+2026-11-02T17:10:22.4291360Z  * [new branch]            116-gptp-default-on-retire-software      -> origin/116-gptp-default-on-retire-software
+2026-11-02T17:10:22.4291953Z  * [new branch]            117-alinx-board-bringup                  -> origin/117-alinx-board-bringup
+2026-11-02T17:10:22.4292524Z  * [new branch]            117-b19-review-evidence                  -> origin/117-b19-review-evidence
+2026-11-02T17:10:22.4293131Z  * [new branch]            117-b21-review-evidence                  -> origin/117-b21-review-evidence
+2026-11-02T17:10:22.4293861Z  * [new branch]            117-hive-review-evidence                 -> origin/117-hive-review-evidence
+2026-11-02T17:10:22.4294573Z  * [new branch]            117-review-evidence                      -> origin/117-review-evidence
+2026-11-02T17:10:22.4295544Z  * [new branch]            117-silicon-evidence                     -> origin/117-silicon-evidence
+2026-11-02T17:10:22.4296058Z  * [new branch]            120-sound-card-option                    -> origin/120-sound-card-option
+2026-11-02T17:10:22.4296619Z  * [new branch]            129-boot-gate-whole-firmware             -> origin/129-boot-gate-whole-firmware
+2026-11-02T17:10:22.4297238Z  * [new branch]            129-correct-baremetal-ptp-aem-contract   -> origin/129-correct-baremetal-ptp-aem-contract
+2026-11-02T17:10:22.4297845Z  * [new branch]            130-prune-behavioural                    -> origin/130-prune-behavioural
+2026-11-02T17:10:22.4298707Z  * [new branch]            145-rebased-on-170                       -> origin/145-rebased-on-170
+2026-11-02T17:10:22.4299892Z  * [new branch]            154-no-ci-job-elaborates-the-soc-so-argv-to-rtl-parameter-chains-are-unproven -> origin/154-no-ci-job-elaborates-the-soc-so-argv-to-rtl-parameter-chains-are-unproven
+2026-11-02T17:10:22.4301585Z  * [new branch]            159-restore-documentation-gates-and-workflow-hygiene -> origin/159-restore-documentation-gates-and-workflow-hygiene
+2026-11-02T17:10:22.4302782Z  * [new branch]            159-restore-workflow-documentation-gates -> origin/159-restore-workflow-documentation-gates
+2026-11-02T17:10:22.4303713Z  * [new branch]            163-complete-workflow-hygiene-follow-on  -> origin/163-complete-workflow-hygiene-follow-on
+2026-11-02T17:10:22.4304523Z  * [new branch]            211-phc-ns-consumer                      -> origin/211-phc-ns-consumer
+2026-11-02T17:10:22.4305303Z  * [new branch]            231-review-evidence                      -> origin/231-review-evidence
+2026-11-02T17:10:22.4306025Z  * [new branch]            234-review-evidence                      -> origin/234-review-evidence
+2026-11-02T17:10:22.4307843Z  * [new branch]            246-synoocmilan_datapath_ooctcl-never-generates-ucodehex-it-reports-30925-lut-for-a-design-that-is-38848-and-exits-0 -> origin/246-synoocmilan_datapath_ooctcl-never-generates-ucodehex-it-reports-30925-lut-for-a-design-that-is-38848-and-exits-0
+2026-11-02T17:10:22.4310334Z  * [new branch]            358-alinx-gptp-compliance                -> origin/358-alinx-gptp-compliance
+2026-11-02T17:10:22.4315135Z  * [new branch]            372-review-evidence                      -> origin/372-review-evidence
+2026-11-02T17:10:22.4320681Z  * [new branch]            387-review-evidence                      -> origin/387-review-evidence
+2026-11-02T17:10:22.4321538Z  * [new branch]            387b-review-evidence                     -> origin/387b-review-evidence
+2026-11-02T17:10:22.4322303Z  * [new branch]            394-387-review-evidence                  -> origin/394-387-review-evidence
+2026-11-02T17:10:22.4323147Z  * [new branch]            394_510_511-review-evidence              -> origin/394_510_511-review-evidence
+2026-11-02T17:10:22.4323946Z  * [new branch]            395-review-evidence                      -> origin/395-review-evidence
+2026-11-02T17:10:22.4324733Z  * [new branch]            396-review-evidence                      -> origin/396-review-evidence
+2026-11-02T17:10:22.4325636Z  * [new branch]            396g-review-evidence                     -> origin/396g-review-evidence
+2026-11-02T17:10:22.4326554Z  * [new branch]            397-review-evidence                      -> origin/397-review-evidence
+2026-11-02T17:10:22.4327296Z  * [new branch]            400-403-review-evidence                  -> origin/400-403-review-evidence
+2026-11-02T17:10:22.4327858Z  * [new branch]            407-ac5-probe                            -> origin/407-ac5-probe
+2026-11-02T17:10:22.4328503Z  * [new branch]            408-review-evidence                      -> origin/408-review-evidence
+2026-11-02T17:10:22.4329303Z  * [new branch]            418-investigate-commit-ack-clearing-a-newer-persistent-record-change -> origin/418-investigate-commit-ack-clearing-a-newer-persistent-record-change
+2026-11-02T17:10:22.4330053Z  * [new branch]            419-design-evidence                      -> origin/419-design-evidence
+2026-11-02T17:10:22.4330737Z  * [new branch]            423-readiness-evidence                   -> origin/423-readiness-evidence
+2026-11-02T17:10:22.4331215Z  * [new branch]            423-review-evidence                      -> origin/423-review-evidence
+2026-11-02T17:10:22.4331795Z  * [new branch]            437-container-paragraph-scopes           -> origin/437-container-paragraph-scopes
+2026-11-02T17:10:22.4332328Z  * [new branch]            437-review-evidence                      -> origin/437-review-evidence
+2026-11-02T17:10:22.4332828Z  * [new branch]            439-review-evidence                      -> origin/439-review-evidence
+2026-11-02T17:10:22.4333305Z  * [new branch]            440-review-evidence                      -> origin/440-review-evidence
+2026-11-02T17:10:22.4333776Z  * [new branch]            443-review-evidence                      -> origin/443-review-evidence
+2026-11-02T17:10:22.4334370Z  * [new branch]            451-review-evidence                      -> origin/451-review-evidence
+2026-11-02T17:10:22.4334923Z  * [new branch]            464-review-evidence                      -> origin/464-review-evidence
+2026-11-02T17:10:22.4335405Z  * [new branch]            478-review-evidence                      -> origin/478-review-evidence
+2026-11-02T17:10:22.4335891Z  * [new branch]            495b-review-evidence                     -> origin/495b-review-evidence
+2026-11-02T17:10:22.4336377Z  * [new branch]            498-review-evidence                      -> origin/498-review-evidence
+2026-11-02T17:10:22.4336838Z  * [new branch]            500-design-evidence                      -> origin/500-design-evidence
+2026-11-02T17:10:22.4337302Z  * [new branch]            501-review-evidence                      -> origin/501-review-evidence
+2026-11-02T17:10:22.4337761Z  * [new branch]            502-review-evidence                      -> origin/502-review-evidence
+2026-11-02T17:10:22.4338441Z  * [new branch]            503-review-evidence                      -> origin/503-review-evidence
+2026-11-02T17:10:22.4338940Z  * [new branch]            504-readiness-evidence                   -> origin/504-readiness-evidence
+2026-11-02T17:10:22.4339566Z  * [new branch]            504-review-evidence                      -> origin/504-review-evidence
+2026-11-02T17:10:22.4340049Z  * [new branch]            505-review-evidence                      -> origin/505-review-evidence
+2026-11-02T17:10:22.4340514Z  * [new branch]            508-review-evidence                      -> origin/508-review-evidence
+2026-11-02T17:10:22.4340977Z  * [new branch]            509-review-evidence                      -> origin/509-review-evidence
+2026-11-02T17:10:22.4341436Z  * [new branch]            514-review-evidence                      -> origin/514-review-evidence
+2026-11-02T17:10:22.4341896Z  * [new branch]            517-review-evidence                      -> origin/517-review-evidence
+2026-11-02T17:10:22.4342359Z  * [new branch]            520-review-evidence                      -> origin/520-review-evidence
+2026-11-02T17:10:22.4342832Z  * [new branch]            523-review-evidence                      -> origin/523-review-evidence
+2026-11-02T17:10:22.4343307Z  * [new branch]            529-review-evidence                      -> origin/529-review-evidence
+2026-11-02T17:10:22.4343768Z  * [new branch]            530-review-evidence                      -> origin/530-review-evidence
+2026-11-02T17:10:22.4344234Z  * [new branch]            532-review-evidence                      -> origin/532-review-evidence
+2026-11-02T17:10:22.4344709Z  * [new branch]            532b-review-evidence                     -> origin/532b-review-evidence
+2026-11-02T17:10:22.4345198Z  * [new branch]            536-review-evidence                      -> origin/536-review-evidence
+2026-11-02T17:10:22.4345726Z  * [new branch]            539-review-evidence                      -> origin/539-review-evidence
+2026-11-02T17:10:22.4346189Z  * [new branch]            541-review-evidence                      -> origin/541-review-evidence
+2026-11-02T17:10:22.4346782Z  * [new branch]            542-review-evidence                      -> origin/542-review-evidence
+2026-11-02T17:10:22.4347246Z  * [new branch]            544-review-evidence                      -> origin/544-review-evidence
+2026-11-02T17:10:22.4347706Z  * [new branch]            545-review-evidence                      -> origin/545-review-evidence
+2026-11-02T17:10:22.4348416Z  * [new branch]            546-review-evidence                      -> origin/546-review-evidence
+2026-11-02T17:10:22.4348878Z  * [new branch]            548-review-evidence                      -> origin/548-review-evidence
+2026-11-02T17:10:22.4349345Z  * [new branch]            551-review-evidence                      -> origin/551-review-evidence
+2026-11-02T17:10:22.4349806Z  * [new branch]            559-review-evidence                      -> origin/559-review-evidence
+2026-11-02T17:10:22.4350281Z  * [new branch]            565-review-evidence                      -> origin/565-review-evidence
+2026-11-02T17:10:22.4350771Z  * [new branch]            567-review-evidence                      -> origin/567-review-evidence
+2026-11-02T17:10:22.4351238Z  * [new branch]            571-review-evidence                      -> origin/571-review-evidence
+2026-11-02T17:10:22.4351708Z  * [new branch]            573-review-evidence                      -> origin/573-review-evidence
+2026-11-02T17:10:22.4352191Z  * [new branch]            577-review-evidence                      -> origin/577-review-evidence
+2026-11-02T17:10:22.4352669Z  * [new branch]            580-review-evidence                      -> origin/580-review-evidence
+2026-11-02T17:10:22.4353130Z  * [new branch]            582-review-evidence                      -> origin/582-review-evidence
+2026-11-02T17:10:22.4353597Z  * [new branch]            587-review-evidence                      -> origin/587-review-evidence
+2026-11-02T17:10:22.4354053Z  * [new branch]            590-review-evidence                      -> origin/590-review-evidence
+2026-11-02T17:10:22.4354518Z  * [new branch]            593-review-evidence                      -> origin/593-review-evidence
+2026-11-02T17:10:22.4355086Z  * [new branch]            595-review-evidence                      -> origin/595-review-evidence
+2026-11-02T17:10:22.4355565Z  * [new branch]            602-review-evidence                      -> origin/602-review-evidence
+2026-11-02T17:10:22.4356046Z  * [new branch]            606-608-review-evidence                  -> origin/606-608-review-evidence
+2026-11-02T17:10:22.4356519Z  * [new branch]            607-review-evidence                      -> origin/607-review-evidence
+2026-11-02T17:10:22.4356995Z  * [new branch]            608-b14-review-evidence                  -> origin/608-b14-review-evidence
+2026-11-02T17:10:22.4357468Z  * [new branch]            617-review-evidence                      -> origin/617-review-evidence
+2026-11-02T17:10:22.4358053Z  * [new branch]            621-review-evidence                      -> origin/621-review-evidence
+2026-11-02T17:10:22.4358638Z  * [new branch]            629-b16-review-evidence                  -> origin/629-b16-review-evidence
+2026-11-02T17:10:22.4359161Z  * [new branch]            629-b7-review-evidence                   -> origin/629-b7-review-evidence
+2026-11-02T17:10:22.4359663Z  * [new branch]            629-b8-review-evidence                   -> origin/629-b8-review-evidence
+2026-11-02T17:10:22.4360144Z  * [new branch]            629-m2-review-evidence                   -> origin/629-m2-review-evidence
+2026-11-02T17:10:22.4360618Z  * [new branch]            629-review-evidence                      -> origin/629-review-evidence
+2026-11-02T17:10:22.4361109Z  * [new branch]            629-tone-review-evidence                 -> origin/629-tone-review-evidence
+2026-11-02T17:10:22.4361594Z  * [new branch]            632-review-evidence                      -> origin/632-review-evidence
+2026-11-02T17:10:22.4362056Z  * [new branch]            635-review-evidence                      -> origin/635-review-evidence
+2026-11-02T17:10:22.4362688Z  * [new branch]            637-review-evidence                      -> origin/637-review-evidence
+2026-11-02T17:10:22.4363166Z  * [new branch]            640-charter-followup                     -> origin/640-charter-followup
+2026-11-02T17:10:22.4363665Z  * [new branch]            640-m0s-review-evidence                  -> origin/640-m0s-review-evidence
+2026-11-02T17:10:22.4364152Z  * [new branch]            640-m10-review-evidence                  -> origin/640-m10-review-evidence
+2026-11-02T17:10:22.4364633Z  * [new branch]            640-m2-review-evidence                   -> origin/640-m2-review-evidence
+2026-11-02T17:10:22.4365106Z  * [new branch]            640-m5-review-evidence                   -> origin/640-m5-review-evidence
+2026-11-02T17:10:22.4365577Z  * [new branch]            640-m6-review-evidence                   -> origin/640-m6-review-evidence
+2026-11-02T17:10:22.4366055Z  * [new branch]            640-m7-review-evidence                   -> origin/640-m7-review-evidence
+2026-11-02T17:10:22.4366541Z  * [new branch]            640-m8a-review-evidence                  -> origin/640-m8a-review-evidence
+2026-11-02T17:10:22.4367024Z  * [new branch]            640-m9-review-evidence                   -> origin/640-m9-review-evidence
+2026-11-02T17:10:22.4367492Z  * [new branch]            640-review-evidence                      -> origin/640-review-evidence
+2026-11-02T17:10:22.4368208Z  * [new branch]            641-review-evidence                      -> origin/641-review-evidence
+2026-11-02T17:10:22.4368676Z  * [new branch]            643-review-evidence                      -> origin/643-review-evidence
+2026-11-02T17:10:22.4369148Z  * [new branch]            645-b17-review-evidence                  -> origin/645-b17-review-evidence
+2026-11-02T17:10:22.4369635Z  * [new branch]            645-b18-review-evidence                  -> origin/645-b18-review-evidence
+2026-11-02T17:10:22.4370111Z  * [new branch]            645-rc-review-evidence                   -> origin/645-rc-review-evidence
+2026-11-02T17:10:22.4370587Z  * [new branch]            645-review-evidence                      -> origin/645-review-evidence
+2026-11-02T17:10:22.4371161Z  * [new branch]            649-review-evidence                      -> origin/649-review-evidence
+2026-11-02T17:10:22.4371640Z  * [new branch]            652-review-evidence                      -> origin/652-review-evidence
+2026-11-02T17:10:22.4372103Z  * [new branch]            653-b11-review-evidence                  -> origin/653-b11-review-evidence
+2026-11-02T17:10:22.4372585Z  * [new branch]            653-b12-review-evidence                  -> origin/653-b12-review-evidence
+2026-11-02T17:10:22.4373059Z  * [new branch]            653-review-evidence                      -> origin/653-review-evidence
+2026-11-02T17:10:22.4373516Z  * [new branch]            654-review-evidence                      -> origin/654-review-evidence
+2026-11-02T17:10:22.4373971Z  * [new branch]            656-review-evidence                      -> origin/656-review-evidence
+2026-11-02T17:10:22.4374432Z  * [new branch]            657-review-evidence                      -> origin/657-review-evidence
+2026-11-02T17:10:22.4374893Z  * [new branch]            658-review-evidence                      -> origin/658-review-evidence
+2026-11-02T17:10:22.4375348Z  * [new branch]            661-review-evidence                      -> origin/661-review-evidence
+2026-11-02T17:10:22.4375800Z  * [new branch]            664-review-evidence                      -> origin/664-review-evidence
+2026-11-02T17:10:22.4376256Z  * [new branch]            665-s2b-cycles                           -> origin/665-s2b-cycles
+2026-11-02T17:10:22.4376697Z  * [new branch]            665-s4-f1-target                         -> origin/665-s4-f1-target
+2026-11-02T17:10:22.4377168Z  * [new branch]            665f0-review-evidence                    -> origin/665f0-review-evidence
+2026-11-02T17:10:22.4377651Z  * [new branch]            665f1-review-evidence                    -> origin/665f1-review-evidence
+2026-11-02T17:10:22.4378555Z  * [new branch]            665f2-review-evidence                    -> origin/665f2-review-evidence
+2026-11-02T17:10:22.4379050Z  * [new branch]            665f3-review-evidence                    -> origin/665f3-review-evidence
+2026-11-02T17:10:22.4379547Z  * [new branch]            665f3b-review-evidence                   -> origin/665f3b-review-evidence
+2026-11-02T17:10:22.4380038Z  * [new branch]            665f4-review-evidence                    -> origin/665f4-review-evidence
+2026-11-02T17:10:22.4380512Z  * [new branch]            665f5-review-evidence                    -> origin/665f5-review-evidence
+2026-11-02T17:10:22.4380990Z  * [new branch]            665fc-review-evidence                    -> origin/665fc-review-evidence
+2026-11-02T17:10:22.4381463Z  * [new branch]            665ft-review-evidence                    -> origin/665ft-review-evidence
+2026-11-02T17:10:22.4381940Z  * [new branch]            665int-review-evidence                   -> origin/665int-review-evidence
+2026-11-02T17:10:22.4382428Z  * [new branch]            665s1-review-evidence                    -> origin/665s1-review-evidence
+2026-11-02T17:10:22.4382908Z  * [new branch]            665s2-review-evidence                    -> origin/665s2-review-evidence
+2026-11-02T17:10:22.4383384Z  * [new branch]            665s2b-review-evidence                   -> origin/665s2b-review-evidence
+2026-11-02T17:10:22.4383862Z  * [new branch]            665s2c-review-evidence                   -> origin/665s2c-review-evidence
+2026-11-02T17:10:22.4384331Z  * [new branch]            665s3-review-evidence                    -> origin/665s3-review-evidence
+2026-11-02T17:10:22.4384794Z  * [new branch]            665s4-review-evidence                    -> origin/665s4-review-evidence
+2026-11-02T17:10:22.4385273Z  * [new branch]            667-b13-review-evidence                  -> origin/667-b13-review-evidence
+2026-11-02T17:10:22.4385743Z  * [new branch]            667-review-evidence                      -> origin/667-review-evidence
+2026-11-02T17:10:22.4386226Z  * [new branch]            671-review-evidence                      -> origin/671-review-evidence
+2026-11-02T17:10:22.4386854Z  * [new branch]            673-review-evidence                      -> origin/673-review-evidence
+2026-11-02T17:10:22.4387324Z  * [new branch]            677-review-evidence                      -> origin/677-review-evidence
+2026-11-02T17:10:22.4387780Z  * [new branch]            679-review-evidence                      -> origin/679-review-evidence
+2026-11-02T17:10:22.4388404Z  * [new branch]            682-review-evidence                      -> origin/682-review-evidence
+2026-11-02T17:10:22.4388901Z  * [new branch]            686-review-evidence                      -> origin/686-review-evidence
+2026-11-02T17:10:22.4389422Z  * [new branch]            69-aecp-notification-triggers            -> origin/69-aecp-notification-triggers
+2026-11-02T17:10:22.4389942Z  * [new branch]            691-review-evidence                      -> origin/691-review-evidence
+2026-11-02T17:10:22.4390413Z  * [new branch]            696-review-evidence                      -> origin/696-review-evidence
+2026-11-02T17:10:22.4390876Z  * [new branch]            697-review-evidence                      -> origin/697-review-evidence
+2026-11-02T17:10:22.4391345Z  * [new branch]            697c-review-evidence                     -> origin/697c-review-evidence
+2026-11-02T17:10:22.4391814Z  * [new branch]            70-lane2-pin-d352                        -> origin/70-lane2-pin-d352
+2026-11-02T17:10:22.4392279Z  * [new branch]            70-nvm-persistence                       -> origin/70-nvm-persistence
+2026-11-02T17:10:22.4392738Z  * [new branch]            70-review-evidence                       -> origin/70-review-evidence
+2026-11-02T17:10:22.4393202Z  * [new branch]            708-review-evidence                      -> origin/708-review-evidence
+2026-11-02T17:10:22.4393668Z  * [new branch]            70L2-review-evidence                     -> origin/70L2-review-evidence
+2026-11-02T17:10:22.4394256Z  * [new branch]            70b-review-evidence                      -> origin/70b-review-evidence
+2026-11-02T17:10:22.4394721Z  * [new branch]            711-review-evidence                      -> origin/711-review-evidence
+2026-11-02T17:10:22.4395170Z  * [new branch]            716-review-evidence                      -> origin/716-review-evidence
+2026-11-02T17:10:22.4395624Z  * [new branch]            726-review-evidence                      -> origin/726-review-evidence
+2026-11-02T17:10:22.4396073Z  * [new branch]            727-review-evidence                      -> origin/727-review-evidence
+2026-11-02T17:10:22.4396530Z  * [new branch]            730-review-evidence                      -> origin/730-review-evidence
+2026-11-02T17:10:22.4396977Z  * [new branch]            734-review-evidence                      -> origin/734-review-evidence
+2026-11-02T17:10:22.4397459Z  * [new branch]            737-image-review-evidence                -> origin/737-image-review-evidence
+2026-11-02T17:10:22.4398064Z  * [new branch]            737-review-evidence                      -> origin/737-review-evidence
+2026-11-02T17:10:22.4398525Z  * [new branch]            74-review-evidence                       -> origin/74-review-evidence
+2026-11-02T17:10:22.4398976Z  * [new branch]            744-review-evidence                      -> origin/744-review-evidence
+2026-11-02T17:10:22.4399430Z  * [new branch]            748-review-evidence                      -> origin/748-review-evidence
+2026-11-02T17:10:22.4399889Z  * [new branch]            75-review-evidence                       -> origin/75-review-evidence
+2026-11-02T17:10:22.4400338Z  * [new branch]            752-review-evidence                      -> origin/752-review-evidence
+2026-11-02T17:10:22.4400793Z  * [new branch]            761-review-evidence                      -> origin/761-review-evidence
+2026-11-02T17:10:22.4401242Z  * [new branch]            763-review-evidence                      -> origin/763-review-evidence
+2026-11-02T17:10:22.4401694Z  * [new branch]            765-review-evidence                      -> origin/765-review-evidence
+2026-11-02T17:10:22.4402246Z  * [new branch]            771-review-evidence                      -> origin/771-review-evidence
+2026-11-02T17:10:22.4402699Z  * [new branch]            773-review-evidence                      -> origin/773-review-evidence
+2026-11-02T17:10:22.4403169Z  * [new branch]            774-review-evidence                      -> origin/774-review-evidence
+2026-11-02T17:10:22.4403622Z  * [new branch]            775-review-evidence                      -> origin/775-review-evidence
+2026-11-02T17:10:22.4404070Z  * [new branch]            780-review-evidence                      -> origin/780-review-evidence
+2026-11-02T17:10:22.4404518Z  * [new branch]            781-review-evidence                      -> origin/781-review-evidence
+2026-11-02T17:10:22.4404963Z  * [new branch]            784-review-evidence                      -> origin/784-review-evidence
+2026-11-02T17:10:22.4405442Z  * [new branch]            784s2-review-evidence                    -> origin/784s2-review-evidence
+2026-11-02T17:10:22.4405920Z  * [new branch]            787-review-evidence                      -> origin/787-review-evidence
+2026-11-02T17:10:22.4406377Z  * [new branch]            789-review-evidence                      -> origin/789-review-evidence
+2026-11-02T17:10:22.4406809Z  * [new branch]            797-d0-audit                             -> origin/797-d0-audit
+2026-11-02T17:10:22.4407279Z  * [new branch]            797-g1-define-end-station                -> origin/797-g1-define-end-station
+2026-11-02T17:10:22.4407759Z  * [new branch]            797-r1-regref                            -> origin/797-r1-regref
+2026-11-02T17:10:22.4408399Z  * [new branch]            797d0-review-evidence                    -> origin/797d0-review-evidence
+2026-11-02T17:10:22.4408909Z  * [new branch]            797g1-review-evidence                    -> origin/797g1-review-evidence
+2026-11-02T17:10:22.4409508Z  * [new branch]            797r1-review-evidence                    -> origin/797r1-review-evidence
+2026-11-02T17:10:22.4409995Z  * [new branch]            799-review-evidence                      -> origin/799-review-evidence
+2026-11-02T17:10:22.4410456Z  * [new branch]            803-review-evidence                      -> origin/803-review-evidence
+2026-11-02T17:10:22.4410914Z  * [new branch]            806-review-evidence                      -> origin/806-review-evidence
+2026-11-02T17:10:22.4411374Z  * [new branch]            814-review-evidence                      -> origin/814-review-evidence
+2026-11-02T17:10:22.4411836Z  * [new branch]            817-review-evidence                      -> origin/817-review-evidence
+2026-11-02T17:10:22.4412292Z  * [new branch]            818-review-evidence                      -> origin/818-review-evidence
+2026-11-02T17:10:22.4412744Z  * [new branch]            829-review-evidence                      -> origin/829-review-evidence
+2026-11-02T17:10:22.4413215Z  * [new branch]            833-owned-process                        -> origin/833-owned-process
+2026-11-02T17:10:22.4413678Z  * [new branch]            833-review-evidence                      -> origin/833-review-evidence
+2026-11-02T17:10:22.4414112Z  * [new branch]            a1e9839e                                 -> origin/a1e9839e
+2026-11-02T17:10:22.4414558Z  * [new branch]            b1-review-evidence                       -> origin/b1-review-evidence
+2026-11-02T17:10:22.4415012Z  * [new branch]            b2-review-evidence                       -> origin/b2-review-evidence
+2026-11-02T17:10:22.4415459Z  * [new branch]            b3-review-evidence                       -> origin/b3-review-evidence
+2026-11-02T17:10:22.4415910Z  * [new branch]            b4-review-evidence                       -> origin/b4-review-evidence
+2026-11-02T17:10:22.4416355Z  * [new branch]            b5-review-evidence                       -> origin/b5-review-evidence
+2026-11-02T17:10:22.4416804Z  * [new branch]            b6-review-evidence                       -> origin/b6-review-evidence
+2026-11-02T17:10:22.4417334Z  * [new branch]            dev                                      -> origin/dev
+2026-11-02T17:10:22.4417756Z  * [new branch]            dev-soft-core                            -> origin/dev-soft-core
+2026-11-02T17:10:22.4418368Z  * [new branch]            g35-review-evidence                      -> origin/g35-review-evidence
+2026-11-02T17:10:22.4418826Z  * [new branch]            g48-review-evidence                      -> origin/g48-review-evidence
+2026-11-02T17:10:22.4419278Z  * [new branch]            g70-review-evidence                      -> origin/g70-review-evidence
+2026-11-02T17:10:22.4419756Z  * [new branch]            gptp68-review-evidence                   -> origin/gptp68-review-evidence
+2026-11-02T17:10:22.4420250Z  * [new branch]            gptp75-review-evidence                   -> origin/gptp75-review-evidence
+2026-11-02T17:10:22.4420752Z  * [new branch]            gptp82-review-evidence                   -> origin/gptp82-review-evidence
+2026-11-02T17:10:22.4421237Z  * [new branch]            gptp84-review-evidence                   -> origin/gptp84-review-evidence
+2026-11-02T17:10:22.4421718Z  * [new branch]            gptp88-review-evidence                   -> origin/gptp88-review-evidence
+2026-11-02T17:10:22.4422202Z  * [new branch]            gptp90-review-evidence                   -> origin/gptp90-review-evidence
+2026-11-02T17:10:22.4422676Z  * [new branch]            gptp94-review-evidence                   -> origin/gptp94-review-evidence
+2026-11-02T17:10:22.4423153Z  * [new branch]            gptp96-review-evidence                   -> origin/gptp96-review-evidence
+2026-11-02T17:10:22.4423638Z  * [new branch]            lwsrp17-review-evidence                  -> origin/lwsrp17-review-evidence
+2026-11-02T17:10:22.4424124Z  * [new branch]            lwsrp4-review-evidence                   -> origin/lwsrp4-review-evidence
+2026-11-02T17:10:22.4424748Z  * [new branch]            lwsrpdoc-review-evidence                 -> origin/lwsrpdoc-review-evidence
+2026-11-02T17:10:22.4425256Z  * [new branch]            lwsrplic-review-evidence                 -> origin/lwsrplic-review-evidence
+2026-11-02T17:10:22.4425777Z  * [new branch]            lwsrplicfix-review-evidence              -> origin/lwsrplicfix-review-evidence
+2026-11-02T17:10:22.4426295Z  * [new branch]            lwsrpm2-review-evidence                  -> origin/lwsrpm2-review-evidence
+2026-11-02T17:10:22.4426801Z  * [new branch]            lwsrpnotes-review-evidence               -> origin/lwsrpnotes-review-evidence
+2026-11-02T17:10:22.4427321Z  * [new branch]            lwsrptest-review-evidence                -> origin/lwsrptest-review-evidence
+2026-11-02T17:10:22.4427763Z  * [new branch]            main                                     -> origin/main
+2026-11-02T17:10:22.4428299Z  * [new branch]            pp102-review-evidence                    -> origin/pp102-review-evidence
+2026-11-02T17:10:22.4428784Z  * [new branch]            pp104-review-evidence                    -> origin/pp104-review-evidence
+2026-11-02T17:10:22.4429255Z  * [new branch]            pp106-review-evidence                    -> origin/pp106-review-evidence
+2026-11-02T17:10:22.4429737Z  * [new branch]            pp112-review-evidence                    -> origin/pp112-review-evidence
+2026-11-02T17:10:22.4430210Z  * [new branch]            pp113-review-evidence                    -> origin/pp113-review-evidence
+2026-11-02T17:10:22.4430682Z  * [new branch]            pp116-review-evidence                    -> origin/pp116-review-evidence
+2026-11-02T17:10:22.4431147Z  * [new branch]            pp120-review-evidence                    -> origin/pp120-review-evidence
+2026-11-02T17:10:22.4431649Z  * [new branch]            pp123-review-evidence                    -> origin/pp123-review-evidence
+2026-11-02T17:10:22.4432119Z  * [new branch]            pp125-review-evidence                    -> origin/pp125-review-evidence
+2026-11-02T17:10:22.4432592Z  * [new branch]            pp127-review-evidence                    -> origin/pp127-review-evidence
+2026-11-02T17:10:22.4433167Z  * [new branch]            pp128-review-evidence                    -> origin/pp128-review-evidence
+2026-11-02T17:10:22.4433646Z  * [new branch]            pp131-review-evidence                    -> origin/pp131-review-evidence
+2026-11-02T17:10:22.4434112Z  * [new branch]            pp134-review-evidence                    -> origin/pp134-review-evidence
+2026-11-02T17:10:22.4434574Z  * [new branch]            pp141-review-evidence                    -> origin/pp141-review-evidence
+2026-11-02T17:10:22.4435045Z  * [new branch]            pp143-review-evidence                    -> origin/pp143-review-evidence
+2026-11-02T17:10:22.4435515Z  * [new branch]            pp148-review-evidence                    -> origin/pp148-review-evidence
+2026-11-02T17:10:22.4435980Z  * [new branch]            pp151-review-evidence                    -> origin/pp151-review-evidence
+2026-11-02T17:10:22.4436451Z  * [new branch]            pp158-review-evidence                    -> origin/pp158-review-evidence
+2026-11-02T17:10:22.4436920Z  * [new branch]            pp163-review-evidence                    -> origin/pp163-review-evidence
+2026-11-02T17:10:22.4437388Z  * [new branch]            pp167-review-evidence                    -> origin/pp167-review-evidence
+2026-11-02T17:10:22.4437853Z  * [new branch]            pp168-review-evidence                    -> origin/pp168-review-evidence
+2026-11-02T17:10:22.4438502Z  * [new branch]            pp170-review-evidence                    -> origin/pp170-review-evidence
+2026-11-02T17:10:22.4438972Z  * [new branch]            pp176-review-evidence                    -> origin/pp176-review-evidence
+2026-11-02T17:10:22.4439438Z  * [new branch]            pp177-review-evidence                    -> origin/pp177-review-evidence
+2026-11-02T17:10:22.4439906Z  * [new branch]            pp178-review-evidence                    -> origin/pp178-review-evidence
+2026-11-02T17:10:22.4440603Z  * [new branch]            pp181-review-evidence                    -> origin/pp181-review-evidence
+2026-11-02T17:10:22.4441097Z  * [new branch]            pp184-review-evidence                    -> origin/pp184-review-evidence
+2026-11-02T17:10:22.4441583Z  * [new branch]            pp185-review-evidence                    -> origin/pp185-review-evidence
+2026-11-02T17:10:22.4442135Z  * [new branch]            pp188-review-evidence                    -> origin/pp188-review-evidence
+2026-11-02T17:10:22.4442609Z  * [new branch]            pp190-review-evidence                    -> origin/pp190-review-evidence
+2026-11-02T17:10:22.4443076Z  * [new branch]            pp192-review-evidence                    -> origin/pp192-review-evidence
+2026-11-02T17:10:22.4443536Z  * [new branch]            pp193-review-evidence                    -> origin/pp193-review-evidence
+2026-11-02T17:10:22.4443997Z  * [new branch]            pp200-review-evidence                    -> origin/pp200-review-evidence
+2026-11-02T17:10:22.4444469Z  * [new branch]            pp202-review-evidence                    -> origin/pp202-review-evidence
+2026-11-02T17:10:22.4444951Z  * [new branch]            pp203-review-evidence                    -> origin/pp203-review-evidence
+2026-11-02T17:10:22.4445413Z  * [new branch]            pp205-review-evidence                    -> origin/pp205-review-evidence
+2026-11-02T17:10:22.4445876Z  * [new branch]            pp206-review-evidence                    -> origin/pp206-review-evidence
+2026-11-02T17:10:22.4446337Z  * [new branch]            pp210-review-evidence                    -> origin/pp210-review-evidence
+2026-11-02T17:10:22.4446807Z  * [new branch]            pp22-review-evidence                     -> origin/pp22-review-evidence
+2026-11-02T17:10:22.4447278Z  * [new branch]            pp230-review-evidence                    -> origin/pp230-review-evidence
+2026-11-02T17:10:22.4448070Z  * [new branch]            pp232-review-evidence                    -> origin/pp232-review-evidence
+2026-11-02T17:10:22.4448861Z  * [new branch]            pp42-review-evidence                     -> origin/pp42-review-evidence
+2026-11-02T17:10:22.4449784Z  * [new branch]            pp43-review-evidence                     -> origin/pp43-review-evidence
+2026-11-02T17:10:22.4450540Z  * [new branch]            pp510-review-evidence                    -> origin/pp510-review-evidence
+2026-11-02T17:10:22.4451294Z  * [new branch]            pp632-review-evidence                    -> origin/pp632-review-evidence
+2026-11-02T17:10:22.4452047Z  * [new branch]            pp639-review-evidence                    -> origin/pp639-review-evidence
+2026-11-02T17:10:22.4452892Z  * [new branch]            pp69-review-evidence                     -> origin/pp69-review-evidence
+2026-11-02T17:10:22.4453601Z  * [new branch]            pp72-review-evidence                     -> origin/pp72-review-evidence
+2026-11-02T17:10:22.4454288Z  * [new branch]            pp73-review-evidence                     -> origin/pp73-review-evidence
+2026-11-02T17:10:22.4454952Z  * [new branch]            pp81-review-evidence                     -> origin/pp81-review-evidence
+2026-11-02T17:10:22.4455666Z  * [new branch]            pp85-review-evidence                     -> origin/pp85-review-evidence
+2026-11-02T17:10:22.4456366Z  * [new branch]            pp92-review-evidence                     -> origin/pp92-review-evidence
+2026-11-02T17:10:22.4457088Z  * [new branch]            pp94-review-evidence                     -> origin/pp94-review-evidence
+2026-11-02T17:10:22.4458043Z  * [new branch]            pp99-review-evidence                     -> origin/pp99-review-evidence
+2026-11-02T17:10:22.4458782Z  * [new branch]            ppC1-review-evidence                     -> origin/ppC1-review-evidence
+2026-11-02T17:10:22.4459453Z  * [new branch]            ppC10-review-evidence                    -> origin/ppC10-review-evidence
+2026-11-02T17:10:22.4460123Z  * [new branch]            ppC11-review-evidence                    -> origin/ppC11-review-evidence
+2026-11-02T17:10:22.4461024Z  * [new branch]            ppC2-review-evidence                     -> origin/ppC2-review-evidence
+2026-11-02T17:10:22.4462063Z  * [new branch]            ppC3-review-evidence                     -> origin/ppC3-review-evidence
+2026-11-02T17:10:22.4462865Z  * [new branch]            ppC4-review-evidence                     -> origin/ppC4-review-evidence
+2026-11-02T17:10:22.4463601Z  * [new branch]            ppC5a-review-evidence                    -> origin/ppC5a-review-evidence
+2026-11-02T17:10:22.4464425Z  * [new branch]            ppC5b-review-evidence                    -> origin/ppC5b-review-evidence
+2026-11-02T17:10:22.4465263Z  * [new branch]            ppC6-review-evidence                     -> origin/ppC6-review-evidence
+2026-11-02T17:10:22.4466019Z  * [new branch]            ppC7-review-evidence                     -> origin/ppC7-review-evidence
+2026-11-02T17:10:22.4466765Z  * [new branch]            ppC8-review-evidence                     -> origin/ppC8-review-evidence
+2026-11-02T17:10:22.4467585Z  * [new branch]            ppP1-review-evidence                     -> origin/ppP1-review-evidence
+2026-11-02T17:10:22.4468583Z  * [new branch]            ppP2-review-evidence                     -> origin/ppP2-review-evidence
+2026-11-02T17:10:22.4469375Z  * [new branch]            shape-include-ambiguity                  -> origin/shape-include-ambiguity
+2026-11-02T17:10:22.4470199Z  * [new branch]            sync1f29-review-evidence                 -> origin/sync1f29-review-evidence
+2026-11-02T17:10:22.4471034Z  * [new branch]            tsn24-review-evidence                    -> origin/tsn24-review-evidence
+2026-11-02T17:10:22.4471827Z  * [new branch]            validation/478-candidate2                -> origin/validation/478-candidate2
+2026-11-02T17:10:22.4472572Z  * [new ref]               5a9913c630123385fce3030d5e8a5cef9d62b6ba -> pull/815/merge
+2026-11-02T17:10:22.4474123Z ##[endgroup]
+2026-11-02T17:10:22.4474586Z ##[group]Determining the checkout info
+2026-11-02T17:10:22.4474979Z ##[endgroup]
+2026-11-02T17:10:22.4475223Z [command]/usr/bin/git sparse-checkout disable
+2026-11-02T17:10:22.4476043Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-02T17:10:22.4488503Z ##[group]Checking out the ref
+2026-11-02T17:10:22.4492361Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/815/merge
+2026-11-02T17:10:22.6743321Z Note: switching to 'refs/remotes/pull/815/merge'.
+2026-11-02T17:10:22.6743719Z 
+2026-11-02T17:10:22.6743968Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-02T17:10:22.6744545Z changes and commit them, and you can discard any commits you make in this
+2026-11-02T17:10:22.6745107Z state without impacting any branches by switching back to a branch.
+2026-11-02T17:10:22.6745447Z 
+2026-11-02T17:10:22.6745665Z If you want to create a new branch to retain commits you create, you may
+2026-11-02T17:10:22.6746155Z do so (now or later) by using -c with the switch command. Example:
+2026-11-02T17:10:22.6746490Z 
+2026-11-02T17:10:22.6746616Z   git switch -c <new-branch-name>
+2026-11-02T17:10:22.6747052Z 
+2026-11-02T17:10:22.6747400Z Or undo this operation with:
+2026-11-02T17:10:22.6747629Z 
+2026-11-02T17:10:22.6747743Z   git switch -
+2026-11-02T17:10:22.6747890Z 
+2026-11-02T17:10:22.6748325Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-02T17:10:22.6748708Z 
+2026-11-02T17:10:22.6749148Z HEAD is now at 5a9913c630 Merge e8ec8d209a3d9055cc034a23d94925a0bf7b9a63 into e61a4afaa54a598ceec08b7b5879285256cc60b6
+2026-11-02T17:10:22.6778279Z ##[endgroup]
+2026-11-02T17:10:22.6837312Z [command]/usr/bin/git log -1 --format=%H
+2026-11-02T17:10:22.6870884Z 5a9913c630123385fce3030d5e8a5cef9d62b6ba
+2026-11-02T17:10:22.7086484Z ##[group]Run set -euo pipefail
+2026-11-02T17:10:22.7086789Z set -euo pipefail
+2026-11-02T17:10:22.7087003Z cpus="$(nproc)"
+2026-11-02T17:10:22.7087205Z test "$cpus" -gt 0
+2026-11-02T17:10:22.7087584Z campaign=$(( cpus < 4 ? cpus : 4 ))
+2026-11-02T17:10:22.7087850Z simulations=$(( cpus < 4 ? cpus : 4 ))
+2026-11-02T17:10:22.7088399Z tool_build=$(( cpus < 8 ? cpus : 8 ))
+2026-11-02T17:10:22.7088625Z {
+2026-11-02T17:10:22.7088814Z   printf 'CI_BUILD_JOBS=%s\n' "$cpus"
+2026-11-02T17:10:22.7089083Z   printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"
+2026-11-02T17:10:22.7089367Z   printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"
+2026-11-02T17:10:22.7089620Z   printf 'VERILATOR_JOBS=%s\n' "$cpus"
+2026-11-02T17:10:22.7089874Z   printf 'SIM_JOBS=%s\n' "$simulations"
+2026-11-02T17:10:22.7090157Z   printf 'MAKEFLAGS=-j1 --no-print-directory\n'
+2026-11-02T17:10:22.7090458Z } >> "$GITHUB_ENV"
+2026-11-02T17:10:22.7111426Z shell: /usr/bin/bash -e {0}
+2026-11-02T17:10:22.7111695Z env:
+2026-11-02T17:10:22.7111916Z   VERILATOR_VERSION: v5.050
+2026-11-02T17:10:22.7112307Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+2026-11-02T17:10:22.7112737Z ##[endgroup]
+2026-11-02T17:10:22.8870941Z ##[group]Run actions/cache@v4
+2026-11-02T17:10:22.8871161Z with:
+2026-11-02T17:10:22.8871332Z   path: ~/.cache/pip
+2026-11-02T17:10:22.8871918Z   key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-64fc0786b2a4c5eaf6deac494a8e23577d0b8c9720a8b55596a4808126a0eef9-Linux
+2026-11-02T17:10:22.8872535Z   enableCrossOsArchive: false
+2026-11-02T17:10:22.8872756Z   fail-on-cache-miss: false
+2026-11-02T17:10:22.8872955Z   lookup-only: false
+2026-11-02T17:10:22.8873134Z   save-always: false
+2026-11-02T17:10:22.8873303Z env:
+2026-11-02T17:10:22.8873472Z   VERILATOR_VERSION: v5.050
+2026-11-02T17:10:22.8873786Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+2026-11-02T17:10:22.8874112Z   CI_BUILD_JOBS: 4
+2026-11-02T17:10:22.8874289Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T17:10:22.8874473Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T17:10:22.8874673Z   VERILATOR_JOBS: 4
+2026-11-02T17:10:22.8874844Z   SIM_JOBS: 4
+2026-11-02T17:10:22.8875114Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T17:10:22.8875342Z ##[endgroup]
+2026-11-02T17:10:22.9747819Z (node:2147) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-02T17:10:22.9748621Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-02T17:10:23.1953422Z Cache hit for: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-64fc0786b2a4c5eaf6deac494a8e23577d0b8c9720a8b55596a4808126a0eef9-Linux
+2026-11-02T17:10:23.2050721Z (node:2147) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-02T17:10:23.7480951Z Received 768850 of 768850 (100.0%), 2.3 MBs/sec
+2026-11-02T17:10:23.7481506Z Cache Size: ~1 MB (768850 B)
+2026-11-02T17:10:23.7502837Z [command]/usr/bin/tar -xf <home-path>/work/_temp/4277657a-3034-4b45-b351-10da9b9b5cf5/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-11-02T17:10:23.7565233Z Cache restored successfully
+2026-11-02T17:10:23.7692141Z Cache restored from key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-64fc0786b2a4c5eaf6deac494a8e23577d0b8c9720a8b55596a4808126a0eef9-Linux
+2026-11-02T17:10:23.8331492Z ##[group]Run actions/cache@v4
+2026-11-02T17:10:23.8331717Z with:
+2026-11-02T17:10:23.8331897Z   path: ~/.cache/pip
+2026-11-02T17:10:23.8332443Z   key: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-817eae477d057ea43820aceea3a2d441b1f78c1c91866e8671f46688485b5890-Linux
+2026-11-02T17:10:23.8333024Z   enableCrossOsArchive: false
+2026-11-02T17:10:23.8333245Z   fail-on-cache-miss: false
+2026-11-02T17:10:23.8333445Z   lookup-only: false
+2026-11-02T17:10:23.8333623Z   save-always: false
+2026-11-02T17:10:23.8333943Z env:
+2026-11-02T17:10:23.8334115Z   VERILATOR_VERSION: v5.050
+2026-11-02T17:10:23.8334426Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+2026-11-02T17:10:23.8334741Z   CI_BUILD_JOBS: 4
+2026-11-02T17:10:23.8334916Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T17:10:23.8335101Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T17:10:23.8335286Z   VERILATOR_JOBS: 4
+2026-11-02T17:10:23.8335456Z   SIM_JOBS: 4
+2026-11-02T17:10:23.8335697Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T17:10:23.8335919Z ##[endgroup]
+2026-11-02T17:10:23.9260144Z (node:2176) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-02T17:10:23.9260867Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-02T17:10:24.1253271Z Cache hit for: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-817eae477d057ea43820aceea3a2d441b1f78c1c91866e8671f46688485b5890-Linux
+2026-11-02T17:10:24.1344524Z (node:2176) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-02T17:10:24.7680190Z Received 768871 of 768871 (100.0%), 1.8 MBs/sec
+2026-11-02T17:10:24.7680635Z Cache Size: ~1 MB (768871 B)
+2026-11-02T17:10:24.7699550Z [command]/usr/bin/tar -xf <home-path>/work/_temp/33f0758f-01ce-4dd4-9eef-f69c239d8f4b/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+2026-11-02T17:10:24.7758919Z Cache restored successfully
+2026-11-02T17:10:24.7820237Z Cache restored from key: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-817eae477d057ea43820aceea3a2d441b1f78c1c91866e8671f46688485b5890-Linux
+2026-11-02T17:10:24.7908861Z ##[group]Run python3 -m pip install --quiet --require-hashes --no-deps -r ci/requirements-evidence.txt
+2026-11-02T17:10:24.7909488Z python3 -m pip install --quiet --require-hashes --no-deps -r ci/requirements-evidence.txt
+2026-11-02T17:10:24.7926875Z shell: /usr/bin/bash -e {0}
+2026-11-02T17:10:24.7927100Z env:
+2026-11-02T17:10:24.7927280Z   VERILATOR_VERSION: v5.050
+2026-11-02T17:10:24.7927596Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+2026-11-02T17:10:24.7928274Z   CI_BUILD_JOBS: 4
+2026-11-02T17:10:24.7928458Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T17:10:24.7928657Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T17:10:24.7928848Z   VERILATOR_JOBS: 4
+2026-11-02T17:10:24.7929020Z   SIM_JOBS: 4
+2026-11-02T17:10:24.7929215Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T17:10:24.7929447Z ##[endgroup]
+2026-11-02T17:10:26.9551123Z ##[group]Run actions/download-artifact@v4
+2026-11-02T17:10:26.9551385Z with:
+2026-11-02T17:10:26.9551636Z   pattern: gate-elaborate-*-5a9913c630123385fce3030d5e8a5cef9d62b6ba
+2026-11-02T17:10:26.9551969Z   path: <home-path>/work/_temp/gate-results
+2026-11-02T17:10:26.9552223Z   merge-multiple: false
+2026-11-02T17:10:26.9552449Z   repository: kebag-logic/milan-fpga
+2026-11-02T17:10:26.9552681Z   run-id: 41476923392
+2026-11-02T17:10:26.9552868Z env:
+2026-11-02T17:10:26.9553037Z   VERILATOR_VERSION: v5.050
+2026-11-02T17:10:26.9553359Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+2026-11-02T17:10:26.9553676Z   CI_BUILD_JOBS: 4
+2026-11-02T17:10:26.9553863Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T17:10:26.9554051Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T17:10:26.9554234Z   VERILATOR_JOBS: 4
+2026-11-02T17:10:26.9554418Z   SIM_JOBS: 4
+2026-11-02T17:10:26.9554612Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T17:10:26.9554841Z ##[endgroup]
+2026-11-02T17:10:27.0885591Z (node:2217) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-02T17:10:27.0886489Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-02T17:10:27.3261183Z Found 5 artifact(s)
+2026-11-02T17:10:27.3262460Z Filtering artifacts by pattern 'gate-elaborate-*-5a9913c630123385fce3030d5e8a5cef9d62b6ba'
+2026-11-02T17:10:27.3279046Z Preparing to download the following artifacts:
+2026-11-02T17:10:27.3280091Z - gate-elaborate-1-5a9913c630123385fce3030d5e8a5cef9d62b6ba (ID: 13161279361, Size: 2677, Expected Digest: sha256:77603a9a7745d3c55567bf85495231d6fed323facdc17168ed08e855ae29a2f0)
+2026-11-02T17:10:27.3281741Z - gate-elaborate-0-5a9913c630123385fce3030d5e8a5cef9d62b6ba (ID: 13159291934, Size: 2273, Expected Digest: sha256:02f370003f92b853791102aacf7a2374cc7a18be9792ddcd43503798af823ef0)
+2026-11-02T17:10:27.5551194Z Redirecting to blob download url: https://productionresultssa9.blob.core.windows.net/actions-results/8d53e5ec-74f3-892a-afff-c65d76295791/workflow-job-run-29af21ca-72c3-569d-ae4e-f93ed3d70df7/artifacts/5ed69035c01a95752ea613600679ed185de207aa0e2849d3299434900afa8eaf.zip
+2026-11-02T17:10:27.5553479Z Starting download of artifact to: <home-path>/work/_temp/gate-results/gate-elaborate-0-5a9913c630123385fce3030d5e8a5cef9d62b6ba
+2026-11-02T17:10:27.6943643Z Redirecting to blob download url: https://productionresultssa9.blob.core.windows.net/actions-results/8d53e5ec-74f3-892a-afff-c65d76295791/workflow-job-run-b296b738-e439-56e6-93bd-4569ba7dbaeb/artifacts/dd039f2ede7ae71c7e4ed10171c050e42ac6c1d399088f6443a7265e7c37b902.zip
+2026-11-02T17:10:27.6945435Z Starting download of artifact to: <home-path>/work/_temp/gate-results/gate-elaborate-1-5a9913c630123385fce3030d5e8a5cef9d62b6ba
+2026-11-02T17:10:27.7716278Z (node:2217) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+2026-11-02T17:10:27.7748666Z SHA256 digest of downloaded artifact is 02f370003f92b853791102aacf7a2374cc7a18be9792ddcd43503798af823ef0
+2026-11-02T17:10:27.7749350Z Artifact download completed successfully.
+2026-11-02T17:10:27.9034153Z SHA256 digest of downloaded artifact is 77603a9a7745d3c55567bf85495231d6fed323facdc17168ed08e855ae29a2f0
+2026-11-02T17:10:27.9034669Z Artifact download completed successfully.
+2026-11-02T17:10:27.9034945Z Total of 2 artifact(s) downloaded
+2026-11-02T17:10:27.9039200Z Download artifact has finished successfully
+2026-11-02T17:10:27.9210456Z ##[group]Run python3 scripts/ci_gate_receipts.py verify --workflow elaborate --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"
+2026-11-02T17:10:27.9211417Z python3 scripts/ci_gate_receipts.py verify --workflow elaborate --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"
+2026-11-02T17:10:27.9228737Z shell: /usr/bin/bash -e {0}
+2026-11-02T17:10:27.9228962Z env:
+2026-11-02T17:10:27.9229163Z   VERILATOR_VERSION: v5.050
+2026-11-02T17:10:27.9229496Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+2026-11-02T17:10:27.9229833Z   CI_BUILD_JOBS: 4
+2026-11-02T17:10:27.9230035Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T17:10:27.9230247Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T17:10:27.9230455Z   VERILATOR_JOBS: 4
+2026-11-02T17:10:27.9230648Z   SIM_JOBS: 4
+2026-11-02T17:10:27.9230849Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T17:10:27.9231392Z   CI_GATE_NEEDS: {
+  "elaborate-gates-0": {
+    "result": "success",
+    "outputs": {}
+  },
+  "elaborate-gates-1": {
+    "result": "cancelled",
+    "outputs": {}
+  }
+}
+2026-11-02T17:10:27.9231856Z ##[endgroup]
+2026-11-02T17:10:28.0852951Z gate evidence refused: elaborate-gates-1: dependent job failed, cancelled or skipped
+2026-11-02T17:10:28.0954010Z ##[error]Process completed with exit code 1.
+2026-11-02T17:10:28.1002084Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/elaborate.yml --job elaborate --output "$RUNNER_TEMP/job-evidence.json"
+2026-11-02T17:10:28.1002966Z python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/elaborate.yml --job elaborate --output "$RUNNER_TEMP/job-evidence.json"
+2026-11-02T17:10:28.1020509Z shell: /usr/bin/bash -e {0}
+2026-11-02T17:10:28.1020880Z env:
+2026-11-02T17:10:28.1021065Z   VERILATOR_VERSION: v5.050
+2026-11-02T17:10:28.1021394Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+2026-11-02T17:10:28.1021735Z   CI_BUILD_JOBS: 4
+2026-11-02T17:10:28.1021926Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T17:10:28.1022134Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T17:10:28.1022332Z   VERILATOR_JOBS: 4
+2026-11-02T17:10:28.1022519Z   SIM_JOBS: 4
+2026-11-02T17:10:28.1022721Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T17:10:28.1024792Z   CI_STEP_RESULTS: {
+  "ci_step_0": {
+    "outputs": {
+      "commit": "5a9913c630123385fce3030d5e8a5cef9d62b6ba",
+      "ref": "refs/pull/815/merge"
+    },
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_1": {
+    "outputs": {},
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_2": {
+    "outputs": {
+      "cache-hit": "true"
+    },
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_3": {
+    "outputs": {
+      "cache-hit": "true"
+    },
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_4": {
+    "outputs": {},
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_5": {
+    "outputs": {
+      "download-path": "<home-path>/work/_temp/gate-results"
+    },
+    "outcome": "success",
+    "conclusion": "success"
+  },
+  "ci_step_6": {
+    "outputs": {},
+    "outcome": "failure",
+    "conclusion": "failure"
+  },
+  "ci_step_7": {
+    "outputs": {},
+    "outcome": "skipped",
+    "conclusion": "skipped"
+  }
+}
+2026-11-02T17:10:28.1026803Z   CI_JOB_RESULT: failure
+2026-11-02T17:10:28.1027021Z   CI_MATRIX: null
+2026-11-02T17:10:28.1027217Z ##[endgroup]
+2026-11-02T17:10:29.2004330Z ##[group]Run actions/upload-artifact@v4
+2026-11-02T17:10:29.2004608Z with:
+2026-11-02T17:10:29.2004937Z   name: job-evidence-elaborate-elaborate-0-5a9913c630123385fce3030d5e8a5cef9d62b6ba
+2026-11-02T17:10:29.2005342Z   path: <home-path>/work/_temp/job-evidence.json
+2026-11-02T17:10:29.2005619Z   if-no-files-found: error
+2026-11-02T17:10:29.2005856Z   retention-days: 3
+2026-11-02T17:10:29.2006049Z   compression-level: 6
+2026-11-02T17:10:29.2006249Z   overwrite: false
+2026-11-02T17:10:29.2006458Z   include-hidden-files: false
+2026-11-02T17:10:29.2006680Z env:
+2026-11-02T17:10:29.2006874Z   VERILATOR_VERSION: v5.050
+2026-11-02T17:10:29.2007196Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+2026-11-02T17:10:29.2007537Z   CI_BUILD_JOBS: 4
+2026-11-02T17:10:29.2007730Z   CI_TOOL_BUILD_JOBS: 4
+2026-11-02T17:10:29.2008107Z   CI_CAMPAIGN_JOBS: 4
+2026-11-02T17:10:29.2008317Z   VERILATOR_JOBS: 4
+2026-11-02T17:10:29.2008506Z   SIM_JOBS: 4
+2026-11-02T17:10:29.2008753Z   MAKEFLAGS: -j1 --no-print-directory
+2026-11-02T17:10:29.2008983Z ##[endgroup]
+2026-11-02T17:10:29.3405516Z (node:2245) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-02T17:10:29.3406568Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-02T17:10:29.3464153Z With the provided path, there will be 1 file uploaded
+2026-11-02T17:10:29.3468164Z Artifact name is valid!
+2026-11-02T17:10:29.3468525Z Root directory input is valid!
+2026-11-02T17:10:29.6760692Z Beginning upload of artifact content to blob storage
+2026-11-02T17:10:29.6900009Z (node:2245) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-02T17:10:29.9016606Z Uploaded bytes 770
+2026-11-02T17:10:29.9605841Z Finished uploading artifact content to blob storage!
+2026-11-02T17:10:29.9606695Z SHA256 digest of uploaded artifact zip is 689da59143be031a0bcc952cc5e9fecbb0ef817d48efc5520d0028ca5a755d26
+2026-11-02T17:10:29.9607388Z Finalizing artifact upload
+2026-11-02T17:10:30.4840173Z Artifact job-evidence-elaborate-elaborate-0-5a9913c630123385fce3030d5e8a5cef9d62b6ba.zip successfully finalized. Artifact ID 13163385782
+2026-11-02T17:10:30.4841438Z Artifact job-evidence-elaborate-elaborate-0-5a9913c630123385fce3030d5e8a5cef9d62b6ba has been successfully uploaded! Final size is 770 bytes. Artifact ID is 13163385782
+2026-11-02T17:10:30.4845196Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/41476923392/artifacts/13163385782
+2026-11-02T17:10:30.5027097Z Post job cleanup.
+2026-11-02T17:10:30.5717578Z [command]/usr/bin/git version
+2026-11-02T17:10:30.5754406Z git version 2.56.0
+2026-11-02T17:10:30.5787715Z Temporarily overriding HOME='<home-path>/work/_temp/cc29c9d0-7e3f-497e-b6f5-11f089e65728' before making global git config changes
+2026-11-02T17:10:30.5788954Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T17:10:30.5792972Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+2026-11-02T17:10:30.5830777Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T17:10:30.5863427Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T17:10:30.6099108Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T17:10:30.6124200Z http.https://github.com/.extraheader
+2026-11-02T17:10:30.6133917Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-02T17:10:30.6173639Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T17:10:30.6435262Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T17:10:30.6475384Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T17:10:30.6811026Z Cleaning up orphan processes
+2026-11-02T17:10:30.7135159Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

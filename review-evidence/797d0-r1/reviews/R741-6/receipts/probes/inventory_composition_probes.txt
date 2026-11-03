@@ -1,0 +1,23 @@
+P0 baseline:
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+gate rc=0
+P1 pre-sync page (8d8c2e36) on composed tree:
+  committed: | current | 166 | 69,371 |
+  generated: | current | 176 | 73,277 |
+regenerate with: python3 scripts/docs_inventory.py --write
+gate rc=1
+P2 drop dev's README row (overlap file):
+  committed: | current | 176 | 73,277 |
+  generated: | current | 176 | 73,276 |
+regenerate with: python3 scripts/docs_inventory.py --write
+gate rc=1
+P3 untrack dev's new page:
+  committed: | current | 176 | 73,277 |
+  generated: | current | 175 | 71,988 |
+regenerate with: python3 scripts/docs_inventory.py --write
+gate rc=1
+restore:
+297b642f06aede7b818a5451722c75032fb05099
+274a5320231c562168a58416a3a3c316ced60493
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+gate rc=0
