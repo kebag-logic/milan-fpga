@@ -3302,18 +3302,7 @@ Hosted job spans and runner-capacity contention still require coordinating readb
 Each worker records the source gate IDs and the actual step outcomes reported
 by the workflow runtime. The aggregate recomputes the inventory from the same
 template and requires its exact union, with each gate executed once. Receipts
-bind the full head, tree and template digest.
-
-The `elaborate` aggregate reads the head's tree and nothing else, so it
-checks out the head alone, at `actions/checkout`'s default depth. Its
-full-history fetch took 260 seconds in run 41678609075 against its 3-minute
-limit, which cancelled the run before the union proof, and that fetch grows
-with the repository's branch count (#737). Its limit stays 3 minutes, set
-from its 104-second projection above with 76 seconds of margin. The other
-elaborate jobs with a full-history fetch keep it. `Collect CI manifest` reads
-the merge base of a pull request's base and head, and took at most 149
-seconds against its 15 minutes. Each worker's scope step diffs the head
-against its parent under its 45 minutes. The existing documentation-only
+bind the full head, tree and template digest. The existing documentation-only
 elaboration skip remains valid only with a recorded false scope and matching
 skipped outcomes on every worker. It does not excuse a skipped worker job.
 Each worker that runs a builder leg, `elaborate-gates-0`, `elaborate-gates-1`,
@@ -3329,6 +3318,18 @@ per-simulation LiteX verdicts.
 identities and plants each unsuccessful job outcome; all must be refused.
 The CI contract applies its original negative controls to the template steps
 and separately mutates every generated worker and aggregate step.
+
+The `elaborate` aggregate reads the head's tree and nothing else, so it
+checks out the head alone, at `actions/checkout`'s default depth. Its
+full-history fetch took 260 seconds in run 41678609075 attempt 1 against its
+3-minute limit, which cancelled the run before the union proof and did so
+again in attempt 3, and that fetch grows with the repository's branch count
+(#737). Its limit stays 3 minutes, set
+from its 104-second projection above with 76 seconds of margin. The other
+elaborate jobs with a full-history fetch keep it. `Collect CI manifest` reads
+the merge base of a pull request's base and head, and took at most 149
+seconds against its 15 minutes. Each worker's scope step diffs the head
+against its parent under its 45 minutes.
 
 Each workflow has a same-repository failure watcher and a terminal failure guard.
 Only those two guarded jobs request `actions: write`, on a push or a PR whose
