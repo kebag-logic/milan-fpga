@@ -1606,7 +1606,7 @@ Each row's 8x8/2if measurement, with the CPU on `sys` at 100 MHz, is carried to 
 
 - **U** is the assigned derivation: four times the 8x8/2if figure, every cycle taken to grow with the streams.
 - **L** is the measured growth: the line through 1x1/1if (2 streams) and 8x8/2if (16), to 64.
-- **S** is the streams' own growth: the 8x8/2if figure plus the slope from 1x1/1if to 8x8/1if, which holds the interfaces at one. Its slope uses arm A at both ends, since the 8x8/1if point is arm A only: arm A's 1x1/1if figures (the last AECP record's 10.04 ms), not the worst-of-arms column below. The 8x8/1if point is a labelled scratch arm, not on this branch. The slope is arm A's at both ends, from section 13's arm A 1x1/1if figure, since the 8x8/1if point ran in arm A only; the 1x1/1if column below is the worst of the arms.
+- **S** is the streams' own growth: the 8x8/2if figure plus the slope from 1x1/1if to 8x8/1if, which holds the interfaces at one. Its slope uses arm A at both ends, since the 8x8/1if point ran in arm A only: section 13's arm A 1x1/1if figures (the last AECP record's 10.04 ms), not the 1x1/1if column below, which is the worst of the arms. The 8x8/1if point is a labelled scratch arm, not on this branch.
 
 Worst of the arms measured at this head (2026-11-03), over the four backlog windows, ms, over the bound in bold with the excess (estimates in the last three columns):
 

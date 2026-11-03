@@ -15,8 +15,9 @@
 //   nothing_to_save            a change whose owner has nothing to save
 //                              leaves the staged bytes as they were;
 //   change_unknown_record      a change to a record the shape does not have
-//   change_by_record_id        a change named by its record id
 //                              marks nothing;
+//   change_by_record_id        a change named by its record id marks that
+//                              record;
 //   capture_window_edges       a change the running capture has passed, or
 //                              one after its last latch, opens a window of
 //                              its own (DR2a).
