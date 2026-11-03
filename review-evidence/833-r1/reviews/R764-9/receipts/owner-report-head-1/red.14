@@ -1,0 +1,5 @@
+=== worker 14 run 9 rc 1
+  File "$REVIEWS/r764-9-833/scripts/test_suite_cancellation.py", line 452, in owner_report
+    assert field in asleep, (field, asleep)
+           ^^^^^^^^^^^^^^^
+AssertionError: ('state S', 'pid 2244421 (python3) state R wchan hrtimer_nanosleep parent 2244418 (first parent 2244418) age 0.14 s start 79668661, not sent SIGKILL')

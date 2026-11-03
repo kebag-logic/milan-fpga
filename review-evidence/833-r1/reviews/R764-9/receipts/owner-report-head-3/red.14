@@ -1,0 +1,15 @@
+=== worker 14 run 62 rc 1
+  File "$REVIEWS/r764-9-833/scripts/test_suite_cancellation.py", line 452, in owner_report
+    assert field in asleep, (field, asleep)
+           ^^^^^^^^^^^^^^^
+AssertionError: ('state S', 'pid 2269268 (python3) state R wchan hrtimer_nanosleep parent 2269248 (first parent 2269248) age 0.14 s start 79679468, not sent SIGKILL')
+=== worker 14 run 144 rc 1
+  File "$REVIEWS/r764-9-833/scripts/test_suite_cancellation.py", line 452, in owner_report
+    assert field in asleep, (field, asleep)
+           ^^^^^^^^^^^^^^^
+AssertionError: ('state S', 'pid 2274972 (python3) state R wchan hrtimer_nanosleep parent 2274952 (first parent 2274952) age 0.15 s start 79681976, not sent SIGKILL')
+=== worker 14 run 194 rc 1
+  File "$REVIEWS/r764-9-833/scripts/test_suite_cancellation.py", line 452, in owner_report
+    assert field in asleep, (field, asleep)
+           ^^^^^^^^^^^^^^^
+AssertionError: ('state S', 'pid 2278239 (python3) state R wchan hrtimer_nanosleep parent 2278238 (first parent 2278238) age 0.15 s start 79683562, not sent SIGKILL')
