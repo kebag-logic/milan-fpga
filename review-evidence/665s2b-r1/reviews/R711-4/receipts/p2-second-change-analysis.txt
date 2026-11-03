@@ -1,0 +1,9 @@
+group save-second: image 3336 B, stated worst case 4070 ms (102 steps)
+marks: booted 23.600 ms, settled 674.044 ms, save.change 2674.249 ms, save2.change 4174.249 ms
+erases at: 4233.216 ms, 7293.218 ms
+floods: [(267424924, 1), (1331424924, 0)]
+save 1: erase 4233.216 ms, slot 0xee0000, 14 pages, 3336 B, durable 6723.20581 ms
+save 2: erase 7293.218 ms, slot 0xef0000, 14 pages, 3336 B, durable 9783.20277 ms
+save.change: durable in save 1 (erase 4233.216 ms), 4048.957 ms after the change, against the stated worst case 4070 ms: within
+save2.change: durable in save 2 (erase 7293.218 ms), 5608.954 ms after the change, against the stated worst case 4070 ms: OVER by 1538.954 ms
+harness's own save_time (first save from save.change): {'change_sys': 267424924, 'durable_sys': 672320581, 'ms': 4048.957, 'bound_ms': 4070, 'within': True, 'waited_ms': 10640.294, 'image': 3336, 'records': 2, 'steps': 102, 'flash_steps': 84, 'longest_gap_ms': 30.931, 'flooded': True}

@@ -1,0 +1,37 @@
+diff --git a/tb/verilator/ctrl_service_budget/save_window.py b/tb/verilator/ctrl_service_budget/save_window.py
+index 79cf19368b..84ee8f9287 100644
+--- a/tb/verilator/ctrl_service_budget/save_window.py
++++ b/tb/verilator/ctrl_service_budget/save_window.py
+@@ -227,6 +227,23 @@ def loaded(p: scenario.Point, name: str, flood: bool, image: int) -> scenario.Gr
+     return g
+ 
+ 
++def second_change(p: scenario.Point, image: int) -> scenario.Group:
++    """Probe P2: save-starved's flood without the held channels, and a second SET_NAME 1500 ms after the
++    first, to another value."""
++    bound = bound_ms(image, CHANGED)
++    run_ms = 1500 + 2 * bound + 1000
++    g = scenario.Group('save-second', sim_ms=int(run_ms) + 3000, save=dict(image=image, records=CHANGED))
++    scenario.ready(g, p)
++    scenario.announced(g)
++    ms = scenario.MS
++    other = f.aem_command(f.Aem(p.entity_id, scenario.CTL2, scenario.CTL_MAC, p.mac, 0x6f01), 0x0010,
++                          bytes(8) + b'sav2'.ljust(64, b'\0'))
++    g.add('mark save.change', f'frame 0 {set_name(p).hex()}', 'flood gm 1',
++          f'wait cycles {1500 * ms}', 'mark save2.change', f'frame 0 {other.hex()}',
++          f'wait cycles {round(run_ms - 1500) * ms}', 'flood gm 0', 'wait quiet 3 within 2000000')
++    return g
++
++
+ def windows(p: scenario.Point) -> list[scenario.Group]:
+     """The window at every tick phase of every flash phase."""
+     return [window(p, phase, k) for phase in PHASES for k in range(TICK_PHASES)]
+@@ -236,7 +253,7 @@ def groups(p: scenario.Point, build: dict) -> list[scenario.Group]:
+     """The windows, the save alone, and a save under every channel at its refill rate, without and with no pass
+     that takes nothing, each of the build's image's container."""
+     image = container(build)
+-    return [*windows(p), alone(p, image), loaded(p, 'save-held', False, image), loaded(p, 'save-starved', True, image)]
++    return [*windows(p), alone(p, image), loaded(p, 'save-held', False, image), loaded(p, 'save-starved', True, image), second_change(p, image)]
+ 
+ 
+ def row_names() -> list[str]:
