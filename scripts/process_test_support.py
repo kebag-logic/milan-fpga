@@ -895,6 +895,21 @@ MUTANTS: dict[str, tuple] = {
         ("                    if (pid, start) not in initial:\n                        continue\n",
          "                    if (pid, start) not in initial and not (pid in live and clock < 0.5):\n"
          "                        continue\n")),
+    "parent-of-live-new-unspared-beside-shell": ("owner_stated_seconds", "a live new descendant beside a shell never"
+        " resumed's stated seconds were not kept",
+        ("if any(parent == pid and child in live for child, (parent, _start) in owned.items()):",
+         "if any(parent == pid and child in live and not (self.root_notified and (child, _start) not in"
+         " initial) for child, (parent, _start) in owned.items()):")),
+    "verdict-early-live-new-beside-stopped-shell": ("owner_stated_seconds", "a live new descendant beside a shell"
+        " never resumed's stated seconds were not kept",
+        ("            limit = kill_all + REAP_SECONDS\n",
+         "            limit = kill_all + REAP_SECONDS - (0.25 if self.root_notified and resumed is None and"
+         " any((p, e[1]) not in initial and _live(p) for p, e in owned.items()) else 0)\n")),
+    "parent-under-unresumed-shell-unspared": ("owner_stated_seconds", "a live new descendant beside a shell never"
+        " resumed's stated seconds were not kept",
+        ("if any(parent == pid and child in live for child, (parent, _start) in owned.items()):",
+         "if any(parent == pid and child in live for child, (parent, _start) in owned.items()) and not"
+         " (self.root_notified and resumed is None and owned[pid][0] == root_pid):")),
 }
 
 

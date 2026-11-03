@@ -862,6 +862,11 @@ def stated_liveness(kept: Callable, cell: Callable, names: dict, fakes: tuple) -
             kept(f"a next-to-last in-grace resume and its {words}", lambda clock, listing=cell(next_to_last, started):
                  {**listing(clock), **({zombie: (shell, "5")} if clock <= 2 else {})},
                  [child_term, (0, "SIGTERM", "zombie"), resume, (2, "SIGKILL", "zombie"), *rest], shell)
+        # The child's trap starts it beside a shell never resumed, and the child is spared while it lives, to 4 s.
+        kept("a live new descendant beside a shell never resumed",
+             lambda clock: {shell: (owner_pid, "2"), child: (shell, "4"), **({live: (child, "8")} if clock else {})},
+             [(0, "SIGTERM", "child"), (2, "SIGKILL", "trap command"), (4, "SIGKILL", "child"),
+              *[(14, "SIGKILL", name) for name in ("shell", "child", "trap command")], (14, "verdict")], shell)
 
 
 def pending(pid: int) -> int:
