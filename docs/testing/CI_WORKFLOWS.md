@@ -1589,19 +1589,21 @@ install and drop its `PATH` entry.
 
 [`scripts/ci_toolcache_isolation.py`](../../scripts/ci_toolcache_isolation.py)
 is the control, run natively with no container. It copies a CPython
-installation into a planted tool cache and runs both legs' setup steps, read
-from the workflow at a revision, side by side. Each leg has its own home,
-temporary directory, workspace and environment files, and every step of both
-legs starts together. It passes only when every step of both legs passes, each
+installation into a planted tool cache and runs every elaboration leg's setup
+steps, read from the workflow at a revision, side by side: its
+`elaborate-gates-N` jobs, five since the LiteX simulations run in legs of their
+own (#737). Each leg has its own home, temporary directory, workspace and
+environment files, and every step of all legs starts together. It passes only
+when every step of every leg passes, each
 leg's LiteX interpreter and VexiiRiscv checkout are under that leg's
 `RUNNER_TEMP`, gate 23h and its negative control each ran and passed in each
 leg, and every path of the tool cache is byte for byte what was planted. The
 patch checks are read from the driver's `--receipt`, not its exit code: the
 driver records a check that finds no interpreter importing `migen`, `litex`
 and `litex_boards` as NOT RUN and still exits 0, and the control refuses that
-by the check's name. `--shared` drops the job-private step from both legs, as
+by the check's name. `--shared` drops the job-private step from every leg, as
 a revision before it does; that run must fail. `--gate-legs` then runs each
-leg's elaboration gate step, both started together, before the final
+leg's elaboration gate step, all started together, before the final
 comparison, so the Scala generation is inside it too; it needs the three
 source dependencies initialised in the checkout, an installed RV32 SDK
 (`--rv32-sdk`) and `sv2v` and `sbt` on `--tool-dir` or the system `PATH`. The
@@ -1618,7 +1620,7 @@ python3 scripts/ci_toolcache_isolation.py --python <CPython prefix> --work <empt
 
 That command runs in two measured legs (#737). Worker 0 runs leg 0,
 `test_baremetal_profile_contract` alone. Worker 1 runs leg 1, the other 102
-gates in inventory order, before its LiteX aggregate.
+gates in inventory order.
 [`scripts/ci_builder_legs.py`](../../scripts/ci_builder_legs.py) reads the
 inventory from the driver's `--list`, passes each leg's names to `--gates`
 and binds the driver's `--receipt` to the head and tree. With no `--gates`,
@@ -1649,15 +1651,35 @@ requires that exactly the workers running a builder leg upload
 the driver in a preparation line, and one whose last line is not the driver;
 the generator must refuse each.
 
-Independently, worker 1 installs Verilator and runs
-`scripts/run_litex_sims.sh`, the one aggregate that owns the standalone LiteX
-simulations in `sw/litex/` (#297): its inventory is pinned in the runner and
-reconciled against the directory in both directions, so a deleted test cannot
-vanish silently and an unlisted new one is a red run, and its `--selftest`
-executes first - it plants a failing simulation, a masked verdict, a missing
-member, an unlisted extra and a member-declared skip in a sandbox and
-requires the verdict each time. The simulation aggregate reuses the interpreter its worker
-just installed and patched; locally the same command runs against any
+Independently, workers 2, 3 and 4 each install Verilator and run one measured
+leg of `scripts/run_litex_sims.sh`, the one aggregate that owns the standalone
+LiteX simulations in `sw/litex/` (#297): its inventory is pinned in the runner
+and reconciled against the directory in both directions in every leg, so a
+deleted test cannot vanish silently and an unlisted new one is a red run, and
+its `--selftest` executes first in each leg - it plants a failing simulation, a
+masked verdict, a missing member, an unlisted extra, a member-declared skip and
+a narrowed selection in a sandbox and requires the verdict each time.
+
+Run whole after builder leg 1 on worker 1, the eight simulations took 18 to 25
+minutes hosted and held that job within a minute of its 45-minute limit
+(#737). [`scripts/ci_litex_legs.py`](../../scripts/ci_litex_legs.py) reads
+the inventory from the runner's `--list` and assigns each member, longest
+measured hosted time first, to the least-loaded of three legs. It passes each
+leg's names to the runner's `--only`, which runs exactly those and still
+reconciles the whole inventory. A member with no measured time, a measurement
+for a member the inventory lost, and a leg above 1200 measured seconds are
+refused, so a new simulation cannot join a leg unmeasured. The leg receipt
+binds the runner's per-member verdict rows (`verdicts.tsv`) and its exit to
+the head and tree. The `elaborate` aggregate refuses unless every simulation
+ran exactly once, in its measured leg, and passed: a simulation dropped from
+its leg, run in a second leg, failed, skipped or timed out, a lost leg and a
+red runner exit are each refused by name, and `ci_gate_workflows_selftest.py`
+plants each of them. The legs hold 534 (`test_soc_timing_cuts`), 518
+(`test_gptp_tx_timestamp` and the three shortest) and 533 measured seconds
+(`test_retained_cdc_storage`, `test_ctrl_memory` and
+`test_cpu_memory_port_cdc`).
+
+Each leg reuses the interpreter its worker just installed and patched; locally the same command runs against any
 interpreter that imports `migen` + `litex` and otherwise declares its skips
 (exit 90), see [TESTING.md section 2](TESTING.md#2-litex-integration-checks---swlitextest_py).
 
@@ -3001,7 +3023,7 @@ are independent required siblings, so a failure in `wire-accountability` or
 the original ordered gate commands. Exactly one job carries each required name.
 The independent `wire-accountability` and `docs-check-no-git` jobs retain their
 unconditional execution. `docs-check` and `elaborate` are fail-closed aggregates
-over three docs workers and two elaboration workers. Their `always()` condition
+over three docs workers and five elaboration workers. Their `always()` condition
 also runs the verifier after
 a dependency fails or is cancelled. Missing, failed, cancelled and skipped
 worker jobs all fail the aggregate.
@@ -3059,6 +3081,20 @@ measured legs. By the docs worker zero method, elaboration worker zero
 projects at `2447 - 597 - 2 - 1763 + 1081.009 x 1763 / 1433.969 + 60` and
 worker one at `2447 - 1763 + 495.144 x 1763 / 1433.969 + 60`.
 
+That worker one projection carried the LiteX aggregate's 597-second window of
+`f6260253`. By 2026-11-03 the aggregate step took 1087, 1161 and 1485 seconds
+hosted, and worker one 2079, 2233 and 2672, in runs 41470524727, 41526004847
+and 41554508699 (#737). Run 41476923392 was cancelled at the 45-minute limit
+inside it. The aggregate now runs in three LiteX legs on workers 2 to 4, so
+worker one projects at its largest measured job time less that step,
+`2672 - 1485`, which is above its projection less the old window. Each LiteX
+worker projects at the largest hosted time worker one spent outside its two
+gate steps, 143 seconds, plus the three-second runner self-test, its leg's
+measured seconds and 60 seconds for recording and upload. A member's measured
+seconds are its largest hosted time over those runs and the cancelled run's
+first three attempts. A Verilator cache miss adds a source build, about 300
+seconds, to each LiteX worker; the slowest then projects at 1040 seconds.
+
 Yosys compilation now runs once in prerequisite `yosys-tool`.
 Its pinned source and cache-key construction are preserved. Source compilation
 uses the measured compiler bound described above.
@@ -3076,7 +3112,10 @@ plus 60 seconds for download, extraction and execution evidence.
 | `docs-gates-1` | 1248 | 1620 | 372 |
 | `docs-gates-2` | 1073 | 1620 | 547 |
 | `elaborate-gates-0` | 1475 | 1620 | 145 |
-| `elaborate-gates-1` | 1353 | 1620 | 267 |
+| `elaborate-gates-1` | 1187 | 1620 | 433 |
+| `elaborate-gates-2` | 740 | 1620 | 880 |
+| `elaborate-gates-3` | 724 | 1620 | 896 |
+| `elaborate-gates-4` | 739 | 1620 | 881 |
 | `yosys-tool (cold)` | 720 | 1044 | 324 |
 | `yosys-shards 0/4` | 554 | 1044 | 490 |
 | `yosys-shards 1/4` | 85 | 1044 | 959 |
@@ -3114,10 +3153,12 @@ watcher interval and 30 seconds for the tail gives 1665 seconds,
 about 27.8 minutes: 135 seconds inside thirty minutes. With its builder
 undivided, the merged workload put the builder worker at 1602 seconds and
 the workflow at 1872, about 31.2 minutes.
-Elaboration projects at 1475 seconds for its slowest worker. The same
+Elaboration projects at 1475 seconds for its slowest worker, worker zero,
+whose largest hosted job time in the runs above was 1227 seconds. The same
 270 seconds of aggregate, collector, watcher and tail allowance gives
 1745 seconds, about 29.1 minutes: 55 seconds inside thirty minutes, so its
-two legs are kept. Undivided at `7032bca5`, worker zero projected at 1608
+two builder legs are kept. With the LiteX simulations on worker one, its
+measured 2672 seconds put the workflow at 2942, about 49 minutes (#737). Undivided at `7032bca5`, worker zero projected at 1608
 seconds and the workflow at 1878, about 31.3 minutes.
 The collector outage budget is not normal-run duration evidence.
 Hosted job spans and runner-capacity contention still require coordinating readback.
@@ -3127,14 +3168,16 @@ by the workflow runtime. The aggregate recomputes the inventory from the same
 template and requires its exact union, with each gate executed once. Receipts
 bind the full head, tree and template digest. The existing documentation-only
 elaboration skip remains valid only with a recorded false scope and matching
-skipped outcomes on both workers. It does not excuse a skipped worker job.
-Each worker that runs a builder leg, both elaboration workers and
-`docs-gates-1` and `docs-gates-2`, also uploads its builder leg receipt. When
-the builder legs ran, the same aggregate step requires their union as
-described in [Elaboration](#elaboration); when elaboration's were skipped, any
-builder receipt is refused. The docs builder has no skip condition. The union
-digests of `docs-check` and `elaborate` cover both the step outcomes and the
-per-gate builder verdicts.
+skipped outcomes on every worker. It does not excuse a skipped worker job.
+Each worker that runs a builder leg, `elaborate-gates-0`, `elaborate-gates-1`,
+`docs-gates-1` and `docs-gates-2`, also uploads its builder leg receipt, and
+each of `elaborate-gates-2` to `elaborate-gates-4` uploads its LiteX leg
+receipt. When the builder or LiteX legs ran, the same aggregate step requires
+their union as described in [Elaboration](#elaboration); when elaboration's
+were skipped, any builder or LiteX receipt is refused. The docs builder has no
+skip condition. The union digests of `docs-check` and `elaborate` cover the
+step outcomes and the per-gate builder verdicts, and for `elaborate` the
+per-simulation LiteX verdicts.
 `ci_gate_workflows_selftest.py` drops one gate from every claim, corrupts source
 identities and plants each unsuccessful job outcome; all must be refused.
 The CI contract applies its original negative controls to the template steps

@@ -687,6 +687,7 @@ closed loop is built on. One aggregate owns all of them (#297):
 
 ```sh
 scripts/run_litex_sims.sh <logdir>     # every standalone LiteX simulation
+scripts/run_litex_sims.sh <logdir> --only <name>[,<name>...]   # one leg's members
 scripts/run_litex_sims.sh --list       # the pinned inventory, read-only
 scripts/run_litex_sims.sh --selftest   # the runner's own negative controls
 ```
@@ -705,10 +706,17 @@ and exiting 0: `test_gptp_tx_timestamp` without Verilator does exactly that,
 since its converted half cannot be built at all, and it is counted skipped,
 never failed; 91 REFUSES a set `MILAN_LITEX_PYTHON`
 that cannot import them (an explicit pin is never silently substituted);
-92 means a wall-clock kill left a result UNKNOWN. The hosted owner is the `elaborate` job
-([CI_WORKFLOWS.md](CI_WORKFLOWS.md#elaboration)), which runs the selftest and
-then the aggregate on the interpreter it just installed and patched, with the
+92 means a wall-clock kill left a result UNKNOWN. The hosted owner is the `elaborate` workflow
+([CI_WORKFLOWS.md](CI_WORKFLOWS.md#elaboration)), which runs the aggregate in
+three measured legs on workers of their own (#737), each running the selftest
+and then its members on the interpreter it just installed and patched, with the
 pinned Verilator on PATH so that comparison runs there rather than skipping.
+`--only` runs exactly the named members and still reconciles the whole
+inventory; each run writes `<logdir>/verdicts.tsv`, one
+`name<TAB>verdict<TAB>seconds` row per member it ran, which
+`python3 scripts/ci_litex_legs.py run <leg> --receipt <file> -- scripts/run_litex_sims.sh <logdir>`
+binds into its leg receipt. `python3 scripts/ci_litex_legs.py legs` prints the
+measured partition.
 
 The population was twelve scripts when #297 was filed; ten tested the
 bare-metal ring/DMA product that #259 retired, and PR #294 deleted them with
