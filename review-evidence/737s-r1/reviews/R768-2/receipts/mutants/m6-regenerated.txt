@@ -1,0 +1,6 @@
+m6 = BUILDER_CACHES without 'Cache the generated CPU metadata', then python3 scripts/ci_gate_workflows.py (regenerate)
+regenerate rc=0; elaborate.yml 60 insertions, 33 deletions
+'Cache the generated CPU metadata' steps on elaborate-gates-2 after regeneration: 1
+ci_gate_workflows.py --check rc=0
+ci_gate_workflows_selftest.py rc=0: gate workflow and union controls: PASS
+ci_events.py --check rc=0: ci_events: OK (2199 contract item(s) across 4 workflow files and docs/testing/CI_WORKFLOWS.md)
