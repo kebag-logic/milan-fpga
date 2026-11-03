@@ -828,7 +828,8 @@ def owner_stated_seconds() -> None:
     print("owner-stated-seconds: " + str(dict(grace=2, verdict=14, parent_kill=4, vanishing=24,
                                               resumes=[0, 1, 3, 5.5, last], window=10, after_resume=20,
                                               vanishing_after_resume=30, matrix=[0, TICK, 2 - TICK, 2, 2 + TICK, last],
-                                              alone_or_with_trap_command=True)), flush=True)
+                                              alone_or_with_trap_command=True, next_to_last=2 - 2 * TICK, lone=[1, 10],
+                                              live_new_descendant=True)), flush=True)
 
 
 def stated_liveness(kept: Callable, cell: Callable, names: dict, fakes: tuple) -> None:
