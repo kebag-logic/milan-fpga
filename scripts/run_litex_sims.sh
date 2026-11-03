@@ -6,6 +6,7 @@
 # Run every standalone LiteX simulation under sw/litex/ and summarise (#297).
 #
 #   scripts/run_litex_sims.sh [outdir]
+#   scripts/run_litex_sims.sh [outdir] --only NAME[,NAME...]
 #   scripts/run_litex_sims.sh --list
 #   scripts/run_litex_sims.sh --selftest
 #
@@ -33,6 +34,18 @@
 # what it needs (tb/verilator/gptp_txts, targets `padtrace` and
 # `padtrace-mii`) itself, so it
 # needs Verilator on PATH as well as the pinned stack.
+#
+# ONE LEG OF THE AGGREGATE (#737). Run one after another the members took
+# 18 to 25 minutes hosted, after the setup and a builder leg in the same job,
+# so CI runs them in measured legs on parallel jobs. --only names one leg's
+# members and runs exactly those, in inventory order; the reconciliation
+# above still covers the whole inventory in every leg, so a deleted or
+# unlisted member is red in each. Leg membership and the proof that the legs'
+# union is the inventory, each member once, live in scripts/ci_litex_legs.py,
+# which reads this inventory through --list and each leg's verdicts through
+# the verdicts.tsv this runner writes beside its logs: one
+# `name<TAB>verdict<TAB>seconds` row per member it ran. A name outside the
+# inventory, a repeated name or an empty list is a usage error.
 #
 # WHAT IS DELIBERATELY OUTSIDE. sw/builder/test_builder.py is the builder
 # gate with its own hosted owners (docs.yml and elaborate.yml).
@@ -82,12 +95,14 @@
 # green control, a planted failure, a masked verdict, a MISSING member, an
 # UNLISTED extra, the declared-skip path, the explicit-pin refusal and the
 # wall-clock UNKNOWN, and requires the observed exit and message each time.
+# Its selection arms require --only to run exactly its members and still
+# reconcile the whole inventory, and refuse an unknown or repeated name.
 #
 # STRICT MODE (Rule 13). Every command whose non-zero status is EXPECTED says
 # so on the spot: a member that fails, times out or is killed is the
 # measurement, so its status is captured with `|| rc=$?` and read by the case
-# below, never allowed to reach errexit. Same for the eight negative controls
-# in the selftest, which exist to observe a red run. `-e` is here to catch the
+# below, never allowed to reach errexit. Same for the negative controls in
+# the selftest, which exist to observe a red run. `-e` is here to catch the
 # statuses nobody is reading, not to end the sweep at the first red member.
 set -euo pipefail
 
@@ -107,6 +122,10 @@ INVENTORY=(
   test_retained_cdc_storage
   test_soc_timing_cuts
 )
+
+#: The members this run executes: the whole inventory, or one leg's --only
+#: selection in inventory order.
+SELECTED=("${INVENTORY[@]}")
 
 TMO="${LITEX_SIM_TIMEOUT:-900}"
 PROBE='import migen, litex'
@@ -143,6 +162,28 @@ find_interpreter() {
   return 1
 }
 
+# Narrow SELECTED to a comma-separated list of inventory members (#737).
+select_members() {
+  local t wanted name
+  declare -A asked=()
+  IFS=, read -r -a wanted <<< "$1"
+  [ "${#wanted[@]}" -gt 0 ] || { echo "--only needs at least one member" >&2; return 2; }
+  for name in "${wanted[@]}"; do
+    [ -n "$name" ] || { echo "--only names an empty member" >&2; return 2; }
+    [ -z "${asked[$name]:-}" ] || { echo "--only names $name more than once" >&2; return 2; }
+    asked["$name"]=1
+  done
+  SELECTED=()
+  for t in "${INVENTORY[@]}"; do
+    [ -n "${asked[$t]:-}" ] || continue
+    SELECTED+=("$t"); unset 'asked[$t]'
+  done
+  for name in "${!asked[@]}"; do
+    echo "--only names $name, which is not in the inventory" >&2; return 2
+  done
+  return 0
+}
+
 list_inventory() {
   local t
   for t in "${INVENTORY[@]}"; do echo "sw/litex/$t.py"; done
@@ -151,7 +192,8 @@ list_inventory() {
 run_aggregate() {
   local out="$1"
   mkdir -p "$out"
-  rm -f "$out"/*.log     # a stale log from a previous run is not evidence
+  rm -f "$out"/*.log "$out/verdicts.tsv"   # a stale log is not evidence
+  : > "$out/verdicts.tsv"
 
   local pass=0 fail=0 skip=0 tmo=0 failed="" timedout="" t f name
   declare -A pinned=()
@@ -186,10 +228,12 @@ run_aggregate() {
     return 91
   fi
 
-  for t in "${INVENTORY[@]}"; do
+  local verdict start
+  for t in "${SELECTED[@]}"; do
     [ -f "$SIM_DIR/$t.py" ] || continue
     if [ "$find_rc" -ne 0 ]; then
       skip=$((skip + 1))
+      printf '%s\tSKIP\t0\n' "$t" >> "$out/verdicts.tsv"
       printf 'SKIP     %s   (declared: no interpreter here imports migen + litex;\n' "$t"
       printf '         point MILAN_LITEX_PYTHON at one, or install sw/litex/litex_pins.txt\n'
       printf '         and run scripts/ci_litex_env.py)\n'
@@ -198,6 +242,7 @@ run_aggregate() {
     # A member that fails or is killed is the measurement, so its status is
     # taken here and read by the case below - errexit must not see it.
     local rc=0
+    start=$SECONDS
     (cd "$SIM_DIR" && timeout -k 10 "$TMO" "$py" "$t.py") > "$out/$t.log" 2>&1 \
       || rc=$?
     # Rule 6: a script that PRINTS a failure (or nothing) and exits 0 is a
@@ -217,7 +262,11 @@ run_aggregate() {
       if grep -q '^RESULT: SKIP' "$out/$t.log"; then rc=94; else rc=93; fi
     fi
     case "$rc" in
-      0)   pass=$((pass + 1)); printf 'PASS     %s\n' "$t" ;;
+      0)   verdict=PASS ;; 94) verdict=SKIP ;; 124|137) verdict=TIMEOUT ;; *) verdict=FAIL ;;
+    esac
+    printf '%s\t%s\t%s\n' "$t" "$verdict" "$((SECONDS - start))" >> "$out/verdicts.tsv"
+    case "$rc" in
+      0)   pass=$((pass + 1)); printf 'PASS     %s   (%ss)\n' "$t" "$((SECONDS - start))" ;;
       94)  skip=$((skip + 1))
            printf 'SKIP     %s   (declared by the member: %s)\n' "$t" \
                   "$(sed -n 's/^RESULT: SKIP[[:space:]]*//p' "$out/$t.log" | head -n1)" ;;
@@ -232,8 +281,12 @@ run_aggregate() {
   done
 
   echo "----------------------------------------------------------------"
-  echo "simulations: ${#INVENTORY[@]}   passed: $pass   failed: $fail" \
+  echo "simulations: ${#SELECTED[@]}   passed: $pass   failed: $fail" \
        "  skipped: $skip   timed out: $tmo"
+  if [ "${#SELECTED[@]}" -ne "${#INVENTORY[@]}" ]; then
+    echo "selection: ${#SELECTED[@]} of the ${#INVENTORY[@]}-member inventory; the" \
+         "reconciliation covered all of it"
+  fi
   [ -n "$failed" ] && echo "failing:$failed"
   if [ -n "$timedout" ]; then
     echo "TIMED OUT (result unknown, NOT a failure):$timedout"
@@ -291,10 +344,12 @@ selftest() {
       printf 'print("RESULT: PASS")\nsys.exit(0)\n' >> "$1/sw/litex/$t.py"
     done
   }
-  arm() {   # arm <tree> <shim> [env VAR=... ...] -> runs the sandbox copy
-    local tree="$1" shim="$2"; shift 2
-    env -u MILAN_LITEX_PYTHON "$@" PATH="$sand/$shim:$PATH" \
-        "$tree/scripts/run_litex_sims.sh" "$tree/logs" 2>&1
+  arm() {   # arm <tree> <shim> [VAR=... ...] [-- runner arguments] -> runs the sandbox copy
+    local tree="$1" shim="$2" vars=(); shift 2
+    while [ "$#" -gt 0 ] && [ "$1" != -- ]; do vars+=("$1"); shift; done
+    [ "$#" -eq 0 ] || shift
+    env -u MILAN_LITEX_PYTHON "${vars[@]}" PATH="$sand/$shim:$PATH" \
+        "$tree/scripts/run_litex_sims.sh" "$tree/logs" "$@" 2>&1
   }
 
   local out rc
@@ -361,6 +416,33 @@ selftest() {
   ck "a wall-clock kill is UNKNOWN (exit 92), never a pass or a failure" 92 "$rc" \
      "TIMEOUT" "$out"
 
+  # One leg (#737). Two members named out of order, and a planted failure
+  # outside them: exactly the two run, in inventory order, and pass.
+  make_tree "$sand/j"
+  printf 'import sys\nprint("RESULT: FAIL")\nsys.exit(1)\n' \
+         > "$sand/j/sw/litex/test_soc_timing_cuts.py"
+  rc=0; out="$(arm "$sand/j" bin-ok -- --only test_pp_mem_bridge,test_ctrl_memory)" || rc=$?
+  ck "--only runs exactly its members, a failure outside them unrun" 0 "$rc" \
+     "passed: 2\b" "$out"
+  rc=0; [ "$(cut -f1,2 "$sand/j/logs/verdicts.tsv")" = \
+          "$(printf 'test_ctrl_memory\tPASS\ntest_pp_mem_bridge\tPASS')" ] || rc=1
+  ck "--only records one verdict row per member, in inventory order" 0 "$rc" \
+     "verdicts" "verdicts.tsv"
+
+  make_tree "$sand/k"
+  rm "$sand/k/sw/litex/test_soc_timing_cuts.py"
+  rc=0; out="$(arm "$sand/k" bin-ok -- --only test_pp_mem_bridge)" || rc=$?
+  ck "--only still reconciles the whole inventory (MISSING outside it)" 1 "$rc" \
+     "MISSING" "$out"
+
+  make_tree "$sand/l"
+  rc=0; out="$(arm "$sand/l" bin-ok -- --only test_pp_mem_bridge,test_rogue)" || rc=$?
+  ck "--only refuses a name outside the inventory" 2 "$rc" "not in the inventory" "$out"
+  rc=0; out="$(arm "$sand/l" bin-ok -- --only test_pp_mem_bridge,test_pp_mem_bridge)" || rc=$?
+  ck "--only refuses a repeated name" 2 "$rc" "more than once" "$out"
+  rc=0; out="$(arm "$sand/l" bin-ok -- --only test_pp_mem_bridge --only test_ctrl_memory)" || rc=$?
+  ck "--only given twice is refused" 2 "$rc" "more than once" "$out"
+
   printf '\nrun_litex_sims selftest: %s checks: %s PASS, %s FAIL\n' \
          "$checks" "$((checks - fails))" "$fails"
   if [ "$fails" -gt 0 ]; then echo "RESULT: FAIL"; return 2; fi
@@ -372,16 +454,27 @@ selftest() {
 
 OUT=""
 MODE=run
+ONLY=""
+ONLY_SET=0
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --list)     MODE=list; shift ;;
     --selftest) MODE=selftest; shift ;;
+    --only)
+      [ "$#" -ge 2 ] || { echo "--only needs a member list" >&2; exit 2; }
+      [ "$ONLY_SET" -eq 0 ] || { echo "--only given more than once" >&2; exit 2; }
+      ONLY="$2"; ONLY_SET=1; shift 2 ;;
     -*)         echo "unknown option: $1" >&2; exit 2 ;;
     *)
       [ -z "$OUT" ] || { echo "more than one output directory" >&2; exit 2; }
       OUT="$1"; shift ;;
   esac
 done
+
+if [ "$ONLY_SET" -eq 1 ]; then
+  [ "$MODE" = run ] || { echo "--only selects members of a run" >&2; exit 2; }
+  select_members "$ONLY" || exit 2
+fi
 
 case "$MODE" in
   list)     list_inventory ;;
