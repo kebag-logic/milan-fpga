@@ -1,0 +1,31 @@
+LiteX legs refused an inventory member with no measured seconds: no measured seconds for test_new_member; measure it hosted and add it to SECONDS in scripts/ci_litex_legs.py
+LiteX legs refused a measured member gone from the inventory: measured seconds for a member outside the inventory: test_cpu_memory_port_cdc
+LiteX legs refused a leg over its measured budget: a LiteX leg holds 1201 measured seconds, above its 1200; add a leg
+LiteX partition: 8 members in 3 legs of 534, 518, 533 measured seconds
+Traceback (most recent call last):
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 34, in refused
+    call()
+    ~~~~^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 93, in <lambda>
+    refused(lambda changed=plant(edit): union(changed, *identity, names), label, expected)
+                                        ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs.py", line 164, in union
+    raise ValueError("LiteX simulations ran in no leg: " + ", ".join(absent))
+ValueError: LiteX simulations ran in no leg: test_soc_timing_cuts
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 170, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 163, in main
+    union_controls()
+    ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 93, in union_controls
+    refused(lambda changed=plant(edit): union(changed, *identity, names), label, expected)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 36, in refused
+    assert expected in str(exc), (label, str(exc))
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('a simulation dropped from its leg', 'LiteX simulations ran in no leg: test_soc_timing_cuts')

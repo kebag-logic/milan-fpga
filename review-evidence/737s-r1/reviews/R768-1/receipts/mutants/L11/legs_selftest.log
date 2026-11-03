@@ -1,0 +1,15 @@
+Traceback (most recent call last):
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 170, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 163, in main
+    union_controls()
+    ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 62, in union_controls
+    partition_controls(names)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 44, in partition_controls
+    legs = partition(names)
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs.py", line 83, in partition
+    raise ValueError(f"a LiteX leg holds {max(loads)} measured seconds, above its {LEG_BUDGET}; add a leg")
+ValueError: a LiteX leg holds 1300 measured seconds, above its 1200; add a leg

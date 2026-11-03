@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "$REVIEWS/737s-r768-1-packet/scripts/mk_gate_root.py", line 32, in <module>
+    shutil.copy(f, root / f"gate-elaborate-{2 + int(f.stem.rsplit('-', 1)[1])}" / f.name)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/shutil.py", line 489, in copy
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/shutil.py", line 315, in copyfile
+    with open(dst, 'wb') as fdst:
+         ~~~~^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '$REVIEWS/737s-r768-1-packet/receipts/mutants/W1/e2e/root/gate-elaborate-4/litex-leg-2.json'

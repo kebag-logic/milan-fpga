@@ -1,0 +1,380 @@
+[
+ {
+  "mutant": "R1 --only keeps only its first member",
+  "e2e": "legs rc 0 0 0 | union rc 1: LiteX legs refused: LiteX leg 1 did not run its selection exactly once: test_gptp_tx_timestamp, test_pp_boot_bus_freeze, test_pp_mem_bridge | verify rc 1: gate evidence refused: LiteX leg 1 did not run its selection exactly once: test_gptp_tx_timestamp, test_pp_boot_bus_freeze, test_pp_mem_bridge",
+  "runner_selftest": 2,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {
+   "runner_selftest": "RESULT: FAIL"
+  }
+ },
+ {
+  "mutant": "R2 --only ignored (whole inventory per leg)",
+  "e2e": "legs rc 0 0 0 | union rc 1: LiteX legs refused: LiteX leg 0 did not run its selection exactly once: order or extra simulations | verify rc 1: gate evidence refused: LiteX leg 0 did not run its selection exactly once: order or extra simulations",
+  "runner_selftest": 2,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {
+   "runner_selftest": "RESULT: FAIL"
+  }
+ },
+ {
+  "mutant": "R3 reconciliation narrowed to the selection",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 2,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {
+   "runner_selftest": "RESULT: FAIL"
+  }
+ },
+ {
+  "mutant": "R4 no verdict row for a PASS",
+  "e2e": "legs rc 0 0 0 | union rc 1: LiteX legs refused: LiteX leg 0 did not run its selection exactly once: test_soc_timing_cuts | verify rc 1: gate evidence refused: LiteX leg 0 did not run its selection exactly once: test_soc_timing_cuts",
+  "runner_selftest": 2,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {
+   "runner_selftest": "RESULT: FAIL"
+  }
+ },
+ {
+  "mutant": "R5 verdict row written twice",
+  "e2e": "legs rc 0 0 0 | union rc 1: LiteX legs refused: LiteX leg 0 did not run its selection exactly once: order or extra simulations | verify rc 1: gate evidence refused: LiteX leg 0 did not run its selection exactly once: order or extra simulations",
+  "runner_selftest": 2,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {
+   "runner_selftest": "RESULT: FAIL"
+  }
+ },
+ {
+  "mutant": "R6 FAIL recorded as PASS, with a failing member",
+  "e2e": "legs rc 0 0 1 | union rc 1: LiteX legs refused: LiteX leg 2: the runner exited 1 | verify rc 1: gate evidence refused: LiteX leg 2: the runner exited 1",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {}
+ },
+ {
+  "mutant": "R6b failing member, no code mutant",
+  "e2e": "legs rc 0 0 1 | union rc 1: LiteX legs refused: test_ctrl_memory: FAIL in LiteX leg 2 | verify rc 1: gate evidence refused: test_ctrl_memory: FAIL in LiteX leg 2",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {}
+ },
+ {
+  "mutant": "R7 member file deleted",
+  "e2e": "legs rc 1 1 1 | union rc 1: LiteX legs refused: LiteX leg 0: the runner exited 1 | verify rc 1: gate evidence refused: LiteX leg 0: the runner exited 1",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {}
+ },
+ {
+  "mutant": "R8 unlisted member file added",
+  "e2e": "legs rc 1 1 1 | union rc 1: LiteX legs refused: LiteX leg 0: the runner exited 1 | verify rc 1: gate evidence refused: LiteX leg 0: the runner exited 1",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {}
+ },
+ {
+  "mutant": "R9 member masks its verdict (exit 0, no RESULT: PASS)",
+  "e2e": "legs rc 0 1 0 | union rc 1: LiteX legs refused: test_gmii_rx_capture: FAIL in LiteX leg 1 | verify rc 1: gate evidence refused: test_gmii_rx_capture: FAIL in LiteX leg 1",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {}
+ },
+ {
+  "mutant": "R10 member declares a skip",
+  "e2e": "legs rc 0 90 0 | union rc 1: LiteX legs refused: test_pp_boot_bus_freeze: SKIP in LiteX leg 1 | verify rc 1: gate evidence refused: test_pp_boot_bus_freeze: SKIP in LiteX leg 1",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {}
+ },
+ {
+  "mutant": "R11 member removed from INVENTORY, file kept",
+  "e2e": "legs rc 1 1 1 | union rc 1: LiteX legs refused: [Errno 2] No such file or directory: '$REVIEWS/737s-r768-1-packet/receipts/mutants/R11/e2e/legs/litex-leg-*.json' | verify rc 1: gate evidence refused: measured seconds for a member outside the inventory: test_pp_mem_bridge",
+  "runner_selftest": 1,
+  "legs_selftest": 1,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "runner_selftest": "rm: cannot remove '/tmp/tmp.xuqi08geZL/d/sw/litex/test_pp_mem_bridge.py': No such file or directory",
+   "legs_selftest": "ValueError: measured seconds for a member outside the inventory: test_pp_mem_bridge",
+   "gate_selftest": "ValueError: measured seconds for a member outside the inventory: test_pp_mem_bridge"
+  }
+ },
+ {
+  "mutant": "L1 partition drops the last member",
+  "e2e": "legs rc 2 0 0 | union rc 1: LiteX legs refused: LiteX leg 0: the runner exited 2 | verify rc 1: gate evidence refused: LiteX leg 0: the runner exited 2",
+  "runner_selftest": 0,
+  "legs_selftest": 1,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "legs_selftest": "AssertionError: [[], ['test_gmii_rx_capture', 'test_gptp_tx_timestamp', 'test_pp_boot_bus_freeze', 'test_pp_mem_bridge'], ['test_cpu_memory_port_cdc', 'test_ctrl_memory', 'test_retained_cdc_storage']]",
+   "gate_selftest": "ValueError: LiteX simulations ran in no leg: test_soc_timing_cuts"
+  }
+ },
+ {
+  "mutant": "L2 partition puts a member in two legs",
+  "e2e": "legs rc 0 0 0 | union rc 1: LiteX legs refused: LiteX simulations ran in more than one leg: test_soc_timing_cuts | verify rc 1: gate evidence refused: LiteX simulations ran in more than one leg: test_soc_timing_cuts",
+  "runner_selftest": 0,
+  "legs_selftest": 1,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "legs_selftest": "AssertionError: [['test_soc_timing_cuts'], ['test_gmii_rx_capture', 'test_gptp_tx_timestamp', 'test_pp_boot_bus_freeze', 'test_pp_mem_bridge', 'test_soc_timing_cuts'], ['test_cpu_memory_port_cdc', 'test_ctrl_memory', 'te",
+   "gate_selftest": "ValueError: LiteX simulations ran in more than one leg: test_soc_timing_cuts"
+  }
+ },
+ {
+  "mutant": "L3 run() passes no --only",
+  "e2e": "legs rc 0 0 0 | union rc 1: LiteX legs refused: LiteX leg 0 did not run its selection exactly once: order or extra simulations | verify rc 1: gate evidence refused: LiteX leg 0 did not run its selection exactly once: order or extra simulations",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {}
+ },
+ {
+  "mutant": "L4 run() passes leg 0 selection to every leg",
+  "e2e": "legs rc 0 0 0 | union rc 1: LiteX legs refused: LiteX leg 1 did not run its selection exactly once: test_gmii_rx_capture, test_gptp_tx_timestamp, test_pp_boot_bus_freeze, test_pp_mem_bridge | verify rc 1: gate evidence refused: LiteX leg 1 did not run its selection exactly once: test_gmii_rx_capture, test_gptp_tx_timestamp, test_pp_boot_bus_freeze, test_pp_mem_bridge",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {}
+ },
+ {
+  "mutant": "L5a union absent check removed",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 1,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "legs_selftest": "AssertionError: ('a lost leg', 'missing LiteX leg')",
+   "gate_selftest": "AssertionError: ('a lost leg', 'missing LiteX leg')"
+  }
+ },
+ {
+  "mutant": "L5b union repeated check removed",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {}
+ },
+ {
+  "mutant": "L6 union per-leg executed check removed",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 1,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "legs_selftest": "AssertionError: ('a simulation dropped from its leg', 'LiteX simulations ran in no leg: test_soc_timing_cuts')",
+   "gate_selftest": "AssertionError: ('a simulation dropped from its leg', 'LiteX simulations ran in no leg: test_soc_timing_cuts')"
+  }
+ },
+ {
+  "mutant": "L7 union verdict check removed",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 1,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "legs_selftest": "AssertionError: LiteX legs accepted a failed simulation",
+   "gate_selftest": "AssertionError: LiteX legs accepted a failed simulation"
+  }
+ },
+ {
+  "mutant": "L8 union exit check removed",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 1,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "legs_selftest": "AssertionError: LiteX legs accepted a red runner exit",
+   "gate_selftest": "AssertionError: LiteX legs accepted a red runner exit"
+  }
+ },
+ {
+  "mutant": "L9 union selection check removed",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 1,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "legs_selftest": "AssertionError: (\"a simulation dropped from its leg's selection and results\", 'LiteX leg 0 did not run its selection exactly once: test_soc_timing_cuts')",
+   "gate_selftest": "AssertionError: (\"a simulation dropped from its leg's selection and results\", 'LiteX leg 0 did not run its selection exactly once: test_soc_timing_cuts')"
+  }
+ },
+ {
+  "mutant": "L10 measured seconds move a member (legitimate re-partition)",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {}
+ },
+ {
+  "mutant": "L11 a leg over its budget",
+  "e2e": "legs rc 1 1 1 | union rc 1: LiteX legs refused: [Errno 2] No such file or directory: '$REVIEWS/737s-r768-1-packet/receipts/mutants/L11/e2e/legs/litex-leg-*.json' | verify rc 1: gate evidence refused: a LiteX leg holds 1300 measured seconds, above its 1200; add a leg",
+  "runner_selftest": 0,
+  "legs_selftest": 1,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "legs_selftest": "ValueError: a LiteX leg holds 1300 measured seconds, above its 1200; add a leg",
+   "gate_selftest": "ValueError: a LiteX leg holds 1300 measured seconds, above its 1200; add a leg"
+  }
+ },
+ {
+  "mutant": "L12 a member unmeasured",
+  "e2e": "legs rc 1 1 1 | union rc 1: LiteX legs refused: [Errno 2] No such file or directory: '$REVIEWS/737s-r768-1-packet/receipts/mutants/L12/e2e/legs/litex-leg-*.json' | verify rc 1: gate evidence refused: no measured seconds for test_pp_mem_bridge; measure it hosted and add it to SECONDS in scripts/ci_litex_legs.py",
+  "runner_selftest": 0,
+  "legs_selftest": 1,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "legs_selftest": "ValueError: no measured seconds for test_pp_mem_bridge; measure it hosted and add it to SECONDS in scripts/ci_litex_legs.py",
+   "gate_selftest": "ValueError: no measured seconds for test_pp_mem_bridge; measure it hosted and add it to SECONDS in scripts/ci_litex_legs.py"
+  }
+ },
+ {
+  "mutant": "G1 aggregate never requires the LiteX union",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 1: gate evidence refused: LiteX leg receipts without an executed LiteX division",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "gate_selftest": "ValueError: LiteX leg receipts without an executed LiteX division"
+  }
+ },
+ {
+  "mutant": "G1b aggregate skips the union and its skipped-division guard",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "gate_selftest": "AssertionError: elaborate: accepted a LiteX simulation dropped from its leg"
+  }
+ },
+ {
+  "mutant": "G2 aggregate collects no LiteX receipts (glob typo)",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 1: gate evidence refused: LiteX simulations ran in no leg: test_cpu_memory_port_cdc, test_ctrl_memory, test_gmii_rx_capture, test_gptp_tx_timestamp, test_pp_boot_bus_freeze, test_pp_mem_bridge, test_retained_cdc_storage, test_soc_timing_cuts",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 0,
+  "selftest_tails": {}
+ },
+ {
+  "mutant": "G3 skipped-division guard removed",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "gate_selftest": "AssertionError: elaborate: accepted LiteX receipts from a skipped LiteX division"
+  }
+ },
+ {
+  "mutant": "G4 LiteX steps never counted as executed",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 1: gate evidence refused: LiteX leg receipts without an executed LiteX division",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 1,
+  "check": 0,
+  "selftest_tails": {
+   "gate_selftest": "ValueError: LiteX leg receipts without an executed LiteX division"
+  }
+ },
+ {
+  "mutant": "W1 generator puts two LiteX legs on one worker",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 1: gate evidence refused: Expecting value: line 1 column 1 (char 0)",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 1,
+  "check": 1,
+  "selftest_tails": {
+   "gate_selftest": "AssertionError",
+   "check": ".github/workflows/elaborate.yml: regenerate the gate jobs"
+  }
+ },
+ {
+  "mutant": "W2 generated workflow hand edit: worker 4 runs leg 1",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 1,
+  "selftest_tails": {
+   "check": ".github/workflows/elaborate.yml: regenerate the gate jobs"
+  }
+ },
+ {
+  "mutant": "W3 generated workflow hand edit: worker 4 runs the whole aggregate",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 0,
+  "check": 1,
+  "selftest_tails": {
+   "check": ".github/workflows/elaborate.yml: regenerate the gate jobs"
+  }
+ },
+ {
+  "mutant": "W4 template aggregate gains its own --only",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 0,
+  "gate_selftest": 1,
+  "check": 1,
+  "selftest_tails": {
+   "gate_selftest": "ValueError: the divided LiteX step must end in its one aggregate command",
+   "check": "ValueError: the divided LiteX step must end in its one aggregate command"
+  }
+ },
+ {
+  "mutant": "W5 template runs a second whole aggregate first",
+  "e2e": "legs rc 0 0 0 | union rc 0: litex: 8 simulations exactly once, each a pass | verify rc 0: elaborate: 5 source gates exactly once; all worker jobs successful",
+  "runner_selftest": 0,
+  "legs_selftest": 1,
+  "gate_selftest": 1,
+  "check": 1,
+  "selftest_tails": {
+   "legs_selftest": "AssertionError: ['scripts/run_litex_sims.sh --selftest', 'scripts/run_litex_sims.sh \"$RUNNER_TEMP/x\"']",
+   "gate_selftest": "ValueError: the divided LiteX step must end in its one aggregate command",
+   "check": "ValueError: the divided LiteX step must end in its one aggregate command"
+  }
+ }
+]

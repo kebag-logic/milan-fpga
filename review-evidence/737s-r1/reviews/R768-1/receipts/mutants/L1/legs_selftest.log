@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 170, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 163, in main
+    union_controls()
+    ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 62, in union_controls
+    partition_controls(names)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_litex_legs_selftest.py", line 45, in partition_controls
+    assert len(legs) == LEGS and sorted(name for leg in legs for name in leg) == sorted(names), legs
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [[], ['test_gmii_rx_capture', 'test_gptp_tx_timestamp', 'test_pp_boot_bus_freeze', 'test_pp_mem_bridge'], ['test_cpu_memory_port_cdc', 'test_ctrl_memory', 'test_retained_cdc_storage']]

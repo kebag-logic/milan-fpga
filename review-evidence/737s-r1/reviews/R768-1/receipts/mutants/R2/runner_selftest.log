@@ -1,0 +1,54 @@
+  [ok]   green control: a sandbox where everything passes exits 0
+  [ok]   a planted failing simulation turns the aggregate red, named
+  [ok]   a script that fails but exits 0 is a FAIL (masked verdict)
+  [ok]   a deleted inventory member is a FAIL (MISSING), not a silence
+  [ok]   a test_*.py outside the inventory is a FAIL (UNLISTED)
+  [ok]   no usable interpreter: every member a declared skip, exit 90
+  [ok]   an explicit MILAN_LITEX_PYTHON that cannot probe is REFUSED
+  [ok]   a member-declared skip is SKIPPED with its reason, exit 90
+  [ok]   a member-declared skip is not counted as a pass
+  [ok]   a wall-clock kill is UNKNOWN (exit 92), never a pass or a failure
+  [FAIL] --only runs exactly its members, a failure outside them unrun: wanted exit 0 + /passed: 2\b/, got exit 1
+         | PASS     test_cpu_memory_port_cdc   (0s)
+         | PASS     test_ctrl_memory   (0s)
+         | PASS     test_gmii_rx_capture   (0s)
+         | PASS     test_gptp_tx_timestamp   (0s)
+         | PASS     test_pp_boot_bus_freeze   (0s)
+         | PASS     test_pp_mem_bridge   (0s)
+         | PASS     test_retained_cdc_storage   (0s)
+         | FAIL     test_soc_timing_cuts
+         | ----------------------------------------------------------------
+         | simulations: 8   passed: 7   failed: 1   skipped: 0   timed out: 0
+         | failing: test_soc_timing_cuts
+         | logs: /tmp/tmp.q1QJauPq5x/j/logs
+  [FAIL] --only records one verdict row per member, in inventory order: wanted exit 0 + /verdicts/, got exit 1
+         | verdicts.tsv
+  [ok]   --only still reconciles the whole inventory (MISSING outside it)
+  [FAIL] --only refuses a name outside the inventory: wanted exit 2 + /not in the inventory/, got exit 0
+         | PASS     test_cpu_memory_port_cdc   (0s)
+         | PASS     test_ctrl_memory   (0s)
+         | PASS     test_gmii_rx_capture   (0s)
+         | PASS     test_gptp_tx_timestamp   (0s)
+         | PASS     test_pp_boot_bus_freeze   (0s)
+         | PASS     test_pp_mem_bridge   (0s)
+         | PASS     test_retained_cdc_storage   (0s)
+         | PASS     test_soc_timing_cuts   (0s)
+         | ----------------------------------------------------------------
+         | simulations: 8   passed: 8   failed: 0   skipped: 0   timed out: 0
+         | logs: /tmp/tmp.q1QJauPq5x/l/logs
+  [FAIL] --only refuses a repeated name: wanted exit 2 + /more than once/, got exit 0
+         | PASS     test_cpu_memory_port_cdc   (0s)
+         | PASS     test_ctrl_memory   (0s)
+         | PASS     test_gmii_rx_capture   (0s)
+         | PASS     test_gptp_tx_timestamp   (0s)
+         | PASS     test_pp_boot_bus_freeze   (0s)
+         | PASS     test_pp_mem_bridge   (0s)
+         | PASS     test_retained_cdc_storage   (0s)
+         | PASS     test_soc_timing_cuts   (1s)
+         | ----------------------------------------------------------------
+         | simulations: 8   passed: 8   failed: 0   skipped: 0   timed out: 0
+         | logs: /tmp/tmp.q1QJauPq5x/l/logs
+  [ok]   --only given twice is refused
+
+run_litex_sims selftest: 16 checks: 12 PASS, 4 FAIL
+RESULT: FAIL
