@@ -1,0 +1,462 @@
+elaborate	Set up job	﻿2026-11-03T20:50:53.7023668Z Current runner version: '2.338.2'
+elaborate	Set up job	2026-11-03T20:50:53.7050613Z ##[group]Runner Image Provisioner
+elaborate	Set up job	2026-11-03T20:50:53.7051539Z Hosted Compute Agent
+elaborate	Set up job	2026-11-03T20:50:53.7052190Z Version: 20261021.618
+elaborate	Set up job	2026-11-03T20:50:53.7052950Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+elaborate	Set up job	2026-11-03T20:50:53.7053701Z Build Date: 2026-10-21T00:45:21Z
+elaborate	Set up job	2026-11-03T20:50:53.7054388Z Worker ID: {540962b1-3df1-48c8-994b-262bd8e1d89c}
+elaborate	Set up job	2026-11-03T20:50:53.7055181Z Region: centralus
+elaborate	Set up job	2026-11-03T20:50:53.7056284Z Cloud: Azure
+elaborate	Set up job	2026-11-03T20:50:53.7056982Z ##[endgroup]
+elaborate	Set up job	2026-11-03T20:50:53.7059146Z ##[group]Operating System
+elaborate	Set up job	2026-11-03T20:50:53.7059835Z Ubuntu
+elaborate	Set up job	2026-11-03T20:50:53.7060481Z 24.04.5
+elaborate	Set up job	2026-11-03T20:50:53.7061007Z LTS
+elaborate	Set up job	2026-11-03T20:50:53.7061610Z ##[endgroup]
+elaborate	Set up job	2026-11-03T20:50:53.7062200Z ##[group]Runner Image
+elaborate	Set up job	2026-11-03T20:50:53.7062826Z Image: ubuntu-24.04
+elaborate	Set up job	2026-11-03T20:50:53.7063471Z Version: 20261025.353.1
+elaborate	Set up job	2026-11-03T20:50:53.7064622Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+elaborate	Set up job	2026-11-03T20:50:53.7066918Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+elaborate	Set up job	2026-11-03T20:50:53.7067923Z ##[endgroup]
+elaborate	Set up job	2026-11-03T20:50:53.7069233Z ##[group]GITHUB_TOKEN Permissions
+elaborate	Set up job	2026-11-03T20:50:53.7071438Z Contents: read
+elaborate	Set up job	2026-11-03T20:50:53.7072242Z Metadata: read
+elaborate	Set up job	2026-11-03T20:50:53.7072825Z Packages: read
+elaborate	Set up job	2026-11-03T20:50:53.7073438Z ##[endgroup]
+elaborate	Set up job	2026-11-03T20:50:53.7076096Z Secret source: Actions
+elaborate	Set up job	2026-11-03T20:50:53.7077246Z Cache mode: write
+elaborate	Set up job	2026-11-03T20:50:53.7078338Z Prepare workflow directory
+elaborate	Set up job	2026-11-03T20:50:53.7668992Z Prepare all required actions
+elaborate	Set up job	2026-11-03T20:50:53.7722706Z Getting action download info
+elaborate	Set up job	2026-11-03T20:50:54.0787916Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+elaborate	Set up job	2026-11-03T20:50:54.1827142Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+elaborate	Set up job	2026-11-03T20:50:54.2891345Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+elaborate	Set up job	2026-11-03T20:50:54.7423183Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+elaborate	Set up job	2026-11-03T20:50:54.9785607Z Complete job name: elaborate
+elaborate	Run actions/checkout@v4	﻿2026-11-03T20:50:55.0846660Z ##[group]Run actions/checkout@v4
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0848049Z with:
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0848816Z   repository: kebag-logic/milan-fpga
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0946746Z   token: ***
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0948492Z   ssh-strict: true
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0949772Z   ssh-user: git
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0950848Z   persist-credentials: true
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0951735Z   clean: true
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0952489Z   sparse-checkout-cone-mode: true
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0953412Z   fetch-depth: 1
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0954160Z   fetch-tags: false
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0954933Z   show-progress: true
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0956121Z   lfs: false
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0956847Z   submodules: false
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0957665Z   set-safe-directory: true
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0958617Z   allow-unsafe-pr-checkout: false
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0960754Z env:
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0961506Z   VERILATOR_VERSION: v5.050
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0962804Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.0964212Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4341475Z Syncing repository: kebag-logic/milan-fpga
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4344441Z ##[group]Getting Git version info
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4346385Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4349289Z [command]/usr/bin/git version
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4444614Z git version 2.56.0
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4472101Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4490703Z Temporarily overriding HOME='<home-path>/work/_temp/9e5d97bc-ff12-4240-8185-eb25339f3dad' before making global git config changes
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4493833Z Adding repository directory to the temporary git global config as a safe directory
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4496987Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4558997Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4564428Z ##[group]Initializing the repository
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4569463Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4712283Z hint: Using 'master' as the name for the initial branch. This default branch name
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4715282Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4718392Z hint: to use in all of your new repositories, which will suppress this warning,
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4720521Z hint: call:
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4721551Z hint:
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4722866Z hint: 	git config --global init.defaultBranch <name>
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4724529Z hint:
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4726327Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4729074Z hint: 'development'. The just-created branch can be renamed via this command:
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4731239Z hint:
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4732310Z hint: 	git branch -m <name>
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4733574Z hint:
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4735308Z hint: Disable this message with "git config set advice.defaultBranchName false"
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4740010Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4752773Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4816594Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4819110Z ##[group]Disabling automatic garbage collection
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4821173Z [command]/usr/bin/git config --local gc.auto 0
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4864438Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4867239Z ##[group]Setting up auth
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4872950Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.4920277Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.5387047Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.5434721Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.5727383Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.5768219Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.6050263Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.6110404Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.6111833Z ##[group]Fetching the repository
+elaborate	Run actions/checkout@v4	2026-11-03T20:50:55.6125004Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +214c8eb1eee510e3697ad62ec6a9d763bc75bebb:refs/remotes/pull/836/merge
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.1192903Z From https://github.com/kebag-logic/milan-fpga
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.1194145Z  * [new ref]         214c8eb1eee510e3697ad62ec6a9d763bc75bebb -> pull/836/merge
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.1197683Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.1198535Z ##[group]Determining the checkout info
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.1200303Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.1206392Z [command]/usr/bin/git sparse-checkout disable
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.1276059Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.1324690Z ##[group]Checking out the ref
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.1329060Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/836/merge
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3533335Z Note: switching to 'refs/remotes/pull/836/merge'.
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3533863Z 
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3534194Z You are in 'detached HEAD' state. You can look around, make experimental
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3536254Z changes and commit them, and you can discard any commits you make in this
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3537316Z state without impacting any branches by switching back to a branch.
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3537935Z 
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3538417Z If you want to create a new branch to retain commits you create, you may
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3539392Z do so (now or later) by using -c with the switch command. Example:
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3539942Z 
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3540190Z   git switch -c <new-branch-name>
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3540561Z 
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3540804Z Or undo this operation with:
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3541130Z 
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3541327Z   git switch -
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3541610Z 
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3542129Z Turn off this advice by setting config variable advice.detachedHead to false
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3542688Z 
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3543357Z HEAD is now at 214c8eb Merge 3b323864232fa430ec3a185f33ad7b30fbf1156b into e61a4afaa54a598ceec08b7b5879285256cc60b6
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3560510Z ##[endgroup]
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3618859Z [command]/usr/bin/git log -1 --format=%H
+elaborate	Run actions/checkout@v4	2026-11-03T20:51:10.3657273Z 214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+elaborate	Set CPU-derived job budgets	﻿2026-11-03T20:51:10.4018909Z ##[group]Run set -euo pipefail
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4019424Z ^[[36;1mset -euo pipefail^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4019751Z ^[[36;1mcpus="$(nproc)"^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4020055Z ^[[36;1mtest "$cpus" -gt 0^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4020395Z ^[[36;1mcampaign=$(( cpus < 4 ? cpus : 4 ))^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4020796Z ^[[36;1msimulations=$(( cpus < 4 ? cpus : 4 ))^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4021189Z ^[[36;1mtool_build=$(( cpus < 8 ? cpus : 8 ))^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4021567Z ^[[36;1m{^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4021858Z ^[[36;1m  printf 'CI_BUILD_JOBS=%s\n' "$cpus"^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4022271Z ^[[36;1m  printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4022693Z ^[[36;1m  printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4023081Z ^[[36;1m  printf 'VERILATOR_JOBS=%s\n' "$cpus"^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4023459Z ^[[36;1m  printf 'SIM_JOBS=%s\n' "$simulations"^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4023887Z ^[[36;1m  printf 'MAKEFLAGS=-j1 --no-print-directory\n'^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4024273Z ^[[36;1m} >> "$GITHUB_ENV"^[[0m
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4050024Z shell: /usr/bin/bash -e {0}
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4050396Z env:
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4050676Z   VERILATOR_VERSION: v5.050
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4051147Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Set CPU-derived job budgets	2026-11-03T20:51:10.4051727Z ##[endgroup]
+elaborate	Cache exact Python downloads	﻿2026-11-03T20:51:10.5671860Z ##[group]Run actions/cache@v4
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5672246Z with:
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5672520Z   path: ~/.cache/pip
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5673355Z   key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-f3e3ac650338deb4f93103e0a6d9c4bde48fe17e5194436e2179e1595c306ffa-Linux
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5674249Z   enableCrossOsArchive: false
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5674573Z   fail-on-cache-miss: false
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5674897Z   lookup-only: false
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5675178Z   save-always: false
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5675778Z env:
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5676061Z   VERILATOR_VERSION: v5.050
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5676508Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5676976Z   CI_BUILD_JOBS: 4
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5677252Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5677536Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5677812Z   VERILATOR_JOBS: 4
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5678079Z   SIM_JOBS: 4
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5678387Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.5678765Z ##[endgroup]
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.6819393Z (node:2382) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.6820569Z (Use `node --trace-deprecation ...` to show where the warning was created)
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.8464524Z Cache hit for: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-f3e3ac650338deb4f93103e0a6d9c4bde48fe17e5194436e2179e1595c306ffa-Linux
+elaborate	Cache exact Python downloads	2026-11-03T20:51:10.8580209Z (node:2382) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+elaborate	Cache exact Python downloads	2026-11-03T20:51:11.2690329Z Received 768936 of 768936 (100.0%), 2.7 MBs/sec
+elaborate	Cache exact Python downloads	2026-11-03T20:51:11.2690974Z Cache Size: ~1 MB (768936 B)
+elaborate	Cache exact Python downloads	2026-11-03T20:51:11.2720116Z [command]/usr/bin/tar -xf <home-path>/work/_temp/f6c8281f-cf34-4ea1-9744-d515a78c8672/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+elaborate	Cache exact Python downloads	2026-11-03T20:51:11.2794841Z Cache restored successfully
+elaborate	Cache exact Python downloads	2026-11-03T20:51:11.3002174Z Cache restored from key: python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-f3e3ac650338deb4f93103e0a6d9c4bde48fe17e5194436e2179e1595c306ffa-Linux
+elaborate	Cache pinned evidence reader downloads	﻿2026-11-03T20:51:11.3822413Z ##[group]Run actions/cache@v4
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3822822Z with:
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3823080Z   path: ~/.cache/pip
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3823980Z   key: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-b50c6a34ff3b9882fd639fee67e8e58c2cde24da135a3e62c8fb58a8a4324789-Linux
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3824902Z   enableCrossOsArchive: false
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3825164Z   fail-on-cache-miss: false
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3825744Z   lookup-only: false
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3826171Z   save-always: false
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3826428Z env:
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3826631Z   VERILATOR_VERSION: v5.050
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3827014Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3827426Z   CI_BUILD_JOBS: 4
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3827641Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3827865Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3828084Z   VERILATOR_JOBS: 4
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3828295Z   SIM_JOBS: 4
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3828523Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.3828849Z ##[endgroup]
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.4989739Z (node:2411) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.4990695Z (Use `node --trace-deprecation ...` to show where the warning was created)
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.6236194Z Cache hit for: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-b50c6a34ff3b9882fd639fee67e8e58c2cde24da135a3e62c8fb58a8a4324789-Linux
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:11.6368619Z (node:2411) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:12.0851896Z Received 768929 of 768929 (100.0%), 2.6 MBs/sec
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:12.0852713Z Cache Size: ~1 MB (768929 B)
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:12.0882674Z [command]/usr/bin/tar -xf <home-path>/work/_temp/c8bc232e-930a-4281-a574-fde217a8634d/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:12.0955969Z Cache restored successfully
+elaborate	Cache pinned evidence reader downloads	2026-11-03T20:51:12.1033208Z Cache restored from key: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-b50c6a34ff3b9882fd639fee67e8e58c2cde24da135a3e62c8fb58a8a4324789-Linux
+elaborate	Install the pinned evidence reader	﻿2026-11-03T20:51:12.1136082Z ##[group]Run python3 -m pip install --quiet --require-hashes --no-deps -r ci/requirements-evidence.txt
+elaborate	Install the pinned evidence reader	2026-11-03T20:51:12.1136949Z ^[[36;1mpython3 -m pip install --quiet --require-hashes --no-deps -r ci/requirements-evidence.txt^[[0m
+elaborate	Install the pinned evidence reader	2026-11-03T20:51:12.1157470Z shell: /usr/bin/bash -e {0}
+elaborate	Install the pinned evidence reader	2026-11-03T20:51:12.1157759Z env:
+elaborate	Install the pinned evidence reader	2026-11-03T20:51:12.1157978Z   VERILATOR_VERSION: v5.050
+elaborate	Install the pinned evidence reader	2026-11-03T20:51:12.1158420Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Install the pinned evidence reader	2026-11-03T20:51:12.1158867Z   CI_BUILD_JOBS: 4
+elaborate	Install the pinned evidence reader	2026-11-03T20:51:12.1159097Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Install the pinned evidence reader	2026-11-03T20:51:12.1159342Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Install the pinned evidence reader	2026-11-03T20:51:12.1159573Z   VERILATOR_JOBS: 4
+elaborate	Install the pinned evidence reader	2026-11-03T20:51:12.1159788Z   SIM_JOBS: 4
+elaborate	Install the pinned evidence reader	2026-11-03T20:51:12.1160027Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Install the pinned evidence reader	2026-11-03T20:51:12.1160522Z ##[endgroup]
+elaborate	Download executed gate outcomes	﻿2026-11-03T20:51:13.1290841Z ##[group]Run actions/download-artifact@v4
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1291183Z with:
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1291499Z   pattern: gate-elaborate-*-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1291905Z   path: <home-path>/work/_temp/gate-results
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1292214Z   merge-multiple: false
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1292473Z   repository: kebag-logic/milan-fpga
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1292746Z   run-id: 41705989293
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1292964Z env:
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1293163Z   VERILATOR_VERSION: v5.050
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1293550Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1293967Z   CI_BUILD_JOBS: 4
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1294190Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1294426Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1294656Z   VERILATOR_JOBS: 4
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1294874Z   SIM_JOBS: 4
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1295108Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.1295638Z ##[endgroup]
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.3087696Z (node:2452) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.3088785Z (Use `node --trace-deprecation ...` to show where the warning was created)
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.4902984Z Found 10 artifact(s)
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.4904336Z Filtering artifacts by pattern 'gate-elaborate-*-214c8eb1eee510e3697ad62ec6a9d763bc75bebb'
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.4905918Z Preparing to download the following artifacts:
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.4907440Z - gate-elaborate-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13270435077, Size: 2274, Expected Digest: sha256:d0225c4ebb9eb1d202da493519c05e0d371d6b8cfc4078aac5664dd636935a89)
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.4909877Z - gate-elaborate-3-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13269378611, Size: 887, Expected Digest: sha256:a7a7371b9f37f40a1b850eeb70f9c1c11ea00c77f01c5fc84d29bcaa671aafd1)
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.4912372Z - gate-elaborate-1-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13268694639, Size: 2632, Expected Digest: sha256:e3bb56398b3dc026a45e6854278ecac5b5f15c4d0905a625031d820b091280fd)
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.4914383Z - gate-elaborate-2-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13268329599, Size: 844, Expected Digest: sha256:495e0e9df91f4c4a5323ed8ce68dd8059c54b60c17cd63df0275e8ff41c6accd)
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.4916026Z - gate-elaborate-4-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13268294526, Size: 858, Expected Digest: sha256:cb905c2991d95697c9bd73beb0fced4bf6c6ee44e2189d1070d7ab1ec23f59b3)
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.6988837Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-9646f716-61aa-5af6-8cda-10d7656aba65/artifacts/9060220660def463d87185e21c7fd63e964fed72124d4b57717c36b21e3f503d.zip
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.6991475Z Starting download of artifact to: <home-path>/work/_temp/gate-results/gate-elaborate-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.7172600Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-c58a6bfd-1f4c-5b47-b470-01cd7b92fa3e/artifacts/5be131eefb723f59dee208ea1b32a128309f828a2cece8c4c8f3bd8e6e44268d.zip
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.7174684Z Starting download of artifact to: <home-path>/work/_temp/gate-results/gate-elaborate-4-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.7270908Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-da14bf98-fe7c-52ba-acbb-03680ca85fb4/artifacts/b44bf85be3de6570bfdca5ced941193886fb9792aca19d06e3ca4baed9b95877.zip
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.7272692Z Starting download of artifact to: <home-path>/work/_temp/gate-results/gate-elaborate-3-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.7321539Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-dae33808-79f5-5e81-9322-9977b9f28d93/artifacts/cf02692863b06c92127ddc545494b2c6c3c10039f0989fc06f73a30e80ce4a09.zip
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.7324849Z Starting download of artifact to: <home-path>/work/_temp/gate-results/gate-elaborate-2-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.8045129Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-8806f645-5131-5bcc-b9a6-5f71e96c2a92/artifacts/ecb8e8cf0e2d130ef85bab5bab77b9b51302667776582c5b5ed3583fe9002ef0.zip
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.8048242Z Starting download of artifact to: <home-path>/work/_temp/gate-results/gate-elaborate-1-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.8653916Z (node:2452) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.8730289Z SHA256 digest of downloaded artifact is d0225c4ebb9eb1d202da493519c05e0d371d6b8cfc4078aac5664dd636935a89
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.8731657Z Artifact download completed successfully.
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.8736864Z SHA256 digest of downloaded artifact is cb905c2991d95697c9bd73beb0fced4bf6c6ee44e2189d1070d7ab1ec23f59b3
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.8737910Z Artifact download completed successfully.
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.9462229Z SHA256 digest of downloaded artifact is 495e0e9df91f4c4a5323ed8ce68dd8059c54b60c17cd63df0275e8ff41c6accd
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.9462933Z Artifact download completed successfully.
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.9506056Z SHA256 digest of downloaded artifact is e3bb56398b3dc026a45e6854278ecac5b5f15c4d0905a625031d820b091280fd
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.9506702Z Artifact download completed successfully.
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.9544327Z SHA256 digest of downloaded artifact is a7a7371b9f37f40a1b850eeb70f9c1c11ea00c77f01c5fc84d29bcaa671aafd1
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.9545742Z Artifact download completed successfully.
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.9546394Z Total of 5 artifact(s) downloaded
+elaborate	Download executed gate outcomes	2026-11-03T20:51:13.9552174Z Download artifact has finished successfully
+elaborate	Require every gate exactly once	﻿2026-11-03T20:51:13.9739190Z ##[group]Run python3 scripts/ci_gate_receipts.py verify --workflow elaborate --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9740492Z ^[[36;1mpython3 scripts/ci_gate_receipts.py verify --workflow elaborate --root "$RUNNER_TEMP/gate-results" --head "$GITHUB_SHA" --output "$RUNNER_TEMP/gate-union.json"^[[0m
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9760847Z shell: /usr/bin/bash -e {0}
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9761159Z env:
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9761410Z   VERILATOR_VERSION: v5.050
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9761873Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9762336Z   CI_BUILD_JOBS: 4
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9762596Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9762867Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9763137Z   VERILATOR_JOBS: 4
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9763389Z   SIM_JOBS: 4
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9763672Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9764875Z   CI_GATE_NEEDS: {
+elaborate	Require every gate exactly once	  "elaborate-gates-0": {
+elaborate	Require every gate exactly once	    "result": "success",
+elaborate	Require every gate exactly once	    "outputs": {}
+elaborate	Require every gate exactly once	  },
+elaborate	Require every gate exactly once	  "elaborate-gates-1": {
+elaborate	Require every gate exactly once	    "result": "success",
+elaborate	Require every gate exactly once	    "outputs": {}
+elaborate	Require every gate exactly once	  },
+elaborate	Require every gate exactly once	  "elaborate-gates-2": {
+elaborate	Require every gate exactly once	    "result": "success",
+elaborate	Require every gate exactly once	    "outputs": {}
+elaborate	Require every gate exactly once	  },
+elaborate	Require every gate exactly once	  "elaborate-gates-3": {
+elaborate	Require every gate exactly once	    "result": "success",
+elaborate	Require every gate exactly once	    "outputs": {}
+elaborate	Require every gate exactly once	  },
+elaborate	Require every gate exactly once	  "elaborate-gates-4": {
+elaborate	Require every gate exactly once	    "result": "success",
+elaborate	Require every gate exactly once	    "outputs": {}
+elaborate	Require every gate exactly once	  }
+elaborate	Require every gate exactly once	}
+elaborate	Require every gate exactly once	2026-11-03T20:51:13.9766421Z ##[endgroup]
+elaborate	Require every gate exactly once	2026-11-03T20:51:15.4414517Z --require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 4 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+elaborate	Require every gate exactly once	2026-11-03T20:51:15.4417346Z --require-elaboration: an interpreter carrying the patch series was found and no elaboration arm was skipped for a toolchain reason; 4 arm(s) did not run for recorded reasons, listed above, and this verdict does not cover them
+elaborate	Require every gate exactly once	2026-11-03T20:51:15.4418716Z elaborate: 5 source gates exactly once; all worker jobs successful
+elaborate	Upload verified gate union	﻿2026-11-03T20:51:15.4802407Z ##[group]Run actions/upload-artifact@v4
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4802788Z with:
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4803160Z   name: gate-union-elaborate-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4803641Z   path: <home-path>/work/_temp/gate-union.json
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4803998Z   if-no-files-found: error
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4804287Z   compression-level: 6
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4804551Z   overwrite: false
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4804819Z   include-hidden-files: false
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4805107Z env:
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4805637Z   VERILATOR_VERSION: v5.050
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4806349Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4807048Z   CI_BUILD_JOBS: 4
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4807307Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4807572Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4807832Z   VERILATOR_JOBS: 4
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4808077Z   SIM_JOBS: 4
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4808359Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Upload verified gate union	2026-11-03T20:51:15.4808679Z ##[endgroup]
+elaborate	Upload verified gate union	2026-11-03T20:51:15.6692862Z (node:2481) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+elaborate	Upload verified gate union	2026-11-03T20:51:15.6694194Z (Use `node --trace-deprecation ...` to show where the warning was created)
+elaborate	Upload verified gate union	2026-11-03T20:51:15.6722478Z With the provided path, there will be 1 file uploaded
+elaborate	Upload verified gate union	2026-11-03T20:51:15.6742469Z Artifact name is valid!
+elaborate	Upload verified gate union	2026-11-03T20:51:15.6744504Z Root directory input is valid!
+elaborate	Upload verified gate union	2026-11-03T20:51:15.9669411Z Beginning upload of artifact content to blob storage
+elaborate	Upload verified gate union	2026-11-03T20:51:15.9883995Z (node:2481) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+elaborate	Upload verified gate union	2026-11-03T20:51:16.1268601Z Uploaded bytes 393
+elaborate	Upload verified gate union	2026-11-03T20:51:16.1691892Z Finished uploading artifact content to blob storage!
+elaborate	Upload verified gate union	2026-11-03T20:51:16.1693645Z SHA256 digest of uploaded artifact zip is bc88691d4a81bc4e036c42d58149205c6490d9ac42a9ed494d5fedfbcbe919c9
+elaborate	Upload verified gate union	2026-11-03T20:51:16.1695135Z Finalizing artifact upload
+elaborate	Upload verified gate union	2026-11-03T20:51:16.7120390Z Artifact gate-union-elaborate-214c8eb1eee510e3697ad62ec6a9d763bc75bebb.zip successfully finalized. Artifact ID 13268624912
+elaborate	Upload verified gate union	2026-11-03T20:51:16.7122166Z Artifact gate-union-elaborate-214c8eb1eee510e3697ad62ec6a9d763bc75bebb has been successfully uploaded! Final size is 393 bytes. Artifact ID is 13268624912
+elaborate	Upload verified gate union	2026-11-03T20:51:16.7128493Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/41705989293/artifacts/13268624912
+elaborate	Record actual job execution	﻿2026-11-03T20:51:16.7321614Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/elaborate.yml --job elaborate --output "$RUNNER_TEMP/job-evidence.json"
+elaborate	Record actual job execution	2026-11-03T20:51:16.7322867Z ^[[36;1mpython3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/elaborate.yml --job elaborate --output "$RUNNER_TEMP/job-evidence.json"^[[0m
+elaborate	Record actual job execution	2026-11-03T20:51:16.7343174Z shell: /usr/bin/bash -e {0}
+elaborate	Record actual job execution	2026-11-03T20:51:16.7343485Z env:
+elaborate	Record actual job execution	2026-11-03T20:51:16.7343737Z   VERILATOR_VERSION: v5.050
+elaborate	Record actual job execution	2026-11-03T20:51:16.7344192Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Record actual job execution	2026-11-03T20:51:16.7344655Z   CI_BUILD_JOBS: 4
+elaborate	Record actual job execution	2026-11-03T20:51:16.7344919Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Record actual job execution	2026-11-03T20:51:16.7345193Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Record actual job execution	2026-11-03T20:51:16.7345763Z   VERILATOR_JOBS: 4
+elaborate	Record actual job execution	2026-11-03T20:51:16.7346029Z   SIM_JOBS: 4
+elaborate	Record actual job execution	2026-11-03T20:51:16.7346296Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Record actual job execution	2026-11-03T20:51:16.7349839Z   CI_STEP_RESULTS: {
+elaborate	Record actual job execution	  "ci_step_0": {
+elaborate	Record actual job execution	    "outputs": {
+elaborate	Record actual job execution	      "commit": "214c8eb1eee510e3697ad62ec6a9d763bc75bebb",
+elaborate	Record actual job execution	      "ref": "refs/pull/836/merge"
+elaborate	Record actual job execution	    },
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_1": {
+elaborate	Record actual job execution	    "outputs": {},
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_2": {
+elaborate	Record actual job execution	    "outputs": {
+elaborate	Record actual job execution	      "cache-hit": "true"
+elaborate	Record actual job execution	    },
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_3": {
+elaborate	Record actual job execution	    "outputs": {
+elaborate	Record actual job execution	      "cache-hit": "true"
+elaborate	Record actual job execution	    },
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_4": {
+elaborate	Record actual job execution	    "outputs": {},
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_5": {
+elaborate	Record actual job execution	    "outputs": {
+elaborate	Record actual job execution	      "download-path": "<home-path>/work/_temp/gate-results"
+elaborate	Record actual job execution	    },
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_6": {
+elaborate	Record actual job execution	    "outputs": {},
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  },
+elaborate	Record actual job execution	  "ci_step_7": {
+elaborate	Record actual job execution	    "outputs": {
+elaborate	Record actual job execution	      "artifact-id": "13268624912",
+elaborate	Record actual job execution	      "artifact-digest": "bc88691d4a81bc4e036c42d58149205c6490d9ac42a9ed494d5fedfbcbe919c9",
+elaborate	Record actual job execution	      "artifact-url": "https://github.com/kebag-logic/milan-fpga/actions/runs/41705989293/artifacts/13268624912"
+elaborate	Record actual job execution	    },
+elaborate	Record actual job execution	    "outcome": "success",
+elaborate	Record actual job execution	    "conclusion": "success"
+elaborate	Record actual job execution	  }
+elaborate	Record actual job execution	}
+elaborate	Record actual job execution	2026-11-03T20:51:16.7353955Z   CI_JOB_RESULT: success
+elaborate	Record actual job execution	2026-11-03T20:51:16.7354239Z   CI_MATRIX: null
+elaborate	Record actual job execution	2026-11-03T20:51:16.7354496Z ##[endgroup]
+elaborate	Upload actual job execution	﻿2026-11-03T20:51:17.1187238Z ##[group]Run actions/upload-artifact@v4
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1187634Z with:
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1188095Z   name: job-evidence-elaborate-elaborate-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1188980Z   path: <home-path>/work/_temp/job-evidence.json
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1189585Z   if-no-files-found: error
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1190040Z   retention-days: 3
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1190514Z   compression-level: 6
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1190955Z   overwrite: false
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1191396Z   include-hidden-files: false
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1191923Z env:
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1192339Z   VERILATOR_VERSION: v5.050
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1204278Z   PIP_CONSTRAINT: <home-path>/work/milan-fpga/milan-fpga/ci/constraints-ci.txt
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1204801Z   CI_BUILD_JOBS: 4
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1205076Z   CI_TOOL_BUILD_JOBS: 4
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1205362Z   CI_CAMPAIGN_JOBS: 4
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1205920Z   VERILATOR_JOBS: 4
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1206176Z   SIM_JOBS: 4
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1206450Z   MAKEFLAGS: -j1 --no-print-directory
+elaborate	Upload actual job execution	2026-11-03T20:51:17.1206828Z ##[endgroup]
+elaborate	Upload actual job execution	2026-11-03T20:51:17.3033710Z (node:2501) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+elaborate	Upload actual job execution	2026-11-03T20:51:17.3035167Z (Use `node --trace-deprecation ...` to show where the warning was created)
+elaborate	Upload actual job execution	2026-11-03T20:51:17.3068622Z With the provided path, there will be 1 file uploaded
+elaborate	Upload actual job execution	2026-11-03T20:51:17.3069756Z Artifact name is valid!
+elaborate	Upload actual job execution	2026-11-03T20:51:17.3070375Z Root directory input is valid!
+elaborate	Upload actual job execution	2026-11-03T20:51:17.5708672Z Beginning upload of artifact content to blob storage
+elaborate	Upload actual job execution	2026-11-03T20:51:17.5904768Z (node:2501) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+elaborate	Upload actual job execution	2026-11-03T20:51:17.7331577Z Uploaded bytes 865
+elaborate	Upload actual job execution	2026-11-03T20:51:17.7769432Z Finished uploading artifact content to blob storage!
+elaborate	Upload actual job execution	2026-11-03T20:51:17.7770376Z SHA256 digest of uploaded artifact zip is 6181b5ef2930b1d0a713f68b940790dcdbdd08c6908d769f70e1dbfd9a8ad4f5
+elaborate	Upload actual job execution	2026-11-03T20:51:17.7771671Z Finalizing artifact upload
+elaborate	Upload actual job execution	2026-11-03T20:51:18.2384359Z Artifact job-evidence-elaborate-elaborate-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb.zip successfully finalized. Artifact ID 13270685436
+elaborate	Upload actual job execution	2026-11-03T20:51:18.2386479Z Artifact job-evidence-elaborate-elaborate-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb has been successfully uploaded! Final size is 865 bytes. Artifact ID is 13270685436
+elaborate	Upload actual job execution	2026-11-03T20:51:18.2391436Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/41705989293/artifacts/13270685436
+elaborate	Post Cache pinned evidence reader downloads	﻿2026-11-03T20:51:18.3245997Z Post job cleanup.
+elaborate	Post Cache pinned evidence reader downloads	2026-11-03T20:51:18.4426928Z Cache hit occurred on the primary key pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-b50c6a34ff3b9882fd639fee67e8e58c2cde24da135a3e62c8fb58a8a4324789-Linux, not saving cache.
+elaborate	Post Cache pinned evidence reader downloads	2026-11-03T20:51:18.4430128Z (node:2525) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+elaborate	Post Cache pinned evidence reader downloads	2026-11-03T20:51:18.4431928Z (Use `node --trace-deprecation ...` to show where the warning was created)
+elaborate	Post Cache exact Python downloads	﻿2026-11-03T20:51:18.5962579Z Post job cleanup.
+elaborate	Post Cache exact Python downloads	2026-11-03T20:51:18.7176642Z Cache hit occurred on the primary key python-cpython3.12.3-0f4dff939fe11c9e2b6ca53bfda0ab835c6b8262ea97e72481db61f20ea4b311-f3e3ac650338deb4f93103e0a6d9c4bde48fe17e5194436e2179e1595c306ffa-Linux, not saving cache.
+elaborate	Post Cache exact Python downloads	2026-11-03T20:51:18.7179441Z (node:2557) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+elaborate	Post Cache exact Python downloads	2026-11-03T20:51:18.7180964Z (Use `node --trace-deprecation ...` to show where the warning was created)
+elaborate	Post Run actions/checkout@v4	﻿2026-11-03T20:51:18.7321824Z Post job cleanup.
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.8257740Z [command]/usr/bin/git version
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.8340652Z git version 2.56.0
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.8383742Z Temporarily overriding HOME='<home-path>/work/_temp/da68d56a-9f7e-402f-903f-41bfa4a51bb2' before making global git config changes
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.8385217Z Adding repository directory to the temporary git global config as a safe directory
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.8390821Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.8440761Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.8489211Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.8787989Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.8821286Z http.https://github.com/.extraheader
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.8837709Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.8884364Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.9187534Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+elaborate	Post Run actions/checkout@v4	2026-11-03T20:51:18.9241317Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+elaborate	Complete job	﻿2026-11-03T20:51:18.9669560Z Cleaning up orphan processes
+elaborate	Complete job	2026-11-03T20:51:19.0047780Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,0 +1,187 @@
+Cancel late CI failures	Set up job	﻿2026-11-03T20:54:28.6340872Z Current runner version: '2.338.2'
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6369007Z ##[group]Runner Image Provisioner
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6370107Z Hosted Compute Agent
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6370762Z Version: 20261028.624
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6371480Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6372276Z Build Date: 2026-10-28T21:51:42Z
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6373046Z Worker ID: {455a0fc9-0e48-4b11-b681-17e6f010d928}
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6374019Z Region: eastus2
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6374637Z Cloud: Azure
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6375209Z ##[endgroup]
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6377031Z ##[group]Operating System
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6377821Z Ubuntu
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6378476Z 24.04.5
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6379050Z LTS
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6379604Z ##[endgroup]
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6380287Z ##[group]Runner Image
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6381005Z Image: ubuntu-24.04
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6381672Z Version: 20261101.360.1
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6382846Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6385221Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6386314Z ##[endgroup]
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6387683Z ##[group]GITHUB_TOKEN Permissions
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6389993Z Actions: write
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6390710Z Contents: read
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6391351Z Metadata: read
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6392038Z ##[endgroup]
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6394886Z Secret source: Actions
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6396234Z Cache mode: write
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6397355Z Prepare workflow directory
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6800031Z Prepare all required actions
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.6848702Z Getting action download info
+Cancel late CI failures	Set up job	2026-11-03T20:54:28.8972471Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+Cancel late CI failures	Set up job	2026-11-03T20:54:29.0858761Z Complete job name: Cancel late CI failures
+Cancel late CI failures	Run actions/checkout@v4	﻿2026-11-03T20:54:29.1769599Z ##[group]Run actions/checkout@v4
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1770471Z with:
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1770953Z   repository: kebag-logic/milan-fpga
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1775380Z   token: ***
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1775852Z   ssh-strict: true
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1776321Z   ssh-user: git
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1776829Z   persist-credentials: true
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1777347Z   clean: true
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1777825Z   sparse-checkout-cone-mode: true
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1778368Z   fetch-depth: 1
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1778826Z   fetch-tags: false
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1779290Z   show-progress: true
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1779772Z   lfs: false
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1780206Z   submodules: false
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1780676Z   set-safe-directory: true
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1781200Z   allow-unsafe-pr-checkout: false
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1781974Z env:
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1782422Z   VERILATOR_VERSION: v5.050
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.1782936Z ##[endgroup]
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4480878Z Syncing repository: kebag-logic/milan-fpga
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4485033Z ##[group]Getting Git version info
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4486882Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4489572Z [command]/usr/bin/git version
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4565009Z git version 2.56.0
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4589328Z ##[endgroup]
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4605287Z Temporarily overriding HOME='<home-path>/work/_temp/ecdc05dc-b03b-4d4d-b671-6775b33d4c57' before making global git config changes
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4609342Z Adding repository directory to the temporary git global config as a safe directory
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4612713Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4674466Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4678647Z ##[group]Initializing the repository
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4684223Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4781113Z hint: Using 'master' as the name for the initial branch. This default branch name
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4783915Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4786639Z hint: to use in all of your new repositories, which will suppress this warning,
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4788847Z hint: call:
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4790064Z hint:
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4791691Z hint: 	git config --global init.defaultBranch <name>
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4794045Z hint:
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4796019Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4799397Z hint: 'development'. The just-created branch can be renamed via this command:
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4802083Z hint:
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4804655Z hint: 	git branch -m <name>
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4806476Z hint:
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4808607Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4812182Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4817821Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4864742Z ##[endgroup]
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4867231Z ##[group]Disabling automatic garbage collection
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4869437Z [command]/usr/bin/git config --local gc.auto 0
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4907799Z ##[endgroup]
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4910176Z ##[group]Setting up auth
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4916032Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.4961359Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.5381761Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.5433365Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.5700706Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.5752677Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.6018318Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.6082086Z ##[endgroup]
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.6093040Z ##[group]Fetching the repository
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:29.6098449Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +214c8eb1eee510e3697ad62ec6a9d763bc75bebb:refs/remotes/pull/836/merge
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.5632887Z From https://github.com/kebag-logic/milan-fpga
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.5634054Z  * [new ref]         214c8eb1eee510e3697ad62ec6a9d763bc75bebb -> pull/836/merge
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.5640331Z ##[endgroup]
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.5641179Z ##[group]Determining the checkout info
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.5642168Z ##[endgroup]
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.5647153Z [command]/usr/bin/git sparse-checkout disable
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.5710597Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.5752360Z ##[group]Checking out the ref
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.5757101Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/836/merge
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8074642Z Note: switching to 'refs/remotes/pull/836/merge'.
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8075568Z 
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8075989Z You are in 'detached HEAD' state. You can look around, make experimental
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8076790Z changes and commit them, and you can discard any commits you make in this
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8077551Z state without impacting any branches by switching back to a branch.
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8078097Z 
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8078486Z If you want to create a new branch to retain commits you create, you may
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8079227Z do so (now or later) by using -c with the switch command. Example:
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8079795Z 
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8079966Z   git switch -c <new-branch-name>
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8080749Z 
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8080928Z Or undo this operation with:
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8081196Z 
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8081325Z   git switch -
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8081566Z 
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8081910Z Turn off this advice by setting config variable advice.detachedHead to false
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8082432Z 
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8082999Z HEAD is now at 214c8eb Merge 3b323864232fa430ec3a185f33ad7b30fbf1156b into e61a4afaa54a598ceec08b7b5879285256cc60b6
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8094467Z ##[endgroup]
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8153222Z [command]/usr/bin/git log -1 --format=%H
+Cancel late CI failures	Run actions/checkout@v4	2026-11-03T20:54:47.8189630Z 214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Cancel late CI failures	Set CPU-derived job budgets	﻿2026-11-03T20:54:47.8477928Z ##[group]Run set -euo pipefail
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8478374Z ^[[36;1mset -euo pipefail^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8478650Z ^[[36;1mcpus="$(nproc)"^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8478916Z ^[[36;1mtest "$cpus" -gt 0^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8479198Z ^[[36;1mcampaign=$(( cpus < 4 ? cpus : 4 ))^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8479546Z ^[[36;1msimulations=$(( cpus < 4 ? cpus : 4 ))^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8479903Z ^[[36;1mtool_build=$(( cpus < 8 ? cpus : 8 ))^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8480227Z ^[[36;1m{^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8480462Z ^[[36;1m  printf 'CI_BUILD_JOBS=%s\n' "$cpus"^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8480828Z ^[[36;1m  printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8481197Z ^[[36;1m  printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8481526Z ^[[36;1m  printf 'VERILATOR_JOBS=%s\n' "$cpus"^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8481843Z ^[[36;1m  printf 'SIM_JOBS=%s\n' "$simulations"^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8482193Z ^[[36;1m  printf 'MAKEFLAGS=-j1 --no-print-directory\n'^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8482527Z ^[[36;1m} >> "$GITHUB_ENV"^[[0m
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8508525Z shell: /usr/bin/bash -e {0}
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8508814Z env:
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8509033Z   VERILATOR_VERSION: v5.050
+Cancel late CI failures	Set CPU-derived job budgets	2026-11-03T20:54:47.8509291Z ##[endgroup]
+Cancel late CI failures	Cancel confirmed terminal failures	﻿2026-11-03T20:54:47.8665607Z ##[group]Run python3 scripts/ci_fail_fast.py tail
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8666020Z ^[[36;1mpython3 scripts/ci_fail_fast.py tail^[[0m
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8686387Z shell: /usr/bin/bash -e {0}
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8686660Z env:
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8686880Z   VERILATOR_VERSION: v5.050
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8687135Z   CI_BUILD_JOBS: 4
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8687354Z   CI_TOOL_BUILD_JOBS: 4
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8687592Z   CI_CAMPAIGN_JOBS: 4
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8687822Z   VERILATOR_JOBS: 4
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8688039Z   SIM_JOBS: 4
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8688320Z   MAKEFLAGS: -j1 --no-print-directory
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8691071Z   GH_TOKEN: ***
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8691803Z   CI_TAIL_NEEDS: {
+Cancel late CI failures	Cancel confirmed terminal failures	  "ci-fail-fast": {
+Cancel late CI failures	Cancel confirmed terminal failures	    "result": "cancelled",
+Cancel late CI failures	Cancel confirmed terminal failures	    "outputs": {
+Cancel late CI failures	Cancel confirmed terminal failures	      "observer_only_error": "false"
+Cancel late CI failures	Cancel confirmed terminal failures	    }
+Cancel late CI failures	Cancel confirmed terminal failures	  },
+Cancel late CI failures	Cancel confirmed terminal failures	  "ci-manifest": {
+Cancel late CI failures	Cancel confirmed terminal failures	    "result": "success",
+Cancel late CI failures	Cancel confirmed terminal failures	    "outputs": {
+Cancel late CI failures	Cancel confirmed terminal failures	      "observer_only_error": "false"
+Cancel late CI failures	Cancel confirmed terminal failures	    }
+Cancel late CI failures	Cancel confirmed terminal failures	  }
+Cancel late CI failures	Cancel confirmed terminal failures	}
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:47.8692589Z ##[endgroup]
+Cancel late CI failures	Cancel confirmed terminal failures	2026-11-03T20:54:49.1602448Z Cancelled runs: [41705989346, 41705989293]
+Cancel late CI failures	Post Run actions/checkout@v4	﻿2026-11-03T20:54:49.1837893Z Post job cleanup.
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.2755427Z [command]/usr/bin/git version
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.2805649Z git version 2.56.0
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.2848523Z Temporarily overriding HOME='<home-path>/work/_temp/5bfb63ef-dcb5-4964-b068-5bc6868ffdec' before making global git config changes
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.2849561Z Adding repository directory to the temporary git global config as a safe directory
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.2854646Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.2901767Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.2967809Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.3251016Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.3282974Z http.https://github.com/.extraheader
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.3296574Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.3341789Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.3641683Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Cancel late CI failures	Post Run actions/checkout@v4	2026-11-03T20:54:49.3690876Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Cancel late CI failures	Complete job	﻿2026-11-03T20:54:49.4204203Z Cleaning up orphan processes
+Cancel late CI failures	Complete job	2026-11-03T20:54:49.4601895Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
