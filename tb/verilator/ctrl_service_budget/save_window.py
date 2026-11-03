@@ -189,17 +189,25 @@ def arrivals(p: scenario.Point, run_ms: float) -> list[tuple[float, str, str]]:
 
 
 def held_start() -> int:
-    """The held load starts one AECP refill period after the change, in ms: the SET_NAME takes one of the AECP
-    bucket's tokens, which is back by then (KL_mbx_rx.sv), so the channel's first burst is admitted whole."""
+    """The AECP channel's held load starts one refill period after the change, in ms: the SET_NAME takes one of its
+    bucket's tokens, which is back by then (KL_mbx_rx.sv), so its first burst is admitted whole. The other channels
+    burst at the change, so the SET_NAME's marks fall among their first bursts' records."""
     return scenario.CONTRACT.channels[scenario.CH['aecp']].refill_ms
+
+
+def held_arrivals(p: scenario.Point, run_ms: float) -> list[tuple[float, str, str]]:
+    """arrivals for run_ms from a save's change, AECP's held_start later."""
+    late = [(when + held_start(), channel, step) for when, channel, step in arrivals(p, run_ms - held_start())]
+    return sorted([a for a in arrivals(p, run_ms) if a[1] != 'aecp'] + [a for a in late if a[1] == 'aecp'],
+                  key=lambda a: a[0])
 
 
 def loaded(p: scenario.Point, name: str, flood: bool, image: int) -> scenario.Group:
     """A save of a container of image bytes from its change, every receive channel at its refill rate with its
-    bursts (arrivals) from held_start until its stated worst case has passed, and with flood a grandmaster change
-    as every pass starts, so no pass takes nothing."""
+    bursts (held_arrivals) until its stated worst case has passed, and with flood a grandmaster change as every
+    pass starts, so no pass takes nothing."""
     run_ms = bound_ms(image, CHANGED) + 500
-    load = [(when + held_start(), channel, step) for when, channel, step in arrivals(p, run_ms - held_start())]
+    load = held_arrivals(p, run_ms)
     # every record the group's receive channels must commit from its change on: the load and the SET_NAME
     offered = {name: sum(1 for _, channel, _ in load if channel == name) + (name == 'aecp') for name in scenario.CH}
     g = scenario.Group(name, sim_ms=int(run_ms) + 2700,

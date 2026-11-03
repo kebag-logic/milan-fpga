@@ -610,7 +610,7 @@ MUTANTS: dict[str, Patches] = {
     'steps: a work pass that carries a step is left out': lambda: [patch.object(
         save_grade, 'step_figures', lambda grader, f=save_grade.step_figures: f(grade.Grader(dataclasses.replace(
             grader.log, passes=[]))))],
-    "save: the held load starts with its change, the SET_NAME's token not yet back": lambda: [patch.object(
+    "save: the held AECP channel bursts with its change, the SET_NAME's token not yet back": lambda: [patch.object(
         save_window, 'held_start', lambda: 0)],
     'save: the starved save without its grandmaster flood': lambda: [patch.object(
         save_window, 'loaded', lambda p, name, flood, image, f=save_window.loaded: f(p, name, False, image))],
