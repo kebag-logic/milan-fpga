@@ -1,0 +1,24 @@
+owner-report: pid 3929106 (python3) state Z wchan 0 parent 3929104 (first parent 3929104) age 0.17 s start 81358122, sent SIGKILL 1.50 s ago
+owner-reparented: {'sigterm_during_grace': True}
+owner-late-exit: {'collected_at_deadline': True}
+owner-stall: {'stalled_seconds': 2.0, 'killed_in_pass': 28}
+owner-shell-window: {'trap_ran_after_kill_time': True, 'trap_command_ran': True, 'trap_finished': True}
+owner-survivor: CLEANUP FAILED: owned descendants remain after 1.03 s, 27 census passes, slowest 0.02 s: pid 3929164 (bash) state T wchan do_signal_stop parent 3929104 (first parent 3929104) age 1.07 s start 81358944, not sent SIGKILL; pid 3929165 (python3) state S wchan hrtimer_nanosleep parent 3929164 (first parent 3929164) age 1.06 s start 81358945, sent SIGKILL 0.81 s ago
+owner-vanishing: {'verdict_reached': True}
+owner-late-cancel: {'verdict_without_trap_window': True}
+Traceback (most recent call last):
+  File "$REVIEWS/833-r764-11-packet/scratch/wholemut/scripts/test_suite_cancellation.py", line 1000, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "$REVIEWS/833-r764-11-packet/scratch/wholemut/scripts/test_suite_cancellation.py", line 958, in main
+    owner_stated_seconds()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/833-r764-11-packet/scratch/wholemut/scripts/test_suite_cancellation.py", line 828, in owner_stated_seconds
+    kept(f"a stubborn parent {at} a stopped shell", lambda _clock, entry=entry: {shell: (owner_pid, "2"),
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+         parent: entry, child: (parent, "4")}, [*stubborn[:4], (14, "SIGKILL", "shell"), *stubborn[4:]], shell)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/833-r764-11-packet/scratch/wholemut/scripts/test_suite_cancellation.py", line 785, in kept
+    assert events == stated, f"{words}'s stated seconds were not kept on the owner's clock: {events}"
+           ^^^^^^^^^^^^^^^^
+AssertionError: a stubborn parent beside a stopped shell's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'parent'), (0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (3.0, 'SIGKILL', 'parent'), (14.0, 'SIGKILL', 'shell'), (14.0, 'SIGKILL', 'parent'), (14.0, 'SIGKILL', 'child'), (14.0, 'verdict')]
