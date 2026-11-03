@@ -1,0 +1,5 @@
+441c441,442
+<     sleeper = subprocess.Popen([sys.executable, "-c", STUBBORN, str(ready)])
+---
+>     sleeper = subprocess.Popen([sys.executable, "-c", "import os, signal, sys; from pathlib import Path; "
+>                                 "Path(sys.argv[1]).write_text(str(os.getpid())); signal.pause()", str(ready)])

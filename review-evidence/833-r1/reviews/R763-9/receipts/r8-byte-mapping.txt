@@ -1,0 +1,20 @@
+r764_8_probes.py: none -> none: SAME
+r764_8_probes.py: interior-past-grace-no-window -> interior-past-grace-no-window: SAME
+r764_8_probes.py: interior-in-grace-lone-shell-killed -> interior-in-grace-lone-shell-killed: SAME
+r764_8_probes.py: grace-strictly-past -> grace-strictly-past: SAME
+r764_8_probes.py: no-window-at-grace-edge -> no-window-at-grace-edge: SAME
+r764_8_probes.py: trap-command-spared-only-in-resume-pass-past-grace -> trap-command-spared-only-in-resume-pass-past-grace: SAME
+r764_8_probes.py: sigterm-new-beside-stopped-shell-late -> sigterm-new-beside-stopped-shell-late: SAME
+r764_8_probes.py: resume-held-at-grace-edge -> resume-held-at-grace-edge: SAME
+r764_8_probes.py: verdict-from-grace-after-in-grace-resume -> verdict-from-grace-after-in-grace-resume: SAME
+r764_8_live_probes.py: live-trap-command-unspared-after-in-grace-resume -> live-trap-command-unspared-after-in-grace-resume: SAME
+r764_8_live_probes.py: live-trap-command-unspared -> live-trap-command-unspared: SAME
+resume-beside-new-live SAME
+sigterm-trap-command-after-resume-from-1.5s SAME
+sigterm-to-live-new SAME
+07802fca15c70d2c0d1537cbca74fa1023c66fe20c4b76ba64e868b631c1dd4d  probes/r764_8_probes.py
+32c4735975d35cd3e4968bd800eda7d490bb12fa080def13add102ed676f70bf  probes/r764_8_live_probes.py
+30fe777296c51637e11f80fab533d1ded1841bb6cb1dc03778fcc358e7904b8b  r8_mutants.py
+scratch/evidence/reviews/R764-8/MANIFEST.sha256:32c4735975d35cd3e4968bd800eda7d490bb12fa080def13add102ed676f70bf  probes/r764_8_live_probes.py
+scratch/evidence/reviews/R764-8/MANIFEST.sha256:07802fca15c70d2c0d1537cbca74fa1023c66fe20c4b76ba64e868b631c1dd4d  probes/r764_8_probes.py
+scratch/evidence/reviews/R763-8/MANIFEST.sha256:30fe777296c51637e11f80fab533d1ded1841bb6cb1dc03778fcc358e7904b8b  r8_mutants.py

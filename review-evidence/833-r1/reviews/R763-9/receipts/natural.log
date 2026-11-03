@@ -1,0 +1,84 @@
+early-new-sigtermed-0.25: SURVIVOR; probe rc 1 cells ['CELL shell resume=first new=fake', 'CELL shell resume=first new=live', 'CELL shell resume=second new=fake', 'CELL shell resume=second new=live']; red controls []
+    owner_stated_seconds: rc 0 owner_stated_seconds: PASS
+    owner_report: rc 0 owner_report: PASS
+    owner_reparented: rc 0 owner_reparented: PASS
+    owner_late_exit: rc 0 owner_late_exit: PASS
+    owner_stall: rc 0 owner_stall: PASS
+    owner_shell_window: rc 0 owner_shell_window: PASS
+    owner_survivor: rc 0 owner_survivor: PASS
+    owner_vanishing: rc 0 owner_vanishing: PASS
+    owner_late_cancel: rc 0 owner_late_cancel: PASS
+    owner_reused_identity: rc 0 owner_reused_identity: PASS
+    whole: rc 0 suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP
+early-new-sigtermed-0.5: SURVIVOR; probe rc 1 cells ['CELL shell resume=first new=fake', 'CELL shell resume=first new=live', 'CELL shell resume=second new=fake', 'CELL shell resume=second new=live', 'CELL shell never new=fake', 'CELL shell never new=live', 'CELL shell live-new-holds gone=1', 'CELL shell live-new-holds gone=2-tick', 'CELL shell live-new-holds gone=2', 'CELL shell live-new-holds gone=3', 'CELL shell live-new-holds gone=4', 'CELL shell live-new-holds gone=5.5', 'CELL shell live-new-holds gone=last-pass', 'CELL shell live-new-holds gone=never', 'CELL noshell survivor=live new=fake', 'CELL noshell survivor=live new=live', 'CELL noshell survivor=fake new=fake', 'CELL noshell survivor=fake new=live']; red controls []
+    owner_stated_seconds: rc 0 owner_stated_seconds: PASS
+    owner_report: rc 0 owner_report: PASS
+    owner_reparented: rc 0 owner_reparented: PASS
+    owner_late_exit: rc 0 owner_late_exit: PASS
+    owner_stall: rc 0 owner_stall: PASS
+    owner_shell_window: rc 0 owner_shell_window: PASS
+    owner_survivor: rc 0 owner_survivor: PASS
+    owner_vanishing: rc 0 owner_vanishing: PASS
+    owner_late_cancel: rc 0 owner_late_cancel: PASS
+    owner_reused_identity: rc 0 owner_reused_identity: PASS
+    whole: rc 0 suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP
+early-trap-command-sigtermed: SURVIVOR; probe rc 1 cells ['CELL shell resume=first new=fake', 'CELL shell resume=first new=live', 'CELL shell resume=second new=fake', 'CELL shell resume=second new=live']; red controls []
+    owner_stated_seconds: rc 0 owner_stated_seconds: PASS
+    owner_report: rc 0 owner_report: PASS
+    owner_reparented: rc 0 owner_reparented: PASS
+    owner_late_exit: rc 0 owner_late_exit: PASS
+    owner_stall: rc 0 owner_stall: PASS
+    owner_shell_window: rc 0 owner_shell_window: PASS
+    owner_survivor: rc 0 owner_survivor: PASS
+    owner_vanishing: rc 0 owner_vanishing: PASS
+    owner_late_cancel: rc 0 owner_late_cancel: PASS
+    owner_reused_identity: rc 0 owner_reused_identity: PASS
+    whole: rc 0 suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP
+early-live-new-sigtermed: SURVIVOR; probe rc 1 cells ['CELL shell resume=first new=live', 'CELL shell resume=second new=live', 'CELL shell never new=live', 'CELL shell live-new-holds gone=1', 'CELL shell live-new-holds gone=2-tick', 'CELL shell live-new-holds gone=2', 'CELL shell live-new-holds gone=3', 'CELL shell live-new-holds gone=4', 'CELL shell live-new-holds gone=5.5', 'CELL shell live-new-holds gone=last-pass', 'CELL shell live-new-holds gone=never', 'CELL noshell survivor=live new=live', 'CELL noshell survivor=fake new=live']; red controls []
+    owner_stated_seconds: rc 0 owner_stated_seconds: PASS
+    owner_report: rc 0 owner_report: PASS
+    owner_reparented: rc 0 owner_reparented: PASS
+    owner_late_exit: rc 0 owner_late_exit: PASS
+    owner_stall: rc 0 owner_stall: PASS
+    owner_shell_window: rc 0 owner_shell_window: PASS
+    owner_survivor: rc 0 owner_survivor: PASS
+    owner_vanishing: rc 0 owner_vanishing: PASS
+    owner_late_cancel: rc 0 owner_late_cancel: PASS
+    owner_reused_identity: rc 0 owner_reused_identity: PASS
+    whole: rc 0 suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP
+trap-command-next-pass-sigtermed: killed; probe rc 1 cells ['CELL shell resume=first new=fake', 'CELL shell resume=first new=live', 'CELL shell resume=second new=fake', 'CELL shell resume=second new=live', 'CELL shell resume=half new=fake', 'CELL shell resume=half new=live', 'CELL shell resume=one new=fake', 'CELL shell resume=one new=live', 'CELL shell resume=one-half new=fake', 'CELL shell resume=one-half new=live', 'CELL shell resume=next-to-last-in-grace new=fake', 'CELL shell resume=next-to-last-in-grace new=live']; red controls ['owner_stated_seconds', 'whole']
+    owner_stated_seconds: rc 1 AssertionError: a first-pass resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGCONT', 'shell'), (0.5, 'SIGTERM', 'trap command'), (10.0, 'SIGKILL', 'shell'), (10.0, 'SIGKILL', 'tr
+    owner_report: rc 0 owner_report: PASS
+    owner_reparented: rc 0 owner_reparented: PASS
+    owner_late_exit: rc 0 owner_late_exit: PASS
+    owner_stall: rc 0 owner_stall: PASS
+    owner_shell_window: rc 0 owner_shell_window: PASS
+    owner_survivor: rc 0 owner_survivor: PASS
+    owner_vanishing: rc 0 owner_vanishing: PASS
+    owner_late_cancel: rc 0 owner_late_cancel: PASS
+    owner_reused_identity: rc 0 owner_reused_identity: PASS
+    whole: rc 1 AssertionError: a first-pass resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGCONT', 'shell'), (0.5, 'SIGTERM', 'trap command'), (10.0, 'SIGKILL', 'shell'), (10.0, 'SIGKILL', 'tr
+parent-of-live-new-unspared-beside-shell: SURVIVOR; probe rc 1 cells ['CELL shell never new=live']; red controls []
+    owner_stated_seconds: rc 0 owner_stated_seconds: PASS
+    owner_report: rc 0 owner_report: PASS
+    owner_reparented: rc 0 owner_reparented: PASS
+    owner_late_exit: rc 0 owner_late_exit: PASS
+    owner_stall: rc 0 owner_stall: PASS
+    owner_shell_window: rc 0 owner_shell_window: PASS
+    owner_survivor: rc 0 owner_survivor: PASS
+    owner_vanishing: rc 0 owner_vanishing: PASS
+    owner_late_cancel: rc 0 owner_late_cancel: PASS
+    owner_reused_identity: rc 0 owner_reused_identity: PASS
+    whole: rc 0 suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP
+verdict-early-live-new-beside-stopped-shell: SURVIVOR; probe rc 1 cells ['CELL shell never new=live', 'CELL shell live-new-holds gone=last-pass', 'CELL shell live-new-holds gone=never']; red controls []
+    owner_stated_seconds: rc 0 owner_stated_seconds: PASS
+    owner_report: rc 0 owner_report: PASS
+    owner_reparented: rc 0 owner_reparented: PASS
+    owner_late_exit: rc 0 owner_late_exit: PASS
+    owner_stall: rc 0 owner_stall: PASS
+    owner_shell_window: rc 0 owner_shell_window: PASS
+    owner_survivor: rc 0 owner_survivor: PASS
+    owner_vanishing: rc 0 owner_vanishing: PASS
+    owner_late_cancel: rc 0 owner_late_cancel: PASS
+    owner_reused_identity: rc 0 owner_reused_identity: PASS
+    whole: rc 0 suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP
