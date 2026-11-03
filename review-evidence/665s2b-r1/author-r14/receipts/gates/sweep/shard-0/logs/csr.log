@@ -1,0 +1,162 @@
+# cut: the first 40 and last 120 lines of csr.log; whole: 237975 bytes, sha256 ef28a91057c38e49e97a75fa45d6c80d3608ea552b764f7ea328c528c87503a9
+<tools>/pinned-verilator-5.050/verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --top-module milan_csr ../../../hdl/common/csr/milan_csr.sv sim_main.cpp -o Vcsr_sim
+<tools>/pinned-verilator-5.050/verilator +incdir+../../../configs/generated/endstation_arty_current --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_100m --top-module milan_csr \
+  -GMILAN_CLK_FREQ_HZ_P=100000000 \
+  -CFLAGS "-DCSR_MILAN_CLK_HZ=100000000ULL -Wall -Wextra" \
+  ../../../hdl/common/csr/milan_csr.sv sim_main.cpp -o Vcsr_sim100
+<tools>/pinned-verilator-5.050/verilator +incdir+../../../configs/generated/endstation_arty_4x4 --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_win --top-module milan_csr \
+  -GN_LISTENERS_P=4 -GN_TALKERS_P=4 -GCHMAP_RDBK_P=3 \
+  ../../../hdl/common/csr/milan_csr.sv sim_win.cpp -o Vcsr_win
+<tools>/pinned-verilator-5.050/verilator +incdir+../../../configs/generated/endstation_ax7101_8x8 --cc --exe --build -j 0 +incdir+../../../hdl/common/csr -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM -CFLAGS "-std=c++17 -O2 -Wall -Wextra" --Mdir obj_gptp --top-module milan_csr \
+  -GGPTP_PLANE_EN_P=1 ../../../hdl/common/csr/milan_csr.sv sim_gptp.cpp -o Vcsr_gptp
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_current/../../../hdl/common/csr/milan_csr.sv:2300:29: Procedural assignment to declaration with initial value: 'rst_epoch_r'
+                                                                                                                     : ... note: In instance 'milan_csr'
+                                                                                                                     : ... Location of variable initialization
+ 2300 |   logic [7:0] rst_epoch_r = 8'd0;
+      |                             ^~~~
+                      ../../../configs/generated/endstation_arty_current/../../../hdl/common/csr/milan_csr.sv:2822:34: ... Location of variable process write
+                                                                                                                     : ... Perhaps should initialize instead using a reset in this process
+ 2822 |     if (aresetn && !rstn_seen_r) rst_epoch_r <= rst_epoch_r + 8'd1;
+      |                                  ^~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+                      ... Use "/* verilator lint_off PROCASSINIT */" and lint_on around source to disable this message.
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_current/../../../hdl/common/csr/milan_csr.sv:2819:27: Procedural assignment to declaration with initial value: 'rstn_seen_r'
+                                                                                                                     : ... note: In instance 'milan_csr'
+                                                                                                                     : ... Location of variable initialization
+ 2819 |   logic     rstn_seen_r = 1'b0;
+      |                           ^~~~
+                      ../../../configs/generated/endstation_arty_current/../../../hdl/common/csr/milan_csr.sv:2821:5: ... Location of variable process write
+                                                                                                                    : ... Perhaps should initialize instead using a reset in this process
+ 2821 |     rstn_seen_r <= aresetn;
+      |     ^~~~~~~~~~~
+%Warning-PROCASSINIT: ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/csr/milan_csr.sv:2300:29: Procedural assignment to declaration with initial value: 'rst_epoch_r'
+                                                                                                                 : ... note: In instance 'milan_csr'
+                                                                                                                 : ... Location of variable initialization
+ 2300 |   logic [7:0] rst_epoch_r = 8'd0;
+      |                             ^~~~
+                      ../../../configs/generated/endstation_arty_4x4/../../../hdl/common/csr/milan_csr.sv:2822:34: ... Location of variable process write
+                                                                                                                 : ... Perhaps should initialize instead using a reset in this process
+ 2822 |     if (aresetn && !rstn_seen_r) rst_epoch_r <= rst_epoch_r + 8'd1;
+      |                                  ^~~~~~~~~~~
+                      ... For warning description see https://verilator.org/warn/PROCASSINIT?v=5.050
+# ...
+  [ok]   APRB frames matched 0x8B8  = 0xfe
+  [ok]   APRB last SID_LO 0x8BC     = 0x20000
+  [ok]   APRB last SID_HI 0x8C0     = 0x2000000
+  [ok]   APRB info 0x8C4            = 0x8021a
+  [ok]   APRB word 0 live           = 0xa5a50000
+  [ok]   APRB word 4 live           = 0xa5a50004
+-- reserved inert CSR gap (0x8C8-0x8D0) --
+  [ok]   reserved gap 0x8C8 reads 0 = 0x0
+  [ok]   reserved gap 0x8CC reads 0 = 0x0
+  [ok]   reserved gap 0x8D0 reads 0 = 0x0
+  [ok]   0x8E8 above AAFM_RATE is unmapped, reads 0 = 0x0
+  [ok]   0x8F4 below the servo is unmapped, reads 0 = 0x0
+  [ok]   reserved gap 0x8C8 ignores writes = 0x0
+  [ok]   reserved gap 0x8CC ignores writes = 0x0
+  [ok]   reserved gap 0x8D0 ignores writes = 0x0
+-- media-boundary slip counters (0x8D4/0x8D8) --
+  [ok]   SLIP_LB reads 0 with no slips (taps at zero) = 0x0
+  [ok]   SLIP_TDM reads 0 with no slips (taps at zero) = 0x0
+  [ok]   SLIP_LB follows its tap {skip16, dup16} = 0x30001
+  [ok]   SLIP_TDM follows its tap {skip16, dup16} = 0x20004
+  [ok]   SLIP_LB saturated tap reads back = 0xffffffff
+  [ok]   SLIP_TDM unaffected by the other word = 0x20004
+  [ok]   SLIP_LB ignores writes     = 0xffffffff
+  [ok]   SLIP_TDM ignores writes    = 0x20004
+  [ok]   SLIP_LB back to 0 with the tap = 0x0
+-- RENDER_STAT (0x8DC) --
+  [ok]   RENDER_STAT explicit absent-source tie reads zero = 0x0
+  [ok]   RENDER_STAT driven prefill reset word = 0x100
+  [ok]   RENDER_STAT selected listener preserves all fields = 0xa5c30216
+  [ok]   RENDER_STAT ignores writes = 0xa5c30216
+  [ok]   RENDER_STAT talker selection reads zero = 0x0
+  [ok]   RENDER_STAT out-of-range listener reads zero = 0x0
+  [ok]   RENDER_STAT full-width saturated rails stay live = 0xffff0100
+  [ok]   RENDER_STAT restored absent-source tie reads zero = 0x0
+-- AAFM_STAT / AAFM_RATE (0x8E0 / 0x8E4) --
+  [ok]   AAFM_STAT absent-meter tie reads zero = 0x0
+  [ok]   AAFM_RATE absent-meter tie reads zero = 0x0
+  [ok]   AAFM_STAT reads every field of its input = 0xfa02317
+  [ok]   AAFM_RATE reads its signed input = 0xffffea00
+  [ok]   AAFM_STAT ignores writes   = 0xfa02317
+  [ok]   AAFM_RATE ignores writes   = 0xffffea00
+  [ok]   0x8E8 above the pair ignores writes = 0x0
+  [ok]   AAFM_STAT follows its input live = 0x0
+  [ok]   mac03 auto: speed=1000 -> is_1g = 0x1
+  [ok]   mac03 auto: speed=100 -> !is_1g = 0x0
+  [ok]   mac03 auto: speed=10 -> !is_1g = 0x0
+  [ok]   mac03 MAC_STATUS speed tracks = 0x1
+  [ok]   mac03 manual=1,is_1g=1 beats speed=100 = 0x1
+  [ok]   mac03 manual=1,is_1g=0 beats speed=1000 = 0x0
+  [ok]   mac03 auto ignores MAC_CTRL[4]=1 = 0x0
+  [ok]   mac03 auto ignores MAC_CTRL[4]=0 = 0x1
+  [PASS] REQ-MAC-03 is_1g follows MAC speed (MAC_CTRL[5] overrides)
+-- chmap readback NEGATIVE control: no port in this build --
+  [ok]   CHMAP_LOOP un-armed is POISON not 0 = 0xdeaddead
+  [ok]   CHMAP_SNAP tag 0xC5 (feature probe) = 0xc5
+  [ok]   CHMAP_SNAP cap = 0 (port absent) = 0x0
+  [ok]   CHMAP_SNAP armed = 0 at reset = 0x0
+  [ok]   CHMAP_SNAP busy = 0 at reset = 0x0
+  [ok]   CHMAP_SNAP valid = 0 at reset = 0x0
+  [ok]   0x918 still reserved-reads-0 = 0x0
+  [ok]   refused arm: unsup = 1     = 0x1
+  [ok]   refused arm: valid = 0     = 0x0
+  [ok]   refused arm: busy = 0      = 0x0
+  [ok]   refused arm: timeout = 0   = 0x0
+  [ok]   refused arm: armed = 1     = 0x1
+  [ok]   refused arm latched {side,idx} = 0x45
+  [ok]   no fabric request was issued = 0x0
+  [ok]   CHMAP_LOOP still POISON after a refused arm = 0xdeaddead
+  [PASS] R5: an unwired map-RAM readback reads UNSUPPORTED, not 0
+-- 0x7DC AS_PATH addresses are inert without a fabric owner --
+  [ok]   ASP LO reset zero          = 0x0
+  [ok]   ASP HI reset zero          = 0x0
+  [ok]   ASP {gen,count} reset zero = 0x0
+  [ok]   ASP public count reset zero = 0x0
+  [ok]   ASP public generation reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP public slot reset zero = 0x0
+  [ok]   ASP LO write reads zero    = 0x0
+  [ok]   ASP HI write reads zero    = 0x0
+  [ok]   ASP CMD write reads zero   = 0x0
+  [ok]   ASP writes cannot publish a count = 0x0
+  [ok]   ASP writes cannot spend a generation = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [ok]   ASP writes cannot publish a slot = 0x0
+  [PASS] #116: software writes cannot manufacture an AS_PATH owner
+--------------------------------------------------------------
+  [ok]   0x7E8 plane-OFF zero       = 0x0
+  [ok]   0x7EC plane-OFF zero       = 0x0
+  [ok]   0x7F0 plane-OFF zero       = 0x0
+  [ok]   0x7F0 write is inert       = 0x0
+checks: 408   failures: 0
+RESULT: PASS
+python3 lock_mutants.py
+[PASS] the unmutated block still passes the lockstep leg
+[PASS] mutant caught (lock1): wrong address decode: IRQ_RAW's live word answers at IRQ_MASK - fails "decode"
+    it failed reset-values, decode, lockstep
+[PASS] mutant caught (lock1): torn snapshot: window CNT3 reads its live counter, not the SNAP word - fails "snapshot-coherence"
+    it failed snapshot-coherence, lockstep
+[PASS] mutant caught (lock1): stale snapshot: a listener SNAP after a talker SNAP keeps the POISON kind - fails "snapshot-freshness"
+    it failed decode, snapshot-coherence, snapshot-freshness, lockstep
+[PASS] mutant caught (lock8): stale snapshot: an extra listener's burst word keeps its previous kind - fails "snapshot-freshness"
+    it failed decode, snapshot-coherence, snapshot-freshness, lockstep
+[PASS] mutant caught (lock1): reset-value drift: the CNT kinds reset to POISON instead of zero - fails "reset-values"
+    it failed reset-values, lockstep
+[PASS] mutant caught (lock1): stage 1: the shadow word is not zeroed under a live or window claim - fails "decode"
+    it failed reset-values, decode, snapshot-coherence, snapshot-freshness, lockstep
+[PASS] mutant caught (lock1): stage 1: the window's range leaf answers 0 instead of the window's word - fails "decode"
+    it failed reset-values, decode, snapshot-coherence, snapshot-freshness, lockstep
+
+8 checks: 8 PASS, 0 FAIL

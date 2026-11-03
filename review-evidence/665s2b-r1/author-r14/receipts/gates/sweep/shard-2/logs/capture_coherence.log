@@ -1,0 +1,162 @@
+# cut: the first 40 and last 120 lines of capture_coherence.log; whole: 367186 bytes, sha256 d17e3b108a1454803b23ef69bd42805ba5f0541fbd8b9008f372de1104be2de5
+mkdir -p obj_dir
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+======================================================================
+python3 mga_keepoff.py ../../../hdl/milan/milan_datapath.sv obj_dir/mga_keepoff.svh
+python3 mutants.py
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+<tools>/pinned-verilator-5.050/verilator --cc --exe --build -j 0 --top-module coherence_wrap -GCLK_HZ_P=50000000 -GN_TALKERS_P=1 -GWIRE_CHANS_P=8 -GTDM_SLOTS_P=8 -GLB_STREAMS_P=1 -GLB_CH_P=8 -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -CFLAGS "-std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8" +incdir+obj_dir --Mdir obj_dir ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv coherence_wrap.sv sim_main.cpp -o Vcoherence_sim
+ucode.hex: 2048 words, 95 programs
+<tools>/pinned-verilator-5.050/verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 0 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 -GDIAG_TICK_CYC_P=256 -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -GGPTP_PLANE_EN_P=0 --Mdir obj_dp -GMILAN_CLK_FREQ_HZ=50000000 -GN_STREAMS=1 -GTALKER_WIRE_CHANS_P=8 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_RENDER_SLOTS_P=8 -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 \
+  -CFLAGS "-DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8 -Wall -Wextra" <lanes>/665s2b-q-shard2/tb/verilator/capture_coherence/ptoff_public.vlt ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/milan/KL_reboot_ctrl.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_dp.cpp -o Vcoherence_dp
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:148:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  148 |     $error("KL_media_grid_align: CLK_FREQ_HZ_P/FS_HZ_P = %0d leaves the detector under 4 bits of sub-sample resolution - this loop cannot bound phase inside a sample there.", DIV_C);
+      |     ^~~~~~
+                     ... For warning description see https://verilator.org/warn/GENUNNAMED?v=5.050
+                     ... Use "/* verilator lint_off GENUNNAMED */" and lint_on around source to disable this message.
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:150:5: Unnamed generate block 'genblk2' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  150 |     $error("KL_media_grid_align: DIV_C=%0d puts the saturated fold plus the capture span past err_cyc_o's 16-bit range - the truncation would wrap the error sign. Lower SLIP_LIM_C or widen err_cyc_o.", DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:152:5: Unnamed generate block 'genblk3' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  152 |     $error("KL_media_grid_align: U_LIM_PPM16_P=%0d cannot absorb a pre-clamp proportional term of +/-%0d without widening u_o.", U_LIM_PPM16_P, 2 * DIV_C << KP_LOG2_P);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/crf/KL_media_grid_align.sv:154:5: Unnamed generate block 'genblk4' (IEEE 1800-2023 27.6)
+                                                                           : ... Suggest assign a label with 'begin : gen_<label_name>'
+  154 |     $error("KL_media_grid_align: LOCK_KEEPOFF_CYC_P=%0d leaves no lock target between the ticks of a %0d-cycle sample.", LOCK_KEEPOFF_CYC_P, DIV_C);
+      |     ^~~~~~
+%Warning-GENUNNAMED: ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv:243:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                         : ... Suggest assign a label with 'begin : gen_<label_name>'
+  243 |     $error("KL_aaf_packetizer: WIRE_CHANS_P=%0d is not an even 2..%0d. This is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3); the pair stream is 2-channel-granular so odd widths cannot be produced.",
+      |     ^~~~~~
+make[1]: warning: jobserver unavailable: using -j1.  Add '+' to parent make rule.
+g++  -I.  -MMD -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include -I$HOME/.local/share/containers/storage/overlay/9517af577e2019496be7a9f3df0cdeafba0a4f827989b59cb358abf6403fbbde/diff/usr/share/verilator/include/vltstd -DVERILATOR=1 -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=0 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=0 -DVM_TRACE_SAIF=0 -DVM_VPI=0 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-int-in-bool-context -Wno-shadow -Wno-sign-compare -Wno-subobject-linkage -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -std=c++17 -O2 -Wall -Wextra -DCLK_HZ_TB=50000000 -DWIRE_CHANS_TB=8 -DTDM_SLOTS_TB=8   -Os  -c -o sim_main.o ../sim_main.cpp
+[i]  41 builds on 4 worker(s), one per CPU this process may use; the datapath builds start first
+%Warning-GENUNNAMED: ../../../configs/generated/endstation_ax7101_1x1_tdm8/../../../hdl/milan/milan_datapath.sv:912:5: Unnamed generate block 'genblk1' (IEEE 1800-2023 27.6)
+                                                                                                                     : ... Suggest assign a label with 'begin : gen_<label_name>'
+  912 |     $error("milan_datapath: AUDIO_IF_I2S_PAIR_P=1 blends the stereo I2S front-end beside a TDM MASTER (HANDOVER 8.3b). With AUDIO_IF_MASTER_P=%0d / AUDIO_IF_SLOTS_P=%0d there is no master to blend with: a SLAVE shares the i2s mclk pin and the plain I2S build already IS the I2S front-end.",
+      |     ^~~~~~
+# ...
+  [i]  CRF-fine-50+1.3/62: engaged +0 cycles from the crossing, the close then moved -5..+1 (furthest at column 287); tail: tick 1 cycles after the frame close, +0..+4 (spread 4); 1 repeats, 1 skips
+  [i]  CRF-fine-50+1.3/62: last slip at column 31; engagement window 64 columns
+  [i]  CRF-fine-50+1.3/63: engaged +1 cycles from the crossing, the close then moved +0..+35 (furthest at column 292); tail: tick 1022 cycles after the frame close, -16..+1 (spread 17); 0 repeats, 0 skips
+  [i]  CRF-fine-50: 768 engagements landed from -3 to +3, widest gap 1 cycles
+
+  [i]  calibration, -80 ppm plan: with the TDM clock unheld the first close lands 14 cycles after its tick
+
+[CRF-settle-80] CRF, -80 ppm plan, engagement placed every 256 cycles from -256 to +0 of the crossing, 30000 columns each
+  [i]  CRF-settle-80-256: engaged -257 cycles from the crossing, the close then moved +0..+238 (furthest at column 7169); tail: tick 72 cycles after the frame close, +0..+126 (spread 126); 0 repeats, 0 skips
+  [i]  CRF-settle-80+0: engaged -1 cycles from the crossing, the close then moved -212..+22 (furthest at column 29783); tail: tick 104 cycles after the frame close, +0..+109 (spread 109); 1 repeats, 1 skips
+  [i]  CRF-settle-80+0: last slip at column 6284; engagement window unbounded columns
+  [i]  CRF-settle-80: 2 engagements landed from -257 to -1, widest gap 256 cycles
+
+  [i]  calibration, +80 ppm plan: with the TDM clock unheld the first close lands 13 cycles after its tick
+
+[CRF-settle+80] CRF, +80 ppm plan, engagement placed every 256 cycles from +8 to +264 of the crossing, 30000 columns each
+  [i]  CRF-settle+80+8: engaged +7 cycles from the crossing, the close then moved -24..+207 (furthest at column 29842); tail: tick 936 cycles after the frame close, -109..+1 (spread 110); 1 repeats, 1 skips
+  [i]  CRF-settle+80+8: last slip at column 6056; engagement window unbounded columns
+  [i]  CRF-settle+80+264: engaged +263 cycles from the crossing, the close then moved -238..+0 (furthest at column 7211); tail: tick 962 cycles after the frame close, -125..+1 (spread 126); 0 repeats, 0 skips
+  [i]  CRF-settle+80: 2 engagements landed from +7 to +263, widest gap 256 cycles
+
+  [i]  calibration, -100 ppm plan: with the TDM clock unheld the first close lands 14 cycles after its tick
+
+[CRF-settle-100] CRF, -100 ppm plan, engagement placed every 256 cycles from -256 to +0 of the crossing, 30000 columns each
+  [i]  CRF-settle-100-256: engaged -257 cycles from the crossing, the close then moved +0..+299 (furthest at column 7547); tail: tick 26 cycles after the frame close, -1..+158 (spread 159); 1 repeats, 1 skips
+  [i]  CRF-settle-100-256: last slip at column 13065; engagement window unbounded columns
+  [i]  CRF-settle-100+0: engaged -2 cycles from the crossing, the close then moved -197..+69 (furthest at column 29963); tail: tick 58 cycles after the frame close, -1..+141 (spread 142); 1 repeats, 1 skips
+  [i]  CRF-settle-100+0: last slip at column 11036; engagement window unbounded columns
+  [i]  CRF-settle-100: 2 engagements landed from -257 to -2, widest gap 255 cycles
+
+  [i]  calibration, +100 ppm plan: with the TDM clock unheld the first close lands 12 cycles after its tick
+
+[CRF-settle+100] CRF, +100 ppm plan, engagement placed every 256 cycles from +8 to +264 of the crossing, 30000 columns each
+  [i]  CRF-settle+100+8: engaged +8 cycles from the crossing, the close then moved -73..+191 (furthest at column 29830); tail: tick 983 cycles after the frame close, -141..+0 (spread 141); 1 repeats, 1 skips
+  [i]  CRF-settle+100+8: last slip at column 10963; engagement window unbounded columns
+  [i]  CRF-settle+100+264: engaged +265 cycles from the crossing, the close then moved -299..+0 (furthest at column 7649); tail: tick 1007 cycles after the frame close, -158..+1 (spread 159); 1 repeats, 1 skips
+  [i]  CRF-settle+100+264: last slip at column 12374; engagement window unbounded columns
+  [i]  CRF-settle+100: 2 engagements landed from +8 to +265, widest gap 257 cycles
+== capture_coherence: checks: 20832   failures: 0 ==
+RESULT: PASS
+lots: stamp to pin instant max 15.0 ns (without the slot constant 18319 ns); 1505 domain events, max 11.0 ns from a sync rise
+  [i]  [DP-band-true-18] [WIRE] offset 2000000 ns: 251 AAF PDUs, avtp_timestamp - offset - hand-over 36963..59787 ns; 15 CRF PDUs, timestamp - 2000000 ns applied - hand-over 20503..20503 ns; [GRID] AAF 250 on, 0 off, CRF 15 on, 0 off; [HOLD] avtp_timestamp - hand-over max 2059787 ns
+  [i]  DP-band-true-16: engaged -17 cycles from the crossing; tail: tick 61 cycles after the fsync edge, +0..+31 (spread 31); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  [DP-band-true-16] [PIN] 2000 slots: stamp to pin instant max 15.0 ns (without the slot constant 18319 ns); 1505 domain events, max 11.0 ns from a sync rise
+  [i]  [DP-band-true-16] [WIRE] offset 2000000 ns: 251 AAF PDUs, avtp_timestamp - offset - hand-over 37003..59787 ns; 15 CRF PDUs, timestamp - 2000000 ns applied - hand-over 20503..20503 ns; [GRID] AAF 250 on, 0 off, CRF 15 on, 0 off; [HOLD] avtp_timestamp - hand-over max 2059787 ns
+  [i]  DP-band-true-14: engaged -16 cycles from the crossing; tail: tick 60 cycles after the fsync edge, +0..+32 (spread 32); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  [DP-band-true-14] [PIN] 2000 slots: stamp to pin instant max 15.0 ns (without the slot constant 18319 ns); 1505 domain events, max 11.0 ns from a sync rise
+  [i]  [DP-band-true-14] [WIRE] offset 2000000 ns: 251 AAF PDUs, avtp_timestamp - offset - hand-over 37003..59787 ns; 15 CRF PDUs, timestamp - 2000000 ns applied - hand-over 20503..20503 ns; [GRID] AAF 250 on, 0 off, CRF 15 on, 0 off; [HOLD] avtp_timestamp - hand-over max 2059787 ns
+  [i]  DP-band-true-12: engaged -13 cycles from the crossing; tail: tick 57 cycles after the fsync edge, +0..+33 (spread 33); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  [DP-band-true-12] [PIN] 2000 slots: stamp to pin instant max 15.0 ns (without the slot constant 18319 ns); 1505 domain events, max 11.0 ns from a sync rise
+  [i]  [DP-band-true-12] [WIRE] offset 2000000 ns: 251 AAF PDUs, avtp_timestamp - offset - hand-over 37043..59787 ns; 15 CRF PDUs, timestamp - 2000000 ns applied - hand-over 20503..20503 ns; [GRID] AAF 250 on, 0 off, CRF 15 on, 0 off; [HOLD] avtp_timestamp - hand-over max 2059787 ns
+  [i]  DP-band-true-10: engaged -12 cycles from the crossing; tail: tick 56 cycles after the fsync edge, +0..+33 (spread 33); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  [DP-band-true-10] [PIN] 2000 slots: stamp to pin instant max 15.0 ns (without the slot constant 18319 ns); 1505 domain events, max 11.0 ns from a sync rise
+  [i]  [DP-band-true-10] [WIRE] offset 2000000 ns: 251 AAF PDUs, avtp_timestamp - offset - hand-over 37063..59787 ns; 15 CRF PDUs, timestamp - 2000000 ns applied - hand-over 20503..20503 ns; [GRID] AAF 250 on, 0 off, CRF 15 on, 0 off; [HOLD] avtp_timestamp - hand-over max 2059787 ns
+  [i]  DP-band-true-8: engaged -9 cycles from the crossing; tail: tick 54 cycles after the fsync edge, +0..+33 (spread 33); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  [DP-band-true-8] [PIN] 2000 slots: stamp to pin instant max 15.0 ns (without the slot constant 18319 ns); 1505 domain events, max 11.0 ns from a sync rise
+  [i]  [DP-band-true-8] [WIRE] offset 2000000 ns: 251 AAF PDUs, avtp_timestamp - offset - hand-over 37103..59787 ns; 15 CRF PDUs, timestamp - 2000000 ns applied - hand-over 20503..20503 ns; [GRID] AAF 250 on, 0 off, CRF 15 on, 0 off; [HOLD] avtp_timestamp - hand-over max 2059787 ns
+  [i]  DP-band-true-6: engaged -8 cycles from the crossing; tail: tick 53 cycles after the fsync edge, +0..+33 (spread 33); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  [DP-band-true-6] [PIN] 2000 slots: stamp to pin instant max 15.0 ns (without the slot constant 18319 ns); 1505 domain events, max 11.0 ns from a sync rise
+  [i]  [DP-band-true-6] [WIRE] offset 2000000 ns: 251 AAF PDUs, avtp_timestamp - offset - hand-over 37123..59787 ns; 15 CRF PDUs, timestamp - 2000000 ns applied - hand-over 20503..20503 ns; [GRID] AAF 250 on, 0 off, CRF 15 on, 0 off; [HOLD] avtp_timestamp - hand-over max 2059787 ns
+  [i]  DP-band-true-4: engaged -5 cycles from the crossing; tail: tick 51 cycles after the fsync edge, +0..+33 (spread 33); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  [DP-band-true-4] [PIN] 2000 slots: stamp to pin instant max 15.0 ns (without the slot constant 18319 ns); 1505 domain events, max 11.0 ns from a sync rise
+  [i]  [DP-band-true-4] [WIRE] offset 2000000 ns: 251 AAF PDUs, avtp_timestamp - offset - hand-over 37163..59787 ns; 15 CRF PDUs, timestamp - 2000000 ns applied - hand-over 20503..20503 ns; [GRID] AAF 250 on, 0 off, CRF 15 on, 0 off; [HOLD] avtp_timestamp - hand-over max 2059787 ns
+  [i]  DP-band-true-2: engaged -4 cycles from the crossing; tail: tick 50 cycles after the fsync edge, +0..+34 (spread 34); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  [DP-band-true-2] [PIN] 2000 slots: stamp to pin instant max 15.0 ns (without the slot constant 18319 ns); 1505 domain events, max 11.0 ns from a sync rise
+  [i]  [DP-band-true-2] [WIRE] offset 2000000 ns: 251 AAF PDUs, avtp_timestamp - offset - hand-over 37163..59787 ns; 15 CRF PDUs, timestamp - 2000000 ns applied - hand-over 20503..20503 ns; [GRID] AAF 250 on, 0 off, CRF 15 on, 0 off; [HOLD] avtp_timestamp - hand-over max 2059787 ns
+  [i]  DP-band-true+0: engaged -1 cycles from the crossing; tail: tick 47 cycles after the fsync edge, +0..+35 (spread 35); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  [DP-band-true+0] [PIN] 2000 slots: stamp to pin instant max 15.0 ns (without the slot constant 18319 ns); 1505 domain events, max 11.0 ns from a sync rise
+  [i]  [DP-band-true+0] [WIRE] offset 2000000 ns: 251 AAF PDUs, avtp_timestamp - offset - hand-over 37203..59787 ns; 15 CRF PDUs, timestamp - 2000000 ns applied - hand-over 20503..20503 ns; [GRID] AAF 250 on, 0 off, CRF 15 on, 0 off; [HOLD] avtp_timestamp - hand-over max 2059787 ns
+  [i]  DP-band-true+2: engaged +1 cycles from the crossing; tail: tick 994 cycles after the fsync edge, -46..+1 (spread 47); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  [DP-band-true+2] [PIN] 2000 slots: stamp to pin instant max 14.0 ns (without the slot constant 18319 ns); 1505 domain events, max 11.0 ns from a sync rise
+  [i]  [DP-band-true+2] [WIRE] offset 2000000 ns: 251 AAF PDUs, avtp_timestamp - offset - hand-over 17883..59807 ns; 15 CRF PDUs, timestamp - 2000000 ns applied - hand-over 20503..20503 ns; [GRID] AAF 250 on, 0 off, CRF 15 on, 0 off; [HOLD] avtp_timestamp - hand-over max 2059807 ns
+  [i]  DP-band-true+4: engaged +3 cycles from the crossing; tail: tick 993 cycles after the fsync edge, -46..+0 (spread 46); 0 repeats, 0 skips; SLIP_TDM 0 dups, 0 skips
+  [i]  [DP-band-true+4] [PIN] 2000 slots: stamp to pin instant max 14.0 ns (without the slot constant 18319 ns); 1505 domain events, max 11.0 ns from a sync rise
+  [i]  [DP-band-true+4] [WIRE] offset 2000000 ns: 251 AAF PDUs, avtp_timestamp - offset - hand-over 17923..59807 ns; 15 CRF PDUs, timestamp - 2000000 ns applied - hand-over 20503..20503 ns; [GRID] AAF 250 on, 0 off, CRF 15 on, 0 off; [HOLD] avtp_timestamp - hand-over max 2059807 ns
+  [i]  DP-band-true: 13 engagements landed from -21 to +3, widest gap 3 cycles
+== capture_coherence_dp: checks: 847   failures: 0 ==
+RESULT: PASS
+[PASS] the unmutated source still passes the junction harness
+[PASS] the unmutated source still passes the band harness
+[PASS] the unmutated source still passes the band50 harness
+[PASS] the unmutated source still passes the fine harness
+[PASS] the unmutated source still passes the dp harness
+[PASS] the unmutated source still passes the dp-band harness
+[PASS] the unmutated source still passes the chmap harness
+[PASS] the unmutated source still passes the nco harness
+[PASS] mutant caught (junction): the walk reads the per-pair stage (the ce550952 latest-sample law) - breaks "[A] AAF columns mixing two TDM frames" and "[W] walks reading two TDM frames"
+[PASS] mutant caught (junction): no walk snapshot: the walk reads the frame bank live - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (junction): the frame is closed by its first pair - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (junction): the frame is published whole but one pair late (at the next frame's first pair) - breaks "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the stage is never written (only the closing pair reaches the frame) - breaks "[V] every requested column was decoded"
+[PASS] mutant caught (junction): the walk ignores the coincidence law: a close on the tick cycle always waits - breaks "[C] walks whose repeat or skip the junction counters did not count" and "[W] walks older than the frame their tick takes"
+[PASS] mutant caught (junction): the walk snapshot back on the pre-walk's last cycle (the round-1 instant) - breaks "[W] walks newer than the frame their tick takes"
+[PASS] mutant caught (junction): the junction counters keyed on the slot-0 write against the tick (the round-1 law) - breaks "[C] walks whose repeat or skip the junction counters did not count"
+[PASS] mutant caught (band): the round-1 aligner binding: slot-0 marker, the tick itself, the 1/128-sample keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band): the aligner's keep-off back to its 1/128-sample default - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band): the aligner sees the tick itself, one cycle before the walk's crossing - breaks "[C] CRF slips net zero"
+[PASS] mutant caught (dp): milan_datapath tells the crossbar a one-pair TDM frame - breaks "[A] AAF columns mixing two TDM frames"
+[PASS] mutant caught (dp-band): milan_datapath's round-1 aligner binding: slot-0 marker, the tick itself, the default keep-off - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (dp): the AAF talkers stamp the live PHC at the walk again: the capture age and the pair offset back in the timestamp (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp-band): the time base latched at the media tick instead of banked with the frame: a close on the tick's own cycle stamps the frame before, a sample early (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp): the domain event's marker latency drops its frame term: every stamp a sample period late (#632) - breaks "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp): the marker latency drops the front-end's FIFO write term (one clk_tdm_i cycle, #632) - breaks "[PIN] ...and inside the marker latency's derivation"
+[PASS] mutant caught (dp): the AAF talkers stamp without their lead: the frame instant plus the offset, #770's stamp (#773) - breaks "[WIRE] every AAF PDU's hand-over is at or before its avtp_timestamp less the presentation offset" and "[GRID] every AAF stamp less its offset and 8 periods is a domain media event's instant" and "[PIN] every slot's MSB pin instant, less its slot offset, is its AAF timestamp less the presentation offset and 8 periods, inside +/-5 % of Ps"
+[PASS] mutant caught (dp): the AAF fixed delay one period short: the instant plus 7 periods (#773) - breaks "[WIRE] every AAF PDU's hand-over is at or before its avtp_timestamp less the presentation offset" and "[GRID] every AAF stamp less its offset and 8 periods is a domain media event's instant"
+[PASS] mutant caught (dp): the AAF stamps 125 us late: past IEEE 1722-2016 Equation (1)'s lower bound (#773) - breaks "[WIRE] ...and every AAF PDU's after it less TUmax, 125 us" and "[HOLD] no AAF stamp is more than 2.126 ms after its hand-over"
+[PASS] mutant caught (dp): the CRF output stamps without its Equation (14) TC (#773) - breaks "[WIRE] every CRF PDU's hand-over is at or before its timestamp less the offset as applied" and "[GRID] every CRF stamp less its offset applied and TC, 2 periods, is a domain media event's instant"
+[PASS] mutant caught (dp): the CRF output's TC one period short: 1 period at 1x1 (#773) - breaks "[WIRE] every CRF PDU's hand-over is at or before its timestamp less the offset as applied" and "[GRID] every CRF stamp less its offset applied and TC, 2 periods, is a domain media event's instant"
+[PASS] mutant caught (dp): the CRF stamps 125 us late: past Equation (1)'s lower bound (#773) - breaks "[WIRE] ...and every CRF PDU's after it less TUmax, 125 us"
+[PASS] mutant caught (dp): the AAF talkers' terms grow by 125 us: a fixed delay past Milan v1.2 5.3.7.6's 125 us (#773) - its build refuses it: "exceeds the 0 to 125 us Milan v1.2 5.3.7.6 allows: refused"
+[PASS] mutant caught (chmap): RM7: a tick queued behind a running walk takes no snapshot when its walk starts - breaks "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (chmap): RM8: a queued tick snapshots at the tick itself, reloading the walk still running - breaks "Q: col 1 pair 2 L is frame 2" and "Q: col 2 pair 0 L is frame 4"
+[PASS] mutant caught (band50): RM5: milan_datapath's keep-off halved to 128 cycles, under the 200-cycle proportional equilibrium a 50 ppm rate forces on a pulled engagement - breaks "[C] slips while the CRF lock held"
+[PASS] mutant caught (band50): RM9: milan_datapath binds its aligner a literal 128-cycle keep-off, leaving MGA_KEEPOFF_CYC_C at 256 (the datapath leg passes it, R394-3 S1) - its build refuses it: "does not bind LOCK_KEEPOFF_CYC_P to MGA_KEEPOFF_CYC_C"
+[PASS] mutant caught (nco): the terminal compare back to == (377d1ac3): a trim lowering the end under the count is missed - breaks "update landing at old end +0: one tick, in a period the old or the new trim sets"
+[PASS] mutant caught (fine): the terminal compare back to == (377d1ac3), under the aligner's trim updates - breaks "[C] CRF slips net zero"
+[PASS] mutant caught (chmap): the frame closes on the bucket's last pair whatever the frame length - breaks "F1: col 0 carries its own pair-0 frame (L)"
+[PASS] mutant caught (chmap): the walk's instant latched at the snapshot, not loaded with its frame: a close on the tick cycle with none pending names the frame before (#632) - breaks "F: tick-cycle: col 1 walk instant is frame 2's"
+
+42 checks: 42 PASS, 0 FAIL

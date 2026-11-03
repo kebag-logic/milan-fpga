@@ -1,0 +1,34 @@
+pass: {"exit": 0, "mode": "pass", "next_suite": true, "owner_ran": true}
+fail: {"exit": 1, "mode": "fail", "next_suite": true, "owner_ran": true}
+masked: {"exit": 1, "mode": "masked", "next_suite": true, "owner_ran": true}
+timeout: {"exit": 92, "mode": "timeout", "next_suite": true, "owner_ran": true}
+owner-refusal: {"exit": 2, "owner_refusal": true, "suite_started": false}
+normal-orphan: {"exit": 0, "handshake": {"child": 3164934, "cwd": "<scratch>/tmp-sweep2/suite-cancellation-_1_daoka/normal-orphan input [523]", "identities": {"3164933": ["80979070", "S"], "3164934": ["80979073", "S"]}, "pid": 3164933}, "normal_cleanup": true}
+relative-output: {"exit": 0, "relative_output": true}
+cancel-selection-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 3165198, "cwd": "<scratch>/tmp-sweep2/suite-cancellation-_1_daoka/cancel-selection-SIGINT input [523]", "identities": {"3165197": ["80979383", "S"], "3165198": ["80979387", "S"]}, "pid": 3165197}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-selection-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 3165263, "cwd": "<scratch>/tmp-sweep2/suite-cancellation-_1_daoka/cancel-selection-SIGTERM input [523]", "identities": {"3165262": ["80979616", "S"], "3165263": ["80979620", "S"]}, "pid": 3165262}, "next_suite": false, "phase": "selection", "unsafe_control_detected": false}
+cancel-preflight-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 3166231, "cwd": "<scratch>/tmp-sweep2/suite-cancellation-_1_daoka/cancel-preflight-SIGINT input [523]", "identities": {"3166226": ["80979867", "S"], "3166231": ["80979870", "S"]}, "pid": 3166226}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-preflight-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 3166889, "cwd": "<scratch>/tmp-sweep2/suite-cancellation-_1_daoka/cancel-preflight-SIGTERM input [523]", "identities": {"3166882": ["80980151", "S"], "3166889": ["80980157", "S"]}, "pid": 3166882}, "next_suite": false, "phase": "preflight", "unsafe_control_detected": false}
+cancel-command-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 3167435, "cwd": "<scratch>/tmp-sweep2/suite-cancellation-_1_daoka/cancel-command-SIGINT input [523]", "identities": {"3167404": ["80980414", "S"], "3167435": ["80980417", "S"]}, "pid": 3167404}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-command-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 3168081, "cwd": "<scratch>/tmp-sweep2/suite-cancellation-_1_daoka/cancel-command-SIGTERM input [523]", "identities": {"3168080": ["80980669", "S"], "3168081": ["80980672", "S"]}, "pid": 3168080}, "next_suite": false, "phase": "command", "unsafe_control_detected": false}
+cancel-transition-SIGINT: {"exit": 130, "foreign_untouched": true, "handshake": {"child": 3168692, "cwd": "<scratch>/tmp-sweep2/suite-cancellation-_1_daoka/cancel-transition-SIGINT input [523]", "identities": {"3168689": ["80980926", "S"], "3168692": ["80980929", "S"]}, "pid": 3168689}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-transition-SIGTERM: {"exit": 143, "foreign_untouched": true, "handshake": {"child": 3169031, "cwd": "<scratch>/tmp-sweep2/suite-cancellation-_1_daoka/cancel-transition-SIGTERM input [523]", "identities": {"3169030": ["80981185", "S"], "3169031": ["80981189", "S"]}, "pid": 3169030}, "next_suite": false, "phase": "transition", "unsafe_control_detected": false}
+cancel-lock-wait-SIGINT: {"exit": 130, "phase": "lock-wait", "previous_logs_kept": true, "unprepared_reported": true}
+Traceback (most recent call last):
+  File "<lanes>/665s2b-q-shard3/scripts/test_suite_cancellation.py", line 395, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "<lanes>/665s2b-q-shard3/scripts/test_suite_cancellation.py", line 379, in main
+    lock_wait(parent, signum)
+    ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "<lanes>/665s2b-q-shard3/scripts/test_suite_cancellation.py", line 238, in lock_wait
+    status, output = probe.finish()
+                     ~~~~~~~~~~~~^^
+  File "<lanes>/665s2b-q-shard3/scripts/process_test_support.py", line 215, in finish
+    status = self.process.wait(timeout=12)
+  File "/usr/lib/python3.14/subprocess.py", line 1279, in wait
+    return self._wait(timeout=timeout)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2076, in _wait
+    raise TimeoutExpired(self.args, timeout)
+subprocess.TimeoutExpired: Command '['bash', '<scratch>/tmp-sweep2/suite-cancellation-_1_daoka/cancel-lock-wait-SIGTERM input [523]/scripts/run_all_suites.sh', '<scratch>/tmp-sweep2/suite-cancellation-_1_daoka/cancel-lock-wait-SIGTERM input [523]/logs', '--wait']' timed out after 12 seconds

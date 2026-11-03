@@ -1,0 +1,67 @@
+[ok] mutant step-before-the-polls (port): 1 check(s) failed
+    first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 after every poll
+[ok] mutant step-deadline-read-at-the-end (port): 4 check(s) failed
+    first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 the clock is read once a pass
+[ok] mutant step-deadline-without-the-share (port): 4 check(s) failed
+    first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 the deadline is the share past the clock read as the pass starts
+[ok] mutant step-beside-input (port): 16 check(s) failed
+    first: [FAIL] Loop.L12StepOnlyInAPassThatTakesNoInput: L12 a pass that takes a record does not take the step
+[ok] mutant step-owed-lets-it-sleep (port): 1 check(s) failed
+    first: [FAIL] Loop.L11StepLastWithTheDeadlineReadAtTheStart: L11 a step still owed asks for the next pass at once
+[ok] mutant step-age-uncounted (port): 6 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the next pass takes the step though input waits
+[ok] mutant step-age-ignored (port): 6 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the next pass takes the step though input waits
+[ok] mutant step-age-at-the-limit (port): 12 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the pass that dispatches one more takes its input, not the step
+[ok] mutant step-aged-pass-takes-input (port): 8 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 and takes nothing else: no event, no record, no poll
+[ok] mutant step-aged-pass-sleeps (port): 1 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the step's pass asks for the next pass at once
+[ok] mutant step-aged-deadline-not-read (port): 1 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 with the deadline read as it starts
+[ok] mutant step-aged-pass-uncounted (port): 2 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the pass is counted as an aged step's
+[ok] mutant step-age-kept-by-its-pass (port): 9 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 the next pass takes the input it held off
+[ok] mutant step-age-kept-after-a-step (port): 2 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 a step run in a pass that takes nothing starts its age again
+[ok] mutant step-age-reset-on-deferral (port): 2 check(s) failed
+    first: [FAIL] Loop.L13AnAgedStepIsAPassOfItsOwn: L13 a step it had no room for keeps its age
+mutants: 15 of 15 caught
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ESCAPED] joint-reset-builds-both: JointLinkChangeBuildsOneInterfaceAPass / a pass builds one interface at most
+Note: Google Test filter = Srp.JointLinkChangeBuildsOneInterfaceAPass
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from Srp
+[ RUN      ] Srp.JointLinkChangeBuildsOneInterfaceAPass
+[       OK ] Srp.JointLinkChangeBuildsOneInterfaceAPass (0 ms)
+[----------] 1 test from Srp (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl ADP MAAP SRP composition: checks: 1   failures: 0 ==
+RESULT: PASS
+  verdict: PASS (1 tests, 0 failures, exit 0)
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-turn-ignored: JointLinkChangeBuildsOneInterfaceAPass / the interface whose turn it is is built first
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-turn-not-moved: JointLinkChangeBuildsOneInterfaceAPass / the interface whose turn it is is built first
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-waits-beside-a-withdrawal: JointLinkChangeBuildsOneInterfaceAPass / an interface due beside one still withdrawing is built at once
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx_pkg.sv (2 interfaces)
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/KL_mbx.sv (2 interfaces)
+wrote <scratch>/np-wt1-work/srp-mutants/work/build/srp-srp_app-if2-endstation_ax7101_1x1_tdm8/contract/mbx_contract.h (2 interfaces)
+[ok] build-turn-read-after-its-visit: JointLinkChangeBuildsInterfaceOneBesideAWithdrawal / interface 1, due beside interface 0 still withdrawing with the turn, is built at once
+new plants: FAIL
+rc=1
