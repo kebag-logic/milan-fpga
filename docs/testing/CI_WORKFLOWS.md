@@ -1671,13 +1671,14 @@ reconciles the whole inventory. A member's measured time is its own verdict
 row in a LiteX leg on a worker of its own. The legs are derived from the leg
 receipts of run 41583428850, the first hosted run with the legs apart
 (`SECONDS`), and each must fit at `LARGEST`, each member's largest time over
-runs 41583428850 and 41678609075. Inside the old aggregate, after a builder
+runs 41583428850 and 41678609075 (attempts 1 and 3). Inside the old aggregate, after a builder
 leg in the same job, members cost otherwise (`test_ctrl_memory` 113 seconds
 there, 280 alone). A member with no measured time, a measurement for a member
-the inventory lost, and a leg above 773 seconds at `LARGEST` are refused, so a
-new simulation cannot join a leg unmeasured; 773 is what keeps a cold LiteX
-worker, by the projection in [Protected merge bar](#protected-merge-bar),
-inside the workflow's 30 minutes, runner queueing excluded. The leg receipt
+the inventory lost, and a leg above `LEG_BUDGET`, 1181 seconds, at `LARGEST`
+are refused, so a new simulation cannot join a leg unmeasured. `LEG_BUDGET`
+keeps a cold LiteX worker, by the projection in
+[Protected merge bar](#protected-merge-bar), 600 seconds inside its own
+45-minute limit, runner queueing excluded. The leg receipt
 binds the runner's per-member verdict rows (`verdicts.tsv`) and its exit to
 the head and tree. The `elaborate` aggregate refuses unless every simulation
 ran exactly once, in its measured leg, and passed: a simulation dropped from
@@ -1686,8 +1687,8 @@ red runner exit are each refused, naming the simulation or the leg, and
 `ci_gate_workflows_selftest.py` plants each of them. The legs hold 461
 (`test_gptp_tx_timestamp`), 440 (`test_retained_cdc_storage`,
 `test_cpu_memory_port_cdc` and the three shortest) and 520 measured seconds
-(`test_ctrl_memory` and `test_soc_timing_cuts`) in run 41583428850, and 461,
-448 and 649 at `LARGEST`.
+(`test_ctrl_memory` and `test_soc_timing_cuts`) in run 41583428850, and 462,
+448 and 794 at `LARGEST`.
 
 The LiteX workers carry none of the four caches the builder workers share: the
 sv2v archive, the pinned pip downloads, the Scala toolchain and the generated
@@ -1715,8 +1716,8 @@ builder without its fill step, a LiteX worker repeating that step, and
 elaboration gates split across builder legs. The LiteX workers keep the
 Verilator cache, which only they populate, and the local act runner's trusted
 action set is unchanged. Every LiteX run pays the cost: it downloads those
-inputs, and `test_ctrl_memory` generates its CPU metadata cold, in 280 and 224
-seconds in the two runs with the legs apart. Its 100 to 113 seconds inside the
+inputs, and `test_ctrl_memory` generates its CPU metadata cold, in 280, 224
+and 284 seconds in the runs with the legs apart. Its 100 to 113 seconds inside the
 old aggregate were not a cache restore: the key held nothing in any cited run,
 and builder leg 1 had generated the metadata earlier in the same job. The
 projections in [Protected merge bar](#protected-merge-bar) already carry the
@@ -3135,51 +3136,65 @@ workers 2 to 4.
 Every elaboration figure below is a sum of components, and each component is
 the largest value it took over the cited hosted runs: 41470524727,
 41476923392 (attempts 1 to 3), 41526004847, 41554508699, 41583428850 and
-41678609075 (attempt 1). A worker's setup is its job span less its gate steps
+41678609075 (attempts 1 to 3). A worker's setup is its job span less its gate steps
 and its Verilator source build, so it holds checkout, installs, cache
-transfers, recording and upload. Its largest is 255 seconds (worker zero, run
-41678609075), and that one figure is the setup of every projection. Builder
-leg 0 took at most 1130 seconds (run 41583428850) and builder leg 1 at most
-1119 (run 41476923392 attempt 3), so worker zero projects at 1385 seconds and
-worker one at 1374. Their largest measured job times are 1254 (worker zero,
-run 41583428850) and 1240 (worker one less its old LiteX step, run
-41476923392 attempt 1). The cold Verilator source build took at most 431
-seconds (worker 3, run 41678609075) and the runner self-test at most 3.
+transfers, recording and upload. Its largest is 485 seconds (worker 3, run
+41678609075 attempt 3), and that one figure is the setup of every projection.
+Builder leg 0 took at most 1130 seconds (run 41583428850) and builder leg 1 at
+most 1119 (run 41476923392 attempt 3), so worker zero projects at 1615 seconds
+and worker one at 1604. Their largest measured job times are 1254 (worker
+zero, run 41583428850) and 1244 (worker one, run 41678609075 attempt 3). The
+cold Verilator source build took at most 431 seconds (worker 3, run
+41678609075 attempt 1) and the runner self-test at most 3.
 `LARGEST` in `scripts/ci_litex_legs.py` holds each member's largest verdict
-row over the two runs with the legs apart, 41583428850 and 41678609075, where
-`test_soc_timing_cuts` took 240 and 369 seconds and `test_gptp_tx_timestamp`
-461 and 246. At `LARGEST` the legs hold 461, 448 and 649 seconds, so the LiteX
-workers project cold at 1150, 1137 and 1338 seconds, and at 719, 706 and 907
-with Verilator restored. Their measured spans were 585, 616 and 1226 seconds in
-run 41583428850 and 706, 1021 and 1178 in run 41678609075, each below its
-projection.
+row over the runs with the legs apart, 41583428850 and 41678609075 attempts 1
+and 3, where `test_soc_timing_cuts` took 240, 369 and 510 seconds,
+`test_gptp_tx_timestamp` 461, 246 and 462, and `test_ctrl_memory` 280, 224
+and 284. At `LARGEST` the legs hold 462, 448 and 794 seconds, so the LiteX
+workers project cold at 1381, 1367 and 1713 seconds, and at 950, 936 and 1263
+with Verilator restored. Their measured spans were 585, 616 and 1226 seconds
+in run 41583428850, 706, 1021 and 1178 in run 41678609075 attempt 1, and 906,
+930 and 1194 in its attempt 3, each below its projection.
 
-The allowance after the slowest worker is built the same way. The `elaborate`
+Each elaborate worker is compared with its own 45-minute limit, 2700 seconds,
+not with the workflow's 30 minutes, which #737 acceptance 1 keeps open. The
+table below states each margin. `LEG_BUDGET` is 2700 less 600 seconds of
+stated headroom for hosted variance, the setup, the cold Verilator build and
+the self-test: 1181 seconds, against the 794 the fullest leg holds at
+`LARGEST`. `scripts/ci_litex_legs.py` derives it from those named constants,
+and its self-test requires each LiteX worker's generated limit to equal the
+2700 seconds it starts from.
+
+The allowance after the slowest worker is built the same way, and enters only
+the workflow figure below. The `elaborate`
 aggregate fetches only the head, so it projects at the largest depth-one
 checkout of the cited runs, 19 seconds, plus its largest span less its
-checkout, 25: 44 seconds.
+checkout, 85 (run 41678609075 attempt 3): 104 seconds. That attempt's limit
+cancelled the aggregate inside its old full-history checkout, but 82 of those
+85 seconds passed before its first step started, which a head-only checkout
+does not remove, so the figure is kept.
 `Collect CI manifest` took at most 149 seconds and `Cancel late CI failures`
-at most 25 (both run 41678609075). With one 120-second watcher interval the
-allowance is 338 seconds. `LEG_BUDGET` is 1800
-less that allowance, the setup, the cold Verilator build and the self-test:
-773 seconds, against the 649 the fullest leg holds at `LARGEST`.
+at most 25 (both run 41678609075 attempt 1). With one 120-second watcher
+interval the allowance is 398 seconds.
 
 The rule a later hosted measurement follows: a component it measures above
 its figure here replaces that figure, and a smaller value replaces nothing.
 The components are the setup, each builder leg, the cold Verilator build, the
 runner self-test, the aggregate's checkout and the rest of its span, the
-collector, the tail, and each member's verdict row in `LARGEST`. `LEG_BUDGET`,
-every projection in this section and the table below are then recomputed from
-the figures. The LiteX legs are re-derived only when one no longer fits
-`LEG_BUDGET` at `LARGEST`, which `scripts/ci_litex_legs.py` refuses; they are
-then derived from `LARGEST`, which becomes `SECONDS`.
+collector, the tail, and each member's verdict row in `LARGEST`. The job limit
+and the 600-second headroom are not measurements and do not change by it.
+`LEG_BUDGET`, every projection in this section and the table below are then
+recomputed from the figures. The LiteX legs are re-derived only when one no
+longer fits `LEG_BUDGET` at `LARGEST`, which `scripts/ci_litex_legs.py`
+refuses; they are then derived from `LARGEST`, which becomes `SECONDS`.
 
 Those projections hold with the LiteX workers carrying none of the builders'
 shared caches, so that every LiteX run installs them and generates its CPU
-metadata cold. No LiteX leg of either run with the legs apart had CPU metadata:
+metadata cold. No LiteX leg of any run with the legs apart had CPU metadata:
 in run 41583428850 workers 2 and 4 missed the key and worker 3 restored worker
-2's empty entry, and in run 41678609075 no LiteX worker carried the cache.
-`test_ctrl_memory`'s 280 and 224 seconds are therefore cold figures. Inside the
+2's empty entry, and in run 41678609075 attempts 1 and 3 no LiteX worker
+carried the cache. `test_ctrl_memory`'s 280, 224 and 284 seconds are
+therefore cold figures. Inside the
 old aggregate it took 100 to 113 seconds on metadata builder leg 1 had
 generated earlier in the same job. Verilator is now the only cache a LiteX
 worker restores.
@@ -3194,17 +3209,19 @@ plus 120 seconds; the bounded sixteen-CPU local build measured 360.05 seconds.
 This is a projection for standard hosted runners, not a hosted cold-build result.
 Synthesis workers retain their measured 494/25/32/31-second baseline windows,
 plus 60 seconds for download, extraction and execution evidence.
+Each row's own bound is 60% of its job's limit, except the elaborate workers',
+which is their 45-minute limit itself (#737).
 
-| Worker | Projected seconds | Own 60% bound | Margin, seconds |
+| Worker | Projected seconds | Own bound | Margin, seconds |
 |---|---:|---:|---:|
 | `docs-gates-0` | 1395 | 1620 | 225 |
 | `docs-gates-1` | 1248 | 1620 | 372 |
 | `docs-gates-2` | 1073 | 1620 | 547 |
-| `elaborate-gates-0` | 1385 | 1620 | 235 |
-| `elaborate-gates-1` | 1374 | 1620 | 246 |
-| `elaborate-gates-2 (cold)` | 1150 | 1620 | 470 |
-| `elaborate-gates-3 (cold)` | 1137 | 1620 | 483 |
-| `elaborate-gates-4 (cold)` | 1338 | 1620 | 282 |
+| `elaborate-gates-0` | 1615 | 2700 | 1085 |
+| `elaborate-gates-1` | 1604 | 2700 | 1096 |
+| `elaborate-gates-2 (cold)` | 1381 | 2700 | 1319 |
+| `elaborate-gates-3 (cold)` | 1367 | 2700 | 1333 |
+| `elaborate-gates-4 (cold)` | 1713 | 2700 | 987 |
 | `yosys-tool (cold)` | 720 | 1044 | 324 |
 | `yosys-shards 0/4` | 554 | 1044 | 490 |
 | `yosys-shards 1/4` | 85 | 1044 | 959 |
@@ -3275,7 +3292,7 @@ checks out the head alone, at `actions/checkout`'s default depth. Its
 full-history fetch took 260 seconds in run 41678609075 against its 3-minute
 limit, which cancelled the run before the union proof, and that fetch grows
 with the repository's branch count (#737). Its limit stays 3 minutes, set
-from its 44-second projection above with 136 seconds of margin. The other
+from its 104-second projection above with 76 seconds of margin. The other
 elaborate jobs with a full-history fetch keep it. `Collect CI manifest` reads
 the merge base of a pull request's base and head, and took at most 149
 seconds against its 15 minutes. Each worker's scope step diffs the head

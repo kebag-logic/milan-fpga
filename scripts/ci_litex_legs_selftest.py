@@ -164,6 +164,10 @@ def worker_controls(name: str, generated: dict, cases: list[dict], legs: list[in
         upload, = (step for step in steps if step.get("name") == "Upload executed gate outcomes")
         assert ("litex-leg-*.json" in upload["with"]["path"]) == (leg in owners), (name, leg, upload["with"]["path"])
         if name in LITEX_WORKERS:
+            # LEG_BUDGET is derived from the LiteX worker's own limit, so a changed limit is caught here (#737).
+            if leg in owners:
+                minutes = generated["jobs"][worker_id(name, leg)]["timeout-minutes"]
+                assert minutes * 60 == ci_litex_legs.JOB_LIMIT, (name, leg, minutes)
             setup = {step.get("name") for step in steps} & VERILATOR_SETUP
             assert setup == (VERILATOR_SETUP if leg in owners else set()), (name, leg, setup)
             # Only the builders restore and save their shared caches; a LiteX worker carries none, and only the

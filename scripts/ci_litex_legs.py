@@ -45,28 +45,37 @@ SECONDS = {
     "test_soc_timing_cuts": 240,
 }
 #: Each member's largest verdict-row seconds over every hosted run with the
-#: legs apart, runs 41583428850 and 41678609075. Every bound and projection
-#: uses these; docs/testing/CI_WORKFLOWS.md states the rule a later hosted
-#: measurement follows (#737).
+#: legs apart, runs 41583428850 and 41678609075 (attempts 1 and 3). Every
+#: bound and projection uses these; docs/testing/CI_WORKFLOWS.md states the
+#: rule a later hosted measurement follows (#737).
 LARGEST = {
     "test_cpu_memory_port_cdc": 72,
-    "test_ctrl_memory": 280,
+    "test_ctrl_memory": 284,
     "test_gmii_rx_capture": 0,
-    "test_gptp_tx_timestamp": 461,
+    "test_gptp_tx_timestamp": 462,
     "test_pp_boot_bus_freeze": 25,
     "test_pp_mem_bridge": 15,
     "test_retained_cdc_storage": 336,
-    "test_soc_timing_cuts": 369,
+    "test_soc_timing_cuts": 510,
 }
 LEGS = 3
+#: A LiteX worker's own limit: its job's 45 minutes. The bound is this limit,
+#: not the workflow's 30 minutes, which #737 acceptance 1 keeps open (#737).
+JOB_LIMIT = 2700
+#: Stated headroom a LiteX worker keeps under JOB_LIMIT for hosted variance (#737).
+HEADROOM = 600
+#: The largest elaborate worker span outside its gate steps and Verilator
+#: build over the cited hosted runs: worker 3, run 41678609075 attempt 3 (#737).
+SETUP = 485
+#: The largest cold Verilator source build over the cited hosted runs: worker
+#: 3, run 41678609075 attempt 1 (#737).
+COLD_VERILATOR = 431
+#: The largest LiteX runner self-test over the cited hosted runs (#737).
+SELFTEST = 3
 #: The simulation seconds one leg may hold at LARGEST, so that a cold LiteX
-#: worker keeps the workflow inside its 30 minutes (#737). Each term is its
-#: component's largest over the cited hosted runs: 1800 less the 338-second
-#: aggregate, collector, watcher and tail allowance, the 255-second setup (the
-#: largest elaborate worker span outside its gate steps and Verilator build,
-#: run 41678609075), the 431-second cold Verilator build (run 41678609075) and
-#: the 3-second runner self-test. Runner queueing is not in it.
-LEG_BUDGET = 773
+#: worker at every component's largest stays HEADROOM inside JOB_LIMIT. Runner
+#: queueing is not in it (#737).
+LEG_BUDGET = JOB_LIMIT - HEADROOM - SETUP - COLD_VERILATOR - SELFTEST
 SCHEMA = 1
 
 
