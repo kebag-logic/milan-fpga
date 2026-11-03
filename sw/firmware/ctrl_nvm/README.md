@@ -274,17 +274,25 @@ page every other tick. A real part's erase and program waits add to it. No
 deadline of this store is that figure: the owner's 0.5 s (#823) belongs to
 the append-only design.
 
-**A save's worst case.** Under input that leaves no pass empty a step comes at
-most three ticks after the one before, so a save is durable at most 1,000 ms
-after its first change plus 30 ms for each step after that window (the step
-that starts the capture, one for each changed record and one more, the seal's
-256-byte stretches, the erase and its wait, the read-backs of the blank check
-and of the verify, each page's issue and its wait), and 10 ms for the change's
-own pass and the ticks' dispatch (`nvm_store.h`). A SET_NAME of the entity,
-which marks both its names, is 370 steps and 12,110 ms at 8x8, 102 steps and
-4,070 ms at 1x1, with no flash busy time; a part's busy time adds its polls,
-one a step. The budget harness holds a save to it with every receive channel
-at its refill rate and a grandmaster change every pass
+**A change's worst case.** Under input that leaves no pass empty a step comes
+at most three ticks after the one before. With no save in flight a change is
+durable at most 1,000 ms after it plus 30 ms for each step of its save after
+that window (the step that starts the capture, one for each changed record and
+one more, the seal's 256-byte stretches, the erase and its wait, the read-backs
+of the blank check and of the verify, each page's issue and its wait), and
+10 ms for the change's own pass and the ticks' dispatch (`nvm_store.h`). A
+change marked once a capture in flight has passed its record is the next
+save's, which only an idle step starts, so it waits first for the rest of the
+save in flight, at worst all its steps but two, or for its own 1,000 ms where
+that is longer. A SET_NAME of the entity, which marks both its names, is 370
+steps: 12,110 ms alone and 22,150 ms beside another's save in flight at 8x8,
+4,070 and 6,070 ms at 1x1, with no flash busy time. A part's busy time adds at
+most its erase time and its page programs': 3,260 ms a save at 8x8 and
+3,070 ms at 1x1 on the part of
+[section 9.4 of the fast-connect design](../../../docs/design/SAVED_STATE_FASTCONNECT.md#94-the-deadlines).
+The budget harness holds a change to it with every receive channel at its
+refill rate and a grandmaster change every pass, and a second change just after
+a save in flight's capture took its first record
 ([split control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#a-saves-worst-case-and-one-build-a-pass-either-way)).
 
 The atomicity rules, from section 7 and the D3 register:

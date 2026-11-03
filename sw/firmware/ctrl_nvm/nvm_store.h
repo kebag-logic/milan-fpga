@@ -13,19 +13,28 @@
  * loop's age limit (nvm_store_step; THE STEP in
  * sw/firmware/ctrl/loop/ctrl_loop.h).
  *
- * A SAVE'S WORST CASE. Under input that leaves no pass empty the loop takes
- * the owed step once every CTRL_LOOP_STEP_AGE + 1 centiseconds, so a save is
- * durable at most MILAN_NVM_DEBOUNCE_MS after its first change, plus that many
- * centiseconds for each of its steps after the window (the step that starts
- * the capture, one for each changed record and one more, the seal's
+ * A CHANGE'S WORST CASE. Under input that leaves no pass empty the loop takes
+ * the owed step once every CTRL_LOOP_STEP_AGE + 1 centiseconds. A change is
+ * durable once the save that captures it is. With no save in flight that is
+ * at most MILAN_NVM_DEBOUNCE_MS after the change, plus that many centiseconds
+ * for each step of its save after the window (the step that starts the
+ * capture, one for each changed record and one more, the seal's
  * NVM_STEP_BYTES stretches, the erase and its wait, NVM_IMG_LEN /
  * NVM_READ_BYTES read-backs for the blank check and as many for the verify,
  * and each page's issue and its wait), plus the few passes between a
- * centisecond and the step it brings. At 8x8/2if with no flash busy time, a
- * SET_NAME of the entity, which marks both its names, is 370 steps and
- * 12.11 s (#665; the budget harness's save_window.bound_ms, to which its
- * save-starved group holds a save); each further record is one more step,
- * and a flash part's busy time adds its polls, one a step.
+ * centisecond and the step it brings. A change marked once a capture in
+ * flight has passed its record (nvm_mark) is left to the next save, and only
+ * an idle step starts a capture: it waits first for the rest of the save in
+ * flight, at worst all its steps but the two that started its capture and
+ * took its first record, at the same pace, or for its own window where that
+ * is longer. At 8x8/2if with no flash busy time a SET_NAME of the entity,
+ * which marks both its names, is 370 steps: durable at most 12.11 s after it
+ * alone and 22.15 s beside another's save in flight (#665; the budget
+ * harness's save_window.bound_ms, to which its save-starved and save-second
+ * groups hold a change). Each further record of either save is one more
+ * step, and a flash part's busy time adds at most its erase time and each
+ * page program's: on the part of SAVED_STATE_FASTCONNECT.md section 9.4,
+ * 3.26 s a save at 8x8/2if.
  */
 #ifndef NVM_STORE_H
 #define NVM_STORE_H
@@ -85,7 +94,7 @@ enum nvm_phase {
 /* The CPU time one service step may take on the split CPU's flash port, from
  * the clock read that admits it to the end of its pass: a page program's
  * issue, 261 bytes through the command master one at a time, measured at up
- * to 0.96 ms at 8x8/2if, is the longest; a read-back step is 0.77 ms
+ * to 0.97 ms at 8x8/2if, is the longest; a read-back step is 0.77 ms
  * (#665). nvm_store_step takes a step only while this much of the pass's
  * share is left, so no pass that carries one exceeds the share. */
 #define NVM_STEP_US 1000u
