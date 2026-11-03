@@ -3259,26 +3259,43 @@ watcher interval and 30 seconds for the tail gives 1665 seconds,
 about 27.8 minutes: 135 seconds inside thirty minutes. With its builder
 undivided, the merged workload put the builder worker at 1602 seconds and
 the workflow at 1872, about 31.2 minutes.
-Elaboration projects at 1385 seconds for its slowest worker, worker zero,
-whose largest hosted job time in the runs above was 1254 seconds, cold, in run
-41583428850. Its 338 seconds of aggregate, collector, watcher and tail
-allowance gives 1723 seconds, about 28.7 minutes: 77 seconds inside thirty
-minutes, so its two builder legs are kept. That projection, like every one
+Elaboration's workflow figure is a measurement against #737 acceptance 1, not a
+bound: no gate refuses it, and acceptance 1 stays open on #737. Its workers are
+bound by their own 45-minute limit, as the table above states. By the
+component-maxima rule its slowest worker is builder worker zero at 1615 seconds
+with Verilator restored, and LiteX worker 4 at 1713 at a cold Verilator key;
+their largest measured job times were 1254 and 1226 seconds. With the
+398-second allowance the workflow projects at 2013 seconds, about 33.6 minutes,
+and at 2111, about 35.2 minutes, cold: 213 and 311 seconds above thirty
+minutes. Before attempt 3 raised the aggregate's figure, the allowance was 338
+seconds and the figure 1953. Most of the rise from the 1723 seconds stated
+before is setup, 485 seconds in attempt 3 against at most 255 before: the
+full-history worker checkout took up to 208 seconds, the LiteX workers'
+uncached `Install LiteX at the pinned revisions` up to 143 and the VexiiRiscv
+placement up to 59. Two candidates for acceptance 1 are not taken here. A
+shallower worker checkout would widen the checkout contract in
+`scripts/ci_events.py` that the local act runner trusts, and a pip cache on the
+LiteX workers would reverse their carrying none of the builders' caches. The
+builder legs stay two and the LiteX legs three. That projection, like every one
 here, excludes runner queueing. Run 41583428850, the first hosted run with the
 LiteX legs apart, did not meet #737 acceptance 1, the workflow inside 30
 minutes from its first job start to its last job end: measured from the first
 job start in the jobs API's whole seconds, `elaborate-gates-3` ended at 1883
 seconds, the `elaborate` aggregate at 2307 and `Collect CI manifest` at 2825.
-The cause was runner queueing.
-`elaborate-gates-3` waited 1268 seconds for a runner and the aggregate 388,
-while the docs, fast and full RTL workflows of that head ran beside it, the
-full one with 19 shards. Three LiteX legs put one more concurrent runner per
-head in that queue than two would. But queueing is an account-level limit that
-every workflow at a head shares, and one runner fewer would not have brought
-that run inside 30 minutes, so the three legs are kept. Acceptance 1 under
-concurrency stays open on #737. With the LiteX simulations on worker one, its
-measured 2672 seconds put the workflow at 2942, about 49 minutes (#737). Undivided at `7032bca5`, worker zero projected at 1608
-seconds and the workflow at 1878, about 31.3 minutes.
+The cause was runner queueing. `elaborate-gates-3` waited 1268 seconds for a
+runner and the aggregate 388, while the docs, fast and full RTL workflows of
+that head ran beside it, the full one with 19 shards. Three LiteX legs put one
+more concurrent runner per head in that queue than two would. But queueing is
+an account-level limit that every workflow at a head shares, and one runner
+fewer would not have brought that run inside 30 minutes, so the three legs are
+kept. Run 41678609075 did not meet acceptance 1 either: attempt 1 ended 1767
+seconds after its first job start, but the aggregate's limit cancelled it
+before the union proof, and attempt 3 ended at 2646 seconds, after workers
+waited up to 1043 seconds for a runner. Acceptance 1 under concurrency stays
+open on #737. With the LiteX simulations on worker one, its measured 2672
+seconds put the workflow at 2942, about 49 minutes (#737). Undivided at
+`7032bca5`, worker zero projected at 1608 seconds and the workflow at 1878,
+about 31.3 minutes.
 The collector outage budget is not normal-run duration evidence.
 Hosted job spans and runner-capacity contention still require coordinating readback.
 
