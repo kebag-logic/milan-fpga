@@ -56,6 +56,13 @@ BUILDER_CACHES = {"elaborate": ("Cache verified sv2v archive", "Cache the pinned
 #: one job alone saves the key; test_ctrl_memory generates its own on its worker (#737).
 METADATA_STEPS = {"elaborate": ("Cache the generated CPU metadata",
                                 "Keep the generated CPU netlist arguments for the next run")}
+#: The carriers whose aggregate fetches the head alone, and every aggregate's limit. The elaborate aggregate reads
+#: the head's tree and nothing else: its receipts' source identity, the template and the runners' inventories.
+#: Its full-history fetch took 260 seconds against this limit in run 41678609075 and grows with the branch
+#: count. Fetching the head, it projects at 44 seconds: the largest depth-one checkout over the cited runs, 19,
+#: plus its largest span less its checkout, 25. Three minutes leaves 136 seconds of margin (#737).
+HEAD_ONLY_AGGREGATES = {"elaborate"}
+AGGREGATE_TIMEOUT = 3
 SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "Keep ")
 #: rtl-fast builds its pinned Yosys once, in a job of its own (#789). The
 #: template keeps the build in yosys-elaboration; the generator moves it, and
@@ -254,7 +261,12 @@ def aggregate(name: str, template: dict) -> dict:
     checkout = copy.deepcopy(template["jobs"][CARRIERS[name]]["steps"][0])
     if not str(checkout.get("uses", "")).startswith("actions/checkout@"):
         raise ValueError(name + ": original checkout must stay first")
-    return {"runs-on": "ubuntu-24.04", "timeout-minutes": 3,
+    if name in HEAD_ONLY_AGGREGATES:
+        # actions/checkout's default depth fetches the head alone (#737).
+        checkout.get("with", {}).pop("fetch-depth", None)
+        if not checkout.get("with", True):
+            del checkout["with"]
+    return {"runs-on": "ubuntu-24.04", "timeout-minutes": AGGREGATE_TIMEOUT,
             "needs": [worker_id(name, leg) for leg in worker_legs(name, template)], "if": "${{ always() }}",
             "steps": [checkout, *reader_setup(),
                       {"name": "Download executed gate outcomes", "uses": "actions/download-artifact@v4",

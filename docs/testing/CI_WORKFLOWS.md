@@ -3155,8 +3155,9 @@ run 41583428850 and 706, 1021 and 1178 in run 41678609075, each below its
 projection.
 
 The allowance after the slowest worker is built the same way. The `elaborate`
-aggregate projects at the largest depth-one checkout of the cited runs, 19
-seconds, plus its largest span less its checkout, 25: 44 seconds.
+aggregate fetches only the head, so it projects at the largest depth-one
+checkout of the cited runs, 19 seconds, plus its largest span less its
+checkout, 25: 44 seconds.
 `Collect CI manifest` took at most 149 seconds and `Cancel late CI failures`
 at most 25 (both run 41678609075). With one 120-second watcher interval the
 allowance is 338 seconds. `LEG_BUDGET` is 1800
@@ -3266,7 +3267,18 @@ Hosted job spans and runner-capacity contention still require coordinating readb
 Each worker records the source gate IDs and the actual step outcomes reported
 by the workflow runtime. The aggregate recomputes the inventory from the same
 template and requires its exact union, with each gate executed once. Receipts
-bind the full head, tree and template digest. The existing documentation-only
+bind the full head, tree and template digest.
+
+The `elaborate` aggregate reads the head's tree and nothing else, so it
+checks out the head alone, at `actions/checkout`'s default depth. Its
+full-history fetch took 260 seconds in run 41678609075 against its 3-minute
+limit, which cancelled the run before the union proof, and that fetch grows
+with the repository's branch count (#737). Its limit stays 3 minutes, set
+from its 44-second projection above with 136 seconds of margin. The other
+elaborate jobs with a full-history fetch keep it. `Collect CI manifest` reads
+the merge base of a pull request's base and head, and took at most 149
+seconds against its 15 minutes. Each worker's scope step diffs the head
+against its parent under its 45 minutes. The existing documentation-only
 elaboration skip remains valid only with a recorded false scope and matching
 skipped outcomes on every worker. It does not excuse a skipped worker job.
 Each worker that runs a builder leg, `elaborate-gates-0`, `elaborate-gates-1`,

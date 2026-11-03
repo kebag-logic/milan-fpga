@@ -168,11 +168,23 @@ def worker_controls(name: str, generated: dict, cases: list[dict], legs: list[in
                 name, leg, metadata)
     if name in BUILDER_CACHES:
         cache_controls(name)
+    aggregate_controls(name, generated)
     if name in LITEX_WORKERS:
         shared = (*LITEX_WORKERS[name][:-1], BUILDER_WORKERS[name][-1])
         with patch.dict(LITEX_WORKERS, {name: shared}):
             refused(lambda: generate(name, load_template(ROOT, name)), "a LiteX leg on a builder worker",
                     "a LiteX leg shares a worker with a builder leg")
+
+
+def aggregate_controls(name: str, generated: dict) -> None:
+    """The elaborate aggregate fetches the head alone, under its 3-minute limit; the docs one keeps its history."""
+    job = generated["jobs"][CARRIERS[name]]
+    checkout = job["steps"][0]
+    assert job["timeout-minutes"] == 3, (name, job["timeout-minutes"])
+    assert checkout["uses"] == "actions/checkout@v4", (name, checkout)
+    # Its full-history fetch reached the limit in run 41678609075 (#737).
+    expected = None if name == "elaborate" else {"fetch-depth": 0}
+    assert checkout.get("with") == expected, (name, checkout)
 
 
 def cache_controls(name: str) -> None:
