@@ -3268,8 +3268,8 @@ their largest measured job times were 1254 and 1226 seconds. With the
 398-second allowance the workflow projects at 2013 seconds, about 33.6 minutes,
 and at 2111, about 35.2 minutes, cold: 213 and 311 seconds above thirty
 minutes. Before attempt 3 raised the aggregate's figure, the allowance was 338
-seconds and the figure 1953. Most of the rise from the 1723 seconds stated
-before is setup, 485 seconds in attempt 3 against at most 255 before: the
+seconds and the figure 1953. Over attempt 1's maxima, which gave 1723
+seconds, most of the rise is setup, 485 seconds in attempt 3 against 255: the
 full-history worker checkout took up to 208 seconds, the LiteX workers'
 uncached `Install LiteX at the pinned revisions` up to 143 and the VexiiRiscv
 placement up to 59. Two candidates for acceptance 1 are not taken here. A
