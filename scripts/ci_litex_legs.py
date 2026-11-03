@@ -162,12 +162,14 @@ def union(receipts: list[dict], head: str, tree: str, names: list[str] | None = 
             missing = [name for name in legs[leg] if name not in executed]
             raise ValueError(f"LiteX leg {leg} did not run its selection exactly once: "
                              + (", ".join(missing) or "order or extra simulations"))
-        if receipt["exit"] != 0:
+        if type(receipt["exit"]) is not int or receipt["exit"] != 0:
             raise ValueError(f"LiteX leg {leg}: the runner exited {receipt['exit']}")
     absent = [name for name, owners in ran.items() if not owners]
     repeated = [name for name, owners in ran.items() if len(owners) > 1]
     if absent:
         raise ValueError("LiteX simulations ran in no leg: " + ", ".join(absent))
+    # Defence in depth: the per-leg selection check above already refuses a simulation run twice, so this
+    # branch is reached only if that check is weakened (#737).
     if repeated:
         raise ValueError("LiteX simulations ran in more than one leg: " + ", ".join(repeated))
     if sorted(seen) != list(range(len(legs))):

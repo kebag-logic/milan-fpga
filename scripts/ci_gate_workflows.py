@@ -126,6 +126,9 @@ def case_inventory(name: str, template: dict) -> list[dict]:
         raise ValueError(name + ": builder legs and their workers differ in number")
     if len(LITEX_WORKERS.get(name, ())) != (LITEX_LEGS if name in LITEX_SPLIT else 0):
         raise ValueError(name + ": LiteX legs and their workers differ in number")
+    if set(LITEX_WORKERS.get(name, ())) & set(workers):
+        # A LiteX leg after a builder leg in one job is the shape that reached the 45-minute limit (#737).
+        raise ValueError(name + ": a LiteX leg shares a worker with a builder leg")
     cases = []
     for index, step in enumerate(original):
         if setup(step):

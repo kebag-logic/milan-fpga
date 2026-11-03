@@ -1662,7 +1662,8 @@ a narrowed selection in a sandbox and requires the verdict each time.
 
 Run whole after builder leg 1 on worker 1, the eight simulations took 18 to 25
 minutes hosted and held that job within a minute of its 45-minute limit
-(#737). [`scripts/ci_litex_legs.py`](../../scripts/ci_litex_legs.py) reads
+(#737), so the generator refuses a LiteX leg on a builder worker.
+[`scripts/ci_litex_legs.py`](../../scripts/ci_litex_legs.py) reads
 the inventory from the runner's `--list` and assigns each member, longest
 measured hosted time first, to the least-loaded of three legs. It passes each
 leg's names to the runner's `--only`, which runs exactly those and still
@@ -1679,11 +1680,11 @@ binds the runner's per-member verdict rows (`verdicts.tsv`) and its exit to
 the head and tree. The `elaborate` aggregate refuses unless every simulation
 ran exactly once, in its measured leg, and passed: a simulation dropped from
 its leg, run in a second leg, failed, skipped or timed out, a lost leg and a
-red runner exit are each refused by name, and `ci_gate_workflows_selftest.py`
-plants each of them. The legs hold 461 (`test_gptp_tx_timestamp`), 440
-(`test_retained_cdc_storage`, `test_cpu_memory_port_cdc` and the three
-shortest) and 520 measured seconds (`test_ctrl_memory` and
-`test_soc_timing_cuts`).
+red runner exit are each refused, naming the simulation or the leg, and
+`ci_gate_workflows_selftest.py` plants each of them. The legs hold 461
+(`test_gptp_tx_timestamp`), 440 (`test_retained_cdc_storage`,
+`test_cpu_memory_port_cdc` and the three shortest) and 520 measured seconds
+(`test_ctrl_memory` and `test_soc_timing_cuts`).
 
 The LiteX workers carry none of the four caches the builder workers share: the
 sv2v archive, the pinned pip downloads, the Scala toolchain and the generated

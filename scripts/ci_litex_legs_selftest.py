@@ -11,6 +11,7 @@ ci_gate_workflows_selftest.py runs these controls in the hosted "CI scheduling a
 import copy
 import shlex
 from collections.abc import Callable
+from unittest.mock import patch
 
 import ci_litex_legs
 from ci_litex_legs import LEG_BUDGET, LEGS, SECONDS, partition, union
@@ -86,6 +87,7 @@ def union_controls() -> None:
             ("a skipped simulation", lambda value: value[1]["results"][-1].update(verdict="SKIP"), last + ": SKIP"),
             ("a timed-out simulation", lambda value: value[1]["results"][-1].update(verdict="TIMEOUT"), "TIMEOUT"),
             ("a red runner exit", lambda value: value[0].update(exit=1), "exited 1"),
+            ("a boolean runner exit", lambda value: value[0].update(exit=False), "exited False"),
             ("a lost leg", lambda value: value.pop(), "ran in no leg: " + ", ".join(good[-1]["selected"])),
             ("a duplicated leg", lambda value: value.append(copy.deepcopy(value[0])), "duplicated"),
             ("a changed head", lambda value: value[0].update(head="c" * 40), "source identity"),
@@ -150,6 +152,11 @@ def worker_controls(name: str, generated: dict, cases: list[dict], legs: list[in
             assert sorted(shared) == ([] if leg in owners else sorted(BUILDER_CACHES[name])), (name, leg, shared)
     if name in BUILDER_CACHES:
         cache_controls(name)
+    if name in LITEX_WORKERS:
+        shared = (*LITEX_WORKERS[name][:-1], BUILDER_WORKERS[name][-1])
+        with patch.dict(LITEX_WORKERS, {name: shared}):
+            refused(lambda: generate(name, load_template(ROOT, name)), "a LiteX leg on a builder worker",
+                    "a LiteX leg shares a worker with a builder leg")
 
 
 def cache_controls(name: str) -> None:
