@@ -1,0 +1,430 @@
+none / owner_report: green rc 0 0.4 s: owner_report: PASS
+none / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+none / owner_late_exit: green rc 0 0.8 s: owner_late_exit: PASS
+none / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+none / owner_shell_window: green rc 0 11.2 s: owner_shell_window: PASS
+none / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+none / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+none / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+none / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+none / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+none / whole: green rc 0 72.4 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+cleanup-does-nothing / owner_report: green rc 0 0.3 s: owner_report: PASS
+cleanup-does-nothing / owner_reparented: red rc 1 0.2 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+cleanup-does-nothing / owner_late_exit: red rc 1 0.2 s: AssertionError: cleanup returned with an owned child unreaped
+cleanup-does-nothing / owner_stall: red rc 1 0.2 s: AssertionError: the stall was charged in full: SIGKILL in pass []
+cleanup-does-nothing / owner_shell_window: red rc 1 0.2 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+cleanup-does-nothing / owner_survivor: red rc 1 0.2 s: owned_process.Cancelled: signal 15
+cleanup-does-nothing / owner_vanishing: red rc 1 0.1 s: AssertionError: an endless listing did not fail the run
+cleanup-does-nothing / owner_late_cancel: red rc 1 0.2 s: AssertionError: an endless listing did not fail the run
+cleanup-does-nothing / owner_stated_seconds: red rc 1 0.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'no verdict')]
+cleanup-does-nothing / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+cleanup-does-nothing / whole: red rc 1 0.4 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-start-holds-parent / owner_report: green rc 0 0.3 s: owner_report: PASS
+identity-start-holds-parent / owner_reparented: red rc 1 2.3 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-start-holds-parent / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+identity-start-holds-parent / owner_stall: green rc 0 10.2 s: owner_stall: PASS
+identity-start-holds-parent / owner_shell_window: green rc 0 15.7 s: owner_shell_window: PASS
+identity-start-holds-parent / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+identity-start-holds-parent / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+identity-start-holds-parent / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+identity-start-holds-parent / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+identity-start-holds-parent / owner_reused_identity: red rc 1 0.2 s: AssertionError: a census entry's own process missed its signal
+identity-start-holds-parent / whole: red rc 1 9.3 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-keys-hold-parent / owner_report: green rc 0 0.3 s: owner_report: PASS
+identity-keys-hold-parent / owner_reparented: red rc 1 9.2 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-keys-hold-parent / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+identity-keys-hold-parent / owner_stall: green rc 0 9.5 s: owner_stall: PASS
+identity-keys-hold-parent / owner_shell_window: green rc 0 15.7 s: owner_shell_window: PASS
+identity-keys-hold-parent / owner_survivor: green rc 0 8.2 s: owner_survivor: PASS
+identity-keys-hold-parent / owner_vanishing: green rc 0 7.7 s: owner_vanishing: PASS
+identity-keys-hold-parent / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+identity-keys-hold-parent / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(14.0, 'SIGKILL', 'survivor'), (14.0, 'verdict')]
+identity-keys-hold-parent / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+identity-keys-hold-parent / whole: red rc 1 5.9 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-first-census-holds-parent / owner_report: green rc 0 0.3 s: owner_report: PASS
+identity-first-census-holds-parent / owner_reparented: red rc 1 5.8 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-first-census-holds-parent / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+identity-first-census-holds-parent / owner_stall: green rc 0 6.3 s: owner_stall: PASS
+identity-first-census-holds-parent / owner_shell_window: green rc 0 8.3 s: owner_shell_window: PASS
+identity-first-census-holds-parent / owner_survivor: red rc 1 7.8 s: ValueError: too many values to unpack (expected 2, got 3)
+identity-first-census-holds-parent / owner_vanishing: green rc 0 4.8 s: owner_vanishing: PASS
+identity-first-census-holds-parent / owner_late_cancel: green rc 0 4.6 s: owner_late_cancel: PASS
+identity-first-census-holds-parent / owner_stated_seconds: red rc 1 0.2 s: ValueError: too many values to unpack (expected 2, got 3)
+identity-first-census-holds-parent / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+identity-first-census-holds-parent / whole: red rc 1 2.4 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-includes-parent / owner_report: green rc 0 0.3 s: owner_report: PASS
+identity-includes-parent / owner_reparented: red rc 1 2.3 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-includes-parent / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+identity-includes-parent / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+identity-includes-parent / owner_shell_window: green rc 0 4.4 s: owner_shell_window: PASS
+identity-includes-parent / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+identity-includes-parent / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+identity-includes-parent / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+identity-includes-parent / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(14.0, 'SIGKILL', 'survivor'), (14.0, 'verdict')]
+identity-includes-parent / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+identity-includes-parent / whole: red rc 1 2.5 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-checks-parent-before-send / owner_report: green rc 0 0.3 s: owner_report: PASS
+identity-checks-parent-before-send / owner_reparented: red rc 1 2.3 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+identity-checks-parent-before-send / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+identity-checks-parent-before-send / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+identity-checks-parent-before-send / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+identity-checks-parent-before-send / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+identity-checks-parent-before-send / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+identity-checks-parent-before-send / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+identity-checks-parent-before-send / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(14.0, 'SIGKILL', 'survivor'), (14.0, 'verdict')]
+identity-checks-parent-before-send / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+identity-checks-parent-before-send / whole: red rc 1 2.4 s: AssertionError: re-parented descendant was treated as new and never got SIGTERM
+sigterm-checks-parent / owner_report: green rc 0 0.3 s: owner_report: PASS
+sigterm-checks-parent / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+sigterm-checks-parent / owner_late_exit: green rc 0 0.8 s: owner_late_exit: PASS
+sigterm-checks-parent / owner_stall: green rc 0 3.4 s: owner_stall: PASS
+sigterm-checks-parent / owner_shell_window: green rc 0 4.6 s: owner_shell_window: PASS
+sigterm-checks-parent / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+sigterm-checks-parent / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+sigterm-checks-parent / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+sigterm-checks-parent / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+sigterm-checks-parent / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+sigterm-checks-parent / whole: green rc 0 61.2 s: suite cancellation: PASS (INT/TERM boundaries, reaped identities, foreign sibling, partial logs, attributed cancellation reports, lock wait, next-suite sentinel, ordinary/masked/timeout, hard KILL/HUP stops, facility refusals, owner report, re-parenting, late exit, stall, shell window, survivor, lat
+send-checks-parent / owner_report: green rc 0 0.3 s: owner_report: PASS
+send-checks-parent / owner_reparented: red rc 1 0.3 s: AssertionError: the re-parented descendant's SIGTERM waited for a later census: [2]
+send-checks-parent / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+send-checks-parent / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+send-checks-parent / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+send-checks-parent / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+send-checks-parent / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+send-checks-parent / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+send-checks-parent / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(14.0, 'SIGKILL', 'survivor'), (14.0, 'verdict')]
+send-checks-parent / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+send-checks-parent / whole: red rc 1 0.5 s: AssertionError: the re-parented descendant's SIGTERM waited for a later census: [2]
+no-start-recheck / owner_report: green rc 0 0.3 s: owner_report: PASS
+no-start-recheck / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+no-start-recheck / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+no-start-recheck / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+no-start-recheck / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+no-start-recheck / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+no-start-recheck / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+no-start-recheck / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+no-start-recheck / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+no-start-recheck / owner_reused_identity: red rc 1 0.2 s: AssertionError: a census entry whose process was replaced was signalled
+no-start-recheck / whole: red rc 1 11.4 s: AssertionError: a census entry whose process was replaced was signalled
+no-reap-after-census / owner_report: green rc 0 0.3 s: owner_report: PASS
+no-reap-after-census / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+no-reap-after-census / owner_late_exit: red rc 1 0.9 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.49 s, 1 census passes, slowest 0.49 s: pid 3623631 (python3) state Z wchan 0 parent 3623624 (first parent 3623624) age 0.53 s start 81143792, not sent SIGKILL
+no-reap-after-census / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+no-reap-after-census / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+no-reap-after-census / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+no-reap-after-census / owner_vanishing: green rc 0 0.7 s: owner_vanishing: PASS
+no-reap-after-census / owner_late_cancel: red rc 1 0.2 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+no-reap-after-census / owner_stated_seconds: red rc 1 0.2 s: KeyError: 4194310
+no-reap-after-census / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+no-reap-after-census / whole: red rc 1 1.0 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.49 s, 1 census passes, slowest 0.49 s: pid 3623768 (python3) state Z wchan 0 parent 3623715 (first parent 3623715) age 0.53 s start 81143976, not sent SIGKILL
+owned-is-census / owner_report: green rc 0 0.3 s: owner_report: PASS
+owned-is-census / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+owned-is-census / owner_late_exit: red rc 1 0.7 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.49 s, 1 census passes, slowest 0.49 s: pid 3623776 exited during this report
+owned-is-census / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+owned-is-census / owner_shell_window: green rc 0 4.3 s: owner_shell_window: PASS
+owned-is-census / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+owned-is-census / owner_vanishing: green rc 0 0.7 s: owner_vanishing: PASS
+owned-is-census / owner_late_cancel: red rc 1 0.2 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+owned-is-census / owner_stated_seconds: red rc 1 0.2 s: KeyError: 4194310
+owned-is-census / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+owned-is-census / whole: red rc 1 1.0 s: RuntimeError: CLEANUP FAILED: owned descendants remain after 0.49 s, 1 census passes, slowest 0.49 s: pid 3624268 exited during this report
+deadline-wall-clock / owner_report: green rc 0 0.3 s: owner_report: PASS
+deadline-wall-clock / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+deadline-wall-clock / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+deadline-wall-clock / owner_stall: red rc 1 2.3 s: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+deadline-wall-clock / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+deadline-wall-clock / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+deadline-wall-clock / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+deadline-wall-clock / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+deadline-wall-clock / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (1.0, 'SIGKILL', 'survivor'), (1.0, 'verdict')]
+deadline-wall-clock / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+deadline-wall-clock / whole: red rc 1 3.2 s: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+pass-cap-1s / owner_report: green rc 0 0.3 s: owner_report: PASS
+pass-cap-1s / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+pass-cap-1s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+pass-cap-1s / owner_stall: green rc 0 2.8 s: owner_stall: PASS
+pass-cap-1s / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+pass-cap-1s / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+pass-cap-1s / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+pass-cap-1s / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+pass-cap-1s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (1.5, 'SIGKILL', 'survivor'), (10.0, 'SIGKILL', 'survivor'), (10.0, 'verdict')]
+pass-cap-1s / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+pass-cap-1s / whole: red rc 1 10.8 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (1.5, 'SIGKILL', 'survivor'), (10.0, 'SIGKILL', 'survivor'), (10.0, 'verdict')]
+pass-cap-1.5s / owner_report: green rc 0 0.3 s: owner_report: PASS
+pass-cap-1.5s / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+pass-cap-1.5s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+pass-cap-1.5s / owner_stall: red rc 1 2.3 s: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+pass-cap-1.5s / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+pass-cap-1.5s / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+pass-cap-1.5s / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+pass-cap-1.5s / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+pass-cap-1.5s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (1.0, 'SIGKILL', 'survivor'), (8.0, 'SIGKILL', 'survivor'), (8.0, 'verdict')]
+pass-cap-1.5s / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+pass-cap-1.5s / whole: red rc 1 3.2 s: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+pass-cap-5s / owner_report: green rc 0 0.3 s: owner_report: PASS
+pass-cap-5s / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+pass-cap-5s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+pass-cap-5s / owner_stall: red rc 1 2.3 s: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+pass-cap-5s / owner_shell_window: green rc 0 4.4 s: owner_shell_window: PASS
+pass-cap-5s / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+pass-cap-5s / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+pass-cap-5s / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+pass-cap-5s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (1.0, 'SIGKILL', 'survivor'), (4.0, 'SIGKILL', 'survivor'), (4.0, 'verdict')]
+pass-cap-5s / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+pass-cap-5s / whole: red rc 1 3.1 s: AssertionError: the stall was charged in full: SIGKILL in pass [2]
+windows-2s / owner_report: green rc 0 0.3 s: owner_report: PASS
+windows-2s / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+windows-2s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+windows-2s / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+windows-2s / owner_shell_window: green rc 0 4.6 s: owner_shell_window: PASS
+windows-2s / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+windows-2s / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+windows-2s / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+windows-2s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (2.0, 'SIGKILL', 'survivor'), (6.0, 'SIGKILL', 'survivor'), (6.0, 'verdict')]
+windows-2s / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+windows-2s / whole: red rc 1 11.1 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (2.0, 'SIGKILL', 'survivor'), (6.0, 'SIGKILL', 'survivor'), (6.0, 'verdict')]
+reap-window-2s / owner_report: green rc 0 0.3 s: owner_report: PASS
+reap-window-2s / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+reap-window-2s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+reap-window-2s / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+reap-window-2s / owner_shell_window: green rc 0 4.6 s: owner_shell_window: PASS
+reap-window-2s / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+reap-window-2s / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+reap-window-2s / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+reap-window-2s / owner_stated_seconds: red rc 1 0.3 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (2.0, 'SIGKILL', 'survivor'), (6.0, 'SIGKILL', 'survivor'), (6.0, 'verdict')]
+reap-window-2s / owner_reused_identity: green rc 0 0.3 s: owner_reused_identity: PASS
+reap-window-2s / whole: red rc 1 11.5 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (2.0, 'SIGKILL', 'survivor'), (6.0, 'SIGKILL', 'survivor'), (6.0, 'verdict')]
+no-shell-window / owner_report: green rc 0 0.5 s: owner_report: PASS
+no-shell-window / owner_reparented: green rc 0 0.5 s: owner_reparented: PASS
+no-shell-window / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+no-shell-window / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+no-shell-window / owner_shell_window: red rc 1 2.7 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+no-shell-window / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+no-shell-window / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+no-shell-window / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+no-shell-window / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (5.5, 'SIGKILL', 'shell'), (5.5, 'SIGKILL', 'trap command'), (14.0, 'SIGKILL', 'shell'), (14.0, 'SIGKILL', 'trap command'), (14.0, 'ver
+no-shell-window / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+no-shell-window / whole: red rc 1 6.6 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+no-shell-window-kept / owner_report: green rc 0 0.3 s: owner_report: PASS
+no-shell-window-kept / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+no-shell-window-kept / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+no-shell-window-kept / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+no-shell-window-kept / owner_shell_window: red rc 1 2.6 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+no-shell-window-kept / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+no-shell-window-kept / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+no-shell-window-kept / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+no-shell-window-kept / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (5.5, 'SIGKILL', 'shell'), (5.5, 'SIGKILL', 'trap command'), (14.0, 'SIGKILL', 'shell'), (14.0, 'SIGKILL', 'trap command'), (14.0, 'ver
+no-shell-window-kept / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+no-shell-window-kept / whole: red rc 1 6.6 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+no-shell-window-pass / owner_report: green rc 0 0.3 s: owner_report: PASS
+no-shell-window-pass / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+no-shell-window-pass / owner_late_exit: green rc 0 0.8 s: owner_late_exit: PASS
+no-shell-window-pass / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+no-shell-window-pass / owner_shell_window: red rc 1 2.7 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+no-shell-window-pass / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+no-shell-window-pass / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+no-shell-window-pass / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+no-shell-window-pass / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (5.5, 'SIGKILL', 'shell'), (5.5, 'SIGKILL', 'trap command'), (14.0, 'SIGKILL', 'shell'), (14.0, 'SIGKILL', 'trap command'), (14.0, 'ver
+no-shell-window-pass / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+no-shell-window-pass / whole: red rc 1 6.7 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+no-trap-window / owner_report: green rc 0 0.3 s: owner_report: PASS
+no-trap-window / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+no-trap-window / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+no-trap-window / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+no-trap-window / owner_shell_window: red rc 1 2.6 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+no-trap-window / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+no-trap-window / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+no-trap-window / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+no-trap-window / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (5.5, 'SIGKILL', 'shell'), (5.5, 'SIGKILL', 'trap command'), (15.5, 'SIGKILL', 'shell'), (15.5, 'SIGKILL', 'trap command'), (15.5, 'ver
+no-trap-window / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+no-trap-window / whole: red rc 1 6.8 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+root-killed-unresumed / owner_report: green rc 0 0.3 s: owner_report: PASS
+root-killed-unresumed / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+root-killed-unresumed / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+root-killed-unresumed / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+root-killed-unresumed / owner_shell_window: red rc 1 2.5 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+root-killed-unresumed / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+root-killed-unresumed / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+root-killed-unresumed / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+root-killed-unresumed / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (4.0, 'SIGKILL', 'shell'), (5.5, 'SIGCONT', 'shell'), (15.5, 'SIGKILL', 'trap command'), (25.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL', 'trap command'), (25.5, 've
+root-killed-unresumed / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+root-killed-unresumed / whole: red rc 1 6.5 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+shell-killed-when-resumed / owner_report: green rc 0 0.3 s: owner_report: PASS
+shell-killed-when-resumed / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+shell-killed-when-resumed / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+shell-killed-when-resumed / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+shell-killed-when-resumed / owner_shell_window: red rc 1 2.8 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+shell-killed-when-resumed / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+shell-killed-when-resumed / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+shell-killed-when-resumed / owner_late_cancel: green rc 0 1.2 s: owner_late_cancel: PASS
+shell-killed-when-resumed / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (5.5, 'SIGKILL', 'shell'), (15.5, 'SIGKILL', 'trap command'), (25.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL', 'trap command'), (25.5, 've
+shell-killed-when-resumed / owner_reused_identity: green rc 0 0.3 s: owner_reused_identity: PASS
+shell-killed-when-resumed / whole: red rc 1 6.7 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+shell-window-one-pass / owner_report: green rc 0 0.3 s: owner_report: PASS
+shell-window-one-pass / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+shell-window-one-pass / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+shell-window-one-pass / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+shell-window-one-pass / owner_shell_window: red rc 1 4.3 s: AssertionError: the resumed shell was killed inside its own window, with no child to spare it
+shell-window-one-pass / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+shell-window-one-pass / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+shell-window-one-pass / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+shell-window-one-pass / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (6.0, 'SIGKILL', 'shell'), (15.5, 'SIGKILL', 'trap command'), (25.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL', 'trap command'), (25.5, 've
+shell-window-one-pass / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+shell-window-one-pass / whole: red rc 1 8.1 s: AssertionError: the resumed shell was killed inside its own window, with no child to spare it
+shell-window-1s / owner_report: green rc 0 0.3 s: owner_report: PASS
+shell-window-1s / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+shell-window-1s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+shell-window-1s / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+shell-window-1s / owner_shell_window: red rc 1 4.1 s: AssertionError: the resumed shell was killed inside its own window, with no child to spare it
+shell-window-1s / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+shell-window-1s / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+shell-window-1s / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+shell-window-1s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (6.5, 'SIGKILL', 'shell'), (15.5, 'SIGKILL', 'trap command'), (25.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL', 'trap command'), (25.5, 've
+shell-window-1s / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+shell-window-1s / whole: red rc 1 8.4 s: AssertionError: the resumed shell was killed inside its own window, with no child to spare it
+trap-commands-no-window / owner_report: green rc 0 0.3 s: owner_report: PASS
+trap-commands-no-window / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+trap-commands-no-window / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+trap-commands-no-window / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+trap-commands-no-window / owner_shell_window: red rc 1 3.0 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-no-window / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+trap-commands-no-window / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+trap-commands-no-window / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+trap-commands-no-window / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (5.5, 'SIGKILL', 'trap command'), (15.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL', 'trap command'), (25.5, 've
+trap-commands-no-window / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+trap-commands-no-window / whole: red rc 1 7.0 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-never-spared / owner_report: green rc 0 0.3 s: owner_report: PASS
+trap-commands-never-spared / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+trap-commands-never-spared / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+trap-commands-never-spared / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+trap-commands-never-spared / owner_shell_window: red rc 1 3.2 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-never-spared / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+trap-commands-never-spared / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+trap-commands-never-spared / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+trap-commands-never-spared / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (5.5, 'SIGKILL', 'trap command'), (15.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL', 'trap command'), (25.5, 've
+trap-commands-never-spared / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+trap-commands-never-spared / whole: red rc 1 7.2 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-1s / owner_report: green rc 0 0.3 s: owner_report: PASS
+trap-commands-1s / owner_reparented: green rc 0 0.4 s: owner_reparented: PASS
+trap-commands-1s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+trap-commands-1s / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+trap-commands-1s / owner_shell_window: red rc 1 4.0 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+trap-commands-1s / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+trap-commands-1s / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+trap-commands-1s / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+trap-commands-1s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (6.5, 'SIGKILL', 'trap command'), (15.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL', 'trap command'), (25.5, 've
+trap-commands-1s / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+trap-commands-1s / whole: red rc 1 8.2 s: AssertionError: the resumed shell's trap command was killed inside the shell's window
+resume-collected-shell / owner_report: green rc 0 0.3 s: owner_report: PASS
+resume-collected-shell / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+resume-collected-shell / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+resume-collected-shell / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+resume-collected-shell / owner_shell_window: green rc 0 4.5 s: owner_shell_window: PASS
+resume-collected-shell / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+resume-collected-shell / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+resume-collected-shell / owner_late_cancel: red rc 1 0.2 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+resume-collected-shell / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+resume-collected-shell / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+resume-collected-shell / whole: red rc 1 10.4 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+window-without-resume / owner_report: green rc 0 0.3 s: owner_report: PASS
+window-without-resume / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+window-without-resume / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+window-without-resume / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+window-without-resume / owner_shell_window: green rc 0 4.7 s: owner_shell_window: PASS
+window-without-resume / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+window-without-resume / owner_vanishing: green rc 0 1.1 s: owner_vanishing: PASS
+window-without-resume / owner_late_cancel: red rc 1 15.2 s: AssertionError: cleanup never reached a verdict after a late cancel
+window-without-resume / owner_stated_seconds: green rc 0 0.4 s: owner_stated_seconds: PASS
+window-without-resume / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+window-without-resume / whole: red rc 1 25.5 s: AssertionError: cleanup never reached a verdict after a late cancel
+rearm-without-sigcont / owner_report: green rc 0 0.4 s: owner_report: PASS
+rearm-without-sigcont / owner_reparented: green rc 0 0.4 s: owner_reparented: PASS
+rearm-without-sigcont / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rearm-without-sigcont / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rearm-without-sigcont / owner_shell_window: red rc 1 12.7 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+rearm-without-sigcont / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rearm-without-sigcont / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rearm-without-sigcont / owner_late_cancel: red rc 1 15.2 s: AssertionError: cleanup never reached a verdict after a late cancel
+rearm-without-sigcont / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (15.5, 'SIGKILL', 'shell'), (15.5, 'SIGKILL', 'trap command'), (25.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL', 'trap command'), (25.5, 'verdict')]
+rearm-without-sigcont / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rearm-without-sigcont / whole: red rc 1 16.8 s: AssertionError: the shell was killed in the pass that resumed it, before its trap
+resume-while-listed / owner_report: green rc 0 0.3 s: owner_report: PASS
+resume-while-listed / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+resume-while-listed / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+resume-while-listed / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+resume-while-listed / owner_shell_window: green rc 0 4.4 s: owner_shell_window: PASS
+resume-while-listed / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+resume-while-listed / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+resume-while-listed / owner_late_cancel: red rc 1 0.2 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+resume-while-listed / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+resume-while-listed / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+resume-while-listed / whole: red rc 1 10.4 s: AssertionError: a cancel after the shell was collected resumed it, re-arming its trap window
+no-kill-before-raise / owner_report: green rc 0 0.3 s: owner_report: PASS
+no-kill-before-raise / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+no-kill-before-raise / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+no-kill-before-raise / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+no-kill-before-raise / owner_shell_window: green rc 0 4.6 s: owner_shell_window: PASS
+no-kill-before-raise / owner_survivor: red rc 1 18.4 s: AssertionError: stopped shell left behind
+no-kill-before-raise / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+no-kill-before-raise / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+no-kill-before-raise / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (2.0, 'SIGKILL', 'survivor'), (14.0, 'verdict')]
+no-kill-before-raise / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+no-kill-before-raise / whole: red rc 1 26.6 s: AssertionError: stopped shell left behind
+no-kill-before-raise-empty / owner_report: green rc 0 0.3 s: owner_report: PASS
+no-kill-before-raise-empty / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+no-kill-before-raise-empty / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+no-kill-before-raise-empty / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+no-kill-before-raise-empty / owner_shell_window: green rc 0 4.4 s: owner_shell_window: PASS
+no-kill-before-raise-empty / owner_survivor: red rc 1 18.3 s: AssertionError: stopped shell left behind
+no-kill-before-raise-empty / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+no-kill-before-raise-empty / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+no-kill-before-raise-empty / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (2.0, 'SIGKILL', 'survivor'), (14.0, 'verdict')]
+no-kill-before-raise-empty / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+no-kill-before-raise-empty / whole: red rc 1 26.5 s: AssertionError: stopped shell left behind
+kill-before-fail-spares-shell / owner_report: green rc 0 0.3 s: owner_report: PASS
+kill-before-fail-spares-shell / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+kill-before-fail-spares-shell / owner_late_exit: green rc 0 0.8 s: owner_late_exit: PASS
+kill-before-fail-spares-shell / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+kill-before-fail-spares-shell / owner_shell_window: green rc 0 4.4 s: owner_shell_window: PASS
+kill-before-fail-spares-shell / owner_survivor: red rc 1 18.3 s: AssertionError: stopped shell left behind
+kill-before-fail-spares-shell / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+kill-before-fail-spares-shell / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+kill-before-fail-spares-shell / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (15.5, 'SIGKILL', 'shell'), (15.5, 'SIGKILL', 'trap command'), (25.5, 'SIGKILL', 'trap command'), (25.5, 'verdict')]
+kill-before-fail-spares-shell / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+kill-before-fail-spares-shell / whole: red rc 1 26.7 s: AssertionError: stopped shell left behind
+endless-unbounded / owner_report: green rc 0 0.3 s: owner_report: PASS
+endless-unbounded / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+endless-unbounded / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+endless-unbounded / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+endless-unbounded / owner_shell_window: green rc 0 4.4 s: owner_shell_window: PASS
+endless-unbounded / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+endless-unbounded / owner_vanishing: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict
+endless-unbounded / owner_late_cancel: red rc 1 15.2 s: AssertionError: cleanup never reached a verdict after a late cancel
+endless-unbounded / owner_stated_seconds: red rc 1 0.2 s: AssertionError: cleanup never reached a verdict on the owner's clock
+endless-unbounded / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+endless-unbounded / whole: red rc 1 24.5 s: AssertionError: cleanup never reached a verdict
+survivor-never-fails / owner_report: green rc 0 0.3 s: owner_report: PASS
+survivor-never-fails / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+survivor-never-fails / owner_late_exit: green rc 0 0.8 s: owner_late_exit: PASS
+survivor-never-fails / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+survivor-never-fails / owner_shell_window: green rc 0 4.3 s: owner_shell_window: PASS
+survivor-never-fails / owner_survivor: red rc 1 32.2 s: AssertionError: a survivor never failed the run
+survivor-never-fails / owner_vanishing: red rc 1 15.1 s: AssertionError: cleanup never reached a verdict
+survivor-never-fails / owner_late_cancel: red rc 1 15.2 s: AssertionError: cleanup never reached a verdict after a late cancel
+survivor-never-fails / owner_stated_seconds: red rc 1 0.2 s: AssertionError: cleanup never reached a verdict on the owner's clock
+survivor-never-fails / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+survivor-never-fails / whole: red rc 1 40.6 s: AssertionError: a survivor never failed the run
+survivor-never-fails-guarded / owner_report: green rc 0 0.3 s: owner_report: PASS
+survivor-never-fails-guarded / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+survivor-never-fails-guarded / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+survivor-never-fails-guarded / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+survivor-never-fails-guarded / owner_shell_window: green rc 0 4.4 s: owner_shell_window: PASS
+survivor-never-fails-guarded / owner_survivor: red rc 1 32.2 s: AssertionError: a survivor never failed the run
+survivor-never-fails-guarded / owner_vanishing: red rc 1 15.2 s: AssertionError: cleanup never reached a verdict
+survivor-never-fails-guarded / owner_late_cancel: red rc 1 15.2 s: AssertionError: cleanup never reached a verdict after a late cancel
+survivor-never-fails-guarded / owner_stated_seconds: red rc 1 0.2 s: AssertionError: cleanup never reached a verdict on the owner's clock
+survivor-never-fails-guarded / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+survivor-never-fails-guarded / whole: red rc 1 40.5 s: AssertionError: a survivor never failed the run
+owned-process mutants: PASS (38 mutants, 37 with a control that must fail)

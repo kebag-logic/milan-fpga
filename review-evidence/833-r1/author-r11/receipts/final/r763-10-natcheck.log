@@ -1,0 +1,8 @@
+# python3 -I $VALIDATION_STORAGE/833-a726k/probes/833-r763-10/scripts/natcheck.py $VALIDATION_STORAGE/833-a726k/wt-head $VALIDATION_STORAGE/833-a726k/probes/833-r763-9/natural.py
+early-new-sigtermed-0.25: SAME control=owner_stated_seconds words="an early first-pass resume's stated seconds were not kept"
+early-new-sigtermed-0.5: SAME control=owner_stated_seconds words="an early first-pass resume's stated seconds were not kept"
+early-trap-command-sigtermed: SAME control=owner_stated_seconds words="an early first-pass resume's stated seconds were not kept"
+early-live-new-sigtermed: SAME control=owner_stated_seconds words="an early first-pass resume and its live trap command's stated seconds were not kept"
+trap-command-next-pass-sigtermed: NOT IN MUTANTS
+parent-of-live-new-unspared-beside-shell: SAME control=owner_stated_seconds words="a live new descendant beside a shell never resumed's stated seconds were not kept"
+verdict-early-live-new-beside-stopped-shell: SAME control=owner_stated_seconds words="a live new descendant beside a shell never resumed's stated seconds were not kept"

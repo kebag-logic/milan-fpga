@@ -1,0 +1,100 @@
+99 mutants, 48 cells in owner_stated_seconds (none: all pass)
+A-sigterm-new/live/shell/unresumed: red on 6 cell(s): a live new descendant beside a stopped shell; an early live new descendant beside a stopped shell; a live new descendant beside a shell never resumed; an early live new descendant beside a shell never resumed ...
+A-sigterm-new/live/noshell/unresumed: red on 2 cell(s): a live new descendant; an early live new descendant
+A-sigterm-new/live/shell/R1-first-pass: red on 2 cell(s): a first-pass resume and its live trap command; an early first-pass resume and its live trap command
+A-sigterm-new/live/shell/R2-early-grace: red on 1 cell(s): a second-pass resume and its live trap command
+A-sigterm-new/live/shell/R3-interior-grace: red on 1 cell(s): a one-second resume and its live trap command
+A-sigterm-new/live/shell/R4-late-grace: red on 1 cell(s): a next-to-last in-grace resume and its live trap command
+A-sigterm-new/notlive/shell/unresumed: red on 2 cell(s): a new descendant beside a stopped shell; an early new descendant beside a stopped shell
+A-sigterm-new/notlive/noshell/unresumed: red on 2 cell(s): a new descendant; an early new descendant
+A-sigterm-new/notlive/shell/R1-first-pass: red on 2 cell(s): a first-pass resume; an early first-pass resume
+A-sigterm-new/notlive/shell/R2-early-grace: red on 1 cell(s): a second-pass resume and its trap command
+A-sigterm-new/notlive/shell/R3-interior-grace: red on 1 cell(s): an in-grace resume
+A-sigterm-new/notlive/shell/R4-late-grace: red on 1 cell(s): a next-to-last in-grace resume and its trap command
+B-trap-command-unspared/live/shell/R1-first-pass: red on 2 cell(s): a first-pass resume and its live trap command; an early first-pass resume and its live trap command
+B-trap-command-unspared/live/shell/R2-early-grace: red on 1 cell(s): a second-pass resume and its live trap command
+B-trap-command-unspared/live/shell/R3-interior-grace: red on 1 cell(s): a one-second resume and its live trap command
+B-trap-command-unspared/live/shell/R4-late-grace: red on 2 cell(s): a last in-grace resume and its live trap command; a next-to-last in-grace resume and its live trap command
+B-trap-command-unspared/live/shell/R5-first-past: red on 1 cell(s): a first past-grace resume and its live trap command
+B-trap-command-unspared/live/shell/R6-early-past: red on 1 cell(s): a second past-grace resume and its live trap command
+B-trap-command-unspared/live/shell/R7-interior-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=1, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=1: 
+B-trap-command-unspared/live/shell/R8-late-past: red on 1 cell(s): a last-pass resume and its live trap command
+B-trap-command-unspared/notlive/shell/R1-first-pass: red on 2 cell(s): a first-pass resume; an early first-pass resume
+B-trap-command-unspared/notlive/shell/R2-early-grace: red on 1 cell(s): a second-pass resume and its trap command
+B-trap-command-unspared/notlive/shell/R3-interior-grace: red on 1 cell(s): an in-grace resume
+B-trap-command-unspared/notlive/shell/R4-late-grace: red on 2 cell(s): a last in-grace resume and its trap command; a next-to-last in-grace resume and its trap command
+B-trap-command-unspared/notlive/shell/R5-first-past: red on 1 cell(s): a first past-grace resume and its trap command
+B-trap-command-unspared/notlive/shell/R6-early-past: red on 1 cell(s): a second past-grace resume and its trap command
+B-trap-command-unspared/notlive/shell/R7-interior-past: red on 2 cell(s): a late resume; a second-stage resume
+B-trap-command-unspared/notlive/shell/R8-late-past: red on 3 cell(s): a last-pass resume; a resumed vanishing listing; a last-pass resume and its trap command
+C-new-spared-unresumed/live/shell: red on 6 cell(s): a live new descendant beside a stopped shell; an early live new descendant beside a stopped shell; a live new descendant beside a shell never resumed; an early live new descendant beside a shell never resumed ...
+C-new-spared-unresumed/live/noshell: red on 2 cell(s): a live new descendant; an early live new descendant
+C-new-spared-unresumed/notlive/shell: red on 2 cell(s): a new descendant beside a stopped shell; an early new descendant beside a stopped shell
+C-new-spared-unresumed/notlive/noshell: red on 2 cell(s): a new descendant; an early new descendant
+D-live-new-child-spares-nothing/shell: red on 4 cell(s): a live new descendant beside a shell never resumed; an early live new descendant beside a shell never resumed; a parent beside a stopped shell and its live new descendant; an early parent beside a stopped shell and its live new descendant
+D-notlive-new-child-spares/shell: red on 2 cell(s): a new descendant beside a stopped shell; an early new descendant beside a stopped shell
+D-live-new-child-spares-nothing/noshell: red on 2 cell(s): a live new descendant; an early live new descendant
+D-notlive-new-child-spares/noshell: red on 2 cell(s): a new descendant; an early new descendant
+E-resume-ignores-live-new/C1-first-pass: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+E-resume-ignores-live-new/C2-early-grace: red on 1 cell(s): an early live new descendant beside a stopped shell
+E-resume-ignores-live-new/C3-interior-grace: red on 2 cell(s): a live new descendant beside a stopped shell; an early live new descendant beside a stopped shell
+E-resume-ignores-live-new/C4-late-grace: red on 2 cell(s): a live new descendant beside a stopped shell; an early live new descendant beside a stopped shell
+E-resume-ignores-live-new/C5-first-past: red on 2 cell(s): a live new descendant beside a stopped shell; an early live new descendant beside a stopped shell
+E-resume-ignores-live-new/C6-early-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+E-resume-ignores-live-new/C7-interior-past: red on 2 cell(s): a live new descendant beside a stopped shell; an early live new descendant beside a stopped shell
+E-resume-ignores-live-new/C8-late-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+F-resume-held-by-notlive-new/C1-first-pass: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+F-resume-held-by-notlive-new/C2-early-grace: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+F-resume-held-by-notlive-new/C3-interior-grace: red on 1 cell(s): an in-grace resume
+F-resume-held-by-notlive-new/C4-late-grace: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+F-resume-held-by-notlive-new/C5-first-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+F-resume-held-by-notlive-new/C6-early-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+F-resume-held-by-notlive-new/C7-interior-past: red on 2 cell(s): a late resume; a second-stage resume
+F-resume-held-by-notlive-new/C8-late-past: red on 2 cell(s): a last-pass resume; a resumed vanishing listing
+F-resume-held-by-notlive-initial/C1-first-pass: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+F-resume-held-by-notlive-initial/C2-early-grace: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+F-resume-held-by-notlive-initial/C3-interior-grace: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+F-resume-held-by-notlive-initial/C4-late-grace: red on 2 cell(s): a next-to-last in-grace resume and its trap command; a next-to-last in-grace resume and its live trap command
+F-resume-held-by-notlive-initial/C5-first-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+F-resume-held-by-notlive-initial/C6-early-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+F-resume-held-by-notlive-initial/C7-interior-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+F-resume-held-by-notlive-initial/C8-late-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+G-verdict-postponed-by-live-new/noshell: red on 2 cell(s): a live new descendant; an early live new descendant
+G-verdict-hastened-by-live-new/noshell: red on 2 cell(s): a live new descendant; an early live new descendant
+G-verdict-postponed-by-live-new/shell-unresumed: red on 4 cell(s): a live new descendant beside a shell never resumed; an early live new descendant beside a shell never resumed; a parent beside a stopped shell and its live new descendant; an early parent beside a stopped shell and its live new descendant
+G-verdict-hastened-by-live-new/shell-unresumed: red on 4 cell(s): a live new descendant beside a shell never resumed; an early live new descendant beside a shell never resumed; a parent beside a stopped shell and its live new descendant; an early parent beside a stopped shell and its live new descendant
+G-verdict-postponed-by-live-new/shell-R1-first-pass: red on 2 cell(s): a first-pass resume and its live trap command; an early first-pass resume and its live trap command
+G-verdict-hastened-by-live-new/shell-R1-first-pass: red on 2 cell(s): a first-pass resume and its live trap command; an early first-pass resume and its live trap command
+G-verdict-postponed-by-live-new/shell-R2-early-grace: red on 1 cell(s): a second-pass resume and its live trap command
+G-verdict-hastened-by-live-new/shell-R2-early-grace: red on 1 cell(s): a second-pass resume and its live trap command
+G-verdict-postponed-by-live-new/shell-R3-interior-grace: red on 1 cell(s): a one-second resume and its live trap command
+G-verdict-hastened-by-live-new/shell-R3-interior-grace: red on 1 cell(s): a one-second resume and its live trap command
+G-verdict-postponed-by-live-new/shell-R4-late-grace: red on 2 cell(s): a last in-grace resume and its live trap command; a next-to-last in-grace resume and its live trap command
+G-verdict-hastened-by-live-new/shell-R4-late-grace: red on 2 cell(s): a last in-grace resume and its live trap command; a next-to-last in-grace resume and its live trap command
+G-verdict-postponed-by-live-new/shell-R5-first-past: red on 1 cell(s): a first past-grace resume and its live trap command
+G-verdict-hastened-by-live-new/shell-R5-first-past: red on 1 cell(s): a first past-grace resume and its live trap command
+G-verdict-postponed-by-live-new/shell-R6-early-past: red on 1 cell(s): a second past-grace resume and its live trap command
+G-verdict-hastened-by-live-new/shell-R6-early-past: red on 1 cell(s): a second past-grace resume and its live trap command
+G-verdict-postponed-by-live-new/shell-R7-interior-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+G-verdict-hastened-by-live-new/shell-R7-interior-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+G-verdict-postponed-by-live-new/shell-R8-late-past: red on 1 cell(s): a last-pass resume and its live trap command
+G-verdict-hastened-by-live-new/shell-R8-late-past: red on 1 cell(s): a last-pass resume and its live trap command
+H-shell-unspared-beside-trap-command/live/R1-first-pass: red on 2 cell(s): a first-pass resume and its live trap command; an early first-pass resume and its live trap command
+H-shell-unspared-beside-trap-command/live/R2-early-grace: red on 1 cell(s): a second-pass resume and its live trap command
+H-shell-unspared-beside-trap-command/live/R3-interior-grace: red on 1 cell(s): a one-second resume and its live trap command
+H-shell-unspared-beside-trap-command/live/R4-late-grace: red on 1 cell(s): a next-to-last in-grace resume and its live trap command
+H-shell-unspared-beside-trap-command/live/R5-first-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+H-shell-unspared-beside-trap-command/live/R6-early-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+H-shell-unspared-beside-trap-command/live/R7-interior-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+H-shell-unspared-beside-trap-command/live/R8-late-past: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+H-shell-unspared-beside-trap-command/notlive/R1-first-pass: red on 2 cell(s): a first-pass resume; an early first-pass resume
+H-shell-unspared-beside-trap-command/notlive/R2-early-grace: red on 1 cell(s): a second-pass resume and its trap command
+H-shell-unspared-beside-trap-command/notlive/R3-interior-grace: red on 1 cell(s): an in-grace resume
+H-shell-unspared-beside-trap-command/notlive/R4-late-grace: red on 2 cell(s): a last in-grace resume and its trap command; a next-to-last in-grace resume and its trap command
+H-shell-unspared-beside-trap-command/notlive/R5-first-past: red on 1 cell(s): a first past-grace resume and its trap command
+H-shell-unspared-beside-trap-command/notlive/R6-early-past: red on 1 cell(s): a second past-grace resume and its trap command
+H-shell-unspared-beside-trap-command/notlive/R7-interior-past: red on 2 cell(s): a late resume; a second-stage resume
+H-shell-unspared-beside-trap-command/notlive/R8-late-past: red on 2 cell(s): a last-pass resume; a last-pass resume and its trap command
+X-sigterm-live-new-late-resume-gap-over-1us: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+X-sigterm-live-new-late-resume-no-zombie: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
+X-sigterm-notlive-new-late-resume-gap-over-1us: red on 0 cell(s) SURVIVOR-of-stated-seconds; other: owner_report=0, owner_reparented=0, owner_late_exit=0, owner_stall=0, owner_shell_window=0, owner_survivor=0, owner_vanishing=0, owner_late_cancel=0, owner_stated_seconds=0, owner_reused_identity=0, whole=0: 
