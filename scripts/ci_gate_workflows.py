@@ -59,8 +59,8 @@ METADATA_STEPS = {"elaborate": ("Cache the generated CPU metadata",
 #: The carriers whose aggregate fetches the head alone, and every aggregate's limit. The elaborate aggregate reads
 #: the head's tree and nothing else: its receipts' source identity, the template and the runners' inventories.
 #: Its full-history fetch took 260 seconds against this limit in run 41678609075 and grows with the branch
-#: count. Fetching the head, it projects at 104 seconds: the largest depth-one checkout over the cited runs, 19,
-#: plus its largest span less its checkout, 85, most of it before its first step. Three minutes leaves 76 seconds
+#: count. Fetching the head, it projects at 111 seconds: the largest depth-one checkout over the cited runs, 26,
+#: plus its largest span less its checkout, 85, most of it before its first step. Three minutes leaves 69 seconds
 #: of margin (#737).
 HEAD_ONLY_AGGREGATES = {"elaborate"}
 AGGREGATE_TIMEOUT = 3

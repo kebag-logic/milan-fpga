@@ -45,14 +45,15 @@ SECONDS = {
     "test_soc_timing_cuts": 240,
 }
 #: Each member's largest verdict-row seconds over every hosted run with the
-#: legs apart, runs 41583428850 and 41678609075 (attempts 1 and 3). Every
+#: legs apart, runs 41583428850, 41678609075 (attempts 1 and 3) and
+#: 41705989293 (attempts 1 and 2). Every
 #: bound and projection uses these; docs/testing/CI_WORKFLOWS.md states the
 #: rule a later hosted measurement follows (#737).
 LARGEST = {
     "test_cpu_memory_port_cdc": 72,
     "test_ctrl_memory": 284,
     "test_gmii_rx_capture": 0,
-    "test_gptp_tx_timestamp": 462,
+    "test_gptp_tx_timestamp": 477,
     "test_pp_boot_bus_freeze": 25,
     "test_pp_mem_bridge": 15,
     "test_retained_cdc_storage": 336,
@@ -65,13 +66,14 @@ JOB_LIMIT = 2700
 #: Stated headroom a LiteX worker keeps under JOB_LIMIT for hosted variance (#737).
 HEADROOM = 600
 #: The largest elaborate worker span outside its gate steps and Verilator
-#: build over the cited hosted runs: worker 3, run 41678609075 attempt 3 (#737).
-SETUP = 485
+#: build over the cited hosted runs: worker 1, run 41705989293 attempt 2 (#737).
+SETUP = 739
 #: The largest cold Verilator source build over the cited hosted runs: worker
 #: 3, run 41678609075 attempt 1 (#737).
 COLD_VERILATOR = 431
-#: The largest LiteX runner self-test over the cited hosted runs (#737).
-SELFTEST = 3
+#: The largest LiteX runner self-test over the cited hosted runs, its leg step
+#: less its verdict rows: worker 2, run 41705989293 attempt 2 (#737).
+SELFTEST = 4
 #: The simulation seconds one leg may hold at LARGEST, so that a cold LiteX
 #: worker at every component's largest stays HEADROOM inside JOB_LIMIT. Runner
 #: queueing is not in it (#737).
