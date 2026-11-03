@@ -1,0 +1,5 @@
+rc=0 python3 scripts/ci_gate_workflows.py --check
+rc=0 python3 scripts/ci_gate_workflows_selftest.py
+rc=0 python3 scripts/ci_litex_legs.py legs
+rc=0 python3 scripts/ci_litex_legs_selftest.py
+rc=0 python3 scripts/ci_events.py --check
