@@ -25,10 +25,11 @@ SHA = re.compile(r"[0-9a-f]{40}\Z")
 
 @dataclass(frozen=True)
 class Collected:
-    """Downloaded worker receipts, with the builder leg receipts where that command is divided."""
+    """Downloaded worker receipts, with the builder and LiteX leg receipts where those commands are divided."""
 
     receipts: list[dict]
     builder: list[dict] | None = None
+    litex: list[dict] | None = None
 
 
 @dataclass(frozen=True)
@@ -64,9 +65,10 @@ def verify(name: str, source: dict, identity: tuple[str, str], digest: str,
     """Require each source gate once and every dependent job successful, with exact source binding.
 
     Where the builder command is divided, its executed legs must also form the
-    builder union, and a skipped division may leave no builder receipt.
+    builder union, and a skipped division may leave no builder receipt. The
+    LiteX simulation legs are held to their own union the same way (#737).
     """
-    receipts, builder = collected.receipts, collected.builder
+    receipts, builder, litex = collected.receipts, collected.builder, collected.litex
     legs = worker_legs(name, source)
     expected_jobs = {worker_id(name, leg) for leg in legs}
     if set(needs) != expected_jobs:
@@ -81,6 +83,7 @@ def verify(name: str, source: dict, identity: tuple[str, str], digest: str,
     seen = []
     scopes = set()
     divided = []
+    simulated = []
     for document in receipts:
         expected = {"schema", "workflow", "leg", "head", "tree", "template_sha256", "inventory", "scope", "results"}
         if set(document) != expected or type(document["schema"]) is not int or document["schema"] != 1:
@@ -115,6 +118,8 @@ def verify(name: str, source: dict, identity: tuple[str, str], digest: str,
             seen.append(case["id"])
             if "builder" in case:
                 divided.append(result == ("success", "success"))
+            if "litex" in case:
+                simulated.append(result == ("success", "success"))
     if len(scopes) != 1 or sorted(seen) != sorted(inventory) or len(set(seen)) != len(seen):
         raise ValueError("gate union or scope evidence is inconsistent")
     if any(divided):
@@ -122,6 +127,11 @@ def verify(name: str, source: dict, identity: tuple[str, str], digest: str,
         union(builder or [], identity[0], identity[1], requirements(builder_command(name, source)))
     elif builder:
         raise ValueError("builder leg receipts without an executed builder division")
+    if any(simulated):
+        from ci_litex_legs import union as litex_union
+        litex_union(litex or [], identity[0], identity[1])
+    elif litex:
+        raise ValueError("LiteX leg receipts without an executed LiteX division")
     return seen
 
 
@@ -156,15 +166,21 @@ def main() -> int:
         else:
             receipts = [read(path) for path in sorted(args.root.rglob("receipt.json"))]
             builder = [read(path) for path in sorted(args.root.rglob("builder-leg-*.json"))]
+            litex = [read(path) for path in sorted(args.root.rglob("litex-leg-*.json"))]
             needs = json.loads(os.environ["CI_GATE_NEEDS"], object_pairs_hook=unique_object)
-            names = verify(args.workflow, source, identity, digest, Collected(receipts, builder), needs)
+            names = verify(args.workflow, source, identity, digest, Collected(receipts, builder, litex), needs)
             if args.output:
                 observed = sorted([row for receipt in receipts for row in receipt["results"]],
                                   key=lambda row: row["case"])
+                unions = {}
                 if builder:
                     from ci_builder_legs import requirements, union
-                    observed = {"steps": observed, "builder": union(
-                        builder, *identity, requirements(builder_command(args.workflow, source)))}
+                    unions["builder"] = union(builder, *identity, requirements(builder_command(args.workflow, source)))
+                if litex:
+                    from ci_litex_legs import union as litex_union
+                    unions["litex"] = litex_union(litex, *identity)
+                if unions:
+                    observed = {"steps": observed, **unions}
                 value = {"suite": "gate/" + args.workflow, "head": identity[0], "tree": identity[1],
                          "inventory": [case["id"] for case in case_inventory(args.workflow, source)],
                          "legs": [{"shard": str(receipt["leg"]) + "/" + str(len(worker_legs(args.workflow, source))),

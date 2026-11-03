@@ -330,6 +330,11 @@ jobs:
       # time - so the aggregate cannot rot into a green that proves nothing.
       # This step needs exactly the interpreter the steps above installed and
       # patched, and the Verilator the three steps above put on PATH.
+      # scripts/ci_gate_workflows.py runs it in measured legs, each on a worker
+      # of its own: run whole after a builder leg it held that job within a
+      # minute of its 45-minute limit (#737). scripts/ci_litex_legs.py derives
+      # each leg's members from the runner's inventory, and the aggregate job
+      # requires every simulation to have run once and passed.
       - name: Standalone LiteX simulation aggregate
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |

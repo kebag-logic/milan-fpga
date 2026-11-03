@@ -24,7 +24,6 @@ ROOT = Path(__file__).resolve().parents[1]
 CARRIERS = {"docs": "docs-check", "elaborate": "elaborate"}
 TEMPLATES = {name: ".github/ci-templates/" + name + ".yml"
              for name in (*CARRIERS, "rtl", "rtl-fast")}
-LONG_GATE = {"elaborate": "Standalone LiteX simulation aggregate"}
 CONTRACT_GATES = {"CI event and SHA contract gate", "Local act runner contract gate"}
 #: The one template step per workflow whose driver command is divided by its
 #: measured gate legs (scripts/ci_builder_legs.py), and the worker each leg
@@ -33,6 +32,14 @@ CONTRACT_GATES = {"CI event and SHA contract gate", "Local act runner contract g
 BUILDER_SPLIT = {"docs": "End-station builder gates", "elaborate": "Elaboration gates"}
 BUILDER_WORKERS = {"docs": (1, 2), "elaborate": (0, 1)}
 DRIVER_COMMAND = "python3 sw/builder/test_builder.py"
+#: The template step whose standalone LiteX simulations are divided by their
+#: measured legs (scripts/ci_litex_legs.py), and the worker each leg runs on.
+#: Run whole after builder leg 1 on worker 1 they held that job within a
+#: minute of its 45-minute limit (#737). Only these workers set up Verilator,
+#: which one member needs.
+LITEX_SPLIT = {"elaborate": "Standalone LiteX simulation aggregate"}
+LITEX_WORKERS = {"elaborate": (2, 3, 4)}
+LITEX_COMMAND = "scripts/run_litex_sims.sh"
 VERILATOR_SETUP = {"Cache the pinned Verilator build", "Build Verilator from source on cache miss",
                    "Put Verilator on PATH and prove the version"}
 SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "Keep ")
@@ -97,13 +104,22 @@ def setup(step: dict) -> bool:
             or step.get("name") == "Build Verilator from source on cache miss")
 
 
+def divided(case: dict, workers: tuple[int, ...], kind: str, legs: int) -> list[dict]:
+    """One case per measured leg of a divided step, each on its own worker."""
+    return [{**case, "id": case["id"] + "_" + str(leg), "leg": workers[leg], kind: leg,
+             "name": case["name"] + ", leg " + str(leg) + " of " + str(legs)} for leg in range(legs)]
+
+
 def case_inventory(name: str, template: dict) -> list[dict]:
     """Derive gate identities and leg membership from the original ordered steps."""
     from ci_builder_legs import LEGS
+    from ci_litex_legs import LEGS as LITEX_LEGS
     original = template["jobs"][CARRIERS[name]]["steps"]
     workers = BUILDER_WORKERS[name]
     if len(workers) != LEGS:
         raise ValueError(name + ": builder legs and their workers differ in number")
+    if len(LITEX_WORKERS.get(name, ())) != (LITEX_LEGS if name in LITEX_SPLIT else 0):
+        raise ValueError(name + ": LiteX legs and their workers differ in number")
     cases = []
     for index, step in enumerate(original):
         if setup(step):
@@ -111,19 +127,19 @@ def case_inventory(name: str, template: dict) -> list[dict]:
         case = {"id": "gate_" + str(index), "index": index,
                 "name": step.get("name", "Run " + step.get("uses", "")),
                 "condition": step.get("if", "success()"),
-                "leg": (2 if name == "docs" and step.get("name") in CONTRACT_GATES
-                        else int(name in LONG_GATE and step.get("name") == LONG_GATE[name]))}
-        if step.get("name") != BUILDER_SPLIT[name]:
+                "leg": 2 if name == "docs" and step.get("name") in CONTRACT_GATES else 0}
+        if step.get("name") == BUILDER_SPLIT[name]:
+            cases.extend(divided(case, workers, "builder", LEGS))
+        elif step.get("name") == LITEX_SPLIT.get(name):
+            cases.extend(divided(case, LITEX_WORKERS[name], "litex", LITEX_LEGS))
+        else:
             cases.append(case)
-            continue
-        cases.extend({**case, "id": case["id"] + "_" + str(leg), "leg": workers[leg], "builder": leg,
-                      "name": case["name"] + ", leg " + str(leg) + " of " + str(LEGS)}
-                     for leg in range(LEGS))
-    if (sum(case["name"] == LONG_GATE.get(name) for case in cases) != int(name in LONG_GATE)
-            or not any(case["leg"] == 0 for case in cases)):
-        raise ValueError(name + ": missing or ambiguous measured long gate")
+    if not any(case["leg"] == 0 for case in cases):
+        raise ValueError(name + ": no gate on the first worker")
     if sum("builder" in case for case in cases) != LEGS:
         raise ValueError(name + ": missing or ambiguous builder gate command")
+    if sum("litex" in case for case in cases) != (LITEX_LEGS if name in LITEX_SPLIT else 0):
+        raise ValueError(name + ": missing or ambiguous LiteX simulation command")
     if len({case["name"] for case in cases}) != len(cases):
         raise ValueError(name + ": duplicate gate names")
     return cases
@@ -169,12 +185,39 @@ def builder_leg_step(step: dict, case: dict) -> dict:
     return kept
 
 
+def split_litex_run(step: dict) -> tuple[list[str], str]:
+    """A divided simulation step's preparation lines and its one aggregate command, which ends it.
+
+    A preparation line may run the runner's own --selftest, which runs no simulation, and nothing else of it."""
+    *preparation, command = step["run"].strip().split("\n")
+    if (shlex.split(command)[:1] != [LITEX_COMMAND] or len(shlex.split(command)) != 2
+            or shlex.split(command)[1].startswith("-")
+            or any(LITEX_COMMAND in line and line.strip() != LITEX_COMMAND + " --selftest"
+                   for line in preparation)):
+        raise ValueError("the divided LiteX step must end in its one aggregate command")
+    return preparation, command
+
+
+def litex_leg_step(step: dict, case: dict) -> dict:
+    """The template's own simulation step, its aggregate command run for one measured leg with its receipt."""
+    preparation, command = split_litex_run(step)
+    kept = {key: copy.deepcopy(value) for key, value in step.items() if key != "run"}
+    kept["name"] = case["name"]
+    kept["run"] = ("".join(line + "\n" for line in preparation)
+                   + "python3 scripts/ci_litex_legs.py run " + str(case["litex"])
+                   + ' --receipt "$RUNNER_TEMP/gate-results/litex-leg-' + str(case["litex"])
+                   + '.json" -- ' + command + "\n")
+    return kept
+
+
 def collection_steps(name: str, leg: int) -> list[dict]:
     """Observe completed source steps even on failure, then retain the actual evidence."""
     destination = "$RUNNER_TEMP/gate-results/receipt.json"
     retained = "${{ runner.temp }}/gate-results/receipt.json"
     if leg in BUILDER_WORKERS[name]:
         retained += "\n${{ runner.temp }}/gate-results/builder-leg-*.json\n"
+    if leg in LITEX_WORKERS.get(name, ()):
+        retained += "\n${{ runner.temp }}/gate-results/litex-leg-*.json\n"
     return [
         {"name": "Record executed gate outcomes", "if": "${{ always() }}",
          "env": {"CI_GATE_STEPS": "${{ toJSON(steps) }}",
@@ -361,10 +404,15 @@ def gate_graph(name: str, template: dict) -> dict:
             owned = [case for case in cases.get(index, []) if case["leg"] == leg]
             if index in cases and not owned:
                 continue
-            if name == "elaborate" and step.get("name") in VERILATOR_SETUP and leg != 1:
+            if name in LITEX_WORKERS and step.get("name") in VERILATOR_SETUP and leg not in LITEX_WORKERS[name]:
                 continue
             case = owned[0] if owned else None
-            kept = builder_leg_step(step, case) if case and "builder" in case else copy.deepcopy(step)
+            if case and "builder" in case:
+                kept = builder_leg_step(step, case)
+            elif case and "litex" in case:
+                kept = litex_leg_step(step, case)
+            else:
+                kept = copy.deepcopy(step)
             if case:
                 if "id" in kept:
                     raise ValueError(name + ": gate already has an output identifier")
