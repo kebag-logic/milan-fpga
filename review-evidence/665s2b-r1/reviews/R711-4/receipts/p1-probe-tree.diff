@@ -1,0 +1,48 @@
+diff --git a/tb/verilator/ctrl_service_budget/save_window.py b/tb/verilator/ctrl_service_budget/save_window.py
+index 79cf19368b..702fdd1e4e 100644
+--- a/tb/verilator/ctrl_service_budget/save_window.py
++++ b/tb/verilator/ctrl_service_budget/save_window.py
+@@ -105,7 +105,7 @@ def set_name(p: scenario.Point) -> bytes:
+                          bytes(8) + name)
+ 
+ 
+-def window(p: scenario.Point, phase: str, k: int) -> scenario.Group:
++def window(p: scenario.Point, phase: str, k: int, flood_ms: int = 0, inside: bool = False) -> scenario.Group:
+     """backlog-adp's window opened at tick phase k of a save's flash phase."""
+     ms = scenario.MS
+     acmp, adp, aecp = scenario.CH['acmp'], scenario.CH['adp'], scenario.CH['aecp']
+@@ -118,7 +118,8 @@ def window(p: scenario.Point, phase: str, k: int) -> scenario.Group:
+                     f.Adp(valid_time=10, gm_id=0x0A0B0C0DFFFE0000 + last_gm, **caps))
+     event, delay, period = PHASES[phase]
+     event = f'idle {IDLE_MS * ms}' if event == 'idle' else event
+-    g = scenario.Group(row_names()[list(PHASES).index(phase) * TICK_PHASES + k], sim_ms=8000)
++    g = scenario.Group(row_names()[list(PHASES).index(phase) * TICK_PHASES + k] if not flood_ms else
++                       f'backlog-adp@{phase}-{"I" if inside else "F"}{flood_ms}', sim_ms=8000)
+     scenario.ready(g, p)
+     # scenario.announced's wait for MAAP, with the SET_NAME inside it; backlog-adp's bound talker's bind is
+     # persisted too, and joins the same save
+@@ -127,7 +128,11 @@ def window(p: scenario.Point, phase: str, k: int) -> scenario.Group:
+           f'frame 0 {scenario.acmp_cmd(p, "BIND_RX", 0, 0x7000).hex()}', f'wait tx {acmp} 2 within {20 * ms}',
+           'wait quiet 3 within 2000000', f'frame 0 {avail.hex()}', 'wait quiet 3 within 2000000',
+           f'frame 0 {gone.hex()}', f'wait cycles {50 * ms}', 'wait quiet 3 within 2000000',
+-          f'wait flash {event} within {6000 * ms}', f'wait cycles {(delay + k * period / TICK_PHASES) * ms:.0f}',
++          f'wait flash {event} within {6000 * ms}',
++          *([f'wait cycles {(delay + k * period / TICK_PHASES - flood_ms) * ms:.0f}', 'flood gm 1',
++             f'wait cycles {flood_ms * ms}', 'flood gm 0'] if inside else
++            [f'wait cycles {(delay + k * period / TICK_PHASES) * ms:.0f}',
++             *((['flood gm 1', f'wait cycles {flood_ms * ms}', 'flood gm 0']) if flood_ms else [])]),
+           *scenario.OPEN_WINDOW)
+     scenario.gm_run(g, p)
+     scenario.composed_load(g, p, own='adp')
+@@ -236,7 +241,10 @@ def groups(p: scenario.Point, build: dict) -> list[scenario.Group]:
+     """The windows, the save alone, and a save under every channel at its refill rate, without and with no pass
+     that takes nothing, each of the build's image's container."""
+     image = container(build)
+-    return [*windows(p), alone(p, image), loaded(p, 'save-held', False, image), loaded(p, 'save-starved', True, image)]
++    return [*windows(p), alone(p, image), loaded(p, 'save-held', False, image), loaded(p, 'save-starved', True, image),
++            *(window(p, 'blank', 0, F) for F in [30, 33, 36, 39, 42, 45, 48, 51, 54, 57]),
++            *(window(p, ph, 0, F) for ph in ('program', 'verify') for F in range(45, 61, 2)),
++            *(window(p, 'blank', 0, F, True) for F in range(19, 30))]
+ 
+ 
+ def row_names() -> list[str]:
