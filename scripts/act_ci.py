@@ -6418,8 +6418,9 @@ def scope_fixture_scope_script(shipping: pathlib.Path, workflow: str, job: str, 
     text = raw.decode("utf-8")
     owners = [job]
     if workflow == "elaborate.yml" and job == "elaborate":
+        # Two builder legs and three LiteX simulation legs (#737), each its own scope owner.
         owners = re.findall(r"^  (elaborate-gates-[0-9]+):$", text, re.MULTILINE)
-        assert len(owners) == 2 and len(set(owners)) == 2, "missing elaboration scope owner"
+        assert len(owners) == 5 and len(set(owners)) == 5, "missing elaboration scope owner"
     scripts = []
     for owner in owners:
         _, found, tail = text.partition(f"  {owner}:\n")
