@@ -3246,12 +3246,13 @@ Elaboration projects at 1385 seconds for its slowest worker, worker zero,
 whose largest hosted job time in the runs above was 1254 seconds, cold, in run
 41583428850. Its 338 seconds of aggregate, collector, watcher and tail
 allowance gives 1723 seconds, about 28.7 minutes: 77 seconds inside thirty
-minutes, so its two builder legs are kept. That projection, like every one here, excludes
-runner queueing. Run 41583428850, the first hosted run with the LiteX legs
-apart, did not meet #737 acceptance 1, the workflow inside 30 minutes from its
-first job start to its last job end: measured from the first job start,
-`elaborate-gates-3` ended at 1882 seconds, the `elaborate` aggregate at 2306
-and `Collect CI manifest` at 2824. The cause was runner queueing.
+minutes, so its two builder legs are kept. That projection, like every one
+here, excludes runner queueing. Run 41583428850, the first hosted run with the
+LiteX legs apart, did not meet #737 acceptance 1, the workflow inside 30
+minutes from its first job start to its last job end: measured from the first
+job start in the jobs API's whole seconds, `elaborate-gates-3` ended at 1883
+seconds, the `elaborate` aggregate at 2307 and `Collect CI manifest` at 2825.
+The cause was runner queueing.
 `elaborate-gates-3` waited 1268 seconds for a runner and the aggregate 388,
 while the docs, fast and full RTL workflows of that head ran beside it, the
 full one with 19 shards. Three LiteX legs put one more concurrent runner per

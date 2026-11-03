@@ -21,6 +21,15 @@ from ci_gate_workflows import (BUILDER_CACHES, BUILDER_WORKERS, CARRIERS, LITEX_
                                litex_leg_step, load_template, metadata_worker, worker_id)
 
 
+#: The builders' shared caches, the CPU metadata steps and the worker that carries them, named here rather than
+#: read from the generator's constants, so that a step dropped from those constants is caught (#737).
+SHARED_CACHES = {"elaborate": ("Cache verified sv2v archive", "Cache the pinned pip downloads",
+                               "Cache the Scala toolchain")}
+METADATA = {"elaborate": ("Cache the generated CPU metadata",
+                          "Keep the generated CPU netlist arguments for the next run")}
+METADATA_WORKER = {"elaborate": 1}
+
+
 def litex_receipts(identity: tuple[str, str], names: list[str] | None = None) -> list[dict]:
     """Passing leg receipts in the shape the leg runner binds around the runner's verdict rows."""
     names = ci_litex_legs.inventory() if names is None else names
@@ -159,13 +168,14 @@ def worker_controls(name: str, generated: dict, cases: list[dict], legs: list[in
             assert setup == (VERILATOR_SETUP if leg in owners else set()), (name, leg, setup)
             # Only the builders restore and save their shared caches; a LiteX worker carries none, and only the
             # builder that generates the CPU metadata carries its cache and the step that fills it (#737).
+            assert (set(BUILDER_CACHES[name]), METADATA_STEPS[name], metadata_worker(name)) == (
+                {*SHARED_CACHES[name], METADATA[name][0]}, METADATA[name], METADATA_WORKER[name]), name
             names = [step.get("name") for step in steps]
-            common = sorted(set(BUILDER_CACHES[name]) - set(METADATA_STEPS[name]))
+            common = sorted(SHARED_CACHES[name])
             shared = sorted(found for found in names if found in common)
             assert shared == ([] if leg in owners else common), (name, leg, shared)
-            metadata = sorted(found for found in names if found in METADATA_STEPS[name])
-            assert metadata == (sorted(METADATA_STEPS[name]) if leg == metadata_worker(name) else []), (
-                name, leg, metadata)
+            metadata = sorted(found for found in names if found in METADATA[name])
+            assert metadata == (sorted(METADATA[name]) if leg == METADATA_WORKER[name] else []), (name, leg, metadata)
     if name in BUILDER_CACHES:
         cache_controls(name)
     aggregate_controls(name, generated)
