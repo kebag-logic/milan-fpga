@@ -1,0 +1,92 @@
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.c b/sw/firmware/ctrl/loop/ctrl_loop.c
+index 448e730014..8d9703e98b 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.c
++++ b/sw/firmware/ctrl/loop/ctrl_loop.c
+@@ -159,7 +159,7 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
+ 	uint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u;
+ 	// THE STEP's age limit: a step not run for more than CTRL_LOOP_STEP_AGE centiseconds is this
+ 	// whole pass, before any input, so an input waits one step at most
+-	if (l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE) {
++	if (l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE + l->step_age) {
+ 		l->step_age = 0u;
+ 		(void)l->step(l->step_ctx, deadline);
+ 		l->stats.passes++;
+diff --git a/tb/verilator/ctrl_service_budget/save_window.py b/tb/verilator/ctrl_service_budget/save_window.py
+index 79cf19368b..dca16059e2 100644
+--- a/tb/verilator/ctrl_service_budget/save_window.py
++++ b/tb/verilator/ctrl_service_budget/save_window.py
+@@ -105,7 +105,7 @@ def set_name(p: scenario.Point) -> bytes:
+                          bytes(8) + name)
+ 
+ 
+-def window(p: scenario.Point, phase: str, k: int) -> scenario.Group:
++def window(p: scenario.Point, phase: str, k: int, name: str | None = None, flood_ms: float = 0) -> scenario.Group:
+     """backlog-adp's window opened at tick phase k of a save's flash phase."""
+     ms = scenario.MS
+     acmp, adp, aecp = scenario.CH['acmp'], scenario.CH['adp'], scenario.CH['aecp']
+@@ -118,7 +118,7 @@ def window(p: scenario.Point, phase: str, k: int) -> scenario.Group:
+                     f.Adp(valid_time=10, gm_id=0x0A0B0C0DFFFE0000 + last_gm, **caps))
+     event, delay, period = PHASES[phase]
+     event = f'idle {IDLE_MS * ms}' if event == 'idle' else event
+-    g = scenario.Group(row_names()[list(PHASES).index(phase) * TICK_PHASES + k], sim_ms=8000)
++    g = scenario.Group(name or row_names()[list(PHASES).index(phase) * TICK_PHASES + k], sim_ms=8000)
+     scenario.ready(g, p)
+     # scenario.announced's wait for MAAP, with the SET_NAME inside it; backlog-adp's bound talker's bind is
+     # persisted too, and joins the same save
+@@ -127,8 +127,12 @@ def window(p: scenario.Point, phase: str, k: int) -> scenario.Group:
+           f'frame 0 {scenario.acmp_cmd(p, "BIND_RX", 0, 0x7000).hex()}', f'wait tx {acmp} 2 within {20 * ms}',
+           'wait quiet 3 within 2000000', f'frame 0 {avail.hex()}', 'wait quiet 3 within 2000000',
+           f'frame 0 {gone.hex()}', f'wait cycles {50 * ms}', 'wait quiet 3 within 2000000',
+-          f'wait flash {event} within {6000 * ms}', f'wait cycles {(delay + k * period / TICK_PHASES) * ms:.0f}',
+-          *scenario.OPEN_WINDOW)
++          f'wait flash {event} within {6000 * ms}',
++          *([f'wait cycles {(delay + k * period / TICK_PHASES) * ms:.0f}'] if flood_ms >= 0 else
++            [f'wait cycles {(delay + k * period / TICK_PHASES + flood_ms) * ms:.0f}', 'flood gm 1',
++             f'wait cycles {round(-flood_ms * ms)}']),
++          *([] if flood_ms <= 0 else ['flood gm 1', f'wait cycles {round(flood_ms * ms)}']),
++          *scenario.OPEN_WINDOW, *([] if not flood_ms else ['flood gm 0']))
+     scenario.gm_run(g, p)
+     scenario.composed_load(g, p, own='adp')
+     for n in range(scenario.admission('adp', disc)['at_once'] - 1):
+@@ -227,6 +231,32 @@ def loaded(p: scenario.Point, name: str, flood: bool, image: int) -> scenario.Gr
+     return g
+ 
+ 
++#: REVIEW PROBE (scratch only): backlog-adp's verify window at tick phase 7, preceded by a grandmaster change as
++#: every pass starts for flood_ms, the flood ended as the window opens, so the step's age is not 0 at the window.
++PROBE_FLOODS = (20.0, 23.75, 27.5, 31.25, 35.0, 38.75, 42.5, 46.25)
++
++
++def aged_window(p: scenario.Point, n: int) -> scenario.Group:
++    return window(p, 'verify', 7, name=f'backlog-adp@verify-a{n}', flood_ms=PROBE_FLOODS[n])
++
++
++#: REVIEW PROBE (scratch only): the same at the blank check's tick phase 0, the window of the tightest row.
++PROBE_BLANK_FLOODS = (20.0, 27.5, 35.0, 42.5)
++
++
++def aged_blank(p: scenario.Point, n: int) -> scenario.Group:
++    return window(p, 'blank', 0, name=f'backlog-adp@blank-b{n}', flood_ms=PROBE_BLANK_FLOODS[n])
++
++
++#: REVIEW PROBE (scratch only): the staged blank-0 window, opened at its own instant, with a grandmaster change as
++#: every pass starts for the last L ms before it opens (a negative flood_ms), the flood ended as it opens.
++PROBE_INSIDE_FLOODS = (12.0, 15.0, 18.0, 21.0, 24.0, 27.0, 30.0)
++
++
++def aged_inside(p: scenario.Point, n: int) -> scenario.Group:
++    return window(p, 'blank', 0, name=f'backlog-adp@blank-c{n}', flood_ms=-PROBE_INSIDE_FLOODS[n])
++
++
+ def windows(p: scenario.Point) -> list[scenario.Group]:
+     """The window at every tick phase of every flash phase."""
+     return [window(p, phase, k) for phase in PHASES for k in range(TICK_PHASES)]
+@@ -236,7 +266,7 @@ def groups(p: scenario.Point, build: dict) -> list[scenario.Group]:
+     """The windows, the save alone, and a save under every channel at its refill rate, without and with no pass
+     that takes nothing, each of the build's image's container."""
+     image = container(build)
+-    return [*windows(p), alone(p, image), loaded(p, 'save-held', False, image), loaded(p, 'save-starved', True, image)]
++    return [*windows(p), alone(p, image), loaded(p, 'save-held', False, image), loaded(p, 'save-starved', True, image), *(aged_window(p, n) for n in range(len(PROBE_FLOODS))), *(aged_blank(p, n) for n in range(len(PROBE_BLANK_FLOODS))), *(aged_inside(p, n) for n in range(len(PROBE_INSIDE_FLOODS)))]
+ 
+ 
+ def row_names() -> list[str]:
