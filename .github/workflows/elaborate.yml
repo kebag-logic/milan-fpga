@@ -142,15 +142,6 @@ jobs:
             runner.os }}-${{ hashFiles('sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml')
             }}
         id: ci_step_11
-      - name: Cache the generated CPU metadata
-        if: ${{ steps.scope.outputs.rtl == 'true' }}
-        uses: actions/cache@v4
-        with:
-          path: ~/vexii-netlist-args
-          key: elaborate-vexii-${{ hashFiles('configs/*.yaml', 'sw/litex/milan_soc.py', 'sw/litex/build.sh',
-            'sw/litex/sweep.sh', 'sw/litex/litex_pins.txt', 'sw/litex/patches/**') }}-${{ hashFiles('.github/workflows/*.yml')
-            }}
-        id: ci_step_12
       - name: Install sbt
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
@@ -164,7 +155,7 @@ jobs:
           echo "32c15233c636c233ee25a2c31879049db7021cfef70807c187515c39b96b0fe6  $archive" | sha256sum -c -
           sudo tar xzf "$archive" -C /opt
           echo /opt/sbt/bin >> "$GITHUB_PATH"
-        id: ci_step_13
+        id: ci_step_12
       - name: Place the VexiiRiscv source at the revision LiteX pins
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
@@ -173,11 +164,11 @@ jobs:
           cp -n ~/vexii-netlist-args/*.py \
             "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')/" \
             2>/dev/null || true
-        id: ci_step_14
+        id: ci_step_13
       - name: Apply the toolchain patch series
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: sw/litex/patches/apply.sh
-        id: ci_step_15
+        id: ci_step_14
       - name: Cache the pinned RV32 SDK
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         uses: actions/cache@v4
@@ -185,25 +176,19 @@ jobs:
           path: ~/br-milan-rv32/host
           key: rv32-sdk-v1-${{ runner.os }}-${{ runner.arch }}-d42680e926542595c4c87629d33f5f90aac1e9a964c8955089e0514caa01b78f-${{
             hashFiles('scripts/ci_rv32_sdk.py') }}
-        id: ci_step_16
+        id: ci_step_15
       - name: Install and verify the pinned RV32 SDK
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
           set -euo pipefail
           python3 scripts/ci_rv32_sdk_selftest.py
           python3 scripts/ci_rv32_sdk.py --destination "$HOME/br-milan-rv32/host"
-        id: ci_step_17
+        id: ci_step_16
       - name: Elaboration gates, leg 0 of 2
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
           python3 scripts/ci_builder_legs.py run 0 --receipt "$RUNNER_TEMP/gate-results/builder-leg-0.json" -- python3 sw/builder/test_builder.py --require-elaboration --require-rv32
         id: gate_15_0
-      - name: Keep the generated CPU netlist arguments for the next run
-        if: ${{ always() && steps.scope.outputs.rtl == 'true' }}
-        run: |
-          cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
-            ~/vexii-netlist-args/ 2>/dev/null || true
-        id: ci_step_19
       - name: Record executed gate outcomes
         if: ${{ always() }}
         env:
@@ -211,7 +196,7 @@ jobs:
           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
         run: |
           python3 scripts/ci_gate_receipts.py record --workflow elaborate --leg 0 --output "$RUNNER_TEMP/gate-results/receipt.json"
-        id: ci_step_20
+        id: ci_step_18
       - name: Upload executed gate outcomes
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -221,7 +206,7 @@ jobs:
             ${{ runner.temp }}/gate-results/receipt.json
             ${{ runner.temp }}/gate-results/builder-leg-*.json
           if-no-files-found: error
-        id: ci_step_21
+        id: ci_step_19
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -679,12 +664,6 @@ jobs:
           scripts/run_litex_sims.sh --selftest
           python3 scripts/ci_litex_legs.py run 0 --receipt "$RUNNER_TEMP/gate-results/litex-leg-0.json" -- scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"
         id: gate_19_0
-      - name: Keep the generated CPU netlist arguments for the next run
-        if: ${{ always() && steps.scope.outputs.rtl == 'true' }}
-        run: |
-          cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
-            ~/vexii-netlist-args/ 2>/dev/null || true
-        id: ci_step_20
       - name: Record executed gate outcomes
         if: ${{ always() }}
         env:
@@ -692,7 +671,7 @@ jobs:
           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
         run: |
           python3 scripts/ci_gate_receipts.py record --workflow elaborate --leg 2 --output "$RUNNER_TEMP/gate-results/receipt.json"
-        id: ci_step_21
+        id: ci_step_20
       - name: Upload executed gate outcomes
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -702,7 +681,7 @@ jobs:
             ${{ runner.temp }}/gate-results/receipt.json
             ${{ runner.temp }}/gate-results/litex-leg-*.json
           if-no-files-found: error
-        id: ci_step_22
+        id: ci_step_21
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -925,12 +904,6 @@ jobs:
           scripts/run_litex_sims.sh --selftest
           python3 scripts/ci_litex_legs.py run 1 --receipt "$RUNNER_TEMP/gate-results/litex-leg-1.json" -- scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"
         id: gate_19_1
-      - name: Keep the generated CPU netlist arguments for the next run
-        if: ${{ always() && steps.scope.outputs.rtl == 'true' }}
-        run: |
-          cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
-            ~/vexii-netlist-args/ 2>/dev/null || true
-        id: ci_step_20
       - name: Record executed gate outcomes
         if: ${{ always() }}
         env:
@@ -938,7 +911,7 @@ jobs:
           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
         run: |
           python3 scripts/ci_gate_receipts.py record --workflow elaborate --leg 3 --output "$RUNNER_TEMP/gate-results/receipt.json"
-        id: ci_step_21
+        id: ci_step_20
       - name: Upload executed gate outcomes
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -948,7 +921,7 @@ jobs:
             ${{ runner.temp }}/gate-results/receipt.json
             ${{ runner.temp }}/gate-results/litex-leg-*.json
           if-no-files-found: error
-        id: ci_step_22
+        id: ci_step_21
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}
@@ -1171,12 +1144,6 @@ jobs:
           scripts/run_litex_sims.sh --selftest
           python3 scripts/ci_litex_legs.py run 2 --receipt "$RUNNER_TEMP/gate-results/litex-leg-2.json" -- scripts/run_litex_sims.sh "$RUNNER_TEMP/litex-sim-logs"
         id: gate_19_2
-      - name: Keep the generated CPU netlist arguments for the next run
-        if: ${{ always() && steps.scope.outputs.rtl == 'true' }}
-        run: |
-          cp -n "$(python3 -c 'import pythondata_cpu_vexiiriscv as p; print(p.data_location)')"/*.py \
-            ~/vexii-netlist-args/ 2>/dev/null || true
-        id: ci_step_20
       - name: Record executed gate outcomes
         if: ${{ always() }}
         env:
@@ -1184,7 +1151,7 @@ jobs:
           CI_GATE_SCOPE: ${{ steps.scope.outputs.rtl }}
         run: |
           python3 scripts/ci_gate_receipts.py record --workflow elaborate --leg 4 --output "$RUNNER_TEMP/gate-results/receipt.json"
-        id: ci_step_21
+        id: ci_step_20
       - name: Upload executed gate outcomes
         if: ${{ always() }}
         uses: actions/upload-artifact@v4
@@ -1194,7 +1161,7 @@ jobs:
             ${{ runner.temp }}/gate-results/receipt.json
             ${{ runner.temp }}/gate-results/litex-leg-*.json
           if-no-files-found: error
-        id: ci_step_22
+        id: ci_step_21
       - name: Record actual job execution
         id: ci_record
         if: ${{ always() }}

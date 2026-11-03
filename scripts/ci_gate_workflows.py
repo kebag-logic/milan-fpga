@@ -45,9 +45,17 @@ VERILATOR_SETUP = {"Cache the pinned Verilator build", "Build Verilator from sou
 #: The shared caches only the builder workers restore and save. actions/cache@v4 saves on every miss, so a
 #: LiteX worker that never runs the elaboration saved an empty CPU metadata entry under the builders' key,
 #: and a later worker restored it (#737). The LiteX workers therefore carry none of these steps, and every
-#: LiteX run installs and generates them cold; they keep the Verilator cache, which only they populate.
+#: LiteX run installs and generates them cold; they keep the Verilator cache, which only they populate. Of
+#: the builders, only the one that generates the CPU metadata carries its cache (METADATA_STEPS).
 BUILDER_CACHES = {"elaborate": ("Cache verified sv2v archive", "Cache the pinned pip downloads",
                                 "Cache the Scala toolchain", "Cache the generated CPU metadata")}
+#: The CPU metadata cache and the step that fills the directory it saves. One job carries them: the builder
+#: worker whose leg holds the gates ci_builder_legs.py names for --require-elaboration, which elaborate the SoC
+#: through the interpreter and so generate the metadata. The other builder leg neither generates nor reads it,
+#: and its save of the empty directory took the key in every cited run. No LiteX worker carries them, so that
+#: one job alone saves the key; test_ctrl_memory generates its own on its worker (#737).
+METADATA_STEPS = {"elaborate": ("Cache the generated CPU metadata",
+                                "Keep the generated CPU netlist arguments for the next run")}
 SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "Keep ")
 #: rtl-fast builds its pinned Yosys once, in a job of its own (#789). The
 #: template keeps the build in yosys-elaboration; the generator moves it, and
@@ -438,21 +446,38 @@ def gate_graph(name: str, template: dict) -> dict:
 
 
 def builder_caches(name: str, workflow: dict) -> dict:
-    """Remove the builders' shared caches from the LiteX workers, after the install caches are added.
+    """Remove the builders' shared caches from the LiteX workers, and the CPU metadata steps from every worker
+    but the one that generates the metadata, after the install caches are added.
 
     Each builder and each LiteX worker must carry each of them exactly once first, so a renamed or a
-    missing cache step is refused rather than left on a LiteX worker or lost from the builders (#737)."""
+    missing step is refused rather than left on a worker or lost from the one that needs it (#737)."""
     caches = BUILDER_CACHES.get(name)
     if caches is None:
         return workflow
+    metadata = METADATA_STEPS[name]
+    generator = metadata_worker(name)
     for leg in (*BUILDER_WORKERS[name], *LITEX_WORKERS[name]):
         job = workflow["jobs"][worker_id(name, leg)]
         names = [step.get("name") for step in job["steps"]]
         if sorted(found for found in names if found in caches) != sorted(caches):
             raise ValueError(worker_id(name, leg) + ": the builders' shared cache steps are missing or repeated")
+        if sorted(found for found in names if found in metadata) != sorted(metadata):
+            raise ValueError(worker_id(name, leg) + ": the CPU metadata steps are missing or repeated")
         if leg in LITEX_WORKERS[name]:
             job["steps"] = [step for step in job["steps"] if step.get("name") not in caches]
+        if leg != generator:
+            job["steps"] = [step for step in job["steps"] if step.get("name") not in metadata]
     return workflow
+
+
+def metadata_worker(name: str) -> int:
+    """The one builder worker whose leg generates the CPU metadata: the leg holding every elaboration gate."""
+    from ci_builder_legs import ISOLATED, LEGS, REQUIRED
+    legs = {ISOLATED.index(gate) if gate in ISOLATED else LEGS - 1 for gate in REQUIRED["--require-elaboration"]}
+    if len(legs) != 1:
+        raise ValueError(name + ": the elaboration gates span builder legs, so no one worker generates "
+                         "the CPU metadata")
+    return BUILDER_WORKERS[name][legs.pop()]
 
 
 def generate(name: str, template: dict) -> dict:

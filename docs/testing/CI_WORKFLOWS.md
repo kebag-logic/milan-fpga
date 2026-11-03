@@ -1691,22 +1691,36 @@ red runner exit are each refused, naming the simulation or the leg, and
 
 The LiteX workers carry none of the four caches the builder workers share: the
 sv2v archive, the pinned pip downloads, the Scala toolchain and the generated
-CPU metadata. They neither restore nor save them, so only the builders
-populate those keys (#737). `actions/cache@v4` saves on every miss. In run
-41583428850, worker 2, which never runs the elaboration, saved the metadata key
-first as an empty 202-byte entry, the builders' saves were refused, and worker
-3 restored the empty entry.
+CPU metadata. They neither restore nor save them (#737). `actions/cache@v4`
+saves on every miss, so a job that never generates the CPU metadata saves an
+empty entry under its key. In run 41583428850, worker 2 saved the metadata key
+first as an empty 202-byte entry and worker 3 restored it. Builder worker 0
+did the same: its leg elaborates nothing, and it saved the key empty (200 or
+201 bytes) in runs 41470524727, 41476923392 and 41678609075 and restored an
+empty entry in the others, so the cache never held metadata. One job now
+carries the metadata cache and the step that fills its directory: the builder
+worker whose leg holds the gates that elaborate the SoC through the
+interpreter, which `scripts/ci_builder_legs.py` names for
+`--require-elaboration`. Those gates generate the metadata, and a local cold
+run of `test_every_recipe_elaborates` alone writes it. The only other job that
+generates it is LiteX worker 4, for `test_ctrl_memory`, which keeps its own
+cold so that one job alone saves the key.
 [`scripts/ci_gate_workflows.py`](../../scripts/ci_gate_workflows.py) removes
-the four steps from workers 2 to 4 after the install caches are added. Each
-builder and each LiteX worker must first carry each of them exactly once, so a
-renamed or a lost cache step is refused; `ci_gate_workflows_selftest.py`
-plants a builder without its metadata cache and a LiteX worker repeating it.
-The LiteX workers keep the Verilator cache, which only they populate, and the
-local act runner's trusted action set is unchanged. Every LiteX run pays the
-cost: it downloads those inputs and generates its CPU metadata cold, so
-`test_ctrl_memory` takes 280 seconds against about 110 warm (100 to 113 inside
-the old aggregate). The projections in [Protected merge bar](#protected-merge-bar)
-already carry it.
+the four steps from workers 2 to 4, and the metadata cache and its fill step
+from builder worker 0, after the install caches are added. Each builder and
+each LiteX worker must first carry each of them exactly once, so a renamed or
+a lost step is refused. `ci_gate_workflows_selftest.py` plants a builder
+without its metadata cache, a LiteX worker repeating it, the generating
+builder without its fill step, a LiteX worker repeating that step, and
+elaboration gates split across builder legs. The LiteX workers keep the
+Verilator cache, which only they populate, and the local act runner's trusted
+action set is unchanged. Every LiteX run pays the cost: it downloads those
+inputs, and `test_ctrl_memory` generates its CPU metadata cold, in 280 and 224
+seconds in the two runs with the legs apart. Its 100 to 113 seconds inside the
+old aggregate were not a cache restore: the key held nothing in any cited run,
+and builder leg 1 had generated the metadata earlier in the same job. The
+projections in [Protected merge bar](#protected-merge-bar) already carry the
+cold figure.
 
 Each leg reuses the interpreter its worker just installed and patched; locally the same command runs against any
 interpreter that imports `migen` + `litex` and otherwise declares its skips
@@ -3164,8 +3178,10 @@ shared caches, so that every LiteX run installs them and generates its CPU
 metadata cold. No LiteX leg of either run with the legs apart had CPU metadata:
 in run 41583428850 workers 2 and 4 missed the key and worker 3 restored worker
 2's empty entry, and in run 41678609075 no LiteX worker carried the cache.
-`test_ctrl_memory`'s 280 and 224 seconds are therefore cold figures, against
-about 110 warm. Verilator is now the only cache a LiteX worker restores.
+`test_ctrl_memory`'s 280 and 224 seconds are therefore cold figures. Inside the
+old aggregate it took 100 to 113 seconds on metadata builder leg 1 had
+generated earlier in the same job. Verilator is now the only cache a LiteX
+worker restores.
 
 Yosys compilation now runs once in prerequisite `yosys-tool`.
 Its pinned source and cache-key construction are preserved. Source compilation

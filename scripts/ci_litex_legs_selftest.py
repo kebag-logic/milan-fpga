@@ -15,9 +15,10 @@ from unittest.mock import patch
 
 import ci_litex_legs
 from ci_litex_legs import LARGEST, LEG_BUDGET, LEGS, SECONDS, partition, union
+import ci_builder_legs
 from ci_gate_workflows import (BUILDER_CACHES, BUILDER_WORKERS, CARRIERS, LITEX_COMMAND, LITEX_SPLIT, LITEX_WORKERS,
-                               ROOT, VERILATOR_SETUP, builder_caches, gate_graph, generate, litex_leg_step,
-                               load_template, worker_id)
+                               METADATA_STEPS, ROOT, VERILATOR_SETUP, builder_caches, gate_graph, generate,
+                               litex_leg_step, load_template, metadata_worker, worker_id)
 
 
 def litex_receipts(identity: tuple[str, str], names: list[str] | None = None) -> list[dict]:
@@ -156,9 +157,15 @@ def worker_controls(name: str, generated: dict, cases: list[dict], legs: list[in
         if name in LITEX_WORKERS:
             setup = {step.get("name") for step in steps} & VERILATOR_SETUP
             assert setup == (VERILATOR_SETUP if leg in owners else set()), (name, leg, setup)
-            # Only the builders restore and save their shared caches; a LiteX worker carries none (#737).
-            shared = [step.get("name") for step in steps if step.get("name") in BUILDER_CACHES[name]]
-            assert sorted(shared) == ([] if leg in owners else sorted(BUILDER_CACHES[name])), (name, leg, shared)
+            # Only the builders restore and save their shared caches; a LiteX worker carries none, and only the
+            # builder that generates the CPU metadata carries its cache and the step that fills it (#737).
+            names = [step.get("name") for step in steps]
+            common = sorted(set(BUILDER_CACHES[name]) - set(METADATA_STEPS[name]))
+            shared = sorted(found for found in names if found in common)
+            assert shared == ([] if leg in owners else common), (name, leg, shared)
+            metadata = sorted(found for found in names if found in METADATA_STEPS[name])
+            assert metadata == (sorted(METADATA_STEPS[name]) if leg == metadata_worker(name) else []), (
+                name, leg, metadata)
     if name in BUILDER_CACHES:
         cache_controls(name)
     if name in LITEX_WORKERS:
@@ -169,19 +176,32 @@ def worker_controls(name: str, generated: dict, cases: list[dict], legs: list[in
 
 
 def cache_controls(name: str) -> None:
-    """A builder that lost a shared cache step, or a LiteX worker that repeats one, is refused by name."""
+    """A worker that lost a shared cache or CPU metadata step, or repeats one, is refused by name; so are
+    elaboration gates split across builder legs, which leave no one worker generating the metadata."""
     from ci_install_workflows import generate as install_workflows
     source = install_workflows(gate_graph(name, load_template(ROOT, name)))
-    for leg, label in ((BUILDER_WORKERS[name][0], "a builder without its CPU metadata cache"),
-                       (LITEX_WORKERS[name][0], "a LiteX worker repeating the CPU metadata cache")):
+    generator = metadata_worker(name)
+    for leg, step_name, label, expected in (
+            (BUILDER_WORKERS[name][0], BUILDER_CACHES[name][-1], "a builder without its CPU metadata cache",
+             "the builders' shared cache"),
+            (LITEX_WORKERS[name][0], BUILDER_CACHES[name][-1], "a LiteX worker repeating the CPU metadata cache",
+             "the builders' shared cache"),
+            (generator, METADATA_STEPS[name][-1], "the generating builder without the step that fills its cache",
+             "the CPU metadata steps"),
+            (LITEX_WORKERS[name][-1], METADATA_STEPS[name][-1], "a LiteX worker repeating that step",
+             "the CPU metadata steps")):
         planted = copy.deepcopy(source)
         steps = planted["jobs"][worker_id(name, leg)]["steps"]
-        at = next(index for index, step in enumerate(steps) if step.get("name") == BUILDER_CACHES[name][-1])
+        at = next(index for index, step in enumerate(steps) if step.get("name") == step_name)
         if leg in BUILDER_WORKERS[name]:
             del steps[at]
         else:
             steps.insert(at, copy.deepcopy(steps[at]))
-        refused(lambda: builder_caches(name, planted), label, worker_id(name, leg) + ": the builders' shared cache")
+        refused(lambda: builder_caches(name, planted), label, worker_id(name, leg) + ": " + expected)
+    split = (*ci_builder_legs.ISOLATED, ci_builder_legs.REQUIRED["--require-elaboration"][0])
+    with patch.object(ci_builder_legs, "ISOLATED", split), patch.object(ci_builder_legs, "LEGS", len(split) + 1):
+        refused(lambda: metadata_worker(name), "elaboration gates split across builder legs",
+                "the elaboration gates span builder legs")
 
 
 def verify_controls(litex: list[dict], refuse: Callable[[str, list | None], None]) -> None:
