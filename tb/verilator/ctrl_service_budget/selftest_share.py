@@ -293,15 +293,19 @@ def held_checks() -> list[Check]:
     change = lambda g: g.steps.index('mark save.change')
     flood = (starved.steps[change(starved) + 2] == 'flood gm 1' and 'flood gm 0' in starved.steps
              and not any(step.startswith('flood') for step in held.steps))
-    offered = {name: sum(1 for _, channel, _ in save_window.arrivals(p, run_ms) if channel == name) + (name == 'aecp')
-               for name in scenario.CH}
+    first_wait = [int(step.split()[-1]) for step in held.steps[change(held):] if step.startswith('wait cycles')][:1]
+    refill = scenario.CONTRACT.channels[scenario.CH['aecp']].refill_ms * scenario.MS
+    offered = {name: sum(1 for _, channel, _ in save_window.arrivals(p, run_ms - 5) if channel == name)
+               + (name == 'aecp') for name in scenario.CH}
     declared = all(g.save == dict(image=13_256, records=2, loaded=True, offered=offered) for g in (held, starved))
     return [("every receive channel is held at its contract refill rate with its bursts through a save's stated worst "
              "case: admission's records at once, again every as many refill periods, each channel's bursts apart",
              not wrong, '; '.join(wrong)),
             ("save-starved adds a grandmaster change as every pass starts from its change, save-held does not, and "
              "both time their save against the point's container", flood and declared,
-             str((starved.steps[change(starved):change(starved) + 3], held.save, starved.save)))]
+             str((starved.steps[change(starved):change(starved) + 3], held.save, starved.save))),
+            ("the held load starts one AECP refill period after the change, so the SET_NAME's token is back before "
+             "the channel's first burst", first_wait == [refill], str((first_wait, refill)))]
 
 
 def held_load_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
