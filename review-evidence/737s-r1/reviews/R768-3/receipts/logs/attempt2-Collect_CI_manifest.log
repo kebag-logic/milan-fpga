@@ -1,0 +1,692 @@
+Collect CI manifest	Set up job	﻿2026-11-03T20:51:24.4188899Z Current runner version: '2.338.2'
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4226960Z ##[group]Runner Image Provisioner
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4228233Z Hosted Compute Agent
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4229273Z Version: 20261021.618
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4230354Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4231676Z Build Date: 2026-10-21T00:45:21Z
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4233109Z Worker ID: {d27d6cb3-34b8-414f-83eb-2cd1e0513bd1}
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4234369Z Region: eastus
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4235354Z Cloud: Azure
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4236227Z ##[endgroup]
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4238573Z ##[group]Operating System
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4239669Z Ubuntu
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4240542Z 24.04.5
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4241487Z LTS
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4242313Z ##[endgroup]
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4243718Z ##[group]Runner Image
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4244822Z Image: ubuntu-24.04
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4245741Z Version: 20261025.353.1
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4247659Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4250701Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4252438Z ##[endgroup]
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4254722Z ##[group]GITHUB_TOKEN Permissions
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4257697Z Actions: read
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4258743Z Contents: read
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4259722Z Metadata: read
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4260622Z ##[endgroup]
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4263940Z Secret source: Actions
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4265487Z Cache mode: write
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4267192Z Prepare workflow directory
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4834838Z Prepare all required actions
+Collect CI manifest	Set up job	2026-11-03T20:51:24.4907119Z Getting action download info
+Collect CI manifest	Set up job	2026-11-03T20:51:24.6930414Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+Collect CI manifest	Set up job	2026-11-03T20:51:24.7897595Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+Collect CI manifest	Set up job	2026-11-03T20:51:24.8895402Z Download action repository 'actions/download-artifact@v4' (SHA:d3f86a106a0bac45b974a628896c90dbdf5c8093)
+Collect CI manifest	Set up job	2026-11-03T20:51:25.0498633Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+Collect CI manifest	Set up job	2026-11-03T20:51:25.2823554Z Complete job name: Collect CI manifest
+Collect CI manifest	Run actions/checkout@v4	﻿2026-11-03T20:51:25.4020271Z ##[group]Run actions/checkout@v4
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4021782Z with:
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4022594Z   fetch-depth: 0
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4023745Z   repository: kebag-logic/milan-fpga
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4033716Z   token: ***
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4034555Z   ssh-strict: true
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4035396Z   ssh-user: git
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4036269Z   persist-credentials: true
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4037231Z   clean: true
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4038118Z   sparse-checkout-cone-mode: true
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4039158Z   fetch-tags: false
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4040026Z   show-progress: true
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4040911Z   lfs: false
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4041726Z   submodules: false
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4042629Z   set-safe-directory: true
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4043881Z   allow-unsafe-pr-checkout: false
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4045209Z env:
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4046038Z   VERILATOR_VERSION: v5.050
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.4046998Z ##[endgroup]
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7270159Z Syncing repository: kebag-logic/milan-fpga
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7273927Z ##[group]Getting Git version info
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7275785Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7278358Z [command]/usr/bin/git version
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7286738Z git version 2.56.0
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7321225Z ##[endgroup]
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7341623Z Temporarily overriding HOME='<home-path>/work/_temp/571da0c1-ca45-47b4-816d-5f308b5a93cf' before making global git config changes
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7346742Z Adding repository directory to the temporary git global config as a safe directory
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7356809Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7417189Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7422067Z ##[group]Initializing the repository
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7440333Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7566193Z hint: Using 'master' as the name for the initial branch. This default branch name
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7569994Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7573552Z hint: to use in all of your new repositories, which will suppress this warning,
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7576128Z hint: call:
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7577371Z hint:
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7578902Z hint: 	git config --global init.defaultBranch <name>
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7580851Z hint:
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7582713Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7586047Z hint: 'development'. The just-created branch can be renamed via this command:
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7588551Z hint:
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7589843Z hint: 	git branch -m <name>
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7591336Z hint:
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7593888Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7597630Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7601250Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7661408Z ##[endgroup]
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7664251Z ##[group]Disabling automatic garbage collection
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7668360Z [command]/usr/bin/git config --local gc.auto 0
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7708999Z ##[endgroup]
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7711391Z ##[group]Setting up auth
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7718072Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.7760209Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.8190801Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.8244007Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.8489742Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.8537709Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.8782832Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.8843621Z ##[endgroup]
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.8845527Z ##[group]Fetching the repository
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:51:25.8859705Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/* +214c8eb1eee510e3697ad62ec6a9d763bc75bebb:refs/remotes/pull/836/merge
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6574495Z From https://github.com/kebag-logic/milan-fpga
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6576174Z  * [new branch]            116-gptp-default-on-retire-software      -> origin/116-gptp-default-on-retire-software
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6577805Z  * [new branch]            117-alinx-board-bringup                  -> origin/117-alinx-board-bringup
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6579228Z  * [new branch]            117-b19-review-evidence                  -> origin/117-b19-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6580439Z  * [new branch]            117-b21-review-evidence                  -> origin/117-b21-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6581544Z  * [new branch]            117-hive-review-evidence                 -> origin/117-hive-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6582353Z  * [new branch]            117-review-evidence                      -> origin/117-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6583510Z  * [new branch]            117-silicon-evidence                     -> origin/117-silicon-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6585394Z  * [new branch]            120-sound-card-option                    -> origin/120-sound-card-option
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6586606Z  * [new branch]            129-boot-gate-whole-firmware             -> origin/129-boot-gate-whole-firmware
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6588008Z  * [new branch]            129-correct-baremetal-ptp-aem-contract   -> origin/129-correct-baremetal-ptp-aem-contract
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6589373Z  * [new branch]            130-prune-behavioural                    -> origin/130-prune-behavioural
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6590476Z  * [new branch]            145-rebased-on-170                       -> origin/145-rebased-on-170
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6592332Z  * [new branch]            154-no-ci-job-elaborates-the-soc-so-argv-to-rtl-parameter-chains-are-unproven -> origin/154-no-ci-job-elaborates-the-soc-so-argv-to-rtl-parameter-chains-are-unproven
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6594873Z  * [new branch]            159-restore-documentation-gates-and-workflow-hygiene -> origin/159-restore-documentation-gates-and-workflow-hygiene
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6596566Z  * [new branch]            159-restore-workflow-documentation-gates -> origin/159-restore-workflow-documentation-gates
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6597965Z  * [new branch]            163-complete-workflow-hygiene-follow-on  -> origin/163-complete-workflow-hygiene-follow-on
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6599136Z  * [new branch]            211-phc-ns-consumer                      -> origin/211-phc-ns-consumer
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6600097Z  * [new branch]            231-review-evidence                      -> origin/231-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6601083Z  * [new branch]            234-review-evidence                      -> origin/234-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6603746Z  * [new branch]            246-synoocmilan_datapath_ooctcl-never-generates-ucodehex-it-reports-30925-lut-for-a-design-that-is-38848-and-exits-0 -> origin/246-synoocmilan_datapath_ooctcl-never-generates-ucodehex-it-reports-30925-lut-for-a-design-that-is-38848-and-exits-0
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6605639Z  * [new branch]            358-alinx-gptp-compliance                -> origin/358-alinx-gptp-compliance
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6606265Z  * [new branch]            372-review-evidence                      -> origin/372-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6607073Z  * [new branch]            387-review-evidence                      -> origin/387-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6607643Z  * [new branch]            387b-review-evidence                     -> origin/387b-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6608219Z  * [new branch]            394-387-review-evidence                  -> origin/394-387-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6608812Z  * [new branch]            394_510_511-review-evidence              -> origin/394_510_511-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6609395Z  * [new branch]            395-review-evidence                      -> origin/395-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6609957Z  * [new branch]            396-review-evidence                      -> origin/396-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6610620Z  * [new branch]            396g-review-evidence                     -> origin/396g-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6611229Z  * [new branch]            397-review-evidence                      -> origin/397-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6611801Z  * [new branch]            400-403-review-evidence                  -> origin/400-403-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6612356Z  * [new branch]            407-ac5-probe                            -> origin/407-ac5-probe
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6613273Z  * [new branch]            408-review-evidence                      -> origin/408-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6614363Z  * [new branch]            418-investigate-commit-ack-clearing-a-newer-persistent-record-change -> origin/418-investigate-commit-ack-clearing-a-newer-persistent-record-change
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6615319Z  * [new branch]            419-design-evidence                      -> origin/419-design-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6615912Z  * [new branch]            423-readiness-evidence                   -> origin/423-readiness-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6616651Z  * [new branch]            423-review-evidence                      -> origin/423-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6617314Z  * [new branch]            437-container-paragraph-scopes           -> origin/437-container-paragraph-scopes
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6617965Z  * [new branch]            437-review-evidence                      -> origin/437-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6618539Z  * [new branch]            439-review-evidence                      -> origin/439-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6619110Z  * [new branch]            440-review-evidence                      -> origin/440-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6619677Z  * [new branch]            443-review-evidence                      -> origin/443-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6620254Z  * [new branch]            451-review-evidence                      -> origin/451-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6620828Z  * [new branch]            464-review-evidence                      -> origin/464-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6621398Z  * [new branch]            478-review-evidence                      -> origin/478-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6621985Z  * [new branch]            495b-review-evidence                     -> origin/495b-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6622571Z  * [new branch]            498-review-evidence                      -> origin/498-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6623382Z  * [new branch]            500-design-evidence                      -> origin/500-design-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6623968Z  * [new branch]            501-review-evidence                      -> origin/501-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6624540Z  * [new branch]            502-review-evidence                      -> origin/502-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6625120Z  * [new branch]            503-review-evidence                      -> origin/503-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6625742Z  * [new branch]            504-readiness-evidence                   -> origin/504-readiness-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6626347Z  * [new branch]            504-review-evidence                      -> origin/504-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6626934Z  * [new branch]            505-review-evidence                      -> origin/505-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6627664Z  * [new branch]            508-review-evidence                      -> origin/508-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6628247Z  * [new branch]            509-review-evidence                      -> origin/509-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6628823Z  * [new branch]            514-review-evidence                      -> origin/514-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6629394Z  * [new branch]            517-review-evidence                      -> origin/517-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6629966Z  * [new branch]            520-review-evidence                      -> origin/520-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6630536Z  * [new branch]            523-review-evidence                      -> origin/523-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6631106Z  * [new branch]            529-review-evidence                      -> origin/529-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6631696Z  * [new branch]            530-review-evidence                      -> origin/530-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6632284Z  * [new branch]            532-review-evidence                      -> origin/532-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6633081Z  * [new branch]            532b-review-evidence                     -> origin/532b-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6633712Z  * [new branch]            536-review-evidence                      -> origin/536-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6634342Z  * [new branch]            539-review-evidence                      -> origin/539-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6634915Z  * [new branch]            541-review-evidence                      -> origin/541-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6635490Z  * [new branch]            542-review-evidence                      -> origin/542-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6636211Z  * [new branch]            544-review-evidence                      -> origin/544-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6636786Z  * [new branch]            545-review-evidence                      -> origin/545-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6637366Z  * [new branch]            546-review-evidence                      -> origin/546-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6637938Z  * [new branch]            548-review-evidence                      -> origin/548-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6638504Z  * [new branch]            551-review-evidence                      -> origin/551-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6639085Z  * [new branch]            559-review-evidence                      -> origin/559-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6639662Z  * [new branch]            565-review-evidence                      -> origin/565-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6640238Z  * [new branch]            567-review-evidence                      -> origin/567-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6640968Z  * [new branch]            571-review-evidence                      -> origin/571-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6641550Z  * [new branch]            573-review-evidence                      -> origin/573-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6642130Z  * [new branch]            577-review-evidence                      -> origin/577-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6642714Z  * [new branch]            580-review-evidence                      -> origin/580-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6643511Z  * [new branch]            582-review-evidence                      -> origin/582-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6644097Z  * [new branch]            587-review-evidence                      -> origin/587-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6644784Z  * [new branch]            590-review-evidence                      -> origin/590-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6645365Z  * [new branch]            593-review-evidence                      -> origin/593-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6645937Z  * [new branch]            595-review-evidence                      -> origin/595-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6646502Z  * [new branch]            602-review-evidence                      -> origin/602-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6647244Z  * [new branch]            606-608-review-evidence                  -> origin/606-608-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6647946Z  * [new branch]            607-review-evidence                      -> origin/607-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6648547Z  * [new branch]            608-b14-review-evidence                  -> origin/608-b14-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6649142Z  * [new branch]            617-review-evidence                      -> origin/617-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6649719Z  * [new branch]            621-review-evidence                      -> origin/621-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6650652Z  * [new branch]            629-b16-review-evidence                  -> origin/629-b16-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6651742Z  * [new branch]            629-b7-review-evidence                   -> origin/629-b7-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6652357Z  * [new branch]            629-b8-review-evidence                   -> origin/629-b8-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6653391Z  * [new branch]            629-m2-review-evidence                   -> origin/629-m2-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6654133Z  * [new branch]            629-review-evidence                      -> origin/629-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6654750Z  * [new branch]            629-tone-review-evidence                 -> origin/629-tone-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6655349Z  * [new branch]            632-review-evidence                      -> origin/632-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6656145Z  * [new branch]            635-review-evidence                      -> origin/635-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6657076Z  * [new branch]            637-review-evidence                      -> origin/637-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6657873Z  * [new branch]            640-charter-followup                     -> origin/640-charter-followup
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6658474Z  * [new branch]            640-m0s-review-evidence                  -> origin/640-m0s-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6659089Z  * [new branch]            640-m10-review-evidence                  -> origin/640-m10-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6659686Z  * [new branch]            640-m2-review-evidence                   -> origin/640-m2-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6660276Z  * [new branch]            640-m5-review-evidence                   -> origin/640-m5-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6660860Z  * [new branch]            640-m6-review-evidence                   -> origin/640-m6-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6661440Z  * [new branch]            640-m7-review-evidence                   -> origin/640-m7-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6662318Z  * [new branch]            640-m8a-review-evidence                  -> origin/640-m8a-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6663576Z  * [new branch]            640-m9-review-evidence                   -> origin/640-m9-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6664600Z  * [new branch]            640-review-evidence                      -> origin/640-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6665595Z  * [new branch]            641-review-evidence                      -> origin/641-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6666262Z  * [new branch]            643-review-evidence                      -> origin/643-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6666960Z  * [new branch]            645-b17-review-evidence                  -> origin/645-b17-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6668016Z  * [new branch]            645-b18-review-evidence                  -> origin/645-b18-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6669055Z  * [new branch]            645-rc-review-evidence                   -> origin/645-rc-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6670079Z  * [new branch]            645-review-evidence                      -> origin/645-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6670883Z  * [new branch]            649-review-evidence                      -> origin/649-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6671448Z  * [new branch]            652-review-evidence                      -> origin/652-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6672207Z  * [new branch]            653-b11-review-evidence                  -> origin/653-b11-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6672805Z  * [new branch]            653-b12-review-evidence                  -> origin/653-b12-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6673732Z  * [new branch]            653-review-evidence                      -> origin/653-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6674307Z  * [new branch]            654-review-evidence                      -> origin/654-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6674872Z  * [new branch]            656-review-evidence                      -> origin/656-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6675443Z  * [new branch]            657-review-evidence                      -> origin/657-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6675999Z  * [new branch]            658-review-evidence                      -> origin/658-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6676555Z  * [new branch]            661-review-evidence                      -> origin/661-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6677115Z  * [new branch]            664-review-evidence                      -> origin/664-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6677655Z  * [new branch]            665-s2b-cycles                           -> origin/665-s2b-cycles
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6678290Z  * [new branch]            665-s4-f1-target                         -> origin/665-s4-f1-target
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6678949Z  * [new branch]            665f0-review-evidence                    -> origin/665f0-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6679546Z  * [new branch]            665f1-review-evidence                    -> origin/665f1-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6680130Z  * [new branch]            665f2-review-evidence                    -> origin/665f2-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6680865Z  * [new branch]            665f3-review-evidence                    -> origin/665f3-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6681453Z  * [new branch]            665f3b-review-evidence                   -> origin/665f3b-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6682048Z  * [new branch]            665f4-review-evidence                    -> origin/665f4-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6682633Z  * [new branch]            665f5-review-evidence                    -> origin/665f5-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6683504Z  * [new branch]            665fc-review-evidence                    -> origin/665fc-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6684097Z  * [new branch]            665ft-review-evidence                    -> origin/665ft-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6684686Z  * [new branch]            665int-review-evidence                   -> origin/665int-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6685272Z  * [new branch]            665s1-review-evidence                    -> origin/665s1-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6685854Z  * [new branch]            665s2-review-evidence                    -> origin/665s2-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6686438Z  * [new branch]            665s2b-review-evidence                   -> origin/665s2b-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6687035Z  * [new branch]            665s2c-review-evidence                   -> origin/665s2c-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6687622Z  * [new branch]            665s3-review-evidence                    -> origin/665s3-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6688192Z  * [new branch]            665s4-review-evidence                    -> origin/665s4-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6688779Z  * [new branch]            667-b13-review-evidence                  -> origin/667-b13-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6689363Z  * [new branch]            667-review-evidence                      -> origin/667-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6689927Z  * [new branch]            671-review-evidence                      -> origin/671-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6690486Z  * [new branch]            673-review-evidence                      -> origin/673-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6691057Z  * [new branch]            677-review-evidence                      -> origin/677-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6691775Z  * [new branch]            679-review-evidence                      -> origin/679-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6692335Z  * [new branch]            682-review-evidence                      -> origin/682-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6693026Z  * [new branch]            686-review-evidence                      -> origin/686-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6693666Z  * [new branch]            69-aecp-notification-triggers            -> origin/69-aecp-notification-triggers
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6694298Z  * [new branch]            691-review-evidence                      -> origin/691-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6694862Z  * [new branch]            696-review-evidence                      -> origin/696-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6695417Z  * [new branch]            697-review-evidence                      -> origin/697-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6695996Z  * [new branch]            697c-review-evidence                     -> origin/697c-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6696574Z  * [new branch]            70-lane2-pin-d352                        -> origin/70-lane2-pin-d352
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6697142Z  * [new branch]            70-nvm-persistence                       -> origin/70-nvm-persistence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6697713Z  * [new branch]            70-review-evidence                       -> origin/70-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6698274Z  * [new branch]            708-review-evidence                      -> origin/708-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6698845Z  * [new branch]            70L2-review-evidence                     -> origin/70L2-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6699559Z  * [new branch]            70b-review-evidence                      -> origin/70b-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6700120Z  * [new branch]            711-review-evidence                      -> origin/711-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6700674Z  * [new branch]            716-review-evidence                      -> origin/716-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6701230Z  * [new branch]            726-review-evidence                      -> origin/726-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6702206Z  * [new branch]            727-review-evidence                      -> origin/727-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6702781Z  * [new branch]            730-review-evidence                      -> origin/730-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6703601Z  * [new branch]            734-review-evidence                      -> origin/734-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6704154Z  * [new branch]            737-elab-split                           -> origin/737-elab-split
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6704748Z  * [new branch]            737-image-review-evidence                -> origin/737-image-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6705351Z  * [new branch]            737-review-evidence                      -> origin/737-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6705918Z  * [new branch]            737s-review-evidence                     -> origin/737s-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6706651Z  * [new branch]            74-review-evidence                       -> origin/74-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6707323Z  * [new branch]            744-review-evidence                      -> origin/744-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6707881Z  * [new branch]            748-review-evidence                      -> origin/748-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6708449Z  * [new branch]            75-review-evidence                       -> origin/75-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6709001Z  * [new branch]            752-review-evidence                      -> origin/752-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6709557Z  * [new branch]            761-review-evidence                      -> origin/761-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6710116Z  * [new branch]            763-review-evidence                      -> origin/763-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6710672Z  * [new branch]            765-review-evidence                      -> origin/765-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6711806Z  * [new branch]            771-review-evidence                      -> origin/771-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6712754Z  * [new branch]            773-review-evidence                      -> origin/773-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6713689Z  * [new branch]            774-review-evidence                      -> origin/774-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6714254Z  * [new branch]            775-review-evidence                      -> origin/775-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6714804Z  * [new branch]            780-review-evidence                      -> origin/780-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6715356Z  * [new branch]            781-review-evidence                      -> origin/781-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6715926Z  * [new branch]            784-review-evidence                      -> origin/784-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6716506Z  * [new branch]            784s2-review-evidence                    -> origin/784s2-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6717093Z  * [new branch]            787-review-evidence                      -> origin/787-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6717666Z  * [new branch]            789-review-evidence                      -> origin/789-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6718222Z  * [new branch]            797-d0-audit                             -> origin/797-d0-audit
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6718806Z  * [new branch]            797-g1-define-end-station                -> origin/797-g1-define-end-station
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6719383Z  * [new branch]            797-r1-regref                            -> origin/797-r1-regref
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6719933Z  * [new branch]            797d0-review-evidence                    -> origin/797d0-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6720696Z  * [new branch]            797g1-review-evidence                    -> origin/797g1-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6721282Z  * [new branch]            797r1-review-evidence                    -> origin/797r1-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6721853Z  * [new branch]            799-review-evidence                      -> origin/799-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6722411Z  * [new branch]            803-review-evidence                      -> origin/803-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6723113Z  * [new branch]            806-review-evidence                      -> origin/806-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6723846Z  * [new branch]            814-review-evidence                      -> origin/814-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6724434Z  * [new branch]            817-review-evidence                      -> origin/817-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6725108Z  * [new branch]            818-review-evidence                      -> origin/818-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6725719Z  * [new branch]            829-review-evidence                      -> origin/829-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6726275Z  * [new branch]            833-owned-process                        -> origin/833-owned-process
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6726835Z  * [new branch]            833-review-evidence                      -> origin/833-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6727352Z  * [new branch]            a1e9839e                                 -> origin/a1e9839e
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6727883Z  * [new branch]            b1-review-evidence                       -> origin/b1-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6728459Z  * [new branch]            b2-review-evidence                       -> origin/b2-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6729017Z  * [new branch]            b3-review-evidence                       -> origin/b3-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6729569Z  * [new branch]            b4-review-evidence                       -> origin/b4-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6730125Z  * [new branch]            b5-review-evidence                       -> origin/b5-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6730681Z  * [new branch]            b6-review-evidence                       -> origin/b6-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6731343Z  * [new branch]            dev                                      -> origin/dev
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6731852Z  * [new branch]            dev-soft-core                            -> origin/dev-soft-core
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6732412Z  * [new branch]            g35-review-evidence                      -> origin/g35-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6733249Z  * [new branch]            g48-review-evidence                      -> origin/g48-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6733827Z  * [new branch]            g70-review-evidence                      -> origin/g70-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6734415Z  * [new branch]            gptp68-review-evidence                   -> origin/gptp68-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6735028Z  * [new branch]            gptp75-review-evidence                   -> origin/gptp75-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6735623Z  * [new branch]            gptp82-review-evidence                   -> origin/gptp82-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6736227Z  * [new branch]            gptp84-review-evidence                   -> origin/gptp84-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6736826Z  * [new branch]            gptp88-review-evidence                   -> origin/gptp88-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6737415Z  * [new branch]            gptp90-review-evidence                   -> origin/gptp90-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6738008Z  * [new branch]            gptp94-review-evidence                   -> origin/gptp94-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6738602Z  * [new branch]            gptp96-review-evidence                   -> origin/gptp96-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6739208Z  * [new branch]            lwsrp17-review-evidence                  -> origin/lwsrp17-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6739950Z  * [new branch]            lwsrp4-review-evidence                   -> origin/lwsrp4-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6740583Z  * [new branch]            lwsrpdoc-review-evidence                 -> origin/lwsrpdoc-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6741221Z  * [new branch]            lwsrplic-review-evidence                 -> origin/lwsrplic-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6741870Z  * [new branch]            lwsrplicfix-review-evidence              -> origin/lwsrplicfix-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6742510Z  * [new branch]            lwsrpm2-review-evidence                  -> origin/lwsrpm2-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6743421Z  * [new branch]            lwsrpnotes-review-evidence               -> origin/lwsrpnotes-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6744092Z  * [new branch]            lwsrptest-review-evidence                -> origin/lwsrptest-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6744646Z  * [new branch]            main                                     -> origin/main
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6745203Z  * [new branch]            pp102-review-evidence                    -> origin/pp102-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6745795Z  * [new branch]            pp104-review-evidence                    -> origin/pp104-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6746384Z  * [new branch]            pp106-review-evidence                    -> origin/pp106-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6746965Z  * [new branch]            pp112-review-evidence                    -> origin/pp112-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6747547Z  * [new branch]            pp113-review-evidence                    -> origin/pp113-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6748430Z  * [new branch]            pp116-review-evidence                    -> origin/pp116-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6749276Z  * [new branch]            pp120-review-evidence                    -> origin/pp120-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6749872Z  * [new branch]            pp123-review-evidence                    -> origin/pp123-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6750462Z  * [new branch]            pp125-review-evidence                    -> origin/pp125-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6751046Z  * [new branch]            pp127-review-evidence                    -> origin/pp127-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6751798Z  * [new branch]            pp128-review-evidence                    -> origin/pp128-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6752381Z  * [new branch]            pp131-review-evidence                    -> origin/pp131-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6753357Z  * [new branch]            pp134-review-evidence                    -> origin/pp134-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6754025Z  * [new branch]            pp141-review-evidence                    -> origin/pp141-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6754621Z  * [new branch]            pp143-review-evidence                    -> origin/pp143-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6755209Z  * [new branch]            pp148-review-evidence                    -> origin/pp148-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6755799Z  * [new branch]            pp151-review-evidence                    -> origin/pp151-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6756487Z  * [new branch]            pp158-review-evidence                    -> origin/pp158-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6757078Z  * [new branch]            pp163-review-evidence                    -> origin/pp163-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6757661Z  * [new branch]            pp167-review-evidence                    -> origin/pp167-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6758243Z  * [new branch]            pp168-review-evidence                    -> origin/pp168-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6758830Z  * [new branch]            pp170-review-evidence                    -> origin/pp170-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6759499Z  * [new branch]            pp176-review-evidence                    -> origin/pp176-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6760080Z  * [new branch]            pp177-review-evidence                    -> origin/pp177-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6760812Z  * [new branch]            pp178-review-evidence                    -> origin/pp178-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6761393Z  * [new branch]            pp181-review-evidence                    -> origin/pp181-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6761976Z  * [new branch]            pp184-review-evidence                    -> origin/pp184-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6762552Z  * [new branch]            pp185-review-evidence                    -> origin/pp185-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6763477Z  * [new branch]            pp188-review-evidence                    -> origin/pp188-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6764073Z  * [new branch]            pp190-review-evidence                    -> origin/pp190-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6764653Z  * [new branch]            pp192-review-evidence                    -> origin/pp192-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6765230Z  * [new branch]            pp193-review-evidence                    -> origin/pp193-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6765886Z  * [new branch]            pp200-review-evidence                    -> origin/pp200-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6766467Z  * [new branch]            pp202-review-evidence                    -> origin/pp202-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6767049Z  * [new branch]            pp203-review-evidence                    -> origin/pp203-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6767624Z  * [new branch]            pp205-review-evidence                    -> origin/pp205-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6768201Z  * [new branch]            pp206-review-evidence                    -> origin/pp206-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6768777Z  * [new branch]            pp210-review-evidence                    -> origin/pp210-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6769359Z  * [new branch]            pp22-review-evidence                     -> origin/pp22-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6769944Z  * [new branch]            pp230-review-evidence                    -> origin/pp230-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6770532Z  * [new branch]            pp232-review-evidence                    -> origin/pp232-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6771111Z  * [new branch]            pp42-review-evidence                     -> origin/pp42-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6771839Z  * [new branch]            pp43-review-evidence                     -> origin/pp43-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6772422Z  * [new branch]            pp510-review-evidence                    -> origin/pp510-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6773260Z  * [new branch]            pp632-review-evidence                    -> origin/pp632-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6773865Z  * [new branch]            pp639-review-evidence                    -> origin/pp639-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6774442Z  * [new branch]            pp69-review-evidence                     -> origin/pp69-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6775027Z  * [new branch]            pp72-review-evidence                     -> origin/pp72-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6775610Z  * [new branch]            pp73-review-evidence                     -> origin/pp73-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6776184Z  * [new branch]            pp81-review-evidence                     -> origin/pp81-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6776759Z  * [new branch]            pp85-review-evidence                     -> origin/pp85-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6777329Z  * [new branch]            pp92-review-evidence                     -> origin/pp92-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6777901Z  * [new branch]            pp94-review-evidence                     -> origin/pp94-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6778471Z  * [new branch]            pp99-review-evidence                     -> origin/pp99-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6779057Z  * [new branch]            ppC1-review-evidence                     -> origin/ppC1-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6779643Z  * [new branch]            ppC10-review-evidence                    -> origin/ppC10-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6780371Z  * [new branch]            ppC11-review-evidence                    -> origin/ppC11-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6780955Z  * [new branch]            ppC2-review-evidence                     -> origin/ppC2-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6781540Z  * [new branch]            ppC3-review-evidence                     -> origin/ppC3-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6782117Z  * [new branch]            ppC4-review-evidence                     -> origin/ppC4-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6782712Z  * [new branch]            ppC5a-review-evidence                    -> origin/ppC5a-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6783601Z  * [new branch]            ppC5b-review-evidence                    -> origin/ppC5b-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6784318Z  * [new branch]            ppC6-review-evidence                     -> origin/ppC6-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6784903Z  * [new branch]            ppC7-review-evidence                     -> origin/ppC7-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6785490Z  * [new branch]            ppC8-review-evidence                     -> origin/ppC8-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6786065Z  * [new branch]            ppP1-review-evidence                     -> origin/ppP1-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6786641Z  * [new branch]            ppP2-review-evidence                     -> origin/ppP2-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6787245Z  * [new branch]            shape-include-ambiguity                  -> origin/shape-include-ambiguity
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6787874Z  * [new branch]            sync1f29-review-evidence                 -> origin/sync1f29-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6788478Z  * [new branch]            tsn24-review-evidence                    -> origin/tsn24-review-evidence
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6789080Z  * [new branch]            validation/478-candidate2                -> origin/validation/478-candidate2
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6789643Z  * [new ref]               214c8eb1eee510e3697ad62ec6a9d763bc75bebb -> pull/836/merge
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6790968Z ##[endgroup]
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6791356Z ##[group]Determining the checkout info
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6791769Z ##[endgroup]
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6792019Z [command]/usr/bin/git sparse-checkout disable
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6793247Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6794156Z ##[group]Checking out the ref
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.6794560Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/836/merge
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9208980Z Note: switching to 'refs/remotes/pull/836/merge'.
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9209636Z 
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9210090Z You are in 'detached HEAD' state. You can look around, make experimental
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9210786Z changes and commit them, and you can discard any commits you make in this
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9211457Z state without impacting any branches by switching back to a branch.
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9211840Z 
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9212132Z If you want to create a new branch to retain commits you create, you may
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9212746Z do so (now or later) by using -c with the switch command. Example:
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9213538Z 
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9213699Z   git switch -c <new-branch-name>
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9213974Z 
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9214116Z Or undo this operation with:
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9214299Z 
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9214398Z   git switch -
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9214533Z 
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9214776Z Turn off this advice by setting config variable advice.detachedHead to false
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9215119Z 
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9215523Z HEAD is now at 214c8eb1ee Merge 3b323864232fa430ec3a185f33ad7b30fbf1156b into e61a4afaa54a598ceec08b7b5879285256cc60b6
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9248911Z ##[endgroup]
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9303074Z [command]/usr/bin/git log -1 --format=%H
+Collect CI manifest	Run actions/checkout@v4	2026-11-03T20:53:21.9337674Z 214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Set CPU-derived job budgets	﻿2026-11-03T20:53:21.9645634Z ##[group]Run set -euo pipefail
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9646208Z ^[[36;1mset -euo pipefail^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9646474Z ^[[36;1mcpus="$(nproc)"^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9646717Z ^[[36;1mtest "$cpus" -gt 0^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9647016Z ^[[36;1mcampaign=$(( cpus < 4 ? cpus : 4 ))^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9647340Z ^[[36;1msimulations=$(( cpus < 4 ? cpus : 4 ))^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9647658Z ^[[36;1mtool_build=$(( cpus < 8 ? cpus : 8 ))^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9647932Z ^[[36;1m{^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9648158Z ^[[36;1m  printf 'CI_BUILD_JOBS=%s\n' "$cpus"^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9648496Z ^[[36;1m  printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9648857Z ^[[36;1m  printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9649183Z ^[[36;1m  printf 'VERILATOR_JOBS=%s\n' "$cpus"^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9649499Z ^[[36;1m  printf 'SIM_JOBS=%s\n' "$simulations"^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9649841Z ^[[36;1m  printf 'MAKEFLAGS=-j1 --no-print-directory\n'^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9650207Z ^[[36;1m} >> "$GITHUB_ENV"^[[0m
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9674841Z shell: /usr/bin/bash -e {0}
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9675129Z env:
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9675335Z   VERILATOR_VERSION: v5.050
+Collect CI manifest	Set CPU-derived job budgets	2026-11-03T20:53:21.9675577Z ##[endgroup]
+Collect CI manifest	Fetch inventory dependencies	﻿2026-11-03T20:53:21.9806035Z ##[group]Run git submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:21.9806974Z ^[[36;1mgit submodule update --init third_party/verilog-axis protocol-processor gptp-processor third_party/tsn-c-stack^[[0m
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:21.9827601Z shell: /usr/bin/bash -e {0}
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:21.9827862Z env:
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:21.9828069Z   VERILATOR_VERSION: v5.050
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:21.9828315Z   CI_BUILD_JOBS: 4
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:21.9828528Z   CI_TOOL_BUILD_JOBS: 4
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:21.9828753Z   CI_CAMPAIGN_JOBS: 4
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:21.9828968Z   VERILATOR_JOBS: 4
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:21.9829169Z   SIM_JOBS: 4
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:21.9829416Z   MAKEFLAGS: -j1 --no-print-directory
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:21.9829691Z ##[endgroup]
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:22.0091629Z Submodule 'gptp-processor' (https://github.com/Mister-M-alt/FPGA-gPTP.git) registered for path 'gptp-processor'
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:22.0097784Z Submodule 'protocol-processor' (https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git) registered for path 'protocol-processor'
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:22.0102620Z Submodule 'third_party/tsn-c-stack' (https://github.com/kebag-logic/tsn-c-stack.git) registered for path 'third_party/tsn-c-stack'
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:22.0108123Z Submodule 'third_party/verilog-axis' (https://github.com/alexforencich/verilog-axis) registered for path 'third_party/verilog-axis'
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:22.0133562Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/gptp-processor'...
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:32.5318576Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/protocol-processor'...
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:53:54.2832176Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/tsn-c-stack'...
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:54:06.0499494Z Cloning into '<home-path>/work/milan-fpga/milan-fpga/third_party/verilog-axis'...
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:54:17.2408710Z Submodule path 'gptp-processor': checked out '135afd043309369a87ddbc8d6550aff8ec52a157'
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:54:17.3285458Z Submodule path 'protocol-processor': checked out 'a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645'
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:54:17.3460442Z Submodule path 'third_party/tsn-c-stack': checked out '70936b77dc41981e192438388cd0aced69954f18'
+Collect CI manifest	Fetch inventory dependencies	2026-11-03T20:54:17.3661560Z Submodule path 'third_party/verilog-axis': checked out '48ff7a7e2ef782cf778d47910cf85835c64b1bce'
+Collect CI manifest	Cache pinned evidence reader downloads	﻿2026-11-03T20:54:17.4535347Z ##[group]Run actions/cache@v4
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4535691Z with:
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4535921Z   path: ~/.cache/pip
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4536759Z   key: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-b50c6a34ff3b9882fd639fee67e8e58c2cde24da135a3e62c8fb58a8a4324789-Linux
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4537684Z   enableCrossOsArchive: false
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4537990Z   fail-on-cache-miss: false
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4538279Z   lookup-only: false
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4538531Z   save-always: false
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4538973Z env:
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4539175Z   VERILATOR_VERSION: v5.050
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4539416Z   CI_BUILD_JOBS: 4
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4539628Z   CI_TOOL_BUILD_JOBS: 4
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4539856Z   CI_CAMPAIGN_JOBS: 4
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4540071Z   VERILATOR_JOBS: 4
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4540274Z   SIM_JOBS: 4
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4540505Z   MAKEFLAGS: -j1 --no-print-directory
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.4540797Z ##[endgroup]
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.5655779Z (node:2469) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.5656850Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.6893446Z Cache hit for: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-b50c6a34ff3b9882fd639fee67e8e58c2cde24da135a3e62c8fb58a8a4324789-Linux
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.7002430Z (node:2469) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.8016972Z Received 768929 of 768929 (100.0%), 12.4 MBs/sec
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.8017719Z Cache Size: ~1 MB (768929 B)
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.8045941Z [command]/usr/bin/tar -xf <home-path>/work/_temp/dbf0d325-b001-4d29-9bea-b75c73d5b75c/cache.tzst -P -C <home-path>/work/milan-fpga/milan-fpga --use-compress-program unzstd
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.8115260Z Cache restored successfully
+Collect CI manifest	Cache pinned evidence reader downloads	2026-11-03T20:54:17.8311114Z Cache restored from key: pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-b50c6a34ff3b9882fd639fee67e8e58c2cde24da135a3e62c8fb58a8a4324789-Linux
+Collect CI manifest	Install the pinned evidence reader	﻿2026-11-03T20:54:17.8417293Z ##[group]Run python3 -m pip install --quiet --require-hashes --no-deps -r ci/requirements-evidence.txt
+Collect CI manifest	Install the pinned evidence reader	2026-11-03T20:54:17.8418066Z ^[[36;1mpython3 -m pip install --quiet --require-hashes --no-deps -r ci/requirements-evidence.txt^[[0m
+Collect CI manifest	Install the pinned evidence reader	2026-11-03T20:54:17.8437933Z shell: /usr/bin/bash -e {0}
+Collect CI manifest	Install the pinned evidence reader	2026-11-03T20:54:17.8438216Z env:
+Collect CI manifest	Install the pinned evidence reader	2026-11-03T20:54:17.8438424Z   VERILATOR_VERSION: v5.050
+Collect CI manifest	Install the pinned evidence reader	2026-11-03T20:54:17.8438683Z   CI_BUILD_JOBS: 4
+Collect CI manifest	Install the pinned evidence reader	2026-11-03T20:54:17.8438900Z   CI_TOOL_BUILD_JOBS: 4
+Collect CI manifest	Install the pinned evidence reader	2026-11-03T20:54:17.8439132Z   CI_CAMPAIGN_JOBS: 4
+Collect CI manifest	Install the pinned evidence reader	2026-11-03T20:54:17.8439355Z   VERILATOR_JOBS: 4
+Collect CI manifest	Install the pinned evidence reader	2026-11-03T20:54:17.8439567Z   SIM_JOBS: 4
+Collect CI manifest	Install the pinned evidence reader	2026-11-03T20:54:17.8439793Z   MAKEFLAGS: -j1 --no-print-directory
+Collect CI manifest	Install the pinned evidence reader	2026-11-03T20:54:17.8440072Z ##[endgroup]
+Collect CI manifest	Download completed execution artifacts	﻿2026-11-03T20:54:18.8717532Z ##[group]Run actions/download-artifact@v4
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8717873Z with:
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8718134Z   path: <home-path>/work/_temp/manifest-inputs
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8718463Z   merge-multiple: false
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8718727Z   repository: kebag-logic/milan-fpga
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8719000Z   run-id: 41705989293
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8719216Z env:
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8719427Z   VERILATOR_VERSION: v5.050
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8719672Z   CI_BUILD_JOBS: 4
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8719886Z   CI_TOOL_BUILD_JOBS: 4
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8720126Z   CI_CAMPAIGN_JOBS: 4
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8720350Z   VERILATOR_JOBS: 4
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8720556Z   SIM_JOBS: 4
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8720781Z   MAKEFLAGS: -j1 --no-print-directory
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:18.8721049Z ##[endgroup]
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.0435811Z (node:2510) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.0436677Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1341154Z Found 13 artifact(s)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1342798Z No input name, artifact-ids or pattern filtered specified, downloading all artifacts
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1344274Z An extra directory with the artifact name will be created for each download
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1345533Z Preparing to download the following artifacts:
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1347482Z - job-evidence-elaborate-ci-fail-fast-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13270955428, Size: 708, Expected Digest: sha256:2d44d672518bde90baba2d91dfc3ab5a107d3e6e5a45a57bf7b46eb8393b27cd)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1350914Z - job-evidence-elaborate-elaborate-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13270685436, Size: 865, Expected Digest: sha256:6181b5ef2930b1d0a713f68b940790dcdbdd08c6908d769f70e1dbfd9a8ad4f5)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1354018Z - job-evidence-elaborate-elaborate-gates-1-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13270535665, Size: 946, Expected Digest: sha256:24db1f534f3c2a4b38949c32b1fbfb8ae140b8320bcb7a28ab5f42fcfcd829b3)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1356955Z - gate-elaborate-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13270435077, Size: 2274, Expected Digest: sha256:d0225c4ebb9eb1d202da493519c05e0d371d6b8cfc4078aac5664dd636935a89)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1359747Z - job-evidence-elaborate-elaborate-gates-3-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13269378622, Size: 1047, Expected Digest: sha256:f2b565e71a980684df1a34fe8838e3eebd4f98c2242b6a717b41ed6b40e0503e)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1362452Z - gate-elaborate-3-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13269378611, Size: 887, Expected Digest: sha256:a7a7371b9f37f40a1b850eeb70f9c1c11ea00c77f01c5fc84d29bcaa671aafd1)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1378781Z - gate-elaborate-1-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13268694639, Size: 2632, Expected Digest: sha256:e3bb56398b3dc026a45e6854278ecac5b5f15c4d0905a625031d820b091280fd)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1381289Z - gate-union-elaborate-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13268624912, Size: 393, Expected Digest: sha256:bc88691d4a81bc4e036c42d58149205c6490d9ac42a9ed494d5fedfbcbe919c9)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1384381Z - job-evidence-elaborate-elaborate-gates-4-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13268573845, Size: 1048, Expected Digest: sha256:0c93e69ccb721db18c2ff8181af20f0a6bb5bb317d1000a9baed04658a7473cc)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1387376Z - job-evidence-elaborate-elaborate-gates-2-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13268444389, Size: 1049, Expected Digest: sha256:1494a585d9b3de8d340c3dcb5e07f819976e918d0282d5eccb9d060d9045bead)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1390289Z - job-evidence-elaborate-elaborate-gates-0-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13268359620, Size: 938, Expected Digest: sha256:8253ecaaa079227029ddd4042a34ce0f7189e113afdf1338181e00d36c31bbf5)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1393150Z - gate-elaborate-2-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13268329599, Size: 844, Expected Digest: sha256:495e0e9df91f4c4a5323ed8ce68dd8059c54b60c17cd63df0275e8ff41c6accd)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.1395730Z - gate-elaborate-4-214c8eb1eee510e3697ad62ec6a9d763bc75bebb (ID: 13268294526, Size: 858, Expected Digest: sha256:cb905c2991d95697c9bd73beb0fced4bf6c6ee44e2189d1070d7ab1ec23f59b3)
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.2917791Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-a1e6e02e-4467-5153-95f0-4b193b5c924d/artifacts/365807e62ed0042adc0bdde02242b7a5dea85e8351f0385b839723d37d1a1417.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.2919794Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/job-evidence-elaborate-ci-fail-fast-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3106384Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-8806f645-5131-5bcc-b9a6-5f71e96c2a92/artifacts/fe0c178bef1cb64bee00c27c134a8a1e87d4544196d41b0f9d52c02f15e3835d.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3109466Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/job-evidence-elaborate-elaborate-gates-1-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3149122Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-da14bf98-fe7c-52ba-acbb-03680ca85fb4/artifacts/b44bf85be3de6570bfdca5ced941193886fb9792aca19d06e3ca4baed9b95877.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3152056Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/gate-elaborate-3-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3326180Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-3a07a4e3-d580-5664-bc7b-2b7e849d47c9/artifacts/63f483821f90deef9b3b157ba9441cdfb482c234017ec6f097b2d9e28d0e49cd.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3329060Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/gate-union-elaborate-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3407405Z (node:2510) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3465666Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-8806f645-5131-5bcc-b9a6-5f71e96c2a92/artifacts/ecb8e8cf0e2d130ef85bab5bab77b9b51302667776582c5b5ed3583fe9002ef0.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3468524Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/gate-elaborate-1-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3502438Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-dae33808-79f5-5e81-9322-9977b9f28d93/artifacts/be166cc80ad7756ca941885695d85bdba14fd8148e17e737030c6c431e120b47.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3504508Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/job-evidence-elaborate-elaborate-gates-2-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3523552Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-c58a6bfd-1f4c-5b47-b470-01cd7b92fa3e/artifacts/03afb5d7faff7eba5a0a6de78d27441234135fb95fa79ba0bbc299582704885b.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3526736Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/job-evidence-elaborate-elaborate-gates-4-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3538798Z SHA256 digest of downloaded artifact is 2d44d672518bde90baba2d91dfc3ab5a107d3e6e5a45a57bf7b46eb8393b27cd
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3539699Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3603673Z SHA256 digest of downloaded artifact is a7a7371b9f37f40a1b850eeb70f9c1c11ea00c77f01c5fc84d29bcaa671aafd1
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3604498Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3617427Z SHA256 digest of downloaded artifact is e3bb56398b3dc026a45e6854278ecac5b5f15c4d0905a625031d820b091280fd
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3618068Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3639870Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-da14bf98-fe7c-52ba-acbb-03680ca85fb4/artifacts/c0c9ce385d2ce63d232316ea189adf0ffe79ade23e00d01c4a728433dc8c42c7.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3642153Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/job-evidence-elaborate-elaborate-gates-3-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3645482Z SHA256 digest of downloaded artifact is 24db1f534f3c2a4b38949c32b1fbfb8ae140b8320bcb7a28ab5f42fcfcd829b3
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3646697Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3718726Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-c58a6bfd-1f4c-5b47-b470-01cd7b92fa3e/artifacts/5be131eefb723f59dee208ea1b32a128309f828a2cece8c4c8f3bd8e6e44268d.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3721731Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/gate-elaborate-4-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3727723Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-3a07a4e3-d580-5664-bc7b-2b7e849d47c9/artifacts/8c3fc144b3c53f75424e1496e4fa9463e6e25af25fe7148f390afacfbe4a42a3.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3730961Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/job-evidence-elaborate-elaborate-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3746378Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-9646f716-61aa-5af6-8cda-10d7656aba65/artifacts/781405c2dffc4630c756ca8a7a0607710665916ae68adcfe93207e4a10ceb10a.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3748403Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/job-evidence-elaborate-elaborate-gates-0-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3756798Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-9646f716-61aa-5af6-8cda-10d7656aba65/artifacts/9060220660def463d87185e21c7fd63e964fed72124d4b57717c36b21e3f503d.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3759754Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/gate-elaborate-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3851664Z SHA256 digest of downloaded artifact is f2b565e71a980684df1a34fe8838e3eebd4f98c2242b6a717b41ed6b40e0503e
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3853667Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3867051Z SHA256 digest of downloaded artifact is cb905c2991d95697c9bd73beb0fced4bf6c6ee44e2189d1070d7ab1ec23f59b3
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3868957Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3873558Z SHA256 digest of downloaded artifact is 6181b5ef2930b1d0a713f68b940790dcdbdd08c6908d769f70e1dbfd9a8ad4f5
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3874764Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3953167Z SHA256 digest of downloaded artifact is 1494a585d9b3de8d340c3dcb5e07f819976e918d0282d5eccb9d060d9045bead
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3954532Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3976385Z SHA256 digest of downloaded artifact is bc88691d4a81bc4e036c42d58149205c6490d9ac42a9ed494d5fedfbcbe919c9
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3993561Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3994755Z SHA256 digest of downloaded artifact is 0c93e69ccb721db18c2ff8181af20f0a6bb5bb317d1000a9baed04658a7473cc
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.3995861Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.4151724Z SHA256 digest of downloaded artifact is d0225c4ebb9eb1d202da493519c05e0d371d6b8cfc4078aac5664dd636935a89
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.4152664Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.4178892Z SHA256 digest of downloaded artifact is 8253ecaaa079227029ddd4042a34ce0f7189e113afdf1338181e00d36c31bbf5
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.4179564Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.4682448Z Redirecting to blob download url: https://productionresultssa16.blob.core.windows.net/actions-results/5e56f03f-f46f-8ac0-90bf-73de377e27e3/workflow-job-run-dae33808-79f5-5e81-9322-9977b9f28d93/artifacts/cf02692863b06c92127ddc545494b2c6c3c10039f0989fc06f73a30e80ce4a09.zip
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.4684760Z Starting download of artifact to: <home-path>/work/_temp/manifest-inputs/gate-elaborate-2-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.4872051Z SHA256 digest of downloaded artifact is 495e0e9df91f4c4a5323ed8ce68dd8059c54b60c17cd63df0275e8ff41c6accd
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.4873584Z Artifact download completed successfully.
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.4874315Z Total of 13 artifact(s) downloaded
+Collect CI manifest	Download completed execution artifacts	2026-11-03T20:54:19.4878774Z Download artifact has finished successfully
+Collect CI manifest	Collect actual runtime evidence	﻿2026-11-03T20:54:19.5040423Z ##[group]Run python3 scripts/ci_runtime_evidence.py collect --run "$GITHUB_RUN_ID" --artifacts "$RUNNER_TEMP/manifest-inputs" --output "$RUNNER_TEMP/ci-manifest.json"
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:19.5041714Z ^[[36;1mpython3 scripts/ci_runtime_evidence.py collect --run "$GITHUB_RUN_ID" --artifacts "$RUNNER_TEMP/manifest-inputs" --output "$RUNNER_TEMP/ci-manifest.json"^[[0m
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:19.5063305Z shell: /usr/bin/bash -e {0}
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:19.5063669Z env:
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:19.5063955Z   VERILATOR_VERSION: v5.050
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:19.5064286Z   CI_BUILD_JOBS: 4
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:19.5064590Z   CI_TOOL_BUILD_JOBS: 4
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:19.5064906Z   CI_CAMPAIGN_JOBS: 4
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:19.5065213Z   VERILATOR_JOBS: 4
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:19.5065496Z   SIM_JOBS: 4
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:19.5065799Z   MAKEFLAGS: -j1 --no-print-directory
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:19.5068974Z   GH_TOKEN: ***
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:19.5069291Z ##[endgroup]
+Collect CI manifest	Collect actual runtime evidence	2026-11-03T20:54:22.0164754Z incomplete manifest: execution: missing or extra job/leg; results: missing or extra job/leg; execution..github/workflows/docs.yml:wire-accountability: missing or extra step; execution..github/workflows/docs.yml:docs-check-no-git: missing or extra step; execution..github/workflows/docs.yml:docs-gates-0: missing or extra step; execution..github/workflows/docs.yml:docs-gates-1: missing or extra step; execution..github/workflows/docs.yml:docs-gates-2: missing or extra step; execution..github/workflows/docs.yml:docs-check: missing or extra step; execution..github/workflows/docs.yml:ci-manifest: missing or extra step; execution..github/workflows/docs.yml:ci-fail-fast: missing or extra step; execution..github/workflows/docs.yml:ci-cancel-tail: missing or extra step; execution..github/workflows/elaborate.yml:elaborate-gates-2.steps[15]: step did not succeed; execution..github/workflows/elaborate.yml:elaborate-gates-2.steps[16]: step did not succeed; execution..github/workflows/elaborate.yml:elaborate-gates-2.steps[17]: step did not succeed; execution..github/workflows/elaborate.yml:elaborate-gates-3.steps[15]: step did not succeed; execution..github/workflows/elaborate.yml:elaborate-gates-3.steps[16]: step did not succeed; execution..github/workflows/elaborate.yml:elaborate-gates-3.steps[17]: step did not succeed; execution..github/workflows/elaborate.yml:elaborate-gates-4.steps[15]: step did not succeed; execution..github/workflows/elaborate.yml:elaborate-gates-4.steps[16]: step did not succeed; execution..github/workflows/elaborate.yml:elaborate-gates-4.steps[17]: step did not succeed; execution..github/workflows/elaborate.yml:ci-manifest.steps[6]: step did not succeed; execution..github/workflows/elaborate.yml:ci-manifest.steps[7]: step did not succeed; results..github/workflows/elaborate.yml:ci-manifest: job/leg did not succeed; execution..github/workflows/elaborate.yml:ci-fail-fast.steps[2]: step did not succeed; execution..github/workflows/elaborate.yml:ci-fail-fast.steps[3]: step did not succeed; results..github/workflows/elaborate.yml:ci-fail-fast: job/leg did not succeed; execution..github/workflows/elaborate.yml:ci-cancel-tail: missing or extra step; execution..github/workflows/rtl-fast.yml:changes: missing or extra step; execution..github/workflows/rtl-fast.yml:verilator-lint: missing or extra step; execution..github/workflows/rtl-fast.yml:bdd-conformance: missing or extra step; execution..github/workflows/rtl-fast.yml:yosys-tool: missing or extra step; execution..github/workflows/rtl-fast.yml:yosys-elaboration: missing or extra step; execution..github/workflows/rtl-fast.yml:publication-census: missing or extra step; execution..github/workflows/rtl-fast.yml:firmware-unit: missing or extra step; execution..github/workflows/rtl-fast.yml:firmware-control-mutants: missing or extra step; execution..github/workflows/rtl-fast.yml:firmware-aecp-mutants: missing or extra step; execution..github/workflows/rtl-fast.yml:firmware-srp-mutants: missing or extra step; execution..github/workflows/rtl-fast.yml:firmware-boundary: missing or extra step; execution..github/workflows/rtl-fast.yml:firmware-verilator: missing or extra step; execution..github/workflows/rtl-fast.yml:rtl-fast: missing or extra step; execution..github/workflows/rtl-fast.yml:ci-manifest: missing or extra step; execution..github/workflows/rtl-fast.yml:ci-fail-fast: missing or extra step; execution..github/workflows/rtl-fast.yml:ci-cancel-tail: missing or extra step; execution..github/workflows/rtl.yml:full-ci-gate: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":0,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":1,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":2,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":3,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":4,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":5,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":6,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":7,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":8,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":9,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":10,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":11,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":12,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":13,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":14,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":15,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":16,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":17,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:verilator-shards[{"shard":18,"total":19}]: missing or extra step; execution..github/workflows/rtl.yml:physical-gptp: missing or extra step; execution..github/workflows/rtl.yml:verilator-suites: missing or extra step; execution..github/workflows/rtl.yml:yosys-shards[{"shard":0,"total":4}]: missing or extra step; execution..github/workflows/rtl.yml:yosys-shards[{"shard":1,"total":4}]: missing or extra step; execution..github/workflows/rtl.yml:yosys-shards[{"shard":2,"total":4}]: missing or extra step; execution..github/workflows/rtl.yml:yosys-shards[{"shard":3,"total":4}]: missing or extra step; execution..github/workflows/rtl.yml:yosys-portability: missing or extra step; execution..github/workflows/rtl.yml:yosys-tool: missing or extra step; execution..github/workflows/rtl.yml:union-milan_dp: missing or extra step; execution..github/workflows/rtl.yml:union-milan_dp_mclk: missing or extra step; execution..github/workflows/rtl.yml:union-capture_coherence: missing or extra step; execution..github/workflows/rtl.yml:union-maap: missing or extra step; execution..github/workflows/rtl.yml:union-milan_dp_render: missing or extra step; execution..github/workflows/rtl.yml:union-pp_shadow: missing or extra step; execution..github/workflows/rtl.yml:ci-manifest: missing or extra step; execution..github/workflows/rtl.yml:ci-fail-fast: missing or extra step; execution..github/workflows/rtl.yml:ci-cancel-tail: missing or extra step; inventories.capture_coherence: missing executed union; inventories.gate/docs: missing executed union; inventories.maap: missing executed union; inventories.milan_dp: missing executed union; inventories.milan_dp_mclk: missing executed union; inventories.milan_dp_render: missing executed union; inventories.pp_shadow: missing executed union; environment.tools..github/workflows/elaborate.yml:ci-fail-fast/g++.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:ci-fail-fast/g++.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:ci-fail-fast/make.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:ci-fail-fast/make.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:ci-fail-fast/node.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:ci-fail-fast/node.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:ci-fail-fast/python3.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:ci-fail-fast/python3.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-3/g++.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-3/g++.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-3/make.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-3/make.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-3/node.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-3/node.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-3/python3.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-3/python3.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-3/verilator.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-3/verilator.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-2/g++.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-2/g++.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-2/make.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-2/make.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-2/node.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-2/node.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-2/python3.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-2/python3.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-2/verilator.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-2/verilator.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate/g++.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate/g++.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate/make.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate/make.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate/node.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate/node.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate/python3.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate/python3.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-4/g++.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-4/g++.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-4/make.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-4/make.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-4/node.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-4/node.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-4/python3.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-4/python3.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-4/verilator.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-4/verilator.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-1/g++.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-1/g++.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-1/make.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-1/make.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-1/node.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-1/node.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-1/python3.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-1/python3.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-0/g++.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-0/g++.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-0/make.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-0/make.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-0/node.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-0/node.recipe_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-0/python3.source_sha256: unmeasured; environment.tools..github/workflows/elaborate.yml:elaborate-gates-0/python3.recipe_sha256: unmeasured; environment.image: no immutable image digest; environment.actions: action is not pinned by commit; environment.actions: action is not pinned by commit; environment.actions: action is not pinned by commit; environment.actions: action is not pinned by commit; environment.actions: action is not pinned by commit
+Collect CI manifest	Upload canonical CI manifest	﻿2026-11-03T20:54:22.0303677Z ##[group]Run actions/upload-artifact@v4
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0304112Z with:
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0304548Z   name: ci-manifest-elaborate-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0305076Z   path: <home-path>/work/_temp/ci-manifest.json
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0305476Z   if-no-files-found: error
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0305803Z   retention-days: 3
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0306106Z   compression-level: 6
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0306417Z   overwrite: false
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0306726Z   include-hidden-files: false
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0307052Z env:
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0307324Z   VERILATOR_VERSION: v5.050
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0307647Z   CI_BUILD_JOBS: 4
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0307957Z   CI_TOOL_BUILD_JOBS: 4
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0308266Z   CI_CAMPAIGN_JOBS: 4
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0308563Z   VERILATOR_JOBS: 4
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0308853Z   SIM_JOBS: 4
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0309164Z   MAKEFLAGS: -j1 --no-print-directory
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.0309527Z ##[endgroup]
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.2006842Z (node:2539) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.2007890Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.2033396Z With the provided path, there will be 1 file uploaded
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.2063798Z Artifact name is valid!
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.2065816Z Root directory input is valid!
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.4218496Z Beginning upload of artifact content to blob storage
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.4441656Z (node:2539) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.4941806Z Uploaded bytes 18677
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.5133272Z Finished uploading artifact content to blob storage!
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.5134547Z SHA256 digest of uploaded artifact zip is e421d42e269305fbef4465d5637322bf66295cf123ddaf7aa6961e88f21f7386
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.5135921Z Finalizing artifact upload
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.9373649Z Artifact ci-manifest-elaborate-214c8eb1eee510e3697ad62ec6a9d763bc75bebb.zip successfully finalized. Artifact ID 13269538265
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.9376264Z Artifact ci-manifest-elaborate-214c8eb1eee510e3697ad62ec6a9d763bc75bebb has been successfully uploaded! Final size is 18677 bytes. Artifact ID is 13269538265
+Collect CI manifest	Upload canonical CI manifest	2026-11-03T20:54:22.9381843Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/41705989293/artifacts/13269538265
+Collect CI manifest	Post Cache pinned evidence reader downloads	﻿2026-11-03T20:54:23.0251571Z Post job cleanup.
+Collect CI manifest	Post Cache pinned evidence reader downloads	2026-11-03T20:54:23.1362416Z Cache hit occurred on the primary key pyyaml-6.0.2-d584d9ec91ad65861cc08d42e834324ef890a082e591037abe114850ff7bbc3e-b50c6a34ff3b9882fd639fee67e8e58c2cde24da135a3e62c8fb58a8a4324789-Linux, not saving cache.
+Collect CI manifest	Post Cache pinned evidence reader downloads	2026-11-03T20:54:23.1365112Z (node:2564) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Collect CI manifest	Post Cache pinned evidence reader downloads	2026-11-03T20:54:23.1366706Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Collect CI manifest	Post Run actions/checkout@v4	﻿2026-11-03T20:54:23.1542518Z Post job cleanup.
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.2412580Z [command]/usr/bin/git version
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.2459959Z git version 2.56.0
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.2504842Z Temporarily overriding HOME='<home-path>/work/_temp/7fd4185c-e7a6-4023-b838-e4342b45a492' before making global git config changes
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.2506100Z Adding repository directory to the temporary git global config as a safe directory
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.2511011Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.2554409Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.2617193Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.2880495Z Entering 'gptp-processor'
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.2939822Z Entering 'protocol-processor'
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.2986630Z Entering 'third_party/tsn-c-stack'
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3032419Z Entering 'third_party/verilog-axis'
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3105311Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3139600Z http.https://github.com/.extraheader
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3154068Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3203436Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3454519Z Entering 'gptp-processor'
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3499764Z Entering 'protocol-processor'
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3550449Z Entering 'third_party/tsn-c-stack'
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3594887Z Entering 'third_party/verilog-axis'
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3665387Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3712508Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3969081Z Entering 'gptp-processor'
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.3993347Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config	remote.origin.url
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.4012938Z Entering 'protocol-processor'
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.4034545Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config	remote.origin.url
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.4055375Z Entering 'third_party/tsn-c-stack'
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.4075728Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config	remote.origin.url
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.4095302Z Entering 'third_party/verilog-axis'
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.4116285Z file:<home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config	remote.origin.url
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.4151885Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/gptp-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.4198389Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/protocol-processor/config --name-only --get-regexp ^includeIf\.gitdir:
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.4237570Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/tsn-c-stack/config --name-only --get-regexp ^includeIf\.gitdir:
+Collect CI manifest	Post Run actions/checkout@v4	2026-11-03T20:54:23.4277475Z [command]/usr/bin/git config --file <home-path>/work/milan-fpga/milan-fpga/.git/modules/third_party/verilog-axis/config --name-only --get-regexp ^includeIf\.gitdir:
+Collect CI manifest	Complete job	﻿2026-11-03T20:54:23.4457863Z Evaluate and set job outputs
+Collect CI manifest	Complete job	2026-11-03T20:54:23.4487678Z Set output 'observer_only_error'
+Collect CI manifest	Complete job	2026-11-03T20:54:23.4489505Z Cleaning up orphan processes
+Collect CI manifest	Complete job	2026-11-03T20:54:23.4848683Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@v4, actions/checkout@v4, actions/download-artifact@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

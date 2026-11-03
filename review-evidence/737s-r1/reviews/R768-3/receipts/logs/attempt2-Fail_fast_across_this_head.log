@@ -1,0 +1,250 @@
+Fail fast across this head	Set up job	﻿2026-11-03T20:29:15.3419283Z Current runner version: '2.338.2'
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3444318Z ##[group]Runner Image Provisioner
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3445512Z Hosted Compute Agent
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3446111Z Version: 20261028.624
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3446727Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3447496Z Build Date: 2026-10-28T21:51:42Z
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3448178Z Worker ID: {959c992c-dc05-47d2-a505-471bb2ff8179}
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3448883Z Region: westus3
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3449432Z Cloud: Azure
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3449952Z ##[endgroup]
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3451296Z ##[group]Operating System
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3451909Z Ubuntu
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3452385Z 24.04.5
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3452923Z LTS
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3453416Z ##[endgroup]
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3453992Z ##[group]Runner Image
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3454739Z Image: ubuntu-24.04
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3455307Z Version: 20261101.360.1
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3456374Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261101.360/images/ubuntu/Ubuntu2404-Readme.md
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3458114Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261101.360
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3459055Z ##[endgroup]
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3460441Z ##[group]GITHUB_TOKEN Permissions
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3462571Z Actions: write
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3463122Z Contents: read
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3463792Z Metadata: read
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3464319Z ##[endgroup]
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3466593Z Secret source: Actions
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3467525Z Cache mode: write
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3468183Z Prepare workflow directory
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3882288Z Prepare all required actions
+Fail fast across this head	Set up job	2026-11-03T20:29:15.3930645Z Getting action download info
+Fail fast across this head	Set up job	2026-11-03T20:29:15.7407637Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+Fail fast across this head	Set up job	2026-11-03T20:29:15.8432740Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+Fail fast across this head	Set up job	2026-11-03T20:29:16.0956547Z Complete job name: Fail fast across this head
+Fail fast across this head	Run actions/checkout@v4	﻿2026-11-03T20:29:16.1744091Z ##[group]Run actions/checkout@v4
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1745164Z with:
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1745812Z   repository: kebag-logic/milan-fpga
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1750027Z   token: ***
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1750536Z   ssh-strict: true
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1751088Z   ssh-user: git
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1751601Z   persist-credentials: true
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1752166Z   clean: true
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1752742Z   sparse-checkout-cone-mode: true
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1753333Z   fetch-depth: 1
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1753857Z   fetch-tags: false
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1754366Z   show-progress: true
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1755098Z   lfs: false
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1755605Z   submodules: false
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1756148Z   set-safe-directory: true
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1756748Z   allow-unsafe-pr-checkout: false
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1757503Z env:
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1757980Z   VERILATOR_VERSION: v5.050
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.1758600Z ##[endgroup]
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.4889791Z Syncing repository: kebag-logic/milan-fpga
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.4891873Z ##[group]Getting Git version info
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.4892840Z Working directory is '<home-path>/work/milan-fpga/milan-fpga'
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.4893992Z [command]/usr/bin/git version
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5003635Z git version 2.56.0
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5024469Z ##[endgroup]
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5039320Z Temporarily overriding HOME='<home-path>/work/_temp/25720f85-8afb-4ef0-844d-905392d227fd' before making global git config changes
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5041979Z Adding repository directory to the temporary git global config as a safe directory
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5044334Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5113096Z Deleting the contents of '<home-path>/work/milan-fpga/milan-fpga'
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5118368Z ##[group]Initializing the repository
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5123408Z [command]/usr/bin/git init <home-path>/work/milan-fpga/milan-fpga
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5222810Z hint: Using 'master' as the name for the initial branch. This default branch name
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5225101Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5226164Z hint: to use in all of your new repositories, which will suppress this warning,
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5227288Z hint: call:
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5227806Z hint:
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5228376Z hint: 	git config --global init.defaultBranch <name>
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5229113Z hint:
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5229848Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5230931Z hint: 'development'. The just-created branch can be renamed via this command:
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5231780Z hint:
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5232246Z hint: 	git branch -m <name>
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5232841Z hint:
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5233801Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5236039Z Initialized empty Git repository in <home-path>/work/milan-fpga/milan-fpga/.git/
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5248862Z [command]/usr/bin/git remote add origin https://github.com/kebag-logic/milan-fpga
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5297167Z ##[endgroup]
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5298236Z ##[group]Disabling automatic garbage collection
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5302608Z [command]/usr/bin/git config --local gc.auto 0
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5335602Z ##[endgroup]
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5336598Z ##[group]Setting up auth
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5344790Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5380826Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5786100Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.5824862Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.6020665Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.6053220Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.6256835Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.6296663Z ##[endgroup]
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.6297652Z ##[group]Fetching the repository
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:16.6344826Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +214c8eb1eee510e3697ad62ec6a9d763bc75bebb:refs/remotes/pull/836/merge
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.6243639Z From https://github.com/kebag-logic/milan-fpga
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.6246340Z  * [new ref]         214c8eb1eee510e3697ad62ec6a9d763bc75bebb -> pull/836/merge
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.6254355Z ##[endgroup]
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.6256317Z ##[group]Determining the checkout info
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.6258011Z ##[endgroup]
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.6259008Z [command]/usr/bin/git sparse-checkout disable
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.6309564Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.6340468Z ##[group]Checking out the ref
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.6342626Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/836/merge
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8606004Z Note: switching to 'refs/remotes/pull/836/merge'.
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8606716Z 
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8607174Z You are in 'detached HEAD' state. You can look around, make experimental
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8608135Z changes and commit them, and you can discard any commits you make in this
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8609135Z state without impacting any branches by switching back to a branch.
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8616424Z 
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8616764Z If you want to create a new branch to retain commits you create, you may
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8617767Z do so (now or later) by using -c with the switch command. Example:
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8618750Z 
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8618985Z   git switch -c <new-branch-name>
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8619373Z 
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8619791Z Or undo this operation with:
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8620087Z 
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8620315Z   git switch -
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8620596Z 
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8622706Z Turn off this advice by setting config variable advice.detachedHead to false
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8623353Z 
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8623917Z HEAD is now at 214c8eb Merge 3b323864232fa430ec3a185f33ad7b30fbf1156b into e61a4afaa54a598ceec08b7b5879285256cc60b6
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8626694Z ##[endgroup]
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8670785Z [command]/usr/bin/git log -1 --format=%H
+Fail fast across this head	Run actions/checkout@v4	2026-11-03T20:29:26.8696351Z 214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Fail fast across this head	Set CPU-derived job budgets	﻿2026-11-03T20:29:26.8933082Z ##[group]Run set -euo pipefail
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8933680Z ^[[36;1mset -euo pipefail^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8934237Z ^[[36;1mcpus="$(nproc)"^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8934938Z ^[[36;1mtest "$cpus" -gt 0^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8935453Z ^[[36;1mcampaign=$(( cpus < 4 ? cpus : 4 ))^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8935968Z ^[[36;1msimulations=$(( cpus < 4 ? cpus : 4 ))^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8936427Z ^[[36;1mtool_build=$(( cpus < 8 ? cpus : 8 ))^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8936936Z ^[[36;1m{^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8937306Z ^[[36;1m  printf 'CI_BUILD_JOBS=%s\n' "$cpus"^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8937782Z ^[[36;1m  printf 'CI_TOOL_BUILD_JOBS=%s\n' "$tool_build"^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8938317Z ^[[36;1m  printf 'CI_CAMPAIGN_JOBS=%s\n' "$campaign"^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8938757Z ^[[36;1m  printf 'VERILATOR_JOBS=%s\n' "$cpus"^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8939267Z ^[[36;1m  printf 'SIM_JOBS=%s\n' "$simulations"^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8939744Z ^[[36;1m  printf 'MAKEFLAGS=-j1 --no-print-directory\n'^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8940507Z ^[[36;1m} >> "$GITHUB_ENV"^[[0m
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8958814Z shell: /usr/bin/bash -e {0}
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8959306Z env:
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8959650Z   VERILATOR_VERSION: v5.050
+Fail fast across this head	Set CPU-derived job budgets	2026-11-03T20:29:26.8960115Z ##[endgroup]
+Fail fast across this head	Observe the first failed job	﻿2026-11-03T20:29:26.9093082Z ##[group]Run python3 scripts/ci_fail_fast.py watch
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9093637Z ^[[36;1mpython3 scripts/ci_fail_fast.py watch^[[0m
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9107513Z shell: /usr/bin/bash -e {0}
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9107914Z env:
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9108354Z   VERILATOR_VERSION: v5.050
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9108761Z   CI_BUILD_JOBS: 4
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9109140Z   CI_TOOL_BUILD_JOBS: 4
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9109507Z   CI_CAMPAIGN_JOBS: 4
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9109866Z   VERILATOR_JOBS: 4
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9110242Z   SIM_JOBS: 4
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9110676Z   MAKEFLAGS: -j1 --no-print-directory
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9113973Z   GH_TOKEN: ***
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9114920Z   EXPECTED_JOBS: ["Collect CI manifest","elaborate","elaborate-gates-0","elaborate-gates-1","elaborate-gates-2","elaborate-gates-3","elaborate-gates-4"]
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9115675Z   SKIPPED_MATRICES: {}
+Fail fast across this head	Observe the first failed job	2026-11-03T20:29:26.9116076Z ##[endgroup]
+Fail fast across this head	Observe the first failed job	2026-11-03T20:53:13.9433187Z ##[error]The operation was canceled.
+Fail fast across this head	Record actual job execution	﻿2026-11-03T20:53:13.9603244Z ##[group]Run python3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/elaborate.yml --job ci-fail-fast --output "$RUNNER_TEMP/job-evidence.json"
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9604535Z ^[[36;1mpython3 scripts/ci_runtime_evidence.py record --workflow .github/workflows/elaborate.yml --job ci-fail-fast --output "$RUNNER_TEMP/job-evidence.json"^[[0m
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9619998Z shell: /usr/bin/bash -e {0}
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9620361Z env:
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9620668Z   VERILATOR_VERSION: v5.050
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9621018Z   CI_BUILD_JOBS: 4
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9621321Z   CI_TOOL_BUILD_JOBS: 4
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9621693Z   CI_CAMPAIGN_JOBS: 4
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9622023Z   VERILATOR_JOBS: 4
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9622313Z   SIM_JOBS: 4
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9622655Z   MAKEFLAGS: -j1 --no-print-directory
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9624086Z   CI_STEP_RESULTS: {
+Fail fast across this head	Record actual job execution	  "ci_step_0": {
+Fail fast across this head	Record actual job execution	    "outputs": {
+Fail fast across this head	Record actual job execution	      "commit": "214c8eb1eee510e3697ad62ec6a9d763bc75bebb",
+Fail fast across this head	Record actual job execution	      "ref": "refs/pull/836/merge"
+Fail fast across this head	Record actual job execution	    },
+Fail fast across this head	Record actual job execution	    "outcome": "success",
+Fail fast across this head	Record actual job execution	    "conclusion": "success"
+Fail fast across this head	Record actual job execution	  },
+Fail fast across this head	Record actual job execution	  "ci_step_1": {
+Fail fast across this head	Record actual job execution	    "outputs": {},
+Fail fast across this head	Record actual job execution	    "outcome": "success",
+Fail fast across this head	Record actual job execution	    "conclusion": "success"
+Fail fast across this head	Record actual job execution	  },
+Fail fast across this head	Record actual job execution	  "ci_observe": {
+Fail fast across this head	Record actual job execution	    "outputs": {},
+Fail fast across this head	Record actual job execution	    "outcome": "cancelled",
+Fail fast across this head	Record actual job execution	    "conclusion": "cancelled"
+Fail fast across this head	Record actual job execution	  },
+Fail fast across this head	Record actual job execution	  "ci_step_3": {
+Fail fast across this head	Record actual job execution	    "outputs": {},
+Fail fast across this head	Record actual job execution	    "outcome": "skipped",
+Fail fast across this head	Record actual job execution	    "conclusion": "skipped"
+Fail fast across this head	Record actual job execution	  }
+Fail fast across this head	Record actual job execution	}
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9625982Z   CI_JOB_RESULT: cancelled
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9626319Z   CI_MATRIX: null
+Fail fast across this head	Record actual job execution	2026-11-03T20:53:13.9626631Z ##[endgroup]
+Fail fast across this head	Upload actual job execution	﻿2026-11-03T20:53:15.2193928Z ##[group]Run actions/upload-artifact@v4
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2194383Z with:
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2195146Z   name: job-evidence-elaborate-ci-fail-fast-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2195766Z   path: <home-path>/work/_temp/job-evidence.json
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2196200Z   if-no-files-found: error
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2196524Z   retention-days: 3
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2196841Z   compression-level: 6
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2197184Z   overwrite: false
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2197508Z   include-hidden-files: false
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2197870Z env:
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2198154Z   VERILATOR_VERSION: v5.050
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2198490Z   CI_BUILD_JOBS: 4
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2198784Z   CI_TOOL_BUILD_JOBS: 4
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2199088Z   CI_CAMPAIGN_JOBS: 4
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2199487Z   VERILATOR_JOBS: 4
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2199771Z   SIM_JOBS: 4
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2200087Z   MAKEFLAGS: -j1 --no-print-directory
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.2200476Z ##[endgroup]
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.3919277Z (node:2445) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.3920520Z (Use `node --trace-deprecation ...` to show where the warning was created)
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.3945155Z With the provided path, there will be 1 file uploaded
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.3965513Z Artifact name is valid!
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.3966560Z Root directory input is valid!
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.7825551Z Beginning upload of artifact content to blob storage
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:15.8005757Z (node:2445) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:16.0129780Z Uploaded bytes 708
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:16.0722717Z Finished uploading artifact content to blob storage!
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:16.0724375Z SHA256 digest of uploaded artifact zip is 2d44d672518bde90baba2d91dfc3ab5a107d3e6e5a45a57bf7b46eb8393b27cd
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:16.0725551Z Finalizing artifact upload
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:16.5869037Z Artifact job-evidence-elaborate-ci-fail-fast-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb.zip successfully finalized. Artifact ID 13270955428
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:16.5870700Z Artifact job-evidence-elaborate-ci-fail-fast-0-214c8eb1eee510e3697ad62ec6a9d763bc75bebb has been successfully uploaded! Final size is 708 bytes. Artifact ID is 13270955428
+Fail fast across this head	Upload actual job execution	2026-11-03T20:53:16.5872000Z Artifact download URL: https://github.com/kebag-logic/milan-fpga/actions/runs/41705989293/artifacts/13270955428
+Fail fast across this head	Post Run actions/checkout@v4	﻿2026-11-03T20:53:16.6064124Z Post job cleanup.
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.6903151Z [command]/usr/bin/git version
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.6948662Z git version 2.56.0
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.6990922Z Temporarily overriding HOME='<home-path>/work/_temp/51972790-d09b-4157-9250-af99b9f97e42' before making global git config changes
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.6992446Z Adding repository directory to the temporary git global config as a safe directory
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.6997839Z [command]/usr/bin/git config --global --add safe.directory <home-path>/work/milan-fpga/milan-fpga
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.7041414Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.7077515Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.7305392Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.7328927Z http.https://github.com/.extraheader
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.7345515Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.7383360Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.7607562Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Fail fast across this head	Post Run actions/checkout@v4	2026-11-03T20:53:16.7656645Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Fail fast across this head	Complete job	﻿2026-11-03T20:53:16.8063519Z Evaluate and set job outputs
+Fail fast across this head	Complete job	2026-11-03T20:53:16.8086725Z Set output 'observer_only_error'
+Fail fast across this head	Complete job	2026-11-03T20:53:16.8088572Z Cleaning up orphan processes
+Fail fast across this head	Complete job	2026-11-03T20:53:16.8283122Z Terminate orphan process: pid (2130) (python3)
+Fail fast across this head	Complete job	2026-11-03T20:53:16.8392621Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
