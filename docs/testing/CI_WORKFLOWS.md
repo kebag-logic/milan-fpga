@@ -3090,9 +3090,14 @@ That worker one projection carried the LiteX aggregate's 597-second window of
 `f6260253`. By 2026-11-03 the aggregate step took 1087, 1161 and 1485 seconds
 hosted, and worker one 2079, 2233 and 2672, in runs 41470524727, 41526004847
 and 41554508699 (#737). Run 41476923392 was cancelled at the 45-minute limit
-inside it. The aggregate now runs in three LiteX legs on workers 2 to 4, so
-worker one projects at its largest measured job time less that step,
-`2672 - 1485`, which is above its projection less the old window.
+inside it in attempts 1 to 3, after 1495, 1511 and 1506 seconds of the step and
+2735, 2734 and 2740 of the job. Over those six runs builder leg 1 took 869 to
+1119 seconds, the largest in attempt 3. The aggregate now runs in three LiteX
+legs on workers 2 to 4, so worker one projects at its largest measured job time
+less that step over the six, `2735 - 1495` in attempt 1, which is above its
+projection less the old window. That figure still holds the Verilator setup
+worker one no longer runs; in run 41583428850 worker one took 1183 seconds and
+its builder leg 1075.
 
 A worker's setup is its job span less its gate steps and its Verilator source
 build, so it holds checkout, installs, cache transfers, recording and upload.
@@ -3129,7 +3134,7 @@ plus 60 seconds for download, extraction and execution evidence.
 | `docs-gates-1` | 1248 | 1620 | 372 |
 | `docs-gates-2` | 1073 | 1620 | 547 |
 | `elaborate-gates-0` | 1475 | 1620 | 145 |
-| `elaborate-gates-1` | 1187 | 1620 | 433 |
+| `elaborate-gates-1` | 1240 | 1620 | 380 |
 | `elaborate-gates-2 (cold)` | 1018 | 1620 | 602 |
 | `elaborate-gates-3 (cold)` | 997 | 1620 | 623 |
 | `elaborate-gates-4 (cold)` | 1077 | 1620 | 543 |
@@ -3171,7 +3176,8 @@ about 27.8 minutes: 135 seconds inside thirty minutes. With its builder
 undivided, the merged workload put the builder worker at 1602 seconds and
 the workflow at 1872, about 31.2 minutes.
 Elaboration projects at 1475 seconds for its slowest worker, worker zero,
-whose largest hosted job time in the runs above was 1227 seconds. The same
+whose largest hosted job time in the runs above was 1254 seconds, cold, in run
+41583428850. The same
 270 seconds of aggregate, collector, watcher and tail allowance gives
 1745 seconds, about 29.1 minutes: 55 seconds inside thirty minutes, so its
 two builder legs are kept. With the LiteX simulations on worker one, its
