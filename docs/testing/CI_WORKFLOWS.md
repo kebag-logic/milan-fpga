@@ -3151,7 +3151,7 @@ row over the runs with the legs apart, 41583428850 and 41678609075 attempts 1
 and 3, where `test_soc_timing_cuts` took 240, 369 and 510 seconds,
 `test_gptp_tx_timestamp` 461, 246 and 462, and `test_ctrl_memory` 280, 224
 and 284. At `LARGEST` the legs hold 462, 448 and 794 seconds, so the LiteX
-workers project cold at 1381, 1367 and 1713 seconds, and at 950, 936 and 1263
+workers project cold at 1381, 1367 and 1713 seconds, and at 950, 936 and 1282
 with Verilator restored. Their measured spans were 585, 616 and 1226 seconds
 in run 41583428850, 706, 1021 and 1178 in run 41678609075 attempt 1, and 906,
 930 and 1194 in its attempt 3, each below its projection.
