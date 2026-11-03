@@ -1,0 +1,114 @@
+[
+ {
+  "id": "S16",
+  "file": "scripts/ci_gate_workflows.py",
+  "breaks": "LiteX workers do not upload their leg receipt",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 0,
+   "gate_selftest": 1,
+   "e2e": 0
+  },
+  "verdict": "KILLED by gate_selftest"
+ },
+ {
+  "id": "S17",
+  "file": "scripts/ci_litex_legs.py",
+  "breaks": "leg runner keeps a stale verdict table",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 0,
+   "gate_selftest": 0,
+   "e2e": 0
+  },
+  "verdict": "SURVIVED"
+ },
+ {
+  "id": "S18",
+  "file": "scripts/run_litex_sims.sh",
+  "breaks": "runner appends to a stale verdict table",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 0,
+   "gate_selftest": 0,
+   "e2e": 0
+  },
+  "verdict": "SURVIVED"
+ },
+ {
+  "id": "S19",
+  "file": "scripts/ci_litex_legs.py",
+  "breaks": "leg budget refusal removed",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 1,
+   "gate_selftest": 1,
+   "e2e": 0
+  },
+  "verdict": "KILLED by legs_selftest,gate_selftest"
+ },
+ {
+  "id": "S20",
+  "file": "scripts/ci_gate_workflows.py",
+  "breaks": "LiteX legs drop the runner --selftest preparation line",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 0,
+   "gate_selftest": 1,
+   "e2e": 0
+  },
+  "verdict": "KILLED by gate_selftest"
+ },
+ {
+  "id": "S21",
+  "file": "scripts/ci_litex_legs.py",
+  "breaks": "leg runner records exit 0 whatever the runner returned",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 0,
+   "gate_selftest": 0,
+   "e2e": 1
+  },
+  "verdict": "KILLED by e2e"
+ },
+ {
+  "id": "S22",
+  "file": "scripts/ci_litex_legs.py",
+  "breaks": "union trusts each receipt's own selection",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 1,
+   "gate_selftest": 1,
+   "e2e": 1
+  },
+  "verdict": "KILLED by legs_selftest,gate_selftest,e2e"
+ },
+ {
+  "id": "S23",
+  "file": "scripts/ci_gate_workflows.py",
+  "breaks": "leg 2 placed on builder worker 1 again",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 0,
+   "gate_selftest": 0,
+   "e2e": 0
+  },
+  "verdict": "SURVIVED"
+ }
+]

@@ -1,0 +1,47 @@
+[
+ {
+  "id": "S0",
+  "file": null,
+  "breaks": "no mutation (baseline)",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 0,
+   "gate_selftest": 0,
+   "scope_selftest": 0,
+   "e2e": 0
+  },
+  "verdict": "BASELINE-GREEN"
+ },
+ {
+  "id": "S7",
+  "file": "scripts/ci_litex_legs.py",
+  "breaks": "partition places one member in two legs",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 1,
+   "gate_selftest": 1,
+   "scope_selftest": 0,
+   "e2e": 1
+  },
+  "verdict": "KILLED by legs_selftest,gate_selftest,e2e"
+ },
+ {
+  "id": "S23",
+  "file": "scripts/ci_gate_workflows.py",
+  "breaks": "leg 2 placed on builder worker 1 again",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 0,
+   "gate_selftest": 0,
+   "scope_selftest": 1,
+   "e2e": 0
+  },
+  "verdict": "KILLED by scope_selftest"
+ }
+]

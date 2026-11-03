@@ -1,0 +1,8 @@
+S8   KILLED by legs_selftest,gate_selftest,e2e                    union no longer refuses a simulation in no leg
+S9   KILLED by legs_selftest,gate_selftest                        union no longer requires each leg's rows to equal its selection
+S10  KILLED by legs_selftest,gate_selftest                        union ignores a red runner exit
+S11  KILLED by legs_selftest,gate_selftest                        union accepts a SKIP
+S12  KILLED by gate_selftest,e2e                                  aggregate never checks the LiteX union
+S13  KILLED by gate_selftest                                      aggregate accepts LiteX receipts from a skipped division
+S14  KILLED by gate_selftest                                      generator runs leg 1 on both worker 3 and worker 4 (leg 2 unrun)
+S15  KILLED by gate_selftest                                      Verilator set up on the builder workers instead of the LiteX workers

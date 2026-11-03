@@ -1,0 +1,8 @@
+S0   BASELINE-GREEN                                               no mutation (baseline)
+S1   KILLED by e2e                                                --only silently runs at most two members
+S2   KILLED by runner_selftest,e2e                                --only ignored: every leg runs the whole inventory
+S3   KILLED by runner_selftest                                    MISSING reconciliation narrowed to the selection
+S4   SURVIVED                                                     a failing member writes no verdict row
+S5   KILLED by e2e                                                every verdict row says PASS
+S6   KILLED by legs_selftest,gate_selftest,e2e                    partition drops the last inventory member from every leg
+S7   SURVIVED                                                     partition places one member in two legs

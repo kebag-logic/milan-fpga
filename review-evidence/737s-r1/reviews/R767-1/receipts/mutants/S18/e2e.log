@@ -1,0 +1,62 @@
+PASS     test_soc_timing_cuts   (0s)
+----------------------------------------------------------------
+simulations: 1   passed: 1   failed: 0   skipped: 0   timed out: 0
+selection: 1 of the 8-member inventory; the reconciliation covered all of it
+logs: $REVIEWS/737s-r767-1-packet/receipts/mutants/S18/e2e/clean/logs-0
+PASS     test_gmii_rx_capture   (0s)
+PASS     test_gptp_tx_timestamp   (0s)
+PASS     test_pp_boot_bus_freeze   (0s)
+PASS     test_pp_mem_bridge   (0s)
+----------------------------------------------------------------
+simulations: 4   passed: 4   failed: 0   skipped: 0   timed out: 0
+selection: 4 of the 8-member inventory; the reconciliation covered all of it
+logs: $REVIEWS/737s-r767-1-packet/receipts/mutants/S18/e2e/clean/logs-1
+PASS     test_cpu_memory_port_cdc   (0s)
+PASS     test_ctrl_memory   (0s)
+PASS     test_retained_cdc_storage   (0s)
+----------------------------------------------------------------
+simulations: 3   passed: 3   failed: 0   skipped: 0   timed out: 0
+selection: 3 of the 8-member inventory; the reconciliation covered all of it
+logs: $REVIEWS/737s-r767-1-packet/receipts/mutants/S18/e2e/clean/logs-2
+PASS     test_soc_timing_cuts   (0s)
+----------------------------------------------------------------
+simulations: 1   passed: 1   failed: 0   skipped: 0   timed out: 0
+selection: 1 of the 8-member inventory; the reconciliation covered all of it
+logs: $REVIEWS/737s-r767-1-packet/receipts/mutants/S18/e2e/fail/logs-0
+PASS     test_gmii_rx_capture   (0s)
+PASS     test_gptp_tx_timestamp   (0s)
+FAIL     test_pp_boot_bus_freeze
+PASS     test_pp_mem_bridge   (0s)
+----------------------------------------------------------------
+simulations: 4   passed: 3   failed: 1   skipped: 0   timed out: 0
+selection: 4 of the 8-member inventory; the reconciliation covered all of it
+failing: test_pp_boot_bus_freeze
+logs: $REVIEWS/737s-r767-1-packet/receipts/mutants/S18/e2e/fail/logs-1
+PASS     test_cpu_memory_port_cdc   (0s)
+PASS     test_ctrl_memory   (0s)
+PASS     test_retained_cdc_storage   (0s)
+----------------------------------------------------------------
+simulations: 3   passed: 3   failed: 0   skipped: 0   timed out: 0
+selection: 3 of the 8-member inventory; the reconciliation covered all of it
+logs: $REVIEWS/737s-r767-1-packet/receipts/mutants/S18/e2e/fail/logs-2
+clean leg exits: [0, 0, 0] selected: [['test_soc_timing_cuts'], ['test_gmii_rx_capture', 'test_gptp_tx_timestamp', 'test_pp_boot_bus_freeze', 'test_pp_mem_bridge'], ['test_cpu_memory_port_cdc', 'test_ctrl_memory', 'test_retained_cdc_storage']]
+ok   clean run / union: pass 
+--require-elaboration: every elaboration arm ran
+ok   clean run / aggregate: pass 
+ok   test_pp_boot_bus_freeze row dropped from leg 1 / union: refused LiteX leg 1 did not run its selection exactly once: test_pp_boot_bus_freeze
+--require-elaboration: every elaboration arm ran
+ok   test_pp_boot_bus_freeze row dropped from leg 1 / aggregate: refused LiteX leg 1 did not run its selection exactly once: test_pp_boot_bus_freeze
+ok   test_pp_boot_bus_freeze moved from leg 1 to leg 2 / union: refused LiteX leg 1: selection differs from its measured leg
+--require-elaboration: every elaboration arm ran
+ok   test_pp_boot_bus_freeze moved from leg 1 to leg 2 / aggregate: refused LiteX leg 1: selection differs from its measured leg
+ok   test_pp_boot_bus_freeze duplicated into leg 2 / union: refused LiteX leg 2 did not run its selection exactly once: order or extra simulations
+--require-elaboration: every elaboration arm ran
+ok   test_pp_boot_bus_freeze duplicated into leg 2 / aggregate: refused LiteX leg 2 did not run its selection exactly once: order or extra simulations
+ok   leg 1 lost / union: refused LiteX simulations ran in no leg: test_gmii_rx_capture, test_gptp_tx_timestamp, test_pp_boot_bus_freeze, test_pp_mem_bridge
+--require-elaboration: every elaboration arm ran
+ok   leg 1 lost / aggregate: refused LiteX simulations ran in no leg: test_gmii_rx_capture, test_gptp_tx_timestamp, test_pp_boot_bus_freeze, test_pp_mem_bridge
+planted-failure leg exits: [0, 1, 0]
+ok   test_pp_boot_bus_freeze failing in a real leg / union: refused test_pp_boot_bus_freeze: FAIL in LiteX leg 1
+--require-elaboration: every elaboration arm ran
+ok   test_pp_boot_bus_freeze failing in a real leg / aggregate: refused test_pp_boot_bus_freeze: FAIL in LiteX leg 1
+e2e: PASS

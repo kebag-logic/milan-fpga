@@ -1,0 +1,114 @@
+[
+ {
+  "id": "S8",
+  "file": "scripts/ci_litex_legs.py",
+  "breaks": "union no longer refuses a simulation in no leg",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 1,
+   "gate_selftest": 1,
+   "e2e": 1
+  },
+  "verdict": "KILLED by legs_selftest,gate_selftest,e2e"
+ },
+ {
+  "id": "S9",
+  "file": "scripts/ci_litex_legs.py",
+  "breaks": "union no longer requires each leg's rows to equal its selection",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 1,
+   "gate_selftest": 1,
+   "e2e": 0
+  },
+  "verdict": "KILLED by legs_selftest,gate_selftest"
+ },
+ {
+  "id": "S10",
+  "file": "scripts/ci_litex_legs.py",
+  "breaks": "union ignores a red runner exit",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 1,
+   "gate_selftest": 1,
+   "e2e": 0
+  },
+  "verdict": "KILLED by legs_selftest,gate_selftest"
+ },
+ {
+  "id": "S11",
+  "file": "scripts/ci_litex_legs.py",
+  "breaks": "union accepts a SKIP",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 1,
+   "gate_selftest": 1,
+   "e2e": 0
+  },
+  "verdict": "KILLED by legs_selftest,gate_selftest"
+ },
+ {
+  "id": "S12",
+  "file": "scripts/ci_gate_receipts.py",
+  "breaks": "aggregate never checks the LiteX union",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 0,
+   "gate_selftest": 1,
+   "e2e": 1
+  },
+  "verdict": "KILLED by gate_selftest,e2e"
+ },
+ {
+  "id": "S13",
+  "file": "scripts/ci_gate_receipts.py",
+  "breaks": "aggregate accepts LiteX receipts from a skipped division",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 0,
+   "gate_selftest": 1,
+   "e2e": 0
+  },
+  "verdict": "KILLED by gate_selftest"
+ },
+ {
+  "id": "S14",
+  "file": "scripts/ci_gate_workflows.py",
+  "breaks": "generator runs leg 1 on both worker 3 and worker 4 (leg 2 unrun)",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 0,
+   "gate_selftest": 1,
+   "e2e": 0
+  },
+  "verdict": "KILLED by gate_selftest"
+ },
+ {
+  "id": "S15",
+  "file": "scripts/ci_gate_workflows.py",
+  "breaks": "Verilator set up on the builder workers instead of the LiteX workers",
+  "rc": {
+   "regenerate": 0,
+   "gen_check": 0,
+   "runner_selftest": 0,
+   "legs_selftest": 0,
+   "gate_selftest": 1,
+   "e2e": 0
+  },
+  "verdict": "KILLED by gate_selftest"
+ }
+]
