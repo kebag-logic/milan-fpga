@@ -1,0 +1,10 @@
+Disposable mutants of the round-2 guards at e180ba30 (one line each; applied, run, restored with git checkout).
+m1 scripts/ci_gate_workflows.py builder_caches: LiteX-step removal replaced by `pass`
+   ci_gate_workflows.py --check rc=1 ("regenerate the gate jobs"); ci_gate_workflows_selftest.py rc=1 AssertionError ('elaborate', 2, [the four cache steps])  -> KILLED
+m2 scripts/ci_gate_workflows.py case_inventory: disjoint-worker check `if set(LITEX_WORKERS...) & set(workers):` -> `if False:`
+   ci_gate_workflows_selftest.py rc=1 AssertionError ('a LiteX leg on a builder worker', "elaborate-gates-1: the builders' shared cache steps are missing or repeated")  -> KILLED (plant checks the message)
+m3 scripts/ci_litex_legs.py union: `type(receipt["exit"]) is not int or` removed
+   ci_litex_legs_selftest.py rc=1 AssertionError: LiteX legs accepted a boolean runner exit  -> KILLED
+m4 scripts/ci_gate_workflows.py builder_caches: exactly-once precheck -> `if False:`
+   ci_gate_workflows_selftest.py rc=1 AssertionError: LiteX legs accepted a builder without its CPU metadata cache  -> KILLED
+Logs: receipts/probe-m*-*.log / .rc (the gsel logs of m1/m2/m4 are the in-clone runs; the archive-copy gsel runs were discarded because the copy lacked submodules).

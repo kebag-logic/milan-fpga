@@ -1,0 +1,25 @@
+LiteX legs refused an inventory member with no measured seconds: no measured seconds for test_new_member; measure it hosted and add it to SECONDS in scripts/ci_litex_legs.py
+LiteX legs refused a measured member gone from the inventory: measured seconds for a member outside the inventory: test_cpu_memory_port_cdc
+LiteX legs refused a leg over its measured budget: a LiteX leg holds 974 measured seconds, above its 973; add a leg
+LiteX partition: 8 members in 3 legs of 461, 440, 520 measured seconds
+LiteX legs refused a simulation dropped from its leg: LiteX leg 0 did not run its selection exactly once: test_gptp_tx_timestamp
+LiteX legs refused a simulation dropped from its leg's selection and results: LiteX leg 0: selection differs from its measured leg
+LiteX legs refused a simulation run in a second leg: LiteX leg 0 did not run its selection exactly once: order or extra simulations
+LiteX legs refused a simulation outside the inventory: LiteX leg 1 ran test_rogue, which is not in the inventory
+LiteX legs refused a failed simulation: test_retained_cdc_storage: FAIL in LiteX leg 1
+LiteX legs refused a skipped simulation: test_retained_cdc_storage: SKIP in LiteX leg 1
+LiteX legs refused a timed-out simulation: test_retained_cdc_storage: TIMEOUT in LiteX leg 1
+LiteX legs refused a red runner exit: LiteX leg 0: the runner exited 1
+Traceback (most recent call last):
+  File "$REVIEWS/737s-r767-2-packet/scratch/probes/m3/scripts/ci_litex_legs_selftest.py", line 199, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/737s-r767-2-packet/scratch/probes/m3/scripts/ci_litex_legs_selftest.py", line 192, in main
+    union_controls()
+    ~~~~~~~~~~~~~~^^
+  File "$REVIEWS/737s-r767-2-packet/scratch/probes/m3/scripts/ci_litex_legs_selftest.py", line 96, in union_controls
+    refused(lambda changed=plant(edit): union(changed, *identity, names), label, expected)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/737s-r767-2-packet/scratch/probes/m3/scripts/ci_litex_legs_selftest.py", line 41, in refused
+    raise AssertionError("LiteX legs accepted " + label)
+AssertionError: LiteX legs accepted a boolean runner exit

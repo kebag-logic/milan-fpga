@@ -1,0 +1,37 @@
+# Run 41678609075 attempt 1, exact head e180ba30 (pull_request merge commit 4ecba02ee20dd3aba524034b29dbf7f1d223326e). Full-log sha256 in vexii-cache-events.txt and below.
+log gates-0.log sha256=fb0c6b022934f912a298c6149fa975cff85ca6099e8c3f871c980e440ecca032
+log gates-1.log sha256=177b8957e0b2bbba71c3061f7fa5648733ded2cfde65e3a98a4829e83b1854c4
+log gates-2.log sha256=dde154c3c914cd2fa6b0761355a438886b548759d51aefb0953ebf302a4f3248
+log gates-3.log sha256=4748dd48288acbb4c6ad125145f248ca5cbd960c8d3df4afb11ce6ff6e6c14bc
+log gates-4.log sha256=42a223c172ee874c73155a69febb175a84c195a0bd67cf91a9844a9f1a9d572a
+log elaborate.log sha256=9defc33329d67890c0afdfef03ea10eab2c2db23cabec689f58f60da82f236ff
+log Fail-fast-across-this-head.log sha256=bbe042851d1271114ae3b8c25d1822ead07cd961514639df807c4705ff9df628
+## verdict rows and selection lines per LiteX leg
+gates-2: 2026-11-03T17:04:08.6931662Z PASS     test_gptp_tx_timestamp   (246s)
+gates-2: 2026-11-03T17:04:08.6932931Z selection: 1 of the 8-member inventory; the reconciliation covered all of it
+gates-3: 2026-11-03T17:03:08.0203600Z PASS     test_cpu_memory_port_cdc   (72s)
+gates-3: 2026-11-03T17:03:08.2333429Z PASS     test_gmii_rx_capture   (0s)
+gates-3: 2026-11-03T17:03:33.9354321Z PASS     test_pp_boot_bus_freeze   (25s)
+gates-3: 2026-11-03T17:03:48.6217196Z PASS     test_pp_mem_bridge   (15s)
+gates-3: 2026-11-03T17:09:24.4536380Z PASS     test_retained_cdc_storage   (336s)
+gates-3: 2026-11-03T17:09:24.4540093Z selection: 5 of the 8-member inventory; the reconciliation covered all of it
+gates-4: 2026-11-03T17:05:51.7437557Z PASS     test_ctrl_memory   (224s)
+gates-4: 2026-11-03T17:12:00.2188929Z PASS     test_soc_timing_cuts   (369s)
+gates-4: 2026-11-03T17:12:00.2190199Z selection: 2 of the 8-member inventory; the reconciliation covered all of it
+## metadata save on builder worker 0 (Post Cache the generated CPU metadata)
+2026-11-03T17:06:46.3747431Z Sent 201 of 201 (100.0%), 0.0 MBs/sec
+2026-11-03T17:06:46.4886901Z Cache saved with key: elaborate-vexii-e8d7156c61dbcf8a00047c9b6357e39bd0430b76bfc5b1fa24cc63f1a44cd265-a2886ad6e2bc2c29d42b93f7ec887b33e0079bbac4ac2a93a04e3c6e5d1a79d4
+## builder worker 1 metadata save
+2026-11-03T17:11:30.4793633Z Failed to save: Unable to reserve cache with key elaborate-vexii-e8d7156c61dbcf8a00047c9b6357e39bd0430b76bfc5b1fa24cc63f1a44cd265-a2886ad6e2bc2c29d42b93f7ec887b33e0079bbac4ac2a93a04e3c6e5d1a79d4, another job may be creating this cache.
+## elaborate aggregate: checkout window and cancel
+2026-11-03T17:14:01.1124273Z [command]/usr/bin/git -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/rem
+2026-11-03T17:18:20.3276490Z ##[error]The operation was canceled.
+annotation failure: The job has exceeded the maximum execution time of 3m0s
+annotation failure: No files were found with the provided path: <home-path>/work/_temp/job-evidence.json. No artifacts will be uploaded.
+annotation failure: Process completed with exit code 2.
+annotation failure: The operation was canceled.
+## fail-fast observation
+2026-11-03T17:18:47.6004853Z {"first_failure": "elaborate", "conclusion": "cancelled"}
+## checkout step seconds per job, run 41583428850 vs run 41678609075 attempt 1
+jobs-41583428850.json: Cancel late CI failures=3; Collect CI manifest=24; Fail fast across this head=2; elaborate-gates-0=23; elaborate-gates-1=22; elaborate-gates-2=16; elaborate-gates-3=22; elaborate-gates-4=22; elaborate=22
+jobs-41678609075-a1.json: Cancel late CI failures=19; Collect CI manifest=107; Fail fast across this head=3; elaborate-gates-0=157; elaborate-gates-1=78; elaborate-gates-2=76; elaborate-gates-3=24; elaborate-gates-4=123; elaborate=260
