@@ -84,11 +84,21 @@ The table's per-pass share section gives each group's work passes, those over th
 [`save_window.py`](save_window.py)'s groups, named `backlog-adp@<phase>-<k>`, open `backlog-adp`'s window, the heaviest the harness stages, while a save of the saved-state store is in each of its flash phases (#665).
 A SET_NAME 1.1 s into the window's 2 s wait for MAAP starts the save, and the bind the window needs is persisted and joins it, so the save's first-dirty window and seal run beside that wait.
 Each phase starts at a flash event of that save, which the stimulus waits for (`wait flash`): the erase for the blank check, the first page program for the program phase, and 30 ms with no program after the last one for the verify.
-`grade.save_phase` refuses a window that did not open inside its phase of the first save, read off the save's page programs in the log's `FLASHOP` lines alone, since its read-backs run in passes the log gives only as their run's longest: after the erase and before the first page, within 30 ms of a page, or 30 ms or more after the last one.
+`grade.save_phase` refuses a window that did not open inside its phase of the first save, read off the save's page programs in the log's `FLASHOP` lines alone, since its read-backs run in passes the log gives only as their run's longest: after the erase and before the first page, within 30 ms of a page or before a later one (an aged window's flood paces a page every other aged step, 60 ms apart), or 30 ms or more after the last one.
 The blank check and the verify read back 128 bytes on every 10 ms tick, so their windows open at eight phases 1.25 ms apart; the program phase issues a page on every other tick, so its windows open at eight phases 2.5 ms apart.
 Each window must commit `backlog-adp`'s defined load, its probe is an instance of `backlog-adp`'s path and its records of the composed rows', and every pass of the group is held to the share.
 The composed maximum stays the four backlog rows' (`grade.BACKLOG_ROWS`).
 They are among every group a point runs, 24 at each point.
+
+**An aged window.**
+A window can open with THE STEP's age above zero: input that leaves no pass empty before it, such as a grandmaster change as every pass starts, holds the step off and its age grows, and a pass that takes nothing is what ends it (`ctrl_loop.h`).
+`save_window.aged_window`'s groups, named `backlog-adp@<phase>-aged<age>-<n>`, open the same window in each flash phase with the age at its limit, `CTRL_LOOP_STEP_AGE`, so the next centisecond makes the next pass an aged step's, and one short of it.
+After the phase's flash event the stimulus starts the grandmaster flood, waits for two of the store's steps (`wait steps`), which leaves the phase's heavy step next (a blank-check read-back, a page's issue, a verify read-back), then for the age's centiseconds in TICK records (`wait ticks`), then one of eight delays spread evenly across the whole tick, 0.625 to 9.375 ms, and stops the flood as the window opens.
+The aged step then lands anywhere in the window's first tick at the limit, or its second one short of it.
+[`save_grade.aged_window`](save_grade.py) proves the age off the log: the centiseconds the TICK records posted since the last pass that carried a step, every pass between that one and the window a work pass; a group whose log shows another age is refused, and so is one at the limit with no aged step taking its phase's heavy step among its records.
+`sim_main.cpp` marks an aged step's pass `aged=1` on its `STEPPASS` line: its step came before the pass addressed the mailbox.
+The table gives each aged window's age, the aged steps among its records (start after the window opened, CPU time, step) and its tightest row with its margin, and the run prints an `AGED` line with the least margin.
+They are among every group a point runs, 48 at each point.
 
 **A save under load, and its stated worst case.**
 `save-held` and `save-starved` time one save from its change, a SET_NAME of the entity, which marks both its names, to durable.
@@ -96,6 +106,10 @@ Through that save's stated worst case and 500 ms more, every receive channel is 
 AECP's first burst comes one refill period after the change, since the SET_NAME takes one of its tokens; the other channels burst at the change, so the SET_NAME's marks fall among their first bursts' records (`save_window.held_arrivals`).
 `save-starved` adds a grandmaster change as every pass starts (`sim_main.cpp`'s `flood gm`), an event source the contract coalesces but does not rate, so no pass takes nothing and the store steps only through THE STEP's age limit (`ctrl_loop.h`).
 The worst case, `save_window.bound_ms`, is the 1,000 ms first-dirty window, then each of the save's steps at most `CTRL_LOOP_STEP_AGE` + 1 ticks after the one before, and 10 ms: 12,110 ms at 8x8 (370 steps) and 4,070 ms at 1x1 (102).
+`save-second` times a change marked while a save is in flight: under the same flood, with no held channels, a SET_NAME just after a step, then 1,035 ms later and one step on, once the save's capture has started and taken the entity's first name, a SET_NAME of the entity to another value (`save_window.second`).
+The capture in flight takes the second name, and the first waits for the next save, which only an idle step starts, so the second change is timed from its mark to durable in the save after the first.
+Its worst case is the rest of the save in flight, all its steps but the two that started its capture and took that name, or its own first-dirty window where that is longer, then its own save's steps, at the same pace, and 10 ms: 22,150 ms at 8x8 (368 and 370 steps) and 6,070 ms at 1x1 (100 and 102).
+`save_grade.save_time` refuses it unless that change came after the first's first-dirty window and before the first save's erase.
 [`save_grade.py`](save_grade.py) reads a save's flash steps off the log, `FLASHOP` with its address and bytes, `FLASHPOLL` and a `FLASHRD` line for each run of journal reads, and times it to the read-back that completes its verify.
 A save not durable within its worst case fails the run, whatever the options record, and the run prints a `SAVE` line for each save it timed.
 A held group whose receive channels did not commit every record its load offered is refused, and each channel's longest record is its row, from its receive commit to the end of the pass that released it.
@@ -1023,7 +1037,9 @@ Its checks:
 - each point's split CPU clock is its bus clock, `sys_clk_hz`, 100 MHz, and its Milan datapath clock stays the bare-metal build contract's 50 MHz; `run.main` builds the CPU on `sys` at the bus clock and records it so, names it on its clock line, refuses a build whose SoC puts the CPU on the Milan clock, and reuses a build on `sys` but refuses one recorded on the Milan clock, off the bus clock or with no CPU domain;
 - a save's stated worst case, restated, at both points; a save is timed from its change to the read-back that completes its verify, within it, over it, or never in the run, and one not within it fails the run whatever the options record; the age limit's plant is caught by `save-starved`'s save not durable within it, and escapes with every save within it, only `save-held`'s late, or a refusal; every receive channel of the held groups is at its contract refill rate with its bursts through the worst case, AECP's from one refill period after the change, and `save-starved` alone has the grandmaster flood; a held group that commits fewer records than its load offered is refused; every pass that carries the store's step is counted, idle or work, with the longest and the longest step;
 - a save's window is refused outside its flash phase, the verify's ending when its read-backs have read back every programmed byte;
-  these four are [`selftest_share.py`](selftest_share.py)'s, which `selftest.py` runs.
+- each flash phase's aged windows open after the save's own flash event, under the grandmaster flood, two steps and the age's centiseconds later, at the age limit and one short of it, at eight delays across the whole tick; an aged window is graded only at the age its name declares, counted in the TICK records' centiseconds since its last step with every pass between them a work pass, and at the limit only with an aged step taking its phase's heavy step among its records;
+- a change marked while a save is in flight is a SET_NAME of the entity to another value, 1,035 ms and one step after a first, under the flood, and its worst case, restated, at both points, is the rest of the save in flight or its own first-dirty window, then its own save; it is timed to durable in the next save, and refused when marked inside the first change's first-dirty window or after the save in flight erased its slot;
+  these six are [`selftest_share.py`](selftest_share.py)'s, which `selftest.py` runs.
 
 Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, and a named check must fail:
 
@@ -1126,6 +1142,7 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | clock: the CPU's domain is not checked | a build whose SoC puts the CPU on the Milan clock is refused and records nothing |
 | clock: the CPU's clock is not checked against the bus clock | the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain |
 | clock: a reused build is not checked | the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain |
+| save: the program phase ends at the window's last page, not the save's | a save's window is refused unless it opens inside its flash phase of the first save |
 | save: a verify window is graded after its read-backs read back the container | a save's window is refused unless it opens inside its flash phase of the first save |
 | save: the bound counts one tick a step, not the age limit's | a save's stated worst case is its 1,000 ms first-dirty window, then each of its steps at most three ticks after the one before |
 | save: the bound leaves out the verify's read-backs | a save's stated worst case is its 1,000 ms first-dirty window, then each of its steps at most three ticks after the one before |
@@ -1140,6 +1157,24 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | save: the held AECP channel bursts with its change, the SET_NAME's token not yet back | the held AECP channel's first burst comes one refill period after the change |
 | steps: a pass that carries a step and writes nothing to the mailbox is left out | every pass that carries the store's step is counted, a pass that writes nothing to the mailbox and a work pass alike |
 | steps: a work pass that carries a step is left out | every pass that carries the store's step is counted, a pass that writes nothing to the mailbox and a work pass alike |
+| save: the in-flight change's bound leaves out the save in flight | a change marked while a save is in flight, after its capture took the change's first record, waits for the rest of that save |
+| save: the in-flight change waits for every step of the save in flight | a change marked while a save is in flight, after its capture took the change's first record, waits for the rest of that save |
+| save: the in-flight change's wait not its first-dirty window where that is longer | a change marked while a save is in flight, after its capture took the change's first record, waits for the rest of that save |
+| save: the second change timed to the save in flight | a change marked while a save is in flight is timed from its mark to durable in the next save |
+| save: a second change not marked while the save is in flight is graded | a change marked while a save is in flight is timed from its mark to durable in the next save |
+| save: the second change the same name as the first | a change while a save is in flight is a SET_NAME of the entity to another value |
+| save: the second change marked before the save in flight's capture | a change while a save is in flight is a SET_NAME of the entity to another value |
+| aged: the opening age counts TICK records, not their centiseconds | an aged window is graded only at the age its name declares |
+| aged: the age counted from the window's lead, not from its last step | an aged window is graded only at the age its name declares |
+| aged: a pass that took nothing before the window does not end the age | an aged window is graded only at the age its name declares |
+| aged: a window opened at another age than its name declares is graded | an aged window is graded only at the age its name declares |
+| aged: a window at the age limit with no aged step among its records is graded | an aged window is graded only at the age its name declares |
+| aged: the program phase's aged step need not be a page's issue | an aged window is graded only at the age its name declares |
+| aged: the heavier aged step's plant is judged as a budget control | the heavier aged step's plant is caught by an aged window's row over its budget |
+| aged: one delay an aged window | each flash phase's aged window opens after the save's own flash event |
+| aged: the delays across the tick's first 8.75 ms only | each flash phase's aged window opens after the save's own flash event |
+| aged: windows at the age limit only | each flash phase's aged window opens after the save's own flash event |
+| aged: the program phase's window one step short of a page's issue | each flash phase's aged window opens after the save's own flash event |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
@@ -1171,6 +1206,15 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 ```
 
 Its save must not be durable within its stated worst case, with no refusal: it prints `CONTROL store-step-ageless caught`; a save within it, or a refusal, is `ESCAPED`.
+
+The planted heavier aged step runs the verify's aged windows at the age limit with the pass given whole to an aged step holding the CPU 0.8 ms longer, by the step's own clock, about one read-back step more:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-aged-heavier --mutation store-step-aged-heavier
+```
+
+Some aged window's row must go over its budget, with no refusal: it prints `CONTROL store-step-aged-heavier caught`, naming the windows; every row within its budget, a miss outside the aged windows only, or a refusal is `ESCAPED`.
 
 Three controls run the full harness, here on the cacheless core S2 measured them on:
 

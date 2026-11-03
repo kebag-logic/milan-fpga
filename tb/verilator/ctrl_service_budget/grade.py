@@ -114,6 +114,9 @@ class Log:
     #: start, CPU cycles and the store's own cycles of each pass that carries the store's step and writes nothing
     #: to the mailbox (STEPPASS); a work pass that carries one has step=1 and store= among its fields
     step_passes: list[tuple[int, int, int]] = field(default_factory=list)
+    #: every pass that carries the store's step, a work pass's too: its index, start, CPU cycles, the store's own
+    #: cycles, and whether it was an aged step's (STEPPASS aged=1, THE STEP)
+    stepped: list[tuple[int, int, int, int, bool]] = field(default_factory=list)
     steps: list[tuple[int, str]] = field(default_factory=list)
     summary: dict[str, str] = field(default_factory=dict)
     modules: dict[str, int] = field(default_factory=dict)
@@ -194,6 +197,8 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
                       for w in body[1].split()] if len(body) > 1 else []
             modules = {m.split(':')[0]: int(m.split(':')[1]) for m in fields.pop('mods', '').split(',') if m}
             log.passes.append(Pass(index, start_sys, start_cpu, cycles, fields, writes, modules, idle_max))
+            if fields.get('step'):
+                log.stepped.append((index, start_sys, cycles, int(fields.get('store', 0)), False))
             idle_max = 0
             log.writes.extend(writes)
             log.cut_idle = False
@@ -224,6 +229,8 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             log.floods.append((int(rest[0]), int(rest[2])))
         elif kind == 'STEPPASS':
             log.step_passes.append((int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2])))
+            log.stepped.append((int(rest[0]), int(rest[1]), int(rest[3]), int(rest[4].partition('=')[2]),
+                                'aged=1' in rest[5:]))
         elif kind in ('FLASH', 'REPLY', 'TXREADY', 'PC', 'FETCH'):
             continue
         elif kind == 'FAIL:':
@@ -812,6 +819,7 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
     held = grader.events_held(start)
     check_load(group, got, [(tag, size) for c, _, tag, size in grader.log.refused if start <= c <= end], held)
     save_phase(grader.log, group.name, start)
+    aged = save_grade.aged_window(grader, group, start, end)
     inside = composed_passes(grader.log, start, end)
     if not inside:
         raise Refusal(f'{group.name}: no work pass starts inside the composed window')
@@ -820,7 +828,7 @@ def composed(grader: Grader, group: scenario.Group, marks: dict[str, int]) -> di
     return dict(cycles=top.cycles, ms=round(grader.cpu_ms(top.cycles), 5), instr=top.count('instr'),
                 passes=len(inside), start_sys=top.start_sys, modules=top.modules, population=got,
                 admission=group.admission, events_held=held, serviced=not left, unreleased=left,
-                window_ms=round(grader.ms(end - start), 5))
+                window_ms=round(grader.ms(end - start), 5), aged=aged)
 
 
 #: The operations sim_main.cpp's FLASHOP line names: a sector erase and a page program.
@@ -830,10 +838,11 @@ FLASH_ERASE, FLASH_PROGRAM = 0xD8, 0x02
 def save_phase(log: Log, name: str, start: int) -> None:
     """A save's window (save_window.py) must open inside the flash phase its name gives, of the first save
     the log shows (save_grade.first_save): after its erase and before its first page program (the blank check);
-    within save_window.IDLE_MS of a page, which the program phase issues every other tick (the program phase); or
-    that long or more after its last page, with no later page, while its read-backs have not yet read back every
-    programmed byte (the verify). Refused otherwise, so that its passes are that phase's."""
-    phase = name.partition('@')[2].rpartition('-')[0]
+    after a page and within save_window.IDLE_MS of it, which the program phase issues every other tick, or before a
+    later page, as under a flood that paces a page every other aged step (the program phase); or that long or more
+    after its last page, with no later page, while its read-backs have not yet read back every programmed byte (the
+    verify). Refused otherwise, so that its passes are that phase's."""
+    phase = name.partition('@')[2].partition('-')[0]
     if not phase:
         return
     save = save_grade.first_save(log)
@@ -843,7 +852,7 @@ def save_phase(log: Log, name: str, start: int) -> None:
     idle = save_window.IDLE_MS * log.sys_hz // 1000
     checked = sum(n for end, n in save.verified if end < start)
     inside = {'blank': save.erase < start and not before,
-              'program': bool(before) and start - before[-1] < idle,
+              'program': bool(before) and (start - before[-1] < idle or len(before) < len(save.pages)),
               'verify': bool(before) and start - before[-1] >= idle and len(before) == len(save.pages)
               and checked < save.image}
     if not inside.get(phase, False):

@@ -1,9 +1,10 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
-"""A save's grading (#665): the first save a log shows, read off the store's flash steps; its time from the change
-to durable against its stated worst case (save_window.bound_ms); each channel's longest record while every
-channel is held at its refill rate; and the passes that carry the store's step (THE STEP). grade.grade calls
-these for every group; grade.save_phase reads a save's flash phases off first_save.
+"""A save's grading (#665): the saves a log shows, read off the store's flash steps; a change's time from its mark to
+durable against its stated worst case (save_window.bound_ms), a change while a save is in flight's too; each
+channel's longest record while every channel is held at its refill rate; the passes that carry the store's step
+(THE STEP); and an aged window's opening age and the aged step among its records. grade.grade calls these for every
+group; grade.save_phase reads a save's flash phases off first_save.
 """
 from __future__ import annotations
 
@@ -26,15 +27,15 @@ class Save:
     steps: list[int]                        # every flash step's cycle from its erase to durable (or the log's end)
 
 
-def first_save(log: grade.Log) -> Save | None:
-    """The log's first save: its erase, the pages programmed before the next erase, and the slot's read-backs
-    after the last page, the verify, which ends when they have read back every programmed byte (nvm_store.c,
-    the verify step); None when the log shows no erase."""
+def first_save(log: grade.Log, n: int = 0) -> Save | None:
+    """The log's first save (or its n-th after it): its erase, the pages programmed before the next erase, and the
+    slot's read-backs after the last page, the verify, which ends when they have read back every programmed byte
+    (nvm_store.c, the verify step); None when the log shows no such erase."""
     erases = [(c, a) for c, op, a, _ in log.flash_ops if op == grade.FLASH_ERASE]
-    if not erases:
+    if len(erases) <= n:
         return None
-    erase, base = erases[0]
-    stop = erases[1][0] if len(erases) > 1 else 1 << 62
+    erase, base = erases[n]
+    stop = erases[n + 1][0] if len(erases) > n + 1 else 1 << 62
     pages = [(c, a, n) for c, op, a, n in log.flash_ops if op == grade.FLASH_PROGRAM and erase < c < stop]
     image = sum(n for *_, n in pages)
     last = pages[-1][0] if pages else 1 << 62
@@ -67,28 +68,44 @@ def merged_reads(log: grade.Log) -> list[tuple[int, int, int, int]]:
 
 
 def save_time(log: grade.Log, group: scenario.Group) -> dict | None:
-    """A save from its change, the group's save.change mark, to durable (first_save), against its stated worst
-    case (save_window.bound_ms, from the image the group declares): durable within the bound, or not, or never
-    in the run. The longest gap between consecutive flash steps of the save is reported beside it."""
+    """A change from its mark, the group's save.change, to durable (first_save), against its stated worst case
+    (save_window.bound_ms, from the image the group declares): durable within the bound, or not, or never in the
+    run. A group that declares a save in flight (save_window.second) times its save.second instead, to durable in
+    the save after the first, against the bound with that save in flight, and is refused unless that change was
+    marked past the first's first-dirty window and before the first save's erase. The longest gap between
+    consecutive flash steps of the save is reported beside it."""
     if not group.save:
         return None
     marks = {name: cycle for cycle, name in log.marks}
-    if 'save.change' not in marks:
-        raise grade.Refusal(f'{group.name}: the save was never marked')
-    change = marks['save.change']
-    save = first_save(log)
+    flight = group.save.get('flight')
+    which = 'save.change' if flight is None else 'save.second'
+    if which not in marks:
+        raise grade.Refusal(f'{group.name}: the save was never marked ({which})')
+    change = marks[which]
+    save = first_save(log, 0 if flight is None else 1)
+    if flight is not None and not in_flight(log, marks, change):
+        raise grade.Refusal(f"{group.name}: its second change at {change} was not marked past the first change's "
+                            f"first-dirty window and before the save in flight erased its slot")
     image, records = group.save['image'], group.save['records']
     if save is not None and save.pages and save.image != image:
         raise grade.Refusal(f'{group.name}: the save programmed {save.image} bytes, its image is {image}')
-    bound = save_window.bound_ms(image, records)
+    bound = save_window.bound_ms(image, records, flight=flight)
     durable = save.durable if save is not None else None
     ms = round(log.ms_of(durable - change), 3) if durable is not None else None
     end = int(log.summary.get('sys', 0))
     gaps = [b - a for a, b in zip(save.steps, save.steps[1:])] if save is not None else []
     return dict(change_sys=change, durable_sys=durable, ms=ms, bound_ms=bound, within=ms is not None and ms <= bound,
-                waited_ms=round(log.ms_of(end - change), 3), image=image, records=records,
+                waited_ms=round(log.ms_of(end - change), 3), image=image, records=records, flight=flight,
                 steps=save_window.steps(image, records), flash_steps=len(save.steps) if save else 0,
                 longest_gap_ms=round(log.ms_of(max(gaps)), 3) if gaps else None, flooded=bool(log.floods))
+
+
+def in_flight(log: grade.Log, marks: dict[str, int], change: int) -> bool:
+    """A second change at change was marked while the first change's save was in flight: past the first's
+    first-dirty window, so its capture may have started, and before that save erased its slot."""
+    first = first_save(log)
+    return ('save.change' in marks and first is not None
+            and marks['save.change'] + save_window.DIRTY_MS * log.sys_hz // 1000 < change < first.erase)
 
 
 def held_load(log: grade.Log, group: scenario.Group) -> None:
@@ -149,3 +166,86 @@ def step_figures(grader: grade.Grader) -> dict:
     longest, store = max(passes, key=lambda r: r[1]), max(passes, key=lambda r: r[2])
     return dict(passes=len(passes), cycles=longest[1], ms=round(grader.cpu_ms(longest[1]), 5), start_sys=longest[0],
                 store_cycles=store[2], store_ms=round(grader.cpu_ms(store[2]), 5), store_start_sys=store[0])
+
+
+#: The event type of a TICK record (the contract's), whose word 1 carries its centiseconds.
+EV_TICK = next(e.value for e in scenario.CONTRACT.event_types if e.name == 'TICK')
+
+
+def step_kind(log: grade.Log, start: int, cycles: int) -> str:
+    """What the store's step did in the pass [start, start + cycles] (the CPU runs on the bus clock): a page's
+    issue, a read-back, a busy poll, an erase, or a step that touched no flash (the capture, the seal, an idle
+    store's)."""
+    end = start + cycles * log.sys_hz // log.cpu_hz
+    if any(start <= c <= end for c, op, _, _ in log.flash_ops if op == grade.FLASH_PROGRAM):
+        return 'issue'
+    if any(start <= c <= end for c, op, _, _ in log.flash_ops if op == grade.FLASH_ERASE):
+        return 'erase'
+    if any(start <= first <= end for first, *_ in log.reads):
+        return 'read-back'
+    return 'poll' if any(start <= c <= end for c in log.polls) else 'none'
+
+
+#: The step an aged window's phase must take as its aged step (save_window.AGED_LEAD).
+AGED_KIND = {'blank': 'read-back', 'program': 'issue', 'verify': 'read-back'}
+
+
+def opening_age(log: grade.Log, last: int, start: int) -> int:
+    """The step's age as a window opens at start: the centiseconds the TICK records posted after the last pass that
+    carried the step started at last (ctrl_loop.c counts centiseconds, a TICK record carries one or more)."""
+    return sum(w[1] & 0xFFFF for c, w in log.records if last < c <= start and w[0] & 0xFF == EV_TICK)
+
+
+def empty_passes(log: grade.Log, index: int, start: int) -> list[int]:
+    """The passes after pass index, up to the one running at start, that took nothing: no work pass by that index
+    (sim_main.cpp prints a pass that writes nothing to the mailbox only in its run's IDLE line)."""
+    work = {p.index for p in log.passes}
+    running = max((p.index for p in log.passes if p.start_sys <= start), default=index)
+    return [i for i in range(index + 1, running + 1) if i not in work]
+
+
+def aged_steps(grader: grade.Grader, start: int, until: int) -> list[dict]:
+    """The aged steps' passes (STEPPASS aged=1) that start in [start, until): each one's start after start, CPU time,
+    the store's own and its step (step_kind)."""
+    log = grader.log
+    return [dict(start_ms=round(log.ms_of(s - start), 3), cycles=c, ms=round(grader.cpu_ms(c), 5), store=st,
+                 kind=step_kind(log, s, c)) for _, s, c, st, aged in log.stepped if aged and start <= s < until]
+
+
+def aged_refusal(name: str, age: int, got: int, empty: list[int], among: list[dict]) -> str | None:
+    """Why an aged window is refused, or None: it opened at another age than its name declares, a pass took nothing
+    between its last step and its opening, or, at the age limit, no aged step taking its phase's heavy step ran among
+    its records (AGED_KIND)."""
+    phase = name.partition('@')[2].partition('-')[0]
+    if empty:
+        return (f"{len(empty)} pass(es) took nothing between its last step and its window, so the step's age "
+                "started again")
+    if got != age:
+        return f"the window opened with the step's age at {got} centiseconds, not {age}"
+    if age == save_window.step_age() and not any(a['kind'] == AGED_KIND[phase] for a in among):
+        return f"opened at the age limit, but no aged {AGED_KIND[phase]} ran among its records ({among})"
+    return None
+
+
+def aged_window(grader: grade.Grader, group: scenario.Group, start: int, end: int) -> dict | None:
+    """An aged window's (save_window.aged_window) opening age and the aged steps among its records.
+
+    The age is opening_age from the last pass that carried the store's step before the window, through passes that
+    each took input (empty_passes: a pass that takes nothing ends the age, ctrl_loop.c). The aged steps among its
+    records start after it opened and before the last of its records is released (aged_steps). Refused for
+    aged_refusal's reasons; otherwise the age, the aged steps and the last release, after the window opened."""
+    age = save_window.aged_age(group.name)
+    if age is None:
+        return None
+    log = grader.log
+    before = [s for s in log.stepped if s[1] < start]
+    if not before:
+        raise grade.Refusal(f"{group.name}: no pass carried the store's step before its window, so it has no age")
+    index, last = before[-1][:2]
+    released = [r for ch in grade.CHANNEL for c, _, r in grade.releases(log, ch) if start <= c <= end and r]
+    last_release = max(released, default=end)
+    among = aged_steps(grader, start, last_release)
+    refusal = aged_refusal(group.name, age, opening_age(log, last, start), empty_passes(log, index, start), among)
+    if refusal:
+        raise grade.Refusal(f'{group.name}: {refusal}')
+    return dict(age=age, last_step_sys=last, among=among, last_release_ms=round(log.ms_of(last_release - start), 3))

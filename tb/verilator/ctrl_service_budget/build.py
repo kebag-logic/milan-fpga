@@ -82,11 +82,23 @@ MUTATIONS = {
     # and is not durable within its stated worst case (save_window.bound_ms).
     'store-step-ageless': ('loop/ctrl_loop.c', 'l->step_age > CTRL_LOOP_STEP_AGE',
                            'l->step_age > CTRL_LOOP_STEP_AGE + l->step_age', 'save-starved', 'none'),
+    # #665's planted heavier aged step: the pass given whole to an aged step holds the CPU AGED_HEAVIER_US longer,
+    # by the step's own clock, about one read-back step more, so a row of an aged window (save_window.aged_window)
+    # whose aged step lands among its records must go over its budget while the pass stays within the share.
+    'store-step-aged-heavier': ('loop/ctrl_loop.c',
+                                '\t\t(void)l->step(l->step_ctx, deadline);\n\t\tl->stats.passes++;',
+                                '\t\t(void)l->step(l->step_ctx, deadline);\n'
+                                '\t\tfor (uint32_t at = l->clock(l->clock_ctx);'
+                                ' l->clock(l->clock_ctx) - at < 800u;) {\n'
+                                '\t\t}\n\t\tl->stats.passes++;',
+                                ','.join(g for g in save_window.aged_names() if '@verify-aged2-' in g), 'none'),
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
 #: The controls whose finding is a save not durable within its stated worst case, by its group's name.
 SAVE_CONTROLS = ('store-step-ageless',)
+#: The controls whose finding is a row of an aged window over its budget, with no refusal.
+AGED_CONTROLS = ('store-step-aged-heavier',)
 
 
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never
@@ -479,6 +491,9 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
               f"constexpr unsigned tmr_cmd_word = 0x{spec['tmr_cmd'] // 4:x}u;",
               f"constexpr unsigned evt_tail_word = 0x{spec['evt_tail'] // 4:x}u;",
               f"constexpr unsigned ev_words = {spec['ev_words']}u;",
+              f"constexpr unsigned ev_tick_type = {spec['ev_tick']['type']}u;",
+              f"constexpr unsigned ev_tick_count_lsb = {spec['ev_tick']['count_lsb']}u;",
+              f"constexpr std::uint32_t ev_tick_count_mask = 0x{(1 << spec['ev_tick']['count_width']) - 1:x}u;",
               'constexpr unsigned tx_head_word(unsigned ch) {',
               f"    return (0x{spec['ch_base']:x}u + ch * 0x{spec['ch_stride']:x}u + 0x{spec['tx_head']:x}u) / 4u;",
               '}']
@@ -682,8 +697,11 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
     from mailbox_model import load
     contract = load()
     regs = {r.name: r.offset for r in contract.registers}
+    tick = next(e for e in contract.event_types if e.name == 'TICK')
+    count = next(f for w in tick.words if w.index == 1 for f in w.fields if f.name == 'COUNT')
     spec.update(channels=len(contract.channels), filter_en=regs['FILTER_EN'], tmr_cmd=regs['TMR_CMD'],
                 evt_tail=regs['EVT_TAIL'], ev_words=contract.ev_words,
+                ev_tick=dict(type=tick.value, count_lsb=count.lsb, count_width=count.width),
                 ch_base=contract.ch_base, ch_stride=contract.ch_stride,
                 tx_head={r.name: r.offset for r in contract.ch_registers}['TX_HEAD'])
     verilate(build_dir, spec, table, JOBS)

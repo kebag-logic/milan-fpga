@@ -144,6 +144,41 @@ def saves(results: list[dict]) -> list[dict]:
     return [dict(g['save'], group=g['group']) for g in results if g.get('save')]
 
 
+def aged(results: list[dict]) -> list[dict]:
+    """Each aged window (save_window.aged_window): its opening age, the aged steps among its records
+    (save_grade.aged_window), and its tightest row, the one with the least margin to its budget."""
+    out = []
+    for g in results:
+        window = g['passes'].get('composed') or {}
+        if not window.get('aged'):
+            continue
+        rows = [r for r in g['probes'] if r.get('status') == 'measured' and 'budget_ms' in r]
+        tight = min(rows, key=lambda r: r['budget_ms'] - r['ms'])
+        out.append(dict(window['aged'], group=g['group'], row=tight['probe'], ms=tight['ms'],
+                        budget_ms=tight['budget_ms'], margin_ms=round(tight['budget_ms'] - tight['ms'], 5)))
+    return out
+
+
+def aged_table(results: list[dict]) -> list[str]:
+    """The aged windows' section of the table: each window's opening age, its aged steps, its tightest row."""
+    rows = aged(results)
+    if not rows:
+        return []
+    lines = ['', "Aged windows, opened with THE STEP's age at its limit or one short of it (save_window.aged_window): "
+             "the aged steps among the window's records (start after the window opened, CPU time, the step) and the "
+             "window's tightest row:", '', "| Group | Age at opening | Aged steps among its records | Tightest row | "
+             "ms (budget) | Margin ms |", '|---|---:|---|---|---:|---:|']
+    for a in rows:
+        steps = '; '.join(f"+{s['start_ms']:.3f} ms, {s['cycles']:,} ({s['ms']:.3f} ms), {s['kind']}"
+                          for s in a['among']) or 'none'
+        lines.append(f"| {a['group']} | {a['age']} | {steps} | `{a['row']}` | {a['ms']:.3f} ({a['budget_ms']:g}) | "
+                     f"{a['margin_ms']:.3f} |")
+    least = min(rows, key=lambda a: a['margin_ms'])
+    lines += ['', f"Least margin over the aged windows: {least['margin_ms']:.3f} ms, `{least['row']}` at "
+              f"{least['ms']:.3f} ms."]
+    return lines
+
+
 def save_misses(results: list[dict]) -> list[str]:
     """Each save not durable within its stated worst case (save_window.bound_ms), named by its group."""
     out = []
@@ -160,15 +195,15 @@ def save_table(results: list[dict]) -> list[str]:
     rows = saves(results)
     if not rows:
         return []
-    lines = ['', "Saves, from the change to durable (save_window.bound_ms: the first-dirty window, then each step at "
-             "most CTRL_LOOP_STEP_AGE + 1 ticks after the one before):", '',
-             '| Group | Durable ms | Stated worst case ms | Steps | Longest gap between flash steps, ms | '
-             'Grandmaster flood | Verdict |', '|---|---:|---:|---:|---:|---|---|']
+    lines = ['', "Saves, from the change to durable (save_window.bound_ms: the first-dirty window, or the rest of a "
+             "save in flight, then each step at most CTRL_LOOP_STEP_AGE + 1 ticks after the one before):", '',
+             '| Group | Durable ms | Stated worst case ms | Steps | Save in flight, records | Longest gap between '
+             'flash steps, ms | Grandmaster flood | Verdict |', '|---|---:|---:|---:|---:|---:|---|---|']
     for s in rows:
         durable = f"{s['ms']:.3f}" if s['ms'] is not None else f"not by {s['waited_ms']:.3f}"
         gap = f"{s['longest_gap_ms']:.3f}" if s['longest_gap_ms'] is not None else '-'
-        lines.append(f"| {s['group']} | {durable} | {s['bound_ms']:,} | {s['steps']} | {gap} | "
-                     f"{'yes' if s['flooded'] else 'no'} | {'within' if s['within'] else 'OVER'} |")
+        lines.append(f"| {s['group']} | {durable} | {s['bound_ms']:,} | {s['steps']} | {s.get('flight') or '-'} | "
+                     f"{gap} | {'yes' if s['flooded'] else 'no'} | {'within' if s['within'] else 'OVER'} |")
     return lines
 
 
@@ -249,6 +284,7 @@ def table(results: list[dict], point: str, clock: str = '') -> str:
                   'Over the windows that released their whole load only: '
                   + (f"{done['cycles']:,} ({done['ms']:.3f} ms), {done['group']}." if done else 'none.')]
     lines += share_table(results)
+    lines += aged_table(results)
     lines += save_table(results)
     lines += step_table(results)
     lines += ['', '| Path | Probe | CPU cycles | ms | Budget (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
@@ -278,7 +314,7 @@ def summary(point: str, build: str, results: list[dict], refusals: list[str], mi
     return dict(point=point, build=build, results=results, paths=paths(results), counts=counts(results),
                 windows=windows(results), composed_maximum=composed_maximum(results),
                 refusals=refusals, misses=misses, share_misses=list(shares), saves=saves(results),
-                save_misses=save_misses(results))
+                save_misses=save_misses(results), aged=aged(results))
 
 
 def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
@@ -417,6 +453,16 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
         print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} save(s) not durable within '
               f'their stated worst case ({", ".join(named) or "none"}), {len(refusals)} refusal(s)')
         return 0 if caught else 1
+    if args.mutation in builder.AGED_CONTROLS:
+        # caught where an aged window's row goes over its budget, each named by its group
+        import save_window
+        aged_groups = {g.name for g in groups if save_window.aged_age(g.name) is not None}
+        named = sorted({m.partition(':')[0].partition('.')[0] for m in misses} & aged_groups)
+        caught = bool(named) and not refusals
+        print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} aged window(s) with a row '
+              f'over its budget ({", ".join(named) or "none"}), {len(shares)} with a pass over the share, '
+              f'{len(refusals)} refusal(s)')
+        return 0 if caught else 1
     if args.mutation != 'none':
         paths_ = [p.name for g in groups for p in g.probes if p.name.startswith('control.')]
         caught = [m for m in misses if m.split(':')[0] in paths_]
@@ -507,6 +553,12 @@ def main() -> int:
         print(f"STEPS {sum(s['passes'] for _, s in stepped)} passes carry the store's step; the longest "
               f"{top['cycles']:,} CPU cycles ({top['ms']:.3f} ms), {group}; the longest step {store['store_cycles']:,} "
               f"({store['store_ms']:.3f} ms), {where}")
+    opened = aged(results)
+    if opened:
+        least = min(opened, key=lambda a: a['margin_ms'])
+        print(f"AGED {len(opened)} windows opened with the step's age at its limit or one short of it, "
+              f"{sum(len(a['among']) for a in opened)} aged steps among their records; the least margin "
+              f"{least['margin_ms']:.3f} ms, {least['row']} at {least['ms']:.3f} ms")
     for s in saves(results):
         print('SAVE', f"{s['group']}:", f"durable {s['ms']:.3f} ms after its change" if s['ms'] is not None else
               f"not durable {s['waited_ms']:.3f} ms after its change", f"(stated worst case {s['bound_ms']:,} ms,",

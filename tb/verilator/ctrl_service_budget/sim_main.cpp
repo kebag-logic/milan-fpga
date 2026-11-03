@@ -67,6 +67,8 @@ struct Pass {
     std::array<std::uint64_t, N_REGIONS> fetch{}, fetch_wait{}, load{}, store{}, lsu_wait{};
     unsigned mbx_writes = 0;
     bool step = false;   // the saved-state store's step was entered (step_pc)
+    bool mbx_seen = false;  // the pass has addressed the mailbox
+    bool aged = false;   // the step was entered before the pass addressed the mailbox: an aged step's (THE STEP)
     std::string writes;  // the mailbox writes, "cycle:word:value" each
     std::array<std::uint64_t, n_modules + 1> module_cycles{};
 };
@@ -105,7 +107,7 @@ public:
         }
         if (evt_write(dut)) {
             std::printf("EVW %llu %u %08x\n", ull(sys_), evt_addr(dut), evt_data(dut));
-            if (evt_addr(dut) % ev_words == ev_words - 1) ++evt_posted_;
+            event_word(evt_addr(dut) % ev_words, evt_data(dut));
         }
         egress_sample(dut);
         ingress_sample(dut);
@@ -218,6 +220,15 @@ private:
         egress_.clear();
     }
 
+    // One word of an event record: a whole record is posted, and a TICK record's centiseconds counted.
+    void event_word(unsigned word, std::uint32_t data) {
+        if (word == 0) evt_type_ = data & 0xffu;
+        if (word == 1) evt_count_ = (data >> ev_tick_count_lsb) & ev_tick_count_mask;
+        if (word != ev_words - 1) return;
+        ++evt_posted_;
+        if (evt_type_ == ev_tick_type) centiseconds_ += evt_count_;
+    }
+
     void ingress_sample(Vsim& dut) {
         gm_pulse_ = 0;
         if (frames_.empty() || sys_ < ingress_at_ || !dut.mbx_rx_valid || !dut.mbx_rx_ready) return;
@@ -294,7 +305,10 @@ private:
                 std::printf("PC %llu %08x\n", ull(cpu_), last_pc_);
             }
             if (last_pc_ == pass_pc) pass_boundary();
-            if (last_pc_ == step_pc) pass_.step = true;
+            if (last_pc_ == step_pc) {
+                pass_.step = true;
+                pass_.aged = pass_.aged || !pass_.mbx_seen;
+            }
             // A function entry a probe starts at (a test-only entry's call), by its symbol.
             for (unsigned e = 0; e < n_entries; ++e)
                 if (last_pc_ == entry_pc[e]) std::printf("ENTRY %llu %s\n", ull(sys_), entry_name[e]);
@@ -331,6 +345,7 @@ private:
             const auto r = region_of(lsu_address(dut));
             const bool write = lsu_write(dut);
             (write ? pass_.store : pass_.load)[r] += 1;
+            pass_.mbx_seen = pass_.mbx_seen || r == MBX;
             lsu_at_[lsu_cmd_id(dut)] = {cpu_, r, write, lsu_address(dut)};
         }
         if (lsu_rsp_valid(dut)) {
@@ -386,15 +401,17 @@ private:
 
     void finish_pass() {
         const auto cycles = cpu_ - pass_.start_cpu;
+        if (pass_.step) ++step_passes_;
         if (pass_.mbx_writes == 0) {
             ++idle_count_;
             idle_max_ = std::max(idle_max_, cycles);
             idle_min_ = std::min(idle_min_, cycles);
             ++quiet_run_;
-            // A pass that carries the store's step though it writes nothing to the mailbox (THE STEP, ctrl_loop.h).
+            // A pass that carries the store's step though it writes nothing to the mailbox (THE STEP, ctrl_loop.h),
+            // aged=1 when the step came before the pass addressed the mailbox, as an aged step's pass takes it.
             if (pass_.step)
-                std::printf("STEPPASS %llu %llu %llu %llu store=%llu\n", ull(passes_), ull(pass_.start_sys),
-                            ull(pass_.start_cpu), ull(cycles), ull(store_cycles()));
+                std::printf("STEPPASS %llu %llu %llu %llu store=%llu aged=%u\n", ull(passes_), ull(pass_.start_sys),
+                            ull(pass_.start_cpu), ull(cycles), ull(store_cycles()), unsigned(pass_.aged));
             return;
         }
         quiet_run_ = 0;
@@ -435,6 +452,10 @@ private:
             return tmr_writes_.at(slot).at(op) > tmr_mark_.at(slot).at(op);
         }
         if (s.op == "quiet") return frames_.empty() && quiet_run_ >= std::stoul(s.args.at(0));
+        // steps <n>: n passes that carried the store's step have ended; ticks <n>: TICK records carrying n
+        // centiseconds have been posted (an aged window's opening age, save_window.py).
+        if (s.op == "steps") return step_passes_ - steps_mark_ >= std::stoull(s.args.at(0));
+        if (s.op == "ticks") return centiseconds_ - ticks_mark_ >= std::stoull(s.args.at(0));
         if (s.op == "drained") return frames_.empty();
         // events <n>: the event ring holds at most n records the core has not released.
         if (s.op == "events") return evt_posted_ - evt_released_ / ev_words <= std::stoull(s.args.at(0));
@@ -496,6 +517,8 @@ private:
                     wait_from_ = sys_;
                     tx_mark_ = tx_commits_;
                     wire_mark_ = wire_frames_;
+                    steps_mark_ = step_passes_;
+                    ticks_mark_ = centiseconds_;
                     quiet_run_ = 0;
                 }
                 std::vector<std::string> args(s.args.begin() + 1, s.args.end());
@@ -592,6 +615,9 @@ private:
     std::array<unsigned, n_ch> tx_commits_{}, tx_mark_{};
     std::array<std::array<unsigned, 4>, 256> tmr_writes_{}, tmr_mark_{};  // per slot and op
     std::uint64_t evt_posted_ = 0, evt_released_ = 0;  // event records posted, words released
+    std::uint32_t evt_type_ = 0, evt_count_ = 0;          // the record being posted: its type, a TICK's count
+    std::uint64_t centiseconds_ = 0, ticks_mark_ = 0;      // centiseconds the TICK records posted carried
+    std::uint64_t step_passes_ = 0, steps_mark_ = 0;       // passes that carried the store's step
     std::uint32_t evt_tail_ = 0;
     unsigned wire_frames_ = 0, wire_mark_ = 0;
     std::vector<std::uint8_t> egress_;

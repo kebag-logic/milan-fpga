@@ -38,9 +38,9 @@ def _first_save(edit: Callable[[save_grade.Save], dict]) -> list:
     """save_grade.first_save with some of its findings replaced."""
     original = save_grade.first_save
 
-    def first_save(log: grade.Log) -> save_grade.Save | None:
+    def first_save(log: grade.Log, n: int = 0) -> save_grade.Save | None:
         """The mutant first save."""
-        save = original(log)
+        save = original(log, n)
         return dataclasses.replace(save, **edit(save)) if save is not None else None
     return [patch.object(save_grade, 'first_save', first_save)]
 
@@ -582,6 +582,9 @@ MUTANTS: dict[str, Patches] = {
     'save: the phase read off the last save, not the first': lambda: [patch.object(
         grade, 'save_phase', lambda log, name, start, f=grade.save_phase: f(dataclasses.replace(
             log, flash_ops=_from_last_erase(log.flash_ops)), name, start))],
+    "save: the program phase ends at the window's last page, not the save's": lambda: [patch.object(
+        grade, 'save_phase', lambda log, name, start, f=grade.save_phase: f(dataclasses.replace(
+            log, flash_ops=[op for op in log.flash_ops if op[0] < start]), name, start))],
     "save: a verify window is graded after its read-backs read back the container": lambda: _first_save(
         lambda save: dict(verified=[])),
     "save: the bound counts one tick a step, not the age limit's": lambda: [patch.object(
@@ -604,6 +607,48 @@ MUTANTS: dict[str, Patches] = {
     'save: the held load a burst once, then nothing': lambda: [patch.object(
         save_window, 'arrivals', lambda p, run_ms, f=save_window.arrivals: [
             a for a in f(p, run_ms) if a[0] < 1])],
+    "save: the in-flight change's bound leaves out the save in flight": lambda: [patch.object(
+        save_window, 'bound_ms', lambda image, records, age=None, flight=None, f=save_window.bound_ms: f(
+            image, records, age))],
+    "save: the in-flight change waits for every step of the save in flight": lambda: [patch.object(
+        save_window, 'bound_ms', lambda image, records, age=None, flight=None, f=save_window.bound_ms: f(
+            image, records, age, flight) + (60 if flight else 0))],
+    "save: the in-flight change's wait not its first-dirty window where that is longer": lambda: [patch.object(
+        save_window, 'bound_ms', lambda image, records, age=None, flight=None, f=save_window.bound_ms: f(
+            image, records, age) if flight is None else 30 * (save_window.steps(image, flight) - 2
+                                                             + save_window.steps(image, records)) + 10)],
+    'save: the second change timed to the save in flight': lambda: [patch.object(
+        save_grade, 'first_save', lambda log, n=0, f=save_grade.first_save: f(log, 0))],
+    'save: a second change not marked while the save is in flight is graded': lambda: [patch.object(
+        save_grade, 'in_flight', lambda log, marks, change: True)],
+    'save: the second change the same name as the first': lambda: [patch.object(
+        save_window, 'set_name', lambda p, value=b'save', f=save_window.set_name: f(p))],
+    "save: the second change marked before the save in flight's capture": lambda: [patch.object(
+        save_window, 'SECOND_MS', 500)],
+    'aged: the opening age counts TICK records, not their centiseconds': lambda: [patch.object(
+        save_grade, 'opening_age', lambda log, last, start: sum(
+            1 for c, w in log.records if last < c <= start and w[0] & 0xFF == save_grade.EV_TICK))],
+    "aged: the age counted from the window's lead, not from its last step": lambda: [patch.object(
+        save_grade, 'opening_age', lambda log, last, start, f=save_grade.opening_age: f(log, 0, start))],
+    'aged: a pass that took nothing before the window does not end the age': lambda: [patch.object(
+        save_grade, 'empty_passes', lambda log, index, start: [])],
+    "aged: a window opened at another age than its name declares is graded": lambda: [patch.object(
+        save_grade, 'aged_refusal', lambda name, age, got, empty, among, f=save_grade.aged_refusal: f(
+            name, age, age, empty, among))],
+    'aged: a window at the age limit with no aged step among its records is graded': lambda: [patch.object(
+        save_grade, 'aged_refusal', lambda name, age, got, empty, among, f=save_grade.aged_refusal: f(
+            name, age, got, empty, among or [dict(kind=k) for k in save_grade.AGED_KIND.values()]))],
+    "aged: the program phase's aged step need not be a page's issue": lambda: [patch.dict(
+        save_grade.AGED_KIND, program='read-back')],
+    "aged: the heavier aged step's plant is judged as a budget control": lambda: [patch.object(
+        build, 'AGED_CONTROLS', ())],
+    'aged: one delay an aged window': lambda: [patch.object(save_window, 'AGED_DELAYS', (5.0,))],
+    "aged: the delays across the tick's first 8.75 ms only": lambda: [patch.object(
+        save_window, 'AGED_DELAYS', tuple(1.25 * n for n in range(8)))],
+    'aged: windows at the age limit only': lambda: [patch.object(
+        save_window, 'aged_windows', lambda p, ages=None, f=save_window.aged_windows: f(p, (save_window.step_age(),)))],
+    "aged: the program phase's window one step short of a page's issue": lambda: [patch.object(
+        save_window, 'AGED_LEAD', 1)],
     'steps: a pass that carries a step and writes nothing to the mailbox is left out': lambda: [patch.object(
         save_grade, 'step_figures', lambda grader, f=save_grade.step_figures: f(grade.Grader(dataclasses.replace(
             grader.log, step_passes=[]))))],

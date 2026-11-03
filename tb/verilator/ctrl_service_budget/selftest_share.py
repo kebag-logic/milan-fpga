@@ -12,8 +12,10 @@ clock, and build.json and every line say so; a build whose SoC puts the CPU on t
 refused, and so is a reused build that records its CPU there or records no domain. A pass that
 writes nothing to the mailbox is held to the share by its run's longest (sim_main.cpp's IDLE line).
 A save in a composed window (save_window.py) is staged at eight tick phases of each flash phase,
-after the save's own flash event, and its window carries backlog-adp's load. Each check is
-(name, held, detail), as selftest.py's.
+after the save's own flash event, and its window carries backlog-adp's load; an aged window opens with
+THE STEP's age at its limit or one short of it, at eight delays across the whole tick, and is graded
+only with that age proven off its log; a change while a save is in flight is timed against the bound
+with that save in flight. Each check is (name, held, detail), as selftest.py's.
 """
 from __future__ import annotations
 
@@ -30,6 +32,7 @@ import yaml
 import build
 import grade
 import run
+import save_grade
 import save_window
 import scenario
 import share
@@ -165,7 +168,98 @@ def save_checks() -> list[Check]:
     return [("each flash phase of a save is staged at eight tick phases spread evenly across its heavy step's "
              "period, the window opening after the save's own flash event", got == expect, str(got)),
             ("a save's window carries backlog-adp's defined load", all(loads) and len(loads) == 24, str(loads)),
-            *phase_checks(), *bound_checks(), *held_checks()]
+            *aged_staging_checks(p, want), *second_checks(p), *phase_checks(), *bound_checks(), *held_checks()]
+
+
+def aged_staging_checks(p: scenario.Point, want: dict) -> list[Check]:
+    """Each flash phase's aged windows: after the save's own flash event, a grandmaster change as every pass starts,
+    two of the store's steps, the age's centiseconds, a delay, then the window, at the age limit and one short of
+    it, at eight delays spread evenly across the whole tick."""
+    ms = scenario.MS
+    seen: dict[tuple[str, int], list[float]] = {}
+    shaped = []
+    for g in save_window.aged_windows(p):
+        n = next(k for k, step in enumerate(g.steps) if step.startswith('wait flash '))
+        phase, age = g.name.partition('@')[2].partition('-')[0], save_window.aged_age(g.name)
+        opening = g.steps[n:n + 6 + len(scenario.OPEN_WINDOW)]
+        shaped.append(opening[0].partition(' within ')[0] == f'wait {want[phase][0]}'
+                      and opening[1] == 'flood gm 1' and opening[2] == f'wait steps 2 within {200 * ms}'
+                      and opening[3] == f'wait ticks {age} within {40 * ms}' and opening[5] == 'flood gm 0'
+                      and opening[6:] == list(scenario.OPEN_WINDOW)
+                      and grade.defined_load(g.name) == grade.defined_load('backlog-adp'))
+        seen.setdefault((phase, age), []).append(int(opening[4].split()[-1]) / ms)
+    tick = save_window.TICK_MS
+    spread = [round((n + 0.5) * tick / 8, 6) for n in range(8)]
+    got = {key: [round(d, 6) for d in sorted(delays)] for key, delays in seen.items()}
+    expect = {(phase, age): spread for phase in want for age in (2, 1)}
+    return [("each flash phase's aged window opens after the save's own flash event, a grandmaster change as every "
+             "pass starts, two of the store's steps and its age's centiseconds, at the age limit (two) and one short "
+             "of it, eight delays spread evenly across the whole tick, with backlog-adp's defined load",
+             got == expect and all(shaped) and len(shaped) == 48, str((got, shaped.count(False))))]
+
+
+def second_checks(p: scenario.Point) -> list[Check]:
+    """A change while a save is in flight: under the flood, a SET_NAME just after a step, then 1,035 ms later, after
+    the next step, a SET_NAME of the entity to another value, timed against the bound with that save in flight."""
+    ms = scenario.MS
+    g = save_window.second(p, 13_256)
+    first, again = (f'frame 0 {save_window.set_name(p, v).hex()}' for v in (b'save', b'again'))
+    k = g.steps.index('mark save.change')
+    got = g.steps[k - 2:k + 6]
+    want = ['flood gm 1', f'wait steps 1 within {100 * ms}', 'mark save.change', first,
+            f'wait cycles {1035 * ms}', f'wait steps 1 within {100 * ms}', 'mark save.second', again]
+    return [("a change while a save is in flight is a SET_NAME of the entity to another value, 1,035 ms and one step "
+             "after a first just after a step, under a grandmaster change as every pass starts, timed against the "
+             "bound with that save of two records in flight", got == want and first != again and 'flood gm 0' in
+             g.steps and g.save == dict(image=13_256, records=2, flight=2), str((got, g.save)))]
+
+
+def aged_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
+    """An aged window's opening age, proven off its log, and the aged step among its records (save_grade.aged_window),
+    or a refusal."""
+    def tick(cycle: int, count: int) -> list[str]:
+        """A TICK record of count centiseconds posted at cycle, its four EVW words."""
+        return [f'EVW {cycle} {k} {v:08x}' for k, v in enumerate((save_grade.EV_TICK, count, 0, 0))]
+
+    def graded(name: str, ticks: list[tuple[int, int]], gap: bool = False, aged: str | None = 'read-back') -> object:
+        """The window [5000, 9000] after the step at 1000, its passes between them work passes but for gap's."""
+        lines = ['STEPPASS 10 1000 500 80000 store=76000 aged=1', 'PASS 11 2000 1000 5000 instr=10 W 2100:1:0',
+                 *([] if gap else ['PASS 12 3000 1500 5000 instr=10 W 3100:1:0']),
+                 'PASS 13 4000 2000 5000 instr=10 W 4100:1:0', *(w for c, n in ticks for w in tick(c, n)),
+                 'MARK 5000 composed', 'PASS 14 5500 2750 5000 instr=10 W 5600:1:0']
+        if aged:
+            lines += ['STEPPASS 15 6000 3000 77000 store=76500 aged=1',
+                      {'read-back': 'FLASHRD 6100 6200 ee0000 128', 'issue': 'FLASHOP 6100 2 ee0100 256'}[aged]]
+        lines += ['PASS 16 7000 3500 5000 instr=10 W 7100:1:0', 'MARK 9000 composed_end']
+        log = grade.parse('\n'.join(lines) + '\n', sys_hz, cpu_hz)
+        try:
+            return save_grade.aged_window(grade.Grader(log), scenario.Group(name), 5000, 9000)
+        except grade.Refusal:
+            return None
+    verify, program, short = 'backlog-adp@verify-aged2-0', 'backlog-adp@program-aged2-0', 'backlog-adp@verify-aged1-0'
+    two = [(3000, 1), (4500, 1)]
+    cases = [graded(verify, two), graded(verify, [(3000, 1)]), graded(verify, [(3000, 2)]),
+             graded(verify, two, gap=True), graded(verify, two, aged=None), graded(program, two),
+             graded(program, two, aged='issue'), graded(short, [(3000, 1)], aged=None),
+             graded(verify, [(900, 1), *two])]
+    got = [None if c is None else (c['age'], [(a['start_ms'], a['kind']) for a in c['among']]) for c in cases]
+    at = round(1000 / sys_hz * 1000, 3)
+    want = [(2, [(at, 'read-back')]), None, (2, [(at, 'read-back')]), None, None, None, (2, [(at, 'issue')]),
+            (1, []), (2, [(at, 'read-back')])]
+    out = [("an aged window is graded only at the age its name declares, the centiseconds its TICK records carried "
+            "since its last step, every pass between them a work pass, and, at the age limit, with an aged step "
+            "taking its phase's heavy step (a read-back, a page's issue) among its records; one short of it needs "
+            "none", got == want, str(got))]
+    control = argparse.Namespace(cpu_regions='cover', mutation='store-step-aged-heavier', record_budget_findings=False,
+                                 record_share_findings=False)
+    groups = [scenario.Group('backlog-adp@verify-aged2-3'), scenario.Group('backlog')]
+    miss = 'backlog-adp@verify-aged2-3.service.srp.last.if0: 0.4 ms over its budget 18 ms'
+    cases = (([miss], []), ([], []), (['backlog.service.srp.last.if0: x'], []), ([miss], ['refused']))
+    verdicts = [run.verdict(control, groups, refusals, misses, [], []) for misses, refusals in cases]
+    out.append(("the heavier aged step's plant is caught by an aged window's row over its budget, and escapes with "
+                "every row within it, a miss in another group only, or a refusal", verdicts == [0, 1, 1, 1],
+                str(verdicts)))
+    return out
 
 
 #: The journal slot a synthetic save writes, the flash device's journal (sim_main.cpp, flash.hpp).
@@ -202,27 +296,35 @@ def phase_checks() -> list[Check]:
     later = synthetic_save(ms, [30, 50, 70], verify)
     later = (later[0] + [(200 * ms, grade.FLASH_ERASE, SLOT + 0x10000, 0),
                          (220 * ms, grade.FLASH_PROGRAM, SLOT + 0x10000, 256)], later[1], later[2])
+    flooded = synthetic_save(ms, [30, 90, 150], [200, 230, 260, 290, 320, 350])
     cases = [('blank', 20, first, True), ('blank', 5, first, False), ('blank', 40, first, False),
              ('program', 40, first, True), ('program', 80, first, True), ('program', 20, first, False),
              ('program', 105, first, False), ('verify', 105, first, True), ('verify', 60, first, False),
              ('verify', 105, another, False), ('verify', 105, later, True), ('verify', 145, first, True),
-             ('verify', 155, first, False)]
+             ('verify', 155, first, False), ('program', 80, flooded, True), ('program', 160, flooded, True),
+             ('program', 185, flooded, False)]
     got = [opens(*case[:3]) for case in cases]
     want = [case[3] for case in cases]
     return [("a save's window is refused unless it opens inside its flash phase of the first save: the blank check "
-             "between the erase and the first page, the program phase within 30 ms of a page, the verify 30 ms or "
-             "more after its last page with no later page and before its read-backs have read back every "
-             "programmed byte", got == want, str(got))]
+             "between the erase and the first page, the program phase within 30 ms of a page or before a later one, "
+             "as a flooded save's pages 60 ms apart, the verify 30 ms or more after its last page with no later page "
+             "and before its read-backs have read back every programmed byte", got == want, str(got))]
 
 
 def bound_checks() -> list[Check]:
     """A save's stated worst case, restated here on purpose (#665): a changed age limit or step count must fail."""
     got = (save_window.step_age(), save_window.CHANGED, save_window.steps(13_256, 2), save_window.bound_ms(13_256, 2),
            save_window.steps(3_336, 2), save_window.bound_ms(3_336, 2))
+    flight = tuple(save_window.bound_ms(image, 2, flight=2) for image in (13_256, 3_336, 768))
     return [("a save's stated worst case is its 1,000 ms first-dirty window, then each of its steps at most three "
              "ticks after the one before (THE STEP's age limit, two centiseconds, plus one), and 10 ms: for a SET_NAME "
              "of the entity, which marks its two names, 12,110 ms at 8x8/2if (370 steps of a 13,256-byte container) "
-             "and 4,070 ms at 1x1 (102 of 3,336 bytes)", got == (2, 2, 370, 12_110, 102, 4_070), str(got))]
+             "and 4,070 ms at 1x1 (102 of 3,336 bytes)", got == (2, 2, 370, 12_110, 102, 4_070), str(got)),
+            ("a change marked while a save is in flight, after its capture took the change's first record, waits for "
+             "the rest of that save, its steps less two, or its own first-dirty window where that is longer, then its "
+             "own: for a SET_NAME of the entity beside another's save, 22,150 ms at 8x8/2if (368 and 370 steps), "
+             "6,070 ms at 1x1 (100 and 102), and a 768-byte container's 1,820 ms, its window the longer",
+             flight == (22_150, 6_070, 1_820), str(flight))]
 
 
 def save_time_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
@@ -264,7 +366,39 @@ def save_time_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
     out.append(("the age limit's plant is caught by save-starved's save not durable within its stated worst case, and "
                 "escapes with every save within it, only save-held's late, or a refusal", got == [0, 1, 1, 1],
                 str(got)))
-    return out
+    return out + second_time_checks(sys_hz, cpu_hz)
+
+
+def second_time_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
+    """A change while a save is in flight, timed from its mark to durable in the save after the first, against the
+    bound with that save in flight, and refused unless marked after the first's first-dirty window and before the
+    first save's erase (save_grade.save_time, save_grade.in_flight)."""
+    ms = sys_hz // 1000
+    group = scenario.Group('second', save=dict(image=768, records=2, flight=2))
+
+    def timed(second_ms: int) -> dict | None:
+        """The second change's grade, marked at second_ms, the two saves erasing at 1,200 and 2,000 ms."""
+        ops, runs, _ = synthetic_save(ms, [1300, 1500, 1700], [1210, 1220, 1230, 1240, 1250, 1260,
+                                                               1800, 1810, 1820, 1830, 1840, 1850], erase=1200)
+        ops2, runs2, _ = synthetic_save(ms, [2100, 2300, 2500], [2010, 2020, 2030, 2040, 2050, 2060,
+                                                                 2600, 2610, 2620, 2630, 2640, 2650], erase=2000)
+        moved = 0x10000
+        lines = ['MARK 0 save.change', f'MARK {second_ms * ms} save.second',
+                 *(f'FLASHOP {c} {op} {a:06x} {n}' for c, op, a, n in ops),
+                 *(f'FLASHOP {c} {op} {a + moved:06x} {n}' for c, op, a, n in ops2),
+                 *(f'FLASHRD {a} {b} {c:06x} {n}' for a, b, c, n in runs),
+                 *(f'FLASHRD {a} {b} {c + moved:06x} {n}' for a, b, c, n in runs2),
+                 f'SUMMARY passes=1 sys={3000 * ms}', 'RESULT: PASS']
+        try:
+            return grade.grade('\n'.join(lines) + '\n', group, sys_hz, cpu_hz)['save']
+        except grade.Refusal:
+            return None
+    marked, early, late = timed(1100), timed(900), timed(1300)
+    got = (marked and (marked['ms'], marked['bound_ms'], marked['within'], marked['flight']), early, late)
+    return [("a change marked while a save is in flight is timed from its mark to durable in the next save, against "
+             "the bound with that save in flight, and refused when marked inside the first change's first-dirty "
+             "window or after the save in flight erased its slot", got == ((1550.7, 1_820, True, 2), None, None),
+             str(got))]
 
 
 def held_checks() -> list[Check]:
@@ -341,4 +475,4 @@ def step_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
     got = (s['passes'], s['cycles'], s['store_cycles'], s['start_sys'])
     return [("every pass that carries the store's step is counted, a pass that writes nothing to the mailbox and a "
              "work pass alike, with the longest of them and the longest step's own CPU time",
-             got == (3, 120_000, 95_000, 9000), str(s))]
+             got == (3, 120_000, 95_000, 9000), str(s)), *aged_checks(sys_hz, cpu_hz)]

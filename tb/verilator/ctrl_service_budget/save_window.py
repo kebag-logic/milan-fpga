@@ -60,6 +60,18 @@ CHANGED = 2
 #: The change's own pass, which marks its record, and the passes between a tick's posting and the aged pass it
 #: triggers (the event's pass bound and the aged pass, each within the 2.0 ms share, ctrl_loop.h), in ms.
 SLACK_MS = 10
+#: An aged window (aged_window) opens this many ms after the last centisecond of its age was posted: TICK_PHASES
+#: delays spread evenly across the whole tick, so the aged step the next centisecond brings lands anywhere in the
+#: window's first tick (at the age limit) or its second (one short of it).
+AGED_DELAYS = tuple(TICK_MS * (n + 0.5) / TICK_PHASES for n in range(TICK_PHASES))
+#: The store's steps an aged window lets pass under the flood after its phase's flash event, so the phase's heavy step
+#: is next: the erase's issue and its one wait before the first blank-check read-back, a page's issue and its wait
+#: before the next page's issue, two of the verify's read-backs before the next.
+AGED_LEAD = 2
+#: A change in flight's second change (second), after the first's mark: its first-dirty window, the step that starts
+#: its capture 20 ms past it under the flood (the first change marks just after a step), and 15 ms, half a step period
+#: short of the step that takes the entity's first name.
+SECOND_MS = DIRTY_MS + 35
 #: The receive channels' bursts start this far apart, in ms, so no burst queues behind another's at the
 #: ingress and each channel's arrivals keep their period exactly (KL_mbx_rx.sv refills on the ms tick).
 OFFSET_MS = 0.2
@@ -90,23 +102,47 @@ def steps(image: int, records: int) -> int:
     return 1 + records + 1 + math.ceil((image - TRAILER) / PAGE) + 2 + reads + 2 * pages + reads
 
 
-def bound_ms(image: int, records: int, age: int | None = None) -> int:
-    """A save's worst case from its change to durable: its first-dirty window, then each of its steps at most
-    age + 1 ticks after the one before (THE STEP's age limit), and SLACK_MS. A flash part's busy time adds its
-    erase's polls, one a step."""
+def bound_ms(image: int, records: int, age: int | None = None, flight: int | None = None) -> int:
+    """A change's worst case from its mark to durable: its first-dirty window, then each step of its save at most
+    age + 1 ticks after the one before (THE STEP's age limit), and SLACK_MS. A change marked while a save of flight
+    records is in flight, after that save's capture took the first record the change names (nvm_store.c, nvm_mark),
+    waits for the rest of that save, its steps less the two that started its capture and took that record, at the
+    same pace, or its own first-dirty window if that is longer, before its own save's steps. A flash part's busy
+    time adds its erase's polls, one a step."""
     age = step_age() if age is None else age
-    return DIRTY_MS + steps(image, records) * (age + 1) * TICK_MS + SLACK_MS
+    per = (age + 1) * TICK_MS
+    wait = DIRTY_MS if flight is None else max(DIRTY_MS, (steps(image, flight) - 2) * per)
+    return wait + steps(image, records) * per + SLACK_MS
 
 
-def set_name(p: scenario.Point) -> bytes:
+def set_name(p: scenario.Point, value: bytes = b'save') -> bytes:
     """A SET_NAME of the entity's name, which the store persists (IEEE 1722.1-2021 7.4.17)."""
-    name = b'save'.ljust(64, b'\0')
+    name = value.ljust(64, b'\0')
     return f.aem_command(f.Aem(p.entity_id, scenario.CTL2, scenario.CTL_MAC, p.mac, 0x6f00), 0x0010,
                          bytes(8) + name)
 
 
 def window(p: scenario.Point, phase: str, k: int) -> scenario.Group:
     """backlog-adp's window opened at tick phase k of a save's flash phase."""
+    event, delay, period = PHASES[phase]
+    return staged(p, row_names()[list(PHASES).index(phase) * TICK_PHASES + k], phase,
+                  [f'wait cycles {(delay + k * period / TICK_PHASES) * scenario.MS:.0f}'])
+
+
+def aged_window(p: scenario.Point, phase: str, age: int, n: int) -> scenario.Group:
+    """backlog-adp's window opened in a save's flash phase with THE STEP's age at `age` centiseconds, AGED_DELAYS[n]
+    ms after the last of them was posted: a grandmaster change as every pass starts from the phase's flash event
+    (sim_main.cpp's flood), so no pass takes nothing and the store steps only through its age limit, AGED_LEAD steps,
+    which leave the phase's heavy step next, then `age` centiseconds, then the window."""
+    ms = scenario.MS
+    return staged(p, f'backlog-adp@{phase}-aged{age}-{n}', phase,
+                  ['flood gm 1', f'wait steps {AGED_LEAD} within {200 * ms}', f'wait ticks {age} within {40 * ms}',
+                   f'wait cycles {AGED_DELAYS[n] * ms:.0f}', 'flood gm 0'])
+
+
+def staged(p: scenario.Point, name: str, phase: str, opening: list[str]) -> scenario.Group:
+    """backlog-adp's window, its set-up's SET_NAME starting a save, opened by `opening` after the save's flash
+    event that starts the phase."""
     ms = scenario.MS
     acmp, adp, aecp = scenario.CH['acmp'], scenario.CH['adp'], scenario.CH['aecp']
     disc = f.adp(f.ADP_DISCOVER, 0, scenario.CTL_MAC, f.Adp(valid_time=0))
@@ -116,9 +152,9 @@ def window(p: scenario.Point, phase: str, k: int) -> scenario.Group:
     last_gm = max(n for n in range(15) if n % p.interfaces == 0)
     current = f.adp(f.ADP_AVAILABLE, scenario.TALKER_A, scenario.TALKER_A_MAC,
                     f.Adp(valid_time=10, gm_id=0x0A0B0C0DFFFE0000 + last_gm, **caps))
-    event, delay, period = PHASES[phase]
+    event = PHASES[phase][0]
     event = f'idle {IDLE_MS * ms}' if event == 'idle' else event
-    g = scenario.Group(row_names()[list(PHASES).index(phase) * TICK_PHASES + k], sim_ms=8000)
+    g = scenario.Group(name, sim_ms=8000)
     scenario.ready(g, p)
     # scenario.announced's wait for MAAP, with the SET_NAME inside it; backlog-adp's bound talker's bind is
     # persisted too, and joins the same save
@@ -127,8 +163,7 @@ def window(p: scenario.Point, phase: str, k: int) -> scenario.Group:
           f'frame 0 {scenario.acmp_cmd(p, "BIND_RX", 0, 0x7000).hex()}', f'wait tx {acmp} 2 within {20 * ms}',
           'wait quiet 3 within 2000000', f'frame 0 {avail.hex()}', 'wait quiet 3 within 2000000',
           f'frame 0 {gone.hex()}', f'wait cycles {50 * ms}', 'wait quiet 3 within 2000000',
-          f'wait flash {event} within {6000 * ms}', f'wait cycles {(delay + k * period / TICK_PHASES) * ms:.0f}',
-          *scenario.OPEN_WINDOW)
+          f'wait flash {event} within {6000 * ms}', *opening, *scenario.OPEN_WINDOW)
     scenario.gm_run(g, p)
     scenario.composed_load(g, p, own='adp')
     for n in range(scenario.admission('adp', disc)['at_once'] - 1):
@@ -227,21 +262,62 @@ def loaded(p: scenario.Point, name: str, flood: bool, image: int) -> scenario.Gr
     return g
 
 
+def second(p: scenario.Point, image: int) -> scenario.Group:
+    """A change marked while a save is in flight, just after that save's capture took the first record the change
+    names, timed from its mark to durable against bound_ms with that save in flight: under a grandmaster change as
+    every pass starts, so the store steps once every CTRL_LOOP_STEP_AGE + 1 ticks, a SET_NAME just after a step,
+    then SECOND_MS later, past its first-dirty window and the step that starts its save's capture, the next step,
+    which takes the entity's first name, and then a SET_NAME of the entity to another value. The capture in flight
+    takes its second name; its first waits for a save of its own (nvm_store.c, nvm_mark)."""
+    run_ms = bound_ms(image, CHANGED, flight=CHANGED) + 500
+    g = scenario.Group('save-second', sim_ms=int(SECOND_MS + run_ms) + 2800,
+                       save=dict(image=image, records=CHANGED, flight=CHANGED))
+    scenario.ready(g, p)
+    scenario.announced(g)
+    ms = scenario.MS
+    g.add('flood gm 1', f'wait steps 1 within {100 * ms}', 'mark save.change', f'frame 0 {set_name(p).hex()}',
+          f'wait cycles {SECOND_MS * ms}', f'wait steps 1 within {100 * ms}', 'mark save.second',
+          f'frame 0 {set_name(p, b"again").hex()}', f'wait cycles {round(run_ms * ms)}', 'flood gm 0',
+          'wait quiet 3 within 2000000')
+    return g
+
+
 def windows(p: scenario.Point) -> list[scenario.Group]:
     """The window at every tick phase of every flash phase."""
     return [window(p, phase, k) for phase in PHASES for k in range(TICK_PHASES)]
 
 
+def aged_windows(p: scenario.Point, ages: tuple[int, ...] | None = None) -> list[scenario.Group]:
+    """The window in every flash phase opened at each of `ages` (the age limit and one short of it), at every delay
+    across the tick."""
+    ages = (step_age(), step_age() - 1) if ages is None else ages
+    return [aged_window(p, phase, age, n) for phase in PHASES for age in ages for n in range(len(AGED_DELAYS))]
+
+
 def groups(p: scenario.Point, build: dict) -> list[scenario.Group]:
-    """The windows, the save alone, and a save under every channel at its refill rate, without and with no pass
-    that takes nothing, each of the build's image's container."""
+    """The windows, opened from idle and aged, the save alone, a save under every channel at its refill rate,
+    without and with no pass that takes nothing, and a change while a save is in flight, each of the build's
+    image's container."""
     image = container(build)
-    return [*windows(p), alone(p, image), loaded(p, 'save-held', False, image), loaded(p, 'save-starved', True, image)]
+    return [*windows(p), *aged_windows(p), alone(p, image), loaded(p, 'save-held', False, image),
+            loaded(p, 'save-starved', True, image), second(p, image)]
 
 
 def row_names() -> list[str]:
     """The groups' names, at any point: build.py's planted store step runs them."""
     return [f'backlog-adp@{phase}-{k}' for phase in PHASES for k in range(TICK_PHASES)]
+
+
+def aged_names() -> list[str]:
+    """The aged windows' names, at any point: build.py's heavier aged step runs some of them."""
+    ages = (step_age(), step_age() - 1)
+    return [f'backlog-adp@{phase}-aged{age}-{n}' for phase in PHASES for age in ages for n in range(len(AGED_DELAYS))]
+
+
+def aged_age(name: str) -> int | None:
+    """The opening age an aged window's name declares (aged_window), or None for any other group."""
+    found = re.fullmatch(r'[^@]+@[a-z]+-aged(\d+)-\d+', name)
+    return int(found.group(1)) if found else None
 
 
 def row(name: str) -> str:
