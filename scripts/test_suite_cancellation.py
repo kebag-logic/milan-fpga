@@ -843,7 +843,7 @@ def stated_liveness(kept: Callable, cell: Callable, names: dict, fakes: tuple) -
     with subprocess.Popen(["cat"], stdin=subprocess.PIPE) as reader:
         live = reader.pid
         names[live] = "trap command"
-        for when, resume in RESUME_MATRIX:
+        for when, resume in (*RESUME_MATRIX, ("one-second", 1)):
             kept(f"a {when} resume and its live trap command", cell(resume, live), window(resume), shell)
         # The child's trap starts it and the child exits, so it alone keeps the shell stopped, until 3 s.
         kept("a live new descendant beside a stopped shell",
@@ -862,11 +862,13 @@ def stated_liveness(kept: Callable, cell: Callable, names: dict, fakes: tuple) -
             kept(f"a next-to-last in-grace resume and its {words}", lambda clock, listing=cell(next_to_last, started):
                  {**listing(clock), **({zombie: (shell, "5")} if clock <= 2 else {})},
                  [child_term, (0, "SIGTERM", "zombie"), resume, (2, "SIGKILL", "zombie"), *rest], shell)
-        # The child's trap starts it beside a shell never resumed, and the child is spared while it lives, to 4 s.
-        kept("a live new descendant beside a shell never resumed",
-             lambda clock: {shell: (owner_pid, "2"), child: (shell, "4"), **({live: (child, "8")} if clock else {})},
-             [(0, "SIGTERM", "child"), (2, "SIGKILL", "trap command"), (4, "SIGKILL", "child"),
-              *[(14, "SIGKILL", name) for name in ("shell", "child", "trap command")], (14, "verdict")], shell)
+        # Beside a shell never resumed the child, under it or beside it, is spared while what its trap starts lives.
+        for words, under in (("a live new descendant beside a shell never resumed", shell),
+                             ("a parent beside a stopped shell and its live new descendant", owner_pid)):
+            kept(words, lambda clock, under=under: {shell: (owner_pid, "2"), child: (under, "4"),
+                                                    **({live: (child, "8")} if clock else {})},
+                 [(0, "SIGTERM", "child"), (2, "SIGKILL", "trap command"), (4, "SIGKILL", "child"),
+                  *[(14, "SIGKILL", name) for name in ("shell", "child", "trap command")], (14, "verdict")], shell)
 
 
 def pending(pid: int) -> int:
