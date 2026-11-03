@@ -1,0 +1,14 @@
+MATCH resume-beside-new-live -> control owner_stated_seconds
+MATCH sigterm-trap-command-after-resume-from-1.5s -> control owner_stated_seconds
+MATCH sigterm-to-live-new -> control owner_stated_seconds
+MATCH live-trap-command-unspared-after-in-grace-resume -> control owner_stated_seconds
+MATCH live-trap-command-unspared -> control owner_stated_seconds
+MATCH interior-past-grace-no-window -> control owner_stated_seconds
+MATCH interior-in-grace-lone-shell-killed -> control owner_stated_seconds
+MATCH grace-strictly-past -> control owner_stated_seconds
+MATCH no-window-at-grace-edge -> control owner_stated_seconds
+MATCH trap-command-spared-only-in-resume-pass-past-grace -> control owner_stated_seconds
+MATCH sigterm-new-beside-stopped-shell-late -> control owner_stated_seconds
+MATCH resume-held-at-grace-edge -> control owner_stated_seconds
+MATCH verdict-from-grace-after-in-grace-resume -> control owner_stated_seconds
+13 published round 8 edits, 13 byte-identical in MUTANTS

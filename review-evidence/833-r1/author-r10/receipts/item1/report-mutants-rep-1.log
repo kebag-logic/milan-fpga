@@ -1,0 +1,17 @@
+none / owner_report: green rc 0 0.3 s: owner_report: PASS
+none / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+none / owner_late_exit: green rc 0 0.8 s: owner_late_exit: PASS
+none / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+none / owner_shell_window: green rc 0 4.3 s: owner_shell_window: PASS
+none / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+none / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+none / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+none / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+none / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+report-without-state / owner_report: red rc 1 0.3 s: AssertionError: ('state S', 'pid 2489692 (python3) wchan __do_sys_pause parent 2489660 (first parent 2489660) age 0.12 s start 80070166, not sent SIGKILL')
+report-without-wchan / owner_report: red rc 1 0.3 s: AssertionError: ('wchan ', 'pid 2489744 (python3) state S parent 2489720 (first parent 2489720) age 0.15 s start 80070184, not sent SIGKILL')
+report-without-state-or-wchan / owner_report: red rc 1 0.3 s: AssertionError: ('state S', 'pid 2489743 (python3) parent 2489722 (first parent 2489722) age 0.15 s start 80070184, not sent SIGKILL')
+report-without-current-parent / owner_report: red rc 1 0.3 s: AssertionError: the report's current parent is not its own field: pid 2489756 (python3) state S wchan __do_sys_pause (first parent 1) age 0.12 s start 80070189, not sent SIGKILL
+report-age-in-ticks / owner_report: red rc 1 0.3 s: AssertionError: the report's age is not the process's own, 0.10 to 0.12 s: pid 2489767 (python3) state S wchan __do_sys_pause parent 2489746 (first parent 2489746) age -79269490.95 s start 80070193, not sent SIGKILL
+report-parent-is-first-parent / owner_report: red rc 1 0.3 s: AssertionError: the report's current parent is not its own field: pid 2489812 (python3) state S wchan __do_sys_pause parent 1 (first parent 1) age 0.14 s start 80070215, not sent SIGKILL
+owned-process mutants: PASS (6 mutants, 6 with a control that must fail)

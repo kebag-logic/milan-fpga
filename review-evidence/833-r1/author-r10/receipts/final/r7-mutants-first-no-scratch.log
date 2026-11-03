@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "$VALIDATION_STORAGE/833-a726j/probes/833-r763-7/scripts/r7_mutants.py", line 50, in <module>
+    with tempfile.TemporaryDirectory(prefix="r7-mutants-",
+         ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+                                     dir=str(Path(__file__).resolve().parent.parent / "scratch")) as scratch:
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/tempfile.py", line 907, in __init__
+    self.name = mkdtemp(suffix, prefix, dir)
+                ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/tempfile.py", line 381, in mkdtemp
+    _os.mkdir(file, 0o700)
+    ~~~~~~~~~^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '$VALIDATION_STORAGE/833-a726j/probes/833-r763-7/scratch/r7-mutants-n9mygxup'

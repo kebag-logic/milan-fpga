@@ -1,0 +1,385 @@
+=== lone-first-pass-shell-needs-a-child
+RED   a lone first-pass resume
+listings 46 red 1
+=== first-pass-trap-command-sigtermed
+RED   a first-pass resume
+RED   an early first-pass resume
+RED   a first-pass resume and its live trap command
+RED   an early first-pass resume and its live trap command
+listings 46 red 4
+=== lone-second-pass-shell-needs-a-child
+RED   a lone second-pass resume
+listings 46 red 1
+=== second-pass-trap-command-sigtermed
+RED   a second-pass resume and its trap command
+RED   a second-pass resume and its live trap command
+listings 46 red 2
+=== lone-last-in-grace-shell-needs-a-child
+RED   a lone last in-grace resume
+listings 46 red 1
+=== last-in-grace-trap-command-unspared
+RED   a last in-grace resume and its trap command
+RED   a last in-grace resume and its live trap command
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+listings 46 red 4
+=== lone-first-past-grace-shell-needs-a-child
+RED   a lone first past-grace resume
+listings 46 red 1
+=== first-past-grace-trap-command-unspared
+RED   a first past-grace resume and its trap command
+RED   a first past-grace resume and its live trap command
+listings 46 red 2
+=== lone-second-past-grace-shell-needs-a-child
+RED   a lone second past-grace resume
+listings 46 red 1
+=== second-past-grace-trap-command-unspared
+RED   a second past-grace resume and its trap command
+RED   a second past-grace resume and its live trap command
+listings 46 red 2
+=== lone-last-pass-shell-needs-a-child
+RED   a lone last-pass resume
+listings 46 red 1
+=== last-pass-trap-command-spared-only-if-listed-at-resume
+RED   a last-pass resume and its trap command
+RED   a last-pass resume and its live trap command
+listings 46 red 2
+=== no-resume-later-in-grace
+RED   an in-grace resume
+RED   a lone second-pass resume
+RED   a second-pass resume and its trap command
+RED   a lone last in-grace resume
+RED   a last in-grace resume and its trap command
+RED   a second-pass resume and its live trap command
+RED   a last in-grace resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+RED   a lone one-second resume
+listings 46 red 11
+=== sigterm-trap-command-unless-first-pass-resume
+RED   an in-grace resume
+RED   a second-pass resume and its trap command
+RED   a second-pass resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+listings 46 red 6
+=== sigterm-trap-command-after-later-grace-resume
+RED   an in-grace resume
+RED   a second-pass resume and its trap command
+RED   a second-pass resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+listings 46 red 6
+=== trap-window-not-later-in-grace
+RED   an in-grace resume
+RED   a second-pass resume and its trap command
+RED   a last in-grace resume and its trap command
+RED   a second-pass resume and its live trap command
+RED   a last in-grace resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+listings 46 red 8
+=== sigterm-to-new-while-shell-stopped
+RED   a new descendant beside a stopped shell
+RED   an early new descendant beside a stopped shell
+RED   a live new descendant beside a stopped shell
+RED   an early live new descendant beside a stopped shell
+RED   a live new descendant beside a shell never resumed
+RED   an early live new descendant beside a shell never resumed
+RED   a parent beside a stopped shell and its live new descendant
+RED   an early parent beside a stopped shell and its live new descendant
+listings 46 red 8
+=== sigterm-to-new-after-1s
+RED   a first-pass resume
+RED   an early first-pass resume
+RED   a new descendant
+RED   an early new descendant
+RED   an in-grace resume
+RED   a new descendant beside a stopped shell
+RED   an early new descendant beside a stopped shell
+RED   a second-pass resume and its trap command
+RED   a first-pass resume and its live trap command
+RED   an early first-pass resume and its live trap command
+RED   a second-pass resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a live new descendant beside a stopped shell
+RED   an early live new descendant beside a stopped shell
+RED   a live new descendant
+RED   an early live new descendant
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+RED   a live new descendant beside a shell never resumed
+RED   an early live new descendant beside a shell never resumed
+RED   a parent beside a stopped shell and its live new descendant
+RED   an early parent beside a stopped shell and its live new descendant
+listings 46 red 22
+=== no-window-later-in-grace
+RED   an in-grace resume
+RED   a lone second-pass resume
+RED   a second-pass resume and its trap command
+RED   a lone last in-grace resume
+RED   a last in-grace resume and its trap command
+RED   a second-pass resume and its live trap command
+RED   a last in-grace resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+RED   a lone one-second resume
+listings 46 red 11
+=== shell-window-one-pass
+RED   a late resume
+RED   a first-pass resume
+RED   an early first-pass resume
+RED   a second-stage resume
+RED   a last-pass resume
+RED   an in-grace resume
+RED   a lone first-pass resume
+RED   a lone second-pass resume
+RED   a second-pass resume and its trap command
+RED   a lone last in-grace resume
+RED   a last in-grace resume and its trap command
+RED   a lone first past-grace resume
+RED   a first past-grace resume and its trap command
+RED   a lone second past-grace resume
+RED   a second past-grace resume and its trap command
+RED   a lone last-pass resume
+RED   a last-pass resume and its trap command
+RED   a first-pass resume and its live trap command
+RED   an early first-pass resume and its live trap command
+RED   a second-pass resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a live new descendant beside a stopped shell
+RED   an early live new descendant beside a stopped shell
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+RED   a lone one-second resume
+RED   a lone ten-second resume
+listings 46 red 27
+=== trap-commands-1s
+RED   a late resume
+RED   a first-pass resume
+RED   an early first-pass resume
+RED   a second-stage resume
+RED   a last-pass resume
+RED   an in-grace resume
+RED   a second-pass resume and its trap command
+RED   a last in-grace resume and its trap command
+RED   a first past-grace resume and its trap command
+RED   a second past-grace resume and its trap command
+RED   a last-pass resume and its trap command
+RED   a first-pass resume and its live trap command
+RED   an early first-pass resume and its live trap command
+RED   a second-pass resume and its live trap command
+RED   a last in-grace resume and its live trap command
+RED   a first past-grace resume and its live trap command
+RED   a second past-grace resume and its live trap command
+RED   a last-pass resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+listings 46 red 21
+=== resume-not-before-grace
+RED   a first-pass resume
+RED   an early first-pass resume
+RED   an in-grace resume
+RED   a lone first-pass resume
+RED   a lone second-pass resume
+RED   a second-pass resume and its trap command
+RED   a lone last in-grace resume
+RED   a last in-grace resume and its trap command
+RED   a first-pass resume and its live trap command
+RED   an early first-pass resume and its live trap command
+RED   a second-pass resume and its live trap command
+RED   a last in-grace resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+RED   a lone one-second resume
+listings 46 red 16
+=== resume-not-first-pass
+RED   a first-pass resume
+RED   an early first-pass resume
+RED   a lone first-pass resume
+RED   a first-pass resume and its live trap command
+RED   an early first-pass resume and its live trap command
+listings 46 red 5
+=== sigterm-trap-commands
+RED   a first-pass resume
+RED   an early first-pass resume
+RED   an in-grace resume
+RED   a second-pass resume and its trap command
+RED   a first-pass resume and its live trap command
+RED   an early first-pass resume and its live trap command
+RED   a second-pass resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+listings 46 red 10
+=== resume-beside-new-live
+RED   a live new descendant beside a stopped shell
+RED   an early live new descendant beside a stopped shell
+listings 46 red 2
+=== sigterm-trap-command-after-resume-from-1.5s
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+listings 46 red 2
+=== sigterm-to-live-new
+RED   a first-pass resume and its live trap command
+RED   an early first-pass resume and its live trap command
+RED   a second-pass resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a live new descendant beside a stopped shell
+RED   an early live new descendant beside a stopped shell
+RED   a live new descendant
+RED   an early live new descendant
+RED   a next-to-last in-grace resume and its live trap command
+RED   a live new descendant beside a shell never resumed
+RED   an early live new descendant beside a shell never resumed
+RED   a parent beside a stopped shell and its live new descendant
+RED   an early parent beside a stopped shell and its live new descendant
+listings 46 red 13
+=== live-trap-command-unspared-after-in-grace-resume
+RED   a first-pass resume and its live trap command
+RED   an early first-pass resume and its live trap command
+RED   a second-pass resume and its live trap command
+RED   a last in-grace resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a next-to-last in-grace resume and its live trap command
+listings 46 red 6
+=== live-trap-command-unspared
+RED   a first-pass resume and its live trap command
+RED   an early first-pass resume and its live trap command
+RED   a second-pass resume and its live trap command
+RED   a last in-grace resume and its live trap command
+RED   a first past-grace resume and its live trap command
+RED   a second past-grace resume and its live trap command
+RED   a last-pass resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a next-to-last in-grace resume and its live trap command
+listings 46 red 9
+=== interior-past-grace-no-window
+RED   a lone ten-second resume
+listings 46 red 1
+=== interior-in-grace-lone-shell-killed
+RED   a lone one-second resume
+listings 46 red 1
+=== grace-strictly-past
+RED   a survivor
+RED   a stubborn parent
+RED   a late resume
+RED   a new descendant
+RED   an early new descendant
+RED   a second-stage resume
+RED   a last-pass resume
+RED   a stopped shell
+RED   a resumed vanishing listing
+RED   a new descendant beside a stopped shell
+RED   an early new descendant beside a stopped shell
+RED   a lone second past-grace resume
+RED   a second past-grace resume and its trap command
+RED   a lone last-pass resume
+RED   a last-pass resume and its trap command
+RED   a second past-grace resume and its live trap command
+RED   a last-pass resume and its live trap command
+RED   a live new descendant beside a stopped shell
+RED   an early live new descendant beside a stopped shell
+RED   a live new descendant
+RED   an early live new descendant
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+RED   a live new descendant beside a shell never resumed
+RED   an early live new descendant beside a shell never resumed
+RED   a parent beside a stopped shell and its live new descendant
+RED   an early parent beside a stopped shell and its live new descendant
+RED   a lone ten-second resume
+listings 46 red 28
+=== no-window-at-grace-edge
+RED   a lone first past-grace resume
+RED   a first past-grace resume and its trap command
+RED   a first past-grace resume and its live trap command
+listings 46 red 3
+=== trap-command-spared-only-in-resume-pass-past-grace
+RED   a late resume
+RED   a second-stage resume
+RED   a last-pass resume
+RED   a first past-grace resume and its trap command
+RED   a second past-grace resume and its trap command
+RED   a last-pass resume and its trap command
+RED   a first past-grace resume and its live trap command
+RED   a second past-grace resume and its live trap command
+RED   a last-pass resume and its live trap command
+listings 46 red 9
+=== sigterm-new-beside-stopped-shell-late
+RED   a new descendant
+RED   an early new descendant
+RED   a new descendant beside a stopped shell
+RED   an early new descendant beside a stopped shell
+RED   a live new descendant beside a stopped shell
+RED   an early live new descendant beside a stopped shell
+RED   a live new descendant
+RED   an early live new descendant
+RED   a live new descendant beside a shell never resumed
+RED   an early live new descendant beside a shell never resumed
+RED   a parent beside a stopped shell and its live new descendant
+RED   an early parent beside a stopped shell and its live new descendant
+listings 46 red 12
+=== resume-held-at-grace-edge
+RED   a lone first past-grace resume
+RED   a first past-grace resume and its trap command
+RED   a first past-grace resume and its live trap command
+listings 46 red 3
+=== verdict-from-grace-after-in-grace-resume
+RED   a first-pass resume
+RED   an early first-pass resume
+RED   an in-grace resume
+RED   a lone first-pass resume
+RED   a lone second-pass resume
+RED   a second-pass resume and its trap command
+RED   a lone last in-grace resume
+RED   a last in-grace resume and its trap command
+RED   a first-pass resume and its live trap command
+RED   an early first-pass resume and its live trap command
+RED   a second-pass resume and its live trap command
+RED   a last in-grace resume and its live trap command
+RED   a one-second resume and its live trap command
+RED   a next-to-last in-grace resume and its trap command
+RED   a next-to-last in-grace resume and its live trap command
+RED   a lone one-second resume
+listings 46 red 16
+=== first-pass-live-trap-command-sigtermed
+RED   a first-pass resume and its live trap command
+RED   an early first-pass resume and its live trap command
+listings 46 red 2
+=== second-pass-live-trap-command-sigtermed
+RED   a second-pass resume and its live trap command
+listings 46 red 1
+=== last-in-grace-live-trap-command-unspared
+RED   a last in-grace resume and its live trap command
+listings 46 red 1
+=== first-past-grace-live-trap-command-unspared
+RED   a first past-grace resume and its live trap command
+listings 46 red 1
+=== second-past-grace-live-trap-command-unspared
+RED   a second past-grace resume and its live trap command
+listings 46 red 1
+=== last-pass-live-trap-command-unspared
+RED   a last-pass resume and its live trap command
+listings 46 red 1
+=== resume-beside-live-new-past-grace
+RED   a live new descendant beside a stopped shell
+RED   an early live new descendant beside a stopped shell
+listings 46 red 2
+=== live-new-sigtermed-with-no-shell
+RED   a live new descendant
+RED   an early live new descendant
+listings 46 red 2
+=== next-to-last-in-grace-live-trap-command-sigtermed
+RED   a next-to-last in-grace resume and its live trap command
+listings 46 red 1
+=== next-to-last-in-grace-trap-command-sigtermed
+RED   a next-to-last in-grace resume and its trap command
+listings 46 red 1

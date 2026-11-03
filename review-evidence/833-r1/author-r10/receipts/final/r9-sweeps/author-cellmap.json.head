@@ -1,0 +1,645 @@
+{
+ "edits": {
+  "none": [],
+  "cleanup-does-nothing": [
+   [
+    "        started = last = time.monotonic()\n",
+    "        return\n        started = last = time.monotonic()\n"
+   ]
+  ],
+  "identity-start-holds-parent": [
+   [
+    "return None if fields is None else (int(fields[1]), fields[19])",
+    "return None if fields is None else (int(fields[1]), fields[1] + ':' + fields[19])"
+   ]
+  ],
+  "identity-keys-hold-parent": [
+   [
+    "initial = {(pid, start): parent for pid, (parent, start) in owned.items()}",
+    "initial = {(pid, start, parent): parent for pid, (parent, start) in owned.items()}"
+   ],
+   [
+    "first = {pid: parent for (pid, _start), parent in initial.items()}",
+    "first = {pid: parent for (pid, _start, _p), parent in initial.items()}"
+   ],
+   [
+    "if (pid, start) not in initial:\n                        continue",
+    "if (pid, start, _parent) not in initial:\n                        continue"
+   ],
+   [
+    "if (pid, start) not in initial and resumed is not None:",
+    "if (pid, start, _parent) not in initial and resumed is not None:"
+   ],
+   [
+    "if key not in notified and self._send(pid, start, signum):",
+    "if key not in notified and _identity(pid) == (_parent, start) and self._send(pid, start, signum):"
+   ]
+  ],
+  "identity-first-census-holds-parent": [
+   [
+    "initial = {(pid, start): parent for pid, (parent, start) in owned.items()}",
+    "initial = {(pid, start, parent): parent for pid, (parent, start) in owned.items()}"
+   ]
+  ],
+  "identity-includes-parent": [
+   [
+    "                    if (pid, start) not in initial:\n                        continue",
+    "                    if initial.get((pid, start)) != _parent:\n                        continue"
+   ],
+   [
+    "                key = (pid, start, signum)\n",
+    "                if _identity(pid) != (_parent, start):\n                    continue\n                key = (pid, start, signum)\n"
+   ]
+  ],
+  "identity-checks-parent-before-send": [
+   [
+    "            for pid, (_parent, start) in owned.items():\n                # A notified shell",
+    "            for pid, (_parent, start) in owned.items():\n                if _identity(pid) != (_parent, start):\n                    continue\n                if signum != signal.SIGKILL and initial.get((pid, start)) != _parent:\n                    continue\n                # A notified shell"
+   ]
+  ],
+  "sigterm-checks-parent": [
+   [
+    "                    if (pid, start) not in initial:\n                        continue",
+    "                    if initial.get((pid, start)) != _parent:\n                        continue"
+   ]
+  ],
+  "send-checks-parent": [
+   [
+    "                key = (pid, start, signum)\n",
+    "                if _identity(pid) != (_parent, start):\n                    continue\n                key = (pid, start, signum)\n"
+   ]
+  ],
+  "no-start-recheck": [
+   [
+    "            if identity is None or identity[1] != start:\n",
+    "            if identity is None:\n"
+   ]
+  ],
+  "no-reap-after-census": [
+   [
+    "reaped = self._reap()",
+    "reaped = set()"
+   ]
+  ],
+  "owned-is-census": [
+   [
+    "owned = {pid: entry for pid, entry in census.items() if pid not in reaped}",
+    "owned = dict(census)"
+   ]
+  ],
+  "deadline-wall-clock": [
+   [
+    "clock += min(now - last, MAX_PASS_SECONDS)",
+    "clock += now - last"
+   ]
+  ],
+  "pass-cap-1s": [
+   [
+    "MAX_PASS_SECONDS = 0.5\n",
+    "MAX_PASS_SECONDS = 1.0\n"
+   ]
+  ],
+  "pass-cap-1.5s": [
+   [
+    "MAX_PASS_SECONDS = 0.5",
+    "MAX_PASS_SECONDS = 1.5"
+   ]
+  ],
+  "pass-cap-5s": [
+   [
+    "MAX_PASS_SECONDS = 0.5",
+    "MAX_PASS_SECONDS = 5.0"
+   ]
+  ],
+  "windows-2s": [
+   [
+    "TRAP_SECONDS = 10.0",
+    "TRAP_SECONDS = 2.0"
+   ],
+   [
+    "REAP_SECONDS = 10.0",
+    "REAP_SECONDS = 2.0"
+   ]
+  ],
+  "reap-window-2s": [
+   [
+    "REAP_SECONDS = 10.0",
+    "REAP_SECONDS = 2.0"
+   ]
+  ],
+  "no-shell-window": [
+   [
+    "                kill_all = max(kill_all, clock + TRAP_SECONDS)\n",
+    ""
+   ]
+  ],
+  "no-shell-window-kept": [
+   [
+    "kill_all = max(kill_all, clock + TRAP_SECONDS)",
+    "kill_all = kill_all"
+   ]
+  ],
+  "no-shell-window-pass": [
+   [
+    "kill_all = max(kill_all, clock + TRAP_SECONDS)",
+    "pass"
+   ]
+  ],
+  "no-trap-window": [
+   [
+    "kill_all = max(kill_all, clock + TRAP_SECONDS)",
+    "kill_all = max(kill_all, clock)"
+   ]
+  ],
+  "root-killed-unresumed": [
+   [
+    "(resumed is None or clock < kill_all)",
+    "clock < kill_all"
+   ]
+  ],
+  "shell-killed-when-resumed": [
+   [
+    "(resumed is None or clock < kill_all):",
+    "resumed is None:"
+   ]
+  ],
+  "shell-window-one-pass": [
+   [
+    "(resumed is None or clock < kill_all):",
+    "(resumed is None or clock <= resumed):"
+   ]
+  ],
+  "shell-window-1s": [
+   [
+    "(resumed is None or clock < kill_all):",
+    "(resumed is None or clock < resumed + 1.0):"
+   ]
+  ],
+  "trap-commands-no-window": [
+   [
+    "                    if (pid, start) not in initial and resumed is not None:\n                        continue\n",
+    ""
+   ]
+  ],
+  "trap-commands-never-spared": [
+   [
+    "if (pid, start) not in initial and resumed is not None:",
+    "if False:"
+   ]
+  ],
+  "trap-commands-1s": [
+   [
+    "if (pid, start) not in initial and resumed is not None:",
+    "if (pid, start) not in initial and resumed is not None and clock < resumed + 1.0:"
+   ]
+  ],
+  "resume-collected-shell": [
+   [
+    "resumed is None and root_pid in owned and not (live - {root_pid}):",
+    "resumed is None and not (live - {root_pid}):"
+   ]
+  ],
+  "window-without-resume": [
+   [
+    "resumed is None and root_pid in owned and not (live - {root_pid}):",
+    "resumed is None and not (live - {root_pid}):"
+   ],
+   [
+    "                self._signal(self.root_fd, signal.SIGCONT)\n",
+    "                if root_pid in owned:\n                    self._signal(self.root_fd, signal.SIGCONT)\n"
+   ]
+  ],
+  "rearm-without-sigcont": [
+   [
+    "resumed is None and root_pid in owned and not (live - {root_pid}):",
+    "resumed is None and not (live - {root_pid}):"
+   ],
+   [
+    "self._signal(self.root_fd, signal.SIGCONT)\n",
+    "pass\n"
+   ]
+  ],
+  "resume-while-listed": [
+   [
+    "resumed is None and root_pid in owned and not (live - {root_pid}):",
+    "resumed is None and root_pid in census and not (live - {root_pid}):"
+   ]
+  ],
+  "no-kill-before-raise": [
+   [
+    "                for pid, (_parent, start) in owned.items():\n                    self._send(pid, start, signal.SIGKILL)\n",
+    ""
+   ]
+  ],
+  "no-kill-before-raise-empty": [
+   [
+    "for pid, (_parent, start) in owned.items():\n                    self._send(pid, start, signal.SIGKILL)",
+    "for pid, (_parent, start) in ():\n                    self._send(pid, start, signal.SIGKILL)"
+   ]
+  ],
+  "kill-before-fail-spares-shell": [
+   [
+    "                for pid, (_parent, start) in owned.items():\n                    self._send(pid, start, signal.SIGKILL)\n",
+    "                for pid, (_parent, start) in owned.items():\n                    if self.process is None or pid != self.process.pid:\n                        self._send(pid, start, signal.SIGKILL)\n"
+   ]
+  ],
+  "endless-unbounded": [
+   [
+    "(owned or clock >= limit + REAP_SECONDS)",
+    "owned"
+   ]
+  ],
+  "survivor-never-fails": [
+   [
+    "if clock >= limit and (owned or clock >= limit + REAP_SECONDS):",
+    "if False:"
+   ]
+  ],
+  "survivor-never-fails-guarded": [
+   [
+    "if clock >= limit and (owned",
+    "if False and (owned"
+   ]
+  ],
+  "trust-sigkill": [
+   [
+    "if clock >= limit and (owned or clock >= limit + REAP_SECONDS):",
+    "if clock >= limit and (any(p not in killed and (self.process is None or p != self.process.pid) for p in owned) or not owned and clock >= limit + REAP_SECONDS):"
+   ]
+  ],
+  "killed-counts-as-gone": [
+   [
+    "owned = {pid: entry for pid, entry in census.items() if pid not in reaped}",
+    "owned = {pid: entry for pid, entry in census.items() if pid not in reaped and pid not in killed}"
+   ]
+  ],
+  "report-without-state": [
+   [
+    "state {fields[0]} wchan",
+    "wchan"
+   ]
+  ],
+  "report-without-wchan": [
+   [
+    "wchan {wchan} parent",
+    "parent"
+   ]
+  ],
+  "report-without-state-or-wchan": [
+   [
+    "state {fields[0]} wchan {wchan} ",
+    ""
+   ]
+  ],
+  "grace-1s": [
+   [
+    "GRACE_SECONDS = 2.0",
+    "GRACE_SECONDS = 1.0"
+   ]
+  ],
+  "return-with-zombies": [
+   [
+    "            if not census:\n                return\n",
+    "            if not [pid for pid in census if _live(pid)]:\n                return\n"
+   ]
+  ],
+  "vanishing-waits-no-more": [
+   [
+    "(owned or clock >= limit + REAP_SECONDS)",
+    "(owned or clock >= limit)"
+   ]
+  ],
+  "resume-with-one-live": [
+   [
+    "and not (live - {root_pid}):",
+    "and len(live - {root_pid}) <= 1:"
+   ]
+  ],
+  "clock-always-cap": [
+   [
+    "clock += min(now - last, MAX_PASS_SECONDS)",
+    "clock += MAX_PASS_SECONDS"
+   ]
+  ],
+  "killed-not-recorded": [
+   [
+    "                        killed.setdefault(pid, time.monotonic())\n",
+    "                        pass\n"
+   ]
+  ],
+  "no-sigcont-after-send": [
+   [
+    "            self._signal(fd, signal.SIGCONT)\n            return True\n",
+    "            return True\n"
+   ]
+  ],
+  "sigterm-to-new": [
+   [
+    "                    if (pid, start) not in initial:\n                        continue\n                elif",
+    "                    pass\n                elif"
+   ]
+  ],
+  "no-leaf-first": [
+   [
+    "if clock < deadline + 1.0 and pid in initial.values():",
+    "if False:"
+   ]
+  ],
+  "signal-by-number": [
+   [
+    "            self._signal(fd, signum)\n            self._signal(fd, signal.SIGCONT)\n",
+    "            os.kill(pid, signum)\n            os.kill(pid, signal.SIGCONT)\n"
+   ]
+  ],
+  "parent-spared-past-kill-all": [
+   [
+    "                elif clock < kill_all:\n",
+    "                elif clock < kill_all or any(parent == pid and child in live for child, (parent, _start) in owned.items()):\n"
+   ]
+  ],
+  "parents-killed-at-grace": [
+   [
+    "                    if clock < deadline + 1.0 and pid in initial.values():\n                        continue\n                    if any(parent == pid and child in live for child, (parent, _start) in owned.items()):\n                        continue\n",
+    ""
+   ]
+  ],
+  "vanishing-waits-30s-more": [
+   [
+    "(owned or clock >= limit + REAP_SECONDS)",
+    "(owned or clock >= limit + 3 * REAP_SECONDS)"
+   ]
+  ],
+  "report-without-current-parent": [
+   [
+    "parent {fields[1]} ",
+    ""
+   ]
+  ],
+  "report-age-in-ticks": [
+   [
+    "int(fields[19]) / os.sysconf('SC_CLK_TCK')",
+    "int(fields[19])"
+   ]
+  ],
+  "check-before-open": [
+   [
+    "        try:\n            fd = os.pidfd_open(pid)\n        except ProcessLookupError:\n            return False\n        try:\n            identity = _identity(pid)\n            if identity is None or identity[1] != start:\n                return False\n",
+    "        identity = _identity(pid)\n        if identity is None or identity[1] != start:\n            return False\n        try:\n            fd = os.pidfd_open(pid)\n        except ProcessLookupError:\n            return False\n        try:\n"
+   ]
+  ],
+  "no-sigterm": [
+   [
+    "                    if (pid, start) not in initial:\n                        continue\n                elif",
+    "                    continue\n                elif"
+   ]
+  ],
+  "kill-all-a-pass-late": [
+   [
+    "                elif clock < kill_all:\n",
+    "                elif clock <= kill_all:\n"
+   ]
+  ],
+  "verdict-past-deadline": [
+   [
+    "if clock >= limit and (owned or clock >= limit + REAP_SECONDS):",
+    "if clock > limit and (owned or clock >= limit + REAP_SECONDS):"
+   ]
+  ],
+  "resume-only-when-alone": [
+   [
+    "and not (live - {root_pid}):",
+    "and not (set(owned) - {root_pid}):"
+   ]
+  ],
+  "trap-window-from-grace": [
+   [
+    "kill_all = max(kill_all, clock + TRAP_SECONDS)",
+    "kill_all = max(kill_all, deadline + TRAP_SECONDS)"
+   ]
+  ],
+  "shell-spared-only-while-stopped": [
+   [
+    "(resumed is None or clock < kill_all)",
+    "(resumed is None or (_stat(pid) or ['T'])[0] == 'T')"
+   ]
+  ],
+  "trap-commands-until-grace": [
+   [
+    "if (pid, start) not in initial and resumed is not None:",
+    "if (pid, start) not in initial and resumed is not None and clock < deadline + 1.0:"
+   ]
+  ],
+  "cap-on-total": [
+   [
+    "clock += min(now - last, MAX_PASS_SECONDS)",
+    "clock = min(clock + now - last, MAX_PASS_SECONDS * passes)"
+   ]
+  ],
+  "first-pass-full-cap": [
+   [
+    "        started = last = time.monotonic()\n",
+    "        started = time.monotonic()\n        last = started - MAX_PASS_SECONDS\n"
+   ]
+  ],
+  "vanishing-waits-from-grace": [
+   [
+    "(owned or clock >= limit + REAP_SECONDS)",
+    "(owned or clock >= deadline + 2 * REAP_SECONDS)"
+   ]
+  ],
+  "verdict-counts-census": [
+   [
+    "if clock >= limit and (owned or clock >= limit + REAP_SECONDS):",
+    "if clock >= limit and (census or clock >= limit + REAP_SECONDS):"
+   ]
+  ],
+  "sigterm-needs-live-parent": [
+   [
+    "                    if (pid, start) not in initial:\n                        continue\n                elif",
+    "                    if (pid, start) not in initial or not _live(_parent):\n                        continue\n                elif"
+   ]
+  ],
+  "resume-unless-reaped-now": [
+   [
+    "resumed is None and root_pid in owned and not (live - {root_pid}):",
+    "resumed is None and root_pid not in reaped and not (live - {root_pid}):"
+   ]
+  ],
+  "verdict-kills-only-the-killed": [
+   [
+    "                for pid, (_parent, start) in owned.items():\n                    self._send(pid, start, signal.SIGKILL)\n",
+    "                for pid, (_parent, start) in owned.items():\n                    if pid in killed:\n                        self._send(pid, start, signal.SIGKILL)\n"
+   ]
+  ],
+  "report-parent-is-first-parent": [
+   [
+    "parent {fields[1]} ",
+    "parent {first_parent} "
+   ]
+  ],
+  "sigkill-by-number": [
+   [
+    "            self._signal(fd, signum)\n            self._signal(fd, signal.SIGCONT)\n",
+    "            if signum == signal.SIGKILL:\n                os.kill(pid, signum)\n            else:\n                self._signal(fd, signum)\n            self._signal(fd, signal.SIGCONT)\n"
+   ]
+  ],
+  "sigcont-by-number": [
+   [
+    "            self._signal(fd, signum)\n            self._signal(fd, signal.SIGCONT)\n",
+    "            self._signal(fd, signum)\n            os.kill(pid, signal.SIGCONT)\n"
+   ]
+  ],
+  "resume-not-before-grace": [
+   [
+    "and root_pid in owned and not (live - {root_pid}):",
+    "and root_pid in owned and not (live - {root_pid}) and clock >= deadline:"
+   ]
+  ],
+  "resume-not-first-pass": [
+   [
+    "and root_pid in owned and not (live - {root_pid}):",
+    "and root_pid in owned and not (live - {root_pid}) and passes > 1:"
+   ]
+  ],
+  "sigterm-trap-commands": [
+   [
+    "                    if (pid, start) not in initial:\n                        continue\n                elif",
+    "                    if (pid, start) not in initial and resumed is None:\n                        continue\n                elif"
+   ]
+  ],
+  "sigterm-to-new-before-resume": [
+   [
+    "                    if (pid, start) not in initial:\n                        continue\n                elif",
+    "                    if (pid, start) not in initial and resumed is not None:\n                        continue\n                elif"
+   ]
+  ],
+  "sigcont-by-number-after-kill": [
+   [
+    "            self._signal(fd, signum)\n            self._signal(fd, signal.SIGCONT)\n",
+    "            self._signal(fd, signum)\n            if signum == signal.SIGKILL:\n                os.kill(pid, signal.SIGCONT)\n            else:\n                self._signal(fd, signal.SIGCONT)\n"
+   ]
+  ],
+  "recheck-spares-sigkill": [
+   [
+    "            if identity is None or identity[1] != start:\n",
+    "            if identity is None or identity[1] != start and signum != signal.SIGKILL:\n"
+   ]
+  ],
+  "grace-a-tick-short": [
+   [
+    "GRACE_SECONDS = 2.0",
+    "GRACE_SECONDS = 2.0 - 2 ** -19"
+   ]
+  ],
+  "kill-all-a-tick-early": [
+   [
+    "                elif clock < kill_all:\n",
+    "                elif clock < kill_all - 2 ** -19:\n"
+   ]
+  ],
+  "verdict-a-tick-early": [
+   [
+    "limit = kill_all + REAP_SECONDS\n",
+    "limit = kill_all + REAP_SECONDS - 2 ** -19\n"
+   ]
+  ],
+  "verdict-waits-for-resume": [
+   [
+    "if clock >= limit and (owned or clock >= limit + REAP_SECONDS):",
+    "if clock >= limit and (resumed is not None or not self.root_notified) and (owned or clock >= limit + REAP_SECONDS):"
+   ]
+  ],
+  "no-resume-before-verdict": [
+   [
+    "and root_pid in owned and not (live - {root_pid}):",
+    "and root_pid in owned and not (live - {root_pid}) and clock + MAX_PASS_SECONDS < kill_all + REAP_SECONDS:"
+   ]
+  ],
+  "trap-window-a-tick-short": [
+   [
+    "TRAP_SECONDS = 10.0",
+    "TRAP_SECONDS = 10.0 - 2 ** -19"
+   ]
+  ],
+  "no-window-inside-grace": [
+   [
+    "kill_all = max(kill_all, clock + TRAP_SECONDS)",
+    "kill_all = max(kill_all, clock + TRAP_SECONDS) if clock >= deadline else kill_all"
+   ]
+  ],
+  "trap-commands-spared-only-past-grace": [
+   [
+    "if (pid, start) not in initial and resumed is not None:",
+    "if (pid, start) not in initial and resumed is not None and resumed >= deadline:"
+   ]
+  ],
+  "cap-lifted-past-a-minute": [
+   [
+    "clock += min(now - last, MAX_PASS_SECONDS)",
+    "clock += min(now - last, MAX_PASS_SECONDS) if now - last < 60 else now - last"
+   ]
+  ],
+  "tick-passes-count-nothing": [
+   [
+    "clock += min(now - last, MAX_PASS_SECONDS)",
+    "clock += min(now - last, MAX_PASS_SECONDS) if now - last >= 0.001 else 0"
+   ]
+  ],
+  "vanishing-verdict-ignores-resume": [
+   [
+    "(owned or clock >= limit + REAP_SECONDS)",
+    "(owned or clock >= GRACE_SECONDS + KILL_ALL_SECONDS + 2 * REAP_SECONDS)"
+   ]
+  ],
+  "no-reap-after-first-census": [
+   [
+    "reaped = self._reap()",
+    "reaped = self._reap() if passes > 1 else set()"
+   ]
+  ],
+  "sigterm-rechecks-parent": [
+   [
+    "                key = (pid, start, signum)\n",
+    "                if signum == signal.SIGTERM and _identity(pid) != (_parent, start):\n                    continue\n                key = (pid, start, signum)\n"
+   ]
+  ],
+  "resume-collected-shell-past-grace": [
+   [
+    "resumed is None and root_pid in owned and not (live - {root_pid}):",
+    "resumed is None and (root_pid in owned or clock >= deadline) and not (live - {root_pid}):"
+   ]
+  ],
+  "verdict-sends-sigterm": [
+   [
+    "self._send(pid, start, signal.SIGKILL)",
+    "self._send(pid, start, signal.SIGTERM)"
+   ]
+  ],
+  "killed-ago-from-start": [
+   [
+    "now - killed[pid] if pid in killed else None",
+    "now - started if pid in killed else None"
+   ]
+  ],
+  "return-before-confirm": [
+   [
+    "            owned = {pid: entry for pid, entry in census.items() if pid not in reaped}\n",
+    "            owned = {pid: entry for pid, entry in census.items() if pid not in reaped}\n            if not owned:\n                return\n"
+   ]
+  ],
+  "check-before-open-for-sigkill": [
+   [
+    "        try:\n            fd = os.pidfd_open(pid)\n        except ProcessLookupError:\n            return False\n        try:\n            identity = _identity(pid)\n",
+    "        early = _identity(pid) if signum == signal.SIGKILL else None\n        try:\n            fd = os.pidfd_open(pid)\n        except ProcessLookupError:\n            return False\n        try:\n            identity = early or _identity(pid)\n"
+   ]
+  ],
+  "no-resume-later-in-grace": [
+   [
+    "and root_pid in owned and not (live - {root_pid}):",
+    "and root_pid in owned and not (live - {root_pid}) and not (passes > 1 and clock < deadline):"
+   ]
+  ],
+  "sigterm-trap-command-unless-first-pass-resume": [
+   [
+    "                    if (pid, start) not in initial:\n                        continue\n                elif",
+    "                    if (pid, start) not in initial 

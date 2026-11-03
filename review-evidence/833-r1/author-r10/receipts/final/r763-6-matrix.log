@@ -1,0 +1,96 @@
+rv6-pass-cap-0.6s / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-pass-cap-0.6s / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-pass-cap-0.6s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-pass-cap-0.6s / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+rv6-pass-cap-0.6s / owner_shell_window: green rc 0 4.3 s: owner_shell_window: PASS
+rv6-pass-cap-0.6s / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+rv6-pass-cap-0.6s / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-pass-cap-0.6s / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-pass-cap-0.6s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (1.9999990463256836, 'SIGKILL', 'survivor'), (13.0, 'SIGKILL', 'survivor'), (13.0, 'verdict')]
+rv6-pass-cap-0.6s / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rv6-pass-cap-0.6s / whole: red rc 1 10.9 s: AssertionError: a survivor's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'survivor'), (1.9999990463256836, 'SIGKILL', 'survivor'), (13.0, 'SIGKILL', 'survivor'), (13.0, 'verdict')]
+rv6-report-age-hz100 / owner_report: red rc 1 0.3 s: AssertionError: the report's age is not the process's own, 0.10 to 0.14 s: pid 2668409 (python3) state S wchan __do_sys_pause parent 2668404 (first parent 2668404) age 723504.85 s start 80389412, not sent SIGKILL
+rv6-report-age-hz100 / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-report-age-hz100 / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-report-age-hz100 / owner_stall: green rc 0 3.2 s: owner_stall: PASS
+rv6-report-age-hz100 / owner_shell_window: green rc 0 4.2 s: owner_shell_window: PASS
+rv6-report-age-hz100 / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+rv6-report-age-hz100 / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-report-age-hz100 / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-report-age-hz100 / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv6-report-age-hz100 / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rv6-report-age-hz100 / whole: red rc 1 0.3 s: AssertionError: the report's age is not the process's own, 0.10 to 0.14 s: pid 2668461 (python3) state S wchan __do_sys_pause parent 2668458 (first parent 2668458) age 723507.60 s start 80389718, not sent SIGKILL
+rv6-return-before-confirm / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-return-before-confirm / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-return-before-confirm / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-return-before-confirm / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-return-before-confirm / owner_shell_window: green rc 0 4.2 s: owner_shell_window: PASS
+rv6-return-before-confirm / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-return-before-confirm / owner_vanishing: red rc 1 0.1 s: AssertionError: an endless listing did not fail the run
+rv6-return-before-confirm / owner_late_cancel: red rc 1 0.2 s: owned_process.Cancelled: signal 15
+rv6-return-before-confirm / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a vanishing listing's stated seconds were not kept on the owner's clock: [(0.0, 'no verdict')]
+rv6-return-before-confirm / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rv6-return-before-confirm / whole: red rc 1 9.3 s: AssertionError: an endless listing did not fail the run
+rv6-signal-before-recheck / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-signal-before-recheck / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-signal-before-recheck / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-signal-before-recheck / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-signal-before-recheck / owner_shell_window: green rc 0 4.3 s: owner_shell_window: PASS
+rv6-signal-before-recheck / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+rv6-signal-before-recheck / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-signal-before-recheck / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-signal-before-recheck / owner_stated_seconds: green rc 0 0.2 s: owner_stated_seconds: PASS
+rv6-signal-before-recheck / owner_reused_identity: red rc 1 0.2 s: AssertionError: a census entry whose process was replaced was signalled
+rv6-signal-before-recheck / whole: red rc 1 11.1 s: AssertionError: a census entry whose process was replaced was signalled
+rv6-sigterm-cancelled-shell / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-sigterm-cancelled-shell / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-sigterm-cancelled-shell / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-sigterm-cancelled-shell / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-sigterm-cancelled-shell / owner_shell_window: green rc 0 2.4 s: owner_shell_window: PASS
+rv6-sigterm-cancelled-shell / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+rv6-sigterm-cancelled-shell / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-sigterm-cancelled-shell / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-sigterm-cancelled-shell / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'shell'), (0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (15.5, 'SIGKILL', 'shell'), (15.5, 'SIGKILL', 'trap command'), (25.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL',
+rv6-sigterm-cancelled-shell / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rv6-sigterm-cancelled-shell / whole: red rc 1 9.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'shell'), (0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (15.5, 'SIGKILL', 'shell'), (15.5, 'SIGKILL', 'trap command'), (25.5, 'SIGKILL', 'shell'), (25.5, 'SIGKILL',
+rv6-sigterm-to-new / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-sigterm-to-new / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-sigterm-to-new / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-sigterm-to-new / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-sigterm-to-new / owner_shell_window: green rc 0 4.2 s: owner_shell_window: PASS
+rv6-sigterm-to-new / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-sigterm-to-new / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-sigterm-to-new / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-sigterm-to-new / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a first-pass resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGCONT', 'shell'), (0.5, 'SIGTERM', 'trap command'), (10.0, 'SIGKILL', 'shell'), (10.0, 'SIGKILL', 'trap command'), (20.0, 'SIGKILL', 'shell'), (20.0, 'SIGKILL', 'trap command'), (20.0, 'verdict')]
+rv6-sigterm-to-new / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rv6-sigterm-to-new / whole: red rc 1 11.0 s: AssertionError: a first-pass resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGCONT', 'shell'), (0.5, 'SIGTERM', 'trap command'), (10.0, 'SIGKILL', 'shell'), (10.0, 'SIGKILL', 'trap command'), (20.0, 'SIGKILL', 'shell'), (20.0, 'SIGKILL', 'trap command'), (20.0, 'verdict')]
+rv6-sigterm-trap-commands / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-sigterm-trap-commands / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-sigterm-trap-commands / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-sigterm-trap-commands / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-sigterm-trap-commands / owner_shell_window: green rc 0 4.4 s: owner_shell_window: PASS
+rv6-sigterm-trap-commands / owner_survivor: green rc 0 1.3 s: owner_survivor: PASS
+rv6-sigterm-trap-commands / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-sigterm-trap-commands / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-sigterm-trap-commands / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a first-pass resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGCONT', 'shell'), (0.5, 'SIGTERM', 'trap command'), (10.0, 'SIGKILL', 'shell'), (10.0, 'SIGKILL', 'trap command'), (20.0, 'SIGKILL', 'shell'), (20.0, 'SIGKILL', 'trap command'), (20.0, 'verdict')]
+rv6-sigterm-trap-commands / owner_reused_identity: green rc 0 0.2 s: owner_reused_identity: PASS
+rv6-sigterm-trap-commands / whole: red rc 1 10.9 s: AssertionError: a first-pass resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGCONT', 'shell'), (0.5, 'SIGTERM', 'trap command'), (10.0, 'SIGKILL', 'shell'), (10.0, 'SIGKILL', 'trap command'), (20.0, 'SIGKILL', 'shell'), (20.0, 'SIGKILL', 'trap command'), (20.0, 'verdict')]
+rv6-trap-9.5s / owner_report: green rc 0 0.3 s: owner_report: PASS
+rv6-trap-9.5s / owner_reparented: green rc 0 0.3 s: owner_reparented: PASS
+rv6-trap-9.5s / owner_late_exit: green rc 0 0.7 s: owner_late_exit: PASS
+rv6-trap-9.5s / owner_stall: green rc 0 3.3 s: owner_stall: PASS
+rv6-trap-9.5s / owner_shell_window: green rc 0 4.2 s: owner_shell_window: PASS
+rv6-trap-9.5s / owner_survivor: green rc 0 1.2 s: owner_survivor: PASS
+rv6-trap-9.5s / owner_vanishing: green rc 0 1.0 s: owner_vanishing: PASS
+rv6-trap-9.5s / owner_late_cancel: green rc 0 1.0 s: owner_late_cancel: PASS
+rv6-trap-9.5s / owner_stated_seconds: red rc 1 0.2 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (15.0, 'SIGKILL', 'shell'), (15.0, 'SIGKILL', 'trap command'), (25.0, 'SIGKILL', 'shell'), (25.0, 'SIGKILL', 'trap command'), (25.0, 'v
+rv6-trap-9.5s / owner_reused_identity: green rc 0 0.1 s: owner_reused_identity: PASS
+rv6-trap-9.5s / whole: red rc 1 10.8 s: AssertionError: a late resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGKILL', 'child'), (5.5, 'SIGCONT', 'shell'), (15.0, 'SIGKILL', 'shell'), (15.0, 'SIGKILL', 'trap command'), (25.0, 'SIGKILL', 'shell'), (25.0, 'SIGKILL', 'trap command'), (25.0, 'v
+SUMMARY rv6-pass-cap-0.6s: red on 2 of 11: owner_stated_seconds, whole
+SUMMARY rv6-report-age-hz100: red on 2 of 11: owner_report, whole
+SUMMARY rv6-return-before-confirm: red on 4 of 11: owner_vanishing, owner_late_cancel, owner_stated_seconds, whole
+SUMMARY rv6-signal-before-recheck: red on 2 of 11: owner_reused_identity, whole
+SUMMARY rv6-sigterm-cancelled-shell: red on 2 of 11: owner_stated_seconds, whole
+SUMMARY rv6-sigterm-to-new: red on 2 of 11: owner_stated_seconds, whole
+SUMMARY rv6-sigterm-trap-commands: red on 2 of 11: owner_stated_seconds, whole
+SUMMARY rv6-trap-9.5s: red on 2 of 11: owner_stated_seconds, whole
