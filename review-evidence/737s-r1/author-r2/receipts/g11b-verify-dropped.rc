@@ -1,0 +1,5 @@
+label=g11b-verify-dropped
+head=e180ba30eccc4ee7c3c699d88973816bdc953caa
+command=python3 scripts/ci_gate_receipts.py verify --workflow elaborate --root $VALIDATION_STORAGE/737-a727c/legs/verify-dropped --head e180ba30eccc4ee7c3c699d88973816bdc953caa --output $VALIDATION_STORAGE/737-a727c/legs/gate-union-dropped.json
+rc=1
+seconds=1
