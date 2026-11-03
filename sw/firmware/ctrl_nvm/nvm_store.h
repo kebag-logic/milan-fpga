@@ -163,6 +163,10 @@ uint32_t nvm_store_clock(void *ctx);
 /* An accepted command changed the persisted value of (group, index). It
  * marks the record; whether the work set changed is the capture's finding. */
 void nvm_store_changed(unsigned int group, unsigned int index);
+/* The same for a record named by its record_id (nvm_klj2.h); an id the shape
+ * has no record of marks nothing. Neither walks the records, so a mark costs
+ * the same in any pass (#665, the share in ctrl_loop.h). */
+void nvm_store_changed_id(unsigned int id);
 /* Start a capture now, without the debounce, and write it even if nothing
  * changed (the console); 1 when started. Refused inside a failed attempt's
  * backoff and while HELD, and an exhausted unchanged work set is still not

@@ -180,8 +180,8 @@ DEFECTS = (
            ('Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle',
             'the empty set is a framed record, not an erased one')),
     defect('nvm-scan-word-index-dropped', 'aecp_nvm.c',
-           'nvm_rec_by_id(32u * w + bit)',
-           'nvm_rec_by_id(bit + 0u * w)',
+           'nvm_store_changed_id(32u * w + bit)',
+           'nvm_store_changed_id(bit + 0u * w)',
            ('Nvm.EmptyAndNonDefaultMapsSurviveTheRealStorePowerCycle',
             'the empty set is a framed record, not an erased one')),
     # A received frame's bytes always start on a word, so on a little-endian

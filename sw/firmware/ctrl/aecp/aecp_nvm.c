@@ -123,10 +123,12 @@ void aecp_nvm_init(struct aecp_nvm *n, struct aecp *core, const struct aecp_valu
 	n->port = (struct nvm_state){model_ready, apply, settle, rollback, latch, release, n};
 }
 
+// The record's id without the walk to its offset (nvm_rec_id_of): a mark costs
+// the same in any pass (#665, the share in ctrl_loop.h).
 static void mark(struct aecp_nvm *n, unsigned group, unsigned index)
 {
-	struct nvm_rec r = nvm_rec_of(group, index);
-	if (r.ok) n->pending[r.id / 32u] |= 1u << (r.id % 32u);
+	int id = nvm_rec_id_of(group, index);
+	if (id >= 0) n->pending[(unsigned)id / 32u] |= 1u << ((unsigned)id % 32u);
 }
 
 void aecp_nvm_changed(struct aecp_nvm *n, enum aecp_change kind, uint16_t type, uint16_t index)
@@ -162,8 +164,7 @@ bool aecp_nvm_poll(struct aecp_nvm *n)
 			++bit;
 		}
 		n->pending[w] &= ~(1u << bit);
-		struct nvm_rec r = nvm_rec_by_id(32u * w + bit);
-		nvm_store_changed(r.group, r.index);
+		nvm_store_changed_id(32u * w + bit);
 		return true;
 	}
 	return false;

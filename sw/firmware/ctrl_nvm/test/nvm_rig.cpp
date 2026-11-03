@@ -558,6 +558,9 @@ bool word_arg(const std::string& a, const std::string& v, Files& files) {
         }
     } else if (a == "--change") {
         change_arg(v);
+    } else if (a == "--change-id") {
+        // ID, nvm_store_changed_id() as a caller may call it: for an id the shape has no record of too
+        nvm_store_changed_id(static_cast<unsigned>(number(v.c_str(), nullptr)));
     } else if (a == "--service") {
         for (unsigned long k = number(v.c_str(), nullptr); k > 0u; --k) {
             service();

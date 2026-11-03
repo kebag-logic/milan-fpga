@@ -815,22 +815,36 @@ uint32_t nvm_store_clock(void *ctx)
 	return (uint32_t)nvm_now();
 }
 
-void nvm_store_changed(unsigned int group, unsigned int index)
+/* Mark record id changed; the callers hold it to a record of the shape. */
+static void nvm_mark(unsigned int id)
 {
-	struct nvm_rec r = nvm_rec_of(group, index);
 	int taken;
 
-	if (!r.ok || nvm.st.phase == NVM_P_OFF)
+	if (nvm.st.phase == NVM_P_OFF)
 		return;
-	/* the running capture has yet to reach r: it takes this change, and
-	 * leaves no window open behind it (DR2a) */
-	taken = nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && r.id >= nvm.cursor.id;
-	nvm.dirty[r.id >> 5] |= 1u << (r.id & 31u);
+	/* the running capture has yet to reach the record: it takes this change,
+	 * and leaves no window open behind it (DR2a) */
+	taken = nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && id >= nvm.cursor.id;
+	nvm.dirty[id >> 5] |= 1u << (id & 31u);
 	if (!taken && !nvm.dirty_armed) {
 		nvm.dirty_armed = 1;
 		nvm.dirty_since_us = nvm_now();
 	}
 	nvm_publish();
+}
+
+void nvm_store_changed(unsigned int group, unsigned int index)
+{
+	int id = nvm_rec_id_of(group, index);
+
+	if (id >= 0)
+		nvm_mark((unsigned int)id);
+}
+
+void nvm_store_changed_id(unsigned int id)
+{
+	if (nvm_rec_id_known(id))
+		nvm_mark(id);
 }
 
 int nvm_store_commit_now(void)

@@ -175,6 +175,13 @@ MUTANTS = (
     _m("lookup_index_unbounded", CODEC,
        "\tif (group >= NVM_G_COUNT || index >= nvm_blocks[group].count)\n\t\treturn r;",
        "\tif (group >= NVM_G_COUNT)\n\t\treturn r;", "codec_lookups"),
+    # the ids a mark takes without the walk (#665)
+    _m("id_of_one_past_a_group", CODEC,
+       "\tif (group >= NVM_G_COUNT || index >= nvm_blocks[group].count)\n\t\treturn -1;",
+       "\tif (group >= NVM_G_COUNT || index > nvm_blocks[group].count)\n\t\treturn -1;",
+       "codec_ids_without_the_walk"),
+    _m("id_known_one_past_a_group", CODEC, "id - nvm_blocks[g].base < nvm_blocks[g].count",
+       "id - nvm_blocks[g].base <= nvm_blocks[g].count", "codec_ids_without_the_walk"),
     # ---- a container longer than the stage ----
     _m("long_crc_unchecked", STORE, "\tif (~crc != nvm_rd32le(trailer))\n\t\treturn NVM_VD_CRC;\n", "",
        "long_container_reads"),
@@ -310,16 +317,21 @@ MUTANTS = (
     _m("capture_leaves_window_armed", STORE, "\tif (!taken && !nvm.dirty_armed) {",
        "\tif (!nvm.dirty_armed) {", "debounce"),
     # the record the capture examines next counted as passed
-    _m("taken_off_by_one", STORE, "r.id >= nvm.cursor.id", "r.id > nvm.cursor.id", "debounce"),
+    _m("taken_off_by_one", STORE, " id >= nvm.cursor.id", " id > nvm.cursor.id", "debounce"),
     # every change during the capture counted as taken: one it has passed,
     # and one after its last latch, open no window and are never written
-    _m("taken_while_capturing", STORE, "nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && r.id >= nvm.cursor.id;",
+    _m("taken_while_capturing", STORE, "nvm.st.phase == NVM_P_CAPTURE && nvm.cursor.ok && id >= nvm.cursor.id;",
        "nvm.st.phase == NVM_P_CAPTURE;", "capture_window_edges"),
-    _m("taken_after_last_latch", STORE, "nvm.cursor.ok && r.id >= nvm.cursor.id;", "r.id >= nvm.cursor.id;",
+    _m("taken_after_last_latch", STORE, "nvm.cursor.ok && id >= nvm.cursor.id;", "id >= nvm.cursor.id;",
        "capture_window_edges"),
     # a change to a record the shape does not have marks one it does
-    _m("change_of_no_record", STORE, "\tif (!r.ok || nvm.st.phase == NVM_P_OFF)\n\t\treturn;",
-       "\tif (nvm.st.phase == NVM_P_OFF)\n\t\treturn;", "change_unknown_record"),
+    _m("change_of_no_record", STORE, "\tif (id >= 0)\n\t\tnvm_mark((unsigned int)id);",
+       "\tnvm_mark(id >= 0 ? (unsigned int)id : 0u);", "change_unknown_record"),
+    # a change named by an id the shape has no record of marks one; one named by its id marks nothing (#665)
+    _m("change_id_of_no_record", STORE, "\tif (nvm_rec_id_known(id))\n\t\tnvm_mark(id);",
+       "\tnvm_mark(id & 0xFFu);", "change_unknown_record", "change_by_record_id"),
+    _m("change_id_ignored", STORE, "\tif (nvm_rec_id_known(id))\n\t\tnvm_mark(id);",
+       "\t(void)id;", "change_by_record_id"),
     # an owner with nothing to save has its stale payload framed
     _m("nothing_to_save_framed", STORE,
        "\tif (!s->latch(s->ctx, r.group, r.index, nvm_payload, r.plen))\n\t\treturn;",
@@ -339,8 +351,8 @@ MUTANTS = (
        "\tif (0) {", "media_failures"),
     # every change call opens a new budget, changed or not
     _m("budget_rearmed_by_change", STORE,
-       "\tnvm.dirty[r.id >> 5] |= 1u << (r.id & 31u);\n\tif (!taken",
-       "\tnvm.dirty[r.id >> 5] |= 1u << (r.id & 31u);\n\tnvm.st.attempts = 0;\n"
+       "\tnvm.dirty[id >> 5] |= 1u << (id & 31u);\n\tif (!taken",
+       "\tnvm.dirty[id >> 5] |= 1u << (id & 31u);\n\tnvm.st.attempts = 0;\n"
        "\tnvm.st.exhausted = 0;\n\tif (!taken", "dr2c_unchanged_set"),
     _m("budget_rearmed_by_capture", STORE, "\tif (nvm.stage_changed) {", "\tif (1) {",
        "dr2c_unchanged_set"),
