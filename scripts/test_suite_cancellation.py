@@ -438,7 +438,8 @@ def owner_report(parent: Path) -> None:
     scratch.mkdir()
     ready = scratch / "ready"
     began = time.monotonic()
-    sleeper = subprocess.Popen([sys.executable, "-c", STUBBORN, str(ready)])
+    sleeper = subprocess.Popen([sys.executable, "-c", "import os, signal, sys; from pathlib import Path; "
+                                "Path(sys.argv[1]).write_text(str(os.getpid())); signal.pause()", str(ready)])
     published(ready)
     # The child is older than this pause and younger than the whole control, as its age must be.
     paused = time.monotonic()
