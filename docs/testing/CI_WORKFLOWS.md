@@ -1671,12 +1671,12 @@ reconciles the whole inventory. A member's measured time is its own verdict
 row in a LiteX leg on a worker of its own. The legs are derived from the leg
 receipts of run 41583428850, the first hosted run with the legs apart
 (`SECONDS`), and each must fit at `LARGEST`, each member's largest time over
-runs 41583428850, 41678609075 (attempts 1 and 3) and 41705989293
-(attempts 1 and 2). Inside the old aggregate, after a builder
-leg in the same job, members cost otherwise (`test_ctrl_memory` 113 seconds
-there, 280 alone). A member with no measured time, a measurement for a member
-the inventory lost, and a leg above `LEG_BUDGET`, 926 seconds, at `LARGEST`
-are refused, so a new simulation cannot join a leg unmeasured. `LEG_BUDGET`
+runs 41583428850, 41678609075 (attempts 1 and 3) and 41705989293 (attempts 1
+and 2). Inside the old aggregate, after a builder leg in the same job, members
+cost otherwise (`test_ctrl_memory` 113 seconds there, 280 alone). A member
+with no measured time, a measurement for a member the inventory lost, and a
+leg above `LEG_BUDGET`, 926 seconds, at `LARGEST` are refused, so a new
+simulation cannot join a leg unmeasured. `LEG_BUDGET`
 keeps a cold LiteX worker, by the projection in
 [Protected merge bar](#protected-merge-bar), 600 seconds inside its own
 45-minute limit, runner queueing excluded. The leg receipt
@@ -3144,9 +3144,9 @@ transfers, recording and upload. Its largest is 739 seconds (worker 1, run
 41705989293 attempt 2), and that one figure is the setup of every projection.
 Builder leg 0 took at most 1130 seconds (run 41583428850) and builder leg 1 at
 most 1119 (run 41476923392 attempt 3), so worker zero projects at 1869 seconds
-and worker one at 1858. Their largest measured job times are 1535 (worker
-zero, run 41705989293 attempt 1) and 1449 (worker one, run 41705989293
-attempt 2). The
+and worker one at 1858. Their largest measured job times with the LiteX legs
+apart are 1535 (worker zero, run 41705989293 attempt 1) and 1449 (worker one,
+run 41705989293 attempt 2). The
 cold Verilator source build took at most 431 seconds (worker 3, run
 41678609075 attempt 1) and the runner self-test, its leg step less its
 verdict rows, at most 4 (worker 2, run 41705989293 attempt 2).
@@ -3168,8 +3168,8 @@ table below states each margin. `LEG_BUDGET` is 2700 less 600 seconds of
 stated headroom for hosted variance, the setup, the cold Verilator build and
 the self-test: 926 seconds, against the 794 the fullest leg holds at
 `LARGEST`. `scripts/ci_litex_legs.py` derives it from those named constants,
-and its self-test requires each LiteX worker's generated limit to equal the
-2700 seconds it starts from.
+and `ci_gate_workflows_selftest.py`, through the LiteX leg controls, requires
+each LiteX worker's generated limit to equal the 2700 seconds it starts from.
 
 The allowance after the slowest worker is built the same way, and enters only
 the workflow figure below. The `elaborate`
@@ -3213,7 +3213,7 @@ in run 41583428850 workers 2 and 4 missed the key and worker 3 restored worker
 carried the cache, nor in run 41705989293 attempts 1 and 2.
 `test_ctrl_memory`'s 280, 224, 284, 240 and 277 seconds are
 therefore cold figures. Inside the
-old aggregate it took 100 to 113 seconds on metadata builder leg 1 had
+old aggregate it took 100 to 113 seconds on metadata that builder leg 1 had
 generated earlier in the same job. Verilator is now the only cache a LiteX
 worker restores.
 
