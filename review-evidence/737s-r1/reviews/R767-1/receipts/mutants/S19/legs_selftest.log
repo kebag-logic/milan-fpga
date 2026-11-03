@@ -1,0 +1,15 @@
+LiteX legs refused an inventory member with no measured seconds: no measured seconds for test_new_member; measure it hosted and add it to SECONDS in scripts/ci_litex_legs.py
+LiteX legs refused a measured member gone from the inventory: measured seconds for a member outside the inventory: test_cpu_memory_port_cdc
+Traceback (most recent call last):
+  File "$REVIEWS/737s-r767-1-packet/scratch/mut3/scripts/ci_litex_legs_selftest.py", line 170, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$REVIEWS/737s-r767-1-packet/scratch/mut3/scripts/ci_litex_legs_selftest.py", line 163, in main
+    union_controls()
+  File "$REVIEWS/737s-r767-1-packet/scratch/mut3/scripts/ci_litex_legs_selftest.py", line 62, in union_controls
+    partition_controls(names)
+  File "$REVIEWS/737s-r767-1-packet/scratch/mut3/scripts/ci_litex_legs_selftest.py", line 53, in partition_controls
+    refused(lambda: partition(names, heavy), "a leg over its measured budget", "add a leg")
+  File "$REVIEWS/737s-r767-1-packet/scratch/mut3/scripts/ci_litex_legs_selftest.py", line 39, in refused
+    raise AssertionError("LiteX legs accepted " + label)
+AssertionError: LiteX legs accepted a leg over its measured budget

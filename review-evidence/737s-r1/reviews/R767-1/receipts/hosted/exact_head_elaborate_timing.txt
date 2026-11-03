@@ -1,0 +1,18 @@
+head_sha aa3e2d85024c0aa17b32ed1165e23e65cfad49b0 run 41583428850 attempt 1
+elaborate-gates-2            success   queued_s=    2 exec_s=  584 start+=    0 end+=  584
+        249 s  success  Build Verilator from source on cache miss
+        242 s  success  Standalone LiteX simulation aggregate, leg 0 of 3
+elaborate-gates-4            success   queued_s=    3 exec_s= 1225 start+=    1 end+= 1226
+        411 s  success  Build Verilator from source on cache miss
+        684 s  success  Standalone LiteX simulation aggregate, leg 2 of 3
+Fail fast across this head   success   queued_s=   28 exec_s= 2902 start+=   26 end+= 2928
+       2894 s  success  Observe the first failed job
+elaborate-gates-0            success   queued_s=   49 exec_s= 1253 start+=   47 end+= 1300
+       1130 s  success  Elaboration gates, leg 0 of 2
+elaborate-gates-1            success   queued_s=   21 exec_s= 1182 start+=   19 end+= 1201
+       1075 s  success  Elaboration gates, leg 1 of 2
+elaborate-gates-3            success   queued_s= 1269 exec_s=  615 start+= 1267 end+= 1882
+        502 s  success  Standalone LiteX simulation aggregate, leg 1 of 3
+elaborate                    success   queued_s=  389 exec_s=   35 start+= 2271 end+= 2306
+Collect CI manifest          success   queued_s=  476 exec_s=   42 start+= 2782 end+= 2824
+Cancel late CI failures      None      queued_s=    - exec_s=    - start+=    - end+=    -

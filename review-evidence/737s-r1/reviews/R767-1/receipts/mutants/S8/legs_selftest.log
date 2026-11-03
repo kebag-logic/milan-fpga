@@ -1,0 +1,36 @@
+LiteX legs refused an inventory member with no measured seconds: no measured seconds for test_new_member; measure it hosted and add it to SECONDS in scripts/ci_litex_legs.py
+LiteX legs refused a measured member gone from the inventory: measured seconds for a member outside the inventory: test_cpu_memory_port_cdc
+LiteX legs refused a leg over its measured budget: a LiteX leg holds 1201 measured seconds, above its 1200; add a leg
+LiteX partition: 8 members in 3 legs of 534, 518, 533 measured seconds
+LiteX legs refused a simulation dropped from its leg: LiteX leg 0 did not run its selection exactly once: test_soc_timing_cuts
+LiteX legs refused a simulation dropped from its leg's selection and results: LiteX leg 0: selection differs from its measured leg
+LiteX legs refused a simulation run in a second leg: LiteX leg 0 did not run its selection exactly once: order or extra simulations
+LiteX legs refused a simulation outside the inventory: LiteX leg 1 ran test_rogue, which is not in the inventory
+LiteX legs refused a failed simulation: test_pp_mem_bridge: FAIL in LiteX leg 1
+LiteX legs refused a skipped simulation: test_pp_mem_bridge: SKIP in LiteX leg 1
+LiteX legs refused a timed-out simulation: test_pp_mem_bridge: TIMEOUT in LiteX leg 1
+LiteX legs refused a red runner exit: LiteX leg 0: the runner exited 1
+Traceback (most recent call last):
+  File "$REVIEWS/737s-r767-1-packet/scratch/mut2/scripts/ci_litex_legs_selftest.py", line 34, in refused
+    call()
+  File "$REVIEWS/737s-r767-1-packet/scratch/mut2/scripts/ci_litex_legs_selftest.py", line 93, in <lambda>
+    refused(lambda changed=plant(edit): union(changed, *identity, names), label, expected)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$REVIEWS/737s-r767-1-packet/scratch/mut2/scripts/ci_litex_legs.py", line 168, in union
+    raise ValueError("missing LiteX leg")
+ValueError: missing LiteX leg
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "$REVIEWS/737s-r767-1-packet/scratch/mut2/scripts/ci_litex_legs_selftest.py", line 170, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "$REVIEWS/737s-r767-1-packet/scratch/mut2/scripts/ci_litex_legs_selftest.py", line 163, in main
+    union_controls()
+  File "$REVIEWS/737s-r767-1-packet/scratch/mut2/scripts/ci_litex_legs_selftest.py", line 93, in union_controls
+    refused(lambda changed=plant(edit): union(changed, *identity, names), label, expected)
+  File "$REVIEWS/737s-r767-1-packet/scratch/mut2/scripts/ci_litex_legs_selftest.py", line 36, in refused
+    assert expected in str(exc), (label, str(exc))
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('a lost leg', 'missing LiteX leg')
