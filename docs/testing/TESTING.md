@@ -259,6 +259,7 @@ Together they cover all that the row states.
 Times are cleanup's, on the owner's clock, and each deadline fails the run in the first census pass at or past it.
 `owner_stated_seconds` checks its rows on a starved owner, whose clock lands a tick, about a microsecond, short of each stated time and then on it.
 A listing can also state a census, which places a pass at its time.
+Between stated times the starved owner's passes are half a second apart; a listing's domain is its listed passes.
 Its resume-timing matrix resumes a cancelled shell in each class of census pass, at the earliest and the latest pass of the class.
 A cell's domain is its listed resume, not the whole of its class.
 The first pass of cleanup is always inside grace, since its clock is its own length, at most half a second, so the first pass past grace is the first at or past 2 s.
