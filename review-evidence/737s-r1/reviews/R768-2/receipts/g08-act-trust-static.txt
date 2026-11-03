@@ -1,0 +1,17 @@
+TRUSTED_ACTION_USES (scripts/act_ci.py:200-208), read as text, not executed:
+TRUSTED_ACTION_USES = frozenset(
+    {
+        "actions/cache@v4",
+        "actions/checkout@v4",
+        "actions/download-artifact@v4",
+        "actions/setup-python@v5",
+        "actions/upload-artifact@v4",
+    }
+)
+uses: in .github/workflows/elaborate.yml at e180ba30:
+     27 uses: actions/cache@v4
+      9 uses: actions/checkout@v4
+      2 uses: actions/download-artifact@v4
+      5 uses: actions/setup-python@v5
+     14 uses: actions/upload-artifact@v4
+round-2 delta aa3e2d85..e180ba30 on scripts/act_ci.py scripts/ci_events.py scripts/ci_tool_inventory.py: 0 files
