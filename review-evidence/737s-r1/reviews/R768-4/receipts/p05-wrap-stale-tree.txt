@@ -1,0 +1,28 @@
+head 9104a8fc68979a7a8795859e8704aef27ea0634d
+== changed-line wrap outliers in docs/testing/CI_WORKFLOWS.md (3b323864..HEAD hunks; >82 or <55 chars)
+1679: 53: simulation cannot join a leg unmeasured. `LEG_BUDGET`
+1721: 91: 284, 240 and 277 seconds in the runs with the legs apart. Its 100 to 113 seconds inside the
+3142: 44: build, so it holds checkout, installs, cache
+3149: 31: run 41705989293 attempt 2). The
+3163: 37: attempt 2, each below its projection.
+3185: 38: interval the allowance is 443 seconds.
+3294: 114: revisions` up to 277 and the VexiiRiscv placement up to 108. Two candidates for acceptance 1 are not taken here. A
+== ci_litex_legs.py:46-51
+}
+#: Each member's largest verdict-row seconds over every hosted run with the
+#: legs apart, runs 41583428850, 41678609075 (attempts 1 and 3) and
+#: 41705989293 (attempts 1 and 2). Every
+#: bound and projection uses these; docs/testing/CI_WORKFLOWS.md states the
+#: rule a later hosted measurement follows (#737).
+== stale round-3 elaborate figures (1181, 1604, 1381, 1367, 1713, 398-second, 2013, 2111, 104-second, 485 seconds, 149 seconds) in docs scripts ci .github
+docs/testing/CI_WORKFLOWS.md:3289:allowance was 398 seconds and the figures 2013 and 2111; before attempt 3 of
+rc=0 (1 = none)
+== tracked tree
+status-lines=0
+worktree equals HEAD
+index equals HEAD
+160000 commit efeb541ae5fe1e078332d8462dca2fc2d9cb8db5	external
+160000 commit 135afd043309369a87ddbc8d6550aff8ec52a157	gptp-processor
+160000 commit a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	protocol-processor
+160000 commit 08ee86e812a0eb5e1dc6cd61b494d8baf3491348	third_party/lwSRP
+160000 commit 70936b77dc41981e192438388cd0aced69954f18	third_party/tsn-c-stack

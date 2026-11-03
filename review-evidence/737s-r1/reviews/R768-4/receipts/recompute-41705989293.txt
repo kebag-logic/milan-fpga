@@ -1,0 +1,20 @@
+== attempt 1
+  Cancel late CI failures success span 29 checkout 26 rest 3
+  Collect CI manifest success span 183 checkout 95 rest 88
+  Fail fast across this head success span 2299 checkout 5 rest 2294
+  elaborate success span 21 checkout 3 rest 18
+  elaborate-gates-0 success span 1535 setup 525 verilator 0 checkout 250 litex-install 103 gates {'Elaboration gates, leg 0 of 2': 1010}
+  elaborate-gates-1 success span 1132 setup 395 verilator 0 checkout 64 litex-install 155 gates {'Elaboration gates, leg 1 of 2': 737}
+  elaborate-gates-2 success span 1414 setup 559 verilator 393 checkout 141 litex-install 277 gates {'Standalone LiteX simulation aggregate, leg 0 of 3': 462} leg-step 462 rows 459 selftest 3
+  elaborate-gates-3 success span 1148 setup 513 verilator 316 checkout 246 litex-install 120 gates {'Standalone LiteX simulation aggregate, leg 1 of 3': 319} leg-step 319 rows 317 selftest 2
+  elaborate-gates-4 success span 1233 setup 203 verilator 378 checkout 78 litex-install 27 gates {'Standalone LiteX simulation aggregate, leg 2 of 3': 652} leg-step 652 rows 649 selftest 3
+== attempt 2
+  Cancel late CI failures success span 23 checkout 18 rest 5
+  Collect CI manifest success span 182 checkout 116 rest 66
+  Fail fast across this head cancelled span 1445 checkout 10 rest 1435
+  elaborate success span 29 checkout 15 rest 14
+  elaborate-gates-0 success span 1304 setup 206 verilator 0 checkout 97 litex-install 30 gates {'Elaboration gates, leg 0 of 2': 1098}
+  elaborate-gates-1 success span 1449 setup 739 verilator 0 checkout 274 litex-install 250 gates {'Elaboration gates, leg 1 of 2': 710}
+  elaborate-gates-2 success span 907 setup 426 verilator 0 checkout 176 litex-install 102 gates {'Standalone LiteX simulation aggregate, leg 0 of 3': 481} leg-step 481 rows 477 selftest 4
+  elaborate-gates-3 success span 909 setup 466 verilator 0 checkout 111 litex-install 184 gates {'Standalone LiteX simulation aggregate, leg 1 of 3': 443} leg-step 443 rows 440 selftest 3
+  elaborate-gates-4 success span 948 setup 197 verilator 0 checkout 102 litex-install 28 gates {'Standalone LiteX simulation aggregate, leg 2 of 3': 751} leg-step 751 rows 749 selftest 2
