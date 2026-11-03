@@ -22,8 +22,8 @@ from types import SimpleNamespace
 import owned_process
 from owned_process import Cancelled, OwnedProcesses
 from process_test_support import (
-    FACILITY_MODES, FACILITY_SITE, PROC, RESUME_MATRIX, TICK, Probe, assert_reaped, eventually, identity, install,
-    mutation_campaign, parent as parent_of, running, starved_cleanup, window, write,
+    BLOCKING, FACILITY_MODES, FACILITY_SITE, PROC, RESUME_MATRIX, TICK, Probe, assert_reaped, eventually, identity,
+    install, mutation_campaign, parent as parent_of, running, starved_cleanup, window, write,
 )
 
 DRIVER = "scripts/run_all_suites.sh"
@@ -775,13 +775,16 @@ def owner_stated_seconds() -> None:
 
     def kept(words: str, listing: Callable[[float], dict], stated: list[tuple], shell_pid: int | None = None,
              reaped: Callable[[float], set] = lambda _clock: set()) -> None:
-        """One listing's cleanup, with or without a cancelled shell, sends what is stated when it is stated."""
+        """One listing's cleanup, with or without a cancelled shell, sends what is stated when it is stated; one whose
+        census grows after the first pass does so again early, with a census stated a tick after that pass."""
         owner.process, owner.root_notified = SimpleNamespace(pid=shell_pid) if shell_pid else None, bool(shell_pid)
         try:
             events = starved_cleanup(owner, listing, names, stated, reaped)
         finally:
             owner.process, owner.root_notified = None, False
         assert events == stated, f"{words}'s stated seconds were not kept on the owner's clock: {events}"
+        if (TICK, "census") not in stated and set(listing(TICK)) - set(listing(0)):
+            kept(f"an early {words[2:]}", listing, [stated[0], (TICK, "census"), *stated[1:]], shell_pid, reaped)
     with OwnedProcesses() as owner:
         kept("a survivor", lambda _clock: {survivor: (os.getpid(), "1")},
              [(0, "SIGTERM", "survivor"), (2, "SIGKILL", "survivor"), (14, "SIGKILL", "survivor"), (14, "verdict")])
@@ -859,16 +862,6 @@ def stated_liveness(kept: Callable, cell: Callable, names: dict, fakes: tuple) -
             kept(f"a next-to-last in-grace resume and its {words}", lambda clock, listing=cell(next_to_last, started):
                  {**listing(clock), **({zombie: (shell, "5")} if clock <= 2 else {})},
                  [child_term, (0, "SIGTERM", "zombie"), resume, (2, "SIGKILL", "zombie"), *rest], shell)
-
-
-#: Blocks SIGTERM and SIGCONT, so either sent to it stays pending, as its status shows; then says it is ready.
-BLOCKING = r'''
-import signal, time
-signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGTERM, signal.SIGCONT})
-print("ready", flush=True)
-while True:
-    time.sleep(0.02)
-'''
 
 
 def pending(pid: int) -> int:
