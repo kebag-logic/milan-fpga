@@ -1,0 +1,37 @@
+owner-stated-seconds: {'grace': 2, 'verdict': 14, 'parent_kill': 4, 'vanishing': 24, 'resumes': [0, 1, 3, 5.5, 13.999999046325684], 'window': 10, 'after_resume': 20, 'vanishing_after_resume': 30, 'matrix': [0, 9.5367431640625e-07, 1.9999990463256836, 2, 2.0000009536743164, 13.999999046325684], 'alone_or_with_trap_command': True}
+run 1: no resume; 31 passes; first listed: survivor from 0.0000000
+run 2: no resume; 32 passes; first listed: child from 0.0000000, parent from 0.0000000
+run 3: no resume; 50 passes; first listed: 4194310 from 0.0000000
+run 4: resume at 5.5000000 in pass 14: a later pass past grace; pass before 5.499999046325684, after 6.0; trap command first listed at 5.5000000, the resume pass, past grace (a SIGKILL pass)
+run 5: resume at 0.0000000 in pass 1: first pass, inside grace; pass before None, after 0.5; trap command first listed at 0.5000000, the pass after the resume, inside grace (a SIGTERM pass)
+run 6: no resume; 31 passes; first listed: cleanup command from 0.5000000, survivor from 0.0000000
+run 7: resume at 3.0000000 in pass 9: a later pass past grace; pass before 2.9999990463256836, after 3.5; trap command first listed at 3.0000000, the resume pass, past grace (a SIGKILL pass)
+run 8: resume at 13.9999990 in pass 31: a later pass past grace, the last before 14 s; pass before 13.999998092651367, after 14.499999046325684; trap command first listed at 13.9999990, the resume pass, past grace (a SIGKILL pass)
+run 9: no resume; 31 passes; first listed: child from 0.0000000, shell from 0.0000000
+run 10: resume at 13.9999990 in pass 31: a later pass past grace, the last before 14 s; pass before 13.999998092651367, after 14.499999046325684; trap command first listed at 13.9999990, the resume pass, past grace (a SIGKILL pass)
+run 11: resume at 1.0000000 in pass 4: a later pass inside grace; pass before 0.9999990463256836, after 1.5; trap command first listed at 1.0000000, the resume pass, inside grace (a SIGTERM pass)
+run 12: no resume; 31 passes; first listed: child from 0.0000000, cleanup command from 0.5000000, shell from 0.0000000
+run 13: resume at 0.0000000 in pass 1: first pass, inside grace; pass before None, after 0.5; shell alone after the resume
+run 14: resume at 0.0000010 in pass 2: a later pass inside grace, the second; pass before 0.0, after 0.5000009536743164; shell alone after the resume
+run 15: resume at 0.0000010 in pass 2: a later pass inside grace, the second; pass before 0.0, after 0.5000009536743164; trap command first listed at 0.5000010, the pass after the resume, inside grace (a SIGTERM pass)
+run 16: resume at 1.9999990 in pass 6: a later pass inside grace, the last before 2 s; pass before 1.9999980926513672, after 2.4999990463256836; shell alone after the resume
+run 17: resume at 1.9999990 in pass 6: a later pass inside grace, the last before 2 s; pass before 1.9999980926513672, after 2.4999990463256836; trap command first listed at 2.4999990, the pass after the resume, past grace (a SIGKILL pass)
+run 18: resume at 2.0000000 in pass 6: the first pass past grace; pass before 1.9999990463256836, after 2.5; shell alone after the resume
+run 19: resume at 2.0000000 in pass 6: the first pass past grace; pass before 1.9999990463256836, after 2.5; trap command first listed at 2.5000000, the pass after the resume, past grace (a SIGKILL pass)
+run 20: resume at 2.0000010 in pass 7: a later pass past grace, the next after the first; pass before 2.0, after 2.5000009536743164; shell alone after the resume
+run 21: resume at 2.0000010 in pass 7: a later pass past grace, the next after the first; pass before 2.0, after 2.5000009536743164; trap command first listed at 2.5000010, the pass after the resume, past grace (a SIGKILL pass)
+run 22: resume at 13.9999990 in pass 31: a later pass past grace, the last before 14 s; pass before 13.999998092651367, after 14.499999046325684; shell alone after the resume
+run 23: resume at 13.9999990 in pass 31: a later pass past grace, the last before 14 s; pass before 13.999998092651367, after 14.499999046325684; trap command first listed at 14.4999990, the pass after the resume, past grace (a SIGKILL pass)
+run 24: resume at 0.0000000 in pass 1: first pass, inside grace; pass before None, after 0.5; trap command first listed at 0.5000000, the pass after the resume, inside grace (a SIGTERM pass)
+run 25: resume at 0.0000010 in pass 2: a later pass inside grace, the second; pass before 0.0, after 0.5000009536743164; trap command first listed at 0.5000010, the pass after the resume, inside grace (a SIGTERM pass)
+run 26: resume at 1.9999990 in pass 6: a later pass inside grace, the last before 2 s; pass before 1.9999980926513672, after 2.4999990463256836; trap command first listed at 2.4999990, the pass after the resume, past grace (a SIGKILL pass)
+run 27: resume at 2.0000000 in pass 6: the first pass past grace; pass before 1.9999990463256836, after 2.5; trap command first listed at 2.5000000, the pass after the resume, past grace (a SIGKILL pass)
+run 28: resume at 2.0000010 in pass 7: a later pass past grace, the next after the first; pass before 2.0, after 2.5000009536743164; trap command first listed at 2.5000010, the pass after the resume, past grace (a SIGKILL pass)
+run 29: resume at 13.9999990 in pass 31: a later pass past grace, the last before 14 s; pass before 13.999998092651367, after 14.499999046325684; trap command first listed at 14.4999990, the pass after the resume, past grace (a SIGKILL pass)
+run 30: resume at 3.0000000 in pass 9: a later pass past grace; pass before 2.9999990463256836, after 3.5; shell alone after the resume
+run 31: no resume; 32 passes; first listed: survivor from 0.0000000, trap command from 0.5000000
+run 32: resume at 1.9999981 in pass 6: a later pass inside grace; pass before 1.9999971389770508, after 1.9999990463256836; trap command first listed at 1.9999990, the pass after the resume, inside grace (a SIGTERM pass)
+run 33: resume at 1.9999981 in pass 6: a later pass inside grace; pass before 1.9999971389770508, after 1.9999990463256836; trap command first listed at 1.9999990, the pass after the resume, inside grace (a SIGTERM pass)
+run 34: resume at 1.0000000 in pass 4: a later pass inside grace; pass before 0.9999990463256836, after 1.5; shell alone after the resume
+run 35: resume at 10.0000000 in pass 23: a later pass past grace; pass before 9.999999046325684, after 10.5; shell alone after the resume
+matrix audit: 35 listings

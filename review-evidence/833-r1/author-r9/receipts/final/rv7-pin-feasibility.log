@@ -1,0 +1,5 @@
+none: rc 0 OK: owner_stated_seconds: PASS
+rv7-sigterm-trap-command-later-grace-resume: rc 1 OK: AssertionError: an in-grace resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (1.0, 'SIGCONT', 'shell'), (1.0, 'SIGTERM', 'trap command'), (11.0, 'SIGKILL', 'shell'), (11.0, 'SIGKILL', 'trap command'), (21.0, 'SIGKILL', 's
+rv7-no-resume-later-in-grace: rc 1 OK: AssertionError: an in-grace resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (2.0, 'SIGCONT', 'shell'), (12.0, 'SIGKILL', 'shell'), (12.0, 'SIGKILL', 'trap command'), (22.0, 'SIGKILL', 'shell'), (22.0, 'SIGKILL', 'trap co
+rv7-no-window-later-in-grace: rc 1 OK: AssertionError: an in-grace resume's stated seconds were not kept on the owner's clock: [(0.0, 'SIGTERM', 'child'), (1.0, 'SIGCONT', 'shell'), (4.0, 'SIGKILL', 'shell'), (4.0, 'SIGKILL', 'trap command'), (14.0, 'SIGKILL', 'shell'), (14.0, 'SIGKILL', 'trap comm
+pin feasibility: PASS
