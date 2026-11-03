@@ -26,26 +26,32 @@ from ci_case_receipts import canonical, source_identity, validate_inventory
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = "scripts/run_litex_sims.sh"
 VERDICTS = "verdicts.tsv"
-#: Each member's largest hosted wall clock, in seconds, over the
-#: elaborate-gates-1 logs of runs 41470524727, 41526004847 and 41554508699 and
-#: of run 41476923392's first three attempts, read from the gaps between the
-#: runner's consecutive result lines. A member the inventory holds and this
-#: table lacks is refused, so a new simulation cannot join a leg unmeasured.
+#: Each member's hosted wall clock, in seconds, run in a LiteX leg on a worker
+#: of its own: the verdict rows of the three leg receipts of run 41583428850,
+#: the first run after the legs split, where workers 2 and 4 missed every cache
+#: a workflow edit invalidates. Measured inside the old whole aggregate, after
+#: a builder leg in the same job, members cost otherwise (test_ctrl_memory 113
+#: there, 280 alone), so those figures are not used (#737). A member the
+#: inventory holds and this table lacks is refused, so a new simulation cannot
+#: join a leg unmeasured.
 SECONDS = {
-    "test_cpu_memory_port_cdc": 72,
-    "test_ctrl_memory": 113,
-    "test_gmii_rx_capture": 1,
-    "test_gptp_tx_timestamp": 477,
-    "test_pp_boot_bus_freeze": 26,
+    "test_cpu_memory_port_cdc": 70,
+    "test_ctrl_memory": 280,
+    "test_gmii_rx_capture": 0,
+    "test_gptp_tx_timestamp": 461,
+    "test_pp_boot_bus_freeze": 25,
     "test_pp_mem_bridge": 14,
-    "test_retained_cdc_storage": 348,
-    "test_soc_timing_cuts": 534,
+    "test_retained_cdc_storage": 331,
+    "test_soc_timing_cuts": 240,
 }
 LEGS = 3
-#: The simulation seconds one leg may hold. A hosted job's 30 minutes (#737),
-#: less its measured 112 seconds of setup, a 300-second cold Verilator build
-#: and 60 seconds of evidence upload, leaves 1328; this keeps the rest as margin.
-LEG_BUDGET = 1200
+#: The simulation seconds one leg may hold, so that a cold LiteX worker keeps
+#: the workflow inside its 30 minutes (#737): 1800 less the 270-second
+#: aggregate, collector, watcher and tail allowance, the 143-second setup (the
+#: largest elaborate worker span outside its gate steps and Verilator build, run
+#: 41526004847), the 411-second cold Verilator build (run 41583428850) and the
+#: 3-second runner self-test. Runner queueing is not in it.
+LEG_BUDGET = 973
 SCHEMA = 1
 
 

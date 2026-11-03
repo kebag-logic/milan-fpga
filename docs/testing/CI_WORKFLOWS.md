@@ -1666,18 +1666,23 @@ minutes hosted and held that job within a minute of its 45-minute limit
 the inventory from the runner's `--list` and assigns each member, longest
 measured hosted time first, to the least-loaded of three legs. It passes each
 leg's names to the runner's `--only`, which runs exactly those and still
-reconciles the whole inventory. A member with no measured time, a measurement
-for a member the inventory lost, and a leg above 1200 measured seconds are
-refused, so a new simulation cannot join a leg unmeasured. The leg receipt
+reconciles the whole inventory. A member's measured time is its own verdict
+row in the leg receipts of run 41583428850, the first hosted run with the legs
+apart; inside the old aggregate, after a builder leg in the same job, members
+cost otherwise (`test_ctrl_memory` 113 seconds there, 280 alone). A member
+with no measured time, a measurement for a member the inventory lost, and a
+leg above 973 measured seconds are refused, so a new simulation cannot join a
+leg unmeasured; 973 is what keeps a cold LiteX worker, by the projection in
+[Protected merge bar](#protected-merge-bar), inside the workflow's 30 minutes. The leg receipt
 binds the runner's per-member verdict rows (`verdicts.tsv`) and its exit to
 the head and tree. The `elaborate` aggregate refuses unless every simulation
 ran exactly once, in its measured leg, and passed: a simulation dropped from
 its leg, run in a second leg, failed, skipped or timed out, a lost leg and a
 red runner exit are each refused by name, and `ci_gate_workflows_selftest.py`
-plants each of them. The legs hold 534 (`test_soc_timing_cuts`), 518
-(`test_gptp_tx_timestamp` and the three shortest) and 533 measured seconds
-(`test_retained_cdc_storage`, `test_ctrl_memory` and
-`test_cpu_memory_port_cdc`).
+plants each of them. The legs hold 461 (`test_gptp_tx_timestamp`), 440
+(`test_retained_cdc_storage`, `test_cpu_memory_port_cdc` and the three
+shortest) and 520 measured seconds (`test_ctrl_memory` and
+`test_soc_timing_cuts`).
 
 Each leg reuses the interpreter its worker just installed and patched; locally the same command runs against any
 interpreter that imports `migen` + `litex` and otherwise declares its skips
@@ -3087,13 +3092,25 @@ hosted, and worker one 2079, 2233 and 2672, in runs 41470524727, 41526004847
 and 41554508699 (#737). Run 41476923392 was cancelled at the 45-minute limit
 inside it. The aggregate now runs in three LiteX legs on workers 2 to 4, so
 worker one projects at its largest measured job time less that step,
-`2672 - 1485`, which is above its projection less the old window. Each LiteX
-worker projects at the largest hosted time worker one spent outside its two
-gate steps, 143 seconds, plus the three-second runner self-test, its leg's
-measured seconds and 60 seconds for recording and upload. A member's measured
-seconds are its largest hosted time over those runs and the cancelled run's
-first three attempts. A Verilator cache miss adds a source build, about 300
-seconds, to each LiteX worker; the slowest then projects at 1040 seconds.
+`2672 - 1485`, which is above its projection less the old window.
+
+A worker's setup is its job span less its gate steps and its Verilator source
+build, so it holds checkout, installs, cache transfers, recording and upload.
+The largest over every elaboration worker of the runs named in this section is
+143 seconds (worker one, run 41526004847), and that one figure is the setup of
+every projection below. Each LiteX worker projects cold at that setup, the
+411-second Verilator source build, the three-second runner self-test and its
+leg's measured seconds: 1018, 997 and 1077 seconds for legs 0 to 2. A member's
+measured seconds are its own verdict row in the leg receipts of run
+41583428850, the first hosted run with the legs apart. That run is the cold
+case. A workflow edit changes the key of every cache that hashes the workflow
+files, and workers 2 and 4 missed each of them (sv2v, the pip pins, sbt, the
+CPU metadata and Verilator) and built Verilator in 249 and 411 seconds; worker
+3 started 1268 seconds later and restored what worker 2 had saved. Its LiteX
+workers took 585, 616 and 1226 seconds, and the same projection of that run's
+own legs of 240, 500 and 681 seconds gives 797, 1057 and 1238, each at or above
+the measured span. With Verilator restored, the legs project at 607, 586 and
+666 seconds.
 
 Yosys compilation now runs once in prerequisite `yosys-tool`.
 Its pinned source and cache-key construction are preserved. Source compilation
@@ -3113,9 +3130,9 @@ plus 60 seconds for download, extraction and execution evidence.
 | `docs-gates-2` | 1073 | 1620 | 547 |
 | `elaborate-gates-0` | 1475 | 1620 | 145 |
 | `elaborate-gates-1` | 1187 | 1620 | 433 |
-| `elaborate-gates-2` | 740 | 1620 | 880 |
-| `elaborate-gates-3` | 724 | 1620 | 896 |
-| `elaborate-gates-4` | 739 | 1620 | 881 |
+| `elaborate-gates-2 (cold)` | 1018 | 1620 | 602 |
+| `elaborate-gates-3 (cold)` | 997 | 1620 | 623 |
+| `elaborate-gates-4 (cold)` | 1077 | 1620 | 543 |
 | `yosys-tool (cold)` | 720 | 1044 | 324 |
 | `yosys-shards 0/4` | 554 | 1044 | 490 |
 | `yosys-shards 1/4` | 85 | 1044 | 959 |
