@@ -1,0 +1,27 @@
+== git diff --check 3b32386423..HEAD
+rc=0
+== delta paths
+ci/image/command-table.json
+docs/testing/CI_WORKFLOWS.md
+scripts/ci_gate_workflows.py
+scripts/ci_litex_legs.py
+== delta paths under hdl/ or with RTL suffixes
+(none above means none)
+== added comment lines in delta code
++#: count. Fetching the head, it projects at 111 seconds: the largest depth-one checkout over the cited runs, 26,
++#: plus its largest span less its checkout, 85, most of it before its first step. Three minutes leaves 69 seconds
++#: legs apart, runs 41583428850, 41678609075 (attempts 1 and 3) and
++#: 41705989293 (attempts 1 and 2). Every
++#: build over the cited hosted runs: worker 1, run 41705989293 attempt 2 (#737).
++#: The largest LiteX runner self-test over the cited hosted runs, its leg step
++#: less its verdict rows: worker 2, run 41705989293 attempt 2 (#737).
+== lane/reviewer/round label scan of added lines
+rc=1 (1 = none)
+== status
+9104a8fc68979a7a8795859e8704aef27ea0634d
+858d8230dbb684404e9b1a3c033ebfe6aa68ddc7
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor (135afd0)
+ a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645 protocol-processor (v2.0-856-ga9e84b6)
+-08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP
+-70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack
