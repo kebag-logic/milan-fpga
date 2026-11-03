@@ -1,0 +1,8 @@
+probe p5-full-history-aggregate: scripts/ci_gate_workflows.py: 'HEAD_ONLY_AGGREGATES = {"elaborate"}' -> 'HEAD_ONLY_AGGREGATES = set()'
+ scripts/ci_gate_workflows.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=1 :: python3 scripts/ci_gate_workflows.py --check
+.github/workflows/elaborate.yml: regenerate the gate jobs
+rc=1 :: python3 scripts/ci_gate_workflows_selftest.py
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('elaborate', {'uses': 'actions/checkout@v4', 'with': {'fetch-depth': 0}, 'id': 'ci_step_0', 'name': 'Run actions/checkout@v4'})
