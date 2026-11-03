@@ -15,7 +15,8 @@
 //   L   the event loop: the order ctrl_loop_open brings the mailbox up in,
 //       the per-pass bounds, the TICK fan-out to centisecond consumers, and
 //       THE STEP: its client last in every pass that takes no input, given
-//       the deadline read as the pass starts.
+//       the deadline read as the pass starts, and its age limit, counted in
+//       the centiseconds a dispatch carries.
 //
 // One test per labelled step; each assertion carries the check's name from
 // the hand-rolled suite it replaces (README.md, "The port").
@@ -906,6 +907,44 @@ TEST_F(Loop, L13AnAgedStepIsAPassOfItsOwn) {
     static_cast<void>(ctrl_loop_service(&loop_));
     EXPECT_EQ(probe.steps, 5u) << "L13 a step it had no room for keeps its age";
     EXPECT_EQ(loop_.stats.aged_passes, 2u) << "L13 and is the next pass's alone";
+}
+
+// THE STEP's age counts centiseconds, not dispatches (#665): one TICK record
+// carries every centisecond the fabric counted while the event ring was held
+// (MAILBOX_SPLIT.md), so the pass that dispatches a record of
+// CTRL_LOOP_STEP_AGE + 1 centiseconds ages the step past its limit on its own,
+// and one of CTRL_LOOP_STEP_AGE does not.
+TEST_F(Loop, L14TheAgeCountsCentisecondsNotDispatches) {
+    drain(&loop_);
+    ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
+    std::uint8_t f[82];
+    build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
+    // centiseconds counted while the event ring is held, posted as one TICK record, and a record beside it: one
+    // pass takes both, so it takes no step
+    const auto coalesced = [&](unsigned centiseconds) {
+        mbx_model_evt_pause(&model, true);
+        mbx_model_advance_ms(&model, centiseconds * MBX_TICK_MS);
+        EXPECT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+        mbx_model_evt_pause(&model, false);
+        const unsigned ticks = loop_.stats.ticks;
+        const unsigned events = loop_.stats.events;
+        static_cast<void>(ctrl_loop_service(&loop_));
+        EXPECT_TRUE(loop_.stats.ticks == ticks + centiseconds && loop_.stats.events == events + 1u)
+            << "L14 (one record carries them, and one pass dispatches them)";
+    };
+    coalesced(CTRL_LOOP_STEP_AGE);
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.steps, 0u) << "L14 a dispatch of CTRL_LOOP_STEP_AGE centiseconds leaves the next pass its input";
+    drain(&loop_);
+    const unsigned steps = probe.steps;  // a pass that took nothing ran the step: its age starts again
+    coalesced(CTRL_LOOP_STEP_AGE + 1u);
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    const unsigned rx = probe.rx;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_TRUE(probe.steps == steps + 1u && probe.rx == rx)
+        << "L14 one dispatch of CTRL_LOOP_STEP_AGE + 1 centiseconds makes the next pass the step's alone";
+    EXPECT_EQ(loop_.stats.aged_passes, 1u) << "L14 counted as an aged step's";
 }
 
 }  // namespace

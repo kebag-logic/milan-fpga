@@ -74,4 +74,9 @@ def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("step-age-reset-on-deferral", "loop/ctrl_loop.c", "l->step_age = waits ? l->step_age : 0u;",
              "l->step_age = 0u;", "port", "Loop.L13AnAgedStepIsAPassOfItsOwn",
              "L13 a step it had no room for keeps its age"),
+        # the age counts the centiseconds a dispatch carries, not the dispatch: one TICK record carries every
+        # centisecond counted while the event ring was held
+        kind("step-age-counts-dispatches", "loop/ctrl_loop.c", "\tl->step_age += count;\n",
+             "\tl->step_age += count != 0u;\n", "port", "Loop.L14TheAgeCountsCentisecondsNotDispatches",
+             "L14 one dispatch of CTRL_LOOP_STEP_AGE + 1 centiseconds makes the next pass the step's alone"),
     )
