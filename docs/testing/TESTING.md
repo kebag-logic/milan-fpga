@@ -293,9 +293,9 @@ Beside the matrix, its liveness cells list a live descendant new since the first
 | The same, with the child a parent beside the shell rather than under it, from the first census | a parent beside a stopped shell and its live new descendant |
 | The trap's command after a resume at 1 s, first listed from the pass after it, at 1.5 s, inside grace | a one-second resume and its live trap command |
 
-The last cell is listed with a command that is not live as well: a next-to-last in-grace resume and its trap command.
+The next-to-last in-grace cell is listed with a command that is not live as well: a next-to-last in-grace resume and its trap command.
 
-Each listing whose census grows after the first pass is kept again, early: with a census stated a tick after the first pass, the first to list what is new since it.
+Each listing whose census has grown by the second pass is kept again, early: with a census stated a tick after the first pass, the first to list what is new since it.
 Its words are the listing's, made early:
 
 | Early listing | What is new since the first pass, first listed a tick in |

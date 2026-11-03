@@ -776,7 +776,7 @@ def owner_stated_seconds() -> None:
     def kept(words: str, listing: Callable[[float], dict], stated: list[tuple], shell_pid: int | None = None,
              reaped: Callable[[float], set] = lambda _clock: set()) -> None:
         """One listing's cleanup, with or without a cancelled shell, sends what is stated when it is stated; one whose
-        census grows after the first pass does so again early, with a census stated a tick after that pass."""
+        census has grown by the second pass does so again early, with a census stated a tick after the first pass."""
         owner.process, owner.root_notified = SimpleNamespace(pid=shell_pid) if shell_pid else None, bool(shell_pid)
         try:
             events = starved_cleanup(owner, listing, names, stated, reaped)
