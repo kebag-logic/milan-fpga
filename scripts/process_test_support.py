@@ -910,6 +910,10 @@ MUTANTS: dict[str, tuple] = {
         ("if any(parent == pid and child in live for child, (parent, _start) in owned.items()):",
          "if any(parent == pid and child in live for child, (parent, _start) in owned.items()) and not"
          " (self.root_notified and resumed is None and owned[pid][0] == root_pid):")),
+    "first-census-parent-unspared-beside-shell": ("owner_stated_seconds", "a stubborn parent beside a stopped shell's",
+        ("if any(parent == pid and child in live for child, (parent, _start) in owned.items()):",
+         "if any(parent == pid and child in live and not (self.root_notified and (child, _start) in"
+         " initial) for child, (parent, _start) in owned.items()):")),
 }
 
 

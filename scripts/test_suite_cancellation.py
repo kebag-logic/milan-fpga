@@ -788,9 +788,9 @@ def owner_stated_seconds() -> None:
     with OwnedProcesses() as owner:
         kept("a survivor", lambda _clock: {survivor: (os.getpid(), "1")},
              [(0, "SIGTERM", "survivor"), (2, "SIGKILL", "survivor"), (14, "SIGKILL", "survivor"), (14, "verdict")])
-        kept("a stubborn parent", lambda _clock: {parent: (owner_pid, "5"), child: (parent, "4")},
-             [(0, "SIGTERM", "parent"), (0, "SIGTERM", "child"), (2, "SIGKILL", "child"), (4, "SIGKILL", "parent"),
-              (14, "SIGKILL", "parent"), (14, "SIGKILL", "child"), (14, "verdict")])
+        stubborn = [(0, "SIGTERM", "parent"), (0, "SIGTERM", "child"), (2, "SIGKILL", "child"),
+                    (4, "SIGKILL", "parent"), (14, "SIGKILL", "parent"), (14, "SIGKILL", "child"), (14, "verdict")]
+        kept("a stubborn parent", lambda _clock: {parent: (owner_pid, "5"), child: (parent, "4")}, stubborn)
         kept("a vanishing listing", lambda _clock: {gone: (owner_pid, "6")}, [(24, "verdict")], None,
              lambda _clock: {gone})
         kept("a late resume", resumed_at(5.5), window(5.5), shell)
@@ -803,8 +803,7 @@ def owner_stated_seconds() -> None:
         kept("a second-stage resume", resumed_at(3), window(3), shell)
         kept("a last-pass resume", resumed_at(last), window(last), shell)
         kept("a stopped shell", resumed_at(float("inf")), [(0, "SIGTERM", "child"), (2, "SIGKILL", "child"),
-                                                  (14, "SIGKILL", "shell"), (14, "SIGKILL", "child"), (14, "verdict")],
-             shell)
+             (14, "SIGKILL", "shell"), (14, "SIGKILL", "child"), (14, "verdict")], shell)
         # After the last-pass resume everything listed dies inside every census.
         kept("a resumed vanishing listing", resumed_at(last), [*window(last)[:3], (last + 30, "verdict")], shell,
              lambda clock: {shell, command} if clock > last else set())
@@ -825,6 +824,9 @@ def owner_stated_seconds() -> None:
         # A lone shell resumed inside a class of pass, not at either end: at 1 s, inside grace, and at 10 s, past it.
         for resume, when in ((1, "one-second"), (10, "ten-second")):
             kept(f"a lone {when} resume", cell(resume), window(resume, ("shell",)), shell)
+        for at, entry in (("beside", (owner_pid, "5")), ("under", (shell, "5"))):
+            kept(f"a stubborn parent {at} a stopped shell", lambda _clock, entry=entry: {shell: (owner_pid, "2"),
+                 parent: entry, child: (parent, "4")}, [*stubborn[:4], (14, "SIGKILL", "shell"), *stubborn[4:]], shell)
     print("owner-stated-seconds: " + str(dict(grace=2, verdict=14, parent_kill=4, vanishing=24,
                                               resumes=[0, 1, 3, 5.5, last], window=10, after_resume=20,
                                               vanishing_after_resume=30, matrix=[0, TICK, 2 - TICK, 2, 2 + TICK, last],
@@ -847,9 +849,8 @@ def stated_liveness(kept: Callable, cell: Callable, names: dict, fakes: tuple) -
         for when, resume in (*RESUME_MATRIX, ("one-second", 1)):
             kept(f"a {when} resume and its live trap command", cell(resume, live), window(resume), shell)
         # The child's trap starts it and the child exits, so it alone keeps the shell stopped, until 3 s.
-        kept("a live new descendant beside a stopped shell",
-             lambda clock: {shell: (owner_pid, "2"), **({child: (shell, "4")} if not clock else {}),
-                            **({live: (shell, "8")} if 0 < clock < 3 else {})},
+        kept("a live new descendant beside a stopped shell", lambda clock: {shell: (owner_pid, "2"),
+             **({child: (shell, "4")} if not clock else {}), **({live: (shell, "8")} if 0 < clock < 3 else {})},
              [(0, "SIGTERM", "child"), (2, "SIGKILL", "trap command"), *window(3, ("shell",))[2:]], shell)
         # The survivor's trap starts it, and no shell is cancelled. While it lives the survivor is spared, to 4 s.
         kept("a live new descendant",
