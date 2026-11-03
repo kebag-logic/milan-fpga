@@ -1673,7 +1673,8 @@ cost otherwise (`test_ctrl_memory` 113 seconds there, 280 alone). A member
 with no measured time, a measurement for a member the inventory lost, and a
 leg above 973 measured seconds are refused, so a new simulation cannot join a
 leg unmeasured; 973 is what keeps a cold LiteX worker, by the projection in
-[Protected merge bar](#protected-merge-bar), inside the workflow's 30 minutes. The leg receipt
+[Protected merge bar](#protected-merge-bar), inside the workflow's 30 minutes, runner queueing
+excluded. The leg receipt
 binds the runner's per-member verdict rows (`verdicts.tsv`) and its exit to
 the head and tree. The `elaborate` aggregate refuses unless every simulation
 ran exactly once, in its measured leg, and passed: a simulation dropped from
@@ -3209,7 +3210,19 @@ whose largest hosted job time in the runs above was 1254 seconds, cold, in run
 41583428850. The same
 270 seconds of aggregate, collector, watcher and tail allowance gives
 1745 seconds, about 29.1 minutes: 55 seconds inside thirty minutes, so its
-two builder legs are kept. With the LiteX simulations on worker one, its
+two builder legs are kept. That projection, like every one here, excludes
+runner queueing. Run 41583428850, the first hosted run with the LiteX legs
+apart, did not meet #737 acceptance 1, the workflow inside 30 minutes from its
+first job start to its last job end: measured from the first job start,
+`elaborate-gates-3` ended at 1882 seconds, the `elaborate` aggregate at 2306
+and `Collect CI manifest` at 2824. The cause was runner queueing.
+`elaborate-gates-3` waited 1268 seconds for a runner and the aggregate 388,
+while the docs, fast and full RTL workflows of that head ran beside it, the
+full one with 19 shards. Three LiteX legs put one more concurrent runner per
+head in that queue than two would. But queueing is an account-level limit that
+every workflow at a head shares, and one runner fewer would not have brought
+that run inside 30 minutes, so the three legs are kept. Acceptance 1 under
+concurrency stays open on #737. With the LiteX simulations on worker one, its
 measured 2672 seconds put the workflow at 2942, about 49 minutes (#737). Undivided at `7032bca5`, worker zero projected at 1608
 seconds and the workflow at 1878, about 31.3 minutes.
 The collector outage budget is not normal-run duration evidence.
