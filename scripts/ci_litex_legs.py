@@ -28,12 +28,12 @@ RUNNER = "scripts/run_litex_sims.sh"
 VERDICTS = "verdicts.tsv"
 #: Each member's hosted wall clock, in seconds, run in a LiteX leg on a worker
 #: of its own: the verdict rows of the three leg receipts of run 41583428850,
-#: the first run after the legs split, where workers 2 and 4 missed every cache
-#: a workflow edit invalidates. Measured inside the old whole aggregate, after
-#: a builder leg in the same job, members cost otherwise (test_ctrl_memory 113
-#: there, 280 alone), so those figures are not used (#737). A member the
-#: inventory holds and this table lacks is refused, so a new simulation cannot
-#: join a leg unmeasured.
+#: the first run after the legs split. The legs are derived from these figures
+#: and kept while each fits LEG_BUDGET at LARGEST. Measured inside the old whole
+#: aggregate, after a builder leg in the same job, members cost otherwise
+#: (test_ctrl_memory 113 there, 280 alone), so those figures are not used
+#: (#737). A member the inventory holds and this table lacks is refused, so a
+#: new simulation cannot join a leg unmeasured.
 SECONDS = {
     "test_cpu_memory_port_cdc": 70,
     "test_ctrl_memory": 280,
@@ -44,14 +44,29 @@ SECONDS = {
     "test_retained_cdc_storage": 331,
     "test_soc_timing_cuts": 240,
 }
+#: Each member's largest verdict-row seconds over every hosted run with the
+#: legs apart, runs 41583428850 and 41678609075. Every bound and projection
+#: uses these; docs/testing/CI_WORKFLOWS.md states the rule a later hosted
+#: measurement follows (#737).
+LARGEST = {
+    "test_cpu_memory_port_cdc": 72,
+    "test_ctrl_memory": 280,
+    "test_gmii_rx_capture": 0,
+    "test_gptp_tx_timestamp": 461,
+    "test_pp_boot_bus_freeze": 25,
+    "test_pp_mem_bridge": 15,
+    "test_retained_cdc_storage": 336,
+    "test_soc_timing_cuts": 369,
+}
 LEGS = 3
-#: The simulation seconds one leg may hold, so that a cold LiteX worker keeps
-#: the workflow inside its 30 minutes (#737): 1800 less the 270-second
-#: aggregate, collector, watcher and tail allowance, the 143-second setup (the
-#: largest elaborate worker span outside its gate steps and Verilator build, run
-#: 41526004847), the 411-second cold Verilator build (run 41583428850) and the
-#: 3-second runner self-test. Runner queueing is not in it.
-LEG_BUDGET = 973
+#: The simulation seconds one leg may hold at LARGEST, so that a cold LiteX
+#: worker keeps the workflow inside its 30 minutes (#737). Each term is its
+#: component's largest over the cited hosted runs: 1800 less the 338-second
+#: aggregate, collector, watcher and tail allowance, the 255-second setup (the
+#: largest elaborate worker span outside its gate steps and Verilator build,
+#: run 41678609075), the 431-second cold Verilator build (run 41678609075) and
+#: the 3-second runner self-test. Runner queueing is not in it.
+LEG_BUDGET = 773
 SCHEMA = 1
 
 
@@ -66,15 +81,19 @@ def inventory(root: Path = ROOT) -> list[str]:
     return names
 
 
-def partition(names: list[str], seconds: dict[str, int] | None = None, legs: int = LEGS) -> list[list[str]]:
-    """Longest measured member first onto the least-loaded leg; each leg then in inventory order."""
+def partition(names: list[str], seconds: dict[str, int] | None = None, legs: int = LEGS,
+              largest: dict[str, int] | None = None) -> list[list[str]]:
+    """Longest measured member first onto the least-loaded leg; each leg then in inventory order.
+
+    The legs come from `seconds`; each must hold at most LEG_BUDGET at `largest`."""
     seconds = SECONDS if seconds is None else seconds
+    largest = LARGEST if largest is None else largest
     validate_inventory(names)
-    unmeasured = [name for name in names if name not in seconds]
+    unmeasured = [name for name in names if name not in seconds or name not in largest]
     if unmeasured:
         raise ValueError("no measured seconds for " + ", ".join(unmeasured)
-                         + "; measure it hosted and add it to SECONDS in scripts/ci_litex_legs.py")
-    stale = sorted(set(seconds) - set(names))
+                         + "; measure it hosted and add it to SECONDS and LARGEST in scripts/ci_litex_legs.py")
+    stale = sorted((set(seconds) | set(largest)) - set(names))
     if stale:
         raise ValueError("measured seconds for a member outside the inventory: " + ", ".join(stale))
     if legs < 1 or legs > len(names):
@@ -85,8 +104,10 @@ def partition(names: list[str], seconds: dict[str, int] | None = None, legs: int
         leg = loads.index(min(loads))
         owner[name] = leg
         loads[leg] += seconds[name]
-    if max(loads) > LEG_BUDGET:
-        raise ValueError(f"a LiteX leg holds {max(loads)} measured seconds, above its {LEG_BUDGET}; add a leg")
+    held = max(sum(largest[name] for name in names if owner[name] == leg) for leg in range(legs))
+    if held > LEG_BUDGET:
+        raise ValueError(f"a LiteX leg holds {held} measured seconds at its largest, above its {LEG_BUDGET}; "
+                         "re-derive the legs or add a leg")
     return [[name for name in names if owner[name] == leg] for leg in range(legs)]
 
 
@@ -209,7 +230,8 @@ def main() -> int:
             return run(int(args.leg), args.receipt, command)
         if args.operation == "legs":
             for leg, members in enumerate(partition(inventory())):
-                print(f"{leg}/{LEGS} {sum(SECONDS[name] for name in members)}s " + shlex.join(members))
+                print(f"{leg}/{LEGS} {sum(SECONDS[name] for name in members)}s, at its largest "
+                      f"{sum(LARGEST[name] for name in members)}s " + shlex.join(members))
             return 0
         result = union([json.loads(path.read_text()) for path in args.receipts], args.head, args.tree)
         if args.output:

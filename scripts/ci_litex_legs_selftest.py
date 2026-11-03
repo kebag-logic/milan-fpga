@@ -14,7 +14,7 @@ from collections.abc import Callable
 from unittest.mock import patch
 
 import ci_litex_legs
-from ci_litex_legs import LEG_BUDGET, LEGS, SECONDS, partition, union
+from ci_litex_legs import LARGEST, LEG_BUDGET, LEGS, SECONDS, partition, union
 from ci_gate_workflows import (BUILDER_CACHES, BUILDER_WORKERS, CARRIERS, LITEX_COMMAND, LITEX_SPLIT, LITEX_WORKERS,
                                ROOT, VERILATOR_SETUP, builder_caches, gate_graph, generate, litex_leg_step,
                                load_template, worker_id)
@@ -46,15 +46,24 @@ def partition_controls(names: list[str]) -> None:
     legs = partition(names)
     assert len(legs) == LEGS and sorted(name for leg in legs for name in leg) == sorted(names), legs
     assert all(leg == [name for name in names if name in leg] for leg in legs), legs
-    assert set(SECONDS) == set(names), sorted(set(SECONDS) ^ set(names))
-    assert max(sum(SECONDS[name] for name in leg) for leg in legs) <= LEG_BUDGET
+    assert set(SECONDS) == set(LARGEST) == set(names), sorted((set(SECONDS) | set(LARGEST)) ^ set(names))
+    # The largest figures include the run the legs were derived from, so none is below its partition figure.
+    assert all(LARGEST[name] >= SECONDS[name] for name in names), (SECONDS, LARGEST)
+    assert max(sum(LARGEST[name] for name in leg) for leg in legs) <= LEG_BUDGET
     refused(lambda: partition([*names, "test_new_member"]), "an inventory member with no measured seconds",
             "no measured seconds for test_new_member")
+    refused(lambda: partition(names, largest={name: LARGEST[name] for name in names[1:]}),
+            "a member with no largest seconds", "no measured seconds for " + names[0])
     refused(lambda: partition(names[1:]), "a measured member gone from the inventory", names[0])
     heavy = {**SECONDS, names[0]: LEG_BUDGET + 1}
-    refused(lambda: partition(names, heavy), "a leg over its measured budget", "add a leg")
+    refused(lambda: partition(names, heavy, largest=heavy), "a leg over its measured budget", "add a leg")
+    # The legs stay as derived, but a later, larger measurement that overfills one is refused (#737).
+    grown = {**LARGEST, names[0]: LEG_BUDGET + 1}
+    refused(lambda: partition(names, largest=grown), "a leg over its budget at its largest seconds",
+            "at its largest")
     print(f"LiteX partition: {len(names)} members in {LEGS} legs of "
-          + ", ".join(str(sum(SECONDS[name] for name in leg)) for leg in legs) + " measured seconds")
+          + ", ".join(str(sum(SECONDS[name] for name in leg)) for leg in legs) + " measured seconds, at their largest "
+          + ", ".join(str(sum(LARGEST[name] for name in leg)) for leg in legs))
 
 
 def union_controls() -> None:
