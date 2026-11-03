@@ -1,0 +1,12 @@
+Reviewer round 9 sweep re-run at fce77f0efc1425ef7732a8d70c02addc108f7afe (scripts/cell_sweep.py, unchanged from round 9).
+99 mutants; owner_stated_seconds now has 46 listings (35 at round 9: +8 early, +3 liveness); the unmutated tree passes all 46.
+74 mutants red on at least one listing; 25 red on none.
+Phase 2 of cell_sweep.py ran those 25 on every owner control and on the whole test under a launcher that ignored SIGHUP (nohup).
+Under that launcher every whole-test run timed out in the hard-HUP stop: that is the retained R764-6-S1 launcher condition, not a mutant effect.
+whole_rerun.py re-ran the whole test with SIGHUP at its default (receipts/whole-rerun.log/.json):
+  head: PASS; 24 of 25 survivors PASS; B-trap-command-unspared/live/shell/R7-interior-past red (owner_shell_window and whole).
+So 24 survive every owner control and the whole test (33 at round 9); 9 are killed since round 9:
+  A/live/R3, B/live/R3, H/live/R3, G-postponed/R3, G-hastened/R3 (one-second live listing);
+  G-postponed/shell-unresumed, G-hastened/shell-unresumed, D-live-new-child-spares-nothing/shell (never-resumed listings);
+  E/C2 (early listings).
+No new survivor.
