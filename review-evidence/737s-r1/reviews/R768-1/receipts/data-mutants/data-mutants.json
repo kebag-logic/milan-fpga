@@ -1,0 +1,65 @@
+[
+ {
+  "plant": "D1 row removed from leg 1 (PR's quoted example)",
+  "union_rc": 1,
+  "union": "LiteX legs refused: LiteX leg 1 did not run its selection exactly once: test_pp_boot_bus_freeze",
+  "verify_rc": 1,
+  "verify": "gate evidence refused: LiteX leg 1 did not run its selection exactly once: test_pp_boot_bus_freeze"
+ },
+ {
+  "plant": "D2 row moved from leg 1 to leg 2",
+  "union_rc": 1,
+  "union": "LiteX legs refused: LiteX leg 1 did not run its selection exactly once: test_pp_mem_bridge",
+  "verify_rc": 1,
+  "verify": "gate evidence refused: LiteX leg 1 did not run its selection exactly once: test_pp_mem_bridge"
+ },
+ {
+  "plant": "D3 row copied into a second leg",
+  "union_rc": 1,
+  "union": "LiteX legs refused: LiteX leg 2 did not run its selection exactly once: order or extra simulations",
+  "verify_rc": 1,
+  "verify": "gate evidence refused: LiteX leg 2 did not run its selection exactly once: order or extra simulations"
+ },
+ {
+  "plant": "D4 leg 2 receipt lost",
+  "union_rc": 1,
+  "union": "LiteX legs refused: LiteX simulations ran in no leg: test_cpu_memory_port_cdc, test_ctrl_memory, test_retained_cdc_storage",
+  "verify_rc": 1,
+  "verify": "gate evidence refused: LiteX simulations ran in no leg: test_cpu_memory_port_cdc, test_ctrl_memory, test_retained_cdc_storage"
+ },
+ {
+  "plant": "D5 leg 0 receipt duplicated (as leg 0 twice)",
+  "union_rc": 1,
+  "union": "LiteX legs refused: unknown or duplicated LiteX leg",
+  "verify_rc": 1,
+  "verify": "gate evidence refused: unknown or duplicated LiteX leg"
+ },
+ {
+  "plant": "D6 receipt from another head",
+  "union_rc": 1,
+  "union": "LiteX legs refused: LiteX leg source identity differs from the run",
+  "verify_rc": 1,
+  "verify": "gate evidence refused: LiteX leg source identity differs from the run"
+ },
+ {
+  "plant": "D7 selection and rows both narrowed in leg 2",
+  "union_rc": 1,
+  "union": "LiteX legs refused: LiteX leg 2: selection differs from its measured leg",
+  "verify_rc": 1,
+  "verify": "gate evidence refused: LiteX leg 2: selection differs from its measured leg"
+ },
+ {
+  "plant": "D8 exit given as false (bool)",
+  "union_rc": 0,
+  "union": "litex: 8 simulations exactly once, each a pass",
+  "verify_rc": 0,
+  "verify": "--require-elaboration: every elaboration arm ran"
+ },
+ {
+  "plant": "D9 verdict lower-case pass",
+  "union_rc": 1,
+  "union": "LiteX legs refused: test_soc_timing_cuts: pass in LiteX leg 0",
+  "verify_rc": 1,
+  "verify": "gate evidence refused: test_soc_timing_cuts: pass in LiteX leg 0"
+ }
+]

@@ -1,0 +1,25 @@
+  [ok]   green control: a sandbox where everything passes exits 0
+  [ok]   a planted failing simulation turns the aggregate red, named
+  [ok]   a script that fails but exits 0 is a FAIL (masked verdict)
+  [ok]   a deleted inventory member is a FAIL (MISSING), not a silence
+  [ok]   a test_*.py outside the inventory is a FAIL (UNLISTED)
+  [ok]   no usable interpreter: every member a declared skip, exit 90
+  [ok]   an explicit MILAN_LITEX_PYTHON that cannot probe is REFUSED
+  [ok]   a member-declared skip is SKIPPED with its reason, exit 90
+  [ok]   a member-declared skip is not counted as a pass
+  [ok]   a wall-clock kill is UNKNOWN (exit 92), never a pass or a failure
+  [FAIL] --only runs exactly its members, a failure outside them unrun: wanted exit 0 + /passed: 2\b/, got exit 0
+         | PASS     test_ctrl_memory   (0s)
+         | ----------------------------------------------------------------
+         | simulations: 1   passed: 1   failed: 0   skipped: 0   timed out: 0
+         | selection: 1 of the 8-member inventory; the reconciliation covered all of it
+         | logs: /tmp/tmp.Fdt63bpVk9/j/logs
+  [FAIL] --only records one verdict row per member, in inventory order: wanted exit 0 + /verdicts/, got exit 1
+         | verdicts.tsv
+  [ok]   --only still reconciles the whole inventory (MISSING outside it)
+  [ok]   --only refuses a name outside the inventory
+  [ok]   --only refuses a repeated name
+  [ok]   --only given twice is refused
+
+run_litex_sims selftest: 16 checks: 14 PASS, 2 FAIL
+RESULT: FAIL

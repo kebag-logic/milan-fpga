@@ -1,0 +1,20 @@
+.github/ci-templates/elaborate.yml: not in command table
+.github/workflows/elaborate.yml: not in command table
+ci/image/audit_population.py: not in command table
+ci/image/command-table.json: not in command table
+docs/testing/CI_WORKFLOWS.md: not in command table
+docs/testing/TESTING.md: not in command table
+scripts/act_ci.py: pinned=MISMATCH b8a786cec30b vs 3f91c996875b class=reviewed non-installing
+scripts/ci_gate_receipts.py: not in command table
+scripts/ci_gate_workflows.py: not in command table
+scripts/ci_gate_workflows_selftest.py: pinned=MATCH class=reviewed non-installing
+scripts/ci_litex_legs.py: pinned=MATCH class=reviewed non-installing
+scripts/ci_litex_legs_selftest.py: not in command table
+scripts/ci_scope_history.py: pinned=MATCH class=reviewed non-installing
+scripts/ci_toolcache_isolation.py: not in command table
+scripts/run_litex_sims.sh: pinned=MATCH class=reviewed non-installing
+--- at base e61a4afa:
+scripts/act_ci.py: base pin MISMATCH
+scripts/ci_gate_workflows_selftest.py: base pin MISMATCH
+scripts/ci_scope_history.py: base pin MATCH
+scripts/run_litex_sims.sh: base pin MISMATCH

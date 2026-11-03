@@ -1,0 +1,26 @@
+refused docs: missing inventory preparation in docs-gates-0
+refused docs: if preparation in docs-gates-0
+refused docs: continue-on-error preparation in docs-gates-0
+refused docs: missing inventory preparation in ci-manifest
+refused docs: if preparation in ci-manifest
+refused docs: continue-on-error preparation in ci-manifest
+Traceback (most recent call last):
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_gate_workflows_selftest.py", line 648, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_gate_workflows_selftest.py", line 551, in main
+    inventory_controls()
+    ~~~~~~~~~~~~~~~~~~^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_gate_workflows_selftest.py", line 37, in inventory_controls
+    generated = generate(name, load_template(ROOT, name))
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_gate_workflows.py", line 436, in generate
+    result = runtime_workflows(name, install_workflows(gate_graph(name, template)))
+                                                       ~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_gate_workflows.py", line 413, in gate_graph
+    kept = litex_leg_step(step, case)
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_gate_workflows.py", line 203, in litex_leg_step
+    preparation, command = split_litex_run(step)
+                           ~~~~~~~~~~~~~~~^^^^^^
+  File "$REVIEWS/737s-r768-1-packet/scratch/probe/scripts/ci_gate_workflows.py", line 197, in split_litex_run
+    raise ValueError("the divided LiteX step must end in its one aggregate command")
+ValueError: the divided LiteX step must end in its one aggregate command

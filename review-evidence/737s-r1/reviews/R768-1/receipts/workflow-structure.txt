@@ -1,0 +1,28 @@
+on (base == head): True
+ci-cancel-tail: identical
+ci-fail-fast: changed; timeout 120 -> 120; needs None -> None
+   removed steps: []
+   added steps: []
+   steps with changed bodies: ['Observe the first failed job']
+ci-manifest: changed; timeout 15 -> 15; needs ['elaborate-gates-0', 'elaborate-gates-1', 'elaborate'] -> ['elaborate-gates-0', 'elaborate-gates-1', 'elaborate-gates-2', 'elaborate-gates-3', 'elaborate-gates-4', 'elaborate']
+   removed steps: []
+   added steps: []
+   steps with changed bodies: []
+elaborate: changed; timeout 3 -> 3; needs ['elaborate-gates-0', 'elaborate-gates-1'] -> ['elaborate-gates-0', 'elaborate-gates-1', 'elaborate-gates-2', 'elaborate-gates-3', 'elaborate-gates-4']
+   removed steps: []
+   added steps: []
+   steps with changed bodies: []
+elaborate-gates-0: identical
+elaborate-gates-1: changed; timeout 45 -> 45; needs None -> None
+   removed steps: ['Cache the pinned Verilator build', 'Resolve exact package downloads 17', 'Cache exact package downloads 17', 'Build Verilator from source on cache miss', 'Put Verilator on PATH and prove the version', 'Standalone LiteX simulation aggregate']
+   added steps: []
+   steps with changed bodies: ['Keep the generated CPU netlist arguments for the next run', 'Record executed gate outcomes', 'Upload executed gate outcomes']
+elaborate-gates-2: changed; timeout None -> 45; needs None -> None
+   removed steps: []
+   added steps: ['Run actions/checkout@v4', 'Set CPU-derived job budgets', 'Cache exact Python downloads', 'Decide whether this head needs an elaboration', 'Fetch the source dependencies the elaboration reads', 'Cache verified sv2v archive', 'Install the pinned sv2v release', 'Run actions/setup-python@v5', 'Put a job-private Python environment on PATH', 'Cache the pinned pip downloads', 'Install LiteX at the pinned revisions', 'Cache the Scala toolchain', 'Cache the generated CPU metadata', 'Install sbt', 'Place the VexiiRiscv source at the revision LiteX pins', 'Apply the toolchain patch series', 'Cache the pinned RV32 SDK', 'Install and verify the pinned RV32 SDK', 'Cache the pinned Verilator build', 'Resolve exact package downloads 16', 'Cache exact package downloads 16', 'Build Verilator from source on cache miss', 'Put Verilator on PATH and prove the version', 'Standalone LiteX simulation aggregate, leg 0 of 3', 'Keep the generated CPU netlist arguments for the next run', 'Record executed gate outcomes', 'Upload executed gate outcomes', 'Record actual job execution', 'Upload actual job execution']
+elaborate-gates-3: changed; timeout None -> 45; needs None -> None
+   removed steps: []
+   added steps: ['Run actions/checkout@v4', 'Set CPU-derived job budgets', 'Cache exact Python downloads', 'Decide whether this head needs an elaboration', 'Fetch the source dependencies the elaboration reads', 'Cache verified sv2v archive', 'Install the pinned sv2v release', 'Run actions/setup-python@v5', 'Put a job-private Python environment on PATH', 'Cache the pinned pip downloads', 'Install LiteX at the pinned revisions', 'Cache the Scala toolchain', 'Cache the generated CPU metadata', 'Install sbt', 'Place the VexiiRiscv source at the revision LiteX pins', 'Apply the toolchain patch series', 'Cache the pinned RV32 SDK', 'Install and verify the pinned RV32 SDK', 'Cache the pinned Verilator build', 'Resolve exact package downloads 16', 'Cache exact package downloads 16', 'Build Verilator from source on cache miss', 'Put Verilator on PATH and prove the version', 'Standalone LiteX simulation aggregate, leg 1 of 3', 'Keep the generated CPU netlist arguments for the next run', 'Record executed gate outcomes', 'Upload executed gate outcomes', 'Record actual job execution', 'Upload actual job execution']
+elaborate-gates-4: changed; timeout None -> 45; needs None -> None
+   removed steps: []
+   added steps: ['Run actions/checkout@v4', 'Set CPU-derived job budgets', 'Cache exact Python downloads', 'Decide whether this head needs an elaboration', 'Fetch the source dependencies the elaboration reads', 'Cache verified sv2v archive', 'Install the pinned sv2v release', 'Run actions/setup-python@v5', 'Put a job-private Python environment on PATH', 'Cache the pinned pip downloads', 'Install LiteX at the pinned revisions', 'Cache the Scala toolchain', 'Cache the generated CPU metadata', 'Install sbt', 'Place the VexiiRiscv source at the revision LiteX pins', 'Apply the toolchain patch series', 'Cache the pinned RV32 SDK', 'Install and verify the pinned RV32 SDK', 'Cache the pinned Verilator build', 'Resolve exact package downloads 16', 'Cache exact package downloads 16', 'Build Verilator from source on cache miss', 'Put Verilator on PATH and prove the version', 'Standalone LiteX simulation aggregate, leg 2 of 3', 'Keep the generated CPU netlist arguments for the next run', 'Record executed gate outcomes', 'Upload executed gate outcomes', 'Record actual job execution', 'Upload actual job execution']

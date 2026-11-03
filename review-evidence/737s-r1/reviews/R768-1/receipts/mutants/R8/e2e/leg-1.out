@@ -1,0 +1,12 @@
+FAIL     test_rogue   (UNLISTED: present in sw/litex/ but not in the pinned
+         inventory - "one command runs every supported simulation" just
+         stopped being true; add it to INVENTORY in scripts/run_litex_sims.sh)
+PASS     test_gmii_rx_capture   (0s)
+PASS     test_gptp_tx_timestamp   (0s)
+PASS     test_pp_boot_bus_freeze   (0s)
+PASS     test_pp_mem_bridge   (0s)
+----------------------------------------------------------------
+simulations: 4   passed: 4   failed: 1   skipped: 0   timed out: 0
+selection: 4 of the 8-member inventory; the reconciliation covered all of it
+failing: test_rogue
+logs: $REVIEWS/737s-r768-1-packet/receipts/mutants/R8/e2e/logs-1
