@@ -1,0 +1,6 @@
+mutation m02: builder_caches' metadata removal made a no-op (if leg != generator -> if False), file restored after
+python3 scripts/ci_gate_workflows_selftest.py rc (expected nonzero):
+  File "$LANES/737-elab-split/scripts/ci_litex_legs_selftest.py", line 167, in worker_controls
+    assert metadata == (sorted(METADATA_STEPS[name]) if leg == metadata_worker(name) else []), (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('elaborate', 0, ['Cache the generated CPU metadata', 'Keep the generated CPU netlist arguments for the next run'])

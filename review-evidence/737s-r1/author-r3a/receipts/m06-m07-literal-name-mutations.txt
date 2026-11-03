@@ -1,0 +1,9 @@
+m06 (R768-2-S1's mutant): 'Cache the generated CPU metadata' dropped from BUILDER_CACHES and the workflow regenerated; gate self-test (expected nonzero):
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: elaborate
+
+m07: the fill step dropped from METADATA_STEPS; gate self-test (expected nonzero):
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: elaborate
+
+both files restored; ci_gate_workflows.py --check rc 0 after

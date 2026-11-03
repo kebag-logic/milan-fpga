@@ -1,0 +1,5 @@
+mutation m03: the head-only aggregate checkout disabled (if name in HEAD_ONLY_AGGREGATES -> if False), file restored after
+python3 scripts/ci_gate_workflows_selftest.py (expected nonzero):
+    assert checkout.get("with") == expected, (name, checkout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('elaborate', {'uses': 'actions/checkout@v4', 'with': {'fetch-depth': 0}, 'id': 'ci_step_0', 'name': 'Run actions/checkout@v4'})

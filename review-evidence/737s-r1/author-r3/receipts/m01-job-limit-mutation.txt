@@ -1,0 +1,8 @@
+head=3b323864232fa430ec3a185f33ad7b30fbf1156b
+m01: LiteX worker timeout-minutes 45 -> 44 in scripts/ci_gate_workflows.py gate_graph (working tree only), then python3 scripts/ci_gate_workflows_selftest.py
+rc=1
+  File "$LANES/737-elab-split/scripts/ci_litex_legs_selftest.py", line 170, in worker_controls
+    assert minutes * 60 == ci_litex_legs.JOB_LIMIT, (name, leg, minutes)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('elaborate', 2, 44)
+restored with git checkout -- scripts/ci_gate_workflows.py; git status clean

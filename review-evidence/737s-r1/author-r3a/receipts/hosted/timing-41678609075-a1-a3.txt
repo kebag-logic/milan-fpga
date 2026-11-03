@@ -1,0 +1,20 @@
+== jobs-a1: first start..last end 1767 s
+  Cancel late CI failures    queued     2 start+ 1742 end+ 1767 span    25 success
+  Collect CI manifest        queued    40 start+ 1591 end+ 1740 span   149 success
+  Fail fast across this head queued     3 start+    1 end+ 1580 span  1579 cancelled
+  elaborate                  queued   106 start+ 1284 end+ 1551 span   267 cancelled
+  elaborate-gates-0          queued     2 start+    0 end+  861 span   861 success | gates   606 verilator-build    0 setup  255 | Elaboration gates, leg 0 of 2 606
+  elaborate-gates-1          queued     2 start+    0 end+ 1143 span  1143 success | gates   938 verilator-build    0 setup  205 | Elaboration gates, leg 1 of 2 938
+  elaborate-gates-2          queued     2 start+    0 end+  706 span   706 success | gates   248 verilator-build  274 setup  184 | Standalone LiteX simulation aggregate, leg 0 of 3 248 | before LiteX step 447, span less LiteX step 458
+  elaborate-gates-3          queued     2 start+    0 end+ 1021 span  1021 success | gates   450 verilator-build  431 setup  140 | Standalone LiteX simulation aggregate, leg 1 of 3 450 | before LiteX step 561, span less LiteX step 571
+  elaborate-gates-4          queued     2 start+    0 end+ 1178 span  1178 success | gates   596 verilator-build  328 setup  254 | Standalone LiteX simulation aggregate, leg 2 of 3 596 | before LiteX step 571, span less LiteX step 582
+== jobs-a3: first start..last end 2646 s
+  Cancel late CI failures    queued     3 start+ 2631 end+ 2646 span    15 success
+  Collect CI manifest        queued     5 start+ 2511 end+ 2628 span   117 success
+  Fail fast across this head queued  1209 start+ 1190 end+ 2536 span  1346 cancelled
+  elaborate                  queued     2 start+ 2271 end+ 2505 span   234 cancelled
+  elaborate-gates-0          queued    19 start+    0 end+  997 span   997 success | gates   635 verilator-build    0 setup  362 | Elaboration gates, leg 0 of 2 635
+  elaborate-gates-1          queued  1043 start+ 1024 end+ 2268 span  1244 success | gates   845 verilator-build    0 setup  399 | Elaboration gates, leg 1 of 2 845
+  elaborate-gates-2          queued   974 start+  955 end+ 1861 span   906 success | gates   464 verilator-build    0 setup  442 | Standalone LiteX simulation aggregate, leg 0 of 3 464 | before LiteX step 436, span less LiteX step 442
+  elaborate-gates-3          queued   579 start+  560 end+ 1490 span   930 success | gates   445 verilator-build    0 setup  485 | Standalone LiteX simulation aggregate, leg 1 of 3 445 | before LiteX step 478, span less LiteX step 485
+  elaborate-gates-4          queued    77 start+   58 end+ 1252 span  1194 success | gates   796 verilator-build    0 setup  398 | Standalone LiteX simulation aggregate, leg 2 of 3 796 | before LiteX step 392, span less LiteX step 398

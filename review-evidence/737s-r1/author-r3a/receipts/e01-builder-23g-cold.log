@@ -1,0 +1,6 @@
+test_every_recipe_elaborates:
+  [gate 23g] 5/5 shipped recipes reach Instance("milan_datapath") in 93 s, each with the flow tail its own launcher appends (--build included, the flag every shape gate excludes). This proves a recipe RUNS, not that it builds the SoC its config describes - that comparison is gate 1e's and #155 carries where the two disagree
+
+SUBSET: 1 of 107 gates ran; this verdict covers only them, and --require-elaboration and --require-rv32 are judged on the union of the legs
+ALL GATES PASS
+--require-elaboration: every elaboration arm ran
