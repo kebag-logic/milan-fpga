@@ -1,0 +1,17 @@
+# plant: l->step_age += count != 0u (counts dispatches, not centiseconds); full host gate test_ctrl_firmware.py --jobs 2, no --self-test
+baseline rc=0 plant rc=0
+--- plant run, port arm and verdict:
+52:[ok] arm port
+53:    == ctrl port, driver and loop (host model): checks: 36   failures: 0 ==
+522:test_ctrl_firmware: PASS
+--- baseline run:
+52:[ok] arm port
+53:    == ctrl port, driver and loop (host model): checks: 36   failures: 0 ==
+522:test_ctrl_firmware: PASS
+--- the plant's build, L13 alone:
+[==========] 1 test from 1 test suite ran. (0 ms total)
+[  PASSED  ] 1 test.
+== ctrl port, driver and loop (host model): checks: 1   failures: 0 ==
+RESULT: PASS
+--- planted line in the build's copy:
+111:	l->step_age += count != 0u;

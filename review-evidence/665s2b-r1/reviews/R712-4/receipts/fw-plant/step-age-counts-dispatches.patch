@@ -1,0 +1,13 @@
+diff --git a/sw/firmware/ctrl/loop/ctrl_loop.c b/sw/firmware/ctrl/loop/ctrl_loop.c
+index 448e730014..5bd51130b2 100644
+--- a/sw/firmware/ctrl/loop/ctrl_loop.c
++++ b/sw/firmware/ctrl/loop/ctrl_loop.c
+@@ -108,7 +108,7 @@ static uint32_t dispatch_ticks(struct ctrl_loop *l, uint32_t budget)
+ 	}
+ 	l->ticks_owed -= count;
+ 	l->stats.ticks += count;
+-	l->step_age += count;
++	l->step_age += count != 0u;
+ 	return count;
+ }
+ 
