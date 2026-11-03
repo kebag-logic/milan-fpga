@@ -3184,8 +3184,11 @@ does not remove, so the figure is kept.
 at most 29 (both run 41705989293 attempt 1). With one 120-second watcher
 interval the allowance is 443 seconds.
 
-The rule a later hosted measurement follows: a component it measures above
-its figure here replaces that figure, and a smaller value replaces nothing.
+The cited runs are frozen at the list above (#737). Hosted runs at later
+heads, including those of the change that set these figures, do not reopen
+them; they feed the next re-measurement under #737 acceptance 1, which follows
+this rule: a component a later hosted measurement puts above its figure here
+replaces that figure, and a smaller value replaces nothing.
 The components are the setup, each builder leg, the cold Verilator build, the
 runner self-test, the aggregate's checkout and the rest of its span, the
 collector, the tail, and each member's verdict row in `LARGEST`. The job limit
@@ -3194,6 +3197,13 @@ and the 600-second headroom are not measurements and do not change by it.
 recomputed from the figures. The LiteX legs are re-derived only when one no
 longer fits `LEG_BUDGET` at `LARGEST`, which `scripts/ci_litex_legs.py`
 refuses; they are then derived from `LARGEST`, which becomes `SECONDS`.
+
+Until that re-measurement, a later hosted run is judged by the job limit, not
+by these figures. It is a finding only if a job reaches its timeout, an
+elaborate worker's measured span is above 2100 seconds (its 2700-second limit
+less the 600-second headroom), a LiteX simulation is unrun, run twice or
+unreported, or the union verifier refuses. A component above its figure here,
+inside those limits, is an observation for #737 acceptance 1.
 
 Those projections hold with the LiteX workers carrying none of the builders'
 shared caches, so that every LiteX run installs them and generates its CPU
