@@ -1,0 +1,5 @@
+label=g19-act-sandbox-accepts
+head=9104a8fc68979a7a8795859e8704aef27ea0634d
+command=bash -c cd scripts && $VALIDATION_STORAGE/737-a727f/docsvenv/bin/python -c "import act_ci; from pathlib import Path; print('validate_workflow_sandbox(elaborate):', act_ci.validate_workflow_sandbox(Path('..').resolve(), ['elaborate']))"
+rc=0
+seconds=0
