@@ -1684,6 +1684,25 @@ plants each of them. The legs hold 461 (`test_gptp_tx_timestamp`), 440
 shortest) and 520 measured seconds (`test_ctrl_memory` and
 `test_soc_timing_cuts`).
 
+The LiteX workers carry none of the four caches the builder workers share: the
+sv2v archive, the pinned pip downloads, the Scala toolchain and the generated
+CPU metadata. They neither restore nor save them, so only the builders
+populate those keys (#737). `actions/cache@v4` saves on every miss. In run
+41583428850, worker 2, which never runs the elaboration, saved the metadata key
+first as an empty 202-byte entry, the builders' saves were refused, and worker
+3 restored the empty entry.
+[`scripts/ci_gate_workflows.py`](../../scripts/ci_gate_workflows.py) removes
+the four steps from workers 2 to 4 after the install caches are added. Each
+builder and each LiteX worker must first carry each of them exactly once, so a
+renamed or a lost cache step is refused; `ci_gate_workflows_selftest.py`
+plants a builder without its metadata cache and a LiteX worker repeating it.
+The LiteX workers keep the Verilator cache, which only they populate, and the
+local act runner's trusted action set is unchanged. Every LiteX run pays the
+cost: it downloads those inputs and generates its CPU metadata cold, so
+`test_ctrl_memory` takes 280 seconds against about 110 warm (100 to 113 inside
+the old aggregate). The projections in [Protected merge bar](#protected-merge-bar)
+already carry it.
+
 Each leg reuses the interpreter its worker just installed and patched; locally the same command runs against any
 interpreter that imports `migen` + `litex` and otherwise declares its skips
 (exit 90), see [TESTING.md section 2](TESTING.md#2-litex-integration-checks---swlitextest_py).
@@ -3116,6 +3135,16 @@ workers took 585, 616 and 1226 seconds, and the same projection of that run's
 own legs of 240, 500 and 681 seconds gives 797, 1057 and 1238, each at or above
 the measured span. With Verilator restored, the legs project at 607, 586 and
 666 seconds.
+
+Those projections hold with the LiteX workers carrying none of the builders'
+shared caches, so that every LiteX run installs and generates them cold. Every
+member's seconds come from run 41583428850, in which no LiteX leg had CPU
+metadata: workers 2 and 4 missed the key and worker 3 restored worker 2's
+empty entry. `test_ctrl_memory`'s 280 seconds is therefore its cold figure,
+against about 110 warm. The cold setups of workers 2 and 4, 94 and 131
+seconds, include the missed downloads and are inside the 143-second setup.
+Verilator is now the only cache a LiteX worker restores, so 607, 586 and 666
+seconds is the warm case and 1018, 997 and 1077 the cold one.
 
 Yosys compilation now runs once in prerequisite `yosys-tool`.
 Its pinned source and cache-key construction are preserved. Source compilation

@@ -42,6 +42,12 @@ LITEX_WORKERS = {"elaborate": (2, 3, 4)}
 LITEX_COMMAND = "scripts/run_litex_sims.sh"
 VERILATOR_SETUP = {"Cache the pinned Verilator build", "Build Verilator from source on cache miss",
                    "Put Verilator on PATH and prove the version"}
+#: The shared caches only the builder workers restore and save. actions/cache@v4 saves on every miss, so a
+#: LiteX worker that never runs the elaboration saved an empty CPU metadata entry under the builders' key,
+#: and a later worker restored it (#737). The LiteX workers therefore carry none of these steps, and every
+#: LiteX run installs and generates them cold; they keep the Verilator cache, which only they populate.
+BUILDER_CACHES = {"elaborate": ("Cache verified sv2v archive", "Cache the pinned pip downloads",
+                                "Cache the Scala toolchain", "Cache the generated CPU metadata")}
 SETUP_PREFIXES = ("Install ", "Cache ", "Fetch ", "Apply ", "Place ", "Put ", "Keep ")
 #: rtl-fast builds its pinned Yosys once, in a job of its own (#789). The
 #: template keeps the build in yosys-elaboration; the generator moves it, and
@@ -428,12 +434,30 @@ def gate_graph(name: str, template: dict) -> dict:
 
 
 
+def builder_caches(name: str, workflow: dict) -> dict:
+    """Remove the builders' shared caches from the LiteX workers, after the install caches are added.
+
+    Each builder and each LiteX worker must carry each of them exactly once first, so a renamed or a
+    missing cache step is refused rather than left on a LiteX worker or lost from the builders (#737)."""
+    caches = BUILDER_CACHES.get(name)
+    if caches is None:
+        return workflow
+    for leg in (*BUILDER_WORKERS[name], *LITEX_WORKERS[name]):
+        job = workflow["jobs"][worker_id(name, leg)]
+        names = [step.get("name") for step in job["steps"]]
+        if sorted(found for found in names if found in caches) != sorted(caches):
+            raise ValueError(worker_id(name, leg) + ": the builders' shared cache steps are missing or repeated")
+        if leg in LITEX_WORKERS[name]:
+            job["steps"] = [step for step in job["steps"] if step.get("name") not in caches]
+    return workflow
+
+
 def generate(name: str, template: dict) -> dict:
     """Add runtime collection after deriving the unchanged gate schedule."""
     from ci_runtime_workflows import generate as runtime_workflows
     from ci_install_workflows import generate as install_workflows
     from ci_suite_workflows import check_inventory_dependencies
-    result = runtime_workflows(name, install_workflows(gate_graph(name, template)))
+    result = runtime_workflows(name, builder_caches(name, install_workflows(gate_graph(name, template))))
     if name == "rtl-fast":
         bind_fast_tool_key(result)
     check_inventory_dependencies(result)

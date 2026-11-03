@@ -215,6 +215,12 @@ jobs:
       # miss must cost one ~90 s Scala run, never a silent wrong answer. The
       # key covers every input that can change what the generator emits: the
       # argv sources, the pinned revisions, and the patch series itself.
+      # ONLY THE BUILDER WORKERS CARRY THIS CACHE, the Scala toolchain, the
+      # pinned pip downloads and the sv2v archive. actions/cache@v4 saves on
+      # every miss, so a LiteX worker, which never runs the elaboration, saved
+      # an empty metadata entry under this key and a later worker restored it
+      # (#737). scripts/ci_gate_workflows.py removes the four steps from the
+      # LiteX workers, which neither restore nor save them.
       - name: Cache the generated CPU metadata
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         uses: actions/cache@v4
@@ -335,6 +341,11 @@ jobs:
       # minute of its 45-minute limit (#737). scripts/ci_litex_legs.py derives
       # each leg's members from the runner's inventory, and the aggregate job
       # requires every simulation to have run once and passed.
+      # The LiteX workers carry none of the builders' four shared caches (CPU
+      # metadata, Scala toolchain, pip downloads, sv2v archive): they neither
+      # restore nor save them, so only the builders populate those keys, and
+      # every LiteX run installs them and generates its CPU metadata cold.
+      # They keep the Verilator cache, which only they populate (#737).
       - name: Standalone LiteX simulation aggregate
         if: ${{ steps.scope.outputs.rtl == 'true' }}
         run: |
