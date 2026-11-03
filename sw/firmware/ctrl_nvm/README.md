@@ -128,9 +128,10 @@ settles on must keep this port's contract: a local counter that only counts
 up, never the PHC. The event loop F0 owns owes the store one step for each
 centisecond it dispatches (`nvm_store_tick()`, at most one owed at a time)
 and takes it with `nvm_store_step()` at the end of a pass that took no input
-and has room for it (THE STEP, `sw/firmware/ctrl/loop/ctrl_loop.h`); the
+and has room for it, or as the whole of a pass once it has waited past the
+loop's age limit (THE STEP, `sw/firmware/ctrl/loop/ctrl_loop.h`); the
 protocol adapters
-call `nvm_store_changed()`.
+call `nvm_store_changed()` or `nvm_store_changed_id()`.
 
 ## Boot
 
@@ -222,7 +223,9 @@ call `nvm_store_changed()`.
 ## Write-back
 
 An accepted command that changes a persisted value calls
-`nvm_store_changed()`, which only marks the record. Each
+`nvm_store_changed()` with its group and index, or `nvm_store_changed_id()`
+with its record id, which only marks the record: neither walks the records,
+so a mark costs the same in any pass. Each
 `nvm_store_service()` call then does one bounded step:
 
 | Phase | One step |
@@ -242,17 +245,27 @@ event loop owes the store a step for each centisecond it dispatches
 took no event and no record, with the clock's value at which the pass has
 spent its 2.0 ms share. The step is taken only while `NVM_STEP_US`, 1.0 ms, is
 left; otherwise it stays owed, and the passes it waits through owe it once.
+Once more than two centiseconds have been dispatched since the step last ran
+or owed nothing (`CTRL_LOOP_STEP_AGE`), the next pass is the step's alone,
+before any input, so input that never leaves a pass empty still lets the store
+step once every three ticks.
 On the split CPU, through the product's uncached flash window and its command
-master, a step costs at most (CPU cycles at 100 MHz, the flash port's and the
-store's; [split control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#a-save-in-a-composed-window-and-both-links-at-once)):
+master, a step costs at most (CPU cycles at 100 MHz, the store's and its flash
+port's own in the step's pass, one save with no other load, arm A;
+[split control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#a-saves-worst-case-and-one-build-a-pass-either-way)):
 
 | Step | 1x1/1if | 8x8/2if |
 |---|---:|---:|
-| Erase issue | 5,051 | 5,112 |
-| Busy poll | 3,994 | 4,710 |
-| Blank-check read-back, 128 bytes | 73,491 | 72,841 |
-| Page program issue | 95,373 | 95,386 |
-| Verify read-back, 128 bytes | 76,234 | 76,737 |
+| Capture or seal, or idle in the first-dirty window | 35,645 | 34,700 |
+| Erase issue | 4,741 | 5,451 |
+| Busy poll | 3,775 | 5,013 |
+| Blank-check read-back, 128 bytes | 76,495 | 75,869 |
+| Page program issue | 95,184 | 95,525 |
+| Verify read-back, 128 bytes | 76,048 | 76,917 |
+
+Over every pass of every group the budget harness runs, at both points and in
+both arms, with and without the drafts, the longest step is 96,579 cycles,
+0.97 ms, a page program's issue: within the 1.0 ms of `NVM_STEP_US`.
 
 A save at 8x8 takes 4,697 ms from the change to durable on a flash with
 no busy time, 2,018 ms at 1x1: the 1,000 ms first-dirty window, the
@@ -260,6 +273,19 @@ seal, then 128-byte read-backs a tick for the blank check and the verify and a
 page every other tick. A real part's erase and program waits add to it. No
 deadline of this store is that figure: the owner's 0.5 s (#823) belongs to
 the append-only design.
+
+**A save's worst case.** Under input that leaves no pass empty a step comes at
+most three ticks after the one before, so a save is durable at most 1,000 ms
+after its first change plus 30 ms for each step after that window (the step
+that starts the capture, one for each changed record and one more, the seal's
+256-byte stretches, the erase and its wait, the read-backs of the blank check
+and of the verify, each page's issue and its wait), and 10 ms for the change's
+own pass and the ticks' dispatch (`nvm_store.h`). A SET_NAME of the entity,
+which marks both its names, is 370 steps and 12,110 ms at 8x8, 102 steps and
+4,070 ms at 1x1, with no flash busy time; a part's busy time adds its polls,
+one a step. The budget harness holds a save to it with every receive channel
+at its refill rate and a grandmaster change every pass
+([split control memory, section 13](../../../docs/design/SPLIT_CONTROL_MEMORY.md#a-saves-worst-case-and-one-build-a-pass-either-way)).
 
 The atomicity rules, from section 7 and the D3 register:
 

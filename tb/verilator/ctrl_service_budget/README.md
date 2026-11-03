@@ -89,6 +89,18 @@ The blank check and the verify read back 128 bytes on every 10 ms tick, so their
 Each window must commit `backlog-adp`'s defined load, its probe is an instance of `backlog-adp`'s path and its records of the composed rows', and every pass of the group is held to the share.
 The composed maximum stays the four backlog rows' (`grade.BACKLOG_ROWS`).
 They are among every group a point runs, 24 at each point.
+
+**A save under load, and its stated worst case.**
+`save-held` and `save-starved` time one save from its change, a SET_NAME of the entity, which marks both its names, to durable.
+Through that save's stated worst case and 500 ms more, every receive channel is held at its contract refill rate with its bursts: the composed load's records, admission's records at once, again every as many refill periods, each channel's bursts 0.2 ms after the one before it, so none queues behind another's at the ingress (`save_window.arrivals`).
+AECP's first burst comes one refill period after the change, since the SET_NAME takes one of its tokens; the other channels burst at the change, so the SET_NAME's marks fall among their first bursts' records (`save_window.held_arrivals`).
+`save-starved` adds a grandmaster change as every pass starts (`sim_main.cpp`'s `flood gm`), an event source the contract coalesces but does not rate, so no pass takes nothing and the store steps only through THE STEP's age limit (`ctrl_loop.h`).
+The worst case, `save_window.bound_ms`, is the 1,000 ms first-dirty window, then each of the save's steps at most `CTRL_LOOP_STEP_AGE` + 1 ticks after the one before, and 10 ms: 12,110 ms at 8x8 (370 steps) and 4,070 ms at 1x1 (102).
+[`save_grade.py`](save_grade.py) reads a save's flash steps off the log, `FLASHOP` with its address and bytes, `FLASHPOLL` and a `FLASHRD` line for each run of journal reads, and times it to the read-back that completes its verify.
+A save not durable within its worst case fails the run, whatever the options record, and the run prints a `SAVE` line for each save it timed.
+A held group whose receive channels did not commit every record its load offered is refused, and each channel's longest record is its row, from its receive commit to the end of the pass that released it.
+A save's window is refused too if it opens after its read-backs have read back every programmed byte.
+Every pass that carries the store's step is printed, a `STEPPASS` line or `step=1` on a work pass, and the table gives each group's longest and its longest step's own CPU time, the store's and its flash port's; the run prints a `STEPS` line.
 `--groups` selects groups and `--jobs` sets how many run at once.
 `--fetch-l1` selects the CPU's instruction cache: `split`, the split placement's own (the default); `none`, the cacheless core; or `SETSxWAYS`, a test-only sweep point of 64-byte lines.
 So the two commands above give the split cache's arms in [The instruction cache](#the-instruction-cache).
@@ -1009,7 +1021,9 @@ Its checks:
 - the XIP arm's link script keeps the reset entry and the flash driver in `rom` and puts every other function in the flash window;
 - the per-pass share is SRP's 18 ms over nine passes, 2.0 ms, restated; a pass at it fits and one a cycle over it does not; at twice the CPU clock it is twice the cycles; a pass over it fails a run whose rows all fit, unless `--record-share-findings` records it, and `--record-budget-findings` does not; the table names the clock and each group against the share, and `results.json` keeps the passes over it;
 - each point's split CPU clock is its bus clock, `sys_clk_hz`, 100 MHz, and its Milan datapath clock stays the bare-metal build contract's 50 MHz; `run.main` builds the CPU on `sys` at the bus clock and records it so, names it on its clock line, refuses a build whose SoC puts the CPU on the Milan clock, and reuses a build on `sys` but refuses one recorded on the Milan clock, off the bus clock or with no CPU domain;
-  these two are [`selftest_share.py`](selftest_share.py)'s, which `selftest.py` runs.
+- a save's stated worst case, restated, at both points; a save is timed from its change to the read-back that completes its verify, within it, over it, or never in the run, and one not within it fails the run whatever the options record; the age limit's plant is caught by `save-starved`'s save not durable within it, and escapes with every save within it, only `save-held`'s late, or a refusal; every receive channel of the held groups is at its contract refill rate with its bursts through the worst case, AECP's from one refill period after the change, and `save-starved` alone has the grandmaster flood; a held group that commits fewer records than its load offered is refused; every pass that carries the store's step is counted, idle or work, with the longest and the longest step;
+- a save's window is refused outside its flash phase, the verify's ending when its read-backs have read back every programmed byte;
+  these four are [`selftest_share.py`](selftest_share.py)'s, which `selftest.py` runs.
 
 Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, and a named check must fail:
 
@@ -1112,6 +1126,20 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | clock: the CPU's domain is not checked | a build whose SoC puts the CPU on the Milan clock is refused and records nothing |
 | clock: the CPU's clock is not checked against the bus clock | the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain |
 | clock: a reused build is not checked | the run reuses a build on sys and refuses one recorded on the Milan clock, off the bus clock or with no CPU domain |
+| save: a verify window is graded after its read-backs read back the container | a save's window is refused unless it opens inside its flash phase of the first save |
+| save: the bound counts one tick a step, not the age limit's | a save's stated worst case is its 1,000 ms first-dirty window, then each of its steps at most three ticks after the one before |
+| save: the bound leaves out the verify's read-backs | a save's stated worst case is its 1,000 ms first-dirty window, then each of its steps at most three ticks after the one before |
+| save: durable at the verify's first read-back, not the one that completes it | a save is timed from its change to the last read-back that completes its verify |
+| save: a save never durable in the run is within its bound | a save is timed from its change to the last read-back that completes its verify |
+| save: a save over its stated worst case is no finding | a save not durable within its stated worst case fails the run, whatever the options record |
+| save: the age limit's plant is judged as a budget control | the age limit's plant is caught by save-starved's save not durable within its stated worst case |
+| save: a held group that commits fewer records than it offered is graded | a held group is refused unless its receive channels commit every record its load offered from its change |
+| save: a channel left out of the held load | every receive channel is held at its contract refill rate with its bursts through a save's stated worst case |
+| save: the held load a burst once, then nothing | every receive channel is held at its contract refill rate with its bursts through a save's stated worst case |
+| save: the starved save without its grandmaster flood | save-starved adds a grandmaster change as every pass starts from its change, save-held does not |
+| save: the held AECP channel bursts with its change, the SET_NAME's token not yet back | the held AECP channel's first burst comes one refill period after the change |
+| steps: a pass that carries a step and writes nothing to the mailbox is left out | every pass that carries the store's step is counted, a pass that writes nothing to the mailbox and a work pass alike |
+| steps: a work pass that carries a step is left out | every pass that carries the store's step is counted, a pass that writes nothing to the mailbox and a work pass alike |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
@@ -1134,6 +1162,15 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 ```
 
 It must give, in some window, a pass over the share while every row of that window fits its budget, with no refusal: the share sees what the rows do not. It then prints `CONTROL store-step-unbounded caught`, with how many windows the share alone catches and how many a row catches as well; no such window, or a refusal, is `ESCAPED`.
+
+The planted age limit's removal runs `save-starved` with the step taken only in a pass that took no input, as before THE STEP's age limit:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-store-ageless --mutation store-step-ageless
+```
+
+Its save must not be durable within its stated worst case, with no refusal: it prints `CONTROL store-step-ageless caught`; a save within it, or a refusal, is `ESCAPED`.
 
 Three controls run the full harness, here on the cacheless core S2 measured them on:
 

@@ -326,6 +326,10 @@ flowchart TB
   2 records each; then one poll per module; then THE STEP, the saved-state
   store's one deferrable step, taken only in a pass that took no event and
   no record, while 1.0 ms of its 2.0 ms share is left (`ctrl_loop.h`; #665).
+  Once more than two centiseconds have been dispatched since the step last
+  ran or owed nothing, the next pass is the step's alone, before any input,
+  so input that leaves no pass empty holds the store to one step every three
+  ticks and itself waits one step at most.
   A TICK record's count is fanned
   out to every registered centisecond consumer, lwSRP's `shlan_timer_tick()`
   among them, at most 16 centiseconds per pass with the rest carried (a
