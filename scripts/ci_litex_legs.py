@@ -168,7 +168,8 @@ def union(receipts: list[dict], head: str, tree: str, names: list[str] | None = 
         raise ValueError("missing LiteX leg")
     return {"suite": "litex", "head": head, "tree": tree, "inventory": names,
             "legs": [{"shard": f"{leg}/{len(legs)}", "cases": cases} for leg, cases in enumerate(legs)],
-            "union": "pass", "verdicts_sha256": hashlib.sha256(canonical([observed[name] for name in names])).hexdigest()}
+            "union": "pass",
+            "verdicts_sha256": hashlib.sha256(canonical([observed[name] for name in names])).hexdigest()}
 
 
 def parse(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
