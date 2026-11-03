@@ -85,8 +85,8 @@
 // THE STEP (#665). One client takes a deferrable step at the end of a pass
 // that took no input, no event and no record, after the polls: the
 // saved-state store's write path. Its flash steps (a page program's issue up
-// to 0.95 ms, a 128-byte read-back 0.77 ms) do not fit beside the heaviest
-// pass the other slices make (1.98 ms at 8x8/2if), and in a pass that takes
+// to 0.97 ms, a 128-byte read-back 0.77 ms) do not fit beside the heaviest
+// pass the other slices make (1.97 ms at 8x8/2if), and in a pass that takes
 // records they lengthen every record still waiting (the last SRP record of a
 // full ring waits sixteen passes), so its centisecond consumer only owes a
 // step, and the loop calls the step only once a pass takes nothing. It hands
@@ -143,11 +143,11 @@ extern "C" {
 #define CTRL_LOOP_TICKS_PER_PASS 16u    // centiseconds one pass dispatches at most
 // THE SHARE in microseconds: SRP's 18 ms over nine passes.
 #define CTRL_LOOP_SHARE_US 2000u
-// THE STEP's age limit in centiseconds. Two: the heaviest window the budget
-// stages holds the step off for at most 16.95 ms at 8x8/2if, in which no
-// more than two centiseconds are dispatched, so no aged step lands among a
-// window's records, the least of whose margins (0.71 ms) is below a step
-// (0.95 ms) (#665).
+// THE STEP's age limit in centiseconds. Two: in every window the budget
+// stages, at 8x8/2if too, no more than two centiseconds are dispatched
+// between two passes that carry a step, so no aged step lands among a
+// window's records, the least of whose margins (0.77 ms) is below a step
+// (0.96 ms) (#665).
 #define CTRL_LOOP_STEP_AGE 2u
 
 // A1: the backlogs the bound assumes, in records.
