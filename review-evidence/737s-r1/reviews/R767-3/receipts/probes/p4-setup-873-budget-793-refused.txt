@@ -1,0 +1,5 @@
+probe p4-setup-873-budget-793-refused: scripts/ci_litex_legs.py: 'SETUP = 485' -> 'SETUP = 873'
+ scripts/ci_litex_legs.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=1 :: python3 scripts/ci_litex_legs.py legs
+LiteX legs refused: a LiteX leg holds 794 measured seconds at its largest, above its 793; re-derive the legs or add a leg

@@ -1,0 +1,5 @@
+probe p3-soc-898-refused: scripts/ci_litex_legs.py: '"test_soc_timing_cuts": 510,' -> '"test_soc_timing_cuts": 898,'
+ scripts/ci_litex_legs.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=1 :: python3 scripts/ci_litex_legs.py legs
+LiteX legs refused: a LiteX leg holds 1182 measured seconds at its largest, above its 1181; re-derive the legs or add a leg

@@ -1,0 +1,8 @@
+p7: drop 'Cache the generated CPU metadata' from BUILDER_CACHES, regenerate, then run the checks
+regen rc=0
+ scripts/ci_gate_workflows.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+check rc=0
+gate selftest rc=1
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: elaborate

@@ -1,0 +1,9 @@
+probe p1-job-limit-2640: scripts/ci_litex_legs.py: 'JOB_LIMIT = 2700' -> 'JOB_LIMIT = 2640'
+ scripts/ci_litex_legs.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+rc=0 :: python3 scripts/ci_litex_legs_selftest.py
+LiteX legs refused the elaborate template with its aggregate with a selection of its own: the divided LiteX step must end in its one aggregate command
+LiteX leg controls: PASS
+rc=1 :: python3 scripts/ci_gate_workflows_selftest.py
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('elaborate', 2, 45)
