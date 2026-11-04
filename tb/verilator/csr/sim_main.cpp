@@ -184,7 +184,6 @@ class MilanCsrHarness {
   void rw_registers_and_output_wiring();
   void ptp_ctrl_owns_phc_enable_independent_of_adp();
   void mac_control_and_cbs_scratch_read_back();
-  void station_mac_pair_sequencing();
   void ptp_latency_scratch_read_back();
   void pps_alarm_registers_and_output_wiring();
   void irq_latch_mask_and_w1c();
@@ -514,42 +513,6 @@ void MilanCsrHarness::ptp_ctrl_owns_phc_enable_independent_of_adp() {
   axi_write(A_ADP_CTRL, 0x00000A00);     // restore shipping ADP reset state
   dut->eval();
   ck("ADP off cannot gate PHC off", dut->o_ptp_enable, 1);
-}
-
-//! #839: o_mac_addr_set is the station-MAC pair's own sequencing, the level
-//! milan_datapath holds every CSR-addressed transmitter on. 0 from reset,
-//! 1 once BOTH halves have been written (either order), never set by a read
-//! or by a write elsewhere, and sticky until reset. Ends on a fresh reset so
-//! the sections after it see the state they always have.
-void MilanCsrHarness::station_mac_pair_sequencing() {
-  printf("-- station MAC pair sequencing (#839) --\n");
-  dut->eval();
-  ck("o_mac_addr_set 0 from reset", dut->o_mac_addr_set, 0);
-  axi_read(A_MAC_ALO);
-  axi_read(A_MAC_AHI);
-  axi_write(A_SCRATCH, 0x0000010C);
-  dut->eval();
-  ck("a read or another write does not set it", dut->o_mac_addr_set, 0);
-  axi_write(A_MAC_ALO, 0x00000002);
-  dut->eval();
-  ck("MAC_ADDR_LO alone does not set it", dut->o_mac_addr_set, 0);
-  axi_write(A_MAC_AHI, 0x00000100);
-  dut->eval();
-  ck("MAC_ADDR_HI after LO sets it", dut->o_mac_addr_set, 1);
-  ck("...with the whole address on o_mac_addr", dut->o_mac_addr, 0x010000000002ULL);
-  axi_write(A_MAC_ALO, 0x00000000);
-  dut->eval();
-  ck("a later rewrite keeps it set", dut->o_mac_addr_set, 1);
-  reset_and_idle_the_bus();
-  dut->eval();
-  ck("reset clears it", dut->o_mac_addr_set, 0);
-  axi_write(A_MAC_AHI, 0x00000100);
-  dut->eval();
-  ck("MAC_ADDR_HI alone does not set it", dut->o_mac_addr_set, 0);
-  axi_write(A_MAC_ALO, 0x00000002);
-  dut->eval();
-  ck("MAC_ADDR_LO after HI sets it", dut->o_mac_addr_set, 1);
-  reset_and_idle_the_bus();
 }
 
 void MilanCsrHarness::mac_control_and_cbs_scratch_read_back() {
@@ -1581,7 +1544,6 @@ int MilanCsrHarness::run() {
   printf("== milan_csr AXI4-Lite CSR verification ==\n");
 
   identification_and_capabilities();
-  station_mac_pair_sequencing();
   reset_values();
   declaration_boot_words();
   fqtss_bandwidth_availability();

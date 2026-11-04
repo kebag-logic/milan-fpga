@@ -231,7 +231,6 @@ module milan_csr #(
   output wire                    o_mac_is_1g,    //! Link-rate select: 1 = 1 Gb/s, 0 = 100 Mb/s (from i_speed unless MAC_CTRL[5])
   output wire [7:0]              o_mac_ifg,      //! Inter-frame gap, bytes (MAC_IFG)
   output wire [47:0]             o_mac_addr,     //! Station MAC address {MAC_ADDR_HI[15:0], MAC_ADDR_LO}
-  output wire                    o_mac_addr_set, //! 1 once MAC_ADDR_LO and MAC_ADDR_HI have each been written since reset (#839)
   output wire [63:0]             o_mc_hash,      //! Multicast hash filter {MC_HASH_HI, MC_HASH_LO}
   output wire                    o_phy_reset_n,  //! PHY reset, active-low (PHY_RESET[0])
   input  wire                    i_link_up,      //! Link status from PHY/MAC (MAC_STATUS[0])
@@ -2689,24 +2688,6 @@ module milan_csr #(
   assign o_mac_is_1g    = mac_ctrl[5] ? mac_ctrl[4] : (i_speed == 2'd2);
   assign o_mac_ifg      = mac_ifg[7:0];
   assign o_mac_addr     = {mac_ahi[15:0], mac_alo};
-  //! #839: the station-MAC pair's own sequencing. Each half records its
-  //! first write since reset, and o_mac_addr_set is 1 once both have been
-  //! written. milan_datapath holds every transmitter's frame start until
-  //! then, so no frame carries the reset value or a half-written address as
-  //! its source (IEEE 802.1AC-2016 11.1: the individual address of the
-  //! source MSAP). Either order completes the pair. It stays set until
-  //! reset: firmware writes the address once per boot, in configure_fabric().
-  logic mac_alo_wr_r, mac_ahi_wr_r;
-  always_ff @(posedge aclk) begin : mac_addr_seq
-    if (!aresetn) begin
-      mac_alo_wr_r <= 1'b0;
-      mac_ahi_wr_r <= 1'b0;
-    end else if (wr_fire) begin
-      if (wr_addr == A_MAC_ALO) mac_alo_wr_r <= 1'b1;
-      if (wr_addr == A_MAC_AHI) mac_ahi_wr_r <= 1'b1;
-    end
-  end : mac_addr_seq
-  assign o_mac_addr_set = mac_alo_wr_r & mac_ahi_wr_r;
   assign o_mc_hash      = {mc_hi, mc_lo};
   assign o_phy_reset_n  = phy_rst[0];
 

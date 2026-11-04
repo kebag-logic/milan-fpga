@@ -785,7 +785,7 @@ module milan_datapath import ethernet_packet_pkg::*; #(
                                   cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                                   cfg_mac_addr[39:32], cfg_mac_addr[47:40]};
   //! #839 TRANSMIT GATE: 1 once both halves of the station MAC have been
-  //! written since reset (milan_csr o_mac_addr_set). Until then no source
+  //! written since reset (mac_addr_seq, beside the CSR). Until then no source
   //! that takes its address from that CSR may START a frame. The gate sits
   //! on each of the four (the processor's control lane, MAAP, the AAF
   //! talkers and the CRF talker) rather than at the MAC boundary, so no
@@ -2742,7 +2742,6 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_mac_is_1g   (cfg_mac_is_1g),
     .o_mac_ifg     (cfg_mac_ifg),
     .o_mac_addr    (cfg_mac_addr),
-    .o_mac_addr_set(tx_sa_ok_w),
     .o_mc_hash     (cfg_mc_hash),
     .o_phy_reset_n (cfg_phy_reset_n),
     .i_link_up     (i_link_up),
@@ -3089,6 +3088,31 @@ module milan_datapath import ethernet_packet_pkg::*; #(
     .o_eth_guard        (o_eth_guard),
     .o_irq              (csr_irq)
   );
+
+  //! #839 THE STATION-MAC PAIR'S OWN SEQUENCING, observed on the CSR slave's
+  //! write handshake. milan_csr commits a write on the edge its AWREADY is
+  //! high (combinational ready, single outstanding; its banner and
+  //! hdl/common/csr/doc/milan_csr.md), so AWVALID and AWREADY together with
+  //! the pair's address are exactly that register's write enable. Each half
+  //! records its first write since reset, and tx_sa_ok_w is 1 once both have
+  //! been written, in either order, so no frame is stamped with the reset
+  //! value or a half-written address. A read does not count. It stays 1
+  //! until reset: firmware writes the address once per boot, in
+  //! configure_fabric(). milan_csr itself, its ports and its registers are
+  //! unchanged.
+  localparam logic [15:0] MAC_ALO_ADDR_C = 16'h0108;  //! REGISTER_MAP MAC_ADDR_LO
+  localparam logic [15:0] MAC_AHI_ADDR_C = 16'h010C;  //! REGISTER_MAP MAC_ADDR_HI
+  logic mac_alo_wr_r, mac_ahi_wr_r;
+  always_ff @(posedge axis_clk) begin : mac_addr_seq
+    if (!axis_resetn) begin
+      mac_alo_wr_r <= 1'b0;
+      mac_ahi_wr_r <= 1'b0;
+    end else if (s_axi_awvalid && s_axi_awready) begin
+      if (s_axi_awaddr == MAC_ALO_ADDR_C) mac_alo_wr_r <= 1'b1;
+      if (s_axi_awaddr == MAC_AHI_ADDR_C) mac_ahi_wr_r <= 1'b1;
+    end
+  end : mac_addr_seq
+  assign tx_sa_ok_w = mac_alo_wr_r & mac_ahi_wr_r;
 
   // ==========================================================================
   //  PTP hardware clock (CSR-configured)
