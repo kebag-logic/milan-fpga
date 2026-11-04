@@ -1,0 +1,683 @@
+{
+  "constants": {
+    "config_clock_frequency": 100000000,
+    "config_platform_name": "alinx_ax7101",
+    "milan_aaf_ctrl_boot": 131073,
+    "milan_aem_desc_base": 2138046464,
+    "milan_aem_flash_offset": 4194304,
+    "milan_aem_image_bytes": 7512,
+    "milan_aem_image_crc32": 1537431019,
+    "milan_cpu_xlen": 32,
+    "milan_crf_tx_ctrl_boot": 3,
+    "milan_entity_id_hi": 33554687,
+    "milan_entity_id_lo": 4261412865,
+    "milan_flash_journal_offset": 15597568,
+    "milan_flash_journal_size": 131072,
+    "milan_flash_user_offset": 15728640,
+    "milan_flash_user_size": 1048576,
+    "milan_flashboot_aem_addr": 0,
+    "milan_flashboot_aem_offset": 4194304,
+    "milan_flashboot_aem_size": 65536,
+    "milan_gptp_owner": 1,
+    "milan_lwsrp_ctrl_reset": 16,
+    "milan_maap_ctrl_boot": 513,
+    "milan_mac_ctrl_set": 8,
+    "milan_model_id_hi": 1820097,
+    "milan_model_id_lo": 2472055777,
+    "milan_n_talkers": 1,
+    "milan_nvm_bind_base": 32,
+    "milan_nvm_contract": 3,
+    "milan_nvm_debounce_ms": 1000,
+    "milan_nvm_erase_timeout_ms": 3500,
+    "milan_nvm_heartbeat_ms": 250,
+    "milan_nvm_image_max": 65536,
+    "milan_nvm_live_base": 2139025408,
+    "milan_nvm_mapin_entries_0": 8,
+    "milan_nvm_mapin_entries_1": 0,
+    "milan_nvm_mapin_entries_10": 0,
+    "milan_nvm_mapin_entries_11": 0,
+    "milan_nvm_mapin_entries_12": 0,
+    "milan_nvm_mapin_entries_13": 0,
+    "milan_nvm_mapin_entries_14": 0,
+    "milan_nvm_mapin_entries_15": 0,
+    "milan_nvm_mapin_entries_2": 0,
+    "milan_nvm_mapin_entries_3": 0,
+    "milan_nvm_mapin_entries_4": 0,
+    "milan_nvm_mapin_entries_5": 0,
+    "milan_nvm_mapin_entries_6": 0,
+    "milan_nvm_mapin_entries_7": 0,
+    "milan_nvm_mapin_entries_8": 0,
+    "milan_nvm_mapin_entries_9": 0,
+    "milan_nvm_mapout_entries_0": 17,
+    "milan_nvm_mapout_entries_1": 0,
+    "milan_nvm_mapout_entries_10": 0,
+    "milan_nvm_mapout_entries_11": 0,
+    "milan_nvm_mapout_entries_12": 0,
+    "milan_nvm_mapout_entries_13": 0,
+    "milan_nvm_mapout_entries_14": 0,
+    "milan_nvm_mapout_entries_15": 0,
+    "milan_nvm_mapout_entries_2": 0,
+    "milan_nvm_mapout_entries_3": 0,
+    "milan_nvm_mapout_entries_4": 0,
+    "milan_nvm_mapout_entries_5": 0,
+    "milan_nvm_mapout_entries_6": 0,
+    "milan_nvm_mapout_entries_7": 0,
+    "milan_nvm_mapout_entries_8": 0,
+    "milan_nvm_mapout_entries_9": 0,
+    "milan_nvm_n_audio_unit": 1,
+    "milan_nvm_n_clk_dom": 1,
+    "milan_nvm_n_name": 39,
+    "milan_nvm_n_sport_in": 1,
+    "milan_nvm_n_sport_out": 1,
+    "milan_nvm_n_stream_in": 2,
+    "milan_nvm_n_stream_out": 2,
+    "milan_nvm_program_timeout_ms": 50,
+    "milan_nvm_rec_layout": 2,
+    "milan_nvm_restore_timeout_ms": 3000,
+    "milan_nvm_stage_base": 2138959872,
+    "milan_sr_vid": 2,
+    "milan_station_mac_hi": 256,
+    "milan_station_mac_lo": 2,
+    "milan_tcam_ctrl_boot": 1,
+    "spiflash_module_name": "n25q128a13",
+    "spiflash_module_page_size": 256,
+    "spiflash_module_total_size": 16777216,
+    "spiflash_phy_frequency": 12500000,
+    "spiflash_phy_min_divisor": 2,
+    "spiflash_skip_freq_init": "None"
+  },
+  "csr_banks": [
+    {
+      "name": "ctrl",
+      "origin": 4026531840
+    },
+    {
+      "name": "ddrphy",
+      "origin": 4026533888
+    },
+    {
+      "name": "identifier_mem",
+      "origin": 4026535936
+    },
+    {
+      "name": "milan_mac",
+      "origin": 4026537984
+    },
+    {
+      "name": "sdram",
+      "origin": 4026540032
+    },
+    {
+      "name": "spiflash",
+      "origin": 4026542080
+    },
+    {
+      "name": "timer0",
+      "origin": 4026544128
+    },
+    {
+      "name": "uart",
+      "origin": 4026546176
+    },
+    {
+      "name": "ppmem",
+      "origin": 4026595328
+    }
+  ],
+  "csr_csv_sha256": "b3fdf35c5f62c5430f503844ebb6e889bdba173292ea451f53f248b0bb0d56a0",
+  "csr_registers": [
+    {
+      "address": 4026531840,
+      "mode": "rw",
+      "name": "ctrl_reset",
+      "words": 1
+    },
+    {
+      "address": 4026531844,
+      "mode": "rw",
+      "name": "ctrl_scratch",
+      "words": 1
+    },
+    {
+      "address": 4026531848,
+      "mode": "ro",
+      "name": "ctrl_bus_errors",
+      "words": 1
+    },
+    {
+      "address": 4026533888,
+      "mode": "rw",
+      "name": "ddrphy_rst",
+      "words": 1
+    },
+    {
+      "address": 4026533892,
+      "mode": "rw",
+      "name": "ddrphy_dly_sel",
+      "words": 1
+    },
+    {
+      "address": 4026533896,
+      "mode": "rw",
+      "name": "ddrphy_half_sys8x_taps",
+      "words": 1
+    },
+    {
+      "address": 4026533900,
+      "mode": "rw",
+      "name": "ddrphy_wlevel_en",
+      "words": 1
+    },
+    {
+      "address": 4026533904,
+      "mode": "rw",
+      "name": "ddrphy_wlevel_strobe",
+      "words": 1
+    },
+    {
+      "address": 4026533908,
+      "mode": "rw",
+      "name": "ddrphy_rdly_dq_rst",
+      "words": 1
+    },
+    {
+      "address": 4026533912,
+      "mode": "rw",
+      "name": "ddrphy_rdly_dq_inc",
+      "words": 1
+    },
+    {
+      "address": 4026533916,
+      "mode": "rw",
+      "name": "ddrphy_rdly_dq_bitslip_rst",
+      "words": 1
+    },
+    {
+      "address": 4026533920,
+      "mode": "rw",
+      "name": "ddrphy_rdly_dq_bitslip",
+      "words": 1
+    },
+    {
+      "address": 4026533924,
+      "mode": "rw",
+      "name": "ddrphy_wdly_dq_bitslip_rst",
+      "words": 1
+    },
+    {
+      "address": 4026533928,
+      "mode": "rw",
+      "name": "ddrphy_wdly_dq_bitslip",
+      "words": 1
+    },
+    {
+      "address": 4026533932,
+      "mode": "rw",
+      "name": "ddrphy_rdphase",
+      "words": 1
+    },
+    {
+      "address": 4026533936,
+      "mode": "rw",
+      "name": "ddrphy_wrphase",
+      "words": 1
+    },
+    {
+      "address": 4026537984,
+      "mode": "rw",
+      "name": "milan_mac_phy_crg_reset",
+      "words": 1
+    },
+    {
+      "address": 4026537988,
+      "mode": "rw",
+      "name": "milan_mac_phy_mdio_w",
+      "words": 1
+    },
+    {
+      "address": 4026537992,
+      "mode": "ro",
+      "name": "milan_mac_phy_mdio_r",
+      "words": 1
+    },
+    {
+      "address": 4026537996,
+      "mode": "ro",
+      "name": "milan_mac_core_preamble_crc",
+      "words": 1
+    },
+    {
+      "address": 4026538000,
+      "mode": "ro",
+      "name": "milan_mac_core_rx_datapath_preamble_errors",
+      "words": 1
+    },
+    {
+      "address": 4026538004,
+      "mode": "ro",
+      "name": "milan_mac_core_rx_datapath_crc_errors",
+      "words": 1
+    },
+    {
+      "address": 4026538008,
+      "mode": "rw",
+      "name": "milan_mac_loopback",
+      "words": 1
+    },
+    {
+      "address": 4026538012,
+      "mode": "rw",
+      "name": "milan_mac_link_status",
+      "words": 1
+    },
+    {
+      "address": 4026540032,
+      "mode": "rw",
+      "name": "sdram_dfii_control",
+      "words": 1
+    },
+    {
+      "address": 4026540036,
+      "mode": "rw",
+      "name": "sdram_dfii_pi0_command",
+      "words": 1
+    },
+    {
+      "address": 4026540040,
+      "mode": "rw",
+      "name": "sdram_dfii_pi0_command_issue",
+      "words": 1
+    },
+    {
+      "address": 4026540044,
+      "mode": "rw",
+      "name": "sdram_dfii_pi0_address",
+      "words": 1
+    },
+    {
+      "address": 4026540048,
+      "mode": "rw",
+      "name": "sdram_dfii_pi0_baddress",
+      "words": 1
+    },
+    {
+      "address": 4026540052,
+      "mode": "rw",
+      "name": "sdram_dfii_pi0_wrdata",
+      "words": 2
+    },
+    {
+      "address": 4026540060,
+      "mode": "ro",
+      "name": "sdram_dfii_pi0_rddata",
+      "words": 2
+    },
+    {
+      "address": 4026540068,
+      "mode": "rw",
+      "name": "sdram_dfii_pi1_command",
+      "words": 1
+    },
+    {
+      "address": 4026540072,
+      "mode": "rw",
+      "name": "sdram_dfii_pi1_command_issue",
+      "words": 1
+    },
+    {
+      "address": 4026540076,
+      "mode": "rw",
+      "name": "sdram_dfii_pi1_address",
+      "words": 1
+    },
+    {
+      "address": 4026540080,
+      "mode": "rw",
+      "name": "sdram_dfii_pi1_baddress",
+      "words": 1
+    },
+    {
+      "address": 4026540084,
+      "mode": "rw",
+      "name": "sdram_dfii_pi1_wrdata",
+      "words": 2
+    },
+    {
+      "address": 4026540092,
+      "mode": "ro",
+      "name": "sdram_dfii_pi1_rddata",
+      "words": 2
+    },
+    {
+      "address": 4026540100,
+      "mode": "rw",
+      "name": "sdram_dfii_pi2_command",
+      "words": 1
+    },
+    {
+      "address": 4026540104,
+      "mode": "rw",
+      "name": "sdram_dfii_pi2_command_issue",
+      "words": 1
+    },
+    {
+      "address": 4026540108,
+      "mode": "rw",
+      "name": "sdram_dfii_pi2_address",
+      "words": 1
+    },
+    {
+      "address": 4026540112,
+      "mode": "rw",
+      "name": "sdram_dfii_pi2_baddress",
+      "words": 1
+    },
+    {
+      "address": 4026540116,
+      "mode": "rw",
+      "name": "sdram_dfii_pi2_wrdata",
+      "words": 2
+    },
+    {
+      "address": 4026540124,
+      "mode": "ro",
+      "name": "sdram_dfii_pi2_rddata",
+      "words": 2
+    },
+    {
+      "address": 4026540132,
+      "mode": "rw",
+      "name": "sdram_dfii_pi3_command",
+      "words": 1
+    },
+    {
+      "address": 4026540136,
+      "mode": "rw",
+      "name": "sdram_dfii_pi3_command_issue",
+      "words": 1
+    },
+    {
+      "address": 4026540140,
+      "mode": "rw",
+      "name": "sdram_dfii_pi3_address",
+      "words": 1
+    },
+    {
+      "address": 4026540144,
+      "mode": "rw",
+      "name": "sdram_dfii_pi3_baddress",
+      "words": 1
+    },
+    {
+      "address": 4026540148,
+      "mode": "rw",
+      "name": "sdram_dfii_pi3_wrdata",
+      "words": 2
+    },
+    {
+      "address": 4026540156,
+      "mode": "ro",
+      "name": "sdram_dfii_pi3_rddata",
+      "words": 2
+    },
+    {
+      "address": 4026542080,
+      "mode": "rw",
+      "name": "spiflash_phy_clk_divisor",
+      "words": 1
+    },
+    {
+      "address": 4026542084,
+      "mode": "rw",
+      "name": "spiflash_phy_mode",
+      "words": 1
+    },
+    {
+      "address": 4026542088,
+      "mode": "rw",
+      "name": "spiflash_mmap_clk_divisor",
+      "words": 1
+    },
+    {
+      "address": 4026542092,
+      "mode": "rw",
+      "name": "spiflash_mmap_dummy_bits",
+      "words": 1
+    },
+    {
+      "address": 4026542096,
+      "mode": "rw",
+      "name": "spiflash_master_cs",
+      "words": 1
+    },
+    {
+      "address": 4026542100,
+      "mode": "rw",
+      "name": "spiflash_master_phyconfig",
+      "words": 1
+    },
+    {
+      "address": 4026542104,
+      "mode": "rw",
+      "name": "spiflash_master_rxtx",
+      "words": 1
+    },
+    {
+      "address": 4026542108,
+      "mode": "ro",
+      "name": "spiflash_master_status",
+      "words": 1
+    },
+    {
+      "address": 4026542112,
+      "mode": "rw",
+      "name": "spiflash_master_clk_divisor",
+      "words": 1
+    },
+    {
+      "address": 4026544128,
+      "mode": "rw",
+      "name": "timer0_load",
+      "words": 1
+    },
+    {
+      "address": 4026544132,
+      "mode": "rw",
+      "name": "timer0_reload",
+      "words": 1
+    },
+    {
+      "address": 4026544136,
+      "mode": "rw",
+      "name": "timer0_en",
+      "words": 1
+    },
+    {
+      "address": 4026544140,
+      "mode": "rw",
+      "name": "timer0_update_value",
+      "words": 1
+    },
+    {
+      "address": 4026544144,
+      "mode": "ro",
+      "name": "timer0_value",
+      "words": 1
+    },
+    {
+      "address": 4026544148,
+      "mode": "ro",
+      "name": "timer0_ev_status",
+      "words": 1
+    },
+    {
+      "address": 4026544152,
+      "mode": "rw",
+      "name": "timer0_ev_pending",
+      "words": 1
+    },
+    {
+      "address": 4026544156,
+      "mode": "rw",
+      "name": "timer0_ev_enable",
+      "words": 1
+    },
+    {
+      "address": 4026546176,
+      "mode": "rw",
+      "name": "uart_rxtx",
+      "words": 1
+    },
+    {
+      "address": 4026546180,
+      "mode": "ro",
+      "name": "uart_txfull",
+      "words": 1
+    },
+    {
+      "address": 4026546184,
+      "mode": "ro",
+      "name": "uart_rxempty",
+      "words": 1
+    },
+    {
+      "address": 4026546188,
+      "mode": "ro",
+      "name": "uart_ev_status",
+      "words": 1
+    },
+    {
+      "address": 4026546192,
+      "mode": "rw",
+      "name": "uart_ev_pending",
+      "words": 1
+    },
+    {
+      "address": 4026546196,
+      "mode": "rw",
+      "name": "uart_ev_enable",
+      "words": 1
+    },
+    {
+      "address": 4026546200,
+      "mode": "ro",
+      "name": "uart_txempty",
+      "words": 1
+    },
+    {
+      "address": 4026546204,
+      "mode": "ro",
+      "name": "uart_rxfull",
+      "words": 1
+    },
+    {
+      "address": 4026595328,
+      "mode": "ro",
+      "name": "ppmem_desc_req",
+      "words": 1
+    },
+    {
+      "address": 4026595332,
+      "mode": "ro",
+      "name": "ppmem_desc_fault",
+      "words": 1
+    },
+    {
+      "address": 4026595336,
+      "mode": "ro",
+      "name": "ppmem_resp_req",
+      "words": 1
+    },
+    {
+      "address": 4026595340,
+      "mode": "ro",
+      "name": "ppmem_resp_fault",
+      "words": 1
+    },
+    {
+      "address": 4026595344,
+      "mode": "ro",
+      "name": "ppmem_stat",
+      "words": 1
+    }
+  ],
+  "datapath_parameters": {
+    "AUDIO_IF_CLK_HZ_P": 24576000,
+    "AUDIO_IF_MASTER_P": 1,
+    "AUDIO_IF_RENDER_SLOTS_P": 8,
+    "AUDIO_IF_SLOTS_P": 8,
+    "GPTP_EGRESS_LAT_NS_P": 219,
+    "GPTP_INGRESS_LAT_NS_P": 656,
+    "GPTP_PLANE_EN_P": 1,
+    "I2SPB_P": 0,
+    "LOOPBACK_P": 1,
+    "LPF_P": 0,
+    "MILAN_CLK_FREQ_HZ": 50000000,
+    "N_STREAMS": 1,
+    "PP_DESC_BASE_P": 2138046464,
+    "PP_RESP_BASE_P": 2139090944,
+    "REBOOT_MAC_MIN_MBPS_P": 1000,
+    "REBOOT_MAC_TX_OCTETS_P": 11656,
+    "TALKER_WIRE_CHANS_P": 8
+  },
+  "generated_by": "python3 scripts/gen_register_reference.py --soc-from <export>",
+  "litex": "a1e1c36",
+  "memory_regions": [
+    {
+      "name": "plic",
+      "origin": 4039114752,
+      "size": 4194304,
+      "type": "io+linker"
+    },
+    {
+      "name": "clint",
+      "origin": 4026597376,
+      "size": 65536,
+      "type": "io+linker"
+    },
+    {
+      "name": "rom",
+      "origin": 0,
+      "size": 131072,
+      "type": "cached"
+    },
+    {
+      "name": "sram",
+      "origin": 268435456,
+      "size": 8192,
+      "type": "cached"
+    },
+    {
+      "name": "main_ram",
+      "origin": 1073741824,
+      "size": 1073741824,
+      "type": "cached"
+    },
+    {
+      "name": "spiflash",
+      "origin": 16777216,
+      "size": 16777216,
+      "type": "cached"
+    },
+    {
+      "name": "milan_csr",
+      "origin": 2415919104,
+      "size": 65536,
+      "type": "io"
+    },
+    {
+      "name": "csr",
+      "origin": 4026531840,
+      "size": 65536,
+      "type": "io"
+    }
+  ],
+  "pp_windows": {
+    "desc_base": 2138046464,
+    "nvm_base": 2139025408,
+    "nvm_stage_base": 2138959872,
+    "resp_base": 2139090944,
+    "window_bytes": 1048576
+  },
+  "shape": "endstation_ax7101_1x1_tdm8"
+}

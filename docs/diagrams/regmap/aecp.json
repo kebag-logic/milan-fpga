@@ -1,0 +1,499 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "aecp",
+  "heading": "0x648  -  AECP/ACMP status + AAF talker  (IEEE 1722.1 / Milan v1.2)",
+  "registers": [
+    {
+      "acronym": "AECP_STAT0",
+      "offset": "0x648",
+      "svg": "docs/diagrams/regmap/aecp/AECP_STAT0.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "AECP_CMD_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AECP_CMD_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "AECP_LOCKED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AECP_STAT1",
+      "offset": "0x64C",
+      "svg": "docs/diagrams/regmap/aecp/AECP_STAT1.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "AECP_CURRENT_CONFIG",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AECP_CURRENT_CONFIG",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AECP_RESP_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AECP_RESP_COUNT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ACMP_STAT",
+      "offset": "0x650",
+      "svg": "docs/diagrams/regmap/aecp/ACMP_STAT.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ACMP_CMD_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_CMD_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_RESP_COUNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_RESP_COUNT",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AAF_CTRL",
+      "offset": "0x654",
+      "svg": "docs/diagrams/regmap/aecp/AAF_CTRL.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "AAF_ENABLE",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 1,
+            "name": "AAF_BYPASS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "AAF_VID",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 4,
+            "name": "AAF_VID",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AAF_DMLO",
+      "offset": "0x658",
+      "svg": "docs/diagrams/regmap/aecp/AAF_DMLO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "AAF_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_DEST_MAC",
+            "attr": "R/W-F000FE01h"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AAF_DMHI",
+      "offset": "0x65C",
+      "svg": "docs/diagrams/regmap/aecp/AAF_DMHI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "AAF_DEST_MAC",
+            "attr": "R/W-91E0h"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_DEST_MAC",
+            "attr": "R/W-91E0h"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AAF_FRAMES",
+      "offset": "0x660",
+      "svg": "docs/diagrams/regmap/aecp/AAF_FRAMES.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "AAF_FRAMES",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_FRAMES",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_FRAMES",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_FRAMES",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "AAF_PAIRS",
+      "offset": "0x664",
+      "svg": "docs/diagrams/regmap/aecp/AAF_PAIRS.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "AAF_PAIRS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_PAIRS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_PAIRS",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "AAF_PAIRS",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_DIAG",
+      "offset": "0x668",
+      "svg": "docs/diagrams/regmap/aecp/ADP_DIAG.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ADP_DEPART_CNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "ADP_REARM_CNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 2,
+            "name": "ADP_DEPART_SRC",
+            "attr": "R-X"
+          },
+          {
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ACMP_TALKER",
+      "offset": "0x66C",
+      "svg": "docs/diagrams/regmap/aecp/ACMP_TALKER.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "ACMP_PROBE_ARMED",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ACMP_TALKER_ACTIVE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 1,
+            "name": "ACMP_LOBS",
+            "attr": "R-0"
+          },
+          {
+            "bits": 1,
+            "name": "AAF_GATE",
+            "attr": "R-X"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ACMP_LOBS",
+      "offset": "0x670",
+      "svg": "docs/diagrams/regmap/aecp/ACMP_LOBS.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 1,
+            "name": "ACMP_LOBS",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 7,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "ADP_DIAG2",
+      "offset": "0x674",
+      "svg": "docs/diagrams/regmap/aecp/ADP_DIAG2.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ADP_SENT_CNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "ADP_DISC_RX_CNT",
+            "attr": "R-X"
+          },
+          {
+            "bits": 8,
+            "name": "ADP_DISC_SEEN_CNT",
+            "attr": "R-0"
+          },
+          {
+            "bits": 4,
+            "name": "ADP_LAST_MSG",
+            "attr": "R-X"
+          },
+          {
+            "bits": 4,
+            "name": "ADP_STATE",
+            "attr": "R-X"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,241 @@
+{
+  "generated_by": "python3 scripts/gen_register_reference.py --write",
+  "module": "rest",
+  "heading": "0x7A0  -  ACMP bind-restore  (saved-state fast-connect E1, Milan 5.5.3.5.2)",
+  "registers": [
+    {
+      "acronym": "REST_TK_LO",
+      "offset": "0x7A0",
+      "svg": "docs/diagrams/regmap/rest/REST_TK_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ACMP_REST_TALKER",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_TALKER",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_TALKER",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_TALKER",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "REST_TK_HI",
+      "offset": "0x7A4",
+      "svg": "docs/diagrams/regmap/rest/REST_TK_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ACMP_REST_TALKER",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_TALKER",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_TALKER",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_TALKER",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "REST_META",
+      "offset": "0x7A8",
+      "svg": "docs/diagrams/regmap/rest/REST_META.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ACMP_REST_TUID",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_TUID",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          },
+          {
+            "bits": 8,
+            "name": "RESERVED",
+            "attr": "R/W-0",
+            "type": 1
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "REST_CTLR_LO",
+      "offset": "0x7AC",
+      "svg": "docs/diagrams/regmap/rest/REST_CTLR_LO.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ACMP_REST_CTLR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_CTLR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_CTLR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_CTLR",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "REST_CTLR_HI",
+      "offset": "0x7B0",
+      "svg": "docs/diagrams/regmap/rest/REST_CTLR_HI.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 8,
+            "name": "ACMP_REST_CTLR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_CTLR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_CTLR",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 8,
+            "name": "ACMP_REST_CTLR",
+            "attr": "R/W-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    },
+    {
+      "acronym": "REST_CMD",
+      "offset": "0x7B4",
+      "svg": "docs/diagrams/regmap/rest/REST_CMD.svg",
+      "wavedrom": {
+        "reg": [
+          {
+            "bits": 4,
+            "name": "REST_IDX",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 4,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 2,
+            "name": "REST_STAT",
+            "attr": "R/W-0"
+          },
+          {
+            "bits": 6,
+            "name": "REST_FLAGS",
+            "attr": "W-0"
+          },
+          {
+            "bits": 8,
+            "name": "REST_FLAGS",
+            "attr": "W-0"
+          },
+          {
+            "bits": 6,
+            "name": "RESERVED",
+            "attr": "R-0",
+            "type": 1
+          },
+          {
+            "bits": 1,
+            "name": "REST_DONE",
+            "attr": "R-0"
+          },
+          {
+            "bits": 1,
+            "name": "REST_PEND",
+            "attr": "R/W1S-0"
+          }
+        ],
+        "config": {
+          "bits": 32,
+          "lanes": 4,
+          "hspace": 1000,
+          "fontsize": 11
+        }
+      }
+    }
+  ]
+}
