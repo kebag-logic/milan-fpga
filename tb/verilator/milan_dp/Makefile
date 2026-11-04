@@ -235,7 +235,7 @@ SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv
        $(DP_SRC)
 CPP  = sim_main.cpp
 
-.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build sidmove sidmove-build sidmove8 sidmove8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi bootsa bootsa-build clean option-off-build
+.PHONY: all run gptp gmstep gmstep-build option-off ax1x1 aclk aclk-build crflic crflic-build crflic-mutants tspec8 tspec8-build sidmove sidmove-build sidmove8 sidmove8-build notify notify-build gsi-mutants unb-mutants dynmap dynmap-build dynmap-mutants maprec8 maprec8-build maprec4 maprec4-build ax1x1gptp ax1x1gptp-build ax1x1gptp-extended ax1x1gptp-aemi bootsa bootsa-build bootsa-mutants clean option-off-build
 all: run
 
 # tier-1 optional blocks, ALL pruned at once (docs/design/AREA_BUDGET.md).
@@ -499,7 +499,7 @@ gmstep: gmstep-build
 # them out of milan_baremetal.c against the generated words of the same
 # config, and generates this leg's gPTP program for the same station MAC.
 # sim_boot_sa.cpp's banner has the model. bootsa_mutants.py builds mutated
-# copies through this recipe (BOOTSA_MDIR with DP_SRC or CSR_SRC overridden).
+# copies through this recipe (BOOTSA_MDIR with DP_SRC overridden).
 BOOTSA_MDIR ?= obj_bootsa
 BOOTSA_CFG = endstation_ax7101_1x1_tdm8
 BOOTSA_FW = ../../../sw/firmware/milan_baremetal/milan_baremetal.c
@@ -513,11 +513,16 @@ bootsa-build: ltn_rom.hex ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir $(BOOTSA_MDIR) \
 	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
 	  -GGPTP_UCODE_HEX_P='"$(BOOTSA_MDIR)/boot/gptp_ucode.hex"' \
-	  -CFLAGS "-I$(CURDIR)/$(BOOTSA_MDIR)/boot" -LDFLAGS "$(CURDIR)/$(BOOTSA_MDIR)/boot/boot_fw.o" \
+	  -CFLAGS "-I$(abspath $(BOOTSA_MDIR))/boot" -LDFLAGS "$(abspath $(BOOTSA_MDIR))/boot/boot_fw.o" \
 	  bootsa_probes.vlt $(SRCS) sim_boot_sa.cpp -o Vmilan_dp_bootsa
 
 bootsa: bootsa-build
 	./$(BOOTSA_MDIR)/Vmilan_dp_bootsa
+
+# #839's negative controls: bootsa_mutants.py's banner lists them. An explicit
+# campaign outside the sweep, like crflic-mutants.
+bootsa-mutants: bootsa
+	python3 bootsa_mutants.py
 
 # issue #358: THE SAME LEG WITH THE BOARD LATENCY CORRECTIONS ON. The `gptp`
 # target above leaves both constants at their zero defaults and therefore

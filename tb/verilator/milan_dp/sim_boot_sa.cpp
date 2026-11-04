@@ -28,6 +28,12 @@
 // talker through the documented AAF_CTRL[1] diagnostic bypass, so the
 // processor's AECP and ACMP answers and an AAF stream are on the wire too.
 //
+// Then the pair's sequencing, in an order the firmware does not use: two
+// further resets, each writing one half of the station MAC alone and then,
+// 300 processor ms later, the other. One half alone must open no
+// CSR-addressed transmitter, whichever half it is, and the second half must
+// release the frame the processor built meanwhile with the whole address.
+//
 // Elaboration: the gptp leg's (shipping 1x1 entity, fabric gPTP on, 2 MHz
 // fabric clock, one processor millisecond = 100 cycles), with this leg's
 // gPTP program generated for the same station MAC. The MAC accepts every
@@ -220,6 +226,7 @@ class BootSaHarness {
     void write(uint16_t addr, uint32_t value);
     uint32_t read(uint16_t addr);
     void reset();
+    void pair_order(uint16_t first, uint16_t second, const char* tag);
     void bios_window();
     void run_stage(const std::string& stage);
     size_t first_entity_available(size_t from) const;
@@ -392,8 +399,41 @@ void BootSaHarness::reset() {
     dut_->tdm_bclk_i = 0; dut_->tdm_fsync_i = 0;
     dut_->clk_audio_i = 0; dut_->clk_tdm_i = 0;
     milan::tb::GptpLaunchObserver::tie_off(dut_);
+    observer_.reset();
+    rx_queue_.clear();
+    rx_busy_ = false;
+    rm_busy_ = rm_done_ = dm_busy_ = false;
+    rm_left_ = dm_left_ = dm_wait_ = drp_lat_ = 0;
+    wrote_lo_ = wrote_hi_ = false;
     run_cycles(64);
     dut_->axis_resetn = 1; dut_->gtx_resetn = 1;
+}
+
+//! One reset, then `first` alone, then `second`: the pair must be complete
+//! before any CSR-addressed transmitter starts, in either order.
+void BootSaHarness::pair_order(uint16_t first, uint16_t second, const char* tag) {
+    reset();
+    const size_t from = sent_.size();
+    run_cycles(300 * kMsCyc);
+    write(first, first == 0x108 ? kStationMacLo : kStationMacHi);
+    run_cycles(300 * kMsCyc);
+    auto csr_addressed = [this](size_t at) {
+        size_t n = 0;
+        for (size_t i = at; i < sent_.size(); ++i) n += sent_[i].kind != Kind::Gptp;
+        return n;
+    };
+    std::string what = std::string("[BOOTSA] pair: ") + tag + " alone opens no CSR-addressed transmitter";
+    check_.dec(what.c_str(), csr_addressed(from), 0);
+    const size_t released = sent_.size();
+    write(second, second == 0x108 ? kStationMacLo : kStationMacHi);
+    const uint64_t end = cyc_ + 100 * kMsCyc;
+    while (cyc_ < end && csr_addressed(released) == 0) tick();
+    what = std::string("[BOOTSA] pair: the second half after ") + tag + " releases the processor's frame";
+    check_.that(what.c_str(), csr_addressed(released) > 0);
+    uint64_t wrong = 0;
+    for (size_t i = from; i < sent_.size(); ++i) wrong += sent_[i].sa != kStationMac;
+    what = std::string("[BOOTSA] pair: every frame of the ") + tag + " boot carries the station MAC";
+    check_.dec(what.c_str(), wrong, 0);
 }
 
 //! Reset release to milan_init(): the engines run, nothing touches a CSR.
@@ -583,6 +623,8 @@ int BootSaHarness::run() {
         check_.that("[BOOTSA] the entity re-advertises past the first ENTITY_AVAILABLE",
                     first != SIZE_MAX && first_entity_available(first + 1) != SIZE_MAX);
         grade();
+        pair_order(0x108, 0x10C, "MAC_ADDR_LO");
+        pair_order(0x10C, 0x108, "MAC_ADDR_HI");
     } catch (const std::exception& e) {
         check_.fail(e.what());
     }
