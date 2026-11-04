@@ -13588,7 +13588,7 @@
     "scripts/ci_gate_workflows_selftest.py": {
       "class": "reviewed non-installing",
       "reason": "Controls for the generated gate workflows: runs the budget step text and local make recipes with stand-in compilers; installs nothing.",
-      "sha256": "7e399a455a6e1ac2a931b6536aea41c9ad246bd93a1113c475352e7c225f0cf4"
+      "sha256": "fd73075c3f33d80dfe48e284ecd8a4a410ea49c4ab03723185f4d955040a5b2e"
     },
     "scripts/ci_install_cache.py": {
       "class": "installer",
@@ -13607,6 +13607,11 @@
           "tool": "VexiiRiscv"
         }
       ]
+    },
+    "scripts/ci_litex_legs.py": {
+      "class": "reviewed non-installing",
+      "reason": "Runs the LiteX runner's listed simulations in measured legs and judges their union; invokes the local runner only; installs nothing.",
+      "sha256": "5efe84df76618d3be0b7630d6f16d67eb12a3d7229d8c69ef896c4bbdb39f7ea"
     },
     "scripts/ci_local_manifest.py": {
       "class": "reviewed non-installing",
@@ -13654,7 +13659,7 @@
     "scripts/ci_scope_history.py": {
       "class": "reviewed non-installing",
       "reason": "Validation and source inspection: invokes existing tools or local fixtures; installs nothing.",
-      "sha256": "77204f6425a21537dfda3d07d2502cfca0f41425ab1904a0f3839f7944c52a57"
+      "sha256": "145b410f2e12cf06b64abe87228d3d230722c98615799abd3910858c837799c8"
     },
     "scripts/ci_suite_pieces.py": {
       "class": "reviewed non-installing",
@@ -13749,7 +13754,7 @@
     "scripts/run_litex_sims.sh": {
       "class": "reviewed non-installing",
       "reason": "Validation driver: runtime test directories and function arguments install no tools.",
-      "sha256": "91299632461ecc67f6681def2d6ed50cd92bd5d34e493ec29bdba5c990b11d36"
+      "sha256": "25cfdff483e544bed60156723021fcaba49ee1b94f46cb534f5d8a063102be88"
     },
     "scripts/shape_consumer_inventory.py": {
       "class": "reviewed non-installing",
