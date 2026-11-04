@@ -53,6 +53,7 @@ SECTIONS
 		*-aecp.o(.text.now)
 		*-aecp_mbx.o(.text.now)
 		*-mbx.o(.text.mbx_now_ms)
+		*-aecp.o(.text.scan)
 		*-aecp.o(.text.arm)
 		*-aecp_mbx.o(.text.timer)
 		*-ctrl_app_aecp.o(.text.deliver)
