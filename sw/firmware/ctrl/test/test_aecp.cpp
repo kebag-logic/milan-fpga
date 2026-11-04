@@ -1609,14 +1609,19 @@ TEST_F(Core, HeldRetryAgesFromItsEarliestTimeWhenTheRoundCouldTakeIt)
 {
     unsigned reads=0;
     ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){++reads;*v={};return false;});
+    ON_CALL(mock,Avb).WillByDefault([&](unsigned,uint16_t,aecp_avb_info*v){++reads;*v={};return false;});
     a.retry_hold=true;
-    ms=0;aecp_changed(&a,5,0,1);(void)aecp_poll(&a);
+    // three notices, in the order arm visits them (descriptor order), whose retries fall due at 12, 13 and 11 ms:
+    // the earliest held time is the last one's, after one later and one earlier than the first's
+    struct Notice {uint16_t type;unsigned events;} n[3]={{5,1},{6,1},{9,2}};
+    std::sort(n,n+3,[&](const Notice &x,const Notice &y){return &desc(x.type)<&desc(y.type);});
+    ms=10;aecp_changed(&a,n[2].type,0,n[2].events);(void)aecp_poll(&a);
     EXPECT_FALSE(aecp_retry_aged(&a,0))<<"a retry not yet due is not aged";
-    // the first retry held at 1 ms; a second notice fails then, its retry at 2 ms, and is held at 2 ms
-    ms=1;aecp_changed(&a,6,0,1);(void)aecp_poll(&a);ASSERT_TRUE(a.retry_held);
-    ms=2;(void)aecp_poll(&a);
-    ms=4;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"a held retry is not aged before its age";
-    ms=5;EXPECT_TRUE(aecp_retry_aged(&a,4))<<"its age runs from the earliest held retry's time";
+    ms=11;aecp_changed(&a,n[0].type,0,n[0].events);(void)aecp_poll(&a);ASSERT_TRUE(a.retry_held);
+    ms=12;aecp_changed(&a,n[1].type,0,n[1].events);(void)aecp_poll(&a);
+    ms=13;(void)aecp_poll(&a);
+    ms=14;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"a held retry is not aged before its age";
+    ms=15;EXPECT_TRUE(aecp_retry_aged(&a,4))<<"its age runs from the earliest held retry's time";
     a.response_owed=true;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"no retry is aged while a response is owed";
     a.response_owed=false;a.notify=true;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"nor while a notice is owed";
     a.notify=false;a.waiting=true;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"nor while a command waits on its apply";
@@ -1624,7 +1629,7 @@ TEST_F(Core, HeldRetryAgesFromItsEarliestTimeWhenTheRoundCouldTakeIt)
     EXPECT_FALSE(aecp_retry_aged(&a,4))<<"nor while a START or STOP is pending";
     a.start_pending=false;
     const unsigned tried=reads;EXPECT_FALSE(aecp_retry(&a));ASSERT_GT(reads,tried);
-    ms=6;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"a round leaves no retry held, so none is aged";
+    ms=16;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"a round leaves no retry held, so none is aged";
 }
 
 // #665: the event and registry scans walk aecp.live and aecp.used only, so
