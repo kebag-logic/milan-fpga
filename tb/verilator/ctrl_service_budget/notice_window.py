@@ -69,7 +69,8 @@ def group(p: scenario.Point, k: int) -> scenario.Group:
     for i in range(p.interfaces):
         for ctl in controllers:
             frame = f.aem_command(f.Aem(p.entity_id, ctl, scenario.CTL_MAC, p.mac, seq), 0x0024, bytes(4))
-            g.add(paced, f'frame {i} {frame.hex()}', f'wait tx {aecp} 1 within {50 * ms}', 'wait quiet 3 within 2000000')
+            g.add(paced, f'frame {i} {frame.hex()}', f'wait tx {aecp} 1 within {50 * ms}',
+                  'wait quiet 3 within 2000000')
             seq += 1
     everyone = tuple((ctl, i) for i in range(p.interfaces) for ctl in controllers)
     g.add(wait_ms(SET_MS), f'frame 0 {save_window.set_name(p).hex()}',

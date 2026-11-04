@@ -336,9 +336,9 @@ def _counts_per_instance() -> list:
 
 
 def _verdict(refusals_fail: bool, misses_fail: bool) -> Patches:
-    def verdict(args: object, groups: list, refusals: list, misses: list, shares: list = ()) -> int:
-        """The mutant exit status: refusals or misses fail only where the flags say."""
-        if refusals_fail and (refusals or not groups):
+    def verdict(args: object, groups: list, refusals: list, misses: list, shares: list = (), late: list = ()) -> int:
+        """The mutant exit status: refusals or misses fail only where the flags say; a late save or notice fails."""
+        if late or refusals_fail and (refusals or not groups):
             return 1
         if shares and not args.record_share_findings:
             return 1
@@ -350,9 +350,9 @@ def _shares_seen(keep: Callable[[object, list], bool]) -> Patches:
     """run.verdict handed the passes over the share only where keep(args, misses) says."""
     original = run.verdict
 
-    def verdict(args: object, groups: list, refusals: list, misses: list, shares: list = ()) -> int:
+    def verdict(args: object, groups: list, refusals: list, misses: list, shares: list = (), late: list = ()) -> int:
         """The mutant exit status: the passes over the share dropped unless keep holds."""
-        return original(args, groups, refusals, misses, shares if keep(args, misses) else [])
+        return original(args, groups, refusals, misses, shares if keep(args, misses) else [], late)
     return lambda: [patch.object(run, 'verdict', verdict)]
 
 

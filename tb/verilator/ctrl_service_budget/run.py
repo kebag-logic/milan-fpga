@@ -456,10 +456,10 @@ def as_built_faults(refusals: list) -> list:
 
 
 def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list, shares: list = (),
-            late: list = (), notices_late: list = ()) -> int:
+            late: list = ()) -> int:
     """The run's exit status: a control must be caught by name; a measurement must be complete, its saves
-    durable within their stated worst case, its retried notices within their bound, and its rows and its
-    passes are each a failure unless their own option records them."""
+    durable within their stated worst case and its retried notices within their bound (late names each that is
+    not, by its group), and its rows and its passes are each a failure unless their own option records them."""
     if args.cpu_regions == 'as-built':
         caught = as_built_faults(refusals)
         print(f'CONTROL as-built {"caught" if caught else "ESCAPED"}: an instruction or load access fault '
@@ -498,8 +498,8 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
         return 0 if caught else 1
     if args.mutation in builder.NOTICE_CONTROLS:
         # caught where every group's retried notice is committed later than its bound, each named by its group
-        named = sorted({m.partition(':')[0] for m in notices_late})
         want = sorted(builder.MUTATIONS[args.mutation][3].split(','))
+        named = sorted({m.partition(':')[0] for m in late} & set(want))
         caught = named == want and not refusals
         print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} of {len(want)} group(s) '
               f'with the retried notice later than its bound ({", ".join(named) or "none"}), {len(refusals)} '
@@ -513,7 +513,7 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
             return 1
         print(f'CONTROL {args.mutation} caught: every control path missed its budget')
         return 0
-    if refusals or not groups or late or notices_late:
+    if refusals or not groups or late:
         return 1
     if shares and not args.record_share_findings:
         return 1
@@ -627,7 +627,7 @@ def main() -> int:
           f"share {share.share_ms():.3f} ms ({share.share_cycles(spec['cpu_hz']):,} CPU cycles)"
           + (f", and {idle} run(s) of passes with no mailbox write" if idle else ''))
     print('CLOCK', clock)
-    return verdict(args, groups, refusals, misses, shares, late, notice_misses(results))
+    return verdict(args, groups, refusals, misses, shares, late + notice_misses(results))
 
 
 if __name__ == '__main__':

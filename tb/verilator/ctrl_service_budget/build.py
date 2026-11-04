@@ -58,7 +58,8 @@ STEP_SPAN = ('\tuint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + C
              '\t\treturn 1u;\n\t}\n'
              "\t// THE RETRY's age limit: a retry its client has held CTRL_LOOP_RETRY_AGE_MS past the time it came due "
              'is this\n'
-             '\t// whole pass, before any input, so a backlog or input that leaves no pass empty holds it off no longer\n'
+             '\t// whole pass, before any input, so a backlog or input that leaves no pass empty holds it off '
+             'no longer\n'
              '\tif (l->retry != NULL && l->retry_aged(l->retry_ctx)) {\n\t\t(void)l->retry(l->retry_ctx);\n'
              '\t\tl->stats.retry_passes++;\n\t\tl->stats.passes++;\n\t\tl->stats.retry_aged_passes++;\n'
              '\t\treturn 1u;\n\t}\n'

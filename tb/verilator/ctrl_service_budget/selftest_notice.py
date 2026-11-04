@@ -56,12 +56,13 @@ def notice_checks(synthetic: Callable, one: Callable, tx_sequence: Callable, aem
                               record_share_findings=True)
     g = scenario.Group('notice-retried-0')
     results = lambda r: [dict(group='notice-retried-0', probes=[r])]
-    verdicts = tuple(run.verdict(args, [g], [], [], [], [], run.notice_misses(results(r))) for r in (within, late))
+    verdicts = tuple(run.verdict(args, [g], [], [], [], run.notice_misses(results(r))) for r in (within, late))
     out.append(('a retried notice later than its bound fails the run whatever the options record, and one within '
                 'it passes', verdicts == (0, 1), str(verdicts)))
-    control = argparse.Namespace(cpu_regions='cover', mutation='retry-ageless')
+    control = argparse.Namespace(cpu_regions='cover', mutation='retry-ageless', record_budget_findings=True,
+                                 record_share_findings=True)
     names = notice_window.names()
-    caught = tuple(quietly(lambda n=n: run.verdict(control, [g], [], [], [], [], [f'{name}: late' for name in n]))
+    caught = tuple(quietly(lambda n=n: run.verdict(control, [g], [], [], [], [f'{name}: late' for name in n]))
                    for n in (names, names[1:]))
     out.append(("the age-less plant is caught only when every group's retried notice is later than its bound",
                 caught == (0, 1), str(caught)))
