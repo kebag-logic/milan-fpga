@@ -1570,8 +1570,8 @@ TEST_F(Core, UnavailableNoticeRetriesBackOffToEightMilliseconds)
 // nothing aecp_poll sends or answers first is owed, leaving the hold set.
 TEST_F(Core, HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse)
 {
-    unsigned reads=0;bool timer_armed=false;
-    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){++reads;*v={};return false;});
+    unsigned reads=0;bool timer_armed=false,answers=false;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){++reads;*v={};return answers;});
     ON_CALL(mock,Timer).WillByDefault([&](bool armed,uint32_t){timer_armed=armed;});
     a.retry_hold=true;
     aecp_changed(&a,5,0,1);EXPECT_FALSE(aecp_poll(&a));
@@ -1591,6 +1591,15 @@ TEST_F(Core, HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse)
     EXPECT_FALSE(aecp_retry(&a));EXPECT_GT(reads,first)<<"and tries the retry once none is";
     EXPECT_TRUE(timer_armed)<<"the round arms the timer for the next retry";
     EXPECT_TRUE(a.retry_hold)<<"the round leaves the hold as it found it";
+    // the next retry, 2 ms on, finds the port answering: the round builds the notice
+    answers=true;ms=3;
+    EXPECT_TRUE(aecp_retry(&a))<<"a round that builds a notice asks for the pass that sends it";
+    EXPECT_TRUE(a.notify)<<"(the notice built)";
+    // an instance not yet opened, as the loop may call the round before AECP opens, tries nothing
+    aecp other{};auto other_events=events;auto other_cfg=cfg;other_cfg.events=other_events.data();
+    ASSERT_TRUE(aecp_init(&other,&other_cfg,&ports));other.retry_hold=true;
+    aecp_changed(&other,5,0,1);const unsigned before=reads;
+    EXPECT_FALSE(aecp_retry(&other));EXPECT_EQ(reads,before)<<"a round before the open tries nothing";
 }
 
 // #665: the event and registry scans walk aecp.live and aecp.used only, so
