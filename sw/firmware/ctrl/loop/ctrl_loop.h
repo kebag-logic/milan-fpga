@@ -87,7 +87,7 @@
 // that took no input, no event and no record, after the polls: the
 // saved-state store's write path. Its flash steps (a page program's issue up
 // to 0.97 ms, a 128-byte read-back 0.77 ms) do not fit beside the heaviest
-// pass the other slices make (1.97 ms at 8x8/2if), and in a pass that takes
+// pass the other slices make (1.99 ms at 8x8/2if), and in a pass that takes
 // records they lengthen every record still waiting (the last SRP record of a
 // full ring waits sixteen passes), so its centisecond consumer only owes a
 // step, and the loop calls the step only once a pass takes nothing. It hands
@@ -157,11 +157,15 @@ extern "C" {
 #define CTRL_LOOP_TICKS_PER_PASS 16u    // centiseconds one pass dispatches at most
 // THE SHARE in microseconds: SRP's 18 ms over nine passes.
 #define CTRL_LOOP_SHARE_US 2000u
-// THE STEP's age limit in centiseconds. Two: in every window the budget
-// stages, at 8x8/2if too, no more than two centiseconds are dispatched
-// between two passes that carry a step, so no aged step lands among a
-// window's records, the least of whose margins (0.77 ms) is below a step
-// (0.97 ms) (#665).
+// THE STEP's age limit in centiseconds. Two. A window that opens with the
+// age at the limit, after input that left no pass empty, takes an aged step
+// among its records at its next centisecond, at any limit; none drains in two
+// ticks, so it takes one at most, and one opened at age zero, after a pass
+// that took nothing, takes none at two, where at one it would. Every row the
+// budget stages fits with that step at each placement measured, the least
+// margin 0.10 ms (8x8/2if) against a step of up to 0.97 ms; at three a
+// save would take a step every four ticks under such input (nvm_store.h)
+// (#665).
 #define CTRL_LOOP_STEP_AGE 2u
 // THE RETRY's bound (#665). A retry that comes due waits, counted from the
 // first pass that starts after it came due, at most:
@@ -179,7 +183,10 @@ extern "C" {
 // THE STEP only before its deadline, which the round's time counts against;
 // an aged step's pass, the step and one retry round. A retry round tries the
 // notices of every event whose retry is due, one observation-port call each,
-// and builds the first its port answers (aecp.c, aecp_retry).
+// and builds the first its port answers (aecp.c, aecp_retry). Measured at
+// 8x8/2if with every notice's port unanswered: an aged step's pass with a
+// round took at most 0.92 ms, the round, the call and the timer's re-arm at
+// most 9,770 cycles of it, and no pass of any window was over THE SHARE.
 
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)
