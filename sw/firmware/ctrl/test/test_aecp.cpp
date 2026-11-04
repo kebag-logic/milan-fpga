@@ -1581,7 +1581,13 @@ TEST_F(Core, HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse)
     EXPECT_FALSE(timer_armed)<<"a held retry arms no timer";
     a.response_owed=true;
     EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a response is owed";
-    a.response_owed=false;
+    a.response_owed=false;a.notify=true;
+    EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a notice is owed";
+    a.notify=false;a.waiting=true;
+    EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a command waits on its apply";
+    a.waiting=false;a.start_pending=true;
+    EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a START or STOP is pending";
+    a.start_pending=false;
     EXPECT_FALSE(aecp_retry(&a));EXPECT_GT(reads,first)<<"and tries the retry once none is";
     EXPECT_TRUE(timer_armed)<<"the round arms the timer for the next retry";
     EXPECT_TRUE(a.retry_hold)<<"the round leaves the hold as it found it";
