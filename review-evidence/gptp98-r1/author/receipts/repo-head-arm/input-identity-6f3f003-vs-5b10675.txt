@@ -1,0 +1,16 @@
+# Engine arm inputs: hdl/ and tb/ at 6f3f003 (arm run) and 5b10675 (head)
+
+git diff --stat 6f3f003 5b10675 (whole tree):
+ docs/INTEGRATION.md            |   2 +-
+ docs/MANAGER.md                |   2 +-
+ docs/README.md                 |   2 +-
+ docs/TEST_DEVELOPER.md         |   1 +
+ scripts/check_docs.py          | 353 ++------------------------------
+ scripts/check_docs_selftest.py | 443 +++++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 459 insertions(+), 344 deletions(-)
+
+git diff --stat 6f3f003 5b10675 -- hdl tb syn bench (empty means identical):
+
+tree ids:
+6f3f003 hdl 360f2459ad13e9fddeec2a2c1fb49e2cb6377556 tb 3a468eca888bb4b55a4a5c440cf5d2f4bba8e2ec
+5b10675 hdl 360f2459ad13e9fddeec2a2c1fb49e2cb6377556 tb 3a468eca888bb4b55a4a5c440cf5d2f4bba8e2ec

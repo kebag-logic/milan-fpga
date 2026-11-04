@@ -1,0 +1,34 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Wed Nov  4 17:29:32 2026
+| Host         : <host> running 64-bit unknown
+| Command      : report_utilization -hierarchical -file base_place_util_hier.rpt
+| Design       : KL_gptp_engine
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Fully Placed
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++--------------------+-------------------+------------+------------+---------+------+------+--------+--------+------------+
+|      Instance      |       Module      | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++--------------------+-------------------+------------+------------+---------+------+------+--------+--------+------------+
+| KL_gptp_engine     |             (top) |       4876 |       4390 |     486 |    0 | 3459 |      1 |      1 |          4 |
+|   (KL_gptp_engine) |             (top) |        854 |        546 |     308 |    0 | 2296 |      0 |      0 |          0 |
+|   u_parser         | KL_gptp_rx_parser |        912 |        912 |       0 |    0 |  302 |      0 |      0 |          0 |
+|   u_timer          |     KL_gptp_timer |        167 |        145 |      22 |    0 |   65 |      0 |      0 |          0 |
+|   u_txslot         |   KL_gptp_tx_slot |        107 |         83 |      24 |    0 |   62 |      0 |      0 |          0 |
+|   u_ucpu           |      KL_gptp_ucpu |       2840 |       2708 |     132 |    0 |  734 |      1 |      1 |          4 |
++--------------------+-------------------+------------+------------+---------+------+------+--------+--------+------------+
+* Note: The sum of lower-level cells may be larger than their parent cells total, due to cross-hierarchy LUT combining
+
+

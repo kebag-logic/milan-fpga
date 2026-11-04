@@ -1,0 +1,40 @@
+{
+  "head": "3e3a4e7695ce66eed609089f280c2fba45b24d36",
+  "base": "3e3a4e7695ce66eed609089f280c2fba45b24d36",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "make",
+        "-C",
+        "tb/verilator/engine",
+        "mutants"
+      ],
+      "exit_code": 0,
+      "seconds": 12024.159,
+      "log": "<scratch>/specs/base-arm/01.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "VERILATOR_JOBS=8",
+        "git",
+        "diff",
+        "--exit-code",
+        "--stat"
+      ],
+      "exit_code": 0,
+      "seconds": 0.028,
+      "log": "<scratch>/specs/base-arm/02.log"
+    }
+  ]
+}

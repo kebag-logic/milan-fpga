@@ -1,0 +1,38 @@
+{
+  "head": "09d163f9233dc45e2cd0982c3666baac1fc9a298",
+  "base": "604899c08ff1cd1830e1dd08b733109ef852400c",
+  "results": [
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "TSN_GEN_ROOT=<scratch>/ext/tsn-gen",
+        "make",
+        "-C",
+        "tb/verilator/milan_dp_gptp"
+      ],
+      "exit_code": 0,
+      "seconds": 5411.91,
+      "log": "<scratch>/specs/parent-head-B/01.log"
+    },
+    {
+      "command": [
+        "env",
+        "PATH=<scratch>/bin:<user-bin>:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin",
+        "VERILATOR_ROOT=<verilator-5.050-root>",
+        "TMPDIR=<scratch>/tmp",
+        "HOME=<home>",
+        "TSN_GEN_ROOT=<scratch>/ext/tsn-gen",
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "exit_code": 0,
+      "seconds": 0.394,
+      "log": "<scratch>/specs/parent-head-B/02.log"
+    }
+  ]
+}

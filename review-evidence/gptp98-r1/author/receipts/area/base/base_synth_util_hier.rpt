@@ -1,0 +1,33 @@
+Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2026 Advanced Micro Devices, Inc. All Rights Reserved.
+---------------------------------------------------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2026.1 (lin64) Build 6511674 Tue Jun 16 11:01:26 MDT 2026
+| Date         : Wed Nov  4 17:29:07 2026
+| Host         : <host> running 64-bit unknown
+| Command      : report_utilization -hierarchical -file base_synth_util_hier.rpt
+| Design       : KL_gptp_engine
+| Device       : xc7a100tfgg484-2
+| Speed File   : -2
+| Design State : Synthesized
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+Utilization Design Information
+
+Table of Contents
+-----------------
+1. Utilization by Hierarchy
+
+1. Utilization by Hierarchy
+---------------------------
+
++--------------------+-------------------+------------+------------+---------+------+------+--------+--------+------------+
+|      Instance      |       Module      | Total LUTs | Logic LUTs | LUTRAMs | SRLs |  FFs | RAMB36 | RAMB18 | DSP Blocks |
++--------------------+-------------------+------------+------------+---------+------+------+--------+--------+------------+
+| KL_gptp_engine     |             (top) |       4926 |       4436 |     490 |    0 | 3459 |      1 |      1 |          4 |
+|   (KL_gptp_engine) |             (top) |        858 |        548 |     310 |    0 | 2296 |      0 |      0 |          0 |
+|   u_parser         | KL_gptp_rx_parser |        927 |        927 |       0 |    0 |  302 |      0 |      0 |          0 |
+|   u_timer          |     KL_gptp_timer |        172 |        148 |      24 |    0 |   65 |      0 |      0 |          0 |
+|   u_txslot         |   KL_gptp_tx_slot |        109 |         85 |      24 |    0 |   62 |      0 |      0 |          0 |
+|   u_ucpu           |      KL_gptp_ucpu |       2860 |       2728 |     132 |    0 |  734 |      1 |      1 |          4 |
++--------------------+-------------------+------------+------------+---------+------+------+--------+--------+------------+
+
+

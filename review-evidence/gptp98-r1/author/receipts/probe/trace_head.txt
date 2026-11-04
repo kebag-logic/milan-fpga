@@ -1,0 +1,89 @@
+-- plain Follow_Up (90 bytes) starts at cycle 7
+    36 we=1 a= 1 d=0000001234560000 ev=0 code=0 seq=0000 drops=0
+    48 we=1 a= 2 d=aabbccfffe001122 ev=0 code=0 seq=0000 drops=0
+    50 we=1 a= 3 d=0000000000000001 ev=0 code=0 seq=0000 drops=0
+    54 we=1 a= 0 d=00080001000008fd ev=0 code=0 seq=0000 drops=0
+    60 we=1 a= 4 d=0000000012345678 ev=0 code=0 seq=0000 drops=0
+    64 we=1 a= 5 d=000000002faf0800 ev=0 code=0 seq=0000 drops=0
+    80 we=1 a=11 d=fffff00000070000 ev=0 code=0 seq=0000 drops=0
+    97 we=0 a=11 d=fffff00000070000 ev=1 code=2 seq=0001 drops=0
+-- Follow_Up + trailing TLV (102 bytes) starts at cycle 99
+   128 we=1 a= 1 d=0000001234560000 ev=0 code=2 seq=0001 drops=0
+   140 we=1 a= 2 d=aabbccfffe001122 ev=0 code=2 seq=0001 drops=0
+   142 we=1 a= 3 d=0000000000000001 ev=0 code=2 seq=0001 drops=0
+   146 we=1 a= 0 d=00080002000008fd ev=0 code=2 seq=0001 drops=0
+   152 we=1 a= 4 d=0000000012345678 ev=0 code=2 seq=0001 drops=0
+   156 we=1 a= 5 d=000000002faf0800 ev=0 code=2 seq=0001 drops=0
+   172 we=1 a=11 d=fffff00000070000 ev=0 code=2 seq=0001 drops=0
+   201 we=0 a=11 d=fffff00000070000 ev=1 code=2 seq=0002 drops=0
+-- Follow_Up + 10 padding (100 bytes) starts at cycle 203
+   232 we=1 a= 1 d=0000001234560000 ev=0 code=2 seq=0002 drops=0
+   244 we=1 a= 2 d=aabbccfffe001122 ev=0 code=2 seq=0002 drops=0
+   246 we=1 a= 3 d=0000000000000001 ev=0 code=2 seq=0002 drops=0
+   250 we=1 a= 0 d=00080003000008fd ev=0 code=2 seq=0002 drops=0
+   256 we=1 a= 4 d=0000000012345678 ev=0 code=2 seq=0002 drops=0
+   260 we=1 a= 5 d=000000002faf0800 ev=0 code=2 seq=0002 drops=0
+   276 we=1 a=11 d=fffff00000070000 ev=0 code=2 seq=0002 drops=0
+   303 we=0 a=11 d=fffff00000070000 ev=1 code=2 seq=0003 drops=0
+-- Sync padded to 60 (60 bytes) starts at cycle 305
+   334 we=1 a= 1 d=0000001234560000 ev=0 code=2 seq=0003 drops=0
+   346 we=1 a= 2 d=aabbccfffe001122 ev=0 code=2 seq=0003 drops=0
+   348 we=1 a= 3 d=0000000000000001 ev=0 code=2 seq=0003 drops=0
+   352 we=1 a= 0 d=00000004000008fd ev=0 code=2 seq=0003 drops=0
+   358 we=1 a= 4 d=0000000012345678 ev=0 code=2 seq=0003 drops=0
+   362 we=1 a= 5 d=000000001dcd6500 ev=0 code=2 seq=0003 drops=0
+   365 we=0 a= 5 d=000000001dcd6500 ev=1 code=1 seq=0004 drops=0
+-- Pdelay_Resp (68 bytes) starts at cycle 367
+   396 we=1 a= 1 d=0000001234560000 ev=0 code=1 seq=0004 drops=0
+   408 we=1 a= 2 d=aabbccfffe001122 ev=0 code=1 seq=0004 drops=0
+   410 we=1 a= 3 d=0000000000000001 ev=0 code=1 seq=0004 drops=0
+   414 we=1 a= 0 d=00030005000008fd ev=0 code=1 seq=0004 drops=0
+   420 we=1 a= 4 d=000000000000abcd ev=0 code=1 seq=0004 drops=0
+   424 we=1 a= 5 d=00000000075bcd15 ev=0 code=1 seq=0004 drops=0
+   432 we=1 a= 6 d=deadbeefcafef00d ev=0 code=1 seq=0004 drops=0
+   434 we=1 a= 7 d=0000000000000001 ev=0 code=1 seq=0004 drops=0
+   435 we=0 a= 7 d=0000000000000001 ev=1 code=5 seq=0005 drops=0
+-- Pdelay_Resp_Follow_Up (68 bytes) starts at cycle 437
+   466 we=1 a= 1 d=0000001234560000 ev=0 code=5 seq=0005 drops=0
+   478 we=1 a= 2 d=aabbccfffe001122 ev=0 code=5 seq=0005 drops=0
+   480 we=1 a= 3 d=0000000000000001 ev=0 code=5 seq=0005 drops=0
+   484 we=1 a= 0 d=000a0006000008fd ev=0 code=5 seq=0005 drops=0
+   490 we=1 a= 4 d=000000000000abcd ev=0 code=5 seq=0005 drops=0
+   494 we=1 a= 5 d=00000000075bcd15 ev=0 code=5 seq=0005 drops=0
+   502 we=1 a= 6 d=deadbeefcafef00d ev=0 code=5 seq=0005 drops=0
+   504 we=1 a= 7 d=0000000000000001 ev=0 code=5 seq=0005 drops=0
+   505 we=0 a= 7 d=0000000000000001 ev=1 code=6 seq=0006 drops=0
+-- Pdelay_Req (68 bytes) starts at cycle 507
+   536 we=1 a= 1 d=0000001234560000 ev=0 code=6 seq=0006 drops=0
+   548 we=1 a= 2 d=aabbccfffe001122 ev=0 code=6 seq=0006 drops=0
+   550 we=1 a= 3 d=0000000000000001 ev=0 code=6 seq=0006 drops=0
+   554 we=1 a= 0 d=00020007000008fd ev=0 code=6 seq=0006 drops=0
+   575 we=0 a= 0 d=00020007000008fd ev=1 code=4 seq=0007 drops=0
+-- Announce, two-hop path (98 bytes) starts at cycle 577
+   606 we=1 a= 1 d=0000001234560000 ev=0 code=4 seq=0007 drops=0
+   618 we=1 a= 2 d=aabbccfffe001122 ev=0 code=4 seq=0007 drops=0
+   620 we=1 a= 3 d=0000000000000001 ev=0 code=4 seq=0007 drops=0
+   624 we=1 a= 0 d=000b0008000008fd ev=0 code=4 seq=0007 drops=0
+   643 we=1 a= 8 d=ffc4f8f8fe436af8 ev=0 code=4 seq=0007 drops=0
+   651 we=1 a= 9 d=00220ffffe334455 ev=0 code=4 seq=0007 drops=0
+   654 we=1 a=10 d=0001a00000000000 ev=0 code=4 seq=0007 drops=0
+   666 we=1 a=16 d=00220ffffe334455 ev=0 code=4 seq=0007 drops=0
+   674 we=1 a=17 d=2222222222222222 ev=0 code=4 seq=0007 drops=0
+   675 we=1 a=12 d=8000000000000002 ev=1 code=3 seq=0008 drops=0
+-- Follow_Up, unknown TLV first (102 bytes) starts at cycle 677
+   706 we=1 a= 1 d=0000001234560000 ev=0 code=3 seq=0008 drops=0
+   718 we=1 a= 2 d=aabbccfffe001122 ev=0 code=3 seq=0008 drops=0
+   720 we=1 a= 3 d=0000000000000001 ev=0 code=3 seq=0008 drops=0
+   724 we=1 a= 0 d=00080009000008fd ev=0 code=3 seq=0008 drops=0
+   730 we=1 a= 4 d=0000000012345678 ev=0 code=3 seq=0008 drops=0
+   734 we=1 a= 5 d=000000002faf0800 ev=0 code=3 seq=0008 drops=0
+   762 we=1 a=11 d=fffff00000070000 ev=0 code=3 seq=0008 drops=0
+   779 we=0 a=11 d=fffff00000070000 ev=1 code=2 seq=0009 drops=0
+-- Follow_Up, tlvType 8 (90 bytes) starts at cycle 781
+   810 we=1 a= 1 d=0000001234560000 ev=0 code=2 seq=0009 drops=0
+   822 we=1 a= 2 d=aabbccfffe001122 ev=0 code=2 seq=0009 drops=0
+   824 we=1 a= 3 d=0000000000000001 ev=0 code=2 seq=0009 drops=0
+   828 we=1 a= 0 d=0008000a000008fd ev=0 code=2 seq=0009 drops=0
+   834 we=1 a= 4 d=0000000012345678 ev=0 code=2 seq=0009 drops=0
+   838 we=1 a= 5 d=000000002faf0800 ev=0 code=2 seq=0009 drops=0
+   871 we=0 a= 5 d=000000002faf0800 ev=0 code=2 seq=0009 drops=1

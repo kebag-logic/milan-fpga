@@ -1,0 +1,21 @@
+80c80,81
+<    779 we=0 a= 5 d=000000002faf0800 ev=0 code=3 seq=0008 drops=1
+---
+>    762 we=1 a=11 d=fffff00000070000 ev=0 code=3 seq=0008 drops=0
+>    779 we=0 a=11 d=fffff00000070000 ev=1 code=2 seq=0009 drops=0
+82,88c83,89
+<    810 we=1 a= 1 d=0000001234560000 ev=0 code=3 seq=0008 drops=1
+<    822 we=1 a= 2 d=aabbccfffe001122 ev=0 code=3 seq=0008 drops=1
+<    824 we=1 a= 3 d=0000000000000001 ev=0 code=3 seq=0008 drops=1
+<    828 we=1 a= 0 d=0008000a000008fd ev=0 code=3 seq=0008 drops=1
+<    834 we=1 a= 4 d=0000000012345678 ev=0 code=3 seq=0008 drops=1
+<    838 we=1 a= 5 d=000000002faf0800 ev=0 code=3 seq=0008 drops=1
+<    871 we=0 a= 5 d=000000002faf0800 ev=0 code=3 seq=0008 drops=2
+---
+>    810 we=1 a= 1 d=0000001234560000 ev=0 code=2 seq=0009 drops=0
+>    822 we=1 a= 2 d=aabbccfffe001122 ev=0 code=2 seq=0009 drops=0
+>    824 we=1 a= 3 d=0000000000000001 ev=0 code=2 seq=0009 drops=0
+>    828 we=1 a= 0 d=0008000a000008fd ev=0 code=2 seq=0009 drops=0
+>    834 we=1 a= 4 d=0000000012345678 ev=0 code=2 seq=0009 drops=0
+>    838 we=1 a= 5 d=000000002faf0800 ev=0 code=2 seq=0009 drops=0
+>    871 we=0 a= 5 d=000000002faf0800 ev=0 code=2 seq=0009 drops=1
