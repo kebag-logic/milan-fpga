@@ -75,6 +75,16 @@ bool ctrl_loop_set_step(struct ctrl_loop *l, ctrl_step_fn fn, void *ctx, ctrl_cl
 	return true;
 }
 
+bool ctrl_loop_set_retry(struct ctrl_loop *l, ctrl_retry_fn fn, void *ctx)
+{
+	if (l->retry != NULL || fn == NULL) {
+		return false;
+	}
+	l->retry = fn;
+	l->retry_ctx = ctx;
+	return true;
+}
+
 bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id, const uint64_t own_mac[MBX_N_IF])
 {
 	if (!mbx_open()) {
@@ -158,14 +168,22 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 	// THE STEP's deadline, read as the pass starts
 	uint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u;
 	// THE STEP's age limit: a step not run for more than CTRL_LOOP_STEP_AGE centiseconds is this
-	// whole pass, before any input, so an input waits one step at most
+	// whole pass, before any input, with THE RETRY after it, so an input waits one step and one
+	// retry round at most
 	if (l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE) {
 		l->step_age = 0u;
 		(void)l->step(l->step_ctx, deadline);
+		// THE RETRY after the step: under input that leaves no pass empty, no other pass is free
+		// of input
+		if (l->retry != NULL) {
+			(void)l->retry(l->retry_ctx);
+			l->stats.retry_passes++;
+		}
 		l->stats.passes++;
 		l->stats.aged_passes++;
 		return 1u;
 	}
+	const uint32_t ticks = l->stats.ticks;
 	unsigned work = service_events(l);
 	for (unsigned ch = 0; ch < MBX_N_CH; ++ch) {
 		if (l->rx[ch].fn != NULL) {
@@ -175,6 +193,12 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 	bool owed = l->ticks_owed != 0u;
 	for (unsigned i = 0; i < l->n_polls; ++i) {
 		owed = l->polls[i].fn(l->polls[i].ctx) || owed;
+	}
+	// THE RETRY, only in a pass that took no input and dispatched no centisecond, before THE STEP, whose
+	// deadline counts its time
+	if (l->retry != NULL && work == 0u && l->stats.ticks == ticks) {
+		owed = l->retry(l->retry_ctx) || owed;
+		l->stats.retry_passes++;
 	}
 	// THE STEP, only in a pass that took no input: no input's service waits on it
 	if (l->step != NULL && work == 0u) {

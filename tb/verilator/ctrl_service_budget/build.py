@@ -45,14 +45,24 @@ def run(argv: list[str], log: Path, cwd: Path | None = None) -> None:
 #: ctrl_loop_service from THE STEP's deadline to its call (ctrl_loop.c), its age limit's pass among them.
 STEP_SPAN = ('\tuint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u;\n'
              "\t// THE STEP's age limit: a step not run for more than CTRL_LOOP_STEP_AGE centiseconds is this\n"
-             '\t// whole pass, before any input, so an input waits one step at most\n'
+             '\t// whole pass, before any input, with THE RETRY after it, so an input waits one step and one\n'
+             '\t// retry round at most\n'
              '\tif (l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE) {\n\t\tl->step_age = 0u;\n'
-             '\t\t(void)l->step(l->step_ctx, deadline);\n\t\tl->stats.passes++;\n\t\tl->stats.aged_passes++;\n'
+             '\t\t(void)l->step(l->step_ctx, deadline);\n'
+             '\t\t// THE RETRY after the step: under input that leaves no pass empty, no other pass is free\n'
+             '\t\t// of input\n'
+             '\t\tif (l->retry != NULL) {\n\t\t\t(void)l->retry(l->retry_ctx);\n\t\t\tl->stats.retry_passes++;\n\t\t}\n'
+             '\t\tl->stats.passes++;\n\t\tl->stats.aged_passes++;\n'
              '\t\treturn 1u;\n\t}\n'
+             '\tconst uint32_t ticks = l->stats.ticks;\n'
              '\tunsigned work = service_events(l);\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n'
              '\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n'
              '\tbool owed = l->ticks_owed != 0u;\n\tfor (unsigned i = 0; i < l->n_polls; ++i) {\n'
              '\t\towed = l->polls[i].fn(l->polls[i].ctx) || owed;\n\t}\n'
+             '\t// THE RETRY, only in a pass that took no input and dispatched no centisecond, before THE STEP, whose\n'
+             '\t// deadline counts its time\n'
+             '\tif (l->retry != NULL && work == 0u && l->stats.ticks == ticks) {\n'
+             '\t\towed = l->retry(l->retry_ctx) || owed;\n\t\tl->stats.retry_passes++;\n\t}\n'
              "\t// THE STEP, only in a pass that took no input: no input's service waits on it\n"
              '\tif (l->step != NULL && work == 0u) {\n')
 #: Planted firmware defects for the controls: each is (source file, unique anchor, replacement),
@@ -86,11 +96,11 @@ MUTATIONS = {
     # by the step's own clock, about one read-back step more, so a row of an aged window (save_window.aged_window)
     # whose aged step lands among its records must go over its budget while the pass stays within the share.
     'store-step-aged-heavier': ('loop/ctrl_loop.c',
-                                '\t\t(void)l->step(l->step_ctx, deadline);\n\t\tl->stats.passes++;',
+                                '\t\t(void)l->step(l->step_ctx, deadline);\n\t\t// THE RETRY after the step',
                                 '\t\t(void)l->step(l->step_ctx, deadline);\n'
                                 '\t\tfor (uint32_t at = l->clock(l->clock_ctx);'
                                 ' l->clock(l->clock_ctx) - at < 800u;) {\n'
-                                '\t\t}\n\t\tl->stats.passes++;',
+                                '\t\t}\n\t\t// THE RETRY after the step',
                                 ','.join(g for g in save_window.aged_names() if '@verify-aged2-' in g), 'none'),
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.

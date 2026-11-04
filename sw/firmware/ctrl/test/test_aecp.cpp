@@ -779,7 +779,7 @@ TEST_F(Core, CrossInstanceInputsAreRefusedInsideRealCallbacks)
 {
     aecp other{};auto other_events=events;auto other_cfg=cfg;
     other_cfg.events=other_events.data();
-    for(unsigned entry=0;entry<15;++entry){
+    for(unsigned entry=0;entry<16;++entry){
         ASSERT_TRUE(aecp_init(&other,&other_cfg,&ports));
         auto before=other;auto source_count=a.reentries;
         ON_CALL(mock,Changed).WillByDefault([&](aecp_change,uint16_t,uint16_t){
@@ -1565,6 +1565,28 @@ TEST_F(Core, UnavailableNoticeRetriesBackOffToEightMilliseconds)
     EXPECT_GT(reads,before)<<"a delivered notice starts the next backoff at 1 ms";
 }
 
+// THE RETRY (#665, ctrl_loop.h): with retry_hold, aecp_poll holds a due retry,
+// arms no timer for it and reports it owed, and aecp_retry tries it, once
+// nothing aecp_poll sends or answers first is owed, leaving the hold set.
+TEST_F(Core, HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse)
+{
+    unsigned reads=0;bool timer_armed=false;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){++reads;*v={};return false;});
+    ON_CALL(mock,Timer).WillByDefault([&](bool armed,uint32_t){timer_armed=armed;});
+    a.retry_hold=true;
+    aecp_changed(&a,5,0,1);EXPECT_FALSE(aecp_poll(&a));
+    const unsigned first=reads;ASSERT_GT(first,0u);ASSERT_TRUE(timer_armed);
+    ms=1;EXPECT_TRUE(aecp_poll(&a))<<"a held retry is reported owed";
+    EXPECT_EQ(reads,first)<<"aecp_poll holds a due retry";
+    EXPECT_FALSE(timer_armed)<<"a held retry arms no timer";
+    a.response_owed=true;
+    EXPECT_TRUE(aecp_retry(&a));EXPECT_EQ(reads,first)<<"the round waits while a response is owed";
+    a.response_owed=false;
+    EXPECT_FALSE(aecp_retry(&a));EXPECT_GT(reads,first)<<"and tries the retry once none is";
+    EXPECT_TRUE(timer_armed)<<"the round arms the timer for the next retry";
+    EXPECT_TRUE(a.retry_hold)<<"the round leaves the hold as it found it";
+}
+
 // #665: the event and registry scans walk aecp.live and aecp.used only, so
 // each must hold exactly what the full scans visited: the events holding a
 // notice or a retry, in descriptor order, and the used registrations.
@@ -2109,9 +2131,56 @@ TEST_F(Mailbox, TimerIdentityAndAttachRefusals)
     ctrl_loop full{};ctrl_loop_init(&full);full.n_sinks=CTRL_LOOP_MAX_SINKS;
     EXPECT_FALSE(aecp_mbx_attach(&adapter,&full));full.n_sinks=0;full.n_polls=CTRL_LOOP_MAX_POLLS;
     EXPECT_FALSE(aecp_mbx_attach(&adapter,&full));
+    full.n_polls=0;ASSERT_TRUE(ctrl_loop_set_retry(&full,[](void*){return false;},nullptr));
+    EXPECT_FALSE(aecp_mbx_attach(&adapter,&full))<<"attach is refused when the loop has a retry client";
+    EXPECT_TRUE(full.n_sinks==0u&&full.n_polls==0u&&full.rx[MBX_CH_AECP].fn==nullptr)<<"and binds nothing";
     aecp_mbx other{};EXPECT_FALSE(aecp_mbx_init(&other,&cfg,&ports,MBX_N_TIMERS));
     auto bad=cfg;bad.interfaces=MBX_N_IF+1;EXPECT_FALSE(aecp_mbx_init(&other,&bad,&ports,0));
     bad=cfg;bad.interfaces=0;EXPECT_FALSE(aecp_mbx_init(&other,&bad,&ports,0));
+}
+
+// THE RETRY (#665, ctrl_loop.h): a due change-notice retry is held by the
+// adapter's poll and its timer's sink, which arm no timer for it and report
+// it owed, and is tried only in the loop's retry pass, one that took no input
+// and dispatched no centisecond, which arms the timer for the next one.
+TEST_F(Mailbox, RetryWaitsForAPassThatTakesNothing)
+{
+    unsigned reads=0;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){++reads;*v={};return false;});
+    EXPECT_TRUE(adapter.core.retry_hold)<<"the adapter holds the core's due retries";
+    aecp_changed(&adapter.core,5,0,1);service();
+    const unsigned first=reads;ASSERT_GT(first,0u);
+    ASSERT_NE(events[&desc(5)-descriptors.data()].retry_pending,0u);
+    ASSERT_TRUE(adapter.armed);
+    // the retry comes due at 1 ms: its timer's event and a record are taken by one pass, which holds it
+    auto p=command(36);
+    mbx_model_advance_ms(&fabric,1);ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));
+    const unsigned taken=loop.stats.events;
+    (void)ctrl_loop_service(&loop);
+    EXPECT_EQ(loop.stats.events,taken+1u)<<"a held retry arms no timer";
+    EXPECT_EQ(reads,first)<<"a pass that takes the retry's timer and a record does not try it";
+    // a held retry arms no timer, so each pass takes only the event it is given, and tries nothing
+    for(uint16_t n=0;n<4u;++n){
+        mbx_timer_arm(0,static_cast<uint16_t>(0x100u+n),mbx_now_ms());mbx_model_advance_ms(&fabric,0);
+        const unsigned before=loop.stats.events;
+        EXPECT_NE(ctrl_loop_service(&loop),0u);
+        EXPECT_EQ(loop.stats.events,before+1u)<<"a held retry arms no timer";
+    }
+    EXPECT_EQ(reads,first)<<"nor does a pass that takes an event";
+    ASSERT_EQ(adapter.completion_count,0u);
+    EXPECT_TRUE(loop.polls[0].fn(loop.polls[0].ctx))<<"a held retry is reported owed";
+    const unsigned passes=loop.stats.retry_passes;
+    (void)ctrl_loop_service(&loop);
+    EXPECT_EQ(loop.stats.retry_passes,passes+1u);
+    EXPECT_GT(reads,first)<<"the next pass that takes nothing tries it";
+    EXPECT_TRUE(adapter.armed&&adapter.deadline==mbx_now_ms()+2u)<<"and arms the timer for its next retry";
+    // due again two milliseconds on, beside a record: held again, and tried by the next pass that takes nothing
+    const unsigned second=reads;
+    mbx_model_advance_ms(&fabric,2);ASSERT_TRUE(mbx_model_rx(&fabric,p.data(),p.size(),0));
+    (void)ctrl_loop_service(&loop);
+    EXPECT_EQ(reads,second)<<"a retry due again is held again";
+    service();EXPECT_GT(reads,second)<<"(and tried by the next pass that takes nothing)";
+    EXPECT_EQ(fabric.ch[MBX_CH_AECP].tx_err,0u);EXPECT_EQ(fabric.bus_err,0u);
 }
 
 TEST_F(Mailbox, FullTransmitRingAndCompletionQueueKeepTheirOwedResponse)

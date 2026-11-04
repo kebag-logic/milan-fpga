@@ -528,6 +528,10 @@ struct LoopProbe {
     unsigned polls_at_step;  // the polls run when the step was last called
     std::uint32_t deadline;  // the deadline the step was last given
     bool step_owing;         // what the probe's step reports
+    unsigned retries;          // THE RETRY's client calls
+    unsigned polls_at_retry;   // the polls run when the retry was last called
+    unsigned steps_at_retry;   // the steps run when the retry was last called
+    bool retry_owing;          // what the probe's retry reports
 };
 
 LoopProbe probe;
@@ -555,6 +559,14 @@ bool probe_step(void*, std::uint32_t deadline) {
     probe.polls_at_step = probe.polls;
     probe.deadline = deadline;
     return probe.step_owing;
+}
+
+bool probe_retry(void*) {
+    probe.retries++;
+    probe.polls_at_retry = probe.polls;
+    probe.steps_at_retry = probe.steps;
+    probe.now += probe.poll_us;
+    return probe.retry_owing;
 }
 
 void tick_a() {
@@ -703,6 +715,17 @@ TEST_F(LoopBring, L10StepBindingRefusals) {
         << "L10 a second step is refused";
     EXPECT_TRUE(loop.step == probe_step && loop.step_ctx == nullptr && loop.clock == probe_clock)
         << "L10 and the first stays bound";
+}
+
+// THE RETRY's binding: a client with no function is refused, and a second
+// client is refused, keeping the first (#665).
+TEST_F(LoopBring, L15RetryBindingRefusals) {
+    static ctrl_loop loop;
+    ctrl_loop_init(&loop);
+    EXPECT_FALSE(ctrl_loop_set_retry(&loop, nullptr, nullptr)) << "L15 a retry client with no function is refused";
+    EXPECT_TRUE(ctrl_loop_set_retry(&loop, probe_retry, nullptr)) << "L15 a retry client binds";
+    EXPECT_FALSE(ctrl_loop_set_retry(&loop, probe_retry, &loop)) << "L15 a second retry client is refused";
+    EXPECT_TRUE(loop.retry == probe_retry && loop.retry_ctx == nullptr) << "L15 and the first stays bound";
 }
 
 TEST_F(Loop, L2PerPassRxBound) {
@@ -945,6 +968,72 @@ TEST_F(Loop, L14TheAgeCountsCentisecondsNotDispatches) {
     EXPECT_TRUE(probe.steps == steps + 1u && probe.rx == rx)
         << "L14 one dispatch of CTRL_LOOP_STEP_AGE + 1 centiseconds makes the next pass the step's alone";
     EXPECT_EQ(loop_.stats.aged_passes, 1u) << "L14 counted as an aged step's";
+}
+
+// THE RETRY (#665): the client is called only in a pass that took no input,
+// no event and no record, and dispatched no centisecond, after its polls and
+// before THE STEP, or after the step in the pass given whole to an aged step;
+// a retry still owed keeps the loop passing.
+TEST_F(Loop, L16TheRetryOnlyInAPassThatTakesNothing) {
+    drain(&loop_);
+    ASSERT_TRUE(ctrl_loop_set_retry(&loop_, probe_retry, nullptr));
+    std::uint8_t f[82];
+    build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.retries, 0u) << "L16 a pass that takes a record does not call the retry";
+    mbx_timer_arm(0, 0x700u, mbx_now_ms());
+    mbx_model_advance_ms(&model, 0);
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.retries, 0u) << "L16 nor one that takes an event";
+    // centiseconds counted while the event ring is held, more than one pass dispatches: the pass after the one
+    // that takes their record dispatches the last and takes no input
+    mbx_model_evt_pause(&model, true);
+    mbx_model_advance_ms(&model, (CTRL_LOOP_TICKS_PER_PASS + 1u) * MBX_TICK_MS);
+    mbx_model_evt_pause(&model, false);
+    static_cast<void>(ctrl_loop_service(&loop_));
+    ASSERT_EQ(loop_.ticks_owed, 1u);
+    const unsigned events = loop_.stats.events;
+    const unsigned rx = loop_.stats.rx_records;
+    const unsigned ticks = loop_.stats.ticks;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    ASSERT_TRUE(loop_.stats.events == events && loop_.stats.rx_records == rx && loop_.stats.ticks == ticks + 1u);
+    EXPECT_EQ(probe.retries, 0u) << "L16 nor one that dispatches a centisecond, though it takes no input";
+    const unsigned polls = probe.polls;
+    const unsigned passes = loop_.stats.retry_passes;
+    probe.retry_owing = true;
+    EXPECT_NE(ctrl_loop_service(&loop_), 0u) << "L16 a retry still owed asks for the next pass at once";
+    EXPECT_EQ(probe.retries, 1u) << "L16 the next pass that takes nothing calls it";
+    EXPECT_EQ(probe.polls_at_retry, polls + 1u) << "L16 after its polls";
+    EXPECT_EQ(loop_.stats.retry_passes, passes + 1u) << "L16 the pass is counted as one that called the retry";
+    probe.retry_owing = false;
+    EXPECT_EQ(ctrl_loop_service(&loop_), 0u) << "L16 a retry that owes nothing lets the loop sleep";
+    // with THE STEP bound, the retry comes before it, so the step's deadline counts the retry's time
+    ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
+    drain(&loop_);
+    const unsigned steps = probe.steps;
+    const unsigned retries = probe.retries;
+    EXPECT_EQ(ctrl_loop_service(&loop_), 0u);
+    EXPECT_TRUE(probe.retries == retries + 1u && probe.steps_at_retry == steps && probe.steps == steps + 1u)
+        << "L16 and before THE STEP";
+    // a centisecond and a record before every pass: no pass takes nothing, and the aged step's pass calls it
+    const auto busy_pass = [&]() {
+        mbx_model_advance_ms(&model, MBX_TICK_MS);
+        EXPECT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+        static_cast<void>(ctrl_loop_service(&loop_));
+    };
+    for (unsigned k = 0; k <= CTRL_LOOP_STEP_AGE; ++k) {
+        busy_pass();
+    }
+    EXPECT_EQ(probe.retries, retries + 1u) << "L16 input that leaves no pass empty holds it off";
+    const unsigned aged_steps = probe.steps;
+    const unsigned aged = loop_.stats.aged_passes;
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    const unsigned aged_polls = probe.polls;
+    EXPECT_NE(ctrl_loop_service(&loop_), 0u);
+    ASSERT_EQ(loop_.stats.aged_passes, aged + 1u);
+    EXPECT_TRUE(probe.retries == retries + 2u && probe.steps_at_retry == aged_steps + 1u && probe.polls == aged_polls)
+        << "L16 the pass given whole to an aged step calls it after the step";
 }
 
 }  // namespace

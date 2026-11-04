@@ -33,6 +33,9 @@ struct aecp_mbx {
 // and START ports; its transport/time fields are not used by this adapter.
 bool aecp_mbx_init(struct aecp_mbx *, const struct aecp_config *,
 		   const struct aecp_ports *environment, unsigned timer_slot);
+// Binds the AECP channel, a sink, a poll and THE RETRY's client (ctrl_loop.h),
+// and holds the core's due retries for that client (aecp.retry_hold, #665).
+// False, binding nothing, when any of them is taken or its table is full.
 bool aecp_mbx_attach(struct aecp_mbx *, struct ctrl_loop *);
 // After the mailbox contract is checked and saved-state release permits AECP.
 void aecp_mbx_open(struct aecp_mbx *);

@@ -110,12 +110,14 @@ The first failure of a round schedules the next round; a delivered notice resets
 Solicited responses never wait on a retry, so their 240 ms bound (IEEE 1722.1-2021 9.3.2.6) is untouched.
 Other eligible snapshots continue during that wait.
 The retry timer permits the event loop to sleep.
+A retry is deferrable work (THE RETRY in [`ctrl_loop.h`](../loop/ctrl_loop.h), #665): with `aecp.retry_hold` set, as the adapter sets it, a due retry is held by `aecp_poll` and the timer's sink, which arm no timer for it and report it owed, and only `aecp_retry` tries it, which the event loop calls in a pass that took no input and dispatched no centisecond, or after an aged step, never beside a backlog's records or a centisecond.
+`aecp_retry` waits while a response or notice is owed, a command waits on its apply, or a START/STOP is pending, as `aecp_poll` sends or answers those first.
 Backpressure retains the completed snapshot and its remaining recipients.
 The event scans walk only the events holding a notice or a retry, linked in descriptor order through their rows (`aecp.live`), and the registry scans visit only the used registrations (`aecp.used`), so a record's pass no longer walks every descriptor (#665).
 `aecp_open` relinks every row, so what was set before the open is seen.
 `aecp_find` answers from an index of the model's keys that `aecp_init` builds (`aecp.runs`, `aecp_index`): a configuration's descriptors of one type, held as one run from index 0, are found at their position, and a key outside the indexed configurations and types of IEEE 1722.1-2021 Table 7-1, or placed otherwise, is scanned for as before (#665). The firmware never changes a key after `aecp_init`; the self-test's cases that do rebuild the index with the change, and its fixture fails any case that leaves `aecp_find` answering differently from a scan.
 
-[`aecp_mbx.c`](aecp_mbx.c) attaches the AECP channel and one timer slot. Accepted
+[`aecp_mbx.c`](aecp_mbx.c) attaches the AECP channel, one timer slot and THE RETRY's client, and is refused when the loop already has one. Accepted
 TX_HEAD publication and completed TX_TAIL retirement are separate events. The
 adapter retains completion cookies until the final frame words retire and reads
 the clock then. A stale clock observation cannot move the completion time back.

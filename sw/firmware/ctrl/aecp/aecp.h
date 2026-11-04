@@ -18,11 +18,19 @@ extern "C" {
 // notice each millisecond). Only notices wait on it: a solicited response
 // never does (aecp_ready), so the 240 ms response bound of IEEE 1722.1-2021
 // 9.3.2.6 (9.2.1.2.5 in 1722.1-2013) and Milan v1.2 5.4.3.4 is untouched.
-// Once the port answers, the notice of Milan v1.2 5.4.5.2 and Table 5.22 is
-// built within 8 ms plus the pass that takes it, inside its 20 ms bound,
-// min(T_svc, the 24 ms notification ceiling), of FR_NFR.md 3.4.1; GET_COUNTERS keeps its
-// one-second spacing, and the 60 s unlock and the controller monitor of
-// Milan v1.2 5.4.2.2 and 5.4.5.3 are not retries.
+// A retry is deferrable (THE RETRY, ctrl_loop.h): with aecp.retry_hold set, as
+// aecp_mbx sets it, a due retry is held by aecp_poll, which arms no timer for
+// it and reports it owed, and only aecp_retry tries it, which the event loop
+// calls in a pass that took no input and dispatched no centisecond or after
+// an aged step. Once the port answers, the notice of Milan v1.2 5.4.5.2 and
+// Table 5.22 is built at its next retry, within 8 ms, and in the pass that
+// takes it: with no input waiting, the pass after the one that takes its
+// timer, inside its 20 ms bound, min(T_svc, the 24 ms notification ceiling),
+// of FR_NFR.md 3.4.1. Behind a backlog it waits until the backlog is taken,
+// and under input that leaves no pass empty until the next aged step,
+// ctrl_loop.h's bound. GET_COUNTERS keeps its one-second spacing, and the
+// 60 s unlock and the controller monitor of Milan v1.2 5.4.2.2 and 5.4.5.3
+// are not retries.
 #define AECP_RETRY_MAX_MS 8u
 // aecp_find's index (#665) holds a run per descriptor type of IEEE 1722.1-2021
 // Table 7-1, ENTITY (0x0000) to PTP_PORT (0x0028), for the first
@@ -209,6 +217,8 @@ struct aecp {
 	bool open;
 	bool start_pending;
 	bool notices; // an event may hold a notice or a retry: the event scans run only then (#665)
+	bool retry_hold; // a due retry waits for aecp_retry (THE RETRY, ctrl_loop.h; #665)
+	bool retry_held; // with retry_hold, a due retry waits: arm armed no timer for it
 	// The events holding a notice or a retry, in descriptor order, linked through
 	// aecp_event.next: the first one's index + 1, 0 when none. The event scans walk
 	// only these (#665).
@@ -256,6 +266,11 @@ void aecp_open(struct aecp *);
 bool aecp_ready(struct aecp *);
 void aecp_rx(struct aecp *, unsigned interface, const uint8_t *, size_t);
 bool aecp_poll(struct aecp *);
+// THE RETRY's round (ctrl_loop.h, #665): every due retry released and its
+// notices tried, the first its port answers built, then the timer armed for
+// the next. Only while no response or notice is owed, as aecp_poll builds
+// one. True while a due retry still waits or the built notice is owed.
+bool aecp_retry(struct aecp *);
 void aecp_start_done(struct aecp *, bool success, bool changed);
 // departure_ms is the final output beat's time, or a later observation of it.
 // A later cookie for the same descriptor supersedes an earlier completion.

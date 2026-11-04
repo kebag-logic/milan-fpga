@@ -169,11 +169,22 @@ static bool poll(void *ctx)
 	return busy || m->completion_count != 0u;
 }
 
+// THE RETRY's client (ctrl_loop.h, #665): the loop calls it only in a pass that
+// took no input and dispatched no centisecond, or after an aged step.
+static bool retry(void *ctx)
+{
+	struct aecp_mbx *m = ctx;
+	return aecp_retry(&m->core);
+}
+
 bool aecp_mbx_attach(struct aecp_mbx *m, struct ctrl_loop *l)
 {
-	if (l->rx[MBX_CH_AECP].fn != NULL || l->n_sinks == CTRL_LOOP_MAX_SINKS || l->n_polls == CTRL_LOOP_MAX_POLLS) {
+	if (l->rx[MBX_CH_AECP].fn != NULL || l->n_sinks == CTRL_LOOP_MAX_SINKS || l->n_polls == CTRL_LOOP_MAX_POLLS ||
+	    !ctrl_loop_set_retry(l, retry, m)) {
 		return false;
 	}
+	// a due change-notice retry waits for the loop's retry pass: the poll and the timer's sink only hold it
+	m->core.retry_hold = true;
 	(void)ctrl_loop_add_sink(l, event, m);
 	(void)ctrl_loop_add_poll(l, poll, m);
 	(void)ctrl_loop_bind_rx(l, MBX_CH_AECP, frame, m);

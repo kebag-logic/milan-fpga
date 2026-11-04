@@ -187,10 +187,14 @@ static void arm(struct aecp *a)
 		}
 	}
 	bool left = false;
+	a->retry_held = false;
 	for (unsigned k = a->notices ? a->live : 0u; k != 0u; k = a->cfg.events[k - 1u].next) {
 		struct aecp_event *e = &a->cfg.events[k - 1u];
 		left = true;
-		if (e->retry_pending != 0u && (!armed || due(deadline, e->retry_at))) {
+		if (e->retry_pending != 0u && a->retry_hold && due(a->now, e->retry_at)) {
+			// held for aecp_retry (THE RETRY): a timer already due would post an event every pass
+			a->retry_held = true;
+		} else if (e->retry_pending != 0u && (!armed || due(deadline, e->retry_at))) {
 			deadline = e->retry_at;
 			armed = true;
 		}
@@ -564,6 +568,8 @@ static bool transmit(struct aecp *a)
 	return false;
 }
 
+static bool scan(struct aecp *a);
+
 static bool asynchronous(struct aecp *a)
 {
 	if (a->locked && due(a->now, a->lock_deadline)) {
@@ -611,6 +617,15 @@ static bool asynchronous(struct aecp *a)
 			return true;
 		}
 	}
+	return scan(a);
+}
+
+// The event scan: each event holding a notice or a retry, in descriptor
+// order, its notices tried and the first built returned. A due retry is
+// released only without aecp.retry_hold, which aecp_retry lifts for its round
+// (THE RETRY, ctrl_loop.h; #665).
+static bool scan(struct aecp *a)
+{
 	static const uint16_t commands[4] = {
 		15u, 39u, 40u, 41u
 	};
@@ -620,7 +635,7 @@ static bool asynchronous(struct aecp *a)
 		size_t n = *link - 1u;
 		struct aecp_event *e = &a->cfg.events[n];
 		struct aecp_descriptor *d = &a->cfg.model->descriptors[n];
-		if (e->retry_pending != 0u && due(a->now, e->retry_at)) {
+		if (e->retry_pending != 0u && !a->retry_hold && due(a->now, e->retry_at)) {
 			e->retry_pending = 0u;
 		}
 		for (unsigned bit = 0; bit < 4u; ++bit) {
@@ -715,5 +730,23 @@ bool aecp_poll(struct aecp *a)
 	}
 	bool pending = asynchronous(a);
 	arm(a);
-	return pending;
+	return pending || a->retry_held;
+}
+
+bool aecp_retry(struct aecp *a)
+{
+	if (!aecp_enter(a) || !a->open) {
+		return false;
+	}
+	// what aecp_poll sends or answers first waits for its pass, and the round for it
+	if (a->response_owed || a->notify || a->waiting || a->start_pending) {
+		return a->retry_held;
+	}
+	(void)now(a);
+	bool hold = a->retry_hold;
+	a->retry_hold = false;
+	bool built = scan(a);
+	a->retry_hold = hold;
+	arm(a);
+	return built || a->retry_held;
 }

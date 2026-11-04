@@ -1,8 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Planted defects of the loop's step (#665, THE STEP in ctrl_loop.h): its binding, its place last in the pass with
-the deadline read as the pass starts, its pass that takes no input, and its age limit. ctrl_mutants.py plants them
-with the rest of the control table; each must fail its named test on its own words.
+the deadline read as the pass starts, its pass that takes no input, and its age limit; and of THE RETRY: its
+binding, and its call only in a pass that took no input and dispatched no centisecond, or after an aged step.
+ctrl_mutants.py plants them with the rest of the control table; each must fail its named test on its own words.
 """
 from __future__ import annotations
 
@@ -15,9 +16,20 @@ STEP_POLLS = ("\tfor (unsigned i = 0; i < l->n_polls; ++i) {\n"
 STEP_CALL = ("\t// THE STEP, only in a pass that took no input: no input's service waits on it\n"
              "\tif (l->step != NULL && work == 0u) {\n\t\tbool waits = l->step(l->step_ctx, deadline);\n"
              "\t\tl->step_age = waits ? l->step_age : 0u;\n\t\towed = waits || owed;\n\t}\n")
-#: THE STEP's age limit: the pass given whole to an aged step (ctrl_loop.c).
+#: THE RETRY's call in a pass that takes nothing, between the polls and THE STEP (ctrl_loop.c).
+RETRY_CALL = ("\t// THE RETRY, only in a pass that took no input and dispatched no centisecond, before THE STEP, "
+              "whose\n\t// deadline counts its time\n"
+              "\tif (l->retry != NULL && work == 0u && l->stats.ticks == ticks) {\n"
+              "\t\towed = l->retry(l->retry_ctx) || owed;\n\t\tl->stats.retry_passes++;\n\t}\n")
+#: THE RETRY's call after the aged step.
+RETRY_AGED = ("\t\t// THE RETRY after the step: under input that leaves no pass empty, no other pass is free\n"
+              "\t\t// of input\n"
+              "\t\tif (l->retry != NULL) {\n\t\t\t(void)l->retry(l->retry_ctx);\n"
+              "\t\t\tl->stats.retry_passes++;\n\t\t}\n")
+#: THE STEP's age limit: the pass given whole to an aged step, which calls THE RETRY after it (ctrl_loop.c).
 STEP_AGED = ("\tif (l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE) {\n\t\tl->step_age = 0u;\n"
-             "\t\t(void)l->step(l->step_ctx, deadline);\n\t\tl->stats.passes++;\n\t\tl->stats.aged_passes++;\n"
+             "\t\t(void)l->step(l->step_ctx, deadline);\n" + RETRY_AGED +
+             "\t\tl->stats.passes++;\n\t\tl->stats.aged_passes++;\n"
              "\t\treturn 1u;\n\t}\n")
 
 
@@ -31,7 +43,8 @@ def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              "port", "LoopBring.L10StepBindingRefusals", "L10 a step with no function is refused"),
         kind("step-binds-no-clock", "loop/ctrl_loop.c", "|| fn == NULL || clock == NULL) {", "|| fn == NULL) {",
              "port", "LoopBring.L10StepBindingRefusals", "L10 a step with no clock is refused"),
-        kind("step-before-the-polls", "loop/ctrl_loop.c", STEP_POLLS + STEP_CALL, STEP_CALL + STEP_POLLS,
+        kind("step-before-the-polls", "loop/ctrl_loop.c", STEP_POLLS + RETRY_CALL + STEP_CALL,
+             STEP_CALL + STEP_POLLS + RETRY_CALL,
              "port", "Loop.L11StepLastWithTheDeadlineReadAtTheStart", "L11 after every poll"),
         kind("step-deadline-read-at-the-end", "loop/ctrl_loop.c", "bool waits = l->step(l->step_ctx, deadline);",
              "bool waits = l->step(l->step_ctx, deadline - deadline + l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US);",
@@ -79,4 +92,40 @@ def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("step-age-counts-dispatches", "loop/ctrl_loop.c", "\tl->step_age += count;\n",
              "\tl->step_age += count != 0u;\n", "port", "Loop.L14TheAgeCountsCentisecondsNotDispatches",
              "L14 one dispatch of CTRL_LOOP_STEP_AGE + 1 centiseconds makes the next pass the step's alone"),
+        # THE RETRY (#665): bound once, called only in a pass that took no input and dispatched no centisecond,
+        # after its polls and before THE STEP, or after the step in an aged step's pass
+        kind("retry-binds-twice", "loop/ctrl_loop.c", "if (l->retry != NULL || fn == NULL) {", "if (fn == NULL) {",
+             "port", "LoopBring.L15RetryBindingRefusals", "L15 a second retry client is refused"),
+        kind("retry-binds-no-function", "loop/ctrl_loop.c", "if (l->retry != NULL || fn == NULL) {",
+             "if (l->retry != NULL) {", "port", "LoopBring.L15RetryBindingRefusals",
+             "L15 a retry client with no function is refused"),
+        kind("retry-beside-input", "loop/ctrl_loop.c", "l->retry != NULL && work == 0u && l->stats.ticks == ticks",
+             "l->retry != NULL && l->stats.ticks == ticks", "port", "Loop.L16TheRetryOnlyInAPassThatTakesNothing",
+             "L16 a pass that takes a record does not call the retry"),
+        kind("retry-beside-a-centisecond", "loop/ctrl_loop.c",
+             "l->retry != NULL && work == 0u && l->stats.ticks == ticks",
+             "l->retry != NULL && work == 0u && l->stats.ticks >= ticks",
+             "port", "Loop.L16TheRetryOnlyInAPassThatTakesNothing",
+             "L16 nor one that dispatches a centisecond, though it takes no input"),
+        kind("retry-in-every-pass", "loop/ctrl_loop.c", "l->retry != NULL && work == 0u && l->stats.ticks == ticks",
+             "l->retry != NULL && l->stats.ticks + work >= ticks", "port",
+             "Loop.L16TheRetryOnlyInAPassThatTakesNothing", "L16 a pass that takes a record does not call the retry"),
+        kind("retry-before-the-polls", "loop/ctrl_loop.c", STEP_POLLS + RETRY_CALL, RETRY_CALL + STEP_POLLS,
+             "port", "Loop.L16TheRetryOnlyInAPassThatTakesNothing", "L16 after its polls"),
+        kind("retry-after-the-step", "loop/ctrl_loop.c", RETRY_CALL + STEP_CALL, STEP_CALL + RETRY_CALL,
+             "port", "Loop.L16TheRetryOnlyInAPassThatTakesNothing", "L16 and before THE STEP"),
+        kind("retry-owed-lets-it-sleep", "loop/ctrl_loop.c", "\t\towed = l->retry(l->retry_ctx) || owed;\n",
+             "\t\t(void)l->retry(l->retry_ctx);\n", "port", "Loop.L16TheRetryOnlyInAPassThatTakesNothing",
+             "L16 a retry still owed asks for the next pass at once"),
+        kind("retry-pass-uncounted", "loop/ctrl_loop.c", RETRY_CALL,
+             RETRY_CALL.replace("\t\tl->stats.retry_passes++;\n", ""), "port",
+             "Loop.L16TheRetryOnlyInAPassThatTakesNothing", "L16 the pass is counted as one that called the retry"),
+        kind("retry-not-after-an-aged-step", "loop/ctrl_loop.c", STEP_AGED, STEP_AGED.replace(RETRY_AGED, ""),
+             "port", "Loop.L16TheRetryOnlyInAPassThatTakesNothing",
+             "L16 the pass given whole to an aged step calls it after the step"),
+        kind("retry-before-the-aged-step", "loop/ctrl_loop.c",
+             "\t\t(void)l->step(l->step_ctx, deadline);\n" + RETRY_AGED,
+             RETRY_AGED + "\t\t(void)l->step(l->step_ctx, deadline);\n", "port",
+             "Loop.L16TheRetryOnlyInAPassThatTakesNothing",
+             "L16 the pass given whole to an aged step calls it after the step"),
     )
