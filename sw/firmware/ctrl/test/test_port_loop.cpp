@@ -532,6 +532,9 @@ struct LoopProbe {
     unsigned polls_at_retry;   // the polls run when the retry was last called
     unsigned steps_at_retry;   // the steps run when the retry was last called
     bool retry_owing;          // what the probe's retry reports
+    bool retry_aged;           // what the probe's retry age reports
+    unsigned aged_reads;       // THE RETRY's age reads
+    unsigned rx_at_aged;       // the records taken when the age was last read
 };
 
 LoopProbe probe;
@@ -567,6 +570,12 @@ bool probe_retry(void*) {
     probe.steps_at_retry = probe.steps;
     probe.now += probe.poll_us;
     return probe.retry_owing;
+}
+
+bool probe_retry_aged(void*) {
+    probe.aged_reads++;
+    probe.rx_at_aged = probe.rx;
+    return probe.retry_aged;
 }
 
 void tick_a() {
@@ -717,15 +726,20 @@ TEST_F(LoopBring, L10StepBindingRefusals) {
         << "L10 and the first stays bound";
 }
 
-// THE RETRY's binding: a client with no function is refused, and a second
-// client is refused, keeping the first (#665).
+// THE RETRY's binding: a client with no function or no age is refused, and a
+// second client is refused, keeping the first (#665).
 TEST_F(LoopBring, L15RetryBindingRefusals) {
     static ctrl_loop loop;
     ctrl_loop_init(&loop);
-    EXPECT_FALSE(ctrl_loop_set_retry(&loop, nullptr, nullptr)) << "L15 a retry client with no function is refused";
-    EXPECT_TRUE(ctrl_loop_set_retry(&loop, probe_retry, nullptr)) << "L15 a retry client binds";
-    EXPECT_FALSE(ctrl_loop_set_retry(&loop, probe_retry, &loop)) << "L15 a second retry client is refused";
-    EXPECT_TRUE(loop.retry == probe_retry && loop.retry_ctx == nullptr) << "L15 and the first stays bound";
+    EXPECT_FALSE(ctrl_loop_set_retry(&loop, nullptr, probe_retry_aged, nullptr))
+        << "L15 a retry client with no function is refused";
+    EXPECT_FALSE(ctrl_loop_set_retry(&loop, probe_retry, nullptr, nullptr))
+        << "L15 a retry client with no age is refused";
+    EXPECT_TRUE(ctrl_loop_set_retry(&loop, probe_retry, probe_retry_aged, nullptr)) << "L15 a retry client binds";
+    EXPECT_FALSE(ctrl_loop_set_retry(&loop, probe_retry, probe_retry_aged, &loop))
+        << "L15 a second retry client is refused";
+    EXPECT_TRUE(loop.retry == probe_retry && loop.retry_aged == probe_retry_aged && loop.retry_ctx == nullptr)
+        << "L15 and the first stays bound";
 }
 
 TEST_F(Loop, L2PerPassRxBound) {
@@ -976,7 +990,7 @@ TEST_F(Loop, L14TheAgeCountsCentisecondsNotDispatches) {
 // a retry still owed keeps the loop passing.
 TEST_F(Loop, L16TheRetryOnlyInAPassThatTakesNothing) {
     drain(&loop_);
-    ASSERT_TRUE(ctrl_loop_set_retry(&loop_, probe_retry, nullptr));
+    ASSERT_TRUE(ctrl_loop_set_retry(&loop_, probe_retry, probe_retry_aged, nullptr));
     std::uint8_t f[82];
     build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
     ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
@@ -1034,6 +1048,67 @@ TEST_F(Loop, L16TheRetryOnlyInAPassThatTakesNothing) {
     ASSERT_EQ(loop_.stats.aged_passes, aged + 1u);
     EXPECT_TRUE(probe.retries == retries + 2u && probe.steps_at_retry == aged_steps + 1u && probe.polls == aged_polls)
         << "L16 the pass given whole to an aged step calls it after the step";
+}
+
+// THE RETRY's age limit (#665): once the client reports a retry aged, the next
+// pass calls it before it takes any input, takes nothing else and asks for the
+// next pass at once, which takes the input it held off; the age is read as
+// each pass starts, after THE STEP's age, whose pass takes the round instead.
+TEST_F(Loop, L17AnAgedRetryIsAPassOfItsOwn) {
+    drain(&loop_);
+    ASSERT_TRUE(ctrl_loop_set_retry(&loop_, probe_retry, probe_retry_aged, nullptr));
+    std::uint8_t f[82];
+    build_frame(f, sizeof f, 0x22F0, 0xFA, 2);
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    const unsigned reads = probe.aged_reads;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_EQ(probe.retries, 0u) << "L17 a retry not aged waits beside input";
+    EXPECT_TRUE(probe.aged_reads == reads + 1u && probe.rx_at_aged == 0u)
+        << "L17 the age is read once as the pass starts, before it takes any input";
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    mbx_timer_arm(0, 0x710u, mbx_now_ms());
+    mbx_model_advance_ms(&model, MBX_TICK_MS);
+    const unsigned rx = probe.rx;
+    const unsigned events = probe.events;
+    const unsigned polls = probe.polls;
+    const unsigned ticks = loop_.stats.ticks;
+    const unsigned passes = loop_.stats.retry_passes;
+    probe.retry_aged = true;
+    EXPECT_NE(ctrl_loop_service(&loop_), 0u) << "L17 the aged retry's pass asks for the next pass at once";
+    EXPECT_EQ(probe.retries, 1u) << "L17 the next pass calls the retry though input waits";
+    EXPECT_TRUE(probe.rx == rx && probe.events == events && probe.polls == polls && loop_.stats.ticks == ticks)
+        << "L17 and takes nothing else: no event, no record, no poll, no centisecond";
+    EXPECT_EQ(loop_.stats.retry_aged_passes, 1u) << "L17 the pass is counted as an aged retry's";
+    EXPECT_EQ(loop_.stats.retry_passes, passes + 1u) << "L17 and as one that called the retry";
+    probe.retry_aged = false;
+    static_cast<void>(ctrl_loop_service(&loop_));
+    EXPECT_TRUE(probe.rx == rx + 1u && probe.events > events && loop_.stats.ticks == ticks + 1u)
+        << "L17 the next pass takes the input it held off";
+    EXPECT_EQ(probe.retries, 1u) << "L17 and calls no retry beside it";
+    drain(&loop_);
+    // with THE STEP aged too, the step's pass takes the round after the step, and no pass of its own follows
+    ASSERT_TRUE(ctrl_loop_set_step(&loop_, probe_step, nullptr, probe_clock, nullptr));
+    drain(&loop_);
+    const auto busy_pass = [&]() {
+        mbx_model_advance_ms(&model, MBX_TICK_MS);
+        EXPECT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+        static_cast<void>(ctrl_loop_service(&loop_));
+    };
+    for (unsigned k = 0; k <= CTRL_LOOP_STEP_AGE; ++k) {
+        busy_pass();
+    }
+    ASSERT_TRUE(mbx_model_rx(&model, f, sizeof f, 0));
+    const unsigned steps = probe.steps;
+    const unsigned retries = probe.retries;
+    const unsigned aged_reads = probe.aged_reads;
+    probe.retry_aged = true;
+    EXPECT_NE(ctrl_loop_service(&loop_), 0u);
+    EXPECT_TRUE(probe.steps == steps + 1u && probe.retries == retries + 1u && probe.steps_at_retry == steps + 1u)
+        << "L17 an aged step's pass, read first, takes the round after the step";
+    EXPECT_EQ(probe.aged_reads, aged_reads) << "L17 without reading the retry's age";
+    EXPECT_EQ(loop_.stats.retry_aged_passes, 1u) << "L17 and is no aged retry's";
+    probe.retry_aged = false;
+    drain(&loop_);
 }
 
 }  // namespace

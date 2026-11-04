@@ -16,7 +16,7 @@ extern "C" void ctrl_reentry_assert(const char *)
 
 TEST(AecpDebug, EveryInputRejectsSynchronousPortDelivery)
 {
-    for(unsigned entry=0;entry<15;++entry){
+    for(unsigned entry=0;entry<17;++entry){
         EXPECT_EXIT(([&]{
             uint8_t bytes[312]={};
             aecp_descriptor d{0,0,0,312,bytes,bytes};

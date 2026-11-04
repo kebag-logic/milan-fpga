@@ -779,7 +779,7 @@ TEST_F(Core, CrossInstanceInputsAreRefusedInsideRealCallbacks)
 {
     aecp other{};auto other_events=events;auto other_cfg=cfg;
     other_cfg.events=other_events.data();
-    for(unsigned entry=0;entry<16;++entry){
+    for(unsigned entry=0;entry<17;++entry){
         ASSERT_TRUE(aecp_init(&other,&other_cfg,&ports));
         auto before=other;auto source_count=a.reentries;
         ON_CALL(mock,Changed).WillByDefault([&](aecp_change,uint16_t,uint16_t){
@@ -1602,6 +1602,31 @@ TEST_F(Core, HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse)
     EXPECT_FALSE(aecp_retry(&other));EXPECT_EQ(reads,before)<<"a round before the open tries nothing";
 }
 
+// THE RETRY's age (#665, ctrl_loop.h): aecp_retry_aged is true only for a held
+// retry age_ms or more past the earliest held retry's time, and only while
+// nothing waits ahead of the round, which then leaves none held.
+TEST_F(Core, HeldRetryAgesFromItsEarliestTimeWhenTheRoundCouldTakeIt)
+{
+    unsigned reads=0;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){++reads;*v={};return false;});
+    a.retry_hold=true;
+    ms=0;aecp_changed(&a,5,0,1);(void)aecp_poll(&a);
+    EXPECT_FALSE(aecp_retry_aged(&a,0))<<"a retry not yet due is not aged";
+    // the first retry held at 1 ms; a second notice fails then, its retry at 2 ms, and is held at 2 ms
+    ms=1;aecp_changed(&a,6,0,1);(void)aecp_poll(&a);ASSERT_TRUE(a.retry_held);
+    ms=2;(void)aecp_poll(&a);
+    ms=4;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"a held retry is not aged before its age";
+    ms=5;EXPECT_TRUE(aecp_retry_aged(&a,4))<<"its age runs from the earliest held retry's time";
+    a.response_owed=true;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"no retry is aged while a response is owed";
+    a.response_owed=false;a.notify=true;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"nor while a notice is owed";
+    a.notify=false;a.waiting=true;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"nor while a command waits on its apply";
+    a.waiting=false;a.start_pending=true;
+    EXPECT_FALSE(aecp_retry_aged(&a,4))<<"nor while a START or STOP is pending";
+    a.start_pending=false;
+    const unsigned tried=reads;EXPECT_FALSE(aecp_retry(&a));ASSERT_GT(reads,tried);
+    ms=6;EXPECT_FALSE(aecp_retry_aged(&a,4))<<"a round leaves no retry held, so none is aged";
+}
+
 // #665: the event and registry scans walk aecp.live and aecp.used only, so
 // each must hold exactly what the full scans visited: the events holding a
 // notice or a retry, in descriptor order, and the used registrations.
@@ -2146,7 +2171,7 @@ TEST_F(Mailbox, TimerIdentityAndAttachRefusals)
     ctrl_loop full{};ctrl_loop_init(&full);full.n_sinks=CTRL_LOOP_MAX_SINKS;
     EXPECT_FALSE(aecp_mbx_attach(&adapter,&full));full.n_sinks=0;full.n_polls=CTRL_LOOP_MAX_POLLS;
     EXPECT_FALSE(aecp_mbx_attach(&adapter,&full));
-    full.n_polls=0;ASSERT_TRUE(ctrl_loop_set_retry(&full,[](void*){return false;},nullptr));
+    full.n_polls=0;ASSERT_TRUE(ctrl_loop_set_retry(&full,[](void*){return false;},[](void*){return false;},nullptr));
     EXPECT_FALSE(aecp_mbx_attach(&adapter,&full))<<"attach is refused when the loop has a retry client";
     EXPECT_TRUE(full.n_sinks==0u&&full.n_polls==0u&&full.rx[MBX_CH_AECP].fn==nullptr)<<"and binds nothing";
     aecp_mbx other{};EXPECT_FALSE(aecp_mbx_init(&other,&cfg,&ports,MBX_N_TIMERS));
@@ -2195,6 +2220,42 @@ TEST_F(Mailbox, RetryWaitsForAPassThatTakesNothing)
     (void)ctrl_loop_service(&loop);
     EXPECT_EQ(reads,second)<<"a retry due again is held again";
     service();EXPECT_GT(reads,second)<<"(and tried by the next pass that takes nothing)";
+    EXPECT_EQ(fabric.ch[MBX_CH_AECP].tx_err,0u);EXPECT_EQ(fabric.bus_err,0u);
+}
+
+// THE RETRY's age limit (#665, ctrl_loop.h): under input that leaves no pass
+// empty, a held retry waits beside it until it is CTRL_LOOP_RETRY_AGE_MS past
+// its time, then the next pass is its round's alone and takes no input.
+TEST_F(Mailbox, AgedRetryTakesAPassOfItsOwn)
+{
+    unsigned reads=0;
+    ON_CALL(mock,Stream).WillByDefault([&](unsigned,uint16_t,uint16_t,aecp_stream_info*v){++reads;*v={};return false;});
+    aecp_changed(&adapter.core,5,0,1);service();
+    const unsigned first=reads;ASSERT_GT(first,0u);ASSERT_TRUE(adapter.armed);
+    const uint32_t due=adapter.deadline;
+    // an event before every pass, a millisecond apart: no pass takes nothing
+    const auto busy=[&](uint16_t tag){
+        mbx_timer_arm(0,tag,mbx_now_ms());mbx_model_advance_ms(&fabric,0);
+        const unsigned events=loop.stats.events;
+        EXPECT_NE(ctrl_loop_service(&loop),0u);
+        return loop.stats.events>events;
+    };
+    mbx_model_advance_ms(&fabric,due-mbx_now_ms());
+    for(uint16_t k=0;k<CTRL_LOOP_RETRY_AGE_MS;++k){
+        EXPECT_TRUE(busy(static_cast<uint16_t>(0x200u+k)))<<"(each pass takes its input)";
+        mbx_model_advance_ms(&fabric,1);
+    }
+    EXPECT_EQ(reads,first)<<"a held retry waits beside input until it is CTRL_LOOP_RETRY_AGE_MS past its time";
+    ASSERT_EQ(mbx_now_ms(),due+CTRL_LOOP_RETRY_AGE_MS);
+    mbx_timer_arm(0,0x2ffu,mbx_now_ms());mbx_model_advance_ms(&fabric,0);
+    const unsigned events=loop.stats.events;
+    EXPECT_NE(ctrl_loop_service(&loop),0u)<<"the aged retry's pass asks for the next pass at once";
+    EXPECT_GT(reads,first)<<"then the next pass tries it though input waits";
+    EXPECT_EQ(loop.stats.events,events)<<"a pass of its own, which takes no input";
+    EXPECT_EQ(loop.stats.retry_aged_passes,1u)<<"counted as an aged retry's";
+    EXPECT_TRUE(adapter.armed&&adapter.deadline==mbx_now_ms()+2u)<<"its round arms the timer for the next retry";
+    (void)ctrl_loop_service(&loop);
+    EXPECT_EQ(loop.stats.events,events+1u)<<"the next pass takes the input it held off";
     EXPECT_EQ(fabric.ch[MBX_CH_AECP].tx_err,0u);EXPECT_EQ(fabric.bus_err,0u);
 }
 

@@ -75,12 +75,13 @@ bool ctrl_loop_set_step(struct ctrl_loop *l, ctrl_step_fn fn, void *ctx, ctrl_cl
 	return true;
 }
 
-bool ctrl_loop_set_retry(struct ctrl_loop *l, ctrl_retry_fn fn, void *ctx)
+bool ctrl_loop_set_retry(struct ctrl_loop *l, ctrl_retry_fn fn, ctrl_retry_aged_fn aged, void *ctx)
 {
-	if (l->retry != NULL || fn == NULL) {
+	if (l->retry != NULL || fn == NULL || aged == NULL) {
 		return false;
 	}
 	l->retry = fn;
+	l->retry_aged = aged;
 	l->retry_ctx = ctx;
 	return true;
 }
@@ -181,6 +182,15 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 		}
 		l->stats.passes++;
 		l->stats.aged_passes++;
+		return 1u;
+	}
+	// THE RETRY's age limit: a retry its client has held CTRL_LOOP_RETRY_AGE_MS past the time it came due is this
+	// whole pass, before any input, so a backlog or input that leaves no pass empty holds it off no longer
+	if (l->retry != NULL && l->retry_aged(l->retry_ctx)) {
+		(void)l->retry(l->retry_ctx);
+		l->stats.retry_passes++;
+		l->stats.passes++;
+		l->stats.retry_aged_passes++;
 		return 1u;
 	}
 	const uint32_t ticks = l->stats.ticks;

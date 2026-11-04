@@ -169,18 +169,30 @@ static bool poll(void *ctx)
 	return busy || m->completion_count != 0u;
 }
 
+// A retried notice, from its port's answer: its next retry within AECP_RETRY_MAX_MS, then THE RETRY's bound
+// (ctrl_loop.h) to its last recipient's commit, within its notification bound (FR_NFR.md 3.4.1; #665).
+_Static_assert(AECP_RETRY_MAX_MS + CTRL_LOOP_RETRY_MS <= AECP_NOTICE_MS, "a retried notice must keep its bound");
+
 // THE RETRY's client (ctrl_loop.h, #665): the loop calls it only in a pass that
-// took no input and dispatched no centisecond, or after an aged step.
+// took no input and dispatched no centisecond, after an aged step, or in a
+// pass of its own once retry_aged reports the held retry aged.
 static bool retry(void *ctx)
 {
 	struct aecp_mbx *m = ctx;
 	return aecp_retry(&m->core);
 }
 
+// THE RETRY's age, which the loop reads as each pass starts.
+static bool retry_aged(void *ctx)
+{
+	struct aecp_mbx *m = ctx;
+	return aecp_retry_aged(&m->core, CTRL_LOOP_RETRY_AGE_MS);
+}
+
 bool aecp_mbx_attach(struct aecp_mbx *m, struct ctrl_loop *l)
 {
 	if (l->rx[MBX_CH_AECP].fn != NULL || l->n_sinks == CTRL_LOOP_MAX_SINKS || l->n_polls == CTRL_LOOP_MAX_POLLS ||
-	    !ctrl_loop_set_retry(l, retry, m)) {
+	    !ctrl_loop_set_retry(l, retry, retry_aged, m)) {
 		return false;
 	}
 	// a due change-notice retry waits for the loop's retry pass: the poll and the timer's sink only hold it

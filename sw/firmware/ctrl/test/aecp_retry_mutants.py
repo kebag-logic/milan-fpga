@@ -1,7 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """aecp_retry_mutants.py - the AECP campaign's planted defects in THE RETRY (#665, ctrl_loop.h): a due change-notice
-retry held by the poll and the timer's sink for the loop's retry pass, and the round that tries it. aecp_mutants.py
+retry held by the poll and the timer's sink for the loop's retry pass, the round that tries it, and the held retry's
+age, which gives the round a pass of its own. aecp_mutants.py
 appends this table to its own, each row its defect()'s arguments: the name, the file in aecp/, the text, its
 replacement, and each test that must refuse it with its words.
 """
@@ -37,7 +38,7 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
      ('Mailbox.RetryWaitsForAPassThatTakesNothing',
       "a pass that takes the retry's timer and a record does not try it")),
     ('retry-round-before-the-owed-response', 'aecp.c',
-     '\tif (a->response_owed || a->notify || a->waiting || a->start_pending) {\n\t\treturn a->retry_held;\n\t}\n',
+     '\tif (round_waits(a)) {\n\t\treturn a->retry_held;\n\t}\n',
      '',
      ('Core.HeldRetryWaitsForTheRoundAndTheRoundForAnOwedResponse',
       'the round waits while a response is owed')),
@@ -86,8 +87,52 @@ ROWS: tuple[tuple[str | tuple[str, str], ...], ...] = (
      ('Core.CrossInstanceInputsAreRefusedInsideRealCallbacks',
       'every cross-instance public input counts its refusal')),
     ('retry-client-taken-ignored', 'aecp_mbx.c',
-     '!ctrl_loop_set_retry(l, retry, m)) {',
-     '!(ctrl_loop_set_retry(l, retry, m) || true)) {',
+     '!ctrl_loop_set_retry(l, retry, retry_aged, m)) {',
+     '!(ctrl_loop_set_retry(l, retry, retry_aged, m) || true)) {',
      ('Mailbox.TimerIdentityAndAttachRefusals',
       'attach is refused when the loop has a retry client')),
+    # THE RETRY's age (#665): a held retry is aged CTRL_LOOP_RETRY_AGE_MS past the earliest held retry's time, and
+    # only while nothing waits ahead of the round
+    ('retry-age-from-the-latest', 'aecp.c',
+     'due(a->retry_since, e->retry_at)',
+     'due(e->retry_at, a->retry_since)',
+     ('Core.HeldRetryAgesFromItsEarliestTimeWhenTheRoundCouldTakeIt',
+      "its age runs from the earliest held retry's time")),
+    ('retry-age-from-a-stale-time', 'aecp.c',
+     'if (!a->retry_held || due(a->retry_since, e->retry_at)) {',
+     'if (due(a->retry_since, e->retry_at)) {',
+     ('Core.HeldRetryAgesFromItsEarliestTimeWhenTheRoundCouldTakeIt',
+      'a held retry is not aged before its age')),
+    ('retry-aged-unheld', 'aecp.c',
+     '!aecp_enter(a) || !a->retry_held || round_waits(a)',
+     '!aecp_enter(a) || round_waits(a)',
+     ('Core.HeldRetryAgesFromItsEarliestTimeWhenTheRoundCouldTakeIt',
+      'a retry not yet due is not aged'),
+     ('Core.HeldRetryAgesFromItsEarliestTimeWhenTheRoundCouldTakeIt',
+      'a round leaves no retry held, so none is aged')),
+    ('retry-aged-beside-an-owed-response', 'aecp.c',
+     '!aecp_enter(a) || !a->retry_held || round_waits(a)',
+     '!aecp_enter(a) || !a->retry_held',
+     ('Core.HeldRetryAgesFromItsEarliestTimeWhenTheRoundCouldTakeIt',
+      'no retry is aged while a response is owed')),
+    ('retry-aged-without-the-age', 'aecp.c',
+     'due(now(a), a->retry_since + age_ms)',
+     'due(now(a), a->retry_since + age_ms - age_ms)',
+     ('Core.HeldRetryAgesFromItsEarliestTimeWhenTheRoundCouldTakeIt',
+      'a held retry is not aged before its age')),
+    ('retry-aged-unguarded', 'aecp.c',
+     'if (!aecp_enter(a) || !a->retry_held || round_waits(a)) {',
+     'if (!a->retry_held || round_waits(a)) {',
+     ('Core.CrossInstanceInputsAreRefusedInsideRealCallbacks',
+      'every cross-instance public input counts its refusal')),
+    ('retry-age-not-the-loops', 'aecp_mbx.c',
+     'aecp_retry_aged(&m->core, CTRL_LOOP_RETRY_AGE_MS)',
+     'aecp_retry_aged(&m->core, 0u)',
+     ('Mailbox.AgedRetryTakesAPassOfItsOwn',
+      'a held retry waits beside input until it is CTRL_LOOP_RETRY_AGE_MS past its time')),
+    ('retry-age-never-reported', 'aecp_mbx.c',
+     '\treturn aecp_retry_aged(&m->core, CTRL_LOOP_RETRY_AGE_MS);\n',
+     '\treturn aecp_retry_aged(&m->core, CTRL_LOOP_RETRY_AGE_MS) && m == NULL;\n',
+     ('Mailbox.AgedRetryTakesAPassOfItsOwn',
+      'then the next pass tries it though input waits')),
 )

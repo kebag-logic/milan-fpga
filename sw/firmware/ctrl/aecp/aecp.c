@@ -192,7 +192,11 @@ static void arm(struct aecp *a)
 		struct aecp_event *e = &a->cfg.events[k - 1u];
 		left = true;
 		if (e->retry_pending != 0u && a->retry_hold && due(a->now, e->retry_at)) {
-			// held for aecp_retry (THE RETRY): a timer already due would post an event every pass
+			// held for aecp_retry (THE RETRY): a timer already due would post an event every pass; its age
+			// runs from the earliest held retry's time (aecp_retry_aged)
+			if (!a->retry_held || due(a->retry_since, e->retry_at)) {
+				a->retry_since = e->retry_at;
+			}
 			a->retry_held = true;
 		} else if (e->retry_pending != 0u && (!armed || due(deadline, e->retry_at))) {
 			deadline = e->retry_at;
@@ -733,13 +737,18 @@ bool aecp_poll(struct aecp *a)
 	return pending || a->retry_held;
 }
 
+// What aecp_poll sends or answers first waits for its pass, and THE RETRY's round for it.
+static bool round_waits(const struct aecp *a)
+{
+	return a->response_owed || a->notify || a->waiting || a->start_pending;
+}
+
 bool aecp_retry(struct aecp *a)
 {
 	if (!aecp_enter(a) || !a->open) {
 		return false;
 	}
-	// what aecp_poll sends or answers first waits for its pass, and the round for it
-	if (a->response_owed || a->notify || a->waiting || a->start_pending) {
+	if (round_waits(a)) {
 		return a->retry_held;
 	}
 	(void)now(a);
@@ -749,4 +758,13 @@ bool aecp_retry(struct aecp *a)
 	a->retry_hold = hold;
 	arm(a);
 	return built || a->retry_held;
+}
+
+bool aecp_retry_aged(struct aecp *a, uint32_t age_ms)
+{
+	// only a held retry, as arm left it, and only when the round would try it now
+	if (!aecp_enter(a) || !a->retry_held || round_waits(a)) {
+		return false;
+	}
+	return due(now(a), a->retry_since + age_ms);
 }

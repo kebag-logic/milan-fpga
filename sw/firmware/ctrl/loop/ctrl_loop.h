@@ -29,8 +29,11 @@
 // CTRL_LOOP_RX_PASSES(rx_words) (a record of a channel), counted from the
 // first pass that starts after the fabric posted it, and the module's
 // response is committed in the pass that takes it (A3 says when it is
-// not). A pass given whole to an aged step (THE STEP) takes no input and is
-// not counted: it costs the input one step's time. A pass costs at most the
+// not). A pass given whole to an aged step (THE STEP) or to an aged retry
+// (THE RETRY) takes no input and is not counted: it costs the input one
+// step's time and one retry round, or one retry round. No two such passes
+// run back to back, so one at most stands before each counted pass, and
+// their ages space them in time. A pass costs at most the
 // budgets below times the modules' stated costs. That holds under four
 // assumptions:
 //   A1 backlog: at most a full event ring (CTRL_LOOP_EVT_BACKLOG records,
@@ -72,7 +75,8 @@
 //   * AECP: one record, taken only while no response or notice is owed, and
 //     one notice built, sent to every registered recipient the transmit ring
 //     has room for (aecp.c, transmit); its change-notice retries only in a
-//     pass that takes no input and dispatches no centisecond (THE RETRY);
+//     pass that takes no input and dispatches no centisecond, or in a pass
+//     given whole to an aged retry (THE RETRY);
 //   * SRP: its records, and one MRPDU built and sent a pass over every
 //     participant of every interface (SRP_MBX_POLL_FRAMES, srp_bounds.h;
 //     #665: lwSRP's periodic transmission had built all four at two
@@ -113,11 +117,18 @@
 // centisecond it put a pass over THE SHARE, so no pass that takes an input
 // (an event or a record) or dispatches a centisecond takes it: its module's
 // poll and sinks hold a due retry, arm no timer for it and report it owed,
-// and only the loop calls the client, in two kinds of pass that take
+// and only the loop calls the client, in three kinds of pass that take
 // neither. A pass that took no input and dispatched no centisecond calls it
 // after its polls and before THE STEP, and the pass given whole to an aged
-// step calls it after the step. The bound is stated beside
-// CTRL_LOOP_STEP_AGE, whose age limit makes the second kind.
+// step calls it after the step. A backlog, or input that never leaves a pass
+// empty, would hold a due retry past its notice's bound, so it has an age
+// limit too: once the client reports a retry it has held
+// CTRL_LOOP_RETRY_AGE_MS past the time it came due, by its own clock, and
+// nothing ahead of its round (aecp.c, aecp_retry_aged), the next pass is the
+// round's alone. It calls the client before it takes any input and returns
+// one, as an aged step's pass does; an aged step's pass, which the loop
+// checks for first, takes the round after the step instead. The bound is
+// stated beside CTRL_LOOP_STEP_AGE.
 //
 // THE TICK. A TICK event carries the centiseconds the fabric counted since
 // the previous one; the loop calls every registered centisecond consumer
@@ -167,26 +178,30 @@ extern "C" {
 // save would take a step every four ticks under such input (nvm_store.h)
 // (#665).
 #define CTRL_LOOP_STEP_AGE 2u
-// THE RETRY's bound (#665). A retry that comes due waits, counted from the
-// first pass that starts after it came due, at most:
-//   * with nothing posted after it, through the passes that take the input
-//     posted before it (THE BOUND: pass CTRL_LOOP_EVT_PASSES for an event,
-//     CTRL_LOOP_RX_PASSES(rx_words) for a record, A3's for an owed response)
-//     and dispatch the centiseconds then owed, CTRL_LOOP_TICKS_PER_PASS a
-//     pass; the next pass takes it, the first after its timer's event where
-//     nothing else waits;
-//   * under input that leaves no pass empty, until the next pass given whole
-//     to an aged step, at most CTRL_LOOP_STEP_AGE + 1 centiseconds after it
-//     came due (with THE STEP bound; an image with no step has no such pass).
-// The pass that takes it holds at most: one that took no input and
-// dispatched no centisecond, its polls' owed output and one retry round, and
-// THE STEP only before its deadline, which the round's time counts against;
-// an aged step's pass, the step and one retry round. A retry round tries the
-// notices of every event whose retry is due, one observation-port call each,
-// and builds the first its port answers (aecp.c, aecp_retry). Measured at
-// 8x8/2if with every notice's port unanswered: an aged step's pass with a
-// round took at most 0.92 ms, the round, the call and the timer's re-arm at
-// most 9,770 cycles of it, and no pass of any window was over THE SHARE.
+// THE RETRY's age limit in milliseconds (#665): two passes of THE SHARE, so
+// the first poll after a retry comes due holds it before it ages. A round
+// leaves no retry held, unless it built a notice, which its round's guard
+// then waits behind, so the pass after an aged retry's is an ordinary one,
+// and the next aged retry comes at least a millisecond and the age later.
+#define CTRL_LOOP_RETRY_AGE_MS 4u
+// THE RETRY's bound in milliseconds (#665), from the time a retry comes due
+// to the commit of what its round built: its age, then the pass running when
+// it reaches it, the pass that takes the round (given whole to it, or to an
+// aged step and the round), and the next pass, which sends what the round
+// built (aecp.c, transmit; A3), each within THE SHARE: 4 + 3 x 2 = 10 ms,
+// under any input, a backlog or input that leaves no pass empty included. A
+// pass that took no input and dispatched no centisecond takes it sooner.
+// With AECP's spacing a retried notice is built and committed within
+// AECP_RETRY_MAX_MS + CTRL_LOOP_RETRY_MS = 8 + 10 = 18 ms of its port's
+// answer, inside its 20 ms of FR_NFR.md 3.4.1 (aecp.h; aecp_mbx.c holds the
+// sum to it). The pass that takes a round holds at most: one that took no
+// input and dispatched no centisecond, its polls' owed output and one round,
+// and THE STEP only before its deadline, which the round's time counts
+// against; an aged step's pass, the step and one round; an aged retry's pass,
+// one round. A round tries the notices of every event whose retry is due,
+// one observation-port call each, and builds the first its port answers
+// (aecp.c, aecp_retry).
+#define CTRL_LOOP_RETRY_MS (CTRL_LOOP_RETRY_AGE_MS + 3u * CTRL_LOOP_SHARE_US / 1000u)
 
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)
@@ -211,6 +226,9 @@ typedef uint32_t (*ctrl_clock_fn)(void *ctx);   // microseconds, counting up; di
 // THE RETRY: true while the client still owes, a retry still due or what it
 // built not yet sent.
 typedef bool (*ctrl_retry_fn)(void *ctx);
+// THE RETRY's age: true when the client holds a retry that came due
+// CTRL_LOOP_RETRY_AGE_MS or more ago and nothing waits ahead of its round.
+typedef bool (*ctrl_retry_aged_fn)(void *ctx);
 
 struct ctrl_loop_rx {
 	bool (*ready)(void *ctx);
@@ -237,6 +255,7 @@ struct ctrl_loop_stats {
 	uint32_t owed_passes;   // passes after which output or centiseconds were still owed
 	uint32_t aged_passes;   // passes given whole to an aged step (THE STEP)
 	uint32_t retry_passes;  // passes that called THE RETRY's client
+	uint32_t retry_aged_passes;  // passes given whole to an aged retry (THE RETRY)
 };
 
 struct ctrl_loop {
@@ -252,6 +271,7 @@ struct ctrl_loop {
 	ctrl_clock_fn clock;
 	void *clock_ctx;
 	ctrl_retry_fn retry;            // THE RETRY's client, or NULL
+	ctrl_retry_aged_fn retry_aged;  // its age
 	void *retry_ctx;
 	struct mbx_frame frame;         // the one RX buffer every handler borrows
 	uint32_t ticks_owed;            // centiseconds taken from TICK records, not yet dispatched
@@ -270,9 +290,9 @@ bool ctrl_loop_add_poll(struct ctrl_loop *l, ctrl_poll_fn fn, void *ctx);
 // Bind THE STEP's client and the clock its deadline is read from. False when
 // either function is missing or a step is already bound.
 bool ctrl_loop_set_step(struct ctrl_loop *l, ctrl_step_fn fn, void *ctx, ctrl_clock_fn clock, void *clock_ctx);
-// Bind THE RETRY's client. False when its function is missing or a client is
-// already bound.
-bool ctrl_loop_set_retry(struct ctrl_loop *l, ctrl_retry_fn fn, void *ctx);
+// Bind THE RETRY's client and its age. False when either function is missing
+// or a client is already bound.
+bool ctrl_loop_set_retry(struct ctrl_loop *l, ctrl_retry_fn fn, ctrl_retry_aged_fn aged, void *ctx);
 
 // Bring the mailbox up in the contract's order: check the contract, write the
 // filter's entity_id and each interface's own unicast MAC (own_mac[i], 48
@@ -283,7 +303,8 @@ bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id, const uint64_t own_
 
 // One service pass; returns the events and records it handled, plus one when
 // output, centiseconds or a retry are still owed, or one when it was an aged
-// step's alone (THE STEP). 0 means the loop may sleep.
+// step's alone (THE STEP) or an aged retry's (THE RETRY). 0 means the loop
+// may sleep.
 unsigned ctrl_loop_service(struct ctrl_loop *l);
 
 // One turn of ctrl_loop_run: a pass, then mbx_hal_wait() if it returned 0.

@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """Planted defects of the loop's step (#665, THE STEP in ctrl_loop.h): its binding, its place last in the pass with
 the deadline read as the pass starts, its pass that takes no input, and its age limit; and of THE RETRY: its
-binding, and its call only in a pass that took no input and dispatched no centisecond, or after an aged step.
+binding, and its call only in a pass that took no input and dispatched no centisecond, after an aged step, or in a
+pass of its own once its age limit is reached.
 ctrl_mutants.py plants them with the rest of the control table; each must fail its named test on its own words.
 """
 from __future__ import annotations
@@ -31,10 +32,27 @@ STEP_AGED = ("\tif (l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE) {\n\t\t
              "\t\t(void)l->step(l->step_ctx, deadline);\n" + RETRY_AGED +
              "\t\tl->stats.passes++;\n\t\tl->stats.aged_passes++;\n"
              "\t\treturn 1u;\n\t}\n")
+#: THE RETRY's age limit: the pass given whole to an aged retry, read after THE STEP's (ctrl_loop.c).
+RETRY_AGE = ("\tif (l->retry != NULL && l->retry_aged(l->retry_ctx)) {\n\t\t(void)l->retry(l->retry_ctx);\n"
+             "\t\tl->stats.retry_passes++;\n\t\tl->stats.passes++;\n\t\tl->stats.retry_aged_passes++;\n"
+             "\t\treturn 1u;\n\t}\n")
+#: THE RETRY's age limit's comment, which stands between the two aged passes.
+RETRY_AGE_NOTE = ("\t// THE RETRY's age limit: a retry its client has held CTRL_LOOP_RETRY_AGE_MS past the time "
+                  "it came due is this\n\t// whole pass, before any input, so a backlog or input that leaves no "
+                  "pass empty holds it off no longer\n")
+#: The events and the receive rings, the input a pass takes after the two aged passes.
+INPUT = ("\tconst uint32_t ticks = l->stats.ticks;\n\tunsigned work = service_events(l);\n"
+         "\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n\t\tif (l->rx[ch].fn != NULL) {\n"
+         "\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n")
 
 
 def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
-    """Every defect of the step, built with ctrl_mutant.Mutant."""
+    """Every defect of the step and of THE RETRY, built with ctrl_mutant.Mutant."""
+    return (*step_mutants(kind), *retry_mutants(kind))
+
+
+def step_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
+    """The step's defects."""
     return (
         # THE STEP (#665): bound once, last in the pass, with the deadline read as the pass starts
         kind("step-binds-twice", "loop/ctrl_loop.c", "if (l->step != NULL || fn == NULL", "if (fn == NULL",
@@ -92,13 +110,23 @@ def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("step-age-counts-dispatches", "loop/ctrl_loop.c", "\tl->step_age += count;\n",
              "\tl->step_age += count != 0u;\n", "port", "Loop.L14TheAgeCountsCentisecondsNotDispatches",
              "L14 one dispatch of CTRL_LOOP_STEP_AGE + 1 centiseconds makes the next pass the step's alone"),
+    )
+
+
+def retry_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
+    """THE RETRY's defects."""
+    return (
         # THE RETRY (#665): bound once, called only in a pass that took no input and dispatched no centisecond,
         # after its polls and before THE STEP, or after the step in an aged step's pass
-        kind("retry-binds-twice", "loop/ctrl_loop.c", "if (l->retry != NULL || fn == NULL) {", "if (fn == NULL) {",
+        kind("retry-binds-twice", "loop/ctrl_loop.c", "if (l->retry != NULL || fn == NULL || aged == NULL) {",
+             "if (fn == NULL || aged == NULL) {",
              "port", "LoopBring.L15RetryBindingRefusals", "L15 a second retry client is refused"),
-        kind("retry-binds-no-function", "loop/ctrl_loop.c", "if (l->retry != NULL || fn == NULL) {",
-             "if (l->retry != NULL) {", "port", "LoopBring.L15RetryBindingRefusals",
+        kind("retry-binds-no-function", "loop/ctrl_loop.c", "if (l->retry != NULL || fn == NULL || aged == NULL) {",
+             "if (l->retry != NULL || aged == NULL) {", "port", "LoopBring.L15RetryBindingRefusals",
              "L15 a retry client with no function is refused"),
+        kind("retry-binds-no-age", "loop/ctrl_loop.c", "if (l->retry != NULL || fn == NULL || aged == NULL) {",
+             "if (l->retry != NULL || fn == NULL) {", "port", "LoopBring.L15RetryBindingRefusals",
+             "L15 a retry client with no age is refused"),
         kind("retry-beside-input", "loop/ctrl_loop.c", "l->retry != NULL && work == 0u && l->stats.ticks == ticks",
              "l->retry != NULL && l->stats.ticks == ticks", "port", "Loop.L16TheRetryOnlyInAPassThatTakesNothing",
              "L16 a pass that takes a record does not call the retry"),
@@ -128,4 +156,23 @@ def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              RETRY_AGED + "\t\t(void)l->step(l->step_ctx, deadline);\n", "port",
              "Loop.L16TheRetryOnlyInAPassThatTakesNothing",
              "L16 the pass given whole to an aged step calls it after the step"),
+        # THE RETRY's age limit (#665): a retry held CTRL_LOOP_RETRY_AGE_MS past its time is a pass of its own
+        kind("retry-age-ignored", "loop/ctrl_loop.c", "l->retry != NULL && l->retry_aged(l->retry_ctx)",
+             "l->retry != NULL && l->retry_aged == NULL", "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn",
+             "L17 the next pass calls the retry though input waits"),
+        kind("retry-aged-pass-takes-input", "loop/ctrl_loop.c", RETRY_AGE, RETRY_AGE.replace("\t\treturn 1u;\n", ""),
+             "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn", "L17 and takes nothing else"),
+        kind("retry-aged-pass-sleeps", "loop/ctrl_loop.c", RETRY_AGE, RETRY_AGE.replace("return 1u;", "return 0u;"),
+             "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn", "L17 the aged retry's pass asks for the next pass at once"),
+        kind("retry-aged-pass-uncounted", "loop/ctrl_loop.c", "\t\tl->stats.retry_aged_passes++;\n", "",
+             "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn", "L17 the pass is counted as an aged retry's"),
+        kind("retry-aged-pass-not-a-retry-pass", "loop/ctrl_loop.c", RETRY_AGE,
+             RETRY_AGE.replace("\t\tl->stats.retry_passes++;\n", ""), "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn",
+             "L17 and as one that called the retry"),
+        kind("retry-age-before-the-step-age", "loop/ctrl_loop.c", STEP_AGED + RETRY_AGE_NOTE + RETRY_AGE,
+             RETRY_AGE_NOTE + RETRY_AGE + STEP_AGED, "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn",
+             "L17 an aged step's pass, read first, takes the round after the step"),
+        kind("retry-age-read-after-the-input", "loop/ctrl_loop.c", RETRY_AGE_NOTE + RETRY_AGE + INPUT,
+             INPUT + RETRY_AGE, "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn",
+             "L17 the age is read once as the pass starts, before it takes any input"),
     )

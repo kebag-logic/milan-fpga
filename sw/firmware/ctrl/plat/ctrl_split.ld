@@ -29,6 +29,8 @@ SECTIONS
 		*-mbx.o(.text.mbx_irq_status)
 		*-srp_mbx.o(.text.rx_order_ready)
 		*-ctrl_loop.o(.text.ctrl_loop_service)
+		*-aecp_mbx.o(.text.retry_aged)
+		*-aecp.o(.text.aecp_retry_aged)
 		*-mbx.o(.text.mbx_rx_take)
 		*-adp_mbx.o(.text.on_poll)
 		*-adp.o(.text.adp_poll)
