@@ -115,6 +115,30 @@ A save not durable within its worst case fails the run, whatever the options rec
 A held group whose receive channels did not commit every record its load offered is refused, and each channel's longest record is its row, from its receive commit to the end of the pass that released it.
 A save's window is refused too if it opens after its read-backs have read back every programmed byte.
 Every pass that carries the store's step is printed, a `STEPPASS` line or `step=1` on a work pass, and the table gives each group's longest and its longest step's own CPU time, the store's and its flash port's; the run prints a `STEPS` line.
+**A retried notice under sustained input.**
+[`notice_window.py`](notice_window.py)'s groups, `notice-retried-<k>`, time a change notice whose observation port does not answer and then answers.
+The time runs from the port's answer to the notice's last recipient's commit, against its 20 ms: min(T_svc, the 24 ms notification ceiling), with no extra budget at a retry (FR_NFR.md 3.4.1; THE RETRY in `ctrl_loop.h`, #665).
+They run in the labelled `answering-later` arm, at each point:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
+  --build-dir /tmp/budget-1x1-notice --variant answering-later --record-budget-findings --record-share-findings
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-8x8-notice --variant answering-later --record-budget-findings --record-share-findings
+```
+
+The arm keeps the face block's stream observation unanswered, as the unmodified fixture has it, until an attempt at or after NOW_MS 3,150 fails.
+That attempt calls `retry_port_answers`, whose entry the testbench reports (`ENTRY`), and every later attempt answers zeroed values.
+So the port answers just after a retry failed, and the notice's next retry is the backoff's whole 8 ms away (`AECP_RETRY_MAX_MS`), the worst phase the spacing allows; the row starts at that entry.
+Each group registers 16 controllers on every interface, the firmware's capacity, so the notice fans out to every registration.
+A SET_NAME starts a save, so the store's steps are in flight.
+A BIND_RX of STREAM_INPUT 0 leaves its GET_STREAM_INFO notice to the unanswered port, which retries it.
+From NOW_MS 3,050 to 60 ms past the answer the group holds `save-starved`'s input: every receive channel at its contract refill rate with its bursts, and a grandmaster change as every pass starts.
+So no pass takes nothing, and the retry is taken only in an aged step's pass or in a pass of its own once it is `CTRL_LOOP_RETRY_AGE_MS` past its time.
+Group `notice-retried-<k>` binds `k` ms after group 0, eight of them across the retry's spacing, so the answer meets the load's bursts at a different phase in each.
+Each channel's longest record under that load is a row too, as in `save-held`, from the mark `notice.load`.
+A retried notice later than its bound fails the run whatever the options record (`run.notice_misses`), and the run prints a `NOTICE` line for each, with its time, its recipients and its verdict; the table gives each group's.
+
 `--groups` selects groups and `--jobs` sets how many run at once.
 `--fetch-l1` selects the CPU's instruction cache: `split`, the split placement's own (the default); `none`, the cacheless core; or `SETSxWAYS`, a test-only sweep point of 64-byte lines.
 So the two commands above give the split cache's arms in [The instruction cache](#the-instruction-cache).
@@ -145,6 +169,8 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 1x1 \
   Run with `--groups` naming three backlog rows, as S2's runs did, its composed maximum is partial; the 100 MHz runs of section 13 take all four.
 - `shutdown-entry` adds the SHUTDOWN path's only input: a poll that calls `adp_mbx_set_enable(false)` once, at NOW_MS 2,500.
   It runs the `adp-shutdown` and `control-shutdown` groups only.
+- `answering-later` keeps the face block's stream observation unanswered until an attempt at or after NOW_MS 3,150 fails, then answers (above, "A retried notice under sustained input").
+  It runs the `notice-retried-<k>` groups only.
 
 As written, both arms build the split's cache, the arms B and S of [The instruction cache](#the-instruction-cache).
 With `--fetch-l1 none` they are S2's arms in [Results](#results).
@@ -1027,7 +1053,8 @@ Its checks:
 - the records ahead of an input; a served record's: an earlier record released after its commit is ahead of it, one released before is not; each path's worst instance, a starved one first, and the misses per path and per instance;
 - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
 - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
-- the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; every labelled arm and control plant applies to the checkout's sources.
+- the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; every labelled arm and control plant applies to the checkout's sources;
+- a retried notice is timed from its port's answer, the entry, to its last recipient's commit; one 22 ms after its answer misses its 20 ms bound within its 24 ms ceiling; a retried notice later than its bound fails the run whatever the options record, and one within it passes; the age-less plant is caught only when every group's notice is late, and runs every group of the `answering-later` arm, which takes them alone; every group binds before its load, floods and holds every channel across the answer, and grades its held records from the load's mark ([`selftest_notice.py`](selftest_notice.py)).
 - the fetch observers follow the CPU's fetch plugin, a refill's 16 beats are read off the netlist's line-aligned refill address, and a cached netlist without that address is refused;
 - the load/store observers follow the data cache's IO bus, without ids, an instruction cache without a data cache keeps the cacheless load/store observers, and a cached netlist with neither or both of the two load/store plugins is refused;
 - `run.main` builds and records the fetch L1 and the arm it selected, on temporary files with the build's toolchain steps replaced;
@@ -1177,6 +1204,10 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | aged: the delays across the tick's first 8.75 ms only | each flash phase's aged window opens after the save's own flash event |
 | aged: windows at the age limit only | each flash phase's aged window opens after the save's own flash event |
 | aged: the program phase's window one step short of a page's issue | each flash phase's aged window opens after the save's own flash event |
+| notice: a retried notice later than its bound is a budget finding only | a retried notice later than its bound fails the run whatever the options record, and one within it passes |
+| notice: a retried notice is held to its ceiling, not its bound | a retried notice later than its bound fails the run whatever the options record, and one within it passes |
+| notice: the age-less plant is judged as a budget control | the age-less plant is caught only when every group's retried notice is later than its bound |
+| notice: the port answers before the load | every retried notice group binds before its load, floods and holds every channel across the port's answer, and grades its held records from the load's mark |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
@@ -1217,6 +1248,15 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 ```
 
 Some aged window's row must go over its budget, with no refusal: it prints `CONTROL store-step-aged-heavier caught`, naming the windows; every row within its budget, a miss outside the aged windows only, or a refusal is `ESCAPED`.
+
+The planted retry age's removal runs the retried notice's groups with a change-notice retry taken only in a pass that took no input and dispatched no centisecond, or after an aged step, as before THE RETRY had an age limit:
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-retry-ageless --variant answering-later --mutation retry-ageless
+```
+
+Under the flood every retry then waits for the next aged step's pass, so every group's retried notice must be committed later than its 20 ms, with no refusal: it prints `CONTROL retry-ageless caught`, naming the groups; any group within its bound, or a refusal, is `ESCAPED`.
 
 Three controls run the full harness, here on the cacheless core S2 measured them on:
 
