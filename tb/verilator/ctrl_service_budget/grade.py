@@ -115,7 +115,7 @@ class Log:
     #: to the mailbox (STEPPASS); a work pass that carries one has step=1 and store= among its fields
     step_passes: list[tuple[int, int, int]] = field(default_factory=list)
     #: every pass that carries the store's step, a work pass's too: its index, start, CPU cycles, the store's own
-    #: cycles, and whether it was an aged step's (STEPPASS aged=1, THE STEP)
+    #: cycles, and whether it was an aged step's (aged=1 on its STEPPASS or PASS line, THE STEP)
     stepped: list[tuple[int, int, int, int, bool]] = field(default_factory=list)
     steps: list[tuple[int, str]] = field(default_factory=list)
     summary: dict[str, str] = field(default_factory=dict)
@@ -198,7 +198,7 @@ def parse(text: str, sys_hz: int, cpu_hz: int) -> Log:
             modules = {m.split(':')[0]: int(m.split(':')[1]) for m in fields.pop('mods', '').split(',') if m}
             log.passes.append(Pass(index, start_sys, start_cpu, cycles, fields, writes, modules, idle_max))
             if fields.get('step'):
-                log.stepped.append((index, start_sys, cycles, int(fields.get('store', 0)), False))
+                log.stepped.append((index, start_sys, cycles, int(fields.get('store', 0)), fields.get('aged') == '1'))
             idle_max = 0
             log.writes.extend(writes)
             log.cut_idle = False

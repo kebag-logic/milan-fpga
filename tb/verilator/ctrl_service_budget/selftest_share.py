@@ -235,7 +235,11 @@ def aged_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
                  *([] if gap else ['PASS 12 3000 1500 5000 instr=10 W 3100:1:0']),
                  'PASS 13 4000 2000 5000 instr=10 W 4100:1:0', *(w for c, n in ticks for w in tick(c, n)),
                  'MARK 5000 composed', *record, f'PASS 14 5500 2750 5000 instr=10 W 5600:1:0{release}']
-        if aged:
+        if aged == 'work':
+            # an aged step's pass that writes to the mailbox, as THE RETRY's round after the step does
+            lines += ['PASS 15 6000 3000 79000 instr=10 step=1 store=76500 aged=1 W 6900:1:0',
+                      'FLASHRD 6100 6200 ee0000 128']
+        elif aged:
             lines += ['STEPPASS 15 6000 3000 77000 store=76500 aged=1',
                       {'read-back': 'FLASHRD 6100 6200 ee0000 128', 'issue': 'FLASHOP 6100 2 ee0100 256'}[aged]]
         lines += ['PASS 16 7000 3500 5000 instr=10 W 7100:1:0', 'MARK 9000 composed_end']
@@ -249,16 +253,18 @@ def aged_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
     cases = [graded(verify, two), graded(verify, [(3000, 1)]), graded(verify, [(3000, 2)]),
              graded(verify, two, gap=True), graded(verify, two, aged=None), graded(program, two),
              graded(program, two, aged='issue'), graded(short, [(3000, 1)], aged=None),
-             graded(verify, [(900, 1), *two]), graded(verify, two, drained=True)]
+             graded(verify, [(900, 1), *two]), graded(verify, two, drained=True), graded(verify, two, aged='work')]
     got = [None if c is None else (c['age'], [(a['start_ms'], a['kind']) for a in c['among']],
                                    [(a['start_ms'], a['kind']) for a in c['after']]) for c in cases]
     at = round(1000 / sys_hz * 1000, 3)
     want = [(2, [(at, 'read-back')], []), None, (2, [(at, 'read-back')], []), None, None, None,
-            (2, [(at, 'issue')], []), (1, [], []), (2, [(at, 'read-back')], []), (2, [], [(at, 'read-back')])]
+            (2, [(at, 'issue')], []), (1, [], []), (2, [(at, 'read-back')], []), (2, [], [(at, 'read-back')]),
+            (2, [(at, 'read-back')], [])]
     out = [("an aged window is graded only at the age its name declares, the centiseconds its TICK records carried "
             "since its last step, every pass between them a work pass, and, at the age limit, with an aged step "
             "taking its phase's heavy step (a read-back, a page's issue) in it, among its records or, where it drains "
-            "before its next centisecond, after the last of them; one short of it needs none", got == want, str(got))]
+            "before its next centisecond, after the last of them, its pass a work pass or not; one short of it needs "
+            "none", got == want, str(got))]
     control = argparse.Namespace(cpu_regions='cover', mutation='store-step-aged-heavier', record_budget_findings=False,
                                  record_share_findings=False)
     groups = [scenario.Group('backlog-adp@verify-aged2-3'), scenario.Group('backlog')]

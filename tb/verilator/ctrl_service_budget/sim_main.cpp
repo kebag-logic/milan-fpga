@@ -424,7 +424,10 @@ private:
             if (pass_.store[r]) text += " store_" + std::string(region_name[r]) + "=" + std::to_string(pass_.store[r]);
             if (pass_.lsu_wait[r]) text += " wait_" + std::string(region_name[r]) + "=" + std::to_string(pass_.lsu_wait[r]);
         }
-        if (pass_.step) text += " step=1 store=" + std::to_string(store_cycles());
+        // aged=1 as on a STEPPASS line: an aged step's pass writes to the mailbox once THE RETRY's round after
+        // the step re-arms AECP's timer (ctrl_loop.h)
+        if (pass_.step)
+            text += " step=1 store=" + std::to_string(store_cycles()) + " aged=" + std::to_string(unsigned(pass_.aged));
         text += " code_words=" + std::to_string(code_words_) + " mods=";
         for (unsigned m = 0; m <= n_modules; ++m)
             if (pass_.module_cycles[m])
