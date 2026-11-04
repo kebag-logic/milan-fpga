@@ -82,8 +82,8 @@ def defects(kind: Callable[..., T]) -> tuple[T, ...]:
              "over-saturated", also=((POLL_RECLAIM, DECLARE + POLL_RECLAIM),)),
         # the reclaim: after the declarations in the build's pass, in the poll in every other
         kind("transmit-reclaim-before-the-declarations", RETAINED, POLL_RECLAIM,
-             POLL_RECLAIM.replace("    if (!m->loop->tx_pass) {", "    if (true) {"), "Change(0, 0, false)",
-             suite="srp_rx_retry.cpp"),
+             POLL_RECLAIM.replace("    if (!m->loop->tx_pass) {", "    if (true) {"),
+             "a refused adoption takes no room a retained receive waits for", suite="srp_rx_retry.cpp"),
         kind("transmit-reclaim-only-with-the-build", RETAINED, POLL_RECLAIM, "", "adapter.received",
              suite="srp_rx_retry.cpp"),
     )

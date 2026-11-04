@@ -289,6 +289,10 @@ TEST_F(SrpRetry, OversizedValidRecordExpiresOnceAndReleasesOtherInterfaceAndBind
     // No artificial allocation failure: the PDU itself fills the entity pool.
     pump(999);
     EXPECT_NE(adapter.pending_rx.len,0u);
+    // The Domains the record registered before the pool ran out leave an adoption owed on its interface. The
+    // adoption is declared before the reclaim, so the room a reclaim frees is the retained receive's, and the
+    // adoption stays refused while the receive waits (#665, THE TRANSMIT's declarations).
+    EXPECT_EQ(adapter.ifs[0].domain.vid,2u)<<"a refused adoption takes no room a retained receive waits for";
     EXPECT_EQ(adapter.rx_discarded,0u);
     EXPECT_EQ(adapter.received,1u);
     EXPECT_CALL(licence,Change(i,0,false));
