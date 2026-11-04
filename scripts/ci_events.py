@@ -1164,6 +1164,10 @@ CARRIER_STEP_LISTS = {
         {"name": "Entity shape gate",
          "run": (
              'python3 scripts/check_entity_shape.py --self-test',
+             'python3 sw/builder/gen_key_reference.py --check',
+             'python3 sw/builder/gen_key_reference.py --selftest',
+             'python3 docs/diagrams/endstation_definition.gen.py --check',
+             'python3 docs/diagrams/endstation_definition.gen.py --selftest',
          )},
         {"name": "CI scheduling and evidence controls",
          "run": (
