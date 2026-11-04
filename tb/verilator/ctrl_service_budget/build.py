@@ -23,6 +23,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+import notice_window
 import save_window
 
 HERE = Path(__file__).resolve().parent
@@ -42,7 +43,8 @@ def run(argv: list[str], log: Path, cwd: Path | None = None) -> None:
         raise RuntimeError(f'{argv[0]} exited {result.returncode}; see {log.name}')
 
 
-#: ctrl_loop_service from THE STEP's deadline to its call (ctrl_loop.c), its age limit's pass among them.
+#: ctrl_loop_service from THE STEP's deadline to its call (ctrl_loop.c), its age limit's pass and THE RETRY's
+#: among them.
 STEP_SPAN = ('\tuint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US : 0u;\n'
              "\t// THE STEP's age limit: a step not run for more than CTRL_LOOP_STEP_AGE centiseconds is this\n"
              '\t// whole pass, before any input, with THE RETRY after it, so an input waits one step and one\n'
@@ -53,6 +55,12 @@ STEP_SPAN = ('\tuint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + C
              '\t\t// of input\n'
              '\t\tif (l->retry != NULL) {\n\t\t\t(void)l->retry(l->retry_ctx);\n\t\t\tl->stats.retry_passes++;\n\t\t}\n'
              '\t\tl->stats.passes++;\n\t\tl->stats.aged_passes++;\n'
+             '\t\treturn 1u;\n\t}\n'
+             "\t// THE RETRY's age limit: a retry its client has held CTRL_LOOP_RETRY_AGE_MS past the time it came due "
+             'is this\n'
+             '\t// whole pass, before any input, so a backlog or input that leaves no pass empty holds it off no longer\n'
+             '\tif (l->retry != NULL && l->retry_aged(l->retry_ctx)) {\n\t\t(void)l->retry(l->retry_ctx);\n'
+             '\t\tl->stats.retry_passes++;\n\t\tl->stats.passes++;\n\t\tl->stats.retry_aged_passes++;\n'
              '\t\treturn 1u;\n\t}\n'
              '\tconst uint32_t ticks = l->stats.ticks;\n'
              '\tunsigned work = service_events(l);\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n'
@@ -102,6 +110,13 @@ MUTATIONS = {
                                 ' l->clock(l->clock_ctx) - at < 800u;) {\n'
                                 '\t\t}\n\t\t// THE RETRY after the step',
                                 ','.join(g for g in save_window.aged_names() if '@verify-aged2-' in g), 'none'),
+    # #665's planted retry age removed: a change-notice retry is taken only in a pass that took no input and
+    # dispatched no centisecond or after an aged step, as before ctrl_loop.h's THE RETRY had an age limit, so under
+    # input that leaves no pass empty the retried notice waits for the next aged step and is committed later than
+    # its 20 ms after its port's answer (notice_window.py).
+    'retry-ageless': ('loop/ctrl_loop.c', 'l->retry != NULL && l->retry_aged(l->retry_ctx)',
+                      'l->retry != NULL && l->retry_aged == NULL', ','.join(notice_window.names()),
+                      'answering-later'),
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
@@ -109,6 +124,8 @@ SHARE_CONTROLS = ('store-step-unbounded',)
 SAVE_CONTROLS = ('store-step-ageless',)
 #: The controls whose finding is a row of an aged window over its budget, with no refusal.
 AGED_CONTROLS = ('store-step-aged-heavier',)
+#: The controls whose finding is the retried notice later than its bound in every group, with no refusal.
+NOTICE_CONTROLS = ('retry-ageless',)
 
 
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never
@@ -120,7 +137,11 @@ AGED_CONTROLS = ('store-step-aged-heavier',)
 #: each pending change notice 1 ms later forever (aecp.c, retry_at = now + 1), and this arm
 #: separates that retry from each path's cost. shutdown-entry: the linked image never
 #: disables ADP, so a poll does it once at NOW_MS scenario.SHUTDOWN_MS, the only input of
-#: the SHUTDOWN path (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass.
+#: the SHUTDOWN path (MAILBOX_SPLIT.md:523); it costs one NOW_MS read a pass. answering-later: the
+#: face block's stream observation stays unanswered, as with the unmodified fixture, until the first attempt at or
+#: after NOW_MS notice_window.ANSWER_MS fails; that attempt calls retry_port_answers, whose entry the testbench
+#: reports (ENTRY), and every later one answers zeroed values, so the port answers just after a retry failed: the
+#: retried notice's row (notice_window.py) starts there.
 VARIANTS = {
     'answering-ports': [
         ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n'),
@@ -151,7 +172,31 @@ VARIANTS = {
          '    if (!ctrl_loop_add_poll(&image_app.loop, shutdown_entry, NULL)) return 7;\n'
          '    ctrl_loop_run(&image_app.loop);'),
     ],
+    'answering-later': [
+        ('#include "wire.h"\n', '#include "wire.h"\n#include <string.h>\n'),
+        ('static struct aecp_face image_face;\n',
+         'static struct aecp_face image_face;\n'
+         '// The retried notice\'s row (#665, THE RETRY): the face\'s stream observation stays unanswered until an\n'
+         '// attempt at or after NOW_MS ANSWER_MS fails, then answers; the entry marks the moment it starts to.\n'
+         'static bool (*face_stream)(void *, unsigned, uint16_t, uint16_t, struct aecp_stream_info *);\n'
+         'static bool answering;\n'
+         'void retry_port_answers(void);\n'
+         '__attribute__((noinline)) void retry_port_answers(void) { answering = true; }\n'
+         'static bool l_stream(void *ctx, unsigned i, uint16_t t, uint16_t n, struct aecp_stream_info *v)\n'
+         '{\n'
+         '    if (answering) { memset(v, 0, sizeof *v); return true; }\n'
+         '    bool ok = face_stream(ctx, i, t, n, v);\n'
+         '    if (!ok && mbx_now_ms() >= ANSWER_MS) retry_port_answers();\n'
+         '    return ok;\n'
+         '}\n'),
+        ('    aecp_face_init(&image_face,&image_platform);\n',
+         '    aecp_face_init(&image_face,&image_platform);\n'
+         '    face_stream=image_face.ports.stream;\n'
+         '    image_face.ports.stream=l_stream;\n'),
+    ],
 }
+#: Each variant's test-only entries the testbench reports besides ENTRY_SYMBOLS, by symbol.
+VARIANT_ENTRIES = {'answering-later': ('retry_port_answers',)}
 
 
 def variant_fixture(out: Path, variant: str) -> Path:
@@ -167,7 +212,8 @@ def variant_fixture(out: Path, variant: str) -> Path:
     for anchor, replacement in VARIANTS[variant]:
         if source.count(anchor) != 1:
             raise RuntimeError(f'variant {variant}: an anchor is not unique in ctrl_aecp_image.c: {anchor!r}')
-        source = source.replace(anchor, replacement.replace('SHUTDOWN_MS', f'{scenario.SHUTDOWN_MS}u'))
+        source = source.replace(anchor, replacement.replace('SHUTDOWN_MS', f'{scenario.SHUTDOWN_MS}u')
+                                .replace('ANSWER_MS', f'{notice_window.ANSWER_MS}u'))
     path.write_text(source)
     return scratch
 
@@ -456,6 +502,11 @@ def lsu_bus(rows: list[tuple[str, str, str, str]], netlist: str) -> list[tuple[s
 
 #: Functions whose entry the testbench reports (ENTRY lines): a probe's entry:<symbol> start.
 ENTRY_SYMBOLS = ('adp_mbx_set_enable',)
+
+
+def entry_symbols(variant: str) -> tuple[str, ...]:
+    """The entries a build of that variant reports: ENTRY_SYMBOLS and the variant's own."""
+    return ENTRY_SYMBOLS + VARIANT_ENTRIES.get(variant, ())
 #: The saved-state store's step (nvm_store.c): a pass that enters it carries a step (THE STEP, ctrl_loop.h), and
 #: the step's own CPU time is its modules' cycles in that pass, the store's and its flash port's.
 STEP_SYMBOL = 'nvm_store_service'
@@ -490,11 +541,12 @@ def config_header(build_dir: Path, spec: dict, table: dict[str, int],
                              ('flash', addresses['flash'], addresses['flash_size']), ('csr', csr[0], csr[1])):
         lines += [f'constexpr std::uint32_t {name}_base = 0x{base:x}u;',
                   f'constexpr std::uint32_t {name}_size = 0x{size:x}u;']
-    lines += [f'constexpr unsigned n_entries = {len(ENTRY_SYMBOLS)};',
+    entries = entry_symbols(spec.get('variant', 'none'))
+    lines += [f'constexpr unsigned n_entries = {len(entries)};',
               'inline constexpr std::uint32_t entry_pc[n_entries] = {'
-              + ', '.join(f'0x{table[name]:x}u' for name in ENTRY_SYMBOLS) + '};',
+              + ', '.join(f'0x{table[name]:x}u' for name in entries) + '};',
               'inline const char* const entry_name[n_entries] = {'
-              + ', '.join(f'"{name}"' for name in ENTRY_SYMBOLS) + '};']
+              + ', '.join(f'"{name}"' for name in entries) + '};']
     lines += [f"constexpr std::uint32_t pass_pc = 0x{table['ctrl_loop_service']:x}u;",
               f"constexpr std::uint32_t step_pc = 0x{table[STEP_SYMBOL]:x}u;",
               f"constexpr unsigned filter_en_word = 0x{spec['filter_en'] // 4:x}u;",
@@ -714,13 +766,14 @@ def build(build_dir: Path, shape: str, n_if: int, mutation: str = 'none', varian
                 ev_tick=dict(type=tick.value, count_lsb=count.lsb, count_width=count.width),
                 ch_base=contract.ch_base, ch_stride=contract.ch_stride,
                 tx_head={r.name: r.offset for r in contract.ch_registers}['TX_HEAD'])
+    spec['variant'] = variant
     verilate(build_dir, spec, table, JOBS)
     spec['inputs'] = digest(run_inputs(build_dir, spec), build_dir)
     spec['inputs']['tree:firmware'] = tree_digest([ROOT / t for t in FIRMWARE_TREES])
     spec['inputs']['tree:config'] = tree_digest([ROOT / 'configs' / (shape + '.yaml')])
-    spec['symbols'] = {name: table[name] for name in ('ctrl_loop_service', 'main', STEP_SYMBOL, *ENTRY_SYMBOLS)}
+    spec['symbols'] = {name: table[name] for name in ('ctrl_loop_service', 'main', STEP_SYMBOL,
+                                                      *entry_symbols(variant))}
     spec['mutation'] = mutation
-    spec['variant'] = variant
     spec['executable_sha256'] = hashlib.sha256((build_dir / 'native/Vsim').read_bytes()).hexdigest()
     (build_dir / 'build.json').write_text(json.dumps(spec, indent=2) + '\n')
     return spec

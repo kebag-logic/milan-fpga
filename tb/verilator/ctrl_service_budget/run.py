@@ -190,6 +190,36 @@ def save_misses(results: list[dict]) -> list[str]:
     return out
 
 
+def notices(results: list[dict]) -> list[dict]:
+    """Every retried notice's row (notice_window.py), measured, with its group."""
+    import notice_window
+    return [dict(r, group=g['group']) for g in results for r in g['probes']
+            if r.get('status') == 'measured' and r['path'][0] == notice_window.PATH]
+
+
+def notice_misses(results: list[dict]) -> list[str]:
+    """Each retried notice committed later than its bound after its port's answer: a failure whatever the options
+    record, since the bound is the construction's (ctrl_loop.h, THE RETRY; aecp.h)."""
+    return [f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer, over its bound {n['budget_ms']:g} ms"
+            for n in notices(results) if not n['within_budget']]
+
+
+def notice_table(results: list[dict]) -> list[str]:
+    """The retried notices' section of the table: each from its port's answer to its last recipient's commit."""
+    rows = notices(results)
+    if not rows:
+        return []
+    lines = ['', "Retried notices, from the port's answer to the last recipient's commit (notice_window.py; "
+             'ctrl_loop.h, THE RETRY):', '', '| Group | ms | Bound ms | Recipients | Events held at the answer | '
+             'Verdict |', '|---|---:|---:|---:|---:|---|']
+    for n in rows:
+        lines.append(f"| {n['group']} | {n['ms']:.3f} | {n['budget_ms']:g} | {n['fanout']['recipients']} | "
+                     f"{n['ahead']} | {'within' if n['within_budget'] else 'OVER'} |")
+    worst = max(rows, key=lambda n: n['ms'])
+    lines += ['', f"Latest: {worst['ms']:.3f} ms, {worst['group']}."]
+    return lines
+
+
 def save_table(results: list[dict]) -> list[str]:
     """The saves' section of the table: each timed save against its stated worst case."""
     rows = saves(results)
@@ -286,6 +316,7 @@ def table(results: list[dict], point: str, clock: str = '') -> str:
     lines += share_table(results)
     lines += aged_table(results)
     lines += save_table(results)
+    lines += notice_table(results)
     lines += step_table(results)
     lines += ['', '| Path | Probe | CPU cycles | ms | Budget (+W) ms | Ceiling ms | Verdict | Taking pass cycles '
               '| Mailbox accesses (model) | Fetch share |',
@@ -314,7 +345,8 @@ def summary(point: str, build: str, results: list[dict], refusals: list[str], mi
     return dict(point=point, build=build, results=results, paths=paths(results), counts=counts(results),
                 windows=windows(results), composed_maximum=composed_maximum(results),
                 refusals=refusals, misses=misses, share_misses=list(shares), saves=saves(results),
-                save_misses=save_misses(results), aged=aged(results))
+                save_misses=save_misses(results), aged=aged(results), notices=notices(results),
+                notice_misses=notice_misses(results))
 
 
 def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
@@ -341,8 +373,9 @@ def arguments() -> tuple[argparse.ArgumentParser, argparse.Namespace]:
                         help='build a planted firmware defect; only its control group runs and must be caught')
     parser.add_argument('--variant', choices=('none', *builder.VARIANTS), default='none',
                         help='a labelled test-code arm: answering-ports (the observation ports answer: the face '
-                        "block's stream, avb and counters and the fixture's path) or shutdown-entry (the SHUTDOWN "
-                        "path's test-only input)")
+                        "block's stream, avb and counters and the fixture's path), shutdown-entry (the SHUTDOWN "
+                        "path's test-only input) or answering-later (the face block's stream observation answers "
+                        "from NOW_MS notice_window.ANSWER_MS: the retried notice's row)")
     parser.add_argument('--regrade', action='store_true',
                         help='grade the logs already in --out; a selected group whose script or log is '
                         'absent, or whose script the scenario no longer makes, is refused by name')
@@ -423,10 +456,10 @@ def as_built_faults(refusals: list) -> list:
 
 
 def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list, shares: list = (),
-            late: list = ()) -> int:
+            late: list = (), notices_late: list = ()) -> int:
     """The run's exit status: a control must be caught by name; a measurement must be complete, its saves
-    durable within their stated worst case, and its rows and its passes are each a failure unless their own
-    option records them."""
+    durable within their stated worst case, its retried notices within their bound, and its rows and its
+    passes are each a failure unless their own option records them."""
     if args.cpu_regions == 'as-built':
         caught = as_built_faults(refusals)
         print(f'CONTROL as-built {"caught" if caught else "ESCAPED"}: an instruction or load access fault '
@@ -463,6 +496,15 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
               f'over its budget ({", ".join(named) or "none"}), {len(shares)} with a pass over the share, '
               f'{len(refusals)} refusal(s)')
         return 0 if caught else 1
+    if args.mutation in builder.NOTICE_CONTROLS:
+        # caught where every group's retried notice is committed later than its bound, each named by its group
+        named = sorted({m.partition(':')[0] for m in notices_late})
+        want = sorted(builder.MUTATIONS[args.mutation][3].split(','))
+        caught = named == want and not refusals
+        print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} of {len(want)} group(s) '
+              f'with the retried notice later than its bound ({", ".join(named) or "none"}), {len(refusals)} '
+              f'refusal(s)')
+        return 0 if caught else 1
     if args.mutation != 'none':
         paths_ = [p.name for g in groups for p in g.probes if p.name.startswith('control.')]
         caught = [m for m in misses if m.split(':')[0] in paths_]
@@ -471,11 +513,18 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
             return 1
         print(f'CONTROL {args.mutation} caught: every control path missed its budget')
         return 0
-    if refusals or not groups or late:
+    if refusals or not groups or late or notices_late:
         return 1
     if shares and not args.record_share_findings:
         return 1
     return 1 if misses and not args.record_budget_findings else 0
+
+
+def all_groups(point: object, spec: dict) -> list:
+    """Every group of a point's build; the answering-later variant has only the retried notice's (notice_window)."""
+    import notice_window
+    import scenario
+    return notice_window.groups(point) if spec.get('variant') == 'answering-later' else scenario.all_groups(point, spec)
 
 
 def selected(args: argparse.Namespace, shape: str, n_if: int) -> tuple:
@@ -523,7 +572,7 @@ def main() -> int:
             return 1
     clock = builder.clock_line(spec)
     print('CLOCK', clock, flush=True)
-    groups = select(parser, args, scenario.all_groups(scenario.point(args.point, spec), spec))
+    groups = select(parser, args, all_groups(scenario.point(args.point, spec), spec))
     out = (args.out or build_dir / 'results').resolve()
     out.mkdir(parents=True, exist_ok=True)
     absent: list[str] = []
@@ -564,6 +613,10 @@ def main() -> int:
               f"not durable {s['waited_ms']:.3f} ms after its change", f"(stated worst case {s['bound_ms']:,} ms,",
               f"{s['steps']} steps, longest gap between flash steps {s['longest_gap_ms']} ms)",
               'within' if s['within'] else 'OVER')
+    for n in notices(results):
+        print('NOTICE', f"{n['group']}: committed {n['ms']:.3f} ms after its port's answer to the last of "
+              f"{n['fanout']['recipients']} recipients (bound {n['budget_ms']:g} ms)",
+              'within' if n['within_budget'] else 'OVER')
     tally = counts(results)
     passes = sum(g['passes']['share']['passes'] for g in results)
     idle = sum(g['passes']['share'].get('idle_over', 0) for g in results)
@@ -574,7 +627,7 @@ def main() -> int:
           f"share {share.share_ms():.3f} ms ({share.share_cycles(spec['cpu_hz']):,} CPU cycles)"
           + (f", and {idle} run(s) of passes with no mailbox write" if idle else ''))
     print('CLOCK', clock)
-    return verdict(args, groups, refusals, misses, shares, late)
+    return verdict(args, groups, refusals, misses, shares, late, notice_misses(results))
 
 
 if __name__ == '__main__':

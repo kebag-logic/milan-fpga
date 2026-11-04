@@ -19,6 +19,7 @@ from unittest.mock import patch
 
 import build
 import grade
+import notice_window
 import run
 import save_grade
 import save_window
@@ -654,6 +655,13 @@ MUTANTS: dict[str, Patches] = {
         save_grade.AGED_KIND, program='read-back')],
     "aged: the heavier aged step's plant is judged as a budget control": lambda: [patch.object(
         build, 'AGED_CONTROLS', ())],
+    "notice: a retried notice later than its bound is a budget finding only": lambda: [patch.object(
+        run, 'notice_misses', lambda results: [])],
+    'notice: a retried notice is held to its ceiling, not its bound': lambda: [patch.object(
+        run, 'notice_misses', lambda results: [n['group'] for n in run.notices(results) if not n['within_ceiling']])],
+    "notice: the age-less plant is judged as a budget control": lambda: [patch.object(build, 'NOTICE_CONTROLS', ())],
+    "notice: the port answers before the load": lambda: [patch.object(
+        notice_window, 'ANSWER_MS', notice_window.LOAD_MS - 1)],
     'aged: one delay an aged window': lambda: [patch.object(save_window, 'AGED_DELAYS', (5.0,))],
     "aged: the delays across the tick's first 8.75 ms only": lambda: [patch.object(
         save_window, 'AGED_DELAYS', tuple(1.25 * n for n in range(8)))],

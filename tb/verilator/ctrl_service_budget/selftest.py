@@ -9,7 +9,8 @@ bound and backlog, each loaded channel's service, the worst pass, the
 composed maximum and the composed window's population. Synthetic traces
 check each marker, the notification fan-out and its cost a recipient, the
 owed responses, the records ahead of a served record, the clock
-conversion, the pass bound, the deadlines and the composition; synthetic
+conversion, the pass bound, the deadlines and the composition, and a
+retried notice timed from its port's answer (selftest_notice.py); synthetic
 windows check the composed maximum over the backlog rows, its lower bound,
 the rows a run did not include, and the record results.json carries and
 the table renders. The real scenario's composed windows are counted
@@ -52,6 +53,7 @@ import run  # noqa: E402
 import scenario  # noqa: E402
 import selftest_mutants  # noqa: E402
 from selftest_maximum import maximum_checks, opening_checks, stimulus_checks  # noqa: E402
+from selftest_notice import notice_checks  # noqa: E402
 from selftest_share import (clock_checks, held_load_checks, save_checks, save_time_checks,  # noqa: E402
                             share_checks, step_checks)
 
@@ -915,7 +917,8 @@ def checks() -> list[Check]:
             *build_checks(), *cache_checks(), *cache_build_checks(), *share_checks(synthetic, SYS_HZ, CPU_HZ),
             *clock_checks(built, main_verdict), *opening_checks(points(json.loads(ORACLE.read_text()))),
             *stimulus_checks(points(json.loads(ORACLE.read_text()))), *save_checks(),
-            *save_time_checks(SYS_HZ, CPU_HZ), *step_checks(SYS_HZ, CPU_HZ), *held_load_checks(SYS_HZ, CPU_HZ)]
+            *save_time_checks(SYS_HZ, CPU_HZ), *step_checks(SYS_HZ, CPU_HZ), *held_load_checks(SYS_HZ, CPU_HZ),
+            *notice_checks(synthetic, one, tx_sequence, aem_response, points(json.loads(ORACLE.read_text())))]
 
 
 def write_fixture(log: Path, build_json: Path) -> None:

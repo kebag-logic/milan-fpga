@@ -73,8 +73,9 @@ def save_time(log: grade.Log, group: scenario.Group) -> dict | None:
     run. A group that declares a save in flight (save_window.second) times its save.second instead, to durable in
     the save after the first, against the bound with that save in flight, and is refused unless that change was
     marked past the first's first-dirty window and before the first save's erase. The longest gap between
-    consecutive flash steps of the save is reported beside it."""
-    if not group.save:
+    consecutive flash steps of the save is reported beside it. A group that declares no image times no save: its
+    held load is graded alone (held; notice_window.group)."""
+    if not group.save or 'image' not in group.save:
         return None
     marks = {name: cycle for cycle, name in log.marks}
     flight = group.save.get('flight')
@@ -110,11 +111,13 @@ def in_flight(log: grade.Log, marks: dict[str, int], change: int) -> bool:
 
 def held_load(log: grade.Log, group: scenario.Group) -> None:
     """A held group's receive channels must commit every record its load offered from its change on
-    (save_window.loaded), so a burst the filter or a bucket refused is not a load the group held."""
-    change = next(cycle for cycle, name in log.marks if name == 'save.change')
+    (save_window.loaded), or from the mark its save names as its origin (notice_window.group), so a burst the
+    filter or a bucket refused is not a load the group held."""
+    origin = group.save.get('origin', 'save.change')
+    change = next(cycle for cycle, name in log.marks if name == origin)
     got = {name: sum(1 for c, ch, *_ in log.rxc if ch == n and c >= change) for n, name in grade.CHANNEL.items()}
     if got != group.save['offered']:
-        raise grade.Refusal(f"{group.name}: its receive channels committed {got} from its change, the held load "
+        raise grade.Refusal(f"{group.name}: its receive channels committed {got} from {origin}, the held load "
                             f"offered {group.save['offered']}; refused frames {log.refused[:4]}")
 
 
