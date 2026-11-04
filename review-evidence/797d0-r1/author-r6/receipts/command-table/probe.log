@@ -1,0 +1,243 @@
+shfmt: v3.11.0
+== 430a077c (HEAD): python3 scripts/ci_tool_inventory.py --check
+REFUSED: changed declared script 'sw/builder/endstation_builder.py'
+rc=2
+-- declared script digests against the bytes:
+MISMATCH gptp-processor/scripts/check_source_evidence.py: declared b0033dea608f, bytes 70c17ebffdf0
+MISMATCH gptp-processor/scripts/generate_diagrams.py: declared 7ff6cc6ffb9b, bytes b9ea6b76e1e9
+MISMATCH scripts/act_ci.py: declared b8a786cec30b, bytes 3f91c996875b
+MISMATCH scripts/check_nvm_record_space.py: declared 1e59ce154bdf, bytes 8f6f8f6836e9
+MISMATCH scripts/ci_case_receipts_selftest.py: declared c0543fba6e86, bytes e09d198f1eb0
+MISMATCH scripts/ci_workflow_plan_selftest.py: declared 9efd257db3a9, bytes c1588fc317c9
+MISMATCH scripts/run_all_suites.sh: declared c4309d6e3fe7, bytes 0d763247cda4
+MISMATCH scripts/suite_shards.py: declared bebb10ede436, bytes 3ad09be9a4ab
+MISMATCH sw/builder/endstation_builder.py: declared 84878e539e61, bytes 025882ace1b5
+MISMATCH sw/builder/test_builder.py: declared e6c3c1097eab, bytes b64353c28652
+MISMATCH sw/litex/clock_constraints.py: declared c23112045cd9, bytes 8b1e3ab20fd8
+MISMATCH sw/litex/gen_mac_tx_model.py: declared 79e2cb95f9e0, bytes 32ef673e25e0
+MISMATCH sw/litex/milan_soc.py: declared 105961e57cc9, bytes 1d313865876e
+MISMATCH sw/mailbox/publication_census.py: declared ce29ced65442, bytes 3bd59fe6b17b
+MISMATCH syn/ooc/pp_placement_selftest.py: declared 425bfc9e1833, bytes 2a056c6049b5
+MISMATCH syn/ooc/pp_resource_gate_mutants.py: declared 71a4a2f221bc, bytes a6c1b4ee7444
+MISMATCH syn/ooc/pp_resource_gate_selftest.py: declared 9e0ddcd0d9ec, bytes c7e6082f9910
+MISMATCH syn/yosys/run.sh: declared dafe8ae92a1f, bytes 60770688714e
+MISMATCH tb/verilator/aaf/start_mutants.py: declared 40053deeb483, bytes e28003b95b75
+MISMATCH tb/verilator/avtp_rxmon/lockstep_mutants.py: declared 5eee4b345c3c, bytes 75c4e601e120
+MISMATCH tb/verilator/capture_coherence/mutants.py: declared 2ec38db213e9, bytes 1530873a9d6c
+MISMATCH tb/verilator/crf_rx/mutants.py: declared b4f52e0156e9, bytes 9fd469ced713
+MISMATCH tb/verilator/follow_ring/mutants.py: declared 06f821c10c67, bytes dbee99acde4f
+MISMATCH tb/verilator/follow_ring/sweep.py: declared 4aa4ed5b3e7a, bytes e4885a55206b
+MISMATCH tb/verilator/gptp_plane/phc_step.py: declared ae4e9f6457d1, bytes 9058e2ff64cb
+MISMATCH tb/verilator/gptp_txts/mutants.py: declared f3034fcca946, bytes e8506a929bb4
+MISMATCH tb/verilator/mbx/mutants.py: declared 6c36722baa33, bytes 8ab42517ce4f
+MISMATCH tb/verilator/milan_dp/dynmap_mutants.py: declared ddf16502767e, bytes fceb84d89aa3
+MISMATCH tb/verilator/milan_dp/gsi_mutants.py: declared f00e64c587a1, bytes d8e5556598e8
+MISMATCH tb/verilator/milan_dp/render_mutants.py: declared fa0c62d0f955, bytes 32b587d15c94
+MISMATCH tb/verilator/milan_dp/stream_counters.py: declared fa3629eaa903, bytes ad1ca08b26c1
+MISMATCH tb/verilator/milan_dp_gm_steps/gmstep_mutants.py: declared bdc5d03560cf, bytes 2156a273745e
+MISMATCH tb/verilator/milan_dp_mclk/mclk_mutants.py: declared d0ef22ea72e3, bytes b3c876271a3a
+MISMATCH tb/verilator/milan_dp_render/tdm8_render_mutants.py: declared f64a3496d20d, bytes 97cb3379ca82
+MISSING tb/verilator/render_setpoint/mutants.py
+scripts/docs_inventory.py: declared and matches
+scripts/ci_litex_legs.py: declared and matches
+scripts/ci_gate_workflows_selftest.py: declared and matches
+scripts/ci_scope_history.py: declared and matches
+scripts/run_litex_sims.sh: declared and matches
+151 declared scripts, 35 mismatched or missing
+== 626d367f (HEAD^1): python3 scripts/ci_tool_inventory.py --check
+REFUSED: changed declared script 'sw/builder/endstation_builder.py'
+rc=2
+-- declared script digests against the bytes:
+MISMATCH gptp-processor/scripts/check_source_evidence.py: declared b0033dea608f, bytes 70c17ebffdf0
+MISMATCH gptp-processor/scripts/generate_diagrams.py: declared 7ff6cc6ffb9b, bytes b9ea6b76e1e9
+MISMATCH scripts/act_ci.py: declared b8a786cec30b, bytes 3f91c996875b
+MISMATCH scripts/check_nvm_record_space.py: declared 1e59ce154bdf, bytes 8f6f8f6836e9
+MISMATCH scripts/ci_case_receipts_selftest.py: declared c0543fba6e86, bytes e09d198f1eb0
+MISMATCH scripts/ci_workflow_plan_selftest.py: declared 9efd257db3a9, bytes c1588fc317c9
+MISMATCH scripts/run_all_suites.sh: declared c4309d6e3fe7, bytes 0d763247cda4
+MISMATCH scripts/suite_shards.py: declared bebb10ede436, bytes 3ad09be9a4ab
+MISMATCH sw/builder/endstation_builder.py: declared 84878e539e61, bytes 025882ace1b5
+MISMATCH sw/builder/test_builder.py: declared e6c3c1097eab, bytes b64353c28652
+MISMATCH sw/litex/clock_constraints.py: declared c23112045cd9, bytes 8b1e3ab20fd8
+MISMATCH sw/litex/gen_mac_tx_model.py: declared 79e2cb95f9e0, bytes 32ef673e25e0
+MISMATCH sw/litex/milan_soc.py: declared 105961e57cc9, bytes 1d313865876e
+MISMATCH sw/mailbox/publication_census.py: declared ce29ced65442, bytes 3bd59fe6b17b
+MISMATCH syn/ooc/pp_placement_selftest.py: declared 425bfc9e1833, bytes 2a056c6049b5
+MISMATCH syn/ooc/pp_resource_gate_mutants.py: declared 71a4a2f221bc, bytes a6c1b4ee7444
+MISMATCH syn/ooc/pp_resource_gate_selftest.py: declared 9e0ddcd0d9ec, bytes c7e6082f9910
+MISMATCH syn/yosys/run.sh: declared dafe8ae92a1f, bytes 60770688714e
+MISMATCH tb/verilator/aaf/start_mutants.py: declared 40053deeb483, bytes e28003b95b75
+MISMATCH tb/verilator/avtp_rxmon/lockstep_mutants.py: declared 5eee4b345c3c, bytes 75c4e601e120
+MISMATCH tb/verilator/capture_coherence/mutants.py: declared 2ec38db213e9, bytes 1530873a9d6c
+MISMATCH tb/verilator/crf_rx/mutants.py: declared b4f52e0156e9, bytes 9fd469ced713
+MISMATCH tb/verilator/follow_ring/mutants.py: declared 06f821c10c67, bytes dbee99acde4f
+MISMATCH tb/verilator/follow_ring/sweep.py: declared 4aa4ed5b3e7a, bytes e4885a55206b
+MISMATCH tb/verilator/gptp_plane/phc_step.py: declared ae4e9f6457d1, bytes 9058e2ff64cb
+MISMATCH tb/verilator/gptp_txts/mutants.py: declared f3034fcca946, bytes e8506a929bb4
+MISMATCH tb/verilator/mbx/mutants.py: declared 6c36722baa33, bytes 8ab42517ce4f
+MISMATCH tb/verilator/milan_dp/dynmap_mutants.py: declared ddf16502767e, bytes fceb84d89aa3
+MISMATCH tb/verilator/milan_dp/gsi_mutants.py: declared f00e64c587a1, bytes d8e5556598e8
+MISMATCH tb/verilator/milan_dp/render_mutants.py: declared fa0c62d0f955, bytes 32b587d15c94
+MISMATCH tb/verilator/milan_dp/stream_counters.py: declared fa3629eaa903, bytes ad1ca08b26c1
+MISMATCH tb/verilator/milan_dp_gm_steps/gmstep_mutants.py: declared bdc5d03560cf, bytes 2156a273745e
+MISMATCH tb/verilator/milan_dp_mclk/mclk_mutants.py: declared d0ef22ea72e3, bytes b3c876271a3a
+MISMATCH tb/verilator/milan_dp_render/tdm8_render_mutants.py: declared f64a3496d20d, bytes 97cb3379ca82
+MISSING tb/verilator/render_setpoint/mutants.py
+scripts/docs_inventory.py: declared and matches
+scripts/ci_litex_legs.py: declared and matches
+scripts/ci_gate_workflows_selftest.py: declared and matches
+scripts/ci_scope_history.py: declared and matches
+scripts/run_litex_sims.sh: declared and matches
+151 declared scripts, 35 mismatched or missing
+== e8ec8d20 (HEAD^1^1): python3 scripts/ci_tool_inventory.py --check
+REFUSED: changed declared script 'sw/builder/endstation_builder.py'
+rc=2
+-- declared script digests against the bytes:
+MISMATCH gptp-processor/scripts/check_source_evidence.py: declared b0033dea608f, bytes 70c17ebffdf0
+MISMATCH gptp-processor/scripts/generate_diagrams.py: declared 7ff6cc6ffb9b, bytes b9ea6b76e1e9
+MISMATCH scripts/act_ci.py: declared b8a786cec30b, bytes 31261b7c2a0f
+MISMATCH scripts/check_nvm_record_space.py: declared 1e59ce154bdf, bytes 8f6f8f6836e9
+MISMATCH scripts/ci_case_receipts_selftest.py: declared c0543fba6e86, bytes e09d198f1eb0
+MISMATCH scripts/ci_gate_workflows_selftest.py: declared 7e399a455a6e, bytes 7b14a749f3cf
+MISMATCH scripts/ci_workflow_plan_selftest.py: declared 9efd257db3a9, bytes c1588fc317c9
+MISMATCH scripts/run_all_suites.sh: declared c4309d6e3fe7, bytes 0d763247cda4
+MISMATCH scripts/run_litex_sims.sh: declared 91299632461e, bytes e6f4d79ac313
+MISMATCH scripts/suite_shards.py: declared bebb10ede436, bytes 3ad09be9a4ab
+MISMATCH sw/builder/endstation_builder.py: declared 84878e539e61, bytes 025882ace1b5
+MISMATCH sw/builder/test_builder.py: declared e6c3c1097eab, bytes b64353c28652
+MISMATCH sw/litex/clock_constraints.py: declared c23112045cd9, bytes 8b1e3ab20fd8
+MISMATCH sw/litex/gen_mac_tx_model.py: declared 79e2cb95f9e0, bytes 32ef673e25e0
+MISMATCH sw/litex/milan_soc.py: declared 105961e57cc9, bytes 1d313865876e
+MISMATCH sw/mailbox/publication_census.py: declared ce29ced65442, bytes 3bd59fe6b17b
+MISMATCH syn/ooc/pp_placement_selftest.py: declared 425bfc9e1833, bytes 2a056c6049b5
+MISMATCH syn/ooc/pp_resource_gate_mutants.py: declared 71a4a2f221bc, bytes a6c1b4ee7444
+MISMATCH syn/ooc/pp_resource_gate_selftest.py: declared 9e0ddcd0d9ec, bytes c7e6082f9910
+MISMATCH syn/yosys/run.sh: declared dafe8ae92a1f, bytes 60770688714e
+MISMATCH tb/verilator/aaf/start_mutants.py: declared 40053deeb483, bytes e28003b95b75
+MISMATCH tb/verilator/avtp_rxmon/lockstep_mutants.py: declared 5eee4b345c3c, bytes 75c4e601e120
+MISMATCH tb/verilator/capture_coherence/mutants.py: declared 2ec38db213e9, bytes 1530873a9d6c
+MISMATCH tb/verilator/crf_rx/mutants.py: declared b4f52e0156e9, bytes 9fd469ced713
+MISMATCH tb/verilator/follow_ring/mutants.py: declared 06f821c10c67, bytes dbee99acde4f
+MISMATCH tb/verilator/follow_ring/sweep.py: declared 4aa4ed5b3e7a, bytes e4885a55206b
+MISMATCH tb/verilator/gptp_plane/phc_step.py: declared ae4e9f6457d1, bytes 9058e2ff64cb
+MISMATCH tb/verilator/gptp_txts/mutants.py: declared f3034fcca946, bytes e8506a929bb4
+MISMATCH tb/verilator/mbx/mutants.py: declared 6c36722baa33, bytes 8ab42517ce4f
+MISMATCH tb/verilator/milan_dp/dynmap_mutants.py: declared ddf16502767e, bytes fceb84d89aa3
+MISMATCH tb/verilator/milan_dp/gsi_mutants.py: declared f00e64c587a1, bytes d8e5556598e8
+MISMATCH tb/verilator/milan_dp/render_mutants.py: declared fa0c62d0f955, bytes 32b587d15c94
+MISMATCH tb/verilator/milan_dp/stream_counters.py: declared fa3629eaa903, bytes ad1ca08b26c1
+MISMATCH tb/verilator/milan_dp_gm_steps/gmstep_mutants.py: declared bdc5d03560cf, bytes 2156a273745e
+MISMATCH tb/verilator/milan_dp_mclk/mclk_mutants.py: declared d0ef22ea72e3, bytes b3c876271a3a
+MISMATCH tb/verilator/milan_dp_render/tdm8_render_mutants.py: declared f64a3496d20d, bytes 97cb3379ca82
+MISSING tb/verilator/render_setpoint/mutants.py
+scripts/docs_inventory.py: declared and matches
+scripts/ci_litex_legs.py: declared NO MATCH
+scripts/ci_gate_workflows_selftest.py: declared NO MATCH
+scripts/ci_scope_history.py: declared and matches
+scripts/run_litex_sims.sh: declared NO MATCH
+150 declared scripts, 37 mismatched or missing
+== 604899c0 (HEAD^1^2): python3 scripts/ci_tool_inventory.py --check
+REFUSED: changed declared script 'sw/builder/endstation_builder.py'
+rc=2
+-- declared script digests against the bytes:
+MISMATCH gptp-processor/scripts/check_source_evidence.py: declared b0033dea608f, bytes 70c17ebffdf0
+MISMATCH gptp-processor/scripts/generate_diagrams.py: declared 7ff6cc6ffb9b, bytes b9ea6b76e1e9
+MISMATCH scripts/act_ci.py: declared b8a786cec30b, bytes 3f91c996875b
+MISMATCH scripts/check_nvm_record_space.py: declared 1e59ce154bdf, bytes 8f6f8f6836e9
+MISMATCH scripts/ci_case_receipts_selftest.py: declared c0543fba6e86, bytes e09d198f1eb0
+MISMATCH scripts/ci_workflow_plan_selftest.py: declared 9efd257db3a9, bytes c1588fc317c9
+MISMATCH scripts/run_all_suites.sh: declared c4309d6e3fe7, bytes 0d763247cda4
+MISMATCH scripts/suite_shards.py: declared bebb10ede436, bytes 3ad09be9a4ab
+MISMATCH sw/builder/endstation_builder.py: declared 84878e539e61, bytes 025882ace1b5
+MISMATCH sw/builder/test_builder.py: declared e6c3c1097eab, bytes b64353c28652
+MISMATCH sw/litex/clock_constraints.py: declared c23112045cd9, bytes 8b1e3ab20fd8
+MISMATCH sw/litex/gen_mac_tx_model.py: declared 79e2cb95f9e0, bytes 32ef673e25e0
+MISMATCH sw/litex/milan_soc.py: declared 105961e57cc9, bytes 1d313865876e
+MISMATCH sw/mailbox/publication_census.py: declared ce29ced65442, bytes 3bd59fe6b17b
+MISMATCH syn/ooc/pp_placement_selftest.py: declared 425bfc9e1833, bytes 2a056c6049b5
+MISMATCH syn/ooc/pp_resource_gate_mutants.py: declared 71a4a2f221bc, bytes a6c1b4ee7444
+MISMATCH syn/ooc/pp_resource_gate_selftest.py: declared 9e0ddcd0d9ec, bytes c7e6082f9910
+MISMATCH syn/yosys/run.sh: declared dafe8ae92a1f, bytes 60770688714e
+MISMATCH tb/verilator/aaf/start_mutants.py: declared 40053deeb483, bytes e28003b95b75
+MISMATCH tb/verilator/avtp_rxmon/lockstep_mutants.py: declared 5eee4b345c3c, bytes 75c4e601e120
+MISMATCH tb/verilator/capture_coherence/mutants.py: declared 2ec38db213e9, bytes 1530873a9d6c
+MISMATCH tb/verilator/crf_rx/mutants.py: declared b4f52e0156e9, bytes 9fd469ced713
+MISMATCH tb/verilator/follow_ring/mutants.py: declared 06f821c10c67, bytes dbee99acde4f
+MISMATCH tb/verilator/follow_ring/sweep.py: declared 4aa4ed5b3e7a, bytes e4885a55206b
+MISMATCH tb/verilator/gptp_plane/phc_step.py: declared ae4e9f6457d1, bytes 9058e2ff64cb
+MISMATCH tb/verilator/gptp_txts/mutants.py: declared f3034fcca946, bytes e8506a929bb4
+MISMATCH tb/verilator/mbx/mutants.py: declared 6c36722baa33, bytes 8ab42517ce4f
+MISMATCH tb/verilator/milan_dp/dynmap_mutants.py: declared ddf16502767e, bytes fceb84d89aa3
+MISMATCH tb/verilator/milan_dp/gsi_mutants.py: declared f00e64c587a1, bytes d8e5556598e8
+MISMATCH tb/verilator/milan_dp/render_mutants.py: declared fa0c62d0f955, bytes 32b587d15c94
+MISMATCH tb/verilator/milan_dp/stream_counters.py: declared fa3629eaa903, bytes ad1ca08b26c1
+MISMATCH tb/verilator/milan_dp_gm_steps/gmstep_mutants.py: declared bdc5d03560cf, bytes 2156a273745e
+MISMATCH tb/verilator/milan_dp_mclk/mclk_mutants.py: declared d0ef22ea72e3, bytes b3c876271a3a
+MISMATCH tb/verilator/milan_dp_render/tdm8_render_mutants.py: declared f64a3496d20d, bytes 97cb3379ca82
+MISSING tb/verilator/render_setpoint/mutants.py
+scripts/docs_inventory.py: declared NO MATCH
+scripts/ci_litex_legs.py: declared and matches
+scripts/ci_gate_workflows_selftest.py: declared and matches
+scripts/ci_scope_history.py: declared and matches
+scripts/run_litex_sims.sh: declared and matches
+150 declared scripts, 35 mismatched or missing
+== e61a4afa (e61a4afaa54a598ceec08b7b5879285256cc60b6): python3 scripts/ci_tool_inventory.py --check
+REFUSED: changed declared script 'sw/builder/endstation_builder.py'
+rc=2
+-- declared script digests against the bytes:
+MISMATCH gptp-processor/scripts/check_source_evidence.py: declared b0033dea608f, bytes 70c17ebffdf0
+MISMATCH gptp-processor/scripts/generate_diagrams.py: declared 7ff6cc6ffb9b, bytes b9ea6b76e1e9
+MISMATCH scripts/act_ci.py: declared b8a786cec30b, bytes 31261b7c2a0f
+MISMATCH scripts/check_nvm_record_space.py: declared 1e59ce154bdf, bytes 8f6f8f6836e9
+MISMATCH scripts/ci_case_receipts_selftest.py: declared c0543fba6e86, bytes e09d198f1eb0
+MISMATCH scripts/ci_gate_workflows_selftest.py: declared 7e399a455a6e, bytes 7b14a749f3cf
+MISMATCH scripts/ci_workflow_plan_selftest.py: declared 9efd257db3a9, bytes c1588fc317c9
+MISMATCH scripts/run_all_suites.sh: declared c4309d6e3fe7, bytes 0d763247cda4
+MISMATCH scripts/run_litex_sims.sh: declared 91299632461e, bytes e6f4d79ac313
+MISMATCH scripts/suite_shards.py: declared bebb10ede436, bytes 3ad09be9a4ab
+MISMATCH sw/builder/endstation_builder.py: declared 84878e539e61, bytes 025882ace1b5
+MISMATCH sw/builder/test_builder.py: declared e6c3c1097eab, bytes b64353c28652
+MISMATCH sw/litex/clock_constraints.py: declared c23112045cd9, bytes 8b1e3ab20fd8
+MISMATCH sw/litex/gen_mac_tx_model.py: declared 79e2cb95f9e0, bytes 32ef673e25e0
+MISMATCH sw/litex/milan_soc.py: declared 105961e57cc9, bytes 1d313865876e
+MISMATCH sw/mailbox/publication_census.py: declared ce29ced65442, bytes 3bd59fe6b17b
+MISMATCH syn/ooc/pp_placement_selftest.py: declared 425bfc9e1833, bytes 2a056c6049b5
+MISMATCH syn/ooc/pp_resource_gate_mutants.py: declared 71a4a2f221bc, bytes a6c1b4ee7444
+MISMATCH syn/ooc/pp_resource_gate_selftest.py: declared 9e0ddcd0d9ec, bytes c7e6082f9910
+MISMATCH syn/yosys/run.sh: declared dafe8ae92a1f, bytes 60770688714e
+MISMATCH tb/verilator/aaf/start_mutants.py: declared 40053deeb483, bytes e28003b95b75
+MISMATCH tb/verilator/avtp_rxmon/lockstep_mutants.py: declared 5eee4b345c3c, bytes 75c4e601e120
+MISMATCH tb/verilator/capture_coherence/mutants.py: declared 2ec38db213e9, bytes 1530873a9d6c
+MISMATCH tb/verilator/crf_rx/mutants.py: declared b4f52e0156e9, bytes 9fd469ced713
+MISMATCH tb/verilator/follow_ring/mutants.py: declared 06f821c10c67, bytes dbee99acde4f
+MISMATCH tb/verilator/follow_ring/sweep.py: declared 4aa4ed5b3e7a, bytes e4885a55206b
+MISMATCH tb/verilator/gptp_plane/phc_step.py: declared ae4e9f6457d1, bytes 9058e2ff64cb
+MISMATCH tb/verilator/gptp_txts/mutants.py: declared f3034fcca946, bytes e8506a929bb4
+MISMATCH tb/verilator/mbx/mutants.py: declared 6c36722baa33, bytes 8ab42517ce4f
+MISMATCH tb/verilator/milan_dp/dynmap_mutants.py: declared ddf16502767e, bytes fceb84d89aa3
+MISMATCH tb/verilator/milan_dp/gsi_mutants.py: declared f00e64c587a1, bytes d8e5556598e8
+MISMATCH tb/verilator/milan_dp/render_mutants.py: declared fa0c62d0f955, bytes 32b587d15c94
+MISMATCH tb/verilator/milan_dp/stream_counters.py: declared fa3629eaa903, bytes ad1ca08b26c1
+MISMATCH tb/verilator/milan_dp_gm_steps/gmstep_mutants.py: declared bdc5d03560cf, bytes 2156a273745e
+MISMATCH tb/verilator/milan_dp_mclk/mclk_mutants.py: declared d0ef22ea72e3, bytes b3c876271a3a
+MISMATCH tb/verilator/milan_dp_render/tdm8_render_mutants.py: declared f64a3496d20d, bytes 97cb3379ca82
+MISSING tb/verilator/render_setpoint/mutants.py
+scripts/docs_inventory.py: declared NO MATCH
+scripts/ci_litex_legs.py: declared NO MATCH
+scripts/ci_gate_workflows_selftest.py: declared NO MATCH
+scripts/ci_scope_history.py: declared and matches
+scripts/run_litex_sims.sh: declared NO MATCH
+149 declared scripts, 37 mismatched or missing
+== 430a077c: docs workflow inventory step walked through the command-table walker
+walked: ['scripts/docs_inventory.py']
+residue: []
+shapes: 9
+OK
+rc=0
+disposable copy only: sw/builder/endstation_builder.py 84878e539e61 -> 025882ace1b5
+== disposable copy, diff:
+ ci/image/command-table.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+== disposable copy: python3 scripts/ci_tool_inventory.py --check
+REFUSED: uncensused Python builtin 'exec' at sw/builder/endstation_builder.py
+rc=2
