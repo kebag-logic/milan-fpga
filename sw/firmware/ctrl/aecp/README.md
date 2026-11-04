@@ -197,7 +197,8 @@ tests at one and two interfaces, all five generated shapes and the reentry
 guard. [`aecp_mutants.py`](../test/aecp_mutants.py) names every test and requires
 each source defect to fail its named assertion in a completed run; it appends the
 descriptor index's and the event and registration lists' defects from
-[`aecp_index_mutants.py`](../test/aecp_index_mutants.py) (#665). It plants into
+[`aecp_index_mutants.py`](../test/aecp_index_mutants.py), and THE RETRY's from
+[`aecp_retry_mutants.py`](../test/aecp_retry_mutants.py) (#665). It plants into
 a copy of this tree and of the saved-state store beside it, so a store defect that
 reads an all-UNUSED map payload as erased is graded against the AECP owner's
 power-cycle test, which no store suite catches (#763). The full
