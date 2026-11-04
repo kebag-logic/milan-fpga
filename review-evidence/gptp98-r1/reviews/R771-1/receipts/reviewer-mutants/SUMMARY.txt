@@ -1,0 +1,19 @@
+eof_header_counts_as_cut: rc=1 473 checks: 471 PASS, 2 FAIL
+  FAIL #98 unknown TLVs after: event got 0000000000000000 exp 0000000000000002
+  FAIL #98 unknown TLVs after: no drop got 0000000000000011 exp 0000000000000010
+zero_len_after_info_refuses: rc=1 473 checks: 471 PASS, 2 FAIL
+  FAIL #98 unknown TLVs after: event got 0000000000000000 exp 0000000000000002
+  FAIL #98 unknown TLVs after: no drop got 0000000000000011 exp 0000000000000010
+w11_two_octets_late: rc=1 473 checks: 461 PASS, 12 FAIL
+  FAIL fu w11                   got f000000700000000 exp fffff00000070000
+  FAIL #98 plain fu: w11 as the plain case got f000000700000000 exp fffff00000070000
+  FAIL #98 unknown TLV first: w11 as the plain case got f000000700000000 exp fffff00000070000
+  FAIL #98 three unknown TLVs first: w11 as the plain case got f000000700000000 exp fffff00000070000
+  FAIL #98 unknown TLV first, padded: w11 as the plain case got f000000700000000 exp fffff00000070000
+  FAIL #98 second information TLV: w11 as the plain case got f000000700000000 exp fffff00000070000
+  FAIL #98 unknown TLVs after: w11 as the plain case got f000000700000000 exp fffff00000070000
+  FAIL #98 identifiers at octet 6: w11 as the plain case got f000000700000000 exp fffff00000070000
+  FAIL complete fu after the arms: w11 got f000000700000000 exp fffff00000070000
+  FAIL fu with a trailing TLV: w11 got f000000700000000 exp fffff00000070000
+  FAIL fu after a refused fu: every word is this frame's got 0000000000000006 exp 0000000000000007
+  FAIL fu after a refused pdresp: every word is this frame's got 0000000000000006 exp 0000000000000007

@@ -1,0 +1,7 @@
+python3 ../../../protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o ltn_rom.hex
+wrote ltn_rom.hex: 128 x 32 b, 112 F05.3 cells
+python3 ../../../protocol-processor/hdl/aecp/ucode/gen_ucode.py -o ucode.hex
+ucode.hex: 2048 words, 95 programs
+python3 ../../../gptp-processor/hdl/ucode/gen_gptp_ucode.py --clk-hz 2000000 --cease-ms 3000 -o gptp_ucode.hex
+gptp_ucode.hex: 1024 words, 1022 real (99.8%), mac 02A1B2C3D4E5
+legs: BTCA@729 BECOME@979 BECGATE@945 SELF@309 RFU@471 SYNCFU@336 SYNCTX@834 ANNTX@385 PDPOST@28 PDPAIR@634 PDEPOCH@249 SRTO@992 SRWATCH@58 FUTO@254 SERVO@0 SLEW@163 SVRATE@962 RESUME@1013 PDREQ@891 TXLOST@106 TXT1OK@1003 NOTEN@695

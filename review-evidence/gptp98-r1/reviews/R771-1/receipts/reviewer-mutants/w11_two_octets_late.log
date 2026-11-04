@@ -1,0 +1,38 @@
+FAIL fu w11                   got f000000700000000 exp fffff00000070000
+FAIL #98 plain fu: w11 as the plain case got f000000700000000 exp fffff00000070000
+FAIL #98 unknown TLV first: w11 as the plain case got f000000700000000 exp fffff00000070000
+FAIL #98 three unknown TLVs first: w11 as the plain case got f000000700000000 exp fffff00000070000
+FAIL #98 unknown TLV first, padded: w11 as the plain case got f000000700000000 exp fffff00000070000
+FAIL #98 second information TLV: w11 as the plain case got f000000700000000 exp fffff00000070000
+FAIL #98 unknown TLVs after: w11 as the plain case got f000000700000000 exp fffff00000070000
+FAIL #98 identifiers at octet 6: w11 as the plain case got f000000700000000 exp fffff00000070000
+FAIL complete fu after the arms: w11 got f000000700000000 exp fffff00000070000
+FAIL fu with a trailing TLV: w11 got f000000700000000 exp fffff00000070000
+INFO sync after a refused sync: it left 6 of its 6 words, 0 of them outside the sync words
+INFO sync after a refused pdresp: it left 8 of its 8 words, 2 of them outside the sync words
+  fu after a refused fu: w11 holds f006070600000000, not fffff00607060000
+FAIL fu after a refused fu: every word is this frame's got 0000000000000006 exp 0000000000000007
+INFO fu after a refused fu: it left 6 of its 7 words, 0 of them outside the fu words
+  fu after a refused pdresp: w11 holds f008070800000000, not fffff00807080000
+FAIL fu after a refused pdresp: every word is this frame's got 0000000000000006 exp 0000000000000007
+INFO fu after a refused pdresp: it left 8 of its 8 words, 2 of them outside the fu words
+INFO pdreq after a refused pdreq: it left 4 of its 4 words, 0 of them outside the pdreq words
+INFO pdreq after a refused sync: it left 6 of its 6 words, 2 of them outside the pdreq words
+INFO pdresp after a refused pdresp: it left 8 of its 8 words, 0 of them outside the pdresp words
+INFO pdresp after a refused fu: it left 6 of its 7 words, 0 of them outside the pdresp words
+INFO sync rx_err at byte 0 of 58: drops +1, events 0, writes before 0, on 0, after 0
+INFO sync rx_err at byte 29 of 58: drops +1, events 0, writes before 0, on 1, after 0
+INFO sync rx_err at byte 57 of 58: drops +1, events 0, writes before 5, on 1, after 0
+INFO fu rx_err at byte 0 of 90: drops +1, events 0, writes before 0, on 0, after 0
+INFO fu rx_err at byte 29 of 90: drops +1, events 0, writes before 0, on 1, after 0
+INFO fu rx_err at byte 89 of 90: drops +1, events 0, writes before 7, on 0, after 0
+INFO pdreq rx_err at byte 0 of 68: drops +1, events 0, writes before 0, on 0, after 0
+INFO pdreq rx_err at byte 29 of 68: drops +1, events 0, writes before 0, on 1, after 0
+INFO pdreq rx_err at byte 67 of 68: drops +1, events 0, writes before 4, on 0, after 0
+INFO pdresp rx_err at byte 0 of 68: drops +1, events 0, writes before 0, on 0, after 0
+INFO pdresp rx_err at byte 29 of 68: drops +1, events 0, writes before 0, on 1, after 0
+INFO pdresp rx_err at byte 67 of 68: drops +1, events 0, writes before 7, on 1, after 0
+INFO ann rx_err at byte 0 of 78: drops +1, events 0, writes before 0, on 0, after 0
+INFO ann rx_err at byte 29 of 78: drops +1, events 0, writes before 0, on 1, after 0
+INFO ann rx_err at byte 77 of 78: drops +1, events 0, writes before 6, on 1, after 0
+473 checks: 461 PASS, 12 FAIL
