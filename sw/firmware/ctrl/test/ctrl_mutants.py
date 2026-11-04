@@ -227,8 +227,11 @@ MUTANTS = (
     Mutant("tick-count-ignored", "loop/ctrl_loop.c", "for (uint32_t k = 0; k < count; ++k) {",
            "for (uint32_t k = 0; k < (count != 0u ? 1u : 0u); ++k) {",
            "port", "Loop.L4TickFanOut", "L4 every centisecond"),
-    Mutant("rx-pass-unbounded", "loop/ctrl_loop.c", "for (unsigned k = 0; k < CTRL_LOOP_RX_PER_PASS; ++k) {",
-           "for (unsigned k = 0; k < 64u; ++k) {", "port", "Loop.L2PerPassRxBound", "L2 a pass takes at most"),
+    # the receive loop's bound and THE TICK's cap inside it together: either alone still stops a pass at
+    # CTRL_LOOP_RX_PER_PASS records (#665)
+    Mutant("rx-pass-unbounded", "loop/ctrl_loop.c",
+           "for (unsigned k = 0; k < CTRL_LOOP_RX_PER_PASS; ++k) {\n\t\tif (k >= l->rx_cap) {\n\t\t\tbreak;\n\t\t}\n",
+           "for (unsigned k = 0; k < 64u; ++k) {\n", "port", "Loop.L2PerPassRxBound", "L2 a pass takes at most"),
     Mutant("poll-owes-nothing", "adp/adp_mbx.c", "\treturn owed;\n}", "\treturn false;\n}",
            "adp", "AdpOwed.E0toE3PendingWake",
            "E1 the loop does not sleep while a frame is owed"),
