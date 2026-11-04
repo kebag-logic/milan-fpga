@@ -633,11 +633,14 @@ MUTANTS: dict[str, Patches] = {
     'aged: a pass that took nothing before the window does not end the age': lambda: [patch.object(
         save_grade, 'empty_passes', lambda log, index, start: [])],
     "aged: a window opened at another age than its name declares is graded": lambda: [patch.object(
-        save_grade, 'aged_refusal', lambda name, age, got, empty, among, f=save_grade.aged_refusal: f(
-            name, age, age, empty, among))],
-    'aged: a window at the age limit with no aged step among its records is graded': lambda: [patch.object(
-        save_grade, 'aged_refusal', lambda name, age, got, empty, among, f=save_grade.aged_refusal: f(
-            name, age, got, empty, among or [dict(kind=k) for k in save_grade.AGED_KIND.values()]))],
+        save_grade, 'aged_refusal', lambda name, age, got, empty, inside, f=save_grade.aged_refusal: f(
+            name, age, age, empty, inside))],
+    'aged: a window at the limit that drains before its aged step is refused': lambda: [patch.object(
+        save_grade, 'aged_refusal', lambda name, age, got, empty, inside, f=save_grade.aged_refusal: f(
+            name, age, got, empty, [a for a in inside if a['among']]))],
+    'aged: a window at the age limit with no aged step in it is graded': lambda: [patch.object(
+        save_grade, 'aged_refusal', lambda name, age, got, empty, inside, f=save_grade.aged_refusal: f(
+            name, age, got, empty, inside or [dict(kind=k) for k in save_grade.AGED_KIND.values()]))],
     "aged: the program phase's aged step need not be a page's issue": lambda: [patch.dict(
         save_grade.AGED_KIND, program='read-back')],
     "aged: the heavier aged step's plant is judged as a budget control": lambda: [patch.object(

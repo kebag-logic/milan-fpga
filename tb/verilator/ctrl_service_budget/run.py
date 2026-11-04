@@ -165,14 +165,14 @@ def aged_table(results: list[dict]) -> list[str]:
     if not rows:
         return []
     lines = ['', "Aged windows, opened with THE STEP's age at its limit or one short of it (save_window.aged_window): "
-             "the aged steps among the window's records (start after the window opened, CPU time, the step) and the "
-             "window's tightest row:", '', "| Group | Age at opening | Aged steps among its records | Tightest row | "
-             "ms (budget) | Margin ms |", '|---|---:|---|---|---:|---:|']
+             "the aged steps among the window's records and after them (start after the window opened, CPU time, the "
+             "step) and the window's tightest row:", '', "| Group | Age at opening | Aged steps among its records | "
+             "After them | Tightest row | ms (budget) | Margin ms |", '|---|---:|---|---|---|---:|---:|']
     for a in rows:
-        steps = '; '.join(f"+{s['start_ms']:.3f} ms, {s['cycles']:,} ({s['ms']:.3f} ms), {s['kind']}"
-                          for s in a['among']) or 'none'
-        lines.append(f"| {a['group']} | {a['age']} | {steps} | `{a['row']}` | {a['ms']:.3f} ({a['budget_ms']:g}) | "
-                     f"{a['margin_ms']:.3f} |")
+        steps = ['; '.join(f"+{s['start_ms']:.3f} ms, {s['cycles']:,} ({s['ms']:.3f} ms), {s['kind']}"
+                           for s in a.get(key, [])) or 'none' for key in ('among', 'after')]
+        lines.append(f"| {a['group']} | {a['age']} | {steps[0]} | {steps[1]} | `{a['row']}` | {a['ms']:.3f} "
+                     f"({a['budget_ms']:g}) | {a['margin_ms']:.3f} |")
     least = min(rows, key=lambda a: a['margin_ms'])
     lines += ['', f"Least margin over the aged windows: {least['margin_ms']:.3f} ms, `{least['row']}` at "
               f"{least['ms']:.3f} ms."]

@@ -221,12 +221,20 @@ def aged_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
         """A TICK record of count centiseconds posted at cycle, its four EVW words."""
         return [f'EVW {cycle} {k} {v:08x}' for k, v in enumerate((save_grade.EV_TICK, count, 0, 0))]
 
-    def graded(name: str, ticks: list[tuple[int, int]], gap: bool = False, aged: str | None = 'read-back') -> object:
-        """The window [5000, 9000] after the step at 1000, its passes between them work passes but for gap's."""
+    adp = scenario.CH['adp']
+    tail = scenario.ch_word(adp, 'RX_TAIL')
+    words = grade.RX_HEADER_WORDS + (82 + 3) // 4
+
+    def graded(name: str, ticks: list[tuple[int, int]], gap: bool = False, aged: str | None = 'read-back',
+               drained: bool = False) -> object:
+        """The window [5000, 9000] after the step at 1000, its passes between them work passes but for gap's; with
+        drained, its one record released at 5600, before its aged step."""
+        record = [f'RXS 5050 0 82 -', 'RXE 5132', f'RXC 5136 {adp}'] if drained else []
+        release = f' 5600:{tail:x}:{words:x}' if drained else ''
         lines = ['STEPPASS 10 1000 500 80000 store=76000 aged=1', 'PASS 11 2000 1000 5000 instr=10 W 2100:1:0',
                  *([] if gap else ['PASS 12 3000 1500 5000 instr=10 W 3100:1:0']),
                  'PASS 13 4000 2000 5000 instr=10 W 4100:1:0', *(w for c, n in ticks for w in tick(c, n)),
-                 'MARK 5000 composed', 'PASS 14 5500 2750 5000 instr=10 W 5600:1:0']
+                 'MARK 5000 composed', *record, f'PASS 14 5500 2750 5000 instr=10 W 5600:1:0{release}']
         if aged:
             lines += ['STEPPASS 15 6000 3000 77000 store=76500 aged=1',
                       {'read-back': 'FLASHRD 6100 6200 ee0000 128', 'issue': 'FLASHOP 6100 2 ee0100 256'}[aged]]
@@ -241,15 +249,16 @@ def aged_checks(sys_hz: int, cpu_hz: int) -> list[Check]:
     cases = [graded(verify, two), graded(verify, [(3000, 1)]), graded(verify, [(3000, 2)]),
              graded(verify, two, gap=True), graded(verify, two, aged=None), graded(program, two),
              graded(program, two, aged='issue'), graded(short, [(3000, 1)], aged=None),
-             graded(verify, [(900, 1), *two])]
-    got = [None if c is None else (c['age'], [(a['start_ms'], a['kind']) for a in c['among']]) for c in cases]
+             graded(verify, [(900, 1), *two]), graded(verify, two, drained=True)]
+    got = [None if c is None else (c['age'], [(a['start_ms'], a['kind']) for a in c['among']],
+                                   [(a['start_ms'], a['kind']) for a in c['after']]) for c in cases]
     at = round(1000 / sys_hz * 1000, 3)
-    want = [(2, [(at, 'read-back')]), None, (2, [(at, 'read-back')]), None, None, None, (2, [(at, 'issue')]),
-            (1, []), (2, [(at, 'read-back')])]
+    want = [(2, [(at, 'read-back')], []), None, (2, [(at, 'read-back')], []), None, None, None,
+            (2, [(at, 'issue')], []), (1, [], []), (2, [(at, 'read-back')], []), (2, [], [(at, 'read-back')])]
     out = [("an aged window is graded only at the age its name declares, the centiseconds its TICK records carried "
             "since its last step, every pass between them a work pass, and, at the age limit, with an aged step "
-            "taking its phase's heavy step (a read-back, a page's issue) among its records; one short of it needs "
-            "none", got == want, str(got))]
+            "taking its phase's heavy step (a read-back, a page's issue) in it, among its records or, where it drains "
+            "before its next centisecond, after the last of them; one short of it needs none", got == want, str(got))]
     control = argparse.Namespace(cpu_regions='cover', mutation='store-step-aged-heavier', record_budget_findings=False,
                                  record_share_findings=False)
     groups = [scenario.Group('backlog-adp@verify-aged2-3'), scenario.Group('backlog')]

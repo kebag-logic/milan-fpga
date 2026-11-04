@@ -204,26 +204,27 @@ def empty_passes(log: grade.Log, index: int, start: int) -> list[int]:
     return [i for i in range(index + 1, running + 1) if i not in work]
 
 
-def aged_steps(grader: grade.Grader, start: int, until: int) -> list[dict]:
+def aged_steps(grader: grade.Grader, start: int, until: int, last_release: int) -> list[dict]:
     """The aged steps' passes (STEPPASS aged=1) that start in [start, until): each one's start after start, CPU time,
-    the store's own and its step (step_kind)."""
+    the store's own, its step (step_kind), and whether it came among the records, before the last release."""
     log = grader.log
     return [dict(start_ms=round(log.ms_of(s - start), 3), cycles=c, ms=round(grader.cpu_ms(c), 5), store=st,
-                 kind=step_kind(log, s, c)) for _, s, c, st, aged in log.stepped if aged and start <= s < until]
+                 kind=step_kind(log, s, c), among=s < last_release)
+            for _, s, c, st, aged in log.stepped if aged and start <= s < until]
 
 
-def aged_refusal(name: str, age: int, got: int, empty: list[int], among: list[dict]) -> str | None:
+def aged_refusal(name: str, age: int, got: int, empty: list[int], inside: list[dict]) -> str | None:
     """Why an aged window is refused, or None: it opened at another age than its name declares, a pass took nothing
-    between its last step and its opening, or, at the age limit, no aged step taking its phase's heavy step ran among
-    its records (AGED_KIND)."""
+    between its last step and its opening, or, at the age limit, no aged step taking its phase's heavy step ran in it
+    (AGED_KIND), which its next centisecond brings whether or not its records are all released by then."""
     phase = name.partition('@')[2].partition('-')[0]
     if empty:
         return (f"{len(empty)} pass(es) took nothing between its last step and its window, so the step's age "
                 "started again")
     if got != age:
         return f"the window opened with the step's age at {got} centiseconds, not {age}"
-    if age == save_window.step_age() and not any(a['kind'] == AGED_KIND[phase] for a in among):
-        return f"opened at the age limit, but no aged {AGED_KIND[phase]} ran among its records ({among})"
+    if age == save_window.step_age() and not any(a['kind'] == AGED_KIND[phase] for a in inside):
+        return f"opened at the age limit, but no aged {AGED_KIND[phase]} ran in it ({inside})"
     return None
 
 
@@ -232,8 +233,10 @@ def aged_window(grader: grade.Grader, group: scenario.Group, start: int, end: in
 
     The age is opening_age from the last pass that carried the store's step before the window, through passes that
     each took input (empty_passes: a pass that takes nothing ends the age, ctrl_loop.c). The aged steps among its
-    records start after it opened and before the last of its records is released (aged_steps). Refused for
-    aged_refusal's reasons; otherwise the age, the aged steps and the last release, after the window opened."""
+    records start after it opened and before the last of its records is released, those after it inside the window
+    until its end (aged_steps): a window that drains before its next centisecond takes its aged step after its
+    records. Refused for aged_refusal's reasons; otherwise the age, the aged steps among its records and after them,
+    and the last release, after the window opened."""
     age = save_window.aged_age(group.name)
     if age is None:
         return None
@@ -244,8 +247,9 @@ def aged_window(grader: grade.Grader, group: scenario.Group, start: int, end: in
     index, last = before[-1][:2]
     released = [r for ch in grade.CHANNEL for c, _, r in grade.releases(log, ch) if start <= c <= end and r]
     last_release = max(released, default=end)
-    among = aged_steps(grader, start, last_release)
-    refusal = aged_refusal(group.name, age, opening_age(log, last, start), empty_passes(log, index, start), among)
+    inside = aged_steps(grader, start, end + 1, last_release)
+    refusal = aged_refusal(group.name, age, opening_age(log, last, start), empty_passes(log, index, start), inside)
     if refusal:
         raise grade.Refusal(f'{group.name}: {refusal}')
-    return dict(age=age, last_step_sys=last, among=among, last_release_ms=round(log.ms_of(last_release - start), 3))
+    return dict(age=age, last_step_sys=last, among=[a for a in inside if a['among']],
+                after=[a for a in inside if not a['among']], last_release_ms=round(log.ms_of(last_release - start), 3))
