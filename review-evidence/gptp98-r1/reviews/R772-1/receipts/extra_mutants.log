@@ -1,0 +1,45 @@
+X1 a bad Follow_Up TLV header does not latch the refusal
+  harness: SURVIVED rc=0 473 checks: 473 PASS, 0 FAIL first: -
+  probe:   CAUGHT RESULT iters=100000 mismatches=1347
+X2 fu_found_r not cleared at start of frame
+  harness: CAUGHT rc=1 473 checks: 453 PASS, 20 FAIL first: FAIL #98 plain fu: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+  probe:   CAUGHT RESULT iters=100000 mismatches=31729
+X3 a zero-length header ending at messageLength counts as cut
+  harness: CAUGHT rc=1 473 checks: 471 PASS, 2 FAIL first: FAIL #98 unknown TLVs after: event got 0000000000000000 exp 0000000000000002
+  probe:   CAUGHT RESULT iters=100000 mismatches=1139
+X4 the last declared octet is not walked as a header byte
+  harness: CAUGHT rc=1 473 checks: 467 PASS, 6 FAIL first: FAIL #98 unknown TLVs after: event got 0000000000000000 exp 0000000000000002
+  probe:   CAUGHT RESULT iters=100000 mismatches=3391
+X5 a value ending exactly at messageLength is refused
+  harness: CAUGHT rc=1 473 checks: 430 PASS, 43 FAIL first: FAIL fu event                 got 0000000000000000 exp 0000000000000002
+  probe:   CAUGHT RESULT iters=100000 mismatches=19645
+X6 word 11 written for a type/length match without the OUI/subtype
+  harness: CAUGHT rc=1 473 checks: 470 PASS, 3 FAIL first: FAIL #98 no information TLV: no w11 write got 0000000000000001 exp 0000000000000000
+  probe:   SURVIVED RESULT iters=100000 mismatches=0
+X7 organizationSubType not compared
+  harness: CAUGHT rc=1 473 checks: 465 PASS, 8 FAIL first: FAIL #98 three unknown TLVs first: w11 as the plain case got 1111111122220000 exp fffff00000070000
+  probe:   CAUGHT RESULT iters=100000 mismatches=5661
+X8 organizationId not compared
+  harness: CAUGHT rc=1 473 checks: 469 PASS, 4 FAIL first: FAIL fu orgId 00-1B-19 drop: no event got 0000000000000001 exp 0000000000000000
+  probe:   CAUGHT RESULT iters=100000 mismatches=5738
+X9 the OUI match without the type/length qualification
+  harness: CAUGHT rc=1 473 checks: 469 PASS, 4 FAIL first: FAIL #98 identifiers at octet 6: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+  probe:   CAUGHT RESULT iters=100000 mismatches=10240
+X10 the walk starts one octet late
+  harness: CAUGHT rc=1 473 checks: 427 PASS, 46 FAIL first: FAIL fu event                 got 0000000000000000 exp 0000000000000002
+  probe:   CAUGHT RESULT iters=100000 mismatches=19645
+X11 the walk stops after the first TLV value
+  harness: CAUGHT rc=1 473 checks: 442 PASS, 31 FAIL first: FAIL #98 unknown TLV first: event got 0000000000000000 exp 0000000000000002
+  probe:   CAUGHT RESULT iters=100000 mismatches=17210
+X12 the gmTimeBaseIndicator offset one octet early
+  harness: CAUGHT rc=1 473 checks: 461 PASS, 12 FAIL first: FAIL fu w11                   got 01fffff000000000 exp fffff00000070000
+  probe:   CAUGHT RESULT iters=100000 mismatches=19645
+X13 a cut header after padding is not refused (padded branch lost)
+  harness: CAUGHT rc=1 473 checks: 467 PASS, 6 FAIL first: FAIL #98 header cut after 1 octet(s), padded: no event got 0000000000000001 exp 0000000000000000
+  probe:   CAUGHT RESULT iters=100000 mismatches=1979
+X14 the odd test reads lengthField bit 1
+  harness: CAUGHT rc=1 473 checks: 470 PASS, 3 FAIL first: FAIL #98 identifiers at octet 6: event got 0000000000000000 exp 0000000000000002
+  probe:   CAUGHT RESULT iters=100000 mismatches=9124
+X15 messageLength minimum for Follow_Up lowered to the header+body
+  harness: CAUGHT rc=1 473 checks: 471 PASS, 2 FAIL first: FAIL TLV-less fu drop: no bank write got 0000000000000006 exp 0000000000000000
+  probe:   SURVIVED RESULT iters=100000 mismatches=0

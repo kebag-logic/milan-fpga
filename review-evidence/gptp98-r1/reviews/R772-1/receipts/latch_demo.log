@@ -1,0 +1,9 @@
+== head
+A overrunning TLV ahead of the information TLV: messageLength 80, events 0, drops 1 -> refused (expected)
+B odd-length TLV ahead of the information TLV: messageLength 80, events 0, drops 1 -> refused (expected)
+== x1
+A overrunning TLV ahead of the information TLV: messageLength 80, events 1, drops 0 -> ACCEPTED (defect)
+B odd-length TLV ahead of the information TLV: messageLength 80, events 1, drops 0 -> ACCEPTED (defect)
+== base
+A overrunning TLV ahead of the information TLV: messageLength 80, events 0, drops 1 -> refused (expected)
+B odd-length TLV ahead of the information TLV: messageLength 80, events 0, drops 1 -> refused (expected)

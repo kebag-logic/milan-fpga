@@ -1,0 +1,99 @@
+# Extracted from the published evidence at kebag-logic/milan-fpga b5042b8ea466e47ce90255a33e01ca1eaaa27b5c review-evidence/gptp98-r1/author/receipts
+## ooc/base engine_util_hier.rpt
+| KL_gptp_engine     |             (top) |       4926 |       4436 |     490 |    0 | 3459 |      1 |      1 |          4 |
+|   u_parser         | KL_gptp_rx_parser |        927 |        927 |       0 |    0 |  302 |      0 |      0 |          0 |
+|   u_ucpu           |      KL_gptp_ucpu |       2860 |       2728 |     132 |    0 |  734 |      1 |      1 |          4 |
+| Design State : Synthesized
+## ooc/base engine_timing.rpt
+Setup :            0  Failing Endpoints,  Worst Slack        2.249ns,  Total Violation        0.000ns
+  Source:                 u_ucpu/uop_e_r_reg[rb][3]/C
+## area/base place_util_hier / place_util / timing
+| KL_gptp_engine     |             (top) |       4876 |       4390 |     486 |    0 | 3459 |      1 |      1 |          4 |
+|   u_parser         | KL_gptp_rx_parser |        912 |        912 |       0 |    0 |  302 |      0 |      0 |          0 |
+|   u_ucpu           |      KL_gptp_ucpu |       2840 |       2708 |     132 |    0 |  734 |      1 |      1 |          4 |
+| Design State : Fully Placed
+| Slice                                      | 1634 |     0 |          0 |     15850 | 10.31 |
+| Slice                                      | 1634 |     0 |          0 |     15850 | 10.31 |
+| Slice                                      | 1634 |     0 |          0 |     15850 | 10.31 |
+Setup :            0  Failing Endpoints,  Worst Slack        0.506ns,  Total Violation        0.000ns
+  Source:                 u_ucpu/uop_e_r_reg[fmt][0]/C
+61 Infos, 67 Warnings, 0 Critical Warnings and 0 Errors encountered.
+24 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+27 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+## ooc/head engine_util_hier.rpt
+| KL_gptp_engine     |             (top) |       4920 |       4430 |     490 |    0 | 3461 |      1 |      1 |          4 |
+|   u_parser         | KL_gptp_rx_parser |        921 |        921 |       0 |    0 |  304 |      0 |      0 |          0 |
+|   u_ucpu           |      KL_gptp_ucpu |       2860 |       2728 |     132 |    0 |  734 |      1 |      1 |          4 |
+| Design State : Synthesized
+## ooc/head engine_timing.rpt
+Setup :            0  Failing Endpoints,  Worst Slack        2.249ns,  Total Violation        0.000ns
+  Source:                 u_ucpu/uop_e_r_reg[rb][3]/C
+## area/head place_util_hier / place_util / timing
+| KL_gptp_engine     |             (top) |       4874 |       4388 |     486 |    0 | 3461 |      1 |      1 |          4 |
+|   u_parser         | KL_gptp_rx_parser |        907 |        907 |       0 |    0 |  304 |      0 |      0 |          0 |
+|   u_ucpu           |      KL_gptp_ucpu |       2845 |       2713 |     132 |    0 |  734 |      1 |      1 |          4 |
+| Design State : Fully Placed
+| Slice                                      | 1634 |     0 |          0 |     15850 | 10.31 |
+| Slice                                      | 1634 |     0 |          0 |     15850 | 10.31 |
+| Slice                                      | 1634 |     0 |          0 |     15850 | 10.31 |
+Setup :            0  Failing Endpoints,  Worst Slack        0.513ns,  Total Violation        0.000ns
+  Source:                 u_ucpu/uop_e_r_reg[rb][0]/C
+61 Infos, 67 Warnings, 0 Critical Warnings and 0 Errors encountered.
+24 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+35 Infos, 1 Warnings, 0 Critical Warnings and 0 Errors encountered.
+## parent gitlink lines (xvlog gate)
+  pinned at: protocol-processor@a9e84b66; gptp-processor@135afd04 - the superproject gitlink, which each checkout was required to BE before anything was enumerated
+  pinned at: protocol-processor@a9e84b66; gptp-processor@5b10675c - the superproject gitlink, which each checkout was required to BE before anything was enumerated
+## parent results (exit, seconds, command)
+parent-base-A head 604899c08ff1cd1830e1dd08b733109ef852400c base 604899c08ff1cd1830e1dd08b733109ef852400c
+   0 python3 scripts/check_cpp_idiom.py
+   0 python3 scripts/check_py_idiom.py
+   0 python3 scripts/xvlog_gate.py --check
+   0 python3 scripts/check_rtl_source_lists.py
+   0 python3 sw/builder/test_builder.py
+   0 make -C tb/verilator/gptp_shadow -j8
+   0 python3 scripts/check_port_contracts.py
+   0 python3 scripts/measure_naming.py --check
+   0 python3 scripts/measure_test_evidence.py --check
+   0 python3 scripts/docs_check.py
+   0 python3 scripts/lint_rtl.py --check
+   0 make -C tb/verilator/milan_dp gptp
+   0 make -C tb/verilator/milan_dp gptp-lat
+   0 make -C tb/verilator/milan_dp_gm_steps
+   0 make -C tb/verilator/gptp_plane
+   0 make -C tb/verilator/gptp_txts
+   0 make -C tb/verilator/gptp_tables
+   0 make -C tb/verilator/tsn_fuzz ptp
+   0 git status --porcelain
+parent-base-B head 604899c08ff1cd1830e1dd08b733109ef852400c base 604899c08ff1cd1830e1dd08b733109ef852400c
+   0 make -C tb/verilator/milan_dp_gptp
+   0 git status --porcelain
+parent-head-A head 09d163f9233dc45e2cd0982c3666baac1fc9a298 base 604899c08ff1cd1830e1dd08b733109ef852400c
+   0 python3 scripts/check_cpp_idiom.py
+   0 python3 scripts/check_py_idiom.py
+   0 python3 scripts/xvlog_gate.py --check
+   0 python3 scripts/check_rtl_source_lists.py
+   0 python3 sw/builder/test_builder.py
+   0 make -C tb/verilator/gptp_shadow -j8
+   0 python3 scripts/check_port_contracts.py
+   0 python3 scripts/measure_naming.py --check
+   0 python3 scripts/measure_test_evidence.py --check
+   0 python3 scripts/docs_check.py
+   0 python3 scripts/lint_rtl.py --check
+   0 make -C tb/verilator/milan_dp gptp
+   0 make -C tb/verilator/milan_dp gptp-lat
+   0 make -C tb/verilator/milan_dp_gm_steps
+   0 make -C tb/verilator/gptp_plane
+   0 make -C tb/verilator/gptp_txts
+   0 make -C tb/verilator/gptp_tables
+   0 make -C tb/verilator/tsn_fuzz ptp
+   0 git status --porcelain
+parent-head-B head 09d163f9233dc45e2cd0982c3666baac1fc9a298 base 604899c08ff1cd1830e1dd08b733109ef852400c
+   0 make -C tb/verilator/milan_dp_gptp
+   0 git status --porcelain
+## parent tallies (head-A)
+controls: 9   failures: 0
+210 checks: 210 PASS, 0 FAIL
+== gmstep: checks: 196   failures: 0 ==
+6 checks: 6 PASS, 0 FAIL
+== gPTP/802.1AS field campaign (tsn-gen driven) ==
