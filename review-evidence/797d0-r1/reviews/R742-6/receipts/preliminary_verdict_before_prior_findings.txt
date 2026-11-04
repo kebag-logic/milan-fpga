@@ -1,0 +1,9 @@
+Written before reading any prior public review finding on PR #815, after the independent pass over
+e8ec8d20..430a077c at exact head 430a077c0e9a5a42062103742a8f3f1b8bacc6b8.
+Preliminary: no finding of MINOR or above in the delta. Merge 626d367f is the mechanical merge of
+e8ec8d20 and dev 604899c0 (merge-tree tree 070213ea equals the recorded tree); the command table keeps
+every lane row and every #836 row; the regeneration commit is byte-identical to a fresh --write at the
+merge; line totals follow the two changed pages (+210, +8); D0-057 moved 1810 -> 1818 with its quote.
+One out-of-delta SUGGESTION: the no-Git walk of scripts/docs_inventory.py counts a gitignored
+scripts/__pycache__/ directory (probe receipt nogit_docs_inventory_walk.txt).
+Preliminary verdict: POSITIVE, pending the prior-findings reconciliation.

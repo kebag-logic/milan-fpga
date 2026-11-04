@@ -1,0 +1,14 @@
+== --check at merge 626d367f
+docs/DOCUMENTATION_AUDIT.md: STALE (6 lines differ); first difference at line 30:
+  committed: | current | 176 | 73,277 |
+  generated: | current | 176 | 73,487 |
+regenerate with: python3 scripts/docs_inventory.py --write
+rc=1
+== --write
+wrote docs/DOCUMENTATION_AUDIT.md
+rc=0
+== --check
+documentation inventory: OK (540 lines, docs/DOCUMENTATION_AUDIT.md is fresh)
+rc=0
+== compare with head blob
+BYTE-IDENTICAL to 430a077c blob
