@@ -29,12 +29,15 @@
 #define SRP_MBX_RX_MAX 2u
 #define SRP_MBX_RX_RECORD_MAX (2u + MBX_RX_HDR_WORDS + (MBX_CH_SRP_MAX_FRAME_BYTES + 3u) / 4u)
 // Each interface reads LINK, may snapshot RX_HEAD, and may check IRQ_STATUS
-// and NOW_MS for retained reception. The transmit loop builds and sends at
-// most SRP_MBX_POLL_FRAMES bounded frames a poll, over every participant of
-// every interface, and resumes at the next participant on the next poll: a
-// pass carries one lwSRP MRPDU build, never every participant's (#665, the
-// share in ctrl_loop.h; lwSRP's periodic transmission built all four at two
-// interfaces in one pass of 8.7 ms on the split core).
+// and NOW_MS for retained reception. A pass sends at most SRP_MBX_POLL_FRAMES
+// bounded frames: the poll's frame a build left owed, or THE TRANSMIT's call
+// after the polls (ctrl_loop.h), which builds and sends over every participant
+// of every interface and resumes at the next participant on the next call,
+// and builds none in a pass whose poll sent one. So a pass carries one lwSRP
+// MRPDU build, never every participant's (#665, the share in ctrl_loop.h;
+// lwSRP's periodic transmission built all four at two interfaces in one pass
+// of 8.7 ms on the split core); this term funds the poll and the call
+// together, which make no other access.
 #define SRP_MBX_POLL_FRAMES 1u
 #define SRP_MBX_TX_MAX (2u + MBX_TX_HDR_WORDS + (MBX_CH_SRP_MAX_FRAME_BYTES + 3u) / 4u)
 // Each interface may also publish: a reset's five writes (a poll that sees

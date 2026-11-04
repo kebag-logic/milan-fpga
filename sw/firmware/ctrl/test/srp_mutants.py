@@ -8,6 +8,7 @@ import fw_gtest
 from srp_arms import arm_srp
 import srp_pub_mutants
 import srp_reopen_mutants
+import srp_transmit_mutants
 def caught(test: str, needle: str, outcome: Outcome) -> bool:
     """Match the named FT failure and its complete GoogleTest diagnostic.
 
@@ -75,8 +76,8 @@ DEFECTS = (
     Defect(
         name='short-leave',
         test='LeaveAfterLeaveAllStopsAtOriginalFiveSecondDeadline',
-        old='i->msrp,0,20,500,1000',
-        new='i->msrp,0,20,400,1000',
+        old='i->msrp,0,SRP_JOIN_CS,500,1000',
+        new='i->msrp,0,SRP_JOIN_CS,400,1000',
         needle='Unexpected mock function call',
         path='srp/srp_mbx.c',
         suite='srp_mbx.cpp',
@@ -393,8 +394,8 @@ DEFECTS = (
     Defect(
         name='latency-leave-origin',
         test='SrpLatency.OriginalLeaveDeadlineSurvivesCoalescedBacklog',
-        old='i->msrp,0,20,500,1000',
-        new='i->msrp,0,20,400,1000',
+        old='i->msrp,0,SRP_JOIN_CS,500,1000',
+        new='i->msrp,0,SRP_JOIN_CS,400,1000',
         needle='Unexpected mock function call',
         suite='srp_latency.cpp',
     ),
@@ -426,8 +427,8 @@ DEFECTS = (
     Defect(
         name='walk-leave-shortened',
         test='SrpWalk.RunBLeaveAllLanesPreserveTheRedeclaredListener',
-        old='i->msrp,0,20,500,1000',
-        new='i->msrp,0,20,400,1000',
+        old='i->msrp,0,SRP_JOIN_CS,500,1000',
+        new='i->msrp,0,SRP_JOIN_CS,400,1000',
         needle='Unexpected mock function call',
         suite='srp_walk.cpp',
     ),
@@ -789,11 +790,11 @@ DEFECTS = (
            '(MBX_N_IF * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)',
            '((MBX_N_IF - 1u) * (4u + SRP_MBX_PUB_POLL_MAX) + SRP_MBX_POLL_FRAMES * SRP_MBX_TX_MAX)',
            'poll fixed term is funded independently', path='srp/srp_bounds.h', suite='srp_app.cpp'),
-    # #665: one MRPDU a poll, the next participant's on the next poll (srp_bounds.h, SRP_MBX_POLL_FRAMES).
+    # #665: one MRPDU a call of THE TRANSMIT's, the next participant's on the next (srp_bounds.h, SRP_MBX_POLL_FRAMES).
     Defect('srp-term-poll-frames-uncapped','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
            'attempt < 2u * MBX_N_IF && sent < SRP_MBX_POLL_FRAMES; ++attempt',
            'attempt < 2u * MBX_N_IF && sent < 2u * MBX_N_IF; ++attempt',
-           'one MRPDU a poll', suite='srp_app.cpp'),
+           'one MRPDU a call', suite='srp_app.cpp'),
     Defect('srp-term-send-cost','Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks',
            'SRP_MBX_TX_MAX (2u +',
            'SRP_MBX_TX_MAX (1u +',
@@ -919,11 +920,12 @@ DEFECTS = (
            '    i->stale = true;\n', '    uint32_t declared = 0;\n',
            "the adopted Domain's Talker declaration rewrote the registered Talker"),
     Defect('reclaim-forgotten-while-owed','ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame',
-           '            i->reclaim = m->owed_len != 0u;\n', '            i->reclaim = false;\n',
+           '        i->reclaim = i->owner->owed_len != 0u;\n', '        i->reclaim = false;\n',
            'a reclaim lwSRP refused for the held frame is owed after it'),
 )
 DEFECTS += srp_pub_mutants.defects(Defect)
 DEFECTS += srp_reopen_mutants.defects(Defect)
+DEFECTS += srp_transmit_mutants.defects(Defect)
 
 def campaign(root: Path, lwsrp: Path, jobs: int = 4, interfaces: int = 2) -> bool:
     """Run every mutation in a reusable isolated checkout; true means a failure."""

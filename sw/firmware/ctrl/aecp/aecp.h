@@ -22,7 +22,8 @@ extern "C" {
 // aecp_mbx sets it, a due retry is held by aecp_poll, which arms no timer for
 // it and reports it owed, and only aecp_retry tries it, which the event loop
 // calls in a pass that took no input and dispatched no centisecond, after an
-// aged step, or in a pass of its own once aecp_retry_aged reports the held
+// aged step or an aged build (THE TRANSMIT), or in a pass of its own once
+// aecp_retry_aged reports the held
 // retry CTRL_LOOP_RETRY_AGE_MS past its time. So once the port answers, the
 // notice of Milan v1.2 5.4.5.2 and Table 5.22 is built at its next retry,
 // within AECP_RETRY_MAX_MS, and committed to every recipient within

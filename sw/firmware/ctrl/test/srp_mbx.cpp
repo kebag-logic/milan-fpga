@@ -420,7 +420,10 @@ TEST_F(Srp, RefusedMailboxRetainsOwedFrameAndDefersInput) {
     std::vector<uint8_t> filler(60); wire_put_be(filler.data(),0x0180c200000eull,6);
     wire_put_be(filler.data()+12,0x22ea,2);
     while(mbx_tx_send(MBX_CH_SRP,0,filler.data(),filler.size())==MBX_STATUS_OK) {}
-    ctrl_loop_service(&loop); ASSERT_GT(adapter.owed_len,0u);
+    // THE TRANSMIT builds in the first pass that takes at most one event (ctrl_loop.h): at two interfaces the
+    // first pass takes both LINK records
+    for(unsigned n=0;n<4u && !adapter.owed_len;++n) ctrl_loop_service(&loop);
+    ASSERT_GT(adapter.owed_len,0u);
     EXPECT_FALSE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0));
     std::vector<uint8_t> owed(adapter.owed_frame,adapter.owed_frame+adapter.owed_len);
     auto ready=frame(3,identity(),0,2);
@@ -524,9 +527,14 @@ TEST_F(Srp, AttachmentFailureIsAtomicAndDetachesAfterLoopReset) {
     ctrl_loop_init(&loop); ctrl_loop_bind_rx(&loop,MBX_CH_SRP,[](void*,const mbx_frame*){},nullptr);
     EXPECT_FALSE(srp_mbx_attach(&adapter,&loop));
     ctrl_loop_init(&loop);
+    ASSERT_TRUE(ctrl_loop_set_transmit(&loop,[](void*){return false;},[](void*){return false;},nullptr));
+    EXPECT_FALSE(srp_mbx_attach(&adapter,&loop))<<"a loop whose THE TRANSMIT client is bound is refused";
+    EXPECT_EQ(loop.n_polls,0u);
+    ctrl_loop_init(&loop);
     ctrl_loop_add_tick(&loop,[](){}); ctrl_loop_add_poll(&loop,[](void*){return false;},nullptr);
     ASSERT_TRUE(srp_mbx_attach(&adapter,&loop)); srp_mbx_destroy(&adapter);
     EXPECT_EQ(loop.n_ticks,1u); EXPECT_EQ(loop.n_polls,1u);
+    EXPECT_EQ(loop.transmit,nullptr)<<"destroy detaches THE TRANSMIT's client";
     ASSERT_TRUE(srp_mbx_init(&adapter,&config)); ASSERT_TRUE(srp_mbx_attach(&adapter,&loop));
     ctrl_loop_init(&loop); ctrl_loop_add_tick(&loop,[](){}); ctrl_loop_add_poll(&loop,[](void*){return false;},nullptr);
     srp_mbx_destroy(&adapter); EXPECT_EQ(loop.n_ticks,1u); EXPECT_EQ(loop.n_polls,1u);
@@ -1454,6 +1462,142 @@ TEST_F(Srp, ReclaimWaitsWhileItsParticipantHoldsTheOwedFrame) {
     EXPECT_TRUE(adapter.ifs[waiting].reclaim)<<"a reclaim lwSRP refused for the held frame is owed after it";
     mbx_model_tx_pause(&model,false); settle();
     EXPECT_EQ(adapter.owed_len,0u); expect_held(adapter,"after the owed frame");
+}
+
+// A record SRP's receive takes and drops (shorter than an MRPDU header): the
+// pass that takes it took a record and changed no registration.
+std::vector<uint8_t> runt() {
+    std::vector<uint8_t> f(16);
+    wire_put_be(f.data(),0x0180c200000eull,6);
+    wire_put_be(f.data()+6,0x020304010203ull,6);
+    wire_put_be(f.data()+12,0x22ea,2);
+    return f;
+}
+
+// THE TRANSMIT (ctrl_loop.h, #665): the poll builds no MRPDU, the loop's call
+// to the build does, in a pass that took no record. A pass that takes a record
+// builds none of the MRPDUs a centisecond made owed, and holds them, reported
+// owed; the next pass that takes no record builds one, and the passes after it
+// one each until a call that sends nothing holds no build.
+TEST_F(Srp, TransmitWaitsForAPassThatTakesNoRecord) {
+    settle();
+    EXPECT_FALSE(adapter.tx_held)<<"a settled adapter holds no build";
+    // every participant now owes an MRPDU (Srp.PollTermsAreMeasuredSeparatelyThroughRealCallbacks)
+    for (unsigned n=0;n<20u;++n) loop.ticks[0]();
+    EXPECT_TRUE(adapter.tx_held)<<"a centisecond holds a build";
+    adapter.tx_age=0;   // a build just held
+    const auto f=runt();
+    ASSERT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
+    const uint32_t sent=adapter.transmitted;
+    const uint32_t rx=loop.stats.rx_records;
+    EXPECT_NE(ctrl_loop_service(&loop),0u);
+    ASSERT_EQ(loop.stats.rx_records,rx+1u);
+    EXPECT_EQ(adapter.transmitted,sent)<<"a pass that takes a record builds no MRPDU";
+    EXPECT_TRUE(adapter.tx_held)<<"and holds the build";
+    EXPECT_TRUE(loop.polls[0].fn(loop.polls[0].ctx))<<"a held build is reported owed";
+    EXPECT_NE(ctrl_loop_service(&loop),0u);
+    EXPECT_EQ(adapter.transmitted,sent+1u)<<"the next pass that takes no record builds one";
+    settle();
+    EXPECT_EQ(adapter.transmitted,sent+2u*MBX_N_IF)<<"and the passes after it one each, every participant's";
+    EXPECT_FALSE(adapter.tx_held)<<"a call that sends nothing holds no build";
+    EXPECT_EQ(loop.stats.transmit_aged_passes,0u)<<"no pass was given whole to the build";
+    // a received record holds a build too (a Listener of a stream the entity does not source changes nothing)
+    receive_before_poll(frame(3,{9,9,9,9,9,9,0,1},1,2));
+    EXPECT_TRUE(adapter.tx_held)<<"a received record holds a build";
+    // a binding holds no build itself: the walk that finds its declaration does, and an unbinding that withdraws a
+    // declaration does
+    settle();
+    msrp_stream_id sid{{2,1,2,3,4,5,6,7}}; uint8_t da[]={0x91,0xe0,0xf0,0,0,9};
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,&sid,da,2));
+    std::vector<uint8_t> talker(25); std::copy(sid.bytes,sid.bytes+8,talker.begin());
+    std::copy(da,da+6,talker.begin()+8); wire_put_be(talker.data()+14,2,2);
+    wire_put_be(talker.data()+16,224,2); wire_put_be(talker.data()+18,1,2); talker[20]=0x60;
+    offer(frame(1,talker,0)); advance(200);
+    ASSERT_FALSE(adapter.tx_held);
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,&sid,da,2));
+    EXPECT_FALSE(adapter.tx_held)<<"a binding holds no build itself";
+    static_cast<void>(loop.polls[0].fn(loop.polls[0].ctx));
+    EXPECT_TRUE(adapter.tx_held)<<"the walk that finds its declaration holds the build that declares it";
+    settle();
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,0,nullptr,nullptr,0));
+    adapter.tx_held=false;
+    ASSERT_NE(adapter.ifs[0].sinks[1].declared,0u);
+    ASSERT_TRUE(srp_mbx_bind(&adapter,0,1,nullptr,nullptr,0));
+    EXPECT_TRUE(adapter.tx_held)<<"an unbinding that withdraws a declaration holds the build that sends it";
+    settle();
+}
+
+// THE TRANSMIT's age (ctrl_loop.h, #665): under a record and a centisecond
+// before every pass, no pass takes no record; the build is held while the
+// centiseconds dispatched to SRP's tick count past CTRL_LOOP_TX_AGE, and the
+// pass after that is the build's alone: it sends one MRPDU and takes no
+// record, and the pass after it takes the record it held off. Two such passes
+// stand more than CTRL_LOOP_TX_AGE centiseconds apart.
+TEST_F(Srp, AHeldBuildTakesAPassOfItsOwnPastItsAge) {
+    settle();
+    for (unsigned n=0;n<20u;++n) loop.ticks[0]();
+    // lwSRP owes, and the build is not yet held: the next centisecond holds it
+    adapter.tx_held=false; adapter.tx_age=0;
+    const auto f=runt();
+    const auto busy=[&](unsigned aged) {
+        unsigned passes=0;
+        while (loop.stats.transmit_aged_passes==aged && passes<16u) {
+            EXPECT_TRUE(mbx_model_rx(&model,f.data(),f.size(),0));
+            mbx_model_advance_ms(&model,MBX_TICK_MS);
+            const uint32_t rx=loop.stats.rx_records;
+            const uint32_t before=adapter.transmitted;
+            static_cast<void>(ctrl_loop_service(&loop));
+            ++passes;
+            if (loop.stats.transmit_aged_passes==aged) {
+                EXPECT_EQ(adapter.transmitted,before)<<"a record before every pass holds the build off";
+                EXPECT_EQ(loop.stats.rx_records,rx+1u);
+            } else {
+                EXPECT_EQ(loop.stats.rx_records,rx)<<"the build's pass takes no record";
+                EXPECT_EQ(adapter.transmitted,before+1u)<<"and sends one MRPDU";
+            }
+        }
+        return passes;
+    };
+    EXPECT_EQ(busy(0u),CTRL_LOOP_TX_AGE+3u)
+        <<"the build's pass follows the one that dispatches the centisecond past its age, counted from its hold";
+    EXPECT_EQ(loop.stats.transmit_aged_passes,1u)
+        <<"a build held past CTRL_LOOP_TX_AGE centiseconds takes a pass of its own";
+    const uint32_t rx=loop.stats.rx_records;
+    static_cast<void>(ctrl_loop_service(&loop));
+    EXPECT_EQ(loop.stats.rx_records,rx+1u)<<"the next pass takes the record it held off";
+    EXPECT_EQ(busy(1u),CTRL_LOOP_TX_AGE+1u)<<"two builds' passes stand more than CTRL_LOOP_TX_AGE centiseconds apart";
+    settle();
+}
+
+// A frame a build left owed comes first (A3): while it is owed no held build
+// takes a pass of its own, and the pass whose poll sends it builds no other,
+// one frame a pass (SRP_MBX_POLL_FRAMES).
+TEST_F(Srp, AnOwedFrameComesBeforeTheBuild) {
+    settle();
+    for (unsigned n=0;n<20u;++n) loop.ticks[0]();
+    mbx_model_tx_pause(&model,true);
+    std::vector<uint8_t> filler(60); wire_put_be(filler.data(),0x0180c200000eull,6);
+    wire_put_be(filler.data()+12,0x22ea,2);
+    while(mbx_tx_send(MBX_CH_SRP,0,filler.data(),filler.size())==MBX_STATUS_OK) {}
+    adapter.tx_age=0;   // a build just held
+    for (unsigned n=0;n<8u && !adapter.owed_len;++n) ctrl_loop_service(&loop);
+    ASSERT_GT(adapter.owed_len,0u);
+    const uint32_t aged=loop.stats.transmit_aged_passes;
+    for (unsigned n=0;n<4u*(CTRL_LOOP_TX_AGE+2u);++n) {
+        mbx_model_advance_ms(&model,MBX_TICK_MS);
+        ctrl_loop_service(&loop);
+    }
+    ASSERT_GT(adapter.owed_len,0u);
+    EXPECT_GT(adapter.tx_age,CTRL_LOOP_TX_AGE)<<"the held build is past its age";
+    EXPECT_EQ(loop.stats.transmit_aged_passes,aged)<<"no held build takes a pass of its own while a frame is owed";
+    mbx_model_tx_pause(&model,false);
+    const uint32_t sent=adapter.transmitted;
+    EXPECT_NE(ctrl_loop_service(&loop),0u);
+    EXPECT_EQ(adapter.owed_len,0u);
+    EXPECT_EQ(adapter.transmitted,sent+1u)<<"the pass whose poll sends the owed frame builds no other";
+    EXPECT_NE(ctrl_loop_service(&loop),0u);
+    EXPECT_EQ(adapter.transmitted,sent+2u)<<"the next pass builds the next";
+    settle();
 }
 
 }

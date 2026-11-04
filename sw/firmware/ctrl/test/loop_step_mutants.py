@@ -44,11 +44,34 @@ RETRY_AGE_NOTE = ("\t// THE RETRY's age limit: a retry its client has held CTRL_
 INPUT = ("\tconst uint32_t ticks = l->stats.ticks;\n\tunsigned work = service_events(l);\n"
          "\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n\t\tif (l->rx[ch].fn != NULL) {\n"
          "\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n")
+#: THE TRANSMIT's pass, marked before the polls, and its call between the polls and THE RETRY (ctrl_loop.c).
+TX_PASS = ("\t// THE TRANSMIT's pass, which its client's poll reads: one that took no record, at most "
+           "CTRL_LOOP_TX_EVENTS\n\t// events and no centisecond\n"
+           "\tl->tx_pass = l->transmit != NULL && l->stats.rx_records == records &&\n"
+           "\t             l->stats.events - events <= CTRL_LOOP_TX_EVENTS && l->stats.ticks == ticks;\n")
+TRANSMIT_CALL = ("\t// THE TRANSMIT, only in its pass, after the polls and before THE RETRY and THE STEP, "
+                 "whose deadline counts its\n\t// time\n"
+                 "\tif (l->tx_pass) {\n\t\towed = l->transmit(l->transmit_ctx) || owed;\n"
+                 "\t\tl->stats.transmit_passes++;\n\t}\n")
+#: The owed output a pass starts its polls with.
+OWED = "\tbool owed = l->ticks_owed != 0u;\n"
+#: THE TRANSMIT's age limit: the pass given whole to an aged build, read after THE RETRY's (ctrl_loop.c).
+TRANSMIT_AGE = ("\tif (l->transmit != NULL && l->ordinary == l->stats.passes && l->transmit_aged(l->transmit_ctx)) "
+                "{\n\t\t(void)l->transmit(l->transmit_ctx);\n" + RETRY_AGED.replace("\t\t// THE RETRY after the "
+                "step: under input that leaves no pass empty, no other pass is free\n\t\t// of input\n", "") +
+                "\t\tl->stats.transmit_passes++;\n\t\tl->stats.transmit_aged_passes++;\n\t\tl->stats.passes++;\n"
+                "\t\treturn 1u;\n\t}\n")
+#: Its comment, which stands between THE RETRY's aged pass and it.
+TRANSMIT_AGE_NOTE = ("\t// THE TRANSMIT's age limit: a build its client has held more than CTRL_LOOP_TX_AGE "
+                     "centiseconds is this whole\n\t// pass, before any input, with THE RETRY after it, once the pass "
+                     "before was not given whole\n")
+#: The counts a pass reads as it starts, which decide THE TRANSMIT's pass.
+SNAPSHOT = "\tconst uint32_t events = l->stats.events;\n\tconst uint32_t records = l->stats.rx_records;\n"
 
 
 def mutants(kind: Callable[..., T]) -> tuple[T, ...]:
-    """Every defect of the step and of THE RETRY, built with ctrl_mutant.Mutant."""
-    return (*step_mutants(kind), *retry_mutants(kind))
+    """Every defect of the step, of THE RETRY and of THE TRANSMIT, built with ctrl_mutant.Mutant."""
+    return (*step_mutants(kind), *retry_mutants(kind), *transmit_mutants(kind), *tick_mutants(kind))
 
 
 def step_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
@@ -61,8 +84,8 @@ def step_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
              "port", "LoopBring.L10StepBindingRefusals", "L10 a step with no function is refused"),
         kind("step-binds-no-clock", "loop/ctrl_loop.c", "|| fn == NULL || clock == NULL) {", "|| fn == NULL) {",
              "port", "LoopBring.L10StepBindingRefusals", "L10 a step with no clock is refused"),
-        kind("step-before-the-polls", "loop/ctrl_loop.c", STEP_POLLS + RETRY_CALL + STEP_CALL,
-             STEP_CALL + STEP_POLLS + RETRY_CALL,
+        kind("step-before-the-polls", "loop/ctrl_loop.c", STEP_POLLS + TRANSMIT_CALL + RETRY_CALL + STEP_CALL,
+             STEP_CALL + STEP_POLLS + TRANSMIT_CALL + RETRY_CALL,
              "port", "Loop.L11StepLastWithTheDeadlineReadAtTheStart", "L11 after every poll"),
         kind("step-deadline-read-at-the-end", "loop/ctrl_loop.c", "bool waits = l->step(l->step_ctx, deadline);",
              "bool waits = l->step(l->step_ctx, deadline - deadline + l->clock(l->clock_ctx) + CTRL_LOOP_SHARE_US);",
@@ -138,7 +161,8 @@ def retry_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("retry-in-every-pass", "loop/ctrl_loop.c", "l->retry != NULL && work == 0u && l->stats.ticks == ticks",
              "l->retry != NULL && l->stats.ticks + work >= ticks", "port",
              "Loop.L16TheRetryOnlyInAPassThatTakesNothing", "L16 a pass that takes a record does not call the retry"),
-        kind("retry-before-the-polls", "loop/ctrl_loop.c", STEP_POLLS + RETRY_CALL, RETRY_CALL + STEP_POLLS,
+        kind("retry-before-the-polls", "loop/ctrl_loop.c", STEP_POLLS + TRANSMIT_CALL + RETRY_CALL,
+             RETRY_CALL + STEP_POLLS + TRANSMIT_CALL,
              "port", "Loop.L16TheRetryOnlyInAPassThatTakesNothing", "L16 after its polls"),
         kind("retry-after-the-step", "loop/ctrl_loop.c", RETRY_CALL + STEP_CALL, STEP_CALL + RETRY_CALL,
              "port", "Loop.L16TheRetryOnlyInAPassThatTakesNothing", "L16 and before THE STEP"),
@@ -172,7 +196,107 @@ def retry_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
         kind("retry-age-before-the-step-age", "loop/ctrl_loop.c", STEP_AGED + RETRY_AGE_NOTE + RETRY_AGE,
              RETRY_AGE_NOTE + RETRY_AGE + STEP_AGED, "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn",
              "L17 an aged step's pass, read first, takes the round after the step"),
-        kind("retry-age-read-after-the-input", "loop/ctrl_loop.c", RETRY_AGE_NOTE + RETRY_AGE + INPUT,
-             INPUT + RETRY_AGE, "port", "Loop.L17AnAgedRetryIsAPassOfItsOwn",
+        kind("retry-age-read-after-the-input", "loop/ctrl_loop.c",
+             RETRY_AGE_NOTE + RETRY_AGE + TRANSMIT_AGE_NOTE + TRANSMIT_AGE + SNAPSHOT + INPUT,
+             TRANSMIT_AGE_NOTE + TRANSMIT_AGE + SNAPSHOT + INPUT + RETRY_AGE, "port",
+             "Loop.L17AnAgedRetryIsAPassOfItsOwn",
              "L17 the age is read once as the pass starts, before it takes any input"),
+    )
+
+
+def transmit_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
+    """THE TRANSMIT's defects."""
+    bind = "if (l->transmit != NULL || fn == NULL || aged == NULL) {"
+    cond = "l->stats.events - events <= CTRL_LOOP_TX_EVENTS && l->stats.ticks == ticks;"
+    aged = "l->transmit != NULL && l->ordinary == l->stats.passes && l->transmit_aged(l->transmit_ctx)"
+    port, l18, l19, l20 = ("port", "LoopBring.L18TransmitBindingRefusals",
+                           "Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord", "Loop.L20AnAgedTransmitIsAPassOfItsOwn")
+    return (
+        # THE TRANSMIT (#665): bound once, called only in a pass that took no record, at most CTRL_LOOP_TX_EVENTS
+        # events and no centisecond, after its polls and before THE RETRY and THE STEP
+        kind("transmit-binds-twice", "loop/ctrl_loop.c", bind, "if (fn == NULL || aged == NULL) {", port, l18,
+             "L18 a second transmit client is refused"),
+        kind("transmit-binds-no-function", "loop/ctrl_loop.c", bind, "if (l->transmit != NULL || aged == NULL) {",
+             port, l18, "L18 a transmit client with no function is refused"),
+        kind("transmit-binds-no-age", "loop/ctrl_loop.c", bind, "if (l->transmit != NULL || fn == NULL) {", port, l18,
+             "L18 a transmit client with no age is refused"),
+        kind("transmit-beside-records", "loop/ctrl_loop.c",
+             "l->transmit != NULL && l->stats.rx_records == records &&\n",
+             "l->transmit != NULL && l->stats.rx_records >= records &&\n", port, l19,
+             "L19 a pass that takes a record does not call the transmit"),
+        kind("transmit-beside-a-backlog", "loop/ctrl_loop.c", cond,
+             cond.replace("<= CTRL_LOOP_TX_EVENTS", "<= CTRL_LOOP_EVENTS_PER_PASS"), port, l19,
+             "L19 nor one that takes more than CTRL_LOOP_TX_EVENTS events"),
+        kind("transmit-without-an-event", "loop/ctrl_loop.c", cond,
+             cond.replace("<= CTRL_LOOP_TX_EVENTS", "< CTRL_LOOP_TX_EVENTS"), port, l19,
+             "L19 a pass that takes one event and no record calls it"),
+        kind("transmit-beside-a-centisecond", "loop/ctrl_loop.c", cond, cond.replace("== ticks;", ">= ticks;"),
+             port, l19, "L19 nor one that dispatches a centisecond, though it takes no input"),
+        kind("transmit-pass-marked-after-the-polls", "loop/ctrl_loop.c", TX_PASS + OWED + STEP_POLLS,
+             OWED + STEP_POLLS + TX_PASS, port, l19, "L19 its polls read the pass as THE TRANSMIT's"),
+        kind("transmit-before-the-polls", "loop/ctrl_loop.c", STEP_POLLS + TRANSMIT_CALL, TRANSMIT_CALL + STEP_POLLS,
+             port, l19, "L19 after its polls"),
+        kind("transmit-after-the-retry", "loop/ctrl_loop.c", TRANSMIT_CALL + RETRY_CALL, RETRY_CALL + TRANSMIT_CALL,
+             port, l19, "L19 before THE RETRY and THE STEP"),
+        kind("transmit-owed-lets-it-sleep", "loop/ctrl_loop.c", "\t\towed = l->transmit(l->transmit_ctx) || owed;\n",
+             "\t\t(void)l->transmit(l->transmit_ctx);\n", port, l19,
+             "L19 a transmit still owed asks for the next pass at once"),
+        kind("transmit-pass-uncounted", "loop/ctrl_loop.c", TRANSMIT_CALL,
+             TRANSMIT_CALL.replace("\t\tl->stats.transmit_passes++;\n", ""), port, l19,
+             "L19 the pass is counted as one that called the transmit"),
+        kind("transmit-in-the-aged-steps-pass", "loop/ctrl_loop.c", "\t\t(void)l->step(l->step_ctx, deadline);\n",
+             "\t\t(void)l->step(l->step_ctx, deadline);\n\t\tif (l->transmit != NULL) {\n"
+             "\t\t\t(void)l->transmit(l->transmit_ctx);\n\t\t}\n", port, l19,
+             "L19 the pass given whole to an aged step does not call it"),
+        # THE TRANSMIT's age limit (#665): a build held more than CTRL_LOOP_TX_AGE centiseconds is a pass of its own,
+        # after one not given whole
+        kind("transmit-age-ignored", "loop/ctrl_loop.c", aged, aged.replace("l->transmit_aged(l->transmit_ctx)",
+             "l->transmit_aged == NULL"), port, l20,
+             "L20 the next pass calls the transmit though input waits, then THE RETRY"),
+        kind("transmit-aged-pass-takes-input", "loop/ctrl_loop.c", TRANSMIT_AGE,
+             TRANSMIT_AGE.replace("\t\treturn 1u;\n", ""), port, l20,
+             "L20 and takes nothing else: no event, no record, no poll, no centisecond"),
+        kind("transmit-aged-pass-sleeps", "loop/ctrl_loop.c", TRANSMIT_AGE,
+             TRANSMIT_AGE.replace("return 1u;", "return 0u;"), port, l20,
+             "L20 the aged transmit's pass asks for the next pass at once"),
+        kind("transmit-aged-pass-uncounted", "loop/ctrl_loop.c", "\t\tl->stats.transmit_aged_passes++;\n", "",
+             port, l20, "L20 the pass is counted as an aged transmit's"),
+        kind("transmit-aged-pass-not-a-transmit-pass", "loop/ctrl_loop.c", TRANSMIT_AGE,
+             TRANSMIT_AGE.replace("\t\tl->stats.transmit_passes++;\n", ""), port, l20,
+             "L20 and as one that called the transmit"),
+        kind("transmit-aged-pass-without-the-retry", "loop/ctrl_loop.c", TRANSMIT_AGE,
+             TRANSMIT_AGE.replace(RETRY_AGED.replace("\t\t// THE RETRY after the step: under input that leaves no "
+                                                     "pass empty, no other pass is free\n\t\t// of input\n", ""), ""),
+             port, l20, "L20 the next pass calls the transmit though input waits, then THE RETRY"),
+        kind("transmit-aged-back-to-back", "loop/ctrl_loop.c", aged, aged.replace("l->ordinary == l->stats.passes && ",
+             ""), port, l20, "L20 without reading the age after a pass given whole"),
+        kind("transmit-ordinary-pass-unmarked", "loop/ctrl_loop.c", "\tl->ordinary = l->stats.passes;\n", "",
+             port, l20, "L20 the next pass calls the transmit though input waits, then THE RETRY"),
+        kind("transmit-age-before-the-retry-age", "loop/ctrl_loop.c",
+             RETRY_AGE_NOTE + RETRY_AGE + TRANSMIT_AGE_NOTE + TRANSMIT_AGE,
+             TRANSMIT_AGE_NOTE + TRANSMIT_AGE + RETRY_AGE_NOTE + RETRY_AGE, port, l20,
+             "L20 an aged retry's pass, read first, takes its round alone"),
+        kind("transmit-age-before-the-step-age", "loop/ctrl_loop.c",
+             STEP_AGED + RETRY_AGE_NOTE + RETRY_AGE + TRANSMIT_AGE_NOTE + TRANSMIT_AGE,
+             TRANSMIT_AGE_NOTE + TRANSMIT_AGE + STEP_AGED + RETRY_AGE_NOTE + RETRY_AGE, port, l20,
+             "L20 an aged step's pass, read first, takes no build"),
+        kind("transmit-age-read-after-the-input", "loop/ctrl_loop.c",
+             TRANSMIT_AGE_NOTE + TRANSMIT_AGE + SNAPSHOT + INPUT, SNAPSHOT + INPUT + TRANSMIT_AGE, port, l20,
+             "L20 the age is read once as the pass starts, before it takes any input"),
+    )
+
+
+def tick_mutants(kind: Callable[..., T]) -> tuple[T, ...]:
+    """THE TICK's cap's defects: a pass that dispatches a centisecond takes CTRL_LOOP_RX_PER_TICK_PASS records of a
+    channel (#665)."""
+    cap = "l->rx_cap = ticked != 0u ? CTRL_LOOP_RX_PER_TICK_PASS : CTRL_LOOP_RX_PER_PASS;"
+    l21 = "Loop.L21APassThatDispatchesACentisecondTakesOneRecordOfAChannel"
+    return (
+        kind("tick-pass-uncapped", "loop/ctrl_loop.c", cap, "l->rx_cap = CTRL_LOOP_RX_PER_PASS;", "port", l21,
+             "L21 a pass that dispatches a centisecond takes CTRL_LOOP_RX_PER_TICK_PASS records of a channel"),
+        kind("tick-cap-in-every-pass", "loop/ctrl_loop.c", cap, "l->rx_cap = CTRL_LOOP_RX_PER_TICK_PASS;", "port",
+             l21, "L21 the next pass, which dispatches none, takes CTRL_LOOP_RX_PER_PASS"),
+        kind("tick-cap-ignored", "loop/ctrl_loop.c", "\t\tif (k >= l->rx_cap) {\n\t\t\tbreak;\n\t\t}\n", "",
+             "port", l21,
+             "L21 a pass that dispatches a centisecond takes CTRL_LOOP_RX_PER_TICK_PASS records of a channel"),
     )

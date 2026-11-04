@@ -122,11 +122,16 @@ TEST_F(Srp, EventReceiveAndTransmitPollFitTheirMeasuredBounds) {
     // Mature the real Applicant's transmit opportunity without polling it.
     for (unsigned n=0;n<20u;++n) loop.ticks[0]();
     const auto sent=adapter.transmitted;
-    // The poll's frame padded to the channel's maximum (srp_cost_probe.hpp), so
+    // The pass's frame padded to the channel's maximum (srp_cost_probe.hpp), so
     // the measurement holds the poll's whole transmit term (#665: one frame a
-    // poll fits inside the publication term otherwise).
+    // poll fits inside the publication term otherwise). THE TRANSMIT's call
+    // builds it after the poll in the same pass (ctrl_loop.h), so the term is
+    // the two together.
     srp_probe={&model,0,0,0,true};
-    const auto transmit_poll=cost([&]{loop.polls[0].fn(loop.polls[0].ctx);});
+    const auto transmit_poll=cost([&]{
+        loop.polls[0].fn(loop.polls[0].ctx);
+        loop.transmit(loop.transmit_ctx);
+    });
     const auto observed=srp_probe;
     srp_probe={};
     ASSERT_GT(adapter.transmitted,sent);
@@ -208,18 +213,24 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
               static_cast<int64_t>(SRP_MBX_POLL_MAX)-pub_term-SRP_MBX_POLL_FRAMES*SRP_MBX_TX_MAX)
         << "poll fixed term is funded independently";
     for (unsigned n=0;n<20u;++n) loop.ticks[0]();
-    // Every participant now owes a frame. Each poll sends SRP_MBX_POLL_FRAMES
-    // of them, and the next resumes at the next participant (#665, the share).
+    // Every participant now owes a frame. The poll sends none of them: THE
+    // TRANSMIT's call does, SRP_MBX_POLL_FRAMES of them, and the next resumes
+    // at the next participant (#665, the share; ctrl_loop.h).
+    srp_probe={&model,0,0,0,true};
+    EXPECT_EQ(poll(),idle) << "the poll builds no MRPDU";
+    EXPECT_EQ(srp_probe.sends,0u) << "the poll builds no MRPDU";
+    srp_probe={};
+    auto build=[&] { return srp_cost(model,[&]{loop.transmit(loop.transmit_ctx);}); };
     unsigned sends=0;
     uint64_t most=0;
     for (unsigned n=0;n<2u*MBX_N_IF;++n) {
         srp_probe={&model,0,0,0,true};
-        const auto transmitting=poll();
+        const auto transmitting=build();
         const auto observed=srp_probe;
         srp_probe={};
-        EXPECT_EQ(observed.sends,SRP_MBX_POLL_FRAMES) << "one MRPDU a poll, the next participant's on the next";
+        EXPECT_EQ(observed.sends,SRP_MBX_POLL_FRAMES) << "one MRPDU a call, the next participant's on the next";
         EXPECT_EQ(observed.sends,observed.calls) << "every call reached real send_pdu";
-        EXPECT_EQ(transmitting,idle+observed.accesses) << "transmitting poll adds only measured sends";
+        EXPECT_EQ(transmitting,observed.accesses) << "a build's call adds only measured sends";
         EXPECT_LE(static_cast<int64_t>(observed.sends),
                   (static_cast<int64_t>(SRP_MBX_POLL_MAX)-static_cast<int64_t>(fixed)-pub_term)/SRP_MBX_TX_MAX)
             << "poll transmit count is funded independently";
@@ -229,7 +240,7 @@ TEST_F(Srp, PollTermsAreMeasuredSeparatelyThroughRealCallbacks) {
     }
     EXPECT_EQ(sends,2u*MBX_N_IF) << "both participants on every interface are visited";
     srp_probe={&model,0,0,0,true};
-    (void)poll();
+    (void)build();
     EXPECT_EQ(srp_probe.sends,0u) << "and each sent once";
     srp_probe={};
     std::printf("  SRP poll terms: fixed %u, frames a poll %u, real send accesses %u, envelope %u/%u\n",
@@ -259,7 +270,9 @@ TEST_F(Srp, PollPublicationTermIsMeasuredThroughRealCallbacks) {
     const auto reset=withdraw+reopen;
     mbx_model_set_link(&model,0,true); settle();
     receive_before_poll(frame(4,{6,4,0,3},0));
-    const auto adoption=pub(poll);
+    // the adoption is a declaration, which THE TRANSMIT's call makes with its build after the pass's poll
+    // (ctrl_loop.h), so the pass's term is the two together
+    const auto adoption=pub([&] { poll(); loop.transmit(loop.transmit_ctx); });
     EXPECT_EQ(adoption,3u) << "a Domain adoption publishes SR_DOMAIN, IDLE_SLOPE and TALKER_DECL once each";
     settle(); advance(200);
     EXPECT_CALL(licence,Change(0,0,true));

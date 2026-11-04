@@ -86,6 +86,17 @@ bool ctrl_loop_set_retry(struct ctrl_loop *l, ctrl_retry_fn fn, ctrl_retry_aged_
 	return true;
 }
 
+bool ctrl_loop_set_transmit(struct ctrl_loop *l, ctrl_transmit_fn fn, ctrl_transmit_aged_fn aged, void *ctx)
+{
+	if (l->transmit != NULL || fn == NULL || aged == NULL) {
+		return false;
+	}
+	l->transmit = fn;
+	l->transmit_aged = aged;
+	l->transmit_ctx = ctx;
+	return true;
+}
+
 bool ctrl_loop_open(struct ctrl_loop *l, uint64_t entity_id, const uint64_t own_mac[MBX_N_IF])
 {
 	if (!mbx_open()) {
@@ -139,6 +150,8 @@ static unsigned service_events(struct ctrl_loop *l)
 		n++;
 	}
 	l->stats.events += n;
+	// THE TICK's cap: a pass that dispatched a centisecond takes CTRL_LOOP_RX_PER_TICK_PASS records of a channel
+	l->rx_cap = ticked != 0u ? CTRL_LOOP_RX_PER_TICK_PASS : CTRL_LOOP_RX_PER_PASS;
 	return n;
 }
 
@@ -146,6 +159,9 @@ static unsigned service_rx(struct ctrl_loop *l, unsigned ch)
 {
 	unsigned n = 0;
 	for (unsigned k = 0; k < CTRL_LOOP_RX_PER_PASS; ++k) {
+		if (k >= l->rx_cap) {
+			break;
+		}
 		if (l->rx[ch].ready != NULL && !l->rx[ch].ready(l->rx[ch].ctx)) {
 			break;
 		}
@@ -193,6 +209,21 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 		l->stats.retry_aged_passes++;
 		return 1u;
 	}
+	// THE TRANSMIT's age limit: a build its client has held more than CTRL_LOOP_TX_AGE centiseconds is this whole
+	// pass, before any input, with THE RETRY after it, once the pass before was not given whole
+	if (l->transmit != NULL && l->ordinary == l->stats.passes && l->transmit_aged(l->transmit_ctx)) {
+		(void)l->transmit(l->transmit_ctx);
+		if (l->retry != NULL) {
+			(void)l->retry(l->retry_ctx);
+			l->stats.retry_passes++;
+		}
+		l->stats.transmit_passes++;
+		l->stats.transmit_aged_passes++;
+		l->stats.passes++;
+		return 1u;
+	}
+	const uint32_t events = l->stats.events;
+	const uint32_t records = l->stats.rx_records;
 	const uint32_t ticks = l->stats.ticks;
 	unsigned work = service_events(l);
 	for (unsigned ch = 0; ch < MBX_N_CH; ++ch) {
@@ -200,9 +231,19 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 			work += service_rx(l, ch);
 		}
 	}
+	// THE TRANSMIT's pass, which its client's poll reads: one that took no record, at most CTRL_LOOP_TX_EVENTS
+	// events and no centisecond
+	l->tx_pass = l->transmit != NULL && l->stats.rx_records == records &&
+	             l->stats.events - events <= CTRL_LOOP_TX_EVENTS && l->stats.ticks == ticks;
 	bool owed = l->ticks_owed != 0u;
 	for (unsigned i = 0; i < l->n_polls; ++i) {
 		owed = l->polls[i].fn(l->polls[i].ctx) || owed;
+	}
+	// THE TRANSMIT, only in its pass, after the polls and before THE RETRY and THE STEP, whose deadline counts its
+	// time
+	if (l->tx_pass) {
+		owed = l->transmit(l->transmit_ctx) || owed;
+		l->stats.transmit_passes++;
 	}
 	// THE RETRY, only in a pass that took no input and dispatched no centisecond, before THE STEP, whose
 	// deadline counts its time
@@ -217,6 +258,7 @@ unsigned ctrl_loop_service(struct ctrl_loop *l)
 		owed = waits || owed;
 	}
 	l->stats.passes++;
+	l->ordinary = l->stats.passes;
 	if (owed) {
 		l->stats.owed_passes++;
 		work++;

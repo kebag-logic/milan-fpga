@@ -16,7 +16,11 @@
 # own, aecp scan, and stands where its code ran. THE RETRY's age limit asks
 # AECP's adapter as each pass starts, so its two functions, aecp_mbx
 # retry_aged and aecp aecp_retry_aged, stand after ctrl_loop_service, which
-# calls them before it takes any input. The traces' sha256:
+# calls them before it takes any input. THE TRANSMIT takes SRP's MRPDU build
+# out of srp_mbx poll into a function of its own, srp_mbx transmit, which
+# stands where its code ran, before mrp_mad mrp_transmit; its age, srp_mbx
+# transmit_aged, stands after THE RETRY's, as ctrl_loop_service reads it.
+# The traces' sha256:
 #   backlog      869b1aca4b0e1ecc5be8b30d3f5bebd9ba4c8a5b0829595697c618cfa494a753
 #   backlog-adp  d2c80da7ea69b4f97b1b65babc52c7f9f3822f12e4a0efeedc6de77e03cbb21a
 #
@@ -29,6 +33,7 @@ srp_mbx rx_order_ready
 ctrl_loop ctrl_loop_service
 aecp_mbx retry_aged
 aecp aecp_retry_aged
+srp_mbx transmit_aged
 mbx mbx_rx_take
 adp_mbx on_poll
 adp adp_poll
@@ -63,6 +68,7 @@ srp_mbx enter
 mbx mbx_link_up
 srp_mbx snapshot
 srp_mbx capture
+srp_mbx transmit
 mrp_mad mrp_transmit
 mrp_mad map_replay
 ctrl_app_srp deliver
