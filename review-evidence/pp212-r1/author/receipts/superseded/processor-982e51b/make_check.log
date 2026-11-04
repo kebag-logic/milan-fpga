@@ -1,0 +1,13 @@
+lint: 41 mermaid + 18 wavedrom blocks checked, OK
+
+[notice] A new release of pip is available: 26.2.1 -> 26.3
+[notice] To update, run: <gates>/head-982e51b/.venv-wavedrom/bin/python -m pip install --upgrade pip
+wavedrom: 18 blocks checked, OK
+links: 1292 checked, OK
+matrix: 115 REQ rows, 17 GAP findings, OK
+req-tags selftest: 29 cases, OK
+REQ TAG FAIL: NAME NOT AT CHECK tb/pp_top/sim_main.cpp:10561: "AS7: a rebind settled" is not in the check it stands above
+REQ TAG FAIL: NAME NOT AT CHECK tb/pp_top/sim_main.cpp:10662: "AS8: a re-bind onto a declared Talker Failed" is not in the check it stands above
+REQ TAG FAIL: NAME NOT AT CHECK tb/pp_top/sim_main.cpp:10735: "AS9: a Talker declared before the first settle" is not in the check it stands above
+req-tags: 115 REQ rows: 101 traced, 8 waived, 6 need no check; 266 tags in 20 files, 3 FAILURES
+make: *** [Makefile:47: reqtags] Error 1

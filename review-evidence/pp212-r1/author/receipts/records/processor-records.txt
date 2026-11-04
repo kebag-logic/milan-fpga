@@ -1,0 +1,149 @@
+# processor records (generated)
+origin: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+branch: 212-srp-presettle-talker
+base (main): a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645
+head: 0b5e988e141d7c4c9c179168b1d592dc0205a457
+head tree: c27600bd0eb09a51557469c8b00f70b763c273e3
+
+## commits base..head (subject; body length)
+350d97673cc697b1ab674e8eb1acf652725f30fe Register every Talker value on the port, start a settling sink's registrar from it, and send a re-bound sink's New in the walk that sends its parked Leave (issue #212)
+  body: none
+c5669bd88cf40583943eccb83007eb664432182c Grade the pre-settle registration in section PS and the one-walk re-bind in RB1/RB4/RB6/RB7, each with a planted arm that fails it by name (issue #212)
+  body: none
+913214a1bc6c0dd82da4b4e724204b17da05d607 Grade a re-bind onto a declared Talker Failed (AS8) and a Talker declared before the first settle (AS9) on the processor, and AS7's one-MRPDU re-bind (issue #212)
+  body: none
+0615f32b82e0988d814f04e04f5f8ae8b435eb10 Say in the listener banner that the walk sending a parked Leave also declares the settled stream (issue #212)
+  body: none
+71c011067af9df4f70360db3e21d63ae968aa054 Say in the SRP architecture, interfaces, ACMP table, compliance review and bench READMEs how a Talker registered before the settle is applied at it (issue #212)
+  body: none
+982e51bd0a0e8bbb6315af6109d416e28184ab4e Record the port Talker registrars' measured cost in the SRP storage section (issue #212)
+  body: none
+c8baee8fd74b66c0e67cce20e3ce9111146978c8 Put AS7's REQ tag on its check and name AS8's and AS9's tags as their checks read (issue #212)
+  body: none
+0b5e988e141d7c4c9c179168b1d592dc0205a457 Name WK12's push check for listener-park-never-retires' walk run, which now declares the third stream on the parked stream_id (issue #212)
+  body: none
+
+## diff stat base..head
+ docs/00_MILAN_COMPLIANCE_REVIEW.md                 |   2 +-
+ docs/architecture/02_interfaces.md                 |   3 +-
+ docs/architecture/05_acmp_engine.md                |   2 +-
+ docs/architecture/10_srp_engine.md                 | 102 +++-
+ hdl/srp/KL_srp_listener_fsm.sv                     | 294 +++++++++-
+ tb/pp_top/README.md                                |  32 +-
+ tb/pp_top/acmp_mutants.py                          |  27 +-
+ tb/pp_top/sim_main.cpp                             | 201 ++++++-
+ tb/srp_stream_fsms/README.md                       |  74 ++-
+ tb/srp_stream_fsms/sim_main.cpp                    | 648 ++++++++++++++++++++-
+ tb/srp_top/README.md                               |  54 +-
+ tb/srp_top/mutants.py                              |  30 +-
+ .../listener-retire-skips-group-mark.patch         |   4 +-
+ .../mutations/park-retire-declares-next-walk.patch |  11 +
+ .../mutations/park-retire-ignores-group.patch      |  11 +
+ .../mutations/park-retire-without-hold.patch       |  11 +
+ .../pt-allocation-overwrites-entry-0.patch         |  11 +
+ tb/srp_top/mutations/pt-leaveall-any-lane.patch    |  12 +
+ tb/srp_top/mutations/pt-leaveall-ignored.patch     |  13 +
+ .../mutations/pt-leavetimer-never-expires.patch    |  11 +
+ tb/srp_top/mutations/pt-match-ignores-da.patch     |  11 +
+ tb/srp_top/mutations/pt-never-holds.patch          |  11 +
+ tb/srp_top/mutations/pt-rlv-ignored.patch          |  11 +
+ tb/srp_top/mutations/pt-seed-dropped.patch         |  11 +
+ .../mutations/pt-vid-high-bits-ignored.patch       |  11 +
+ .../mutations/seed-drops-failure-information.patch |  13 +
+ tb/srp_top/mutations/seed-from-current-state.patch |  17 +
+ .../mutations/seed-keeps-expiry-strobe.patch       |  10 +
+ tb/srp_top/mutations/seed-lv-fresh-deadline.patch  |  11 +
+ tb/srp_top/mutations/seed-lv-unguarded.patch       |  10 +
+ .../mutations/seed-no-registered-strobe.patch      |  11 +
+ tb/srp_top/mutations/seed-type-advertise.patch     |  11 +
+ 32 files changed, 1602 insertions(+), 89 deletions(-)
+
+## top-level port/parameter lines changed in protocol_processor_top.sv (none expected)
+none: hdl/top/protocol_processor_top.sv is unchanged
+
+## files under hdl/ changed
+hdl/srp/KL_srp_listener_fsm.sv
+
+## the campaign head 913214a against this head: files changed
+ docs/00_MILAN_COMPLIANCE_REVIEW.md  |   2 +-
+ docs/architecture/02_interfaces.md  |   3 +-
+ docs/architecture/05_acmp_engine.md |   2 +-
+ docs/architecture/10_srp_engine.md  | 102 +++++++++++++++++++++++++++++++++---
+ hdl/srp/KL_srp_listener_fsm.sv      |   7 ++-
+ tb/pp_top/README.md                 |  32 +++++++++--
+ tb/pp_top/sim_main.cpp              |   6 +--
+ tb/srp_stream_fsms/README.md        |  74 +++++++++++++++++++++-----
+ tb/srp_top/README.md                |  54 +++++++++++++++++--
+ tb/srp_top/mutants.py               |   2 +-
+ 10 files changed, 246 insertions(+), 38 deletions(-)
+
+## hdl diff 913214a..head (comments only)
+diff --git a/hdl/srp/KL_srp_listener_fsm.sv b/hdl/srp/KL_srp_listener_fsm.sv
+index 5eb9079..291f855 100644
+--- a/hdl/srp/KL_srp_listener_fsm.sv
++++ b/hdl/srp/KL_srp_listener_fsm.sv
+@@ -85,8 +85,11 @@
+ //                new value's declaration request waits. Any other state
+ //                after Lv! is VO, AO or QO, which Table 10-3 note 11 lets
+ //                be discarded, and the new value starts in VO at once.
+-//                Nothing back-pressures ACMP; a new declaration that meets
+-//                an owed Lv goes out one T-MRP-JOIN after it.
++//                Nothing back-pressures ACMP. The two values are two
++//                applicants, each with its own tx!, so the walk that sends
++//                the owed Lv applies the waiting request's New! and sends
++//                the New on its second pass, unless another sink declares
++//                the new value or holds its applicant (issue #212).
+ //                Sinks settled on one stream_id share ONE declaring
+ //                applicant (802.1Q §10.7.7; the §35.2.6 NOTE: at most one
+ //                Listener declaration per StreamID per port; issue #193),
+
+## tb code diff 913214a..head outside READMEs
+diff --git a/tb/pp_top/sim_main.cpp b/tb/pp_top/sim_main.cpp
+index e7bf41f..77d9ad8 100644
+--- a/tb/pp_top/sim_main.cpp
++++ b/tb/pp_top/sim_main.cpp
+@@ -10558,9 +10558,9 @@ struct AcmpPathPhase {
+     auto f = h2.wait_frame(h2.q_msrp, 400, [](const std::vector<uint8_t>& fr) {
+       return has_listener_of(fr, SID_L, -1) || has_listener_of(fr, SID_L2, -1);
+     });
+-    REQ_TAG("REQ-ACMP-018", "DIR", "AS7: a rebind settled");
+     const bool old_lv = listener_is(f, SID_L, EV_LV, DECL_READY);
+     const bool new_new = listener_is(f, SID_L2, EV_NEW, DECL_READY);
++    REQ_TAG("REQ-ACMP-018", "DIR", "AS7: a rebind settled");
+     CHECK(ready && second && quiet && v.sid == SID_L2 && old_lv && new_new,
+           "AS7: a rebind settled %u ms after a T-MRP-JOIN, before the next: that "
+           "MRPDU carries the old stream's Lv and the new stream's New, both Ready "
+@@ -10659,7 +10659,7 @@ struct AcmpPathPhase {
+     const View v = view(LS);
+     auto g = get_rx_state(0x4842);
+     auto si = stream_info(0x4843);
+-    REQ_TAG("REQ-ACMP-022", "DIR", "AS8: a re-bind onto a declared Talker Failed");
++    REQ_TAG("REQ-ACMP-022", "DIR", "AS8: a re-bind onto a stream whose Talker Failed");
+     CHECK(before && settled && quiet && v.sid == SID_L && tk_reg() == 2
+           && registered_traced(n0, LS) == 1 && !g.empty()
+           && g == rx_state_settled(0x4842, 0x0002 | 0x0040) && si.size() == 94
+@@ -10732,7 +10732,7 @@ struct AcmpPathPhase {
+     });
+     const uint32_t dt = h2.now_ms() - ts;
+     h2.run_ms(20);
+-    REQ_TAG("REQ-ACMP-018", "DIR", "AS9: a Talker declared before the first settle");
++    REQ_TAG("REQ-ACMP-018", "DIR", "AS9: a Talker Advertise registered before the sink's first settle");
+     CHECK(boot && none && !b.empty() && !p.empty() && at_once,
+           "AS9: a Talker Advertise registered before the sink's first settle "
+           "registers at the settle, one TK_ATTR_REGISTERED{1} (boot %d, none "
+diff --git a/tb/srp_top/mutants.py b/tb/srp_top/mutants.py
+index 247b7be..86c9262 100644
+--- a/tb/srp_top/mutants.py
++++ b/tb/srp_top/mutants.py
+@@ -183,7 +183,7 @@ MUTANTS = [
+     ('listener-unrecorded-applicant-owes', 'srp_stream_fsms', 'suite', 'RB9:'),
+     # WK12's own counts and its precondition, at every shape
+     ('listener-rebind-abandons-leave', 'srp_stream_fsms', 'walk', 'WK12: the listener walk sends'),
+-    ('listener-park-never-retires', 'srp_stream_fsms', 'walk', 'WK12: the listener walk pushes'),
++    ('listener-park-never-retires', 'srp_stream_fsms', 'walk', 'WK12: push'),
+     ('listener-aa-tx-stays-aa', 'srp_stream_fsms', 'walk', 'WK12 precondition'),
+     # issue #184: the Domain re-join is sJ against the Domain Registrar
+     # (802.1Q-2018 10.7.6.3, Table 10-4; Milan v1.2 4.2.7.2.2)
+
+## working tree
+(clean if nothing above)

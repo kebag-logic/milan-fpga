@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "<parent>/syn/yosys/guard_selftest.py", line 112, in <module>
+    main()
+  File "<parent>/syn/yosys/guard_selftest.py", line 107, in main
+    count = controls(Path(directory))
+            ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<parent>/syn/yosys/guard_selftest.py", line 72, in controls
+    require((run.returncode == 0) == expected,
+  File "<parent>/syn/yosys/guard_selftest.py", line 20, in require
+    raise RuntimeError(message)
+RuntimeError: ooc.sh converted N_NAME_P=1:  ooc.sh: FATAL: no recorded content digest for ltn_rom.hex at protocol-processor pin 0b5e988e141d7c4c9c179168b1d592dc0205a457 in syn/yosys/rom_digests.tsv - a pin bump re-records with ./ooc.sh --record-rom-digests, and that diff is reviewed with the bump
+

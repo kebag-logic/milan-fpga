@@ -1,0 +1,65 @@
+# Index of `receipts/campaigns/gsi-913214a/camp-gsi-out`
+
+Generated from the files present (sha256 truncated to 16 hex).
+
+| File | Bytes | sha256 |
+|---|---|---|
+| `acmpsta-zero-build.log` | 19657 | `7323112b1b0dc052` |
+| `acmpsta-zero-run.log` | 8088 | `1926c156f50ea9b2` |
+| `bridge-gate-removed-build.log` | 19657 | `8563cb71a77c7bde` |
+| `coincidence-hold-removed-build.log` | 19657 | `c1b3a71981993b4b` |
+| `coincidence-hold-removed-run.log` | 413 | `d9d5f84e4ab39742` |
+| `command-started-change-dropped-build.log` | 19657 | `a3e883932932d8c4` |
+| `command-started-change-dropped-run.log` | 564 | `a749243ed2de8c68` |
+| `failure-bridge-zero-build.log` | 19657 | `6794dd3c28385f55` |
+| `failure-change-redeclares-build.log` | 19657 | `e203e63280c715f1` |
+| `failure-change-redeclares-run.log` | 218 | `78ee0005d593edf0` |
+| `failure-change-strobe-removed-build.log` | 19657 | `d76a29f8f3dec0ff` |
+| `failure-change-strobe-removed-run.log` | 273 | `eefc6108340c2150` |
+| `failure-code-zero-build.log` | 19657 | `3eb626cca01a9092` |
+| `golden-build.log` | 19657 | `2862ed3386699231` |
+| `golden-run.log` | 137 | `2fed910610d9b17a` |
+| `index-guard-removed-build.log` | 19657 | `d2e8d69386f8d9a8` |
+| `index-guard-removed-run.log` | 855 | `dbf3920963f358cb` |
+| `integrator-path-build.log` | 19657 | `55696f8380710638` |
+| `integrator-path-run.log` | 86043 | `69943a6a233b1f44` |
+| `latency-cmp-bit31-dropped-build.log` | 19657 | `850dde4806b10384` |
+| `latency-cmp-bit31-dropped-run.log` | 809 | `497b6293e4935a2b` |
+| `latency-cmp-high16-build.log` | 19657 | `0edde478916d0068` |
+| `latency-cmp-high16-run.log` | 10813 | `ebe12696f77a0bac` |
+| `latency-cmp-high2-build.log` | 19657 | `96ab3b8c1f1407fc` |
+| `latency-cmp-high2-run.log` | 20221 | `ed1ab5e815fb4dd7` |
+| `latency-cmp-low16-build.log` | 19657 | `738ca6cf567e90b5` |
+| `latency-cmp-low16-run.log` | 10893 | `72b244d44c503637` |
+| `latency-cmp-low31-build.log` | 19657 | `f94c3b088397264a` |
+| `latency-cmp-low31-run.log` | 809 | `497b6293e4935a2b` |
+| `latency-cmp-low8-build.log` | 19657 | `11e2468a392393fe` |
+| `latency-cmp-low8-run.log` | 16253 | `4b90b458ac845142` |
+| `latency-trigger-removed-build.log` | 19657 | `87a4fa18ed691919` |
+| `latency-trigger-removed-run.log` | 22113 | `f210ce616d3eb0c9` |
+| `missing-descriptor-leak-build.log` | 19657 | `0ebb82acaf49b0bc` |
+| `missing-descriptor-leak-run.log` | 1561 | `1f8e6d4cfe5ebb6b` |
+| `pbsta-zero-build.log` | 19657 | `18460a978f148257` |
+| `rebind-started-trigger-removed-build.log` | 19657 | `323fd2827285e587` |
+| `rebind-started-trigger-removed-run.log` | 323 | `c84ae283e04fb3d9` |
+| `restored-build.log` | 19657 | `a4812844d8fc0919` |
+| `restored-run.log` | 137 | `2fed910610d9b17a` |
+| `results.json` | 7341 | `469bf6ddc27908e3` |
+| `settled-gate-closed-build.log` | 19657 | `5f78f704a768d12d` |
+| `settled-gate-dmac-passed-build.log` | 19657 | `fe9db6db4bc68e81` |
+| `settled-gate-dmac-passed-run.log` | 36908 | `e468da3e22afa8ad` |
+| `settled-gate-flags-passed-build.log` | 19657 | `6ddf5460123b2505` |
+| `settled-gate-flags-passed-run.log` | 8741 | `9930147a68331991` |
+| `settled-gate-mask-overclears-build.log` | 19657 | `cf03b3915c98fe69` |
+| `settled-gate-mask-overclears-run.log` | 9148 | `fb96d844474c00c5` |
+| `settled-gate-removed-build.log` | 19657 | `6338ee283e3d91f9` |
+| `settled-gate-removed-run.log` | 42486 | `e3b8eee43239afca` |
+| `settled-gate-sid-passed-build.log` | 19657 | `3cbbec2fc8fc0432` |
+| `settled-gate-sid-passed-run.log` | 36878 | `ed015f663766dbca` |
+| `settled-means-bound-build.log` | 19657 | `ada6de7b4829e6ab` |
+| `settled-means-bound-run.log` | 33887 | `b1f0d955554a401f` |
+| `started-trigger-removed-build.log` | 19657 | `323e3dd91b436816` |
+| `started-trigger-removed-run.log` | 750 | `754c84df27c8bffc` |
+| `status-notification-zero-build.log` | 19657 | `d228bba5eef62baf` |
+| `status-notification-zero-run.log` | 20260 | `2e2c1ad2042de8d2` |
+| `wrong-sink-build.log` | 19657 | `a191a13d4beb8f6a` |

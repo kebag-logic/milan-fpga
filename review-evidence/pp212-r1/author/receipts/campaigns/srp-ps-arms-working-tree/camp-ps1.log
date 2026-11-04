@@ -1,0 +1,23 @@
+control srp_stream_fsms suite: rc=0 PASS
+pt-seed-dropped: rc=2 failures=22 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS2,PS3,PS4,PS5,PS7,PS8,PS9
+pt-seed-dropped: rc=2 failures=22 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS2,PS3,PS4,PS5,PS7,PS8,PS9
+pt-never-holds: rc=2 failures=22 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS2,PS3,PS4,PS5,PS7,PS8,PS9
+seed-no-registered-strobe: rc=2 failures=17 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS2,PS3,PS4,PS5,PS7,PS8,PS9
+seed-type-advertise: rc=2 failures=8 KILLED tags=PS11,PS2,PS3,PS4,PS5
+seed-drops-failure-information: rc=2 failures=5 KILLED tags=PS2,PS3,PS4,PS5
+park-retire-declares-next-walk: rc=2 failures=5 KILLED tags=PS4,RB1,RB4,RB6,RB7
+park-retire-declares-next-walk: rc=2 failures=5 KILLED tags=PS4,RB1,RB4,RB6,RB7
+pt-rlv-ignored: rc=2 failures=6 KILLED tags=PS11,PS6,RB2,SH14,SH15
+pt-leavetimer-never-expires: rc=2 failures=4 KILLED tags=PS7,PS9
+pt-leaveall-ignored: rc=2 failures=9 KILLED tags=PS15,PS7,PS8,PS9
+pt-leaveall-any-lane: rc=2 failures=1 KILLED tags=PS7
+seed-lv-fresh-deadline: rc=2 failures=2 KILLED tags=PS15,PS8
+seed-lv-unguarded: rc=2 failures=1 KILLED tags=PS15
+seed-from-current-state: rc=2 failures=2 KILLED tags=PS9
+pt-match-ignores-da: rc=2 failures=1 KILLED tags=PS10
+pt-vid-high-bits-ignored: rc=2 failures=1 KILLED tags=PS10
+pt-allocation-overwrites-entry-0: rc=2 failures=4 KILLED tags=L9,PS11,PS13,PS15
+park-retire-ignores-group: rc=2 failures=1 KILLED tags=PS13
+park-retire-without-hold: rc=2 failures=2 KILLED tags=PS14
+seed-keeps-expiry-strobe: rc=2 failures=1 KILLED tags=PS15
+22 checks: 22 PASS, 0 FAIL

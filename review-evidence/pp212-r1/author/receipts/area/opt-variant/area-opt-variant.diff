@@ -1,0 +1,73 @@
+--- hdl/srp/KL_srp_listener_fsm.sv	2026-11-04 17:50:03.000000000 +0100
++++ ../opt-tree/hdl/srp/KL_srp_listener_fsm.sv	2026-11-04 17:56:14.722876627 +0100
+@@ -619,7 +619,8 @@
+   logic [PT_N_C-1:0] pt_la_w;
+   logic [PT_N_C-1:0] pt_exp_w;    // leavetimer!
+   logic [PT_N_C-1:0][1:0]  pt_nreg_w;
+-  logic [PT_N_C-1:0][31:0] pt_ndl_w;
++  logic [PT_N_C-1:0]       pt_tolv_w;   // IN -> LV this clock
++  logic [31:0]             pt_ldl_w;    // the deadline a LeaveAll sets now
+   logic [PT_N_C-1:0][31:0] pt_age_w;
+   logic              pt_taken_w;
+ 
+@@ -658,10 +659,11 @@
+     end
+   end
+ 
++  assign pt_ldl_w = now_ms_i + LEAVE_MS_P;
+   always_comb begin : pt_next
+     for (int unsigned e = 0; e < PT_N_C; e++) begin
+       pt_nreg_w[e] = pt_reg_r[e];
+-      pt_ndl_w[e]  = pt_dl_r[e];
++      pt_tolv_w[e] = 1'b0;
+       if (pt_rega_w[e]) begin
+         pt_nreg_w[e] = R_IN_C;                  // New/JoinIn/JoinMt: IN
+       end else if (pt_exp_w[e]) begin
+@@ -670,7 +672,7 @@
+         if (pt_reg_r[e] == R_IN_C) pt_nreg_w[e] = R_MT_C;   // Δ13; LV: -x-
+       end else if (pt_la_w[e] && (pt_reg_r[e] == R_IN_C)) begin
+         pt_nreg_w[e] = R_LV_C;                  // rLA!/txLA!: start leavetimer
+-        pt_ndl_w[e]  = now_ms_i + LEAVE_MS_P;
++        pt_tolv_w[e] = 1'b1;
+       end
+     end
+   end
+@@ -700,7 +702,7 @@
+         seed_lat_w   = seed_lat_w   | pt_lat_r[e];
+         seed_fcode_w = seed_fcode_w | pt_fcode_r[e];
+         seed_fsys_w  = seed_fsys_w  | pt_fsys_r[e];
+-        seed_dl_w    = seed_dl_w    | pt_ndl_w[e];
++        seed_dl_w    = seed_dl_w    | (pt_tolv_w[e] ? pt_ldl_w : pt_dl_r[e]);
+       end
+     end
+     seed_v_w = ctl_valid_i && !evt_valid_i && ctl_settle_i
+@@ -1420,8 +1422,8 @@
+             reg_r[s]    <= seed_reg_w;
+             rtype_r[s]  <= seed_type_w;
+             lat_r[s]    <= seed_lat_w;
+-            fcode_r[s]  <= seed_fcode_w;
+-            fsysid_r[s] <= seed_fsys_w;
++            fcode_r[s]  <= seed_type_w ? seed_fcode_w : 8'd0;
++            fsysid_r[s] <= seed_type_w ? seed_fsys_w : 64'd0;
+             evt_tk_registered_o[s]   <= 1'b1;
+             evt_tk_unregistered_o[s] <= 1'b0;
+             evt_tk_latency_chg_o[s]  <= (seed_lat_w != 32'd0);
+@@ -1451,7 +1453,7 @@
+ 
+   always_ff @(posedge clk_i) begin : pt_data
+     for (int unsigned e = 0; e < PT_N_C; e++) begin
+-      pt_dl_r[e] <= pt_ndl_w[e];
++      if (pt_tolv_w[e]) pt_dl_r[e] <= pt_ldl_w;
+       if (pt_alloc_w[e]) begin
+         pt_sid_r[e] <= evt_stream_id_i;
+         pt_da_r[e]  <= evt_da_i;
+@@ -1463,9 +1465,6 @@
+         if (rx_is_failed_w) begin
+           pt_fcode_r[e] <= evt_failure_code_i;
+           pt_fsys_r[e]  <= evt_failure_system_id_i;
+-        end else if (pt_alloc_w[e]) begin
+-          pt_fcode_r[e] <= 8'd0;
+-          pt_fsys_r[e]  <= 64'd0;
+         end
+       end
+     end
