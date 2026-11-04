@@ -455,6 +455,12 @@ def as_built_faults(refusals: list) -> list:
     return [r for r in refusals if 'trapped' in r and re.search(rf'TRAP \d+ 0 ({causes}) ', r)]
 
 
+def held_srp_groups(misses: list[str]) -> set[str]:
+    """The groups whose longest held SRP record is over its bound, from the run's misses (a probe's name starts with
+    its group's)."""
+    return {m.partition(':')[0].partition('.')[0] for m in misses if '.held.srp.' in m.partition(':')[0]}
+
+
 def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list, shares: list = (),
             late: list = ()) -> int:
     """The run's exit status: a control must be caught by name; a measurement must be complete, its saves
@@ -503,6 +509,15 @@ def verdict(args: argparse.Namespace, groups: list, refusals: list, misses: list
         caught = named == want and not refusals
         print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} of {len(want)} group(s) '
               f'with the retried notice later than its bound ({", ".join(named) or "none"}), {len(refusals)} '
+              f'refusal(s)')
+        return 0 if caught else 1
+    if args.mutation in builder.SRP_CONTROLS:
+        # caught where every group's longest held SRP record is over its bound, each named by its group
+        want = sorted(builder.MUTATIONS[args.mutation][3].split(','))
+        named = sorted(held_srp_groups(misses) & set(want))
+        caught = named == want and not refusals
+        print(f'CONTROL {args.mutation} {"caught" if caught else "ESCAPED"}: {len(named)} of {len(want)} group(s) '
+              f'with the longest held SRP record over its bound ({", ".join(named) or "none"}), {len(refusals)} '
               f'refusal(s)')
         return 0 if caught else 1
     if args.mutation != 'none':

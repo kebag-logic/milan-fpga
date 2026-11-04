@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """The self-test's checks of the retried notice's row (#665, notice_window.py): it is timed from the port's answer to
 its last recipient's commit, a row later than its 20 ms fails the run whatever its options record, build.py's age-less
-plant is caught only when every group's row is late, and every group holds its load across the answer.
+plant is caught only when every group's row is late, its build-beside-records plant only when every group's longest
+held SRP record is over its bound, and every group holds its load across the answer.
 
 selftest.py passes its synthetic-log helpers in, so this module imports nothing of it.
 """
@@ -69,6 +70,15 @@ def notice_checks(synthetic: Callable, one: Callable, tx_sequence: Callable, aem
     out.append(("the age-less plant runs every group of the answering-later arm, and that arm's run takes them alone",
                 build.MUTATIONS['retry-ageless'][3:] == (','.join(names), 'answering-later')
                 and [x.name for x in run.all_groups(points[0], dict(variant='answering-later'))] == names, ''))
+    srp = argparse.Namespace(cpu_regions='cover', mutation='transmit-beside-records', record_budget_findings=True,
+                             record_share_findings=True)
+    held = lambda n, channel='srp': [f'{name}.held.{channel}.if1: 19.000 ms over its budget 18 ms' for name in n]
+    built = tuple(quietly(lambda m=m: run.verdict(srp, [g], [], m, [], []))
+                  for m in (held(names), held(names[1:]), held(names, 'aecp')))
+    out.append(("the build-beside-records plant is caught only when every group's longest held SRP record is over "
+                "its bound, not by another channel's", built == (0, 1, 1), str(built)))
+    out.append(('the build-beside-records plant runs every group of the answering-later arm',
+                build.MUTATIONS['transmit-beside-records'][3:] == (','.join(names), 'answering-later'), ''))
     wrong = []
     for p in points:
         for group in notice_window.groups(p):

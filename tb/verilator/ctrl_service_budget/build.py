@@ -49,29 +49,77 @@ STEP_SPAN = ('\tuint32_t deadline = l->step != NULL ? l->clock(l->clock_ctx) + C
              "\t// THE STEP's age limit: a step not run for more than CTRL_LOOP_STEP_AGE centiseconds is this\n"
              '\t// whole pass, before any input, with THE RETRY after it, so an input waits one step and one\n'
              '\t// retry round at most\n'
-             '\tif (l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE) {\n\t\tl->step_age = 0u;\n'
+             '\tif (l->step != NULL && l->step_age > CTRL_LOOP_STEP_AGE) {\n'
+             '\t\tl->step_age = 0u;\n'
              '\t\t(void)l->step(l->step_ctx, deadline);\n'
              '\t\t// THE RETRY after the step: under input that leaves no pass empty, no other pass is free\n'
              '\t\t// of input\n'
-             '\t\tif (l->retry != NULL) {\n\t\t\t(void)l->retry(l->retry_ctx);\n\t\t\tl->stats.retry_passes++;\n\t\t}\n'
-             '\t\tl->stats.passes++;\n\t\tl->stats.aged_passes++;\n'
-             '\t\treturn 1u;\n\t}\n'
-             "\t// THE RETRY's age limit: a retry its client has held CTRL_LOOP_RETRY_AGE_MS past the time it came due "
-             'is this\n'
-             '\t// whole pass, before any input, so a backlog or input that leaves no pass empty holds it off '
-             'no longer\n'
-             '\tif (l->retry != NULL && l->retry_aged(l->retry_ctx)) {\n\t\t(void)l->retry(l->retry_ctx);\n'
-             '\t\tl->stats.retry_passes++;\n\t\tl->stats.passes++;\n\t\tl->stats.retry_aged_passes++;\n'
-             '\t\treturn 1u;\n\t}\n'
+             '\t\tif (l->retry != NULL) {\n'
+             '\t\t\t(void)l->retry(l->retry_ctx);\n'
+             '\t\t\tl->stats.retry_passes++;\n'
+             '\t\t}\n'
+             '\t\tl->stats.passes++;\n'
+             '\t\tl->stats.aged_passes++;\n'
+             '\t\treturn 1u;\n'
+             '\t}\n'
+             "\t// THE RETRY's age limit: a retry its client has held CTRL_LOOP_RETRY_AGE_MS past "
+             'the time it came due is this\n'
+             '\t// whole pass, before any input, so a backlog or input that leaves no pass empty '
+             'holds it off no longer\n'
+             '\tif (l->retry != NULL && l->retry_aged(l->retry_ctx)) {\n'
+             '\t\t(void)l->retry(l->retry_ctx);\n'
+             '\t\tl->stats.retry_passes++;\n'
+             '\t\tl->stats.passes++;\n'
+             '\t\tl->stats.retry_aged_passes++;\n'
+             '\t\treturn 1u;\n'
+             '\t}\n'
+             "\t// THE TRANSMIT's age limit: a build its client has held more than CTRL_LOOP_TX_AGE "
+             'centiseconds is this whole\n'
+             '\t// pass, before any input, with THE RETRY after it, once the pass before was not given whole\n'
+             '\tif (l->transmit != NULL && l->ordinary == l->stats.passes && '
+             'l->transmit_aged(l->transmit_ctx)) {\n'
+             '\t\t(void)l->transmit(l->transmit_ctx);\n'
+             '\t\tif (l->retry != NULL) {\n'
+             '\t\t\t(void)l->retry(l->retry_ctx);\n'
+             '\t\t\tl->stats.retry_passes++;\n'
+             '\t\t}\n'
+             '\t\tl->stats.transmit_passes++;\n'
+             '\t\tl->stats.transmit_aged_passes++;\n'
+             '\t\tl->stats.passes++;\n'
+             '\t\treturn 1u;\n'
+             '\t}\n'
+             '\tconst uint32_t events = l->stats.events;\n'
+             '\tconst uint32_t records = l->stats.rx_records;\n'
              '\tconst uint32_t ticks = l->stats.ticks;\n'
-             '\tunsigned work = service_events(l);\n\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n'
-             '\t\tif (l->rx[ch].fn != NULL) {\n\t\t\twork += service_rx(l, ch);\n\t\t}\n\t}\n'
-             '\tbool owed = l->ticks_owed != 0u;\n\tfor (unsigned i = 0; i < l->n_polls; ++i) {\n'
-             '\t\towed = l->polls[i].fn(l->polls[i].ctx) || owed;\n\t}\n'
-             '\t// THE RETRY, only in a pass that took no input and dispatched no centisecond, before THE STEP, whose\n'
+             '\tunsigned work = service_events(l);\n'
+             '\tfor (unsigned ch = 0; ch < MBX_N_CH; ++ch) {\n'
+             '\t\tif (l->rx[ch].fn != NULL) {\n'
+             '\t\t\twork += service_rx(l, ch);\n'
+             '\t\t}\n'
+             '\t}\n'
+             "\t// THE TRANSMIT's pass, which its client's poll reads: one that took no record, at "
+             'most CTRL_LOOP_TX_EVENTS\n'
+             '\t// events and no centisecond\n'
+             '\tl->tx_pass = l->transmit != NULL && l->stats.rx_records == records &&\n'
+             '\t             l->stats.events - events <= CTRL_LOOP_TX_EVENTS && l->stats.ticks == ticks;\n'
+             '\tbool owed = l->ticks_owed != 0u;\n'
+             '\tfor (unsigned i = 0; i < l->n_polls; ++i) {\n'
+             '\t\towed = l->polls[i].fn(l->polls[i].ctx) || owed;\n'
+             '\t}\n'
+             '\t// THE TRANSMIT, only in its pass, after the polls and before THE RETRY and THE '
+             'STEP, whose deadline counts its\n'
+             '\t// time\n'
+             '\tif (l->tx_pass) {\n'
+             '\t\towed = l->transmit(l->transmit_ctx) || owed;\n'
+             '\t\tl->stats.transmit_passes++;\n'
+             '\t}\n'
+             '\t// THE RETRY, only in a pass that took no input and dispatched no centisecond, '
+             'before THE STEP, whose\n'
              '\t// deadline counts its time\n'
              '\tif (l->retry != NULL && work == 0u && l->stats.ticks == ticks) {\n'
-             '\t\towed = l->retry(l->retry_ctx) || owed;\n\t\tl->stats.retry_passes++;\n\t}\n'
+             '\t\towed = l->retry(l->retry_ctx) || owed;\n'
+             '\t\tl->stats.retry_passes++;\n'
+             '\t}\n'
              "\t// THE STEP, only in a pass that took no input: no input's service waits on it\n"
              '\tif (l->step != NULL && work == 0u) {\n')
 #: Planted firmware defects for the controls: each is (source file, unique anchor, replacement),
@@ -118,6 +166,16 @@ MUTATIONS = {
     'retry-ageless': ('loop/ctrl_loop.c', 'l->retry != NULL && l->retry_aged(l->retry_ctx)',
                       'l->retry != NULL && l->retry_aged == NULL', ','.join(notice_window.names()),
                       'answering-later'),
+    # #665's planted build beside records: THE TRANSMIT's pass is every pass, so SRP's MRPDU build and the
+    # declarations it sends run after the polls of a pass that takes the composed burst's records, as before
+    # ctrl_loop.h's THE TRANSMIT, and the builds a centisecond's join timers start stand among the passes the last
+    # SRP record of the burst waits, which puts it past its 18 ms at 8x8/2if (notice_window.py).
+    'transmit-beside-records': ('loop/ctrl_loop.c',
+                                'l->tx_pass = l->transmit != NULL && l->stats.rx_records == records &&\n'
+                                '\t             l->stats.events - events <= CTRL_LOOP_TX_EVENTS && '
+                                'l->stats.ticks == ticks;',
+                                'l->tx_pass = l->transmit != NULL;', ','.join(notice_window.names()),
+                                'answering-later'),
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
@@ -127,6 +185,8 @@ SAVE_CONTROLS = ('store-step-ageless',)
 AGED_CONTROLS = ('store-step-aged-heavier',)
 #: The controls whose finding is the retried notice later than its bound in every group, with no refusal.
 NOTICE_CONTROLS = ('retry-ageless',)
+#: The controls whose finding is every group's longest held SRP record over its bound, with no refusal.
+SRP_CONTROLS = ('transmit-beside-records',)
 
 
 #: Labelled test-code arms, each a scratch copy of the size fixture (ctrl_aecp_image.c), never

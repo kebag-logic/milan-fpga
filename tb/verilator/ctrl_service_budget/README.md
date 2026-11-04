@@ -1054,7 +1054,7 @@ Its checks:
 - the run's exit status for a miss, a refusal and an empty run; a regrade's refusal of an absent log, an absent script and a stale script; a trap's refusal;
 - reuse refuses a changed image, ROM file, SoC Verilog, CPU netlist and firmware source, a deleted or unrecorded ROM file, a changed native model and an unresolved key, and reuses an unchanged build;
 - the ledgered point is named at `8x8` with two interfaces only, by a name the planner ledgers, and at no other shape and interface count; every labelled arm and control plant applies to the checkout's sources;
-- a retried notice is timed from its port's answer, the entry, to its last recipient's commit; one 22 ms after its answer misses its 20 ms bound within its 24 ms ceiling; a retried notice later than its bound fails the run whatever the options record, and one within it passes; the age-less plant is caught only when every group's notice is late, and runs every group of the `answering-later` arm, which takes them alone; every group binds before its load, floods and holds every channel across the answer, and grades its held records from the load's mark ([`selftest_notice.py`](selftest_notice.py)).
+- a retried notice is timed from its port's answer, the entry, to its last recipient's commit; one 22 ms after its answer misses its 20 ms bound within its 24 ms ceiling; a retried notice later than its bound fails the run whatever the options record, and one within it passes; the age-less plant is caught only when every group's notice is late, and runs every group of the `answering-later` arm, which takes them alone; the build-beside-records plant is caught only when every group's longest held SRP record is over its bound, not by another channel's, and runs every group of that arm; every group binds before its load, floods and holds every channel across the answer, and grades its held records from the load's mark ([`selftest_notice.py`](selftest_notice.py)).
 - the fetch observers follow the CPU's fetch plugin, a refill's 16 beats are read off the netlist's line-aligned refill address, and a cached netlist without that address is refused;
 - the load/store observers follow the data cache's IO bus, without ids, an instruction cache without a data cache keeps the cacheless load/store observers, and a cached netlist with neither or both of the two load/store plugins is refused;
 - `run.main` builds and records the fetch L1 and the arm it selected, on temporary files with the build's toolchain steps replaced;
@@ -1208,6 +1208,8 @@ Then [`selftest_mutants.py`](selftest_mutants.py) replaces each rule in turn, an
 | notice: a retried notice is held to its ceiling, not its bound | a retried notice later than its bound fails the run whatever the options record, and one within it passes |
 | notice: the age-less plant is judged as a budget control | the age-less plant is caught only when every group's retried notice is later than its bound |
 | notice: the port answers before the load | every retried notice group binds before its load, floods and holds every channel across the port's answer, and grades its held records from the load's mark |
+| transmit: the build-beside-records plant is judged as a budget control | the build-beside-records plant is caught only when every group's longest held SRP record is over its bound, not by another channel's |
+| transmit: any channel's held record over its bound catches the build-beside-records plant | the build-beside-records plant is caught only when every group's longest held SRP record is over its bound, not by another channel's |
 
 A mutant whose name ends in "(earlier rule)" restores a rule this harness had before these checks, so its check is the test that fails on that rule.
 Under two mutants the synthetic window of the records-ahead check is refused, and a refusal anywhere counts as caught, so those two rows name the refusal.
@@ -1257,6 +1259,16 @@ python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
 ```
 
 Under the flood every retry then waits for the next aged step's pass, so every group's retried notice must be committed later than its 20 ms, with no refusal: it prints `CONTROL retry-ageless caught`, naming the groups; any group within its bound, or a refusal, is `ESCAPED`.
+
+The planted build beside records runs the same groups with THE TRANSMIT's pass every pass, so SRP's MRPDU build and the declarations it sends follow the polls of a pass that takes the composed burst's records, as before THE TRANSMIT (`ctrl_loop.h`):
+
+```sh
+python3 -B tb/verilator/ctrl_service_budget/run.py --point 8x8 \
+  --build-dir /tmp/budget-transmit --variant answering-later --mutation transmit-beside-records
+```
+
+The builds a centisecond's join timers start then stand among the passes the last SRP record of the load's first burst waits, so every group's longest held SRP record must be over its 18 ms, with no refusal: it prints `CONTROL transmit-beside-records caught`, naming the groups; any group within its bound, a miss in another channel only, or a refusal is `ESCAPED`.
+At 1x1 the burst's drain is short enough that its rows fit either way, so the control runs at 8x8.
 
 Three controls run the full harness, here on the cacheless core S2 measured them on:
 

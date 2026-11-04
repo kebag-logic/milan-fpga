@@ -662,6 +662,10 @@ MUTANTS: dict[str, Patches] = {
     "notice: the age-less plant is judged as a budget control": lambda: [patch.object(build, 'NOTICE_CONTROLS', ())],
     "notice: the port answers before the load": lambda: [patch.object(
         notice_window, 'ANSWER_MS', notice_window.LOAD_MS - 1)],
+    "transmit: the build-beside-records plant is judged as a budget control": lambda: [patch.object(
+        build, 'SRP_CONTROLS', ())],
+    "transmit: any channel's held record over its bound catches the build-beside-records plant": lambda: [
+        patch.object(run, 'held_srp_groups', lambda misses: {m.partition(':')[0].partition('.')[0] for m in misses})],
     'aged: one delay an aged window': lambda: [patch.object(save_window, 'AGED_DELAYS', (5.0,))],
     "aged: the delays across the tick's first 8.75 ms only": lambda: [patch.object(
         save_window, 'AGED_DELAYS', tuple(1.25 * n for n in range(8)))],
