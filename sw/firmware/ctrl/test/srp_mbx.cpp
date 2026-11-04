@@ -466,9 +466,10 @@ TEST_F(Srp, ReentryFromOutputIsRefusedAndCounted) {
         mbx_frame f{}; f.len=17; loop.rx[MBX_CH_SRP].fn(&adapter,&f);
         f.len=0; loop.rx[MBX_CH_SRP].fn(&adapter,&f);
         EXPECT_FALSE(loop.polls[loop.n_polls-1].fn(&adapter));
+        EXPECT_FALSE(loop.transmit(loop.transmit_ctx));
         loop.ticks[loop.n_ticks-1]();
         EXPECT_FALSE(srp_mbx_init(&adapter,&config));
-        EXPECT_EQ(adapter.reentries,before+9);
+        EXPECT_EQ(adapter.reentries,before+10);
         EXPECT_EQ(adapter.malformed,malformed);
     });
     offer(frame(3,identity(),0,2));
