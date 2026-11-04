@@ -27,11 +27,11 @@ Findings cite source lines at dev `1f29f189` and its submodule pins.
 
 | Status | Pages | Lines |
 |---|---:|---:|
-| current | 176 | 73,277 |
-| stale | 16 | 10,630 |
+| current | 176 | 73,487 |
+| stale | 16 | 10,638 |
 | superseded | 0 | 0 |
 | obsolete | 21 | 8,002 |
-| **total** | **213** | **91,909** |
+| **total** | **213** | **92,127** |
 
 | Lane | Pages | Current | Stale | Superseded | Obsolete | Verified by D0 |
 |---|---:|---:|---:|---:|---:|---:|
@@ -329,12 +329,12 @@ Areas follow the directory tree.
 | [docs/testing/ASSERTIONS.md](testing/ASSERTIONS.md) | 301 | verification | Assertion-based verification with bound SVA checkers | `tb/verilator/ptp_ts`, `tb/common`, `hdl/common` | current | no recorded contradiction | area lane | testing and CI |
 | [docs/testing/CI_IMAGE.md](testing/CI_IMAGE.md) | 908 | verification | CI tools image | `ci/image`, `scripts`, `tb/verilator/milan_dp` | current | no recorded contradiction | area lane | testing and CI |
 | [docs/testing/CI_SIGNATURE.md](testing/CI_SIGNATURE.md) | 151 | verification | CI execution signatures | `scripts` | current | no recorded contradiction | area lane | testing and CI |
-| [docs/testing/CI_WORKFLOWS.md](testing/CI_WORKFLOWS.md) | 3414 | verification | CI workflow policy | `scripts`, `sw/builder`, `sw/litex` | current | no recorded contradiction | area lane | testing and CI |
+| [docs/testing/CI_WORKFLOWS.md](testing/CI_WORKFLOWS.md) | 3624 | verification | CI workflow policy | `scripts`, `sw/builder`, `sw/litex` | current | no recorded contradiction | area lane | testing and CI |
 | [docs/testing/MILAN_V12_AUDIT_2026-08-16.md](testing/MILAN_V12_AUDIT_2026-08-16.md) | 424 | bench/qualification | Milan v1.2 implementation audit, 2026-08-16 | `tb/verilator/milan_dp`, `hdl/milan`, `protocol-processor`, Milan v1.2, 1722.1-2021, 802.1AS | current | no recorded contradiction | area lane | testing and CI |
 | [docs/testing/PP_SHADOW_BASELINE_RECIPE.md](testing/PP_SHADOW_BASELINE_RECIPE.md) | 641 | verification | Protocol processor baseline recipe | `syn/ooc`, `configs/generated`, `sw/builder` | current | no recorded contradiction | area lane | testing and CI |
 | [docs/testing/RUNNING_TESTS.md](testing/RUNNING_TESTS.md) | 249 | verification | Running the tests | `scripts`, `sw/litex`, `sw/builder` | current | no recorded contradiction | area lane | testing and CI |
 | [docs/testing/SIMULATION.md](testing/SIMULATION.md) | 365 | verification | Simulation - how the Milan design is simulated and verified | `tb/verilator`, `tb/verilator/milan_dp`, `sw/litex`, Milan v1.2, 1722.1-2021, 802.1Q | current | no recorded contradiction | area lane | testing and CI |
-| [docs/testing/TESTING.md](testing/TESTING.md) | 1927 | verification | Testing & verification - the complete map | `scripts`, `sw/litex`, `tb/verilator`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | stale | 1 finding(s): D0-057 | area lane | testing and CI |
+| [docs/testing/TESTING.md](testing/TESTING.md) | 1935 | verification | Testing & verification - the complete map | `scripts`, `sw/litex`, `tb/verilator`, Milan v1.2, 1722.1-2021, 1722-2016, 802.1Q, 802.1AS | stale | 1 finding(s): D0-057 | area lane | testing and CI |
 | [docs/testing/evidence/REBASE-REGRESSION-2026-08-01-55a68a45.md](testing/evidence/REBASE-REGRESSION-2026-08-01-55a68a45.md) | 58 | verification | REBASE REGRESSION - targeted gate record against 55a68a45 | `scripts`, `tb/verilator` | current | no recorded contradiction | area lane | testing and CI |
 | [docs/testing/methodology.md](testing/methodology.md) | 165 | verification | Testing methodology - levels, oracles, and the rules every lane is bound by | `scripts`, `tb/tools`, `tests` | current | no recorded contradiction | area lane | testing and CI |
 
@@ -537,4 +537,4 @@ An archive copy stays as written.
 | D0-044 | [docs/reference/REGISTER_MAP_CLASSES.md](reference/REGISTER_MAP_CLASSES.md) | 131 | persistence remains absent. | Same as D0-043 and D0-040: bindings, scalar records and channel maps are written to and restored from the journal | Replace with the implemented saved state and what still lacks physical evidence (names and channel maps across a board cold cycle). |
 | D0-048 | [docs/reference/TRACE_EVENTS.md](reference/TRACE_EVENTS.md) | 7 | Every event type the bare-metal end-station can write into its DRAM | Nothing outside `sw/trace/` includes `milan_trace.h` or calls `MILAN_TRACE`; `sw/firmware/milan_baremetal/Makefile` line 6 builds `milan_baremetal.o` alone, so the shipping image writes no trace record; `docs/design/TRACE_LOGGING.md` lines 246-250 leave the integration to the board | Say the catalogue is the ABI of the producer in `sw/trace/`, which the shipping bare-metal image does not link yet (the text comes from `sw/trace/gen_trace_events.py` line 117). |
 | D0-049 | [docs/reference/TRACE_EVENTS.md](reference/TRACE_EVENTS.md) | 262 | Saved-state journal: 0x7C0 verdict + 0x7C4 SEQ, and the A/B slot decision on the write side. | `hdl/milan/milan_datapath.sv` lines 6709-6710 tie `jnl_stat_w` and `jnl_seq_w` (0x7C0, 0x7C4) to zero: the journal-ingest CSR face is a structural zero, and the saved-state verdicts now live in the firmware's slot judgement (`sw/firmware/milan_baremetal/milan_baremetal.c` lines 463-465, 1656-1694) | Describe the journal event from the firmware's slot verdicts (`nvm_verdict_a`/`_b`, the chosen slot) instead of the retired CSR pair; the text comes from `sw/trace/milan_trace.yaml`. |
-| D0-057 | [docs/testing/TESTING.md](testing/TESTING.md) | 1810 | presentation-time offset is pinned at the Milan 2 ms | Copy of the D0-057 statement on `docs/reference/REGISTER_MAP.md`. `docs/reference/REGISTER_MAP.md`'s own 0x0053 note (lines 351-356): SET_STREAM_INFO is served and "the stored offset feeds the framers' transit entries"; `docs/reference/MILAN_COMPLIANCE_MATRIX.md` row 5.3.7.6 / 4.4.2.1: the 2 ms default is settable via SET_STREAM_INFO and the stamp adds the offset as set | Say that 2 ms is the default and that SET_STREAM_INFO sets each Stream Output's offset, which the framers apply. |
+| D0-057 | [docs/testing/TESTING.md](testing/TESTING.md) | 1818 | presentation-time offset is pinned at the Milan 2 ms | Copy of the D0-057 statement on `docs/reference/REGISTER_MAP.md`. `docs/reference/REGISTER_MAP.md`'s own 0x0053 note (lines 351-356): SET_STREAM_INFO is served and "the stored offset feeds the framers' transit entries"; `docs/reference/MILAN_COMPLIANCE_MATRIX.md` row 5.3.7.6 / 4.4.2.1: the 2 ms default is settable via SET_STREAM_INFO and the stamp adds the offset as set | Say that 2 ms is the default and that SET_STREAM_INFO sets each Stream Output's offset, which the framers apply. |
