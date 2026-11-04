@@ -216,9 +216,15 @@ A subsequent same-pass registration cannot erase the owed stop notification.
 An accepted `TX_HEAD` write commits the complete frame and Applicant transition.
 A refused send retains identical bytes and interface until accepted.
 lwSRP builds each MRPDU in the owed frame itself, after its Ethernet header, so no frame is copied (#665).
-A poll builds and sends at most one MRPDU (`SRP_MBX_POLL_FRAMES`, `srp_bounds.h`).
-The participant that sent ends the poll's transmissions, and the next poll resumes at the next participant.
-Its owed result runs that poll at once, so every participant is reached in turn (#665).
+The poll builds no MRPDU and declares nothing: THE TRANSMIT does both (`ctrl_loop.h`, #665).
+The loop calls the adapter's build after its polls only in a pass that took no record, at most one event and no centisecond, so no pass that takes the composed burst's records carries a build.
+A centisecond, a received record, a binding, a Domain change or a new participant holds a build, and the poll reports it owed so the loop passes on to the pass that takes it.
+Once held more than `CTRL_LOOP_TX_AGE` centiseconds, counted on SRP's own tick, a build takes a pass of its own, before any input, unless a frame is owed ahead of it.
+The call makes the interface's declarations, then builds and sends at most one MRPDU (`SRP_MBX_POLL_FRAMES`, `srp_bounds.h`); the participant that sent ends the call, and the next call resumes at the next participant.
+Its owed result runs the next pass at once, so every participant is reached in turn, and every participant's owed MRPDU is sent within `2 x MBX_N_IF x CTRL_LOOP_TX_MS`, inside the 200 ms JoinTime (`srp_mbx.c` holds it at compile time).
+A Domain adopted in that call is sent in it, so no poll sees the new VID unlicensed between the adoption and its MVRP commit (Milan 4.3.2).
+A frame a build left owed is the poll's: it sends it, one a pass, in every pass, and a pass whose poll sent it builds no other.
+The reclaim of attributes lwSRP may free comes after the declarations in the build's pass, as the poll ran them before the build moved out of it, and in the poll in every other pass, so a record the next pass takes finds the room.
 lwSRP's periodic transmission had built all four MRPDUs at two interfaces in one pass of 8.7 ms on the split core, against the share of 2.0 ms (`ctrl_loop.h`).
 SRP RX waits behind that owed record; Registrar clocks continue to run.
 Each LINK event preserves the lifecycle, including down/up between service passes.
