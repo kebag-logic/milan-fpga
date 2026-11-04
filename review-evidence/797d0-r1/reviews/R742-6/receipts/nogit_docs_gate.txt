@@ -1,0 +1,12 @@
+== no-git docs_check.py at 430a077c (archive, no .git)
+docs_check: 0 finding(s) across 213 md files + 1442 scrubbed text files, scrub self-test 22/22, routing arms 4/4, 1 skipped: inventory parity (needs a git working tree) [filesystem walk (no git)]
+rc=0
+== no-git check_feature_status.py
+feature_status: 0 finding(s)
+rc=0
+== no-git docs_inventory.py --check (filesystem walk)
+docs/DOCUMENTATION_AUDIT.md: STALE (456 lines differ); first difference at line 30:
+  committed: | current | 176 | 73,487 |
+  generated: | current | 176 | 73,488 |
+regenerate with: python3 scripts/docs_inventory.py --write
+rc=1
