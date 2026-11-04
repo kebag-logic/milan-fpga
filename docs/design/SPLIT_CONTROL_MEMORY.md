@@ -1439,7 +1439,7 @@ Under input that leaves no pass empty the store then steps once every three tick
 
 **Why two.**
 The least margin of any row, the 8x8 last SRP record's, is below a step, so an aged step taken among a window's records could put that row over its bound.
-The step's age counts the centiseconds dispatched since it last ran, and in every window the harness stages, at both points, in both arms, with and without the drafts, at most two centiseconds were posted in TICK records between two passes that carried a step (one at 1x1): with the limit at two no aged step is taken in a window, and with it at one, steps would be taken as aged ones among the records of 8x8's windows.
+The step's age counts the centiseconds dispatched since it last ran or owed nothing, and in every window the harness stages, at both points, in both arms, with and without the drafts, at most two centiseconds were posted in TICK records between two passes that carried a step (one at 1x1): with the limit at two no aged step is taken in a window, and with it at one, steps would be taken as aged ones among the records of 8x8's windows.
 The heaviest windows hold the step off longest: at 8x8 the longest gap between two passes that carried a step, in a save's verify windows, is 26.36 ms in arm A and 26.40 ms in arm B, with two centiseconds between them; at 1x1 it is 19.69 ms, with one.
 In the starved saves, where every step comes through the limit, the longest gap is 31.3 to 31.5 ms at 8x8 and 31.0 to 31.1 ms at 1x1: three ticks and the passes that dispatch them.
 

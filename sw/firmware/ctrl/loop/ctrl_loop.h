@@ -147,7 +147,7 @@ extern "C" {
 // stages, at 8x8/2if too, no more than two centiseconds are dispatched
 // between two passes that carry a step, so no aged step lands among a
 // window's records, the least of whose margins (0.77 ms) is below a step
-// (0.96 ms) (#665).
+// (0.97 ms) (#665).
 #define CTRL_LOOP_STEP_AGE 2u
 
 // A1: the backlogs the bound assumes, in records.
