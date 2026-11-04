@@ -127,7 +127,8 @@ def verdict(rc: int, out: str, must_fail: list[str]) -> str:
     return f"exited {rc} with no harness verdict - a DUT abort is not a catch"
 
 
-def run_mutant(mutation, work: Path) -> bool:
+def run_mutant(mutation: tuple[str, dict[str, list[tuple[str, str]]], list[str]],
+               work: Path) -> bool:
     """Plant one mutation, build and run the leg; True when it was caught."""
     name, plants, breaks = mutation
     tag = re.sub(r"[^A-Za-z0-9]+", "_", name)[:48]

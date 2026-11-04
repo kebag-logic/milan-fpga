@@ -205,12 +205,15 @@ class BootSaHarness {
     bool rx_busy_ = false;
 
     std::array<uint8_t, 592> rmem_{};
-    bool rm_busy_ = false, rm_done_ = false;
+    bool rm_busy_ = false;
+    bool rm_done_ = false;
     uint32_t rm_addr_ = 0;
     unsigned rm_left_ = 0;
     bool dm_busy_ = false;
     uint32_t dm_addr_ = 0;
-    unsigned dm_left_ = 0, dm_wait_ = 0, drp_lat_ = 0;
+    unsigned dm_left_ = 0;
+    unsigned dm_wait_ = 0;
+    unsigned drp_lat_ = 0;
 
     uint64_t phc_ns() const {
         const auto& acc = dut_->rootp->milan_datapath__DOT__ts_counter__DOT__acc;
@@ -527,7 +530,8 @@ void BootSaHarness::controller() {
 
 void BootSaHarness::grade() {
     std::array<uint64_t, kKindName.size()> seen{}, wrong{}, wrong_da{};
-    uint64_t zero = 0, early_csr = 0;
+    uint64_t zero = 0;
+    uint64_t early_csr = 0;
     size_t first_bad = SIZE_MAX;
     for (size_t i = 0; i < sent_.size(); ++i) {
         const Sent& s = sent_[i];

@@ -513,7 +513,7 @@ bootsa-build: ltn_rom.hex ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_AX1x1) $(GPTP_ON_VFLAGS) --Mdir $(BOOTSA_MDIR) \
 	  -GMILAN_CLK_FREQ_HZ=2000000 -GGPTP_PHC_TICK_NS_P=8 \
 	  -GGPTP_UCODE_HEX_P='"$(BOOTSA_MDIR)/boot/gptp_ucode.hex"' \
-	  -CFLAGS "-I$(abspath $(BOOTSA_MDIR))/boot" -LDFLAGS "$(abspath $(BOOTSA_MDIR))/boot/boot_fw.o" \
+	  -CFLAGS "-I$(abspath $(BOOTSA_MDIR))/boot -Wall -Wextra" -LDFLAGS "$(abspath $(BOOTSA_MDIR))/boot/boot_fw.o" \
 	  bootsa_probes.vlt $(SRCS) sim_boot_sa.cpp -o Vmilan_dp_bootsa
 
 bootsa: bootsa-build

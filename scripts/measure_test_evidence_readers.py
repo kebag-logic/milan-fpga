@@ -167,6 +167,12 @@ DUT_READER_DISPOSITIONS = {
         "Expected totals come from the MAC packet census and injected traffic; notification "
         "expectations come from the ruled spacing/gap contract; phase checks exhaust one second, "
         "never deriving expected packet totals or deadlines from RTL text",
+    "tb/verilator/milan_dp/bootsa_mutants.py":
+        "mutation campaign; it plants one of seven #839 station-MAC defects (no hold, no stamp, "
+        "neither, either half alone completing the pair, the stamp on the destination octets, the "
+        "stamp's beat position kept across a frame's end) into a copy of the datapath and requires "
+        "every named check of its case to fail; no expected value is read from RTL. It is the "
+        "explicit bootsa-mutants target, outside the default sweep",
     "tb/verilator/milan_dp/crflic_mutants.py":
         "mutation campaign; it plants one of three streaming-licence defects into a copy and requires a "
         "named failure. It is the explicit crflic-mutants target, outside the default sweep",

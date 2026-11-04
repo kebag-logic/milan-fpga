@@ -80,6 +80,7 @@ def stage_order(source: str) -> list[str]:
 
 
 def main() -> int:
+    """Write boot_fw.c, boot_fw.h and gptp_ucode.hex into --out."""
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--firmware", type=Path, required=True)
     ap.add_argument("--build", type=Path, required=True,
