@@ -88,6 +88,7 @@ Runner diagnostics contribute no checks to `suite_tally.py`.
 | `obj_tspec8` | `sim_crf_licence.cpp` (`TSPEC_ONLY_TB`) | `endstation_ax7101_8x8`, eight AAF talkers of 8 wire channels and the CRF Media Clock Output, the `obj_crflic` compressed grid | #774: `[TSPEC]` alone on the largest shape. Every source is probed once, MAAP grants nine addresses, and each of the nine sources' Talker Advertise values must carry its own format's Table 4.4 TSpec: 217 for each AAF talker, 29 for the CRF output, MaxIntervalFrames 1. Its planted control is in `make crflic-mutants` |
 | `obj_sidmove` | `sim_sid_move.cpp`, `sidmove_probes.vlt` | `endstation_ax7101_1x1_tdm8`, the shipping shape, AAF talker 0 and the CRF Media Clock Output, the `obj_crflic` compressed grid | processor #202: a peer takes the claimed MAAP block while the sources stream; each declaring source moves to a new Stream ID at its grant, and the AVTP stream_id on the wire, the PROBE_TX answer, GET_STREAM_INFO selector 2 and the Talker Advertise name each source's published `src_stream_id_o` before the move and after it. `make sidmove` runs it alone |
 | `obj_sidmove8` | `sim_sid_move.cpp`, `sidmove_probes.vlt` | `endstation_ax7101_8x8`, AAF talkers 0 and 1, talker 1's TCTX unique ID named, the same grid | processor #202 as above on the 8x8 shape: the processor's published ID outranks a named TCTX unique ID on the wire. `make sidmove8` runs it alone |
+| `obj_bootsa` | `sim_boot_sa.cpp`, `bootsa_probes.vlt`, `gen_boot_fw.py` | the `obj_gmstep` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz, its gPTP program generated for the config's station MAC | #839: from reset, through `milan_init()`'s own stage order and the firmware's own `configure_fabric()` and `entity_advertise()`, every frame at the MAC boundary carries the station MAC as its source address, up to and past the first ENTITY_AVAILABLE; see [the section below](#the-839-station-mac-from-reset-obj_bootsa). Its planted controls are `make bootsa-mutants` |
 | `obj_gptp` | `sim_gptp.cpp` | product-default `endstation_ax7101_1x1_tdm8`, fabric gPTP at 2 MHz | selected-peer Pdelay/Announce/Sync publication through CSR and AECP; GM-switch AVB_INTERFACE/CLOCK_DOMAIN counters and dirty notifications; per-descriptor one-second suppression and pending release; AAF+CRF `tu` wire propagation; bounded PathTrace, coherent cutover, and inert legacy writes; FPGA-gPTP #94: asCapable falls at a link loss, when LINK_CTRL[0] withdraws the link and when the link guard loses the receive clock, a link loss inside the Pdelay_Req cease ends it, and the countdown exit is unchanged |
 | `obj_gptplat` | `sim_gptp.cpp` | the `obj_gptp` elaboration with unequal ingress/egress latency corrections | #358: each reconstructed timestamp moves by its own correction |
 | `obj_gmstep` | `sim_gmstep.cpp` | the `obj_gptp` elaboration, product-default `endstation_ax7101_1x1_tdm8` with fabric gPTP at 2 MHz | #387/#602/#632: a 1.5 s PHC step under CRF selection asserts `tu`, and the presentation stage refuses and counts the PDUs stamped across the step, with no render re-base and unchanged `mr` and MEDIA_RESET; source-change and CRF propagation controls still toggle `mr`; the [`milan_dp_gm_steps`](../milan_dp_gm_steps) suite runs it: its `gmstep_mutants.py` plants five controls in the sweep and its `make gmstep-mutants` the whole inventory |
@@ -106,6 +107,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
 - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
+- **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, what it does not grade, and its seven planted controls
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1108,6 +1110,72 @@ under a 2-channel format record that refuses its saved set, against a
 reference boot over the format record alone. At 8x8 the three stages held
 the faces about 13,700 clocks, past the processor's 4,096-clock gather
 watchdog; that stays open with the other 8x8 obligations (D3 18.4).
+
+## The #839 station MAC from reset (`obj_bootsa`)
+
+The defect: the processor's SRP engine runs from reset. The firmware writes
+the station MAC only in `configure_fabric()`. The first MSRP PDU of every
+boot therefore left with source address 00:00:00:00:00:00 (IEEE 802.1AC-2016
+11.1 and IEEE 802.1Q-2022 6.8.1: the source_address is the individual address
+of the source MSAP).
+
+The fix it grades is in `milan_datapath`. Beside the CSR instance,
+`mac_addr_seq` records the first write to each half of the `MAC_ADDR_LO/HI`
+pair, observed on the CSR slave's own write handshake, so `milan_csr` is
+unchanged. Until both halves are written, the datapath holds the four
+transmitters that take their source address from that pair (the processor's
+control lane, MAAP, the AAF talkers and the CRF talker) at frame start. It
+also stamps octets 6 to 11 of every control-lane frame from the pair. The stamp is needed because the
+processor builds a PDU into its TX slot before it offers it. The gPTP plane
+is not held: its program ROM carries the same station MAC, and its path to
+the MAC stays free of runtime gates.
+
+The boot is the firmware's, not a copy of it. `gen_boot_fw.py` copies the
+CSR accessors, `configure_fabric()` and `entity_advertise()` out of
+`sw/firmware/milan_baremetal/milan_baremetal.c`. Its only edits route the CSR
+load and store to this harness's AXI4-Lite master and blank the store's
+fence. It compiles them against `boot_policy.fabric_constants()` of the
+shipping 1x1 config. It also reads the stage order out of `milan_init()` and
+refuses a firmware that calls another stage. The leg runs a 400 ms BIOS window
+with no CSR access, then the four stages in that order: `configure_fabric()`,
+`load_aem_image()` (no CSR access; the builder's AEM image is served from
+reset), `nvm_boot()` (stood in for by the restore walk it ends with on blank
+media; its saved-state traffic is not modelled) and `entity_advertise(1)`.
+It runs past the first ENTITY_AVAILABLE to the re-advertisement. A controller
+then asks one READ_DESCRIPTOR and one GET_TX_STATE_COMMAND, and the AAF talker
+is opened through the `AAF_CTRL[1]` diagnostic bypass. Two more boots then
+grade the pair's sequencing in an order the firmware does not use: one half
+alone, 300 processor ms, then the other. Either half alone must open no
+CSR-addressed transmitter, and the second must release the processor's frame
+with the whole address.
+
+It grades every frame on valid/ready at `m_axis_mac_tx`:
+
+- no frame carries the all-zero source address;
+- no CSR-addressed transmitter's frame leaves before both halves are written;
+- each protocol's frames carry the station MAC as source address;
+- each fixed-address protocol's destination is still its own, and every frame
+  is a known protocol's, so the stamp touched nothing but octets 6 to 11;
+- MSRP, gPTP, ADP, AECP, ACMP, MAAP and AAF frames were all sent;
+- the processor offered a frame before the station MAC was written, so the
+  leg reached the defect's precondition;
+- `A_TXARB_DIAG` reads no arbiter stall or abort.
+
+```sh
+make -C tb/verilator/milan_dp bootsa
+make -C tb/verilator/milan_dp bootsa-mutants
+```
+
+`bootsa_mutants.py` plants seven controls in copies of the RTL. Each must
+fail the leg by every check it names. The first is the defect as shipped, no
+hold and no stamp: it fails on the all-zero source address and on the MSRP
+frame's source. The others take the hold or the stamp away alone, let either
+half alone complete the pair, move the stamp onto the destination, and keep
+the stamp's beat position across a frame's end.
+
+What it does not grade: an order no shipping firmware uses, such as enabling
+MAAP, AAF or CRF before the station MAC is written (the hold covers it; this
+leg does not drive it), and `nvm_boot()`'s own CSR traffic.
 
 ## GM step re-base leg (#387)
 
