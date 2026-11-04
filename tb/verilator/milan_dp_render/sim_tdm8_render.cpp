@@ -1633,6 +1633,11 @@ void TdmRenderHarness::bring_out_of_reset() {
     steps(64);
     dut->axis_resetn = 1; dut->gtx_resetn = 1;
     steps(256);
+    //! #839: the fabric holds every CSR-addressed transmitter until both
+    //! halves of the station MAC are written, as configure_fabric() does.
+    //! The address stays the reset zero this leg's AECP commands are sent
+    //! to (bind_listener_zero below), so that is the value written.
+    axi_write(0x108, 0x0); axi_write(0x10C, 0x0);
 }
 
 void TdmRenderHarness::bind_listener_zero() {
