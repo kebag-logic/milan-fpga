@@ -1,0 +1,10 @@
+[PASS] the unmutated gateware passes the obj_bootsa leg
+[PASS] mutant caught: the defect as shipped: no hold and no stamp - fails "[BOOTSA] no frame carries the all-zero source address"; "[BOOTSA] no CSR-addressed transmitter starts a frame before the station MAC is written"; "[BOOTSA] every MSRP frame's source address is the station MAC"
+[PASS] mutant caught: no hold: the stamp alone - fails "[BOOTSA] no frame carries the all-zero source address"; "[BOOTSA] no CSR-addressed transmitter starts a frame before the station MAC is written"; "[BOOTSA] every MSRP frame's source address is the station MAC"
+[PASS] mutant caught: no stamp: the hold alone releases the MSRP PDU built from the reset address - fails "[BOOTSA] no frame carries the all-zero source address"; "[BOOTSA] every MSRP frame's source address is the station MAC"
+[PASS] mutant caught: MAC_ADDR_LO alone completes the pair - fails "[BOOTSA] pair: MAC_ADDR_LO alone opens no CSR-addressed transmitter"
+[PASS] mutant caught: MAC_ADDR_HI alone completes the pair - fails "[BOOTSA] pair: MAC_ADDR_HI alone opens no CSR-addressed transmitter"
+[PASS] mutant caught: the stamp lands on the destination, octets 0 to 5 - fails "[BOOTSA] every MSRP frame's destination address is its protocol's"; "[BOOTSA] every MSRP frame's source address is the station MAC"
+[PASS] mutant caught: the stamp's beat position survives a frame's last beat - fails "[BOOTSA] every ADP frame's destination address is its protocol's"
+
+8 checks: 8 PASS, 0 FAIL
