@@ -1,0 +1,8 @@
+reviewer probes planted into hdl/milan/milan_datapath.sv (copies only):
+1 together, all four names: HOLD[MAAP]+HOLD[AAF]+HOLD[CRF] from bootsa_mutants.py, must fail ON_MAAP, ON_CRF, OFF_AAF, OFF_CRF
+2 saturate early:
+-       else if (ctl_sa_idx_r != TX_SA_IW_C'(TX_SA_BEATS_C)) ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;
++       else if (ctl_sa_idx_r != TX_SA_IW_C'(TX_SA_BEATS_C - 1)) ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;
+3 never advances:
+-       else if (ctl_sa_idx_r != TX_SA_IW_C'(TX_SA_BEATS_C)) ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;
++       else                                                 ctl_sa_idx_r <= ctl_sa_idx_r;

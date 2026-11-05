@@ -1,0 +1,13 @@
+diff --git a/tb/verilator/milan_dp/sim_boot_sa.cpp b/tb/verilator/milan_dp/sim_boot_sa.cpp
+index 152146c896..ac5a254ba3 100644
+--- a/tb/verilator/milan_dp/sim_boot_sa.cpp
++++ b/tb/verilator/milan_dp/sim_boot_sa.cpp
+@@ -857,7 +857,7 @@ int BootSaHarness::run() {
+             tick();
+         check_.that("[BOOTSA] the entity re-advertises past the first ENTITY_AVAILABLE",
+                     first != SIZE_MAX && first_entity_available(first + 1) != SIZE_MAX);
+-        probe_tx();
++        // reviewer probe: no PROBE_TX_COMMAND
+         grade();
+         pair_order(0x108, 0x10C, "MAC_ADDR_LO");
+         pair_order(0x10C, 0x108, "MAC_ADDR_HI");
