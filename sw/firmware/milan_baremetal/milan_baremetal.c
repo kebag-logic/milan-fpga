@@ -977,8 +977,12 @@ static uint64_t phy_last_poll;
 
 /* At least 32 CPU delay cycles per half-period, even at 100 MHz.
  * IEEE 802.3 22.3.4: the PHY advances its output after each rising edge.
- * Sample with MDC low before that edge, as LiteX libliteeth/mdio.c does. */
-static unsigned int phy_mdio_bit(unsigned int drive, unsigned int bit)
+ * Sample with MDC low before that edge, as LiteX libliteeth/mdio.c does.
+ * Inlined into both frame loops: the cacheless core refetches over the bus
+ * after every taken branch, so a call and return per bit doubled the cost of
+ * each transaction and of the 250 ms PHY publication charge (#840). */
+static inline __attribute__((always_inline))
+unsigned int phy_mdio_bit(unsigned int drive, unsigned int bit)
 {
 	uint32_t pins = (drive ? PHY_OE : 0u) | (bit ? PHY_OUT : 0u);
 	unsigned int value;
