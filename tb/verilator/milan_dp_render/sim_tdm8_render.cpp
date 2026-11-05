@@ -2865,6 +2865,12 @@ void TdmRenderHarness::prove_a_reset_inside_an_outstanding_round_trip() {
 //! remap, and the first nonzero frame is a POST-reset injected event.
 void TdmRenderHarness::prove_the_lane_recovers_after_a_reset() {
     const uint64_t epochs_before = lane_epochs();
+    //! #839: every reset above returned the station-MAC pair to unwritten,
+    //! and the fabric holds the processor's frames until both halves are
+    //! written again, as configure_fabric() does on the boot after a reset.
+    //! Written here, not at each release, so the reset arms' cycle windows
+    //! stay what they were; the value is the same reset zero.
+    axi_write(0x108, 0x0); axi_write(0x10C, 0x0);
     bind_listener_zero();
     const long t_power_on = axis_cycle;
     prove_the_power_on_map("T18 POWER-ON");
