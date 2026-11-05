@@ -20,7 +20,9 @@ The maintainer decided these readings on 2026-11-05.
 - **The clause allows** states what it permits or requires.
 - **The board does** states this end station's behaviour.
 - **Why** gives the reason for the choice.
-- **Where** names the code and tests that hold it.
+- **Where**, a bullet under each table, names code and tests.
+- **Reading** names each gPTP row's behaviour.
+- **At the pinned processor** states the current gitlink's behaviour.
 
 A reading found later is added here, with its clause.
 
@@ -30,16 +32,17 @@ A reading found later is added here, with its clause.
 
 | Clause | The clause allows | The board does | Why |
 |---|---|---|---|
-| IEEE 802-2014 8.2 and 8.4 | A universally administered address (U/L bit 0) or a locally administered one (U/L bit 1) | AX7101 `02:4B:4C:00:00:01`, Arty `02:4B:4C:00:00:02`, both with the U/L bit set | No owned MA-L, MA-M or MA-S block exists yet |
-| IEEE 802.1AS-2011 8.5.2.2.1 | A clockIdentity mapped from an EUI-48 the organization owns | clockIdentity `024B4CFFFE000001` and `024B4CFFFE000002`, still mapped from the MAC | One identity source per board |
+| IEEE 802-2014 8.2 and 8.4 | A universally administered address (U/L bit 0) or a locally administered one (U/L bit 1) | AX7101 `02:4B:4C:4B:4C:01`, Arty `02:4B:4C:4B:4C:02`, both with the U/L bit set | No owned MA-L, MA-M or MA-S block exists yet |
+| IEEE 802.1AS-2011 8.5.2.2.1 | A clockIdentity mapped from an EUI-48 the organization owns | clockIdentity `024B4CFFFE4B4C01` and `024B4CFFFE4B4C02`, still mapped from the MAC | One identity source per board |
 | IEEE 1588-2008 7.5.2.2.2 | An OUI whose two least significant first-octet bits are both 0 | The U/L bit is 1 | The same prototype limitation |
-| IEEE 1722.1-2021 6.2.2.7 | An entity_id the vendor assigns, which can be computed from the MAC | entity_id `024B4CFFFE000001` and `024B4CFFFE000002`, computed from the MAC | Unique on the bench; the boards differ in the last octet |
+| IEEE 1722.1-2021 6.2.2.7 | An entity_id the vendor assigns, which can be computed from the MAC | entity_id `024B4CFFFE4B4C01` and `024B4CFFFE4B4C02`, computed from the MAC | Unique on the bench; the boards differ in the last octet |
 
 This is a prototype limitation, not a stricter reading.
 
 - These addresses are not IEEE-assigned EUI-48 values.
 - A production build needs an owned MA-L, MA-M or MA-S.
-- No company-ID octet is zero: `02`, `4B` and `4C`.
+- No octet of either EUI-64 identity is `00`.
+- The builder gate refuses any zero identity octet.
 - The builder warns when the U/L bit is set.
 - The warning goes to stderr; the build still completes.
 - Where: `configs/endstation_*.yaml` and `identity_warnings()` in `sw/builder/endstation_builder.py`.
@@ -67,7 +70,7 @@ A PHY lacking 1000BASE-T full duplex keeps its advertisement.
 The retired Arty has such a 10/100 PHY. Its MII MAC runs 10 and 100 Mb/s.
 
 - Where: `phy_advertise_gigabit_only()` in `sw/firmware/milan_baremetal/milan_baremetal.c`.
-- Tested by `sw/firmware/nvm_hosttest/test_phy_firmware.py`, with twelve named mutants.
+- Tested by `sw/firmware/nvm_hosttest/test_phy_firmware.py`, with twenty-two named mutants.
 - The [firmware guide](../integration/BAREMETAL_FIRMWARE.md) describes the PHY poll.
 
 ## The certification_version field
