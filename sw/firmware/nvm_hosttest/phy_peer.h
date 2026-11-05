@@ -33,6 +33,9 @@ static unsigned int writes;
 static unsigned int written_register[64];
 static unsigned int written_value[64];
 static unsigned int restarts;
+/* #840: the reads addressed to this PHY, per register, so a register the
+ * PHY init should read once per boot is graded against every later poll. */
+static unsigned int reads_of[32];
 
 /* IEEE 802.3 22.2.4.5: a write's TA is 10 and its data follows, all driven
  * by the station. Bit 0.9 self-clears once the restart is taken. */
@@ -81,6 +84,8 @@ void milan_mac_phy_mdio_w_write(uint32_t value)
 				unsigned int reg = command_bits & 31u;
 
 				input_word = registers[reg];
+				if (addressed)
+					++reads_of[reg];
 				if (reg == 1u && latched_down && addressed) {
 					input_word &= ~4u;
 					latched_down = 0;

@@ -119,6 +119,39 @@ ADVERTISEMENT_MUTANTS = {
     # written all the same
     "advertise-without-1000base-t-full": ("\tif (!(extended & PHY_ESTATUS_1000_FULL))\n\t\treturn 1;\n",
                                           "", "no_write_without_1000base_t_full_ability"),
+    # the ability gate on 1000BASE-T half duplex (bit 15.12), not full (15.13)
+    "gate-on-1000base-t-half": ("#define PHY_ESTATUS_1000_FULL 0x2000u",
+                                "#define PHY_ESTATUS_1000_FULL 0x1000u",
+                                "no_write_without_1000base_t_full_ability"),
+    # a 10/100 PHY's register 15 read again by the PHY init on every poll
+    "ability-reread-every-poll": ("\tif (!(extended & PHY_ESTATUS_1000_FULL))\n\t\treturn 1;\n",
+                                  "\tif (!(extended & PHY_ESTATUS_1000_FULL))\n\t\treturn 0;\n",
+                                  "ability_read_once"),
+    # register 4 never written
+    "no-register-4-write": ("\tphy_mdio_write(4, (unsigned int)advertisement &\n"
+                            "\t\t       ~(PHY_ANAR_BELOW_GIGABIT | PHY_ANAR_RESERVED));\n",
+                            "\t(void)advertisement;\n", "no_10base_t_advertised"),
+    # register 4 loses its pause bits 10 and 11 (Table 28B-2), which it keeps
+    "clear-pause-bits": ("#define PHY_ANAR_BELOW_GIGABIT 0x03e0u",
+                         "#define PHY_ANAR_BELOW_GIGABIT 0x0fe0u", "pause_bits_kept"),
+    # register 4 keeps reserved bit 14 (Table 28-2) as read
+    "keep-reserved-bit-14": ("#define PHY_ANAR_RESERVED 0x4000u",
+                             "#define PHY_ANAR_RESERVED 0x0000u", "reserved_bit_14_cleared"),
+    # register 9 drops its MASTER-SLAVE bits 12 to 10 (Table 40-3), which it keeps
+    "drop-master-slave": ("((unsigned int)gigabit & PHY_GBCR_MASTER_SLAVE) |",
+                          "(0u * (unsigned int)gigabit) |", "master_slave_kept"),
+    # register 9 keeps its test-mode bits 15 to 13 as read
+    "keep-test-mode": ("#define PHY_GBCR_MASTER_SLAVE 0x1c00u",
+                       "#define PHY_GBCR_MASTER_SLAVE 0xfc00u", "test_mode_cleared"),
+    # the restart keeps reset (bit 0.15) as read
+    "restart-keeps-reset": ("~(PHY_BMCR_RESET | PHY_BMCR_ISOLATE));", "~(PHY_BMCR_ISOLATE));",
+                            "reset_cleared"),
+    # the restart keeps isolate (bit 0.10) as read
+    "restart-keeps-isolate": ("~(PHY_BMCR_RESET | PHY_BMCR_ISOLATE));", "~(PHY_BMCR_RESET));",
+                              "isolate_cleared"),
+    # the restart leaves auto-negotiation disabled (bit 0.12) as read
+    "no-auto-negotiation-enable": ("((unsigned int)control | PHY_BMCR_AN_ENABLE |\n",
+                                   "((unsigned int)control |\n", "auto_negotiation_enabled"),
 }
 
 
@@ -239,8 +272,8 @@ def main() -> None:
                             "no_10base_t_advertised" if mutant == "late-sample" else
                             ADVERTISEMENT_MUTANTS[mutant][2] if mutant in ADVERTISEMENT_MUTANTS else
                             "status_word == expected")
-                if result.returncode == 0 or expected not in result.stderr:
-                    raise RuntimeError(mutant + " escaped its named assertion")
+                if result.returncode == 0 or f"Assertion `{expected}' failed" not in result.stderr:
+                    raise RuntimeError(mutant + " escaped its named assertion " + expected)
                 print("PHY_MUTANT " + mutant + ": caught")
         cfg = nvm.ROOT / "configs/endstation_ax7101_1x1_tdm8.yaml"
         findings = boot_path_findings(cfg, work / "boot", source)
