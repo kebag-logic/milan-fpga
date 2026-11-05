@@ -169,13 +169,14 @@ MUTATIONS = {
     # #665's planted build beside records: THE TRANSMIT's pass is every pass, so SRP's MRPDU build and the
     # declarations it sends run after the polls of a pass that takes the composed burst's records, as before
     # ctrl_loop.h's THE TRANSMIT, and the builds a centisecond's join timers start stand among the passes the last
-    # SRP record of the burst waits, which puts it past its 18 ms at 8x8/2if (notice_window.py).
+    # SRP record of the burst waits, which puts it past its 18 ms at 8x8/2if (notice_window.py). The pass's counts
+    # stay read, so the image builds under -Werror.
     'transmit-beside-records': ('loop/ctrl_loop.c',
                                 'l->tx_pass = l->transmit != NULL && l->stats.rx_records == records &&\n'
                                 '\t             l->stats.events - events <= CTRL_LOOP_TX_EVENTS && '
                                 'l->stats.ticks == ticks;',
-                                'l->tx_pass = l->transmit != NULL;', ','.join(notice_window.names()),
-                                'answering-later'),
+                                '(void)records;\n\t(void)events;\n\tl->tx_pass = l->transmit != NULL;',
+                                ','.join(notice_window.names()), 'answering-later'),
 }
 #: The controls whose finding is a pass over the per-pass share with every row within its budget, not a row's miss.
 SHARE_CONTROLS = ('store-step-unbounded',)
