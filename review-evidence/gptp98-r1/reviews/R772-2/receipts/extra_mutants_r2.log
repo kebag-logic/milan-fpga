@@ -1,0 +1,316 @@
+X1 a bad Follow_Up TLV header does not latch the refusal
+  harness: CAUGHT rc=1 482 checks: 476 PASS, 6 FAIL first: FAIL #98 TLV past messageLength ahead of the information TLV: no event got 0000000000000001 exp 0000000000000000
+  probe:   CAUGHT RESULT iters=100000 mismatches=1347
+  harness FAIL lines:
+    FAIL #98 TLV past messageLength ahead of the information TLV: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 TLV past messageLength ahead of the information TLV: one drop got 000000000000001b exp 000000000000001c
+    FAIL #98 TLV past messageLength ahead of the information TLV: no w11 write got 0000000000000001 exp 0000000000000000
+    FAIL #98 odd lengthField ahead of the information TLV: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 odd lengthField ahead of the information TLV: one drop got 000000000000001b exp 000000000000001c
+    FAIL #98 odd lengthField ahead of the information TLV: no w11 write got 0000000000000001 exp 0000000000000000
+X2 fu_found_r not cleared at start of frame
+  harness: CAUGHT rc=1 482 checks: 460 PASS, 22 FAIL first: FAIL #98 plain fu: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+  probe:   CAUGHT RESULT iters=100000 mismatches=31729
+  harness FAIL lines:
+    FAIL #98 plain fu: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 unknown TLV first: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 three unknown TLVs first: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 unknown TLV first, padded: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 second information TLV: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 unknown TLVs after: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 identifiers at octet 6: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 no information TLV: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 no information TLV: one drop got 0000000000000010 exp 0000000000000011
+    FAIL #98 information TLV with lengthField 30: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 information TLV with lengthField 30: one drop got 000000000000001c exp 000000000000001d
+    FAIL fu tlvType 0x0008 drop: no event got 0000000000000001 exp 0000000000000000
+    FAIL fu tlvType 0x0008 drop: one drop got 0000000000000029 exp 000000000000002a
+    FAIL fu orgId 00-1B-19 drop: no event got 0000000000000001 exp 0000000000000000
+    FAIL fu orgId 00-1B-19 drop: one drop got 000000000000002a exp 000000000000002b
+    FAIL fu orgSubType 2 drop: no event got 0000000000000001 exp 0000000000000000
+    FAIL fu orgSubType 2 drop: one drop got 000000000000002a exp 000000000000002b
+    FAIL complete fu after the arms: w11 got 0000000000000000 exp fffff00000070000
+    FAIL fu with a trailing TLV: w11 got 0000000000000000 exp fffff00000070000
+    FAIL drop count advanced      got 0000000000000045 exp 0000000000000048
+    FAIL fu after a refused fu: every word is this frame's got 0000000000000006 exp 0000000000000007
+    FAIL fu after a refused pdresp: every word is this frame's got 0000000000000006 exp 0000000000000007
+X3 a zero-length header ending at messageLength counts as cut
+  harness: CAUGHT rc=1 482 checks: 480 PASS, 2 FAIL first: FAIL #98 unknown TLVs after: event got 0000000000000000 exp 0000000000000002
+  probe:   CAUGHT RESULT iters=100000 mismatches=1139
+  harness FAIL lines:
+    FAIL #98 unknown TLVs after: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 unknown TLVs after: no drop got 0000000000000011 exp 0000000000000010
+X4 the last declared octet is not walked as a header byte
+  harness: CAUGHT rc=1 482 checks: 476 PASS, 6 FAIL first: FAIL #98 unknown TLVs after: event got 0000000000000000 exp 0000000000000002
+  probe:   CAUGHT RESULT iters=100000 mismatches=3391
+  harness FAIL lines:
+    FAIL #98 unknown TLVs after: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 unknown TLVs after: no drop got 0000000000000011 exp 0000000000000010
+    FAIL #98 header cut after 1 octet(s): no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header cut after 1 octet(s): one drop got 0000000000000015 exp 0000000000000016
+    FAIL #98 header cut after 1 octet(s), padded: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header cut after 1 octet(s), padded: one drop got 0000000000000015 exp 0000000000000016
+X5 a value ending exactly at messageLength is refused
+  harness: CAUGHT rc=1 482 checks: 439 PASS, 43 FAIL first: FAIL fu event                 got 0000000000000000 exp 0000000000000002
+  probe:   CAUGHT RESULT iters=100000 mismatches=19645
+  harness FAIL lines:
+    FAIL fu event                 got 0000000000000000 exp 0000000000000002
+    FAIL fu w11                   got 0000000000000000 exp fffff00000070000
+    FAIL #98 plain fu: event      got 0000000000000000 exp 0000000000000002
+    FAIL #98 plain fu: ev_seq     got 0000000000000102 exp 0000000000009800
+    FAIL #98 plain fu: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 plain fu: no drop    got 0000000000000012 exp 0000000000000011
+    FAIL #98 unknown TLV first: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 unknown TLV first: ev_seq got 0000000000000102 exp 0000000000009800
+    FAIL #98 unknown TLV first: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 unknown TLV first: no drop got 0000000000000013 exp 0000000000000012
+    FAIL #98 three unknown TLVs first: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 three unknown TLVs first: ev_seq got 0000000000000102 exp 0000000000009800
+    FAIL #98 three unknown TLVs first: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 three unknown TLVs first: no drop got 0000000000000014 exp 0000000000000013
+    FAIL #98 unknown TLV first, padded: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 unknown TLV first, padded: ev_seq got 0000000000000102 exp 0000000000009800
+    FAIL #98 unknown TLV first, padded: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 unknown TLV first, padded: no drop got 0000000000000015 exp 0000000000000014
+    FAIL #98 second information TLV: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 second information TLV: ev_seq got 0000000000000102 exp 0000000000009800
+    FAIL #98 second information TLV: no drop got 0000000000000016 exp 0000000000000015
+    FAIL #98 unknown TLVs after: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 unknown TLVs after: ev_seq got 0000000000000102 exp 0000000000009800
+    FAIL #98 unknown TLVs after: no drop got 0000000000000017 exp 0000000000000016
+    FAIL #98 identifiers at octet 6: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 identifiers at octet 6: ev_seq got 0000000000000102 exp 0000000000009800
+    FAIL #98 identifiers at octet 6: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 identifiers at octet 6: no drop got 0000000000000018 exp 0000000000000017
+    FAIL complete fu after the arms: event got 0000000000000000 exp 0000000000000002
+    FAIL complete fu after the arms: ev_seq got 0000000000000c0c exp 0000000000000f76
+    FAIL complete fu after the arms: w11 got 0000000000000000 exp fffff00000070000
+    FAIL complete fu after the arms: no drop got 0000000000000038 exp 0000000000000037
+    FAIL fu with a trailing TLV: event got 0000000000000000 exp 0000000000000002
+    FAIL fu with a trailing TLV: no drop got 0000000000000039 exp 0000000000000038
+    FAIL drop count advanced      got 0000000000000054 exp 0000000000000052
+    FAIL fu control after the errors: event got 0000000000000000 exp 0000000000000002
+    FAIL fu control after the errors: no drop got 00000000000000eb exp 00000000000000ea
+    FAIL fu after a refused fu: one drop got 0000000000000179 exp 0000000000000178
+    FAIL fu after a refused fu: event got 0000000000000000 exp 0000000000023546
+    FAIL fu after a refused fu: every word is this frame's got 0000000000000000 exp 0000000000000007
+    FAIL fu after a refused pdresp: one drop got 000000000000017b exp 000000000000017a
+    FAIL fu after a refused pdresp: event got 0000000000000000 exp 0000000000023548
+    FAIL fu after a refused pdresp: every word is this frame's got 0000000000000000 exp 0000000000000007
+X6 word 11 written for a type/length match without the OUI/subtype
+  harness: CAUGHT rc=1 482 checks: 479 PASS, 3 FAIL first: FAIL #98 no information TLV: no w11 write got 0000000000000001 exp 0000000000000000
+  probe:   SURVIVED RESULT iters=100000 mismatches=0
+  harness FAIL lines:
+    FAIL #98 no information TLV: no w11 write got 0000000000000001 exp 0000000000000000
+    FAIL fu orgId 00-1B-19 drop: no w11 write got 0000000000000001 exp 0000000000000000
+    FAIL fu orgSubType 2 drop: no w11 write got 0000000000000001 exp 0000000000000000
+X7 organizationSubType not compared
+  harness: CAUGHT rc=1 482 checks: 474 PASS, 8 FAIL first: FAIL #98 three unknown TLVs first: w11 as the plain case got 1111111122220000 exp fffff00000070000
+  probe:   CAUGHT RESULT iters=100000 mismatches=5661
+  harness FAIL lines:
+    FAIL #98 three unknown TLVs first: w11 as the plain case got 1111111122220000 exp fffff00000070000
+    FAIL #98 no information TLV: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 no information TLV: one drop got 0000000000000010 exp 0000000000000011
+    FAIL #98 no information TLV: no w11 write got 0000000000000001 exp 0000000000000000
+    FAIL fu orgSubType 2 drop: no event got 0000000000000001 exp 0000000000000000
+    FAIL fu orgSubType 2 drop: no w11 write got 0000000000000001 exp 0000000000000000
+    FAIL fu orgSubType 2 drop: one drop got 000000000000002d exp 000000000000002e
+    FAIL drop count advanced      got 0000000000000048 exp 0000000000000049
+X8 organizationId not compared
+  harness: CAUGHT rc=1 482 checks: 478 PASS, 4 FAIL first: FAIL fu orgId 00-1B-19 drop: no event got 0000000000000001 exp 0000000000000000
+  probe:   CAUGHT RESULT iters=100000 mismatches=5738
+  harness FAIL lines:
+    FAIL fu orgId 00-1B-19 drop: no event got 0000000000000001 exp 0000000000000000
+    FAIL fu orgId 00-1B-19 drop: no w11 write got 0000000000000001 exp 0000000000000000
+    FAIL fu orgId 00-1B-19 drop: one drop got 000000000000002d exp 000000000000002e
+    FAIL drop count advanced      got 0000000000000049 exp 000000000000004a
+X9 the OUI match without the type/length qualification
+  harness: CAUGHT rc=1 482 checks: 478 PASS, 4 FAIL first: FAIL #98 identifiers at octet 6: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+  probe:   CAUGHT RESULT iters=100000 mismatches=10240
+  harness FAIL lines:
+    FAIL #98 identifiers at octet 6: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL fu tlvType 0x0008 drop: no event got 0000000000000001 exp 0000000000000000
+    FAIL fu tlvType 0x0008 drop: one drop got 000000000000002b exp 000000000000002c
+    FAIL drop count advanced      got 0000000000000049 exp 000000000000004a
+X10 the walk starts one octet late
+  harness: CAUGHT rc=1 482 checks: 436 PASS, 46 FAIL first: FAIL fu event                 got 0000000000000000 exp 0000000000000002
+  probe:   CAUGHT RESULT iters=100000 mismatches=19645
+  harness FAIL lines:
+    FAIL fu event                 got 0000000000000000 exp 0000000000000002
+    FAIL fu w11                   got 0000000000000000 exp fffff00000070000
+    FAIL #98 plain fu: event      got 0000000000000000 exp 0000000000000002
+    FAIL #98 plain fu: ev_seq     got 0000000000000102 exp 0000000000009800
+    FAIL #98 plain fu: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 plain fu: no drop    got 0000000000000012 exp 0000000000000011
+    FAIL #98 unknown TLV first: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 unknown TLV first: ev_seq got 0000000000000102 exp 0000000000009800
+    FAIL #98 unknown TLV first: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 unknown TLV first: no drop got 0000000000000013 exp 0000000000000012
+    FAIL #98 three unknown TLVs first: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 three unknown TLVs first: ev_seq got 0000000000000102 exp 0000000000009800
+    FAIL #98 three unknown TLVs first: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 three unknown TLVs first: no drop got 0000000000000014 exp 0000000000000013
+    FAIL #98 unknown TLV first, padded: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 unknown TLV first, padded: ev_seq got 0000000000000102 exp 0000000000009800
+    FAIL #98 unknown TLV first, padded: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 unknown TLV first, padded: no drop got 0000000000000015 exp 0000000000000014
+    FAIL #98 second information TLV: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 second information TLV: ev_seq got 0000000000000102 exp 0000000000009800
+    FAIL #98 second information TLV: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 second information TLV: no drop got 0000000000000016 exp 0000000000000015
+    FAIL #98 unknown TLVs after: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 unknown TLVs after: ev_seq got 0000000000000102 exp 0000000000009800
+    FAIL #98 unknown TLVs after: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 unknown TLVs after: no drop got 0000000000000017 exp 0000000000000016
+    FAIL #98 identifiers at octet 6: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 identifiers at octet 6: ev_seq got 0000000000000102 exp 0000000000009800
+    FAIL #98 identifiers at octet 6: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 identifiers at octet 6: no drop got 0000000000000018 exp 0000000000000017
+    FAIL complete fu after the arms: event got 0000000000000000 exp 0000000000000002
+    FAIL complete fu after the arms: ev_seq got 0000000000000c0c exp 0000000000000f76
+    FAIL complete fu after the arms: w11 got 0000000000000000 exp fffff00000070000
+    FAIL complete fu after the arms: no drop got 0000000000000038 exp 0000000000000037
+    FAIL fu with a trailing TLV: event got 0000000000000000 exp 0000000000000002
+    FAIL fu with a trailing TLV: w11 got 0000000000000000 exp fffff00000070000
+    FAIL fu with a trailing TLV: no drop got 0000000000000039 exp 0000000000000038
+    FAIL drop count advanced      got 0000000000000054 exp 0000000000000052
+    FAIL fu control after the errors: event got 0000000000000000 exp 0000000000000002
+    FAIL fu control after the errors: no drop got 00000000000000eb exp 00000000000000ea
+    FAIL fu after a refused fu: one drop got 0000000000000179 exp 0000000000000178
+    FAIL fu after a refused fu: event got 0000000000000000 exp 0000000000023546
+    FAIL fu after a refused fu: every word is this frame's got 0000000000000000 exp 0000000000000007
+    FAIL fu after a refused pdresp: one drop got 000000000000017b exp 000000000000017a
+    FAIL fu after a refused pdresp: event got 0000000000000000 exp 0000000000023548
+    FAIL fu after a refused pdresp: every word is this frame's got 0000000000000000 exp 0000000000000007
+X11 the walk stops after the first TLV value
+  harness: CAUGHT rc=1 482 checks: 451 PASS, 31 FAIL first: FAIL #98 unknown TLV first: event got 0000000000000000 exp 0000000000000002
+  probe:   CAUGHT RESULT iters=100000 mismatches=17210
+  harness FAIL lines:
+    FAIL #98 unknown TLV first: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 unknown TLV first: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 unknown TLV first: no drop got 0000000000000011 exp 0000000000000010
+    FAIL #98 three unknown TLVs first: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 three unknown TLVs first: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 three unknown TLVs first: no drop got 0000000000000012 exp 0000000000000011
+    FAIL #98 unknown TLV first, padded: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 unknown TLV first, padded: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 unknown TLV first, padded: no drop got 0000000000000013 exp 0000000000000012
+    FAIL #98 second information TLV: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 second information TLV: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 second information TLV: no drop got 0000000000000014 exp 0000000000000013
+    FAIL #98 identifiers at octet 6: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 identifiers at octet 6: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 identifiers at octet 6: no drop got 0000000000000015 exp 0000000000000014
+    FAIL #98 header ends messageLength, value to come: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header ends messageLength, value to come: one drop got 0000000000000017 exp 0000000000000018
+    FAIL #98 trailing TLV past messageLength: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 trailing TLV past messageLength: one drop got 0000000000000017 exp 0000000000000018
+    FAIL #98 header cut after 1 octet(s): no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header cut after 1 octet(s): one drop got 0000000000000017 exp 0000000000000018
+    FAIL #98 header cut after 1 octet(s), padded: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header cut after 1 octet(s), padded: one drop got 0000000000000017 exp 0000000000000018
+    FAIL #98 header cut after 2 octet(s): no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header cut after 2 octet(s): one drop got 0000000000000017 exp 0000000000000018
+    FAIL #98 header cut after 2 octet(s), padded: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header cut after 2 octet(s), padded: one drop got 0000000000000017 exp 0000000000000018
+    FAIL #98 header cut after 3 octet(s): no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header cut after 3 octet(s): one drop got 0000000000000017 exp 0000000000000018
+    FAIL #98 header cut after 3 octet(s), padded: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header cut after 3 octet(s), padded: one drop got 0000000000000017 exp 0000000000000018
+X12 the gmTimeBaseIndicator offset one octet early
+  harness: CAUGHT rc=1 482 checks: 470 PASS, 12 FAIL first: FAIL fu w11                   got 01fffff000000000 exp fffff00000070000
+  probe:   CAUGHT RESULT iters=100000 mismatches=19645
+  harness FAIL lines:
+    FAIL fu w11                   got 01fffff000000000 exp fffff00000070000
+    FAIL #98 plain fu: w11 as the plain case got 01fffff000000000 exp fffff00000070000
+    FAIL #98 unknown TLV first: w11 as the plain case got 01fffff000000000 exp fffff00000070000
+    FAIL #98 three unknown TLVs first: w11 as the plain case got 01fffff000000000 exp fffff00000070000
+    FAIL #98 unknown TLV first, padded: w11 as the plain case got 01fffff000000000 exp fffff00000070000
+    FAIL #98 second information TLV: w11 as the plain case got 01fffff000000000 exp fffff00000070000
+    FAIL #98 unknown TLVs after: w11 as the plain case got 01fffff000000000 exp fffff00000070000
+    FAIL #98 identifiers at octet 6: w11 as the plain case got 01fffff000000000 exp fffff00000070000
+    FAIL complete fu after the arms: w11 got 01fffff000000000 exp fffff00000070000
+    FAIL fu with a trailing TLV: w11 got 01fffff000000000 exp fffff00000070000
+    FAIL fu after a refused fu: every word is this frame's got 0000000000000006 exp 0000000000000007
+    FAIL fu after a refused pdresp: every word is this frame's got 0000000000000006 exp 0000000000000007
+X13 a cut header after padding is not refused (padded branch lost)
+  harness: CAUGHT rc=1 482 checks: 476 PASS, 6 FAIL first: FAIL #98 header cut after 1 octet(s), padded: no event got 0000000000000001 exp 0000000000000000
+  probe:   CAUGHT RESULT iters=100000 mismatches=1979
+  harness FAIL lines:
+    FAIL #98 header cut after 1 octet(s), padded: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header cut after 1 octet(s), padded: one drop got 0000000000000015 exp 0000000000000016
+    FAIL #98 header cut after 2 octet(s), padded: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header cut after 2 octet(s), padded: one drop got 0000000000000016 exp 0000000000000017
+    FAIL #98 header cut after 3 octet(s), padded: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header cut after 3 octet(s), padded: one drop got 0000000000000017 exp 0000000000000018
+X14 the odd test reads lengthField bit 1
+  harness: CAUGHT rc=1 482 checks: 479 PASS, 3 FAIL first: FAIL #98 identifiers at octet 6: event got 0000000000000000 exp 0000000000000002
+  probe:   CAUGHT RESULT iters=100000 mismatches=9124
+  harness FAIL lines:
+    FAIL #98 identifiers at octet 6: event got 0000000000000000 exp 0000000000000002
+    FAIL #98 identifiers at octet 6: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+    FAIL #98 identifiers at octet 6: no drop got 0000000000000011 exp 0000000000000010
+X15 messageLength minimum for Follow_Up lowered to the header+body
+  harness: CAUGHT rc=1 482 checks: 480 PASS, 2 FAIL first: FAIL TLV-less fu drop: no bank write got 0000000000000006 exp 0000000000000000
+  probe:   SURVIVED RESULT iters=100000 mismatches=0
+  harness FAIL lines:
+    FAIL TLV-less fu drop: no bank write got 0000000000000006 exp 0000000000000000
+    FAIL 75-octet fu drop: no bank write got 0000000000000006 exp 0000000000000000
+Y1 the end-of-frame gate keeps only the odd term (EOF overrun lost)
+  harness: CAUGHT rc=1 482 checks: 480 PASS, 2 FAIL first: FAIL #98 header ends messageLength, value to come: no event got 0000000000000001 exp 0000000000000000
+  probe:   CAUGHT RESULT iters=100000 mismatches=3
+  harness FAIL lines:
+    FAIL #98 header ends messageLength, value to come: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header ends messageLength, value to come: one drop got 0000000000000012 exp 0000000000000013
+Y2 the walk latch keeps only the overrun term (odd lost at the latch)
+  harness: CAUGHT rc=1 482 checks: 479 PASS, 3 FAIL first: FAIL #98 odd lengthField: no event got 0000000000000001 exp 0000000000000000
+  probe:   CAUGHT RESULT iters=100000 mismatches=5260
+  harness FAIL lines:
+    FAIL #98 odd lengthField: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 odd lengthField: one drop got 000000000000001a exp 000000000000001b
+    FAIL #98 odd lengthField: no w11 write got 0000000000000001 exp 0000000000000000
+Y3 the walk latch keeps only the odd term (the arm's walk mutant)
+  harness: CAUGHT rc=1 482 checks: 477 PASS, 5 FAIL first: FAIL #98 information TLV past messageLength: no event got 0000000000000001 exp 0000000000000000
+  probe:   CAUGHT RESULT iters=100000 mismatches=2526
+  harness FAIL lines:
+    FAIL #98 information TLV past messageLength: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 information TLV past messageLength: one drop got 0000000000000011 exp 0000000000000012
+    FAIL #98 information TLV past messageLength: no w11 write got 0000000000000001 exp 0000000000000000
+    FAIL #98 trailing TLV past messageLength: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 trailing TLV past messageLength: one drop got 0000000000000012 exp 0000000000000013
+Y4 the end-of-frame gate loses the header verdict (the arm's EOF mutant)
+  harness: CAUGHT rc=1 482 checks: 480 PASS, 2 FAIL first: FAIL #98 header ends messageLength, value to come: no event got 0000000000000001 exp 0000000000000000
+  probe:   CAUGHT RESULT iters=100000 mismatches=5
+  harness FAIL lines:
+    FAIL #98 header ends messageLength, value to come: no event got 0000000000000001 exp 0000000000000000
+    FAIL #98 header ends messageLength, value to come: one drop got 0000000000000012 exp 0000000000000013
+Y5 the information TLV named by lengthField >= 28, offsets unchanged
+  harness: CAUGHT rc=1 482 checks: 481 PASS, 1 FAIL first: FAIL #98 identifiers at octet 6: w11 as the plain case got 1111111122220000 exp fffff00000070000
+  probe:   CAUGHT RESULT iters=100000 mismatches=5649
+  harness FAIL lines:
+    FAIL #98 identifiers at octet 6: w11 as the plain case got 1111111122220000 exp fffff00000070000
+Y6 the information TLV named by any even lengthField, offsets unchanged
+  harness: CAUGHT rc=1 482 checks: 481 PASS, 1 FAIL first: FAIL #98 identifiers at octet 6: w11 as the plain case got 1111111122220000 exp fffff00000070000
+  probe:   CAUGHT RESULT iters=100000 mismatches=5649
+  harness FAIL lines:
+    FAIL #98 identifiers at octet 6: w11 as the plain case got 1111111122220000 exp fffff00000070000
+Y7 word 11 read two octets late (the arm's offset mutant)
+  harness: CAUGHT rc=1 482 checks: 470 PASS, 12 FAIL first: FAIL fu w11                   got f000000700000000 exp fffff00000070000
+  probe:   CAUGHT RESULT iters=100000 mismatches=19645
+  harness FAIL lines:
+    FAIL fu w11                   got f000000700000000 exp fffff00000070000
+    FAIL #98 plain fu: w11 as the plain case got f000000700000000 exp fffff00000070000
+    FAIL #98 unknown TLV first: w11 as the plain case got f000000700000000 exp fffff00000070000
+    FAIL #98 three unknown TLVs first: w11 as the plain case got f000000700000000 exp fffff00000070000
+    FAIL #98 unknown TLV first, padded: w11 as the plain case got f000000700000000 exp fffff00000070000
+    FAIL #98 second information TLV: w11 as the plain case got f000000700000000 exp fffff00000070000
+    FAIL #98 unknown TLVs after: w11 as the plain case got f000000700000000 exp fffff00000070000
+    FAIL #98 identifiers at octet 6: w11 as the plain case got f000000700000000 exp fffff00000070000
+    FAIL complete fu after the arms: w11 got f000000700000000 exp fffff00000070000
+    FAIL fu with a trailing TLV: w11 got f000000700000000 exp fffff00000070000
+    FAIL fu after a refused fu: every word is this frame's got 0000000000000006 exp 0000000000000007
+    FAIL fu after a refused pdresp: every word is this frame's got 0000000000000006 exp 0000000000000007
+
+real	0m54.656s
+user	10m13.101s
+sys	0m17.854s
