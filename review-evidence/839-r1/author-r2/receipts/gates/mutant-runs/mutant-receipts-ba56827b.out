@@ -1,0 +1,8 @@
+# head ba56827bbfe4acadb84ca220616a76ad74611e7d: make bootsa-build, then keep_mutant_logs.py for controls 7 to 11
+prerequisite build rc=0
+control 7: caught: no hold on MAAP, the AAF talkers and the CRF talker (the processor's hold and the stamp kept)
+control 8: caught: no hold on MAAP alone
+control 9: caught: no hold on the AAF talkers alone
+control 10: caught: no hold on the CRF talker alone
+control 11: caught: the stamp's beat position wraps past the source address instead of saturating
+rc=0

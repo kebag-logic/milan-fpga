@@ -1,0 +1,120 @@
+  [PASS] RB retry: the PHY is held more than 3,500 ms before the words the hold
+  [PASS] RB retry: ...and at most one tick more     the hold
+  [PASS] RB the PHY hold stays up to the end of the run got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the boot restore walk ends, so AECP serves restore_done set
+  [PASS] RB not advertising: REBOOT of ENTITY 0 is answered SUCCESS got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the processor raises its REBOOT request reboot_req_o
+  [PASS] RB not advertising: no ENTITY_DEPARTING at the port either got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the PHY hold rises     o_reboot_phy_hold
+  [PASS] RB not advertising: the PHY hold follows the processor's REBOOT request order
+  [PASS] RB not advertising: the SUCCESS response leaves the MAC whole before the PHY hold on the wire
+  [PASS] RB not advertising: the notification to the other registered controller leaves after it, before the PHY hold on the wire
+  [PASS] RB not advertising: no ENTITY_DEPARTING reaches the wire got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: the PHY hold cuts no frame on the wire got=0x00000000 exp=0x00000000
+  [PASS] RB not advertising: ...and leaves none in the MAC got=0x00000000 exp=0x00000000
+  [i]    RB not advertising: request 44628589, last frame off the wire 44628882, PHY hold 44629056
+  [PASS] RB not advertising: the PHY hold rises more than one millisecond after the last frame left the MAC quiet
+  [PASS] RB not advertising: ...and at most two ticks and eight clocks after it observed
+  [PASS] RB not advertising: ...and inside the egress bound of the request bound
+  [PASS] RB not advertising: the PHY hold waits for the last frame the port started its last octet is the last before the hold
+  [PASS] RB dead transmit clock: the boot restore walk ends, so AECP serves restore_done set
+  [PASS] RB dead transmit clock: REBOOT of ENTITY 0 is answered SUCCESS at the port got=0x00000000 exp=0x00000000
+  [PASS] RB dead transmit clock: the processor raises its REBOOT request reboot_req_o
+  [PASS] RB dead transmit clock: nothing reaches the wire got=0x00000000 exp=0x00000000
+  [PASS] RB dead transmit clock: the PHY hold still rises o_reboot_phy_hold
+  [i]    RB dead transmit clock: 2845 clocks from the request to the PHY hold, bound (2800, 2904]
+  [PASS] RB dead transmit clock: ...more than the 28 ms egress bound after the request the bound
+  [PASS] RB dead transmit clock: ...and at most one tick and four clocks more the bound
+----------------------------------------------------------------
+pp_shadow: 719 checks, 0 failures
+RESULT: PASS
+00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+  [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+  [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+  [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+  [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 output: response status                got=0x00000000 exp=0x00000000
+  [PASS] K12 output GET_AUDIO_MAP record count      got=0x00000001 exp=0x00000001
+  [PASS] K12 output GET_AUDIO_MAP exact record      got=0x00000001 exp=0x00000001
+  [PASS] K12 no_durable_claim_over_unsaved          got=0x00000000 exp=0x00000000
+  [PASS] K12 pending_from_accepting_edge            got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 first write 145, mark 160, tail 15 cycles
+  [PASS] K12 live_state_changed                     got=0x00000001 exp=0x00000001
+  [PASS] K12 sticky_pending_PP_STAT                 got=0x00000001 exp=0x00000001
+  [PASS] K12 sticky_pending_PP_NVM_STAT             got=0x00000001 exp=0x00000001
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate output: response status      got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate output GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate output GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate output: response status      got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate output GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate output GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 duplicate output no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate output pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate output live_state_changed    got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate output sticky_pending_PP_STAT got=0x00000000 exp=0x00000000
+  [PASS] K12 duplicate output sticky_pending_PP_NVM_STAT got=0x00000000 exp=0x00000000
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 remove output: response status         got=0x00000000 exp=0x00000000
+  [PASS] K12 remove output GET_AUDIO_MAP record count got=0x00000001 exp=0x00000001
+  [PASS] K12 remove output GET_AUDIO_MAP exact record got=0x00000001 exp=0x00000001
+  [PASS] K12 preloaded baseline durable             got=0x00000040 exp=0x00000040
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K command: response status                 got=0x00000000 exp=0x00000000
+  [PASS] K capture ARM accepted                     got=0x00000001 exp=0x00000001
+  [PASS] K capture ATTEST accepted                  got=0x00000001 exp=0x00000001
+  [PASS] K capture ACK accepted                     got=0x00000000 exp=0x00000000
+  [PASS] K capture closed                           got=0x00000000 exp=0x00000000
+  [PASS] K commit preserves unmaterialized pending  got=0x00000001 exp=0x00000001
+  [PASS] K command: matching response completes     got=0x00000001 exp=0x00000001
+  [PASS] K12 remove output: response status         got=0x00000000 exp=0x00000000
+  [PASS] K12 remove output GET_AUDIO_MAP record count got=0x00000000 exp=0x00000000
+  [PASS] K12 remove output no_durable_claim_over_unsaved got=0x00000000 exp=0x00000000
+  [PASS] K12 remove output pending_from_accepting_edge got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000001 exp=0x00000001
+  [PASS] K command marks                            got=0x00000001 exp=0x00000001
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K real program tail separates first write and mark got=0x00000001 exp=0x00000001
+  [i] K12 remove output first write 12766, mark 12781, tail 15 cycles
+  [PASS] K12 remove output live_state_changed       got=0x00000001 exp=0x00000001
+  [PASS] K12 remove output sticky_pending_PP_STAT   got=0x00000001 exp=0x00000001
+  [PASS] K12 remove output sticky_pending_PP_NVM_STAT got=0x00000001 exp=0x00000001
+  [PASS] K boot: the restore walk ended DEFAULTS on its deadlines (done 1, fail 1, CLOSED 0) got=0x0000000C exp=0x0000000C
+  [PASS] K control: reset/load permits durable status got=0x00000040 exp=0x00000040
+  [PASS] K control: backend pending agrees after reset/load got=0x00000000 exp=0x00000000
+  [PASS] K reset no_durable_claim_over_unsaved      got=0x00000000 exp=0x00000000
+  [PASS] K reset pending_from_accepting_edge        got=0x00000000 exp=0x00000000
+  [PASS] K accepted name lanes                      got=0x00000000 exp=0x00000000
+  [PASS] K accepted map records                     got=0x00000000 exp=0x00000000
+  [PASS] K command marks                            got=0x00000000 exp=0x00000000
+  [PASS] K mark group                               got=0x00000000 exp=0x00000000
+  [PASS] K reset live_state_changed                 got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_STAT             got=0x00000000 exp=0x00000000
+  [PASS] K reset sticky_pending_PP_NVM_STAT         got=0x00000000 exp=0x00000000
+----------------------------------------------------------------
+pp_shadow: 317 checks, 0 failures
+RESULT: PASS

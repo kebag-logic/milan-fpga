@@ -1,0 +1,11 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -8925,7 +8925,7 @@
+     if (!axis_resetn)                                      ctl_sa_idx_r <= '0;
+     else if (ctlg2_tvalid && ctlg2_tready) begin
+       if (ctlg2_tlast)                                     ctl_sa_idx_r <= '0;
+-      else if (ctl_sa_idx_r != TX_SA_IW_C'(TX_SA_BEATS_C)) ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;
++      else                                                 ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;
+     end
+   end : ctl_sa_position
+ 

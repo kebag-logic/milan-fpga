@@ -1,0 +1,13 @@
+--- $LANES/839-boot-sa/hdl/milan/milan_datapath.sv	2026-11-04 22:00:55.110878345 +0100
++++ mut/m8/no_hold_on_MAAP_alone_milan_datapath.sv	2026-11-05 17:57:03.416032693 +0100
+@@ -8814,8 +8814,8 @@
+   //! docs/integration/BAREMETAL_FIRMWARE.md).
+   assign pp_tx_tvalid_w    = pp_txs_tvalid_w   & tx_sa_ok_w;
+   assign pp_txs_tready_w   = pp_tx_tready_w    & tx_sa_ok_w;
+-  assign maap_tx_tvalid    = maap_txs_tvalid_w & tx_sa_ok_w;
+-  assign maap_txs_tready_w = maap_tx_tready    & tx_sa_ok_w;
++  assign maap_tx_tvalid    = maap_txs_tvalid_w;
++  assign maap_txs_tready_w = maap_tx_tready;
+   assign aaf_tx_tvalid     = aaf_txs_tvalid_w  & tx_sa_ok_w;
+   assign aaf_txs_tready_w  = aaf_tx_tready     & tx_sa_ok_w;
+   assign crft_tx_tvalid    = crft_txs_tvalid_w & tx_sa_ok_w;
