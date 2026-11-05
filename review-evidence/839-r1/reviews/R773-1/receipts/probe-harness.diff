@@ -1,0 +1,85 @@
+--- tb/verilator/milan_dp/sim_boot_sa.cpp	2026-11-05 10:51:19.184029309 +0100
++++ scratch/probe/sim_boot_sa_probe.cpp	2026-11-05 11:03:42.436869003 +0100
+@@ -45,8 +45,8 @@
+ // the executable, where the Makefile writes it. Exit 0 only when every check
+ // passes.
+ 
+-#include "../../common/verilator_harness.hpp"
+-#include "../../common/gptp_launch_observer.hpp"
++#include "<repo>/tb/common/verilator_harness.hpp"
++#include "<repo>/tb/common/gptp_launch_observer.hpp"
+ #include "Vmilan_datapath.h"
+ #include "Vmilan_datapath___024root.h"
+ #include "boot_fw.h"
+@@ -176,7 +176,10 @@
+     }
+     int run();
+     uint32_t csr_read(unsigned int offset) { return read(static_cast<uint16_t>(offset)); }
++    bool drop_mac_ = false;
++    void early_enables();
+     void csr_write(unsigned int offset, uint32_t value) {
++        if (drop_mac_ && (offset == 0x108 || offset == 0x10C)) return;
+         write(static_cast<uint16_t>(offset), value);
+         const bool before = wrote_lo_ && wrote_hi_;
+         if (offset == 0x108) wrote_lo_ = true;
+@@ -600,6 +603,52 @@
+                (diag >> 8) & 0xFFFF, 0);
+ }
+ 
++void BootSaHarness::early_enables() {
++    reset();
++    const size_t from = sent_.size();
++    drop_mac_ = true;
++    boot_fw_configure_fabric();
++    drop_mac_ = false;
++    write(0x654, read(0x654) | 0x2u);
++    run_cycles(600 * kMsCyc);
++    size_t early = 0;
++    for (size_t i = from; i < sent_.size(); ++i) {
++        if (sent_[i].kind != Kind::Gptp) {
++            ++early;
++            printf("[PROBE] early frame %s cycle %llu source %012llx\n",
++                   kKindName[static_cast<size_t>(sent_[i].kind)],
++                   static_cast<unsigned long long>(sent_[i].cyc),
++                   static_cast<unsigned long long>(sent_[i].sa));
++        }
++    }
++    check_.dec("[PROBE] early enables: no CSR-addressed frame before the pair is written", early, 0);
++    const size_t rel = sent_.size();
++    write(0x108, kStationMacLo);
++    write(0x10C, kStationMacHi);
++    auto seen = [this, rel](Kind k) {
++        for (size_t i = rel; i < sent_.size(); ++i) if (sent_[i].kind == k) return true;
++        return false;
++    };
++    const uint64_t end = cyc_ + kPastBoundCyc;
++    while (cyc_ < end && !(seen(Kind::Maap) && seen(Kind::Aaf) && seen(Kind::Crf))) tick();
++    std::array<uint64_t, kKindName.size()> n{};
++    uint64_t wrong = 0;
++    for (size_t i = rel; i < sent_.size(); ++i) {
++        ++n[static_cast<size_t>(sent_[i].kind)];
++        wrong += sent_[i].sa != kStationMac;
++    }
++    printf("[PROBE] after the pair:");
++    for (size_t k = 0; k < kKindName.size(); ++k)
++        if (n[k]) printf(" %s %llu", kKindName[k], static_cast<unsigned long long>(n[k]));
++    printf("\n");
++    check_.dec("[PROBE] early enables: every frame after the pair carries the station MAC", wrong, 0);
++    check_.that("[PROBE] early enables: MAAP sends after the pair", seen(Kind::Maap));
++    check_.that("[PROBE] early enables: AAF sends after the pair", seen(Kind::Aaf));
++    check_.that("[PROBE] early enables: CRF sends after the pair", seen(Kind::Crf));
++    const uint32_t diag = read(0x784);
++    check_.hex("[PROBE] early enables: A_TXARB_DIAG no stall or abort", (diag >> 8) & 0xFFFF, 0);
++}
++
+ int BootSaHarness::run() {
+     printf("bootsa: 2 MHz fabric, one processor ms = %llu cycles, station MAC %012llx\n",
+            static_cast<unsigned long long>(kMsCyc), static_cast<unsigned long long>(kStationMac));
+@@ -631,6 +680,7 @@
+         grade();
+         pair_order(0x108, 0x10C, "MAC_ADDR_LO");
+         pair_order(0x10C, 0x108, "MAC_ADDR_HI");
++        early_enables();
+     } catch (const std::exception& e) {
+         check_.fail(e.what());
+     }
