@@ -30,9 +30,12 @@ from scenario import CH, Group, Probe  # noqa: E402
 import frames as f  # noqa: E402
 
 MS = hooks.BUS_MS
-#: The path grade as written, which two mutants wrap.
+#: The path grade and the slack as written, which mutants wrap.
 HOOK_ROW = run.hook_row
-#: The bounds the owner's decision of 2026-10-29 gives (#665, issuecomment-6495692075), restated.
+SLACK = run.slack_cycles
+#: The product clocks (the owner's decision of 2026-10-30 on #665): the split CPU on sys, at the bus's 100 MHz.
+CPU_HZ = SYS_HZ = 100_000_000
+#: The bounds the owner's decision of 2026-10-29 on #665 gives, restated.
 BOUNDS = {'adp': 20.0, 'disc': 20.0, 'acmp': 20.0, 'aecp': 20.0, 'notify': 20.0, 'maap': 20.0, 'srp': 18.0}
 NORMATIVE = {'adp': 2000.0, 'disc': 200.0, 'acmp': 200.0, 'aecp': 240.0, 'notify': 240.0, 'maap': 500.0,
              'srp': 180.0}
@@ -52,7 +55,7 @@ def expect(ok: bool, what: str) -> None:
 
 def log(**fields: object) -> grade.Log:
     """A synthetic parsed log at the product clocks."""
-    out = grade.Log(100_000_000, 50_000_000)
+    out = grade.Log(SYS_HZ, CPU_HZ)
     for name, value in fields.items():
         setattr(out, name, value)
     return out
@@ -66,7 +69,7 @@ def work(start: int, writes: list[tuple[int, int, int]]) -> grade.Pass:
 def row(family: str, ms: float, wait: float = 0.0, probe: str = 'x.if0', **more: object) -> dict:
     """A graded path as the CPU budget harness's grader writes it."""
     return dict(probe=probe, row='r', family=family, interface=0, path=[probe.rsplit('.', 1)[0], 0], ms=ms,
-                cpu_cycles=int(ms * 50_000), wait_ms=wait, **more)
+                cpu_cycles=round(ms * CPU_HZ / 1000), wait_ms=wait, **more)
 
 
 # ---- the checks ---------------------------------------------------------------------------------
@@ -111,13 +114,14 @@ def check_hooks_map() -> None:
 
 
 def check_clock_label() -> None:
-    """The product clock is labelled the product's; the 100 MHz variant is labelled a variant, never the product's."""
-    product = run.clock_label(dict(cpu_hz=50_000_000, sys_hz=100_000_000, product_cpu_hz=50_000_000,
-                                   cpu_clock='product'))
-    variant = run.clock_label(dict(cpu_hz=100_000_000, sys_hz=100_000_000, product_cpu_hz=50_000_000,
-                                   cpu_clock='variant'))
-    expect('product split CPU clock' in product and 'variant' not in product, product)
-    expect('labelled variant, not the product' in variant and '50 MHz' in variant, variant)
+    """The product clock is sys and the default; it is labelled the product's; the Milan clock, this base's
+    wiring before the owner's decision of 2026-10-30, is labelled history, never the product's."""
+    expect(hooks_build.CPU_CLOCKS[0] == 'sys', f'the default CPU clock is {hooks_build.CPU_CLOCKS[0]}')
+    product = run.clock_label(dict(cpu_hz=CPU_HZ, sys_hz=SYS_HZ, product_cpu_hz=SYS_HZ, cpu_clock='sys'))
+    milan = run.clock_label(dict(cpu_hz=50_000_000, sys_hz=SYS_HZ, product_cpu_hz=SYS_HZ, cpu_clock='milan'))
+    expect('100 MHz on sys (the product split CPU clock)' in product and 'history' not in product, product)
+    expect('history' in milan and 'not the product split CPU clock of 100 MHz' in milan and '50 MHz' in milan,
+           milan)
 
 
 def check_plants() -> None:
@@ -146,7 +150,7 @@ def check_split() -> None:
     """This harness's own lines are taken off before the CPU budget harness's parser; a counter change is a pad."""
     rest, own = hooks.split('MS 5 1 0 0\nCTRCHG 7 0 5 0\nCSRW 9 654\n')
     expect(rest == 'MS 5 1 0 0\n' and [w[0] for w in own] == ['CTRCHG', 'CSRW'], f'{rest!r} {own}')
-    parsed, _ = hooks.parsed('CTRCHG 7 1 5 0\n', 100_000_000, 50_000_000)
+    parsed, _ = hooks.parsed('CTRCHG 7 1 5 0\n', SYS_HZ, CPU_HZ)
     expect(parsed.pads == [(7, 'CTR', 1)], f'pads {parsed.pads}')
 
 
@@ -169,20 +173,28 @@ def check_adp_order() -> None:
 
 
 def check_disc_order() -> None:
-    """H-DISC: DEPARTING then AVAILABLE then a PROBE_TX passes; without the PROBE_TX it is reported."""
-    rxc = [(100, CH['adp'], 0, 'acmp.entity_departing.if0', 82), (200, CH['adp'], 0, 'acmp.entity_available.if0', 82)]
+    """H-DISC: DEPARTING then AVAILABLE then a PROBE_TX before the next ADP record passes; without one it is
+    reported, and a PROBE_TX after the next record does not count, when that record came later than the longest
+    TMR_DELAY and its services (1040 ms); when it came sooner, a PROBE_TX after it leaves the instance undecided."""
+    available = 2 * MS
+    rxc = [(MS, CH['adp'], 0, 'acmp.entity_departing.if0', 82),
+           (available, CH['adp'], 0, 'acmp.entity_available.if0', 82)]
     probe = bytearray(70)
     probe[14], probe[15] = 0xFC, f.ACMP['PROBE_TX']
-    later = (400, CH['adp'], 0, '-', 82)
-    good = log(rxc=[*rxc, later], tx=[(300, CH['acmp'], 0, bytes(probe))])
-    late = log(rxc=[*rxc, later], tx=[(500, CH['acmp'], 0, bytes(probe))])
+    far, near = available + 1100 * MS, available + 500 * MS
+    sent = lambda c: [(c, CH['acmp'], 0, bytes(probe))]
+    record = lambda c: (c, CH['adp'], 0, '-', 82)
     spec = {'interfaces': 1}
-    ok, wrong = hooks.discovery_order(good, Group('g'), [], spec), hooks.discovery_order(log(rxc=rxc), Group('g'),
-                                                                                           [], spec)
-    expect(ok.applied == 1 and not ok.findings, f'clean: {ok}')
+    order = lambda x: hooks.discovery_order(x, Group('g'), [], spec)
+    ok = order(log(rxc=[*rxc, record(far)], tx=sent(available + 600 * MS)))
+    expect(ok.applied == 1 and not ok.findings and not ok.undecided, f'clean: {ok}')
+    wrong = order(log(rxc=rxc))
     expect(wrong.findings and wrong.findings[0].startswith('ORDER H-DISC:'), f'defective: {wrong}')
-    after = hooks.discovery_order(late, Group('g'), [], spec)
+    after = order(log(rxc=[*rxc, record(far)], tx=sent(far + 10 * MS)))
     expect(after.findings and after.findings[0].startswith('ORDER H-DISC:'), f'a probe after the next record: {after}')
+    soon = order(log(rxc=[*rxc, record(near)], tx=sent(near + 100 * MS)))
+    expect(soon.undecided == 1 and not soon.applied and not soon.findings,
+           f'a probe after a next record inside the delay: {soon}')
 
 
 def acmp_frames(seqs: list[int], response: bool) -> list[bytes]:
@@ -269,7 +281,7 @@ def check_held_push() -> None:
     parsed = log(pads=[(0, 'CTR', 0), (100 * MS, 'CTR', 0)], tx=[(first, CH['aecp'], 0, fr),
                  (second, CH['aecp'], 0, fr)], wire=[(departed, CH['aecp'], 0, fr), (second + 5, CH['aecp'], 0, fr)])
     with patch.object(hooks, 'parsed', lambda t, s, c: (parsed, [])):
-        held = hooks.held_push(synthetic, Group('hooks-counters'), {'sys_hz': 100_000_000, 'cpu_hz': 50_000_000})
+        held = hooks.held_push(synthetic, Group('hooks-counters'), {'sys_hz': SYS_HZ, 'cpu_hz': CPU_HZ})
     expect(held['eligible'] == departed + 1000 * MS and held['ms'] == 1.0, f'held {held}')
     expect(held['wait_ms'] == 911.0, f'wait {held["wait_ms"]}')
 
@@ -311,6 +323,23 @@ def check_findings() -> None:
     expect('ORDER H-MAAP: x (maap)' in got['findings'], got['findings'])
 
 
+def check_narrow() -> None:
+    """A path within its bound by fewer CPU cycles than the layout swing (6,490) is a NARROW finding by its hook;
+    by the swing or more it is none; a path over its bound is LATE, not NARROW."""
+    expect(hooks.LAYOUT_SWING_CYCLES == 6490, f'the layout swing is {hooks.LAYOUT_SWING_CYCLES}')
+    swing = hooks.LAYOUT_SWING_CYCLES * 1000 / CPU_HZ
+    rows = {'maap': [dict(row('maap', 20.0 - swing + 1e-5, probe='under.if0'), status='measured'),
+                     dict(row('maap', 20.0 - swing, probe='at.if0'), status='measured'),
+                     dict(row('maap', 20.0, probe='bound.if0'), status='measured'),
+                     dict(row('maap', 21.0, probe='over.if0'), status='measured')]}
+    got = graded_with(rows)['findings']
+    expect(any(x.startswith('NARROW H-MAAP: under.if0: ') and 'by 6,489 CPU cycles' in x for x in got), got)
+    expect(any(x.startswith('NARROW H-MAAP: bound.if0: ') for x in got), got)
+    expect(not any(': at.if0:' in x for x in got), got)
+    expect(any(x.startswith('LATE H-MAAP: over.if0:') for x in got) and not any('NARROW H-MAAP: over' in x
+                                                                               for x in got), got)
+
+
 def graded_with(probes: dict[str, list[dict]], keep_ordering: bool = False) -> dict:
     """run.grade_all over groups whose grades are the given probe rows, with no ordering instances unless
     keep_ordering leaves the caller's patch of hooks.ordering in place."""
@@ -329,7 +358,7 @@ def graded_with(probes: dict[str, list[dict]], keep_ordering: bool = False) -> d
         stack.enter_context(patch.object(hooks, 'held_push', lambda t, g, s: None))
         if not keep_ordering:
             stack.enter_context(patch.object(hooks, 'ordering', lambda t, g, s: {}))
-        return run.grade_all([Group(n) for n in probes], [Text(n) for n in probes], {}, Path(out))
+        return run.grade_all([Group(n) for n in probes], [Text(n) for n in probes], {'cpu_hz': CPU_HZ}, Path(out))
 
 
 def check_superseded() -> None:
@@ -391,7 +420,8 @@ CHECKS: dict[str, Callable[[], None]] = {
     'H-DISC ordering': check_disc_order, 'H-ACMP ordering': check_acmp_order, 'H-AECP ordering': check_aecp_order,
     'H-NOTIFY ordering': check_notify_order, 'H-COUNTERS spacing': check_counter_spacing,
     'the held push': check_held_push, 'H-MAAP ordering': check_maap_order, 'H-SRP ordering': check_srp_order,
-    'findings by hook': check_findings, 'a refusal is superseded only by its own path': check_superseded,
+    'findings by hook': check_findings, 'a fit under the layout swing is a finding': check_narrow,
+    'a refusal is superseded only by its own path': check_superseded,
     'the aging window opens after the arm': check_aging_group,
     'a composed row opens on full buckets': check_buckets_full,
 }
@@ -416,8 +446,10 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
      'the exact bound fits and W adds'),
     ('map: the counter push is a notification', mutant(hooks, 'COUNTERS_PREFIX', '\0'), 'the hooks map'),
     ('map: no composed row of this harness is loaded', mutant(run, 'LOADED', grade.BACKLOG_ROWS), 'the hooks map'),
-    ('label: the variant labelled the product\'s', mutant(run, 'clock_label', lambda spec: 'CPU (the product split '
-     'CPU clock)'), 'the clock labels'),
+    ('label: the Milan clock labelled the product\'s (the earlier rule)', mutant(run, 'clock_label', lambda spec: (
+        f'CPU {spec["cpu_hz"] / 1e6:g} MHz on sys (the product split CPU clock)')), 'the clock labels'),
+    ('label: the Milan clock the default (the earlier rule)', mutant(hooks_build, 'CPU_CLOCKS', ('milan', 'sys')),
+     'the clock labels'),
     ('split: the counter change is no pad', mutant(hooks, 'parsed', lambda t, s, c: (hooks.ORIGINAL_PARSE(
         hooks.split(t)[0], s, c), [])), 'own lines are split off'),
     ('H-ADP: the grandmaster is not checked', mutant(hooks, 'gm_steps', lambda g: []), 'H-ADP ordering'),
@@ -425,6 +457,8 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
      'H-DISC ordering'),
     ('H-DISC: the window never ends (the earlier rule ended it at the next tagged record)',
      mutant(hooks, 'next_adp_record', lambda log, i, after: 1 << 62), 'H-DISC ordering'),
+    ('H-DISC: a window shorter than the sink\'s TMR_DELAY decides (the earlier rule)',
+     mutant(hooks, 'disc_decided_ms', lambda: 0.0), 'H-DISC ordering'),
     ('H-ACMP: no response is matched to its command', mutant(hooks.grade, 'response_sequence', lambda fr: None),
      'H-ACMP ordering'),
     ('H-AECP: no face commit is recognised', mutant(hooks, 'face_commit_words', lambda spec: set()),
@@ -463,6 +497,10 @@ MUTANTS: list[tuple[str, Callable[[], AbstractContextManager], str]] = [
      'a composed row opens on full buckets'),
     ('findings: a path over its bound is not a finding', mutant(run, 'hook_row', lambda r, g: dict(
         HOOK_ROW(r, g), within=True)), 'findings by hook'),
+    ('narrow: the layout swing is not applied', mutant(hooks, 'LAYOUT_SWING_CYCLES', 0),
+     'a fit under the layout swing is a finding'),
+    ('narrow: the slack counted at the 50 MHz CPU (the earlier clock)', mutant(run, 'slack_cycles', lambda r, hz: (
+        SLACK(r, hz // 2))), 'a fit under the layout swing is a finding'),
 ]
 
 

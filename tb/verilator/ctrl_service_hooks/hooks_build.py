@@ -39,9 +39,13 @@ IMAGE = FIRMWARE / 'test/ctrl_plat_image.py'
 #: The platform's fixture map, the first link's (the split boot simulation's PROVISIONAL).
 PROVISIONAL = FIRMWARE / 'test/ctrl_plat_csr.csv'
 POINTS = {'1x1': ('endstation_ax7101_1x1_tdm8', 1), '8x8': ('endstation_ax7101_8x8', 2)}
-#: The one point the planner's ledger lets the platform image plan past 56 RAMB36 (ctrl_memory.LEDGERED,
-#: owner's ruling on #665, 6505997821): its name for the image and the SoC's memory plan, at that point only.
+#: The one point the planner's ledger lets the platform image plan past 56 RAMB36 (ctrl_memory.LEDGERED, the
+#: ruling of 2026-10-29 on #665): its name for the image and the SoC's memory plan, at that point only.
 LEDGERED_POINTS = {('endstation_ax7101_8x8', 2): 'platform-8x8-two-interfaces'}
+#: The CPU clocks (hooks_soc.py), the product's first: `sys`, the SoC's system clock, 100 MHz, the product's split
+#: CPU clock by the owner's decision of 2026-10-30 on #665; `milan`, the shape's Milan clock, 50 MHz, which this
+#: base's MilanSoC still drives the CPU from.
+CPU_CLOCKS = ('sys', 'milan')
 #: make's parallelism for the native model.
 JOBS = 16
 #: The testbench's additions: (anchor in the CPU budget harness's sim_main.cpp, its replacement). The
@@ -207,13 +211,15 @@ def digests(out: Path, spec: dict) -> dict[str, str]:
     return found
 
 
-def build(out: Path, point: str, arm: str, cpu_hz: int | None,
+def build(out: Path, point: str, arm: str, cpu_clock: str,
           plant: tuple[tuple[str, str, str], ...] | None) -> dict:
-    """Every build step at one point; returns build.json's contents."""
+    """Every build step at one point and CPU clock (CPU_CLOCKS); returns build.json's contents."""
+    if cpu_clock not in CPU_CLOCKS:
+        raise RuntimeError(f'unknown CPU clock {cpu_clock!r}')
     shape, n_if = POINTS[point]
     out.mkdir(parents=True, exist_ok=True)
     boot.runtime(out)
-    selection = dict(shape=shape, n_if=n_if, arm=arm, cpu_hz=cpu_hz, ledgered=ledgered_point(shape, n_if))
+    selection = dict(shape=shape, n_if=n_if, arm=arm, cpu_clock=cpu_clock, ledgered=ledgered_point(shape, n_if))
     first = image(out, 'image-provisional', (shape, n_if), PROVISIONAL, None)
     export(out, 'soc-provisional', {**selection, 'elf': str(first)})
     csr_csv = out / 'soc-provisional/csr.csv'
@@ -249,5 +255,4 @@ def reused(out: Path) -> dict:
 if __name__ == '__main__':
     os.environ.setdefault('PYTHONHASHSEED', '0')
     print(json.dumps(build(Path(sys.argv[1]).resolve(), sys.argv[2], sys.argv[3] if len(sys.argv) > 3 else 'idle',
-                           int(sys.argv[4]) if len(sys.argv) > 4 and sys.argv[4] != '-' else None, None),
-                     indent=2)[:3000])
+                           sys.argv[4] if len(sys.argv) > 4 else 'sys', None), indent=2)[:3000])

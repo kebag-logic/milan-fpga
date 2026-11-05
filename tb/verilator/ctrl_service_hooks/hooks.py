@@ -37,8 +37,15 @@ import grade  # noqa: E402  its grader, read only
 import scenario  # noqa: E402  its stimulus, read only
 from scenario import CH, MS, Group, Point, Probe  # noqa: E402
 
-#: The project service budget, approved by the owner on 2026-10-29 (#665, issuecomment-6495692075).
+#: The project service budget, approved by the owner on 2026-10-29 (#665).
 T_SVC_MS = 20.0
+#: The measured swing of one pass's CPU cycles from data layout alone, 195,050 to 201,540 on the same records
+#: (#665, ruling of 2026-11-04): a fit by less than it fits by chance, so a path within its bound by fewer CPU
+#: cycles is a finding (NARROW), as a path over it is.
+LAYOUT_SWING_CYCLES = 6490
+#: The sink's TMR_DELAY, a draw of 0 to 1000 ms between discovering its talker and its PROBE_TX_COMMAND (Milan
+#: v1.2 Table 5.29; tsn-c-stack acmp.h, ACMP_TMR_DELAY_MAX_MS).
+TMR_DELAY_MAX_MS = 1000.0
 #: Each family's normative timeout, against which the margin is recorded (FR_NFR.md 3.4.1): ADP's 2 s random
 #: window (Milan v1.2 5.6.3.5.2); a discovery input's ACMP action and ACMP's transaction timeout, 200 ms
 #: (Milan v1.2 5.5.2.3, Table 5.26); AECP's response, 240 ms (IEEE 1722.1-2021 9.3.2.6), which a notification
@@ -61,7 +68,8 @@ BUS_MS = MS
 
 
 def bound_ms(family: str) -> float:
-    """A family's bound: min(T_svc, its 10 % ceiling) (FR_NFR.md 3.4.1; #665, issuecomment-6495692075)."""
+    """A family's bound: min(T_svc, its 10 % ceiling) (FR_NFR.md 3.4.1; #665, the owner's decision of
+    2026-10-29)."""
     return min(T_SVC_MS, scenario.CEILING_MS[family])
 
 
@@ -81,9 +89,10 @@ class Plant:
     arm: str = 'idle'
 
 
-#: A spin of 60,000 turns, about 60 ms of the 50 MHz CPU with the split cache (each turn a load and a store of
-#: the counter in sram, about 1 us), well past every bound; the plants run at the product clock.
-SPIN = '\tfor (volatile uint32_t n = 0; n < 60000u; ++n) {\n\t}\n'
+#: A spin of 120,000 turns, each a load and a store of the counter in sram, well past every bound: 60,000 took
+#: about 60 ms at the 50 MHz CPU, and a turn takes at least half as long at 100 MHz, the memory's latency in bus
+#: cycles unchanged. The plants run at the product clock, 100 MHz.
+SPIN = '\tfor (volatile uint32_t n = 0; n < 120000u; ++n) {\n\t}\n'
 
 
 #: The notification loop of aecp.c's transmit; the late plant spins once before a fan-out's first recipient.
@@ -544,10 +553,12 @@ def graded(text: str, group: Group, spec: dict) -> dict:
 
 @dataclasses.dataclass
 class Checked:
-    """One ordering check's result on one group: the instances it applied to and its findings."""
+    """One ordering check's result on one group: the instances it applied to, its findings, and the instances
+    the log could not decide (neither applied nor passed)."""
 
     applied: int = 0
     findings: list[str] = dataclasses.field(default_factory=list)
+    undecided: int = 0
 
 
 def pass_start(log: grade.Log, cycle: int) -> int:
@@ -621,10 +632,18 @@ def next_adp_record(log: grade.Log, interface: int, after: int) -> int:
                default=1 << 62)
 
 
+def disc_decided_ms() -> float:
+    """The shortest window without a PROBE_TX_COMMAND that shows the sink never probed: the ENTITY_AVAILABLE's
+    service, the longest TMR_DELAY, then the timer's service to the PROBE_TX_COMMAND, each service at its bound."""
+    return TMR_DELAY_MAX_MS + 2 * bound_ms('disc')
+
+
 def discovery_order(log: grade.Log, group: Group, own: list[list[str]], spec: dict) -> Checked:
     """H-DISC: after a bound talker's ENTITY_DEPARTING then ENTITY_AVAILABLE on an interface, a PROBE_TX_COMMAND
     to that talker is committed on that interface after the AVAILABLE and before the interface's next ADP record,
-    tagged or not."""
+    tagged or not, which could rediscover the talker. The sink probes after its TMR_DELAY draw, so a window with no
+    PROBE_TX_COMMAND decides the instance only when it is longer than disc_decided_ms(); a shorter one leaves it
+    undecided, neither applied nor passed."""
     out = Checked()
     adp = CH['adp']
     for i in range(spec['interfaces']):
@@ -636,6 +655,9 @@ def discovery_order(log: grade.Log, group: Group, own: list[list[str]], spec: di
             until = next_adp_record(log, i, c1)
             probes = [c for c, ch, inter, fr in log.tx if ch == CH['acmp'] and inter == i and c1 < c < until
                       and len(fr) > 16 and fr[14] == 0xFC and fr[15] & 0xF == f.ACMP['PROBE_TX']]
+            if not probes and until - c1 <= disc_decided_ms() * BUS_MS:
+                out.undecided += 1
+                continue
             out.applied += 1
             if not probes:
                 out.findings.append(f'ORDER H-DISC: after the ENTITY_DEPARTING at {c0} and the ENTITY_AVAILABLE at '

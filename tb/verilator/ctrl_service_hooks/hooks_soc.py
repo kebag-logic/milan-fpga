@@ -29,8 +29,14 @@ testbench drives (the `hook` pads): the H-COUNTERS push reads the CTR
 window, so without an answer it is never sent. The AMAP and EDIT windows,
 AVB_INFO, AS_PATH and live-map events stay idle in both arms.
 
-The CPU runs at the shape's Milan clock, the product's split CPU clock, or at
-a labelled test clock (cpu_hz); the bus stays at the shape's system clock.
+The CPU clock is a named choice (cpu_clock). `sys`, the default, runs the
+CPU at the shape's system clock, 100 MHz: the product's split CPU clock by
+the owner's decision of 2026-10-30 on #665. `milan` runs it at the shape's
+Milan clock, 50 MHz, which this base's MilanSoC still drives it from, the
+product's clock before that decision. Either way the CPU keeps this base's
+own clock input and its crossing to the bus, at equal frequencies under
+`sys`; the product wiring of that decision clocks the CPU from sys itself,
+with neither. The bus stays at the shape's system clock.
 """
 from __future__ import annotations
 
@@ -57,6 +63,8 @@ milan_soc = split_soc.milan_soc
 capture_soc = split_soc.capture_soc
 #: The face arms (see the module's docstring).
 ARMS = ('idle', 'answering')
+#: Each CPU clock's name (hooks_build.CPU_CLOCKS) by the shape's clock it takes (see the module's docstring).
+CPU_CLOCK_KEYS = {'sys': 'sys_clk_hz', 'milan': 'milan_clk_hz'}
 #: The windows the answering arm answers.
 ANSWERED = ('CTR', 'GSI')
 #: The CSR window's words the testbench of the split boot simulation answers (its Bench): ID 'MILN', VERSION
@@ -171,19 +179,21 @@ def face_patch(arm: str, drive: FaceDrive, contract: object) -> object:
 
 @dataclasses.dataclass(frozen=True)
 class Build:
-    """One export's selection: the shape, its interfaces, the linked image, the face arm, the CPU clock (None
-    for the shape's Milan clock, the product's) and the ledgered point the SoC's memory plan is held to."""
+    """One export's selection: the shape, its interfaces, the linked image, the face arm, the CPU clock (a key
+    of CPU_CLOCK_KEYS, `sys` the product's) and the ledgered point the SoC's memory plan is held to."""
 
     shape: str
     n_if: int
     elf: Path
     arm: str = 'idle'
-    cpu_hz: int | None = None
+    cpu_clock: str = 'sys'
     ledgered: str | None = None
 
     def __post_init__(self) -> None:
         if self.arm not in ARMS:
             raise RuntimeError(f'unknown face arm {self.arm!r}')
+        if self.cpu_clock not in CPU_CLOCK_KEYS:
+            raise RuntimeError(f'unknown CPU clock {self.cpu_clock!r}')
 
 
 def build(build_dir: Path, sel: Build) -> dict:
@@ -201,8 +211,8 @@ def build(build_dir: Path, sel: Build) -> dict:
     geometry = split_soc.fetch_l1_geometry('split')
     scala_args = [*params['scala_args'], *filter(None, [milan_soc.ctrl_cpu_args(geometry)])]
     sys_hz = clocks['sys_clk_hz']
-    product_hz = clocks['milan_clk_hz']
-    cpu_hz = product_hz if sel.cpu_hz is None else sel.cpu_hz
+    milan_hz = clocks['milan_clk_hz']
+    cpu_hz = clocks[CPU_CLOCK_KEYS[sel.cpu_clock]]
     from mailbox_model import with_interfaces
     drive = FaceDrive(platform.request('hook'), sel.n_if)
     with cpu.applied(), split_soc.ledgered_plan(sel.ledgered), face_patch(sel.arm, drive,
@@ -230,8 +240,8 @@ def build(build_dir: Path, sel: Build) -> dict:
     spec = {
         'sources': [str(Path(s[0]).resolve()) for s in soc.platform.sources],
         'includes': soc.platform.verilog_include_paths,
-        'sys_hz': sys_hz, 'cpu_hz': cpu_hz, 'product_cpu_hz': product_hz,
-        'cpu_clock': 'product' if cpu_hz == product_hz else 'variant',
+        'sys_hz': sys_hz, 'cpu_hz': cpu_hz, 'product_cpu_hz': sys_hz, 'milan_hz': milan_hz,
+        'cpu_clock': sel.cpu_clock,
         'shape': sel.shape, 'interfaces': sel.n_if, 'arm': sel.arm, 'ledgered': sel.ledgered,
         'addresses': addresses, 'window_bytes': contract.window_bytes,
         'csr_base': milan_soc.MILAN_CSR_BASE, 'csr_size': milan_soc.MILAN_CSR_SIZE,
