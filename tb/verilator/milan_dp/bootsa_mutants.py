@@ -21,6 +21,14 @@ The first mutant is the defect as shipped: no hold and no stamp. It must fail
 the leg by the names the issue's acceptance reads, the all-zero source
 address and the MSRP frame's source address.
 
+The hold on the three sources configure_fabric() enables only after the pair
+(MAAP, the AAF talkers, the CRF talker) is proved by the leg's two
+early-enable boots, which enable them at reset release: removing it from all
+three fails each boot by the source it held, and removing it from one alone
+fails that source's check alone. The stamp's beat position wrapping past the
+source address instead of saturating fails the leg's octet-by-octet
+comparison of the control lane across the stamp.
+
 What bounds a run: the leg is cycle-bounded (its own fixed phases and the
 AXI4-Lite BFM's 2048-cycle handshake bound), so a mutant ends no later than
 the clean leg's bound. This driver sets no host-time deadline.
@@ -58,6 +66,27 @@ MSRP_DA = "[BOOTSA] every MSRP frame's destination address is its protocol's"
 ADP_DA = "[BOOTSA] every ADP frame's destination address is its protocol's"
 LO_ALONE = "[BOOTSA] pair: MAC_ADDR_LO alone opens no CSR-addressed transmitter"
 HI_ALONE = "[BOOTSA] pair: MAC_ADDR_HI alone opens no CSR-addressed transmitter"
+ON_MAAP = "[BOOTSA] early-enable, MAAP on: no MAAP frame leaves before the station MAC is written"
+ON_CRF = "[BOOTSA] early-enable, MAAP on: no CRF frame leaves before the station MAC is written"
+OFF_AAF = "[BOOTSA] early-enable, MAAP off: no AAF frame leaves before the station MAC is written"
+OFF_CRF = "[BOOTSA] early-enable, MAAP off: no CRF frame leaves before the station MAC is written"
+OCTETS = "[BOOTSA] every control-lane octet outside 6 to 11 leaves the stamp as it entered"
+#: the transmit gate on each of the three sources the firmware enables after
+#: the pair: its valid toward the arbiter and its own ready
+HOLD = {
+    "MAAP": [("  assign maap_tx_tvalid    = maap_txs_tvalid_w & tx_sa_ok_w;",
+              "  assign maap_tx_tvalid    = maap_txs_tvalid_w;"),
+             ("  assign maap_txs_tready_w = maap_tx_tready    & tx_sa_ok_w;",
+              "  assign maap_txs_tready_w = maap_tx_tready;")],
+    "AAF": [("  assign aaf_tx_tvalid     = aaf_txs_tvalid_w  & tx_sa_ok_w;",
+             "  assign aaf_tx_tvalid     = aaf_txs_tvalid_w;"),
+            ("  assign aaf_txs_tready_w  = aaf_tx_tready     & tx_sa_ok_w;",
+             "  assign aaf_txs_tready_w  = aaf_tx_tready;")],
+    "CRF": [("  assign crft_tx_tvalid    = crft_txs_tvalid_w & tx_sa_ok_w;",
+             "  assign crft_tx_tvalid    = crft_txs_tvalid_w;"),
+            ("  assign crft_txs_tready_w = crft_tx_tready    & tx_sa_ok_w;",
+             "  assign crft_txs_tready_w = crft_tx_tready;")],
+}
 
 #: (name, {file variable: [(fragment, replacement)]}, the checks it must fail)
 MUTATIONS = [
@@ -84,6 +113,22 @@ MUTATIONS = [
      {"DP_SRC": [("      if (ctlg2_tlast)                                     ctl_sa_idx_r <= '0;",
                   "      if (ctlg2_tlast)                                     ctl_sa_idx_r <= 1'b1;")]},
      [ADP_DA]),
+    ("no hold on MAAP, the AAF talkers and the CRF talker (the processor's hold and the stamp kept)",
+     {"DP_SRC": HOLD["MAAP"] + HOLD["AAF"] + HOLD["CRF"]},
+     [ON_MAAP, ON_CRF, OFF_AAF]),
+    ("no hold on MAAP alone",
+     {"DP_SRC": HOLD["MAAP"]},
+     [ON_MAAP]),
+    ("no hold on the AAF talkers alone",
+     {"DP_SRC": HOLD["AAF"]},
+     [OFF_AAF]),
+    ("no hold on the CRF talker alone",
+     {"DP_SRC": HOLD["CRF"]},
+     [ON_CRF, OFF_CRF]),
+    ("the stamp's beat position wraps past the source address instead of saturating",
+     {"DP_SRC": [("      else if (ctl_sa_idx_r != TX_SA_IW_C'(TX_SA_BEATS_C)) ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;",
+                  "      else                                                 ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;")]},
+     [OCTETS]),
 ]
 
 
