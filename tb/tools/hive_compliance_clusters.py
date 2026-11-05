@@ -4,7 +4,7 @@
 """hive_compliance_clusters.py - the CLUSTER/MAP half of the Hive-grade checks.
 
     sudo ./hive_compliance_clusters.py --iface enp6s0 \
-         --target-eid 020000FFFE000001 --target-mac 02:00:00:00:00:01
+         --target-eid 024B4CFFFE4B4C01 --target-mac 02:4b:4c:4b:4c:01
     sudo ./hive_compliance_clusters.py --iface enp6s0 \
          --target-eid 3CC0C60102030000 --target-mac 3c:c0:c6:01:02:03
 
