@@ -1,0 +1,17 @@
+--- head/tb/verilator/milan_dp/sim_boot_sa.cpp	2026-11-05 10:53:50.333019149 +0100
++++ headearly/tb/verilator/milan_dp/sim_boot_sa.cpp	2026-11-05 11:01:24.083233946 +0100
+@@ -445,7 +445,14 @@
+ void BootSaHarness::bios_window() {
+     printf("[BOOTSA] BIOS window: %llu processor ms with no CSR access\n",
+            static_cast<unsigned long long>(kBiosMs));
++    // probe: enable MAAP, AAF (enable+bypass) and CRF before the MAC write
++    write(0x6CC, (2u << 8) | 1u);
++    write(0x654, (2u << 16) | 3u);
++    write(0x750, 0x1u);
++    printf("[PROBE] MAAP/AAF/CRF enabled before the station MAC write at cycle %llu\n",
++           static_cast<unsigned long long>(cyc_));
+     run_cycles(kBiosMs * kMsCyc);
++    printf("[PROBE] end of BIOS window: %zu frames sent so far\n", sent_.size());
+ }
+ 
+ void BootSaHarness::run_stage(const std::string& stage) {
