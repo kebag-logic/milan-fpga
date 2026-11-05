@@ -1,0 +1,120 @@
+|60    |  pp_maap_shim                          |KL_pp_maap_shim                     |    57|
+|61    |  pp_shadow                             |KL_pp_shadow                        | 48402|
+|62    |    ctl_fifo                            |axis_fifo__parameterized2           |   131|
+|63    |    u_nvm                               |KL_nvm_backend                      |  1415|
+|64    |    u_pp                                |protocol_processor_top              | 46521|
+|65    |      \g_rx_pool[1].u_rx_slots          |KL_pp_rx_slots_1                    |    68|
+|66    |      \g_rx_pool[0].u_rx_slots          |KL_pp_rx_slots                      |   101|
+|67    |      \g_rx_pool[2].u_rx_slots          |KL_pp_rx_slots_2                    |   135|
+|68    |      \g_rx_pool[4].u_rx_slots          |KL_pp_rx_slots_3                    |    73|
+|69    |      \g_rx_pool[5].u_rx_slots          |KL_pp_rx_slots_4                    |   170|
+|70    |      u_adp                             |KL_adp_engine                       |  1033|
+|71    |      u_aecp                            |KL_aecp_engine                      | 13220|
+|72    |        u_d3                            |KL_aecp_nvm_writer                  |  2765|
+|73    |        u_dyn                           |KL_aecp_dyn_state                   |  1349|
+|74    |        u_resp                          |KL_aecp_resp_buf                    |   822|
+|75    |        u_store                         |KL_aecp_desc_store                  |  2122|
+|76    |        u_ucpu                          |KL_aecp_ucpu                        |  3014|
+|77    |      u_ca_builder                      |KL_aecp_ca_originator               |   507|
+|78    |      u_desc_mem_guard                  |KL_aecp_desc_mem_guard              |     2|
+|79    |      u_dispatch                        |KL_pp_dispatch                      |  1270|
+|80    |        u_acmp_q                        |KL_pp_dispatch_fifo                 |   414|
+|81    |        u_adp_q                         |KL_pp_dispatch_fifo_5               |   124|
+|82    |        u_aecp_q                        |KL_pp_dispatch_fifo_6               |   613|
+|83    |        u_maap_q                        |KL_pp_dispatch_fifo__parameterized0 |    20|
+|84    |      u_event_router                    |KL_pp_event_router                  |   322|
+|85    |      u_listener                        |KL_pp_acmp_listener                 |  2958|
+|86    |      u_lsn_admit                       |KL_pp_acmp_lsn_admit                |    47|
+|87    |      u_mrp_strip                       |KL_mrp_strip                        |   221|
+|88    |      u_normalizer                      |KL_pp_normalizer                    |   408|
+|89    |      u_notify                          |KL_aecp_notify                      |  3478|
+|90    |      u_nvm_arb                         |KL_pp_nvm_mgr_arb                   |    50|
+|91    |      u_nvm_port                        |KL_pp_nvm_port                      |   914|
+|92    |      u_nvm_shadow                      |KL_acmp_nvm_shadow                  |  2033|
+|93    |      u_originator                      |KL_pp_originator                    |  1598|
+|94    |      u_prng                            |KL_pp_prng                          |   312|
+|95    |      u_release_merge                   |KL_pp_release_merge                 |     5|
+|96    |      u_rx_validator                    |KL_pp_rx_validator                  |  1427|
+|97    |      u_scoreboard                      |KL_pp_scoreboard                    |   354|
+|98    |      u_side_port                       |KL_pp_side_port                     |    68|
+|99    |      u_srp                             |KL_srp_top                          |  8925|
+|100   |        u_admission                     |KL_srp_admission                    |   243|
+|101   |        u_decoder                       |KL_srp_decoder                      |  1465|
+|102   |        u_domain                        |KL_srp_domain                       |   227|
+|103   |        u_encoder                       |KL_srp_encoder                      |  2668|
+|104   |        u_listener                      |KL_srp_listener_fsm                 |  1906|
+|105   |        u_talker                        |KL_srp_talker_fsm                   |  1423|
+|106   |        u_vlan                          |KL_srp_vlan                         |   299|
+|107   |      u_talker                          |KL_acmp_talker                      |  1602|
+|108   |      u_timer                           |KL_pp_timer_service                 |  1472|
+|109   |      u_trace                           |KL_pp_trace_ring                    |    59|
+|110   |      u_tx_arbiter                      |KL_pp_tx_arbiter                    |   455|
+|111   |      u_tx_slots                        |KL_pp_tx_slots                      |   670|
+|112   |  ptp_clock_validity                    |KL_ptp_clock_validity               |   208|
+|113   |  ptp_sync                              |ptp_csr_sync                        |   825|
+|114   |  reboot_ctrl                           |KL_reboot_ctrl                      |   109|
+|115   |  render_queue                          |KL_render_queue                     |   734|
+|116   |  stream_table                          |KL_stream_table                     |   193|
+|117   |  talker_diag                           |KL_talker_diag_ctx                  |   467|
+|118   |  tone_gen                              |KL_tone_gen                         |   148|
+|119   |  tone_gen_media                        |KL_tone_gen__parameterized0         |   104|
+|120   |  ts_counter                            |timestamp_counter                   |   357|
+|121   |  zf_tick_cdc                           |cdc_pulse                           |     7|
++------+----------------------------------------+------------------------------------+------+
+---------------------------------------------------------------------------------
+Finished Writing Synthesis Report : Time (s): cpu = 00:09:05 ; elapsed = 00:05:57 . Memory (MB): peak = 3091.469 ; gain = 1090.969 ; free physical = 10326 ; free virtual = 64314
+---------------------------------------------------------------------------------
+Synthesis finished with 0 errors, 0 critical warnings and 3361 warnings.
+Synthesis Optimization Runtime : Time (s): cpu = 00:09:05 ; elapsed = 00:06:02 . Memory (MB): peak = 3095.383 ; gain = 1094.883 ; free physical = 16338 ; free virtual = 70394
+Synthesis Optimization Complete : Time (s): cpu = 00:09:05 ; elapsed = 00:06:02 . Memory (MB): peak = 3095.383 ; gain = 1094.883 ; free physical = 16327 ; free virtual = 70371
+INFO: [Project 1-571] Translating synthesized netlist
+Netlist sorting complete. Time (s): cpu = 00:00:00.71 ; elapsed = 00:00:00.7 . Memory (MB): peak = 3155.102 ; gain = 0.000 ; free physical = 16071 ; free virtual = 70139
+INFO: [Netlist 29-17] Analyzing 5211 Unisim elements for replacement
+INFO: [Netlist 29-28] Unisim Transformation completed in 1 CPU seconds
+INFO: [Project 1-570] Preparing netlist for logic optimization
+INFO: [Opt 31-138] Pushed 0 inverter(s) to 0 load pin(s).
+Netlist sorting complete. Time (s): cpu = 00:00:00.04 ; elapsed = 00:00:00.05 . Memory (MB): peak = 3518.250 ; gain = 0.000 ; free physical = 16718 ; free virtual = 70557
+INFO: [Project 1-111] Unisim Transformation Summary:
+  A total of 1093 instances were transformed.
+  RAM16X1D => RAM32X1D (RAMD32(x2)): 23 instances
+  RAM16X1S => RAM32X1S (RAMS32): 80 instances
+  RAM32M => RAM32M (RAMD32(x6), RAMS32(x2)): 594 instances
+  RAM32X1D => RAM32X1D (RAMD32(x2)): 12 instances
+  RAM64M => RAM64M (RAMD64E(x4)): 30 instances
+  RAM64X1D => RAM64X1D (RAMD64E(x2)): 290 instances
+  RAM64X1S => RAM64X1S (RAMS64E): 64 instances
+
+Synth Design complete | Checksum: 8a0f0f70
+INFO: [Common 17-83] Releasing license: Vivado_Synthesis
+850 Infos, 458 Warnings, 0 Critical Warnings and 0 Errors encountered.
+synth_design completed successfully
+synth_design: Time (s): cpu = 00:09:29 ; elapsed = 00:06:26 . Memory (MB): peak = 3518.285 ; gain = 1517.785 ; free physical = 16919 ; free virtual = 70790
+INFO: [Common 17-2834] synth_design peak Physical Memory [PSS] (MB): overall = 9819.711; main = 2162.436; forked = 7929.753
+INFO: [Common 17-2834] synth_design peak Virtual Memory [VSS] (MB): overall = 19778.742; main = 3518.254; forked = 16750.684
+# set CLK_NAME axis_clk
+# set CLK_PORT [get_ports -quiet $CLK_NAME]
+# if {[llength $CLK_PORT] != 1} {
+#   error "milan_datapath OOC: expected exactly one $CLK_NAME port after\
+#  synthesis, found [llength $CLK_PORT]. A virtual clock would report an\
+#  unconstrained design as if it were a timing result."
+# }
+# create_clock -period 10.000 -name clk $CLK_PORT
+# report_utilization -hierarchical -file util_hier_$TAG.rpt
+# report_utilization -file util_$TAG.rpt
+# report_timing_summary -delay_type max -max_paths 3 -file timing_$TAG.rpt
+INFO: [Timing 38-91] UpdateTimingParams: Speed grade: -2, Delay Type: max.
+INFO: [Timing 38-191] Multithreading enabled for timing update using a maximum of 32 CPUs
+INFO: [Timing 38-35] Done setting XDC timing constraints.
+WARNING: [Timing 38-493] Port clk_audio_i has one or several leaf clock pins in its transitive fanout without any clock buffer on the path and no clock reaching the clock pin(s). Vivado cannot infer the clock source when no clock buffer is found on the path to a leaf clock pin.
+WARNING: [Timing 38-493] Port gtx_clk has one or several leaf clock pins in its transitive fanout without any clock buffer on the path and no clock reaching the clock pin(s). Vivado cannot infer the clock source when no clock buffer is found on the path to a leaf clock pin.
+WARNING: [Timing 38-493] Port i_ps_clk has one or several leaf clock pins in its transitive fanout without any clock buffer on the path and no clock reaching the clock pin(s). Vivado cannot infer the clock source when no clock buffer is found on the path to a leaf clock pin.
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "axis_clk" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "clk_audio_i" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "gtx_clk" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+WARNING: [Timing 38-242] The property HD.CLK_SRC of clock port "i_ps_clk" is not set. In out-of-context mode, this prevents timing estimation for clock delay/skew
+Resolution: Set the HD.CLK_SRC property of the out-of-context port to the location of the clock buffer instance in the top-level design
+report_timing_summary: Time (s): cpu = 00:01:06 ; elapsed = 00:00:24 . Memory (MB): peak = 3774.375 ; gain = 256.090 ; free physical = 19473 ; free virtual = 73561
+INFO: [Common 17-206] Exiting Vivado at Wed Nov  4 22:15:46 2026...
