@@ -1,0 +1,23 @@
+source: review-evidence/839-r1/author/receipts/area at 1904ad8588ac21601bd5072077770adaf0bbca89
+fd880b6433e737876d6a5711f26c5cda209cb01a4a6ff8fd6ca2447817830a67  util_base.rpt
+edee8709f5b328cfe792c82acfb2196a43a40030f56a4d5e11e97d1e640285a4  util_head.rpt
+a8a82d1bf6d8c268893f8358b24e6b1145b0a6518dee46c468383a59e7a5f846  AREA.md
+== util_base.rpt
+| Slice LUTs*                | 45176 |     0 |          0 |     63400 | 71.26 |
+|   LUT as Logic             | 41886 |     0 |          0 |     63400 | 66.07 |
+| Slice Registers            | 40222 |     0 |          0 |    126800 | 31.72 |
+| F7 Muxes                   |   805 |     0 |          0 |     31700 |  2.54 |
+| F8 Muxes                   |   104 |     0 |          0 |     15850 |  0.66 |
+| Block RAM Tile    | 27.5 |     0 |          0 |       135 | 20.37 |
+| DSPs           |   13 |     0 |          0 |       240 |  5.42 |
+== util_head.rpt
+| Slice LUTs*                | 45275 |     0 |          0 |     63400 | 71.41 |
+|   LUT as Logic             | 41985 |     0 |          0 |     63400 | 66.22 |
+| Slice Registers            | 40233 |     0 |          0 |    126800 | 31.73 |
+| F7 Muxes                   |   920 |     0 |          0 |     31700 |  2.90 |
+| F8 Muxes                   |   109 |     0 |          0 |     15850 |  0.69 |
+| Block RAM Tile    | 27.5 |     0 |          0 |       135 | 20.37 |
+| DSPs           |   13 |     0 |          0 |       240 |  5.42 |
+AREA.md head commit: 8d2dfb65; git diff --stat 8d2dfb6547 992c3d7bb3:
+ tb/verilator/milan_dp_render/sim_tdm8_render.cpp | 6 ++++++
+ 1 file changed, 6 insertions(+)

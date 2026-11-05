@@ -1,0 +1,18 @@
+--- head/tb/verilator/milan_dp/sim_boot_sa.cpp	2026-11-05 10:53:50.333019149 +0100
++++ headdump/tb/verilator/milan_dp/sim_boot_sa.cpp	2026-11-05 11:07:30.424964023 +0100
+@@ -363,6 +363,15 @@
+     s.sa = be(tx_cur_, 6, 6);
+     s.before_mac = !(wrote_lo_ && wrote_hi_);
+     if (s.kind == Kind::Adp && tx_cur_.size() > 15) s.adp_msg = tx_cur_[15] & 0xF;
++    {
++        static int dumped_msrp = 0;
++        if (s.kind == Kind::Msrp && dumped_msrp < 2) {
++            ++dumped_msrp;
++            printf("[DUMP] MSRP len %zu cycle %llu:", tx_cur_.size(), static_cast<unsigned long long>(cyc_));
++            for (size_t i = 0; i < tx_cur_.size(); ++i) printf("%s%02x", (i == 6 || i == 12) ? " | " : "", tx_cur_[i]);
++            printf("\n");
++        }
++    }
+     sent_.push_back(s);
+     frames_.push_back(tx_cur_);
+     tx_cur_.clear();
