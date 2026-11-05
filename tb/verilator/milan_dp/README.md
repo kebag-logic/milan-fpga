@@ -107,7 +107,7 @@ The separate `milan_dp_gptp` suite reuses this Makefile's physical recipe:
 - **[The #508 GET_STREAM_INFO seam (the GSI section of obj_notify)](#the-508-get_stream_info-seam-the-gsi-section-of-obj_notify)** -- The four Stream Input fields the processor now owns, the transitions the timed leg drives through real wiring, its mutants, and the boot walk every binding harness starts
 - **[The #653 unbind order and Table 5.6 pair (the UNB section of obj_notify)](#the-653-unbind-order-and-table-56-pair-the-unb-section-of-obj_notify)** -- An unbind of each locked input, graded for the response-before-push order and the Table 5.6 pair, with its trace and its mutants
 - **[The #658 power-on audio maps (obj_dynmap)](#the-658-power-on-audio-maps-obj_dynmap)** -- The power-on maps on both ports, Milan 5.4.2.7 on a format change, the boot-window clip, a restored format and the window's guard arms, with the leg's planted controls.
-- **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, what it does not grade, and its seven planted controls
+- **[The #839 station MAC from reset (obj_bootsa)](#the-839-station-mac-from-reset-obj_bootsa)** -- The boot leg that drives the firmware's own boot order and grades every frame's source address up to and past the first ENTITY_AVAILABLE, the early-enable boots that hold MAAP, AAF and CRF, the octet comparison across the stamp, what it does not grade, and its twelve planted controls
 - **[GM step re-base leg (#387)](#gm-step-re-base-leg-387)** -- A grandmaster change that steps the PHC under CRF selection, graded against the #387 render and #602 restart decisions, with negative controls
 - **[2026-08-13 — the control plane was SUBSTITUTED, and this suite was rewritten around it](#2026-08-13--the-control-plane-was-substituted-and-this-suite-was-rewritten-around-it)** -- What the legacy-plane deletion did to this suite: which checks were repointed to the protocol processor's class-D face and the 0x920 window, and which were deleted because their subject no longer exists
 - **[The device answers AECP now — and what this suite can and cannot see of it](#the-device-answers-aecp-now--and-what-this-suite-can-and-cannot-see-of-it)** -- What the AECP µCPU answers, why every leg here starts with no descriptor memory and AECP held until the restore, and the dynamic-output-map capability that the substitution cost
@@ -1143,39 +1143,97 @@ reset), `nvm_boot()` (stood in for by the restore walk it ends with on blank
 media; its saved-state traffic is not modelled) and `entity_advertise(1)`.
 It runs past the first ENTITY_AVAILABLE to the re-advertisement. A controller
 then asks one READ_DESCRIPTOR and one GET_TX_STATE_COMMAND, and the AAF talker
-is opened through the `AAF_CTRL[1]` diagnostic bypass. Two more boots then
-grade the pair's sequencing in an order the firmware does not use: one half
-alone, 300 processor ms, then the other. Either half alone must open no
-CSR-addressed transmitter, and the second must release the processor's frame
-with the whole address.
+is opened through the `AAF_CTRL[1]` diagnostic bypass. Once MAAP holds its
+claim, a listener sends one PROBE_TX_COMMAND to the AAF stream output. The
+destination is then valid (Milan v1.2 4.3.3.1), so the talker declares its
+Talker Advertise and first joins its VLAN by MVRP (Milan v1.2 4.3.2), and an
+MVRP frame leaves. The talker refuses a probe until its destination
+allocation has been answered, so the leg repeats the probe, up to five times,
+until it answers SUCCESS.
+
+Two more boots then grade the pair's sequencing in an order the firmware
+does not use: one half alone, 300 processor ms, then the other. Either half
+alone must open no CSR-addressed transmitter, and the second must release the
+processor's frame with the whole address.
+
+Two more boots then enable the three transmitters that `configure_fabric()`
+enables only after the pair, at reset release instead. Each writes
+`MAAP_CTRL`, `AAF_CTRL` (enable and the `AAF_CTRL[1]` bypass) and `CRFT_CTRL`
+with the firmware's own boot words, before any MAC write. It then holds the
+pair unwritten for 400 processor ms and writes it. The first boot enables
+MAAP, and its MAAP and CRF talker offer frames inside the held window. Its AAF
+talker cannot, whatever the window's length:
+
+- the AAF gate needs MAAP's claim while MAAP is enabled (`aaf_gate`,
+  `hdl/milan/milan_datapath.sv:2214-2217`);
+- MAAP holds a claim only in ANNOUNCE (`hdl/ieee1722/maap/KL_maap.sv:189`),
+  and reaches ANNOUNCE only when it sends its fourth PROBE
+  (`KL_maap.sv:487-489`);
+- MAAP sends a PROBE only once the previous one has left
+  (`KL_maap.sv:477`), and its first stays in `tx_busy_r`, its `tvalid`
+  (`KL_maap.sv:307`), until a beat is accepted (`KL_maap.sv:392-395`);
+- the hold gives MAAP `tready` 0 until the pair is written
+  (`milan_datapath.sv:8818`).
+
+So the second boot leaves MAAP off, which opens the AAF gate's MAAP term, and
+the AAF talker and the CRF talker offer frames inside the held window. Each
+source that offered must not have sent, and each must send from the station
+MAC once the pair is written.
 
 It grades every frame on valid/ready at `m_axis_mac_tx`:
 
 - no frame carries the all-zero source address;
 - no CSR-addressed transmitter's frame leaves before both halves are written;
 - each protocol's frames carry the station MAC as source address;
-- each fixed-address protocol's destination is still its own, and every frame
-  is a known protocol's, so the stamp touched nothing but octets 6 to 11;
-- MSRP, gPTP, ADP, AECP, ACMP, MAAP and AAF frames were all sent;
+- each fixed-address protocol's destination (octets 0 to 5) is its own for
+  MSRP, MVRP, gPTP, ADP, ACMP and MAAP, and the controller's MAC for AECP;
+- every frame is a known protocol's: its EtherType (octets 12 and 13, or 16
+  and 17 behind a C-TAG) and, for AVTP, its subtype name one of the graded
+  kinds;
+- MSRP, MVRP, gPTP, ADP, AECP, ACMP, MAAP and AAF frames were all sent, and
+  CRF frames too where the config declares the CRF Media Clock Output;
 - the processor offered a frame before the station MAC was written, so the
   leg reached the defect's precondition;
 - `A_TXARB_DIAG` reads no arbiter stall or abort.
+
+On the stamp's own valid/ready, in every boot, it compares each control-lane
+octet outside octets 6 to 11 with the same octet entering the stamp (the IFG
+gasket's output). Every one must leave unchanged. The octet's position is the
+leg's own count of the frame's kept octets.
+
+In each early-enable boot it also grades:
+
+- that each source it requires offered a frame while the pair was unwritten
+  (its own `tvalid`, ahead of the transmit gate): MAAP and the CRF talker in
+  the MAAP-on boot, the AAF talker and the CRF talker in the MAAP-off boot;
+- that no frame of that source left before the pair was written;
+- that MAAP, AAF and CRF frames (AAF and CRF with MAAP off) left after it;
+- that no CSR-addressed frame left early, no frame carried the all-zero
+  address, every frame carried the station MAC, and `A_TXARB_DIAG` is clean.
 
 ```sh
 make -C tb/verilator/milan_dp bootsa
 make -C tb/verilator/milan_dp bootsa-mutants
 ```
 
-`bootsa_mutants.py` plants seven controls in copies of the RTL. Each must
+`bootsa_mutants.py` plants twelve controls in copies of the RTL. Each must
 fail the leg by every check it names. The first is the defect as shipped, no
 hold and no stamp: it fails on the all-zero source address and on the MSRP
-frame's source. The others take the hold or the stamp away alone, let either
-half alone complete the pair, move the stamp onto the destination, and keep
-the stamp's beat position across a frame's end.
+frame's source. The others:
 
-What it does not grade: an order no shipping firmware uses, such as enabling
-MAAP, AAF or CRF before the station MAC is written (the hold covers it; this
-leg does not drive it), and `nvm_boot()`'s own CSR traffic.
+- take the hold or the stamp away alone;
+- let either half alone complete the pair;
+- move the stamp onto the destination;
+- keep the stamp's beat position across a frame's end;
+- let the stamp's beat position wrap past the source address instead of
+  saturating, which fails the octet comparison;
+- take the hold away from MAAP, the AAF talkers and the CRF talker together,
+  which fails the MAAP and CRF checks of the MAAP-on boot and the AAF check of
+  the MAAP-off boot;
+- take the hold away from each of the three alone, which fails that source's
+  own check.
+
+What it does not grade: `nvm_boot()`'s own CSR traffic.
 
 ## GM step re-base leg (#387)
 

@@ -70,7 +70,10 @@ The [archived throughput record](docs/history/v1/findings/PERFORMANCE_GOAL.md) p
 - The `bootsa` leg boots through `milan_init()`'s own order.
 - It grades every frame's source past ENTITY_AVAILABLE.
 - Two more boots write one half, then the other.
-- `bootsa-mutants` plants the shipped defect and six more.
+- Two more enable MAAP, AAF and CRF before the MAC write.
+- Each source that offers a frame then must be held.
+- Control-lane octets outside 6 to 11 must pass the stamp unchanged.
+- `bootsa-mutants` plants the shipped defect and eleven more.
 
 ## Unreleased - gPTP on the MII port
 
