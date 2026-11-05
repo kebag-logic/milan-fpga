@@ -1,0 +1,19 @@
+--- src-engine/tb/verilator/engine/sim_main.cpp	2026-11-05 18:46:45.000000000 +0100
++++ src-probe3/tb/verilator/engine/sim_main.cpp	2026-11-05 21:09:55.382317814 +0100
+@@ -7744,6 +7744,16 @@
+             {"#100 3.0 s apart, two clocks after the tick", 1, 3000, true},
+             {"#100 3.0 s apart, nine clocks before a tick", 1990, 3000, true},
+             {"#100 2.999 s apart", 0, 2999, false},
++            {"PROBE 2.999 s apart, last octet on the tick cycle", 1999, 2999,
++             false},
++            {"PROBE 2.999 s apart, a clock before the tick cycle", 1998, 2999,
++             false},
++            {"PROBE 2.999 s apart, two clocks before the tick cycle", 1997,
++             2999, false},
++            {"PROBE 3.0 s apart, last octet on the tick cycle", 1999, 3000,
++             true},
++            {"PROBE 3.0 s apart, a clock before the tick cycle", 1998, 3000,
++             true},
+         };
+     p100_sync_src = P100_SRC;
+     p100_next_sync = cyc;

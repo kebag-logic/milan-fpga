@@ -1,0 +1,8 @@
+[FAIL] mutant SURVIVED: PROBE frequency truncated toward zero, not floored. The harness does not prove "#100 TLV settled: scaledLastGmFreqChange is the kept trim less the estimate".
+VERDICT PROBE frequency truncated toward zero, not floored: NOT CAUGHT
+FAIL #100 TLV settled: scaledLastGmFreqChange is the kept trim less the estimate got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: PROBE frequency multiply zero-extends the difference - breaks "#100 TLV settled: scaledLastGmFreqChange is the kept trim less the estimate"
+VERDICT PROBE frequency multiply zero-extends the difference: caught
+FAIL #100 TLV slewing: lastGmPhaseChange is the last offset got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: PROBE lastGmPhaseChange not sign-extended - breaks "#100 TLV slewing: lastGmPhaseChange is the last offset"
+VERDICT PROBE lastGmPhaseChange not sign-extended: caught

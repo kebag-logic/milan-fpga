@@ -1,0 +1,7 @@
+span (15 ms turnaround + 2 x 800 ns) = 15001600 ns
+additive 1.0003:      ceil(span*1.0003) + 80 = 15006181 (PD_LATE_NS_C)
+multiplicative 1.0001*1.0002: ceil(span*f) + 80 = 15006181 exact 15006100.780032
+equal: True ; 24-bit CMP immediate PD_LATE_NS_C+1 = 15006182 < 16777216 True
+bound in ms: 15.006181
+the generator's own value:
+PD_LATE_NS_C = 15006181 CQ_C = 0xF822436A CLOCK_ACCURACY_C = 0x22
