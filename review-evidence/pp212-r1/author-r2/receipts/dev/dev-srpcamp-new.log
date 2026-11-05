@@ -1,0 +1,39 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_top link: rc=0 PASS
+control srp_top lvcoll: rc=0 PASS
+control srp_top phases: rc=0 PASS
+listener-strict-lv: rc=2 failures=13 KILLED tags=K11,K6
+listener-no-expiry: rc=2 failures=1 KILLED tags=K8
+lv-expiry-masked: rc=2 failures=16 KILLED tags=SC2
+lv-expiry-masked: rc=2 failures=16 KILLED tags=SC1
+lv-expiry-last: rc=2 failures=48 KILLED tags=SC1
+lv-expiry-dropped: rc=2 failures=89 KILLED tags=K leavetimer! -> MT,K one LISTENER_REG_CHANGE, got 0,K source 3 no longer ACTIVE,L expiry -> MT + unregistered,PS19,PS21,PS8,SC1,T reg
+seed-no-registered-strobe: rc=2 failures=25 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS17,PS19,PS2,PS20,PS21,PS3,PS4,PS5,PS7,PS8,PS9
+seed-lv-fresh-deadline: rc=2 failures=3 KILLED tags=PS15,PS19,PS8
+seed-lv-unguarded: rc=2 failures=1 KILLED tags=PS15
+seed-keeps-expiry-strobe: rc=2 failures=1 KILLED tags=PS15
+pt-alloc-any-event: rc=2 failures=9 KILLED tags=PS16
+pt-fcode-first-only: rc=2 failures=1 KILLED tags=PS17
+pt-lat-on-alloc-only: rc=2 failures=3 KILLED tags=PS17
+pt-type-on-alloc-only: rc=2 failures=1 KILLED tags=PS17
+seed-on-teardown: rc=2 failures=2 KILLED tags=PS18
+pt-rlv-on-lv-ends: rc=2 failures=2 KILLED tags=PS19
+rebind-same-not-kept: rc=2 failures=4 KILLED tags=PS20,PS21
+keep-ignores-da: rc=2 failures=1 KILLED tags=PS20
+keep-ignores-vlan: rc=2 failures=1 KILLED tags=PS20
+keep-declares-seed-type: rc=2 failures=1 KILLED tags=PS20
+keep-latency-strobe-dropped: rc=2 failures=2 KILLED tags=PS20
+unarmed-registrar-deaf: rc=2 failures=2 KILLED tags=PS21
+keep-ignores-expiry: rc=2 failures=1 KILLED tags=PS21
+unarmed-indicates: rc=2 failures=1 KILLED tags=PS22
+unarmed-fail-chg: rc=2 failures=1 KILLED tags=PS22
+unarmed-unregistered: rc=2 failures=1 KILLED tags=PS22
+unarmed-latency-strobe: rc=2 failures=1 KILLED tags=PS22
+unarmed-publishes-latency: rc=2 failures=2 KILLED tags=PS18,PS22
+unarmed-dbg-registrar: rc=2 failures=2 KILLED tags=L A8 disarms the matcher,PS22
+pt-link-flush-dropped: rc=2 failures=4 KILLED tags=PS23
+link-begin-dropped: rc=2 failures=1 KILLED tags=PS23
+unarmed-link-flush-dropped: rc=2 failures=1 KILLED tags=PS23
+keep-on-link-clock: rc=2 failures=1 KILLED tags=PS23
+top-listener-link-unwired: rc=2 failures=1 KILLED tags=LK1
+38 checks: 38 PASS, 0 FAIL

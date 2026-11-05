@@ -1,0 +1,43 @@
+# scratch-parent records (generated)
+source: milan-fpga dev 604899c08ff1cd1830e1dd08b733109ef852400c (a local clone of the trusted dev lane)
+scratch parent head: 5761bf45d6a7f6e0a030d86b4d66a0e29f792db4 on local branch pp212-consumer-gate
+push URL: DISABLED-never-push
+never pushed: the only remote is the local source; the push URL is disabled
+
+## local commits on 604899c0
+5761bf45d6a7f6e0a030d86b4d66a0e29f792db4 Record the ROM digests of protocol-processor pin a2fce43 (unchanged from a9e84b66) for the issue #212 consumer gate
+5396b1a26d55cbd2a873c6d3fa190ea745f8271a Pin protocol-processor to a2fce43 for the processor issue #212 consumer gate
+d9ac431baaf091043e3a144cd08cd509edef3e9c Record the ROM digests of protocol-processor pin 04856e4 (unchanged from a9e84b66) for the issue #212 consumer gate
+b71d561ac6a3d1fb1f31c5c81467939c8aae2171 Pin protocol-processor to 04856e4 for the processor issue #212 consumer gate
+220f0b73aa5db36e96a50ba3df9ecbd12c328241 Record the ROM digests of protocol-processor pin 0b5e988 (unchanged from a9e84b66) for the issue #212 consumer gate
+e1d49e2780410c0268338fd414fae011746ccb72 Pin protocol-processor to 0b5e988 for the processor issue #212 consumer gate
+a293cb28df55ea999b8cb9af294d31ba5edf5c36 Pin protocol-processor to c8baee8 for the processor issue #212 consumer gate
+de70a77abc696c7dabb007d8495e43f3214efbdf Pin protocol-processor to 982e51b for the processor issue #212 consumer gate
+
+## round-2 commits
+5761bf45d6a7f6e0a030d86b4d66a0e29f792db4 Record the ROM digests of protocol-processor pin a2fce43 (unchanged from a9e84b66) for the issue #212 consumer gate
+5396b1a26d55cbd2a873c6d3fa190ea745f8271a Pin protocol-processor to a2fce43 for the processor issue #212 consumer gate
+
+## files changed 604899c0..HEAD
+ protocol-processor        | 2 +-
+ syn/yosys/rom_digests.tsv | 6 ++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
+
+## rom_digests.tsv rows of this pin
+a2fce4326ebdaf398a1920d79a664d44e6f1e5dd	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+a2fce4326ebdaf398a1920d79a664d44e6f1e5dd	ucode.hex	49a993bede26a9a16179f66956387b4709d1f86dcd9bf5edb7a79c6e996e1176
+(main a9e84b66 rows, for comparison)
+a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	ltn_rom.hex	23cc67eeadc7ecad8c9ceb7f9391095b64ada44d4e0f3a232ce82a2a69e7e956
+a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645	ucode.hex	49a993bede26a9a16179f66956387b4709d1f86dcd9bf5edb7a79c6e996e1176
+
+## submodules (top-level identity checked before every git command inside protocol-processor)
+-efeb541ae5fe1e078332d8462dca2fc2d9cb8db5 external
+ 135afd043309369a87ddbc8d6550aff8ec52a157 gptp-processor (remotes/origin/main-81-g135afd0)
+ a2fce4326ebdaf398a1920d79a664d44e6f1e5dd protocol-processor (v2.0-871-ga2fce43)
+ 08ee86e812a0eb5e1dc6cd61b494d8baf3491348 third_party/lwSRP (08ee86e)
+ 70936b77dc41981e192438388cd0aced69954f18 third_party/tsn-c-stack (heads/main)
+ 48ff7a7e2ef782cf778d47910cf85835c64b1bce third_party/verilog-axis (heads/master)
+protocol-processor toplevel: <parent>/protocol-processor
+protocol-processor HEAD: a2fce4326ebdaf398a1920d79a664d44e6f1e5dd
+
+## working tree

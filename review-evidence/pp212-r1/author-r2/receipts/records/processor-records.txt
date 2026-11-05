@@ -1,0 +1,97 @@
+# processor records (generated)
+origin: https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git
+branch: 212-srp-presettle-talker
+base (main): a9e84b66d4cd0c331c8d6f2c1a71a62fcc824645
+round-1 head: 04856e48619866e08ccaf5ffc34cf1636d8c5b74
+head: a2fce4326ebdaf398a1920d79a664d44e6f1e5dd
+head tree: 40d4bfd5d553663d3c21fa9f38862b57c77acb84
+round-1 head is an ancestor of head (no rebase): yes
+
+## round-2 commits (subject; body)
+76d1055d03ba7aeba23d5143aa075064987c2274 Keep a sink's Talker registration through its A8 for a re-bind to the same stream, and end the registrations a settle could take at LINK_DOWN and LINK_UP (issue #212)
+  body: none
+ead9bc0e3a05b6a9ebc2740ae8639c0d706ea5f6 Hold the port Talker registrars' leave deadline in $clog2(LEAVE_MS_P + 1) bits, rebuilding a seeded arm's absolute deadline from its remaining time (issue #212)
+  body: none
+2fcd9d18a29b9929af66c9ab052cc43327aa143f Grade an unheld value's rLv, rIn and rMt, the held value's latest payloads, an A8 on a held value, rLv on LV, the same-stream re-bind, the unbound registrar and the link change in PS16 to PS23 and LK1 (issue #212)
+  body: none
+b08368d0f7c547b39e1276be540daa8239ae7a08 Plant an arm under each of PS16 to PS23, LK1 and the 13-bit deadline, name the seed's re-bind arm on PS5 and the whole path's on PS3, and cut the moved issue #212 patches again with their edits unchanged (issue #212)
+  body: none
+9849bdf4155120034cbd0b8ff7ec0db1daf9b391 Say in the SRP architecture, integrator guide, interfaces, ACMP table and compliance review how a same-stream re-bind keeps its registration, how a link change ends the ones a settle could take, and the path's reach at the shipping N (issue #212)
+  body: none
+a2fce4326ebdaf398a1920d79a664d44e6f1e5dd Record PS16 to PS23, LK1 and the new arms in the bench READMEs, with the counts the new rows move (issue #212)
+  body: none
+
+## diff stat round-1 head..head
+ docs/00_MILAN_COMPLIANCE_REVIEW.md                 |   2 +-
+ docs/architecture/02_interfaces.md                 |   3 +-
+ docs/architecture/05_acmp_engine.md                |   2 +-
+ docs/architecture/10_srp_engine.md                 | 103 ++++--
+ docs/guides/integrator.md                          |  16 +
+ hdl/srp/KL_srp_listener_fsm.sv                     | 206 ++++++++---
+ hdl/srp/KL_srp_top.sv                              |   1 +
+ tb/srp_stream_fsms/README.md                       |  34 +-
+ tb/srp_stream_fsms/sim_main.cpp                    | 388 ++++++++++++++++++++-
+ tb/srp_stream_fsms/srp_stream_fsms_wrap.sv         |   5 +-
+ tb/srp_stream_fsms/srp_walk_wrap.sv                |   1 +
+ tb/srp_top/README.md                               |  86 +++--
+ tb/srp_top/mutants.py                              |  56 ++-
+ tb/srp_top/mutations/keep-declares-seed-type.patch |  11 +
+ tb/srp_top/mutations/keep-ignores-da.patch         |  11 +
+ tb/srp_top/mutations/keep-ignores-expiry.patch     |  11 +
+ tb/srp_top/mutations/keep-ignores-vlan.patch       |  11 +
+ .../mutations/keep-latency-strobe-dropped.patch    |  11 +
+ tb/srp_top/mutations/keep-on-link-clock.patch      |  11 +
+ tb/srp_top/mutations/link-begin-dropped.patch      |  11 +
+ tb/srp_top/mutations/presettle-removed.patch       |  29 ++
+ tb/srp_top/mutations/pt-alloc-any-event.patch      |  11 +
+ tb/srp_top/mutations/pt-expiry-sign-bit.patch      |  11 +
+ tb/srp_top/mutations/pt-fcode-first-only.patch     |  11 +
+ tb/srp_top/mutations/pt-lat-on-alloc-only.patch    |  11 +
+ tb/srp_top/mutations/pt-leaveall-any-lane.patch    |   8 +-
+ tb/srp_top/mutations/pt-leaveall-ignored.patch     |   8 +-
+ .../mutations/pt-leavetimer-never-expires.patch    |  10 +-
+ tb/srp_top/mutations/pt-link-flush-dropped.patch   |  11 +
+ tb/srp_top/mutations/pt-never-holds.patch          |   4 +-
+ tb/srp_top/mutations/pt-rlv-ignored.patch          |   4 +-
+ tb/srp_top/mutations/pt-rlv-on-lv-ends.patch       |  11 +
+ tb/srp_top/mutations/pt-seed-dropped.patch         |   4 +-
+ tb/srp_top/mutations/pt-type-on-alloc-only.patch   |  11 +
+ tb/srp_top/mutations/rebind-same-not-kept.patch    |  11 +
+ .../seed-deadline-rebuild-drops-now.patch          |  11 +
+ tb/srp_top/mutations/seed-from-current-state.patch |   6 +-
+ .../mutations/seed-keeps-expiry-strobe.patch       |  12 +-
+ tb/srp_top/mutations/seed-lv-fresh-deadline.patch  |   6 +-
+ tb/srp_top/mutations/seed-lv-unguarded.patch       |  12 +-
+ .../mutations/seed-no-registered-strobe.patch      |  12 +-
+ tb/srp_top/mutations/seed-on-teardown.patch        |  11 +
+ .../mutations/top-listener-link-unwired.patch      |  11 +
+ tb/srp_top/mutations/unarmed-dbg-registrar.patch   |  11 +
+ tb/srp_top/mutations/unarmed-fail-chg.patch        |  11 +
+ tb/srp_top/mutations/unarmed-indicates.patch       |  11 +
+ tb/srp_top/mutations/unarmed-latency-strobe.patch  |  10 +
+ .../mutations/unarmed-link-flush-dropped.patch     |  11 +
+ .../mutations/unarmed-publishes-latency.patch      |  11 +
+ tb/srp_top/mutations/unarmed-registrar-deaf.patch  |  11 +
+ tb/srp_top/mutations/unarmed-unregistered.patch    |  10 +
+ tb/srp_top/sim_main.cpp                            |  44 ++-
+ 52 files changed, 1181 insertions(+), 165 deletions(-)
+
+## diff stat base..head
+ 64 files changed, 2655 insertions(+), 125 deletions(-)
+
+## top-level and register-map files base..head (empty = unchanged)
+
+## KL_srp_top port list base..head (empty = unchanged)
+
+## KL_srp_listener_fsm port list round-1 head..head
+21a22,25
+>     //! link status level (2FF-synced upstream): its fall is LINK_DOWN
+>     //! (Flush!), its rise LINK_UP (Begin!), for the registrars of 802.1Q-2022
+>     //! Table 10-4 that a later settle can take (issue #212)
+>     input  wire         link_up_i,
+95c99
+<     output logic [N_SINKS_P-1:0][1:0] dbg_reg_state_o  //! Table 10-4 registrar {0 MT, 1 IN, 2 LV}
+---
+>     output logic [N_SINKS_P-1:0][1:0] dbg_reg_state_o  //! Table 10-4 registrar {0 MT, 1 IN, 2 LV}; MT while not settled
+
+## working tree

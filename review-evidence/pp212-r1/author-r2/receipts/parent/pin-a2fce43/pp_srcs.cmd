@@ -1,0 +1,1 @@
+python3 scripts/pp_srcs.py --check --selftest

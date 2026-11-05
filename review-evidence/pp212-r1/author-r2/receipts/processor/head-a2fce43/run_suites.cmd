@@ -1,0 +1,1 @@
+env PATH=<toolchain>/verilator-v5.050/bin:<home>/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin MAKEFLAGS=-j16 TMPDIR=<tmp>/sweep REQ_TAG_LOG=<runs>/head-a2fce43/proc/req-tags.txt bash scripts/run_suites.sh
