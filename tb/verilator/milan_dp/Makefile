@@ -562,7 +562,7 @@ AX_GPTP_FLAGS = $(subst --build -j $(VERILATOR_JOBS),--build -j $(AX_GPTP_JOBS),
 # Three-thread measurements did not establish a safe PR-shard budget.
 AX_GPTP_FLAGS += -O3 --threads 1 -CFLAGS "-O3 -Wall -Wextra"
 gptp_ax1x1_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py Makefile $(CLOCK_RECIPE)
-	python3 $< --clk-hz $(AX_GPTP_HZ) --mac 0x020000000001 --p1 248 -o $@
+	python3 $< --clk-hz $(AX_GPTP_HZ) --mac 0x024b4c000001 --p1 248 -o $@
 
 ax1x1gptp-aemi:
 	python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_ax1x1gptp/aem-build
