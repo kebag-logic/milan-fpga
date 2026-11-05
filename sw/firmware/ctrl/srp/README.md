@@ -218,7 +218,7 @@ A refused send retains identical bytes and interface until accepted.
 lwSRP builds each MRPDU in the owed frame itself, after its Ethernet header, so no frame is copied (#665).
 The poll builds no MRPDU and declares nothing: THE TRANSMIT does both (`ctrl_loop.h`, #665).
 The loop calls the adapter's build after its polls only in a pass that took no record, at most one event and no centisecond, so no pass that takes the composed burst's records carries a build.
-A centisecond, a received record, a binding, a Domain change or a new participant holds a build, and the poll reports it owed so the loop passes on to the pass that takes it.
+A centisecond, a received record, a walk that changes a binding's declaration, an unbinding that withdraws a declared Listener or VLAN, a Domain change or a new participant holds a build (a binding itself holds none: the walk that finds its declaration does), and the poll reports it owed so the loop passes on to the pass that takes it.
 Once held more than `CTRL_LOOP_TX_AGE` centiseconds, counted on SRP's own tick, a build takes a pass of its own, before any input, unless a frame is owed ahead of it.
 The call makes the interface's declarations, then builds and sends at most one MRPDU (`SRP_MBX_POLL_FRAMES`, `srp_bounds.h`); the participant that sent ends the call, and the next call resumes at the next participant.
 Its owed result runs the next pass at once, so every participant is reached in turn, and every participant's owed MRPDU is sent within `2 x MBX_N_IF x CTRL_LOOP_TX_MS`, inside the 200 ms JoinTime (`srp_mbx.c` holds it at compile time).
