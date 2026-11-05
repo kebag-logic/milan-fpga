@@ -1,0 +1,6 @@
+# head dd764ed7c09e4764f4d7368f447e94af151a24de: gate 28b as committed (rc 0, as-committed.log) and five planted mutants on a clean clone, each restored after its run (tree-after.txt empty)
+ul-bit-is-ig rc=1 words: gate 28b ax7101_8x8: locally administered 02:4b:4c:00:00:01 drew [], not one U/L warning
+always-warns rc=1 words: gate 28b: ac:de:48:23:45:67 should not warn; got ['platform.mac_address ac:de:48:23:45:67 has the U/L bit set: it is locally administered, not an IEEE-assigned 
+warning-on-stdout rc=1 words: gate 28b: CLI stderr lacks {needle!r}: {cli.stderr[-300:]}
+warning-refuses rc=1 words: gate 28b: the U/L warning refused the build: rc 1 ocally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived e
+arty-keeps-old-mac rc=1 words: gate 28b arty_4x4: station MAC 02:00:00:00:00:02, decided 02:4b:4c:00:00:02

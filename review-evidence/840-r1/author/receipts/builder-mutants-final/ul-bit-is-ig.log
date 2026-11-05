@@ -1,0 +1,11 @@
+test_station_mac_ul_bit_warns:
+Traceback (most recent call last):
+  File "<scratch>/mut-final/sw/builder/test_builder.py", line 29685, in <module>
+    fn()
+    ~~^^
+  File "<scratch>/mut-final/sw/builder/test_builder.py", line 26753, in test_station_mac_ul_bit_warns
+    assert len(warned) == 1 and mac in warned[0] and "U/L bit" in warned[0] \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        and "#840" in warned[0], \
+        ^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 28b ax7101_8x8: locally administered 02:4b:4c:00:00:01 drew [], not one U/L warning

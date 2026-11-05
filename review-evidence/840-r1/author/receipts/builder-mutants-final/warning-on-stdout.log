@@ -1,0 +1,11 @@
+test_station_mac_ul_bit_warns:
+  5 configs: decided identity, one U/L-bit warning each
+  U/L bit alone decides the warning: 2 universal variants silent, 2 local warn
+Traceback (most recent call last):
+  File "<scratch>/mut-final/sw/builder/test_builder.py", line 29685, in <module>
+    fn()
+    ~~^^
+  File "<scratch>/mut-final/sw/builder/test_builder.py", line 26780, in test_station_mac_ul_bit_warns
+    assert needle in cli.stderr, f"gate 28b: CLI stderr lacks {needle!r}: {cli.stderr[-300:]}"
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 28b: CLI stderr lacks 'WARNING: platform.mac_address 02:4b:4c:00:00:01 has the U/L bit set': 

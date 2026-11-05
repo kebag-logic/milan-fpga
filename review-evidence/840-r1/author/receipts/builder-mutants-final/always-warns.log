@@ -1,0 +1,10 @@
+test_station_mac_ul_bit_warns:
+  5 configs: decided identity, one U/L-bit warning each
+Traceback (most recent call last):
+  File "<scratch>/mut-final/sw/builder/test_builder.py", line 29685, in <module>
+    fn()
+    ~~^^
+  File "<scratch>/mut-final/sw/builder/test_builder.py", line 26769, in test_station_mac_ul_bit_warns
+    assert bool(warned) == warns, \
+           ^^^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 28b: ac:de:48:23:45:67 should not warn; got ['platform.mac_address ac:de:48:23:45:67 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).']

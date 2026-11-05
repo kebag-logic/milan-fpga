@@ -1,0 +1,7 @@
+# head dd764ed7c09e4764f4d7368f447e94af151a24de: the docs inventory gate
+$ git ls-tree --name-only HEAD scripts/docs_inventory.py
+(empty: absent at the head)
+$ git ls-tree --name-only 604899c08ff1cd1830e1dd08b733109ef852400c scripts/docs_inventory.py
+(empty: absent at the base)
+$ git ls-remote origin refs/heads/dev
+604899c08ff1cd1830e1dd08b733109ef852400c	refs/heads/dev

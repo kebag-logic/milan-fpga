@@ -1,0 +1,9 @@
+test_station_mac_ul_bit_warns:
+Traceback (most recent call last):
+  File "<scratch>/mut-final/sw/builder/test_builder.py", line 29685, in <module>
+    fn()
+    ~~^^
+  File "<scratch>/mut-final/sw/builder/test_builder.py", line 26748, in test_station_mac_ul_bit_warns
+    assert cfg["platform"]["mac_address"] == mac, \
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: gate 28b arty_4x4: station MAC 02:00:00:00:00:02, decided 02:4b:4c:00:00:02
