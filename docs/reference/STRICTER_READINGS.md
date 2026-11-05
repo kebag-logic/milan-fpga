@@ -11,7 +11,7 @@ The maintainer decided these readings on 2026-11-05.
 - **[How to read the rows](#how-to-read-the-rows)** -- What each column states.
 - **[Station identity](#station-identity)** -- Locally administered prototype addresses and the builder warning.
 - **[Link speed](#link-speed)** -- The 1000BASE-T full-duplex-only advertisement.
-- **[Milan certification version](#milan-certification-version)** -- Version `0.0.0.0`, as an uncertified device.
+- **[The certification_version field](#the-certification_version-field)** -- `0.0.0.0` for a device that passed none.
 - **[gPTP readings](#gptp-readings)** -- Announce aging, late Pdelay responses and clockAccuracy.
 
 ## How to read the rows
@@ -65,15 +65,15 @@ A partner without 1000BASE-T gets no link.
 - Tested by `sw/firmware/nvm_hosttest/test_phy_firmware.py`, with nine named mutants.
 - The [firmware guide](../integration/BAREMETAL_FIRMWARE.md) describes the PHY poll.
 
-## Milan certification version
+## The certification_version field
 
 [#840](https://github.com/kebag-logic/milan-fpga/issues/840) item 3 keeps `certification_version` at `0.0.0.0`.
 
 | Clause | The clause allows | The board does | Why |
 |---|---|---|---|
-| Milan v1.2 5.4.4.1, Figure 5.4 | The version of the Milan certification the PAAD-AE passed, or 0 when it passed none | `0.0.0.0` in every GET_MILAN_INFO response | The device stays uncertified |
+| Milan v1.2 5.4.4.1, Figure 5.4 | The version the PAAD-AE passed, as four 8-bit numbers, or 0 when it passed none | `0.0.0.0` in every GET_MILAN_INFO response | By decision, the device has passed none |
 
-This is the clause's own rule for an uncertified device.
+The clause itself sets zero for such a device.
 
 It is recorded here as a deliberate choice.
 
