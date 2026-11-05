@@ -1,0 +1,161 @@
+ok  000   222.3s control
+ok  007   223.4s slew mastership keeps qualification
+ok  002   223.5s slew clears at the first in-band pair
+ok  004   223.7s slew clears before the replacement rate
+ok  005   223.7s slew idle lapse arms qualification
+ok  001   224.6s slew level tied low
+ok  006   224.6s slew idle asCapable loss arms qualification
+ok  003   224.6s the tracking band is empty
+ok  015   214.3s lost response cancels the requester exchange
+ok  011   218.9s recorded t1 survives reset
+ok  009   223.2s result value taken without an accepted beat
+ok  014   222.9s lost Sync cancels the requester exchange
+ok  013   223.6s lost t1 fabricates a time and a companion
+ok  008   228.8s result face always ready
+ok  010   236.8s result tag taken without an accepted beat
+ok  012   296.1s byte face advances without ready
+ok  016   200.7s a later response re-arms the frozen pair
+ok  020   205.8s credit gate removed from the Sync leg
+ok  021   207.2s credit gate removed from the Announce leg
+ok  022   199.8s every pair uses the locked threshold
+ok  018   214.9s a new request leaves the old pair live
+ok  019   222.1s credit gate removed from the Pdelay_Req leg
+ok  017   231.3s the tail runs before its own t1
+ok  023   206.4s every pair uses the link-up threshold
+ok  024   197.3s exactly the threshold steps
+ok  025   199.0s the step arm is unreachable
+ok  026   197.3s a grandmaster change unlocks the servo
+ok  027   198.0s a receipt timeout unlocks the servo
+ok  028   199.6s becoming grandmaster unlocks the servo
+ok  029   231.9s the locked threshold is 200 us
+ok  030   232.7s asCapable's rise keeps the lock
+ok  031   201.8s the whole trim is not clamped
+ok  032   201.4s the trim clamp is one unit wider than the envelope
+ok  033   201.5s the integrator is not clamped
+ok  034   216.1s reset leaves the grandmaster zero
+ok  035   213.7s reset keeps the elected grandmaster
+ok  041    21.9s the boot commit never retires
+ok  037   219.1s reset leaves the path empty
+ok  038   215.9s reset keeps the elected tail
+ok  039   215.6s no engine commit after reset
+ok  036   381.5s the thisClock words are read swapped
+ok  040   212.9s the boot commit fires twice
+ok  042   209.7s the boot commit waits for the timer bootstrap
+ok  043   213.7s a warm reset keeps the retained best record
+ok  044   221.4s an unwritten best record reads as the best vector
+ok  045   199.2s a winning peer's grandmaster is not published
+ok  046   198.1s a winning peer's path is not staged
+ok  047   198.5s the self publication keeps the departed grandmaster
+ok  048   197.3s the self publication keeps the departed path
+ok  049   195.8s the self publication keeps the departed record
+ok  051   199.2s an incapable receipt timeout keeps the elected peer
+ok  050   204.3s an asCapable fall leaves the receipt watch running
+ok  052   198.4s an incapable port's Announces still compete
+ok  053   208.5s the asCapable drop keeps the flags word
+ok  054   211.4s an incapable port's receipt watch is not re-armed
+ok  055   217.4s the published flags leave gmPresent to the microcode
+ok  056   216.7s the image does not mark thisClock grandmaster-capable
+ok  057   212.8s the capability mark ignores priority1
+ok  058   212.3s mastership sets the microcode's presence bit
+ok  059   212.8s becoming grandmaster clears sync-ok
+ok  060   218.7s a queued receipt timeout clears a master's sync-ok
+ok  063   203.3s only an expiry that ages a slave marks the port
+ok  061   236.0s an expiry takes a master's own vector for a peer's
+ok  062   242.2s a sync receipt timeout only clears sync-ok
+ok  064   198.6s sync receipt ageing ignores gmPresent
+ok  065   198.3s a sync receipt timeout that ages nothing keeps sync-ok
+ok  066   201.5s a consumed pair leaves sync-ok down
+ok  067   201.6s adoption leaves the Sync receipt watch off
+ok  068   199.9s an aged port takes Announces
+ok  069   200.2s an aged port refuses a priority1 255 grandmaster
+ok  070   233.3s an aged Announce is dropped rather than aged
+ok  071   233.1s mastership stops the Sync receipt watch
+ok  073   199.6s mastership voids the parked Sync
+ok  075   197.0s a master hears no Sync
+ok  076   194.4s the Sync receipt watch is 100 ms
+ok  074   210.8s a master steers on its aged peer's Sync
+ok  077   197.4s the Sync receipt watch is 500 ms
+ok  072   327.9s mastership stops the Follow_Up watch
+ok  078   201.9s a parent refresh expires the Sync watch
+ok  079   203.6s the adoption watch is 100 ms
+ok  080   198.7s a Follow_Up pairs whatever its sequenceId
+ok  081   198.2s the Follow_Up watch is 50 ms
+ok  082   189.8s lost responses clear asCapable at the first
+ok  083   233.6s the fifth loss stops the requests
+ok  084   203.7s same-identity duplicates are a storm
+ok  085   198.1s lost responses clear asCapable at the fourth
+ok  086   196.1s lost responses clear asCapable at the sixth
+ok  087   196.7s a second response re-arms the pairing
+ok  088   198.2s a third response re-arms the reset exchange
+ok  090   196.6s slot 6 runs no NOT_ENABLED leg
+ok  091   194.4s a portEnabled edge keeps the ladder
+ok  089   258.6s a portEnabled edge keeps the cease
+ok  092   208.5s a portEnabled edge leaves the interval unanswered
+ok  093   203.3s the countdown loads one beat less
+ok  094   198.3s the cease entry ends the cease at once
+ok  095   218.7s the cease entry keeps asCapable
+ok  096   197.2s the ladder raises asCapable at the first exchange
+ok  097   216.7s the falling edge raises no event
+ok  098   225.7s a rise sends no request at once
+ok  099   214.7s a disabled port keeps its transmit credit
+ok  100   208.6s a disabled port starts an unstarted frame
+ok  101   216.8s a disabled port keeps its credit and starts its frames
+ok  102   241.1s egress claims survive the fall
+ok  103   217.0s the request claim survives the fall
+ok  104   204.6s the first enable since reset raises events
+ok  105   204.6s the withdrawn frame stays offered for a cycle
+ok  106   207.4s a disabled port tears a started frame
+ok  108   207.6s a stalled frame holds NOT_ENABLED back
+ok  107   221.2s NOT_ENABLED waits for the serializer
+ok  109   200.7s NOT_ENABLED keeps the armed response
+ok  110   215.0s NOT_ENABLED queues behind earlier events
+ok  111   210.2s the first rise after a disabled release raises nothing
+ok  112   201.1s the Follow_Up TLV is sent zero
+ok  113   214.5s gmTimeBaseIndicator does not count mastership
+ok  114   217.2s lastGmPhaseChange is zero
+ok  115   214.5s lastGmPhaseChange is not ScaledNs
+ok  116   214.1s lastGmPhaseChange drops the offset's high word
+ok  117   209.7s scaledLastGmFreqChange is zero
+ok  118   214.1s scaledLastGmFreqChange is the rate estimate
+ok  120   210.5s a rate unknown since reset is taken as zero
+ok  119   215.4s a slewing mastership reports its last trim
+ok  121   216.5s the watch ignores the received interval
+ok  122   210.9s a negative interval lengthens the watch
+ok  123   210.3s the watch counts from the handler
+ok  125   210.3s an Announce at the instant refreshes the port
+ok  124   218.6s a late Announce runs before the expiry
+ok  128   209.1s a stale expiry dispatches
+ok  126   214.9s lateness is judged at dispatch
+ok  129   204.0s a late response completes its exchange
+ok  127   293.6s a dispatched expiry leaves its watch armed
+ok  130   202.9s the late bound is one nanosecond short
+ok  131   203.0s the late bound leaves out the clock tolerance
+ok  133   202.7s the late bound leaves out the timestamp granules
+ok  132   205.3s the late bound leaves out the link
+ok  135   211.0s --clock-accuracy is ignored
+ok  134   213.1s the default clockAccuracy is unknown
+ok  136   239.0s dispatch ignores a busy serializer
+ok  138   206.5s a handover to a peer keeps sync-ok
+ok  137   264.1s mastership never publishes the master bit
+ok  139   217.2s the received path is published without thisClock
+ok  140   215.3s eight received entries take a ninth
+ok  141   215.3s seven received entries leave thisClock out
+ok  142   212.6s an empty path takes no thisClock
+ok  143   216.1s thisClock lands one slot early
+ok  144   220.8s thisClock fills every later slot
+ok  145   216.9s the appended entry is the announcing source
+ok  146   217.4s the received entries are not copied
+ok  147   221.9s every received path is published as {thisClock}
+ok  148   218.7s the path-count refusal restored
+ok  149   219.0s the path-head refusal restored
+ok  150   219.5s the empty-path refusal restored
+ok  151   215.9s the received head replaced by the grandmaster
+ok  152   212.9s the received head is not published
+ok  153   212.8s the empty sequence published without a TLV
+ok  154   195.4s a TLV-less Announce publishes {thisClock}
+ok  156   188.4s (a) the own-source refusal removed
+ok  155   194.9s the self path leaves entry 0 empty
+ok  157   193.1s (b) the stepsRemoved refusal removed
+ok  159   157.5s a parent update must beat the best
+ok  158   163.5s (c) the PathTrace loop refusal removed
+this call: 160 jobs, 4286 s; 0 left of 160

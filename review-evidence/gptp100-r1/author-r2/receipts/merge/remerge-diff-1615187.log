@@ -1,0 +1,28 @@
+1615187e07e0d55f14c8aa3e63d33e7b6298f01e 3e3f0418ad081e5906d02d872614fe3a81e148e5 5184fb36e34926d007f1ca4d5121863faf9b89fa Merge main 5184fb3 into 100-followup-tlv-values
+diff --git a/docs/SOURCE_EVIDENCE.md b/docs/SOURCE_EVIDENCE.md
+remerge CONFLICT (content): Merge conflict in docs/SOURCE_EVIDENCE.md
+index 34b895a..0600ce4 100644
+--- a/docs/SOURCE_EVIDENCE.md
++++ b/docs/SOURCE_EVIDENCE.md
+@@ -10,19 +10,11 @@ Line numbers describe the current branch layout.
+ | Single clock domain | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L66) | `make lint` |
+ | Four instantiated blocks | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L211) | `make lint` |
+ | Any-byte receive refusal | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv) | Parser suite and named mutation controls |
+-<<<<<<< 3e3f041 (Guard the #100 phases against a wedged plane and time late responses for a 650 ns delay, so both controls fail by name (#100))
+-| Deferred receive event | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L392) | Parser suite |
++| Deferred receive event | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L439) | Parser suite |
+ | Four-entry event queue | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L559) | Engine suite |
+ | Parser arbitration priority | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L586) | Engine suite |
+ | Priority timestamp return | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L407) | Engine suite |
+ | Accepted-beat result face | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L413) | Engine suite |
+-=======
+-| Deferred receive event | [`KL_gptp_rx_parser`](../hdl/wire/KL_gptp_rx_parser.sv#L439) | Parser suite |
+-| Four-entry event queue | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L467) | Engine suite |
+-| Parser arbitration priority | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L494) | Engine suite |
+-| Priority timestamp return | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L405) | Engine suite |
+-| Accepted-beat result face | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L411) | Engine suite |
+->>>>>>> 5184fb3 (Merge PR #99: walk the Follow_Up TLV chain to the information TLV (#98))
+ | Explicit lost result | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Retained Pdelay pairing context | [`gen_gptp_ucode.py`](../hdl/ucode/gen_gptp_ucode.py) | Engine suite |
+ | Reset-backed pairing validity | [`KL_gptp_engine`](../hdl/top/KL_gptp_engine.sv#L293) | Engine suite |
+rc=0

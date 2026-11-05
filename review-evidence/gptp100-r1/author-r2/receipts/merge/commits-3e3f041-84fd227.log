@@ -1,0 +1,36 @@
+$ git log --first-parent --format="%H %P %s" 3e3f041..84fd227
+84fd22781c95f7b7e65d7d18c99a5ed49a68e11c 1d61f9e329c00523bc530f35c27729c4d5dd94ce Read CLOCK_ACCURACY_UNKNOWN_C in the --clock-accuracy help, where 0xFE is chosen (#100)
+1d61f9e329c00523bc530f35c27729c4d5dd94ce 1400c83e96c711e22c37da7e8fc68d3c4d36ff18 Define lastGmPhaseChange by 11.4.4.3.8 and say the plane sends its last slave offset (#100)
+1400c83e96c711e22c37da7e8fc68d3c4d36ff18 1615187e07e0d55f14c8aa3e63d33e7b6298f01e Name region 6's three Follow_Up TLV fields and their scales in the developer guide (#100)
+1615187e07e0d55f14c8aa3e63d33e7b6298f01e 3e3f0418ad081e5906d02d872614fe3a81e148e5 5184fb36e34926d007f1ca4d5121863faf9b89fa Merge main 5184fb3 into 100-followup-tlv-values
+$ git diff --stat 3e3f041 84fd227
+ docs/HDL_DEVELOPER.md            |  12 ++-
+ docs/INTEGRATION.md              |  12 ++-
+ docs/MANAGER.md                  |   2 +-
+ docs/README.md                   |   2 +-
+ docs/SOURCE_EVIDENCE.md          |   4 +-
+ docs/TEST_DEVELOPER.md           |  11 ++-
+ hdl/ucode/gen_gptp_ucode.py      |   3 +-
+ hdl/wire/KL_gptp_rx_parser.sv    | 159 +++++++++++++++++++++++--------
+ tb/verilator/engine/sim_main.cpp |  10 +-
+ tb/verilator/parser/Makefile     |  10 +-
+ tb/verilator/parser/README.md    |   2 +-
+ tb/verilator/parser/mutants.py   | 165 +++++++++++++++++++++++++++++++-
+ tb/verilator/parser/sim_main.cpp | 198 ++++++++++++++++++++++++++++++++++++++-
+ 13 files changed, 527 insertions(+), 63 deletions(-)
+$ git diff --stat 3e3f041 84fd227 -- hdl/top hdl/ucpu hdl/common tb/verilator/engine/p100_mutants.py tb/verilator/engine/mutants.py
+$ git diff 3e3f041 84fd227 -- hdl/ucode
+diff --git a/hdl/ucode/gen_gptp_ucode.py b/hdl/ucode/gen_gptp_ucode.py
+index 514bddf..baeb0d0 100755
+--- a/hdl/ucode/gen_gptp_ucode.py
++++ b/hdl/ucode/gen_gptp_ucode.py
+@@ -2609,7 +2609,8 @@ def main() -> None:
+     ap.add_argument("--clock-accuracy", type=lambda s: int(s, 0),
+                     default=CLOCK_ACCURACY_C,
+                     help="announced clockAccuracy (802.1AS-2011 8.6.2.3); "
+-                         "0xFE when the oscillator is not characterised")
++                         f"0x{CLOCK_ACCURACY_UNKNOWN_C:02X} when the "
++                         "oscillator is not characterised")
+     args = ap.parse_args()
+     RUNTIME["cease_ms"] = args.cease_ms
+     assert 0 < RUNTIME["cease_ms"] < (1 << 24), RUNTIME["cease_ms"]
