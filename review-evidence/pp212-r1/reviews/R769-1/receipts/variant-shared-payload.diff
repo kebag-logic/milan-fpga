@@ -1,0 +1,57 @@
+--- head/hdl/srp/KL_srp_listener_fsm.sv	2026-11-04 21:34:49.000000000 +0100
++++ variant/hdl/srp/KL_srp_listener_fsm.sv	2026-11-05 07:04:10.565780956 +0100
+@@ -1309,6 +1309,13 @@
+     end
+   end
+ 
++  // area probe: one payload bus for both sink write paths
++  logic [31:0] pl_lat_w;
++  logic [7:0]  pl_fc_w;
++  logic [63:0] pl_fs_w;
++  assign pl_lat_w = evt_valid_i ? evt_acc_latency_i       : seed_lat_w;
++  assign pl_fc_w  = evt_valid_i ? evt_failure_code_i      : seed_fcode_w;
++  assign pl_fs_w  = evt_valid_i ? evt_failure_system_id_i : seed_fsys_w;
+   always_ff @(posedge clk_i) begin : reg_plane
+     if (!rst_n) begin
+       reg_r                 <= '0;
+@@ -1369,14 +1376,14 @@
+           if (reg_r[s] == R_LV_C) tpend_r[s] <= T_CANCEL_C;
+           reg_r[s]   <= R_IN_C;
+           rtype_r[s] <= rx_is_failed_w;
+-          lat_r[s]   <= evt_acc_latency_i;   // refresh re-latches (10 §6.4)
++          lat_r[s]   <= pl_lat_w;   // refresh re-latches (10 §6.4)
+           // Compare this sink's old latch on its actual write. The pulse
+           // and any registration/failure pulse land together, so the
+           // existing per-descriptor notify OR coalesces them into one event.
+           evt_tk_latency_chg_o[s] <= (lat_r[s] != evt_acc_latency_i);
+           if (rx_is_failed_w) begin
+-            fcode_r[s]  <= evt_failure_code_i;
+-            fsysid_r[s] <= evt_failure_system_id_i;
++            fcode_r[s]  <= pl_fc_w;
++            fsysid_r[s] <= pl_fs_w;
+           end
+           if (ind_reg_w[s])  evt_tk_registered_o[s] <= 1'b1;
+           if (ind_fchg_w[s]) evt_tk_fail_chg_o[s]   <= 1'b1;
+@@ -1406,9 +1413,9 @@
+           //! longer exists. acc_latency_o is ungated, so a fabric reading it
+           //! would size its presentation offset from a stale value.
+           rtype_r[s]  <= 1'b0;
+-          lat_r[s]    <= 32'd0;
+-          fcode_r[s]  <= 8'd0;
+-          fsysid_r[s] <= 64'd0;
++          lat_r[s]    <= seed_v_w ? pl_lat_w : 32'd0;
++          fcode_r[s]  <= seed_v_w ? pl_fc_w  : 8'd0;
++          fsysid_r[s] <= seed_v_w ? pl_fs_w  : 64'd0;
+           // issue #212: an A15 settle on a value the port has registered
+           // starts the registrar in the port registrar's state, with its
+           // type and payloads: a fresh registration for the sink, so
+@@ -1419,9 +1426,6 @@
+           if (seed_v_w) begin
+             reg_r[s]    <= seed_reg_w;
+             rtype_r[s]  <= seed_type_w;
+-            lat_r[s]    <= seed_lat_w;
+-            fcode_r[s]  <= seed_fcode_w;
+-            fsysid_r[s] <= seed_fsys_w;
+             evt_tk_registered_o[s]   <= 1'b1;
+             evt_tk_unregistered_o[s] <= 1'b0;
+             evt_tk_latency_chg_o[s]  <= (seed_lat_w != 32'd0);

@@ -1,0 +1,11 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_top share: rc=0 PASS
+listener-settle-compare-dropped: rc=2 failures=5 KILLED tags=SW1,SW2,SW3
+listener-settle-compare-dropped: rc=2 failures=40 KILLED tags=PS12,PS13,SH1,SH16,SH18,SH19,SH2,SH20,SH21,SH24,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-handover-drops-state: rc=2 failures=15 KILLED tags=PS13,SH18,SH19,SH2,SH24,SH4,SH7,SH8
+listener-teardown-keeps-declaring: rc=2 failures=74 KILLED tags=L LA txla=0,L LA txla=1,L LA txla=2,L LA x rIn! p2p=0,L LA x rIn! p2p=1,L LA x rJoinIn! p2p=0,L LA x rJoinIn! p2p=1,L LA x rJoinMt! p2p=0,L LA x rJoinMt! p2p=1,L LA x rLA! p2p=0,L LA x rLA! p2p=1,L LA x rLv! p2p=0,L LA x rLv! p2p=1,L LA x rMt! p2p=0,L LA x rMt! p2p=1,L LA x rNew! p2p=0,L LA x rNew! p2p=1,L LA x tx!,L LA x txLA!,L recipe LA,L teardown withdraws the declaration,PS13,PS14,PS3,PS4,PS5,RB1,RB4,RB7,SH10,SH11,SH12,SH13,SH14,SH15,SH16,SH17,SH2,SH21,SH23,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-teardown-keeps-declaring: rc=2 failures=3 KILLED tags=SW2,SW4,SW6
+listener-group-order-reversed: rc=2 failures=14 KILLED tags=PS12,SH1,SH18,SH19,SH24,SH3,SH4,SH5,SH8,SH9
+listener-walk-ends-owing-a-transmit: rc=2 failures=12 KILLED tags=PS4,RB1,RB4,RB6,RB7,SH16,SH18,SH19,SH20,SH24
+listener-walk-done-before-second-pass: rc=2 failures=3 KILLED tags=SH15,SH24
+10 checks: 10 PASS, 0 FAIL
