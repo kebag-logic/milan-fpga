@@ -1,0 +1,6 @@
+FAIL #88 stepsRemoved 255, one entry: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 stepsRemoved 255, one entry: gm still us got 00f4f4fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 stepsRemoved 255, one entry: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+FAIL #88 stepsRemoved 255, one entry: flags untouched got 0000000000000005 exp 000000000000000f
+FAIL #88 stepsRemoved 255, one entry: raw vector never published got ffc401f822436af8 exp ffc4faf822436af8
+[PASS] mutant caught: (b) the stepsRemoved refusal removed - breaks "#88 stepsRemoved 255, one entry: still master | #88 stepsRemoved 255, one entry: gm still us | #88 stepsRemoved 255, one entry: parent still us | #88 stepsRemoved 255, one entry: flags untouched | #88 stepsRemoved 255, one entry: raw vector never published"

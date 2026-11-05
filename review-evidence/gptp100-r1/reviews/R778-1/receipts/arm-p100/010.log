@@ -1,0 +1,3 @@
+FAIL #100 logAnnounceInterval 1: still slave 5998 ms after the Announce got 0000000000000000 exp 0000000000000001
+FAIL #100 logAnnounceInterval -1: master within 1502 ms of the Announce got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: the watch ignores the received interval - breaks "#100 logAnnounceInterval 1: still slave 5998 ms after the Announce | #100 logAnnounceInterval -1: master within 1502 ms of the Announce"

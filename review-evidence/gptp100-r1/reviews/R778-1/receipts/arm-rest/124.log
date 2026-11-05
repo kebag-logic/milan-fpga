@@ -1,0 +1,10 @@
+FAIL #88 issue shape: elected     got 02a1b2fffec3d4e5 exp 00f1f1fffe000001
+FAIL #88 issue shape: no longer master got 0000000000000002 exp 0000000000000000
+FAIL #88 issue shape: count       got 0000000000000001 exp 0000000000000002
+FAIL #88 issue shape: no Announce for one interval got 0000000000000001 exp 0000000000000000
+FAIL #88 two entries, stepsRemoved 5: elected got 02a1b2fffec3d4e5 exp 00f2f2fffe000001
+FAIL #88 three entries, stepsRemoved 0: elected got 02a1b2fffec3d4e5 exp 00f3f3fffe000001
+FAIL #88 own source, one entry, stepsRemoved 3: parser-drop policy got 000000000000000a exp 0000000000000009
+FAIL #88 stepsRemoved 255, one entry: parser-drop policy got 000000000000000b exp 000000000000000a
+FAIL #88 short loop, stepsRemoved 5: parser-drop policy got 000000000000000c exp 000000000000000b
+[PASS] mutant caught: the path-count refusal restored - breaks "#88 issue shape: elected | #88 issue shape: no longer master | #88 issue shape: count | #88 issue shape: no Announce for one interval | #88 two entries, stepsRemoved 5: elected | #88 three entries, stepsRemoved 0: elected | #88 own source, one entry, stepsRemoved 3: parser-drop policy | #88 stepsRemoved 255, one entry: parser-drop policy | #88 short loop, stepsRemoved 5: parser-drop policy"

@@ -1,0 +1,4 @@
+FAIL #94 toggle: the first request comes within one interval of the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: the first request goes out at once after the rise got 0000000000000000 exp 0000000000000001
+FAIL #94 toggle: then one request every interval got 0000000000000000 exp 0000000000000001
+[PASS] mutant caught: a portEnabled edge keeps the cease - breaks "#94 toggle: the first request comes within one interval of the rise | #94 toggle: the first request goes out at once after the rise | #94 toggle: then one request every interval"

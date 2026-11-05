@@ -1,0 +1,13 @@
+FAIL #87 G1 to G2 without a TLV: count got 0000000000000000 exp 0000000000000004
+FAIL #87 G1 to G2 without a TLV: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #87 parent refresh without a TLV: count got 0000000000000000 exp 0000000000000003
+FAIL #85 absent path: count       got 0000000000000000 exp 0000000000000001
+FAIL TLV-less competition control: raw path count got 0000000000000000 exp 0000000000000001
+FAIL #87 post-warm-reset TLV-less count got 0000000000000000 exp 0000000000000001
+FAIL #87 post-warm-reset TLV-less selection commits {thisClock} got 0000000000000000 exp 0000000000000001
+FAIL TLV-less current parent: keeps the previous count got 0000000000000000 exp 0000000000000008
+FAIL unknown-only current parent: keeps the previous count got 0000000000000000 exp 0000000000000004
+FAIL out-of-message fake PathTrace: keeps the previous count got 0000000000000000 exp 0000000000000008
+FAIL #87 raw-empty overload: frozen A keeps C's path got 0000000000000000 exp 0000000000000001
+FAIL #85 every peer path ends with thisClock got 000000000000000b exp 0000000000000000
+[PASS] mutant caught: the empty sequence published without a TLV - breaks "#87 G1 to G2 without a TLV: count | #87 G1 to G2 without a TLV: its commit names the grandmaster and path | #87 parent refresh without a TLV: count | #85 absent path: count | TLV-less competition control: raw path count | #87 post-warm-reset TLV-less count | #87 post-warm-reset TLV-less selection commits {thisClock} | TLV-less current parent: keeps the previous count | unknown-only current parent: keeps the previous count | out-of-message fake PathTrace: keeps the previous count | #87 raw-empty overload: frozen A keeps C's path | #85 every peer path ends with thisClock"

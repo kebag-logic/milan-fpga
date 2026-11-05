@@ -1,0 +1,31 @@
+arm jobs: 25, ok 25, not ok 0
+- 000 control ok 213.5s control
+- 001 arm ok 203.1s the Follow_Up TLV is sent zero
+- 002 arm ok 219.8s gmTimeBaseIndicator does not count mastership
+- 003 arm ok 233.6s lastGmPhaseChange is zero
+- 004 arm ok 221.3s lastGmPhaseChange is not ScaledNs
+- 005 arm ok 202.3s lastGmPhaseChange drops the offset's high word
+- 006 arm ok 205.1s scaledLastGmFreqChange is zero
+- 007 arm ok 219.9s scaledLastGmFreqChange is the rate estimate
+- 008 arm ok 210.6s a slewing mastership reports its last trim
+- 009 arm ok 206.9s a rate unknown since reset is taken as zero
+- 010 arm ok 207.8s the watch ignores the received interval
+- 011 arm ok 211.7s a negative interval lengthens the watch
+- 012 arm ok 208.3s the watch counts from the handler
+- 013 arm ok 211.8s a late Announce runs before the expiry
+- 014 arm ok 206.0s an Announce at the instant refreshes the port
+- 015 arm ok 204.1s lateness is judged at dispatch
+- 016 arm ok 289.1s a dispatched expiry leaves its watch armed
+- 017 arm ok 204.8s a stale expiry dispatches
+- 018 arm ok 202.8s a late response completes its exchange
+- 019 arm ok 214.5s the late bound is one nanosecond short
+- 020 arm ok 209.9s the late bound leaves out the clock tolerance
+- 021 arm ok 197.6s the late bound leaves out the link
+- 022 arm ok 214.7s the late bound leaves out the timestamp granules
+- 023 arm ok 178.7s the default clockAccuracy is unknown
+- 024 arm ok 164.5s --clock-accuracy is ignored
+- 900 probe NOT-OK 123.0s R1 floor becomes truncation toward zero
+- 901 probe ok 180.4s R2 the frequency multiply zero-extends the delta
+- 902 probe ok 152.8s R5 the watch is not due in its deadline's millisecond
+- 903 probe NOT-OK 170.4s R7 the interval is taken from any frame's word 0
+- 904 probe ok 172.9s R9 any PHC write counts as a mastership

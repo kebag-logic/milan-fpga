@@ -1,0 +1,5 @@
+FAIL #88 empty path: elected      got 02a1b2fffec3d4e5 exp 00eaeafffe000001
+FAIL #88 empty path: its commit names the grandmaster and path got 0000000000000000 exp 0000000000000001
+FAIL #88 empty path from the parent: count got 0000000000000004 exp 0000000000000001
+FAIL #88 empty path from the parent: parser accepts got 000000000000000c exp 000000000000000b
+[PASS] mutant caught: the empty-path refusal restored - breaks "#88 empty path: elected | #88 empty path: its commit names the grandmaster and path | #88 empty path from the parent: count | #88 empty path from the parent: parser accepts"

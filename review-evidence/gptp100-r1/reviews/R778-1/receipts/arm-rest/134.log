@@ -1,0 +1,6 @@
+FAIL #88 short loop, stepsRemoved 5: still master got 0000000000000000 exp 0000000000000002
+FAIL #88 short loop, stepsRemoved 5: gm still us got 00f4f4fffe000001 exp 02a1b2fffec3d4e5
+FAIL #88 short loop, stepsRemoved 5: parent still us got 0080e1fffe445566 exp 02a1b2fffec3d4e5
+FAIL #88 short loop, stepsRemoved 5: flags untouched got 0000000000000005 exp 000000000000000f
+FAIL #88 short loop, stepsRemoved 5: raw vector never published got ffc401f822436af8 exp ffc4faf822436af8
+[PASS] mutant caught: (c) the PathTrace loop refusal removed - breaks "#88 short loop, stepsRemoved 5: still master | #88 short loop, stepsRemoved 5: gm still us | #88 short loop, stepsRemoved 5: parent still us | #88 short loop, stepsRemoved 5: flags untouched | #88 short loop, stepsRemoved 5: raw vector never published"
