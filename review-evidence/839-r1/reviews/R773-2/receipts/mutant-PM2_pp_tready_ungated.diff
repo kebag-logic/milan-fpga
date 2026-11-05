@@ -1,0 +1,11 @@
+--- hdl/milan/milan_datapath.sv	2026-11-05 23:50:05.176554588 +0100
++++ $REVIEWS/839-r773-2-packet/scratch/mut/PM2_pp_tready_ungated.sv	2026-11-05 23:53:01.932254279 +0100
+@@ -8813,7 +8813,7 @@
+   //! path to the MAC stays free of runtime gates (the boot contract in
+   //! docs/integration/BAREMETAL_FIRMWARE.md).
+   assign pp_tx_tvalid_w    = pp_txs_tvalid_w   & tx_sa_ok_w;
+-  assign pp_txs_tready_w   = pp_tx_tready_w    & tx_sa_ok_w;
++  assign pp_txs_tready_w   = pp_tx_tready_w;
+   assign maap_tx_tvalid    = maap_txs_tvalid_w & tx_sa_ok_w;
+   assign maap_txs_tready_w = maap_tx_tready    & tx_sa_ok_w;
+   assign aaf_tx_tvalid     = aaf_txs_tvalid_w  & tx_sa_ok_w;

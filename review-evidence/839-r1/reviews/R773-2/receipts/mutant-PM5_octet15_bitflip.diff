@@ -1,0 +1,10 @@
+--- hdl/milan/milan_datapath.sv	2026-11-05 23:50:05.176554588 +0100
++++ $REVIEWS/839-r773-2-packet/scratch/mut/PM5_octet15_bitflip.sv	2026-11-05 23:53:01.934887500 +0100
+@@ -8938,6 +8938,7 @@
+         if (ctl_sa_idx_r == TX_SA_IW_C'(b) && (b * int'(TX_SA_BPB_C) + ln) >= 6
+             && (b * int'(TX_SA_BPB_C) + ln) < 12)
+           ctlg2_tdata[8*ln +: 8] = cfg_mac_addr[8*(b * int'(TX_SA_BPB_C) + ln - 6) +: 8];
++    if (ctl_sa_idx_r == TX_SA_IW_C'(1)) ctlg2_tdata[56] = ~ctlg_src_tdata_w[56];
+   end : ctl_sa_stamp
+ 
+   // ==========================================================================
