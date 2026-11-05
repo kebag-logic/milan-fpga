@@ -76,14 +76,18 @@ static_assert(kPeriodNs * kHz == 1000000000 && kDelayBoundNs == 28,
               "revisit the check labels, verify_abort.py and the audio ratio for this period");
 constexpr uint64_t kPeer = 0x0080E1FFFE112233ULL;
 constexpr uint64_t kGm = 0x00AACCFFFE010203ULL;
-//! thisClock of gptp_ax1x1_ucode.hex (--mac 0x024b4c000001, the AX7101
+//! thisClock of gptp_ax1x1_ucode.hex (--mac 0x024b4c4b4c01, the AX7101
 //! configs' station MAC, #840). IEEE 802.1AS-2011 10.3.10.2.1 d): a slave
 //! port's pathTrace is the received pathSequence with thisClock appended.
-constexpr uint64_t kThisClock = 0x024B4CFFFE000001ULL;
+constexpr uint64_t kThisClock = 0x024B4CFFFE4B4C01ULL;
 //! The AX7101 station MAC and its MAC-derived entity_id (#840), the identity
 //! the shipping image this leg loads carries.
-constexpr uint64_t kStationMac = 0x024B4C000001ULL;
-constexpr uint64_t kEntityId = 0x024B4CFFFE000001ULL;
+constexpr uint64_t kStationMac = 0x024B4C4B4C01ULL;
+constexpr uint64_t kEntityId = 0x024B4CFFFE4B4C01ULL;
+//! Octet k of the station MAC in wire order, the first octet at k = 0.
+constexpr uint32_t mac_octet(unsigned k) {
+    return static_cast<uint32_t>(kStationMac >> (40 - 8 * k)) & 0xFFu;
+}
 constexpr uint64_t kSid = 0x0200000000020000ULL;
 constexpr uint64_t kPropagation = 320;
 constexpr uint64_t kResidence = 20000;
@@ -878,7 +882,8 @@ void Harness::start_the_boot_restore_walk() {
 void Harness::configure() {
     start_the_boot_restore_walk();
     // MAC_ADDR_LO/HI carry the wire bytes LSB-first (REGISTER_MAP 0x108).
-    write(0x108, 0x004C4B02); write(0x10C, 0x00000100);
+    write(0x108, mac_octet(0) | (mac_octet(1) << 8) | (mac_octet(2) << 16) | (mac_octet(3) << 24));
+    write(0x10C, mac_octet(4) | (mac_octet(5) << 8));
     write(0x608, uint32_t(kEntityId >> 32)); write(0x604, uint32_t(kEntityId));
     check.hex("PHC reset increment is 20 ns", read(0x504), kPeriodNs << 24);
     check.hex("advertised talker geometry AAF plus CRF", read(0x618), 0x48010002);

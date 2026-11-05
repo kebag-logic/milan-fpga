@@ -162,7 +162,7 @@ srp:                                 # lwSRP (802.1Q MSRP/MVRP) reservation
                                      # (the deployed gateware's table)
 
 platform:                            # identity + processor-memory placement
-  mac_address: "02:4b:4c:00:00:02"   # board 2 - MUST differ from the AX7101's
+  mac_address: "02:4b:4c:4b:4c:02"   # board 2 - MUST differ from the AX7101's
                                      # ..:01 on the shared AVB switch; locally
                                      # administered, not IEEE-assigned (#840)
   pp_mem_phys: 0x4fe00000            # 1 MiB protocol-processor window

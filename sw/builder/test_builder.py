@@ -26722,25 +26722,27 @@ def _assert_image_spans_are_baked(name, ent, overlay, aem, aemi):
 def test_station_mac_ul_bit_warns() -> None:
     """Gate 28b (#840): the prototype identities, and the U/L-bit warning.
 
-    The maintainer decision of 2026-11-05 gives the AX7101 station MAC
-    02:4B:4C:00:00:01 and the Arty 02:4B:4C:00:00:02, both locally
-    administered, with entity_id and clockIdentity still MAC-derived. IEEE
+    The decisions of 2026-11-05 give the AX7101 station MAC
+    02:4B:4C:4B:4C:01 and the Arty 02:4B:4C:4B:4C:02, both locally
+    administered, with entity_id and clockIdentity still MAC-derived, and
+    no octet of those EUI-64 identities 0x00 (#840). IEEE
     802-2014 8.2 and 8.4 put the U/L bit at bit 1 of the first octet (also
     IEEE 802.1AS-2011 8.5.2.2.1 NOTE 2). A set U/L bit is not an
     IEEE-assigned EUI-48, which 802.1AS-2011 8.5.2.2.1 and IEEE 1588-2008
     7.5.2.2.2 require of the MAC a clockIdentity is formed from, so the
     builder WARNS and still builds: a warning, never a refusal.
 
-    Arms: every tracked config carries its decided address and entity_id
-    and draws exactly one warning; a universally administered variant draws
-    none, and so does one whose other first-octet bits are set; setting bit
-    1 alone of that variant draws it back; and the CLI writes the warning on
-    stderr, keeps it off stdout, and exits 0 having written its outputs."""
-    decided = {"ax7101_8x8": ("02:4b:4c:00:00:01", 0x024B4CFFFE000001),
-               "ax7101_1x1_tdm8": ("02:4b:4c:00:00:01", 0x024B4CFFFE000001),
-               "arty_current": ("02:4b:4c:00:00:02", 0x024B4CFFFE000002),
-               "arty_4x4": ("02:4b:4c:00:00:02", 0x024B4CFFFE000002),
-               "arty_8ch": ("02:4b:4c:00:00:02", 0x024B4CFFFE000002)}
+    Arms: every tracked config carries its decided address and entity_id,
+    no octet of which is zero, and draws exactly one warning; a universally
+    administered variant draws none, and so does one whose other first-octet
+    bits are set; setting bit 1 alone of that variant draws it back; and the
+    CLI writes the warning on stderr, keeps it off stdout, and exits 0 having
+    written its outputs."""
+    decided = {"ax7101_8x8": ("02:4b:4c:4b:4c:01", 0x024B4CFFFE4B4C01),
+               "ax7101_1x1_tdm8": ("02:4b:4c:4b:4c:01", 0x024B4CFFFE4B4C01),
+               "arty_current": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02),
+               "arty_4x4": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02),
+               "arty_8ch": ("02:4b:4c:4b:4c:02", 0x024B4CFFFE4B4C02)}
     assert set(decided) == set(CONFIGS), \
         f"gate 28b: decided identities {sorted(decided)} != configs {sorted(CONFIGS)}"
     for name, (mac, eid) in decided.items():
@@ -26749,11 +26751,13 @@ def test_station_mac_ul_bit_warns() -> None:
             f"gate 28b {name}: station MAC {cfg['platform']['mac_address']}, decided {mac}"
         assert eb.derive_entity_id(cfg) == eid, \
             f"gate 28b {name}: entity_id {eb.derive_entity_id(cfg):016X}, decided {eid:016X}"
+        assert all(eid.to_bytes(8, "big")), \
+            f"gate 28b {name}: entity_id {eid:016X} has a zero octet"
         warned = eb.identity_warnings(cfg)
         assert len(warned) == 1 and mac in warned[0] and "U/L bit" in warned[0] \
             and "#840" in warned[0], \
             f"gate 28b {name}: locally administered {mac} drew {warned!r}, not one U/L warning"
-    print(f"  {len(decided)} configs: decided identity, one U/L-bit warning each")
+    print(f"  {len(decided)} configs: decided identity, no zero octet, one U/L-bit warning each")
 
     def with_mac(mac: str) -> Callable[[dict], None]:
         """A config mutation that sets the station MAC to `mac`."""
@@ -26774,7 +26778,7 @@ def test_station_mac_ul_bit_warns() -> None:
         cli = subprocess.run([sys.executable, str(HERE / "endstation_builder.py"),
                               str(CONFIGS["ax7101_1x1_tdm8"]), "-o", str(out)],
                              capture_output=True, text=True, timeout=600)
-        needle = "WARNING: platform.mac_address 02:4b:4c:00:00:01 has the U/L bit set"
+        needle = "WARNING: platform.mac_address 02:4b:4c:4b:4c:01 has the U/L bit set"
         assert cli.returncode == 0, \
             f"gate 28b: the U/L warning refused the build: rc {cli.returncode} {cli.stderr[-300:]}"
         assert needle in cli.stderr, f"gate 28b: CLI stderr lacks {needle!r}: {cli.stderr[-300:]}"
