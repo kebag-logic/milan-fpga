@@ -1,0 +1,10 @@
+--- hdl/milan/milan_datapath.sv	2026-11-05 23:50:05.176554588 +0100
++++ $REVIEWS/839-r773-2-packet/scratch/mut/PM4_reclose_on_mac_ctrl.sv	2026-11-05 23:53:01.933988081 +0100
+@@ -3110,6 +3110,7 @@
+     end else if (s_axi_awvalid && s_axi_awready) begin
+       if (s_axi_awaddr == MAC_ALO_ADDR_C) mac_alo_wr_r <= 1'b1;
+       if (s_axi_awaddr == MAC_AHI_ADDR_C) mac_ahi_wr_r <= 1'b1;
++      if (s_axi_awaddr == 16'h0100) mac_ahi_wr_r <= 1'b0;
+     end
+   end : mac_addr_seq
+   assign tx_sa_ok_w = mac_alo_wr_r & mac_ahi_wr_r;

@@ -1,0 +1,21 @@
+--- hdl/milan/milan_datapath.sv	2026-11-05 23:50:05.176554588 +0100
++++ $REVIEWS/839-r773-2-packet/scratch/mut/PM1_nohold_maap_aaf_crf.sv	2026-11-05 23:53:01.929558943 +0100
+@@ -8814,12 +8814,12 @@
+   //! docs/integration/BAREMETAL_FIRMWARE.md).
+   assign pp_tx_tvalid_w    = pp_txs_tvalid_w   & tx_sa_ok_w;
+   assign pp_txs_tready_w   = pp_tx_tready_w    & tx_sa_ok_w;
+-  assign maap_tx_tvalid    = maap_txs_tvalid_w & tx_sa_ok_w;
+-  assign maap_txs_tready_w = maap_tx_tready    & tx_sa_ok_w;
+-  assign aaf_tx_tvalid     = aaf_txs_tvalid_w  & tx_sa_ok_w;
+-  assign aaf_txs_tready_w  = aaf_tx_tready     & tx_sa_ok_w;
+-  assign crft_tx_tvalid    = crft_txs_tvalid_w & tx_sa_ok_w;
+-  assign crft_txs_tready_w = crft_tx_tready    & tx_sa_ok_w;
++  assign maap_tx_tvalid    = maap_txs_tvalid_w;
++  assign maap_txs_tready_w = maap_tx_tready   ;
++  assign aaf_tx_tvalid     = aaf_txs_tvalid_w ;
++  assign aaf_txs_tready_w  = aaf_tx_tready    ;
++  assign crft_tx_tvalid    = crft_txs_tvalid_w;
++  assign crft_txs_tready_w = crft_tx_tready   ;
+ 
+   //! THE control merge: the protocol processor's packed TX (s_data - ADP,
+   //! ACMP and SRP, internally arbitrated) + the fabric KL_maap

@@ -1,0 +1,11 @@
+--- hdl/milan/milan_datapath.sv	2026-11-05 23:50:05.176554588 +0100
++++ $REVIEWS/839-r773-2-packet/scratch/mut/PM3_stamp_wraps.sv	2026-11-05 23:53:01.933096703 +0100
+@@ -8925,7 +8925,7 @@
+     if (!axis_resetn)                                      ctl_sa_idx_r <= '0;
+     else if (ctlg2_tvalid && ctlg2_tready) begin
+       if (ctlg2_tlast)                                     ctl_sa_idx_r <= '0;
+-      else if (ctl_sa_idx_r != TX_SA_IW_C'(TX_SA_BEATS_C)) ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;
++      else                                                 ctl_sa_idx_r <= ctl_sa_idx_r + 1'b1;
+     end
+   end : ctl_sa_position
+ 
