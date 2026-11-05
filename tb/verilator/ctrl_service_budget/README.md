@@ -117,7 +117,7 @@ A save's window is refused too if it opens after its read-backs have read back e
 Every pass that carries the store's step is printed, a `STEPPASS` line or `step=1` on a work pass, and the table gives each group's longest and its longest step's own CPU time, the store's and its flash port's; the run prints a `STEPS` line.
 **A retried notice under sustained input.**
 [`notice_window.py`](notice_window.py)'s groups, `notice-retried-<k>`, time a change notice whose observation port does not answer and then answers.
-The time runs from the port's answer to the notice's last recipient's commit, against its 20 ms: min(T_svc, the 24 ms notification ceiling), with no extra budget at a retry (FR_NFR.md 3.4.1; THE RETRY in `ctrl_loop.h`, #665).
+The time runs from the port's answer to the notice's last recipient's commit, against its 20 ms: min(T_svc, the 24 ms notification ceiling), with no extra budget at a retry ([FR_NFR.md 3.4.1](../../../docs/reference/FR_NFR.md#341-control-service-budget-and-normative-timing); THE RETRY in `ctrl_loop.h`, #665).
 They run in the labelled `answering-later` arm, at each point:
 
 ```sh

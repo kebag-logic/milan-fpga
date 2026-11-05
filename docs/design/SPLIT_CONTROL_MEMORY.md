@@ -1837,7 +1837,7 @@ Three of the head's behaviours are kept by where the work now stands, each found
 `LoopBring.L18TransmitBindingRefusals`, `Loop.L19TheTransmitOnlyInAPassThatTakesNoRecord`, `Loop.L20AnAgedTransmitIsAPassOfItsOwn`, `Srp.TransmitWaitsForAPassThatTakesNoRecord`, `Srp.AHeldBuildTakesAPassOfItsOwnPastItsAge` and `Srp.AnOwedFrameComesBeforeTheBuild` hold the rule, with 43 planted defects, 24 in the loop and 19 in SRP's adapter, each failing its named test on its words.
 
 **SRP's bound, and what THE TRANSMIT gives its records.**
-`CTRL_LOOP_SRP_MS` states SRP's bound beside `CTRL_LOOP_STEP_AGE`, `CTRL_LOOP_RETRY_MS` and `CTRL_LOOP_TX_MS`: min(T_svc = 20 ms, its ceiling), 18 ms, THE SHARE's nine passes (FR_NFR.md 3.4.1).
+`CTRL_LOOP_SRP_MS` states SRP's bound beside `CTRL_LOOP_STEP_AGE`, `CTRL_LOOP_RETRY_MS` and `CTRL_LOOP_TX_MS`: min(T_svc = 20 ms, its ceiling), 18 ms, THE SHARE's nine passes ([FR_NFR.md 3.4.1](../reference/FR_NFR.md#341-control-service-budget-and-normative-timing)).
 By pass class, no pass that takes a record carries a build.
 Beside the passes a record of SRP's admitted burst waits stand at most one pass given whole to an aged build, since two stand `CTRL_LOOP_TX_AGE` ticks apart, more than 18 ms (`srp_mbx.c` holds the two to each other at compile time), at most one given whole to an aged step, three ticks apart, and the aged retries' passes, at least a millisecond and `CTRL_LOOP_RETRY_AGE_MS` apart.
 That count does not reach the composed burst's own passes: its 32 SRP records at 8x8/2if, two a pass, are taken in sixteen, more than the nine THE SHARE counts, so that row fits by the measured cost of those sixteen passes, not by the constants.
