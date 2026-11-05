@@ -23,20 +23,25 @@ extern "C" {
 // it and reports it owed, and only aecp_retry tries it, which the event loop
 // calls in a pass that took no input and dispatched no centisecond, after an
 // aged step or an aged build (THE TRANSMIT), or in a pass of its own once
-// aecp_retry_aged reports the held
-// retry CTRL_LOOP_RETRY_AGE_MS past its time. So once the port answers, the
-// notice of Milan v1.2 5.4.5.2 and Table 5.22 is built at its next retry,
-// within AECP_RETRY_MAX_MS, and committed to every recipient within
-// CTRL_LOOP_RETRY_MS after that retry came due: 8 + 10 = 18 ms, under any
-// input, a backlog or input that leaves no pass empty included, inside its
-// AECP_NOTICE_MS (aecp_mbx.c holds the sum to it). That holds while nothing
-// waits ahead of its round: a response owed is committed first (ctrl_loop.h,
-// A3), a notice already built is sent first, each notice owed ahead of it
-// costing it its own round and the pass that sends it, and while a command
-// waits on its apply (AECP_WAIT_MS) or a START or STOP is pending, aecp_poll
-// builds no notice at all. GET_COUNTERS keeps its one-second spacing, and the
-// 60 s unlock and the controller monitor of Milan v1.2 5.4.2.2 and 5.4.5.3
-// are not retries.
+// aecp_retry_aged reports the held retry CTRL_LOOP_RETRY_AGE_MS past its time.
+// So once the port answers, the notice of Milan v1.2 5.4.5.2 and Table 5.22 is
+// built at its next retry, within AECP_RETRY_MAX_MS, and committed to every
+// recipient within CTRL_LOOP_RETRY_MS after that retry came due: 8 + 10 = 18
+// ms, under any input, a backlog or input that leaves no pass empty included,
+// inside its AECP_NOTICE_MS (aecp_mbx.c holds the sum to it). That holds while
+// nothing waits ahead of its round: a response owed is committed first
+// (ctrl_loop.h, A3), a notice already built is sent first, each notice owed
+// ahead of it costing it its own round and the pass that sends it, and while a
+// command waits on its apply (AECP_WAIT_MS) or a START or STOP is pending,
+// aecp_poll builds no notice at all. Measured from the port's answer to the
+// last recipient's commit, under every receive channel at its refill rate with
+// its bursts and a grandmaster change as every pass starts, with a save in
+// flight (the CPU budget harness's notice groups, eight phases of the spacing,
+// with and without the drafts): 12.30 to 13.20 ms at 1x1/1if, 16 recipients,
+// and 12.47 to 13.51 ms at 8x8/2if, 32 recipients
+// (docs/design/SPLIT_CONTROL_MEMORY.md section 13). GET_COUNTERS keeps its
+// one-second spacing, and the 60 s unlock and the controller monitor of Milan
+// v1.2 5.4.2.2 and 5.4.5.3 are not retries.
 #define AECP_RETRY_MAX_MS 8u
 // A notification's bound, min(T_svc, the 24 ms notification ceiling), of
 // FR_NFR.md 3.4.1: from a retried notice's port answer to its last

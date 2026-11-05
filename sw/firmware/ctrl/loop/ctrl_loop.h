@@ -91,12 +91,35 @@
 //   * the saved-state store: one service step, taken only in a pass that
 //     took no input and has room for it, or as the whole of a pass once it
 //     has waited past its age limit (THE STEP, nvm_store.h).
+// So each kind of pass has a worst case, the heaviest of each the CPU budget
+// harness measures at this image across every group it stages, both arms,
+// with and without the drafts (docs/design/SPLIT_CONTROL_MEMORY.md section
+// 13), and each sits at least 6,490 CPU cycles, the swing the data layout
+// alone made on the same records, under THE SHARE, at this image's layout
+// and in the groups measured with THE RETRY's and THE TRANSMIT's fields at
+// their structs' ends:
+//   * a pass that takes a record (its events, its records, the polls):
+//     190,420 cycles at 8x8/2if, 116,176 at 1x1/1if;
+//   * one that takes events and no record (the polls, at most one event
+//     beside THE TRANSMIT's build): 140,363 and 52,247;
+//   * one that takes nothing and writes to the mailbox (the polls' owed
+//     output, THE TRANSMIT's build, THE RETRY's round, THE STEP before its
+//     deadline): 171,351 and 128,083;
+//   * one given whole to an aged step (the step and one round): 97,806 and
+//     97,378;
+//   * one given whole to an aged retry (one round): 12,571 and 9,610;
+//   * one given whole to an aged build (one build and one round, no poll):
+//     no group stages one; it holds at most the heaviest pass that carries
+//     a build and the heaviest round, 171,351 + 12,571 = 183,922 and
+//     128,083 + 9,610 = 137,693;
+//   * one that writes nothing (the polls with nothing owed, or THE STEP
+//     before its deadline): 118,647 and 106,887.
 //
 // THE STEP (#665). One client takes a deferrable step at the end of a pass
 // that took no input, no event and no record, after the polls: the
 // saved-state store's write path. Its flash steps (a page program's issue up
 // to 0.97 ms, a 128-byte read-back 0.77 ms) do not fit beside the heaviest
-// pass the other slices make (1.99 ms at 8x8/2if), and in a pass that takes
+// pass the other slices make (1.90 ms at 8x8/2if), and in a pass that takes
 // records they lengthen every record still waiting (the last SRP record of a
 // full ring waits sixteen passes), so its centisecond consumer only owes a
 // step, and the loop calls the step only once a pass takes nothing. It hands
@@ -137,7 +160,8 @@
 // stated beside CTRL_LOOP_STEP_AGE.
 //
 // THE TRANSMIT (#665). One client's deferrable build: SRP's MRPDU build
-// (srp_mbx.c, transmit), up to 95,258 CPU cycles a build at 8x8/2if. Built in
+// (srp_mbx.c, transmit): a pass that carries one takes up to 171,351 CPU
+// cycles at 8x8/2if. Built in
 // a pass that takes records, it lengthened every record still waiting: when
 // every channel's burst arrives at once, SRP's 32 records wait sixteen passes
 // at two a pass, and the builds a centisecond's join timers start stood among
@@ -197,7 +221,8 @@ extern "C" {
 // centisecond takes at most. The centisecond's consumers cost about 43,000
 // CPU cycles at 8x8/2if (lwSRP's timers and the walks after them), and beside
 // the composed burst's records, two a channel, that pass was the heaviest the
-// burst made, 195,756 cycles, 4,244 under THE SHARE. With one record a channel
+// burst made before this cap, 195,756 cycles, 4,244 under THE SHARE. With one
+// record a channel
 // it holds a channel's record fewer than any other pass of the burst.
 #define CTRL_LOOP_RX_PER_TICK_PASS 1u
 // THE SHARE in microseconds: SRP's 18 ms over nine passes.
@@ -208,7 +233,8 @@ extern "C" {
 // ticks, so it takes one at most, and one opened at age zero, after a pass
 // that took nothing, takes none at two, where at one it would. Every row the
 // budget stages fits with that step at each placement measured, the least
-// margin 0.10 ms (8x8/2if) against a step of up to 0.97 ms; at three a
+// margin 0.235 ms (8x8/2if, the last SRP record of a save's verify window
+// opened one short of the limit) against a step of up to 0.97 ms; at three a
 // save would take a step every four ticks under such input (nvm_store.h)
 // (#665).
 #define CTRL_LOOP_STEP_AGE 2u
@@ -267,6 +293,26 @@ extern "C" {
 // and THE STEP only before its deadline; an aged transmit's pass, one build
 // and one round.
 #define CTRL_LOOP_TX_MS ((CTRL_LOOP_TX_AGE + 1u) * MBX_TICK_MS + 7u * CTRL_LOOP_SHARE_US / 1000u)
+// SRP's bound in milliseconds (#665): min(T_svc = 20 ms, its ceiling)
+// (FR_NFR.md 3.4.1), THE SHARE's nine passes, the smallest bound every input
+// shares. What THE TRANSMIT gives SRP's records, by pass class: no pass that
+// takes a record carries a build. A pass among those a record of SRP's
+// admitted burst waits carries one only where it took no record at all,
+// because an event posted during it held SRP's records back (srp_mbx.c,
+// rx_order_ready) and no other channel's record waited; a frame SRP owes is
+// sent in place of a build, and owed centiseconds are dispatched by a pass
+// that builds none. Beside them stand at most one pass given whole to an aged
+// build, since two stand CTRL_LOOP_TX_AGE ticks apart, more than this bound
+// (srp_mbx.c holds the two to each other), at most one given whole to an aged
+// step, CTRL_LOOP_STEP_AGE + 1 ticks apart, and the aged retries' passes, at
+// least a millisecond and CTRL_LOOP_RETRY_AGE_MS apart. This bound does not
+// count the composed burst's passes: its 32 SRP records at 8x8/2if, two a
+// pass, are taken in sixteen, more than the nine it counts at THE SHARE, so
+// that row fits by those passes' measured cost: its last record at most 17.106
+// ms after its commit at 8x8/2if under input that leaves no pass empty, and
+// every SRP row the budget stages at most 17.765 ms, 0.235 ms inside it
+// (docs/design/SPLIT_CONTROL_MEMORY.md section 13).
+#define CTRL_LOOP_SRP_MS (9u * CTRL_LOOP_SHARE_US / 1000u)
 
 // A1: the backlogs the bound assumes, in records.
 #define CTRL_LOOP_EVT_BACKLOG (MBX_EVT_WORDS / MBX_EV_WORDS)

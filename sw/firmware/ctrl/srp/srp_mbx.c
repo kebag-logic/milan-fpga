@@ -25,10 +25,10 @@ _Static_assert(CTRL_SRP_SOURCES <= MBX_N_PUB_SOURCES, "every source needs a LICE
 
 // The JoinTime every participant is configured with, in centiseconds (create_participants).
 #define SRP_JOIN_CS 20u
-// THE TRANSMIT (ctrl_loop.h, #665): two aged builds stand further apart than the 18 ms of SRP's records (THE
-// SHARE, nine passes), so at most one stands among the passes a record waits; and every participant's owed MRPDU,
-// one a build, is sent within the JoinTime (IEEE 802.1Q Table 10-7).
-_Static_assert(CTRL_LOOP_TX_AGE * MBX_TICK_MS * 1000u >= 9u * CTRL_LOOP_SHARE_US,
+// THE TRANSMIT (ctrl_loop.h, #665): two aged builds stand further apart than the 18 ms of SRP's records
+// (CTRL_LOOP_SRP_MS, THE SHARE's nine passes), so at most one stands among the passes a record waits; and every
+// participant's owed MRPDU, one a build, is sent within the JoinTime (IEEE 802.1Q Table 10-7).
+_Static_assert(CTRL_LOOP_TX_AGE * MBX_TICK_MS > CTRL_LOOP_SRP_MS,
                "two aged builds stand further apart than SRP's bound");
 _Static_assert(2u * MBX_N_IF * CTRL_LOOP_TX_MS <= SRP_JOIN_CS * MBX_TICK_MS,
                "every participant's owed MRPDU is sent within the JoinTime");
