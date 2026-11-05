@@ -1,0 +1,10 @@
+All at ba56827bbfe4acadb84ca220616a76ad74611e7d, pinned simulator Verilator 5.050 rev v5.050.
+bootsa_tree    : rc 0, checks 67, failures 0 (clean leg)
+bootsa_nomvrp  : rc 2, checks 65, failures 1 = "[BOOTSA] MVRP frames were sent and graded" (probe_tx() removed)
+bootsa_base    : base-RTL datapath does not elaborate against the head leg (probed nets absent); not evidence, recorded as a limit
+par_mutants    : clean pass; all 12 shipped controls caught by name; reviewer probes caught:
+  PROBE together, all four names (adds OFF_CRF)         -> caught (OFF_CRF also fails, got=10)
+  PROBE stamp position saturates one beat early         -> caught, octet comparison got=799
+  PROBE stamp position never advances                   -> caught, octet comparison among 16 failures
+  shipped wrap control (round-1 PM3 shape)              -> caught, octet comparison got=126 and nothing else fails
+  shipped "together" control (round-1 plant_noxtra shape) -> caught, 10 failures
