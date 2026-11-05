@@ -92,8 +92,17 @@ int main(void)
 	for (i = 0; i < target_address; ++i)
 		expect_poll(now++, 0);
 	/* #840: a register the PHY init reads is not acknowledged, so the init
-	 * writes nothing and the next poll retries it. */
+	 * writes nothing and the next poll retries it: first the ability
+	 * register 15, then the 1000BASE-T control register 9. */
+	nak_register = 15;
+	expect_poll(now, 0);
+	{
+		const int no_write_before_its_ability_read = writes == 0u;
+
+		assert(no_write_before_its_ability_read);
+	}
 	nak_register = 9;
+	now += 125000000u;
 	expect_poll(now, 0);
 	{
 		const int no_write_before_its_read = writes == 0u;
@@ -204,6 +213,48 @@ int main(void)
 	registers[1] = 0x24;
 	registers[5] = 0x101;
 	expect_poll(1, 11);
+	/* #840: a PHY without 1000BASE-T full duplex ability (IEEE 802.3-2022
+	 * 22.2.4.2.16, 22.2.4.4.3), as the 10/100 PHY of an MII build, keeps its
+	 * own advertisement. Each is discovered afresh, is never written, and
+	 * links at 100BASE-TX full duplex as before the PHY init: first without
+	 * the extended-status register (its register 15 would claim the ability
+	 * if read), then with one lacking bit 15.13. */
+	for (i = 0; i < 2u; ++i) {
+		const unsigned int writes_before = writes;
+		const unsigned int restarts_before = restarts;
+		unsigned int probe;
+		int not_written;
+
+		phy_found = 0;
+		phy_address = 0;
+		phy_advertised = 0;
+		phy_published = 0;
+		phy_last_poll = 0;
+		registers[0] = 0x1000;
+		registers[1] = i ? 0x0124 : 0x0024;
+		registers[4] = 0x01e1;
+		registers[5] = 0x01e1;
+		registers[9] = 0x0300;
+		registers[10] = 0;
+		registers[15] = i ? 0x1000 : 0x3000;
+		for (probe = 0; probe < target_address; ++probe)
+			expect_poll(now++, 0);
+		phy_link_tick(now);
+		not_written = writes == writes_before && restarts == restarts_before &&
+			registers[4] == 0x01e1 && registers[9] == 0x0300;
+		if (i) {
+			const int no_write_without_1000base_t_full_ability = not_written;
+
+			assert(no_write_without_1000base_t_full_ability);
+		} else {
+			const int no_write_without_extended_status = not_written;
+
+			assert(no_write_without_extended_status);
+		}
+		assert(status_word == 11u);
+		now += 125000000u;
+		expect_poll(now, 11);
+	}
 	printf("PHY_OK transfers=%u delay_cycles=%llu\n", transfers,
 	       (unsigned long long)delay_cycles);
 	return 0;

@@ -51,18 +51,23 @@ This is a prototype limitation, not a stricter reading.
 
 | Clause | The clause allows | The board does | Why |
 |---|---|---|---|
-| IEEE 802.1BA-2011 6.5 d) | Any medium of 100 Mb/s or more in an AVB domain | 1000BASE-T full duplex only | The MAC runs at 1 Gb/s only |
+| IEEE 802.1BA-2011 6.5 d) | Any medium of 100 Mb/s or more in an AVB domain | 1000BASE-T full duplex only | The AX7101 MAC runs at 1 Gb/s only |
 | Milan v1.2 Chapter 1 | The design goal of links at or above 100 Mb/s | 1000BASE-T full duplex only | The same MAC limit |
 | IEEE 802.3-2022 28.2.4.1.3, Table 28B-1 | Any supported ability in register 4; management may clear them before renegotiating | Register 4 carries no 10BASE-T, 100BASE-TX or 100BASE-T4 bit | A 100 Mb/s link formed, and the board then stayed silent |
 | IEEE 802.3-2022 Table 40-3 | 1000BASE-T full duplex, half duplex, or both, in register 9 | Full duplex only; the MASTER-SLAVE bits are kept | The MAC is full duplex only |
 | IEEE 802.3-2022 22.2.4.1.7 | A restart of auto-negotiation through bit 0.9 | One restart per boot, after both writes | 28.2.4.1.3 asks for a renegotiation after a change |
+| IEEE 802.3-2022 22.2.4.2.16, 22.2.4.4.3 | Bit 1.8 marks register 15, whose bit 15.13 is the PHY's 1000BASE-T full duplex ability | The init writes only a PHY with both bits set; any other is never written | A 10/100 PHY sits behind a MAC that runs 10 and 100 Mb/s |
 
 A partner without 1000BASE-T gets no link.
 
 `MAC_STATUS` then reports the link down, so the fault is visible.
 
+A PHY lacking 1000BASE-T full duplex keeps its advertisement.
+
+The retired Arty has such a 10/100 PHY. Its MII MAC runs 10 and 100 Mb/s.
+
 - Where: `phy_advertise_gigabit_only()` in `sw/firmware/milan_baremetal/milan_baremetal.c`.
-- Tested by `sw/firmware/nvm_hosttest/test_phy_firmware.py`, with nine named mutants.
+- Tested by `sw/firmware/nvm_hosttest/test_phy_firmware.py`, with twelve named mutants.
 - The [firmware guide](../integration/BAREMETAL_FIRMWARE.md) describes the PHY poll.
 
 ## The certification_version field

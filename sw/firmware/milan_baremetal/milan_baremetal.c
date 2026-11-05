@@ -959,6 +959,8 @@ void milan_mac_link_status_write(uint32_t value);
  * mode (bits 15 to 13) and the reserved bits 7 to 0 at zero. */
 #define PHY_GBCR_MASTER_SLAVE 0x1c00u
 #define PHY_GBCR_1000_FULL 0x0200u
+/* 22.2.4.4.3: register 15 bit 13, the PHY's 1000BASE-T full duplex ability. */
+#define PHY_ESTATUS_1000_FULL 0x2000u
 
 /* The fabric passed its identity check and was configured: nvm_boot() sets
  * this first, so the PHY link is published on every boot path from there,
@@ -1030,13 +1032,28 @@ static void phy_mdio_write(unsigned int reg, unsigned int value)
  * and then restarts auto-negotiation (22.2.4.1.7), as 28.2.4.1.3 asks
  * after a change. A partner without 1000BASE-T then gets no link, published
  * as down, rather than a 100 Mb/s link on which the MAC stays silent.
+ * A PHY without 1000BASE-T full duplex ability (22.2.4.2.16, 22.2.4.4.3) is
+ * the 10/100 PHY of an MII build, whose MAC runs 10 and 100 Mb/s: it keeps
+ * its own advertisement and is not written. `bmsr` is the poll's own status
+ * read, so a latched link loss (22.2.4.2.13) stays the poll's to publish.
  * Returns 0, so the next poll retries, when a read is not acknowledged. */
-static int phy_advertise_gigabit_only(void)
+static int phy_advertise_gigabit_only(unsigned int bmsr)
 {
-	int advertisement = phy_mdio_read(4);
-	int gigabit = phy_mdio_read(9);
-	int control = phy_mdio_read(0);
+	int extended;
+	int advertisement;
+	int gigabit;
+	int control;
 
+	if (!(bmsr & PHY_BMSR_EXTENDED))
+		return 1;
+	extended = phy_mdio_read(15);
+	if (extended < 0)
+		return 0;
+	if (!(extended & PHY_ESTATUS_1000_FULL))
+		return 1;
+	advertisement = phy_mdio_read(4);
+	gigabit = phy_mdio_read(9);
+	control = phy_mdio_read(0);
 	if (advertisement < 0 || gigabit < 0 || control < 0)
 		return 0;
 	phy_mdio_write(9, ((unsigned int)gigabit & PHY_GBCR_MASTER_SLAVE) |
@@ -1119,9 +1136,9 @@ static void phy_link_tick(uint64_t now)
 		}
 		phy_found = 1;
 	}
-	if (!phy_advertised)
-		phy_advertised = phy_advertise_gigabit_only();
 	bmsr = phy_mdio_read(1);
+	if (!phy_advertised && bmsr >= 0)
+		phy_advertised = phy_advertise_gigabit_only((unsigned int)bmsr);
 	/* Preserve a latched loss, then resolve current state in this poll.
 	 * The second MDIO read separates the publications across the CDC. */
 	if (bmsr >= 0 && !(bmsr & PHY_BMSR_LINK) && (phy_published & 1u)) {

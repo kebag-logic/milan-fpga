@@ -102,10 +102,23 @@ ADVERTISEMENT_MUTANTS = {
     # a register written from a read that was not acknowledged
     "write-unread": ("\tif (advertisement < 0 || gigabit < 0 || control < 0)\n\t\treturn 0;\n",
                      "", "no_write_before_its_read"),
+    # the advertisement written though the ability read was not acknowledged
+    "write-unread-ability": ("\tif (extended < 0)\n\t\treturn 0;\n", "",
+                             "no_write_before_its_ability_read"),
     # the advertisement and its restart repeated on every poll
-    "advertise-every-poll": ("\tif (!phy_advertised)\n\t\tphy_advertised = phy_advertise_gigabit_only();\n",
-                             "\tphy_advertised = phy_advertise_gigabit_only();\n",
+    "advertise-every-poll": ("\tif (!phy_advertised && bmsr >= 0)\n"
+                             "\t\tphy_advertised = phy_advertise_gigabit_only((unsigned int)bmsr);\n",
+                             "\tif (bmsr >= 0)\n"
+                             "\t\tphy_advertised = phy_advertise_gigabit_only((unsigned int)bmsr);\n",
                              "advertised_once"),
+    # a PHY without the extended-status register (IEEE 802.3-2022
+    # 22.2.4.2.16), the 10/100 PHY of an MII build, written all the same
+    "advertise-without-extended-status": ("\tif (!(bmsr & PHY_BMSR_EXTENDED))\n\t\treturn 1;\n",
+                                          "\t(void)bmsr;\n", "no_write_without_extended_status"),
+    # a PHY whose register 15 lacks 1000BASE-T full duplex (22.2.4.4.3),
+    # written all the same
+    "advertise-without-1000base-t-full": ("\tif (!(extended & PHY_ESTATUS_1000_FULL))\n\t\treturn 1;\n",
+                                          "", "no_write_without_1000base_t_full_ability"),
 }
 
 
@@ -219,10 +232,11 @@ def main() -> None:
                     raise RuntimeError(result.stdout + result.stderr)
                 print(result.stdout, end="")
             else:
-                # A late sample first corrupts the PHY init's register 4
-                # read, so the selector the init must keep names it (#840).
+                # A late sample first corrupts the poll's register 1 read, so
+                # the PHY init sees no extended status and writes nothing:
+                # the first advertisement property graded names it (#840).
                 expected = ("publishes > before" if mutant == "no-publish" else
-                            "selector_kept" if mutant == "late-sample" else
+                            "no_10base_t_advertised" if mutant == "late-sample" else
                             ADVERTISEMENT_MUTANTS[mutant][2] if mutant in ADVERTISEMENT_MUTANTS else
                             "status_word == expected")
                 if result.returncode == 0 or expected not in result.stderr:

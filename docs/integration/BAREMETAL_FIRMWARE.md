@@ -2172,26 +2172,31 @@ Repeated stable readings leave the fabric edge counters unchanged.
 Missing acknowledgements and incomplete negotiation publish link down.
 Discovery probes one PHY address per service opportunity.
 Once found, the PHY init advertises 1000BASE-T full duplex only ([#840](https://github.com/kebag-logic/milan-fpga/issues/840)).
-It writes register 9 with 1000BASE-T full duplex and keeps its MASTER-SLAVE bits (IEEE 802.3-2022 Table 40-3).
+It first needs the PHY's 1000BASE-T full duplex ability: bit 1.8, then bit 15.13 (IEEE 802.3-2022 22.2.4.2.16, 22.2.4.4.3).
+Bit 1.8 comes from the poll's own register 1 read, so a latched loss stays the poll's to publish.
+It writes register 9 with 1000BASE-T full duplex and keeps its MASTER-SLAVE bits (Table 40-3).
 It writes register 4 without 10/100 or 100BASE-T4, keeping the selector and pause bits (28.2.4.1.3).
 It then restarts auto-negotiation through register 0 (22.2.4.1.7), once per boot.
-An unacknowledged read of registers 4, 9 or 0 writes nothing; the next poll retries.
-The MAC runs at 1 Gb/s only, so a partner without 1000BASE-T gets no link.
+An unacknowledged read of registers 15, 4, 9 or 0 writes nothing; the next poll retries.
+The AX7101 MAC runs at 1 Gb/s only, so a partner without 1000BASE-T gets no link.
 MAC_STATUS then reports the link down, instead of a silent 100 Mb/s link.
+A PHY without that ability is never written and keeps its own advertisement.
+That is the retired Arty's 10/100 PHY, whose MII MAC runs 10 and 100 Mb/s.
 The [stricter readings page](../reference/STRICTER_READINGS.md#link-speed) records this choice.
 The poll runs on every boot path that passed the CSR identity check ([#70](https://github.com/kebag-logic/milan-fpga/issues/70)).
 `nvm_boot()` arms it before its shape check, so the persistence-disabled path publishes the link too.
 That path also installs the console idle hook; the writer behind it is never admitted.
 After an identity mismatch nothing touches the MDIO pins.
 `sw/firmware/nvm_hosttest/test_phy_firmware.py` boots all three paths against a pin-level peer.
-Its host driver grades the PHY init's three writes by name, and nine planted mutants each fail one.
+Its host driver grades the PHY init's three writes by name, and twelve planted mutants each fail one.
+Two PHYs without 1000BASE-T full duplex ability are discovered afresh and must stay unwritten.
 The link-status CSR feeds MAC_STATUS and the existing fabric consumers.
 The stated maximum publication period is 250 ms for the measured duties.
 The poll trigger is 125 ms, half that allowance.
 The other half covers the longest measured duty stretch, UART blocking and a poll charge.
-That charge is the measured complete poll plus fifteen maximum measured MDIO transactions.
+That charge is the measured complete poll plus sixteen maximum measured MDIO transactions.
 Nine reads bound discovery and the longest negotiation fallback.
-The discovery poll adds the PHY init's three reads and three writes.
+The discovery poll adds the PHY init's four reads and three writes.
 Using the complete poll as bookkeeping allowance deliberately counts transaction time twice.
 The service harness grades this derived publication bound against 250 ms.
 The findings page records transaction and complete-poll timings on the target CPU.
