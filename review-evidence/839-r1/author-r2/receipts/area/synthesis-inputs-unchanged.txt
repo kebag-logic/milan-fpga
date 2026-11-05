@@ -1,0 +1,26 @@
+# what synthesis could read: the commit the area figure ran at (8d2dfb65), the round-1 head (992c3d7b), and the round-2 head (ba56827b)
+$ git diff --stat 8d2dfb6547 ba56827bbf
+ CHANGELOG.md                                     |   5 +-
+ docs/testing/TESTING.md                          |   2 +-
+ scripts/measure_test_evidence_readers.py         |   9 +-
+ tb/verilator/milan_dp/README.md                  |  92 +++++++--
+ tb/verilator/milan_dp/bootsa_mutants.py          |  45 +++++
+ tb/verilator/milan_dp/bootsa_probes.vlt          |  15 +-
+ tb/verilator/milan_dp/gen_boot_fw.py             |  28 ++-
+ tb/verilator/milan_dp/sim_boot_sa.cpp            | 241 ++++++++++++++++++++++-
+ tb/verilator/milan_dp_render/sim_tdm8_render.cpp |   6 +
+ 9 files changed, 413 insertions(+), 30 deletions(-)
+$ git diff --stat 8d2dfb6547 ba56827bbf -- hdl syn configs protocol-processor gptp-processor third_party
+(no output above this line: no file under hdl, syn or configs and no submodule pin differs)
+$ git diff --stat 992c3d7bb3 ba56827bbf
+ CHANGELOG.md                             |   5 +-
+ docs/testing/TESTING.md                  |   2 +-
+ scripts/measure_test_evidence_readers.py |   9 +-
+ tb/verilator/milan_dp/README.md          |  92 +++++++++---
+ tb/verilator/milan_dp/bootsa_mutants.py  |  45 ++++++
+ tb/verilator/milan_dp/bootsa_probes.vlt  |  15 +-
+ tb/verilator/milan_dp/gen_boot_fw.py     |  28 +++-
+ tb/verilator/milan_dp/sim_boot_sa.cpp    | 241 ++++++++++++++++++++++++++++++-
+ 8 files changed, 407 insertions(+), 30 deletions(-)
+$ git diff --stat 992c3d7bb3 ba56827bbf -- hdl syn configs protocol-processor gptp-processor third_party
+(no output above this line: no file under hdl, syn or configs and no submodule pin differs)

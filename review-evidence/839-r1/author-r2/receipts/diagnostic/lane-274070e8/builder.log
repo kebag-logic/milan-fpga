@@ -1,0 +1,49 @@
+# head 274070e8764fae5cef6dee7514750962179b287f gate builder: python3 sw/builder/test_builder.py --require-rv32
+  killed: remove FPU refusal
+  killed: remove cacheless L2 refusal
+  killed: remove NaxRiscv zero refusal
+  killed: remove byte-size validation
+  killed: remove unknown CPU refusal
+  killed: remove constructor validation
+  killed: remove CLI validation
+  killed: lossy byte-count parsing: 1e-400
+  killed: lossy byte-count parsing: -1e-400
+CPU option refusals: 52 constructor cases, 18 CLI cases, 9 killed controls
+RESULT: PASS
+[constraints] actual CRG clock sources and optional DDR/audio domains PASS
+[constraints] generated namespace, optional domain, both ports, hook order and template refusal PASS
+CONSTRAINTS: quasi_static cells=1 setup=4 hold=3
+CONSTRAINTS: quasi_static cells=0 setup=4 hold=3
+CONSTRAINTS: eth=eth bounded=sys milan async=audio budget_ns=8.000
+CONSTRAINTS: MultiReg eth=1 part=2 other=1
+scoped exception and wrong-name controls PASS
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+CONSTRAINTS: servo reset synchronizer from=milan to=ps cut=sv/psrst_sync_r_reg[0]/D
+servo reset synchronizer cut and refusal controls PASS
+[constraints] <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/digilent_arty.bit.rejected
+[constraints] quarantined <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit as <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/alinx_ax7101.bit.rejected
+[constraints] <scratch>/839-a731b/gates/tmp/constraint-log-7fnfr9oq/vivado.log: no 12-4739, 20-1307 or 12-5201 diagnostics
+[constraints] implementation-log diagnostics, missing log and common build wiring PASS
+[constraints] shipping ax7101_1x1_tdm8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_1x1_tdm8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_8x8 e1: milan_eth_constraints eth_clocks0_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS
+[constraints] shipping ax7101_8x8 e2: milan_eth_constraints eth_clocks1_rx [list milansoc_crg_clkout0 milansoc_crg_clkout1] [list milansoc_crg_pll_audio_fb milansoc_crg_audio_ref_raw milansoc_crg_audio_mclk_raw milansoc_crg_audio_tdm_raw milansoc_crg_clkout2 milansoc_crg_clkout3 milansoc_crg_clkout4]; kl_servo_reset_sync_constraints milansoc_crg_clkout1 PASS

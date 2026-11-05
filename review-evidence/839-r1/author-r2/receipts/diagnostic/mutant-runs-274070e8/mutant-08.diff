@@ -1,0 +1,13 @@
+--- a/hdl/milan/milan_datapath.sv
++++ b/hdl/milan/milan_datapath.sv
+@@ -8814,8 +8814,8 @@
+   //! docs/integration/BAREMETAL_FIRMWARE.md).
+   assign pp_tx_tvalid_w    = pp_txs_tvalid_w   & tx_sa_ok_w;
+   assign pp_txs_tready_w   = pp_tx_tready_w    & tx_sa_ok_w;
+-  assign maap_tx_tvalid    = maap_txs_tvalid_w & tx_sa_ok_w;
+-  assign maap_txs_tready_w = maap_tx_tready    & tx_sa_ok_w;
++  assign maap_tx_tvalid    = maap_txs_tvalid_w;
++  assign maap_txs_tready_w = maap_tx_tready;
+   assign aaf_tx_tvalid     = aaf_txs_tvalid_w  & tx_sa_ok_w;
+   assign aaf_txs_tready_w  = aaf_tx_tready     & tx_sa_ok_w;
+   assign crft_tx_tvalid    = crft_txs_tvalid_w & tx_sa_ok_w;

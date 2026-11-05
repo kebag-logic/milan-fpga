@@ -1,0 +1,13 @@
+--- $LANES/839-boot-sa/hdl/milan/milan_datapath.sv	2026-11-04 22:00:55.110878345 +0100
++++ mut/m10/no_hold_on_the_CRF_talker_alone_milan_datapath.sv	2026-11-05 17:57:03.419032693 +0100
+@@ -8818,8 +8818,8 @@
+   assign maap_txs_tready_w = maap_tx_tready    & tx_sa_ok_w;
+   assign aaf_tx_tvalid     = aaf_txs_tvalid_w  & tx_sa_ok_w;
+   assign aaf_txs_tready_w  = aaf_tx_tready     & tx_sa_ok_w;
+-  assign crft_tx_tvalid    = crft_txs_tvalid_w & tx_sa_ok_w;
+-  assign crft_txs_tready_w = crft_tx_tready    & tx_sa_ok_w;
++  assign crft_tx_tvalid    = crft_txs_tvalid_w;
++  assign crft_txs_tready_w = crft_tx_tready;
+ 
+   //! THE control merge: the protocol processor's packed TX (s_data - ADP,
+   //! ACMP and SRP, internally arbitrated) + the fabric KL_maap

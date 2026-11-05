@@ -1,0 +1,14 @@
+14c14
+< LANE = "$LANES/583-arty"
+---
+> LANE = "$LANES/839-boot-sa"
+16,17c16,17
+< VENV = "$VALIDATION_STORAGE/829-a725c/gates/venv/bin"
+< HOME = "$VALIDATION_STORAGE/829-a725c/gates/home"
+---
+> VENV = "$VALIDATION_STORAGE/839-a731b/gates/venv/bin"
+> HOME = "$VALIDATION_STORAGE/839-a731b/gates/home"
+13c13
+< text = subprocess.run(["git", "-C", "$LANES/583-arty", "show", f"{head}:.github/workflows/docs.yml"],
+---
+> text = subprocess.run(["git", "-C", "$LANES/839-boot-sa", "show", f"{head}:.github/workflows/docs.yml"],

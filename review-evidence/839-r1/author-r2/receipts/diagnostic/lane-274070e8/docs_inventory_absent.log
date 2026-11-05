@@ -1,0 +1,2 @@
+# head 274070e8764fae5cef6dee7514750962179b287f gate docs_inventory_absent: test -z "$(git ls-tree --name-only HEAD scripts/docs_inventory.py)" && test -z "$(git ls-tree --name-only 604899c08ff1cd1830e1dd08b733109ef852400c scripts/docs_inventory.py)" && echo 'scripts/docs_inventory.py is in neither tree: NOT RUN'
+scripts/docs_inventory.py is in neither tree: NOT RUN

@@ -1,0 +1,11 @@
+clean: pass
+[PASS] mutant caught: no hold on the AAF talkers alone - fails "[BOOTSA] early-enable, MAAP off: no AAF frame leaves before the station MAC is written"
+[PASS] mutant caught: no hold on MAAP alone - fails "[BOOTSA] early-enable, MAAP on: no MAAP frame leaves before the station MAC is written"
+[PASS] mutant caught: no hold on MAAP, the AAF talkers and the CRF talker (the processor's hold and the stamp kept) - fails "[BOOTSA] early-enable, MAAP on: no MAAP frame leaves before the station MAC is written"; "[BOOTSA] early-enable, MAAP on: no CRF frame leaves before the station MAC is written"; "[BOOTSA] early-enable, MAAP off: no AAF frame leaves before the station MAC is written"
+[PASS] mutant caught: the stamp's beat position wraps past the source address instead of saturating - fails "[BOOTSA] every control-lane octet outside 6 to 11 leaves the stamp as it entered"
+[PASS] mutant caught: no hold on the CRF talker alone - fails "[BOOTSA] early-enable, MAAP on: no CRF frame leaves before the station MAC is written"; "[BOOTSA] early-enable, MAAP off: no CRF frame leaves before the station MAC is written"
+mutation 7: CAUGHT: no hold on MAAP, the AAF talkers and the CRF talker (the processor's hold and the stamp kept)
+mutation 8: CAUGHT: no hold on MAAP alone
+mutation 9: CAUGHT: no hold on the AAF talkers alone
+mutation 10: CAUGHT: no hold on the CRF talker alone
+mutation 11: CAUGHT: the stamp's beat position wraps past the source address instead of saturating
