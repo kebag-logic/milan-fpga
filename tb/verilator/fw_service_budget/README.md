@@ -104,8 +104,9 @@ The BIOS dispatch hook covers their boundaries, including queued input.
 
 PHY publication reserves a 125 ms trigger phase plus the duty stretch,
 UART allowance and a conservative poll charge within 250 ms.
-The charge adds nine maximum measured transactions to the measured complete poll.
+The charge adds fifteen maximum measured transactions to the measured complete poll.
 Nine reads cover discovery and the longest negotiation fallback.
+The discovery poll adds the PHY init's three reads and three writes (#840).
 This deliberately counts observed transaction time twice.
 Startup AEM and restore report isolated service-plus-poll costs without a trigger phase.
 Those costs exclude intervening startup work.

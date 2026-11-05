@@ -63,6 +63,51 @@ BOOT_MUTANTS = {
         "PHY boot path identity mismatch: "),
 }
 
+#: the PHY init's advertisement and restart writes, as milan_baremetal.c spells them
+ADVERTISEMENT_WRITES = ("\tphy_mdio_write(9, ((unsigned int)gigabit & PHY_GBCR_MASTER_SLAVE) |\n"
+                        "\t\t       PHY_GBCR_1000_FULL);\n"
+                        "\tphy_mdio_write(4, (unsigned int)advertisement &\n"
+                        "\t\t       ~(PHY_ANAR_BELOW_GIGABIT | PHY_ANAR_RESERVED));\n")
+RESTART_WRITE = ("\tphy_mdio_write(0, ((unsigned int)control | PHY_BMCR_AN_ENABLE |\n"
+                 "\t\t\t   PHY_BMCR_AN_RESTART) &\n"
+                 "\t\t       ~(PHY_BMCR_RESET | PHY_BMCR_ISOLATE));\n")
+#: #840: the PHY init defects the pin-level peer must catch, each planted into
+#: a copy of the firmware, and the assertion that must name it
+ADVERTISEMENT_MUTANTS = {
+    # register 4 keeps 100BASE-TX and 100BASE-TX full duplex (bits 7 and 8)
+    "advertise-100base-tx": ("#define PHY_ANAR_BELOW_GIGABIT 0x03e0u",
+                             "#define PHY_ANAR_BELOW_GIGABIT 0x0260u",
+                             "no_100base_tx_advertised"),
+    # register 4 keeps 10BASE-T and 10BASE-T full duplex (bits 5 and 6)
+    "advertise-10base-t": ("#define PHY_ANAR_BELOW_GIGABIT 0x03e0u",
+                           "#define PHY_ANAR_BELOW_GIGABIT 0x0380u",
+                           "no_10base_t_advertised"),
+    # register 4 keeps 100BASE-T4 (bit 9)
+    "advertise-100base-t4": ("#define PHY_ANAR_BELOW_GIGABIT 0x03e0u",
+                             "#define PHY_ANAR_BELOW_GIGABIT 0x01e0u",
+                             "no_100base_t4_advertised"),
+    # register 9 keeps 1000BASE-T half duplex (bit 8)
+    "advertise-1000base-t-half": ("#define PHY_GBCR_1000_FULL 0x0200u",
+                                  "#define PHY_GBCR_1000_FULL 0x0300u",
+                                  "no_gigabit_half_duplex_advertised"),
+    # register 9 loses 1000BASE-T full duplex (bit 9)
+    "no-1000base-t-full": ("PHY_GBCR_MASTER_SLAVE) |\n\t\t       PHY_GBCR_1000_FULL);",
+                           "PHY_GBCR_MASTER_SLAVE));",
+                           "gigabit_full_duplex_advertised"),
+    # the advertisement written without the auto-negotiation restart
+    "no-restart": (RESTART_WRITE, "\t(void)control;\n", "auto_negotiation_restarted"),
+    # the restart moved ahead of the advertisement it must apply
+    "restart-first": (ADVERTISEMENT_WRITES + RESTART_WRITE, RESTART_WRITE + ADVERTISEMENT_WRITES,
+                      "restart_after_advertisement"),
+    # a register written from a read that was not acknowledged
+    "write-unread": ("\tif (advertisement < 0 || gigabit < 0 || control < 0)\n\t\treturn 0;\n",
+                     "", "no_write_before_its_read"),
+    # the advertisement and its restart repeated on every poll
+    "advertise-every-poll": ("\tif (!phy_advertised)\n\t\tphy_advertised = phy_advertise_gigabit_only();\n",
+                             "\tphy_advertised = phy_advertise_gigabit_only();\n",
+                             "advertised_once"),
+}
+
 
 def phy_csr(work: Path) -> None:
     """The stub CSR header with the MDIO path compiled in, ahead of the stubs'."""
@@ -132,9 +177,15 @@ def main() -> None:
         command = ["gcc", "-std=gnu11", "-O1", "-Wall", "-Wextra", "-Werror", "-Wno-format",
                    "-ffunction-sections", "-fdata-sections", "-Wl,--gc-sections",
                    f"-I{work}", f"-I{nvm.STUBS}", str(driver), "-o", str(work / "phy")]
-        for mutant in ("none", "no-publish", "defer-recovery", "late-sample", "ack-ignored"):
+        for mutant in ("none", "no-publish", "defer-recovery", "late-sample", "ack-ignored",
+                       *ADVERTISEMENT_MUTANTS):
             text = nvm.FENCE_RE.sub("(void)0;", source)
-            if mutant == "no-publish":
+            if mutant in ADVERTISEMENT_MUTANTS:
+                anchor, plant, _ = ADVERTISEMENT_MUTANTS[mutant]
+                if text.count(anchor) != 1:
+                    raise RuntimeError(mutant + " mutation anchor is not unique")
+                text = text.replace(anchor, plant)
+            elif mutant == "no-publish":
                 anchor = "\tmilan_mac_link_status_write(status);"
                 if text.count(anchor) != 1:
                     raise RuntimeError("publisher mutation anchor is not unique")
@@ -168,7 +219,12 @@ def main() -> None:
                     raise RuntimeError(result.stdout + result.stderr)
                 print(result.stdout, end="")
             else:
-                expected = "publishes > before" if mutant == "no-publish" else "status_word == expected"
+                # A late sample first corrupts the PHY init's register 4
+                # read, so the selector the init must keep names it (#840).
+                expected = ("publishes > before" if mutant == "no-publish" else
+                            "selector_kept" if mutant == "late-sample" else
+                            ADVERTISEMENT_MUTANTS[mutant][2] if mutant in ADVERTISEMENT_MUTANTS else
+                            "status_word == expected")
                 if result.returncode == 0 or expected not in result.stderr:
                     raise RuntimeError(mutant + " escaped its named assertion")
                 print("PHY_MUTANT " + mutant + ": caught")
