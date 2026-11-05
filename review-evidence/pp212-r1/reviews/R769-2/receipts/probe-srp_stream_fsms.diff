@@ -1,0 +1,159 @@
+--- a/tb/srp_stream_fsms/sim_main.cpp	2026-11-05 21:36:28.601683381 +0100
++++ b/tb/srp_stream_fsms/sim_main.cpp	2026-11-05 21:46:00.443347486 +0100
+@@ -3464,6 +3464,156 @@
+   an_unbound_sink_raises_and_publishes_nothing();
+   a_link_change_ends_the_registrations_a_settle_could_take();
+ 
++  // ---- R769-2 reviewer probes (disposable; inserted before the tally) ----
++  {
++    // P1: a sink settled through a link change, then A8, then A15 on the same
++    // triple. The texts claim no registration from before a link change is
++    // kept after it; this CHECK fails if the pre-link registration is kept.
++    for (const bool lv_out : {false, true}) {
++      h.reset();
++      fill_port_registrars();
++      h.ctl(true, 0, SID0, DA0, VID0);
++      h.inject(true, 1, SID0, DA0, VID0, 1 /*JoinIn*/, 0, 777);
++      d->link_up_i = 0; h.idle(3);
++      d->link_up_i = 1; h.idle(3);
++      const int through = h.l_tkreg(0);
++      h.ctl(false, 0, SID0, DA0, VID0);
++      if (lv_out) h.tick();
++      h.clear_logs();
++      h.ctl(true, 0, SID0, DA0, VID0);
++      const int reg = h.l_reg[0], tk = h.l_tkreg(0), st = h.l_regst(0);
++      const bool none = nothing_applied();
++      CHECK(none, "PROBE P1 (lv_out %d): settled through link down/up (tk %d), "
++            "A8, A15 same triple: reg %d tk %d state %d", lv_out, through, reg, tk, st);
++    }
++    // P2: the A8 on the clock the link goes down, then link up, then A15 same.
++    {
++      h.reset();
++      fill_port_registrars();
++      h.ctl(true, 0, SID0, DA0, VID0);
++      h.inject(true, 1, SID0, DA0, VID0, 1 /*JoinIn*/, 0, 777);
++      d->ctl_valid_i = 1; d->ctl_settle_i = 0; d->ctl_sink_i = 0;
++      d->ctl_stream_id_i = SID0; d->ctl_da_i = DA0; d->ctl_vid_i = VID0;
++      d->link_up_i = 0;
++      h.step(); h.idle(3);
++      d->link_up_i = 1; h.idle(3);
++      h.tick();
++      h.clear_logs();
++      h.ctl(true, 0, SID0, DA0, VID0);
++      const int reg = h.l_reg[0], tk = h.l_tkreg(0), st = h.l_regst(0);
++      const bool none = nothing_applied();
++      CHECK(none, "PROBE P2: A8 on the LINK_DOWN clock, link up, A15 same: "
++            "reg %d tk %d state %d", reg, tk, st);
++    }
++    // P3: 13-bit leave deadline across 13-bit and 32-bit wraps of now_ms_i:
++    // LV entered at base; settle at base+4999 seeds LV with the arm deadline
++    // exactly base+5000; a settle at base+5000 takes nothing.
++    const uint32_t bases[] = {NOW, 8191u - 2500u, 8192u * 7u - 1u, 8192u * 9u + 3191u,
++                              0xFFFFFFFFu - 2500u, 0xFFFFFFFFu, 0xFFFFE000u + 4000u,
++                              0x7FFFFFFFu - 10u};
++    for (const uint32_t base : bases) {
++      for (const uint32_t at : {4999u, 5000u, 1u, 0u}) {
++        h.reset();
++        h.now = base; h.idle(2);
++        h.inject(true, 1, SID0, DA0, VID0, 1 /*JoinIn*/, 0, 777);
++        h.la_own();                                   // IN -> LV, deadline base+5000
++        h.now = base + at; h.idle(1);
++        h.clear_logs();
++        h.ctl(true, 0, SID0, DA0, VID0);
++        const bool seeded = h.l_reg[0] == 1 && h.l_regst(0) == R_LV;
++        const bool arm_ok = h.l_arm.size() == 1 && !h.l_arm[0].cancel
++                            && h.l_arm[0].deadline == base + 5000u;
++        const bool expect_seed = at < 5000u;
++        CHECK(expect_seed ? (seeded && arm_ok) : (!seeded && h.l_arm.empty()),
++              "PROBE P3 base %u at +%u: seeded %d arms %zu deadline %u want %u",
++              base, at, seeded, h.l_arm.size(),
++              h.l_arm.empty() ? 0u : h.l_arm[0].deadline, base + 5000u);
++      }
++    }
++    // P4: the port registrar's expiry lands on the deadline clock itself when
++    // now_ms_i steps one ms at a time across the 13-bit wrap.
++    for (const uint32_t base : {8192u - 4000u, 0xFFFFFFFFu - 3000u}) {
++      h.reset();
++      h.now = base; h.idle(2);
++      h.inject(true, 1, SID0, DA0, VID0, 1 /*JoinIn*/, 0, 777);
++      h.la_own();
++      bool early = false;
++      for (uint32_t t = 1; t < 5000u; t += 1) { h.now = base + t; h.step(); }
++      // still LV at deadline-1: a settle on sink 1 seeds LV
++      h.clear_logs();
++      h.ctl(true, 1, SID0, DA0, VID0);
++      early = !(h.l_reg[1] == 1 && h.l_regst(1) == R_LV);
++      h.now = base + 5000u; h.step();
++      h.clear_logs();
++      h.ctl(true, 2, SID0, DA0, VID0);
++      const bool gone = h.l_reg[2] == 0 && h.l_regst(2) == R_MT;
++      CHECK(!early && gone, "PROBE P4 base %u: LV at deadline-1 %d, MT at deadline %d",
++            base, !early, gone);
++    }
++    // P5: an unbound sink's ungated fail-bridge level after A8 of a Failed.
++    {
++      h.reset();
++      fill_port_registrars();
++      h.ctl(true, 0, SIDF, DAF, VID0);
++      inject_failed(1 /*JoinIn*/);
++      h.ctl(false, 0, SIDF, DAF, VID0);
++      printf("PROBE-INFO P5: after A8 tk %d fcode %u fbridge 0x%016llx lat %u\n",
++             h.l_tkreg(0), h.l_fcode(0), (unsigned long long)h.l_fbridge(0), h.l_lat(0));
++    }
++    // P6: kept registration does not survive a re-bind to a DIFFERENT stream:
++    // table full, sink 0 registers SID0, A8, A15 on another (unheld) stream,
++    // A8, A15 back on SID0: nothing applied.
++    {
++      h.reset();
++      fill_port_registrars();
++      h.ctl(true, 0, SID0, DA0, VID0);
++      h.inject(true, 1, SID0, DA0, VID0, 1 /*JoinIn*/, 0, 777);
++      h.ctl(false, 0, SID0, DA0, VID0);
++      h.tick();
++      h.clear_logs();
++      h.ctl(true, 0, SID0 + 0x55, DA0 + 0x55, VID0);
++      const bool other_none = h.l_reg[0] == 0 && h.l_tkreg(0) == 0 && h.l_regst(0) == R_MT;
++      h.ctl(false, 0, SID0 + 0x55, DA0 + 0x55, VID0);
++      h.tick();
++      h.clear_logs();
++      h.ctl(true, 0, SID0, DA0, VID0);
++      const int reg = h.l_reg[0], tk = h.l_tkreg(0);
++      const bool none = nothing_applied();
++      CHECK(other_none && none, "PROBE P6: re-bind to another stream then back: "
++            "other %d, back reg %d tk %d", other_none, reg, tk);
++    }
++    // P7: FailureInformation and latency changed while unbound are the ones a
++    // same-stream re-bind applies.
++    {
++      h.reset();
++      fill_port_registrars();
++      h.ctl(true, 0, SIDF, DAF, VID0);
++      inject_failed(1 /*JoinIn*/);
++      h.ctl(false, 0, SIDF, DAF, VID0);
++      h.tick();
++      h.inject(true, 2, SIDF, DAF, VID0, 1 /*JoinIn*/, 0, 999, SYSF ^ 1, FCODE + 1);
++      h.clear_logs();
++      h.ctl(true, 0, SIDF, DAF, VID0);
++      CHECK(h.l_reg[0] == 1 && h.l_tkreg(0) == 2 && h.l_fcode(0) == FCODE + 1
++            && h.l_fbridge(0) == (SYSF ^ 1) && h.l_lat(0) == 999,
++            "PROBE P7: latest FailureInformation at a same-stream re-bind: reg %d tk %d "
++            "fcode %u bridge 0x%llx lat %u", h.l_reg[0], h.l_tkreg(0), h.l_fcode(0),
++            (unsigned long long)h.l_fbridge(0), h.l_lat(0));
++    }
++    // P8: a sink settled through a link change, without any re-bind: still
++    // registered (the documented limit), to separate it from P1.
++    {
++      h.reset();
++      fill_port_registrars();
++      h.ctl(true, 0, SID0, DA0, VID0);
++      h.inject(true, 1, SID0, DA0, VID0, 1 /*JoinIn*/, 0, 777);
++      h.clear_logs();
++      d->link_up_i = 0; h.idle(3);
++      d->link_up_i = 1; h.idle(3);
++      printf("PROBE-INFO P8: settled through link down/up: tk %d state %d unreg %d\n",
++             h.l_tkreg(0), h.l_regst(0), h.l_unreg[0]);
++    }
++  }
+   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
+   return fails ? 1 : 0;
+ }
