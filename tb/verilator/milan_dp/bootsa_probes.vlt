@@ -2,6 +2,19 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 // Read-only observation for sim_boot_sa.cpp (#839): the processor's packed
 // TX beat register, which says the processor offered a frame whether or not
-// the datapath let it leave.
+// the datapath let it leave; the other three held sources' own tvalid,
+// ahead of the transmit gate, which says the same of MAAP, the AAF talkers
+// and the CRF talker; and the control lane on both sides of the
+// source-address stamp (the IFG gasket's output, and the stamp's output with
+// its handshake), which the leg compares octet by octet.
 `verilator_config
 public_flat_rd -module "KL_pp_shadow" -var "txp_valid_r"
+public_flat_rd -module "milan_datapath" -var "maap_txs_tvalid_w"
+public_flat_rd -module "milan_datapath" -var "aaf_txs_tvalid_w"
+public_flat_rd -module "milan_datapath" -var "crft_txs_tvalid_w"
+public_flat_rd -module "milan_datapath" -var "ctlg_src_tdata_w"
+public_flat_rd -module "milan_datapath" -var "ctlg2_tdata"
+public_flat_rd -module "milan_datapath" -var "ctlg2_tkeep"
+public_flat_rd -module "milan_datapath" -var "ctlg2_tvalid"
+public_flat_rd -module "milan_datapath" -var "ctlg2_tready"
+public_flat_rd -module "milan_datapath" -var "ctlg2_tlast"

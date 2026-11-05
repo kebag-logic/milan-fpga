@@ -13,7 +13,11 @@ writes three files into --out:
                the fence after the store is blanked (a host cannot assemble
                it). Both edits must apply exactly once.
   boot_fw.h    the order milan_init() calls its four stages in, read out of
-               milan_init() itself, and the station MAC the firmware writes.
+               milan_init() itself, the station MAC the firmware writes, the
+               firmware's own offsets of the CSRs the leg writes outside
+               configure_fabric(), the boot words configure_fabric() writes
+               to MAAP_CTRL, AAF_CTRL and CRFT_CTRL, and whether the config
+               declares the CRF Media Clock Output.
   gptp_ucode.hex  the gPTP program for this leg's 2 MHz clock, generated
                with the same station MAC (the builder does the same for a
                product build, at the product clock).
@@ -41,6 +45,11 @@ STAGES = ("configure_fabric", "load_aem_image", "nvm_boot", "entity_advertise")
 #: the functions copied verbatim, in source order
 COPIED = ("milan_reg", "milan_read", "milan_write", "configure_fabric",
           "entity_advertise")
+#: the firmware's CSR offsets the leg writes itself, outside configure_fabric()
+#: (the early-enable boots and the pair-order boots), by their boot_fw.h names
+OFFSETS = {"kMacAddrLo": "MILAN_MAC_ADDR_LO", "kMacAddrHi": "MILAN_MAC_ADDR_HI",
+           "kMaapCtrl": "MILAN_MAAP_CTRL", "kAafCtrl": "MILAN_AAF_CTRL",
+           "kCrfTxCtrl": "MILAN_CRF_TX_CTRL"}
 LOAD = "\treturn *milan_reg(offset);\n"
 STORE = "\t*milan_reg(offset) = value;\n"
 FENCE = '\t__asm__ volatile("fence iorw, iorw" ::: "memory");\n'
@@ -95,7 +104,12 @@ def main() -> int:
     words = boot_policy.fabric_constants(overlay, lwsrp)
 
     defines = re.findall(r"(?m)^#define MILAN_[A-Z0-9_]+\s+0x[0-9a-fA-F]+u\s*$", source)
-    body = "".join(function_text(source, name) for name in COPIED)
+    offsets = {m.group(1): int(m.group(2), 16) for m in re.finditer(
+        r"(?m)^#define (MILAN_[A-Z0-9_]+)\s+0x([0-9a-fA-F]+)u\s*$", source)}
+    missing = sorted(set(OFFSETS.values()) - set(offsets))
+    if missing:
+        raise SystemExit(f"gen_boot_fw: the firmware defines no {missing}")
+    body ="".join(function_text(source, name) for name in COPIED)
     body = replace_once(body, LOAD, "\treturn boot_fw_csr_read(offset);\n", "the CSR load")
     body = replace_once(body, STORE, "\tboot_fw_csr_write(offset, value);\n", "the CSR store")
     body = replace_once(body, FENCE, "", "the store's fence")
@@ -130,6 +144,16 @@ def main() -> int:
          "constexpr std::uint32_t kStationMacLo = 0x%08xu;" % words["MILAN_STATION_MAC_LO"],
          "constexpr std::uint32_t kStationMacHi = 0x%08xu;" % words["MILAN_STATION_MAC_HI"],
          "constexpr std::uint64_t kEntityId = 0x%016xULL;" % int(overlay["adp"]["entity_id"], 16),
+         "//! the firmware's own CSR offsets (milan_baremetal.c)",
+         *(f"constexpr std::uint16_t {name} = 0x{offsets[define]:x}u;"
+           for name, define in OFFSETS.items()),
+         "//! the boot words configure_fabric() writes to MAAP_CTRL, AAF_CTRL and CRFT_CTRL",
+         "constexpr std::uint32_t kMaapCtrlBoot = 0x%08xu;" % words["MILAN_MAAP_CTRL_BOOT"],
+         "constexpr std::uint32_t kAafCtrlBoot = 0x%08xu;" % words["MILAN_AAF_CTRL_BOOT"],
+         "constexpr std::uint32_t kCrfTxCtrlBoot = 0x%08xu;" % words["MILAN_CRF_TX_CTRL_BOOT"],
+         "//! the config declares the CRF Media Clock Output (clocking.crf_output)",
+         "constexpr bool kCrfOutputDeclared = %s;"
+         % ("true" if boot_policy.crf_output_declared(overlay) else "false"),
          ""]
     (args.out / "boot_fw.h").write_text("\n".join(h))
 

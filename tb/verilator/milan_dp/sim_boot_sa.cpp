@@ -27,12 +27,32 @@
 // and a controller asks one AECP and one ACMP question and opens the AAF
 // talker through the documented AAF_CTRL[1] diagnostic bypass, so the
 // processor's AECP and ACMP answers and an AAF stream are on the wire too.
+// Once MAAP holds its claim, a listener probes the AAF stream output
+// (PROBE_TX_COMMAND), so the talker's MVRP join leaves too.
 //
 // Then the pair's sequencing, in an order the firmware does not use: two
 // further resets, each writing one half of the station MAC alone and then,
 // 300 processor ms later, the other. One half alone must open no
 // CSR-addressed transmitter, whichever half it is, and the second half must
 // release the frame the processor built meanwhile with the whole address.
+//
+// Then the three transmitters configure_fabric() enables only after the
+// pair, enabled at reset release instead: two more resets, each writing
+// MAAP_CTRL, AAF_CTRL (enable and the AAF_CTRL[1] bypass) and CRFT_CTRL
+// with the firmware's own boot words before any MAC write, holding the pair
+// unwritten for 400 processor ms, then writing it. The first boot enables
+// MAAP. The AAF talkers cannot offer a frame inside its window: their gate
+// needs MAAP's claim (aaf_gate in milan_datapath.sv), MAAP holds a claim
+// only in ANNOUNCE, and a held MAAP never leaves PROBE (KL_maap.sv keeps
+// its first PROBE in tx_busy_r until a beat is accepted and sends the next
+// only once it has left). So the second boot leaves MAAP off, which opens
+// the gate's MAAP term, and the AAF talker offers inside the window. Each
+// source that offered must have been held, and each must send from the
+// station MAC once the pair is written.
+//
+// Throughout, every octet of every control-lane frame outside octets 6 to
+// 11 must leave the source-address stamp as it entered it (the IFG gasket's
+// output against the stamp's, on the stamp's valid/ready).
 //
 // Elaboration: the gptp leg's (shipping 1x1 entity, fabric gPTP on, 2 MHz
 // fabric clock, one processor millisecond = 100 cycles), with this leg's
@@ -95,8 +115,16 @@ constexpr uint64_t kAdvertiseBoundMs = 3000;
 //! cycles: 2.5 s of their time, past MAAP's probe retransmits (IEEE
 //! 1722-2016 Table B.8) and the 1 s Pdelay interval.
 constexpr uint64_t kPastBoundCyc = 5000000;
+//! The early-enable boots' held window: MAAP, the AAF talkers and the CRF
+//! talker are enabled at reset release and the pair is written this long
+//! after, as long as the BIOS window, so each source that can offer a frame
+//! with the pair unwritten does so inside it
+constexpr uint64_t kHeldMs = kBiosMs;
+constexpr uint32_t kAafBypass = 1u << 1;   //! AAF_CTRL[1], the diagnostic bypass
 constexpr uint64_t kControllerMac = 0x0080E1112233ULL;
 constexpr uint64_t kControllerId = 0x0080E1FFFE112233ULL;
+constexpr uint64_t kListenerMac = 0x0080E1445566ULL;
+constexpr uint64_t kListenerId = 0x0080E1FFFE445566ULL;
 constexpr uint64_t kAcmpDa = 0x91E0F0010000ULL;
 
 uint64_t be(const std::vector<uint8_t>& b, size_t off, size_t n) {
@@ -196,10 +224,23 @@ class BootSaHarness {
     bool wrote_lo_ = false;
     bool wrote_hi_ = false;
     bool pp_offered_early_ = false;      //! the processor offered a frame in the BIOS window
+    //! each of the other held sources raised its own tvalid, ahead of the
+    //! transmit gate, while the pair was unwritten (cleared by reset())
+    bool maap_offered_early_ = false;
+    bool aaf_offered_early_ = false;
+    bool crf_offered_early_ = false;
     struct { bool aw, w, b, ar, r; uint32_t data; } fires_{};
+
+    //! the control lane through the source-address stamp (stamp_edge())
+    uint64_t ctl_pos_ = 0;               //! the next octet's position in its frame
+    uint64_t ctl_frames_ = 0;            //! frames through the stamp
+    uint64_t ctl_octets_ = 0;            //! octets compared, every one outside 6 to 11
+    uint64_t ctl_changed_ = 0;           //! of those, the octets the stamp changed
+    std::string ctl_first_change_;
 
     std::vector<uint8_t> tx_cur_;
     std::vector<Sent> sent_;
+    std::array<uint64_t, kKindName.size()> sent_by_kind_{};   //! frames of each kind so far
     std::vector<std::vector<uint8_t>> frames_;
     std::deque<std::vector<uint8_t>> rx_queue_;
     std::vector<uint8_t> rx_;
@@ -228,16 +269,21 @@ class BootSaHarness {
     void memory_edge();
     void rx_drive();
     void tx_edge();
+    void stamp_edge();
     void write(uint16_t addr, uint32_t value);
     uint32_t read(uint16_t addr);
     void reset();
     void pair_order(uint16_t first, uint16_t second, const char* tag);
+    void write_pair(const std::string& tag);
+    void early_enable(bool maap);
+    void grade_stamp();
     void bios_window();
     void run_stage(const std::string& stage);
     size_t first_entity_available(size_t from) const;
     std::vector<uint8_t> await(Kind kind, size_t from, uint64_t bound_cyc,
                                uint8_t message_type);
     void controller();
+    void probe_tx();
     void grade();
 };
 
@@ -255,8 +301,14 @@ void BootSaHarness::tick() {
     fires_.ar = dut_->s_axi_arvalid && dut_->s_axi_arready;
     fires_.r = dut_->s_axi_rvalid && dut_->s_axi_rready;
     fires_.data = dut_->s_axi_rdata;
-    if (!(wrote_lo_ && wrote_hi_) && dut_->rootp->milan_datapath__DOT__pp_shadow__DOT__txp_valid_r)
-        pp_offered_early_ = true;
+    if (!(wrote_lo_ && wrote_hi_)) {
+        const auto* r = dut_->rootp;
+        if (r->milan_datapath__DOT__pp_shadow__DOT__txp_valid_r) pp_offered_early_ = true;
+        if (r->milan_datapath__DOT__maap_txs_tvalid_w) maap_offered_early_ = true;
+        if (r->milan_datapath__DOT__aaf_txs_tvalid_w) aaf_offered_early_ = true;
+        if (r->milan_datapath__DOT__crft_txs_tvalid_w) crf_offered_early_ = true;
+    }
+    stamp_edge();
     tx_edge();
     observer_.edge(dut_, cyc_, phc_ns());
     dut_->i_mmcm_drp_rdy = 0;
@@ -364,8 +416,39 @@ void BootSaHarness::tx_edge() {
     s.before_mac = !(wrote_lo_ && wrote_hi_);
     if (s.kind == Kind::Adp && tx_cur_.size() > 15) s.adp_msg = tx_cur_[15] & 0xF;
     sent_.push_back(s);
+    ++sent_by_kind_[static_cast<size_t>(s.kind)];
     frames_.push_back(tx_cur_);
     tx_cur_.clear();
+}
+
+//! The control lane (the processor and MAAP) through the source-address
+//! stamp, on the stamp's valid/ready: every octet outside the source address
+//! (frame octets 6 to 11) must leave as it entered, the IFG gasket's output
+//! against the stamp's. The octet's position is this harness's own count of
+//! the frame's kept octets, not the stamp's beat position.
+void BootSaHarness::stamp_edge() {
+    const auto* r = dut_->rootp;
+    if (!dut_->axis_resetn) return;   // a beat on a reset edge is not transferred
+    if (!(r->milan_datapath__DOT__ctlg2_tvalid && r->milan_datapath__DOT__ctlg2_tready)) return;
+    const uint64_t in = r->milan_datapath__DOT__ctlg_src_tdata_w;
+    const uint64_t out = r->milan_datapath__DOT__ctlg2_tdata;
+    for (unsigned i = 0; i < 8; ++i) {
+        if (!(r->milan_datapath__DOT__ctlg2_tkeep & (1u << i))) continue;
+        const uint64_t pos = ctl_pos_++;
+        if (pos >= 6 && pos < 12) continue;
+        ++ctl_octets_;
+        const auto a = static_cast<uint8_t>(in >> (8 * i));
+        const auto b = static_cast<uint8_t>(out >> (8 * i));
+        if (a == b) continue;
+        if (ctl_changed_++ == 0)
+            ctl_first_change_ = "frame " + std::to_string(ctl_frames_) + " octet "
+                + std::to_string(pos) + " entered " + std::to_string(a) + " left "
+                + std::to_string(b) + " at cycle " + std::to_string(cyc_);
+    }
+    if (r->milan_datapath__DOT__ctlg2_tlast) {
+        ++ctl_frames_;
+        ctl_pos_ = 0;
+    }
 }
 
 void BootSaHarness::write(uint16_t addr, uint32_t value) {
@@ -410,6 +493,8 @@ void BootSaHarness::reset() {
     rm_busy_ = rm_done_ = dm_busy_ = false;
     rm_left_ = dm_left_ = dm_wait_ = drp_lat_ = 0;
     wrote_lo_ = wrote_hi_ = false;
+    maap_offered_early_ = aaf_offered_early_ = crf_offered_early_ = false;
+    ctl_pos_ = 0;   // a control-lane frame cut by the reset ends here
     run_cycles(64);
     dut_->axis_resetn = 1; dut_->gtx_resetn = 1;
 }
@@ -439,6 +524,108 @@ void BootSaHarness::pair_order(uint16_t first, uint16_t second, const char* tag)
     for (size_t i = from; i < sent_.size(); ++i) wrong += sent_[i].sa != kStationMac;
     what = std::string("[BOOTSA] pair: every frame of the ") + tag + " boot carries the station MAC";
     check_.dec(what.c_str(), wrong, 0);
+}
+
+//! The pair in configure_fabric()'s order, MAC_ADDR_LO then MAC_ADDR_HI,
+//! for a boot that writes it outside configure_fabric().
+void BootSaHarness::write_pair(const std::string& tag) {
+    write(kMacAddrLo, kStationMacLo);
+    wrote_lo_ = true;
+    write(kMacAddrHi, kStationMacHi);
+    wrote_hi_ = true;
+    printf("%sthe station MAC is complete at cycle %llu\n", tag.c_str(),
+           static_cast<unsigned long long>(cyc_));
+}
+
+//! One reset, then MAAP (when `maap`), the AAF talkers and the CRF talker
+//! enabled at reset release with configure_fabric()'s own boot words, the
+//! AAF talkers opened by the AAF_CTRL[1] bypass, kHeldMs with the pair
+//! unwritten, then the pair. A source that offered a frame in that window
+//! (its own tvalid, ahead of the transmit gate) must not have sent it, and
+//! each must send from the station MAC once the pair is written. With MAAP
+//! on, the AAF talkers cannot offer inside the window (the banner says why),
+//! so they are graded there on what they send after it; the MAAP-off boot
+//! grades their hold.
+void BootSaHarness::early_enable(bool maap) {
+    const std::string tag = std::string("[BOOTSA] early-enable, MAAP ") + (maap ? "on" : "off") + ": ";
+    reset();
+    const size_t from = sent_.size();
+    if (maap) write(kMaapCtrl, kMaapCtrlBoot);
+    write(kAafCtrl, kAafCtrlBoot | kAafBypass);
+    write(kCrfTxCtrl, kCrfTxCtrlBoot);
+    printf("%sMAAP_CTRL 0x%08x, AAF_CTRL 0x%08x, CRFT_CTRL 0x%08x written at cycle %llu, "
+           "then %llu processor ms with the pair unwritten\n", tag.c_str(),
+           maap ? kMaapCtrlBoot : 0u, kAafCtrlBoot | kAafBypass, kCrfTxCtrlBoot,
+           static_cast<unsigned long long>(cyc_), static_cast<unsigned long long>(kHeldMs));
+    run_cycles(kHeldMs * kMsCyc);
+    printf("%soffered with the pair unwritten: MAAP %s, AAF %s, CRF %s; %zu frames left\n",
+           tag.c_str(), maap_offered_early_ ? "yes" : "no", aaf_offered_early_ ? "yes" : "no",
+           crf_offered_early_ ? "yes" : "no", sent_.size() - from);
+    const auto held = sent_by_kind_;
+    write_pair(tag);
+    std::vector<Kind> sources = {Kind::Aaf};
+    if (maap) sources.push_back(Kind::Maap);
+    if (kCrfOutputDeclared) sources.push_back(Kind::Crf);
+    auto all_sent = [&]() {
+        for (const Kind k : sources)
+            if (sent_by_kind_[static_cast<size_t>(k)] == held[static_cast<size_t>(k)]) return false;
+        return true;
+    };
+    const uint64_t end = cyc_ + kPastBoundCyc;
+    while (cyc_ < end && !all_sent()) tick();
+
+    std::array<uint64_t, kKindName.size()> early{};
+    std::array<uint64_t, kKindName.size()> after{};
+    uint64_t zero = 0;
+    uint64_t wrong = 0;
+    uint64_t early_csr = 0;
+    uint64_t sent_after = 0;
+    for (size_t i = from; i < sent_.size(); ++i) {
+        const Sent& s = sent_[i];
+        auto& tally = s.before_mac ? early : after;
+        ++tally[static_cast<size_t>(s.kind)];
+        if (!s.before_mac) ++sent_after;
+        if (s.sa == 0) ++zero;
+        if (s.sa != kStationMac) ++wrong;
+        if (s.before_mac && s.kind != Kind::Gptp) ++early_csr;
+    }
+    printf("%s%llu frames after the pair:", tag.c_str(), static_cast<unsigned long long>(sent_after));
+    for (size_t k = 0; k < kKindName.size(); ++k)
+        if (after[k]) printf(" %s %llu", kKindName[k], static_cast<unsigned long long>(after[k]));
+    printf("\n");
+    auto that = [&](const char* what, bool ok) { check_.that((tag + what).c_str(), ok); };
+    auto none = [&](const char* what, uint64_t got) { check_.dec((tag + what).c_str(), got, 0); };
+    const auto at = [](Kind k) { return static_cast<size_t>(k); };
+    if (maap) {
+        that("MAAP offered a frame while the station MAC was unwritten", maap_offered_early_);
+        none("no MAAP frame leaves before the station MAC is written", early[at(Kind::Maap)]);
+        that("MAAP frames leave once the station MAC is written", after[at(Kind::Maap)] > 0);
+    } else {
+        that("the AAF talker offered a frame while the station MAC was unwritten", aaf_offered_early_);
+        none("no AAF frame leaves before the station MAC is written", early[at(Kind::Aaf)]);
+    }
+    that("AAF frames leave once the station MAC is written", after[at(Kind::Aaf)] > 0);
+    if (kCrfOutputDeclared) {
+        that("the CRF talker offered a frame while the station MAC was unwritten", crf_offered_early_);
+        none("no CRF frame leaves before the station MAC is written", early[at(Kind::Crf)]);
+        that("CRF frames leave once the station MAC is written", after[at(Kind::Crf)] > 0);
+    }
+    none("no CSR-addressed transmitter starts a frame before the station MAC is written", early_csr);
+    none("no frame carries the all-zero source address", zero);
+    none("every frame of the boot carries the station MAC", wrong);
+    check_.hex((tag + "A_TXARB_DIAG: no arbiter stall or abort since reset").c_str(),
+               (read(0x784) >> 8) & 0xFFFF, 0);
+}
+
+//! stamp_edge()'s verdict over every boot of the run.
+void BootSaHarness::grade_stamp() {
+    printf("[BOOTSA] control lane through the stamp: %llu frames, %llu octets outside 6 to 11 "
+           "compared, %llu changed%s%s\n", static_cast<unsigned long long>(ctl_frames_),
+           static_cast<unsigned long long>(ctl_octets_), static_cast<unsigned long long>(ctl_changed_),
+           ctl_changed_ ? "; the first: " : "", ctl_first_change_.c_str());
+    check_.that("[BOOTSA] control-lane frames passed through the stamp", ctl_frames_ > 0);
+    check_.dec("[BOOTSA] every control-lane octet outside 6 to 11 leaves the stamp as it entered",
+               ctl_changed_, 0);
 }
 
 //! Reset release to milan_init(): the engines run, nothing touches a CSR.
@@ -530,6 +717,45 @@ void BootSaHarness::controller() {
     write(0x654, read(0x654) | 0x2u);
 }
 
+//! Once MAAP holds its claim, a listener's PROBE_TX_COMMAND (IEEE
+//! 1722.1-2021 8.2.1.4 CONNECT_TX_COMMAND, renamed by Milan v1.2 5.5.2.2) to
+//! the AAF stream output: with the destination allocated and the probe
+//! received, the output's destination is valid (Milan v1.2 4.3.3.1), so the
+//! talker declares its Talker Advertise and first joins its VLAN by MVRP
+//! (Milan v1.2 4.3.2). Without it no MVRP PDU is due in this boot: a VLAN is
+//! joined only for a declaring talker or a bound listener, and an MVRP drain
+//! with nothing joined sends nothing. MVRP leaves on the held control lane
+//! with MSRP. The talker refuses a probe until its destination allocation
+//! has been answered (its retry round is 100 ms), so the probe is repeated
+//! until it answers SUCCESS.
+void BootSaHarness::probe_tx() {
+    bool success = false;
+    for (unsigned attempt = 0; attempt < 5 && !success; ++attempt) {
+        Frame c;
+        c.u48(kAcmpDa); c.u48(kListenerMac); c.u16(0x22F0);
+        c.u8(0xFC); c.u8(0x00); c.u16(44);          // PROBE_TX_COMMAND
+        c.u64(0);                                   // stream_id
+        c.u64(kControllerId); c.u64(kEntityId); c.u64(kListenerId);
+        c.u16(0); c.u16(0);                         // talker / listener unique id
+        c.u48(0); c.u16(0); c.u16(static_cast<uint16_t>(0x5100 + attempt));
+        c.u16(0x0002);                              // FAST_CONNECT (Milan v1.2 Table 5.33)
+        c.u16(0); c.u16(0);
+        while (c.b.size() < 60) c.u8(0);
+        const size_t from = sent_.size();
+        rx_queue_.push_back(c.b);
+        const auto rsp = await(Kind::Acmp, from, 400 * kMsCyc, 1);
+        success = rsp.size() > 16 && (rsp[16] >> 3) == 0;
+        if (!success) run_cycles(200 * kMsCyc);
+    }
+    check_.that("[BOOTSA] the talker answers PROBE_TX_COMMAND with SUCCESS (an ACMP frame leaves)",
+                success);
+    const auto mvrp_before = sent_by_kind_[static_cast<size_t>(Kind::Mvrp)];
+    const uint64_t end = cyc_ + 1000 * kMsCyc;
+    while (cyc_ < end && sent_by_kind_[static_cast<size_t>(Kind::Mvrp)] == mvrp_before) tick();
+    check_.that("[BOOTSA] the probed talker joins its VLAN by MVRP (an MVRP frame leaves)",
+                sent_by_kind_[static_cast<size_t>(Kind::Mvrp)] != mvrp_before);
+}
+
 void BootSaHarness::grade() {
     std::array<uint64_t, kKindName.size()> seen{}, wrong{}, wrong_da{};
     uint64_t zero = 0;
@@ -588,8 +814,11 @@ void BootSaHarness::grade() {
     }
     check_.dec("[BOOTSA] every frame is a known protocol's (octets 12 and 13 untouched)",
                seen[static_cast<size_t>(Kind::Other)], 0);
-    for (const Kind k : {Kind::Msrp, Kind::Gptp, Kind::Adp, Kind::Aecp, Kind::Acmp,
-                         Kind::Maap, Kind::Aaf}) {
+    std::vector<Kind> required = {Kind::Msrp, Kind::Mvrp, Kind::Gptp, Kind::Adp, Kind::Aecp,
+                                  Kind::Acmp, Kind::Maap, Kind::Aaf};
+    if (kCrfOutputDeclared) required.push_back(Kind::Crf);
+    else printf("[BOOTSA] the config declares no CRF Media Clock Output: CRF is not required\n");
+    for (const Kind k : required) {
         const auto i = static_cast<size_t>(k);
         const std::string what = std::string("[BOOTSA] ") + kKindName[i]
             + " frames were sent and graded";
@@ -628,9 +857,13 @@ int BootSaHarness::run() {
             tick();
         check_.that("[BOOTSA] the entity re-advertises past the first ENTITY_AVAILABLE",
                     first != SIZE_MAX && first_entity_available(first + 1) != SIZE_MAX);
+        probe_tx();
         grade();
         pair_order(0x108, 0x10C, "MAC_ADDR_LO");
         pair_order(0x10C, 0x108, "MAC_ADDR_HI");
+        early_enable(true);
+        early_enable(false);
+        grade_stamp();
     } catch (const std::exception& e) {
         check_.fail(e.what());
     }
