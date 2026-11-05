@@ -1,0 +1,66 @@
+[
+ {
+  "mutant": "golden-pp_top--acmp-only",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 0,
+  "completed": true,
+  "named_checks": [],
+  "missing": [],
+  "failing_checks": [],
+  "verdict": "PASS"
+ },
+ {
+  "mutant": "park_never_retires@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS7: the MRPDU after it goes on with the new stream"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS7: a rebind settled 6 ms after a T-MRP-JOIN, before the next: that MRPDU carries the old stream's Lv and the new stream's New, both Ready (ready 1, settled 1, quiet 1, old Lv 1, new New 0)",
+   "AS7: the MRPDU after it goes on with the new stream, New Ready, and carries nothing for the old (decl 2, reg 1)",
+   "AS8: the next MRPDU, 146 ms after the settle (one T-MRP-JOIN, at most 240 ms) and with no LeaveAll, carries the old stream's Lv, Ready, and New Asking Failed for the new one (Lv 0, New 1, decl 1)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "presettle_seed_dropped@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS8: a re-bind onto a stream whose Talker Failed",
+   "AS9: a Talker Advertise registered before the sink's first settle"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS8: a re-bind onto a stream whose Talker Failed the port registered before: FAILED at the settle, GET_RX_STATE REGISTERING_FAILED and GET_STREAM_INFO's failure code and bridge at once, before any MRPDU (before 1, settled 1, quiet 1, reg 0, 94-B stream info, code 0)",
+   "AS8: the next MRPDU, 146 ms after the settle (one T-MRP-JOIN, at most 240 ms) and with no LeaveAll, carries the old stream's Lv, Ready, and New Asking Failed for the new one (Lv 1, New 0, decl 0)",
+   "AS9: a Talker Advertise registered before the sink's first settle registers at the settle, one TK_ATTR_REGISTERED{1} (boot 1, none before 1, bound 1, probed 1, reg 0)",
+   "AS9: Listener Ready New 405 ms after the settle (one T-MRP-JOIN, at most 240 ms), with no further talker frame and no LeaveAll (decl 0)"
+  ],
+  "verdict": "KILLED"
+ },
+ {
+  "mutant": "presettle_park_declares_next_walk@pp_top",
+  "suite": "tb/pp_top",
+  "build_rc": 0,
+  "run_rc": 1,
+  "completed": true,
+  "named_checks": [
+   "AS7: a rebind settled",
+   "AS8: the next MRPDU"
+  ],
+  "missing": [],
+  "failing_checks": [
+   "AS7: a rebind settled 6 ms after a T-MRP-JOIN, before the next: that MRPDU carries the old stream's Lv and the new stream's New, both Ready (ready 1, settled 1, quiet 1, old Lv 1, new New 0)",
+   "AS8: the next MRPDU, 146 ms after the settle (one T-MRP-JOIN, at most 240 ms) and with no LeaveAll, carries the old stream's Lv, Ready, and New Asking Failed for the new one (Lv 1, New 0, decl 1)"
+  ],
+  "verdict": "KILLED"
+ }
+]

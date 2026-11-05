@@ -1,0 +1,36 @@
+control srp_stream_fsms suite: rc=0 PASS
+control srp_stream_fsms walk: rc=0 PASS
+control srp_top share: rc=0 PASS
+listener-park-never-retires: rc=2 failures=16 KILLED tags=PS13,PS14,PS4,RB1,RB4,RB6,RB7,SH14,SH15,SH16
+listener-park-never-retires: rc=2 failures=34 KILLED tags=WK10,WK12,WK8
+listener-settle-compare-dropped: rc=2 failures=5 KILLED tags=SW1,SW2,SW3
+listener-settle-compare-dropped: rc=2 failures=40 KILLED tags=PS12,PS13,SH1,SH16,SH18,SH19,SH2,SH20,SH21,SH24,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-handover-drops-state: rc=2 failures=15 KILLED tags=PS13,SH18,SH19,SH2,SH24,SH4,SH7,SH8
+listener-teardown-keeps-declaring: rc=2 failures=74 KILLED tags=L LA txla=0,L LA txla=1,L LA txla=2,L LA x rIn! p2p=0,L LA x rIn! p2p=1,L LA x rJoinIn! p2p=0,L LA x rJoinIn! p2p=1,L LA x rJoinMt! p2p=0,L LA x rJoinMt! p2p=1,L LA x rLA! p2p=0,L LA x rLA! p2p=1,L LA x rLv! p2p=0,L LA x rLv! p2p=1,L LA x rMt! p2p=0,L LA x rMt! p2p=1,L LA x rNew! p2p=0,L LA x rNew! p2p=1,L LA x tx!,L LA x txLA!,L recipe LA,L teardown withdraws the declaration,PS13,PS14,PS3,PS4,PS5,RB1,RB4,RB7,SH10,SH11,SH12,SH13,SH14,SH15,SH16,SH17,SH2,SH21,SH23,SH3,SH4,SH5,SH6,SH7,SH8,SH9
+listener-teardown-keeps-declaring: rc=2 failures=3 KILLED tags=SW2,SW4,SW6
+listener-group-order-reversed: rc=2 failures=14 KILLED tags=PS12,SH1,SH18,SH19,SH24,SH3,SH4,SH5,SH8,SH9
+listener-retire-skips-group-mark: rc=2 failures=2 KILLED tags=SH15,SH21
+listener-walk-ends-owing-a-transmit: rc=2 failures=12 KILLED tags=PS4,RB1,RB4,RB6,RB7,SH16,SH18,SH19,SH20,SH24
+listener-walk-done-before-second-pass: rc=2 failures=3 KILLED tags=SH15,SH24
+pt-seed-dropped: rc=2 failures=22 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS2,PS3,PS4,PS5,PS7,PS8,PS9
+pt-seed-dropped: rc=2 failures=22 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS2,PS3,PS4,PS5,PS7,PS8,PS9
+pt-never-holds: rc=2 failures=22 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS2,PS3,PS4,PS5,PS7,PS8,PS9
+seed-no-registered-strobe: rc=2 failures=17 KILLED tags=PS1,PS10,PS11,PS12,PS13,PS15,PS2,PS3,PS4,PS5,PS7,PS8,PS9
+seed-type-advertise: rc=2 failures=8 KILLED tags=PS11,PS2,PS3,PS4,PS5
+seed-drops-failure-information: rc=2 failures=5 KILLED tags=PS2,PS3,PS4,PS5
+park-retire-declares-next-walk: rc=2 failures=5 KILLED tags=PS4,RB1,RB4,RB6,RB7
+park-retire-declares-next-walk: rc=2 failures=5 KILLED tags=PS4,RB1,RB4,RB6,RB7
+pt-rlv-ignored: rc=2 failures=6 KILLED tags=PS11,PS6,RB2,SH14,SH15
+pt-leavetimer-never-expires: rc=2 failures=4 KILLED tags=PS7,PS9
+pt-leaveall-ignored: rc=2 failures=9 KILLED tags=PS15,PS7,PS8,PS9
+pt-leaveall-any-lane: rc=2 failures=1 KILLED tags=PS7
+seed-lv-fresh-deadline: rc=2 failures=2 KILLED tags=PS15,PS8
+seed-lv-unguarded: rc=2 failures=1 KILLED tags=PS15
+seed-from-current-state: rc=2 failures=2 KILLED tags=PS9
+pt-match-ignores-da: rc=2 failures=1 KILLED tags=PS10
+pt-vid-high-bits-ignored: rc=2 failures=1 KILLED tags=PS10
+pt-allocation-overwrites-entry-0: rc=2 failures=4 KILLED tags=L9,PS11,PS13,PS15
+park-retire-ignores-group: rc=2 failures=1 KILLED tags=PS13
+park-retire-without-hold: rc=2 failures=2 KILLED tags=PS14
+seed-keeps-expiry-strobe: rc=2 failures=1 KILLED tags=PS15
+35 checks: 35 PASS, 0 FAIL
