@@ -809,10 +809,11 @@ void BootSaHarness::grade() {
                          Kind::Acmp, Kind::Maap}) {
         const auto i = static_cast<size_t>(k);
         const std::string what = std::string("[BOOTSA] every ") + kKindName[i]
-            + " frame's destination address is its protocol's (octets 0 to 5 untouched)";
+            + (k == Kind::Aecp ? " frame's destination address is the controller's MAC"
+                               : " frame's destination address is its protocol's");
         check_.dec(what.c_str(), wrong_da[i], 0);
     }
-    check_.dec("[BOOTSA] every frame is a known protocol's (octets 12 and 13 untouched)",
+    check_.dec("[BOOTSA] every frame's EtherType (and, for AVTP, subtype) is a graded protocol's",
                seen[static_cast<size_t>(Kind::Other)], 0);
     std::vector<Kind> required = {Kind::Msrp, Kind::Mvrp, Kind::Gptp, Kind::Adp, Kind::Aecp,
                                   Kind::Acmp, Kind::Maap, Kind::Aaf};
