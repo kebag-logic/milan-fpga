@@ -1,0 +1,10 @@
+[endstation_builder] WARNING: platform.mac_address 02:4b:4c:00:00:01 has the U/L bit set: it is locally administered, not an IEEE-assigned EUI-48, and neither are the gPTP clockIdentity and the mac-derived entity_id formed from it (IEEE 802.1AS-2011 8.5.2.2.1, IEEE 1588-2008 7.5.2.2.2, IEEE 1722.1-2021 6.2.2.7). A production build needs an address from an owned MA-L, MA-M or MA-S block (#840).
+PROBE none: SURVIVED rc=0 PHY_ADVERTISEMENT writes=3 reg9=0x0200 reg4=0x0c01 reg0=0x1200 restarts=1 
+PROBE clear-pause-bits: SURVIVED rc=0 PHY_ADVERTISEMENT writes=3 reg9=0x0200 reg4=0x0001 reg0=0x1200 restarts=1 
+PROBE drop-master-slave: SURVIVED rc=0 PHY_ADVERTISEMENT writes=3 reg9=0x0200 reg4=0x0c01 reg0=0x1200 restarts=1 
+PROBE keep-test-mode: SURVIVED rc=0 PHY_ADVERTISEMENT writes=3 reg9=0x0200 reg4=0x0c01 reg0=0x1200 restarts=1 
+PROBE keep-reserved-bit14: SURVIVED rc=0 PHY_ADVERTISEMENT writes=3 reg9=0x0200 reg4=0x0c01 reg0=0x1200 restarts=1 
+PROBE keep-reset-isolate: SURVIVED rc=0 PHY_ADVERTISEMENT writes=3 reg9=0x0200 reg4=0x0c01 reg0=0x1200 restarts=1 
+PROBE no-an-enable: SURVIVED rc=0 PHY_ADVERTISEMENT writes=3 reg9=0x0200 reg4=0x0c01 reg0=0x1200 restarts=1 
+PROBE no-ability-retry-forever: SURVIVED rc=0 PHY_ADVERTISEMENT writes=3 reg9=0x0200 reg4=0x0c01 reg0=0x1200 restarts=1 
+PROBE skip-register-4: CAUGHT rc=-6  phy: <clone>/sw/firmware/nvm_hosttest/phy_host.c:61: expect_gigabit_only_advertisement: Assertion `no_10base_t_advertised' failed.
