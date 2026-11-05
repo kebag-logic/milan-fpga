@@ -1161,7 +1161,7 @@ enables only after the pair, at reset release instead. Each writes
 `MAAP_CTRL`, `AAF_CTRL` (enable and the `AAF_CTRL[1]` bypass) and `CRFT_CTRL`
 with the firmware's own boot words, before any MAC write. It then holds the
 pair unwritten for 400 processor ms and writes it. The first boot enables
-MAAP, and its MAAP and CRF talker offer frames inside the held window. Its AAF
+MAAP, and MAAP and the CRF talker offer frames inside the held window. Its AAF
 talker cannot, whatever the window's length:
 
 - the AAF gate needs MAAP's claim while MAAP is enabled (`aaf_gate`,
