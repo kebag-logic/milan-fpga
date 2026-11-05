@@ -84,8 +84,9 @@ constexpr unsigned kPhcTickNs = 8;
 //! check below that the processor offered a frame inside it keeps this leg
 //! from passing on a boot that never reached the defect.
 constexpr uint64_t kBiosMs = 400;
-//! ENTITY_AVAILABLE waits T-ADP-DELAY-START, up to 2000 ms (Milan v1.2
-//! 5.6.3.5.2); the bound adds the restore walk and slack
+//! ENTITY_AVAILABLE waits the TMR_DELAY timer, a random 0 to 2 s (Milan v1.2
+//! 5.6.3.5.2; T-ADP-DELAY-START in this tree); the bound adds the restore
+//! walk and slack
 constexpr uint64_t kAdvertiseBoundMs = 3000;
 //! The run past the first ENTITY_AVAILABLE ends once the entity has
 //! re-advertised (every 5000 processor ms, the processor's ADP_T_ADV_MS_C),
@@ -142,9 +143,10 @@ Kind classify(const std::vector<uint8_t>& f) {
 
 //! The destination address a frame of `kind` must carry, or 0 where it is
 //! the stream's own: the stamp rewrites octets 6 to 11 and no other, so the
-//! octets before them must still be the protocol's (IEEE 802.1Q-2022 Table
-//! 10-1 for MRP, IEEE 802.1AS-2011 10.4.3 for gPTP, IEEE 1722.1-2021
-//! Annex B for ADP and ACMP, IEEE 1722-2016 Table B.10 for MAAP).
+//! octets before them must still be the protocol's (IEEE 802.1Q-2022
+//! 35.2.2.1 for MSRP and Table 10-1 for MVRP, IEEE 802.1AS-2011 10.4.3 and
+//! 11.3.4 for gPTP, IEEE 1722.1-2021 Annex B for ADP and ACMP, IEEE
+//! 1722-2016 Table B.10 for MAAP).
 uint64_t protocol_da(Kind kind) {
     switch (kind) {
     case Kind::Msrp: return 0x0180C200000EULL;
@@ -495,7 +497,7 @@ std::vector<uint8_t> BootSaHarness::await(Kind kind, size_t from, uint64_t bound
 
 //! Past the first ENTITY_AVAILABLE: one AECP command (READ_DESCRIPTOR of
 //! the ENTITY, IEEE 1722.1-2021 7.4.5), one ACMP command
-//! (GET_TX_STATE_COMMAND, IEEE 1722.1-2021 8.2.1.5) and the AAF talker
+//! (GET_TX_STATE_COMMAND, IEEE 1722.1-2021 8.2.1.4) and the AAF talker
 //! opened by the AAF_CTRL[1] bypass, so those three transmitters send too.
 void BootSaHarness::controller() {
     Frame a;
