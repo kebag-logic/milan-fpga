@@ -1,0 +1,120 @@
+  [ok]   [MAPREC] put-back, last port: port 1: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 1: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 1: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 2: status 0, 4 mapping(s) s2.c0->o0.c0 s2.c1->o1.c0 s2.c2->o2.c0 s2.c3->o3.c0
+  [ok]   [MAPREC] put-back, last port: port 2: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 2: number_of_mappings = 0x4
+  [ok]   [MAPREC] put-back, last port: port 2: the mappings are the expected list = 0x1
+  [i]    put-back, last port: port 3: status 0, 2 mapping(s) s3.c0->o0.c0 s3.c1->o1.c0
+  [ok]   [MAPREC] put-back, last port: port 3: GET_AUDIO_MAP SUCCESS = 0x0
+  [ok]   [MAPREC] put-back, last port: port 3: number_of_mappings = 0x2
+  [ok]   [MAPREC] put-back, last port: port 3: the mappings are the expected list = 0x1
+  [ok]   [MAPREC] put-back, last port: every key's owner and cluster in the stores = 0x0
+  [ok]   [MAPREC] put-back, last port: the crossbar RAM routes as the reference = 0x0
+  [i]    put-back, last port: PP_STAT 5b000404
+  [ok]   [MAPREC] put-back, last port: PP_STAT done 1, busy 0 = 0x1
+  [ok]   [MAPREC] put-back, last port: PP_STAT fail 0   = 0x0
+  [ok]   [MAPREC] put-back, last port: PP_STAT blank 0  = 0x0
+  [ok]   [MAPREC] every page ran (vacuity guard)        = 0x10
+--------------------------------------------------------------
+checks: 137   failures: 0
+RESULT: PASS
+---- #839 every frame from reset carries the station MAC, through milan_init()'s own boot order ----
+./obj_bootsa/Vmilan_dp_bootsa
+bootsa: 2 MHz fabric, one processor ms = 100 cycles, station MAC 020000000001
+[BOOTSA] BIOS window: 400 processor ms with no CSR access
+[BOOTSA] milan_init(): configure_fabric()
+[BOOTSA] configure_fabric() completed the station MAC at cycle 40088
+[BOOTSA] milan_init(): load_aem_image()
+[BOOTSA] milan_init(): nvm_boot()
+  [ ok ] [BOOTSA] nvm_boot(): the restore walk ends COMPLETE (done 1, CLOSED 0) got=0x4 exp=0x4
+[BOOTSA] milan_init(): entity_advertise()
+Milan baremetal: fabric entity enable requested; the fabric holds it until the restore releases it; UART diagnostics ready.
+  [ ok ] [BOOTSA] the first ENTITY_AVAILABLE leaves after entity_advertise()
+[BOOTSA] first ENTITY_AVAILABLE at cycle 196252, frame #3
+  [ ok ] [BOOTSA] the processor answers READ_DESCRIPTOR (an AECP frame leaves)
+  [ ok ] [BOOTSA] the processor answers GET_TX_STATE_COMMAND (an ACMP frame leaves)
+  [ ok ] [BOOTSA] the entity re-advertises past the first ENTITY_AVAILABLE
+[BOOTSA] 831 frames: MSRP 36 gPTP 1 ADP 5 AECP 1 ACMP 1 MAAP 5 AAF 1 CRF 781
+[BOOTSA]   #0 MSRP  cycle    40112 source 020000000001
+[BOOTSA]   #1 MAAP  cycle    40632 source 020000000001
+[BOOTSA]   #2 MSRP  cycle   100199 source 020000000001
+[BOOTSA]   #3 ADP   cycle   196252 source 020000000001
+[BOOTSA]   #4 AECP  cycle   198034 source 020000000001
+[BOOTSA]   #5 ACMP  cycle   198617 source 020000000001
+[BOOTSA]   #6 CRF   cycle   200074 source 020000000001
+[BOOTSA]   #8 CRF   cycle   204074 source 020000000001
+[BOOTSA]   #158 ADP   cycle   781352 source 020000000001
+[BOOTSA]   #257 MAAP  cycle  1156073 source 020000000001
+[BOOTSA]   #587 gPTP  cycle  2400660 source 020000000001
+[BOOTSA]   #830 AAF   cycle  3320662 source 020000000001
+  [ ok ] [BOOTSA] the processor offered a frame before the station MAC was written
+  [ ok ] [BOOTSA] no frame carries the all-zero source address got=0 exp=0
+  [ ok ] [BOOTSA] no CSR-addressed transmitter starts a frame before the station MAC is written got=0 exp=0
+  [ ok ] [BOOTSA] every MSRP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every MVRP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every gPTP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every ADP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every AECP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every ACMP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every MAAP frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every AAF frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every CRF frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every other frame's source address is the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] every MSRP frame's destination address is its protocol's (octets 0 to 5 untouched) got=0 exp=0
+  [ ok ] [BOOTSA] every MVRP frame's destination address is its protocol's (octets 0 to 5 untouched) got=0 exp=0
+  [ ok ] [BOOTSA] every gPTP frame's destination address is its protocol's (octets 0 to 5 untouched) got=0 exp=0
+  [ ok ] [BOOTSA] every ADP frame's destination address is its protocol's (octets 0 to 5 untouched) got=0 exp=0
+  [ ok ] [BOOTSA] every AECP frame's destination address is its protocol's (octets 0 to 5 untouched) got=0 exp=0
+  [ ok ] [BOOTSA] every ACMP frame's destination address is its protocol's (octets 0 to 5 untouched) got=0 exp=0
+  [ ok ] [BOOTSA] every MAAP frame's destination address is its protocol's (octets 0 to 5 untouched) got=0 exp=0
+  [ ok ] [BOOTSA] every frame is a known protocol's (octets 12 and 13 untouched) got=0 exp=0
+  [ ok ] [BOOTSA] MSRP frames were sent and graded
+  [ ok ] [BOOTSA] gPTP frames were sent and graded
+  [ ok ] [BOOTSA] ADP frames were sent and graded
+  [ ok ] [BOOTSA] AECP frames were sent and graded
+  [ ok ] [BOOTSA] ACMP frames were sent and graded
+  [ ok ] [BOOTSA] MAAP frames were sent and graded
+  [ ok ] [BOOTSA] AAF frames were sent and graded
+  [ ok ] [BOOTSA] A_TXARB_DIAG: no arbiter stall or abort since reset got=0x0 exp=0x0
+  [ ok ] [BOOTSA] pair: MAC_ADDR_LO alone opens no CSR-addressed transmitter got=0 exp=0
+  [ ok ] [BOOTSA] pair: the second half after MAC_ADDR_LO releases the processor's frame
+  [ ok ] [BOOTSA] pair: every frame of the MAC_ADDR_LO boot carries the station MAC got=0 exp=0
+  [ ok ] [BOOTSA] pair: MAC_ADDR_HI alone opens no CSR-addressed transmitter got=0 exp=0
+  [ ok ] [BOOTSA] pair: the second half after MAC_ADDR_HI releases the processor's frame
+  [ ok ] [BOOTSA] pair: every frame of the MAC_ADDR_HI boot carries the station MAC got=0 exp=0
+simulated_cycles=3440853
+== bootsa: checks: 40   failures: 0 ==
+RESULT: PASS
+python3 render_mutants.py
+RENDER-PHASE {"seq": 1, "event": "origin", "t_s": 0.0, "clock": "monotonic", "unit": "s"}
+RENDER-PHASE {"seq": 2, "event": "baseline", "t_s": 0.003, "case": "control", "selected": "prebuilt"}
+RENDER-PHASE {"seq": 3, "event": "start", "t_s": 0.003, "case": "control", "phase": "simulation", "mode": "--live-only", "idle_s": 0.003}
+RENDER-PHASE {"seq": 4, "event": "end", "t_s": 76.856, "case": "control", "phase": "simulation", "mode": "--live-only", "elapsed_s": 76.853, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--live-only)
+RENDER-PHASE {"seq": 5, "event": "start", "t_s": 76.856, "case": "control", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 6, "event": "end", "t_s": 130.389, "case": "control", "phase": "simulation", "mode": "--render-only", "elapsed_s": 53.533, "status": 0}
+[PASS] the unmutated gateware still passes the render-law leg (--render-only)
+RENDER-PHASE {"seq": 7, "event": "start", "t_s": 130.39, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "build", "mode": null, "idle_s": 0.001}
+RENDER-PHASE {"seq": 8, "event": "end", "t_s": 165.806, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "build", "mode": null, "elapsed_s": 35.416, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 9, "event": "start", "t_s": 165.806, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 10, "event": "end", "t_s": 222.746, "case": "each_PDU_placed_by_its_arrival_instead_of_its_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 56.94, "status": 1}
+[PASS] mutant caught (--render-only): each PDU placed by its arrival instead of its timestamp - breaks "RENDER-ARRIVE-INT: every event presented at its presentation time (late)"
+RENDER-PHASE {"seq": 11, "event": "start", "t_s": 222.748, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "idle_s": 0.002}
+RENDER-PHASE {"seq": 12, "event": "end", "t_s": 260.265, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "build", "mode": null, "elapsed_s": 37.517, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 13, "event": "start", "t_s": 260.265, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 14, "event": "end", "t_s": 315.411, "case": "the_PDU_without_tv_placed_by_its_stale_timestamp", "phase": "simulation", "mode": "--render-only", "elapsed_s": 55.146, "status": 1}
+[PASS] mutant caught (--render-only): the PDU without tv placed by its stale timestamp - breaks "RENDER-REFUSE: no refused PDU presented"
+RENDER-PHASE {"seq": 15, "event": "start", "t_s": 315.416, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "idle_s": 0.005}
+RENDER-PHASE {"seq": 16, "event": "end", "t_s": 351.109, "case": "a_PHC_step_resets_the_stage", "phase": "build", "mode": null, "elapsed_s": 35.693, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 17, "event": "start", "t_s": 351.109, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 18, "event": "end", "t_s": 407.407, "case": "a_PHC_step_resets_the_stage", "phase": "simulation", "mode": "--render-only", "elapsed_s": 56.298, "status": 1}
+[PASS] mutant caught (--render-only): a PHC step resets the stage - breaks "RENDER-STEP-INT: every event presented once, in order"
+RENDER-PHASE {"seq": 19, "event": "start", "t_s": 407.411, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "idle_s": 0.004}
+RENDER-PHASE {"seq": 20, "event": "end", "t_s": 443.921, "case": "a_clock_source_change_flushes_the_stage", "phase": "build", "mode": null, "elapsed_s": 36.51, "status": "built", "returncode": 0}
+RENDER-PHASE {"seq": 21, "event": "start", "t_s": 443.921, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "idle_s": 0.0}
+RENDER-PHASE {"seq": 22, "event": "end", "t_s": 523.3, "case": "a_clock_source_change_flushes_the_stage", "phase": "simulation", "mode": "--live-only", "elapsed_s": 79.379, "status": 1}
+[PASS] mutant caught (--live-only): a clock-source change flushes the stage - breaks "RENDER-LIVE-CRF: every event presented once, in order"
+RENDER-PHASE {"seq": 23, "event": "end-of-run", "t_s": 523.474, "state": "idle", "idle_s": 0.174}
+
+6 checks: 6 PASS, 0 FAIL
