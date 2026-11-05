@@ -80,7 +80,7 @@ It is recorded here as a deliberate choice.
 The field belongs to the GET_MILAN_INFO response, not a descriptor.
 
 - Where: `MILAN_CERT_VERSION` in the protocol processor's AECP microprogram generator.
-- Tested by check M2 of the processor's `tb/pp_top` harness.
+- Tested by check M2 of the protocol processor's pp_top harness.
 - Also by `tests/features/aecp_response_contract.feature`, against the model.
 
 ## gPTP readings
