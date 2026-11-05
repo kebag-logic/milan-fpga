@@ -126,6 +126,7 @@ It is not fully Milan-compliant.
 - Read the [dated Milan audit](testing/MILAN_V12_AUDIT_2026-08-16.md).
 - Read the [Milan roadmap](MILAN_V12_ROADMAP.md).
 - Read the [compliance matrix](reference/MILAN_COMPLIANCE_MATRIX.md).
+- Read the [stricter readings](reference/STRICTER_READINGS.md).
 - Read the [requirements register](reference/FR_NFR.md).
 - Review open Issues before planning delivery.
 
