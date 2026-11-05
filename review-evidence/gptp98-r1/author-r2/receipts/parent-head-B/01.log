@@ -1,0 +1,433 @@
+make: Entering directory '<parent-head-B>/tb/verilator/milan_dp_gptp'
+make -C ../milan_dp ax1x1gptp
+make[1]: Entering directory '<parent-head-B>/tb/verilator/milan_dp'
+python3 ../../../sw/builder/endstation_builder.py ../../../configs/endstation_ax7101_1x1_tdm8.yaml -o obj_ax1x1gptp/aem-build
+[endstation_builder] endstation_ax7101_1x1_tdm8: 1x1 AAF + CRF, tdm8, 25 clusters (role-pools), model_id 0x001BC5C1935893E1 (hash); 3 planned element(s); resources TIGHT (worst LUT 79.4%)
+  wrote tb/verilator/milan_dp/obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/soc_params.json
+  wrote tb/verilator/milan_dp/obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json
+  wrote tb/verilator/milan_dp/obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/build_plan.md
+  wrote tb/verilator/milan_dp/obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/lwsrp_table.json
+  wrote tb/verilator/milan_dp/obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/lwsrp_table.svh
+  wrote tb/verilator/milan_dp/obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/lwsrp_csr_defaults.svh
+  wrote tb/verilator/milan_dp/obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/adp_shape_defaults.svh
+  wrote tb/verilator/milan_dp/obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+  wrote tb/verilator/milan_dp/obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/platform_shape.json
+  wrote configs/generated/sweep_opts_ax7101.sh
+  wrote tb/verilator/milan_dp/obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/gptp_ucode.hex
+  wrote tb/verilator/milan_dp/obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/aecp_aem_rom.svh
+python3 ../../../avdecc/gen_aemi_image.py --overlay obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json --line-bytes 576 -o obj_ax1x1gptp/aemi.bin
+[gen_aemi_image] obj_ax1x1gptp/aem-build/endstation_ax7101_1x1_tdm8/aem_overlay.json: 42 descriptors -> obj_ax1x1gptp/aemi.bin, 7512 bytes
+magic AEMI  layout_version 1
+configurations 1  index entries 15  names 39
+index_off 0x000020  names_off 0x001398  image_bytes 7512  desc_max_len 452
+checksum 0xBCE6817E
+
+  cfg  type    first  count  elem_len  stride  elem_off   name_base
+    0  0x0000      0      1       312     312  0x000110          0
+    0  0x0001      0      1       106     112  0x000248          2
+    0  0x0002      0      1       148     152  0x0002B8          3
+    0  0x0005      0      1       154     160  0x000350          4
+    0  0x0005      1      1       146     152  0x0003F0          5
+    0  0x0006      0      2       146     152  0x000488          6
+    0  0x0009      0      1       102     104  0x0005B8          8
+    0  0x000A      0      3        86      88  0x000620          9
+    0  0x000C      0      1        72      72  0x000728          -
+    0  0x000D      0      1       452     456  0x000770          -
+    0  0x000E      0      1        20      24  0x000938          -
+    0  0x000F      0      1        20      24  0x000950          -
+    0  0x0014      0     25        90      96  0x000968         12
+    0  0x001A      0      1       113     120  0x0012C8         37
+    0  0x0024      0      1        82      88  0x001340         38
+
+semantic lint: on (07 §3.1 rules L1 to L12)
+lint waivers applied: 0
+ADP inputs this model requires (Milan v1.2 §5.3.3.1, §5.6.2):
+  entity_model_id_i  0x001BC5C1935893E1
+  talker_sources_i   2
+  listener_sinks_i   2
+  identify_index_i   0
+model digest sha256 1ec821bbaef9c1911ba0c6af2b42cf64af860939332a6df3dd2049a64f46852e (IEEE 1722.1-2021 §6.2.2.8)
+verilator +incdir+../../../configs/generated/endstation_ax7101_1x1_tdm8 --cc --exe --build -j 4 --top-module milan_datapath +incdir+../../../hdl/common +incdir+../../../hdl/common/csr +incdir+../../../hdl/common/eth_event_counter +incdir+../../../hdl/ieee17221/adp +incdir+../../../hdl/ieee8021q/ts +incdir+../../../hdl/ieee8021as/ptp_timestamp +incdir+../../../third_party/verilog-axis/rtl -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE -Wno-TIMESCALEMOD -CFLAGS "-std=c++17 -O2 -Wall -Wextra" -O3 --threads 1 -CFLAGS "-O3 -Wall -Wextra" --Mdir obj_ax1x1gptp \
+  -GMILAN_CLK_FREQ_HZ=50000000 -GGPTP_PLANE_EN_P=1 \
+  -CFLAGS "-DMILAN_CLK_HZ_TB=50000000 -Wall -Wextra" \
+  -GGPTP_UCODE_HEX_P='"gptp_ax1x1_ucode.hex"' \
+  -GN_STREAMS=1 -GTALKER_WIRE_CHANS_P=8 \
+  -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 \
+  -GLOOPBACK_P=1 -GI2SPB_P=0 -GLPF_P=0 \
+  ax1x1gptp_probes.vlt ../../../protocol-processor/hdl/acmp/pp_acmp_pkg.sv ../../../protocol-processor/hdl/adp/pp_adp_pkg.sv ../../../protocol-processor/hdl/aecp/ucpu_pkg.sv ../../../protocol-processor/hdl/common/pp_pkg.sv ../../../protocol-processor/hdl/srp/srp_pkg.sv ../../../protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv ../../../protocol-processor/hdl/acmp/KL_acmp_talker.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv ../../../protocol-processor/hdl/acmp/KL_pp_acmp_lsn_admit.sv ../../../protocol-processor/hdl/adp/KL_adp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ca_originator.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_mem_guard.sv ../../../protocol-processor/hdl/aecp/KL_aecp_desc_store.sv ../../../protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv ../../../protocol-processor/hdl/aecp/KL_aecp_engine.sv ../../../protocol-processor/hdl/aecp/KL_aecp_notify.sv ../../../protocol-processor/hdl/aecp/KL_aecp_nvm_writer.sv ../../../protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv ../../../protocol-processor/hdl/aecp/KL_aecp_ucpu.sv ../../../protocol-processor/hdl/common/KL_pp_prng.sv ../../../protocol-processor/hdl/common/KL_pp_timer_service.sv ../../../protocol-processor/hdl/maap/KL_pp_maap.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_event_router.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_mgr_arb.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_originator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_release_merge.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_side_port.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv ../../../protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv ../../../protocol-processor/hdl/srp/KL_srp_admission.sv ../../../protocol-processor/hdl/srp/KL_srp_decoder.sv ../../../protocol-processor/hdl/srp/KL_srp_domain.sv ../../../protocol-processor/hdl/srp/KL_srp_encoder.sv ../../../protocol-processor/hdl/srp/KL_srp_listener_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_talker_fsm.sv ../../../protocol-processor/hdl/srp/KL_srp_top.sv ../../../protocol-processor/hdl/srp/KL_srp_vlan.sv ../../../protocol-processor/hdl/top/KL_mrp_strip.sv ../../../protocol-processor/hdl/top/protocol_processor_top.sv ../../../hdl/milan/KL_pp_shadow.sv ../../../hdl/milan/KL_pp_maap_shim.sv ../../../hdl/milan/KL_nvm_backend.sv ../../../gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv ../../../gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv ../../../gptp-processor/hdl/wire/KL_gptp_rx_parser.sv ../../../gptp-processor/hdl/wire/KL_gptp_tx_slot.sv ../../../gptp-processor/hdl/common/KL_gptp_timer.sv ../../../gptp-processor/hdl/top/KL_gptp_engine.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txticket.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_txret.sv ../../../hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv ../../../hdl/common/ethernet_packet_pkg.sv ../../../hdl/common/axi_stream_if.sv ../../../third_party/verilog-axis/rtl/axis_fifo.v ../../../third_party/verilog-axis/rtl/axis_arb_mux.v ../../../third_party/verilog-axis/rtl/arbiter.v ../../../third_party/verilog-axis/rtl/priority_encoder.v ../../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv ../../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv ../../../hdl/common/cdc_pulse.sv ../../../hdl/common/cdc_handshake.sv ../../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv ../../../hdl/ieee8021q/filtering/tcam.sv ../../../hdl/ieee8021q/filtering/rx_mac_filter.sv ../../../hdl/common/tx_ifg_gasket.sv ../../../hdl/ieee1722/aaf/KL_pcm_lpf.sv ../../../hdl/ieee1722/aaf/KL_pcm_route.sv ../../../hdl/common/KL_link_guard.sv ../../../hdl/milan/KL_reboot_ctrl.sv ../../../hdl/ieee17221/adp/adp_tx_arbiter.sv ../../../hdl/ieee1722/aaf/aaf_talker_i2s.sv ../../../hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture.sv ../../../hdl/ieee1722/aaf/KL_tdm_capture_master.sv ../../../hdl/ieee1722/aaf/KL_pair_blend.sv ../../../hdl/ieee1722/aaf/KL_pair_zero_fill.sv ../../../hdl/ieee1722/aaf/KL_tdm_render.sv ../../../hdl/ieee1722/aaf/KL_tdm_render_master.sv ../../../hdl/ieee1722/aaf/KL_render_queue.sv ../../../hdl/ieee1722/aaf/KL_chan_map_render.sv ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv ../../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv ../../../hdl/ieee1722/avtp/avtp_subtype_pkg.sv ../../../hdl/ieee1722/crf/KL_media_if_latency_pkg.sv ../../../hdl/ieee1722/avtp/avtp_stream_parser.sv ../../../hdl/ieee1722/avtp/KL_stream_table.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv ../../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv ../../../hdl/ieee1722/avtp/KL_media_clock_restart.sv ../../../hdl/ieee1722/avtp/KL_talker_diag_ctx.sv ../../../hdl/ieee1722/crf/KL_crf_rx.sv ../../../hdl/ieee1722/crf/KL_aaf_clock_meter.sv ../../../hdl/ieee1722/crf/KL_crf_tx.sv ../../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv ../../../hdl/ieee1722/crf/KL_media_nco.sv ../../../hdl/ieee1722/crf/KL_media_grid_align.sv ../../../hdl/ieee1722/crf/KL_media_domain_event.sv ../../../hdl/ieee1722/crf/KL_mtt_round.sv ../../../hdl/ieee1722/maap/KL_maap.sv ../../../hdl/ieee1722/aaf/KL_i2s_playback.sv ../../../hdl/ieee1722/aaf/KL_i2s_feed_mux.sv ../../../hdl/ieee1722/aaf/KL_tone_gen.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv ../../../hdl/ieee1722/aaf/KL_aaf_latency_tap_bank.sv ../../../hdl/ieee1722/aaf/KL_media_adv.sv ../../../hdl/common/cdc_pair_fifo.sv ../../../hdl/common/eth_event_counter/ethernet_events.sv ../../../hdl/common/eth_event_counter/event_counter.sv ../../../hdl/common/csr/milan_csr.sv ../../../hdl/milan/milan_datapath.sv sim_ax1x1gptp.cpp -o Vmilan_dp_ax1x1gptp
+make[2]: Entering directory '<parent-head-B>/tb/verilator/milan_dp/obj_ax1x1gptp'
+make[2]: Nothing to be done for 'default'.
+make[2]: Leaving directory '<parent-head-B>/tb/verilator/milan_dp/obj_ax1x1gptp'
+- V e r i l a t i o n   R e p o r t: Verilator 5.050 2026-07-01 rev v5.050
+- Verilator: Built from 0.000 MB sources in 0 modules, into 0.000 MB in 0 C++ files needing 0.000 MB
+- Verilator: Walltime 0.034 s (elab=0.000, cvt=0.000, bld=0.032); cpu 0.002 s on 4 threads; allocated 16.637 MB
+sha256sum obj_ax1x1gptp/Vmilan_dp_ax1x1gptp gptp_ax1x1_ucode.hex obj_ax1x1gptp/aemi.bin
+96bad58d412c3446ee606f6abf43ebba9f3bb98a62451859660672978d5493cd  obj_ax1x1gptp/Vmilan_dp_ax1x1gptp
+af16c2fd3f26e34ea0a5fec6b29e56894f4116df24e1870060627b787c20b797  gptp_ax1x1_ucode.hex
+4fc8d61582a965fe648abc0c15d0551153ff2b27f202d1fbc8319fbb4bdb396d  obj_ax1x1gptp/aemi.bin
+/usr/bin/time -f "wall_clock_seconds=%e process_exit_status=%x" ./obj_ax1x1gptp/Vmilan_dp_ax1x1gptp 
+ax1x1gptp PHYSICAL: 50 MHz, 782/1591 audio, 200 MHz auxiliary; negative_control=0 extended=0
+  [ ok ] [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) got=0x4 exp=0x4
+  [ ok ] PHC reset increment is 20 ns             got=0x14000000 exp=0x14000000
+  [ ok ] advertised talker geometry AAF plus CRF  got=0x48010002 exp=0x48010002
+  [ ok ] advertised listener geometry AAF plus CRF got=0x48010002 exp=0x48010002
+  [ ok ] software cannot manufacture gPTP health  got=0x1 exp=0x1
+  [ ok ] software cannot manufacture peer delay   got=0x0 exp=0x0
+  [ ok ] unlicensed talker gate closed            got=0x0 exp=0x0
+  [ ok ] listener override eight-channel format   got=0x2006000 exp=0x2006000
+  [ ok ] diagnostic talker bypass opens gate      got=0x8 exp=0x8
+TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN
+  [ ok ] audio ratio 782/1591 within one quantized edge
+  [ ok ] 200 MHz auxiliary clock has four rising edges per Milan cycle
+  [ ok ] TDM8 master captures four pairs per frame
+  [ ok ] TDM8 FSYNC period follows audio divided by 512
+  [ ok ] PHC advances 20 ns per modeled cycle before Sync selection got=200840 exp=200840
+AUDIO arm=initial payload deadline=0.020000 s
+AUDIO elapsed=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+  [ ok ] pre-acquisition GET_AVB_INFO length      got=62 exp=62
+  [ ok ] pre-acquisition GET_AVB_INFO SUCCESS     got=0 exp=0
+  [ ok ] pre-acquisition GET_AVB_INFO names thisClock as GM got=0x20000fffe000001 exp=0x20000fffe000001
+PROGRESS simulated_seconds=0.25 rx_aaf=2000 tx_aaf=1999
+PROGRESS simulated_seconds=0.50 rx_aaf=4000 tx_aaf=3999
+PROGRESS simulated_seconds=0.75 rx_aaf=6000 tx_aaf=5999
+PROGRESS simulated_seconds=1.00 rx_aaf=8000 tx_aaf=7999
+Pdelay event seq=0 t1=1200011534 t2=1200021848 t3=1200041848 t4=1200032160 oracle=313 ns
+RECENTRE decision=1 input_pdu=9822 cycle=61384706 fill=0 step_events=-5 dup=0 skip=0
+RECENTRE output=1 input_pdu=9822 output_pdu=9822 last_output_pdu=9822 step_events=-5 dup=0->0 skip=0->0
+RECENTRE WIRE decision=1 output_pdu=9822 declared_step=-5 observed_step=-5 events dup=0 skip=0
+  [ ok ] first Pdelay response completed          got=1 exp=1
+  [ ok ] one response cannot assert asCapable     got=0x0 exp=0x0
+FIRST PDELAY published=313 oracle=313 ns
+  [ ok ] first peer delay matches independent event oracle within 28 ns
+AUDIO arm=acquisition deadline=1.800000 s
+PROGRESS simulated_seconds=1.25 rx_aaf=10000 tx_aaf=9999
+PROGRESS simulated_seconds=1.50 rx_aaf=12000 tx_aaf=11999
+PROGRESS simulated_seconds=1.75 rx_aaf=14000 tx_aaf=13999
+PROGRESS simulated_seconds=2.00 rx_aaf=16000 tx_aaf=15999
+Pdelay event seq=1 t1=2200005214 t2=2200015528 t3=2200035528 t4=2200025840 oracle=313 ns
+PROGRESS simulated_seconds=2.25 rx_aaf=18000 tx_aaf=17999
+PROGRESS simulated_seconds=2.50 rx_aaf=20000 tx_aaf=19999
+PROGRESS simulated_seconds=2.75 rx_aaf=22000 tx_aaf=21999
+AUDIO elapsed=1.518121 s
+AUDIO result rx=12145 tx=12145 samples=72870 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+NOT RUN: stable-tu comparison during transition window
+  [ ok ] boot Pdelay occurs at 1.2 s
+  [ ok ] Pdelay retains one-second cadence        got=0 exp=0
+  [ ok ] scheduled peer ingress met its event times got=0 exp=0
+PUBLIC acquired at 2.751609 s: GM=00aaccfffe010203 parent=0080e1fffe112233 delay=313 oracle=313 CLKV=00010002 generation=23/23
+  [ ok ] CSR snapshot publication generation stable got=0x23 exp=0x23
+  [ ok ] selected GM matches independent Announce got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] selected parent matches peer identity    got=0x80e1fffe112233 exp=0x80e1fffe112233
+  [ ok ] PathTrace has GM, parent and thisClock   got=0x3 exp=0x3
+  [ ok ] asCapable and Sync healthy, uncertainty cleared got=0x10002 exp=0x10002
+  [ ok ] peer delay equals independent event oracle within 28 ns
+  [ ok ] GET_AVB_INFO length                      got=62 exp=62
+  [ ok ] GET_AVB_INFO status SUCCESS              got=0 exp=0
+  [ ok ] GET_AVB_INFO coherent GM                 got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] GET_AVB_INFO delay equals CSR bank       got=313 exp=313
+  [ ok ] GET_AVB_INFO asCapable agrees with CSR
+  [ ok ] GET_AS_PATH three-identity wire length   got=66 exp=66
+  [ ok ] GET_AS_PATH status SUCCESS               got=0 exp=0
+  [ ok ] GET_AS_PATH control data length          got=40 exp=40
+  [ ok ] GET_AS_PATH three ordered identities     got=3 exp=3
+  [ ok ] GET_AS_PATH GM                           got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] GET_AS_PATH parent                       got=0x80e1fffe112233 exp=0x80e1fffe112233
+  [ ok ] GET_AS_PATH ends with thisClock          got=0x20000fffe000001 exp=0x20000fffe000001
+AUDIO arm=healthy stable deadline=0.020000 s
+AUDIO elapsed=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+AUDIO arm=TX backpressure deadline=1.000000 s
+PROGRESS simulated_seconds=3.00 rx_aaf=24000 tx_aaf=23999
+Pdelay event seq=2 t1=3200018213 t2=3200028528 t3=3200048528 t4=3200038839 oracle=313 ns
+AUDIO elapsed=0.430034 s
+AUDIO result rx=3441 tx=3440 samples=20640 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+  [ ok ] backpressure actually stalled valid beats
+  [ ok ] TX held data keep last and valid under stalls got=0 exp=0
+  [ ok ] gPTP packets traversed actual backpressure
+PUBLIC after backpressure at 3.201744 s: GM=00aaccfffe010203 parent=0080e1fffe112233 delay=313 oracle=313 CLKV=00010002 generation=23/23
+  [ ok ] CSR snapshot publication generation stable got=0x23 exp=0x23
+  [ ok ] selected GM matches independent Announce got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] selected parent matches peer identity    got=0x80e1fffe112233 exp=0x80e1fffe112233
+  [ ok ] PathTrace has GM, parent and thisClock   got=0x3 exp=0x3
+  [ ok ] asCapable and Sync healthy, uncertainty cleared got=0x10002 exp=0x10002
+  [ ok ] peer delay equals independent event oracle within 28 ns
+AUDIO arm=Sync loss transition deadline=0.450000 s
+PROGRESS simulated_seconds=3.25 rx_aaf=26000 tx_aaf=25999
+PROGRESS simulated_seconds=3.50 rx_aaf=28000 tx_aaf=27999
+AUDIO elapsed=0.300070 s
+AUDIO result rx=2400 tx=2400 samples=14400 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+NOT RUN: stable-tu comparison during transition window
+  [ ok ] the 375 ms Sync timeout makes this station grandmaster
+  [ ok ] 375 ms Sync timeout asserts tu in the synchronised master role got=0x3 exp=0x3
+AUDIO arm=grandmaster change holdover deadline=0.600000 s
+PROGRESS simulated_seconds=3.75 rx_aaf=30000 tx_aaf=29999
+PROGRESS simulated_seconds=4.00 rx_aaf=32000 tx_aaf=31999
+AUDIO elapsed=0.500039 s
+AUDIO result rx=4001 tx=4001 samples=24006 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+NOT RUN: stable-tu comparison during transition window
+  [ ok ] the grandmaster change holds tu for the 0.25 s holdover
+  [ ok ] tu clears within 0.5 s of the grandmaster change
+AUDIO arm=peer loss, real fifth missed Pdelay deadline=5.249891 s
+PROGRESS simulated_seconds=4.25 rx_aaf=34000 tx_aaf=33999
+PROGRESS simulated_seconds=4.50 rx_aaf=36000 tx_aaf=35999
+PROGRESS simulated_seconds=4.75 rx_aaf=38000 tx_aaf=37999
+PROGRESS simulated_seconds=5.00 rx_aaf=40000 tx_aaf=39999
+PROGRESS simulated_seconds=5.25 rx_aaf=42000 tx_aaf=41999
+PROGRESS simulated_seconds=5.50 rx_aaf=44000 tx_aaf=43999
+PROGRESS simulated_seconds=5.75 rx_aaf=46000 tx_aaf=45999
+PROGRESS simulated_seconds=6.00 rx_aaf=48000 tx_aaf=47999
+PROGRESS simulated_seconds=6.25 rx_aaf=50000 tx_aaf=49999
+PROGRESS simulated_seconds=6.50 rx_aaf=52000 tx_aaf=51999
+PROGRESS simulated_seconds=6.75 rx_aaf=53999 tx_aaf=53999
+PROGRESS simulated_seconds=7.00 rx_aaf=55999 tx_aaf=55999
+PROGRESS simulated_seconds=7.25 rx_aaf=57999 tx_aaf=57999
+PROGRESS simulated_seconds=7.50 rx_aaf=59999 tx_aaf=59999
+PROGRESS simulated_seconds=7.75 rx_aaf=61999 tx_aaf=61999
+PROGRESS simulated_seconds=8.00 rx_aaf=63999 tx_aaf=63998
+PROGRESS simulated_seconds=8.25 rx_aaf=65999 tx_aaf=65998
+PROGRESS simulated_seconds=8.50 rx_aaf=67999 tx_aaf=67998
+PROGRESS simulated_seconds=8.75 rx_aaf=69999 tx_aaf=69998
+PROGRESS simulated_seconds=9.00 rx_aaf=71999 tx_aaf=71998
+AUDIO elapsed=5.199415 s
+AUDIO result rx=41594 tx=41595 samples=249570 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+PUBLIC lost at 9.201269 s: GM=020000fffe000001 parent=020000fffe000001 delay=313 oracle=313 CLKV=00000002 generation=31/31
+  [ ok ] CSR snapshot publication generation stable got=0x31 exp=0x31
+  [ ok ] loss clears asCapable                    got=0x0 exp=0x0
+  [ ok ] loss leaves this station grandmaster     got=0x20000fffe000001 exp=0x20000fffe000001
+  [ ok ] the grandmaster role is synchronised, uncertainty cleared got=0x2 exp=0x2
+  [ ok ] five unanswered Pdelay intervals elapsed
+LOSS elapsed 5.999525 s, no timer compression
+AUDIO arm=recovery transition deadline=3.000000 s
+PROGRESS simulated_seconds=9.25 rx_aaf=73999 tx_aaf=73998
+PROGRESS simulated_seconds=9.50 rx_aaf=75999 tx_aaf=75998
+PROGRESS simulated_seconds=9.75 rx_aaf=77999 tx_aaf=77998
+PROGRESS simulated_seconds=10.00 rx_aaf=79999 tx_aaf=79998
+Pdelay event seq=9 t1=10200027168 t2=10200037488 t3=10200057488 t4=10200047794 oracle=313 ns
+PROGRESS simulated_seconds=10.25 rx_aaf=81999 tx_aaf=81998
+PROGRESS simulated_seconds=10.50 rx_aaf=83999 tx_aaf=83998
+PROGRESS simulated_seconds=10.75 rx_aaf=85999 tx_aaf=85998
+PROGRESS simulated_seconds=11.00 rx_aaf=87999 tx_aaf=87998
+Pdelay event seq=10 t1=11200027326 t2=11200037640 t3=11200057640 t4=11200047952 oracle=313 ns
+PROGRESS simulated_seconds=11.25 rx_aaf=89999 tx_aaf=89998
+PROGRESS simulated_seconds=11.50 rx_aaf=91999 tx_aaf=91998
+PROGRESS simulated_seconds=11.75 rx_aaf=93999 tx_aaf=93998
+AUDIO elapsed=2.550244 s
+AUDIO result rx=20402 tx=20401 samples=122406 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+NOT RUN: stable-tu comparison during transition window
+PUBLIC recovered at 11.751513 s: GM=00aaccfffe010203 parent=0080e1fffe112233 delay=312 oracle=313 CLKV=00010002 generation=43/43
+  [ ok ] CSR snapshot publication generation stable got=0x43 exp=0x43
+  [ ok ] selected GM matches independent Announce got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] selected parent matches peer identity    got=0x80e1fffe112233 exp=0x80e1fffe112233
+  [ ok ] PathTrace has GM, parent and thisClock   got=0x3 exp=0x3
+  [ ok ] asCapable and Sync healthy, uncertainty cleared got=0x10002 exp=0x10002
+  [ ok ] peer delay equals independent event oracle within 28 ns
+AUDIO arm=recovered stable deadline=0.020000 s
+AUDIO elapsed=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+RESET: assert with audio and peer active, flush model in-flight packets
+  [ ok ] [BOOT] PP_STAT the restore walk sequenced (done 1, CLOSED 0) got=0x4 exp=0x4
+  [ ok ] PHC reset increment is 20 ns             got=0x14000000 exp=0x14000000
+  [ ok ] advertised talker geometry AAF plus CRF  got=0x48010002 exp=0x48010002
+  [ ok ] advertised listener geometry AAF plus CRF got=0x48010002 exp=0x48010002
+  [ ok ] software cannot manufacture gPTP health  got=0x1 exp=0x1
+  [ ok ] software cannot manufacture peer delay   got=0x0 exp=0x0
+  [ ok ] unlicensed talker gate closed            got=0x0 exp=0x0
+  [ ok ] listener override eight-channel format   got=0x2006000 exp=0x2006000
+  [ ok ] diagnostic talker bypass opens gate      got=0x8 exp=0x8
+TRAFFIC: diagnostic AAF_CTRL bypass and CSR listener/map overrides; licensed streaming NOT RUN
+  [ ok ] reset publishes thisClock as GM          got=0x20000fffe000001 exp=0x20000fffe000001
+  [ ok ] reset clears complete public parent      got=0x0 exp=0x0
+AUDIO arm=reset reacquisition deadline=3.000000 s
+PROGRESS simulated_seconds=12.00 rx_aaf=95999 tx_aaf=95997
+PROGRESS simulated_seconds=12.25 rx_aaf=97999 tx_aaf=97997
+PROGRESS simulated_seconds=12.50 rx_aaf=99999 tx_aaf=99997
+PROGRESS simulated_seconds=12.75 rx_aaf=101999 tx_aaf=101997
+Pdelay event seq=11 t1=1200005214 t2=1200015528 t3=1200035528 t4=1200025840 oracle=313 ns
+RECENTRE decision=2 input_pdu=103985 cycle=649910352 fill=0 step_events=-5 dup=0 skip=0
+RECENTRE output=2 input_pdu=103985 output_pdu=103984 last_output_pdu=103984 step_events=-5 dup=0->0 skip=0->0
+RECENTRE WIRE decision=2 output_pdu=103984 declared_step=-5 observed_step=-5 events dup=0 skip=0
+PROGRESS simulated_seconds=13.00 rx_aaf=103999 tx_aaf=103997
+PROGRESS simulated_seconds=13.25 rx_aaf=105999 tx_aaf=105997
+PROGRESS simulated_seconds=13.50 rx_aaf=107999 tx_aaf=107997
+PROGRESS simulated_seconds=13.75 rx_aaf=109999 tx_aaf=109997
+Pdelay event seq=12 t1=13971529308 t2=13971539624 t3=13971559624 t4=13971549934 oracle=313 ns
+AUDIO elapsed=2.201175 s
+AUDIO result rx=17610 tx=17609 samples=105174 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+NOT RUN: stable-tu comparison during transition window
+PUBLIC reset recovered at 13.972743 s: GM=00aaccfffe010203 parent=0080e1fffe112233 delay=312 oracle=313 CLKV=00010002 generation=23/23
+  [ ok ] CSR snapshot publication generation stable got=0x23 exp=0x23
+  [ ok ] selected GM matches independent Announce got=0xaaccfffe010203 exp=0xaaccfffe010203
+  [ ok ] selected parent matches peer identity    got=0x80e1fffe112233 exp=0x80e1fffe112233
+  [ ok ] PathTrace has GM, parent and thisClock   got=0x3 exp=0x3
+  [ ok ] asCapable and Sync healthy, uncertainty cleared got=0x10002 exp=0x10002
+  [ ok ] peer delay equals independent event oracle within 28 ns
+AUDIO arm=reset stable deadline=0.020000 s
+AUDIO elapsed=0.020000 s
+AUDIO result rx=160 tx=160 samples=960 bad_payload=0 bad_order=0
+  [ ok ] both eight-channel packet directions active
+  [ ok ] all eight channel payloads match the supplied ramp
+  [ ok ] audio sample order, no duplicates or gaps got=0 exp=0
+  [ ok ] AAF packet sequence order                got=0 exp=0
+  [ ok ] AAF uncertainty matches public stable state got=0 exp=0
+  [ ok ] all scheduled Pdelay ingress events met deadlines got=0 exp=0
+  [ ok ] all epochs retain real Pdelay cadence
+PROGRESS simulated_seconds=14.00 rx_aaf=111999 tx_aaf=111997
+PROGRESS simulated_seconds=14.25 rx_aaf=113999 tx_aaf=113997
+PROGRESS simulated_seconds=14.50 rx_aaf=115999 tx_aaf=115997
+PROGRESS simulated_seconds=14.75 rx_aaf=117999 tx_aaf=117997
+Pdelay event seq=13 t1=14971529141 t2=14971539456 t3=14971559456 t4=14971549767 oracle=313 ns
+PROGRESS simulated_seconds=15.00 rx_aaf=119999 tx_aaf=119997
+PROGRESS simulated_seconds=15.25 rx_aaf=121999 tx_aaf=121997
+PROGRESS simulated_seconds=15.50 rx_aaf=123999 tx_aaf=123997
+PROGRESS simulated_seconds=15.75 rx_aaf=125999 tx_aaf=125997
+Pdelay event seq=14 t1=15971528580 t2=15971538896 t3=15971558896 t4=15971549206 oracle=313 ns
+PROGRESS simulated_seconds=16.00 rx_aaf=127999 tx_aaf=127997
+PROGRESS simulated_seconds=16.25 rx_aaf=129999 tx_aaf=129997
+PROGRESS simulated_seconds=16.50 rx_aaf=131999 tx_aaf=131997
+PROGRESS simulated_seconds=16.75 rx_aaf=133999 tx_aaf=133997
+Pdelay event seq=15 t1=16971528020 t2=16971538336 t3=16971558336 t4=16971548646 oracle=313 ns
+PROGRESS simulated_seconds=17.00 rx_aaf=135999 tx_aaf=135997
+PROGRESS simulated_seconds=17.25 rx_aaf=137998 tx_aaf=137997
+PROGRESS simulated_seconds=17.50 rx_aaf=139998 tx_aaf=139997
+PROGRESS simulated_seconds=17.75 rx_aaf=141998 tx_aaf=141997
+Pdelay event seq=16 t1=17971527460 t2=17971537776 t3=17971557776 t4=17971548086 oracle=313 ns
+  [ ok ] Sync TX flags: frames observed           got=1 exp=1
+  [ ok ] Sync TX flags: every wire word (Table 11-4) got=512 exp=512
+TX flags Sync: 78 frames, 0 wrong, expected 0x0200
+  [ ok ] Follow_Up TX flags: frames observed      got=1 exp=1
+  [ ok ] Follow_Up TX flags: every wire word (Table 11-4) got=0 exp=0
+TX flags Follow_Up: 78 frames, 0 wrong, expected 0x0000
+  [ ok ] Pdelay_Req TX flags: frames observed     got=1 exp=1
+  [ ok ] Pdelay_Req TX flags: every wire word (Table 11-4) got=0 exp=0
+TX flags Pdelay_Req: 17 frames, 0 wrong, expected 0x0000
+  [ ok ] Pdelay_Resp TX flags: frames observed    got=1 exp=1
+  [ ok ] Pdelay_Resp TX flags: every wire word (Table 11-4) got=512 exp=512
+TX flags Pdelay_Resp: 1 frames, 0 wrong, expected 0x0200
+  [ ok ] Pdelay_Resp_Follow_Up TX flags: frames observed got=1 exp=1
+  [ ok ] Pdelay_Resp_Follow_Up TX flags: every wire word (Table 11-4) got=0 exp=0
+TX flags Pdelay_Resp_Follow_Up: 1 frames, 0 wrong, expected 0x0000
+  [ ok ] all monitored audio payload errors, excluding declared warm-up got=0 exp=0
+  [ ok ] all monitored audio sample ordering errors got=0 exp=0
+  [ ok ] all monitored AAF packet sequence errors got=0 exp=0
+  [ ok ] every emitted audio PDU has its capture order plan got=0 exp=0
+  [ ok ] declared recentre is consecutive within at most two output PDUs got=0 exp=0
+  [ ok ] every declared recentre step reached the wire got=2 exp=2
+  [ ok ] declared recentres leave both loopback slip counters unchanged got=0 exp=0
+RECENTRE totals decisions=2 completed=2 planted=0
+AUDIO comparisons payload=6901344 sample_order=862666 packet_sequence=143936
+simulated_duration_seconds=17.992742740 cycles=899637137
+clock_audio_hz=24575738.529227 clock_axis_hz=50000000 clock_ps_hz=200000000 PHC_increment_ns=20
+NOT RUN: licensed ACMP/SRP streaming; physical TDM render; CRF recovery; multiple-responder cease; PHY/MAC calibration; CPU/DDR; physical compliance
+NOT RUN: warm-up payload comparisons during first 10 ms of each reset epoch
+exit_status=0 negative_control=0
+== ax1x1gptp physical: checks: 151   failures: 0 ==
+RESULT: PASS
+wall_clock_seconds=4389.46 process_exit_status=0
+make[1]: Leaving directory '<parent-head-B>/tb/verilator/milan_dp'
+python3 verify_abort.py
+[ ok ] setup error exits nonzero
+[ ok ] setup failure runs zero cycles
+[ ok ] only the executed setup failure is counted
+[ ok ] uncounted omission: all monitored audio payload errors, excluding declared warm-up
+[ ok ] uncounted omission: all monitored audio sample ordering errors
+[ ok ] uncounted omission: all monitored AAF packet sequence errors
+== ax1x1gptp setup abort: checks: 6   failures: 0 ==
+[ ok ] --no-tx-control: silent talker retains a nonzero DUT verdict
+[ ok ] --no-tx-control: silent window has RX traffic and zero TX or samples
+[ ok ] --no-tx-control: activity and payload assertions still fail
+[ ok ] --no-tx-control: comparison history matches the selected control
+[ ok ] --no-tx-control: uncounted window omission: audio sample order, no duplicates or gaps
+[ ok ] --no-tx-control: passes only from executed windows: audio sample order, no duplicates or gaps
+[ ok ] --no-tx-control: uncounted window omission: AAF packet sequence order
+[ ok ] --no-tx-control: passes only from executed windows: AAF packet sequence order
+[ ok ] --no-tx-control: uncounted window omission: AAF uncertainty matches public stable state
+[ ok ] --no-tx-control: passes only from executed windows: AAF uncertainty matches public stable state
+[ ok ] --stop-tx-control: silent talker retains a nonzero DUT verdict
+[ ok ] --stop-tx-control: silent window has RX traffic and zero TX or samples
+[ ok ] --stop-tx-control: activity and payload assertions still fail
+[ ok ] --stop-tx-control: comparison history matches the selected control
+[ ok ] --stop-tx-control: uncounted window omission: audio sample order, no duplicates or gaps
+[ ok ] --stop-tx-control: passes only from executed windows: audio sample order, no duplicates or gaps
+[ ok ] --stop-tx-control: uncounted window omission: AAF packet sequence order
+[ ok ] --stop-tx-control: passes only from executed windows: AAF packet sequence order
+[ ok ] --stop-tx-control: uncounted window omission: AAF uncertainty matches public stable state
+[ ok ] --stop-tx-control: passes only from executed windows: AAF uncertainty matches public stable state
+== ax1x1gptp no-TX accounting: checks: 20   failures: 0 ==
+[ ok ] --no-pdelay-control: missing response retains a nonzero DUT verdict
+[ ok ] --no-pdelay-control: a real request was unanswered
+[ ok ] --no-pdelay-control: missing response assertion still fails
+[ ok ] --no-pdelay-control: first exchange remains incomplete
+[ ok ] --no-pdelay-control: the unchanged acquisition deadline actually elapsed
+[ ok ] --no-pdelay-control: acquired publication was reached and retains its health failure
+[ ok ] --no-pdelay-control: uncounted omission: one response cannot assert asCapable
+[ ok ] --no-pdelay-control: no unexecuted pass: one response cannot assert asCapable
+[ ok ] --no-pdelay-control: uncounted omission: first peer delay matches independent event oracle within 28 ns
+[ ok ] --no-pdelay-control: no unexecuted pass: first peer delay matches independent event oracle within 28 ns
+[ ok ] --no-pdelay-control: uncounted omission after acquisition timeout: scheduled peer ingress met its event times
+[ ok ] --no-pdelay-control: no unexecuted pass after acquisition timeout: scheduled peer ingress met its event times
+[ ok ] --no-pdelay-control: uncounted omission after acquisition timeout: peer delay equals independent event oracle within 28 ns
+[ ok ] --no-pdelay-control: no unexecuted pass after acquisition timeout: peer delay equals independent event oracle within 28 ns
+== ax1x1gptp no-Pdelay accounting: checks: 14   failures: 0 ==
+python3 verify_recentres.py --jobs 2
+[ ok ] --extra-repeat-control: control ran
+[ ok ] --extra-repeat-control: wire ordering oracle rejects the planted step
+[ ok ] --extra-repeat-control: error belongs to the required PDU location
+[ ok ] --extra-repeat-control: the measured wire step is the planted fault
+[ ok ] --extra-repeat-control: payload and packet sequence remain valid
+[ ok ] --extra-repeat-control: declared step and both unchanged counters were observed
+[ ok ] --extra-repeat-control: no unrelated failing assertion
+[ ok ] --large-step-control: control ran
+[ ok ] --large-step-control: wire ordering oracle rejects the planted step
+[ ok ] --large-step-control: error belongs to the required PDU location
+[ ok ] --large-step-control: the measured wire step is the planted fault
+[ ok ] --large-step-control: payload and packet sequence remain valid
+[ ok ] --large-step-control: declared step and both unchanged counters were observed
+[ ok ] --large-step-control: no unrelated failing assertion
+== ax1x1gptp recentre controls: checks: 14   failures: 0 ==
+make: Leaving directory '<parent-head-B>/tb/verilator/milan_dp_gptp'

@@ -1,0 +1,58 @@
+$ python3 -I scripts/head_harness_on_base.py <head 762fbd6 export>/tb/verilator/parser <base 3e3a4e7 export>/hdl <work>
+FAIL #98 unknown TLV first: event got 0000000000000000 exp 0000000000000002
+FAIL #98 unknown TLV first: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+FAIL #98 unknown TLV first: no drop got 0000000000000011 exp 0000000000000010
+FAIL #98 three unknown TLVs first: event got 0000000000000000 exp 0000000000000002
+FAIL #98 three unknown TLVs first: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+FAIL #98 three unknown TLVs first: no drop got 0000000000000012 exp 0000000000000011
+FAIL #98 unknown TLV first, padded: event got 0000000000000000 exp 0000000000000002
+FAIL #98 unknown TLV first, padded: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+FAIL #98 unknown TLV first, padded: no drop got 0000000000000013 exp 0000000000000012
+FAIL #98 second information TLV: event got 0000000000000000 exp 0000000000000002
+FAIL #98 second information TLV: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+FAIL #98 second information TLV: no drop got 0000000000000014 exp 0000000000000013
+FAIL #98 identifiers at octet 6: event got 0000000000000000 exp 0000000000000002
+FAIL #98 identifiers at octet 6: w11 as the plain case got ffffffffffffffff exp fffff00000070000
+FAIL #98 identifiers at octet 6: no drop got 0000000000000015 exp 0000000000000014
+FAIL #98 header ends messageLength, value to come: no event got 0000000000000001 exp 0000000000000000
+FAIL #98 header ends messageLength, value to come: one drop got 0000000000000017 exp 0000000000000018
+FAIL #98 trailing TLV past messageLength: no event got 0000000000000001 exp 0000000000000000
+FAIL #98 trailing TLV past messageLength: one drop got 0000000000000017 exp 0000000000000018
+FAIL #98 header cut after 1 octet(s): no event got 0000000000000001 exp 0000000000000000
+FAIL #98 header cut after 1 octet(s): one drop got 0000000000000017 exp 0000000000000018
+FAIL #98 header cut after 1 octet(s), padded: no event got 0000000000000001 exp 0000000000000000
+FAIL #98 header cut after 1 octet(s), padded: one drop got 0000000000000017 exp 0000000000000018
+FAIL #98 header cut after 2 octet(s): no event got 0000000000000001 exp 0000000000000000
+FAIL #98 header cut after 2 octet(s): one drop got 0000000000000017 exp 0000000000000018
+FAIL #98 header cut after 2 octet(s), padded: no event got 0000000000000001 exp 0000000000000000
+FAIL #98 header cut after 2 octet(s), padded: one drop got 0000000000000017 exp 0000000000000018
+FAIL #98 header cut after 3 octet(s): no event got 0000000000000001 exp 0000000000000000
+FAIL #98 header cut after 3 octet(s): one drop got 0000000000000017 exp 0000000000000018
+FAIL #98 header cut after 3 octet(s), padded: no event got 0000000000000001 exp 0000000000000000
+FAIL #98 header cut after 3 octet(s), padded: one drop got 0000000000000017 exp 0000000000000018
+INFO sync after a refused sync: it left 6 of its 6 words, 0 of them outside the sync words
+INFO sync after a refused pdresp: it left 8 of its 8 words, 2 of them outside the sync words
+INFO fu after a refused fu: it left 7 of its 7 words, 0 of them outside the fu words
+INFO fu after a refused pdresp: it left 8 of its 8 words, 2 of them outside the fu words
+INFO pdreq after a refused pdreq: it left 4 of its 4 words, 0 of them outside the pdreq words
+INFO pdreq after a refused sync: it left 6 of its 6 words, 2 of them outside the pdreq words
+INFO pdresp after a refused pdresp: it left 8 of its 8 words, 0 of them outside the pdresp words
+INFO pdresp after a refused fu: it left 7 of its 7 words, 1 of them outside the pdresp words
+INFO sync rx_err at byte 0 of 58: drops +1, events 0, writes before 0, on 0, after 0
+INFO sync rx_err at byte 29 of 58: drops +1, events 0, writes before 0, on 1, after 0
+INFO sync rx_err at byte 57 of 58: drops +1, events 0, writes before 5, on 1, after 0
+INFO fu rx_err at byte 0 of 90: drops +1, events 0, writes before 0, on 0, after 0
+INFO fu rx_err at byte 29 of 90: drops +1, events 0, writes before 0, on 1, after 0
+INFO fu rx_err at byte 89 of 90: drops +1, events 0, writes before 7, on 0, after 0
+INFO pdreq rx_err at byte 0 of 68: drops +1, events 0, writes before 0, on 0, after 0
+INFO pdreq rx_err at byte 29 of 68: drops +1, events 0, writes before 0, on 1, after 0
+INFO pdreq rx_err at byte 67 of 68: drops +1, events 0, writes before 4, on 0, after 0
+INFO pdresp rx_err at byte 0 of 68: drops +1, events 0, writes before 0, on 0, after 0
+INFO pdresp rx_err at byte 29 of 68: drops +1, events 0, writes before 0, on 1, after 0
+INFO pdresp rx_err at byte 67 of 68: drops +1, events 0, writes before 7, on 1, after 0
+INFO ann rx_err at byte 0 of 78: drops +1, events 0, writes before 0, on 0, after 0
+INFO ann rx_err at byte 29 of 78: drops +1, events 0, writes before 0, on 1, after 0
+INFO ann rx_err at byte 77 of 78: drops +1, events 0, writes before 6, on 1, after 0
+482 checks: 451 PASS, 31 FAIL
+rc 1
+exit=0
