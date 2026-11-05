@@ -1180,8 +1180,11 @@ the AAF talker and the CRF talker offer frames inside the held window. Each
 source that offered must not have sent, and each must send from the station
 MAC once the pair is written.
 
-It grades every frame on valid/ready at `m_axis_mac_tx`:
+It grades every frame of the first boot (through the controller's and the
+listener's exchanges) on valid/ready at `m_axis_mac_tx`:
 
+- the processor offered a frame before the station MAC was written, so the
+  leg reached the defect's precondition;
 - no frame carries the all-zero source address;
 - no CSR-addressed transmitter's frame leaves before both halves are written;
 - each protocol's frames carry the station MAC as source address;
@@ -1192,8 +1195,6 @@ It grades every frame on valid/ready at `m_axis_mac_tx`:
   kinds;
 - MSRP, MVRP, gPTP, ADP, AECP, ACMP, MAAP and AAF frames were all sent, and
   CRF frames too where the config declares the CRF Media Clock Output;
-- the processor offered a frame before the station MAC was written, so the
-  leg reached the defect's precondition;
 - `A_TXARB_DIAG` reads no arbiter stall or abort.
 
 On the stamp's own valid/ready, in every boot, it compares each control-lane
@@ -1201,13 +1202,15 @@ octet outside octets 6 to 11 with the same octet entering the stamp (the IFG
 gasket's output). Every one must leave unchanged. The octet's position is the
 leg's own count of the frame's kept octets.
 
-In each early-enable boot it also grades:
+In each early-enable boot it grades instead:
 
 - that each source it requires offered a frame while the pair was unwritten
   (its own `tvalid`, ahead of the transmit gate): MAAP and the CRF talker in
-  the MAAP-on boot, the AAF talker and the CRF talker in the MAAP-off boot;
+  the MAAP-on boot, the AAF talker and the CRF talker in the MAAP-off boot
+  (CRF where the config declares the CRF Media Clock Output);
 - that no frame of that source left before the pair was written;
-- that MAAP, AAF and CRF frames (AAF and CRF with MAAP off) left after it;
+- that MAAP, AAF and CRF frames (AAF and CRF with MAAP off) left after it
+  (CRF where the config declares the CRF Media Clock Output);
 - that no CSR-addressed frame left early, no frame carried the all-zero
   address, every frame carried the station MAC, and `A_TXARB_DIAG` is clean.
 
