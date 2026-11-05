@@ -1,0 +1,16 @@
+MATCH ba43424079bfa404d0822bacfe73425944d319723bef1cbaa6f42812d3705c35 author-r2/receipts/INDEX.md
+MATCH b4ccbf3451ba92ad16af01cd3c50dd323408bcc23c5cbbdd90c6771feddf34b2 author-r2/receipts/parser/mutant-fails-98.md
+MATCH 7b4c6f14e3e014c01f2a2f6b3b2507550a09d453c636d80278c716ab544855b4 author-r2/receipts/repo-head-arm/results.json
+MATCH 8635654ce071629e7dba77adc2e6d27db013afbc73a78ef833f23f16b7790c22 author-r2/receipts/repo-head-arm/01.log
+MATCH e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 author-r2/receipts/repo-head-arm/verdicts-vs-base.diff
+MATCH e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 author-r2/receipts/repo-head-arm/fail-lines-vs-base.diff
+MATCH 59d5d4705566b6ffff126934a44b077320dcd380f780f3b73114cf37ffe88e33 author-r2/receipts/parent-head-A/results.json
+MATCH b07a0ad94de8586ee7be56dadbf55ec95ddaf3fd386b5af3bba35cf2e91a47f2 author-r2/receipts/parent-head-A/spec.json
+MATCH 4602629f88621d43d2a6ff97c08ebaea2b782f775000c4c349abadfc3fc6a8ae author-r2/receipts/parent-head-A/complete.json
+MATCH 037353bde413cff38a4abb657c7a3f8e339adbb6dceb88987cc9b7484dd248b2 author-r2/receipts/parent-head-A/03.log
+MATCH 7a1a32c7d1978da22d980237caf86f46a36b85a085b50f969b2433ba1fcb41b0 author-r2/receipts/parent-head-B/results.json
+rc=0
+repo-head-arm/results.json: head=762fbd6716b50337e7644a4918c216b3143aeb5b
+repo-head-arm/01.log tail: 136 checks: 136 PASS, 0 FAIL
+parent-head-A/03.log: gptp-processor@762fbd67
+parent-head-A exit codes: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
